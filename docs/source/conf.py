@@ -101,7 +101,7 @@ html_theme_options = {
         'color-brand-primary':  '#4A9EFF',
         'color-brand-content':  '#4A9EFF',
         'color-admonition-background': '#eef4ff',
-        'font-stack':           'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif',
+        'font-stack':           '"Open Sans", ui-sans-serif, system-ui, -apple-system, sans-serif',
         'font-stack--monospace': 'JetBrains Mono, Consolas, monospace',
     },
     'dark_css_variables': {
@@ -114,6 +114,7 @@ html_theme_options = {
         'color-foreground-primary':   '#e5e5e5',
         'color-foreground-secondary': '#c4c4c4',
         'color-admonition-background': '#141a24',
+        'font-stack':           '"Open Sans", ui-sans-serif, system-ui, -apple-system, sans-serif',
     },
     'sidebar_hide_name': False,
     'navigation_with_keys': True,

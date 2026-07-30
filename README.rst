@@ -6,9 +6,9 @@
 .. |PyPI| image:: https://img.shields.io/pypi/v/spacr
    :target: https://pypi.org/project/spacr/
    :alt: PyPI version
-.. |Python| image:: https://img.shields.io/pypi/pyversions/spacr
+.. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white
    :target: https://pypi.org/project/spacr/
-   :alt: Supported Python versions
+   :alt: Python 3.9 through 3.14
 .. |Tests| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: Test suite
@@ -57,10 +57,14 @@ a SQLite-backed project rather than scattered across unrelated files.
 Why spaCR?
 ----------
 
-- **One connected workflow.** Move from microscope output and FASTQ
-  files to object-level phenotypes and gene-level screen results.
-- **Biology-aware data model.** Keep plate, well, field, object,
-  crop, annotation, prediction, and barcode identities linked.
+- **Image analysis.** Segment 2D, 3D, and 4D microscopy; measure
+  morphology, intensity, texture, and spatial relationships; then track,
+  crop, annotate, and classify individual objects.
+- **FASTQ analysis.** Decode row, column, and gRNA barcodes, assign guide
+  identities, assess read quality, and connect sequencing results to imaged
+  cells.
+- **One connected workflow.** Microscope images + FASTQ files →
+  genotype–phenotype associations.
 - **Desktop and headless operation.** Use the PySide6 application
   interactively or run the same modules on a workstation, server, or cluster.
 - **Live visual feedback.** Preview masks, tracks, timelapse
@@ -163,18 +167,14 @@ Latest development branch
 Conda environments
 ~~~~~~~~~~~~~~~~~~
 
-The native conda-forge recipe is ready in
-`conda-forge/recipe <https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe>`_.
-Conda-forge requires a one-time reviewed onboarding pull request before the
-package name becomes available. After that review, every PyPI release is
-detected, tested, and published by the conda-forge update bot:
+Conda users can install the released PyPI package inside an isolated
+environment:
 
 .. code-block:: bash
 
-   conda install -c conda-forge spacr
-
-The short one-time maintainer procedure is documented in
-`conda-forge/README.md <https://github.com/EinarOlafsson/spacr/blob/main/conda-forge/README.md>`_.
+   conda create -n spacr python=3.12 pip -y
+   conda activate spacr
+   python -m pip install "spacr[qt]"
 
 Optional capabilities
 ~~~~~~~~~~~~~~~~~~~~~
@@ -249,149 +249,26 @@ Detailed desktop, headless, development, and conda instructions appear in
 Features
 --------
 
-Core
-~~~~
-
 .. list-table::
    :header-rows: 1
-   :widths: 20 24 10 46
+   :widths: 25 25 25 25
 
    * - Module
      - Feature
      - State
      - Description
-   * - |feature-api-001|_
-     - |feature-api-002|_
-     - Stable
-     - Runs the connected image-to-object processing workflow.
-   * - |feature-api-003|_
-     - |feature-api-004|_
-     - Stable
-     - Provides the modern module-based desktop application.
-   * - |feature-api-005|_
-     - |feature-api-006|_
-     - Stable
-     - Runs validated modules from scripts, servers, and clusters.
-   * - |feature-api-007|_
-     - |feature-api-008|_
-     - Stable
-     - Records settings, manifests, journals, progress, and rotating logs.
-
-Data and I/O
-~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
-   * - |feature-api-009|_
-     - |feature-api-010|_
-     - Stable
-     - Reads microscopy images and maintains linked project data.
-   * - |feature-api-009|_
-     - |feature-api-011|_
-     - Alpha
-     - Converts ND2, CZI, LIF, and OME-TIFF acquisitions.
-   * - |feature-api-009|_
-     - |feature-api-012|_
-     - Alpha
-     - Imports external images, masks, tables, and databases.
-   * - |feature-api-013|_
-     - |feature-api-014|_
-     - Stable
-     - Links images, masks, crops, measurements, and identifiers.
-   * - |feature-api-009|_
-     - |feature-api-015|_
-     - Alpha
-     - Filters, inspects, and exports project SQLite tables.
-   * - |feature-api-016|_
-     - |feature-api-017|_
-     - Alpha
-     - Registers tile layouts and writes large stitched canvases.
-
-Segmentation and masks
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
+   * - **Image analysis**
+     -
+     -
+     -
    * - |feature-api-018|_
      - |feature-api-019|_
      - Stable
-     - Generates cell, nucleus, pathogen, and organelle masks.
+     - Segments cells, nuclei, pathogens, and organelles in 2D images.
    * - |feature-api-018|_
      - |feature-api-020|_
      - Beta
-     - Segments volumetric image stacks.
-   * - |feature-api-018|_
-     - |feature-api-021|_
-     - Beta
-     - Segments volumetric time series.
-   * - |feature-api-018|_
-     - |feature-api-022|_
-     - Stable
-     - Previews segmentation settings before a full run.
-   * - |feature-api-023|_
-     - |feature-api-024|_
-     - Beta
-     - Creates and edits mask-training datasets.
-   * - |feature-api-023|_
-     - |feature-api-025|_
-     - Beta
-     - Trains custom segmentation checkpoints.
-   * - |feature-api-023|_
-     - |feature-api-026|_
-     - Alpha
-     - Compares masks, counts, and agreement between models.
-   * - |feature-api-023|_
-     - |feature-api-027|_
-     - Alpha
-     - Finds, verifies, downloads, and benchmarks checkpoints.
-
-Tracking and timelapse
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
-   * - |feature-api-028|_
-     - |feature-api-029|_
-     - Beta
-     - Links objects with IoU, Trackpy, btrack, Trackastra, or ultrack.
-   * - |feature-api-028|_
-     - |feature-api-030|_
-     - Beta
-     - Shows tracks on demand before full processing.
-   * - |feature-api-028|_
-     - |feature-api-031|_
-     - Beta
-     - Summarizes displacement, velocity, persistence, and infection.
-
-Measurements
-~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
+     - Segments volumetric images and 4D time series.
    * - |feature-api-032|_
      - |feature-api-033|_
      - Stable
@@ -399,43 +276,31 @@ Measurements
    * - |feature-api-032|_
      - |feature-api-034|_
      - Beta
-     - Measures objects throughout volumetric image stacks.
-   * - |feature-api-032|_
-     - |feature-api-035|_
+     - Measures objects through 3D volumes and 4D experiments.
+   * - |feature-api-028|_
+     - |feature-api-029|_
      - Beta
-     - Measures volumetric objects over time.
-   * - |feature-api-032|_
-     - |feature-api-036|_
+     - Tracks objects with IoU, Trackpy, btrack, Trackastra, or ultrack.
+   * - |feature-api-028|_
+     - |feature-api-031|_
+     - Beta
+     - Quantifies motility, displacement, velocity, and persistence.
+   * - |feature-api-009|_
+     - |feature-api-011|_
+     - Alpha
+     - Converts ND2, CZI, LIF, TIFF, and OME-TIFF acquisitions.
+   * - |feature-api-013|_
+     - |feature-api-014|_
      - Stable
-     - Writes database-linked single-object images and arrays.
-
-Annotation
-~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
+     - Links images, masks, crops, measurements, and object identities.
+   * - **AI and phenotyping**
+     -
+     -
+     -
    * - |feature-api-037|_
      - |feature-api-038|_
      - Stable
-     - Reviews crops and saves labels directly to the database.
-
-AI and machine learning
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
+     - Reviews crops and saves annotations directly to SQLite.
    * - |feature-api-039|_
      - |feature-api-040|_
      - Stable
@@ -444,134 +309,62 @@ AI and machine learning
      - |feature-api-041|_
      - Beta
      - Streams loss, accuracy, and training images to TensorBoard.
-   * - |feature-api-042|_
-     - |feature-api-043|_
-     - Stable
-     - Trains interpretable classical and boosted models.
-   * - |feature-api-044|_
-     - |feature-api-045|_
-     - Beta
-     - Inspects points, draws clusters, and writes labels to SQLite.
    * - |feature-api-039|_
      - |feature-api-046|_
      - Beta
      - Explains predictions with Captum, SmoothGrad, and TorchCAM.
-   * - |feature-api-039|_
-     - |feature-api-047|_
-     - Alpha
-     - Compares metrics and settings across model runs.
+   * - |feature-api-044|_
+     - |feature-api-045|_
+     - Beta
+     - Explores images interactively and propagates cluster labels.
+   * - |feature-api-042|_
+     - |feature-api-043|_
+     - Stable
+     - Trains interpretable classical and boosted measurement models.
    * - |feature-api-048|_
      - |feature-api-049|_
      - Beta
-     - Searches supported embedding and model settings.
-   * - |feature-api-050|_
-     - |feature-api-051|_
+     - Searches embedding and model hyperparameters.
+   * - |feature-api-023|_
+     - |feature-api-025|_
      - Beta
-     - Connects supported modules to local AI command-line tools.
-
-Sequencing and screen analysis
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
+     - Trains custom Cellpose segmentation checkpoints.
+   * - **Sequencing and screen analysis**
+     -
+     -
+     -
    * - |feature-api-052|_
      - |feature-api-053|_
      - Stable
      - Maps row, column, and gRNA barcodes from FASTQ reads.
+   * - |feature-api-052|_
+     - |feature-api-074|_
+     - Stable
+     - Connects guide identities to imaged single-cell phenotypes.
+   * - |feature-api-001|_
+     - |feature-api-075|_
+     - Stable
+     - Joins imaging phenotypes and sequencing identities in one workflow.
    * - |feature-api-054|_
      - |feature-api-055|_
      - Stable
      - Estimates guide, gene, condition, and control effects.
-   * - |feature-api-056|_
-     - |feature-api-057|_
-     - Stable
-     - Explores pooled-screen designs over parameter grids.
-
-Visualization, QC, and reporting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
-   * - |feature-api-058|_
-     - |feature-api-059|_
-     - Alpha
-     - Displays measurement heatmaps and spatial plate effects.
-   * - |feature-api-060|_
-     - |feature-api-061|_
-     - Alpha
-     - Quantifies agreement and exposes conflicting annotations.
-   * - |feature-api-062|_
-     - |feature-api-063|_
-     - Alpha
-     - Builds HTML or PDF reports with QC and provenance.
-
-Biological assays
-~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
    * - |feature-api-064|_
      - |feature-api-065|_
      - Beta
      - Quantifies plaque number, area, intensity, and morphology.
-   * - |feature-api-064|_
-     - |feature-api-066|_
-     - Stable
-     - Compares marker recruitment between conditions.
    * - |feature-api-067|_
      - |feature-api-068|_
      - Alpha
      - Distinguishes attached and invaded parasites.
-   * - |feature-api-064|_
-     - |feature-api-069|_
-     - Beta
-     - Summarizes parasites per vacuole and replication rates.
-
-Automation and specialist tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 24 10 46
-
-   * - Module
-     - Feature
-     - State
-     - Description
-   * - |feature-api-005|_
-     - |feature-api-070|_
+   * - |feature-api-062|_
+     - |feature-api-063|_
      - Alpha
-     - Chains several plates through a shared workflow.
+     - Builds reports with quality control and run provenance.
    * - |feature-api-005|_
      - |feature-api-071|_
      - Alpha
-     - Queues modules and reports dependency-aware failures.
-   * - |feature-api-039|_
-     - |feature-api-072|_
-     - Stable
-     - Trains an existing image dataset without rebuilding crops.
-   * - |feature-api-023|_
-     - |feature-api-073|_
-     - Stable
-     - Compares available Cellpose models on the same images.
+     - Runs validated modules in dependency-aware plate queues.
 
 .. |feature-api-001| replace:: **Core**
 .. _feature-api-001: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
@@ -630,7 +423,7 @@ Automation and specialist tools
 .. |feature-api-019| replace:: **2D mask generation**
 .. _feature-api-019: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |feature-api-020| replace:: **3D mask generation**
+.. |feature-api-020| replace:: **3D and 4D mask generation**
 .. _feature-api-020: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
 .. |feature-api-021| replace:: **4D mask generation**
@@ -672,7 +465,7 @@ Automation and specialist tools
 .. |feature-api-033| replace:: **2D measurements**
 .. _feature-api-033: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
 
-.. |feature-api-034| replace:: **3D measurements**
+.. |feature-api-034| replace:: **3D and 4D measurements**
 .. _feature-api-034: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
 
 .. |feature-api-035| replace:: **4D measurements**
@@ -792,25 +585,15 @@ Automation and specialist tools
 .. |feature-api-073| replace:: **Model sweep**
 .. _feature-api-073: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
 
+.. |feature-api-074| replace:: **gRNA assignment**
+.. _feature-api-074: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+
+.. |feature-api-075| replace:: **Genotype–phenotype linking**
+.. _feature-api-075: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+
 
 Data
 ----
-
-Project data model
-~~~~~~~~~~~~~~~~~~
-
-A typical project contains:
-
-- normalized channel stacks and object masks;
-- merged image/mask arrays;
-- ``measurements/measurements.db`` with object-linked tables;
-- per-object PNG crops and dataset splits;
-- annotations and model predictions;
-- barcode mappings and screen-level summaries;
-- settings snapshots, manifests, QC scorecards, and run reports.
-
-This layout lets desktop modules, headless jobs, and external analysis code
-work on the same source of truth.
 
 Reference datasets
 ~~~~~~~~~~~~~~~~~~
