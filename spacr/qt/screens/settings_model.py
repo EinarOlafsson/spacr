@@ -404,6 +404,17 @@ NESTED_CAPABLE_KEYS = frozenset({
     "cell_loc", "pathogen_loc", "treatment_loc", "barcode_coordinates",
 })
 
+# Channel selections that contain more than one channel use the same
+# add/remove-chip editor as ``manders_thresholds``.  The legacy GUI converter
+# still labels the first three as curated combos, so keep this declaration
+# close to the list editor and let the real per-module default decide whether
+# the setting is actually a list.  Scalar selectors such as ``cell_channel``
+# and ``channel_of_interest`` are intentionally absent.
+CHANNEL_LIST_KEYS = frozenset({
+    "channels", "channel_dims", "train_channels", "normalize_channels",
+    "overlay_chans", "png_dims",
+})
+
 
 class _FlowLayout(QLayout):
     """A left-to-right layout that wraps onto a new line when it runs out.
@@ -1046,10 +1057,14 @@ class SettingsWidgets:
                 parent=parent,
             )
         # Unlike enumerated strings, a list remains a list in every module.
-        # timelapse_objects used to be forced through a combo containing
-        # Python-literal strings; render it with the same chip editor as
-        # manders_thresholds and every other list setting.
-        if key == "timelapse_objects":
+        # The legacy converter presents channel lists and timelapse objects as
+        # dropdowns of Python literals. Render them with the same chip editor
+        # as manders_thresholds so users can add/remove arbitrary values.
+        actual_default = self._defaults.get(key, default)
+        if key == "timelapse_objects" or (
+            key in CHANNEL_LIST_KEYS
+            and list_shape_for(key, actual_default) is not None
+        ):
             kind = "entry"
         if kind == "check":
             w = Toggle()
