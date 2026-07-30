@@ -1,75 +1,107 @@
-"""Measure live preview — a grid of object crops from a merged image+mask
-array, tuned with the same crop settings the Measure run will use.
+"""Interactive Measure crop preview with a pipeline-compatible settings panel.
 
-Drop (or pick) a ``merged/*.npy`` array; the panel crops every object out of a
-chosen mask slice with the current channel/size/area settings and shows them on
-a dark-gray grid with rounded corners (like the annotate view). Click a crop to
-inspect its label + area. A "Propagate settings" toggle pushes the crop
-settings (png dims, png size, bounding box, normalise) into the main Measure
-settings panel so the preview drives the real run — mirroring the Mask app's
-live preview but tailored to measurement + image cropping, on the new
-``crop_objects_from_array`` backend.
+The compact card is intentionally image-first.  Its ``Crop settings…`` dialog
+contains the Measure settings that can be evaluated on one merged array:
+general mask/channel controls, object-crop output controls, measurement
+filters, and preview-only display controls.  With propagation enabled, every
+pipeline setting is copied to the main Measure form as it changes.
+
+Cell crops are grouped by three independent companion-object dimensions:
+nucleated/unnucleated, infected/uninfected, and with/without organelles.  This
+keeps all cells visible while making it explicit which categories would be
+retained by the current filter settings.
 """
 from __future__ import annotations
 
 import logging
 import os
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-
 from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QImage, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSpinBox, QVBoxLayout,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QSpinBox,
+    QTabWidget,
+    QVBoxLayout,
     QWidget,
 )
 
+from .toggle import Toggle
+
 LOG = logging.getLogger("spacr.qt.measure_preview")
 
-# Default mask-slice index per object class (4 image channels then masks).
 _MASK_DIMS = {"cell": 4, "nucleus": 5, "pathogen": 6, "organelle": 7}
+_OBJECTS = ("cell", "nucleus", "pathogen", "cytoplasm", "organelle")
 _SUPPORTED = (".npy",)
 
 
 def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
-    """Return ``pm`` with anti-aliased rounded corners."""
     if pm.isNull():
         return pm
     out = QPixmap(pm.size())
     out.fill(Qt.transparent)
-    p = QPainter(out)
-    p.setRenderHint(QPainter.Antialiasing, True)
+    painter = QPainter(out)
+    painter.setRenderHint(QPainter.Antialiasing, True)
     path = QPainterPath()
     path.addRoundedRect(QRectF(0, 0, pm.width(), pm.height()), radius, radius)
-    p.setClipPath(path)
-    p.drawPixmap(0, 0, pm)
-    p.end()
+    painter.setClipPath(path)
+    painter.drawPixmap(0, 0, pm)
+    painter.end()
     return out
 
 
 def _parse_channels(text: str) -> List[int]:
     out = []
-    for part in text.replace(";", ",").split(","):
+    for part in str(text).replace(";", ",").split(","):
         part = part.strip()
         if part.isdigit():
             out.append(int(part))
-    return out or [0, 1, 2]
+    return out
+
+
+def _optional_spin_value(widget: QSpinBox) -> Optional[int]:
+    value = int(widget.value())
+    return None if value < 0 else value
 
 
 class _CropThumb(QLabel):
-    """Clickable crop thumbnail."""
-
     clicked = Signal(int)
 
-    def __init__(self, index: int, parent=None):
+    def __init__(self, index: int, *, included: bool = True, parent=None):
         super().__init__(parent)
         self._index = index
         self.setAlignment(Qt.AlignCenter)
-        self.setStyleSheet("background: transparent;")
         self.setCursor(Qt.PointingHandCursor)
+        try:
+            from ..theme import active_palette
+            palette = active_palette()
+            border = palette["accent"] if included else palette["fg_dim"]
+            background = palette["surface_hi"]
+        except Exception:
+            border, background = ("#4A9EFF", "#24262a")
+        self.setStyleSheet(
+            "QLabel {"
+            f"background: {background}; border: 2px solid {border};"
+            "border-radius: 9px; padding: 2px;"
+            "}"
+        )
 
     def mousePressEvent(self, event):
         self.clicked.emit(self._index)
@@ -77,156 +109,318 @@ class _CropThumb(QLabel):
 
 
 class MeasurePreviewPanel(QWidget):
-    """Interactive crop preview for the Measure app."""
+    """Preview Measure crops and propagate a faithful run configuration."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._data: Optional[np.ndarray] = None
         self._data_path: Optional[str] = None
         self._crops: List[Dict[str, Any]] = []
-        self._selected: set = set()
+        self._selected: set[int] = set()
         self._propagate_cb = None
         self._thumb_px = 132
+        self._crop_settings_dialog: Optional[CropSettingsDialog] = None
+        self._build_controls()
         self._build_ui()
+        self._connect_controls()
         self.setAcceptDrops(True)
 
-    # -- construction ------------------------------------------------------
+    # -- construction --------------------------------------------------
 
-    def _build_ui(self):
+    @staticmethod
+    def _spin(
+        lo: int,
+        hi: int,
+        value: int,
+        *,
+        special: str = "",
+        parent=None,
+    ) -> QSpinBox:
+        widget = QSpinBox(parent)
+        widget.setRange(lo, hi)
+        widget.setValue(value)
+        if special:
+            widget.setSpecialValueText(special)
+        return widget
+
+    def _build_controls(self) -> None:
+        # General
+        self._experiment = QLineEdit("exp", self)
+        self._measurement_channels = QLineEdit("0,1,2,3", self)
+        self._object_box = QComboBox(self)
+        self._object_box.addItems(_OBJECTS)
+        self._mask_dims = {
+            name: self._spin(
+                -1, 64, value if name != "organelle" else -1,
+                special="Not present", parent=self,
+            )
+            for name, value in _MASK_DIMS.items()
+        }
+        self._cytoplasm = Toggle(parent=self)
+        self._plot = Toggle(parent=self)
+        self._test_mode = Toggle(parent=self)
+        self._timelapse = Toggle(parent=self)
+
+        # Object crops
+        self._save_png = Toggle(parent=self)
+        self._save_png.setChecked(True)
+        self._save_arrays = Toggle(parent=self)
+        self._crop_mode_checks = {
+            name: Toggle(name.capitalize(), self) for name in _OBJECTS
+        }
+        self._crop_mode_checks["cell"].setChecked(True)
+        self._crop_width = self._spin(16, 2048, 224, parent=self)
+        self._crop_height = self._spin(16, 2048, 224, parent=self)
+        self._lock_aspect = Toggle(parent=self)
+        self._lock_aspect.setChecked(True)
+        self._png_dims = QLineEdit("0,1,2", self)
+        self._use_bbox = Toggle(parent=self)
+        self._buffer = self._spin(0, 200, 10, parent=self)
+        self._normalise = Toggle(parent=self)
+        self._normalise.setChecked(True)
+        self._lo_pct = QDoubleSpinBox(self)
+        self._lo_pct.setRange(0.0, 50.0)
+        self._lo_pct.setValue(1.0)
+        self._lo_pct.setSuffix(" %")
+        self._hi_pct = QDoubleSpinBox(self)
+        self._hi_pct.setRange(50.0, 100.0)
+        self._hi_pct.setValue(99.0)
+        self._hi_pct.setSuffix(" %")
+        self._normalize_by = QComboBox(self)
+        self._normalize_by.addItems(("png", "fov"))
+        self._dilate = Toggle(parent=self)
+        self._dilate_ratio = QDoubleSpinBox(self)
+        self._dilate_ratio.setRange(0.0, 10.0)
+        self._dilate_ratio.setSingleStep(0.05)
+        self._dilate_ratio.setValue(0.2)
+
+        # Filtering
+        self._min_sizes = {
+            name: self._spin(0, 10_000_000, 0, parent=self)
+            for name in _OBJECTS
+        }
+        self._uninfected = Toggle(parent=self)
+        self._uninfected.setChecked(True)
+        self._merge_edge_pathogen_cells = Toggle(parent=self)
+        self._merge_edge_pathogen_cells.setChecked(True)
+
+        # Preview-only controls
+        self._max_area = self._spin(0, 100_000_000, 0, parent=self)
+        self._max_crops = self._spin(1, 1000, 60, parent=self)
+        self._group_cells = Toggle(parent=self)
+        self._group_cells.setChecked(True)
+        self._propagate_btn = Toggle("Propagate settings", self)
+        self._propagate_btn.setToolTip(
+            "Copy changes from this dialog into the main Measure settings."
+        )
+
+        # Compatibility names used by integrations and older tests.
+        self._mask_dim = self._mask_dims["cell"]
+        self._crop_size = self._crop_width
+        self._min_area = self._min_sizes["cell"]
+        self._channels = self._png_dims
+
+        tooltips = {
+            self._measurement_channels:
+                "Image channels measured from the merged array.",
+            self._png_dims:
+                "Image channel indices written to crop R, G and B planes.",
+            self._use_bbox:
+                "Keep the padded rectangular bounding box instead of masking "
+                "pixels outside the object.",
+            self._normalise:
+                "Write False when off or [lower, upper] percentiles when on.",
+            self._uninfected:
+                "Keep uninfected cells. Off marks them as excluded.",
+            self._group_cells:
+                "Group cells by nucleus, pathogen and organelle presence.",
+        }
+        for widget, text in tooltips.items():
+            widget.setToolTip(text)
+        for widget in self._managed_widgets():
+            widget.hide()
+
+    def _build_ui(self) -> None:
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
-        # File picker row
         pick_row = QHBoxLayout()
         self._path_label = QLabel(
             "No array loaded — drop a merged .npy here, or choose one")
-        self._path_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self._path_label.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred)
         pick_btn = QPushButton("Choose merged array…")
         pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
         pick_row.addWidget(pick_btn)
         root.addLayout(pick_row)
 
-        # Settings row 1 — object + mask dim + channels
-        r1 = QHBoxLayout()
-        self._object_box = QComboBox()
-        self._object_box.addItems(list(_MASK_DIMS.keys()))
-        self._object_box.setToolTip("(str) Object class to crop by.")
-        self._object_box.currentTextChanged.connect(self._on_object_changed)
-        self._mask_dim = QSpinBox(); self._mask_dim.setRange(0, 32)
-        self._mask_dim.setValue(_MASK_DIMS["cell"])
-        self._mask_dim.setToolTip("(int) Mask slice index in the merged array.")
-        self._channels = QLineEdit("0,1,2")
-        self._channels.setToolTip("(list) Image channel indices to assemble (RGB order).")
-        r1.addWidget(QLabel("Object")); r1.addWidget(self._object_box)
-        r1.addWidget(QLabel("Mask dim")); r1.addWidget(self._mask_dim)
-        r1.addWidget(QLabel("Channels")); r1.addWidget(self._channels, 1)
-        root.addLayout(r1)
-
-        # Settings row 2 — size, area, buffer, normalise, max
-        r2 = QHBoxLayout()
-        self._crop_size = QSpinBox(); self._crop_size.setRange(16, 1024)
-        self._crop_size.setValue(128)
-        self._crop_size.setToolTip("(int, px) Output crop size (png_size).")
-        self._min_area = QSpinBox(); self._min_area.setRange(0, 10_000_000)
-        self._min_area.setToolTip("(int) Skip objects smaller than this area.")
-        self._buffer = QSpinBox(); self._buffer.setRange(0, 200)
-        self._buffer.setValue(10)
-        self._buffer.setToolTip("(int, px) Padding around each object's bounding box.")
-        self._normalise = QCheckBox("Normalise"); self._normalise.setChecked(True)
-        self._normalise.setToolTip("(bool) Percentile-normalise each crop.")
-        self._max_crops = QSpinBox(); self._max_crops.setRange(1, 500)
-        self._max_crops.setValue(60)
-        self._max_crops.setToolTip("(int) Max crops shown in the preview.")
-        r2.addWidget(QLabel("Crop size")); r2.addWidget(self._crop_size)
-        r2.addWidget(QLabel("Min area")); r2.addWidget(self._min_area)
-        r2.addWidget(QLabel("Buffer")); r2.addWidget(self._buffer)
-        r2.addWidget(self._normalise)
-        r2.addWidget(QLabel("Max")); r2.addWidget(self._max_crops)
-        root.addLayout(r2)
-
-        # Re-crop live on setting changes.
-        for w in (self._mask_dim, self._crop_size, self._min_area, self._buffer,
-                  self._max_crops):
-            w.valueChanged.connect(lambda *_: self.refresh())
-        self._channels.editingFinished.connect(self.refresh)
-        self._normalise.toggled.connect(lambda *_: self.refresh())
-
-        # Action row
-        act = QHBoxLayout()
+        actions = QHBoxLayout()
         self._refresh_btn = QPushButton("Refresh crops")
         self._refresh_btn.clicked.connect(self.refresh)
-        self._propagate_btn = QPushButton("Propagate settings")
-        self._propagate_btn.setObjectName("ToggleButton")
-        self._propagate_btn.setCheckable(True)
-        self._propagate_btn.setToolTip(
-            "When on, the crop settings here are copied into the main Measure "
-            "settings so the run uses them.")
-        self._propagate_btn.toggled.connect(self._on_propagate_toggled)
+        self._settings_btn = QPushButton("Crop settings…")
+        self._settings_btn.clicked.connect(self.open_crop_settings)
         self._status = QLabel("")
-        act.addWidget(self._refresh_btn)
-        act.addWidget(self._propagate_btn)
-        act.addWidget(self._status, 1)
-        root.addLayout(act)
+        actions.addWidget(self._refresh_btn)
+        actions.addWidget(self._settings_btn)
+        actions.addWidget(self._status, 1)
+        root.addLayout(actions)
 
-        # Crop grid on a dark-gray canvas.
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
         self._grid_scroll.setFrameShape(QScrollArea.NoFrame)
         try:
             from ..theme import active_palette
-            bg = active_palette()["surface_alt"]
+            background = active_palette()["surface_alt"]
         except Exception:
-            bg = "#161719"
-        self._grid_scroll.viewport().setStyleSheet(f"background: {bg};")
+            background = "#161719"
+        self._grid_scroll.viewport().setStyleSheet(
+            f"background: {background};")
         self._grid_holder = QWidget()
         self._grid_holder.setObjectName("MeasureGrid")
         self._grid_holder.setStyleSheet(
-            f"QWidget#MeasureGrid {{ background: {bg}; }}")
+            f"QWidget#MeasureGrid {{ background: {background}; }}")
         self._grid = QGridLayout(self._grid_holder)
         self._grid.setSpacing(8)
         self._grid.setContentsMargins(8, 8, 8, 8)
         self._grid_scroll.setWidget(self._grid_holder)
         root.addWidget(self._grid_scroll, 1)
 
-    # -- drag & drop -------------------------------------------------------
+    def _managed_widgets(self) -> List[QWidget]:
+        widgets: List[QWidget] = [
+            self._experiment, self._measurement_channels, self._object_box,
+            *self._mask_dims.values(), self._cytoplasm, self._plot,
+            self._test_mode, self._timelapse, self._save_png,
+            self._save_arrays, *self._crop_mode_checks.values(),
+            self._crop_width, self._crop_height, self._lock_aspect,
+            self._png_dims, self._use_bbox, self._buffer, self._normalise,
+            self._lo_pct, self._hi_pct, self._normalize_by, self._dilate,
+            self._dilate_ratio, *self._min_sizes.values(), self._uninfected,
+            self._merge_edge_pathogen_cells, self._max_area,
+            self._max_crops, self._group_cells, self._propagate_btn,
+        ]
+        return widgets
+
+    def _connect_controls(self) -> None:
+        self._object_box.currentTextChanged.connect(self._on_object_changed)
+        self._crop_width.valueChanged.connect(self._sync_crop_height)
+        self._normalise.toggled.connect(self._refresh_control_gates)
+        self._dilate.toggled.connect(self._refresh_control_gates)
+        self._use_bbox.toggled.connect(self._refresh_control_gates)
+
+        refresh_widgets = [
+            self._object_box, *self._mask_dims.values(), self._png_dims,
+            self._use_bbox, self._buffer, self._normalise, self._lo_pct,
+            self._hi_pct, *self._min_sizes.values(), self._uninfected,
+            self._max_area, self._max_crops, self._group_cells,
+        ]
+        for widget in refresh_widgets:
+            for signal_name in (
+                "valueChanged", "currentTextChanged", "editingFinished",
+                "toggled",
+            ):
+                signal = getattr(widget, signal_name, None)
+                if signal is not None:
+                    try:
+                        signal.connect(self._on_setting_changed)
+                        break
+                    except (TypeError, RuntimeError):
+                        pass
+
+        for widget in self._managed_widgets():
+            if widget in refresh_widgets or widget is self._propagate_btn:
+                continue
+            for signal_name in (
+                "valueChanged", "currentTextChanged", "editingFinished",
+                "toggled", "textChanged",
+            ):
+                signal = getattr(widget, signal_name, None)
+                if signal is not None:
+                    try:
+                        signal.connect(self._maybe_propagate)
+                        break
+                    except (TypeError, RuntimeError):
+                        pass
+        self._propagate_btn.toggled.connect(self._on_propagate_toggled)
+        self._refresh_control_gates()
+
+    # -- settings dialog ------------------------------------------------
+
+    def open_crop_settings(self) -> None:
+        dialog = self._crop_settings_dialog
+        if dialog is not None and dialog.isVisible():
+            dialog.raise_()
+            dialog.activateWindow()
+            return
+        dialog = CropSettingsDialog(self)
+        self._crop_settings_dialog = dialog
+        dialog.finished.connect(self._clear_crop_settings_dialog)
+        dialog.show()
+
+    def _clear_crop_settings_dialog(self, *_args) -> None:
+        self._crop_settings_dialog = None
+
+    def _refresh_control_gates(self, *_args) -> None:
+        self._lo_pct.setEnabled(self._normalise.isChecked())
+        self._hi_pct.setEnabled(self._normalise.isChecked())
+        self._normalize_by.setEnabled(self._normalise.isChecked())
+        self._dilate_ratio.setEnabled(self._dilate.isChecked())
+        self._buffer.setEnabled(self._use_bbox.isChecked())
+
+    def _sync_crop_height(self, value: int) -> None:
+        if self._lock_aspect.isChecked() and self._crop_height.value() != value:
+            self._crop_height.setValue(value)
+
+    def _on_object_changed(self, name: str) -> None:
+        # A previewed object should also be one of the requested crop outputs.
+        check = self._crop_mode_checks.get(name)
+        if check is not None:
+            check.setChecked(True)
+        self._maybe_propagate()
+
+    def _on_setting_changed(self, *_args) -> None:
+        if self._data is not None:
+            self.refresh()
+        self._maybe_propagate()
+
+    def _maybe_propagate(self, *_args) -> None:
+        if self._propagate_btn.isChecked():
+            self.propagate_settings()
+
+    def _on_propagate_toggled(self, on: bool) -> None:
+        if on:
+            self.propagate_settings()
+
+    # -- drag/drop + loading -------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
         for url in mime.urls():
-            if url.isLocalFile() and Path(url.toLocalFile()).suffix.lower() in _SUPPORTED:
+            if (
+                url.isLocalFile()
+                and Path(url.toLocalFile()).suffix.lower() in _SUPPORTED
+            ):
                 return url.toLocalFile()
         return None
 
-    def dragEnterEvent(self, event):   # noqa: N802
-        if self._dropped_path(event):
+    def dragEnterEvent(self, event):  # noqa: N802
+        event.acceptProposedAction() if self._dropped_path(event) else event.ignore()
+
+    def dragMoveEvent(self, event):  # noqa: N802
+        event.acceptProposedAction() if self._dropped_path(event) else event.ignore()
+
+    def dropEvent(self, event):  # noqa: N802
+        path = self._dropped_path(event)
+        if path:
             event.acceptProposedAction()
+            self.load_array(path)
         else:
             event.ignore()
 
-    def dragMoveEvent(self, event):    # noqa: N802
-        if self._dropped_path(event):
-            event.acceptProposedAction()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):        # noqa: N802
-        p = self._dropped_path(event)
-        if p:
-            event.acceptProposedAction()
-            self.load_array(p)
-        else:
-            event.ignore()
-
-    # -- loading + settings -------------------------------------------------
-
-    def _on_object_changed(self, name: str):
-        self._mask_dim.setValue(_MASK_DIMS.get(name, self._mask_dim.value()))
-
-    def _pick_file(self):
+    def _pick_file(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a merged .npy array", "", "NumPy arrays (*.npy)")
         if path:
@@ -235,8 +429,8 @@ class MeasurePreviewPanel(QWidget):
     def load_array(self, path: str) -> bool:
         try:
             data = np.load(path)
-        except Exception as e:
-            self._status.setText(f"Failed to load: {e}")
+        except Exception as exc:
+            self._status.setText(f"Failed to load: {exc}")
             return False
         if data.ndim != 3:
             self._status.setText(
@@ -244,108 +438,379 @@ class MeasurePreviewPanel(QWidget):
             return False
         self._data = data
         self._data_path = path
-        self._path_label.setText(f"{os.path.basename(path)}  ·  shape {data.shape}")
-        # Clamp mask dim into range.
-        if self._mask_dim.value() >= data.shape[2]:
-            self._mask_dim.setValue(max(0, data.shape[2] - 1))
+        self._path_label.setText(
+            f"{os.path.basename(path)}  ·  shape {data.shape}")
+        for widget in self._mask_dims.values():
+            if widget.value() >= data.shape[2]:
+                widget.setValue(-1)
         self.refresh()
         return True
 
+    # -- propagation ---------------------------------------------------
+
+    def _selected_crop_modes(self) -> List[str]:
+        selected = [
+            name for name, widget in self._crop_mode_checks.items()
+            if widget.isChecked()
+        ]
+        return selected or [self._object_box.currentText()]
+
     def settings_for_propagation(self) -> dict:
-        """Map the crop settings to main-panel Measure setting keys."""
-        chans = _parse_channels(self._channels.text())
-        sz = int(self._crop_size.value())
-        obj = self._object_box.currentText()
+        normalize: Any = False
+        if self._normalise.isChecked():
+            normalize = [float(self._lo_pct.value()), float(self._hi_pct.value())]
         return {
-            "png_dims": chans,
-            "png_size": [sz, sz],
-            "normalize": bool(self._normalise.isChecked()),
-            "use_bounding_box": bool(self._buffer.value() > 0),
-            "crop_mode": [obj],
+            "experiment": self._experiment.text().strip() or "exp",
+            "channels": _parse_channels(self._measurement_channels.text()),
+            "cell_mask_dim": _optional_spin_value(self._mask_dims["cell"]),
+            "nucleus_mask_dim": _optional_spin_value(self._mask_dims["nucleus"]),
+            "pathogen_mask_dim": _optional_spin_value(self._mask_dims["pathogen"]),
+            "organelle_mask_dim": _optional_spin_value(
+                self._mask_dims["organelle"]),
+            "cytoplasm": self._cytoplasm.isChecked(),
+            "plot": self._plot.isChecked(),
+            "test_mode": self._test_mode.isChecked(),
+            "timelapse": self._timelapse.isChecked(),
+            "save_png": self._save_png.isChecked(),
+            "save_arrays": self._save_arrays.isChecked(),
+            "crop_mode": self._selected_crop_modes(),
+            "png_size": [
+                int(self._crop_width.value()), int(self._crop_height.value())
+            ],
+            "png_dims": _parse_channels(self._png_dims.text()),
+            "use_bounding_box": self._use_bbox.isChecked(),
+            "normalize": normalize,
+            "normalize_by": self._normalize_by.currentText(),
+            "dialate_pngs": self._dilate.isChecked(),
+            "dialate_png_ratios": [float(self._dilate_ratio.value())],
+            "cell_min_size": int(self._min_sizes["cell"].value()),
+            "nucleus_min_size": int(self._min_sizes["nucleus"].value()),
+            "pathogen_min_size": int(self._min_sizes["pathogen"].value()),
+            "organelle_min_size": int(self._min_sizes["organelle"].value()),
+            "cytoplasm_min_size": int(self._min_sizes["cytoplasm"].value()),
+            "uninfected": self._uninfected.isChecked(),
+            "merge_edge_pathogen_cells":
+                self._merge_edge_pathogen_cells.isChecked(),
         }
 
-    def set_propagate_callback(self, cb) -> None:
-        self._propagate_cb = cb
+    def set_propagate_callback(self, callback) -> None:
+        self._propagate_cb = callback
 
     def propagate_settings(self) -> None:
-        if self._propagate_cb is not None:
-            try:
-                self._propagate_cb(self.settings_for_propagation())
-            except Exception:
-                LOG.debug("propagate failed", exc_info=True)
+        if self._propagate_cb is None:
+            return
+        try:
+            self._propagate_cb(self.settings_for_propagation())
+        except Exception:
+            LOG.debug("crop-preview propagation failed", exc_info=True)
 
-    def _on_propagate_toggled(self, on: bool):
-        if on:
-            self.propagate_settings()
+    # -- crop/category computation ------------------------------------
 
-    # -- cropping + rendering ----------------------------------------------
+    def _current_mask_dim(self) -> Optional[int]:
+        name = self._object_box.currentText()
+        if name == "cytoplasm":
+            # Cytoplasm is generated during measurement and has no stable
+            # input slice. Use cells for the preview footprint.
+            name = "cell"
+        return _optional_spin_value(self._mask_dims[name])
 
-    def refresh(self):
+    def _presence(
+        self,
+        object_name: str,
+        cell_region: np.ndarray,
+    ) -> Optional[bool]:
+        if self._data is None:
+            return None
+        dim = _optional_spin_value(self._mask_dims[object_name])
+        if dim is None or dim >= self._data.shape[2]:
+            return None
+        mask = self._data[..., dim].astype(np.int64, copy=False)
+        labels = np.unique(mask[cell_region])
+        labels = labels[labels > 0]
+        minimum = int(self._min_sizes[object_name].value())
+        if minimum <= 0:
+            return bool(labels.size)
+        for label in labels:
+            if int(np.count_nonzero(mask == label)) >= minimum:
+                return True
+        return False
+
+    @staticmethod
+    def _phenotype_text(name: str, value: Optional[bool]) -> str:
+        if value is None:
+            return f"{name} n/a"
+        if name == "Nucleus":
+            return "Nucleated" if value else "Unnucleated"
+        if name == "Pathogen":
+            return "Infected" if value else "Uninfected"
+        return "Organelle+" if value else "Organelle−"
+
+    def _annotate_cell_categories(self) -> None:
+        if self._data is None or self._object_box.currentText() != "cell":
+            for entry in self._crops:
+                entry["category"] = self._object_box.currentText().capitalize()
+                entry["included"] = True
+            return
+        cell_dim = _optional_spin_value(self._mask_dims["cell"])
+        if cell_dim is None or cell_dim >= self._data.shape[2]:
+            return
+        cell_mask = self._data[..., cell_dim].astype(np.int64, copy=False)
+        for entry in self._crops:
+            region = cell_mask == int(entry["label"])
+            nucleus = self._presence("nucleus", region)
+            pathogen = self._presence("pathogen", region)
+            organelle = self._presence("organelle", region)
+            parts = (
+                self._phenotype_text("Nucleus", nucleus),
+                self._phenotype_text("Pathogen", pathogen),
+                self._phenotype_text("Organelle", organelle),
+            )
+            entry["phenotype"] = {
+                "nucleus": nucleus,
+                "pathogen": pathogen,
+                "organelle": organelle,
+            }
+            entry["category"] = " · ".join(parts)
+            # The pipeline requires a nucleus when all companion masks exist,
+            # and additionally requires a pathogen when uninfected is off.
+            included = nucleus is not False
+            if not self._uninfected.isChecked():
+                included = included and pathogen is True
+            entry["included"] = bool(included)
+
+    def refresh(self) -> None:
         if self._data is None:
             return
         from spacr.measure import crop_objects_from_array
-        chans = _parse_channels(self._channels.text())
-        mask_dim = int(self._mask_dim.value())
-        if mask_dim >= self._data.shape[2]:
-            self._status.setText("Mask dim out of range for this array.")
+
+        channels = _parse_channels(self._png_dims.text())
+        channels = [c for c in channels if 0 <= c < self._data.shape[2]]
+        if not channels:
+            self._status.setText("PNG channels do not exist in this array.")
             return
+        mask_dim = self._current_mask_dim()
+        if mask_dim is None or mask_dim >= self._data.shape[2]:
+            self._status.setText(
+                f"No {self._object_box.currentText()} mask slice is configured.")
+            self._crops = []
+            self._render_grid()
+            return
+
+        minimum = int(self._min_sizes[self._object_box.currentText()].value())
         try:
             self._crops = crop_objects_from_array(
-                self._data, mask_dim=mask_dim, channels=chans,
-                min_area=int(self._min_area.value()),
-                mask_background=True,
+                self._data,
+                mask_dim=mask_dim,
+                channels=channels,
+                min_area=minimum,
+                max_area=int(self._max_area.value()),
+                mask_background=not self._use_bbox.isChecked(),
                 normalize=self._normalise.isChecked(),
+                percentiles=(
+                    float(self._lo_pct.value()), float(self._hi_pct.value())
+                ),
                 buffer=int(self._buffer.value()),
-                limit=int(self._max_crops.value()))
-        except Exception as e:
-            self._status.setText(f"Crop failed: {e}")
+                limit=int(self._max_crops.value()),
+            )
+        except Exception as exc:
+            self._status.setText(f"Crop failed: {exc}")
             return
+        self._annotate_cell_categories()
         self._selected.clear()
         self._render_grid()
+        groups = len({entry.get("category") for entry in self._crops})
         self._status.setText(
-            f"{len(self._crops)} object(s) — {self._object_box.currentText()}")
-        if self._propagate_btn.isChecked():
-            self.propagate_settings()
+            f"{len(self._crops)} object(s) · {groups} categor"
+            f"{'y' if groups == 1 else 'ies'}")
+        self._maybe_propagate()
 
-    def _render_grid(self):
-        # Clear the grid.
+    # -- rendering -----------------------------------------------------
+
+    def _clear_grid(self) -> None:
         while self._grid.count():
             item = self._grid.takeAt(0)
-            w = item.widget()
-            if w is not None:
-                w.deleteLater()
-        cols = max(1, self._grid_scroll.viewport().width() // (self._thumb_px + 12)) or 6
-        for i, entry in enumerate(self._crops):
-            pm = self._crop_pixmap(entry["crop"])
-            thumb = _CropThumb(i)
-            thumb.setPixmap(pm)
-            thumb.setToolTip(f"label {entry['label']} · {entry['area']} px²")
-            thumb.clicked.connect(self._on_thumb_clicked)
-            self._grid.addWidget(thumb, i // cols, i % cols)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+    def _category_header(self, text: str, entries: List[tuple[int, dict]]) -> QLabel:
+        included = sum(bool(entry.get("included", True)) for _, entry in entries)
+        excluded = len(entries) - included
+        suffix = f"  ·  {included} kept"
+        if excluded:
+            suffix += f"  ·  {excluded} excluded by filters"
+        label = QLabel(text + suffix)
+        label.setObjectName("CropCategoryHeader")
+        label.setContentsMargins(8, 5, 8, 5)
+        try:
+            from ..theme import active_palette
+            palette = active_palette()
+            label.setStyleSheet(
+                "QLabel#CropCategoryHeader {"
+                f"background: {palette['surface_hi']};"
+                f"color: {palette['fg']};"
+                f"border-left: 3px solid {palette['accent']};"
+                "font-weight: 600; border-radius: 4px;"
+                "}"
+            )
+        except Exception:
+            pass
+        return label
+
+    def _render_grid(self) -> None:
+        self._clear_grid()
+        if not self._crops:
+            return
+        columns = max(
+            1, self._grid_scroll.viewport().width() // (self._thumb_px + 12)
+        )
+        grouped: Dict[str, List[tuple[int, dict]]] = defaultdict(list)
+        if self._object_box.currentText() == "cell" and self._group_cells.isChecked():
+            for index, entry in enumerate(self._crops):
+                grouped[entry.get("category", "Unclassified")].append(
+                    (index, entry))
+        else:
+            grouped[self._object_box.currentText().capitalize()] = list(
+                enumerate(self._crops))
+
+        row = 0
+        for category in sorted(grouped):
+            entries = grouped[category]
+            self._grid.addWidget(
+                self._category_header(category, entries),
+                row, 0, 1, columns,
+            )
+            row += 1
+            for offset, (index, entry) in enumerate(entries):
+                thumb = _CropThumb(
+                    index, included=bool(entry.get("included", True)))
+                thumb.setPixmap(self._crop_pixmap(entry["crop"]))
+                status = "kept" if entry.get("included", True) else "excluded"
+                thumb.setToolTip(
+                    f"label {entry['label']} · {entry['area']} px² · "
+                    f"{entry.get('category', '')} · {status}")
+                thumb.clicked.connect(self._on_thumb_clicked)
+                self._grid.addWidget(
+                    thumb, row + offset // columns, offset % columns)
+            row += (len(entries) + columns - 1) // columns
 
     def _crop_pixmap(self, crop: np.ndarray) -> QPixmap:
-        arr = np.ascontiguousarray(crop.astype(np.uint8))
-        h, w = arr.shape[:2]
-        img = QImage(arr.data, w, h, 3 * w, QImage.Format_RGB888)
-        pm = QPixmap.fromImage(img.copy()).scaled(
-            self._thumb_px, self._thumb_px, Qt.KeepAspectRatio,
-            Qt.SmoothTransformation)
-        return _rounded_pixmap(pm, radius=8)
+        array = np.ascontiguousarray(crop.astype(np.uint8))
+        height, width = array.shape[:2]
+        image = QImage(
+            array.data, width, height, 3 * width, QImage.Format_RGB888)
+        pixmap = QPixmap.fromImage(image.copy()).scaled(
+            self._thumb_px,
+            self._thumb_px,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation,
+        )
+        return _rounded_pixmap(pixmap, radius=8)
 
-    def _on_thumb_clicked(self, index: int):
+    def _on_thumb_clicked(self, index: int) -> None:
         if index in self._selected:
             self._selected.discard(index)
         else:
             self._selected.add(index)
         if 0 <= index < len(self._crops):
-            e = self._crops[index]
-            sel = f" · {len(self._selected)} selected" if self._selected else ""
+            entry = self._crops[index]
+            selected = (
+                f" · {len(self._selected)} selected" if self._selected else "")
             self._status.setText(
-                f"label {e['label']} · {e['area']} px²{sel}")
+                f"label {entry['label']} · {entry['area']} px² · "
+                f"{entry.get('category', '')}{selected}")
 
-    # snapshot for tests
     def current_params(self) -> dict:
-        d = self.settings_for_propagation()
-        d["n_crops"] = len(self._crops)
-        d["selected"] = sorted(self._selected)
-        return d
+        values = self.settings_for_propagation()
+        values["n_crops"] = len(self._crops)
+        values["selected"] = sorted(self._selected)
+        values["categories"] = [
+            entry.get("category") for entry in self._crops
+        ]
+        return values
+
+
+class CropSettingsDialog(QDialog):
+    """Tabbed live settings dialog for :class:`MeasurePreviewPanel`."""
+
+    def __init__(self, panel: MeasurePreviewPanel):
+        super().__init__(panel)
+        self._panel = panel
+        self.setWindowTitle("Crop preview settings")
+        outer = QVBoxLayout(self)
+        tabs = QTabWidget(self)
+        outer.addWidget(tabs, 1)
+
+        for widget in panel._managed_widgets():
+            widget.show()
+
+        general = QWidget()
+        form = QFormLayout(general)
+        form.addRow("Experiment", panel._experiment)
+        form.addRow("Measured channels", panel._measurement_channels)
+        form.addRow("Preview object", panel._object_box)
+        form.addRow("Cell mask slice", panel._mask_dims["cell"])
+        form.addRow("Nucleus mask slice", panel._mask_dims["nucleus"])
+        form.addRow("Pathogen mask slice", panel._mask_dims["pathogen"])
+        form.addRow("Organelle mask slice", panel._mask_dims["organelle"])
+        form.addRow("Measure cytoplasm", panel._cytoplasm)
+        form.addRow("Plot run diagnostics", panel._plot)
+        form.addRow("Test mode", panel._test_mode)
+        form.addRow("Timelapse", panel._timelapse)
+        tabs.addTab(general, "General")
+
+        crops = QWidget()
+        crops_form = QFormLayout(crops)
+        crops_form.addRow("Save PNG crops", panel._save_png)
+        crops_form.addRow("Save raw arrays", panel._save_arrays)
+        mode_group = QGroupBox("Crop modes")
+        mode_layout = QVBoxLayout(mode_group)
+        for widget in panel._crop_mode_checks.values():
+            mode_layout.addWidget(widget)
+        crops_form.addRow(mode_group)
+        crops_form.addRow("Crop width", panel._crop_width)
+        crops_form.addRow("Crop height", panel._crop_height)
+        crops_form.addRow("Lock aspect ratio", panel._lock_aspect)
+        crops_form.addRow("RGB channel order", panel._png_dims)
+        crops_form.addRow("Use bounding box", panel._use_bbox)
+        crops_form.addRow("Bounding-box padding", panel._buffer)
+        crops_form.addRow("Normalise crops", panel._normalise)
+        crops_form.addRow("Lower percentile", panel._lo_pct)
+        crops_form.addRow("Upper percentile", panel._hi_pct)
+        crops_form.addRow("Normalise by", panel._normalize_by)
+        crops_form.addRow("Dilate crop masks", panel._dilate)
+        crops_form.addRow("Dilation ratio", panel._dilate_ratio)
+        tabs.addTab(crops, "Object crops")
+
+        filters = QWidget()
+        filter_form = QFormLayout(filters)
+        filter_form.addRow("Keep uninfected cells", panel._uninfected)
+        filter_form.addRow(
+            "Merge edge-pathogen cells", panel._merge_edge_pathogen_cells)
+        for name, widget in panel._min_sizes.items():
+            filter_form.addRow(f"{name.capitalize()} minimum area", widget)
+        tabs.addTab(filters, "Filter settings")
+
+        preview = QWidget()
+        preview_form = QFormLayout(preview)
+        preview_form.addRow("Maximum preview area", panel._max_area)
+        preview_form.addRow("Maximum preview crops", panel._max_crops)
+        preview_form.addRow("Group cell phenotypes", panel._group_cells)
+        tabs.addTab(preview, "Preview")
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        run = QPushButton("Refresh crops")
+        run.clicked.connect(panel.refresh)
+        buttons.addButton(run, QDialogButtonBox.ActionRole)
+        buttons.addButton(panel._propagate_btn, QDialogButtonBox.ActionRole)
+        buttons.rejected.connect(self.close)
+        outer.addWidget(buttons)
+        panel._refresh_control_gates()
+        self.resize(620, 720)
+
+    def closeEvent(self, event):
+        # Keep control values alive on the panel between dialog openings.
+        for widget in self._panel._managed_widgets():
+            widget.setParent(self._panel)
+            widget.hide()
+        super().closeEvent(event)

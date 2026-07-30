@@ -17,6 +17,27 @@ def _merged_npy(tmp_path):
     return str(p)
 
 
+def _categorised_merged_npy(tmp_path):
+    data = np.zeros((48, 48, 8), np.float32)
+    data[..., :3] = 20
+    cell = np.zeros((48, 48), np.int32)
+    nucleus = np.zeros_like(cell)
+    pathogen = np.zeros_like(cell)
+    organelle = np.zeros_like(cell)
+    cell[2:18, 2:18] = 1
+    nucleus[5:10, 5:10] = 1
+    organelle[11:14, 11:14] = 1
+    cell[24:42, 24:42] = 2
+    pathogen[28:33, 28:33] = 1
+    data[..., 4] = cell
+    data[..., 5] = nucleus
+    data[..., 6] = pathogen
+    data[..., 7] = organelle
+    path = tmp_path / "phenotypes.npy"
+    np.save(path, data)
+    return str(path)
+
+
 def test_panel_loads_and_crops(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
     p = MeasurePreviewPanel()
@@ -52,6 +73,59 @@ def test_propagation_maps_measure_keys(qtbot, tmp_path):
     p.set_propagate_callback(lambda d: captured.update(d))
     p.propagate_settings()
     assert captured["png_dims"] == [0, 2, 4]
+
+
+def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
+    from PySide6.QtWidgets import QTabWidget
+    from spacr.qt.widgets.measure_preview import (
+        CropSettingsDialog, MeasurePreviewPanel,
+    )
+    panel = MeasurePreviewPanel()
+    qtbot.addWidget(panel)
+    dialog = CropSettingsDialog(panel)
+    qtbot.addWidget(dialog)
+    tabs = dialog.findChild(QTabWidget)
+    assert tabs is not None
+    assert [tabs.tabText(i) for i in range(tabs.count())] == [
+        "General", "Object crops", "Filter settings", "Preview",
+    ]
+    propagated = panel.settings_for_propagation()
+    assert propagated["normalize"] == [1.0, 99.0]
+    panel._normalise.setChecked(False)
+    assert panel.settings_for_propagation()["normalize"] is False
+
+
+def test_cells_are_grouped_by_nucleus_pathogen_and_organelle(qtbot, tmp_path):
+    from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
+    panel = MeasurePreviewPanel()
+    qtbot.addWidget(panel)
+    panel._mask_dims["organelle"].setValue(7)
+    assert panel.load_array(_categorised_merged_npy(tmp_path))
+    categories = {entry["label"]: entry["category"] for entry in panel._crops}
+    assert "Nucleated" in categories[1]
+    assert "Uninfected" in categories[1]
+    assert "Organelle+" in categories[1]
+    assert "Unnucleated" in categories[2]
+    assert "Infected" in categories[2]
+    assert "Organelle−" in categories[2]
+
+
+def test_measure_filter_settings_are_a_separate_section(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    titles = [section.title() for section in screen._settings_sections]
+    assert "FILTER SETTINGS" in titles
+    filter_section = next(
+        section for section in screen._settings_sections
+        if section.title() == "FILTER SETTINGS"
+    )
+    labels = {
+        label.text() for label, _widget in filter_section._row_widgets
+        if label is not None
+    }
+    assert "Cell min size" in labels
+    assert "Keep uninfected cells" in labels
 
 
 def test_click_selects_thumb(qtbot, tmp_path):

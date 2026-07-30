@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..widgets.barcode_regex import BarcodeRegexWidget
+from ..widgets.toggle import Toggle
 
 
 # ---------------------------------------------------------------------------
@@ -207,6 +208,22 @@ def categories_for_app(
                 while key in keys:
                     keys.remove(key)
         result["UMAP Display"] = list(display)
+    if app_key == "measure":
+        filter_keys = (
+            "uninfected", "cell_min_size", "cytoplasm_min_size",
+            "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            "merge_edge_pathogen_cells",
+        )
+        for keys in result.values():
+            for key in filter_keys:
+                while key in keys:
+                    keys.remove(key)
+        reordered: Dict[str, List[str]] = {}
+        for name, keys in result.items():
+            reordered[name] = keys
+            if name == "Measurements":
+                reordered["Filter settings"] = list(filter_keys)
+        result = reordered
     return result
 
 
@@ -1006,6 +1023,14 @@ class SettingsWidgets:
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def _label_for(self, key: str) -> str:
+        if self.app_key == "measure":
+            measure_labels = {
+                "uninfected": "Keep uninfected cells",
+                "cytoplasm": "Measure cytoplasm",
+                "merge_edge_pathogen_cells": "Merge edge-pathogen cells",
+            }
+            if key in measure_labels:
+                return measure_labels[key]
         return key.replace("_", " ").capitalize()
 
     def _widget_for(self, kind: str, options: Any, default: Any,
@@ -1020,8 +1045,14 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
+        # Unlike enumerated strings, a list remains a list in every module.
+        # timelapse_objects used to be forced through a combo containing
+        # Python-literal strings; render it with the same chip editor as
+        # manders_thresholds and every other list setting.
+        if key == "timelapse_objects":
+            kind = "entry"
         if kind == "check":
-            w = QCheckBox()
+            w = Toggle()
             w.setChecked(bool(default))
             return w
         if kind == "combo":
@@ -1070,7 +1101,7 @@ class SettingsWidgets:
                                    container=container)
             # Choose widget by inferred type from the DEFAULT value
             if isinstance(default, bool):
-                w = QCheckBox()
+                w = Toggle()
                 w.setChecked(default)
                 return w
             if isinstance(default, int):

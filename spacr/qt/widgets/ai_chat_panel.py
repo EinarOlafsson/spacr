@@ -196,8 +196,8 @@ class _ProvidersDialog(QDialog):
         auto_label.setTextFormat(Qt.RichText)
         col.addWidget(auto_label)
 
-        from PySide6.QtWidgets import QCheckBox
-        self._auto_issue_chk = QCheckBox(
+        from .toggle import Toggle
+        self._auto_issue_chk = Toggle(
             "Enable — one-click issue filing from the error dialog"
         )
         self._auto_issue_chk.setChecked(ai_settings.get_auto_file_issues())
@@ -206,7 +206,7 @@ class _ProvidersDialog(QDialog):
 
         # Route errors through AI (on by default) — on a pipeline error the AI
         # explains it first; the raw traceback stays hidden unless asked.
-        self._route_errors_chk = QCheckBox(
+        self._route_errors_chk = Toggle(
             "Route errors through AI — show the AI's explanation instead of "
             "the raw traceback"
         )

@@ -32,7 +32,6 @@ from typing import Any, Callable, Dict, List, Tuple
 from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -47,6 +46,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.toggle import Toggle
 
 from ... import align as align_mod
 from ..bridge import make_thread
@@ -414,7 +414,7 @@ class AlignScreen(QWidget):
         self._db_edit.setClearButtonEnabled(True)
         out_row.addWidget(self._db_edit, 1)
 
-        self._overwrite_box = QCheckBox("Overwrite", self)
+        self._overwrite_box = Toggle("Overwrite", self)
         self._overwrite_box.setToolTip(
             "(bool) Replace an existing output. Off, an existing file is "
             "refused rather than clobbered.")

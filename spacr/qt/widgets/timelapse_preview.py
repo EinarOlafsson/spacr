@@ -54,10 +54,11 @@ import numpy as np
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
+    QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QSpinBox,
     QVBoxLayout, QWidget,
 )
+from .toggle import Toggle
 
 # Reuse the Mask live preview's rendering + canvas primitives wholesale so
 # the two panels behave identically from the user's side: the same zoom/pan
@@ -913,7 +914,7 @@ class TimelapsePreviewPanel(QWidget):
         self._max_frames.setToolTip(
             "(int) How many frames of the sequence the preview reads. The "
             "rest of the movie is never loaded.")
-        self._normalise = QCheckBox("Normalise", self)
+        self._normalise = Toggle("Normalise", self)
         self._normalise.setChecked(True)
         self._normalise.setToolTip(
             "(bool) Percentile-stretch each frame for display + segmentation.")
@@ -951,7 +952,8 @@ class TimelapsePreviewPanel(QWidget):
         self._min_len.setToolTip(
             "(int) Tracks shorter than this are counted as fragments in the "
             "indicators below.")
-        self._remove_transient = QCheckBox("Keep only full-length tracks", self)
+        self._remove_transient = Toggle(
+            "Keep only full-length tracks", self)
         self._remove_transient.setToolTip(
             "(bool) timelapse_remove_transient — drop every track not present "
             "in all frames.")

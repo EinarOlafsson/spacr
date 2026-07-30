@@ -49,10 +49,11 @@ from PySide6.QtGui import (
     QBrush, QColor, QImage, QPainter, QPen, QPixmap,
 )
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
+    QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
     QSizePolicy, QSpinBox, QToolButton, QVBoxLayout, QWidget,
 )
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
@@ -728,7 +729,7 @@ class LivePreviewPanel(QWidget):
 
         # Two-field percentile stretch — user asked for this shape
         # explicitly (was a single toggle before).
-        self._normalise_check = QCheckBox("Normalise", self)
+        self._normalise_check = Toggle("Normalise", self)
         self._normalise_check.setChecked(True)
         self._normalise_check.toggled.connect(self._refresh_canvases)
         self._lo_pct = QDoubleSpinBox(self)
@@ -1074,7 +1075,7 @@ class LivePreviewPanel(QWidget):
                 lo, hi, dv = spin_args
                 w.setRange(int(lo), int(hi)); w.setValue(int(dv))
             elif kind == "bool":
-                w = QCheckBox(self)
+                w = Toggle(parent=self)
             elif kind == "method":
                 w = QComboBox(self)
                 w.addItems(list(INTENSITY_THRESHOLD_METHODS))
@@ -1145,7 +1146,7 @@ class LivePreviewPanel(QWidget):
 
     @staticmethod
     def _widget_value(w):
-        if isinstance(w, QCheckBox):
+        if isinstance(w, Toggle):
             return bool(w.isChecked())
         if isinstance(w, QComboBox):
             return w.currentText()

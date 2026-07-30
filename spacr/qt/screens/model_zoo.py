@@ -73,7 +73,6 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QCheckBox,
     QFileDialog,
     QGroupBox,
     QHBoxLayout,
@@ -91,6 +90,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.toggle import Toggle
 
 from ... import model_zoo as zoo
 from ..bridge import make_thread
@@ -311,7 +311,7 @@ class ModelZooScreen(QWidget):
         row.addWidget(self._btn_cancel)
         dl.addLayout(row)
 
-        self._allow_unverified = QCheckBox(
+        self._allow_unverified = Toggle(
             "Accept a model with no published checksum", download)
         self._allow_unverified.setToolTip(
             "(bool) Off by default. A download nobody can check against a "

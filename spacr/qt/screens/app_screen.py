@@ -83,6 +83,10 @@ SECTION_HINTS = {
                         "features are computed (intensity, morphology, "
                         "texture, radial distribution, colocalisation) and "
                         "which of them survive into the analysis table.",
+    "FILTER SETTINGS":  "Which segmented objects survive measurement: "
+                        "minimum size per compartment, whether uninfected "
+                        "cells remain, and whether edge-spanning pathogen "
+                        "objects merge their parent cells.",
     "OBJECT CROPS":     "Per-object crop dimensions, which mask each crop is "
                         "centred on, and which channels get baked into each "
                         "saved PNG or array.",
