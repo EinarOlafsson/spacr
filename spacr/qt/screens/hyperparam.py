@@ -441,6 +441,10 @@ class HyperparamPanel(QWidget):
 
         # -- search space controls
         controls = QWidget()
+        controls.setObjectName(
+            "UmapHyperparamControls"
+            if self.app_key == "umap" else "HyperparamControls"
+        )
         grid = QGridLayout(controls)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(8)

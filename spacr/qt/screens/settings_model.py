@@ -182,18 +182,31 @@ def categories_for_app(
     table would also move training controls in unrelated modules.
     """
     result = {name: list(keys) for name, keys in categories.items()}
-    if app_key != "map_barcodes":
-        return result
-
-    moved = ("n_jobs", "test")
-    for keys in result.values():
+    if app_key == "map_barcodes":
+        moved = ("n_jobs", "test")
+        for keys in result.values():
+            for key in moved:
+                while key in keys:
+                    keys.remove(key)
+        sequencing = result.setdefault("Sequencing", [])
         for key in moved:
-            while key in keys:
-                keys.remove(key)
-    sequencing = result.setdefault("Sequencing", [])
-    for key in moved:
-        if key not in sequencing:
-            sequencing.append(key)
+            if key not in sequencing:
+                sequencing.append(key)
+
+    if app_key == "umap":
+        display = (
+            "figuresize", "dot_size", "point_color", "point_alpha",
+            "outline_width", "umap_canvas_width", "umap_sidebar_width",
+            "img_zoom", "image_nr", "plot_images", "remove_image_canvas",
+            "plot_points", "plot_outlines", "smooth_lines",
+            "plot_by_cluster", "plot_cluster_grids", "black_background",
+            "save_figure",
+        )
+        for keys in result.values():
+            for key in display:
+                while key in keys:
+                    keys.remove(key)
+        result["UMAP Display"] = list(display)
     return result
 
 

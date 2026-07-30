@@ -608,6 +608,11 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('visualize', 'cell')
     settings.setdefault('image_nr', 16)
     settings.setdefault('dot_size', 50)
+    settings.setdefault('point_color', 'cluster')
+    settings.setdefault('point_alpha', 0.65)
+    settings.setdefault('outline_width', 1.0)
+    settings.setdefault('umap_canvas_width', 900)
+    settings.setdefault('umap_sidebar_width', 280)
     settings.setdefault('n_neighbors', 1000)
     settings.setdefault('min_dist', 0.1)
     settings.setdefault('metric', 'euclidean')
@@ -1396,6 +1401,11 @@ expected_types = {
     "visualize": str,
     "image_nr": int,
     "dot_size": int,
+    "point_color": str,
+    "point_alpha": float,
+    "outline_width": float,
+    "umap_canvas_width": int,
+    "umap_sidebar_width": int,
     "n_neighbors": int,
     "min_dist": float,
     "metric": str,
@@ -1966,6 +1976,11 @@ tooltips = {
     "dialate_png_ratios": "(list of float) - Dilation amount as a fraction of object size: the mask is grown by ratio * sqrt(object area) pixels of binary dilation, so 0.2 expands a cell by roughly 20% of its diameter and pulls in surrounding background. Only used when dialate_pngs is True. A single value applies to every crop_mode entry; pass a list only when the modes need different ratios. Default [0.2].",
     "dialate_pngs": "(bool) - Grow each object mask before cropping so the PNG keeps a rim of surrounding pixels instead of a hard mask edge; the amount comes from dialate_png_ratios. May be a list with one value per crop_mode entry (a single value applies to all of them), and is forced off for crop_mode 'cytoplasm'. Enable when context around the object helps the classifier. Default False.",
     "dot_size": "(int) - Matplotlib marker area, in points squared, for each object plotted in the UMAP/tSNE embedding. Increase it when a few hundred points make the scatter look empty; drop it to roughly 5-10 when tens of thousands of points overplot and hide cluster structure. Default 50.",
+    "point_color": "(str) - Point color for static and interactive UMAP plots. Use 'cluster' or 'viridis' for cluster-based Viridis colors, or any Matplotlib color such as '#4cc9f0', 'orange', or 'white' for one fixed color. Default 'cluster'.",
+    "point_alpha": "(float) - Opacity of UMAP points from 0 (invisible) to 1 (opaque), used by both static and interactive plots. Default 0.65.",
+    "outline_width": "(float) - Width in points of cluster outlines and interactive selection rings. Smaller values produce thinner boundaries. Default 1.0.",
+    "umap_canvas_width": "(int) - Initial interactive UMAP chart width in pixels. The chart/sidebar divider can also be dragged while exploring. Default 900.",
+    "umap_sidebar_width": "(int) - Initial interactive UMAP image and annotation sidebar width in pixels. The divider remains draggable. Default 280.",
     "downstream": "(str) - Inert: nothing reads settings['downstream'], and sequencing.py never mentions it. The default is the reverse complement of the column primer this was meant to anchor on; the barcode reader uses target_sequence plus offset_start instead. Kept only so old settings CSVs still load.",
     "dropout_rate": "(float) - Dropout probability (0-1) written into every existing Dropout layer of the backbone and applied to a Dropout inserted before the final linear classifier; 0 or None removes dropout entirely. Raise it (0.2-0.5) when training accuracy runs well ahead of validation accuracy; lower it when the model underfits and training loss stalls high. Default 0.1.",
     "eps": "(float) - DBSCAN neighbourhood radius, expressed in the units of the UMAP/t-SNE embedding and measured with the 'metric' setting: two points are neighbours if they lie within this distance. Raise it to merge fragments into fewer, larger clusters and leave less noise; lower it to split clusters and push more points to noise (-1). Ignored when clustering is 'kmeans'. Default 0.9.",
@@ -2563,7 +2578,7 @@ categories = {
 
     "Sequencing": ["mode", "single_direction", "signal_direction", "target_sequence", "regex", "offset", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
-    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
+    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
     # One heading for the whole invasion assay, ordered the way it is set up:
     # which channels hold the two stains -> how the outside signal is measured
     # -> how its threshold is chosen -> what makes that threshold trustworthy
