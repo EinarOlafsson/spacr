@@ -237,6 +237,24 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "to see what a column_map would have to fix."),
     ),
     Module(
+        key="external_masks",
+        summary="Measure images using label masks generated outside spaCR.",
+        entry="spacr.external_masks:prepare_external_masks",
+        defaults=None,
+        defaults_entry="spacr.external_masks:default_settings",
+        validate_key="external_masks",
+        requires=(
+            "inputs — image/mask paths or reviewed input-group mappings",
+            "each mask group assigned to cell, nucleus, pathogen or organelle",
+            "dst — a new output project folder",
+        ),
+        writes=(
+            "<dst>/merged/*.npy and masks/*_mask_stack/*.npy",
+            "<dst>/measurements/measurements.db",
+            "<dst>/data/**/<object>_png/ for annotation",
+        ),
+    ),
+    Module(
         key="classify",
         summary="Full DL pipeline: build dataset, train, apply the model, merge predictions.",
         entry="spacr.deep_spacr:deep_spacr",
@@ -472,6 +490,8 @@ ALIASES: Dict[str, str] = {
     "replication_assay": "replication",
     "import_project": "foreign",
     "foreign_import": "foreign",
+    "prepare_external_masks": "external_masks",
+    "import_external_masks": "external_masks",
     "plaques": "analyze_plaques",
     "plaque": "analyze_plaques",
     "motility_assay": "motility",
