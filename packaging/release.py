@@ -177,7 +177,7 @@ def main() -> int:
         "--destination", type=Path, default=Path("spacr/application"))
     collect_parser.add_argument("--readme", type=Path, default=Path("README.rst"))
     collect_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
-    collect_parser.add_argument("--branch", default="spacr-nightly")
+    collect_parser.add_argument("--branch", default="main")
 
     args = parser.parse_args()
     if args.command == "version":
