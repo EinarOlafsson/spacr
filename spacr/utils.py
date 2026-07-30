@@ -1802,13 +1802,15 @@ def close_multiprocessing_processes():
     # Close file descriptors
     close_file_descriptors()
 
-def check_mask_folder(src,mask_fldr):
+def check_mask_folder(src, mask_fldr, resume=False):
     """Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.
 
     :param src: experiment root containing ``masks/`` and ``stack/`` subfolders.
     :param mask_fldr: subfolder name under ``masks/``.
-    :returns: ``True`` when the mask folder is missing or has fewer ``.npy`` files
-        than the stack folder.
+    :param resume: when True, count only structurally complete mask arrays.
+        Empty/truncated arrays left by an interrupted older run are re-queued.
+    :returns: ``True`` when the mask folder is missing or has fewer valid
+        ``.npy`` files than the stack folder.
     """
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
@@ -1816,7 +1818,16 @@ def check_mask_folder(src,mask_fldr):
     if not os.path.exists(mask_folder):
         return True
     
-    mask_count = sum(1 for file in os.listdir(mask_folder) if file.endswith('.npy'))
+    mask_paths = [
+        os.path.join(mask_folder, file)
+        for file in os.listdir(mask_folder) if file.endswith('.npy')
+    ]
+    if resume:
+        from .resume import validate_merged_field
+        mask_count = sum(
+            1 for path in mask_paths if validate_merged_field(path)[0])
+    else:
+        mask_count = len(mask_paths)
     stack_count = sum(1 for file in os.listdir(stack_folder) if file.endswith('.npy'))
     
     if mask_count == stack_count:

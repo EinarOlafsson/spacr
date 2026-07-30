@@ -274,7 +274,9 @@ def preprocess_generate_masks(settings):
                 
                 if settings['cell_channel'] != None:
                     time_ls=[]
-                    if check_mask_folder(src, 'cell_mask_stack'):
+                    if check_mask_folder(
+                            src, 'cell_mask_stack',
+                            resume=settings.get('resume', False)):
                         start = time.time()
                         generate_cellpose_masks_sam(mask_src, settings, 'cell')
                         stop = time.time()
@@ -285,7 +287,9 @@ def preprocess_generate_masks(settings):
                     
                 if settings['nucleus_channel'] != None:
                     time_ls=[]
-                    if check_mask_folder(src, 'nucleus_mask_stack'):
+                    if check_mask_folder(
+                            src, 'nucleus_mask_stack',
+                            resume=settings.get('resume', False)):
                         start = time.time()
                         generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
                         stop = time.time()
@@ -296,7 +300,9 @@ def preprocess_generate_masks(settings):
                     
                 if settings['pathogen_channel'] != None:
                     time_ls=[]
-                    if check_mask_folder(src, 'pathogen_mask_stack'):
+                    if check_mask_folder(
+                            src, 'pathogen_mask_stack',
+                            resume=settings.get('resume', False)):
                         start = time.time()
                         generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
                         stop = time.time()
@@ -307,7 +313,9 @@ def preprocess_generate_masks(settings):
                         
                 if settings['organelle_channel'] != None:
                     time_ls=[]
-                    if check_mask_folder(src, 'organelle_mask_stack'):
+                    if check_mask_folder(
+                            src, 'organelle_mask_stack',
+                            resume=settings.get('resume', False)):
                         start = time.time()
                         generate_organelle_masks_sam(mask_src, settings, 'organelle')
                         stop = time.time()

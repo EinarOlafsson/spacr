@@ -795,6 +795,81 @@ class TestLocalDirectionSearch:
         assert len(result.trials) == 8
 
 class TestUmapCriteria:
+    def test_grid_search_resumes_trials_and_embeddings(self, tmp_path):
+        X = np.arange(120, dtype=float).reshape(30, 4)
+        checkpoint = tmp_path / "umap.json"
+        calls = []
+        stop = {"value": False}
+
+        def embed(features, params):
+            calls.append(params["min_dist"])
+            stop["value"] = True
+            return features[:, :2] + params["min_dist"]
+
+        first = umap_search(
+            X, SearchSpace({"min_dist": [0.0, 0.2, 0.4]}),
+            embed_fn=embed, checkpoint_path=str(checkpoint),
+            should_stop=lambda: stop["value"])
+        assert first.partial
+        assert calls == [0.0]
+
+        calls.clear()
+        resumed = umap_search(
+            X, SearchSpace({"min_dist": [0.0, 0.2, 0.4]}),
+            embed_fn=embed, checkpoint_path=str(checkpoint), resume=True,
+            should_stop=None)
+
+        assert calls == [0.2, 0.4]
+        assert len(resumed.trials) == 3
+        assert all(
+            trial.extra_metrics["embedding"].shape == (30, 2)
+            for trial in resumed.successful)
+        assert any("Resumed 1 completed trial" in note
+                   for note in resumed.notes)
+
+    def test_adaptive_resume_finishes_only_missing_corners(self, tmp_path):
+        X = np.arange(120, dtype=float).reshape(30, 4)
+        checkpoint = tmp_path / "adaptive.json"
+        calls = []
+        stop = {"after": 2}
+
+        def embed(features, params):
+            calls.append((params["n_neighbors"], params["min_dist"]))
+            return features[:, :2] + params["min_dist"]
+
+        first = umap_search(
+            X, SearchSpace({"n_neighbors": [5], "min_dist": [0.1]}),
+            adaptive=True, n_trials=1, embed_fn=embed,
+            checkpoint_path=str(checkpoint),
+            should_stop=lambda: len(calls) >= stop["after"])
+        assert first.partial
+        assert len(calls) == 2
+
+        calls.clear()
+        resumed = umap_search(
+            X, SearchSpace({"n_neighbors": [5], "min_dist": [0.1]}),
+            adaptive=True, n_trials=1, embed_fn=embed,
+            checkpoint_path=str(checkpoint), resume=True)
+
+        assert len(calls) == 2
+        assert len(resumed.trials) == 4
+        assert not resumed.partial
+        assert any("Resumed 2 completed trial" in note
+                   for note in resumed.notes)
+
+    def test_resume_refuses_changed_umap_data(self, tmp_path):
+        X = np.arange(120, dtype=float).reshape(30, 4)
+        checkpoint = tmp_path / "umap.json"
+        space = SearchSpace({"min_dist": [0.1]})
+        embed = lambda features, params: features[:, :2]  # noqa: E731
+        umap_search(
+            X, space, embed_fn=embed, checkpoint_path=str(checkpoint))
+
+        with pytest.raises(Exception, match="does not match"):
+            umap_search(
+                X + 1, space, embed_fn=embed,
+                checkpoint_path=str(checkpoint), resume=True)
+
     def test_small_dataset_bounds_and_deduplicates_n_neighbors(self):
         X = np.arange(30, dtype=float).reshape(6, 5)
         seen = []

@@ -2172,7 +2172,7 @@ def preprocess_img_data(settings):
             
     return settings, src
 
-def _check_masks(batch, batch_filenames, output_folder):
+def _check_masks(batch, batch_filenames, output_folder, resume=False):
     """
     Check the masks in a batch and filter out the ones that already exist in the output folder.
 
@@ -2180,12 +2180,25 @@ def _check_masks(batch, batch_filenames, output_folder):
         batch (list): List of masks.
         batch_filenames (list): List of filenames corresponding to the masks.
         output_folder (str): Path to the output folder.
+        resume (bool): Validate existing ``.npy`` files before skipping them.
+            A truncated field is returned for processing instead.
 
     Returns:
         tuple: A tuple containing the filtered batch (numpy array) and the filtered filenames (list).
     """
-    # Create a mask for filenames that are already present in the output folder
-    existing_files_mask = [not os.path.isfile(os.path.join(output_folder, filename)) for filename in batch_filenames]
+    if resume:
+        from .resume import validate_merged_field
+
+        def needs_processing(filename):
+            path = os.path.join(output_folder, filename)
+            return not os.path.isfile(path) or not validate_merged_field(path)[0]
+    else:
+        def needs_processing(filename):
+            return not os.path.isfile(os.path.join(output_folder, filename))
+
+    # True means this field must be generated.
+    existing_files_mask = [
+        needs_processing(filename) for filename in batch_filenames]
 
     # Use the mask to filter the batch and batch_filenames
     filtered_batch = [b for b, exists in zip(batch, existing_files_mask) if exists]

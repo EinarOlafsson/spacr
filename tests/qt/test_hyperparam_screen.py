@@ -127,7 +127,7 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
     assert f"color: {palette['fg']}" in local_qss
     help_widgets = (
             *panel._value_edits.values(), panel._criterion, panel._mode,
-            panel._adaptive, panel._n_trials, panel._seed,
+            panel._adaptive, panel._resume, panel._n_trials, panel._seed,
             panel._adaptive_n_step, panel._adaptive_d_step,
             panel._adaptive_rounds, panel._adaptive_improvement,
             panel._max_panels,
@@ -718,6 +718,28 @@ class TestRunningASearch:
         assert req.n_neighbors_step == 2
         assert req.min_dist_step == pytest.approx(0.025)
         assert req.min_improvement == pytest.approx(0.001)
+
+    def test_resume_checkpoint_switch_is_carried_as_a_boolean(
+            self, panel, qtbot):
+        captured = {}
+
+        def _search(request, on_trial, should_stop):
+            captured["request"] = request
+            return SearchResult(space=request.space, metric=request.criterion)
+
+        self._prep(panel, "5")
+        panel._resume.setChecked(True)
+        panel.set_search_fn(_search)
+        with qtbot.waitSignal(panel.search_finished, timeout=5000):
+            assert panel.run_search()
+
+        panel.open_settings()
+        qtbot.addWidget(panel._settings_dialog)
+        from spacr.qt.widgets.toggle import Toggle
+        assert captured["request"].resume is True
+        assert isinstance(panel._resume, Toggle)
+        assert "checkpoint" in panel._resume.toolTip().lower()
+        assert getattr(panel._resume, "_spacr_api_dot", None) is not None
 
 
 # ---------------------------------------------------------------------------

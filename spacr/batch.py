@@ -1775,9 +1775,10 @@ def resume_queue(path: Union[str, os.PathLike],
     Jobs that already succeeded are left alone. Jobs that were ``not_run``
     (the queue halted before reaching them) or still ``pending`` are run. A
     job that was ``running`` when the machine went down is reset and run
-    again: its artifacts are half-written, and half a mask run is not a
-    result. Failed and skipped jobs stay as they are unless ``retry_failed``
-    is set.
+    again. For Mask, Measure, and Format Converter jobs the rerun receives
+    ``resume=True`` automatically, so their verified field checkpoints are
+    reused instead of repeating the whole plate. Failed and skipped jobs stay
+    as they are unless ``retry_failed`` is set.
 
     :param path: the queue file :func:`run_queue` was persisting to.
     :param retry_failed: also re-run jobs that failed, and un-skip the jobs
@@ -1789,11 +1790,38 @@ def resume_queue(path: Union[str, os.PathLike],
     for job in queue.jobs:
         if job.status == STATUS_RUNNING:
             LOG.warning('batch: %s was still running when the queue stopped; its '
-                        'output is half-written, so it will run again', job.id)
+                        'output will be checked at the last safe boundary and '
+                        'then resumed', job.id)
+            _enable_field_resume(job)
             job.reset()
         elif job.status == STATUS_NOT_RUN:
             job.status = STATUS_PENDING
         elif retry_failed and job.status in (STATUS_FAILED, STATUS_SKIPPED):
+            _enable_field_resume(job)
             job.reset()
     kwargs.setdefault('path', path)
     return run_queue(queue, **kwargs)
+
+
+def _enable_field_resume(job: Job) -> None:
+    """Add ``resume=True`` to workflows with verified field checkpoints.
+
+    An override works for both inline dictionaries and external settings files,
+    and keeps the archived source settings untouched. Existing ``resume=...``
+    overrides are replaced rather than duplicated.
+    """
+    module = str(job.module).strip().lower().replace('-', '_')
+    if module not in {
+            'mask', 'measure', 'convert', 'format_convert',
+            'format_converter'}:
+        return
+    if isinstance(job.overrides, dict):
+        job.overrides = dict(job.overrides)
+        job.overrides['resume'] = True
+        return
+    overrides = [
+        value for value in job.override_args
+        if value.split('=', 1)[0].strip() != 'resume'
+    ]
+    overrides.append('resume=True')
+    job.overrides = overrides

@@ -651,7 +651,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .utils import (_masks_to_masks_stack, all_elements_match,
                         prepare_batch_for_segmentation, _get_cellpose_channels,
                         _resolve_cellpose_pretrained)
-    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
+    from .io import (_check_masks, _create_database, _get_avg_object_size,
+                     _save_array_atomic, _save_object_counts_to_database)
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
                             _trackastra_track_cells, _ultrack_track_cells)
     from .plot import plot_cellpose4_output
@@ -818,7 +819,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             batch_filenames = filenames[i: i+batch_size].tolist()
 
             if not settings['plot']:
-                batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
+                batch, batch_filenames = _check_masks(
+                    batch, batch_filenames, output_folder,
+                    resume=settings.get('resume', False))
             if batch.size == 0:
                 continue
             
@@ -1056,7 +1059,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
                     mask = mask.astype(np.uint16)
-                    np.save(output_filename, mask)
+                    _save_array_atomic(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
 
@@ -1082,7 +1085,8 @@ def generate_cellpose_masks(src, settings, object_type):
     :returns: None.
     """
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
-    from .io import _create_database, _save_object_counts_to_database, _check_masks, _get_avg_object_size
+    from .io import (_check_masks, _create_database, _get_avg_object_size,
+                     _save_array_atomic, _save_object_counts_to_database)
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
@@ -1219,7 +1223,9 @@ def generate_cellpose_masks(src, settings, object_type):
             batch_filenames = filenames[i: i+batch_size].tolist()
 
             if not settings['plot']:
-                batch, batch_filenames = _check_masks(batch, batch_filenames, output_folder)
+                batch, batch_filenames = _check_masks(
+                    batch, batch_filenames, output_folder,
+                    resume=settings.get('resume', False))
             if batch.size == 0:
                 continue
             
@@ -1391,7 +1397,7 @@ def generate_cellpose_masks(src, settings, object_type):
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
                     mask = mask.astype(np.uint16)
-                    np.save(output_filename, mask)
+                    _save_array_atomic(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
 
@@ -1425,7 +1431,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
         ``<src>/<object_type>_mask_stack/``.
     """
 
-    from .io import _create_database, _save_object_counts_to_database, _get_avg_object_size
+    from .io import (_check_masks, _create_database, _get_avg_object_size,
+                     _save_array_atomic, _save_object_counts_to_database)
     from .settings import _set_organelle_defaults
     from.plot import plot_organelle_output
 
@@ -1525,7 +1532,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
     #  Main loop over .npz stacks
     # ------------------------------------------------------------------ #
     for file_index, path in enumerate(paths):
-        name = os.path.splitext(os.path.basename(path))[0]
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
         os.makedirs(output_folder, exist_ok=True)
 
@@ -1533,17 +1539,16 @@ def generate_organelle_masks_sam(src, settings, object_type):
             stack = data['data']
             filenames = data['filenames']
 
-        # Skip already-processed files
-        existing = set(os.listdir(output_folder))
-        todo_indices = [i for i, fn in enumerate(filenames) if fn not in existing]
-        if not todo_indices:
-            print(f'All files in {name} already processed. Skipping.')
-            continue
-
         for i in range(0, stack.shape[0], batch_size):
             start = time.time()
             batch = stack[i: i + batch_size]
             batch_filenames = filenames[i: i + batch_size].tolist()
+            if not settings.get('plot', False):
+                batch, batch_filenames = _check_masks(
+                    batch, batch_filenames, output_folder,
+                    resume=settings.get('resume', False))
+            if batch.size == 0:
+                continue
 
             # ---------------------------------------------------------- #
             #  Extract the organelle channel
@@ -1643,7 +1648,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
             if settings['save']:
                 for mask_idx, mask in enumerate(mask_stack):
                     out_path = os.path.join(output_folder, batch_filenames[mask_idx])
-                    np.save(out_path, mask.astype(np.uint16))
+                    _save_array_atomic(out_path, mask.astype(np.uint16))
                 mask_stack = []
                 batch_filenames = []
 
@@ -1822,7 +1827,9 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
         cp_batch = np.stack([batch, batch], axis=-1).astype(batch.dtype)
 
     if not settings.get('plot', False):
-        cp_batch, batch_filenames = _check_masks(cp_batch, batch_filenames, output_folder)
+        cp_batch, batch_filenames = _check_masks(
+            cp_batch, batch_filenames, output_folder,
+            resume=settings.get('resume', False))
     if cp_batch.size == 0:
         return None
 
@@ -1885,7 +1892,9 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
         raise ValueError(f"Expected batch with ndim 3 or 4, got ndim={batch.ndim}")
 
     if not settings.get('plot', False):
-        cp_batch, batch_filenames = _check_masks(cp_batch, batch_filenames, output_folder)
+        cp_batch, batch_filenames = _check_masks(
+            cp_batch, batch_filenames, output_folder,
+            resume=settings.get('resume', False))
     if cp_batch.size == 0:
         return None
 

@@ -36,12 +36,17 @@ a ``within_noise`` flag when that is what happened.
 from __future__ import annotations
 
 import itertools
+import hashlib
 import math
+import os
 import random
 import statistics
+import tempfile
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+
+from .checkpoint import CheckpointStore, fingerprint, json_safe
 
 __all__ = [
     "SearchSpace",
@@ -55,6 +60,7 @@ __all__ = [
     "build_folds",
     "format_search",
     "umap_available",
+    "umap_checkpoint_path",
     "SearchData",
     "load_search_data",
     "build_sklearn_model",
@@ -478,6 +484,172 @@ class SearchResult:
 
 
 # ---------------------------------------------------------------------------
+# Persisted UMAP-search trials
+# ---------------------------------------------------------------------------
+
+def umap_checkpoint_path(settings: Mapping[str, Any]) -> Optional[str]:
+    """Return the default UMAP-search checkpoint path for module settings.
+
+    ``checkpoint_path`` wins when explicitly supplied. Otherwise the path is
+    ``<project>/results/.spacr_checkpoints/umap_search.json``, with database
+    and ``measurements/`` inputs normalised back to their project root.
+
+    :param settings: Image UMAP module settings.
+    :returns: absolute path, or None when no source/project can be inferred.
+    """
+    explicit = settings.get("checkpoint_path")
+    if explicit:
+        return os.path.abspath(os.path.expanduser(str(explicit)))
+    source = settings.get("src")
+    if isinstance(source, (list, tuple)):
+        source = next((item for item in source if item), None)
+    if not source:
+        return None
+    path = os.path.abspath(os.path.expanduser(str(source)))
+    # A hand-built/test settings dict may carry a placeholder such as "/x".
+    # Only explicit checkpoint_path is allowed to create a new project tree;
+    # an inferred path must start from a source that actually exists.
+    if not os.path.exists(path):
+        return None
+    if os.path.isfile(path) or path.lower().endswith((".db", ".sqlite")):
+        path = os.path.dirname(path)
+    if os.path.basename(path).lower() == "measurements":
+        path = os.path.dirname(path)
+    return os.path.join(
+        path, "results", ".spacr_checkpoints", "umap_search.json")
+
+
+def _array_fingerprint(value: Any) -> str:
+    """Digest an array-like value without serialising it into giant JSON."""
+    import numpy as np
+
+    array = np.asarray(value)
+    digest = hashlib.sha256()
+    digest.update(str(array.dtype).encode("utf-8"))
+    digest.update(repr(tuple(array.shape)).encode("utf-8"))
+    if array.dtype.hasobject:
+        digest.update(fingerprint(array.tolist()).encode("ascii"))
+    else:
+        contiguous = np.ascontiguousarray(array)
+        digest.update(memoryview(contiguous).cast("B"))
+    return digest.hexdigest()
+
+
+def _trial_key(params: Mapping[str, Any]) -> str:
+    """Stable id for one hyperparameter configuration."""
+    return fingerprint(dict(params))
+
+
+def _save_array_atomic(path: os.PathLike | str, array: Any) -> None:
+    """Atomically persist one NumPy array artifact."""
+    import numpy as np
+
+    target = os.fspath(path)
+    folder = os.path.dirname(target) or "."
+    os.makedirs(folder, exist_ok=True)
+    handle, temporary = tempfile.mkstemp(
+        prefix=f".{os.path.basename(target)}.", suffix=".tmp", dir=folder)
+    try:
+        with os.fdopen(handle, "wb") as stream:
+            np.save(stream, np.asarray(array), allow_pickle=False)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, target)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except OSError:
+            pass
+        raise
+
+
+class _UmapCheckpoint:
+    """Trial/round adapter over :class:`spacr.checkpoint.CheckpointStore`."""
+
+    def __init__(self, path: str, signature: Mapping[str, Any],
+                 resume: bool, keep_embeddings: bool) -> None:
+        self.store = CheckpointStore(
+            path, workflow="umap_hyperparameter_search",
+            signature=signature, boundary="trial", resume=resume)
+        self.keep_embeddings = bool(keep_embeddings)
+
+    @property
+    def resumed(self) -> bool:
+        """Whether an existing compatible checkpoint was loaded."""
+        return self.store.resumed
+
+    @property
+    def state(self) -> Dict[str, Any]:
+        """Adaptive-search state persisted after the last safe boundary."""
+        return self.store.meta
+
+    def load(self) -> Dict[str, Tuple[Trial, int]]:
+        """Load complete trials keyed by configuration digest.
+
+        A successful trial whose required embedding artifact is missing is
+        omitted and therefore recomputed. Failed trials need no artifact.
+        """
+        import numpy as np
+
+        loaded: Dict[str, Tuple[Trial, int]] = {}
+        for key, raw in self.store.completed.items():
+            if not isinstance(raw, Mapping):
+                continue
+            extra = dict(raw.get("extra_metrics") or {})
+            artifact = raw.get("embedding_artifact")
+            if artifact:
+                artifact_path = self.store.path.parent / str(artifact)
+                try:
+                    extra["embedding"] = np.load(
+                        artifact_path, allow_pickle=False)
+                except (OSError, ValueError):
+                    continue
+            elif (self.keep_embeddings and raw.get("error") is None
+                  and raw.get("score") is not None):
+                continue
+            trial = Trial(
+                params=dict(raw.get("params") or {}),
+                score=raw.get("score"),
+                extra_metrics=extra,
+                duration=float(raw.get("duration", 0.0) or 0.0),
+                error=raw.get("error"),
+                index=int(raw.get("index", -1) or 0),
+            )
+            loaded[str(key)] = (trial, int(raw.get("round", -1) or 0))
+        return loaded
+
+    def record(self, trial: Trial, *, round_index: int = -1,
+               state: Optional[Mapping[str, Any]] = None) -> None:
+        """Persist one completed trial and optional adaptive state."""
+        extra = dict(trial.extra_metrics)
+        embedding = extra.pop("embedding", None)
+        payload: Dict[str, Any] = {
+            "params": dict(trial.params),
+            "score": trial.score,
+            "extra_metrics": json_safe(extra),
+            "duration": float(trial.duration),
+            "error": trial.error,
+            "index": int(trial.index),
+            "round": int(round_index),
+        }
+        key = _trial_key(trial.params)
+        if embedding is not None:
+            artifact = self.store.artifact_path(key, ".npy")
+            _save_array_atomic(artifact, embedding)
+            payload["embedding_artifact"] = os.path.relpath(
+                artifact, self.store.path.parent)
+        self.store.mark(key, payload, meta=state)
+
+    def update(self, state: Mapping[str, Any], *, status: str = "running") -> None:
+        """Persist adaptive-round state."""
+        self.store.update(meta=state, status=status)
+
+    def finish(self, state: Optional[Mapping[str, Any]] = None) -> None:
+        """Mark the search checkpoint complete."""
+        self.store.finish(meta=state)
+
+
+# ---------------------------------------------------------------------------
 # The runner every search shares
 # ---------------------------------------------------------------------------
 
@@ -531,6 +703,8 @@ def _run_trials(fit_fn: Callable[..., Any],
                 should_stop: Optional[Callable[[], bool]] = None,
                 notes: Optional[Sequence[str]] = None,
                 call: Optional[Callable[[Callable, Dict[str, Any]], Any]] = None,
+                prior_trials: Optional[Mapping[str, Trial]] = None,
+                on_complete: Optional[Callable[[Trial], None]] = None,
                 ) -> SearchResult:
     """Evaluate ``param_sets`` one at a time, recording failures and progress.
 
@@ -551,6 +725,9 @@ def _run_trials(fit_fn: Callable[..., Any],
     :param notes: caveats to attach to the result.
     :param call: optional adapter invoking ``fit_fn`` with the parameters (used
         by :func:`cv_search` to fan a configuration out over folds).
+    :param prior_trials: compatible completed trials keyed by parameter digest.
+        They are replayed through ``on_trial`` and are not fitted again.
+    :param on_complete: persistence callback after each newly completed trial.
     :returns: the :class:`SearchResult`.
     """
     result = SearchResult(space=space, metric=metric,
@@ -558,8 +735,17 @@ def _run_trials(fit_fn: Callable[..., Any],
                           higher_is_better=higher_is_better)
     total = len(param_sets)
     invoke = call if call is not None else (lambda fn, p: fn(p))
+    prior = dict(prior_trials or {})
 
     for idx, params in enumerate(param_sets):
+        key = _trial_key(params)
+        if key in prior:
+            trial = prior[key]
+            trial.index = idx
+            result.trials.append(trial)
+            if on_trial is not None:
+                on_trial(trial, idx + 1, total)
+            continue
         if should_stop is not None and should_stop():
             result.partial = True
             result.notes.append(
@@ -580,6 +766,8 @@ def _run_trials(fit_fn: Callable[..., Any],
             trial.error = f"{type(exc).__name__}: {exc}"
         trial.duration = time.perf_counter() - started
         result.trials.append(trial)
+        if on_complete is not None:
+            on_complete(trial)
         if on_trial is not None:
             on_trial(trial, idx + 1, total)
 
@@ -785,6 +973,7 @@ def local_direction_search(
         on_trial: Optional[Callable[[Trial, int, int], None]] = None,
         should_stop: Optional[Callable[[], bool]] = None,
         notes: Optional[Sequence[str]] = None,
+        checkpoint: Optional[_UmapCheckpoint] = None,
         ) -> SearchResult:
     """Move through UMAP's parameter plane using scored 2-by-2 neighborhoods.
 
@@ -797,7 +986,9 @@ def local_direction_search(
     blank/None), not the number of individual fits. ``n_neighbors`` is clamped
     to 2 and, when supplied, ``n_neighbors_max``; ``min_dist`` is clamped to
     [0, 1]. Configurations already evaluated are skipped, which matters at
-    either boundary.
+    either boundary. When ``checkpoint`` is supplied, every completed trial
+    and every centre move is persisted; an incomplete round resumes its
+    remaining corners before the direction is chosen.
     """
     required = {"n_neighbors", "min_dist"}
     missing = required.difference(start)
@@ -851,13 +1042,46 @@ def local_direction_search(
             f"best new score improves by no more than {improvement_floor:g}."
         ],
     )
-    seen = set()
+    loaded = checkpoint.load() if checkpoint is not None else {}
+    state = checkpoint.state if checkpoint is not None else {}
+    rounds_completed = int(state.get("rounds_completed", 0) or 0)
+    if checkpoint is not None and checkpoint.resumed:
+        try:
+            centre_n = int(state.get("centre_n", centre_n))
+            centre_d = float(state.get("centre_d", centre_d))
+        except (TypeError, ValueError):
+            centre_n = int(start["n_neighbors"])
+            centre_d = float(start["min_dist"])
+        result.notes.append(
+            f"Resumed {len(loaded)} completed trial(s) at adaptive round "
+            f"{rounds_completed + 1} from {checkpoint.store.path}.")
+    # Trials from completed rounds already belong to the result. Trials from
+    # the current, interrupted round are appended in candidate order below.
+    prior_items = [
+        (trial, round_index)
+        for trial, round_index in loaded.values()
+        if round_index < rounds_completed
+    ]
+    for trial, _round in sorted(prior_items, key=lambda item: item[0].index):
+        result.trials.append(trial)
+        if on_trial is not None:
+            on_trial(trial, len(result.trials), max_rounds * 4)
+
+    seen = {
+        key for key, (_trial, round_index) in loaded.items()
+        if round_index < rounds_completed
+    }
     best_score: Optional[float] = None
+    if state.get("best_score") is not None:
+        try:
+            best_score = float(state["best_score"])
+        except (TypeError, ValueError):
+            best_score = None
     stopped = False
 
-    rounds_completed = 0
-    for _round_index in range(max_rounds):
+    for _round_index in range(rounds_completed, max_rounds):
         candidates = []
+        candidate_keys = set()
         for n_delta in (-n_step, n_step):
             for d_delta in (-d_step, d_step):
                 params = dict(frozen)
@@ -867,14 +1091,25 @@ def local_direction_search(
                 params["n_neighbors"] = candidate_n
                 params["min_dist"] = round(
                     min(1.0, max(0.0, centre_d + d_delta)), 12)
-                key = tuple(sorted(params.items()))
-                if key not in seen:
-                    seen.add(key)
+                key = _trial_key(params)
+                if key not in seen and key not in candidate_keys:
+                    candidate_keys.add(key)
                     candidates.append(params)
         if not candidates:
             break
         round_trials: List[Trial] = []
         for params in candidates:
+            key = _trial_key(params)
+            prior = loaded.get(key)
+            if prior is not None and prior[1] == _round_index:
+                trial = prior[0]
+                trial.index = len(result.trials)
+                result.trials.append(trial)
+                round_trials.append(trial)
+                seen.add(key)
+                if on_trial is not None:
+                    on_trial(trial, len(result.trials), max_rounds * 4)
+                continue
             if should_stop is not None and should_stop():
                 stopped = True
                 break
@@ -891,14 +1126,31 @@ def local_direction_search(
             trial.duration = time.perf_counter() - started
             result.trials.append(trial)
             round_trials.append(trial)
+            seen.add(key)
+            if checkpoint is not None:
+                checkpoint.record(
+                    trial, round_index=_round_index,
+                    state={
+                        "rounds_completed": rounds_completed,
+                        "centre_n": centre_n,
+                        "centre_d": centre_d,
+                        "best_score": best_score,
+                    })
             if on_trial is not None:
                 on_trial(trial, len(result.trials), max_rounds * 4)
         if stopped:
             break
-        rounds_completed += 1
+        rounds_completed = _round_index + 1
 
         successful = [trial for trial in round_trials if trial.ok]
         if not successful:
+            if checkpoint is not None:
+                checkpoint.update({
+                    "rounds_completed": rounds_completed,
+                    "centre_n": centre_n,
+                    "centre_d": centre_d,
+                    "best_score": best_score,
+                })
             break
         round_best = successful[0]
         for trial in successful[1:]:
@@ -920,10 +1172,24 @@ def local_direction_search(
                 "Local optimization stopped because the newest 2-by-2 "
                 f"neighborhood improved the best score by {gain:.4g}, not "
                 f"more than the {improvement_floor:g} stopping threshold.")
+            if checkpoint is not None:
+                checkpoint.update({
+                    "rounds_completed": rounds_completed,
+                    "centre_n": centre_n,
+                    "centre_d": centre_d,
+                    "best_score": best_score,
+                })
             break
         best_score = float(round_best.score)
         centre_n = int(round_best.params["n_neighbors"])
         centre_d = float(round_best.params["min_dist"])
+        if checkpoint is not None:
+            checkpoint.update({
+                "rounds_completed": rounds_completed,
+                "centre_n": centre_n,
+                "centre_d": centre_d,
+                "best_score": best_score,
+            })
 
     if stopped:
         result.partial = True
@@ -936,6 +1202,17 @@ def local_direction_search(
             f"Local optimization reached the maximum of {max_rounds} rounds.")
     _select_best(result)
     _append_summary_notes(result, max_rounds * 4)
+    if checkpoint is not None:
+        final_state = {
+            "rounds_completed": rounds_completed,
+            "centre_n": centre_n,
+            "centre_d": centre_d,
+            "best_score": best_score,
+        }
+        if stopped:
+            checkpoint.update(final_state, status="partial")
+        else:
+            checkpoint.finish(final_state)
     return result
 
 
@@ -1037,6 +1314,8 @@ def umap_search(features,
                 keep_embeddings: bool = True,
                 on_trial: Optional[Callable[[Trial, int, int], None]] = None,
                 should_stop: Optional[Callable[[], bool]] = None,
+                checkpoint_path: Optional[str] = None,
+                resume: bool = False,
                 ) -> SearchResult:
     """Sweep UMAP parameters, scoring each embedding with a named criterion.
 
@@ -1065,6 +1344,10 @@ def umap_search(features,
     :param keep_embeddings: store each trial's embedding in its extra metrics.
     :param on_trial: progress callback ``(trial, completed, total)``.
     :param should_stop: polled before each trial.
+    :param checkpoint_path: optional atomic checkpoint JSON. Embeddings are
+        stored as adjacent ``.npy`` artifacts after each completed trial.
+    :param resume: load a compatible checkpoint. Input features, labels,
+        search space, criterion, seed and material search settings must match.
     :returns: the :class:`SearchResult`. When umap-learn is missing and no
         ``embed_fn`` was given, this returns an empty result whose notes lead
         with :data:`UMAP_MISSING_MESSAGE` rather than raising ImportError.
@@ -1152,6 +1435,34 @@ def umap_search(features,
             f"UMAP's default n_neighbors was limited from 15 to "
             f"{implicit_neighbors} for the {n_samples} available rows.")
 
+    checkpoint = None
+    if checkpoint_path:
+        embed_identity = {
+            "module": getattr(embed_fn, "__module__", ""),
+            "name": getattr(embed_fn, "__qualname__",
+                            getattr(embed_fn, "__name__", type(embed_fn).__name__)),
+        }
+        checkpoint = _UmapCheckpoint(
+            os.path.abspath(os.path.expanduser(str(checkpoint_path))),
+            {
+                "features": _array_fingerprint(features),
+                "labels": (
+                    None if labels is None else _array_fingerprint(labels)),
+                "space": {name: list(space.params[name])
+                          for name in space.names},
+                "metric": metric,
+                "seed": int(seed),
+                "neighbourhood_k": int(neighbourhood_k),
+                "adaptive": bool(adaptive),
+                "n_neighbors_step": int(n_neighbors_step),
+                "min_dist_step": float(min_dist_step),
+                "min_improvement": float(min_improvement),
+                "embed_fn": embed_identity,
+            },
+            resume=bool(resume),
+            keep_embeddings=keep_embeddings,
+        )
+
     def _fit(params: Dict[str, Any]) -> Tuple[float, Dict[str, Any]]:
         """Embed one configuration and score it with every criterion."""
         fit_params = dict(params)
@@ -1186,11 +1497,32 @@ def umap_search(features,
             min_dist_step=min_dist_step,
             min_improvement=min_improvement, metric=metric,
             higher_is_better=True, on_trial=on_trial,
-            should_stop=should_stop, notes=notes)
+            should_stop=should_stop, notes=notes, checkpoint=checkpoint)
 
-    return _run_trials(_fit, space.grid(), space, metric,
-                       higher_is_better=True, on_trial=on_trial,
-                       should_stop=should_stop, notes=notes)
+    loaded = checkpoint.load() if checkpoint is not None else {}
+    prior_trials = {
+        key: trial for key, (trial, _round) in loaded.items()
+    }
+    if checkpoint is not None and checkpoint.resumed:
+        notes.append(
+            f"Resumed {len(prior_trials)} completed trial(s) from "
+            f"{checkpoint.store.path}.")
+    result = _run_trials(
+        _fit, space.grid(), space, metric,
+        higher_is_better=True, on_trial=on_trial,
+        should_stop=should_stop, notes=notes,
+        prior_trials=prior_trials,
+        on_complete=(
+            None if checkpoint is None
+            else lambda trial: checkpoint.record(trial, round_index=-1)))
+    if checkpoint is not None:
+        if result.partial:
+            checkpoint.update(
+                {"n_trials_completed": len(result.trials)}, status="partial")
+        else:
+            checkpoint.finish(
+                {"n_trials_completed": len(result.trials)})
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -2301,6 +2633,8 @@ def run_search_for_app(app_key: str,
                        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
                        should_stop: Optional[Callable[[], bool]] = None,
                        data: Optional[SearchData] = None,
+                       checkpoint_path: Optional[str] = None,
+                       resume: bool = False,
                        ) -> SearchResult:
     """Run the right search for a spaCR app. This is what the GUI calls.
 
@@ -2332,6 +2666,9 @@ def run_search_for_app(app_key: str,
     :param data: pre-loaded :class:`SearchData` (or
         :class:`ActivationSearchData` for ``'activation'``), skipping the
         database / model read.
+    :param checkpoint_path: UMAP checkpoint path; when omitted the UMAP
+        project path is derived by :func:`umap_checkpoint_path`.
+    :param resume: continue a compatible UMAP search checkpoint.
     :returns: the :class:`SearchResult`.
     :raises ValueError: for an unknown ``app_key`` or ``mode``.
     """
@@ -2386,13 +2723,15 @@ def run_search_for_app(app_key: str,
         data = load_search_data(app_key, settings)
 
     if app_key == "umap":
+        search_checkpoint = checkpoint_path or umap_checkpoint_path(settings)
         result = umap_search(
             data.features, space, metric=criterion, labels=data.labels,
             seed=seed, adaptive=adaptive, n_trials=n_trials,
             n_neighbors_step=n_neighbors_step,
             min_dist_step=min_dist_step,
             min_improvement=min_improvement,
-            on_trial=on_trial, should_stop=should_stop)
+            on_trial=on_trial, should_stop=should_stop,
+            checkpoint_path=search_checkpoint, resume=resume)
         result.notes = list(data.notes) + list(result.notes)
         return result
 
