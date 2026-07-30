@@ -6689,7 +6689,12 @@ def remove_noise(embedding, labels):
     labels = labels[non_noise_indices]
     return embedding, labels
 
-def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, plot_by_cluster, plot_outlines, plot_points, plot_images, smooth_lines, black_background, figuresize, dot_size, remove_image_canvas, verbose, interactive_payload=None, theme_colors=None):
+def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
+                   plot_by_cluster, plot_outlines, plot_points, plot_images,
+                   smooth_lines, black_background, figuresize, dot_size,
+                   remove_image_canvas, verbose, interactive_payload=None,
+                   theme_colors=None, point_color='cluster',
+                   point_alpha=0.65, outline_width=1.0):
     """Plot a 2-D embedding with cluster outlines, points, and optional image overlays.
 
     :returns: matplotlib ``Figure``.
@@ -6700,7 +6705,12 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors, p
     cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
     fig, ax = setup_plot(
         figuresize, black_background, theme_colors=theme_colors)
-    plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize, dot_size, verbose)
+    plot_clusters(
+        ax, embedding, labels, colors, cluster_centers, plot_outlines,
+        plot_points, smooth_lines, figuresize, dot_size, verbose,
+        point_color=point_color, point_alpha=point_alpha,
+        outline_width=outline_width,
+    )
     if not image_paths is None and plot_images:
         plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
     if interactive_payload is not None:
@@ -6775,7 +6785,10 @@ def setup_plot(figuresize, black_background, theme_colors=None):
     _style_plot_axes(fig, ax, colors)
     return fig, ax
 
-def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines, plot_points, smooth_lines, figuresize=10, dot_size=50, verbose=False):
+def plot_clusters(ax, embedding, labels, colors, cluster_centers,
+                  plot_outlines, plot_points, smooth_lines, figuresize=10,
+                  dot_size=50, verbose=False, point_color='cluster',
+                  point_alpha=0.65, outline_width=1.0):
     """Draw cluster outlines, points, and centroid labels onto ``ax`` for a 2-D embedding.
 
     :param ax: Matplotlib axes to draw into.
@@ -6792,8 +6805,17 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
     :returns: None.
     """
     unique_labels = np.unique(labels)
+    alpha = max(0.0, min(1.0, float(point_alpha)))
+    width = max(0.1, float(outline_width))
+    fixed_color = None
+    if str(point_color).strip().lower() not in {"", "cluster", "viridis"}:
+        try:
+            fixed_color = mpl.colors.to_rgba(point_color)
+        except (TypeError, ValueError):
+            fixed_color = None
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
+        marker_color = fixed_color or color
         # A ConvexHull needs >=3 non-collinear points; with too few or
         # collinear points (common for tiny/degenerate clusters) Qhull raises.
         # Skip the outline in that case rather than crashing the whole plot.
@@ -6802,7 +6824,8 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
                 try:
                     x_smooth, y_smooth = smooth_hull_lines(cluster_data)
                     if plot_outlines:
-                        ax.plot(x_smooth, y_smooth, color=color, linewidth=2)
+                        ax.plot(
+                            x_smooth, y_smooth, color=color, linewidth=width)
                 except Exception:
                     pass
         else:
@@ -6811,14 +6834,28 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers, plot_outlines,
                     hull = ConvexHull(cluster_data)
                     for simplex in hull.simplices:
                         if plot_outlines:
-                            ax.plot(hull.points[simplex, 0], hull.points[simplex, 1], color=color, linewidth=4)
+                            ax.plot(
+                                hull.points[simplex, 0],
+                                hull.points[simplex, 1],
+                                color=color, linewidth=width,
+                            )
                 except Exception:
                     pass
         if plot_points:
-            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[color], alpha=0.5, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=alpha, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         else:
-            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
-        ax.text(center[0], center[1], str(cluster_label), fontsize=12, ha='center', va='center')
+            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+        ax.text(
+            center[0], center[1], str(cluster_label), fontsize=12,
+            ha='center', va='center',
+            color=ax.xaxis.label.get_color(),
+            bbox={
+                'facecolor': ax.get_facecolor(),
+                'edgecolor': 'none',
+                'alpha': 0.8,
+                'pad': 1.5,
+            },
+        )
     legend = ax.legend(loc='best', fontsize=int(figuresize * 0.75))
     if legend is not None:
         legend.get_frame().set_facecolor(ax.get_facecolor())

@@ -218,6 +218,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "metadata_item_2_name", "metadata_item_2_value",
     # Live PyTorch training telemetry and the Cellpose training resize.
     "tensorboard", "target_size",
+    # Static and interactive Image UMAP presentation controls.
+    "point_color", "point_alpha", "outline_width",
+    "umap_canvas_width", "umap_sidebar_width",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

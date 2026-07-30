@@ -11,8 +11,8 @@ from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QSpinBox, QVBoxLayout, QWidget,
+    QComboBox, QDoubleSpinBox, QFormLayout, QLabel, QLineEdit, QPushButton,
+    QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
 
 from ...umap_annotations import write_umap_annotations
@@ -54,6 +54,14 @@ class ImageUmapExplorer(QWidget):
         self._selected = np.empty(0, dtype=int)
         self._picked: Optional[int] = None
         self._worker: Optional[_AnnotationWorker] = None
+        self._display = {
+            "point_size": 26,
+            "point_color": "cluster",
+            "point_alpha": 0.65,
+            "outline_width": 1.0,
+            "canvas_width": 900,
+            "sidebar_width": 280,
+        }
         self._build_ui()
 
     def _build_ui(self):
@@ -65,7 +73,8 @@ class ImageUmapExplorer(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
 
-        body = QHBoxLayout()
+        self._body_splitter = QSplitter(Qt.Horizontal, self)
+        self._body_splitter.setChildrenCollapsible(False)
         self._figure = Figure(figsize=(8, 6))
         self._canvas = FigureCanvasQTAgg(self._figure)
         self._toolbar = NavigationToolbar2QT(self._canvas, self)
@@ -74,7 +83,7 @@ class ImageUmapExplorer(QWidget):
         chart.addWidget(self._canvas, 1)
         chart_wrap = QWidget(self)
         chart_wrap.setLayout(chart)
-        body.addWidget(chart_wrap, 3)
+        self._body_splitter.addWidget(chart_wrap)
 
         side = QVBoxLayout()
         self._preview = QLabel("Click a point to preview its image.", self)
@@ -87,6 +96,26 @@ class ImageUmapExplorer(QWidget):
         side.addWidget(self._point_label)
 
         form = QFormLayout()
+        self._point_size = QSpinBox(self)
+        self._point_size.setRange(1, 10_000)
+        self._point_size.valueChanged.connect(self._apply_display_controls)
+        form.addRow("Point size", self._point_size)
+        self._point_color = QLineEdit("cluster", self)
+        self._point_color.setPlaceholderText("cluster, viridis, or #RRGGBB")
+        self._point_color.editingFinished.connect(
+            self._apply_display_controls)
+        form.addRow("Point color", self._point_color)
+        self._point_alpha = QDoubleSpinBox(self)
+        self._point_alpha.setRange(0.0, 1.0)
+        self._point_alpha.setSingleStep(0.05)
+        self._point_alpha.valueChanged.connect(self._apply_display_controls)
+        form.addRow("Point opacity", self._point_alpha)
+        self._outline_width = QDoubleSpinBox(self)
+        self._outline_width.setRange(0.1, 20.0)
+        self._outline_width.setSingleStep(0.1)
+        self._outline_width.valueChanged.connect(
+            self._apply_display_controls)
+        form.addRow("Line width", self._outline_width)
         self._cluster_box = QComboBox(self)
         self._cluster_box.currentIndexChanged.connect(self._select_cluster)
         form.addRow("Select cluster", self._cluster_box)
@@ -116,8 +145,8 @@ class ImageUmapExplorer(QWidget):
         side.addStretch(1)
         side_wrap = QWidget(self)
         side_wrap.setLayout(side)
-        body.addWidget(side_wrap, 1)
-        root.addLayout(body, 1)
+        self._body_splitter.addWidget(side_wrap)
+        root.addWidget(self._body_splitter, 1)
 
         self._axes = self._figure.add_subplot(111)
         self._scatter = None
@@ -125,6 +154,36 @@ class ImageUmapExplorer(QWidget):
         self._picked_artist = None
         self._lasso = None
         self._canvas.mpl_connect("button_press_event", self._on_click)
+        self._canvas.mpl_connect("scroll_event", self._on_scroll)
+        self._load_display_controls()
+
+    def _load_display_controls(self) -> None:
+        controls = (
+            (self._point_size, int(self._display["point_size"])),
+            (self._point_alpha, float(self._display["point_alpha"])),
+            (self._outline_width, float(self._display["outline_width"])),
+        )
+        for control, value in controls:
+            control.blockSignals(True)
+            control.setValue(value)
+            control.blockSignals(False)
+        self._point_color.blockSignals(True)
+        self._point_color.setText(str(self._display["point_color"]))
+        self._point_color.blockSignals(False)
+        self._body_splitter.setSizes([
+            int(self._display["canvas_width"]),
+            int(self._display["sidebar_width"]),
+        ])
+
+    def _apply_display_controls(self, *_args) -> None:
+        self._display.update({
+            "point_size": self._point_size.value(),
+            "point_color": self._point_color.text().strip() or "cluster",
+            "point_alpha": self._point_alpha.value(),
+            "outline_width": self._outline_width.value(),
+        })
+        if len(self._embedding):
+            self._draw_embedding()
 
     def set_payload(self, payload: Dict) -> None:
         """Load the arrays/records attached by ``generate_image_umap``."""
@@ -138,6 +197,12 @@ class ImageUmapExplorer(QWidget):
         self._embedding = embedding
         self._labels = labels
         self._records = records
+        display = payload.get("display")
+        if isinstance(display, dict):
+            for key in self._display:
+                if key in display and display[key] is not None:
+                    self._display[key] = display[key]
+            self._load_display_controls()
         self._selected = np.empty(0, dtype=int)
         self._picked = None
         self._draw_embedding()
@@ -152,9 +217,23 @@ class ImageUmapExplorer(QWidget):
         self._axes.clear()
         self._figure.patch.set_facecolor(background)
         self._axes.set_facecolor(background)
+        requested_color = str(self._display["point_color"]).strip()
+        color_key = requested_color.lower()
+        scatter_kwargs = {}
+        if color_key in {"", "cluster", "viridis"}:
+            scatter_kwargs.update(c=self._labels, cmap="viridis")
+        else:
+            from matplotlib.colors import is_color_like
+            if is_color_like(requested_color):
+                scatter_kwargs["color"] = requested_color
+            else:
+                scatter_kwargs.update(c=self._labels, cmap="viridis")
         self._scatter = self._axes.scatter(
             self._embedding[:, 0], self._embedding[:, 1],
-            c=self._labels, cmap="viridis", s=26, alpha=0.75)
+            s=float(self._display["point_size"]),
+            alpha=float(self._display["point_alpha"]),
+            **scatter_kwargs,
+        )
         self._axes.set_xlabel("UMAP Dimension 1")
         self._axes.set_ylabel("UMAP Dimension 2")
         self._axes.set_title("Click a point to preview · drag a lasso to select")
@@ -166,13 +245,19 @@ class ImageUmapExplorer(QWidget):
             spine.set_color(foreground)
         self._selection_artist = self._axes.scatter(
             [], [], s=70, facecolors="none", edgecolors=foreground,
-            linewidths=1.5)
+            linewidths=float(self._display["outline_width"]))
         self._picked_artist = self._axes.scatter(
             [], [], s=110, facecolors="none", edgecolors="#ffcc33",
-            linewidths=2.2)
+            linewidths=float(self._display["outline_width"]))
         if self._lasso is not None:
             self._lasso.disconnect_events()
-        self._lasso = LassoSelector(self._axes, onselect=self._on_lasso)
+        self._lasso = LassoSelector(
+            self._axes, onselect=self._on_lasso,
+            props={
+                "color": foreground,
+                "linewidth": float(self._display["outline_width"]),
+            },
+        )
         self._cluster_box.blockSignals(True)
         self._cluster_box.clear()
         self._cluster_box.addItem("—", None)
@@ -185,6 +270,30 @@ class ImageUmapExplorer(QWidget):
         self._status.setText(
             f"{len(self._records)} points · {writable} database-backed · "
             "drag around points to select them.")
+        if len(self._selected):
+            self._selection_artist.set_offsets(
+                self._embedding[self._selected])
+        if self._picked is not None:
+            self._picked_artist.set_offsets(
+                self._embedding[self._picked].reshape(1, 2))
+        self._canvas.draw_idle()
+
+    def _on_scroll(self, event) -> None:
+        """Zoom around the pointer with the mouse wheel."""
+        if (event.inaxes is not self._axes or event.xdata is None
+                or event.ydata is None):
+            return
+        factor = 0.8 if event.button == "up" else 1.25
+        x0, x1 = self._axes.get_xlim()
+        y0, y1 = self._axes.get_ylim()
+        self._axes.set_xlim(
+            event.xdata - (event.xdata - x0) * factor,
+            event.xdata + (x1 - event.xdata) * factor,
+        )
+        self._axes.set_ylim(
+            event.ydata - (event.ydata - y0) * factor,
+            event.ydata + (y1 - event.ydata) * factor,
+        )
         self._canvas.draw_idle()
 
     def _on_click(self, event) -> None:

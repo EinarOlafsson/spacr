@@ -541,7 +541,7 @@ def test_plot_clusters_smooth_outline_draws_spline():
     assert len(ax.lines) == 1
     # smooth_hull_lines evaluates the spline at exactly 100 samples
     assert ax.lines[0].get_xdata().shape == (100,)
-    assert ax.lines[0].get_linewidth() == 2
+    assert ax.lines[0].get_linewidth() == 1
     assert len(ax.collections) == 1
 
 
@@ -575,7 +575,7 @@ def test_plot_clusters_convex_hull_outline_draws_one_line_per_simplex():
         plot_outlines=True, plot_points=True, smooth_lines=False,
     )
     assert len(ax.lines) == n_simplices
-    assert all(line.get_linewidth() == 4 for line in ax.lines)
+    assert all(line.get_linewidth() == 1 for line in ax.lines)
 
 
 def test_plot_clusters_convex_hull_swallows_degenerate_hull():
