@@ -174,11 +174,27 @@ class TestPureHelpers:
 
 
 class TestPanelFigure:
+    PALETTE = {
+        "surface_alt": "#25282d",
+        "fg": "#f2f4f7",
+        "fg_muted": "#a9afb8",
+        "border": "#555b65",
+        "accent": "#4a9eff",
+    }
+
     def test_embeddings_become_small_multiples(self):
-        fig = build_panel_figure(make_result(n=3, embeddings=True))
+        fig = build_panel_figure(
+            make_result(n=3, embeddings=True), palette=self.PALETTE)
         assert fig is not None
         assert len(fig.axes) >= 3
         assert "look at them" in fig._suptitle.get_text()
+        from matplotlib.colors import to_hex
+        assert to_hex(fig.get_facecolor()) == self.PALETTE["surface_alt"]
+        assert all(
+            to_hex(ax.get_facecolor()) == self.PALETTE["surface_alt"]
+            for ax in fig.axes
+        )
+        assert to_hex(fig._suptitle.get_color()) == self.PALETTE["fg"]
         import matplotlib.pyplot as plt
         plt.close(fig)
 
@@ -190,11 +206,17 @@ class TestPanelFigure:
         plt.close(fig)
 
     def test_without_embeddings_it_plots_score_versus_rank(self):
-        fig = build_panel_figure(make_result(n=5, fold_std=0.05))
+        fig = build_panel_figure(
+            make_result(n=5, fold_std=0.05), palette=self.PALETTE)
         assert fig is not None
         ax = fig.axes[0]
         assert ax.get_xlabel() == "rank"
         assert "within noise" in ax.get_legend().get_texts()[0].get_text()
+        from matplotlib.colors import to_hex
+        assert to_hex(ax.xaxis.label.get_color()) == self.PALETTE["fg"]
+        assert to_hex(
+            ax.get_legend().get_frame().get_facecolor()
+        ) == self.PALETTE["surface_alt"]
         import matplotlib.pyplot as plt
         plt.close(fig)
 
