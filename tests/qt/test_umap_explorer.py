@@ -122,3 +122,55 @@ def test_embedding_matches_container_theme_and_uses_viridis(
     assert explorer._axes.spines["left"].get_edgecolor() == to_rgba(
         "#ffffff")
     assert explorer._scatter.get_cmap().name == "viridis"
+
+
+def test_display_settings_control_points_lines_and_splitter(qtbot, tmp_path):
+    from matplotlib.colors import to_rgba
+
+    payload, _database = _payload(tmp_path)
+    payload["display"] = {
+        "point_size": 73,
+        "point_color": "#4cc9f0",
+        "point_alpha": 0.4,
+        "outline_width": 0.6,
+        "canvas_width": 760,
+        "sidebar_width": 340,
+    }
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+    explorer.resize(1200, 700)
+    explorer.show()
+    explorer.set_payload(payload)
+    qtbot.wait(1)
+
+    assert np.all(explorer._scatter.get_sizes() == 73)
+    assert explorer._scatter.get_alpha() == pytest.approx(0.4)
+    assert explorer._scatter.get_facecolors()[0] == pytest.approx(
+        to_rgba("#4cc9f0", alpha=0.4))
+    assert explorer._selection_artist.get_linewidths()[0] == pytest.approx(0.6)
+    assert explorer._point_size.value() == 73
+    assert explorer._point_color.text() == "#4cc9f0"
+    sizes = explorer._body_splitter.sizes()
+    assert sizes[0] > sizes[1]
+
+
+def test_display_controls_update_live_and_scroll_zooms(qtbot, tmp_path):
+    payload, _database = _payload(tmp_path)
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+    explorer.set_payload(payload)
+
+    explorer._point_size.setValue(41)
+    explorer._point_color.setText("orange")
+    explorer._point_color.editingFinished.emit()
+    assert np.all(explorer._scatter.get_sizes() == 41)
+
+    before = np.ptp(explorer._axes.get_xlim())
+    event = type("_Scroll", (), {
+        "inaxes": explorer._axes,
+        "xdata": 1.0,
+        "ydata": 1.0,
+        "button": "up",
+    })()
+    explorer._on_scroll(event)
+    assert np.ptp(explorer._axes.get_xlim()) < before

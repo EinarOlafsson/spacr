@@ -2021,6 +2021,16 @@ QComboBox QAbstractItemView {{
     selection-background-color: {P["accent"]};
     selection-color: {P["bg"]};
 }}
+/* UMAP search inputs sit directly on a raised gray card. Use the adjacent
+   theme surface instead of a native/base palette, which rendered these three
+   controls black on some Linux Qt styles. */
+QWidget#UmapHyperparamControls QLineEdit,
+QWidget#UmapHyperparamControls QSpinBox,
+QWidget#UmapHyperparamControls QDoubleSpinBox,
+QWidget#UmapHyperparamControls QComboBox {{
+    background-color: {P["surface_hi"]};
+    color: {P["fg"]};
+}}
 
 /* -----------------------------------------------------------------
  *  Checkboxes + toggles
