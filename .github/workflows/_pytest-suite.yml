@@ -35,8 +35,12 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       PYTHONPATH: ${{ github.workspace }}
       MPLBACKEND: Agg
-      NUMBA_CACHE_DIR: ${{ runner.temp }}/numba-cache
-      XDG_CACHE_HOME: ${{ runner.temp }}/xdg-cache
+      # `runner` is not an allowed expression context in job-level env.
+      # GitHub rejected the reusable workflow before creating any jobs when
+      # these used `${{ runner.temp }}`. Hosted runners are isolated, so their
+      # local temporary filesystem is the appropriate equivalent.
+      NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
+      XDG_CACHE_HOME: /tmp/spacr-xdg-cache
 
     steps:
       - uses: actions/checkout@v6
