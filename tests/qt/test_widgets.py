@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QLabel, QWidget
 
 from spacr.qt.widgets.card import Card
 from spacr.qt.widgets.divider import Divider
+from spacr.qt.widgets.info_link import InfoLink
 from spacr.qt.widgets.section import Section
 from spacr.qt.widgets.tile import Tile
 from spacr.qt.widgets.toggle import Toggle
@@ -41,6 +42,23 @@ def test_divider_default_horizontal(qtbot):
     assert d.objectName() == "Divider"
 
 
+def test_info_link_is_icon_only_and_opens_its_url(qtbot, monkeypatch):
+    from PySide6.QtGui import QDesktopServices
+
+    opened = []
+    monkeypatch.setattr(
+        QDesktopServices,
+        "openUrl",
+        lambda url: opened.append(url.toString()) or True,
+    )
+    link = InfoLink("https://example.test/docs")
+    qtbot.addWidget(link)
+    assert link.text() in ("", "i")
+    assert link.accessibleName() == "Open documentation"
+    link.click()
+    assert opened == ["https://example.test/docs"]
+
+
 def test_section_add_row_and_widget(qtbot):
     sec = Section("General")
     qtbot.addWidget(sec)
@@ -52,6 +70,17 @@ def test_section_add_row_and_widget(qtbot):
     # Both children are inside the section.
     assert w1.parent() is not None
     assert w2.parent() is not None
+
+
+def test_section_places_an_information_icon_beside_the_label(qtbot):
+    sec = Section("General")
+    qtbot.addWidget(sec)
+    label = QLabel("Channels")
+    field = QLabel("0, 1, 2")
+    info = InfoLink("https://example.test/channels")
+    sec.add_row(label, field, info_widget=info)
+    assert info.parentWidget().objectName() == "SettingLabelWithInfo"
+    assert sec._row_widgets == [(label, field)]
 
 
 def test_tile_emits_clicked(qtbot):

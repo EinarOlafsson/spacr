@@ -31,7 +31,7 @@ from PySide6.QtWidgets import (
 
 from ..bridge import make_thread, resolve_pipeline_entry
 from ..theme import SPACING, active_palette
-from ..widgets import Card, Divider, Section, UsageBar
+from ..widgets import Card, Divider, InfoLink, Section, UsageBar
 from .settings_model import SettingsWidgets
 
 
@@ -323,7 +323,7 @@ class AppScreen(QWidget):
 
         # ─── Header ───────────────────────────────────────────────────
         # Title + subtitle on the left, followed on the same row by a short
-        # single-line "what this does" blurb and a docs link. Everything is
+        # single-line "what this does" blurb and an information link. Everything is
         # left-aligned; the trailing stretch takes up the slack.
         header = QWidget()
         self._header = header
@@ -358,13 +358,13 @@ class AppScreen(QWidget):
             blurb.setMinimumWidth(0)
             blurb.setToolTip(intro_text)
             intro_row.addWidget(blurb)
-            palette = active_palette()
-            docs = QLabel(
-                f'<a href="{api_docs_url(app_key)}" '
-                f'style="color:{palette["accent"]};">Docs&nbsp;→</a>')
-            docs.setOpenExternalLinks(True)
-            docs.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            intro_row.addWidget(docs)
+            info = InfoLink(
+                api_docs_url(app_key),
+                tooltip=f"Information about {APP_TITLES.get(app_key, app_key)}",
+                parent=header,
+            )
+            info.setObjectName("ModuleInfoLink")
+            intro_row.addWidget(info)
             header_layout.addLayout(intro_row)
         header_layout.addStretch(1)
         outer.addWidget(header)
@@ -569,7 +569,16 @@ class AppScreen(QWidget):
                         self._html_tip_map[lbl_widget] = html
                         lbl_widget.installEventFilter(self)
                         break
-                section.add_row(lbl_widget, widget)
+                info = None
+                if field_key is not None:
+                    from .settings_model import api_docs_url
+                    info = InfoLink(
+                        api_docs_url(self.app_key),
+                        tooltip=f"Information about {label}",
+                        parent=section,
+                    )
+                    info.setObjectName("SettingInfoLink")
+                section.add_row(lbl_widget, widget, info_widget=info)
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
 
@@ -766,7 +775,7 @@ class AppScreen(QWidget):
         return super().eventFilter(obj, event)
 
     def _default_hint(self) -> str:
-        return "Hover any setting to see its description and docs link."
+        return "Hover any setting for details, or select ⓘ for documentation."
 
     def _build_runtime_panel(self) -> QWidget:
         wrap = QWidget()

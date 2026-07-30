@@ -10,6 +10,7 @@ from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
 from .figure_queue import FigureQueue
 from .hover_tooltip import HoverTooltip
+from .info_link import InfoLink
 from .umap_explorer import ImageUmapExplorer
 from .live_preview import LivePreviewPanel
 from .section import Section
@@ -23,7 +24,7 @@ __all__ = [
     "ColumnPickerDialog",
     "ColumnPickerButton", "ConsolePanel", "Divider",
     "ElidingLabel", "ElidingPushButton",
-    "EmptyState", "FigureQueue", "HTile", "HoverTooltip",
+    "EmptyState", "FigureQueue", "HTile", "HoverTooltip", "InfoLink",
     "ImageUmapExplorer", "LivePreviewPanel", "Section", "Tile", "Toggle",
     "UsageBar",
 ]
