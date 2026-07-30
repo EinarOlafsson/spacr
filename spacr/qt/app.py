@@ -1576,6 +1576,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
     app = QApplication(sys.argv[:1])
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
+    app.setWindowIcon(QIcon(os.path.join(
+        iconset.RESOURCE_DIR, "app_icon.png")))
 
     # Lift Qt's default 256 MB QImageReader allocation limit. Large multi-panel
     # figures rendered at high DPI decode to well over 256 MB, and hitting the

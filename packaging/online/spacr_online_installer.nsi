@@ -6,8 +6,13 @@
   !define VERSION "0.0.0"
 !endif
 
+!define SPACR_ICON "..\..\spacr\resources\icons\app_icon.ico"
+!define MUI_ICON "${SPACR_ICON}"
+!define MUI_UNICON "${SPACR_ICON}"
+
 Name "spaCR"
 OutFile "..\..\dist\online\SpaCR-${VERSION}-Windows-Online-Setup.exe"
+Icon "${SPACR_ICON}"
 InstallDir "$LOCALAPPDATA\SpaCR"
 InstallDirRegKey HKCU "Software\spaCR" "InstallRoot"
 RequestExecutionLevel user
@@ -33,6 +38,8 @@ SectionEnd
 
 Section "spaCR desktop application" SecSpaCR
   SectionIn RO
+  SetOutPath "$INSTDIR"
+  File /oname=spacr.ico "${SPACR_ICON}"
   SetOutPath "$TEMP\spaCR-online-installer"
   File "install_spacr_windows.ps1"
 
@@ -60,9 +67,9 @@ Section "spaCR desktop application" SecSpaCR
 
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateDirectory "$SMPROGRAMS\spaCR"
-  CreateShortcut "$SMPROGRAMS\spaCR\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"'
+  CreateShortcut "$SMPROGRAMS\spaCR\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
   CreateShortcut "$SMPROGRAMS\spaCR\Uninstall spaCR.lnk" "$INSTDIR\Uninstall.exe"
-  CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"'
+  CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
 
   Delete "$TEMP\spaCR-online-installer\install_spacr_windows.ps1"
   RMDir "$TEMP\spaCR-online-installer"

@@ -15,6 +15,8 @@ ONLINE = ROOT / "packaging" / "online"
 UNIX = ONLINE / "install_spacr_unix.sh"
 WINDOWS = ONLINE / "install_spacr_windows.ps1"
 NSIS = ONLINE / "spacr_online_installer.nsi"
+APP_ICON = ROOT / "spacr" / "resources" / "icons" / "app_icon.png"
+WINDOWS_ICON = ROOT / "spacr" / "resources" / "icons" / "app_icon.ico"
 WORKFLOW = ROOT / ".github" / "workflows" / "online-installers.yml"
 RELEASE_WORKFLOW = ROOT / ".github" / "workflows" / "release.yml"
 
@@ -126,6 +128,19 @@ def test_linux_installer_creates_desktop_launcher_and_uninstaller():
     assert "dnf" in source
     assert "zypper" in source
     assert "pacman" in source
+    assert "app_icon.png" in source
+
+
+def test_application_icon_has_exact_background_and_transparent_corners():
+    from PIL import Image
+
+    with Image.open(APP_ICON).convert("RGBA") as icon:
+        assert icon.size == (1024, 1024)
+        assert icon.getpixel((0, 0))[3] == 0
+        assert icon.getpixel((512, 32)) == (0, 55, 55, 255)
+    with Image.open(WINDOWS_ICON) as icon:
+        assert icon.format == "ICO"
+        assert icon.size in {(16, 16), (256, 256)}
 
 
 def test_windows_installer_is_per_user_and_registers_uninstall():
@@ -139,6 +154,8 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert "Refusing unsafe install root" in bootstrap
     assert 'Section /o "NVIDIA GPU acceleration (large download)"' in nsis
     assert '-TorchBackend "$1"' in nsis
+    assert "app_icon.ico" in nsis
+    assert 'File /oname=spacr.ico "${SPACR_ICON}"' in nsis
 
 
 def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
@@ -146,6 +163,8 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "/Applications/SpaCR.app" in source
     assert "pkgbuild" in source
     assert "codesign" in source
+    assert "iconutil -c icns" in source
+    assert "CFBundleIconFile" in source
     assert "uninstall-spacr.sh" in source
     assert "PRODUCTSIGN_IDENTITY" in source
 
@@ -195,8 +214,10 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert workflow.count("timeout-minutes: 30") == 3
     assert workflow.count("assert torch.version.cuda is None") == 3
     assert workflow.count("install.log") >= 3
+    assert "sudo installer -verboseR -pkg" in workflow
+    assert "Start-Process" in workflow
     macos_job = workflow[workflow.index("  macos:"):workflow.index("  collect:")]
-    assert "ast.parse" in macos_job
+    assert 'find dist/online -name \'*macOS*Online.pkg\'' in macos_job
     assert "packaging/release.py version" not in macos_job
 
 
