@@ -411,7 +411,11 @@ def test_dropped_path_that_does_not_exist_is_reported(zone, tmp_path, msgbox):
     _drop(w, [missing])
     assert h.applied == []
     assert msgbox.calls == [("information", "Nothing to drop into",
-                             "cannot use gone")]
+                             "cannot use gone\n\nSuggestion: Open this "
+                             "module's source setting and choose a file or "
+                             "folder matching the required layout.")]
+    assert "Reason: cannot use gone" in w._console.text
+    assert "Suggestion:" in w._console.text
 
 
 def test_rejected_drop_without_alternatives_shows_error_message(zone, tmp_path,
@@ -422,7 +426,10 @@ def test_rejected_drop_without_alternatives_shows_error_message(zone, tmp_path,
     w = zone(h)
     _drop(w, [folder])
     assert msgbox.calls == [("information", "Nothing to drop into",
-                             "cannot use empty_plate")]
+                             "cannot use empty_plate\n\nSuggestion: Open this "
+                             "module's source setting and choose a file or "
+                             "folder matching the required layout.")]
+    assert "Reason: cannot use empty_plate" in w._console.text
 
 
 def test_handler_apply_exception_becomes_a_warning(zone, tmp_path, msgbox):
@@ -431,7 +438,10 @@ def test_handler_apply_exception_becomes_a_warning(zone, tmp_path, msgbox):
     h = RecordingHandler(accept=True, raise_on_apply=True)
     w = zone(h)
     _drop(w, [folder])
-    assert msgbox.calls == [("warning", "Drop failed", "boom: disk on fire")]
+    assert msgbox.calls == []
+    assert "Reason: The drop handler failed: boom: disk on fire" in \
+        w._console.text
+    assert "Check that the path is readable" in w._console.text
 
 
 def test_rejected_drop_with_alternatives_applies_the_users_pick(
@@ -476,7 +486,9 @@ def test_alternative_pick_that_fails_to_apply_warns(zone, tmp_path, msgbox):
     w = zone(h)
     with _auto_modal("accept"):
         _drop(w, [wrong])
-    assert msgbox.calls == [("warning", "Drop failed", "boom: disk on fire")]
+    assert msgbox.calls == []
+    assert "Reason: The drop handler failed: boom: disk on fire" in \
+        w._console.text
 
 
 # ---------------------------------------------------------------------------
