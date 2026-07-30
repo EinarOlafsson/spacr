@@ -93,6 +93,7 @@ html_logo       = '_static/logo_spacr.png'
 html_favicon    = '_static/logo_spacr.png'
 templates_path  = ['_templates']
 html_static_path = ['_static']
+html_extra_path = ['_extra']
 html_css_files  = ['custom.css']
 
 html_theme_options = {

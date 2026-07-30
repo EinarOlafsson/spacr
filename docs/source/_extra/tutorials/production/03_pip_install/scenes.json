@@ -1,0 +1,46 @@
+{
+  "title": "spaCR tutorial 3 — Installation with pip",
+  "fps": 30,
+  "size": [1920, 1080],
+  "scenes": [
+    {
+      "image": "keyframes/01.png",
+      "narration": "If you already have a Python environment, you can install spaCR directly with pip. Python 3.12 is recommended. spaCR supports Python 3.9 through 3.14, except Python 3.14.1.",
+      "speech_text": "If you already have a Python environment, you can install spacer directly with pip. Python 3.12 is recommended. spacer supports Python 3.9 through 3.14, except Python 3.14.1.",
+      "target": [600, 342],
+      "focus": [220, 315, 1240, 152],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/02.png",
+      "narration": "First, upgrade pip in the current environment. If you are using Conda or a virtual environment, make sure it is active before running this command.",
+      "target": [780, 343],
+      "focus": [220, 315, 1240, 70],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/03.png",
+      "narration": "Install spaCR by running pip install spacr. This installs spaCR and makes its desktop launcher and command-line tools available in the current environment.",
+      "speech_text": "Install spacer by running pip install spacer. This installs spacer and makes its desktop launcher and command-line tools available in the current environment.",
+      "target": [780, 343],
+      "focus": [220, 315, 1240, 70],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/04.png",
+      "narration": "When installation finishes, enter spacr to open the desktop application. The first start can take longer while libraries initialize and model resources are prepared.",
+      "speech_text": "When installation finishes, enter spacer to open the desktop application. The first start can take longer while libraries initialize and model resources are prepared.",
+      "target": [380, 343],
+      "focus": [220, 315, 720, 70],
+      "hold_after": 0.6
+    },
+    {
+      "image": "keyframes/05.png",
+      "narration": "On a server or another headless system, use the same pip install spacr command. Then use spacr dash run dash dash list to see the workflows available from the command line.",
+      "speech_text": "On a server or another headless system, use the same pip install spacer command. Then use spacer dash run dash dash list to see the workflows available from the command line.",
+      "target": [620, 421],
+      "focus": [220, 397, 1240, 70],
+      "hold_after": 1.0
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "title": "spaCR tutorial 5 — Home screen and navigation",
+  "fps": 30,
+  "size": [1920, 1080],
+  "scenes": [
+    {
+      "image": "keyframes/01_home.png",
+      "narration": "This is the spaCR Home screen. It brings the complete microscopy and sequencing workflow into one desktop application, from segmentation and measurement through classification, barcode mapping, quality control, and biological assays.",
+      "speech_text": "This is the spacer Home screen. It brings the complete microscopy and sequencing workflow into one desktop application, from segmentation and measurement through classification, barcode mapping, quality control, and biological assays.",
+      "target": [830, 76],
+      "focus": [300, 35, 1150, 70],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/01_home.png",
+      "narration": "The navigation sidebar on the left groups modules by purpose. Core contains the main analysis pipeline, Data contains import and plate utilities, and the remaining sections collect segmentation models, results, quality control, and Toxoplasma assays.",
+      "target": [140, 520],
+      "focus": [0, 35, 285, 1015],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/01_home.png",
+      "narration": "The tabs across the top filter the Home tiles. Home shows all registered modules, while each category reduces the grid to the tools associated with that part of the workflow.",
+      "speech_text": "The tabs across the top filter the Home tiles. Home shows all registered modules, while each category reduces the grid to the tools associated with that part of the workflow.",
+      "target": [780, 135],
+      "focus": [305, 108, 1185, 48],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/01_home.png",
+      "narration": "Every tile opens one module. The grid uses the same categories as the sidebar, so you can navigate with whichever layout is more convenient. Hovering over a tile also displays a short description.",
+      "target": [900, 510],
+      "focus": [315, 158, 1170, 850],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/01_home.png",
+      "narration": "The panels on the right summarize recent runs, system resources, release information, aggregate activity, and module maturity. Alpha, beta, and stable describe how mature each module is.",
+      "target": [1700, 390],
+      "focus": [1495, 112, 410, 545],
+      "hold_after": 0.5
+    },
+    {
+      "image": "keyframes/01_home.png",
+      "narration": "To open a module, click its sidebar entry or its Home tile. Here, we click Mask in the Core section.",
+      "target": [70, 183],
+      "focus": [3, 164, 280, 38],
+      "pointer": true,
+      "hold_after": 0.4
+    },
+    {
+      "image": "keyframes/02_mask_open.png",
+      "narration": "The Mask module opens in the central workspace while the sidebar remains available. This consistent layout lets you move between stages without closing the project. The dedicated Mask tutorial will use your four-channel experiment.",
+      "speech_text": "The Mask module opens in the central workspace while the sidebar remains available. This consistent layout lets you move between stages without closing the project. The dedicated Mask tutorial will use your four-channel experiment.",
+      "target": [1090, 520],
+      "focus": [292, 25, 1610, 1015],
+      "hold_after": 1.0
+    }
+  ]
+}
