@@ -2415,10 +2415,11 @@ def _read_and_join_tables(db_path, table_names=None):
     """
     if table_names is None:
         table_names = ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']
+    from .database_schema import ensure_database_schema
     from .utils import (PNG_CROP_MODE_BY_ID_COLUMN, PNG_OBJECT_ID_COLUMNS,
                         TIME_COLUMN_ALIASES, object_label_from_png_id,
-                        rename_columns_in_db, _time_column)
-    rename_columns_in_db(db_path)
+                        _time_column)
+    ensure_database_schema(db_path)
 
     conn = sqlite3.connect(db_path)
     dataframes = {}
@@ -2688,6 +2689,11 @@ def _save_settings_to_db(settings, stage=None):
     # Database connection and saving the settings DataFrame
     conn = sqlite3.connect(f'{directory}/measurements.db', timeout=5)
     try:
+        from .database_schema import migrate_connection
+        migrate_connection(
+            conn,
+            path=os.path.abspath(f'{directory}/measurements.db'),
+        )
         conn.execute(
             f'CREATE TABLE IF NOT EXISTS "{SETTINGS_HISTORY_TABLE}" ('
             'run_id TEXT, stage TEXT, stamped_utc TEXT, '
@@ -2815,48 +2821,52 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
 
     # Connect to the database
     conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    try:
+        from .database_schema import migrate_connection
+        migrate_connection(conn, path=os.path.abspath(db_path))
+        cursor = conn.cursor()
 
-    # Create the table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS object_counts (
-        file_name TEXT,
-        count_type TEXT,
-        object_count INTEGER,
-        PRIMARY KEY (file_name, count_type)
-    )
-    ''')
+        # Create the table if it doesn't exist
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS object_counts (
+            file_name TEXT,
+            count_type TEXT,
+            object_count INTEGER,
+            PRIMARY KEY (file_name, count_type)
+        )
+        ''')
 
-    # Batch insert or update the object counts
-    cursor.executemany('''
-    INSERT INTO object_counts (file_name, count_type, object_count)
-    VALUES (?, ?, ?)
-    ON CONFLICT(file_name, count_type) DO UPDATE SET
-    object_count = excluded.object_count
-    ''', records)
-
-    # Commit changes and close the database connection
-    conn.commit()
-    conn.close()
+        # Batch insert or update the object counts
+        cursor.executemany('''
+        INSERT INTO object_counts (file_name, count_type, object_count)
+        VALUES (?, ?, ?)
+        ON CONFLICT(file_name, count_type) DO UPDATE SET
+        object_count = excluded.object_count
+        ''', records)
+        conn.commit()
+    finally:
+        conn.close()
 
 def _create_database(db_path):
-    """
-    Creates a SQLite database at the specified path.
+    """Create a SQLite database at the current spaCR schema version.
 
-    Args:
-        db_path (str): The path where the database should be created.
-
-    Returns:
-        None
+    Existing databases are migrated in place. A database from a newer spaCR
+    release raises :class:`spacr.database_schema.DatabaseSchemaTooNewError`
+    rather than being silently opened with older code.
     """
-    conn = None
     try:
         conn = sqlite3.connect(db_path)
-    except Exception as e:
-        print(e)
+    except sqlite3.Error as error:
+        # Preserve the historical helper contract: an unusable destination is
+        # reported to the caller's console without taking down a processing
+        # run. Schema compatibility errors below remain explicit.
+        print(error)
+        return
+    try:
+        from .database_schema import migrate_connection
+        migrate_connection(conn, path=os.path.abspath(db_path))
     finally:
-        if conn:
-            conn.close() 
+        conn.close()
     
 def save_object_mask(output_folder, filename, mask, compression='lzw'):
     """Save an integer label mask as a lossless, compressed TIFF.
@@ -3320,7 +3330,8 @@ def _read_db(db_loc, tables):
     import sqlite3
     import pandas as pd
 
-    from .utils import rename_columns_in_db, correct_metadata
+    from .database_schema import ensure_database_schema
+    from .utils import correct_metadata
 
     def _quote_identifier(name):
         """Safely quote SQLite identifiers (e.g., table names)."""
@@ -3328,7 +3339,7 @@ def _read_db(db_loc, tables):
             raise ValueError(f"Invalid table name: {name!r}")
         return '"' + name.replace('"', '""') + '"'
 
-    rename_columns_in_db(db_loc)
+    ensure_database_schema(db_loc)
 
     dfs = []
     chunksize = 100_000  # internal safety setting; adjust if needed
