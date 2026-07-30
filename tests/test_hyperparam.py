@@ -1368,6 +1368,24 @@ class TestLoadSearchDataFromDb:
         assert data.labels is None
         assert data.frame is not None
 
+    def test_umap_csv_none_filter_uses_all_measurements(
+            self, measurements_src):
+        data = load_search_data(
+            "umap", self._settings(measurements_src, filter_by="None"))
+        assert data.features.shape == (40, 3)
+
+    def test_umap_invalid_filter_reports_available_channels(
+            self, measurements_src):
+        with pytest.raises(ValueError) as error:
+            load_search_data(
+                "umap",
+                self._settings(measurements_src, filter_by="channel_9"),
+            )
+        message = str(error.value)
+        assert "filter_by='channel_9' matched no measurement features" in message
+        assert "channel_0" in message
+        assert "channel_1" in message
+
     def test_ml_gets_labels_from_the_control_columns(self, measurements_src):
         data = load_search_data(
             "ml_analyze",

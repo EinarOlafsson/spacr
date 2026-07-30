@@ -7145,11 +7145,72 @@ def measure_test_mode(settings):
 
     return settings
 
+def normalize_feature_filter(filter_by):
+    """Normalize text representations of an unfiltered feature selection.
+
+    Settings imported from CSV files and older Qt sessions can contain the
+    literal string ``"None"``. Treating that as a feature-name substring
+    removes every measurement column, although the UI means "all channels".
+    """
+    if isinstance(filter_by, str):
+        value = filter_by.strip()
+        if value.lower() in {
+            "", "none", "null", "all", "all_channels", "all channels", "*",
+        }:
+            return None
+        return value
+    return filter_by
+
+
+def _available_feature_filters(columns):
+    """Return useful channel/filter choices represented by feature names."""
+    options = {
+        match
+        for column in columns
+        for match in re.findall(r"channel_\d+", str(column))
+    }
+    morphology_tokens = (
+        "area", "major_axis_length", "minor_axis_length", "eccentricity",
+        "extent", "perimeter", "solidity", "zernike_",
+    )
+    if any(any(token in str(column) for token in morphology_tokens)
+           for column in columns):
+        options.add("morphology")
+    return sorted(options)
+
+
+def _feature_filter_matches(columns, filter_by):
+    """Return columns selected by the same public filter forms as the UI."""
+    if filter_by == "morphology":
+        morphology_tokens = (
+            "area", "area_bbox", "major_axis_length", "minor_axis_length",
+            "eccentricity", "extent", "perimeter", "euler_number", "solidity",
+            "zernike_", "area_filled", "convex_area",
+            "equivalent_diameter_area", "feret_diameter_max",
+        )
+        return [
+            column for column in columns
+            if any(token in str(column) for token in morphology_tokens)
+        ]
+    if isinstance(filter_by, list):
+        terms = [f"channel_{channel}" for channel in filter_by]
+    elif isinstance(filter_by, int):
+        terms = [f"channel_{filter_by}"]
+    else:
+        terms = [str(filter_by)]
+    return [
+        column for column in columns
+        if any(term in str(column) for term in terms)
+    ]
+
+
 def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, column_list=False):
     """Prepare a feature matrix by filtering, decorrelating, log-transforming, and scaling ``df``.
 
     :param df: input DataFrame.
-    :param filter_by: channel of interest passed to :func:`filter_dataframe_features`; ``None`` disables.
+    :param filter_by: channel of interest passed to
+        :func:`filter_dataframe_features`; ``None`` and its text forms disable
+        filtering.
     :param remove_highly_correlated: correlation cutoff (float) or ``True`` to use ``0.95``; ``False`` disables.
     :param log_data: apply ``log(x + 1e-6)`` to numeric columns.
     :param exclude: features to exclude from filtering.
@@ -7157,6 +7218,7 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     :returns: standard-scaled ``ndarray`` of numeric features.
     :raises ValueError: if no numeric columns remain after filtering.
     """
+    filter_by = normalize_feature_filter(filter_by)
     explicit_features = column_list or ()
     excluded_features = (
         [exclude] if isinstance(exclude, str) else (exclude or ())
@@ -7172,9 +7234,23 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
         exclude=excluded_features,
         allow_unknown=allow_unknown,
     )
+    available_features = schema.model_feature_columns(
+        df,
+        extra_features=explicit_features,
+        exclude=excluded_features,
+        allow_unknown=allow_unknown,
+    )
 
     # Apply filtering based on the `filter_by` parameter
     if filter_by is not None:
+        if not _feature_filter_matches(available_features, filter_by):
+            choices = _available_feature_filters(available_features)
+            choices_text = ", ".join(choices) if choices else "none"
+            raise ValueError(
+                f"filter_by={filter_by!r} matched no measurement features. "
+                f"Available feature filters: {choices_text}. Set filter_by "
+                f"to None to use every declared measurement feature."
+            )
         df, _ = filter_dataframe_features(df, channel_of_interest=filter_by, exclude=exclude)
             
     if column_list:
@@ -7192,7 +7268,17 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     
     # Check if numeric_data is empty
     if numeric_data.empty:
-        raise ValueError("No numeric columns available after filtering. Please check the filter_by and exclude parameters.")
+        if filter_by is not None:
+            raise ValueError(
+                f"filter_by={filter_by!r} initially matched measurement "
+                f"features, but none remained after removing excluded, "
+                f"constant, correlated, or incomplete columns. Choose another "
+                f"filter or set filter_by to None."
+            )
+        raise ValueError(
+            "No numeric measurement columns are available. Check the selected "
+            "tables and excluded features."
+        )
     
     # Remove highly correlated columns
     if not remove_highly_correlated is False:

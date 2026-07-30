@@ -371,6 +371,50 @@ def test_preprocess_data_accepts_sqlite_numeric_text_measurements(capsys):
     assert "Dropped 0 columns with NaN values" in capsys.readouterr().out
 
 
+@pytest.mark.parametrize("filter_by", ["", "None", " null ", "all", "*"])
+def test_preprocess_data_treats_none_like_filters_as_all_features(filter_by):
+    """CSV/UI text for no filter must not be used as a column substring."""
+    from spacr.utils import preprocess_data
+
+    df = _channel_feature_df()
+    expected = preprocess_data(
+        df,
+        filter_by=None,
+        remove_highly_correlated=False,
+        log_data=False,
+        exclude=None,
+    )
+    out = preprocess_data(
+        df,
+        filter_by=filter_by,
+        remove_highly_correlated=False,
+        log_data=False,
+        exclude=None,
+    )
+
+    assert out.shape == expected.shape
+    assert np.allclose(out, expected)
+
+
+def test_preprocess_data_invalid_filter_lists_available_channels():
+    from spacr.utils import preprocess_data
+
+    with pytest.raises(ValueError) as error:
+        preprocess_data(
+            _channel_feature_df(),
+            filter_by="channel_9",
+            remove_highly_correlated=False,
+            log_data=False,
+            exclude=None,
+        )
+
+    message = str(error.value)
+    assert "filter_by='channel_9' matched no measurement features" in message
+    assert "channel_1" in message
+    assert "channel_2" in message
+    assert "Set filter_by to None" in message
+
+
 def test_preprocess_data_column_list_subsets_first():
     """column_list narrows the frame before numeric selection."""
     from spacr.utils import preprocess_data
@@ -391,7 +435,7 @@ def test_preprocess_data_raises_when_no_numeric_columns():
 
     df = pd.DataFrame({"well": ["A01", "A02", "A03"],
                        "prc": ["p1_A01_1", "p1_A02_1", "p1_A03_1"]})
-    with pytest.raises(ValueError, match="No numeric columns available after filtering"):
+    with pytest.raises(ValueError, match="No numeric measurement columns"):
         preprocess_data(df, filter_by=None, remove_highly_correlated=True,
                         log_data=False, exclude=None)
 
