@@ -52,15 +52,31 @@ def test_bootstraps_pin_uv_and_private_python():
         assert "spacr[" in source
 
 
-def test_bootstraps_use_tls_and_hardware_aware_pytorch():
+def test_bootstraps_use_tls_and_portable_pytorch_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
     assert "https://astral.sh/uv/" in unix
     assert "--proto '=https'" in unix
     assert "--tlsv1.2" in unix
     assert "Tls12" in windows
-    assert "--torch-backend auto" in unix
-    assert "--torch-backend auto" in windows
+    assert 'TORCH_BACKEND="${SPACR_TORCH_BACKEND:-cpu}"' in unix
+    assert '--torch-backend "$TORCH_BACKEND"' in unix
+    assert '$TorchBackend = "cpu"' in windows
+    assert "--torch-backend $TorchBackend" in windows
+    assert 'DEFAULT_EXTRAS="qt"' in unix
+    assert '$DefaultExtras = "qt"' in windows
+    assert "qt,zernike,btrack,czi" not in unix
+    assert "qt,zernike,btrack,czi" not in windows
+
+
+def test_bootstraps_do_not_register_their_private_python_globally():
+    unix = _text(UNIX)
+    windows = _text(WINDOWS)
+    assert 'python install "$PYTHON_VERSION" --managed-python --no-bin' in unix
+    assert (
+        "python install $PythonVersion --managed-python --no-bin --no-registry"
+        in windows
+    )
 
 
 def test_bootstraps_guard_python_312_numba_and_llvmlite_resolution():
@@ -79,8 +95,18 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
         check = source.index("pip check")
         import_check = source.index("import spacr, PySide6, torch")
         activate = source.index("venv-previous")
+        assert "-I" in source[:import_check]
         assert check < activate
         assert import_check < activate
+
+
+def test_installers_preserve_a_diagnostic_log():
+    unix = _text(UNIX)
+    windows = _text(WINDOWS)
+    assert 'INSTALL_LOG="$INSTALL_ROOT/install.log"' in unix
+    assert "tee -a" in unix
+    assert '$LogPath = Join-Path $InstallRoot "install.log"' in windows
+    assert "Start-Transcript" in windows
 
 
 def test_linux_installer_creates_desktop_launcher_and_uninstaller():
@@ -103,6 +129,8 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
     assert "CreateShortcut" in nsis
     assert "pythonw.exe" in nsis
     assert "Refusing unsafe install root" in bootstrap
+    assert 'Section /o "NVIDIA GPU acceleration (large download)"' in nsis
+    assert '-TorchBackend "$1"' in nsis
 
 
 def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
@@ -135,6 +163,7 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
         text=True,
     )
     assert "spacr[qt]==9.9.9" in result.stdout
+    assert "PyTorch backend: cpu" in result.stdout
     assert "DRY RUN" in result.stdout
     assert not (tmp_path / "spacr").exists()
 
@@ -151,8 +180,13 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "actions/download-artifact@v6" in workflow
     assert "python packaging/release.py collect" in workflow
     assert "spacr/application" in workflow
-    assert "Verify published dependency resolution" in workflow
-    assert "uv pip install --dry-run" in workflow
+    for platform in ("Linux", "Windows", "macOS"):
+        assert f"Install and import the released {platform} application" in (
+            workflow
+        )
+    assert workflow.count("timeout-minutes: 30") == 3
+    assert workflow.count("assert torch.version.cuda is None") == 3
+    assert workflow.count("install.log") >= 3
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():

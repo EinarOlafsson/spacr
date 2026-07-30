@@ -31,6 +31,7 @@ jobs:
   linux:
     name: Linux online installer
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -47,21 +48,23 @@ jobs:
           bash -n "$installer"
           "$installer" \
             --dry-run \
+            --torch-backend cpu \
+            --launcher-dir "$RUNNER_TEMP/bin" \
             --skip-system-deps \
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
-      - name: Verify published dependency resolution
-        if: inputs.publish_to_repository
+      - name: Install and import the released Linux application
         run: |
-          python -m pip install "uv==0.11.32"
-          version=$(python packaging/release.py version)
-          uv venv "$RUNNER_TEMP/spacr-resolve" --python 3.12
-          uv pip install --dry-run \
-            --python "$RUNNER_TEMP/spacr-resolve/bin/python" \
+          installer=$(find dist/online -name '*Linux*x86_64*Online.run' -print -quit)
+          "$installer" \
             --torch-backend cpu \
-            "spacr[qt,zernike,btrack,czi]==$version" \
-            "numba>=0.60,<1.0" \
-            "llvmlite>=0.43,<1.0"
+            --launcher-dir "$RUNNER_TEMP/bin" \
+            --skip-system-deps \
+            --no-launch \
+            --install-root "$RUNNER_TEMP/spacr"
+          test -s "$RUNNER_TEMP/spacr/install.log"
+          "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
+            "import spacr, PySide6, torch; assert torch.version.cuda is None"
       - uses: actions/upload-artifact@v6
         with:
           name: spacr-online-linux
@@ -71,6 +74,7 @@ jobs:
   windows:
     name: Windows online installer
     runs-on: windows-2025
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -89,7 +93,24 @@ jobs:
           & .\packaging\online\install_spacr_windows.ps1 `
             -DryRun `
             -InstallRoot (Join-Path $env:RUNNER_TEMP "SpaCR") `
-            -Version $Version
+            -Version $Version `
+            -TorchBackend cpu
+      - name: Install and import the released Windows application
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $VersionMatch = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
+          $Version = $VersionMatch.Matches[0].Groups[1].Value
+          $InstallRoot = Join-Path $env:RUNNER_TEMP "SpaCR"
+          & .\packaging\online\install_spacr_windows.ps1 `
+            -InstallRoot $InstallRoot `
+            -Version $Version `
+            -TorchBackend cpu
+          if (-not (Test-Path (Join-Path $InstallRoot "install.log"))) {
+            throw "The installer did not preserve install.log"
+          }
+          & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
+            "import spacr, PySide6, torch; assert torch.version.cuda is None"
       - name: Build small NSIS web installer
         shell: powershell
         run: .\packaging\online\build_windows_online.ps1
@@ -102,6 +123,7 @@ jobs:
   macos:
     name: macOS universal online installer
     runs-on: macos-15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
@@ -121,8 +143,23 @@ jobs:
           packaging/online/install_spacr_unix.sh \
             --platform macos \
             --dry-run \
+            --torch-backend cpu \
+            --launcher-dir "$RUNNER_TEMP/bin" \
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
+      - name: Install and import the released macOS application
+        run: |
+          version=$(python packaging/release.py version)
+          packaging/online/install_spacr_unix.sh \
+            --platform macos \
+            --package-spec "spacr[qt]==$version" \
+            --torch-backend cpu \
+            --launcher-dir "$RUNNER_TEMP/bin" \
+            --no-launch \
+            --install-root "$RUNNER_TEMP/spacr"
+          test -s "$RUNNER_TEMP/spacr/install.log"
+          "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
+            "import spacr, PySide6, torch; assert torch.version.cuda is None"
       - uses: actions/upload-artifact@v6
         with:
           name: spacr-online-macos

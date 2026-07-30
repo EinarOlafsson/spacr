@@ -114,10 +114,13 @@ Lightweight installers — no conda or existing Python required
 
 No conda installation and no existing Python installation are required. The
 installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR, and the
-scientific dependencies during installation. PyTorch automatically selects a
-compatible GPU backend when one is detected and otherwise installs its CPU
-build. The installer download therefore stays small while the installed
-application is complete and isolated from system Python.
+scientific dependencies during installation. The portable CPU build is the
+default so installation does not unexpectedly download several gigabytes of
+CUDA libraries. Windows offers NVIDIA acceleration as an optional installer
+component, Linux accepts ``--torch-backend auto``, and the standard macOS
+PyTorch wheel retains Apple MPS acceleration. The installer download therefore
+stays small while the installed application is complete and isolated from
+system Python.
 
 On Linux, make the downloaded installer executable before opening it:
 
@@ -128,7 +131,8 @@ On Linux, make the downloaded installer executable before opening it:
 
 The installer validates spaCR, Qt, PyTorch, and dependency consistency before
 replacing an older installation, so an interrupted update leaves the previous
-working environment in place.
+working environment in place. A complete diagnostic log is retained as
+``install.log`` inside the private spaCR installation directory.
 
 Desktop application from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
