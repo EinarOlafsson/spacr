@@ -83,9 +83,9 @@ do not need to install Python or conda first:
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.8/SpaCR-1.4.9.8-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.8/SpaCR-1.4.9.8-macOS-Universal-Online.pkg>`_
-* `64-bit Linux: download SpaCR 1.4.9.8 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.8/SpaCR-1.4.9.8-Linux-x86_64-Online.run>`_
+* `Windows 10/11: download SpaCR 1.4.9.9 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-Windows-Online-Setup.exe>`_
+* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.4.9.9 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-macOS-Universal-Online.pkg>`_
+* `64-bit Linux: download SpaCR 1.4.9.9 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-Linux-x86_64-Online.run>`_
 
 .. spacr-installer-links-end
 
