@@ -172,19 +172,13 @@ class MainApp(tk.Tk):
                 return font_loader.get_font(size=size)
             return (style_out['font_family'], size, weight)
 
-        # --- Title block: "SpaCR" + subtitle ----------------------------
+        # --- Title block -------------------------------------------------
         title_frame = tk.Frame(self.inner_frame, bg=bg)
         title_frame.pack(pady=(spacing['xl'], spacing['md']))
         tk.Label(
             title_frame, text="SpaCR", font=_font('title'),
             bg=bg, fg=fg, cursor="hand2",
         ).pack()
-        subtitle = tk.Label(
-            title_frame,
-            text="Spatial single-cell analysis for microscopy",
-            font=_font('small'), bg=bg, fg=muted,
-        )
-        subtitle.pack(pady=(spacing['xs'], 0))
 
         # --- Core applications card -------------------------------------
         main_card = spacrCard(self.inner_frame, title="Core applications",
@@ -201,8 +195,7 @@ class MainApp(tk.Tk):
         )
         logo_button.grid(row=0, column=0, padx=spacing['sm'], pady=spacing['sm'])
         self.main_buttons[logo_button] = (
-            "spaCR: spatial single-cell analysis tools for microscopy data. "
-            "Click to open the tutorial. (under construction)"
+            "Click to open the spaCR tutorial. (under construction)"
         )
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):
