@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..widgets.barcode_regex import BarcodeRegexWidget
+from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 
 
@@ -108,7 +109,17 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     if app_key == "classify":
         return deep_spacr_defaults(settings={})
     if app_key == "umap":
-        return set_default_umap_image_settings(settings={})
+        settings = set_default_umap_image_settings(settings={})
+        # The original controls describe one lab's c1/c2/c3 plate convention.
+        # Keep them as API-compatible backend defaults, but do not expose them
+        # in the general UMAP UI. ``exclude_rows`` replaces them with rules
+        # based on the columns and values in the user's own database.
+        for key in (
+            "col_to_compare", "pos", "neg", "mix",
+            "embedding_by_controls", "exclude_conditions",
+        ):
+            settings.pop(key, None)
+        return settings
     if app_key == "train_cellpose":
         return get_train_cellpose_default_settings(settings={})
     if app_key == "ml_analyze":
@@ -1002,6 +1013,12 @@ class SettingsWidgets:
                 widget.setToolTipDuration(-1)  # respect system default (persistent)
                 self._widgets[key] = widget
 
+        src_widget = self._widgets.get("src")
+        if isinstance(src_widget, QLineEdit):
+            src_widget.editingFinished.connect(
+                self._refresh_contextual_widgets)
+        self._refresh_contextual_widgets()
+
         # Bucket into sections.
         cats = categories_for_app(self.app_key, get_categories())
         used_keys = set()
@@ -1045,11 +1062,21 @@ class SettingsWidgets:
             }
             if key in measure_labels:
                 return measure_labels[key]
+        if self.app_key == "umap":
+            if key == "exclude_rows":
+                return "Exclude"
+            if key == "exclude":
+                return "Exclude features"
         return key.replace("_", " ").capitalize()
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:
         parent = self._parent
+        if self.app_key == "umap" and key == "exclude_rows":
+            return RowExclusionEditor(
+                value=self._defaults.get(key, default),
+                parent=parent,
+            )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
@@ -1243,7 +1270,10 @@ class SettingsWidgets:
                     w.setEditText(str(value))
             elif isinstance(
                 w,
-                (_ListEditor, _ListEdit, _ScalarEdit, BarcodeRegexWidget),
+                (
+                    _ListEditor, _ListEdit, _ScalarEdit, BarcodeRegexWidget,
+                    RowExclusionEditor,
+                ),
             ):
                 w.set_value(value)
             elif isinstance(w, QLineEdit):
@@ -1252,7 +1282,24 @@ class SettingsWidgets:
                 return False
         except Exception:
             return False
+        if key in {"src", "tables"}:
+            self._refresh_contextual_widgets()
         return True
+
+    def _refresh_contextual_widgets(self) -> None:
+        """Refresh widgets whose choices come from the selected data source."""
+        editor = self._widgets.get("exclude_rows")
+        if not isinstance(editor, RowExclusionEditor):
+            return
+        src_widget = self._widgets.get("src")
+        tables_widget = self._widgets.get("tables")
+        source = self._read_widget(src_widget) if src_widget is not None else None
+        tables = (
+            self._read_widget(tables_widget)
+            if tables_widget is not None
+            else self._defaults.get("tables")
+        )
+        editor.set_source(source, tables)
 
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):
@@ -1280,7 +1327,10 @@ class SettingsWidgets:
             if idx >= 0 and w.itemText(idx) == w.currentText():
                 return w.itemData(idx)
             return w.currentText()
-        if isinstance(w, (_ListEditor, _ListEdit, BarcodeRegexWidget)):
+        if isinstance(
+            w,
+            (_ListEditor, _ListEdit, BarcodeRegexWidget, RowExclusionEditor),
+        ):
             return w.get_value()
         if isinstance(w, _ScalarEdit):
             return w.get_value()

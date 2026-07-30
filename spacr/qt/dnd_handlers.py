@@ -68,9 +68,8 @@ def _set_src_on(screen, path: str) -> bool:
             pass
     if hasattr(screen, "_settings_model"):
         try:
-            w = screen._settings_model._widgets.get("src")
-            if w is not None and hasattr(w, "setText"):
-                w.setText(path)
+            model = screen._settings_model
+            if model.set_value_for_key("src", path):
                 return True
         except Exception:
             pass
