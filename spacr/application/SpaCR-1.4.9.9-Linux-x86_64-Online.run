@@ -11,7 +11,9 @@ set -Eeuo pipefail
 UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="1.4.9.9"
-DEFAULT_EXTRAS="qt,zernike,btrack,czi"
+DEFAULT_EXTRAS="qt"
+TORCH_BACKEND="${SPACR_TORCH_BACKEND:-cpu}"
+LAUNCHER_DIR="${SPACR_LAUNCHER_DIR:-}"
 # SHAP 0.52 leaves these dependencies unbounded and uv can otherwise select
 # 2021 source releases whose metadata admits Python 3.12 but build scripts do
 # not. Keep the released 1.4.9.9 wheel installable even though PyPI artifacts
@@ -33,6 +35,8 @@ Options:
   --platform linux|macos  Override automatic platform detection.
   --install-root PATH     Install into PATH.
   --package-spec SPEC     Install SPEC instead of the release's spaCR build.
+  --torch-backend NAME    PyTorch backend (default: cpu; use auto for NVIDIA).
+  --launcher-dir PATH     Put the command launcher in PATH (mainly for CI).
   --skip-system-deps      Do not install Linux Qt runtime libraries.
   --no-launch             Do not launch spaCR after installation.
   --dry-run               Print the resolved plan without downloading.
@@ -52,6 +56,14 @@ while (($#)); do
             ;;
         --package-spec)
             PACKAGE_SPEC="${2:?--package-spec requires a requirement}"
+            shift 2
+            ;;
+        --torch-backend)
+            TORCH_BACKEND="${2:?--torch-backend requires a backend name}"
+            shift 2
+            ;;
+        --launcher-dir)
+            LAUNCHER_DIR="${2:?--launcher-dir requires a path}"
             shift 2
             ;;
         --skip-system-deps)
@@ -92,6 +104,10 @@ if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
     echo "Unsupported platform value: $PLATFORM" >&2
     exit 2
 fi
+if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
+    echo "Invalid PyTorch backend: $TORCH_BACKEND" >&2
+    exit 2
+fi
 
 if [[ -z "$INSTALL_ROOT" ]]; then
     if [[ "$PLATFORM" == "macos" && "$(id -u)" -eq 0 ]]; then
@@ -125,11 +141,11 @@ UV_BIN="$BOOTSTRAP_DIR/uv"
 UV_INSTALL_URL="https://astral.sh/uv/$UV_VERSION/install.sh"
 
 if [[ "$PLATFORM" == "linux" ]]; then
-    USER_BIN_DIR="${XDG_BIN_HOME:-$HOME/.local/bin}"
+    USER_BIN_DIR="${LAUNCHER_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
     DESKTOP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
     LAUNCHER="$USER_BIN_DIR/spacr"
 else
-    USER_BIN_DIR="/usr/local/bin"
+    USER_BIN_DIR="${LAUNCHER_DIR:-/usr/local/bin}"
     DESKTOP_DIR=""
     LAUNCHER="$USER_BIN_DIR/spacr"
 fi
@@ -139,7 +155,7 @@ echo "  platform:       $PLATFORM"
 echo "  application:    $PACKAGE_SPEC"
 echo "  private Python: $PYTHON_VERSION"
 echo "  install root:   $INSTALL_ROOT"
-echo "  PyTorch:        automatic GPU/CPU selection"
+echo "  PyTorch backend: $TORCH_BACKEND"
 echo "  resolver guards: ${RESOLVER_GUARDS[*]}"
 
 if [[ "$DRY_RUN" == "1" ]]; then
@@ -158,14 +174,15 @@ require_command() {
 
 require_command curl
 require_command sh
+require_command tee
 
 disk_probe="$(dirname "$INSTALL_ROOT")"
 while [[ ! -e "$disk_probe" && "$disk_probe" != "/" ]]; do
     disk_probe="$(dirname "$disk_probe")"
 done
 available_kb="$(df -Pk "$disk_probe" 2>/dev/null | awk 'NR==2 {print $4}' || true)"
-if [[ "$available_kb" =~ ^[0-9]+$ ]] && ((available_kb < 8 * 1024 * 1024)); then
-    echo "spaCR needs at least 8 GB free while Python, Qt, PyTorch and dependencies install." >&2
+if [[ "$available_kb" =~ ^[0-9]+$ ]] && ((available_kb < 5 * 1024 * 1024)); then
+    echo "spaCR needs at least 5 GB free while Python, Qt, PyTorch and dependencies install." >&2
     echo "Only $((available_kb / 1024 / 1024)) GB is available near $INSTALL_ROOT." >&2
     exit 4
 fi
@@ -213,9 +230,12 @@ install_linux_system_dependencies() {
     fi
 }
 
-install_linux_system_dependencies
-
 mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
+INSTALL_LOG="$INSTALL_ROOT/install.log"
+touch "$INSTALL_LOG"
+exec > >(tee -a "$INSTALL_LOG") 2>&1
+echo "Detailed installation log: $INSTALL_LOG"
+install_linux_system_dependencies
 installer_tmp="$(mktemp "${TMPDIR:-/tmp}/spacr-uv-installer.XXXXXX")"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
 cleanup() {
@@ -228,6 +248,7 @@ trap cleanup EXIT
 
 echo "Downloading the pinned uv bootstrap..."
 curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+    --retry 3 --retry-all-errors \
     "$UV_INSTALL_URL" --output "$installer_tmp"
 UV_UNMANAGED_INSTALL="$BOOTSTRAP_DIR" UV_NO_MODIFY_PATH=1 \
     sh "$installer_tmp"
@@ -241,7 +262,7 @@ export UV_CACHE_DIR="$CACHE_DIR"
 export UV_SYSTEM_CERTS=true
 
 echo "Downloading private Python $PYTHON_VERSION..."
-"$UV_BIN" python install "$PYTHON_VERSION" --managed-python
+"$UV_BIN" python install "$PYTHON_VERSION" --managed-python --no-bin
 
 echo "Creating an isolated spaCR environment..."
 rm -rf "$stage_venv"
@@ -253,13 +274,13 @@ stage_python="$stage_venv/bin/python"
 echo "Downloading spaCR, Qt, PyTorch and scientific dependencies..."
 "$UV_BIN" pip install \
     --python "$stage_python" \
-    --torch-backend auto \
+    --torch-backend "$TORCH_BACKEND" \
     "$PACKAGE_SPEC" \
     "${RESOLVER_GUARDS[@]}"
 
 echo "Validating the installation before activating it..."
 "$UV_BIN" pip check --python "$stage_python"
-QT_QPA_PLATFORM=offscreen "$stage_python" -c \
+QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
     "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
 
 old_venv="$INSTALL_ROOT/.venv-previous"
@@ -281,7 +302,7 @@ mv "$launcher_tmp" "$LAUNCHER"
 
 if [[ "$PLATFORM" == "linux" ]]; then
     mkdir -p "$DESKTOP_DIR"
-    icon_path="$("$VENV_DIR/bin/python" -c \
+    icon_path="$("$VENV_DIR/bin/python" -I -c \
         "from pathlib import Path; import spacr; print(Path(spacr.__file__).parent/'resources/icons/logo_spacr.png')")"
     desktop_tmp="$INSTALL_ROOT/.spacr-desktop-$$"
     cat > "$desktop_tmp" <<EOF
