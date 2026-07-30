@@ -1975,6 +1975,14 @@ QPlainTextEdit#Console {{
     padding: {S["sm"]}px;
     selection-background-color: {P["accent_lo"]};
 }}
+QFrame#ConsoleSectionResizeHandle {{
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid {P["border_soft"]};
+}}
+QFrame#ConsoleSectionResizeHandle:hover {{
+    border-bottom: 2px solid {P["accent"]};
+}}
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus,
 QComboBox:focus, QPlainTextEdit:focus, QTextEdit:focus {{
     border: 1px solid {P["accent"]};

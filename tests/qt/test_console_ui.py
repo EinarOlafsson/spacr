@@ -178,6 +178,34 @@ def test_console_font_control_preserves_light_face_and_line_spacing(
     assert block.document().firstBlock().blockFormat().lineHeight() == 145
 
 
+def test_console_sections_have_independent_resizable_height_handles(
+        qtbot, qt_theme_applied):
+    from spacr.qt.widgets.console_panel import ConsolePanel, _StdoutBlock
+
+    panel = ConsolePanel()
+    qtbot.addWidget(panel)
+    panel.append_stdout("first section\nline two")
+    first = panel._current_stdout
+    panel._append_user("break between output sections")
+    panel.append_stdout("second section")
+    second = panel._current_stdout
+
+    assert isinstance(first, _StdoutBlock)
+    assert isinstance(second, _StdoutBlock)
+    assert first._height_handle.toolTip().startswith("Drag to resize")
+    assert first._height_handle.cursor().shape() == Qt.SizeVerCursor
+
+    first.set_user_height(180)
+    second.set_user_height(96)
+    assert first.minimumHeight() == first.maximumHeight() == 180
+    assert second.minimumHeight() == second.maximumHeight() == 96
+
+    first.reset_user_height()
+    assert first._user_height is None
+    assert first.maximumHeight() > 10_000
+    assert second.maximumHeight() == 96
+
+
 def test_submit_without_ai_creates_user_banner_and_green_text(qtbot, qt_theme_applied):
     # User input is now rendered as a 'spaCR user' banner + green text block
     # (not a coloured bubble box).
