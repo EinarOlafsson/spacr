@@ -167,6 +167,12 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "gh release upload" in workflow
     assert "release-assets/*" in workflow
     assert "SHA256SUMS.txt" in workflow
+    assert 'git config user.name "github-actions[bot]"' in workflow
+    assert (
+        'git config user.email '
+        '"41898282+github-actions[bot]@users.noreply.github.com"'
+        in workflow
+    )
     assert "needs.bump.outputs.pypi_exists != 'true'" in workflow
     assert "verify-pypi:" in workflow
     assert "https://pypi.org/pypi/spacr/$VERSION/json" in workflow
