@@ -15,6 +15,17 @@ from spacr.qt.bridge import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _isolated_worker_journal(monkeypatch, tmp_path):
+    """GUI workers must not write test runs into the user's real journal."""
+    from spacr import run_journal
+
+    root = tmp_path / "runs"
+    root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: root)
+    return root
+
+
 def test_stream_redirector_emits_line_by_line():
     received = []
     r = _StreamRedirector(received.append)
@@ -47,6 +58,22 @@ def test_pipeline_worker_success(qtbot, qt_theme_applied):
     worker.run()
     assert finished == [True]
     assert any("running" in l for l in lines)
+
+
+def test_pipeline_worker_automatically_writes_manifest(
+        qtbot, qt_theme_applied, _isolated_worker_journal):
+    import json
+
+    worker = PipelineWorker(lambda settings: None, {"random_seed": 17},
+                            app_key="mask")
+    worker.run()
+
+    manifests = list(_isolated_worker_journal.glob("*/manifest.json"))
+    assert len(manifests) == 1
+    manifest = json.loads(manifests[0].read_text())
+    assert manifest["app_key"] == "mask"
+    assert manifest["status"] == "success"
+    assert manifest["seeds"]["declared"]["random_seed"] == 17
 
 
 def test_pipeline_worker_captures_exception(qtbot, qt_theme_applied):
