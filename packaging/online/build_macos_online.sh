@@ -14,9 +14,25 @@ SCRIPTS="$WORK/scripts"
 APP="$ROOT/Applications/SpaCR.app"
 SUPPORT="$ROOT/Library/Application Support/SpaCR"
 OUT="$OUT_DIR/SpaCR-$VERSION-macOS-Universal-Online.pkg"
+ICON_SOURCE="spacr/resources/icons/app_icon.png"
+ICONSET="$WORK/SpaCR.iconset"
 trap 'rm -rf "$WORK"' EXIT
 
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$SUPPORT" "$SCRIPTS" "$OUT_DIR"
+
+if [[ ! -f "$ICON_SOURCE" ]]; then
+    echo "Application icon not found: $ICON_SOURCE" >&2
+    exit 3
+fi
+mkdir -p "$ICONSET"
+for size in 16 32 128 256 512; do
+    sips -z "$size" "$size" "$ICON_SOURCE" \
+        --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
+    retina=$((size * 2))
+    sips -z "$retina" "$retina" "$ICON_SOURCE" \
+        --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
+done
+iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/SpaCR.icns"
 
 sed "s/@SPACR_VERSION@/$VERSION/g" \
     packaging/online/install_spacr_unix.sh > "$SUPPORT/install-online.sh"
@@ -35,6 +51,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
 <dict>
   <key>CFBundleDisplayName</key><string>spaCR</string>
   <key>CFBundleExecutable</key><string>SpaCR</string>
+  <key>CFBundleIconFile</key><string>SpaCR.icns</string>
   <key>CFBundleIdentifier</key><string>com.einarolafsson.spacr</string>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleName</key><string>spaCR</string>
