@@ -498,13 +498,18 @@ Latest development branch
 Conda environments
 ~~~~~~~~~~~~~~~~~~
 
-spaCR is not yet published on conda-forge. Conda can manage the Python
-environment while pip installs spaCR, as shown above. A native conda-forge
-recipe must be accepted before this command becomes available:
+The native conda-forge recipe is ready in
+`conda-forge/recipe <https://github.com/EinarOlafsson/spacr/tree/spacr-codex/conda-forge/recipe>`_.
+Conda-forge requires a one-time reviewed onboarding pull request before the
+package name becomes available. After that review, every PyPI release is
+detected, tested, and published by the conda-forge update bot:
 
 .. code-block:: bash
 
    conda install -c conda-forge spacr
+
+The short one-time maintainer procedure is documented in
+`conda-forge/README.md <https://github.com/EinarOlafsson/spacr/blob/spacr-codex/conda-forge/README.md>`_.
 
 Optional capabilities
 ~~~~~~~~~~~~~~~~~~~~~

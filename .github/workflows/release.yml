@@ -2,7 +2,7 @@ name: release SpaCR
 
 on:
   push:
-    branches: [spacr-nightly]
+    branches: [spacr-codex, spacr-nightly]
     paths:
       - "setup.py"
   workflow_dispatch:
@@ -15,8 +15,9 @@ on:
         description: Branch to release
         required: true
         type: choice
-        default: spacr-nightly
+        default: spacr-codex
         options:
+          - spacr-codex
           - spacr-nightly
 
 permissions:
@@ -30,12 +31,15 @@ concurrency:
 jobs:
   bump:
     name: Prepare repository version
+    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       commit_sha: ${{ steps.finalize.outputs.commit_sha }}
       branch: ${{ steps.finalize.outputs.branch }}
+      pypi_exists: ${{ steps.availability.outputs.pypi_exists }}
+      release_required: ${{ steps.version.outputs.release_required }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -50,24 +54,40 @@ jobs:
         id: version
         env:
           REQUESTED_VERSION: ${{ inputs.version }}
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           python -m pip install "packaging>=24"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            version=$(python packaging/release.py bump "$REQUESTED_VERSION")
+            version=$(python packaging/release.py bump \
+              --allow-current "$REQUESTED_VERSION")
+            release_required=true
           else
             version=$(python packaging/release.py version)
+            release_required=true
+            if git cat-file -e "$BEFORE_SHA:setup.py" 2>/dev/null; then
+              git show "$BEFORE_SHA:setup.py" > "$RUNNER_TEMP/setup-before.py"
+              previous=$(python packaging/release.py version \
+                --setup "$RUNNER_TEMP/setup-before.py")
+              if [ "$version" = "$previous" ]; then
+                echo "::notice::setup.py changed but VERSION remains $version."
+                release_required=false
+              else
+                python - "$previous" "$version" <<'PY'
+          import sys
+          from packaging.version import Version
+
+          previous, current = map(Version, sys.argv[1:])
+          if current <= previous:
+              raise SystemExit(
+                  f"VERSION must increase on a release push: {previous} -> {current}"
+              )
+          PY
+              fi
+            fi
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
-          if curl --proto '=https' --tlsv1.2 --fail --silent \
-              "https://pypi.org/pypi/spacr/$version/json" >/dev/null; then
-            echo "::error::spacr==$version already exists on PyPI."
-            exit 1
-          fi
-          if git rev-parse "refs/tags/v$version" >/dev/null 2>&1; then
-            echo "::error::Git tag v$version already exists."
-            exit 1
-          fi
+          echo "release_required=$release_required" >> "$GITHUB_OUTPUT"
 
       - name: Commit version increment
         id: commit
@@ -79,11 +99,35 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add setup.py
-          git commit -m "chore(release): bump version to $VERSION"
-          git push origin "HEAD:$TARGET_BRANCH"
+          if git diff --cached --quiet; then
+            echo "setup.py already declares $VERSION; continuing idempotently."
+          else
+            git commit -m "chore(release): bump version to $VERSION"
+            git push origin "HEAD:$TARGET_BRANCH"
+          fi
+
+      - name: Check whether this version is already on PyPI
+        id: availability
+        if: steps.version.outputs.release_required == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          status=$(curl --proto '=https' --tlsv1.2 --silent \
+            --retry 3 --retry-all-errors --output /dev/null \
+            --write-out '%{http_code}' \
+            "https://pypi.org/pypi/spacr/$VERSION/json")
+          case "$status" in
+            200) echo "pypi_exists=true" >> "$GITHUB_OUTPUT" ;;
+            404) echo "pypi_exists=false" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "::error::PyPI availability check returned HTTP $status."
+              exit 1
+              ;;
+          esac
 
       - name: Export exact release source
         id: finalize
+        if: steps.version.outputs.release_required == 'true'
         env:
           TARGET_BRANCH: ${{ inputs.target_branch || github.ref_name }}
         run: |
@@ -92,6 +136,7 @@ jobs:
 
   installers:
     name: Build and store native installers
+    if: needs.bump.outputs.release_required == 'true'
     needs: bump
     uses: ./.github/workflows/online-installers.yml
     with:
@@ -116,11 +161,12 @@ jobs:
       - name: Build wheel and source distribution
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build twine pytest packaging
+          python -m pip install build twine pytest packaging pyyaml
           python -m build
           python -m twine check dist/*
           python -m pytest tests/test_packaging_metadata.py \
-            tests/test_online_installers.py -q --tb=short
+            tests/test_online_installers.py \
+            tests/test_conda_forge_recipe.py -q --tb=short
 
       - uses: actions/upload-artifact@v6
         with:
@@ -130,7 +176,8 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    needs: package
+    if: needs.bump.outputs.pypi_exists != 'true'
+    needs: [bump, package]
     runs-on: ubuntu-24.04
     environment:
       name: pypi
@@ -146,7 +193,14 @@ jobs:
 
   github-release:
     name: Publish GitHub release
-    needs: [bump, installers, publish-pypi]
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.installers.result == 'success' &&
+      needs.package.result == 'success' &&
+      (needs.publish-pypi.result == 'success' ||
+       needs.publish-pypi.result == 'skipped')
+    needs: [bump, installers, package, publish-pypi]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -155,17 +209,48 @@ jobs:
         with:
           ref: ${{ needs.installers.outputs.release_commit }}
           fetch-depth: 0
-      - name: Tag released commit and publish release notes
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: spacr-online-*
+          path: release-assets
+          merge-multiple: true
+      - uses: actions/download-artifact@v6
+        with:
+          name: pypi-distributions
+          path: release-assets
+      - name: Create checksums
+        run: |
+          cd release-assets
+          sha256sum * > SHA256SUMS.txt
+      - name: Tag exact release commit
+        env:
+          RELEASE_TAG: ${{ needs.bump.outputs.tag }}
+          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+        run: |
+          if git rev-parse "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            tagged_sha=$(git rev-list -n 1 "$RELEASE_TAG")
+            if [ "$tagged_sha" != "$RELEASE_SHA" ]; then
+              echo "::error::$RELEASE_TAG points to $tagged_sha, not $RELEASE_SHA."
+              exit 1
+            fi
+          else
+            git tag -a "$RELEASE_TAG" "$RELEASE_SHA" \
+              -m "SpaCR ${RELEASE_TAG#v}"
+            git push origin "$RELEASE_TAG"
+          fi
+      - name: Publish release notes and downloadable installers
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.bump.outputs.tag }}
           RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
           VERSION: ${{ needs.bump.outputs.version }}
         run: |
-          git tag "$RELEASE_TAG" "$RELEASE_SHA"
-          git push origin "$RELEASE_TAG"
-          gh release create "$RELEASE_TAG" \
-            --target "$RELEASE_SHA" \
-            --title "SpaCR $VERSION" \
-            --generate-notes \
-            --verify-tag
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          else
+            gh release create "$RELEASE_TAG" release-assets/* \
+              --target "$RELEASE_SHA" \
+              --title "SpaCR $VERSION" \
+              --generate-notes \
+              --verify-tag
+          fi

@@ -23,8 +23,8 @@ working spaCR environment.
 
 `.github/workflows/online-installers.yml` builds all three on native GitHub
 runners, collects them under `spacr/application/`, writes SHA-256 hashes, and
-rewrites the download block in `README.rst` to point at the current version.
-The version is always read from `setup.py`.
+rewrites the download block in `README.rst` to point at immutable assets on
+the matching GitHub release. The version is always read from `setup.py`.
 
 `packaging/release.py` owns the cross-platform release metadata:
 
@@ -36,7 +36,7 @@ python packaging/release.py version
 python packaging/release.py bump 1.4.9.9
 
 # After the three native builders have populated dist/online
-python packaging/release.py collect --branch spacr-nightly
+python packaging/release.py collect --branch spacr-codex
 ```
 
 The native installers cannot all be generated on one local operating system.
@@ -46,7 +46,7 @@ calls the collection command once all three artifacts exist.
 ## One-click releases
 
 Run **Actions → release SpaCR → Run workflow**, enter the new version, and
-leave the target as `spacr-nightly`. `.github/workflows/release.yml` then:
+leave the target as `spacr-codex`. `.github/workflows/release.yml` then:
 
 1. validates and commits the version increment;
 2. builds Windows, macOS, and Linux installers on native runners;
@@ -54,13 +54,17 @@ leave the target as `spacr-nightly`. `.github/workflows/release.yml` then:
    README links;
 4. builds and validates the wheel and source distribution;
 5. publishes to PyPI using trusted publishing; and
-6. tags that exact commit and creates the GitHub release.
+6. tags that exact commit, creates the GitHub release, and attaches the three
+   installers, wheel, source distribution, and SHA-256 manifest.
 
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
 so merge `release.yml` into `main` once to enable that button permanently.
-There is also a branch-native fallback: changing ``VERSION`` in `setup.py`
-and pushing that commit to `spacr-nightly` automatically runs steps 2-6 for
-the already-incremented version.
+There is also a branch-native path: changing ``VERSION`` in `setup.py` and
+pushing that commit to `spacr-codex` or `spacr-nightly` automatically runs
+steps 2-6 for the already-incremented version. Rerunning the same version is
+safe: an existing PyPI artifact is not uploaded twice, existing release
+assets are replaced, and an existing tag must already point to the exact
+release commit.
 
 One-time repository setup:
 
@@ -74,6 +78,15 @@ One-time repository setup:
 No PyPI API token is stored in GitHub. If `spacr-nightly` has branch
 protection, allow `github-actions[bot]` to push these two release commits or
 replace the direct-push steps with your protected-branch merge policy.
+
+## Conda-forge releases
+
+The prepared recipe and bot configuration live in `../conda-forge`. Unlike
+PyPI, conda-forge requires a one-time reviewed pull request to
+`conda-forge/staged-recipes`; a source-repository workflow cannot bypass that
+review. Follow `../conda-forge/README.md` once. After the recipe is accepted,
+the conda-forge bot detects each new PyPI version, tests its update PR, and
+automerges passing version-only updates. No Anaconda token is stored here.
 
 Linux installs the small Qt/OpenGL runtime libraries through apt, dnf, zypper,
 or pacman when available. macOS packages may be signed by setting
