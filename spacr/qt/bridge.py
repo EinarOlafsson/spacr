@@ -582,16 +582,24 @@ class PipelineWorker(QObject):
     error = Signal(str)
     figure_ready = Signal(object, str)   # (figure, prerendered_png_path or "")
 
-    def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any],
-                 worker_count: int = 1):
+    def __init__(
+        self,
+        fn: Callable[..., Any],
+        settings: Dict[str, Any],
+        worker_count: int = 1,
+        app_key: str = "",
+    ):
         """Prepare to run ``fn(settings)`` in a worker thread.
 
         :param fn: pipeline entry point (see :func:`resolve_pipeline_entry`).
         :param settings: keyword-style dict passed as the sole argument.
+        :param worker_count: worker allocation reserved in the run registry.
+        :param app_key: optional explicit module name for run-history records.
         """
         super().__init__()
         self._fn = fn
         self._settings = settings
+        self._app_key_override = str(app_key or "")
         self.worker_count = max(1, int(worker_count))
         #: Latch this worker waits on when the pipeline calls
         #: :func:`checkpoint`. Always present; only *effective* when
@@ -601,7 +609,9 @@ class PipelineWorker(QObject):
     @property
     def app_key(self) -> str:
         """App key this job belongs to, or ``""`` for an ad-hoc job."""
-        return str(getattr(self._fn, APP_KEY_ATTR, "") or "")
+        return self._app_key_override or str(
+            getattr(self._fn, APP_KEY_ATTR, "") or ""
+        )
 
     @property
     def supports_pause(self) -> bool:
@@ -676,6 +686,31 @@ class PipelineWorker(QObject):
         except Exception:
             plt = None
 
+        journal_context = None
+        journal_run = None
+        try:
+            from spacr.run_journal import open_run
+            self.line_ready.emit(
+                "Recording reproducibility input hashes…\n"
+            )
+            journal_context = open_run(
+                self.app_key or getattr(self._fn, "__name__", "job"),
+                self._settings,
+            )
+            journal_run = journal_context.__enter__()
+            self.line_ready.emit(
+                f"Reproducibility manifest: {journal_run.dir}\n"
+            )
+        except Exception as exc:
+            journal_context = None
+            journal_run = None
+            message = (
+                "WARNING: could not open reproducibility manifest: "
+                f"{type(exc).__name__}: {exc}\n"
+            )
+            LOG.exception("Could not open run journal")
+            self.line_ready.emit(message)
+
         ok = False
         try:
             self._fn(self._settings)
@@ -689,12 +724,39 @@ class PipelineWorker(QObject):
             if not ok:
                 tb = traceback.format_exc()
                 LOG.error("Pipeline exited with status %r", exc.code)
+                if journal_run is not None:
+                    journal_run.set_status("failed")
+                    journal_run.error_traceback = tb
                 self.error.emit(tb)
         except Exception:
             tb = traceback.format_exc()
             LOG.exception("Pipeline worker failed")
+            if journal_run is not None:
+                journal_run.set_status("failed")
+                journal_run.error_traceback = tb
+            self.error.emit(tb)
+        except BaseException:
+            # KeyboardInterrupt and cancellation-style BaseExceptions must
+            # leave a failed, inspectable manifest instead of a forever
+            # "running" record.
+            tb = traceback.format_exc()
+            LOG.exception("Pipeline worker aborted")
+            if journal_run is not None:
+                journal_run.set_status("failed")
+                journal_run.error_traceback = tb
             self.error.emit(tb)
         finally:
+            if journal_run is not None and ok:
+                journal_run.set_status("success")
+            if journal_context is not None:
+                try:
+                    journal_context.__exit__(None, None, None)
+                except Exception as exc:
+                    LOG.exception("Could not close run journal")
+                    self.line_ready.emit(
+                        "WARNING: could not finalize reproducibility "
+                        f"manifest: {type(exc).__name__}: {exc}\n"
+                    )
             try:
                 redirect.flush()
             except Exception:
@@ -887,7 +949,9 @@ def make_thread(
     """
     thread = QThread()
     allocation = apply_worker_budget(settings)
-    worker = PipelineWorker(fn, settings, worker_count=allocation)
+    worker = PipelineWorker(
+        fn, settings, worker_count=allocation, app_key=app_key,
+    )
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     worker.finished.connect(thread.quit)
