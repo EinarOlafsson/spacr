@@ -213,7 +213,11 @@ jobs:
 
   installers:
     name: Build and store native installers
-    if: needs.bump.outputs.release_required == 'true'
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
     needs: [bump, verify-pypi]
     uses: ./.github/workflows/online-installers.yml
     with:

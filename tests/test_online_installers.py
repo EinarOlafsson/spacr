@@ -155,6 +155,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "VERSION remains $version" in workflow
     assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
     assert "if: needs.bump.outputs.release_required == 'true'" in workflow
+    assert "needs.verify-pypi.result == 'success'" in workflow
     assert "python packaging/release.py version" in workflow
     assert "if: github.event_name == 'workflow_dispatch'" in workflow
     assert "uses: ./.github/workflows/online-installers.yml" in workflow
