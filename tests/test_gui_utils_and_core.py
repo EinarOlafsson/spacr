@@ -168,3 +168,36 @@ def test_gui_core_public_entry_points_importable():
                  "start_process", "process_console_queue",
                  "main_thread_update_function"):
         assert callable(getattr(GC, name, None)), f"gui_core.{name} not callable"
+
+
+def test_legacy_console_rounded_rectangle_points_are_bounded():
+    import spacr.gui_core as GC
+
+    points = GC._rounded_rectangle_points(100, 50, 12)
+    xs = points[0::2]
+    ys = points[1::2]
+    assert len(points) == 24
+    assert min(xs) == 0 and max(xs) == 100
+    assert min(ys) == 0 and max(ys) == 50
+    # Oversized radii are clamped to half the shortest side.
+    clamped = GC._rounded_rectangle_points(20, 10, 999)
+    assert clamped[0] == 5
+
+
+def test_legacy_startup_no_longer_contains_the_microscopy_tagline():
+    import inspect
+    from spacr.gui import MainApp
+
+    source = inspect.getsource(MainApp.create_startup_screen)
+    assert "Spatial single-cell analysis for microscopy" not in source
+    assert "spatial single-cell analysis tools for microscopy" not in source
+
+
+def test_legacy_console_uses_open_sans_and_text_spacing():
+    import inspect
+    import spacr.gui_core as GC
+
+    source = inspect.getsource(GC.setup_console)
+    assert 'family="Open Sans"' in source
+    assert "spacing1=" in source
+    assert "spacing3=" in source

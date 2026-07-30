@@ -953,6 +953,27 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
     print("Settings panel setup complete")
     return scrollable_frame, vars_dict
 
+def _rounded_rectangle_points(width, height, radius):
+    """Return smooth-polygon points for a rounded Tk Canvas rectangle."""
+    width = max(1.0, float(width))
+    height = max(1.0, float(height))
+    radius = min(max(0.0, float(radius)), width / 2.0, height / 2.0)
+    return (
+        radius, 0,
+        width - radius, 0,
+        width, 0,
+        width, radius,
+        width, height - radius,
+        width, height,
+        width - radius, height,
+        radius, height,
+        0, height,
+        0, height - radius,
+        0, radius,
+        0, 0,
+    )
+
+
 def setup_console(vertical_container):
     """Build the console output panel inside ``vertical_container``.
 
@@ -983,34 +1004,83 @@ def setup_console(vertical_container):
         else (style_out['font_family'], font_sizes.get('small', font_size))
     )
 
-    # Console frame with a slightly darker panel background so it reads
-    # as a distinct region from the main content.
-    console_frame = tk.Frame(vertical_container, bg=panel)
+    # Tk frames cannot draw rounded corners. A canvas paints the rounded
+    # surface, while an inset content frame holds the real Text widget.
+    console_frame = tk.Frame(
+        vertical_container, bg=bg, bd=0, highlightthickness=0)
     vertical_container.add(console_frame, stretch="always")
+    console_surface = tk.Canvas(
+        console_frame, bg=bg, bd=0, highlightthickness=0)
+    console_surface.grid(row=0, column=0, sticky="nsew")
+    console_frame.grid_rowconfigure(0, weight=1)
+    console_frame.grid_columnconfigure(0, weight=1)
+    rounded_panel = console_surface.create_polygon(
+        _rounded_rectangle_points(20, 20, 10),
+        smooth=True,
+        splinesteps=24,
+        fill=panel,
+        outline=border,
+        width=1,
+    )
+    content = tk.Frame(
+        console_surface, bg=panel, bd=0, highlightthickness=0)
+    content_window = console_surface.create_window(
+        spacing['sm'], spacing['xs'], anchor="nw", window=content)
 
     # Header bar: thin border-line divider that lights up on hover, plus a
     # muted "Console" label so the user knows what they're looking at.
-    header = tk.Frame(console_frame, bg=panel)
+    header = tk.Frame(content, bg=panel)
     header.grid(row=0, column=0, sticky="ew")
     tk.Label(header, text="Console", bg=panel, fg=muted, font=small_font,
              anchor="w").pack(fill=tk.X, padx=spacing['sm'],
                               pady=(spacing['xs'], 0))
-    top_border = tk.Frame(console_frame, height=1, bg=border)
+    top_border = tk.Frame(content, height=1, bg=border)
     top_border.grid(row=1, column=0, sticky="ew",
                     pady=(spacing['xs'], spacing['xs']))
 
-    # Console text — monospace-ish via the loaded font, panel-colored bg.
+    # Console text — Open Sans, with breathing room between log records.
+    try:
+        from tkinter import font as tk_font
+        console_font = tk_font.Font(family="Open Sans", size=font_size)
+    except Exception:
+        console_font = (
+            font_loader.get_font(size=font_size)
+            if font_loader
+            else (style_out['font_family'], font_size)
+        )
     console_output = tk.Text(
-        console_frame, bg=panel, fg=fg,
-        font=font_loader.get_font(size=font_size),
+        content, bg=panel, fg=fg,
+        font=console_font,
         bd=0, highlightthickness=0,
         padx=spacing['sm'], pady=spacing['xs'],
         insertbackground=fg,
+        spacing1=1,
+        spacing3=max(3, spacing['xs']),
     )
     console_output.grid(row=2, column=0, sticky="nsew")
 
-    console_frame.grid_rowconfigure(2, weight=1)
-    console_frame.grid_columnconfigure(0, weight=1)
+    content.grid_rowconfigure(2, weight=1)
+    content.grid_columnconfigure(0, weight=1)
+
+    def resize_surface(event):
+        """Keep the rounded backing and inset content fitted to the pane."""
+        width = max(1, int(event.width) - 1)
+        height = max(1, int(event.height) - 1)
+        radius = max(8, spacing['sm'])
+        inset_x = spacing['sm']
+        inset_y = spacing['xs']
+        console_surface.coords(
+            rounded_panel,
+            *_rounded_rectangle_points(width, height, radius),
+        )
+        console_surface.coords(content_window, inset_x, inset_y)
+        console_surface.itemconfigure(
+            content_window,
+            width=max(1, width - 2 * inset_x),
+            height=max(1, height - 2 * inset_y),
+        )
+
+    console_surface.bind("<Configure>", resize_surface)
 
     def on_enter(_event):
         """Highlight the console top border when the pointer enters."""
