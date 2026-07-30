@@ -144,7 +144,7 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "spacr/application" in workflow
 
 
-def test_one_click_release_orders_version_installers_pypi_and_github():
+def test_one_click_release_orders_version_pypi_installers_and_github():
     workflow = _text(RELEASE_WORKFLOW)
     assert "workflow_dispatch:" in workflow
     assert "branches: [main]" in workflow
@@ -165,8 +165,18 @@ def test_one_click_release_orders_version_installers_pypi_and_github():
     assert "gh release upload" in workflow
     assert "release-assets/*" in workflow
     assert "SHA256SUMS.txt" in workflow
-    assert "needs: [bump, installers, package, publish-pypi]" in workflow
     assert "needs.bump.outputs.pypi_exists != 'true'" in workflow
+    assert "verify-pypi:" in workflow
+    assert "https://pypi.org/pypi/spacr/$VERSION/json" in workflow
+    assert "needs: [bump, package, publish-pypi]" in workflow
+    assert "needs: [bump, verify-pypi]" in workflow
+    assert (
+        "needs: [bump, package, publish-pypi, verify-pypi, installers]"
+        in workflow
+    )
+    # The installer stage cannot start until PyPI has returned HTTP 200.
+    assert workflow.index("  publish-pypi:") < workflow.index("  verify-pypi:")
+    assert workflow.index("  verify-pypi:") < workflow.index("  installers:")
 
 
 def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
