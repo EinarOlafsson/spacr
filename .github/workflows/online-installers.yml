@@ -95,25 +95,35 @@ jobs:
             -InstallRoot (Join-Path $env:RUNNER_TEMP "SpaCR") `
             -Version $Version `
             -TorchBackend cpu
+      - name: Build small NSIS web installer
+        shell: powershell
+        run: .\packaging\online\build_windows_online.ps1
       - name: Install and import the released Windows application
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          $VersionMatch = Select-String -Path "setup.py" -Pattern '^VERSION\s*=\s*["'']([^"'']+)'
-          $Version = $VersionMatch.Matches[0].Groups[1].Value
           $InstallRoot = Join-Path $env:RUNNER_TEMP "SpaCR"
-          & .\packaging\online\install_spacr_windows.ps1 `
-            -InstallRoot $InstallRoot `
-            -Version $Version `
-            -TorchBackend cpu
+          $Installer = Get-ChildItem "dist\online\*Windows*Online-Setup.exe" |
+            Select-Object -First 1
+          if (-not $Installer) {
+            throw "The NSIS installer was not built"
+          }
+          $Process = Start-Process `
+            -FilePath $Installer.FullName `
+            -ArgumentList @("/S", "/D=$InstallRoot") `
+            -Wait `
+            -PassThru
+          if ($Process.ExitCode -ne 0) {
+            throw "The NSIS installer failed with exit code $($Process.ExitCode)"
+          }
           if (-not (Test-Path (Join-Path $InstallRoot "install.log"))) {
             throw "The installer did not preserve install.log"
           }
+          if (-not (Test-Path (Join-Path $InstallRoot "spacr.ico"))) {
+            throw "The installer did not install the spaCR application icon"
+          }
           & (Join-Path $InstallRoot "venv\Scripts\python.exe") -I -c `
             "import spacr, PySide6, torch; assert torch.version.cuda is None"
-      - name: Build small NSIS web installer
-        shell: powershell
-        run: .\packaging\online\build_windows_online.ps1
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-windows
@@ -149,16 +159,12 @@ jobs:
             --install-root "$RUNNER_TEMP/spacr"
       - name: Install and import the released macOS application
         run: |
-          version=$(python -c 'import ast, pathlib; tree = ast.parse(pathlib.Path("setup.py").read_text()); print(next(node.value.value for node in tree.body if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "VERSION" for target in node.targets) and isinstance(node.value, ast.Constant)))')
-          packaging/online/install_spacr_unix.sh \
-            --platform macos \
-            --package-spec "spacr[qt]==$version" \
-            --torch-backend cpu \
-            --launcher-dir "$RUNNER_TEMP/bin" \
-            --no-launch \
-            --install-root "$RUNNER_TEMP/spacr"
-          test -s "$RUNNER_TEMP/spacr/install.log"
-          "$RUNNER_TEMP/spacr/venv/bin/python" -I -c \
+          pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
+          sudo installer -verboseR -pkg "$pkg" -target /
+          test -s "/Library/Application Support/SpaCR/install.log"
+          test -s "/Applications/SpaCR.app/Contents/Resources/SpaCR.icns"
+          test -L /usr/local/bin/spacr
+          "/Library/Application Support/SpaCR/venv/bin/python" -I -c \
             "import spacr, PySide6, torch; assert torch.version.cuda is None"
       - uses: actions/upload-artifact@v7
         with:
