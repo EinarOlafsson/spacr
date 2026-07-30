@@ -227,6 +227,60 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Search": _row(
         "Sök", "Suchen", "Buscar", "搜索", "Pesquisar",
         "खोजें", "검색", "Leita", "Rechercher"),
+    "Refresh": _row(
+        "Uppdatera", "Aktualisieren", "Actualizar", "刷新", "Atualizar",
+        "ताज़ा करें", "새로 고침", "Endurnýja", "Actualiser"),
+    "All modules": _row(
+        "Alla moduler", "Alle Module", "Todos los módulos", "所有模块",
+        "Todos os módulos", "सभी मॉड्यूल", "모든 모듈", "Allar einingar",
+        "Tous les modules"),
+    "All statuses": _row(
+        "Alla statusar", "Alle Status", "Todos los estados", "所有状态",
+        "Todos os estados", "सभी स्थितियाँ", "모든 상태", "Allar stöður",
+        "Tous les états"),
+    "Success": _row(
+        "Lyckades", "Erfolgreich", "Correcto", "成功", "Sucesso",
+        "सफल", "성공", "Tókst", "Réussi"),
+    "Failed": _row(
+        "Misslyckades", "Fehlgeschlagen", "Fallido", "失败", "Falhou",
+        "विफल", "실패", "Mistókst", "Échec"),
+    "Running": _row(
+        "Körs", "Läuft", "En ejecución", "运行中", "Em execução",
+        "चल रहा है", "실행 중", "Í gangi", "En cours"),
+    "Corrupt": _row(
+        "Skadad", "Beschädigt", "Dañado", "已损坏", "Corrompido",
+        "दूषित", "손상됨", "Skemmt", "Corrompu"),
+    "Open run folder": _row(
+        "Öppna körningsmapp", "Laufordner öffnen",
+        "Abrir carpeta de ejecución", "打开运行文件夹",
+        "Abrir pasta da execução", "रन फ़ोल्डर खोलें",
+        "실행 폴더 열기", "Opna keyrslumöppu",
+        "Ouvrir le dossier d’exécution"),
+    "Copy path": _row(
+        "Kopiera sökväg", "Pfad kopieren", "Copiar ruta", "复制路径",
+        "Copiar caminho", "पथ कॉपी करें", "경로 복사", "Afrita slóð",
+        "Copier le chemin"),
+    "Load settings in module": _row(
+        "Läs in inställningar i modulen",
+        "Einstellungen im Modul laden",
+        "Cargar ajustes en el módulo", "在模块中加载设置",
+        "Carregar configurações no módulo", "मॉड्यूल में सेटिंग लोड करें",
+        "모듈에 설정 불러오기", "Hlaða stillingum í einingu",
+        "Charger les paramètres dans le module"),
+    "Overview": _row(
+        "Översikt", "Übersicht", "Resumen", "概览", "Visão geral",
+        "अवलोकन", "개요", "Yfirlit", "Vue d’ensemble"),
+    "Files & models": _row(
+        "Filer och modeller", "Dateien & Modelle", "Archivos y modelos",
+        "文件和模型", "Arquivos e modelos", "फ़ाइलें और मॉडल",
+        "파일 및 모델", "Skrár og líkön", "Fichiers et modèles"),
+    "Warnings & failure": _row(
+        "Varningar och fel", "Warnungen & Fehler", "Avisos y fallo",
+        "警告和失败", "Avisos e falha", "चेतावनियाँ और विफलता",
+        "경고 및 실패", "Viðvaranir og bilun", "Avertissements et échec"),
+    "Environment": _row(
+        "Miljö", "Umgebung", "Entorno", "环境", "Ambiente",
+        "परिवेश", "환경", "Umhverfi", "Environnement"),
     "Language": _row(
         "Språk", "Sprache", "Idioma", "语言", "Idioma",
         "भाषा", "언어", "Tungumál", "Langue"),
@@ -334,6 +388,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Träningskörningar", "Trainingsläufe", "Ejecuciones de entrenamiento",
         "训练运行", "Execuções de treinamento", "प्रशिक्षण रन",
         "학습 실행", "Þjálfunarkeyrslur", "Exécutions d’entraînement"),
+    "Run History": _row(
+        "Körningshistorik", "Ausführungsverlauf", "Historial de ejecuciones",
+        "运行历史", "Histórico de execuções", "रन इतिहास",
+        "실행 기록", "Keyrslusaga", "Historique des exécutions"),
     "Report": _row(
         "Rapport", "Bericht", "Informe", "报告", "Relatório",
         "रिपोर्ट", "보고서", "Skýrsla", "Rapport"),

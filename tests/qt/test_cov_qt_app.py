@@ -203,6 +203,7 @@ EXPECTED_SECTIONS = {
     "umap":            SECTION_RESULTS,
     "activation":      SECTION_RESULTS,
     "train_compare":   SECTION_RESULTS,
+    "run_history":     SECTION_RESULTS,
     "report":          SECTION_RESULTS,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
@@ -219,7 +220,7 @@ EXPECTED_STAGES = {
     "model_compare": "alpha", "queue": "alpha",
     "batch": "alpha", "invasion": "alpha", "db_browser": "alpha",
     "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
-    "report": "alpha",
+    "run_history": "alpha", "report": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -238,7 +239,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Fourteen alpha, nine beta, eight stable. Signing an app off is
+    Fifteen alpha, nine beta, eight stable. Signing an app off is
     deleting a line from ``APP_STAGE`` and from here; nothing else
     moves, which is the whole point of maturity not being a section."""
     actual = {key: app_stage(key) for key, *_r in APPS}
@@ -249,7 +250,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 14, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 15, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -672,6 +673,7 @@ def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
         "model_zoo":     "ModelZooScreen",
         "report":        "ReportScreen",
         "train_compare": "TrainCompareScreen",
+        "run_history":   "RunHistoryScreen",
     }
     for key, cls_name in expected.items():
         screen = win._build_screen(key)
@@ -683,7 +685,8 @@ def test_every_other_key_builds_a_generic_app_screen(win):
     from spacr.qt.screens.app_screen import AppScreen
     dedicated = {"annotate", "make_masks", "queue", "db_browser", "agreement",
                  "plate_view", "model_compare", "align", "convert", "foreign",
-                 "batch", "model_zoo", "report", "train_compare"}
+                 "batch", "model_zoo", "report", "train_compare",
+                 "run_history"}
     generic = [k for k, *_r in APPS if k not in dedicated]
     assert generic, "expected some generic AppScreen apps"
     for key in generic:

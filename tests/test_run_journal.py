@@ -225,3 +225,60 @@ def test_full_hash_keeps_legacy_short_hash_default(tmp_path):
     path.write_bytes(b"abc")
     assert len(hash_file(path)) == 16
     assert hash_file(path, full=True) == hashlib.sha256(b"abc").hexdigest()
+
+
+def test_search_runs_filters_settings_outputs_warnings_and_failures(
+        tmp_path, monkeypatch):
+    from spacr import run_journal as rj
+
+    runs = tmp_path / "journal"
+    runs.mkdir()
+    monkeypatch.setattr(rj, "runs_root", lambda: runs)
+    source = tmp_path / "plate_alpha"
+    source.mkdir()
+    (source / "raw.tif").write_bytes(b"raw")
+    output = source / "scores.csv"
+
+    with rj.open_run(
+        "classify", {"src": str(source), "output_path": str(output),
+                     "optimizer": "adamw"},
+    ) as run:
+        run.record_warning("class imbalance detected")
+        output.write_text("class,score\nA,0.8\n")
+
+    with pytest.raises(RuntimeError):
+        with rj.open_run("measure", {"src": str(source)}):
+            raise RuntimeError("database locked")
+
+    adam = rj.search_runs("adamw scores.csv", app_key="classify",
+                          status="success")
+    assert len(adam) == 1
+    assert adam[0]["warnings"] == ["class imbalance detected"]
+    assert str(output) in adam[0]["outputs"]
+    assert adam[0]["performance"]["output_files"] >= 1
+    assert adam[0]["performance"]["process_cpu_s"] >= 0
+
+    failed = rj.search_runs("database locked", status="failed")
+    assert len(failed) == 1
+    assert "RuntimeError" in failed[0]["failure"]
+    assert rj.search_runs("not-present") == []
+    assert len(rj.search_runs(limit=1)) == 1
+
+
+def test_search_runs_keeps_corrupt_and_inflight_folders_visible(
+        tmp_path, monkeypatch):
+    from spacr import run_journal as rj
+
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    inflight = tmp_path / "inflight"
+    inflight.mkdir()
+    (inflight / "settings.json").write_text('{"src": "/plate"}')
+    corrupt = tmp_path / "corrupt"
+    corrupt.mkdir()
+    (corrupt / "manifest.json").write_text("{bad json")
+
+    records = {record["run_id"]: record for record in rj.search_runs()}
+    assert records["inflight"]["status"] == "running"
+    assert records["corrupt"]["status"] == "corrupt"
+    assert records["inflight"]["warnings"]
+    assert records["corrupt"]["warnings"]

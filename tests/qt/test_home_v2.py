@@ -631,7 +631,7 @@ def test_each_tab_holds_exactly_its_own_members(home):
 ALPHA_MODULES = {
     "align", "model_zoo", "convert", "foreign", "external_masks",
     "model_compare", "queue", "batch", "invasion", "db_browser",
-    "plate_view", "agreement", "train_compare", "report",
+    "plate_view", "agreement", "train_compare", "run_history", "report",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -640,7 +640,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """14 alpha, 9 beta, named one at a time.
+    """15 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -650,7 +650,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 14 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 15 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
@@ -757,15 +757,16 @@ def test_no_tile_name_is_clipped_on_any_tab(home, qtbot, qapp):
 def test_the_aside_carries_recent_runs_system_and_news(home):
     headers = {lbl.text() for lbl in home.findChildren(QLabel)
                if lbl.objectName() == "HomePanelHeader"}
-    assert "RECENT RUNS (beta)" in headers
+    assert "RECENT RUNS" in headers
     assert "SYSTEM" in headers
     assert any(h.startswith("NEWS") for h in headers)
 
 
 def test_the_unfinished_aside_panels_say_so(home):
-    """Recent runs, News and Totals are marked ``(beta)``; the two that
-    read live state (Queued, System) are not — a mark on everything is a
-    mark on nothing.
+    """Only provisional News is marked ``(beta)``.
+
+    Recent Runs and Totals became complete when every GUI and CLI pipeline
+    began writing an automatic manifest.
 
     Lower case on purpose: the header is upper-cased and letter-spaced,
     so "(BETA)" would read as another word in the heading."""
@@ -779,11 +780,13 @@ def test_the_unfinished_aside_panels_say_so(home):
     assert BETA_SUFFIX == " (beta)" and BETA_SUFFIX.islower()
 
     assert {h.replace(BETA_SUFFIX, "").split(" ·")[0] for h in marked} == {
-        "RECENT RUNS", "NEWS", "TOTALS"}
+        "NEWS"}
     # MODULE STATE joined the unmarked set with #16j. It is not a panel
     # of numbers at all — it is the legend for the tile hover colours —
     # so there is nothing about it that could be provisional.
-    assert set(plain) == {"QUEUED", "SYSTEM", "MODULE STATE"}
+    assert set(plain) == {
+        "QUEUED", "SYSTEM", "RECENT RUNS", "TOTALS", "MODULE STATE",
+    }
     # The mark explains itself rather than just labelling.
     for panel in marked.values():
         assert panel.header.toolTip() == BETA_PANEL_TOOLTIP

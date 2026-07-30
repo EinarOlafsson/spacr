@@ -472,6 +472,7 @@ class Run:
     :ivar seeds: declared seeds and runtime RNG-state identifiers.
     :ivar provenance_warnings: non-fatal path/hash failures retained in the
         manifest instead of being silently discarded.
+    :ivar run_warnings: distinct warning lines emitted by the pipeline.
     :ivar environment: host, spaCR, Git, and installed-package versions.
     """
     app_key: str
@@ -486,6 +487,7 @@ class Run:
     output_hashes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     seeds: Dict[str, Any] = field(default_factory=dict)
     provenance_warnings: List[str] = field(default_factory=list)
+    run_warnings: List[str] = field(default_factory=list)
     environment: Dict[str, Any] = field(default_factory=dict)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
@@ -495,6 +497,7 @@ class Run:
     _baseline: Dict[str, Tuple[int, int]] = field(
         default_factory=dict, repr=False,
     )
+    _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
 
     # -- external mutations ------------------------------------------------
     def record_model(self, name: str, checkpoint_path: Any) -> None:
@@ -562,6 +565,19 @@ class Run:
     def set_status(self, status: str) -> None:
         """Explicitly stamp ``status`` (``success`` / ``failed`` / …)."""
         self.status = status
+
+    def record_warning(self, message: Any) -> None:
+        """Retain a distinct warning for the run-history dashboard.
+
+        :param message: warning text captured from pipeline stdout/stderr or
+            supplied directly by pipeline code.
+        """
+        text = str(message or "").strip()
+        if text and text not in self.run_warnings:
+            # Bound the manifest if a library repeats the same warning with
+            # field-specific text thousands of times.
+            if len(self.run_warnings) < 500:
+                self.run_warnings.append(text)
 
     # -- private -----------------------------------------------------------
     def _record_tree(
@@ -653,6 +669,23 @@ class Run:
             hash_file(self.dir / "settings.json", full=True)
             or _json_digest(self.settings)
         )
+        wall_s = elapsed
+        performance = {
+            "wall_s": wall_s,
+            "process_cpu_s": round(
+                max(0.0, time.process_time() - self._start_cpu_s), 3,
+            ),
+            "input_files": len(self.input_hashes),
+            "input_bytes": sum(
+                int(record.get("size_bytes", 0) or 0)
+                for record in self.input_hashes.values()
+            ),
+            "output_files": len(self.output_hashes),
+            "output_bytes": sum(
+                int(record.get("size_bytes", 0) or 0)
+                for record in self.output_hashes.values()
+            ),
+        }
         manifest = {
             "schema_version": MANIFEST_SCHEMA_VERSION,
             "hash_algorithm": _HASH_ALGORITHM,
@@ -675,6 +708,8 @@ class Run:
             "output_hashes": self.output_hashes,
             "output_tree_sha256": _json_digest(self.output_hashes),
             "provenance_warnings": self.provenance_warnings,
+            "warnings":       self.run_warnings,
+            "performance":    performance,
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
         }
@@ -838,6 +873,168 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
                      e["dir"].stat().st_mtime)
     all_entries.sort(key=_sort_key, reverse=True)
     return all_entries[:limit]
+
+
+def search_runs(
+    query: str = "",
+    *,
+    app_key: str = "",
+    status: str = "",
+    limit: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Return searchable, dashboard-ready records for all journalled runs.
+
+    Search covers the run id, module, status, settings keys and values, input
+    and output paths, warnings, failure traceback, and environment versions.
+    Corrupt or interrupted run folders remain visible with an explicit
+    ``"corrupt"``/``"running"`` status and diagnostic warnings.
+
+    :param query: whitespace-separated case-insensitive terms; every term must
+        occur somewhere in the record.
+    :param app_key: optional exact module filter.
+    :param status: optional exact status filter.
+    :param limit: maximum returned records after newest-first sorting.
+    :returns: JSON-friendly record dictionaries. ``dir`` remains a
+        :class:`~pathlib.Path` for convenient GUI use.
+    """
+    records: List[Dict[str, Any]] = []
+    root = runs_root()
+    try:
+        directories = [path for path in root.iterdir() if path.is_dir()]
+    except OSError as exc:
+        LOG.warning("Could not enumerate run history at %s: %s", root, exc)
+        return []
+
+    wanted_app = str(app_key or "").strip().lower()
+    wanted_status = str(status or "").strip().lower()
+    terms = [term.casefold() for term in str(query or "").split() if term]
+
+    for directory in directories:
+        rec = _read_run_record(directory)
+        manifest = rec["manifest"] or {}
+        settings = rec["settings"] or {}
+        current_app = str(manifest.get("app_key") or "unknown")
+        current_status = str(manifest.get("status") or "").lower()
+        if not current_status:
+            current_status = (
+                "running"
+                if "no manifest.json (run may still be in flight)" in rec["errors"]
+                else "corrupt"
+            )
+        if wanted_app and current_app.lower() != wanted_app:
+            continue
+        if wanted_status and current_status != wanted_status:
+            continue
+
+        warnings_list: List[str] = []
+        for key in ("warnings", "provenance_warnings"):
+            values = manifest.get(key) or []
+            if isinstance(values, (list, tuple)):
+                warnings_list.extend(str(value) for value in values if value)
+            elif values:
+                warnings_list.append(str(values))
+        warnings_list.extend(str(error) for error in rec["errors"])
+
+        # Legacy manifests did not structure warnings. Their bounded log tail
+        # is still useful, so surface warning-looking lines without failing a
+        # history scan on encoding or permissions.
+        if "warnings" not in manifest:
+            log_path = directory / "log.txt"
+            try:
+                if log_path.exists():
+                    for line in log_path.read_text(
+                        encoding="utf-8", errors="replace",
+                    ).splitlines():
+                        if re.search(
+                            r"\b(?:warning|warn)\b", line, re.IGNORECASE,
+                        ):
+                            warnings_list.append(line.strip())
+            except OSError as exc:
+                warnings_list.append(
+                    f"log.txt unreadable ({type(exc).__name__})"
+                )
+        warnings_list = list(dict.fromkeys(warnings_list))
+
+        inputs = manifest.get("input_hashes")
+        outputs = manifest.get("output_hashes")
+        inputs = inputs if isinstance(inputs, dict) else {}
+        outputs = outputs if isinstance(outputs, dict) else {}
+        performance = manifest.get("performance")
+        if not isinstance(performance, dict):
+            performance = {
+                "wall_s": manifest.get("elapsed_s"),
+                "process_cpu_s": None,
+                "input_files": len(inputs),
+                "input_bytes": sum(
+                    int(value.get("size_bytes", 0) or 0)
+                    for value in inputs.values() if isinstance(value, dict)
+                ),
+                "output_files": len(outputs),
+                "output_bytes": sum(
+                    int(value.get("size_bytes", 0) or 0)
+                    for value in outputs.values() if isinstance(value, dict)
+                ),
+            }
+        failure = str(manifest.get("traceback") or "")
+        record: Dict[str, Any] = {
+            "dir": directory,
+            "run_id": directory.name,
+            "app_key": current_app,
+            "status": current_status,
+            "start_utc": str(manifest.get("start_utc") or ""),
+            "end_utc": str(manifest.get("end_utc") or ""),
+            "elapsed_s": manifest.get("elapsed_s"),
+            "performance": performance,
+            "settings": settings,
+            "inputs": inputs,
+            "outputs": outputs,
+            "models": manifest.get("model_files")
+                      or manifest.get("model_hashes") or {},
+            "warnings": warnings_list,
+            "failure": failure,
+            "environment": (
+                manifest.get("env")
+                if isinstance(manifest.get("env"), dict) else {}
+            ),
+            "manifest": manifest,
+        }
+        if terms:
+            haystack = json.dumps(
+                {
+                    "run_id": record["run_id"],
+                    "app_key": current_app,
+                    "status": current_status,
+                    "settings": settings,
+                    "inputs": list(inputs),
+                    "outputs": list(outputs),
+                    "warnings": warnings_list,
+                    "failure": failure,
+                    "environment": record["environment"],
+                },
+                default=str,
+                sort_keys=True,
+            ).casefold()
+            if not all(term in haystack for term in terms):
+                continue
+        records.append(record)
+
+    def _history_sort_key(record: Dict[str, Any]) -> Tuple[datetime, float]:
+        try:
+            started = datetime.fromisoformat(record["start_utc"])
+            if started.tzinfo is None:
+                started = started.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            started = datetime.fromtimestamp(0, tz=timezone.utc)
+        try:
+            mtime = record["dir"].stat().st_mtime
+        except OSError:
+            mtime = 0.0
+        return started, mtime
+
+    records.sort(key=_history_sort_key, reverse=True)
+    if limit is not None:
+        return records[:max(0, int(limit))]
+    return records
 
 
 def journal_totals() -> Dict[str, int]:

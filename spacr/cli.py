@@ -535,6 +535,8 @@ INTERACTIVE_ONLY: Dict[str, str] = {
     "train_compare": "Training Runs is an interactive curve/settings comparison; "
                      "headless, use spacr.train_compare.find_runs + "
                      "format_comparison from Python.",
+    "run_history": "Run History is an interactive searchable dashboard; headless, "
+                   "call spacr.run_journal.search_runs() instead.",
 }
 
 

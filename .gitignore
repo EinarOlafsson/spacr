@@ -171,6 +171,7 @@ tutorial_colab.ipynb
 !/docs/source/localization.rst
 !/docs/source/checkpoint_resume.rst
 !/docs/source/reproducibility_manifests.rst
+!/docs/source/run_history.rst
 !/docs/source/_extra/
 !/docs/source/_extra/**
 
