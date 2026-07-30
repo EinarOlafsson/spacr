@@ -633,9 +633,9 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
 ALPHA_MODULES = {
-    "align", "model_zoo", "convert", "foreign", "model_compare", "queue",
-    "batch", "invasion", "db_browser", "plate_view", "agreement",
-    "train_compare", "report",
+    "align", "model_zoo", "convert", "foreign", "external_masks",
+    "model_compare", "queue", "batch", "invasion", "db_browser",
+    "plate_view", "agreement", "train_compare", "report",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -644,7 +644,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """13 alpha, 9 beta, named one at a time.
+    """14 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -654,7 +654,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 13 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 14 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 

@@ -101,6 +101,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "classify": "spacr.deep_spacr.deep_spacr",
     "activation": "spacr.deep_spacr.generate_activation_map",
     "foreign": "spacr.foreign.import_project",
+    "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
@@ -154,7 +155,10 @@ MASK_APPS = frozenset({"mask", "timelapse"})
 # takes ``images`` / ``masks`` / ``measurements`` — someone else's project —
 # and writes a spaCR one to ``dst``; there is no ``src`` to check, and
 # reporting "src is missing" for it was simply wrong.
-ALT_SRC_KEYS: Dict[str, str] = {"foreign": "images"}
+ALT_SRC_KEYS: Dict[str, str] = {
+    "foreign": "images",
+    "external_masks": "inputs",
+}
 
 CHANNEL_KEYS: Tuple[str, ...] = (
     "cell_channel",
@@ -473,6 +477,23 @@ def _source_key(app: str) -> str:
 def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
     """The app's source folder(s), mirroring spacr.utils.normalize_src_path."""
     src = settings.get(_source_key(app))
+    if app == "external_masks":
+        values = src if isinstance(src, (list, tuple)) else [src]
+        roots: List[Any] = []
+        for value in values:
+            if isinstance(value, dict):
+                root = value.get("root")
+                if root:
+                    roots.append(root)
+                    continue
+                paths = value.get("paths") or []
+                roots.extend(
+                    os.path.dirname(path) if os.path.isfile(path) else path
+                    for path in paths if isinstance(path, str))
+            elif isinstance(value, str):
+                roots.append(
+                    os.path.dirname(value) if os.path.isfile(value) else value)
+        return list(dict.fromkeys(roots))
     if isinstance(src, (list, tuple)):
         return list(src)
     if isinstance(src, str):
@@ -499,9 +520,16 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
     """``src`` exists, is the right kind of thing, and holds what the app needs."""
     problems: List[Problem] = []
     key = _source_key(app)
-    fix = ("Set images to the folder holding their images."
-           if key != "src" else
-           "Set src to the folder holding the images (or, for measure, the merged folder).")
+    if key == "images":
+        fix = "Set images to the folder holding their images."
+    elif key == "inputs":
+        fix = (
+            "Drop intensity images and label masks onto External Masks, "
+            "then review their assignments.")
+    else:
+        fix = (
+            "Set src to the folder holding the images (or, for measure, "
+            "the merged folder).")
     if key not in settings:
         # spacr.core.preprocess_generate_masks raises ValueError('src is a
         # required parameter').
@@ -793,6 +821,10 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
         "label_key", "column_map", "um_per_px", "on_conflict",
         "allow_spacr_targets", "measure", "crops", "overwrite", "preview_only",
     }),
+    "external_masks": frozenset({
+        "inputs", "dst", "recursive", "layout", "z_handling",
+        "plate_naming", "overwrite", "preview_only",
+    }),
 }
 
 
@@ -977,6 +1009,42 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 "it inferred.",
                 "Run once with preview_only=True, save the column map, read it, "
                 "then point column_map at it."))
+
+    if app == "external_masks":
+        inputs = settings.get("inputs")
+        if not inputs:
+            problems.append(Problem(
+                ERROR, "inputs",
+                "No external images or masks have been selected.",
+                "Drop intensity images and label masks onto the module, then "
+                "review their assignments."))
+        else:
+            values = inputs if isinstance(inputs, (list, tuple)) else [inputs]
+            roles = {
+                value.get("role")
+                for value in values if isinstance(value, dict)
+            }
+            if roles and "image" not in roles:
+                problems.append(Problem(
+                    ERROR, "inputs", "No input group is assigned as images.",
+                    "Set at least one detected group to Image."))
+            if roles and "mask" not in roles:
+                problems.append(Problem(
+                    ERROR, "inputs", "No input group is assigned as masks.",
+                    "Set at least one detected group to Mask and choose its "
+                    "object type."))
+            unassigned = [
+                value for value in values
+                if isinstance(value, dict)
+                and value.get("role") == "mask"
+                and value.get("object_type") not in OBJECT_NAMES
+            ]
+            if unassigned:
+                problems.append(Problem(
+                    ERROR, "inputs",
+                    f"{len(unassigned)} mask group(s) have no object type.",
+                    "Choose Cell, Nucleus, Pathogen or Organelle for every "
+                    "mask group."))
 
     if app == "classify":
         train = settings.get("train", settings.get("generate_training_dataset", False))

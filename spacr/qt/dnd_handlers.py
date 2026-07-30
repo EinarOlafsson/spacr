@@ -12,6 +12,7 @@ Handler map (also read by ``get_handler``):
 +=================+=======================================================+
 | mask            | folder w/ images (auto-parses regex + preview)        |
 | measure         | folder named ``merged`` OR one containing merged/     |
+| external_masks  | mixed image/label files or folders; assignment table  |
 | annotate        | folder with ``measurements/measurements.db``          |
 | classify        | folder with ``data/`` or ``measurements/``            |
 | make_masks      | folder with images + optional masks/                  |
@@ -650,6 +651,46 @@ class SourceDropHandler(DropHandler):
         _log(screen, f"[drop] src = {path}\n")
 
 
+class ExternalMasksDropHandler(DropHandler):
+    """Append mixed intensity images and external label masks to the mapper."""
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        if path.is_dir():
+            return True
+        return path.is_file() and path.name.lower().endswith(
+            (".tif", ".tiff", ".ome.tif", ".ome.tiff",
+             ".png", ".jpg", ".jpeg", ".bmp"))
+
+    def error_message(self, path: Path) -> str:
+        return (
+            "Drop image or mask files, or folders containing TIFF, PNG, "
+            "JPEG or BMP files.")
+
+    def apply(self, path: Path, screen) -> None:
+        try:
+            model = screen._settings_model
+            widget = model._widgets["inputs"]
+            added = widget.add_paths([str(path)])
+        except Exception as exc:
+            raise TypeError(
+                "The External Masks input-mapping table is unavailable."
+            ) from exc
+        if added <= 0:
+            raise ValueError(f"No supported images were found under {path}.")
+        destination = path if path.is_dir() else path.parent
+        dst_widget = model._widgets.get("dst")
+        if dst_widget is not None and not model._read_widget(dst_widget):
+            model.set_value_for_key("dst", f"{destination}_spacr")
+        _log(
+            screen,
+            f"[drop] detected {added} external image/mask file(s) from "
+            f"{path}; review the assignments before Run.\n",
+        )
+
+
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
@@ -657,6 +698,7 @@ class SourceDropHandler(DropHandler):
 _HANDLERS = {
     "mask":            MaskDropHandler,
     "measure":         MeasureDropHandler,
+    "external_masks":  ExternalMasksDropHandler,
     "annotate":        AnnotateDropHandler,
     "classify":        ClassifyDropHandler,
     "make_masks":      MakeMasksDropHandler,
