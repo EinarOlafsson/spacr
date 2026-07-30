@@ -22,9 +22,10 @@ from PySide6.QtWidgets import QComboBox, QLabel, QLineEdit, QWidget
 
 from spacr.qt import dnd_handlers as dh
 from spacr.qt.dnd_handlers import (
-    AnnotateDropHandler, ClassifyDropHandler, MakeMasksDropHandler,
+    AnnotateDropHandler, ClassifyDropHandler, DatabaseDropHandler,
+    MakeMasksDropHandler,
     MapBarcodesDropHandler, MaskDropHandler, MeasureDropHandler,
-    MeasurementsDropHandler, get_handler,
+    MeasurementsDropHandler, SourceDropHandler, get_handler,
     _count_images, _log, _open_metadata_table, _open_regex_editor,
     _push_regex_to_screen, _report_folder_structure, _report_regex_on_mask,
     _set_screen_setting, _set_src_on,
@@ -1171,7 +1172,7 @@ def test_measurements_handler_requires_the_db(tmp_path):
 def test_measurements_handler_rejects_a_file(tmp_path):
     f = tmp_path / "measurements.db"
     f.write_bytes(b"sqlite")
-    assert MeasurementsDropHandler().can_accept(f) is False
+    assert MeasurementsDropHandler().can_accept(f) is True
 
 
 def test_measurements_handler_error_message(tmp_path):
@@ -1183,6 +1184,44 @@ def test_measurements_handler_apply(qtbot, screen, tmp_path):
     MeasurementsDropHandler().apply(tmp_path, screen)
     assert screen.w("src").text() == str(tmp_path)
     assert f"[drop] src = {tmp_path}\n" in screen.log
+
+
+def test_measurements_handler_normalises_db_and_measurements_folder(
+        qtbot, screen, tmp_path):
+    measurements = tmp_path / "measurements"
+    measurements.mkdir()
+    db = measurements / "measurements.db"
+    db.write_bytes(b"sqlite")
+    handler = MeasurementsDropHandler()
+
+    handler.apply(db, screen)
+    assert screen.w("src").text() == str(tmp_path)
+    handler.apply(measurements, screen)
+    assert screen.w("src").text() == str(tmp_path)
+
+
+def test_database_handler_opens_any_supported_shape(tmp_path):
+    measurements = tmp_path / "measurements"
+    measurements.mkdir()
+    db = measurements / "measurements.db"
+    db.write_bytes(b"sqlite")
+
+    class Screen:
+        last_error = ""
+
+        def __init__(self):
+            self.opened = []
+
+        def set_database(self, path):
+            self.opened.append(path)
+            return True
+
+    screen = Screen()
+    handler = DatabaseDropHandler()
+    for path in (db, measurements, tmp_path):
+        assert handler.can_accept(path)
+        handler.apply(path, screen)
+    assert screen.opened == [str(db), str(measurements), str(tmp_path)]
 
 
 # ---------------------------------------------------------------------------
@@ -1206,6 +1245,7 @@ def test_measurements_handler_apply(qtbot, screen, tmp_path):
     ("train_cellpose", MakeMasksDropHandler),
     ("cellpose_masks", MakeMasksDropHandler),
     ("cellpose_all", MakeMasksDropHandler),
+    ("db_browser", DatabaseDropHandler),
 ])
 def test_registry_covers_every_documented_app(key, cls):
     assert type(get_handler(key)) is cls
@@ -1214,3 +1254,9 @@ def test_registry_covers_every_documented_app(key, cls):
 def test_get_handler_returns_a_fresh_instance_each_call():
     a, b = get_handler("mask"), get_handler("mask")
     assert a is not b
+
+
+def test_unknown_modules_accept_a_general_source_folder(tmp_path):
+    handler = get_handler("future_module")
+    assert type(handler) is SourceDropHandler
+    assert handler.can_accept(tmp_path)

@@ -1221,6 +1221,12 @@ class DbBrowserScreen(QWidget):
         self.confirm_edit_mode: Callable[[str], bool] = self._default_confirm
 
         self._build_ui()
+        # Match the pipeline screens: the database file, its measurements/
+        # folder, and the enclosing run folder can all be dropped anywhere on
+        # this screen.
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import DatabaseDropHandler
+        install_dropzone(self, DatabaseDropHandler(), self)
         self._set_status(
             "Choose a measurements.db, or a run folder containing "
             "measurements/measurements.db.")

@@ -25,6 +25,7 @@ Handler map (also read by ``get_handler``):
 | train_cellpose  | folder with image+mask pairs                          |
 | cellpose_masks  | folder with images                                    |
 | cellpose_all    | ditto                                                 |
+| other modules   | an existing source folder or supported data file      |
 +-----------------+-------------------------------------------------------+
 
 Every handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`
@@ -96,7 +97,15 @@ class MaskDropHandler(DropHandler):
         return True
 
     def can_accept(self, path: Path) -> bool:
-        return path.is_dir() and has_images_in(path)
+        if path.is_dir():
+            return has_images_in(path)
+        if path.is_file():
+            from .multi_format import describe_file
+            return path.suffix.lower() in (
+                ".tif", ".tiff", ".png", ".jpg", ".jpeg", ".czi",
+                ".nd2", ".lif", ".npy", ".npz",
+            ) and describe_file(path) is not None
+        return False
 
     def suggest_alternatives(self, path: Path) -> List[Path]:
         if path.is_dir():
@@ -108,8 +117,9 @@ class MaskDropHandler(DropHandler):
                 "(.tif / .png / .czi / .nd2 / .lif) at the top level.")
 
     def apply(self, path: Path, screen) -> None:
-        _set_src_on(screen, str(path))
-        _log(screen, f"[drop] mask src = {path}\n")
+        src = path.parent if path.is_file() else path
+        _set_src_on(screen, str(src))
+        _log(screen, f"[drop] mask src = {src}\n")
         # Fire the console-based regex report asynchronously so the
         # UI doesn't stall while it reads image filenames + auto-
         # detects the regex.
@@ -391,6 +401,8 @@ class MeasureDropHandler(DropHandler):
     parent folder that contains one."""
 
     def can_accept(self, path: Path) -> bool:
+        if path.is_file():
+            return path.suffix.lower() in (".npy", ".tif", ".tiff")
         if not path.is_dir():
             return False
         # Direct: dropped `merged` folder itself
@@ -419,6 +431,8 @@ class MeasureDropHandler(DropHandler):
                 "plate folder that contains one).")
 
     def apply(self, path: Path, screen) -> None:
+        if path.is_file():
+            path = path.parent
         # Normalise: if user dropped the parent, drill into merged/
         if path.name != "merged" and (path / "merged").is_dir():
             path = path / "merged"
@@ -556,19 +570,84 @@ class MapBarcodesDropHandler(DropHandler):
 # ---------------------------------------------------------------------------
 
 class MeasurementsDropHandler(DropHandler):
-    """Accept a plate folder containing a measurements DB."""
+    """Accept a database, its measurements folder, or its plate folder."""
 
     def can_accept(self, path: Path) -> bool:
-        if not path.is_dir():
-            return False
-        return (path / "measurements" / "measurements.db").is_file()
+        if path.is_file():
+            return path.name == "measurements.db"
+        if path.is_dir():
+            return (
+                (path / "measurements" / "measurements.db").is_file()
+                or (path / "measurements.db").is_file()
+            )
+        return False
 
     def error_message(self, path: Path) -> str:
         return ("This module needs a plate folder with "
                 "measurements/measurements.db.")
 
     def apply(self, path: Path, screen) -> None:
+        if path.is_file():
+            path = path.parent
+        if path.name == "measurements" and (path / "measurements.db").is_file():
+            path = path.parent
         _set_src_on(screen, str(path))
+        _log(screen, f"[drop] src = {path}\n")
+
+
+class DatabaseDropHandler(DropHandler):
+    """Open a dropped measurements database in the Database Browser."""
+
+    def can_accept(self, path: Path) -> bool:
+        return MeasurementsDropHandler().can_accept(path)
+
+    def error_message(self, path: Path) -> str:
+        return (
+            "Database Browser accepts measurements.db, the measurements "
+            "folder that contains it, or the parent run folder."
+        )
+
+    def apply(self, path: Path, screen) -> None:
+        if not hasattr(screen, "set_database"):
+            raise TypeError("This screen cannot open a database.")
+        if not screen.set_database(str(path)):
+            raise ValueError(
+                getattr(screen, "last_error", "")
+                or f"Could not open {path}."
+            )
+
+
+class SourceDropHandler(DropHandler):
+    """General source-path policy for modules without a narrower contract.
+
+    Every standard :class:`AppScreen` has a ``src`` field. Accepting a real
+    directory here gives newer and less-specialised modules drag-and-drop
+    support automatically instead of requiring a registry edit for every
+    screen. A dropped file is only accepted for known data extensions and is
+    normalised to its containing directory.
+    """
+
+    _DATA_EXTS = {
+        ".tif", ".tiff", ".png", ".jpg", ".jpeg", ".czi", ".nd2",
+        ".lif", ".npy", ".npz", ".csv", ".db", ".sqlite", ".sqlite3",
+        ".fastq", ".fq", ".gz", ".tar",
+    }
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or (
+            path.is_file() and path.suffix.lower() in self._DATA_EXTS
+        )
+
+    def error_message(self, path: Path) -> str:
+        return "Drop an existing source folder or a supported data file."
+
+    def apply(self, path: Path, screen) -> None:
+        if path.is_file():
+            path = path.parent
+        if path.name == "measurements" and (path / "measurements.db").is_file():
+            path = path.parent
+        if not _set_src_on(screen, str(path)):
+            raise TypeError("This module has no source field to receive the drop.")
         _log(screen, f"[drop] src = {path}\n")
 
 
@@ -593,13 +672,15 @@ _HANDLERS = {
     "train_cellpose":  MakeMasksDropHandler,      # image + mask pairs
     "cellpose_masks":  MakeMasksDropHandler,
     "cellpose_all":    MakeMasksDropHandler,
+    "db_browser":      DatabaseDropHandler,
 }
 
 
 def get_handler(app_key: str) -> DropHandler:
     """Return a fresh DropHandler for ``app_key``.
 
-    Falls back to :class:`MeasurementsDropHandler` for unknown apps.
+    Falls back to :class:`SourceDropHandler` so every conventional AppScreen
+    can at least receive its source folder.
     """
-    cls = _HANDLERS.get(app_key, MeasurementsDropHandler)
+    cls = _HANDLERS.get(app_key, SourceDropHandler)
     return cls()
