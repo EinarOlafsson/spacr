@@ -104,6 +104,8 @@ def test_toggle_is_three_quarters_of_the_original_switch_size(qtbot):
     t = Toggle()
     qtbot.addWidget(t)
     assert (t._track_w, t._track_h, t._knob_d) == (30, 17, 12)
+    assert t._track_x == 2
+    assert t._minimum_knob_x() > t._track_x
 
 
 def test_toggle_knob_can_be_clicked_in_both_states(qtbot):
