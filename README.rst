@@ -1,8 +1,11 @@
-|Docs| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
    :alt: Documentation
+.. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
+   :target: https://einarolafsson.github.io/spacr/tutorials/
+   :alt: Interactive tutorials
 .. |PyPI| image:: https://img.shields.io/pypi/v/spacr
    :target: https://pypi.org/project/spacr/
    :alt: PyPI version
@@ -54,9 +57,6 @@ Every object stays traceable. Images, masks, measurements, annotations,
 model predictions, barcodes, and experimental identifiers are linked through
 a SQLite-backed project rather than scattered across unrelated files.
 
-Why spaCR?
-----------
-
 - **Image analysis.** Segment 2D, 3D, and 4D microscopy; measure
   morphology, intensity, texture, and spatial relationships; then track,
   crop, annotate, and classify individual objects.
@@ -79,6 +79,9 @@ Why spaCR?
 
 Workflow at a glance
 ~~~~~~~~~~~~~~~~~~~~
+
+`Open the interactive HTML walkthrough
+<https://einarolafsson.github.io/spacr/tutorials/>`_.
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
    :alt: spaCR workflow and output organization
@@ -629,7 +632,12 @@ those releases.
 Tutorials
 ~~~~~~~~~
 
-Tutorials are coming soon.
+Use the `interactive spaCR tutorial library
+<https://einarolafsson.github.io/spacr/tutorials/>`_ for narrated,
+captioned walkthroughs of installation and application workflows. Its
+language-first player is configured for all 54 Kokoro voices across English,
+Spanish, French, Hindi, Italian, Brazilian Portuguese, Japanese, and Mandarin
+Chinese.
 
 Citing spaCR
 ~~~~~~~~~~~~
