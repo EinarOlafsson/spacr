@@ -19,9 +19,8 @@ def test_format_tooltip_shows_name_type_and_strips_old_prefix():
     assert "(integer)" in tip
     assert "Expected cell diameter." in tip
     assert "(int) -" not in tip           # old inline type prefix removed
-    assert 'href=' in tip                 # information link
-    assert "ⓘ" in tip
-    assert "Docs" not in tip
+    assert "href=" not in tip             # the adjacent teal dot is the link
+    assert "ⓘ" not in tip
 
 
 def test_undescribed_setting_still_typed():
