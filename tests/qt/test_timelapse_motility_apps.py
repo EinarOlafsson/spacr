@@ -248,18 +248,23 @@ def test_settings_screen_builds_offscreen(qtbot, qt_theme_applied, key):
     assert "src" in collected, f"{key} has no src setting"
 
 
-def test_timelapse_screen_shows_the_timelapse_category(qtbot, qt_theme_applied):
+def test_timelapse_screen_groups_axes_and_tracking(qtbot, qt_theme_applied):
     from spacr.qt.screens.settings_model import SettingsWidgets
     sections = dict(_section_map(SettingsWidgets("timelapse")))
-    assert "Timelapse" in sections
-    assert len(sections["Timelapse"]) >= 5
+    assert "Acquisition & Axes" in sections
+    assert "Tracking Setup" in sections
+    assert len(sections["Acquisition & Axes"]) >= 5
 
 
-def test_motility_screen_shows_the_motility_categories(qtbot, qt_theme_applied):
+def test_motility_screen_shows_the_reorganized_categories(
+    qtbot, qt_theme_applied,
+):
     from spacr.qt.screens.settings_model import SettingsWidgets
     sections = dict(_section_map(SettingsWidgets("motility")))
-    assert "Motility (beta)" in sections
-    assert "Motility Advanced (beta)" in sections
+    assert "Objects & Channels" in sections
+    assert "Motion Filtering" in sections
+    assert "Infection Classification" in sections
+    assert "Motility Plots & QC" in sections
     assert "Other" not in sections, "motility keys spilled into the Other tab"
 
 

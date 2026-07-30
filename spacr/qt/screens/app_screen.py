@@ -13,13 +13,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer, QThread, Signal
-from PySide6.QtGui import QFontDatabase, QIcon, QPixmap
+from PySide6.QtCore import QEvent, Qt, QTimer, QThread, Signal
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
-    QPlainTextEdit,
     QProgressBar,
     QPushButton,
     QScrollArea,
@@ -30,7 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..bridge import make_thread, resolve_pipeline_entry
-from ..theme import SPACING, active_palette
+from ..theme import SPACING
 from ..widgets import Card, Divider, InfoLink, Section, UsageBar
 from .settings_model import SettingsWidgets
 
@@ -46,7 +45,13 @@ HINT_STRIP_LINES = 4
 # don't have an entry fall back to a generic "Settings that
 # control <title>."
 SECTION_HINTS = {
-    "REPLICATION ASSAY": "How endodyogeny is scored: which column carries the class, how vacuoles are binned by area, and the pixel size used to convert those bins to micrometres.",
+    "REPLICATION ASSAY": "How parasites are assigned to vacuoles and counted, "
+                         "including biological plausibility warnings for "
+                         "non-power-of-two replication states.",
+    "ENDODYOGENY SIZE PROXY (LEGACY)":
+                         "Legacy area-bin approximation retained for older "
+                         "analyses; new Replication Assay runs use direct "
+                         "parasite-per-vacuole counts.",
     "DATA & CONTROLS":   "Measurement database, class/control wells and the "
                          "annotation column used to train the classical model.",
     "FEATURE PREPARATION":
@@ -176,12 +181,15 @@ SECTION_HINTS = {
                          "activation-map generation.",
     "ASSAY INPUTS":      "Measurement database, table and compartment used by "
                          "the replication assay.",
+    "VACUOLE ASSIGNMENT":
+                         "Existing vacuole identifiers or spatial-linking "
+                         "distance rules used to group parasites into vacuoles.",
     "CONDITION METADATA":
                          "Cell, pathogen and treatment definitions and the "
                          "columns used to group assay conditions.",
     "REPLICATION SCORING":
-                         "Class grouping and area-bin configuration used to "
-                         "turn parasites per vacuole into replication rates.",
+                         "Parasite-count limits, division-state warnings and "
+                         "empty-well handling used to calculate replication.",
     "ASSAY OUTPUT":      "Saved replication results and their plot colour map.",
     "PATHS":            "Source folder + destination folder + which "
                         "sub-folders spaCR should read images from.",
@@ -803,7 +811,7 @@ class AppScreen(QWidget):
         hides once the ``src`` widget contains anything so users
         who've already pointed the app at data see the normal form.
         """
-        from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton
+        from PySide6.QtWidgets import QLineEdit
         from ..widgets import EmptyState
 
         src_widget = None
@@ -878,9 +886,11 @@ class AppScreen(QWidget):
             card.hide()
 
     def _autoload_live_preview(self, src: str) -> None:
-        """Load the first supported image found under ``src`` into the
-        live-preview panel. Silent if ``src`` is empty, a placeholder,
-        or contains no images — the panel already handles that.
+        """Ask the preview panel to discover/decode ``src`` asynchronously.
+
+        Silent if ``src`` is empty or a placeholder. Directory traversal and
+        image decoding both happen in the panel's worker so a large plate or
+        slow NAS mount cannot freeze Qt.
         """
         panel = getattr(self, "_live_preview", None)
         if panel is None:
@@ -888,20 +898,7 @@ class AppScreen(QWidget):
         s = (src or "").strip()
         if not s or s in {"path", "/path/to/src", "/path"}:
             return
-        from pathlib import Path
-        root = Path(s)
-        if not root.is_dir():
-            if root.is_file() and root.suffix.lower() in {".tif", ".tiff",
-                                                            ".png", ".jpg",
-                                                            ".jpeg"}:
-                panel.load_image(root)
-            return
-        # Pick the first image at any depth (breadth-limited)
-        for pattern in ("*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"):
-            hits = sorted(root.rglob(pattern))
-            if hits:
-                panel.load_image(hits[0])
-                return
+        panel.load_source_async(s)
 
     def _open_demos_menu(self) -> None:
         try:

@@ -1,3 +1,5 @@
+"""Scientific plotting and statistical-annotation helpers."""
+
 from __future__ import annotations
 import os, random, cv2, glob, math, torch, itertools
 
@@ -30,7 +32,7 @@ from matplotlib_venn import venn2
 
 # Fail-loud accounting: a missing annotation column silently pools every
 # condition together, which is far worse than a plot that refuses to render.
-from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .errors import RunLedger, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import write_tiff
 
@@ -743,7 +745,7 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
     :returns: None
     """
     
-    from .utils import _generate_mask_random_cmap, mask_object_count
+    from .utils import _generate_mask_random_cmap
     
     font = figuresize/2
     index = 0
@@ -1229,7 +1231,6 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
     """
     from .utils import normalize_to_dtype
 
-    mask_cmap = random_cmap()
     paths = []
 
     if src.endswith('.npz') or src.endswith('.npy'):
@@ -1416,7 +1417,6 @@ def plot_merged(src, settings):
 
     
     
-    font = settings['figuresize']/2
     outline_colors = _get_colours_merged(settings['outline_color'])
     index = 0
         
@@ -2093,7 +2093,7 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
 
     # Create the volcano plot
     plt.figure(figsize=(40, 30))
-    sc = plt.scatter(df['effect'], df['-log10(p)'], c=np.sign(df['effect']), cmap='coolwarm')
+    plt.scatter(df['effect'], df['-log10(p)'], c=np.sign(df['effect']), cmap='coolwarm')
     plt.title('Volcano Plot', fontsize=12)
     plt.xlabel('Coefficient', fontsize=12)
     plt.ylabel('-log10(P-value)', fontsize=12)
@@ -3070,7 +3070,7 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
 
     # Create the jitter plot
     plt.figure(figsize=(10, 6))
-    jitter_plot = sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column, jitter=True, palette='viridis', dodge=False)
+    sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column, jitter=True, palette='viridis', dodge=False)
     plt.title(plot_title)
     plt.xlabel(x_column)
     plt.ylabel(y_column)
@@ -3180,10 +3180,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
         test_results.append({'Comparison': f'{group1} vs {group2}', 'Test Statistic': stat, 'p-value': p, 'Test Name': test_name})
     
     # Post-hoc test (Tukey HSD for ANOVA)
-    posthoc_p_values = None
     if is_normal and len(unique_groups) > 2:
         tukey_result = pairwise_tukeyhsd(df[data_column], df[grouping_column], alpha=0.05)
-        posthoc_p_values = tukey_result.pvalues
         for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
             test_results.append({
                 'Comparison': f'{comparison[0]} vs {comparison[1]}',
@@ -3268,7 +3266,18 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     plt.show()
 
     return plt.gcf(), results_df
-    
+
+
+def _significance_marker(p_value):
+    """Return the conventional plot annotation for a statistical p-value."""
+    if p_value <= 0.001:
+        return '***'
+    if p_value <= 0.01:
+        return '**'
+    if p_value <= 0.05:
+        return '*'
+    return 'ns'
+
 class spacrGraph:
     """Grouped plot + statistical-test helper for spacr experiment DataFrames.
 
@@ -3773,15 +3782,7 @@ class spacrGraph:
                 group1, group2 = row['Comparison'].split(' vs ')
                 p_value = row['p-value']
 
-                # Determine significance marker
-                if p_value <= 0.001:
-                    signiresults_namecance = '***'
-                elif p_value <= 0.01:
-                    significance = '**'
-                elif p_value <= 0.05:
-                    significance = '*'
-                else:
-                    significance = 'ns'
+                significance = _significance_marker(p_value)
 
                 # Find the x positions of the compared groups
                 x1 = x_positions[unique_groups.tolist().index(group1)]
@@ -3810,7 +3811,6 @@ class spacrGraph:
 
         #num_groups = len(self.data_column)*len(self.grouping_column)
         num_groups = len(self.df[self.grouping_column].unique())
-        num_data_columns = len(self.data_column)
         self.bar_width = 0.4
         spacing_between_groups = self.bar_width/0.5
 
@@ -3998,7 +3998,6 @@ class spacrGraph:
             [x_axis_column], observed=False
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem')).reset_index()
-        error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df.copy()
         sns.barplot(
             data=self.df_melted, x=x_axis_column, y='Value',
@@ -4249,7 +4248,6 @@ class spacrGraph:
             [x_axis_column], observed=False
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem')).reset_index()
-        error_bars = summary_df[self.error_bar_type] if self.error_bar_type in ['std', 'sem'] else None
         self.summary_df = summary_df
         sns.barplot(
             data=self.df_melted, x=x_axis_column, y='Value',
@@ -4538,9 +4536,7 @@ def plot_data_from_csv(settings):
         and plotted DataFrame.
     :raises ValueError: if ``src`` is not a string or list.
     """
-    from .io import _read_db, _read_and_merge_data
-    from .utils import annotate_conditions, save_settings, remove_outliers_by_group
-    from .settings import get_plot_data_from_csv_default_settings
+    from .utils import remove_outliers_by_group
     """
     Extracts the specified table from the SQLite database and plots a specified column.
 
@@ -4634,7 +4630,6 @@ def plot_data_from_csv(settings):
     # Create the plot
     spacr_graph.create_plot()
 
-    # Get the figure object if needed
     fig = spacr_graph.get_figure()
     plt.show()
 
@@ -4945,8 +4940,6 @@ def graph_importance(settings):
     # Create the plot
     spacr_graph.create_plot()
 
-    # Get the figure object if needed
-    fig = spacr_graph.get_figure()
     plt.show()
     
 def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_column='prc', level='object', cmap='viridis'):
@@ -4992,7 +4985,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         std_proportions = well_proportions.groupby(
             group_column, observed=False).std()
 
-        ax = mean_proportions.plot(
+        mean_proportions.plot(
             kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
         )
         plt.title('Proportion of Volume Bins by Group (Mean ± SD across wells)')
@@ -5003,7 +4996,7 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         proportions = group_counts / group_totals
         proportion_df = proportions.unstack(fill_value=0)
 
-        ax = proportion_df.plot(kind='bar', stacked=True, colormap=cmap, figsize=(12, 8))
+        proportion_df.plot(kind='bar', stacked=True, colormap=cmap, figsize=(12, 8))
         plt.title('Proportion of Volume Bins by Group')
 
     plt.xlabel('Group')
@@ -5055,7 +5048,7 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
 
     # Create a Venn diagram
     plt.figure(figsize=(8, 6))
-    venn = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'))
+    venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'))
     plt.title("Venn Diagram of Overlapping Genes")
 
     # Save or show the figure

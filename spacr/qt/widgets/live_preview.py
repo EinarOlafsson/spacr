@@ -38,20 +38,19 @@ call is lazy-imported inside the worker thread.
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, QThread, Signal
-from PySide6.QtGui import (
-    QBrush, QColor, QImage, QPainter, QPen, QPixmap,
-)
+from PySide6.QtCore import QRectF, Qt, QThread, Signal
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QSpinBox, QToolButton, QVBoxLayout, QWidget,
+    QSizePolicy, QSpinBox, QVBoxLayout, QWidget,
 )
 from .toggle import Toggle
 
@@ -321,8 +320,68 @@ def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
 
 
 # ---------------------------------------------------------------------------
-# Segmentation worker
+# Image discovery/loading + segmentation workers
 # ---------------------------------------------------------------------------
+
+def first_supported_image(source: Path) -> Optional[Path]:
+    """Return the first supported image at or below ``source``.
+
+    Direct image files are returned unchanged. Directory traversal stops as
+    soon as the first sorted match is found instead of materialising and
+    sorting every image in a potentially enormous plate.
+
+    :param source: image path or directory to inspect.
+    :returns: the first supported image, or ``None``.
+    """
+    source = Path(source)
+    if source.is_file():
+        return source if source.suffix.lower() in SUPPORTED_SUFFIXES else None
+    if not source.is_dir():
+        return None
+
+    walk_errors: List[OSError] = []
+    for folder, dirs, files in os.walk(
+            source, topdown=True, onerror=walk_errors.append,
+            followlinks=False):
+        dirs.sort(key=str.casefold)
+        for name in sorted(files, key=str.casefold):
+            if Path(name).suffix.lower() in SUPPORTED_SUFFIXES:
+                return Path(folder) / name
+    if walk_errors:
+        raise OSError(
+            f"Could not inspect {source}: {walk_errors[0]}")
+    return None
+
+
+class _ImageLoadWorker(QThread):
+    """Discover and decode one preview image away from the GUI thread."""
+
+    loaded = Signal(int, object, object, str)
+
+    def __init__(self, source: Path, token: int, parent=None):
+        super().__init__(parent)
+        self.source = Path(source)
+        self.token = int(token)
+
+    def run(self) -> None:
+        """Find/decode the image and emit ``(token, path, array, error)``."""
+        try:
+            path = first_supported_image(self.source)
+            array = load_preview_image(path) if path is not None else None
+            self.loaded.emit(self.token, path, array, "")
+        except Exception as exc:
+            LOG.exception("Could not load live-preview source %s", self.source)
+            self.loaded.emit(
+                self.token, None, None,
+                str(exc) or exc.__class__.__name__)
+
+
+# A panel may be closed while a slow NAS read is still in progress. Keeping a
+# process-level reference until ``finished`` prevents Python from destroying a
+# running QThread (which aborts the process); Qt automatically drops queued
+# deliveries to a panel that no longer exists.
+_ACTIVE_IMAGE_LOADERS: set = set()
+
 
 @dataclass
 class PreviewRequest:
@@ -627,6 +686,8 @@ class LivePreviewPanel(QWidget):
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
+        self._image_loaders: List[_ImageLoadWorker] = []
+        self._image_load_token: int = 0
         # Bumped whenever the run in flight is superseded (a new image, an
         # explicit cancel). A worker's result is only accepted when the token
         # it carries still matches.
@@ -882,11 +943,65 @@ class LivePreviewPanel(QWidget):
     # -- public API --------------------------------------------------------
 
     def load_image(self, path):
+        """Synchronously load one image.
+
+        Intended for explicit programmatic calls and tests. GUI autoload uses
+        :meth:`load_source_async` so directory walking and decoding never block
+        the application thread.
+        """
         try:
             arr = load_preview_image(Path(path))
         except Exception as e:
             self._status.setText(f"Load failed: {e}")
             return False
+        self._install_loaded_image(Path(path), arr)
+        return True
+
+    def load_source_async(self, source) -> bool:
+        """Discover and decode a file/folder source on a worker thread.
+
+        New requests supersede older ones by token. An old decoder is allowed
+        to finish safely, but its result is ignored.
+
+        :param source: direct supported image or directory containing images.
+        :returns: ``True`` when a worker was started.
+        """
+        text = os.fspath(source).strip() if source is not None else ""
+        if not text:
+            return False
+        self._image_load_token += 1
+        token = self._image_load_token
+        worker = _ImageLoadWorker(Path(text), token)
+        worker.loaded.connect(self._on_source_loaded)
+        worker.finished.connect(self._retire_image_loader)
+        worker.finished.connect(
+            lambda w=worker: _ACTIVE_IMAGE_LOADERS.discard(w))
+        self._image_loaders.append(worker)
+        _ACTIVE_IMAGE_LOADERS.add(worker)
+        self._status.setText(f"Loading preview from {text}…")
+        worker.start()
+        return True
+
+    def _on_source_loaded(self, token: int, path, arr, error: str) -> None:
+        """Apply the newest asynchronous image result on the GUI thread."""
+        if token != self._image_load_token:
+            return
+        if error:
+            self._status.setText(f"Load failed: {error}")
+            return
+        if path is None or arr is None:
+            self._status.setText("No supported preview image found.")
+            return
+        self._install_loaded_image(Path(path), arr)
+
+    def _retire_image_loader(self) -> None:
+        """Release completed image-loader QThreads on the GUI thread."""
+        sender = self.sender()
+        self._image_loaders = [
+            worker for worker in self._image_loaders if worker is not sender]
+
+    def _install_loaded_image(self, path: Path, arr: np.ndarray) -> None:
+        """Replace preview state with an already-decoded image."""
         # A new image invalidates everything derived from the old one,
         # including the run in flight. The raw masks and the flow images used
         # to survive this, so the next filter change — or an in-flight preview
@@ -901,7 +1016,6 @@ class LivePreviewPanel(QWidget):
         self._path_label.setText(str(path))
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}")
         self._refresh_canvases()
-        return True
 
     def set_propagate_callback(self, cb) -> None:
         """Register a callback(dict) used to push tuned live settings back to

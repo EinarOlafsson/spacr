@@ -531,22 +531,23 @@ class TestPreferencesWiring:
         monkeypatch.setattr(preferences, "_settings", FakeSettings)
         assert preferences.get_space_variant() == DEFAULT_VARIANT
 
-    def test_background_path_prefers_a_download(self, cache_dir, qapp,
-                                                monkeypatch):
+    def test_background_path_uses_generated_fallback(self, cache_dir, qapp,
+                                                     monkeypatch):
         from spacr.qt import preferences, space
-        fake = cache_dir / "nasa.jpg"
+        fake = cache_dir / "generated.png"
         cache_dir.mkdir(parents=True, exist_ok=True)
         fake.write_bytes(b"pretend")
-        monkeypatch.setattr(space, "downloaded_background", lambda: fake)
+        monkeypatch.setattr(
+            space, "background_path", lambda *args, **kwargs: fake)
         assert preferences.space_background_path() == fake
 
     def test_background_path_never_raises(self, monkeypatch, qapp):
         from spacr.qt import preferences, space
 
-        def boom():
+        def boom(*args, **kwargs):
             raise RuntimeError("disk on fire")
 
-        monkeypatch.setattr(space, "downloaded_background", boom)
+        monkeypatch.setattr(space, "background_path", boom)
         assert preferences.space_background_path() is None
 
     def test_space_gets_dark_figure_colours(self, qapp, monkeypatch):
@@ -749,8 +750,9 @@ class TestIconVisibility:
                       for p in iconset.bundled_icon_paths()
                       if iconset.carries_tonal_structure(iconset._load_rgba(p))]
         # Only these genuinely put shading in RGB; everything else is a mask.
-        assert set(structured) <= {"activation.png", "umap.png",
-                                   "flow_chart_v3.png"}
+        assert set(structured) <= {
+            "activation.png", "app_icon.png", "flow_chart_v3.png", "umap.png",
+        }
         assert len(structured) < len(iconset.bundled_icon_paths()) / 2
 
     @pytest.mark.parametrize("name", ("dark", "light", "space"))

@@ -163,6 +163,10 @@ def test_calculate_zernike_returns_input_when_mask_empty():
 
 
 def test_calculate_zernike_appends_columns_when_regions_present(synth_mask_2d):
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     n_regions = len([i for i in np.unique(synth_mask_2d) if i != 0])
     df = pd.DataFrame({"cell_id": range(n_regions)})
     out = M._calculate_zernike(synth_mask_2d.astype(np.int32), df, degree=4)

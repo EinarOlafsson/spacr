@@ -1,12 +1,9 @@
 """PipelineWorker + stream redirector tests."""
 from __future__ import annotations
 
-import io
-import sys
-
 import pytest
 
-from PySide6.QtCore import QThread, QCoreApplication
+from PySide6.QtCore import QThread
 
 from spacr.qt.bridge import (
     PipelineWorker,
@@ -65,6 +62,30 @@ def test_pipeline_worker_captures_exception(qtbot, qt_theme_applied):
     assert finished == [False]
     assert len(errors) == 1
     assert "boom" in errors[0]
+
+
+@pytest.mark.parametrize(
+    ("code", "expected_ok", "expects_error"),
+    [(None, True, False), (0, True, False), (1, False, True), ("failed", False, True)],
+)
+def test_pipeline_worker_preserves_system_exit_status(
+        qtbot, qt_theme_applied, code, expected_ok, expects_error):
+    """A non-zero CLI-style exit must not become a successful GUI run."""
+    def _fn(settings):
+        raise SystemExit(code)
+
+    worker = PipelineWorker(_fn, {})
+    errors = []
+    finished = []
+    worker.error.connect(errors.append)
+    worker.finished.connect(finished.append)
+
+    worker.run()
+
+    assert finished == [expected_ok]
+    assert bool(errors) is expects_error
+    if expects_error:
+        assert "SystemExit" in errors[0]
 
 
 def test_make_thread_returns_thread_and_worker():

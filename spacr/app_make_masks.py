@@ -1,3 +1,5 @@
+"""Legacy launcher for the interactive mask editor."""
+
 import tkinter as tk
 from tkinter import ttk
 from .gui import MainApp

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QDialog, QLabel, QLineEdit
 
 
@@ -201,7 +202,7 @@ def test_plain_enter_submits_without_inserting_a_newline(qtbot,
     qtbot.addWidget(inp)
     inp.setPlainText("send me")
     with qtbot.waitSignal(inp.submitted, timeout=1000):
-        qtbot.keyClick(inp, Qt.Key_Return)
+        QTest.keyClick(inp, Qt.Key_Return)
     assert inp.toPlainText() == "send me"      # unchanged
 
 
@@ -212,7 +213,7 @@ def test_keypad_enter_also_submits(qtbot, qt_theme_applied):
     qtbot.addWidget(inp)
     inp.setPlainText("typed on the numpad")
     with qtbot.waitSignal(inp.submitted, timeout=1000):
-        qtbot.keyClick(inp, Qt.Key_Enter)
+        QTest.keyClick(inp, Qt.Key_Enter)
     assert inp.toPlainText() == "typed on the numpad"
 
 
@@ -227,8 +228,8 @@ def test_shift_enter_inserts_a_newline_and_does_not_submit(qtbot,
     inp.setPlainText("line1")
     from PySide6.QtGui import QTextCursor
     inp.moveCursor(QTextCursor.MoveOperation.End)
-    qtbot.keyClick(inp, Qt.Key_Return, Qt.ShiftModifier)
-    qtbot.keyClicks(inp, "line2")
+    QTest.keyClick(inp, Qt.Key_Return, Qt.ShiftModifier)
+    QTest.keyClicks(inp, "line2")
     assert inp.toPlainText() == "line1\nline2"
     assert fired == []
 
@@ -240,7 +241,7 @@ def test_ordinary_keys_type_normally(qtbot, qt_theme_applied):
     qtbot.addWidget(inp)
     fired = []
     inp.submitted.connect(lambda: fired.append(1))
-    qtbot.keyClicks(inp, "abc")
+    QTest.keyClicks(inp, "abc")
     assert inp.toPlainText() == "abc"
     assert fired == []
 

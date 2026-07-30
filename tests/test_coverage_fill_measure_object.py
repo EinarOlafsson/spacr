@@ -59,6 +59,10 @@ def test_get_components():
 # ---------------------------------------------------------------------------
 
 def test_calculate_zernike():
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     m = _two_object_mask()
     base = pd.DataFrame({"label": [1, 2]})
     out = M._calculate_zernike(m, base, degree=8)
@@ -98,7 +102,7 @@ def test_morphological_measurements():
     }
     out = M._morphological_measurements(
         cell, nucleus, pathogen, organelle, cytoplasm,
-        settings, zernike=True, degree=8)
+        settings, zernike=False, degree=8)
     assert isinstance(out, tuple) and len(out) == 5
 
 

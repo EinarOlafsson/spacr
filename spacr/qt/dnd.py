@@ -33,10 +33,10 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
-from PySide6.QtCore import QEvent, QMimeData, QObject, QUrl, Qt
-from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from PySide6.QtCore import QEvent, QMimeData, QObject, Qt
+from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem,
     QMessageBox, QVBoxLayout, QWidget,

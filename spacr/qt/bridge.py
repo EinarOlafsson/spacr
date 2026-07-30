@@ -24,6 +24,7 @@ Three things live here beyond "run a function on a thread":
 from __future__ import annotations
 
 import io
+import logging
 import os
 import re
 import sys
@@ -33,6 +34,8 @@ import traceback
 from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Signal
+
+LOG = logging.getLogger(__name__)
 
 
 class _StreamRedirector(io.TextIOBase):
@@ -677,10 +680,19 @@ class PipelineWorker(QObject):
         try:
             self._fn(self._settings)
             ok = True
-        except SystemExit:
-            ok = True
+        except SystemExit as exc:
+            # ``sys.exit()`` and ``sys.exit(0)`` are successful early exits.
+            # Any other code is a failure and must reach the same error path as
+            # an exception; treating ``sys.exit(1)`` as success made CLI-style
+            # pipeline failures appear as a green, completed GUI run.
+            ok = exc.code in (None, 0)
+            if not ok:
+                tb = traceback.format_exc()
+                LOG.error("Pipeline exited with status %r", exc.code)
+                self.error.emit(tb)
         except Exception:
             tb = traceback.format_exc()
+            LOG.exception("Pipeline worker failed")
             self.error.emit(tb)
         finally:
             try:
@@ -780,28 +792,28 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             return _ret(log_call(generate_image_umap))
         if app_key == "train_cellpose":
             from spacr.submodules import train_cellpose
-            return _ret(train_cellpose)
+            return _ret(log_call(train_cellpose))
         if app_key == "cellpose_masks":
             from spacr.spacr_cellpose import identify_masks_finetune
-            return _ret(identify_masks_finetune)
+            return _ret(log_call(identify_masks_finetune))
         if app_key == "cellpose_all":
             from spacr.spacr_cellpose import check_cellpose_models
-            return _ret(check_cellpose_models)
+            return _ret(log_call(check_cellpose_models))
         if app_key == "map_barcodes":
             from spacr.sequencing import generate_barecode_mapping
-            return _ret(generate_barecode_mapping)
+            return _ret(log_call(generate_barecode_mapping))
         if app_key == "ml_analyze":
             from spacr.ml import generate_ml_scores
-            return _ret(generate_ml_scores)
+            return _ret(log_call(generate_ml_scores))
         if app_key == "regression":
             from spacr.ml import perform_regression
-            return _ret(perform_regression)
+            return _ret(log_call(perform_regression))
         if app_key == "recruitment":
             from spacr.submodules import analyze_recruitment
-            return _ret(analyze_recruitment)
+            return _ret(log_call(analyze_recruitment))
         if app_key == "activation":
             from spacr.deep_spacr import generate_activation_map
-            return _ret(generate_activation_map)
+            return _ret(log_call(generate_activation_map))
         if app_key == "foreign":
             from spacr.foreign import import_project
             return _ret(log_call(import_project))
@@ -815,15 +827,13 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             from spacr.submodules import analyze_invasion
             return _ret(log_call(analyze_invasion))
         if app_key == "replication":
-            # analyze_endodyogeny has been in spacr.submodules the whole
-            # time with no way to reach it from any GUI — no APPS entry,
-            # no dispatch, no settings category. This is that wiring.
-            from spacr.submodules import analyze_endodyogeny
-            return _ret(log_call(analyze_endodyogeny))
+            from spacr.submodules import analyze_replication
+            return _ret(log_call(analyze_replication))
         if app_key == "analyze_plaques":
             from spacr.submodules import analyze_plaques
-            return _ret(analyze_plaques)
+            return _ret(log_call(analyze_plaques))
     except Exception:
+        LOG.exception("Could not resolve pipeline entry for %s", app_key)
         return None
     return None
 
