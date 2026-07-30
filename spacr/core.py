@@ -1,3 +1,5 @@
+"""Core image preprocessing, segmentation, and image-UMAP pipelines."""
+
 import os, gc, torch, time, random
 import numpy as np
 import pandas as pd
@@ -12,13 +14,11 @@ except Exception:
     def display(*args, **kwargs):
         pass
 import warnings
-from scipy import ndimage
-from multiprocessing import Value
 
 # Fail-loud accounting: per-folder / per-example failures are recorded on a
 # RunLedger and reported in one block at the end of the run, and setup
 # failures escalate to ConfigurationError under SPACR_STRICT_ERRORS.
-from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .errors import RunLedger, raise_if_strict
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
@@ -86,10 +86,10 @@ def preprocess_generate_masks(settings):
         return run_preflight(settings, 'mask')
 
     #from .timelapse import _summarise_object_relationships
-    from .object import generate_cellpose_masks, generate_organelle_masks_sam, generate_cellpose_masks_sam
+    from .object import generate_organelle_masks_sam, generate_cellpose_masks_sam
     from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
     from .plot import plot_image_mask_overlay, plot_arrays
-    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, delete_intermedeate_files, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, merge_split_objects, reset_cellpose_model_reports
+    from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
 
     # A new run gets to state its model choice again; within one run each

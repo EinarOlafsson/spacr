@@ -1,5 +1,6 @@
+"""Shared image, model, database, statistics, and pipeline utilities."""
 
-import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback
+import os, re, sqlite3, torch, torchvision, random, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback, logging
 
 import numpy as np
 
@@ -62,7 +63,7 @@ from skimage.measure import find_contours
 from skimage.segmentation import clear_border, find_boundaries
 from scipy.stats import pearsonr
 
-from skimage.filters import (threshold_otsu, threshold_local, gaussian,frangi, sato, meijering, difference_of_gaussians,apply_hysteresis_threshold,)
+from skimage.filters import (gaussian, frangi, sato, meijering, difference_of_gaussians, apply_hysteresis_threshold)
 from skimage.morphology import white_tophat, disk
 from skimage.feature import blob_log, blob_dog
 
@@ -119,6 +120,8 @@ from scipy import ndimage
 from scipy.ndimage import binary_dilation, binary_fill_holes
 
 from skimage.exposure import rescale_intensity
+
+LOG = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -373,13 +376,9 @@ umap = _LazyModule(
     ),
 )
 
-import logging
 from functools import wraps
 
-import os
-import numpy as np
-from scipy import ndimage
-from skimage.segmentation import find_boundaries, watershed
+from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from joblib import Parallel, delayed
 import tifffile
@@ -1938,7 +1937,11 @@ def _get_cellpose_batch_size():
             batch_size = 96
         print(f"Device {0}: {device_properties.name}, VRAM: {vram_gb:.2f} GB, cellpose batch size: {batch_size}")
         return batch_size
-    except Exception as e:
+    except Exception:
+        LOG.warning(
+            "Could not inspect CUDA memory; using Cellpose batch size 8",
+            exc_info=True,
+        )
         return 8
 
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
@@ -4276,7 +4279,7 @@ def suggest_training_changes(
     :returns: dict with ``summary`` (key scalars), ``flags`` (short codes),
         and ``suggestions`` (ordered suggestion strings).
     """
-    import os, glob, math
+    import os, glob
     import numpy as np
     import pandas as pd
     
@@ -4946,11 +4949,8 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
         adjusted_pvalues = multipletests(pvalues, method='fdr_bh')[1]
         # Add adjusted p-values back to the dataframe
         filtered_results_df.loc[:, 'AdjustedPValue'] = adjusted_pvalues
-        # Filter significant results
-        significant_mutants = filtered_results_df[filtered_results_df['AdjustedPValue'] < 0.05]
     else:
         print("No p-values to adjust. Check your data filtering steps.")
-        significant_mutants = pd.DataFrame()  # return empty DataFrame in this case
     
     return filtered_results_df
 
@@ -5023,19 +5023,21 @@ def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     X_encoded = encoder.fit_transform(X).toarray()
     feature_names = encoder.get_feature_names_out(input_features=X.columns)
     
+    reg_type = str(reg_type).strip().lower()
     if reg_type == 'ridge':
         # Fit ridge regression
         ridge = Ridge(alpha=alpha_value)
         ridge.fit(X_encoded, y)
-        coefficients = ridge.coef_
         coeff_dict = dict(zip(feature_names, ridge.coef_))
-        
-    if reg_type == 'lasso':
+    elif reg_type == 'lasso':
         # Fit Lasso regression
         lasso = Lasso(alpha=alpha_value)
         lasso.fit(X_encoded, y)
-        coefficients = lasso.coef_
         coeff_dict = dict(zip(feature_names, lasso.coef_))
+    else:
+        raise ValueError(
+            f"Unsupported reg_type {reg_type!r}; expected 'lasso' or 'ridge'."
+        )
     coeff_df = pd.DataFrame(list(coeff_dict.items()), columns=['Feature', 'Coefficient'])
     return coeff_df
 
@@ -6829,7 +6831,11 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
                         ax.plot(
                             x_smooth, y_smooth, color=color, linewidth=width)
                 except Exception:
-                    pass
+                    LOG.debug(
+                        "Could not draw a smoothed hull for cluster %r",
+                        cluster_label,
+                        exc_info=True,
+                    )
         else:
             if cluster_data.shape[0] > 2:
                 try:
@@ -6842,11 +6848,15 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
                                 color=color, linewidth=width,
                             )
                 except Exception:
-                    pass
+                    LOG.debug(
+                        "Could not draw a convex hull for cluster %r",
+                        cluster_label,
+                        exc_info=True,
+                    )
         if plot_points:
-            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=alpha, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+            ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=alpha, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         else:
-            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+            ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         ax.text(
             center[0], center[1], str(cluster_label), fontsize=12,
             ha='center', va='center',
@@ -7360,6 +7370,14 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     excluded_features = (
         [exclude] if isinstance(exclude, str) else (exclude or ())
     )
+    missing_exclusions = [
+        feature for feature in excluded_features if feature not in df.columns
+    ]
+    if missing_exclusions:
+        raise ValueError(
+            "Requested feature exclusions are not present in the input "
+            f"table: {missing_exclusions}. Available columns: "
+            f"{sorted(map(str, df.columns))}.")
     declared_features = schema.model_feature_columns(
         df, exclude=excluded_features)
     legacy_non_features = {
@@ -7694,15 +7712,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     labeled_parasites = label(parasite_mask)
     labeled_nuclei = label(nuclei_mask)
     num_parasites = np.max(labeled_parasites)
-    num_cells = np.max(labeled_cells)
     num_nuclei = np.max(labeled_nuclei)
-
-    if organelle_mask is not None:
-        labeled_organelles = label(organelle_mask)
-        num_organelles = np.max(labeled_organelles)
-    else:
-        labeled_organelles = None
-        num_organelles = 0
 
     # Merge cells based on parasite overlap
     for parasite_id in range(1, num_parasites + 1):
@@ -8553,9 +8563,10 @@ def control_filelist(folder, mode='columnID', values=None):
 # them.
 from .database_schema import (
     DB_COLUMN_RENAMES,
-    DB_COLUMN_RENAME_PATTERNS,
+    DB_COLUMN_RENAME_PATTERNS as _DB_COLUMN_RENAME_PATTERNS,
     canonical_column_name,
 )
+DB_COLUMN_RENAME_PATTERNS = _DB_COLUMN_RENAME_PATTERNS
 
 
 def canonicalize_measurement_columns(df):
@@ -8685,23 +8696,12 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
         else:
             return None
         
-    from .plot import spacrGraph
-
     df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
     
     if name == 'channel':
         # See add_column_to_database: chained inplace is a no-op under
         # pandas copy-on-write.
         df['channel'] = df['channel'].fillna('morphology')
-    
-    # Create new DataFrame with summed importance for each compartment and channel
-    importance_sum = df.groupby(name)['importance'].sum().reset_index(name=f'{name}_importance_sum')
-    total_compartment_importance = importance_sum[f'{name}_importance_sum'].sum()
-    importance_sum = pd.concat(
-        [importance_sum,
-         pd.DataFrame(
-             [{name: 'all', '{name}_importance_sum': total_compartment_importance}])]
-        , ignore_index=True)
     
     return df
 

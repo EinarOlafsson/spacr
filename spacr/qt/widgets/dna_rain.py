@@ -620,6 +620,11 @@ class DnaRainWidget(QWidget):
         self._timer.timeout.connect(self._on_tick)
         self._watched: Optional[QWidget] = None
 
+    def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        """Reject even programmatic focus; this widget is decorative only."""
+        event.ignore()
+        self.clearFocus()
+
     # -- appearance ----------------------------------------------------
     def color(self) -> QColor:
         """Current trail colour."""

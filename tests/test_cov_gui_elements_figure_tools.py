@@ -112,11 +112,6 @@ def test_standardize_figure_without_axes_only_paints_figure(tk_root):
 # modify_figure_properties -- documented-but-dead `title` argument
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: modify_figure_properties documents title= as 'axis title to set' "
-           "but never calls ax.set_title, so the GUI's Title field is dead",
-)
 def test_modify_figure_properties_sets_title():
     fig = _fig_with_line()
     GE.modify_figure_properties(fig, title="brand new title")

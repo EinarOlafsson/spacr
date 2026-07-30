@@ -201,3 +201,23 @@ def test_legacy_console_uses_open_sans_and_text_spacing():
     assert 'family="Open Sans"' in source
     assert "spacing1=" in source
     assert "spacing3=" in source
+
+
+def test_legacy_keepalive_does_not_discard_console_messages():
+    """Only the console callback may consume worker output and errors."""
+    from queue import Queue
+    import spacr.gui_core as GC
+
+    queued = Queue()
+    queued.put("Error: worker failed")
+    scheduled = []
+
+    class Root:
+        def after(self, interval, callback):
+            scheduled.append((interval, callback))
+
+    GC.uppdate_frequency = 250
+    GC.main_thread_update_function(Root(), queued, object(), object())
+
+    assert queued.get_nowait() == "Error: worker failed"
+    assert scheduled and scheduled[0][0] == 250

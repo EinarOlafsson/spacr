@@ -25,6 +25,7 @@ import pytest
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
+from PySide6.QtTest import QTest
 
 from spacr import align as align_mod
 from spacr.qt.screens.align import (
@@ -397,7 +398,7 @@ def test_layout_widget_repaints_and_reports_clicks(screen, tile_folder, qtbot):
     assert len(rects) == 4
     centre = rects[3].center()
     with qtbot.waitSignal(view.tile_clicked, timeout=5000) as blocker:
-        qtbot.mouseClick(view, Qt.LeftButton, pos=centre.toPoint())
+        QTest.mouseClick(view, Qt.LeftButton, pos=centre.toPoint())
     assert blocker.args[0] == 3
     assert "residual" in screen.tile_info_text()
     assert os.path.basename(screen.plan().placements[3].tile.path) in \

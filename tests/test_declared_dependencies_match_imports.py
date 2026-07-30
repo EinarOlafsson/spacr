@@ -69,6 +69,7 @@ IMPORT_TO_DIST = {
     "huggingface_hub": "huggingface-hub",
     "pynvml": "nvidia-ml-py",
     "scikit_posthocs": "scikit-posthocs",
+    "shiboken6": "PySide6",
     "skimage": "scikit-image",
     "sklearn": "scikit-learn",
     "umap": "umap-learn",

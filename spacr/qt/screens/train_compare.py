@@ -52,6 +52,7 @@ Design notes:
 """
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, Callable, Dict, List, Optional, Sequence
 
@@ -79,6 +80,8 @@ from ... import train_compare as tc
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette, palette_for
 from ..widgets import Divider
+
+LOG = logging.getLogger(__name__)
 
 __all__ = ["TrainCompareScreen", "APP_KEY", "APP_NAME", "APP_SECTION",
            "APP_INTRO", "FOLD_MODE_LABELS"]
@@ -151,6 +154,8 @@ class TrainCompareScreen(QWidget):
         self._runs: List[tc.TrainingRun] = []
         self._comparison: Optional[tc.Comparison] = None
         self._busy = False
+        self._pending: Optional[tuple[Dict[str, Any],
+                                      Callable[[Any], None]]] = None
         # Ownership list for in-flight (QThread, worker) pairs — a QThread
         # collected while still running takes the process down with it.
         self._jobs: List[tuple] = []
@@ -760,25 +765,34 @@ class TrainCompareScreen(QWidget):
 
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
+        self._pending = (box, on_done)
         worker.error.connect(self._on_worker_error_text)
-
-        def _finished(ok: bool) -> None:
-            self._busy = False
-            if ok:
-                try:
-                    on_done(box.get("result"))
-                except Exception as e:
-                    self._on_job_error(e)
-                    ok = False
-            self._update_controls()
-            self.job_finished.emit(ok)
-
-        worker.finished.connect(_finished)
+        # A bound QWidget receiver gives Qt enough thread affinity
+        # information to queue this callback onto the GUI thread. Connecting
+        # to a plain closure can execute it in the worker thread, where the
+        # calls below that mutate labels, tables and Matplotlib canvases are
+        # undefined behaviour.
+        worker.finished.connect(self._on_job_settled)
         thread.finished.connect(lambda t=thread: self._retire_job(t))
         self._busy = True
         self._update_controls()
         thread.start()
         return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Apply the pending scan result on the GUI thread."""
+        pending, self._pending = self._pending, None
+        self._busy = False
+        if ok and pending is not None:
+            box, on_done = pending
+            try:
+                on_done(box.get("result"))
+            except Exception as exc:
+                LOG.exception("Could not apply the Training Runs result")
+                self._on_job_error(exc)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
 
     def _retire_job(self, thread) -> None:
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
@@ -790,10 +804,13 @@ class TrainCompareScreen(QWidget):
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
+        LOG.error("Training Runs worker failed:\n%s", tb)
         last = [ln for ln in str(tb).strip().splitlines() if ln.strip()]
         self._set_status(last[-1] if last else "Scan failed.", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        LOG.error("Training Runs operation failed: %s: %s",
+                  type(exc).__name__, exc)
         self._set_status(f"{type(exc).__name__}: {exc}", error=True)
 
     def _update_controls(self) -> None:
@@ -808,6 +825,7 @@ class TrainCompareScreen(QWidget):
                 thread.quit()
                 thread.wait(2000)
             except Exception:
-                pass
+                LOG.debug("Could not wait for a Training Runs worker",
+                          exc_info=True)
         self._jobs.clear()
         super().closeEvent(event)

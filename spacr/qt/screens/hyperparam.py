@@ -38,7 +38,7 @@ from PySide6.QtWidgets import (
 from ..widgets.toggle import Toggle
 
 from ...hyperparam import (
-    ACTIVATION_CRITERIA, APP_CRITERIA, DEFAULT_SPACES, LOWER_IS_BETTER,
+    APP_CRITERIA, DEFAULT_SPACES, LOWER_IS_BETTER,
     SearchResult, SearchSpace, Trial, UMAP_CRITERIA, run_search_for_app,
 )
 from ..theme import active_palette, css_color

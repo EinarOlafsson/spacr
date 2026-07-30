@@ -41,7 +41,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import QRect, QSize, Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QSize, Qt, QThread, Signal
 from PySide6.QtGui import (
     QFont,
     QFontDatabase,
@@ -63,7 +63,6 @@ from PySide6.QtWidgets import (
 )
 
 from .. import ai as ai_module
-from .. import iconset
 from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread

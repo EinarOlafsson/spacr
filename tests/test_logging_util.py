@@ -19,6 +19,7 @@ import pytest
 def _reset(monkeypatch, tmp_path):
     """Reset module state + swap the on-disk log to tmp_path."""
     from spacr import logging_util
+    logging_util.disable_function_trace()
     # Redirect log_dir so tests never touch ~/.spacr/logs
     monkeypatch.setattr(logging_util, "log_dir", lambda: tmp_path)
     monkeypatch.setattr(logging_util, "_INITIALISED", False)
@@ -28,6 +29,7 @@ def _reset(monkeypatch, tmp_path):
     for h in list(root.handlers):
         root.removeHandler(h)
     yield
+    logging_util.disable_function_trace()
     for h in list(root.handlers):
         root.removeHandler(h)
 
@@ -83,14 +85,37 @@ def test_get_logger_returns_child(tmp_path):
 
 
 def test_enable_disable_debug_toggle(tmp_path):
-    from spacr.logging_util import setup_logging, enable_debug, disable_debug
+    from spacr.logging_util import (
+        disable_debug,
+        enable_debug,
+        function_trace_enabled,
+        setup_logging,
+    )
     setup_logging(level=logging.INFO)
     spacr_log = logging.getLogger("spacr")
     assert spacr_log.getEffectiveLevel() == logging.INFO
     enable_debug()
     assert spacr_log.level == logging.DEBUG
+    assert function_trace_enabled()
     disable_debug()
     assert spacr_log.level == logging.INFO
+    assert not function_trace_enabled()
+
+
+def test_function_trace_covers_internal_package_calls(caplog):
+    """Debug tracing covers helpers without requiring per-function decorators."""
+    from spacr.logging_util import enable_function_trace, disable_function_trace
+    from spacr.version import get_version
+
+    with caplog.at_level(logging.DEBUG, logger="spacr.trace"):
+        enable_function_trace()
+        try:
+            get_version()
+        finally:
+            disable_function_trace()
+
+    messages = [record.getMessage() for record in caplog.records]
+    assert any("spacr.version.get_version" in message for message in messages)
 
 
 def test_quiet_loggers_are_pinned(tmp_path):

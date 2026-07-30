@@ -1,9 +1,10 @@
+"""Layout, dispatch, progress, and lifecycle support for the legacy Tk GUI."""
+
 import os, traceback, ctypes, csv, re, platform
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from multiprocessing import Process, Value, Queue, set_start_method
-from tkinter import ttk
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -23,7 +24,7 @@ try:
 except AttributeError:
     pass
 
-from .gui_elements import spacrProgressBar, spacrButton, spacrFrame, spacrDropdownMenu , spacrSlider, apply_theme
+from .gui_elements import spacrProgressBar, spacrButton, spacrFrame, spacrDropdownMenu, spacrSlider, apply_theme
 
 # Define global variables
 q = None
@@ -45,7 +46,6 @@ thread_control = {"run_thread": None, "stop_requested": False}
 
 def _show_loading_screen(parent):
     """Show animated spinner GIF on black overlay."""
-    from .gui_elements import apply_theme
     from PIL import Image, ImageTk
     
     bg = '#000000'
@@ -145,7 +145,7 @@ def toggle_settings(button_scrollable_frame):
     """
     global vars_dict, scrollable_frame
     from .settings import categories, category_dependencies, category_group_dependencies, category_integer_dependencies, category_value_dependencies, tooltips
-    from .gui_utils import hide_all_settings, create_input_field
+    from .gui_utils import create_input_field
     from .gui_elements import spacrToolTip
     
     if vars_dict is None:
@@ -662,11 +662,8 @@ def setup_plot_section(vertical_container, settings_type):
     :returns: tuple ``(canvas, canvas_widget)``.
     """
     global canvas, canvas_widget, figures, figure_index, index_control
-    from .gui_utils import display_media_in_plot_frame
-
     style_out = apply_theme(ttk.Style())
     bg = style_out['bg_color']
-    fg = style_out['fg_color']
 
     # Initialize deque for storing figures and the current index
     figures = deque()
@@ -688,11 +685,6 @@ def setup_plot_section(vertical_container, settings_type):
     plot.axis('off')
 
     if settings_type == 'map_barcodes':
-        current_dir = os.path.dirname(__file__)
-        resources_path = os.path.join(current_dir, 'resources', 'icons')
-        #gif_path = os.path.join(resources_path, 'dna_matrix.mp4')
-        #display_media_in_plot_frame(gif_path, plot_frame)
-
         canvas = FigureCanvasTkAgg(figure, master=plot_frame)
         canvas.get_tk_widget().configure(cursor='arrow', highlightthickness=0)
         canvas_widget = canvas.get_tk_widget()
@@ -889,7 +881,7 @@ def setup_settings_panel(vertical_container, settings_type='mask', tick_callback
     global vars_dict, scrollable_frame
     from .settings import get_identify_masks_finetune_default_settings, set_default_analyze_screen, set_default_settings_preprocess_generate_masks, get_automated_motility_assay_default_settings
     from .settings import get_measure_crop_settings, deep_spacr_defaults, set_default_generate_barecode_mapping, set_default_umap_image_settings
-    from .settings import get_map_barcodes_default_settings, get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings, get_analyze_plaque_settings
+    from .settings import get_analyze_recruitment_default_settings, get_check_cellpose_models_default_settings, get_analyze_plaque_settings
     from .settings import generate_fields, get_perform_regression_default_settings, get_train_cellpose_default_settings, get_default_generate_activation_map_settings
     from .gui_utils import convert_settings_dict_for_gui
     from .gui_elements import set_element_size
@@ -1273,7 +1265,6 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
 
     # Try adding RAM bar
     try:
-        ram_info = psutil.virtual_memory()
         ram_label_text = f"RAM"
         label = tk.Label(usage_scrollable_frame.scrollable_frame,text=ram_label_text,anchor='w',font=font_loader.get_font(size=font_size),bg=style_out['bg_color'],fg=style_out['fg_color'])
         label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
@@ -1290,7 +1281,6 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     try:
         gpus = GPUtil.getGPUs()
         if gpus:
-            gpu = gpus[0]
             vram_label_text = f"VRAM"
             label = tk.Label(usage_scrollable_frame.scrollable_frame,text=vram_label_text,anchor='w',font=font_loader.get_font(size=font_size),bg=style_out['bg_color'],fg=style_out['fg_color'])
             label.grid(row=row, column=2 * col, pady=5, padx=5, sticky='w')
@@ -1316,8 +1306,6 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
     # Add CPU core usage bars
     try:
         cpu_cores = psutil.cpu_count(logical=True)
-        cpu_freq = psutil.cpu_freq()
-
         for core in range(cpu_cores):
             if row > 0 and row % max_elements_per_column == 0:
                 col += 1
@@ -1522,7 +1510,7 @@ def start_process(q=None, fig_queue=None, settings_type='mask'):
     """
     global thread_control, vars_dict, parent_frame
     from .settings import check_settings, expected_types
-    from .gui_utils import run_function_gui, set_cpu_affinity, initialize_cuda, display_gif_in_plot_frame, print_widget_structure
+    from .gui_utils import run_function_gui, initialize_cuda
         
     if q is None:
         q = Queue()
@@ -1666,10 +1654,11 @@ def process_console_queue():
     parent_frame.after_tasks.append(after_id)
 
 def main_thread_update_function(root, q, fig_queue, canvas_widget):
-    """Background pump kept alive by ``root.after`` to keep the UI responsive.
+    """Keep the Tk event loop ticking while a worker process is active.
 
-    Empties any queue backlog and re-schedules itself; primarily exists so the
-    Tk mainloop keeps ticking while a worker process is active.
+    Queue messages are deliberately left for :func:`process_console_queue`.
+    The prior implementation drained and discarded them here, which could hide
+    worker errors from the console depending on callback timing.
 
     :param root: Tk root used to reschedule the callback.
     :param q: log/error queue.
@@ -1678,13 +1667,12 @@ def main_thread_update_function(root, q, fig_queue, canvas_widget):
     :returns: None.
     """
     global uppdate_frequency
-    try:
-        while not q.empty():
-            message = q.get_nowait()
-    except Exception as e:
-        print(f"Error updating GUI canvas: {e}")
-    finally:
-        root.after(uppdate_frequency, lambda: main_thread_update_function(root, q, fig_queue, canvas_widget))
+    root.after(
+        uppdate_frequency,
+        lambda: main_thread_update_function(
+            root, q, fig_queue, canvas_widget
+        ),
+    )
         
 def cleanup_previous_instance():
     """Tear down widgets, queues, canvas and threads from any prior GUI instance.
@@ -1764,8 +1752,6 @@ def initiate_root(parent, settings_type='mask'):
     :returns: tuple ``(parent_frame, vars_dict)``.
     """
     global q, fig_queue, thread_control, parent_frame, scrollable_frame, button_frame, vars_dict, canvas, canvas_widget, button_scrollable_frame, progress_bar, uppdate_frequency, figures, figure_index, index_control, usage_bars
-    from .gui_elements import set_element_size
-    
     cleanup_previous_instance()
     
     from .gui_utils import setup_frame

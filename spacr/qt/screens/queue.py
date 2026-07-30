@@ -20,14 +20,12 @@ from __future__ import annotations
 
 import logging
 import time
-from pathlib import Path
 from typing import Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
-from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QAbstractItemView, QFileDialog, QHBoxLayout, QHeaderView, QLabel,
-    QMessageBox, QPushButton, QSizePolicy, QTableWidget, QTableWidgetItem,
+    QMessageBox, QPushButton, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QWidget,
 )
 

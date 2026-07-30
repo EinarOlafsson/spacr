@@ -43,7 +43,6 @@ from spacr.qt.screens.app_screen import (
     APP_TITLES,
     COLUMN_TABLES,
     HINT_STRIP_LINES,
-    SECTION_HINTS,
     AppScreen,
     QtGui_QListWidgetItem_helper,
     _hyperparam_searchable,
@@ -1602,6 +1601,8 @@ class TestLivePreviewAutoload:
         tif = self._tiff(tmp_path)
         scr = _make_screen(qtbot, "mask")
         scr._autoload_live_preview(str(tif))
+        qtbot.waitUntil(
+            lambda: scr._live_preview._image_path is not None, timeout=5000)
         assert scr._live_preview._image_path == tif
 
     def test_autoload_ignores_placeholders_and_missing_folders(
@@ -1610,12 +1611,18 @@ class TestLivePreviewAutoload:
         for value in ("", "   ", "path", "/path/to/src", "/path",
                       str(tmp_path / "nope"), __file__):
             scr._autoload_live_preview(value)
+        qtbot.waitUntil(
+            lambda: not scr._live_preview._image_loaders, timeout=5000)
+        for value in ("", "   ", "path", "/path/to/src", "/path",
+                      str(tmp_path / "nope"), __file__):
             assert scr._live_preview._image_path is None, value
 
     def test_autoload_ignores_a_folder_with_no_images(self, qtbot, tmp_path):
         (tmp_path / "empty").mkdir()
         scr = _make_screen(qtbot, "mask")
         scr._autoload_live_preview(str(tmp_path / "empty"))
+        qtbot.waitUntil(
+            lambda: not scr._live_preview._image_loaders, timeout=5000)
         assert scr._live_preview._image_path is None
 
     def test_autoload_is_a_noop_on_screens_without_a_preview(self, qtbot,

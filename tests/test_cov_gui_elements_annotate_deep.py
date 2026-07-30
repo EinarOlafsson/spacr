@@ -344,10 +344,6 @@ def test_toggle_gen_right_packs_exactly_one_panel(deep_app, mode, expected):
     assert _managers(dw) == expected
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: _set_disabled_state only iterates the LabelFrame's direct children, "
-    "which are Frames with no -state option, so the inputs of a hidden "
-    "dataset_mode panel are never disabled"))
 def test_hidden_panel_inputs_are_disabled(deep_app):
     dw = _open(deep_app)
     dw.set_mode("annotation")

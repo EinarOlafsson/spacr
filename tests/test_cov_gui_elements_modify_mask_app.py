@@ -688,11 +688,6 @@ def test_toggle_erase_mode_on_then_off_once_the_flag_exists(app):
     assert app.canvas.bind("<Button-1>") == ""
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: initialize_flags never sets erase_active, so clicking Erase "
-           "before any other mode raises AttributeError",
-)
 def test_toggle_erase_mode_works_on_a_freshly_loaded_image(app):
     app.toggle_erase_mode()
     assert app.erase_active is True
@@ -915,12 +910,6 @@ def test_use_magic_wand_dispatches_to_the_zoomed_variant(app):
     assert app.mask[0, 0] == 0
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: use_magic_wand int()s the Max Pixels entry into an unused "
-           "local without the ValueError guard its callees have, so a "
-           "non-numeric entry crashes the click handler",
-)
 def test_use_magic_wand_tolerates_a_bad_max_pixels_entry(app):
     _set_entry(app.max_pixels_entry, "not-a-number")
     app.magic_wand_tolerance.set("10")
@@ -1245,13 +1234,6 @@ def test_remove_small_objects_falls_back_on_a_bad_min_area(app, capsys):
 # defensive / buggy paths
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: display_zoomed_image guards the zoom_scale division with "
-           "`if original_mask_area > 0` instead of the divisor "
-           "`zoom_mask_area`, so a zero-width zoom drag raises "
-           "ZeroDivisionError",
-)
 def test_display_zoomed_image_survives_a_zero_width_selection(app):
     app.zoom_active = True
     app.zoom_rectangle_start = (10, 10)
