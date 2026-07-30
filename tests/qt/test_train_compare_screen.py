@@ -289,7 +289,7 @@ def test_metric_picker_offers_what_the_runs_logged_and_redraws(
     a = _id_for(screen, "dsA")
     screen.select_runs([a])
     screen.overlay()
-    assert screen.metric() == "accuracy"
+    assert screen.selected_metric() == "accuracy"
     assert "loss" in screen.available_metrics()
     assert screen.figure().axes[0].get_ylabel() == "accuracy"
 

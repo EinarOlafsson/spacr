@@ -773,10 +773,28 @@ class AppScreen(QWidget):
 
         Read on demand rather than captured, so the picker follows the source
         folder the user has typed rather than whatever it was at build time.
+        Classify's source is list-valued; its SQL picker uses the first plate,
+        which is the same database the single-source picker historically
+        opened.
         """
         from PySide6.QtWidgets import QLineEdit
         src = getattr(self._settings_model, "_widgets", {}).get("src")
-        return src.text().strip() if isinstance(src, QLineEdit) else ""
+        if isinstance(src, QLineEdit):
+            return src.text().strip()
+        getter = getattr(src, "get_value", None)
+        if callable(getter):
+            try:
+                value = getter()
+            except Exception:
+                return ""
+            if isinstance(value, (list, tuple)):
+                return next(
+                    (str(item).strip() for item in value
+                     if str(item).strip()),
+                    "",
+                )
+            return "" if value is None else str(value).strip()
+        return ""
 
     def _build_empty_state_banner(self):
         """Return a compact "Drop or pick a demo" card, or None.
@@ -1056,6 +1074,8 @@ class AppScreen(QWidget):
             splitter.setChildrenCollapsible(False)
             self._hyperparam, self._hyperparam_card = build_hyperparam_card(self)
             self._hyperparam.set_apply_callback(self._propagate_live_settings)
+            self._hyperparam.set_settings_provider(
+                lambda model=self._settings_model: model.collect())
             splitter.addWidget(self._hyperparam_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
@@ -1267,15 +1287,26 @@ class AppScreen(QWidget):
         self._hint_strip = QLabel(self._default_hint())
         self._hint_strip.setObjectName("SubtitleSmall")
         self._hint_strip.setWordWrap(True)
-        hint_height = (
-            self._hint_strip.fontMetrics().lineSpacing() * HINT_STRIP_LINES
-        )
-        self._hint_strip.setFixedHeight(hint_height)
+        self._sync_hint_strip_height()
         self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
         layout.addWidget(self._hint_strip)
 
         return wrap
+
+    def _sync_hint_strip_height(self) -> None:
+        """Reserve four lines using the font Qt is actually painting."""
+        hint = getattr(self, "_hint_strip", None)
+        if hint is None:
+            return
+        hint.ensurePolished()
+        hint.setFixedHeight(
+            hint.fontMetrics().lineSpacing() * HINT_STRIP_LINES)
+
+    def showEvent(self, event) -> None:  # noqa: N802 - Qt override
+        """Re-measure the hover-help strip after stylesheet/font polishing."""
+        super().showEvent(event)
+        self._sync_hint_strip_height()
 
     # ------------------------------------------------------------------
     # Actions
