@@ -105,7 +105,53 @@ def test_save_top_class_examples_explicit_classes(tmp_path, rng):
     dst = tmp_path / "top2"
     save_top_class_examples(df, tar_path, str(dst), n=1,
                             classes=["neg", "pos"])
-    assert list(dst.rglob("*.png"))
+    assert [p.name for p in (dst / "class_neg").iterdir()] == [names[0]]
+    assert [p.name for p in (dst / "class_pos").iterdir()] == [names[-1]]
+
+
+def test_save_top_class_examples_infers_every_multiclass_output(tmp_path, rng):
+    from spacr.deep_spacr import save_top_class_examples
+    tar_path, names = _tar_of_pngs(tmp_path, rng, n=6)
+    df = pd.DataFrame({
+        "path": names,
+        "pred": [0.8, 0.7, 0.9, 0.6, 0.95, 0.75],
+        # Deliberately no winning class-2 prediction: the review export must
+        # still show the strongest class-2 candidates instead of leaving its
+        # folder empty.
+        "predicted_label": [0, 0, 1, 1, 1, 1],
+        "prob_class_0": [0.8, 0.7, 0.05, 0.2, 0.02, 0.1],
+        "prob_class_1": [0.1, 0.2, 0.9, 0.6, 0.03, 0.15],
+        "prob_class_2": [0.1, 0.1, 0.05, 0.2, 0.95, 0.75],
+    })
+    dst = tmp_path / "multiclass"
+
+    save_top_class_examples(df, tar_path, str(dst), n=1)
+
+    assert [p.name for p in (dst / "class_0").iterdir()] == [names[0]]
+    assert [p.name for p in (dst / "class_1").iterdir()] == [names[2]]
+    assert [p.name for p in (dst / "class_2").iterdir()] == [names[4]]
+
+
+def test_save_top_class_examples_uses_multiclass_display_labels(tmp_path, rng):
+    from spacr.deep_spacr import save_top_class_examples
+    tar_path, names = _tar_of_pngs(tmp_path, rng, n=3)
+    df = pd.DataFrame({
+        "path": names,
+        "pred": [0.9, 0.9, 0.9],
+        "predicted_label": [0, 1, 2],
+        "prob_class_0": [0.9, 0.05, 0.05],
+        "prob_class_1": [0.05, 0.9, 0.05],
+        "prob_class_2": [0.05, 0.05, 0.9],
+    })
+    dst = tmp_path / "named"
+
+    save_top_class_examples(
+        df, tar_path, str(dst), n=1,
+        classes=["control", "drug A", "drug/B"])
+
+    assert (dst / "class_control" / names[0]).is_file()
+    assert (dst / "class_drug_A" / names[1]).is_file()
+    assert (dst / "class_drug_B" / names[2]).is_file()
 
 
 # ---------------------------------------------------------------------------
