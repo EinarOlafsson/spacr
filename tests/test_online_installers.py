@@ -63,6 +63,15 @@ def test_bootstraps_use_tls_and_hardware_aware_pytorch():
     assert "--torch-backend auto" in windows
 
 
+def test_bootstraps_guard_python_312_numba_and_llvmlite_resolution():
+    """SHAP's unbounded requirements must not select 2021 source releases."""
+    for path in (UNIX, WINDOWS):
+        source = _text(path)
+        assert "numba>=0.60,<1.0" in source
+        assert "llvmlite>=0.43,<1.0" in source
+        assert "ResolverGuards" in source or "RESOLVER_GUARDS" in source
+
+
 def test_install_is_validated_before_the_previous_environment_is_replaced():
     for path in (UNIX, WINDOWS):
         source = _text(path)
@@ -142,6 +151,8 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "actions/download-artifact@v6" in workflow
     assert "python packaging/release.py collect" in workflow
     assert "spacr/application" in workflow
+    assert "Verify published dependency resolution" in workflow
+    assert "uv pip install --dry-run" in workflow
 
 
 def test_one_click_release_orders_version_pypi_installers_and_github():

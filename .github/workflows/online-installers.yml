@@ -50,6 +50,18 @@ jobs:
             --skip-system-deps \
             --no-launch \
             --install-root "$RUNNER_TEMP/spacr"
+      - name: Verify published dependency resolution
+        if: inputs.publish_to_repository
+        run: |
+          python -m pip install "uv==0.11.32"
+          version=$(python packaging/release.py version)
+          uv venv "$RUNNER_TEMP/spacr-resolve" --python 3.12
+          uv pip install --dry-run \
+            --python "$RUNNER_TEMP/spacr-resolve/bin/python" \
+            --torch-backend cpu \
+            "spacr[qt,zernike,btrack,czi]==$version" \
+            "numba>=0.60,<1.0" \
+            "llvmlite>=0.43,<1.0"
       - uses: actions/upload-artifact@v6
         with:
           name: spacr-online-linux
