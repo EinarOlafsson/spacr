@@ -105,6 +105,7 @@ import numpy as np
 import pandas as pd
 
 from . import schema
+from .checkpoint import CheckpointStore, fingerprint
 from .errors import ConfigurationError, RunLedger
 from .tiff_io import write_tiff
 
@@ -135,6 +136,7 @@ __all__ = [
     'WELL_SEQUENCES',
     'IMAGE_EXTENSIONS',
     'MAP_FILENAME',
+    'CHECKPOINT_FILENAME',
     'MAP_COLUMNS',
     'CONVERSION_TABLE',
     'LAYOUTS',
@@ -158,6 +160,9 @@ IMAGE_EXTENSIONS: Tuple[str, ...] = (
 
 #: Name of the map file written into the destination folder.
 MAP_FILENAME = 'conversion_map.csv'
+
+#: Atomic field-level checkpoint written beside converted images.
+CHECKPOINT_FILENAME = '.spacr_conversion.checkpoint.json'
 
 #: Table :func:`populate_db_from_map` writes into ``measurements.db``.
 CONVERSION_TABLE = 'conversion_map'
@@ -872,6 +877,8 @@ class ConversionResult:
         optional reader, an unreadable file), as ``(path, reason)``.
     :ivar ledger: the :class:`spacr.errors.RunLedger` for the run.
     :ivar map_path: where the map file went.
+    :ivar checkpoint_path: atomic field-level resume document.
+    :ivar resumed_fields: fields accepted from a compatible checkpoint.
     """
 
     plan: ConversionPlan
@@ -882,6 +889,8 @@ class ConversionResult:
     skipped: List[Tuple[str, str]] = dc_field(default_factory=list)
     ledger: Optional[RunLedger] = None
     map_path: str = ''
+    checkpoint_path: str = ''
+    resumed_fields: List[str] = dc_field(default_factory=list)
 
     @property
     def n_written(self) -> int:
@@ -922,6 +931,12 @@ class ConversionResult:
                 lines.append(f'  {os.path.basename(path)}: {reason}')
         if self.map_path:
             lines.append(f'Map file: {self.map_path}')
+        if self.resumed_fields:
+            lines.append(
+                f'Resumed {len(self.resumed_fields)} completed field(s) from '
+                f'{self.checkpoint_path}.')
+        elif self.checkpoint_path:
+            lines.append(f'Checkpoint: {self.checkpoint_path}')
         return '\n'.join(lines)
 
 
@@ -1694,10 +1709,72 @@ def _atomic_write(path: str, array: np.ndarray) -> None:
 # Converting
 # ---------------------------------------------------------------------------
 
+def _conversion_field(mapping: Mapping) -> str:
+    """Return a stable plate/well/field checkpoint id for one mapping."""
+    return f'{mapping.plate}/{mapping.well}/f{int(mapping.field):04d}'
+
+
+def _source_identity(path: str) -> Dict[str, Any]:
+    """Return the cheap source identity used to guard conversion resume."""
+    try:
+        stat = os.stat(path)
+    except OSError as exc:
+        return {'path': os.path.abspath(path), 'error': str(exc)}
+    return {
+        'path': os.path.abspath(path),
+        'size': int(stat.st_size),
+        'mtime_ns': int(stat.st_mtime_ns),
+    }
+
+
+def _conversion_signature(conversion_plan: ConversionPlan, dst: str) -> str:
+    """Digest source identities and every planned source-to-target mapping."""
+    sources = sorted({mapping.source for mapping in conversion_plan.mappings})
+    mappings = [{
+        'source': os.path.abspath(mapping.source),
+        'target': mapping.target,
+        'plate': mapping.plate,
+        'well': mapping.well,
+        'field': int(mapping.field),
+        'channel': int(mapping.channel),
+        'z': int(mapping.z),
+        't': int(mapping.t),
+        'plane': mapping.plane,
+        'z_handling': mapping.z_handling,
+    } for mapping in conversion_plan.mappings]
+    return fingerprint({
+        'destination': os.path.abspath(dst),
+        'z_handling': conversion_plan.z_handling,
+        'sources': [_source_identity(path) for path in sources],
+        'mappings': mappings,
+    })
+
+
+def _valid_converted_tiff(path: str) -> bool:
+    """Return True when ``path`` is a readable, non-empty TIFF.
+
+    Only TIFF metadata/pages are opened, so validating a resumed plate does
+    not load its pixels into memory.
+    """
+    try:
+        if os.path.getsize(path) < 8:
+            return False
+        import tifffile
+        with tifffile.TiffFile(path) as handle:
+            if not handle.pages:
+                return False
+            shape = tuple(int(value) for value in handle.series[0].shape)
+            return bool(shape) and all(value > 0 for value in shape)
+    except (OSError, ValueError, IndexError):
+        return False
+
+
 def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
             map_name: str = MAP_FILENAME,
             progress: Optional[Callable[[int, int, str], None]] = None,
-            ledger: Optional[RunLedger] = None) -> ConversionResult:
+            ledger: Optional[RunLedger] = None,
+            resume: bool = False,
+            checkpoint_path: Optional[str] = None) -> ConversionResult:
     """Execute a plan: write the TIFFs, the map file and the run stamp.
 
     Each source is opened once and all of its planes written from that
@@ -1715,6 +1792,13 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
     :param progress: optional ``progress(done, total, message)``, called
         once per source.
     :param ledger: reuse an existing ledger instead of making one.
+    :param resume: reuse fields recorded by a compatible checkpoint. Every
+        target in a recorded field is revalidated as a readable TIFF before
+        that field is skipped; missing or corrupt targets are repaired.
+    :param checkpoint_path: checkpoint JSON path. Defaults to
+        ``dst/.spacr_conversion.checkpoint.json``. A checkpoint is written
+        after every complete field even when ``resume`` is False, so a later
+        invocation can opt in after a crash.
     :returns: a :class:`ConversionResult`.
     :raises ConfigurationError: when the plan has blocking errors (a
         target-name collision), or ``dst`` is the source folder.
@@ -1735,11 +1819,40 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
     os.makedirs(dst, exist_ok=True)
 
     run = ledger if ledger is not None else RunLedger('convert_to_yokogawa_plan')
-    result = ConversionResult(plan=conversion_plan, dst=dst, ledger=run)
+    checkpoint_target = (
+        os.path.abspath(str(checkpoint_path)) if checkpoint_path
+        else os.path.join(dst, CHECKPOINT_FILENAME)
+    )
+    checkpoint = CheckpointStore(
+        checkpoint_target,
+        workflow='format_conversion',
+        signature=_conversion_signature(conversion_plan, dst),
+        boundary='field',
+        resume=bool(resume),
+    )
+    result = ConversionResult(
+        plan=conversion_plan, dst=dst, ledger=run,
+        checkpoint_path=str(checkpoint.path))
 
     for source in conversion_plan.unreadable:
         run.record_failure(source.path, stage='scan', exc=source.error)
         result.skipped.append((source.path, source.error))
+
+    by_field: Dict[str, List[Mapping]] = {}
+    for mapping in conversion_plan.mappings:
+        by_field.setdefault(_conversion_field(mapping), []).append(mapping)
+
+    # A JSON claim never outranks the artifact. Re-open TIFF headers before
+    # accepting a field, and re-queue it when one target is absent or corrupt.
+    completed_fields = set()
+    if checkpoint.resumed and not overwrite:
+        for field_id in checkpoint.completed:
+            mappings = by_field.get(field_id, [])
+            if mappings and all(
+                    _valid_converted_tiff(os.path.join(dst, item.target))
+                    for item in mappings):
+                completed_fields.add(field_id)
+        result.resumed_fields = sorted(completed_fields)
 
     # One read per (file, series): a six-scene CZI is opened once, not six
     # times, and its scenes still land in six different fields.
@@ -1757,21 +1870,32 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
     for index, key in enumerate(ordered, start=1):
         path, series = key
         group = by_source[key]
+        pending_group = [
+            mapping for mapping in group
+            if _conversion_field(mapping) not in completed_fields
+        ]
         source = lookup.get(key)
         item = f'{path} (series {series + 1})' if path in multi_series else path
         if progress is not None:
             progress(index, total, os.path.basename(path))
+        if not pending_group:
+            result.existing.extend(group)
+            continue
         before = run.n_failed
         with run.item(item, stage='convert'):
             if source is None:
                 raise ConfigurationError(
                     f'{path} is in the plan but was not scanned')
             array = _read_source(source)
-            for mapping in group:
+            for mapping in pending_group:
                 target = os.path.join(dst, mapping.target)
                 if os.path.exists(target) and not overwrite:
-                    result.existing.append(mapping)
-                    continue
+                    if not resume or _valid_converted_tiff(target):
+                        result.existing.append(mapping)
+                        continue
+                    print(
+                        f'Checkpoint repair: {target} exists but is not a '
+                        'readable TIFF; rewriting it atomically.')
                 _atomic_write(target, _extract(array, mapping.plane))
                 result.written.append(mapping)
         if run.n_failed > before:
@@ -1782,11 +1906,29 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
                     result.failed.append(mapping)
             result.skipped.append((item, run.failures[-1].message))
 
+        # Mark only whole fields. A field spanning several source files is not
+        # accepted until every planned channel/z/t target validates.
+        for field_id in {_conversion_field(mapping) for mapping in group}:
+            mappings = by_field[field_id]
+            if all(_valid_converted_tiff(os.path.join(dst, mapping.target))
+                   for mapping in mappings):
+                checkpoint.mark(field_id, {
+                    'targets': [mapping.target for mapping in mappings],
+                    'n_targets': len(mappings),
+                })
+                if resume and not overwrite:
+                    completed_fields.add(field_id)
+
     result.map_path = str(write_map(result, os.path.join(dst, map_name)))
     # Stamp the map itself: a conversion_map.csv that lists 380 of 384
     # wells looks exactly like a 380-well experiment until the sidecar
     # says otherwise.
     run.finalize(artifact=result.map_path)
+    checkpoint.finish(meta={
+        'map_path': result.map_path,
+        'n_fields': len(checkpoint.completed),
+        'n_targets': len(conversion_plan.mappings),
+    })
     return result
 
 
@@ -1931,6 +2073,8 @@ def default_settings(settings: Optional[TMapping[str, Any]] = None) -> Dict[str,
         'db_path': None,
         'preview_only': False,
         'preview_rows': 20,
+        'resume': False,
+        'checkpoint_path': None,
     }
     resolved.update(dict(settings or {}))
     return resolved
@@ -1961,6 +2105,11 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
     ``preview_only``
         print the plan and stop. The returned result has written
         nothing and has no ``map_path``.
+    ``resume``
+        accept complete fields from a compatible checkpoint after validating
+        every output TIFF.
+    ``checkpoint_path``
+        optional checkpoint JSON path; defaults inside ``dst``.
 
     :returns: the :class:`ConversionResult`; for ``preview_only`` an
         empty one carrying the plan.
@@ -2004,7 +2153,9 @@ def convert_folder(settings: Optional[TMapping[str, Any]] = None,
 
     result = convert(conversion_plan, dst,
                      overwrite=bool(resolved.get('overwrite')),
-                     map_name=str(resolved.get('map_name') or MAP_FILENAME))
+                     map_name=str(resolved.get('map_name') or MAP_FILENAME),
+                     resume=bool(resolved.get('resume', False)),
+                     checkpoint_path=resolved.get('checkpoint_path'))
     print(result.summary())
 
     db_path = resolved.get('db_path')

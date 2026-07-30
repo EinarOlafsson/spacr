@@ -871,6 +871,52 @@ def test_rerunning_over_an_existing_output_does_not_overwrite(run1, tmp_path):
     assert len(frame) == 20
 
 
+def test_resume_uses_complete_fields_and_repairs_a_corrupt_field(
+        tmp_path, monkeypatch):
+    root = tmp_path / "src"
+    _write(str(root / "fov01_C1.tif"), value=1)
+    _write(str(root / "fov02_C1.tif"), value=2)
+    plan = cv.plan(cv.scan(str(root)))
+    dst = tmp_path / "out"
+
+    first = cv.convert(plan, str(dst))
+    assert first.n_written == 2
+    assert (dst / cv.CHECKPOINT_FILENAME).is_file()
+
+    corrupt = next(
+        mapping for mapping in plan.mappings if mapping.field == 2)
+    (dst / corrupt.target).write_bytes(b"truncated")
+    reads = []
+    real_read = cv._read_source
+
+    def _count(source):
+        reads.append(source.path)
+        return real_read(source)
+
+    monkeypatch.setattr(cv, "_read_source", _count)
+    resumed = cv.convert(
+        cv.plan(cv.scan(str(root))), str(dst), resume=True)
+
+    assert len(resumed.resumed_fields) == 1
+    assert resumed.n_written == 1
+    assert len(reads) == 1
+    assert tifffile.imread(str(dst / corrupt.target)).shape == (8, 8)
+    assert "Checkpoint repair" not in resumed.summary()
+    assert "Resumed 1 completed field" in resumed.summary()
+
+
+def test_resume_refuses_changed_conversion_inputs(tmp_path):
+    root = tmp_path / "src"
+    source = root / "fov01_C1.tif"
+    _write(str(source), value=1)
+    dst = tmp_path / "out"
+    cv.convert(cv.plan(cv.scan(str(root))), str(dst))
+
+    _write(str(source), value=9)
+    with pytest.raises(ConfigurationError, match="does not match"):
+        cv.convert(cv.plan(cv.scan(str(root))), str(dst), resume=True)
+
+
 def test_overwrite_is_opt_in(run1, tmp_path):
     dst = str(tmp_path / "out")
     cv.convert(cv.plan(cv.scan(run1)), dst)
