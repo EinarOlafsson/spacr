@@ -171,7 +171,7 @@ def _tiles(page: HomePage) -> dict:
 #: a mirror of the code: moving an app between sections is a product
 #: decision, and this table is where it gets recorded.
 #:
-#: #16i rewrote 22 of these 30 rows into two maturity sections, which
+#: #16i rewrote 22 of the original rows into two maturity sections, which
 #: emptied Data, Segmentation models and Results & QC completely. #16j
 #: put every one of them back: an app is filed under what it DOES, and
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
@@ -189,6 +189,7 @@ EXPECTED_SECTIONS = {
     "align":           SECTION_DATA,
     "convert":         SECTION_DATA,
     "foreign":         SECTION_DATA,
+    "external_masks":  SECTION_DATA,
     "queue":           SECTION_DATA,
     "batch":           SECTION_DATA,
     "db_browser":      SECTION_DATA,
@@ -209,12 +210,13 @@ EXPECTED_SECTIONS = {
     "replication":     SECTION_TOXO,
 }
 
-#: How finished every app is, as a second ledger on the same 30 keys.
+#: How finished every app is, as a second ledger on the same app keys.
 #: Absent from ``APP_STAGE`` means stable, so the two are checked
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
     "align": "alpha", "model_zoo": "alpha", "convert": "alpha",
-    "foreign": "alpha", "model_compare": "alpha", "queue": "alpha",
+    "foreign": "alpha", "external_masks": "alpha",
+    "model_compare": "alpha", "queue": "alpha",
     "batch": "alpha", "invasion": "alpha", "db_browser": "alpha",
     "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
     "report": "alpha",
@@ -236,7 +238,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Thirteen alpha, nine beta, eight stable. Signing an app off is
+    Fourteen alpha, nine beta, eight stable. Signing an app off is
     deleting a line from ``APP_STAGE`` and from here; nothing else
     moves, which is the whole point of maturity not being a section."""
     actual = {key: app_stage(key) for key, *_r in APPS}
@@ -247,7 +249,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 13, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 14, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():

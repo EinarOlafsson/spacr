@@ -762,6 +762,9 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "measure":
             from spacr.measure import measure_crop
             return _ret(log_call(measure_crop))
+        if app_key == "external_masks":
+            from spacr.external_masks import prepare_external_masks
+            return _ret(log_call(prepare_external_masks))
         if app_key == "classify":
             # deep_spacr, not train_test_model. The Classify screen builds its
             # panel from deep_spacr_defaults, so it SHOWS generate_training_

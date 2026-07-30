@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..widgets.barcode_regex import BarcodeRegexWidget
+from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 
@@ -106,6 +107,9 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
         return s
     if app_key == "measure":
         return get_measure_crop_settings(settings={})
+    if app_key == "external_masks":
+        from spacr.external_masks import default_settings
+        return default_settings({})
     if app_key == "classify":
         return deep_spacr_defaults(settings={})
     if app_key == "umap":
@@ -168,6 +172,11 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
 # setting with the same generic key.  Keeping these app-scoped avoids turning
 # unrelated ``mode`` fields into sequencing controls.
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
+    "external_masks": {
+        "layout": ["auto", "flat", "well", "plate_well"],
+        "z_handling": ["max", "first"],
+        "plate_naming": ["index", "name"],
+    },
     "map_barcodes": {
         "mode": ["paired", "single"],
         "single_direction": ["R1", "R2"],
@@ -194,6 +203,16 @@ def categories_for_app(
     table would also move training controls in unrelated modules.
     """
     result = {name: list(keys) for name, keys in categories.items()}
+    if app_key == "external_masks":
+        input_keys = (
+            "inputs", "dst", "recursive", "layout", "z_handling",
+            "plate_naming", "overwrite", "preview_only",
+        )
+        for keys in result.values():
+            for key in input_keys:
+                while key in keys:
+                    keys.remove(key)
+        result = {"Input mapping": list(input_keys), **result}
     if app_key == "map_barcodes":
         moved = ("n_jobs", "test")
         for keys in result.values():
@@ -219,7 +238,7 @@ def categories_for_app(
                 while key in keys:
                     keys.remove(key)
         result["UMAP Display"] = list(display)
-    if app_key == "measure":
+    if app_key in ("measure", "external_masks"):
         filter_keys = (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
             "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
@@ -259,6 +278,7 @@ DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
 _APP_API_MODULE = {
     "mask": "app_mask",
     "measure": "app_measure",
+    "external_masks": "external_masks",
     "annotate": "app_annotate",
     "classify": "app_classify",
     "map_barcodes": "app_sequencing",
@@ -1059,7 +1079,7 @@ class SettingsWidgets:
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def _label_for(self, key: str) -> str:
-        if self.app_key == "measure":
+        if self.app_key in ("measure", "external_masks"):
             measure_labels = {
                 "uninfected": "Keep uninfected cells",
                 "cytoplasm": "Measure cytoplasm",
@@ -1079,6 +1099,11 @@ class SettingsWidgets:
         parent = self._parent
         if self.app_key == "umap" and key == "exclude_rows":
             return RowExclusionEditor(
+                value=self._defaults.get(key, default),
+                parent=parent,
+            )
+        if self.app_key == "external_masks" and key == "inputs":
+            return ExternalMaskInputWidget(
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
@@ -1277,7 +1302,7 @@ class SettingsWidgets:
                 w,
                 (
                     _ListEditor, _ListEdit, _ScalarEdit, BarcodeRegexWidget,
-                    RowExclusionEditor,
+                    RowExclusionEditor, ExternalMaskInputWidget,
                 ),
             ):
                 w.set_value(value)
@@ -1334,7 +1359,10 @@ class SettingsWidgets:
             return w.currentText()
         if isinstance(
             w,
-            (_ListEditor, _ListEdit, BarcodeRegexWidget, RowExclusionEditor),
+            (
+                _ListEditor, _ListEdit, BarcodeRegexWidget,
+                RowExclusionEditor, ExternalMaskInputWidget,
+            ),
         ):
             return w.get_value()
         if isinstance(w, _ScalarEdit):
