@@ -32,6 +32,7 @@ _warnings.filterwarnings(
 _SUBMODULES: Final[tuple[str, ...]] = (
     "core",
     "schema",
+    "database_schema",
     "io",
     "utils",
     "errors",

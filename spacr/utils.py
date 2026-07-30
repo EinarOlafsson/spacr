@@ -2618,6 +2618,8 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
         conn = None
         try:
             conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+            from .database_schema import migrate_connection
+            migrate_connection(conn, path=os.path.abspath(db_path))
             _append_frame(conn, table, frame)
             return
         except sqlite3.OperationalError as e:
@@ -8546,90 +8548,14 @@ def control_filelist(folder, mode='columnID', values=None):
         filtered_files = [file for file in files if file.split('_')[1][:1] in values]
     return filtered_files
     
-#: Legacy column spellings and the canonical spaCR name each maps to. Applied
-#: to every table of a measurements database by :func:`rename_columns_in_db`,
-#: which runs at the top of ``io._read_db`` and ``io._read_and_join_tables`` —
-#: so an old database is upgraded in place the first time it is read.
-#:
-#: The ``*_name`` entries mirror :func:`correct_metadata`, which knew them while
-#: this function did not; a database carrying them was therefore only half
-#: repaired, which is the generic cause behind several helpers that merged on
-#: ``column_name`` and had never once worked against a real measurements.db.
-DB_COLUMN_RENAMES = {
-    'row':          'rowID',
-    'row_name':     'rowID',
-    'column':       'columnID',
-    'col':          'columnID',
-    'column_name':  'columnID',
-    'plate':        'plateID',
-    'plate_name':   'plateID',
-    'field':        'fieldID',
-    'field_name':   'fieldID',
-    'channel':      'chanID',
-    # png_list used to be written with 'time_id' while every object table got
-    # 'timeID'. One database, two names for one concept.
-    'time_id':      'timeID',
-}
-
-
-#: Legacy *feature* spellings, as ``(pattern, replacement)`` pairs applied by
-#: :func:`rename_columns_in_db` after :data:`DB_COLUMN_RENAMES`.
-#:
-#: The metadata renames above are a fixed list of ten names. A feature column
-#: is not: its name carries the object type, the channel index and the
-#: percentile, so the ring percentiles alone are
-#: ``<object>_channel_<c>_periphery_<p>_percentile`` over three object types
-#: (nucleus, pathogen, organelle), seven percentiles, two rings and however
-#: many channels the run had — 84 columns on a two-channel run and 168 on a
-#: four-channel one. Enumerating that into a dict would mean guessing the
-#: channel count, so the two families that were spelled inconsistently are
-#: matched by pattern instead.
-#:
-#: 1. **Percentile word order.** The object interior has always been written
-#:    ``percentile_5``; the periphery and outside rings were written
-#:    ``periphery_5_percentile`` / ``outside_5_percentile``. One database, one
-#:    statistic, two word orders — so ``sorted()`` scattered them, a
-#:    ``percentile`` prefix search found only half of them, and anything
-#:    building a column name from a percentile had to know which ring it was
-#:    asking about. ``percentile_<p>`` wins because it is what the interior
-#:    columns, and hence the majority, already used.
-#: 2. **Channel spelling.** ``organelle_summary_organelle_ch<c>_..._per_<parent>``
-#:    was the only family in the database that abbreviated the channel;
-#:    everything else writes ``channel_<c>``. Note it is anchored on the whole
-#:    ``organelle_summary_organelle_ch`` prefix rather than on a bare ``_ch``,
-#:    which would also fire on any user-supplied feature that happens to
-#:    contain it.
-#:
-#: Each replacement is a pure rewrite of the name — no column is dropped and
-#: no value is touched — and each is skipped when the new name already exists,
-#: exactly as the metadata renames are.
-DB_COLUMN_RENAME_PATTERNS = (
-    (re.compile(r"^(?P<head>.*?)(?P<ring>periphery|outside)_(?P<p>\d+)_percentile$"),
-     r"\g<head>\g<ring>_percentile_\g<p>"),
-    (re.compile(r"^organelle_summary_organelle_ch(?P<c>\d+)_(?P<rest>.+)$"),
-     r"organelle_summary_organelle_channel_\g<c>_\g<rest>"),
+# These names remain public from ``spacr.utils`` for compatibility, while the
+# authoritative definitions live beside the versioned migration that uses
+# them.
+from .database_schema import (
+    DB_COLUMN_RENAMES,
+    DB_COLUMN_RENAME_PATTERNS,
+    canonical_column_name,
 )
-
-
-def canonical_column_name(name):
-    """Return the canonical spaCR spelling of one column name.
-
-    Applies :data:`DB_COLUMN_RENAMES` and then
-    :data:`DB_COLUMN_RENAME_PATTERNS`; a name that is already canonical, or
-    that spaCR does not recognise, is returned unchanged. At most one pattern
-    fires, because the two are mutually exclusive.
-
-    :param name: A column name, from a database or a DataFrame.
-    :returns: The canonical name.
-    """
-    renamed = DB_COLUMN_RENAMES.get(name)
-    if renamed is not None:
-        return renamed
-    for pattern, replacement in DB_COLUMN_RENAME_PATTERNS:
-        new_name, n_subs = pattern.subn(replacement, name)
-        if n_subs:
-            return new_name
-    return name
 
 
 def canonicalize_measurement_columns(df):
@@ -8693,56 +8619,9 @@ def rename_columns_in_db(db_path):
     :param db_path: Path to the SQLite database file to update in place.
     :returns: The list of ``(table, old, new)`` renames performed.
     """
-    renamed = []
-    con = sqlite3.connect(db_path)
-    # Take explicit control of the transaction: the driver will not start one
-    # for DDL, so without this each ALTER commits on its own.
-    con.isolation_level = None
-    try:
-        cur = con.cursor()
+    from .database_schema import repair_legacy_columns
 
-        # 1) get all user tables
-        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = [row[0] for row in cur.fetchall()]
-
-        cur.execute("BEGIN")
-        try:
-            for table in tables:
-                # 2) get column names only
-                cur.execute(f"PRAGMA table_info(`{table}`);")
-                cols = [row[1] for row in cur.fetchall()]
-
-                # 3) for each old→new, if the old exists and new does not, rename it
-                for old, new in DB_COLUMN_RENAMES.items():
-                    if old in cols and new not in cols:
-                        sql = f"ALTER TABLE `{table}` RENAME COLUMN `{old}` TO `{new}`;"
-                        cur.execute(sql)
-                        # Keep the local view current so that two aliases of
-                        # the same canonical name (col / column / column_name)
-                        # cannot both fire and collide.
-                        cols[cols.index(old)] = new
-                        renamed.append((table, old, new))
-
-                # 4) the pattern-matched feature families. Driven off the
-                #    column list rather than off a name list, because the
-                #    channel index and the percentile are part of the name and
-                #    the set of them is a property of the run, not of spaCR.
-                #    `cols` is snapshotted first: it is mutated in the loop for
-                #    the same collision reason as above.
-                for old in list(cols):
-                    new = canonical_column_name(old)
-                    if new == old or new in cols:
-                        continue
-                    cur.execute(
-                        f"ALTER TABLE `{table}` RENAME COLUMN `{old}` TO `{new}`;")
-                    cols[cols.index(old)] = new
-                    renamed.append((table, old, new))
-            cur.execute("COMMIT")
-        except BaseException:
-            cur.execute("ROLLBACK")
-            raise
-    finally:
-        con.close()
+    renamed = list(repair_legacy_columns(db_path))
 
     metadata = [entry for entry in renamed if entry[1] in DB_COLUMN_RENAMES]
     features = [entry for entry in renamed if entry[1] not in DB_COLUMN_RENAMES]
