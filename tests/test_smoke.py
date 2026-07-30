@@ -42,7 +42,7 @@ EXPECTED_LAZY = {
 @pytest.mark.parametrize("mod_name", ALL_MODULES)
 def test_source_parses(mod_name):
     """Every spacr/*.py must parse without SyntaxError."""
-    src = (PKG_ROOT / f"{mod_name}.py").read_text()
+    src = (PKG_ROOT / f"{mod_name}.py").read_text(encoding="utf-8")
     ast.parse(src)
 
 
