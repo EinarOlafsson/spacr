@@ -36,7 +36,7 @@ python packaging/release.py version
 python packaging/release.py bump 1.4.9.9
 
 # After the three native builders have populated dist/online
-python packaging/release.py collect --branch spacr-codex
+python packaging/release.py collect --branch main
 ```
 
 The native installers cannot all be generated on one local operating system.
@@ -46,7 +46,7 @@ calls the collection command once all three artifacts exist.
 ## One-click releases
 
 Run **Actions → release SpaCR → Run workflow**, enter the new version, and
-leave the target as `spacr-codex`. `.github/workflows/release.yml` then:
+leave the target as `main`. `.github/workflows/release.yml` then:
 
 1. validates and commits the version increment;
 2. builds Windows, macOS, and Linux installers on native runners;
@@ -60,7 +60,7 @@ leave the target as `spacr-codex`. `.github/workflows/release.yml` then:
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
 so merge `release.yml` into `main` once to enable that button permanently.
 There is also a branch-native path: changing ``VERSION`` in `setup.py` and
-pushing that commit to `spacr-codex` or `spacr-nightly` automatically runs
+pushing that commit to `main` automatically runs
 steps 2-6 for the already-incremented version. Rerunning the same version is
 safe: an existing PyPI artifact is not uploaded twice, existing release
 assets are replaced, and an existing tag must already point to the exact
@@ -75,7 +75,7 @@ One-time repository setup:
 3. On PyPI, add a trusted publisher for owner `EinarOlafsson`, repository
    `spacr`, workflow `release.yml`, environment `pypi`.
 
-No PyPI API token is stored in GitHub. If `spacr-nightly` has branch
+No PyPI API token is stored in GitHub. If `main` has branch
 protection, allow `github-actions[bot]` to push these two release commits or
 replace the direct-push steps with your protected-branch merge policy.
 
