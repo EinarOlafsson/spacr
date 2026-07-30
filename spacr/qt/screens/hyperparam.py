@@ -486,6 +486,9 @@ class HyperparamPanel(QWidget):
         self._live_trials: List[Trial] = []
         self._search_fn = None
         self._apply_cb: Optional[Callable[[Dict[str, Any]], Any]] = None
+        self._settings_provider: Optional[
+            Callable[[], Dict[str, Any]]
+        ] = None
         self._value_edits: Dict[str, QLineEdit] = {}
         self._adaptive_grid_text: Dict[str, str] = {}
         self._settings_dialog: Optional["UmapSearchSettingsDialog"] = None
@@ -783,6 +786,21 @@ class HyperparamPanel(QWidget):
         """
         self._apply_cb = cb
 
+    def set_settings_provider(
+        self,
+        provider: Optional[Callable[[], Dict[str, Any]]],
+    ) -> None:
+        """Register a callback returning the host's current module settings.
+
+        The main settings form remains editable while this panel or its popup
+        is open. Reading it immediately before each search prevents a source
+        path dropped after the panel opened from being lost in a stale
+        snapshot.
+
+        :param provider: zero-argument callback returning a settings mapping.
+        """
+        self._settings_provider = provider
+
     def set_search_fn(self, fn) -> None:
         """Override the search backend.
 
@@ -963,6 +981,17 @@ class HyperparamPanel(QWidget):
         if self._worker is not None and self._worker.isRunning():
             self._status.setText("A search is already running.")
             return False
+        if self._settings_provider is not None:
+            try:
+                current = self._settings_provider()
+                if not isinstance(current, dict):
+                    raise TypeError(
+                        "the module settings provider did not return a dict")
+                self._settings = dict(current)
+            except Exception as exc:
+                self._status.setText(
+                    f"Could not read the current module settings: {exc}")
+                return False
         adaptive = self.app_key == "umap" and self._adaptive.isChecked()
         try:
             space = (
