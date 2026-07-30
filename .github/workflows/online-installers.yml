@@ -23,16 +23,6 @@ on:
         description: Commit containing the collected installers
         value: ${{ jobs.collect.outputs.commit_sha }}
   workflow_dispatch:
-  push:
-    # Release builds on spacr-nightly call this workflow directly. Keeping the
-    # push trigger on the development branch avoids two collectors racing to
-    # commit the same versioned binaries during a release.
-    branches: [spacr-codex]
-    paths:
-      - ".github/workflows/online-installers.yml"
-      - "packaging/online/**"
-      - "packaging/release.py"
-      - "setup.py"
 
 permissions:
   contents: write
@@ -130,7 +120,6 @@ jobs:
   collect:
     name: Store installers and update README
     if: >-
-      github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_call' && inputs.publish_to_repository)
     needs: [linux, windows, macos]

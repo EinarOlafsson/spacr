@@ -132,8 +132,8 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
 
 def test_release_workflow_builds_all_platforms_with_node24_actions():
     workflow = _text(WORKFLOW)
-    assert "branches: [spacr-codex]" in workflow
     assert "workflow_call:" in workflow
+    assert "\n  push:" not in workflow
     for job in ("linux:", "windows:", "macos:"):
         assert job in workflow
     assert "actions/checkout@v6" in workflow
@@ -147,9 +147,14 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
 def test_one_click_release_orders_version_installers_pypi_and_github():
     workflow = _text(RELEASE_WORKFLOW)
     assert "workflow_dispatch:" in workflow
-    assert "branches: [spacr-nightly]" in workflow
+    assert "branches: [spacr-codex, spacr-nightly]" in workflow
     assert '"setup.py"' in workflow
     assert "python packaging/release.py bump" in workflow
+    assert "--allow-current" in workflow
+    assert "github.actor != 'github-actions[bot]'" in workflow
+    assert "VERSION remains $version" in workflow
+    assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
+    assert "if: needs.bump.outputs.release_required == 'true'" in workflow
     assert "python packaging/release.py version" in workflow
     assert "if: github.event_name == 'workflow_dispatch'" in workflow
     assert "uses: ./.github/workflows/online-installers.yml" in workflow
@@ -157,7 +162,11 @@ def test_one_click_release_orders_version_installers_pypi_and_github():
     assert "environment:" in workflow and "name: pypi" in workflow
     assert "id-token: write" in workflow
     assert "gh release create" in workflow
-    assert "needs: [bump, installers, publish-pypi]" in workflow
+    assert "gh release upload" in workflow
+    assert "release-assets/*" in workflow
+    assert "SHA256SUMS.txt" in workflow
+    assert "needs: [bump, installers, package, publish-pypi]" in workflow
+    assert "needs.bump.outputs.pypi_exists != 'true'" in workflow
 
 
 def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
@@ -171,6 +180,9 @@ def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
 
     with pytest.raises(ValueError, match="greater than"):
         helper.bump_version(setup, "1.2.4")
+    assert helper.bump_version(
+        setup, "1.2.4", allow_current=True) == "1.2.4"
+    assert helper.read_version(setup) == "1.2.4"
     with pytest.raises(ValueError, match="valid Python package version"):
         helper.bump_version(setup, "not a version")
 
@@ -212,7 +224,12 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
     assert "old" not in links
     for name in names:
         assert name in links
+        assert (
+            f"https://github.com/EinarOlafsson/spacr/releases/download/"
+            f"v{version}/{name}"
+        ) in links
         assert (destination / name).is_file()
+    assert "/raw/spacr-nightly/" not in links
     manifest = (destination / "README.rst").read_text(encoding="utf-8")
     assert f"Current version: ``{version}``" in manifest
     assert manifest.count("SHA-256") == 4  # heading + one line per installer
