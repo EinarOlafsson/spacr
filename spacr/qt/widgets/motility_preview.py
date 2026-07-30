@@ -41,10 +41,11 @@ import numpy as np
 
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
+    QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSpinBox, QVBoxLayout,
     QWidget,
 )
+from .toggle import Toggle
 
 from .live_preview import numpy_to_qpixmap
 
@@ -675,7 +676,8 @@ class MotilityPreviewPanel(QWidget):
         self._straightness.setToolTip(
             "(float) straightness_threshold — tracks at or above this are "
             "flagged as stage-drift / artefact candidates.")
-        self._straightness_filter = QCheckBox("Drop over-straight tracks", self)
+        self._straightness_filter = Toggle(
+            "Drop over-straight tracks", self)
         self._straightness_filter.setToolTip(
             "(bool) straightness_filter — remove the flagged tracks entirely.")
 

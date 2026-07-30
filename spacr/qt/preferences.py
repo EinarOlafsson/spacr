@@ -749,9 +749,10 @@ class PreferencesDialog:
     def __new__(cls, parent=None):
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+            QComboBox, QDialog, QDialogButtonBox, QFormLayout,
             QLabel, QSlider, QVBoxLayout,
         )
+        from .widgets.toggle import Toggle
 
         dlg = QDialog(parent)
         dlg.setWindowTitle("spaCR — Preferences")
@@ -877,7 +878,7 @@ class PreferencesDialog:
         # spaCR + third-party libs (cellpose, torch, PIL, matplotlib)
         # dial their loggers to DEBUG/INFO and every record echoes into
         # the active ConsolePanel. Aimed at bug reports.
-        verbose_check = QCheckBox("Enable verbose logging")
+        verbose_check = Toggle("Enable verbose logging")
         verbose_check.setToolTip(
             "When on, every spaCR log record — plus INFO-level chatter "
             "from cellpose, torch, PIL and matplotlib — echoes into "
@@ -891,7 +892,7 @@ class PreferencesDialog:
         # measurements.db with mode=ro; this is the only switch that lets
         # it open a read-write connection at all, and even then the user
         # has to arm edit mode per session and confirm it.
-        db_edit_check = QCheckBox("Allow editing in the Database Browser")
+        db_edit_check = Toggle("Allow editing in the Database Browser")
         db_edit_check.setToolTip(
             "Off by default. The Database Browser opens measurements.db "
             "read-only (mode=ro). With this on you can still only edit "
@@ -905,7 +906,7 @@ class PreferencesDialog:
         # Feature maturity. Both are opt-out: existing users and fresh
         # installs continue to see every feature until they choose a quieter,
         # stable-only interface.
-        alpha_check = QCheckBox("Show Alpha modules and settings")
+        alpha_check = Toggle("Show Alpha modules and settings")
         alpha_check.setObjectName("ShowAlphaFeatures")
         alpha_check.setToolTip(
             "Hide modules and settings that are built but not yet trusted "
@@ -913,7 +914,7 @@ class PreferencesDialog:
         )
         alpha_check.setChecked(get_show_alpha())
 
-        beta_check = QCheckBox("Show Beta modules and settings")
+        beta_check = Toggle("Show Beta modules and settings")
         beta_check.setObjectName("ShowBetaFeatures")
         beta_check.setToolTip(
             "Hide modules and settings that are in regular use but not yet "

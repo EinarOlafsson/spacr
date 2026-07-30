@@ -2337,7 +2337,12 @@ def measure_crop(settings):
                     tlo = settings['timelapse_objects']
                     print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
 
-            int_setting_keys = ['cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim', 'cell_min_size', 'nucleus_min_size', 'pathogen_min_size', 'cytoplasm_min_size']
+            int_setting_keys = [
+                'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
+                'organelle_mask_dim', 'cell_min_size', 'nucleus_min_size',
+                'pathogen_min_size', 'organelle_min_size',
+                'cytoplasm_min_size',
+            ]
             
             # Category B, every one of these: the settings are wrong, so no
             # field can be measured. Each historically printed a WARNING and

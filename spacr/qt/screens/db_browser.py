@@ -103,7 +103,6 @@ from urllib.parse import quote as _urlquote
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QCheckBox,
     QComboBox,
     QFileDialog,
     QHBoxLayout,
@@ -121,6 +120,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.toggle import Toggle
 
 from ..bridge import make_thread
 from ..preferences import get_db_browser_editable
@@ -1277,7 +1277,7 @@ class DbBrowserScreen(QWidget):
         # ── Edit-mode row ─────────────────────────────────────────────
         edit_row = QHBoxLayout()
         edit_row.setSpacing(SPACING["sm"])
-        self._edit_check = QCheckBox("Edit mode", self)
+        self._edit_check = Toggle("Edit mode", self)
         self._edit_check.setToolTip(
             "Off by default. Ticking this asks for confirmation before "
             "spaCR opens a read-write connection; every change is one "
@@ -1386,7 +1386,7 @@ class DbBrowserScreen(QWidget):
         self._filter_value = QLineEdit(self)
         self._filter_value.setPlaceholderText("value")
         self._filter_value.returnPressed.connect(self.apply_filter)
-        self._raw_toggle = QCheckBox("raw SQL", self)
+        self._raw_toggle = Toggle("raw SQL", self)
         self._raw_toggle.setToolTip(
             "Type a WHERE predicate yourself, e.g. "
             "cell_area > 1000 AND well LIKE 'A%'")

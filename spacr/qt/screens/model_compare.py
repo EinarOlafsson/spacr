@@ -64,7 +64,6 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QCheckBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
@@ -82,6 +81,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
 from ..bridge import make_thread
@@ -215,13 +215,13 @@ class _ModelPanel(QGroupBox):
         self.min_size_box.setToolTip("(int) Objects smaller than this are dropped.")
         form.addRow("min_size", self.min_size_box)
 
-        self.normalize_box = QCheckBox("normalize", self)
+        self.normalize_box = Toggle("normalize", self)
         self.normalize_box.setChecked(True)
         self.normalize_box.setToolTip(
             "(bool) Percentile-normalise each image inside Cellpose.")
         form.addRow("", self.normalize_box)
 
-        self.resample_box = QCheckBox("resample", self)
+        self.resample_box = Toggle("resample", self)
         self.resample_box.setChecked(True)
         self.resample_box.setToolTip(
             "(bool) Run the dynamics at full resolution.")

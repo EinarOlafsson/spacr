@@ -56,7 +56,6 @@ from PySide6.QtCore import (
 from PySide6.QtGui import (QAction, QColor, QImage, QKeySequence, QPainter,
                            QPainterPath, QPen, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -80,6 +79,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.toggle import Toggle
 
 from ..annotate_engine import (
     AnnotateSettings,
@@ -682,7 +682,7 @@ class _SettingsDialog(QDialog):
         self._edge_transp.setValue(float(settings.edge_transparency))
         form.addRow("Edge transparency", self._edge_transp)
 
-        self._edge_image = QCheckBox("Show original image under outline")
+        self._edge_image = Toggle("Show original image under outline")
         self._edge_image.setChecked(bool(settings.edge_image))
         form.addRow("", self._edge_image)
 
@@ -727,7 +727,7 @@ class _SettingsDialog(QDialog):
         form.addRow("Direction", self._threshold_dir)
 
         # -- active-learning queue (spacr.active_learning) -------------------
-        self._queue_on = QCheckBox("Order by model uncertainty")
+        self._queue_on = Toggle("Order by model uncertainty")
         self._queue_on.setChecked(bool(getattr(settings, "queue_by_uncertainty", False)))
         self._queue_on.setToolTip(
             "Show the unlabelled crops the classifier is least sure about "
