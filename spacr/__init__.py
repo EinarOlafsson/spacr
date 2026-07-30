@@ -94,6 +94,8 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "notebook_export",
     "custom_features",
     "umap_annotations",
+    "row_exclusions",
+    "torch_artifacts",
     "validate",
     "updater",
     "version",

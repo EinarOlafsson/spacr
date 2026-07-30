@@ -137,3 +137,18 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
     assert "minimum-dependencies:" in workflow
     assert "-c .github/constraints/minimum-py39.txt" in workflow
     assert "python -m pip check" in workflow
+
+
+def test_compatibility_metadata_job_stays_independent_of_scientific_stack():
+    workflow = COMPAT_WORKFLOW.read_text(encoding="utf-8")
+    metadata_job = workflow[
+        workflow.index("  metadata:"):workflow.index("  current-python-installs:")
+    ]
+    assert "pytest --noconftest" in metadata_job
+
+
+def test_macos_compatibility_installs_xgboost_openmp_runtime():
+    workflow = COMPAT_WORKFLOW.read_text(encoding="utf-8")
+    assert "Install OpenMP runtime (macOS only)" in workflow
+    assert "if: runner.os == 'macOS'" in workflow
+    assert "brew install libomp" in workflow
