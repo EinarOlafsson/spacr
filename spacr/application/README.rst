@@ -10,15 +10,15 @@ Windows 10/11
 -------------
 
 * File: ``SpaCR-1.4.9.9-Windows-Online-Setup.exe``
-* Size: ``81487`` bytes
-* SHA-256: ``d048bddfd069a69a6721b9542eddb21c19d3a6f9dbf8e5a8f4b7fb9ae5afb0de``
+* Size: ``81521`` bytes
+* SHA-256: ``b31d9534af6844b8b24a24b0de4ce7a23d20bf23010044efa1f8d06b402ee456``
 
 macOS 11+ (Intel and Apple silicon)
 -----------------------------------
 
 * File: ``SpaCR-1.4.9.9-macOS-Universal-Online.pkg``
-* Size: ``8028`` bytes
-* SHA-256: ``002709dedef2c0cd23a7e35e579fbeee847b98a0dd842ae146a0aff39b4c500d``
+* Size: ``8019`` bytes
+* SHA-256: ``66fd7dd7ae20c9165bf710ea7301eda7b4d6d3811b3880812f5618b348a39f72``
 
 64-bit Linux
 ------------
