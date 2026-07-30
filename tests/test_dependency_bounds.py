@@ -199,6 +199,14 @@ def test_torchvision_floor_covers_the_multi_weight_api():
     )
 
 
+def test_numba_llvmlite_floors_exclude_python_312_source_build_trap():
+    """SHAP 0.52 must not pull metadata-inaccurate 2021 releases."""
+    assert not _admits("numba", "0.53.1")
+    assert _admits("numba", "0.60.0")
+    assert not _admits("llvmlite", "0.36.0")
+    assert _admits("llvmlite", "0.43.0")
+
+
 # ---------------------------------------------------------------------------
 # 3. numpy: the pin and the code that forces it, asserted together
 # ---------------------------------------------------------------------------

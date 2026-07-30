@@ -198,6 +198,15 @@ dependencies = [
     # event-file test, while the major-version ceiling avoids an unreviewed
     # event-file/API break.
     'tensorboard>=2.21,<3.0',
+    # SHAP 0.52 declares both numba and llvmlite without lower bounds. With
+    # numpy 2.5 that lets uv select numba 0.53.1 + llvmlite 0.36.0 from 2021:
+    # their metadata does not exclude Python 3.12, but their build scripts do,
+    # so the lightweight installer reaches a source build and fails. These
+    # floors are the first Python-3.9-through-3.12-compatible line and force
+    # the resolver onto mutually constrained numba/llvmlite wheels. Newer
+    # Python versions naturally select newer releases within these bounds.
+    'numba>=0.60,<1.0',
+    'llvmlite>=0.43,<1.0',
     # Floor RAISED from `>=0.1`, which was false — torchvision 0.1.6 is from
     # 2017. spacr/utils.py:53 imports `ResNet18_Weights ... ResNet152_Weights`
     # from torchvision.models.resnet at module scope (the multi-weight API,

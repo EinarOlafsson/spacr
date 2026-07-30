@@ -15,6 +15,10 @@ Python, Qt, PyTorch, CUDA, or the scientific stack. During installation they:
 No existing system Python is modified. A failed update preserves the previous
 working spaCR environment.
 
+The bootstrap also supplies compatible Numba/llvmlite floors. This prevents
+SHAP's unbounded transitive requirements from resolving to obsolete source
+releases that advertise Python 3.12 compatibility but reject it while building.
+
 | Target | Builder | Release artifact | Default install |
 |---|---|---|---|
 | Windows 10/11 | `online/build_windows_online.ps1` | `SpaCR-<ver>-Windows-Online-Setup.exe` | `%LOCALAPPDATA%\SpaCR` |

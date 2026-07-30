@@ -17,6 +17,10 @@ $UvVersion = "0.11.32"
 $PythonVersion = "3.12"
 $DefaultExtras = "qt,zernike,btrack,czi"
 $UvInstallUrl = "https://astral.sh/uv/$UvVersion/install.ps1"
+# SHAP 0.52 leaves these dependencies unbounded. Without explicit floors uv
+# may choose numba 0.53.1 and llvmlite 0.36.0, whose metadata admits Python
+# 3.12 even though their build scripts reject it.
+$ResolverGuards = @("numba>=0.60,<1.0", "llvmlite>=0.43,<1.0")
 
 if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
     if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -52,6 +56,7 @@ Write-Host "  application:    $PackageSpec"
 Write-Host "  private Python: $PythonVersion"
 Write-Host "  install root:   $InstallRoot"
 Write-Host "  PyTorch:        automatic GPU/CPU selection"
+Write-Host "  resolver guards: $($ResolverGuards -join ', ')"
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
     Write-Host "DRY RUN: would download $UvInstallUrl"
@@ -107,7 +112,7 @@ try {
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
 
     Write-Host "Downloading spaCR, Qt, PyTorch and scientific dependencies..." -ForegroundColor Cyan
-    Invoke-Checked $UvExe pip install --python $StagePython --torch-backend auto $PackageSpec
+    Invoke-Checked $UvExe pip install --python $StagePython --torch-backend auto $PackageSpec @ResolverGuards
 
     Write-Host "Validating the installation before activating it..." -ForegroundColor Cyan
     Invoke-Checked $UvExe pip check --python $StagePython
