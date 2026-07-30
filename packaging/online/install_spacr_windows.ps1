@@ -8,6 +8,7 @@ param(
     [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA "SpaCR"),
     [string]$Version = "",
     [string]$PackageSpec = "",
+    [string]$TorchBackend = "",
     [switch]$DryRun
 )
 
@@ -15,12 +16,22 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 $UvVersion = "0.11.32"
 $PythonVersion = "3.12"
-$DefaultExtras = "qt,zernike,btrack,czi"
+$DefaultExtras = "qt"
 $UvInstallUrl = "https://astral.sh/uv/$UvVersion/install.ps1"
 # SHAP 0.52 leaves these dependencies unbounded. Without explicit floors uv
 # may choose numba 0.53.1 and llvmlite 0.36.0, whose metadata admits Python
 # 3.12 even though their build scripts reject it.
 $ResolverGuards = @("numba>=0.60,<1.0", "llvmlite>=0.43,<1.0")
+
+if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
+    $TorchBackend = $env:SPACR_TORCH_BACKEND
+}
+if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
+    $TorchBackend = "cpu"
+}
+if ($TorchBackend -notmatch '^[a-z0-9]+$') {
+    throw "Invalid PyTorch backend '$TorchBackend'."
+}
 
 if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
     if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -55,7 +66,7 @@ Write-Host "spaCR lightweight online installer" -ForegroundColor Cyan
 Write-Host "  application:    $PackageSpec"
 Write-Host "  private Python: $PythonVersion"
 Write-Host "  install root:   $InstallRoot"
-Write-Host "  PyTorch:        automatic GPU/CPU selection"
+Write-Host "  PyTorch backend: $TorchBackend"
 Write-Host "  resolver guards: $($ResolverGuards -join ', ')"
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
@@ -67,13 +78,16 @@ if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
 
 $driveName = [System.IO.Path]::GetPathRoot($InstallRoot)
 $drive = [System.IO.DriveInfo]::new($driveName)
-if ($drive.AvailableFreeSpace -lt 8GB) {
+if ($drive.AvailableFreeSpace -lt 5GB) {
     $available = [math]::Round($drive.AvailableFreeSpace / 1GB, 1)
-    throw "spaCR needs at least 8 GB free while dependencies install; only $available GB is available."
+    throw "spaCR needs at least 5 GB free while dependencies install; only $available GB is available."
 }
 
 New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null
 $InstallerScript = Join-Path $env:TEMP ("spacr-uv-installer-" + $PID + ".ps1")
+$LogPath = Join-Path $InstallRoot "install.log"
+Start-Transcript -Path $LogPath -Append | Out-Null
+Write-Host "Detailed installation log: $LogPath"
 
 function Invoke-Checked {
     param(
@@ -103,7 +117,7 @@ try {
     $env:UV_SYSTEM_CERTS = "true"
 
     Write-Host "Downloading private Python $PythonVersion..." -ForegroundColor Cyan
-    Invoke-Checked $UvExe python install $PythonVersion --managed-python
+    Invoke-Checked $UvExe python install $PythonVersion --managed-python --no-bin --no-registry
 
     if (Test-Path $StageVenv) {
         Remove-Item -Recurse -Force $StageVenv
@@ -112,12 +126,12 @@ try {
     Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
 
     Write-Host "Downloading spaCR, Qt, PyTorch and scientific dependencies..." -ForegroundColor Cyan
-    Invoke-Checked $UvExe pip install --python $StagePython --torch-backend auto $PackageSpec @ResolverGuards
+    Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend $PackageSpec @ResolverGuards
 
     Write-Host "Validating the installation before activating it..." -ForegroundColor Cyan
     Invoke-Checked $UvExe pip check --python $StagePython
     $env:QT_QPA_PLATFORM = "offscreen"
-    Invoke-Checked $StagePython -c "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+    Invoke-Checked $StagePython -I -c "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
 
     $OldVenv = Join-Path $InstallRoot ".venv-previous"
     if (Test-Path $OldVenv) {
@@ -151,4 +165,5 @@ raise SystemExit(run())
     throw
 } finally {
     Remove-Item -Force -ErrorAction SilentlyContinue $InstallerScript
+    Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
 }
