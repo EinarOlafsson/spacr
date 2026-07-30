@@ -20,7 +20,11 @@ The Qt code lives in three layers:
 """
 from __future__ import annotations
 
+import sys
+
 __all__ = ["run"]
+
+_VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
 
 
 def run(argv: list[str] | None = None) -> int:
@@ -35,5 +39,14 @@ def run(argv: list[str] | None = None) -> int:
     Returns:
         The exit code returned by `QApplication.exec()`.
     """
+    if argv is None:
+        argv = sys.argv[1:]
+
+    if len(argv) == 1 and argv[0] in _VERSION_FLAGS:
+        from spacr.version import get_version
+
+        print(get_version())
+        return 0
+
     from .app import launch
     return launch(argv)
