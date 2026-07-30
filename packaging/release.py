@@ -27,6 +27,7 @@ PLATFORMS = (
     ("macOS 11+ (Intel and Apple silicon)", "macOS-Universal-Online.pkg"),
     ("64-bit Linux", "Linux-x86_64-Online.run"),
 )
+RELEASE_DOWNLOAD_ROOT = "https://github.com/EinarOlafsson/spacr/releases/download"
 
 
 def read_version(setup_path: Path) -> str:
@@ -36,7 +37,12 @@ def read_version(setup_path: Path) -> str:
     return match.group(3)
 
 
-def bump_version(setup_path: Path, requested: str) -> str:
+def bump_version(
+    setup_path: Path,
+    requested: str,
+    *,
+    allow_current: bool = False,
+) -> str:
     try:
         new = Version(requested)
     except InvalidVersion as exc:
@@ -46,6 +52,8 @@ def bump_version(setup_path: Path, requested: str) -> str:
     if not match:
         raise ValueError(f"Could not find VERSION in {setup_path}")
     current = Version(match.group(3))
+    if new == current and allow_current:
+        return str(current)
     if new <= current:
         raise ValueError(
             f"New version {new} must be greater than current version {current}")
@@ -70,13 +78,14 @@ def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:
 
 
 def _readme_links(version: str, branch: str) -> str:
+    # ``branch`` remains part of the public helper API for compatibility with
+    # older local release commands. Published README links intentionally use
+    # immutable GitHub release assets rather than mutable branch contents.
+    del branch
     lines = [README_BEGIN, ""]
     for label, suffix in PLATFORMS:
         name = f"SpaCR-{version}-{suffix}"
-        url = (
-            "https://github.com/EinarOlafsson/spacr/raw/"
-            f"{branch}/spacr/application/{name}"
-        )
+        url = f"{RELEASE_DOWNLOAD_ROOT}/v{version}/{name}"
         lines.append(f"* `{label}: download SpaCR {version} <{url}>`_")
     lines.extend(["", README_END])
     return "\n".join(lines)
@@ -156,6 +165,11 @@ def main() -> int:
     bump_parser = subparsers.add_parser("bump")
     bump_parser.add_argument("new_version")
     bump_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
+    bump_parser.add_argument(
+        "--allow-current",
+        action="store_true",
+        help="treat an already-current requested version as an idempotent rerun",
+    )
 
     collect_parser = subparsers.add_parser("collect")
     collect_parser.add_argument("--source", type=Path, default=Path("dist/online"))
@@ -169,7 +183,11 @@ def main() -> int:
     if args.command == "version":
         print(read_version(args.setup))
     elif args.command == "bump":
-        print(bump_version(args.setup, args.new_version))
+        print(bump_version(
+            args.setup,
+            args.new_version,
+            allow_current=args.allow_current,
+        ))
     else:
         for path in collect_installers(
                 args.source, args.destination, args.readme, args.setup,

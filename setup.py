@@ -442,13 +442,9 @@ dependencies = [
     # shap and onnxruntime still require protobuf, so the floor is still
     # buying a real thing.)
     'protobuf>=5.28.3',
-    # ADDED, Windows only. `from win10toast import ToastNotifier` at
-    # spacr/qt/notify.py:56 sits inside `if system == "Windows"` and inside a
-    # try/except, so the marker is not a convenience — installing it anywhere
-    # else would ship a package that can never execute (it imports pywin32).
-    # Linux uses `notify-send` and macOS uses `osascript`, both subprocesses,
-    # which is why neither has a dependency here.
-    'win10toast>=0.9; platform_system == "Windows"',
+    # win10toast lives in the Qt extras below: only spacr/qt/notify.py imports
+    # it, so a headless/core installation must not acquire a GUI notification
+    # dependency. This also keeps the core package genuinely cross-platform.
     #'tensorflow>=2.20.0,<3.0',
     #'stardist>=0.9,<1.0'
 ]
@@ -601,6 +597,7 @@ setup(
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            'win10toast>=0.9; platform_system == "Windows"',
         ],
         # `spacr-tutorial` — renders narrated MP4 tutorials for every
         # module. ffmpeg is required at runtime (system package) and a
@@ -608,6 +605,7 @@ setup(
         'tutorial': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2',
         ],
         # The AI Console shells out to vendor coding-agent CLIs
@@ -706,6 +704,7 @@ setup(
         'all': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2',
             'trackastra>=0.5,<1.0',
             'ultrack>=0.6,<1.0',
