@@ -1374,8 +1374,12 @@ def cmd_run(args: argparse.Namespace) -> int:
     started = time.time()
     log.info("starting %s", module.key)
     try:
+        from .run_journal import open_run
         with _NoShow():
-            _call_entry(module, func, settings)
+            log.info("recording reproducibility input hashes")
+            with open_run(module.key, settings) as run:
+                log.info("reproducibility manifest %s", run.dir)
+                _call_entry(module, func, settings)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

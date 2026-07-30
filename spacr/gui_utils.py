@@ -1,6 +1,7 @@
 """Shared helpers for spaCR's legacy Tk graphical interface."""
 
 import os, io, sys, ast, ctypes, sqlite3, requests, time, traceback, torch, cv2
+import logging
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
@@ -716,7 +717,14 @@ def spacrFigShow(fig_queue=None):
         fig.show()
     plt.close(fig)
 
-def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, imports=1):
+def function_gui_wrapper(
+    function=None,
+    settings=None,
+    q=None,
+    fig_queue=None,
+    imports=1,
+    app_key="",
+):
     """Run a spacr worker function with GUI-safe stdout, error and figure routing.
 
     Temporarily replaces ``plt.show`` with :func:`spacrFigShow` so any figures
@@ -730,6 +738,7 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
     :param imports: call style. 1 -> ``function(settings=...)``;
         2 -> ``function(src=settings['src'], settings=...)``;
         3 -> ``function(settings['src'])``, for workers that take a bare path.
+    :param app_key: module identifier written to the run manifest.
     :returns: None.
     :raises ValueError: if ``imports`` is not one of the three call styles.
     """
@@ -739,6 +748,27 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
         settings = {}
     original_show = plt.show
     plt.show = lambda: spacrFigShow(fig_queue)
+
+    journal_context = None
+    journal_run = None
+    try:
+        from .run_journal import open_run
+        print("Recording reproducibility input hashes…")
+        journal_context = open_run(
+            app_key or getattr(function, "__name__", "job"), settings,
+        )
+        journal_run = journal_context.__enter__()
+        print(f"Reproducibility manifest: {journal_run.dir}")
+    except Exception as exc:
+        journal_context = None
+        journal_run = None
+        message = (
+            "WARNING: could not open reproducibility manifest: "
+            f"{type(exc).__name__}: {exc}"
+        )
+        if q is not None:
+            q.put(message)
+        logging.getLogger(__name__).exception(message)
 
     try:
         if imports == 1:
@@ -756,9 +786,25 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
     except Exception as e:
         # Send the error message to the GUI via the queue
         errorMessage = f"Error during processing: {e}"
-        q.put(errorMessage) 
+        if journal_run is not None:
+            journal_run.set_status("failed")
+            journal_run.error_traceback = traceback.format_exc()
+        q.put(errorMessage)
         traceback.print_exc()
     finally:
+        if journal_run is not None:
+            if journal_run.status == "running":
+                journal_run.set_status("success")
+            try:
+                journal_context.__exit__(None, None, None)
+            except Exception as exc:
+                message = (
+                    "WARNING: could not finalize reproducibility manifest: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+                if q is not None:
+                    q.put(message)
+                logging.getLogger(__name__).exception(message)
         # Restore the original plt.show function
         plt.show = original_show
         
@@ -843,7 +889,9 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     else:
         raise ValueError(f"Error: Invalid settings type: {settings_type}")
     try:
-        function_gui_wrapper(function, settings, q, fig_queue, imports)
+        function_gui_wrapper(
+            function, settings, q, fig_queue, imports, app_key=settings_type,
+        )
     except Exception as e:
         q.put(f"Error during processing: {e}")
         traceback.print_exc()
