@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00.000 --> 00:14.825
+If you already have a Python environment, you can install spaCR directly with pip. Python 3.12 is recommended. spaCR supports Python 3.9 through 3.14, except Python 3.14.1.
+
+00:15.325 --> 00:24.125
+First, upgrade pip in the current environment. If you are using Conda or a virtual environment, make sure it is active before running this command.
+
+00:24.625 --> 00:35.025
+Install spaCR by running pip install spacr. This installs spaCR and makes its desktop launcher and command-line tools available in the current environment.
+
+00:35.525 --> 00:46.225
+When installation finishes, enter spacr to open the desktop application. The first start can take longer while libraries initialize and model resources are prepared.
+
+00:46.825 --> 00:58.375
+On a server or another headless system, use the same pip install spacr command. Then use spacr dash run dash dash list to see the workflows available from the command line.

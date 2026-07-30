@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00.000 --> 00:12.075
+The platform installers are the simplest option when you do not already use Python or Conda. Download the online installer for your operating system from the current spaCR release on GitHub.
+
+00:12.575 --> 00:25.875
+On Windows 10 or 11, download and open the dot exe setup file. The portable CPU installation is the default, and NVIDIA acceleration is available as an optional installer component.
+
+00:26.375 --> 00:40.750
+On macOS 11 or newer, open the universal dot package file. It supports Intel and Apple silicon. If Gatekeeper blocks the current beta, choose Open Anyway under Privacy and Security, then run the package again.
+
+00:41.250 --> 00:54.275
+On 64-bit Linux, make the downloaded dot run file executable with chmod plus x, then start it. Linux can also request accelerator auto-detection from the installer command line.
+
+00:54.775 --> 01:13.925
+Each installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR, and the scientific dependencies. It does not modify your system Python. Validation happens before an older working installation is replaced, and a diagnostic install log is retained.

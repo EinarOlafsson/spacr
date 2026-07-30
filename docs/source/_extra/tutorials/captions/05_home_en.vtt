@@ -1,0 +1,22 @@
+WEBVTT
+
+00:00.000 --> 00:15.325
+This is the spaCR Home screen. It brings the complete microscopy and sequencing workflow into one desktop application, from segmentation and measurement through classification, barcode mapping, quality control, and biological assays.
+
+00:15.825 --> 00:32.400
+The navigation sidebar on the left groups modules by purpose. Core contains the main analysis pipeline, Data contains import and plate utilities, and the remaining sections collect segmentation models, results, quality control, and Toxoplasma assays.
+
+00:32.900 --> 00:44.025
+The tabs across the top filter the Home tiles. Home shows all registered modules, while each category reduces the grid to the tools associated with that part of the workflow.
+
+00:44.525 --> 00:57.600
+Every tile opens one module. The grid uses the same categories as the sidebar, so you can navigate with whichever layout is more convenient. Hovering over a tile also displays a short description.
+
+00:58.100 --> 01:10.275
+The panels on the right summarize recent runs, system resources, release information, aggregate activity, and module maturity. Alpha, beta, and stable describe how mature each module is.
+
+01:10.775 --> 01:17.300
+To open a module, click its sidebar entry or its Home tile. Here, we click Mask in the Core section.
+
+01:17.700 --> 01:32.500
+The Mask module opens in the central workspace while the sidebar remains available. This consistent layout lets you move between stages without closing the project. The dedicated Mask tutorial will use your four-channel experiment.

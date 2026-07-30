@@ -1,0 +1,99 @@
+{
+  "voice": "af_heart",
+  "lang_code": "a",
+  "speed": 1.05,
+  "sample_rate": 24000,
+  "total_duration": 106.45,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.7,
+      "scene_end": 10.149999999999999,
+      "duration": 10.149999999999999,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_01.wav",
+      "phonemes": "w\u02c8\u025blk\u0259m t\u0259 sp\u02c8As\u0259\u0279. \u00f0\u0259 t\u02c8u m\u02c8An p\u02c8\u028cbl\u026ak st\u02c8\u0251\u0279T\u026a\u014b p\u02c8Ynts \u0251\u0279 \u00f0\u0259 p\u02c8I\u03b8\u02cc\u0251n p\u02c8\u00e6k\u026a\u02a4 \u02c8\u026and\u02cc\u025bks, j\u02c8u\u0292\u0259w\u0259li k\u02c8\u0254ld p\u02c8I p\u02c8i, \u00e6nd \u00f0\u0259 sp\u02c8As\u0259\u0279 \u0279\u0259p\u02c8\u0251z\u0259t\u02cc\u0254\u0279i \u02cc\u0254n \u0261\u02cc\u026ath\u02c8\u028cb.",
+      "shortened_words": [
+        {
+          "word": "pee",
+          "removed_seconds": 0.075
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.149999999999999,
+      "speech_end": 23.974999999999998,
+      "scene_end": 24.525,
+      "duration": 14.375,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_02.wav",
+      "phonemes": "p\u02c8I p\u02c8i \u026az \u00f0i \u0259\u03b8\u02c8\u0254\u0279\u0259t\u02ccAT\u026av p\u02c8A\u02a4 f\u0254\u0279 \u00f0\u0259 k\u02c8\u025c\u0279\u0259nt p\u02c8\u00e6k\u026a\u02a4d \u0279\u0259l\u02c8is. \u00f0\u0259 h\u02c8\u025bd\u0259\u0279 \u0283\u02c8Oz \u00f0\u0259 \u0279\u0259l\u02c8ist v\u02c8\u025c\u0279\u0292\u0259n, \u026ats p\u02cc\u028cbl\u0259k\u02c8A\u0283\u0259n st\u02c8AT\u0259s, \u00e6nd \u00f0\u0259 p\u02c8\u026ap k\u0259m\u02c8\u00e6nd. w\u02cci w\u026al j\u02c8uz \u00f0\u02c8\u00e6t k\u0259m\u02c8\u00e6nd \u026an \u00f0\u0259 d\u02c8\u025bd\u0259k\u02ccAT\u1d7bd p\u02c8\u026ap \u02cc\u026anzt\u0259l\u02c8A\u0283\u0259n tut\u02c8\u0254\u0279i\u0259l.",
+      "shortened_words": [
+        {
+          "word": "pee",
+          "removed_seconds": 0.075
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.525,
+      "speech_end": 40.325,
+      "scene_end": 40.875,
+      "duration": 16.35,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_03.wav",
+      "phonemes": "\u00f0\u0259 p\u0279\u02c8\u0251\u02a4\u02cc\u025bkt l\u02c8\u026a\u014bks \u02cc\u0254n \u00f0\u0259 l\u02c8\u025bft k\u0259n\u02c8\u025bkt p\u02c8I p\u02c8i t\u0259 \u00f0\u0259 d\u02cc\u0251kj\u0259m\u0259nt\u02c8A\u0283\u0259n, h\u02c8Omp\u02ccA\u02a4, \u02c8\u026a\u0283u t\u0279\u02c8\u00e6k\u0259\u0279, \u00e6nd s\u02c8\u0254\u0279s k\u02c8Od. \u00f0\u0259 d\u0259sk\u0279\u02c8\u026ap\u0283\u0259n b\u0259l\u02c8O s\u02c8\u028cm\u0259\u0279\u02ccIz\u1d7bz sp\u02c8As\u0259\u0279z mIk\u0279\u02c8\u0251sk\u0259pi, s\u02cc\u025b\u0261m\u0259nt\u02c8A\u0283\u0259n, m\u02c8\u025b\u0292\u0259\u0279m\u1d4ant, kl\u02cc\u00e6s\u0259f\u0259k\u02c8A\u0283\u0259n, s\u02c8ikw\u0259ns\u026a\u014b, \u00e6nd \u0279\u0259\u0261\u0279\u02c8\u025b\u0283\u0259n w\u02c8\u025c\u0279kfl\u02ccOz.",
+      "shortened_words": [
+        {
+          "word": "pee",
+          "removed_seconds": 0.075
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 40.875,
+      "speech_end": 55.35,
+      "scene_end": 55.9,
+      "duration": 15.024999999999999,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_04.wav",
+      "phonemes": "\u0261\u02cc\u026ath\u02c8\u028cb \u026az w\u02cc\u025b\u0279 \u00f0\u0259 s\u02c8\u0254\u0279s k\u02c8Od \u00e6nd d\u0259v\u02c8\u025bl\u0259pm\u0259nt h\u02c8\u026ast\u0259\u0279i l\u02c8Iv. j\u02c8uz \u00f0\u0259 k\u02c8Od t\u02c8\u00e6b t\u0259 b\u0279\u02c8Wz f\u02c8Ilz, \u02c8\u026a\u0283juz t\u0259 \u0279\u0259p\u02c8\u0254\u0279t \u0250 p\u0279\u02c8\u0251bl\u0259m \u0254\u0279 \u0279\u0259kw\u02c8\u025bst \u0250 f\u02c8i\u02a7\u0259\u0279, d\u0259sk\u02c8\u028c\u0283\u0259nz f\u0254\u0279 l\u02c8\u0254\u014b\u0261\u0259\u0279 kw\u02c8\u025bs\u02a7\u1d4anz, \u00e6nd \u02c8\u00e6k\u0283\u0259nz t\u028a \u026ansp\u02c8\u025bkt \u02c8\u0254T\u0259m\u02ccAT\u1d7bd b\u02c8\u026aldz \u00e6nd t\u02c8\u025bsts.",
+      "shortened_words": []
+    },
+    {
+      "scene": 5,
+      "speech_start": 55.9,
+      "speech_end": 69.725,
+      "scene_end": 70.27499999999999,
+      "duration": 14.374999999999993,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_05.wav",
+      "phonemes": "\u00f0\u0259 \u0279\u0259l\u02c8is\u1d7bz p\u02c8\u00e6n\u1d4al k\u0259nt\u02c8Anz \u00f0\u0259 d\u02ccWnl\u02c8Od\u0259b\u0259l d\u02c8\u025bskt\u02cc\u0251p \u026anst\u02c8\u0254l\u0259\u0279z \u00e6nd \u0279\u0259l\u02c8is n\u02c8Ots. \u00f0\u0259 \u0279\u0259p\u02c8\u0251z\u0259t\u02cc\u0254\u0279i \u02c8\u0254lsO k\u0259nt\u02c8Anz n\u02c8Otb\u02cc\u028aks, d\u02cc\u0251kj\u0259m\u0259nt\u02c8A\u0283\u0259n s\u02c8\u0254\u0279s\u1d7bz, p\u02c8\u00e6k\u0259\u02a4\u026a\u014b f\u02c8Ilz, t\u02c8\u025bsts, \u00e6nd \u00f0\u0259 sp\u02c8As\u0259\u0279 p\u02c8I\u03b8\u02cc\u0251n p\u02c8\u00e6k\u026a\u02a4 \u026ats\u02c8\u025blf.",
+      "shortened_words": []
+    },
+    {
+      "scene": 6,
+      "speech_start": 70.27499999999999,
+      "speech_end": 89.27499999999999,
+      "scene_end": 90.175,
+      "duration": 19.900000000000006,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_06.wav",
+      "phonemes": "\u00f0\u0259 b\u0279\u02c8\u00e6n\u02a7 s\u0259l\u02c8\u025bkt\u0259\u0279 t\u02c8\u025blz ju w\u02cc\u026a\u02a7 v\u02c8\u025c\u0279\u0292\u0259n \u028cv \u00f0\u0259 s\u02c8\u0254\u0279s ju \u0251\u0279 vj\u02c8u\u026a\u014b. m\u02c8An \u0279\u02cc\u025bp\u0279\u0259z\u02c8\u025bnts \u00f0\u0259 \u0279\u0259l\u02c8ist d\u0259v\u02c8\u025bl\u0259pm\u0259nt l\u02c8In, w\u02ccIl n\u02c8Itli k\u0259nt\u02c8Anz \u00f0\u0259 n\u02c8u\u1d7bst \u02a7\u02c8An\u02a4\u1d7bz b\u02c8i\u026a\u014b p\u0279ip\u02c8\u025b\u0279d \u00e6nd t\u02c8\u025bst\u1d7bd. n\u02c8Itli k\u00e6n \u02a7\u02c8An\u02a4 kw\u02c8\u026akli, s\u02ccO m\u02c8Ost j\u02c8uz\u0259\u0279z \u0283\u02cc\u028ad b\u0259\u0261\u02c8\u026an w\u026a\u00f0 \u00f0\u0259 p\u02c8\u00e6k\u026a\u02a4d \u0279\u0259l\u02c8is \u00e6nd j\u02c8uz n\u02c8Itli \u02c8Onli w\u02cc\u025bn \u00f0A sp\u0259s\u02c8\u026af\u0259k\u1d4ali n\u02c8id n\u02c8u\u0259\u0279 w\u02c8\u025c\u0279k.",
+      "shortened_words": []
+    },
+    {
+      "scene": 7,
+      "speech_start": 90.175,
+      "speech_end": 105.45,
+      "scene_end": 106.45,
+      "duration": 16.275000000000006,
+      "clip": "/media/carruthers/mnt3/claude/tutorials/production/01_pypi_github/audio/af_heart/scene_07.wav",
+      "phonemes": "\u026an \u0283\u02c8\u0254\u0279t, j\u02c8uz p\u02c8I p\u02c8i f\u0254\u0279 \u00f0\u0259 k\u02c8\u025c\u0279\u0259nt p\u02c8I\u03b8\u02cc\u0251n \u0279\u0259l\u02c8is, \u0261\u02cc\u026ath\u02c8\u028cb \u0279\u0259l\u02c8is\u1d7bz f\u0254\u0279 d\u02c8\u025bskt\u02cc\u0251p \u026anst\u02c8\u0254l\u0259\u0279z, \u00e6nd \u00f0\u0259 \u0261\u02cc\u026ath\u02c8\u028cb \u0279\u0259p\u02c8\u0251z\u0259t\u02cc\u0254\u0279i f\u0254\u0279 s\u02c8\u0254\u0279s k\u02c8Od, \u02c8\u026a\u0283juz, \u00e6nd d\u0259v\u02c8\u025bl\u0259pm\u0259nt b\u0279\u02c8\u00e6n\u02a7\u1d7bz. n\u02c8\u025bkst, wi w\u026al \u026anst\u02c8\u0254l sp\u02c8As\u0259\u0279 \u026an \u0250n \u02c8Is\u0259l\u02ccAT\u1d7bd k\u02c8\u0251nd\u0259 \u0259nv\u02c8I\u0279\u0259nm\u1d4ant.",
+      "shortened_words": [
+        {
+          "word": "pee",
+          "removed_seconds": 0.075
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00.000 --> 00:16.925
+The recommended way to install spaCR is inside an isolated Conda environment. This keeps spaCR and its scientific dependencies separate from your other Python projects. Python 3.12 provides the broadest compatibility with optional packages.
+
+00:17.425 --> 00:30.425
+Create an environment named spacr with Python 3.12, then activate it. You only create the environment once, but you activate it whenever you open a new terminal and want to use this installation.
+
+00:30.925 --> 00:40.725
+Upgrade pip inside the active environment. Because the environment is active, this pip command belongs to the Python interpreter managed by Conda.
+
+00:41.225 --> 00:50.825
+Install spaCR by running pip install spacr. This downloads spaCR and its required Python packages into the active Conda environment.
+
+00:51.325 --> 01:03.525
+Start the application by entering spacr. Conda Forge support is coming soon. Until it is published there, Conda creates and manages the environment, while pip installs spaCR from PyPI.
