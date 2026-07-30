@@ -8,8 +8,9 @@ controls.
 from __future__ import annotations
 
 import re
+from typing import Optional, Union
 
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFormLayout,
     QFrame,
@@ -81,9 +82,27 @@ class Section(QFrame):
     # ------------------------------------------------------------------
     # API
     # ------------------------------------------------------------------
-    def add_row(self, label: str, widget: QWidget) -> None:
-        """Add a labeled row to the section's form body."""
-        self._form.addRow(label, widget)
+    def add_row(
+        self,
+        label: Union[str, QWidget],
+        widget: QWidget,
+        info_widget: Optional[QWidget] = None,
+    ) -> None:
+        """Add a labeled row, optionally with an information-link icon."""
+        form_label = label
+        if info_widget is not None:
+            form_label = QWidget(self._body)
+            form_label.setObjectName("SettingLabelWithInfo")
+            label_row = QHBoxLayout(form_label)
+            label_row.setContentsMargins(0, 0, 0, 0)
+            label_row.setSpacing(SPACING["xs"])
+            label_row.addStretch(1)
+            if isinstance(label, QWidget):
+                label_row.addWidget(label)
+            else:
+                label_row.addWidget(QLabel(str(label), form_label))
+            label_row.addWidget(info_widget)
+        self._form.addRow(form_label, widget)
         self._row_widgets.append((label, widget))
         self._apply_maturity(label, setting=True)
         self._apply_maturity(widget, setting=True)

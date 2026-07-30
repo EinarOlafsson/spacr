@@ -301,7 +301,7 @@ def _strip_type_prefix(text: str) -> str:
 
 def format_tooltip(text: str, app_key: str, key: str = "") -> str:
     """Return a standardised HTML tooltip: ``Name (type)`` + description +
-    a Docs footer link. The type is derived from expected_types so every
+    an information-icon link. The type is derived from expected_types so every
     setting — even one with no written description — shows a typed tip.
 
     Plain <br> line breaks + a plain <a> footer render reliably on every Qt
@@ -317,8 +317,11 @@ def format_tooltip(text: str, app_key: str, key: str = "") -> str:
         header = f"<b>{header}</b>"
     parts = [p for p in (header, body) if p]
     joined = "<br>".join(parts)
-    return f'{joined}<br><a href="{url}">Docs</a>' if joined \
-        else f'<a href="{url}">Docs</a>'
+    info = (
+        f'<a href="{url}" title="Open documentation" '
+        'style="text-decoration:none;">ⓘ</a>'
+    )
+    return f"{joined}<br>{info}" if joined else info
 
 
 def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
@@ -331,7 +334,7 @@ def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
     joined = " — ".join(parts)
-    return f"{joined}   ·  {url}" if joined else url
+    return f"{joined}   ·  ⓘ" if joined else "ⓘ"
 
 
 # ---------------------------------------------------------------------------
@@ -988,8 +991,8 @@ class SettingsWidgets:
         from spacr.gui_utils import convert_settings_dict_for_gui
         variables = convert_settings_dict_for_gui(self._defaults)
 
-        # Materialize a widget per key; attach a rich HTML tooltip that
-        # ends with an "API docs →" link to the spacr docs.
+        # Materialize a widget per key; attach a rich HTML tooltip that ends
+        # with a compact information-icon link to the spaCR documentation.
         for key, meta in variables.items():
             kind, options, default = meta
             widget = self._widget_for(kind, options, default, key)
