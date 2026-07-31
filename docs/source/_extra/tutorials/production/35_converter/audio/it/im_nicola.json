@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 62.05,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.675,
+      "scene_end": 11.125,
+      "duration": 11.125,
+      "text": "Questo tutorial copre Format Converter. Convertire ND2, CZI, LIF, OME-TIFF e i relativi formati di microscopia in file TIFF in stile Yokogawa mappati."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.125,
+      "speech_end": 26.525,
+      "scene_end": 26.974999999999998,
+      "duration": 15.849999999999998,
+      "text": "Apri Format Converter dalla sezione Data and batch runs. Apri il format converter dalla sezione \"Data and batch runs\". Scegli i file sorgenti, le serie o le scene, i nomi dei canali, il tempo e la gestione della profondità e una cartella di uscita."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.974999999999998,
+      "speech_end": 37.25,
+      "scene_end": 37.7,
+      "duration": 10.725000000000005,
+      "text": "Nell'area di configurazione principale, visualizza come le dimensioni della fonte vengono mappate a piatto, pozzo, campo, tempo, profondità e indici di canale."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.7,
+      "speech_end": 52.7,
+      "scene_end": 53.150000000000006,
+      "duration": 15.450000000000003,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. convalidare la mappatura su un piccolo campione prima di convertire ogni file."
+    },
+    {
+      "scene": 5,
+      "speech_start": 53.150000000000006,
+      "speech_end": 61.400000000000006,
+      "scene_end": 62.050000000000004,
+      "duration": 8.899999999999999,
+      "text": "Quando il flusso di lavoro è finito, spaCR scrive TIFF standardizzati e una mappa indietro ai file e ai metadati originali."
+    }
+  ]
+}

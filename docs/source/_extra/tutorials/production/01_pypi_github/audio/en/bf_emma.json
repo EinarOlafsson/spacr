@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_emma",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.66,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.445,
+      "scene_end": 8.895,
+      "duration": 8.895,
+      "text": "This tutorial covers PyPI and GitHub. Learn where spaCR releases, source code, installers, issues, and the nightly branch live."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.895,
+      "speech_end": 18.41,
+      "scene_end": 18.86,
+      "duration": 9.965,
+      "text": "Open PyPI and GitHub from the spaCR section. Use PyPI for the current Python package and GitHub for source code, releases, and issue tracking."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.86,
+      "speech_end": 27.485,
+      "scene_end": 27.935,
+      "duration": 9.075,
+      "text": "In the main configuration area, compare the stable packaged release with the nightly development branch and choose the one appropriate for your work."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.935,
+      "speech_end": 39.135,
+      "scene_end": 39.585,
+      "duration": 11.650000000000002,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Open the release notes before installing so that version and platform requirements are clear."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.585,
+      "speech_end": 47.01,
+      "scene_end": 47.66,
+      "duration": 8.074999999999996,
+      "text": "When the workflow finishes, you will know where to install spaCR, inspect changes, and report a reproducible problem."
+    }
+  ]
+}

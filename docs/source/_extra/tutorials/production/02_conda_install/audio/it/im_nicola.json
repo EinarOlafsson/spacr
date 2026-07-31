@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.875,
+      "scene_end": 10.325,
+      "duration": 10.325,
+      "text": "Questo tutorial riguarda l'installazione con Conda. Crea un ambiente Python isolato e installa spaCR senza modificare il resto del sistema."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.325,
+      "speech_end": 25.525,
+      "scene_end": 25.974999999999998,
+      "duration": 15.649999999999999,
+      "text": "Apri Installation with Conda dalla sezione spaCR. Apri l'installazione con Conda dalla sezione spaCR. Installa Miniconda, Anaconda o un altro gestore compatibile con Conda, quindi crea un ambiente con Python 3 punto 12."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.974999999999998,
+      "speech_end": 35.074999999999996,
+      "scene_end": 35.525,
+      "duration": 9.55,
+      "text": "Nell'area di configurazione principale, attivare l'ambiente e confermare che i suoi Python e pip esecutivi appartengono a tale ambiente."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.525,
+      "speech_end": 45.25,
+      "scene_end": 45.7,
+      "duration": 10.175000000000004,
+      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.7,
+      "speech_end": 53.7,
+      "scene_end": 54.35,
+      "duration": 8.649999999999999,
+      "text": "Quando il flusso di lavoro è terminato, avviare spaCR dallo stesso ambiente e tenerlo isolato da progetti non correlati."
+    }
+  ]
+}

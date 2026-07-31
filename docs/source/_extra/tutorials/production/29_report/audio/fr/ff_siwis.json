@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.4,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.65,
+      "scene_end": 11.1,
+      "duration": 11.1,
+      "text": "Ce tutoriel couvre Rapport. Créez un résumé HTML ou PDF partageable contenant des contrôles de qualité, des chiffres, des statistiques, des paramètres et des versions."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.1,
+      "speech_end": 19.174999999999997,
+      "scene_end": 19.624999999999996,
+      "duration": 8.524999999999997,
+      "text": "Ouvrez Report dans la section Results and quality control. Ouvrez le rapport dans la section Résultats et contrôle de la qualité."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.624999999999996,
+      "speech_end": 30.599999999999994,
+      "scene_end": 31.049999999999994,
+      "duration": 11.424999999999997,
+      "text": "Dans la zone de configuration principale, configurez le titre, l'auteur, les étiquettes de condition, les seuils de qualité, le format de sortie et les champs sensibles à la vie privée."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.049999999999994,
+      "speech_end": 39.14999999999999,
+      "scene_end": 39.599999999999994,
+      "duration": 8.55,
+      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.599999999999994,
+      "speech_end": 49.74999999999999,
+      "scene_end": 50.39999999999999,
+      "duration": 10.799999999999997,
+      "text": "Lorsque le flux de travail est terminé, un rapport portable enregistre les conclusions ainsi que les paramètres et les versions logicielles nécessaires pour les reproduire."
+    }
+  ]
+}

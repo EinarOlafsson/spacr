@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 52.275,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.6,
+      "scene_end": 10.049999999999999,
+      "duration": 10.049999999999999,
+      "text": "Este tutorial cubre Align y Stitch. Registra los azulejos de imagen y construye un mosaico cosido de forma incremental sin tener todo el lienzo en memoria."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.049999999999999,
+      "speech_end": 23.075,
+      "scene_end": 23.525,
+      "duration": 13.475,
+      "text": "Abra Align and Stitch en la sección Data and batch runs. Abre Align y Stitch en la sección Datos y partidas de ejecución. Elige adquisiciones de baldosas, coordenadas de etapa o metadatos superpuestos, canales y destino."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.525,
+      "speech_end": 34.025,
+      "scene_end": 34.475,
+      "duration": 10.950000000000003,
+      "text": "En el área de configuración principal, configure el método de registro, el canal de referencia, la superposición, la mezcla, la corrección, el tamaño de la pieza y el formato de salida."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.475,
+      "speech_end": 42.75,
+      "scene_end": 43.2,
+      "duration": 8.725000000000001,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.2,
+      "speech_end": 51.625,
+      "scene_end": 52.275,
+      "duration": 9.074999999999996,
+      "text": "Cuando el flujo de trabajo se completa, se guardan las fichas registradas, las imágenes cosidas, las transformaciones y los metadatos de mapeo."
+    }
+  ]
+}

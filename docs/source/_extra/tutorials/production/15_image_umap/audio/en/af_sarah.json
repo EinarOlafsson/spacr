@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_sarah",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.425,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.5,
+      "scene_end": 9.95,
+      "duration": 9.95,
+      "text": "This tutorial covers Image UMAP. Explore phenotype neighborhoods by embedding measured objects and displaying their image crops as glyphs."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.95,
+      "speech_end": 20.025,
+      "scene_end": 20.474999999999998,
+      "duration": 10.524999999999999,
+      "text": "Open Image UMAP from the Results and quality control section. Choose a measurements database, image crops, feature set, and grouping metadata."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.474999999999998,
+      "speech_end": 29.924999999999997,
+      "scene_end": 30.374999999999996,
+      "duration": 9.899999999999999,
+      "text": "In the main configuration area, configure filtering, scaling, neighbors, minimum distance, clustering, sampling, and image display channels."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.374999999999996,
+      "speech_end": 44.099999999999994,
+      "scene_end": 44.55,
+      "duration": 14.175,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare several reproducible embeddings and verify that clusters are not driven by plate or imaging artifacts."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.55,
+      "speech_end": 52.775,
+      "scene_end": 53.425,
+      "duration": 8.875,
+      "text": "When the workflow finishes, spaCR saves coordinates, cluster labels, image maps, and publication-ready embedding figures."
+    }
+  ]
+}

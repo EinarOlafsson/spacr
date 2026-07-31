@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_onyx",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.325,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.625,
+      "scene_end": 8.075,
+      "duration": 8.075,
+      "text": "This tutorial covers Cellpose Masks. Generate and review Cellpose masks with a focused model-application workflow."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.075,
+      "speech_end": 17.225,
+      "scene_end": 17.675,
+      "duration": 9.600000000000001,
+      "text": "Open Cellpose Masks from the Segmentation models section. Select microscopy images, channels, and a built-in or custom Cellpose model."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.675,
+      "speech_end": 25.950000000000003,
+      "scene_end": 26.400000000000002,
+      "duration": 8.725000000000001,
+      "text": "In the main configuration area, configure diameter, flow and cell-probability thresholds, normalization, tiling, and hardware use."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.400000000000002,
+      "speech_end": 37.275000000000006,
+      "scene_end": 37.72500000000001,
+      "duration": 11.325000000000006,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview several representative fields before applying the model to the full source."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.72500000000001,
+      "speech_end": 44.67500000000001,
+      "scene_end": 45.32500000000001,
+      "duration": 7.600000000000001,
+      "text": "When the workflow finishes, label masks and visual quality-control images are written beside the mapped inputs."
+    }
+  ]
+}

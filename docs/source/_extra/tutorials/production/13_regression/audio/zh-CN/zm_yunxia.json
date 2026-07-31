@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 40.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.4,
+      "scene_end": 6.8500000000000005,
+      "duration": 6.8500000000000005,
+      "text": "预测扰动效应,并确定与指导或条件级 fenootypes相关的特征."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.8500000000000005,
+      "speech_end": 14.600000000000001,
+      "scene_end": 15.05,
+      "duration": 8.2,
+      "text": "从 Core 部分打开 Regression。 选择映射的测量,响应变量,控制,组列和候选预测器."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.05,
+      "speech_end": 23.4,
+      "scene_end": 23.849999999999998,
+      "duration": 8.799999999999997,
+      "text": "在主要配置区域中,选择变化,变量,模型家族,随机效应,多次测试校正和质量过器."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.849999999999998,
+      "speech_end": 31.349999999999998,
+      "scene_end": 31.799999999999997,
+      "duration": 7.949999999999999,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 31.799999999999997,
+      "speech_end": 39.699999999999996,
+      "scene_end": 40.349999999999994,
+      "duration": 8.549999999999997,
+      "text": "当工作流程完成时, spaCR 写出效果尺寸,不确定性,调整的意义,诊断和数字."
+    }
+  ]
+}

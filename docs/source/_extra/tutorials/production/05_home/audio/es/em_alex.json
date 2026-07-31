@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.65,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.125,
+      "scene_end": 10.575,
+      "duration": 10.575,
+      "text": "Este tutorial cubre la pantalla de inicio y la navegación. Recorre la aplicación, sus grupos de módulos, ejecuta resúmenes, indicadores de madurez y controles de navegación."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.575,
+      "speech_end": 20.775,
+      "scene_end": 21.224999999999998,
+      "duration": 10.649999999999999,
+      "text": "Abra Home screen and navigation en la sección Home. Abre la pantalla de inicio y navega desde la sección de inicio. Lanza la aplicación de escritorio spaCR y comienza en Inicio."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.224999999999998,
+      "speech_end": 31.974999999999998,
+      "scene_end": 32.425,
+      "duration": 11.2,
+      "text": "En el área de configuración principal, utilice la barra lateral, las pestañas de categorías, las fichas de aplicaciones buscadas y la paleta de comandos para llegar a un flujo de trabajo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.425,
+      "speech_end": 40.25,
+      "scene_end": 40.7,
+      "duration": 8.275000000000006,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.7,
+      "speech_end": 48.0,
+      "scene_end": 48.65,
+      "duration": 7.949999999999996,
+      "text": "Cuando termine el flujo de trabajo, puede recorrer la aplicación y comprender la información de estado que se muestra en el Inicio."
+    }
+  ]
+}

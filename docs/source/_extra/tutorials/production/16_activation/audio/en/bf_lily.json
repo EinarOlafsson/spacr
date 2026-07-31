@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_lily",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.2,
+      "scene_end": 8.649999999999999,
+      "duration": 8.649999999999999,
+      "text": "This tutorial covers Activation maps. Inspect the image regions that most influence a trained computer-vision classifier."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.649999999999999,
+      "speech_end": 18.45,
+      "scene_end": 18.9,
+      "duration": 10.25,
+      "text": "Open Activation maps from the Results and quality control section. Select a trained vision model and representative object crops from classes of interest."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.9,
+      "speech_end": 26.974999999999998,
+      "scene_end": 27.424999999999997,
+      "duration": 8.524999999999999,
+      "text": "In the main configuration area, choose the attribution method, target layer, target class, channels, normalization, and sampling."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.424999999999997,
+      "speech_end": 38.849999999999994,
+      "scene_end": 39.3,
+      "duration": 11.875,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare maps across correct, incorrect, high-confidence, and low-confidence examples."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.3,
+      "speech_end": 47.974999999999994,
+      "scene_end": 48.62499999999999,
+      "duration": 9.324999999999996,
+      "text": "When the workflow finishes, activation overlays and attribution measurements help assess whether the model learned biologically plausible cues."
+    }
+  ]
+}

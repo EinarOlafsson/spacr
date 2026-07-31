@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.675,
+      "scene_end": 9.125,
+      "duration": 9.125,
+      "text": "Este tutorial abrange as máscaras Cellpose. Gerar e revisar as máscaras Cellpose com um fluxo de trabalho de aplicativos de modelo focado."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.125,
+      "speech_end": 21.85,
+      "scene_end": 22.3,
+      "duration": 13.175,
+      "text": "Abra Cellpose Masks na seção Segmentation models. Abra as máscaras Cellpose na seção Modelos de Segmentação. Selecione imagens de microscopia, canais e um modelo Cellpose incorporado ou personalizado."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.3,
+      "speech_end": 30.825000000000003,
+      "scene_end": 31.275000000000002,
+      "duration": 8.975000000000001,
+      "text": "Na área de configuração principal, configure os limiares de diâmetro, fluxo e probabilidade celular, normalização, telas e uso de hardware."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.275000000000002,
+      "speech_end": 39.025000000000006,
+      "scene_end": 39.47500000000001,
+      "duration": 8.200000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.47500000000001,
+      "speech_end": 48.70000000000001,
+      "scene_end": 49.35000000000001,
+      "duration": 9.875,
+      "text": "Quando o fluxo de trabalho termina, as máscaras de rótulo e as imagens de controlo visual da qualidade são escritas ao lado das entradas mapeadas."
+    }
+  ]
+}

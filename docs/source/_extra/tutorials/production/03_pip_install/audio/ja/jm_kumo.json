@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jm_kumo",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 57.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.05,
+      "scene_end": 13.5,
+      "duration": 13.5,
+      "text": "このチュートリアルでは,Pype のインストールについて説明します. デスクトップまたはヘッドレスで使用するために既存の Python 環境で spaCR をインストールします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.5,
+      "speech_end": 21.375,
+      "scene_end": 21.825,
+      "duration": 8.325,
+      "text": "spaCR セクションから Installation with pip を開きます。 Python 3 point 12 は推奨されます."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.825,
+      "speech_end": 34.0,
+      "scene_end": 34.45,
+      "duration": 12.625000000000004,
+      "text": "必要な場合は,メインの設定領域で,pipをアップグレードして,デスクトップ,開発,またはオプションの科学追加が必要かどうかを決定します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.45,
+      "speech_end": 43.050000000000004,
+      "scene_end": 43.50000000000001,
+      "duration": 9.050000000000004,
+      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.50000000000001,
+      "speech_end": 56.50000000000001,
+      "scene_end": 57.150000000000006,
+      "duration": 13.649999999999999,
+      "text": "作業流が完了すると,同じインストールでデスクトップアプリを起動したり,作業ステーションやサーバーでスクリプトによる作業流を実行することができます."
+    }
+  ]
+}

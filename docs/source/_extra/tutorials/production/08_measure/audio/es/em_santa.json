@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.575,
+      "scene_end": 10.024999999999999,
+      "duration": 10.024999999999999,
+      "text": "Este tutorial cubre la medida. Extraer la intensidad por objeto, morfología, textura, colocalización y características espaciales de imágenes segmentadas."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.024999999999999,
+      "speech_end": 19.025,
+      "scene_end": 19.474999999999998,
+      "duration": 9.45,
+      "text": "Abra Measure en la sección Core. Abre Medida en la sección Núcleo. Seleccione el proyecto que contiene pilas de imágenes y máscaras producidas por Mask."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.474999999999998,
+      "speech_end": 30.449999999999996,
+      "scene_end": 30.899999999999995,
+      "duration": 11.424999999999997,
+      "text": "En el área de configuración principal, utilice el canal uno, el retículo endoplasmático, como el canal de interés y elija los tipos de objetos y las familias de características para medir."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.899999999999995,
+      "speech_end": 39.175,
+      "scene_end": 39.625,
+      "duration": 8.725000000000005,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.625,
+      "speech_end": 50.475,
+      "scene_end": 51.125,
+      "duration": 11.5,
+      "text": "Cuando el flujo de trabajo termina, los puntos de medición db almacenan filas de objetos individuales rastreables y cultivos de imágenes opcionales para anotación o clasificación."
+    }
+  ]
+}

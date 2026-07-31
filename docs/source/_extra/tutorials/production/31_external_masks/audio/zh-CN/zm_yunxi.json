@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 39.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.55,
+      "scene_end": 7.0,
+      "duration": 7.0,
+      "text": "转换第三方标签掩膜和源图像成一个可测量,可追踪的 spaCR 项目."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.0,
+      "speech_end": 15.125,
+      "scene_end": 15.575,
+      "duration": 8.575,
+      "text": "从 Data and batch runs 部分打开 External Masks。 提供源图像,外部掩膜,命名规则,对象类型和可选测量表."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.575,
+      "speech_end": 23.875,
+      "scene_end": 24.325,
+      "duration": 8.75,
+      "text": "在主要配置区域,将图像映射到掩膜,验证形状和标签约,选择重新标签,并定义测量选项."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.325,
+      "speech_end": 30.75,
+      "scene_end": 31.2,
+      "duration": 6.875,
+      "text": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 31.2,
+      "speech_end": 39.15,
+      "scene_end": 39.8,
+      "duration": 8.599999999999998,
+      "text": "当工作流程完成时, spaCR 存储正常化掩膜,映射的图像,测量和来源准备进行注释."
+    }
+  ]
+}

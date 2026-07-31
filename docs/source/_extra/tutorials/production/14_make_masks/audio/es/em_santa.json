@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 61.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.05,
+      "scene_end": 9.5,
+      "duration": 9.5,
+      "text": "Este tutorial cubre Make Masks. Construir, corregir y curar etiquetas de segmentación de forma interactiva para los datos de capacitación de Cellpose."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.5,
+      "speech_end": 23.0,
+      "scene_end": 23.45,
+      "duration": 13.95,
+      "text": "Abra Make Masks en la sección Segmentation models. Abre las máscaras de fabricación en la sección Modelos de segmentación. Abre imágenes representativas de microscopía y cualquier máscara existente que deba refinarse."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.45,
+      "speech_end": 34.2,
+      "scene_end": 34.650000000000006,
+      "duration": 11.200000000000006,
+      "text": "En el área de configuración principal, seleccione los canales, la normalización, las herramientas de pincel o barra mágica, las operaciones de objetos y el comportamiento de ahorro de etiquetas."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.650000000000006,
+      "speech_end": 49.775000000000006,
+      "scene_end": 50.22500000000001,
+      "duration": 15.575000000000003,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. corregir los límites y los objetos faltantes en un subconjunto de entrenamiento diverso en lugar de solo campos fáciles."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.22500000000001,
+      "speech_end": 60.37500000000001,
+      "scene_end": 61.025000000000006,
+      "duration": 10.799999999999997,
+      "text": "Una vez finalizado el flujo de trabajo, las imágenes emparejadas y las máscaras de etiquetas seleccionadas están listas para el entrenamiento personalizado de Cellpose."
+    }
+  ]
+}
