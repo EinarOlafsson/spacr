@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_gongitsune",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 67.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.9,
+      "scene_end": 14.35,
+      "duration": 14.35,
+      "text": "このチュートリアルではマスクを作ります. Cellpose のトレーニングデータのために,インタラクティブでセグメントレーベルを構築し,修正し,キュレーションします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.35,
+      "speech_end": 23.0,
+      "scene_end": 23.45,
+      "duration": 9.1,
+      "text": "Segmentation models セクションから Make Masks を開きます。 精製すべき既存のマスクを開く."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.45,
+      "speech_end": 35.425,
+      "scene_end": 35.875,
+      "duration": 12.425,
+      "text": "主な構成領域では,チャンネル,正常化,ブラシまたは魔法の杖ツール,オブジェクト操作,ラベル保存行動を選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.875,
+      "speech_end": 54.35,
+      "scene_end": 54.800000000000004,
+      "duration": 18.925000000000004,
+      "text": "実行完了前に,可視設定をレビューし,利用可能な時,プレビューまたはテストモードを使用します. 簡単なフィールドではなく,多様なトレーニングサブセットで正しい境界と欠落したオブジェクト."
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.800000000000004,
+      "speech_end": 66.375,
+      "scene_end": 67.025,
+      "duration": 12.225000000000001,
+      "text": "作業流が完了すると,ペア画像とキュレーティングされたラベルマスクはカスタマイズされた Cellpose 訓練のために準備されています."
+    }
+  ]
+}

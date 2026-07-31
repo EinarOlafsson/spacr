@@ -1,0 +1,1949 @@
+{
+  "schema": 1,
+  "title": "spaCR complete tutorial library",
+  "series": [
+    {
+      "number": 1,
+      "title": "Começando e análise de núcleo"
+    },
+    {
+      "number": 2,
+      "title": "Modelos de análise e segmentação resolvidos em tempo"
+    },
+    {
+      "number": 3,
+      "title": "Controle da qualidade das anotações e análises biológicas"
+    },
+    {
+      "number": 4,
+      "title": "Serviços de operação, comunicação e dados"
+    },
+    {
+      "number": 5,
+      "title": "Modulos registados adicionais"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "number": 1,
+      "slug": "pypi_github",
+      "title": "PyPI and GitHub",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Saiba onde spaCR lança, código fonte, instaladores, problemas e a filial noturna vive.",
+      "objectives": [
+        "Encontre o spaCR no PyPI e no GitHub.",
+        "Distinguir as emissões do ramo noturno.",
+        "Localize os instaladores, liberte notas e problemas."
+      ],
+      "prerequisite": "Não é necessária instalação para esta orientação.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange PyPI e GitHub. Saiba onde spaCR lança, código fonte, instaladores, problemas e o ramo noturno ao vivo.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange pai pi e GitHub. Saiba onde espáquer lança, código fonte, instaladores, problemas e o ramo noturno ao vivo."
+        },
+        {
+          "narration": "Abra PyPI and GitHub na seção spaCR. Abra PyPI e GitHub na seção spaCR. Use PyPI para o pacote Python atual e GitHub para código fonte, lançamentos e rastreamento de problemas.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra pai pi and GitHub na seção espáquer. Abra pai pi e GitHub na seção espáquer. Use pai pi para o pacote Python atual e GitHub para código fonte, lançamentos e rastreamento de problemas."
+        },
+        {
+          "narration": "Na área de configuração principal, compare a versão embalada estável com a divisão de desenvolvimento noturno e escolha a adequada para o seu trabalho.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, compare a versão embalada estável com a divisão de desenvolvimento noturno e escolha a adequada para o seu trabalho."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Abra as notas de lançamento antes da instalação para que as exigências da versão e da plataforma sejam claras.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Abra as notas de lançamento antes da instalação para que as exigências da versão e da plataforma sejam claras."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho terminar, você saberá onde instalar o spaCR, inspecionar as alterações e relatar um problema reprodutivel.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho terminar, você saberá onde instalar o espáquer, inspecionar as alterações e relatar um problema reprodutivel."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "number": 2,
+      "slug": "conda_install",
+      "title": "Installation with Conda",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Crie um ambiente Python isolado e instale spaCR sem alterar o resto do seu sistema.",
+      "objectives": [
+        "Entenda quando utilizar a Instalação com a Conda.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Instale um gerenciador de ambiente compatível com a Conda.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Instalação com Conda. Crie um ambiente Python isolado e instale spaCR sem alterar o resto do seu sistema.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Instalação com Conda. Crie um ambiente Python isolado e instale espáquer sem alterar o resto do seu sistema."
+        },
+        {
+          "narration": "Abra Installation with Conda na seção spaCR. Abra Instalação com Conda na seção spaCR. Instale Miniconda, Anaconda ou outro gerenciador compatível com Conda, e, em seguida, crie um ambiente com Python 3 ponto 12.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Installation with Conda na seção espáquer. Abra Instalação com Conda na seção espáquer. Instale Miniconda, Anaconda ou outro gerenciador compatível com Conda, e, em seguida, crie um ambiente com Python 3 ponto 12."
+        },
+        {
+          "narration": "Na área de configuração principal, ative o ambiente e confirme que os executáveis Python e pip pertencem a esse ambiente.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, ative o ambiente e confirme que os executáveis Python e pip pertencem a esse ambiente."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Instale spaCR com pip dentro do ambiente ativo; o pacote de conda-forge ainda está chegando em breve.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Instale espáquer com pip dentro do ambiente ativo; o pacote de conda-forge ainda está chegando em breve."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho terminar, lance o spaCR do mesmo ambiente e mantenha-o isolado de projetos não relacionados.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho terminar, lance o espáquer do mesmo ambiente e mantenha-o isolado de projetos não relacionados."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "number": 3,
+      "slug": "pip_install",
+      "title": "Installation with pip",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Instalar spaCR em um ambiente Python isolado existente para uso em desktop ou sem cabeça.",
+      "objectives": [
+        "Compreender quando utilizar Instalação com pip.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Criar ou ativar um ambiente Python isolado.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Instalação com pip. Instale spaCR em um ambiente Python isolado existente para uso em desktop ou sem cabeça.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Instalação com pip. Instale espáquer em um ambiente Python isolado existente para uso em desktop ou sem cabeça."
+        },
+        {
+          "narration": "Abra Installation with pip na seção spaCR. Abra a instalação com pip da seção spaCR. Confirme que o ambiente usa uma versão Python suportada; recomendamos Python três pontos doze.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Installation with pip na seção espáquer. Abra a instalação com pip da seção espáquer. Confirme que o ambiente usa uma versão Python suportada; recomendamos Python três pontos doze."
+        },
+        {
+          "narration": "Na área de configuração principal, atualize pip se necessário e decida se precisa do desktop, desenvolvimento ou extras científicos opcionais.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, atualize pip se necessário e decida se precisa do desktop, desenvolvimento ou extras científicos opcionais."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho terminar, a mesma instalação pode iniciar o aplicativo de desktop ou executar fluxos de trabalho scriptados em uma estação de trabalho ou servidor.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho terminar, a mesma instalação pode iniciar o aplicativo de desktop ou executar fluxos de trabalho scriptados em uma estação de trabalho ou servidor."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "number": 4,
+      "slug": "platform_installers",
+      "title": "Platform installers",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Instale spaCR no Windows, macOS ou Linux sem gerenciar Python manualmente.",
+      "objectives": [
+        "Compreender quando utilizar instaladores da plataforma.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Não é necessária instalação existente do Python ou do Conda.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange os instaladores da plataforma. Instale spaCR no Windows, macOS ou Linux sem gerenciar Python manualmente.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange os instaladores da plataforma. Instale espáquer no Windows, macOS ou Linux sem gerenciar Python manualmente."
+        },
+        {
+          "narration": "Abra Platform installers na seção spaCR. Abra instaladores da plataforma na seção spaCR. Descarregue o instalador do seu sistema operacional na versão atual do GitHub.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Platform installers na seção espáquer. Abra instaladores da plataforma na seção espáquer. Descarregue o instalador do seu sistema operacional na versão atual do GitHub."
+        },
+        {
+          "narration": "Na área de configuração principal, revise as instruções de segurança do sistema operacional, a localização privada do tempo de execução e o backend de aceleração solicitado.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, revise as instruções de segurança do sistema operacional, a localização privada do tempo de execução e o backend de aceleração solicitado."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Permita que o instalador termine e preserve o seu registro de instalação se algo falhar.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Permita que o instalador termine e preserve o seu registro de instalação se algo falhar."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho terminar, use o lançador nativo enquanto o spaCR mantém seu próprio tempo de execução do Python gerenciado.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho terminar, use o lançador nativo enquanto o espáquer mantém seu próprio tempo de execução do Python gerenciado."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": "__home__",
+      "section": "Home",
+      "description": "Visite a aplicação, os seus grupos de módulos, execute resumos, indicadores de maturidade e controles de navegação.",
+      "objectives": [
+        "Compreender quando usar a tela inicial e a navegação.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Instale e inicie a aplicação de desktop spaCR.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a tela inicial e a navegação. Visite o aplicativo, seus grupos de módulos, execute resumos, indicadores de maturidade e controles de navegação.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a tela inicial e a navegação. Visite o aplicativo, seus grupos de módulos, execute resumos, indicadores de maturidade e controles de navegação."
+        },
+        {
+          "narration": "Abra Home screen and navigation na seção Home. Abra a tela de Home e navega da seção Home. Lance o aplicativo de desktop spaCR e comece em Home.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Home screen and navigation na seção Home. Abra a tela de Home e navega da seção Home. Lance o aplicativo de desktop espáquer e comece em Home."
+        },
+        {
+          "narration": "Na área de configuração principal, use a barra lateral, as guias de categorias, os aplicativos pesquisáveis e a paleta de comandos para chegar a um fluxo de trabalho.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, use a barra lateral, as guias de categorias, os aplicativos pesquisáveis e a paleta de comandos para chegar a um fluxo de trabalho."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho terminar, você pode passar pelo aplicativo e entender as informações de status mostradas no Home.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho terminar, você pode passar pelo aplicativo e entender as informações de status mostradas no Home."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "number": 6,
+      "slug": "api",
+      "title": "Python API and headless workflows",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Execute canais de spaCR reprodutíveis a partir do Python ou de uma shell sem a interface de desktop.",
+      "objectives": [
+        "Compreender quando usar a API Python e fluxos de trabalho sem cabeça.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Completa um tutorial de instalação primeiro.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a API Python e os fluxos de trabalho sem cabeça.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a API Python e os fluxos de trabalho sem cabeça."
+        },
+        {
+          "narration": "Abra Python API and headless workflows na seção spaCR. Abra a API Python e os fluxos de trabalho sem cabeçalhos da seção spaCR. Comece com configurações exportadas pelo aplicativo de desktop ou construa um dicionário de configurações validado em Python.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Python API and headless workflows na seção espáquer. Abra a API Python e os fluxos de trabalho sem cabeçalhos da seção espáquer. Comece com configurações exportadas pelo aplicativo de desktop ou construa um dicionário de configurações validado em Python."
+        },
+        {
+          "narration": "Na área de configuração principal, selecione o ponto de entrada do pipeline, o caminho de origem, o caminho de saída, a contagem de trabalhadores e as opções de hardware.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, selecione o ponto de entrada do pipeline, o caminho de origem, o caminho de saída, a contagem de trabalhadores e as opções de hardware."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Execute o pipeline em um terminal, notebook, cronista ou trabalho remoto, enquanto preserva os registros e configurações.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Execute o pipeline em um terminal, notebook, cronista ou trabalho remoto, enquanto preserva os registros e configurações."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o projeto contém as mesmas máscaras, medições, bases de dados, números e registros de execução produzidos pelo aplicativo de desktop.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o projeto contém as mesmas máscaras, medições, bases de dados, números e registros de execução produzidos pelo aplicativo de desktop."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "number": 7,
+      "slug": "mask",
+      "title": "Mask",
+      "series": 1,
+      "app_key": "mask",
+      "section": "Core",
+      "description": "Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas.",
+      "objectives": [
+        "Mapear os quatro canais de aquisição corretamente.",
+        "Configurar a segmentação celular, núcleo, organel e parasita.",
+        "Exerce a máscara e inspecione as saídas da máscara."
+      ],
+      "prerequisite": "Use o conjunto de dados do tutorial de quatro canais fornecido.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a Mascara. Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a Mascara. Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas."
+        },
+        {
+          "narration": "Abra Mask na seção Core. O canal zero é núcleo, o canal um é retículo endoplasmático, o canal dois é gotas de lipídios e o canal três é parasito.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Mask na seção Core. O canal zero é núcleo, o canal um é retículo endoplasmático, o canal dois é gotas de lipídios e o canal três é parasito."
+        },
+        {
+          "narration": "Na área de configuração principal, detecte núcleos do canal zero, células do canal endoplasmico-retículo, gotas de lipídios com o fluxo de trabalho das manchas organélicas e parasitas do canal três.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, detecte núcleos do canal zero, células do canal endoplasmico-retículo, gotas de lipídios com o fluxo de trabalho das manchas organélicas e parasitas do canal três."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Verifique um campo representativo, em seguida, execute as quatro passagens de segmentação através do conjunto de dados.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Verifique um campo representativo, em seguida, execute as quatro passagens de segmentação através do conjunto de dados."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, a pasta de máscaras contém rótulos de objetos alinhados e matrizes de imagem e máscara combinadas prontas para medição.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, a pasta de máscaras contém rótulos de objetos alinhados e matrizes de imagem e máscara combinadas prontas para medição."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "number": 8,
+      "slug": "measure",
+      "title": "Measure",
+      "series": 1,
+      "app_key": "measure",
+      "section": "Core",
+      "description": "Extrair intensidade por objeto, morfologia, textura, colocalização e características espaciais de imagens segmentadas.",
+      "objectives": [
+        "Entenda quando usar a Measure.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a medida. Extrair intensidade por objeto, morfologia, textura, colocalização e características espaciais de imagens segmentadas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a medida. Extrair intensidade por objeto, morfologia, textura, colocalização e características espaciais de imagens segmentadas."
+        },
+        {
+          "narration": "Abra Measure na seção Core. Abra a medida na seção Core. Selecione o projeto que contém pilhas de imagem e máscaras produzidas pela Mask.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Measure na seção Core. Abra a medida na seção Core. Selecione o projeto que contém pilhas de imagem e máscaras produzidas pela Mask."
+        },
+        {
+          "narration": "Na área de configuração principal, use o canal um, o retículo endoplasmático, como o canal de interesse e escolha os tipos de objetos e as famílias de características para medir.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, use o canal um, o retículo endoplasmático, como o canal de interesse e escolha os tipos de objetos e as famílias de características para medir."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, os pontos de medição db armazenam linhas rastreáveis de um único objeto e culturas opcionais de imagem para anotação ou classificação.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, os pontos de medição db armazenam linhas rastreáveis de um único objeto e culturas opcionais de imagem para anotação ou classificação."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "number": 9,
+      "slug": "annotate",
+      "title": "Annotate",
+      "series": 1,
+      "app_key": "annotate",
+      "section": "Core",
+      "description": "Revisão de culturas de um único objeto numa grade e atribuição de rótulos fiáveis para formação de modelos ou controlo da qualidade.",
+      "objectives": [
+        "Entenda quando utilizar o Annotate.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade."
+        },
+        {
+          "narration": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "number": 10,
+      "slug": "classify_cv",
+      "title": "Classify, computer vision",
+      "series": 1,
+      "app_key": "classify",
+      "section": "Core",
+      "description": "Treinar e aplicar uma rede neural baseada em imagem a culturas com um único objeto com anotações.",
+      "objectives": [
+        "Entender quando usar Classify, visão por computador.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Classify, visão por computador. Treinar e aplicar uma rede neural baseada em imagem para culturas com um único objeto anotado.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Classify, visão por computador. Treinar e aplicar uma rede neural baseada em imagem para culturas com um único objeto anotado."
+        },
+        {
+          "narration": "Abra Classify, computer vision na seção Core. Abra Classificar, visão por computador da seção Core. Selecione pastas de culturas com anotações ou um banco de dados de projetos com rótulos de classes confiáveis.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Classify, computer vision na seção Core. Abra Classificar, visão por computador da seção Core. Selecione pastas de culturas com anotações ou um banco de dados de projetos com rótulos de classes confiáveis."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha os canais de imagem, arquitetura, estratégia de divisão, aumento, tamanho de lote e controles de treinamento.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha os canais de imagem, arquitetura, estratégia de divisão, aumento, tamanho de lote e controles de treinamento."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. treine sobre a divisão de treinamento, monitore o comportamento de validação e avalia uma vez os dados mantidos.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. treine sobre a divisão de treinamento, monitore o comportamento de validação e avalia uma vez os dados mantidos."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR salva o modelo, métricas, previsões, exemplos de classes e executa metadados para aplicação posterior.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer salva o modelo, métricas, previsões, exemplos de classes e executa metadados para aplicação posterior."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "number": 11,
+      "slug": "classify_ml",
+      "title": "Classify, machine learning",
+      "series": 1,
+      "app_key": "ml_analyze",
+      "section": "Core",
+      "description": "Classificadores baseados em características de trem, como XGBoost ou floresta aleatória, a partir de dados de um único objeto medidos.",
+      "objectives": [
+        "Entender quando usar Classify, aprendizado de máquina.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Classify, machine learning. Treinar classificadores baseados em recursos como XGBoost ou floresta aleatória a partir de dados de um único objeto medidos.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Classify, machine learning. Treinar classificadores baseados em recursos como XGBoost ou floresta aleatória a partir de dados de um único objeto medidos."
+        },
+        {
+          "narration": "Abra Classify, machine learning na seção Core. Abra Classificar, aprendizado de máquina da seção Core. Escolha um banco de dados de medições, coluna de rótulo, famílias de recursos e colunas de agrupamento experimental.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Classify, machine learning na seção Core. Abra Classificar, aprendizado de máquina da seção Core. Escolha um banco de dados de medições, coluna de rótulo, famílias de recursos e colunas de agrupamento experimental."
+        },
+        {
+          "narration": "Na área de configuração principal, configure filtragem, escalagem, seleção de características, equilíbrio de classes, família de modelos e divisões de segurança contra vazamentos.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure filtragem, escalagem, seleção de características, equilíbrio de classes, família de modelos e divisões de segurança contra vazamentos."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o projeto recebe previsões, importância de recursos, tabelas de desempenho e modelos serializados.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o projeto recebe previsões, importância de recursos, tabelas de desempenho e modelos serializados."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "number": 12,
+      "slug": "map_barcodes",
+      "title": "Map Barcodes",
+      "series": 1,
+      "app_key": "map_barcodes",
+      "section": "Core",
+      "description": "Conectar os códigos de barras de sequência e identificar as identidades dos fenótipos medidos em imagens microscópicas.",
+      "objectives": [
+        "Entender quando usar os códigos de barras do mapa.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange os códigos de barras do mapa. Conecte os códigos de barras de sequência e orienta identidades aos fenotipos medidos em imagens microscópicas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange os códigos de barras do mapa. Conecte os códigos de barras de sequência e orienta identidades aos fenotipos medidos em imagens microscópicas."
+        },
+        {
+          "narration": "Abra Map Barcodes na seção Core. Abra os códigos de barras do mapa na seção Core. Forneça arquivos FASTQ, definições de códigos de barras, metadados de placa e o projeto de microscopia correspondente.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Map Barcodes na seção Core. Abra os códigos de barras do mapa na seção Core. Forneça arquivos FASTQ, definições de códigos de barras, metadados de placa e o projeto de microscopia correspondente."
+        },
+        {
+          "narration": "Na área de configuração principal, definir layouts de linha, coluna e código de barras guia, juntamente com limiares de qualidade e regras de desajuste.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, definir layouts de linha, coluna e código de barras guia, juntamente com limiares de qualidade e regras de desajuste."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as identidades do guia são ligadas a poços e fenotipos de um único objeto em tabelas rastreáveis.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as identidades do guia são ligadas a poços e fenotipos de um único objeto em tabelas rastreáveis."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "number": 13,
+      "slug": "regression",
+      "title": "Regression",
+      "series": 1,
+      "app_key": "regression",
+      "section": "Core",
+      "description": "Estimar os efeitos de perturbação e identificar características associadas a fenótipos de nível de guia ou condição.",
+      "objectives": [
+        "Entender quando usar a Regressão.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a Regressão. Estima os efeitos de perturbação e identifique características associadas a fenótipos de nível de guia ou condição.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a Regressão. Estima os efeitos de perturbação e identifique características associadas a fenótipos de nível de guia ou condição."
+        },
+        {
+          "narration": "Abra Regression na seção Core. Abra Regressão da seção Core. Selecione medidas mapeadas, variáveis de resposta, controles, colunas de agrupamento e preditores candidatos.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Regression na seção Core. Abra Regressão da seção Core. Selecione medidas mapeadas, variáveis de resposta, controles, colunas de agrupamento e preditores candidatos."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha transformações, covariados, família de modelos, efeitos aleatórios, correção de testes múltiplos e filtros de qualidade.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha transformações, covariados, família de modelos, efeitos aleatórios, correção de testes múltiplos e filtros de qualidade."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR escreve os tamanhos dos efeitos, incerteza, significância ajustada, diagnósticos e números.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer escreve os tamanhos dos efeitos, incerteza, significância ajustada, diagnósticos e números."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "number": 14,
+      "slug": "make_masks",
+      "title": "Make Masks",
+      "series": 1,
+      "app_key": "make_masks",
+      "section": "Segmentation models",
+      "description": "Construir, corrigir e curar de forma interativa os rótulos de segmentação para os dados de formação do Cellpose.",
+      "objectives": [
+        "Entender quando usar a Máxima de Mascaras.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a criação de máscaras. Construir, corrigir e curar rotulagem de segmentação de forma interativa para dados de treinamento Cellpose.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a criação de máscaras. Construir, corrigir e curar rotulagem de segmentação de forma interativa para dados de treinamento Cellpose."
+        },
+        {
+          "narration": "Abra Make Masks na seção Segmentation models. Abra as máscaras de fabricação na seção Modelos de Segmentação. Abra imagens representativas de microscopia e quaisquer máscaras existentes que devem ser refinadas.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Make Masks na seção Segmentation models. Abra as máscaras de fabricação na seção Modelos de Segmentação. Abra imagens representativas de microscopia e quaisquer máscaras existentes que devem ser refinadas."
+        },
+        {
+          "narration": "Na área de configuração principal, selecione canais, normalização, ferramentas de pincel ou barra mágica, operações de objetos e comportamento de armazenamento de rótulos.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, selecione canais, normalização, ferramentas de pincel ou barra mágica, operações de objetos e comportamento de armazenamento de rótulos."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. corrigir os limites e objetos faltantes em um subconjunto de treinamento diversificado em vez de apenas campos fáceis.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. corrigir os limites e objetos faltantes em um subconjunto de treinamento diversificado em vez de apenas campos fáceis."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, as imagens emparelhadas e as máscaras de etiqueta seleccionadas estarão prontas para o treinamento personalizado do Cellpose.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, as imagens emparelhadas e as máscaras de etiqueta seleccionadas estarão prontas para o treinamento personalizado do Cellpose."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "number": 15,
+      "slug": "image_umap",
+      "title": "Image UMAP",
+      "series": 1,
+      "app_key": "umap",
+      "section": "Results and quality control",
+      "description": "Explore bairros fenotípicos incorporando objetos medidos e exibindo suas culturas de imagem como glifos.",
+      "objectives": [
+        "Entenda quando utilizar o Image UMAP.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a imagem UMAP. Explore bairros fenotipos incorporando objetos medidos e exibindo suas culturas de imagem como glifos.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a imagem UMAP. Explore bairros fenotipos incorporando objetos medidos e exibindo suas culturas de imagem como glifos."
+        },
+        {
+          "narration": "Abra Image UMAP na seção Results and quality control. Abra UMAP de imagem na seção Resultados e controle de qualidade. Escolha um banco de dados de medições, culturas de imagem, conjunto de recursos e agrupamento de metadados.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Image UMAP na seção Results and quality control. Abra UMAP de imagem na seção Resultados e controle de qualidade. Escolha um banco de dados de medições, culturas de imagem, conjunto de recursos e agrupamento de metadados."
+        },
+        {
+          "narration": "Na área de configuração principal, configure os canais de filtragem, escalagem, vizinhos, distância mínima, agrupamento, amostragem e exibição de imagens.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure os canais de filtragem, escalagem, vizinhos, distância mínima, agrupamento, amostragem e exibição de imagens."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare vários incorporados reprodutíveis e verifique se os aglomerados não são movidos por artefatos de placa ou imagem.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare vários incorporados reprodutíveis e verifique se os aglomerados não são movidos por artefatos de placa ou imagem."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR guarda coordenadas, rótulos de agrupamento, mapas de imagem e figuras de incorporação prontas para publicação.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer guarda coordenadas, rótulos de agrupamento, mapas de imagem e figuras de incorporação prontas para publicação."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "number": 16,
+      "slug": "activation",
+      "title": "Activation maps",
+      "series": 1,
+      "app_key": "activation",
+      "section": "Results and quality control",
+      "description": "Inspecte as regiões de imagem que mais influenciam um classificador de visão por computador treinado.",
+      "objectives": [
+        "Compreender quando utilizar mapas de Ativação.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange mapas de ativação. Inscreva as regiões de imagem que mais influenciam um classificador de visão computacional treinado.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange mapas de ativação. Inscreva as regiões de imagem que mais influenciam um classificador de visão computacional treinado."
+        },
+        {
+          "narration": "Abra Activation maps na seção Results and quality control. Abra mapas de ativação na seção Resultados e controle de qualidade Selecione um modelo de visão treinado e culturas de objetos representativas de classes de interesse.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Activation maps na seção Results and quality control. Abra mapas de ativação na seção Resultados e controle de qualidade Selecione um modelo de visão treinado e culturas de objetos representativas de classes de interesse."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha o método de atribuição, camada-alvo, classe-alvo, canais, normalização e amostragem.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha o método de atribuição, camada-alvo, classe-alvo, canais, normalização e amostragem."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare mapas entre exemplos corretos, incorretos, de alta confiança e de baixa confiança.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare mapas entre exemplos corretos, incorretos, de alta confiança e de baixa confiança."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as superposições de ativação e as medições de atribuição ajudam a avaliar se o modelo aprendeu sinais biologicamente plausíveis.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as superposições de ativação e as medições de atribuição ajudam a avaliar se o modelo aprendeu sinais biologicamente plausíveis."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "number": 17,
+      "slug": "timelapse",
+      "title": "Timelapse",
+      "series": 2,
+      "app_key": "timelapse",
+      "section": "Core",
+      "description": "Segmentar, ligar e medir células ou patógenos através dos quadros de uma série de tempo.",
+      "objectives": [
+        "Entenda quando utilizar o Timelapse.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Timelapse. Segmentar, ligar e medir células ou patógenos em quadros de uma série de tempos.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Timelapse. Segmentar, ligar e medir células ou patógenos em quadros de uma série de tempos."
+        },
+        {
+          "narration": "Abra Timelapse na seção Core. Abra o Timelapse na seção Core. Selecione um conjunto de imagens resolvido em tempo cujos nomes de arquivos preservam índices de campo, tempo, profundidade e canal.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Timelapse na seção Core. Abra o Timelapse na seção Core. Selecione um conjunto de imagens resolvido em tempo cujos nomes de arquivos preservam índices de campo, tempo, profundidade e canal."
+        },
+        {
+          "narration": "Na área de configuração principal, configure a segmentação, os tipos de objetos rastreados, o modo de ligação, o deslocamento máximo, o manuseio de lacunas e os quadros de visualização.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure a segmentação, os tipos de objetos rastreados, o modo de ligação, o deslocamento máximo, o manuseio de lacunas e os quadros de visualização."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as máscaras, as pistas, as medições e os resumos de trajetória indexados no tempo são armazenados com identidades estáveis de objetos.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as máscaras, as pistas, as medições e os resumos de trajetória indexados no tempo são armazenados com identidades estáveis de objetos."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motility assay",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "description": "Quantificar as métricas de controle de qualidade da velocidade, deslocamento, persistência e infecção a partir de imagens resolvidas em tempo.",
+      "objectives": [
+        "Entender quando usar o ensaio Motility.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o teste de mobilidade. Quantifique a velocidade, o deslocamento, a persistência e as métricas de controle de qualidade da infecção a partir de imagens resolvidas em tempo.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o teste de mobilidade. Quantifique a velocidade, o deslocamento, a persistência e as métricas de controle de qualidade da infecção a partir de imagens resolvidas em tempo."
+        },
+        {
+          "narration": "Abra Motility assay na seção Core. Abre o ensaio de mobilidade da seção Core. Abre dados de tempo-lapso rastreados com intervalos de tempo confiáveis e calibração espacial.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Motility assay na seção Core. Abre o ensaio de mobilidade da seção Core. Abre dados de tempo-lapso rastreados com intervalos de tempo confiáveis e calibração espacial."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha filtros de pista, duração mínima, suavização, métricas de motilidade, definições de infecção e grupos de nível de poço.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha filtros de pista, duração mínima, suavização, métricas de motilidade, definições de infecção e grupos de nível de poço."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR escreve tabelas de mobilidade por trilha e por condição, métricas de qualidade e números.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer escreve tabelas de mobilidade por trilha e por condição, métricas de qualidade e números."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "number": 19,
+      "slug": "train_cellpose",
+      "title": "Train Cellpose",
+      "series": 2,
+      "app_key": "train_cellpose",
+      "section": "Segmentation models",
+      "description": "Treinar um modelo de segmentação personalizado compatível com Cellpose ou CPSAM a partir de pares de máscaras de imagem seleccionadas.",
+      "objectives": [
+        "Entenda quando utilizar Train Cellpose.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Train Cellpose. Treinar um modelo de segmentação personalizado Cellpose ou CPSAM compatível a partir de pares de imagem-mascaras seleccionadas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Train Cellpose. Treinar um modelo de segmentação personalizado Cellpose ou CPSAM compatível a partir de pares de imagem-mascaras seleccionadas."
+        },
+        {
+          "narration": "Abra Train Cellpose na seção Segmentation models. Abre a Secção de Celulares de Trens na secção Modelos de Segmentação.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Train Cellpose na seção Segmentation models. Abre a Secção de Celulares de Trens na secção Modelos de Segmentação."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha os canais, modelo base, diâmetro, aumento, taxa de aprendizagem, épocas, tamanho do lote e divisão de validação.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha os canais, modelo base, diâmetro, aumento, taxa de aprendizagem, épocas, tamanho do lote e divisão de validação."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o ponto de verificação selecionado, o histórico de treinamento, as previsões de validação e as configurações são armazenados juntos.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o ponto de verificação selecionado, o histórico de treinamento, as previsões de validação e as configurações são armazenados juntos."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "number": 20,
+      "slug": "cellpose_masks",
+      "title": "Cellpose Masks",
+      "series": 2,
+      "app_key": "cellpose_masks",
+      "section": "Segmentation models",
+      "description": "Gerar e rever as máscaras Cellpose com um fluxo de trabalho de aplicação de modelos focado.",
+      "objectives": [
+        "Entenda quando usar máscaras Cellpose.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange as máscaras Cellpose. Gerar e revisar as máscaras Cellpose com um fluxo de trabalho de aplicativos de modelo focado.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange as máscaras Cellpose. Gerar e revisar as máscaras Cellpose com um fluxo de trabalho de aplicativos de modelo focado."
+        },
+        {
+          "narration": "Abra Cellpose Masks na seção Segmentation models. Abra as máscaras Cellpose na seção Modelos de Segmentação. Selecione imagens de microscopia, canais e um modelo Cellpose incorporado ou personalizado.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Cellpose Masks na seção Segmentation models. Abra as máscaras Cellpose na seção Modelos de Segmentação. Selecione imagens de microscopia, canais e um modelo Cellpose incorporado ou personalizado."
+        },
+        {
+          "narration": "Na área de configuração principal, configure os limiares de diâmetro, fluxo e probabilidade celular, normalização, telas e uso de hardware.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure os limiares de diâmetro, fluxo e probabilidade celular, normalização, telas e uso de hardware."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as máscaras de rótulo e as imagens de controlo visual da qualidade são escritas ao lado das entradas mapeadas.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as máscaras de rótulo e as imagens de controlo visual da qualidade são escritas ao lado das entradas mapeadas."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare",
+      "series": 2,
+      "app_key": "model_compare",
+      "section": "Segmentation models",
+      "description": "Execute dois modelos Cellpose nos mesmos campos e compare as máscaras, contagens e métricas de acordo.",
+      "objectives": [
+        "Compreender quando utilizar o Modelo Comparar.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Modelo Compare. Execute dois modelos Cellpose nos mesmos campos e compare máscaras, contagens e métricas de acordo.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Modelo Compare. Execute dois modelos Cellpose nos mesmos campos e compare máscaras, contagens e métricas de acordo."
+        },
+        {
+          "narration": "Abra Model Compare na seção Segmentation models. Abra o modelo Comparar na seção Modelos de Segmentação. Escolha dois modelos candidatos e um conjunto representativo de campos de microscopia.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Model Compare na seção Segmentation models. Abra o modelo Comparar na seção Modelos de Segmentação. Escolha dois modelos candidatos e um conjunto representativo de campos de microscopia."
+        },
+        {
+          "narration": "Na área de configuração principal, canais de correspondência e pré-processamento, em seguida, configurar os limiares e os critérios de correspondência de objetos.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, canais de correspondência e pré-processamento, em seguida, configurar os limiares e os critérios de correspondência de objetos."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise as superposições lado a lado juntamente com as diferenças de número de objetos, sobreposição e índice de Rand ajustado.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise as superposições lado a lado juntamente com as diferenças de número de objetos, sobreposição e índice de Rand ajustado."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o relatório de comparação identifica onde cada modelo ganha, perde, divide ou combina objetos.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o relatório de comparação identifica onde cada modelo ganha, perde, divide ou combina objetos."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo",
+      "series": 2,
+      "app_key": "model_zoo",
+      "section": "Segmentation models",
+      "description": "Explorar, verificar, baixar e comparar modelos de segmentação e classificadores reutilizáveis.",
+      "objectives": [
+        "Entender quando usar o modelo zoológico.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o modelo zoológico.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o modelo zoológico."
+        },
+        {
+          "narration": "Abra Model Zoo na seção Segmentation models. Abra o catálogo e selecione modelos compatíveis com a tarefa atual e os canais de entrada.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Model Zoo na seção Segmentation models. Abra o catálogo e selecione modelos compatíveis com a tarefa atual e os canais de entrada."
+        },
+        {
+          "narration": "Na área de configuração principal, revisão da proveniência, licença, soma de verificação, pré-processamento esperado, tipo de tarefa e disponibilidade local.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, revisão da proveniência, licença, soma de verificação, pré-processamento esperado, tipo de tarefa e disponibilidade local."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, os arquivos de modelo verificados e os resultados dos referências permanecerão associados aos seus metadados.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, os arquivos de modelo verificados e os resultados dos referências permanecerão associados aos seus metadados."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "number": 23,
+      "slug": "agreement",
+      "title": "Annotator Agreement",
+      "series": 3,
+      "app_key": "agreement",
+      "section": "Results and quality control",
+      "description": "Medir o acordo entre as colunas de anotações e rever os objetos responsáveis pelo desacordo.",
+      "objectives": [
+        "Entender quando utilizar o Acordo de Annotador.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Acordo de Anotador.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Acordo de Anotador."
+        },
+        {
+          "narration": "Abra Annotator Agreement na seção Results and quality control. Abra o Acordo de Anotador na seção Resultados e controle de qualidade. Escolha um banco de dados do projeto e duas ou mais colunas de anotações que cobrem os mesmos objetos.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Annotator Agreement na seção Results and quality control. Abra o Acordo de Anotador na seção Resultados e controle de qualidade. Escolha um banco de dados do projeto e duas ou mais colunas de anotações que cobrem os mesmos objetos."
+        },
+        {
+          "narration": "Na área de configuração principal, selecione o tratamento de classes, a política de etiqueta faltante, o agrupamento, a amostragem e a estatística do acordo.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, selecione o tratamento de classes, a política de etiqueta faltante, o agrupamento, a amostragem e a estatística do acordo."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as tabelas de acordo e uma revisão focada estabelecem a reconciliação dos rótulos e a melhoria do protocolo.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as tabelas de acordo e uma revisão focada estabelecem a reconciliação dos rótulos e a melhoria do protocolo."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque",
+      "title": "Plaque assay",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "Medir a formação de placa e as alterações dependentes da condição a partir de imagens de placa.",
+      "objectives": [
+        "Entender quando usar o ensaio de placa.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o ensaio de placas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o ensaio de placas."
+        },
+        {
+          "narration": "Abra Plaque assay na seção Toxoplasma assays. Abre o ensaio de placa na seção de ensaio de Toxoplasma.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Plaque assay na seção Toxoplasma assays. Abre o ensaio de placa na seção de ensaio de Toxoplasma."
+        },
+        {
+          "narration": "Na área de configuração principal, configure a correção de fundo, o limiar, a limpeza de objetos, os filtros de tamanho de placa e o agrupamento de poços.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure a correção de fundo, o limiar, a limpeza de objetos, os filtros de tamanho de placa e o agrupamento de poços."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível. Verifique as superposições de segmentação entre os poços de controlo e tratamento antes da análise de lote.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível. Verifique as superposições de segmentação entre os poços de controlo e tratamento antes da análise de lote."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, o spaCR informa os números de placas, áreas, resumos, estatísticas e dados de controlo de qualidade.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, o espáquer informa os números de placas, áreas, resumos, estatísticas e dados de controlo de qualidade."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "number": 25,
+      "slug": "recruitment",
+      "title": "Recruitment",
+      "series": 3,
+      "app_key": "recruitment",
+      "section": "Toxoplasma assays",
+      "description": "Quantificar o recrutamento de um sinal de interesse para os parasitas ou regiões associadas a patógenos.",
+      "objectives": [
+        "Entender quando usar o Recrutamento.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o recrutamento. Quantificar o recrutamento de um canal de interesse para os parasitas ou regiões associadas a patógenos.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o recrutamento. Quantificar o recrutamento de um canal de interesse para os parasitas ou regiões associadas a patógenos."
+        },
+        {
+          "narration": "Abra Recruitment na seção Toxoplasma assays. Recrutação aberta da secção de análises de toxoplasma. Use máscaras de células, parasitas e órgãos medidos com canal um, retículo endoplasmático, como canal de interesse.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Recruitment na seção Toxoplasma assays. Recrutação aberta da secção de análises de toxoplasma. Use máscaras de células, parasitas e órgãos medidos com canal um, retículo endoplasmático, como canal de interesse."
+        },
+        {
+          "narration": "Na área de configuração principal, definir a região de recrutamento, referência de fundo, filtros de objetos, agrupamento e estratégia de normalização.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, definir a região de recrutamento, referência de fundo, filtros de objetos, agrupamento e estratégia de normalização."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as pontuações de recrutamento por objeto e os resumos de condições são armazenados com identificadores de fonte.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as pontuações de recrutamento por objeto e os resumos de condições são armazenados com identificadores de fonte."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "number": 26,
+      "slug": "invasion",
+      "title": "Invasion assay",
+      "series": 3,
+      "app_key": "invasion",
+      "section": "Toxoplasma assays",
+      "description": "Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos.",
+      "objectives": [
+        "Entender quando usar o teste de Invasão.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o teste de invasão. Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o teste de invasão. Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos."
+        },
+        {
+          "narration": "Abra Invasion assay na seção Toxoplasma assays. Avaliação de Invasão Aberta da secção de Análise de Toxoplasma.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Invasion assay na seção Toxoplasma assays. Avaliação de Invasão Aberta da secção de Análise de Toxoplasma."
+        },
+        {
+          "narration": "Na área de configuração principal, configurar limites de intensidade, correspondência de objetos, manipulação de ambigüidade e agrupamento de nível bem.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configurar limites de intensidade, correspondência de objetos, manipulação de ambigüidade e agrupamento de nível bem."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise os exemplos anexados, invadidos e incertos antes de aceitar a regra de classificação.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise os exemplos anexados, invadidos e incertos antes de aceitar a regra de classificação."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, os relatórios spaCR contam e informam a eficiência de invasão por poço e condição com imagens de controlo de qualidade.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, os relatórios espáquer contam e informam a eficiência de invasão por poço e condição com imagens de controlo de qualidade."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "number": 27,
+      "slug": "replication",
+      "title": "Replication assay",
+      "series": 3,
+      "app_key": "replication",
+      "section": "Toxoplasma assays",
+      "description": "Escolha parasitas por vácuo e resume a replicação intracellular por condição.",
+      "objectives": [
+        "Entender quando usar o teste de replicação.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o teste de replicação.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o teste de replicação."
+        },
+        {
+          "narration": "Abra Replication assay na seção Toxoplasma assays. Avaliação de análises de replicação da seção de análises de Toxoplasma Selecione as medições de células hospedeiras, vacuóis e parasitas juntamente com os metadados da condição.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Replication assay na seção Toxoplasma assays. Avaliação de análises de replicação da seção de análises de Toxoplasma Selecione as medições de células hospedeiras, vacuóis e parasitas juntamente com os metadados da condição."
+        },
+        {
+          "narration": "Na área de configuração principal, configure atribuição espacial, filtros de objetos, caixas de contagem de parasitas, controles e comparações estatísticas.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure atribuição espacial, filtros de objetos, caixas de contagem de parasitas, controles e comparações estatísticas."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, são guardadas as distribuições de parasitas por vacuo, as taxas de replicação, estatísticas e números.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, são guardadas as distribuições de parasitas por vacuo, as taxas de replicação, estatísticas e números."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "number": 28,
+      "slug": "training_runs",
+      "title": "Training Runs",
+      "series": 4,
+      "app_key": "train_compare",
+      "section": "Results and quality control",
+      "description": "Compare várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações.",
+      "objectives": [
+        "Entender quando usar a Formação.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange as corridas de treinamento. Comparar várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange as corridas de treinamento. Comparar várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações."
+        },
+        {
+          "narration": "Abra Training Runs na seção Results and quality control. Abrir a execução de treinamentos na secção Resultados e controlo de qualidade.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Training Runs na seção Results and quality control. Abrir a execução de treinamentos na secção Resultados e controlo de qualidade."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha métricas, suavização, agrupamento, critérios de ponto de verificação e os campos de configuração a exibir.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha métricas, suavização, agrupamento, critérios de ponto de verificação e os campos de configuração a exibir."
+        },
+        {
+          "narration": "Antes da corrida completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare convergência, sobre-ajustamento, estabilidade e desempenho prolongado em vez de selecionar apenas pela perda de treinamento.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da corrida completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare convergência, sobre-ajustamento, estabilidade e desempenho prolongado em vez de selecionar apenas pela perda de treinamento."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, os números de comparação e as tabelas de diferença de configuração identificam a corrida mais forte reprodutível.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, os números de comparação e as tabelas de diferença de configuração identificam a corrida mais forte reprodutível."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "title": "Report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Results and quality control",
+      "description": "Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões.",
+      "objectives": [
+        "Entenda quando utilizar o Report.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Relatório. Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Relatório. Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões."
+        },
+        {
+          "narration": "Abra Report na seção Results and quality control. Abra Relatório na seção Resultados e controle de qualidade. Escolha um projeto spaCR concluído e as corridas, tabelas, figuras e seções a incluir.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Report na seção Results and quality control. Abra Relatório na seção Resultados e controle de qualidade. Escolha um projeto espáquer concluído e as corridas, tabelas, figuras e seções a incluir."
+        },
+        {
+          "narration": "Na área de configuração principal, configure título, autor, rótulos de condição, limiares de qualidade, formato de saída e campos sensíveis à privacidade.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure título, autor, rótulos de condição, limiares de qualidade, formato de saída e campos sensíveis à privacidade."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, um relatório portátil registra as conclusões, juntamente com as configurações e as versões de software necessárias para as reproduzir.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, um relatório portátil registra as conclusões, juntamente com as configurações e as versões de software necessárias para as reproduzir."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "title": "Plate Queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "description": "Encaixar várias placas através do mesmo gasoduto validado.",
+      "objectives": [
+        "Entender quando usar a fila de placas.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a fila de placas. Encaine várias placas através do mesmo pipeline validado.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a fila de placas. Encaine várias placas através do mesmo pipeline validado."
+        },
+        {
+          "narration": "Abra Plate Queue na seção Data and batch runs. Abra a fila de placa na seção Dados e batches. Adicione fontes de placa e escolha a sequência de módulos compartilhados e configurações pré-definidas.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Plate Queue na seção Data and batch runs. Abra a fila de placa na seção Dados e batches. Adicione fontes de placa e escolha a sequência de módulos compartilhados e configurações pré-definidas."
+        },
+        {
+          "narration": "Na área de configuração principal, revisar a ordem da placa, as redireções por placa, os limites dos trabalhadores, a política de falha, o comportamento de retomada e as raízes de saída.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, revisar a ordem da placa, as redireções por placa, os limites dos trabalhadores, a política de falha, o comportamento de retomada e as raízes de saída."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Comece com uma placa pequena ou um campo de teste, depois deixe a fila processar as placas sequencialmente com o status visível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Comece com uma placa pequena ou um campo de teste, depois deixe a fila processar as placas sequencialmente com o status visível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, cada placa recebe um projeto isolado e executa um registro enquanto a fila preserva o progresso geral.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, cada placa recebe um projeto isolado e executa um registro enquanto a fila preserva o progresso geral."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "number": 31,
+      "slug": "external_masks",
+      "title": "External Masks",
+      "series": 4,
+      "app_key": "external_masks",
+      "section": "Data and batch runs",
+      "description": "Transformar as máscaras de rótulos de terceiros e as imagens de origem num projeto de spaCR medido e rastreável.",
+      "objectives": [
+        "Entender quando usar máscaras externas.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange máscaras externas. Transforme as máscaras de rótulos de terceiros e as imagens de origem em um projeto de spaCR medido e rastreável.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange máscaras externas. Transforme as máscaras de rótulos de terceiros e as imagens de origem em um projeto de espáquer medido e rastreável."
+        },
+        {
+          "narration": "Abra External Masks na seção Data and batch runs. Abra as máscaras externas na seção Dados e batches. forneça imagens de origem, máscaras externas, regras de nomeação, tipos de objetos e tabelas de medição opcionais.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra External Masks na seção Data and batch runs. Abra as máscaras externas na seção Dados e batches. forneça imagens de origem, máscaras externas, regras de nomeação, tipos de objetos e tabelas de medição opcionais."
+        },
+        {
+          "narration": "Na área de configuração principal, mapear imagens para máscaras, validar convenções de forma e rótulo, escolher rótulo e definir opções de medição.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, mapear imagens para máscaras, validar convenções de forma e rótulo, escolher rótulo e definir opções de medição."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR armazena máscaras normalizadas, imagens mapeadas, medições e proveniência prontas para anotação.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer armazena máscaras normalizadas, imagens mapeadas, medições e proveniência prontas para anotação."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "number": 32,
+      "slug": "align_stitch",
+      "title": "Align and Stitch",
+      "series": 4,
+      "app_key": "align",
+      "section": "Data and batch runs",
+      "description": "Registre azulejos de imagem e construa um mosaico costurado gradualmente sem manter toda a tela em memória.",
+      "objectives": [
+        "Entender quando usar Align e Stitch.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Align e Stitch. Registre azulejos de imagem e construa um mosaico costurado gradualmente sem manter toda a tela em memória.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Align e Stitch. Registre azulejos de imagem e construa um mosaico costurado gradualmente sem manter toda a tela em memória."
+        },
+        {
+          "narration": "Abra Align and Stitch na seção Data and batch runs. Abra Align e Stitch na seção Dados e batches. Escolha aquisições de telas, coordenadas de estágio ou metadados, canais e destino.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Align and Stitch na seção Data and batch runs. Abra Align e Stitch na seção Dados e batches. Escolha aquisições de telas, coordenadas de estágio ou metadados, canais e destino."
+        },
+        {
+          "narration": "Na área de configuração principal, configure o método de registro, o canal de referência, a sobreposição, a mistura, a correção, o tamanho da peça e o formato de saída.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure o método de registro, o canal de referência, a sobreposição, a mistura, a correção, o tamanho da peça e o formato de saída."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, são salvos os dados registrados, imagens costuradas, transformações e metadados de mapeamento.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, são salvos os dados registrados, imagens costuradas, transformações e metadados de mapeamento."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "number": 33,
+      "slug": "plate_viewer",
+      "title": "Plate Viewer",
+      "series": 4,
+      "app_key": "plate_view",
+      "section": "Results and quality control",
+      "description": "Explorar qualquer medição como um mapa térmico de placa e identificar artefatos espaciais ou efeitos de borda.",
+      "objectives": [
+        "Entender quando usar o Plate Viewer.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Plate Viewer. Explore qualquer medição como um mapa de calor de placa e identifique artefatos espaciais ou efeitos de borda.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Plate Viewer. Explore qualquer medição como um mapa de calor de placa e identifique artefatos espaciais ou efeitos de borda."
+        },
+        {
+          "narration": "Abra Plate Viewer na seção Results and quality control. Abra o visor de placa na seção Resultados e controle de qualidade. Abra um banco de dados de medições com identificadores de placa, poço e condição.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Plate Viewer na seção Results and quality control. Abra o visor de placa na seção Resultados e controle de qualidade. Abra um banco de dados de medições com identificadores de placa, poço e condição."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha a medição, agregação, normalização, escala de cores, controles e layout de placa.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha a medição, agregação, normalização, escala de cores, controles e layout de placa."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. compare vistas crudas e normalizadas e inspecione poços suspeitos ou padrões sistemáticos de borda.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. compare vistas crudas e normalizadas e inspecione poços suspeitos ou padrões sistemáticos de borda."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, podem ser exportados mapas de calor, tabelas de poços selecionados e diagnósticos de efeitos de borda.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, podem ser exportados mapas de calor, tabelas de poços selecionados e diagnósticos de efeitos de borda."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data and batch runs",
+      "description": "Explore, filtre, consulta e exportação de medições dot db sem usar a linha de comando sqlite.",
+      "objectives": [
+        "Entender quando usar o Database Browser.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Database Browser.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Database Browser."
+        },
+        {
+          "narration": "Abra Database Browser na seção Data and batch runs. Abra o navegador de banco de dados na seção Dados e batches. Abra um banco de dados SQLite spaCR e selecione uma tabela ou consulta salva.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Database Browser na seção Data and batch runs. Abra o navegador de banco de dados na seção Dados e batches. Abra um banco de dados SQLite espáquer e selecione uma tabela ou consulta salva."
+        },
+        {
+          "narration": "Na área de configuração principal, configure colunas, filtros, classificação, limites de filas, conjuntos e comportamento seguro de leitura ou edição.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure colunas, filtros, classificação, limites de filas, conjuntos e comportamento seguro de leitura ou edição."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho estiver concluído, as tabelas filtradas podem ser copiadas ou exportadas enquanto o banco de dados original permanece rastreável.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho estiver concluído, as tabelas filtradas podem ser copiadas ou exportadas enquanto o banco de dados original permanece rastreável."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "number": 35,
+      "slug": "converter",
+      "title": "Format Converter",
+      "series": 4,
+      "app_key": "convert",
+      "section": "Data and batch runs",
+      "description": "Converte ND2, CZI, LIF, OME-TIFF e formatos de microscopia relacionados em arquivos TIFF de estilo Yokogawa mapeados.",
+      "objectives": [
+        "Entenda quando usar o Format Converter.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Format Converter. Converte ND2, CZI, LIF, OME-TIFF e formatos de microscopia relacionados em arquivos TIFF de estilo Yokogawa mapeados.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Format Converter. Converte ND2, CZI, LIF, OME-TIFF e formatos de microscopia relacionados em arquivos TIFF de estilo Yokogawa mapeados."
+        },
+        {
+          "narration": "Abra Format Converter na seção Data and batch runs. Abra o Converter de formato na seção Dados e execução de lote. Escolha arquivos de origem, séries ou cenas, nomes de canais, manipulação de tempo e profundidade e uma pasta de saída.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Format Converter na seção Data and batch runs. Abra o Converter de formato na seção Dados e execução de lote. Escolha arquivos de origem, séries ou cenas, nomes de canais, manipulação de tempo e profundidade e uma pasta de saída."
+        },
+        {
+          "narration": "Na área de configuração principal, veja de antemão como as dimensões da fonte são mapeadas para índices de placa, poço, campo, tempo, profundidade e canal.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, veja de antemão como as dimensões da fonte são mapeadas para índices de placa, poço, campo, tempo, profundidade e canal."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Valide o mapeamento em uma pequena amostra antes de converter cada arquivo.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Valide o mapeamento em uma pequena amostra antes de converter cada arquivo."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR escreve TIFFs padronizados e um mapa de volta aos arquivos originais e metadados.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer escreve TIFFs padronizados e um mapa de volta aos arquivos originais e metadados."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "number": 36,
+      "slug": "import",
+      "title": "Import Project",
+      "series": 5,
+      "app_key": "foreign",
+      "section": "Data and batch runs",
+      "description": "Traz imagens, máscaras e mesuras de outro laboratório para um projeto spaCR.",
+      "objectives": [
+        "Entenda quando usar o Projeto Importação.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o Projeto Importar. Traga imagens, máscaras e tabela de medição de outro laboratório para um projeto spaCR.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o Projeto Importar. Traga imagens, máscaras e tabela de medição de outro laboratório para um projeto espáquer."
+        },
+        {
+          "narration": "Abra Import Project na seção Data and batch runs. Abra o Projeto de Importação na seção Dados e execução de lote. Forneça imagens, máscaras opcionais, uma tabela de medição e identificadores externos estáveis.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Import Project na seção Data and batch runs. Abra o Projeto de Importação na seção Dados e execução de lote. Forneça imagens, máscaras opcionais, uma tabela de medição e identificadores externos estáveis."
+        },
+        {
+          "narration": "Na área de configuração principal, mapear colunas estrangeiras em identificadores spaCR, canais, tipos de objetos, metadados de placa e campos de proveniência.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, mapear colunas estrangeiras em identificadores espáquer, canais, tipos de objetos, metadados de placa e campos de proveniência."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. valida conjuntos, valores faltantes, alinhamento de imagem-masca e identificadores duplicados antes de importar.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. valida conjuntos, valores faltantes, alinhamento de imagem-masca e identificadores duplicados antes de importar."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o projeto padronizado preserva links de volta a cada arquivo original e identificador.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o projeto padronizado preserva links de volta a cada arquivo original e identificador."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "number": 37,
+      "slug": "batch",
+      "title": "Batch Runner",
+      "series": 5,
+      "app_key": "batch",
+      "section": "Data and batch runs",
+      "description": "Módulos de fila, projetos e configurações para execução reprodutiva sem supervisão.",
+      "objectives": [
+        "Entender quando usar Batch Runner.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange Batch Runner. módulos de fila, projetos e configurações para execução reprodutiva sem supervisão.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange Batch Runner. módulos de fila, projetos e configurações para execução reprodutiva sem supervisão."
+        },
+        {
+          "narration": "Abra Batch Runner na seção Data and batch runs. Abra Batch Runner na seção Dados e batches. Adicione projetos e assemble a sequência de módulos ordenada que cada projeto deve executar.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Batch Runner na seção Data and batch runs. Abra Batch Runner na seção Dados e batches. Adicione projetos e assemble a sequência de módulos ordenada que cada projeto deve executar."
+        },
+        {
+          "narration": "Na área de configuração principal, escolha pré-configurados, dependências, limites de recursos, comportamento de retoma, registro e política de falha.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, escolha pré-configurados, dependências, limites de recursos, comportamento de retoma, registro e política de falha."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Valide o plano de lote, teste um trabalho e, em seguida, execute a fila restante durante a noite ou sem supervisão.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Valide o plano de lote, teste um trabalho e, em seguida, execute a fila restante durante a noite ou sem supervisão."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, cada trabalho tem seu próprio status, instantâneo de configurações, registros, saídas e registro de execução reiniciável.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, cada trabalho tem seu próprio status, instantâneo de configurações, registros, saídas e registro de execução reiniciável."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "number": 38,
+      "slug": "distributed_jobs",
+      "title": "Distributed Jobs",
+      "series": 5,
+      "app_key": "distributed_jobs",
+      "section": "Data and batch runs",
+      "description": "Enviar e monitorar o trabalho spaCR em estações de trabalho SSH, clusters Slurm ou comandos em nuvem e HPC.",
+      "objectives": [
+        "Entender quando usar o Serviço Distribuído.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange trabalhos distribuídos. Envie e monitore o trabalho spaCR em estações de trabalho SSH, clusters Slurm ou comandos em nuvem e HPC.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange trabalhos distribuídos. Envie e monitore o trabalho espáquer em estações de trabalho SSH, clusters Slurm ou comandos em nuvem e HPC."
+        },
+        {
+          "narration": "Abra Distributed Jobs na seção Data and batch runs. Abra trabalhos distribuídos na seção Dados e batches. Configure um perfil remoto, método de conexão, diretório de trabalho, ambiente e caminhos de dados.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Distributed Jobs na seção Data and batch runs. Abra trabalhos distribuídos na seção Dados e batches. Configure um perfil remoto, método de conexão, diretório de trabalho, ambiente e caminhos de dados."
+        },
+        {
+          "narration": "Na área de configuração principal, defina recursos de cronograma, modelos de comando, sincronização de arquivos, credenciais e pesquisas de status.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, defina recursos de cronograma, modelos de comando, sincronização de arquivos, credenciais e pesquisas de status."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, os registros locais rastream identificadores remotos de trabalho, registros, estado, artefatos transferidos e falhas.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, os registros locais rastream identificadores remotos de trabalho, registros, estado, artefatos transferidos e falhas."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "number": 39,
+      "slug": "classifier_evaluation",
+      "title": "Classifier Evaluation",
+      "series": 5,
+      "app_key": "classifier_evaluation",
+      "section": "Results and quality control",
+      "description": "Auditoria de previsões realizadas, validação cruzada em ninhos, calibração, vazamento e desempenho por placa.",
+      "objectives": [
+        "Compreender quando utilizar a Avaliação do Classificador.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange a Avaliação de Classificadores. Auditamento de previsões, validação cruzada, calibração, vazamento e desempenho por placa.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange a Avaliação de Classificadores. Auditamento de previsões, validação cruzada, calibração, vazamento e desempenho por placa."
+        },
+        {
+          "narration": "Abra Classifier Evaluation na seção Results and quality control. Avaliação de Classificador aberto na seção Resultados e controle de qualidade. Escolha previsões com verdade de base, metadados divididos, identificadores de placas, probabilidades e registros executados por modelo.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Classifier Evaluation na seção Results and quality control. Avaliação de Classificador aberto na seção Resultados e controle de qualidade. Escolha previsões com verdade de base, metadados divididos, identificadores de placas, probabilidades e registros executados por modelo."
+        },
+        {
+          "narration": "Na área de configuração principal, configure ordem de classes, limiares, canos de calibração, agrupamento, incerteza de arranque e verificações de vazamento.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, configure ordem de classes, limiares, canos de calibração, agrupamento, incerteza de arranque e verificações de vazamento."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Avalie o comportamento de resistência e de cada placa antes de usar um classificador para conclusões biológicas.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Avalie o comportamento de resistência e de cada placa antes de usar um classificador para conclusões biológicas."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR produz relatórios de discriminação, calibração, confusão, vazamento e robustez.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer produz relatórios de discriminação, calibração, confusão, vazamento e robustez."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "number": 40,
+      "slug": "run_history",
+      "title": "Run History",
+      "series": 5,
+      "app_key": "run_history",
+      "section": "Results and quality control",
+      "description": "Procure as configurações, arquivos, avisos, falhas e desempenho de cada trabalho de um só lugar.",
+      "objectives": [
+        "Entenda quando usar o Run History.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial abrange o histórico de execução. Pesquise as configurações, arquivos, avisos, falhas e desempenho de cada trabalho de um só lugar.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial abrange o histórico de execução. Pesquise as configurações, arquivos, avisos, falhas e desempenho de cada trabalho de um só lugar."
+        },
+        {
+          "narration": "Abra Run History na seção Results and quality control. Abra o histórico de execução na seção Resultados e controle de qualidade. Abra o registo de execução para o espaço de trabalho atual ou as raízes do projeto selecionadas.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Abra Run History na seção Results and quality control. Abra o histórico de execução na seção Resultados e controle de qualidade. Abra o registo de execução para o espaço de trabalho atual ou as raízes do projeto selecionadas."
+        },
+        {
+          "narration": "Na área de configuração principal, filtrar por módulo, estado, data, projeto, versão, aviso, duração ou utilização de recursos.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área de configuração principal, filtrar por módulo, estado, data, projeto, versão, aviso, duração ou utilização de recursos."
+        },
+        {
+          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. abra uma execução para inspecionar suas configurações imutáveis, registros, saídas e contexto de falha.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. abra uma execução para inspecionar suas configurações imutáveis, registros, saídas e contexto de falha."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho terminar, você pode reproduzir, comparar, retomar ou relatar o trabalho anterior sem adivinhar como foi executado.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho terminar, você pode reproduzir, comparar, retomar ou relatar o trabalho anterior sem adivinhar como foi executado."
+        }
+      ]
+    }
+  ],
+  "language": "pt-BR"
+}

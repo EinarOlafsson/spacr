@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoxiao",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 38.275,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.5,
+      "scene_end": 5.95,
+      "duration": 5.95,
+      "text": "通过时间序列的框架,分类,链接和测量细胞或病原体."
+    },
+    {
+      "scene": 2,
+      "speech_start": 5.95,
+      "speech_end": 14.600000000000001,
+      "scene_end": 15.05,
+      "duration": 9.100000000000001,
+      "text": "从 Core 部分打开 Timelapse。 选择一个时间解析的图像集,其文件名保存字段,时间,深度和频道索引."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.05,
+      "speech_end": 22.625,
+      "scene_end": 23.075,
+      "duration": 8.024999999999999,
+      "text": "在主配置区域,配置分区,追踪物体类型,连接模式,最大移动,空隙处理和预览框架."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.075,
+      "speech_end": 29.7,
+      "scene_end": 30.15,
+      "duration": 7.074999999999999,
+      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 30.15,
+      "speech_end": 37.625,
+      "scene_end": 38.275,
+      "duration": 8.125,
+      "text": "工作流程完成后,时间索引掩膜,轨道,测量和轨迹总结将存储稳定对象身份."
+    }
+  ]
+}

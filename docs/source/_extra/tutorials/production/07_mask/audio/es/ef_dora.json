@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.35,
+      "scene_end": 9.799999999999999,
+      "duration": 9.799999999999999,
+      "text": "Este tutorial cubre Mask. Segmentar el experimento de microscopía de cuatro canales suministrado en núcleos, células, gotas de lípidos y máscaras de parásitos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.799999999999999,
+      "speech_end": 20.125,
+      "scene_end": 20.575,
+      "duration": 10.775,
+      "text": "Abra Mask en la sección Core. El canal cero es el núcleo, el canal uno es el retículo endoplasmático, el canal dos son las gotas de lípidos y el canal tres es el parásito."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.575,
+      "speech_end": 32.95,
+      "scene_end": 33.400000000000006,
+      "duration": 12.825000000000006,
+      "text": "En el área de configuración principal, detectar núcleos del canal cero, células del canal endoplasmico-retículo, gotas de lípidos con el flujo de trabajo de las manchas de la organella y parásitos del canal tres."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.400000000000006,
+      "speech_end": 47.7,
+      "scene_end": 48.150000000000006,
+      "duration": 14.75,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible. Compruebe un campo representativo, luego ejecute los cuatro pasos de segmentación a través del conjunto de datos."
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.150000000000006,
+      "speech_end": 58.275000000000006,
+      "scene_end": 58.925000000000004,
+      "duration": 10.774999999999999,
+      "text": "Cuando el flujo de trabajo termina, la carpeta de máscaras contiene etiquetas de objetos alineadas y matrices de imágenes más más máscaras fusionadas listas para medición."
+    }
+  ]
+}

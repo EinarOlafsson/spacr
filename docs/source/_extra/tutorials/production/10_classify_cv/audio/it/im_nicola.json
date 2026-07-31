@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.575,
+      "scene_end": 4.025,
+      "duration": 4.025,
+      "text": "Questo tutorial copre Classify, computer vision."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.025,
+      "speech_end": 18.375,
+      "scene_end": 18.825,
+      "duration": 14.799999999999999,
+      "text": "Apri Classify, computer vision dalla sezione Core. Apri Classifica, visione informatica dalla sezione Core. Selezionare cartelle di raccolti annotate o un database di progetti con etichette di classe affidabili."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.825,
+      "speech_end": 30.025,
+      "scene_end": 30.474999999999998,
+      "duration": 11.649999999999999,
+      "text": "Nella zona di configurazione principale, scegli i canali di immagine, l'architettura, la strategia di spartizione, l'aumento, la dimensione del lotto e i controlli di allenamento."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.474999999999998,
+      "speech_end": 47.349999999999994,
+      "scene_end": 47.8,
+      "duration": 17.325,
+      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. allenarsi sulla divisione di allenamento, monitorare il comportamento di convalida e valutare una volta sui dati trattenuti."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.8,
+      "speech_end": 57.599999999999994,
+      "scene_end": 58.24999999999999,
+      "duration": 10.449999999999996,
+      "text": "Quando il flusso di lavoro è finito, spaCR salva il modello, le metriche, le previsioni, gli esempi di classe e esegue metadati per applicazioni successive."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_sarah",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.875,
+      "scene_end": 10.325,
+      "duration": 10.325,
+      "text": "This tutorial covers Mask. Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.325,
+      "speech_end": 24.25,
+      "scene_end": 24.7,
+      "duration": 14.375,
+      "text": "Open Mask from the Core section. Use the supplied thirteen-field dataset. Channel zero is nuclei, channel one is endoplasmic reticulum, channel two is lipid droplets, and channel three is parasites."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.7,
+      "speech_end": 37.45,
+      "scene_end": 37.900000000000006,
+      "duration": 13.200000000000006,
+      "text": "In the main configuration area, detect nuclei from channel zero, cells from the endoplasmic-reticulum channel, lipid droplets with the organelle spots workflow, and parasites from channel three."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.900000000000006,
+      "speech_end": 50.325,
+      "scene_end": 50.775000000000006,
+      "duration": 12.875,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Check a representative field, then run the four segmentation passes across the dataset."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.775000000000006,
+      "speech_end": 59.275000000000006,
+      "scene_end": 59.925000000000004,
+      "duration": 9.149999999999999,
+      "text": "When the workflow finishes, the masks folder contains aligned object labels and merged image-plus-mask arrays ready for measurement."
+    }
+  ]
+}

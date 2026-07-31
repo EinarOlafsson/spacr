@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.375,
+      "scene_end": 3.825,
+      "duration": 3.825,
+      "text": "Questo tutorial copre il Database Browser."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.825,
+      "speech_end": 17.725,
+      "scene_end": 18.175,
+      "duration": 14.350000000000001,
+      "text": "Apri Database Browser dalla sezione Data and batch runs. Aprire il browser database dalla sezione Datos e batch runs. Aprire un database spaCR SQLite e selezionare una tabella o una query salvata."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.175,
+      "speech_end": 29.700000000000003,
+      "scene_end": 30.150000000000002,
+      "duration": 11.975000000000001,
+      "text": "Nell'area di configurazione principale, configurare colonne, filtri, classificazione, limiti di riga, connessioni e un comportamento sicuro solo per lettura o modificabile."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.150000000000002,
+      "speech_end": 40.125,
+      "scene_end": 40.575,
+      "duration": 10.425,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.575,
+      "speech_end": 50.35,
+      "scene_end": 51.0,
+      "duration": 10.424999999999997,
+      "text": "Quando il flusso di lavoro è terminato, le tabelle filtrate possono essere copiate o esportate mentre il database originale rimane tracciabile."
+    }
+  ]
+}

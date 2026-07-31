@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_alpha",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 63.5,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.625,
+      "scene_end": 13.075,
+      "duration": 13.075,
+      "text": "このチュートリアルでは,Condaでインストールをカバーします. システム内の残りの部分を変更せずに,孤立した Python 環境を作成して spaCR をインストールします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.075,
+      "speech_end": 26.424999999999997,
+      "scene_end": 26.874999999999996,
+      "duration": 13.799999999999997,
+      "text": "spaCR セクションから Installation with Conda を開きます。 Miniconda,Anaconda,または他のConda対応管理者をインストールして,Python3point12で環境を作成します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.874999999999996,
+      "speech_end": 37.449999999999996,
+      "scene_end": 37.9,
+      "duration": 11.025000000000002,
+      "text": "主な構成領域では,環境をアクティブに動かす.その Pythonと pip実行可能なものがその環境に属していることを確認する."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.9,
+      "speech_end": 54.45,
+      "scene_end": 54.900000000000006,
+      "duration": 17.000000000000007,
+      "text": "実行完了前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.アクティブ環境内にパイプ付きの spaCR をインストールします. コンダフォージパッケージはまだすぐに到着します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.900000000000006,
+      "speech_end": 62.85000000000001,
+      "scene_end": 63.50000000000001,
+      "duration": 8.600000000000001,
+      "text": "作業流が完了すると spaCR を同じ環境から起動し,関連のないプロジェクトから隔離します."
+    }
+  ]
+}

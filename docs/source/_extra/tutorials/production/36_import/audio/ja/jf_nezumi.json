@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 66.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.25,
+      "scene_end": 12.7,
+      "duration": 12.7,
+      "text": "このチュートリアルでは 輸入プロジェクトをカバーします 別の研究所の画像やマスク,測定表を spaCRプロジェクトに組み込む"
+    },
+    {
+      "scene": 2,
+      "speech_start": 12.7,
+      "speech_end": 25.95,
+      "scene_end": 26.4,
+      "duration": 13.7,
+      "text": "Data and batch runs セクションから Import Project を開きます。 画像,オプションマスク,測定表,安定した外部識別子を提供します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.4,
+      "speech_end": 40.25,
+      "scene_end": 40.7,
+      "duration": 14.300000000000004,
+      "text": "主な構成領域では, spaCR識別子,チャンネル,オブジェクトタイプ,プレートメタデータ,および出産フィールドに外国列をマップします."
+    },
+    {
+      "scene": 4,
+      "speech_start": 40.7,
+      "speech_end": 57.6,
+      "scene_end": 58.050000000000004,
+      "duration": 17.35,
+      "text": "実行完了前に,可視設定をチェックし,プリビューまたはテストモードを使用します. 輸入前に結合,欠落値,画像マスクの調整,重複識別子を検証します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 58.050000000000004,
+      "speech_end": 65.97500000000001,
+      "scene_end": 66.62500000000001,
+      "duration": 8.57500000000001,
+      "text": "標準化されたプロジェクトは,すべての元のファイルと識別子へのリンクを保存します."
+    }
+  ]
+}

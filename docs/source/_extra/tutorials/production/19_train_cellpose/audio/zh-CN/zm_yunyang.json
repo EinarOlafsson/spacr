@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunyang",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 43.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.4,
+      "scene_end": 9.85,
+      "duration": 9.85,
+      "text": "这本教程涵盖了\"火车细胞用\" (Train Cellpose).从精选的图像-掩膜对进行自定义的\"火车用\" (Cellpose) 或\"CPSAM\"兼容的分类模型."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.85,
+      "speech_end": 17.85,
+      "scene_end": 18.3,
+      "duration": 8.450000000000001,
+      "text": "从 Segmentation models 部分打开 Train Cellpose。 提供各种训练和验证图像,并使用精心修改的标签掩膜."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.3,
+      "speech_end": 25.575000000000003,
+      "scene_end": 26.025000000000002,
+      "duration": 7.725000000000001,
+      "text": "在主要配置区域中,选择道,基模型,直径,增强,学习速度,时代,批量大小和验证分区."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.025000000000002,
+      "speech_end": 35.925000000000004,
+      "scene_end": 36.37500000000001,
+      "duration": 10.350000000000005,
+      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.监测训练和验证损失,以及未用于训练的场地检查点."
+    },
+    {
+      "scene": 5,
+      "speech_start": 36.37500000000001,
+      "speech_end": 43.150000000000006,
+      "scene_end": 43.800000000000004,
+      "duration": 7.424999999999997,
+      "text": "工作流程完成后,选定的检查点,训练历史,验证预测和设置将被保存在一起."
+    }
+  ]
+}

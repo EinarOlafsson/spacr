@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 57.175,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.9,
+      "scene_end": 8.35,
+      "duration": 8.35,
+      "text": "Este tutorial cubre el Proyecto Import. Trae las imágenes de otro laboratorio, máscaras y tabla de medición en un proyecto spaCR."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.35,
+      "speech_end": 22.1,
+      "scene_end": 22.55,
+      "duration": 14.200000000000001,
+      "text": "Abra Import Project en la sección Data and batch runs. Abre Proyecto de importación desde la sección Datos y ejecuciones de lote. Proporcione imágenes, máscaras opcionales, una tabla de medición y identificadores externos estables."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.55,
+      "speech_end": 32.65,
+      "scene_end": 33.1,
+      "duration": 10.55,
+      "text": "En el área de configuración principal, mapear las columnas extranjeras en identificadores spaCR, canales, tipos de objetos, metadatos de placa y campos de procedencia."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.1,
+      "speech_end": 48.325,
+      "scene_end": 48.775000000000006,
+      "duration": 15.675000000000004,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. valida las uniones, los valores faltantes, la alineación de la máscara de imagen y los identificadores duplicados antes de importar."
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.775000000000006,
+      "speech_end": 56.525000000000006,
+      "scene_end": 57.175000000000004,
+      "duration": 8.399999999999999,
+      "text": "Cuando el flujo de trabajo termina, el proyecto estandarizado conserva enlaces de regreso a cada archivo y identificador original."
+    }
+  ]
+}

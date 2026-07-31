@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaobei",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.325,
+      "scene_end": 6.775,
+      "duration": 6.775,
+      "text": "互动构建,纠正和策划 Cellpose 训练数据的细分标签."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.775,
+      "speech_end": 16.675,
+      "scene_end": 17.125,
+      "duration": 10.35,
+      "text": "从 Segmentation models 部分打开 Make Masks。 开放代表性显微镜图像和任何现有掩膜,需要进行精炼."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.125,
+      "speech_end": 26.4,
+      "scene_end": 26.849999999999998,
+      "duration": 9.724999999999998,
+      "text": "在主要配置区域中,选择道,正常化,刷或魔术棒工具,对象操作和标签保存行为."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.849999999999998,
+      "speech_end": 35.15,
+      "scene_end": 35.6,
+      "duration": 8.750000000000004,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.6,
+      "speech_end": 44.150000000000006,
+      "scene_end": 44.800000000000004,
+      "duration": 9.200000000000003,
+      "text": "工作流程完成后,对照图像和选定标签掩膜准备好进行定制的Cellpose训练."
+    }
+  ]
+}

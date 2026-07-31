@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoyi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.05,
+      "scene_end": 7.5,
+      "duration": 7.5,
+      "text": "通过Pip安装,在现有的孤立Python环境中安装 spaCR,用于桌面或无头使用."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.5,
+      "speech_end": 15.8,
+      "scene_end": 16.25,
+      "duration": 8.75,
+      "text": "从 spaCR 部分打开 Installation with pip。 确认环境使用支持的 Python 版本; Python 三点十二是建议的."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.25,
+      "speech_end": 24.375,
+      "scene_end": 24.825,
+      "duration": 8.575,
+      "text": "在主要配置区域,如果需要,升级 pip,然后决定是否需要桌面,开发或可选的科学附加工具."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.825,
+      "speech_end": 36.7,
+      "scene_end": 37.150000000000006,
+      "duration": 12.325000000000006,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 运行 pip安装 spaCR,然后在开始实验之前验证命令和Python进口."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.150000000000006,
+      "speech_end": 46.47500000000001,
+      "scene_end": 47.12500000000001,
+      "duration": 9.975000000000001,
+      "text": "当工作流程完成时,同一个安装可以启动桌面应用程序或在工作站或服务器上运行脚本工作流程."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 72.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.525,
+      "scene_end": 13.975,
+      "duration": 13.975,
+      "text": "このチュートリアルではトレーニングランスをカバーします.曲線を重ねて設定を異なる方法でいくつかのモデルトレーニングランスを比較します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.975,
+      "speech_end": 27.4,
+      "scene_end": 27.849999999999998,
+      "duration": 13.874999999999998,
+      "text": "Results and quality control セクションから Training Runs を開きます。 比較すべきランフォルダーや登録されたトレーニング記録を選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.849999999999998,
+      "speech_end": 39.599999999999994,
+      "scene_end": 40.05,
+      "duration": 12.2,
+      "text": "主な構成領域では,表示されるメトリック,スラート,グループ化,チェックポイント基準,設定フィールドを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 40.05,
+      "speech_end": 61.3,
+      "scene_end": 61.75,
+      "duration": 21.700000000000003,
+      "text": "完全走行前に,可視設定をチェックし,利用可能な場合,前見またはテストモードを使用します. 訓練損失だけで選択するのではなく,収束,過度のフィッティング,安定性,および持続性性能を比較します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 61.75,
+      "speech_end": 71.725,
+      "scene_end": 72.375,
+      "duration": 10.625,
+      "text": "作業流が完了すると,比較数字と設定差表は,最も強い再現可能な実行を特定します."
+    }
+  ]
+}
