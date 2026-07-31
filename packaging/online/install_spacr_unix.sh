@@ -25,6 +25,7 @@ INSTALL_ROOT=""
 PACKAGE_SPEC="${SPACR_PACKAGE_SPEC:-}"
 SKIP_SYSTEM_DEPS=0
 NO_LAUNCH=0
+NO_COMMAND_LAUNCHER=0
 DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
 
 usage() {
@@ -37,6 +38,7 @@ Options:
   --package-spec SPEC     Install SPEC instead of the release's spaCR build.
   --torch-backend NAME    PyTorch backend (default: cpu; use auto for NVIDIA).
   --launcher-dir PATH     Put the command launcher in PATH (mainly for CI).
+  --no-command-launcher   Do not install a command-line launcher.
   --skip-system-deps      Do not install Linux Qt runtime libraries.
   --no-launch             Do not launch spaCR after installation.
   --dry-run               Print the resolved plan without downloading.
@@ -68,6 +70,10 @@ while (($#)); do
             ;;
         --skip-system-deps)
             SKIP_SYSTEM_DEPS=1
+            shift
+            ;;
+        --no-command-launcher)
+            NO_COMMAND_LAUNCHER=1
             shift
             ;;
         --no-launch)
@@ -175,7 +181,9 @@ echo "  resolver guards: ${RESOLVER_GUARDS[*]}"
 if [[ "$DRY_RUN" == "1" ]]; then
     echo "DRY RUN: would download $UV_INSTALL_URL"
     echo "DRY RUN: would create and validate $VENV_DIR"
-    echo "DRY RUN: would install launcher $LAUNCHER"
+    if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
+        echo "DRY RUN: would install launcher $LAUNCHER"
+    fi
     exit 0
 fi
 
@@ -305,14 +313,16 @@ fi
 mv "$stage_venv" "$VENV_DIR"
 rm -rf "$old_venv"
 
-mkdir -p "$USER_BIN_DIR"
-launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
-cat > "$launcher_tmp" <<EOF
+if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
+    mkdir -p "$USER_BIN_DIR"
+    launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
+    cat > "$launcher_tmp" <<EOF
 #!/usr/bin/env sh
 exec "$VENV_DIR/bin/python" -m spacr.qt "\$@"
 EOF
-chmod 755 "$launcher_tmp"
-mv "$launcher_tmp" "$LAUNCHER"
+    chmod 755 "$launcher_tmp"
+    mv "$launcher_tmp" "$LAUNCHER"
+fi
 
 if [[ "$PLATFORM" == "linux" ]]; then
     mkdir -p "$DESKTOP_DIR"
@@ -347,7 +357,9 @@ fi
 
 echo
 echo "spaCR installed successfully."
-echo "Launcher: $LAUNCHER"
+if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
+    echo "Launcher: $LAUNCHER"
+fi
 if [[ "$PLATFORM" == "linux" && "$NO_LAUNCH" == "0" ]]; then
     nohup "$LAUNCHER" >/dev/null 2>&1 &
 fi
