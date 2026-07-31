@@ -2143,6 +2143,9 @@ class AnnotateScreen(QWidget):
             self._status_label.setText("Ready.")
             return
         parts = []
+        if w.last_error:
+            self._status_label.setText(f"Save failed — {w.last_error}")
+            return
         if self._pending_updates:
             parts.append(f"{len(self._pending_updates)} unsaved change(s)")
         if w.busy:

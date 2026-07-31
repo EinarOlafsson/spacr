@@ -19,6 +19,8 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Callable, Optional, Sequence, Tuple
 
+from .database_concurrency import connect as connect_database
+
 __all__ = [
     "CURRENT_SCHEMA_VERSION",
     "DB_COLUMN_RENAMES",
@@ -219,8 +221,11 @@ def database_schema_version(source) -> int:
     path = os.fspath(source)
     if not os.path.isfile(path):
         raise FileNotFoundError(path)
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as connection:
+    connection = connect_database(path, readonly=True)
+    try:
         return _pragma_int(connection, "user_version")
+    finally:
+        connection.close()
 
 
 def _begin_migration(connection: sqlite3.Connection) -> Tuple[str, bool]:
@@ -346,7 +351,7 @@ def migrate_database(
     path = os.path.abspath(os.fspath(db_path))
     if not os.path.isfile(path):
         raise FileNotFoundError(path)
-    connection = sqlite3.connect(path, timeout=timeout)
+    connection = connect_database(path, timeout=timeout)
     try:
         return migrate_connection(
             connection,
@@ -367,7 +372,7 @@ def repair_legacy_columns(db_path, *, timeout: float = 30.0):
     """
 
     path = os.path.abspath(os.fspath(db_path))
-    connection = sqlite3.connect(path, timeout=timeout)
+    connection = connect_database(path, timeout=timeout)
     transaction = _begin_migration(connection)
     try:
         renamed = _rename_legacy_columns(connection)

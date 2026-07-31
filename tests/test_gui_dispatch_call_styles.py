@@ -111,9 +111,11 @@ def _dispatch(settings_type):
 
     captured = {}
 
-    def fake_wrapper(function=None, settings=None, q=None, fig_queue=None, imports=1):
+    def fake_wrapper(function=None, settings=None, q=None, fig_queue=None,
+                     imports=1, app_key=None):
         captured["function"] = function
         captured["imports"] = imports
+        captured["app_key"] = app_key
 
     real_wrapper = GU.function_gui_wrapper
     real_stdout = GU.process_stdout_stderr
