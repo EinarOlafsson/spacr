@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_michael",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.975,
+      "scene_end": 12.424999999999999,
+      "duration": 12.424999999999999,
+      "text": "This tutorial covers Python API and headless workflows. Run reproducible spaCR pipelines from Python or a shell without the desktop interface."
+    },
+    {
+      "scene": 2,
+      "speech_start": 12.424999999999999,
+      "speech_end": 25.299999999999997,
+      "scene_end": 25.749999999999996,
+      "duration": 13.324999999999998,
+      "text": "Open Python API and headless workflows from the spaCR section. Start from settings exported by the desktop app or construct a validated settings dictionary in Python."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.749999999999996,
+      "speech_end": 34.699999999999996,
+      "scene_end": 35.15,
+      "duration": 9.400000000000002,
+      "text": "In the main configuration area, select the pipeline entry point, source path, output path, worker count, and hardware options."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.15,
+      "speech_end": 49.775,
+      "scene_end": 50.225,
+      "duration": 15.075000000000003,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. execute the pipeline in a terminal, notebook, scheduler, or remote job while preserving logs and settings."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.225,
+      "speech_end": 60.275000000000006,
+      "scene_end": 60.925000000000004,
+      "duration": 10.700000000000003,
+      "text": "When the workflow finishes, the project contains the same masks, measurements, databases, figures, and run records produced by the desktop app."
+    }
+  ]
+}

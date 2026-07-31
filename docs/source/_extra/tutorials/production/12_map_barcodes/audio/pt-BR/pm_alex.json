@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.075,
+      "scene_end": 10.524999999999999,
+      "duration": 10.524999999999999,
+      "text": "Este tutorial abrange os códigos de barras do mapa. Conecte os códigos de barras de sequência e orienta identidades aos fenotipos medidos em imagens microscópicas."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.524999999999999,
+      "speech_end": 22.674999999999997,
+      "scene_end": 23.124999999999996,
+      "duration": 12.599999999999998,
+      "text": "Abra Map Barcodes na seção Core. Abra os códigos de barras do mapa na seção Core. Forneça arquivos FASTQ, definições de códigos de barras, metadados de placa e o projeto de microscopia correspondente."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.124999999999996,
+      "speech_end": 32.099999999999994,
+      "scene_end": 32.55,
+      "duration": 9.425,
+      "text": "Na área de configuração principal, definir layouts de linha, coluna e código de barras guia, juntamente com limiares de qualidade e regras de desajuste."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.55,
+      "speech_end": 40.25,
+      "scene_end": 40.7,
+      "duration": 8.150000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.7,
+      "speech_end": 48.725,
+      "scene_end": 49.375,
+      "duration": 8.674999999999997,
+      "text": "Quando o fluxo de trabalho termina, as identidades do guia são ligadas a poços e fenotipos de um único objeto em tabelas rastreáveis."
+    }
+  ]
+}

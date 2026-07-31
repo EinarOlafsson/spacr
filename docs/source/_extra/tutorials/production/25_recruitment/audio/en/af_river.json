@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_river",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.675,
+      "scene_end": 8.125,
+      "duration": 8.125,
+      "text": "This tutorial covers Recruitment. Quantify recruitment of a channel-of-interest signal to parasites or pathogen-associated regions."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.125,
+      "speech_end": 18.1,
+      "scene_end": 18.55,
+      "duration": 10.425,
+      "text": "Open Recruitment from the Toxoplasma assays section. Use measured cell, parasite, and organelle masks with channel one, endoplasmic reticulum, as the channel of interest."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.55,
+      "speech_end": 26.35,
+      "scene_end": 26.8,
+      "duration": 8.25,
+      "text": "In the main configuration area, define the recruitment region, background reference, object filters, grouping, and normalization strategy."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.8,
+      "speech_end": 37.725,
+      "scene_end": 38.175000000000004,
+      "duration": 11.375000000000004,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect object-level overlays and control distributions before comparing conditions."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.175000000000004,
+      "speech_end": 44.475,
+      "scene_end": 45.125,
+      "duration": 6.949999999999996,
+      "text": "When the workflow finishes, per-object recruitment scores and condition summaries are stored with source identifiers."
+    }
+  ]
+}

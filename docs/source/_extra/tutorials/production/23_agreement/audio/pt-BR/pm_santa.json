@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.5,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.0,
+      "scene_end": 3.45,
+      "duration": 3.45,
+      "text": "Este tutorial abrange o Acordo de Anotador."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.45,
+      "speech_end": 17.525,
+      "scene_end": 17.974999999999998,
+      "duration": 14.524999999999999,
+      "text": "Abra Annotator Agreement na seção Results and quality control. Abra o Acordo de Anotador na seção Resultados e controle de qualidade. Escolha um banco de dados do projeto e duas ou mais colunas de anotações que cobrem os mesmos objetos."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.974999999999998,
+      "speech_end": 27.15,
+      "scene_end": 27.599999999999998,
+      "duration": 9.625,
+      "text": "Na área de configuração principal, selecione o tratamento de classes, a política de etiqueta faltante, o agrupamento, a amostragem e a estatística do acordo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.599999999999998,
+      "speech_end": 35.349999999999994,
+      "scene_end": 35.8,
+      "duration": 8.2,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.8,
+      "speech_end": 44.849999999999994,
+      "scene_end": 45.49999999999999,
+      "duration": 9.699999999999996,
+      "text": "Quando o fluxo de trabalho termina, as tabelas de acordo e uma revisão focada estabelecem a reconciliação dos rótulos e a melhoria do protocolo."
+    }
+  ]
+}

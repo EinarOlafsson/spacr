@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.225,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 4.375,
+      "scene_end": 4.825,
+      "duration": 4.825,
+      "text": "Este tutorial abrange a API Python e os fluxos de trabalho sem cabeça."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.825,
+      "speech_end": 20.325,
+      "scene_end": 20.775,
+      "duration": 15.95,
+      "text": "Abra Python API and headless workflows na seção spaCR. Abra a API Python e os fluxos de trabalho sem cabeçalhos da seção spaCR. Comece com configurações exportadas pelo aplicativo de desktop ou construa um dicionário de configurações validado em Python."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.775,
+      "speech_end": 30.4,
+      "scene_end": 30.849999999999998,
+      "duration": 10.075,
+      "text": "Na área de configuração principal, selecione o ponto de entrada do pipeline, o caminho de origem, o caminho de saída, a contagem de trabalhadores e as opções de hardware."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.849999999999998,
+      "speech_end": 44.9,
+      "scene_end": 45.35,
+      "duration": 14.500000000000004,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Execute o pipeline em um terminal, notebook, cronista ou trabalho remoto, enquanto preserva os registros e configurações."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.35,
+      "speech_end": 55.575,
+      "scene_end": 56.225,
+      "duration": 10.875,
+      "text": "Quando o fluxo de trabalho termina, o projeto contém as mesmas máscaras, medições, bases de dados, números e registros de execução produzidos pelo aplicativo de desktop."
+    }
+  ]
+}

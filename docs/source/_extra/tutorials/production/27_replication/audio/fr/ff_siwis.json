@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 43.675,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.2,
+      "scene_end": 3.6500000000000004,
+      "duration": 3.6500000000000004,
+      "text": "Ce tutoriel couvre l'essai de réplication."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.6500000000000004,
+      "speech_end": 13.3,
+      "scene_end": 13.75,
+      "duration": 10.1,
+      "text": "Ouvrez Replication assay dans la section Toxoplasma assays. Sélectionnez les mesures de cellules hôtes, de vacuole et de parasites avec les métadonnées de l'état."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.75,
+      "speech_end": 24.9,
+      "scene_end": 25.349999999999998,
+      "duration": 11.599999999999998,
+      "text": "Dans la zone de configuration principale, configurer l'affectation spatiale, les filtres d'objets, les poubelles de comptage des parasites, les contrôles et les comparaisons statistiques."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.349999999999998,
+      "speech_end": 32.974999999999994,
+      "scene_end": 33.425,
+      "duration": 8.075,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 33.425,
+      "speech_end": 43.025,
+      "scene_end": 43.675,
+      "duration": 10.25,
+      "text": "Lorsque le flux de travail est terminé, les distributions par parasites par vacuole, les taux de réplication, les statistiques et les chiffres sont enregistrés."
+    }
+  ]
+}

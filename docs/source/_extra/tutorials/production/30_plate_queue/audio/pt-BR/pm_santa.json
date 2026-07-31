@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.375,
+      "scene_end": 6.825,
+      "duration": 6.825,
+      "text": "Este tutorial abrange a fila de placas. Encaine várias placas através do mesmo pipeline validado."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.825,
+      "speech_end": 18.825,
+      "scene_end": 19.275,
+      "duration": 12.45,
+      "text": "Abra Plate Queue na seção Data and batch runs. Abra a fila de placa na seção Dados e batches. Adicione fontes de placa e escolha a sequência de módulos compartilhados e configurações pré-definidas."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.275,
+      "speech_end": 30.75,
+      "scene_end": 31.2,
+      "duration": 11.925,
+      "text": "Na área de configuração principal, revisar a ordem da placa, as redireções por placa, os limites dos trabalhadores, a política de falha, o comportamento de retomada e as raízes de saída."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.2,
+      "speech_end": 45.85,
+      "scene_end": 46.300000000000004,
+      "duration": 15.100000000000005,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Comece com uma placa pequena ou um campo de teste, depois deixe a fila processar as placas sequencialmente com o status visível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.300000000000004,
+      "speech_end": 54.72500000000001,
+      "scene_end": 55.37500000000001,
+      "duration": 9.075000000000003,
+      "text": "Quando o fluxo de trabalho termina, cada placa recebe um projeto isolado e executa um registro enquanto a fila preserva o progresso geral."
+    }
+  ]
+}

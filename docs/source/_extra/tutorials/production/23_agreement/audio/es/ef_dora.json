@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 57.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.7,
+      "scene_end": 9.149999999999999,
+      "duration": 9.149999999999999,
+      "text": "Este tutorial abarca el Acuerdo de Anotador. Medir el acuerdo entre las columnas de anotación y revisar los objetos responsables del desacuerdo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.149999999999999,
+      "speech_end": 23.224999999999998,
+      "scene_end": 23.674999999999997,
+      "duration": 14.524999999999999,
+      "text": "Abra Annotator Agreement en la sección Results and quality control. Abre el Acuerdo de anotador en la sección Resultados y control de calidad. Elige una base de datos de proyectos y dos o más columnas de anotación que cubran los mismos objetos."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.674999999999997,
+      "speech_end": 32.75,
+      "scene_end": 33.2,
+      "duration": 9.525000000000006,
+      "text": "En el área de configuración principal, seleccione el manejo de clases, la política de etiquetas faltantes, el agrupamiento, la muestreo y la estadística de acuerdo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.2,
+      "speech_end": 47.2,
+      "scene_end": 47.650000000000006,
+      "duration": 14.450000000000003,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. inspeccione Cohen o Fleiss kappa junto con ejemplos de confusión y desacuerdo específicos de la clase."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.650000000000006,
+      "speech_end": 56.35000000000001,
+      "scene_end": 57.00000000000001,
+      "duration": 9.350000000000001,
+      "text": "Cuando el flujo de trabajo termina, las tablas de acuerdo y una revisión enfocada establecen la compatibilidad de las etiquetas y la mejora del protocolo."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_echo",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.675,
+      "scene_end": 9.125,
+      "duration": 9.125,
+      "text": "This tutorial covers Invasion assay. Use two-color outside-versus-inside staining to distinguish attached from invaded parasites."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.125,
+      "speech_end": 19.55,
+      "scene_end": 20.0,
+      "duration": 10.875,
+      "text": "Open Invasion assay from the Toxoplasma assays section. Provide parasite and host-cell masks, inside and outside stain channels, plate metadata, and controls."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.0,
+      "speech_end": 28.125,
+      "scene_end": 28.575,
+      "duration": 8.575,
+      "text": "In the main configuration area, configure intensity thresholds, object matching, ambiguity handling, and well-level grouping."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.575,
+      "speech_end": 40.05,
+      "scene_end": 40.5,
+      "duration": 11.925,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. review attached, invaded, and uncertain examples before accepting the classification rule."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.5,
+      "speech_end": 48.5,
+      "scene_end": 49.15,
+      "duration": 8.649999999999999,
+      "text": "When the workflow finishes, spaCR reports counts and invasion efficiency per well and condition with quality-control images."
+    }
+  ]
+}

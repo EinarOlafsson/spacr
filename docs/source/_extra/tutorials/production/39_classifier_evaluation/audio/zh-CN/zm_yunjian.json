@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunjian",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 39.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.5,
+      "scene_end": 5.95,
+      "duration": 5.95,
+      "text": "审计的预测,嵌入式交叉验证,校准,泄漏和每盘性能."
+    },
+    {
+      "scene": 2,
+      "speech_start": 5.95,
+      "speech_end": 15.825,
+      "scene_end": 16.275,
+      "duration": 10.325,
+      "text": "从 Results and quality control 部分打开 Classifier Evaluation。 选择基于真相,分类元数据,盘标识符,概率和模型运行记录的预测."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.275,
+      "speech_end": 24.0,
+      "scene_end": 24.45,
+      "duration": 8.175,
+      "text": "在主配置区域,配置类序列,门值,校准容器,组分,启动线不确定性和泄漏检查."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.45,
+      "speech_end": 31.15,
+      "scene_end": 31.599999999999998,
+      "duration": 7.149999999999999,
+      "text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 31.599999999999998,
+      "speech_end": 38.349999999999994,
+      "scene_end": 38.99999999999999,
+      "duration": 7.399999999999995,
+      "text": "当工作流程完成时, spaCR 产生歧视,校准,混乱,泄漏和强度报告."
+    }
+  ]
+}

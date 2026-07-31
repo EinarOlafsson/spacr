@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.825,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.325,
+      "scene_end": 3.7750000000000004,
+      "duration": 3.7750000000000004,
+      "text": "Questo tutorial copre le mappe di attivazione."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.7750000000000004,
+      "speech_end": 18.5,
+      "scene_end": 18.95,
+      "duration": 15.174999999999999,
+      "text": "Apri Activation maps dalla sezione Results and quality control. Apri le mappe di attivazione dalla sezione Risultati e controllo qualità Selezionare un modello di visione addestrato e colture di oggetti rappresentative dalle classi di interesse."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.95,
+      "speech_end": 29.225,
+      "scene_end": 29.675,
+      "duration": 10.725000000000001,
+      "text": "Nella zona di configurazione principale, scegliete il metodo di attribuzione, il livello di destinazione, la classe di destinazione, i canali, la normalizzazione e il campionamento."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.675,
+      "speech_end": 43.275,
+      "scene_end": 43.725,
+      "duration": 14.05,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di test quando è disponibile. confrontare le mappe tra esempi corretti, errati, di alta fiducia e di bassa fiducia."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.725,
+      "speech_end": 55.175,
+      "scene_end": 55.824999999999996,
+      "duration": 12.099999999999994,
+      "text": "Quando il flusso di lavoro è terminato, le sovrapposizioni di attivazione e le misurazioni di attribuzione aiutano a valutare se il modello ha appreso segnali biologicamente plausibili."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_onyx",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.875,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.0,
+      "scene_end": 9.45,
+      "duration": 9.45,
+      "text": "This tutorial covers Installation with pip. Install spaCR in an existing isolated Python environment for desktop or headless use."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.45,
+      "speech_end": 19.4,
+      "scene_end": 19.849999999999998,
+      "duration": 10.399999999999999,
+      "text": "Open Installation with pip from the spaCR section. Confirm that the environment uses a supported Python version; Python three point twelve is recommended."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.849999999999998,
+      "speech_end": 28.375,
+      "scene_end": 28.825,
+      "duration": 8.975000000000001,
+      "text": "In the main configuration area, upgrade pip if needed and decide whether you need the desktop, development, or optional scientific extras."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.825,
+      "speech_end": 41.05,
+      "scene_end": 41.5,
+      "duration": 12.675,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Run pip install spaCR, then verify the command and Python import before starting an experiment."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.5,
+      "speech_end": 49.225,
+      "scene_end": 49.875,
+      "duration": 8.375,
+      "text": "When the workflow finishes, the same installation can launch the desktop app or run scripted workflows on a workstation or server."
+    }
+  ]
+}

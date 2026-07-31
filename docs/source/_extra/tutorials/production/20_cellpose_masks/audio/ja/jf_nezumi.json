@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 71.2,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.55,
+      "scene_end": 14.0,
+      "duration": 14.0,
+      "text": "このチュートリアルでは Cellpose Mask をカバーしています. 集中したモデル・アプリケーションワークフローを使用して Cellpose mask を生成しレビューします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.0,
+      "speech_end": 28.475,
+      "scene_end": 28.925,
+      "duration": 14.925,
+      "text": "Segmentation models セクションから Cellpose Masks を開きます。 顕微鏡画像,チャンネル,および内蔵またはカスタマイズされたセルposeモデルを選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 28.925,
+      "speech_end": 41.375,
+      "scene_end": 41.825,
+      "duration": 12.900000000000002,
+      "text": "主な構成領域では,直径,流量,細胞確率の限界,正常化,タイルリング,ハードウェアの使用を設定する."
+    },
+    {
+      "scene": 4,
+      "speech_start": 41.825,
+      "speech_end": 59.550000000000004,
+      "scene_end": 60.00000000000001,
+      "duration": 18.175000000000004,
+      "text": "完全な実行前に,可視設定をチェックし,ある場合,前見またはテストモードを使用します. モデルを完全なソースに適用する前にいくつかの代表的なフィールドを前見してください."
+    },
+    {
+      "scene": 5,
+      "speech_start": 60.00000000000001,
+      "speech_end": 70.55000000000001,
+      "scene_end": 71.20000000000002,
+      "duration": 11.20000000000001,
+      "text": "作業流が完了すると,マップされた入力付近にラベルマスクと視覚的な品質管理画像が書き込まれます."
+    }
+  ]
+}

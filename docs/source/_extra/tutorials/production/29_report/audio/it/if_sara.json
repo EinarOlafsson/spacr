@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.6,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.225,
+      "scene_end": 10.674999999999999,
+      "duration": 10.674999999999999,
+      "text": "Questo tutorial copre Report. Crea un riassunto HTML o PDF condivisibile contenente controllo di qualità, figure, statistiche, impostazioni e versioni."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.674999999999999,
+      "speech_end": 22.85,
+      "scene_end": 23.3,
+      "duration": 12.625000000000002,
+      "text": "Apri Report dalla sezione Results and quality control. Apri Report dalla sezione Risultati e controllo qualità. Scegli un progetto spaCR completato e le corse, tabelle, figure e sezioni da includere."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.3,
+      "speech_end": 33.6,
+      "scene_end": 34.050000000000004,
+      "duration": 10.750000000000004,
+      "text": "Nell'area di configurazione principale, configurare titolo, autorizzazione, etichette di condizione, soglie di qualità, formato di uscita e campi sensibili alla privacy."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.050000000000004,
+      "speech_end": 48.900000000000006,
+      "scene_end": 49.35000000000001,
+      "duration": 15.300000000000004,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. prevedere il report e risolvere i file mancanti o i controlli di qualità falliti prima dell'esportazione."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.35000000000001,
+      "speech_end": 59.95000000000001,
+      "scene_end": 60.60000000000001,
+      "duration": 11.25,
+      "text": "Quando il flusso di lavoro è terminato, un rapporto portatile registra le conclusioni insieme alle impostazioni e alle versioni del software necessarie per riprodurle."
+    }
+  ]
+}

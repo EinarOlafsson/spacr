@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 77.2,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.975,
+      "scene_end": 14.424999999999999,
+      "duration": 14.424999999999999,
+      "text": "このチュートリアルでは アクティベーションマップをカバーします. 訓練されたコンピュータビジョン分類器に最も影響を与える画像領域をチェックします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.424999999999999,
+      "speech_end": 29.725,
+      "scene_end": 30.175,
+      "duration": 15.750000000000002,
+      "text": "Results and quality control セクションから Activation maps を開きます。 興味のあるクラスから訓練された視力モデルと代表的なオブジェクト作物を選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 30.175,
+      "speech_end": 42.025,
+      "scene_end": 42.475,
+      "duration": 12.3,
+      "text": "主な構成領域では,属性方法,ターゲット層,ターゲットクラス,チャンネル,正常化,サンプリングを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 42.475,
+      "speech_end": 60.25,
+      "scene_end": 60.7,
+      "duration": 18.225,
+      "text": "完全な実行前に,可視設定をレビューし,可用である場合のプレビューまたはテストモードを使用します.正しい,不正な,高い信頼性,低い信頼性の例の地図を比較します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 60.7,
+      "speech_end": 76.55,
+      "scene_end": 77.2,
+      "duration": 16.5,
+      "text": "作業流が完了すると,アクティベーションの重複と属性測定は,モデルが生物学的に合理的な信号を学んだかどうかを評価するのに役立ちます."
+    }
+  ]
+}

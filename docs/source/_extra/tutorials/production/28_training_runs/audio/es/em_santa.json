@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.55,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.45,
+      "scene_end": 9.899999999999999,
+      "duration": 9.899999999999999,
+      "text": "Este tutorial cubre las carreras de entrenamiento. Compara varias carreras de entrenamiento de modelos superponiendo curvas y diferenciando sus configuraciones."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.899999999999999,
+      "speech_end": 23.525,
+      "scene_end": 23.974999999999998,
+      "duration": 14.075,
+      "text": "Abra Training Runs en la sección Results and quality control. Abrir carreras de entrenamiento en la sección Resultados y control de calidad. Seleccione carpetas de carreras o registros de entrenamiento registrados que deben compararse."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.974999999999998,
+      "speech_end": 34.375,
+      "scene_end": 34.825,
+      "duration": 10.850000000000005,
+      "text": "En el área de configuración principal, seleccione las métricas, el suavización, el agrupamiento, los criterios de los puntos de control y los campos de configuración que se muestren."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.825,
+      "speech_end": 50.275000000000006,
+      "scene_end": 50.72500000000001,
+      "duration": 15.900000000000006,
+      "text": "Antes de la carrera completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Compara la convergencia, el sobreajuste, la estabilidad y el rendimiento prolongado en lugar de seleccionar solo por pérdida de entrenamiento."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.72500000000001,
+      "speech_end": 59.900000000000006,
+      "scene_end": 60.550000000000004,
+      "duration": 9.824999999999996,
+      "text": "Cuando el flujo de trabajo termina, las cifras de comparación y las tablas de diferencia de configuración identifican la carrera reproducible más fuerte."
+    }
+  ]
+}

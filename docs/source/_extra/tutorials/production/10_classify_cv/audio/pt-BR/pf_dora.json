@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.95,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.95,
+      "scene_end": 9.399999999999999,
+      "duration": 9.399999999999999,
+      "text": "Este tutorial abrange Classify, visão por computador. Treinar e aplicar uma rede neural baseada em imagem para culturas com um único objeto anotado."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.399999999999999,
+      "speech_end": 22.375,
+      "scene_end": 22.825,
+      "duration": 13.425,
+      "text": "Abra Classify, computer vision na seção Core. Abra Classificar, visão por computador da seção Core. Selecione pastas de culturas com anotações ou um banco de dados de projetos com rótulos de classes confiáveis."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.825,
+      "speech_end": 31.525,
+      "scene_end": 31.974999999999998,
+      "duration": 9.149999999999999,
+      "text": "Na área de configuração principal, escolha os canais de imagem, arquitetura, estratégia de divisão, aumento, tamanho de lote e controles de treinamento."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.974999999999998,
+      "speech_end": 46.05,
+      "scene_end": 46.5,
+      "duration": 14.525000000000002,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. treine sobre a divisão de treinamento, monitore o comportamento de validação e avalia uma vez os dados mantidos."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.5,
+      "speech_end": 55.3,
+      "scene_end": 55.949999999999996,
+      "duration": 9.449999999999996,
+      "text": "Quando o fluxo de trabalho termina, o spaCR salva o modelo, métricas, previsões, exemplos de classes e executa metadados para aplicação posterior."
+    }
+  ]
+}

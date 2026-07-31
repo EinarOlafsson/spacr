@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.85,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.275,
+      "scene_end": 8.725,
+      "duration": 8.725,
+      "text": "Crear un resumen compartible HTML o PDF que contenga controles de calidad, cifras, estadísticas, configuraciones y versiones."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.725,
+      "speech_end": 21.0,
+      "scene_end": 21.45,
+      "duration": 12.725,
+      "text": "Abra Report en la sección Results and quality control. Abre el informe en la sección Resultados y control de calidad. Elige un proyecto spaCR completado y las carreras, tablas, cifras y secciones que incluya."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.45,
+      "speech_end": 31.299999999999997,
+      "scene_end": 31.749999999999996,
+      "duration": 10.299999999999997,
+      "text": "En el área de configuración principal, configurar título, autoría, etiquetas de condición, umbrales de calidad, formato de salida y campos sensibles a la privacidad."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.749999999999996,
+      "speech_end": 39.724999999999994,
+      "scene_end": 40.175,
+      "duration": 8.425,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de visualización o prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.175,
+      "speech_end": 50.199999999999996,
+      "scene_end": 50.849999999999994,
+      "duration": 10.674999999999997,
+      "text": "Cuando el flujo de trabajo termina, un informe portátil registra las conclusiones junto con las configuraciones y las versiones de software necesarias para reproducirlas."
+    }
+  ]
+}

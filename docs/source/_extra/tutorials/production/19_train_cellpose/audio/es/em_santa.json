@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.95,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.275,
+      "scene_end": 11.725,
+      "duration": 11.725,
+      "text": "Este tutorial abarca Train Cellpose. Entrenar un modelo de segmentación personalizado de Cellpose o compatible con CPSAM a partir de pares de máscaras de imágenes seleccionadas."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.725,
+      "speech_end": 25.65,
+      "scene_end": 26.099999999999998,
+      "duration": 14.374999999999998,
+      "text": "Abra Train Cellpose en la sección Segmentation models. Abre el tren Cellpose desde la sección Modelos de segmentación. Proporcione diversas imágenes de capacitación y validación con máscaras de etiqueta cuidadosamente corregidas."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.099999999999998,
+      "speech_end": 35.199999999999996,
+      "scene_end": 35.65,
+      "duration": 9.55,
+      "text": "En el área de configuración principal, elija canales, modelo base, diámetro, aumento, tasa de aprendizaje, épocas, tamaño de lote y división de validación."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.65,
+      "speech_end": 43.925,
+      "scene_end": 44.375,
+      "duration": 8.725000000000001,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.375,
+      "speech_end": 54.3,
+      "scene_end": 54.949999999999996,
+      "duration": 10.574999999999996,
+      "text": "Cuando el flujo de trabajo termina, el punto de control seleccionado, el historial de entrenamiento, las predicciones de validación y las configuraciones se almacenan juntos."
+    }
+  ]
+}

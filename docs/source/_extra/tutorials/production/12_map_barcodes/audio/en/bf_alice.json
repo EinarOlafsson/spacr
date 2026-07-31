@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_alice",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.425,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.0,
+      "scene_end": 9.45,
+      "duration": 9.45,
+      "text": "This tutorial covers Map Barcodes. Connect sequencing barcodes and guide identities to the phenotypes measured in microscopy images."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.45,
+      "speech_end": 18.799999999999997,
+      "scene_end": 19.249999999999996,
+      "duration": 9.799999999999997,
+      "text": "Open Map Barcodes from the Core section. Provide FASTQ files, barcode definitions, plate metadata, and the matching microscopy project."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.249999999999996,
+      "speech_end": 27.275,
+      "scene_end": 27.724999999999998,
+      "duration": 8.475000000000001,
+      "text": "In the main configuration area, define row, column, and guide barcode layouts together with quality thresholds and mismatch rules."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.724999999999998,
+      "speech_end": 39.224999999999994,
+      "scene_end": 39.675,
+      "duration": 11.95,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect sequencing quality and mapping rates before accepting the merged assignments."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.675,
+      "speech_end": 46.775,
+      "scene_end": 47.425,
+      "duration": 7.75,
+      "text": "When the workflow finishes, guide identities are linked to wells and single-object phenotypes in traceable tables."
+    }
+  ]
+}

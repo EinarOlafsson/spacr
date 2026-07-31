@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_alice",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.175,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.025,
+      "scene_end": 9.475,
+      "duration": 9.475,
+      "text": "This tutorial covers Regression. Estimate perturbation effects and identify features associated with guide or condition-level phenotypes."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.475,
+      "speech_end": 18.1,
+      "scene_end": 18.55,
+      "duration": 9.075000000000001,
+      "text": "Open Regression from the Core section. Select mapped measurements, response variables, controls, grouping columns, and candidate predictors."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.55,
+      "speech_end": 28.05,
+      "scene_end": 28.5,
+      "duration": 9.95,
+      "text": "In the main configuration area, choose transformations, covariates, model family, random effects, multiple-testing correction, and quality filters."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.5,
+      "speech_end": 40.275,
+      "scene_end": 40.725,
+      "duration": 12.225000000000001,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect model diagnostics and control behavior before interpreting coefficients."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.725,
+      "speech_end": 48.525,
+      "scene_end": 49.175,
+      "duration": 8.449999999999996,
+      "text": "When the workflow finishes, spaCR writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures."
+    }
+  ]
+}

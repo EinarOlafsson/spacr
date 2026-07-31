@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.175,
+      "scene_end": 8.625,
+      "duration": 8.625,
+      "text": "Este tutorial abrange o teste de invasão. Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.625,
+      "speech_end": 15.8,
+      "scene_end": 16.25,
+      "duration": 7.625,
+      "text": "Abra Invasion assay na seção Toxoplasma assays. Avaliação de Invasão Aberta da secção de Análise de Toxoplasma."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.25,
+      "speech_end": 25.425,
+      "scene_end": 25.875,
+      "duration": 9.625,
+      "text": "Na área de configuração principal, configurar limites de intensidade, correspondência de objetos, manipulação de ambigüidade e agrupamento de nível bem."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.875,
+      "speech_end": 38.8,
+      "scene_end": 39.25,
+      "duration": 13.375,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise os exemplos anexados, invadidos e incertos antes de aceitar a regra de classificação."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.25,
+      "speech_end": 49.075,
+      "scene_end": 49.725,
+      "duration": 10.475000000000001,
+      "text": "Quando o fluxo de trabalho estiver concluído, os relatórios spaCR contam e informam a eficiência de invasão por poço e condição com imagens de controlo de qualidade."
+    }
+  ]
+}

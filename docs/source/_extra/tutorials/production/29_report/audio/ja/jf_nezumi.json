@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 78.275,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.675,
+      "scene_end": 13.125,
+      "duration": 13.125,
+      "text": "このチュートリアルでは,品質管理,数字,統計,設定,バージョンを含む共有可能な HTML または PDF 概要を作成します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.125,
+      "speech_end": 26.7,
+      "scene_end": 27.15,
+      "duration": 14.024999999999999,
+      "text": "Results and quality control セクションから Report を開きます。 完成した spaCR プロジェクトと実行,表,数字,およびセクションを選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.15,
+      "speech_end": 42.724999999999994,
+      "scene_end": 43.175,
+      "duration": 16.025,
+      "text": "主な構成領域では,設定タイトル,著作物,条件ラベル,品質の限界値,出力フォーマット,プライバシーに敏感なフィールドを設定します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 43.175,
+      "speech_end": 63.875,
+      "scene_end": 64.325,
+      "duration": 21.150000000000006,
+      "text": "完全な実行前に,可視設定をチェックし,その1つが利用可能であれば,前見またはテストモードを使用します.報告を前見して,輸出前に欠落したファイルまたは品質チェックに失敗したファイルを解決します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 64.325,
+      "speech_end": 77.625,
+      "scene_end": 78.275,
+      "duration": 13.950000000000003,
+      "text": "作業流が完了すると,携帯レポートは,その結果を再現するために必要な設定とソフトウェアバージョンとともに結論を記録します."
+    }
+  ]
+}

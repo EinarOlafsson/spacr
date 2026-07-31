@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.075,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.05,
+      "scene_end": 9.5,
+      "duration": 9.5,
+      "text": "Questo tutorial copre il test di replicazione. Score i parassiti per vacuolo e riassume la replicazione intracellulare per condizione."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.5,
+      "speech_end": 25.075,
+      "scene_end": 25.525,
+      "duration": 16.025,
+      "text": "Apri Replication assay dalla sezione Toxoplasma assays. Apri test di replicazione dalla sezione Assess Toxoplasma Selezionare le misurazioni della cellula ospite, del vacuolo e del parassita insieme ai metadati della condizione."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.525,
+      "speech_end": 37.3,
+      "scene_end": 37.75,
+      "duration": 12.225000000000001,
+      "text": "Nell'area di configurazione principale, configurare l'assegnazione spaziale, i filtri di oggetti, i contenitori per il conteggio dei parassiti, i controlli e i confronti statistici."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.75,
+      "speech_end": 47.25,
+      "scene_end": 47.7,
+      "duration": 9.950000000000003,
+      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.7,
+      "speech_end": 57.425000000000004,
+      "scene_end": 58.075,
+      "duration": 10.375,
+      "text": "Quando il flusso di lavoro è finito, vengono salvate le distribuzioni dei parassiti per vacuolo, i tassi di replicazione, le statistiche e le cifre."
+    }
+  ]
+}

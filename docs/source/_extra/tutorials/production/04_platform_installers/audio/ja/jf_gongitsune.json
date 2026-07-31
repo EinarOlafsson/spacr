@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_gongitsune",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.85,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.6,
+      "scene_end": 10.049999999999999,
+      "duration": 10.049999999999999,
+      "text": "このチュートリアルでは,Pythonを手動管理せずにWindows,macOS,Linuxで spaCRをインストールします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.049999999999999,
+      "speech_end": 22.45,
+      "scene_end": 22.9,
+      "duration": 12.85,
+      "text": "spaCR セクションから Platform installers を開きます。 GitHub の現在のリリースからオペレーティングシステムへのインストーラをダウンロードする."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.9,
+      "speech_end": 36.325,
+      "scene_end": 36.775000000000006,
+      "duration": 13.875000000000007,
+      "text": "主な構成領域では,オペレーティングシステムのセキュリティプロンプト,プライベートランタイムロケーション,および要求された加速バックエンドをレビューする."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.775000000000006,
+      "speech_end": 54.925000000000004,
+      "scene_end": 55.37500000000001,
+      "duration": 18.6,
+      "text": "実行完了する前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.インストールが完了し,何か故障した場合のインストールログを保存できるようにしてください."
+    },
+    {
+      "scene": 5,
+      "speech_start": 55.37500000000001,
+      "speech_end": 65.2,
+      "scene_end": 65.85000000000001,
+      "duration": 10.475000000000001,
+      "text": "作業流が完了すると spaCR が独自の Python 実行時間を保持する間,ネイティブランチャーを使用します."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.675,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.325,
+      "scene_end": 9.774999999999999,
+      "duration": 9.774999999999999,
+      "text": "Questo tutorial copre Plate Viewer. Esplora qualsiasi misurazione come una heatmap della piastra e identifica artefatti spaziali o effetti di bordo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.774999999999999,
+      "speech_end": 22.65,
+      "scene_end": 23.099999999999998,
+      "duration": 13.325,
+      "text": "Apri Plate Viewer dalla sezione Results and quality control. Apri il visore di piastre dalla sezione Risultati e controllo qualità. Apri un database di misurazioni con identificatori di piastre, pozzo e condizione."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.099999999999998,
+      "speech_end": 32.449999999999996,
+      "scene_end": 32.9,
+      "duration": 9.8,
+      "text": "Nella zona di configurazione principale, scegli la misura, l'aggregazione, la normalizzazione, la scala dei colori, i controlli e la disposizione della piastra."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.9,
+      "speech_end": 47.4,
+      "scene_end": 47.85,
+      "duration": 14.950000000000003,
+      "text": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare le viste grezze e normalizzate e controllare pozzi sospetti o schemi di bordo sistematici."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.85,
+      "speech_end": 56.025000000000006,
+      "scene_end": 56.675000000000004,
+      "duration": 8.825000000000003,
+      "text": "Quando il flusso di lavoro è finito, possono essere esportate heatmaps, tabelle di pozzi selezionati e diagnosi degli effetti di bordo."
+    }
+  ]
+}

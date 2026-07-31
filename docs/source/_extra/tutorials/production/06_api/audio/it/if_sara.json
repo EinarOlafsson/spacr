@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 62.55,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.4,
+      "scene_end": 9.85,
+      "duration": 9.85,
+      "text": "Questo tutorial copre Python API e workflows headless. eseguire spaCR pipeline riproducibili da Python o da un shell senza l'interfaccia desktop."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.85,
+      "speech_end": 25.025,
+      "scene_end": 25.474999999999998,
+      "duration": 15.624999999999998,
+      "text": "Apri Python API and headless workflows dalla sezione spaCR. Aprire Python API e flussi di lavoro senza testa dalla sezione spaCR. Inizia dalle impostazioni esportate dall'app desktop o costruire un dizionario di impostazioni convalidato in Python."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.474999999999998,
+      "speech_end": 35.974999999999994,
+      "scene_end": 36.425,
+      "duration": 10.95,
+      "text": "Nella zona di configurazione principale, selezionare il punto di ingresso del pipeline, il percorso sorgente, il percorso di uscita, il numero di lavoratori e le opzioni hardware."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.425,
+      "speech_end": 51.974999999999994,
+      "scene_end": 52.425,
+      "duration": 16.0,
+      "text": "Prima di eseguire l'esecuzione completa, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando una è disponibile. eseguire il pipeline in un terminale, notebook, programmazione o lavoro remoto conservando i registri e le impostazioni."
+    },
+    {
+      "scene": 5,
+      "speech_start": 52.425,
+      "speech_end": 61.9,
+      "scene_end": 62.55,
+      "duration": 10.125,
+      "text": "Quando il flusso di lavoro è finito, il progetto contiene le stesse maschere, misure, database, cifre e registrazioni di esecuzione prodotte dall'app desktop."
+    }
+  ]
+}

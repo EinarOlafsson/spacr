@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.775,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.25,
+      "scene_end": 10.7,
+      "duration": 10.7,
+      "text": "Este tutorial abarca la Regresión. Estima los efectos de la perturbación e identifica las características asociadas con los fenotipos de nivel guía o de condición."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.7,
+      "speech_end": 23.174999999999997,
+      "scene_end": 23.624999999999996,
+      "duration": 12.924999999999997,
+      "text": "Abra Regression en la sección Core. Abre Regresión desde la sección Core. Seleccione las mediciones mapeadas, las variables de respuesta, los controles, las columnas de agrupación y los predictores candidatos."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.624999999999996,
+      "speech_end": 33.449999999999996,
+      "scene_end": 33.9,
+      "duration": 10.275000000000002,
+      "text": "En el área de configuración principal, elija transformaciones, covariados, familia de modelos, efectos aleatorios, corrección de pruebas múltiples y filtros de calidad."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.9,
+      "speech_end": 42.175,
+      "scene_end": 42.625,
+      "duration": 8.725000000000001,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.625,
+      "speech_end": 51.125,
+      "scene_end": 51.775,
+      "duration": 9.149999999999999,
+      "text": "Cuando el flujo de trabajo termina, spaCR escribe los tamaños de efectos, la incertidumbre, la importancia ajustada, los diagnósticos y las cifras."
+    }
+  ]
+}

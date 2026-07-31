@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_eric",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 42.075,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.45,
+      "scene_end": 6.9,
+      "duration": 6.9,
+      "text": "This tutorial covers Plaque assay. Measure plaque formation and condition-dependent changes from plate images."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.9,
+      "speech_end": 15.25,
+      "scene_end": 15.7,
+      "duration": 8.799999999999999,
+      "text": "Open Plaque assay from the Toxoplasma assays section. Provide plaque images, plate layout, pixel calibration, conditions, and controls."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.7,
+      "speech_end": 22.924999999999997,
+      "scene_end": 23.374999999999996,
+      "duration": 7.674999999999997,
+      "text": "In the main configuration area, configure background correction, thresholding, object cleanup, plaque-size filters, and well grouping."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.374999999999996,
+      "speech_end": 34.4,
+      "scene_end": 34.85,
+      "duration": 11.475000000000005,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. verify segmentation overlays across control and treatment wells before batch analysis."
+    },
+    {
+      "scene": 5,
+      "speech_start": 34.85,
+      "speech_end": 41.425000000000004,
+      "scene_end": 42.075,
+      "duration": 7.225000000000001,
+      "text": "When the workflow finishes, spaCR reports plaque counts, areas, summaries, statistics, and quality-control figures."
+    }
+  ]
+}

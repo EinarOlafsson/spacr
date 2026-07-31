@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.425,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.375,
+      "scene_end": 10.825,
+      "duration": 10.825,
+      "text": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.825,
+      "speech_end": 20.9,
+      "scene_end": 21.349999999999998,
+      "duration": 10.524999999999999,
+      "text": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.349999999999998,
+      "speech_end": 30.4,
+      "scene_end": 30.849999999999998,
+      "duration": 9.5,
+      "text": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.849999999999998,
+      "speech_end": 44.65,
+      "scene_end": 45.1,
+      "duration": 14.250000000000004,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.1,
+      "speech_end": 53.775000000000006,
+      "scene_end": 54.425000000000004,
+      "duration": 9.325000000000003,
+      "text": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos."
+    }
+  ]
+}

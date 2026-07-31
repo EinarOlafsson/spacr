@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bm_george",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.3,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.0,
+      "scene_end": 9.45,
+      "duration": 9.45,
+      "text": "This tutorial covers Plate Viewer. Explore any measurement as a plate heatmap and identify spatial artifacts or edge effects."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.45,
+      "speech_end": 18.95,
+      "scene_end": 19.4,
+      "duration": 9.95,
+      "text": "Open Plate Viewer from the Results and quality control section. Open a measurements database with plate, well, and condition identifiers."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.4,
+      "speech_end": 28.025,
+      "scene_end": 28.474999999999998,
+      "duration": 9.075,
+      "text": "In the main configuration area, choose the measurement, aggregation, normalization, color scale, controls, and plate layout."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.474999999999998,
+      "speech_end": 41.724999999999994,
+      "scene_end": 42.175,
+      "duration": 13.7,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare raw and normalized views and inspect suspicious wells or systematic edge patterns."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.175,
+      "speech_end": 49.65,
+      "scene_end": 50.3,
+      "duration": 8.125,
+      "text": "When the workflow finishes, heatmaps, selected-well tables, and edge-effect diagnostics can be exported."
+    }
+  ]
+}

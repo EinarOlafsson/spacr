@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.6,
+      "scene_end": 4.05,
+      "duration": 4.05,
+      "text": "Questo tutorial copre l'analisi dell'invasione."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.05,
+      "speech_end": 19.025,
+      "scene_end": 19.474999999999998,
+      "duration": 15.424999999999997,
+      "text": "Apri Invasion assay dalla sezione Toxoplasma assays. Test Open Invasion della sezione Test Toxoplasma. Fornire maschere di parassiti e cellule ospiti, canali di macchie interni ed esterni, metadati di piastre e controlli."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.474999999999998,
+      "speech_end": 30.0,
+      "scene_end": 30.45,
+      "duration": 10.975000000000001,
+      "text": "Nell'area di configurazione principale, configurare le soglie di intensità, l'incontro degli oggetti, la gestione dell'ambiguità e il raggruppamento a livello di pozzo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.45,
+      "speech_end": 45.925,
+      "scene_end": 46.375,
+      "duration": 15.925,
+      "text": "Prima di eseguire l'esecuzione completa, rivedere le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. rivedere gli esempi allegati, invasi e incerti prima di accettare la regola di classificazione."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.375,
+      "speech_end": 56.1,
+      "scene_end": 56.75,
+      "duration": 10.375,
+      "text": "Quando il flusso di lavoro è terminato, spaCR riporta i numeri e l'efficienza di invasione per pozzo e condizione con immagini di controllo di qualità."
+    }
+  ]
+}

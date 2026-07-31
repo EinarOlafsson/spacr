@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunyang",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 35.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 4.45,
+      "scene_end": 4.9,
+      "duration": 4.9,
+      "text": "检查最影响计算机视觉分类器的图像区域."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.9,
+      "speech_end": 13.25,
+      "scene_end": 13.7,
+      "duration": 8.799999999999999,
+      "text": "从 Results and quality control 部分打开 Activation maps。 从有趣类中选择训练有素的视觉模型和代表对象作物."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.7,
+      "speech_end": 19.975,
+      "scene_end": 20.425,
+      "duration": 6.725000000000001,
+      "text": "在主要配置区域中,选择归属方法,目标层,目标类,道,正常化和样本取."
+    },
+    {
+      "scene": 4,
+      "speech_start": 20.425,
+      "speech_end": 26.950000000000003,
+      "scene_end": 27.400000000000002,
+      "duration": 6.975000000000001,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用."
+    },
+    {
+      "scene": 5,
+      "speech_start": 27.400000000000002,
+      "speech_end": 34.975,
+      "scene_end": 35.625,
+      "duration": 8.224999999999998,
+      "text": "工作流程完成后,激活覆盖和归因测量有助于评估模型是否学到了可靠的生物线索."
+    }
+  ]
+}

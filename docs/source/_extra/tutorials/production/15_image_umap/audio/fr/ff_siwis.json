@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.275,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.775,
+      "scene_end": 10.225,
+      "duration": 10.225,
+      "text": "Ce tutoriel couvre l'image UMAP. Explorez les quartiers phénotypés en intégrant des objets mesurés et en affichant leurs cultures d'image sous forme de glyphes."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.225,
+      "speech_end": 22.2,
+      "scene_end": 22.65,
+      "duration": 12.424999999999999,
+      "text": "Ouvrez Image UMAP dans la section Results and quality control. Choisissez une base de données de mesures, des cultures d'image, un ensemble de fonctionnalités et des métadonnées de regroupement."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.65,
+      "speech_end": 34.125,
+      "scene_end": 34.575,
+      "duration": 11.925000000000004,
+      "text": "Dans la zone de configuration principale, configurer les canaux de filtrage, d'échelle, de voisinage, de distance minimale, de regroupement, d'échantillonnage et d'affichage d'image."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.575,
+      "speech_end": 48.95,
+      "scene_end": 49.400000000000006,
+      "duration": 14.825000000000003,
+      "text": "Avant la pleine opération, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Comparer plusieurs emblèmes reproducibles et vérifier que les grappes ne sont pas alimentées par des plaques ou des objets d'imagerie."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.400000000000006,
+      "speech_end": 59.62500000000001,
+      "scene_end": 60.275000000000006,
+      "duration": 10.875,
+      "text": "Lorsque le flux de travail est terminé, spaCR enregistre les coordonnées, les étiquettes de cluster, les cartes d'image et les figures d'intégration prêtes à être publiées."
+    }
+  ]
+}
