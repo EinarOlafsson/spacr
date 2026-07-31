@@ -10,6 +10,35 @@ const WATCH_KEY = "spacr-tutorial-watch-v2";
 const LANGUAGE_KEY = "spacr-tutorial-language-v2";
 const VOICE_KEY = "spacr-tutorial-voice-v2";
 const THEME_KEY = "spacr-tutorial-theme-v1";
+const CAPTION_SETTINGS_KEY = "spacr-tutorial-captions-v1";
+
+const CAPTION_LANGUAGES = [
+  { id: "auto", label: "Same as narration", shortLabel: "Same as narration" },
+  { id: "en", label: "English", shortLabel: "English" },
+  { id: "de", label: "Deutsch · German", shortLabel: "Deutsch" },
+  { id: "sv", label: "Svenska · Swedish", shortLabel: "Svenska" },
+  { id: "is", label: "Íslenska · Icelandic", shortLabel: "Íslenska" },
+  { id: "ja", label: "日本語 · Japanese", shortLabel: "日本語" },
+  { id: "nb", label: "Norsk bokmål · Norwegian", shortLabel: "Norsk bokmål" },
+  { id: "ko", label: "한국어 · Korean", shortLabel: "한국어" },
+  { id: "da", label: "Dansk · Danish", shortLabel: "Dansk" },
+  { id: "es", label: "Español · Spanish", shortLabel: "Español" },
+  { id: "fr", label: "Français · French", shortLabel: "Français" },
+  { id: "it", label: "Italiano · Italian", shortLabel: "Italiano" },
+  { id: "pt-BR", label: "Português do Brasil", shortLabel: "Português" },
+  { id: "zh-CN", label: "简体中文 · Mandarin", shortLabel: "简体中文" },
+  { id: "hi", label: "हिन्दी · Hindi", shortLabel: "हिन्दी" }
+];
+const CAPTION_ONLY_LANGUAGES = new Set(["de", "sv", "is", "nb", "ko", "da"]);
+
+const DEFAULT_CAPTION_SETTINGS = Object.freeze({
+  enabled: true,
+  language: "auto",
+  size: 100,
+  color: "#FFFFFF",
+  background: "#020509",
+  backgroundOpacity: 82
+});
 
 const $ = selector => document.querySelector(selector);
 const elements = {
@@ -22,6 +51,22 @@ const elements = {
   video: $("#tutorial-video"), audio: $("#narration-audio"),
   loading: $("#video-loading"), captionTrack: $("#caption-track"),
   voice: $("#voice-select"), language: $("#language-select"),
+  captionSettings: $("#caption-settings"),
+  captionSettingsButton: $("#caption-settings-button"),
+  captionSettingsPanel: $("#caption-settings-panel"),
+  captionSettingsClose: $("#caption-settings-close"),
+  captionSettingsSummary: $("#caption-settings-summary"),
+  captionEnabled: $("#caption-enabled"),
+  captionLanguage: $("#caption-language-select"),
+  captionSize: $("#caption-size"), captionSizeValue: $("#caption-size-value"),
+  captionTextColor: $("#caption-text-color"),
+  captionTextColorValue: $("#caption-text-color-value"),
+  captionBackgroundColor: $("#caption-background-color"),
+  captionBackgroundColorValue: $("#caption-background-color-value"),
+  captionBackgroundOpacity: $("#caption-background-opacity"),
+  captionBackgroundOpacityValue: $("#caption-background-opacity-value"),
+  captionPreviewText: $("#caption-preview-text"),
+  captionReset: $("#caption-reset-button"),
   watchTime: $("#watch-time"), watchBar: $("#watch-bar"),
   chapters: $("#chapter-list"), transcript: $("#transcript-list"),
   chapterCard: $("#chapter-card"), previous: $("#previous-button"),
@@ -38,16 +83,22 @@ const elements = {
 
 const LESSONS = BASE_CATALOG.lessons;
 const localizedCatalogs = new Map([["en", BASE_CATALOG]]);
+const captionCatalogs = new Map([["en", BASE_CATALOG]]);
 let localizedCatalog = BASE_CATALOG;
+let captionCatalog = BASE_CATALOG;
 let activeLesson = null;
 let chapterData = [];
 let audioTimings = null;
 let syncRate = 1;
 let captionUrl = "";
+let captionTrackLoading = false;
 let toastTimer = null;
 let openCustomSelect = null;
 let languageRequest = 0;
 let narrationRequest = 0;
+let captionLanguageRequest = 0;
+let narrationAudioAvailable = false;
+let captionSettings = readCaptionSettings();
 let completed = readStoredSet(STORAGE_KEY);
 let watchProgress = readStoredObject(WATCH_KEY);
 const mobileSidebarQuery = window.matchMedia("(max-width: 780px)");
@@ -57,7 +108,7 @@ function applyTheme(theme, persist = false) {
   document.documentElement.dataset.theme = normalized;
   const light = normalized === "light";
   elements.themeToggle?.setAttribute("aria-pressed", String(light));
-  elements.themeToggle?.setAttribute("aria-label", "Light mode");
+  elements.themeToggle?.setAttribute("aria-label", `Switch to ${light ? "dark" : "light"} mode`);
   if (elements.themeToggle) elements.themeToggle.title = `Switch to ${light ? "dark" : "light"} mode`;
   if (elements.themeColor) elements.themeColor.content = light ? "#f4f7fb" : "#070a0f";
   if (persist) {
@@ -69,9 +120,175 @@ function toggleTheme() {
   applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light", true);
 }
 
+function clamp(value, minimum, maximum) {
+  return Math.min(maximum, Math.max(minimum, Number(value)));
+}
+
+function validHexColor(value, fallback) {
+  return /^#[0-9a-f]{6}$/i.test(String(value || ""))
+    ? String(value).toUpperCase() : fallback;
+}
+
+function normalizeCaptionSettings(value = {}) {
+  const language = CAPTION_LANGUAGES.some(item => item.id === value.language)
+    ? value.language : DEFAULT_CAPTION_SETTINGS.language;
+  return {
+    enabled: value.enabled !== false,
+    language,
+    size: clamp(Number.isFinite(Number(value.size)) ? value.size : DEFAULT_CAPTION_SETTINGS.size, 75, 200),
+    color: validHexColor(value.color, DEFAULT_CAPTION_SETTINGS.color),
+    background: validHexColor(value.background, DEFAULT_CAPTION_SETTINGS.background),
+    backgroundOpacity: clamp(
+      Number.isFinite(Number(value.backgroundOpacity))
+        ? value.backgroundOpacity : DEFAULT_CAPTION_SETTINGS.backgroundOpacity,
+      0, 100)
+  };
+}
+
+function readCaptionSettings() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(CAPTION_SETTINGS_KEY) || "{}");
+    return normalizeCaptionSettings(stored && typeof stored === "object" ? stored : {});
+  } catch (error) {
+    return { ...DEFAULT_CAPTION_SETTINGS };
+  }
+}
+
+function persistCaptionSettings() {
+  try { localStorage.setItem(CAPTION_SETTINGS_KEY, JSON.stringify(captionSettings)); }
+  catch (error) { /* Storage may be disabled. */ }
+}
+
+function captionLanguageById(id) {
+  return CAPTION_LANGUAGES.find(item => item.id === id) || CAPTION_LANGUAGES[0];
+}
+
+function effectiveCaptionLanguage() {
+  if (captionSettings.language !== "auto") return captionSettings.language;
+  const narrationLanguage = elements.language?.value || DEFAULT_LANGUAGE;
+  return CAPTION_LANGUAGES.some(item => item.id === narrationLanguage)
+    ? narrationLanguage : DEFAULT_LANGUAGE;
+}
+
+function hexToRgb(hex) {
+  const value = validHexColor(hex, "#000000").slice(1);
+  return [0, 2, 4].map(index => Number.parseInt(value.slice(index, index + 2), 16));
+}
+
+function updateCaptionCueStyle() {
+  let style = document.querySelector("#caption-cue-style");
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "caption-cue-style";
+    document.head.appendChild(style);
+  }
+  const [red, green, blue] = hexToRgb(captionSettings.background);
+  const alpha = (captionSettings.backgroundOpacity / 100).toFixed(2);
+  style.textContent = `#tutorial-video::cue { color: ${captionSettings.color}; background-color: rgba(${red}, ${green}, ${blue}, ${alpha}); font-size: ${captionSettings.size}%; }`;
+}
+
+function updateCaptionTrackMode() {
+  if (!elements.captionTrack?.track) return;
+  const showing = captionSettings.enabled && Boolean(captionUrl);
+  elements.captionTrack.track.mode = showing ? "showing" : "disabled";
+}
+
+function syncCaptionPreferenceFromNativeControls() {
+  if (!captionUrl || !elements.captionTrack?.track) return;
+  const enabled = elements.captionTrack.track.mode === "showing";
+  if (captionSettings.enabled === enabled) return;
+  captionSettings.enabled = enabled;
+  applyCaptionSettings({ persist: true });
+}
+
+function syncCaptionControls() {
+  if (!elements.captionEnabled) return;
+  elements.captionEnabled.checked = captionSettings.enabled;
+  elements.captionLanguage.value = captionSettings.language;
+  elements.captionLanguage.customSelect?.sync();
+  elements.captionSize.value = captionSettings.size;
+  elements.captionSizeValue.value = `${captionSettings.size}%`;
+  elements.captionSizeValue.textContent = `${captionSettings.size}%`;
+  elements.captionTextColor.value = captionSettings.color.toLowerCase();
+  elements.captionTextColorValue.value = captionSettings.color;
+  elements.captionTextColorValue.textContent = captionSettings.color;
+  elements.captionBackgroundColor.value = captionSettings.background.toLowerCase();
+  elements.captionBackgroundColorValue.value = captionSettings.background;
+  elements.captionBackgroundColorValue.textContent = captionSettings.background;
+  elements.captionBackgroundOpacity.value = captionSettings.backgroundOpacity;
+  const opacityLabel = captionSettings.backgroundOpacity === 0
+    ? "Transparent" : `${captionSettings.backgroundOpacity}%`;
+  elements.captionBackgroundOpacityValue.value = opacityLabel;
+  elements.captionBackgroundOpacityValue.textContent = opacityLabel;
+  const language = captionLanguageById(captionSettings.language);
+  elements.captionSettingsSummary.textContent = captionSettings.enabled
+    ? language.shortLabel : "Off";
+  const [red, green, blue] = hexToRgb(captionSettings.background);
+  elements.captionPreviewText.style.color = captionSettings.color;
+  elements.captionPreviewText.style.backgroundColor =
+    `rgba(${red}, ${green}, ${blue}, ${captionSettings.backgroundOpacity / 100})`;
+  elements.captionPreviewText.style.fontSize = `${Math.round(14 * captionSettings.size / 100)}px`;
+}
+
+function applyCaptionSettings({ persist = false } = {}) {
+  captionSettings = normalizeCaptionSettings(captionSettings);
+  updateCaptionCueStyle();
+  syncCaptionControls();
+  updateCaptionTrackMode();
+  if (persist) persistCaptionSettings();
+}
+
+function setupCaptionControls() {
+  elements.captionLanguage.innerHTML = "";
+  CAPTION_LANGUAGES.forEach(language => {
+    const option = document.createElement("option");
+    option.value = language.id;
+    option.textContent = language.label;
+    elements.captionLanguage.appendChild(option);
+  });
+  applyCaptionSettings();
+}
+
+function openCaptionSettings() {
+  if (!elements.captionSettingsPanel.hidden) return;
+  if (openCustomSelect) openCustomSelect();
+  elements.captionSettingsPanel.hidden = false;
+  elements.captionSettings.classList.add("open");
+  elements.captionSettingsButton.setAttribute("aria-expanded", "true");
+  positionCaptionSettingsPanel();
+  requestAnimationFrame(() => elements.captionEnabled.focus({ preventScroll: true }));
+}
+
+function positionCaptionSettingsPanel() {
+  if (elements.captionSettingsPanel.hidden) return;
+  const panel = elements.captionSettingsPanel;
+  panel.classList.remove("opens-down");
+  panel.style.maxHeight = "";
+  const trigger = elements.captionSettingsButton.getBoundingClientRect();
+  const desired = Math.min(panel.scrollHeight, window.innerHeight - 24);
+  const above = Math.max(0, trigger.top - 12);
+  const below = Math.max(0, window.innerHeight - trigger.bottom - 12);
+  const opensDown = above < desired && below > above;
+  if (opensDown) panel.classList.add("opens-down");
+  const available = opensDown ? below : above;
+  panel.style.maxHeight = `${Math.max(1, Math.floor(Math.min(desired, available)))}px`;
+}
+
+function closeCaptionSettings(restoreFocus = false) {
+  if (elements.captionSettingsPanel.hidden) return;
+  elements.captionLanguage.customSelect?.close();
+  elements.captionSettingsPanel.hidden = true;
+  elements.captionSettingsPanel.classList.remove("opens-down");
+  elements.captionSettingsPanel.style.maxHeight = "";
+  elements.captionSettings.classList.remove("open");
+  elements.captionSettingsButton.setAttribute("aria-expanded", "false");
+  if (restoreFocus) elements.captionSettingsButton.focus();
+}
+
 function enhanceSelect(select) {
   if (!select || select.customSelect) return;
   const control = select.closest(".select-control");
+  const portalMenu = Boolean(select.closest(".caption-settings-panel"));
   const controlLabel = select.getAttribute("aria-label") || "Choose an option";
   const custom = document.createElement("div");
   custom.className = "custom-select";
@@ -110,6 +327,31 @@ function enhanceSelect(select) {
     const menuHeight = Math.min(menu.scrollHeight, 340, window.innerHeight * .52);
     const spaceAbove = triggerRect.top - 12;
     const spaceBelow = window.innerHeight - triggerRect.bottom - 12;
+    if (portalMenu) {
+      const viewportPadding = 12;
+      const maxWidth = Math.max(1, Math.min(360, window.innerWidth - viewportPadding * 2));
+      const width = Math.max(
+        Math.min(triggerRect.width, maxWidth),
+        Math.min(menu.scrollWidth, maxWidth)
+      );
+      const opensDown = spaceBelow >= menuHeight || spaceBelow >= spaceAbove;
+      const availableHeight = Math.max(1, opensDown ? spaceBelow : spaceAbove);
+      const height = Math.max(1, Math.floor(Math.min(menuHeight, availableHeight)));
+      const left = Math.min(
+        Math.max(viewportPadding, triggerRect.left),
+        Math.max(viewportPadding, window.innerWidth - width - viewportPadding)
+      );
+      const top = opensDown
+        ? Math.min(window.innerHeight - viewportPadding - height, triggerRect.bottom + 8)
+        : Math.max(viewportPadding, triggerRect.top - 8 - height);
+      menu.style.width = `${Math.floor(width)}px`;
+      menu.style.maxHeight = `${height}px`;
+      menu.style.top = `${Math.floor(top)}px`;
+      menu.style.right = "auto";
+      menu.style.bottom = "auto";
+      menu.style.left = `${Math.floor(left)}px`;
+      return;
+    }
     const opensDown = spaceAbove < menuHeight && spaceBelow > spaceAbove;
     if (opensDown) custom.classList.add("opens-down");
     const availableHeight = Math.max(0, opensDown ? spaceBelow : spaceAbove);
@@ -125,7 +367,9 @@ function enhanceSelect(select) {
   };
   const close = (restoreFocus = false) => {
     custom.classList.remove("open", "opens-down");
-    menu.style.maxHeight = "";
+    menu.classList.remove("portaled");
+    menu.removeAttribute("style");
+    if (menu.parentElement !== custom) custom.appendChild(menu);
     trigger.setAttribute("aria-expanded", "false");
     buttons().forEach(item => item.classList.remove("active"));
     clearTimeout(typeaheadTimer);
@@ -136,6 +380,10 @@ function enhanceSelect(select) {
   const open = (focusSelected = false) => {
     if (openCustomSelect && openCustomSelect !== close) openCustomSelect();
     openCustomSelect = close;
+    if (portalMenu) {
+      document.body.appendChild(menu);
+      menu.classList.add("portaled");
+    }
     custom.classList.add("open");
     trigger.setAttribute("aria-expanded", "true");
     positionMenu();
@@ -208,23 +456,44 @@ function enhanceSelect(select) {
     });
     sync();
   };
+  const setDisabled = disabled => {
+    select.disabled = Boolean(disabled);
+    trigger.disabled = Boolean(disabled);
+    custom.classList.toggle("disabled", Boolean(disabled));
+    if (disabled) close();
+  };
 
   trigger.addEventListener("click", () => custom.classList.contains("open") ? close() : open(true));
   trigger.addEventListener("keydown", onKeydown);
   menu.addEventListener("keydown", onKeydown);
   select.addEventListener("change", sync);
   custom.addEventListener("focusout", () => requestAnimationFrame(() => {
-    if (custom.classList.contains("open") && !custom.contains(document.activeElement)) close();
+    if (custom.classList.contains("open") &&
+        !custom.contains(document.activeElement) && !menu.contains(document.activeElement)) close();
   }));
   document.addEventListener("pointerdown", event => {
-    if (custom.classList.contains("open") && !custom.contains(event.target)) close();
+    if (custom.classList.contains("open") &&
+        !custom.contains(event.target) && !menu.contains(event.target)) close();
   });
+  document.addEventListener("scroll", event => {
+    if (custom.classList.contains("open") &&
+        event.target !== menu && !menu.contains(event.target)) close();
+  }, true);
   window.addEventListener("resize", () => {
     if (custom.classList.contains("open")) close();
   });
   new MutationObserver(rebuild).observe(select, { childList: true });
-  select.customSelect = { rebuild, sync, close };
+  select.customSelect = { rebuild, sync, close, setDisabled };
   rebuild();
+  setDisabled(select.disabled);
+}
+
+function setMediaSelectorsDisabled(disabled) {
+  [elements.language, elements.voice, elements.captionLanguage].forEach(select => {
+    if (!select) return;
+    select.disabled = Boolean(disabled);
+    select.customSelect?.setDisabled(disabled);
+  });
 }
 
 function languageById(id) {
@@ -235,6 +504,11 @@ function languageById(id) {
 function localizedLesson(id) {
   return localizedCatalog.lessons.find(item => item.id === id) ||
     LESSONS.find(item => item.id === id);
+}
+
+function captionLesson(id) {
+  return captionCatalog.lessons.find(item => item.id === id) ||
+    localizedLesson(id) || baseLesson(id);
 }
 
 function baseLesson(id) {
@@ -258,7 +532,14 @@ function audioSource(lesson = activeLesson) {
 }
 
 function timingSource(lesson = activeLesson) {
+  if (elements.voice.value === "silent") {
+    return defaultTimingSource(lesson);
+  }
   return `${PRODUCTION_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.json`;
+}
+
+function defaultTimingSource(lesson = activeLesson) {
+  return `${PRODUCTION_ROOT}/${lesson.id}/audio/${DEFAULT_LANGUAGE}/${DEFAULT_VOICE}.json`;
 }
 
 function populateVoiceSelector(preferredVoice = "") {
@@ -299,6 +580,37 @@ async function loadLocalizedCatalog(language) {
   if (!response.ok) throw new Error(`The ${language} tutorial catalog is unavailable`);
   const catalog = await response.json();
   localizedCatalogs.set(language, catalog);
+  return catalog;
+}
+
+function validateCaptionCatalog(catalog, language) {
+  if (!catalog || !Array.isArray(catalog.lessons)) {
+    throw new Error(`The ${language} caption catalog is invalid`);
+  }
+  const byId = new Map(catalog.lessons.map(lesson => [lesson.id, lesson]));
+  const aligned = LESSONS.every(source => {
+    const lesson = byId.get(source.id);
+    return lesson && Array.isArray(lesson.scenes) &&
+      lesson.scenes.length === source.scenes.length &&
+      lesson.scenes.every(scene => typeof scene.narration === "string" && scene.narration.trim());
+  });
+  if (!aligned) throw new Error(`The ${language} captions do not align with this tutorial version`);
+  return catalog;
+}
+
+async function loadCaptionCatalog(language) {
+  if (captionCatalogs.has(language)) return captionCatalogs.get(language);
+  if (localizedCatalogs.has(language)) {
+    const catalog = validateCaptionCatalog(localizedCatalogs.get(language), language);
+    captionCatalogs.set(language, catalog);
+    return catalog;
+  }
+  const filename = CAPTION_ONLY_LANGUAGES.has(language)
+    ? `captions_${language}.json` : `lessons_${language}.json`;
+  const response = await fetch(`catalog/${filename}`);
+  if (!response.ok) throw new Error(`The ${captionLanguageById(language).shortLabel} captions are unavailable`);
+  const catalog = validateCaptionCatalog(await response.json(), language);
+  captionCatalogs.set(language, catalog);
   return catalog;
 }
 
@@ -391,10 +703,17 @@ function updateGuide() {
 }
 
 function mediaReady(media) {
+  if (media.error) return Promise.reject(media.error);
   if (media.readyState >= 1) return Promise.resolve();
   return new Promise((resolve, reject) => {
-    media.addEventListener("loadedmetadata", resolve, { once: true });
-    media.addEventListener("error", reject, { once: true });
+    const cleanup = () => {
+      media.removeEventListener("loadedmetadata", loaded);
+      media.removeEventListener("error", failed);
+    };
+    const loaded = () => { cleanup(); resolve(); };
+    const failed = () => { cleanup(); reject(media.error || new Error("Media could not be loaded")); };
+    media.addEventListener("loadedmetadata", loaded, { once: true });
+    media.addEventListener("error", failed, { once: true });
   });
 }
 
@@ -423,13 +742,22 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   const wasPlaying = resume && !elements.video.paused;
   const normalized = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
   elements.audio.pause();
+  narrationAudioAvailable = false;
+  audioTimings = null;
+  clearCaptions();
   if (elements.voice.value === "silent") {
     elements.audio.removeAttribute("src");
     elements.audio.load();
-    audioTimings = null;
-    chapterData = [];
-    renderChapters();
-    renderTranscript();
+    configureMediaSync();
+    try {
+      await mediaReady(elements.video);
+    } catch (error) {
+      if (isCurrent()) showToast("This tutorial video could not be loaded.");
+      return;
+    }
+    if (!isCurrent()) return;
+    await loadLessonDetail(isCurrent);
+    if (!isCurrent()) return;
     if (wasPlaying) elements.video.play().catch(() => {});
     return;
   }
@@ -437,8 +765,17 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   elements.audio.src = audioSource();
   elements.audio.load();
   try {
-    await Promise.all([mediaReady(elements.video), mediaReady(elements.audio)]);
+    await mediaReady(elements.video);
     if (!isCurrent()) return;
+    try {
+      await mediaReady(elements.audio);
+      narrationAudioAvailable = true;
+    } catch (audioError) {
+      if (!isCurrent()) return;
+      elements.audio.removeAttribute("src");
+      elements.audio.load();
+      showToast("Narration audio is unavailable; video and captions remain available.");
+    }
     elements.video.currentTime = normalized * elements.video.duration;
     configureMediaSync();
     await loadLessonDetail(isCurrent);
@@ -452,8 +789,10 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
 }
 
 function configureMediaSync() {
-  if (!elements.audio.duration || !elements.video.duration || elements.voice.value === "silent") {
+  if (!narrationAudioAvailable || !elements.audio.duration ||
+      !elements.video.duration || elements.voice.value === "silent") {
     syncRate = 1;
+    elements.video.defaultPlaybackRate = 1;
     elements.video.playbackRate = 1;
     return;
   }
@@ -467,7 +806,8 @@ function configureMediaSync() {
 }
 
 function syncAudio(force = false) {
-  if (elements.voice.value === "silent" || !elements.audio.duration || !elements.video.duration) return;
+  if (!narrationAudioAvailable || elements.voice.value === "silent" ||
+      !elements.audio.duration || !elements.video.duration) return;
   const target = elements.video.currentTime / elements.video.duration * elements.audio.duration;
   if (force || Math.abs(elements.audio.currentTime - target) > 0.16) {
     elements.audio.currentTime = Math.min(target, Math.max(0, elements.audio.duration - 0.02));
@@ -476,53 +816,112 @@ function syncAudio(force = false) {
 
 async function loadLessonDetail(isCurrent = () => true) {
   if (!isCurrent()) return;
-  const lesson = localizedLesson(activeLesson.id);
-  if (elements.voice.value === "silent") {
-    chapterData = lesson.scenes.map((scene, index) => ({ index: index + 1, start: 0, text: scene.narration, label: chapterLabel(scene.narration, index) }));
-    renderChapters();
-    renderTranscript();
-    return;
-  }
   elements.chapters.innerHTML = `<div class="detail-empty">Loading chapters…</div>`;
   try {
-    const response = await fetch(timingSource());
+    const requestedSource = timingSource();
+    let response = await fetch(requestedSource);
+    if (!response.ok && requestedSource !== defaultTimingSource()) {
+      response = await fetch(defaultTimingSource());
+    }
     if (!response.ok) throw new Error("timings unavailable");
     const timings = await response.json();
     if (!isCurrent()) return;
     audioTimings = timings;
-    chapterData = lesson.scenes.map((scene, index) => ({
-      index: index + 1,
-      start: audioTimings.scenes[index]?.speech_start || 0,
-      end: audioTimings.scenes[index]?.speech_end || 0,
-      text: scene.narration,
-      label: chapterLabel(scene.narration, index)
-    }));
+    rebuildChapterData();
     renderCaptions();
     renderChapters();
     renderTranscript();
   } catch (error) {
     if (!isCurrent()) return;
+    audioTimings = null;
+    clearCaptions();
     elements.chapters.innerHTML = `<div class="detail-empty">Chapter metadata is unavailable for this track.</div>`;
     elements.transcript.innerHTML = elements.chapters.innerHTML;
   }
 }
 
-function renderCaptions() {
+function rebuildChapterData() {
+  if (!activeLesson) {
+    chapterData = [];
+    return;
+  }
+  const lesson = captionLesson(activeLesson.id);
+  chapterData = lesson.scenes.map((scene, index) => {
+    const timing = audioTimings?.scenes?.[index];
+    const start = timing?.speech_start || 0;
+    const end = timing?.speech_end || start;
+    return {
+      index: index + 1,
+      start,
+      end,
+      text: scene.narration,
+      label: chapterLabel(scene.narration, index)
+    };
+  });
+}
+
+function clearCaptions() {
   if (captionUrl) URL.revokeObjectURL(captionUrl);
-  const scale = elements.audio.duration ? elements.video.duration / elements.audio.duration : 1;
+  captionUrl = "";
+  captionTrackLoading = false;
+  if (!elements.captionTrack) return;
+  if (elements.captionTrack.track) elements.captionTrack.track.mode = "disabled";
+  elements.captionTrack.removeAttribute("src");
+}
+
+function splitCaptionText(text) {
+  const sentences = String(text).match(/[^.!?。！？।]+(?:[.!?。！？।]+|$)/gu) || [String(text)];
+  return sentences.map(sentence => sentence.trim()).filter(Boolean);
+}
+
+function renderCaptions() {
+  if (!audioTimings) {
+    clearCaptions();
+    return;
+  }
+  if (captionUrl) URL.revokeObjectURL(captionUrl);
+  const timingDuration = audioTimings.total_duration || elements.audio.duration || elements.video.duration;
+  const scale = timingDuration ? elements.video.duration / timingDuration : 1;
   const lines = ["WEBVTT", ""];
+  let cueIndex = 0;
   chapterData.forEach(chapter => {
-    lines.push(String(chapter.index), `${vttTime(chapter.start * scale)} --> ${vttTime(chapter.end * scale)}`, chapter.text, "");
+    const sentences = splitCaptionText(chapter.text);
+    const weights = sentences.map(sentence => Math.max(1, [...sentence].length));
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    const duration = Math.max(0, chapter.end - chapter.start);
+    let cursor = chapter.start;
+    sentences.forEach((sentence, index) => {
+      const end = index === sentences.length - 1
+        ? chapter.end : cursor + duration * weights[index] / totalWeight;
+      lines.push(
+        String(++cueIndex),
+        `${vttTime(cursor * scale)} --> ${vttTime(end * scale)}`,
+        sentence.replaceAll("-->", "→"),
+        ""
+      );
+      cursor = end;
+    });
   });
   captionUrl = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/vtt" }));
+  captionTrackLoading = true;
   elements.captionTrack.src = captionUrl;
-  elements.captionTrack.srclang = elements.language.value;
-  elements.captionTrack.label = languageById(elements.language.value).label;
-  elements.captionTrack.track.mode = "showing";
+  const language = effectiveCaptionLanguage();
+  elements.captionTrack.srclang = language;
+  elements.captionTrack.label = captionLanguageById(language).shortLabel;
+  updateCaptionTrackMode();
+  elements.captionTrack.addEventListener("load", () => {
+    captionTrackLoading = false;
+    updateCaptionTrackMode();
+  }, { once: true });
+  elements.captionTrack.addEventListener("error", () => {
+    captionTrackLoading = false;
+  }, { once: true });
 }
 
 function renderChapters() {
   elements.chapters.innerHTML = "";
+  elements.chapters.lang = effectiveCaptionLanguage();
+  elements.chapters.dir = "auto";
   chapterData.forEach(chapter => {
     const button = document.createElement("button");
     button.type = "button";
@@ -534,12 +933,14 @@ function renderChapters() {
 }
 
 function renderTranscript() {
+  elements.transcript.lang = effectiveCaptionLanguage();
+  elements.transcript.dir = "auto";
   elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapter.start)}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
   elements.transcript.querySelectorAll("[data-seek]").forEach(button => button.addEventListener("click", () => seekTo(Number(button.dataset.seek))));
 }
 
 function seekTo(audioSeconds) {
-  const audioDuration = elements.audio.duration || audioTimings?.total_duration || elements.video.duration;
+  const audioDuration = audioTimings?.total_duration || elements.audio.duration || elements.video.duration;
   elements.video.currentTime = audioDuration ? audioSeconds / audioDuration * elements.video.duration : audioSeconds;
   syncAudio(true);
   elements.video.play().catch(() => {});
@@ -564,7 +965,8 @@ function updatePagination() {
 
 function mediaClock() {
   const ratio = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
-  const duration = elements.voice.value === "silent" ? elements.video.duration : elements.audio.duration;
+  const duration = audioTimings?.total_duration ||
+    (narrationAudioAvailable ? elements.audio.duration : elements.video.duration);
   return { current: ratio * (duration || 0), duration: duration || 0, ratio };
 }
 
@@ -624,18 +1026,70 @@ async function switchLanguage() {
   const requestedLanguage = elements.language.value;
   const request = ++languageRequest;
   const isCurrent = () => request === languageRequest && elements.language.value === requestedLanguage;
+  const captionsFollowNarration = captionSettings.language === "auto";
   localStorage.setItem(LANGUAGE_KEY, requestedLanguage);
   populateVoiceSelector();
   localStorage.setItem(VOICE_KEY, elements.voice.value);
   elements.loading.classList.remove("hidden");
+  const captionResult = captionsFollowNarration
+    ? loadCaptionCatalog(requestedLanguage)
+      .then(catalog => ({ catalog, error: null }))
+      .catch(error => ({ catalog: null, error }))
+    : Promise.resolve(null);
   try {
-    const catalog = await loadLocalizedCatalog(requestedLanguage);
+    let catalog;
+    try {
+      catalog = await loadLocalizedCatalog(requestedLanguage);
+    } catch (error) {
+      catalog = BASE_CATALOG;
+      if (isCurrent()) showToast(error.message);
+    }
     if (!isCurrent()) return;
     localizedCatalog = catalog;
+    const captions = await captionResult;
+    if (!isCurrent()) return;
+    if (captionsFollowNarration && captionSettings.language === "auto") {
+      if (captions.error) {
+        captionSettings.language = DEFAULT_LANGUAGE;
+        captionCatalog = BASE_CATALOG;
+        applyCaptionSettings({ persist: true });
+        showToast(captions.error.message);
+      } else {
+        captionCatalog = captions.catalog;
+      }
+    }
     renderCurriculum(elements.search.value); updateLessonHeader(); updateGuide(); updatePagination();
     await loadNarration(true, isCurrent);
   } catch (error) { if (isCurrent()) showToast(error.message); }
   finally { if (isCurrent()) elements.loading.classList.add("hidden"); }
+}
+
+async function switchCaptionLanguage() {
+  captionSettings.language = elements.captionLanguage.value;
+  applyCaptionSettings({ persist: true });
+  const requestedLanguage = effectiveCaptionLanguage();
+  const request = ++captionLanguageRequest;
+  const isCurrent = () => request === captionLanguageRequest &&
+    requestedLanguage === effectiveCaptionLanguage();
+  try {
+    const catalog = await loadCaptionCatalog(requestedLanguage);
+    if (!isCurrent()) return;
+    captionCatalog = catalog;
+    rebuildChapterData();
+    renderCaptions();
+    renderChapters();
+    renderTranscript();
+  } catch (error) {
+    if (!isCurrent()) return;
+    captionSettings.language = DEFAULT_LANGUAGE;
+    captionCatalog = BASE_CATALOG;
+    applyCaptionSettings({ persist: true });
+    rebuildChapterData();
+    renderCaptions();
+    renderChapters();
+    renderTranscript();
+    showToast(error.message);
+  }
 }
 
 function copyLessonLink() {
@@ -699,18 +1153,70 @@ function vttTime(seconds) { const total = Math.max(0, Math.round(seconds * 1000)
 function truncate(value, length) { return value.length > length ? `${value.slice(0, length - 1).trim()}…` : value; }
 function escapeHTML(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 
+function updateCaptionAppearanceFromControls() {
+  captionSettings = {
+    ...captionSettings,
+    size: Number(elements.captionSize.value),
+    color: elements.captionTextColor.value,
+    background: elements.captionBackgroundColor.value,
+    backgroundOpacity: Number(elements.captionBackgroundOpacity.value)
+  };
+  applyCaptionSettings({ persist: true });
+}
+
+function resetCaptionAppearance() {
+  captionSettings = {
+    ...DEFAULT_CAPTION_SETTINGS,
+    enabled: captionSettings.enabled,
+    language: captionSettings.language
+  };
+  applyCaptionSettings({ persist: true });
+}
+
 elements.search.addEventListener("input", event => renderCurriculum(event.target.value));
-elements.video.addEventListener("play", () => { syncAudio(true); if (elements.voice.value !== "silent") elements.audio.play().catch(() => showToast("Select play again to start narration.")); });
+elements.video.addEventListener("play", () => {
+  syncAudio(true);
+  if (narrationAudioAvailable) {
+    elements.audio.play().catch(() => showToast("Select play again to start narration."));
+  }
+});
 elements.video.addEventListener("pause", () => { elements.audio.pause(); saveWatchPosition(); });
 elements.video.addEventListener("seeking", () => syncAudio(true));
 elements.video.addEventListener("timeupdate", () => { syncAudio(false); updateWatchUI(); });
 elements.video.addEventListener("volumechange", () => { elements.audio.volume = elements.video.volume; elements.audio.muted = elements.video.muted; });
-elements.video.addEventListener("ratechange", () => { if (syncRate && elements.voice.value !== "silent") elements.audio.playbackRate = elements.video.playbackRate / syncRate; });
+elements.video.addEventListener("ratechange", () => {
+  if (narrationAudioAvailable && syncRate && elements.voice.value !== "silent") {
+    elements.audio.playbackRate = elements.video.playbackRate / syncRate;
+  }
+});
 elements.video.addEventListener("ended", markCompleteAtEnd);
 elements.audio.addEventListener("ended", markCompleteAtEnd);
 elements.video.addEventListener("canplay", () => elements.loading.classList.add("hidden"));
+elements.video.textTracks?.addEventListener?.("change", syncCaptionPreferenceFromNativeControls);
 elements.voice.addEventListener("change", switchVoice);
 elements.language.addEventListener("change", switchLanguage);
+elements.captionLanguage.addEventListener("change", switchCaptionLanguage);
+elements.captionEnabled.addEventListener("change", () => {
+  captionSettings.enabled = elements.captionEnabled.checked;
+  applyCaptionSettings({ persist: true });
+});
+elements.captionSize.addEventListener("input", updateCaptionAppearanceFromControls);
+elements.captionTextColor.addEventListener("input", updateCaptionAppearanceFromControls);
+elements.captionBackgroundColor.addEventListener("input", updateCaptionAppearanceFromControls);
+elements.captionBackgroundOpacity.addEventListener("input", updateCaptionAppearanceFromControls);
+elements.captionReset.addEventListener("click", resetCaptionAppearance);
+elements.captionSettingsButton.addEventListener("click", () => {
+  if (elements.captionSettingsPanel.hidden) openCaptionSettings();
+  else closeCaptionSettings(true);
+});
+elements.captionSettingsClose.addEventListener("click", () => closeCaptionSettings(true));
+document.addEventListener("pointerdown", event => {
+  const insidePortaledMenu = event.target.closest?.(".custom-select-menu.portaled");
+  if (!elements.captionSettingsPanel.hidden &&
+      !elements.captionSettings.contains(event.target) && !insidePortaledMenu) {
+    closeCaptionSettings();
+  }
+});
 elements.complete.addEventListener("click", toggleComplete); elements.copyLink.addEventListener("click", copyLessonLink);
 elements.continue.addEventListener("click", continueCourse); elements.menuButton.addEventListener("click", openSidebar);
 elements.closeMenu.addEventListener("click", () => closeSidebar(true)); elements.scrim.addEventListener("click", () => closeSidebar(true));
@@ -730,8 +1236,24 @@ elements.sidebar.addEventListener("keydown", event => {
 });
 elements.themeToggle?.addEventListener("click", toggleTheme);
 window.addEventListener("beforeunload", () => { saveWatchPosition(); if (captionUrl) URL.revokeObjectURL(captionUrl); });
-window.addEventListener("hashchange", () => { const id = lessonFromHash(); if (id && id !== activeLesson?.id) selectLesson(id, { skipHash: true }); });
-window.addEventListener("keydown", event => { const tag = document.activeElement?.tagName; if (["INPUT", "SELECT", "TEXTAREA"].includes(tag) || event.target.closest?.(".custom-select")) return; if (event.key === "/") { event.preventDefault(); elements.search.focus(); } else if (event.key === "[") { event.preventDefault(); elements.previous.click(); } else if (event.key === "]") { event.preventDefault(); elements.next.click(); } else if (event.key === "Escape") closeSidebar(true); });
+window.addEventListener("resize", () => {
+  if (!elements.captionSettingsPanel.hidden) positionCaptionSettingsPanel();
+});
+window.addEventListener("hashchange", () => {
+  const id = lessonFromHash();
+  if (activeLesson && id && id !== activeLesson.id) selectLesson(id, { skipHash: true });
+});
+window.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !elements.captionSettingsPanel.hidden) {
+    event.preventDefault(); event.stopPropagation(); closeCaptionSettings(true); return;
+  }
+  const tag = document.activeElement?.tagName;
+  if (["INPUT", "SELECT", "TEXTAREA"].includes(tag) || event.target.closest?.(".custom-select")) return;
+  if (event.key === "/") { event.preventDefault(); elements.search.focus(); }
+  else if (event.key === "[") { event.preventDefault(); elements.previous.click(); }
+  else if (event.key === "]") { event.preventDefault(); elements.next.click(); }
+  else if (event.key === "Escape") closeSidebar(true);
+});
 if (mobileSidebarQuery.addEventListener) mobileSidebarQuery.addEventListener("change", handleSidebarBreakpoint);
 else mobileSidebarQuery.addListener(handleSidebarBreakpoint);
 
@@ -740,6 +1262,59 @@ elements.totalCount.textContent = LESSONS.length;
 applyTheme(document.documentElement.dataset.theme);
 syncSidebarAccessibility();
 setupNarrationSelectors();
-enhanceSelect(elements.language); enhanceSelect(elements.voice);
+setupCaptionControls();
+setMediaSelectorsDisabled(true);
+enhanceSelect(elements.language); enhanceSelect(elements.voice); enhanceSelect(elements.captionLanguage);
 setupDetailTabs(); updateCourseProgress(); renderCurriculum();
-loadLocalizedCatalog(elements.language.value).then(catalog => { localizedCatalog = catalog; renderCurriculum(); return selectLesson(lessonFromHash() || LESSONS[0].id, { skipHash: !location.hash, force: true }); }).catch(error => { showToast(error.message); selectLesson(lessonFromHash() || LESSONS[0].id, { skipHash: !location.hash, force: true }); });
+
+async function initializeApp() {
+  const requestedLanguage = elements.language.value;
+  const requestedCaptionLanguage = effectiveCaptionLanguage();
+  const captionTask = (async () => {
+    try {
+      const catalog = await loadCaptionCatalog(requestedCaptionLanguage);
+      if (effectiveCaptionLanguage() !== requestedCaptionLanguage) return;
+      captionCatalog = catalog;
+      if (activeLesson) {
+        rebuildChapterData();
+        renderCaptions();
+        renderChapters();
+        renderTranscript();
+      }
+    } catch (error) {
+      if (effectiveCaptionLanguage() !== requestedCaptionLanguage) return;
+      captionSettings.language = DEFAULT_LANGUAGE;
+      captionCatalog = BASE_CATALOG;
+      applyCaptionSettings({ persist: true });
+      if (activeLesson) {
+        rebuildChapterData();
+        renderCaptions();
+        renderChapters();
+        renderTranscript();
+      }
+      showToast(error.message);
+    }
+  })();
+
+  try {
+    localizedCatalog = await loadLocalizedCatalog(requestedLanguage);
+  } catch (error) {
+    localizedCatalog = BASE_CATALOG;
+    showToast(error.message);
+  }
+  renderCurriculum();
+  try {
+    await selectLesson(lessonFromHash() || LESSONS[0].id, {
+      skipHash: !location.hash,
+      force: true
+    });
+  } finally {
+    setMediaSelectorsDisabled(false);
+  }
+  await captionTask;
+}
+
+initializeApp().catch(error => {
+  setMediaSelectorsDisabled(false);
+  showToast(error?.message || "The tutorial player could not be initialized.");
+});

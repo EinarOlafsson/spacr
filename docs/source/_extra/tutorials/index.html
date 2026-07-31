@@ -161,6 +161,95 @@
                 <option value="af_heart">Heart · American female</option>
               </select>
             </div>
+
+            <div class="caption-settings" id="caption-settings">
+              <button class="caption-settings-button" id="caption-settings-button"
+                      type="button" aria-expanded="false"
+                      aria-controls="caption-settings-panel">
+                <span class="caption-cc" aria-hidden="true">CC</span>
+                <span class="caption-button-copy">
+                  <small>Captions</small>
+                  <strong id="caption-settings-summary">Same as narration</strong>
+                </span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+
+              <div class="caption-settings-panel" id="caption-settings-panel"
+                   role="dialog" aria-modal="false"
+                   aria-labelledby="caption-settings-title" hidden>
+                <div class="caption-settings-head">
+                  <div>
+                    <p class="eyebrow">Accessibility</p>
+                    <h3 id="caption-settings-title">Caption settings</h3>
+                  </div>
+                  <button class="caption-close-button" id="caption-settings-close"
+                          type="button" aria-label="Close caption settings">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m6 6 12 12M18 6 6 18"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <label class="caption-toggle-row">
+                  <span>
+                    <strong>Show captions</strong>
+                    <small>Captions remain available independently of the voice.</small>
+                  </span>
+                  <input id="caption-enabled" type="checkbox" checked>
+                </label>
+
+                <div class="select-control caption-language-control">
+                  <span>Caption language</span>
+                  <select id="caption-language-select" aria-label="Caption language">
+                    <option value="auto">Same as narration</option>
+                  </select>
+                </div>
+
+                <div class="caption-setting-row">
+                  <label for="caption-size">Text size</label>
+                  <output id="caption-size-value" for="caption-size">100%</output>
+                  <input id="caption-size" type="range" min="75" max="200"
+                         step="5" value="100">
+                </div>
+
+                <div class="caption-color-grid">
+                  <label class="caption-color-control" for="caption-text-color">
+                    <span>Text color</span>
+                    <span class="caption-color-input">
+                      <input id="caption-text-color" type="color" value="#ffffff">
+                      <output id="caption-text-color-value"
+                              for="caption-text-color">#FFFFFF</output>
+                    </span>
+                  </label>
+                  <label class="caption-color-control" for="caption-background-color">
+                    <span>Background color</span>
+                    <span class="caption-color-input">
+                      <input id="caption-background-color" type="color" value="#020509">
+                      <output id="caption-background-color-value"
+                              for="caption-background-color">#020509</output>
+                    </span>
+                  </label>
+                </div>
+
+                <div class="caption-setting-row">
+                  <label for="caption-background-opacity">Background opacity</label>
+                  <output id="caption-background-opacity-value"
+                          for="caption-background-opacity">82%</output>
+                  <input id="caption-background-opacity" type="range" min="0"
+                         max="100" step="1" value="82">
+                  <small>Set this to 0% for a completely transparent background.</small>
+                </div>
+
+                <div class="caption-preview" aria-label="Caption style preview">
+                  <span id="caption-preview-text" dir="auto">Microscopy images and segmentation masks</span>
+                </div>
+
+                <button class="caption-reset-button" id="caption-reset-button"
+                        type="button">Reset caption appearance</button>
+              </div>
+            </div>
           </div>
 
           <div class="watch-progress" aria-label="Current tutorial watch progress">
@@ -190,7 +279,7 @@
           <div class="planned-meta">
             <span id="planned-queue"></span>
             <span>8 languages · 54 voices</span>
-            <span>English captions</span>
+            <span>14 caption languages</span>
           </div>
         </div>
       </section>

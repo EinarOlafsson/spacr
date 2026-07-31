@@ -1,0 +1,807 @@
+{
+  "schema": 1,
+  "language": "de",
+  "source_language": "en",
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst PyPI und GitHub. Erfahren Sie, wo spaCR-Releases, Quellcode, Installationsprogramme, Probleme und die Nachtbranche live sind."
+        },
+        {
+          "narration": "Öffnen Sie PyPI und GitHub aus dem spaCR-Abschnitt. Verwenden Sie PyPI für das aktuelle Python-Paket und GitHub für Quellcode, Releases und Problemverfolgung."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich vergleichen Sie die stabilen Verpackungen mit der nächtlichen Entwicklungsbranche und wählen Sie die für Ihre Arbeit geeignete."
+        },
+        {
+          "narration": "Bevor Sie den vollständigen Betrieb durchlaufen, überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist. Öffnen Sie die Release-Noten vor der Installation, damit die Anforderungen an Version und Plattform klar sind."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, wissen Sie, wo Sie spaCR installieren, Änderungen überprüfen und ein reproduzierbares Problem melden."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Installation mit Conda. Erstellen Sie eine isolierte Python-Umgebung und installieren Sie spaCR ohne den Rest Ihres Systems zu ändern."
+        },
+        {
+          "narration": "Öffnen Sie Installation mit Conda aus dem Abschnitt spaCR. Installieren Sie Miniconda, Anaconda oder einen anderen mit Conda kompatiblen Manager und erstellen Sie dann eine Umgebung mit Python drei Punkt zwölf."
+        },
+        {
+          "narration": "Aktivieren Sie im Hauptkonfigurationsbereich die Umgebung und bestätigen Sie, dass die Python- und pip-Programme zu dieser Umgebung gehören."
+        },
+        {
+          "narration": "Überprüfen Sie vor dem vollständigen Lauf die sichtbaren Einstellungen und verwenden Sie, sofern verfügbar, einen Vorschau- oder Testmodus. Installieren Sie spaCR mit pip in der aktiven Umgebung; das conda-forge-Paket wird erst später verfügbar sein."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, starten Sie spaCR aus derselben Umgebung und halten Sie ihn von unabhängigen Projekten isoliert."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Installation with pip. Installieren Sie spaCR in einer vorhandenen isolierten Python-Umgebung für Desktop- oder Headless-Nutzung."
+        },
+        {
+          "narration": "Öffnen Sie die Installation mit pip aus dem spaCR-Abschnitt. Bestätigen Sie, dass die Umgebung eine unterstützte Python-Version verwendet; Python drei Punkt zwölf wird empfohlen."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich können Sie bei Bedarf pip aktualisieren und entscheiden, ob Sie die Desktop-, Entwicklungs- oder optionalen wissenschaftlichen Zusatzfunktionen benötigen."
+        },
+        {
+          "narration": "Überprüfen Sie vor dem vollständigen Lauf die sichtbaren Einstellungen und verwenden Sie, sofern verfügbar, einen Vorschau- oder Testmodus. Führen Sie pip install spaCR aus und überprüfen Sie anschließend den Befehl sowie den Python-Import, bevor Sie ein Experiment starten."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, kann die gleiche Installation die Desktop-App starten oder scriptbasierte Workflows auf einem Workstation oder Server ausführen."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Plattform-Installationen. Installieren Sie spaCR auf Windows, macOS oder Linux ohne manuell Python zu verwalten."
+        },
+        {
+          "narration": "Öffnen Sie die Plattform-Installationen aus dem Abschnitt spaCR. Laden Sie den Installationsprogramm für Ihr Betriebssystem aus der aktuellen GitHub-Version herunter."
+        },
+        {
+          "narration": "In der Hauptkonfiguration überprüfen Sie die Sicherheitsanfragen des Betriebssystems, den privaten Betriebsort und das angeforderte Beschleunigungs-Backend."
+        },
+        {
+          "narration": "Bevor Sie den vollständigen Betrieb durchlaufen, überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, verwenden Sie den nativen Launcher, während spaCR seine eigene verwaltete Python-Betriebszeit behalten wird."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst den Startbildschirm und die Navigation."
+        },
+        {
+          "narration": "Öffnen Sie den Startbildschirm und navigieren Sie aus dem Startbereich. Startet die spaCR-Desktop-Anwendung und starten Sie mit Home."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich verwenden Sie die Seitenleiste, die Kategorienkarten, die durchsuchbaren App-Fliesen und die Befehlspalette, um einen Workflow zu erreichen."
+        },
+        {
+          "narration": "Bevor Sie den vollständigen Ausgang durchlaufen, überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Öffnen Sie ein Modul nur, wenn Sie mit ihm interagieren möchten; der Zeiger wird nur für echte Klicks angezeigt."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können Sie die Anwendung durchsuchen und die auf Home angezeigten Statusinformationen verstehen."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Python API und Headless-Arbeitsabläufe. Führen Sie reproduzierbare spaCR-Pipelines über Python oder eine Shell ohne Desktopoberfläche aus."
+        },
+        {
+          "narration": "Öffnen Sie die Python API und kopflose Workflows aus dem Abschnitt spaCR. Starten Sie mit Einstellungen, die von der Desktop-App exportiert werden, oder erstellen Sie ein validiertes Einstellungswörterbuch in Python."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich den Pipeline-Eingangspunkt, den Quellweg, den Ausgangspfad, die Anzahl der Arbeiter und die Hardware-Option aus."
+        },
+        {
+          "narration": "Bevor Sie den vollständigen Betrieb durchlaufen, überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Führen Sie die Pipeline in einem Terminal, Notebook, Scheduler oder Remote-Job aus, während Sie Logs und Einstellungen speichern."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, enthält das Projekt die gleichen Masken, Messungen, Datenbanken, Zahlen und Ausführungsunterlagen, die von der Desktop-App erstellt werden."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Mask. Segmentieren Sie das bereitgestellte Vierkanal-Mikroskopieexperiment in Masken für Zellkerne, Zellen, Lipidtröpfchen und Parasiten."
+        },
+        {
+          "narration": "Öffnen Sie Mask im Abschnitt Core. Verwenden Sie den bereitgestellten Datensatz mit dreizehn Bildfeldern. Kanal null zeigt Zellkerne, Kanal eins das endoplasmatische Retikulum, Kanal zwei Lipidtröpfchen und Kanal drei Parasiten."
+        },
+        {
+          "narration": "Erkennen Sie im Hauptkonfigurationsbereich Zellkerne aus Kanal null, Zellen aus dem Kanal des endoplasmatischen Retikulums, Lipidtröpfchen mit dem Arbeitsablauf für Organellpunkte und Parasiten aus Kanal drei."
+        },
+        {
+          "narration": "Überprüfen Sie vor dem vollständigen Lauf die sichtbaren Einstellungen und verwenden Sie, sofern verfügbar, einen Vorschau- oder Testmodus. Prüfen Sie ein repräsentatives Bildfeld und führen Sie anschließend die vier Segmentierungsdurchläufe für den gesamten Datensatz aus."
+        },
+        {
+          "narration": "Wenn der Arbeitsablauf abgeschlossen ist, enthält der Ordner masks ausgerichtete Objektkennzeichnungen und zusammengeführte Bild-plus-Masken-Arrays, die für Messungen bereit sind."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Messung. Entnehmen Sie die Intensität, Morphologie, Textur, Colocalization und räumliche Merkmale pro Objekt aus segmenterten Bildern."
+        },
+        {
+          "narration": "Öffnen Sie die Messung im Kernbereich. Wählen Sie das Projekt aus, das Bildstapels und Masken enthält, die von Mask produziert wurden."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich verwenden Sie Kanal eins, das endoplasmische Retichulum, als Kanal des Interesses und wählen Sie die zu messen Objekttypen und Merkmalfamilien aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, speichert Messpunkte db nachvollziehbare einzelne Objekte und optional Bildpflanzen für Anmerkungen oder Klassifizierung."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Annotate. Überprüfen Sie einzelne Objektpflanzen auf einem Raster und geben Sie zuverlässige Etiketten für Modellschulungen oder Qualitätskontrolle."
+        },
+        {
+          "narration": "Öffnen Sie Anmerkung im Kernbereich. Öffnen Sie ein Projekt mit Objektpflanzen und wählen Sie die Datenbanktabelle und die Anmerkungenspalte aus."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich Klassen, Anzeigekanäle, Sortierung, Probenahme und Filter aus, die den Überprüfungssatz definieren."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Kennzeichnen Sie repräsentative Objekte, speichern Sie häufig und überprüfen Sie unsichere oder widersprüchliche Beispiele."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden Anmerkungen mit intakten Objektidentifikatoren in die Projektdatenbank zurückgeschrieben."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Classify, Computer Vision. Trainieren und anwenden Sie ein bildbasiertes Neuralnetzwerk auf annotate Einobjektpflanzen."
+        },
+        {
+          "narration": "Öffnen Sie Klassifizieren, Computersicht aus dem Abschnitt Kern. Wählen Sie annotate Feldordner oder eine Projektdatenbank mit zuverlässigen Klassenetiketten aus."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Bildkanäle, Architektur, Split-Strategie, Erweiterung, Batchgröße und Trainingssteuerungen aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR das Modell, die Metriken, die Vorhersagen, die Klassenbeispiele und laufen Metadaten für spätere Anwendung."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Classify, Machine Learning. Trainieren Sie merkmalsbasierte Klassifikatoren wie XGBoost oder Random Forest anhand gemessener Einzelobjektdaten."
+        },
+        {
+          "narration": "Öffnen Sie Klassifizieren, maschinelles Lernen aus dem Abschnitt Kern. Wählen Sie eine Messdatenbank, Etikettenkolonne, Funktionsfamilien und Experimentelle Gruppierungspalten aus."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Filterung, Skalierung, Funktionswahl, Klassenbilanz, Modellfamilie und Lecksicherheitsplätze."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, erhält das Projekt Vorhersagen, Merkmalenwichtigkeit, Leistungstabellen und serialisierte Modelle."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Map Barcodes. Verbinden Sie Sequenzierung Barcodes und führen Sie Identitäten zu den Phänotypen, die in Mikroskopiebildern gemessen werden."
+        },
+        {
+          "narration": "Öffnen Sie die Barcodes der Karte aus dem Abschnitt Kern. Bereitstellen Sie FASTQ-Dateien, Barcode-Definitionen, Plattenmetadaten und das entsprechende Mikroskopieprojekt."
+        },
+        {
+          "narration": "In der Hauptkonfiguration definieren Sie Zeilen-, Spalten- und Leitlinien-Barcode-Layouts zusammen mit Qualitätsschwellen und Mischungsregeln."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden die Guide-Identitäten mit Brunnen und Einobjekt-Phänotypen in nachverfolgbaren Tabellen verknüpft."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Regression. Schätzen Sie die Wirkungen der Störung und identifizieren Sie Merkmale, die mit Fenotipen auf Leit- oder Zustandsebene verbunden sind."
+        },
+        {
+          "narration": "Öffnen Sie Regression aus dem Abschnitt Kern. Wählen Sie gemapste Messungen, Reaktionsvariablen, Steuerelemente, Gruppierungspalten und Kandidatenprognosen aus."
+        },
+        {
+          "narration": "Wählen Sie in der Hauptkonfiguration Transformationen, Covariate, Modellfamilie, zufällige Effekte, Mehrfach-Testskorrektur und Qualitätsfilter aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR Effektgrößen, Unsicherheit, angepasste Bedeutung, Diagnostik und Zahlen."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Make Masks. Interaktiv konstruieren, korrigieren und kuratieren Sie Segmentierungsetiketten für Cellpose-Trainingdaten."
+        },
+        {
+          "narration": "Öffnen Sie Masken aus dem Abschnitt Modelle Segmentierung. Öffnen Sie repräsentative Mikroskopiebilder und alle vorhandenen Masken, die verfeinert werden sollten."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich wählen Sie Kanäle, Normalisierung, Pinsel- oder Magiewandwerkzeuge, Objektoperationen und Etiketten-Sparverhalten aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Korrigieren Sie Grenzen und fehlende Objekte über einen vielfältigen Trainingsuntersatz anstatt nur einfache Felder."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, sind Paarebilder und kuratierte Etikettenmasken für individuelle Cellpose-Schulung bereit."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Image UMAP. Erkunden Sie Phänotypviertel, indem Sie gemessene Objekte einbetten und ihre Bildpflanzen als Glyphen anzeigen."
+        },
+        {
+          "narration": "Öffnen Sie Bild-UMAP im Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie eine Messdatenbank, Bildpflanzen, Feature-Set und Gruppenmetadaten aus."
+        },
+        {
+          "narration": "In der Hauptkonfigurationsfläche werden Filter-, Skalierung-, Nachbar-, Mindeststrecke-, Cluster-, Probenahme- und Bildanzeigenkanäle konfiguriert."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie mehrere reproduzierbare Einbettungen und überprüfen Sie, ob Cluster nicht von Platten- oder Bildvorstellungen angetrieben werden."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR Koordinaten, Clusteretiketten, Bildkarten und veröffentlichungsbereite Einbeziehungsfiguren."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Aktivierungskarten. Überprüfen Sie die Bildregionen, die einen ausgebildeten Computer-Vision-Klassifikator am meisten beeinflussen."
+        },
+        {
+          "narration": "Öffnen Sie Aktivierungskarten aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ein ausgebildetes Vision-Modell und repräsentative Objektpflanzen aus den Interessenklassen aus."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Zuteilungsmethode, die Ziel-Schicht, die Zielklasse, die Kanäle, die Normalisierung und die Probenahme aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Karten mit richtigen, falschen, hochsicher und niedrigsicher Beispielen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, helfen Aktivierungsüberlagerungen und Attributionsmessungen zu beurteilen, ob das Modell biologisch plausible Hinweise gelernt hat."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Zeitrechnung. Segmentieren, verknüpfen und messen Sie Zellen oder Krankheitserreger über die Rahmen einer Zeitreihen."
+        },
+        {
+          "narration": "Öffnen Sie Timelapse aus dem Abschnitt Kern. Wählen Sie einen zeitlich gelösten Bildsatz aus, dessen Dateinamen die Feld-, Zeit-, Tiefen- und Kanalindex speichern."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Segmentierung, verfolgte Objekttypen, Verknüpfungsmodus, maximale Verschiebung, Lückenbearbeitung und Vorschaurahmen."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie Spuren auf repräsentativer Bewegung, bevor Sie die gesamte Zeitreihen verarbeiten."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden zeitindexte Masken, Spuren, Messungen und Flugbahnüberschriften mit stabilen Objektidentitäten gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Motility-Assay. Quantifizieren Sie Geschwindigkeit, Verschiebung, Persistenz und Infektionsqualitätskontrolle-Metriken aus zeitlich gelösten Bildern."
+        },
+        {
+          "narration": "Öffnen Sie die Motilitätsanalyse aus dem Kernbereich. Öffnen Sie die verfolgten Zeitverlaufdaten mit zuverlässigen Zeitintervallen und räumlicher Kalibrierung."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich Spurfilter, Mindestdauer, Glanz, Bewegungsmesswerte, Infektionsdefinitionen und Gruppen mit gutem Niveau aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR pro Strecke und pro Bedingung Motilitätstabellen, Qualitätsmetriken und Zahlen."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Train Cellpose. Trainieren Sie ein benutzerdefiniertes Cellpose- oder CPSAM-kompatibles Segmentierungsmodell aus kuratierten Bild-Mask-Paaren."
+        },
+        {
+          "narration": "Öffnen Sie die Train Cellpose aus dem Abschnitt Modelle Segmentierung."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich Kanäle, Basismodell, Durchmesser, Vergrößerung, Lernrate, Epochen, Batchgröße und Validierungspaltung aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist. Überwachen Sie die Aus- und Validierungsverluste und Prüfkontrollpunkte auf Feldern, die nicht für das Training verwendet wurden."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden der ausgewählte Checkpoint, die Trainingsgeschichte, die Validierungsprognosen und die Einstellungen zusammen gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Cellpose Masken. Generieren und überprüfen Sie Cellpose Masken mit einem fokussierten Modell-Anwendungs-Workflow."
+        },
+        {
+          "narration": "Öffnen Sie Cellpose-Masken im Abschnitt Segmentierung von Modellen. Wählen Sie Mikroskopiebilder, Kanäle und ein eingebautes oder benutzerdefiniertes Cellpose-Modell aus."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Durchmesser, Durchfluss- und Zellwahrscheinlichkeitsschwellen, Normalisierung, Fliesen und Hardwareverwendung."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vorlesen Sie mehrere repräsentative Felder, bevor Sie das Modell auf die vollständige Quelle anwenden."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden neben den geplanten Eingaben Etikettenmasken und visuelle Qualitätskontrollebilder geschrieben."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Modellvergleichen. Führen Sie zwei Cellpose-Modelle auf den gleichen Feldern aus und vergleichen Sie Masken, Zählungen und Übereinstimmungsmetriken."
+        },
+        {
+          "narration": "Öffnen Sie Modell Vergleichen im Abschnitt Segmentierung Modelle. Wählen Sie zwei Kandidatenmodelle und eine repräsentative Reihe von Mikroskopiefeldern aus."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich passen die Kanäle und die Vorverarbeitung zusammen, und dann konfigurieren Sie Schwellenwerte und die Kriterien für die Abgleich der Objekte."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfen Sie die Seite an Seite-überlagerungen zusammen mit den Unterschieden in der Objektaufzählung, Überlagerung und dem angepassten Rand-Index."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, wird im Vergleichsbericht festgestellt, wo jedes Modell Objekte gewinnt, verliert, spaltet oder verschmelzt."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst den Modell Zoo. Browse, verifiziere, laden und vergleiche wiederverwendbare Segmentierungs- und Klassifizierungsmodelle."
+        },
+        {
+          "narration": "Öffnen Sie den Katalog und wählen Sie Modelle, die mit der aktuellen Aufgabe und den Eingabechanälen kompatibel sind."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie Herkunft, Lizenz, Prüfsumme, erwartete Vorverarbeitung, Aufgabenart und lokale Verfügbarkeit."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Benchmark vielversprechende Modelle auf einigen repräsentativen Feldern, bevor Sie eines für ein vollständiges Experiment annehmen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, bleiben die verifizierten Modelldateien und Benchmark-Ergebnisse mit ihren Metadaten verbunden."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Annotator-Abkommen. Messen Sie die Vereinbarung zwischen Annotationsspalten und überprüfen Sie die für die Meinungsverschiedenheit verantwortlichen Objekte."
+        },
+        {
+          "narration": "Öffnen Sie die Annotatorvertrag in der Sektion Ergebnisse und Qualitätskontrolle. Wählen Sie eine Projektdatenbank und zwei oder mehr Annotationsspalten, die die gleichen Objekte abdecken."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Klassenverarbeitung, die fehlende Kennzeichnung, die Gruppierung, die Probenahme und die Vereinbarungsstatistik aus."
+        },
+        {
+          "narration": "Überprüfen Sie vor dem vollständigen Lauf die sichtbaren Einstellungen und verwenden Sie, sofern verfügbar, einen Vorschau- oder Testmodus. Untersuchen Sie Cohen- oder Fleiss-Kappa zusammen mit klassenspezifischen Konfusionsmatrizen und Beispielen für Abweichungen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden Vereinbarungstabellen und eine gezielte Überprüfung die Begleitbezeichnung und die Verbesserung des Protokolls unterstützen."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Plaque-Assay. Messen Sie die Plaque-Bildung und bedingungsabhängige Veränderungen aus Plattenaufnahmen."
+        },
+        {
+          "narration": "Öffnen Sie die Plaque-Analyse aus dem Abschnitt Toxoplasma-Analysen."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie die Hintergrundkorrektur, die Schwelle, die Objektsäuberung, die Plattengröße und die Brunnengruppen."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist. Überprüfen Sie die Segmentierungsschichten über Kontroll- und Behandlungsbrunnen vor der Batchanalyse."
+        },
+        {
+          "narration": "Nach Abschluss des Arbeitsflusses gibt spaCR die Anzahl der Plaques, die Flächen, die Zusammenfassungen, die Statistiken und die Qualitätskontrolleberichte an."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Rekrutierung. Quantifizieren Sie die Rekrutierung eines Channel-of-Interest-Signals an Parasiten oder mit Krankheitserregern verbundene Regionen."
+        },
+        {
+          "narration": "Öffnen Sie Recruitment im Abschnitt Toxoplasma Assays. Verwenden Sie gemessene Zell-, Parasiten- und Organellmasken, wobei Kanal eins, das endoplasmatische Retikulum, als interessierender Kanal dient."
+        },
+        {
+          "narration": "In der Hauptkonfiguration definieren Sie die Rekrutierungszone, Hintergrundreferenz, Objektfilter, Gruppierung und Normalisationsstrategie."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden die Einstellungswerte und die Konditionsüberschriften pro Objekt mit Quellidentifikatoren gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Invasion-Analyse."
+        },
+        {
+          "narration": "Öffnen Sie die Invasion-Analyse aus dem Abschnitt Toxoplasma-Analysen."
+        },
+        {
+          "narration": "In der Hauptkonfiguration sind Intensitätsschwellen, Objektspassung, Zweideutigkeitsbearbeitung und gut-Ebene-Gruppierung einzurichten."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, berechnet spaCR die Berechnung und die Invasionseffizienz pro Brunnen und Zustand mit Qualitätskontrollabbildern."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Replikationsprüfung."
+        },
+        {
+          "narration": "Eröffnen Sie die Replikationsmessung aus dem Abschnitt Toxoplasma-Assays. Wählen Sie die Messungen der Gastzelle, Vakuole und Parasiten zusammen mit den Zustandmetadaten aus."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Raumzuweisung, Objektfilter, Parasitenzählbehälter, Kontrollen und statistische Vergleiche."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Inspektieren Sie Vakuolen über den gesamten Zählbereich und überprüfen Sie, ob verschmelzte oder fragmentierte Masken ausgeschlossen sind."
+        },
+        {
+          "narration": "Wenn der Arbeitsfluss abgeschlossen ist, werden die Verteilung von Parasiten pro Vakuol, die Replikationsraten, die Statistiken und die Zahlen gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Training-Runs. Vergleichen Sie mehrere Modell-Training-Runs durch Überlagerung von Kurven und Differenzierung ihrer Einstellungen."
+        },
+        {
+          "narration": "Öffnen Sie Schulungsläufe aus dem Abschnitt Ergebnisse und Qualitätskontrolle."
+        },
+        {
+          "narration": "Wählen Sie in der Hauptkonfiguration die zu angezeigten Messwerte, Ausgleiten, Gruppieren, Checkpoint-Kriterien und Einstellungsfelder aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Konvergenz, Überpassungs-, Stabilität- und Auslastungsergebnisse, anstatt sich nur durch Trainingsabnahme auszuwählen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden die Vergleichszahlen und Einstellungsdifferenztabellen den stärksten reproduzierbaren Run identifizieren."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "scenes": [
+        {
+          "narration": "Erstellen Sie eine teilweise teiltechbare HTML- oder PDF-Übersicht mit Qualitätskontrolle, Zahlen, Statistiken, Einstellungen und Versionen."
+        },
+        {
+          "narration": "Öffnen Sie den Bericht im Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ein abgeschlossenes spaCR-Projekt und die zu eingeweihenden Daten, Tabellen, Zahlen und Abschnitte aus."
+        },
+        {
+          "narration": "In der Hauptkonfiguration sind Titel, Urheberrecht, Konditionsetiketten, Qualitätsschwellen, Ausgangsformat und Datenschutzempfindliche Felder einzustellen."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, wird ein tragbares Bericht die Schlussfolgerungen zusammen mit den Einstellungen und den Softwareversionen, die zur Wiedergabe erforderlich sind, aufzeichnen."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Plate Queue."
+        },
+        {
+          "narration": "Öffnen Sie die Platteneihenfolge im Abschnitt Daten und Batchläufen. Fügen Sie Plattenelemente hinzu und wählen Sie die gemeinsame Modulsequenz und die Einstellungen vordefiniert."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie die Plattenordnung, die Überschreitung pro Platte, die Grenzen für Arbeiter, die Ausfallpolitik, das Wiederholungsverhalten und die Ausgangswurzeln."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Beginnen Sie mit einer kleinen Platte oder einem Testfeld, lassen Sie die Schlange dann die Platten sequentiell mit sichtbarem Status verarbeiten."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, erhält jede Platte ein einzelnes Projekt und führt eine Aufzeichnung durch, während die Warteschlange den Gesamtfortschritt bewahrt."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt External Masks. Verwandeln Sie Labelmasken und Quellbilder von Drittanbietern in ein messbares, nachverfolgbares spaCR-Projekt."
+        },
+        {
+          "narration": "Öffnen Sie Externe Masken aus dem Abschnitt Daten und Batchläufen. Bereitstellen Sie Quellbilder, externe Masken, Namensregeln, Objekttypen und optionale Messtabellen."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden Bilder auf Masken abgelegt, Form- und Kennzeichnungskonventionen validiert, die Umkennung ausgewählt und Messmöglichkeiten definiert."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR normalisierte Masken, abgebildeten Bilder, Messungen und Herkunft bereit für Anmerkungen."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Align und Stitch. Registrieren Sie Bildfliesen und bauen Sie ein gestricktes Mosaik schrittweise auf, ohne das gesamte Leinwand im Gedächtnis zu behalten."
+        },
+        {
+          "narration": "Öffnen Sie Align und Stitch im Abschnitt Daten und Batch-Run. Wählen Sie geplatzte Akquisitionen, Stufenkoordinaten oder überlappende Metadaten, Kanäle und Ziel."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie die Registrierungsmethode, den Referenzkanal, die Überlagerung, die Mischung, die Korrektur, die Stückgröße und das Ausgangsformat."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vor dem Bau des vollständigen Mosaikums überprüfen Sie die Paareausrichtung und die Nähvorsicht."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, werden registrierte Fliesen, gestrickte Bilder, Transformationen und Kartenmetadaten gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Plate Viewer. Erforschen Sie jede Messung als Plattenthermmap und identifizieren Sie räumliche Artefakte oder Rand-Effekte."
+        },
+        {
+          "narration": "Öffnen Sie den Plattenausblick im Abschnitt Ergebnisse und Qualitätskontrolle. Öffnen Sie eine Messdatenbank mit Plattenausweisern, -brunnen und -Konditionsidentifikatoren."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Messung, Aggregation, Normalisierung, Farbskala, Steuerungen und Plattenordnung aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Roh- und normalisierte Ansichten und überprüfen Sie verdächtige Brunnen oder systematische Randmuster."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können Heatmaps, ausgewählte Welltabellen und Rand-Effekt-Diagnostik exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst den Datenbankbrowser. Durchsuchen, filtern, abfragen und exportieren Sie Messungen dot db ohne die Befehlszeile sqlite zu verwenden."
+        },
+        {
+          "narration": "Öffnen Sie den Datenbankbrowser im Abschnitt Daten und Batch-Runns. Öffnen Sie eine spaCR SQLite-Datenbank und wählen Sie eine Tabelle oder gespeicherte Abfrage aus."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Spalten, Filter, Sortieren, Zeilenlimits, Verbindungen und sicheres nur zu lesen oder bearbeitendes Verhalten."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können gefilterte Tabellen kopiert oder exportiert werden, während die ursprüngliche Datenbank nachvollziehbar bleibt."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Format Converter. Konvertieren Sie ND2, CZI, LIF, OME-TIFF und verwandte Mikroskopieformate in gemapste TIFF-Dateien im Yokogawa-Stil."
+        },
+        {
+          "narration": "Öffnen Sie den Format-Konverter aus dem Abschnitt Daten und Batch-Runns. Wählen Sie Quelldateien, Serien oder Szenen, Kanalnamen, Zeit- und Tiefenverarbeitung und einen Ausgabeordner aus."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich sehen Sie vorab, wie die Quelldimensionen auf Plattenebene, -brunnen, -feld, -zeit, -tiefe und -kanalindizes abgegeben werden."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie die Kartierung auf einer kleinen Probe, bevor Sie jede Datei konvertieren."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR standardisierte TIFFs und eine Karte zurück zu den ursprünglichen Dateien und Metadaten."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt das Import-Projekt. Bringen Sie Bilder, Masken und Messtabellen eines anderen Laboratoriums in ein spaCR-Projekt."
+        },
+        {
+          "narration": "Öffnen Sie Importprojekt aus dem Abschnitt Daten und Batch-Run. Bereitstellen Sie Bilder, optionale Masken, eine Messtabelle und stabile externe Identifikatoren."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden ausländische Spalten auf spaCR-Identifikatoren, Kanäle, Objekttypen, Plattenmetadaten und Herkunftsfelder abgeglichen."
+        },
+        {
+          "narration": "Vor dem vollständigen Ausführen überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie Verbindungen, fehlende Werte, Bildmasken-Ausrichtung und Duplikate-Identifikatoren vor dem Import."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, bewahrt das standardisierte Projekt Links zu jeder ursprünglichen Datei und Identifikator."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Batch Runner."
+        },
+        {
+          "narration": "Öffnen Sie Batch Runner im Abschnitt Daten und Batch-Runns. Fügen Sie Projekte hinzu und montieren Sie die angeordneten Modulsequenzen, die jedes Projekt ausführen soll."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich Voreinstellungen, Abhängigkeiten, Ressourcenlimits, Wiederholungsverhalten, Logging und Ausfallrichtlinien aus."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie den Batchplan, testen Sie einen Job und führen Sie dann die verbleibende Schlange über Nacht oder unbeaufsichtigt durch."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, hat jeder Job seinen eigenen Status, Einstellungs-Snapshot, Logs, Ausgänge und wiederverlässigen Laufregister."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst verteilte Jobs. Übermitteln und überwachen Sie spaCR-Arbeiten auf SSH-Arbeitsstationen, Slurm-Clustern oder Cloud- und HPC-Befehlen."
+        },
+        {
+          "narration": "Öffnen Sie verteilte Stellen im Abschnitt Daten und Batch-Run. Konfigureren Sie ein Remote-Profil, Verbindungsmethode, Arbeitsverzeichnis, Umgebung und Datenwege."
+        },
+        {
+          "narration": "In der Hauptkonfiguration definieren Sie die Ressourcen des Planers, Befehlsvorlagen, Dateisinchronisierung, Anmeldeinformationen und Status-Umfragen."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, verfolgen lokale Aufzeichnungen Remote-Job-Identifikatoren, Logs, Zustand, übertragene Artefakte und Fehler."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Classifier Evaluation. Audit ausgehaltenen Vorhersagen, verschachtelte Quervalidierung, Kalibrierung, Leckage und Performance pro Platte."
+        },
+        {
+          "narration": "Öffnen Sie die Bewertung des Klassifiziers aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie Vorhersagen mit Grundwahrheit, gespaltenen Metadaten, Plattenidentifikatoren, Wahrscheinlichkeiten und Modell-Rekord."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Klassenfolge, Schwellenwerte, Kalibrierungskörper, Gruppierung, Bootstrap-Unsicherheit und Leck-Checks."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn dieser verfügbar ist. Bevor Sie einen Klassifikator für biologische Schlussfolgerungen verwenden, bewerten Sie das Halt- und Per-Plate-Verhalten."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, erzeugt spaCR Diskriminierung, Kalibrierung, Verwirrung, Leckage und Robustkeitsberichte."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst die Laufgeschichte. Suchen Sie die Einstellungen, Dateien, Warnungen, Fehler und Leistungen jedes Jobs an einem Ort."
+        },
+        {
+          "narration": "Öffnen Sie die Ausführungsgeschichte im Abschnitt Ergebnisse und Qualitätskontrolle. Öffnen Sie das Ausführungsregister für den aktuellen Arbeitsplatz oder ausgewählte Projektwurzeln."
+        },
+        {
+          "narration": "Filtern Sie im Hauptkonfigurationsbereich nach Modul, Status, Datum, Projekt, Version, Warnung, Dauer oder Ressourcenverwendung."
+        },
+        {
+          "narration": "Bevor der vollständige Auslauf durchgeführt wird, überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Öffnen Sie einen Auslauf, um seine unveränderlichen Einstellungen, Logs, Ausgänge und Fehlerkontext zu überprüfen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können Sie vorherige Arbeiten reproduzieren, vergleichen, fortsetzen oder berichten, ohne zu raten, wie sie ausgeführt wurden."
+        }
+      ]
+    }
+  ]
+}
