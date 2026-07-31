@@ -1,0 +1,807 @@
+{
+  "schema": 1,
+  "language": "nb",
+  "source_language": "en",
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker PyPI og GitHub. Lær hvor spaCR-utgivelser, kildekode, installatører, problemer og nattlige gren lever."
+        },
+        {
+          "narration": "Åpne PyPI og GitHub fra spaCR-delen. Bruk PyPI for den nåværende Python-pakken og GitHub for kildekode, utgivelser og problemopsporing."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet sammenligner du den stabile pakket utgivelsen med nattsutviklingsgrenen og velg den som passer for arbeidet ditt."
+        },
+        {
+          "narration": "Før full drift, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. Åpner utgivelsesnotatene før installasjon slik at versjonen og plattformskravene er klare."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, vil du vite hvor du skal installere spaCR, inspisere endringer, og rapportere et gjenoppførbart problem."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Installering med Conda. Lag et isolert Python-miljø og installere spaCR uten å endre resten av systemet."
+        },
+        {
+          "narration": "Åpne Installering med Conda fra spaCR-delen. Installere Miniconda, Anaconda eller en annen Conda-kompatibel administrator, og opprett deretter et miljø med Python tre punkt tolv."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet aktiverer du miljøet og bekrefter at dets Python- og pip-utførbare tilhører dette miljøet."
+        },
+        {
+          "narration": "Før full drift, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. Installere spaCR med pip inne i det aktive miljøet; konda-forge-pakken kommer fortsatt snart."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lansere spaCR fra samme miljø og hold den isolert fra ikke-relaterte prosjekter."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Installering med pip. Installere spaCR i et eksisterende isolert Python-miljø for skrivebord eller headless bruk."
+        },
+        {
+          "narration": "Åpne installasjon med pip fra spaCR-delen. bekreft at miljøet bruker en støttet Python-versjon; Python tre punkt tolv anbefales."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, oppgradere pip hvis nødvendig og avgjøre om du trenger skrivebordet, utvikling, eller valgfri vitenskapelige ekstra."
+        },
+        {
+          "narration": "Før hele kjøringen, gå gjennom de synlige innstillingene og bruk forhåndsvisning eller testmodus når det er tilgjengelig. Kjør pip install spaCR, og kontroller deretter kommandoen og Python-importen før du starter et eksperiment."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan samme installasjon starte skrivebordsappen eller kjøre skriptarbeidsflyter på en arbeidsstasjon eller server."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker plattformsinstaller. Install spaCR på Windows, macOS eller Linux uten å administrere Python manuelt."
+        },
+        {
+          "narration": "Åpne plattforms installatorer fra spaCR-delen. Last ned installatoren for operativsystemet ditt fra GitHub-utgaven."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du se over operativsystemets sikkerhetsoppfordringer, den private kjøretidsplassen og den forespurte akselerasjonsbakend."
+        },
+        {
+          "narration": "Før full drift, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. La installatoren fullføre og beholde installasjonsloggen hvis noe feiler."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, bruk den opprinnelige lanseren mens spaCR holder sin egen styrt Python kjøretid."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Hjemskjerm og navigasjon. Se gjennom programmet, dets modulgrupper, kjøre oppsummeringer, modulativitetsindikatorer og navigasjonskontroller."
+        },
+        {
+          "narration": "Åpne Hjem skjermen og navigere fra Hjem-delen. Start spaCR-dataplattformen og begynn på Hjem."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, bruk sidebar, kategorifiler, søkbare app fliser og kommandopalette for å nå en arbeidsflyt."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. Åpne et modul bare når du har tenkt å samhandle med det; pekeren vises bare for reelle klikk."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan du gå gjennom programmet og forstå statusinformasjonen som vises på Hjem."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Python API og hovedløse arbeidsflyter. Kjør gjenopprettelige spaCR-rør fra Python eller en shell uten skrivebordgrensesnittet."
+        },
+        {
+          "narration": "Åpne Python API og hovedløse arbeidsflyter fra spaCR-delen. Start fra innstillinger som eksporteres av skrivebordsappen eller bygge en valideret innstillingsordbok i Python."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, velg rørledningsinngangspunktet, kildespart, utgangsspart, arbeidsantal og maskinvarealternativer."
+        },
+        {
+          "narration": "Før full drift, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. Utfør rørledningen i en terminal, bærbar, planlegger eller fjernarbeid mens logger og innstillinger bevares."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, inneholder prosjektet de samme masker, målinger, databaser, tall og kjøre poster som er produsert av skrivebordsappen."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen handler om Mask. Segmenter det medfølgende firekanals mikroskopiforsøket i masker for cellekjerner, celler, lipiddråper og parasitter."
+        },
+        {
+          "narration": "Åpne Mask fra Core-delen. Bruk det medfølgende datasettet med tretten bildefelt. Kanal null er cellekjerner, kanal én er endoplasmatisk retikulum, kanal to er lipiddråper, og kanal tre er parasitter."
+        },
+        {
+          "narration": "I hovedkonfigurasjonen registrerer du cellekjerner fra kanal null, celler fra kanalen for endoplasmatisk retikulum, lipiddråper med organelle spots-arbeidsflyten og parasitter fra kanal tre."
+        },
+        {
+          "narration": "Før hele kjøringen, gå gjennom de synlige innstillingene og bruk forhåndsvisning eller testmodus når det er tilgjengelig. Kontroller et representativt felt, og kjør deretter de fire segmenteringspasseringene over datasettet."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, inneholder masks-mappen justerte objektetiketter og sammenslåtte bilde-og-maske-matriser som er klare for måling."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker måling. Ekstrak per objekt intensitet, morfologi, tekstur, kolokalization, og rumslige egenskaper fra segmenterte bilder."
+        },
+        {
+          "narration": "Åpne Mått fra Core-delen. Velg prosjektet som inneholder bilde stapler og masker produsert av Mask."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du bruke kanal én, endoplasmatisk retikulum, som interessekanal og velge objekttyper og funksjonsfamilier for måling."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. forhåndsvisning avgrøder når det er nødvendig, deretter behandle hvert valgt felt og objekttype."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagrer målinger dot db sporbare enkeltobjektlinjer og valgfrie bildekulturer for annotering eller klassifisering."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Annotate. Se på enkeltobjekt avlinger på et rulle og tildele pålitelige etiketter for modellutdanning eller kvalitetskontroll."
+        },
+        {
+          "narration": "Åpne Annotat fra Core-delen. Åpne et prosjekt med objektgrønner og velg databasetabell og annotasjonskolonne."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du klasser, visningskanale, sortering, prøveutvinning og eventuelle filtre som definerer gjennomgangssettet."
+        },
+        {
+          "narration": "Før full running, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, blir annotasjoner skrevet tilbake til prosjektdatabasen med objektidentifikatorer intakt."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Classify, computer vision. Trene og bruke et bildebasert nevronnettverk til annoterte enkeltobjekt avlinger."
+        },
+        {
+          "narration": "Åpne Klassifikasjon, datamaskinvisjon fra Core-delen. Velg annoterte avgrøddmapper eller en prosjektdatabase med pålitelige klassetabler."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du bildekanale, arkitektur, split-strategi, utvidelse, partistørrelse og treningskontroll."
+        },
+        {
+          "narration": "Før full løp, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. trene på treningsspliten, overvåke valideringshåndteringen, og evaluere en gang på holdt ut data."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagrer spaCR modellen, metrisker, forutsetninger, klasseseksempler og kjører metadata for senere anvendelse."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker klassifisere, maskinlæring. Trene funksjonsbaserte klassifikatorer som XGBoost eller tilfeldig skog fra målt enkeltobjektdata."
+        },
+        {
+          "narration": "Åpne klassifisering, maskinlæring fra Core-delen. Velg en målestatabas, etikettkolonne, funksjonsfamilier og eksperimentelle grupperingskolonne."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere filtrering, skalering, funksjonsvalg, klassesbalansering, modellfamilie og lekkasjeftige splits."
+        },
+        {
+          "narration": "Før full kjøring skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, mottar prosjektet forutsigelser, funksjonsvekst, ytelsestabeller og serialiserte modeller."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker kartbalkoder. Koble sekvensering barkoder og guideidentiteter til fenotiper målt i mikroskopiske bilder."
+        },
+        {
+          "narration": "Åpne kart barkoder fra Core-delen. Gi FASTQ-filer, barkoddefinisjoner, plate metadata og det tilsvarende mikroskopiske prosjektet."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet definerer du rad-, kolonne- og guiderbarkode-layouter sammen med kvalitetsgrenser og mismatch-regler."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, blir guideridentitet knyttet til brønner og enkeltobjektfenotyper i sporbare tabeller."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker regresjon."
+        },
+        {
+          "narration": "Åpne Regresjon fra kjernen. Velg kartlagte målinger, responsvariabler, kontroller, gruppering kolonne og kandidat prediktorer."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du transformasjoner, covariater, modellfamilie, tilfeldige effekter, korrigering med flere tester og kvalitetfiltre."
+        },
+        {
+          "narration": "Før full drift skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, skriver spaCR effektstørrelser, usikkerhet, justert betydning, diagnostikker og tall."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Make Masks. Interaktivt konstruere, korrigere og kurere segmentering etiketter for Cellpose trening data."
+        },
+        {
+          "narration": "Åpne Make Masks fra segmentering av modeller. Åpne representative mikroskopiske bilder og eventuelle eksisterende masker som bør finiseres."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, velg kanaler, normalisering, pensel eller magisk-wand verktøy, objektoperasjoner og etikettbesparende atferd."
+        },
+        {
+          "narration": "Før full løp, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. korrigere grenser og mangler objekter over et variert opplæring delsett i stedet for bare enkle felt."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, er parret bilder og kurerte etikettmasker klare for skræddersyet Cellpose opplæring."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Image UMAP. Utforsk fenotipe nabolag ved å inneby målte objekter og vise deres bildekropper som glyfer."
+        },
+        {
+          "narration": "Åpne Bildet UMAP fra sektionen Resultater og kvalitetskontroll. Velg en målestatabase, billedbruk, funksjonssett og gruppering metadata."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere filtrering, skalering, naboer, minimumsdistansjon, klynger, prøveuttagning og bildekansell."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Sammenlign flere gjenopprettelige innbygginger og verifisere at klynger ikke drives av plate eller bildeforemål."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagrer spaCR koordinater, klusteretiketter, billedkart og publikasjonsklar innlejringstall."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker aktiveringskort. Undersøk de billedregionene som påvirker mest en utdannet datamaskin-visjon klassifikator."
+        },
+        {
+          "narration": "Åpne aktiveringskort fra avsnittet Resultat og kvalitetskontroll. Velg en utdannet visjonsmodell og representative objektgrønner fra interesseklasser."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du tilskrivningsmetoden, mållaget, målklassen, kanalene, normaliseringen og prøveuttagningen."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. sammenligne kart over korrekte, uriktige, høytillit og lave tillit eksempler."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, hjelper aktivering overlays og tilskrivningsmålinger til å vurdere om modellen lærte biologisk plausible signaler."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Timelapse. Segmentere, knytte og måle celler eller patogene over rammene til en tidsserie."
+        },
+        {
+          "narration": "Åpne Timelapse fra Core-delen. Velg et tidsoppløst bildesett hvis filenavn bevarer felt-, tid-, dybde- og kanalindekser."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere segmentering, sporede objekttyper, koblingsmodus, maksimal forflytelse, gaphåndtering og forhåndsbilder."
+        },
+        {
+          "narration": "Før full løp, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. validere spor på representativ bevegelse før du behandler hele tidsserien."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagres tidsindekserte masker, spor, målinger og trajektorierumsummeringer med stabile objektidentiteter."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Motility Assay. Kvantifisere hastighet, forflytelse, utholdenhet og infeksjonskvalitetskontrollmetrikker fra tidsoppløselige bilder."
+        },
+        {
+          "narration": "Åpne Motility-assay fra Core-seksjonen. Åpne sporet tidslapse data med pålitelige tidsintervaller og rumslig kalibrering."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du velge sporfiltre, minimumvarighet, glatning, motilitetsmetrikker, infeksjonsdefinisjoner og grupper på godt nivå."
+        },
+        {
+          "narration": "Før full løp, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. inspisjon av banevisninger og utelukke ødelagte, stillestående-artifact eller utelukket spor."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, skriver spaCR per spor og per betingelse motilitetstabeller, kvalitetsmetrikker og tall."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Train Cellpose. Trene en tilpasset Cellpose eller CPSAM-kompatibel segmenteringsmodell fra kurerte bilde-maskerpar."
+        },
+        {
+          "narration": "Åpne Train Cellpose fra segmentering av modeller. Gi ulike opplæring og valideringbilder med nøye korrigerte etikettmasker."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du kanaler, basemodell, diameter, utvidelse, læringsrate, epoker, partistørrelse og valideringsplitt."
+        },
+        {
+          "narration": "Før full løp, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. overvåk opplæring og validering tap og testkontrollpunkter på felt som ikke ble brukt til opplæring."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagres det valgte kontrollpunktet, opplæringshistorien, valideringspåsikter og innstillingene sammen."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Cellpose Masker. Generere og gjennomgå Cellpose masker med en fokusert modell-applikasjon arbeidsflyt."
+        },
+        {
+          "narration": "Åpne Cellpose-masker fra segmentering av modeller. Velg mikroskopiske bilder, kanaler og en innebygd eller tilpasset Cellpose-modell."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere diameter, strøm og celleprobabilitetstærskler, normalisering, tegling og maskinvarebruk."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, blir etikettmasker og visuelle kvalitetskontrollbilder skrevet ved siden av de kartlagte inngangene."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Model Compare. Kjør to Cellpose-modeller på de samme feltene og sammenlign masker, tall og avtalen metrikker."
+        },
+        {
+          "narration": "Åpne modell Sammenlign fra segmentering av modeller. Velg to kandidatmodeller og et representativt sett med mikroskopiske felt."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal kanaler og forhåndsbehandling matches, deretter konfigureres tærskler og kriteriene for objektmatching."
+        },
+        {
+          "narration": "Før full running, sjekk de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, identifiserer sammenligningsrapporten hvor hver modell vinner, mister, deler eller fusjonerer objekter."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Model Zoo. Browse, verifisere, laste ned og referanse gjenbrukbare segmentering og klassifikator modeller."
+        },
+        {
+          "narration": "Åpne Zoo-modell fra segmentering av modeller. Åpne katalogen og velg modeller som er kompatible med den aktuelle oppgaven og inngangskanalene."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du se på opprinnelse, lisens, sjekksum, forventet forhåndsbehandling, oppgavestype og lokal tilgjengelighet."
+        },
+        {
+          "narration": "Før full kjøring, gjennomgå de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, forblir verifiserte modellfiler og referanseresultater knyttet til deres metadata."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Annotator Agreement. Måle avtale mellom annoteringspiller og se over de objekter som er ansvarlige for uenighet."
+        },
+        {
+          "narration": "Åpne annotatorsavtale fra avsnittet Resultat og kvalitetskontroll. Velg en prosjektdatabase og to eller flere annotasjonskolonne som dekker de samme objektene."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du velge klasshåndtering, manglende etikettpolitikk, gruppering, prøveutvinning og avtalestatistikk."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, setter avtalen tabeller og en fokusert gjennomgang støtte etikett forsoning og protokoll forbedring."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker plakkassess. Måle plakkdannelse og tilstandsberoende endringer fra plakkbilder."
+        },
+        {
+          "narration": "Åpne plakk-analyse fra Toxoplasma-analyse-seksjonen. Gi plakkbilder, plakk layout, pikselkalibrering, forhold og kontroller."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere bakgrunn korrigering, trøskel, objektrensning, plakk størrelse filtre og brønn gruppering."
+        },
+        {
+          "narration": "Før full drift skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Kontroller segmentering overlappninger over kontroll- og behandlingskjeder før partianalyse."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, rapporterer spaCR tall på plakker, områder, oppsummeringer, statistikk og kvalitetskontrollsymptomer."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker rekruttering. Kvantifisere rekruttering av et interesse-signal til parasitter eller patogen-associerte regioner."
+        },
+        {
+          "narration": "Bruk målt celle, parasitt og organelmasker med kanal en, endoplasmatisk retikulum, som interessekanal."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet definerer rekrutteringsregionen, bakgrunnssammenheng, objektfiltre, gruppering og normaliseringstrategie."
+        },
+        {
+          "narration": "Før full running, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. sjekk overlappninger på objektnivå og kontroll distribusjoner før sammenligning av forhold."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagres rekrutteringspoengene og betingelsesresuméene per objekt med kildekennere."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Invasion test. Bruk to farger utenfor-versus-innvendig farge for å skille festet fra invaderte parasitter."
+        },
+        {
+          "narration": "Åpne invasjonsanalyse fra Toxoplasma-analyseavdelingen. Gi parasitt- og vertselmasker, innsiden og utenfor flekkekanale, plattmetadata og kontroller."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere intensitetsgrensene, objektmatching, tvetydighetsbehandling og godtnivågruppering."
+        },
+        {
+          "narration": "Før full run, se på de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. se på vedlagte, invaderte og usikre eksempler før du aksepterer klassifikasjonsregelen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, rapporterer spaCR tøl og inntrengelses effektivitet per brønn og tilstand med kvalitetskontrollbilder."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Replikasjonsassess. Score parasitter per vakuol og oppsummere intracellulær replikasjon etter tilstand."
+        },
+        {
+          "narration": "Åpne replikasjonsanalyse fra Toxoplasma-analyse-seksjonen. Velg værtscelle-, vakuol- og parasittmålinger sammen med tilstand metadata."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere rumslig tildeling, objektfilter, parasitttallbehold, kontroller og statistiske sammenligninger."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, spares parasittdistribusjoner per vakkuole, replikasjonsrater, statistikk og tall."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker treningrunder. Sammenlign flere modell-treningrunder ved å overlape kurver og variere innstillingene."
+        },
+        {
+          "narration": "Åpne opplæringsløp fra avsnittet Resultater og kvalitetskontroll."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du metris, glatning, gruppering, kontrollpunktkriterier og innstillingsfeltene som skal vises."
+        },
+        {
+          "narration": "Før full løp, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. sammenlign konvergens, overpassning, stabilitet og utholdt ytelse i stedet for å velge ved trening tap alene."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, identifiserer sammenligningsdata og settingsforskjelletabeller den sterkeste gjenopprettelige løpet."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Rapport. Lag en delbar HTML eller PDF oppsummering som inneholder kvalitetskontroll, tall, statistikk, innstillinger og versjoner."
+        },
+        {
+          "narration": "Åpne rapport fra avsnittet Resultat og kvalitetskontroll. Velg et ferdig spaCR-prosjekt og de løpene, tabeller, tall og seksjoner du vil inkludere."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere tittelen, opphavsretten, tilstandsetiketter, kvalitetsgrensene, utgangsformatet og personvernfølsomme felt."
+        },
+        {
+          "narration": "Før full drift skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, registrerer en bærbar rapport konklusjoner sammen med innstillingene og programvarversjonene som trengs for å gjenopprette dem."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Plate queue. Kjede flere plater gjennom samme validerte rørledning."
+        },
+        {
+          "narration": "Åpne plate queue fra avsnittet Data og batch runs. Legg til plate kilder og velg den delte modul sekvensen og innstillingene som er forhåndsinnstilt."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, se overplate rekkefølgen, per-plate overrides, arbeidsgrenser, feilpolitikk, gjenoppta atferd og utgangsruter."
+        },
+        {
+          "narration": "Før full running, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. Start med en liten plate eller testfelt, deretter la køen behandle plate sekvensjonelt med synlig status."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, får hver plate et isolert prosjekt og kjøre rekord mens køen bevarer den generelle utviklingen."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker eksterne masker. Omdanner tredjeparts etikettemasker og kildekilder til et målt, sporbart spaCR-prosjekt."
+        },
+        {
+          "narration": "Åpne eksterne masker fra avsnittet Data og batch runs. Gi kildekilder, eksterne masker, navngivningsregler, objekttyper og valgfrie måletabeller."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet må bilder kartlagt til masker, validere form- og merknadskonvensjoner, velge ommerkning og definere målemåter."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. forhåndsvisning justering og objekt tæller på flere felt før du importerer det komplette datasettet."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagrer spaCR normaliserte masker, kartlagte bilder, målinger og opprinnelse klar for annotering."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Align og Stitch. Registrere billedblisser og bygge en staket mosaikk gradvis uten å holde hele lærredet i hukommelse."
+        },
+        {
+          "narration": "Åpne Align og Stitch fra avsnittet Data og batch runs. Velg fliserte oppkjøp, etappkoordinater eller overlapper metadata, kanaler og destinasjon."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere registreringsschema, referanse kanal, overlap, blanding, korrigering, delstørrelse og utgangsformat."
+        },
+        {
+          "narration": "Før full running, gjennomgå de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, registrerte fliser, staket bilder, transformer og kartlegging metadata blir lagret."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Plate Viewer. Utforsk alle målinger som en plate heatmap og identifisere romlige artefakter eller kanteffekter."
+        },
+        {
+          "narration": "Åpne plate viseren fra avsnittet Resultater og kvalitetskontroll. Åpne en måling databas med plate, brønn og tilstandsidentifikatorer."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du måling, aggregering, normalisering, fargeskala, kontroller og plate layout."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Sammenlign rå og normalisert utsikt og inspisj mistenkelige brønner eller systematiske kantmønstre."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan varmekart, utvalgte brønn tabeller og kant effekt diagnostikk eksporteres."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Database Browser. Browsere, filtrere, spørre og eksportere målinger dot db uten å bruke kommandoen sqlite."
+        },
+        {
+          "narration": "Åpne Database Browser fra avsnittet Data og batch kjører. Åpne en spaCR SQLite-database og velg en tabell eller lagret forespørsel."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere kolonner, filtre, sortering, radegrensninger, sammenkoblinger og sikker bare-les- eller redigerbar atferd."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. forhåndsvisning forespørsler og beholde objektidentifikatorer når du eksporterer eller gjør autoriserte redigeringer."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan filtrerte tabeller kopieres eller eksporteres mens den opprinnelige databasen forblir sporbar."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Format Converter. Konvertere ND2, CZI, LIF, OME-TIFF og relaterte mikroskopisk formater til kartlagte Yokogawa-stil TIFF-filer."
+        },
+        {
+          "narration": "Åpne format konverter fra avsnittet Data og batch kjører. Velg kildedata, serie eller scener, kanalnavn, tid og dybde håndtering, og en utgang mapp."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, forhåndsvisning hvordan kilde dimensjoner kart til plate, brønn, felt, tid, dybde og kanal indeks."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. validere kartleggingen på en liten prøve før konvertering av hver fil."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, skriver spaCR standardiserte TIFF og et kart tilbake til de opprinnelige filene og metadata."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Importprosjektet. Ta bilder, masker og målepenger fra et annet laboratorium inn i et spaCR-prosjekt."
+        },
+        {
+          "narration": "Åpne importprosjekt fra avsnittet Data og partiløp. Gi bilder, valgfrie masker, et måltall og stabile eksterne identifikatorer."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal man kartlegge utenlandske kolonner på spaCR-identifikatorer, kanaler, objekttyper, plate metadata og opprinnelsesfelt."
+        },
+        {
+          "narration": "Før full running, se over de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. validere sammenheng, manglende verdier, bilde-mask-tilpasning og dupliserte identifikatorer før import."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, bevarer det standardiserte prosjektet lenker tilbake til hver opprinnelig fil og identifikator."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Batch Runner. Kjør moduler, prosjekter og innstillinger for gjenopprettelig ubesvart utførelse."
+        },
+        {
+          "narration": "Åpne Batch Runner fra avsnittet Data og batch runs. Legg til prosjekter og montere den bestilte modulsekvensen hvert prosjekt skal kjøre."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du forhåndsinnstillinger, avhengigheter, ressursgrenser, gjenoppta atferd, logging og feilpolitikk."
+        },
+        {
+          "narration": "Før full running, gjennomgå de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. Validerer partiplanen, test en jobb, og deretter kjøre den resterende køen over natten eller uten tilsyn."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, har hver jobb sin egen status, innstillinger snapshot, logger, utganger, og gjenoppførbar kjøre rekord."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Distributed Jobs. Send og overvåk spaCR-arbeid på SSH-arbeidsstasjoner, Slurm-klynger eller sky- og HPC-kommandoer."
+        },
+        {
+          "narration": "Åpne distribuerte jobber fra avsnittet Data og batch runs. Konfigurere en fjernprofil, tilkoblingsmetode, arbeidsdirektori, miljø og dataveier."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet definerer du planleggerressurser, kommando-maller, filsynkronisering, legitimasjoner og statusundersøkelser."
+        },
+        {
+          "narration": "Før full running, gjennomgå de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lokalregister sporer fjernt jobb identifikatorer, logger, tilstand, overført artefakter, og feil."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker klassifikator Evaluation. Audit holdt ut forutsigelser, gjestet kryssvalidering, kalibrering, lekkasje og per plate ytelse."
+        },
+        {
+          "narration": "Åpne klassifikator Evaluering fra avsnittet Resultater og kvalitetskontroll. Velg forutsetninger med grunn sannhet, delt metadata, plate-identifikatorer, sannsynligheter og modell-drevet poster."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere klasseord, trøskel, kalibreringsbåser, gruppering, bootstrap usikkerhet og lekkasjekontroll."
+        },
+        {
+          "narration": "Før full running skal du se på de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, produserer spaCR diskriminering, kalibrering, forvirring, lekkasje og robusthet rapporter."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Run History. Søk hver jobb innstillinger, filer, advarsler, feil og ytelse fra ett sted."
+        },
+        {
+          "narration": "Åpne kjørehistorik fra sektionen Resultat og kvalitetskontroll. Åpne kjøreregistret for det aktuelle arbeidsrommet eller de valgte prosjektrootene."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet filtreres etter modul, status, dato, prosjekt, versjon, advarsel, varighet eller ressursbruk."
+        },
+        {
+          "narration": "Før full run, se gjennom de synlige innstillingene og bruk en forhåndsvisning eller testmodus når en er tilgjengelig. åpne en run for å inspisere dens uforanderlige innstillinger, logger, utgang og feil kontekst."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan du gjenskape, sammenligne, gjenoppta eller rapportere tidligere arbeid uten å gjette hvordan det ble utført."
+        }
+      ]
+    }
+  ]
+}
