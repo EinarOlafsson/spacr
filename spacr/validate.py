@@ -135,6 +135,21 @@ APP_ALIASES: Dict[str, str] = {
     "analyze_endodyogeny": "endodyogeny",
 }
 
+try:
+    from .plugins import plugin_apps as _plugin_apps
+    for _plugin_app in _plugin_apps():
+        APP_FUNCTIONS.setdefault(
+            _plugin_app.key, _plugin_app.entrypoint.replace(":", ".")
+        )
+        for _alias in _plugin_app.aliases:
+            APP_ALIASES.setdefault(
+                _alias.strip().lower().replace("-", "_"), _plugin_app.key
+            )
+except Exception:
+    # Plugin discovery records its own diagnostics; built-in validation remains
+    # useful even when third-party metadata cannot be loaded.
+    pass
+
 # Apps whose ``src`` is a plate folder that must already contain
 # measurements/measurements.db — see spacr.ml.perform_regression
 # (``src + '/measurements/measurements.db'``), spacr.submodules
@@ -1235,7 +1250,12 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
 
     app = _normalize_app(app_key)
     problems: List[Problem] = []
-    if app and app not in APP_FUNCTIONS:
+    try:
+        from .plugins import get_app as _get_plugin_app
+        known_plugin_app = _get_plugin_app(app) is not None
+    except Exception:
+        known_plugin_app = False
+    if app and app not in APP_FUNCTIONS and not known_plugin_app:
         problems.append(Problem(
             WARNING, "", f"unknown app '{app_key}'; only the generic checks were run.",
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
@@ -1249,6 +1269,36 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_numeric_sanity(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
+    try:
+        from .plugins import get_app, load_object
+        plugin_app = get_app(app)
+        if plugin_app is not None and plugin_app.validator:
+            validator = load_object(plugin_app.validator)
+            if not callable(validator):
+                raise TypeError(
+                    f"Plugin validator {plugin_app.validator!r} is not callable"
+                )
+            additions = validator(dict(settings))
+            if additions is None:
+                additions = ()
+            if isinstance(additions, Problem):
+                additions = (additions,)
+            for item in additions:
+                if isinstance(item, Problem):
+                    problems.append(item)
+                elif isinstance(item, dict):
+                    problems.append(Problem(**item))
+                else:
+                    raise TypeError(
+                        "plugin validator results must be Problem objects or mappings"
+                    )
+    except Exception as exc:
+        problems.append(Problem(
+            ERROR,
+            "",
+            f"Plugin validation for '{app or app_key}' failed: {exc}",
+            "Fix or disable the plugin before running; the pipeline was not started.",
+        ))
     return problems
 
 
