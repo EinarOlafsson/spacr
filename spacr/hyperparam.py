@@ -69,8 +69,12 @@ __all__ = [
     "run_search_for_app",
     "APP_CRITERIA",
     "UMAP_CRITERIA",
+    "UMAP_OBJECTIVES",
+    "DEFAULT_UMAP_OBJECTIVE_WEIGHTS",
     "UMAP_MISSING_MESSAGE",
     "UMAP_NO_GROUND_TRUTH",
+    "embedding_stability",
+    "umap_objective_scores",
     "DEFAULT_SPACES",
     "ActivationSearchData",
     "activation_fit_fn",
@@ -103,6 +107,13 @@ UMAP_NO_GROUND_TRUTH = (
 
 #: What each UMAP criterion rewards — and, just as important, what it ignores.
 UMAP_CRITERIA: Dict[str, str] = {
+    "multi_objective": (
+        "balances three independently reported objectives: preservation of "
+        "neighbourhoods from feature space, repeat-to-repeat stability, and "
+        "cluster structure. The weighted geometric mean guides the search, "
+        "while the Pareto front exposes trade-offs that no single score can "
+        "resolve."
+    ),
     "trustworthiness": (
         "rewards embeddings that do not invent neighbours: points that ended up "
         "close together in the embedding were already close in feature space. "
@@ -121,6 +132,29 @@ UMAP_CRITERIA: Dict[str, str] = {
         "those labels rather than faithfulness to the feature space — a "
         "high score can simply mean the embedding overfitted the grouping."
     ),
+}
+
+#: Objectives used by the multi-objective UMAP mode. All are scaled to [0, 1]
+#: and higher is better, making the Pareto comparison explicit and stable.
+UMAP_OBJECTIVES: Dict[str, str] = {
+    "neighborhood_preservation": (
+        "geometric mean of trustworthiness and continuity; both invented and "
+        "lost neighbours are penalized"
+    ),
+    "stability": (
+        "mean shared-k-nearest-neighbour fraction between embeddings fitted "
+        "with different reproducible seeds"
+    ),
+    "cluster_structure": (
+        "positive silhouette structure, using supplied labels when available "
+        "or the best reproducible 2–8 cluster K-means partition otherwise"
+    ),
+}
+
+DEFAULT_UMAP_OBJECTIVE_WEIGHTS: Dict[str, float] = {
+    "neighborhood_preservation": 0.4,
+    "stability": 0.3,
+    "cluster_structure": 0.3,
 }
 
 #: The caveat attached to every Activation search result. Never suppressed.
@@ -162,7 +196,9 @@ ACTIVATION_CRITERIA: Dict[str, str] = {
 
 #: Criteria each app's search can rank by, first entry being the default.
 APP_CRITERIA: Dict[str, List[str]] = {
-    "umap": ["trustworthiness", "continuity", "silhouette"],
+    "umap": [
+        "trustworthiness", "continuity", "silhouette", "multi_objective",
+    ],
     "classify": ["accuracy", "prauc", "loss"],
     "ml_analyze": ["accuracy", "roc_auc", "f1"],
     "activation": ["deletion_auc", "insertion_auc", "pointing_game",
@@ -350,6 +386,8 @@ class SearchResult:
     :ivar partial: True when the sweep stopped before evaluating everything it
         was asked to. A partial sweep must never be presented as a finished one.
     :ivar higher_is_better: direction of ``metric``.
+    :ivar objectives: objective name to direction mapping. When populated,
+        :meth:`pareto_front` exposes non-dominated configurations.
     """
 
     trials: List[Trial] = field(default_factory=list)
@@ -359,6 +397,7 @@ class SearchResult:
     notes: List[str] = field(default_factory=list)
     partial: bool = False
     higher_is_better: bool = True
+    objectives: Dict[str, bool] = field(default_factory=dict)
 
     # -- basic slices ----------------------------------------------------
 
@@ -387,6 +426,54 @@ class SearchResult:
         sign = -1.0 if self.higher_is_better else 1.0
         return sorted(self.successful,
                       key=lambda t: (sign * float(t.score), t.index))
+
+    def pareto_front(self) -> List[Trial]:
+        """Return non-dominated successful trials for declared objectives.
+
+        A trial is dominated when another is at least as good on every
+        objective and strictly better on one. The returned order follows the
+        composite ranking so the GUI remains deterministic.
+        """
+        if not self.objectives:
+            return []
+        usable = []
+        for trial in self.successful:
+            values = {}
+            for name in self.objectives:
+                value = trial.extra_metrics.get(name)
+                try:
+                    number = float(value)
+                except (TypeError, ValueError):
+                    break
+                if not math.isfinite(number):
+                    break
+                values[name] = number
+            else:
+                usable.append((trial, values))
+        front = []
+        for trial, values in usable:
+            dominated = False
+            for other, other_values in usable:
+                if other is trial:
+                    continue
+                no_worse = []
+                strictly_better = []
+                for name, higher in self.objectives.items():
+                    if higher:
+                        no_worse.append(other_values[name] >= values[name])
+                        strictly_better.append(
+                            other_values[name] > values[name])
+                    else:
+                        no_worse.append(other_values[name] <= values[name])
+                        strictly_better.append(
+                            other_values[name] < values[name])
+                if all(no_worse) and any(strictly_better):
+                    dominated = True
+                    break
+            if not dominated:
+                front.append(trial)
+        indexes = {id(trial) for trial in front}
+        return [trial for trial in self.ranked() if id(trial) in indexes]
 
     # -- spread ----------------------------------------------------------
 
@@ -466,12 +553,14 @@ class SearchResult:
     def as_rows(self) -> List[Dict[str, Any]]:
         """Flat, table-ready rendering of every trial, best-first then failures."""
         rows: List[Dict[str, Any]] = []
+        pareto_ids = {id(trial) for trial in self.pareto_front()}
         for rank, t in enumerate(self.ranked(), start=1):
             rows.append({
                 "rank": rank, "index": t.index, "params": dict(t.params),
                 "score": float(t.score), "metric": self.metric,
                 "duration": t.duration, "error": None,
                 "extra_metrics": dict(t.extra_metrics),
+                "pareto": id(t) in pareto_ids,
             })
         for t in self.failed:
             rows.append({
@@ -479,6 +568,7 @@ class SearchResult:
                 "score": None, "metric": self.metric,
                 "duration": t.duration, "error": t.error,
                 "extra_metrics": dict(t.extra_metrics),
+                "pareto": False,
             })
         return rows
 
@@ -1298,6 +1388,225 @@ def _umap_scores(features, embedding, labels, k: int) -> Dict[str, float]:
     return out
 
 
+def embedding_stability(
+    embeddings: Sequence[Any],
+    *,
+    neighbourhood_k: int = 15,
+) -> float:
+    """Measure repeat-to-repeat preservation of embedding neighbours.
+
+    Rotation, reflection and axis scaling do not affect this measure: for
+    every pair of embeddings it finds each sample's k nearest neighbours and
+    averages the fraction shared by both fits.
+
+    :param embeddings: two or more aligned ``(n_samples, n_components)``
+        embeddings of the same rows.
+    :param neighbourhood_k: number of neighbours compared per row.
+    :returns: mean shared-neighbour fraction in ``[0, 1]``.
+    """
+    import numpy as np
+    from sklearn.neighbors import NearestNeighbors
+
+    arrays = [np.asarray(value, dtype=float) for value in embeddings]
+    if len(arrays) < 2:
+        raise ValueError("Embedding stability requires at least two repeats.")
+    shape = arrays[0].shape
+    if len(shape) != 2 or shape[0] < 3:
+        raise ValueError(
+            "Embedding stability needs 2-D embeddings with at least 3 rows.")
+    if any(array.shape != shape for array in arrays):
+        raise ValueError(
+            "Every repeated embedding must have the same sample shape.")
+    if any(not np.isfinite(array).all() for array in arrays):
+        raise ValueError("Repeated embeddings contain NaN or infinite values.")
+    k = max(1, min(int(neighbourhood_k), shape[0] - 1))
+    neighbourhoods = []
+    for array in arrays:
+        # Query k+1 because a row is its own nearest point, then remove it
+        # explicitly rather than relying on sklearn's query-mode distinction.
+        raw = NearestNeighbors(n_neighbors=k + 1).fit(array).kneighbors(
+            array, return_distance=False,
+        )
+        cleaned = np.asarray([
+            [int(value) for value in row if int(value) != int(index)][:k]
+            for index, row in enumerate(raw)
+        ], dtype=int)
+        if cleaned.shape != (shape[0], k):
+            raise RuntimeError(
+                "Could not construct a complete nearest-neighbour graph for "
+                "stability scoring.")
+        neighbourhoods.append(cleaned)
+    pair_scores = []
+    for left_index in range(len(neighbourhoods) - 1):
+        left = neighbourhoods[left_index]
+        for right in neighbourhoods[left_index + 1:]:
+            per_row = [
+                len(set(left[row]).intersection(right[row])) / float(k)
+                for row in range(shape[0])
+            ]
+            pair_scores.append(float(np.mean(per_row)))
+    return float(np.mean(pair_scores))
+
+
+def _cluster_structure(
+    embedding: Any,
+    labels: Any,
+    *,
+    seed: int,
+) -> Tuple[float, float, str, int]:
+    """Return normalized/raw silhouette and the partition provenance."""
+    import numpy as np
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import silhouette_score
+
+    values = np.asarray(embedding, dtype=float)
+    n_samples = len(values)
+    supplied = None if labels is None else np.asarray(labels)
+    if (
+        supplied is not None
+        and supplied.shape[0] == n_samples
+        and 2 <= len(np.unique(supplied)) < n_samples
+    ):
+        raw = float(silhouette_score(values, supplied))
+        return max(0.0, min(1.0, raw)), raw, "supplied_labels", int(
+            len(np.unique(supplied))
+        )
+
+    if n_samples < 4:
+        raise ValueError(
+            "Unsupervised cluster-structure scoring needs at least 4 rows.")
+    maximum = min(8, n_samples - 1)
+    best_raw = -1.0
+    best_k = 0
+    for n_clusters in range(2, maximum + 1):
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=r"Number of distinct clusters .*",
+                category=Warning,
+            )
+            partition = KMeans(
+                n_clusters=n_clusters,
+                random_state=int(seed),
+                n_init=10,
+            ).fit_predict(values)
+        if not 2 <= len(np.unique(partition)) < n_samples:
+            continue
+        raw = float(silhouette_score(values, partition))
+        if raw > best_raw:
+            best_raw = raw
+            best_k = n_clusters
+    if best_k == 0:
+        return 0.0, 0.0, "no_resolved_clusters", 1
+    return (
+        max(0.0, min(1.0, best_raw)),
+        best_raw,
+        "discovered_kmeans",
+        best_k,
+    )
+
+
+def _objective_weights(
+    weights: Optional[Mapping[str, Any]],
+) -> Dict[str, float]:
+    """Validate and normalize multi-objective UMAP weights."""
+    provided = dict(DEFAULT_UMAP_OBJECTIVE_WEIGHTS)
+    if weights is not None:
+        unknown = set(weights).difference(UMAP_OBJECTIVES)
+        if unknown:
+            raise ValueError(
+                f"Unknown UMAP objective weight(s): {sorted(unknown)}. "
+                f"Choose from {sorted(UMAP_OBJECTIVES)}.")
+        provided.update(weights)
+    normalized = {}
+    for name in UMAP_OBJECTIVES:
+        try:
+            value = float(provided[name])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"UMAP objective weight {name!r} must be numeric.") from exc
+        if not math.isfinite(value) or value < 0:
+            raise ValueError(
+                f"UMAP objective weight {name!r} must be finite and "
+                "zero or greater.")
+        normalized[name] = value
+    total = sum(normalized.values())
+    if total <= 0:
+        raise ValueError("At least one UMAP objective weight must be positive.")
+    return {name: value / total for name, value in normalized.items()}
+
+
+def umap_objective_scores(
+    features: Any,
+    embeddings: Sequence[Any],
+    *,
+    labels: Any = None,
+    neighbourhood_k: int = 15,
+    weights: Optional[Mapping[str, Any]] = None,
+    seed: int = 0,
+) -> Dict[str, Any]:
+    """Score neighborhood preservation, stability and cluster structure.
+
+    The returned ``multi_objective`` value is a weighted geometric mean used
+    to guide grid/adaptive search. The individual objective values remain the
+    primary result and define :meth:`SearchResult.pareto_front`.
+    """
+    if len(embeddings) < 2:
+        raise ValueError(
+            "Multi-objective UMAP search requires at least two stability "
+            "repeats.")
+    repeat_scores = [
+        _umap_scores(features, embedding, labels, neighbourhood_k)
+        for embedding in embeddings
+    ]
+    trust = statistics.fmean(
+        score["trustworthiness"] for score in repeat_scores)
+    continuity = statistics.fmean(
+        score["continuity"] for score in repeat_scores)
+    neighborhood = math.sqrt(max(0.0, trust) * max(0.0, continuity))
+    stability = embedding_stability(
+        embeddings, neighbourhood_k=neighbourhood_k,
+    )
+    structures = [
+        _cluster_structure(embedding, labels, seed=seed + index)
+        for index, embedding in enumerate(embeddings)
+    ]
+    structure = statistics.fmean(value[0] for value in structures)
+    raw_structure = statistics.fmean(value[1] for value in structures)
+    methods = sorted({value[2] for value in structures})
+    cluster_counts = [value[3] for value in structures]
+    normalized_weights = _objective_weights(weights)
+    objectives = {
+        "neighborhood_preservation": float(neighborhood),
+        "stability": float(stability),
+        "cluster_structure": float(structure),
+    }
+    # A geometric mean prevents one excellent property from fully hiding a
+    # collapsed objective, while a tiny floor keeps the result finite.
+    composite = math.exp(sum(
+        normalized_weights[name] * math.log(max(1e-12, objectives[name]))
+        for name in UMAP_OBJECTIVES
+    ))
+    result = {
+        **objectives,
+        "multi_objective": float(composite),
+        "trustworthiness": float(trust),
+        "continuity": float(continuity),
+        "cluster_structure_raw_silhouette": float(raw_structure),
+        "cluster_structure_method": "+".join(methods),
+        "cluster_counts": cluster_counts,
+        "stability_repeats": len(embeddings),
+        "objective_weights": normalized_weights,
+        "neighbourhood_k": repeat_scores[0]["neighbourhood_k"],
+    }
+    if all("silhouette" in score for score in repeat_scores):
+        result["silhouette"] = float(statistics.fmean(
+            score["silhouette"] for score in repeat_scores
+        ))
+    return result
+
+
 def umap_search(features,
                 space: SearchSpace,
                 *,
@@ -1310,6 +1619,8 @@ def umap_search(features,
                 n_neighbors_step: int = 1,
                 min_dist_step: float = 0.05,
                 min_improvement: float = 0.0,
+                stability_repeats: int = 3,
+                objective_weights: Optional[Mapping[str, Any]] = None,
                 embed_fn: Optional[Callable[[Any, Dict[str, Any]], Any]] = None,
                 keep_embeddings: bool = True,
                 on_trial: Optional[Callable[[Trial, int, int], None]] = None,
@@ -1339,6 +1650,11 @@ def umap_search(features,
     :param n_neighbors_step: local step along the n_neighbors axis.
     :param min_dist_step: local step along the min_dist axis.
     :param min_improvement: score gain required to continue after a round.
+    :param stability_repeats: reproducible UMAP fits per configuration when
+        ``metric='multi_objective'``; must be at least 2.
+    :param objective_weights: optional weights for
+        ``neighborhood_preservation``, ``stability`` and
+        ``cluster_structure``. Values are normalized to sum to one.
     :param embed_fn: ``embed_fn(features, params) -> embedding`` override; when
         omitted, umap-learn is used.
     :param keep_embeddings: store each trial's embedding in its extra metrics.
@@ -1366,6 +1682,14 @@ def umap_search(features,
             "separates labels you already have, so it needs `labels=`. Without "
             "labels, use 'trustworthiness' or 'continuity'."
         )
+    try:
+        stability_repeats = int(stability_repeats)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("stability_repeats must be a whole number.") from exc
+    normalized_objective_weights = _objective_weights(objective_weights)
+    if metric == "multi_objective" and stability_repeats < 2:
+        raise ValueError(
+            "Multi-objective UMAP search needs stability_repeats >= 2.")
 
     try:
         n_samples = int(features.shape[0])
@@ -1428,6 +1752,18 @@ def umap_search(features,
         "Every criterion was computed for every trial, so you can re-rank the "
         "table by a different one and see whether the winner survives.",
     ]
+    if metric == "multi_objective":
+        weights_text = ", ".join(
+            f"{name}={normalized_objective_weights[name]:.3g}"
+            for name in UMAP_OBJECTIVES
+        )
+        notes.extend([
+            "Multi-objective mode reports a Pareto front: every configuration "
+            "on it improves at least one objective only by trading off another.",
+            f"Composite search direction uses normalized weights "
+            f"({weights_text}) and {stability_repeats} reproducible embedding "
+            "repeats per configuration.",
+        ])
     if neighbor_note:
         notes.append(neighbor_note)
     elif "n_neighbors" not in space.params and implicit_neighbors != 15:
@@ -1442,23 +1778,30 @@ def umap_search(features,
             "name": getattr(embed_fn, "__qualname__",
                             getattr(embed_fn, "__name__", type(embed_fn).__name__)),
         }
+        checkpoint_signature = {
+            "features": _array_fingerprint(features),
+            "labels": (
+                None if labels is None else _array_fingerprint(labels)),
+            "space": {
+                name: list(space.params[name]) for name in space.names
+            },
+            "metric": metric,
+            "seed": int(seed),
+            "neighbourhood_k": int(neighbourhood_k),
+            "adaptive": bool(adaptive),
+            "n_neighbors_step": int(n_neighbors_step),
+            "min_dist_step": float(min_dist_step),
+            "min_improvement": float(min_improvement),
+            "embed_fn": embed_identity,
+        }
+        if metric == "multi_objective":
+            checkpoint_signature["multi_objective"] = {
+                "stability_repeats": int(stability_repeats),
+                "objective_weights": normalized_objective_weights,
+            }
         checkpoint = _UmapCheckpoint(
             os.path.abspath(os.path.expanduser(str(checkpoint_path))),
-            {
-                "features": _array_fingerprint(features),
-                "labels": (
-                    None if labels is None else _array_fingerprint(labels)),
-                "space": {name: list(space.params[name])
-                          for name in space.names},
-                "metric": metric,
-                "seed": int(seed),
-                "neighbourhood_k": int(neighbourhood_k),
-                "adaptive": bool(adaptive),
-                "n_neighbors_step": int(n_neighbors_step),
-                "min_dist_step": float(min_dist_step),
-                "min_improvement": float(min_improvement),
-                "embed_fn": embed_identity,
-            },
+            checkpoint_signature,
             resume=bool(resume),
             keep_embeddings=keep_embeddings,
         )
@@ -1470,8 +1813,29 @@ def umap_search(features,
         # safe for a small dataset too, without adding an unsearched table
         # column to Trial.params.
         fit_params.setdefault("n_neighbors", implicit_neighbors)
-        embedding = embed_fn(features, fit_params)
-        scores = _umap_scores(features, embedding, labels, neighbourhood_k)
+        repeat_count = (
+            stability_repeats if metric == "multi_objective" else 1
+        )
+        embeddings = []
+        for repeat in range(repeat_count):
+            repeat_params = dict(fit_params)
+            if metric == "multi_objective":
+                repeat_params["random_state"] = int(seed) + repeat
+            embeddings.append(embed_fn(features, repeat_params))
+        embedding = embeddings[0]
+        if metric == "multi_objective":
+            scores = umap_objective_scores(
+                features,
+                embeddings,
+                labels=labels,
+                neighbourhood_k=neighbourhood_k,
+                weights=normalized_objective_weights,
+                seed=seed,
+            )
+        else:
+            scores = _umap_scores(
+                features, embedding, labels, neighbourhood_k,
+            )
         if metric not in scores:
             raise ValueError(
                 f"criterion {metric!r} could not be computed for this trial "
@@ -1490,7 +1854,7 @@ def umap_search(features,
                 "Adaptive UMAP optimization needs exactly one starting value "
                 "for every parameter. Enter a single n_neighbors and a single "
                 "min_dist value.")
-        return local_direction_search(
+        result = local_direction_search(
             _fit, starts[0], n_trials=n_trials,
             n_neighbors_step=n_neighbors_step,
             n_neighbors_max=maximum_neighbors,
@@ -1498,6 +1862,11 @@ def umap_search(features,
             min_improvement=min_improvement, metric=metric,
             higher_is_better=True, on_trial=on_trial,
             should_stop=should_stop, notes=notes, checkpoint=checkpoint)
+        if metric == "multi_objective":
+            result.objectives = {
+                name: True for name in UMAP_OBJECTIVES
+            }
+        return result
 
     loaded = checkpoint.load() if checkpoint is not None else {}
     prior_trials = {
@@ -1522,6 +1891,8 @@ def umap_search(features,
         else:
             checkpoint.finish(
                 {"n_trials_completed": len(result.trials)})
+    if metric == "multi_objective":
+        result.objectives = {name: True for name in UMAP_OBJECTIVES}
     return result
 
 
@@ -2232,6 +2603,16 @@ def format_search(result: SearchResult, max_rows: int = 20) -> str:
     lines.append("")
     lines.append(f"Best: {result.best.label()}  "
                  f"{result.metric}={float(result.best.score):.4f}")
+    pareto = result.pareto_front()
+    if pareto:
+        lines.append(
+            f"Pareto front ({len(pareto)} non-dominated configuration(s)):")
+        for trial in pareto[:max_rows]:
+            values = ", ".join(
+                f"{name}={float(trial.extra_metrics[name]):.4f}"
+                for name in result.objectives
+            )
+            lines.append(f"  {trial.label()}  [{values}]")
     lines.append(f"Spread over {stats['n']} successful trials: "
                  f"{stats['worst']:.4f} … {stats['best']:.4f} "
                  f"(sd {stats['std']:.4f})")
@@ -2634,6 +3015,10 @@ def run_search_for_app(app_key: str,
                        n_neighbors_step: int = 1,
                        min_dist_step: float = 0.05,
                        min_improvement: float = 0.0,
+                       stability_repeats: int = 3,
+                       objective_weights: Optional[
+                           Mapping[str, Any]
+                       ] = None,
                        seed: int = 0,
                        n_folds: int = 5,
                        on_trial: Optional[Callable[[Trial, int, int], None]] = None,
@@ -2665,6 +3050,10 @@ def run_search_for_app(app_key: str,
     :param n_neighbors_step: adaptive UMAP integer neighborhood increment.
     :param min_dist_step: adaptive UMAP min_dist increment.
     :param min_improvement: adaptive UMAP score-gain stopping threshold.
+    :param stability_repeats: repeated seeded embeddings per multi-objective
+        UMAP configuration.
+    :param objective_weights: weights for neighborhood preservation, stability
+        and cluster structure in multi-objective UMAP mode.
     :param seed: seed for sampling, folds and reducers.
     :param n_folds: cross-validation folds for the supervised apps.
     :param on_trial: progress callback ``(trial, completed, total)``.
@@ -2736,6 +3125,8 @@ def run_search_for_app(app_key: str,
             n_neighbors_step=n_neighbors_step,
             min_dist_step=min_dist_step,
             min_improvement=min_improvement,
+            stability_repeats=stability_repeats,
+            objective_weights=objective_weights,
             on_trial=on_trial, should_stop=should_stop,
             checkpoint_path=search_checkpoint, resume=resume)
         result.notes = list(data.notes) + list(result.notes)

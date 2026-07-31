@@ -117,4 +117,5 @@ Contents
    run_history
    batch_correction
    classifier_evaluation
+   umap_multiobjective
    api/index

@@ -25,6 +25,7 @@ from spacr.hyperparam import (
     SearchResult,
     SearchSpace,
     Trial,
+    UMAP_OBJECTIVES,
     UMAP_CRITERIA,
     UMAP_MISSING_MESSAGE,
     build_folds,
@@ -33,12 +34,14 @@ from spacr.hyperparam import (
     cv_search,
     format_search,
     grid_search,
+    embedding_stability,
     local_direction_search,
     load_search_data,
     random_search,
     run_search_for_app,
     sklearn_cv_fit_fn,
     umap_available,
+    umap_objective_scores,
     umap_search,
 )
 
@@ -795,6 +798,254 @@ class TestLocalDirectionSearch:
         assert len(result.trials) == 8
 
 class TestUmapCriteria:
+    def test_embedding_stability_uses_neighbours_not_axis_orientation(self):
+        rng = np.random.default_rng(8)
+        base = rng.normal(size=(30, 2))
+        rotated = np.column_stack([-base[:, 1], base[:, 0]]) * 4.0
+        shuffled = base[rng.permutation(len(base))]
+
+        assert embedding_stability(
+            [base, rotated], neighbourhood_k=5,
+        ) == pytest.approx(1.0)
+        assert embedding_stability(
+            [base, shuffled], neighbourhood_k=5,
+        ) < 0.5
+
+    def test_multi_objective_scores_work_without_supplied_labels(self):
+        rng = np.random.default_rng(3)
+        X = np.vstack([
+            rng.normal(-4, 0.25, size=(15, 4)),
+            rng.normal(4, 0.25, size=(15, 4)),
+        ])
+        base = X[:, :2]
+        values = umap_objective_scores(
+            X,
+            [base, base + rng.normal(0, 0.01, base.shape)],
+            neighbourhood_k=5,
+            labels=None,
+            seed=4,
+        )
+        assert set(values) >= {
+            "multi_objective", *UMAP_OBJECTIVES,
+            "cluster_structure_method", "cluster_counts",
+        }
+        assert values["cluster_structure_method"] == "discovered_kmeans"
+        assert all(0 <= values[name] <= 1 for name in UMAP_OBJECTIVES)
+
+    def test_degenerate_embedding_records_zero_structure_not_a_failed_trial(
+            self):
+        X = np.arange(80, dtype=float).reshape(20, 4)
+        collapsed = np.zeros((20, 2), dtype=float)
+        values = umap_objective_scores(
+            X,
+            [collapsed, collapsed.copy()],
+            neighbourhood_k=4,
+        )
+        assert values["cluster_structure"] == 0
+        assert values["cluster_structure_method"] == "no_resolved_clusters"
+        assert math.isfinite(values["multi_objective"])
+
+    def test_pareto_front_keeps_tradeoffs_and_drops_dominated_trials(self):
+        trials = [
+            Trial(
+                {"name": "neighbours"},
+                score=0.70,
+                extra_metrics={
+                    "neighborhood_preservation": 0.95,
+                    "stability": 0.60,
+                    "cluster_structure": 0.50,
+                },
+                index=0,
+            ),
+            Trial(
+                {"name": "clusters"},
+                score=0.72,
+                extra_metrics={
+                    "neighborhood_preservation": 0.60,
+                    "stability": 0.70,
+                    "cluster_structure": 0.95,
+                },
+                index=1,
+            ),
+            Trial(
+                {"name": "dominated"},
+                score=0.40,
+                extra_metrics={
+                    "neighborhood_preservation": 0.50,
+                    "stability": 0.50,
+                    "cluster_structure": 0.50,
+                },
+                index=2,
+            ),
+        ]
+        result = SearchResult(
+            trials=trials,
+            best=trials[1],
+            metric="multi_objective",
+            objectives={name: True for name in UMAP_OBJECTIVES},
+        )
+        assert [trial.params["name"] for trial in result.pareto_front()] == [
+            "clusters", "neighbours",
+        ]
+        rows = result.as_rows()
+        assert [row["pareto"] for row in rows] == [True, True, False]
+
+    def test_multi_objective_search_repeats_fits_and_reports_components(
+            self, clustered_features):
+        X, y = clustered_features
+        calls = []
+
+        def embed(features, params):
+            calls.append((params["min_dist"], params["random_state"]))
+            rng = np.random.default_rng(params["random_state"])
+            return features[:, :2] + rng.normal(
+                0, 0.01 + params["min_dist"] * 0.1,
+                size=(len(features), 2),
+            )
+
+        result = umap_search(
+            X,
+            SearchSpace({"min_dist": [0.0, 0.5]}),
+            metric="multi_objective",
+            labels=y,
+            seed=10,
+            stability_repeats=3,
+            neighbourhood_k=5,
+            embed_fn=embed,
+        )
+
+        assert len(calls) == 6
+        assert {seed for _distance, seed in calls} == {10, 11, 12}
+        assert result.objectives == {
+            name: True for name in UMAP_OBJECTIVES
+        }
+        assert result.pareto_front()
+        for trial in result.successful:
+            assert set(trial.extra_metrics) >= {
+                "multi_objective", *UMAP_OBJECTIVES,
+                "trustworthiness", "continuity", "silhouette",
+                "embedding",
+            }
+            assert trial.score == pytest.approx(
+                trial.extra_metrics["multi_objective"])
+        report = format_search(result)
+        assert "Pareto front" in report
+        assert "neighborhood_preservation" in report
+
+    def test_multi_objective_adaptive_resume_finishes_missing_corners(
+            self, tmp_path, clustered_features):
+        X, y = clustered_features
+        checkpoint = tmp_path / "multi_adaptive.json"
+        calls = []
+
+        def embed(features, params):
+            calls.append((
+                params["n_neighbors"],
+                params["min_dist"],
+                params["random_state"],
+            ))
+            rng = np.random.default_rng(params["random_state"])
+            return features[:, :2] + rng.normal(
+                0, 0.01, size=(len(features), 2),
+            )
+
+        first = umap_search(
+            X,
+            SearchSpace({"n_neighbors": [5], "min_dist": [0.1]}),
+            metric="multi_objective",
+            labels=y,
+            adaptive=True,
+            n_trials=1,
+            stability_repeats=2,
+            embed_fn=embed,
+            checkpoint_path=str(checkpoint),
+            should_stop=lambda: len(calls) >= 4,
+        )
+        assert first.partial
+        assert len(first.trials) == 2
+
+        calls.clear()
+        resumed = umap_search(
+            X,
+            SearchSpace({"n_neighbors": [5], "min_dist": [0.1]}),
+            metric="multi_objective",
+            labels=y,
+            adaptive=True,
+            n_trials=1,
+            stability_repeats=2,
+            embed_fn=embed,
+            checkpoint_path=str(checkpoint),
+            resume=True,
+        )
+        assert len(calls) == 4
+        assert len(resumed.trials) == 4
+        assert not resumed.partial
+        assert resumed.pareto_front()
+        assert any("Resumed 2 completed trial" in note
+                   for note in resumed.notes)
+
+    def test_multi_objective_resume_refuses_changed_weights(
+            self, tmp_path, clustered_features):
+        X, y = clustered_features
+        checkpoint = tmp_path / "multi.json"
+        embed = lambda features, params: features[:, :2]  # noqa: E731
+        umap_search(
+            X,
+            SearchSpace({"min_dist": [0.1]}),
+            metric="multi_objective",
+            labels=y,
+            stability_repeats=2,
+            embed_fn=embed,
+            checkpoint_path=str(checkpoint),
+        )
+        with pytest.raises(Exception, match="does not match"):
+            umap_search(
+                X,
+                SearchSpace({"min_dist": [0.1]}),
+                metric="multi_objective",
+                labels=y,
+                stability_repeats=2,
+                objective_weights={
+                    "neighborhood_preservation": 1,
+                    "stability": 0,
+                    "cluster_structure": 0,
+                },
+                embed_fn=embed,
+                checkpoint_path=str(checkpoint),
+                resume=True,
+            )
+
+    @pytest.mark.parametrize(
+        ("kwargs", "message"),
+        [
+            ({"stability_repeats": 1}, "stability_repeats"),
+            (
+                {"objective_weights": {
+                    "neighborhood_preservation": 0,
+                    "stability": 0,
+                    "cluster_structure": 0,
+                }},
+                "[Aa]t least one",
+            ),
+            (
+                {"objective_weights": {"imaginary": 1}},
+                "Unknown UMAP objective",
+            ),
+        ],
+    )
+    def test_multi_objective_invalid_settings_fail_loudly(
+            self, clustered_features, kwargs, message):
+        X, y = clustered_features
+        with pytest.raises(ValueError, match=message):
+            umap_search(
+                X,
+                SearchSpace({"min_dist": [0.1]}),
+                metric="multi_objective",
+                labels=y,
+                embed_fn=lambda features, params: features[:, :2],
+                **kwargs,
+            )
+
     def test_grid_search_resumes_trials_and_embeddings(self, tmp_path):
         X = np.arange(120, dtype=float).reshape(30, 4)
         checkpoint = tmp_path / "umap.json"
@@ -1459,6 +1710,42 @@ class TestRunSearchForApp:
             criterion="continuity", data=data)
         assert r.notes[0] == "synthetic"
         assert r.ok
+
+    def test_umap_router_forwards_multi_objective_resume_material(
+            self, monkeypatch):
+        import spacr.hyperparam as hp
+
+        captured = {}
+
+        def fake_umap(features, space, **kwargs):
+            captured.update(kwargs)
+            return SearchResult(
+                space=space, metric=kwargs["metric"], notes=["routed"],
+            )
+
+        monkeypatch.setattr(hp, "umap_search", fake_umap)
+        data = hp.SearchData(features=np.ones((12, 3)))
+        weights = {
+            "neighborhood_preservation": 0.5,
+            "stability": 0.2,
+            "cluster_structure": 0.3,
+        }
+        run_search_for_app(
+            "umap",
+            {"src": "/x"},
+            SearchSpace({"n_neighbors": [5]}),
+            criterion="multi_objective",
+            stability_repeats=4,
+            objective_weights=weights,
+            checkpoint_path="/tmp/umap-test-checkpoint.json",
+            resume=True,
+            data=data,
+        )
+        assert captured["stability_repeats"] == 4
+        assert captured["objective_weights"] == weights
+        assert captured["resume"] is True
+        assert captured["checkpoint_path"].endswith(
+            "umap-test-checkpoint.json")
 
     def test_ml_analyze_path_runs_grouped_cv_over_a_real_estimator(self):
         """The Classify (ML) route, end to end, on injected data — grouped
