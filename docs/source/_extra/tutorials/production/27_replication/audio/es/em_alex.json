@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.65,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.15,
+      "scene_end": 3.6,
+      "duration": 3.6,
+      "text": "Este tutorial abarca el ensayo de replicación."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.6,
+      "speech_end": 17.575,
+      "scene_end": 18.025,
+      "duration": 14.424999999999999,
+      "text": "Abra Replication assay en la sección Toxoplasma assays. Prueba de replicación abierta de la sección de análisis de Toxoplasma Seleccione las mediciones de células anfitrionas, vacuole y parásitos junto con metadatos de condición."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.025,
+      "speech_end": 27.625,
+      "scene_end": 28.075,
+      "duration": 10.05,
+      "text": "En el área de configuración principal, configure asignación espacial, filtros de objetos, contenedores para contar parásitos, controles y comparaciones estadísticas."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.075,
+      "speech_end": 36.075,
+      "scene_end": 36.525000000000006,
+      "duration": 8.450000000000006,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 36.525000000000006,
+      "speech_end": 45.00000000000001,
+      "scene_end": 45.650000000000006,
+      "duration": 9.125,
+      "text": "Cuando el flujo de trabajo termina, se guardan las distribuciones de parásitos por vacío, las tasas de replicación, las estadísticas y las cifras."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.0,
+      "scene_end": 3.45,
+      "duration": 3.45,
+      "text": "Questo tutorial copre il Zoo Modello."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.45,
+      "speech_end": 13.3,
+      "scene_end": 13.75,
+      "duration": 10.3,
+      "text": "Apri Model Zoo dalla sezione Segmentation models. Apri il catalogo e seleziona i modelli compatibili con l'attuale attività e i canali di input."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.75,
+      "speech_end": 24.075,
+      "scene_end": 24.525,
+      "duration": 10.774999999999999,
+      "text": "Nell'area di configurazione principale, verifica provenienza, licenza, somma di controllo, pre-elaborazione prevista, tipo di attività e disponibilità locale."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.525,
+      "speech_end": 34.099999999999994,
+      "scene_end": 34.55,
+      "duration": 10.024999999999999,
+      "text": "Prima della completa esecuzione, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando una è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 34.55,
+      "speech_end": 43.449999999999996,
+      "scene_end": 44.099999999999994,
+      "duration": 9.549999999999997,
+      "text": "Quando il flusso di lavoro è terminato, i file di modello verificati e i risultati dei benchmark rimangono associati ai loro metadati."
+    }
+  ]
+}

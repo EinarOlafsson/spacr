@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.7,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.15,
+      "scene_end": 11.6,
+      "duration": 11.6,
+      "text": "Este tutorial abrange Classify, machine learning. Treinar classificadores baseados em recursos como XGBoost ou floresta aleatória a partir de dados de um único objeto medidos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.6,
+      "speech_end": 24.825,
+      "scene_end": 25.275,
+      "duration": 13.674999999999999,
+      "text": "Abra Classify, machine learning na seção Core. Abra Classificar, aprendizado de máquina da seção Core. Escolha um banco de dados de medições, coluna de rótulo, famílias de recursos e colunas de agrupamento experimental."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.275,
+      "speech_end": 36.05,
+      "scene_end": 36.5,
+      "duration": 11.225000000000001,
+      "text": "Na área de configuração principal, configure filtragem, escalagem, seleção de características, equilíbrio de classes, família de modelos e divisões de segurança contra vazamentos."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.5,
+      "speech_end": 44.375,
+      "scene_end": 44.825,
+      "duration": 8.325000000000003,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.825,
+      "speech_end": 53.050000000000004,
+      "scene_end": 53.7,
+      "duration": 8.875,
+      "text": "Quando o fluxo de trabalho termina, o projeto recebe previsões, importância de recursos, tabelas de desempenho e modelos serializados."
+    }
+  ]
+}

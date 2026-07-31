@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 39.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.6,
+      "scene_end": 6.05,
+      "duration": 6.05,
+      "text": "通过使用两色外对内部染料来区分附加物与入侵寄生虫."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.05,
+      "speech_end": 15.25,
+      "scene_end": 15.7,
+      "duration": 9.649999999999999,
+      "text": "从 Toxoplasma assays 部分打开 Invasion assay。 提供寄生虫和宿主细胞掩膜,内部和外部污染道,板块元数据和控制."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.7,
+      "speech_end": 21.4,
+      "scene_end": 21.849999999999998,
+      "duration": 6.149999999999999,
+      "text": "在主配置区域,配置强度门,对象匹配,模糊处理和级组合."
+    },
+    {
+      "scene": 4,
+      "speech_start": 21.849999999999998,
+      "speech_end": 30.474999999999998,
+      "scene_end": 30.924999999999997,
+      "duration": 9.075,
+      "text": "在完整运行之前,在接受分类规则之前,请检查可见设置,并在可用的情况下使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 30.924999999999997,
+      "speech_end": 38.724999999999994,
+      "scene_end": 39.37499999999999,
+      "duration": 8.449999999999996,
+      "text": "工作流程完成后, spaCR 报告每井和条件的数量和入侵效率,并使用质量控制图像."
+    }
+  ]
+}

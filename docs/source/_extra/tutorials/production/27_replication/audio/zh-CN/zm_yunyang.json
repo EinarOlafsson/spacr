@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunyang",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 41.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.175,
+      "scene_end": 7.625,
+      "duration": 7.625,
+      "text": "这本教程涵盖复制测试. 每个真空体分数寄生虫,并根据条件总结细胞内复制."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.625,
+      "speech_end": 15.725,
+      "scene_end": 16.175,
+      "duration": 8.55,
+      "text": "从 Toxoplasma assays 部分打开 Replication assay。 选择宿主细胞,真空体和寄生虫测量以及状态元数据."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.175,
+      "speech_end": 23.15,
+      "scene_end": 23.599999999999998,
+      "duration": 7.424999999999997,
+      "text": "在主要配置区域,配置空间分配,对象过器,寄生虫计数容器,控制和统计比较."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.599999999999998,
+      "speech_end": 34.55,
+      "scene_end": 35.0,
+      "duration": 11.400000000000002,
+      "text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查整个计数范围内的真空器,并检查是否排除合并或碎片化掩膜."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.0,
+      "speech_end": 41.15,
+      "scene_end": 41.8,
+      "duration": 6.799999999999997,
+      "text": "工作流程完成后,每真空细菌分布,复制率,统计和数字都会保存."
+    }
+  ]
+}

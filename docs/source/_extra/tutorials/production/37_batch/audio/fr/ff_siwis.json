@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.5,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.25,
+      "scene_end": 8.7,
+      "duration": 8.7,
+      "text": "Ce tutoriel couvre Batch Runner. Modules de file d'attente, projets et paramètres pour une exécution reproduisable sans surveillance."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.7,
+      "speech_end": 18.174999999999997,
+      "scene_end": 18.624999999999996,
+      "duration": 9.924999999999997,
+      "text": "Ouvrez Batch Runner dans la section Data and batch runs. Ajoutez des projets et assemblez la séquence de modules ordonnée à exécuter par chaque projet."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.624999999999996,
+      "speech_end": 29.674999999999997,
+      "scene_end": 30.124999999999996,
+      "duration": 11.5,
+      "text": "Dans la zone de configuration principale, choisissez des préréglages, des dépendances, des limites de ressources, un comportement de reprise, une politique de logging et de défaillance."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.124999999999996,
+      "speech_end": 44.275,
+      "scene_end": 44.725,
+      "duration": 14.600000000000005,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il y en a un. Validez le plan de lot, testez un travail, puis exécutez la file d'attente restante pendant la nuit ou sans surveillance."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.725,
+      "speech_end": 54.85,
+      "scene_end": 55.5,
+      "duration": 10.774999999999999,
+      "text": "Lorsque le flux de travail est terminé, chaque travail a son propre statut, instantané des paramètres, journaux, sorties et enregistrement de fonctionnement réalisable."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 64.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.475,
+      "scene_end": 9.924999999999999,
+      "duration": 9.924999999999999,
+      "text": "Questo tutorial riguarda Timelapse. Segmentare, collegare e misurare cellule o agenti patogeni attraverso i quadri di una serie temporale."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.924999999999999,
+      "speech_end": 21.174999999999997,
+      "scene_end": 21.624999999999996,
+      "duration": 11.699999999999998,
+      "text": "Apri Timelapse dalla sezione Core. Selezionare un insieme di immagini risolute nel tempo i cui filename conservano indici di campo, tempo, profondità e canale."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.624999999999996,
+      "speech_end": 34.75,
+      "scene_end": 35.2,
+      "duration": 13.575000000000006,
+      "text": "Nell'area di configurazione principale, configurare la segmentazione, i tipi di oggetti tracciati, la modalità di collegamento, il spostamento massimo, la gestione delle lacune e le cornici di anteprima."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.2,
+      "speech_end": 50.85,
+      "scene_end": 51.300000000000004,
+      "duration": 16.1,
+      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando è disponibile. convalidare le tracce in movimento rappresentativo prima di elaborare l'intera serie temporale."
+    },
+    {
+      "scene": 5,
+      "speech_start": 51.300000000000004,
+      "speech_end": 63.375,
+      "scene_end": 64.025,
+      "duration": 12.725000000000001,
+      "text": "Quando il flusso di lavoro è terminato, le maschere, le tracce, le misure e i riassunti di traiettoria indicizzati nel tempo vengono memorizzati con identità di oggetti stabili."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.225,
+      "scene_end": 3.6750000000000003,
+      "duration": 3.6750000000000003,
+      "text": "Questo tutorial copre la fila delle piastre."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.6750000000000003,
+      "speech_end": 16.275,
+      "scene_end": 16.724999999999998,
+      "duration": 13.049999999999997,
+      "text": "Apri Plate Queue dalla sezione Data and batch runs. Apri la coda della scheda dalla sezione \"Dati e batch runs\". Aggiungi le fonti della scheda e scegli la sequenza del modulo condiviso e le impostazioni preset."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.724999999999998,
+      "speech_end": 28.65,
+      "scene_end": 29.099999999999998,
+      "duration": 12.375,
+      "text": "Nell'area di configurazione principale, rivedere l'ordine della scheda, le sovrapposizioni per scheda, i limiti dei lavoratori, la politica di fallimento, il comportamento di ripristino e le radici di uscita."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.099999999999998,
+      "speech_end": 45.4,
+      "scene_end": 45.85,
+      "duration": 16.750000000000004,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. Inizia con una piccola piastra o un campo di prova, quindi lascia che la fila di processo delle piastre sequenzialmente con lo stato visibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.85,
+      "speech_end": 55.1,
+      "scene_end": 55.75,
+      "duration": 9.899999999999999,
+      "text": "Quando il flusso di lavoro è terminato, ogni piastra riceve un progetto isolato e esegue un record mentre la coda conserva il progresso complessivo."
+    }
+  ]
+}

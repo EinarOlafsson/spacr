@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.45,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.8,
+      "scene_end": 9.25,
+      "duration": 9.25,
+      "text": "Este tutorial abarca el Modelo Compare. ejecuta dos modelos Cellpose en los mismos campos y compara las máscaras, recuentos y métricas de acuerdo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.25,
+      "speech_end": 21.475,
+      "scene_end": 21.925,
+      "duration": 12.675,
+      "text": "Abra Model Compare en la sección Segmentation models. Abre Modelo Comparar desde la sección Modelos de segmentación. Elige dos modelos candidatos y un conjunto representativo de campos de microscopía."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.925,
+      "speech_end": 31.125,
+      "scene_end": 31.575,
+      "duration": 9.649999999999999,
+      "text": "En el área de configuración principal, coincidan los canales y el preprocesamiento, luego configuren los umbrales y los criterios de coincidencia de objetos."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.575,
+      "speech_end": 46.7,
+      "scene_end": 47.150000000000006,
+      "duration": 15.575000000000006,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. revise superposiciones lado a lado junto con diferencias de número de objetos, superposición y índice de Rand ajustados."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.150000000000006,
+      "speech_end": 54.800000000000004,
+      "scene_end": 55.45,
+      "duration": 8.299999999999997,
+      "text": "Cuando el flujo de trabajo termina, el informe de comparación identifica dónde cada modelo gana, pierde, divide o fusiona objetos."
+    }
+  ]
+}

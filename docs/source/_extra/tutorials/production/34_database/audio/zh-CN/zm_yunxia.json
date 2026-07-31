@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 40.85,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.95,
+      "scene_end": 8.4,
+      "duration": 8.4,
+      "text": "这本教程涵盖数据库浏览器. 浏览,过,查询和出口测量点db而不使用sqlite命令行."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.4,
+      "speech_end": 16.725,
+      "scene_end": 17.175,
+      "duration": 8.775,
+      "text": "从 Data and batch runs 部分打开 Database Browser。 打开 spaCR SQLite 数据库,选择表或保存查询."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.175,
+      "speech_end": 24.375,
+      "scene_end": 24.825,
+      "duration": 7.649999999999999,
+      "text": "在主配置区域,配置列,过器,排序,行限,连接,安全的仅读或编辑行为."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.825,
+      "speech_end": 32.475,
+      "scene_end": 32.925000000000004,
+      "duration": 8.100000000000005,
+      "text": "在完整运行之前,检查可见设置,并在可用的情况下使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.925000000000004,
+      "speech_end": 40.2,
+      "scene_end": 40.85,
+      "duration": 7.924999999999997,
+      "text": "当工作流程完成时,可以复制或出口过表,而原始数据库仍然可追踪."
+    }
+  ]
+}

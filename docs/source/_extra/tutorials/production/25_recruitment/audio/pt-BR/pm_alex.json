@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.075,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.775,
+      "scene_end": 9.225,
+      "duration": 9.225,
+      "text": "Este tutorial abrange o recrutamento. Quantificar o recrutamento de um canal de interesse para os parasitas ou regiões associadas a patógenos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.225,
+      "speech_end": 22.424999999999997,
+      "scene_end": 22.874999999999996,
+      "duration": 13.649999999999997,
+      "text": "Abra Recruitment na seção Toxoplasma assays. Recrutação aberta da secção de análises de toxoplasma. Use máscaras de células, parasitas e órgãos medidos com canal um, retículo endoplasmático, como canal de interesse."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.874999999999996,
+      "speech_end": 31.949999999999996,
+      "scene_end": 32.4,
+      "duration": 9.525000000000002,
+      "text": "Na área de configuração principal, definir a região de recrutamento, referência de fundo, filtros de objetos, agrupamento e estratégia de normalização."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.4,
+      "speech_end": 40.1,
+      "scene_end": 40.550000000000004,
+      "duration": 8.150000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.550000000000004,
+      "speech_end": 49.425000000000004,
+      "scene_end": 50.075,
+      "duration": 9.524999999999999,
+      "text": "Quando o fluxo de trabalho termina, as pontuações de recrutamento por objeto e os resumos de condições são armazenados com identificadores de fonte."
+    }
+  ]
+}

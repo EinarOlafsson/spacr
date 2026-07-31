@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.775,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.425,
+      "scene_end": 9.875,
+      "duration": 9.875,
+      "text": "这本教程涵盖了动力测试. 从时间解析图像中量化速度,移动,持久性和感染质量控制的指标."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.875,
+      "speech_end": 18.25,
+      "scene_end": 18.7,
+      "duration": 8.825,
+      "text": "从 Core 部分打开 Motility assay。 开放可靠的时间间隔和空间校准的追踪时间延误数据."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.7,
+      "speech_end": 27.15,
+      "scene_end": 27.599999999999998,
+      "duration": 8.899999999999999,
+      "text": "在主要配置区域中,选择轨道过器,最低持续时间,滑滑,动力指标,感染定义和井层组."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.599999999999998,
+      "speech_end": 39.175,
+      "scene_end": 39.625,
+      "duration": 12.025000000000002,
+      "text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查轨迹预览,排除破损,静止的文物或不可思议的轨道."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.625,
+      "speech_end": 48.125,
+      "scene_end": 48.775,
+      "duration": 9.149999999999999,
+      "text": "当工作流程完成时, spaCR 写出每条轨道和每条条件的动力表,质量指标和数字."
+    }
+  ]
+}

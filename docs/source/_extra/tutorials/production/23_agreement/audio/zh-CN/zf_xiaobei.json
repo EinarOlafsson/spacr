@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaobei",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.85,
+      "scene_end": 6.3,
+      "duration": 6.3,
+      "text": "测量注释列之间的协议,并审查导致分歧的对象."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.3,
+      "speech_end": 17.55,
+      "scene_end": 18.0,
+      "duration": 11.7,
+      "text": "从 Results and quality control 部分打开 Annotator Agreement。 选择一个项目数据库和两个或多个包含相同对象的注释列."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.0,
+      "speech_end": 26.575,
+      "scene_end": 27.025,
+      "duration": 9.024999999999999,
+      "text": "在主要配置区域中,选择类处理,缺标签政策,组分,样本取样和协议统计数据."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.025,
+      "speech_end": 39.625,
+      "scene_end": 40.075,
+      "duration": 13.050000000000004,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 检查Cohen或Fleiss kappa以及类型特定的混和分歧示例."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.075,
+      "speech_end": 48.075,
+      "scene_end": 48.725,
+      "duration": 8.649999999999999,
+      "text": "工作流程完成后,协议表和集中审查设置支持标签调整和协议改进."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_tebukuro",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.075,
+      "scene_end": 13.524999999999999,
+      "duration": 13.524999999999999,
+      "text": "このチュートリアルでは 逆転について説明します 乱射効果を推定し ガイドや状態レベルフェノタイプに関連した特徴を特定します"
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.524999999999999,
+      "speech_end": 25.625,
+      "scene_end": 26.075,
+      "duration": 12.55,
+      "text": "Core セクションから Regression を開きます。 マッピングされた測定値,応答変数,制御,グループ列,候補予測値を選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.075,
+      "speech_end": 38.05,
+      "scene_end": 38.5,
+      "duration": 12.425,
+      "text": "主な構成領域では,変換,コバリアート,モデルファミリー,ランダム効果,多重テスト修正,品質フィルターを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.5,
+      "speech_end": 54.5,
+      "scene_end": 54.95,
+      "duration": 16.450000000000003,
+      "text": "実行完了前に,可視設定をレビューし,可用である場合の先見またはテストモードを使用します.  koeficientを解釈する前にモデル診断と制御行動を検査します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.95,
+      "speech_end": 65.10000000000001,
+      "scene_end": 65.75000000000001,
+      "duration": 10.800000000000011,
+      "text": "作業が完了すると spaCR は効果サイズ,不確実性,調整された意味,診断,および数字を書き出す."
+    }
+  ]
+}

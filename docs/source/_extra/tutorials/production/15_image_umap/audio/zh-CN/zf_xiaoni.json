@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoni",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 46.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.225,
+      "scene_end": 7.675,
+      "duration": 7.675,
+      "text": "通过嵌入测量物体并显示它们的图像作物作为字体,探索现象型社区."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.675,
+      "speech_end": 16.15,
+      "scene_end": 16.599999999999998,
+      "duration": 8.924999999999997,
+      "text": "从 Results and quality control 部分打开 Image UMAP。 选择测量数据库,图像作物,功能集和组合元数据."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.599999999999998,
+      "speech_end": 23.875,
+      "scene_end": 24.325,
+      "duration": 7.725000000000001,
+      "text": "在主配置区域,配置过,扩展,邻居,最小距离,集群,样本取和图像显示道."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.325,
+      "speech_end": 36.725,
+      "scene_end": 37.175000000000004,
+      "duration": 12.850000000000005,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较几个可复制的嵌入式,并检查集群不是由板块或成像器件驱动的."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.175000000000004,
+      "speech_end": 45.47500000000001,
+      "scene_end": 46.12500000000001,
+      "duration": 8.950000000000003,
+      "text": "当工作流程完成时, spaCR 保存坐标,集群标签,图像地图和准备发布的嵌入图像."
+    }
+  ]
+}
