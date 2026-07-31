@@ -90,6 +90,16 @@ def test_bootstraps_guard_python_312_numba_and_llvmlite_resolution():
         assert "ResolverGuards" in source or "RESOLVER_GUARDS" in source
 
 
+def test_unix_bootstrap_uses_last_intel_macos_llvmlite_wheel_line():
+    source = _text(UNIX)
+    assert '"$PLATFORM" == "macos"' in source
+    assert '"$(uname -m)" == "x86_64"' in source
+    assert "numba>=0.60,<0.63" in source
+    assert "llvmlite>=0.43,<0.46" in source
+    assert "numpy>=1.26,<2.0" in source
+    assert "opencv-python-headless<4.12" in source
+
+
 def test_install_is_validated_before_the_previous_environment_is_replaced():
     for path in (UNIX, WINDOWS):
         source = _text(path)
@@ -100,6 +110,12 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
         assert "-I" in source[:import_check]
         assert check < activate
         assert import_check < activate
+
+
+def test_unix_validation_exercises_torch_numpy_abi():
+    source = _text(UNIX)
+    assert "torch.from_numpy" in source
+    assert "dtype=np.float32" in source
 
 
 def test_windows_validation_passes_isolated_flag_as_an_argument():
@@ -167,6 +183,11 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "CFBundleIconFile" in source
     assert "uninstall-spacr.sh" in source
     assert "PRODUCTSIGN_IDENTITY" in source
+    assert "install-for-user.sh" in source
+    assert "osascript" in source
+    assert '$HOME/Library/Application Support/SpaCR' in source
+    postinstall = source[source.index('cat > "$SCRIPTS/postinstall"'):]
+    assert "install-online.sh" not in postinstall
 
 
 def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
