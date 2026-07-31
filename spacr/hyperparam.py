@@ -2303,6 +2303,7 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
 
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data
+    from .batch_correction import correction_kwargs
 
     src = settings.get("src")
     if not src or src in ("path", "/path/to/src", "/path"):
@@ -2342,6 +2343,11 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
         settings.get("remove_highly_correlated", True),
         settings.get("log_data", False),
         settings.get("exclude"),
+        **correction_kwargs(
+            settings,
+            default_control_column=settings.get("col_to_compare"),
+            default_control_values=settings.get("neg"),
+        ),
     )
     data = SearchData(features=np.asarray(features, dtype=float), frame=frame,
                       notes=notes)

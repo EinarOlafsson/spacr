@@ -7227,7 +7227,21 @@ def _feature_filter_matches(columns, filter_by):
     ]
 
 
-def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, column_list=False):
+def preprocess_data(
+    df,
+    filter_by,
+    remove_highly_correlated,
+    log_data,
+    exclude,
+    column_list=False,
+    *,
+    batch_correction="none",
+    batch_column="plateID",
+    batch_control_column=None,
+    batch_control_values=None,
+    batch_min_samples=3,
+    batch_missing_control="error",
+):
     """Prepare a feature matrix by filtering, decorrelating, log-transforming, and scaling ``df``.
 
     :param df: input DataFrame.
@@ -7238,9 +7252,18 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     :param log_data: apply ``log(x + 1e-6)`` to numeric columns.
     :param exclude: features to exclude from filtering.
     :param column_list: optional explicit column subset applied before selecting numeric columns.
+    :param batch_correction: ``none``, ``center``, ``zscore``,
+        ``robust_zscore`` or ``control_center``.
+    :param batch_column: metadata column identifying acquisition batches.
+    :param batch_control_column: metadata column selecting reference controls.
+    :param batch_control_values: reference value(s) for ``control_center``.
+    :param batch_min_samples: minimum rows/reference controls per batch.
+    :param batch_missing_control: ``error`` or ``skip`` when a batch lacks
+        enough controls.
     :returns: standard-scaled ``ndarray`` of numeric features.
     :raises ValueError: if no numeric columns remain after filtering.
     """
+    metadata_df = df
     filter_by = normalize_feature_filter(filter_by)
     explicit_features = column_list or ()
     excluded_features = (
@@ -7313,6 +7336,30 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     # Apply log transformation
     if log_data:
         numeric_data = np.log(numeric_data + 1e-6)
+
+    if str(batch_correction or "none").strip().lower() not in {
+        "none", "off", "false",
+    }:
+        from .batch_correction import correct_from_metadata
+        numeric_data, correction_report = correct_from_metadata(
+            numeric_data,
+            metadata_df.loc[numeric_data.index],
+            batch_correction=batch_correction,
+            batch_column=batch_column,
+            batch_control_column=batch_control_column,
+            batch_control_values=batch_control_values,
+            batch_min_samples=batch_min_samples,
+            batch_missing_control=batch_missing_control,
+        )
+        print(
+            "Batch correction "
+            f"{correction_report.method}: {len(correction_report.batches)} "
+            f"batch(es), centroid spread "
+            f"{correction_report.centroid_spread_before} -> "
+            f"{correction_report.centroid_spread_after}."
+        )
+        for note in correction_report.warnings:
+            print(f"Warning: batch correction: {note}")
     
     # Fill NaN values with the column mean
     numeric_data = numeric_data.fillna(numeric_data.mean())

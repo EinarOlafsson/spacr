@@ -115,4 +115,5 @@ Contents
    checkpoint_resume
    reproducibility_manifests
    run_history
+   batch_correction
    api/index

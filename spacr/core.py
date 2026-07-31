@@ -616,6 +616,7 @@ def generate_image_umap(settings=None, return_fig=False):
     from .io import _read_and_join_tables
     from .utils import get_db_paths, preprocess_data, reduction_and_clustering, remove_noise, generate_colors, correct_paths, plot_embedding, plot_clusters_grid, cluster_feature_analysis, map_condition
     from .settings import set_default_umap_image_settings
+    from .batch_correction import correction_kwargs
     settings = set_default_umap_image_settings(settings)
 
     if isinstance(settings['src'], str):
@@ -733,7 +734,16 @@ def generate_image_umap(settings=None, return_fig=False):
         #    column_list = None
             
         # Preprocess the data to obtain numeric data
-        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+        numeric_data = preprocess_data(
+            all_df, settings['filter_by'],
+            settings['remove_highly_correlated'], settings['log_data'],
+            settings['exclude'],
+            **correction_kwargs(
+                settings,
+                default_control_column=settings.get('col_to_compare'),
+                default_control_values=settings.get('neg'),
+            ),
+        )
 
         # Convert numeric_data back to a DataFrame to align with col_to_compare
         numeric_data_df = pd.DataFrame(numeric_data)
@@ -761,7 +771,16 @@ def generate_image_umap(settings=None, return_fig=False):
         _, _, reducer = reduction_and_clustering(control_numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode='fit', model=False)
         
         # Apply the trained reducer to the entire dataset
-        numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+        numeric_data = preprocess_data(
+            all_df, settings['filter_by'],
+            settings['remove_highly_correlated'], settings['log_data'],
+            settings['exclude'],
+            **correction_kwargs(
+                settings,
+                default_control_column=settings.get('col_to_compare'),
+                default_control_values=settings.get('neg'),
+            ),
+        )
         embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer)
 
     else:
@@ -777,7 +796,16 @@ def generate_image_umap(settings=None, return_fig=False):
             #numeric_data, embedding, labels = generate_umap_from_images(image_paths, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['clustering'], settings['eps'], settings['min_samples'], settings['n_jobs'], settings['verbose'])
         else:
             # Apply the trained reducer to the entire dataset
-            numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+            numeric_data = preprocess_data(
+                all_df, settings['filter_by'],
+                settings['remove_highly_correlated'], settings['log_data'],
+                settings['exclude'],
+                **correction_kwargs(
+                    settings,
+                    default_control_column=settings.get('col_to_compare'),
+                    default_control_values=settings.get('neg'),
+                ),
+            )
             embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
     
     clusters_found = (
@@ -1040,7 +1068,16 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
                   f"rows available; using all {len(all_df)}.")
         all_df = all_df.sample(n=n_rows, random_state=42)
 
-    numeric_data = preprocess_data(all_df, settings['filter_by'], settings['remove_highly_correlated'], settings['log_data'], settings['exclude'])
+    from .batch_correction import correction_kwargs
+    numeric_data = preprocess_data(
+        all_df, settings['filter_by'], settings['remove_highly_correlated'],
+        settings['log_data'], settings['exclude'],
+        **correction_kwargs(
+            settings,
+            default_control_column=settings.get('col_to_compare'),
+            default_control_values=settings.get('neg'),
+        ),
+    )
 
     # Combine DBSCAN and KMeans parameters
     clustering_params = []

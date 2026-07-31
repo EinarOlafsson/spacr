@@ -68,6 +68,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "model_compare",
     "model_zoo",
     "batch",
+    "batch_correction",
     "gui_utils",
     "gui_elements",
     "gui_core",

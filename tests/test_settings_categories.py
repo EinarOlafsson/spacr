@@ -238,6 +238,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Static and interactive Image UMAP presentation controls.
     "point_color", "point_alpha", "outline_width",
     "umap_canvas_width", "umap_sidebar_width",
+    # Shared correction before UMAP, ML screen analysis, and regression.
+    "batch_correction", "batch_column", "batch_control_column",
+    "batch_control_values", "batch_min_samples", "batch_missing_control",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -674,6 +677,7 @@ def _rendered_sections(app_key):
     [
         ("ml_analyze", [
             "Data & Controls", "Feature Preparation",
+            "Plate & Batch Correction",
             "Classifier & Validation", "Feature Selection & Importance",
             "Output & Database", "Plots & Heatmaps",
             "Runtime & Reliability",
@@ -708,7 +712,8 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
         ("regression", [
-            "Input Tables", "Controls & Plate Design", "Model & Covariates",
+            "Input Tables", "Controls & Plate Design",
+            "Plate & Batch Correction", "Model & Covariates",
             "Hit Calling & Outliers", "Regression Plots",
             "Runtime & Reliability",
         ]),

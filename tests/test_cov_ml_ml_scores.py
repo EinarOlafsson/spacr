@@ -391,6 +391,36 @@ def test_ml_analysis_cross_validation_averages_folds(capsys, rng):
     assert "Fold 5 Classification Report:" in out
 
 
+def test_ml_analysis_applies_batch_correction_before_training(capsys, rng):
+    """The shared correction runs on features while plate metadata stays out."""
+    import spacr.ml as ML
+
+    df = _feature_df(per_class=24)
+    within_condition = np.tile(
+        np.repeat(["plate1", "plate2"], 12),
+        3,
+    )
+    df["plateID"] = within_condition
+    shifted = df["plateID"].eq("plate2")
+    df.loc[shifted, FEATURES] = df.loc[shifted, FEATURES] + 10.0
+
+    output, _figs = ML.ml_analysis(
+        df,
+        positive_control="c2",
+        negative_control="c1",
+        model_type="random_forest",
+        n_estimators=8,
+        verbose=False,
+        batch_correction="center",
+        batch_column="plateID",
+        **COMMON,
+    )
+
+    assert output[0]["predictions"].notna().all()
+    assert "plateID" not in output[9]
+    assert "Batch correction center:" in capsys.readouterr().out
+
+
 def test_ml_analysis_matches_list_controls_numerically(rng):
     """Controls given as a list: each entry is matched exactly, numerically
     and as a stripped string, and un-matchable entries are skipped."""
