@@ -658,6 +658,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
+    from .cancellation import checkpoint as cancellation_checkpoint
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -754,6 +755,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     average_sizes = []
     average_count = []
     for file_index, path in enumerate(paths):
+        cancellation_checkpoint()
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
@@ -798,6 +800,7 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             _require_z_axis(stack, z_plan, path)
 
         for i in range(0, stack.shape[0], batch_size):
+            cancellation_checkpoint()
             mask_stack = []
             if z_plan is not None or t_plan is not None:
                 # (N, Z, Y, X, C) — or (T, Z, Y, X, C) under t_stack, where the
@@ -1091,6 +1094,7 @@ def generate_cellpose_masks(src, settings, object_type):
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
+    from .cancellation import checkpoint as cancellation_checkpoint
     
     gc.collect()
     if not torch.cuda.is_available():
@@ -1178,6 +1182,7 @@ def generate_cellpose_masks(src, settings, object_type):
     average_sizes = []
     average_count = []
     for file_index, path in enumerate(paths):
+        cancellation_checkpoint()
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
@@ -1214,6 +1219,7 @@ def generate_cellpose_masks(src, settings, object_type):
                         print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
         
         for i in range(0, stack.shape[0], batch_size):
+            cancellation_checkpoint()
             mask_stack = []
             if stack.shape[3] == 1:
                 batch = stack[i: i+batch_size, :, :, [0,0]].astype(stack.dtype)
@@ -1435,6 +1441,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
                      _save_array_atomic, _save_object_counts_to_database)
     from .settings import _set_organelle_defaults
     from.plot import plot_organelle_output
+    from .cancellation import checkpoint as cancellation_checkpoint
 
     gc.collect()
 
@@ -1532,6 +1539,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
     #  Main loop over .npz stacks
     # ------------------------------------------------------------------ #
     for file_index, path in enumerate(paths):
+        cancellation_checkpoint()
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
         os.makedirs(output_folder, exist_ok=True)
 
@@ -1540,6 +1548,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
             filenames = data['filenames']
 
         for i in range(0, stack.shape[0], batch_size):
+            cancellation_checkpoint()
             start = time.time()
             batch = stack[i: i + batch_size]
             batch_filenames = filenames[i: i + batch_size].tolist()

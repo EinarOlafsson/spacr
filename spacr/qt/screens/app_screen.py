@@ -1674,21 +1674,34 @@ class AppScreen(QWidget):
         self._figures_card.show()
 
     def closeEvent(self, event):
-        """Stop any running pipeline thread before the widget is torn
-        down. Destroying a QWidget while a child QThread is still
-        running aborts the process (this also protects the test suite,
-        where screens are created + destroyed rapidly)."""
+        """Cancel and join this screen's worker before destroying widgets.
+
+        A worker that has not reached a safe boundary keeps the screen alive;
+        dropping its references or force-terminating it could corrupt an
+        output and triggers Qt's fatal "QThread destroyed while running".
+        """
         th = getattr(self, "_thread", None)
         if th is not None:
             try:
+                worker = getattr(self, "_worker", None)
+                if worker is not None:
+                    worker.request_cancel("screen closed")
                 th.requestInterruption()
-                th.quit()
-                # Bounded wait so we don't destroy the widget mid-run,
-                # but only from closeEvent (main thread, not triggered
-                # by the thread's own finished signal — safe here).
                 th.wait(3000)
             except Exception:
                 pass
+            try:
+                still_running = bool(th.isRunning())
+            except (AttributeError, RuntimeError):
+                still_running = False
+            if still_running:
+                self._console.append_stdout(
+                    "\nClose deferred: the current field is still finishing. "
+                    "The window will remain open so its worker is not "
+                    "destroyed mid-write; close it again after Stop completes.\n"
+                )
+                event.ignore()
+                return
             self._thread = None
             self._worker = None
         # Clean up the figure queue's temp dir if present.
@@ -1707,11 +1720,20 @@ class AppScreen(QWidget):
         super().closeEvent(event)
 
     def _on_finished(self, ok: bool):
+        from ..button_roles import set_button_busy
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
+        set_button_busy(self._btn_run, False)
+        set_button_busy(self._btn_stop, False)
         self._progress.setVisible(False)
-        self._console.append_stdout(
-            "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
+        cancelled = bool(
+            getattr(getattr(self, "_worker", None), "was_cancelled", False))
+        if cancelled:
+            self._console.append_stdout(
+                "■ Stopped safely at a field, trial, or job boundary\n")
+        else:
+            self._console.append_stdout(
+                "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
         # NOTE: do NOT drop self._thread / self._worker here. This slot runs
         # on worker.finished, i.e. before thread.quit() has actually stopped
         # the QThread's event loop; releasing the last reference now can
@@ -1727,7 +1749,9 @@ class AppScreen(QWidget):
                                                 _time.time())
             from ..notify import announce_pipeline_finished
             announce_pipeline_finished(
-                self.app_key, "success" if ok else "failed", elapsed
+                self.app_key,
+                "cancelled" if cancelled else ("success" if ok else "failed"),
+                elapsed,
             )
         except Exception:
             pass
@@ -1745,11 +1769,18 @@ class AppScreen(QWidget):
     def _on_stop(self):
         if self._thread is None:
             return
-        # QThread.terminate is unsafe but the pipelines have no cooperative
-        # cancellation; document the caveat in the console.
+        from ..button_roles import set_button_busy
         self._console.append_stdout(
-            "\nRequesting stop (worker cancellation isn't cooperative — "
-            "the current task may finish before it exits).\n")
+            "\nRequesting stop. The current field/trial/job will finish, then "
+            "the resumable run will stop at its next safe boundary.\n")
+        set_button_busy(self._btn_stop, True)
+        self._btn_stop.setEnabled(False)
+        worker = getattr(self, "_worker", None)
+        if worker is not None:
+            try:
+                worker.request_cancel("stopped by the user")
+            except Exception:
+                pass
         try:
             self._thread.requestInterruption()
         except Exception:
