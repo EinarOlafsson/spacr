@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.85,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.225,
+      "scene_end": 9.674999999999999,
+      "duration": 9.674999999999999,
+      "text": "Questo tutorial copre Make Masks. Costruire, correggere e curare in modo interattivo le etichette di segmentazione per i dati di formazione Cellpose."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.674999999999999,
+      "speech_end": 23.799999999999997,
+      "scene_end": 24.249999999999996,
+      "duration": 14.574999999999998,
+      "text": "Apri Make Masks dalla sezione Segmentation models. Apri le maschere di creazione dalla sezione Modelli di segmentazione. Apri le immagini rappresentative di microscopia e le maschere esistenti che dovrebbero essere perfezionate."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.249999999999996,
+      "speech_end": 34.849999999999994,
+      "scene_end": 35.3,
+      "duration": 11.05,
+      "text": "Nell'area di configurazione principale, selezionare canali, normalizzazione, spazzola o strumenti di magia-wand, operazioni di oggetti e comportamento di risparmio di etichette."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.3,
+      "speech_end": 50.199999999999996,
+      "scene_end": 50.65,
+      "duration": 15.350000000000001,
+      "text": "Prima della corsa completa, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando è disponibile. correggere i confini e gli oggetti mancanti su un sottoinsieme di allenamento diverso piuttosto che solo campi facili."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.65,
+      "speech_end": 60.2,
+      "scene_end": 60.85,
+      "duration": 10.200000000000003,
+      "text": "Quando il flusso di lavoro è terminato, le immagini abbinate e le maschere di etichetta curate sono pronte per la formazione personalizzata di Cellpose."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 40.975,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.8,
+      "scene_end": 6.25,
+      "duration": 6.25,
+      "text": "通过覆盖曲线并调整它们的设置来比较几个模型训练运行."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.25,
+      "speech_end": 13.85,
+      "scene_end": 14.299999999999999,
+      "duration": 8.049999999999999,
+      "text": "从 Results and quality control 部分打开 Training Runs。 在\"结果与质量控制\"部分中开启训练运行."
+    },
+    {
+      "scene": 3,
+      "speech_start": 14.299999999999999,
+      "speech_end": 21.125,
+      "scene_end": 21.575,
+      "duration": 7.275,
+      "text": "在主要配置区域中,选择显示的指标,平滑,组分,检查点标准和设置字段."
+    },
+    {
+      "scene": 4,
+      "speech_start": 21.575,
+      "speech_end": 33.425,
+      "scene_end": 33.875,
+      "duration": 12.3,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较缩,过度适应,稳定性和持续性能,而不是仅仅通过训练损失进行选择."
+    },
+    {
+      "scene": 5,
+      "speech_start": 33.875,
+      "speech_end": 40.325,
+      "scene_end": 40.975,
+      "duration": 7.100000000000001,
+      "text": "工作流程完成后,比较数据和设置差异表确定最强的可复制的运行."
+    }
+  ]
+}

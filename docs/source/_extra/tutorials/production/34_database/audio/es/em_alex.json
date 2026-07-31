@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.575,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.275,
+      "scene_end": 3.725,
+      "duration": 3.725,
+      "text": "Este tutorial abarca el navegador de base de datos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.725,
+      "speech_end": 16.55,
+      "scene_end": 17.0,
+      "duration": 13.275,
+      "text": "Abra Database Browser en la sección Data and batch runs. Abre el navegador de base de datos en la sección Datos y ejecución de lotes. Abra una base de datos SQLite spaCR y seleccione una tabla o consulta guardada."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.0,
+      "speech_end": 26.175,
+      "scene_end": 26.625,
+      "duration": 9.625,
+      "text": "En el área de configuración principal, configure columnas, filtros, clasificación, límites de filas, juntas y comportamiento seguro de lectura o edición."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.625,
+      "speech_end": 34.6,
+      "scene_end": 35.050000000000004,
+      "duration": 8.425000000000004,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de visualización o prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.050000000000004,
+      "speech_end": 43.925000000000004,
+      "scene_end": 44.575,
+      "duration": 9.524999999999999,
+      "text": "Cuando el flujo de trabajo termine, las tablas filtradas pueden ser copiadas o exportadas mientras que la base de datos original permanece rastreable."
+    }
+  ]
+}

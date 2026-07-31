@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoxiao",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.525,
+      "scene_end": 8.975,
+      "duration": 8.975,
+      "text": "本教程涵盖主页屏幕和导航. 参观应用程序,其模块组,运行总结,成熟度指标和导航控制."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.975,
+      "speech_end": 16.45,
+      "scene_end": 16.9,
+      "duration": 7.924999999999999,
+      "text": "从 Home 部分打开 Home screen and navigation。 启动 spaCR 桌面应用程序,然后开始在主页."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.9,
+      "speech_end": 24.25,
+      "scene_end": 24.7,
+      "duration": 7.800000000000001,
+      "text": "在主配置区域中,使用侧边,类别,可搜索的应用程序,以及命令来访问工作流."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.7,
+      "speech_end": 36.575,
+      "scene_end": 37.025000000000006,
+      "duration": 12.325000000000006,
+      "text": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式.只打开一个模块,只要您打算与它交互;指针只显示为实际点击."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.025000000000006,
+      "speech_end": 43.60000000000001,
+      "scene_end": 44.25000000000001,
+      "duration": 7.225000000000001,
+      "text": "当工作流程完成时,您可以通过应用程序了解Home中显示的状态信息."
+    }
+  ]
+}

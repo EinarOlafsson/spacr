@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.95,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.275,
+      "scene_end": 9.725,
+      "duration": 9.725,
+      "text": "Este tutorial cubre la imagen UMAP. Explora los vecindarios de fenotipos incorporando objetos medidos y mostrando sus cultivos de imagen como glifos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.725,
+      "speech_end": 23.65,
+      "scene_end": 24.099999999999998,
+      "duration": 14.374999999999998,
+      "text": "Abra Image UMAP en la sección Results and quality control. Abra UMAP de imagen en la sección Resultados y control de calidad. Elige una base de datos de mediciones, cultivos de imagen, conjunto de características y metadatos de agrupación."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.099999999999998,
+      "speech_end": 33.949999999999996,
+      "scene_end": 34.4,
+      "duration": 10.3,
+      "text": "En el área de configuración principal, configure los canales de filtración, escalación, vecinos, distancia mínima, agrupación, muestreo y visualización de imágenes."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.4,
+      "speech_end": 49.825,
+      "scene_end": 50.275000000000006,
+      "duration": 15.875000000000007,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de visualización o prueba cuando esté disponible. Compara varias incorporaciones reproducibles y verifique si los racimos no son impulsados por placas o artefactos de imagen."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.275000000000006,
+      "speech_end": 59.300000000000004,
+      "scene_end": 59.95,
+      "duration": 9.674999999999997,
+      "text": "Cuando el flujo de trabajo termina, spaCR almacena coordenadas, etiquetas de grupo, mapas de imagen y figuras de incorporación listas para publicación."
+    }
+  ]
+}

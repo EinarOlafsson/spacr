@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 61.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.15,
+      "scene_end": 10.6,
+      "duration": 10.6,
+      "text": "Este tutorial cubre la evaluación de clasificadores. Auditoría de predicciones sostenidas, validación cruzada anidada, calibración, filtración y rendimiento por placa."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.6,
+      "speech_end": 26.975,
+      "scene_end": 27.425,
+      "duration": 16.825000000000003,
+      "text": "Abra Classifier Evaluation en la sección Results and quality control. Abre la evaluación del clasificador de los resultados y la sección de control de calidad. Elige predicciones con la verdad de base, metadatos divididos, identificadores de placas, probabilidades y registros de modelos."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.425,
+      "speech_end": 38.325,
+      "scene_end": 38.775000000000006,
+      "duration": 11.350000000000005,
+      "text": "En el área de configuración principal, configure el orden de las clases, los umbrales, los contenedores de calibración, el agrupamiento, la incertidumbre de arranque y las comprobaciones de fugas."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.775000000000006,
+      "speech_end": 53.400000000000006,
+      "scene_end": 53.85000000000001,
+      "duration": 15.075000000000003,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Evaluar el comportamiento prolongado y por placa antes de utilizar un clasificador para las conclusiones biológicas."
+    },
+    {
+      "scene": 5,
+      "speech_start": 53.85000000000001,
+      "speech_end": 60.97500000000001,
+      "scene_end": 61.62500000000001,
+      "duration": 7.774999999999999,
+      "text": "Cuando el flujo de trabajo termina, spaCR produce informes de discriminación, calibración, confusión, fuga y robustez."
+    }
+  ]
+}

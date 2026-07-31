@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 41.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.175,
+      "scene_end": 3.625,
+      "duration": 3.625,
+      "text": "Ce tutoriel couvre l'analyse de mobilité."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.625,
+      "speech_end": 12.525,
+      "scene_end": 12.975,
+      "duration": 9.35,
+      "text": "Ouvrez Motility assay dans la section Core. Ouvrez les données de timelapse suivie avec des intervalles de temps fiables et une calibration spatiale."
+    },
+    {
+      "scene": 3,
+      "speech_start": 12.975,
+      "speech_end": 23.4,
+      "scene_end": 23.849999999999998,
+      "duration": 10.874999999999998,
+      "text": "Dans la zone de configuration principale, choisissez des filtres de piste, durée minimale, lissage, mesures de mobilité, définitions d'infection et groupes de niveau de puits."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.849999999999998,
+      "speech_end": 31.474999999999998,
+      "scene_end": 31.924999999999997,
+      "duration": 8.075,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 31.924999999999997,
+      "speech_end": 40.599999999999994,
+      "scene_end": 41.24999999999999,
+      "duration": 9.324999999999996,
+      "text": "Lorsque le flux de travail est terminé, spaCR écrit des tables de mobilité par piste et par condition, des mesures de qualité et des chiffres."
+    }
+  ]
+}

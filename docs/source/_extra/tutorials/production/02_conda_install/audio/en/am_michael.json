@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_michael",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.975,
+      "scene_end": 11.424999999999999,
+      "duration": 11.424999999999999,
+      "text": "This tutorial covers Installation with Conda. Create an isolated Python environment and install spaCR without changing the rest of your system."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.424999999999999,
+      "speech_end": 25.025,
+      "scene_end": 25.474999999999998,
+      "duration": 14.049999999999999,
+      "text": "Open Installation with Conda from the spaCR section. Install Miniconda, Anaconda, or another Conda-compatible manager, then create an environment with Python three point twelve."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.474999999999998,
+      "speech_end": 35.025,
+      "scene_end": 35.475,
+      "duration": 10.000000000000004,
+      "text": "In the main configuration area, activate the environment and confirm that its Python and pip executables belong to that environment."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.475,
+      "speech_end": 49.725,
+      "scene_end": 50.175000000000004,
+      "duration": 14.700000000000003,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Install spaCR with pip inside the active environment; the conda-forge package is still coming soon."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.175000000000004,
+      "speech_end": 58.275000000000006,
+      "scene_end": 58.925000000000004,
+      "duration": 8.75,
+      "text": "When the workflow finishes, launch spaCR from the same environment and keep it isolated from unrelated projects."
+    }
+  ]
+}

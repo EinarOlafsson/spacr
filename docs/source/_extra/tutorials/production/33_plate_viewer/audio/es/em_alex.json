@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.825,
+      "scene_end": 9.274999999999999,
+      "duration": 9.274999999999999,
+      "text": "Este tutorial cubre Plate Viewer. Explore cualquier medida como una mapa de calor de placa e identifique artefactos espaciales o efectos de borde."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.274999999999999,
+      "speech_end": 21.575,
+      "scene_end": 22.025,
+      "duration": 12.75,
+      "text": "Abra Plate Viewer en la sección Results and quality control. Abre el visor de placa en la sección Resultados y control de calidad. Abre una base de datos de mediciones con identificadores de placa, pozo y condición."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.025,
+      "speech_end": 29.75,
+      "scene_end": 30.2,
+      "duration": 8.175,
+      "text": "En el área de configuración principal, elija la medición, agregación, normalización, escala de color, controles y diseño de placa."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.2,
+      "speech_end": 44.85,
+      "scene_end": 45.300000000000004,
+      "duration": 15.100000000000005,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Compara las vistas crudas y normalizadas e inspeccione los pozos sospechosos o los patrones de borde sistemáticos."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.300000000000004,
+      "speech_end": 53.35000000000001,
+      "scene_end": 54.00000000000001,
+      "duration": 8.700000000000003,
+      "text": "Cuando el flujo de trabajo esté terminado, se pueden exportar mapas de calor, tablas de pozos seleccionados y diagnósticos de efectos de borde."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_jessica",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.725,
+      "scene_end": 8.174999999999999,
+      "duration": 8.174999999999999,
+      "text": "This tutorial covers Classify, computer vision. Train and apply an image-based neural network to annotated single-object crops."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.174999999999999,
+      "speech_end": 16.6,
+      "scene_end": 17.05,
+      "duration": 8.875000000000002,
+      "text": "Open Classify, computer vision from the Core section. Select annotated crop folders or a project database with reliable class labels."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.05,
+      "speech_end": 24.675,
+      "scene_end": 25.125,
+      "duration": 8.075,
+      "text": "In the main configuration area, choose the image channels, architecture, split strategy, augmentation, batch size, and training controls."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.125,
+      "speech_end": 36.175,
+      "scene_end": 36.625,
+      "duration": 11.5,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. train on the training split, monitor validation behavior, and evaluate once on held-out data."
+    },
+    {
+      "scene": 5,
+      "speech_start": 36.625,
+      "speech_end": 44.275,
+      "scene_end": 44.925,
+      "duration": 8.299999999999997,
+      "text": "When the workflow finishes, spaCR saves the model, metrics, predictions, class examples, and run metadata for later application."
+    }
+  ]
+}

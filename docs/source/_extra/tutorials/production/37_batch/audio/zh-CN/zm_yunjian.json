@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunjian",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 41.975,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 4.875,
+      "scene_end": 5.325,
+      "duration": 5.325,
+      "text": "列表模块,项目和设置可复制的无监督执行."
+    },
+    {
+      "scene": 2,
+      "speech_start": 5.325,
+      "speech_end": 12.825,
+      "scene_end": 13.274999999999999,
+      "duration": 7.949999999999998,
+      "text": "从 Data and batch runs 部分打开 Batch Runner。 添加项目,并组装每个项目应运行的分组序列."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.274999999999999,
+      "speech_end": 20.099999999999998,
+      "scene_end": 20.549999999999997,
+      "duration": 7.274999999999999,
+      "text": "在主配置区域中,选择预设,依赖,资源限制,恢复行为,记录和故障政策."
+    },
+    {
+      "scene": 4,
+      "speech_start": 20.549999999999997,
+      "speech_end": 32.65,
+      "scene_end": 33.1,
+      "duration": 12.550000000000004,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.验证批量计划,测试一个工作,然后在一夜之间或无监督运行剩余的排队."
+    },
+    {
+      "scene": 5,
+      "speech_start": 33.1,
+      "speech_end": 41.325,
+      "scene_end": 41.975,
+      "duration": 8.875,
+      "text": "当工作流程完成时,每个工作都有自己的状态,设置快照,日志,输出和可重启的运行记录."
+    }
+  ]
+}

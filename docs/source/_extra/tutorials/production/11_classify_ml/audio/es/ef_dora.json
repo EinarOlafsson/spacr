@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.85,
+      "scene_end": 12.299999999999999,
+      "duration": 12.299999999999999,
+      "text": "Este tutorial abarca Clasificar, aprendizaje automático. Entrenar clasificadores basados en características como XGBoost o bosque aleatorio a partir de datos medidos de un solo objeto."
+    },
+    {
+      "scene": 2,
+      "speech_start": 12.299999999999999,
+      "speech_end": 26.5,
+      "scene_end": 26.95,
+      "duration": 14.65,
+      "text": "Abra Classify, machine learning en la sección Core. Abre Clasificar, aprendizaje automático desde la sección Core. Elige una base de datos de mediciones, columna de etiqueta, familias de características y columnas de agrupación experimental."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.95,
+      "speech_end": 37.85,
+      "scene_end": 38.300000000000004,
+      "duration": 11.350000000000005,
+      "text": "En el área de configuración principal, configurar el filtrado, la escala, la selección de características, el equilibrio de clases, la familia de modelos y las particiones a prueba de fugas."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.300000000000004,
+      "speech_end": 46.225,
+      "scene_end": 46.675000000000004,
+      "duration": 8.375,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.675000000000004,
+      "speech_end": 55.5,
+      "scene_end": 56.15,
+      "duration": 9.474999999999994,
+      "text": "Cuando el flujo de trabajo termina, el proyecto recibe predicciones, importancia de las características, tablas de rendimiento y modelos serializados."
+    }
+  ]
+}
