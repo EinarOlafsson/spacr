@@ -233,6 +233,7 @@ APPS = [
     ("umap",           "Image UMAP",     "Generate UMAP embeddings with image glyphs",                  SECTION_RESULTS),
     ("activation",     "Activation",     "Generate activation maps",                                    SECTION_RESULTS),
     ("train_compare",  "Training Runs",  "Overlay several training runs' curves with their settings diffed side by side", SECTION_RESULTS),
+    ("classifier_evaluation", "Classifier Evaluation", "Held-out predictions, nested CV, calibration, leakage and per-plate metrics", SECTION_RESULTS),
     ("run_history",    "Run History",    "Search every job's settings, files, warnings, failures and performance", SECTION_RESULTS),
     ("report",         "Report",         "One-click shareable HTML/PDF: QC verdict, figures, stats, settings, versions", SECTION_RESULTS),
     # -- Toxoplasma assays: parasite-specific readouts.
@@ -280,6 +281,7 @@ APP_STAGE = {
     "plate_view":      STAGE_ALPHA,
     "agreement":       STAGE_ALPHA,
     "train_compare":   STAGE_ALPHA,
+    "classifier_evaluation": STAGE_ALPHA,
     "run_history":     STAGE_ALPHA,
     "report":          STAGE_ALPHA,
     # -- beta: further along, in regular use, still not signed off (9)
@@ -1568,6 +1570,9 @@ class MainWindow(QMainWindow):
         if key == "train_compare":
             from .screens.train_compare import TrainCompareScreen
             return TrainCompareScreen()
+        if key == "classifier_evaluation":
+            from .screens.classifier_evaluation import ClassifierEvaluationScreen
+            return ClassifierEvaluationScreen()
         if key == "run_history":
             from .screens.run_history import RunHistoryScreen
             screen = RunHistoryScreen()
