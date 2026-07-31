@@ -585,23 +585,26 @@ class RunLedger:
 
     def _stamp_db(self, db_path: Path) -> Path:
         """Append one ``run_status`` row to a SQLite database."""
+        from .database_concurrency import connect, transaction
+
         payload = self.to_dict()
-        conn = sqlite3.connect(str(db_path), timeout=30)
+        conn = connect(db_path, timeout=30)
         try:
-            conn.execute(
-                f'CREATE TABLE IF NOT EXISTS {RUN_STATUS_TABLE} ('
-                'run_id TEXT, name TEXT, status TEXT, '
-                'n_attempted INTEGER, n_succeeded INTEGER, n_failed INTEGER, '
-                'failure_rate REAL, started_utc TEXT, stamped_utc TEXT, '
-                'failures_json TEXT, summary TEXT)')
-            conn.execute(
-                f'INSERT INTO {RUN_STATUS_TABLE} VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-                (payload['run_id'], payload['name'], payload['status'],
-                 payload['n_attempted'], payload['n_succeeded'],
-                 payload['n_failed'], payload['failure_rate'],
-                 payload['started_utc'], payload['stamped_utc'],
-                 json.dumps(payload['failures']), payload['summary']))
-            conn.commit()
+            with transaction(conn):
+                conn.execute(
+                    f'CREATE TABLE IF NOT EXISTS {RUN_STATUS_TABLE} ('
+                    'run_id TEXT, name TEXT, status TEXT, '
+                    'n_attempted INTEGER, n_succeeded INTEGER, n_failed INTEGER, '
+                    'failure_rate REAL, started_utc TEXT, stamped_utc TEXT, '
+                    'failures_json TEXT, summary TEXT)')
+                conn.execute(
+                    f'INSERT INTO {RUN_STATUS_TABLE} '
+                    'VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                    (payload['run_id'], payload['name'], payload['status'],
+                     payload['n_attempted'], payload['n_succeeded'],
+                     payload['n_failed'], payload['failure_rate'],
+                     payload['started_utc'], payload['stamped_utc'],
+                     json.dumps(payload['failures']), payload['summary']))
         finally:
             conn.close()
         return db_path
@@ -700,7 +703,9 @@ def read_run_status(artifact: Union[str, os.PathLike],
             return []
         conn = None
         try:
-            conn = sqlite3.connect(str(target), timeout=timeout)
+            from .database_concurrency import connect
+
+            conn = connect(target, readonly=True, timeout=timeout)
             if not _has_run_status_table(conn):
                 # Never stamped. The artifact predates stamping, or was
                 # written by a code path that does not stamp yet.

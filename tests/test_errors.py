@@ -737,31 +737,53 @@ def test_importing_errors_does_not_drag_in_torch_or_cellpose():
     assert result.stdout.strip() == ''
 
 
-def test_errors_module_source_imports_nothing_from_spacr():
-    """No sibling import can sneak a heavy dependency back in.
+def test_errors_module_only_imports_the_stdlib_database_sibling():
+    """No heavy sibling dependency can sneak into the error hot path.
 
     Parsed rather than grepped, so the usage examples in the module
-    docstring are not mistaken for real imports.
+    docstring are not mistaken for real imports. ``database_concurrency`` is
+    deliberately standard-library-only and is the one approved sibling: it
+    makes run-status writes transactional without importing an analysis stack.
     """
     import ast
 
     import spacr.errors as errors_module
+    import spacr.database_concurrency as concurrency_module
 
     with open(errors_module.__file__, encoding='utf-8') as handle:
         tree = ast.parse(handle.read())
 
     imported = set()
+    relative = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             imported.update(alias.name.split('.')[0] for alias in node.names)
         elif isinstance(node, ast.ImportFrom):
-            # level > 0 is a relative (intra-package) import.
-            assert node.level == 0, f'relative import of {node.module!r}'
-            imported.add((node.module or '').split('.')[0])
+            if node.level > 0:
+                relative.add(node.module)
+            else:
+                imported.add((node.module or '').split('.')[0])
 
+    assert relative == {'database_concurrency'}
     assert 'spacr' not in imported
     assert imported.isdisjoint({'torch', 'cellpose', 'pandas', 'numpy',
                                 'tensorflow', 'skimage', 'cv2'})
+
+    with open(concurrency_module.__file__, encoding='utf-8') as handle:
+        concurrency_tree = ast.parse(handle.read())
+    concurrency_imports = set()
+    for node in ast.walk(concurrency_tree):
+        if isinstance(node, ast.Import):
+            concurrency_imports.update(
+                alias.name.split('.')[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            assert node.level == 0, (
+                f'database_concurrency imports sibling {node.module!r}')
+            concurrency_imports.add((node.module or '').split('.')[0])
+    assert concurrency_imports.isdisjoint({
+        'spacr', 'torch', 'cellpose', 'pandas', 'numpy', 'tensorflow',
+        'skimage', 'cv2',
+    })
 
 
 # ---------------------------------------------------------------------------

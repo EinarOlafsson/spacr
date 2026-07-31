@@ -508,6 +508,8 @@ setup(
             'spacr-plugins=spacr.cli_plugins:main',
             # Standalone classifier train/test leakage audit.
             'spacr-leakage=spacr.cli_leakage:main',
+            # SQLite health, integrity, locking, and reader/writer probe.
+            'spacr-db-audit=spacr.cli_database:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',
