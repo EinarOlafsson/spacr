@@ -100,6 +100,11 @@ from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
+from spacr.database_concurrency import (
+    connect as connect_database,
+    transaction,
+)
+
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -473,11 +478,7 @@ class ReadOnlyDb:
 
     def connect(self) -> sqlite3.Connection:
         """Return a fresh read-only connection. The caller closes it."""
-        con = sqlite3.connect(self.uri, uri=True)
-        # mode=ro already refuses writes; query_only also blocks anything
-        # that would try to change the *schema* through a temp attachment.
-        con.execute("PRAGMA query_only = ON")
-        return con
+        return connect_database(self.path, readonly=True)
 
     @contextlib.contextmanager
     def _con(self):
@@ -784,9 +785,7 @@ class WritableDb:
         ones and do not fight Python's implicit transaction handling
         (which differs between 3.11 and 3.12+).
         """
-        con = sqlite3.connect(self.path)
-        con.isolation_level = None
-        return con
+        return connect_database(self.path)
 
     def update_cell(self, table: str, column: str, value: Any,
                     key_columns: Sequence[str],
@@ -819,49 +818,49 @@ class WritableDb:
         self.last_sql = sql
         con = self.connect()
         try:
-            real = con.execute(
-                "SELECT name FROM sqlite_master WHERE type = 'table' "
-                "AND name = ?", (table,)).fetchone()
-            if real is None:
-                raise EditRefused(
-                    f"{table!r} is not an editable table in "
-                    f"{os.path.basename(self.path)} — views and virtual "
-                    f"tables have no single row to update.")
-            known = {r[1] for r in con.execute(
-                f"PRAGMA table_info({quote_ident(table)})").fetchall()}
-            if column not in known:
-                raise EditRefused(
-                    f"{table!r} has no column {column!r}.")
-            # All three implicit row-id spellings are legal here, not just
-            # "rowid": row_key() now returns whichever one the table does not
-            # shadow, because png_list DECLARES a rowID column and SQLite
-            # identifiers are case-insensitive.
-            implicit = {"rowid", "oid", "_rowid_"}
-            missing = [k for k in key_columns
-                       if k.lower() not in implicit and k not in known]
-            if missing:
-                raise EditRefused(
-                    f"{table!r} has no column(s) "
-                    f"{', '.join(map(repr, missing))} to address a row by.")
-            where = " AND ".join(f"{quote_ident(k)} = ?" for k in key_columns)
-            n = int(con.execute(
-                f"SELECT COUNT(*) FROM {quote_ident(table)} WHERE {where}",
-                tuple(key_values)).fetchone()[0])
-            if n != 1:
-                raise EditRefused(
-                    f"that row address matches {n} rows, not 1 — refusing "
-                    f"to write. Reload the table and try again.")
-            con.execute("BEGIN IMMEDIATE")
-            try:
+            # Validation and update share one write transaction. This closes
+            # the former check-then-write window where another connection
+            # could remove or replace the addressed row between COUNT and
+            # UPDATE.
+            with transaction(con):
+                real = con.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table' "
+                    "AND name = ?", (table,)).fetchone()
+                if real is None:
+                    raise EditRefused(
+                        f"{table!r} is not an editable table in "
+                        f"{os.path.basename(self.path)} — views and virtual "
+                        f"tables have no single row to update.")
+                known = {r[1] for r in con.execute(
+                    f"PRAGMA table_info({quote_ident(table)})").fetchall()}
+                if column not in known:
+                    raise EditRefused(
+                        f"{table!r} has no column {column!r}.")
+                # All three implicit row-id spellings are legal here, not just
+                # "rowid": row_key() returns one the table does not shadow.
+                implicit = {"rowid", "oid", "_rowid_"}
+                missing = [
+                    key for key in key_columns
+                    if key.lower() not in implicit and key not in known
+                ]
+                if missing:
+                    raise EditRefused(
+                        f"{table!r} has no column(s) "
+                        f"{', '.join(map(repr, missing))} to address a row by.")
+                where = " AND ".join(
+                    f"{quote_ident(key)} = ?" for key in key_columns)
+                n = int(con.execute(
+                    f"SELECT COUNT(*) FROM {quote_ident(table)} WHERE {where}",
+                    tuple(key_values)).fetchone()[0])
+                if n != 1:
+                    raise EditRefused(
+                        f"that row address matches {n} rows, not 1 — refusing "
+                        f"to write. Reload the table and try again.")
                 cur = con.execute(sql, (value,) + tuple(key_values))
                 if cur.rowcount != 1:
                     raise EditRefused(
                         f"the UPDATE would have touched {cur.rowcount} rows, "
                         f"not 1 — rolled back.")
-                con.execute("COMMIT")
-            except BaseException:
-                con.execute("ROLLBACK")
-                raise
         finally:
             con.close()
         return sql

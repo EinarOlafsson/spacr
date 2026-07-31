@@ -12,6 +12,8 @@ either GUI are read/written the same way from the same
 from __future__ import annotations
 
 import colorsys
+import contextlib
+import logging
 import os
 import queue
 import sqlite3
@@ -23,6 +25,14 @@ from typing import Any, Iterable, List, Optional, Tuple
 import numpy as np
 from PIL import Image
 from skimage.exposure import rescale_intensity
+
+from spacr.database_concurrency import (
+    connect as connect_database,
+    transaction,
+)
+
+
+LOG = logging.getLogger("spacr.qt.annotate_engine")
 
 
 # ---------------------------------------------------------------------------
@@ -363,19 +373,17 @@ def ensure_annotation_column(db_path: str, column: str) -> None:
     if not column or not os.path.isfile(db_path):
         return
     safe = column.replace('"', '""')
-    with sqlite3.connect(db_path, timeout=30) as conn:
+    conn = connect_database(db_path, timeout=30)
+    try:
         cur = conn.cursor()
-        cur.execute('PRAGMA table_info("png_list")')
-        cols = {row[1] for row in cur.fetchall()}
-        if column not in cols:
-            try:
+        with transaction(conn):
+            cur.execute('PRAGMA table_info("png_list")')
+            cols = {row[1] for row in cur.fetchall()}
+            if column not in cols:
                 cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{safe}" INTEGER')
-            except sqlite3.OperationalError:
-                pass
-        try:
             cur.execute('CREATE INDEX IF NOT EXISTS idx_png_path ON "png_list" (png_path)')
-        except sqlite3.OperationalError:
-            pass
+    finally:
+        conn.close()
 
 
 def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
@@ -386,7 +394,9 @@ def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
     """
     if not os.path.isfile(db_path):
         return 0
-    with sqlite3.connect(db_path, timeout=30) as conn:
+    with contextlib.closing(
+        connect_database(db_path, readonly=True, timeout=30)
+    ) as conn:
         cur = conn.cursor()
         if image_type:
             cur.execute(
@@ -409,7 +419,9 @@ def fetch_page(
     if not os.path.isfile(db_path):
         return []
     col = (annotation_column or "").replace('"', '""')
-    with sqlite3.connect(db_path, timeout=30) as conn:
+    with contextlib.closing(
+        connect_database(db_path, readonly=True, timeout=30)
+    ) as conn:
         cur = conn.cursor()
         if image_type:
             cur.execute(
@@ -501,7 +513,9 @@ def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
     if not os.path.isfile(db_path):
         return []
     col = (annotation_column or "").replace('"', '""')
-    with sqlite3.connect(db_path, timeout=30) as conn:
+    with contextlib.closing(
+        connect_database(db_path, readonly=True, timeout=30)
+    ) as conn:
         cur = conn.cursor()
         cur.execute(
             f'SELECT "{col}" AS cls, COUNT(*) '
@@ -520,8 +534,12 @@ def clear_column(db_path: str, annotation_column: str) -> None:
     if not os.path.isfile(db_path):
         return
     col = (annotation_column or "").replace('"', '""')
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        conn.execute(f'UPDATE "png_list" SET "{col}" = NULL')
+    conn = connect_database(db_path, timeout=30)
+    try:
+        with transaction(conn):
+            conn.execute(f'UPDATE "png_list" SET "{col}" = NULL')
+    finally:
+        conn.close()
 
 
 def find_last_annotated_offset(
@@ -534,7 +552,9 @@ def find_last_annotated_offset(
     if not os.path.isfile(db_path):
         return None
     col = (annotation_column or "").replace('"', '""')
-    with sqlite3.connect(db_path, timeout=30) as conn:
+    with contextlib.closing(
+        connect_database(db_path, readonly=True, timeout=30)
+    ) as conn:
         cur = conn.cursor()
         if image_type:
             cur.execute(
@@ -576,6 +596,8 @@ class SaveWorker:
         self._busy = False
         self._pending_batches = 0
         self._last_save_ts: Optional[float] = None
+        self._last_error: Optional[str] = None
+        self._failed_batch: Optional[dict] = None
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
 
@@ -619,6 +641,15 @@ class SaveWorker:
         if not batch:
             return
         with self._lock:
+            if self._last_error is not None:
+                # Retain edits made while the screen is reporting a failed
+                # writer. They are not called saved and are never discarded
+                # from the worker's state.
+                if self._failed_batch is None:
+                    self._failed_batch = {}
+                    self._pending_batches += 1
+                self._failed_batch.update(batch)
+                return
             self._pending_batches += 1
         self._q.put(dict(batch))
 
@@ -639,17 +670,21 @@ class SaveWorker:
         """POSIX timestamp of the most recent successful commit, or ``None``."""
         return self._last_save_ts
 
+    @property
+    def last_error(self) -> Optional[str]:
+        """Actionable message for the latest writer failure, if any."""
+        with self._lock:
+            return self._last_error
+
     # ------------------------------------------------------------------
     def _run(self) -> None:
-        conn = sqlite3.connect(self.db_path, timeout=30)
-        cur = conn.cursor()
+        conn = None
+        cur = None
         try:
-            try:
-                cur.execute("PRAGMA journal_mode=WAL;")
-                cur.execute("PRAGMA synchronous=NORMAL;")
-                conn.commit()
-            except Exception:
-                pass
+            # Preserve the database's journal mode. Enabling WAL blindly is
+            # unsafe for projects on many NAS/NFS mounts.
+            conn = connect_database(self.db_path, timeout=30)
+            cur = conn.cursor()
             col = (self.annotation_column or "").replace('"', '""')
             while True:
                 try:
@@ -677,29 +712,59 @@ class SaveWorker:
                     except queue.Empty:
                         break
                 self._busy = True
-                to_null = [p for p, v in pending.items() if v is None]
-                to_set = [(int(v), p) for p, v in pending.items() if v is not None]
                 try:
-                    if to_null:
-                        cur.executemany(
-                            f'UPDATE "png_list" SET "{col}" = NULL WHERE png_path = ?',
-                            [(p,) for p in to_null],
-                        )
-                    if to_set:
-                        cur.executemany(
-                            f'UPDATE "png_list" SET "{col}" = ? WHERE png_path = ?',
-                            to_set,
-                        )
-                    conn.commit()
-                finally:
+                    to_null = [p for p, v in pending.items() if v is None]
+                    to_set = [
+                        (int(v), p) for p, v in pending.items()
+                        if v is not None
+                    ]
+                    with transaction(conn):
+                        if to_null:
+                            cur.executemany(
+                                f'UPDATE "png_list" SET "{col}" = NULL '
+                                'WHERE png_path = ?',
+                                [(p,) for p in to_null],
+                            )
+                        if to_set:
+                            cur.executemany(
+                                f'UPDATE "png_list" SET "{col}" = ? '
+                                'WHERE png_path = ?',
+                                to_set,
+                            )
+                except BaseException as exc:
+                    with self._lock:
+                        self._last_error = (
+                            f"{type(exc).__name__}: {exc}. Annotations were "
+                            "not saved; resolve the database problem before "
+                            "closing this module.")
+                        self._failed_batch = pending
+                    self._busy = False
+                    LOG.exception(
+                        "Annotate database save failed for %s; the transaction "
+                        "was rolled back and the batch remains unsaved",
+                        self.db_path,
+                    )
+                    self._q.task_done()
+                    break
+                else:
                     with self._lock:
                         self._pending_batches -= 1
-                    self._busy = False
                     self._last_save_ts = time.time()
+                    self._busy = False
                     self._q.task_done()
+        except BaseException as exc:
+            with self._lock:
+                if self._last_error is None:
+                    self._last_error = (
+                        f"{type(exc).__name__}: {exc}. The annotation "
+                        "database writer could not start.")
+            LOG.exception(
+                "Annotate database writer stopped before saving queued edits")
         finally:
-            try:
-                cur.close()
-            except Exception:
-                pass
-            conn.close()
+            if cur is not None:
+                try:
+                    cur.close()
+                except sqlite3.Error:
+                    pass
+            if conn is not None:
+                conn.close()

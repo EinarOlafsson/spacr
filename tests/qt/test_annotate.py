@@ -114,6 +114,38 @@ def test_save_worker_persists_and_null_clears(synth_annotate_source: Path):
     assert rows[paths[2]] == 3
 
 
+def test_save_worker_rolls_back_and_reports_a_failed_commit(tmp_path):
+    """A daemon-thread database error must never look like a saved batch."""
+    db = str(tmp_path / "measurements.db")
+    with sqlite3.connect(db) as conn:
+        conn.execute(
+            'CREATE TABLE "png_list" ('
+            'png_path TEXT PRIMARY KEY, '
+            'annotate INTEGER CHECK (annotate BETWEEN 0 AND 2))')
+        conn.executemany(
+            'INSERT INTO "png_list" VALUES (?, NULL)',
+            [("one.png",), ("two.png",)],
+        )
+    worker = engine.SaveWorker(db, "annotate")
+    worker.start()
+    try:
+        worker.submit({"one.png": 1, "two.png": 9})
+        for _ in range(100):
+            if worker.last_error:
+                break
+            time.sleep(0.02)
+        assert worker.last_error
+        assert "IntegrityError" in worker.last_error
+        assert worker.last_save_ts is None
+        assert worker.pending_batches == 1
+    finally:
+        worker.stop()
+    with sqlite3.connect(db) as conn:
+        assert conn.execute(
+            'SELECT annotate FROM "png_list" ORDER BY png_path'
+        ).fetchall() == [(None,), (None,)]
+
+
 def test_class_counts_after_save(synth_annotate_source: Path):
     db = str(synth_annotate_source / "measurements" / "measurements.db")
     engine.ensure_annotation_column(db, "annotate")
@@ -281,7 +313,6 @@ def test_reanchor_png_path_resolves_moved_dataset(tmp_path):
 
 
 def test_reanchor_keeps_valid_path(tmp_path):
-    import os
     from spacr.qt.screens.annotate import _reanchor_png_path
     real = tmp_path / "x.png"; real.write_bytes(b"x")
     assert _reanchor_png_path(str(real), "") == str(real)
