@@ -8,6 +8,7 @@ one stable artifact format.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+import hashlib
 import json
 import math
 import os
@@ -68,6 +69,8 @@ class LeakageReport:
     split_name: str = ""
     critical_levels: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
+    unverifiable_counts: Dict[str, int] = field(default_factory=dict)
+    hash_errors: List[str] = field(default_factory=list)
 
     @property
     def passed(self) -> bool:
@@ -151,6 +154,40 @@ def _identity_sets(paths: Iterable[Any]) -> Dict[str, set]:
     return result
 
 
+def _content_sha256(path: Any) -> Tuple[str, str]:
+    """Return ``(sha256, error)`` for one file without loading it into memory."""
+    try:
+        candidate = Path(str(path))
+        if not candidate.is_file():
+            return "", f"{candidate}: file does not exist"
+        digest = hashlib.sha256()
+        with candidate.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest(), ""
+    except OSError as exc:
+        return "", f"{path}: {type(exc).__name__}: {exc}"
+
+
+def _identity_sets_with_hashes(
+    paths: Iterable[Any],
+    *,
+    hash_content: bool,
+) -> Tuple[Dict[str, set], List[str]]:
+    """Return identity sets, optionally including byte-content hashes."""
+    result = _identity_sets(paths)
+    result["content_sha256"] = set()
+    errors: List[str] = []
+    if hash_content:
+        for path in paths:
+            digest, error = _content_sha256(path)
+            if digest:
+                result["content_sha256"].add(digest)
+            elif error:
+                errors.append(error)
+    return result, errors
+
+
 def audit_split_leakage(
     train_paths: Sequence[Any],
     validation_paths: Sequence[Any],
@@ -158,6 +195,8 @@ def audit_split_leakage(
     group_by: str = "well",
     raise_on_leakage: bool = False,
     split_name: str = "",
+    hash_content: bool = False,
+    require_identity: bool = False,
 ) -> LeakageReport:
     """Detect related images crossing a train/validation boundary.
 
@@ -177,13 +216,19 @@ def audit_split_leakage(
             "group_by must be one of ('none', 'field', 'well', 'plate'), "
             f"not {group_by!r}."
         )
-    train = _identity_sets(train_paths)
-    validation = _identity_sets(validation_paths)
+    train, train_hash_errors = _identity_sets_with_hashes(
+        train_paths, hash_content=hash_content,
+    )
+    validation, validation_hash_errors = _identity_sets_with_hashes(
+        validation_paths, hash_content=hash_content,
+    )
     overlap = {
         level: sorted(train[level] & validation[level])
         for level in train
     }
-    critical_candidates = ["exact", "augmentation_family", "object"]
+    critical_candidates = [
+        "exact", "content_sha256", "augmentation_family", "object",
+    ]
     if group_by != "none":
         critical_candidates.append(group_by)
     critical = [
@@ -204,11 +249,23 @@ def audit_split_leakage(
         not sample_identity(path)[group_by]
         for path in validation_paths
     ) if group_by != "none" else 0
+    unverifiable = {}
     if missing_train or missing_val:
+        unverifiable[group_by] = int(missing_train + missing_val)
         warnings.append(
             f"{missing_train} training and {missing_val} validation filename(s) "
             f"do not encode the requested {group_by} identity."
         )
+        if require_identity:
+            critical.append(f"unverifiable_{group_by}")
+    hash_errors = train_hash_errors + validation_hash_errors
+    if hash_content and hash_errors:
+        warnings.append(
+            f"{len(hash_errors)} file(s) could not be content-hashed, so renamed "
+            "byte-identical copies cannot be excluded for those samples."
+        )
+        if require_identity:
+            critical.append("unverifiable_content")
     report = LeakageReport(
         group_by=group_by,
         train_samples=len(train_paths),
@@ -218,17 +275,271 @@ def audit_split_leakage(
         split_name=str(split_name),
         critical_levels=critical,
         warnings=warnings,
+        unverifiable_counts=unverifiable,
+        hash_errors=hash_errors[:20],
     )
     if raise_on_leakage and not report.passed:
         details = ", ".join(
-            f"{level}={report.overlap_counts[level]}"
+            f"{level}={report.overlap_counts.get(level, report.unverifiable_counts.get(group_by, 1))}"
             for level in report.critical_levels
         )
         raise LeakageError(
             f"Train/validation leakage detected ({details}). Rebuild folds "
-            f"with cv_group_by={group_by!r} and split before augmentation."
+            f"with cv_group_by={group_by!r}, split before augmentation, and "
+            "preserve spaCR crop identities in filenames."
         )
     return report
+
+
+@dataclass
+class FoldLeakageAudit:
+    """Whole-CV proof that each related sample family belongs to one fold."""
+
+    group_by: str
+    n_samples: int
+    n_folds: int
+    validation_membership_missing: List[int] = field(default_factory=list)
+    validation_membership_duplicate: List[int] = field(default_factory=list)
+    overlap_counts: Dict[str, int] = field(default_factory=dict)
+    examples: Dict[str, List[str]] = field(default_factory=dict)
+    critical_levels: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+    unverifiable_counts: Dict[str, int] = field(default_factory=dict)
+    hash_errors: List[str] = field(default_factory=list)
+    split_name: str = "all_cv_folds"
+
+    @property
+    def passed(self) -> bool:
+        """Return True only when the fold partition is complete and isolated."""
+        return not self.critical_levels
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a JSON-serializable audit record."""
+        result = asdict(self)
+        result["passed"] = self.passed
+        return result
+
+
+def audit_cv_folds(
+    paths: Sequence[Any],
+    folds: Sequence[Tuple[Sequence[int], Sequence[int]]],
+    *,
+    labels: Optional[Sequence[Any]] = None,
+    group_by: str = "well",
+    hash_content: bool = False,
+    require_identity: bool = True,
+    raise_on_leakage: bool = False,
+) -> FoldLeakageAudit:
+    """Verify partition coverage and identity isolation across every CV fold.
+
+    This checks the fold assignment as one object, rather than trusting a
+    sample of pairwise boundaries. Each index must be validation exactly once;
+    exact paths, byte-identical content, source/augmentation families and the
+    requested plate/well/field group must map to one held-out fold only.
+    """
+    if group_by not in {"none", "field", "well", "plate"}:
+        raise ValueError(f"unsupported group_by {group_by!r}")
+    n_samples = len(paths)
+    membership: List[List[int]] = [[] for _ in range(n_samples)]
+    warnings: List[str] = []
+    for fold_index, (train_indices, validation_indices) in enumerate(folds, 1):
+        train_set = {int(index) for index in train_indices}
+        validation_set = {int(index) for index in validation_indices}
+        invalid = sorted(
+            index for index in train_set | validation_set
+            if index < 0 or index >= n_samples
+        )
+        if invalid:
+            raise ValueError(
+                f"fold {fold_index} contains out-of-range indexes {invalid[:10]}"
+            )
+        if train_set & validation_set:
+            raise LeakageError(
+                f"fold {fold_index} puts indexes in both train and validation: "
+                f"{sorted(train_set & validation_set)[:10]}"
+            )
+        for index in validation_set:
+            membership[index].append(fold_index)
+
+    missing = [index for index, owners in enumerate(membership) if not owners]
+    duplicate = [index for index, owners in enumerate(membership) if len(owners) > 1]
+    levels = (
+        "exact", "content_sha256", "augmentation_family", "object",
+        "field", "well", "plate",
+    )
+    owners_by_identity: Dict[str, Dict[str, set]] = {
+        level: {} for level in levels
+    }
+    missing_identity = 0
+    hash_errors: List[str] = []
+    label_by_identity: Dict[str, Dict[str, set]] = {
+        level: {} for level in ("content_sha256", "augmentation_family", "object")
+    }
+    label_values = list(labels) if labels is not None else None
+    if label_values is not None and len(label_values) != n_samples:
+        raise ValueError("labels must have one value per path")
+
+    for index, path in enumerate(paths):
+        identity = sample_identity(path)
+        values = {
+            "exact": os.path.abspath(str(path)),
+            **{level: identity[level] for level in (
+                "augmentation_family", "object", "field", "well", "plate",
+            )},
+        }
+        digest = ""
+        if hash_content:
+            digest, error = _content_sha256(path)
+            if error:
+                hash_errors.append(error)
+        values["content_sha256"] = digest
+        if group_by != "none" and not values[group_by]:
+            missing_identity += 1
+        for level, value in values.items():
+            if not value:
+                continue
+            owners_by_identity[level].setdefault(value, set()).update(
+                membership[index]
+            )
+            if label_values is not None and level in label_by_identity:
+                label_by_identity[level].setdefault(value, set()).add(
+                    str(label_values[index])
+                )
+
+    overlaps = {
+        level: {
+            value: sorted(owners)
+            for value, owners in owners_by_identity[level].items()
+            if len(owners) > 1
+        }
+        for level in levels
+    }
+    critical = []
+    if missing:
+        critical.append("validation_membership_missing")
+    if duplicate:
+        critical.append("validation_membership_duplicate")
+    protected = ["exact", "content_sha256", "augmentation_family", "object"]
+    if group_by != "none":
+        protected.append(group_by)
+    critical.extend(level for level in protected if overlaps[level])
+
+    conflicts = {
+        level: sorted(
+            value for value, assigned in assignments.items()
+            if len(assigned) > 1
+        )
+        for level, assignments in label_by_identity.items()
+    }
+    if any(conflicts.values()):
+        critical.append("conflicting_labels")
+        warnings.append(
+            "Related crops carry different class labels; fix annotations before "
+            "training even when all copies happen to be in one fold."
+        )
+    unverifiable = {}
+    if missing_identity:
+        unverifiable[group_by] = missing_identity
+        warnings.append(
+            f"{missing_identity} sample(s) do not encode {group_by} identity."
+        )
+        if require_identity:
+            critical.append(f"unverifiable_{group_by}")
+    if hash_content and hash_errors:
+        unverifiable["content_sha256"] = len(hash_errors)
+        warnings.append(f"{len(hash_errors)} sample(s) could not be hashed.")
+        if require_identity:
+            critical.append("unverifiable_content")
+
+    examples = {
+        level: [
+            f"{value} -> folds {','.join(map(str, owners))}"
+            for value, owners in list(overlaps[level].items())[:10]
+        ]
+        for level in levels
+    }
+    examples["conflicting_labels"] = [
+        f"{level}:{value}"
+        for level, values in conflicts.items()
+        for value in values[:10]
+    ][:10]
+    audit = FoldLeakageAudit(
+        group_by=group_by,
+        n_samples=n_samples,
+        n_folds=len(folds),
+        validation_membership_missing=missing[:20],
+        validation_membership_duplicate=duplicate[:20],
+        overlap_counts={
+            level: len(values) for level, values in overlaps.items()
+        },
+        examples=examples,
+        critical_levels=list(dict.fromkeys(critical)),
+        warnings=warnings,
+        unverifiable_counts=unverifiable,
+        hash_errors=hash_errors[:20],
+    )
+    if raise_on_leakage and not audit.passed:
+        raise LeakageError(
+            "Cross-validation leakage audit failed: "
+            + ", ".join(audit.critical_levels)
+        )
+    return audit
+
+
+def dataset_split_paths(root: Any, split: str) -> List[str]:
+    """Return sorted image paths under ``root/<split>/<class>/``."""
+    folder = Path(str(root)).expanduser() / str(split)
+    if not folder.is_dir():
+        return []
+    suffixes = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".npy"}
+    return sorted(
+        str(path) for path in folder.rglob("*")
+        if path.is_file() and path.suffix.lower() in suffixes
+    )
+
+
+def audit_dataset_splits(
+    root: Any,
+    *,
+    group_by: str = "well",
+    hash_content: bool = True,
+    require_identity: bool = True,
+    raise_on_leakage: bool = False,
+) -> LeakageReport:
+    """Audit the permanent ``train/`` versus ``test/`` dataset boundary."""
+    train_paths = dataset_split_paths(root, "train")
+    test_paths = dataset_split_paths(root, "test")
+    if not train_paths or not test_paths:
+        missing = [
+            name for name, values in (("train", train_paths), ("test", test_paths))
+            if not values
+        ]
+        raise FileNotFoundError(
+            f"Cannot audit dataset leakage: no images found in {', '.join(missing)} "
+            f"under {Path(str(root)).expanduser()}."
+        )
+    return audit_split_leakage(
+        train_paths,
+        test_paths,
+        group_by=group_by,
+        raise_on_leakage=raise_on_leakage,
+        split_name="train_vs_test",
+        hash_content=hash_content,
+        require_identity=require_identity,
+    )
+
+
+def write_leakage_audit(path: Any, audit: Any) -> Path:
+    """Atomically write a leakage report/audit as JSON and return its path."""
+    destination = Path(str(path)).expanduser()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    payload = audit.to_dict() if hasattr(audit, "to_dict") else dict(audit)
+    temporary = destination.with_name(destination.name + ".tmp")
+    temporary.write_text(
+        json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    os.replace(temporary, destination)
+    return destination
 
 
 def normalize_probabilities(

@@ -89,6 +89,9 @@ def test_registration_metadata_matches_app_registry():
         "evaluation_calibration",
         "evaluation_bins",
         "evaluation_fail_on_leakage",
+        "leakage_audit_train_test",
+        "leakage_hash_content",
+        "leakage_require_identity",
     ]
     categories = categories_for_app("classify", get_categories())
     assert categories["Evaluation Workbench"] == settings

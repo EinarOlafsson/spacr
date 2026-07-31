@@ -175,6 +175,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "random_seed",
     "tar_path",
     "write_random_annotation_column",
+    "leakage_audit_train_test",
+    "leakage_hash_content",
+    "leakage_require_identity",
     # The legacy size-proxy settings remain grouped explicitly even though the
     # visible Replication module now runs the parasites-per-vacuole assay.
     "class_column", "group_by_class", "um_per_px",
