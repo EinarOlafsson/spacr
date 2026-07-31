@@ -1,6 +1,7 @@
 """Reusable custom widgets for the spacr Qt GUI."""
 from .ai_chat_panel import AIChatPanel
 from .ai_toggle_label import AiToggleLabel
+from .animation_link import AnimationLink, AnimationPopup, SettingLinkStack
 from .card import Card
 from .column_picker import (ColumnPickerButton, ColumnPickerDialog,
                              attach_column_picker)
@@ -19,12 +20,13 @@ from .toggle import Toggle
 from .usage_bar import UsageBar
 
 __all__ = [
-    "AIChatPanel", "AiToggleLabel", "Card",
+    "AIChatPanel", "AiToggleLabel", "AnimationLink", "AnimationPopup", "Card",
     "attach_column_picker",
     "ColumnPickerDialog",
     "ColumnPickerButton", "ConsolePanel", "Divider",
     "ElidingLabel", "ElidingPushButton",
     "EmptyState", "FigureQueue", "HTile", "HoverTooltip", "InfoLink",
-    "ImageUmapExplorer", "LivePreviewPanel", "Section", "Tile", "Toggle",
+    "ImageUmapExplorer", "LivePreviewPanel", "Section", "SettingLinkStack",
+    "Tile", "Toggle",
     "UsageBar",
 ]
