@@ -61,6 +61,25 @@ def timelapse_and_motility_keys() -> set:
 def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     """Return a fresh defaults dict for an app key, mirroring the Tk GUI
     dispatch in gui_core.setup_settings_panel."""
+    try:
+        from spacr.plugins import get_app, load_object
+        plugin_app = get_app(app_key)
+    except Exception:
+        plugin_app = None
+    if plugin_app is not None:
+        defaults = load_object(plugin_app.defaults)
+        if not callable(defaults):
+            raise TypeError(f"Plugin defaults {plugin_app.defaults!r} are not callable")
+        try:
+            result = defaults({})
+        except TypeError:
+            result = defaults()
+        if not isinstance(result, dict):
+            raise TypeError(
+                f"Plugin defaults {plugin_app.defaults!r} returned "
+                f"{type(result).__name__}, expected dict"
+            )
+        return dict(result)
     from spacr.settings import (
         get_identify_masks_finetune_default_settings,
         set_default_analyze_screen,
@@ -530,6 +549,16 @@ def categories_for_app(
     controls belong to the sequencing run, but changing the global category
     table would also move training controls in unrelated modules.
     """
+    try:
+        from spacr.plugins import get_app
+        plugin_app = get_app(app_key)
+    except Exception:
+        plugin_app = None
+    if plugin_app is not None and plugin_app.categories:
+        return {
+            str(name): list(keys)
+            for name, keys in plugin_app.categories.items()
+        }
     result = {name: list(keys) for name, keys in categories.items()}
     if app_key == "external_masks":
         input_keys = (
@@ -688,6 +717,7 @@ _APP_API_MODULE = {
     "agreement": "agreement",
     "train_compare": "train_compare",
     "classifier_evaluation": "classifier_evaluation",
+    "run_history": "run_journal",
     "report": "report",
     "distributed_jobs": "remote_execution",
     "recruitment": "submodules",
@@ -707,6 +737,13 @@ def api_docs_url(app_key: str, key: str = "") -> str:
     Shared batch-correction settings always land on their implementation,
     rather than whichever consumer app happens to display them.
     """
+    try:
+        from spacr.plugins import get_app
+        plugin_app = get_app(app_key)
+    except Exception:
+        plugin_app = None
+    if plugin_app is not None and plugin_app.docs_url:
+        return plugin_app.docs_url
     evaluation_keys = {
         "classifier_evaluation",
         "nested_cv_inner_folds",
@@ -1698,6 +1735,13 @@ class SettingsWidgets:
         self._defaults = resolve_default_settings(app_key)
         self._widgets: Dict[str, QWidget] = {}
         self._tooltips = get_tooltips()
+        try:
+            from spacr.plugins import get_app
+            plugin_app = get_app(app_key)
+            if plugin_app is not None:
+                self._tooltips.update(plugin_app.tooltips)
+        except Exception:
+            pass
 
     def build_sections(self) -> List[Tuple[str, List[Tuple[str, QWidget]]]]:
         """Group the settings by category and return one (title, rows)
@@ -1761,6 +1805,13 @@ class SettingsWidgets:
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
     def _label_for(self, key: str) -> str:
+        try:
+            from spacr.plugins import get_app
+            plugin_app = get_app(self.app_key)
+            if plugin_app is not None and key in plugin_app.labels:
+                return plugin_app.labels[key]
+        except Exception:
+            pass
         if self.app_key in ("measure", "external_masks"):
             measure_labels = {
                 "uninfected": "Keep uninfected cells",
