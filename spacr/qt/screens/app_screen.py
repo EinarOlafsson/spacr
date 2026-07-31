@@ -421,6 +421,16 @@ APP_INTROS = {
     "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
 }
 
+try:
+    from spacr.plugins import plugin_apps as _plugin_apps
+    for _plugin_app in _plugin_apps():
+        APP_TITLES.setdefault(_plugin_app.key, _plugin_app.name)
+        APP_INTROS.setdefault(_plugin_app.key, _plugin_app.description)
+except Exception:
+    # Discovery records individual failures. Metadata lookup must not prevent
+    # the built-in AppScreen class from importing.
+    pass
+
 
 #: Apps that get a live DNA-rain backdrop. Sequencing only — every
 #: other app key misses this set and the hook below does nothing, so no

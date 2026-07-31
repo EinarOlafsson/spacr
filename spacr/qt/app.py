@@ -177,6 +177,14 @@ SECTION_TOXO = "Toxoplasma"
 SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS, SECTION_RESULTS,
             SECTION_TOXO)
 
+_PLUGIN_SECTION_MAP = {
+    "core": SECTION_CORE,
+    "data": SECTION_DATA,
+    "models": SECTION_MODELS,
+    "results": SECTION_RESULTS,
+    "toxo": SECTION_TOXO,
+}
+
 #: Hard cap on apps per section. Enforced by tests, not at runtime — a
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
@@ -297,6 +305,29 @@ APP_STAGE = {
     "umap":            STAGE_BETA,
     "activation":      STAGE_BETA,
 }
+
+# Plugin apps use the same registry rows and maturity annotations as built-ins.
+# Contributions can add a key but never replace one.
+try:
+    from spacr.plugins import plugin_apps as _plugin_apps, record_diagnostic
+    _builtin_app_keys = {row[0] for row in APPS}
+    for _plugin_app in _plugin_apps():
+        if _plugin_app.key in _builtin_app_keys:
+            record_diagnostic(
+                _plugin_app.key,
+                f"Plugin app key {_plugin_app.key!r} collides with a built-in "
+                "Qt app; the built-in app was kept.",
+            )
+            continue
+        APPS.append((
+            _plugin_app.key,
+            _plugin_app.name,
+            _plugin_app.description,
+            _PLUGIN_SECTION_MAP[_plugin_app.section],
+        ))
+        APP_STAGE[_plugin_app.key] = _plugin_app.stage
+except Exception:
+    LOG.exception("Could not add plugin apps to the Qt registry")
 
 
 def app_stage(key: str) -> str:
@@ -496,6 +527,15 @@ def _icon_for_app(key: str) -> Optional[QIcon]:
     on the black home page, and every white icon invisible on the light
     theme. Falls back to a themed qtawesome glyph when there is no PNG.
     """
+    try:
+        from spacr.plugins import get_app
+        plugin_app = get_app(key)
+        if plugin_app is not None and plugin_app.icon:
+            if os.path.isfile(plugin_app.icon):
+                return QIcon(plugin_app.icon)
+            return iconset.icon(plugin_app.icon)
+    except Exception:
+        LOG.debug("Could not resolve plugin icon for %s", key, exc_info=True)
     # Keys that should use their themed qtawesome glyph rather than a bundled
     # PNG (e.g. train_cellpose got a fresh 'brain' glyph).
     if key in _FORCE_GLYPH:
@@ -1524,6 +1564,25 @@ class MainWindow(QMainWindow):
 
     def _build_screen(self, key: str) -> QWidget:
         """Return a freshly-built screen widget for the given app ``key``."""
+        try:
+            from spacr.plugins import get_app, load_object
+            plugin_app = get_app(key)
+        except Exception:
+            LOG.exception("Could not inspect plugin screen contribution %s", key)
+            plugin_app = None
+        if plugin_app is not None and plugin_app.screen_factory:
+            try:
+                factory = load_object(plugin_app.screen_factory)
+                screen = factory(app_key=key)
+                if not isinstance(screen, QWidget):
+                    raise TypeError(
+                        f"{plugin_app.screen_factory} returned "
+                        f"{type(screen).__name__}, expected QWidget"
+                    )
+                return screen
+            except Exception:
+                LOG.exception("Could not build plugin screen for %s", key)
+                raise
         if key == "annotate":
             from .screens.annotate import AnnotateScreen
             screen = AnnotateScreen()

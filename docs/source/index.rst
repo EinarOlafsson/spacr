@@ -119,4 +119,5 @@ Contents
    classifier_evaluation
    umap_multiobjective
    distributed_execution
+   plugin_sdk
    api/index

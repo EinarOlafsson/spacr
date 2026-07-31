@@ -912,6 +912,15 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "analyze_plaques":
             from spacr.submodules import analyze_plaques
             return _ret(log_call(analyze_plaques))
+        from spacr.plugins import get_app, load_object
+        plugin_app = get_app(app_key)
+        if plugin_app is not None:
+            entry = load_object(plugin_app.entrypoint)
+            if not callable(entry):
+                raise TypeError(
+                    f"Plugin entry point {plugin_app.entrypoint!r} is not callable"
+                )
+            return _ret(log_call(entry))
     except Exception:
         LOG.exception("Could not resolve pipeline entry for %s", app_key)
         return None
