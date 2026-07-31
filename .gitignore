@@ -173,6 +173,7 @@ tutorial_colab.ipynb
 !/docs/source/reproducibility_manifests.rst
 !/docs/source/run_history.rst
 !/docs/source/batch_correction.rst
+!/docs/source/classifier_evaluation.rst
 !/docs/source/_extra/
 !/docs/source/_extra/**
 

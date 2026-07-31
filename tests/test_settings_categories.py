@@ -238,6 +238,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Static and interactive Image UMAP presentation controls.
     "point_color", "point_alpha", "outline_width",
     "umap_canvas_width", "umap_sidebar_width",
+    # Classify out-of-fold evaluation, nested validation and calibration.
+    "classifier_evaluation", "nested_cv_inner_folds",
+    "evaluation_calibration", "evaluation_bins",
+    "evaluation_fail_on_leakage",
     # Shared correction before UMAP, ML screen analysis, and regression.
     "batch_correction", "batch_column", "batch_control_column",
     "batch_control_values", "batch_min_samples", "batch_missing_control",

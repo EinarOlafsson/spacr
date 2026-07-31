@@ -17,7 +17,7 @@ from sklearn.metrics import precision_recall_curve, auc, average_precision_score
     
 
 from torchvision import transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 
 # Fail-loud accounting: a cross-validation fold that dies must not be
 # averaged away silently, and an optional plot that fails must still be
@@ -722,7 +722,22 @@ def _cross_validate_model(settings, num_classes):
     :param num_classes: size of the classifier head.
     :returns: path to the written per-fold CSV, or None if no fold trained.
     """
-    from .io import generate_cv_loaders
+    from sklearn.metrics import log_loss
+
+    from .classifier_evaluation import (
+        audit_split_leakage,
+        evaluate_predictions,
+        nested_group_folds,
+        normalize_probabilities,
+        write_evaluation_bundle,
+    )
+    from .io import (
+        dataset_filenames,
+        dataset_labels,
+        generate_cv_loaders,
+        make_class_balance_sampler,
+    )
+    from .utils import augment_dataset
 
     src = settings['src']
     dst = settings['dst']
@@ -750,17 +765,30 @@ def _cross_validate_model(settings, num_classes):
         seed=settings.get('random_seed', 42),
     )
 
-    rows = []
-    # A fold that does not train is dropped from the spread. Two dead folds
-    # out of five used to produce a "5-fold CV" summary computed on three.
-    ledger = RunLedger('cross_validation')
-    for i, (train_loader, val_loader) in enumerate(fold_loaders, start=1):
-        fold_dst = os.path.join(dst, f'fold_{i}')
-        os.makedirs(fold_dst, exist_ok=True)
-        print(f"\n--- Fold {i}/{k} ---")
-        model, fold_model_path = train_model(
+    nested_inner = int(settings.get('nested_cv_inner_folds', 0) or 0)
+    if nested_inner < 0 or nested_inner == 1:
+        raise ValueError(
+            f"nested_cv_inner_folds={nested_inner} is not valid; use 0 for "
+            "ordinary grouped CV or at least 2 inner folds.")
+    nested_layout = None
+    if nested_inner >= 2:
+        nested_layout = nested_group_folds(
+            info['labels'],
+            outer_splits=k,
+            inner_splits=nested_inner,
+            groups=info.get('groups'),
+            seed=settings.get('random_seed', 42),
+        )
+        print(
+            f"Nested CV enabled: {k} untouched outer folds x "
+            f"{nested_inner} inner training folds."
+        )
+
+    def _fit_one(train_loader, validation_loader, destination):
+        """Train one fold model with a validation set not used for final scoring."""
+        return train_model(
             src=src,
-            dst=fold_dst,
+            dst=destination,
             model_type=settings['model_type'],
             train_loaders=train_loader,
             epochs=settings['epochs'],
@@ -772,7 +800,7 @@ def _cross_validate_model(settings, num_classes):
             use_checkpoint=settings['use_checkpoint'],
             dropout_rate=settings['dropout_rate'],
             n_jobs=settings['n_jobs'],
-            val_loaders=val_loader,
+            val_loaders=validation_loader,
             test_loaders=None,
             intermedeate_save=settings['intermedeate_save'],
             schedule=settings['schedule'],
@@ -782,13 +810,15 @@ def _cross_validate_model(settings, num_classes):
             focal_alpha=settings.get('focal_alpha'),
             logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
             gradient_accumulation=settings['gradient_accumulation'],
-            gradient_accumulation_steps=settings['gradient_accumulation_steps'],
+            gradient_accumulation_steps=settings[
+                'gradient_accumulation_steps'],
             channels=settings['train_channels'],
             num_classes=num_classes,
             image_size=settings.get('image_size', 224),
             plot=settings.get('plot', False),
             tensorboard=settings.get('tensorboard', True),
-            early_stopping_patience=settings.get('early_stopping_patience', 0),
+            early_stopping_patience=settings.get(
+                'early_stopping_patience', 0),
             custom_model_path=settings.get('custom_model_path') or None,
             preprocessing={
                 'image_size': settings.get('image_size', 224),
@@ -798,17 +828,186 @@ def _cross_validate_model(settings, num_classes):
             },
             classes=list(settings.get('classes') or []),
         )
-        if model is None:
-            ledger.record_failure(
-                f'fold_{i}', stage='train',
-                exc=f"model_type {settings['model_type']!r} could not be built")
-            print(f"Fold {i}: model_type {settings['model_type']!r} could not be "
-                  f"built; fold skipped.")
-            continue
-        metrics, _ = evaluate_model_performance(
-            model, val_loader, epoch=1,
-            loss_type='ce' if num_classes >= 2 else 'bce',
-            num_classes=num_classes)
+
+    def _metrics_for_probabilities(labels, probabilities):
+        """Compute legacy fold metrics for an ensemble probability matrix."""
+        labels = np.asarray(labels, dtype=int)
+        normalized = normalize_probabilities(
+            probabilities, n_classes=num_classes,
+        )
+        if num_classes == 2:
+            metrics = _binary_metrics(labels, normalized[:, 1])
+        else:
+            metrics = _multiclass_metrics(labels, normalized)
+        metrics['loss'] = float(log_loss(
+            labels, normalized, labels=np.arange(num_classes),
+        ))
+        return metrics
+
+    def _inner_loader(indices, *, training):
+        """Build one inner loader from global indexes into the base dataset."""
+        dataset = Subset(info['dataset'], list(indices))
+        if training and settings.get('augment'):
+            dataset = augment_dataset(
+                dataset,
+                is_grayscale=(len(settings.get('train_channels') or []) == 1),
+            )
+        sampler = None
+        if training:
+            sampler, _ = make_class_balance_sampler(
+                dataset_labels(dataset),
+                settings.get('class_balance', 'none'),
+            )
+        workers = max(0, int(settings.get('n_jobs', 0) or 0))
+        return DataLoader(
+            dataset,
+            batch_size=settings['batch_size'],
+            shuffle=bool(training and sampler is None),
+            sampler=sampler,
+            num_workers=workers,
+            pin_memory=settings['pin_memory'],
+            persistent_workers=(workers > 0),
+        )
+
+    rows = []
+    oof_probabilities = []
+    oof_labels = []
+    oof_paths = []
+    oof_folds = []
+    leakage_reports = []
+    # A fold that does not train is dropped from the spread. Two dead folds
+    # out of five used to produce a "5-fold CV" summary computed on three.
+    ledger = RunLedger('cross_validation')
+    for i, (train_loader, val_loader) in enumerate(fold_loaders, start=1):
+        fold_dst = os.path.join(dst, f'fold_{i}')
+        os.makedirs(fold_dst, exist_ok=True)
+        print(f"\n--- Fold {i}/{k} ---")
+        train_paths = dataset_filenames(train_loader.dataset)
+        validation_paths = dataset_filenames(val_loader.dataset)
+        outer_leakage = audit_split_leakage(
+            train_paths,
+            validation_paths,
+            group_by=settings.get('cv_group_by', 'well'),
+            raise_on_leakage=settings.get(
+                'evaluation_fail_on_leakage', True),
+            split_name=f'outer_{i}',
+        )
+        leakage_reports.append(outer_leakage)
+        if not outer_leakage.passed:
+            print(
+                f"WARNING: outer fold {i} leakage: "
+                f"{outer_leakage.critical_levels}"
+            )
+
+        fold_model_path = None
+        if nested_layout is None:
+            model, fold_model_path = _fit_one(
+                train_loader, val_loader, fold_dst,
+            )
+            if model is None:
+                ledger.record_failure(
+                    f'fold_{i}', stage='train',
+                    exc=(
+                        f"model_type {settings['model_type']!r} "
+                        "could not be built"
+                    ),
+                )
+                print(
+                    f"Fold {i}: model_type "
+                    f"{settings['model_type']!r} could not be built; "
+                    "fold skipped."
+                )
+                continue
+            metrics, payload = evaluate_model_performance(
+                model,
+                val_loader,
+                epoch=1,
+                loss_type='ce' if num_classes >= 2 else 'bce',
+                num_classes=num_classes,
+            )
+            fold_probabilities = np.asarray(payload[0], dtype=float)
+            fold_labels = np.asarray(payload[1], dtype=int)
+        else:
+            outer = nested_layout[i - 1]
+            member_probabilities = []
+            fold_labels = None
+            for inner_index, (
+                inner_train_indices,
+                inner_validation_indices,
+            ) in enumerate(outer['inner'], start=1):
+                inner_train = _inner_loader(
+                    inner_train_indices, training=True,
+                )
+                inner_validation = _inner_loader(
+                    inner_validation_indices, training=False,
+                )
+                inner_leakage = audit_split_leakage(
+                    dataset_filenames(inner_train.dataset),
+                    dataset_filenames(inner_validation.dataset),
+                    group_by=settings.get('cv_group_by', 'well'),
+                    raise_on_leakage=settings.get(
+                        'evaluation_fail_on_leakage', True),
+                    split_name=f'outer_{i}_inner_{inner_index}',
+                )
+                leakage_reports.append(inner_leakage)
+                inner_dst = os.path.join(
+                    fold_dst, f'inner_{inner_index}',
+                )
+                os.makedirs(inner_dst, exist_ok=True)
+                print(
+                    f"  Inner fold {inner_index}/{nested_inner}: "
+                    f"train={len(inner_train.dataset)}, "
+                    f"validation={len(inner_validation.dataset)}"
+                )
+                model, _inner_model_path = _fit_one(
+                    inner_train, inner_validation, inner_dst,
+                )
+                if model is None:
+                    ledger.record_failure(
+                        f'fold_{i}_inner_{inner_index}',
+                        stage='train',
+                        exc="inner model could not be built",
+                    )
+                    continue
+                _inner_metrics, payload = evaluate_model_performance(
+                    model,
+                    val_loader,
+                    epoch=1,
+                    loss_type='ce' if num_classes >= 2 else 'bce',
+                    num_classes=num_classes,
+                )
+                current_probabilities = np.asarray(
+                    payload[0], dtype=float,
+                )
+                current_labels = np.asarray(payload[1], dtype=int)
+                if fold_labels is None:
+                    fold_labels = current_labels
+                elif not np.array_equal(fold_labels, current_labels):
+                    raise RuntimeError(
+                        f"Outer fold {i} labels changed between inner "
+                        "ensemble members."
+                    )
+                member_probabilities.append(current_probabilities)
+            if not member_probabilities:
+                ledger.record_failure(
+                    f'fold_{i}', stage='train',
+                    exc="every inner model failed",
+                )
+                print(f"Fold {i}: every inner model failed; fold skipped.")
+                continue
+            fold_probabilities = np.mean(
+                np.stack(member_probabilities, axis=0),
+                axis=0,
+            )
+            metrics = _metrics_for_probabilities(
+                fold_labels, fold_probabilities,
+            )
+
+        if len(validation_paths) != len(fold_labels):
+            raise RuntimeError(
+                f"Fold {i} produced {len(fold_labels)} labels for "
+                f"{len(validation_paths)} validation paths."
+            )
         row = {'fold': i,
                'n_train': len(train_loader.dataset),
                'n_val': len(val_loader.dataset)}
@@ -818,6 +1017,10 @@ def _cross_validate_model(settings, num_classes):
             if key in metrics:
                 row[key] = metrics[key]
         rows.append(row)
+        oof_probabilities.append(fold_probabilities)
+        oof_labels.extend(fold_labels.tolist())
+        oof_paths.extend(validation_paths)
+        oof_folds.extend([i] * len(fold_labels))
         ledger.record_success(f'fold_{i}', stage='train')
 
     if not rows:
@@ -837,6 +1040,33 @@ def _cross_validate_model(settings, num_classes):
     fold_df.to_csv(folds_loc, index=False)
     summary_df.to_csv(summary_loc, index=False)
     info['fold_table'].to_csv(split_loc, index=False)
+    if settings.get('classifier_evaluation', True):
+        probabilities = np.concatenate(oof_probabilities, axis=0)
+        calibration_method = settings.get(
+            'evaluation_calibration', 'temperature',
+        )
+        if len(set(oof_folds)) < 2 and calibration_method == 'temperature':
+            print(
+                "Warning: fewer than two successful outer folds remain; "
+                "temperature calibration is disabled."
+            )
+            calibration_method = 'none'
+        evaluation = evaluate_predictions(
+            oof_labels,
+            probabilities,
+            oof_paths,
+            classes=settings.get('classes'),
+            fold_ids=oof_folds,
+            calibration_method=calibration_method,
+            calibration_bins=settings.get('evaluation_bins', 10),
+        )
+        evaluation_manifest = write_evaluation_bundle(
+            os.path.join(dst, 'evaluation'),
+            evaluation,
+            leakage_reports=leakage_reports,
+        )
+        settings['classifier_evaluation_path'] = str(evaluation_manifest)
+        print(f"Classifier evaluation: {evaluation_manifest}")
     model_rows = fold_df[
         fold_df.get('model_path', pd.Series(index=fold_df.index,
                                             dtype=object)).notna()

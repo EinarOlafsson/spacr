@@ -5486,6 +5486,9 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
         'labels': labels,
         'folds': folds,
         'classes': list(classes),
+        # In-memory only: nested CV reuses the decoded dataset definition and
+        # creates Subsets without walking the image tree a second time.
+        'dataset': data,
     }
     return fold_loaders, info
 

@@ -18,6 +18,7 @@ the file runs on the CPU in seconds.
 """
 from __future__ import annotations
 
+import json
 import os
 
 import numpy as np
@@ -508,6 +509,80 @@ def test_cross_validation_branch_trains_every_fold_and_writes_csvs(
     composition = pd.read_csv(out.replace("_per_fold.csv",
                                           "_fold_composition.csv"))
     assert composition["n_val"].sum() == 36
+
+    evaluation_dir = os.path.join(os.path.dirname(out), "evaluation")
+    manifest_path = os.path.join(
+        evaluation_dir, "evaluation_manifest.json",
+    )
+    assert os.path.isfile(manifest_path)
+    predictions = pd.read_csv(
+        os.path.join(evaluation_dir, "oof_predictions.csv"),
+    )
+    assert len(predictions) == 36
+    assert set(predictions["fold"]) == {1, 2, 3}
+    confusion = pd.read_csv(
+        os.path.join(evaluation_dir, "confusion_counts.csv"),
+        index_col=0,
+    )
+    assert confusion.to_numpy().sum() == 36
+
+
+def test_nested_cv_uses_inner_validation_and_untouched_outer_folds(
+        tmp_path, rng, monkeypatch):
+    """Every inner model selects on inner data and scores one untouched outer fold."""
+    import spacr.deep_spacr as DS
+    from spacr.classifier_evaluation import audit_split_leakage
+    from spacr.io import dataset_filenames
+
+    _crop_tree(tmp_path, rng, per_class=(24, 24), n_wells=8)
+    calls = []
+
+    def _spy(**kwargs):
+        calls.append(kwargs)
+        return _fake_train_model(**kwargs)
+
+    monkeypatch.setattr(DS, "train_model", _spy)
+
+    out = DS.train_test_model({
+        "src": str(tmp_path), "classes": ["nc", "pc"], "train": True,
+        "test": False, "epochs": 1, "image_size": 8, "batch_size": 4,
+        "n_jobs": 0, "augment": False, "pin_memory": False, "normalize": False,
+        "cross_validation_folds": 2, "nested_cv_inner_folds": 2,
+        "cv_group_by": "well", "evaluation_calibration": "none",
+    })
+
+    assert len(calls) == 4
+    assert sorted(
+        os.path.relpath(call["dst"], os.path.dirname(out))
+        for call in calls
+    ) == [
+        "fold_1/inner_1",
+        "fold_1/inner_2",
+        "fold_2/inner_1",
+        "fold_2/inner_2",
+    ]
+    for call in calls:
+        report = audit_split_leakage(
+            dataset_filenames(call["train_loaders"].dataset),
+            dataset_filenames(call["val_loaders"].dataset),
+            group_by="well",
+        )
+        assert report.passed
+
+    evaluation_dir = os.path.join(os.path.dirname(out), "evaluation")
+    predictions = pd.read_csv(
+        os.path.join(evaluation_dir, "oof_predictions.csv"),
+    )
+    assert len(predictions) == 48
+    assert set(predictions["fold"]) == {1, 2}
+    with open(
+        os.path.join(evaluation_dir, "leakage.json"),
+        encoding="utf-8",
+    ) as handle:
+        leakage = json.load(handle)
+    assert leakage["passed"]
+    assert len(leakage["folds"]) == 6
+    assert all(report["passed"] for report in leakage["folds"])
 
 
 @pytest.mark.parametrize("k", [0, 1, None])
