@@ -9,6 +9,7 @@ const STORAGE_KEY = "spacr-tutorial-progress-v2";
 const WATCH_KEY = "spacr-tutorial-watch-v2";
 const LANGUAGE_KEY = "spacr-tutorial-language-v2";
 const VOICE_KEY = "spacr-tutorial-voice-v2";
+const THEME_KEY = "spacr-tutorial-theme-v1";
 
 const $ = selector => document.querySelector(selector);
 const elements = {
@@ -31,7 +32,8 @@ const elements = {
   progressBar: $("#progress-bar"), availableCount: $("#available-count"),
   totalCount: $("#total-count"), sidebar: $("#sidebar"),
   scrim: $("#sidebar-scrim"), menuButton: $("#menu-button"),
-  closeMenu: $("#close-menu-button"), toast: $("#toast")
+  closeMenu: $("#close-menu-button"), toast: $("#toast"),
+  themeToggle: $("#theme-toggle"), themeColor: $('meta[name="theme-color"]')
 };
 
 const LESSONS = BASE_CATALOG.lessons;
@@ -43,8 +45,187 @@ let audioTimings = null;
 let syncRate = 1;
 let captionUrl = "";
 let toastTimer = null;
+let openCustomSelect = null;
+let languageRequest = 0;
+let narrationRequest = 0;
 let completed = readStoredSet(STORAGE_KEY);
 let watchProgress = readStoredObject(WATCH_KEY);
+const mobileSidebarQuery = window.matchMedia("(max-width: 780px)");
+
+function applyTheme(theme, persist = false) {
+  const normalized = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = normalized;
+  const light = normalized === "light";
+  elements.themeToggle?.setAttribute("aria-pressed", String(light));
+  elements.themeToggle?.setAttribute("aria-label", "Light mode");
+  if (elements.themeToggle) elements.themeToggle.title = `Switch to ${light ? "dark" : "light"} mode`;
+  if (elements.themeColor) elements.themeColor.content = light ? "#f4f7fb" : "#070a0f";
+  if (persist) {
+    try { localStorage.setItem(THEME_KEY, normalized); } catch (error) { /* Storage may be disabled. */ }
+  }
+}
+
+function toggleTheme() {
+  applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light", true);
+}
+
+function enhanceSelect(select) {
+  if (!select || select.customSelect) return;
+  const control = select.closest(".select-control");
+  const controlLabel = select.getAttribute("aria-label") || "Choose an option";
+  const custom = document.createElement("div");
+  custom.className = "custom-select";
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "custom-select-trigger";
+  trigger.setAttribute("aria-haspopup", "listbox");
+  trigger.setAttribute("aria-expanded", "false");
+  trigger.setAttribute("aria-label", controlLabel);
+  const value = document.createElement("strong");
+  const chevron = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  chevron.setAttribute("viewBox", "0 0 24 24");
+  chevron.setAttribute("aria-hidden", "true");
+  chevron.innerHTML = '<path d="m6 9 6 6 6-6"/>';
+  trigger.append(value, chevron);
+  const menu = document.createElement("div");
+  menu.className = "custom-select-menu";
+  menu.id = `${select.id}-listbox`;
+  menu.setAttribute("role", "listbox");
+  menu.setAttribute("aria-label", controlLabel);
+  trigger.setAttribute("aria-controls", menu.id);
+  custom.append(trigger, menu);
+  select.insertAdjacentElement("afterend", custom);
+  select.tabIndex = -1;
+  select.setAttribute("aria-hidden", "true");
+  control?.classList.add("enhanced-select");
+
+  let typeahead = "";
+  let typeaheadTimer = null;
+
+  const buttons = () => [...menu.querySelectorAll(".custom-select-option")];
+  const selectedIndex = () => Math.max(0, [...select.options].findIndex(option => option.value === select.value));
+  const positionMenu = () => {
+    custom.classList.remove("opens-down");
+    const triggerRect = trigger.getBoundingClientRect();
+    const menuHeight = Math.min(menu.scrollHeight, 340, window.innerHeight * .52);
+    const spaceAbove = triggerRect.top - 12;
+    const spaceBelow = window.innerHeight - triggerRect.bottom - 12;
+    const opensDown = spaceAbove < menuHeight && spaceBelow > spaceAbove;
+    if (opensDown) custom.classList.add("opens-down");
+    const availableHeight = Math.max(0, opensDown ? spaceBelow : spaceAbove);
+    menu.style.maxHeight = `${Math.floor(Math.min(menuHeight, availableHeight))}px`;
+  };
+  const focusAt = index => {
+    const items = buttons();
+    if (!items.length) return;
+    const wrapped = (index + items.length) % items.length;
+    items.forEach((item, itemIndex) => item.classList.toggle("active", itemIndex === wrapped));
+    items[wrapped].focus({ preventScroll: true });
+    items[wrapped].scrollIntoView({ block: "nearest" });
+  };
+  const close = (restoreFocus = false) => {
+    custom.classList.remove("open", "opens-down");
+    menu.style.maxHeight = "";
+    trigger.setAttribute("aria-expanded", "false");
+    buttons().forEach(item => item.classList.remove("active"));
+    clearTimeout(typeaheadTimer);
+    typeahead = "";
+    if (openCustomSelect === close) openCustomSelect = null;
+    if (restoreFocus) trigger.focus();
+  };
+  const open = (focusSelected = false) => {
+    if (openCustomSelect && openCustomSelect !== close) openCustomSelect();
+    openCustomSelect = close;
+    custom.classList.add("open");
+    trigger.setAttribute("aria-expanded", "true");
+    positionMenu();
+    if (focusSelected) requestAnimationFrame(() => focusAt(selectedIndex()));
+  };
+  const choose = optionValue => {
+    if (select.value !== optionValue) {
+      select.value = optionValue;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    sync();
+    close(true);
+  };
+  const search = character => {
+    clearTimeout(typeaheadTimer);
+    typeahead += character.toLocaleLowerCase();
+    typeaheadTimer = setTimeout(() => { typeahead = ""; }, 700);
+    const items = buttons();
+    const match = items.findIndex(item => item.textContent.trim().toLocaleLowerCase().startsWith(typeahead));
+    if (match >= 0) focusAt(match);
+  };
+  const onKeydown = event => {
+    const items = buttons();
+    const current = Math.max(0, items.indexOf(document.activeElement));
+    const handled = () => { event.preventDefault(); event.stopPropagation(); };
+    if (event.key === "Tab" && custom.classList.contains("open")) {
+      close(true);
+    } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      handled();
+      if (!custom.classList.contains("open")) open(true);
+      else focusAt(current + (event.key === "ArrowDown" ? 1 : -1));
+    } else if (event.key === "Home" && custom.classList.contains("open")) {
+      handled(); focusAt(0);
+    } else if (event.key === "End" && custom.classList.contains("open")) {
+      handled(); focusAt(items.length - 1);
+    } else if (event.key === "Escape" && custom.classList.contains("open")) {
+      handled(); close(true);
+    } else if ((event.key === "Enter" || event.key === " ") && document.activeElement?.classList.contains("custom-select-option")) {
+      handled(); document.activeElement.click();
+    } else if ((event.key === "Enter" || event.key === " ") && document.activeElement === trigger) {
+      handled();
+      if (custom.classList.contains("open")) close(true); else open(true);
+    } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      handled();
+      if (!custom.classList.contains("open")) open();
+      search(event.key);
+    }
+  };
+  const sync = () => {
+    const selected = select.selectedOptions[0] || select.options[0];
+    value.textContent = selected?.textContent || "";
+    trigger.setAttribute("aria-label", `${controlLabel}: ${value.textContent}`);
+    buttons().forEach(item => {
+      const active = item.dataset.value === select.value;
+      item.setAttribute("aria-selected", String(active));
+    });
+  };
+  const rebuild = () => {
+    menu.innerHTML = "";
+    [...select.options].forEach(option => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "custom-select-option";
+      button.setAttribute("role", "option");
+      button.tabIndex = -1;
+      button.dataset.value = option.value;
+      button.textContent = option.textContent;
+      button.addEventListener("click", () => choose(option.value));
+      menu.appendChild(button);
+    });
+    sync();
+  };
+
+  trigger.addEventListener("click", () => custom.classList.contains("open") ? close() : open(true));
+  trigger.addEventListener("keydown", onKeydown);
+  menu.addEventListener("keydown", onKeydown);
+  select.addEventListener("change", sync);
+  custom.addEventListener("focusout", () => requestAnimationFrame(() => {
+    if (custom.classList.contains("open") && !custom.contains(document.activeElement)) close();
+  }));
+  document.addEventListener("pointerdown", event => {
+    if (custom.classList.contains("open") && !custom.contains(event.target)) close();
+  });
+  window.addEventListener("resize", () => {
+    if (custom.classList.contains("open")) close();
+  });
+  new MutationObserver(rebuild).observe(select, { childList: true });
+  select.customSelect = { rebuild, sync, close };
+  rebuild();
+}
 
 function languageById(id) {
   return VOICE_CATALOG.find(item => item.id === id) ||
@@ -218,21 +399,27 @@ function mediaReady(media) {
 }
 
 async function loadReadyLesson() {
+  const lessonId = activeLesson.id;
   elements.loading.classList.remove("hidden");
   elements.video.poster = `${PRODUCTION_ROOT}/${activeLesson.poster}`;
   elements.video.src = `${PRODUCTION_ROOT}/${activeLesson.silent}`;
   elements.video.load();
   const saved = watchProgress[activeLesson.id] || 0;
-  await loadNarration(false);
+  const expectedNarrationRequest = narrationRequest + 1;
+  const isCurrent = () => activeLesson?.id === lessonId && narrationRequest === expectedNarrationRequest;
+  await loadNarration(false, () => activeLesson?.id === lessonId);
+  if (!isCurrent()) return;
   await mediaReady(elements.video);
+  if (!isCurrent()) return;
   if (saved > 0 && saved < elements.video.duration - 0.25) elements.video.currentTime = saved;
   configureMediaSync();
-  await loadLessonDetail();
   elements.loading.classList.add("hidden");
   updateWatchUI();
 }
 
-async function loadNarration(resume = true) {
+async function loadNarration(resume = true, outerCurrent = () => true) {
+  const request = ++narrationRequest;
+  const isCurrent = () => request === narrationRequest && outerCurrent();
   const wasPlaying = resume && !elements.video.paused;
   const normalized = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
   elements.audio.pause();
@@ -251,14 +438,16 @@ async function loadNarration(resume = true) {
   elements.audio.load();
   try {
     await Promise.all([mediaReady(elements.video), mediaReady(elements.audio)]);
+    if (!isCurrent()) return;
     elements.video.currentTime = normalized * elements.video.duration;
     configureMediaSync();
-    await loadLessonDetail();
+    await loadLessonDetail(isCurrent);
+    if (!isCurrent()) return;
     if (wasPlaying) await elements.video.play();
   } catch (error) {
-    showToast("This narration track could not be loaded.");
+    if (isCurrent()) showToast("This narration track could not be loaded.");
   } finally {
-    elements.loading.classList.add("hidden");
+    if (isCurrent()) elements.loading.classList.add("hidden");
   }
 }
 
@@ -285,7 +474,8 @@ function syncAudio(force = false) {
   }
 }
 
-async function loadLessonDetail() {
+async function loadLessonDetail(isCurrent = () => true) {
+  if (!isCurrent()) return;
   const lesson = localizedLesson(activeLesson.id);
   if (elements.voice.value === "silent") {
     chapterData = lesson.scenes.map((scene, index) => ({ index: index + 1, start: 0, text: scene.narration, label: chapterLabel(scene.narration, index) }));
@@ -297,7 +487,9 @@ async function loadLessonDetail() {
   try {
     const response = await fetch(timingSource());
     if (!response.ok) throw new Error("timings unavailable");
-    audioTimings = await response.json();
+    const timings = await response.json();
+    if (!isCurrent()) return;
+    audioTimings = timings;
     chapterData = lesson.scenes.map((scene, index) => ({
       index: index + 1,
       start: audioTimings.scenes[index]?.speech_start || 0,
@@ -309,6 +501,7 @@ async function loadLessonDetail() {
     renderChapters();
     renderTranscript();
   } catch (error) {
+    if (!isCurrent()) return;
     elements.chapters.innerHTML = `<div class="detail-empty">Chapter metadata is unavailable for this track.</div>`;
     elements.transcript.innerHTML = elements.chapters.innerHTML;
   }
@@ -428,16 +621,21 @@ async function switchVoice() {
 }
 
 async function switchLanguage() {
-  localStorage.setItem(LANGUAGE_KEY, elements.language.value);
+  const requestedLanguage = elements.language.value;
+  const request = ++languageRequest;
+  const isCurrent = () => request === languageRequest && elements.language.value === requestedLanguage;
+  localStorage.setItem(LANGUAGE_KEY, requestedLanguage);
   populateVoiceSelector();
   localStorage.setItem(VOICE_KEY, elements.voice.value);
   elements.loading.classList.remove("hidden");
   try {
-    localizedCatalog = await loadLocalizedCatalog(elements.language.value);
+    const catalog = await loadLocalizedCatalog(requestedLanguage);
+    if (!isCurrent()) return;
+    localizedCatalog = catalog;
     renderCurriculum(elements.search.value); updateLessonHeader(); updateGuide(); updatePagination();
-    await loadNarration(true);
-  } catch (error) { showToast(error.message); }
-  finally { elements.loading.classList.add("hidden"); }
+    await loadNarration(true, isCurrent);
+  } catch (error) { if (isCurrent()) showToast(error.message); }
+  finally { if (isCurrent()) elements.loading.classList.add("hidden"); }
 }
 
 function copyLessonLink() {
@@ -456,8 +654,42 @@ function setupDetailTabs() {
   chapterTab.addEventListener("click", () => select(true)); transcriptTab.addEventListener("click", () => select(false));
 }
 
-function openSidebar() { elements.sidebar.classList.add("open"); elements.scrim.hidden = false; elements.menuButton.setAttribute("aria-expanded", "true"); }
-function closeSidebar() { elements.sidebar.classList.remove("open"); elements.scrim.hidden = true; elements.menuButton.setAttribute("aria-expanded", "false"); }
+function syncSidebarAccessibility() {
+  const closedOnMobile = mobileSidebarQuery.matches && !elements.sidebar.classList.contains("open");
+  elements.sidebar.inert = closedOnMobile;
+  if (closedOnMobile) elements.sidebar.setAttribute("aria-hidden", "true");
+  else elements.sidebar.removeAttribute("aria-hidden");
+  const drawerOpen = mobileSidebarQuery.matches && !closedOnMobile;
+  $(".topbar").inert = drawerOpen;
+  elements.player.closest(".lesson-content").inert = drawerOpen;
+}
+function openSidebar() {
+  elements.sidebar.classList.add("open");
+  elements.scrim.hidden = false;
+  elements.menuButton.setAttribute("aria-expanded", "true");
+  syncSidebarAccessibility();
+  requestAnimationFrame(() => elements.closeMenu.focus());
+}
+function closeSidebar(restoreFocus = false) {
+  const focusWasInside = elements.sidebar.contains(document.activeElement);
+  elements.sidebar.classList.remove("open");
+  elements.scrim.hidden = true;
+  elements.menuButton.setAttribute("aria-expanded", "false");
+  syncSidebarAccessibility();
+  if (mobileSidebarQuery.matches && (restoreFocus || focusWasInside)) elements.menuButton.focus();
+}
+function handleSidebarBreakpoint() {
+  if (!mobileSidebarQuery.matches) {
+    elements.sidebar.classList.remove("open");
+    elements.scrim.hidden = true;
+    elements.menuButton.setAttribute("aria-expanded", "false");
+  }
+  syncSidebarAccessibility();
+}
+function sidebarFocusableElements() {
+  return [...elements.sidebar.querySelectorAll("button:not([disabled]), input:not([disabled]), a[href]")]
+    .filter(element => !element.hidden && element.getClientRects().length);
+}
 function showToast(message) { clearTimeout(toastTimer); elements.toast.textContent = message; elements.toast.classList.add("visible"); toastTimer = setTimeout(() => elements.toast.classList.remove("visible"), 2600); }
 function lessonFromHash() { return new URLSearchParams(location.hash.replace(/^#/, "")).get("lesson"); }
 function readStoredSet(key) { try { const value = JSON.parse(localStorage.getItem(key) || "[]"); return new Set(Array.isArray(value) ? value : []); } catch { return new Set(); } }
@@ -481,12 +713,33 @@ elements.voice.addEventListener("change", switchVoice);
 elements.language.addEventListener("change", switchLanguage);
 elements.complete.addEventListener("click", toggleComplete); elements.copyLink.addEventListener("click", copyLessonLink);
 elements.continue.addEventListener("click", continueCourse); elements.menuButton.addEventListener("click", openSidebar);
-elements.closeMenu.addEventListener("click", closeSidebar); elements.scrim.addEventListener("click", closeSidebar);
+elements.closeMenu.addEventListener("click", () => closeSidebar(true)); elements.scrim.addEventListener("click", () => closeSidebar(true));
+elements.sidebar.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    event.preventDefault(); event.stopPropagation(); closeSidebar(true); return;
+  }
+  if (event.key !== "Tab" || !mobileSidebarQuery.matches) return;
+  const focusable = sidebarFocusableElements();
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault(); last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault(); first.focus();
+  }
+});
+elements.themeToggle?.addEventListener("click", toggleTheme);
 window.addEventListener("beforeunload", () => { saveWatchPosition(); if (captionUrl) URL.revokeObjectURL(captionUrl); });
 window.addEventListener("hashchange", () => { const id = lessonFromHash(); if (id && id !== activeLesson?.id) selectLesson(id, { skipHash: true }); });
-window.addEventListener("keydown", event => { const tag = document.activeElement?.tagName; if (["INPUT", "SELECT", "TEXTAREA"].includes(tag)) return; if (event.key === "/") { event.preventDefault(); elements.search.focus(); } else if (event.key === "[") { event.preventDefault(); elements.previous.click(); } else if (event.key === "]") { event.preventDefault(); elements.next.click(); } else if (event.key === "Escape") closeSidebar(); });
+window.addEventListener("keydown", event => { const tag = document.activeElement?.tagName; if (["INPUT", "SELECT", "TEXTAREA"].includes(tag) || event.target.closest?.(".custom-select")) return; if (event.key === "/") { event.preventDefault(); elements.search.focus(); } else if (event.key === "[") { event.preventDefault(); elements.previous.click(); } else if (event.key === "]") { event.preventDefault(); elements.next.click(); } else if (event.key === "Escape") closeSidebar(true); });
+if (mobileSidebarQuery.addEventListener) mobileSidebarQuery.addEventListener("change", handleSidebarBreakpoint);
+else mobileSidebarQuery.addListener(handleSidebarBreakpoint);
 
 elements.availableCount.textContent = LESSONS.length;
 elements.totalCount.textContent = LESSONS.length;
-setupNarrationSelectors(); setupDetailTabs(); updateCourseProgress(); renderCurriculum();
+applyTheme(document.documentElement.dataset.theme);
+syncSidebarAccessibility();
+setupNarrationSelectors();
+enhanceSelect(elements.language); enhanceSelect(elements.voice);
+setupDetailTabs(); updateCourseProgress(); renderCurriculum();
 loadLocalizedCatalog(elements.language.value).then(catalog => { localizedCatalog = catalog; renderCurriculum(); return selectLesson(lessonFromHash() || LESSONS[0].id, { skipHash: !location.hash, force: true }); }).catch(error => { showToast(error.message); selectLesson(lessonFromHash() || LESSONS[0].id, { skipHash: !location.hash, force: true }); });
