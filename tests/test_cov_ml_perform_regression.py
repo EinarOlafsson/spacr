@@ -16,6 +16,7 @@ runs for real.
 """
 from __future__ import annotations
 
+import json
 import os
 
 import numpy as np
@@ -599,6 +600,28 @@ def test_qc_block_writes_the_three_well_level_tables(screen, stubs):
     # plot_plates got the merged frame and the *original* dependent variable.
     assert stubs["plates"][0]["kwargs"]["variable"] == "pred"
     assert stubs["plates"][0]["kwargs"]["dst"] == res
+
+
+def test_batch_correction_runs_before_regression_and_writes_report(
+        screen, stubs):
+    """Regression consumes corrected scores and persists its diagnostics."""
+    from spacr.ml import perform_regression
+
+    perform_regression(base_settings(
+        screen,
+        batch_correction="center",
+        batch_column="plateID",
+    ))
+
+    path = os.path.join(screen["res"], "batch_correction.json")
+    with open(path, encoding="utf-8") as stream:
+        report = json.load(stream)
+    assert report["method"] == "center"
+    assert report["batch_column"] == "plateID"
+    assert report["rows"] > 0
+    assert report["warnings"] == [
+        "Only 1 batch was present; correction was a no-op.",
+    ]
 
 
 def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):

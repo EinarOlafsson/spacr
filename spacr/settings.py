@@ -647,6 +647,12 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('color_by', None)
     settings.setdefault('exclude_conditions', None)
     settings.setdefault('exclude_rows', None)
+    settings.setdefault('batch_correction', 'none')
+    settings.setdefault('batch_column', 'plateID')
+    settings.setdefault('batch_control_column', None)
+    settings.setdefault('batch_control_values', None)
+    settings.setdefault('batch_min_samples', 3)
+    settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('analyze_clusters', False)
     settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
@@ -795,6 +801,15 @@ def set_default_analyze_screen(settings):
     settings.setdefault('top_features',30)
     settings.setdefault('remove_low_variance_features',True)
     settings.setdefault('remove_highly_correlated_features',True)
+    settings.setdefault('batch_correction', 'none')
+    settings.setdefault('batch_column', 'plateID')
+    settings.setdefault('batch_control_column', None)
+    # Keep this blank so control_center follows the module's current
+    # negative_control value instead of silently retaining a stale 'c1' when
+    # the user changes the plate layout.
+    settings.setdefault('batch_control_values', None)
+    settings.setdefault('batch_min_samples', 3)
+    settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('n_jobs',-1)
     settings.setdefault('prune_features',False)
     settings.setdefault('cross_validation',True)
@@ -1224,6 +1239,12 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('alpha',1)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
+    settings.setdefault('batch_correction', 'none')
+    settings.setdefault('batch_column', 'plateID')
+    settings.setdefault('batch_control_column', 'columnID')
+    settings.setdefault('batch_control_values', None)
+    settings.setdefault('batch_min_samples', 3)
+    settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('plateID','plate1')
     # Acquisition-specific annotations cannot have a meaningful machine-wide
     # default. An empty list makes the optional input explicit and portable.
@@ -1434,6 +1455,14 @@ expected_types = {
     "metric": str,
     "eps": float,
     "min_samples": int,
+    "batch_correction": str,
+    "batch_column": str,
+    "batch_control_column": (str, type(None)),
+    "batch_control_values": (
+        str, int, float, list, tuple, type(None),
+    ),
+    "batch_min_samples": int,
+    "batch_missing_control": str,
     "filter_by": (str, type(None)),
     "img_zoom": float,
     "plot_by_cluster": bool,
@@ -1882,6 +1911,12 @@ expected_types = {
 }
 
 tooltips = {
+    "batch_correction": "(str) - Optional plate/batch correction applied before Image UMAP, ML screen classification, or phenotype regression. 'none' leaves measurements unchanged; 'center' removes each plate's mean shift; 'zscore' aligns plate means and variances; 'robust_zscore' uses median/MAD and tolerates outliers; 'control_center' estimates only a location shift from reference controls and best preserves treatment dispersion. Do not correct when plate is confounded with biology. Default 'none'. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_column": "(str) - Metadata column that identifies independent acquisition batches, normally 'plateID'. Every analyzed row must have a value and at least batch_min_samples rows must occur in each batch. Use an acquisition date or instrument ID only if that is the nuisance source you intend to remove. Default 'plateID'. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_control_column": "(str or None) - Metadata column containing reference-control labels for control_center, normally 'columnID' for plate controls. It is ignored by center, zscore, robust_zscore, and none. Blank follows col_to_compare in Image UMAP or location_column in Classify (ML); regression defaults to 'columnID'. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_control_values": "(str, number, list or None) - Reference/negative-control value(s) in batch_control_column used by control_center. Each plate needs at least batch_min_samples matching rows. Image UMAP falls back to neg and Classify (ML) to negative_control when this field is blank; regression requires an explicit value. Default varies by module. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_min_samples": "(int) - Minimum number of rows required in every batch, and minimum matching reference controls per batch for control_center. Correction stops with an actionable error below this threshold because a one- or two-object plate estimate is unstable. Default 3. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_missing_control": "(str) - Policy when control_center cannot find enough reference controls on a plate: 'error' stops rather than silently mixing corrected and raw plates; 'skip' leaves that plate unchanged and records a warning. Default 'error'. API: spacr.batch_correction.correct_batch_effects.",
     "threshold_direction": "(list, list-of-lists, int or None) - Which side of 'threshold' to keep when prefiltering objects for annotation: 'higher' keeps rows whose measurement is >= the threshold, 'lower' keeps rows <= it. Give one value, or one per entry in 'measurement' (a single string is broadcast to the whole list). Default 'higher'.",
     "threshold": "(list, list-of-lists, int or None) - Cut-off applied to 'measurement' before the annotation grid loads, so you only label the objects you care about. Accepts a number or a quantile code 'q1'-'q9' (q3 = the 30th percentile of that column), or one entry per measurement when measurement is a list. Empty or None loads every object unfiltered.",
     "cell_model_name": "(str) - Which weights segment cells. Cellpose 4 ships exactly one stock model, 'cpsam', so the only other value that means anything is a path to a checkpoint you trained yourself in Train Cellpose - that path is loaded as pretrained_model and honoured. The pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are still accepted so old settings files load, but they are mapped to 'cpsam' on the way in and reported once: Cellpose 4 would have resolved them to cpsam silently anyway. Note what Cellpose 4 does and does not still read: diameter IS honoured (eval rescales the image by 30/diameter), while model_type and diam_mean are accepted-and-ignored with a 'not used in v4.0.1+' log line. Default 'cpsam'.",
@@ -2608,7 +2643,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types"],
+    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_min_samples", "batch_missing_control"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->
