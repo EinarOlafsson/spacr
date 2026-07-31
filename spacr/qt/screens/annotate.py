@@ -78,6 +78,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from ..widgets.toggle import Toggle
+from ..i18n import tr
 
 from ..annotate_engine import (
     AnnotateSettings,
@@ -963,6 +964,8 @@ class AnnotateScreen(QWidget):
         hbox.addWidget(title)
         self._src_label = QLabel("No source selected — click Open source…")
         self._src_label.setObjectName("SubtitleSmall")
+        # This label becomes a live filesystem path after a source is opened.
+        self._src_label.setProperty("i18nSkipText", True)
         hbox.addWidget(self._src_label)
         outer.addWidget(header)
         outer.addWidget(Divider())
@@ -1044,6 +1047,7 @@ class AnnotateScreen(QWidget):
         row.addStretch(1)
         self._page_label = QLabel("")
         self._page_label.setObjectName("SubtitleSmall")
+        self._page_label.setProperty("i18nSkipText", True)
         row.addWidget(self._page_label)
         outer.addWidget(toolbar)
 
@@ -1124,14 +1128,17 @@ class AnnotateScreen(QWidget):
         bottom_row.setSpacing(SPACING["sm"])
         self._status_label = QLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
+        self._status_label.setProperty("i18nSkipText", True)
         bottom_row.addWidget(self._status_label, 1)
 
         self._console_switch = QToolButton(self)
-        self._console_switch.setText("Console ▾")
+        self._set_console_switch_text(False)
         self._console_switch.setCheckable(True)
         self._console_switch.setCursor(Qt.PointingHandCursor)
         self._console_switch.setFocusPolicy(Qt.NoFocus)
-        self._console_switch.setToolTip("Show or hide the Console + AI pane.")
+        console_tip = "Show or hide the Console + AI pane."
+        self._console_switch.setProperty("_spacr_i18n_tooltip", console_tip)
+        self._console_switch.setToolTip(tr(console_tip))
         self._console_switch.toggled.connect(self._on_console_switch)
         bottom_row.addWidget(self._console_switch)
 
@@ -1157,11 +1164,17 @@ class AnnotateScreen(QWidget):
     def _on_console_switch(self, on: bool) -> None:
         """Expand or collapse Annotate's merged Console + AI pane."""
         self._console_wrap.setVisible(on)
-        self._console_switch.setText("Console ▴" if on else "Console ▾")
+        self._set_console_switch_text(on)
         if on:
             height = max(480, self._runtime_splitter.height())
             self._runtime_splitter.setSizes(
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
+
+    def _set_console_switch_text(self, expanded: bool) -> None:
+        """Render the localized caption without losing the arrow state."""
+        source = "Console ▴" if expanded else "Console ▾"
+        self._console_switch.setProperty("_spacr_i18n_text", source)
+        self._console_switch.setText(tr(source))
 
     def _on_ai_switch(self, on: bool) -> None:
         """Enable chat routing and reveal the console when AI is selected."""
@@ -1177,9 +1190,9 @@ class AnnotateScreen(QWidget):
                 self._console.set_ai_provider(configured[0].name)
                 self._refresh_ai_menu()
             else:
-                self._console.append_stdout(
-                    "[AI] No vendor CLI installed. Click ▾ next to AI → "
-                    "Providers…\n")
+                self._console.append_notice(
+                    "[AI] No vendor CLI installed. Click ▾ next to the AI "
+                    "switch → Providers…\n")
                 self._ai_switch.setChecked(False)
 
     def _refresh_ai_menu(self) -> None:
@@ -1198,10 +1211,14 @@ class AnnotateScreen(QWidget):
                     self._on_pick_provider(name))
             self._ai_menu.addSeparator()
         else:
-            self._ai_menu.addAction(
-                "(no vendor CLI installed)").setEnabled(False)
+            source = "(no vendor CLI installed)"
+            unavailable = self._ai_menu.addAction(tr(source))
+            unavailable.setProperty("_spacr_i18n_text", source)
+            unavailable.setEnabled(False)
             self._ai_menu.addSeparator()
-        action = self._ai_menu.addAction("Providers…")
+        source = "Providers…"
+        action = self._ai_menu.addAction(tr(source))
+        action.setProperty("_spacr_i18n_text", source)
         action.triggered.connect(self._on_open_providers_dialog)
 
     def _on_pick_provider(self, name: str) -> None:
@@ -1414,8 +1431,7 @@ class AnnotateScreen(QWidget):
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
-        self._console.append_stdout(
-            f"[Annotate] Opened {db_path}\n")
+        self._console.append_notice("Opened {name}\n", name=db_path)
         prefs.push_recent_source("annotate", src)
         # Show the grid page FIRST so its viewport is realized, then defer the
         # grid build + first load to the next event-loop tick. Otherwise

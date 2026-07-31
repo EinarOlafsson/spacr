@@ -66,6 +66,7 @@ from .. import ai as ai_module
 from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
+from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, SPACING, active_palette
 
 
@@ -162,6 +163,10 @@ class _TopicBar(QFrame):
                                 SPACING["md"], SPACING["xs"])
         self._label = QLabel(label)
         self._label.setObjectName("ConsoleTopicLabel")
+        # Topic history is presentation generated in the language active when
+        # it was appended. Do not reinterpret composite module/function text
+        # during a later whole-window language switch.
+        self._label.setProperty("i18nSkipText", True)
         if accent:
             self._label.setStyleSheet(
                 f"QLabel#ConsoleTopicLabel {{ color: {accent}; "
@@ -182,6 +187,7 @@ class _WorkingDots(QLabel):
     def __init__(self, color: str = AI_COLOR_DEFAULT, parent=None):
         super().__init__(parent)
         self.setObjectName("ConsoleWorkingDots")
+        self.setProperty("i18nSkipText", True)
         self._color = color
         self._n = 0
         self.setStyleSheet(
@@ -374,9 +380,11 @@ class _BlockHeightHandle(QFrame):
         self.setObjectName("ConsoleSectionResizeHandle")
         self.setCursor(Qt.SizeVerCursor)
         self.setFixedHeight(self.HEIGHT)
-        self.setToolTip(
+        source = (
             "Drag to resize this console section. Double-click for auto height."
         )
+        self.setProperty("_spacr_i18n_tooltip", source)
+        self.setToolTip(tr(source))
 
     def sizeHint(self) -> QSize:
         return QSize(80, self.HEIGHT)
@@ -435,6 +443,7 @@ class _Bubble(QFrame):
         self._recalc_guard = False
         self._label = QLabel(self)
         self._label.setObjectName("ConsoleBubbleText")
+        self._label.setProperty("i18nSkipText", True)
         self._label.setTextFormat(Qt.RichText)
         self._label.setTextInteractionFlags(
             Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
@@ -456,7 +465,7 @@ class _Bubble(QFrame):
         lay.setSpacing(0)
         lay.addWidget(self._label)
         self._raw_text = ""
-        self._prefix = "spaCR user: " if role == "user" else "spaCR AI: "
+        self._prefix_source = "spaCR user" if role == "user" else "spaCR AI"
         if text:
             self.set_text(text)
 
@@ -465,7 +474,8 @@ class _Bubble(QFrame):
         self._raw_text = text or ""
         safe = self._raw_text.replace("<", "&lt;").replace(">", "&gt;")
         safe = safe.replace("\n", "<br>")
-        html = f'<span style="opacity:0.7;">{self._prefix}</span>{safe}'
+        prefix = tr(self._prefix_source)
+        html = f'<span style="opacity:0.7;">{prefix}: </span>{safe}'
         self._label.setText(html)
         self._recalc()
 
@@ -569,6 +579,7 @@ class ConsolePanel(QWidget):
     #: on the GUI thread and falls through to the real body.
     _relay_stdout = Signal(str)
     _relay_error = Signal(str)
+    _relay_notice = Signal(str, object)
 
     def __init__(self, active_app_label: str = "", parent=None):
         super().__init__(parent)
@@ -601,6 +612,7 @@ class ConsolePanel(QWidget):
         # instant this panel is registered as the console target.
         self._relay_stdout.connect(self.append_stdout)
         self._relay_error.connect(self.append_error)
+        self._relay_notice.connect(self._append_notice_on_gui_thread)
 
         self._build_ui()
         # Pipe records from the global logger into this console. Every
@@ -611,6 +623,7 @@ class ConsolePanel(QWidget):
             get_signal_handler().record_ready.connect(self._on_log_record)
         except Exception:
             pass
+        retranslate_widget_tree(self)
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -770,7 +783,7 @@ class ConsolePanel(QWidget):
 
     def _output_banner(self, head: str) -> str:
         """Build a banner like 'spaCR output — mask — preprocess_generate_masks'."""
-        parts = [head]
+        parts = [tr(head)]
         mod = self._run_module or self._active_app_label
         if mod:
             parts.append(str(mod))
@@ -808,6 +821,35 @@ class ConsolePanel(QWidget):
             self._last_entry_kind = "stdout"
         self._current_stdout.append(text)
         self._scroll_to_bottom()
+
+    def append_notice(self, source: str, **values: object) -> None:
+        """Append one localized spaCR-authored UI notice.
+
+        This is intentionally separate from :meth:`append_stdout`: arbitrary
+        worker stdout, logs, tracebacks, paths and AI responses must remain
+        byte-for-byte English/canonical. Off-thread notices carry their stable
+        English template to the GUI thread and are translated only there.
+        """
+        if not source:
+            return
+        if not self._on_gui_thread():
+            self._relay_notice.emit(str(source), dict(values))
+            return
+        self._append_notice_on_gui_thread(str(source), dict(values))
+
+    def _append_notice_on_gui_thread(
+        self, source: str, values: object = None,
+    ) -> None:
+        mapping = values if isinstance(values, dict) else {}
+        # Call sites may add line breaks for console layout. Translation keys
+        # deliberately omit incidental leading/trailing whitespace, so retain
+        # that framing around the translated semantic template.
+        core = source.strip()
+        if not core:
+            return
+        leading = source[:len(source) - len(source.lstrip())]
+        trailing = source[len(source.rstrip()):]
+        self.append_stdout(leading + tr(core, **mapping) + trailing)
 
     def _on_log_record(self, text: str, level: int) -> None:
         """Slot for QtLogHandler.record_ready. WARNING/ERROR/CRITICAL
@@ -883,7 +925,7 @@ class ConsolePanel(QWidget):
     def _append_user(self, text: str) -> None:
         """Insert a 'spaCR user' banner + green user text."""
         green = color_user()
-        self.begin_topic("spaCR user", accent=green)
+        self.begin_topic(tr("spaCR user"), accent=green)
         block = _StdoutBlock(text, text_color=green)
         self._insert_entry(block)
         self._current_stdout = None
@@ -892,7 +934,7 @@ class ConsolePanel(QWidget):
     def _send_to_ai(self, text: str) -> None:
         provider = self._current_provider()
         if provider is None:
-            self.append_stdout(
+            self.append_notice(
                 "[AI] No provider configured. Open Providers…\n"
             )
             return
@@ -908,7 +950,7 @@ class ConsolePanel(QWidget):
         # followed by the reply text in the same provider colour.
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
-        self.begin_topic("spaCR AI", accent=ai_color,
+        self.begin_topic(tr("spaCR AI"), accent=ai_color,
                          trailing=self._working_dots)
         self._working_dots.start()
         self._current_stdout = _StdoutBlock(text_color=ai_color)
@@ -1060,11 +1102,12 @@ class ConsolePanel(QWidget):
                 {"role": "assistant", "content": final_text}
             )
             if not self._ai_buf:
-                self.append_stdout(
+                self.append_notice(
                     "(empty response — try again or switch provider)\n"
                 )
         else:
-            self.append_stdout(f"[AI error] {final_text}\n")
+            self.append_notice(
+                "[AI error] {detail}\n", detail=final_text)
         # Terminate the AI reply block with a newline so pipeline
         # stdout that arrives next visually separates from the reply.
         if self._current_stdout is not None:
@@ -1088,7 +1131,7 @@ class ConsolePanel(QWidget):
         """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         if self._current_provider() is None:
-            self.append_stdout(
+            self.append_notice(
                 "[AI] Enable AI in the actions row + pick a provider first.\n"
             )
             return
@@ -1100,12 +1143,14 @@ class ConsolePanel(QWidget):
         self._ai_messages.append({"role": "user", "content": prompt})
         self._append_user(
             prompt if show_raw
-            else "An error occurred — asking spaCR AI to explain it. "
-                 "(Ask the AI to \"show the raw error\" to see the traceback.)")
+            else tr(
+                "An error occurred — asking spaCR AI to explain it. "
+                "(Ask the AI to \"show the raw error\" to see the traceback.)"
+            ))
         # AI reply with provider colour + cycling working dots.
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
-        self.begin_topic("spaCR AI", accent=ai_color,
+        self.begin_topic(tr("spaCR AI"), accent=ai_color,
                          trailing=self._working_dots)
         self._working_dots.start()
         self._current_stdout = _StdoutBlock(text_color=ai_color)
