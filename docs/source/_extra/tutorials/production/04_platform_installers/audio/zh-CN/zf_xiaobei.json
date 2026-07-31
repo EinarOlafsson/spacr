@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaobei",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.95,
+      "scene_end": 6.4,
+      "duration": 6.4,
+      "text": "通过使用Python,在Windows,macOS或Linux上安装 spaCR."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.4,
+      "speech_end": 14.925,
+      "scene_end": 15.375,
+      "duration": 8.975,
+      "text": "从 spaCR 部分打开 Platform installers。 从 GitHub 的当前版本下载操作系统安装器."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.375,
+      "speech_end": 24.35,
+      "scene_end": 24.8,
+      "duration": 9.425,
+      "text": "在主配置区域,检查操作系统安全提示,私人运行时间位置和要求的加速后端."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.8,
+      "speech_end": 37.95,
+      "scene_end": 38.400000000000006,
+      "duration": 13.600000000000005,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 如果有任何故障,请允许安装器完成并保存安装日志."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.400000000000006,
+      "speech_end": 47.50000000000001,
+      "scene_end": 48.150000000000006,
+      "duration": 9.75,
+      "text": "当工作流程完成时,使用本地发射器,而 spaCR 保持其自己的管理 Python 运行时间."
+    }
+  ]
+}

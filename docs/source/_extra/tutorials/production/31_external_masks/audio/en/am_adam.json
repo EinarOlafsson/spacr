@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_adam",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.7,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.9,
+      "scene_end": 9.35,
+      "duration": 9.35,
+      "text": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spaCR project."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.35,
+      "speech_end": 19.475,
+      "scene_end": 19.925,
+      "duration": 10.575000000000001,
+      "text": "Open External Masks from the Data and batch runs section. Provide source images, external masks, naming rules, object types, and optional measurement tables."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.925,
+      "speech_end": 29.075000000000003,
+      "scene_end": 29.525000000000002,
+      "duration": 9.600000000000001,
+      "text": "In the main configuration area, map images to masks, validate shape and label conventions, choose relabeling, and define measurement options."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.525000000000002,
+      "speech_end": 41.650000000000006,
+      "scene_end": 42.10000000000001,
+      "duration": 12.575000000000006,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview alignment and object counts on several fields before importing the complete dataset."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.10000000000001,
+      "speech_end": 50.05000000000001,
+      "scene_end": 50.70000000000001,
+      "duration": 8.600000000000001,
+      "text": "When the workflow finishes, spaCR stores normalized masks, mapped images, measurements, and provenance ready for annotation."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.275,
+      "scene_end": 8.725,
+      "duration": 8.725,
+      "text": "Este tutorial abrange Instalação com pip. Instale spaCR em um ambiente Python isolado existente para uso em desktop ou sem cabeça."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.725,
+      "speech_end": 19.65,
+      "scene_end": 20.099999999999998,
+      "duration": 11.374999999999998,
+      "text": "Abra Installation with pip na seção spaCR. Abra a instalação com pip da seção spaCR. Confirme que o ambiente usa uma versão Python suportada; recomendamos Python três pontos doze."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.099999999999998,
+      "speech_end": 28.9,
+      "scene_end": 29.349999999999998,
+      "duration": 9.25,
+      "text": "Na área de configuração principal, atualize pip se necessário e decida se precisa do desktop, desenvolvimento ou extras científicos opcionais."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.349999999999998,
+      "speech_end": 36.824999999999996,
+      "scene_end": 37.275,
+      "duration": 7.925000000000001,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.275,
+      "speech_end": 47.599999999999994,
+      "scene_end": 48.24999999999999,
+      "duration": 10.974999999999994,
+      "text": "Quando o fluxo de trabalho terminar, a mesma instalação pode iniciar o aplicativo de desktop ou executar fluxos de trabalho scriptados em uma estação de trabalho ou servidor."
+    }
+  ]
+}

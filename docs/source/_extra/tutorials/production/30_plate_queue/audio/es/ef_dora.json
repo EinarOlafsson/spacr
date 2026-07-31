@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.575,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.925,
+      "scene_end": 6.375,
+      "duration": 6.375,
+      "text": "Este tutorial cubre Plate Queue. Enlace múltiples placas a través de la misma tubería validada."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.375,
+      "speech_end": 18.825,
+      "scene_end": 19.275,
+      "duration": 12.899999999999999,
+      "text": "Abra Plate Queue en la sección Data and batch runs. Abre la cola de placa en la sección Datos y partidas de ejecución. Agregue fuentes de placa y seleccione la secuencia de módulos compartidos y la configuración preset."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.275,
+      "speech_end": 31.174999999999997,
+      "scene_end": 31.624999999999996,
+      "duration": 12.349999999999998,
+      "text": "En el área de configuración principal, revise el orden de las placas, los sobrecargos por placa, los límites de los trabajadores, la política de falla, el comportamiento de continuación y las raíces de salida."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.624999999999996,
+      "speech_end": 47.175,
+      "scene_end": 47.625,
+      "duration": 16.000000000000004,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Comience con una placa pequeña o un campo de prueba, luego deje que la cola procese las placas secuencialmente con el estado visible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.625,
+      "speech_end": 55.925,
+      "scene_end": 56.574999999999996,
+      "duration": 8.949999999999996,
+      "text": "Cuando el flujo de trabajo termina, cada placa recibe un proyecto aislado y ejecuta un registro mientras que la cola conserva el progreso general."
+    }
+  ]
+}

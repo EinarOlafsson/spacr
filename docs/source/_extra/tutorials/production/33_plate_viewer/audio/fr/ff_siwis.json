@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.575,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.3,
+      "scene_end": 9.75,
+      "duration": 9.75,
+      "text": "Ce tutoriel couvre Plate Viewer. Explorez toute mesure en tant que carte thermique de plaque et identifiez des artefacts spatiaux ou des effets de bord."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.75,
+      "speech_end": 19.2,
+      "scene_end": 19.65,
+      "duration": 9.899999999999999,
+      "text": "Ouvrez Plate Viewer dans la section Results and quality control. Ouvrez une base de données de mesures avec des identifiants de plaque, puits et conditions."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.65,
+      "speech_end": 29.75,
+      "scene_end": 30.2,
+      "duration": 10.55,
+      "text": "Dans la zone de configuration principale, choisissez la mesure, l'agrégation, la normalisation, l'échelle de couleur, les commandes et la disposition de la plaque."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.2,
+      "speech_end": 43.575,
+      "scene_end": 44.025000000000006,
+      "duration": 13.825000000000006,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez les vues brutes et normalisées et inspectez les puits suspects ou les modèles de bord systématiques."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.025000000000006,
+      "speech_end": 52.925000000000004,
+      "scene_end": 53.575,
+      "duration": 9.549999999999997,
+      "text": "Lorsque le flux de travail est terminé, des cartes thermiques, des tableaux de puits sélectionnés et des diagnostics d'effets de bord peuvent être exportés."
+    }
+  ]
+}

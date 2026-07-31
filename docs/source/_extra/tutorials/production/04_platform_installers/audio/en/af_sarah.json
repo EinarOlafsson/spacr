@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_sarah",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.6,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.25,
+      "scene_end": 9.7,
+      "duration": 9.7,
+      "text": "This tutorial covers Platform installers. Install spaCR on Windows, macOS, or Linux without managing Python manually."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.7,
+      "speech_end": 18.475,
+      "scene_end": 18.925,
+      "duration": 9.225000000000001,
+      "text": "Open Platform installers from the spaCR section. Download the installer for your operating system from the current GitHub release."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.925,
+      "speech_end": 28.475,
+      "scene_end": 28.925,
+      "duration": 10.0,
+      "text": "In the main configuration area, review operating-system security prompts, the private runtime location, and the requested acceleration backend."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.925,
+      "speech_end": 40.6,
+      "scene_end": 41.050000000000004,
+      "duration": 12.125000000000004,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Allow the installer to finish and preserve its install log if anything fails."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.050000000000004,
+      "speech_end": 47.95,
+      "scene_end": 48.6,
+      "duration": 7.549999999999997,
+      "text": "When the workflow finishes, use the native launcher while spaCR keeps its own managed Python runtime."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 36.05,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.65,
+      "scene_end": 6.1000000000000005,
+      "duration": 6.1000000000000005,
+      "text": "浏览,验证,下载,并参数可重复使用的细分和分类器模型."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.1000000000000005,
+      "speech_end": 13.425,
+      "scene_end": 13.875,
+      "duration": 7.7749999999999995,
+      "text": "从 Segmentation models 部分打开 Model Zoo。 打开目录,选择与当前任务和输入道兼容的模型."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.875,
+      "speech_end": 20.975,
+      "scene_end": 21.425,
+      "duration": 7.550000000000001,
+      "text": "在主要配置区域,审查来源,许可证,检查额,预期预处理,任务类型和本地可用性."
+    },
+    {
+      "scene": 4,
+      "speech_start": 21.425,
+      "speech_end": 28.175,
+      "scene_end": 28.625,
+      "duration": 7.199999999999999,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 28.625,
+      "speech_end": 35.4,
+      "scene_end": 36.05,
+      "duration": 7.424999999999997,
+      "text": "工作流程完成后,验证的模型文件和基准结果仍然与其元数据相关."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.425,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.05,
+      "scene_end": 3.5,
+      "duration": 3.5,
+      "text": "Questo tutorial copre Train Cellpose."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.5,
+      "speech_end": 18.25,
+      "scene_end": 18.7,
+      "duration": 15.2,
+      "text": "Apri Train Cellpose dalla sezione Segmentation models. Aprire Train Cellpose dalla sezione Modelli di segmentazione. Fornire immagini di formazione e di convalida diverse con maschere di etichetta accuratamente corrette."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.7,
+      "speech_end": 30.7,
+      "scene_end": 31.15,
+      "duration": 12.45,
+      "text": "Nella zona di configurazione principale, scegliere i canali, il modello base, il diametro, l'aumentare, il tasso di apprendimento, le epoche, la dimensione del lotto e la divisione di convalida."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.15,
+      "speech_end": 47.974999999999994,
+      "scene_end": 48.425,
+      "duration": 17.275,
+      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. monitorare le perdite di formazione e di convalida e controllare i punti di prova sui campi non utilizzati per la formazione."
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.425,
+      "speech_end": 59.775,
+      "scene_end": 60.425,
+      "duration": 12.0,
+      "text": "Quando il flusso di lavoro è terminato, il checkpoint selezionato, la cronologia di formazione, le previsioni di convalida e le impostazioni vengono memorizzati insieme."
+    }
+  ]
+}

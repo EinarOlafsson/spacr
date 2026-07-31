@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_sky",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.7,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.5,
+      "scene_end": 8.95,
+      "duration": 8.95,
+      "text": "This tutorial covers Replication assay. Score parasites per vacuole and summarize intracellular replication by condition."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.95,
+      "speech_end": 18.924999999999997,
+      "scene_end": 19.374999999999996,
+      "duration": 10.424999999999997,
+      "text": "Open Replication assay from the Toxoplasma assays section. Select host-cell, vacuole, and parasite measurements together with condition metadata."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.374999999999996,
+      "speech_end": 28.4,
+      "scene_end": 28.849999999999998,
+      "duration": 9.475000000000001,
+      "text": "In the main configuration area, configure spatial assignment, object filters, parasite-count bins, controls, and statistical comparisons."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.849999999999998,
+      "speech_end": 42.099999999999994,
+      "scene_end": 42.55,
+      "duration": 13.7,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect vacuoles across the full count range and verify that merged or fragmented masks are excluded."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.55,
+      "speech_end": 50.05,
+      "scene_end": 50.699999999999996,
+      "duration": 8.149999999999999,
+      "text": "When the workflow finishes, parasites-per-vacuole distributions, replication rates, statistics, and figures are saved."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_sky",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.125,
+      "scene_end": 10.575,
+      "duration": 10.575,
+      "text": "This tutorial covers Distributed Jobs. Submit and monitor spaCR work on SSH workstations, Slurm clusters, or cloud and HPC commands."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.575,
+      "speech_end": 20.6,
+      "scene_end": 21.05,
+      "duration": 10.475000000000001,
+      "text": "Open Distributed Jobs from the Data and batch runs section. Configure a remote profile, connection method, working directory, environment, and data paths."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.05,
+      "speech_end": 29.425,
+      "scene_end": 29.875,
+      "duration": 8.825,
+      "text": "In the main configuration area, define scheduler resources, command templates, file synchronization, credentials, and status polling."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.875,
+      "speech_end": 41.2,
+      "scene_end": 41.650000000000006,
+      "duration": 11.775000000000006,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. submit a small validation job before scaling to expensive analyses."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.650000000000006,
+      "speech_end": 49.50000000000001,
+      "scene_end": 50.150000000000006,
+      "duration": 8.5,
+      "text": "When the workflow finishes, local records track remote job identifiers, logs, state, transferred artifacts, and failures."
+    }
+  ]
+}

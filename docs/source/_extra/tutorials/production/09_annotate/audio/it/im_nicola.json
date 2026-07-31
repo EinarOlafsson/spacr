@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.95,
+      "scene_end": 11.399999999999999,
+      "duration": 11.399999999999999,
+      "text": "Questo tutorial riguarda Annotate.Rivedi colture singole su una griglia e assegna etichette affidabili per la formazione dei modelli o il controllo della qualità."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.399999999999999,
+      "speech_end": 20.525,
+      "scene_end": 20.974999999999998,
+      "duration": 9.575,
+      "text": "Apri Annotate dalla sezione Core. Apri un progetto con colture di oggetti e seleziona la tabella del database e la colonna di annotate."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.974999999999998,
+      "speech_end": 32.025,
+      "scene_end": 32.475,
+      "duration": 11.500000000000004,
+      "text": "Nella zona di configurazione principale, scegliere classi, canali di visualizzazione, classificazione, campionamento e qualsiasi filtro che definisca l'insieme di revisione."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.475,
+      "speech_end": 48.575,
+      "scene_end": 49.025000000000006,
+      "duration": 16.550000000000004,
+      "text": "Prima di eseguire l'esecuzione completa, rivedere le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. etichettare oggetti rappresentativi, salvare frequentemente e rivedere esempi incerti o in conflitto."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.025000000000006,
+      "speech_end": 58.45,
+      "scene_end": 59.1,
+      "duration": 10.074999999999996,
+      "text": "Quando il flusso di lavoro è terminato, le annotative vengono scritte di nuovo nel database del progetto con identificatori di oggetti intatti."
+    }
+  ]
+}

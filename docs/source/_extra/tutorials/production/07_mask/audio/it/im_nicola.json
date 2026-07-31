@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 68.9,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.125,
+      "scene_end": 10.575,
+      "duration": 10.575,
+      "text": "Questo tutorial copre Mask. Segmenta l'esperimento di microscopia a quattro canali fornito in nuclei, cellule, goccioline di lipidi e maschere di parassiti."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.575,
+      "speech_end": 25.625,
+      "scene_end": 26.075,
+      "duration": 15.5,
+      "text": "Apri Mask dalla sezione Core. Approfitta del set di dati fornito con 13 campi. Il canale zero è il nucleo, il canale uno è il reticolo endoplasmico, il canale due è le goccioline di lipidi e il canale tre è il parassita."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.075,
+      "speech_end": 39.525,
+      "scene_end": 39.975,
+      "duration": 13.900000000000002,
+      "text": "Nell'area di configurazione principale, rilevare nuclei dal canale zero, cellule dal canale endoplasmico-reticolo, goccioline di lipidi con il flusso di lavoro delle macchie di organole e parassiti dal canale tre."
+    },
+    {
+      "scene": 4,
+      "speech_start": 39.975,
+      "speech_end": 57.075,
+      "scene_end": 57.525000000000006,
+      "duration": 17.550000000000004,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. Controllare un campo rappresentativo, quindi eseguire i quattro passaggi di segmentazione attraverso il set di dati."
+    },
+    {
+      "scene": 5,
+      "speech_start": 57.525000000000006,
+      "speech_end": 68.25,
+      "scene_end": 68.9,
+      "duration": 11.375,
+      "text": "Quando il flusso di lavoro è terminato, la cartella maschere contiene etichette di oggetti allineate e array di immagini più maschere fuse pronte per la misura."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 41.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.65,
+      "scene_end": 4.1,
+      "duration": 4.1,
+      "text": "Ce tutoriel couvre l'écran d'accueil et la navigation."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.1,
+      "speech_end": 11.25,
+      "scene_end": 11.7,
+      "duration": 7.6,
+      "text": "Ouvrez Home screen and navigation dans la section Home. Lancez l'application spaCR et commencez sur Accueil."
+    },
+    {
+      "scene": 3,
+      "speech_start": 11.7,
+      "speech_end": 23.299999999999997,
+      "scene_end": 23.749999999999996,
+      "duration": 12.049999999999997,
+      "text": "Dans la zone de configuration principale, utilisez la barre latérale, les onglets de catégories, les carreaux d'applications recherchables et la palette de commandes pour atteindre un flux de travail."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.749999999999996,
+      "speech_end": 31.949999999999996,
+      "scene_end": 32.4,
+      "duration": 8.650000000000002,
+      "text": "Avant la mise en marche complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.4,
+      "speech_end": 40.5,
+      "scene_end": 41.15,
+      "duration": 8.75,
+      "text": "Lorsque le flux de travail est terminé, vous pouvez parcourir l'application et comprendre les informations d'état affichées sur Home."
+    }
+  ]
+}

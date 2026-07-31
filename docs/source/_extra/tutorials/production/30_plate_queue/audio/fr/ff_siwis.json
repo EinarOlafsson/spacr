@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.6,
+      "scene_end": 6.05,
+      "duration": 6.05,
+      "text": "Ce tutoriel couvre Plate Queue. Chaîne plusieurs plaques à travers le même pipeline validé."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.05,
+      "speech_end": 15.575,
+      "scene_end": 16.025,
+      "duration": 9.974999999999998,
+      "text": "Ouvrez Plate Queue dans la section Data and batch runs. Ajoutez des sources de plaques et choisissez la séquence de module partagé et les paramètres prédéfinis."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.025,
+      "speech_end": 28.549999999999997,
+      "scene_end": 28.999999999999996,
+      "duration": 12.974999999999998,
+      "text": "Dans la zone de configuration principale, consultez l'ordre de la plaque, les dépassages par plaque, les limites des travailleurs, la politique de défaillance, le comportement de reprendre et les racines de sortie."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.999999999999996,
+      "speech_end": 43.074999999999996,
+      "scene_end": 43.525,
+      "duration": 14.525000000000002,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Commencez par une petite plaque ou un champ d'essai, puis laissez la file d'attente traiter les plaques séquentiellement avec l'état visible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.525,
+      "speech_end": 52.974999999999994,
+      "scene_end": 53.62499999999999,
+      "duration": 10.099999999999994,
+      "text": "Lorsque le flux de travail est terminé, chaque plaque reçoit un projet isolé et une fiche d'exécution, tandis que la file d'attente préserve les progrès globaux."
+    }
+  ]
+}

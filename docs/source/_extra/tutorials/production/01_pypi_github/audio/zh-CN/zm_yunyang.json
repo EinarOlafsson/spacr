@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunyang",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 42.275,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 5.575,
+      "scene_end": 6.025,
+      "duration": 6.025,
+      "text": "了解 spaCR 发布,源代码,安装器,问题以及夜间分支的现场."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.025,
+      "speech_end": 14.55,
+      "scene_end": 15.0,
+      "duration": 8.975,
+      "text": "从 spaCR 部分打开 PyPI and GitHub。 使用 PyPI 来处理当前的 Python 包,以及 GitHub 来源代码,发布和问题跟踪."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.0,
+      "speech_end": 23.05,
+      "scene_end": 23.5,
+      "duration": 8.5,
+      "text": "在主要配置区域中,将稳定包装版本与夜间开发分支进行比较,然后选择适合您的工作的分支."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.5,
+      "speech_end": 33.9,
+      "scene_end": 34.35,
+      "duration": 10.850000000000001,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在安装之前打开发布说明,以便版本和平台要求清晰."
+    },
+    {
+      "scene": 5,
+      "speech_start": 34.35,
+      "speech_end": 41.625,
+      "scene_end": 42.275,
+      "duration": 7.924999999999997,
+      "text": "当工作流程完成时,你将知道在哪里安装 spaCR,检查变化,并报告可复制的问题."
+    }
+  ]
+}
