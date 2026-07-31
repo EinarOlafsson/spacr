@@ -2348,7 +2348,9 @@ def _existing_measurement_identity(db_path, table):
     """
     if not os.path.isfile(db_path):
         return set()
-    conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+    from .database_concurrency import connect
+
+    conn = connect(db_path, readonly=True, timeout=DB_WRITE_TIMEOUT)
     try:
         exists = conn.execute(
             "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
@@ -2631,7 +2633,9 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
     for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
         conn = None
         try:
-            conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+            from .database_concurrency import connect
+
+            conn = connect(db_path, timeout=DB_WRITE_TIMEOUT)
             from .database_schema import migrate_connection
             migrate_connection(conn, path=os.path.abspath(db_path))
             _append_frame(conn, table, frame)

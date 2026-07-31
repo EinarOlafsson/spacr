@@ -98,6 +98,7 @@ from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Set, Tuple)
 
 from . import schema
+from .database_concurrency import connect as connect_database, transaction
 from .errors import ConfigurationError, read_run_status
 
 __all__ = [
@@ -685,7 +686,7 @@ def discover_field_tables(db_path: str,
     """
     if not os.path.isfile(db_path):
         return []
-    conn = sqlite3.connect(db_path, timeout=30)
+    conn = connect_database(db_path, readonly=True, timeout=30)
     try:
         out = []
         for table in _list_tables(conn):
@@ -785,7 +786,7 @@ def completed_fields_in_db(db_path: str,
         return set()
 
     key_columns = list(FIELD_KEY_COLUMNS)
-    conn = sqlite3.connect(db_path, timeout=30)
+    conn = connect_database(db_path, readonly=True, timeout=30)
     try:
         present: Dict[str, Set[Tuple[str, ...]]] = {}
         for table in tables:
@@ -918,39 +919,32 @@ def clear_field_rows(db_path: str,
     if not tables:
         return 0
 
-    conn = sqlite3.connect(db_path, timeout=30)
-    conn.isolation_level = None  # explicit transaction control
+    conn = connect_database(db_path, timeout=30)
     try:
-        # Pre-flight: refuse the whole operation before deleting anything
-        # if any table cannot be keyed safely.
-        plans = []
-        for table in tables:
-            keys = _key_columns_for(conn, table, identity)
-            if table not in MEASURE_OWNED_TABLES:
-                raise ValueError(
-                    f'table {table!r} carries the field key columns but is '
-                    f'not written by the measure stage — measure writes only '
-                    f'{sorted(MEASURE_OWNED_TABLES)}. Other modules key their '
-                    f'tables the same way so that they join: convert writes '
-                    f'conversion_map, align writes align_coordinates, foreign '
-                    f'writes foreign_*, timelapse writes its track table. '
-                    f'Deleting from {table!r} would destroy the only record '
-                    f'of how this project was registered, and none of it can '
-                    f'be recomputed from the database. Refusing.')
-            where = ' AND '.join(f'"{k}" = ?' for k in keys)
-            plans.append((f'DELETE FROM "{table}" WHERE {where}',
-                          _bind_values(identity, keys)))
-
         deleted = 0
-        conn.execute('BEGIN IMMEDIATE')
-        try:
+        with transaction(conn):
+            # Pre-flight and deletes share one write transaction. No other
+            # writer can replace a checked table between validation and use.
+            plans = []
+            for table in tables:
+                keys = _key_columns_for(conn, table, identity)
+                if table not in MEASURE_OWNED_TABLES:
+                    raise ValueError(
+                        f'table {table!r} carries the field key columns but is '
+                        f'not written by the measure stage — measure writes only '
+                        f'{sorted(MEASURE_OWNED_TABLES)}. Other modules key their '
+                        f'tables the same way so that they join: convert writes '
+                        f'conversion_map, align writes align_coordinates, foreign '
+                        f'writes foreign_*, timelapse writes its track table. '
+                        f'Deleting from {table!r} would destroy the only record '
+                        f'of how this project was registered, and none of it can '
+                        f'be recomputed from the database. Refusing.')
+                where = ' AND '.join(f'"{k}" = ?' for k in keys)
+                plans.append((f'DELETE FROM "{table}" WHERE {where}',
+                              _bind_values(identity, keys)))
             for sql, values in plans:
                 cursor = conn.execute(sql, values)
                 deleted += cursor.rowcount if cursor.rowcount > 0 else 0
-            conn.execute('COMMIT')
-        except Exception:
-            conn.execute('ROLLBACK')
-            raise
         return deleted
     finally:
         conn.close()
@@ -1100,7 +1094,7 @@ def read_recorded_settings(source: str) -> Dict[str, Any]:
     if not os.path.isfile(path):
         return {}
     if path.lower().endswith(('.db', '.sqlite', '.sqlite3')):
-        conn = sqlite3.connect(path, timeout=30)
+        conn = connect_database(path, readonly=True, timeout=30)
         try:
             rows = conn.execute(
                 'SELECT setting_key, setting_value FROM settings').fetchall()
