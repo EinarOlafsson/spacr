@@ -218,6 +218,7 @@ APPS = [
     ("external_masks", "External Masks", "Turn images and externally generated label masks into a measured spaCR project ready for annotation", SECTION_DATA),
     ("queue",          "Plate Queue",    "Chain multiple plates through the same pipeline",             SECTION_DATA),
     ("batch",          "Batch Runner",   "Queue any modules, plates and settings and run them overnight", SECTION_DATA),
+    ("distributed_jobs", "Distributed Jobs", "Submit and monitor spaCR runs on SSH workstations, Slurm or cloud/HPC commands", SECTION_DATA),
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_DATA),
     # -- Segmentation models: build, train, pick and check the Cellpose
     #    models the Mask step runs.
@@ -276,6 +277,7 @@ APP_STAGE = {
     "model_compare":   STAGE_ALPHA,
     "queue":           STAGE_ALPHA,
     "batch":           STAGE_ALPHA,
+    "distributed_jobs": STAGE_ALPHA,
     "invasion":        STAGE_ALPHA,
     "db_browser":      STAGE_ALPHA,
     "plate_view":      STAGE_ALPHA,
@@ -1559,6 +1561,9 @@ class MainWindow(QMainWindow):
         if key == "batch":
             from .screens.batch import BatchScreen
             return BatchScreen()
+        if key == "distributed_jobs":
+            from .screens.distributed_jobs import DistributedJobsScreen
+            return DistributedJobsScreen()
         if key == "model_zoo":
             from .screens.model_zoo import ModelZooScreen
             screen = ModelZooScreen()
@@ -1581,6 +1586,9 @@ class MainWindow(QMainWindow):
         from .screens.app_screen import AppScreen
         screen = AppScreen(app_key=key)
         screen.error_explain_requested.connect(self._on_explain_error)
+        screen.remote_submit_requested.connect(
+            self._on_remote_submit_requested
+        )
         return screen
 
     def _snapshot_current_screen_settings(self):
@@ -1610,6 +1618,15 @@ class MainWindow(QMainWindow):
         Console panel, which handles Explain-error directly. This
         method is kept only for backward-compat with subclasses."""
         pass
+
+    def _on_remote_submit_requested(
+        self, app_key: str, settings: dict
+    ) -> None:
+        """Open Distributed Jobs with a snapshot of the current module."""
+        self._on_nav_selected("distributed_jobs")
+        screen = self._screens.get("distributed_jobs")
+        if screen is not None and hasattr(screen, "configure_submission"):
+            screen.configure_submission(app_key, settings)
 
     def _on_train_requested(self, target_key: str, seed: dict) -> None:
         """Navigate to `target_key` (creating the screen if needed) and

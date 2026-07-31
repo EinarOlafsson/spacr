@@ -175,6 +175,7 @@ tutorial_colab.ipynb
 !/docs/source/batch_correction.rst
 !/docs/source/classifier_evaluation.rst
 !/docs/source/umap_multiobjective.rst
+!/docs/source/distributed_execution.rst
 !/docs/source/_extra/
 !/docs/source/_extra/**
 

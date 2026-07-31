@@ -397,9 +397,171 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Körningshistorik", "Ausführungsverlauf", "Historial de ejecuciones",
         "运行历史", "Histórico de execuções", "रन इतिहास",
         "실행 기록", "Keyrslusaga", "Historique des exécutions"),
+    "Distributed Jobs": _row(
+        "Distribuerade jobb", "Verteilte Aufträge", "Trabajos distribuidos",
+        "分布式作业", "Trabalhos distribuídos", "वितरित कार्य",
+        "분산 작업", "Dreifð verk", "Tâches distribuées"),
     "Report": _row(
         "Rapport", "Bericht", "Informe", "报告", "Relatório",
         "रिपोर्ट", "보고서", "Skýrsla", "Rapport"),
+
+    # Distributed execution.
+    "Execution profile": _row(
+        "Körprofil", "Ausführungsprofil", "Perfil de ejecución", "执行配置",
+        "Perfil de execução", "निष्पादन प्रोफ़ाइल", "실행 프로필",
+        "Keyrslusnið", "Profil d’exécution"),
+    "Profile name": _row(
+        "Profilnamn", "Profilname", "Nombre del perfil", "配置名称",
+        "Nome do perfil", "प्रोफ़ाइल नाम", "프로필 이름",
+        "Heiti sniðs", "Nom du profil"),
+    "SSH workstation": _row(
+        "SSH-arbetsstation", "SSH-Arbeitsstation", "Estación SSH", "SSH 工作站",
+        "Estação SSH", "SSH कार्यस्थान", "SSH 워크스테이션",
+        "SSH-vinnustöð", "Station SSH"),
+    "Slurm cluster": _row(
+        "Slurm-kluster", "Slurm-Cluster", "Clúster Slurm", "Slurm 集群",
+        "Cluster Slurm", "Slurm क्लस्टर", "Slurm 클러스터",
+        "Slurm-klasi", "Grappe Slurm"),
+    "Cloud / custom command": _row(
+        "Moln / eget kommando", "Cloud / eigener Befehl",
+        "Nube / comando personalizado", "云 / 自定义命令",
+        "Nuvem / comando personalizado", "क्लाउड / कस्टम कमांड",
+        "클라우드 / 사용자 지정 명령", "Ský / sérsniðin skipun",
+        "Cloud / commande personnalisée"),
+    "Backend": _row(
+        "Körsystem", "Backend", "Sistema de ejecución", "后端",
+        "Sistema de execução", "बैकएंड", "백엔드", "Bakendi",
+        "Moteur d’exécution"),
+    "SSH host": _row(
+        "SSH-värd", "SSH-Host", "Host SSH", "SSH 主机",
+        "Host SSH", "SSH होस्ट", "SSH 호스트", "SSH-hýsill", "Hôte SSH"),
+    "Remote work directory": _row(
+        "Fjärrarbetskatalog", "Remote-Arbeitsverzeichnis",
+        "Directorio de trabajo remoto", "远程工作目录",
+        "Diretório de trabalho remoto", "दूरस्थ कार्य निर्देशिका",
+        "원격 작업 디렉터리", "Fjartengd vinnumappa",
+        "Répertoire de travail distant"),
+    "Local dataset root": _row(
+        "Lokal datarot", "Lokaler Datenstamm", "Raíz local de datos",
+        "本地数据根目录", "Raiz local dos dados", "स्थानीय डेटा मूल",
+        "로컬 데이터 루트", "Staðbundin gagnarót",
+        "Racine locale des données"),
+    "Remote dataset root": _row(
+        "Fjärrdatarot", "Remote-Datenstamm", "Raíz remota de datos",
+        "远程数据根目录", "Raiz remota dos dados", "दूरस्थ डेटा मूल",
+        "원격 데이터 루트", "Fjartengd gagnarót",
+        "Racine distante des données"),
+    "spaCR runner": _row(
+        "spaCR-körare", "spaCR-Runner", "Ejecutor spaCR", "spaCR 运行程序",
+        "Executor spaCR", "spaCR रनर", "spaCR 실행기",
+        "spaCR-keyrari", "Exécutable spaCR"),
+    "Slurm options": _row(
+        "Slurm-alternativ", "Slurm-Optionen", "Opciones de Slurm",
+        "Slurm 选项", "Opções do Slurm", "Slurm विकल्प",
+        "Slurm 옵션", "Slurm-valkostir", "Options Slurm"),
+    "Submit command": _row(
+        "Skicka-kommando", "Übermittlungsbefehl", "Comando de envío",
+        "提交命令", "Comando de envio", "सबमिट कमांड",
+        "제출 명령", "Innsendingarskipun", "Commande d’envoi"),
+    "Status command": _row(
+        "Statuskommando", "Statusbefehl", "Comando de estado", "状态命令",
+        "Comando de status", "स्थिति कमांड", "상태 명령",
+        "Stöðuskipun", "Commande d’état"),
+    "Cancel command": _row(
+        "Avbryt-kommando", "Abbruchbefehl", "Comando de cancelación",
+        "取消命令", "Comando de cancelamento", "रद्द कमांड",
+        "취소 명령", "Afturköllunarskipun", "Commande d’annulation"),
+    "Log command (optional)": _row(
+        "Loggkommando (valfritt)", "Protokollbefehl (optional)",
+        "Comando de registro (opcional)", "日志命令（可选）",
+        "Comando de log (opcional)", "लॉग कमांड (वैकल्पिक)",
+        "로그 명령(선택)", "Annálaskipun (valfrjálst)",
+        "Commande de journal (facultative)"),
+    "Job-ID pattern (optional)": _row(
+        "Jobb-ID-mönster (valfritt)", "Job-ID-Muster (optional)",
+        "Patrón de ID de trabajo (opcional)", "作业 ID 模式（可选）",
+        "Padrão de ID do trabalho (opcional)",
+        "कार्य-ID पैटर्न (वैकल्पिक)", "작업 ID 패턴(선택)",
+        "Verk-ID-mynstur (valfrjálst)",
+        "Motif d’ID de tâche (facultatif)"),
+    "Poll interval": _row(
+        "Kontrollintervall", "Abfrageintervall", "Intervalo de consulta",
+        "轮询间隔", "Intervalo de consulta", "पोल अंतराल",
+        "폴링 간격", "Könnunarbil", "Intervalle d’interrogation"),
+    "Submission": _row(
+        "Inskickning", "Übermittlung", "Envío", "提交",
+        "Envio", "सबमिशन", "제출", "Innsending", "Soumission"),
+    "New profile…": _row(
+        "Ny profil…", "Neues Profil…", "Nuevo perfil…", "新建配置…",
+        "Novo perfil…", "नई प्रोफ़ाइल…", "새 프로필…",
+        "Nýtt snið…", "Nouveau profil…"),
+    "Edit profile…": _row(
+        "Redigera profil…", "Profil bearbeiten…", "Editar perfil…",
+        "编辑配置…", "Editar perfil…", "प्रोफ़ाइल संपादित करें…",
+        "프로필 편집…", "Breyta sniði…", "Modifier le profil…"),
+    "Delete profile": _row(
+        "Ta bort profil", "Profil löschen", "Eliminar perfil", "删除配置",
+        "Excluir perfil", "प्रोफ़ाइल हटाएँ", "프로필 삭제",
+        "Eyða sniði", "Supprimer le profil"),
+    "Execution target": _row(
+        "Körmål", "Ausführungsziel", "Destino de ejecución", "执行目标",
+        "Destino de execução", "निष्पादन लक्ष्य", "실행 대상",
+        "Keyrslumark", "Cible d’exécution"),
+    "Drop or choose a spaCR settings CSV/JSON": _row(
+        "Släpp eller välj en spaCR-inställningsfil (CSV/JSON)",
+        "spaCR-Einstellungen als CSV/JSON ablegen oder wählen",
+        "Suelte o elija ajustes spaCR CSV/JSON",
+        "拖放或选择 spaCR 设置 CSV/JSON",
+        "Solte ou escolha configurações spaCR CSV/JSON",
+        "spaCR सेटिंग CSV/JSON छोड़ें या चुनें",
+        "spaCR 설정 CSV/JSON을 놓거나 선택하세요",
+        "Slepptu eða veldu spaCR-stillingar CSV/JSON",
+        "Déposez ou choisissez des réglages spaCR CSV/JSON"),
+    "Submit": _row(
+        "Skicka", "Senden", "Enviar", "提交", "Enviar",
+        "सबमिट करें", "제출", "Senda", "Soumettre"),
+    "Submit remote…": _row(
+        "Skicka till fjärrsystem…", "Remote übermitteln…",
+        "Enviar en remoto…", "远程提交…", "Enviar remotamente…",
+        "दूरस्थ रूप से सबमिट करें…", "원격 제출…",
+        "Senda fjarvinnslu…", "Soumettre à distance…"),
+    "Browse…": _row(
+        "Bläddra…", "Durchsuchen…", "Examinar…", "浏览…", "Procurar…",
+        "ब्राउज़ करें…", "찾아보기…", "Fletta…", "Parcourir…"),
+    "Module": _row(
+        "Modul", "Modul", "Módulo", "模块", "Módulo",
+        "मॉड्यूल", "모듈", "Eining", "Module"),
+    "Cancel job": _row(
+        "Avbryt jobb", "Auftrag abbrechen", "Cancelar trabajo", "取消作业",
+        "Cancelar trabalho", "कार्य रद्द करें", "작업 취소",
+        "Hætta við verk", "Annuler la tâche"),
+    "Refresh log": _row(
+        "Uppdatera logg", "Protokoll aktualisieren", "Actualizar registro",
+        "刷新日志", "Atualizar log", "लॉग रीफ़्रेश करें",
+        "로그 새로고침", "Endurnýja annál", "Actualiser le journal"),
+    "Open local record": _row(
+        "Öppna lokal post", "Lokalen Datensatz öffnen",
+        "Abrir registro local", "打开本地记录", "Abrir registro local",
+        "स्थानीय रिकॉर्ड खोलें", "로컬 기록 열기",
+        "Opna staðbundna færslu", "Ouvrir le dossier local"),
+    "Job": _row(
+        "Jobb", "Auftrag", "Trabajo", "作业", "Trabalho",
+        "कार्य", "작업", "Verk", "Tâche"),
+    "Status": _row(
+        "Status", "Status", "Estado", "状态", "Status",
+        "स्थिति", "상태", "Staða", "État"),
+    "Profile": _row(
+        "Profil", "Profil", "Perfil", "配置", "Perfil",
+        "प्रोफ़ाइल", "프로필", "Snið", "Profil"),
+    "Remote ID": _row(
+        "Fjärr-ID", "Remote-ID", "ID remoto", "远程 ID", "ID remoto",
+        "दूरस्थ ID", "원격 ID", "Fjartengt ID", "ID distant"),
+    "Submitted": _row(
+        "Skickat", "Übermittelt", "Enviado", "已提交", "Enviado",
+        "सबमिट किया", "제출됨", "Sent", "Soumise"),
+    "Updated": _row(
+        "Uppdaterat", "Aktualisiert", "Actualizado", "已更新", "Atualizado",
+        "अपडेट किया", "업데이트됨", "Uppfært", "Mise à jour"),
     "Plaque Assay": _row(
         "Plackanalys", "Plaque-Assay", "Ensayo de placas", "空斑分析",
         "Ensaio de placas", "प्लाक परीक्षण", "플라크 분석", "Skellugreining",
@@ -811,7 +973,7 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         from PySide6.QtGui import QAction
         from PySide6.QtWidgets import (
             QAbstractButton, QComboBox, QGroupBox, QLabel, QLineEdit,
-            QTabWidget, QWidget,
+            QTableWidget, QTabWidget, QWidget,
         )
     except Exception:
         return
@@ -853,7 +1015,21 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                 widget._spacr_i18n_tab_sources = sources
             for index, source in enumerate(sources):
                 widget.setTabText(index, tr(source, code))
+        if isinstance(widget, QTableWidget):
+            sources = getattr(widget, "_spacr_i18n_header_sources", None)
+            if sources is None or len(sources) != widget.columnCount():
+                sources = []
+                for index in range(widget.columnCount()):
+                    item = widget.horizontalHeaderItem(index)
+                    sources.append(item.text() if item is not None else "")
+                widget._spacr_i18n_header_sources = sources
+            for index, source in enumerate(sources):
+                item = widget.horizontalHeaderItem(index)
+                if item is not None and source:
+                    item.setText(tr(source, code))
         if isinstance(widget, QComboBox) and not widget.isEditable():
+            if widget.property("i18nSkipItems"):
+                continue
             sources = getattr(widget, "_spacr_i18n_item_sources", None)
             if sources is None or len(sources) != widget.count():
                 sources = [widget.itemText(i) for i in range(widget.count())]
