@@ -69,10 +69,17 @@ a SQLite-backed project rather than scattered across unrelated files.
   interactively or run the same modules on a workstation, server, or cluster.
 - **Ten interface languages.** Switch at runtime between English, Swedish,
   German, Spanish, Mandarin Chinese, Portuguese, Hindi, Korean, Icelandic,
-  and French from Preferences; scientific terms fall back safely to English.
+  and French from Preferences. Navigation, AI and LIVE controls, spaCR-authored
+  console notices, module descriptions, and setting-help chrome follow the
+  selected language while scientific output remains canonical English. See
+  the `localization guide <https://einarolafsson.github.io/spacr/localization.html>`_.
 - **Live visual feedback.** Preview masks, tracks, timelapse
   frames, training metrics, activation maps, and image embeddings where the
   corresponding module supports them.
+- **Animated setting guidance.** Purple help dots open 94 short biological
+  animations for visual settings, while the teal dots below retain direct API
+  links. See the `setting animation gallery
+  <https://einarolafsson.github.io/spacr/setting_animations.html>`_.
 - **Reproducible execution.** Validate settings, record manifests,
   preserve run journals, rotate logs, resume supported jobs, and export
   reports with settings and package versions.
@@ -258,6 +265,45 @@ Detailed desktop, headless, development, and conda instructions appear in
 Features
 --------
 
+Internationalized desktop interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **spaCR → Preferences → Language** to retranslate the open application
+without restarting it. The selection persists for later launches, and module
+screens opened afterward inherit it automatically.
+
+- **Application chrome:** navigation, Preferences, common actions, AI and LIVE
+  controls, provider setup, chat status text, and spaCR-authored run notices.
+- **Contextual help:** reviewed descriptions for all built-in modules plus
+  localized setting names, type hints, generic explanations, and API-link
+  captions. Documentation URLs remain stable across languages.
+- **Output safety:** worker stdout, logs, tracebacks, paths, filenames,
+  database values, annotations, user messages, AI responses, measurements,
+  reports, and saved results are never translated. Unreviewed scientific
+  tooltip prose also remains English instead of becoming a misleading
+  mixed-language explanation.
+
+The full behavior, environment override, and translation-contribution format
+are documented in the
+`localization guide <https://einarolafsson.github.io/spacr/localization.html>`_.
+
+Animated setting guidance
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Visual settings can carry a purple animation dot above their teal API dot.
+Clicking it opens a square GIF immediately above the setting; clicking outside
+or pressing Escape closes it. The 94 deterministic diagrams map to 143 exact
+setting keys and share one biological grammar: rounded fibroblasts, motile
+immune cells, nuclei with unequal nucleoli, paired *Toxoplasma* tachyzoites in
+a tightly wrapped outline-only vacuole, and curved Golgi cisternae. The cell,
+nucleus, parasite-vacuole, and Golgi artwork is rendered from the reviewed SVG
+templates at high resolution, and template hashes are recorded in the asset
+manifest for reproducibility. The
+`animation gallery <https://einarolafsson.github.io/spacr/setting_animations.html>`_
+and `setting-animation registry API
+<https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_
+document every mapping.
+
 .. list-table::
    :header-rows: 1
    :widths: 25 25 25 25
@@ -266,6 +312,26 @@ Features
      - Feature
      - State
      - Description
+   * - **Desktop experience**
+     -
+     -
+     -
+   * - |feature-api-003|_
+     - |feature-docs-076|_
+     - Stable
+     - Retranslates open and lazily created screens across ten bundled languages.
+   * - |feature-api-003|_
+     - |feature-docs-077|_
+     - Stable
+     - Localizes module summaries and setting-help chrome while preserving exact API URLs.
+   * - |feature-api-050|_
+     - |feature-api-051|_
+     - Stable
+     - Localizes AI/LIVE controls, chat chrome, and spaCR notices without changing user or model content.
+   * - |feature-api-078|_
+     - |feature-docs-079|_
+     - Stable
+     - Opens 94 packaged visual-setting animations from purple help dots while preserving teal API links.
    * - **Image analysis**
      -
      -
@@ -599,6 +665,18 @@ Features
 
 .. |feature-api-075| replace:: **Genotype–phenotype linking**
 .. _feature-api-075: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+
+.. |feature-docs-076| replace:: **Ten-language localization**
+.. _feature-docs-076: https://einarolafsson.github.io/spacr/localization.html
+
+.. |feature-docs-077| replace:: **Localized contextual help**
+.. _feature-docs-077: https://einarolafsson.github.io/spacr/localization.html#contextual-help
+
+.. |feature-api-078| replace:: **Setting animation registry**
+.. _feature-api-078: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
+
+.. |feature-docs-079| replace:: **Visual setting animations**
+.. _feature-docs-079: https://einarolafsson.github.io/spacr/setting_animations.html
 
 
 Data

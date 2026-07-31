@@ -24,6 +24,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QLabel
 
+from ..i18n import tr
 from ..theme import FONT_SIZE, active_palette
 
 
@@ -45,14 +46,20 @@ class AiToggleLabel(QLabel):
 
     def __init__(self, parent=None, text: str = "AI",
                      tooltip: str | None = None):
-        super().__init__(text, parent)
-        self.setObjectName("AiToggleLabel")
-        self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip(tooltip if tooltip is not None else (
+        source_text = str(text)
+        source_tooltip = tooltip if tooltip is not None else (
             "Click to toggle AI. When ON (blue), pressing Enter in "
             "the console routes your message through your chat "
             "subscription via the selected provider."
-        ))
+        )
+        super().__init__(tr(source_text), parent)
+        # Retain canonical English sources so a runtime language switch never
+        # translates a translation and never loses the toggle's current state.
+        self.setProperty("_spacr_i18n_text", source_text)
+        self.setObjectName("AiToggleLabel")
+        self.setCursor(Qt.PointingHandCursor)
+        self.setProperty("_spacr_i18n_tooltip", source_tooltip)
+        self.setToolTip(tr(source_tooltip))
         self._on = False
         self._refresh_style()
 

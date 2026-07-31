@@ -293,7 +293,8 @@ class AlignScreen(QWidget):
         self._cols_box.setToolTip("(int) Columns in the acquisition grid.")
         grid_row.addWidget(self._cols_box)
 
-        grid_row.addWidget(QLabel("Overlap", self))
+        self._overlap_label = QLabel("Overlap", self)
+        grid_row.addWidget(self._overlap_label)
         self._overlap_box = QDoubleSpinBox(self)
         self._overlap_box.setRange(0.0, 0.95)
         self._overlap_box.setSingleStep(0.05)
@@ -302,6 +303,7 @@ class AlignScreen(QWidget):
         self._overlap_box.setToolTip(
             "(float) Nominal overlap between neighbours, as a fraction of "
             "the tile. Only seeds the search — registration corrects it.")
+        self._overlap_box._spacr_setting_label = self._overlap_label
         grid_row.addWidget(self._overlap_box)
 
         grid_row.addWidget(QLabel("Order", self))
@@ -347,12 +349,14 @@ class AlignScreen(QWidget):
             "global solve.")
         qual_row.addWidget(self._radius_box)
 
-        qual_row.addWidget(QLabel("Blend", self))
+        self._blend_label = QLabel("Blend", self)
+        qual_row.addWidget(self._blend_label)
         self._blend_combo = QComboBox(self)
         self._blend_combo.addItems(list(align_mod.BLEND_MODES))
         self._blend_combo.setToolTip(
             "(str) feather ramps each tile's weight across the overlap; "
             "none is a hard cut and leaves a visible seam.")
+        self._blend_combo._spacr_setting_label = self._blend_label
         qual_row.addWidget(self._blend_combo)
 
         qual_row.addWidget(QLabel("RAM budget (MB)", self))
@@ -433,6 +437,12 @@ class AlignScreen(QWidget):
         self._status.setObjectName("Muted")
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
+
+        from .settings_model import install_api_tooltips
+        install_api_tooltips(self, "align", {
+            self._overlap_box: "overlap",
+            self._blend_combo: "blend",
+        })
 
     # -- introspection -----------------------------------------------------
 

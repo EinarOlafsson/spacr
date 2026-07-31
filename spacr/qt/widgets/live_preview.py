@@ -19,7 +19,8 @@ their first run through the panel:
   ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that
   killed that belief.
 * **Outline colour + thickness.** Chosen from the toolbar; effect is
-  live once a mask exists.
+  live once a mask exists. ``color (random)`` assigns a stable categorical
+  colour to every object label so touching masks remain distinguishable.
 * **Multi-object segmentation.** An "object type" combo picks between
   ``cell``, ``nucleus``, and ``cell + nucleus``. In cell+nucleus mode
   the panel runs two Cellpose passes and overlays both masks in
@@ -37,6 +38,7 @@ call is lazy-imported inside the worker thread.
 """
 from __future__ import annotations
 
+import colorsys
 import logging
 import os
 from dataclasses import dataclass, field
@@ -106,6 +108,15 @@ OBJECT_COLORS: Dict[str, Tuple[int, int, int]] = {
     "nucleus":   (222, 82, 200),
     "pathogen":  (32, 200, 220),
     "organelle": (255, 220, 32),
+}
+
+# Stable offsets keep the random categorical outline map distinct between
+# compartments without making colours flicker whenever the preview refreshes.
+RANDOM_OUTLINE_SEEDS: Dict[str, int] = {
+    "cell": 11,
+    "nucleus": 37,
+    "pathogen": 61,
+    "organelle": 89,
 }
 
 # Per-compartment tuning settings, shown (greyed unless the compartment is the
@@ -235,13 +246,84 @@ def _boundary_mask(mask: np.ndarray) -> np.ndarray:
     return boundary
 
 
+def _labelled_boundary(mask: np.ndarray, thickness: int = 1) -> np.ndarray:
+    """Return each outline pixel's positive object label.
+
+    Unlike :func:`_boundary_mask`, the result retains object identity so a
+    categorical colour map can draw every segmented object differently. The
+    label is also propagated onto the exterior half of an outline and through
+    any requested dilation. Where two dilated outlines meet, the larger label
+    wins deterministically.
+
+    :param mask: two-dimensional integer label image; zero is background.
+    :param thickness: outline thickness in pixels, clamped to ``1..5``.
+    :returns: int64 array containing object labels only on outline pixels.
+    """
+    labels = np.asarray(mask, dtype=np.int64)
+    if labels.ndim != 2 or not np.any(labels > 0):
+        return np.zeros(labels.shape, dtype=np.int64)
+
+    thickness = max(1, min(5, int(thickness)))
+    boundary = _boundary_mask(labels)
+    owners = np.where(boundary & (labels > 0), labels, 0)
+
+    # Give exterior boundary pixels the label of an adjacent object. This
+    # preserves the two-sided outline produced by the pre-existing renderer.
+    neighbours = np.zeros_like(labels)
+    neighbours[1:, :] = np.maximum(neighbours[1:, :], labels[:-1, :])
+    neighbours[:-1, :] = np.maximum(neighbours[:-1, :], labels[1:, :])
+    neighbours[:, 1:] = np.maximum(neighbours[:, 1:], labels[:, :-1])
+    neighbours[:, :-1] = np.maximum(neighbours[:, :-1], labels[:, 1:])
+    exterior = boundary & (owners == 0)
+    owners[exterior] = neighbours[exterior]
+
+    for _ in range(thickness - 1):
+        expanded = np.zeros_like(owners)
+        expanded[1:, :] = np.maximum(expanded[1:, :], owners[:-1, :])
+        expanded[:-1, :] = np.maximum(expanded[:-1, :], owners[1:, :])
+        expanded[:, 1:] = np.maximum(expanded[:, 1:], owners[:, :-1])
+        expanded[:, :-1] = np.maximum(expanded[:, :-1], owners[:, 1:])
+        owners = np.where(owners > 0, owners, expanded)
+    return owners
+
+
+def _random_outline_palette(
+    labels: np.ndarray,
+    seed: int = 0,
+) -> np.ndarray:
+    """Return vivid, deterministic random-looking RGB colours for labels.
+
+    Golden-ratio hue spacing keeps adjacent integer labels separated while
+    deterministic saturation/value jitter makes the result look like a
+    random categorical colormap. Stability is intentional: changing zoom,
+    normalisation, or thickness must not recolour every object.
+
+    :param labels: one-dimensional array of positive object labels.
+    :param seed: stable compartment-specific colour offset.
+    :returns: ``(N, 3)`` uint8 RGB array in the same order as ``labels``.
+    """
+    values = np.asarray(labels, dtype=np.int64).reshape(-1)
+    if values.size == 0:
+        return np.empty((0, 3), dtype=np.uint8)
+    phase = (int(seed) % 997) / 997.0
+    hues = np.mod(values * 0.618033988749895 + phase, 1.0)
+    saturations = 0.72 + 0.25 * np.mod(values * 37 + seed, 101) / 100.0
+    brightness = 0.86 + 0.13 * np.mod(values * 53 + seed, 97) / 96.0
+    colours = [
+        colorsys.hsv_to_rgb(float(hue), float(saturation), float(value))
+        for hue, saturation, value in zip(hues, saturations, brightness)
+    ]
+    return np.rint(np.asarray(colours) * 255.0).astype(np.uint8)
+
+
 def overlay_masks(image: np.ndarray,
                     masks: Dict[str, np.ndarray],
                     outline_rgb: Optional[Tuple[int, int, int]] = None,
                     outline_thickness: int = 1,
                     normalise: bool = True,
                     lo_pct: float = 2.0,
-                    hi_pct: float = 98.0) -> np.ndarray:
+                    hi_pct: float = 98.0,
+                    random_outline: bool = False) -> np.ndarray:
     """Return an RGB uint8 view of ``image`` with every mask's boundary
     drawn in the object's colour (or ``outline_rgb`` when supplied).
 
@@ -253,6 +335,9 @@ def overlay_masks(image: np.ndarray,
     :param outline_thickness: number of pixels the boundary is dilated
         by (1 = crisp, 3 = highlighter). Tops out at 5.
     :param normalise: forwarded to :func:`_to_uint8`.
+    :param random_outline: assign every positive object label a vivid,
+        stable categorical colour. This takes precedence over
+        ``outline_rgb`` and corresponds to ``color (random)`` in Mask Live.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -273,6 +358,21 @@ def overlay_masks(image: np.ndarray,
                       obj_type, mask.shape, rgb.shape[:2])
             continue
         if not mask.any():
+            continue
+        if random_outline:
+            labelled_boundary = _labelled_boundary(mask, outline_thickness)
+            pixels = labelled_boundary > 0
+            if not pixels.any():
+                continue
+            object_labels = np.unique(labelled_boundary[pixels])
+            palette = _random_outline_palette(
+                object_labels,
+                RANDOM_OUTLINE_SEEDS.get(obj_type, 0),
+            )
+            palette_indices = np.searchsorted(
+                object_labels, labelled_boundary[pixels],
+            )
+            rgb[pixels] = palette[palette_indices]
             continue
         boundary = _boundary_mask(mask.astype(np.int32))
         for _ in range(outline_thickness - 1):
@@ -804,8 +904,8 @@ class LivePreviewPanel(QWidget):
 
         # Outline appearance
         self._outline_colour = QComboBox(self)
-        for name in ("auto", "green", "magenta", "yellow", "cyan",
-                       "white", "red"):
+        for name in ("auto", "color (random)", "green", "magenta",
+                     "yellow", "cyan", "white", "red"):
             self._outline_colour.addItem(name)
         self._outline_colour.currentIndexChanged.connect(
             self._refresh_canvases)
@@ -844,7 +944,9 @@ class LivePreviewPanel(QWidget):
         self._hi_pct.setToolTip(
             "(float, %) Upper percentile for normalisation.")
         self._outline_colour.setToolTip(
-            "(str) Overlay outline colour ('auto' = per-object colour).")
+            "(str) Overlay outline colour. 'auto' uses one colour per "
+            "compartment; 'color (random)' gives every segmented object a "
+            "different stable categorical colour.")
         self._outline_thickness.setToolTip(
             "(int, px) Overlay outline thickness.")
 
@@ -1317,7 +1419,8 @@ class LivePreviewPanel(QWidget):
 
     def _outline_rgb(self) -> Optional[Tuple[int, int, int]]:
         """Translate the outline-colour combo choice into an RGB tuple,
-        or ``None`` when the user picked 'auto' (per-object colour)."""
+        or ``None`` for ``auto`` and ``color (random)``. The latter is
+        handled separately by :func:`overlay_masks`."""
         choice = self._outline_colour.currentText()
         mapping = {
             "green":   (32, 220, 32),
@@ -1352,7 +1455,10 @@ class LivePreviewPanel(QWidget):
                 self._image, self._masks,
                 outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
-                normalise=norm, lo_pct=lo, hi_pct=hi)
+                normalise=norm, lo_pct=lo, hi_pct=hi,
+                random_outline=(
+                    self._outline_colour.currentText() == "color (random)"
+                ))
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)

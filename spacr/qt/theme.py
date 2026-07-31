@@ -1503,7 +1503,8 @@ QLabel {{
  * the section's dark-gray surface even though the QLabel itself is transparent.
  * Both wrappers are structural and must show their actual container through. */
 QWidget#SettingLabelWithInfo,
-QWidget#SettingControlWithInfo {{
+QWidget#SettingControlWithInfo,
+QWidget#SettingLinkStack {{
     background: transparent;
 }}
 /* Grey out text on disabled widgets (e.g. a live-preview compartment panel
