@@ -47,6 +47,10 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from .checkpoint import CheckpointStore, fingerprint, json_safe
+from .cancellation import (
+    PipelineCancelled,
+    checkpoint as cancellation_checkpoint,
+)
 
 __all__ = [
     "SearchSpace",
@@ -828,6 +832,7 @@ def _run_trials(fit_fn: Callable[..., Any],
     prior = dict(prior_trials or {})
 
     for idx, params in enumerate(param_sets):
+        cancellation_checkpoint()
         key = _trial_key(params)
         if key in prior:
             trial = prior[key]
@@ -852,6 +857,8 @@ def _run_trials(fit_fn: Callable[..., Any],
             if trial.score is None:
                 trial.error = ("fit function returned no score for this "
                                "configuration")
+        except PipelineCancelled:
+            raise
         except Exception as exc:  # one bad configuration must not lose the sweep
             trial.error = f"{type(exc).__name__}: {exc}"
         trial.duration = time.perf_counter() - started
@@ -1170,6 +1177,7 @@ def local_direction_search(
     stopped = False
 
     for _round_index in range(rounds_completed, max_rounds):
+        cancellation_checkpoint()
         candidates = []
         candidate_keys = set()
         for n_delta in (-n_step, n_step):
@@ -1189,6 +1197,7 @@ def local_direction_search(
             break
         round_trials: List[Trial] = []
         for params in candidates:
+            cancellation_checkpoint()
             key = _trial_key(params)
             prior = loaded.get(key)
             if prior is not None and prior[1] == _round_index:
@@ -1211,6 +1220,8 @@ def local_direction_search(
                 if trial.score is None:
                     trial.error = (
                         "fit function returned no score for this configuration")
+            except PipelineCancelled:
+                raise
             except Exception as exc:
                 trial.error = f"{type(exc).__name__}: {exc}"
             trial.duration = time.perf_counter() - started

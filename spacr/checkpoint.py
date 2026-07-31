@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
+from .cancellation import checkpoint as cancellation_checkpoint
 from .errors import ConfigurationError
 
 __all__ = [
@@ -267,6 +268,10 @@ class CheckpointStore:
             self._document.setdefault("meta", {}).update(json_safe(dict(meta)))
         self._document["status"] = "running"
         self.flush()
+        # The unit is now durable.  This is the earliest safe point at which
+        # a GUI Stop request may leave the workflow without losing or
+        # half-writing that unit.
+        cancellation_checkpoint()
 
     def update(
         self,
