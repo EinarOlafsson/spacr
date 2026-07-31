@@ -31,15 +31,16 @@ from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor, QIcon, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
-    QGridLayout, QHBoxLayout, QHeaderView, QGroupBox, QLabel, QLineEdit,
-    QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter, QTabWidget,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QDoubleSpinBox, QGridLayout, QHBoxLayout, QHeaderView, QGroupBox, QLabel,
+    QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
+    QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 from ..widgets.toggle import Toggle
 
 from ...hyperparam import (
-    APP_CRITERIA, DEFAULT_SPACES, LOWER_IS_BETTER,
-    SearchResult, SearchSpace, Trial, UMAP_CRITERIA, run_search_for_app,
+    APP_CRITERIA, DEFAULT_SPACES, DEFAULT_UMAP_OBJECTIVE_WEIGHTS,
+    LOWER_IS_BETTER, SearchResult, SearchSpace, Trial, UMAP_CRITERIA,
+    run_search_for_app,
 )
 from ..theme import active_palette, css_color
 
@@ -169,6 +170,12 @@ def format_scores(trial: Trial, keys: Sequence[str] = ()) -> str:
     verdict = extra.get("sanity_verdict")
     if isinstance(verdict, str) and verdict:
         lines.append(verdict)
+    for key in (
+        "cluster_structure_method", "cluster_counts", "objective_weights",
+    ):
+        value = extra.get(key)
+        if value not in (None, "", [], {}):
+            lines.append(f"{key} = {value}")
     return "\n".join(lines)
 
 
@@ -390,6 +397,10 @@ class SearchRequest:
     n_neighbors_step: int = 1
     min_dist_step: float = 0.05
     min_improvement: float = 0.0
+    stability_repeats: int = 3
+    objective_weights: Dict[str, float] = field(
+        default_factory=lambda: dict(DEFAULT_UMAP_OBJECTIVE_WEIGHTS)
+    )
     seed: int = 0
     n_folds: int = 5
     resume: bool = False
@@ -452,6 +463,8 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
         n_neighbors_step=request.n_neighbors_step,
         min_dist_step=request.min_dist_step,
         min_improvement=request.min_improvement,
+        stability_repeats=request.stability_repeats,
+        objective_weights=request.objective_weights,
         seed=request.seed, n_folds=request.n_folds,
         on_trial=on_trial, should_stop=should_stop,
         resume=request.resume)
@@ -654,6 +667,87 @@ class HyperparamPanel(QWidget):
             "has no single score for whether a picture contains meaningful "
             "biological structure.")
         settings_layout.addWidget(self._criterion_help)
+
+        # Multi-objective UMAP controls. These stay visible in the Search tab
+        # so the composite is never a hidden formula, but are editable only
+        # while that criterion is selected.
+        self._multi_objective_controls = QWidget(self)
+        self._multi_objective_controls.setObjectName(
+            "UmapHyperparamControls"
+            if self.app_key == "umap" else "HyperparamControls")
+        objective_grid = QGridLayout(self._multi_objective_controls)
+        objective_grid.setContentsMargins(0, 0, 0, 0)
+        objective_grid.setHorizontalSpacing(6)
+        objective_grid.setVerticalSpacing(6)
+        repeats_label = QLabel("stability repeats")
+        self._stability_repeats = QSpinBox()
+        self._stability_repeats.setRange(2, 20)
+        self._stability_repeats.setValue(3)
+        repeats_tip = (
+            "Independent, reproducibly seeded UMAP fits per configuration. "
+            "Neighbour overlap across repeats is the stability objective. "
+            "Runtime scales linearly; 3 is a practical default. API: "
+            "spacr.hyperparam.embedding_stability."
+        )
+        repeats_label.setToolTip(repeats_tip)
+        self._stability_repeats.setToolTip(repeats_tip)
+        self._stability_repeats._spacr_setting_label = repeats_label
+        objective_grid.addWidget(repeats_label, 0, 0)
+        objective_grid.addWidget(self._stability_repeats, 0, 1)
+
+        objective_specs = (
+            (
+                "neighborhood weight",
+                "_neighborhood_weight",
+                "umap_neighborhood_weight",
+                DEFAULT_UMAP_OBJECTIVE_WEIGHTS[
+                    "neighborhood_preservation"],
+                "Weight for the geometric mean of trustworthiness and "
+                "continuity. Both invented and lost neighbours are penalized.",
+            ),
+            (
+                "stability weight",
+                "_stability_weight",
+                "umap_stability_weight",
+                DEFAULT_UMAP_OBJECTIVE_WEIGHTS["stability"],
+                "Weight for repeat-to-repeat nearest-neighbour agreement.",
+            ),
+            (
+                "cluster weight",
+                "_cluster_weight",
+                "umap_cluster_structure_weight",
+                DEFAULT_UMAP_OBJECTIVE_WEIGHTS["cluster_structure"],
+                "Weight for positive silhouette structure. Supplied labels "
+                "are used when available; otherwise spaCR discovers a "
+                "reproducible 2–8 cluster partition.",
+            ),
+        )
+        for offset, (
+            label_text, attr, setting_key, default, detail,
+        ) in enumerate(objective_specs, start=1):
+            label = QLabel(label_text)
+            spin = QDoubleSpinBox()
+            spin.setRange(0.0, 100.0)
+            spin.setDecimals(3)
+            spin.setSingleStep(0.05)
+            spin.setValue(default)
+            tip = (
+                f"{detail} Weights are normalized to sum to one; at least one "
+                "must be positive. API: "
+                "spacr.hyperparam.umap_objective_scores."
+            )
+            label.setToolTip(tip)
+            spin.setToolTip(tip)
+            spin._spacr_setting_label = label
+            spin.setProperty("settingKey", setting_key)
+            setattr(self, attr, spin)
+            row, column = divmod(offset, 2)
+            objective_grid.addWidget(label, row, column * 2)
+            objective_grid.addWidget(spin, row, column * 2 + 1)
+        objective_grid.setColumnStretch(1, 1)
+        objective_grid.setColumnStretch(3, 1)
+        self._multi_objective_controls.setVisible(self.app_key == "umap")
+        settings_layout.addWidget(self._multi_objective_controls)
         self._update_criterion_explanation(self._criterion.currentText())
 
         # -- adaptive UMAP controls. Blank means the documented API default.
@@ -842,6 +936,10 @@ class HyperparamPanel(QWidget):
         if self.app_key == "umap":
             detail = UMAP_CRITERIA.get(criterion, "")
             recommendation = {
+                "multi_objective": (
+                    "Recommended when you want unknown structure: inspect the "
+                    "Pareto front rather than treating the composite top row "
+                    "as a uniquely correct answer."),
                 "trustworthiness": (
                     "Best default for finding local structure without "
                     "inventing apparent neighbours."),
@@ -855,6 +953,9 @@ class HyperparamPanel(QWidget):
             self._criterion_help.setText(
                 f"{criterion}: {detail} {recommendation}")
             self._criterion.setToolTip(self._criterion_help.text())
+            controls = getattr(self, "_multi_objective_controls", None)
+            if controls is not None:
+                controls.setEnabled(criterion == "multi_objective")
             return
         self._criterion_help.setText(
             f"{criterion} ranks the trials. See the control tooltip and the "
@@ -1018,6 +1119,24 @@ class HyperparamPanel(QWidget):
         except ValueError as exc:
             self._status.setText(str(exc))
             return False
+        objective_weights = dict(DEFAULT_UMAP_OBJECTIVE_WEIGHTS)
+        stability_repeats = 3
+        if self.app_key == "umap":
+            objective_weights = {
+                "neighborhood_preservation":
+                    float(self._neighborhood_weight.value()),
+                "stability": float(self._stability_weight.value()),
+                "cluster_structure": float(self._cluster_weight.value()),
+            }
+            stability_repeats = int(self._stability_repeats.value())
+            if (
+                self._criterion.currentText() == "multi_objective"
+                and sum(objective_weights.values()) <= 0
+            ):
+                self._status.setText(
+                    "At least one multi-objective UMAP weight must be positive."
+                )
+                return False
 
         request = SearchRequest(
             app_key=self.app_key,
@@ -1030,6 +1149,8 @@ class HyperparamPanel(QWidget):
             n_neighbors_step=n_step,
             min_dist_step=d_step,
             min_improvement=improvement,
+            stability_repeats=stability_repeats,
+            objective_weights=objective_weights,
             seed=int(self._seed.value()),
             n_folds=int(self._n_folds.value()),
             resume=self.app_key == "umap" and self._resume.isChecked(),
@@ -1173,6 +1294,13 @@ class HyperparamPanel(QWidget):
                     f"winner is arbitrary.")
         if result.n_failed:
             summary.append(f"{result.n_failed} trials failed.")
+        pareto = result.pareto_front()
+        if pareto:
+            summary.append(
+                f"Pareto front: {len(pareto)} non-dominated "
+                "configuration(s); inspect their objective tooltips before "
+                "propagating one."
+            )
         disagreement = criteria_disagree(result,
                                          APP_CRITERIA.get(self.app_key, ()))
         if disagreement:
@@ -1218,12 +1346,17 @@ class HyperparamPanel(QWidget):
     def _rebuild_table(self, result: SearchResult) -> None:
         """Redraw the table best-first, failures last."""
         self._table.setRowCount(0)
+        pareto_ids = {id(trial) for trial in result.pareto_front()}
         for rank, trial in enumerate(result.ranked(), start=1):
             row = self._table.rowCount()
             self._table.insertRow(row)
             self._set_row(row, str(rank), f"{float(trial.score):.4f}",
                           self._fold_sd(trial), format_params(trial.params),
-                          "ok", trial.params, None, trial)
+                          (
+                              "Pareto" if id(trial) in pareto_ids
+                              else "dominated"
+                          ) if result.objectives else "ok",
+                          trial.params, None, trial)
         for trial in result.failed:
             row = self._table.rowCount()
             self._table.insertRow(row)
@@ -1562,6 +1695,10 @@ class UmapSearchSettingsDialog(QDialog):
             panel._adaptive_d_step: "min_dist_step",
             panel._adaptive_rounds: "n_trials",
             panel._adaptive_improvement: "min_improvement",
+            panel._stability_repeats: "umap_stability_repeats",
+            panel._neighborhood_weight: "umap_neighborhood_weight",
+            panel._stability_weight: "umap_stability_weight",
+            panel._cluster_weight: "umap_cluster_structure_weight",
             panel._max_panels: "max_panels",
         }
         install_api_tooltips(self, panel.app_key, search_tooltips)

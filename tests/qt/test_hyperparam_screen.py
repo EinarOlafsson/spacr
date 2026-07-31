@@ -17,8 +17,6 @@ import threading
 import numpy as np
 import pytest
 
-from PySide6.QtCore import Qt
-
 from spacr.hyperparam import SearchResult, SearchSpace, Trial
 from spacr.qt.screens.hyperparam import (
     APP_PARAMS,
@@ -130,6 +128,8 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
             panel._adaptive, panel._resume, panel._n_trials, panel._seed,
             panel._adaptive_n_step, panel._adaptive_d_step,
             panel._adaptive_rounds, panel._adaptive_improvement,
+            panel._stability_repeats, panel._neighborhood_weight,
+            panel._stability_weight, panel._cluster_weight,
             panel._max_panels,
     )
     for widget in help_widgets:
@@ -142,6 +142,12 @@ def test_umap_settings_uses_measure_style_tabbed_dialog(panel, qtbot):
             # Adaptive is a Toggle: its text is both label and control.
             assert "href=" in widget.toolTip()
             assert getattr(widget, "_spacr_api_dot", None) is not None
+    for widget in (
+        panel._stability_repeats, panel._neighborhood_weight,
+        panel._stability_weight, panel._cluster_weight,
+    ):
+        assert "/spacr/hyperparam/index.html" in \
+            widget._spacr_setting_label.toolTip()
     for widget in dialog._module_model._widgets.values():
         label = getattr(widget, "_spacr_setting_label", None)
         assert label is not None
@@ -360,7 +366,20 @@ class TestConstruction:
     def test_criteria_combo_offers_the_apps_criteria(self, panel):
         items = [panel._criterion.itemText(i)
                  for i in range(panel._criterion.count())]
-        assert items == ["trustworthiness", "continuity", "silhouette"]
+        assert items == [
+            "trustworthiness", "continuity", "silhouette",
+            "multi_objective",
+        ]
+
+    def test_multi_objective_controls_explain_and_enable_together(self, panel):
+        assert not panel._multi_objective_controls.isEnabled()
+        panel._criterion.setCurrentText("multi_objective")
+        assert panel._multi_objective_controls.isEnabled()
+        assert "Pareto front" in panel._criterion_help.text()
+        assert panel._stability_repeats.value() == 3
+        assert panel._neighborhood_weight.value() == pytest.approx(0.4)
+        assert panel._stability_weight.value() == pytest.approx(0.3)
+        assert panel._cluster_weight.value() == pytest.approx(0.3)
 
     def test_folds_control_is_hidden_for_umap(self, panel, qtbot,
                                               qt_theme_applied):
@@ -562,6 +581,37 @@ class TestRunningASearch:
         assert scores == sorted(scores, reverse=True)
         assert panel._table.item(0, 0).text() == "1"
 
+    def test_multi_objective_table_marks_pareto_and_dominated_rows(
+            self, panel):
+        objectives = (
+            "neighborhood_preservation", "stability", "cluster_structure",
+        )
+        leading = Trial(
+            {"n_neighbors": 5}, score=0.8, index=0,
+            extra_metrics=dict(zip(objectives, (0.9, 0.8, 0.7))),
+        )
+        tradeoff = Trial(
+            {"n_neighbors": 15}, score=0.75, index=1,
+            extra_metrics=dict(zip(objectives, (0.7, 0.7, 0.95))),
+        )
+        dominated = Trial(
+            {"n_neighbors": 50}, score=0.5, index=2,
+            extra_metrics=dict(zip(objectives, (0.5, 0.5, 0.5))),
+        )
+        result = SearchResult(
+            trials=[leading, tradeoff, dominated],
+            best=leading,
+            metric="multi_objective",
+            objectives={name: True for name in objectives},
+        )
+        panel._on_search_done(result, "")
+        statuses = [
+            panel._table.item(row, 4).text()
+            for row in range(panel._table.rowCount())
+        ]
+        assert statuses == ["Pareto", "Pareto", "dominated"]
+        assert "Pareto front: 2" in panel._status.text()
+
     def test_failed_trials_land_at_the_bottom_with_their_error(self, panel,
                                                                qtbot):
         self._prep(panel)
@@ -662,6 +712,44 @@ class TestRunningASearch:
         assert req.seed == 11
         assert req.settings["src"] == "/data"
         assert req.space.params["n_neighbors"] == (5, 15)
+
+    def test_request_carries_multi_objective_repeats_and_weights(
+            self, panel, qtbot):
+        self._prep(panel, "5, 15")
+        captured = {}
+
+        def _search(request, on_trial, should_stop):
+            captured["request"] = request
+            return SearchResult(
+                space=request.space, metric=request.criterion,
+            )
+
+        panel._criterion.setCurrentText("multi_objective")
+        panel._stability_repeats.setValue(4)
+        panel._neighborhood_weight.setValue(0.5)
+        panel._stability_weight.setValue(0.2)
+        panel._cluster_weight.setValue(0.3)
+        panel.set_search_fn(_search)
+        with qtbot.waitSignal(panel.search_finished, timeout=5000):
+            assert panel.run_search()
+
+        request = captured["request"]
+        assert request.criterion == "multi_objective"
+        assert request.stability_repeats == 4
+        assert request.objective_weights == {
+            "neighborhood_preservation": 0.5,
+            "stability": 0.2,
+            "cluster_structure": 0.3,
+        }
+
+    def test_zero_multi_objective_weights_are_rejected_inline(self, panel):
+        self._prep(panel, "5")
+        panel._criterion.setCurrentText("multi_objective")
+        panel._neighborhood_weight.setValue(0)
+        panel._stability_weight.setValue(0)
+        panel._cluster_weight.setValue(0)
+        assert panel.run_search() is False
+        assert "at least one" in panel._status.text().lower()
 
     def test_each_run_refreshes_the_host_settings_snapshot(self, panel, qtbot):
         """A source dropped after opening the panel reaches the next search."""
