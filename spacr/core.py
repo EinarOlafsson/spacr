@@ -91,6 +91,7 @@ def preprocess_generate_masks(settings):
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
+    from .cancellation import checkpoint as cancellation_checkpoint
 
     # A new run gets to state its model choice again; within one run each
     # notice is printed once per object type rather than once per field.
@@ -169,6 +170,7 @@ def preprocess_generate_masks(settings):
         # only managed three must not report as if it did four.
         ledger = RunLedger('preprocess_generate_masks')
         for source_folder in source_folders:
+            cancellation_checkpoint()
 
             print(f'Processing folder: {source_folder}')
 
@@ -273,6 +275,7 @@ def preprocess_generate_masks(settings):
                 mask_src = os.path.join(src, 'masks')
                 
                 if settings['cell_channel'] != None:
+                    cancellation_checkpoint()
                     time_ls=[]
                     if check_mask_folder(
                             src, 'cell_mask_stack',
@@ -286,6 +289,7 @@ def preprocess_generate_masks(settings):
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
                     
                 if settings['nucleus_channel'] != None:
+                    cancellation_checkpoint()
                     time_ls=[]
                     if check_mask_folder(
                             src, 'nucleus_mask_stack',
@@ -299,6 +303,7 @@ def preprocess_generate_masks(settings):
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
                     
                 if settings['pathogen_channel'] != None:
+                    cancellation_checkpoint()
                     time_ls=[]
                     if check_mask_folder(
                             src, 'pathogen_mask_stack',
@@ -312,6 +317,7 @@ def preprocess_generate_masks(settings):
                         print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
                         
                 if settings['organelle_channel'] != None:
+                    cancellation_checkpoint()
                     time_ls=[]
                     if check_mask_folder(
                             src, 'organelle_mask_stack',
@@ -392,6 +398,7 @@ def preprocess_generate_masks(settings):
                         time_ls = []
 
                         for i, file in enumerate(files):
+                            cancellation_checkpoint()
                             start = time.time()
                             if i+1 <= settings['examples_to_plot']:
                                 file_path = os.path.join(merged_src, file)

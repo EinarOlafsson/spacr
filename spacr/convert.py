@@ -106,6 +106,7 @@ import pandas as pd
 
 from . import schema
 from .checkpoint import CheckpointStore, fingerprint
+from .cancellation import checkpoint as cancellation_checkpoint
 from .errors import ConfigurationError, RunLedger
 from .tiff_io import write_tiff
 
@@ -1765,7 +1766,13 @@ def _valid_converted_tiff(path: str) -> bool:
                 return False
             shape = tuple(int(value) for value in handle.series[0].shape)
             return bool(shape) and all(value > 0 for value in shape)
-    except (OSError, ValueError, IndexError):
+    except Exception:
+        # This is a validity predicate used to decide whether a field may be
+        # resumed. tifffile has changed the public base class of
+        # ``TiffFileError`` across releases, so enumerating its exception
+        # hierarchy let truncated files escape in some supported
+        # environments. Any reader failure means the artifact is not valid
+        # enough to trust and must be rebuilt.
         return False
 
 
@@ -1868,6 +1875,7 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
     ordered = sorted(by_source)
     total = len(ordered)
     for index, key in enumerate(ordered, start=1):
+        cancellation_checkpoint()
         path, series = key
         group = by_source[key]
         pending_group = [
