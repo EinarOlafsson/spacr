@@ -713,10 +713,19 @@ def api_docs_url(app_key: str, key: str = "") -> str:
         "evaluation_bins",
         "evaluation_fail_on_leakage",
     }
+    umap_search_keys = {
+        "criterion", "search_mode", "adaptive", "n_trials", "n_folds",
+        "random_seed", "resume_search", "n_neighbors_step",
+        "min_dist_step", "min_improvement", "max_panels",
+        "umap_stability_repeats", "umap_neighborhood_weight",
+        "umap_stability_weight", "umap_cluster_structure_weight",
+    }
     if key.startswith("batch_"):
         module = "batch_correction"
     elif key in evaluation_keys:
         module = "classifier_evaluation"
+    elif app_key == "umap" and key in umap_search_keys:
+        module = "hyperparam"
     else:
         module = _APP_API_MODULE.get(app_key)
     if module:
