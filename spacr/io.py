@@ -5201,6 +5201,52 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
     return folds
 
 
+def make_validation_holdout(labels, validation_fraction, groups, seed=0):
+    """Choose one stratified group fold closest to a requested holdout size.
+
+    The ordinary Classify validation split used to call ``random_split`` and
+    could put crops from one well on both sides even though grouped CV did not.
+    This helper uses the same group-stratified partitioner as CV and selects
+    the candidate fold closest to the requested size and class distribution.
+    """
+    labels = np.asarray([int(value) for value in labels])
+    fraction = float(validation_fraction)
+    if not 0.0 < fraction < 1.0:
+        raise ValueError("validation_fraction must be strictly between 0 and 1")
+    if groups is None or len(groups) != len(labels):
+        raise ValueError("group-aware validation requires one group per sample")
+    distinct = len(set(str(group) for group in groups))
+    if distinct < 2:
+        raise ValueError(
+            "A leakage-safe validation split needs at least two distinct groups; "
+            "choose a finer cv_group_by level or add another group."
+        )
+    requested_folds = max(2, int(round(1.0 / fraction)))
+    n_splits = min(requested_folds, distinct)
+    candidates = make_cv_folds(
+        labels, n_splits, groups=groups, seed=seed,
+    )
+    target_size = fraction * len(labels)
+    total_distribution = np.bincount(
+        labels, minlength=(int(labels.max()) + 1 if len(labels) else 0)
+    ).astype(float)
+    total_distribution /= max(total_distribution.sum(), 1.0)
+
+    def score(candidate):
+        _train, validation = candidate
+        distribution = np.bincount(
+            labels[validation], minlength=len(total_distribution)
+        ).astype(float)
+        distribution /= max(distribution.sum(), 1.0)
+        size_cost = abs(len(validation) - target_size) / max(len(labels), 1)
+        class_cost = float(np.mean(np.abs(
+            distribution - total_distribution
+        ))) if len(total_distribution) else 0.0
+        return size_cost + class_cost, len(validation)
+
+    return min(candidates, key=score)
+
+
 def summarize_cv_folds(labels, folds, classes=None, groups=None):
     """Tabulate fold sizes and per-class validation counts.
 
@@ -5497,7 +5543,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=None, n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=None,
                      augment=False, verbose=False, class_balance='none',
-                     seed=42):
+                     seed=42, group_by='none'):
     """Build ``spacrDataLoader`` objects for training, validation, or testing.
 
     Reads class subfolders under ``src/<mode>``, applies the requested
@@ -5521,6 +5567,9 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         ``WeightedRandomSampler`` to the TRAIN loader only. The skew is
         reported either way.
     :param seed: Reproducible train/validation split and loader order.
+    :param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition
+        identity entirely on one side of the ordinary validation holdout.
+        ``none`` retains the legacy per-object random split.
     :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
         for ``mode='test'``, the test loader (plus optional metadata).
     :raises ValueError: if ``class_balance`` is not a recognised mode.
@@ -5558,13 +5607,29 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     use_persistent = num_workers > 0
 
     if validation_split > 0 and mode == 'train':
-        train_size = int((1 - validation_split) * len(data))
-        val_size = len(data) - train_size
+        if group_by != 'none':
+            filenames = dataset_filenames(data)
+            groups, _unparsed = _cv_group_ids(
+                filenames, group_by, verbose=True,
+            )
+            train_idx, val_idx = make_validation_holdout(
+                dataset_labels(data),
+                validation_split,
+                groups,
+                seed=seed,
+            )
+            train_dataset = Subset(data, list(train_idx))
+            val_dataset = Subset(data, list(val_idx))
+            train_size, val_size = len(train_idx), len(val_idx)
+        else:
+            train_size = int((1 - validation_split) * len(data))
+            val_size = len(data) - train_size
+            generator = torch.Generator().manual_seed(int(seed))
+            train_dataset, val_dataset = random_split(
+                data, [train_size, val_size], generator=generator)
         if not augment:
             print(f'Train data:{train_size}, Validation data:{val_size}')
         generator = torch.Generator().manual_seed(int(seed))
-        train_dataset, val_dataset = random_split(
-            data, [train_size, val_size], generator=generator)
 
         if augment:
             print(f'Data before augmentation: Train: {len(train_dataset)}, Validation:{len(val_dataset)}')
@@ -6108,6 +6173,7 @@ def generate_training_dataset(settings):
         test_split=settings['test_split'],
         db_path=crop_db_path,
         random_seed=settings.get('random_seed', 42),
+        group_by=settings.get('cv_group_by', 'well'),
     )
 
     # expose actual disk classes for downstream training
@@ -6343,7 +6409,8 @@ def _write_class_item(item, dst_dir):
 
 
 def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
-                                db_path=None, random_seed=42):
+                                db_path=None, random_seed=42,
+                                group_by='well'):
     """Put the crops listed per class into ``dst/train/<class>`` and ``dst/test/<class>``.
 
     An entry may be a **path**, which is copied byte for byte exactly as
@@ -6368,6 +6435,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
     :param db_path: optional ``measurements.db`` consulted for the crop format
         of a source folder that carries no sidecar.
     :param random_seed: Reproducible per-class train/test split seed.
+    :param group_by: acquisition identity kept intact across the permanent
+        train/test boundary. Default ``well``. ``none`` uses independent
+        per-class splitting for legacy callers.
     :returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.
     :raises ValueError: if ``len(class_data) != len(classes)``.
     """
@@ -6399,7 +6469,59 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         mark_crop_output_folder(dst, fmt=fmt, classes=list(map(str, classes)),
                                 split='train/test')
 
-    for cls, data in zip(classes, class_data):
+    grouped_splits = None
+    if group_by != 'none':
+        flat_items = []
+        flat_labels = []
+        flat_groups = []
+        for class_index, data in enumerate(class_data):
+            for item_index, item in enumerate(data):
+                name = (
+                    item.name if isinstance(item, LazyCropPNG)
+                    else os.path.basename(str(item))
+                )
+                group = _png_group_id(name, group_by)
+                if group is None:
+                    # Keep unknown items independent while preserving the
+                    # original filename for the later strict audit to flag.
+                    group = f"unparsed:{class_index}:{item_index}:{name}"
+                flat_items.append(item)
+                flat_labels.append(class_index)
+                flat_groups.append(group)
+        if flat_items:
+            train_indices, test_indices = make_validation_holdout(
+                flat_labels,
+                test_split,
+                flat_groups,
+                seed=random_seed,
+            )
+            train_index_set = set(map(int, train_indices))
+            test_index_set = set(map(int, test_indices))
+            grouped_splits = {
+                class_index: ([], []) for class_index in range(len(classes))
+            }
+            for index, (item, class_index) in enumerate(
+                zip(flat_items, flat_labels)
+            ):
+                destination = (
+                    grouped_splits[class_index][0]
+                    if index in train_index_set
+                    else grouped_splits[class_index][1]
+                )
+                destination.append(item)
+            for class_index, (train_items, test_items) in grouped_splits.items():
+                if class_data[class_index] and (
+                    not train_items or not test_items
+                ):
+                    raise ValueError(
+                        f"Leakage-safe {group_by}-grouped split leaves class "
+                        f"{classes[class_index]!r} empty in "
+                        f"{'train' if not train_items else 'test'}. Add more "
+                        f"independent {group_by}s, lower test_split, or choose "
+                        "a finer grouping level."
+                    )
+
+    for class_index, (cls, data) in enumerate(zip(classes, class_data)):
         # Create directories
         train_class_dir = os.path.join(dst, f'train/{cls}')
         test_class_dir = os.path.join(dst, f'test/{cls}')
@@ -6416,9 +6538,12 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        train_data, test_data = train_test_split(
-            data, test_size=test_split, shuffle=True,
-            random_state=int(random_seed))
+        if grouped_splits is not None:
+            train_data, test_data = grouped_splits[class_index]
+        else:
+            train_data, test_data = train_test_split(
+                data, test_size=test_split, shuffle=True,
+                random_state=int(random_seed))
 
         # Write train files
         for item in train_data:

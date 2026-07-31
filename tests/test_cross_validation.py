@@ -581,7 +581,9 @@ def test_nested_cv_uses_inner_validation_and_untouched_outer_folds(
     ) as handle:
         leakage = json.load(handle)
     assert leakage["passed"]
-    assert len(leakage["folds"]) == 6
+    # One whole-partition proof + two outer and four inner boundaries.
+    assert len(leakage["folds"]) == 7
+    assert leakage["folds"][0]["split_name"] == "all_cv_folds"
     assert all(report["passed"] for report in leakage["folds"])
 
 

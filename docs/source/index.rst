@@ -120,4 +120,5 @@ Contents
    umap_multiobjective
    distributed_execution
    plugin_sdk
+   leakage_audit
    api/index

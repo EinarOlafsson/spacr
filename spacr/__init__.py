@@ -91,6 +91,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sim",
     "object",
     "cli",
+    "cli_leakage",
     "cli_plugins",
     "cli_remote",
     "cli_repro",

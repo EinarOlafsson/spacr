@@ -823,6 +823,9 @@ def _set_classifier_evaluation_defaults(settings):
     settings.setdefault('evaluation_calibration', 'temperature')
     settings.setdefault('evaluation_bins', 10)
     settings.setdefault('evaluation_fail_on_leakage', True)
+    settings.setdefault('leakage_audit_train_test', True)
+    settings.setdefault('leakage_hash_content', True)
+    settings.setdefault('leakage_require_identity', True)
     return settings
 
 
@@ -906,6 +909,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('metadata_item_2_value',None) #e.g. [['r1','r2'],['r3','r4']]
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
+    settings.setdefault('cv_group_by','well')
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
@@ -1854,6 +1858,9 @@ expected_types = {
     'evaluation_calibration':str,
     'evaluation_bins':int,
     'evaluation_fail_on_leakage':bool,
+    'leakage_audit_train_test':bool,
+    'leakage_hash_content':bool,
+    'leakage_require_identity':bool,
     'generate_full_dataset':bool,
     'tar_path':str,
     'n_top_examples':int,
@@ -2485,12 +2492,15 @@ tooltips = {
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
     'cross_validation_enabled': "(bool) - Enable k-fold validation for Classify. If cross_validation_folds is 0 or 1, enabling this uses 5 folds. Use cv_group_by='plate' to hold out whole plates, or 'well'/'field' for within-plate validation without leaking related crops between training and validation.",
-    'cv_group_by': "(str) - Which metadata level is kept intact inside a single fold when cross_validation_folds is active: 'well' (the default and the right choice for object crops), 'field', 'plate', or 'none' for a plain stratified split. Crops from one well share focus, illumination, seeding density and edge effects, so letting them straddle a fold lets the model recognise the well instead of the phenotype and inflates every score. The level is parsed from the crop filename, which spaCR writes as plate_well_field_object.png.",
+    'cv_group_by': "(str) - Which metadata level is kept intact across generated train/test data, the ordinary validation holdout and every CV fold: 'well' (the default and the right choice for object crops), 'field', 'plate', or 'none' for legacy per-object splitting. Crops from one well share focus, illumination, seeding density and edge effects, so letting them straddle a boundary lets the model recognise the well instead of the phenotype and inflates every score. The level is parsed from the crop filename, which spaCR writes as plate_well_field_object.png.",
     'classifier_evaluation': "(bool) - Build the Classifier Evaluation workbench bundle from out-of-fold predictions after Classify (CV): sample-level predictions, confusion matrices, reliability curves, calibrated probabilities, per-plate metrics, leakage reports and a manifest. It requires cross_validation_folds >= 2; a single train/validation split cannot produce unbiased out-of-fold diagnostics. Default True. API: spacr.classifier_evaluation.evaluate_predictions.",
     'nested_cv_inner_folds': "(int) - Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
     'evaluation_calibration': "(str) - Probability calibration written to the evaluation bundle. 'temperature' cross-fits one scalar temperature per held-out fold using all other out-of-fold predictions, so a sample never fits its own calibrator; 'none' retains raw softmax probabilities. Calibration changes reported probabilities, not the saved model weights. Default 'temperature'. API: spacr.classifier_evaluation.cross_calibrate_probabilities.",
     'evaluation_bins': "(int) - Number of equal-width probability bins in reliability curves and expected calibration error. Values around 10 balance resolution against noise; use fewer bins for small validation sets and more only when every class has many hundreds of out-of-fold samples. Minimum 2, default 10. API: spacr.classifier_evaluation.calibration_table.",
     'evaluation_fail_on_leakage': "(bool) - Stop Classify (CV) before fitting a fold when the same object, augmentation family, or protected cv_group_by identity appears in both train and validation. False records the problem and continues, which is useful only for diagnosing a legacy dataset because its performance estimate remains invalid. Default True. API: spacr.classifier_evaluation.audit_split_leakage.",
+    'leakage_audit_train_test': "(bool) - Audit the permanent train/ and test/ boundary before any classifier fit. Checks plate/well/field/object lineage, exported augmentation families and (when enabled) byte-identical renamed copies. Default True. API: spacr.classifier_evaluation.audit_dataset_splits.",
+    'leakage_hash_content': "(bool) - SHA-256 hash classifier images during leakage audits so an identical crop copied or renamed across train/test or CV boundaries is still detected. Reads files in 1 MiB chunks and never decodes pixels. Default True. API: spacr.classifier_evaluation.audit_cv_folds.",
+    'leakage_require_identity': "(bool) - Treat filenames that do not encode the protected cv_group_by identity, and files that cannot be hashed, as a failed audit rather than an advisory warning. Default True because independence cannot be claimed when lineage is unknown. API: spacr.classifier_evaluation.audit_split_leakage.",
     'custom_measurement': "(str) - Optional measurement-column name intended for class assignment; the Tk dataset dialog collects it but no pipeline code reads the key, so it currently has no effect. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
     'denoise': "(bool) - Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
     'early_stopping_patience': "(int) - Stop training after this many consecutive epochs in which validation accuracy fails to beat the best value so far; the best checkpoint is still kept. 0 (default) disables it and always runs the full 'epochs' budget. Set 10-20 on long runs to cut wasted epochs once the model plateaus.",
@@ -2682,7 +2692,7 @@ categories = {
 
     # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
     # here from "Cellpose" -- they answer the same question 'model_type' does.
-    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "cross_validation_enabled", "cross_validation_folds", "cv_group_by", "classifier_evaluation", "nested_cv_inner_folds", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "score_threshold", "n_top_examples", "random_seed", "intermedeate_save", "tensorboard"],
+    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "cross_validation_enabled", "cross_validation_folds", "cv_group_by", "classifier_evaluation", "nested_cv_inner_folds", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "random_seed", "intermedeate_save", "tensorboard"],
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways

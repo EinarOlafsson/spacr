@@ -634,7 +634,8 @@ def categories_for_app(
             "Evaluation Workbench": [
                 "classifier_evaluation", "nested_cv_inner_folds",
                 "evaluation_calibration", "evaluation_bins",
-                "evaluation_fail_on_leakage"],
+                "evaluation_fail_on_leakage", "leakage_audit_train_test",
+                "leakage_hash_content", "leakage_require_identity"],
             "Full Dataset & Inference": [
                 "generate_full_dataset", "apply_model_to_dataset",
                 "tar_path", "dataset", "file_metadata", "sample",
@@ -750,6 +751,9 @@ def api_docs_url(app_key: str, key: str = "") -> str:
         "evaluation_calibration",
         "evaluation_bins",
         "evaluation_fail_on_leakage",
+        "leakage_audit_train_test",
+        "leakage_hash_content",
+        "leakage_require_identity",
     }
     umap_search_keys = {
         "criterion", "search_mode", "adaptive", "n_trials", "n_folds",
