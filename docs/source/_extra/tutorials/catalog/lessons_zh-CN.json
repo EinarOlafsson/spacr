@@ -1,0 +1,1949 @@
+{
+  "schema": 1,
+  "title": "spaCR complete tutorial library",
+  "series": [
+    {
+      "number": 1,
+      "title": "开始和核心分析"
+    },
+    {
+      "number": 2,
+      "title": "时间解析分析和细分模型"
+    },
+    {
+      "number": 3,
+      "title": "标注质量控制和生物测试"
+    },
+    {
+      "number": 4,
+      "title": "运营,报告和数据工具"
+    },
+    {
+      "number": 5,
+      "title": "其他注册模块"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "number": 1,
+      "slug": "pypi_github",
+      "title": "PyPI and GitHub",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "了解 spaCR 发布地点,源代码,安装器,问题,以及夜间分支的现场.",
+      "objectives": [
+        "在PyPI和GitHub上找到 spaCR.",
+        "区分分分发放量与夜间分支.",
+        "查找安装器,发布说明和问题."
+      ],
+      "prerequisite": "没有任何安装要求进行这种方向.",
+      "scenes": [
+        {
+          "narration": "了解 spaCR 发布,源代码,安装器,问题以及夜间分支的现场.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "了解 斯佩克尔 发布,源代码,安装器,问题以及夜间分支的现场."
+        },
+        {
+          "narration": "从 spaCR 部分打开 PyPI and GitHub。 使用 PyPI 来处理当前的 Python 包,以及 GitHub 来源代码,发布和问题跟踪.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 斯佩克尔 部分打开 派皮 and GitHub。 使用 派皮 来处理当前的 Python 包,以及 GitHub 来源代码,发布和问题跟踪."
+        },
+        {
+          "narration": "在主要配置区域中,将稳定包装版本与夜间开发分支进行比较,然后选择适合您的工作的分支.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,将稳定包装版本与夜间开发分支进行比较,然后选择适合您的工作的分支."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在安装之前打开发布说明,以便版本和平台要求清晰.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在安装之前打开发布说明,以便版本和平台要求清晰."
+        },
+        {
+          "narration": "当工作流程完成时,你将知道在哪里安装 spaCR,检查变化,并报告可复制的问题.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,你将知道在哪里安装 斯佩克尔,检查变化,并报告可复制的问题."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "number": 2,
+      "slug": "conda_install",
+      "title": "Installation with Conda",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "创建一个孤立的Python环境,并安装 spaCR,而不需要改变其余的系统.",
+      "objectives": [
+        "了解什么时候使用安装与康达.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "安装一个兼容Conda的环境管理器.",
+      "scenes": [
+        {
+          "narration": "创建一个孤立的Python环境,并安装 spaCR而不需要改变其余的系统.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "创建一个孤立的Python环境,并安装 斯佩克尔而不需要改变其余的系统."
+        },
+        {
+          "narration": "从 spaCR 部分打开 Installation with Conda。 安装Miniconda,Anaconda或其他与Conda 兼容的管理器,然后创建一个 Python 三点十二的环境.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 斯佩克尔 部分打开 Installation with Conda。 安装Miniconda,Anaconda或其他与Conda 兼容的管理器,然后创建一个 Python 三点十二的环境."
+        },
+        {
+          "narration": "在主配置区域中,激活环境并确认其Python和Pip执行可用于该环境.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中,激活环境并确认其Python和Pip执行可用于该环境."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 安装在活跃环境中使用的管道 spaCR; 快速发布的conda-forge包.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 安装在活跃环境中使用的管道 斯佩克尔; 快速发布的conda-forge包."
+        },
+        {
+          "narration": "当工作流程完成时,从同一个环境中启动spaCR,并将其与无关项目隔离.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,从同一个环境中启动斯佩克尔,并将其与无关项目隔离."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "number": 3,
+      "slug": "pip_install",
+      "title": "Installation with pip",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "安装 spaCR 在现有的孤立的 Python 环境中用于桌面或无头使用.",
+      "objectives": [
+        "了解何时使用Pip安装.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "创建或激活一个孤立的Python环境.",
+      "scenes": [
+        {
+          "narration": "通过Pip安装,在现有的孤立Python环境中安装 spaCR,用于桌面或无头使用.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过Pip安装,在现有的孤立Python环境中安装 斯佩克尔,用于桌面或无头使用."
+        },
+        {
+          "narration": "从 spaCR 部分打开 Installation with pip。 确认环境使用支持的 Python 版本; Python 三点十二是建议的.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 斯佩克尔 部分打开 Installation with pip。 确认环境使用支持的 Python 版本; Python 三点十二是建议的."
+        },
+        {
+          "narration": "在主要配置区域,如果需要,升级 pip,然后决定是否需要桌面,开发或可选的科学附加工具.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,如果需要,升级 pip,然后决定是否需要桌面,开发或可选的科学附加工具."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 运行 pip安装 spaCR,然后在开始实验之前验证命令和Python进口.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 运行 pip安装 斯佩克尔,然后在开始实验之前验证命令和Python进口."
+        },
+        {
+          "narration": "当工作流程完成时,同一个安装可以启动桌面应用程序或在工作站或服务器上运行脚本工作流程.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,同一个安装可以启动桌面应用程序或在工作站或服务器上运行脚本工作流程."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "number": 4,
+      "slug": "platform_installers",
+      "title": "Platform installers",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "在Windows,macOS或Linux上安装 spaCR,而不需要手动管理Python.",
+      "objectives": [
+        "了解何时使用平台安装器.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "没有需要现有的Python或Conda安装.",
+      "scenes": [
+        {
+          "narration": "通过使用Python,在Windows,macOS或Linux上安装 spaCR.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过使用Python,在Windows,macOS或Linux上安装 斯佩克尔."
+        },
+        {
+          "narration": "从 spaCR 部分打开 Platform installers。 从 GitHub 的当前版本下载操作系统安装器.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 斯佩克尔 部分打开 Platform installers。 从 GitHub 的当前版本下载操作系统安装器."
+        },
+        {
+          "narration": "在主配置区域,检查操作系统安全提示,私人运行时间位置和要求的加速后端.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,检查操作系统安全提示,私人运行时间位置和要求的加速后端."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 如果有任何故障,请允许安装器完成并保存安装日志.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 如果有任何故障,请允许安装器完成并保存安装日志."
+        },
+        {
+          "narration": "当工作流程完成时,使用本地发射器,而 spaCR 保持其自己的管理 Python 运行时间.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,使用本地发射器,而 斯佩克尔 保持其自己的管理 Python 运行时间."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": "__home__",
+      "section": "Home",
+      "description": "参观应用程序,其模块组,运行总结,成熟度指标和导航控制.",
+      "objectives": [
+        "了解何时使用主页屏幕和导航.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "安装和启动 spaCR 桌面应用程序.",
+      "scenes": [
+        {
+          "narration": "本教程涵盖主页屏幕和导航. 参观应用程序,其模块组,运行总结,成熟度指标和导航控制.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "本教程涵盖主页屏幕和导航. 参观应用程序,其模块组,运行总结,成熟度指标和导航控制."
+        },
+        {
+          "narration": "从 Home 部分打开 Home screen and navigation。 启动 spaCR 桌面应用程序,然后开始在主页.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Home 部分打开 Home screen and navigation。 启动 斯佩克尔 桌面应用程序,然后开始在主页."
+        },
+        {
+          "narration": "在主配置区域中,使用侧边,类别,可搜索的应用程序,以及命令来访问工作流.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中,使用侧边,类别,可搜索的应用程序,以及命令来访问工作流."
+        },
+        {
+          "narration": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式.只打开一个模块,只要您打算与它交互;指针只显示为实际点击.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式.只打开一个模块,只要您打算与它交互;指针只显示为实际点击."
+        },
+        {
+          "narration": "当工作流程完成时,您可以通过应用程序了解Home中显示的状态信息.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,您可以通过应用程序了解Home中显示的状态信息."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "number": 6,
+      "slug": "api",
+      "title": "Python API and headless workflows",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "运行可再生的 spaCR 管道从Python或一个 shell 没有桌面接口.",
+      "objectives": [
+        "了解使用Python API和无头的工作流的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "首先完成一个安装教程.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了Python API和无头的工作流程.从Python或一个 shell无需桌面接口运行可重复的 spaCR管道.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了Python API和无头的工作流程.从Python或一个 shell无需桌面接口运行可重复的 斯佩克尔管道."
+        },
+        {
+          "narration": "从 spaCR 部分打开 Python API and headless workflows。 从桌面应用程序出口的设置开始或在Python中构建一个验证的设置字典.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 斯佩克尔 部分打开 Python API and headless workflows。 从桌面应用程序出口的设置开始或在Python中构建一个验证的设置字典."
+        },
+        {
+          "narration": "在主配置区域中,选择管道入口点,源路径,输出路径,工人数量和硬件选项.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中,选择管道入口点,源路径,输出路径,工人数量和硬件选项."
+        },
+        {
+          "narration": "在完整运行之前,请查看可见的设置,并在可用的情况下使用预览或测试模式.同时保存日志和设置,在终端,笔记本,日程表或远程工作中执行管道.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请查看可见的设置,并在可用的情况下使用预览或测试模式.同时保存日志和设置,在终端,笔记本,日程表或远程工作中执行管道."
+        },
+        {
+          "narration": "工作流程完成后,该项目包含桌面应用程序所产生的相同的掩膜,测量,数据库,数字和运行记录.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,该项目包含桌面应用程序所产生的相同的掩膜,测量,数据库,数字和运行记录."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "number": 7,
+      "slug": "mask",
+      "title": "Mask",
+      "series": 1,
+      "app_key": "mask",
+      "section": "Core",
+      "description": "细分提供的四通道显微镜实验,分为核,细胞,脂滴和寄生虫掩膜.",
+      "objectives": [
+        "准确地绘制所有4个收购道.",
+        "配置细胞,核,器官和寄生虫分区.",
+        "运行掩膜,检查掩膜的输出."
+      ],
+      "prerequisite": "使用提供的四通道教程数据集.",
+      "scenes": [
+        {
+          "narration": "通过四通道显微镜实验,将其分成核,细胞,脂滴和寄生虫掩膜.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过四通道显微镜实验,将其分成核,细胞,脂滴和寄生虫掩膜."
+        },
+        {
+          "narration": "从 Core 部分打开 Mask。 通道零是核,通通道一是内质网,通通道二是脂质滴,通通道三是寄生虫.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Mask。 通道零是核,通通道一是内质网,通通道二是脂质滴,通通道三是寄生虫."
+        },
+        {
+          "narration": "在主要配置区域中,检测到从零道的核,从子宫膜膜道的细胞,与器官斑点工作流动的脂质滴滴,和从三道的寄生虫.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,检测到从零道的核,从子宫膜膜道的细胞,与器官斑点工作流动的脂质滴滴,和从三道的寄生虫."
+        },
+        {
+          "narration": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式. 检查一个代表性字段,然后在数据集中运行四个细分传递.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式. 检查一个代表性字段,然后在数据集中运行四个细分传递."
+        },
+        {
+          "narration": "工作流程完成后,掩膜文件包含对齐的对象标签和合并的图像加掩膜阵列,准备进行测量.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,掩膜文件包含对齐的对象标签和合并的图像加掩膜阵列,准备进行测量."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "number": 8,
+      "slug": "measure",
+      "title": "Measure",
+      "series": 1,
+      "app_key": "measure",
+      "section": "Core",
+      "description": "从分段图像中提取对象的强度,形态,纹理,定位和空间特征.",
+      "objectives": [
+        "了解什么时候使用Measure.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了测量. 从分段图像中提取对象的强度,形态,纹理,定位和空间特征.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了测量. 从分段图像中提取对象的强度,形态,纹理,定位和空间特征."
+        },
+        {
+          "narration": "从 Core 部分打开 Measure。 选择包含由 Mask 制作的图像堆和掩膜的项目.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Measure。 选择包含由 Mask 制作的图像堆和掩膜的项目."
+        },
+        {
+          "narration": "在主要配置区域中,使用第一个频道,Endoplasmic reticulum,作为关注频道,并选择测量的物体类型和特征家族.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,使用第一个频道,Endoplasmic reticulum,作为关注频道,并选择测量的物体类型和特征家族."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用."
+        },
+        {
+          "narration": "测量点db在工作流程完成时存储可追踪的单个对象行和可选的图像作物,用于注释或分类.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "测量点db在工作流程完成时存储可追踪的单个对象行和可选的图像作物,用于注释或分类."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "number": 9,
+      "slug": "annotate",
+      "title": "Annotate",
+      "series": 1,
+      "app_key": "annotate",
+      "section": "Core",
+      "description": "审查单个物体作物在网格上,并为模型培训或质量控制分配可靠标签.",
+      "objectives": [
+        "了解使用Annotate的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "通过\"单个物体作物\"进行对格格的审查,并为模型培训或质量控制分配可靠的标签.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过\"单个物体作物\"进行对格格的审查,并为模型培训或质量控制分配可靠的标签."
+        },
+        {
+          "narration": "从 Core 部分打开 Annotate。 打开一个项目,使用对象作物,然后选择数据库表和注释列.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Annotate。 打开一个项目,使用对象作物,然后选择数据库表和注释列."
+        },
+        {
+          "narration": "在主配置区域中,选择类,显示道,排序,样本取,以及定义审查集的任何过器.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中,选择类,显示道,排序,样本取,以及定义审查集的任何过器."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+        },
+        {
+          "narration": "当工作流程完成时,注释将被保存完整的对象识别符写回项目数据库.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,注释将被保存完整的对象识别符写回项目数据库."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "number": 10,
+      "slug": "classify_cv",
+      "title": "Classify, computer vision",
+      "series": 1,
+      "app_key": "classify",
+      "section": "Core",
+      "description": "训练和应用基于图像的神经网络到注释的单个对象作物.",
+      "objectives": [
+        "了解什么时候使用Classify,计算机视觉.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了分类,计算机视觉. 训练和应用基于图像的神经网络给注释的单个对象作物.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了分类,计算机视觉. 训练和应用基于图像的神经网络给注释的单个对象作物."
+        },
+        {
+          "narration": "从 Core 部分打开 Classify, computer vision。 选择注释式产品文件或可靠类标签的项目数据库.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Classify, computer vision。 选择注释式产品文件或可靠类标签的项目数据库."
+        },
+        {
+          "narration": "在主要配置区域中,选择图像道,架构,分类策略,增强,批量大小和训练控制.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择图像道,架构,分类策略,增强,批量大小和训练控制."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 将模型,指标,预测,类型示例保存,并运行元数据以后应用.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 将模型,指标,预测,类型示例保存,并运行元数据以后应用."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "number": 11,
+      "slug": "classify_ml",
+      "title": "Classify, machine learning",
+      "series": 1,
+      "app_key": "ml_analyze",
+      "section": "Core",
+      "description": "基于列车特征的分类器,如XGBoost或随机森林,从单个对象数据中测量.",
+      "objectives": [
+        "了解什么时候使用分类,机器学习.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了分类,机器学习. 从测量单个对象数据中训练基于功能的分类器,如XGBoost或随机森林.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了分类,机器学习. 从测量单个对象数据中训练基于功能的分类器,如XGBoost或随机森林."
+        },
+        {
+          "narration": "从 Core 部分打开 Classify, machine learning。 选择测量数据库,标签列,功能家庭和实验组列.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Classify, machine learning。 选择测量数据库,标签列,功能家庭和实验组列."
+        },
+        {
+          "narration": "在主配置区域,配置过,扩展,特征选择,类平衡,模型家族和防泄漏分区.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置过,扩展,特征选择,类平衡,模型家族和防泄漏分区."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 交叉验证模型选择,并在可能的情况下保留延期的评估设置.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 交叉验证模型选择,并在可能的情况下保留延期的评估设置."
+        },
+        {
+          "narration": "当工作流程完成时,项目会收到预测,功能重要性,性能表格和序列化模型.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,项目会收到预测,功能重要性,性能表格和序列化模型."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "number": 12,
+      "slug": "map_barcodes",
+      "title": "Map Barcodes",
+      "series": 1,
+      "app_key": "map_barcodes",
+      "section": "Core",
+      "description": "连接测序条码和指导身份到显微镜图像中测量的现象型.",
+      "objectives": [
+        "了解什么时候使用地图条码.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖地图条码. 连接测序条码和指导身份到显微镜图像中测量的现象型.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖地图条码. 连接测序条码和指导身份到显微镜图像中测量的现象型."
+        },
+        {
+          "narration": "从 Core 部分打开 Map Barcodes。 提供FASTQ文件,条码定义,板块元数据和相匹配的显微镜项目.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Map Barcodes。 提供FASTQ文件,条码定义,板块元数据和相匹配的显微镜项目."
+        },
+        {
+          "narration": "在主配置区域中,定义行,列和指导条码布局,并设置质量门和不匹配规则.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中,定义行,列和指导条码布局,并设置质量门和不匹配规则."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的情况下使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的情况下使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后,指导身份将与可追踪表中的井和单个对象现象类型联系起来.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,指导身份将与可追踪表中的井和单个对象现象类型联系起来."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "number": 13,
+      "slug": "regression",
+      "title": "Regression",
+      "series": 1,
+      "app_key": "regression",
+      "section": "Core",
+      "description": "估计扰动效应,并确定与指导或条件级 fenotype相关的特征.",
+      "objectives": [
+        "了解什么时候使用回归.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "预测扰动效应,并确定与指导或条件级 fenootypes相关的特征.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "预测扰动效应,并确定与指导或条件级 fenootypes相关的特征."
+        },
+        {
+          "narration": "从 Core 部分打开 Regression。 选择映射的测量,响应变量,控制,组列和候选预测器.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Regression。 选择映射的测量,响应变量,控制,组列和候选预测器."
+        },
+        {
+          "narration": "在主要配置区域中,选择变化,变量,模型家族,随机效应,多次测试校正和质量过器.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择变化,变量,模型家族,随机效应,多次测试校正和质量过器."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 写出效果尺寸,不确定性,调整的意义,诊断和数字.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 写出效果尺寸,不确定性,调整的意义,诊断和数字."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "number": 14,
+      "slug": "make_masks",
+      "title": "Make Masks",
+      "series": 1,
+      "app_key": "make_masks",
+      "section": "Segmentation models",
+      "description": "互动构建,纠正和策划 Cellpose 训练数据的细分标签.",
+      "objectives": [
+        "了解什么时候使用 Make Masks.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "互动构建,纠正和策划 Cellpose 训练数据的细分标签.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "互动构建,纠正和策划 Cellpose 训练数据的细分标签."
+        },
+        {
+          "narration": "从 Segmentation models 部分打开 Make Masks。 开放代表性显微镜图像和任何现有掩膜,需要进行精炼.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Segmentation models 部分打开 Make Masks。 开放代表性显微镜图像和任何现有掩膜,需要进行精炼."
+        },
+        {
+          "narration": "在主要配置区域中,选择道,正常化,刷或魔术棒工具,对象操作和标签保存行为.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择道,正常化,刷或魔术棒工具,对象操作和标签保存行为."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后,对照图像和选定标签掩膜准备好进行定制的Cellpose训练.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,对照图像和选定标签掩膜准备好进行定制的Cellpose训练."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "number": 15,
+      "slug": "image_umap",
+      "title": "Image UMAP",
+      "series": 1,
+      "app_key": "umap",
+      "section": "Results and quality control",
+      "description": "通过嵌入测量物体并显示它们的图像作物作为字体来探索现象型社区.",
+      "objectives": [
+        "了解使用 Image UMAP 的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "通过嵌入测量物体并显示它们的图像作物作为字体,探索现象型社区.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过嵌入测量物体并显示它们的图像作物作为字体,探索现象型社区."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Image UMAP。 选择测量数据库,图像作物,功能集和组合元数据.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Image UMAP。 选择测量数据库,图像作物,功能集和组合元数据."
+        },
+        {
+          "narration": "在主配置区域,配置过,扩展,邻居,最小距离,集群,样本取和图像显示道.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置过,扩展,邻居,最小距离,集群,样本取和图像显示道."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较几个可复制的嵌入式,并检查集群不是由板块或成像器件驱动的.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较几个可复制的嵌入式,并检查集群不是由板块或成像器件驱动的."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 保存坐标,集群标签,图像地图和准备发布的嵌入图像.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 保存坐标,集群标签,图像地图和准备发布的嵌入图像."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "number": 16,
+      "slug": "activation",
+      "title": "Activation maps",
+      "series": 1,
+      "app_key": "activation",
+      "section": "Results and quality control",
+      "description": "检查最影响训练有素的计算机视觉分类器的图像区域.",
+      "objectives": [
+        "了解何时使用激活地图.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "检查最影响计算机视觉分类器的图像区域.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "检查最影响计算机视觉分类器的图像区域."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Activation maps。 从有趣类中选择训练有素的视觉模型和代表对象作物.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Activation maps。 从有趣类中选择训练有素的视觉模型和代表对象作物."
+        },
+        {
+          "narration": "在主要配置区域中,选择归属方法,目标层,目标类,道,正常化和样本取.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择归属方法,目标层,目标类,道,正常化和样本取."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用."
+        },
+        {
+          "narration": "工作流程完成后,激活覆盖和归因测量有助于评估模型是否学到了可靠的生物线索.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,激活覆盖和归因测量有助于评估模型是否学到了可靠的生物线索."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "number": 17,
+      "slug": "timelapse",
+      "title": "Timelapse",
+      "series": 2,
+      "app_key": "timelapse",
+      "section": "Core",
+      "description": "细分,链接,测量细胞或病原体在时间序列的框架中.",
+      "objectives": [
+        "了解什么时候使用 Timelapse.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "通过时间序列的框架,分类,链接和测量细胞或病原体.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过时间序列的框架,分类,链接和测量细胞或病原体."
+        },
+        {
+          "narration": "从 Core 部分打开 Timelapse。 选择一个时间解析的图像集,其文件名保存字段,时间,深度和频道索引.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Timelapse。 选择一个时间解析的图像集,其文件名保存字段,时间,深度和频道索引."
+        },
+        {
+          "narration": "在主配置区域,配置分区,追踪物体类型,连接模式,最大移动,空隙处理和预览框架.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置分区,追踪物体类型,连接模式,最大移动,空隙处理和预览框架."
+        },
+        {
+          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后,时间索引掩膜,轨道,测量和轨迹总结将存储稳定对象身份.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,时间索引掩膜,轨道,测量和轨迹总结将存储稳定对象身份."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "number": 18,
+      "slug": "motility",
+      "title": "Motility assay",
+      "series": 2,
+      "app_key": "motility",
+      "section": "Core",
+      "description": "从时间解析图像中量化速度,移动,持久性和感染质量控制的指标.",
+      "objectives": [
+        "了解什么时候使用动性测试.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了动力测试. 从时间解析图像中量化速度,移动,持久性和感染质量控制的指标.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了动力测试. 从时间解析图像中量化速度,移动,持久性和感染质量控制的指标."
+        },
+        {
+          "narration": "从 Core 部分打开 Motility assay。 开放可靠的时间间隔和空间校准的追踪时间延误数据.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Core 部分打开 Motility assay。 开放可靠的时间间隔和空间校准的追踪时间延误数据."
+        },
+        {
+          "narration": "在主要配置区域中,选择轨道过器,最低持续时间,滑滑,动力指标,感染定义和井层组.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择轨道过器,最低持续时间,滑滑,动力指标,感染定义和井层组."
+        },
+        {
+          "narration": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查轨迹预览,排除破损,静止的文物或不可思议的轨道.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查轨迹预览,排除破损,静止的文物或不可思议的轨道."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 写出每条轨道和每条条件的动力表,质量指标和数字.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 写出每条轨道和每条条件的动力表,质量指标和数字."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "number": 19,
+      "slug": "train_cellpose",
+      "title": "Train Cellpose",
+      "series": 2,
+      "app_key": "train_cellpose",
+      "section": "Segmentation models",
+      "description": "从精选的图像掩膜对进行训练,培训一个自定义的 Cellpose 或 CPSAM兼容的细分模型.",
+      "objectives": [
+        "了解什么时候使用 Train Cellpose.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了\"火车细胞用\" (Train Cellpose).从精选的图像-掩膜对进行自定义的\"火车用\" (Cellpose) 或\"CPSAM\"兼容的分类模型.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了\"火车细胞用\" (Train Cellpose).从精选的图像-掩膜对进行自定义的\"火车用\" (Cellpose) 或\"CPSAM\"兼容的分类模型."
+        },
+        {
+          "narration": "从 Segmentation models 部分打开 Train Cellpose。 提供各种训练和验证图像,并使用精心修改的标签掩膜.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Segmentation models 部分打开 Train Cellpose。 提供各种训练和验证图像,并使用精心修改的标签掩膜."
+        },
+        {
+          "narration": "在主要配置区域中,选择道,基模型,直径,增强,学习速度,时代,批量大小和验证分区.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择道,基模型,直径,增强,学习速度,时代,批量大小和验证分区."
+        },
+        {
+          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.监测训练和验证损失,以及未用于训练的场地检查点.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.监测训练和验证损失,以及未用于训练的场地检查点."
+        },
+        {
+          "narration": "工作流程完成后,选定的检查点,训练历史,验证预测和设置将被保存在一起.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,选定的检查点,训练历史,验证预测和设置将被保存在一起."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "number": 20,
+      "slug": "cellpose_masks",
+      "title": "Cellpose Masks",
+      "series": 2,
+      "app_key": "cellpose_masks",
+      "section": "Segmentation models",
+      "description": "通过专注的模型应用工作流程生成和审查 Cellpose 掩膜.",
+      "objectives": [
+        "了解什么时候使用 Cellpose 掩膜.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "通过一个专注的模型应用工作流程生成和审查Cellpose掩膜.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过一个专注的模型应用工作流程生成和审查Cellpose掩膜."
+        },
+        {
+          "narration": "从 Segmentation models 部分打开 Cellpose Masks。 选择显微镜图像,道以及内置或定制的 Cellpose 模型.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Segmentation models 部分打开 Cellpose Masks。 选择显微镜图像,道以及内置或定制的 Cellpose 模型."
+        },
+        {
+          "narration": "在主要配置区域,配置直径,流量和细胞概率门,正常化,板和硬件使用.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,配置直径,流量和细胞概率门,正常化,板和硬件使用."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式."
+        },
+        {
+          "narration": "在工作流程完成后,在映射输入旁边写出标签掩膜和视觉质量控制图像.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "在工作流程完成后,在映射输入旁边写出标签掩膜和视觉质量控制图像."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare",
+      "series": 2,
+      "app_key": "model_compare",
+      "section": "Segmentation models",
+      "description": "在同一场地运行两个 Cellpose 模型,并比较掩膜,数量和协议指标.",
+      "objectives": [
+        "了解使用模型相比的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "运行两个 Cellpose 模型在相同的领域,并比较掩膜,数量和协议指标.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "运行两个 Cellpose 模型在相同的领域,并比较掩膜,数量和协议指标."
+        },
+        {
+          "narration": "从 Segmentation models 部分打开 Model Compare。 选择两个候选模型和代表性的显微镜场.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Segmentation models 部分打开 Model Compare。 选择两个候选模型和代表性的显微镜场."
+        },
+        {
+          "narration": "在主要配置区域,匹配道和预处理,然后配置门和对象匹配标准.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,匹配道和预处理,然后配置门和对象匹配标准."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见设置,并在可用的情况下使用预览或测试模式. 检查对方重叠,以及对象数量,重叠和调整的Rand指数差异.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见设置,并在可用的情况下使用预览或测试模式. 检查对方重叠,以及对象数量,重叠和调整的Rand指数差异."
+        },
+        {
+          "narration": "工作流程完成后,比较报告确定每个模型在哪里获益,输失,分离或合并物体.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,比较报告确定每个模型在哪里获益,输失,分离或合并物体."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo",
+      "series": 2,
+      "app_key": "model_zoo",
+      "section": "Segmentation models",
+      "description": "浏览,验证,下载和基准可重复使用的分类和分类模型.",
+      "objectives": [
+        "了解什么时候使用动物园模型.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "浏览,验证,下载,并参数可重复使用的细分和分类器模型.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "浏览,验证,下载,并参数可重复使用的细分和分类器模型."
+        },
+        {
+          "narration": "从 Segmentation models 部分打开 Model Zoo。 打开目录,选择与当前任务和输入道兼容的模型.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Segmentation models 部分打开 Model Zoo。 打开目录,选择与当前任务和输入道兼容的模型."
+        },
+        {
+          "narration": "在主要配置区域,审查来源,许可证,检查额,预期预处理,任务类型和本地可用性.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,审查来源,许可证,检查额,预期预处理,任务类型和本地可用性."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后,验证的模型文件和基准结果仍然与其元数据相关.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,验证的模型文件和基准结果仍然与其元数据相关."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "number": 23,
+      "slug": "agreement",
+      "title": "Annotator Agreement",
+      "series": 3,
+      "app_key": "agreement",
+      "section": "Results and quality control",
+      "description": "测量注释列之间的协议,并审查导致分歧的对象.",
+      "objectives": [
+        "了解使用\"注释器协议\"的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "测量注释列之间的协议,并审查导致分歧的对象.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "测量注释列之间的协议,并审查导致分歧的对象."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Annotator Agreement。 选择一个项目数据库和两个或多个包含相同对象的注释列.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Annotator Agreement。 选择一个项目数据库和两个或多个包含相同对象的注释列."
+        },
+        {
+          "narration": "在主要配置区域中,选择类处理,缺标签政策,组分,样本取样和协议统计数据.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择类处理,缺标签政策,组分,样本取样和协议统计数据."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 检查Cohen或Fleiss kappa以及类型特定的混和分歧示例.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 检查Cohen或Fleiss kappa以及类型特定的混和分歧示例."
+        },
+        {
+          "narration": "工作流程完成后,协议表和集中审查设置支持标签调整和协议改进.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,协议表和集中审查设置支持标签调整和协议改进."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "number": 24,
+      "slug": "plaque",
+      "title": "Plaque assay",
+      "series": 3,
+      "app_key": "analyze_plaques",
+      "section": "Toxoplasma assays",
+      "description": "从板图像中测量板块形成和依赖条件的变化.",
+      "objectives": [
+        "了解什么时候使用平板测试.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了板块测试. 从板块图像中测量板块形成和依赖条件的变化.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了板块测试. 从板块图像中测量板块形成和依赖条件的变化."
+        },
+        {
+          "narration": "从 Toxoplasma assays 部分打开 Plaque assay。 提供片图像,片布局,像素校准,条件和控制.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Toxoplasma assays 部分打开 Plaque assay。 提供片图像,片布局,像素校准,条件和控制."
+        },
+        {
+          "narration": "在主配置区域,配置背景纠正,门,对象清洁,板块尺寸过器和井组.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置背景纠正,门,对象清洁,板块尺寸过器和井组."
+        },
+        {
+          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式. 在批量分析之前,检查控制和处理井间的细分覆盖.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式. 在批量分析之前,检查控制和处理井间的细分覆盖."
+        },
+        {
+          "narration": "在工作流程完成后, spaCR 报告了牌数量,面积,总结,统计和质量控制数据.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "在工作流程完成后, 斯佩克尔 报告了牌数量,面积,总结,统计和质量控制数据."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "number": 25,
+      "slug": "recruitment",
+      "title": "Recruitment",
+      "series": 3,
+      "app_key": "recruitment",
+      "section": "Toxoplasma assays",
+      "description": "量化对寄生虫或与病原体相关区域的兴趣道信号招募.",
+      "objectives": [
+        "了解什么时候使用招募.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "量化对寄生虫或与病原体相关区域的兴趣信号的招募.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "量化对寄生虫或与病原体相关区域的兴趣信号的招募."
+        },
+        {
+          "narration": "从 Toxoplasma assays 部分打开 Recruitment。 使用测量细胞,寄生虫和机器人掩膜,以第一个通道,内膜网膜作为关注通道.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Toxoplasma assays 部分打开 Recruitment。 使用测量细胞,寄生虫和机器人掩膜,以第一个通道,内膜网膜作为关注通道."
+        },
+        {
+          "narration": "在主要配置区域中,定义招聘区域,背景参考,对象过器,组合和正常化策略.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,定义招聘区域,背景参考,对象过器,组合和正常化策略."
+        },
+        {
+          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后,每个对象的招聘分数和条件总结将与源标识符存储.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,每个对象的招聘分数和条件总结将与源标识符存储."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "number": 26,
+      "slug": "invasion",
+      "title": "Invasion assay",
+      "series": 3,
+      "app_key": "invasion",
+      "section": "Toxoplasma assays",
+      "description": "通过使用外对内部两色染料来区分附加物与入侵寄生虫.",
+      "objectives": [
+        "了解什么时候使用入侵测试.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "通过使用两色外对内部染料来区分附加物与入侵寄生虫.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过使用两色外对内部染料来区分附加物与入侵寄生虫."
+        },
+        {
+          "narration": "从 Toxoplasma assays 部分打开 Invasion assay。 提供寄生虫和宿主细胞掩膜,内部和外部污染道,板块元数据和控制.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Toxoplasma assays 部分打开 Invasion assay。 提供寄生虫和宿主细胞掩膜,内部和外部污染道,板块元数据和控制."
+        },
+        {
+          "narration": "在主配置区域,配置强度门,对象匹配,模糊处理和级组合.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置强度门,对象匹配,模糊处理和级组合."
+        },
+        {
+          "narration": "在完整运行之前,在接受分类规则之前,请检查可见设置,并在可用的情况下使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,在接受分类规则之前,请检查可见设置,并在可用的情况下使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后, spaCR 报告每井和条件的数量和入侵效率,并使用质量控制图像.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后, 斯佩克尔 报告每井和条件的数量和入侵效率,并使用质量控制图像."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "number": 27,
+      "slug": "replication",
+      "title": "Replication assay",
+      "series": 3,
+      "app_key": "replication",
+      "section": "Toxoplasma assays",
+      "description": "按真空点评寄生虫,并根据条件概括细胞内部复制.",
+      "objectives": [
+        "了解何时使用复制测试.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖复制测试. 每个真空体分数寄生虫,并根据条件总结细胞内复制.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖复制测试. 每个真空体分数寄生虫,并根据条件总结细胞内复制."
+        },
+        {
+          "narration": "从 Toxoplasma assays 部分打开 Replication assay。 选择宿主细胞,真空体和寄生虫测量以及状态元数据.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Toxoplasma assays 部分打开 Replication assay。 选择宿主细胞,真空体和寄生虫测量以及状态元数据."
+        },
+        {
+          "narration": "在主要配置区域,配置空间分配,对象过器,寄生虫计数容器,控制和统计比较.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,配置空间分配,对象过器,寄生虫计数容器,控制和统计比较."
+        },
+        {
+          "narration": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查整个计数范围内的真空器,并检查是否排除合并或碎片化掩膜.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查整个计数范围内的真空器,并检查是否排除合并或碎片化掩膜."
+        },
+        {
+          "narration": "工作流程完成后,每真空细菌分布,复制率,统计和数字都会保存.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,每真空细菌分布,复制率,统计和数字都会保存."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "number": 28,
+      "slug": "training_runs",
+      "title": "Training Runs",
+      "series": 4,
+      "app_key": "train_compare",
+      "section": "Results and quality control",
+      "description": "通过覆盖曲线并调整它们的设置来比较几个模型训练跑步.",
+      "objectives": [
+        "了解什么时候使用训练跑步.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "通过覆盖曲线并调整它们的设置来比较几个模型训练运行.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "通过覆盖曲线并调整它们的设置来比较几个模型训练运行."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Training Runs。 在\"结果与质量控制\"部分中开启训练运行.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Training Runs。 在\"结果与质量控制\"部分中开启训练运行."
+        },
+        {
+          "narration": "在主要配置区域中,选择显示的指标,平滑,组分,检查点标准和设置字段.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择显示的指标,平滑,组分,检查点标准和设置字段."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较缩,过度适应,稳定性和持续性能,而不是仅仅通过训练损失进行选择.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较缩,过度适应,稳定性和持续性能,而不是仅仅通过训练损失进行选择."
+        },
+        {
+          "narration": "工作流程完成后,比较数据和设置差异表确定最强的可复制的运行.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,比较数据和设置差异表确定最强的可复制的运行."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "number": 29,
+      "slug": "report",
+      "title": "Report",
+      "series": 4,
+      "app_key": "report",
+      "section": "Results and quality control",
+      "description": "创建一个可以共享的HTML或PDF总结,包含质量控制,数字,统计数据,设置和版本.",
+      "objectives": [
+        "了解什么时候使用报告.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "创建一个可共享的HTML或PDF总结,包含质量控制,数字,统计,设置和版本.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "创建一个可共享的HTML或PDF总结,包含质量控制,数字,统计,设置和版本."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Report。 选择完成的 spaCR 项目,以及包括的运行,表格,数字和部分.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Report。 选择完成的 斯佩克尔 项目,以及包括的运行,表格,数字和部分."
+        },
+        {
+          "narration": "在主要配置区域中,配置标题,作者,条件标签,质量门,输出格式和隐私敏感的字段.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,配置标题,作者,条件标签,质量门,输出格式和隐私敏感的字段."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见设置,并在可用的前景或测试模式使用.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见设置,并在可用的前景或测试模式使用."
+        },
+        {
+          "narration": "工作流程完成后,便携式报告记录结论,以及需要复制的设置和软件版本.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,便携式报告记录结论,以及需要复制的设置和软件版本."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "number": 30,
+      "slug": "plate_queue",
+      "title": "Plate Queue",
+      "series": 4,
+      "app_key": "queue",
+      "section": "Data and batch runs",
+      "description": "连接多个板块通过相同的验证管道.",
+      "objectives": [
+        "了解什么时候使用盘排列.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "链接多个板块通过相同的验证管道.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "链接多个板块通过相同的验证管道."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Plate Queue。 添加盘源,然后选择共享模块序列和设置预设.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Plate Queue。 添加盘源,然后选择共享模块序列和设置预设."
+        },
+        {
+          "narration": "在主要配置区域,检查板块顺序,每板块的覆盖,工人限制,失败政策,恢复行为和输出根.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,检查板块顺序,每板块的覆盖,工人限制,失败政策,恢复行为和输出根."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式. 首先使用一个小的板块或测试场,然后让排队顺序处理可见状态的板块.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式. 首先使用一个小的板块或测试场,然后让排队顺序处理可见状态的板块."
+        },
+        {
+          "narration": "当工作流程完成时,每个板块都会收到一个单独的项目,并运行记录,而排队保持整体进展.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,每个板块都会收到一个单独的项目,并运行记录,而排队保持整体进展."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "number": 31,
+      "slug": "external_masks",
+      "title": "External Masks",
+      "series": 4,
+      "app_key": "external_masks",
+      "section": "Data and batch runs",
+      "description": "转换第三方标签掩膜和源图像成为测量可追踪的 spaCR 项目.",
+      "objectives": [
+        "了解什么时候使用外面罩.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "转换第三方标签掩膜和源图像成一个可测量,可追踪的 spaCR 项目.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "转换第三方标签掩膜和源图像成一个可测量,可追踪的 斯佩克尔 项目."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 External Masks。 提供源图像,外部掩膜,命名规则,对象类型和可选测量表.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 External Masks。 提供源图像,外部掩膜,命名规则,对象类型和可选测量表."
+        },
+        {
+          "narration": "在主要配置区域,将图像映射到掩膜,验证形状和标签约,选择重新标签,并定义测量选项.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域,将图像映射到掩膜,验证形状和标签约,选择重新标签,并定义测量选项."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 存储正常化掩膜,映射的图像,测量和来源准备进行注释.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 存储正常化掩膜,映射的图像,测量和来源准备进行注释."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "number": 32,
+      "slug": "align_stitch",
+      "title": "Align and Stitch",
+      "series": 4,
+      "app_key": "align",
+      "section": "Data and batch runs",
+      "description": "记录图片,并逐步构建一个织的摩赛克,",
+      "objectives": [
+        "了解什么时候使用Align和Sitch.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "编辑图片片,并逐步构建一个编织的摩赛克,而不需要记住整个帆布.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "编辑图片片,并逐步构建一个编织的摩赛克,而不需要记住整个帆布."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Align and Stitch。 选择片收购,阶段坐标或重叠的元数据,道和目的地.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Align and Stitch。 选择片收购,阶段坐标或重叠的元数据,道和目的地."
+        },
+        {
+          "narration": "在主配置区域,配置注册方法,参考道,重叠,混合,纠正,零件大小和输出格式.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置注册方法,参考道,重叠,混合,纠正,零件大小和输出格式."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在构建完整的摩赛克之前,检查对齐和接预览.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在构建完整的摩赛克之前,检查对齐和接预览."
+        },
+        {
+          "narration": "当工作流程完成时,记录的,接的图像,转换和地图的元数据都会被保存.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,记录的,接的图像,转换和地图的元数据都会被保存."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "number": 33,
+      "slug": "plate_viewer",
+      "title": "Plate Viewer",
+      "series": 4,
+      "app_key": "plate_view",
+      "section": "Results and quality control",
+      "description": "探索任何测量作为板热图,并确定空间文物或边缘效应.",
+      "objectives": [
+        "了解什么时候使用盘点视器.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "探索任何测量作为一个板热地图,并识别空间文物或边缘效果.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "探索任何测量作为一个板热地图,并识别空间文物或边缘效果."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Plate Viewer。 打开一个测量数据库,包含平板,井和状态标识符.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Plate Viewer。 打开一个测量数据库,包含平板,井和状态标识符."
+        },
+        {
+          "narration": "在主要配置区域中,选择测量,聚合,正常化,颜色尺度,控制和板布局.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,选择测量,聚合,正常化,颜色尺度,控制和板布局."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式."
+        },
+        {
+          "narration": "工作流程完成后,可出口热图,选定的井表和边缘效应诊断.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,可出口热图,选定的井表和边缘效应诊断."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "number": 34,
+      "slug": "database",
+      "title": "Database Browser",
+      "series": 4,
+      "app_key": "db_browser",
+      "section": "Data and batch runs",
+      "description": "浏览,过,查询和出口测量点db而不使用sqlite命令行.",
+      "objectives": [
+        "了解何时使用数据库浏览器.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖数据库浏览器. 浏览,过,查询和出口测量点db而不使用sqlite命令行.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖数据库浏览器. 浏览,过,查询和出口测量点db而不使用sqlite命令行."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Database Browser。 打开 spaCR SQLite 数据库,选择表或保存查询.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Database Browser。 打开 斯佩克尔 SQLite 数据库,选择表或保存查询."
+        },
+        {
+          "narration": "在主配置区域,配置列,过器,排序,行限,连接,安全的仅读或编辑行为.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置列,过器,排序,行限,连接,安全的仅读或编辑行为."
+        },
+        {
+          "narration": "在完整运行之前,检查可见设置,并在可用的情况下使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见设置,并在可用的情况下使用预览或测试模式."
+        },
+        {
+          "narration": "当工作流程完成时,可以复制或出口过表,而原始数据库仍然可追踪.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,可以复制或出口过表,而原始数据库仍然可追踪."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "number": 35,
+      "slug": "converter",
+      "title": "Format Converter",
+      "series": 4,
+      "app_key": "convert",
+      "section": "Data and batch runs",
+      "description": "将 ND2, CZI, LIF, OME-TIFF 和相关的显微镜格式转换为映射的横川式TIFF文件.",
+      "objectives": [
+        "了解使用什么时候使用格式转换器.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "本教程涵盖格式转换器. 将 ND2, CZI, LIF, OME-TIFF 和相关显微镜格式转换为映射的横川式TIFF文件.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "本教程涵盖格式转换器. 将 ND2, CZI, LIF, OME-TIFF 和相关显微镜格式转换为映射的横川式TIFF文件."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Format Converter。 选择源文件,系列或场景,频道名称,时间和深度处理以及输出文件.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Format Converter。 选择源文件,系列或场景,频道名称,时间和深度处理以及输出文件."
+        },
+        {
+          "narration": "在主要配置区域中,先查看源尺寸如何映射到板块,井,场,时间,深度和道指数.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,先查看源尺寸如何映射到板块,井,场,时间,深度和道指数."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在转换每个文件之前,验证在小样本上映射.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在转换每个文件之前,验证在小样本上映射."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 将标准化的TIFF和地图写回原始文件和元数据.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 将标准化的TIFF和地图写回原始文件和元数据."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "number": 36,
+      "slug": "import",
+      "title": "Import Project",
+      "series": 5,
+      "app_key": "foreign",
+      "section": "Data and batch runs",
+      "description": "带其他实验室的图像,掩膜和测量表,",
+      "objectives": [
+        "了解何时使用进口项目.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "带其他实验室的图像,掩膜和测量表进入一个 spaCR 项目.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "带其他实验室的图像,掩膜和测量表进入一个 斯佩克尔 项目."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Import Project。 提供图像,可选掩膜,测量表和稳定的外部标识符.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Import Project。 提供图像,可选掩膜,测量表和稳定的外部标识符."
+        },
+        {
+          "narration": "在主要配置区域中,将外来列映射到 spaCR 标识符,道,对象类型,板块元数据和来源字段上.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,将外来列映射到 斯佩克尔 标识符,道,对象类型,板块元数据和来源字段上."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在进口之前验证结合,缺少值,图像掩膜对齐和重复识别符.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在进口之前验证结合,缺少值,图像掩膜对齐和重复识别符."
+        },
+        {
+          "narration": "当工作流程完成时,标准化的项目将保存返回每个原始文件和标识器的链接.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,标准化的项目将保存返回每个原始文件和标识器的链接."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "number": 37,
+      "slug": "batch",
+      "title": "Batch Runner",
+      "series": 5,
+      "app_key": "batch",
+      "section": "Data and batch runs",
+      "description": "排队模块,项目和设置可复制的无监督执行.",
+      "objectives": [
+        "了解什么时候使用\"批量跑者\".",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "列表模块,项目和设置可复制的无监督执行.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "列表模块,项目和设置可复制的无监督执行."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Batch Runner。 添加项目,并组装每个项目应运行的分组序列.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Batch Runner。 添加项目,并组装每个项目应运行的分组序列."
+        },
+        {
+          "narration": "在主配置区域中,选择预设,依赖,资源限制,恢复行为,记录和故障政策.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中,选择预设,依赖,资源限制,恢复行为,记录和故障政策."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.验证批量计划,测试一个工作,然后在一夜之间或无监督运行剩余的排队.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.验证批量计划,测试一个工作,然后在一夜之间或无监督运行剩余的排队."
+        },
+        {
+          "narration": "当工作流程完成时,每个工作都有自己的状态,设置快照,日志,输出和可重启的运行记录.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,每个工作都有自己的状态,设置快照,日志,输出和可重启的运行记录."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "number": 38,
+      "slug": "distributed_jobs",
+      "title": "Distributed Jobs",
+      "series": 5,
+      "app_key": "distributed_jobs",
+      "section": "Data and batch runs",
+      "description": "在SSH工作站,Slurm集群或云和HPC命令上提交和监测 spaCR工作.",
+      "objectives": [
+        "了解使用分布式工作的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "提交和监测SSH工作站,Slurm集群或云和HPC命令上的 spaCR工作.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "提交和监测SSH工作站,Slurm集群或云和HPC命令上的 斯佩克尔工作."
+        },
+        {
+          "narration": "从 Data and batch runs 部分打开 Distributed Jobs。 配置远程配置文件,连接方法,工作目录,环境和数据路径.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Data and batch runs 部分打开 Distributed Jobs。 配置远程配置文件,连接方法,工作目录,环境和数据路径."
+        },
+        {
+          "narration": "在主要配置区域中,定义调度器资源,命令模板,文件同步,凭证和状态调查.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,定义调度器资源,命令模板,文件同步,凭证和状态调查."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在扩展到昂贵的分析之前,提交一个小的验证工作.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在扩展到昂贵的分析之前,提交一个小的验证工作."
+        },
+        {
+          "narration": "当工作流程完成时,本地记录会追踪远程工作标识,日志,状态,转移的文物和故障.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时,本地记录会追踪远程工作标识,日志,状态,转移的文物和故障."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "number": 39,
+      "slug": "classifier_evaluation",
+      "title": "Classifier Evaluation",
+      "series": 5,
+      "app_key": "classifier_evaluation",
+      "section": "Results and quality control",
+      "description": "审计已完成的预测,嵌入式交叉验证,校准,泄漏和每盘性能.",
+      "objectives": [
+        "了解使用分类器评估的时间.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "审计的预测,嵌入式交叉验证,校准,泄漏和每盘性能.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "审计的预测,嵌入式交叉验证,校准,泄漏和每盘性能."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Classifier Evaluation。 选择基于真相,分类元数据,盘标识符,概率和模型运行记录的预测.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Classifier Evaluation。 选择基于真相,分类元数据,盘标识符,概率和模型运行记录的预测."
+        },
+        {
+          "narration": "在主配置区域,配置类序列,门值,校准容器,组分,启动线不确定性和泄漏检查.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域,配置类序列,门值,校准容器,组分,启动线不确定性和泄漏检查."
+        },
+        {
+          "narration": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式."
+        },
+        {
+          "narration": "当工作流程完成时, spaCR 产生歧视,校准,混乱,泄漏和强度报告.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "当工作流程完成时, 斯佩克尔 产生歧视,校准,混乱,泄漏和强度报告."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "number": 40,
+      "slug": "run_history",
+      "title": "Run History",
+      "series": 5,
+      "app_key": "run_history",
+      "section": "Results and quality control",
+      "description": "查找每个工作的设置,文件,警告,失败和性能.",
+      "objectives": [
+        "了解何时使用运行历史.",
+        "配置重要的输入和设置.",
+        "运行工作流程,并找到其输出."
+      ],
+      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "scenes": [
+        {
+          "narration": "这本教程涵盖了运行历史. 从一个地方搜索每个工作的设置,文件,警告,故障和性能.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "这本教程涵盖了运行历史. 从一个地方搜索每个工作的设置,文件,警告,故障和性能."
+        },
+        {
+          "narration": "从 Results and quality control 部分打开 Run History。 打开当前工作空间或选定的项目根的运行登记簿.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "从 Results and quality control 部分打开 Run History。 打开当前工作空间或选定的项目根的运行登记簿."
+        },
+        {
+          "narration": "在主要配置区域中,按模块,状态,日期,项目,版本,警告,持续时间或资源使用进行过.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主要配置区域中,按模块,状态,日期,项目,版本,警告,持续时间或资源使用进行过."
+        },
+        {
+          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式中使用.打开运行以检查其不可变的设置,日志,输出和故障背景.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式中使用.打开运行以检查其不可变的设置,日志,输出和故障背景."
+        },
+        {
+          "narration": "工作流程完成后,你可以复制,比较,恢复或报告之前的工作,",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后,你可以复制,比较,恢复或报告之前的工作,"
+        }
+      ]
+    }
+  ],
+  "language": "zh-CN"
+}

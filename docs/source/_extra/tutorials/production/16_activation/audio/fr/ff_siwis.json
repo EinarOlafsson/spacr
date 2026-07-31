@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.175,
+      "scene_end": 3.625,
+      "duration": 3.625,
+      "text": "Ce tutoriel couvre les cartes d'activation."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.625,
+      "speech_end": 14.5,
+      "scene_end": 14.95,
+      "duration": 11.325,
+      "text": "Ouvrez Activation maps dans la section Results and quality control. Sélectionnez un modèle de vision formé et des cultures d'objets représentatifs dans les classes d'intérêt."
+    },
+    {
+      "scene": 3,
+      "speech_start": 14.95,
+      "speech_end": 25.424999999999997,
+      "scene_end": 25.874999999999996,
+      "duration": 10.924999999999997,
+      "text": "Dans la zone de configuration principale, choisissez la méthode d'attribution, la couche cible, la classe cible, les canaux, la normalisation et le prélèvement d'échantillons."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.874999999999996,
+      "speech_end": 39.3,
+      "scene_end": 39.75,
+      "duration": 13.875000000000004,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. comparez les cartes entre des exemples corrects, incorrects, de haute confiance et de faible confiance."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.75,
+      "speech_end": 50.45,
+      "scene_end": 51.1,
+      "duration": 11.350000000000001,
+      "text": "Lorsque le flux de travail est terminé, les superpositions d'activation et les mesures d'attribution aident à évaluer si le modèle a appris des indices biologiquement plausibles."
+    }
+  ]
+}

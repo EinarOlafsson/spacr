@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.775,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.175,
+      "scene_end": 3.625,
+      "duration": 3.625,
+      "text": "Questo tutorial copre le Run di allenamento."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.625,
+      "speech_end": 18.425,
+      "scene_end": 18.875,
+      "duration": 15.25,
+      "text": "Apri Training Runs dalla sezione Results and quality control. Apri le attività di formazione dalla sezione Risultati e controllo qualità Selezionare le cartelle di attività di formazione o i registri di formazione che devono essere confrontati."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.875,
+      "speech_end": 28.275,
+      "scene_end": 28.724999999999998,
+      "duration": 9.849999999999998,
+      "text": "Nella zona di configurazione principale, scegliere le metriche, il liscio, il raggruppamento, i criteri dei checkpoint e i campi di impostazione da visualizzare."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.724999999999998,
+      "speech_end": 44.3,
+      "scene_end": 44.75,
+      "duration": 16.025000000000002,
+      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando disponibile. confrontare convergenza, sovrapposizione, stabilità e prestazioni di durata piuttosto che selezionare solo per perdita di allenamento."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.75,
+      "speech_end": 54.125,
+      "scene_end": 54.775,
+      "duration": 10.024999999999999,
+      "text": "Quando il flusso di lavoro è terminato, le cifre di confronto e le tabelle di differenze impostazioni identificano la corsa riproducibile più forte."
+    }
+  ]
+}

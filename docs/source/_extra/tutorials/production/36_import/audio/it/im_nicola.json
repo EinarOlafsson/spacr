@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.225,
+      "scene_end": 9.674999999999999,
+      "duration": 9.674999999999999,
+      "text": "Questo tutorial copre il progetto Import. Porta le immagini, le maschere e la tavola di misura di un altro laboratorio in un progetto spaCR."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.674999999999999,
+      "speech_end": 23.799999999999997,
+      "scene_end": 24.249999999999996,
+      "duration": 14.574999999999998,
+      "text": "Apri Import Project dalla sezione Data and batch runs. Aprire il progetto di importazione dalla sezione \"Data and batch runs\". Fornire immagini, maschere opzionali, una tabella di misura e identificatori esterni stabili."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.249999999999996,
+      "speech_end": 35.724999999999994,
+      "scene_end": 36.175,
+      "duration": 11.925,
+      "text": "Nell'area di configurazione principale, mappare le colonne straniere sugli identificatori spaCR, i canali, i tipi di oggetti, i metadati della targa e i campi di provenienza."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.175,
+      "speech_end": 54.275,
+      "scene_end": 54.725,
+      "duration": 18.550000000000004,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. convalidare le unioni, i valori mancanti, l'allineamento della maschera dell'immagine e gli identificatori duplicati prima di importare."
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.725,
+      "speech_end": 64.475,
+      "scene_end": 65.125,
+      "duration": 10.399999999999999,
+      "text": "Quando il flusso di lavoro è finito, il progetto standardizzato conserva i collegamenti di ritorno a ogni file e identificatore originale."
+    }
+  ]
+}

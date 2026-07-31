@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.475,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.5,
+      "scene_end": 7.95,
+      "duration": 7.95,
+      "text": "Este tutorial cubre el tiempo de tiempo. Segmentar, vincular y medir células o patógenos en los marcos de una serie de tiempo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.95,
+      "speech_end": 20.675,
+      "scene_end": 21.125,
+      "duration": 13.175,
+      "text": "Abra Timelapse en la sección Core. Abre Timelapse desde la sección Core. Seleccione un conjunto de imágenes resueltas en tiempo cuyos nombres de archivos conservan los índices de campo, tiempo, profundidad y canal."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.125,
+      "speech_end": 32.65,
+      "scene_end": 33.1,
+      "duration": 11.975000000000001,
+      "text": "En el área de configuración principal, configure la segmentación, los tipos de objetos rastreados, el modo de enlace, el desplazamiento máximo, el manejo de las brechas y los marcos de visualización."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.1,
+      "speech_end": 41.025,
+      "scene_end": 41.475,
+      "duration": 8.375,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.475,
+      "speech_end": 49.825,
+      "scene_end": 50.475,
+      "duration": 9.0,
+      "text": "Cuando el flujo de trabajo termina, se almacenan máscaras, pistas, mediciones y resúmenes de trayectoria con identidades de objetos estables."
+    }
+  ]
+}

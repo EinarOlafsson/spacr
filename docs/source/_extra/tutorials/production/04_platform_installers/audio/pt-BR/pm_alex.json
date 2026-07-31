@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 52.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.95,
+      "scene_end": 8.4,
+      "duration": 8.4,
+      "text": "Este tutorial abrange os instaladores da plataforma. Instale spaCR no Windows, macOS ou Linux sem gerenciar Python manualmente."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.4,
+      "speech_end": 19.025,
+      "scene_end": 19.474999999999998,
+      "duration": 11.074999999999998,
+      "text": "Abra Platform installers na seção spaCR. Abra instaladores da plataforma na seção spaCR. Descarregue o instalador do seu sistema operacional na versão atual do GitHub."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.474999999999998,
+      "speech_end": 30.025,
+      "scene_end": 30.474999999999998,
+      "duration": 11.0,
+      "text": "Na área de configuração principal, revise as instruções de segurança do sistema operacional, a localização privada do tempo de execução e o backend de aceleração solicitado."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.474999999999998,
+      "speech_end": 43.0,
+      "scene_end": 43.45,
+      "duration": 12.975000000000005,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Permita que o instalador termine e preserve o seu registro de instalação se algo falhar."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.45,
+      "speech_end": 51.35,
+      "scene_end": 52.0,
+      "duration": 8.549999999999997,
+      "text": "Quando o fluxo de trabalho terminar, use o lançador nativo enquanto o spaCR mantém seu próprio tempo de execução do Python gerenciado."
+    }
+  ]
+}

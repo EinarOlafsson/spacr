@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.475,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.15,
+      "scene_end": 10.6,
+      "duration": 10.6,
+      "text": "Este tutorial abrange Relatório. Crie um resumo HTML ou PDF compartilhável contendo controle de qualidade, números, estatísticas, configurações e versões."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.6,
+      "speech_end": 22.475,
+      "scene_end": 22.925,
+      "duration": 12.325000000000001,
+      "text": "Abra Report na seção Results and quality control. Abra Relatório na seção Resultados e controle de qualidade. Escolha um projeto spaCR concluído e as corridas, tabelas, figuras e seções a incluir."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.925,
+      "speech_end": 32.45,
+      "scene_end": 32.900000000000006,
+      "duration": 9.975000000000005,
+      "text": "Na área de configuração principal, configure título, autor, rótulos de condição, limiares de qualidade, formato de saída e campos sensíveis à privacidade."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.900000000000006,
+      "speech_end": 40.37500000000001,
+      "scene_end": 40.82500000000001,
+      "duration": 7.925000000000004,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.82500000000001,
+      "speech_end": 50.82500000000001,
+      "scene_end": 51.47500000000001,
+      "duration": 10.649999999999999,
+      "text": "Quando o fluxo de trabalho termina, um relatório portátil registra as conclusões, juntamente com as configurações e as versões de software necessárias para as reproduzir."
+    }
+  ]
+}

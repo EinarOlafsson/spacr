@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_onyx",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.5,
+      "scene_end": 10.95,
+      "duration": 10.95,
+      "text": "This tutorial covers Format Converter. Convert ND2, CZI, LIF, OME-TIFF, and related microscopy formats into mapped Yokogawa-style TIFF files."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.95,
+      "speech_end": 20.825,
+      "scene_end": 21.275,
+      "duration": 10.325,
+      "text": "Open Format Converter from the Data and batch runs section. Choose source files, series or scenes, channel names, time and depth handling, and an output folder."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.275,
+      "speech_end": 28.974999999999998,
+      "scene_end": 29.424999999999997,
+      "duration": 8.149999999999999,
+      "text": "In the main configuration area, preview how source dimensions map to plate, well, field, time, depth, and channel indices."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.424999999999997,
+      "speech_end": 39.724999999999994,
+      "scene_end": 40.175,
+      "duration": 10.75,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate the mapping on a small sample before converting every file."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.175,
+      "speech_end": 46.974999999999994,
+      "scene_end": 47.62499999999999,
+      "duration": 7.449999999999996,
+      "text": "When the workflow finishes, spaCR writes standardized TIFFs and a map back to the original files and metadata."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 52.95,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.475,
+      "scene_end": 9.924999999999999,
+      "duration": 9.924999999999999,
+      "text": "Ce tutoriel couvre les masques externes. Transformer les masques d'étiquettes de tiers et les images de source en un projet spaCR mesuré et traçable."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.924999999999999,
+      "speech_end": 21.549999999999997,
+      "scene_end": 21.999999999999996,
+      "duration": 12.074999999999998,
+      "text": "Ouvrez External Masks dans la section Data and batch runs. Fournir des images de source, des masques externes, des règles de nommage, des types d'objets et des tables de mesure optionnelles."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.999999999999996,
+      "speech_end": 33.599999999999994,
+      "scene_end": 34.05,
+      "duration": 12.05,
+      "text": "Dans la zone de configuration principale, cartographier les images vers les masques, valider les conventions de forme et d'étiquetage, choisir le re-étiquetage et définir les options de mesure."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.05,
+      "speech_end": 42.324999999999996,
+      "scene_end": 42.775,
+      "duration": 8.725000000000001,
+      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.775,
+      "speech_end": 52.3,
+      "scene_end": 52.949999999999996,
+      "duration": 10.174999999999997,
+      "text": "Lorsque le flux de travail est terminé, spaCR stocke des masques normalisés, des images cartographiées, des mesures et de la provenance prêts à être annotés."
+    }
+  ]
+}

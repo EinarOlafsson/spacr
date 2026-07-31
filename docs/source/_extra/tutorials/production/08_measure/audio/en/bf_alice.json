@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_alice",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.575,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.5,
+      "scene_end": 9.95,
+      "duration": 9.95,
+      "text": "This tutorial covers Measure. Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.95,
+      "speech_end": 16.775,
+      "scene_end": 17.224999999999998,
+      "duration": 7.274999999999999,
+      "text": "Open Measure from the Core section. Select the project containing image stacks and masks produced by Mask."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.224999999999998,
+      "speech_end": 27.5,
+      "scene_end": 27.95,
+      "duration": 10.725000000000001,
+      "text": "In the main configuration area, use channel one, endoplasmic reticulum, as the channel of interest and choose the object types and feature families to measure."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.95,
+      "speech_end": 39.05,
+      "scene_end": 39.5,
+      "duration": 11.55,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview crops when needed, then process every selected field and object type."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.5,
+      "speech_end": 48.925,
+      "scene_end": 49.574999999999996,
+      "duration": 10.074999999999996,
+      "text": "When the workflow finishes, measurements dot db stores traceable single-object rows and optional image crops for annotation or classification."
+    }
+  ]
+}

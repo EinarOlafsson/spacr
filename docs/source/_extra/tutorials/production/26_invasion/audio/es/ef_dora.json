@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 2.925,
+      "scene_end": 3.375,
+      "duration": 3.375,
+      "text": "Este tutorial abarca el ensayo de invasión."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.375,
+      "speech_end": 17.825,
+      "scene_end": 18.275,
+      "duration": 14.899999999999999,
+      "text": "Abra Invasion assay en la sección Toxoplasma assays. Prueba de invasión abierta de la sección de análisis de Toxoplasma. Proporcione máscaras para parásitos y células huéspedes, canales de manchas dentro y fuera, metadatos de placas y controles."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.275,
+      "speech_end": 27.674999999999997,
+      "scene_end": 28.124999999999996,
+      "duration": 9.849999999999998,
+      "text": "En el área de configuración principal, configurar los umbrales de intensidad, la coincidencia de objetos, el manejo de la ambigüedad y el agrupamiento a nivel de pozo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.124999999999996,
+      "speech_end": 41.525,
+      "scene_end": 41.975,
+      "duration": 13.850000000000005,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. revise ejemplos adjuntos, invadidos e inciertos antes de aceptar la regla de clasificación."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.975,
+      "speech_end": 50.975,
+      "scene_end": 51.625,
+      "duration": 9.649999999999999,
+      "text": "Cuando el flujo de trabajo termine, los informes spaCR cuentan y cuentan la eficiencia de invasión por pozo y estado con imágenes de control de calidad."
+    }
+  ]
+}
