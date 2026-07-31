@@ -193,6 +193,9 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         ],
         "batch_missing_control": ["error", "skip"],
     },
+    "classify": {
+        "evaluation_calibration": ["temperature", "none"],
+    },
     "external_masks": {
         "layout": ["auto", "flat", "well", "plate_well"],
         "z_handling": ["max", "first"],
@@ -599,6 +602,10 @@ def categories_for_app(
             "Validation": [
                 "val_split", "cross_validation_enabled",
                 "cross_validation_folds", "cv_group_by", "score_threshold"],
+            "Evaluation Workbench": [
+                "classifier_evaluation", "nested_cv_inner_folds",
+                "evaluation_calibration", "evaluation_bins",
+                "evaluation_fail_on_leakage"],
             "Full Dataset & Inference": [
                 "generate_full_dataset", "apply_model_to_dataset",
                 "tar_path", "dataset", "file_metadata", "sample",
@@ -680,6 +687,7 @@ _APP_API_MODULE = {
     "plate_view": "plate_qc",
     "agreement": "agreement",
     "train_compare": "train_compare",
+    "classifier_evaluation": "classifier_evaluation",
     "report": "report",
     "recruitment": "submodules",
     "analyze_plaques": "submodules",
@@ -698,11 +706,19 @@ def api_docs_url(app_key: str, key: str = "") -> str:
     Shared batch-correction settings always land on their implementation,
     rather than whichever consumer app happens to display them.
     """
-    module = (
-        "batch_correction"
-        if key.startswith("batch_")
-        else _APP_API_MODULE.get(app_key)
-    )
+    evaluation_keys = {
+        "classifier_evaluation",
+        "nested_cv_inner_folds",
+        "evaluation_calibration",
+        "evaluation_bins",
+        "evaluation_fail_on_leakage",
+    }
+    if key.startswith("batch_"):
+        module = "batch_correction"
+    elif key in evaluation_keys:
+        module = "classifier_evaluation"
+    else:
+        module = _APP_API_MODULE.get(app_key)
     if module:
         return f"{DOCS_API_BASE}/spacr/{module}/index.html"
     return f"{DOCS_API_BASE}/index.html"

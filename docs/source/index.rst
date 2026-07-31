@@ -116,4 +116,5 @@ Contents
    reproducibility_manifests
    run_history
    batch_correction
+   classifier_evaluation
    api/index
