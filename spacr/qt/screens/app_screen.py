@@ -379,6 +379,7 @@ APP_TITLES = {
     "train_compare":   "Training Runs",
     "classifier_evaluation": "Classifier Evaluation",
     "run_history":     "Run History",
+    "distributed_jobs": "Distributed Jobs",
 }
 
 
@@ -413,6 +414,7 @@ APP_INTROS = {
     "train_compare":   "Overlay the loss and accuracy curves of several training runs on one axis and see, beside them, exactly which settings differed — with environment drift bucketed away from the knobs you actually turned.",
     "classifier_evaluation": "Inspect held-out predictions from grouped or nested cross-validation, calibration, confusion matrices, per-plate performance and explicit train/test leakage checks.",
     "run_history":     "Search every recorded job and inspect its exact settings, hashed inputs and outputs, warnings, failure traceback, software versions, seeds and performance.",
+    "distributed_jobs": "Submit resolved spaCR settings to SSH workstations, Slurm clusters or cloud/HPC command profiles and monitor them locally.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
     "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
@@ -463,6 +465,10 @@ class AppScreen(QWidget):
     # captured traceback + the app key so MainWindow can route to the
     # AI Console.
     error_explain_requested = Signal(str, str)
+    # Hand an immutable settings snapshot to the Distributed Jobs screen.
+    # MainWindow owns navigation, so the reusable screen does not reach into
+    # the application stack itself.
+    remote_submit_requested = Signal(str, dict)
 
     def __init__(self, app_key: str, parent=None):
         super().__init__(parent)
@@ -1162,6 +1168,17 @@ class AppScreen(QWidget):
         self._btn_import.clicked.connect(self._on_import_settings)
         row.addWidget(self._btn_import)
 
+        self._btn_remote = QPushButton("Submit remote…")
+        self._btn_remote.setObjectName("PrimaryButton")
+        self._btn_remote.setCursor(Qt.PointingHandCursor)
+        self._btn_remote.setToolTip(
+            "Send the current resolved settings to the Distributed Jobs "
+            "screen for an SSH workstation, Slurm cluster, or configured "
+            "cloud/HPC command."
+        )
+        self._btn_remote.clicked.connect(self._on_remote_submit)
+        row.addWidget(self._btn_remote)
+
         self._btn_clear = QPushButton("Clear console")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
@@ -1402,6 +1419,15 @@ class AppScreen(QWidget):
         # ("QThread: Destroyed while thread is still running" → abort).
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
+
+    def _on_remote_submit(self) -> None:
+        """Validate current settings and hand a snapshot to MainWindow."""
+        try:
+            settings = dict(self._settings_model.collect())
+        except Exception as exc:
+            QMessageBox.warning(self, "Bad settings", str(exc))
+            return
+        self.remote_submit_requested.emit(self.app_key, settings)
 
     def _on_pipeline_error(self, tb: str):
         """Capture the traceback and either show it raw or route it through AI."""

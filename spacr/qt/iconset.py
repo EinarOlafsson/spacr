@@ -501,6 +501,8 @@ _NAME_TO_GLYPH = {
     "recruitment":     "fa5s.crosshairs",
     "activation":      "fa5s.bolt",
     "run_history":     "fa5s.history",
+    "distributed_jobs": "fa5s.cloud-upload-alt",
+    "classifier_evaluation": "fa5s.clipboard-check",
     "analyze_plaques": "fa5s.microscope",
     "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",

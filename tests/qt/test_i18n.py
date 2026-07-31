@@ -104,6 +104,33 @@ def test_widget_tree_switches_languages_and_preserves_user_values(
     assert run.text() == "Run"
 
 
+def test_table_headers_retranslate_and_profile_names_do_not(
+    qtbot, qt_theme_applied,
+):
+    from PySide6.QtWidgets import (
+        QComboBox, QTableWidget, QVBoxLayout, QWidget,
+    )
+    from spacr.qt.i18n import retranslate_widget_tree
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    layout = QVBoxLayout(root)
+    table = QTableWidget(0, 2, root)
+    table.setHorizontalHeaderLabels(["Job", "Status"])
+    profile = QComboBox(root)
+    profile.setProperty("i18nSkipItems", True)
+    profile.addItem("Home")
+    layout.addWidget(table)
+    layout.addWidget(profile)
+
+    retranslate_widget_tree(root, "sv")
+    assert table.horizontalHeaderItem(0).text() == "Jobb"
+    assert profile.itemText(0) == "Home"
+    retranslate_widget_tree(root, "ko")
+    assert table.horizontalHeaderItem(0).text() == "작업"
+    assert profile.itemText(0) == "Home"
+
+
 def test_environment_language_override(monkeypatch):
     from spacr.qt.i18n import current_language
 
