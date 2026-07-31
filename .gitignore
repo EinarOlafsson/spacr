@@ -169,6 +169,7 @@ tutorial_colab.ipynb
 /docs/source/*
 !/docs/source/module_audit.rst
 !/docs/source/localization.rst
+!/docs/source/setting_animations.rst
 !/docs/source/checkpoint_resume.rst
 !/docs/source/reproducibility_manifests.rst
 !/docs/source/run_history.rst

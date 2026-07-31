@@ -21,6 +21,20 @@ def test_every_non_english_catalog_covers_every_core_phrase():
         assert all(str(value).strip() for value in CATALOGS[code].values())
 
 
+def test_catalog_translations_preserve_format_placeholders():
+    from string import Formatter
+    from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES, _ROWS
+
+    def fields(text):
+        return {name for _literal, name, _spec, _conversion
+                in Formatter().parse(text) if name is not None}
+
+    for source in _ROWS:
+        expected = fields(source)
+        for code in VALID_LANGUAGE_CODES[1:]:
+            assert fields(CATALOGS[code][source]) == expected, (code, source)
+
+
 def test_every_registered_module_and_section_has_an_exact_translation():
     from spacr.qt.app import APPS
     from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
@@ -102,6 +116,27 @@ def test_widget_tree_switches_languages_and_preserves_user_values(
     retranslate_widget_tree(root, "en")
     assert title.text() == "Home"
     assert run.text() == "Run"
+
+
+def test_mutated_data_label_is_not_reset_or_translated(
+    qtbot, qt_theme_applied,
+):
+    from PySide6.QtWidgets import QLabel
+    from spacr.qt.i18n import retranslate_widget_tree
+
+    label = QLabel("Ready.")
+    qtbot.addWidget(label)
+    retranslate_widget_tree(label, "sv")
+    assert label.text() != "Ready."
+
+    result = "Plate A | model output | score=0.812"
+    label.setText(result)
+    retranslate_widget_tree(label, "ko")
+    assert label.text() == result
+    assert label.property("i18nSkipText") is True
+
+    retranslate_widget_tree(label, "fr")
+    assert label.text() == result
 
 
 def test_table_headers_retranslate_and_profile_names_do_not(

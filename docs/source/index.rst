@@ -112,6 +112,7 @@ Contents
 
    module_audit
    localization
+   setting_animations
    checkpoint_resume
    reproducibility_manifests
    run_history

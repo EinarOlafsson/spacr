@@ -1304,7 +1304,13 @@ class HomePage(QWidget):
 
     # -- shared ---------------------------------------------------------
     def _wire_tile(self, tile, key: str, desc: str):
-        self._tile_hints[tile] = desc
+        self._tile_hints[tile] = (key, desc)
+        from ..theme import STAGE_LABEL
+        tile.setProperty("moduleAppKey", key)
+        tile.setProperty("moduleNameSource", tile.text_label)
+        tile.setProperty("moduleSummarySource", desc)
+        tile.setProperty("moduleTooltipStyle", "tile")
+        tile.setProperty("moduleStageSource", STAGE_LABEL.get(tile.stage, ""))
         tile.installEventFilter(self)
         tile.clicked.connect(lambda _=False, k=key: self.tile_clicked.emit(k))
         return tile
@@ -1486,9 +1492,12 @@ class HomePage(QWidget):
         if event.type() == QEvent.Enter:
             hint = self._tile_hints.get(obj)
             if hint:
-                self._hint_bar.setText(hint)
+                from ..i18n_module_summaries import module_summary
+                key, source = hint
+                self._hint_bar.setText(module_summary(key, source))
         elif event.type() == QEvent.Leave:
-            self._hint_bar.setText(_DEFAULT_HINT)
+            from ..i18n import tr
+            self._hint_bar.setText(tr(_DEFAULT_HINT))
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):                # noqa: N802

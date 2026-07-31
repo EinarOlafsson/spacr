@@ -931,6 +931,31 @@ class TestPanelRendering:
         assert p._outline_rgb() == (240, 60, 60)
         assert _pixmap_pixel(p._mask_view, 10, 10) == (240, 60, 60)
 
+    def test_random_outline_choice_repaints_each_label_stably(self, qtbot,
+                                                               gray_tif):
+        p = _panel(qtbot)
+        p.load_image(gray_tif)
+        mask = np.zeros((48, 48), np.int32)
+        mask[5:14, 5:14] = 1
+        mask[30:42, 30:42] = 2
+        p._masks = {"cell": mask}
+
+        p._outline_colour.setCurrentText("color (random)")
+        first = (
+            _pixmap_pixel(p._mask_view, 5, 9),
+            _pixmap_pixel(p._mask_view, 30, 35),
+        )
+        assert first[0] != first[1]
+        assert first[0] != (0, 0, 0)
+        assert first[1] != (0, 0, 0)
+
+        p._refresh_canvases()
+        second = (
+            _pixmap_pixel(p._mask_view, 5, 9),
+            _pixmap_pixel(p._mask_view, 30, 35),
+        )
+        assert second == first
+
     def test_masks_mode_shows_labels_not_outlines(self, qtbot, gray_tif):
         p = _panel(qtbot)
         p.load_image(gray_tif)

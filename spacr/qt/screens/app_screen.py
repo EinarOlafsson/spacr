@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..bridge import make_thread, resolve_pipeline_entry
+from ..i18n import tr
 from ..theme import SPACING
 from ..widgets import Card, Divider, InfoLink, Section, UsageBar
 from .settings_model import SettingsWidgets
@@ -732,6 +733,17 @@ class AppScreen(QWidget):
                         field_key = key
                         html = widget.toolTip()
                         hint = self._settings_model.plain_tooltip_for(key)
+                        body_source = widget.property(
+                            "apiTooltipDescriptionSource") or ""
+                        lbl_widget.setProperty("settingsAppKey", self.app_key)
+                        lbl_widget.setProperty("settingKey", key)
+                        lbl_widget.setProperty(
+                            "apiTooltipDescriptionSource", body_source)
+                        lbl_widget.setProperty(
+                            "apiTooltipDescription", body_source)
+                        lbl_widget.setProperty("apiTooltipHtml", html)
+                        lbl_widget.setProperty(
+                            "apiTooltipDisplayRole", "tooltip")
                         # Tooltips live on the LABEL only — hovering
                         # the input field itself is left alone so
                         # focus / edit interactions aren't disturbed.
@@ -742,13 +754,17 @@ class AppScreen(QWidget):
                         break
                 info = None
                 if field_key is not None:
-                    from .settings_model import api_docs_url
-                    info = InfoLink(
-                        api_docs_url(self.app_key),
-                        tooltip=self._settings_model.tooltip_for(field_key),
+                    from .settings_model import build_setting_link_widget
+                    info, api_dot, animation_dot = build_setting_link_widget(
+                        self.app_key,
+                        field_key,
+                        html,
+                        str(body_source),
                         parent=section,
                     )
-                    info.setObjectName("SettingInfoLink")
+                    lbl_widget._spacr_api_dot = api_dot
+                    if animation_dot is not None:
+                        lbl_widget._spacr_animation_dot = animation_dot
                 section.add_row(lbl_widget, widget, info_widget=info)
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
@@ -940,10 +956,19 @@ class AppScreen(QWidget):
         from PySide6.QtCore import QEvent
         from ..widgets.hover_tooltip import HoverTooltip
         if event.type() == QEvent.Enter:
-            hint = self._hint_map.get(obj)
+            key = obj.property("settingKey")
+            if key:
+                from .settings_model import refresh_api_tooltips
+                refresh_api_tooltips(obj)
+                hint = self._settings_model.plain_tooltip_for(str(key))
+                html = obj.property("apiTooltipHtml")
+                self._hint_map[obj] = hint
+                self._html_tip_map[obj] = html
+            else:
+                hint = self._hint_map.get(obj)
+                html = self._html_tip_map.get(obj)
             if hint and hasattr(self, "_hint_strip"):
                 self._hint_strip.setText(hint)
-            html = self._html_tip_map.get(obj)
             if html:
                 HoverTooltip.instance().show_for(obj, html)
         elif event.type() == QEvent.Leave:
@@ -1397,9 +1422,14 @@ class AppScreen(QWidget):
             self._console.set_run_context(self.app_key, entry_name)
         except Exception:
             pass
-        self._console.append_stdout(
-            f"→ Starting {self.app_key} ({entry_name}) with "
-            f"src={settings.get('src')!r} + {len(settings)} settings…\n")
+        self._console.append_notice(
+            "→ Starting {module} ({function}) with src={src} + "
+            "{count} settings…\n",
+            module=self.app_key,
+            function=entry_name,
+            src=repr(settings.get("src")),
+            count=len(settings),
+        )
         self._btn_run.setEnabled(False)
         self._btn_stop.setEnabled(True)
         self._progress.setVisible(True)
@@ -1477,8 +1507,8 @@ class AppScreen(QWidget):
             try:
                 self._on_file_issue()
             except Exception as e:
-                self._console.append_stdout(
-                    f"[issue] auto-file failed: {e}\n")
+                self._console.append_notice(
+                    "[issue] auto-file failed: {detail}\n", detail=e)
 
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
@@ -1541,7 +1571,7 @@ class AppScreen(QWidget):
                     self._console.set_ai_provider(configured[0].name)
                     self._refresh_ai_menu()
                 else:
-                    self._console.append_stdout(
+                    self._console.append_notice(
                         "[AI] No vendor CLI installed. Click ▾ next "
                         "to the AI switch → Providers…\n"
                     )
@@ -1563,11 +1593,14 @@ class AppScreen(QWidget):
                 )
             self._ai_menu.addSeparator()
         else:
-            self._ai_menu.addAction(
-                "(no vendor CLI installed)"
-            ).setEnabled(False)
+            source = "(no vendor CLI installed)"
+            unavailable = self._ai_menu.addAction(tr(source))
+            unavailable.setProperty("_spacr_i18n_text", source)
+            unavailable.setEnabled(False)
             self._ai_menu.addSeparator()
-        act_providers = self._ai_menu.addAction("Providers…")
+        source = "Providers…"
+        act_providers = self._ai_menu.addAction(tr(source))
+        act_providers.setProperty("_spacr_i18n_text", source)
         act_providers.triggered.connect(self._on_open_providers_dialog)
 
     def _on_pick_provider(self, name: str) -> None:
@@ -1625,9 +1658,10 @@ class AppScreen(QWidget):
         url = file_issue(self._last_error_text,
                           active_app=self.app_key,
                           settings=settings_snapshot)
-        self._console.append_stdout(
-            f"[issue] opened pre-filled report in your browser — "
-            f"review + submit to complete filing.\n{url[:100]}...\n"
+        self._console.append_notice(
+            "[issue] opened pre-filled report in your browser — review + "
+            "submit to complete filing.\n{url}...\n",
+            url=url[:100],
         )
 
     def _propagate_live_settings(self, settings: dict) -> None:
@@ -1695,7 +1729,7 @@ class AppScreen(QWidget):
             except (AttributeError, RuntimeError):
                 still_running = False
             if still_running:
-                self._console.append_stdout(
+                self._console.append_notice(
                     "\nClose deferred: the current field is still finishing. "
                     "The window will remain open so its worker is not "
                     "destroyed mid-write; close it again after Stop completes.\n"
@@ -1729,11 +1763,12 @@ class AppScreen(QWidget):
         cancelled = bool(
             getattr(getattr(self, "_worker", None), "was_cancelled", False))
         if cancelled:
-            self._console.append_stdout(
+            self._console.append_notice(
                 "■ Stopped safely at a field, trial, or job boundary\n")
         else:
-            self._console.append_stdout(
-                "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
+            self._console.append_notice(
+                "✓ Finished\n" if ok else
+                "✗ Failed — see traceback above\n")
         # NOTE: do NOT drop self._thread / self._worker here. This slot runs
         # on worker.finished, i.e. before thread.quit() has actually stopped
         # the QThread's event loop; releasing the last reference now can
@@ -1770,7 +1805,7 @@ class AppScreen(QWidget):
         if self._thread is None:
             return
         from ..button_roles import set_button_busy
-        self._console.append_stdout(
+        self._console.append_notice(
             "\nRequesting stop. The current field/trial/job will finish, then "
             "the resumable run will stop at its next safe boundary.\n")
         set_button_busy(self._btn_stop, True)
@@ -1797,8 +1832,9 @@ class AppScreen(QWidget):
         try:
             loaded = self._load_settings_csv(path)
             applied = self.apply_settings_dict(loaded)
-            self._console.append_stdout(
-                f"Loaded {applied} settings from {path}\n"
+            self._console.append_notice(
+                "Loaded {count} settings from {path}\n",
+                count=applied, path=path,
             )
             self._warn_about_moved_settings(loaded)
         except Exception as e:
@@ -1873,7 +1909,8 @@ class AppScreen(QWidget):
                 "motility_analysis=True was ignored — the assay now lives in "
                 "the Motility Assay module (sidebar > Core > Motility Assay).")
         for note in notes:
-            self._console.append_stdout(f"[settings] {note}\n")
+            self._console.append_notice(
+                "[settings] {note}\n", note=note)
 
     def apply_settings_dict(self, settings: dict) -> int:
         """Push key/value pairs from `settings` into whichever settings

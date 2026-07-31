@@ -86,6 +86,42 @@ class TestPureHelpers:
         thick_green = int((thick[..., 1] > thick[..., 0]).sum())
         assert thick_green > thin_green
 
+    def test_random_outline_colormap_is_distinct_stable_and_sparse_safe(self):
+        img = np.zeros((36, 36), dtype=np.uint8)
+        mask = np.zeros((36, 36), dtype=np.int64)
+        mask[4:13, 4:13] = 7
+        mask[22:32, 22:32] = 1_000_000_000
+
+        first = live_preview.overlay_masks(
+            img, {"cell": mask}, random_outline=True,
+        )
+        second = live_preview.overlay_masks(
+            img, {"cell": mask}, random_outline=True,
+        )
+
+        colour_7 = tuple(first[4, 8])
+        colour_sparse = tuple(first[22, 27])
+        assert colour_7 != (0, 0, 0)
+        assert colour_sparse != (0, 0, 0)
+        assert colour_7 != colour_sparse
+        assert np.array_equal(first, second)
+        assert tuple(first[17, 17]) == (0, 0, 0)
+
+    def test_random_outline_colour_is_stable_when_other_labels_change(self):
+        img = np.zeros((28, 28), dtype=np.uint8)
+        only_seven = np.zeros((28, 28), dtype=np.int32)
+        only_seven[14:24, 14:24] = 7
+        with_three = only_seven.copy()
+        with_three[2:10, 2:10] = 3
+
+        first = live_preview.overlay_masks(
+            img, {"nucleus": only_seven}, random_outline=True,
+        )
+        second = live_preview.overlay_masks(
+            img, {"nucleus": with_three}, random_outline=True,
+        )
+        assert tuple(first[14, 18]) == tuple(second[14, 18])
+
     def test_normalise_toggle_actually_stretches(self):
         arr = np.zeros((16, 16), dtype=np.uint16); arr[8:] = 100
         norm = live_preview._to_uint8(arr, normalise=True)
@@ -176,6 +212,19 @@ class TestPanel:
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
         assert panel.current_params()["model"] == "cpsam"
+
+    def test_outline_colour_offers_random_categorical_mode(self, qtbot):
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        choices = [
+            panel._outline_colour.itemText(index)
+            for index in range(panel._outline_colour.count())
+        ]
+        assert choices.count("color (random)") == 1
+        assert panel._outline_colour.currentText() == "auto"
+        panel._outline_colour.setCurrentText("color (random)")
+        assert panel.current_params()["outline_colour"] == "color (random)"
+        assert panel._outline_rgb() is None
 
     def test_load_image_updates_panel(self, qtbot, sample_tif):
         panel = live_preview.LivePreviewPanel()

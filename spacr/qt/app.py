@@ -676,6 +676,11 @@ class Sidebar(QWidget):
         btn = ElidingPushButton(f"  {name.replace('&', '&&')}")
         btn.setObjectName("SidebarItem")
         btn.setProperty("navKey", nav_key)
+        if nav_key != "__home__":
+            btn.setProperty("moduleAppKey", nav_key)
+            btn.setProperty("moduleNameSource", name)
+            btn.setProperty("moduleSummarySource", desc)
+            btn.setProperty("moduleTooltipStyle", "sidebar")
         btn.setCursor(Qt.PointingHandCursor)
         btn.setToolTip(f"{name} — {desc}" if desc else name)
         # Accessibility — screen readers announce the app name +
@@ -846,6 +851,12 @@ class MainWindow(QMainWindow):
         for key, name, desc, section in APPS:
             act = QAction(name, self)
             act.setStatusTip(desc)
+            # Translate the name and reviewed scientific summary as separate
+            # semantic fields; word-by-word translation of the combined text
+            # can produce misleading mixed-language help.
+            act.setProperty("moduleAppKey", key)
+            act.setProperty("moduleNameSource", name)
+            act.setProperty("moduleSummarySource", desc)
             act.triggered.connect(lambda checked=False, k=key: self._on_nav_selected(k))
             app_menu.addAction(act)
             self._app_actions[key] = act

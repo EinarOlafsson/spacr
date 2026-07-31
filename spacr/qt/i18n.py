@@ -704,6 +704,703 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "PNG-upplösning", "PNG-Auflösung", "Resolución PNG", "PNG 分辨率",
         "Resolução PNG", "PNG रिज़ॉल्यूशन", "PNG 해상도", "PNG-upplausn",
         "Résolution PNG"),
+
+    # AI/chat, console presentation and linked-help chrome. These strings are
+    # deliberately UI-only: provider replies, pipeline stdout, tracebacks,
+    # paths and generated outputs never pass through the translator.
+    "Hover a tile to see what it does.": _row(
+        "Håll pekaren över en modul för att se vad den gör.",
+        "Bewegen Sie den Zeiger über ein Modul, um seine Funktion zu sehen.",
+        "Pase el cursor sobre un módulo para ver qué hace.",
+        "将指针悬停在模块上可查看其功能。",
+        "Passe o ponteiro sobre um módulo para ver o que ele faz.",
+        "मॉड्यूल का कार्य देखने के लिए उस पर पॉइंटर रखें।",
+        "모듈 위에 포인터를 올려 기능을 확인하세요.",
+        "Haltu bendlinum yfir einingu til að sjá hvað hún gerir.",
+        "Survolez un module pour voir ce qu’il fait."),
+    "AI": _row(
+        "AI", "KI", "IA", "人工智能", "IA",
+        "एआई", "AI", "Gervigreind", "IA"),
+    "Live": _row(
+        "Live", "Live", "En vivo", "实时", "Ao vivo",
+        "लाइव", "실시간", "Beint", "Direct"),
+    "Provider": _row(
+        "Leverantör", "Anbieter", "Proveedor", "提供商", "Provedor",
+        "प्रदाता", "제공업체", "Veitandi", "Fournisseur"),
+    "Providers": _row(
+        "Leverantörer", "Anbieter", "Proveedores", "提供商", "Provedores",
+        "प्रदाता", "제공업체", "Veitendur", "Fournisseurs"),
+    "Providers…": _row(
+        "Leverantörer…", "Anbieter…", "Proveedores…", "提供商…",
+        "Provedores…", "प्रदाता…", "제공업체…", "Veitendur…",
+        "Fournisseurs…"),
+    "Send": _row(
+        "Skicka", "Senden", "Enviar", "发送", "Enviar",
+        "भेजें", "보내기", "Senda", "Envoyer"),
+    "Clear": _row(
+        "Rensa", "Leeren", "Limpiar", "清除", "Limpar",
+        "साफ़ करें", "지우기", "Hreinsa", "Effacer"),
+    "Copy": _row(
+        "Kopiera", "Kopieren", "Copiar", "复制", "Copiar",
+        "कॉपी करें", "복사", "Afrita", "Copier"),
+    "Install:": _row(
+        "Installera:", "Installieren:", "Instalar:", "安装：", "Instalar:",
+        "इंस्टॉल करें:", "설치:", "Setja upp:", "Installer :"),
+    "Login:": _row(
+        "Logga in:", "Anmelden:", "Iniciar sesión:", "登录：", "Entrar:",
+        "लॉग इन:", "로그인:", "Innskráning:", "Connexion :"),
+    "installed": _row(
+        "installerad", "installiert", "instalado", "已安装", "instalado",
+        "इंस्टॉल है", "설치됨", "uppsett", "installé"),
+    "missing": _row(
+        "saknas", "fehlt", "falta", "缺失", "ausente",
+        "अनुपलब्ध", "없음", "vantar", "manquant"),
+    "Font size": _row(
+        "Textstorlek", "Schriftgröße", "Tamaño de fuente", "字体大小",
+        "Tamanho da fonte", "फ़ॉन्ट आकार", "글꼴 크기", "Leturstærð",
+        "Taille de police"),
+    "Console font size": _row(
+        "Konsolens textstorlek", "Konsolenschriftgröße",
+        "Tamaño de fuente de la consola", "控制台字体大小",
+        "Tamanho da fonte do console", "कंसोल फ़ॉन्ट आकार",
+        "콘솔 글꼴 크기", "Leturstærð stjórnborðs",
+        "Taille de police de la console"),
+    "spaCR output": _row(
+        "spaCR-utdata", "spaCR-Ausgabe", "salida de spaCR", "spaCR 输出",
+        "saída do spaCR", "spaCR आउटपुट", "spaCR 출력", "spaCR-úttak",
+        "sortie spaCR"),
+    "spaCR ERROR": _row(
+        "spaCR-FEL", "spaCR-FEHLER", "ERROR de spaCR", "spaCR 错误",
+        "ERRO do spaCR", "spaCR त्रुटि", "spaCR 오류", "spaCR-VILLA",
+        "ERREUR spaCR"),
+    "spaCR user": _row(
+        "spaCR-användare", "spaCR-Benutzer", "usuario de spaCR",
+        "spaCR 用户", "usuário do spaCR", "spaCR उपयोगकर्ता",
+        "spaCR 사용자", "spaCR-notandi", "utilisateur spaCR"),
+    "spaCR AI": _row(
+        "spaCR AI", "spaCR-KI", "IA de spaCR", "spaCR 人工智能",
+        "IA do spaCR", "spaCR एआई", "spaCR AI", "spaCR-gervigreind",
+        "IA spaCR"),
+    "Open spaCR API documentation": _row(
+        "Öppna spaCR:s API-dokumentation",
+        "spaCR-API-Dokumentation öffnen",
+        "Abrir la documentación de la API de spaCR",
+        "打开 spaCR API 文档", "Abrir a documentação da API do spaCR",
+        "spaCR API दस्तावेज़ खोलें", "spaCR API 문서 열기",
+        "Opna API-skjölun spaCR", "Ouvrir la documentation de l’API spaCR"),
+    "Open API reference for {name}": _row(
+        "Öppna API-referens för {name}",
+        "API-Referenz für {name} öffnen",
+        "Abrir la referencia de la API para {name}",
+        "打开 {name} 的 API 参考", "Abrir a referência da API para {name}",
+        "{name} के लिए API संदर्भ खोलें", "{name} API 참조 열기",
+        "Opna API-tilvísun fyrir {name}",
+        "Ouvrir la référence API de {name}"),
+    "Show animation for {name}": _row(
+        "Visa animation för {name}",
+        "Animation für {name} anzeigen",
+        "Mostrar animación de {name}",
+        "显示 {name} 的动画", "Mostrar animação de {name}",
+        "{name} का ऐनिमेशन दिखाएँ", "{name} 애니메이션 보기",
+        "Sýna hreyfimynd fyrir {name}",
+        "Afficher l’animation de {name}"),
+    "API: {url}": _row(
+        "API: {url}", "API: {url}", "API: {url}", "API：{url}",
+        "API: {url}", "API: {url}", "API: {url}", "API: {url}",
+        "API : {url}"),
+    "integer": _row(
+        "heltal", "Ganzzahl", "entero", "整数", "inteiro",
+        "पूर्णांक", "정수", "heiltala", "entier"),
+    "float": _row(
+        "decimaltal", "Gleitkommazahl", "decimal", "浮点数", "decimal",
+        "दशमलव", "실수", "fleytitala", "nombre décimal"),
+    "boolean": _row(
+        "boolesk", "boolesch", "booleano", "布尔值", "booleano",
+        "बूलियन", "불리언", "rökbreyta", "booléen"),
+    "string": _row(
+        "text", "Zeichenfolge", "texto", "字符串", "texto",
+        "स्ट्रिंग", "문자열", "strengur", "chaîne"),
+    "list": _row(
+        "lista", "Liste", "lista", "列表", "lista",
+        "सूची", "목록", "listi", "liste"),
+    "tuple": _row(
+        "tupel", "Tupel", "tupla", "元组", "tupla",
+        "ट्यूपल", "튜플", "tvennd", "tuple"),
+    "dictionary": _row(
+        "ordbok", "Wörterbuch", "diccionario", "字典", "dicionário",
+        "शब्दकोश", "사전", "orðabók", "dictionnaire"),
+    "optional": _row(
+        "valfri", "optional", "opcional", "可选", "opcional",
+        "वैकल्पिक", "선택 사항", "valfrjálst", "facultatif"),
+    "Controls this setting.": _row(
+        "Styr den här inställningen.", "Steuert diese Einstellung.",
+        "Controla este ajuste.", "控制此设置。", "Controla esta configuração.",
+        "इस सेटिंग को नियंत्रित करता है।", "이 설정을 제어합니다.",
+        "Stýrir þessari stillingu.", "Contrôle ce paramètre."),
+    "Type here and hit Enter…  (toggle AI at the bottom-right to route through your chat subscription)": _row(
+        "Skriv här och tryck Enter…  (slå på AI nere till höger för att skicka via din chattprenumeration)",
+        "Hier eingeben und Enter drücken…  (KI unten rechts aktivieren, um über Ihr Chat-Abonnement zu senden)",
+        "Escriba aquí y pulse Intro…  (active la IA abajo a la derecha para enviar mediante su suscripción de chat)",
+        "在此输入并按回车…（打开右下角的人工智能，通过您的聊天订阅发送）",
+        "Digite aqui e pressione Enter…  (ative a IA no canto inferior direito para enviar pela sua assinatura de chat)",
+        "यहाँ लिखें और Enter दबाएँ…  (अपनी चैट सदस्यता से भेजने के लिए नीचे दाईं ओर एआई चालू करें)",
+        "여기에 입력하고 Enter를 누르세요…  (오른쪽 아래 AI를 켜 채팅 구독을 통해 전송)",
+        "Sláðu inn hér og ýttu á Enter…  (kveiktu á gervigreind neðst til hægri til að senda með spjalláskriftinni)",
+        "Saisissez ici puis appuyez sur Entrée…  (activez l’IA en bas à droite pour envoyer via votre abonnement de chat)"),
+    "Ask a question (Enter to send · Shift+Enter for newline)": _row(
+        "Ställ en fråga (Enter skickar · Skift+Enter ger ny rad)",
+        "Eine Frage stellen (Enter sendet · Umschalt+Enter für neue Zeile)",
+        "Haga una pregunta (Intro envía · Mayús+Intro añade una línea)",
+        "提出问题（回车发送 · Shift+回车换行）",
+        "Faça uma pergunta (Enter envia · Shift+Enter cria nova linha)",
+        "प्रश्न पूछें (Enter से भेजें · Shift+Enter से नई पंक्ति)",
+        "질문하기 (Enter 전송 · Shift+Enter 줄바꿈)",
+        "Spyrðu spurningar (Enter sendir · Shift+Enter fyrir nýja línu)",
+        "Posez une question (Entrée envoie · Maj+Entrée ajoute une ligne)"),
+    "Ready.": _row(
+        "Klar.", "Bereit.", "Listo.", "就绪。", "Pronto.",
+        "तैयार।", "준비됨.", "Tilbúið.", "Prêt."),
+    "No provider configured.": _row(
+        "Ingen leverantör är konfigurerad.",
+        "Kein Anbieter konfiguriert.",
+        "No hay ningún proveedor configurado.",
+        "未配置提供商。", "Nenhum provedor configurado.",
+        "कोई प्रदाता कॉन्फ़िगर नहीं है।", "구성된 제공업체가 없습니다.",
+        "Enginn veitandi er stilltur.", "Aucun fournisseur configuré."),
+    "Cancelling…": _row(
+        "Avbryter…", "Wird abgebrochen…", "Cancelando…", "正在取消…",
+        "Cancelando…", "रद्द किया जा रहा है…", "취소 중…", "Hætti við…",
+        "Annulation…"),
+    "Connecting to {provider}…": _row(
+        "Ansluter till {provider}…", "Verbindung zu {provider}…",
+        "Conectando con {provider}…", "正在连接 {provider}…",
+        "Conectando a {provider}…", "{provider} से कनेक्ट हो रहा है…",
+        "{provider}에 연결 중…", "Tengist {provider}…",
+        "Connexion à {provider}…"),
+    "Streaming from {provider}…": _row(
+        "Strömmar från {provider}…", "Stream von {provider}…",
+        "Recibiendo de {provider}…", "正在接收 {provider} 的响应…",
+        "Recebendo de {provider}…", "{provider} से उत्तर आ रहा है…",
+        "{provider} 응답 수신 중…", "Streymir frá {provider}…",
+        "Réception depuis {provider}…"),
+    "Click to toggle AI. When ON (blue), pressing Enter in the console routes your message through your chat subscription via the selected provider.": _row(
+        "Klicka för att slå på eller av AI. När den är PÅ (blå) skickas meddelandet i konsolen via din chattprenumeration och vald leverantör när du trycker Enter.",
+        "Klicken, um die KI ein- oder auszuschalten. Wenn sie EIN (blau) ist, wird Ihre Konsolennachricht beim Drücken der Eingabetaste über Ihr Chat-Abonnement und den gewählten Anbieter gesendet.",
+        "Haga clic para activar o desactivar la IA. Cuando está ACTIVADA (azul), al pulsar Intro el mensaje de la consola se envía mediante su suscripción de chat y el proveedor seleccionado.",
+        "点击以打开或关闭人工智能。打开（蓝色）后，在控制台中按回车会通过您的聊天订阅和所选提供商发送消息。",
+        "Clique para ativar ou desativar a IA. Quando ATIVA (azul), pressionar Enter no console envia a mensagem pela sua assinatura de chat e pelo provedor selecionado.",
+        "एआई चालू या बंद करने के लिए क्लिक करें। चालू (नीला) होने पर कंसोल में Enter दबाने से संदेश आपकी चैट सदस्यता और चुने हुए प्रदाता के माध्यम से भेजा जाता है।",
+        "AI를 켜거나 끄려면 클릭하세요. 켜짐(파란색) 상태에서 콘솔의 Enter를 누르면 선택한 제공업체와 채팅 구독을 통해 메시지가 전송됩니다.",
+        "Smelltu til að kveikja eða slökkva á gervigreind. Þegar hún er KVEIKT (blá) sendir Enter skilaboðin í stjórnborðinu með spjalláskriftinni og valda veitandanum.",
+        "Cliquez pour activer ou désactiver l’IA. Lorsqu’elle est ACTIVÉE (bleu), appuyer sur Entrée dans la console envoie le message via votre abonnement de chat et le fournisseur sélectionné."),
+    "Click to toggle Live Preview. When ON (blue), the interactive Cellpose preview appears above the console.": _row(
+        "Klicka för att visa eller dölja liveförhandsvisningen. När den är PÅ (blå) visas den interaktiva Cellpose-förhandsvisningen ovanför konsolen.",
+        "Klicken, um die Live-Vorschau ein- oder auszublenden. Wenn sie EIN (blau) ist, erscheint die interaktive Cellpose-Vorschau über der Konsole.",
+        "Haga clic para mostrar u ocultar la vista previa en vivo. Cuando está ACTIVADA (azul), la vista interactiva de Cellpose aparece sobre la consola.",
+        "点击以显示或隐藏实时预览。打开（蓝色）后，交互式 Cellpose 预览会显示在控制台上方。",
+        "Clique para mostrar ou ocultar a pré-visualização ao vivo. Quando ATIVA (azul), a pré-visualização interativa do Cellpose aparece acima do console.",
+        "लाइव पूर्वावलोकन दिखाने या छिपाने के लिए क्लिक करें। चालू (नीला) होने पर इंटरैक्टिव Cellpose पूर्वावलोकन कंसोल के ऊपर दिखाई देता है।",
+        "실시간 미리보기를 표시하거나 숨기려면 클릭하세요. 켜짐(파란색)일 때 대화형 Cellpose 미리보기가 콘솔 위에 나타납니다.",
+        "Smelltu til að sýna eða fela lifandi forskoðun. Þegar hún er KVEIKT (blá) birtist gagnvirk Cellpose-forskoðun fyrir ofan stjórnborðið.",
+        "Cliquez pour afficher ou masquer l’aperçu en direct. Lorsqu’il est ACTIVÉ (bleu), l’aperçu Cellpose interactif apparaît au-dessus de la console."),
+    "Click to toggle Track Preview for the timelapse.": _row(
+        "Klicka för att visa eller dölja spårförhandsvisningen för tidsserien.",
+        "Klicken, um die Spurvorschau für die Zeitreihe ein- oder auszublenden.",
+        "Haga clic para mostrar u ocultar la vista previa de trayectorias de la serie temporal.",
+        "点击以显示或隐藏时间序列的轨迹预览。",
+        "Clique para mostrar ou ocultar a pré-visualização de trajetórias da série temporal.",
+        "टाइमलैप्स का ट्रैक पूर्वावलोकन दिखाने या छिपाने के लिए क्लिक करें।",
+        "타임랩스 추적 미리보기를 표시하거나 숨기려면 클릭하세요.",
+        "Smelltu til að sýna eða fela rakningarforskoðun tímaraðarinnar.",
+        "Cliquez pour afficher ou masquer l’aperçu des trajectoires de la série temporelle."),
+    "Click to toggle Track Preview for the motility analysis.": _row(
+        "Klicka för att visa eller dölja spårförhandsvisningen för motilitetsanalysen.",
+        "Klicken, um die Spurvorschau für die Motilitätsanalyse ein- oder auszublenden.",
+        "Haga clic para mostrar u ocultar la vista previa de trayectorias del análisis de motilidad.",
+        "点击以显示或隐藏运动分析的轨迹预览。",
+        "Clique para mostrar ou ocultar a pré-visualização de trajetórias da análise de motilidade.",
+        "गतिशीलता विश्लेषण का ट्रैक पूर्वावलोकन दिखाने या छिपाने के लिए क्लिक करें।",
+        "운동성 분석의 추적 미리보기를 표시하거나 숨기려면 클릭하세요.",
+        "Smelltu til að sýna eða fela rakningarforskoðun hreyfanleikagreiningarinnar.",
+        "Cliquez pour afficher ou masquer l’aperçu des trajectoires de l’analyse de motilité."),
+    "Click to toggle Measurement Preview.": _row(
+        "Klicka för att visa eller dölja mätningsförhandsvisningen.",
+        "Klicken, um die Messvorschau ein- oder auszublenden.",
+        "Haga clic para mostrar u ocultar la vista previa de mediciones.",
+        "点击以显示或隐藏测量预览。",
+        "Clique para mostrar ou ocultar a pré-visualização das medições.",
+        "मापन पूर्वावलोकन दिखाने या छिपाने के लिए क्लिक करें।",
+        "측정 미리보기를 표시하거나 숨기려면 클릭하세요.",
+        "Smelltu til að sýna eða fela mælingaforskoðun.",
+        "Cliquez pour afficher ou masquer l’aperçu des mesures."),
+    "Toggle the interactive image UMAP. When ON (blue), click a point to preview its image, draw around a cluster, and write manual or automatic labels to the database.": _row(
+        "Slå på eller av den interaktiva bild-UMAP-vyn. När den är PÅ (blå) kan du klicka på en punkt för att förhandsvisa bilden, rita runt ett kluster och skriva manuella eller automatiska etiketter till databasen.",
+        "Schaltet die interaktive Bild-UMAP-Ansicht ein oder aus. Wenn sie EIN (blau) ist, können Sie einen Punkt zur Bildvorschau anklicken, einen Cluster umzeichnen und manuelle oder automatische Beschriftungen in die Datenbank schreiben.",
+        "Activa o desactiva el UMAP interactivo de imágenes. Cuando está ACTIVADO (azul), puede pulsar un punto para previsualizar su imagen, dibujar alrededor de un clúster y guardar etiquetas manuales o automáticas en la base de datos.",
+        "打开或关闭交互式图像 UMAP。打开（蓝色）后，可点击点预览图像、圈选聚类，并将手动或自动标签写入数据库。",
+        "Ativa ou desativa o UMAP interativo de imagens. Quando ATIVO (azul), você pode clicar em um ponto para pré-visualizar a imagem, contornar um cluster e gravar rótulos manuais ou automáticos no banco de dados.",
+        "इंटरैक्टिव इमेज UMAP चालू या बंद करें। चालू (नीला) होने पर किसी बिंदु पर क्लिक करके उसकी छवि देखें, क्लस्टर के चारों ओर रेखा बनाएँ और मैन्युअल या स्वचालित लेबल डेटाबेस में लिखें।",
+        "대화형 이미지 UMAP을 켜거나 끕니다. 켜짐(파란색)일 때 점을 클릭해 이미지를 미리 보고, 군집을 둘러 그린 뒤 수동 또는 자동 레이블을 데이터베이스에 기록할 수 있습니다.",
+        "Kveikir eða slekkur á gagnvirku mynd-UMAP. Þegar það er KVEIKT (blátt) geturðu smellt á punkt til að forskoða myndina, teiknað utan um klasa og skrifað handvirk eða sjálfvirk merki í gagnagrunninn.",
+        "Active ou désactive l’UMAP d’images interactif. Lorsqu’il est ACTIVÉ (bleu), cliquez sur un point pour prévisualiser son image, entourez un groupe et écrivez des étiquettes manuelles ou automatiques dans la base de données."),
+    "Pick provider · Providers…": _row(
+        "Välj leverantör · Leverantörer…",
+        "Anbieter wählen · Anbieter…",
+        "Elegir proveedor · Proveedores…",
+        "选择提供商 · 提供商…", "Escolher provedor · Provedores…",
+        "प्रदाता चुनें · प्रदाता…", "제공업체 선택 · 제공업체…",
+        "Veldu veitanda · Veitendur…",
+        "Choisir un fournisseur · Fournisseurs…"),
+    "Drag to resize this console section. Double-click for auto height.": _row(
+        "Dra för att ändra storlek på den här konsolsektionen. Dubbelklicka för automatisk höjd.",
+        "Ziehen, um die Größe dieses Konsolenabschnitts zu ändern. Doppelklicken für automatische Höhe.",
+        "Arrastre para cambiar el tamaño de esta sección de la consola. Haga doble clic para ajustar la altura automáticamente.",
+        "拖动以调整此控制台区域的大小。双击以自动调整高度。",
+        "Arraste para redimensionar esta seção do console. Clique duas vezes para altura automática.",
+        "इस कंसोल अनुभाग का आकार बदलने के लिए खींचें। स्वचालित ऊँचाई के लिए डबल-क्लिक करें।",
+        "이 콘솔 영역의 크기를 조정하려면 드래그하세요. 자동 높이는 두 번 클릭하세요.",
+        "Dragðu til að breyta stærð þessa stjórnborðshluta. Tvísmelltu fyrir sjálfvirka hæð.",
+        "Faites glisser pour redimensionner cette section de console. Double-cliquez pour une hauteur automatique."),
+
+    # Exact messages authored by spaCR. Dynamic values are deliberately kept
+    # as placeholders so paths, provider names, tracebacks and function names
+    # remain verbatim after formatting.
+    "[AI] No provider configured. Open Providers…": _row(
+        "[AI] Ingen leverantör är konfigurerad. Öppna Leverantörer…",
+        "[KI] Kein Anbieter konfiguriert. Öffnen Sie Anbieter…",
+        "[IA] No hay ningún proveedor configurado. Abra Proveedores…",
+        "[人工智能] 未配置提供商。请打开“提供商”…",
+        "[IA] Nenhum provedor configurado. Abra Provedores…",
+        "[एआई] कोई प्रदाता कॉन्फ़िगर नहीं है। प्रदाता… खोलें।",
+        "[AI] 구성된 제공업체가 없습니다. 제공업체…를 여세요.",
+        "[Gervigreind] Enginn veitandi er stilltur. Opnaðu Veitendur…",
+        "[IA] Aucun fournisseur configuré. Ouvrez Fournisseurs…"),
+    "(empty response — try again or switch provider)": _row(
+        "(tomt svar — försök igen eller byt leverantör)",
+        "(leere Antwort – versuchen Sie es erneut oder wechseln Sie den Anbieter)",
+        "(respuesta vacía — inténtelo de nuevo o cambie de proveedor)",
+        "（响应为空——请重试或更换提供商）",
+        "(resposta vazia — tente novamente ou troque de provedor)",
+        "(खाली उत्तर — फिर कोशिश करें या प्रदाता बदलें)",
+        "(빈 응답 — 다시 시도하거나 제공업체를 변경하세요)",
+        "(tómt svar — reyndu aftur eða skiptu um veitanda)",
+        "(réponse vide — réessayez ou changez de fournisseur)"),
+    "[AI error] {detail}": _row(
+        "[AI-fel] {detail}", "[KI-Fehler] {detail}",
+        "[error de IA] {detail}", "[人工智能错误] {detail}",
+        "[erro de IA] {detail}", "[एआई त्रुटि] {detail}",
+        "[AI 오류] {detail}", "[villa í gervigreind] {detail}",
+        "[erreur IA] {detail}"),
+    "[AI] Enable AI in the actions row + pick a provider first.": _row(
+        "[AI] Slå på AI på åtgärdsraden och välj först en leverantör.",
+        "[KI] Aktivieren Sie zuerst die KI in der Aktionsleiste und wählen Sie einen Anbieter.",
+        "[IA] Active primero la IA en la fila de acciones y elija un proveedor.",
+        "[人工智能] 请先在操作栏中启用人工智能并选择提供商。",
+        "[IA] Primeiro ative a IA na barra de ações e escolha um provedor.",
+        "[एआई] पहले कार्रवाई पंक्ति में एआई चालू करें और प्रदाता चुनें।",
+        "[AI] 먼저 작업 행에서 AI를 켜고 제공업체를 선택하세요.",
+        "[Gervigreind] Kveiktu fyrst á gervigreind í aðgerðalínunni og veldu veitanda.",
+        "[IA] Activez d’abord l’IA dans la barre d’actions et choisissez un fournisseur."),
+    "An error occurred — asking spaCR AI to explain it. (Ask the AI to \"show the raw error\" to see the traceback.)": _row(
+        "Ett fel inträffade — spaCR AI ombeds att förklara det. (Be AI att \"visa det råa felet\" för att se stackspårningen.)",
+        "Ein Fehler ist aufgetreten – spaCR-KI wird um eine Erklärung gebeten. (Bitten Sie die KI, den \"Rohfehler anzuzeigen\", um den Traceback zu sehen.)",
+        "Se produjo un error — se pedirá a la IA de spaCR que lo explique. (Pida a la IA que \"muestre el error sin procesar\" para ver el rastreo.)",
+        "发生错误——正在请 spaCR 人工智能进行解释。（请要求人工智能“显示原始错误”以查看回溯。）",
+        "Ocorreu um erro — a IA do spaCR vai explicá-lo. (Peça à IA para \"mostrar o erro bruto\" e ver o rastreamento.)",
+        "एक त्रुटि हुई — spaCR एआई से उसकी व्याख्या पूछी जा रही है। (ट्रेसबैक देखने के लिए एआई से \"कच्ची त्रुटि दिखाओ\" कहें।)",
+        "오류가 발생했습니다. spaCR AI에게 설명을 요청합니다. (트레이스백을 보려면 AI에게 \"원시 오류를 보여 줘\"라고 요청하세요.)",
+        "Villa kom upp — spaCR-gervigreind er beðin um að útskýra hana. (Biddu gervigreindina að \"sýna hráu villuna\" til að sjá rakninguna.)",
+        "Une erreur s’est produite — l’IA spaCR va l’expliquer. (Demandez à l’IA d’\"afficher l’erreur brute\" pour voir la trace.)"),
+
+    "(no vendor CLI installed)": _row(
+        "(inget leverantörs-CLI installerat)",
+        "(keine Anbieter-CLI installiert)",
+        "(no hay ninguna CLI de proveedor instalada)",
+        "（未安装任何提供商 CLI）",
+        "(nenhuma CLI de provedor instalada)",
+        "(कोई प्रदाता CLI इंस्टॉल नहीं है)",
+        "(설치된 제공업체 CLI 없음)",
+        "(ekkert CLI veitanda uppsett)",
+        "(aucune CLI de fournisseur installée)"),
+    "[AI] No vendor CLI installed. Click ▾ next to the AI switch → Providers…": _row(
+        "[AI] Inget leverantörs-CLI är installerat. Klicka på ▾ bredvid AI-reglaget → Leverantörer…",
+        "[KI] Keine Anbieter-CLI installiert. Klicken Sie neben dem KI-Schalter auf ▾ → Anbieter…",
+        "[IA] No hay ninguna CLI de proveedor instalada. Pulse ▾ junto al interruptor de IA → Proveedores…",
+        "[人工智能] 未安装提供商 CLI。请点击人工智能开关旁的 ▾ → 提供商…",
+        "[IA] Nenhuma CLI de provedor instalada. Clique em ▾ ao lado do controle de IA → Provedores…",
+        "[एआई] कोई प्रदाता CLI इंस्टॉल नहीं है। एआई स्विच के बगल में ▾ क्लिक करें → प्रदाता…",
+        "[AI] 설치된 제공업체 CLI가 없습니다. AI 스위치 옆의 ▾를 클릭하세요 → 제공업체…",
+        "[Gervigreind] Ekkert CLI veitanda er uppsett. Smelltu á ▾ við hlið gervigreindarrofa → Veitendur…",
+        "[IA] Aucune CLI de fournisseur n’est installée. Cliquez sur ▾ à côté de l’interrupteur IA → Fournisseurs…"),
+    "→ Starting {module} ({function}) with src={src} + {count} settings…": _row(
+        "→ Startar {module} ({function}) med src={src} + {count} inställningar…",
+        "→ Starte {module} ({function}) mit src={src} + {count} Einstellungen…",
+        "→ Iniciando {module} ({function}) con src={src} + {count} ajustes…",
+        "→ 正在启动 {module} ({function})，src={src} + {count} 项设置…",
+        "→ Iniciando {module} ({function}) com src={src} + {count} configurações…",
+        "→ {module} ({function}) src={src} + {count} सेटिंग्स के साथ शुरू हो रहा है…",
+        "→ {module} ({function}) 시작 중: src={src} + 설정 {count}개…",
+        "→ Ræsi {module} ({function}) með src={src} + {count} stillingum…",
+        "→ Démarrage de {module} ({function}) avec src={src} + {count} paramètres…"),
+    "■ Stopped safely at a field, trial, or job boundary": _row(
+        "■ Stoppade säkert vid en fält-, försöks- eller jobbgräns",
+        "■ Sicher an einer Feld-, Versuchs- oder Auftragsgrenze gestoppt",
+        "■ Detenido de forma segura en el límite de un campo, ensayo o trabajo",
+        "■ 已在视野、试验或作业边界安全停止",
+        "■ Interrompido com segurança no limite de um campo, ensaio ou trabalho",
+        "■ फ़ील्ड, ट्रायल या जॉब सीमा पर सुरक्षित रूप से रोका गया",
+        "■ 필드, 시험 또는 작업 경계에서 안전하게 중지됨",
+        "■ Stöðvað örugglega við mörk sviðs, tilraunar eða verks",
+        "■ Arrêt sécurisé à la limite d’un champ, d’un essai ou d’une tâche"),
+    "✓ Finished": _row(
+        "✓ Klar", "✓ Abgeschlossen", "✓ Finalizado", "✓ 已完成",
+        "✓ Concluído", "✓ पूरा हुआ", "✓ 완료", "✓ Lokið",
+        "✓ Terminé"),
+    "✗ Failed — see traceback above": _row(
+        "✗ Misslyckades — se stackspårningen ovan",
+        "✗ Fehlgeschlagen – siehe Traceback oben",
+        "✗ Falló — consulte el rastreo anterior",
+        "✗ 失败——请查看上方回溯",
+        "✗ Falhou — consulte o rastreamento acima",
+        "✗ विफल — ऊपर ट्रेसबैक देखें",
+        "✗ 실패 — 위의 트레이스백을 확인하세요",
+        "✗ Mistókst — sjá rakningu hér að ofan",
+        "✗ Échec — consultez la trace ci-dessus"),
+    "Requesting stop. The current field/trial/job will finish, then the resumable run will stop at its next safe boundary.": _row(
+        "Begär stopp. Det aktuella fältet, försöket eller jobbet slutförs, sedan stannar den återupptagningsbara körningen vid nästa säkra gräns.",
+        "Stopp wird angefordert. Das aktuelle Feld, der Versuch oder Auftrag wird beendet; anschließend stoppt der fortsetzbare Lauf an der nächsten sicheren Grenze.",
+        "Solicitando la detención. El campo, ensayo o trabajo actual terminará y la ejecución reanudable se detendrá en el siguiente límite seguro.",
+        "正在请求停止。当前视野、试验或作业完成后，可恢复运行将在下一个安全边界停止。",
+        "Solicitando a interrupção. O campo, ensaio ou trabalho atual será concluído; depois, a execução retomável parará no próximo limite seguro.",
+        "रोकने का अनुरोध किया गया है। वर्तमान फ़ील्ड, ट्रायल या जॉब पूरा होगा, फिर दोबारा शुरू की जा सकने वाली रन अगली सुरक्षित सीमा पर रुकेगी।",
+        "중지를 요청했습니다. 현재 필드, 시험 또는 작업이 완료되면 재개 가능한 실행이 다음 안전 경계에서 중지됩니다.",
+        "Beðið er um stöðvun. Núverandi svið, tilraun eða verk klárast og síðan stöðvast endurræsanlega keyrslan við næstu öruggu mörk.",
+        "Arrêt demandé. Le champ, l’essai ou la tâche en cours va se terminer, puis l’exécution reprenable s’arrêtera à la prochaine limite sûre."),
+    "Close deferred: the current field is still finishing. The window will remain open so its worker is not destroyed mid-write; close it again after Stop completes.": _row(
+        "Stängning uppskjuten: det aktuella fältet slutförs fortfarande. Fönstret förblir öppet så att arbetaren inte förstörs mitt under en skrivning; stäng det igen när stoppet är klart.",
+        "Schließen aufgeschoben: Das aktuelle Feld wird noch abgeschlossen. Das Fenster bleibt geöffnet, damit der Worker nicht während eines Schreibvorgangs zerstört wird; schließen Sie es erneut, nachdem der Stopp abgeschlossen ist.",
+        "Cierre aplazado: el campo actual todavía está terminando. La ventana permanecerá abierta para que el proceso no se destruya durante una escritura; ciérrela de nuevo cuando finalice la detención.",
+        "已延迟关闭：当前视野仍在收尾。窗口将保持打开，以免工作线程在写入中途被销毁；停止完成后请再次关闭。",
+        "Fechamento adiado: o campo atual ainda está terminando. A janela permanecerá aberta para que o processo não seja destruído durante uma gravação; feche-a novamente após a conclusão da interrupção.",
+        "बंद करना स्थगित है: वर्तमान फ़ील्ड अभी पूरा हो रहा है। विंडो खुली रहेगी ताकि लिखते समय वर्कर नष्ट न हो; रुकना पूरा होने के बाद इसे फिर बंद करें।",
+        "닫기가 연기되었습니다. 현재 필드가 아직 마무리 중입니다. 쓰기 중 작업자가 소멸되지 않도록 창을 열어 둡니다. 중지가 완료된 후 다시 닫으세요.",
+        "Lokun frestað: núverandi svið er enn að klárast. Glugginn verður opinn svo vinnsluþráðurinn eyðileggist ekki í miðri skrifun; lokaðu honum aftur þegar stöðvun lýkur.",
+        "Fermeture différée : le champ actuel est encore en cours de finalisation. La fenêtre restera ouverte afin que le processus ne soit pas détruit pendant une écriture ; refermez-la une fois l’arrêt terminé."),
+    "Loaded {count} settings from {path}": _row(
+        "Läste in {count} inställningar från {path}",
+        "{count} Einstellungen aus {path} geladen",
+        "Se cargaron {count} ajustes desde {path}",
+        "已从 {path} 加载 {count} 项设置",
+        "{count} configurações carregadas de {path}",
+        "{path} से {count} सेटिंग्स लोड हुईं",
+        "{path}에서 설정 {count}개를 불러왔습니다",
+        "Hlóð {count} stillingum úr {path}",
+        "{count} paramètres chargés depuis {path}"),
+    "[settings] {note}": _row(
+        "[inställningar] {note}", "[Einstellungen] {note}",
+        "[ajustes] {note}", "[设置] {note}", "[configurações] {note}",
+        "[सेटिंग्स] {note}", "[설정] {note}", "[stillingar] {note}",
+        "[paramètres] {note}"),
+    "[issue] auto-file failed: {detail}": _row(
+        "[ärende] automatisk rapportering misslyckades: {detail}",
+        "[Issue] Automatisches Melden fehlgeschlagen: {detail}",
+        "[incidencia] falló el envío automático: {detail}",
+        "[问题] 自动提交失败：{detail}",
+        "[problema] falha no envio automático: {detail}",
+        "[इश्यू] स्वचालित रिपोर्ट विफल: {detail}",
+        "[이슈] 자동 등록 실패: {detail}",
+        "[mál] sjálfvirk skráning mistókst: {detail}",
+        "[ticket] échec du signalement automatique : {detail}"),
+    "[issue] opened pre-filled report in your browser — review + submit to complete filing.\n{url}...": _row(
+        "[ärende] öppnade en förifylld rapport i webbläsaren — granska och skicka för att slutföra rapporteringen.\n{url}...",
+        "[Issue] Ein vorausgefüllter Bericht wurde im Browser geöffnet – prüfen und senden Sie ihn, um die Meldung abzuschließen.\n{url}...",
+        "[incidencia] se abrió un informe prellenado en el navegador — revíselo y envíelo para completar el registro.\n{url}...",
+        "[问题] 已在浏览器中打开预填报告——请审核并提交以完成登记。\n{url}...",
+        "[problema] um relatório pré-preenchido foi aberto no navegador — revise e envie para concluir o registro.\n{url}...",
+        "[इश्यू] ब्राउज़र में पहले से भरी रिपोर्ट खोली गई — रिपोर्ट पूरी करने के लिए इसकी समीक्षा करके सबमिट करें।\n{url}...",
+        "[이슈] 미리 채워진 보고서를 브라우저에서 열었습니다. 검토하고 제출하여 등록을 완료하세요.\n{url}...",
+        "[mál] forútyllt skýrsluform var opnað í vafranum — farðu yfir það og sendu til að ljúka skráningu.\n{url}...",
+        "[ticket] un rapport prérempli a été ouvert dans votre navigateur — vérifiez-le et envoyez-le pour terminer le signalement.\n{url}..."),
+
+    "Import settings…": _row(
+        "Importera inställningar…", "Einstellungen importieren…",
+        "Importar ajustes…", "导入设置…", "Importar configurações…",
+        "सेटिंग्स आयात करें…", "설정 가져오기…",
+        "Flytja inn stillingar…", "Importer des paramètres…"),
+    "Clear console": _row(
+        "Rensa konsolen", "Konsole leeren", "Limpiar consola", "清空控制台",
+        "Limpar console", "कंसोल साफ़ करें", "콘솔 지우기",
+        "Hreinsa stjórnborð", "Effacer la console"),
+    "File as issue": _row(
+        "Rapportera som ärende", "Als Issue melden", "Registrar como incidencia",
+        "登记为问题", "Registrar como problema", "इश्यू के रूप में दर्ज करें",
+        "이슈로 등록", "Skrá sem mál", "Signaler comme ticket"),
+    "Open a pre-filled GitHub issue with the last traceback + environment. You review before submitting. Toggle on/off in AI Settings → Report errors as GitHub issues.": _row(
+        "Öppna ett förifyllt GitHub-ärende med den senaste stackspårningen och miljön. Du granskar det innan det skickas. Slå på eller av i AI-inställningar → Rapportera fel som GitHub-ärenden.",
+        "Öffnet ein vorausgefülltes GitHub-Issue mit dem letzten Traceback und der Umgebung. Sie prüfen es vor dem Senden. Ein-/ausschalten unter KI-Einstellungen → Fehler als GitHub-Issues melden.",
+        "Abre una incidencia de GitHub prellenada con el último rastreo y el entorno. Usted la revisa antes de enviarla. Active o desactive esta opción en Ajustes de IA → Informar errores como incidencias de GitHub.",
+        "打开一个预填的 GitHub 问题，其中包含最近的回溯和环境信息。提交前由您审核。可在人工智能设置 → 将错误报告为 GitHub 问题中开启或关闭。",
+        "Abre um problema do GitHub pré-preenchido com o último rastreamento e o ambiente. Você o revisa antes de enviar. Ative ou desative em Configurações de IA → Relatar erros como problemas do GitHub.",
+        "अंतिम ट्रेसबैक और एनवायरनमेंट के साथ पहले से भरा GitHub इश्यू खोलता है। सबमिट करने से पहले आप इसकी समीक्षा करते हैं। एआई सेटिंग्स → त्रुटियों को GitHub इश्यू के रूप में रिपोर्ट करें में इसे चालू या बंद करें।",
+        "최근 트레이스백과 환경 정보가 채워진 GitHub 이슈를 엽니다. 제출 전에 사용자가 검토합니다. AI 설정 → 오류를 GitHub 이슈로 보고에서 켜거나 끄세요.",
+        "Opnar forútyllt GitHub-mál með síðustu rakningu og umhverfisupplýsingum. Þú ferð yfir það áður en það er sent. Kveiktu eða slökktu í gervigreindarstillingum → Tilkynna villur sem GitHub-mál.",
+        "Ouvre un ticket GitHub prérempli avec la dernière trace et l’environnement. Vous le vérifiez avant de l’envoyer. Activez ou désactivez cette option dans Paramètres de l’IA → Signaler les erreurs comme tickets GitHub."),
+
+    # AI provider/setup dialog and the legacy standalone chat surface. Rich
+    # text translations retain the exact markup consumed by Qt.
+    "AI Console — providers & settings": _row(
+        "AI-konsol — leverantörer och inställningar",
+        "KI-Konsole – Anbieter und Einstellungen",
+        "Consola de IA — proveedores y ajustes",
+        "人工智能控制台 — 提供商与设置",
+        "Console de IA — provedores e configurações",
+        "एआई कंसोल — प्रदाता और सेटिंग्स",
+        "AI 콘솔 — 제공업체 및 설정",
+        "Gervigreindarstjórnborð — veitendur og stillingar",
+        "Console IA — fournisseurs et paramètres"),
+    "The AI Console talks to the <b>vendor coding-agent CLI</b> for each provider, using your chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account).<br><br>For each provider you want to use, install the CLI then log in <em>once</em>. Copy the commands below into a terminal.": _row(
+        "AI-konsolen kommunicerar med varje leverantörs <b>CLI för kodningsagenter</b> och använder din chattprenumeration (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-konto).<br><br>Installera CLI-verktyget för varje leverantör du vill använda och logga sedan in <em>en gång</em>. Kopiera kommandona nedan till en terminal.",
+        "Die KI-Konsole kommuniziert über die <b>CLI des Coding-Agent-Anbieters</b> mit jedem Anbieter und verwendet dabei Ihr Chat-Abonnement (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-Konto).<br><br>Installieren Sie für jeden gewünschten Anbieter die CLI und melden Sie sich dann <em>einmal</em> an. Kopieren Sie die folgenden Befehle in ein Terminal.",
+        "La consola de IA se comunica con la <b>CLI del agente de programación del proveedor</b> y utiliza su suscripción de chat (Claude.ai Pro, ChatGPT Plus/Pro/Team, cuenta de Google).<br><br>Para cada proveedor que quiera usar, instale la CLI e inicie sesión <em>una sola vez</em>. Copie los comandos siguientes en una terminal.",
+        "人工智能控制台通过各提供商的<b>编码代理 CLI</b>进行通信，并使用您的聊天订阅（Claude.ai Pro、ChatGPT Plus/Pro/Team 或 Google 帐户）。<br><br>对于要使用的每个提供商，请安装 CLI，然后只需登录<em>一次</em>。将下方命令复制到终端中。",
+        "O Console de IA se comunica com a <b>CLI do agente de programação do provedor</b> e usa sua assinatura de chat (Claude.ai Pro, ChatGPT Plus/Pro/Team, conta do Google).<br><br>Para cada provedor que você quiser usar, instale a CLI e entre <em>uma vez</em>. Copie os comandos abaixo para um terminal.",
+        "एआई कंसोल हर प्रदाता के <b>कोडिंग-एजेंट CLI</b> से आपकी चैट सदस्यता (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google खाता) के ज़रिए संवाद करता है।<br><br>जिस भी प्रदाता का उपयोग करना हो, उसका CLI इंस्टॉल करें और फिर <em>एक बार</em> लॉग इन करें। नीचे दिए कमांड टर्मिनल में कॉपी करें।",
+        "AI 콘솔은 각 제공업체의 <b>코딩 에이전트 CLI</b>와 채팅 구독(Claude.ai Pro, ChatGPT Plus/Pro/Team, Google 계정)을 통해 통신합니다.<br><br>사용할 제공업체별로 CLI를 설치한 다음 <em>한 번</em> 로그인하세요. 아래 명령을 터미널에 복사하세요.",
+        "Gervigreindarstjórnborðið hefur samskipti við <b>CLI-forritunaraðstoð hvers veitanda</b> og notar spjalláskriftina þína (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-reikning).<br><br>Settu upp CLI fyrir hvern veitanda sem þú vilt nota og skráðu þig svo inn <em>einu sinni</em>. Afritaðu skipanirnar hér fyrir neðan í skjáhermi.",
+        "La console IA communique avec la <b>CLI de l’agent de programmation du fournisseur</b> et utilise votre abonnement de chat (Claude.ai Pro, ChatGPT Plus/Pro/Team, compte Google).<br><br>Pour chaque fournisseur souhaité, installez la CLI puis connectez-vous <em>une seule fois</em>. Copiez les commandes ci-dessous dans un terminal."),
+    "Once a CLI is installed <em>and</em> you're logged in, hit <b>Refresh</b> below and it will appear in the provider dropdown.": _row(
+        "När ett CLI är installerat <em>och</em> du är inloggad klickar du på <b>Uppdatera</b> nedan, så visas det i leverantörslistan.",
+        "Sobald eine CLI installiert ist <em>und</em> Sie angemeldet sind, klicken Sie unten auf <b>Aktualisieren</b>; sie erscheint dann in der Anbieterliste.",
+        "Cuando la CLI esté instalada <em>y</em> haya iniciado sesión, pulse <b>Actualizar</b> y aparecerá en la lista de proveedores.",
+        "CLI 安装完成<em>且</em>登录后，请点击下方的<b>刷新</b>，它将出现在提供商下拉列表中。",
+        "Depois que uma CLI estiver instalada <em>e</em> você tiver entrado, clique em <b>Atualizar</b> abaixo para que ela apareça na lista de provedores.",
+        "CLI इंस्टॉल होने <em>और</em> लॉग इन करने के बाद नीचे <b>ताज़ा करें</b> दबाएँ; वह प्रदाता सूची में दिखेगा।",
+        "CLI를 설치하고 <em>로그인한</em> 다음 아래의 <b>새로 고침</b>을 누르면 제공업체 목록에 표시됩니다.",
+        "Þegar CLI er uppsett <em>og</em> þú ert innskráð/ur skaltu smella á <b>Endurnýja</b> hér fyrir neðan; það birtist þá í veitalistanum.",
+        "Une fois la CLI installée <em>et</em> la connexion effectuée, cliquez sur <b>Actualiser</b> ci-dessous ; elle apparaîtra dans la liste des fournisseurs."),
+    "<b>Response speed</b><br><span style='color:gray;'>Same three levels for every provider. Faster = snappier + cheaper; Deep = more thorough reasoning.</span>": _row(
+        "<b>Svarshastighet</b><br><span style='color:gray;'>Samma tre nivåer för alla leverantörer. Snabbare = rappare + billigare; Djup = grundligare resonemang.</span>",
+        "<b>Antwortgeschwindigkeit</b><br><span style='color:gray;'>Dieselben drei Stufen für jeden Anbieter. Schneller = zügiger + günstiger; Tief = gründlichere Schlussfolgerungen.</span>",
+        "<b>Velocidad de respuesta</b><br><span style='color:gray;'>Los mismos tres niveles para todos los proveedores. Más rápida = más ágil + económica; Profunda = razonamiento más exhaustivo.</span>",
+        "<b>响应速度</b><br><span style='color:gray;'>所有提供商均使用相同的三个级别。更快 = 响应更迅速且成本更低；深入 = 推理更周密。</span>",
+        "<b>Velocidade da resposta</b><br><span style='color:gray;'>Os mesmos três níveis para todos os provedores. Mais rápida = mais ágil + econômica; Profunda = raciocínio mais completo.</span>",
+        "<b>उत्तर की गति</b><br><span style='color:gray;'>हर प्रदाता के लिए वही तीन स्तर। तेज़ = झटपट + सस्ता; गहरा = अधिक संपूर्ण तर्क।</span>",
+        "<b>응답 속도</b><br><span style='color:gray;'>모든 제공업체에 동일한 세 단계를 적용합니다. 빠름 = 민첩하고 저렴함; 심층 = 더 철저한 추론.</span>",
+        "<b>Svarhraði</b><br><span style='color:gray;'>Sömu þrjú stig fyrir alla veitendur. Hraðara = snöggvara + ódýrara; Djúpt = ítarlegri röksemdafærsla.</span>",
+        "<b>Vitesse de réponse</b><br><span style='color:gray;'>Les trois mêmes niveaux pour chaque fournisseur. Plus rapide = plus réactif + moins cher ; Approfondi = raisonnement plus complet.</span>"),
+    "Fast — snappy replies, smallest model": _row(
+        "Snabb — rappa svar, minsta modellen",
+        "Schnell – zügige Antworten, kleinstes Modell",
+        "Rápida — respuestas ágiles, modelo más pequeño",
+        "快速 — 响应迅速，最小模型",
+        "Rápida — respostas ágeis, menor modelo",
+        "तेज़ — त्वरित उत्तर, सबसे छोटा मॉडल",
+        "빠름 — 신속한 응답, 가장 작은 모델",
+        "Hratt — snögg svör, minnsta líkanið",
+        "Rapide — réponses réactives, plus petit modèle"),
+    "Balanced — default, mid-tier model": _row(
+        "Balanserad — standard, mellanstor modell",
+        "Ausgewogen – Standard, mittelgroßes Modell",
+        "Equilibrada — predeterminada, modelo intermedio",
+        "平衡 — 默认，中等规模模型",
+        "Equilibrada — padrão, modelo intermediário",
+        "संतुलित — डिफ़ॉल्ट, मध्यम श्रेणी का मॉडल",
+        "균형 — 기본값, 중간 급 모델",
+        "Jafnvægi — sjálfgefið, miðstært líkan",
+        "Équilibré — valeur par défaut, modèle intermédiaire"),
+    "Deep — most thorough, largest model": _row(
+        "Djup — grundligast, största modellen",
+        "Tief – am gründlichsten, größtes Modell",
+        "Profunda — la más exhaustiva, modelo más grande",
+        "深入 — 最周密，最大模型",
+        "Profunda — mais completa, maior modelo",
+        "गहरा — सबसे संपूर्ण, सबसे बड़ा मॉडल",
+        "심층 — 가장 철저한 응답, 가장 큰 모델",
+        "Djúpt — ítarlegast, stærsta líkanið",
+        "Approfondi — le plus complet, plus grand modèle"),
+    "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Adds a \"File as GitHub issue\" button to the Explain-error flow. Clicking it opens your browser at a pre-filled issue on the spaCR repo — you review the payload and hit Submit yourself.</span>": _row(
+        "<b>Rapportera fel som GitHub-ärenden</b><br><span style='color:gray;'>Lägger till knappen \"Rapportera som GitHub-ärende\" i flödet Förklara fel. Ett klick öppnar webbläsaren med ett förifyllt ärende i spaCR-arkivet — du granskar innehållet och klickar själv på Skicka.</span>",
+        "<b>Fehler als GitHub-Issues melden</b><br><span style='color:gray;'>Fügt dem Ablauf zur Fehlererklärung die Schaltfläche \"Als GitHub-Issue melden\" hinzu. Ein Klick öffnet im Browser ein vorausgefülltes Issue im spaCR-Repository – Sie prüfen die Angaben und klicken selbst auf Senden.</span>",
+        "<b>Informar errores como incidencias de GitHub</b><br><span style='color:gray;'>Añade el botón \"Registrar como incidencia de GitHub\" al flujo de explicación de errores. Al pulsarlo se abre en el navegador una incidencia prellenada del repositorio de spaCR; usted revisa los datos y pulsa Enviar.</span>",
+        "<b>将错误报告为 GitHub 问题</b><br><span style='color:gray;'>在错误解释流程中添加“登记为 GitHub 问题”按钮。点击后，浏览器会打开 spaCR 仓库中预填的问题——由您审核内容并亲自点击提交。</span>",
+        "<b>Relatar erros como problemas do GitHub</b><br><span style='color:gray;'>Adiciona o botão \"Registrar como problema do GitHub\" ao fluxo de explicação de erros. Ao clicar, o navegador abre um problema pré-preenchido no repositório do spaCR — você revisa os dados e clica em Enviar.</span>",
+        "<b>त्रुटियों को GitHub इश्यू के रूप में रिपोर्ट करें</b><br><span style='color:gray;'>त्रुटि-व्याख्या प्रवाह में \"GitHub इश्यू के रूप में दर्ज करें\" बटन जोड़ता है। क्लिक करने पर spaCR रिपॉज़िटरी में पहले से भरा इश्यू ब्राउज़र में खुलता है — आप विवरण की समीक्षा करके खुद सबमिट करते हैं।</span>",
+        "<b>오류를 GitHub 이슈로 보고</b><br><span style='color:gray;'>오류 설명 흐름에 \"GitHub 이슈로 등록\" 버튼을 추가합니다. 클릭하면 spaCR 저장소의 미리 채워진 이슈가 브라우저에서 열리며, 사용자가 내용을 검토하고 직접 제출합니다.</span>",
+        "<b>Tilkynna villur sem GitHub-mál</b><br><span style='color:gray;'>Bætir hnappnum \"Skrá sem GitHub-mál\" við villuútskýringuna. Smellur opnar forútyllt mál í spaCR-geymslunni í vafranum — þú ferð yfir gögnin og smellir sjálf/ur á Senda.</span>",
+        "<b>Signaler les erreurs comme tickets GitHub</b><br><span style='color:gray;'>Ajoute le bouton \"Signaler comme ticket GitHub\" au parcours d’explication des erreurs. Un clic ouvre dans votre navigateur un ticket prérempli sur le dépôt spaCR — vous vérifiez les informations et cliquez vous-même sur Envoyer.</span>"),
+    "Enable — one-click issue filing from the error dialog": _row(
+        "Aktivera — rapportera ett ärende med ett klick från feldialogrutan",
+        "Aktivieren – Issue mit einem Klick aus dem Fehlerdialog melden",
+        "Activar — registrar una incidencia con un clic desde el cuadro de error",
+        "启用 — 从错误对话框一键登记问题",
+        "Ativar — registrar um problema com um clique na caixa de erro",
+        "चालू करें — त्रुटि डायलॉग से एक क्लिक में इश्यू दर्ज करें",
+        "활성화 — 오류 대화 상자에서 한 번의 클릭으로 이슈 등록",
+        "Virkja — skrá mál með einum smelli úr villuglugganum",
+        "Activer — créer un ticket en un clic depuis la boîte de dialogue d’erreur"),
+    "Route errors through AI — show the AI's explanation instead of the raw traceback": _row(
+        "Skicka fel via AI — visa AI-förklaringen i stället för den råa stackspårningen",
+        "Fehler über KI leiten – KI-Erklärung statt des rohen Tracebacks anzeigen",
+        "Enviar errores a la IA — mostrar la explicación de la IA en lugar del rastreo sin procesar",
+        "通过人工智能处理错误 — 显示人工智能解释而非原始回溯",
+        "Encaminhar erros pela IA — mostrar a explicação da IA em vez do rastreamento bruto",
+        "त्रुटियाँ एआई के माध्यम से भेजें — कच्चे ट्रेसबैक के बजाय एआई की व्याख्या दिखाएँ",
+        "AI를 통해 오류 처리 — 원시 트레이스백 대신 AI 설명 표시",
+        "Beina villum í gegnum gervigreind — sýna skýringu hennar í stað hrárrar rakningar",
+        "Acheminer les erreurs vers l’IA — afficher l’explication de l’IA plutôt que la trace brute"),
+    "<b>GitHub sign-in</b><br><span style='color:gray;'>Sign in so auto-filed issues send directly (no browser). Paste a Personal Access Token with <i>repo/issues</i> scope, or install + log in to the GitHub CLI (<code>gh auth login</code>) and spaCR will use it automatically.</span>": _row(
+        "<b>GitHub-inloggning</b><br><span style='color:gray;'>Logga in så att automatiska ärenden skickas direkt (utan webbläsare). Klistra in en personlig åtkomsttoken med omfånget <i>repo/issues</i>, eller installera och logga in i GitHub CLI (<code>gh auth login</code>), så använder spaCR det automatiskt.</span>",
+        "<b>GitHub-Anmeldung</b><br><span style='color:gray;'>Melden Sie sich an, damit automatisch erstellte Issues direkt gesendet werden (ohne Browser). Fügen Sie ein persönliches Zugriffstoken mit dem Bereich <i>repo/issues</i> ein oder installieren Sie die GitHub-CLI und melden Sie sich dort an (<code>gh auth login</code>); spaCR verwendet sie dann automatisch.</span>",
+        "<b>Inicio de sesión en GitHub</b><br><span style='color:gray;'>Inicie sesión para enviar directamente las incidencias automáticas (sin navegador). Pegue un token de acceso personal con el ámbito <i>repo/issues</i>, o instale la CLI de GitHub e inicie sesión (<code>gh auth login</code>); spaCR la usará automáticamente.</span>",
+        "<b>GitHub 登录</b><br><span style='color:gray;'>登录后，自动登记的问题可直接发送（无需浏览器）。请粘贴具有 <i>repo/issues</i> 范围的个人访问令牌，或安装 GitHub CLI 并登录（<code>gh auth login</code>），spaCR 将自动使用它。</span>",
+        "<b>Entrada no GitHub</b><br><span style='color:gray;'>Entre para que problemas registrados automaticamente sejam enviados diretamente (sem navegador). Cole um Token de Acesso Pessoal com escopo <i>repo/issues</i>, ou instale e entre na CLI do GitHub (<code>gh auth login</code>); o spaCR a usará automaticamente.</span>",
+        "<b>GitHub साइन-इन</b><br><span style='color:gray;'>साइन इन करने पर स्वचालित इश्यू सीधे भेजे जाएँगे (बिना ब्राउज़र)। <i>repo/issues</i> स्कोप वाला Personal Access Token पेस्ट करें, या GitHub CLI इंस्टॉल करके लॉग इन करें (<code>gh auth login</code>); spaCR इसका स्वचालित उपयोग करेगा।</span>",
+        "<b>GitHub 로그인</b><br><span style='color:gray;'>로그인하면 자동 등록된 이슈가 브라우저 없이 바로 전송됩니다. <i>repo/issues</i> 범위의 개인용 액세스 토큰을 붙여넣거나 GitHub CLI를 설치하고 로그인하세요(<code>gh auth login</code>). spaCR이 자동으로 사용합니다.</span>",
+        "<b>GitHub-innskráning</b><br><span style='color:gray;'>Skráðu þig inn svo sjálfvirk mál sendist beint (án vafra). Límdu inn persónulegan aðgangslykil með <i>repo/issues</i>-heimild, eða settu upp og skráðu þig inn í GitHub CLI (<code>gh auth login</code>); spaCR notar það sjálfkrafa.</span>",
+        "<b>Connexion à GitHub</b><br><span style='color:gray;'>Connectez-vous pour envoyer directement les tickets créés automatiquement (sans navigateur). Collez un jeton d’accès personnel avec la portée <i>repo/issues</i>, ou installez la CLI GitHub et connectez-vous (<code>gh auth login</code>) ; spaCR l’utilisera automatiquement.</span>"),
+    "Personal Access Token (ghp_… / github_pat_…)": _row(
+        "Personlig åtkomsttoken (ghp_… / github_pat_…)",
+        "Persönliches Zugriffstoken (ghp_… / github_pat_…)",
+        "Token de acceso personal (ghp_… / github_pat_…)",
+        "个人访问令牌 (ghp_… / github_pat_…)",
+        "Token de Acesso Pessoal (ghp_… / github_pat_…)",
+        "Personal Access Token (ghp_… / github_pat_…)",
+        "개인용 액세스 토큰 (ghp_… / github_pat_…)",
+        "Persónulegur aðgangslykill (ghp_… / github_pat_…)",
+        "Jeton d’accès personnel (ghp_… / github_pat_…)"),
+    "Save token": _row(
+        "Spara token", "Token speichern", "Guardar token", "保存令牌",
+        "Salvar token", "टोकन सहेजें", "토큰 저장",
+        "Vista lykil", "Enregistrer le jeton"),
+    "<b>System prompt</b><br><span style='color:gray;'>The persona spaCR sends to the assistant before your first message. Edit to change how answers are framed, then Save. Reset restores the default.</span>": _row(
+        "<b>Systeminstruktion</b><br><span style='color:gray;'>Personan som spaCR skickar till assistenten före ditt första meddelande. Redigera för att ändra hur svar formuleras och klicka sedan på Spara. Återställ återgår till standarden.</span>",
+        "<b>Systemanweisung</b><br><span style='color:gray;'>Die Persona, die spaCR vor Ihrer ersten Nachricht an den Assistenten sendet. Bearbeiten Sie sie, um die Formulierung der Antworten zu ändern, und klicken Sie dann auf Speichern. Zurücksetzen stellt den Standard wieder her.</span>",
+        "<b>Instrucción del sistema</b><br><span style='color:gray;'>La personalidad que spaCR envía al asistente antes de su primer mensaje. Edítela para cambiar cómo se formulan las respuestas y pulse Guardar. Restablecer recupera el valor predeterminado.</span>",
+        "<b>系统提示</b><br><span style='color:gray;'>spaCR 在您发送第一条消息前传给助手的角色设定。编辑后可改变回答的表述方式，然后点击保存。重置将恢复默认值。</span>",
+        "<b>Prompt do sistema</b><br><span style='color:gray;'>A persona que o spaCR envia ao assistente antes da sua primeira mensagem. Edite para mudar como as respostas são formuladas e clique em Salvar. Redefinir restaura o padrão.</span>",
+        "<b>सिस्टम प्रॉम्प्ट</b><br><span style='color:gray;'>आपके पहले संदेश से पहले spaCR सहायक को जो व्यक्तित्व भेजता है। उत्तरों के प्रस्तुतिकरण को बदलने के लिए इसे संपादित करें, फिर सहेजें। रीसेट डिफ़ॉल्ट को वापस लाता है।</span>",
+        "<b>시스템 프롬프트</b><br><span style='color:gray;'>spaCR이 첫 메시지 전에 어시스턴트에게 전달하는 페르소나입니다. 응답의 표현 방식을 바꾸려면 편집한 뒤 저장하세요. 재설정하면 기본값으로 복원됩니다.</span>",
+        "<b>Kerfiskveðja</b><br><span style='color:gray;'>Persónan sem spaCR sendir aðstoðarmanninum fyrir fyrstu skilaboðin þín. Breyttu henni til að stýra framsetningu svara og vistaðu síðan. Endurstilling endurheimtir sjálfgefið gildi.</span>",
+        "<b>Invite système</b><br><span style='color:gray;'>Le profil que spaCR envoie à l’assistant avant votre premier message. Modifiez-le pour changer la formulation des réponses, puis enregistrez. La réinitialisation restaure la valeur par défaut.</span>"),
+    "Save prompt": _row(
+        "Spara instruktion", "Anweisung speichern", "Guardar instrucción",
+        "保存提示", "Salvar prompt", "प्रॉम्प्ट सहेजें",
+        "프롬프트 저장", "Vista kveðju", "Enregistrer l’invite"),
+    "Reset to default": _row(
+        "Återställ standard", "Auf Standard zurücksetzen",
+        "Restablecer valor predeterminado", "重置为默认值",
+        "Redefinir para o padrão", "डिफ़ॉल्ट पर रीसेट करें",
+        "기본값으로 재설정", "Endurstilla á sjálfgefið",
+        "Rétablir la valeur par défaut"),
+    "Using your custom prompt (overrides default).": _row(
+        "Din anpassade instruktion används (ersätter standarden).",
+        "Ihre benutzerdefinierte Anweisung wird verwendet (überschreibt den Standard).",
+        "Se está usando su instrucción personalizada (sustituye la predeterminada).",
+        "正在使用您的自定义提示（覆盖默认值）。",
+        "Usando seu prompt personalizado (substitui o padrão).",
+        "आपके कस्टम प्रॉम्प्ट का उपयोग हो रहा है (यह डिफ़ॉल्ट को बदलता है)।",
+        "사용자 정의 프롬프트 사용 중(기본값 대체).",
+        "Sérsniðna kveðjan þín er notuð (hún yfirskrífar sjálfgefið gildi).",
+        "Votre invite personnalisée est utilisée (elle remplace la valeur par défaut)."),
+    "Using the default spaCR-aware prompt.": _row(
+        "Standardinstruktionen med spaCR-kännedom används.",
+        "Die spaCR-spezifische Standardanweisung wird verwendet.",
+        "Se está usando la instrucción predeterminada con conocimiento de spaCR.",
+        "正在使用了解 spaCR 的默认提示。",
+        "Usando o prompt padrão com conhecimento do spaCR.",
+        "spaCR की जानकारी वाले डिफ़ॉल्ट प्रॉम्प्ट का उपयोग हो रहा है।",
+        "spaCR을 이해하는 기본 프롬프트 사용 중.",
+        "Sjálfgefna kveðjan með spaCR-þekkingu er notuð.",
+        "L’invite par défaut connaissant spaCR est utilisée."),
+    "a saved token": _row(
+        "en sparad token", "ein gespeichertes Token", "un token guardado",
+        "已保存的令牌", "um token salvo", "सहेजा गया टोकन",
+        "저장된 토큰", "vistaðan lykil", "un jeton enregistré"),
+    "the GITHUB_TOKEN env var": _row(
+        "miljövariabeln GITHUB_TOKEN", "die Umgebungsvariable GITHUB_TOKEN",
+        "la variable de entorno GITHUB_TOKEN", "GITHUB_TOKEN 环境变量",
+        "a variável de ambiente GITHUB_TOKEN", "GITHUB_TOKEN एनवायरनमेंट वेरिएबल",
+        "GITHUB_TOKEN 환경 변수", "umhverfisbreytuna GITHUB_TOKEN",
+        "la variable d’environnement GITHUB_TOKEN"),
+    "the GitHub CLI": _row(
+        "GitHub CLI", "die GitHub-CLI", "la CLI de GitHub", "GitHub CLI",
+        "a CLI do GitHub", "GitHub CLI", "GitHub CLI", "GitHub CLI",
+        "la CLI GitHub"),
+    "✓ Signed in via {source} — issues send directly.": _row(
+        "✓ Inloggad via {source} — ärenden skickas direkt.",
+        "✓ Über {source} angemeldet – Issues werden direkt gesendet.",
+        "✓ Sesión iniciada mediante {source} — las incidencias se envían directamente.",
+        "✓ 已通过 {source} 登录——问题将直接发送。",
+        "✓ Conectado por {source} — os problemas são enviados diretamente.",
+        "✓ {source} के ज़रिए साइन इन हैं — इश्यू सीधे भेजे जाएँगे।",
+        "✓ {source}로 로그인됨 — 이슈가 바로 전송됩니다.",
+        "✓ Innskráð/ur með {source} — mál sendast beint.",
+        "✓ Connecté via {source} — les tickets sont envoyés directement."),
+    "Not signed in — issues open in your browser. Add a token or run gh auth login.": _row(
+        "Inte inloggad — ärenden öppnas i webbläsaren. Lägg till en token eller kör gh auth login.",
+        "Nicht angemeldet – Issues werden im Browser geöffnet. Fügen Sie ein Token hinzu oder führen Sie gh auth login aus.",
+        "No ha iniciado sesión — las incidencias se abren en el navegador. Añada un token o ejecute gh auth login.",
+        "未登录——问题将在浏览器中打开。请添加令牌或运行 gh auth login。",
+        "Não conectado — os problemas abrem no navegador. Adicione um token ou execute gh auth login.",
+        "साइन इन नहीं है — इश्यू ब्राउज़र में खुलेंगे। टोकन जोड़ें या gh auth login चलाएँ।",
+        "로그인되지 않음 — 이슈가 브라우저에서 열립니다. 토큰을 추가하거나 gh auth login을 실행하세요.",
+        "Ekki innskráð/ur — mál opnast í vafranum. Bættu við lykli eða keyrðu gh auth login.",
+        "Non connecté — les tickets s’ouvrent dans votre navigateur. Ajoutez un jeton ou exécutez gh auth login."),
+    "Install + login instructions for the vendor coding-agent CLIs.": _row(
+        "Installations- och inloggningsanvisningar för leverantörernas CLI-verktyg för kodningsagenter.",
+        "Installations- und Anmeldeanweisungen für die Coding-Agent-CLIs der Anbieter.",
+        "Instrucciones de instalación e inicio de sesión para las CLI de agentes de programación de los proveedores.",
+        "提供商编码代理 CLI 的安装和登录说明。",
+        "Instruções de instalação e entrada para as CLIs de agentes de programação dos provedores.",
+        "प्रदाता के कोडिंग-एजेंट CLI के लिए इंस्टॉल और लॉगिन निर्देश।",
+        "제공업체 코딩 에이전트 CLI의 설치 및 로그인 안내.",
+        "Leiðbeiningar um uppsetningu og innskráningu fyrir CLI-forritunaraðstoð veitenda.",
+        "Instructions d’installation et de connexion pour les CLI d’agents de programmation des fournisseurs."),
+    "Install a vendor CLI to chat": _row(
+        "Installera ett leverantörs-CLI för att chatta",
+        "Installieren Sie eine Anbieter-CLI, um zu chatten",
+        "Instale una CLI de proveedor para chatear",
+        "安装提供商 CLI 以开始聊天",
+        "Instale uma CLI de provedor para conversar",
+        "चैट करने के लिए प्रदाता CLI इंस्टॉल करें",
+        "채팅하려면 제공업체 CLI를 설치하세요",
+        "Settu upp CLI veitanda til að spjalla",
+        "Installez une CLI de fournisseur pour discuter"),
+    "The AI Console uses your chat subscription via the vendor coding-agent CLIs: `claude`, `codex`, or `gemini`. Install any one of them and log in. Open Providers ▸ Copy the commands and paste in a terminal.": _row(
+        "AI-konsolen använder din chattprenumeration via leverantörernas CLI-verktyg för kodningsagenter: `claude`, `codex` eller `gemini`. Installera ett av dem och logga in. Öppna Leverantörer ▸ Kopiera kommandona och klistra in dem i en terminal.",
+        "Die KI-Konsole verwendet Ihr Chat-Abonnement über die Coding-Agent-CLIs der Anbieter: `claude`, `codex` oder `gemini`. Installieren Sie eine davon und melden Sie sich an. Öffnen Sie Anbieter ▸ Kopieren Sie die Befehle und fügen Sie sie in ein Terminal ein.",
+        "La consola de IA usa su suscripción de chat mediante las CLI de agentes de programación de los proveedores: `claude`, `codex` o `gemini`. Instale una e inicie sesión. Abra Proveedores ▸ Copie los comandos y péguelos en una terminal.",
+        "人工智能控制台通过提供商的编码代理 CLI（`claude`、`codex` 或 `gemini`）使用您的聊天订阅。请安装其中任意一个并登录。打开“提供商”▸ 复制命令并粘贴到终端中。",
+        "O Console de IA usa sua assinatura de chat pelas CLIs de agentes de programação dos provedores: `claude`, `codex` ou `gemini`. Instale uma delas e entre. Abra Provedores ▸ Copie os comandos e cole em um terminal.",
+        "एआई कंसोल प्रदाता के कोडिंग-एजेंट CLI: `claude`, `codex` या `gemini` के ज़रिए आपकी चैट सदस्यता का उपयोग करता है। इनमें से कोई एक इंस्टॉल करके लॉग इन करें। प्रदाता खोलें ▸ कमांड कॉपी करके टर्मिनल में पेस्ट करें।",
+        "AI 콘솔은 제공업체의 코딩 에이전트 CLI인 `claude`, `codex` 또는 `gemini`를 통해 채팅 구독을 사용합니다. 하나를 설치하고 로그인하세요. 제공업체 열기 ▸ 명령을 복사하여 터미널에 붙여넣으세요.",
+        "Gervigreindarstjórnborðið notar spjalláskriftina þína í gegnum CLI-forritunaraðstoð veitenda: `claude`, `codex` eða `gemini`. Settu eitt þeirra upp og skráðu þig inn. Opnaðu Veitendur ▸ Afritaðu skipanirnar og límdu í skjáhermi.",
+        "La console IA utilise votre abonnement de chat via les CLI d’agents de programmation des fournisseurs : `claude`, `codex` ou `gemini`. Installez-en une et connectez-vous. Ouvrez Fournisseurs ▸ Copiez les commandes et collez-les dans un terminal."),
+    "A response is already streaming — hit Cancel to interrupt.": _row(
+        "Ett svar strömmas redan — klicka på Avbryt för att avbryta.",
+        "Eine Antwort wird bereits gestreamt – klicken Sie zum Unterbrechen auf Abbrechen.",
+        "Ya se está recibiendo una respuesta — pulse Cancelar para interrumpirla.",
+        "正在接收一个响应——请点击取消以中断。",
+        "Uma resposta já está sendo recebida — clique em Cancelar para interromper.",
+        "एक उत्तर पहले से आ रहा है — रोकने के लिए रद्द करें दबाएँ।",
+        "이미 응답을 수신 중입니다. 중단하려면 취소를 누르세요.",
+        "Svar er þegar að streyma — smelltu á Hætta við til að rjúfa.",
+        "Une réponse est déjà en cours de réception — cliquez sur Annuler pour l’interrompre."),
+    "Failed: {detail}": _row(
+        "Misslyckades: {detail}", "Fehlgeschlagen: {detail}",
+        "Falló: {detail}", "失败：{detail}", "Falhou: {detail}",
+        "विफल: {detail}", "실패: {detail}", "Mistókst: {detail}",
+        "Échec : {detail}"),
+    "Install a vendor CLI first (Providers…).": _row(
+        "Installera först ett leverantörs-CLI (Leverantörer…).",
+        "Installieren Sie zuerst eine Anbieter-CLI (Anbieter…).",
+        "Instale primero una CLI de proveedor (Proveedores…).",
+        "请先安装提供商 CLI（提供商…）。",
+        "Primeiro instale uma CLI de provedor (Provedores…).",
+        "पहले प्रदाता CLI इंस्टॉल करें (प्रदाता…)।",
+        "먼저 제공업체 CLI를 설치하세요(제공업체…).",
+        "Settu fyrst upp CLI veitanda (Veitendur…).",
+        "Installez d’abord une CLI de fournisseur (Fournisseurs…)."),
 }
 
 
@@ -951,22 +1648,109 @@ def catalog_coverage(
 
 def _translate_qt_text(obj, getter_name: str, setter_name: str,
                        property_name: str, language: str) -> None:
-    """Translate one Qt string property while retaining its English source."""
+    """Translate one Qt string property while retaining its English source.
+
+    If application code changes a label after an earlier translation pass, it
+    is dynamic data rather than the cached static caption.  Preserve that new
+    value and automatically opt the label out instead of restoring stale UI
+    text over a path, progress value or result.
+    """
     getter = getattr(obj, getter_name, None)
     setter = getattr(obj, setter_name, None)
     if not callable(getter) or not callable(setter):
         return
     try:
+        current = str(getter() or "")
         source = obj.property(property_name)
+        rendered_property = f"{property_name}_last_rendered"
+        last_rendered = obj.property(rendered_property)
         if source is None:
-            source = getter()
+            source = current
             if not source:
                 return
             obj.setProperty(property_name, str(source))
-        setter(tr(source, language))
-    except RuntimeError:
+        elif last_rendered is not None and current != str(last_rendered):
+            # A setter outside the translator replaced the rendered value.
+            # QLabel/QAbstractButton contents can carry paths, metrics and
+            # provider output, so preserve them byte-for-byte until callers
+            # explicitly opt in with set_translatable_text().
+            obj.setProperty(property_name, current)
+            if property_name == "_spacr_i18n_text":
+                obj.setProperty("i18nSkipText", True)
+                obj.setProperty(rendered_property, current)
+                return
+            source = current
+        rendered = tr(source, language)
+        setter(rendered)
+        obj.setProperty(rendered_property, rendered)
+    except (AttributeError, RuntimeError, TypeError):
         # A deferred-delete Qt wrapper may remain in findChildren briefly.
         return
+
+
+def set_translatable_text(
+    widget,
+    source: str,
+    language: Optional[str] = None,
+    **values: object,
+) -> None:
+    """Set dynamic UI text while retaining its canonical template and values.
+
+    This is for application chrome such as ``Connecting to {provider}…``.
+    User text, AI replies, worker output and scientific results must not use
+    this helper because they intentionally remain untouched by localization.
+    """
+    widget.setProperty("_spacr_i18n_text_template", str(source))
+    # Python attributes reliably retain arbitrary values across all supported
+    # PySide versions; QVariant conversion of a dict is less consistent.
+    widget._spacr_i18n_text_values = dict(values)
+    widget.setText(tr(source, language, **values))
+
+
+def _refresh_dynamic_text(widget, language: str) -> bool:
+    """Retranslate a template set by :func:`set_translatable_text`."""
+    try:
+        source = widget.property("_spacr_i18n_text_template")
+        if source is None:
+            return False
+        values = getattr(widget, "_spacr_i18n_text_values", {})
+        widget.setText(tr(str(source), language, **dict(values or {})))
+        return True
+    except (AttributeError, RuntimeError, TypeError, ValueError):
+        return False
+
+
+def _refresh_module_help(obj, language: str) -> None:
+    """Regenerate semantic module help without word-level prose mixing."""
+    try:
+        app_key = obj.property("moduleAppKey")
+        name_source = obj.property("moduleNameSource")
+        summary_source = obj.property("moduleSummarySource")
+    except (AttributeError, RuntimeError):
+        return
+    if not app_key or not summary_source:
+        return
+
+    from .i18n_module_summaries import module_summary
+
+    name = tr(str(name_source or app_key), language)
+    summary = module_summary(str(app_key), str(summary_source), language)
+    style = str(obj.property("moduleTooltipStyle") or "")
+    if style == "sidebar":
+        obj.setToolTip(f"{name} — {summary}")
+        obj.setAccessibleName(name)
+        obj.setAccessibleDescription(summary)
+    elif style == "tile":
+        stage_source = str(obj.property("moduleStageSource") or "")
+        stage = tr(stage_source, language) if stage_source else ""
+        suffix = f" ({stage.lower()})" if stage else ""
+        obj.setToolTip(f"{name}{suffix} — {summary}")
+        obj.setAccessibleName(name)
+        obj.setAccessibleDescription(
+            f"{stage} — {summary}" if stage else summary)
+    elif hasattr(obj, "setStatusTip"):
+        # QAction module entries have a status tip but no QWidget tooltip.
+        obj.setStatusTip(summary)
 
 
 def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
@@ -983,7 +1767,7 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         from PySide6.QtGui import QAction
         from PySide6.QtWidgets import (
             QAbstractButton, QComboBox, QGroupBox, QLabel, QLineEdit,
-            QTableWidget, QTabWidget, QWidget,
+            QPlainTextEdit, QTableWidget, QTabWidget, QTextEdit, QWidget,
         )
     except Exception:
         return
@@ -998,23 +1782,34 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         _translate_qt_text(
             widget, "windowTitle", "setWindowTitle",
             "_spacr_i18n_window_title", code)
-        _translate_qt_text(
-            widget, "toolTip", "setToolTip",
-            "_spacr_i18n_tooltip", code)
-        _translate_qt_text(
-            widget, "accessibleName", "setAccessibleName",
-            "_spacr_i18n_accessible_name", code)
-        _translate_qt_text(
-            widget, "accessibleDescription", "setAccessibleDescription",
-            "_spacr_i18n_accessible_description", code)
+        semantic_help = (
+            widget.property("moduleAppKey")
+            or widget.property("settingsAppKey")
+        )
+        if not semantic_help:
+            _translate_qt_text(
+                widget, "toolTip", "setToolTip",
+                "_spacr_i18n_tooltip", code)
+            _translate_qt_text(
+                widget, "accessibleName", "setAccessibleName",
+                "_spacr_i18n_accessible_name", code)
+            _translate_qt_text(
+                widget, "accessibleDescription", "setAccessibleDescription",
+                "_spacr_i18n_accessible_description", code)
 
-        if isinstance(widget, (QLabel, QAbstractButton)):
+        # Chat messages, generated output and other dynamic labels opt out.
+        # Translating their contents during a language switch would mutate
+        # user/provider text rather than application chrome.
+        dynamic_text = _refresh_dynamic_text(widget, code)
+        if (isinstance(widget, (QLabel, QAbstractButton))
+                and not dynamic_text
+                and not widget.property("i18nSkipText")):
             _translate_qt_text(
                 widget, "text", "setText", "_spacr_i18n_text", code)
         if isinstance(widget, QGroupBox):
             _translate_qt_text(
                 widget, "title", "setTitle", "_spacr_i18n_title", code)
-        if isinstance(widget, QLineEdit):
+        if isinstance(widget, (QLineEdit, QPlainTextEdit, QTextEdit)):
             _translate_qt_text(
                 widget, "placeholderText", "setPlaceholderText",
                 "_spacr_i18n_placeholder", code)
@@ -1048,6 +1843,7 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                 translated = tr(source, code)
                 if translated != source or source in _ROWS:
                     widget.setItemText(index, translated)
+        _refresh_module_help(widget, code)
 
     actions = []
     try:
@@ -1059,9 +1855,19 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
             action, "text", "setText", "_spacr_i18n_text", code)
         _translate_qt_text(
             action, "toolTip", "setToolTip", "_spacr_i18n_tooltip", code)
-        _translate_qt_text(
-            action, "statusTip", "setStatusTip",
-            "_spacr_i18n_status_tip", code)
+        if not action.property("moduleAppKey"):
+            _translate_qt_text(
+                action, "statusTip", "setStatusTip",
+                "_spacr_i18n_status_tip", code)
+        _refresh_module_help(action, code)
+
+    # Settings tooltips are structured HTML (name, type, scientific prose and
+    # API link), so rebuild them semantically after the generic Qt pass.
+    try:
+        from .screens.settings_model import refresh_api_tooltips
+        refresh_api_tooltips(root, code)
+    except (ImportError, AttributeError, RuntimeError):
+        pass
 
 
 __all__ = [
@@ -1079,5 +1885,6 @@ __all__ = [
     "language_choices",
     "normalize_language",
     "retranslate_widget_tree",
+    "set_translatable_text",
     "tr",
 ]

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import ast
 from html import escape
+import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
@@ -36,6 +37,9 @@ from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -776,7 +780,8 @@ def api_docs_url(app_key: str, key: str = "") -> str:
 
 
 _TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
-               str: "string", list: "list", tuple: "tuple", dict: "dict"}
+               str: "string", list: "list", tuple: "tuple",
+               dict: "dictionary"}
 
 
 def _type_hint(key: str) -> str:
@@ -818,41 +823,156 @@ def _strip_type_prefix(text: str) -> str:
     return re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", text or "").strip()
 
 
-def format_tooltip(text: str, app_key: str, key: str = "") -> str:
-    """Return a typed HTML tooltip ending in a clickable API-doc link."""
-    body = escape(" ".join(_strip_type_prefix(text).split()))
-    header = escape(_humanize(key))
-    th = escape(_type_hint(key))
+def _language_code(language: Optional[str] = None) -> str:
+    """Resolve ``language`` without making settings metadata depend on Qt."""
+    from ..i18n import current_language, normalize_language
+
+    return normalize_language(language or current_language())
+
+
+def _translated_body(text: str, language: Optional[str] = None) -> str:
+    """Translate setting prose only when a complete translation exists.
+
+    The general UI translator deliberately supports conservative word-level
+    translation for short labels.  Applying that behavior to a scientific
+    paragraph produces a misleading half-English paragraph, however.  Tooltip
+    bodies therefore accept exact catalog/plugin translations only and
+    otherwise retain the canonical English source byte-for-byte.
+    """
+    source = " ".join(_strip_type_prefix(text).split())
+    if not source:
+        return ""
+    code = _language_code(language)
+    if code == "en":
+        return source
+    from ..i18n import _exact_translation, tr
+
+    return (
+        tr(source, code)
+        if _exact_translation(source, code) is not None
+        else source
+    )
+
+
+def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
+    """Return a localized type signature while preserving English defaults."""
+    source = _type_hint(key)
+    code = _language_code(language)
+    if not source or code == "en":
+        return source
+
+    from ..i18n import tr
+
+    optional = source.endswith(" (optional)")
+    core = source[:-11] if optional else source
+    # A slash is a language-neutral union separator.  Translating each atomic
+    # type avoids asking the catalog to enumerate every possible union.
+    translated = " / ".join(tr(part, code) for part in core.split(" or "))
+    if optional:
+        translated = f"{translated} ({tr('optional', code)})"
+    return translated
+
+
+def _translated_setting_name(key: str, language: Optional[str] = None) -> str:
+    """Translate a short humanized setting label using the UI term catalog."""
+    from ..i18n import tr
+
+    return tr(_humanize(key), _language_code(language))
+
+
+def _api_reference_tooltip(key: str, language: Optional[str] = None) -> str:
+    """Localized accessible caption for a setting's teal API dot."""
+    from ..i18n import tr
+
+    code = _language_code(language)
+    return tr(
+        "Open API reference for {name}",
+        code,
+        name=_translated_setting_name(key, code),
+    )
+
+
+def _animation_reference_tooltip(
+    key: str,
+    language: Optional[str] = None,
+) -> str:
+    """Localized accessible caption for a setting's purple animation dot."""
+    from ..i18n import tr
+
+    code = _language_code(language)
+    return tr(
+        "Show animation for {name}",
+        code,
+        name=_translated_setting_name(key, code),
+    )
+
+
+def format_tooltip(
+    text: str,
+    app_key: str,
+    key: str = "",
+    language: Optional[str] = None,
+) -> str:
+    """Return localized typed HTML with an unchanged API-document URL."""
+    from ..i18n import tr
+
+    code = _language_code(language)
+    body_source = _translated_body(text, code)
+    body = escape(body_source)
+    header = escape(_translated_setting_name(key, code))
+    th = escape(_translated_type_hint(key, code))
     if header and th:
         header = f"<b>{header}</b> <i>({th})</i>"
     elif header:
         header = f"<b>{header}</b>"
     if not body:
-        body = f"Controls {escape(_humanize(key).lower())}." if key else \
-            "Controls this setting."
+        if code == "en" and key:
+            body = f"Controls {escape(_humanize(key).lower())}."
+        else:
+            body = escape(tr("Controls this setting.", code))
     url = escape(api_docs_url(app_key, key), quote=True)
-    link = f'<a href="{url}">Open spaCR API documentation</a>'
+    link = (
+        f'<a href="{url}">'
+        f'{escape(tr("Open spaCR API documentation", code))}</a>'
+    )
     parts = [p for p in (header, body, link) if p]
     return "<br>".join(parts)
 
 
-def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
+def plain_tooltip(
+    text: str,
+    app_key: str,
+    key: str = "",
+    language: Optional[str] = None,
+) -> str:
     """Same content as `format_tooltip` but plain text — used by the
     hover-follows footer at the bottom of each AppScreen."""
-    body = " ".join(_strip_type_prefix(text).split())
-    th = _type_hint(key)
-    name = _humanize(key)
+    from ..i18n import tr
+
+    code = _language_code(language)
+    body = _translated_body(text, code)
+    if not body:
+        body = (f"Controls {_humanize(key).lower()}."
+                if code == "en" and key
+                else tr("Controls this setting.", code))
+    th = _translated_type_hint(key, code)
+    name = _translated_setting_name(key, code)
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
     summary = " — ".join(parts)
     url = api_docs_url(app_key, key)
-    return f"{summary} — API: {url}" if summary else f"API: {url}"
+    api = tr("API: {url}", code, url=url)
+    return f"{summary} — {api}" if summary else api
 
 
 class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
+        # Re-render on entry so a Preferences language change cannot leave a
+        # sticky popup displaying an earlier language.
+        if event.type() == QEvent.Enter:
+            refresh_api_tooltips(watched)
         html = watched.property("apiTooltipHtml")
         if not html:
             return False
@@ -878,17 +998,89 @@ def attach_api_tooltip(
 ) -> str:
     """Attach typed, linked API help metadata to one setting widget."""
     descriptions = _descriptions if _descriptions is not None else get_tooltips()
-    body = descriptions.get(key) or description or widget.property(
-        "apiTooltipDescription") or widget.toolTip()
-    body = str(body or f"Controls {_humanize(key).lower()}.")
+    existing_tooltip = "" if widget.property("apiTooltipHtml") else widget.toolTip()
+    body = (descriptions.get(key) or description
+            or widget.property("apiTooltipDescriptionSource")
+            or widget.property("apiTooltipDescription")
+            or existing_tooltip)
+    # Keep an absent body absent: format_tooltip owns the localized generic
+    # fallback.  Synthesizing an English sentence here bypasses it.
+    body = str(body or "")
     html = format_tooltip(body, app_key, key)
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
+    widget.setProperty("apiTooltipDescriptionSource", body)
+    # Retain the old property as canonical English for integrations that read
+    # it, rather than replacing it with rendered/localized HTML.
     widget.setProperty("apiTooltipDescription", body)
     widget.setProperty("apiTooltipHtml", html)
+    if widget.property("apiTooltipDisplayRole") is None:
+        widget.setProperty("apiTooltipDisplayRole", "tooltip")
     widget.setToolTip(html)
     widget.setToolTipDuration(-1)
     return html
+
+
+def refresh_api_tooltips(
+    root: QWidget,
+    language: Optional[str] = None,
+) -> None:
+    """Refresh semantic setting help beneath ``root`` in ``language``.
+
+    Canonical English prose is retained in ``apiTooltipDescriptionSource``;
+    only the presentation HTML/plain accessibility chrome is regenerated.
+    Field widgets marked ``metadata`` stay quiet because their visible label
+    owns hover help.  API-dot URLs are never rebuilt or translated.
+    """
+    if root is None:
+        return
+    from ..i18n import tr
+
+    code = _language_code(language)
+    widgets = [root]
+    try:
+        widgets.extend(root.findChildren(QWidget))
+    except (AttributeError, RuntimeError):
+        return
+
+    descriptions: Optional[Dict[str, str]] = None
+    for widget in widgets:
+        try:
+            app_key = widget.property("settingsAppKey")
+            key = widget.property("settingKey")
+        except RuntimeError:
+            continue
+        if not app_key or not key:
+            continue
+        source = (widget.property("apiTooltipDescriptionSource")
+                  or widget.property("apiTooltipDescription"))
+        if not source:
+            if descriptions is None:
+                descriptions = get_tooltips()
+            source = descriptions.get(str(key), "")
+        source = str(source or "")
+        html = format_tooltip(source, str(app_key), str(key), code)
+        widget.setProperty("apiTooltipDescriptionSource", source)
+        widget.setProperty("apiTooltipDescription", source)
+        widget.setProperty("apiTooltipHtml", html)
+
+        role = str(widget.property("apiTooltipDisplayRole") or "tooltip")
+        if role == "metadata":
+            widget.setToolTip("")
+        elif role == "animation-link":
+            caption = _animation_reference_tooltip(str(key), code)
+            widget.setToolTip(caption)
+            widget.setAccessibleName(caption)
+            widget.setAccessibleDescription(caption)
+        elif role == "api-link":
+            caption = _api_reference_tooltip(str(key), code)
+            widget.setToolTip(caption)
+            widget.setAccessibleName(caption)
+            widget.setAccessibleDescription(
+                tr("Open spaCR API documentation", code))
+        else:
+            widget.setToolTip(html)
+            widget.setToolTipDuration(-1)
 
 
 def install_api_tooltips(
@@ -934,17 +1126,22 @@ def install_api_tooltips(
                 owner, widget, app_key, key, html)
             continue
 
+        body_source = str(widget.property("apiTooltipDescriptionSource") or "")
         label.setCursor(Qt.WhatsThisCursor)
         label.setProperty("settingHelpLabel", True)
         label.setProperty("settingsAppKey", app_key)
         label.setProperty("settingKey", key)
+        label.setProperty("apiTooltipDescriptionSource", body_source)
+        label.setProperty("apiTooltipDescription", body_source)
         label.setProperty("apiTooltipHtml", html)
+        label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
         label.installEventFilter(event_filter)
 
         # The editor itself remains quiet on hover. Keep its metadata so tests,
         # integrations and a later re-parenting pass can still identify it.
+        widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
         widget.removeEventFilter(event_filter)
         _add_api_dot_to_label(label, app_key, key, html)
@@ -993,6 +1190,68 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
     return None
 
 
+def build_setting_link_widget(
+    app_key: str,
+    key: str,
+    html: str,
+    body_source: str = "",
+    parent: Optional[QWidget] = None,
+) -> Tuple[QWidget, QWidget, Optional[QWidget]]:
+    """Build API help and, when available, stacked animation help links.
+
+    The purple animation dot sits above the teal API dot. Their combined
+    28-pixel stack is vertically centred on the setting label, so the midpoint
+    between both marks aligns with the label text line.
+
+    :returns: ``(layout_widget, api_dot, animation_dot_or_none)``.
+    """
+    from ..widgets.animation_link import AnimationLink, SettingLinkStack
+    from ..widgets.info_link import InfoLink
+
+    api_dot = InfoLink(
+        api_docs_url(app_key, key),
+        tooltip=_api_reference_tooltip(key),
+    )
+    api_dot.setObjectName("SettingInfoLink")
+    api_dot.setProperty("settingsAppKey", app_key)
+    api_dot.setProperty("settingKey", key)
+    api_dot.setProperty("apiTooltipDescriptionSource", body_source)
+    api_dot.setProperty("apiTooltipDescription", body_source)
+    api_dot.setProperty("apiTooltipHtml", html)
+    api_dot.setProperty("apiTooltipDisplayRole", "api-link")
+
+    try:
+        from spacr.setting_animations import (
+            SettingAnimationError,
+            animation_for_setting,
+        )
+        animation = animation_for_setting(key)
+    except SettingAnimationError:
+        LOGGER.exception(
+            "Setting animation registry is invalid; %s.%s keeps API help only",
+            app_key,
+            key,
+        )
+        animation = None
+
+    if animation is None:
+        api_dot.setParent(parent)
+        return api_dot, api_dot, None
+
+    animation_dot = AnimationLink(
+        animation,
+        tooltip=_animation_reference_tooltip(key),
+    )
+    animation_dot.setProperty("settingsAppKey", app_key)
+    animation_dot.setProperty("settingKey", key)
+    animation_dot.setProperty("apiTooltipDescriptionSource", body_source)
+    animation_dot.setProperty("apiTooltipDescription", body_source)
+    animation_dot.setProperty("apiTooltipHtml", html)
+    animation_dot.setProperty("apiTooltipDisplayRole", "animation-link")
+    stack = SettingLinkStack(animation_dot, api_dot, parent=parent)
+    return stack, api_dot, animation_dot
+
+
 def _add_api_dot_to_label(
     label: QWidget,
     app_key: str,
@@ -1007,7 +1266,6 @@ def _add_api_dot_to_label(
     if layout is None:
         return
 
-    from ..widgets.info_link import InfoLink
     host = QWidget(parent)
     host.setObjectName("SettingLabelWithInfo")
     row = QHBoxLayout(host)
@@ -1020,16 +1278,15 @@ def _add_api_dot_to_label(
         return
     label.setParent(host)
     row.addWidget(label)
-    dot = InfoLink(
-        api_docs_url(app_key, key),
-        tooltip=f"Open API reference for {_humanize(key)}",
-        parent=host,
+    body_source = str(label.property("apiTooltipDescriptionSource") or "")
+    links, dot, animation_dot = build_setting_link_widget(
+        app_key, key, html, body_source, parent=host,
     )
-    dot.setObjectName("SettingInfoLink")
-    dot.setProperty("apiTooltipHtml", html)
-    row.addWidget(dot)
+    row.addWidget(links, 0, Qt.AlignVCenter)
     label.setProperty("settingApiDotInstalled", True)
     label._spacr_api_dot = dot
+    if animation_dot is not None:
+        label._spacr_animation_dot = animation_dot
 
 
 def _add_api_dot_to_combined_control(
@@ -1052,7 +1309,6 @@ def _add_api_dot_to_combined_control(
     if layout is None:
         return
 
-    from ..widgets.info_link import InfoLink
     host = QWidget(parent)
     host.setObjectName("SettingControlWithInfo")
     row = QHBoxLayout(host)
@@ -1064,16 +1320,15 @@ def _add_api_dot_to_combined_control(
         return
     field.setParent(host)
     row.addWidget(field)
-    dot = InfoLink(
-        api_docs_url(app_key, key),
-        tooltip=f"Open API reference for {_humanize(key)}",
-        parent=host,
+    body_source = str(field.property("apiTooltipDescriptionSource") or "")
+    links, dot, animation_dot = build_setting_link_widget(
+        app_key, key, html, body_source, parent=host,
     )
-    dot.setObjectName("SettingInfoLink")
-    dot.setProperty("apiTooltipHtml", html)
-    row.addWidget(dot)
+    row.addWidget(links, 0, Qt.AlignVCenter)
     row.addStretch(1)
     field._spacr_api_dot = dot
+    if animation_dot is not None:
+        field._spacr_animation_dot = animation_dot
 
 
 # ---------------------------------------------------------------------------
@@ -1760,12 +2015,12 @@ class SettingsWidgets:
             kind, options, default = meta
             widget = self._widget_for(kind, options, default, key)
             if widget is not None:
-                tip = format_tooltip(self._tooltips.get(key, ""), self.app_key, key)
-                widget.setProperty("settingsAppKey", self.app_key)
-                widget.setProperty("settingKey", key)
-                widget.setProperty("apiTooltipHtml", tip)
-                widget.setToolTip(tip)
-                widget.setToolTipDuration(-1)  # respect system default (persistent)
+                attach_api_tooltip(
+                    widget,
+                    self.app_key,
+                    key,
+                    _descriptions=self._tooltips,
+                )
                 self._widgets[key] = widget
 
         src_widget = self._widgets.get("src")
