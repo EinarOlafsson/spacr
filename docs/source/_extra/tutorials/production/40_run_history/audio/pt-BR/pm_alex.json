@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.4,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.6,
+      "scene_end": 9.049999999999999,
+      "duration": 9.049999999999999,
+      "text": "Este tutorial abrange o histórico de execução. Pesquise as configurações, arquivos, avisos, falhas e desempenho de cada trabalho de um só lugar."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.049999999999999,
+      "speech_end": 22.45,
+      "scene_end": 22.9,
+      "duration": 13.85,
+      "text": "Abra Run History na seção Results and quality control. Abra o histórico de execução na seção Resultados e controle de qualidade. Abra o registo de execução para o espaço de trabalho atual ou as raízes do projeto selecionadas."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.9,
+      "speech_end": 30.775,
+      "scene_end": 31.224999999999998,
+      "duration": 8.325,
+      "text": "Na área de configuração principal, filtrar por módulo, estado, data, projeto, versão, aviso, duração ou utilização de recursos."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.224999999999998,
+      "speech_end": 44.849999999999994,
+      "scene_end": 45.3,
+      "duration": 14.075,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. abra uma execução para inspecionar suas configurações imutáveis, registros, saídas e contexto de falha."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.3,
+      "speech_end": 53.75,
+      "scene_end": 54.4,
+      "duration": 9.100000000000001,
+      "text": "Quando o fluxo de trabalho terminar, você pode reproduzir, comparar, retomar ou relatar o trabalho anterior sem adivinhar como foi executado."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.7,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.875,
+      "scene_end": 9.325,
+      "duration": 9.325,
+      "text": "Ce tutoriel couvre l'accord des annotateurs. Mesurer l'accord entre les colonnes d'annotation et examiner les objets responsables du désaccord."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.325,
+      "speech_end": 19.025,
+      "scene_end": 19.474999999999998,
+      "duration": 10.149999999999999,
+      "text": "Ouvrez Annotator Agreement dans la section Results and quality control. Ouvrez l'accord d'annotation dans la section Résultats et contrôle de la qualité."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.474999999999998,
+      "speech_end": 31.049999999999997,
+      "scene_end": 31.499999999999996,
+      "duration": 12.024999999999999,
+      "text": "Dans la zone de configuration principale, sélectionnez la gestion des classes, la politique de mise en étiquette manquante, le regroupement, le prélèvement d'échantillons et la statistique de l'accord."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.499999999999996,
+      "speech_end": 39.224999999999994,
+      "scene_end": 39.675,
+      "duration": 8.175,
+      "text": "Avant la course complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.675,
+      "speech_end": 50.05,
+      "scene_end": 50.699999999999996,
+      "duration": 11.024999999999999,
+      "text": "Lorsque le flux de travail est terminé, les tableaux d'accord et une revue centrée établissent des étiquettes de soutien à la réconciliation et à l'amélioration du protocole."
+    }
+  ]
+}

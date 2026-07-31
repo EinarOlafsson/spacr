@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaobei",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.675,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.775,
+      "scene_end": 8.225,
+      "duration": 8.225,
+      "text": "编辑图片片,并逐步构建一个编织的摩赛克,而不需要记住整个帆布."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.225,
+      "speech_end": 17.975,
+      "scene_end": 18.425,
+      "duration": 10.200000000000001,
+      "text": "从 Data and batch runs 部分打开 Align and Stitch。 选择片收购,阶段坐标或重叠的元数据,道和目的地."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.425,
+      "speech_end": 27.1,
+      "scene_end": 27.55,
+      "duration": 9.125,
+      "text": "在主配置区域,配置注册方法,参考道,重叠,混合,纠正,零件大小和输出格式."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.55,
+      "speech_end": 40.45,
+      "scene_end": 40.900000000000006,
+      "duration": 13.350000000000005,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在构建完整的摩赛克之前,检查对齐和接预览."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.900000000000006,
+      "speech_end": 49.025000000000006,
+      "scene_end": 49.675000000000004,
+      "duration": 8.774999999999999,
+      "text": "当工作流程完成时,记录的,接的图像,转换和地图的元数据都会被保存."
+    }
+  ]
+}

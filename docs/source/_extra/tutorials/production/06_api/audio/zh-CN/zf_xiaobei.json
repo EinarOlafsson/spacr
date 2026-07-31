@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaobei",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.3,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.55,
+      "scene_end": 11.0,
+      "duration": 11.0,
+      "text": "这本教程涵盖了Python API和无头的工作流程.从Python或一个 shell无需桌面接口运行可重复的 spaCR管道."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.0,
+      "speech_end": 23.05,
+      "scene_end": 23.5,
+      "duration": 12.5,
+      "text": "从 spaCR 部分打开 Python API and headless workflows。 从桌面应用程序出口的设置开始或在Python中构建一个验证的设置字典."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.5,
+      "speech_end": 32.025,
+      "scene_end": 32.475,
+      "duration": 8.975000000000001,
+      "text": "在主配置区域中,选择管道入口点,源路径,输出路径,工人数量和硬件选项."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.475,
+      "speech_end": 47.475,
+      "scene_end": 47.925000000000004,
+      "duration": 15.450000000000003,
+      "text": "在完整运行之前,请查看可见的设置,并在可用的情况下使用预览或测试模式.同时保存日志和设置,在终端,笔记本,日程表或远程工作中执行管道."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.925000000000004,
+      "speech_end": 58.650000000000006,
+      "scene_end": 59.300000000000004,
+      "duration": 11.375,
+      "text": "工作流程完成后,该项目包含桌面应用程序所产生的相同的掩膜,测量,数据库,数字和运行记录."
+    }
+  ]
+}

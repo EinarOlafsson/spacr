@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 66.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.25,
+      "scene_end": 10.7,
+      "duration": 10.7,
+      "text": "Questo tutorial copre Make Masks. Costruire, correggere e curare in modo interattivo le etichette di segmentazione per i dati di formazione Cellpose."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.7,
+      "speech_end": 26.225,
+      "scene_end": 26.675,
+      "duration": 15.975000000000001,
+      "text": "Apri Make Masks dalla sezione Segmentation models. Apri le maschere di creazione dalla sezione Modelli di segmentazione. Apri le immagini rappresentative di microscopia e le maschere esistenti che dovrebbero essere perfezionate."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.675,
+      "speech_end": 38.375,
+      "scene_end": 38.825,
+      "duration": 12.150000000000002,
+      "text": "Nell'area di configurazione principale, selezionare canali, normalizzazione, spazzola o strumenti di magia-wand, operazioni di oggetti e comportamento di risparmio di etichette."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.825,
+      "speech_end": 55.45,
+      "scene_end": 55.900000000000006,
+      "duration": 17.075000000000003,
+      "text": "Prima della corsa completa, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando è disponibile. correggere i confini e gli oggetti mancanti su un sottoinsieme di allenamento diverso piuttosto che solo campi facili."
+    },
+    {
+      "scene": 5,
+      "speech_start": 55.900000000000006,
+      "speech_end": 66.075,
+      "scene_end": 66.72500000000001,
+      "duration": 10.825000000000003,
+      "text": "Quando il flusso di lavoro è terminato, le immagini abbinate e le maschere di etichetta curate sono pronte per la formazione personalizzata di Cellpose."
+    }
+  ]
+}

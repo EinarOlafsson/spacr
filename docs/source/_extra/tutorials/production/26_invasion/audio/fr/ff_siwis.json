@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.45,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.975,
+      "scene_end": 10.424999999999999,
+      "duration": 10.424999999999999,
+      "text": "Ce tutoriel couvre l'analyse d'invasion. Utilisez une teinture à deux couleurs à l'extérieur contre l'intérieur pour distinguer les attachées des parasites envahis."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.424999999999999,
+      "speech_end": 18.224999999999998,
+      "scene_end": 18.674999999999997,
+      "duration": 8.249999999999998,
+      "text": "Ouvrez Invasion assay dans la section Toxoplasma assays. Test d'invasion ouverte de la section des tests de toxoplasme."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.674999999999997,
+      "speech_end": 28.874999999999996,
+      "scene_end": 29.324999999999996,
+      "duration": 10.649999999999999,
+      "text": "Dans la zone de configuration principale, configurer des seuils d'intensité, des correspondances d'objets, une manipulation de l'ambiguïté et un regroupement de niveau de puits."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.324999999999996,
+      "speech_end": 37.025,
+      "scene_end": 37.475,
+      "duration": 8.150000000000006,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.475,
+      "speech_end": 47.8,
+      "scene_end": 48.449999999999996,
+      "duration": 10.974999999999994,
+      "text": "Lorsque le flux de travail est terminé, les rapports spaCR comptent et rapportent l'efficacité de l'invasion par puits et condition avec des images de contrôle de qualité."
+    }
+  ]
+}

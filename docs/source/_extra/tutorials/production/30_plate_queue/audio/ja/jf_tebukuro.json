@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_tebukuro",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.325,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.55,
+      "scene_end": 8.0,
+      "duration": 8.0,
+      "text": "このチュートリアルでは,同じ検証されたパイプラインで複数のプレートを鎖する."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.0,
+      "speech_end": 20.75,
+      "scene_end": 21.2,
+      "duration": 13.2,
+      "text": "Data and batch runs セクションから Plate Queue を開きます。 プレートソースを追加して,共有モジュール配列と設定をプリセットを選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.2,
+      "speech_end": 34.525,
+      "scene_end": 34.975,
+      "duration": 13.775000000000002,
+      "text": "主な構成領域では,プレート順序,プレートごとにオーバーリード,ワーカー制限,失敗ポリシー,リニューア行動,アウトプットルーツをチェックします."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.975,
+      "speech_end": 54.175,
+      "scene_end": 54.625,
+      "duration": 19.65,
+      "text": "実行完了前に,可視設定をチェックし,可視モードがある場合,前見またはテストモードを使用します. 小型のプレートまたはテストフィールドから始め,並列を可視状態でプレートを順序的に処理させてください."
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.625,
+      "speech_end": 64.675,
+      "scene_end": 65.325,
+      "duration": 10.700000000000003,
+      "text": "作業流が完了すると,各プレートは個別のプロジェクトを受け取り,並びは全体的な進歩を保持する."
+    }
+  ]
+}

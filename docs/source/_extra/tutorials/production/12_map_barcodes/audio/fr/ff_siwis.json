@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 42.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.225,
+      "scene_end": 3.6750000000000003,
+      "duration": 3.6750000000000003,
+      "text": "Ce tutoriel couvre les codes-barres de la carte."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.6750000000000003,
+      "speech_end": 13.725000000000001,
+      "scene_end": 14.175,
+      "duration": 10.5,
+      "text": "Ouvrez Map Barcodes dans la section Core. Fournir des fichiers FASTQ, des définitions de codes-barres, des métadonnées de plaque et le projet de microscopie correspondant."
+    },
+    {
+      "scene": 3,
+      "speech_start": 14.175,
+      "speech_end": 24.275,
+      "scene_end": 24.724999999999998,
+      "duration": 10.549999999999997,
+      "text": "Dans la zone de configuration principale, définissez les lignes, les colonnes et les lignes de code à barres ainsi que les seuils de qualité et les règles de non-coïncidence."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.724999999999998,
+      "speech_end": 32.349999999999994,
+      "scene_end": 32.8,
+      "duration": 8.075,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.8,
+      "speech_end": 41.474999999999994,
+      "scene_end": 42.12499999999999,
+      "duration": 9.324999999999996,
+      "text": "Lorsque le flux de travail est terminé, les identités de guide sont liées à des puits et à des phénotypes d'objets uniques dans des tableaux traçables."
+    }
+  ]
+}

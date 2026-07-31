@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.6,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.8,
+      "scene_end": 12.25,
+      "duration": 12.25,
+      "text": "Questo tutorial copre l'assay di mobilità. Quantificare velocità, spostamento, persistenza e metrici di controllo della qualità dell'infezione da immagini risolute nel tempo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 12.25,
+      "speech_end": 24.725,
+      "scene_end": 25.175,
+      "duration": 12.925,
+      "text": "Apri Motility assay dalla sezione Core. Apri l'analisi della mobilità dalla sezione Core. Apri i dati di timelapse tracciati con intervalli temporali affidabili e calibrazione spaziale."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.175,
+      "speech_end": 35.475,
+      "scene_end": 35.925000000000004,
+      "duration": 10.750000000000004,
+      "text": "Nella zona di configurazione principale, scegliere i filtri di pista, durata minima, liscia, metriche di motilità, definizioni di infezione e gruppi di livello di pozzo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.925000000000004,
+      "speech_end": 45.150000000000006,
+      "scene_end": 45.60000000000001,
+      "duration": 9.675000000000004,
+      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.60000000000001,
+      "speech_end": 53.95000000000001,
+      "scene_end": 54.60000000000001,
+      "duration": 9.0,
+      "text": "Quando il flusso di lavoro è finito, spaCR scrive tabelle di motilità per traccia e per condizione, metriche di qualità e cifre."
+    }
+  ]
+}

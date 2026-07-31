@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.95,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.825,
+      "scene_end": 7.275,
+      "duration": 7.275,
+      "text": "创建一个孤立的Python环境,并安装 spaCR而不需要改变其余的系统."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.275,
+      "speech_end": 18.55,
+      "scene_end": 19.0,
+      "duration": 11.725,
+      "text": "从 spaCR 部分打开 Installation with Conda。 安装Miniconda,Anaconda或其他与Conda 兼容的管理器,然后创建一个 Python 三点十二的环境."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.0,
+      "speech_end": 26.05,
+      "scene_end": 26.5,
+      "duration": 7.5,
+      "text": "在主配置区域中,激活环境并确认其Python和Pip执行可用于该环境."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.5,
+      "speech_end": 39.0,
+      "scene_end": 39.45,
+      "duration": 12.950000000000003,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 安装在活跃环境中使用的管道 spaCR; 快速发布的conda-forge包."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.45,
+      "speech_end": 47.300000000000004,
+      "scene_end": 47.95,
+      "duration": 8.5,
+      "text": "当工作流程完成时,从同一个环境中启动spaCR,并将其与无关项目隔离."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.7,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.725,
+      "scene_end": 10.174999999999999,
+      "duration": 10.174999999999999,
+      "text": "Ce tutoriel couvre la régression. Évaluer les effets de perturbation et identifier les caractéristiques associées aux phénotypes de niveau guide ou condition."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.174999999999999,
+      "speech_end": 20.35,
+      "scene_end": 20.8,
+      "duration": 10.625000000000002,
+      "text": "Ouvrez Regression dans la section Core. Sélectionnez les mesures cartographiées, les variables de réponse, les commandes, les colonnes de regroupement et les prédicteurs candidats."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.8,
+      "speech_end": 32.375,
+      "scene_end": 32.825,
+      "duration": 12.025000000000002,
+      "text": "Dans la zone de configuration principale, choisissez des transformations, des covariates, une famille de modèles, des effets aléatoires, une correction à test multiples et des filtres de qualité."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.825,
+      "speech_end": 40.525000000000006,
+      "scene_end": 40.97500000000001,
+      "duration": 8.150000000000006,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.97500000000001,
+      "speech_end": 50.05000000000001,
+      "scene_end": 50.70000000000001,
+      "duration": 9.725000000000001,
+      "text": "Lorsque le flux de travail est terminé, spaCR écrit les tailles d'effet, l'incertitude, la signification ajustée, les diagnostics et les chiffres."
+    }
+  ]
+}

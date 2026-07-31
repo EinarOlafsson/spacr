@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.875,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.8,
+      "scene_end": 4.25,
+      "duration": 4.25,
+      "text": "Ce tutoriel couvre Classifier, vision par ordinateur."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.25,
+      "speech_end": 14.25,
+      "scene_end": 14.7,
+      "duration": 10.45,
+      "text": "Ouvrez Classify, computer vision dans la section Core. Sélectionnez des dossiers de cultures annotés ou une base de données de projet avec des étiquettes de classe fiables."
+    },
+    {
+      "scene": 3,
+      "speech_start": 14.7,
+      "speech_end": 25.549999999999997,
+      "scene_end": 25.999999999999996,
+      "duration": 11.299999999999997,
+      "text": "Dans la zone de configuration principale, choisissez les canaux d'image, l'architecture, la stratégie de fractionnement, l'augmentation, la taille du lot et les commandes d'entraînement."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.999999999999996,
+      "speech_end": 33.699999999999996,
+      "scene_end": 34.15,
+      "duration": 8.150000000000002,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 34.15,
+      "speech_end": 45.224999999999994,
+      "scene_end": 45.87499999999999,
+      "duration": 11.724999999999994,
+      "text": "Lorsque le flux de travail est terminé, spaCR enregistre le modèle, les mesures, les prédictions, les exemples de classes et exécute les métadonnées pour une application ultérieure."
+    }
+  ]
+}

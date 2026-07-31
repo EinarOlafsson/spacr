@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunjian",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 40.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.975,
+      "scene_end": 8.424999999999999,
+      "duration": 8.424999999999999,
+      "text": "这本教程涵盖地图条码. 连接测序条码和指导身份到显微镜图像中测量的现象型."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.424999999999999,
+      "speech_end": 16.0,
+      "scene_end": 16.45,
+      "duration": 8.025,
+      "text": "从 Core 部分打开 Map Barcodes。 提供FASTQ文件,条码定义,板块元数据和相匹配的显微镜项目."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.45,
+      "speech_end": 23.625,
+      "scene_end": 24.075,
+      "duration": 7.625,
+      "text": "在主配置区域中,定义行,列和指导条码布局,并设置质量门和不匹配规则."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.075,
+      "speech_end": 31.575,
+      "scene_end": 32.025,
+      "duration": 7.949999999999999,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的情况下使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.025,
+      "speech_end": 39.725,
+      "scene_end": 40.375,
+      "duration": 8.350000000000001,
+      "text": "工作流程完成后,指导身份将与可追踪表中的井和单个对象现象类型联系起来."
+    }
+  ]
+}

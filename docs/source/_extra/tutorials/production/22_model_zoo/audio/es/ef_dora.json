@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 40.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 2.85,
+      "scene_end": 3.3000000000000003,
+      "duration": 3.3000000000000003,
+      "text": "Este tutorial cubre el modelo de zoológico."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.3000000000000003,
+      "speech_end": 12.100000000000001,
+      "scene_end": 12.55,
+      "duration": 9.25,
+      "text": "Abra Model Zoo en la sección Segmentation models. Abre el catálogo y seleccione modelos compatibles con la tarea y los canales de entrada actuales."
+    },
+    {
+      "scene": 3,
+      "speech_start": 12.55,
+      "speech_end": 22.6,
+      "scene_end": 23.05,
+      "duration": 10.5,
+      "text": "En el área de configuración principal, revisar la procedencia, la licencia, la suma de comprobación, el preprocesamiento esperado, el tipo de tarea y la disponibilidad local."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.05,
+      "speech_end": 30.975,
+      "scene_end": 31.425,
+      "duration": 8.375,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 31.425,
+      "speech_end": 40.275,
+      "scene_end": 40.925,
+      "duration": 9.499999999999996,
+      "text": "Cuando el flujo de trabajo termine, los archivos de modelos verificados y los resultados de los índices de referencia siguen asociados a sus metadatos."
+    }
+  ]
+}

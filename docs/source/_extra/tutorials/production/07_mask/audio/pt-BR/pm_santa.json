@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 57.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.8,
+      "scene_end": 10.25,
+      "duration": 10.25,
+      "text": "Este tutorial abrange a Mascara. Segmente o experimento de microscopia de quatro canais fornecido em núcleos, células, gotas de lipídios e máscaras de parasitas."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.25,
+      "speech_end": 19.4,
+      "scene_end": 19.849999999999998,
+      "duration": 9.599999999999998,
+      "text": "Abra Mask na seção Core. O canal zero é núcleo, o canal um é retículo endoplasmático, o canal dois é gotas de lipídios e o canal três é parasito."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.849999999999998,
+      "speech_end": 32.0,
+      "scene_end": 32.45,
+      "duration": 12.600000000000005,
+      "text": "Na área de configuração principal, detecte núcleos do canal zero, células do canal endoplasmico-retículo, gotas de lipídios com o fluxo de trabalho das manchas organélicas e parasitas do canal três."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.45,
+      "speech_end": 46.75,
+      "scene_end": 47.2,
+      "duration": 14.75,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Verifique um campo representativo, em seguida, execute as quatro passagens de segmentação através do conjunto de dados."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.2,
+      "speech_end": 57.150000000000006,
+      "scene_end": 57.800000000000004,
+      "duration": 10.600000000000001,
+      "text": "Quando o fluxo de trabalho estiver concluído, a pasta de máscaras contém rótulos de objetos alinhados e matrizes de imagem e máscara combinadas prontas para medição."
+    }
+  ]
+}

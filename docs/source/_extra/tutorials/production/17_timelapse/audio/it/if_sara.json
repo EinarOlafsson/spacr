@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 57.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.85,
+      "scene_end": 9.299999999999999,
+      "duration": 9.299999999999999,
+      "text": "Questo tutorial riguarda Timelapse. Segmentare, collegare e misurare cellule o agenti patogeni attraverso i quadri di una serie temporale."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.299999999999999,
+      "speech_end": 19.4,
+      "scene_end": 19.849999999999998,
+      "duration": 10.549999999999999,
+      "text": "Apri Timelapse dalla sezione Core. Selezionare un insieme di immagini risolute nel tempo i cui filename conservano indici di campo, tempo, profondità e canale."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.849999999999998,
+      "speech_end": 31.799999999999997,
+      "scene_end": 32.25,
+      "duration": 12.400000000000002,
+      "text": "Nell'area di configurazione principale, configurare la segmentazione, i tipi di oggetti tracciati, la modalità di collegamento, il spostamento massimo, la gestione delle lacune e le cornici di anteprima."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.25,
+      "speech_end": 46.025,
+      "scene_end": 46.475,
+      "duration": 14.225000000000001,
+      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando è disponibile. convalidare le tracce in movimento rappresentativo prima di elaborare l'intera serie temporale."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.475,
+      "speech_end": 57.275000000000006,
+      "scene_end": 57.925000000000004,
+      "duration": 11.450000000000003,
+      "text": "Quando il flusso di lavoro è terminato, le maschere, le tracce, le misure e i riassunti di traiettoria indicizzati nel tempo vengono memorizzati con identità di oggetti stabili."
+    }
+  ]
+}

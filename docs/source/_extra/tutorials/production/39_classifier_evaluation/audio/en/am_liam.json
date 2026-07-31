@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_liam",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.925,
+      "scene_end": 9.375,
+      "duration": 9.375,
+      "text": "This tutorial covers Classifier Evaluation. Audit held-out predictions, nested cross-validation, calibration, leakage, and per-plate performance."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.375,
+      "speech_end": 20.375,
+      "scene_end": 20.825,
+      "duration": 11.45,
+      "text": "Open Classifier Evaluation from the Results and quality control section. Choose predictions with ground truth, split metadata, plate identifiers, probabilities, and model-run records."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.825,
+      "speech_end": 28.85,
+      "scene_end": 29.3,
+      "duration": 8.475000000000001,
+      "text": "In the main configuration area, configure class order, thresholds, calibration bins, grouping, bootstrap uncertainty, and leakage checks."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.3,
+      "speech_end": 40.875,
+      "scene_end": 41.325,
+      "duration": 12.025000000000002,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. evaluate held-out and per-plate behavior before using a classifier for biological conclusions."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.325,
+      "speech_end": 48.45,
+      "scene_end": 49.1,
+      "duration": 7.774999999999999,
+      "text": "When the workflow finishes, spaCR produces discrimination, calibration, confusion, leakage, and robustness reports."
+    }
+  ]
+}

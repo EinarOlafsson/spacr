@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.1,
+      "scene_end": 10.549999999999999,
+      "duration": 10.549999999999999,
+      "text": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.549999999999999,
+      "speech_end": 20.549999999999997,
+      "scene_end": 20.999999999999996,
+      "duration": 10.449999999999998,
+      "text": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.999999999999996,
+      "speech_end": 29.949999999999996,
+      "scene_end": 30.399999999999995,
+      "duration": 9.399999999999999,
+      "text": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.399999999999995,
+      "speech_end": 44.12499999999999,
+      "scene_end": 44.574999999999996,
+      "duration": 14.175,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.574999999999996,
+      "speech_end": 53.099999999999994,
+      "scene_end": 53.74999999999999,
+      "duration": 9.174999999999997,
+      "text": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos."
+    }
+  ]
+}

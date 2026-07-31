@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.875,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.825,
+      "scene_end": 10.274999999999999,
+      "duration": 10.274999999999999,
+      "text": "Questo tutorial copre la cronologia di esecuzione. Cerca le impostazioni, i file, gli avvertimenti, i fallimenti e le prestazioni di ogni lavoro da un unico posto."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.274999999999999,
+      "speech_end": 24.7,
+      "scene_end": 25.15,
+      "duration": 14.875,
+      "text": "Apri Run History dalla sezione Results and quality control. Apri la cronologia di esecuzione dalla sezione Risultati e controllo qualità. Apri il registro di esecuzione per lo spazio di lavoro corrente o le radici del progetto selezionate."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.15,
+      "speech_end": 33.775,
+      "scene_end": 34.225,
+      "duration": 9.075000000000003,
+      "text": "Nell'area di configurazione principale, filtrare per modulo, stato, data, progetto, versione, avvertimento, durata o utilizzo delle risorse."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.225,
+      "speech_end": 48.900000000000006,
+      "scene_end": 49.35000000000001,
+      "duration": 15.125000000000007,
+      "text": "Prima della completa esecuzione, rivedere le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. aprire una esecuzione per ispezionare le impostazioni immutabili, i registri, le uscite e il contesto di guasto."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.35000000000001,
+      "speech_end": 58.22500000000001,
+      "scene_end": 58.87500000000001,
+      "duration": 9.524999999999999,
+      "text": "Quando il flusso di lavoro è finito, puoi riprodurre, confrontare, riprendere o riportare il lavoro precedente senza indovinare come è stato eseguito."
+    }
+  ]
+}

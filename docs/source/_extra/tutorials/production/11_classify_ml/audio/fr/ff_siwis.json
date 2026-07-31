@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 4.075,
+      "scene_end": 4.525,
+      "duration": 4.525,
+      "text": "Ce tutoriel couvre Classifier, l'apprentissage automatique."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.525,
+      "speech_end": 16.175,
+      "scene_end": 16.625,
+      "duration": 12.1,
+      "text": "Ouvrez Classify, machine learning dans la section Core. Choisissez une base de données de mesures, une colonne d'étiquette, des familles de fonctionnalités et des colonnes de regroupement expérimental."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.625,
+      "speech_end": 28.325,
+      "scene_end": 28.775,
+      "duration": 12.149999999999999,
+      "text": "Dans la zone de configuration principale, configurer le filtrage, l'échelle, la sélection des caractéristiques, l'équilibrage des classes, la famille de modèles et les fractions à échec de fuites."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.775,
+      "speech_end": 42.275,
+      "scene_end": 42.725,
+      "duration": 13.950000000000003,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Validez croisés les choix de modèle et réservez un ensemble d'évaluation prolongé lorsque cela est possible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.725,
+      "speech_end": 52.45,
+      "scene_end": 53.1,
+      "duration": 10.375,
+      "text": "Lorsque le flux de travail est terminé, le projet reçoit des prédictions, l'importance des caractéristiques, des tableaux de performance et des modèles sérialisés."
+    }
+  ]
+}

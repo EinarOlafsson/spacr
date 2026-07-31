@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 43.675,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 2.675,
+      "scene_end": 3.125,
+      "duration": 3.125,
+      "text": "Este tutorial abrange o ensaio de placas."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.125,
+      "speech_end": 9.575,
+      "scene_end": 10.024999999999999,
+      "duration": 6.899999999999999,
+      "text": "Abra Plaque assay na seção Toxoplasma assays. Abre o ensaio de placa na seção de ensaio de Toxoplasma."
+    },
+    {
+      "scene": 3,
+      "speech_start": 10.024999999999999,
+      "speech_end": 19.0,
+      "scene_end": 19.45,
+      "duration": 9.425,
+      "text": "Na área de configuração principal, configure a correção de fundo, o limiar, a limpeza de objetos, os filtros de tamanho de placa e o agrupamento de poços."
+    },
+    {
+      "scene": 4,
+      "speech_start": 19.45,
+      "speech_end": 33.6,
+      "scene_end": 34.050000000000004,
+      "duration": 14.600000000000005,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível. Verifique as superposições de segmentação entre os poços de controlo e tratamento antes da análise de lote."
+    },
+    {
+      "scene": 5,
+      "speech_start": 34.050000000000004,
+      "speech_end": 43.025000000000006,
+      "scene_end": 43.675000000000004,
+      "duration": 9.625,
+      "text": "Quando o fluxo de trabalho estiver concluído, o spaCR informa os números de placas, áreas, resumos, estatísticas e dados de controlo de qualidade."
+    }
+  ]
+}

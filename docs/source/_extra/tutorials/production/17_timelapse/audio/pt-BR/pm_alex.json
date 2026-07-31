@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.825,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.1,
+      "scene_end": 7.55,
+      "duration": 7.55,
+      "text": "Este tutorial abrange o Timelapse. Segmentar, ligar e medir células ou patógenos em quadros de uma série de tempos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.55,
+      "speech_end": 19.3,
+      "scene_end": 19.75,
+      "duration": 12.2,
+      "text": "Abra Timelapse na seção Core. Abra o Timelapse na seção Core. Selecione um conjunto de imagens resolvido em tempo cujos nomes de arquivos preservam índices de campo, tempo, profundidade e canal."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.75,
+      "speech_end": 30.8,
+      "scene_end": 31.25,
+      "duration": 11.5,
+      "text": "Na área de configuração principal, configure a segmentação, os tipos de objetos rastreados, o modo de ligação, o deslocamento máximo, o manuseio de lacunas e os quadros de visualização."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.25,
+      "speech_end": 38.95,
+      "scene_end": 39.400000000000006,
+      "duration": 8.150000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.400000000000006,
+      "speech_end": 50.175000000000004,
+      "scene_end": 50.825,
+      "duration": 11.424999999999997,
+      "text": "Quando o fluxo de trabalho termina, as máscaras, as pistas, as medições e os resumos de trajetória indexados no tempo são armazenados com identidades estáveis de objetos."
+    }
+  ]
+}

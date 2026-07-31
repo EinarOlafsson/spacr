@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_sky",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.525,
+      "scene_end": 8.975,
+      "duration": 8.975,
+      "text": "This tutorial covers Import Project. Bring another laboratory's images, masks, and measurement table into a spaCR project."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.975,
+      "speech_end": 18.4,
+      "scene_end": 18.849999999999998,
+      "duration": 9.874999999999998,
+      "text": "Open Import Project from the Data and batch runs section. Provide images, optional masks, a measurement table, and stable external identifiers."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.849999999999998,
+      "speech_end": 28.099999999999998,
+      "scene_end": 28.549999999999997,
+      "duration": 9.7,
+      "text": "In the main configuration area, map foreign columns onto spaCR identifiers, channels, object types, plate metadata, and provenance fields."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.549999999999997,
+      "speech_end": 41.025,
+      "scene_end": 41.475,
+      "duration": 12.925000000000004,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate joins, missing values, image-mask alignment, and duplicate identifiers before import."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.475,
+      "speech_end": 48.35,
+      "scene_end": 49.0,
+      "duration": 7.524999999999999,
+      "text": "When the workflow finishes, the standardized project preserves links back to every original file and identifier."
+    }
+  ]
+}

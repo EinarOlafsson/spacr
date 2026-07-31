@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.125,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.25,
+      "scene_end": 10.7,
+      "duration": 10.7,
+      "text": "Este tutorial abarca Annotate. Revise los cultivos de un solo objeto en una cuadrícula y asigna etiquetas confiables para el entrenamiento de modelos o control de calidad."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.7,
+      "speech_end": 21.075,
+      "scene_end": 21.525,
+      "duration": 10.825,
+      "text": "Abra Annotate en la sección Core. Abre Anotado en la sección Núcleo. Abre un proyecto con cultivos de objetos y seleccione la tabla de base de datos y la columna de anotaciones."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.525,
+      "speech_end": 30.875,
+      "scene_end": 31.325,
+      "duration": 9.8,
+      "text": "En el área de configuración principal, elija clases, canales de visualización, clasificación, muestreo y cualquier filtro que defina el conjunto de revisión."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.325,
+      "speech_end": 45.875,
+      "scene_end": 46.325,
+      "duration": 15.000000000000004,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. etiquete objetos representativos, guarde con frecuencia y vuelva a revisar ejemplos inciertos o contradictorios."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.325,
+      "speech_end": 54.475,
+      "scene_end": 55.125,
+      "duration": 8.799999999999997,
+      "text": "Cuando el flujo de trabajo termina, las anotaciones se escriben de nuevo a la base de datos del proyecto con identificadores de objetos intactos."
+    }
+  ]
+}

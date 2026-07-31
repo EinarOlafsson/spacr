@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.325,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.7,
+      "scene_end": 9.149999999999999,
+      "duration": 9.149999999999999,
+      "text": "Este tutorial abrange a imagem UMAP. Explore bairros fenotipos incorporando objetos medidos e exibindo suas culturas de imagem como glifos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.149999999999999,
+      "speech_end": 22.875,
+      "scene_end": 23.325,
+      "duration": 14.175,
+      "text": "Abra Image UMAP na seção Results and quality control. Abra UMAP de imagem na seção Resultados e controle de qualidade. Escolha um banco de dados de medições, culturas de imagem, conjunto de recursos e agrupamento de metadados."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.325,
+      "speech_end": 32.65,
+      "scene_end": 33.1,
+      "duration": 9.775000000000002,
+      "text": "Na área de configuração principal, configure os canais de filtragem, escalagem, vizinhos, distância mínima, agrupamento, amostragem e exibição de imagens."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.1,
+      "speech_end": 47.925,
+      "scene_end": 48.375,
+      "duration": 15.274999999999999,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare vários incorporados reprodutíveis e verifique se os aglomerados não são movidos por artefatos de placa ou imagem."
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.375,
+      "speech_end": 57.675,
+      "scene_end": 58.324999999999996,
+      "duration": 9.949999999999996,
+      "text": "Quando o fluxo de trabalho termina, o spaCR guarda coordenadas, rótulos de agrupamento, mapas de imagem e figuras de incorporação prontas para publicação."
+    }
+  ]
+}

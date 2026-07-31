@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 46.175,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 4.475,
+      "scene_end": 4.925,
+      "duration": 4.925,
+      "text": "链接多个板块通过相同的验证管道."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.925,
+      "speech_end": 13.075,
+      "scene_end": 13.524999999999999,
+      "duration": 8.599999999999998,
+      "text": "从 Data and batch runs 部分打开 Plate Queue。 添加盘源,然后选择共享模块序列和设置预设."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.524999999999999,
+      "speech_end": 22.224999999999998,
+      "scene_end": 22.674999999999997,
+      "duration": 9.149999999999999,
+      "text": "在主要配置区域,检查板块顺序,每板块的覆盖,工人限制,失败政策,恢复行为和输出根."
+    },
+    {
+      "scene": 4,
+      "speech_start": 22.674999999999997,
+      "speech_end": 36.125,
+      "scene_end": 36.575,
+      "duration": 13.900000000000006,
+      "text": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式. 首先使用一个小的板块或测试场,然后让排队顺序处理可见状态的板块."
+    },
+    {
+      "scene": 5,
+      "speech_start": 36.575,
+      "speech_end": 45.525000000000006,
+      "scene_end": 46.175000000000004,
+      "duration": 9.600000000000001,
+      "text": "当工作流程完成时,每个板块都会收到一个单独的项目,并运行记录,而排队保持整体进展."
+    }
+  ]
+}

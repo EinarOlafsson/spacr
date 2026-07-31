@@ -32,7 +32,7 @@
       <div class="top-progress" aria-label="Course progress">
         <div class="top-progress-copy">
           <span>Your progress</span>
-          <strong id="progress-label">0 of 5 complete</strong>
+          <strong id="progress-label">0 of 40 complete</strong>
         </div>
         <div class="progress-track" aria-hidden="true">
           <span id="progress-bar"></span>
@@ -73,8 +73,8 @@
       </label>
 
       <div class="library-summary">
-        <span><strong id="available-count">5</strong> available</span>
-        <span><strong id="total-count">37</strong> total</span>
+        <span><strong id="available-count">40</strong> available</span>
+        <span><strong id="total-count">40</strong> total</span>
       </div>
 
       <nav class="curriculum" id="curriculum"></nav>
@@ -88,7 +88,7 @@
           <div class="lesson-kicker">
             <span id="series-label">Series 1</span>
             <span aria-hidden="true">/</span>
-            <span id="lesson-position">Lesson 1 of 37</span>
+            <span id="lesson-position">Lesson 1 of 40</span>
             <span class="status-pill ready" id="status-pill">Ready</span>
           </div>
           <h2 id="lesson-title">PyPI &amp; GitHub</h2>
@@ -119,6 +119,7 @@
                    label="English" default>
             Your browser does not support HTML video.
           </video>
+          <audio id="narration-audio" preload="metadata" hidden></audio>
           <div class="video-loading" id="video-loading" aria-live="polite">
             <span class="spinner"></span>
             Loading tutorial
@@ -236,6 +237,7 @@
 
       <footer class="site-footer">
         <span>spaCR tutorial framework</span>
+        <span>Tutorial narration is provided for non-commercial use.</span>
         <span>Progress is stored only in this browser.</span>
       </footer>
     </main>
@@ -243,6 +245,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="voice_catalog.js"></script>
-  <script src="app.js"></script>
+  <script src="lesson_catalog.js"></script>
+  <script src="app_v2.js"></script>
 </body>
 </html>

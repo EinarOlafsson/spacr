@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.525,
+      "scene_end": 9.975,
+      "duration": 9.975,
+      "text": "Questo tutorial copre le maschere Cellpose. Generare e rivedere le maschere Cellpose con un flusso di lavoro modello-applicazione focalizzato."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.975,
+      "speech_end": 23.6,
+      "scene_end": 24.05,
+      "duration": 14.075000000000001,
+      "text": "Apri Cellpose Masks dalla sezione Segmentation models. Apri le maschere Cellpose dalla sezione Modelli di segmentazione. Selezionare immagini, canali e un modello Cellpose integrato o personalizzato."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.05,
+      "speech_end": 34.4,
+      "scene_end": 34.85,
+      "duration": 10.8,
+      "text": "Nell'area di configurazione principale, configurare il diametro, il flusso e le soglie di probabilità cellulare, la normalizzazione, la tessitura e l'uso hardware."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.85,
+      "speech_end": 45.025000000000006,
+      "scene_end": 45.47500000000001,
+      "duration": 10.625000000000007,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.47500000000001,
+      "speech_end": 55.45000000000001,
+      "scene_end": 56.10000000000001,
+      "duration": 10.625,
+      "text": "Quando il flusso di lavoro è finito, le maschere di etichetta e le immagini di controllo della qualità visiva vengono scritte accanto agli input mappati."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.975,
+      "scene_end": 10.424999999999999,
+      "duration": 10.424999999999999,
+      "text": "Ce tutoriel couvre l'évaluation des classifiateurs. l'audit des prédictions, la validation croisée en niche, l'étalonnage, la fuite et les performances par plaque."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.424999999999999,
+      "speech_end": 23.875,
+      "scene_end": 24.325,
+      "duration": 13.9,
+      "text": "Ouvrez Classifier Evaluation dans la section Results and quality control. Choisissez des prédictions avec la vérité de base, les métadonnées divisées, les identifiants de plaque, les probabilités et les enregistrements de modèle."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.325,
+      "speech_end": 35.15,
+      "scene_end": 35.6,
+      "duration": 11.275000000000002,
+      "text": "Dans la zone de configuration principale, configurer l'ordre des classes, les seuils, les poubelles d'étalonnage, le regroupement, l'incertitude de démarrage et les contrôles de fuite."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.6,
+      "speech_end": 43.225,
+      "scene_end": 43.675000000000004,
+      "duration": 8.075000000000003,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.675000000000004,
+      "speech_end": 52.60000000000001,
+      "scene_end": 53.25000000000001,
+      "duration": 9.575000000000003,
+      "text": "Lorsque le flux de travail est terminé, spaCR produit des rapports de discrimination, d'étalonnage, de confusion, de fuite et de robustesse."
+    }
+  ]
+}

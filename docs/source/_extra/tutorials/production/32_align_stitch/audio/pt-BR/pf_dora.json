@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.475,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.8,
+      "scene_end": 9.25,
+      "duration": 9.25,
+      "text": "Este tutorial abrange Align e Stitch. Registre azulejos de imagem e construa um mosaico costurado gradualmente sem manter toda a tela em memória."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.25,
+      "speech_end": 20.2,
+      "scene_end": 20.65,
+      "duration": 11.399999999999999,
+      "text": "Abra Align and Stitch na seção Data and batch runs. Abra Align e Stitch na seção Dados e batches. Escolha aquisições de telas, coordenadas de estágio ou metadados, canais e destino."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.65,
+      "speech_end": 30.5,
+      "scene_end": 30.95,
+      "duration": 10.3,
+      "text": "Na área de configuração principal, configure o método de registro, o canal de referência, a sobreposição, a mistura, a correção, o tamanho da peça e o formato de saída."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.95,
+      "speech_end": 38.45,
+      "scene_end": 38.900000000000006,
+      "duration": 7.950000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.900000000000006,
+      "speech_end": 46.825,
+      "scene_end": 47.475,
+      "duration": 8.574999999999996,
+      "text": "Quando o fluxo de trabalho termina, são salvos os dados registrados, imagens costuradas, transformações e metadados de mapeamento."
+    }
+  ]
+}

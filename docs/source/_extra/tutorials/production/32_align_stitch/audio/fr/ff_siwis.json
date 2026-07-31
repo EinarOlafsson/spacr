@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.175,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.4,
+      "scene_end": 9.85,
+      "duration": 9.85,
+      "text": "Ce tutoriel couvre Align et Stitch. Regroupez les carreaux d'image et construisez une mosaïque cousue progressivement sans garder toute la toile en mémoire."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.85,
+      "speech_end": 18.325,
+      "scene_end": 18.775,
+      "duration": 8.924999999999999,
+      "text": "Ouvrez Align and Stitch dans la section Data and batch runs. Ouvrez l'alignement et la couture dans la section Données et exécution de lot."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.775,
+      "speech_end": 30.525,
+      "scene_end": 30.974999999999998,
+      "duration": 12.2,
+      "text": "Dans la zone de configuration principale, configurer la méthode d'enregistrement, le canal de référence, le chevauchement, le mélange, la correction, la taille des pièces et le format de sortie."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.974999999999998,
+      "speech_end": 38.599999999999994,
+      "scene_end": 39.05,
+      "duration": 8.075,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.05,
+      "speech_end": 48.525,
+      "scene_end": 49.175,
+      "duration": 10.125,
+      "text": "Lorsque le flux de travail est terminé, les carreaux enregistrés, les images cousues, les transformations et les métadonnées de cartographie sont enregistrés."
+    }
+  ]
+}

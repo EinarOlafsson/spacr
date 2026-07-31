@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.95,
+      "scene_end": 8.4,
+      "duration": 8.4,
+      "text": "Este tutorial abrange o Projeto Importar. Traga imagens, máscaras e tabela de medição de outro laboratório para um projeto spaCR."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.4,
+      "speech_end": 21.450000000000003,
+      "scene_end": 21.900000000000002,
+      "duration": 13.500000000000002,
+      "text": "Abra Import Project na seção Data and batch runs. Abra o Projeto de Importação na seção Dados e execução de lote. Forneça imagens, máscaras opcionais, uma tabela de medição e identificadores externos estáveis."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.900000000000002,
+      "speech_end": 31.675000000000004,
+      "scene_end": 32.12500000000001,
+      "duration": 10.225000000000005,
+      "text": "Na área de configuração principal, mapear colunas estrangeiras em identificadores spaCR, canais, tipos de objetos, metadados de placa e campos de proveniência."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.12500000000001,
+      "speech_end": 46.42500000000001,
+      "scene_end": 46.875000000000014,
+      "duration": 14.750000000000007,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. valida conjuntos, valores faltantes, alinhamento de imagem-masca e identificadores duplicados antes de importar."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.875000000000014,
+      "speech_end": 54.350000000000016,
+      "scene_end": 55.000000000000014,
+      "duration": 8.125,
+      "text": "Quando o fluxo de trabalho termina, o projeto padronizado preserva links de volta a cada arquivo original e identificador."
+    }
+  ]
+}
