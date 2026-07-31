@@ -502,6 +502,8 @@ setup(
             # clusters: no Qt, no Tk, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
             'spacr-run=spacr.cli:main',
+            # Persistent SSH / Slurm / cloud job submission and monitoring.
+            'spacr-remote=spacr.cli_remote:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',

@@ -689,6 +689,7 @@ _APP_API_MODULE = {
     "train_compare": "train_compare",
     "classifier_evaluation": "classifier_evaluation",
     "report": "report",
+    "distributed_jobs": "remote_execution",
     "recruitment": "submodules",
     "analyze_plaques": "submodules",
     "invasion": "submodules",

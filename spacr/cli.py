@@ -527,6 +527,9 @@ INTERACTIVE_ONLY: Dict[str, str] = {
              "queue itself: from spacr.batch import load_queue, run_queue; "
              "run_queue(load_queue('night.queue.json'), path='night.queue.json') "
              "-- each job in it is a spacr-run invocation.",
+    "distributed_jobs": "Distributed Jobs is the interactive monitor. Headless, "
+                        "use the spacr-remote CLI to manage profiles, submit "
+                        "settings, poll logs and cancel jobs instead.",
     "model_zoo": "Model Zoo is an interactive browser; headless, call "
                  "spacr.model_zoo.discover_local + format_zoo, and "
                  "benchmark(entry, source=...) to test one on three fields.",
@@ -535,6 +538,10 @@ INTERACTIVE_ONLY: Dict[str, str] = {
     "train_compare": "Training Runs is an interactive curve/settings comparison; "
                      "headless, use spacr.train_compare.find_runs + "
                      "format_comparison from Python.",
+    "classifier_evaluation": "Classifier Evaluation is an interactive results "
+                             "workbench; headless, call "
+                             "spacr.classifier_evaluation.evaluate_predictions "
+                             "or load_evaluation_bundle from Python instead.",
     "run_history": "Run History is an interactive searchable dashboard; headless, "
                    "call spacr.run_journal.search_runs() instead.",
 }

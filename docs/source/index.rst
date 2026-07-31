@@ -118,4 +118,5 @@ Contents
    batch_correction
    classifier_evaluation
    umap_multiobjective
+   distributed_execution
    api/index
