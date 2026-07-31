@@ -1367,10 +1367,26 @@ class MainWindow(QMainWindow):
 
     # -- shutdown ----------------------------------------------------------
     def closeEvent(self, event):
-        """Cancel every active AI stream + wait for its QThread to exit
-        BEFORE Qt starts destroying widgets. Prevents the
-        'QThread: Destroyed while thread is still running / Aborted'
-        crash on quit."""
+        """Cooperatively drain analysis and UI workers before destruction."""
+        from .bridge import registry
+        remaining = registry().cancel_all(
+            timeout_ms=5000, reason="application shutdown")
+        if remaining:
+            names = ", ".join(handle.app_key for handle in remaining[:5])
+            LOG.warning(
+                "Shutdown deferred; workers did not reach a safe boundary: %s",
+                names,
+            )
+            QMessageBox.warning(
+                self,
+                "Analysis still stopping",
+                "spaCR is finishing the current field/trial/job before it can "
+                f"close safely ({names}). No worker was force-terminated. "
+                "Please close the window again after Stop completes.",
+            )
+            event.ignore()
+            self._closing = False
+            return
         self._closing = True
         from .widgets.console_panel import ConsolePanel
         for panel in self.findChildren(ConsolePanel):

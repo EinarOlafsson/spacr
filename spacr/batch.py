@@ -88,6 +88,11 @@ from .cli import (
     resolve_module,
 )
 from .errors import DB_SUFFIXES, RUN_STATUS_SUFFIX, RunLedger, SpacrError, read_run_status
+from .cancellation import (
+    PipelineCancelled,
+    checkpoint as cancellation_checkpoint,
+    current_token,
+)
 from .validate import ERROR, WARNING, validate_settings
 
 __all__ = [
@@ -1284,10 +1289,32 @@ def subprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
         handle.write(f'# started {_now_iso()}\n')
         handle.write(f'# {" ".join(cmd)}\n\n')
         handle.flush()
+        process = None
         try:
-            completed = subprocess.run(cmd, stdout=handle, stderr=subprocess.STDOUT,
-                                       check=False)
-            code = int(completed.returncode)
+            process = subprocess.Popen(
+                cmd, stdout=handle, stderr=subprocess.STDOUT)
+            token = current_token()
+            if token is None:
+                code = int(process.wait())
+            else:
+                while process.poll() is None:
+                    try:
+                        process.wait(timeout=0.1)
+                    except subprocess.TimeoutExpired:
+                        cancellation_checkpoint()
+                code = int(process.returncode)
+        except PipelineCancelled:
+            if process is not None and process.poll() is None:
+                process.terminate()
+                try:
+                    process.wait(timeout=5.0)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+            handle.write(
+                f'\n# cancelled safely {_now_iso()}; child process stopped\n')
+            handle.flush()
+            raise
         except OSError as exc:
             handle.write(f'\n# could not start the job process: {exc}\n')
             return EXIT_USAGE
@@ -1598,6 +1625,7 @@ def run_queue(queue: Queue,
     persist()
 
     for i, job in enumerate(queue.jobs, start=1):
+        cancellation_checkpoint()
         if stopped:
             if job.status in RESUMABLE_STATUSES:
                 job.status = STATUS_NOT_RUN
@@ -1656,6 +1684,18 @@ def run_queue(queue: Queue,
         interrupted = False
         try:
             code = int(runner(job, settings_path, log_path))
+        except PipelineCancelled:
+            job.status = STATUS_NOT_RUN
+            job.finished = _now_iso()
+            job.exit_code = None
+            job.error = "cancelled safely; run this job again to resume"
+            persist()
+            _safe(
+                on_progress,
+                Progress(
+                    'queue_stopped', job.id, i, total, job.status, job.error),
+            )
+            raise
         except KeyboardInterrupt:
             code = 1
             interrupted = True
@@ -1693,6 +1733,7 @@ def run_queue(queue: Queue,
         persist()
         _safe(on_progress, Progress('job_finished', job.id, i, total, job.status,
                                     job.error or f'{job.label} finished'))
+        cancellation_checkpoint()
 
         if interrupted:
             stopped = 'interrupted by the user (Ctrl-C) — the remaining jobs were not run.'

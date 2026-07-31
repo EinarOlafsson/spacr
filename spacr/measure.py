@@ -2274,6 +2274,10 @@ def measure_crop(settings):
         return run_preflight(settings, 'measure')
 
     from .io import _save_settings_to_db
+    from .cancellation import (
+        PipelineCancelled,
+        checkpoint as cancellation_checkpoint,
+    )
     from .timelapse import _timelapse_masks_to_gif
     from .utils import measure_test_mode, print_progress, save_settings, format_path_for_system, normalize_src_path
     from .settings import get_measure_crop_settings
@@ -2295,6 +2299,7 @@ def measure_crop(settings):
         source_folders = settings['src']
         
         for source_folder in source_folders:
+            cancellation_checkpoint()
             print(f'Processing folder: {source_folder}')
             
             source_folder = format_path_for_system(source_folder)
@@ -2407,7 +2412,7 @@ def measure_crop(settings):
             reported_files = set()
 
             def job_callback(result):
-                """Pool callback: record completion, save partial output, and stop when done."""
+                """Record one completed field and save its optional figures."""
                 completed_jobs.add(result[0])
                 item = index_to_file.get(result[0], result[0])
                 reported_files.add(item)
@@ -2424,8 +2429,6 @@ def measure_crop(settings):
                 files_processed = len(completed_jobs)
                 files_to_process = len(files)
                 print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
-                if files_processed >= files_to_process:
-                    pool.terminate()
 
             def make_error_callback(job_file):
                 """Bind the filename into the pool's error callback.
@@ -2454,10 +2457,28 @@ def measure_crop(settings):
                 completed_jobs = set()  # Set to keep track of completed jobs
 
                 with ctx.Pool(pool_jobs) as pool:
-                    for index, file in enumerate(files):
-                        pool.apply_async(_measure_crop_core, args=(index, time_ls, file, settings),
-                                         callback=job_callback,
-                                         error_callback=make_error_callback(file))
+                    # Bound outstanding work to one pool-width batch. Stop is
+                    # checked only after all fields in that batch have
+                    # completed their writes.
+                    for offset in range(0, len(files), pool_jobs):
+                        cancellation_checkpoint()
+                        pending = []
+                        for index in range(
+                                offset, min(offset + pool_jobs, len(files))):
+                            file = files[index]
+                            result = pool.apply_async(
+                                _measure_crop_core,
+                                args=(index, time_ls, file, settings),
+                            )
+                            pending.append((file, result))
+                        for file, async_result in pending:
+                            try:
+                                job_callback(async_result.get())
+                            except PipelineCancelled:
+                                raise
+                            except Exception as exc:
+                                make_error_callback(file)(exc)
+                        cancellation_checkpoint()
 
                     pool.close()
                     pool.join()

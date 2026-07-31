@@ -4,6 +4,9 @@ Checkpoint and resume
 spaCR checkpoints long work only after a safe unit has finished. A checkpoint
 never means killing a write halfway through: it means that a later invocation
 can prove which fields, trials, or plate jobs settled and continue after them.
+The Qt **Stop** button uses the same boundaries: it requests cooperative
+cancellation, lets the current safe unit finish, and retains the checkpoint for
+the next run. See :doc:`threading_cancellation_audit`.
 
 Supported workflows
 -------------------
