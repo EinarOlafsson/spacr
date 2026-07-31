@@ -1570,6 +1570,39 @@ class TestLoadSearchDataFromDb:
             "umap", self._settings(measurements_src, filter_by="None"))
         assert data.features.shape == (40, 3)
 
+    def test_umap_search_applies_the_shared_batch_correction(
+            self, measurements_src):
+        """Search candidates see the same corrected matrix as the real run."""
+        import sqlite3
+        import pandas as pd
+
+        db = f"{measurements_src}/measurements/measurements.db"
+        with sqlite3.connect(db) as connection:
+            frame = pd.read_sql("SELECT * FROM cell", connection)
+            frame.loc[:19, "plateID"] = "p1"
+            frame.loc[20:, "plateID"] = "p2"
+            feature_columns = [
+                column for column in frame
+                if "channel_" in column
+            ]
+            frame.loc[20:, feature_columns] += 1000.0
+            frame.to_sql("cell", connection, if_exists="replace", index=False)
+
+        data = load_search_data(
+            "umap",
+            self._settings(
+                measurements_src,
+                batch_correction="center",
+                batch_column="plateID",
+                remove_highly_correlated=False,
+            ),
+        )
+
+        p1 = data.frame["plateID"].eq("p1").to_numpy()
+        p2 = data.frame["plateID"].eq("p2").to_numpy()
+        assert np.allclose(data.features[p1].mean(axis=0), 0.0, atol=1e-12)
+        assert np.allclose(data.features[p2].mean(axis=0), 0.0, atol=1e-12)
+
     def test_umap_invalid_filter_reports_available_channels(
             self, measurements_src):
         with pytest.raises(ValueError) as error:
