@@ -506,6 +506,8 @@ setup(
             'spacr-remote=spacr.cli_remote:main',
             # Installed plugin registry and failure diagnostics.
             'spacr-plugins=spacr.cli_plugins:main',
+            # Standalone classifier train/test leakage audit.
+            'spacr-leakage=spacr.cli_leakage:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',

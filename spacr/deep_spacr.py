@@ -725,6 +725,7 @@ def _cross_validate_model(settings, num_classes):
     from sklearn.metrics import log_loss
 
     from .classifier_evaluation import (
+        audit_cv_folds,
         audit_split_leakage,
         evaluate_predictions,
         nested_group_folds,
@@ -764,6 +765,20 @@ def _cross_validate_model(settings, num_classes):
         class_balance=settings.get('class_balance', 'none'),
         seed=settings.get('random_seed', 42),
     )
+    cv_partition_audit = audit_cv_folds(
+        dataset_filenames(info['dataset']),
+        info['folds'],
+        labels=info['labels'],
+        group_by=settings.get('cv_group_by', 'well'),
+        hash_content=settings.get('leakage_hash_content', True),
+        require_identity=settings.get('leakage_require_identity', True),
+        raise_on_leakage=settings.get('evaluation_fail_on_leakage', True),
+    )
+    if not cv_partition_audit.passed:
+        print(
+            "WARNING: full CV partition leakage audit failed: "
+            f"{cv_partition_audit.critical_levels}"
+        )
 
     nested_inner = int(settings.get('nested_cv_inner_folds', 0) or 0)
     if nested_inner < 0 or nested_inner == 1:
@@ -874,7 +889,7 @@ def _cross_validate_model(settings, num_classes):
     oof_labels = []
     oof_paths = []
     oof_folds = []
-    leakage_reports = []
+    leakage_reports = [cv_partition_audit]
     # A fold that does not train is dropped from the spread. Two dead folds
     # out of five used to produce a "5-fold CV" summary computed on three.
     ledger = RunLedger('cross_validation')
@@ -891,6 +906,8 @@ def _cross_validate_model(settings, num_classes):
             raise_on_leakage=settings.get(
                 'evaluation_fail_on_leakage', True),
             split_name=f'outer_{i}',
+            hash_content=False,
+            require_identity=settings.get('leakage_require_identity', True),
         )
         leakage_reports.append(outer_leakage)
         if not outer_leakage.passed:
@@ -948,6 +965,9 @@ def _cross_validate_model(settings, num_classes):
                     raise_on_leakage=settings.get(
                         'evaluation_fail_on_leakage', True),
                     split_name=f'outer_{i}_inner_{inner_index}',
+                    hash_content=False,
+                    require_identity=settings.get(
+                        'leakage_require_identity', True),
                 )
                 leakage_reports.append(inner_leakage)
                 inner_dst = os.path.join(
@@ -1166,6 +1186,35 @@ def train_test_model(settings):
     if num_classes <= 0:
         raise ValueError("No classes provided in settings['classes'].")
 
+    # Audit the permanent dataset boundary before a model sees a pixel. This
+    # catches renamed byte-identical copies as well as plate/well/object and
+    # exported-augmentation relationships.
+    if settings.get('leakage_audit_train_test', True):
+        from .classifier_evaluation import (
+            audit_dataset_splits, write_leakage_audit,
+        )
+        train_dir = os.path.join(src, 'train')
+        test_dir = os.path.join(src, 'test')
+        if os.path.isdir(train_dir) and os.path.isdir(test_dir):
+            dataset_audit = audit_dataset_splits(
+                src,
+                group_by=settings.get('cv_group_by', 'well'),
+                hash_content=settings.get('leakage_hash_content', True),
+                require_identity=settings.get(
+                    'leakage_require_identity', True),
+                raise_on_leakage=settings.get(
+                    'evaluation_fail_on_leakage', True),
+            )
+            audit_path = write_leakage_audit(
+                os.path.join(dst, 'train_test_leakage_audit.json'),
+                dataset_audit,
+            )
+            settings['train_test_leakage_audit_path'] = str(audit_path)
+            print(
+                f"Train/test leakage audit: {'PASS' if dataset_audit.passed else 'FAIL'} "
+                f"({audit_path})"
+            )
+
     if settings.get('loss_type') in (None, 'auto'):
         settings['loss_type'] = 'cross_entropy' if num_classes > 1 else 'binary_cross_entropy_with_logits'
 
@@ -1241,7 +1290,37 @@ def train_test_model(settings):
             verbose=settings['verbose'],
             class_balance=class_balance,
             seed=settings.get('random_seed', 42),
+            group_by=settings.get('cv_group_by', 'well'),
         )
+
+        if hasattr(train, 'dataset') and hasattr(val, 'dataset'):
+            from .classifier_evaluation import (
+                audit_split_leakage, write_leakage_audit,
+            )
+            from .io import dataset_filenames
+            validation_audit = audit_split_leakage(
+                dataset_filenames(train.dataset),
+                dataset_filenames(val.dataset),
+                group_by=settings.get('cv_group_by', 'well'),
+                raise_on_leakage=settings.get(
+                    'evaluation_fail_on_leakage', True),
+                split_name='train_vs_validation',
+                hash_content=settings.get('leakage_hash_content', True),
+                require_identity=settings.get(
+                    'leakage_require_identity', True),
+            )
+            validation_audit_path = write_leakage_audit(
+                os.path.join(dst, 'train_validation_leakage_audit.json'),
+                validation_audit,
+            )
+            settings['train_validation_leakage_audit_path'] = str(
+                validation_audit_path
+            )
+            print(
+                f"Train/validation leakage audit: "
+                f"{'PASS' if validation_audit.passed else 'FAIL'} "
+                f"({validation_audit_path})"
+            )
 
         model, model_path = train_model(
             src=src,
