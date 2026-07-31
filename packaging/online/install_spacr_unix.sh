@@ -104,6 +104,20 @@ if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
     echo "Unsupported platform value: $PLATFORM" >&2
     exit 2
 fi
+
+# llvmlite 0.46+ no longer publishes Intel macOS wheels. Without this
+# architecture-specific ceiling uv selects the latest release, attempts a
+# source build, and the otherwise self-contained installer fails looking for
+# a Homebrew LLVMConfig.cmake. Numba 0.63+ requires that unavailable llvmlite
+# line, so keep the pair on the newest mutually compatible Intel wheels.
+if [[ "$PLATFORM" == "macos" && "$(uname -m)" == "x86_64" ]]; then
+    RESOLVER_GUARDS=(
+        "numpy>=1.26,<2.0"
+        "opencv-python-headless<4.12"
+        "numba>=0.60,<0.63"
+        "llvmlite>=0.43,<0.46"
+    )
+fi
 if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
     echo "Invalid PyTorch backend: $TORCH_BACKEND" >&2
     exit 2
@@ -281,7 +295,7 @@ echo "Downloading spaCR, Qt, PyTorch and scientific dependencies..."
 echo "Validating the installation before activating it..."
 "$UV_BIN" pip check --python "$stage_python"
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
-    "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+    "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
 
 old_venv="$INSTALL_ROOT/.venv-previous"
 rm -rf "$old_venv"

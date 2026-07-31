@@ -23,11 +23,16 @@ Each bootstrap writes ``install.log`` under its private installation root and
 supplies compatible Numba/llvmlite floors. This prevents
 SHAP's unbounded transitive requirements from resolving to obsolete source
 releases that advertise Python 3.12 compatibility but reject it while building.
+On Intel macOS the bootstrap also applies wheel-aware ceilings for
+Numba/llvmlite, NumPy, and OpenCV. Modern releases no longer publish all of
+their Intel wheels, while the final Intel PyTorch build still requires the
+NumPy 1.x ABI. The install validation performs a real NumPy-to-PyTorch tensor
+conversion so this incompatibility cannot pass as an import-only success.
 
 | Target | Builder | Release artifact | Default install |
 |---|---|---|---|
 | Windows 10/11 | `online/build_windows_online.ps1` | `SpaCR-<ver>-Windows-Online-Setup.exe` | `%LOCALAPPDATA%\SpaCR` |
-| macOS 11+, Intel/Apple silicon | `online/build_macos_online.sh` | `SpaCR-<ver>-macOS-Universal-Online.pkg` | `/Applications/SpaCR.app` plus a private runtime |
+| macOS 11+, Intel/Apple silicon | `online/build_macos_online.sh` | `SpaCR-<ver>-macOS-Universal-Online.pkg` | `/Applications/SpaCR.app` plus a per-user private runtime |
 | Linux x86-64 | `online/build_linux_online.sh` | `SpaCR-<ver>-Linux-x86_64-Online.run` | `~/.local/share/spacr` |
 
 `.github/workflows/online-installers.yml` builds all three on native GitHub
@@ -107,6 +112,13 @@ or pacman when available. macOS packages may be signed by setting
 `PRODUCTSIGN_IDENTITY`; public distribution should additionally use an Apple
 Developer ID and notarization. Windows uses a per-user NSIS installer and does
 not require administrator access.
+
+The macOS package itself performs no network installation in PackageKit's
+time-limited ``postinstall`` process. On first launch, SpaCR opens a Terminal
+bootstrap that installs the private runtime under
+``~/Library/Application Support/SpaCR`` and then relaunches the application.
+Progress and dependency errors remain visible, and slow downloads are not
+terminated by the package installer's script timeout.
 
 The unversioned bootstrap scripts support dry runs:
 
