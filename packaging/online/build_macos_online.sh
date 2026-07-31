@@ -96,7 +96,6 @@ cat > "$SUPPORT/install-for-user.sh" <<'EOF'
 set -eu
 
 RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/SpaCR}"
-LAUNCHER_DIR="${SPACR_USER_LAUNCHER_DIR:-$HOME/.local/bin}"
 INSTALLER="/Library/Application Support/SpaCR/install-online.sh"
 LOCK_DIR="$RUNTIME_ROOT/.installing"
 
@@ -113,7 +112,7 @@ trap cleanup EXIT INT TERM
 "$INSTALLER" \
   --platform macos \
   --install-root "$RUNTIME_ROOT" \
-  --launcher-dir "$LAUNCHER_DIR" \
+  --no-command-launcher \
   --no-launch
 
 echo

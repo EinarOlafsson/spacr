@@ -186,6 +186,7 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "install-for-user.sh" in source
     assert "osascript" in source
     assert '$HOME/Library/Application Support/SpaCR' in source
+    assert "--no-command-launcher" in source
     postinstall = source[source.index('cat > "$SCRIPTS/postinstall"'):]
     assert "install-online.sh" not in postinstall
 
