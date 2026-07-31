@@ -938,6 +938,9 @@ def perform_regression(settings):
           IDs aligned by file position.
         - ``plate_from_order`` — auto-assign ``plate{i+1}`` from file
           order.
+        - ``batch_correction`` — optional ``center``, ``zscore``,
+          ``robust_zscore`` or reference-control ``control_center``
+          normalization of the dependent variable before well aggregation.
         - ``fraction_threshold``, ``min_n``, ``metadata_files``,
           ``volcano``, ``heatmap_feature``.
 
@@ -1348,6 +1351,44 @@ def perform_regression(settings):
         print(count_data_df['plateID'].value_counts())
         
     results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path = _perform_regression_set_paths(settings)
+
+    batch_method = str(
+        settings.get('batch_correction', 'none') or 'none'
+    ).strip().lower()
+    if batch_method not in {'none', 'off', 'false'}:
+        dependent_variable = settings['dependent_variable']
+        if dependent_variable not in score_data_df.columns:
+            raise ValueError(
+                f"Batch correction cannot run because dependent_variable="
+                f"{dependent_variable!r} is not present in the score table. "
+                "Choose an existing score column or set batch_correction=none."
+            )
+        from .batch_correction import (
+            correct_from_metadata,
+            correction_kwargs,
+            write_report,
+        )
+        corrected, correction_report = correct_from_metadata(
+            score_data_df[[dependent_variable]],
+            score_data_df,
+            **correction_kwargs(settings),
+        )
+        score_data_df.loc[:, dependent_variable] = corrected[
+            dependent_variable
+        ]
+        report_path = write_report(
+            correction_report,
+            os.path.join(res_folder, 'batch_correction.json'),
+        )
+        print(
+            f"Batch correction {correction_report.method}: "
+            f"{correction_report.centroid_spread_before} -> "
+            f"{correction_report.centroid_spread_after} centroid spread. "
+            f"Report: {report_path}"
+        )
+        for note in correction_report.warnings:
+            print(f"Warning: batch correction: {note}")
+
     save_settings(settings, name='regression', show=True)
 
     count_source = os.path.dirname(settings['count_data'][0])
@@ -2265,6 +2306,12 @@ def generate_ml_scores(settings):
         if pathogen_col in df.columns and cytoplasm_col in df.columns:
             df['recruitment'] = df[pathogen_col]/df[cytoplasm_col]
     
+    from .batch_correction import correction_kwargs
+    batch_kwargs = correction_kwargs(
+        settings,
+        default_control_column=settings.get('location_column'),
+        default_control_values=settings.get('negative_control'),
+    )
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
                                settings['location_column'],
@@ -2284,7 +2331,8 @@ def generate_ml_scores(settings):
                                settings['remove_highly_correlated_features'],
                                settings['prune_features'],
                                settings['cross_validation'],
-                               settings['verbose'])
+                               settings['verbose'],
+                               **batch_kwargs)
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
 
@@ -2345,7 +2393,35 @@ def generate_ml_scores(settings):
 
     return [output, plate_heatmap]
 
-def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_control='c2', negative_control='c1', exclude=None, n_repeats=10, top_features=30, reg_alpha=0.1, reg_lambda=1.0, learning_rate=0.00001, n_estimators=1000, test_size=0.2, model_type='xgboost', n_jobs=-1, remove_low_variance_features=True, remove_highly_correlated_features=True, prune_features=False, cross_validation=False, verbose=False):
+def ml_analysis(
+    df,
+    channel_of_interest=3,
+    location_column='columnID',
+    positive_control='c2',
+    negative_control='c1',
+    exclude=None,
+    n_repeats=10,
+    top_features=30,
+    reg_alpha=0.1,
+    reg_lambda=1.0,
+    learning_rate=0.00001,
+    n_estimators=1000,
+    test_size=0.2,
+    model_type='xgboost',
+    n_jobs=-1,
+    remove_low_variance_features=True,
+    remove_highly_correlated_features=True,
+    prune_features=False,
+    cross_validation=False,
+    verbose=False,
+    *,
+    batch_correction='none',
+    batch_column='plateID',
+    batch_control_column=None,
+    batch_control_values=None,
+    batch_min_samples=3,
+    batch_missing_control='error',
+):
     """Train a per-object classifier on positive/negative control wells and score every row of the input DataFrame.
 
     Called directly for one-off ML work, and internally by
@@ -2381,6 +2457,14 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     :param prune_features: If True, apply ``SelectKBest`` before training.
     :param cross_validation: If True, run 5-fold stratified CV.
     :param verbose: Log progress details.
+    :param batch_correction: plate correction method from
+        :mod:`spacr.batch_correction`.
+    :param batch_column: metadata column identifying plates/batches.
+    :param batch_control_column: metadata column holding reference-control
+        labels for ``control_center``.
+    :param batch_control_values: negative/reference control value(s).
+    :param batch_min_samples: minimum rows or controls per plate.
+    :param batch_missing_control: ``error`` or ``skip`` for missing controls.
     :returns: Tuple ``(output, figs)`` where ``output`` is a positional
         tuple of ``(scored_df, permutation_df, feature_importance_df,
         model, X_train, X_test, y_train, y_test, metrics_df,
@@ -2461,10 +2545,33 @@ def ml_analysis(df, channel_of_interest=3, location_column='columnID', positive_
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
+    correction_metadata = df.copy()
     df_metadata = df[[location_column]].copy()
 
     df, features = filter_dataframe_features(df, channel_of_interest, exclude, remove_low_variance_features, remove_highly_correlated_features, verbose)
     print('After filtration:', len(df))
+
+    if str(batch_correction or 'none').strip().lower() not in {
+        'none', 'off', 'false',
+    }:
+        from .batch_correction import correct_from_metadata
+        corrected, correction_report = correct_from_metadata(
+            df[features],
+            correction_metadata.loc[df.index],
+            batch_correction=batch_correction,
+            batch_column=batch_column,
+            batch_control_column=batch_control_column,
+            batch_control_values=batch_control_values,
+            batch_min_samples=batch_min_samples,
+            batch_missing_control=batch_missing_control,
+        )
+        df.loc[:, features] = corrected
+        print(
+            f"Batch correction {correction_report.method}: "
+            f"{correction_report.centroid_spread_before} -> "
+            f"{correction_report.centroid_spread_after} centroid spread.")
+        for note in correction_report.warnings:
+            print(f"Warning: batch correction: {note}")
     
     if verbose:
         print(f'Found {len(features)} numerical features in the dataframe')

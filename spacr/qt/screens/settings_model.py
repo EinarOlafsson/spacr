@@ -175,6 +175,24 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
 # setting with the same generic key.  Keeping these app-scoped avoids turning
 # unrelated ``mode`` fields into sequencing controls.
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
+    "umap": {
+        "batch_correction": [
+            "none", "control_center", "robust_zscore", "center", "zscore",
+        ],
+        "batch_missing_control": ["error", "skip"],
+    },
+    "ml_analyze": {
+        "batch_correction": [
+            "none", "control_center", "robust_zscore", "center", "zscore",
+        ],
+        "batch_missing_control": ["error", "skip"],
+    },
+    "regression": {
+        "batch_correction": [
+            "none", "control_center", "robust_zscore", "center", "zscore",
+        ],
+        "batch_missing_control": ["error", "skip"],
+    },
     "external_masks": {
         "layout": ["auto", "flat", "well", "plate_well"],
         "z_handling": ["max", "first"],
@@ -202,6 +220,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "channel_of_interest", "exclude", "nuclei_limit",
             "pathogen_limit", "remove_highly_correlated_features",
             "remove_low_variance_features", "minimum_cell_count",
+        )),
+        ("Plate & Batch Correction", (
+            "batch_correction", "batch_column", "batch_control_column",
+            "batch_control_values", "batch_min_samples",
+            "batch_missing_control",
         )),
         ("Classifier & Validation", (
             "model_type_ml", "n_estimators", "learning_rate", "test_size",
@@ -390,6 +413,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "plateID", "positive_control", "negative_control", "controls",
             "filter_column", "filter_value",
         )),
+        ("Plate & Batch Correction", (
+            "batch_correction", "batch_column", "batch_control_column",
+            "batch_control_values", "batch_min_samples",
+            "batch_missing_control",
+        )),
         ("Model & Covariates", (
             "regression_type", "dependent_variable", "agg_type", "transform",
             "alpha", "cov_type", "random_row_column_effects",
@@ -522,6 +550,11 @@ def categories_for_app(
                 sequencing.append(key)
 
     if app_key == "umap":
+        batch_correction = (
+            "batch_correction", "batch_column", "batch_control_column",
+            "batch_control_values", "batch_min_samples",
+            "batch_missing_control",
+        )
         display = (
             "figuresize", "dot_size", "point_color", "point_alpha",
             "outline_width", "umap_canvas_width", "umap_sidebar_width",
@@ -531,9 +564,10 @@ def categories_for_app(
             "save_figure",
         )
         for keys in result.values():
-            for key in display:
+            for key in (*display, *batch_correction):
                 while key in keys:
                     keys.remove(key)
+        result["Plate & Batch Correction"] = list(batch_correction)
         result["UMAP Display"] = list(display)
     if app_key in _APP_CATEGORY_SPECS:
         result = _categories_from_spec(result, _APP_CATEGORY_SPECS[app_key])
@@ -656,13 +690,19 @@ _APP_API_MODULE = {
 }
 
 
-def api_docs_url(app_key: str) -> str:
-    """Return the spacr documentation URL for a given app.
+def api_docs_url(app_key: str, key: str = "") -> str:
+    """Return the spaCR API URL for an app or shared setting.
 
     Known app keys land on their module page. New or UI-only modules fall
     back to the generated API index rather than the documentation homepage.
+    Shared batch-correction settings always land on their implementation,
+    rather than whichever consumer app happens to display them.
     """
-    module = _APP_API_MODULE.get(app_key)
+    module = (
+        "batch_correction"
+        if key.startswith("batch_")
+        else _APP_API_MODULE.get(app_key)
+    )
     if module:
         return f"{DOCS_API_BASE}/spacr/{module}/index.html"
     return f"{DOCS_API_BASE}/index.html"
@@ -723,7 +763,7 @@ def format_tooltip(text: str, app_key: str, key: str = "") -> str:
     if not body:
         body = f"Controls {escape(_humanize(key).lower())}." if key else \
             "Controls this setting."
-    url = escape(api_docs_url(app_key), quote=True)
+    url = escape(api_docs_url(app_key, key), quote=True)
     link = f'<a href="{url}">Open spaCR API documentation</a>'
     parts = [p for p in (header, body, link) if p]
     return "<br>".join(parts)
@@ -738,7 +778,7 @@ def plain_tooltip(text: str, app_key: str, key: str = "") -> str:
     head = f"{name} ({th})" if (name and th) else name
     parts = [p for p in (head, body) if p]
     summary = " — ".join(parts)
-    url = api_docs_url(app_key)
+    url = api_docs_url(app_key, key)
     return f"{summary} — API: {url}" if summary else f"API: {url}"
 
 
@@ -914,7 +954,7 @@ def _add_api_dot_to_label(
     label.setParent(host)
     row.addWidget(label)
     dot = InfoLink(
-        api_docs_url(app_key),
+        api_docs_url(app_key, key),
         tooltip=f"Open API reference for {_humanize(key)}",
         parent=host,
     )
@@ -958,7 +998,7 @@ def _add_api_dot_to_combined_control(
     field.setParent(host)
     row.addWidget(field)
     dot = InfoLink(
-        api_docs_url(app_key),
+        api_docs_url(app_key, key),
         tooltip=f"Open API reference for {_humanize(key)}",
         parent=host,
     )
