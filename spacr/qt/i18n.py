@@ -849,6 +849,16 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
     catalog = CATALOGS.get(language, {})
     if source in catalog:
         return catalog[source]
+    try:
+        from spacr.plugins import discover_plugins
+        for plugin in discover_plugins():
+            translated = plugin.translations.get(language, {}).get(source)
+            if translated:
+                return translated
+    except Exception:
+        # A plugin translation is optional metadata; core localization must
+        # remain available if discovery fails.
+        pass
 
     # Qt uses '&' for keyboard mnemonics and '&&' for a literal ampersand.
     literal = source.replace("&&", "&")

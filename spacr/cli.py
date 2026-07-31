@@ -504,6 +504,42 @@ ALIASES: Dict[str, str] = {
     "activation_map": "activation",
 }
 
+
+def _register_plugin_modules() -> None:
+    """Add valid plugin apps without letting collisions replace core modules."""
+    try:
+        from .plugins import plugin_apps, record_diagnostic
+    except Exception:
+        LOG.exception("Could not initialise the spaCR plugin SDK")
+        return
+    for app in plugin_apps():
+        if app.key in MODULES:
+            record_diagnostic(
+                app.key,
+                f"Plugin app key {app.key!r} collides with a built-in module; "
+                "the built-in module was kept.",
+            )
+            continue
+        MODULES[app.key] = Module(
+            key=app.key,
+            summary=app.description,
+            entry=app.entrypoint,
+            defaults=None,
+            defaults_entry=app.defaults,
+            validate_key=app.key,
+            requires=tuple(app.requires),
+            writes=tuple(app.writes),
+            call_style=app.call_style,
+            note=f"Provided by a spaCR plugin ({app.kind}).",
+        )
+        for alias in app.aliases:
+            normalized = alias.strip().lower().replace("-", "_")
+            if normalized and normalized not in ALIASES and normalized not in MODULES:
+                ALIASES[normalized] = app.key
+
+
+_register_plugin_modules()
+
 # Apps the GUI offers that have NO headless-runnable callable. Naming them in
 # the error message is kinder than "unknown module": the user did not typo, the
 # thing simply cannot run without a person looking at a screen.
@@ -1134,9 +1170,10 @@ def render_module_list() -> str:
 
     :returns: the table as one string, no trailing newline.
     """
-    width = max(len(m.key) for m in _MODULE_LIST)
+    modules = tuple(MODULES.values())
+    width = max(len(m.key) for m in modules)
     lines = ["spaCR modules that can run headless:", ""]
-    for module in _MODULE_LIST:
+    for module in modules:
         lines.append(f"  {module.key.ljust(width)}  {module.summary}")
         lines.append(f"  {' ' * width}  -> {module.module_name}.{module.func_name}()")
     lines.append("")

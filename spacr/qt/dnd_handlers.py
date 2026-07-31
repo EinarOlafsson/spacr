@@ -1086,7 +1086,27 @@ def get_handler(app_key: str) -> DropHandler:
     Falls back to :class:`SourceDropHandler` so every conventional AppScreen
     can at least receive its source folder.
     """
-    cls = _HANDLERS.get(app_key, SourceDropHandler)
+    cls = _HANDLERS.get(app_key)
+    if cls is None:
+        try:
+            from spacr.plugins import get_app, load_object
+            plugin_app = get_app(app_key)
+            if plugin_app is not None and plugin_app.drop_handler:
+                candidate = load_object(plugin_app.drop_handler)
+                if not isinstance(candidate, type) or not issubclass(candidate, DropHandler):
+                    raise TypeError(
+                        f"{plugin_app.drop_handler} is not a DropHandler subclass"
+                    )
+                cls = candidate
+        except Exception as exc:
+            try:
+                from spacr.plugins import record_diagnostic
+                record_diagnostic(
+                    app_key, "Could not load plugin drag-and-drop handler", exc
+                )
+            except Exception:
+                pass
+    cls = cls or SourceDropHandler
     return cls()
     def accepts_multiple(self) -> bool:
         return True
