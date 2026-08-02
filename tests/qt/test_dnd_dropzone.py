@@ -758,3 +758,43 @@ def test_sample_image_names_returns_all_when_fewer_than_n(tmp_path):
 def test_sample_image_names_empty_for_a_file(tmp_path):
     f = _mkimg(tmp_path / "a.tif")
     assert sample_image_names(f) == []
+
+
+def test_a_filter_outliving_its_target_declines_instead_of_raising(qtbot):
+    """A dropzone filter whose target is gone must decline, not raise.
+
+    Qt keeps delivering events to an installed filter after the target's C++
+    half has been destroyed, and PySide6 clears the Python wrapper's ``__dict__``
+    when that happens.  ``eventFilter`` therefore used to reach for a
+    ``self._target`` that no longer existed and raise **inside the Qt event
+    loop**, where no Python caller can catch it -- Qt printed
+
+        Error calling Python override of QObject::eventFilter():
+        AttributeError: '_DropzoneFilter' object has no attribute '_target'
+
+    once per delivered event.  Observed in a real run: four in a row from a
+    single drag.
+
+    Deleting the attribute is a faithful stand-in for the wrapper teardown --
+    it is the state ``eventFilter`` actually observed -- and is the only way to
+    reach it deterministically without racing Qt's destructor.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.dnd import _DropzoneFilter
+
+    target = QWidget()
+    qtbot.addWidget(target)
+    filt = _DropzoneFilter(target)
+
+    # Sanity: while the target is alive the filter still answers normally, so
+    # a pass below cannot come from the filter having been inert all along.
+    assert filt.eventFilter(QWidget(), QEvent(QEvent.Type.DragEnter)) is False
+
+    del filt._target
+
+    # The assertion is "returns False", not "does not raise": declining is the
+    # correct answer for a filter with nothing left to filter.
+    assert filt.eventFilter(target, QEvent(QEvent.Type.DragEnter)) is False
+    assert filt.eventFilter(target, QEvent(QEvent.Type.Drop)) is False
