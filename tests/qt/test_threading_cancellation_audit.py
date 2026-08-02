@@ -1,6 +1,7 @@
 """Stress Run/Stop/Close lifecycle behavior with real QThreads."""
 from __future__ import annotations
 
+import os
 import threading
 import time
 
@@ -145,6 +146,107 @@ def test_rapid_repeated_start_cancel_retires_every_thread(
             for handle in registry().active()
         ),
         timeout=3000,
+    )
+
+
+def _os_thread_count() -> int:
+    """Threads the OS sees for this process, native ones included.
+
+    ``threading.active_count()`` counts only threads Python created.  It is
+    blind to Qt's own pools, to OpenMP, and to torch's intra-op workers —
+    which is exactly the population a "the suite is running with 137 threads"
+    report is looking at, and the reason such a report cannot be checked with
+    the Python view alone.  Linux publishes the real number as one directory
+    per thread under ``/proc/self/task``; elsewhere fall back to the Python
+    view rather than skipping the measurement.
+    """
+    try:
+        return len(os.listdir("/proc/self/task"))
+    except OSError:
+        return threading.active_count()
+
+
+#: A leak of the shape this module exists to catch — one helper thread per
+#: run that nobody joins — adds one thread per cycle, i.e. 50 over the loop
+#: below.  Qt and the pipeline imports do lazily start a small, *fixed*
+#: number of native helpers the first time certain code paths run, and the
+#: warm-up cycle cannot be relied on to have touched all of them.  Five is
+#: therefore comfortably above the fixed noise and an order of magnitude
+#: below the smallest per-cycle leak, so the tolerance cannot hide one.
+_MAX_NEW_THREADS = 5
+
+
+def test_fifty_run_cycles_leave_the_thread_census_flat(
+        qtbot, qt_theme_applied):
+    """Run fifty jobs to completion and prove the thread count does not grow.
+
+    ``test_rapid_repeated_start_cancel_retires_every_thread`` above proves
+    each individual thread retires; it says nothing about what the *process*
+    accumulates, and "every join returned" is compatible with every cycle
+    leaving a helper thread behind.  This is the census that distinguishes
+    them, and it is the measurement to reach for the next time a Qt shard is
+    reported spinning at 100% CPU with a three-digit thread count: if the
+    number here is flat, the threads are ambient — Qt, OpenMP and torch
+    between them hold 110-135 OS threads open in a *healthy* offscreen qt
+    run — and the spin is somewhere else.
+
+    Measured, both directions.  On this tree the fifty cycles move the
+    census from 1 to 1 Python threads and 50 to 50 OS threads.  Restoring
+    the per-worker "idle-flush pump" daemon that ``make_thread``'s ownership
+    essay records as removed takes the same fifty cycles to 2 -> 52 Python
+    and 51 -> 101 OS threads, i.e. both assertions below fire on it.
+    """
+    def _cycle(index: int):
+        """One complete run: start, let the body finish, join.
+
+        Deliberately *not* the immediate-Stop shape of the test above.
+        ``PipelineWorker.run`` returns before it touches anything when the
+        token is already cancelled — no stream router, no matplotlib
+        interception — so a census built on cancelled runs would measure
+        four lines of a hundred-line method.  Letting the body run is what
+        puts the per-run machinery on the scale.
+        """
+        ran = threading.Event()
+        thread, worker = make_thread(
+            lambda _settings: ran.set(),
+            {},
+            app_key=f"census-{index}",
+            journal=False,
+        )
+        thread.start()
+        _join(qtbot, thread)
+        assert ran.is_set(), f"cycle {index} never entered the pipeline body"
+        return worker
+
+    def _drained() -> bool:
+        return not any(
+            handle.app_key.startswith("census-")
+            for handle in registry().active()
+        )
+
+    # One warm-up cycle before the baseline: the first job in a process
+    # imports matplotlib and opens the reproducibility journal, and those
+    # imports start native threads of their own.  Billing that one-off cost
+    # to the loop would leave enough slack to hide a real per-cycle leak.
+    _cycle(-1)
+    qtbot.waitUntil(_drained, timeout=3000)
+    baseline_python = threading.active_count()
+    baseline_os = _os_thread_count()
+
+    for index in range(50):
+        assert not _cycle(index).was_cancelled
+
+    qtbot.waitUntil(_drained, timeout=5000)
+    grown_python = threading.active_count() - baseline_python
+    grown_os = _os_thread_count() - baseline_os
+    assert grown_python <= 0, (
+        f"{grown_python} Python thread(s) survived 50 run cycles "
+        f"({baseline_python} -> {threading.active_count()})"
+    )
+    assert grown_os <= _MAX_NEW_THREADS, (
+        f"{grown_os} OS thread(s) survived 50 run cycles "
+        f"({baseline_os} -> {_os_thread_count()}); a per-cycle leak would "
+        f"show up as roughly 50"
     )
 
 
