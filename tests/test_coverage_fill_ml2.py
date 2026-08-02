@@ -122,22 +122,54 @@ def test_calculate_similarity_list_controls():
 # check_and_clean_data
 # ---------------------------------------------------------------------------
 
+def _clean_data_frame(n=40, seed=6):
+    """One row per (well, gRNA) - the shape perform_regression's merge makes."""
+    rng = np.random.default_rng(seed)
+    wells = ("p1_r1_c1", "p1_r2_c2")
+    genes = ("geneA", "geneB")
+    rows = []
+    for i in range(n):
+        well = wells[i % 2]
+        gene = genes[(i // 2) % 2]
+        rows.append({
+            "fraction": float(rng.uniform(0, 1)),
+            "prediction": float(rng.uniform(0, 1)),
+            "grna": f"{gene}_g{i}",
+            "gene": gene,
+            "plateID": "p1",
+            "rowID": well.split("_")[1],
+            "columnID": well.split("_")[2],
+            "prc": well,
+        })
+    return pd.DataFrame(rows)
+
+
 def test_check_and_clean_data():
-    rng = np.random.default_rng(6)
-    n = 40
-    df = pd.DataFrame({
-        "fraction": rng.uniform(0, 1, n),
-        "prediction": rng.uniform(0, 1, n),
-        "grna": rng.choice(["g1", "g2"], n),
-        "gene": rng.choice(["geneA", "geneB"], n),
-        "plateID": ["p1"] * n,
-        "rowID": rng.choice(["r1", "r2"], n),
-        "columnID": rng.choice(["c1", "c2"], n),
-        "prc": rng.choice(["p1_r1_c1", "p1_r2_c2"], n),
-    })
+    df = _clean_data_frame()
     out = ML.check_and_clean_data(df, dependent_variable="prediction")
     assert "gene_fraction" in out.columns
     assert "gene" in out.columns
+    # gene_fraction is the gene's share of the well: the sum of its gRNAs'
+    # fractions, each counted once.
+    expect = df.groupby(["prc", "gene"])["fraction"].sum()
+    for (well, gene), total in expect.items():
+        got = out.loc[(out["prc"] == well) & (out["gene"] == gene),
+                      "gene_fraction"].unique()
+        assert len(got) == 1 and abs(got[0] - total) < 1e-12
+
+
+def test_check_and_clean_data_refuses_two_fractions_for_one_well_grna():
+    """The same gRNA cannot hold two shares of the same well's library.
+
+    Left to itself the sum would silently double-count, and a merge that
+    duplicated the count table is exactly how that happens.
+    """
+    df = _clean_data_frame(n=8)
+    duplicate = df.iloc[[0]].copy()
+    duplicate["fraction"] = float(df.iloc[0]["fraction"]) + 0.1
+    df = pd.concat([df, duplicate], ignore_index=True)
+    with pytest.raises(ValueError, match="carry more than one 'fraction'"):
+        ML.check_and_clean_data(df, dependent_variable="prediction")
 
 
 # ---------------------------------------------------------------------------
