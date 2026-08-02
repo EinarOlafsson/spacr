@@ -19,15 +19,44 @@ from spacr import spacr_cellpose as SC
 # Mock CellposeModel
 # ---------------------------------------------------------------------------
 
+_MISSING = object()
+
+
+def _validate_eval_call(x, channel_axis):
+    """Reject anything the real ``CellposeModel.eval`` would reject.
+
+    The mock used to be ``def eval(self, x=None, **kwargs)``, which swallowed
+    ``channel_axis`` whole. spaCR passed the hard-coded ``channel_axis=3``
+    that Cellpose 4 cannot accept for any shape spaCR produces, and 15 tests
+    sailed over it while every real run raised.
+
+    Rather than re-assert a value (which drifts from the library), hand the
+    exact ``(x, channel_axis)`` pair to the real validator Cellpose 4 uses:
+    ``CellposeModel.eval`` calls ``transforms.convert_image(x,
+    channel_axis=channel_axis, ...)``. It is pure numpy, CPU-only and
+    offline. If spaCR ever passes an axis Cellpose rejects, these tests fail
+    with the production error.
+    """
+    assert channel_axis is not _MISSING, (
+        "model.eval() was called without channel_axis; spaCR must pass it "
+        "explicitly so the value is covered by this contract."
+    )
+    from cellpose import transforms
+    return transforms.convert_image(np.asarray(x), channel_axis=channel_axis)
+
+
 class _FakeModel:
     """Stand-in for cellpose.models.CellposeModel."""
     def __init__(self, *a, **k):
         self.pretrained_model = k.get("pretrained_model", "fake")
+        self.eval_calls = []
 
-    def eval(self, x=None, **kwargs):
+    def eval(self, x=None, channel_axis=_MISSING, **kwargs):
+        converted = _validate_eval_call(x, channel_axis)
+        self.eval_calls.append({"shape": np.asarray(x).shape,
+                                "channel_axis": channel_axis, **kwargs})
         # Return the 4-tuple shape (mask, flows, styles, diams).
-        arr = np.asarray(x)
-        h, w = arr.shape[:2] if arr.ndim >= 2 else (8, 8)
+        h, w = converted.shape[:2]
         mask = np.zeros((h, w), dtype=np.uint16)
         mask[2:5, 2:5] = 1
         flows = [np.zeros((h, w, 3), dtype=np.float32),
@@ -174,7 +203,9 @@ class TestGenerateAndCheck:
 
 class _BadEvalModel:
     def __init__(self, *a, **k): self.pretrained_model = "bad"
-    def eval(self, x=None, **k):
+    def eval(self, x=None, channel_axis=_MISSING, **k):
+        # Still honours the channel_axis contract; only the arity is wrong.
+        _validate_eval_call(x, channel_axis)
         return (np.zeros((8, 8), dtype=np.uint16), None)  # 2-tuple → raise
 
 
@@ -279,6 +310,8 @@ def test_ipython_display_fallback_on_import(monkeypatch):
     sys.modules.pop("spacr.spacr_cellpose", None)
     mod = importlib.import_module("spacr.spacr_cellpose")
     assert callable(mod.display)   # the fallback no-op
+    # ...and calling it is a silent no-op (executes the fallback body).
+    assert mod.display("anything", 2, key=3) is None
     # Restore the normally-imported module for other tests.
     monkeypatch.undo()
     sys.modules.pop("spacr.spacr_cellpose", None)
