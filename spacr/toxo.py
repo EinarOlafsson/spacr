@@ -86,19 +86,54 @@ def custom_volcano_plot(
 
     # --- Load metadata ---
     if isinstance(metadata_path, pd.DataFrame):
-        metadata = metadata_path
+        # .copy() for the same reason `data` above takes one: the next line
+        # rewrites 'gene_nr' to str in place, and without the copy that edit
+        # landed in the CALLER's frame. A caller that plots two volcanoes from
+        # one metadata table got its integer gene numbers silently retyped by
+        # the first call.
+        metadata = metadata_path.copy()
     else:
         metadata = pd.read_csv(metadata_path)
 
     metadata['gene_nr'] = metadata['gene_nr'].astype(str)
     data['gene_nr'] = data['gene_nr'].astype(str)
 
-    merged_data = pd.merge(
-        data,
-        metadata[['gene_nr', metadata_column]],
-        on='gene_nr',
-        how='left',
-    )
+    # many_to_one: `data` holds one row per regression *feature*, and several
+    # features share a gene -- a gRNA-level fit contributes one row per guide,
+    # so gene_nr repeats on the left by design. `metadata` is a lookup table:
+    # one localisation per gene, which is what the shipped
+    # resources/data/lopit.csv is (3832 rows, 3832 distinct gene_nr) and what
+    # `colors[row[metadata_column]]` below assumes when it paints one point one
+    # colour. A duplicated gene_nr on the right is therefore not a legitimate
+    # shape here, it is a fan-out: every affected gene gets plotted twice and
+    # appended to the returned hit list twice, which then propagates into
+    # plot_gene_phenotypes and plot_gene_heatmaps as duplicate genes. Declaring
+    # the relationship turns that into a stop rather than a wrong figure.
+    try:
+        merged_data = pd.merge(
+            data,
+            metadata[['gene_nr', metadata_column]],
+            on='gene_nr',
+            how='left',
+            validate='many_to_one',
+        )
+    except pd.errors.MergeError as exc:
+        duplicated = metadata.loc[
+            metadata['gene_nr'].duplicated(keep=False), 'gene_nr']
+        if duplicated.empty:
+            # MergeError also covers things this message would misdescribe --
+            # a colliding suffix, for one. Only claim the cardinality story
+            # when the duplicates that would justify it are actually there.
+            raise
+        examples = duplicated.unique()[:5].tolist()
+        raise pd.errors.MergeError(
+            f"The gene metadata lists {duplicated.nunique()} gene_nr value(s) "
+            f"more than once (e.g. {examples}), so it cannot say which "
+            f"{metadata_column!r} belongs to a gene. Joining it anyway would "
+            f"plot those genes once per duplicate row and return each of them "
+            f"more than once in the hit list. De-duplicate the metadata on "
+            f"gene_nr before plotting. (pandas: {exc})"
+        ) from exc
     merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
     merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
 
