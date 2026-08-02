@@ -248,6 +248,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Shared correction before UMAP, ML screen analysis, and regression.
     "batch_correction", "batch_column", "batch_control_column",
     "batch_control_values", "batch_min_samples", "batch_missing_control",
+    # Four keys perform_regression indexes directly that had no default, no
+    # expected_types entry and no category, so no panel could offer them and
+    # get_perform_regression_default_settings could not produce a dict the
+    # function would run on -- regression died on KeyError from Tk, Qt and the
+    # CLI alike. (`verbose` and `control_wells`, the other two it was missing,
+    # were already categorised under Advanced and Invasion Assay.)
+    "score_column", "tolerance", "invert_dependent_variable", "y_lims",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
