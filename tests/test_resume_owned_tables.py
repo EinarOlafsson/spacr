@@ -18,6 +18,23 @@ None of it can be recomputed from the database: the conversion map lives
 in a CSV beside the converted images, the stitch coordinates only exist
 if align is re-run, and the foreign import needs the original file.
 
+The allow-list that replaced the deny-list answers "could measure have
+written this table?", and there is one case where the honest answer to
+"did it?" is still no: ``foreign.run_import`` copies the imported rows
+into the *canonical* ``cell`` table when the destination is empty, so a
+project built purely by import is readable by every spaCR tool. Those
+rows sit under spaCR's own column names in a table whose name is on the
+allow-list, and a resume clears them along with the pending field. That
+is a real, open bug (F34), and ``TestACanonicalTableTheImporterFilled``
+below records it in ``xfail(strict=True)`` tests rather than leaving it
+undocumented: they assert the behaviour spaCR should have, they fail
+today, and anything that fixes one of them fails the suite until the
+marker is removed. A guard inside :func:`clear_field_rows` was written
+for this and backed out — the ``spacr.resume`` module docstring lists
+the five ways it was worse than the bug, all of them measured. What
+bounds the damage is asserted here too: the canonical copy is
+byte-identical to ``foreign_cell``, which no resume may touch.
+
 Everything here is built with the real writers — ``convert.convert_folder``
 , ``align.save_coordinates``, ``utils._merge_and_save_to_database`` and
 ``utils.filepaths_to_database`` — because a hand-built schema that happens
@@ -405,22 +422,12 @@ def _their_labels():
     return mask
 
 
-@pytest.fixture()
-def imported(tmp_path):
-    """A project produced by a real ``foreign.run_import``.
-
-    Their images, their masks and their CSV go through
-    :func:`spacr.foreign.plan_import` / :func:`~spacr.foreign.run_import`,
-    which converts, merges, populates ``conversion_map`` and writes
-    ``foreign_cell``. Then one field is measured with spaCR's own writer,
-    which leaves the second field pending — the state a resume acts on.
-    """
-    import spacr.foreign as fg
-
+def _their_project(tmp_path):
+    """Their images, masks and CSV on disk; returns (images, masks, csv)."""
     images = os.path.join(str(tmp_path), 'their_images')
     masks = os.path.join(str(tmp_path), 'their_cell_masks')
-    os.makedirs(images)
-    os.makedirs(masks)
+    os.makedirs(images, exist_ok=True)
+    os.makedirs(masks, exist_ok=True)
     rows = []
     for field in (1, 2):
         for channel in (1, 2):
@@ -435,7 +442,30 @@ def imported(tmp_path):
                          'ObjectNumber': label, 'AreaShape_Area': area})
     csv_path = os.path.join(str(tmp_path), 'results.csv')
     pd.DataFrame(rows).to_csv(csv_path, index=False)
+    return images, masks, csv_path
 
+
+def _resume_settings(dst):
+    return {'src': os.path.join(dst, 'merged'), 'resume': True,
+            'timelapse': False, 'channels': [0, 1], 'cell_mask_dim': 1}
+
+
+@pytest.fixture()
+def imported(tmp_path):
+    """A project produced by a real ``foreign.run_import``.
+
+    Their images, their masks and their CSV go through
+    :func:`spacr.foreign.plan_import` / :func:`~spacr.foreign.run_import`,
+    which converts, merges, populates ``conversion_map`` and writes
+    ``foreign_cell`` — **and**, because the destination was empty, copies
+    those same rows into the canonical ``cell`` table so a purely-imported
+    project is readable by every spaCR tool. Then one field is measured
+    with spaCR's own writer, which leaves the second field pending — the
+    state a resume acts on.
+    """
+    import spacr.foreign as fg
+
+    images, masks, csv_path = _their_project(tmp_path)
     plan = fg.plan_import(images, {'cell': masks}, csv_path, um_per_px=0.5)
     assert plan.ok
     dst = os.path.join(str(tmp_path), 'imported')
@@ -444,11 +474,42 @@ def imported(tmp_path):
     # spaCR measures field 1 and dies before field 2.
     _measure_field(dst, 'plate1_A01_1', tables=('nucleus',), n_objects=2)
 
-    settings = {'src': os.path.join(dst, 'merged'), 'resume': True,
-                'timelapse': False, 'channels': [0, 1], 'cell_mask_dim': 1}
     return {'root': dst, 'db': os.path.join(dst, 'measurements',
                                             'measurements.db'),
-            'settings': settings}
+            'settings': _resume_settings(dst), 'their_csv': csv_path}
+
+
+@pytest.fixture()
+def imported_beside(tmp_path):
+    """An import that landed *beside* spaCR's own measurements.
+
+    The destination already holds spaCR measurements, so
+    ``_may_write_canonical`` refuses the canonical copy: their rows go to
+    ``foreign_cell`` only and ``foreign_import`` records
+    ``canonical_table_written = 0``. ``cell`` is therefore measure's own
+    table in fact as well as in name, and a resume must clear it exactly
+    as it would in any other project — this is the control that keeps the
+    refusal below from being a blanket ban on imported projects.
+
+    Field 1 is measured in full; field 2 has only its ``cell`` rows, the
+    crash-mid-field state the delete-before-insert exists for.
+    """
+    import spacr.foreign as fg
+
+    images, masks, csv_path = _their_project(tmp_path)
+    dst = os.path.join(str(tmp_path), 'beside')
+    os.makedirs(os.path.join(dst, 'measurements'), exist_ok=True)
+    _measure_field(dst, 'plate1_A01_1')
+    _measure_field(dst, 'plate1_A01_2', tables=('cell',))
+
+    plan = fg.plan_import(images, {'cell': masks}, csv_path, um_per_px=0.5)
+    assert plan.ok
+    result = fg.run_import(plan, dst)
+    assert 'cell' not in result.rows, result.rows
+
+    return {'root': dst, 'db': os.path.join(dst, 'measurements',
+                                            'measurements.db'),
+            'settings': _resume_settings(dst)}
 
 
 def test_a_foreign_object_table_is_not_deleted(imported):
@@ -474,3 +535,184 @@ def test_a_foreign_object_table_is_not_deleted(imported):
     assert after['foreign_import'] == before['foreign_import']
     # ...while the object table measure owns is cleared of the pending field.
     assert _fields_in(imported['db'], 'cell') == {'f1'}
+
+
+def test_the_canonical_copy_is_a_duplicate_of_the_foreign_table(imported):
+    """What bounds the damage of the bug below — assert it, do not assume it.
+
+    ``run_import`` writes *one* frame twice: to ``foreign_cell``, which
+    this module may never delete from, and to the canonical ``cell``,
+    which it may. Same columns, same rows. So a resume that clears
+    imported rows out of ``cell`` destroys a copy, not a measurement —
+    which is the whole reason the bug below is recorded and lived with
+    rather than guarded against at this layer.
+
+    If this ever stops holding, the ``xfail`` below stops being an
+    acceptable state of affairs and becomes data loss.
+    """
+    conn = sqlite3.connect(imported['db'])
+    try:
+        canonical = pd.read_sql('SELECT * FROM "cell"', conn)
+        theirs = pd.read_sql('SELECT * FROM "foreign_cell"', conn)
+    finally:
+        conn.close()
+    assert list(canonical.columns) == list(theirs.columns)
+    assert canonical.equals(theirs)
+    assert 'foreign_cell' not in MEASURE_OWNED_TABLES
+    assert 'cell' in MEASURE_OWNED_TABLES
+
+
+class TestACanonicalTableTheImporterFilled:
+    """``cell`` is measure's table by name; here the rows in it are theirs.
+
+    The allow-list answers "could measure have written this table?". In a
+    project built by ``foreign.run_import`` the honest answer to "did
+    it?" is no: the importer copies the imported rows into the canonical
+    ``cell`` table when nothing of anyone else's is there. Nothing *in*
+    ``cell`` distinguishes those rows from measure's, and a resume clears
+    them along with the pending field.
+
+    **These are ``xfail(strict=True)``: they assert the behaviour spaCR
+    should have, they fail today, and a fix that makes one of them pass
+    fails the suite until it is unmarked.** A guard was written for
+    exactly this and backed out — see the ``spacr.resume`` module
+    docstring for the five ways it was worse than the bug. The next
+    attempt belongs where the canonical table is *appended to*, not where
+    it is deleted from, and should read ``foreign_columns`` (which
+    records every column the importer wrote, per table) rather than a
+    marker row of its own.
+    """
+
+    @pytest.mark.xfail(strict=True, reason=(
+        'F34: a resume clears the pending field out of the canonical table '
+        'an import filled, and reports the imported rows as its own stale '
+        'output. The rows survive in foreign_cell, but `cell` is left half '
+        "theirs and half spaCR's. Guarding it at this layer was tried and "
+        'backed out; see the spacr.resume module docstring.'))
+    def test_a_resume_leaves_the_imported_rows_alone(self, imported):
+        """Measured: ``cell`` 4 -> 2 rows, ``state.cleared_rows == 2``,
+        field ``f2``'s two imported objects gone, and no error."""
+        assert _counts(imported['db'])['cell'] == 4
+        assert _fields_in(imported['db'], 'cell') == {'f1', 'f2'}
+
+        state = plan_measure_resume(imported['settings'], verbose=False)
+
+        assert set(state.pending) == {'plate1_A01_2'}
+        assert state.cleared_rows == 0
+        assert _counts(imported['db'])['cell'] == 4
+        assert _fields_in(imported['db'], 'cell') == {'f1', 'f2'}
+
+    @pytest.mark.xfail(strict=True, reason=(
+        'F34, primary flow: a project built purely by import has `cell` as '
+        'its only field table, holding every field, so completed_fields_in_db '
+        'reports the whole plate measured. measure_crop then runs nothing and '
+        "reports the collaborator's numbers as spaCR's own output. This is "
+        'the shape any future guard has to reach, and the reason a check '
+        'inside clear_field_rows could not: no delete is ever planned here.'))
+    def test_a_purely_imported_project_is_not_reported_as_measured(
+            self, tmp_path):
+        import spacr.foreign as fg
+
+        images, masks, csv_path = _their_project(tmp_path)
+        plan = fg.plan_import(images, {'cell': masks}, csv_path, um_per_px=0.5)
+        assert plan.ok
+        dst = os.path.join(str(tmp_path), 'pristine')
+        result = fg.run_import(plan, dst)
+        assert result.rows['cell'] == 4          # the canonical copy
+        db = os.path.join(dst, 'measurements', 'measurements.db')
+        assert discover_field_tables(db) == ['cell']
+
+        state = plan_measure_resume(_resume_settings(dst), verbose=False)
+
+        # spaCR has measured nothing here. Both fields are still to do.
+        assert set(state.pending) == {'plate1_A01_1', 'plate1_A01_2'}
+
+    @pytest.mark.xfail(strict=True, reason=(
+        'F34, spread by measure: measure_crop appends its own rows into the '
+        'canonical table the import filled, in the same columns, with no '
+        'column marking the seam — with or without a resume. This is where '
+        'the fix belongs, and it is not in this module.'))
+    def test_measure_does_not_append_into_a_table_an_import_filled(
+            self, imported):
+        _measure_field(imported['root'], 'plate1_A01_2', tables=('cell',),
+                       n_objects=2)
+        conn = sqlite3.connect(imported['db'])
+        try:
+            mixed = pd.read_sql(
+                'SELECT * FROM "cell" WHERE "fieldID" = ?', conn, params=('f2',))
+        finally:
+            conn.close()
+        # Two imported rows and two measured ones, side by side, and the
+        # only thing telling them apart is which columns are NULL.
+        assert len(mixed) == 2
+
+    def test_a_field_the_import_never_covered_is_still_clearable(self,
+                                                                 imported):
+        """The control that the backed-out guard failed.
+
+        It refused *table*-wide once an import had filled ``cell``, so a
+        field ``measure_crop`` itself wrote could not be cleared and the
+        project could never be resumed. Clearing measure's own rows must
+        keep working.
+        """
+        import numpy as np
+        np.save(os.path.join(imported['root'], 'merged', 'plate1_A01_3.npy'),
+                np.zeros((16, 16, 2), np.uint16))
+        _measure_field(imported['root'], 'plate1_A01_3', tables=('cell',))
+        assert _fields_in(imported['db'], 'cell') == {'f1', 'f2', 'f3'}
+
+        assert clear_field_rows(imported['db'], ['cell'], 'plate1_A01_3') == 3
+        assert _fields_in(imported['db'], 'cell') == {'f1', 'f2'}
+
+    def test_an_import_beside_spacrs_own_tables_still_resumes(self,
+                                                             imported_beside):
+        """The other control. ``_may_write_canonical`` refused the canonical
+        copy here, so ``cell`` really is measure's, and the
+        delete-before-insert must run exactly as it always did — taking
+        only measure's rows with it."""
+        before = _counts(imported_beside['db'])
+        assert before['foreign_cell'] == 4
+        assert _fields_in(imported_beside['db'], 'cell') == {'f1', 'f2'}
+
+        state = plan_measure_resume(imported_beside['settings'],
+                                    verbose=False)
+
+        assert set(state.pending) == {'plate1_A01_2'}
+        assert state.cleared_rows == 3        # field 2's three cell rows
+        assert _fields_in(imported_beside['db'], 'cell') == {'f1'}
+        after = _counts(imported_beside['db'])
+        assert after['foreign_cell'] == 4     # theirs untouched
+        assert after['conversion_map'] == before['conversion_map']
+
+
+def test_foreign_columns_records_what_the_importer_wrote_per_table(imported):
+    """The signal a future fix should read, asserted so it cannot rot.
+
+    ``foreign_columns`` names every column the importer put in every table
+    it wrote — including the canonical ``cell`` — which is what
+    ``foreign._importer_owns`` already uses to decide whether a table is
+    still the importer's. Unlike a marker row it is written by every
+    importer that ever existed, including the first one, so it does not
+    fail open on the databases most likely to carry the bug.
+
+    Read through ``foreign`` rather than by hand: this fixture has had a
+    real ``measure_crop`` writer over it, which renames the provenance
+    column (see ``tests/test_foreign_preserves_object_tables.py``), and a
+    hand-written ``SELECT "column"`` here would quietly answer with the
+    word ``'column'`` instead of failing.
+    """
+    import spacr.foreign as fg
+
+    conn = sqlite3.connect(imported['db'])
+    try:
+        name_column = fg._provenance_name_column(conn)
+        assert name_column is not None
+        recorded = {r[0] for r in conn.execute(
+            f'SELECT [{name_column}] FROM "foreign_columns" '
+            f'WHERE [table] = ?', ('cell',))}
+        have = {r[1] for r in conn.execute('PRAGMA table_info("cell")')}
+        assert fg._importer_owns(conn, 'cell')
+    finally:
+        conn.close()
+    assert recorded                       # the canonical table is recorded
+    assert have <= recorded               # nothing but the importer's columns
