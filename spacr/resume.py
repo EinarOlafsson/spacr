@@ -45,6 +45,58 @@ delete from are now an explicit allow-list,
 :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered
 and again per table immediately before the DELETE is prepared.
 
+A name allow-list answers "could measure have written this table?", and
+there is one case where the honest answer to "did it?" is still no:
+``foreign.run_import`` copies the imported rows into the canonical
+``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone
+else's is there, so that a purely-imported project is readable by every
+spaCR tool. Those rows sit under spaCR's own column names in a table on
+the allow-list, and nothing *in the table* tells them apart from
+measure's. A resume therefore clears them along with the pending field.
+That is a known bug, recorded — and pinned — by the ``xfail(strict=True)``
+tests in ``tests/test_resume_owned_tables.py``.
+
+**A guard against it was attempted here and backed out; do not put it
+back in this shape.** It read ``foreign_import.canonical_table_written``
+and refused any delete from a table that record claimed. Reproduced
+failures, every one of them measured on a database built by the real
+importer:
+
+1. the claim is *table*-scoped. Once an import has filled ``cell``,
+   a delete of a field the import never covered — rows ``measure_crop``
+   itself wrote — is refused too, and the project can never be resumed;
+2. its own first remedy destroys the rows. "Re-run the import with
+   ``measure=True``" replaces the ``foreign_import`` record with
+   ``canonical_table_written = 0`` while leaving every imported row in
+   ``cell``, so the next resume deletes them with no warning at all —
+   the guard fails open, in the destructive direction, by being obeyed;
+3. it is unreachable on the flow it exists for. In a purely-imported
+   project ``cell`` is the only field table and holds every field, so
+   :func:`completed_fields_in_db` reports the whole plate done and no
+   delete is ever planned;
+4. its second remedy is a dead end. Dropping the canonical copy does not
+   drop the record, and nothing else ever un-claims a table, so the
+   refusal outlives the rows it was about;
+5. it fails open on exactly the databases most likely to hit the bug:
+   the first importer wrote the canonical copy but no
+   ``canonical_table`` marker, so those read as "not claimed".
+
+Two things bound the damage and are worth knowing before anyone tries
+again. The imported rows in the canonical table are a byte-identical
+copy of ``foreign_<object>`` — same columns, same rows — and
+``foreign_<object>`` is *not* on the allow-list, so a resume cannot
+touch it; deleting from the canonical copy loses a duplicate, not a
+measurement. And ``foreign_columns`` records, per table, every column
+the importer wrote, which is the ownership signal
+``foreign._importer_owns`` already uses and the one any future attempt
+should build on — a marker row added here for the purpose was strictly
+worse.
+
+The real defect is upstream of resume: ``measure_crop`` appends into a
+canonical table an import already filled, whether or not a resume is
+involved, and no resume-time guard can undo that. It belongs where the
+append happens.
+
 A database already damaged by an earlier resume cannot be repaired on
 read — the rows are gone, and nothing in the file records what they
 were. It can be *rewritten* from the sources outside the database, and
@@ -889,6 +941,19 @@ def clear_field_rows(db_path: str,
       live there and carry the same four key columns so that they join —
       and clearing a field out of those destroys the only record of how
       the project's files were named and registered.
+
+    Owned *by name* is not the same as owned *in fact*, and this does not
+    check the difference. In a project built by ``foreign.run_import``
+    the rows in ``cell`` are the import's — a byte-identical copy of
+    ``foreign_cell``, made so that a purely-imported project is readable
+    by every spaCR tool — and clearing a pending field takes them with
+    it. The duplicate in ``foreign_cell`` is untouched (it is not on the
+    allow-list), so nothing is lost that this database does not still
+    hold, but ``cell`` is left half theirs and half spaCR's. A guard
+    against that was tried here and backed out for being worse than the
+    bug; the module docstring records what it did and the five ways it
+    failed, and ``tests/test_resume_owned_tables.py`` pins the behaviour
+    with ``xfail(strict=True)``.
 
     :param db_path: path to ``measurements.db``.
     :param tables: tables to clear. ``None`` uses

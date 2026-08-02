@@ -7,6 +7,14 @@ measurements, that dropped the table and everything in it — the feature
 columns, and on a child table the ``cell_id`` link back to the parent
 object.
 
+A second way into the same loss survived that fix and is covered at the
+bottom of this file: ``run_import``'s mask loop rebound ``object_type``,
+the name holding ``plan.join.object_type``, to the last declared mask
+class. An import with cell *and* nucleus masks therefore wrote their cell
+measurements into ``foreign_nucleus`` and into the canonical ``nucleus``
+table — a child table with no ``cell_id`` — while ``foreign_import`` went
+on recording ``canonical_table = 'cell'``.
+
 Every database here is built by spaCR's own writer,
 :func:`spacr.utils._merge_and_save_to_database`, which is what
 ``measure_crop`` calls; the foreign half is built by
@@ -563,3 +571,200 @@ def test_a_re_imported_field_supersedes_its_own_conversion_row(theirs,
     after = _read(db, cv.CONVERSION_TABLE)
     assert len(after) == 4
     assert sorted(after["target"]) == sorted(before["target"])
+
+
+# ---------------------------------------------------------------------------
+# More than one mask class: the write must aim at the object the table was
+# joined against, not at whichever mask folder happened to be listed last
+# ---------------------------------------------------------------------------
+
+def _import_record(db_path):
+    return _read(db_path, fg.IMPORT_TABLE).iloc[0]
+
+
+def test_a_two_mask_import_writes_the_object_its_table_was_joined_against(
+        theirs, tmp_path):
+    """THE BUG. The mask loop rebound ``object_type``.
+
+    An import declares one mask class per folder and has exactly one
+    *measured* object type — ``plan.join.object_type``, the one the
+    numbers were joined against and the one ``_check_destination``
+    consulted. ``for object_type in plan.object_types:`` in step 3 rebound
+    that name to the last mask class, so with cell **and** nucleus masks
+    every later use aimed one table over.
+
+    Measured before the fix: their *cell* areas were written to
+    ``foreign_nucleus`` and to the canonical ``nucleus`` table — a child
+    table with no ``cell_id`` in it — while ``foreign_import`` went on
+    recording ``canonical_table = 'cell'``. No ``cell`` or ``foreign_cell``
+    table existed at all.
+    """
+    plan = _plan(theirs, "cell", "nucleus")
+    assert plan.ok, fg.format_plan(plan)
+    assert plan.object_types == ["cell", "nucleus"]     # two mask classes
+    assert plan.join.object_type == "cell"              # one measured object
+
+    result = fg.run_import(plan, str(tmp_path / "imported"))
+    db = result.db_path
+    tables = _tables(db)
+
+    assert "foreign_cell" in tables
+    assert "foreign_nucleus" not in tables
+    assert len(_read(db, "foreign_cell")) == 4
+    # Their AreaShape_Area is a *cell* area. It measured their cell masks.
+    assert _read(db, "foreign_cell")["foreign_areashape_area"].tolist() == [
+        36.0, 64.0, 36.0, 64.0]
+
+    # The canonical copy goes to the same object, and no child table is
+    # invented for a class whose objects were never measured.
+    assert result.rows == {"foreign_cell": 4, "cell": 4}
+    assert "nucleus" not in tables
+
+    # ...and the provenance describes the table that was actually written.
+    record = _import_record(db)
+    assert record["canonical_table"] == "cell"
+    assert int(record["canonical_table_written"]) == 1
+    assert record["canonical_table"] in tables
+
+
+def test_a_two_mask_import_beside_a_spacr_project_joins_the_right_table(
+        theirs, tmp_path):
+    """The same misdirection, where it produces a plainly wrong number.
+
+    ``_check_destination`` decided ``preserve`` for ``cell`` — that is the
+    table the note is about. Before the fix the rows still went to
+    ``foreign_nucleus``, and ``_write_view`` then built
+    ``nucleus_with_foreign``, a view pairing spaCR's nucleus 1 with
+    *their cell* 1 on ``(prcf, object_label)`` and presenting the two areas
+    side by side as if they measured the same object.
+    """
+    dst = tmp_path / "project"
+    db = _real_spacr_project(dst)
+    nuclei_before = _read(db, "nucleus")
+
+    result = fg.run_import(_plan(theirs, "cell", "nucleus"), str(dst))
+    tables = _tables(db)
+
+    assert "cell_with_foreign" in tables
+    assert "nucleus_with_foreign" not in tables
+    assert "foreign_nucleus" not in tables
+
+    # spaCR's own tables are untouched, cell_id included.
+    after = _read(db, "nucleus")
+    assert len(after) == len(nuclei_before) == 6
+    assert list(after["cell_id"]) == list(nuclei_before["cell_id"])
+    assert len(_read(db, "cell")) == 6
+
+    # The note and the view agree on which table was preserved.
+    assert any("cell" in note and "foreign_cell" in note
+               for note in result.notes), result.notes
+    joined = _read(db, "cell_with_foreign")
+    row = joined[(joined["prcf"] == "plate1_r1_c1_f1")
+                 & (joined["object_label"] == 2)].iloc[0]
+    assert row["cell_area"] == 64.0                  # spaCR's cell
+    assert row["foreign_areashape_area"] == 64.0     # their cell
+
+
+def test_a_two_mask_import_still_writes_every_mask_stack(theirs, tmp_path):
+    """The loop the name was borrowed from still does its own job.
+
+    Renaming the variable must not stop the *masks* being written per
+    class — both folders, both fields.
+    """
+    dst = tmp_path / "imported"
+    fg.run_import(_plan(theirs, "cell", "nucleus"), str(dst))
+    for object_type in ("cell", "nucleus"):
+        folder = os.path.join(str(dst), "masks", f"{object_type}_mask_stack")
+        assert sorted(os.listdir(folder)) == ["plate1_A01_1.npy",
+                                              "plate1_A01_2.npy"]
+
+
+# ---------------------------------------------------------------------------
+# The provenance this module reads is renamed out from under it by the
+# legacy-column repair every measure write runs
+# ---------------------------------------------------------------------------
+
+def test_the_column_provenance_survives_a_measure_write(theirs, tmp_path):
+    """THE BUG. ``SELECT "column"`` came back with the word ``'column'``.
+
+    ``schema.LEGACY_COLUMN_NAMES`` maps ``column`` to the plate coordinate
+    ``columnID``, and ``database_schema.repair_legacy_columns`` applies it
+    to *every* user table — including ``foreign_columns``, where ``column``
+    holds the name of a measurement column and has nothing to do with a
+    well. ``utils._merge_and_save_to_database`` runs that repair on every
+    write, so a single ``measure_crop`` over an imported project renames
+    this module's provenance.
+
+    That alone would be survivable. What made it dangerous is SQLite:
+    a double-quoted name matching no column is resolved as a *string
+    literal*, so ``SELECT "column" FROM foreign_columns`` did not raise —
+    it returned the four-letter word once per row. Every recorded name
+    became ``'column'``, ``have <= recorded`` was false for a table this
+    importer had written itself, and :func:`spacr.foreign._importer_owns`
+    answered False with nothing anywhere saying why.
+
+    Measured before the fix: ``_importer_owns(conn, 'cell')`` True before
+    the measure write and False after it, on a ``cell`` table the measure
+    write never touched.
+    """
+    from spacr.utils import _merge_and_save_to_database
+
+    dst = tmp_path / "imported"
+    result = fg.run_import(_plan(theirs), str(dst))
+    db = result.db_path
+    assert result.rows == {"foreign_cell": 4, "cell": 4}
+
+    connection = sqlite3.connect(db)
+    try:
+        assert fg._provenance_name_column(connection) == "column"
+        assert fg._importer_owns(connection, "cell")
+    finally:
+        connection.close()
+
+    # A real measure write, into a *different* table — `cell` is untouched.
+    morphology = pd.DataFrame({"label": [1, 2], "nucleus_area": [9.0, 9.0]})
+    intensity = pd.DataFrame(
+        {"label": [1, 2], "nucleus_channel_0_mean_intensity": [1.0, 1.0]})
+    _merge_and_save_to_database(morphology, intensity, "nucleus", str(dst),
+                                "plate1_A01_1", "exp", False)
+
+    connection = sqlite3.connect(db)
+    try:
+        # The repair really did rename it...
+        assert fg._provenance_name_column(connection) == "columnID"
+        assert "column" not in _read(db, fg.FOREIGN_COLUMNS_TABLE).columns
+        # ...and the answer is still the right one.
+        assert fg._importer_owns(connection, "cell")
+        assert fg._may_write_canonical(connection, "cell")[0] is True
+        # The rows themselves are intact — only the schema name moved.
+        recorded = {str(r[0]) for r in connection.execute(
+            'SELECT [columnID] FROM "foreign_columns" WHERE [table] = ?',
+            ("cell",))}
+        assert "foreign_areashape_area" in recorded
+        assert recorded != {"column"}
+    finally:
+        connection.close()
+
+
+def test_a_database_with_no_provenance_column_at_all_is_not_ours(theirs,
+                                                                 tmp_path):
+    """Unreadable provenance answers "not ours", not "ours".
+
+    ``_importer_owns`` gates a DROP-and-rewrite of the canonical table. A
+    provenance table this module cannot read must therefore fall to the
+    protective answer, the same as no provenance table at all — never to
+    a guess that some third spelling means the same thing.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+    connection = sqlite3.connect(db)
+    try:
+        connection.execute('ALTER TABLE "foreign_columns" '
+                           'RENAME COLUMN "column" TO "whatever"')
+        connection.commit()
+        assert fg._provenance_name_column(connection) is None
+        assert fg._importer_owns(connection, "cell") is False
+        # ...but a table owned by its *name* still is ours.
+        assert fg._importer_owns(connection, "foreign_cell") is True
+    finally:
+        connection.close()
