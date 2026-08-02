@@ -1044,6 +1044,121 @@ class HomePage(QWidget):
 
         self._on_runs_changed()
 
+        #: The drifting backdrop, or ``None``. Home takes the same animation
+        #: the module screens do, so the page the user lands on is not the
+        #: one page in the app that is flat.
+        self._ambient = None
+        self._install_ambient()
+
+    # -- ambient backdrop ----------------------------------------------
+    def _install_ambient(self) -> None:
+        """Put the ambient animation behind Home. Never raises.
+
+        Home needs none of :class:`spacr.qt.screens.app_screen.AppScreen`'s
+        ``_ambient_applied`` bookkeeping and no ``changeEvent`` handling:
+        this page is rebuilt from scratch on every theme change (see the
+        registry comment in ``__init__``), so a stale flat fill cannot
+        survive one, and there is no second attempt to guard against.
+
+        Ordered exactly as the module screens are, for the same two reasons:
+        the preference is read *before* anything is constructed, because not
+        building it is the cost the toggle exists to avoid; and the page
+        surfaces are cleared only *after* a successful install, so a failed
+        one leaves Home opaque and normal rather than transparent with
+        nothing behind it.
+        """
+        widget = None
+        try:
+            from ..preferences import (get_ambient_enabled,
+                                       get_ambient_palette,
+                                       get_ambient_theme)
+            if not get_ambient_enabled():
+                return
+            from .ambient import install_ambient
+            widget = install_ambient(
+                self, None,
+                theme=get_ambient_theme(),
+                palette=get_ambient_palette(),
+                backdrop=self._ambient_backdrop())
+            self._clear_page_surfaces()
+            self._ambient = widget
+        except Exception:
+            self._ambient = None
+            self._discard_ambient(widget)
+
+    @staticmethod
+    def _ambient_backdrop():
+        """The wallpaper the animation composites over, or ``None``.
+
+        Only the image themes have one; every other theme paints over its
+        own flat window colour.
+        """
+        try:
+            from ..preferences import (resolve_effective_theme,
+                                       theme_background_path)
+            return theme_background_path(resolve_effective_theme())
+        except Exception:
+            return None
+
+    def _discard_ambient(self, widget=None) -> None:
+        """Unparent an ambient widget an aborted install left behind.
+
+        ``install_ambient`` parents the widget before it finishes wiring it
+        up, so an installer that raises part way through hands nothing back
+        to unparent — and an invisible leftover is still a child with a live
+        timer.
+        """
+        try:
+            from .ambient import AmbientWidget
+        except Exception:
+            # If the import is what failed, nothing was constructed.
+            return
+        seen = []
+        if widget is not None:
+            seen.append(widget)
+        seen += [c for c in list(self.children())
+                 if isinstance(c, AmbientWidget)]
+        for child in seen:
+            try:
+                child.set_animating(False)
+            except Exception:
+                pass
+            try:
+                child.setParent(None)
+                child.deleteLater()
+            except Exception:
+                pass
+
+    def _clear_page_surfaces(self) -> None:
+        """Stop Home's layout containers painting over the backdrop.
+
+        The same layering rule the module screens use: containers that only
+        *position* things go transparent, while the cards that carry text —
+        the hero, the aside panels, the tile pane — keep painting a surface.
+        Without this the animation runs, costs its frames, and reaches the
+        eye through nothing but the gaps between widgets.
+
+        The tile pane is deliberately NOT tagged. It is drawn by
+        :func:`_tab_qss` at :meth:`_pane_alpha`, which is precisely the
+        control the user has over how much of the animation shows through
+        behind the tiles; tagging it here would pin it at "always fully
+        transparent" and take that choice away.
+        """
+        from ..theme import make_transparent
+
+        make_transparent(*(w for w in (
+            getattr(self, "_running_host", None),
+            getattr(self, "_hint_bar", None),
+        ) if w is not None))
+        # The body wrapper is the first child of `outer` and has no object
+        # name of its own, so it is reached through the layout.
+        layout = self.layout()
+        if layout is not None and layout.count():
+            item = layout.itemAt(0)
+            body = item.widget() if item is not None else None
+            if body is not None:
+                make_transparent(body)
+
     # -- pieces --------------------------------------------------------
     def _new_running_banner(self) -> RunningBanner:
         banner = RunningBanner(self._icon_provider, self._names)
