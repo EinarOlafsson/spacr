@@ -21,7 +21,7 @@ from math import ceil, sqrt
 # undoes the legacy order all have to agree, so they live in one place.
 # spacr.crops imports nothing from spacr and nothing heavy, so this costs the
 # measure path nothing.
-from .crops import stamp_crop_folder, to_cv2_bgr
+from .crops import stamp_crop_folder, to_cv2_bgr, narrow_to_uint8
 # Backward-compatible public module binding used by downstream extensions.
 from . import settings as _settings_module
 settings = _settings_module
@@ -1784,6 +1784,83 @@ def _per_crop_mode(value, n_modes, name):
     return values[:n_modes]
 
 
+#: ``settings`` keys naming a label plane of the merged array. A plane named
+#: by one of these holds object IDENTITIES; every other plane holds intensity.
+MASK_DIM_KEYS = ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
+                 'organelle_mask_dim')
+
+
+def _merged_mask_planes(data, settings):
+    """Return the set of plane indices of ``data`` that hold labels, not signal."""
+    n_planes = int(data.shape[-1])
+    planes = set()
+    for key in MASK_DIM_KEYS:
+        dim = settings.get(key)
+        if dim is None:
+            continue
+        try:
+            dim = int(dim)
+        except (TypeError, ValueError):
+            continue
+        if 0 <= dim < n_planes:
+            planes.add(dim)
+    return planes
+
+
+def _promote_merged_to_uint16(data, settings):
+    """Bring a merged array that is neither ``uint8`` nor ``uint16`` into the
+    measure pipeline's working dtype, **without flattening it**.
+
+    ``data.astype(np.uint16)`` -- what this used to be -- is a truncation.
+    ``spacr.io._normalize_img_batch`` writes normalised stacks as ``float32``
+    on ``[0, 1]``, and every one of those pixels truncates to 0: a whole field
+    measured as black, with an "Converted data from float32 to uint16" line as
+    the only trace. Measured on a float32 field whose intensities span
+    0.002-0.798, ``astype`` left 0 of 64 intensity pixels non-zero.
+
+    The two kinds of plane are converted differently, because they mean
+    different things:
+
+    * **label planes** (:func:`_merged_mask_planes`) are rounded, never
+      rescaled -- a label is an identity, and object 1 must stay object 1.
+    * **intensity planes** are rescaled by ONE factor shared across all of
+      them, so the ratio between channels is untouched: ``x65535`` when they
+      live on ``[0, 1]``, ``x(65535/max)`` when they run past the 16-bit
+      ceiling (where ``astype`` wrapped), and ``x1`` otherwise -- which is the
+      ordinary ``int32``-from-a-concatenated-label-plane case, so that path
+      keeps behaving exactly as it did.
+
+    :param data: the merged array, ``(Y, X, C)`` or ``(Z, Y, X, C)``.
+    :param settings: the measure settings, read for the ``*_mask_dim`` keys.
+    :returns: ``(uint16 array, factor applied to the intensity planes)``.
+    """
+    arr = np.asarray(data)
+    mask_planes = _merged_mask_planes(arr, settings)
+    intensity = [p for p in range(int(arr.shape[-1])) if p not in mask_planes]
+
+    factor = 1.0
+    if intensity:
+        signal = arr[..., intensity]
+        top = float(np.nanmax(signal)) if signal.size else 0.0
+        if not np.isfinite(top):
+            top = float(np.nanmax(signal[np.isfinite(signal)])) \
+                if np.isfinite(signal).any() else 0.0
+        if top > 0:
+            if np.issubdtype(arr.dtype, np.floating) and top <= 1.0:
+                factor = 65535.0
+            elif top > 65535.0:
+                factor = 65535.0 / top
+
+    out = np.zeros(arr.shape, dtype=np.uint16)
+    for plane in range(int(arr.shape[-1])):
+        values = np.nan_to_num(arr[..., plane].astype(np.float64),
+                               nan=0.0, posinf=65535.0, neginf=0.0)
+        if plane in intensity:
+            values = values * factor
+        out[..., plane] = np.rint(np.clip(values, 0, 65535)).astype(np.uint16)
+    return out, factor
+
+
 #@log_function_call
 def _measure_crop_core(index, time_ls, file, settings):
 
@@ -1824,10 +1901,11 @@ def _measure_crop_core(index, time_ls, file, settings):
         data_type = data.dtype
         if data_type not in ['uint8','uint16']:
             data_type_before = data_type
-            data = data.astype(np.uint16)
+            data, factor = _promote_merged_to_uint16(data, settings)
             data_type = data.dtype
             if settings['verbose']:
-                print(f'Converted data from {data_type_before} to {data_type}')
+                scale = '' if factor == 1.0 else f' (intensity x{factor:g})'
+                print(f'Converted data from {data_type_before} to {data_type}{scale}')
 
         # A merged 2-D field is (Y, X, C); a merged z-stack is (Z, Y, X, C).
         # Every slice below therefore indexes the LAST axis -- `data[..., k]` --
@@ -2612,6 +2690,152 @@ def get_object_counts(src):
 
 
 
+# ---------------------------------------------------------------------------
+# Object crops: the working dtype, and the one place it is left behind
+# ---------------------------------------------------------------------------
+#
+# A merged array is 16-bit (``uint16``, or ``int32`` once a cellpose label
+# plane has been concatenated onto it). The crop path keeps that dtype from
+# the ``.npy`` all the way to the writer, exactly as ``_measure_crop_core``
+# does: nothing in the middle of the pipeline is allowed to change it.
+#
+# 8-bit is genuinely required at exactly two places -- a PNG assembled by PIL
+# (:func:`_save_object_crop`) and an RGB image handed to a GUI
+# (``crop_objects_from_array(to_rgb=True)``). Both go through
+# :func:`_crop_to_uint8`, which *rescales*. They used to go through
+# ``np.clip(crop, 0, 255).astype(np.uint8)``, which does not: on a raw 16-bit
+# crop every pixel above 255 -- i.e. every pixel of the object -- came out at
+# exactly 255. Unnormalised 16-bit data shown as 8-bit has to look DARK; a
+# clip is what turned it white, and those white crops were written to disk and
+# trained on.
+
+
+def _crop_full_scale(dtype):
+    """Return the value that means "full brightness" for ``dtype``.
+
+    An integer dtype has one: ``iinfo(dtype).max`` -- the same range
+    :func:`spacr.utils.normalize_to_dtype` stretches the pipeline's own crops
+    into, so a normalised crop from here and one from ``measure_crop`` are on
+    the same scale. A float array is taken on the ``[0, 1]`` image convention
+    (what ``spacr.io._normalize_img_batch`` writes).
+    """
+    dtype = np.dtype(dtype)
+    if np.issubdtype(dtype, np.integer):
+        return float(np.iinfo(dtype).max)
+    return 1.0
+
+
+def _normalize_crop(crop, percentiles, mask_background):
+    """Per-channel percentile stretch that KEEPS ``crop``'s dtype.
+
+    The stretch targets the dtype's full range (:func:`_crop_full_scale`), not
+    a hard-coded 0-255: normalising a ``uint16`` crop into 0-255 and storing it
+    back as ``uint16`` throws away 8 of the 16 bits before anything has asked
+    for an 8-bit image.
+
+    :param crop: ``(H, W, C)`` array in the working dtype.
+    :param percentiles: ``(low, high)`` percentiles, per channel.
+    :param mask_background: when True the background is already zeroed, so the
+        percentiles are taken over the object's pixels only.
+    :returns: array of the same shape and dtype.
+    """
+    arr = np.asarray(crop)
+    top = _crop_full_scale(arr.dtype)
+    out = np.zeros(arr.shape, dtype=np.float64)
+    for c in range(arr.shape[2]):
+        sl = arr[:, :, c].astype(np.float64)
+        nz = sl[sl > 0] if mask_background else sl
+        if nz.size:
+            lo, hi = np.percentile(nz, percentiles)
+            if hi > lo:
+                out[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * top
+                continue
+        mx = sl.max()
+        out[:, :, c] = (sl / mx * top) if mx > 0 else sl
+    if np.issubdtype(arr.dtype, np.integer):
+        return np.rint(out).astype(arr.dtype)
+    return out.astype(arr.dtype)
+
+
+def _crop_to_uint8(crop):
+    """The declared 8-bit boundary for an object crop. Rescales, never truncates.
+
+    One rule per dtype, and every one of them is linear and maps 0 to 0, so
+    background stays background and relative intensity survives:
+
+    * ``uint8`` -- already 8-bit, returned unchanged.
+    * any wider integer -- :func:`spacr.crops.narrow_to_uint8`, i.e. the HIGH
+      BYTE of the 16-bit range. This is the narrowing rule the rest of spaCR
+      uses for crop PNGs, so a crop from here and one read back by
+      ``spacr.crops.read_crop_png`` agree. Raw 16-bit data comes out dark,
+      which is what raw 16-bit data looks like at 8 bits.
+    * float (and anything else) -- a float array carries no dtype range, so the
+      scale comes from the crop itself: ``0 .. max`` maps to ``0 .. 255``. A
+      normalised crop is already on ``[0, 1]`` (:func:`_crop_full_scale`) and
+      therefore simply multiplied by 255.
+
+    :param crop: ``(H, W, C)`` (or 2-D) array in the working dtype.
+    :returns: ``uint8`` array of the same shape.
+    """
+    arr = np.asarray(crop)
+    if arr.dtype == np.dtype(np.uint8):
+        return arr
+    if np.issubdtype(arr.dtype, np.integer):
+        return narrow_to_uint8(arr)
+    if arr.size == 0:
+        return arr.astype(np.uint8)
+    mx = float(np.nanmax(arr))
+    if not np.isfinite(mx) or mx <= 0:
+        return np.zeros(arr.shape, dtype=np.uint8)
+    scaled = np.clip(np.nan_to_num(arr, nan=0.0), 0, None) / mx * 255.0
+    return np.rint(scaled).astype(np.uint8)
+
+
+def _resolve_merged_path(path_name, merged_dir):
+    """Return the merged ``.npy`` a measurement row names, or ``None``.
+
+    ``spacr.utils._merge_and_save_to_database`` records ``path_name`` as
+    ``os.path.join(source_folder, file_name + '.npy')``, and ``source_folder``
+    in :func:`_measure_crop_core` is ``os.path.dirname(settings['src'])`` --
+    the *parent* of ``merged/``. So on every database spaCR has written, the
+    recorded path is ``<root>/<field>.npy`` while the array is at
+    ``<root>/merged/<field>.npy``: ``os.path.isfile(path_name)`` is False for
+    every row, and :func:`generate_object_dataset` skipped every object of
+    every real run while the hand-built databases in the tests (which record
+    the path the file is actually at) all passed.
+
+    Resolving on read rather than changing the writer is deliberate: it also
+    covers a database moved between machines, and it is the exact fallback
+    :meth:`spacr.crops.MergedCropSource._merged_path_for` already uses --
+    trust the recorded path when it exists, otherwise look for its basename in
+    this experiment's ``merged/`` folder.
+
+    :param path_name: the ``path_name`` column of a measurement row.
+    :param merged_dir: this experiment's ``merged/`` folder.
+    :returns: an existing path, or ``None`` when neither candidate exists.
+    """
+    if not path_name:
+        return None
+    path_name = str(path_name)
+    if os.path.isfile(path_name):
+        return path_name
+    candidate = os.path.join(merged_dir, os.path.basename(path_name))
+    return candidate if os.path.isfile(candidate) else None
+
+
+def _crop_channels(data, y0, y1, x0, x1, channels, region=None):
+    """Cut ``channels`` out of ``data[y0:y1, x0:x1]`` **without changing dtype**.
+
+    ``region`` (a boolean object mask over the same window) zeroes the
+    background. The old code cast to ``float32`` here and never came back,
+    which is what made the 8-bit clip downstream invisible.
+    """
+    crop = np.asarray(data)[y0:y1, x0:x1, :][:, :, list(channels)]
+    if region is None:
+        return np.ascontiguousarray(crop)
+    return np.where(region[:, :, None], crop, 0).astype(crop.dtype, copy=False)
+
+
 def generate_object_dataset(
     src,
     object_type='cell',
@@ -2699,6 +2923,22 @@ def generate_object_dataset(
     :returns: a manifest ``list[dict]``; each entry has ``object_label``,
         ``path_name``, ``plateID``/``rowID``/``columnID``/``fieldID``,
         ``png_path`` (if saved) and ``array`` (if ``return_arrays``).
+
+    .. note::
+
+       **The crop keeps the merged array's dtype.** A ``uint16`` field gives
+       ``uint16`` crops, in the manifest and in the ``.npy`` written for more
+       than three channels; ``normalize`` stretches into that dtype's full
+       range, not into 0-255. The single narrowing to 8 bit happens in
+       :func:`_save_object_crop`, where PIL needs it, and it *rescales*
+       (:func:`_crop_to_uint8`).
+
+       It used to cast to ``float32``, normalise into 0-255 and then
+       ``np.clip(crop, 0, 255).astype(np.uint8)``. With ``normalize=False``
+       that clip hit every 16-bit pixel brighter than 255 -- i.e. the whole
+       object -- so the PNG written to disk was a solid white silhouette. The
+       datasets built from it were trained on saturated images and nothing
+       said so.
     """
     import os
     import sqlite3
@@ -2781,16 +3021,18 @@ def generate_object_dataset(
     manifest = []
     _array_cache = {}
     saved = 0
+    merged_dir = os.path.join(root, 'merged')
     for row in selected:
         path_name = row["path_name"]
         label = int(row["object_label"])
         if path_name not in _array_cache:
-            if not os.path.isfile(path_name):
+            resolved = _resolve_merged_path(path_name, merged_dir)
+            if resolved is None:
                 if verbose:
                     print(f"  missing array, skipping: {path_name}")
                 _array_cache[path_name] = None
             else:
-                _array_cache[path_name] = np.load(path_name)
+                _array_cache[path_name] = np.load(resolved)
         data = _array_cache[path_name]
         if data is None:
             continue
@@ -2814,23 +3056,10 @@ def generate_object_dataset(
         y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
         x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
 
-        crop = data[y0:y1, x0:x1, :][:, :, channels].astype(np.float32)
-        if mask_background:
-            region = (mask[y0:y1, x0:x1] == label)
-            crop = crop * region[:, :, None]
-
+        region = (mask[y0:y1, x0:x1] == label) if mask_background else None
+        crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
         if normalize:
-            for c in range(crop.shape[2]):
-                sl = crop[:, :, c]
-                nz = sl[sl > 0] if mask_background else sl
-                if nz.size:
-                    lo, hi = np.percentile(nz, percentiles)
-                    if hi > lo:
-                        crop[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * 255.0
-                        continue
-                mx = sl.max()
-                crop[:, :, c] = (sl / mx * 255.0) if mx > 0 else sl
-        crop = np.clip(crop, 0, 255).astype(np.uint8)
+            crop = _normalize_crop(crop, percentiles, mask_background)
 
         entry = {k: row[k] for k in
                  ("object_label", "path_name", "plateID", "rowID",
@@ -2861,6 +3090,12 @@ def _save_object_crop(crop, channels, png_path, png_size):
     3 channels → RGB PNG; 1 → greyscale; 2 → padded to RGB; >3 → the raw array
     is saved as ``.npy`` and the first three channels as a PNG preview. Returns
     the path actually written.
+
+    **This is a declared 8-bit boundary.** PIL writes 8-bit PNGs here, so the
+    crop is narrowed by :func:`_crop_to_uint8` -- a linear rescale off the
+    dtype's range, not a clip at 255. The ``.npy`` written for a >3-channel
+    crop is *not* narrowed: it keeps the full working dtype, because it is
+    data, not a picture.
     """
     import os
     import numpy as np
@@ -2870,17 +3105,18 @@ def _save_object_crop(crop, channels, png_path, png_size):
     if n > 3:
         npy_path = os.path.splitext(png_path)[0] + ".npy"
         np.save(npy_path, crop)
-        preview = crop[:, :, :3]
+        preview = _crop_to_uint8(crop[:, :, :3])
         Image.fromarray(preview).resize(tuple(png_size)).save(png_path)
         return npy_path
+    eight = _crop_to_uint8(crop)
     if n == 1:
-        img = Image.fromarray(crop[:, :, 0], mode="L")
+        img = Image.fromarray(eight[:, :, 0], mode="L")
     elif n == 2:
-        rgb = np.zeros((*crop.shape[:2], 3), dtype=np.uint8)
-        rgb[:, :, :2] = crop
+        rgb = np.zeros((*eight.shape[:2], 3), dtype=np.uint8)
+        rgb[:, :, :2] = eight
         img = Image.fromarray(rgb)
     else:
-        img = Image.fromarray(crop)
+        img = Image.fromarray(eight)
     img.resize(tuple(png_size)).save(png_path)
     return png_path
 
@@ -2906,10 +3142,20 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
     :param percentiles: ``(low, high)`` for normalisation.
     :param buffer: padding (px) around each object's bounding box.
     :param to_rgb: assemble the chosen channels into an HxWx3 uint8 image
-        (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels.
+        (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels
+        **in the merged array's own dtype**.
     :param limit: cap the number of objects returned.
     :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
         objects first.
+
+    .. note::
+
+       ``to_rgb=True`` is the one place this function leaves the working
+       dtype, because a GUI image is 8-bit. It narrows with
+       :func:`_crop_to_uint8` (a rescale off the dtype range), not with a clip
+       at 255 -- a clip made every pixel of an unnormalised 16-bit object come
+       back as pure white, so the preview showed a white blob and the run it
+       was previewing did not.
     """
     import numpy as np
 
@@ -2934,30 +3180,25 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
 
     out = []
     for area, lbl in scored:
+        # No "label vanished" guard here, unlike generate_object_dataset:
+        # `scored` was built from np.unique of THIS plane a few lines up, so
+        # every label in it is in it. (In generate_object_dataset the label
+        # comes from the database and the plane from disk, which is a real
+        # chance to disagree, and that guard is exercised.)
         ys, xs = np.where(mask == lbl)
-        if ys.size == 0:
-            continue
         y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
         x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
 
-        crop = data[y0:y1, x0:x1, :][:, :, channels].astype(np.float32)
-        if mask_background:
-            region = (mask[y0:y1, x0:x1] == lbl)
-            crop = crop * region[:, :, None]
+        region = (mask[y0:y1, x0:x1] == lbl) if mask_background else None
+        crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
         if normalize:
-            for c in range(crop.shape[2]):
-                sl = crop[:, :, c]
-                nz = sl[sl > 0] if mask_background else sl
-                if nz.size:
-                    lo, hi = np.percentile(nz, percentiles)
-                    if hi > lo:
-                        crop[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * 255.0
-                        continue
-                mx = sl.max()
-                crop[:, :, c] = (sl / mx * 255.0) if mx > 0 else sl
-        crop = np.clip(crop, 0, 255).astype(np.uint8)
+            crop = _normalize_crop(crop, percentiles, mask_background)
 
         if to_rgb:
+            # Declared 8-bit boundary: a QImage/RGB888 wants uint8. Narrow by
+            # rescaling (_crop_to_uint8), then assemble -- so a raw 16-bit
+            # field previews dark rather than solid white.
+            crop = _crop_to_uint8(crop)
             n = crop.shape[2]
             if n == 1:
                 crop = np.repeat(crop, 3, axis=2)
@@ -2966,7 +3207,7 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
                 rgb[:, :, :2] = crop
                 crop = rgb
             elif n > 3:
-                crop = crop[:, :, :3]
+                crop = np.ascontiguousarray(crop[:, :, :3])
 
         out.append({"label": lbl, "area": area,
                     "bbox": (int(y0), int(y1), int(x0), int(x1)), "crop": crop})
