@@ -42,6 +42,45 @@ def test_run_demo_generator_produces_layout(qtbot, qt_theme_applied,
     assert layout.settings_csv.exists()
 
 
+# The pre-flight app key each demo's settings are validated against. It is not
+# always DEMO_TARGETS' target *screen*: the classify demo opens in Annotate
+# (a GUI-only screen with no pipeline), and the crop demo is measure with
+# save_png on.
+_DEMO_PREFLIGHT_APP = {
+    "mask": "mask",
+    "measure": "measure",
+    "crop": "measure",
+    "classify": "classify",
+    "timelapse": "timelapse",
+    "map_barcodes": "map_barcodes",
+}
+
+
+@pytest.mark.parametrize("demo_key", sorted(_DEMO_PREFLIGHT_APP))
+def test_every_demo_clears_preflight(qtbot, qt_theme_applied, tmp_path,
+                                       demo_key):
+    """Generate each demo through the menu's own code path and run spaCR's
+    pre-flight on the settings it wrote.
+
+    This is the test that would have caught all four of the demo defects at
+    once: no ``merged/`` for measure, a timelapse dataset advertising channels
+    it had not acquired, a misspelled ``cell_signal_to_noise``, and a
+    sequencing demo with no barcode CSVs. Checking the generator in isolation
+    caught none of them — the settings CSV is what the user actually loads.
+    """
+    from spacr.utils import load_settings
+    from spacr.validate import validate_settings
+
+    win = _new_mainwindow(qtbot, qt_theme_applied)
+    layout = win._run_demo_generator(demo_key, str(tmp_path / demo_key))
+    settings = load_settings(str(layout.settings_csv),
+                             setting_key="Key", setting_value="Value")
+    problems = validate_settings(settings, _DEMO_PREFLIGHT_APP[demo_key])
+    assert not problems, (
+        f"{demo_key} demo does not clear pre-flight:\n"
+        + "\n".join(str(p) for p in problems))
+
+
 def test_apply_mask_demo_populates_app_screen(qtbot, qt_theme_applied,
                                                  tmp_path):
     """The mask demo → mask AppScreen path: after applying, the
@@ -64,6 +103,67 @@ def test_apply_mask_demo_populates_app_screen(qtbot, qt_theme_applied,
         # the tmp_path we generated the demo into
         if isinstance(w, QLineEdit):
             assert str(layout.src) in w.text()
+
+
+@pytest.mark.parametrize("demo_key", sorted(_DEMO_PREFLIGHT_APP))
+def test_demo_settings_survive_the_widget_round_trip(qtbot, qt_theme_applied,
+                                                       tmp_path, demo_key):
+    """Every demo key the generator writes has to land in a real widget
+    *and come back out with the same value*.
+
+    `_apply_demo_to_screen` loads the CSV and calls `apply_settings_dict`,
+    which silently ignores keys the screen has no widget for. Asserting on the
+    generator's dict alone cannot see that; asserting on what the screen holds
+    afterwards can.
+
+    Presence alone is not enough, and that is the point of the value half.
+    ``normalize=[1, 99]`` was PRESENT in `collect()` and came back as
+    ``False``: `spacr.settings` declares ``normalize`` a bool, so the Measure
+    screen renders a Toggle, and `AppScreen._apply_value` sets it from
+    ``str(val).lower() in ("true", "1", "yes")``. The CSV on disk and the form
+    the user is about to hit Run on disagreed about how every crop is scaled,
+    and a keys-only assertion called that green.
+
+    The screen a demo is round-tripped against is the app its settings CSV is
+    written *for* (``_DEMO_PREFLIGHT_APP``), not `DEMO_TARGETS`' navigation
+    target: the classify demo opens the Annotate screen for labelling, but
+    ``settings_classify.csv`` is a Classify settings file and that is the form
+    it has to survive.
+    """
+    win = _new_mainwindow(qtbot, qt_theme_applied)
+    layout = win._run_demo_generator(demo_key, str(tmp_path / demo_key))
+    target_app = _DEMO_PREFLIGHT_APP[demo_key]
+    win._on_nav_selected(target_app)
+    screen = win._screens.get(target_app)
+    assert screen is not None
+    assert hasattr(screen, "apply_settings_dict"), target_app
+
+    win._apply_demo_to_screen(screen, layout)
+    collected = screen._settings_model.collect()
+
+    from spacr.utils import load_settings
+    written = load_settings(str(layout.settings_csv),
+                            setting_key="Key", setting_value="Value")
+    missing = sorted(k for k in written if k not in collected)
+    assert not missing, (
+        f"{demo_key}: the {target_app} screen has no widget for "
+        f"{missing} — those settings are dropped on the floor")
+
+    # `src` is exempt from equality and checked by containment below: the
+    # multi-plate apps (classify) edit it as a list of roots, so one path in
+    # legitimately comes back as a one-element list. Nothing else may change.
+    mangled = {k: (v, collected[k]) for k, v in written.items()
+               if k != "src" and collected[k] != v}
+    assert not mangled, (
+        f"{demo_key}: the {target_app} screen changed these values on the way "
+        f"through its widgets:\n"
+        + "\n".join(f"  {k}: wrote {w!r} ({type(w).__name__}), form holds "
+                    f"{g!r} ({type(g).__name__})"
+                    for k, (w, g) in sorted(mangled.items()))
+        + "\n\nA demo that writes a setting the GUI then rewrites is worse "
+          "than a demo that omits it: the CSV and the form disagree and the "
+          "run uses the form.")
+    assert str(layout.src) in str(collected["src"])
 
 
 def test_apply_classify_demo_opens_annotate_screen(qtbot,
