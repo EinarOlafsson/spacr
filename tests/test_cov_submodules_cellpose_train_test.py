@@ -199,9 +199,14 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     assert call["save_path"] == os.path.join(str(tmp_path), "models", "cellpose_model")
     assert os.path.isdir(call["save_path"])
 
-    # -- batch_size caps the number of base images pulled from the dataset
-    assert len(call["train_data"]) == 2
-    assert len(call["train_labels"]) == 2
+    # -- EVERY annotated image is training data; batch_size is only the
+    #    optimizer minibatch (asserted above as call["batch_size"] == 2).
+    #    This used to assert ``len(call["train_data"]) == 2`` under the
+    #    comment "batch_size caps the number of base images pulled from the
+    #    dataset" -- i.e. it pinned the defect, discarding the third of the
+    #    three annotated images written by _write_pairs above.
+    assert len(call["train_data"]) == 3
+    assert len(call["train_labels"]) == 3
     for img in call["train_data"]:
         assert img.shape == (16, 16)
         assert img.dtype == np.float32
@@ -220,8 +225,14 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     assert dict(zip(saved_df["Key"], saved_df["Value"]))["model_type"] == "cpsam"
 
 
-def test_train_cellpose_augment_expands_one_base_image_to_eight(tmp_path, cp_stub):
-    """augment=True turns each selected base image into its 8 dihedral variants."""
+def test_train_cellpose_augment_expands_every_base_image_to_eight(tmp_path, cp_stub):
+    """augment=True turns EVERY base image into its 8 dihedral variants.
+
+    Formerly ``..._expands_one_base_image_to_eight``: with batch_size=1 it
+    asserted 8 patches, because ``min(batch_size, ...)`` threw away the
+    second of the two annotated images. Both images are kept now, so the
+    fan-out is 2 x 8 = 16.
+    """
     from spacr.submodules import train_cellpose
 
     # Deliberately asymmetric so the 8 variants are genuinely different.
@@ -237,7 +248,7 @@ def test_train_cellpose_augment_expands_one_base_image_to_eight(tmp_path, cp_stu
         "n_epochs": 5,          # -> save_every = max(1, 0) = 1
         "target_size": 32,
         "augment": True,
-        "batch_size": 1,        # only one base image survives the min()
+        "batch_size": 1,        # minibatch of 1; must NOT shrink the dataset
         "learning_rate": 0.1,
         "weight_decay": 1e-5,
     }
@@ -245,8 +256,9 @@ def test_train_cellpose_augment_expands_one_base_image_to_eight(tmp_path, cp_stu
 
     call = cp_stub["train_calls"][0]
     assert call["save_every"] == 1
-    assert len(call["train_data"]) == 8
-    assert len(call["train_labels"]) == 8
+    assert call["batch_size"] == 1          # still the optimizer minibatch
+    assert len(call["train_data"]) == 16    # 2 base images x 8 variants
+    assert len(call["train_labels"]) == 16
 
     distinct = {lbl.tobytes() for lbl in call["train_labels"]}
     assert len(distinct) >= 4, "augmentation produced near-identical labels"
@@ -274,7 +286,7 @@ def test_train_cellpose_uses_only_filenames_present_in_both_folders(tmp_path, cp
         "n_epochs": 10,
         "target_size": 16,
         "augment": False,
-        "batch_size": 50,       # larger than the dataset -> min() clamps
+        "batch_size": 50,       # minibatch larger than the dataset: harmless
         "learning_rate": 0.2,
         "weight_decay": 1e-5,
     }
@@ -317,7 +329,7 @@ def test_train_cellpose_survives_a_failing_batch_plot(tmp_path, cp_stub, monkeyp
 
 
 def test_train_cellpose_plots_the_batch_it_trains_on(tmp_path, cp_stub, monkeypatch):
-    """plot_cellpose_batch is handed exactly the images/labels sent to train_seg."""
+    """plot_cellpose_batch previews the training data (up to the preview cap)."""
     from spacr.submodules import train_cellpose
 
     seen = {}
