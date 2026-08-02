@@ -39,6 +39,91 @@ def _cooperative_job(started: threading.Event):
     return run
 
 
+def _retired(thread) -> bool:
+    """Has ``thread`` stopped running — including "it no longer exists"?
+
+    ``make_thread`` wires ``thread.finished -> deleteLater``; the QThread is
+    GUI-affine, so that deferred delete is flushed by the GUI loop (see the
+    ownership essay in :func:`spacr.qt.bridge.make_thread`).  ``qtbot.wait``
+    calls ``sendPostedEvents(None, QEvent.DeferredDelete)`` on every pass, so
+    the single pump that lets the job finish also delivers ``finished`` *and*
+    reaps the C++ QThread — and the next poll of the same Python wrapper
+    raises ``RuntimeError: Internal C++ object (QThread) already deleted``
+    rather than returning False.
+
+    Measured, not theorised: a 50-cycle standalone harness over
+    ``make_thread`` + ``qtbot.waitUntil(lambda: not thread.isRunning())``
+    raised that RuntimeError on 20-22 cycles out of 50, every run.  That is
+    why the naive poll cannot be used here.
+
+    A reaped wrapper is not an error, it is the strongest possible evidence
+    the thread retired: ``deleteLater`` is only ever posted from
+    ``thread.finished``.  :meth:`spacr.qt.bridge.RunHandle.is_running`
+    swallows the same RuntimeError for the same reason.
+    """
+    try:
+        return not thread.isRunning()
+    except RuntimeError:
+        return True
+
+
+def _join(qtbot, thread, timeout_ms: int = 3000) -> None:
+    """Wait for ``thread`` to retire **while pumping the GUI event loop**.
+
+    The pumping is the point, not an implementation detail.  Everything that
+    tidies up after a run — ``thread.deleteLater``, ``RunHandle.retire``, the
+    screens' own ``thread.finished`` slots — is queued to the GUI thread, so a
+    join that never returns to the loop leaves fifty cycles' worth of teardown
+    stacked up and flushed in one burst at the end.  That is the opposite of
+    what these tests exist to stress: the crash this module guards against
+    (two owners of one worker, gdb'd to ``QThread -> sendPostedEvents ->
+    ~QObject``) needs a *new* job starting while a previous one's deferred
+    deletes are being delivered.  A bare ``QThread.wait()`` runs no event loop
+    and never produces that interleaving.
+    """
+    qtbot.waitUntil(lambda target=thread: _retired(target), timeout=timeout_ms)
+
+
+def test_join_treats_a_thread_reaped_by_the_pump_as_retired(qtbot):
+    """The tolerance in :func:`_retired` is load-bearing, so pin it.
+
+    Without it every join in this module is a coin flip: the pump that
+    retires the thread also runs its ``deleteLater``, and one poll in two
+    lands after the reap.
+    """
+    class Reaped:
+        def isRunning(self):
+            raise RuntimeError(
+                "libshiboken: Internal C++ object "
+                "(PySide6.QtCore.QThread) already deleted.")
+
+    class StillRunning:
+        def isRunning(self):
+            return True
+
+    # The tolerance itself, asserted directly rather than inferred from the
+    # absence of a timeout.
+    assert _retired(Reaped()) is True
+
+    # And the negative case, so the tolerance cannot silently widen into
+    # "every thread is retired" -- which would make every join in this module
+    # return immediately and stop stressing anything at all.
+    assert _retired(StillRunning()) is False
+
+    # _join must return promptly on a reaped wrapper. Timing it is what
+    # distinguishes "recognised as retired" from "waited out the timeout and
+    # happened not to raise": at 250 ms budget, a real detection is a small
+    # fraction of that.
+    start = time.monotonic()
+    _join(qtbot, Reaped(), timeout_ms=250)
+    assert time.monotonic() - start < 0.20
+
+    # A thread that never retires must still raise, or `_join` would be a
+    # no-op wearing a wait's clothes.
+    with pytest.raises(Exception):
+        _join(qtbot, StillRunning(), timeout_ms=150)
+
+
 def test_rapid_repeated_start_cancel_retires_every_thread(
         qtbot, qt_theme_applied):
     """Fifty immediate Stop cycles must not leak or destroy a live QThread."""
@@ -52,8 +137,7 @@ def test_rapid_repeated_start_cancel_retires_every_thread(
         thread.start()
         worker.request_cancel("rapid stop")
         thread.requestInterruption()
-        qtbot.waitUntil(lambda target=thread: not target.isRunning(),
-                        timeout=3000)
+        _join(qtbot, thread)
         assert worker.was_cancelled
     qtbot.waitUntil(
         lambda: not any(
@@ -96,7 +180,10 @@ def test_cancelled_worker_has_distinct_manifest_status(
     thread.start()
     assert started.wait(3)
     worker.request_cancel("manifest test")
-    qtbot.waitUntil(lambda: not thread.isRunning(), timeout=3000)
+    # The manifest is closed in ``PipelineWorker.run``'s finally block, before
+    # ``finished`` fires and therefore before the thread's loop quits, so the
+    # file on disk is complete by the time this join returns.
+    _join(qtbot, thread)
 
     manifest_path = next(_isolated_run_journal.glob("*/manifest.json"))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
