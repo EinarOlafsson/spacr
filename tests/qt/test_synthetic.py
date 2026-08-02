@@ -189,9 +189,19 @@ def test_organelle_channel_survives_the_default_spot_segmenter(tmp_path: Path):
     element, so the 14-px-radius blobs this channel used to carry were wiped
     out and otsu thresholded the leftover *noise*: ~230 five-pixel specks per
     field, which seg_qc failed as `over_segmented` on 4 of 4 fields.
+
+    Green is not enough on its own — a light one pixel from red is a light
+    that goes red on someone else's machine — so the margin is asserted too.
+    A full 4-field mask run of this demo scores the organelle channel at 64
+    objects, median diameter 8.2 px, 0% on the border, 5.1% foreground, zero
+    tiny objects and zero size outliers, against thresholds of 10 objects,
+    5.0 px, 30%, 35% and 30% / 15%. The two nearest their limit are the object
+    count and the diameter, and both are pinned below: the data is realistic
+    for punctate organelles and the QC thresholds are the correct ones, so
+    neither may be tuned to keep this test green.
     """
     from spacr.object import _segment_spots
-    from spacr.seg_qc import score_field
+    from spacr.seg_qc import QC_DEFAULTS, score_field
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     mask_defaults = resolve_default_settings("mask")
@@ -205,6 +215,19 @@ def test_organelle_channel_survives_the_default_spot_segmenter(tmp_path: Path):
         qc = score_field(labels, object_type="organelle", field=f"f{seed}")
         assert qc.severity == "ok", (
             f"seed {seed}: {qc.severity} {qc.flags} — {qc.note}")
+        # `near_empty_field`: a robust size statistic over a handful of
+        # objects is one object's opinion rather than a distribution.
+        assert qc.n_objects >= 2 * QC_DEFAULTS["min_objects"], (
+            f"seed {seed}: {qc.n_objects} organelles is within a factor of "
+            f"two of seg_qc_min_objects ({QC_DEFAULTS['min_objects']})")
+        # `tiny_objects`: puncta must survive the disk(5) white top hat as
+        # objects, not as the noise specks the old 14-px blobs decayed into.
+        assert qc.metrics["median_diameter"] >= 1.5 * QC_DEFAULTS["min_diameter"], (
+            f"seed {seed}: median diameter {qc.metrics['median_diameter']:.1f} "
+            f"px is within 1.5x of seg_qc_min_diameter "
+            f"({QC_DEFAULTS['min_diameter']})")
+        assert qc.metrics["tiny_fraction"] == 0.0
+        assert qc.metrics["outlier_fraction"] == 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -274,45 +297,203 @@ def test_crop_demo_passes_preflight_and_asks_for_pngs(tmp_path: Path):
     assert not warnings, [str(p) for p in warnings]
 
 
+def test_crop_demo_leaves_exactly_one_settings_csv_in_the_folder(tmp_path: Path):
+    """One folder, one ``settings_*.csv``.
+
+    ``generate_crop_demo`` used to call ``generate_measure_demo`` for the
+    dataset and then only *reassign* ``layout.settings_csv``, so the folder
+    kept ``settings_measure.csv`` (``save_png=False``) next to
+    ``settings_crop.csv`` (``save_png=True``). "Import settings…" opens a file
+    picker: a user who takes the first alphabetically gets a Crop run that
+    measures fine and writes no PNG crops, with nothing anywhere saying why.
+    """
+    layout = syn.generate_crop_demo(tmp_path, wells=("A01",), fields=1)
+    found = sorted(p.name for p in layout.src.glob("settings*.csv"))
+    assert found == ["settings_crop.csv"], found
+    assert layout.settings_csv is not None
+    assert layout.settings_csv.name == "settings_crop.csv"
+    # ...and it is still the full measure dataset, not a stub.
+    assert layout.merged_files
+    assert all(p.exists() for p in layout.merged_files)
+    assert _load(layout)["save_png"] is True
+
+    # The measure demo keeps its own name, in its own folder.
+    other = syn.generate_measure_demo(tmp_path / "m", wells=("A01",), fields=1)
+    assert sorted(p.name for p in other.src.glob("settings*.csv")) == [
+        "settings_measure.csv"]
+
+
+@pytest.mark.integration
+def test_crop_demo_runs_end_to_end_through_measure_crop(tmp_path: Path):
+    """RUN the demo through ``spacr.measure.measure_crop``.
+
+    Everything above this line checks a *precondition* — file layout, plane
+    order, pre-flight cleanliness. Each was a real bug, but none of them
+    executes a pipeline, so "the crop demo runs clean" was an unbacked claim:
+    the demo could stop producing a single row or a single PNG and this module
+    would stay green. This drives the real entry point on the demo's own
+    settings CSV, unedited except for ``n_jobs`` (the default is one worker per
+    core, which is antisocial inside a test run — it changes the scheduling,
+    not the arithmetic).
+
+    The row counts are asserted against the *truth* in ``merged/*.npy`` rather
+    than against literals, so the test keeps meaning if the generator's object
+    counts ever change: every label in a mask plane must come back as a row.
+    """
+    import sqlite3
+
+    from spacr.measure import measure_crop
+
+    layout = syn.generate_crop_demo(tmp_path, wells=("A01",), fields=1)
+    settings = dict(_load(layout))
+    settings["n_jobs"] = 1
+
+    # Counted before the run: measure_crop canonicalizes the dict it is
+    # handed in place (``src`` gains a ``/merged`` leaf, ``cytoplasm`` is
+    # switched on), so the truth has to be read off the stack while the
+    # settings still describe the folder on disk.
+    arr = np.load(layout.merged_files[0])
+    png_size = list(settings["png_size"])
+    truth = {role: int(np.count_nonzero(
+                 np.unique(arr[..., settings[f"{role}_mask_dim"]])))
+             for role in syn.MASK_ROLE_ORDER}
+    assert truth["organelle"] > 0, "the organelle plane is empty before the run"
+
+    measure_crop(settings)
+
+    db = layout.src / "measurements" / "measurements.db"
+    assert db.is_file(), "measure_crop wrote no measurements.db"
+    with sqlite3.connect(db) as conn:
+        tables = {name for (name,) in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        counts = {t: conn.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
+                  for t in tables}
+
+    for role in ("cell", "nucleus", "pathogen"):
+        assert role in tables, f"no {role} table: {sorted(tables)}"
+        assert counts[role] == truth[role], (
+            f"{role}: {counts[role]} rows measured from "
+            f"{truth[role]} labels in merged/*.npy")
+    # cytoplasm is switched on by measure_crop itself whenever there is a cell
+    # mask and a size floor, and is cell minus its nucleus/pathogen/organelle.
+    assert counts["cytoplasm"] == truth["cell"]
+    # save_png=True is the whole difference between the crop and measure demos.
+    assert counts["png_list"] == truth["cell"]
+
+    pngs = sorted(layout.src.rglob("*.png"))
+    assert len(pngs) == truth["cell"], [p.name for p in pngs]
+    for p in pngs:
+        # measure_crop appends f"{crop_mode}_png/" — the leaf
+        # spacr.io.generate_training_dataset's png_type filter selects on.
+        assert p.parent.name == "cell_png", p
+    from PIL import Image
+    assert Image.open(pngs[0]).size == tuple(png_size)
+
+
+@pytest.mark.integration
+@pytest.mark.heavy
 def test_the_measure_demos_organelle_plane_is_measured_into_nothing(tmp_path: Path):
     """KNOWN GAP, pinned here so it announces itself when it is fixed.
 
     The measure demo ships an organelle channel, an organelle label plane with
-    64 real labels and ``organelle_mask_dim=7`` — and a measure run over it
-    writes cell/nucleus/pathogen/cytoplasm and *no organelle table at all*.
+    64 real labels per field and ``organelle_mask_dim=7`` — and a measure run
+    over it writes cell/nucleus/pathogen/cytoplasm and *no organelle table at
+    all*. All four organelle writes in ``spacr.measure._measure_crop_core``
+    are gated on ``settings.get('summarize_organelles_by') is not None``, and
+    ``spacr.settings.get_measure_crop_settings`` never sets that key.
 
-    Every organelle write in ``spacr.measure._measure_crop_core`` is gated on
-    ``settings.get('summarize_organelles_by') is not None``, and
-    ``spacr.settings.get_measure_crop_settings`` never sets that key: only
-    ``set_default_settings_preprocess_generate_masks`` (the *Mask* app)
-    defaults it, to ``'cell'``. Passing ``summarize_organelles_by=['cell',
-    'organelle']`` by hand makes the ``organelle`` and
-    ``cell_organelle_summary`` tables appear, so the demo's pixels are fine.
+    That much was already recorded. What was wrong was the remedy — "default
+    it for measure the way the Mask app does" — and this test runs the
+    pipeline three ways to show why, because the difference between them is
+    invisible from the settings alone:
 
-    The demo cannot work around it: the key is not in the Measure app's
-    defaults, so the Qt Measure screen has no widget for it and importing the
-    CSV would drop it — a setting that is in the file, absent from the form,
-    and silently decides whether an organelle is measured at all. The fix is
-    in ``spacr/settings.py`` + ``spacr/qt/screens/settings_model.py``.
+    * as shipped                      → no ``organelle`` table;
+    * ``summarize_organelles_by='cell'``, which is exactly what
+      ``set_default_settings_preprocess_generate_masks`` defaults and the only
+      form ``spacr.settings.expected_types`` declares (it says ``str``)
+      → ``cell_organelle_summary`` appears and there is *still* no
+      ``organelle`` table, because ``measure.py`` asks
+      ``"organelle" in <value>`` and that is a substring test on a string;
+    * ``summarize_organelles_by=['cell', 'organelle']`` → both tables, one row
+      per organelle label. So the demo's pixels are fine and always were.
 
-    When this test fails, that fix has landed: delete the test and give the
-    measure/crop demos the key.
+    The demo cannot ship the working value: pre-flight rejects the list
+    outright ("is a list, but str is expected"), and the Measure screen has no
+    widget for the key, so ``apply_settings_dict`` drops it and ``collect()``
+    never emits it — a CSV key that changes what a CLI run measures and
+    nothing about a GUI run. The wiring needed is in ``spacr/settings.py``
+    (widen ``expected_types``, default it to ``['cell', 'organelle']``) and
+    ``spacr/qt/screens/settings_model.py`` (a widget in the measure sections).
+
+    When the first assertion fails, that wiring has landed: delete this test,
+    ship the key from ``demo_settings('measure'/'crop')``, and let
+    ``test_crop_demo_runs_end_to_end_through_measure_crop`` assert the
+    organelle rows alongside the rest.
     """
-    from spacr.settings import get_measure_crop_settings
+    import sqlite3
+
+    from spacr.measure import measure_crop
+    from spacr.settings import expected_types, get_measure_crop_settings
+    from spacr.validate import validate_settings
+
     layout = syn.generate_measure_demo(
-        tmp_path, wells=("A01",), fields=1, channels=(0, 1, 2, 3))
-    settings = _load(layout)
+        tmp_path / "demo", wells=("A01",), fields=1, channels=(0, 1, 2, 3))
+    shipped = _load(layout)
+
     # The demo's half of the contract: the plane exists and carries labels.
     arr = np.load(layout.merged_files[0])
-    assert settings["organelle_mask_dim"] == 7
-    assert arr[..., 7].max() > 0
+    assert shipped["organelle_mask_dim"] == 7
+    n_organelles = int(np.count_nonzero(np.unique(arr[..., 7])))
+    assert n_organelles == syn.CELL_GRID ** 2 * syn._ORGANELLES_PER_CELL
 
-    resolved = get_measure_crop_settings(dict(settings))
+    # Blocker 1: the key is not defaulted for measure.
+    resolved = get_measure_crop_settings(dict(shipped))
     assert resolved.get("summarize_organelles_by") is None, (
         "spacr.settings now defaults summarize_organelles_by for measure — "
-        "the organelle gap is closed. Delete this test, ship the key in "
-        "demo_settings('measure'/'crop'), and check the Measure screen has a "
-        "widget for it (tests/qt/test_demo_menu.py round-trips that).")
+        "see this test's docstring for what to do next.")
+    # Blocker 2: and the value that would work cannot be shipped anyway.
+    assert expected_types["summarize_organelles_by"] is str
+    with_list = dict(shipped)
+    with_list["summarize_organelles_by"] = ["cell", "organelle"]
+    typed = [p for p in validate_settings(with_list, "measure") if p.is_error]
+    assert typed, (
+        "expected_types no longer rejects a list for summarize_organelles_by; "
+        "the demo can ship it now")
+
+    def _tables(settings: dict, folder: str) -> dict:
+        """Run measure_crop on a private copy of the dataset, return counts."""
+        import shutil
+        src = tmp_path / folder
+        shutil.copytree(layout.src, src)
+        run = dict(settings)
+        run["src"] = str(src)
+        run["n_jobs"] = 1
+        measure_crop(run)
+        with sqlite3.connect(src / "measurements" / "measurements.db") as conn:
+            names = [n for (n,) in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")]
+            return {n: conn.execute(f'SELECT COUNT(*) FROM "{n}"').fetchone()[0]
+                    for n in names}
+
+    as_shipped = _tables(shipped, "as_shipped")
+    assert as_shipped["cell"] > 0
+    assert "organelle" not in as_shipped, (
+        "the organelle gap has closed on its own — check what changed")
+    assert "cell_organelle_summary" not in as_shipped
+
+    # The mask app's default, and the only str the type table allows.
+    as_str = _tables({**shipped, "summarize_organelles_by": "cell"}, "as_str")
+    assert as_str["cell_organelle_summary"] == as_shipped["cell"]
+    assert "organelle" not in as_str, (
+        "'cell' is a *string*; measure.py's `\"organelle\" in value` is a "
+        "substring test, so this must not write the per-organelle table — if "
+        "it now does, the gate changed and the fix note is stale")
+
+    # The value that actually works, proving the demo's data is measurable.
+    as_list = _tables(
+        {**shipped, "summarize_organelles_by": ["cell", "organelle"]}, "as_list")
+    assert as_list["organelle"] == n_organelles
+    assert as_list["cell_organelle_summary"] == as_shipped["cell"]
 
 
 @pytest.mark.parametrize("app_key", ["measure", "crop"])

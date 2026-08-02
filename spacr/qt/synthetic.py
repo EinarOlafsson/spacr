@@ -22,9 +22,15 @@ consume:
 * Measure/crop demos ship the `merged/*.npy` stacks measure_crop
   actually reads (image planes first, then the label-mask planes),
   not a stand-in.
-* Settings CSVs are written in the two-column "Key,Value" format that
-  `spacr.utils.load_settings` reads. Loading via the AppScreen's
-  "Import settings…" button restores every value into the form.
+* Settings CSVs are written in the two-column ``Key,Value`` format, the
+  first of the header pairs `spacr.qt.screens.app_screen.AppScreen
+  ._load_settings_csv` tries, so the "Import settings…" button restores
+  every value into the form. Reading one straight from Python means
+  naming the columns —
+  ``load_settings(path, setting_key="Key", setting_value="Value")`` —
+  because `spacr.utils.load_settings` *defaults* to the other spelling
+  (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db`
+  writes) and raises rather than guessing.
 
 Every generator is *reproducible*: identical inputs give byte-identical
 output on any machine. That is not decoration. Two people comparing
@@ -527,6 +533,39 @@ def _write_merged(
     return written
 
 
+def _build_measure_dataset(
+    dst: Path,
+    plate: str,
+    wells: Iterable[str],
+    fields: int,
+    channels: Iterable[int],
+) -> Tuple[Path, List[int], List[Path], List[Path]]:
+    """Emit the images + ``merged/*.npy`` stacks the measure and crop demos share.
+
+    Split out of :func:`generate_measure_demo` so that
+    :func:`generate_crop_demo` can reuse the *dataset* without also inheriting
+    measure's settings CSV. Chaining the two generators instead left both
+    ``settings_measure.csv`` (``save_png=False``) and ``settings_crop.csv``
+    (``save_png=True``) in one folder, and "Import settings…" shows the user a
+    file picker: choosing the wrong one gives a Crop run that writes no PNGs
+    and no explanation.
+
+    :param dst: destination folder; created if absent.
+    :param plate: plate ID baked into every filename.
+    :param wells: well IDs to emit.
+    :param fields: fields per well.
+    :param channels: acquisition channels to render.
+    :returns: ``(dst, channels, image_files, merged_files)`` with ``dst``
+        absolute and ``channels`` normalised to a list of ints.
+    """
+    dst = Path(dst).absolute()
+    dst.mkdir(parents=True, exist_ok=True)
+    channels = [int(c) for c in channels]
+    files, produced = _emit_images(dst, plate, wells, fields, channels)
+    merged = _write_merged(dst, plate, produced, channels)
+    return dst, channels, files, merged
+
+
 def generate_measure_demo(
     dst: Path,
     plate: str = "plate1",
@@ -544,31 +583,51 @@ def generate_measure_demo(
     with "no merged folder for measure".
 
     .. note::
-       The organelle plane this writes is measured into nothing, and the
-       defect is not in this module. Plane ``organelle_mask_dim`` of every
+       **The organelle plane this writes is measured into nothing, and the
+       defect is not in this module.** Plane ``organelle_mask_dim`` of every
        merged stack carries 64 real labels, but a measure run over this folder
-       writes ``cell``/``nucleus``/``pathogen``/``cytoplasm`` and **no
-       organelle table at all**. Cause: every organelle write in
-       ``spacr.measure._measure_crop_core`` is gated on
-       ``settings.get('summarize_organelles_by') is not None``, and
-       ``spacr.settings.get_measure_crop_settings`` — the defaults a measure
-       run is canonicalised through — never sets that key. Only
-       ``set_default_settings_preprocess_generate_masks`` (the *Mask* app)
-       defaults it, to ``'cell'``. Passing ``summarize_organelles_by=['cell',
-       'organelle']`` by hand makes the ``organelle`` (256 rows) and
-       ``cell_organelle_summary`` (64 rows) tables appear, so the data is
-       fine. The demo cannot ship the key as a workaround: it is absent from
-       the Measure app's defaults, so the Qt Measure screen has no widget for
-       it and ``_apply_demo_to_screen`` would drop it — a setting that is in
-       the CSV, absent from the form, and silently changes what is measured.
-       The fix belongs in ``spacr/settings.py`` (default it for measure) and
-       ``spacr/qt/screens/settings_model.py`` (give it a widget).
+       writes ``cell``/``nucleus``/``pathogen``/``cytoplasm`` and no
+       ``organelle`` table at all (verified: 4 fields → cell 64, nucleus 64,
+       pathogen 71, cytoplasm 64, organelle absent).
+
+       All four organelle writes in ``spacr.measure._measure_crop_core`` are
+       gated on ``settings.get('summarize_organelles_by') is not None``, and
+       ``spacr.settings.get_measure_crop_settings`` — the defaults every
+       measure run is canonicalised through — never sets that key.
+
+       That much was already known. What was *wrong* was the remedy: "default
+       it for measure the way the Mask app does" does not fix this, and cannot,
+       for two reasons that have to be fixed together.
+
+       1. ``set_default_settings_preprocess_generate_masks`` defaults it to the
+          **string** ``'cell'``, and ``measure.py`` tests it with
+          ``"organelle" in settings['summarize_organelles_by']`` — a *substring*
+          test when the value is a str. Running this demo with
+          ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary``
+          (16 rows/field) and still **no ``organelle`` table**. Only a value
+          containing ``'organelle'`` writes the per-organelle table
+          (``['cell', 'organelle']`` → organelle 64 rows/field, verified).
+       2. A list cannot be shipped today: ``spacr.settings.expected_types``
+          declares ``'summarize_organelles_by': str``, so
+          ``spacr.validate.validate_settings`` rejects
+          ``['cell', 'organelle']`` with "is a list, but str is expected" —
+          a hard pre-flight **error** on a demo that must load clean. The
+          tooltip and ``spacr.gui_utils`` both describe it as a list, and
+          ``spacr.external_masks`` builds one; only the type table disagrees.
+
+       So the demo deliberately omits the key, and the wiring needed elsewhere
+       is: widen ``expected_types['summarize_organelles_by']`` to
+       ``(str, list, type(None))``; make
+       ``get_measure_crop_settings`` default it to ``['cell', 'organelle']``
+       (safe — every write is separately gated on ``organelle_mask_dim is not
+       None``, which defaults to ``None``); and add it to the ``measure``
+       section of ``spacr/qt/screens/settings_model.py`` so the Measure form
+       can hold it — without a widget, ``apply_settings_dict`` drops it and
+       ``collect()`` never emits it, so a CSV key would change what a CLI run
+       measures and nothing about a GUI run.
     """
-    dst = Path(dst).absolute()
-    dst.mkdir(parents=True, exist_ok=True)
-    channels = [int(c) for c in channels]
-    files, produced = _emit_images(dst, plate, wells, fields, channels)
-    merged = _write_merged(dst, plate, produced, channels)
+    dst, channels, files, merged = _build_measure_dataset(
+        dst, plate, wells, fields, channels)
     settings = demo_settings("measure", str(dst), channels=channels)
     layout = DemoLayout(
         src=dst, image_dir=dst,
@@ -590,14 +649,35 @@ def generate_crop_demo(
     channels: Iterable[int] = (0, 1, 2, 3),
 ) -> DemoLayout:
     """Same dataset as measure — Crop is measure with ``save_png`` on, and
-    writes PNG crops into per-object folders alongside the DB."""
-    layout = generate_measure_demo(
-        dst, plate=plate, wells=wells, fields=fields, channels=channels)
-    settings = demo_settings("crop", str(layout.src),
-                             channels=[int(c) for c in channels])
-    layout.settings_csv = save_settings_csv(
-        layout.src / "settings_crop.csv", settings,
+    writes PNG crops into per-object folders alongside the DB.
+
+    Builds the dataset directly rather than by calling
+    :func:`generate_measure_demo`. Chaining them wrote ``settings_measure.csv``
+    first and then only *reassigned* ``layout.settings_csv``, leaving two
+    settings files in one folder — and the one named after the folder's own
+    demo was the one that turns PNG crops **off**. A folder holds exactly one
+    ``settings_*.csv`` now, so "Import settings…" cannot pick the wrong run.
+
+    :param dst: destination folder.
+    :param plate: plate ID baked into every filename.
+    :param wells: well IDs to emit.
+    :param fields: fields per well.
+    :param channels: acquisition channels to render.
+    :returns: :class:`DemoLayout` whose ``settings_csv`` is
+        ``settings_crop.csv``.
+    """
+    dst, channels, files, merged = _build_measure_dataset(
+        dst, plate, wells, fields, channels)
+    settings = demo_settings("crop", str(dst), channels=channels)
+    layout = DemoLayout(
+        src=dst, image_dir=dst,
+        image_files=files, merged_files=merged,
+        settings_csv=save_settings_csv(dst / "settings_crop.csv", settings),
+        notes={"channels": list(channels), "plate": plate,
+               "mask_roles": _mask_roles(channels)},
     )
+    LOG.info("crop demo ready at %s (%d images, %d merged stacks)",
+             dst, len(layout.image_files), len(merged))
     return layout
 
 
@@ -753,18 +833,37 @@ def generate_timelapse_demo(
 
     .. note::
        The dataset and settings this writes clear pre-flight, but the
-       Timelapse *pipeline* still cannot consume them, and that defect is not
-       in this module. ``spacr.io._rename_and_organize_image_files`` names its
-       stack files ``<plate>_<well>_<field>.npy`` when ``timelapse=True`` —
-       dropping the timeID and max-projecting every timepoint of a field into
-       one array — while ``spacr.io._generate_time_lists`` groups on
-       ``<plate>_<well>_<field>_<time>.npy`` and skips anything with fewer
-       than four underscore-separated parts. So no ``*_norm_timelapse.npz`` is
-       written, no masks are generated, and ``preprocess_generate_masks``
-       finally dies in ``_pivot_counts_table`` on ``no such table:
-       object_counts``. Emitting the timeID in both branches (the
-       non-timelapse spelling is already exactly what ``_generate_time_lists``
-       parses) is the fix.
+       Timelapse *pipeline* still cannot consume them, and neither defect is
+       in this module. Both were reproduced on this demo and both fixes were
+       proved by patching the two functions at run time; with the pair applied
+       the demo completes and writes 8 merged stacks, per-channel movies, a
+       track-overlay GIF and a 16-track ``tracks/*.csv``.
+
+       1. ``spacr.io._rename_and_organize_image_files`` names its stack files
+          ``<plate>_<well>_<field>.npy`` when ``timelapse=True`` — dropping the
+          timeID and max-projecting every timepoint of a field into one
+          array — while ``spacr.io._generate_time_lists`` groups on
+          ``<plate>_<well>_<field>_<time>.npy`` and skips anything with fewer
+          than four underscore-separated parts. An 8-frame field becomes one
+          ``stack/plate1_A01_1.npy``, ``_generate_time_lists`` returns ``[]``,
+          no ``*_norm_timelapse.npz`` is written, no masks are generated, and
+          ``preprocess_generate_masks`` dies in ``_pivot_counts_table`` on
+          ``no such table: object_counts``. Emitting the timeID in both
+          branches (the non-timelapse spelling is already exactly what
+          ``_generate_time_lists`` parses) is the fix.
+       2. Past that, ``spacr.object.generate_cellpose_masks_sam`` hands
+          ``spacr.timelapse._trackpy_track_cells`` a **list** of 2-D frames,
+          and the tracking chain indexes it as an array:
+          ``_track_by_iou`` does ``masks.shape[0]`` and
+          ``_relabel_masks_based_on_tracks`` does ``np.zeros(masks.shape, …)``,
+          both ``AttributeError: 'list' object has no attribute 'shape'``. In
+          the ``timelapse_mode='iou'`` path this demo asks for, the first one
+          is swallowed by the ``except Exception`` retry loop in
+          ``_facilitate_trackin_with_adaptive_removal``, which then shrinks the
+          search range 100 times and reports ``Failed to track after 100
+          attempts`` — a message about displacement for a bug about a type.
+          Coercing once at the top of ``_trackpy_track_cells``
+          (``masks = np.asarray(masks)``) clears both.
     """
     dst = Path(dst).absolute()
     dst.mkdir(parents=True, exist_ok=True)
@@ -1148,12 +1247,23 @@ def generate_barcode_csv(dst: Path, names: Sequence[str],
     :param names: barcode names, aligned with ``sequences``.
     :param sequences: barcode sequences.
     :returns: the resolved ``dst`` path.
-    :raises ValueError: when the two sequences differ in length.
+    :raises ValueError: when ``names`` and ``sequences`` do not hold the same
+        **number of entries**. This is a count of rows, not a comparison of
+        base counts — the previous wording said the opposite, in a module
+        whose subject is DNA of a declared size, and the two CSVs this writes
+        for a demo folder deliberately carry different barcode lengths (21 for
+        gRNAs, 8 for wells), so a base-length check would be wrong as well as
+        unimplemented. The count check earns its stop because the ``zip``
+        below halts at the shorter list: an unequal pair would silently drop
+        the tail and hand ``map_sequences_to_names`` a table missing barcodes
+        the reads actually carry, and every read of those guides would then
+        map to nothing with no line in the log to say why.
     """
     if len(names) != len(sequences):
         raise ValueError(
-            f"names ({len(names)}) and sequences ({len(sequences)}) "
-            "must be the same length.")
+            f"names has {len(names)} entries and sequences has "
+            f"{len(sequences)}; they must hold the same number of entries, "
+            "one name per barcode sequence.")
     dst = Path(dst).absolute()
     dst.parent.mkdir(parents=True, exist_ok=True)
     with open(dst, "w", newline="") as f:
