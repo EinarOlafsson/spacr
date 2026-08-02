@@ -34,19 +34,38 @@ from spacr.qt.widgets.info_link import InfoLink
 
 
 class _FactoryHost(QObject):
-    """Small receiver exposing the callbacks ``_build_screen`` connects."""
+    """Stand-in ``self`` for the unbound ``MainWindow._build_screen``.
 
-    def _on_train_requested(self, *_args):
-        pass
+    ``_build_screen`` hands ``self._on_*`` bound methods to ``connect()``, so
+    this host has to answer for every one of them.  Listing them by hand made
+    the whole parametrized sweep go red every time a new signal was wired —
+    ``remote_submit_requested`` landed in 1b02e8ec and took all 17 AppScreen
+    cases down, six hours after this file was last touched, with nothing
+    actually wrong with the product.
+
+    So unknown attributes are resolved against ``MainWindow`` itself instead:
+    anything the real window defines is stubbed as a no-op, and anything it
+    does *not* define still raises ``AttributeError``.  That is the only case
+    worth failing on here — it is a connect() to a slot that does not exist,
+    which the shipped MainWindow would hit just as hard.
+    """
 
     def _snapshot_current_screen_settings(self):
+        # Not a signal slot: the Queue screen calls this one through
+        # `wire_add_current` and needs a real (app_key, settings) pair back,
+        # so a no-op stub will not do.
         return "mask", {}
 
-    def _on_zoo_compare_requested(self, *_args):
-        pass
-
-    def _on_explain_error(self, *_args):
-        pass
+    def __getattr__(self, name):
+        # Only reached when normal lookup fails, so QObject's own attributes
+        # and the override above still win.  `vars()` rather than `getattr`:
+        # MainWindow's Qt base classes carry hundreds of inherited methods,
+        # and silently stubbing one of those would hide a genuine mistake.
+        if callable(vars(MainWindow).get(name)):
+            return lambda *_args, **_kwargs: None
+        raise AttributeError(
+            f"MainWindow._build_screen wired {name!r}, but MainWindow does "
+            f"not define it")
 
 
 def _setting_row_contract(screen: AppScreen, qapp) -> None:
@@ -145,6 +164,49 @@ def test_every_registered_module_constructs_shows_and_renders(
 
     if isinstance(screen, AppScreen):
         _setting_row_contract(screen, qt_theme_applied)
+
+
+def _slots_build_screen_reaches_for() -> list:
+    """Every ``self._on_*`` / ``self._snapshot_*`` name ``_build_screen`` uses.
+
+    Read off the bytecode rather than listed here: ``co_names`` holds exactly
+    the attribute names the function loads, so the day a new
+    ``connect(self._on_…)`` lands, this list grows with it and the host below
+    is asked about the new name without anyone remembering to say so.
+    """
+    return sorted(
+        name for name in MainWindow._build_screen.__code__.co_names
+        if name.startswith("_on_") or name.startswith("_snapshot_"))
+
+
+def test_factory_host_answers_every_slot_build_screen_wires():
+    """The host must satisfy the real factory, and only the real factory.
+
+    This replaces a test that asserted ``_on_train_requested`` resolves and an
+    invented name does not — both of which were true of the *hand-written*
+    four-name host as well, so it pinned nothing.  The regression that
+    actually happened is the missing name: ``_on_remote_submit_requested``
+    was wired into every AppScreen branch and the host had never heard of it,
+    which took all 17 AppScreen cases red.  Asking for the whole set off the
+    bytecode is the assertion that would have caught it.
+    """
+    host = _FactoryHost()
+    wired = _slots_build_screen_reaches_for()
+    # Guards the guard: if `_build_screen` is ever rewritten so it no longer
+    # reaches for `self._on_*` by name (a dispatch table, say), `wired` goes
+    # empty and the loop below asserts nothing at all.
+    assert "_on_remote_submit_requested" in wired, (
+        "the AppScreen branch no longer wires _on_remote_submit_requested by "
+        "name — re-read _build_screen and re-point this test")
+    for name in wired:
+        assert callable(getattr(host, name)), \
+            f"_FactoryHost cannot answer {name}, which _build_screen wires"
+    # The Queue screen needs a real pair back, not a no-op stub.
+    assert host._snapshot_current_screen_settings() == ("mask", {})
+    # And the fallback must not paper over a `connect()` to nothing: a name
+    # MainWindow never defines is a wiring bug, and still explodes.
+    with pytest.raises(AttributeError):
+        host._on_slot_main_window_does_not_have
 
 
 def test_training_runs_does_not_override_qwidget_metric():
