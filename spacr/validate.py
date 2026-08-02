@@ -868,6 +868,43 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     return problems
 
 
+def _check_dead_settings(settings: Dict[str, Any]) -> List[Problem]:
+    """Reject keys that spaCR declares but no code reads.
+
+    A misspelled key at least gets a "did you mean" out of
+    :func:`_check_unknown_keys`. A key that spaCR itself declares — typed,
+    tooltipped, offered by a GUI category — but that nothing reads gets
+    nothing: it is accepted, ignored, saved into ``settings/<app>.csv`` beside
+    the results, and the run finishes and produces a plausible wrong answer.
+    ``spacr-run mask --set remove_border_pathogens=True`` did exactly that. So
+    these are errors, not warnings: refusing to start costs a minute, and a
+    silent no-op on a 40-plate job costs a GPU-week.
+
+    None of these keys is produced by any defaults factory (that is part of
+    what qualifies a key for ``DEAD_SETTINGS``), so a stock settings dict from
+    :func:`spacr.cli.module_defaults` can never trip this check.
+    """
+    from .settings import DEAD_SETTINGS
+
+    problems: List[Problem] = []
+    for key, replacement in sorted(DEAD_SETTINGS.items()):
+        if key not in settings:
+            continue
+        if replacement:
+            fix = (f"Delete {key} and set {replacement} instead — that is the "
+                   f"key the pipeline reads.")
+        else:
+            fix = (f"Delete {key}; spaCR has no setting that does what it "
+                   f"claims to do, so leaving it in only hides that.")
+        problems.append(Problem(
+            ERROR, key,
+            f"'{key}' is declared by spaCR but read by nothing, so setting it "
+            f"is a silent no-op — the run would finish and the value would "
+            f"have changed nothing.",
+            fix))
+    return problems
+
+
 def _numeric(value: Any) -> Optional[float]:
     """Return ``value`` as a float when it is a real number, else None."""
     if isinstance(value, bool):
@@ -1266,6 +1303,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_channels(settings, app, inventories))
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))
+    problems.extend(_check_dead_settings(settings))
     problems.extend(_check_numeric_sanity(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))

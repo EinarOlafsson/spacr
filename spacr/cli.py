@@ -980,19 +980,45 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     typo'd override that quietly does nothing costs a whole run to discover,
     and the run looks like it succeeded.
 
+    So is an override naming a key spaCR *does* know but nothing reads. Those
+    are worse, because they pass every "is this a real setting?" test there is:
+    ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen
+    category, and ``spacr-run mask --set remove_border_pathogens=True`` was
+    accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names
+    every such key and the spelling that works instead.
+
     :param settings: settings resolved from defaults plus file; mutated in place.
     :param overrides: raw ``key=value`` strings from the command line.
     :param module: the module being run, used only for the error message.
     :returns: ``settings``.
-    :raises SettingsError: on an unknown key or an uncoercible value.
+    :raises SettingsError: on an unknown key, a key nothing reads, or an
+        uncoercible value.
     """
     if not overrides:
         return settings
-    from .settings import expected_types
+    from .settings import DEAD_SETTINGS, expected_types
 
     known = set(settings) | set(expected_types)
     for item in overrides:
         key, text = _split_override(item)
+        if key in DEAD_SETTINGS:
+            replacement = DEAD_SETTINGS[key]
+            if replacement:
+                # The value is deliberately not carried over: a dead key and
+                # its working counterpart rarely take the same value (pick_slice
+                # is a bool, z_projection is 'max'/'mean'/'sum'/'best_focus'),
+                # and suggesting `--set z_projection=True` would trade a silent
+                # no-op for a confident wrong answer.
+                hint = (f"  Set {replacement} instead — that is the key the "
+                        f"pipeline reads; see 'spacr-run --describe "
+                        f"{module.key if module is not None else '<module>'}'.")
+            else:
+                hint = (f"  Drop it: spaCR has no setting that does what "
+                        f"'{key}' claims to do.")
+            raise SettingsError(
+                f"--set {key}={text} names a setting that spaCR declares but "
+                f"reads nowhere, so it would change nothing and the run would "
+                f"still look like it worked.\n{hint}")
         if key not in known:
             close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.6)
             hint = f" Did you mean '{close[0]}'?" if close else ""
