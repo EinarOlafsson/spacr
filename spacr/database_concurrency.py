@@ -35,6 +35,7 @@ __all__ = [
     "DatabaseBusy",
     "DatabaseConfigurationError",
     "DatabaseHealth",
+    "MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS",
     "connect",
     "filesystem_type",
     "inspect_database",
@@ -142,6 +143,50 @@ def connect(
         raise
 
 
+# Smallest per-attempt busy timeout worth asking SQLite for.
+#
+# SQLite's default busy handler sleeps down a fixed ladder --
+# 1, 2, 5, 10, 15, 20, 25, 25, 25, 50, 50, 100 ms -- and clamps the final
+# sleep to whatever is left of the budget. A 1 ms budget therefore buys one
+# 1 ms sleep and a single re-try of the lock: BEGIN gives up while the holder
+# is still inside its commit, and the caller burns a whole retry attempt on a
+# lock that was about to be released. 25 ms is where the ladder reaches its
+# steady step, so it is the smallest budget in which a contended writer can
+# realistically hand the lock over.
+MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS = 25
+
+
+def _attempt_busy_timeout_ms(total_busy_timeout_ms: int, attempts: int) -> int:
+    """Split a total lock-wait budget over ``attempts`` BEGIN retries.
+
+    Plain integer division collapses at the small end: the concurrency probe
+    opens its writers with ``timeout=0.05`` (a 50 ms budget) and then asks for
+    40 attempts, which is 1 ms each -- below the floor at which SQLite can
+    acquire a contended lock at all. The split is therefore clamped:
+
+    * never below ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS``, so an attempt is a
+      real attempt rather than an instant SQLITE_BUSY;
+    * never above the total, so a caller who asked to wait at most 10 ms in
+      SQLite still waits at most 10 ms in any one BEGIN;
+    * zero stays zero, because a connection with ``busy_timeout = 0`` asked
+      for non-blocking locking and must keep it.
+
+    When the floor wins, ``attempts`` BEGINs can spend more than the total
+    budget inside SQLite (40 x 25 ms rather than 50 ms). That is deliberate
+    and is dwarfed by the retry loop's own backoff sleeps; a per-attempt
+    budget of 1 ms is not a smaller budget, it is no budget.
+
+    :param total_busy_timeout_ms: whole-operation lock-wait budget, in ms.
+    :param attempts: number of ``BEGIN`` attempts to share it between.
+    :returns: milliseconds to give each individual ``BEGIN``.
+    """
+    total = max(0, int(total_busy_timeout_ms))
+    attempts = max(1, int(attempts))
+    if total == 0:
+        return 0
+    return min(total, max(MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS, total // attempts))
+
+
 @contextlib.contextmanager
 def transaction(
     connection: sqlite3.Connection,
@@ -150,6 +195,7 @@ def transaction(
     attempts: int = 8,
     initial_delay: float = 0.01,
     maximum_delay: float = 0.25,
+    busy_timeout: Optional[float] = None,
 ) -> Iterator[sqlite3.Connection]:
     """Run an all-or-nothing transaction with bounded lock retry.
 
@@ -162,6 +208,12 @@ def transaction(
     :param attempts: maximum attempts to acquire the transaction.
     :param initial_delay: first backoff between lock failures.
     :param maximum_delay: backoff cap.
+    :param busy_timeout: total seconds this transaction may spend waiting on
+        locks inside SQLite, shared over ``attempts`` and floored at
+        ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the
+        connection's configured ``busy_timeout``; pass it when the write's own
+        tolerance differs from whatever ``timeout`` the connection happened to
+        be opened with.
     :raises DatabaseBusy: when the lock outlives the retry budget.
     :raises RuntimeError: when asked to nest inside an active transaction.
     """
@@ -180,12 +232,15 @@ def transaction(
     original_busy_timeout = int(timeout_row[0]) if timeout_row else 0
     # sqlite's busy_timeout applies to *each* BEGIN. Without dividing the
     # caller's budget, eight retries on a 30-second connection can block for
-    # four minutes. Share that budget across attempts, then restore it before
-    # executing the transaction body.
-    attempt_busy_timeout = (
-        max(1, original_busy_timeout // attempts)
-        if original_busy_timeout > 0 else 0
+    # four minutes. Share that budget across attempts -- clamped by
+    # _attempt_busy_timeout_ms, because a plain division handed a 50 ms
+    # connection asking for 40 attempts 1 ms per BEGIN -- then restore the
+    # connection's own value before executing the transaction body.
+    total_busy_timeout = (
+        original_busy_timeout if busy_timeout is None
+        else max(0, int(float(busy_timeout) * 1000))
     )
+    attempt_busy_timeout = _attempt_busy_timeout_ms(total_busy_timeout, attempts)
     changed_timeout = attempt_busy_timeout != original_busy_timeout
     if changed_timeout:
         connection.execute(f"PRAGMA busy_timeout = {attempt_busy_timeout}")
