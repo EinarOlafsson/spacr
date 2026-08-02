@@ -728,7 +728,40 @@ def analyze_percent_positive(settings):
         """
         # Load and extract metadata
         df = pd.read_csv(csv_loc)
-        df[['plateID', 'well']] = df['Renamed TIFF'].str.replace('.tif', '', regex=False).str.split('_', expand=True)[[0, 1]]
+        # A renamed TIFF is '<plate>_<well>_<vendor token>.tif' (the
+        # convert_to_yokogawa contract). Taking the plate and the well from the
+        # FRONT was wrong in two ways that both end in a silently empty join:
+        # a plate id containing an underscore made the second token the plate's
+        # own tail rather than the well, and '.str.replace(".tif")' matched the
+        # substring anywhere in the name and missed '.tiff' entirely. Read the
+        # stem right to left instead — the vendor token never contains '_', so
+        # whatever is left over is the plate.
+        stems = df['Renamed TIFF'].map(
+            lambda name: os.path.splitext(os.path.basename(str(name)))[0])
+        parts = stems.map(lambda stem: stem.rsplit(schema.KEY_SEPARATOR, 2))
+        short = parts.map(len) < 3
+        if short.any():
+            raise schema.KeyParseError(
+                f"{int(short.sum())} row(s) of {csv_loc} have a 'Renamed TIFF' "
+                f"with fewer than three '{schema.KEY_SEPARATOR}'-separated "
+                f"tokens, so there is no plate and well to read out of it, "
+                f"e.g. "
+                f"{sorted(set(df.loc[short, 'Renamed TIFF'].astype(str)))[:3]}. "
+                f"analyze_percent_positive joins the measurements to this log "
+                f"on the well parsed out of that name, so it must be the "
+                f"'plate<N>_<well>_<vendor token>.tif' form the converters "
+                f"write. Both of them always do: io.convert_to_yokogawa and "
+                f"io.convert_separate_files_to_yokogawa build every name from "
+                f"io._next_synthetic_yokogawa_well, which returns "
+                f"'plate<N>_<well>' — there is no input format for which "
+                f"either writes a well-only name. A row this short therefore "
+                f"did not come from them: an empty or missing cell, a "
+                f"hand-edited rename_log.csv, or a log written by another "
+                f"tool. Fix or drop those rows; reading them by position "
+                f"would take the vendor token for the well and merge to an "
+                f"empty result instead of saying so.")
+        df['plateID'] = parts.map(lambda p: p[0])
+        df['well'] = parts.map(lambda p: p[1])
         df['plate_well'] = df['plateID'] + '_' + df['well']
 
         # Retain one row per plate_well
@@ -790,13 +823,45 @@ def analyze_percent_positive(settings):
     well_col = 'prc'
     
     df, count_df = annotate_and_summarize(df, settings['value_col'], condition_col, well_col, settings['threshold'], annotation_col='annotation')
-    count_df[['plateID', 'rowID', 'column_name']] = count_df['prc'].str.split('_', expand=True)
-    
+    # 'prc' is plate_row_column, so it comes apart from the RIGHT: the plate is
+    # whatever is left once the row and the column have been taken off. The
+    # positional str.split('_') here assumed a plate with no underscore in it.
+    # Anything else raised the opaque "ValueError: Columns must be same length
+    # as key", which names neither the key nor the row that produced it; and a
+    # frame holding one SHORT key among good ones got that row's column_name
+    # filled with None, which merges to nothing without a word. schema has
+    # parse_prcf/parse_prcfo but no parse_prc; the rsplit below is the same
+    # right-to-left reading (see 'needs follow-up in spacr/schema.py').
+    prc_parts = count_df['prc'].astype(str).map(
+        lambda prc: prc.rsplit(schema.KEY_SEPARATOR, 2))
+    short = prc_parts.map(len) < 3
+    if short.any():
+        raise schema.KeyParseError(
+            f"{int(short.sum())} well id(s) in this measurements table are not "
+            f"'prc' keys, e.g. "
+            f"{sorted(set(count_df.loc[short, 'prc'].astype(str)))[:3]}: a prc "
+            f"is plate_row_column. analyze_percent_positive summarises per "
+            f"well and then joins on the row and column read out of that key, "
+            f"so a key it cannot read merges to nothing.")
+    count_df['plateID'] = prc_parts.map(lambda p: p[0])
+    count_df['rowID'] = prc_parts.map(lambda p: p[1])
+    count_df['column_name'] = prc_parts.map(lambda p: p[2])
+
     csv_loc = os.path.join(settings['src'], 'rename_log.csv')
     csv_out_loc = os.path.join(settings['src'], 'result.csv')
     translate_df = translate_well_in_df(csv_loc)
     
-    merged = pd.merge(count_df, translate_df, on=['rowID', 'column_name'], how='inner')
+    # many_to_many, and it genuinely is: the key deliberately omits the plate.
+    # count_df's plateID comes out of the measurements 'prc' while
+    # translate_df's is the plate written into the file name, and the two use
+    # different spellings ('plate1' vs the 'p1' this function rebuilds), so
+    # they cannot be joined on. That leaves one row per (row, column) per
+    # PLATE on both sides, and every plate's wells therefore match every other
+    # plate's. On a single-plate run — what analyze_percent_positive is
+    # written for — this is one-to-one; on a multi-plate rename_log it fans
+    # out, which is why 'plateID_y' is carried into the result below so the
+    # reader can see which plate each row came from.
+    merged = pd.merge(count_df, translate_df, on=['rowID', 'column_name'], how='inner', validate='many_to_many')
 
     # 'plateID_y' is the plate parsed from rename_log.csv's 'Renamed TIFF'.
     # This used to read 'plate_y', a leftover from before the
@@ -1182,7 +1247,11 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         for _cls in ('class_0', 'class_1'):
             if _cls not in well_counts.columns:
                 well_counts[_cls] = 0
-        summary_df = pd.merge(prc_summary, well_counts, on=['plateID', 'rowID', 'columnID', 'prc'], how='left')
+        # one_to_one: both sides are groupby reductions of the same frame over
+        # the same four columns (well_counts adds the class only to unstack it
+        # back into columns), so each well appears exactly once in each and the
+        # fractions below divide row-aligned counts.
+        summary_df = pd.merge(prc_summary, well_counts, on=['plateID', 'rowID', 'columnID', 'prc'], how='left', validate='one_to_one')
         summary_df['class_0_fraction'] = summary_df['class_0'] / summary_df['total_rows']
         summary_df['class_1_fraction'] = summary_df['class_1'] / summary_df['total_rows']
         return summary_df
@@ -1308,7 +1377,11 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             raise ValueError("Cannot find plate, row or column in df.columns")
         grouped_df = df.groupby('prc')[count_column].sum().reset_index()
         grouped_df = grouped_df.rename(columns={count_column: 'total_counts'})
-        df = pd.merge(df, grouped_df, on='prc')
+        # many_to_one: one gRNA row per well on the left, one well total on the
+        # right. The fraction below is count/total, so a duplicated well total
+        # would repeat every gRNA of that well and make the fractions sum to
+        # more than 1 without changing any single value.
+        df = pd.merge(df, grouped_df, on='prc', validate='many_to_one')
         df['fraction'] = df['count'] / df['total_counts']
         return df
     
@@ -1365,11 +1438,20 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     scores_col_df = scores_df[scores_df[column]==value]
     
     reads_col_df = calculate_grna_fraction_ratio(reads_col_df, grna1=pc_grna, grna2=nc_grna)
-    df = pd.merge(reads_col_df, scores_col_df, on='prc')
-    
+    # one_to_one: both sides have been reduced to one row per well —
+    # calculate_grna_fraction_ratio unstacks a groupby(['prc','grna_name']) and
+    # calculate_well_score_fractions groups on the well columns — and each
+    # point plotted below is one well, so neither side may contribute two.
+    df = pd.merge(reads_col_df, scores_col_df, on='prc', validate='one_to_one')
+
     df_emp = pd.DataFrame([(key, val[0], val[1], val[0] / (val[0] + val[1]), val[1] / (val[0] + val[1])) for key, val in empirical_dict.items()],columns=['key', 'value1', 'value2', 'pc_fraction', 'nc_fraction'])
-    
-    df = pd.merge(df, df_emp, left_on='rowID', right_on='key')
+
+    # many_to_one: df holds one row per well and empirical_dict is keyed by ROW
+    # (the mixing ratio that row was seeded with), so every well in a row picks
+    # up the same expected fraction. Built from a dict, the right side is
+    # unique by construction; the left is not, and must not be — a row has as
+    # many wells as the plate has columns kept by the `column`/`value` filter.
+    df = pd.merge(df, df_emp, left_on='rowID', right_on='key', validate='many_to_one')
     
     # `if any in y_columns not in df.columns` was a chained comparison,
     # i.e. `(any in y_columns) and (y_columns not in df.columns)`, which
@@ -1447,7 +1529,9 @@ def interpret_vision_model(settings=None):
     """
     if settings is None:
         settings = {}
-    from .io import _read_and_merge_data
+    from .io import (MergeCardinalityError, _merge_with_cardinality,
+                     _read_and_merge_data)
+    from .utils import _time_column
 
     def generate_comparison_columns(df, compartments=None):
         """Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.
@@ -1670,8 +1754,67 @@ def interpret_vision_model(settings=None):
         # Select only the necessary columns from scores_df for merging
         scores_df = scores_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_label', settings['score_column']]]
 
-        # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=['plateID', 'rowID', 'columnID', 'fieldID', 'object_label'], how='inner')
+        # Now merge DataFrames. one_to_one, because both sides are one row per
+        # SCORED CROP and this key is that crop's identity:
+        #
+        # * ``_read_and_merge_data`` groups every object table on ``prcfo`` and
+        #   joins them on that index under ``validate='one_to_one'``, so ``df``
+        #   is one row per ``prcfo`` — i.e. one row per object per field.
+        # * the scores CSV is written per crop PNG by ``apply_model_to_tar`` /
+        #   ``utils.process_vision_results``, which is the same one row per
+        #   object per field.
+        #
+        # An earlier comment here claimed many_to_one was right because "the
+        # scores CSV holds one score per object", so a timelapse database could
+        # legitimately match every frame of an object to its single score. That
+        # is wrong in both halves. A timelapse crop is
+        # ``plate_well_field_time_object`` and gets its own row in the scores
+        # CSV, so on a timelapse the RIGHT side repeats exactly as much as the
+        # left does — many_to_one does not tolerate the timelapse, it crashes
+        # on it with pandas' "Merge keys are not unique in right dataset",
+        # which names neither the timepoint nor the file. And a score that
+        # arrived per frame is not a per-object score to spread over frames.
+        #
+        # The key here carries no timepoint, and this legacy copy has no way to
+        # add one (the newer explainer in spacr.ml does: it appends the
+        # timepoint column to the key and raises TimelapseKeyMismatch when only
+        # one side has it). So on a timelapse both sides repeat, the join would
+        # be a frames x frames fan-out per object, and one_to_one is what
+        # refuses it. It also refuses the two cases many_to_one let through
+        # silently: a measurements frame duplicated on the key, and a timelapse
+        # database scored by a non-timelapse run — where every frame would
+        # inherit one score and each object would enter the forest once per
+        # frame.
+        #
+        # _merge_with_cardinality keeps pandas as the thing that detects the
+        # duplicate and reports it as a MergeCardinalityError naming the side,
+        # the key and the offending values. What it cannot know is WHY, so the
+        # timelapse — the one cause that is a property of the database rather
+        # than of a bad file — is named here when the frame actually has a
+        # timepoint column.
+        try:
+            merged_df = _merge_with_cardinality(
+                df,
+                scores_df,
+                on=['plateID', 'rowID', 'columnID', 'fieldID', 'object_label'],
+                how='inner',
+                validate='one_to_one',
+                left_name='the merged measurements',
+                right_name=f"the scores CSV {settings['scores']}",
+            )
+        except MergeCardinalityError as error:
+            time_column = _time_column(df.columns)
+            if time_column is None:
+                raise
+            raise MergeCardinalityError(
+                f"{error} This measurements database is a TIMELAPSE — it "
+                f"carries a {time_column!r} column — and the key above has no "
+                f"timepoint in it, so every frame of an object is a separate "
+                f"row under the same key on both sides. Use the newer "
+                f"explainer, spacr.ml.interperate_vision_model, which joins "
+                f"on the timepoint as well; this legacy copy cannot tell the "
+                f"frames apart and would train on a frames-by-frames "
+                f"fan-out.") from error
 
         # Select measurements by schema role, not every numeric column.
         # Object labels and acquisition provenance are numeric in many
@@ -2037,6 +2180,68 @@ def analyze_endodyogeny(settings):
 # The field key both object assays are built on
 # ===========================================================================
 
+def _compose_field_keys(df, time_column, source):
+    """Compose one ``prcf`` per row of ``df`` through :mod:`spacr.schema`.
+
+    Composed rather than concatenated so that every key this module writes can
+    be read back by :func:`spacr.schema.parse_prcf`: the elements get their
+    canonical prefixes (a ``timeID`` stored as ``1`` becomes ``t1``, which is
+    what makes it recognisable as a timepoint rather than a malformed field),
+    and a plate id carrying the key separator is rejected instead of producing
+    a key nothing can split apart again.
+
+    Composition is cached per distinct identity — a timelapse table is millions
+    of parasite rows over a few thousand fields — so the *validation and string
+    building* happen once per field rather than once per row. The rest of the
+    work is unavoidably per row and is kept to that: one pass over the columns,
+    one transient tuple and one dict lookup per row, and a result list holding
+    one pointer per row to the (shared) key string of its field.
+
+    The earlier form built ``list(zip(...))`` first and walked it twice, which
+    kept a tuple per row alive across the whole call — on the millions-of-rows
+    table above that intermediate is larger than the frame's own key columns,
+    for no gain. It also picked the identity named in the error out of a
+    ``set``, so which one the message showed varied run to run; the first
+    failing row, in row order, is now the one reported.
+
+    :param df: Frame carrying the four identity columns.
+    :param time_column: Name of the timepoint column, or ``None`` for the
+        time-blind key.
+    :param source: Name of the table, used in the error message.
+    :returns: :class:`pandas.Series` of keys, aligned to ``df.index``.
+    :raises spacr.schema.KeyParseError: naming the identities that cannot make
+        a key, rather than writing one that no reader can parse.
+    """
+    columns = list(schema.FIELD_KEY_COLUMNS) + (
+        [time_column] if time_column else [])
+
+    composed, failures, keys = {}, {}, []
+    for identity in zip(*(df[column].to_numpy() for column in columns)):
+        if identity not in composed:
+            try:
+                composed[identity] = schema.compose_prcf(*identity)
+            except schema.SchemaError as error:
+                # None marks "already tried, already recorded": a failing
+                # identity must not be re-composed once per row it appears on,
+                # and the raise below needs one entry per distinct identity to
+                # count. compose_prcf never returns None, so the sentinel
+                # cannot collide with a real key.
+                composed[identity] = None
+                failures[identity] = error
+        keys.append(composed[identity])
+    if failures:
+        identity, error = next(iter(failures.items()))
+        raise schema.KeyParseError(
+            f"cannot build a field key for {len(failures)} identity/identities "
+            f"in {source}, e.g. {dict(zip(columns, identity))}: {error} "
+            f"Both object assays scope on prcf — the replication assay builds "
+            f"every vacuole id from it and the invasion assay thresholds per "
+            f"prcf — so a key that cannot be composed here would either group "
+            f"unrelated fields together or be unreadable to every downstream "
+            f"parser.")
+    return pd.Series(keys, index=df.index, dtype=object)
+
+
 def _ensure_field_key(df, source='the parasite table', verbose=False):
     """Give ``df`` a ``prcf`` that identifies **one field at one timepoint**.
 
@@ -2073,7 +2278,13 @@ def _ensure_field_key(df, source='the parasite table', verbose=False):
     A ``prcf`` that differs in any other way (a renamed plate, an imported
     table, a key from :mod:`spacr.foreign`) is left exactly as the caller
     supplied it, and a database with no timepoint column is not touched at
-    all.
+    all. Both spellings of the time-blind key count as stale — the one
+    :func:`_compose_field_keys` builds and the one this function used to
+    concatenate — so a table keyed by an older spacr is still repaired.
+
+    The key it writes is **composed** through :mod:`spacr.schema` rather than
+    concatenated, so it can be read back by
+    :func:`spacr.schema.parse_prcf`. See :func:`_compose_field_keys`.
 
     :param df: Frame carrying ``plateID`` / ``rowID`` / ``columnID`` /
         ``fieldID`` and, on a timelapse, ``timeID`` (or the legacy
@@ -2086,10 +2297,25 @@ def _ensure_field_key(df, source='the parasite table', verbose=False):
     from .utils import _time_column
 
     time_column = _time_column(df.columns)
-    blind = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
-             + '_' + df['columnID'].astype(str) + '_'
-             + df['fieldID'].astype(str))
-    keyed = blind if time_column is None else blind + '_' + df[time_column].astype(str)
+
+    # Nothing to build and nothing to repair: a table that already carries a
+    # prcf and has no time axis is returned untouched, without composing a
+    # key it does not need. Composition can raise (see below), and it must
+    # only be able to do so for a frame this function is actually keying.
+    if 'prcf' in df.columns and time_column is None:
+        return df
+
+    # Composed through schema, not concatenated, so the key it builds is one
+    # schema.parse_prcf can read back. Concatenation could not promise that:
+    # the timepoint went in exactly as the column stored it, and a table whose
+    # timeID is the integer 1 rather than 't1' produced 'plate1_r1_c1_f1_1' --
+    # a key whose last element parse_prcf sees as a broken FIELD id, so every
+    # reader of that key raised instead of finding the timepoint. compose_prcf
+    # normalises each element ('1' -> 't1') and is a no-op on the canonical
+    # form utils._map_wells writes, which is what is already in the database.
+    # It raises on a plate id containing '_' -- deliberately, because such a
+    # prcf cannot be split back into its parts by anything downstream.
+    keyed = _compose_field_keys(df, time_column, source)
 
     if 'prcf' not in df.columns:
         df['prcf'] = keyed
@@ -2099,10 +2325,17 @@ def _ensure_field_key(df, source='the parasite table', verbose=False):
             print(f"Built prcf for {source} as {built}.")
         return df
 
-    if time_column is None:
-        return df
-
-    stale = df['prcf'].astype(str).eq(blind)
+    # Either spelling of the time-blind key marks a stale row: the composed one
+    # for a table written by today's writers, the concatenated one for a table
+    # written by an older spacr (or by a foreign importer whose row ids are not
+    # canonical, where the two differ). The legacy spelling is only ever
+    # compared against, never written.
+    blind = _compose_field_keys(df, None, source)
+    legacy_blind = (df['plateID'].astype(str) + '_' + df['rowID'].astype(str)
+                    + '_' + df['columnID'].astype(str) + '_'
+                    + df['fieldID'].astype(str))
+    stored = df['prcf'].astype(str)
+    stale = stored.eq(blind) | stored.eq(legacy_blind)
     if stale.any():
         print(f"Repaired {int(stale.sum())} time-blind prcf value(s) in "
               f"{source}: the table carries '{time_column}' but its prcf named "
@@ -3650,11 +3883,18 @@ def _invasion_classify(df, fields, value_column, extracellular_class):
     columns = ['prcf', 'threshold', 'threshold_source', 'threshold_low',
                'threshold_high', 'automatic_threshold', 'reference_threshold',
                'bimodality_coefficient']
+    # The contract is many_to_one: many parasites per field, one threshold row
+    # per field. It is enforced by _report_fan_out below rather than by
+    # validate='many_to_one', deliberately — pandas would raise its generic
+    # MergeError *before* the check ran, and io's helper says which assay
+    # failed, how many rows went in and came out, and what to do about the
+    # duplicated table. The left side is emphatically NOT unique: one row per
+    # parasite is the whole point of this frame.
     merged = df.merge(fields[columns], on='prcf', how='left')
     # ``fields`` comes out of a groupby on prcf so it holds one row per key and
-    # this join cannot grow. Checked anyway, with io's own helper: if a caller
-    # ever hands in a field table assembled some other way, a duplicated prcf
-    # would silently duplicate every parasite and inflate n_total.
+    # this join cannot grow. Checked anyway: if a caller ever hands in a field
+    # table assembled some other way, a duplicated prcf would silently
+    # duplicate every parasite and inflate n_total.
     _report_fan_out(df, merged, ['prcf'], left_name='parasite',
                     right_name='the field threshold table')
     df = merged
@@ -4508,10 +4748,16 @@ def analyze_invasion(settings):
     for name in _INVASION_CLASSES:
         if name not in field_counts.columns:
             field_counts[name] = 0
+    # one_to_one: `fields` is one row per prcf (built by a groupby in
+    # _invasion_field_thresholds) and field_counts is a value_counts over the
+    # same key unstacked into columns, so it is too. This is the row the
+    # invasion efficiency is computed on and reported per field, so a second
+    # row for a field would report that field twice with the same numbers and
+    # weight it double in every per-well and per-group mean below.
     fields = fields.merge(
         field_counts[_INVASION_CLASSES].rename(
             columns={'attached': 'n_attached', 'invaded': 'n_invaded'}
-        ).reset_index(), on='prcf', how='left')
+        ).reset_index(), on='prcf', how='left', validate='one_to_one')
     fields[['n_attached', 'n_invaded']] = (
         fields[['n_attached', 'n_invaded']].fillna(0).astype(int))
     fields['n_total'] = fields['n_attached'] + fields['n_invaded']
@@ -4804,7 +5050,12 @@ def generate_score_heatmap(settings):
         df = df[df['grna_name'].str.match(f'^{control_sgrnas[0]}$|^{control_sgrnas[1]}$')]
         grouped_df = df.groupby(['plateID', 'rowID', 'columnID'])['count'].sum().reset_index()
         grouped_df = grouped_df.rename(columns={'count': 'total_count'})
-        merged_df = pd.merge(df, grouped_df, on=['plateID', 'rowID', 'columnID'])
+        # many_to_one: the left side is one row per control sgRNA per well, the
+        # right side that well's total. 'fraction' below is count/total, so a
+        # duplicated total would repeat each sgRNA row and the fractions of a
+        # well would no longer sum to 1 — with every individual value still
+        # looking perfectly reasonable.
+        merged_df = pd.merge(df, grouped_df, on=['plateID', 'rowID', 'columnID'], validate='many_to_one')
         merged_df['fraction'] = merged_df['count'] / merged_df['total_count']
         merged_df['prc'] = merged_df['plateID'].astype(str) + '_' + merged_df['rowID'].astype(str) + '_' + merged_df['columnID'].astype(str)
         return merged_df
@@ -4907,7 +5158,12 @@ def generate_score_heatmap(settings):
             if combined_df is None:
                 combined_df = grouped_df
             else:
-                combined_df = pd.merge(combined_df, grouped_df, on=['plateID', 'rowID', 'columnID'], how='outer')
+                # one_to_one: each folder contributes a groupby mean, one row
+                # per well, and the accumulator stays one row per well because
+                # every merge into it is one_to_one. This frame is a well x
+                # channel matrix -- the heatmap plots it as one -- so a second
+                # row for a well would draw that well twice.
+                combined_df = pd.merge(combined_df, grouped_df, on=['plateID', 'rowID', 'columnID'], how='outer', validate='one_to_one')
         combined_df['prc'] = combined_df['plateID'].astype(str) + '_' + combined_df['rowID'].astype(str) + '_' + combined_df['columnID'].astype(str)
         return combined_df
     
@@ -4932,10 +5188,18 @@ def generate_score_heatmap(settings):
     df = calculate_fraction_mixed_condition(settings['csv'], settings['plateID'], settings['columnID'], settings['control_sgrnas'])
     df = df[df['grna_name']==settings['fraction_grna']]
     fraction_df = df[['fraction', 'prc']]
-    merged_df = pd.merge(fraction_df, result_df, on=['prc'])
+    # many_to_one on both joins below. The right sides are groupby reductions
+    # (one row per well) and that is the half that must hold: a well appearing
+    # twice in the score matrix or the CV table would repeat that well in the
+    # heatmap and count it twice in the MAE. The LEFT side is not asserted
+    # unique on purpose — fraction_df is the reads CSV filtered to one gRNA and
+    # a CSV that lists that gRNA twice for a well (two sequencing runs, say)
+    # is a legitimate input here; it stays two rows, visibly, instead of
+    # turning the whole call into a MergeError.
+    merged_df = pd.merge(fraction_df, result_df, on=['prc'], validate='many_to_one')
     cv_df = group_cv_score(settings['cv_csv'], settings['plateID'], settings['columnID'], settings['data_column_cv'])
     cv_df = cv_df[[settings['data_column_cv'], 'prc']]
-    merged_df = pd.merge(merged_df, cv_df, on=['prc'])
+    merged_df = pd.merge(merged_df, cv_df, on=['prc'], validate='many_to_one')
     
     fig = plot_multi_channel_heatmap(merged_df, settings['columnID'], settings['cmap'])
     # The guard used to test for 'row_number' while the helper adds
