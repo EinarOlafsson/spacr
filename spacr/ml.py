@@ -911,6 +911,175 @@ def save_summary_to_file(model, file_path='summary.csv'):
     with open(file_path, 'w') as f:
         f.write(summary_str)
 
+
+def _split_prc(text):
+    """Return ``(plateID, rowID, columnID)`` for one ``prc`` well key.
+
+    Parsed **right to left**, for exactly the reason
+    :func:`spacr.schema.parse_prcf` is: the plate id is the only component
+    that may itself contain the key separator, and it is the leftmost one.
+
+    Three sites in this module used to spell this as
+
+    .. code-block:: python
+
+        df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
+
+    which has two failure modes on a plate called ``'exp1_plate1'``, and the
+    second one is silent:
+
+    * when every row carries the extra underscore the split returns four
+      columns against three keys and pandas raises ``ValueError: Columns must
+      be same length as key`` — in :func:`perform_regression` that lands
+      inside the ``try`` that writes the QC CSVs, so ``grna_well.csv`` and
+      ``well_grna.csv`` were simply never written and the only trace was a
+      bare ``print(e)``;
+    * when only *some* plates carry it the split still returns four columns,
+      so ``columnID`` is filled with the **row** token for every well of every
+      other plate and the per-well QC counts are grouped on nonsense.
+
+    Tokens are returned exactly as they appear — nothing is canonicalised,
+    because the caller rebuilds ``prc`` from these columns and a rewritten
+    token would change the identity rows are joined on.
+
+    **Four components are not automatically an underscored plate.** A key with
+    more than three components is one of two things, and they mean opposite
+    things:
+
+    * ``'exp1_plate1_r2_c12'`` — a plate id that contains the separator. The
+      right-to-left rule handles it, and that is the case this function
+      exists for.
+    * ``'plate1_r1_c1_f1'`` — a ``prcf`` (or ``prcfo``) handed to the
+      function that takes a ``prc``. That is a *caller* bug, and the old
+      positional ``str.split`` at least failed loudly on it (``ValueError:
+      Columns must be same length as key``). Absorbing it right to left would
+      return ``('plate1_r1', 'c1', 'f1')`` — a field id in the ``columnID``
+      slot and half the well in the plate — and every per-well count grouped
+      on that is a plausible wrong number with nothing anywhere saying so.
+
+    The two are told apart by the trailing pair: a ``prc``'s last two tokens
+    are a row and a column, and the tokens spaCR writes for those are
+    ``r<N>``/row letters and ``c<N>``/digits (or the equal-valued positional
+    passthrough :func:`spacr.schema.is_positional_pair` describes). A
+    ``prcf``'s trailing pair is ``(column, field)`` and a ``prcfo``'s is
+    ``(field, object)``; neither can pass that test, because a ``columnID``
+    is never ``'f1'`` and a ``rowID`` is never ``'c1'``. Anything else with
+    more than three components is refused rather than guessed at — the
+    ambiguous case fails loudly, exactly as it did before.
+
+    A three-component key is accepted whatever its tokens look like, which is
+    what the ``str.split`` this replaces did, so no key that used to parse
+    stops parsing.
+
+    :param text: a ``prc`` key, e.g. ``'plate1_r1_c1'``.
+    :returns: ``(plateID, rowID, columnID)``.
+    :raises spacr.schema.KeyParseError: when ``text`` has fewer than three
+        components, i.e. it is not a well key at all, or when it has more
+        than three and the trailing pair is not a row and a column.
+    """
+    key = str(text).strip()
+    parts = key.split(schema.KEY_SEPARATOR)
+    if len(parts) < 3:
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: expected plate_row_column, got '
+            f'{len(parts)} component(s).')
+    plate = schema.KEY_SEPARATOR.join(parts[:-2])
+    row, column = parts[-2], parts[-1]
+    if not plate.strip():
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: it has no plate.')
+    if not row.strip() or not column.strip():
+        # An empty row or column is not a missing token, it is a key every
+        # well of the plate shares: group on it and the wells merge.
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: its row is {row!r} and its column is '
+            f'{column!r}, and an empty one identifies no well — every well of '
+            f'{plate!r} would be grouped together.')
+    if len(parts) > 3 and not _is_row_column_pair(row, column):
+        raise schema.KeyParseError(
+            f'{text!r} is not a prc: it has {len(parts)} components and its '
+            f'last two, {row!r} and {column!r}, are not a row and a column. '
+            f'{_name_deeper_key(parts)}'
+            f'If this really is a plate id containing '
+            f'{schema.KEY_SEPARATOR!r}, its row and column must be written '
+            f'the way spaCR writes them (r<N>/letters and c<N>/digits) for '
+            f'the plate to be separable from them.')
+    return plate, row, column
+
+
+def _is_row_column_pair(row, column):
+    """True when ``(row, column)`` is recognisably a well's row and column.
+
+    Deliberately narrow: it is the guard that stops :func:`_split_prc` from
+    absorbing a ``prcf`` into an underscored plate id, so it must reject a
+    ``(columnID, fieldID)`` pair and a ``(fieldID, objectID)`` pair.
+
+    :param row: candidate ``rowID`` token.
+    :param column: candidate ``columnID`` token.
+    :returns: whether the pair can be a row and a column.
+    """
+    row_text, column_text = str(row).strip(), str(column).strip()
+    if not row_text or not column_text:
+        return False
+    if schema.is_positional_pair(row_text, column_text):
+        # parse_well puts an unrecognisable well into both slots verbatim, so
+        # an equal unprefixed pair is that passthrough and not a prcf tail
+        # (a field never equals the column it sits in).
+        return True
+    if row_text[:1].lower() == schema.KEY_PREFIXES[schema.ROW_KEY]:
+        row_ok = schema.row_index(row_text) is not None
+    else:
+        row_ok = schema.row_index_from_letters(row_text) is not None
+    if not row_ok:
+        return False
+    if column_text[:1].lower() == schema.KEY_PREFIXES[schema.COLUMN_KEY]:
+        return schema.column_index(column_text) is not None
+    return column_text.isdigit()
+
+
+def _name_deeper_key(parts):
+    """Return a sentence naming the deeper key ``parts`` looks like, or ''.
+
+    Split out of :func:`_split_prc` only so the error it raises can say
+    *which* mistake was made instead of describing the shape and leaving the
+    caller to work it out.
+
+    :param parts: the separator-split components of the rejected key.
+    :returns: a sentence ending in a space, or ``''`` when the key does not
+        look like a ``prcf`` / ``prcfo`` / timepoint key.
+    """
+    tail = parts[-1]
+    if schema.object_index(tail) is not None and len(parts) >= 5:
+        return ('That is a prcfo (plate_row_column_field_object); '
+                '_split_prc takes a prc. Use schema.parse_prcfo. ')
+    if schema.field_index(tail) is not None:
+        return ('That is a prcf (plate_row_column_field); _split_prc takes a '
+                'prc. Use schema.parse_prcf, or drop the field first. ')
+    if schema.time_index(tail) is not None:
+        return ('That ends in a timepoint; a prc has none. Aggregate the '
+                'timepoints away before keying on the well. ')
+    return ''
+
+
+def _assign_prc_parts(df, column=schema.PRC_KEY,
+                      columns=schema.WELL_KEY_COLUMNS):
+    """Split ``df[column]`` into plate / row / column and assign them onto ``df``.
+
+    The frame-level counterpart of :func:`_split_prc`, and the ``prc`` sibling
+    of :func:`_assign_prcfo_parts`.
+
+    :param df: frame carrying ``column``.
+    :param column: name of the ``prc`` column. Default ``'prc'``.
+    :param columns: names to assign, in plate / row / column order.
+    :returns: ``df``, mutated in place and returned for chaining.
+    :raises spacr.schema.KeyParseError: when any value is not a ``prc``.
+    """
+    parsed = [_split_prc(value) for value in df[column]]
+    for position, name in enumerate(columns):
+        df[name] = [part[position] for part in parsed]
+    return df
+
+
 def perform_regression(settings):
     """Regress per-well phenotype scores against gRNA / gene counts to identify hits from a pooled CRISPR screen.
 
@@ -1135,7 +1304,7 @@ def perform_regression(settings):
         :returns: ``(final_grna_df, prc_gene_count_df)`` — per-gRNA
             well counts and per-well distinct-gene counts.
         """
-        df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
+        _assign_prc_parts(df)
 
         # --- 2) Compute GRNA-level Well Counts ---
         # For each (grna, plate), count the number of unique prc (wells)
@@ -1150,11 +1319,25 @@ def perform_regression(settings):
         # First, create a unique (grna, gene, plate) reference from the original df
         unique_triplets = df[['grna', 'gene', 'plateID']].drop_duplicates()
 
-        # Merge the grna_well_count
-        merged_df = pd.merge(unique_triplets, grna_well_counts, on=['grna', 'plateID'], how='left')
+        # Merge the grna_well_count.
+        #
+        # Both count frames come straight off a groupby on their own join key,
+        # so each holds exactly one row per key: the joins are many-to-one and
+        # must not change the row count of unique_triplets. Stating that is not
+        # decoration — a gRNA mapped to two genes puts the same (grna, plateID)
+        # on the left twice, and if the right side ever gained a duplicate too
+        # (two count CSVs for one plate concatenated, say) the result would
+        # quietly gain rows and every well count written to grna_well.csv would
+        # be counted more than once, with no error anywhere.
+        merged_df = pd.merge(unique_triplets, grna_well_counts,
+                             on=['grna', 'plateID'], how='left',
+                             validate='many_to_one')
 
-        # Merge the gene_well_count
-        merged_df = pd.merge(merged_df, gene_well_counts, on=['gene', 'plateID'], how='left')
+        # Merge the gene_well_count. Many gRNAs share a gene, so the left side
+        # is legitimately many; gene_well_counts is one row per (gene, plate).
+        merged_df = pd.merge(merged_df, gene_well_counts,
+                             on=['gene', 'plateID'], how='left',
+                             validate='many_to_one')
 
         # Keep only the columns needed (if you want to keep 'gene', remove the drop below)
         final_grna_df = merged_df[['grna', 'plateID', 'grna_well_count', 'gene_well_count']]
@@ -1162,8 +1345,8 @@ def perform_regression(settings):
         # --- 5) Compute gene_count per prc ---
         # For each prc (well), how many distinct genes are there?
         prc_gene_count_df = (df.groupby('prc')['gene'].nunique().reset_index(name='gene_count'))
-        prc_gene_count_df[['plateID', 'rowID', 'columnID']] = prc_gene_count_df['prc'].str.split('_', expand=True)
-        
+        _assign_prc_parts(prc_gene_count_df)
+
         return final_grna_df, prc_gene_count_df
     
     def get_outlier_reference_values(df, outlier_col, return_col):
@@ -1254,11 +1437,25 @@ def perform_regression(settings):
     count_data_df, score_data_df = _perform_regression_read_data(settings)
     
     if "rowID" in count_data_df.columns:
-        num_parts = len(count_data_df['rowID'].iloc[0].split('_'))
-        if num_parts == 2:
-            split = count_data_df['rowID'].str.split('_', expand=True)
-            count_data_df['rowID'] = split[1]
-    
+        # A count CSV can carry rowID as the composite '<plate>_<row>' that
+        # 'plate_row' columns are written with (process_reads splits the same
+        # shape). Reduce it to the row by taking the token after the LAST
+        # separator, per row: the plate is the component that may itself
+        # contain one, the row never is.
+        #
+        # This used to read count_data_df['rowID'].iloc[0] alone, count its
+        # parts, and apply split[1] to the whole frame, which is wrong in
+        # three ways that all end in a silently mis-keyed regression:
+        #   * 'exp1_plate1_r2' has three parts, not two, so it was left
+        #     untouched and prc became 'plate1_exp1_plate1_r2_c1';
+        #   * on a frame where only some rows carry the plate prefix, split[1]
+        #     is NaN for every row that does not, so their rowID was erased;
+        #   * an empty count table raised IndexError on the .iloc[0].
+        count_data_df['rowID'] = (
+            count_data_df['rowID'].astype(str)
+            .str.rsplit(schema.KEY_SEPARATOR, n=1).str[-1]
+        )
+
     #if "prc" in score_data_df.columns:
     #    num_parts = len(score_data_df['prc'].iloc[0].split('_'))
     #    if num_parts == 3:
@@ -1280,6 +1477,33 @@ def perform_regression(settings):
             # row past P, a 1536 row ('AA14') and any plate called anything
             # else all failed to match and silently kept whatever rowID and
             # columnID they already had.
+            #
+            # THIS POSITIONAL READ IS NOT THE ONE _split_prc REPLACED. A prc is
+            # a KEY, which has a fixed number of components and is therefore
+            # parseable right to left; this is a crop FILE NAME, whose grammar
+            # is <plate>_<well>_<field>[_<time>]_<object> — a variable-length
+            # tail with no right anchor, so the well can only be found by
+            # counting from the left. That is exactly how the package's own
+            # file-name parsers do it (schema.parse_field_stem and
+            # schema.parse_object_stem both take parts[0] as the plate and
+            # parts[1] as the well), so counting from the left here is the
+            # documented grammar rather than a second guess at it. What the
+            # token MEANS is still schema's decision: parse_well with
+            # strict=True, so a token that is not <letters><digits> is refused
+            # instead of being passed through into both slots.
+            #
+            # Residual limitation, stated rather than papered over: a plate id
+            # that itself contains '_' shifts every position, and the crop-name
+            # grammar carries nothing that can undo that. 'exp1_plate1_A14_...'
+            # is caught — 'plate1' is not a well, so the row is counted in the
+            # warning below and its rowID is left alone — but 'exp1_pl1_A14_...'
+            # is not, because 'pl1' parses as a well. That hole is in the
+            # grammar, not in this call site, and it is identical in
+            # schema.parse_object_stem; the fix belongs there (make the crop
+            # writer escape the separator, or record the plate id length), so
+            # ml.py does not grow a private crop-name parser that disagrees
+            # with the one the crop writer uses. NEEDS FOLLOW-UP IN
+            # spacr/schema.py.
             def _row_column(path):
                 stem = os.path.splitext(os.path.basename(str(path)))[0]
                 parts = stem.split(schema.KEY_SEPARATOR)
@@ -1297,7 +1521,10 @@ def perform_regression(settings):
             if missing:
                 print(f"Warning: {missing} of {len(score_data_df)} rows did not match "
                       f"the expected PLATEn_<letter><digits>_ pattern in 'path'; "
-                      f"their rowID and columnID will be left unchanged.")
+                      f"their rowID and columnID will be left unchanged. If the "
+                      f"plate id contains '_', every token is shifted and the well "
+                      f"cannot be located there - rename the plate or set "
+                      f"plate_from_order=False.")
 
             row_ids = well['row_id']
             col_ids = well['column_id']
@@ -1443,15 +1670,34 @@ def perform_regression(settings):
     if settings['verbose']:
         print(f"Independent variable after process_reads: {len(independent_df)}")
     
-    merged_df = pd.merge(independent_df, dependent_df, on='prc')
-    
+    # The regression's own join, and the one whose cardinality decides every
+    # number this function goes on to report. independent_df is one row per
+    # (well, gRNA); what dependent_df is depends on agg_type:
+    #
+    #   agg_type in {'mean', 'median', 'quantile'} or poisson
+    #       process_scores groups on prc, so it is exactly one row per well
+    #       and this is many-to-one. A duplicated prc on that side would
+    #       multiply every gRNA row of that well, inflating cell_count, the
+    #       per-well gRNA counts and the regression's effective n, with no
+    #       error and no visible symptom.
+    #   agg_type is None (forced for quantile regression, see settings.py)
+    #       process_scores returns one row per OBJECT, so the join is a
+    #       deliberate cross product of the well's gRNAs with the well's
+    #       cells. That is many-to-many and saying so explicitly is what
+    #       stops a blanket 'many_to_one' here from crashing quantile
+    #       regression on perfectly good data.
+    merge_validate = (
+        'many_to_many' if settings['agg_type'] is None else 'many_to_one')
+    merged_df = pd.merge(independent_df, dependent_df, on='prc',
+                         validate=merge_validate)
+
     if settings['verbose']:
         display(independent_df)
         display(dependent_df)
         display(merged_df)
-    
-    merged_df[['plateID', 'rowID', 'columnID']] = merged_df['prc'].str.split('_', expand=True)
-        
+
+    _assign_prc_parts(merged_df)
+
     try:
         os.makedirs(res_folder, exist_ok=True)
         data_path = os.path.join(res_folder, 'regression_data.csv')
@@ -1539,8 +1785,16 @@ def perform_regression(settings):
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
     coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
     
-    coef_df = coef_df.merge(n_grna, how='left', on='grna')
-    coef_df = coef_df.merge(n_gene, how='left', on='gene')
+    # n_grna / n_gene are value_counts frames, so one row per gRNA and one per
+    # gene. coef_df is many rows against either of them — every gene[...] term
+    # carries grna=None and vice versa — so many-to-one is the contract, and it
+    # is the right side (the counts) that must stay unique: a duplicate there
+    # would fan the coefficient table out and every hit would be written to
+    # results_significant.csv more than once.
+    coef_df = coef_df.merge(n_grna, how='left', on='grna',
+                            validate='many_to_one')
+    coef_df = coef_df.merge(n_gene, how='left', on='gene',
+                            validate='many_to_one')
 
     gene_coef_df = coef_df[coef_df['n_gene'] != None]
     grna_coef_df = coef_df[coef_df['n_grna'] != None]
@@ -1607,7 +1861,16 @@ def perform_regression(settings):
             n_boot=n_boot,
             random_state=0,
         )
-        coef_df = coef_df.merge(sel_df, on='feature', how='left')
+        # One row per model term on both sides: coef_df['feature'] is the
+        # design-matrix column index (X.columns for lasso), sel_df['feature']
+        # is the same index taken off the reference design built once at the
+        # top of bootstrap_selection_frequencies. Both are pandas Index
+        # objects from patsy, so the join is one-to-one by construction, and a
+        # duplicate on either side means the two designs have gone out of step
+        # — which is exactly when a selection frequency must not be silently
+        # attached to the wrong coefficient.
+        coef_df = coef_df.merge(sel_df, on='feature', how='left',
+                                validate='one_to_one')
 
         significant = coef_df[
             (coef_df['coefficient'] != 0)
@@ -1864,7 +2127,26 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     if 'grna_name' in csv_df.columns:
         csv_df = csv_df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in csv_df.columns:
-        csv_df[['plateID', 'rowID']] = csv_df['plate_row'].str.split('_', expand=True)
+        # 'plate_row' is '<plate>_<row>'. Split on the LAST separator rather
+        # than on every one: the plate is the component that may itself
+        # contain a separator ('exp1_plate1_r2'), the row is not, so counting
+        # from the right is the only reading that survives it. The two-column
+        # positional split this replaces raised the opaque "Columns must be
+        # same length as key" on such a plate.
+        pieces = csv_df['plate_row'].astype(str).str.rsplit(
+            schema.KEY_SEPARATOR, n=1)
+        malformed = pieces.map(len) < 2
+        if malformed.any():
+            example = csv_df.loc[malformed, 'plate_row'].iloc[0]
+            raise ValueError(
+                f"'plate_row' must be '<plate>{schema.KEY_SEPARATOR}<row>', "
+                f"but {int(malformed.sum())} of {len(csv_df)} value(s) hold no "
+                f"{schema.KEY_SEPARATOR!r}, e.g. {example!r}. Supply separate "
+                f"'plateID' and 'rowID' columns instead, or repair the count "
+                f"table — guessing which half is the plate would key the whole "
+                f"screen on the wrong well.")
+        csv_df['plateID'] = pieces.str[0]
+        csv_df['rowID'] = pieces.str[-1]
 
     if not 'plateID' in csv_df.columns:
         if not plate is None:
@@ -1898,7 +2180,12 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     # Group by prc and calculate the sum of counts
     grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
     grouped_df = grouped_df.rename(columns={'count': 'total_counts'})
-    merged_df = pd.merge(csv_df, grouped_df, on='prc')
+    # grouped_df is one row per well by construction (groupby('prc')), csv_df is
+    # one row per (well, gRNA): many-to-one. The contract matters because the
+    # very next line divides by total_counts — a duplicated well total would
+    # duplicate every gRNA row of that well and the fractions would still sum to
+    # 1 per copy, so the corruption would be invisible in every downstream QC.
+    merged_df = pd.merge(csv_df, grouped_df, on='prc', validate='many_to_one')
     merged_df['fraction'] = merged_df['count'] / merged_df['total_counts']
 
     # Filter rows with fraction under the threshold
@@ -1943,12 +2230,38 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     merged_df = merged_df[['prc', 'grna', 'fraction']]
 
     if not all(col in merged_df.columns for col in ['grna', 'gene']):
-        try:
-            merged_df[['org', 'gene', 'grna']] = merged_df['grna'].str.split('_', expand=True)
-            merged_df = merged_df.drop(columns=['org'])
-            merged_df['grna'] = merged_df['gene'] + '_' + merged_df['grna']
-        except Exception:
-            print('Error splitting grna into org, gene, grna.')
+        # This split IS positional, legitimately: the pooled-library naming
+        # convention is '<org>_<gene>_<guide>' ('TGGT1_GENEA_g1') and there is
+        # nothing in the name itself that says which token is which. So the
+        # assumption is stated and checked rather than removed.
+        #
+        # What is removed is the bare `except Exception`. It made two very
+        # different inputs look identical from the outside:
+        #   * every name a single token ('g0', 'g1') — a library that simply
+        #     has no org/gene structure. Three keys against one split column
+        #     raised, and skipping is the right answer.
+        #   * names of mixed width ('TGGT1_GENEA_g1' next to 'GENEA_g1').
+        #     str.split(expand=True) pads with None instead of raising, so a
+        #     short name got its GUIDE token as its gene and then grna=None
+        #     out of the gene + '_' + guide concatenation — its reads were
+        #     silently deleted from the screen while every long name sailed
+        #     through.
+        # Requiring every name to have the same three components refuses the
+        # second case outright instead of half-applying to it.
+        tokens = merged_df['grna'].astype(str).str.split(schema.KEY_SEPARATOR)
+        widths = sorted(set(tokens.map(len).tolist()))
+        if widths == [3]:
+            merged_df['gene'] = tokens.str[1]
+            merged_df['grna'] = (tokens.str[1] + schema.KEY_SEPARATOR
+                                 + tokens.str[2])
+        else:
+            example = merged_df['grna'].iloc[0] if len(merged_df) else None
+            print(f"Not splitting 'grna' into org/gene/grna: that split is "
+                  f"positional and needs every name to be "
+                  f"'<org>{schema.KEY_SEPARATOR}<gene>{schema.KEY_SEPARATOR}"
+                  f"<guide>' (3 components), but this table holds names with "
+                  f"{widths} component(s), e.g. {example!r}. No 'gene' column "
+                  f"is produced; a step that needs one will name it.")
 
     return merged_df
 
@@ -2129,7 +2442,12 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     cell_count = grouped.size().reset_index(name='cell_count')
 
     if agg_type is None:
-        dependent_df = pd.merge(dependent_df, cell_count, on='prc')
+        # No aggregation, so dependent_df is still one row per object and
+        # cell_count is one row per well: many-to-one. Stating it pins the
+        # thing that makes the unaggregated path safe — the well's cell count
+        # is broadcast onto its objects, never the other way round.
+        dependent_df = pd.merge(dependent_df, cell_count, on='prc',
+                                validate='many_to_one')
     else:
         dependent_df['cell_count'] = cell_count['cell_count']
 
@@ -2266,7 +2584,16 @@ def generate_ml_scores(settings):
         if not {'prcfo', settings['annotation_column']}.issubset(png_list_df.columns):
             raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
-        df = annotated_df.merge(df, left_index=True, right_index=True)
+        # png_list can legitimately hold more than one crop per object — a
+        # database measured twice (cell crops, then pathogen crops) appends to
+        # the same table — so the annotation side is 'many'. The measurement
+        # side must not be: _read_and_merge_data groups on prcfo, so a repeat
+        # there means two source directories were concatenated under the same
+        # plate id and the same object identity now describes two different
+        # objects. That has to stop here rather than double every measurement
+        # row and quietly double the training set.
+        df = annotated_df.merge(df, left_index=True, right_index=True,
+                                validate='many_to_one')
         unique_values = df[settings['annotation_column']].dropna().unique()
         print(f"Unique values in annotation column: {unique_values}")
         
@@ -3028,7 +3355,8 @@ def interpret_vision_model(settings=None):
     # raised TypeError on every save=True run. The importance tables get their
     # own writer, _save_importance_csv, which follows the same <src>/results
     # convention.
-    from .io import _read_and_merge_data, _report_fan_out, TimelapseKeyMismatch
+    from .io import (_read_and_merge_data, _report_fan_out, JoinFanOut,
+                     TimelapseKeyMismatch)
     from .predictions import crop_name_metadata
     from .settings import set_interpret_vision_model_defaults
     from .utils import save_settings, _time_column
@@ -3163,11 +3491,46 @@ def interpret_vision_model(settings=None):
         # Select only the necessary columns from scores_df for merging
         scores_df = scores_df[join_cols + [settings['score_column']]]
 
-        # Now merge DataFrames
-        merged_df = pd.merge(df, scores_df, on=join_cols, how='inner')
-        # The scores are per object, so the join can only ever shrink df (an
-        # object with no score drops out). Growing means the key does not
-        # identify an object and every feature in the result is duplicated.
+        # Now merge DataFrames.
+        #
+        # The key contract is many-to-one — one score per object — and it is
+        # spelled out, because _report_fan_out does NOT enforce it here. That
+        # was the claim this comment used to make and it is false: the check
+        # is `len(merged) <= len(left)`, which is only equivalent to the
+        # cardinality contract for a LEFT join. This join is INNER, so scored
+        # objects fanning out and unscored objects dropping out cancel in the
+        # row count. Four objects, a scores file holding o1 twice and o2 once:
+        # the merge returns three rows, three <= four, nothing is raised, and
+        # o1's measurements are in the training set twice — the exact silent
+        # duplication the check was added to stop.
+        #
+        # pandas is the thing that can actually see the duplicate key, so it
+        # does the checking; the message is translated back into the one
+        # _report_fan_out would have given, which names the cause (a scores
+        # file written twice) and the fix (de-duplicate it) instead of saying
+        # only "Merge keys are not unique in right dataset".
+        try:
+            merged_df = pd.merge(df, scores_df, on=join_cols, how='inner',
+                                 validate='many_to_one')
+        except pd.errors.MergeError as error:
+            duplicated = scores_df[scores_df.duplicated(subset=join_cols,
+                                                        keep=False)]
+            examples = (duplicated[join_cols].drop_duplicates()
+                        .head(3).to_dict('records'))
+            raise JoinFanOut(
+                f"{settings['scores']} holds more than one score for the same "
+                f"object: {list(join_cols)} repeats "
+                f"{len(duplicated[join_cols].drop_duplicates())} time(s), e.g. "
+                f"{examples}. Joining it to the measurements would put those "
+                f"objects into the training set once per duplicate row, so "
+                f"every measurement in the result is duplicated. This usually "
+                f"means the scoring step ran twice and appended a second set "
+                f"of rows; de-duplicate the scores file before reading it."
+            ) from error
+        # Belt and braces on the row count as well: many_to_one covers a
+        # duplicated scores key, this covers anything that would grow df for
+        # some other reason. The scores are per object, so the join can only
+        # ever shrink df (an object with no score drops out).
         _report_fan_out(df, merged_df, join_cols,
                         left_name='object', right_name='scores')
 
