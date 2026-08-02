@@ -7,6 +7,7 @@ from Bio.Seq import Seq
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from . import schema
 from .plot import plot_plates
 try:
     from IPython.display import display
@@ -1000,16 +1001,32 @@ def graph_sequencing_stats(settings):
     unique_count_mean = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().mean()
     unique_count_std = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().std()
 
-    # Merge the unique counts back into the original DataFrame
-    df = pd.merge(df, unique_counts, on=['plateID', 'rowID', 'columnID'], how='left')
+    # Merge the unique counts back into the original DataFrame.
+    # unique_counts is one row per well by construction (groupby on exactly
+    # this key), df is one row per (well, gRNA): many-to-one. If the right side
+    # ever gained a duplicate the plate heatmap below would average a well's
+    # gRNA rows more than once and simply show the wrong number, with nothing
+    # in the output saying so.
+    df = pd.merge(df, unique_counts, on=['plateID', 'rowID', 'columnID'],
+                  how='left', validate='many_to_one')
 
     print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
     #_plot_density(df, dependent_variable='unique_counts')
-    
-    has_underscore = df['rowID'].str.contains('_').any()
-    if has_underscore:
-        df['rowID'] = df['rowID'].apply(lambda x: x.split('_')[1])
-    
+
+    # rowID sometimes arrives as the composite '<plate>_<row>' that count CSVs
+    # carry in their 'plate_row' column; plot_plates wants the row alone.
+    #
+    # This was guarded by `df['rowID'].str.contains('_').any()` and then run
+    # over EVERY row with `x.split('_')[1]`, so one composite value anywhere in
+    # the table made the whole column go through an index that the plain values
+    # do not have: ['plate1_r1', 'r2', 'r3'] raises IndexError and the caller
+    # loses the threshold it had already computed. The [1] was also the wrong
+    # token for a plate whose own name contains a separator ('exp1_plate1_r2'
+    # gave 'plate1'). Taking the token after the LAST separator is right for
+    # both, needs no guard, and leaves a plain 'r2' untouched.
+    df['rowID'] = (df['rowID'].astype(str)
+                   .str.rsplit(schema.KEY_SEPARATOR, n=1).str[-1])
+
     plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
     
     return closest_threshold
