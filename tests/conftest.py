@@ -330,6 +330,87 @@ def synth_sqlite_db(tmp_path, synth_measurements):
 
 
 # ---------------------------------------------------------------------------
+# Cellpose mock contract
+# ---------------------------------------------------------------------------
+#
+# Every ``CellposeModel`` stand-in in this suite used to be spelled
+# ``def eval(self, x=None, **kwargs)``. A ``**kwargs`` mock accepts ANY
+# argument, so it cannot tell a legal call from an illegal one — which is how
+# spaCR's hard-coded ``channel_axis=3`` survived fifteen green tests while
+# raising ``IndexError: tuple index out of range`` on every real run.
+#
+# The cure is not to re-assert a literal value (that just moves the guess into
+# the test and drifts as spaCR's shapes change). It is to hand the exact
+# ``(x, channel_axis, z_axis, do_3D)`` combination to the same validator the
+# real ``CellposeModel.eval`` runs first — ``cellpose.transforms.convert_image``
+# — which is pure numpy, CPU-only and offline. If spaCR ever passes an axis
+# Cellpose rejects, the mock now fails with the production error.
+
+
+class _MissingChannelAxis:
+    """Sentinel: ``eval()`` was called with no ``channel_axis`` at all."""
+
+    __slots__ = ()
+
+    def __repr__(self):  # pragma: no cover - debugging aid only
+        return "<no channel_axis passed>"
+
+
+#: Default for a mock's ``channel_axis`` parameter. Distinct from ``None``,
+#: which is a *legal* value meaning "auto-detect the channel axis".
+MISSING_CHANNEL_AXIS = _MissingChannelAxis()
+
+
+def check_cellpose_eval_call(x, channel_axis=MISSING_CHANNEL_AXIS, *,
+                             z_axis=None, do_3D=False, stitch_threshold=0.0,
+                             require_channel_axis=True):
+    """Reject an ``eval()`` call the real ``CellposeModel.eval`` would reject.
+
+    Mirrors Cellpose 4's own dispatch: a list (or 5-D array) is evaluated one
+    element at a time with the same axis kwargs, and every leaf goes through
+    ``transforms.convert_image(x, channel_axis=..., z_axis=..., do_3D=...)``.
+
+    :param x: whatever spaCR passed as the image argument.
+    :param channel_axis: the value spaCR passed, or
+        :data:`MISSING_CHANNEL_AXIS` when it passed none.
+    :param require_channel_axis: assert the caller named ``channel_axis``
+        explicitly. True for the call sites that do (``spacr.object``,
+        ``spacr.pipeline_v2``, ``spacr.spacr_cellpose``) so the value stays
+        under contract; False where spaCR deliberately leaves Cellpose to
+        auto-detect (``spacr.spacrops``, ``spacr.submodules``).
+    :returns: list of converted images, in call order — the mock can size its
+        canned masks from these rather than re-deriving the shape.
+    :raises AssertionError: when ``channel_axis`` was required and omitted.
+    :raises ValueError, IndexError: whatever Cellpose itself would raise.
+    """
+    if require_channel_axis:
+        assert channel_axis is not MISSING_CHANNEL_AXIS, (
+            "model.eval() was called without channel_axis. spaCR must pass it "
+            "explicitly at this call site so its value stays covered by this "
+            "contract; a mock that defaults it silently accepts the "
+            "channel_axis=3 that broke every real run."
+        )
+    axis = None if channel_axis is MISSING_CHANNEL_AXIS else channel_axis
+
+    from cellpose import transforms
+
+    # Cellpose recurses over a list before it converts anything, so a batch is
+    # only legal if every element is.
+    if isinstance(x, (list, tuple)):
+        images = list(x)
+    else:
+        arr = np.asarray(x)
+        images = list(arr) if arr.squeeze().ndim == 5 else [arr]
+
+    converted = []
+    for image in images:
+        converted.append(transforms.convert_image(
+            np.asarray(image), channel_axis=axis, z_axis=z_axis,
+            do_3D=(do_3D or stitch_threshold > 0)))
+    return converted
+
+
+# ---------------------------------------------------------------------------
 # GUI / Tk fixtures
 # ---------------------------------------------------------------------------
 
@@ -618,6 +699,16 @@ def synth_illumina_reads(tmp_path, rng, synth_barcodes):
 # Only 4 TIFFs (one plate/well/field, four channels) are pulled — enough
 # to exercise the metadata extractor, the settings loader, and one mask
 # generation pass, without downloading the full 210-file dataset.
+#
+# NONE of these fixtures may turn a spaCR failure into a skip. Only the two
+# things this machine genuinely might not have — the network and the optional
+# packages — are allowed to skip, and each is caught by its own exception type
+# so a bug cannot borrow the excuse. ``hf_hub_download`` signals every fetch
+# problem it has (HTTP status, DNS, timeout, missing entry, unwritable cache)
+# as an ``OSError`` subclass: ``HfHubHTTPError`` -> ``requests.HTTPError`` ->
+# ``RequestException`` -> ``OSError``. A ``TypeError`` from calling it wrong,
+# or an ``AssertionError`` from spaCR, is not an OSError and now fails loudly.
+
 
 @pytest.fixture(scope="session")
 def hf_toxo_mito_field(tmp_path_factory):
@@ -631,10 +722,7 @@ def hf_toxo_mito_field(tmp_path_factory):
     from tests.resource_capabilities import endpoint_available
     if not endpoint_available():
         pytest.skip("network / huggingface.co unreachable")
-    try:
-        from huggingface_hub import hf_hub_download
-    except Exception as e:  # pragma: no cover - import failure
-        pytest.skip(f"huggingface_hub not available: {e}")
+    hf_hub_download = pytest.importorskip("huggingface_hub").hf_hub_download
 
     dst = tmp_path_factory.mktemp("hf_toxo_mito")
     target_files = [
@@ -652,7 +740,7 @@ def hf_toxo_mito_field(tmp_path_factory):
                 repo_type="dataset",
                 local_dir=str(dst),
             )
-        except Exception as e:  # pragma: no cover - network path
+        except OSError as e:  # pragma: no cover - network path
             pytest.skip(f"HF download failed for {rel}: {e}")
         local_paths.append(p)
     return {
@@ -677,16 +765,10 @@ def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
     @pytest.mark.gpu + @pytest.mark.network markers so the whole thing
     only runs when explicitly opted in.
     """
-    try:
-        import torch
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"torch unavailable: {e}")
+    torch = pytest.importorskip("torch")
     if not torch.cuda.is_available():
         pytest.skip("no CUDA available for full pipeline test")
-    try:
-        import cellpose  # noqa: F401
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"cellpose unavailable: {e}")
+    pytest.importorskip("cellpose")
 
     import shutil
     work = tmp_path_factory.mktemp("spacr_pipeline")
@@ -717,10 +799,12 @@ def spacr_pipeline_run(tmp_path_factory, hf_toxo_mito_multi_fields):
         "keep_intermediate": True, "keep_original_images": True,
     })
 
-    try:
-        preprocess_generate_masks(settings)
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"pipeline failed to run: {e}")
+    # No try/skip. Detecting that the mask pipeline stopped working on real
+    # microscopy data is the entire purpose of this fixture; catching its
+    # failure and reporting a skip made "the pipeline is broken" and "this box
+    # has no GPU" look identical, and only the second one is an excuse. The
+    # GPU / cellpose / network preconditions are already checked above.
+    preprocess_generate_masks(settings)
 
     return {"src": str(work), "settings": settings,
             "n_input_fields": len(hf_toxo_mito_multi_fields["fields"])}
@@ -755,10 +839,10 @@ def spacr_measure_run(spacr_pipeline_run):
         # and apply_model on the resulting per-object crops.
         "plot": False, "save_png": True, "save_arrays": False,
     })
-    try:
-        measure_crop(settings)
-    except Exception as e:  # pragma: no cover - integration path
-        pytest.skip(f"measure_crop failed on synthetic pipeline output: {e}")
+    # No try/skip: same reasoning as spacr_pipeline_run. measure_crop failing
+    # on the output spaCR itself just produced IS the regression this fixture
+    # exists to surface.
+    measure_crop(settings)
     return {
         "src": spacr_pipeline_run["src"],
         "db_path": os.path.join(
@@ -789,10 +873,7 @@ def hf_toxo_mito_multi_fields(tmp_path_factory):
         pytest.skip("cellpose unavailable")
     if not endpoint_available():
         pytest.skip("network / huggingface.co unreachable")
-    try:
-        from huggingface_hub import hf_hub_download
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"huggingface_hub not available: {e}")
+    hf_hub_download = pytest.importorskip("huggingface_hub").hf_hub_download
 
     dst = tmp_path_factory.mktemp("hf_toxo_mito_multi")
     # 3 fields × 4 channels = 12 TIFFs — enough to satisfy batch checks
@@ -815,7 +896,7 @@ def hf_toxo_mito_multi_fields(tmp_path_factory):
                     repo_type="dataset",
                     local_dir=str(dst),
                 )
-            except Exception as e:  # pragma: no cover
+            except OSError as e:  # pragma: no cover
                 pytest.skip(f"HF download failed for {rel}: {e}")
             local_paths.append(p)
     return {
@@ -833,10 +914,7 @@ def hf_spacr_settings(tmp_path_factory):
     from tests.resource_capabilities import endpoint_available
     if not endpoint_available():
         pytest.skip("network / huggingface.co unreachable")
-    try:
-        from huggingface_hub import hf_hub_download
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"huggingface_hub not available: {e}")
+    hf_hub_download = pytest.importorskip("huggingface_hub").hf_hub_download
 
     dst = tmp_path_factory.mktemp("hf_spacr_settings")
     paths = {}
@@ -848,7 +926,7 @@ def hf_spacr_settings(tmp_path_factory):
                 repo_type="dataset",
                 local_dir=str(dst),
             )
-        except Exception as e:  # pragma: no cover
+        except OSError as e:  # pragma: no cover
             pytest.skip(f"HF download failed for {name}: {e}")
         paths[name] = p
     return paths
