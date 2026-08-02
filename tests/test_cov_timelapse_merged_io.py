@@ -211,8 +211,11 @@ def test_summarise_child_features_empty_merge_result_returns_stub_frame():
         def __init__(self):
             self.calls = []
 
-        def merge(self, other, on=None, how=None):
-            self.calls.append((tuple(on), how))
+        # `validate` is part of the call the function makes: child_props_df is
+        # regionprops output and must hold one row per label per frame. The
+        # stub records it, so this test pins that contract as well.
+        def merge(self, other, on=None, how=None, validate=None):
+            self.calls.append((tuple(on), how, validate))
             return pd.DataFrame(columns=["frame", "obj_id"])
 
     overlaps = _EmptyMergeOverlaps()
@@ -222,7 +225,7 @@ def test_summarise_child_features_empty_merge_result_returns_stub_frame():
         overlaps, props, "cell_id", "obj_id", "child_count"
     )
 
-    assert overlaps.calls == [(("frame", "obj_id"), "left")]
+    assert overlaps.calls == [(("frame", "obj_id"), "left", "many_to_one")]
     assert out.empty
     assert list(out.columns) == ["frame", "cell_id", "child_count"]
 

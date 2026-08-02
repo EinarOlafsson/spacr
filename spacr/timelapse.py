@@ -555,7 +555,14 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
             # to raise KeyError for the advertised timelapse_mode='iou'. Map it onto
             # the trackpy layout; x/y are needed by the track visualiser downstream.
             tracks_df = tracks_df.rename(columns={'track_id': 'particle'})
-            tracks_df = tracks_df.merge(features[['frame', 'original_label', 'x', 'y']], on=['frame', 'original_label'], how='left')
+            # many_to_one: `features` is regionprops output, so a label occurs
+            # once per frame and this attaches a centroid without changing the
+            # row count. `tracks_df` is the left side because an IoU link table
+            # may legitimately hold the same (frame, label) twice — a label
+            # that both starts a track and continues another — while a
+            # duplicated (frame, label) in `features` would silently double
+            # every track row and corrupt the relabelling below.
+            tracks_df = tracks_df.merge(features[['frame', 'original_label', 'x', 'y']], on=['frame', 'original_label'], how='left', validate='many_to_one')
 
         tracks_df['particle'] += 1
 
@@ -959,6 +966,81 @@ def _filter_short_tracks(df, min_length=5):
     long_tracks = track_lengths[track_lengths >= min_length].index
     return df[df['track_id'].isin(long_tracks)]
 
+
+#: What :func:`spacr.utils._map_wells` puts in every slot when it cannot read a
+#: name at all. It does not raise, so the identity columns of the track table
+#: carry this string and ``wellID`` has to agree with them.
+_UNPARSED_KEY = 'error'
+
+
+def _track_well_ids(row_ids, column_ids, name, logger):
+    """Return one ``wellID`` per parsed ``(rowID, columnID)`` pair.
+
+    ``wellID`` used to be ``file_name.str.split('_').str[1]``, which copied
+    whatever spelling the file used through while the ``rowID``/``columnID``
+    written beside it were canonicalised — a track table could name well
+    ``'a1'`` next to ``'r1'``/``'c1'``. Composing it from the row and column
+    :func:`spacr.utils._map_wells` has already parsed makes the three agree.
+    (It does *not* repair a plate id containing an underscore:
+    :func:`spacr.schema.parse_field_stem` splits a field stem left to right, so
+    ``'exp_plate1_A01_3'`` puts ``'plate1'`` in the well slot there too.)
+
+    What it must not do is raise. :func:`spacr.schema.well_id` deliberately
+    refuses two pairs ``_map_wells`` produces on names this pipeline has always
+    accepted, and an uncaught :class:`~spacr.schema.KeyParseError` here aborts a
+    whole timelapse run from the middle of a batch:
+
+    * a **positional well**. ``'plate1_5_3'`` is plate1, well 5, field 3;
+      :func:`spacr.schema.parse_well` passes a bare well number through into
+      *both* slots, so ``rowID == columnID == '5'`` and there is no
+      ``A01``-style name to build for it. The well *is* ``'5'`` — which is what
+      the old positional split wrote too — so that is what is written.
+    * the ``'error'`` sentinel ``_map_wells`` returns for a name it cannot read.
+      Every other identity column on the row already carries it; ``wellID``
+      joins them rather than taking the run down, and the batch name is logged.
+
+    Anything else :func:`~spacr.schema.well_id` refuses (a well naming column
+    ``0``, say) is a *malformed* well rather than an unnamed one, and is
+    re-raised with the batch name and the offending pair in the message — the
+    bare ``KeyParseError: cannot build a well name from column 'c0'`` that
+    surfaces from four frames down names neither.
+
+    :param row_ids: parsed ``rowID`` per row of the track table.
+    :param column_ids: parsed ``columnID`` per row, aligned to ``row_ids``.
+    :param name: npz batch name the ids were parsed from, for the messages.
+    :param logger: logger to report an unreadable batch name on.
+    :returns: list of ``wellID`` strings, one per pair.
+    :raises spacr.schema.KeyParseError: for a pair that is a well and is
+        malformed, naming the batch and the pair.
+    """
+    well_ids = []
+    warned_unparsed = False
+    for row, column in zip(row_ids, column_ids):
+        if schema.is_positional_pair(row, column):
+            # rowID == columnID == the well exactly as it was written (or the
+            # 'error' sentinel). Both are the well this row belongs to; neither
+            # has a row/column decomposition to render.
+            if str(row) == _UNPARSED_KEY and not warned_unparsed:
+                logger.warning(
+                    "Could not read plate/well/field out of %r; the track "
+                    "table for this batch carries %r in every identity "
+                    "column, including wellID.", name, _UNPARSED_KEY)
+                warned_unparsed = True
+            well_ids.append(str(row))
+            continue
+        try:
+            well_ids.append(schema.well_id(row, column))
+        except schema.KeyParseError as error:
+            raise schema.KeyParseError(
+                f"cannot name the well of track batch {name!r}: {error} "
+                f"_map_wells read that name as row {row!r} / column "
+                f"{column!r}. Rename the batch to '<plate>_<well>_<field>' "
+                f"with a well of the form 'A01' (or a bare well number), so "
+                f"the track table names the well its own rowID/columnID "
+                f"name.") from error
+    return well_ids
+
+
 @debug(enabled=True)
 def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, masks_3D, mode, timelapse_remove_transient, radius=100, n_jobs=10, batch_list=None, optimizer_time_limit_s=120, optimizer_mip_gap=0.01, run_optimization=True, max_objects_for_optimization=20000):
     """
@@ -1275,11 +1357,20 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     objects_df["y"] = objects_df["y"].round(2)
 
     logger.debug("Merging tracks_df and objects_df on ['frame', 'x', 'y']...")
+    # many_to_many, and deliberately so: this is a POSITIONAL join. btrack
+    # reports track positions and regionprops reports object centroids, and the
+    # two are matched by rounding both to 2 decimals. Two objects in one frame
+    # can round to the same centroid (touching or nested masks do it), and one
+    # object can be claimed by two tracks at a merge/split event, so neither
+    # side is unique on the key and a stricter contract would crash a run that
+    # is merely ambiguous. The ambiguity is real: such rows produce duplicate
+    # (track_id, frame) pairs downstream.
     merged_df = pd.merge(
         tracks_df,
         objects_df,
         on=["frame", "x", "y"],
         how="inner",
+        validate="many_to_many",
     )
     logger.debug("merged_df shape: %s", merged_df.shape)
 
@@ -1300,7 +1391,26 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
         try:
             final_df['file_name'] = name
             final_df[['plateID', 'rowID', 'columnID', 'fieldID', 'prcf']] = (final_df['file_name'].apply(lambda fname: pd.Series(_map_wells(fname, timelapse=False))))
-            final_df['wellID'] = final_df['file_name'].str.split('_').str[1]
+            # Composed from the row and column _map_wells just parsed, not
+            # re-split off the file name: the positional split copied the
+            # file's own spelling through while rowID/columnID beside it were
+            # canonicalised, so a track table could say wellID 'a1' next to
+            # rowID 'r1' / columnID 'c1'. Composing makes the three agree
+            # character for character ('a1', 'A-01' and ' A01 ' all become
+            # 'A01'); 'A01' either way for a name already written that way.
+            #
+            # It does NOT repair a plate id containing an underscore -- an
+            # earlier version of this comment claimed it did. schema.parse_
+            # field_stem splits a field stem LEFT to right and takes parts
+            # [0:3], so 'exp_plate1_A01_3' puts 'plate1' in the well slot as a
+            # positional passthrough, which is exactly what token [1] said too.
+            #
+            # Through _track_well_ids, NOT schema.well_id directly: that one
+            # raises for a positional well ('plate1_5_3') and for the 'error'
+            # sentinel _map_wells returns above, both of which reach here on
+            # data this pipeline has always tracked. See _track_well_ids.
+            final_df['wellID'] = _track_well_ids(
+                final_df['rowID'], final_df['columnID'], name, logger)
 
         except IndexError:
             logger.warning("Failed to parse plate, well, field from name: %s", name)
@@ -1423,8 +1533,11 @@ def preprocess_pathogen_data(pathogen_df):
     agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in group_keys + ['parasite_count']}
     pathogen_agg = pathogen_df.groupby(group_keys).agg(agg_funcs).reset_index()
 
-    # Merge the counts back into the aggregated data
-    pathogen_agg = pathogen_agg.merge(parasite_counts, on=group_keys)
+    # Merge the counts back into the aggregated data. one_to_one: both sides
+    # are groupby(group_keys) reductions of the same frame, so each holds
+    # exactly one row per host cell and the join must not change the row count.
+    pathogen_agg = pathogen_agg.merge(parasite_counts, on=group_keys,
+                                      validate='one_to_one')
 
 
     # Remove the object_label column as it corresponds to the pathogen ID not the cell ID
@@ -1517,6 +1630,97 @@ def save_results_dataframe(df, src, results_name):
     df.to_csv(csv_loc, index=True)
     print(f'Saved results:{csv_loc}')
 
+_PEAK_ID_SHAPE = ("plate_row_column_field_object — 'plate1_r1_c1_f1_o7', or "
+                  "'plate1_r1_c1_f1_t3_o7' when the key carries a timepoint")
+
+
+def _explode_peak_ids(peak_details_df, caller):
+    """Fill the identity columns of a peak-details frame from its ``ID`` key.
+
+    ``ID`` is the ``prcfo`` :func:`analyze_calcium_oscillations` composes for
+    each track. It used to be taken apart with ``str.split('_', expand=True)``
+    and assigned to exactly five positional columns, which is wrong in both
+    directions:
+
+    * **Loudly, but opaquely**, on any key with six tokens — a plate id that
+      itself contains an underscore (``exp1_plate1_r1_c1_f1_o1``), or a
+      timelapse key that kept its timepoint (``plate1_r1_c1_f1_t3_o7``). pandas
+      answers ``ValueError: Columns must be same length as key``, which names
+      neither the column nor the id that caused it.
+    * **Silently**, on any key with five tokens that are not
+      plate/row/column/field/object. A ``prcf`` from a timelapse
+      (``plate1_r1_c1_f1_t3``) has exactly five, so the *timepoint* landed in
+      ``object_number`` — and ``cells_per_well`` below, which is
+      ``nunique(object_number)``, then counted timepoints instead of cells and
+      divided the peak count by the wrong number.
+
+    :func:`spacr.schema.parse_prcfo` reads the key **right to left**, so the
+    plate keeps whatever is left over and the timepoint is recognised by its
+    ``t`` prefix rather than by its position. That is the same parser
+    :func:`analyze_calcium_oscillations` uses on ``prcf`` one screen below, and
+    the comment there notes the caller was fixed while these two sites were
+    not.
+
+    :param peak_details_df: frame carrying an ``ID`` column; mutated in place.
+    :param caller: name of the calling function, used in the error message.
+    :returns: ``peak_details_df``.
+    :raises spacr.schema.KeyParseError: naming the ids that are not object
+        keys, rather than letting a positional split invent an identity.
+    """
+    objects, unparseable = [], []
+    for value in peak_details_df['ID']:
+        text = str(value).strip()
+        try:
+            objects.append(schema.parse_prcfo(text))
+            continue
+        except schema.KeyParseError:
+            pass
+        # Legacy spelling: prcf + '_' + a BARE object label, which is what this
+        # module wrote before the object index gained its 'o' prefix (see the
+        # 'plate_row_column_field_object' composition in
+        # analyze_calcium_oscillations). A peak_details.csv saved by an older
+        # run still carries it, and it is still read right to left here.
+        #
+        # The trailing token must be all digits, not merely something
+        # schema.object_id would accept: 't3' would be accepted (as object 3)
+        # and would turn a plain timelapse *prcf* into a plausible-looking
+        # object key, which is the silent misreading this function exists to
+        # stop. An id with no object in it is not an object id.
+        head, separator, tail = text.rpartition(schema.KEY_SEPARATOR)
+        if separator and tail.isdigit():
+            try:
+                objects.append(
+                    schema.parse_prcf(head).with_object(schema.object_id(tail)))
+                continue
+            except schema.SchemaError:
+                pass
+        unparseable.append(text)
+
+    if unparseable:
+        sample = sorted(set(unparseable))[:5]
+        raise schema.KeyParseError(
+            f"{caller}: {len(unparseable)} of {len(peak_details_df)} peak "
+            f"row(s) have an 'ID' that is not an object key, e.g. {sample}. "
+            f"'ID' must be {_PEAK_ID_SHAPE}, because every summary below is "
+            f"keyed on the row and column parsed out of it. Splitting these "
+            f"on '_' by position would put the field id in the object column "
+            f"and summarise the peaks into a well that does not exist.")
+
+    # np.array, not a list and not a Series: a list of nothing gives a float64
+    # column, and the well id built from it below then fails with a ufunc type
+    # error on an empty frame; a Series would align on the LABEL and write the
+    # wrong rows when the caller's index repeats. An object-dtype array assigns
+    # positionally and keeps its dtype whatever the length.
+    for column in schema.FIELD_KEY_COLUMNS:
+        peak_details_df[column] = np.array(
+            [getattr(obj, column) for obj in objects], dtype=object)
+    # 'object_number' keeps the 'o<N>' spelling the split produced, so it stays
+    # a string and does not join the numeric columns that get averaged below.
+    peak_details_df['object_number'] = np.array(
+        [obj.objectID for obj in objects], dtype=object)
+    return peak_details_df
+
+
 def summarize_per_well(peak_details_df):
     """Aggregate per-object peak details to one summary row per well.
 
@@ -1524,10 +1728,11 @@ def summarize_per_well(peak_details_df):
         encoding ``plate_row_column_field_object`` and peak metrics.
     :returns: DataFrame with one row per well including peak counts, unique
         cell counts, and per-well means of the numeric metrics.
+    :raises spacr.schema.KeyParseError: when an ``ID`` is not an object key.
     """
-    # Step 1: Split the 'ID' column
-    split_columns = peak_details_df['ID'].str.split('_', expand=True)
-    peak_details_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_number']] = split_columns
+    # Step 1: Recover the identity from the 'ID' key (see _explode_peak_ids for
+    # why this is a right-to-left parse and not a positional split).
+    _explode_peak_ids(peak_details_df, 'summarize_per_well')
 
     # Step 2: Create 'well_ID' by combining 'rowID' and 'columnID'
     peak_details_df['well_ID'] = peak_details_df['rowID'] + '_' + peak_details_df['columnID']
@@ -1554,7 +1759,10 @@ def summarize_per_well(peak_details_df):
     # built from the amplitude-filtered frame, so a well whose peaks all have a
     # null amplitude is missing from it and every later well used to inherit the
     # previous well's cell count (and an empty summary grew ghost NaN rows).
-    summary_df = summary_df.merge(summary_df_2, on='well_ID', how='left')
+    # one_to_one: both frames are groupby('well_ID') reductions, so a well
+    # appears at most once in each and this join adds a column, never a row.
+    summary_df = summary_df.merge(summary_df_2, on='well_ID', how='left',
+                                  validate='one_to_one')
     summary_df['peaks_per_cell'] = summary_df['peaks_per_well'] / summary_df['cells_per_well']
     
     return summary_df
@@ -1567,10 +1775,10 @@ def summarize_per_well_inf_non_inf(peak_details_df):
         pathogen counts used to infer infection.
     :returns: DataFrame with two rows per well (infected/uninfected) of
         peak counts, cell counts, and per-well means of numeric metrics.
+    :raises spacr.schema.KeyParseError: when an ``ID`` is not an object key.
     """
-    # Step 1: Split the 'ID' column
-    split_columns = peak_details_df['ID'].str.split('_', expand=True)
-    peak_details_df[['plateID', 'rowID', 'columnID', 'fieldID', 'object_number']] = split_columns
+    # Step 1: Recover the identity from the 'ID' key (see _explode_peak_ids).
+    _explode_peak_ids(peak_details_df, 'summarize_per_well_inf_non_inf')
 
     # Step 2: Create 'well_ID' by combining 'rowID' and 'columnID'
     peak_details_df['well_ID'] = peak_details_df['rowID'] + '_' + peak_details_df['columnID']
@@ -1638,15 +1846,26 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
                 "call analyze_calcium_oscillations with pathogen=None.")
         pathogen_df['cell_id'] = pathogen_df['cell_id'].astype(float).astype('Int64')
         pathogen_df = preprocess_pathogen_data(pathogen_df)
-        cell_df = cell_df.merge(pathogen_df, on=merge_keys, how='left', suffixes=('', '_pathogen'))
+        # many_to_one: preprocess_pathogen_data aggregates the parasite table to
+        # one row per host cell, so this attaches a parasite count without
+        # changing the number of cell rows. The left side is not asserted
+        # unique because a database with no timeID column keys several frames
+        # of the same cell alike; the right side must be, or every one of those
+        # frames would be duplicated and the peak counts inflated with it.
+        cell_df = cell_df.merge(pathogen_df, on=merge_keys, how='left', suffixes=('', '_pathogen'), validate='many_to_one')
         cell_df['parasite_count'] = cell_df['parasite_count'].fillna(0)
         print(f'After pathogen merge: {len(cell_df)} objects')
 
     # Optionally load cytoplasm table and merge
     if cytoplasm:
         cytoplasm_df = pd.read_sql(f"SELECT * FROM {'cytoplasm'}", conn)
-        # Merge on specified columns
-        cell_df = cell_df.merge(cytoplasm_df, on=merge_keys, how='left', suffixes=('', '_cytoplasm'))
+        # Merge on specified columns. many_to_one: the cytoplasm table carries
+        # one object per cell per frame, so it must not hold two rows for a
+        # merge key -- that would duplicate the cell's whole intensity trace
+        # and double every peak detected in it. Raising here is the point: the
+        # duplication is invisible in the result, which just looks like a cell
+        # with twice as many timepoints.
+        cell_df = cell_df.merge(cytoplasm_df, on=merge_keys, how='left', suffixes=('', '_cytoplasm'), validate='many_to_one')
 
         print(f'After cytoplasm merge: {len(cell_df)} objects')
 
@@ -2933,7 +3152,12 @@ def _summarise_child_features_per_parent(
     if overlaps_df.empty or child_props_df.empty:
         return pd.DataFrame(columns=["frame", parent_label_col, count_col_name])
 
-    df = overlaps_df.merge(child_props_df, on=["frame", child_label_col], how="left")
+    # many_to_one: overlaps_df holds one row per (frame, parent, child) pair, so
+    # a child shared by two parents appears twice on the left and that is the
+    # overlap being summarised. child_props_df is regionprops output, one row
+    # per label per frame; a duplicate there would count the same child twice
+    # into n_children and skew every aggregate below it.
+    df = overlaps_df.merge(child_props_df, on=["frame", child_label_col], how="left", validate="many_to_one")
     if df.empty:
         return pd.DataFrame(columns=["frame", parent_label_col, count_col_name])
 
@@ -2968,7 +3192,11 @@ def _summarise_child_features_per_parent(
     agg_dict = {c: _agg_for_feature(c) for c in numeric_cols}
     agg_df = df.groupby(group_cols).agg(agg_dict).reset_index()
 
-    summary = agg_df.merge(counts, on=group_cols, how="left")
+    # one_to_one: both sides are groupby(group_cols) reductions of the same
+    # frame, so each parent appears once in each and the summary must keep
+    # exactly one row per parent object per frame.
+    summary = agg_df.merge(counts, on=group_cols, how="left",
+                           validate="one_to_one")
     return summary
 
 
@@ -3444,29 +3672,39 @@ def _process_merged_group(args):
             if not df_p_cy.empty:
                 percentile_dfs_cytoplasm.append(df_p_cy)
 
-    # merge percentile features into base props
+    # merge percentile features into base props.
+    #
+    # Every frame joined below — the per-channel percentile tables and the
+    # props tables they are attached to — is one row per object per frame:
+    # regionprops emits a label once per frame, and the percentile helpers
+    # reduce each label to one row. So all of these are one_to_one, and a
+    # violation means a label was measured twice in a frame, which would
+    # duplicate that object's whole row and be invisible in the output.
     if percentile_dfs_cell:
         tmp = percentile_dfs_cell[0]
         for df_p in percentile_dfs_cell[1:]:
-            tmp = tmp.merge(df_p, on=["frame", "track_id"], how="outer")
+            tmp = tmp.merge(df_p, on=["frame", "track_id"], how="outer",
+                            validate="one_to_one")
         cell_props_df = cell_props_df.merge(
-            tmp, on=["frame", "track_id"], how="left"
+            tmp, on=["frame", "track_id"], how="left", validate="one_to_one"
         )
 
     if np.any(nucleus_masks) and not nucleus_props_df.empty and percentile_dfs_nucleus:
         tmp = percentile_dfs_nucleus[0]
         for df_p in percentile_dfs_nucleus[1:]:
-            tmp = tmp.merge(df_p, on=["frame", "nucleus_label"], how="outer")
+            tmp = tmp.merge(df_p, on=["frame", "nucleus_label"], how="outer",
+                            validate="one_to_one")
         nucleus_props_df = nucleus_props_df.merge(
-            tmp, on=["frame", "nucleus_label"], how="left"
+            tmp, on=["frame", "nucleus_label"], how="left", validate="one_to_one"
         )
 
     if np.any(pathogen_masks) and not pathogen_props_df.empty and percentile_dfs_pathogen:
         tmp = percentile_dfs_pathogen[0]
         for df_p in percentile_dfs_pathogen[1:]:
-            tmp = tmp.merge(df_p, on=["frame", "pathogen_label"], how="outer")
+            tmp = tmp.merge(df_p, on=["frame", "pathogen_label"], how="outer",
+                            validate="one_to_one")
         pathogen_props_df = pathogen_props_df.merge(
-            tmp, on=["frame", "pathogen_label"], how="left"
+            tmp, on=["frame", "pathogen_label"], how="left", validate="one_to_one"
         )
 
     if (
@@ -3477,9 +3715,10 @@ def _process_merged_group(args):
     ):
         tmp = percentile_dfs_cytoplasm[0]
         for df_p in percentile_dfs_cytoplasm[1:]:
-            tmp = tmp.merge(df_p, on=["frame", "cytoplasm_label"], how="outer")
+            tmp = tmp.merge(df_p, on=["frame", "cytoplasm_label"], how="outer",
+                            validate="one_to_one")
         cytoplasm_props_df = cytoplasm_props_df.merge(
-            tmp, on=["frame", "cytoplasm_label"], how="left"
+            tmp, on=["frame", "cytoplasm_label"], how="left", validate="one_to_one"
         )
 
 
@@ -3502,10 +3741,13 @@ def _process_merged_group(args):
     if per_channel_intensity_dfs:
         cell_intensity_df = per_channel_intensity_dfs[0]
         for df_ch in per_channel_intensity_dfs[1:]:
+            # one_to_one: one mean per track per frame per channel, so widening
+            # by channel must not add rows.
             cell_intensity_df = cell_intensity_df.merge(
                 df_ch,
                 on=["frame", "track_id"],
                 how="outer",
+                validate="one_to_one",
             )
         added_cols = [
             c
@@ -3587,23 +3829,31 @@ def _process_merged_group(args):
 
     enriched_df = cell_props_df.copy()
 
+    # enriched_df is the per-(frame, track) cell table and must stay exactly
+    # that: every summary attached below has already been reduced to one row
+    # per parent by _summarise_child_features_per_parent, so one_to_one holds
+    # and a breach would multiply the cell rows the whole downstream QC (track
+    # velocities, infection calls, the SQLite snapshot) counts.
     if nucleus_summary is not None and not nucleus_summary.empty:
         enriched_df = enriched_df.merge(
             nucleus_summary,
             on=["frame", "track_id"],
             how="left",
+            validate="one_to_one",
         )
     if pathogen_summary is not None and not pathogen_summary.empty:
         enriched_df = enriched_df.merge(
             pathogen_summary,
             on=["frame", "track_id"],
             how="left",
+            validate="one_to_one",
         )
     if cytoplasm_summary is not None and not cytoplasm_summary.empty:
         enriched_df = enriched_df.merge(
             cytoplasm_summary,
             on=["frame", "track_id"],
             how="left",
+            validate="one_to_one",
         )
 
     if cell_intensity_df is not None:
@@ -3611,6 +3861,7 @@ def _process_merged_group(args):
             cell_intensity_df,
             on=["frame", "track_id"],
             how="left",
+            validate="one_to_one",
         )
 
     # attach metadata (plate, well, field, timeID, etc.)
@@ -3621,7 +3872,11 @@ def _process_merged_group(args):
         meta_records.append(rec)
     meta_df = pd.DataFrame(meta_records)
 
-    enriched_df = enriched_df.merge(meta_df, on="frame", how="left")
+    # many_to_one: meta_df is built by enumerating the frames, so it holds one
+    # row per frame index, while enriched_df holds one row per object per
+    # frame. A duplicated frame in meta_df would clone every object in it.
+    enriched_df = enriched_df.merge(meta_df, on="frame", how="left",
+                                    validate="many_to_one")
     enriched_df["cellID"] = enriched_df["track_id"]
 
     n_tracks = (
@@ -4395,7 +4650,10 @@ def _infection_qc_pca_clustering(
 
     # any cell that was ever infected in the time series is treated as infected
     inf_any = group[infection_col].max().reset_index()
-    cell_level = cell_level.merge(inf_any, on=key_cols, how="left", suffixes=("", "_y"))
+    # one_to_one: both sides come out of the same groupby(key_cols), so this
+    # widens the per-cell table by one column and must not add a row -- the PCA
+    # below assumes cell_level is row-aligned with the arrays it builds from it.
+    cell_level = cell_level.merge(inf_any, on=key_cols, how="left", suffixes=("", "_y"), validate="one_to_one")
 
     if infection_col not in cell_level.columns:
         for cand in (f"{infection_col}_y", f"{infection_col}_x"):
@@ -5440,7 +5698,12 @@ def _feature_velocity_correlations(all_df, track_df, measurements_dir):
             .reset_index()
         )
 
-        track_features = track_df.merge(agg_features, on=group_cols, how="left")
+        # many_to_one: agg_features is a groupby(group_cols) median, one row per
+        # track. track_df is not asserted unique because a caller may hand in a
+        # per-segment track table; what matters is that the feature side cannot
+        # duplicate a track and weight it twice in the correlations below.
+        track_features = track_df.merge(agg_features, on=group_cols, how="left",
+                                        validate="many_to_one")
 
         exclude_cols = set(
             group_cols
@@ -6467,11 +6730,15 @@ def _infection_qc_histogram(
             "(mode=remove)."
         )
 
-    # merge back
+    # merge back. many_to_one, the same contract the PCA and XGBoost twins
+    # spell as validate="m:1": all_df is per frame, cell_level is one row per
+    # cell, and a second row for a cell would clone that cell's whole time
+    # series into the frame table.
     all_df = all_df.merge(
         cell_level[key_cols + ["adjusted_infected"]],
         on=key_cols,
         how="left",
+        validate="many_to_one",
     )
     if removed_ids:
         mask_keep = ~all_df.apply(
@@ -6709,8 +6976,13 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         .max()
         .reset_index()
     )
+    # one_to_one: both sides are groupby(key_cols) reductions of all_df, so the
+    # per-cell training table gains a column and keeps its row count -- the
+    # feature matrix and label vector fed to XGBoost below are built from it by
+    # position.
     cell_level = cell_level.merge(
-        infection_any, on=key_cols, how="left", suffixes=("", "_y")
+        infection_any, on=key_cols, how="left", suffixes=("", "_y"),
+        validate="one_to_one",
     )
 
     if orig_infection_col not in cell_level.columns:
@@ -7591,10 +7863,15 @@ def automated_motility_assay(settings):
         infected = infected.rename(columns={"n_pathogens": "infected"})
         infected["infected"] = infected["infected"].astype(bool)
 
+        # many_to_one: `infected` is a groupby over the track key, one row per
+        # cell; all_df is per frame. The track counts printed straight after
+        # this are drop_duplicates() over the same key, so a fan-out here would
+        # not show up in them -- only in the frame counts nobody reads.
         all_df = all_df.merge(
             infected[["plateID", "wellID", "fieldID", "cellID", "infected"]],
             on=["plateID", "wellID", "fieldID", "cellID"],
             how="left",
+            validate="many_to_one",
         )
         all_df["infected"] = all_df["infected"].fillna(False).astype(bool)
     else:
@@ -7704,10 +7981,16 @@ def automated_motility_assay(settings):
 
             if not ambiguous.empty:
                 before = all_df.shape[0]
+                # many_to_one: `ambiguous` is a filtered groupby(track_keys)
+                # mean, one row per track, used here only as a flag to drop
+                # rows by. A duplicate would multiply the frames of a track
+                # that is about to be dropped anyway -- and would make the
+                # "dropped N rows" message below a lie in the other direction.
                 all_df = all_df.merge(
                     ambiguous.assign(_ambiguous_flag=1),
                     on=track_keys,
                     how="left",
+                    validate="many_to_one",
                 )
                 all_df = all_df[all_df["_ambiguous_flag"].isna()].drop(
                     columns=["_ambiguous_flag"]

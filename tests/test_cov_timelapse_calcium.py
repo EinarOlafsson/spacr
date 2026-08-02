@@ -276,6 +276,14 @@ def test_summarize_per_well_counts_peaks_and_averages_numeric_columns():
 
 
 def test_summarize_per_well_explodes_ID_into_identifier_columns():
+    """The legacy ID spelling — no 'o' on the object — still parses.
+
+    ``_peak_details_frame`` uses the key this module wrote before the object
+    index gained its prefix. It is read right to left like every other key, and
+    the object comes back in the canonical ``o<N>`` spelling: this column is
+    the one every summary counts cells with, and it must not depend on which
+    version of spacr wrote the frame.
+    """
     from spacr.timelapse import summarize_per_well
 
     df = _peak_details_frame()
@@ -285,7 +293,7 @@ def test_summarize_per_well_explodes_ID_into_identifier_columns():
     assert list(df["rowID"]) == ["A", "A", "A", "B"]
     assert list(df["columnID"]) == ["01", "01", "01", "02"]
     assert list(df["fieldID"].unique()) == ["f1"]
-    assert list(df["object_number"]) == ["1", "1", "2", "3"]
+    assert list(df["object_number"]) == ["o1", "o1", "o2", "o3"]
     assert list(df["well_ID"]) == ["A_01", "A_01", "A_01", "B_02"]
 
 
@@ -628,3 +636,37 @@ def test_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
     result_df, peak_details_df, _ = out
     assert result_df["plate_row_column_field_object"].nunique() == 3
     assert (peak_details_df["infected"] == 0).all()
+
+
+def test_a_cytoplasm_row_written_twice_is_caught_not_absorbed(tmp_path):
+    """The cytoplasm join is many_to_one, and says so.
+
+    The cytoplasm table carries one object per cell per frame. A second row
+    for one of them duplicates that frame of that cell — the trace grows a
+    repeated timepoint, ``find_peaks`` runs over it and the AUC is integrated
+    across a zero-width step. Nothing in the output says the table was
+    doubled, so the join declares the contract and pandas enforces it.
+    """
+    from pandas.errors import MergeError
+
+    from spacr.timelapse import analyze_calcium_oscillations
+
+    db = _build_calcium_db(tmp_path, with_pathogen=False, with_cytoplasm=True)
+    con = sqlite3.connect(db)
+    try:
+        cyto = pd.read_sql("SELECT * FROM cytoplasm", con)
+        # One frame of one cell, written twice.
+        doubled = pd.concat([cyto, cyto.iloc[[0]]], ignore_index=True)
+        doubled.to_sql("cytoplasm", con, index=False, if_exists="replace")
+        cell = pd.read_sql("SELECT * FROM cell", con)
+    finally:
+        con.close()
+
+    # What the join used to do with it: one extra cell row, silently.
+    keys = ["plateID", "rowID", "columnID", "fieldID", "timeID",
+            "object_label"]
+    grown = cell.merge(doubled, on=keys, how="left", suffixes=("", "_cy"))
+    assert len(grown) == len(cell) + 1
+
+    with pytest.raises(MergeError):
+        analyze_calcium_oscillations(db, cytoplasm="cytoplasm")
