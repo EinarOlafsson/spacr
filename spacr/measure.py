@@ -1,6 +1,6 @@
 """Per-object morphology and intensity measurement pipeline."""
 
-import os, cv2, time, sqlite3, traceback, shutil
+import os, cv2, time, sqlite3, threading, traceback, shutil
 import numpy as np
 import pandas as pd
 from collections import defaultdict
@@ -138,6 +138,141 @@ def _pool_context():
               f"multiprocessing start method on this platform; using the "
               f"default ({mp.get_start_method()}).")
         return mp
+
+
+class ManagerStartError(ConfigurationError):
+    """:func:`measure_crop` could not start its :class:`multiprocessing.Manager`.
+
+    A :class:`~spacr.errors.ConfigurationError` because it is not a per-field
+    failure: the Manager owns the shared timing list every worker writes to, so
+    if it will not start then no field can be measured and continuing past it
+    produces nothing. The remedy is a configuration change
+    (:data:`START_METHOD_ENV_VAR`), which is what this class exists to say.
+
+    What it replaces is the point. ``ctx.Manager()`` fails as a bare
+    ``EOFError`` raised four frames down in ``multiprocessing/connection.py``
+    -- no message, no mention of spaCR, no mention of the start method, and no
+    hint that the process that called Measure is the thing at fault. This was
+    reproduced deterministically 33 times across 7 test modules; see
+    :func:`_manager_start_diagnosis` for the mechanism.
+    """
+
+
+def _thread_census():
+    """Return ``(count, description)`` of the live threads in this process.
+
+    The thread count is the whole diagnosis for a ``fork`` Manager failure, so
+    it is measured at the moment of failure rather than described in prose.
+    Names are truncated because a Qt process can carry dozens and the message
+    has to stay readable.
+    """
+    threads = list(threading.enumerate())
+    names = [t.name for t in threads]
+    shown = ', '.join(names[:8])
+    if len(names) > 8:
+        shown += f", ... (+{len(names) - 8} more)"
+    return len(threads), shown
+
+
+def _manager_start_diagnosis(start_method, exc):
+    """Build the message :class:`ManagerStartError` carries.
+
+    Split out from :func:`_start_manager` so the wording is testable without
+    breaking a Manager, and because the two cases genuinely differ:
+
+    ``fork`` -- the case that actually bites. ``os.fork()`` duplicates only the
+    calling thread but duplicates *all* of the process's memory, including
+    every mutex the other threads were holding at the instant of the fork.
+    Those mutexes arrive in the child already locked, owned by threads that do
+    not exist there, so nothing can ever release them. The Manager's server
+    process then deadlocks (or dies) before it writes its socket address back
+    down the bootstrap pipe, and the parent's read of that address hits EOF --
+    which is the naked ``EOFError`` from ``connection.py`` a user sees. A
+    long-lived Qt or Jupyter process is exactly the thread-rich parent this
+    needs; ``python -c`` forks with one thread and never reproduces it.
+
+    Anything else (``spawn``, ``forkserver``) -- the child is a fresh
+    interpreter that inherits no locks, so the thread census is reported but
+    not blamed. What is left is what the Manager's server needs from the
+    environment: a writable temp directory for its socket, and permission to
+    start a process at all. Containers and HPC job sandboxes remove both.
+
+    :param start_method: the start method the failed Manager was using.
+    :param exc: the exception ``Manager()`` raised.
+    :returns: a multi-line diagnostic string.
+    """
+    n_threads, thread_names = _thread_census()
+    remedy = (
+        f"    export {START_METHOD_ENV_VAR}=spawn\n"
+        f"or, in Python, before calling measure_crop:\n"
+        f"    os.environ['{START_METHOD_ENV_VAR}'] = 'spawn'"
+    )
+    head = (
+        f"Could not start the multiprocessing Manager that measure_crop uses "
+        f"to share per-field timings with its worker pool. Nothing was "
+        f"measured.\n"
+        f"  start method:    {start_method!r}\n"
+        f"  underlying error: {type(exc).__name__}: {exc}\n"
+        f"  live threads in this process: {n_threads} ({thread_names})\n"
+    )
+
+    if start_method == 'fork':
+        return (
+            head +
+            f"\nMost likely cause: this process is forking with "
+            f"{n_threads} live threads. os.fork() copies one thread but all of "
+            f"the memory, so every lock the other {max(n_threads - 1, 0)} "
+            f"thread(s) held arrives in the child already locked and owned by "
+            f"nobody. The Manager's server then hangs or dies before writing "
+            f"its address back to the parent, and the parent's read of that "
+            f"address is the EOFError above. A long-lived Qt or Jupyter "
+            f"session is exactly this kind of parent.\n"
+            f"\nRemedy: run the measure pool under 'spawn', which starts each "
+            f"child from a fresh interpreter and inherits no locks:\n"
+            f"{remedy}\n"
+            f"spaCR does not switch for you, because a spawn worker re-imports "
+            f"the measure chain from cold (seconds and hundreds of MB each); "
+            f"the worker count is capped at the number of fields under spawn, "
+            f"so that cost is bounded but not free."
+        )
+
+    return (
+        head +
+        f"\nUnder {start_method!r} the child inherits no locks from the "
+        f"parent, so the {n_threads} live thread(s) above are reported for "
+        f"completeness rather than blamed. What a Manager still needs is a "
+        f"writable temporary directory for its server's socket (TMPDIR, or "
+        f"XDG_RUNTIME_DIR) and permission to start a process at all -- "
+        f"containers and HPC job sandboxes commonly withhold both.\n"
+        f"\nIf this machine's default is workable, unset "
+        f"{START_METHOD_ENV_VAR}; otherwise select a start method explicitly:\n"
+        f"{remedy}"
+    )
+
+
+def _start_manager(ctx):
+    """Return a started :class:`multiprocessing.Manager` from ``ctx``.
+
+    :param ctx: the object :func:`_pool_context` returned.
+    :returns: a started manager, ready to use as a context manager.
+    :raises ManagerStartError: ``Manager()`` failed, for any reason.
+
+    ``BaseException`` is deliberately not caught: a Ctrl-C landing inside the
+    Manager handshake is a cancellation, not a misconfiguration, and dressing
+    it up as one would be a lie in the traceback.
+    """
+    try:
+        return ctx.Manager()
+    except Exception as exc:
+        # get_start_method() is read here rather than passed in so the message
+        # reports what the *failed* Manager was actually using, even if the
+        # caller resolved a different name earlier.
+        try:
+            start_method = ctx.get_start_method()
+        except Exception:
+            start_method = mp.get_start_method()
+        raise ManagerStartError(
+            _manager_start_diagnosis(start_method, exc)) from exc
 
 
 def resolve_pool_size(n_jobs, n_files, start_method=None):
@@ -597,6 +732,80 @@ def _safe_morphology_table(mask, properties, spacing=None):
     return frame[[prop for prop in requested if prop in frame.columns]]
 
 
+def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
+    """Attach each child object's parent ``cell_id`` to its morphology row.
+
+    ``one_to_one``, and deliberately so. A child object belongs to exactly one
+    cell in this data model, everywhere downstream:
+    :meth:`spacr.schema.ObjectTableSchema.row_key_columns` keys the ``nucleus``
+    and ``pathogen`` tables on one row per ``object_label`` per field, the
+    tables carry a single scalar ``cell_id``, and
+    :func:`spacr.utils._merge_and_save_to_database` joins morphology to
+    intensity on ``object_label`` with ``validate='one_to_one'``. A frame with
+    the same label twice is therefore not a shape measurements.db can hold, so
+    the only question is *where* it stops.
+
+    It has to stop here. ``_measure_crop_core`` writes the object tables one
+    call at a time -- cell, then nucleus, then pathogen -- so a fan-out that
+    survives this merge is not caught until the write for its own table, by
+    which point the earlier tables for this field are already committed. That
+    leaves the field half in the database: a cell row with no matching pathogen
+    row, which reads downstream as an uninfected cell rather than as a failure.
+    Raising before any write keeps a field all-in or all-out.
+
+    ``get_components`` fans out when a child label overlaps two cell labels.
+    On the pipeline path that is normally already impossible:
+    ``_measure_crop_core`` runs :func:`spacr.utils._merge_overlapping_objects`
+    on (nucleus, cell) unconditionally, and on (pathogen, cell) when
+    ``merge_edge_pathogen_cells`` is set, and that resolves every straddling
+    child to a single cell -- either by trimming the child back to the cell it
+    overlaps most, or by merging the two cells into one. Which of those two
+    repairs is available differs per object type, so the caller supplies the
+    ``remedy`` sentence rather than this function guessing.
+
+    :param child_props: ``regionprops_table`` output for the child mask; one
+        row per label.
+    :param cell_to_child: ``get_components``' exploded ``(cell_id, child)``
+        pairs.
+    :param child_name: ``'nucleus'`` or ``'pathogen'`` -- the column
+        ``get_components`` keyed the child by.
+    :param remedy: what the reader should change, appended to the message.
+    :returns: ``child_props`` with ``cell_id`` (and the child key column)
+        joined on.
+    :raises pandas.errors.MergeError: either side repeats a label.
+    """
+    try:
+        return pd.merge(
+            child_props,
+            cell_to_child,
+            left_on='label',
+            right_on=child_name,
+            how='left',
+            validate='one_to_one',
+        )
+    except pd.errors.MergeError as exc:
+        shared = cell_to_child[cell_to_child[child_name].duplicated(keep=False)]
+        if shared.empty:
+            # The duplicate is on the props side, which means regionprops_table
+            # emitted a label twice -- a different fault with a different fix,
+            # and one this message would misdescribe. Say nothing about cells.
+            raise
+        examples = [
+            (int(lab), sorted(int(c) for c in grp['cell_id']))
+            for lab, grp in shared.groupby(child_name)
+        ][:5]
+        raise pd.errors.MergeError(
+            f"{len(shared[child_name].unique())} {child_name} label(s) overlap "
+            f"more than one cell, so this field has no single parent cell for "
+            f"them (e.g. {child_name}/cell_ids {examples}). The {child_name} "
+            f"table holds one row per object with one cell_id, so measuring "
+            f"this field would either double-count those objects or write only "
+            f"part of the field to measurements.db. Nothing was written for "
+            f"this field.\n"
+            f"Fix the masks rather than the join: {remedy} (pandas: {exc})"
+        ) from exc
+
+
 def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organelle_mask, cytoplasm_mask, settings, zernike=None, degree=8):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
@@ -669,14 +878,24 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
-            nucleus_props = pd.merge(
-                nucleus_props,
-                cell_to_nucleus,
-                left_on='label',
-                right_on='nucleus',
-                how='left',
-                validate='one_to_one',
-            )
+            # one_to_one; see _join_child_to_parent_cell for why, and for what
+            # was tried instead. Briefly: this was relaxed to one_to_many on
+            # the theory that a nucleus straddling two touching cells is a
+            # legitimate shape. It is not one measurements.db can store -- the
+            # nucleus table is keyed one row per object_label per field -- and
+            # relaxing it here only moved the same MergeError downstream into
+            # _merge_and_save_to_database, after the cell table for this field
+            # had already been committed. Backed out: fail before the first
+            # write, with a message that names the offending labels.
+            nucleus_props = _join_child_to_parent_cell(
+                nucleus_props, cell_to_nucleus, 'nucleus',
+                remedy=(
+                    "measure_crop already runs _merge_overlapping_objects on "
+                    "the nucleus and cell masks before measuring, so reaching "
+                    "this means that repair could not resolve the overlap -- "
+                    "most often a single nucleus label made of two "
+                    "disconnected components. Re-segment the nuclei, or drop "
+                    "the split label."))
         prop_ls.append(nucleus_props)
         ls.append('nucleus')
     else:
@@ -689,14 +908,21 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
         if settings['cell_mask_dim'] is not None:
-            pathogen_props = pd.merge(
-                pathogen_props,
-                cell_to_pathogen,
-                left_on='label',
-                right_on='pathogen',
-                how='left',
-                validate='one_to_one',
-            )
+            # one_to_one, for the same reasons as the nucleus join above. This
+            # is the join the fan-out actually reaches, because the mask repair
+            # that prevents it is optional here: with
+            # merge_edge_pathogen_cells=False, a vacuole on the border between
+            # two host cells is listed under both cell_ids. That still cannot
+            # be stored -- the pathogen table is one row per object_label with
+            # one cell_id -- so it stops here, before the cell and nucleus
+            # tables for this field are written, rather than after.
+            pathogen_props = _join_child_to_parent_cell(
+                pathogen_props, cell_to_pathogen, 'pathogen',
+                remedy=(
+                    "set merge_edge_pathogen_cells=True so spaCR resolves a "
+                    "vacuole straddling two host cells to one cell before "
+                    "measuring, or re-segment so the pathogen and cell masks "
+                    "nest."))
         prop_ls.append(pathogen_props)
         ls.append('pathogen')
     else:
@@ -711,6 +937,12 @@ def _morphological_measurements(cell_mask, nucleus_mask, pathogen_mask, organell
             # Map each organelle to its parent cell
             if settings['cell_mask_dim'] is not None:
                 organelle_to_cell = _map_child_to_parent(organelle_mask, cell_mask, child_name='organelle', parent_name='cell')
+                # one_to_one here, unlike the nucleus/pathogen joins above, and
+                # the difference is in the mapper rather than the biology:
+                # _map_child_to_parent resolves each organelle to its single
+                # maximum-overlap parent, so it emits exactly one row per
+                # organelle label. Both sides are therefore keyed uniquely and
+                # a duplicate on either would mean the mapper itself is broken.
                 organelle_props = pd.merge(
                     organelle_props,
                     organelle_to_cell,
@@ -801,6 +1033,11 @@ def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays
                                                 parent_name=parent_name)
     
     if len(organelle_df) > 0 and len(organelle_to_parent) > 0:
+        # one_to_one: both frames are derived from the same organelle_mask and
+        # both carry one row per label -- regionprops_table on the left,
+        # _map_child_to_parent's single argmax-overlap parent on the right. A
+        # duplicate on either side means one of those two invariants broke, and
+        # the per-parent sums computed below would then double-count organelles.
         organelle_df = pd.merge(
             organelle_df,
             organelle_to_parent,
@@ -1607,7 +1844,12 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
                                          f'cell_channel_{ch}_distance_to_pathogen'])
         dfs.append(df)
 
-    # Merge all channel dataframes on label
+    # Merge all channel dataframes on label. one_to_one: every frame in `dfs`
+    # was built by walking the same `cell_labels` (np.unique of the cell mask)
+    # once, so each holds one row per cell and the same set of cells. This is a
+    # widening of one table across channels, not a relationship between two
+    # different object types -- if a label repeated, a channel's distances
+    # would be silently averaged over duplicate rows downstream.
     merged_df = dfs[0]
     for df in dfs[1:]:
         merged_df = merged_df.merge(
@@ -2530,7 +2772,10 @@ def measure_crop(settings):
             pool_jobs = resolve_pool_size(n_jobs, len(files),
                                           start_method=start_method)
 
-            with ctx.Manager() as manager:
+            # _start_manager, not ctx.Manager(), because the bare call fails as
+            # an EOFError from deep inside multiprocessing with no message at
+            # all. See ManagerStartError.
+            with _start_manager(ctx) as manager:
                 time_ls = manager.list()
                 completed_jobs = set()  # Set to keep track of completed jobs
 
