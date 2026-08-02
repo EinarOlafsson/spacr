@@ -130,7 +130,24 @@ class _DropzoneFilter(QObject):
         super().__init__(target)   # parent → auto-cleanup
 
     def eventFilter(self, obj, event):    # noqa: N802  (Qt naming)
-        if obj is not self._target:
+        # `getattr`, not `self._target`, and the reason is not defensiveness
+        # for its own sake. Qt goes on delivering events to a filter after the
+        # target's C++ half is gone, and PySide6 clears the Python wrapper's
+        # __dict__ when that happens -- so `self._target` raises AttributeError
+        # from INSIDE the Qt event loop, which prints
+        #
+        #     Error calling Python override of QObject::eventFilter()
+        #     AttributeError: '_DropzoneFilter' object has no attribute '_target'
+        #
+        # once per delivered event, and cannot be caught by any caller because
+        # there is no Python caller. A filter whose target is gone has nothing
+        # to filter, so declining the event is both correct and quiet.
+        #
+        # The same shape as `RunHandle.is_running` swallowing "Internal C++
+        # object already deleted": the destroyed wrapper IS the answer, not an
+        # error condition.
+        target = getattr(self, "_target", None)
+        if target is None or obj is not target:
             return False
         et = event.type()
         if et == QEvent.DragEnter:
