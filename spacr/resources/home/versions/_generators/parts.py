@@ -1110,9 +1110,9 @@ def real_sidebar(ctx: Ctx) -> QWidget:
     """The app's actual ``Sidebar`` widget, unmodified.
 
     Used by the baseline variant so the render shows exactly what a
-    1440x900 laptop gets today — including the fact that 29 items plus
-    five headings do not fit in 900 px and the bottom of the list is
-    simply not reachable.
+    1440x900 laptop gets today — including the fact that one row per
+    registered app plus five section headings does not fit in 900 px,
+    so the bottom of the list is simply not reachable.
     """
     from spacr.qt.app import Sidebar
     return Sidebar()
