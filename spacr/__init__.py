@@ -103,6 +103,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "logger",
     "logging_util",
     "mask_io",
+    # The shared filter/selection model the linked views are built on. Pure
+    # pandas, no Qt, so it is usable headless and from a notebook too.
+    "selection",
+    # Diagnostic figures for a fitted regression.
+    "regression_qc",
     # The spaCRPower port: `power_simulate` generates a synthetic pooled
     # screen, `power_model` fits the horseshoe-Poisson hit model to it. They
     # are separate modules because the simulator is cheap and dependency-free
