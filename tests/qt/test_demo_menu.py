@@ -81,6 +81,33 @@ def test_every_demo_clears_preflight(qtbot, qt_theme_applied, tmp_path,
         + "\n".join(str(p) for p in problems))
 
 
+@pytest.mark.parametrize("demo_key", sorted(_DEMO_PREFLIGHT_APP))
+def test_each_demo_folder_holds_exactly_one_settings_csv(qtbot,
+                                                           qt_theme_applied,
+                                                           tmp_path, demo_key):
+    """A demo folder must not offer the user a choice of settings files.
+
+    "Import settings…" is a file picker pointed at the demo folder. The crop
+    demo used to leave two — ``settings_measure.csv`` (``save_png=False``) and
+    ``settings_crop.csv`` (``save_png=True``) — because its generator called
+    ``generate_measure_demo`` for the dataset and then only reassigned
+    ``layout.settings_csv``. Picking the first one gives a Crop run that writes
+    no PNG crops at all, and nothing anywhere says why.
+
+    Asserted through the menu's own code path and over *every* demo, because
+    the same "reuse another generator, then rename the field" shortcut is the
+    obvious way to add the next one.
+    """
+    win = _new_mainwindow(qtbot, qt_theme_applied)
+    dst = tmp_path / demo_key
+    layout = win._run_demo_generator(demo_key, str(dst))
+    found = sorted(p.name for p in Path(layout.src).glob("settings*.csv"))
+    assert found == [Path(layout.settings_csv).name], (
+        f"{demo_key} demo folder holds {found}; the demo menu reports "
+        f"{Path(layout.settings_csv).name} and a user importing either of the "
+        "others gets a different run than the one the demo describes")
+
+
 def test_apply_mask_demo_populates_app_screen(qtbot, qt_theme_applied,
                                                  tmp_path):
     """The mask demo → mask AppScreen path: after applying, the
