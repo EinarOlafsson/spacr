@@ -100,6 +100,37 @@ is left. ``conversion_map`` gets the same treatment — merged on the
 output filename, never replaced — so a project's provenance back to its
 own original files survives an import into it.
 
+The copy in the canonical table is a convenience, and it is handed back
+----------------------------------------------------------------------
+
+The copy an import-only project gets exists so the rest of spaCR has a
+``cell`` table to read. It stops being useful the moment spaCR measures
+the same objects itself: ``measure_crop`` *appends*, so its rows would
+land in that table beside theirs and every per-well count would be the
+sum of two populations, with nothing marking the seam.
+
+:func:`release_canonical_copy` hands the table back. It removes only
+rows it has matched, in SQL, against ``foreign_<object>`` — same value in
+every shared column, NULL in every unshared one — so what it deletes
+provably still exists somewhere; it *un-claims* the table in the same
+transaction, so no record goes on saying the importer owns a table whose
+rows it no longer has; and it builds the ``<object>_with_foreign`` view,
+so their numbers stay one query away. It runs from two places: before
+``run_import(measure=True)`` measures, and from
+:func:`spacr.resume.supersede_imported_copies` when a measure resume is
+about to fill the table. Neither ever runs it half way — a table that is
+half released is worse than one that is not.
+
+The rows are identified by that predicate and by nothing else — no
+``rowid``, no key lookup. Both alternatives were measured against a real
+mixed table and both destroyed spaCR's measurements: an object table
+declares a column called ``rowID``, which shadows SQLite's own row
+identity, and the import's row for an object and ``measure_crop``'s row
+for the same object carry identical
+``plateID``/``rowID``/``columnID``/``fieldID``/``object_label``. What
+tells the two apart is the only thing that ever did — which columns each
+holds a value in. See :data:`_RELEASE_ALIAS`.
+
 Object identity is the join
 ---------------------------
 
@@ -146,6 +177,7 @@ import pandas as pd
 from . import convert as cv
 from . import crops as cropping
 from . import feature_dict as fdict
+from . import resume
 from . import schema
 from .errors import ConfigurationError, RunLedger
 
@@ -164,6 +196,7 @@ __all__ = [
     'read_measurements',
     'plan_import',
     'run_import',
+    'release_canonical_copy',
     'format_plan',
     'import_project',
     'default_settings',
@@ -190,7 +223,11 @@ __all__ = [
 #: glance at a column name answers "did this number come out of spaCR or
 #: out of their table", which is the question every reader of an imported
 #: database eventually asks.
-FOREIGN_PREFIX = 'foreign_'
+#: Aliased from :mod:`spacr.resume`, which must know both names to tell an
+#: imported row from a measured one and cannot import this module (it runs
+#: before torch is loaded and stays stdlib-only). One literal, so the two
+#: readers of the same provenance cannot come to disagree about where it is.
+FOREIGN_PREFIX = resume.FOREIGN_PREFIX
 
 #: Columns of the editable column-map file, in order.
 COLUMN_MAP_COLUMNS: Tuple[str, ...] = (
@@ -200,7 +237,9 @@ COLUMN_MAP_COLUMNS: Tuple[str, ...] = (
 COLUMN_MAP_FILENAME = 'column_map.csv'
 
 #: Table recording, per column, where it came from and what was done to it.
-FOREIGN_COLUMNS_TABLE = 'foreign_columns'
+#: Aliased from :mod:`spacr.resume` for the reason given at
+#: :data:`FOREIGN_PREFIX`.
+FOREIGN_COLUMNS_TABLE = resume.FOREIGN_COLUMNS_TABLE
 
 #: Table recording the import run itself.
 IMPORT_TABLE = 'foreign_import'
@@ -2336,16 +2375,16 @@ def _is_importer_table(name: str) -> bool:
 #: ``'column'`` once per row instead of raising, every comparison below
 #: failed, and :func:`_importer_owns` answered False for a table it had
 #: written itself — with nothing anywhere saying why.
-_PROVENANCE_NAME_COLUMNS = ('column', 'columnID')
+#:
+#: Aliased from :mod:`spacr.resume` rather than spelled twice. A measure
+#: resume has to answer the same ownership question about the same table,
+#: and it cannot import this module (it runs before torch is loaded and
+#: must stay stdlib-only), so the reader lives there and this module uses
+#: it. Two implementations of "is this the importer's?" that disagreed
+#: would be a delete on one side and a refusal on the other.
+_PROVENANCE_NAME_COLUMNS = resume.FOREIGN_NAME_COLUMNS
 
-
-def _provenance_name_column(connection: 'sqlite3.Connection') -> Optional[str]:
-    """Which spelling of the ``column`` column this database carries."""
-    columns = set(_db_columns(connection, FOREIGN_COLUMNS_TABLE))
-    for candidate in _PROVENANCE_NAME_COLUMNS:
-        if candidate in columns:
-            return candidate
-    return None
+_provenance_name_column = resume._foreign_name_column
 
 
 def _importer_owns(connection: 'sqlite3.Connection', table: str) -> bool:
@@ -2365,21 +2404,16 @@ def _importer_owns(connection: 'sqlite3.Connection', table: str) -> bool:
     The provenance column is looked up by name rather than assumed; see
     :data:`_PROVENANCE_NAME_COLUMNS` for what renames it and why reading
     it blind returned a wrong answer instead of an error.
+
+    :param connection: open connection to ``measurements.db``.
+    :param table: table name.
+    :returns: True for a table this module owns by name
+        (``foreign_*``/``foreign_columns``/``foreign_import``) and for one
+        whose every current column the importer recorded writing.
     """
     if _is_importer_table(table):
         return True
-    if FOREIGN_COLUMNS_TABLE not in _db_table_names(connection):
-        return False
-    name_column = _provenance_name_column(connection)
-    if name_column is None:
-        return False
-    recorded = {str(row[0]) for row in connection.execute(
-        f'SELECT [{name_column}] FROM "{FOREIGN_COLUMNS_TABLE}" '
-        f'WHERE [table] = ?', (str(table),))}
-    if not recorded:
-        return False
-    have = set(_db_columns(connection, table))
-    return bool(have) and have <= recorded
+    return resume.importer_owns_table(connection, table)
 
 
 def _planned_prcfs(plan: ImportPlan) -> Set[str]:
@@ -2485,6 +2519,284 @@ def _preserve_note(object_type: str, count: int) -> str:
             f'"{object_type}_with_foreign".')
 
 
+# ---------------------------------------------------------------------------
+# Handing the canonical table back
+# ---------------------------------------------------------------------------
+
+#: Alias the canonical table is given wherever the release reasons about
+#: its rows — counting them, checking them against ``foreign_<object>``,
+#: and deleting them. It is one constant rather than three literals so the
+#: predicate that is *counted* and the predicate that is *deleted with*
+#: cannot drift apart; ``_twin_condition`` writes it, and the statements
+#: below bind it.
+#:
+#: It also exists because the obvious way to write the delete is wrong.
+#: The first version of this release said::
+#:
+#:     DELETE FROM "cell" WHERE rowid IN
+#:       (SELECT s.rowid FROM "cell" AS s WHERE <importer> AND <twin>)
+#:
+#: spaCR's object tables declare a real column called ``rowID`` — the
+#: plate row, ``'r1'``. SQLite identifiers are case-insensitive and a
+#: declared column always shadows the implicit ``rowid``, so both halves
+#: of that statement read the *plate row label* and the DELETE removed
+#: every row sharing a label with any targeted row: an entire plate row,
+#: in practice the whole table, including rows ``measure_crop`` had
+#: written. Measured on a table holding four imported and four measured
+#: rows, it deleted all eight and reported eight released.
+#:
+#: There is no quoting that repairs it — ``"rowid"`` resolves to the
+#: column too — so the row identity is not used at all. The delete
+#: carries the same WHERE clause the count did, evaluated against the
+#: table itself, which is both correct and one fewer place to be wrong.
+_RELEASE_ALIAS = 's'
+
+
+def _twin_condition(connection: 'sqlite3.Connection',
+                    object_type: str) -> Optional[str]:
+    """SQL true for a row of ``<object>`` that is a copy of a ``foreign_`` row.
+
+    The canonical copy is written from the same frame as
+    ``foreign_<object>``, column for column. This rebuilds that claim as a
+    predicate instead of trusting it: a row qualifies only when
+    ``foreign_<object>`` holds one that matches it in every column the two
+    tables share — ``IS`` rather than ``=``, so a NULL matches a NULL and
+    not everything — and when it is NULL in every column the two do not.
+
+    Used to decide whether a row may be *deleted*, so it must be false
+    whenever the answer is not certain: a ``foreign_<object>`` that has
+    been dropped, or that shares no column, yields ``None`` and no row is
+    released.
+
+    Every column reference it emits is qualified — theirs by ``f``, the
+    canonical table's by :data:`_RELEASE_ALIAS`. That is not decoration:
+    the inner ``EXISTS`` puts ``foreign_<object>`` in scope, and the two
+    tables share column names by construction, so an unqualified name
+    inside it would bind to *their* row and every row would look like its
+    own twin. Qualifying by alias rather than by table name also keeps
+    that safe for an ``object_type`` that happens to be spelled ``f``.
+
+    :param connection: open connection to ``measurements.db``.
+    :param object_type: canonical table name, e.g. ``'cell'``.
+    :returns: a condition over the alias :data:`_RELEASE_ALIAS`, or
+        ``None`` when the importer's own copy is not there to check
+        against.
+    """
+    foreign_table = f'{FOREIGN_PREFIX}{object_type}'
+    names = _db_table_names(connection)
+    if object_type not in names or foreign_table not in names:
+        return None
+    held = _db_columns(connection, object_type)
+    theirs = set(_db_columns(connection, foreign_table))
+    shared = [c for c in held if c in theirs]
+    if not shared:
+        return None
+    mine = _RELEASE_ALIAS
+    matched = ' AND '.join(f'f."{c}" IS {mine}."{c}"' for c in shared)
+    parts = [f'EXISTS (SELECT 1 FROM "{foreign_table}" AS f WHERE {matched})']
+    parts += [f'{mine}."{c}" IS NULL' for c in held if c not in theirs]
+    return '(' + ' AND '.join(parts) + ')'
+
+
+def _release_note(object_type: str, count: int) -> str:
+    """What the user is told when the convenience copy is handed back."""
+    return (f'"{object_type}" held {count} row(s) this importer had copied '
+            f'there for convenience. spaCR is measuring the same objects '
+            f'into that table, and the two cannot share it without every '
+            f'per-well count becoming the sum of both, so the copy was '
+            f'removed. Their rows are unchanged in '
+            f'"{FOREIGN_PREFIX}{object_type}" and are joined to spaCR\'s by '
+            f'the view "{object_type}_with_foreign".')
+
+
+def release_canonical_copy(db_path: str, object_type: str,
+                           dry_run: bool = False) -> int:
+    """Hand ``<object>`` back to spaCR: remove the copy this importer put in it.
+
+    ``run_import`` copies the imported frame into the canonical
+    ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone
+    else's is there, so that a project built purely by import is readable
+    by every spaCR tool. That copy is a *convenience*, and it stops being
+    one the moment spaCR measures the same project itself: measure appends,
+    so its rows would land in the same table beside theirs, and every
+    per-well count downstream would be the sum of two populations with
+    nothing marking the seam.
+
+    This removes them — losslessly, and it proves that rather than
+    assuming it. Every row it deletes is checked, in SQL, against
+    ``foreign_<object>``: same value in every column the two tables share,
+    NULL in every column they do not. A row that cannot be matched stops
+    the whole call, because the copy would then be the only copy.
+
+    It also *un-claims* the table, which is the half a previous attempt
+    left out: the ``foreign_columns`` rows for ``<object>`` are deleted
+    and ``foreign_import.canonical_table_written`` is set to 0, so nothing
+    in the database goes on saying the importer owns a table whose rows it
+    no longer has. Without that the claim outlives the rows and no later
+    run can tell the difference.
+
+    Their numbers stay exactly where they were, in ``foreign_<object>``,
+    and the ``<object>_with_foreign`` view is created so they are still
+    one query away — joined to whatever spaCR measures next on
+    ``(prcf, object_label)``.
+
+    Running it twice is a no-op: the second call finds nothing to release
+    and returns 0.
+
+    :param db_path: path to ``measurements.db``.
+    :param object_type: canonical table to release, e.g. ``'cell'``.
+    :param dry_run: run every check and report the count, writing nothing.
+        This is how a caller asks "could this be released?" without a
+        second implementation of the question that could answer
+        differently from the one that does the work.
+    :returns: number of imported rows removed from ``<object>`` (or, with
+        ``dry_run``, that would be).
+    :raises ConfigurationError: when the rows cannot be shown to survive
+        the removal — ``foreign_<object>`` missing, or holding no twin for
+        some row — or when the DELETE turns out to have removed a
+        different number of rows than the checks that cleared it counted,
+        which means the statement did not act on the rows that were
+        verified. Nothing is written in any of those cases; the last one
+        rolls the delete and the un-claim back together.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.foreign import release_canonical_copy
+            release_canonical_copy('exp/measurements/measurements.db', 'cell')
+            # 4  -> `cell` is spaCR's again; theirs are in foreign_cell,
+            #       joined by the view cell_with_foreign
+    """
+    db_path = str(db_path)
+    object_type = str(object_type)
+    if not os.path.isfile(db_path):
+        return 0
+    connection = sqlite3.connect(db_path, timeout=30)
+    try:
+        if object_type not in _db_table_names(connection):
+            return 0
+        importer_clause = resume.importer_rows_clause(connection, object_type)
+        if importer_clause is None:
+            return 0                      # no import ever touched this table
+        # Read before the un-claim below removes the provenance it comes from.
+        written = resume.importer_written_columns(connection, object_type) or set()
+        mine = _RELEASE_ALIAS
+        held = int(connection.execute(
+            f'SELECT COUNT(*) FROM "{object_type}" AS {mine} '
+            f'WHERE {importer_clause}').fetchone()[0])
+        twin = _twin_condition(connection, object_type)
+        if held and twin is None:
+            raise ConfigurationError(
+                f'Cannot release "{object_type}" in {db_path}: it holds '
+                f'{held} row(s) a foreign import copied there, and '
+                f'"{FOREIGN_PREFIX}{object_type}" — the importer\'s own '
+                f'copy of exactly those rows — is not in this database. '
+                f'Removing them would destroy the only copy. Re-run the '
+                f'import to restore it, or keep the table as it is.')
+        orphans = 0
+        if held:
+            orphans = int(connection.execute(
+                f'SELECT COUNT(*) FROM "{object_type}" AS {mine} '
+                f'WHERE {importer_clause} AND NOT {twin}').fetchone()[0])
+        if orphans:
+            raise ConfigurationError(
+                f'Cannot release "{object_type}" in {db_path}: {orphans} of '
+                f'its {held} imported row(s) have no matching row in '
+                f'"{FOREIGN_PREFIX}{object_type}", so they exist nowhere '
+                f'else and removing them would lose them. Nothing was '
+                f'changed. Re-run the import into this destination, which '
+                f'rewrites both tables from the source, and try again.')
+        if dry_run:
+            return held
+
+        # One transaction for the delete and the un-claim: a claim that
+        # outlives the rows it was about is the failure this replaces.
+        connection.isolation_level = None
+        cursor = connection.cursor()
+        cursor.execute('BEGIN IMMEDIATE')
+        try:
+            removed = 0
+            if held:
+                # The same WHERE clause the two counts above were taken
+                # with, applied to the table itself. No row identity is
+                # named: see :data:`_RELEASE_ALIAS` for what naming one
+                # cost. ``DELETE FROM t AS alias`` has been SQLite since
+                # 3.25 and this module already needs 3.35 for the DROP
+                # COLUMN below.
+                cursor.execute(
+                    f'DELETE FROM "{object_type}" AS {mine} '
+                    f'WHERE {importer_clause} AND {twin}')
+                removed = int(cursor.rowcount or 0)
+            # ``held`` rows matched the importer clause and ``orphans`` of
+            # them — zero, or the raise above fired — failed the twin
+            # check, so exactly ``held`` rows should have gone. Anything
+            # else means the delete did not select what the checks
+            # inspected, which is the failure this whole function exists
+            # to make impossible. Refuse loudly and roll the delete back
+            # rather than report a number that is not what happened.
+            if removed != held:
+                raise ConfigurationError(
+                    f'Refusing to release "{object_type}" in {db_path}: the '
+                    f'delete removed {removed} row(s) where the checks that '
+                    f'cleared it counted {held}. The statement did not '
+                    f'select the rows that were verified, so nothing about '
+                    f'the result can be trusted. The database was rolled '
+                    f'back and is exactly as it was.')
+            names = _db_table_names(connection)
+            # ``"table"`` is checked for rather than assumed: SQLite reads a
+            # double-quoted name matching no column as a string literal, so
+            # a provenance table without it would silently match nothing
+            # instead of failing — the same trap that once made
+            # :func:`_importer_owns` answer False for its own table.
+            if (FOREIGN_COLUMNS_TABLE in names
+                    and 'table' in _db_columns(connection,
+                                               FOREIGN_COLUMNS_TABLE)):
+                cursor.execute(
+                    f'DELETE FROM "{FOREIGN_COLUMNS_TABLE}" '
+                    f'WHERE "table" = ?', (object_type,))
+            if IMPORT_TABLE in names:
+                columns = set(_db_columns(connection, IMPORT_TABLE))
+                if {'canonical_table', 'canonical_table_written'} <= columns:
+                    cursor.execute(
+                        f'UPDATE "{IMPORT_TABLE}" '
+                        f'SET "canonical_table_written" = 0, '
+                        f'    "canonical_table_note" = ? '
+                        f'WHERE "canonical_table" = ?',
+                        (f'released back to spaCR; their rows are in '
+                         f'{FOREIGN_PREFIX}{object_type} only',
+                         object_type))
+            cursor.execute('COMMIT')
+        except BaseException:
+            cursor.execute('ROLLBACK')
+            raise
+
+        # Their measurement columns are left behind by the delete, empty,
+        # and would otherwise collide with the same columns in the view
+        # below — ``cell.foreign_areashape_area`` (all NULL) forcing
+        # theirs to be aliased ``foreign_foreign_areashape_area``. Dropped
+        # only when provably empty, one at a time, and never fatally:
+        # ALTER TABLE … DROP COLUMN needs SQLite 3.35 and refuses a column
+        # an index names, and a tidier schema is not worth failing a
+        # release that has already happened.
+        for column in [c for c in _db_columns(connection, object_type)
+                       if c in written and c not in METADATA_COLUMNS]:
+            if connection.execute(
+                    f'SELECT 1 FROM "{object_type}" '
+                    f'WHERE "{column}" IS NOT NULL LIMIT 1').fetchone():
+                continue
+            try:
+                connection.execute(f'ALTER TABLE "{object_type}" '
+                                   f'DROP COLUMN "{column}"')
+            except sqlite3.Error:
+                break
+    finally:
+        connection.close()
+    # Outside the transaction: the view is a convenience, and a failure to
+    # build one must not roll back a release that already succeeded.
+    _write_view(db_path, object_type)
+    return removed
+
+
 def _check_destination(db_path: str, plan: ImportPlan, object_type: str,
                        measure: bool) -> Tuple[str, List[str]]:
     """Decide what this import is allowed to write into ``db_path``.
@@ -2530,7 +2842,17 @@ def _check_destination(db_path: str, plan: ImportPlan, object_type: str,
                 f'will overwrite an existing measurement table.')
 
         if measure:
-            return 'measure', []
+            # spaCR's own measurements are about to fill ``<object>``, and
+            # a *previous* import may have left its convenience copy in
+            # there — this branch used to return before ever looking. The
+            # copy has to go, and whether it can go losslessly is asked
+            # here, before a single file is written, rather than after the
+            # conversion has run for minutes. Asked through the function
+            # that does the removal, so the answer cannot differ from it.
+            copied = release_canonical_copy(db_path, object_type,
+                                            dry_run=True)
+            return 'measure', ([_release_note(object_type, copied)]
+                               if copied else [])
         allowed, count = _may_write_canonical(connection, object_type)
         if allowed:
             return 'write', []
@@ -2894,6 +3216,10 @@ def run_import(plan: ImportPlan, dst: str, *,
         imported project. Off by default, and *separate*: when it is on,
         the standard object tables are spaCR's and theirs stay in the
         ``foreign_*`` tables, joined by a ``<object>_with_foreign`` view.
+        A convenience copy an *earlier* import left in ``<object>`` is
+        released first (:func:`release_canonical_copy`) rather than
+        appended to — that path used to record "the importer did not
+        write this table" while leaving every one of its rows in it.
     :param measure_settings: extra settings for ``measure_crop``.
     :param crops: cut one PNG per imported object.
     :param progress: ``progress(done, total, message)``.
@@ -3062,6 +3388,13 @@ def run_import(plan: ImportPlan, dst: str, *,
     # -- 6. spaCR's own measurements, optional and separate -----------------
     if measure:
         _step(6, 're-extracting spaCR measurements')
+        # An earlier import's convenience copy is superseded by what is
+        # about to be measured, and ``measure_crop`` appends. Released
+        # here, at the last moment before the write, for the same reason
+        # the canonical write above re-asks its question: minutes of image
+        # conversion separate this point from the check in
+        # ``_check_destination``, which established that it *can* be done.
+        release_canonical_copy(db_path, object_type)
         with run.item(dst, stage='measure'):
             from .measure import measure_crop
 
