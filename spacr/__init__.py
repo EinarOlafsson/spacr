@@ -103,6 +103,13 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "logger",
     "logging_util",
     "mask_io",
+    # The spaCRPower port: `power_simulate` generates a synthetic pooled
+    # screen, `power_model` fits the horseshoe-Poisson hit model to it. They
+    # are separate modules because the simulator is cheap and dependency-free
+    # while the model pulls in torch, and a parameter sweep re-runs the first
+    # far more often than the second.
+    "power_simulate",
+    "power_model",
     "pipeline_v2",
     "plugins",
     "remote_execution",
