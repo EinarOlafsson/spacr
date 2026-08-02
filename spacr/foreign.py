@@ -2318,6 +2318,36 @@ def _is_importer_table(name: str) -> bool:
             or text in (FOREIGN_COLUMNS_TABLE, IMPORT_TABLE))
 
 
+#: The column of :data:`FOREIGN_COLUMNS_TABLE` that holds a column *name*,
+#: newest spelling first.
+#:
+#: It is written as ``column`` — and does not stay that way. spaCR's legacy
+#: column repair (``schema.LEGACY_COLUMN_NAMES``, applied to every user
+#: table by ``database_schema.repair_legacy_columns``, which
+#: ``utils._merge_and_save_to_database`` runs) maps ``column`` to the plate
+#: coordinate ``columnID``. It does not know this table, where ``column``
+#: means "the name of a measurement column" and has nothing to do with a
+#: well. So one ``measure_crop`` over an imported project silently renames
+#: the provenance out from under this module.
+#:
+#: Both spellings are therefore accepted. Reading only ``"column"`` was
+#: worse than an error: SQLite resolves a double-quoted name that matches
+#: no column as a *string literal*, so the query came back with the word
+#: ``'column'`` once per row instead of raising, every comparison below
+#: failed, and :func:`_importer_owns` answered False for a table it had
+#: written itself — with nothing anywhere saying why.
+_PROVENANCE_NAME_COLUMNS = ('column', 'columnID')
+
+
+def _provenance_name_column(connection: 'sqlite3.Connection') -> Optional[str]:
+    """Which spelling of the ``column`` column this database carries."""
+    columns = set(_db_columns(connection, FOREIGN_COLUMNS_TABLE))
+    for candidate in _PROVENANCE_NAME_COLUMNS:
+        if candidate in columns:
+            return candidate
+    return None
+
+
 def _importer_owns(connection: 'sqlite3.Connection', table: str) -> bool:
     """True when ``table`` is one a previous run of *this* importer wrote.
 
@@ -2331,14 +2361,21 @@ def _importer_owns(connection: 'sqlite3.Connection', table: str) -> bool:
     *appended* to. So the recorded column list is checked against the
     table as it is now — a table carrying any column this importer never
     wrote has stopped being ours, and is protected like any other.
+
+    The provenance column is looked up by name rather than assumed; see
+    :data:`_PROVENANCE_NAME_COLUMNS` for what renames it and why reading
+    it blind returned a wrong answer instead of an error.
     """
     if _is_importer_table(table):
         return True
     if FOREIGN_COLUMNS_TABLE not in _db_table_names(connection):
         return False
+    name_column = _provenance_name_column(connection)
+    if name_column is None:
+        return False
     recorded = {str(row[0]) for row in connection.execute(
-        f'SELECT "column" FROM "{FOREIGN_COLUMNS_TABLE}" WHERE "table" = ?',
-        (str(table),))}
+        f'SELECT [{name_column}] FROM "{FOREIGN_COLUMNS_TABLE}" '
+        f'WHERE [table] = ?', (str(table),))}
     if not recorded:
         return False
     have = set(_db_columns(connection, table))
@@ -2932,17 +2969,29 @@ def run_import(plan: ImportPlan, dst: str, *,
             usable.append(stem)
 
     # -- 3. their masks ------------------------------------------------------
+    #
+    # ``mask_type``, not ``object_type``: an import declares one mask class
+    # per folder but has exactly **one** measured object type — the one the
+    # table was joined against, ``plan.join.object_type``, bound above and
+    # already used to decide ``mode`` against the destination. A loop
+    # variable named ``object_type`` rebinds it to the *last* mask class,
+    # and everything downstream then aims at the wrong table: their cell
+    # measurements were written to ``foreign_nucleus`` and to the canonical
+    # ``nucleus`` table, joined by a ``nucleus_with_foreign`` view that
+    # paired their cell 1 with spaCR's nucleus 1, while ``foreign_import``
+    # went on recording ``canonical_table = 'cell'``. Python has no block
+    # scope, so the only guard is the name.
     _step(3, 'writing masks')
-    for object_type in plan.object_types:
-        os.makedirs(os.path.join(dst, 'masks', f'{object_type}_mask_stack'),
+    for mask_type in plan.object_types:
+        os.makedirs(os.path.join(dst, 'masks', f'{mask_type}_mask_stack'),
                     exist_ok=True)
     # Iterating the field's own masks rather than the declared classes: a
     # stem only reaches ``masks.fields`` when it has every class, so there
     # is no "missing" case here to guess at.
     for stem in usable:
-        for object_type, mask in plan.masks.fields[stem].items():
-            folder = os.path.join(dst, 'masks', f'{object_type}_mask_stack')
-            with run.item(f'{stem}:{object_type}', stage='mask'):
+        for mask_type, mask in plan.masks.fields[stem].items():
+            folder = os.path.join(dst, 'masks', f'{mask_type}_mask_stack')
+            with run.item(f'{stem}:{mask_type}', stage='mask'):
                 array = _read_mask(mask.source).astype(np.uint16, copy=False)
                 result.mask_files.append(_save_npy(
                     os.path.join(folder, f'{stem}.npy'), array))
