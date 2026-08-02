@@ -213,6 +213,48 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     yield
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _matplotlib_is_warm():
+    """Import matplotlib before any worker thread has to.
+
+    ``PipelineWorker.run`` (``spacr/qt/bridge.py``, ~line 747) imports
+    ``matplotlib.pyplot`` lazily, **on the worker thread**, before it runs
+    the job body. On a cold page cache that import was measured at
+    10.4-11.3 s, and the ``active_jobs() == 0`` waits below allow 10 s —
+    so the first threaded test in a fresh process can time out with
+    nothing wrong with the browser. ``matplotlib.pyplot`` is not already
+    in ``sys.modules`` when these tests start; checked, not assumed.
+
+    Not a sleep and not a retry: the condition and the budget are
+    unchanged, this only stops the tests timing an import they are not
+    about. The full diagnosis, including a second and unrelated cause,
+    is written up in ``tests/qt/test_model_compare_screen.py`` above its
+    "threading" section.
+    """
+    import matplotlib
+    matplotlib.use("Agg", force=False)
+    import matplotlib.pyplot  # noqa: F401
+
+
+@pytest.fixture(autouse=True)
+def _isolated_run_journal(monkeypatch, tmp_path):
+    """Keep the browser's manifests out of the user's real run history.
+
+    Every threaded job here goes through :func:`spacr.qt.bridge.make_thread`,
+    which journals by default — so browsing a table writes a reproducibility
+    record into ``~/.spacr/runs``. One suite run leaves several hundred of
+    them behind, which buries the records of actual analyses (measured: 1100
+    of 1173 folders in the developer's history were test debris). Same
+    isolation as ``test_threading_cancellation_audit``.
+    """
+    from spacr import run_journal
+
+    root = tmp_path / "runs"
+    root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: root)
+    return root
+
+
 @pytest.fixture(autouse=True)
 def _no_modal_dialogs(monkeypatch):
     """Blow up loudly if any code path under test opens a modal dialog.
