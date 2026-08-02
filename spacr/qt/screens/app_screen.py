@@ -439,6 +439,47 @@ except Exception:
 DNA_RAIN_APPS = frozenset({"map_barcodes"})
 
 
+def uses_ambient_background(app_key: str) -> bool:
+    """Whether ``app_key``'s screen gets the generic ambient backdrop.
+
+    Every module screen **except** the ones that already animate
+    something of their own — which today is exactly
+    :data:`DNA_RAIN_APPS`. Sequencing's rain is *about* sequencing:
+    bases falling behind the screen that maps reads to barcodes. Putting
+    a second, unrelated animation behind it would fight it — two
+    independent motions competing for the same pixels, neither readable,
+    and two animation timers running on the one screen that already had
+    one. So a screen gets one animated background or none, never both.
+
+    Written as a rule with a name rather than as an ``else`` on the
+    rain's ``if``: the two backdrops are chosen by *one* decision, and
+    the day a second module earns a themed animation of its own, adding
+    its key to :data:`DNA_RAIN_APPS`-style membership is all that is
+    needed for the ambient one to step aside.
+
+    :param app_key: id of the app (see ``APPS`` in ``spacr.qt.app``).
+    :returns: True when the ambient backdrop belongs on that screen.
+    """
+    return app_key not in DNA_RAIN_APPS
+
+
+def _discard_widget(widget) -> None:
+    """Unparent and delete ``widget``, tolerating any state it is in.
+
+    Used on the failure paths below. A half-installed backdrop that is
+    still a child of the screen would keep painting and keep its timer;
+    dropping the Python reference alone does not remove it, because Qt
+    owns it through its parent.
+    """
+    if widget is None:
+        return
+    try:
+        widget.setParent(None)
+        widget.deleteLater()
+    except Exception:
+        pass
+
+
 def _theme_wallpaper():
     """Path of the wallpaper the current theme is painting, or ``None``.
 
@@ -480,6 +521,15 @@ class AppScreen(QWidget):
     # MainWindow owns navigation, so the reusable screen does not reach into
     # the application stack itself.
     remote_submit_requested = Signal(str, dict)
+
+    # Backdrop state, declared on the class so a Qt event that arrives
+    # mid-construction (showEvent is delivered from inside a nested
+    # layout activation on some styles) finds an answer rather than an
+    # AttributeError.
+    _ambient = None
+    _ambient_applied = None
+    _backdrop_applied = None
+    _dna_rain = None
 
     def __init__(self, app_key: str, parent=None):
         super().__init__(parent)
@@ -606,37 +656,250 @@ class AppScreen(QWidget):
             except Exception:
                 self._dna_rain = None
 
+        # Ambient backdrop — the drifting blobs (or whichever theme the
+        # user picked) behind every screen that does NOT already animate
+        # something of its own. See `uses_ambient_background` for why
+        # that is one rule and not an `else` on the branch above; the
+        # two are mutually exclusive by construction, so no screen ever
+        # carries both.
+        #
+        # Same hard-won contract as the rain: lowered behind every
+        # sibling, no focus, no mouse events, and its timer stops
+        # whenever this screen is not visible — these screens stay open
+        # while the pipeline runs on another tab, so an animation that
+        # kept ticking off-screen would cost a core for nobody.
+        self._ambient = None
+        #: (theme, palette) last pushed at — or attempted on — the
+        #: widget, so a tab switch that changed nothing neither restarts
+        #: the animation nor retries an install that already failed.
+        self._ambient_applied = None
+        if uses_ambient_background(self.app_key):
+            self._install_ambient()
+
+    # ------------------------------------------------------------------
+    # Ambient backdrop
+    # ------------------------------------------------------------------
+    def _install_ambient(self) -> None:
+        """Build the ambient backdrop for this screen, if it is wanted.
+
+        Never raises. A decorative background must never be able to stop
+        a module screen from opening: a missing widget module, a bad
+        persisted theme name, a driver that cannot make the pixmap — any
+        of those leaves ``self._ambient`` at ``None`` and the screen
+        exactly as it would have been without the feature.
+
+        Two deliberate orderings:
+
+        * the preference is read **before** anything is constructed. Off
+          means *not built*, not built-and-hidden — the construction is
+          itself the cost the toggle exists to avoid on a machine that
+          is running Cellpose on the GPU and a 40-plate pipeline.
+        * :meth:`_clear_page_surfaces` runs **after** a successful
+          install, where the DNA rain runs it before. It is needed for
+          the same reason (under every theme the containers are an
+          opaque ``bg``, and one of them is enough to bury the animation
+          completely — it would run, cost its frames and reach the eye
+          through a few pixels of layout spacing), but doing it second
+          means a screen whose install failed is left opaque and normal
+          rather than transparent with nothing behind it.
+
+        A failure is remembered, not retried. ``_ambient_applied`` holds
+        the (theme, palette) pair that was last *attempted*, and the
+        same pair is never attempted twice — otherwise a machine with no
+        working ambient module would re-import it and re-fail on every
+        palette event, which a stylesheet re-apply raises. A preference
+        change moves the pair and the attempt happens again.
+        """
+        if self._ambient is not None:
+            return
+        widget = None
+        try:
+            from ..preferences import (get_ambient_enabled,
+                                       get_ambient_palette,
+                                       get_ambient_theme)
+            if not get_ambient_enabled():
+                return
+            wanted = (get_ambient_theme(), get_ambient_palette())
+            if wanted == self._ambient_applied:
+                return
+            self._ambient_applied = wanted
+            from ..widgets.ambient import install_ambient
+            widget = install_ambient(self, None, theme=wanted[0],
+                                     palette=wanted[1],
+                                     backdrop=_theme_wallpaper())
+            self._clear_page_surfaces()
+            self._ambient = widget
+        except Exception:
+            self._ambient = None
+            _discard_widget(widget)
+            self._discard_orphan_ambient()
+
+    def _discard_orphan_ambient(self) -> None:
+        """Remove an ambient widget an aborted install left parented here.
+
+        ``install_ambient`` makes the widget a child of this screen
+        before it finishes wiring it up, so an installer that raises
+        half way through does not hand anything back to unparent — and
+        an invisible leftover would still be a child with a timer. The
+        screen owns its children, so it is the one that can find it.
+        """
+        try:
+            from ..widgets.ambient import AmbientWidget
+        except Exception:
+            # No class, no way to recognise one — and if the import is
+            # what failed, nothing was constructed to leave behind.
+            return
+        for child in list(self.children()):
+            if isinstance(child, AmbientWidget):
+                try:
+                    child.set_animating(False)
+                except Exception:
+                    pass
+                _discard_widget(child)
+
+    def _remove_ambient(self) -> None:
+        """Tear the ambient backdrop down. Safe when there is none."""
+        widget, self._ambient = self._ambient, None
+        self._ambient_applied = None
+        if widget is None:
+            return
+        try:
+            widget.set_animating(False)
+        except Exception:
+            pass
+        _discard_widget(widget)
+
+    def refresh_ambient_background(self) -> None:
+        """Re-read the ambient preferences and apply them to this screen.
+
+        The restart-free path for the Preferences toggle: turning it off
+        deletes the widget outright rather than hiding it, turning it on
+        builds one on a screen that has been open all along, and a new
+        theme/palette is pushed at the existing one without rebuilding
+        it. Idempotent, and cheap enough to call on every show.
+
+        Never raises, for the same reason the install does not.
+        """
+        if not uses_ambient_background(self.app_key):
+            # Belt and braces: sequencing must not acquire one through
+            # this path either.
+            self._remove_ambient()
+            return
+        try:
+            from ..preferences import (get_ambient_enabled,
+                                       get_ambient_palette,
+                                       get_ambient_theme)
+            enabled = bool(get_ambient_enabled())
+        except Exception:
+            return
+        if not enabled:
+            self._remove_ambient()
+            return
+        if self._ambient is None:
+            self._install_ambient()
+            return
+        try:
+            wanted = (get_ambient_theme(), get_ambient_palette())
+        except Exception:
+            return
+        if wanted == self._ambient_applied:
+            # Nothing changed. Re-applying would restart the animation
+            # every time the user switches back to this tab.
+            return
+        try:
+            self._ambient.set_theme(wanted[0])
+            self._ambient.set_palette(wanted[1])
+            self._ambient_applied = wanted
+        except Exception:
+            pass
+
     def changeEvent(self, event) -> None:
         """Follow a live theme switch.
 
         Only Home is rebuilt when the theme changes; every other screen
         is re-styled in place by re-applying the QSS. That is enough for
         anything whose colours come from the stylesheet, and not enough
-        for the DNA rain, which paints itself: its flat fill colour and
-        its wallpaper were both captured at construction. Switching from
-        dark to light left a black rain rectangle on a white page, and
-        switching into Cell left the rain painting flat black over the
-        micrograph the theme had just loaded.
+        for a backdrop that paints itself — the DNA rain and the ambient
+        background both capture their flat fill colour and their
+        wallpaper at construction. Switching from dark to light left a
+        black rain rectangle on a white page, and switching into Cell
+        left it painting flat black over the micrograph the theme had
+        just loaded. The ambient backdrop has exactly the same two
+        captured values and therefore exactly the same two bugs.
 
-        The trail colour is deliberately *not* re-applied: it is a
-        user-facing control with a swatch in the settings bar, and
-        silently resetting a colour the user picked is worse than a
-        slightly off-theme one.
+        Both palette events count, and that is the whole reason this
+        works. ``QApplication.setPalette`` — which is what
+        :func:`spacr.qt.theme.apply_qpalette` ends in — delivers
+        ``ApplicationPaletteChange`` **only to top-level widgets** (Qt
+        6.11, verified); every child, including every AppScreen inside
+        MainWindow's stack, gets ``PaletteChange`` instead. Listening
+        for the application event alone meant this handler fired in the
+        tests that synthesised it and never once in the running app.
+
+        Saving Preferences goes through the same call, so this is also
+        where an ambient *preference* change lands on a screen that is
+        already open — including the toggle switching back **on**, which
+        has to build a widget that does not exist yet and so cannot be
+        done by anything walking the live widget tree.
+
+        What is deliberately *not* re-applied is anything the user
+        picked: the rain's trail colour (it has a swatch in its settings
+        bar) and the ambient theme + palette (they are Preferences
+        entries). Silently resetting a choice the user made is worse
+        than a slightly off-theme one.
         """
         super().changeEvent(event)
-        if event.type() != QEvent.ApplicationPaletteChange:
+        if event.type() not in (QEvent.ApplicationPaletteChange,
+                                QEvent.PaletteChange):
             return
-        rain = getattr(self, "_dna_rain", None)
-        if rain is None:
+        self.refresh_ambient_background()
+        self._retheme_backdrops()
+
+    def _retheme_backdrops(self) -> None:
+        """Re-apply the current theme's fill + wallpaper to both backdrops.
+
+        Resolved once and compared against what was last pushed, because
+        ``PaletteChange`` is a far chattier event than the application
+        one: re-applying a stylesheet raises it too, and every
+        ``set_background_color`` costs the rain its whole pre-rendered
+        strip cache and a full repaint. Nothing changed means nothing is
+        touched.
+
+        ``set_backdrop`` is optional. The DNA rain has one; the ambient
+        widget's published API is ``set_background_color`` /
+        ``set_theme`` / ``set_palette`` / ``set_animating``. A backdrop
+        without the method keeps whatever wallpaper it was built with,
+        which is a cosmetic miss on the image themes only — not a reason
+        to skip the flat fill, which is what fixes the black-rectangle
+        case on dark -> light.
+        """
+        backdrops = [w for w in (getattr(self, "_dna_rain", None),
+                                 getattr(self, "_ambient", None))
+                     if w is not None]
+        if not backdrops:
             return
         try:
             from ..theme import palette_for
             from ..preferences import resolve_effective_theme
-            rain.set_background_color(palette_for(
-                resolve_effective_theme())["bg"])
-            rain.set_backdrop(_theme_wallpaper())
+            theme = resolve_effective_theme()
+            fill = palette_for(theme)["bg"]
+            wallpaper = _theme_wallpaper()
         except Exception:
-            pass
+            return
+        if (fill, wallpaper) == self._backdrop_applied:
+            return
+        self._backdrop_applied = (fill, wallpaper)
+        for widget in backdrops:
+            try:
+                widget.set_background_color(fill)
+            except Exception:
+                pass
+            try:
+                set_backdrop = getattr(widget, "set_backdrop", None)
+                if callable(set_backdrop):
+                    set_backdrop(wallpaper)
+            except Exception:
+                pass
 
     def _clear_page_surfaces(self) -> None:
         """Stop this screen's layout containers painting over the backdrop.
@@ -1357,9 +1620,21 @@ class AppScreen(QWidget):
             hint.fontMetrics().lineSpacing() * HINT_STRIP_LINES)
 
     def showEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Re-measure the hover-help strip after stylesheet/font polishing."""
+        """Re-measure the hover-help strip after stylesheet/font polishing.
+
+        Also a second, independent chance to pick up an ambient-
+        background preference that changed while this screen sat in the
+        background. The first is :meth:`changeEvent`, which fires on
+        every Preferences save; this one covers a preference written
+        without ``apply_preferences_to_app`` behind it. Module screens
+        are built once and kept, so without either of them a toggle
+        would need a restart. It costs a settings read and returns
+        without touching anything when nothing changed — see
+        :meth:`refresh_ambient_background`.
+        """
         super().showEvent(event)
         self._sync_hint_strip_height()
+        self.refresh_ambient_background()
 
     # ------------------------------------------------------------------
     # Actions

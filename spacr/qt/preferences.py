@@ -24,6 +24,10 @@ Public API::
         get_space_seed, set_space_seed,
         space_background_path, cell_background_path,
         theme_background_path,
+        get_ambient_enabled, set_ambient_enabled,
+        get_ambient_theme, set_ambient_theme,
+        get_ambient_palette, set_ambient_palette,
+        ambient_default_palette, apply_ambient_preferences,
         get_font_scale, set_font_scale,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
@@ -64,6 +68,15 @@ Values:
 * ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
+* ``ambient_enabled``: bool, default ``True``. Whether module screens
+  paint the animated background at all. Turning it off is a first-class
+  choice — see :func:`get_ambient_enabled`.
+* ``ambient_theme`` / ``ambient_palette``: which animation, and in which
+  colours. Validated against
+  :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and
+  :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes
+  are *per theme*, so see :func:`get_ambient_palette` for how the two
+  keys stay consistent with each other.
 * ``language``: one of the bundled language codes from
   :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a
   persisted value is invalid.
@@ -89,6 +102,9 @@ _KEY_DOCK_MODE   = "prefs/dock_mode"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
 _KEY_SHOW_BETA = "prefs/show_beta"
+_KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
+_KEY_AMBIENT_THEME   = "prefs/ambient_theme"
+_KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
 
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
@@ -461,6 +477,196 @@ def resolve_effective_theme() -> str:
 
 
 # ---------------------------------------------------------------------------
+# Animated background
+# ---------------------------------------------------------------------------
+
+#: The animation is on out of the box. It costs nothing while a screen is
+#: hidden (:class:`spacr.qt.widgets.ambient.AmbientWidget` stops its timer
+#: on ``hideEvent``), so leaving it on does not tax a machine that is busy
+#: segmenting on the GPU behind a different tab.
+DEFAULT_AMBIENT_ENABLED = True
+
+
+def get_ambient_enabled() -> bool:
+    """Whether module screens paint the animated background.
+
+    Default ``True``. When this is ``False`` no ambient widget should be
+    installed at all — and any already-installed one is hidden and
+    stopped by :func:`apply_ambient_preferences`, so the toggle takes
+    effect the moment Preferences is saved rather than at the next launch.
+    """
+    return _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
+                                      DEFAULT_AMBIENT_ENABLED),
+                    DEFAULT_AMBIENT_ENABLED)
+
+
+def set_ambient_enabled(on: bool) -> None:
+    """Turn the animated background on or off.
+
+    Flushed immediately: module screens re-read this key when they are
+    built, and a stale read right after the user cleared the checkbox
+    would put the animation back on the very next screen they open.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_AMBIENT_ENABLED, bool(on))
+    settings.sync()
+
+
+def get_ambient_theme() -> str:
+    """Which animation module screens paint — see ``AMBIENT_THEMES``.
+
+    Validated on read: a value written by a newer spaCR (or by hand)
+    that this build does not know about falls back to the default theme
+    rather than propagating an unpaintable name into the widget.
+    """
+    # Aliased on import: this module's own DEFAULT_THEME is the *app*
+    # theme (dark), and shadowing it here would be a trap for the next
+    # reader.
+    from .widgets.ambient import (
+        AMBIENT_THEMES, DEFAULT_THEME as DEFAULT_AMBIENT_THEME,
+    )
+    raw = str(_settings().value(_KEY_AMBIENT_THEME, DEFAULT_AMBIENT_THEME))
+    return raw if raw in AMBIENT_THEMES else DEFAULT_AMBIENT_THEME
+
+
+def set_ambient_theme(name: str) -> None:
+    """Persist one of :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.
+
+    Palettes belong to a theme, so switching themes can strand the
+    stored palette. Rather than raise — the user picked a theme, not a
+    broken pair — the stored palette is repaired in the same write: it
+    is kept if the new theme also offers it, and otherwise replaced with
+    that theme's default (see :func:`ambient_default_palette`).
+
+    :raises ValueError: if ``name`` is not a known ambient theme.
+    """
+    from .widgets.ambient import AMBIENT_THEMES, palettes_for
+    if name not in AMBIENT_THEMES:
+        raise ValueError(f"unknown ambient theme {name!r}. "
+                         f"Choose from {AMBIENT_THEMES}.")
+    settings = _settings()
+    settings.setValue(_KEY_AMBIENT_THEME, name)
+    # Repair the companion key against the theme we just stored.
+    stored = str(settings.value(_KEY_AMBIENT_PALETTE, ""))
+    if stored not in palettes_for(name):
+        settings.setValue(_KEY_AMBIENT_PALETTE, ambient_default_palette(name))
+    settings.sync()
+
+
+def ambient_default_palette(theme: str) -> str:
+    """The palette a theme falls back to.
+
+    :data:`spacr.qt.widgets.ambient.DEFAULT_PALETTE` when that theme
+    offers it (spaCR's own brand colours are the intended default
+    everywhere they exist), otherwise the theme's first palette. Never
+    raises for an unknown theme — it simply reports the global default.
+    """
+    from .widgets.ambient import DEFAULT_PALETTE, palettes_for
+    valid = palettes_for(theme)
+    if DEFAULT_PALETTE in valid:
+        return DEFAULT_PALETTE
+    return valid[0] if valid else DEFAULT_PALETTE
+
+
+def get_ambient_palette() -> str:
+    """Which colours the current ambient theme is painted in.
+
+    Validated against ``palettes_for(get_ambient_theme())``, so this can
+    never hand a widget a palette its theme does not have — not after a
+    downgrade, not after a hand-edited INI, and not after a theme change
+    that stranded the old palette. Falls back to
+    :func:`ambient_default_palette` for the current theme.
+    """
+    theme = get_ambient_theme()
+    fallback = ambient_default_palette(theme)
+    from .widgets.ambient import palettes_for
+    raw = str(_settings().value(_KEY_AMBIENT_PALETTE, fallback))
+    return raw if raw in palettes_for(theme) else fallback
+
+
+def set_ambient_palette(name: str) -> None:
+    """Persist a palette offered by the *current* ambient theme.
+
+    :raises ValueError: if ``name`` is not one of
+        ``palettes_for(get_ambient_theme())``. Set the theme first: a
+        palette is only meaningful next to the theme that draws it.
+    """
+    from .widgets.ambient import palettes_for
+    valid = palettes_for(get_ambient_theme())
+    if name not in valid:
+        raise ValueError(f"unknown ambient palette {name!r} for theme "
+                         f"{get_ambient_theme()!r}. Choose from {valid}.")
+    settings = _settings()
+    settings.setValue(_KEY_AMBIENT_PALETTE, name)
+    settings.sync()
+
+
+def apply_ambient_preferences(app=None) -> None:
+    """Push the ambient preferences onto every live ambient widget.
+
+    The user's explicit ask was a toggle that works *now*, so this walks
+    the running widget tree the same way
+    :func:`spacr.qt.button_roles.install_button_roles` does and updates
+    the widgets in place instead of waiting for the screens to be
+    rebuilt. Hiding one also stops its timer (the widget stops animating
+    whenever it is not visible), so "off" really is zero frames.
+
+    Turning it back *on* only resumes the widgets that are actually on
+    screen. Every module screen keeps its ambient widget alive while the
+    user is on some other tab, and un-pausing those would spend frames
+    on pixels nobody can see — which is the one thing this animation is
+    not allowed to do. Their own ``showEvent`` restarts them when the
+    tab comes back.
+
+    Never raises. A widget whose C++ half is already gone, or an ambient
+    module that could not be imported, is a cosmetic problem — not a
+    reason to fail a preferences save.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+        from .widgets.ambient import AmbientWidget
+    except Exception:
+        return
+    app = app or QApplication.instance()
+    if app is None:
+        return
+    try:
+        widgets = list(app.allWidgets())
+    except Exception:
+        return
+    enabled = get_ambient_enabled()
+    # Only read — and only repaint into — what is going to be shown.
+    theme = get_ambient_theme() if enabled else None
+    palette = get_ambient_palette() if enabled else None
+    for widget in widgets:
+        try:
+            if not isinstance(widget, AmbientWidget):
+                continue
+            if not enabled:
+                # Stop first, then hide: no last frame on the way out.
+                widget.set_animating(False)
+                widget.setVisible(False)
+                continue
+            widget.set_theme(theme)
+            widget.set_palette(palette)
+            widget.setVisible(True)
+            # Unconditionally True, NOT `widget.isVisible()`. A module screen
+            # the user is not currently looking at has an invisible backdrop,
+            # so the isVisible() form latched `_animating = False` onto every
+            # background tab the moment Preferences was saved — and because
+            # `showEvent` honours that flag (which is what makes a pause a
+            # pause), those screens never animated again for the rest of the
+            # session. Un-pausing an off-screen widget costs nothing:
+            # `AmbientWidget._should_run` already refuses to tick while
+            # hidden, and the widget's own showEvent starts it when the tab
+            # comes back — which is what this function's docstring already
+            # says is supposed to happen.
+            widget.set_animating(True)
+        except Exception:
+            continue
+
+
+# ---------------------------------------------------------------------------
 # Font scale
 # ---------------------------------------------------------------------------
 
@@ -784,6 +990,11 @@ def apply_preferences_to_app(app=None) -> None:
     from .button_roles import install_button_roles
     install_button_roles(app)
 
+    # The animated background follows the same rule as the theme: it is
+    # re-applied here, so toggling it (or switching palette) lands on the
+    # screens that are already open instead of at the next launch.
+    apply_ambient_preferences(app)
+
     # Apply the verbose-logger preference too — cheap to re-apply, and
     # this is the one place that runs on every prefs save. Also
     # attaches the rotating file handler if it isn't already, so every
@@ -855,6 +1066,94 @@ class PreferencesDialog:
             if theme_combo.itemData(i) == current:
                 theme_combo.setCurrentIndex(i); break
         form.addRow(tr("Theme"), theme_combo)
+
+        # Animated background — the drifting shapes behind every module
+        # page. Sits directly under Theme because it is the same kind of
+        # decision, and the off switch comes first: a user who finds the
+        # motion distracting must not have to read past two dropdowns to
+        # find the way out. Applied on Save, without a restart.
+        from .widgets.ambient import (
+            AMBIENT_THEMES, palette_label, palettes_for, theme_label,
+        )
+        try:
+            # Purely descriptive, and resolved through the same import as
+            # everything else above so the dialog cannot end up reading
+            # two different ambient modules in one function.
+            from .widgets.ambient import theme_note
+        except ImportError:
+            theme_note = None
+
+        ambient_check = Toggle(tr("Animate module backgrounds"))
+        ambient_check.setObjectName("AmbientEnabled")
+        ambient_check.setToolTip(
+            "Slow, out-of-focus shapes drifting behind the module pages. "
+            "They stop completely whenever their page is not on screen, "
+            "so they cost nothing while a pipeline runs on another tab. "
+            "Clear this to have no animation anywhere; the Sequencing "
+            "page keeps its own DNA rain either way."
+        )
+        ambient_check.setChecked(get_ambient_enabled())
+        form.addRow(tr("Animated background"), ambient_check)
+
+        ambient_theme_combo = QComboBox()
+        ambient_theme_combo.setObjectName("AmbientTheme")
+        for key in AMBIENT_THEMES:
+            ambient_theme_combo.addItem(tr(theme_label(key)), key)
+        current_ambient = get_ambient_theme()
+        for i in range(ambient_theme_combo.count()):
+            if ambient_theme_combo.itemData(i) == current_ambient:
+                ambient_theme_combo.setCurrentIndex(i); break
+        form.addRow(tr("Animation"), ambient_theme_combo)
+
+        ambient_palette_combo = QComboBox()
+        ambient_palette_combo.setObjectName("AmbientPalette")
+
+        def _reload_ambient_palettes(preferred=None):
+            """Refill the palette list for the selected animation.
+
+            Palettes are per theme, so the two controls cannot be filled
+            independently. The current choice is carried across when the
+            new theme also offers it; otherwise that theme's default is
+            selected, which is exactly what the stored keys do.
+            """
+            theme_key = ambient_theme_combo.currentData()
+            valid = palettes_for(theme_key)
+            wanted = (preferred if preferred in valid
+                      else ambient_default_palette(theme_key))
+            blocked = ambient_palette_combo.blockSignals(True)
+            try:
+                ambient_palette_combo.clear()
+                for key in valid:
+                    ambient_palette_combo.addItem(
+                        tr(palette_label(theme_key, key)), key)
+                for index in range(ambient_palette_combo.count()):
+                    if ambient_palette_combo.itemData(index) == wanted:
+                        ambient_palette_combo.setCurrentIndex(index); break
+            finally:
+                ambient_palette_combo.blockSignals(blocked)
+            # Say what the selected animation actually looks like — the
+            # names alone ("Ripples", "Starfield") do not tell a user
+            # what they are about to put behind their work.
+            ambient_theme_combo.setToolTip(
+                tr(theme_note(theme_key)) if theme_note is not None else "")
+
+        ambient_theme_combo.currentIndexChanged.connect(
+            lambda _index: _reload_ambient_palettes(
+                ambient_palette_combo.currentData()))
+        _reload_ambient_palettes(get_ambient_palette())
+        ambient_palette_combo.setToolTip(
+            "Which colours the animation uses. \"spaCR\" is built from "
+            "the app's own blue, magenta and green-cyan."
+        )
+        form.addRow(tr("Animation palette"), ambient_palette_combo)
+
+        def _sync_ambient_enabled(on):
+            """Grey out the pickers when there is nothing to paint."""
+            ambient_theme_combo.setEnabled(bool(on))
+            ambient_palette_combo.setEnabled(bool(on))
+
+        ambient_check.toggled.connect(_sync_ambient_enabled)
+        _sync_ambient_enabled(ambient_check.isChecked())
 
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
@@ -1035,9 +1334,10 @@ class PreferencesDialog:
         outer.addLayout(form)
 
         preview = QLabel(
-            "<span style='color:gray;'>Theme + font scale apply "
-            "instantly on Save. Colour-blind mode affects plot colours "
-            "the next time a figure is generated.</span>"
+            "<span style='color:gray;'>Theme, font scale and the "
+            "animated background apply instantly on Save. Colour-blind "
+            "mode affects plot colours the next time a figure is "
+            "generated.</span>"
         )
         preview.setTextFormat(Qt.RichText)
         preview.setWordWrap(True)
@@ -1058,6 +1358,19 @@ class PreferencesDialog:
         def _save():
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
+            set_ambient_enabled(ambient_check.isChecked())
+            # Theme first: it repairs a palette the new theme cannot
+            # draw, so the following call always validates against the
+            # theme the user just chose.
+            set_ambient_theme(ambient_theme_combo.currentData())
+            palette_choice = ambient_palette_combo.currentData()
+            if palette_choice is not None:
+                # An animation that offers no palette leaves the combo
+                # empty. The theme write above already stored a usable
+                # value, so there is nothing to save here — and a
+                # decorative background must never be the reason the
+                # whole Preferences dialog refuses to close.
+                set_ambient_palette(palette_choice)
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)

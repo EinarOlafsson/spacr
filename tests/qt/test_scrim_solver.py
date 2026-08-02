@@ -362,12 +362,50 @@ class TestAppScreenPageSurfaces:
         for section in sections:
             assert not section.property(theme.TRANSPARENT_PROPERTY)
 
-    def test_a_screen_without_a_rain_is_untouched(self, qtbot,
-                                                  qt_theme_applied):
+    def test_a_screen_with_no_backdrop_at_all_is_untouched(
+            self, qtbot, qt_theme_applied, monkeypatch):
+        """Surfaces are only dissolved when something is painting behind them.
+
+        This used to build ``AppScreen("measure")`` and assert its surfaces
+        were opaque, on the reasoning that only ``map_barcodes`` had an
+        animation behind it. That premise is gone: every non-sequencing screen
+        now installs the ambient backdrop, so ``measure``'s surfaces are
+        cleared for exactly the same reason the rain screen's are, and the old
+        assertion was pinning a fact rather than a rule.
+
+        The rule it was actually protecting is the one kept here — clearing a
+        page surface is only ever correct when there IS a backdrop, because a
+        transparent container over a plain themed page paints nothing and the
+        form loses its background. So the case to pin is the one with the
+        ambient background switched off.
+        """
+        from spacr.qt import preferences as prefs
+        monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: False)
+
         screen = AppScreen("measure")
         qtbot.addWidget(screen)
+        assert getattr(screen, "_ambient", None) is None, \
+            "the preference is off, so no backdrop should have been installed"
         assert not screen._header.property(theme.TRANSPARENT_PROPERTY)
         assert not screen._body_splitter.property(theme.TRANSPARENT_PROPERTY)
+
+    def test_a_screen_with_the_ambient_backdrop_clears_its_surfaces(
+            self, qtbot, qt_theme_applied, monkeypatch):
+        """The mirror of the rain case, for every other module.
+
+        Without this the backdrop runs, costs its frames, and reaches the eye
+        only through the few pixels of layout spacing between widgets — the
+        exact failure the DNA rain hit first and left a comment about.
+        """
+        from spacr.qt import preferences as prefs
+        monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: True)
+
+        screen = AppScreen("measure")
+        qtbot.addWidget(screen)
+        assert getattr(screen, "_ambient", None) is not None
+        assert screen._header.property(theme.TRANSPARENT_PROPERTY) is True
+        assert screen._body_splitter.property(
+            theme.TRANSPARENT_PROPERTY) is True
 
 
 class TestThemeWallpaper:
