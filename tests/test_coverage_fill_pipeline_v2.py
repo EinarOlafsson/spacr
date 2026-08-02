@@ -11,11 +11,19 @@ import pytest
 
 from spacr import pipeline_v2 as PV
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 class _FakeModel:
     def __init__(self, *a, **k):
         self.pretrained_model = k.get("pretrained_model")
-    def eval(self, img, diameter=None, **k):
+
+    def eval(self, img, diameter=None, channel_axis=MISSING_CHANNEL_AXIS, **k):
+        # channel_axis is named, not swallowed by **k. pipeline_v2 hands
+        # Cellpose channels-last (H, W, C) images with a hard-coded axis, and
+        # a mock that accepts any axis cannot tell the working -1 from the
+        # channel_axis=3 that raised IndexError on every real run.
+        check_cellpose_eval_call(img, channel_axis)
         images = img if isinstance(img, list) else [img]
         masks = []
         for image in images:
@@ -56,10 +64,18 @@ def _make_plate(dst: Path, wells=("A01",), fields=(1, 2), channels=3,
 # ---------------------------------------------------------------------------
 
 class TestRecordHash:
-    def test_no_checkpoint_paths_returns(self):
-        # Model with no real ckpt files → early return (line 415-416).
+    def test_no_checkpoint_paths_returns(self, tmp_path, monkeypatch):
+        # Model with no real ckpt files → early return (line 415-416). The
+        # observable is that NOTHING is recorded: a run journal that claims a
+        # model hash it never computed is worse than one with no entry.
+        import json
+        import spacr.run_journal as rj
+        monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
         m = _FakeModel(pretrained_model=None)
-        PV._record_cellpose_hash(m, "cyto")   # no exception
+        with rj.open_run("mask", {"src": "/x"}) as run:
+            PV._record_cellpose_hash(m, "cyto")
+        manifest = json.loads((run.dir / "manifest.json").read_text())
+        assert not manifest.get("model_hashes")
 
     def test_records_to_open_run(self, tmp_path, monkeypatch):
         # A real ckpt file + an open run → record_model called.
@@ -74,21 +90,43 @@ class TestRecordHash:
         manifest = json.loads((run.dir / "manifest.json").read_text())
         assert manifest.get("model_hashes")
 
-    def test_no_open_run_returns(self, tmp_path):
+    def test_no_open_run_returns(self, tmp_path, monkeypatch):
+        import spacr.run_journal as rj
+        # runs_root() is ~/.spacr/runs. Without this redirect the final
+        # assertion globbed tmp_path -- a directory the journal would never
+        # write to -- so it held for any behaviour whatsoever, including
+        # _record_cellpose_hash quietly opening a run in the developer's real
+        # home. Pointed at tmp_path, "nothing was written" is a claim about
+        # the place the journal actually writes.
+        runs = tmp_path / "runs"
+        monkeypatch.setattr(rj, "runs_root", lambda: runs)
         ckpt = tmp_path / "m.pth"; ckpt.write_bytes(b"x")
         m = _FakeModel(pretrained_model=[str(ckpt)])
-        # No open run → returns cleanly (line 423-424).
+        # No open run → returns cleanly (line 423-424) rather than creating
+        # one behind the caller's back.
+        assert rj.current_run() is None
         PV._record_cellpose_hash(m, "cyto")
+        assert rj.current_run() is None
+        assert not runs.exists() or not list(runs.glob("**/manifest.json"))
 
     def test_nested_pretrained_model(self, tmp_path, monkeypatch):
-        # model.cp.pretrained_model nested path (lines 406-411).
+        # model.cp.pretrained_model nested path (lines 406-411): a checkpoint
+        # one level down must be hashed too, not silently skipped.
+        import json
         ckpt = tmp_path / "n.pth"; ckpt.write_bytes(b"x")
         inner = types.SimpleNamespace(pretrained_model=str(ckpt))
         m = types.SimpleNamespace(pretrained_model=None, cp=inner)
         import spacr.run_journal as rj
         monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-        with rj.open_run("mask", {"src": "/x"}):
+        with rj.open_run("mask", {"src": "/x"}) as run:
             PV._record_cellpose_hash(m, "cyto")
+        manifest = json.loads((run.dir / "manifest.json").read_text())
+        recorded = manifest.get("model_hashes")
+        assert recorded, "the nested checkpoint was not recorded"
+        # Recorded as "<filename>:<digest>" under the model name it was asked
+        # for -- the name is what a reader uses to tell two runs apart.
+        assert set(recorded) == {"cyto"}
+        assert recorded["cyto"].startswith("n.pth:")
 
 
 # ---------------------------------------------------------------------------
@@ -170,7 +208,9 @@ class TestStreamMasks:
             def __init__(self, *args, **kwargs):
                 self.pretrained_model = None
 
-            def eval(self, images, **kwargs):
+            def eval(self, images, channel_axis=MISSING_CHANNEL_AXIS,
+                     **kwargs):
+                check_cellpose_eval_call(images, channel_axis)
                 received.extend(np.asarray(image).copy() for image in images)
                 return [
                     np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
@@ -312,13 +352,25 @@ class TestStreamMasksEdges:
         mapper = PV.FilenameMapper.discover(plate,
                                               metadata_type="cellvoyager")
         stacks = PV.stream_originals_to_stack(plate, mapper, channels=(0,))
-        PV.stream_masks_from_stack(stacks, model_name="cyto", batch_fields=1)
+        out = PV.stream_masks_from_stack(stacks, model_name="cyto",
+                                           batch_fields=1)
+        # The mask plane is APPENDED to the same npy: 1 image channel + 1
+        # mask. Squeezing the singleton channel away without re-adding it
+        # would leave a 2-D file and no mask at all.
+        assert len(out) == len(stacks)
+        for stack in out:
+            arr = np.load(stack.path)
+            assert arr.ndim == 3 and arr.shape[-1] == 2, arr.shape
+            assert arr[..., -1].max() > 0, "the mask plane is empty"
 
     def test_mask_returned_as_list(self, tmp_path, monkeypatch):
         # model.eval returns masks as a list → m = m[0] (line 557).
         class _ListModel:
             def __init__(self, *a, **k): self.pretrained_model = None
-            def eval(self, img, diameter=None, **k):
+
+            def eval(self, img, diameter=None,
+                     channel_axis=MISSING_CHANNEL_AXIS, **k):
+                check_cellpose_eval_call(img, channel_axis)
                 images = img if isinstance(img, list) else [img]
                 return [
                     np.zeros(np.asarray(image).shape[:2], dtype=np.uint16)
@@ -329,7 +381,14 @@ class TestStreamMasksEdges:
         mapper = PV.FilenameMapper.discover(plate,
                                               metadata_type="cellvoyager")
         stacks = PV.stream_originals_to_stack(plate, mapper, channels=(0, 1))
-        PV.stream_masks_from_stack(stacks, model_name="cyto", batch_fields=1)
+        out = PV.stream_masks_from_stack(stacks, model_name="cyto",
+                                           batch_fields=1)
+        # A list-of-masks return must be unwrapped per field, not stored
+        # whole: 2 image channels + 1 mask plane of the field's own shape.
+        for stack in out:
+            arr = np.load(stack.path)
+            assert arr.shape[-1] == 3, arr.shape
+            assert arr[..., -1].shape == arr[..., 0].shape
 
     def test_sidecar_and_cleanup_exceptions(self, tmp_path, _mock_cp,
                                               monkeypatch):
@@ -344,4 +403,10 @@ class TestStreamMasksEdges:
         import shutil
         monkeypatch.setattr(shutil, "rmtree",
                             lambda *a, **k: (_ for _ in ()).throw(OSError()))
-        PV.stream_masks_from_stack(stacks, model_name="cyto", batch_fields=1)
+        out = PV.stream_masks_from_stack(stacks, model_name="cyto",
+                                           batch_fields=1)
+        # Failing to clean up scratch files is not a reason to lose the
+        # masks: every field still got its mask plane appended.
+        assert len(out) == len(stacks)
+        for stack in out:
+            assert np.load(stack.path).shape[-1] == 3

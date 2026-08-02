@@ -14,6 +14,8 @@ import sqlite3
 import numpy as np
 import pytest
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 # --------------------------------------------------------------------------- #
 #  Fixtures / helpers
@@ -502,9 +504,16 @@ class _FakeCellposeModel:
         self._masks = masks
         self.calls = []
 
-    def eval(self, **kwargs):
-        self.calls.append(kwargs)
-        n = len(kwargs["x"])
+    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        # x and channel_axis are named rather than absorbed into **kwargs, so
+        # the pair can be handed to the real cellpose.transforms.convert_image
+        # before anything is recorded. The `channel_axis == -1` assertion
+        # below only pins the literal spaCR passes; this proves Cellpose would
+        # actually accept it for the shapes spaCR produces here -- the check
+        # that channel_axis=3 slipped past for fifteen tests.
+        check_cellpose_eval_call(x, channel_axis)
+        self.calls.append({"x": x, "channel_axis": channel_axis, **kwargs})
+        n = len(x)
         masks = [self._masks[i] for i in range(n)]
         flows = [np.zeros((3,) + m.shape, dtype=np.float32) for m in masks]
         return masks, flows, None, None
