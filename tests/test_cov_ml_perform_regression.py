@@ -171,16 +171,35 @@ def screen(tmp_path):
 
 
 def base_settings(screen, **over):
-    """Minimal settings dict that makes perform_regression runnable."""
+    """Settings dict exactly as a dispatcher builds it, plus this suite's choices.
+
+    The dict is finished by the SAME defaults builder all three entry points
+    use -- ``gui_core.setup_settings_panel`` (Tk),
+    ``qt.screens.settings_model.resolve_default_settings`` (Qt) and
+    ``cli.module_defaults`` (``spacr-run regression``) -- so anything the
+    builder fails to supply is missing here too, and the tests below fail the
+    way a user's run fails.
+
+    This fixture used to hand-write ``score_column``, ``tolerance``,
+    ``verbose``, ``invert_dependent_variable`` and ``y_lims`` on top of a
+    literal dict. ``get_perform_regression_default_settings`` supplied none of
+    them while ``perform_regression`` indexed all of them, so every test in
+    this file passed against a dict no entry point could produce, and the real
+    pipeline died on ``KeyError: 'verbose'`` at ml.py:1409 -- after both input
+    CSVs had been read and ``settings/regression.csv`` had been written.
+
+    Only keys that are a deliberate *test* choice belong in the literal below:
+    the tiny synthetic wells (``min_cell_count``), a fixed threshold instead of
+    the sweep (``fraction_threshold``), the toxo reports off by default. Adding
+    a key here that the builder is supposed to supply hides the next such bug.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
     settings = {
         "score_data": [screen["score"]],
         "count_data": [screen["count"]],
         "dependent_variable": "pred",
         "regression_type": "ols",
-        "score_column": "pred",
-        "tolerance": 0.02,
-        "verbose": False,
-        "invert_dependent_variable": False,
         "min_cell_count": 3,
         "fraction_threshold": 0.005,
         "metadata_files": [screen["meta"], screen["meta"]],
@@ -188,10 +207,11 @@ def base_settings(screen, **over):
         "controls": list(CONTROLS),
         "outlier_detection": False,
         "alpha": 1.0,
-        "y_lims": None,
     }
     settings.update(over)
-    return settings
+    # Last, so a test that picks its own dependent_variable also gets the
+    # score_column that follows it.
+    return get_perform_regression_default_settings(settings)
 
 
 @pytest.fixture
