@@ -41,6 +41,12 @@ from torch.utils.data import Dataset
 from . import schema
 
 
+#: How many image/label pairs :func:`train_cellpose` previews before training.
+#: The preview is a sanity check on the data, not the dataset itself, and
+#: :func:`plot_cellpose_batch` allocates 4 figure-inches per image.
+_TRAIN_PREVIEW_N = 8
+
+
 def _cellpose_use_gpu() -> bool:
     """Return whether Cellpose can use CUDA, falling back safely to CPU."""
     try:
@@ -235,11 +241,32 @@ def train_cellpose(settings):
 
     n_aug = 8 if settings['augment'] else 1
     max_base_images = len(train_dataset) // n_aug if settings['augment'] else len(train_dataset)
-    n_base = min(settings['batch_size'], max_base_images)
+
+    # EVERY annotated field is training data. ``batch_size`` is the
+    # optimizer's minibatch size and is passed straight to train_seg below —
+    # it is not, and never was meant to be, a cap on the dataset.
+    #
+    # This used to read ``n_base = min(settings['batch_size'], max_base_images)``
+    # followed by ``unique_base_indices[:n_base]``, so a user who annotated
+    # 300 fields and left ``batch_size`` at its default of 8 trained on 8
+    # images (2.7% of their work) and was told nothing.
+    #
+    # ``max_train_images`` is an opt-in ceiling for machines that cannot hold
+    # the whole set in RAM (the images are materialised as float32 arrays
+    # before train_seg sees them). Unset/None means "use everything".
+    max_train_images = settings.get('max_train_images')
+    if max_train_images is not None and int(max_train_images) > 0:
+        n_base = min(int(max_train_images), max_base_images)
+    else:
+        n_base = max_base_images
 
     unique_base_indices = list(range(max_base_images))
     random.shuffle(unique_base_indices)
     selected_indices = unique_base_indices[:n_base]
+
+    if n_base < max_base_images:
+        print(f"max_train_images={max_train_images}: training on {n_base} of "
+              f"{max_base_images} annotated images.")
 
     images, labels = [], []
     for idx in selected_indices:
@@ -249,11 +276,16 @@ def train_cellpose(settings):
             images.append(img)
             labels.append(lbl)
     try:
-        plot_cellpose_batch(images, labels)
+        # Preview a handful only: plot_cellpose_batch lays out one column per
+        # image at 4 inches each, so handing it a full 300-image training set
+        # asks matplotlib for a 100-foot-wide figure.
+        plot_cellpose_batch(images[:_TRAIN_PREVIEW_N], labels[:_TRAIN_PREVIEW_N])
     except Exception:
         print(f"could not print batch images")
-        
-    print(f"Training model with {len(images)} ber patch for {settings['n_epochs']} Epochs")
+
+    print(f"Training model on {len(images)} patches from {n_base} annotated "
+          f"images (augment={bool(settings['augment'])}, x{n_aug}) for "
+          f"{settings['n_epochs']} epochs, minibatch {settings['batch_size']}")
 
     # Cellpose 4.x (SAM era) dropped the ``channels`` kwarg from
     # train_seg — models are channel-agnostic now and take a
