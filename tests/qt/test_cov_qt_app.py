@@ -834,10 +834,17 @@ def test_help_menu_urls_open_in_a_browser(win, monkeypatch):
             if act.text().endswith("(web)"):
                 act.trigger()
         break
-    assert opened == [
-        "https://einarolafsson.github.io/spacr/tutorial/",
-        "https://einarolafsson.github.io/spacr/index.html",
-    ]
+    # Asserted against the module's own constants rather than literals. This
+    # used to hard-code the singular `/spacr/tutorial/`, which is a 404 that no
+    # page has ever been served from -- so the test pinned the broken link in
+    # place and went red when the link was finally fixed. The published library
+    # is at `/tutorials/` (plural), because `docs/source/conf.py` copies
+    # `_extra/tutorials/` into the site root via `html_extra_path`.
+    from spacr.qt.app import DOCS_URL, TUTORIALS_URL
+
+    assert opened == [TUTORIALS_URL, DOCS_URL]
+    # Keep the plural pinned: it is the whole point of the fix.
+    assert TUTORIALS_URL.endswith("/tutorials/")
 
 
 def test_a_failing_browser_open_reports_in_the_status_bar(win, monkeypatch):

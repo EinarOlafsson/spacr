@@ -41,6 +41,16 @@ from .widgets.eliding import ElidingPushButton
 
 LOG = logging.getLogger(__name__)
 
+#: Published documentation root. `docs/source/conf.py` copies everything in
+#: `docs/source/_extra/` verbatim into the site root (`html_extra_path`), so
+#: `docs/source/_extra/tutorials/index.html` publishes at `<root>/tutorials/`
+#: — plural. The Help menu pointed at the singular `/tutorial/` for its whole
+#: life, which is a 404: no page has ever been served from that path, and
+#: `spacr/qt/tutorial/` (the local MP4 renderer) is an unrelated module.
+DOCS_BASE_URL = "https://einarolafsson.github.io/spacr"
+DOCS_URL = f"{DOCS_BASE_URL}/index.html"
+TUTORIALS_URL = f"{DOCS_BASE_URL}/tutorials/"
+
 
 class _UpdateWorker(QThread):
     """Run one updater operation without blocking the GUI event loop.
@@ -921,14 +931,19 @@ class MainWindow(QMainWindow):
         demo_menu.addAction(act_e2e)
 
         help_menu = mb.addMenu("&Help")
+        # Label kept verbatim: `spacr/qt/i18n.py` keys its catalog on the
+        # English string, so renaming this action drops its translation in
+        # all nine languages.
         act_tutorial = QAction("Tutorial (web)", self)
+        act_tutorial.setStatusTip(
+            "Open the interactive spaCR lesson library in a browser.")
         act_tutorial.setIcon(
             self.style().standardIcon(
                 QStyle.StandardPixmap.SP_MessageBoxInformation
             )
         )
         act_tutorial.triggered.connect(
-            lambda: self._open_url("https://einarolafsson.github.io/spacr/tutorial/"))
+            lambda: self._open_url(TUTORIALS_URL))
         help_menu.addAction(act_tutorial)
         act_docs = QAction("Documentation (web)", self)
         act_docs.setIcon(
@@ -937,7 +952,7 @@ class MainWindow(QMainWindow):
             )
         )
         act_docs.triggered.connect(
-            lambda: self._open_url("https://einarolafsson.github.io/spacr/index.html"))
+            lambda: self._open_url(DOCS_URL))
         help_menu.addAction(act_docs)
         act_about = QAction("About spaCR", self)
         act_about.triggered.connect(self._show_about)
