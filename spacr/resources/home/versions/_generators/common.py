@@ -144,6 +144,32 @@ def all_keys() -> List[str]:
     return [row[0] for row in apps()]
 
 
+def core_keys() -> List[str]:
+    """The Core-pipeline app keys, in registry order.
+
+    Read from :data:`spacr.qt.app.SECTION_CORE` rather than compared
+    against a typed section name. The section used to be called "Core
+    pipeline"; it is now "Core", and the two variants that filtered on
+    the old string silently produced an empty list — variant 18, whose
+    entire content is the core nine, rendered nine missing tiles, and
+    variant 24 lost every Ctrl+N badge.
+    """
+    from spacr.qt.app import SECTION_CORE
+    return [row[0] for row in apps() if row[3] == SECTION_CORE]
+
+
+def n_apps() -> int:
+    """How many apps the registry holds *right now*.
+
+    Every "N apps" the variants draw or write goes through here. The
+    count used to be typed into two dozen strings as ``29``; the
+    registry then grew Distributed Jobs, Classifier Evaluation and Run
+    History and every one of those strings became a lie that no test
+    could see, because a literal cannot disagree with itself.
+    """
+    return len(all_keys())
+
+
 #: Icons are re-inked per theme by ``iconset`` (a PIL + numpy pass per
 #: PNG), which is far too slow to repeat for each of the thirty
 #: variants. Cached across contexts, keyed by ``(theme, key)``.
@@ -278,17 +304,21 @@ PINNED = ["mask", "measure", "annotate", "classify", "plate_view", "report"]
 
 #: Invented but plausible run counts, used by the frequency-ordered
 #: variants. Labelled as such wherever they are drawn.
+#:
+#: Must name every key in the registry: :func:`by_frequency` sorts on
+#: ``USE_COUNTS.get(k, 0)``, so an app missing here silently sinks to
+#: the bottom of every frequency-ordered variant instead of failing.
 USE_COUNTS = {
     "mask": 412, "measure": 388, "annotate": 250, "classify": 164,
     "plate_view": 131, "db_browser": 118, "ml_analyze": 96, "report": 88,
     "queue": 71, "batch": 64, "map_barcodes": 59, "regression": 52,
-    "convert": 47, "umap": 41, "make_masks": 38, "timelapse": 33,
-    "model_zoo": 29, "cellpose_masks": 27, "align": 24, "foreign": 21,
-    "external_masks": 20,
+    "convert": 47, "umap": 41, "make_masks": 38, "run_history": 35,
+    "timelapse": 33, "model_zoo": 29, "cellpose_masks": 27, "align": 24,
+    "distributed_jobs": 22, "foreign": 21, "external_masks": 20,
     "agreement": 19, "activation": 17, "train_compare": 15,
-    "model_compare": 13, "motility": 11, "recruitment": 9,
-    "analyze_plaques": 8, "invasion": 6, "replication": 6,
-    "train_cellpose": 5,
+    "model_compare": 13, "classifier_evaluation": 12, "motility": 11,
+    "recruitment": 9, "analyze_plaques": 8, "invasion": 6,
+    "replication": 6, "train_cellpose": 5,
 }
 
 
@@ -310,24 +340,38 @@ CATS_BROAD3 = [
                  "train_cellpose", "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
              "classify", "ml_analyze", "map_barcodes", "regression",
-             "queue", "batch", "analyze_plaques", "recruitment",
-             "invasion", "replication"]),
+             "queue", "batch", "distributed_jobs", "analyze_plaques",
+             "recruitment", "invasion", "replication"]),
     ("Review", ["plate_view", "agreement", "umap", "activation",
-                "train_compare", "model_compare", "db_browser",
-                "report"]),
+                "train_compare", "classifier_evaluation", "model_compare",
+                "run_history", "db_browser", "report"]),
 ]
 
+#: Five stages of a run. Variants 02 and 23 both draw these as a 7-wide
+#: tile grid, one band per row, so **no band may exceed seven apps**: an
+#: eighth wraps that band onto a second row and the page stops fitting
+#: 900 px. Five bands of seven is thirty-five slots for a registry that
+#: is nearly that size already, so the next app added forces a real
+#: decision here rather than a silent overflow — which is what
+#: ``test_no_stage_band_exceeds_the_seven_column_grid`` is for.
 CATS_STAGE5 = [
     ("Acquire", ["convert", "align", "foreign", "external_masks",
-                 "queue", "batch",
-                 "db_browser"]),
+                 "queue", "batch", "distributed_jobs"]),
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
                  "train_cellpose", "model_zoo", "model_compare"]),
     ("Measure", ["measure", "annotate", "motility", "analyze_plaques",
                  "recruitment", "invasion", "replication"]),
     ("Analyse", ["classify", "ml_analyze", "map_barcodes", "regression",
                  "umap", "activation"]),
-    ("Report",  ["plate_view", "agreement", "train_compare", "report"]),
+    # Report is "decide whether to believe it, then hand it on", which is
+    # where the two model/provenance QC apps belong: Classifier Evaluation
+    # judges the classifier the Analyse stage trained, Run History says what
+    # settings produced the numbers. Database Browser moves here from
+    # Acquire for the same reason — exporting measurements.db is something
+    # you do with results, not to get images in.
+    ("Report",  ["plate_view", "agreement", "train_compare",
+                 "classifier_evaluation", "run_history", "db_browser",
+                 "report"]),
 ]
 
 CATS_NARROW8 = [
@@ -337,11 +381,12 @@ CATS_NARROW8 = [
     ("Measure",          ["measure", "motility"]),
     ("Label",            ["annotate", "agreement"]),
     ("Classify",         ["classify", "ml_analyze", "activation",
-                          "train_compare"]),
+                          "train_compare", "classifier_evaluation"]),
     ("Screens & reports", ["map_barcodes", "regression", "umap",
                            "plate_view", "report"]),
     ("Import & batch",   ["convert", "align", "foreign", "external_masks",
-                          "queue", "batch", "db_browser"]),
+                          "queue", "batch", "distributed_jobs",
+                          "run_history", "db_browser"]),
     ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion",
                           "replication"]),
 ]
@@ -358,8 +403,8 @@ CATS_QUESTIONS = [
      ["classify", "ml_analyze", "map_barcodes", "regression", "umap",
       "activation"]),
     ("Should I believe any of this?",
-     ["plate_view", "train_compare", "report", "db_browser", "queue",
-      "batch"]),
+     ["plate_view", "train_compare", "classifier_evaluation", "report",
+      "run_history", "db_browser", "queue", "batch", "distributed_jobs"]),
 ]
 
 CATS_INTENT4 = [
