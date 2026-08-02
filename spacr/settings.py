@@ -1264,6 +1264,22 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('split_axis_lims','')
     settings.setdefault('cov_type',None)
     settings.setdefault('alpha',1)
+    # Every knob below is read by spacr.ml.regression_model for at least one
+    # regression_type, and each one is INDEXED (settings[...]) by
+    # perform_regression, not .get()-ed: a model that reads a setting must have
+    # a default here or the module is unstartable from every entry point, which
+    # is exactly how six other keys took regression down.
+    #
+    # The defaults match regression_model's own signature defaults, because
+    # _reject_unused_settings compares against them to tell "the user asked for
+    # this" from "the panel posted its default".
+    settings.setdefault('l1_ratio', 0.5)
+    settings.setdefault('quantile', 0.5)
+    settings.setdefault('hinge_threshold', None)
+    settings.setdefault('hinge_n_boot', 200)
+    settings.setdefault('huber_t', 1.345)
+    settings.setdefault('lasso_n_boot', 200)
+    settings.setdefault('lasso_selection_threshold', 0.6)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
     # sequencing.graph_sequencing_stats iterates settings['control_wells'] and
@@ -1310,10 +1326,33 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('y_lims', None)
 
     if settings['regression_type'] == 'quantile':
-        print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
+        # alpha USED to double as the quantile here, which was a silent
+        # overload of a key whose tooltip, GUI label and every other regression
+        # type call a penalty weight: a settings CSV reading alpha=0.9 meant
+        # "the 90th percentile" under one regression_type and "shrink hard"
+        # under the next. The quantile now has its own key, and an alpha left
+        # over from the old spelling is refused rather than ignored - silently
+        # dropping it would fit the median and label the output 0.9.
+        if settings['alpha'] != 1:
+            raise ValueError(
+                f"regression_type='quantile' does not use alpha "
+                f"(alpha={settings['alpha']!r} was set). The quantile being "
+                f"fitted is the 'quantile' setting; alpha is the penalty "
+                f"weight of the penalised models and does nothing here. Set "
+                f"quantile={settings['alpha']!r} instead if that is the "
+                f"percentile you meant, and leave alpha at 1.")
+        q = settings['quantile']
+        if not isinstance(q, (int, float)) or isinstance(q, bool) \
+                or not 0.0 < float(q) < 1.0:
+            raise ValueError(
+                f"quantile must be a number strictly inside (0, 1); got "
+                f"{q!r}. 0.5 fits the median, 0.9 the upper tail.")
+        print(f"Fitting the {float(q):g} quantile of {settings['dependent_variable']}")
+        # Quantile regression on per-well MEANS would be the quantile of an
+        # average, which is not the quantile of the response.
         settings['agg_type'] = None
         print(f'agg_type set to None for quantile regression')
-        
+
     # Fail-loud policy. None means "not set here" and defers to the
     # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
     # it on for a whole batch without editing every settings file. True/False
@@ -1623,6 +1662,29 @@ expected_types = {
     "tolerance": (int, float),
     "invert_dependent_variable": (bool, int),
     "y_lims": (list, type(None)),
+    # The model-choice keys. The first three -- regression_type, alpha and
+    # random_row_column_effects -- were categorised, tooltipped and defaulted
+    # but had NO entry here, and check_settings DROPS any key it cannot type
+    # ("Warning: Key 'regression_type' not found in expected types"), so the
+    # Tk panel discarded whichever model the user picked and
+    # get_perform_regression_default_settings then restored 'ols'. A run
+    # configured as 'mixed' fitted OLS, wrote it to results/<...>/ols/ and said
+    # nothing anywhere. The rest are the per-model knobs spacr.ml's backends
+    # read; see spacr.ml.REGRESSION_SETTINGS_USED for which type reads which.
+    #
+    # regression_type is (str, NoneType) because None is the documented
+    # "choose from the response distribution" value; alpha is (int, float, str,
+    # NoneType) because 'auto'/None select it by cross-validation.
+    "regression_type": (str, type(None)),
+    "alpha": (int, float, str, type(None)),
+    "random_row_column_effects": bool,
+    "l1_ratio": float,
+    "quantile": float,
+    "hinge_threshold": (float, type(None)),
+    "hinge_n_boot": int,
+    "huber_t": float,
+    "lasso_n_boot": int,
+    "lasso_selection_threshold": float,
     "transform": (str, type(None)),
     "agg_type": str,
     "min_cell_count": int,
@@ -2101,7 +2163,7 @@ tooltips = {
     "infection_intensity_qc_scope": "(str) - Whether infection QC is fitted once or per group: 'combined'/'global'/'all' fits one model on everything, 'plate'/'per_plate' one per plateID, 'well'/'per_well' one per plate-well, and 'none'/'off' skips QC; an unrecognised string falls back to combined behaviour with a warning. Per-well fitting absorbs staining and exposure differences but needs enough cells per well; every group still writes its own QC plot, only the QC payload embedded in the summary panel is taken from the first processed group. Default 'per_well'.",
     "adjust_cells": "(bool) - After segmentation, rewrite the cell masks so labels split across a single pathogen or nucleus are merged, and cell fragments with no nucleus are absorbed into the neighbour they share most perimeter with. Needs cell, nucleus and pathogen channels and is skipped for timelapse runs. Enable when large infected cells come back fragmented. Default False.",
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
-    "alpha": "(float) - Regularisation strength for the penalised models: the L1 penalty for 'lasso', the L2 penalty for 'ridge', and the ridge fallback 'mixed' applies under high collinearity. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation. With regression_type 'quantile' it is read as the quantile instead. Default 1.",
+    "alpha": "(float) - Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
     "all_to_mip": "(bool) - Append an extra channel to every .npy in stack/ holding the pixel-wise maximum across that file's existing channels; the original channels are kept, not replaced. The new channel's index equals the previous channel count, so reference it through the channel/mask dim settings if you want to segment on it. Default False.",
     # --- 3D (Beta) -------------------------------------------------------
     # These describe what the z plumbing does, and say plainly where it stops.
@@ -2260,7 +2322,7 @@ tooltips = {
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
     "randomize": "(bool) - Shuffle the order of the per-field arrays before they are grouped into normalization batches, so each batch spans plates and wells instead of one acquisition block - this matters because normalization percentiles are computed per batch. Forced to False for timelapse runs to keep frames in sequence. Default True.",
-    "regression_type": "(str) - Model fitted to the per-well response: 'ols' for continuous data, 'logit'/'probit' for fractions (GLM-binomial weighted by cell count), 'glm' with an auto-selected family, 'lasso'/'ridge' for penalised fits tuned by alpha, 'mixed' for random plate/row/column effects. Set to None to let spaCR choose from the response distribution. Default 'ols'.",
+    "regression_type": "(str) - Model fitted to the per-well response: 'ols' for a continuous score, 'wls' to weight each well by its cell count, 'rlm'/'huber' for a robust fit that outlier wells cannot drag, 'logit'/'probit'/'quasi_binomial' for fractions (GLM-binomial weighted by cell count, the last with free dispersion), 'beta' for a fraction strictly inside 0 and 1, 'poisson' for per-well counts, 'glm' with an auto-selected family, 'quantile' to fit a percentile instead of the mean, 'mixed' for random plate/row/column effects, 'lasso'/'ridge'/'elasticnet' for penalised fits tuned by alpha, 'hinge' for a linear SVM on a binarised response, and 'horseshoe' for the sparse Poisson power-analysis model. Set to None to let spaCR choose from the response distribution. Default 'ols'.",
     "remove_background": "(bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False.",
     "remove_background_cell": "(bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False.",
     "remove_background_nucleus": "(bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first.",
@@ -2270,6 +2332,13 @@ tooltips = {
     "remove_highly_correlated_features": "(bool) - In the machine-learning feature table, drop any feature whose absolute Pearson correlation with an already-kept feature exceeds 0.95, applied after the channel_of_interest filter. Leave it on so redundant measurements do not split importance scores and slow fitting; turn it off only when you need every original column. Default True. Note the UMAP path uses remove_highly_correlated instead.",
     "remove_image_canvas": "(bool) - When object thumbnails are overlaid on the embedding plot, make zero-valued background pixels fully transparent so only the segmented object shows instead of a black square. Turn it on for a cleaner montage, especially with black_background. Only L, I and RGB crops are supported; other PIL modes raise an error. Default False.",
     "remove_low_variance_features": "(bool) - Drop numeric features whose variance across objects falls below 0.01 before model fitting -- near-constant columns that carry no discriminative signal but still cost time and dilute importance rankings. Turn it off only when your features live on a very small numeric scale, where genuine signal can fall under that fixed cut-off. Default True.",
+    "l1_ratio": "(float) - How the elastic-net penalty is split between L1 and L2: 1.0 is a pure lasso (sparse, picks one gRNA out of a correlated group), 0.0 is a pure ridge (dense, shares the effect across the group), and values between keep some of both. Use 0.5 when correlated gRNAs of the same gene should be selected together rather than arbitrarily. Read only by regression_type 'elasticnet'. Default 0.5.",
+    "quantile": "(float) - Which quantile of the response quantile regression fits, strictly inside 0 and 1: 0.5 is the median (robust to outlier wells), 0.9 asks which gRNAs move the top of the distribution rather than its centre. Aggregation is turned off automatically so the quantile is taken over cells, not over well means. Read only by regression_type 'quantile'; it replaced the old overload of alpha. Default 0.5.",
+    "hinge_threshold": "(float) - Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
+    "hinge_n_boot": "(int) - Number of bootstrap resamples behind the hinge p-values. A support vector machine has no likelihood and so no Wald test; spaCR refits it on this many resamples of the wells and compares each coefficient to its bootstrap standard deviation. Treat the result as a stability statistic, not a hypothesis test. Higher is steadier and linearly slower; below about 50 the standard deviations are too noisy to rank on. Default 200.",
+    "huber_t": "(float) - Where Huber's loss switches from squared to linear, in units of the estimated residual scale, for the robust fits. Smaller values downweight more wells and resist heavier contamination; larger values approach ordinary least squares. The default 1.345 gives 95 percent of the efficiency of OLS when the residuals really are normal. Read only by regression_type 'rlm' and 'huber'. Default 1.345.",
+    "lasso_n_boot": "(int) - Number of bootstrap resamples used to rank lasso and elastic-net hits by how often each gRNA survives the penalty. These models have no valid p-values, so selection frequency replaces the significance test entirely. Higher is steadier and linearly slower; the cost is one full penalised fit per resample, doubled when alpha is 'auto' because each resample cross-validates. Default 200.",
+    "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
     "resample": "(bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
     "rescale": "(float) - Rescaling factor for the images.",
@@ -2528,7 +2597,7 @@ tooltips = {
     'controls': "(list) - gRNA identifiers treated as non-targeting controls in the regression. Their coefficients are tagged 'control', and their spread sets reg_threshold = mean + threshold_multiplier x (std or var, per threshold_method) - the effect-size cut-off drawn on the volcano plot. A noisier or wider control set raises that bar. None skips the threshold.",
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
-    'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
+    'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols', 'wls', 'glm', 'poisson', 'quasi_binomial', 'logit' and 'probit'; the penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None.",
     "resume": "(bool) - Continue an interrupted run at its last verified safe boundary instead of starting over. Mask validates existing per-field mask and merged arrays; Measure accepts only fields complete in every owned measurements table and transactionally clears partial rows before retrying; Format Converter reopens every TIFF in a checkpointed field; UMAP reloads completed trial scores and embedding artifacts, including an incomplete adaptive round; Batch preserves settled plate/jobs and automatically enables field resume for an interrupted Mask, Measure, or conversion job. A checkpoint whose inputs or material settings differ is refused rather than mixing incompatible output. Default False.",
     "resume_search": "(bool) - Continue the compatible Image UMAP hyperparameter checkpoint stored under the project results folder. Completed trial scores and embedding arrays are loaded without refitting. If an adaptive 2x2 round was interrupted, only its missing corners are evaluated before the direction is chosen. The feature data, labels, search space, criterion, seed, increments and stopping threshold must match. Default False.",
     "checkpoint_path": "(str or None) - Optional explicit path for an atomic resume checkpoint. Format Converter defaults to .spacr_conversion.checkpoint.json in its destination; Image UMAP defaults to results/.spacr_checkpoints/umap_search.json under the project. Keep checkpoints with their outputs. Default None.",
@@ -2801,7 +2870,11 @@ categories = {
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
-    "Regression": ["regression_type", "dependent_variable", "score_column", "invert_dependent_variable", "agg_type", "transform", "alpha", "cov_type", "random_row_column_effects", "min_cell_count", "tolerance", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
+    # The per-model knobs (l1_ratio ... lasso_selection_threshold) sit here
+    # beside regression_type because that is the setting that decides whether
+    # each of them does anything at all: spacr.ml.REGRESSION_SETTINGS_USED says
+    # which type reads which, and a type refuses the ones it cannot read.
+    "Regression": ["regression_type", "dependent_variable", "score_column", "invert_dependent_variable", "agg_type", "transform", "alpha", "l1_ratio", "quantile", "hinge_threshold", "hinge_n_boot", "huber_t", "lasso_n_boot", "lasso_selection_threshold", "cov_type", "random_row_column_effects", "min_cell_count", "tolerance", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 
