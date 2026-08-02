@@ -539,11 +539,12 @@ def test_unaggregated_scores_are_still_allowed_to_cross_join(tmp_path, stubs):
     no aggregation ``process_scores`` returns one row per OBJECT -- so the join
     pairs each of a well's gRNAs with each of its cells on purpose. A blanket
     ``validate='many_to_one'`` here would abort every quantile run on
-    perfectly good data. The proof that the merge is reached and passes is that
-    the failure that comes back is the backend's, from further down.
+    perfectly good data.
 
-    Deliberately passes both before and after the change: it is the guard that
-    Job B did not buy its contract with a new crash.
+    The proof used to be that the run got past the merge and died further
+    down, at "Unsupported regression type quantile" -- quantile had no backend
+    at all. It has one now, so the proof is the stronger one: the run
+    completes and returns a coefficient for every term of the cross join.
     """
     from spacr.ml import perform_regression
 
@@ -557,8 +558,10 @@ def test_unaggregated_scores_are_still_allowed_to_cross_join(tmp_path, stubs):
     settings = base_settings(score, count, regression_type="quantile")
     assert settings["agg_type"] is None       # set by the defaults builder
 
-    with pytest.raises(ValueError, match="Unsupported regression type"):
-        perform_regression(settings)
+    out = perform_regression(settings)
+
+    assert len(out["results"]) > 0
+    assert out["results"]["coefficient"].notna().all()
 
 
 def test_process_reads_well_total_merge_is_many_to_one():

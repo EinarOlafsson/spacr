@@ -854,13 +854,43 @@ def test_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys
     assert len(out["results"]) > 0
 
 
-def test_regression_type_quantile_is_rejected_by_the_backend(screen, stubs):
-    """'quantile' passes the entry-point whitelist but has no backend."""
+def test_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
+    """'quantile' fits end to end instead of dying at the last statement.
+
+    It used to pass the entry-point whitelist, get its own agg_type handling
+    in get_perform_regression_default_settings and its own volcano-filename
+    rule, and then raise "Unsupported regression type quantile" from
+    regression_model - after both input CSVs had been read, the QC plots drawn
+    and regression_data.csv written.
+    """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type="quantile")
-    with pytest.raises(ValueError, match="Unsupported regression type quantile"):
-        perform_regression(settings)
+    settings = base_settings(screen, regression_type="quantile", quantile=0.75)
+    out = perform_regression(settings)
+
+    # agg_type is forced to None for quantile, so the fit is on objects.
+    assert settings["agg_type"] is None
+    res = str(screen["root"] / "counts" / "results" / "xgb_scores" / "quantile"
+              / "list")
+    assert os.path.isfile(os.path.join(res, "results.csv"))
+    assert out["results"]["coefficient"].notna().all()
+    assert out["results"]["p_value"].notna().all()
+    assert (out["results"]["feature"].str.contains("grna\\[").sum()
+            == len(GENES) * N_GRNA_PER_GENE)
+
+
+def test_quantile_regression_refuses_the_old_alpha_spelling(screen, stubs):
+    """alpha used to double as the quantile; the overload is refused, not ignored.
+
+    A settings CSV written before the split says alpha=0.75 and means "the
+    75th percentile". Silently dropping it would fit the median and label the
+    output folder as a quantile run.
+    """
+    from spacr.ml import perform_regression
+
+    with pytest.raises(ValueError, match=r"does not use alpha"):
+        perform_regression(base_settings(screen, regression_type="quantile",
+                                         alpha=0.75))
 
 
 def test_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
