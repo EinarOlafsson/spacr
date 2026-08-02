@@ -18,6 +18,31 @@ from skimage.transform import resize as resizescikit
 
 from .tiff_io import write_tiff
 
+def cellpose_channel_axis(stack):
+    """Return the ``channel_axis`` Cellpose 4 accepts for one loaded image.
+
+    ``cellpose.transforms.convert_image`` — which ``CellposeModel.eval``
+    calls with whatever ``channel_axis`` it was handed — indexes
+    ``x.shape[channel_axis]`` and rejects a non-``None`` axis outright for a
+    2-D input. The two shapes spaCR's loaders produce are therefore both
+    illegal under the old hard-coded ``channel_axis=3``:
+
+    * ``(H, W, C)`` -> ``IndexError: tuple index out of range`` (there is no
+      axis 3 on a 3-D array; the channel axis is 2, i.e. ``-1``).
+    * ``(H, W)``    -> ``ValueError: 2D image provided, but channel_axis is
+      not None``.
+
+    ``object.py`` already passes ``channel_axis=-1`` because it only ever
+    hands Cellpose channels-last stacks. The functions here also serve
+    greyscale images (``_load_*_images_and_labels`` squeezes a single-channel
+    load down to 2-D), so the axis has to be chosen per image.
+
+    :param stack: One image as loaded by :mod:`spacr.io`, either ``(H, W)``
+        or channels-last ``(H, W, C)``.
+    :returns: ``-1`` for a channels-last stack, ``None`` for a 2-D image.
+    """
+    return -1 if np.asarray(stack).ndim >= 3 else None
+
 def parse_cellpose4_output(output):
     """Normalize the return value of ``CellposeModel.eval`` into per-image flow lists.
 
@@ -182,7 +207,7 @@ def identify_masks_finetune(settings):
             start = time.time()
             output = model.eval(x=stack,
                          normalize=False,
-                         channel_axis=3,
+                         channel_axis=cellpose_channel_axis(stack),
                          diameter=settings['diameter'],
                          flow_threshold=settings['flow_threshold'],
                          cellprob_threshold=settings['CP_prob'],
@@ -292,7 +317,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
             start = time.time()
             output = model.eval(x=stack,
                          normalize=False,
-                         channel_axis=3,
+                         channel_axis=cellpose_channel_axis(stack),
                          diameter=diameter,
                          flow_threshold=flow_threshold,
                          cellprob_threshold=cellprob_threshold,
