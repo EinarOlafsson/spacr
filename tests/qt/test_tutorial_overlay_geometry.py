@@ -1,9 +1,9 @@
 """Pixel-level tests for the tutorial overlay painters and the Recorder.
 
-The cursor arrow and the highlight ring are the only things the viewer
-sees that are *not* the app itself, so they are checked the way a viewer
-would check them: paint onto a known solid background, read the pixels
-back, and assert *where* the marks landed and *what colour* they are.
+The cursor arrow, highlight ring, and dimmed spotlight are the only things
+the viewer sees that are *not* the app itself, so they are checked the way
+a viewer would check them: paint onto a known solid background, read the
+pixels back, and assert *where* the marks landed and *what colour* they are.
 
 Everything here runs offscreen against real QPixmaps — no mocking.
 """
@@ -55,32 +55,23 @@ def _filled(width, height, colour):
 # _draw_cursor_on
 # ---------------------------------------------------------------------------
 
-def test_cursor_arrow_lands_at_the_requested_point(qt_theme_applied):
-    """The arrow's tip is the point the caller asked for, and the whole
-    mark (arrow + its 2 px drop shadow) fits in a ~21x27 box hanging
-    down-right from it."""
+def test_cursor_dot_is_centred_at_the_requested_point(qt_theme_applied):
+    """The requested point is the centre of a tiny solid magenta dot."""
     from spacr.qt.tutorial.engine import _draw_cursor_on
     pm = _filled(200, 200, BG_RED)
     _draw_cursor_on(pm, (50, 60))
     arr = _to_array(pm)
 
     x0, y0, x1, y1 = _changed_bbox(arr, BG_RED)
-    # Tip is at (50, 60); antialiasing + the 1.5 px pen bleed one pixel up
-    # and to the left, never more.
-    assert 49 <= x0 <= 50
-    assert 59 <= y0 <= 60
-    # Arrow spans +18 x / +23 y, shadow adds +2, pen adds ~1.
-    assert x1 <= 50 + 21
-    assert y1 <= 60 + 26
-    # …and it is a *white* arrow, not just some smudge.
-    assert tuple(arr[70, 55]) == (255, 255, 255)
-    assert int(np.all(arr == 255, axis=-1).sum()) > 50
+    assert 45 <= x0 <= 46 and 55 <= y0 <= 56
+    assert 54 <= x1 <= 55 and 64 <= y1 <= 65
+    assert tuple(arr[60, 50]) == (255, 0, 153)
     # Nothing painted anywhere else on the canvas.
     assert tuple(arr[10, 10]) == BG_RED
     assert tuple(arr[190, 190]) == BG_RED
 
 
-def test_cursor_arrow_translates_with_the_position(qt_theme_applied):
+def test_cursor_dot_translates_with_the_position(qt_theme_applied):
     """Moving the cursor moves the mark by exactly the same delta — the
     painter must not be drawing at a fixed spot."""
     from spacr.qt.tutorial.engine import _draw_cursor_on
@@ -95,19 +86,14 @@ def test_cursor_arrow_translates_with_the_position(qt_theme_applied):
     assert (bx1 - ax1, by1 - ay1) == (100, 150)
 
 
-def test_cursor_draws_a_shadow_under_the_arrow(qt_theme_applied):
-    """The shadow is a 40 %-black copy offset by 2 px, so on a white
-    canvas the pixels just outside the arrow's lower-left edge are grey
-    rather than white or untouched."""
+def test_cursor_dot_has_no_shadow_or_second_colour(qt_theme_applied):
+    """The click point is one magenta colour, with no hollow centre."""
     from spacr.qt.tutorial.engine import _draw_cursor_on
     pm = _filled(120, 120, BG_WHITE)
     _draw_cursor_on(pm, (40, 40))
-    arr = _to_array(pm).astype(int)
-    # Row through the arrow's tail: the shadow extends 2 px right of the
-    # arrow's bottom-right vertex at (40+15, 40+22).
-    strip = arr[40 + 23, 40 + 15:40 + 18]
-    grey = [p for p in strip if 0 < p[0] < 255 and p[0] == p[1] == p[2]]
-    assert grey, f"expected a grey shadow band, got {strip.tolist()}"
+    arr = _to_array(pm)
+    assert tuple(arr[40, 40]) == (255, 0, 153)
+    assert tuple(arr[47, 47]) == BG_WHITE
 
 
 # ---------------------------------------------------------------------------
@@ -115,7 +101,7 @@ def test_cursor_draws_a_shadow_under_the_arrow(qt_theme_applied):
 # ---------------------------------------------------------------------------
 
 def test_highlight_ring_is_hollow_and_outset_by_four_px(qt_theme_applied):
-    """The ring is drawn 4 px outside the widget rect with a 4 px pen and
+    """The ring is drawn 4 px outside the widget rect with a 1 px pen and
     NO fill — a filled highlight would hide the very widget it points
     at."""
     from spacr.qt.tutorial.engine import _draw_highlight_on
@@ -124,10 +110,9 @@ def test_highlight_ring_is_hollow_and_outset_by_four_px(qt_theme_applied):
     arr = _to_array(pm)
 
     x0, y0, x1, y1 = _changed_bbox(arr, BG_WHITE)
-    # rect inset by -4 => (36, 46, 68, 38); a 4 px pen straddles the path
-    # by 2 px each way.
-    assert (x0, y0) == (34, 44)
-    assert (x1, y1) == (105, 85)
+    # The one-pixel anti-aliased stroke stays close to the outset path.
+    assert 35 <= x0 <= 36 and 45 <= y0 <= 46
+    assert 103 <= x1 <= 104 and 83 <= y1 <= 84
 
     # Interior of the widget rect is completely untouched.
     interior = arr[55:75, 45:95]
@@ -148,6 +133,45 @@ def test_highlight_ring_tracks_the_rect(qt_theme_applied):
     bx0, by0, bx1, by1 = _changed_bbox(_to_array(b), BG_WHITE)
     assert (ax0, ay0) == (bx0, by0)          # same top-left
     assert bx1 - ax1 == 50 and by1 - ay1 == 40   # grows with w/h
+
+
+# ---------------------------------------------------------------------------
+# _draw_spotlight_on
+# ---------------------------------------------------------------------------
+
+def test_spotlight_dims_the_frame_but_preserves_the_focus(
+        qt_theme_applied):
+    from spacr.qt.tutorial.engine import _draw_spotlight_on
+    pm = _filled(200, 160, BG_WHITE)
+    _draw_spotlight_on(pm, (60, 50, 50, 30), padding=10, opacity=150)
+    arr = _to_array(pm)
+
+    # The app outside the focus is visibly greyed and darkened.
+    outside = arr[20, 20]
+    assert outside[0] == outside[1] == outside[2]
+    assert 80 < int(outside[0]) < 180
+
+    # The selected widget and its ten-pixel breathing room remain unchanged.
+    assert tuple(arr[65, 85]) == BG_WHITE
+    assert tuple(arr[65, 52]) == BG_WHITE
+
+    # Rounded spotlight corners fall back into the dimmed mask.
+    assert tuple(arr[40, 50]) != BG_WHITE
+
+
+def test_spotlight_tracks_the_requested_focus_rect(qt_theme_applied):
+    from spacr.qt.tutorial.engine import _draw_spotlight_on
+    a = _filled(240, 180, BG_WHITE)
+    b = _filled(240, 180, BG_WHITE)
+    _draw_spotlight_on(a, (20, 30, 40, 30), padding=0)
+    _draw_spotlight_on(b, (140, 90, 40, 30), padding=0)
+    aa = _to_array(a)
+    bb = _to_array(b)
+
+    assert tuple(aa[45, 40]) == BG_WHITE
+    assert tuple(aa[105, 160]) != BG_WHITE
+    assert tuple(bb[45, 40]) != BG_WHITE
+    assert tuple(bb[105, 160]) == BG_WHITE
 
 
 # ---------------------------------------------------------------------------
@@ -226,17 +250,32 @@ def test_recorder_remembers_and_reuses_the_cursor_position(
     widget = _red_widget(qtbot, 200, 200)
     rec = Recorder(widget, tmp_path / "f", size=(200, 200))
 
-    moved = rec.snap(cursor_pos=(120.7, 60.2))
+    moved = rec.snap(cursor_pos=(120.7, 60.2), show_pointer=True)
     assert rec.cursor_pos == (120.7, 60.2)
-    repeat = rec.snap()
+    repeat = rec.snap(show_pointer=True)
     assert rec.cursor_pos == (120.7, 60.2)
 
-    # int() truncation, not rounding: the arrow tip sits at (120, 60).
+    # int() truncation, not rounding: the dot is centred at (120, 60).
     bbox_a = _changed_bbox(_to_array(QImage(str(moved))), BG_RED)
     bbox_b = _changed_bbox(_to_array(QImage(str(repeat))), BG_RED)
     assert bbox_a == bbox_b
     assert bbox_a[0] in (119, 120)
     assert bbox_a[1] in (59, 60)
+
+
+def test_recorder_hides_pointer_unless_the_step_is_a_click(
+        qtbot, qt_theme_applied, tmp_path):
+    from PySide6.QtGui import QImage
+    from spacr.qt.tutorial.engine import Recorder
+    widget = _red_widget(qtbot, 200, 200)
+    rec = Recorder(widget, tmp_path / "f", size=(200, 200))
+
+    passive = _to_array(QImage(str(rec.snap(cursor_pos=(100, 100))))
+    clicked = _to_array(QImage(str(rec.snap(
+        cursor_pos=(100, 100), show_pointer=True))))
+
+    assert tuple(passive[100, 100]) == BG_RED
+    assert tuple(clicked[100, 100]) == (255, 0, 153)
 
 
 def test_recorder_composites_the_highlight_ring_into_the_frame(
@@ -255,3 +294,24 @@ def test_recorder_composites_the_highlight_ring_into_the_frame(
     assert b > r and b > 200
     # …and the widget behind the ring is still visible.
     assert tuple(ringed[40, 50]) == (255, 0, 0)
+    # The rest of the app is subdued.
+    assert tuple(ringed[150, 150]) != (255, 0, 0)
+
+
+def test_recorder_can_keep_the_background_bright_for_overview_steps(
+        qtbot, qt_theme_applied, tmp_path):
+    from PySide6.QtGui import QImage
+    from spacr.qt.tutorial.engine import Recorder
+    widget = _red_widget(qtbot, 200, 200)
+    rec = Recorder(widget, tmp_path / "f", size=(200, 200))
+
+    frame = _to_array(QImage(str(rec.snap(
+        cursor_pos=(180, 180),
+        highlight_rect=(20, 20, 60, 40),
+        dim_background=False,
+    ))))
+
+    # The blue ring is still present while pixels away from it are untouched.
+    r, g, b = frame[40, 16]
+    assert b > r and b > 200
+    assert tuple(frame[150, 150]) == (255, 0, 0)

@@ -170,6 +170,8 @@ def _build_home_steps(window) -> List[Step]:
             "for spatial single-cell analysis of microscopy data.",
             action=_go_home(window),
             target=(_sidebar_button(window, "__home__"), None),
+            highlight=_sidebar_button(window, "__home__"),
+            show_pointer=True,
             hold_ms=400,
         ),
         Step(
@@ -177,6 +179,7 @@ def _build_home_steps(window) -> List[Step]:
             "pipeline in spaCR — grouped into Core, Analysis, "
             "Cellpose, and Sequencing.",
             target=(window._sidebar, None),
+            highlight=window._sidebar,
             hold_ms=300,
         ),
         Step(
@@ -184,6 +187,7 @@ def _build_home_steps(window) -> List[Step]:
             "tile. Hovering makes each tile pop, and clicking "
             "opens the module.",
             target=(window._stack, None),
+            highlight=window._stack,
             hold_ms=500,
         ),
         Step(
@@ -192,12 +196,15 @@ def _build_home_steps(window) -> List[Step]:
             "generate a working example for any module.",
             action=lambda: _open_demos_menu(window),
             target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
             hold_ms=800,
         ),
         Step(
             "Let's jump into the mask module to see it in action.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
+            highlight=_sidebar_button(window, "mask"),
+            show_pointer=True,
             hold_ms=400,
         ),
     ]
@@ -243,6 +250,8 @@ def _build_mask_steps(window) -> List[Step]:
             "Cellpose.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
+            highlight=_sidebar_button(window, "mask"),
+            show_pointer=True,
             hold_ms=400,
         ),
         Step(
@@ -252,6 +261,9 @@ def _build_mask_steps(window) -> List[Step]:
             "every setting.",
             action=lambda: (_load_demo(window, "mask", tmp_root)(),
                              _capture_screen()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
             hold_ms=800,
         ),
         Step(
@@ -260,6 +272,7 @@ def _build_mask_steps(window) -> List[Step]:
             "and each object's Cellpose model — cyto for cells, "
             "nuclei for nuclei.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
@@ -267,6 +280,7 @@ def _build_mask_steps(window) -> List[Step]:
             "record — from spaCR itself, from Cellpose, and from "
             "any warnings raised during the run.",
             target=(lambda: _console_panel(screen_ref[0]), None),
+            highlight=lambda: _console_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
@@ -304,6 +318,8 @@ def _build_measure_steps(window) -> List[Step]:
             "co-localization, texture, and radial distribution.",
             action=_nav_to(window, "measure"),
             target=(_sidebar_button(window, "measure"), None),
+            highlight=_sidebar_button(window, "measure"),
+            show_pointer=True,
             hold_ms=400,
         ),
         Step(
@@ -312,6 +328,9 @@ def _build_measure_steps(window) -> List[Step]:
             "schema.",
             action=lambda: (_load_demo(window, "measure", tmp_root)(),
                              _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
             hold_ms=800,
         ),
         Step(
@@ -320,11 +339,14 @@ def _build_measure_steps(window) -> List[Step]:
             "nucleus, and pathogen channels can be tuned "
             "independently.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
             "Optionally, measure will also crop each object into "
             "a PNG for classify — enable Save PNG and pick a size.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
@@ -356,6 +378,8 @@ def _build_crop_steps(window) -> List[Step]:
             "not a standalone step.",
             action=_nav_to(window, "measure"),
             target=(_sidebar_button(window, "measure"), None),
+            highlight=_sidebar_button(window, "measure"),
+            show_pointer=True,
             hold_ms=400,
         ),
         Step(
@@ -364,6 +388,9 @@ def _build_crop_steps(window) -> List[Step]:
             "job.",
             action=lambda: (_load_demo(window, "crop", tmp_root)(),
                              _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
             hold_ms=800,
         ),
         Step(
@@ -371,6 +398,7 @@ def _build_crop_steps(window) -> List[Step]:
             "which channels get baked into the crop. You'll get "
             "one folder of thumbnails per object type.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
@@ -400,6 +428,8 @@ def _build_classify_steps(window) -> List[Step]:
             "that classify has a training set.",
             action=_nav_to(window, "annotate"),
             target=(_sidebar_button(window, "annotate"), None),
+            highlight=_sidebar_button(window, "annotate"),
+            show_pointer=True,
             hold_ms=400,
         ),
         Step(
@@ -408,12 +438,17 @@ def _build_classify_steps(window) -> List[Step]:
             "labelling grid without needing real data.",
             action=lambda: (_load_demo(window, "classify", tmp_root)(),
                              _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
             hold_ms=1000,
         ),
         Step(
             "Each tile is a single-cell crop. Left-click cycles "
             "through class labels — none, one, two, and back to "
             "none — so you can label a whole plate very quickly.",
+            target=(lambda: screen_ref[0], None),
+            highlight=lambda: screen_ref[0],
             hold_ms=500,
         ),
         Step(
@@ -445,6 +480,8 @@ def _build_timelapse_steps(window) -> List[Step]:
             "convention.",
             action=_nav_to(window, "timelapse"),
             target=(_sidebar_button(window, "timelapse"), None),
+            highlight=_sidebar_button(window, "timelapse"),
+            show_pointer=True,
             hold_ms=400,
         ),
         Step(
@@ -454,6 +491,9 @@ def _build_timelapse_steps(window) -> List[Step]:
             "automatically.",
             action=lambda: (_load_demo(window, "timelapse", tmp_root)(),
                              _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
             hold_ms=800,
         ),
         Step(
@@ -462,6 +502,7 @@ def _build_timelapse_steps(window) -> List[Step]:
             "mode, and how far an object may travel between "
             "frames.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(

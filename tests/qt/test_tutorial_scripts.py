@@ -138,6 +138,8 @@ def test_every_script_is_well_formed(app_key, main_window, home_in_tmp):
     for s in steps:
         assert isinstance(s.hold_ms, int) and 0 <= s.hold_ms <= 5000
         assert s.action is None or callable(s.action)
+        assert isinstance(s.dim_background, bool)
+        assert isinstance(s.live_capture, bool)
         if s.target is not None:
             widget = (s.target[0] if isinstance(s.target, tuple)
                         else s.target)
@@ -149,9 +151,10 @@ def test_every_script_is_well_formed(app_key, main_window, home_in_tmp):
         if s.highlight is not None:
             assert callable(s.highlight) or hasattr(s.highlight, "rect")
 
-    # Every script has to move the cursor somewhere, or the recording is
-    # a static screenshot with a voiceover.
-    assert any(s.target is not None for s in steps)
+    # Every script contains at least one real click. Passive target and
+    # highlight steps must not display the click point.
+    assert any(s.target is not None and s.show_pointer for s in steps)
+    assert all(s.target is not None for s in steps if s.show_pointer)
 
 
 @pytest.mark.parametrize("app_key", AVAILABLE_TUTORIALS)
@@ -291,9 +294,10 @@ def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
     assert _find_button(screen, "Run").text().strip() == "Run"
     assert _find_button(screen, "Run preview").text().strip() == "Run preview"
 
-    run_steps = [s for s in steps if s.highlight is not None]
-    assert run_steps, "the mask script should highlight the Run button"
+    run_steps = [s for s in steps if "When you hit Run" in s.narration]
+    assert len(run_steps) == 1, "the mask script should have one Run step"
     for s in run_steps:
+        assert s.highlight is not None
         assert probe.d._deref(s.highlight).text().strip() == "Run"
     probe.close()
 

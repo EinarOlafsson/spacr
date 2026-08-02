@@ -4,10 +4,11 @@ The pipeline is intentionally linear and easy to reason about:
 
   1. Synthesize each Step's narration through Piper → WAV, know duration
   2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080
-  3. Walk through the Steps, capturing frames at 30 fps into a scratch dir.
-     Each step gets ceil(narration_s * 30) + hold frames budget.
-     A synthesized cursor (little arrow drawn onto each frame) animates
-     to each step's target widget before the step's action fires.
+  3. Walk through the Steps, capturing a clean screenshot only when a
+     scripted action changes the UI. Build 30 fps video frames from those
+     cached keyframes while a circular focus marker animates to the target and
+     a spotlight dims everything except the highlighted widget. A step can
+     opt into live capture when the app itself is genuinely animated.
   4. Concatenate all step WAVs → one audio track
   5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4`
   6. Emit matching .srt sidecar
@@ -32,8 +33,10 @@ LOG = logging.getLogger("spacr.qt.tutorial")
 
 FRAME_RATE = 30
 VIDEO_SIZE = (1920, 1080)
-CURSOR_MOVE_FRAMES = 12
+CURSOR_MOVE_FRAMES = 60
 DEFAULT_HOLD_MS = 500
+SPOTLIGHT_PADDING = 10
+SPOTLIGHT_OPACITY = 150
 DEFAULT_VOICE = (
     Path.home() / ".spacr" / "piper" / "en_US-lessac-medium.onnx"
 )
@@ -66,12 +69,27 @@ class Step:
         highlight:    optional widget to draw a soft highlight ring
                       around while this step runs. Also accepts a
                       zero-argument callable, same as `target`.
+        dim_background:
+                      when ``highlight`` resolves, dim the rest of the
+                      interface and leave the highlighted widget in a
+                      clear spotlight. Disable for overview steps that
+                      should keep the whole interface at full brightness.
+        live_capture: recapture the app for every frame while this step
+                      runs. The default uses a cached screenshot and only
+                      refreshes after an action changes the interface.
+                      Enable this for genuinely animated app content.
+        show_pointer: draw and animate the small magenta point for a
+                      scripted click. Passive explanatory steps leave it
+                      off, even when they target or highlight a widget.
     """
     narration: str
     action: Optional[Callable[[], None]] = None
     target: Optional[Tuple[Any, Optional[Tuple[int, int]]]] = None
     hold_ms: int = DEFAULT_HOLD_MS
     highlight: Optional[Any] = None
+    dim_background: bool = True
+    live_capture: bool = False
+    show_pointer: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -135,39 +153,15 @@ def _wav_duration(path: Path) -> float:
 # ---------------------------------------------------------------------------
 
 def _draw_cursor_on(pixmap, pos_xy: Tuple[int, int]) -> None:
-    """Paint an arrow cursor onto `pixmap` at absolute (x, y)."""
+    """Paint the small solid magenta click point at absolute ``(x, y)``."""
     from PySide6.QtCore import Qt, QPointF
-    from PySide6.QtGui import QPainter, QPen, QBrush, QColor, QPolygonF
+    from PySide6.QtGui import QBrush, QColor, QPainter
     x, y = pos_xy
     painter = QPainter(pixmap)
     painter.setRenderHint(QPainter.Antialiasing)
-    # Shadow — offset arrow, semi-transparent black
-    shadow_offset = 2
-    shadow = QPolygonF([
-        QPointF(x + shadow_offset, y + shadow_offset),
-        QPointF(x + 18 + shadow_offset, y + 12 + shadow_offset),
-        QPointF(x + 11 + shadow_offset, y + 14 + shadow_offset),
-        QPointF(x + 15 + shadow_offset, y + 22 + shadow_offset),
-        QPointF(x + 11 + shadow_offset, y + 23 + shadow_offset),
-        QPointF(x +  7 + shadow_offset, y + 15 + shadow_offset),
-        QPointF(x +  0 + shadow_offset, y + 20 + shadow_offset),
-    ])
     painter.setPen(Qt.NoPen)
-    painter.setBrush(QBrush(QColor(0, 0, 0, 120)))
-    painter.drawPolygon(shadow)
-    # White fill + black outline arrow
-    arrow = QPolygonF([
-        QPointF(x, y),
-        QPointF(x + 18, y + 12),
-        QPointF(x + 11, y + 14),
-        QPointF(x + 15, y + 22),
-        QPointF(x + 11, y + 23),
-        QPointF(x +  7, y + 15),
-        QPointF(x +  0, y + 20),
-    ])
-    painter.setPen(QPen(QColor(20, 20, 20), 1.5))
-    painter.setBrush(QBrush(QColor(255, 255, 255)))
-    painter.drawPolygon(arrow)
+    painter.setBrush(QBrush(QColor(255, 0, 153)))
+    painter.drawEllipse(QPointF(x, y), 4, 4)
     painter.end()
 
 
@@ -178,11 +172,46 @@ def _draw_highlight_on(pixmap, rect_xywh: Tuple[int, int, int, int]) -> None:
     x, y, w, h = rect_xywh
     painter = QPainter(pixmap)
     painter.setRenderHint(QPainter.Antialiasing)
-    pen = QPen(QColor(74, 158, 255, 220), 4)
+    pen = QPen(QColor(74, 158, 255, 220), 1)
     pen.setJoinStyle(Qt.RoundJoin)
     painter.setPen(pen)
     painter.setBrush(Qt.NoBrush)
     painter.drawRoundedRect(QRect(x - 4, y - 4, w + 8, h + 8), 6, 6)
+    painter.end()
+
+
+def _draw_spotlight_on(
+    pixmap,
+    rect_xywh: Tuple[int, int, int, int],
+    padding: int = SPOTLIGHT_PADDING,
+    opacity: int = SPOTLIGHT_OPACITY,
+) -> None:
+    """Dim the frame except for a padded, rounded focus rectangle.
+
+    This painter runs before the blue highlight ring and cursor, leaving
+    both attention aids crisp while the selected widget retains its
+    original colour and contrast.
+    """
+    from PySide6.QtCore import Qt, QRectF
+    from PySide6.QtGui import QColor, QPainter, QPainterPath
+
+    x, y, w, h = rect_xywh
+    focus = QRectF(
+        x - padding,
+        y - padding,
+        w + padding * 2,
+        h + padding * 2,
+    )
+    frame = QRectF(0, 0, pixmap.width(), pixmap.height())
+
+    mask = QPainterPath()
+    mask.setFillRule(Qt.OddEvenFill)
+    mask.addRect(frame)
+    mask.addRoundedRect(focus, 10, 10)
+
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.fillPath(mask, QColor(0, 0, 0, opacity))
     painter.end()
 
 
@@ -191,8 +220,11 @@ def _draw_highlight_on(pixmap, rect_xywh: Tuple[int, int, int, int]) -> None:
 # ---------------------------------------------------------------------------
 
 class Recorder:
-    """Grab the MainWindow's rendered pixmap N times a second,
-    compositing a synthetic cursor onto each frame.
+    """Build video frames from app screenshot keyframes.
+
+    The clean MainWindow pixmap is cached until a scripted action changes
+    the UI. Each output frame copies that keyframe, then composites the
+    spotlight, highlight ring, and synthetic cursor.
 
     :param window: source Qt window to grab.
     :param frames_dir: destination folder for numbered PNG frames.
@@ -212,14 +244,13 @@ class Recorder:
         self.cursor_pos: Tuple[float, float] = (
             size[0] / 2, size[1] / 2
         )
+        self._base_frame = None
 
-    def snap(self, cursor_pos: Optional[Tuple[float, float]] = None,
-              highlight_rect: Optional[Tuple[int, int, int, int]] = None
-              ) -> Path:
-        """Grab one frame, save as PNG, return its path."""
+    def refresh_base(self) -> None:
+        """Capture a clean app screenshot for subsequent overlay frames."""
         from PySide6.QtCore import Qt
         from PySide6.QtGui import QPixmap
-        # Ensure the window has painted anything queued
+
         self.window.repaint()
         pm = self.window.grab().scaled(
             self.size[0], self.size[1],
@@ -237,13 +268,37 @@ class Recorder:
             painter.drawPixmap(offset_x, offset_y, pm)
             painter.end()
             pm = canvas
+        self._base_frame = pm
+
+    def snap(
+        self,
+        cursor_pos: Optional[Tuple[float, float]] = None,
+        highlight_rect: Optional[Tuple[int, int, int, int]] = None,
+        dim_background: bool = True,
+        refresh_base: bool = False,
+        show_pointer: bool = False,
+    ) -> Path:
+        """Composite one video frame from a cached app screenshot.
+
+        A clean screenshot is captured lazily on the first call and after
+        each scripted UI action. Pointer-only frames therefore avoid
+        repainting and re-grabbing an otherwise unchanged interface.
+        """
+        from PySide6.QtGui import QPixmap
+
+        if refresh_base or self._base_frame is None:
+            self.refresh_base()
+        # Overlay painters mutate their pixmap, so copy the clean keyframe.
+        pm = QPixmap(self._base_frame)
+        if highlight_rect and dim_background:
+            _draw_spotlight_on(pm, highlight_rect)
         if highlight_rect:
             _draw_highlight_on(pm, highlight_rect)
-        if cursor_pos is None:
-            cursor_pos = self.cursor_pos
-        else:
+        if cursor_pos is not None:
             self.cursor_pos = cursor_pos
-        _draw_cursor_on(pm, (int(cursor_pos[0]), int(cursor_pos[1])))
+        if show_pointer:
+            position = cursor_pos if cursor_pos is not None else self.cursor_pos
+            _draw_cursor_on(pm, (int(position[0]), int(position[1])))
         path = self.frames_dir / f"frame_{self.frame_idx:06d}.png"
         pm.save(str(path), "PNG")
         self.frame_idx += 1
@@ -327,6 +382,7 @@ class Director:
 
         self._recorder = Recorder(self.window, self._workdir / "frames",
                                     fps=self.fps, size=VIDEO_SIZE)
+        self._recorder.refresh_base()
 
         # Start cursor at bottom-right (out of the way)
         self._recorder.cursor_pos = (
@@ -342,24 +398,37 @@ class Director:
             target_pos = self._resolve_target(step)
             highlight_rect = self._resolve_highlight_rect(step)
 
-            if target_pos is not None:
+            move_frames = (
+                min(CURSOR_MOVE_FRAMES, budget // 3)
+                if target_pos is not None and step.show_pointer else 0
+            )
+            if move_frames:
                 self._animate_cursor(target_pos,
-                                       frames=min(CURSOR_MOVE_FRAMES, budget // 3),
-                                       highlight_rect=highlight_rect)
+                                       frames=move_frames,
+                                       highlight_rect=highlight_rect,
+                                       dim_background=step.dim_background)
 
             # Fire action (if any)
             if step.action is not None:
                 try:
                     step.action()
+                    # Let queued layout/paint work settle, then capture one
+                    # new visual keyframe for the changed UI state.
+                    for _ in range(3):
+                        app.processEvents()
+                    self._recorder.refresh_base()
                 except Exception as e:
                     LOG.exception("step action failed: %s", e)
 
             # Fill remaining frames, letting the UI catch up between grabs
-            for _ in range(budget - (
-                    min(CURSOR_MOVE_FRAMES, budget // 3)
-                    if target_pos is not None else 0)):
+            for _ in range(budget - move_frames):
                 app.processEvents()
-                self._recorder.snap(highlight_rect=highlight_rect)
+                self._recorder.snap(
+                    highlight_rect=highlight_rect,
+                    dim_background=step.dim_background,
+                    refresh_base=step.live_capture,
+                    show_pointer=step.show_pointer,
+                )
 
         LOG.info("captured %d frames", self._recorder.frame_idx)
 
@@ -444,7 +513,8 @@ class Director:
             return None
 
     def _animate_cursor(self, target: Tuple[float, float], frames: int,
-                          highlight_rect: Optional[Tuple[int, int, int, int]]
+                          highlight_rect: Optional[Tuple[int, int, int, int]],
+                          dim_background: bool = True,
                          ) -> None:
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
@@ -459,7 +529,9 @@ class Director:
             )
             app.processEvents()
             self._recorder.snap(cursor_pos=pos,
-                                  highlight_rect=highlight_rect)
+                                  highlight_rect=highlight_rect,
+                                  dim_background=dim_background,
+                                  show_pointer=True)
 
     # -- audio + video mux ---------------------------------------------------
     def _concat_audio(self) -> Path:
