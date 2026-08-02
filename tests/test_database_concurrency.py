@@ -17,6 +17,7 @@ import pytest
 import spacr.database_concurrency as db_concurrency
 from spacr.cli_database import main as database_cli
 from spacr.database_concurrency import (
+    MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS,
     DatabaseBusy,
     connect,
     inspect_database,
@@ -67,6 +68,82 @@ def test_transaction_retry_preserves_connection_busy_timeout(tmp_path):
     finally:
         connection.close()
     assert before == after == 1234
+
+
+@pytest.mark.parametrize(
+    "total_ms, attempts, expected",
+    [
+        # The concurrency probe's own numbers: writers connect with
+        # timeout=0.05 and ask for 40 attempts. Plain division gave each
+        # BEGIN 1 ms, which is below the point where SQLite's busy handler
+        # can take a contended lock at all.
+        (50, 40, MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS),
+        # Large budgets must still be shared, or eight retries on a
+        # 30-second connection block for four minutes.
+        (30_000, 8, 3_750),
+        (1_234, 7, 176),
+        # The floor never inflates a budget past what the caller allowed:
+        # a 10 ms connection waits at most 10 ms inside one BEGIN.
+        (10, 2, 10),
+        (1, 40, 1),
+        (MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS, 1, MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS),
+        # busy_timeout = 0 means "do not block"; that is a choice, not a
+        # budget to be topped up.
+        (0, 8, 0),
+        # Degenerate inputs must not produce a negative or zero PRAGMA.
+        (-5, 8, 0),
+        (100, 0, 100),
+    ],
+)
+def test_per_attempt_lock_budget_is_floored_and_capped(
+        total_ms, attempts, expected):
+    assert db_concurrency._attempt_busy_timeout_ms(total_ms, attempts) == expected
+
+
+def test_tight_connection_still_gets_a_usable_per_attempt_budget(tmp_path):
+    """The probe's writer settings must not degrade BEGIN to a single try.
+
+    ``run_concurrency_probe`` opens writers with ``timeout=0.05`` and calls
+    ``transaction(attempts=40)``. Dividing the busy timeout by the attempt
+    count handed each BEGIN 1 ms. This asserts the PRAGMA actually executed
+    on the connection, because that is what SQLite acts on.
+    """
+    path = tmp_path / "tight.sqlite"
+    _create_database(path)
+    connection = connect(path, timeout=0.05)
+    statements = []
+    try:
+        connection.set_trace_callback(statements.append)
+        with transaction(connection, attempts=40):
+            connection.execute("INSERT INTO events(value) VALUES ('tight')")
+    finally:
+        connection.set_trace_callback(None)
+        connection.close()
+    applied = [int(sql.split("=")[1]) for sql in statements
+               if sql.startswith("PRAGMA busy_timeout =")]
+    # One narrowed budget for the BEGIN, then the connection's own value back.
+    assert applied == [MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS, 50]
+
+
+def test_explicit_busy_timeout_overrides_the_connection_budget(tmp_path):
+    """A write can state its own lock tolerance instead of inheriting one."""
+    path = tmp_path / "explicit.sqlite"
+    _create_database(path)
+    connection = connect(path, timeout=0.05)
+    statements = []
+    try:
+        connection.set_trace_callback(statements.append)
+        with transaction(connection, attempts=4, busy_timeout=2.0):
+            connection.execute("INSERT INTO events(value) VALUES ('explicit')")
+        connection.set_trace_callback(None)
+        # The connection is left exactly as the caller opened it.
+        assert connection.execute("PRAGMA busy_timeout").fetchone()[0] == 50
+    finally:
+        connection.set_trace_callback(None)
+        connection.close()
+    applied = [int(sql.split("=")[1]) for sql in statements
+               if sql.startswith("PRAGMA busy_timeout =")]
+    assert applied == [500, 50]
 
 
 def test_transaction_rolls_back_the_complete_body_on_error(tmp_path):
