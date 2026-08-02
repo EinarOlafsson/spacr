@@ -253,3 +253,712 @@ def test_preferences_dialog_builds_and_closes(qtbot, qt_theme_applied):
     qtbot.addWidget(dlg)
     # Cancel — no persistence
     dlg.reject()
+
+
+# ---------------------------------------------------------------------------
+# Animated background
+#
+# Every test below runs under the module-level ``_isolated_qsettings``
+# autouse fixture, which repoints QSettings at a per-test tmp .ini. None of
+# this touches the developer's real preferences.
+# ---------------------------------------------------------------------------
+
+def _ambient():
+    """The real ambient module — the source of truth for valid values."""
+    from spacr.qt.widgets import ambient
+    return ambient
+
+
+@pytest.fixture
+def fake_ambient(monkeypatch):
+    """A controlled stand-in for :mod:`spacr.qt.widgets.ambient`.
+
+    The real module is free to give every theme the same palettes; these
+    tests need a theme whose palettes are *disjoint* from another's to
+    prove that a theme change repairs a stranded palette, and a theme
+    that does not offer ``DEFAULT_PALETTE`` at all to prove the
+    first-palette fallback. It also supplies a recording AmbientWidget so
+    :func:`apply_ambient_preferences` can be observed.
+    """
+    import sys
+    import types
+    from PySide6.QtWidgets import QWidget
+
+    module = types.ModuleType("spacr.qt.widgets.ambient")
+    # "bare" is a theme with no palettes at all — the shape a new
+    # animation has while its colours are still being written.
+    module.AMBIENT_THEMES = ("blobs", "mesh", "bare")
+    module.DEFAULT_THEME = "blobs"
+    module.DEFAULT_PALETTE = "spacr"
+    palettes = {"blobs": ("spacr", "ember"), "mesh": ("steel", "rust"),
+                "bare": ()}
+    module.palettes_for = lambda theme: palettes.get(theme, ())
+    module.theme_label = lambda name: {"blobs": "Diffuse blobs",
+                                       "mesh": "Mesh",
+                                       "bare": "Bare"}[name]
+    module.palette_label = lambda theme, palette: (
+        "spaCR" if palette == "spacr" else palette.title())
+
+    class _RecordingAmbient(QWidget):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.themes = []
+            self.palettes = []
+            self.animating = None
+
+        def set_theme(self, name):
+            self.themes.append(name)
+
+        def set_palette(self, name):
+            self.palettes.append(name)
+
+        def set_background_color(self, color):
+            pass
+
+        def set_animating(self, on):
+            self.animating = bool(on)
+
+    module.AmbientWidget = _RecordingAmbient
+    # Both bindings, so code reaching the module either way sees the same
+    # object. It deliberately has no ``theme_note``, which also exercises
+    # the dialog's tolerance of a module without one.
+    import spacr.qt.widgets as widgets_pkg
+    monkeypatch.setitem(sys.modules, "spacr.qt.widgets.ambient", module)
+    monkeypatch.setattr(widgets_pkg, "ambient", module, raising=False)
+    return module
+
+
+def test_ambient_defaults(qt_theme_applied):
+    """Out of the box: on, blobs, spaCR's own colours."""
+    from spacr.qt.preferences import (
+        get_ambient_enabled, get_ambient_palette, get_ambient_theme,
+    )
+    ambient = _ambient()
+    assert ambient.DEFAULT_THEME == "blobs"
+    assert ambient.DEFAULT_PALETTE == "spacr"
+    assert get_ambient_enabled() is True
+    assert get_ambient_theme() == "blobs"
+    assert get_ambient_palette() == "spacr"
+
+
+def test_ambient_enabled_roundtrip(qt_theme_applied):
+    from spacr.qt.preferences import get_ambient_enabled, set_ambient_enabled
+
+    set_ambient_enabled(False)
+    assert get_ambient_enabled() is False
+    set_ambient_enabled(True)
+    assert get_ambient_enabled() is True
+
+
+def test_ambient_enabled_survives_the_ini_backend(qt_theme_applied):
+    """The INI backend hands bools back as the strings "true"/"false"."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import get_ambient_enabled
+
+    QSettings("spacr", "qt").setValue("prefs/ambient_enabled", "false")
+    assert get_ambient_enabled() is False
+    QSettings("spacr", "qt").setValue("prefs/ambient_enabled", "true")
+    assert get_ambient_enabled() is True
+
+
+def test_ambient_enabled_recovers_from_corrupt_value(qt_theme_applied):
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import get_ambient_enabled
+
+    QSettings("spacr", "qt").setValue("prefs/ambient_enabled", "garbage")
+    assert get_ambient_enabled() is True
+
+
+def test_ambient_theme_roundtrip(qt_theme_applied):
+    from spacr.qt.preferences import get_ambient_theme, set_ambient_theme
+
+    themes = _ambient().AMBIENT_THEMES
+    assert themes, "the ambient module must offer at least one theme"
+    for theme in themes:
+        set_ambient_theme(theme)
+        assert get_ambient_theme() == theme
+
+
+def test_ambient_palette_roundtrip_for_every_theme(qt_theme_applied):
+    from spacr.qt.preferences import (
+        get_ambient_palette, set_ambient_palette, set_ambient_theme,
+    )
+    ambient = _ambient()
+    for theme in ambient.AMBIENT_THEMES:
+        set_ambient_theme(theme)
+        assert ambient.palettes_for(theme), f"{theme} offers no palette"
+        for palette in ambient.palettes_for(theme):
+            set_ambient_palette(palette)
+            assert get_ambient_palette() == palette
+
+
+def test_ambient_blobs_offers_the_spacr_palette(qt_theme_applied):
+    """The user asked for a spaCR-coloured blob palette by name."""
+    assert "spacr" in _ambient().palettes_for("blobs")
+
+
+def test_ambient_theme_invalid_raises(qt_theme_applied):
+    from spacr.qt.preferences import set_ambient_theme
+
+    with pytest.raises(ValueError, match="unknown ambient theme"):
+        set_ambient_theme("kaleidoscope")
+
+
+def test_ambient_palette_invalid_raises(qt_theme_applied):
+    from spacr.qt.preferences import set_ambient_palette
+
+    with pytest.raises(ValueError, match="unknown ambient palette"):
+        set_ambient_palette("neon-hotdog")
+
+
+def test_stored_unknown_ambient_theme_falls_back(qt_theme_applied):
+    """A settings file from a newer spaCR must not break an older one."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import get_ambient_theme
+
+    QSettings("spacr", "qt").setValue("prefs/ambient_theme", "hyperspace")
+    assert get_ambient_theme() == _ambient().DEFAULT_THEME
+
+
+def test_stored_unknown_ambient_palette_falls_back(qt_theme_applied):
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import (
+        ambient_default_palette, get_ambient_palette,
+    )
+
+    settings = QSettings("spacr", "qt")
+    for theme in _ambient().AMBIENT_THEMES:
+        settings.setValue("prefs/ambient_theme", theme)
+        settings.setValue("prefs/ambient_palette", "chartreuse-nightmare")
+        assert get_ambient_palette() == ambient_default_palette(theme)
+
+
+def test_ambient_palette_never_escapes_its_theme(qt_theme_applied):
+    """Whatever is on disk, the getter only ever names a paintable palette."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import get_ambient_palette
+
+    ambient = _ambient()
+    settings = QSettings("spacr", "qt")
+    for theme in ambient.AMBIENT_THEMES:
+        settings.setValue("prefs/ambient_theme", theme)
+        for stored in ("", "chartreuse-nightmare", "12345"):
+            settings.setValue("prefs/ambient_palette", stored)
+            assert get_ambient_palette() in ambient.palettes_for(theme)
+
+
+def test_setting_the_theme_repairs_a_stranded_palette(qt_theme_applied):
+    """Switching themes rewrites a palette the new theme cannot draw."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt.preferences import set_ambient_theme
+
+    ambient = _ambient()
+    settings = QSettings("spacr", "qt")
+    for theme in ambient.AMBIENT_THEMES:
+        settings.setValue("prefs/ambient_palette", "chartreuse-nightmare")
+        set_ambient_theme(theme)
+        stored = str(QSettings("spacr", "qt").value("prefs/ambient_palette"))
+        assert stored in ambient.palettes_for(theme)
+
+
+def test_theme_change_carries_a_still_valid_palette_across(qt_theme_applied):
+    """A repair must not clobber a choice the new theme also offers."""
+    from spacr.qt.preferences import (
+        get_ambient_palette, set_ambient_palette, set_ambient_theme,
+    )
+    ambient = _ambient()
+    for source in ambient.AMBIENT_THEMES:
+        for target in ambient.AMBIENT_THEMES:
+            shared = [p for p in ambient.palettes_for(source)
+                      if p in ambient.palettes_for(target)]
+            if not shared:
+                continue
+            set_ambient_theme(source)
+            set_ambient_palette(shared[-1])
+            set_ambient_theme(target)
+            assert get_ambient_palette() == shared[-1]
+
+
+def test_theme_change_replaces_a_palette_the_new_theme_lacks(
+    qt_theme_applied,
+):
+    """The real modules disagree about palettes — e.g. only some themes
+    offer "pastel". Moving to a theme without it must land on that
+    theme's default rather than keep a palette it cannot draw."""
+    from spacr.qt.preferences import (
+        get_ambient_palette, ambient_default_palette, set_ambient_palette,
+        set_ambient_theme,
+    )
+    ambient = _ambient()
+    pairs = [
+        (source, target, palette)
+        for source in ambient.AMBIENT_THEMES
+        for target in ambient.AMBIENT_THEMES
+        for palette in ambient.palettes_for(source)
+        if palette not in ambient.palettes_for(target)
+    ]
+    assert pairs, "no theme pair with divergent palettes to exercise"
+    for source, target, palette in pairs:
+        set_ambient_theme(source)
+        set_ambient_palette(palette)
+        set_ambient_theme(target)
+        assert get_ambient_palette() == ambient_default_palette(target)
+
+
+# --- the same behaviour, against a controlled two-theme module ------------
+
+def test_fake_theme_change_replaces_an_impossible_palette(
+    fake_ambient, qt_theme_applied,
+):
+    from spacr.qt.preferences import (
+        get_ambient_palette, set_ambient_palette, set_ambient_theme,
+    )
+    set_ambient_theme("blobs")
+    set_ambient_palette("ember")
+    assert get_ambient_palette() == "ember"
+
+    # "mesh" has no "ember" — the palette is repaired, not left dangling
+    # and not raised over.
+    set_ambient_theme("mesh")
+    assert get_ambient_palette() == "steel"
+
+
+def test_fake_default_palette_falls_to_first_when_spacr_absent(
+    fake_ambient, qt_theme_applied,
+):
+    from spacr.qt.preferences import ambient_default_palette
+
+    assert ambient_default_palette("blobs") == "spacr"
+    assert ambient_default_palette("mesh") == "steel"
+    # An unknown theme reports the global default rather than exploding.
+    assert ambient_default_palette("nope") == "spacr"
+
+
+def test_fake_palette_valid_for_one_theme_is_rejected_for_another(
+    fake_ambient, qt_theme_applied,
+):
+    from spacr.qt.preferences import set_ambient_palette, set_ambient_theme
+
+    set_ambient_theme("mesh")
+    with pytest.raises(ValueError, match="unknown ambient palette"):
+        set_ambient_palette("ember")      # belongs to "blobs"
+
+
+# ---------------------------------------------------------------------------
+# Live application of the preference
+# ---------------------------------------------------------------------------
+
+def test_apply_ambient_preferences_drives_live_widgets(
+    fake_ambient, qtbot, qt_theme_applied,
+):
+    from spacr.qt.preferences import (
+        apply_ambient_preferences, set_ambient_enabled, set_ambient_palette,
+        set_ambient_theme,
+    )
+    widget = fake_ambient.AmbientWidget()
+    qtbot.addWidget(widget)
+    widget.show()
+    qtbot.waitExposed(widget)
+
+    set_ambient_enabled(True)
+    set_ambient_theme("mesh")
+    set_ambient_palette("rust")
+    apply_ambient_preferences()
+    assert widget.themes[-1] == "mesh"
+    assert widget.palettes[-1] == "rust"
+    assert widget.animating is True
+
+    # Turning it off must stop the frames, not merely repaint them.
+    set_ambient_enabled(False)
+    apply_ambient_preferences()
+    assert widget.animating is False
+    assert widget.isVisible() is False
+
+
+def test_apply_ambient_preferences_drives_a_real_ambient_widget(
+    qtbot, qt_theme_applied,
+):
+    """The recording double proves the walk; this proves the contract.
+
+    A real :class:`AmbientWidget` built through ``install_ambient`` must
+    accept every call the preferences path makes to it, and the toggle
+    must actually take the widget off screen and put it back.
+    """
+    from PySide6.QtWidgets import QVBoxLayout, QWidget
+    from spacr.qt.preferences import (
+        apply_ambient_preferences, set_ambient_enabled, set_ambient_palette,
+        set_ambient_theme,
+    )
+    from spacr.qt.widgets.ambient import AmbientWidget, install_ambient
+
+    ambient = _ambient()
+    host = QWidget()
+    qtbot.addWidget(host)
+    QVBoxLayout(host)
+    widget = install_ambient(host, theme="blobs", palette="spacr")
+    assert isinstance(widget, AmbientWidget)
+    host.resize(320, 240)
+    host.show()
+    qtbot.waitExposed(host)
+
+    other = [t for t in ambient.AMBIENT_THEMES if t != "blobs"][0]
+    set_ambient_enabled(True)
+    set_ambient_theme(other)
+    set_ambient_palette(ambient.palettes_for(other)[-1])
+    apply_ambient_preferences()
+    assert widget.isVisible() is True
+
+    set_ambient_enabled(False)
+    apply_ambient_preferences()
+    assert widget.isVisible() is False
+
+    set_ambient_enabled(True)
+    apply_ambient_preferences()
+    assert widget.isVisible() is True
+    widget.set_animating(False)     # leave no timer running past the test
+
+
+def test_apply_ambient_preferences_does_not_mute_offscreen_widgets(
+    fake_ambient, qtbot, qt_theme_applied,
+):
+    """Saving Preferences must not permanently silence background tabs.
+
+    The original concern is real and still holds: every module screen keeps
+    its ambient widget alive while the user is on another tab, and Save must
+    not set fifty of them ticking at once.
+
+    But this test used to enforce that by asserting the widget's PAUSE FLAG
+    stayed False, and `apply_ambient_preferences` was written to satisfy it
+    with `set_animating(widget.isVisible())`. Every background tab's backdrop
+    is invisible, so saving Preferences latched `_animating = False` onto all
+    of them — and `showEvent` honours that flag, which is the entire point of
+    a pause. Those screens then never animated again for the rest of the
+    session: turning the feature ON switched it off everywhere the user was
+    not currently looking.
+
+    The pause flag was never the invariant. "Costs nothing while hidden" is,
+    and `AmbientWidget._should_run` already guarantees that by refusing to
+    tick while hidden, whatever the flag says. So the flag is now set
+    unconditionally and the assertion moved to the property that matters.
+    """
+    from spacr.qt.preferences import (
+        apply_ambient_preferences, set_ambient_enabled,
+    )
+    from PySide6.QtWidgets import QVBoxLayout, QWidget
+
+    page = QWidget()
+    qtbot.addWidget(page)
+    layout = QVBoxLayout(page)
+    hidden = fake_ambient.AmbientWidget()
+    layout.addWidget(hidden)
+    # `page` is never shown — exactly the state of a module screen sitting
+    # behind another tab.
+    assert hidden.isVisible() is False
+
+    set_ambient_enabled(True)
+    apply_ambient_preferences()
+    assert hidden.themes, "the widget was skipped entirely"
+    # Not left latched off. Were this False, the tab would stay dead when the
+    # user came back to it.
+    assert hidden.animating is True
+
+
+def test_apply_ambient_preferences_survives_a_dead_widget(
+    fake_ambient, qtbot, qt_theme_applied,
+):
+    """A widget that raises must not fail the preferences save."""
+    from spacr.qt.preferences import apply_ambient_preferences
+
+    class _Broken(fake_ambient.AmbientWidget):
+        def set_theme(self, name):
+            raise RuntimeError("C++ object already deleted")
+
+    broken = _Broken()
+    healthy = fake_ambient.AmbientWidget()
+    qtbot.addWidget(broken)
+    qtbot.addWidget(healthy)
+
+    apply_ambient_preferences()          # must not raise
+    assert healthy.themes, "a broken sibling stopped the walk"
+
+
+def test_apply_ambient_preferences_without_the_module(
+    fake_ambient, qtbot, monkeypatch, qt_theme_applied,
+):
+    """No ambient module (stripped build) → a quiet no-op, never a crash."""
+    import builtins
+    from spacr.qt.preferences import apply_ambient_preferences
+
+    widget = fake_ambient.AmbientWidget()
+    qtbot.addWidget(widget)
+    blocked = []
+    real_import = builtins.__import__
+
+    def _blocked(name, *args, **kwargs):
+        if name.endswith("widgets.ambient"):
+            blocked.append(name)
+            raise ImportError("no ambient module in this build")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _blocked)
+    apply_ambient_preferences()
+    # Non-vacuous: the import really was blocked, and the walk really did
+    # give up rather than half-apply.
+    assert blocked, "the ambient import was never attempted"
+    assert widget.themes == []
+    assert widget.animating is None
+
+
+def test_apply_ambient_preferences_without_an_application(
+    fake_ambient, monkeypatch, qt_theme_applied,
+):
+    """Headless callers (a settings migration, a script) get a no-op."""
+    from PySide6.QtWidgets import QApplication
+    from spacr.qt.preferences import apply_ambient_preferences
+
+    monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
+    apply_ambient_preferences()          # must not raise
+
+
+def test_apply_ambient_preferences_when_the_widget_list_fails(
+    fake_ambient, qt_theme_applied,
+):
+    """A Qt teardown can make allWidgets() itself fail; do not propagate."""
+    from spacr.qt.preferences import apply_ambient_preferences
+
+    class _DyingApp:
+        def allWidgets(self):
+            raise RuntimeError("application is being destroyed")
+
+    apply_ambient_preferences(_DyingApp())   # must not raise
+
+
+def test_apply_preferences_to_app_applies_the_ambient_prefs(
+    fake_ambient, qtbot, qt_theme_applied,
+):
+    """The startup/save path is what makes 'no restart' true."""
+    from spacr.qt.preferences import (
+        apply_preferences_to_app, set_ambient_enabled, set_ambient_theme,
+    )
+    widget = fake_ambient.AmbientWidget()
+    qtbot.addWidget(widget)
+    widget.show()
+    qtbot.waitExposed(widget)
+    set_ambient_enabled(True)
+    set_ambient_theme("mesh")
+
+    apply_preferences_to_app()
+    assert widget.themes[-1] == "mesh"
+    assert widget.animating is True
+
+
+# ---------------------------------------------------------------------------
+# Preferences UI
+# ---------------------------------------------------------------------------
+
+def test_dialog_offers_the_ambient_controls(qtbot, qt_theme_applied):
+    from PySide6.QtWidgets import QComboBox
+    from spacr.qt.i18n import tr
+    from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.toggle import Toggle
+
+    ambient = _ambient()
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+
+    check = dlg.findChild(Toggle, "AmbientEnabled")
+    theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
+    palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
+    assert check is not None and theme_combo is not None
+    assert palette_combo is not None
+
+    assert check.isChecked() is True
+    keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
+    assert keys == list(ambient.AMBIENT_THEMES)
+    # Human labels, not raw keys.
+    labels = [theme_combo.itemText(i) for i in range(theme_combo.count())]
+    assert labels == [tr(ambient.theme_label(k)) for k in keys]
+
+    theme = theme_combo.currentData()
+    palette_keys = [palette_combo.itemData(i)
+                    for i in range(palette_combo.count())]
+    assert palette_keys == list(ambient.palettes_for(theme))
+    palette_labels = [palette_combo.itemText(i)
+                      for i in range(palette_combo.count())]
+    assert palette_labels == [tr(ambient.palette_label(theme, p))
+                              for p in palette_keys]
+
+
+def test_dialog_palette_list_follows_the_selected_theme(qtbot,
+                                                        qt_theme_applied):
+    from PySide6.QtWidgets import QComboBox
+    from spacr.qt.preferences import PreferencesDialog
+
+    ambient = _ambient()
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
+    palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
+
+    for index in range(theme_combo.count()):
+        theme_combo.setCurrentIndex(index)
+        theme = theme_combo.itemData(index)
+        offered = [palette_combo.itemData(i)
+                   for i in range(palette_combo.count())]
+        assert offered == list(ambient.palettes_for(theme))
+        assert palette_combo.currentData() in ambient.palettes_for(theme)
+        # The picker also says what the animation looks like.
+        from spacr.qt.i18n import tr
+        assert theme_combo.toolTip() == tr(ambient.theme_note(theme))
+        assert theme_combo.toolTip()
+
+
+def test_dialog_disables_the_pickers_when_the_animation_is_off(
+    qtbot, qt_theme_applied,
+):
+    from PySide6.QtWidgets import QComboBox
+    from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.toggle import Toggle
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    check = dlg.findChild(Toggle, "AmbientEnabled")
+    theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
+    palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
+
+    assert theme_combo.isEnabled() and palette_combo.isEnabled()
+    check.setChecked(False)
+    assert not theme_combo.isEnabled()
+    assert not palette_combo.isEnabled()
+    check.setChecked(True)
+    assert theme_combo.isEnabled() and palette_combo.isEnabled()
+
+
+def test_dialog_saves_the_ambient_choices(qtbot, qt_theme_applied):
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox
+    from spacr.qt.preferences import (
+        PreferencesDialog, get_ambient_enabled, get_ambient_palette,
+        get_ambient_theme,
+    )
+    from spacr.qt.widgets.toggle import Toggle
+
+    ambient = _ambient()
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
+    palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
+
+    theme_combo.setCurrentIndex(theme_combo.count() - 1)
+    wanted_theme = theme_combo.currentData()
+    palette_combo.setCurrentIndex(palette_combo.count() - 1)
+    wanted_palette = palette_combo.currentData()
+    assert wanted_palette in ambient.palettes_for(wanted_theme)
+
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert get_ambient_theme() == wanted_theme
+    assert get_ambient_palette() == wanted_palette
+    assert get_ambient_enabled() is True
+
+    # ...and the off switch, which is the user's explicit ask.
+    dlg2 = PreferencesDialog()
+    qtbot.addWidget(dlg2)
+    dlg2.findChild(Toggle, "AmbientEnabled").setChecked(False)
+    dlg2.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert get_ambient_enabled() is False
+
+    # Reopening reflects what was saved rather than the defaults.
+    dlg3 = PreferencesDialog()
+    qtbot.addWidget(dlg3)
+    assert dlg3.findChild(Toggle, "AmbientEnabled").isChecked() is False
+    assert (dlg3.findChild(QComboBox, "AmbientTheme").currentData()
+            == wanted_theme)
+    assert (dlg3.findChild(QComboBox, "AmbientPalette").currentData()
+            == wanted_palette)
+
+
+def test_dialog_save_never_writes_an_impossible_pair(fake_ambient, qtbot,
+                                                     qt_theme_applied):
+    """Switching theme in the dialog cannot save a palette it cannot draw."""
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox
+    from spacr.qt.preferences import (
+        PreferencesDialog, get_ambient_palette, get_ambient_theme,
+        set_ambient_palette, set_ambient_theme,
+    )
+    set_ambient_theme("blobs")
+    set_ambient_palette("ember")
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
+    keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
+    theme_combo.setCurrentIndex(keys.index("mesh"))
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+
+    assert get_ambient_theme() == "mesh"
+    assert get_ambient_palette() in fake_ambient.palettes_for("mesh")
+
+
+def test_dialog_save_survives_a_theme_with_no_palettes(fake_ambient, qtbot,
+                                                       qt_theme_applied):
+    """A decorative background must never block the Save button.
+
+    An animation whose palettes are not defined leaves the palette combo
+    empty; saving must still store the theme and close the dialog.
+    """
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox
+    from spacr.qt.preferences import (
+        PreferencesDialog, get_ambient_palette, get_ambient_theme,
+    )
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
+    palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
+    keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
+    theme_combo.setCurrentIndex(keys.index("bare"))
+    assert palette_combo.count() == 0
+    assert theme_combo.toolTip() == ""      # this fake has no theme_note
+
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    from PySide6.QtWidgets import QDialog
+    assert dlg.result() == QDialog.Accepted
+    assert get_ambient_theme() == "bare"
+    # And the getter still names something rather than blowing up.
+    assert get_ambient_palette() == "spacr"
+
+
+# ---------------------------------------------------------------------------
+# Import hygiene
+# ---------------------------------------------------------------------------
+
+def test_preferences_imports_without_touching_the_ambient_widget():
+    """``preferences`` must stay importable without constructing widgets.
+
+    Run in a clean interpreter with HOME/XDG redirected, so this also
+    proves the shipped default on a machine that has never run spaCR —
+    and proves it without reading the developer's real settings.
+    """
+    import os
+    import subprocess
+    import sys
+    import tempfile
+
+    import spacr
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(spacr.__file__)))
+    code = (
+        "import sys\n"
+        "import spacr.qt.preferences as prefs\n"
+        "assert 'spacr.qt.widgets.ambient' not in sys.modules, 'eager ambient'\n"
+        "assert 'PySide6.QtWidgets' not in sys.modules, 'eager QtWidgets'\n"
+        "assert prefs.get_ambient_enabled() is True\n"
+    )
+    with tempfile.TemporaryDirectory() as home:
+        env = dict(os.environ)
+        env["PYTHONPATH"] = root + os.pathsep + env.get("PYTHONPATH", "")
+        env["HOME"] = home
+        env["XDG_CONFIG_HOME"] = os.path.join(home, "config")
+        env["QT_QPA_PLATFORM"] = "offscreen"
+        result = subprocess.run([sys.executable, "-c", code], env=env,
+                                capture_output=True, text=True, timeout=300)
+    assert result.returncode == 0, result.stderr
