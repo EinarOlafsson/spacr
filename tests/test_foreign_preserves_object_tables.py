@@ -7,13 +7,37 @@ measurements, that dropped the table and everything in it — the feature
 columns, and on a child table the ``cell_id`` link back to the parent
 object.
 
-A second way into the same loss survived that fix and is covered at the
-bottom of this file: ``run_import``'s mask loop rebound ``object_type``,
-the name holding ``plan.join.object_type``, to the last declared mask
-class. An import with cell *and* nucleus masks therefore wrote their cell
+A second way into the same loss survived that fix and is covered lower
+down: ``run_import``'s mask loop rebound ``object_type``, the name
+holding ``plan.join.object_type``, to the last declared mask class. An
+import with cell *and* nucleus masks therefore wrote their cell
 measurements into ``foreign_nucleus`` and into the canonical ``nucleus``
 table — a child table with no ``cell_id`` — while ``foreign_import`` went
 on recording ``canonical_table = 'cell'``.
+
+The other direction of the same question is here too. When nothing of
+anyone else's is in the destination the importer *does* fill the
+canonical table, as a convenience, and that copy has to step aside the
+moment spaCR measures the same objects into it — ``measure_crop``
+appends, so a copy left in place makes every per-well count the sum of
+two populations. :func:`spacr.foreign.release_canonical_copy` is the
+hand-back: it removes only rows it has matched, in SQL, against
+``foreign_<object>``, un-claims the table in the same transaction, and
+builds the ``<object>_with_foreign`` view on the way out. It is what a
+measure resume calls, and what ``run_import(measure=True)`` now calls
+before measuring — that path used to record "I did not write the
+canonical table" while leaving every imported row in it.
+
+The release's own first attempt deleted by ``rowid``, and every test in
+this file released from a ``cell`` that was 100% the importer's — where
+deleting too much cannot be seen, because everything was going anyway.
+On a table ``measure_crop`` had grown it took spaCR's measurements with
+the copy. ``test_releasing_a_table_measure_has_grown_keeps_the_measured_rows``
+is the case that was missing;
+``test_the_object_tables_shadow_sqlites_own_row_identity`` and
+``test_the_measured_rows_that_survive_share_a_row_key_with_the_released``
+pin *why* neither ``rowid`` nor the declared row key can address one of
+these rows.
 
 Every database here is built by spaCR's own writer,
 :func:`spacr.utils._merge_and_save_to_database`, which is what
@@ -744,6 +768,326 @@ def test_the_column_provenance_survives_a_measure_write(theirs, tmp_path):
         assert recorded != {"column"}
     finally:
         connection.close()
+
+
+# ---------------------------------------------------------------------------
+# Handing the canonical table back when spaCR is going to fill it itself
+# ---------------------------------------------------------------------------
+
+def _measure_into(dst, stem, table="cell", labels=(1, 2)):
+    """Append one field of spaCR's own measurements through spaCR's writer."""
+    from spacr.utils import _merge_and_save_to_database
+
+    n = len(labels)
+    _merge_and_save_to_database(
+        pd.DataFrame({"label": list(labels),
+                      f"{table}_area": [36.0 + i for i in range(n)]}),
+        pd.DataFrame({"label": list(labels),
+                      f"{table}_channel_0_mean_intensity":
+                          [1.0 + i for i in range(n)]}),
+        table, str(dst), stem, "spacr_run")
+
+
+def test_the_object_tables_shadow_sqlites_own_row_identity(theirs, tmp_path):
+    """``rowid`` in one of these tables is a *plate row*, not a row identity.
+
+    Pinned on its own because it is the trap the release fell into and
+    nothing else in the suite states it. Every spaCR object table
+    declares a column called ``rowID``; SQLite identifiers are
+    case-insensitive and a declared column always shadows the implicit
+    ``rowid``, so ``SELECT rowid FROM cell`` returns ``'r1'`` once per
+    row rather than 1, 2, 3 — and there is no spelling of it, quoted or
+    not, that gets the row identity back. Anything in this module that
+    wants to address one row must therefore address it by a predicate,
+    which is what :func:`spacr.foreign.release_canonical_copy` does.
+    """
+    db = fg.run_import(_plan(theirs), str(tmp_path / "imported")).db_path
+    connection = sqlite3.connect(db)
+    try:
+        assert "rowID" in {r[1] for r in
+                           connection.execute('PRAGMA table_info("cell")')}
+        shadowed = [r[0] for r in connection.execute('SELECT rowid FROM "cell"')]
+        quoted = [r[0] for r in connection.execute('SELECT "rowid" FROM "cell"')]
+        assert shadowed == ["r1"] * 4          # the plate row, four times
+        assert quoted == shadowed              # quoting does not rescue it
+        # The real row identity is only reachable under a name the table
+        # does not declare.
+        assert [r[0] for r in
+                connection.execute('SELECT _rowid_ FROM "cell"')] == [1, 2, 3, 4]
+    finally:
+        connection.close()
+
+
+def test_releasing_a_table_measure_has_grown_keeps_the_measured_rows(theirs,
+                                                                     tmp_path):
+    """THE BUG, and the gap that hid it: release from a *mixed* table.
+
+    Every other release test in this file releases from a table that is
+    100% the importer's, where deleting too much is invisible because
+    everything was going anyway. This one releases from the table the
+    feature actually exists for — an import's copy sitting beside rows
+    ``measure_crop`` has since appended, for the *same field*.
+
+    Measured before the fix, on exactly this database: the release
+    issued ``DELETE FROM cell WHERE rowid IN (SELECT s.rowid …)``, both
+    ``rowid``\\ s resolved to the ``rowID`` column (``'r1'`` for every
+    row), and the statement removed **all six** rows — the two spaCR had
+    measured along with the four it was asked to release — then reported
+    six released. The measurements existed nowhere else.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+    # spaCR measures field 1, which the import also covers.
+    _measure_into(dst, "plate1_A01_1")
+    mixed = _read(db, "cell")
+    assert len(mixed) == 6
+    assert int(mixed["cell_area"].notna().sum()) == 2
+    assert int(mixed["foreign_areashape_area"].notna().sum()) == 4
+
+    removed = fg.release_canonical_copy(db, "cell")
+
+    assert removed == 4                         # theirs, and only theirs
+    after = _read(db, "cell")
+    assert len(after) == 2
+    assert after["cell_area"].tolist() == [36.0, 37.0]
+    assert after["fieldID"].tolist() == ["f1", "f1"]
+    assert "foreign_areashape_area" not in after.columns
+    assert len(_read(db, "foreign_cell")) == 4  # theirs, unharmed
+    assert "cell_with_foreign" in _tables(db)
+
+
+def test_the_measured_rows_that_survive_share_a_row_key_with_the_released(
+        theirs, tmp_path):
+    """Why the delete is a predicate and not a key lookup.
+
+    The obvious repair for the ``rowid`` bug is to delete by the object
+    table's declared key — ``plateID``/``rowID``/``columnID``/``fieldID``
+    /``object_label``. On this database that is *also* wrong, and by the
+    same amount: the import's row for field 1 object 1 and the row
+    ``measure_crop`` wrote for field 1 object 1 carry identical values in
+    all five. They are the same object measured twice, which is the whole
+    reason the copy has to be released. Measured: a keyed delete removes
+    six of six rows here, exactly as the ``rowid`` one did.
+
+    What tells them apart is the only thing that ever did — which columns
+    they hold values in — so that is what the DELETE is keyed on.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+    _measure_into(dst, "plate1_A01_1")
+
+    keys = _read(db, "cell")[["plateID", "rowID", "columnID", "fieldID",
+                              "object_label"]]
+    assert len(keys) == 6
+    assert int(keys.duplicated(keep=False).sum()) == 4   # 2 imported + 2 measured
+
+    connection = sqlite3.connect(db)
+    try:
+        # The keyed delete, run for real against a copy of the table, to
+        # measure rather than assert the claim above.
+        connection.execute('CREATE TABLE probe AS SELECT * FROM "cell"')
+        where = ' AND '.join(f'"{c}" IS ?' for c in keys.columns)
+        targets = keys.iloc[[0, 1, 2, 3]].itertuples(index=False, name=None)
+        hit = sum(connection.execute(f'DELETE FROM probe WHERE {where}',
+                                     tuple(t)).rowcount for t in targets)
+        assert hit == 6                     # would have taken measure's too
+    finally:
+        connection.close()
+
+
+def test_a_delete_that_does_not_match_the_checks_is_refused_and_rolled_back(
+        theirs, tmp_path, monkeypatch):
+    """The release reports what it did, or it does nothing at all.
+
+    The checks that clear a release — "how many rows are the importer's"
+    and "do all of them have a twin" — run before the write transaction
+    opens, so another writer can move underneath them. If the DELETE then
+    removes a different number of rows than was verified, the number this
+    function returns is not what happened to the database, which is the
+    exact class of failure it exists to prevent. It refuses instead, and
+    the un-claim goes back with the delete: a claim removed from a table
+    whose rows are still there is unrecoverable, a refusal is not.
+
+    The interleaving is produced here rather than described: a second
+    connection deletes one imported row after ``held`` has been counted.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+    _measure_into(dst, "plate1_A01_1")
+    real_twin = fg._twin_condition
+
+    def twin_then_meddle(connection, object_type):
+        """Real answer, then somebody else writes — after ``held`` was read."""
+        condition = real_twin(connection, object_type)
+        other = sqlite3.connect(db)
+        try:
+            other.execute('DELETE FROM "cell" WHERE "fieldID" = ? '
+                          'AND "foreign_areashape_area" IS NOT NULL', ("f2",))
+            other.commit()
+        finally:
+            other.close()
+        return condition
+
+    monkeypatch.setattr(fg, "_twin_condition", twin_then_meddle)
+
+    with pytest.raises(ConfigurationError) as raised:
+        fg.release_canonical_copy(db, "cell")
+
+    assert "did not select the rows that were verified" in str(raised.value)
+    # The delete was rolled back, so the meddler's two rows are the only
+    # ones missing and the table still holds both populations...
+    after = _read(db, "cell")
+    assert len(after) == 4
+    assert int(after["cell_area"].notna().sum()) == 2
+    assert int(after["foreign_areashape_area"].notna().sum()) == 2
+    # ...and nothing was un-claimed, so a later release can still act.
+    assert "cell" in set(_read(db, fg.FOREIGN_COLUMNS_TABLE)["table"])
+    assert int(_import_record(db)["canonical_table_written"]) == 1
+
+
+def test_releasing_the_copy_keeps_their_rows_and_drops_the_duplicate(theirs,
+                                                                     tmp_path):
+    """The copy in ``cell`` is a duplicate; the original is ``foreign_cell``.
+
+    ``release_canonical_copy`` removes only rows it has matched, in SQL,
+    against ``foreign_cell`` — same value in every shared column, NULL in
+    every unshared one. Their measurements are untouched, and the view
+    that reaches them is built on the way out.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+    assert len(_read(db, "cell")) == 4
+
+    removed = fg.release_canonical_copy(db, "cell")
+
+    assert removed == 4
+    assert len(_read(db, "cell")) == 0
+    theirs_rows = _read(db, "foreign_cell")
+    assert len(theirs_rows) == 4
+    assert theirs_rows["foreign_areashape_area"].tolist() == [36.0, 64.0,
+                                                              36.0, 64.0]
+    assert "cell_with_foreign" in _tables(db)
+    # Their measurement column goes with their rows: an empty column left
+    # in `cell` would force the view to alias theirs to
+    # `foreign_foreign_areashape_area`, which is a column nobody would
+    # think to ask for.
+    assert "foreign_areashape_area" not in _read(db, "cell").columns
+
+
+def test_a_released_table_is_no_longer_claimed_by_anything(theirs, tmp_path):
+    """The un-claim, which is what makes the release something to build on.
+
+    A claim that outlives the rows it was about is a refusal nothing can
+    ever lift — the dead end the backed-out resume guard reached. Both
+    records move in the same transaction as the delete.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+    connection = sqlite3.connect(db)
+    try:
+        assert fg._importer_owns(connection, "cell") is True
+    finally:
+        connection.close()
+
+    fg.release_canonical_copy(db, "cell")
+
+    assert set(_read(db, fg.FOREIGN_COLUMNS_TABLE)["table"]) == {"foreign_cell"}
+    run = _import_record(db)
+    assert int(run["canonical_table_written"]) == 0
+    assert "released" in run["canonical_table_note"]
+    connection = sqlite3.connect(db)
+    try:
+        assert fg._importer_owns(connection, "cell") is False
+        assert fg._importer_owns(connection, "foreign_cell") is True
+    finally:
+        connection.close()
+
+
+def test_a_dry_run_release_reports_without_writing(theirs, tmp_path):
+    """"Could this be released?" is asked through the code that releases.
+
+    A second implementation of the question is a second implementation
+    that can answer differently from the one that acts.
+    """
+    dst = tmp_path / "imported"
+    db = fg.run_import(_plan(theirs), str(dst)).db_path
+
+    assert fg.release_canonical_copy(db, "cell", dry_run=True) == 4
+
+    assert len(_read(db, "cell")) == 4
+    assert set(_read(db, fg.FOREIGN_COLUMNS_TABLE)["table"]) == {
+        "cell", "foreign_cell"}
+
+
+def test_releasing_a_table_no_import_ever_wrote_does_nothing(theirs, tmp_path):
+    """A project of spaCR's own is not this function's business."""
+    dst = tmp_path / "project"
+    db = _real_spacr_project(dst)
+    before = _read(db, "cell")
+
+    assert fg.release_canonical_copy(db, "cell") == 0
+    assert fg.release_canonical_copy(db, "nucleus") == 0
+
+    assert _read(db, "cell").equals(before)
+
+
+def test_re_extracting_over_an_earlier_import_replaces_its_copy(theirs,
+                                                                tmp_path,
+                                                                monkeypatch):
+    """THE BUG in the remedy the backed-out guard printed.
+
+    "Re-run the import with ``measure=True``" recorded
+    ``canonical_table_written = 0`` and left every imported row sitting in
+    ``cell``, because ``_check_destination`` returned ``'measure'`` before
+    it ever looked at the canonical table. ``measure_crop`` then appended
+    to it and the table held both populations, with the provenance saying
+    it held neither.
+
+    Measured before the fix: ``cell`` 4 imported rows + spaCR's, and a
+    ``foreign_import`` row claiming nothing was written.
+    """
+    import spacr.measure as measure
+
+    dst = str(tmp_path / "imported")
+    fg.run_import(_plan(theirs), dst)
+    db = os.path.join(dst, "measurements", "measurements.db")
+    assert len(_read(db, "cell")) == 4
+
+    def fake_measure_crop(settings):
+        """Stand in for the real thing: append a spaCR-shaped cell table."""
+        from spacr.utils import _merge_and_save_to_database
+
+        for stem in ("plate1_A01_1", "plate1_A01_2"):
+            _merge_and_save_to_database(
+                pd.DataFrame({"label": [1, 2], "cell_area": [36.0, 64.0]}),
+                pd.DataFrame({"label": [1, 2],
+                              "cell_channel_0_mean_intensity": [1.0, 2.0]}),
+                "cell", settings["src"], stem, "spacr_run")
+
+    monkeypatch.setattr(measure, "measure_crop", fake_measure_crop)
+    result = fg.run_import(_plan(theirs), dst, measure=True)
+
+    cells = _read(db, "cell")
+    assert len(cells) == 4                       # spaCR's four, not eight
+    assert cells["cell_area"].notna().all()
+    assert "foreign_areashape_area" not in cells.columns
+    assert len(_read(db, "foreign_cell")) == 4   # theirs, unharmed
+    assert "cell_with_foreign" in _tables(db)
+    # ...and the user is told, before any of it, what will happen to it.
+    assert any("copied there" in note for note in result.notes), result.notes
+
+
+def test_re_extracting_into_a_fresh_destination_says_nothing_about_a_copy(
+        theirs, tmp_path, monkeypatch):
+    """The control: no earlier import, so no note and nothing to release."""
+    import spacr.measure as measure
+
+    monkeypatch.setattr(measure, "measure_crop", lambda settings: None)
+    result = fg.run_import(_plan(theirs), str(tmp_path / "imported"),
+                           measure=True)
+
+    assert result.notes == []
+    assert "cell" not in result.rows
 
 
 def test_a_database_with_no_provenance_column_at_all_is_not_ours(theirs,
