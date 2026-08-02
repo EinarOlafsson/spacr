@@ -89,7 +89,8 @@ __all__ = [
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
-    'LEGACY_COLUMN_NAMES', 'TIME_COLUMN_ALIASES', 'canonical_column_name',
+    'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
+    'canonical_column_name',
     # scalars
     'parse_int_token', 'row_index_from_letters', 'letters_from_row_index',
     'row_id', 'column_id', 'field_id', 'time_id', 'object_id',
@@ -206,11 +207,16 @@ KEY_SEPARATOR = '_'
 
 #: Every legacy spelling spaCR has written, and the canonical name it means.
 #:
-#: This is the superset of ``utils.DB_COLUMN_RENAMES`` (applied to databases
-#: by ``utils.rename_columns_in_db`` on first read) and
+#: This is the superset of ``database_schema.DB_COLUMN_RENAMES`` (applied to
+#: databases by the version-1 migration and by
+#: ``utils.rename_columns_in_db`` on read) and
 #: ``utils.correct_metadata_column_names`` (applied to CSVs). They were two
 #: lists that had drifted apart, so a database carrying ``row_name`` was only
-#: half repaired. Going forward both should read this one.
+#: half repaired. Both now read this one: ``DB_COLUMN_RENAMES`` *is* this
+#: object, and there is exactly one :func:`canonical_column_name`.
+#:
+#: Keys are lower case because the lookup folds case first; see
+#: :func:`canonical_column_name`.
 LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'row':          ROW_KEY,
     'row_name':     ROW_KEY,
@@ -242,11 +248,77 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
 TIME_COLUMN_ALIASES: Tuple[str, ...] = (TIME_KEY, 'time_id')
 
 
-def canonical_column_name(name: Any) -> str:
-    """Return the canonical spelling of a metadata column name.
+#: The two *feature* families spaCR spelled inconsistently, as rewrite rules.
+#:
+#: Unlike :data:`LEGACY_COLUMN_NAMES` these are not a fixed vocabulary — the
+#: names are generated per object type, per channel and per percentile, so
+#: there are several hundred of them in a four-channel run and they can only
+#: be matched by shape. They live here, next to the metadata aliases, because
+#: they were previously the half of the rename map that only the database
+#: path knew about: canonicalising a *frame* through ``spacr.schema`` left
+#: ``cell_periphery_25_percentile`` alone while canonicalising the same frame
+#: through ``spacr.utils`` renamed it. One name, two spellings, depending on
+#: which import the caller reached for.
+#:
+#: Deliberately case-sensitive. Every feature column spaCR has ever written is
+#: lower case, and folding case here would let a user column such as
+#: ``Outside_5_Percentile`` be rewritten out from under them.
+LEGACY_COLUMN_PATTERNS: Tuple[Tuple[Any, str], ...] = (
+    # ``..._periphery_25_percentile`` -> ``..._periphery_percentile_25``.
+    # ``head`` is non-greedy and ``ring`` therefore binds to the *last*
+    # periphery/outside token, so a feature whose prefix happens to contain
+    # 'outside' does not capture the rewrite.
+    (
+        re.compile(
+            r'^(?P<head>.*?)(?P<ring>periphery|outside)_'
+            r'(?P<p>\d+)_percentile$'
+        ),
+        r'\g<head>\g<ring>_percentile_\g<p>',
+    ),
+    # ``organelle_summary_organelle_ch0_...`` -> ``..._channel_0_...``. The
+    # anchor is the full ``organelle_summary_organelle_ch`` prefix so a user
+    # feature that merely contains ``ch`` followed by a digit is untouched.
+    (
+        re.compile(
+            r'^organelle_summary_organelle_ch'
+            r'(?P<c>\d+)_(?P<rest>.+)$'
+        ),
+        r'organelle_summary_organelle_channel_\g<c>_\g<rest>',
+    ),
+)
 
-    Case-insensitive, so ``'RowID'``, ``'rowid'`` and ``'row_name'`` all
-    resolve to ``'rowID'``. A name with no known alias is returned unchanged.
+
+def canonical_column_name(name: Any) -> str:
+    """Return the canonical spelling of a metadata or feature column name.
+
+    Metadata lookup is **case-insensitive**, so ``'RowID'``, ``'rowid'`` and
+    ``'row_name'`` all resolve to ``'rowID'``. Feature rewrites
+    (:data:`LEGACY_COLUMN_PATTERNS`) are case-sensitive. A name matching
+    neither is returned unchanged.
+
+    This is the *only* implementation. ``spacr.database_schema`` and
+    ``spacr.utils`` re-export this function rather than defining their own.
+
+    .. note:: Migration note (one function, was two)
+
+       ``database_schema.canonical_column_name`` used to be a second,
+       narrower implementation: 11 aliases, matched case-sensitively. Which
+       one a caller got depended on whether it had imported
+       ``spacr.schema`` or ``spacr.utils``, and the two disagreed. Adopting
+       this one widens what a database migration renames:
+
+       * ``plate_id``, ``row_id``, ``column_id``, ``col_name``, ``field_id``,
+         ``rowid``, ``time``, ``timepoint``, ``channel_name``, ``chan_id``
+         and ``slice_id`` are now renamed to their canonical spellings;
+       * any case variant is now renamed too, so a database column spelled
+         ``Row`` or ``RowID`` is repaired instead of being left for a reader
+         to trip over. SQLite compares identifiers case-insensitively, so
+         ``RowID`` -> ``rowID`` is a pure respelling of one column, but
+         pandas reports whatever spelling is stored — which is how a frame
+         ends up with no ``rowID`` column on a database that has one.
+
+       The non-destructive rule is unchanged: a table already carrying the
+       canonical name keeps both columns.
 
     :param name: column name as it appears in a table or CSV.
     :returns: the canonical name, or ``name`` unchanged.
@@ -256,6 +328,8 @@ def canonical_column_name(name: Any) -> str:
 
             >>> canonical_column_name('column_name')
             'columnID'
+            >>> canonical_column_name('cell_periphery_25_percentile')
+            'cell_periphery_percentile_25'
             >>> canonical_column_name('cell_area')
             'cell_area'
     """
@@ -265,7 +339,19 @@ def canonical_column_name(name: Any) -> str:
                       CHANNEL_KEY, SLICE_KEY):
         if lowered == canonical.lower():
             return canonical
-    return LEGACY_COLUMN_NAMES.get(lowered, text)
+    # Metadata before features: the alias table is a closed vocabulary of
+    # short names, none of which can also match a feature pattern (both
+    # patterns are anchored and require a trailing '_<digits>_percentile' or
+    # a leading 'organelle_summary_'), so the order is a cost decision, not a
+    # precedence one — a metadata column is answered without touching a regex.
+    alias = LEGACY_COLUMN_NAMES.get(lowered)
+    if alias is not None:
+        return alias
+    for pattern, replacement in LEGACY_COLUMN_PATTERNS:
+        rewritten, substitutions = pattern.subn(replacement, text)
+        if substitutions:
+            return rewritten
+    return text
 
 
 # ---------------------------------------------------------------------------
@@ -1505,7 +1591,14 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
 # ---------------------------------------------------------------------------
 
 def canonicalise_columns(df):
-    """Return ``df`` with every legacy metadata column renamed canonically.
+    """Return ``df`` with every legacy column name renamed canonically.
+
+    Metadata aliases (:data:`LEGACY_COLUMN_NAMES`) *and* the legacy feature
+    spellings (:data:`LEGACY_COLUMN_PATTERNS`) — this used to fix only the
+    former while ``utils.canonicalize_measurement_columns``, the other
+    frame-level canonicaliser, fixed both. Both now call one
+    :func:`canonical_column_name`, so a frame gets the same columns whichever
+    of the two a caller reached for.
 
     A rename is **skipped when the canonical name is already present**, which
     is the same rule ``utils.rename_columns_in_db`` follows: a frame carrying

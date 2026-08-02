@@ -936,12 +936,109 @@ def test_ids_are_hashable_and_comparable():
 # column names
 # ===========================================================================
 
-def test_every_db_column_rename_utils_knows_is_here_too():
-    """schema is a superset of the migration list already in utils."""
-    from spacr.utils import DB_COLUMN_RENAMES
+def test_there_is_exactly_one_canonical_column_name():
+    """Every import path must reach the *same function object*.
 
-    for old, new in DB_COLUMN_RENAMES.items():
-        assert S.canonical_column_name(old) == new, old
+    This test used to assert that ``schema`` was a **superset** of the
+    rename map in ``utils`` -- i.e. it pinned the gap open. There really were
+    two implementations in scope at once: ``schema.canonical_column_name``
+    (22 aliases, case-insensitive) and a second one in ``database_schema``
+    (11 aliases, case-sensitive) that ``spacr.utils`` re-exported. Measured
+    before the repair, in an interpreter that had imported both::
+
+        spacr.utils.canonical_column_name is database_schema...  -> True
+        spacr.utils.canonical_column_name is schema...           -> False
+
+    So whether a database column named ``Row`` got canonicalised depended on
+    which module the calling file happened to import, and a database
+    canonicalised by one path and read through the other joins on keys that
+    do not match. Equality of behaviour is not enough to pin that -- two
+    functions can be made equal today and drift again tomorrow -- so identity
+    is what is asserted.
+    """
+    from spacr import database_schema as D
+    from spacr import utils as U
+
+    assert U.canonical_column_name is S.canonical_column_name
+    assert D.canonical_column_name is S.canonical_column_name
+    # The constants too: a rename *map* that disagrees with the rename
+    # *function* is the same bug one level down.
+    assert D.DB_COLUMN_RENAMES is S.LEGACY_COLUMN_NAMES
+    assert U.DB_COLUMN_RENAMES is S.LEGACY_COLUMN_NAMES
+    assert D.DB_COLUMN_RENAME_PATTERNS is S.LEGACY_COLUMN_PATTERNS
+
+
+@pytest.mark.parametrize('name,canonical', [
+    # The eleven aliases the database implementation did not know. Each one
+    # returned itself unchanged before the two were collapsed into one.
+    ('plate_id', 'plateID'),
+    ('row_id', 'rowID'),
+    ('rowid', 'rowID'),
+    ('column_id', 'columnID'),
+    ('col_name', 'columnID'),
+    ('field_id', 'fieldID'),
+    ('time', 'timeID'),
+    ('timepoint', 'timeID'),
+    ('channel_name', 'chanID'),
+    ('chan_id', 'chanID'),
+    ('slice_id', 'sliceID'),
+    # ...and the case sensitivity it did not have.
+    ('Row', 'rowID'),
+    ('COLUMN', 'columnID'),
+    ('Plate_Name', 'plateID'),
+    ('RowID', 'rowID'),
+    ('TIMEID', 'timeID'),
+])
+def test_the_aliases_the_database_path_used_to_miss(name, canonical):
+    """Pinned through every entry point, because the bug *was* the entry point."""
+    from spacr import database_schema as D
+    from spacr import utils as U
+
+    for fn in (S.canonical_column_name, D.canonical_column_name,
+               U.canonical_column_name):
+        assert fn(name) == canonical, (fn.__module__, name)
+
+
+@pytest.mark.parametrize('name,canonical', [
+    ('cell_channel_0_periphery_25_percentile',
+     'cell_channel_0_periphery_percentile_25'),
+    ('pathogen_channel_1_outside_95_percentile',
+     'pathogen_channel_1_outside_percentile_95'),
+    ('organelle_summary_organelle_ch0_mean_intensity_per_cell',
+     'organelle_summary_organelle_channel_0_mean_intensity_per_cell'),
+])
+def test_the_feature_rewrites_survived_the_collapse(name, canonical):
+    """The half of the rename map only the database path used to know.
+
+    ``schema.canonical_column_name`` handled metadata aliases and nothing
+    else, so collapsing onto it would have silently dropped the two feature
+    families -- several hundred columns on a four-channel run -- from every
+    database migration. They moved into
+    :data:`spacr.schema.LEGACY_COLUMN_PATTERNS` instead.
+    """
+    from spacr import database_schema as D
+    from spacr import utils as U
+
+    for fn in (S.canonical_column_name, D.canonical_column_name,
+               U.canonical_column_name):
+        assert fn(name) == canonical, (fn.__module__, name)
+        assert fn(canonical) == canonical, (fn.__module__, canonical)
+
+
+@pytest.mark.parametrize('name', [
+    'cell_area',
+    'cell_channel_0_percentile_75',
+    'nucleus_channel_0_periphery_mean',
+    'my_custom_ch0_score',
+    'organelle_summary_organelle_mean_area',
+    # a head containing 'outside' must not capture the ring rewrite
+    'outside_thing_periphery_25_percentile_extra',
+    # case-sensitive on purpose: a user column is not spaCR's to rewrite
+    'Outside_25_Percentile',
+    '',
+])
+def test_canonical_column_name_still_leaves_data_columns_alone(name):
+    assert S.canonical_column_name(name) == name
 
 
 def test_canonical_column_name_is_case_insensitive_and_leaves_data_alone():
@@ -978,6 +1075,41 @@ def test_canonicalise_columns_repairs_a_legacy_frame(tmp_path):
     fixed = S.canonicalise_columns(legacy)
     assert 'timeID' in fixed.columns and 'time_id' not in fixed.columns
     assert fixed['timeID'].tolist() == legacy['time_id'].tolist() == ['t3']
+
+
+def test_the_two_frame_canonicalisers_produce_the_same_columns():
+    """``schema.canonicalise_columns`` and ``utils.canonicalize_measurement_columns``.
+
+    Two functions with the same job, reached from different modules, that
+    used to give different answers on the same frame: the schema one knew the
+    metadata aliases and not the feature spellings, the utils one knew the
+    feature spellings and eleven fewer aliases. Whichever a caller imported
+    decided what its columns were called.
+    """
+    from spacr.utils import canonicalize_measurement_columns
+
+    columns = {
+        'plate_id': ['plate1'],
+        'Row': ['r1'],
+        'col_name': ['c1'],
+        'time': ['t3'],
+        'cell_channel_0_periphery_25_percentile': [1.0],
+        'organelle_summary_organelle_ch1_mean_intensity': [2.0],
+        'cell_area': [3.0],
+    }
+    schema_out = S.canonicalise_columns(pd.DataFrame(columns))
+    utils_out = canonicalize_measurement_columns(pd.DataFrame(columns))
+
+    assert list(schema_out.columns) == list(utils_out.columns)
+    assert list(schema_out.columns) == [
+        'plateID', 'rowID', 'columnID', 'timeID',
+        'cell_channel_0_periphery_percentile_25',
+        'organelle_summary_organelle_channel_1_mean_intensity',
+        'cell_area',
+    ]
+    # The values ride along with their column; nothing is reordered or lost.
+    assert schema_out['rowID'].tolist() == ['r1']
+    assert schema_out['cell_area'].tolist() == [3.0]
 
 
 def test_canonicalise_columns_returns_a_copy():
