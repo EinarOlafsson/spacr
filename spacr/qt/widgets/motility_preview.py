@@ -628,8 +628,8 @@ class MotilityPreviewPanel(QWidget):
         self._channel_box = FlatComboBox(
             self,
             tooltip=("Plane of the merged array the preview reads its objects "
-                     "from. Bound to 'Tracked mask plane', so changing it "
-                     "re-reads and re-renders."))
+                     "from. Bound to 'Tracked mask plane'; changing it drops "
+                     "the cached point table, so run the preview to see it."))
         self._channel_box.currentIndexChanged.connect(
             self._on_display_channel_changed)
         self._pick_btn = FlatButton("Choose plate folder…", self)
