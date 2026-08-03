@@ -17,6 +17,31 @@ Three separate contracts live here, in this order:
 """
 from __future__ import annotations
 
+@pytest.fixture(autouse=True)
+def _pinned_zoom():
+    """Measure geometry at 1.0, whatever the user's zoom default is.
+
+    These tests build widgets at EXPLICIT pixel sizes — `name_px=12`,
+    `icon_px=32`, `width=192` from a recorded table — and then ask whether the
+    text fits. The zoom preference scales the stylesheet's fonts on top of
+    that, so at the 150% default the label renders half again larger inside a
+    box the test pinned at its unscaled size, and "elides" for a reason that
+    has nothing to do with the geometry under test.
+
+    Verified that the product is fine: a real HomePage at 150% has zero elided
+    labels, because its tile widths go through `scaled_px` and move with the
+    font. The doubling is an artefact of the harness, not a layout bug.
+    """
+    from spacr.qt import preferences as prefs
+
+    original = prefs.get_font_scale()
+    prefs.set_font_scale(1.0)
+    try:
+        yield
+    finally:
+        prefs.set_font_scale(original)
+
+
 import hashlib
 import os
 import threading
