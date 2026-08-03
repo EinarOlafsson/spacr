@@ -953,6 +953,21 @@ def get_measure_crop_settings(settings=None):
     # spacr.resume validates what is already on disk rather than trusting it,
     # and clears a field's existing rows before re-measuring it.
     settings.setdefault('resume', False)
+    # Which parent compartments organelle measurements roll up into. Its
+    # absence here silenced an entire output: measure.py gates all four
+    # organelle writes on `is not None`, so a measure run wrote no organelle
+    # table at all -- even though every merged stack carries real organelle
+    # labels in `organelle_mask_dim`, and the demo ships 64 of them per field.
+    # The key was only ever defaulted in
+    # `set_default_settings_preprocess_generate_masks` (the MASK pipeline),
+    # which never reaches the measure settings, so nothing downstream could
+    # tell "the user asked for no organelle summary" from "nobody asked".
+    #
+    # 'cell' is the documented default and is what the mask pipeline already
+    # sets. It writes `cell_organelle_summary` only: the expensive
+    # per-organelle table needs 'organelle' in the value, and "organelle" is
+    # not a substring of "cell", so the raw table stays opt-in.
+    settings.setdefault('summarize_organelles_by', 'cell')
     return settings
 
 def set_default_analyze_screen(settings):
