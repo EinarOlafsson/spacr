@@ -24,7 +24,10 @@ from spacr.qt.widgets.dna_rain import (BASES, DnaRainEngine,
                                        install_dna_rain)
 
 DT = 1.0 / 24.0
-ALLOWED = set(BASES) | {SPACR_TOKEN}
+# Every cell holds exactly one character now: the four bases, or one
+# letter of the spaCR splice, which is spelled down the column rather
+# than packed into a single cell.
+ALLOWED = set(BASES) | set(SPACR_TOKEN)
 
 
 def make_widget(qtbot, **kwargs):
@@ -153,18 +156,30 @@ def test_seedless_engine_still_works():
 # The spaCR splice
 # ---------------------------------------------------------------------------
 
-def test_spacr_reads_with_exactly_that_casing():
+def test_spacr_is_spelled_down_the_column_one_letter_per_cell():
+    """s / p / a / C / R, falling like the bases around it.
+
+    It used to live in a single cell and be drawn horizontally across its
+    neighbours, which read as a label pasted over the rain rather than as part
+    of it. Casing stays load-bearing; orientation is what makes it belong.
+    """
     engine = DnaRainEngine(320, 240, 16, seed=4, spacr_probability=1.0)
     column = engine.columns[0]
     assert column.has_word
-    assert column.tokens[column.word_index] == "spaCR"
+
+    start = column.word_index
+    letters = column.tokens[start:start + len("spaCR")]
+    assert letters == ["s", "p", "a", "C", "R"]
+
+    # EVERY cell is exactly one character now — the invariant the old
+    # renderer could not rely on, and the reason the second paint pass,
+    # the measured token widths and the widened dirty rectangles are gone.
+    assert len(column.tokens) == column.length
+    assert all(len(tok) == 1 for tok in column.tokens)
+
     text = engine.column_text(0)
     assert "spaCR" in text
     assert "SPACR" not in text and "spacr" not in text
-    # The token is one *cell* but five *characters* — nothing may
-    # assume one character per cell.
-    assert len(column.tokens) == column.length
-    assert len(column.tokens[column.word_index]) == 5
 
 
 def test_spacr_absent_when_probability_is_zero():
@@ -204,16 +219,22 @@ def test_spacr_rate_works_out_to_about_a_minute():
     assert 25.0 < interval < 150.0, interval
 
 
-def test_word_column_widens_its_dirty_rectangle(qtbot):
-    """A five-character token is wider than one cell, and the repaint
-    rectangle has to know that."""
+def test_a_word_column_is_no_wider_than_any_other(qtbot):
+    """The dirty rectangle stops being a special case.
+
+    A spliced column used to be wider than its stride, because the word was
+    drawn horizontally out of one cell and bled over its neighbours — so the
+    repaint rectangle had to be widened and columns to the left had to be
+    dragged into every repaint. Five one-letter cells cannot overdraw
+    anything, so a column carrying the word is exactly as wide as one that
+    does not.
+    """
     widget = make_widget(qtbot, font_size=16, spacr_probability=1.0)
     cell = widget.engine.cell_size
-    assert widget._word_px > cell
     assert all(c.has_word for c in widget.engine.columns)
     rects = widget._coalesce([(0, 0, 3)])
     assert len(rects) == 1
-    assert rects[0].width() == widget._word_px
+    assert rects[0].width() == cell
 
     plain = make_widget(qtbot, font_size=16, spacr_probability=0.0)
     assert plain._coalesce([(0, 0, 3)])[0].width() == cell

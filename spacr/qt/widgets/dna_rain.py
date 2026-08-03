@@ -31,15 +31,25 @@ Three deliberate departures:
 
 The ``spaCR`` splice
 --------------------
-Very infrequently a column carries the literal word ``spaCR``. It is
-stored as a *single token* occupying a single cell and drawn
-**horizontally**, overflowing to the right across its neighbours, so it
-reads left-to-right with exactly that casing. That is why nothing in the
-renderer may assume one character per cell: token widths are measured,
-dirty rectangles are widened for a column that carries a word, and a
-backing rectangle is cleared behind it so neighbouring glyphs do not
-tangle with the letters. See :data:`SPACR_SPLICE_PROBABILITY` for the
-rate and what it works out to in practice.
+Very infrequently a column carries the literal word ``spaCR``, spelled down
+the column one letter per cell, exactly like the bases around it::
+
+    s
+    p
+    a
+    C
+    R
+
+The casing is load-bearing; the orientation is what makes it part of the rain.
+It used to be stored as a single token in a single cell and drawn
+horizontally, overflowing rightwards across its neighbours — which read as a
+label pasted over the effect rather than as part of it, and cost the renderer
+a whole second paint pass, measured token widths, widened dirty rectangles and
+a cleared backing rectangle so neighbouring glyphs did not tangle with the
+letters. None of that machinery exists now: every cell holds exactly one
+character, so the word is cached and blitted like any other glyph and cannot
+overdraw anything. See :data:`SPACR_SPLICE_PROBABILITY` for the rate and what
+it works out to in practice.
 
 Legibility
 ----------
@@ -432,17 +442,33 @@ class DnaRainEngine:
     def _new_tokens(self, length: int) -> Tuple[List[str], int]:
         """Roll a string of bases, occasionally splicing in ``spaCR``.
 
-        :returns: ``(tokens, word index)``; the index is -1 when no
-            splice happened. A spliced token replaces one base and
-            therefore still occupies exactly one *cell* — it is simply
-            five characters wide when drawn.
+        :returns: ``(tokens, word index)``; the index is -1 when no splice
+            happened, otherwise the cell index of the word's FIRST letter.
+
+        The word occupies ``len(SPACR_TOKEN)`` consecutive cells, one letter
+        each, so it falls down the column exactly like the bases around it::
+
+            s
+            p
+            a
+            C
+            R
+
+        It used to be written into a single cell as the whole string and drawn
+        horizontally, which made it read as a label pasted across the rain
+        rather than as part of it — and forced a second paint pass that
+        cleared a rectangle running over its neighbouring columns.
+
+        A string shorter than the word is left unspliced rather than truncated:
+        half a word is not the surprise this is for.
         """
         rng = self._rng
         tokens = [rng.choice(BASES) for _ in range(length)]
         word_index = -1
-        if rng.random() < self.spacr_probability:
-            word_index = rng.randrange(length)
-            tokens[word_index] = SPACR_TOKEN
+        word_len = len(SPACR_TOKEN)
+        if length >= word_len and rng.random() < self.spacr_probability:
+            word_index = rng.randrange(length - word_len + 1)
+            tokens[word_index:word_index + word_len] = list(SPACR_TOKEN)
             self.spacr_splices += 1
         return tokens, word_index
 
@@ -596,8 +622,6 @@ class DnaRainWidget(QWidget):
 
         self._font = QFont()
         self._ascent = 0
-        self._word_px = 0
-        self._word_cols = 1
         self._trail_pens: List[QPen] = []
         self._head_pen = QPen()
         self._hi_pen = QPen()
@@ -908,10 +932,11 @@ class DnaRainWidget(QWidget):
                                (bottom - top + 1) * cell))
 
         for index, span_top, span_bottom in spans:
-            # A spliced column is wider than its stride: the word runs
-            # horizontally past its neighbours.
-            over = max(0, self._word_px - cell) if columns[index].has_word \
-                else 0
+            # Every column is exactly one cell wide now. The spaCR splice used
+            # to make its column wider than its stride, because the word was
+            # drawn horizontally out of a single cell and bled over its
+            # neighbours; five one-letter cells cannot.
+            over = 0
             if open_run and index == last_col + 1:
                 last_col = index
                 top = min(top, span_top)
@@ -935,9 +960,6 @@ class DnaRainWidget(QWidget):
         self._font = font
         metrics = QFontMetricsF(font)
         self._ascent = int(math.ceil(metrics.ascent()))
-        self._word_px = int(math.ceil(metrics.horizontalAdvance(SPACR_TOKEN)))
-        cell = max(1, self._engine.cell_size)
-        self._word_cols = max(1, int(math.ceil(self._word_px / cell)))
         self._invalidate_strips()
 
     def _rebuild_pens(self) -> None:
@@ -1040,9 +1062,10 @@ class DnaRainWidget(QWidget):
         last = engine.n_columns - 1
         for rect in rects:
             self._clear(painter, rect)
-            # Reach a few columns further left than the region starts:
-            # a spaCR splice over there draws across into this one.
-            first = max(0, rect.left() // cell - self._word_cols)
+            # No left-hand margin needed. This used to reach extra columns
+            # leftward because a spaCR splice over there drew across into this
+            # one; the word is now confined to its own column.
+            first = max(0, rect.left() // cell)
             touched.update(range(first, min(last, rect.right() // cell) + 1))
         if not touched or engine.n_rows <= 0:
             return
@@ -1056,18 +1079,13 @@ class DnaRainWidget(QWidget):
                                (column.row - column.length + 1) * cell,
                                self._strip_for(index))
 
-        # Pass 2: the spaCR splices, last, because each one clears a
-        # backing rectangle that runs across its neighbours.
-        painter.setFont(self._font)
-        painter.setPen(self._head_pen)
-        for index in order:
-            column = engine.columns[index]
-            if not column.has_word:
-                continue
-            x = index * cell
-            y = (column.row - column.length + 1 + column.word_index) * cell
-            self._clear(painter, QRect(x, y, self._word_px, cell))
-            painter.drawText(x, y + self._ascent, SPACR_TOKEN)
+        # There is no second pass. The spaCR splice used to need one: the word
+        # lived in a single cell, was drawn horizontally, and had to clear a
+        # backing rectangle that ran across its neighbouring columns — so it
+        # had to come last, after every strip was down. Now it is five
+        # ordinary one-letter cells inside its own column's strip, so it is
+        # rendered by the loop above like any other glyph, cached like any
+        # other glyph, and cannot overdraw anything.
 
 
 def _effective_theme() -> str:
