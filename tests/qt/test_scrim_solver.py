@@ -251,17 +251,22 @@ class TestSolvedScrims:
 
     def test_a_scrim_that_cannot_do_both_is_reported_not_hidden(self):
         """Raise the bar past what any panel can transmit and the
-        failure must be a sentence naming both bounds, not silence."""
+        failure must be a sentence naming both bounds, not silence.
+
+        Measured on Cell rather than Space: Space was retired, and this test
+        needs any theme with a wallpaper behind its panels — which is what
+        makes the two bounds pull against each other in the first place.
+        """
         original = theme.MIN_PICTURE_CONTRAST
         try:
             theme.MIN_PICTURE_CONTRAST = 20.0
-            failures = theme.scrim_failures("space")
+            failures = theme.scrim_failures("cell")
             assert len(failures) == len(theme.SCRIM_ROLES)
             assert all("shows the picture at" in line for line in failures)
             assert all("legibility floor" in line for line in failures)
         finally:
             theme.MIN_PICTURE_CONTRAST = original
-        assert theme.scrim_failures("space") == []
+        assert theme.scrim_failures("cell") == []
 
 
 # ---------------------------------------------------------------------------
