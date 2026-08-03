@@ -206,15 +206,27 @@ def test_module_surfaces_honour_the_same_preference(requested):
 
 
 def test_an_image_theme_keeps_its_legibility_floor():
-    """Space is clamped, and that is correct rather than a bug.
+    """Cell is clamped, and that is correct rather than a bug.
 
     Its wallpaper can put something bright behind a card, so thinning the
     card past the floor would make its text unreadable. The flat themes have
     no such constraint, which is why they pass the request straight through.
+
+    Was written against ``"space"`` and a hard-coded ``> 0.5``. Space was
+    retired (``IMAGE_THEMES`` is ``("cell", "glass")`` now), so
+    ``pane_alpha_floor("space")`` fell to 0 and this went permanently red on a
+    number that only ever described the old generated sky. The property —
+    an image backdrop floors the surface, a flat one does not — is what is
+    asserted now, against the floor the theme itself reports, so retiring or
+    adding a wallpaper cannot make it stale again.
     """
-    floored = theme.panel_alpha("space", "surface", 0.0)
-    assert floored > 0.5
-    assert theme.panel_alpha("space", "surface", 1.0) == pytest.approx(1.0)
+    floor = theme.pane_alpha_floor("cell")
+    assert floor > 0, "a photographic backdrop must not be thinnable to zero"
+    assert theme.panel_alpha("cell", "surface", 0.0) == pytest.approx(floor)
+    assert theme.panel_alpha("cell", "surface", 1.0) == pytest.approx(1.0)
+    # A flat theme has nothing bright behind the card, so no floor at all.
+    assert theme.pane_alpha_floor("dark") == pytest.approx(0.0)
+    assert theme.panel_alpha("dark", "surface", 0.0) == pytest.approx(0.0)
 
 
 def test_no_widget_on_home_paints_an_opaque_slab(qtbot, qt_theme_applied):
