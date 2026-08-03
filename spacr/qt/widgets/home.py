@@ -1648,24 +1648,42 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0,
              glass: bool = False) -> str:
     """QSS for the Home tab widget.
 
-    :param pane_alpha: accepted for call compatibility and no longer
-        painted. The pane behind the tiles is always fully transparent.
+    :param pane_alpha: the user's ``pane_opacity`` preference, already clamped
+        up to the theme's legibility floor by
+        :func:`spacr.qt.preferences.effective_pane_alpha`, so it is safe to
+        paint as given.
 
-    The tiles carry their own fill and rim, so the pane never had to be a
-    surface to separate them — and a filled pane reads as a dark box the
-    tiles sit inside, which is not the intended layering. Only the 1px
-    outline remains: it is what the selected tab joins onto, and without
-    it the tab strip floats with nothing under it.
+    The pane IS painted, at that alpha. It was briefly hardcoded transparent
+    on the reasoning that the tiles carry their own fill and rim and no longer
+    need a pane to separate them. That reasoning is sound, and is exactly why
+    the alpha belongs to the user rather than to this function: the request
+    was that page opacity reach "the black containers that the module tiles
+    are in" as well as the tiles themselves, and a permanently transparent
+    pane is one the setting cannot reach — pinned at 0%, with the slider
+    dragged to solid leaving it invisible.
+
+    Painting at ``pane_alpha`` gives the old boxed look at 100%, the intended
+    layering at the 60% default, and a fully transparent pane to anyone who
+    wants one — all from the same control.
+
+    The 1px outline stays whatever the fill does: it is what the selected tab
+    joins onto, and without it the tab strip floats with nothing under it.
     """
     from ..theme import css_color
     pane_border = (css_color("#ffffff", 0.27)
                    if glass else P["border_soft"])
     radius = 14 if glass else 8
+    # `transparent` rather than `rgba(..., 0.000)` at zero. The two paint
+    # identically, but the keyword says what is meant, and it is what a reader
+    # comparing this rule against a theme that never fills the pane will look
+    # for.
+    pane_fill = ("transparent" if pane_alpha <= 0.0
+                 else css_color(P["surface"], pane_alpha))
     return f"""
 QTabWidget#HomeTabs::pane {{
     border: 1px solid {pane_border};
     border-radius: {radius}px;
-    background: transparent;
+    background: {pane_fill};
     top: -1px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{
