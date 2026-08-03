@@ -419,11 +419,19 @@ class TestPaneOpacity:
 
     def test_the_preference_round_trips(self, tmp_settings):
         from spacr.qt import preferences as prefs
-        assert prefs.get_pane_opacity() == 1.0
+        # The default is 60%, not 100%: the user asked for the page to
+        # show its background through the containers by default rather
+        # than only when someone goes looking for the slider.
+        assert prefs.get_pane_opacity() == 0.6
         prefs.set_pane_opacity(0.4)
         assert prefs.get_pane_opacity() == pytest.approx(0.4)
         prefs.set_pane_opacity("nonsense")
-        assert prefs.get_pane_opacity() == 1.0
+        # The default is 60%, not 100%: the user asked for the page to
+        # show its background through the containers by default rather
+        # than only when someone goes looking for the slider.
+        assert prefs.get_pane_opacity() == 0.6
+        # An out-of-range value clamps to the MAXIMUM, not back to the
+        # default: asking for more than solid is asking for solid.
         prefs.set_pane_opacity(3.0)
         assert prefs.get_pane_opacity() == 1.0
 
