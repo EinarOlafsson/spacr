@@ -22,8 +22,18 @@ Pure plumbing. Exists so Lists 1–4 never edit the same file.
 | 0.3 | `L1` `L2` Ports + artifact registry | `spacr/ports.py`, `spacr/artifacts.py`. Provenance per output; API published before implementation |
 | 0.4 | `S7` `S5` `S9` Run context | `spacr/runctx.py` — one run id per log line; a seed reaching numpy/torch/cellpose/sklearn; `on_error: stop\|skip\|retry` |
 | 0.5 | `measure.py` extension hooks | Preprocessing + region-filter hooks. **Frees `measure.py`** for List 3 (ROI→Measure) and List 4 (illumination) |
+| 0.6 | Wire the existing views to `LinkedView` | UMAP, db_browser, and plate_view (which has bespoke `_link` wiring predating the mixin). Added after 0.2 landed — the contract is only worth what consumes it *(0.2)* |
 
-Order: 0.1 ∥ 0.2 ∥ 0.3 ∥ 0.5, then 0.4 (it touches what the others touch).
+Order: 0.1 ∥ 0.2 ∥ 0.3 ∥ 0.5, then 0.6 after 0.2, then 0.4 last (it touches
+what the others touch).
+
+**0.2 landed** as `88cbabe7` — both modules at 100% statement *and* branch
+coverage, 90 tests green. The contract other lists code against:
+`open_objects(keys, *, reason, kind, source, timelapse, context)` on the
+caller side, `register_object_opener(kind, fn)` on the destination side, and
+a `LinkedView` mixin with built-in echo suppression. Opening deliberately
+does **not** move the shared selection — that would wipe the lasso the
+request came from.
 
 ---
 
