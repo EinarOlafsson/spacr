@@ -52,6 +52,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "setting_animations",
     "plot",
     "measure",
+    # Opt-in preprocessing / region-filter extension points for the measure
+    # path. Separate from `measure` so registering a hook does not import
+    # matplotlib, skimage and cv2.
+    "measure_hooks",
     "measurement_schema",
     "sequencing",
     "timelapse",
