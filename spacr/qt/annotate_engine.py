@@ -484,9 +484,14 @@ def fetch_filtered_paths(
         if "prcfo" not in png_df.columns and png_df.index.name == "prcfo":
             png_df = png_df.reset_index()
         if "prcfo" in df.columns and "prcfo" in png_df.columns:
+            # one_to_one: 'prcfo' is the object key, unique in the measurement
+            # join and in png_list alike. A repeated key on either side would
+            # silently multiply the annotation grid's rows and show the same
+            # cell several times under different crops.
             df = df.merge(
                 png_df[["prcfo", "png_path"]],
                 on="prcfo", how="left", suffixes=("", "_dup"),
+                validate="one_to_one",
             )
     if annotation_column not in df.columns:
         df[annotation_column] = None

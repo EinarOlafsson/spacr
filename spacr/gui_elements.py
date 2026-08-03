@@ -4538,11 +4538,20 @@ class AnnotateApp:
                 if 'prcfo' not in png_list_df.columns and png_list_df.index.name == 'prcfo':
                     png_list_df = png_list_df.reset_index()
 
+                # one_to_one: 'prcfo' IS the object key, so one measurement row
+                # and at most one crop carry it. A duplicated key on the right
+                # -- png_list holding crops of two crop_modes whose object
+                # labels collide, or a crop step that ran twice and appended a
+                # second set of rows -- would otherwise multiply every
+                # measurement row silently and hang the wrong PNG off most of
+                # them. Same contract io._read_and_join_tables puts on the
+                # cell/png_list join it is standing in for.
                 df = df.merge(
                     png_list_df[['prcfo', 'png_path']],
                     on='prcfo',
                     how='left',                 # keep all measurement rows
                     suffixes=('', '_dup'),      # never silently rename png_path
+                    validate='one_to_one',
                 )
 
             df[self.annotation_column] = None
