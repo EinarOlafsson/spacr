@@ -59,6 +59,15 @@ the sibling stacking order, and paints its glyphs at
 :data:`DEFAULT_OPACITY` over the theme background so anything in front
 of it stays readable.
 
+Settings
+--------
+Colour (fixed, or a random hue per column), speed, visibility and font
+size, all live. They are **not** on the screen: they live in a popover
+behind a ``DNA`` button beside the ``AI`` toggle — see
+:mod:`spacr.qt.widgets.dna_rain_settings`. :class:`DnaRainSettingsBar`
+is the panel itself, which lays out either as that popover's grid or as
+the original single row.
+
 Cost
 ----
 This runs behind the sequencing pipeline, so it has to be close to
@@ -84,8 +93,11 @@ than assumed (1920x1080, 120 columns, 67 rows):
    integer row changes — slow columns cost nothing on most ticks. See
    :data:`MAX_DIRTY_RECTS` for where partial repaints stop paying.
 
-Together: a median frame of 0.6 ms and 4.4 % of one core at 1920x1080
-and 24 fps, and 0.00 % while off screen.
+Together: 0.53 ms a frame, 3.2 % of one core at 1920x1080 and 60 fps,
+and 0.00 % while off screen. Random colour does not move that number —
+the hues are baked into the same cached strips, and a pen set is built
+once per whole degree of hue (:func:`_hue_bucket`) rather than per
+column, per frame.
 """
 from __future__ import annotations
 
@@ -98,8 +110,9 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QRect, Qt, QTimer,
                             Signal)
 from PySide6.QtGui import (QColor, QFont, QFontDatabase, QFontMetricsF,
                            QImage, QPainter, QPen, QPixmap)
-from PySide6.QtWidgets import (QColorDialog, QHBoxLayout, QLabel, QPushButton,
-                               QSizePolicy, QSlider, QWidget)
+from PySide6.QtWidgets import (QCheckBox, QColorDialog, QGridLayout,
+                               QHBoxLayout, QLabel, QPushButton, QSizePolicy,
+                               QSlider, QWidget)
 
 from ..theme import RADIUS, SPACING, palette_for
 
@@ -112,7 +125,21 @@ BASES = ("A", "T", "G", "C")
 
 #: The shipped glyph colour. Teal reads as DNA-ish without competing with
 #: spaCR's own accent, and stays legible on both flat themes.
+#:
+#: This is the *default*, not a theme lookup. The rain used to take the
+#: theme's ``accent``, which is the same blue as the Run button and the AI
+#: toggle — so the backdrop read as chrome. :meth:`DnaRainWidget.apply_theme`
+#: still exists for anyone who explicitly wants the palette's colour.
 DEFAULT_COLOR = "#009B9B"
+
+#: With random colour on, every column gets its own hue. Saturation and
+#: lightness are borrowed from the picked colour so the field stays one
+#: family, but they are floored/clamped: a near-grey pick would otherwise
+#: make "random" produce twelve indistinguishable greys, and a near-white
+#: one would wash every hue out.
+RANDOM_MIN_SATURATION = 0.55
+RANDOM_MIN_LIGHTNESS = 0.30
+RANDOM_MAX_LIGHTNESS = 0.72
 
 #: The one non-base token. Exact casing is load-bearing.
 SPACR_TOKEN = "spaCR"
@@ -264,6 +291,27 @@ def derive_head_color(base: QColor, background: QColor) -> QColor:
     return QColor.fromHslF(hue, sat, target)
 
 
+def random_hue_color(base: QColor, hue: float) -> QColor:
+    """Return ``base`` moved to ``hue``, keeping the family it belongs to.
+
+    Random colour is *per column*, and a column is one falling string
+    among a hundred. Rolling all three HSL components would have given
+    the field a scatter of near-blacks, near-whites and greys — most of
+    which do not read as glyphs at 20 % opacity behind a settings form.
+    Only the hue is random; saturation and lightness are taken from the
+    colour in the picker, floored and clamped so the result is always a
+    colour and always visible.
+
+    :param base: the picked colour, which lends its saturation/lightness.
+    :param hue: hue in ``0..1``.
+    :returns: a fully saturated-enough, mid-lightness colour at ``hue``.
+    """
+    sat = max(RANDOM_MIN_SATURATION, base.saturationF())
+    light = min(RANDOM_MAX_LIGHTNESS,
+                max(RANDOM_MIN_LIGHTNESS, base.lightnessF()))
+    return QColor.fromHslF(max(0.0, min(0.9999, float(hue))), sat, light)
+
+
 def blend(a: QColor, b: QColor, t: float) -> QColor:
     """Linear RGB blend, ``t=0`` -> ``a``, ``t=1`` -> ``b``."""
     t = max(0.0, min(1.0, float(t)))
@@ -347,6 +395,11 @@ class Column:
     :ivar word_index: cell index of the multi-character token, or -1.
     :ivar generation: bumped on every respawn; the widget's pre-rendered
         strip cache keys off it.
+    :ivar hue: this string's own hue in ``0..1``, re-rolled on every
+        respawn. Only read when the widget is in random-colour mode; it
+        is rolled unconditionally, and from a stream of its own, so that
+        turning random colour on or off cannot change *where* anything
+        falls (see :class:`DnaRainEngine`).
     """
 
     tokens: List[str]
@@ -359,6 +412,7 @@ class Column:
     hi_end: int
     word_index: int
     generation: int = 0
+    hue: float = 0.0
 
     @property
     def has_word(self) -> bool:
@@ -372,6 +426,12 @@ class DnaRainEngine:
     Deterministic: the same ``seed`` and the same sequence of calls
     always produce the same animation.
 
+    Per-column hues come from a **second** RNG rather than the main one.
+    Drawing them from the main stream would have shifted every length,
+    speed and start row by one draw, so a seeded rain would have fallen
+    differently depending on a purely cosmetic setting. Two streams keep
+    ``snapshot()`` byte-identical whether random colour is on or off.
+
     :param width: canvas width in pixels.
     :param height: canvas height in pixels.
     :param font_size: glyph size in pixels; also the cell/column stride.
@@ -384,6 +444,10 @@ class DnaRainEngine:
                  seed: Optional[int] = None,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY):
         self._rng = random.Random(seed)
+        # Its own stream, offset from the seed so it is neither the same
+        # sequence nor correlated with it, and still reproducible.
+        self._hue_rng = random.Random(
+            None if seed is None else (int(seed) ^ 0x9E3779B9))
         self.seed = seed
         self.spacr_probability = float(spacr_probability)
         self.speed_multiplier = 1.0
@@ -507,12 +571,14 @@ class DnaRainEngine:
         run = min(HIGHLIGHT_RUN_CELLS, length)
         hi_start = rng.randrange(0, length - run + 1)
         hi_end = hi_start + run
+        hue = self._hue_rng.random()
         if column is None:
             return Column(tokens=tokens, length=length, speed=speed,
                           head=head, row=int(math.floor(head)),
                           y_px=0,
                           hi_start=hi_start, hi_end=hi_end,
-                          word_index=word_index)
+                          word_index=word_index, hue=hue)
+        column.hue = hue
         column.tokens = tokens
         column.length = length
         column.speed = speed
@@ -610,6 +676,15 @@ def _clamp_int(value, low: int, high: int) -> int:
     return max(low, min(high, int(value)))
 
 
+def _hue_bucket(hue: float) -> int:
+    """``hue`` in ``0..1`` as a whole degree — the pen cache's key.
+
+    360 buckets is finer than anyone can see at 20 % alpha and bounds
+    the cache at 360 entries however long the rain runs.
+    """
+    return int(float(hue) * 360) % 360
+
+
 # ---------------------------------------------------------------------------
 # Widget
 # ---------------------------------------------------------------------------
@@ -622,9 +697,11 @@ class DnaRainWidget(QWidget):
     :param seed: RNG seed for a reproducible animation.
     :param font_size: glyph size in px (also the column stride).
     :param fps: frame-rate cap.
-    :param color: trail colour; defaults to the theme accent.
+    :param color: trail colour; defaults to :data:`DEFAULT_COLOR`.
     :param background: colour painted under the glyphs; defaults to the
         theme background.
+    :param random_colors: when true every column takes its own hue
+        instead of all of them sharing ``color``.
     :param backdrop: image painted under the glyphs instead of the flat
         colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it
         the image theme's wallpaper and the rain stops hiding it.
@@ -642,14 +719,18 @@ class DnaRainWidget(QWidget):
                  background: Union[QColor, str, None] = None,
                  backdrop=None,
                  opacity: float = DEFAULT_OPACITY,
+                 random_colors: bool = False,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY,
                  theme: Optional[str] = None):
         super().__init__(parent)
         palette = palette_for(theme or _effective_theme())
         self._bg = _as_color(background, QColor(palette["bg"]))
         self._bg.setAlpha(255)
-        self._color = _as_color(color, QColor(palette["accent"]))
+        # The shipped teal, NOT the theme accent: the accent is the Run
+        # button and the AI toggle, and a backdrop in it read as chrome.
+        self._color = _as_color(color, QColor(DEFAULT_COLOR))
         self._opacity = max(0.0, min(1.0, float(opacity)))
+        self._random_colors = bool(random_colors)
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
         # Never in front of, never in the way of, the real content.
@@ -668,6 +749,13 @@ class DnaRainWidget(QWidget):
         self._trail_pens: List[QPen] = []
         self._head_pen = QPen()
         self._hi_pen = QPen()
+        # Per-hue pen sets for random-colour mode, quantised to whole
+        # degrees. Strips are already cached per column, so this is only
+        # ever hit on a respawn or a restyle — but a restyle re-renders
+        # every column at once, and 120 pen sets built one after another
+        # is the sort of thing that shows up in a frame budget of half a
+        # millisecond.
+        self._hue_pens: dict = {}
         # Pre-rendered opaque strip per column, keyed by
         # (column generation, styling generation).
         self._strips: List[Optional[QPixmap]] = []
@@ -707,8 +795,49 @@ class DnaRainWidget(QWidget):
     def opacity(self) -> float:
         return self._opacity
 
+    def random_colors(self) -> bool:
+        """True while every column paints in its own hue."""
+        return self._random_colors
+
+    def set_random_colors(self, on: bool) -> None:
+        """Give every column its own hue (or put them all back on one).
+
+        Per column, not per session, and re-rolled on every respawn —
+        see :meth:`column_color`. The colours are baked into the
+        pre-rendered strips, so flipping this drops the strip cache; it
+        costs one full re-render, the same as moving the colour picker.
+        """
+        on = bool(on)
+        if on == self._random_colors:
+            return
+        self._random_colors = on
+        self._invalidate_strips()
+        self.update()
+
+    def column_color(self, index: int) -> QColor:
+        """The trail colour column ``index`` is actually painted in.
+
+        The picked colour for every column in fixed mode; that column's
+        own hue in random mode. This is what the settings popover's
+        swatch cannot show and what a test has to look at.
+        """
+        return self._column_color(self._engine.columns[index])
+
+    def _column_color(self, column: Column) -> QColor:
+        if not self._random_colors:
+            return QColor(self._color)
+        # Quantised exactly as the pen cache quantises it, so this
+        # reports the colour that is on screen rather than one a
+        # fraction of a degree away from it.
+        return random_hue_color(self._color, _hue_bucket(column.hue) / 360.0)
+
     def set_color(self, color: Union[QColor, str]) -> None:
-        """Set the trail colour; the head colour re-derives from it."""
+        """Set the trail colour; the head colour re-derives from it.
+
+        In random-colour mode this is still live: the picked colour
+        lends its saturation and lightness to every column's hue, so it
+        chooses how vivid and how bright the random field is.
+        """
         self._color = _as_color(color, self._color)
         self._rebuild_pens()
         self.update()
@@ -807,7 +936,13 @@ class DnaRainWidget(QWidget):
         self.update()
 
     def apply_theme(self, theme: str) -> None:
-        """Re-take the colour defaults from ``theme``'s palette."""
+        """Re-take the colours from ``theme``'s palette.
+
+        Opt-in, and it overrides the shipped teal with the theme accent
+        — which is the Run button's blue. Nothing in the app calls it;
+        the screen pushes only ``set_background_color`` on a theme
+        switch, precisely so a colour choice survives one.
+        """
         palette = palette_for(theme)
         self.set_background_color(palette["bg"])
         self.set_color(palette["accent"])
@@ -1005,27 +1140,47 @@ class DnaRainWidget(QWidget):
         self._ascent = int(math.ceil(metrics.ascent()))
         self._invalidate_strips()
 
-    def _rebuild_pens(self) -> None:
-        """Precompute every pen a strip render can need.
+    def _pens_for(self, base: QColor) -> Tuple[List[QPen], QPen, QPen]:
+        """Every pen a strip render can need, for one trail colour.
 
         Building QColors per glyph is the fastest way to make this
         expensive, so the trail alpha ramp is a small LUT.
+
+        :returns: ``(trail LUT, head pen, highlight pen)``.
         """
-        self._trail_pens = []
+        trail = []
         for step in range(TRAIL_STEPS):
             frac = step / max(1, TRAIL_STEPS - 1)
             alpha = self._opacity * (MIN_TAIL_ALPHA
                                      + (1.0 - MIN_TAIL_ALPHA) * frac)
-            color = QColor(self._color)
+            color = QColor(base)
             color.setAlphaF(max(0.0, min(1.0, alpha)))
-            self._trail_pens.append(QPen(color))
-        head = self.head_color()
+            trail.append(QPen(color))
+        head_color = derive_head_color(base, self._bg)
+        head = QColor(head_color)
         head.setAlphaF(min(1.0, self._opacity * HEAD_ALPHA_BOOST))
-        self._head_pen = QPen(head)
-        highlight = blend(self._color, self.head_color(), 0.5)
+        highlight = blend(base, head_color, 0.5)
         highlight.setAlphaF(min(1.0, self._opacity * 2.0))
-        self._hi_pen = QPen(highlight)
+        return trail, QPen(head), QPen(highlight)
+
+    def _rebuild_pens(self) -> None:
+        """Recompute the shared pens after a colour/opacity change."""
+        (self._trail_pens, self._head_pen,
+         self._hi_pen) = self._pens_for(self._color)
+        self._hue_pens = {}
         self._invalidate_strips()
+
+    def _pens_for_column(self, column: Column) -> Tuple[List[QPen],
+                                                        QPen, QPen]:
+        """The pens for one column — shared, or its own random hue."""
+        if not self._random_colors:
+            return self._trail_pens, self._head_pen, self._hi_pen
+        key = _hue_bucket(column.hue)
+        pens = self._hue_pens.get(key)
+        if pens is None:
+            pens = self._pens_for(random_hue_color(self._color, key / 360.0))
+            self._hue_pens[key] = pens
+        return pens
 
     def _invalidate_strips(self) -> None:
         """Drop the pre-rendered strips; they re-render on next paint."""
@@ -1055,19 +1210,20 @@ class DnaRainWidget(QWidget):
         fade_cells = max(1, int(column.length * TAIL_FADE_FRACTION))
         top_step = TRAIL_STEPS - 1
         head_index = column.length - 1
+        trail_pens, head_pen, hi_pen = self._pens_for_column(column)
         for i, token in enumerate(column.tokens):
             if len(token) > 1:
                 # The word is wider than a cell, so it is drawn live at
                 # full canvas width instead of baked into this strip.
                 continue
             if i == head_index:
-                painter.setPen(self._head_pen)
+                painter.setPen(head_pen)
             elif column.hi_start <= i < column.hi_end:
-                painter.setPen(self._hi_pen)
+                painter.setPen(hi_pen)
             else:
                 painter.setPen(
-                    self._trail_pens[min(top_step,
-                                         int(i / fade_cells * top_step))])
+                    trail_pens[min(top_step,
+                                   int(i / fade_cells * top_step))])
             painter.drawText(0, i * cell + self._ascent, token)
         painter.end()
         return strip
@@ -1144,26 +1300,35 @@ def _effective_theme() -> str:
 # ---------------------------------------------------------------------------
 
 class DnaRainSettingsBar(QWidget):
-    """Colour / speed / font-size controls for a :class:`DnaRainWidget`.
+    """Colour / speed / visibility / font-size controls for a rain widget.
 
-    Everything applies live — :meth:`bind` wires the three signals
-    straight at the rain widget's setters, no restart involved.
+    Everything applies live — :meth:`bind` wires the signals straight at
+    the rain widget's setters, no restart involved.
+
+    Two layouts, one set of controls. ``vertical=True`` puts them in a
+    label/control/readout grid, which is the shape a popover wants; the
+    default row is the original bar. The controls, the state and the
+    signals are identical either way — only the geometry differs.
+
+    :param vertical: lay the controls out as a grid instead of a row.
     """
 
     color_changed = Signal(QColor)
     speed_changed = Signal(float)
     font_size_changed = Signal(int)
     opacity_changed = Signal(float)
+    random_color_changed = Signal(bool)
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  color: Union[QColor, str, None] = None,
                  speed: float = 1.0,
                  font_size: int = DEFAULT_FONT_PX,
                  opacity: float = DEFAULT_OPACITY,
+                 random_color: bool = False,
+                 vertical: bool = False,
                  theme: Optional[str] = None):
         super().__init__(parent)
-        palette = palette_for(theme or _effective_theme())
-        self._color = _as_color(color, QColor(palette["accent"]))
+        self._color = _as_color(color, QColor(DEFAULT_COLOR))
         self._rain: Optional[DnaRainWidget] = None
 
         # The rain is painted behind this bar, and the global
@@ -1172,27 +1337,24 @@ class DnaRainSettingsBar(QWidget):
         # its own or its labels land on falling glyphs.
         self.setObjectName("DnaRainBar")
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setStyleSheet(
-            f"QWidget#DnaRainBar {{ background: {palette['surface']};"
-            f" border: 1px solid {palette['border_soft']};"
-            f" border-radius: {RADIUS['sm']}px; }}")
+        self.restyle_for_theme(theme)
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(SPACING["md"], SPACING["sm"],
-                                  SPACING["md"], SPACING["sm"])
-        layout.setSpacing(SPACING["md"])
-
-        layout.addWidget(_muted_label("DNA rain"))
-        layout.addWidget(_muted_label("Colour"))
         self._swatch = QPushButton()
         self._swatch.setObjectName("DnaRainSwatch")
         self._swatch.setFixedSize(44, 20)
         self._swatch.setToolTip("Pick the DNA rain colour")
         self._swatch.clicked.connect(self.pick_color)
         self._paint_swatch()
-        layout.addWidget(self._swatch)
 
-        layout.addWidget(_muted_label("Speed"))
+        self._random = QCheckBox("Random")
+        self._random.setToolTip(
+            "Give every falling string its own colour. The picked colour "
+            "still sets how vivid and how bright they are; only the hue is "
+            "random, and each string takes a new one every time it restarts "
+            "at the top.")
+        self._random.setChecked(bool(random_color))
+        self._random.toggled.connect(self._on_random)
+
         self._speed = QSlider(Qt.Horizontal)
         self._speed.setToolTip("Scales every column; they keep their "
                                "individual rates")
@@ -1203,11 +1365,8 @@ class DnaRainSettingsBar(QWidget):
                                          float(speed))) * 100))
         self._speed.setFixedWidth(120)
         self._speed.valueChanged.connect(self._on_speed)
-        layout.addWidget(self._speed)
         self._speed_value = _muted_label("")
-        layout.addWidget(self._speed_value)
 
-        layout.addWidget(_muted_label("Visibility"))
         self._opacity = QSlider(Qt.Horizontal)
         self._opacity.setToolTip(
             "How strongly the rain shows through behind the screen content. "
@@ -1218,23 +1377,89 @@ class DnaRainSettingsBar(QWidget):
                                           MIN_OPACITY_PCT, MAX_OPACITY_PCT))
         self._opacity.setFixedWidth(120)
         self._opacity.valueChanged.connect(self._on_opacity)
-        layout.addWidget(self._opacity)
         self._opacity_value = _muted_label("")
-        layout.addWidget(self._opacity_value)
 
-        layout.addWidget(_muted_label("Font"))
         self._font = QSlider(Qt.Horizontal)
         self._font.setToolTip("Glyph size, which is also the column stride")
         self._font.setRange(MIN_FONT_PX, MAX_FONT_PX)
         self._font.setValue(_clamp_int(font_size, MIN_FONT_PX, MAX_FONT_PX))
         self._font.setFixedWidth(120)
         self._font.valueChanged.connect(self._on_font)
-        layout.addWidget(self._font)
         self._font_value = _muted_label("")
+
+        if vertical:
+            self._build_grid()
+        else:
+            self._build_row()
+        self._refresh_readouts()
+
+    def restyle_for_theme(self, theme: Optional[str] = None) -> None:
+        """Re-take this panel's own surface colour from a theme's palette.
+
+        The bar states its own background, so unlike the rest of the
+        screen it is NOT re-styled by re-applying the application
+        stylesheet — it would keep the dark theme's surface behind
+        freshly light text. The popover calls this every time it opens,
+        which is the only moment the panel is on screen.
+
+        Only the chrome. The user's chosen colour is never touched.
+
+        :param theme: palette to take; defaults to the effective theme.
+        """
+        palette = palette_for(theme or _effective_theme())
+        self.setStyleSheet(
+            f"QWidget#DnaRainBar {{ background: {palette['surface']};"
+            f" border: 1px solid {palette['border_soft']};"
+            f" border-radius: {RADIUS['sm']}px; }}")
+
+    def _build_row(self) -> None:
+        """The original one-line bar."""
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(SPACING["md"], SPACING["sm"],
+                                  SPACING["md"], SPACING["sm"])
+        layout.setSpacing(SPACING["md"])
+        layout.addWidget(_muted_label("DNA rain"))
+        layout.addWidget(_muted_label("Colour"))
+        layout.addWidget(self._swatch)
+        layout.addWidget(self._random)
+        layout.addWidget(_muted_label("Speed"))
+        layout.addWidget(self._speed)
+        layout.addWidget(self._speed_value)
+        layout.addWidget(_muted_label("Visibility"))
+        layout.addWidget(self._opacity)
+        layout.addWidget(self._opacity_value)
+        layout.addWidget(_muted_label("Font"))
+        layout.addWidget(self._font)
         layout.addWidget(self._font_value)
         layout.addStretch(1)
 
-        self._refresh_readouts()
+    def _build_grid(self) -> None:
+        """Label / control / readout, one setting per line."""
+        grid = QGridLayout(self)
+        grid.setContentsMargins(SPACING["md"], SPACING["md"],
+                                SPACING["md"], SPACING["md"])
+        grid.setHorizontalSpacing(SPACING["md"])
+        grid.setVerticalSpacing(SPACING["sm"])
+
+        title = _muted_label("DNA rain")
+        grid.addWidget(title, 0, 0, 1, 3)
+
+        grid.addWidget(_muted_label("Colour"), 1, 0)
+        colour_row = QHBoxLayout()
+        colour_row.setContentsMargins(0, 0, 0, 0)
+        colour_row.setSpacing(SPACING["sm"])
+        colour_row.addWidget(self._swatch)
+        colour_row.addStretch(1)
+        grid.addLayout(colour_row, 1, 1)
+        grid.addWidget(self._random, 1, 2)
+
+        for row, (name, control, readout) in enumerate((
+                ("Speed", self._speed, self._speed_value),
+                ("Visibility", self._opacity, self._opacity_value),
+                ("Font size", self._font, self._font_value)), start=2):
+            grid.addWidget(_muted_label(name), row, 0)
+            grid.addWidget(control, row, 1)
+            grid.addWidget(readout, row, 2)
 
     # -- state ---------------------------------------------------------
     def color(self) -> QColor:
@@ -1248,6 +1473,10 @@ class DnaRainSettingsBar(QWidget):
 
     def opacity(self) -> float:
         return self._opacity.value() / 100.0
+
+    def random_color(self) -> bool:
+        """True when the rain is set to colour each column separately."""
+        return self._random.isChecked()
 
     def _paint_swatch(self) -> None:
         self._swatch.setStyleSheet(
@@ -1279,6 +1508,13 @@ class DnaRainSettingsBar(QWidget):
 
     def set_font_size(self, px: int) -> None:
         self._font.setValue(_clamp_int(px, MIN_FONT_PX, MAX_FONT_PX))
+
+    def set_random_color(self, on: bool) -> None:
+        """Turn per-column colour on or off; emits only on a real change."""
+        self._random.setChecked(bool(on))
+
+    def _on_random(self, on: bool) -> None:
+        self.random_color_changed.emit(bool(on))
 
     def _on_speed(self, _value: int) -> None:
         self._refresh_readouts()
@@ -1314,11 +1550,15 @@ class DnaRainSettingsBar(QWidget):
             _clamp_int(round(rain.opacity() * 100), MIN_OPACITY_PCT,
                        MAX_OPACITY_PCT))
         self._opacity.blockSignals(False)
+        self._random.blockSignals(True)
+        self._random.setChecked(rain.random_colors())
+        self._random.blockSignals(False)
         self._refresh_readouts()
         self.color_changed.connect(rain.set_color)
         self.speed_changed.connect(rain.set_speed)
         self.font_size_changed.connect(rain.set_font_size)
         self.opacity_changed.connect(rain.set_opacity)
+        self.random_color_changed.connect(rain.set_random_colors)
 
 
 def _muted_label(text: str) -> QLabel:
@@ -1331,28 +1571,103 @@ def _muted_label(text: str) -> QLabel:
 # Integration
 # ---------------------------------------------------------------------------
 
-def install_dna_rain(host: QWidget, layout=None, **kwargs) -> DnaRainWidget:
-    """Put a live DNA rain behind ``host`` and its controls at the bottom.
+def install_dna_rain(host: QWidget, layout=None, *,
+                     anchor: Optional[QWidget] = None,
+                     **kwargs) -> DnaRainWidget:
+    """Put a live DNA rain behind ``host``, and a DNA button in the chrome.
 
     The rain becomes a child of ``host``, tracks its geometry, and is
     lowered to the bottom of the sibling stacking order so every screen
     widget paints in front of it. It takes no focus and no mouse events.
 
+    The controls are **not** placed on the screen. They live in a
+    popover behind a ``DNA`` toggle built from the same class as the
+    ``AI`` toggle beside it; a decorative backdrop does not get to keep
+    a permanent strip of a screen whose job is a settings form.
+
+    Where the button lands, in order: beside ``anchor`` if one is
+    given; else beside the host's own ``AI`` toggle, which is the row
+    this control belongs in and the reason no caller has to say so;
+    else appended to ``layout``; else nowhere, and the caller places
+    ``rain.settings_button`` itself.
+
     :param host: the screen the rain sits behind.
-    :param layout: optional layout to append the settings bar to; when
-        ``None`` the bar is created but not placed, and is reachable as
-        ``rain.settings_bar``.
+    :param layout: optional layout to append the DNA button to. Used
+        only when there is no anchor to sit beside.
+    :param anchor: widget to sit beside — the button is inserted into
+        ``anchor``'s layout immediately before it. Defaults to the AI
+        toggle found under ``host``.
     :param kwargs: forwarded to :class:`DnaRainWidget`. Pass
         ``backdrop=<wallpaper path>`` on an image theme so the rain
         shows the picture through itself rather than replacing it.
-    :returns: the rain widget, with ``.settings_bar`` attached.
+    :returns: the rain widget, with ``.settings_bar``,
+        ``.settings_button`` and ``.settings_popover`` attached.
     """
     rain = DnaRainWidget(host, **kwargs)
     rain.follow_parent()
     rain.show()
-    bar = DnaRainSettingsBar(host, theme=kwargs.get("theme"))
+    # No parent: the popover adopts it. Parenting it to `host` first
+    # would flash a settings bar across the screen for one event loop.
+    bar = DnaRainSettingsBar(None, theme=kwargs.get("theme"), vertical=True)
     bar.bind(rain)
-    if layout is not None:
-        layout.addWidget(bar)
+    # Imported here rather than at module scope: the popover module
+    # imports this one for the bar, so a top-level import either way
+    # round is a cycle.
+    from .dna_rain_settings import DnaSettingsButton
+    button = DnaSettingsButton(bar, parent=host)
+    if not _place_beside(button, anchor or _find_ai_toggle(host)):
+        if layout is not None:
+            layout.addWidget(button)
     rain.settings_bar = bar
+    rain.settings_button = button
+    rain.settings_popover = button.popover
     return rain
+
+
+def _find_ai_toggle(host: QWidget) -> Optional[QWidget]:
+    """The host's ``AI`` toggle, or ``None`` if it has not got one.
+
+    Matched on the untranslated source text every ``AiToggleLabel``
+    keeps in ``_spacr_i18n_text``, not on what is on screen: the label
+    is translated, and matching the visible text would have put the
+    button in the right place in English and nowhere in Swedish. The
+    class is shared with the ``Live`` and hyperparameter switches, so
+    the text is what distinguishes them.
+
+    Never raises: a host with no such toggle simply gets the fallback
+    placement.
+    """
+    try:
+        from .ai_toggle_label import AiToggleLabel
+        for label in host.findChildren(AiToggleLabel):
+            if label.property("_spacr_i18n_text") == "AI":
+                return label
+    except Exception:
+        pass
+    return None
+
+
+def _place_beside(button: QWidget, anchor: Optional[QWidget]) -> bool:
+    """Insert ``button`` immediately before ``anchor`` in its own layout.
+
+    Before, not after: the AI toggle is followed by its provider
+    chevron, and splitting that pair would read as the chevron belonging
+    to DNA.
+
+    :returns: True when the button was placed.
+    """
+    if anchor is None:
+        return False
+    parent = anchor.parentWidget()
+    layout = parent.layout() if parent is not None else None
+    if layout is None:
+        return False
+    index = layout.indexOf(anchor)
+    if index < 0:
+        return False
+    try:
+        layout.insertWidget(index, button)
+    except AttributeError:
+        # Not a box layout — better beside nothing than not at all.
+        layout.addWidget(button)
+    return True
