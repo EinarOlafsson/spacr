@@ -1080,8 +1080,13 @@ class AnnotateScreen(QWidget):
             f"background: {PALETTE['surface_alt']};")
         self._grid_holder = QWidget()
         self._grid_holder.setObjectName("AnnotateGrid")
+        # The space BETWEEN the images. Same raw-hex problem as the legend:
+        # this is the surface the thumbnails sit on, so it takes the page
+        # opacity — the images themselves are pixmaps and are untouched by it.
+        from ..theme import pane_surface
         self._grid_holder.setStyleSheet(
-            f"QWidget#AnnotateGrid {{ background: {PALETTE['surface_alt']}; }}")
+            f"QWidget#AnnotateGrid {{ background: "
+            f"{pane_surface('surface_alt')}; }}")
         self._grid_layout = QGridLayout(self._grid_holder)
         self._grid_layout.setSpacing(SPACING["sm"])
         self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
@@ -1261,8 +1266,12 @@ class AnnotateScreen(QWidget):
         legend = QWidget()
         legend.setObjectName("AnnotateKeyLegend")
         legend.setFocusPolicy(Qt.NoFocus)
+        # `pane_surface`, not `PALETTE['surface']`. `tile_palette()` returns
+        # raw hex, so the 1-9 key legend stayed fully opaque whatever the page
+        # opacity said — the one strip on the annotate screen that ignored it.
+        from ..theme import pane_surface
         legend.setStyleSheet(
-            f"QWidget#AnnotateKeyLegend {{ background: {PALETTE['surface']};"
+            f"QWidget#AnnotateKeyLegend {{ background: {pane_surface('surface')};"
             f" border: 1px solid {PALETTE['border_soft']};"
             f" border-radius: 6px; }}"
         )
