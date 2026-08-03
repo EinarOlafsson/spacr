@@ -97,12 +97,21 @@ def test_glass_styles_every_module_box_with_rgba_material():
     assert "qlineargradient" in qss
     for selector in (
         "QFrame#Card {",
-        "QFrame#ConsoleBox {",
         "QFrame#SectionCard {",
         "QLineEdit, QSpinBox",
     ):
         rule = _rule(qss, selector)
         assert "rgba(" in rule, f"{selector} remained opaque"
+
+    # ConsoleBox is deliberately NOT in that list any more. It is the frame
+    # AROUND the console and the chat box, and both of those carry the page
+    # opacity themselves — so a filled wrapper only stacked a second slab of
+    # the same colour behind them. That was the "black box behind them" which
+    # survived every opacity change, because it was a different widget from
+    # the one being dialled. Only its rim remains.
+    console = _rule(qss, "QFrame#ConsoleBox {")
+    assert "background-color: transparent" in console
+    assert "border" in console, "the grouping rim should stay"
 
 
 def test_glass_adds_neutral_light_field_specular_rims_and_rounding():
@@ -120,37 +129,28 @@ def test_glass_adds_neutral_light_field_specular_rims_and_rounding():
     assert "border-radius: 14px" in material
 
 
-def test_glass_home_pane_follows_the_opacity_preference():
-    """The pane the tiles sit in is painted at the requested alpha.
+def test_glass_home_pane_paints_no_box_behind_the_tiles():
+    """The container behind the tiles is gone, not dialled.
 
-    It briefly never painted at all, on the reasoning that the tiles carry
-    their own fill and rim so a filled pane only reads as a dark box drawn
-    around them. That reasoning is sound — and is why the alpha belongs to the
-    user rather than to the stylesheet. The request was that page opacity
-    reach "the black containers that the module tiles are in" as well as the
-    tiles, and a permanently transparent pane is one the setting cannot reach:
-    pinned at 0%, with the slider dragged to solid leaving it invisible.
+    This settled after three passes: a surface at the effective alpha, then
+    transparent, then briefly painted at the preference again on the reading
+    that opacity should "apply to the containers the tiles are in". The final
+    instruction is the clearest — remove the black boxes behind the tiles and
+    make the TILES subject to opacity instead — so the container paints
+    nothing and the dialling lives on the tile fill, where it can be seen.
 
-    So zero still gives a fully transparent pane — the look that change was
-    after — it is just no longer the only thing the control can produce.
-
-    The outline stays whatever the fill does: the selected tab joins onto it.
+    The rim stays: it is what the selected tab joins onto, and without it the
+    tab strip floats with nothing under it.
     """
     from spacr.qt import theme
     from spacr.qt.widgets.home import _tab_qss
 
     palette = theme.palette_for("glass")
-    transparent = _rule(_tab_qss(palette, 0.0, glass=True),
-                        "QTabWidget#HomeTabs::pane {")
-    assert "background: transparent" in transparent
-
-    solid = _rule(_tab_qss(palette, 1.0, glass=True),
-                  "QTabWidget#HomeTabs::pane {")
-    assert palette["surface"] in solid, "a solid request must paint a fill"
-
     for alpha in (0.0, theme.pane_alpha("glass", 1.0), 1.0):
         pane = _rule(_tab_qss(palette, alpha, glass=True),
                      "QTabWidget#HomeTabs::pane {")
+        assert "background: transparent" in pane, \
+            "the pane painted a fill at alpha %r" % (alpha,)
         assert "qlineargradient" not in pane
         assert "rgba(255, 255, 255, 0.270)" in pane
         assert "border-radius: 14px" in pane

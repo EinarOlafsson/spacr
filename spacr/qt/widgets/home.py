@@ -375,15 +375,15 @@ class Panel(QWidget):
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
-        # `pane_surface`, not `P['surface_alt']`. `P` comes from
-        # `active_palette()`, which returns RAW HEX — so this box, and every
-        # other panel down the right-hand aside, stayed fully opaque whatever
-        # the page-opacity preference said. Reading the preference here is
-        # what makes the setting reach the aside at all.
-        from ..theme import pane_surface
+        # No fill. The panels down the right-hand aside used to paint an
+        # opaque `surface_alt` (from `active_palette()`, which returns raw hex,
+        # so the opacity preference never reached them at all), then briefly
+        # painted it at the preference. The instruction settled on removing the
+        # black box outright, so only the outline remains — enough to read as a
+        # panel, nothing to sit as a slab over the animated background.
         box.setStyleSheet(
             "QFrame#HomePanelBox {"
-            f"background: {pane_surface('surface_alt')};"
+            "background: transparent;"
             f"border: 1px solid {P['border_soft']};"
             "border-radius: 8px; }")
         self.body_layout = QVBoxLayout(box)
@@ -1648,42 +1648,29 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0,
              glass: bool = False) -> str:
     """QSS for the Home tab widget.
 
-    :param pane_alpha: the user's ``pane_opacity`` preference, already clamped
-        up to the theme's legibility floor by
-        :func:`spacr.qt.preferences.effective_pane_alpha`, so it is safe to
-        paint as given.
+    :param pane_alpha: accepted so the call sites and their tests keep one
+        signature; the pane itself paints nothing.
 
-    The pane IS painted, at that alpha. It was briefly hardcoded transparent
-    on the reasoning that the tiles carry their own fill and rim and no longer
-    need a pane to separate them. That reasoning is sound, and is exactly why
-    the alpha belongs to the user rather than to this function: the request
-    was that page opacity reach "the black containers that the module tiles
-    are in" as well as the tiles themselves, and a permanently transparent
-    pane is one the setting cannot reach — pinned at 0%, with the slider
-    dragged to solid leaving it invisible.
+    The box behind the tiles is GONE, not dialled. This went back and forth:
+    it was a surface at the effective alpha, then transparent, then briefly
+    painted at the preference again on the reading that opacity should "apply
+    to the containers the tiles are in". The final instruction is the clearest
+    of the three — remove the black boxes behind the tiles and make the TILES
+    subject to opacity instead — so the container is transparent and the
+    dialling moved to the tile fill, where it is actually visible.
 
-    Painting at ``pane_alpha`` gives the old boxed look at 100%, the intended
-    layering at the 60% default, and a fully transparent pane to anyone who
-    wants one — all from the same control.
-
-    The 1px outline stays whatever the fill does: it is what the selected tab
-    joins onto, and without it the tab strip floats with nothing under it.
+    The 1px outline stays: it is what the selected tab joins onto, and without
+    it the tab strip floats with nothing under it.
     """
     from ..theme import css_color
     pane_border = (css_color("#ffffff", 0.27)
                    if glass else P["border_soft"])
     radius = 14 if glass else 8
-    # `transparent` rather than `rgba(..., 0.000)` at zero. The two paint
-    # identically, but the keyword says what is meant, and it is what a reader
-    # comparing this rule against a theme that never fills the pane will look
-    # for.
-    pane_fill = ("transparent" if pane_alpha <= 0.0
-                 else css_color(P["surface"], pane_alpha))
     return f"""
 QTabWidget#HomeTabs::pane {{
     border: 1px solid {pane_border};
     border-radius: {radius}px;
-    background: {pane_fill};
+    background: transparent;
     top: -1px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{
