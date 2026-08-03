@@ -284,8 +284,49 @@ APPS: List[Tuple[str, str, str, str]] = []
 #: See :func:`register_app` for the calling convention.
 APP_FACTORIES: dict = {}
 
+#: The live subset of :data:`_SECTION_NOTE_LIBRARY` — one note per
+#: section in :data:`SECTIONS`, same keys, always. Mutated in place (not
+#: rebound) so ``from .app import SECTION_NOTES`` cannot go stale.
+SECTION_NOTES: dict = {}
+
+
+class _LiveSections(list):
+    """The live section list — the type of :data:`SECTIONS`.
+
+    A ``list`` rather than the ``tuple`` this used to be, for one
+    reason: ``from spacr.qt.app import SECTIONS`` binds the OBJECT, so a
+    tuple that :func:`_refresh_sections` *rebinds* leaves every importer
+    holding a snapshot from whenever it imported. That is not
+    theoretical — the Graph Builder module hit it: it registers the
+    first Explore app after ``app.py`` has finished importing, and the
+    modules that had already read ``SECTIONS`` never saw Explore appear.
+    Mutating one object in place is what makes a late registration
+    visible everywhere, and it is how :data:`SECTION_NOTES` and
+    :data:`APPS` are already published.
+
+    It compares equal to a tuple as well as to a list because a tuple is
+    what this name published for its whole life and
+    ``SECTIONS == ("Core", ...)`` is asserted in the suite: changing the
+    container must not change what those assertions mean.
+    """
+
+    def __eq__(self, other):
+        if isinstance(other, tuple):
+            return list.__eq__(self, list(other))
+        return list.__eq__(self, other)
+
+    def __ne__(self, other):
+        equal = self.__eq__(other)
+        return equal if equal is NotImplemented else not equal
+
+    #: Unhashable, like every other list. Spelled out because defining
+    #: ``__eq__`` on a class that inherits ``__hash__`` would otherwise
+    #: leave the two disagreeing.
+    __hash__ = None
+
+
 #: The sections that actually hold apps, in :data:`SECTION_ORDER` order.
-#: Rebuilt by :func:`_refresh_sections` on every registration.
+#: Rebuilt in place by :func:`_refresh_sections` on every registration.
 #:
 #: Derived rather than declared because a declared-but-empty section is a
 #: tab that opens on an empty pane — the thing
@@ -293,20 +334,17 @@ APP_FACTORIES: dict = {}
 #: therefore named in :data:`SECTION_ORDER` today and appears in the UI
 #: the day its first app registers, which is what lets a module add
 #: itself to one without editing this file.
-SECTIONS: Tuple[str, ...] = ()
-
-#: The live subset of :data:`_SECTION_NOTE_LIBRARY` — one note per
-#: section in :data:`SECTIONS`, same keys, always. Mutated in place (not
-#: rebound) so ``from .app import SECTION_NOTES`` cannot go stale.
-SECTION_NOTES: dict = {}
+SECTIONS = _LiveSections()
 
 
 def _refresh_sections() -> None:
-    """Recompute :data:`SECTIONS` and :data:`SECTION_NOTES` from ``APPS``."""
-    global SECTIONS
-    live = tuple(s for s in SECTION_ORDER
-                 if any(row[3] == s for row in APPS))
-    SECTIONS = live
+    """Recompute :data:`SECTIONS` and :data:`SECTION_NOTES` from ``APPS``.
+
+    Both are updated IN PLACE. Rebinding either would strand every
+    module that imported the name rather than the module.
+    """
+    live = [s for s in SECTION_ORDER if any(row[3] == s for row in APPS)]
+    SECTIONS[:] = live
     SECTION_NOTES.clear()
     SECTION_NOTES.update({s: _SECTION_NOTE_LIBRARY[s] for s in live})
 
