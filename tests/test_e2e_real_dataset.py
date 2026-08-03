@@ -1,16 +1,26 @@
 """Opt-in long end-to-end test against a real microscopy dataset.
 
-This test only runs when both of these paths exist on the local
-machine:
+There is no built-in path here. Both of these environment variables must name
+an existing directory, and they are the only way in:
 
-* ``/home/carruthers/datasets/claude/plate1``  (raw images)
-* ``/home/carruthers/datasets/claude/settings`` (settings CSVs)
+* ``SPACR_E2E_DATA``     — a plate folder of raw images
+* ``SPACR_E2E_SETTINGS`` — a folder of ``<app_key>_settings.csv`` files
 
-Anywhere else (CI, dev laptops, the Claude working copy at
-/mnt/firecuda2/Claude/repo/spacr) it is skipped cleanly. Invoke it
-explicitly with::
+Run it explicitly with::
 
-    pytest -m slow tests/test_e2e_real_dataset.py -s
+    SPACR_E2E_DATA=/somewhere/plate1 SPACR_E2E_SETTINGS=/somewhere/settings \\
+        pytest -m slow tests/test_e2e_real_dataset.py -s
+
+The two variables used to *default* to one developer's home directory, which
+made this module a machine-specific test dressed as a portable one: everywhere
+but that one computer the four stages skipped themselves and the module
+reported green while running nothing at all. Opting in is now explicit, and the
+two ways to get it wrong report differently:
+
+* neither variable set — SKIP, naming the variables. You did not opt in.
+* set, but not pointing at a directory — FAIL. You *did* opt in, so a typo has
+  to be loud; a skip there would recreate the exact "green for nothing" bug
+  this module was rewritten to remove.
 
 It walks the actual pipeline chain — mask -> measure -> notebook
 export -> run journal inspection — on a copy of the real dataset,
@@ -31,38 +41,44 @@ from pathlib import Path
 import pytest
 
 # ---------------------------------------------------------------------------
-# Paths — override with SPACR_E2E_DATA / SPACR_E2E_SETTINGS if desired
+# Paths — supplied entirely by the environment, with no fallback
 # ---------------------------------------------------------------------------
 
 _DATASET_ENV = "SPACR_E2E_DATA"
 _SETTINGS_ENV = "SPACR_E2E_SETTINGS"
 
-DEFAULT_DATASET_PATH = Path("/home/carruthers/datasets/claude/plate1")
-DEFAULT_SETTINGS_PATH = Path("/home/carruthers/datasets/claude/settings")
 
-
-def _resolve_dataset() -> Path:
-    return Path(os.environ.get(_DATASET_ENV, str(DEFAULT_DATASET_PATH)))
-
-
-def _resolve_settings() -> Path:
-    return Path(os.environ.get(_SETTINGS_ENV, str(DEFAULT_SETTINGS_PATH)))
+def _resolve(var: str) -> Path | None:
+    """The directory ``var`` names, or ``None`` when it is unset or blank."""
+    raw = os.environ.get(var, "").strip()
+    return Path(raw) if raw else None
 
 
 # ---------------------------------------------------------------------------
-# Skip guard — one place, so every test in this module reports the same
+# Opt-in guard — one place, so every test in this module reports the same
 # ---------------------------------------------------------------------------
 
-def _skip_if_dataset_missing():
-    ds = _resolve_dataset()
-    settings = _resolve_settings()
-    missing = []
-    if not ds.is_dir():
-        missing.append(f"dataset: {ds}")
-    if not settings.is_dir():
-        missing.append(f"settings: {settings}")
-    if missing:
-        pytest.skip("real E2E dataset unavailable: " + "; ".join(missing))
+def _require_real_dataset() -> tuple[Path, Path]:
+    """Skip when opted out, fail when opted in with an unusable path.
+
+    :returns: ``(dataset_dir, settings_dir)`` once both are known to exist.
+    """
+    resolved = {var: _resolve(var)
+                for var in (_DATASET_ENV, _SETTINGS_ENV)}
+    unset = sorted(var for var, path in resolved.items() if path is None)
+    if unset:
+        pytest.skip(
+            "the real-dataset E2E is opt-in and was not opted into: set "
+            + " and ".join(unset)
+            + " to an existing directory to run it")
+    not_a_dir = [f"{var}={path}" for var, path in resolved.items()
+                 if not path.is_dir()]
+    if not_a_dir:
+        pytest.fail(
+            "opted in to the real-dataset E2E, but "
+            + "; ".join(not_a_dir)
+            + " is not a directory — fix the path or unset the variable")
+    return resolved[_DATASET_ENV], resolved[_SETTINGS_ENV]
 
 
 # ---------------------------------------------------------------------------
@@ -74,18 +90,17 @@ def _scratch(tmp_path_factory):
     """Copy the real dataset into a tmp dir so every stage mutates the
     copy rather than the source. Session-scoped so the mask stage's
     outputs are visible to the measure stage without re-copying."""
-    _skip_if_dataset_missing()
+    src, _ = _require_real_dataset()
     root = tmp_path_factory.mktemp("spacr_e2e_real", numbered=True)
     dst = root / "plate1"
-    src = _resolve_dataset()
     shutil.copytree(src, dst)
     return dst
 
 
 @pytest.fixture(scope="module")
 def _settings_root():
-    _skip_if_dataset_missing()
-    return _resolve_settings()
+    _, settings = _require_real_dataset()
+    return settings
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +213,7 @@ def test_e2e_real_stage_2_measure(_scratch, _settings_root):
 def test_e2e_real_stage_3_notebook_export(tmp_path):
     """Take the most recent successful mask run and export a notebook
     from it. Verifies the run-journal -> notebook path end-to-end."""
-    _skip_if_dataset_missing()
+    _require_real_dataset()
     from spacr.notebook_export import export_run
     from spacr.run_journal import recent_runs
 
