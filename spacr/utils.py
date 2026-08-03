@@ -7074,6 +7074,18 @@ def generate_path_list_from_db(db_path, file_metadata):
 def correct_paths(df, base_path, folder='data'):
     """Rewrite PNG paths (in a DataFrame or list) so they live under ``base_path/folder``.
 
+    A non-string entry is passed through untouched. ``png_list`` is LEFT-joined
+    onto the object tables, so any object whose crop was never written arrives
+    here with ``png_path`` = NaN -- a state
+    :func:`spacr.io._read_and_join_tables` documents as healthy
+    (``len(merged) == len(cell) > len(png_list)``: ``save_png`` off for a field,
+    a crop that failed to write, an interrupted run, or a ``cell_id`` that could
+    not be migrated). Testing ``base_path not in path`` on that NaN raised
+    ``TypeError: argument of type 'float' is not iterable`` and took the whole
+    embedding down over one missing thumbnail. There is no path to re-anchor for
+    such a row, and it has to keep its position so the rewritten column still
+    aligns with ``df``.
+
     :param df: DataFrame with a ``png_path`` column, or a list of paths.
     :param base_path: destination root to prepend.
     :param folder: intermediate folder name that anchors the rewrite.
@@ -7089,10 +7101,12 @@ def correct_paths(df, base_path, folder='data'):
 
     elif isinstance(df, list):
         image_paths = df
-    
+
     adjusted_image_paths = []
     for path in image_paths:
-        if base_path not in path:
+        if not isinstance(path, str):
+            adjusted_image_paths.append(path)
+        elif base_path not in path:
             parts = path.split(f'/{folder}/')
             if len(parts) > 1:
                 new_path = os.path.join(base_path, f'{folder}', parts[1])
