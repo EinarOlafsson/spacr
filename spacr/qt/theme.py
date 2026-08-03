@@ -1231,6 +1231,52 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
 TRANSPARENT_PROPERTY = "spacrTransparent"
 
 
+def clear_container_surfaces(root) -> int:
+    """Tag every layout container under ``root`` so it paints nothing.
+
+    Most spaCR screens are plain ``QWidget`` trees. A ``QWidget`` with no QSS
+    rule of its own inherits the blanket ``QWidget {{ background-color: bg }}``
+    and paints the WINDOW colour — which is not a surface, so no value of the
+    page-opacity preference can reach it. That is why a screen could sit as a
+    black slab over the animated background no matter what the slider said.
+
+    The rule, and it is a heuristic worth stating plainly:
+
+    * an **anonymous** ``QWidget`` (no ``objectName``) is scaffolding — it
+      exists to hold a layout, so it should show whatever is behind it;
+    * a **named** widget is something the designer styled on purpose — a
+      ``Card``, a ``Section``, a ``ConsoleBox`` — and keeps its fill, at the
+      page opacity.
+
+    Scroll areas, their viewports and splitters are always containers whatever
+    they are called, so they are tagged by type.
+
+    :param root: the screen (or any subtree) to sweep.
+    :returns: how many widgets were tagged, which is what a test asserts on.
+    """
+    from PySide6.QtWidgets import (QAbstractScrollArea, QSplitter,
+                                   QStackedWidget, QWidget)
+
+    targets = []
+    for area in root.findChildren(QAbstractScrollArea):
+        targets.append(area)
+        viewport = area.viewport()
+        if viewport is not None:
+            targets.append(viewport)
+    targets.extend(root.findChildren(QSplitter))
+    targets.extend(root.findChildren(QStackedWidget))
+
+    for widget in root.findChildren(QWidget):
+        # `type(widget) is QWidget` on purpose, not isinstance: a subclass is a
+        # component someone wrote and may well paint deliberately. Only the
+        # bare scaffolding qualifies.
+        if type(widget) is QWidget and not widget.objectName():
+            targets.append(widget)
+
+    make_transparent(*targets)
+    return len(targets)
+
+
 def make_transparent(*widgets) -> None:
     """Stop ``widgets`` painting a background of their own.
 

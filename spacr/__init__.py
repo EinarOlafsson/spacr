@@ -31,6 +31,15 @@ _warnings.filterwarnings(
     module=r"google\..*",
 )
 
+# Cellpose 4 builds a sparse COO tensor in `dynamics.py` and torch notes that
+# invariant checking is off. It fires on the first mask of every run, names a
+# torch internal, and there is nothing a spaCR user can do about it.
+_warnings.filterwarnings(
+    "ignore",
+    message=r"Sparse invariant checks are implicitly disabled.*",
+    category=UserWarning,
+)
+
 _SUBMODULES: Final[tuple[str, ...]] = (
     "core",
     "schema",
