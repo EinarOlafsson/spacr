@@ -351,22 +351,18 @@ def test_image_umap_dataframe_result_drops_internal_bookkeeping(
     assert leaked == [], f"internal bookkeeping columns leaked: {leaked}"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="spacr.utils.correct_paths raises TypeError('argument of type "
-           "'float' is not iterable') on the NaN png_path a LEFT join leaves "
-           "behind. spacr.io._read_and_join_tables documents "
-           "len(merged) == len(cell) > len(png_list) as normal -- a crop can "
-           "fail to write for a field -- so this must not blow up the whole "
-           "embedding. Needs a fix in spacr/utils.py: correct_paths must skip "
-           "or reject non-string png_path values instead of testing "
-           "membership on a float.")
 def test_image_umap_survives_a_cell_whose_crop_never_wrote(real_writer_plate):
     """A cell with no row in ``png_list`` must not kill the embedding.
 
     Found by building this plate with the real writers and then deleting the
     crop rows for one object label, which is exactly what a crop-write failure
-    on one field leaves on disk.
+    on one field leaves on disk. ``spacr.io._read_and_join_tables`` documents
+    ``len(merged) == len(cell) > len(png_list)`` as a *healthy* database --
+    ``save_png`` off for a field, an interrupted run, an unmigratable
+    ``cell_id`` -- so the NaN the LEFT join leaves in ``png_path`` has to travel
+    through ``spacr.utils.correct_paths`` instead of taking the run down with
+    ``TypeError: argument of type 'float' is not iterable``, which is what it
+    did until the ``isinstance(path, str)`` guard went in.
     """
     pytest.importorskip("umap")
     import sqlite3
@@ -374,16 +370,39 @@ def test_image_umap_survives_a_cell_whose_crop_never_wrote(real_writer_plate):
     db = root / "measurements" / "measurements.db"
     con = sqlite3.connect(db)
     try:
-        con.execute("DELETE FROM png_list WHERE cell_id = 'o1'")
+        deleted = con.execute(
+            "DELETE FROM png_list WHERE cell_id = 'o1'").rowcount
         con.commit()
     finally:
         con.close()
+    # One crop per field vanished -- if this stops being true the test is no
+    # longer reproducing a partial crop write.
+    assert deleted == N_FIELDS, f"deleted {deleted} png_list rows, want {N_FIELDS}"
 
     from spacr.core import generate_image_umap
     fig = generate_image_umap(_umap_settings(root), return_fig=True)
+    payload = fig._spacr_umap_payload
+
     # The cell table is untouched, so every object still embeds; only the
-    # thumbnail is missing.
-    assert fig._spacr_umap_payload["embedding"].shape == (N_OBJECTS, 2)
+    # thumbnails of the deleted crops are missing.
+    assert payload["embedding"].shape == (N_OBJECTS, 2), (
+        "objects with no crop were dropped from the embedding instead of "
+        "embedding without a thumbnail")
+
+    records = payload["records"]
+    # Exactly the objects whose crop row was deleted lost their crop identity,
+    # and every other object kept the exact path the writer recorded. A
+    # `len(records) == N_OBJECTS` check alone would still pass if the join had
+    # smeared one surviving crop across the crop-less rows.
+    missing = {p for p in png_paths if Path(p).stem.rsplit("_", 1)[-1] == "1"}
+    assert len(missing) == N_FIELDS
+    assert [r["db_png_path"] for r in records].count(None) == N_FIELDS
+    assert {r["db_png_path"] for r in records if r["db_png_path"]} == (
+        set(png_paths) - missing)
+
+    # The run still completes end to end: results CSV covers every object.
+    results = pd.read_csv(root / "results" / "embedding_results.csv")
+    assert len(results) == N_OBJECTS
 
 
 @pytest.mark.slow
