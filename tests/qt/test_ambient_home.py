@@ -21,6 +21,12 @@ from spacr.qt.widgets.ambient import AmbientWidget
 from spacr.qt.widgets.home import HomePage
 
 
+#: A backdrop colour no theme, palette or widget in the app uses, so any
+#: pixel that still matches the no-backdrop render is occluded rather than
+#: coincidentally the same shade. See
+#: :func:`test_no_widget_on_home_paints_an_opaque_slab`.
+BACKDROP_PROBE = "#ff00ff"
+
 APPS = [
     ("mask", "Mask", "Segment cells", "Core"),
     ("measure", "Measure", "Measure objects", "Core"),
@@ -259,7 +265,25 @@ def test_no_widget_on_home_paints_an_opaque_slab(qtbot, qt_theme_applied):
         # back identical and the test "passes" against a broken page.
         QApplication.processEvents()
         if getattr(page, "_ambient", None) is not None:
-            # A fixed time, so both renders sample the same animation state.
+            # Fixed seed, fixed time, and a backdrop colour nothing else on
+            # the page uses.
+            #
+            # `AmbientEngine` defaults to `random.Random(None)` — seeded from
+            # the clock — so every run drew a different animation, and whether
+            # anything bright happened to land on the sampled column was luck.
+            # That is what made this test order-dependent: it passed alone and
+            # failed after almost any other Qt module, on nothing but a
+            # different draw. Seeding alone is not enough either: a dark
+            # stretch of a *fixed* animation still coincides with the flat
+            # theme colour underneath, which reads as "something opaque" when
+            # nothing is. Painting the backdrop magenta removes the luck
+            # entirely — every pixel the backdrop reaches differs from the
+            # no-backdrop render, so an identical pixel really does mean an
+            # opaque widget is sitting on top, which is the thing this test
+            # exists to catch.
+            page._ambient._seed = 20260803
+            page._ambient.set_background_color(BACKDROP_PROBE)
+            page._ambient._rebuild_engine()      # picks up the seed
             page._ambient.set_time(6.0)
             QApplication.processEvents()
         return page.grab().toImage()
