@@ -120,20 +120,37 @@ def test_glass_adds_neutral_light_field_specular_rims_and_rounding():
     assert "border-radius: 14px" in material
 
 
-def test_glass_home_pane_is_transparent_behind_the_tiles():
-    """The pane the tiles sit in never paints a fill, whatever the alpha.
+def test_glass_home_pane_follows_the_opacity_preference():
+    """The pane the tiles sit in is painted at the requested alpha.
 
-    It used to carry the glass material. The tiles have their own fill and
-    rim, so a filled pane only reads as a dark box drawn around them. The
-    outline stays: the selected tab joins onto it.
+    It briefly never painted at all, on the reasoning that the tiles carry
+    their own fill and rim so a filled pane only reads as a dark box drawn
+    around them. That reasoning is sound — and is why the alpha belongs to the
+    user rather than to the stylesheet. The request was that page opacity
+    reach "the black containers that the module tiles are in" as well as the
+    tiles, and a permanently transparent pane is one the setting cannot reach:
+    pinned at 0%, with the slider dragged to solid leaving it invisible.
+
+    So zero still gives a fully transparent pane — the look that change was
+    after — it is just no longer the only thing the control can produce.
+
+    The outline stays whatever the fill does: the selected tab joins onto it.
     """
     from spacr.qt import theme
     from spacr.qt.widgets.home import _tab_qss
 
+    palette = theme.palette_for("glass")
+    transparent = _rule(_tab_qss(palette, 0.0, glass=True),
+                        "QTabWidget#HomeTabs::pane {")
+    assert "background: transparent" in transparent
+
+    solid = _rule(_tab_qss(palette, 1.0, glass=True),
+                  "QTabWidget#HomeTabs::pane {")
+    assert palette["surface"] in solid, "a solid request must paint a fill"
+
     for alpha in (0.0, theme.pane_alpha("glass", 1.0), 1.0):
-        qss = _tab_qss(theme.palette_for("glass"), alpha, glass=True)
-        pane = _rule(qss, "QTabWidget#HomeTabs::pane {")
-        assert "background: transparent" in pane
+        pane = _rule(_tab_qss(palette, alpha, glass=True),
+                     "QTabWidget#HomeTabs::pane {")
         assert "qlineargradient" not in pane
         assert "rgba(255, 255, 255, 0.270)" in pane
         assert "border-radius: 14px" in pane
