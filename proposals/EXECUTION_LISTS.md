@@ -22,6 +22,7 @@ Pure plumbing. Exists so Lists 1–4 never edit the same file.
 | 0.3 | `L1` `L2` Ports + artifact registry | `spacr/ports.py`, `spacr/artifacts.py`. Provenance per output; API published before implementation |
 | 0.4 | `S7` `S5` `S9` Run context | `spacr/runctx.py` — one run id per log line; a seed reaching numpy/torch/cellpose/sklearn; `on_error: stop\|skip\|retry` |
 | 0.5 | `measure.py` extension hooks | Preprocessing + region-filter hooks. **Frees `measure.py`** for List 3 (ROI→Measure) and List 4 (illumination) |
+| 0.7 | **Make a new app registrable, then register the four waiting on it** | `register_app` exists but a live sidebar tile also needs `cli.INTERACTIVE_ONLY`, `settings_model._APP_API_MODULE`, `app_screen.APP_TITLES`/`APP_INTROS`, nine `i18n._ROWS` rows, six home-variant tables, the docs app count, and two ledgers in `test_cov_qt_app.py` — and `app.py` republishes `SECTIONS` by *rebinding*, so any earlier import goes stale. Four finished features are unreachable because of it: `illumination`, `sequencing_qc`, `layer_viewer`, `graph_builder`. One owner, one commit |
 | 0.6 | Wire the existing views to `LinkedView` | UMAP, db_browser, and plate_view (which has bespoke `_link` wiring predating the mixin). Added after 0.2 landed — the contract is only worth what consumes it *(0.2)* |
 
 Order: 0.1 ∥ 0.2 ∥ 0.3 ∥ 0.5, then 0.6 after 0.2, then 0.4 last (it touches
