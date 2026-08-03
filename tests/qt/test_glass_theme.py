@@ -120,19 +120,23 @@ def test_glass_adds_neutral_light_field_specular_rims_and_rounding():
     assert "border-radius: 14px" in material
 
 
-def test_glass_home_pane_uses_the_same_material():
+def test_glass_home_pane_is_transparent_behind_the_tiles():
+    """The pane the tiles sit in never paints a fill, whatever the alpha.
+
+    It used to carry the glass material. The tiles have their own fill and
+    rim, so a filled pane only reads as a dark box drawn around them. The
+    outline stays: the selected tab joins onto it.
+    """
     from spacr.qt import theme
     from spacr.qt.widgets.home import _tab_qss
 
-    qss = _tab_qss(
-        theme.palette_for("glass"),
-        theme.pane_alpha("glass", 1.0),
-        glass=True,
-    )
-    pane = _rule(qss, "QTabWidget#HomeTabs::pane {")
-    assert "qlineargradient" in pane
-    assert "rgba(255, 255, 255, 0.270)" in pane
-    assert "border-radius: 14px" in pane
+    for alpha in (0.0, theme.pane_alpha("glass", 1.0), 1.0):
+        qss = _tab_qss(theme.palette_for("glass"), alpha, glass=True)
+        pane = _rule(qss, "QTabWidget#HomeTabs::pane {")
+        assert "background: transparent" in pane
+        assert "qlineargradient" not in pane
+        assert "rgba(255, 255, 255, 0.270)" in pane
+        assert "border-radius: 14px" in pane
 
 
 def test_glass_preference_explains_material_strength(qtbot):
