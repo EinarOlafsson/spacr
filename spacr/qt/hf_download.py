@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import logging
 import os
+import socket
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Optional
@@ -110,7 +111,82 @@ class _HFDownloadWorker(QObject):
                                  str(settings_root), "")
         except Exception as e:
             LOG.warning("hf download failed: %s", e, exc_info=True)
-            self.finished.emit(False, "", "", str(e))
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+
+def explain_download_failure(exc: BaseException) -> str:
+    """Turn a download exception into something a user can act on.
+
+    This is the only demo in the Demos menu that needs the network — the six
+    synthetic generators are entirely offline — so it is the only one that can
+    fail for a reason outside spaCR. What the user saw before was
+    ``str(exc)``, which for the ordinary offline case is a nested urllib3
+    dump::
+
+        (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443):
+        Max retries exceeded with url: /api/datasets/... (Caused by
+        NewConnectionError('<urllib3.connection.HTTPSConnection object at
+        0x7e8d...>: Failed to establish a new connection: [Errno 101] Network
+        is unreachable'))"), '(Request ID: 73ac20ed-...)')
+
+    — 300 characters that never say "you are offline" and never say what to do
+    instead. The three conditions this actually fails on are: no network, the
+    ``huggingface_hub`` extra not installed, and a truncated transfer. Each
+    gets a sentence naming the cause and the way out; anything else keeps its
+    own message with the same closing advice attached.
+
+    :param exc: the exception raised inside the download worker.
+    :returns: a multi-line message for the failure dialog.
+    """
+    offline_hint = (
+        "Every other entry in the Demos menu is synthetic and runs with no "
+        "network at all — use one of those to try the pipelines offline.")
+
+    if isinstance(exc, (ImportError, ModuleNotFoundError)):
+        return (
+            "The real-dataset demo needs the 'huggingface_hub' package to "
+            "list the demo repository, and it is not installed in this "
+            f"environment ({exc}).\n\n"
+            "Install it with:  pip install huggingface_hub\n\n"
+            + offline_hint)
+
+    # The truncation check comes first: `IOError` IS `OSError`, and the
+    # builtin ConnectionError below is an OSError subclass, so ordering these
+    # the other way round would let a half-finished transfer be reported as
+    # "check your internet connection" — true but useless, because the
+    # connection was fine right up to the point it was not.
+    if isinstance(exc, OSError) and "Truncated download" in str(exc):
+        return (
+            f"{exc}\n\n"
+            "The connection dropped part-way through. Nothing partial was "
+            "kept, so re-running the demo starts the file again.\n\n"
+            + offline_hint)
+
+    # requests is an install-time dependency of huggingface_hub, but the
+    # import is kept local so a broken environment reports the missing
+    # package above rather than dying here. The builtins are in the tuple
+    # too: `requests.exceptions.ConnectionError` descends from OSError, not
+    # from the builtin ConnectionError, and a DNS failure raised by anything
+    # other than requests (urllib, socket, huggingface_hub's own client)
+    # arrives as one of these instead.
+    network_errors: tuple = (ConnectionError, TimeoutError, socket.gaierror)
+    try:
+        import requests
+        network_errors += (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+        )
+    except Exception:
+        pass
+
+    if isinstance(exc, network_errors):
+        return (
+            "Could not reach huggingface.co, so the real demo dataset could "
+            "not be downloaded. Check your internet connection (or your "
+            "proxy settings) and try again.\n\n"
+            + offline_hint)
+
+    return f"{exc}\n\n{offline_hint}"
 
 
 def _list_files(repo_id: str, subfolder: str) -> List[str]:
@@ -118,8 +194,17 @@ def _list_files(repo_id: str, subfolder: str) -> List[str]:
 
     Empty subfolder means "top-level CSVs only" (mirrors the Tk
     downloader's behaviour for the settings pack).
+
+    :raises ImportError: when ``huggingface_hub`` is not installed. Re-raised
+        with the package named rather than letting the bare
+        ``ModuleNotFoundError`` text stand on its own, because
+        :func:`explain_download_failure` turns it into install instructions
+        and the message is what the user reads.
     """
-    from huggingface_hub import list_repo_files
+    try:
+        from huggingface_hub import list_repo_files
+    except ImportError as exc:
+        raise ImportError(f"huggingface_hub is not installed: {exc}") from exc
     files = list_repo_files(repo_id, repo_type="dataset")
     if subfolder:
         return [f for f in files if f.startswith(subfolder)]
