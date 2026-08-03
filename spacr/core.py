@@ -457,6 +457,15 @@ def preprocess_generate_masks(settings):
                                    'measurements', 'measurements.db')
             if os.path.isfile(db_path):
                 ledger.stamp(db_path)
+
+        # Run completion hook: record what this run produced, and what it was
+        # produced from, in the project's artifact registry. strict=False —
+        # a registry that cannot be written is worth one printed line, never
+        # a lost run. See spacr/artifacts.py.
+        from .artifacts import register_run_outputs
+        register_run_outputs(
+            'timelapse' if settings.get('timelapse') else 'mask',
+            settings, roots=source_folders, strict=False)
     return
 
 

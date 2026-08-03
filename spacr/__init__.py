@@ -139,6 +139,12 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "umap_annotations",
     "row_exclusions",
     "torch_artifacts",
+    # The pipeline contract. `ports` declares what each module consumes and
+    # produces and answers "can this module run here?" before a run starts;
+    # `artifacts` records what produced every file, so "is this result still
+    # current?" has an answer. Both are dependency-light on purpose.
+    "ports",
+    "artifacts",
     "validate",
     "updater",
     "version",
