@@ -197,13 +197,19 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     Without this the browser would read (and the preference tests would
     write) the developer's real spaCR settings — and "editing is off by
     default" would pass or fail depending on whose machine it ran on.
+
+    NativeFormat has to be redirected as well: ``QSettings("spacr", "qt")``
+    ignores ``setDefaultFormat`` and ``setPath(IniFormat, ...)``, so the
+    Ini-only redirect this used to do left the ``.clear()`` below aimed at the
+    developer's real ``~/.config/spacr/qt.conf``.
     """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-db-browser-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                      str(tmp_path / "qsettings"))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope,
+                          str(tmp_path / "qsettings"))
     QSettings("spacr", "qt").clear()
     try:
         from spacr.qt.first_run import mark_tour_seen
