@@ -312,6 +312,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "save_measurements", "calculate_correlation",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
+            # Not a segmentation control -- it decides which organelle summary
+            # TABLES a measure run writes, so it belongs with the other
+            # what-gets-measured settings rather than under the mask
+            # pipeline's Organelle Segmentation heading.
+            "summarize_organelles_by",
         )),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
