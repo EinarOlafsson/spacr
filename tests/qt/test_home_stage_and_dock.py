@@ -435,15 +435,22 @@ class TestPaneOpacity:
         prefs.set_pane_opacity(3.0)
         assert prefs.get_pane_opacity() == 1.0
 
-    def test_the_home_pane_never_paints_a_box_behind_the_tiles(
+    def test_the_home_pane_follows_the_opacity_preference(
             self, qtbot, qt_theme_applied, tmp_settings):
-        """The area the tiles sit in is transparent at any preference.
+        """The box the tiles sit in is painted at the effective alpha.
 
-        It used to be painted as a surface at the effective alpha. The
-        tiles carry their own fill and rim, so any pane fill reads as a
-        dark container drawn around them, which is the one thing it must
-        not be. The preference still governs the shared module surfaces
-        the next test covers.
+        It briefly never painted at all, on the reasoning that the tiles carry
+        their own fill and rim so any pane fill reads as a dark container
+        drawn around them. That reasoning is sound, and is precisely why the
+        alpha belongs to the user: the request was that page opacity reach
+        "the black containers that the module tiles are in" as well as the
+        tiles themselves, and a pane hardcoded transparent is one the setting
+        cannot reach — pinned at 0%, with the slider dragged to solid leaving
+        it invisible.
+
+        Zero still yields a fully transparent pane, which is the look that
+        change was after. It is simply no longer the only thing the control
+        can produce.
         """
         from spacr.qt import preferences as prefs
         from spacr.qt.widgets.home import _tab_qss
@@ -457,9 +464,12 @@ class TestPaneOpacity:
             # Only the pane rule: the selected tab paints the surface
             # colour on purpose, so it blends into the pane's edge.
             pane = qss.split("QTabWidget#HomeTabs::pane {", 1)[1].split("}", 1)[0]
-            assert "background: transparent" in pane
-            assert palette["surface"] not in pane
-            assert qss == _tab_qss(palette, prefs.effective_pane_alpha())
+            effective = prefs.effective_pane_alpha()
+            if effective <= 0.0:
+                assert "background: transparent" in pane
+            else:
+                assert theme.css_color(palette["surface"], effective) in pane
+            assert qss == _tab_qss(palette, effective)
 
     @pytest.mark.parametrize("name", theme.THEMES)
     def test_the_preference_controls_shared_module_surfaces(self, name):
