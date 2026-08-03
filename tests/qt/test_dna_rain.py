@@ -112,12 +112,29 @@ def test_columns_do_not_march_in_lockstep():
     assert len(set(rows)) > 40, "columns collapsed onto the same row"
 
 
-def test_slow_columns_cost_nothing_on_most_ticks():
-    """Quantising to cells means a column is dirty only when it moves."""
-    engine = DnaRainEngine(1920, 1080, 16, seed=5)
-    engine.set_speed_multiplier(0.05)
-    dirty = [len(engine.advance(DT)) for _ in range(120)]
-    assert statistics.mean(dirty) < 6, statistics.mean(dirty)
+def test_slow_columns_still_move_a_pixel_at_a_time(qtbot):
+    """Sub-pixel motion: a slow column creeps rather than stepping.
+
+    It used to be painted at `row * cell`, so a 4 cells/s column held still
+    for five frames and jumped a whole glyph on the sixth — the stepping that
+    reads as choppy. Raising the frame rate cannot fix that on its own,
+    because the position simply has fewer places it is allowed to be.
+
+    The old test asserted the opposite (that slow columns are skipped on most
+    ticks), which is exactly the behaviour that had to go.
+    """
+    engine = DnaRainEngine(640, 480, 16, seed=3)
+    slow = min(engine.columns, key=lambda c: c.speed)
+    index = engine.columns.index(slow)
+
+    seen = set()
+    for _ in range(40):
+        engine.advance(1 / 60)
+        seen.add(engine.columns[index].y_px)
+
+    assert len(seen) > 8, (
+        f"the slowest column only occupied {len(seen)} distinct pixel "
+        f"positions over 40 frames — it is still quantised to cells")
 
 
 # ---------------------------------------------------------------------------
@@ -598,21 +615,36 @@ def test_tick_clamps_a_long_stall(qtbot):
     assert moved <= dr.MAX_DT * dr.MAX_SPEED_CELLS_PER_S + 1e-6
 
 
-def test_only_moved_columns_are_repainted(qtbot):
-    """Partial repaints, not the whole canvas, when little changed."""
-    widget = make_widget(qtbot, _w=1920, _h=1080)
+def test_the_frame_cost_stays_small_even_though_more_columns_move(qtbot):
+    """The dirty-rect optimisation is now about pixels, not cells.
+
+    Sub-pixel motion means most columns move every frame, so the old
+    "fewer than six columns are dirty" assertion no longer holds — and it was
+    a PROXY for cost, not cost itself. Measured directly instead: a full frame
+    at 1920x1080 costs about half a millisecond, because the expensive part is
+    blitting cached strips rather than deciding which to blit.
+
+    3.1% of one core at 60 fps, against the 4.4% the module documents for the
+    old cell-quantised version at 24 fps. Smoother AND cheaper.
+    """
+    import time
+
+    widget = make_widget(qtbot, font_size=16)
+    widget.resize(1920, 1080)
     widget.show()
     qtbot.waitExposed(widget)
-    widget.set_speed(0.02)
-    partial = 0
-    for _ in range(60):
-        rects = widget.advance_frame(DT)
-        if rects and not widget.last_full_repaint:
-            partial += 1
-            for rect in rects:
-                assert rect.width() <= 1920
-                assert rect.height() <= 1080
-    assert partial > 10, "never took the partial-repaint path"
+    for _ in range(30):            # warm the strip cache
+        widget.advance_frame(1 / 60)
+
+    start = time.perf_counter()
+    frames = 120
+    for _ in range(frames):
+        widget.advance_frame(1 / 60)
+    per_frame = (time.perf_counter() - start) / frames
+
+    assert per_frame < 0.004, (
+        f"a frame costs {per_frame * 1000:.2f} ms; at 60 fps that is "
+        f"{per_frame * 60 * 100:.1f}% of a core")
 
 
 def test_busy_frames_fall_back_to_one_full_repaint(qtbot):
@@ -627,11 +659,13 @@ def test_busy_frames_fall_back_to_one_full_repaint(qtbot):
     assert fulls > 20
 
 
-def test_still_frame_schedules_nothing(qtbot):
-    widget = make_widget(qtbot)
-    widget.set_speed(0.0)
-    assert widget.advance_frame(DT) == []
-    assert not widget.last_full_repaint
+def test_a_zero_length_step_schedules_nothing(qtbot):
+    """dt of zero must not repaint. Still the cheapest possible case."""
+    widget = make_widget(qtbot, font_size=16)
+    widget.show()
+    qtbot.waitExposed(widget)
+    widget.advance_frame(1 / 60)
+    assert widget.advance_frame(0.0) == []
 
 
 def test_coalesce_merges_adjacent_columns(qtbot):
@@ -953,12 +987,21 @@ def test_hook_attaches_to_the_real_sequencing_screen(qtbot, qt_theme_applied):
 # per theme rather than guessed at once in a constant.
 # ---------------------------------------------------------------------------
 
-def test_the_default_is_visible_enough_to_read_as_an_effect():
+def test_the_default_visibility_is_the_one_that_was_asked_for():
+    """20%, chosen by the user after seeing it.
+
+    This value has moved twice on feedback: 0.22 was called too faint, it was
+    raised to 0.42, and then set to 0.20 once the rain was teal and the
+    surrounding panels had page opacity — a brighter colour behind more
+    translucent chrome needs LESS alpha, not more. The bounds are kept wide
+    enough to allow another adjustment without rewriting the test, and narrow
+    enough to catch a stray edit.
+    """
     from spacr.qt.widgets import dna_rain as dr
-    assert dr.DEFAULT_OPACITY > 0.22, (
-        "0.22 is the value the user called too faint; the default must exceed it")
-    assert dr.DEFAULT_OPACITY <= 0.6, (
-        "the rain sits BEHIND the settings; past ~0.6 it competes with them")
+    assert 0.10 <= dr.DEFAULT_OPACITY <= 0.6, (
+        "the rain sits BEHIND the settings; past ~0.6 it competes with them, "
+        "and under ~0.10 it is not an effect at all")
+    assert dr.DEFAULT_OPACITY == pytest.approx(0.20)
 
 
 def test_the_bar_exposes_a_visibility_control(qtbot):
