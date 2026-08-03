@@ -117,6 +117,16 @@ class Section(QFrame):
         """Return the section's header text, un-escaped."""
         return self._title
 
+    def header(self) -> QToolButton:
+        """Return the clickable header button (chevron + category title).
+
+        Public because a screen needs a precise hover target for the
+        *category* it represents: the section itself covers the whole form
+        once expanded, so filtering events on it would report the category
+        while the pointer is over one of its settings.
+        """
+        return self._header
+
     def set_hint(self, text: str) -> None:
         """Attach a hover tooltip to the section's header.
 

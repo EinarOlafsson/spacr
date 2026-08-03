@@ -359,19 +359,32 @@ class TestCategoryGrouping:
         assert len(titles) == len(set(titles)), "a category was emitted twice"
 
     def test_curated_and_fallback_section_hints(self, qtbot):
-        """Curated blurbs are used verbatim; anything else gets the generic."""
+        """Curated blurbs are used verbatim; anything else gets the generic.
+
+        Classify's "Plate Sources & Workflow" used to be asserted as the
+        FALLBACK here -- it was one of nine Classify categories that had no
+        curated entry. Every rendered category has one now (see
+        tests/qt/test_category_tooltips.py), so it is the curated arm, and
+        the fallback is exercised on a title that is not a category at all.
+        """
+        from spacr.qt.screens.app_screen import SECTION_HINTS as HINTS
+        from spacr.qt.screens.settings_model import category_tooltip
+        from spacr.qt.widgets.section import Section
+
         scr = _make_screen(qtbot, "classify")
         by_title = {s.title(): s for s in _sections(scr)}
-        assert by_title["PLATE SOURCES & WORKFLOW"]._header.toolTip() == (
-            "Settings that control plate sources & workflow.")
-        # It used to read the generic sentence off Classify's "OTHER"
-        # section; Classify no longer has one (see
+        curated = HINTS["PLATE SOURCES & WORKFLOW"]
+        assert by_title["PLATE SOURCES & WORKFLOW"]._header.toolTip() == curated
+        assert "Settings that control" not in curated
+
+        # "Other" is the trailing bucket for keys in no category -- not a
+        # heading anyone chose, so it deliberately has no blurb. Classify no
+        # longer renders one (see
         # test_classify_hides_cellpose_and_needs_no_other_bucket), so the
         # fallback is exercised on a section built directly instead.
-        from spacr.qt.widgets.section import Section
-        from spacr.qt.screens.app_screen import SECTION_HINTS as HINTS
+        assert "OTHER" not in HINTS
         stray = Section("Other")
-        stray.set_hint(HINTS.get("OTHER", "Settings that control other."))
+        stray.set_hint(category_tooltip("classify", "Other"))
         assert stray._header.toolTip() == "Settings that control other."
 
     def test_no_settings_defined_banner(self, qtbot, monkeypatch):
