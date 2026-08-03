@@ -837,7 +837,7 @@ class TestIconVisibility:
         re-render through ``scrim_alpha`` — so on Space the app list was
         a ghost with a galaxy behind every row.
         """
-        for name in theme.THEMES:
+        for name in theme.IMAGE_THEMES:
             qss = theme.stylesheet(name)
             expected = theme.dock_colour(name)
             assert expected.startswith("#"), (
@@ -852,6 +852,20 @@ class TestIconVisibility:
                         f"{name}: {selector} paints {fill!r}, not the "
                         f"opaque dock colour {expected}")
                     assert "rgba(" not in fill and "transparent" not in fill
+        # On the FLAT themes the dock follows page opacity instead. Two
+        # instructions meet here: #16j asked that the dock never be
+        # transparent, and a later one asked that page opacity reach it.
+        # Over a wallpaper #16j wins, because that is the case it was about —
+        # a ghost dock with a galaxy behind every row — and the legibility
+        # floor does not rescue it (Cell floors at 0.047). On dark and light
+        # there is no picture behind the dock, only the ambient animation, so
+        # thinning it is what was asked for and harms nothing.
+        for name in ("dark", "light"):
+            qss = theme.stylesheet(name, surface_opacity=0.5)
+            fills = self._fills(qss, "#EdgeDrawer, #Sidebar, #SidebarScroll")
+            assert any("rgba(" in f for f in fills), (
+                f"{name}: the dock ignored page opacity: {fills}")
+
         # White under the light theme, a dark grey everywhere else —
         # both taken from the palette, never written down as a hex.
         assert theme.dock_colour("light") == theme.LIGHT_PALETTE["surface"]

@@ -61,7 +61,7 @@ Values:
 * ``dock_mode``: ``"auto"`` | ``"locked"`` | ``"hidden"`` (default
   ``"locked"``). Whether the left app dock reveals on hover, is pinned
   open as a permanent column, or is not there at all.
-* ``pane_opacity``: int percent, default ``100``. How solid shared surfaces
+* ``pane_opacity``: int percent, default ``60``. How solid shared surfaces
   are, or the relative material strength in Glass. Clamped up to
   :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the
   preference is a request, legibility is not negotiable.
@@ -747,7 +747,7 @@ def set_dock_mode(mode: str) -> None:
 #: sky can put behind them, and no further. See
 #: :func:`spacr.qt.theme.pane_alpha` for why the solver's *upper* bound
 #: is deliberately not applied to it.
-DEFAULT_PANE_OPACITY_PCT = 100
+DEFAULT_PANE_OPACITY_PCT = 60
 
 
 def get_pane_opacity() -> float:

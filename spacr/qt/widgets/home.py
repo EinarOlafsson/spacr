@@ -368,9 +368,15 @@ class Panel(QWidget):
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
+        # `pane_surface`, not `P['surface_alt']`. `P` comes from
+        # `active_palette()`, which returns RAW HEX — so this box, and every
+        # other panel down the right-hand aside, stayed fully opaque whatever
+        # the page-opacity preference said. Reading the preference here is
+        # what makes the setting reach the aside at all.
+        from ..theme import pane_surface
         box.setStyleSheet(
             "QFrame#HomePanelBox {"
-            f"background: {P['surface_alt']};"
+            f"background: {pane_surface('surface_alt')};"
             f"border: 1px solid {P['border_soft']};"
             "border-radius: 8px; }")
         self.body_layout = QVBoxLayout(box)

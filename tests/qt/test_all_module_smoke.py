@@ -108,9 +108,23 @@ def _setting_row_contract(screen: AppScreen, qapp) -> None:
     section, label, _field = rows[0]
     section.show()
     section.set_expanded(True)
+
+    # Pin page opacity to solid for THIS measurement. The invariant under test
+    # is that the label wrapper paints nothing of its own and shows its
+    # SectionCard through — not what the page-opacity preference happens to
+    # be. Once that preference defaulted to 60%, the card became translucent
+    # and the ambient backdrop bled into these pixels (observed `#151a28`
+    # where the card is `#0d0e10`), so the test started measuring the backdrop
+    # instead of the wrapper. Solid takes the backdrop out of the question
+    # without weakening what is asserted.
+    from spacr.qt import theme as _theme
+    _saved_qss = qapp.styleSheet()
+    qapp.setStyleSheet(_theme.stylesheet("dark", surface_opacity=1.0))
     qapp.processEvents()
+
     wrapper = label.parentWidget()
     image = screen.grab().toImage()
+    qapp.setStyleSheet(_saved_qss)
     origin = wrapper.mapTo(screen, QPoint(0, 0))
     points = (
         (1, 1),
