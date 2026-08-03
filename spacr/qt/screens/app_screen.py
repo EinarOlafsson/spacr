@@ -11,6 +11,8 @@ Structure (horizontal splitter):
 """
 from __future__ import annotations
 
+from functools import partial
+from html import escape
 from typing import Optional
 
 from PySide6.QtCore import QEvent, Qt, QTimer, QThread, Signal
@@ -32,7 +34,11 @@ from ..bridge import make_thread, resolve_pipeline_entry
 from ..i18n import tr
 from ..theme import SPACING
 from ..widgets import Card, Divider, InfoLink, Section, UsageBar
-from .settings_model import SettingsWidgets
+from .settings_model import (
+    CATEGORY_TOOLTIPS,
+    SettingsWidgets,
+    category_tooltip,
+)
 
 
 # The hover description must never reflow the runtime controls. Four lines
@@ -40,265 +46,23 @@ from .settings_model import SettingsWidgets
 # tooltip remains available beside the field.
 HINT_STRIP_LINES = 4
 
+# The category strip sits above it and holds a shorter blurb, so three lines
+# is enough. Fixed, for the same reason: the runtime controls above must not
+# jump when the pointer crosses a category header.
+CATEGORY_STRIP_LINES = 3
 
-# Hover-tooltip text for each settings section. Keys match the
-# uppercased section title (e.g. "PATHS", "CELL"). Sections that
-# don't have an entry fall back to a generic "Settings that
-# control <title>."
-SECTION_HINTS = {
-    "REPLICATION ASSAY": "How parasites are assigned to vacuoles and counted, "
-                         "including biological plausibility warnings for "
-                         "non-power-of-two replication states.",
-    "ENDODYOGENY SIZE PROXY (LEGACY)":
-                         "Legacy area-bin approximation retained for older "
-                         "analyses; new Replication Assay runs use direct "
-                         "parasite-per-vacuole counts.",
-    "DATA & CONTROLS":   "Measurement database, class/control wells and the "
-                         "annotation column used to train the classical model.",
-    "FEATURE PREPARATION":
-                         "Which measurement features enter the model and the "
-                         "variance, correlation, object-count and compartment "
-                         "filters applied before fitting.",
-    "CLASSIFIER & VALIDATION":
-                         "Classical estimator, learning and regularisation "
-                         "parameters, held-out fraction and cross-validation.",
-    "FEATURE SELECTION & IMPORTANCE":
-                         "Feature pruning and repeated permutation-importance "
-                         "settings used to explain the fitted classifier.",
-    "OUTPUT & DATABASE": "Whether and where model scores and selected features "
-                         "are written back to the measurements database.",
-    "PLOTS & HEATMAPS":  "Heatmap feature, grouping, colour map and displayed "
-                         "value range for classical-ML results.",
-    "INPUT & METADATA":  "Image source, channel indices and acquisition "
-                         "metadata needed before segmentation begins.",
-    "WORKFLOW & TEST RUN":
-                         "Which pipeline stages run, whether this is a small "
-                         "test/dry run, and whether an interrupted run resumes.",
-    "IMAGE PREPROCESSING":
-                         "Intensity normalization, projection, scaling, "
-                         "denoising and batching before masks are generated.",
-    "CELL SEGMENTATION": "Model, thresholds and post-processing used to create "
-                         "and refine the cell mask.",
-    "NUCLEUS SEGMENTATION":
-                         "Model, thresholds and post-processing used to create "
-                         "and refine the nucleus mask.",
-    "PATHOGEN SEGMENTATION":
-                         "Model, thresholds and post-processing used to create "
-                         "and refine the pathogen mask.",
-    "ORGANELLE SEGMENTATION":
-                         "Classical, Cellpose or U-Net organelle detection plus "
-                         "its morphology, intensity and size filters.",
-    "QUALITY CONTROL":   "Automatic segmentation checks for implausible object "
-                         "counts, sizes, borders, splits and plate failures.",
-    "VOLUMETRIC PROCESSING (BETA)":
-                         "Z-axis interpretation, projection/stitching and "
-                         "physical voxel calibration for 3-D images.",
-    "TIME AXES & TRACKING (BETA)":
-                         "T-axis interpretation and experimental linking of "
-                         "objects through time-plus-volume data.",
-    "VISUALIZATION & DIAGNOSTICS":
-                         "Diagnostic examples, plot normalization, dimensions "
-                         "and colour maps; these do not alter the masks.",
-    "OUTPUT & STORAGE":  "Saved mask formats, retained intermediates, "
-                         "compression and final object filtering/merging.",
-    "RUNTIME & RELIABILITY":
-                         "Worker count, batches, strict failure limits, "
-                         "verbosity and recovery/runtime behavior.",
-    "INPUT & EXPERIMENT":
-                         "Plate source and experiment identifier for the "
-                         "measurement run.",
-    "MASK & CHANNEL MAPPING":
-                         "Which array planes hold each mask and intensity "
-                         "channel, including cytoplasm and timelapse handling.",
-    "MEASUREMENT FEATURES":
-                         "Morphology, texture, radial and colocalisation "
-                         "features calculated for retained objects.",
-    "OBJECT FILTERING":  "Compartment size, infection and edge-merging rules "
-                         "that decide which objects enter the analysis.",
-    "CROP OUTPUT":       "Which object-centred PNG/raw crops are written, their "
-                         "size, channels, masks, dilation and normalization.",
-    "PREVIEW & DIAGNOSTICS":
-                         "Fast test limits and diagnostic plots used to check "
-                         "a configuration before the full run.",
-    "3D CALIBRATION (BETA)":
-                         "Voxel dimensions and anisotropy used when measuring "
-                         "volumetric data.",
-    "ACQUISITION & AXES":
-                         "Time/Z axis layout, frame timing, projection and "
-                         "physical voxel calibration for the sequence.",
-    "TRACKING SETUP":    "Objects and frame range to track, movie frame rate "
-                         "and whether incomplete tracks are removed.",
-    "TRACKING BACKENDS": "Trackastra, Ultrack and distance/overlap linker "
-                         "selection with backend-specific parameters.",
-    "OBJECTS & CHANNELS":
-                         "Plate source, tracked object and image channels used "
-                         "by the motility assay.",
-    "SPATIAL & TEMPORAL CALIBRATION":
-                         "Pixel size and frame interval that convert movement "
-                         "into physical speed.",
-    "MOTION FILTERING":  "Maximum jumps, straightness and outlier rules used "
-                         "to retain biologically plausible tracks.",
-    "INFECTION CLASSIFICATION":
-                         "Strategy and thresholds used to label tracked cells "
-                         "as infected, uninfected or ambiguous.",
-    "XGBOOST INFECTION MODEL":
-                         "Training, tree, probability and feature settings for "
-                         "the supervised infection classifier.",
-    "INFECTION CLUSTERING":
-                         "Unsupervised infection clusters, feature weighting "
-                         "and minimum separation/quality criteria.",
-    "EMBEDDING SEARCH":  "UMAP and t-SNE search ranges used while separating "
-                         "infection phenotypes.",
-    "MOTILITY PLOTS & QC":
-                         "Axis ranges and diagnostic graphs for infection and "
-                         "track-quality review.",
-    "INPUT TABLES":      "Metadata, score and count tables consumed by the "
-                         "screen-level regression.",
-    "CONTROLS & PLATE DESIGN":
-                         "Plate identifier, control definitions and optional "
-                         "row filtering before regression.",
-    "MODEL & COVARIATES":
-                         "Regression family, response, aggregation, transform, "
-                         "regularisation and covariance structure.",
-    "HIT CALLING & OUTLIERS":
-                         "Minimum evidence, control thresholds and outlier "
-                         "rules used to call screen hits.",
-    "REGRESSION PLOTS":  "Volcano and axis transformation/range settings for "
-                         "regression output figures.",
-    "MODEL & DATA":      "Trained image model, dataset, input channels and "
-                         "object/image dimensions used for attribution.",
-    "ATTRIBUTION METHOD":
-                         "Grad-CAM, saliency, SmoothGrad, occlusion and "
-                         "integrated-gradient method-specific controls.",
-    "ATTRIBUTION VALIDATION":
-                         "Insertion/deletion steps, baseline and model-weight "
-                         "sanity checks for attribution reliability.",
-    "MAP DISPLAY":       "Source/map normalization, overlay and plotting used "
-                         "to render activation maps.",
-    "MAP QUANTIFICATION":
-                         "Channel correlation and Manders thresholds used to "
-                         "quantify what the model attends to.",
-    "OUTPUT & RUNTIME":  "Saving, shuffling, batch size and worker count for "
-                         "activation-map generation.",
-    "ASSAY INPUTS":      "Measurement database, table and compartment used by "
-                         "the replication assay.",
-    "VACUOLE ASSIGNMENT":
-                         "Existing vacuole identifiers or spatial-linking "
-                         "distance rules used to group parasites into vacuoles.",
-    "CONDITION METADATA":
-                         "Cell, pathogen and treatment definitions and the "
-                         "columns used to group assay conditions.",
-    "REPLICATION SCORING":
-                         "Parasite-count limits, division-state warnings and "
-                         "empty-well handling used to calculate replication.",
-    "ASSAY OUTPUT":      "Saved replication results and their plot colour map.",
-    "PATHS":            "Source folder + destination folder + which "
-                        "sub-folders spaCR should read images from.",
-    "GENERAL":          "High-level knobs: metadata source (Yokogawa "
-                        "vs Cellvoyager vs custom regex), channel "
-                        "layout, magnification, image normalisation, "
-                        "plotting toggles.",
-    "CELL":             "Cellpose settings for the *cell* mask: "
-                        "channel, model, diameter, cellprob threshold, "
-                        "background floor.",
-    "NUCLEUS":          "Cellpose settings for the *nucleus* mask: "
-                        "channel, model, diameter, cellprob threshold, "
-                        "background floor.",
-    "PATHOGEN":         "Cellpose settings for the *pathogen* mask: "
-                        "channel, model, diameter, cellprob threshold, "
-                        "background floor.",
-    "ORGANELLE":        "Everything for the organelle mask, in the order you "
-                        "set it up: shape family and detection method, the "
-                        "background/contrast correction applied first, the "
-                        "knobs belonging to the method you chose (adaptive, "
-                        "spot, ridge/hysteresis, ring, irregular, Cellpose or "
-                        "U-Net), the size/intensity/border filters applied to "
-                        "the objects found, and which parent compartments the "
-                        "organelles are summarised into.",
-    "CELLPOSE":         "How Cellpose runs on the training and mask-finetune "
-                        "tools: diameter, cellprob and flow thresholds, "
-                        "resize, rescale and inversion. Which model it runs "
-                        "is under Model Training.",
-    "SEGMENTATION QC":  "Automatic pass/fail checks on the finished masks — "
-                        "object counts, size and split ratios, border and "
-                        "foreground fractions, per-plate failure tolerance.",
-    "MEASUREMENTS":     "Which objects are measured — the per-compartment "
-                        "size and intensity filters, and whether the nucleus "
-                        "and pathogen tables are joined on — then which "
-                        "features are computed (intensity, morphology, "
-                        "texture, radial distribution, colocalisation) and "
-                        "which of them survive into the analysis table.",
-    "FILTER SETTINGS":  "Which segmented objects survive measurement: "
-                        "minimum size per compartment, whether uninfected "
-                        "cells remain, and whether edge-spanning pathogen "
-                        "objects merge their parent cells.",
-    "OBJECT CROPS":     "Per-object crop dimensions, which mask each crop is "
-                        "centred on, and which channels get baked into each "
-                        "saved PNG or array.",
-    "PLATE LAYOUT & CONTROLS":
-                        "The plate map: which wells hold which cell line, "
-                        "pathogen strain and treatment, which wells or gRNAs "
-                        "are the positive and negative controls, the labels "
-                        "they are given, and how wells are grouped for "
-                        "reporting.",
-    "TRAINING DATASET": "How the labelled training set is assembled from the "
-                        "database — annotation column vs well metadata, which "
-                        "metadata column the classes are keyed on, which crop "
-                        "type, how many objects to sample, and how much of it "
-                        "is held back for testing.",
-    "MODEL TRAINING":   "Which model, and how it is fitted: backbone or "
-                        "Cellpose model name, custom weights, classes, input "
-                        "channels and size, epochs, optimizer, learning-rate "
-                        "schedule, loss, augmentation, and the "
-                        "train/validation split.",
-    "ML CLASSIFIER":    "The classical (non-image) screen classifier fitted "
-                        "on measured features — algorithm, tree count, "
-                        "regularisation, feature pruning, and permutation "
-                        "importance.",
-    "EMBEDDING & CLUSTERING":
-                        "UMAP/t-SNE reduction of the feature table and the "
-                        "clustering run on top of it — neighbourhood size, "
-                        "metric, DBSCAN/KMeans parameters, noise handling.",
-    "UMAP DISPLAY":    "Image UMAP presentation and interactive-view layout: "
-                        "point size, colour and opacity, cluster outlines, "
-                        "thumbnail sampling, canvas/sidebar widths and figure "
-                        "saving. These settings feed both the static figure "
-                        "and the interactive explorer.",
-    "ACTIVATION MAPS":  "Grad-CAM / saliency settings — attribution method, "
-                        "which layer to hook, overlay rendering, and the "
-                        "input normalisation used at inference.",
-    "PLOT":             "What spaCR plots inline during a run — channel "
-                        "arrays, mask overlays, per-object diagnostic "
-                        "figures — plus the styling of the embedding "
-                        "scatter and the plate heatmaps.",
-    "TIMELAPSE":        "Enable + tune temporal linking of masks "
-                        "across frames when your data has a T axis.",
-    "ADVANCED":         "Rarely-touched knobs — batch sizes, worker "
-                        "counts, memory tuning, experimental options.",
-    "3D SETTINGS (BETA)":
-                        "Experimental volumetric segmentation controls: "
-                        "z-axis layout, projection or plane stitching, "
-                        "anisotropy and voxel calibration.",
-    "4D SETTINGS (BETA)":
-                        "Experimental time-plus-volume controls: time-axis "
-                        "layout, frame interval, tracking backend and "
-                        "inter-frame linking limits.",
-    "MOTILITY (BETA)":  "Beta motility-assay analysis toggle + "
-                        "per-object tracking parameters.",
-    "MOTILITY ADVANCED (BETA)":
-                        "Fine-grained control over the beta motility "
-                        "pipeline — feature selection, filter windows.",
-    "REGRESSION":       "Regression model + covariates for mapping "
-                        "screen scores to gRNA effect sizes, plus the "
-                        "control-based threshold used to call hits.",
-    "INVASION ASSAY":   "The two-colour invasion assay: which channels hold the "
-                        "outside and total stains, how the outside signal is "
-                        "measured, how its threshold is chosen and checked, and "
-                        "which objects count as parasites at all. The table the "
-                        "parasites are read from is under Measurements.",
-    "SEQUENCING":       "FASTQ inputs, barcode reference, mapping "
-                        "chunk size, and QC thresholds.",
-}
+
+# One blurb per settings CATEGORY, keyed by the uppercased category title.
+# The table itself lives beside the category map in `settings_model`, because
+# that is what decides which categories exist; this module only renders them.
+# Re-exported under the historical name so integrations and tests that read
+# `app_screen.SECTION_HINTS` keep working.
+#
+# The blurbs are shown in the strip UNDER the Run / Stop actions row (see
+# `_build_runtime_panel` and `_wire_category_hints`), not as a popup over the
+# form: a category description is three lines long and a floating tooltip
+# covers the very settings it is describing.
+SECTION_HINTS = CATEGORY_TOOLTIPS
 
 
 # Settings whose VALUE is the name of a database column. Each gets a "SQL"
@@ -615,6 +379,11 @@ class AppScreen(QWidget):
         # ``self._live_preview`` does not exist yet — so it never fired.
         self._wire_live_preview_autoload()
 
+        # Same ordering constraint: the sections are built by the settings
+        # panel, the strip they describe themselves into belongs to the
+        # runtime panel, so the two can only be connected once both exist.
+        self._wire_category_hints()
+
         # Timer to poll RAM/GPU/CPU periodically
         self._usage_timer = QTimer(self)
         self._usage_timer.setInterval(2000)
@@ -638,8 +407,11 @@ class AppScreen(QWidget):
         # DNA rain backdrop (sequencing only). Sits behind every other
         # child, takes no focus and no mouse events, and stops its timer
         # whenever this screen is not visible, so it costs nothing while
-        # the pipeline runs on another tab. Its colour / speed / font
-        # controls are appended to the bottom of `outer`.
+        # the pipeline runs on another tab. Its colour / speed /
+        # visibility / font controls live in a popover behind a DNA
+        # button beside the AI toggle — they used to be a permanent bar
+        # across the bottom of the page, which is more chrome than a
+        # backdrop is worth.
         self._dna_rain = None
         if self.app_key in DNA_RAIN_APPS:
             try:
@@ -942,6 +714,10 @@ class AppScreen(QWidget):
             # its own, so without this it takes the blanket window fill and
             # sits as an opaque band across the backdrop.
             getattr(self, "_actions_row", None),
+            # The category blurb under it. Named (so a stylesheet can reach
+            # it), which is exactly why the generic anonymous-container sweep
+            # above leaves it alone.
+            getattr(self, "_category_hint", None),
         )
 
     # ------------------------------------------------------------------
@@ -997,14 +773,13 @@ class AppScreen(QWidget):
                 settings_section_maturity(self.app_key, title)
             )
             self._settings_sections.append(section)
-            # Attach a per-section tooltip so hovering the header tells
-            # users what the settings inside actually control. Falls
-            # back to a generic "settings for <TITLE>" if the section
-            # is one we don't have a curated blurb for.
-            section.set_hint(SECTION_HINTS.get(
-                title.upper().strip(),
-                f"Settings that control {title.lower().strip()}.",
-            ))
+            # The category blurb. Its primary home is the strip under the
+            # actions row (see `_wire_category_hints`); `set_hint` keeps the
+            # same text on the header for screen readers and for the
+            # beta/alpha caution note it appends. `category_tooltip` resolves
+            # the module's own override first, then the shared table, then a
+            # generic sentence, so a section is never left without text.
+            section.set_hint(category_tooltip(self.app_key, title))
             for label, widget in rows:
                 lbl_widget = QLabel(label)
                 # Give the label a subtle affordance so users know
@@ -1239,6 +1014,16 @@ class AppScreen(QWidget):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
         from PySide6.QtCore import QEvent
         from ..widgets.hover_tooltip import HoverTooltip
+        # A settings CATEGORY header writes its own strip and nothing else:
+        # it has no setting key, so falling through would blank the
+        # per-setting strip every time the pointer crossed a header.
+        category = obj.property("settingsCategory")
+        if category:
+            if event.type() == QEvent.Enter:
+                self.show_category_hint(str(category))
+            elif event.type() == QEvent.Leave:
+                self.clear_category_hint()
+            return super().eventFilter(obj, event)
         if event.type() == QEvent.Enter:
             key = obj.property("settingKey")
             if key:
@@ -1624,6 +1409,29 @@ class AppScreen(QWidget):
 
         layout.addWidget(actions)
 
+        # Category strip — the settings CATEGORY blurb, immediately under the
+        # Run / Stop row. A category groups tens of settings (Organelle
+        # Segmentation groups fifty-three), so its description is a paragraph,
+        # and a paragraph-sized popup hovering over the settings panel covers
+        # the very controls it is describing. It gets a fixed region here
+        # instead: hovering a category header fills it, expanding one pins it,
+        # and it holds the pinned category while the pointer wanders back into
+        # the form. The per-setting strip below shows the setting under the
+        # cursor, so the two read as "where you are" then "what this does".
+        self._category_hint_pinned = ""
+        self._category_hint = QLabel(self._default_category_hint())
+        self._category_hint.setObjectName("CategoryHintStrip")
+        # Named widgets keep their fill under the blanket
+        # `QWidget { background-color: bg }` rule, and this one is a caption
+        # over the backdrop, not a surface — the same reason `cpu_wrap` above
+        # carries the declaration.
+        self._category_hint.setStyleSheet("background: transparent;")
+        self._category_hint.setWordWrap(True)
+        self._category_hint.setTextFormat(Qt.RichText)
+        self._category_hint.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self._sync_category_hint_height()
+        layout.addWidget(self._category_hint)
+
         # Hint strip — hover-follows caption that shows the current
         # settings tooltip regardless of Qt HTML-tooltip rendering.
         self._hint_strip = QLabel(self._default_hint())
@@ -1645,6 +1453,81 @@ class AppScreen(QWidget):
         hint.setFixedHeight(
             hint.fontMetrics().lineSpacing() * HINT_STRIP_LINES)
 
+    # ------------------------------------------------------------------
+    # Category help — the strip under the actions row
+    # ------------------------------------------------------------------
+    def _sync_category_hint_height(self) -> None:
+        """Reserve three lines for the category strip, in the painted font."""
+        strip = getattr(self, "_category_hint", None)
+        if strip is None:
+            return
+        strip.ensurePolished()
+        strip.setFixedHeight(
+            strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES)
+
+    def _default_category_hint(self) -> str:
+        return ("Hover a settings category for what the group decides, "
+                "or open one to keep it here.")
+
+    def _wire_category_hints(self) -> None:
+        """Route every category header at the strip under the actions row.
+
+        Called once both panels exist — the settings panel builds the
+        sections, the runtime panel owns the strip they write into.
+
+        Idempotent on purpose, and by the same two mechanisms the per-setting
+        decoration learned the hard way: a marker property so a second pass
+        does not connect ``toggled`` twice, and ``removeEventFilter`` before
+        ``installEventFilter``, because Qt keeps a LIST of filters and calls
+        each installation separately — two installs on one header means one
+        hover writing the strip twice.
+        """
+        for section in getattr(self, "_settings_sections", []):
+            header = section.header()
+            if header is None or header.property("categoryHintWired"):
+                continue
+            title = section.title()
+            header.setProperty("settingsCategory", title)
+            header.setProperty("categoryHintWired", True)
+            header.removeEventFilter(self)
+            header.installEventFilter(self)
+            section.toggled.connect(
+                partial(self._on_category_toggled, title))
+
+    def _on_category_toggled(self, title: str, expanded: bool) -> None:
+        """Pin an expanded category's blurb; unpin it when it collapses."""
+        if expanded:
+            self._category_hint_pinned = str(title)
+            self.show_category_hint(title)
+        elif self._category_hint_pinned == str(title):
+            self._category_hint_pinned = ""
+            self.clear_category_hint()
+
+    def show_category_hint(self, title: str) -> None:
+        """Show one category's blurb in the strip under the actions row."""
+        strip = getattr(self, "_category_hint", None)
+        if strip is None:
+            return
+        text = category_tooltip(self.app_key, title)
+        heading = str(title or "").upper().strip()
+        strip.setText(
+            f"<b>{escape(heading)}</b> — {escape(text)}"
+            if heading else escape(text)
+        )
+        strip.setAccessibleDescription(f"{heading}. {text}".strip())
+
+    def clear_category_hint(self) -> None:
+        """Fall back to the pinned (expanded) category, or to the prompt."""
+        strip = getattr(self, "_category_hint", None)
+        if strip is None:
+            return
+        pinned = getattr(self, "_category_hint_pinned", "")
+        if pinned:
+            self.show_category_hint(pinned)
+            return
+        strip.setText(self._default_category_hint())
+        strip.setAccessibleDescription(self._default_category_hint())
+
     def showEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Re-measure the hover-help strip after stylesheet/font polishing.
 
@@ -1660,6 +1543,7 @@ class AppScreen(QWidget):
         """
         super().showEvent(event)
         self._sync_hint_strip_height()
+        self._sync_category_hint_height()
         self.refresh_ambient_background()
 
     # ------------------------------------------------------------------
