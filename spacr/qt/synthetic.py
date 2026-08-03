@@ -1028,6 +1028,16 @@ def demo_settings(app_key: str, src: str,
     if app_key == "classify":
         return {
             "src": src,
+            # Every other demo carries plot=False through `base`; classify
+            # does not spread `base` (its keys are a different set) and so
+            # shipped nothing, which meant `deep_spacr_defaults` supplied its
+            # own default of True. That is not cosmetic: with plotting on,
+            # `_plot_training_curves` runs at the end of every epoch, and
+            # outside the Qt GUI (where the bridge replaces `plt.show`) the
+            # interactive backend's blocking show parks the run in the Qt main
+            # loop forever — the classify demo never finished. The blocking
+            # show is fixed at source, and the demo says what it means here.
+            "plot": False,
             # The crops are labelled in png_list, not by well metadata, so the
             # dataset has to be built in 'annotation' mode. The shipped
             # default is 'metadata', which selects on metadata_type_by
