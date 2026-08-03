@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from . import schema
+# One run id on every log line and every artifact, one seed, and the
+# on_error policy at the per-sample boundary. See spacr.runctx.
+from .runctx import run_context
 from .plot import plot_plates
 try:
     from IPython.display import display
@@ -797,53 +800,62 @@ def generate_barecode_mapping(settings=None):
 
     print(f'If compression is low and save_h5 is True, saving might take longer than processing.')
     
-    for key in samples_dict:
-        if settings['mode'] == 'paired' and samples_dict[key]['R1'] and samples_dict[key]['R2'] or settings['mode'] == 'single' and samples_dict[key]['R1'] or settings['mode'] == 'single' and samples_dict[key]['R2']:            
-            key_mode = f"{key}_{settings['mode']}"
-            if settings['mode'] == 'single':
-                key_mode = f"{key_mode}_{settings['single_direction']}"
-            dst = os.path.join(settings['src'], key_mode)
-            hdf5_file = os.path.join(dst, 'annotated_reads.h5')
-            unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
-            qc_csv_file = os.path.join(dst, 'qc.csv')
-            os.makedirs(dst, exist_ok=True)
+    # One run over every sample: one id on the log lines and the artifacts,
+    # and the on_error policy at the per-sample boundary. See spacr.runctx.
+    with run_context('sequencing', settings) as run:
+        for key in samples_dict:
+            # on_error, at the per-sample boundary. Until now a single
+            # unreadable FASTQ pair took every later sample down with it,
+            # and the run still exited 0 -- the folder simply had fewer
+            # outputs in it than it had samples.
+            for attempt in run.policy.attempts_for(key, stage='sample'):
+                with attempt:
+                    if settings['mode'] == 'paired' and samples_dict[key]['R1'] and samples_dict[key]['R2'] or settings['mode'] == 'single' and samples_dict[key]['R1'] or settings['mode'] == 'single' and samples_dict[key]['R2']:            
+                        key_mode = f"{key}_{settings['mode']}"
+                        if settings['mode'] == 'single':
+                            key_mode = f"{key_mode}_{settings['single_direction']}"
+                        dst = os.path.join(settings['src'], key_mode)
+                        hdf5_file = os.path.join(dst, 'annotated_reads.h5')
+                        unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
+                        qc_csv_file = os.path.join(dst, 'qc.csv')
+                        os.makedirs(dst, exist_ok=True)
 
-            print(f'Analyzing reads from sample {key}')
+                        print(f'Analyzing reads from sample {key}')
 
-            if settings['mode'] == 'paired':
-                function = paired_read_chunked_processing
-                R1=samples_dict[key]['R1']
-                R2=samples_dict[key]['R2']
+                        if settings['mode'] == 'paired':
+                            function = paired_read_chunked_processing
+                            R1=samples_dict[key]['R1']
+                            R2=samples_dict[key]['R2']
 
-            elif settings['mode'] == 'single':
-                function = single_read_chunked_processing
+                        elif settings['mode'] == 'single':
+                            function = single_read_chunked_processing
 
-                if settings['single_direction'] == 'R1':
-                    R1=samples_dict[key]['R1']
-                    R2=None
-                elif settings['single_direction'] == 'R2':
-                    R1=samples_dict[key]['R2']
-                    R2=None
+                            if settings['single_direction'] == 'R1':
+                                R1=samples_dict[key]['R1']
+                                R2=None
+                            elif settings['single_direction'] == 'R2':
+                                R1=samples_dict[key]['R2']
+                                R2=None
 
-            function(r1_file=R1,
-                     r2_file=R2,
-                     regex=regex,
-                     target_sequence=settings['target_sequence'],
-                     offset_start=settings['offset_start'],
-                     expected_end=settings['expected_end'],
-                     column_csv=settings['column_csv'],
-                     grna_csv=settings['grna_csv'],
-                     row_csv=settings['row_csv'],
-                     save_h5 = settings['save_h5'],
-                     comp_type = settings['comp_type'],
-                     comp_level=settings['comp_level'],
-                     hdf5_file=hdf5_file,
-                     unique_combinations_csv=unique_combinations_csv,
-                     qc_csv_file=qc_csv_file,
-                     chunk_size=settings['chunk_size'],
-                     n_jobs=settings['n_jobs'],
-                     test=settings['test'],
-                     fill_na=settings['fill_na'])
+                        function(r1_file=R1,
+                                 r2_file=R2,
+                                 regex=regex,
+                                 target_sequence=settings['target_sequence'],
+                                 offset_start=settings['offset_start'],
+                                 expected_end=settings['expected_end'],
+                                 column_csv=settings['column_csv'],
+                                 grna_csv=settings['grna_csv'],
+                                 row_csv=settings['row_csv'],
+                                 save_h5 = settings['save_h5'],
+                                 comp_type = settings['comp_type'],
+                                 comp_level=settings['comp_level'],
+                                 hdf5_file=hdf5_file,
+                                 unique_combinations_csv=unique_combinations_csv,
+                                 qc_csv_file=qc_csv_file,
+                                 chunk_size=settings['chunk_size'],
+                                 n_jobs=settings['n_jobs'],
+                                 test=settings['test'],
+                                 fill_na=settings['fill_na'])
 
 # Function to read the CSV, compute reverse complement, and save it
 def barecodes_reverse_complement(csv_file):

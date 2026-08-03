@@ -165,6 +165,21 @@ from sklearn.ensemble import RandomForestClassifier
 
 from huggingface_hub import list_repo_files
 
+
+def _run_random_state(default=None):
+    """Return the active run's seed, for an estimator's ``random_state=``.
+
+    Imported inside the call rather than at module scope: :mod:`spacr.runctx`
+    reaches :mod:`spacr.settings`, which reaches back here, and a top-level
+    import would be a cycle. Outside a run this is whatever ``default`` was,
+    which is the literal these call sites used to hard-code.
+
+    :param default: the value to use when no run is open.
+    :returns: the run seed, or ``default``.
+    """
+    from .runctx import random_state
+    return random_state(default)
+
 #from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
@@ -4800,8 +4815,8 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
         aug_nc_list = [os.path.join(aug_nc, file) for file in os.listdir(aug_nc)]
         aug_pc_list = [os.path.join(aug_pc, file) for file in os.listdir(aug_pc)]
 
-        nc_train_data, nc_test_data = train_test_split(aug_nc_list, test_size=0.1, shuffle=True, random_state=42)
-        pc_train_data, pc_test_data = train_test_split(aug_pc_list, test_size=0.1, shuffle=True, random_state=42)
+        nc_train_data, nc_test_data = train_test_split(aug_nc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
+        pc_train_data, pc_test_data = train_test_split(aug_pc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
 
         i=0
         for path in nc_train_data:
@@ -6634,14 +6649,14 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
                                 transform_queue_size=4.0,
                                 a=None,
                                 b=None,
-                                random_state=42,
+                                random_state=_run_random_state(42),
                                 metric_kwds=None,
                                 angular_rp_forest=False,
                                 target_n_neighbors=-1,
                                 target_metric='categorical',
                                 target_metric_kwds=None,
                                 target_weight=0.5,
-                                transform_seed=42,
+                                transform_seed=_run_random_state(42),
                                 n_jobs=n_jobs,
                                 verbose=verbose)
 
@@ -6658,7 +6673,7 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
                         metric=metric,
                         init='random',
                         verbose=v,
-                        random_state=42,
+                        random_state=_run_random_state(42),
                         method='barnes_hut',
                         angle=0.5,
                         n_jobs=n_jobs)
@@ -6686,7 +6701,7 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     if clustering == 'dbscan':
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
     elif clustering == 'kmeans':
-        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+        clustering_model = KMeans(n_clusters=min_samples, random_state=_run_random_state(42))
     else:
         # Without this the name stays unbound and the next line dies with a
         # bare UnboundLocalError. search_reduction_and_clustering already
@@ -7601,7 +7616,7 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric)
     elif clustering == 'kmeans':
         from sklearn.cluster import KMeans
-        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+        clustering_model = KMeans(n_clusters=min_samples, random_state=_run_random_state(42))
     else:
         raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
     clustering_model.fit(embedding)
@@ -7658,7 +7673,7 @@ def random_forest_feature_importance(all_df, cluster_col='cluster'):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(n_estimators=100, random_state=_run_random_state(42))
     model.fit(X_scaled, y)
 
     feature_importances = model.feature_importances_

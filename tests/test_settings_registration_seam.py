@@ -155,7 +155,13 @@ def test_a_non_callable_or_keyless_registration_is_refused(defaults_sandbox):
         S.register_defaults("seam_probe", {"src": ""})
     with pytest.raises(ValueError, match="need an app key"):
         S.register_defaults("", lambda s=None: {})
-    assert not S.registered_default_apps()
+    # A refused registration leaves no trace. Asserted per key rather than
+    # as "the registry is empty": real modules register at import time --
+    # spacr.runctx does -- and a seam that exists to be used must not make
+    # its own test fail the moment something uses it.
+    registered = S.registered_default_apps()
+    assert "seam_probe" not in registered
+    assert "" not in registered
 
 
 def test_unregister_removes_the_factory(defaults_sandbox):
