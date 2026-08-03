@@ -391,6 +391,28 @@ def _level_number(level: Optional[Union[int, str]]) -> Optional[int]:
     return resolved if isinstance(resolved, int) else None
 
 
+def _open_the_spacr_level() -> Optional[int]:
+    """Let INFO through on ``spacr.*`` for the life of a run.
+
+    A handler only sees a record its *logger* already let through, and a
+    bare library import leaves the root logger at WARNING — so without
+    this the per-run log would hold the warnings and none of the INFO
+    lines that say what the run did, which is most of what makes it worth
+    reading. Only the ``spacr`` logger is touched, not the root: a host
+    application's own loggers keep whatever level it chose, and every
+    handler still applies its own level on top, so this cannot make a
+    quiet console noisy on its own.
+
+    :returns: the level to restore, or None when nothing needed changing.
+    """
+    logger = logging.getLogger("spacr")
+    previous = logger.level
+    if logger.getEffectiveLevel() > logging.INFO:
+        logger.setLevel(logging.INFO)
+        return previous
+    return None
+
+
 class _RunLogHandler(logging.Handler):
     """Write this run's records to ``<runs>/<run_id>.jsonl``, one per line.
 
@@ -1352,12 +1374,14 @@ def run_context(module: str = "",
 
     install_run_id_logging()
     handler: Optional[_RunLogHandler] = None
+    restore_level: Optional[int] = None
     if log:
         try:
             context.log_path = run_log_path(identifier)
             handler = _RunLogHandler(identifier, context.log_path)
             handler.addFilter(RunIdFilter(identifier))
             logging.getLogger().addHandler(handler)
+            restore_level = _open_the_spacr_level()
         except Exception as exc:                        # noqa: BLE001
             LOG.warning("could not open the run log for %s: %s",
                         identifier, exc)
@@ -1390,6 +1414,8 @@ def run_context(module: str = "",
             os.environ.pop(RUN_ID_ENV, None)
         else:
             os.environ[RUN_ID_ENV] = previous_env
+        if restore_level is not None:
+            logging.getLogger("spacr").setLevel(restore_level)
         if handler is not None:
             logging.getLogger().removeHandler(handler)
             handler.close()
