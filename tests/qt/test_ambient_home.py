@@ -215,3 +215,50 @@ def test_an_image_theme_keeps_its_legibility_floor():
     floored = theme.panel_alpha("space", "surface", 0.0)
     assert floored > 0.5
     assert theme.panel_alpha("space", "surface", 1.0) == pytest.approx(1.0)
+
+
+def test_no_widget_on_home_paints_an_opaque_slab(qtbot, qt_theme_applied):
+    """The backdrop must reach the eye everywhere, not just between widgets.
+
+    This is the test that would have caught three rounds of guessing. Naming
+    widgets one at a time cannot keep up with a layout — the culprits turned
+    out to be the hero's own QLabels, Qt's internally-built
+    `qt_tabwidget_tabbar`, and the selected tab, none of which were on any
+    hand-written list.
+
+    The method is what makes it reliable: render the page twice, once with the
+    backdrop on and once off, and compare. A pixel that is IDENTICAL both ways
+    has something opaque in front of the animation. Sampling colours alone
+    cannot tell "opaque black" from "a dark part of the animation".
+    """
+    from PySide6.QtGui import QColor
+
+    from PySide6.QtWidgets import QApplication
+
+    def render(enabled: bool):
+        prefs.set_ambient_enabled(enabled)
+        prefs.apply_preferences_to_app(QApplication.instance())
+        page = _home()
+        qtbot.addWidget(page)
+        page.resize(1600, 1000)
+        page.show()
+        # The pump is required, not cosmetic: without it the stylesheet is
+        # not applied and the backdrop has not painted, so both renders come
+        # back identical and the test "passes" against a broken page.
+        QApplication.processEvents()
+        if getattr(page, "_ambient", None) is not None:
+            # A fixed time, so both renders sample the same animation state.
+            page._ambient.set_time(6.0)
+            QApplication.processEvents()
+        return page.grab().toImage()
+
+    on = render(True)
+    off = render(False)
+
+    opaque = [
+        y for y in range(10, 400, 10)
+        if QColor(on.pixel(60, y)).name() == QColor(off.pixel(60, y)).name()
+    ]
+    assert not opaque, (
+        f"{len(opaque)} sample points down the left of Home are unchanged by "
+        f"the backdrop, so something opaque is painting over it at y={opaque}")
