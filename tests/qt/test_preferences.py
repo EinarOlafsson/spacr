@@ -78,9 +78,11 @@ def test_preferences_dialog_offers_and_saves_every_language(
 # Theme
 # ---------------------------------------------------------------------------
 
-def test_theme_default_is_dark(qt_theme_applied):
-    from spacr.qt.preferences import get_theme
-    assert get_theme() == "dark"
+def test_theme_default_follows_the_system(qt_theme_applied):
+    """A desktop app that ignores the OS colour scheme looks broken on a
+    light desktop, so the shipped default follows it."""
+    from spacr.qt.preferences import get_theme_choice
+    assert get_theme_choice() == "system"
 
 
 def test_theme_roundtrip(qt_theme_applied):
@@ -101,7 +103,7 @@ def test_theme_recovers_from_corrupt_value(qt_theme_applied):
     from spacr.qt.preferences import get_theme
     from PySide6.QtCore import QSettings
     QSettings("spacr", "qt").setValue("prefs/theme", "garbage")
-    assert get_theme() == "dark"
+    assert get_theme() == "system"
 
 
 def test_figure_png_dpi_roundtrip_and_validation(qt_theme_applied):
@@ -135,9 +137,9 @@ def test_resolve_system_returns_valid_choice(qt_theme_applied):
 # Font scale
 # ---------------------------------------------------------------------------
 
-def test_font_scale_default_is_100pct(qt_theme_applied):
+def test_font_scale_default_is_150pct(qt_theme_applied):
     from spacr.qt.preferences import get_font_scale
-    assert get_font_scale() == 1.0
+    assert get_font_scale() == 1.5
 
 
 def test_font_scale_roundtrip(qt_theme_applied):
@@ -163,7 +165,7 @@ def test_font_scale_recovers_from_corrupt_value(qt_theme_applied):
     from spacr.qt.preferences import get_font_scale
     from PySide6.QtCore import QSettings
     QSettings("spacr", "qt").setValue("prefs/font_scale", "garbage")
-    assert get_font_scale() == 1.0
+    assert get_font_scale() == 1.5
 
 
 # ---------------------------------------------------------------------------
