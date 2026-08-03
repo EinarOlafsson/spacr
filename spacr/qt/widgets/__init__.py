@@ -6,6 +6,7 @@ from .card import Card
 from .column_picker import (ColumnPickerButton, ColumnPickerDialog,
                              attach_column_picker)
 from .console_panel import ConsolePanel
+from .data_filter_panel import DataFilterPanel
 from .divider import Divider
 from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
@@ -23,7 +24,7 @@ __all__ = [
     "AIChatPanel", "AiToggleLabel", "AnimationLink", "AnimationPopup", "Card",
     "attach_column_picker",
     "ColumnPickerDialog",
-    "ColumnPickerButton", "ConsolePanel", "Divider",
+    "ColumnPickerButton", "ConsolePanel", "DataFilterPanel", "Divider",
     "ElidingLabel", "ElidingPushButton",
     "EmptyState", "FigureQueue", "HTile", "HoverTooltip", "InfoLink",
     "ImageUmapExplorer", "LivePreviewPanel", "Section", "SettingLinkStack",
