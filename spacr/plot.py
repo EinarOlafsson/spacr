@@ -3014,7 +3014,14 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                                     pathogen_limit=True)
         
         paths_df = _read_db(loc, tables=['png_list'])
-        merged_df = pd.merge(df, paths_df[0], on='prcfo', how='left')
+        # one_to_one: _read_and_merge_data returns one row per object keyed on
+        # 'prcfo', and png_list carries at most one crop per that key. A
+        # duplicated 'prcfo' in png_list (a crop step that ran twice, or two
+        # crop_modes whose object labels collide) would multiply the
+        # measurement rows, and the jitter plot would then draw the same cell
+        # two or four times as if they were independent observations.
+        merged_df = pd.merge(df, paths_df[0], on='prcfo', how='left',
+                             validate='one_to_one')
         return merged_df
 
     # Read the CSV file into a DataFrame

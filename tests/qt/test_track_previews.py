@@ -2011,3 +2011,49 @@ def test_a_genuinely_multipage_tiff_is_read_one_page_at_a_time(tmp_path):
     assert seq.read_count == 0
     assert int(seq.frame(2)[0, 0]) == 3
     assert seq.read_count == 1, "reading one frame decoded more than one page"
+
+
+# ---------------------------------------------------------------------------
+# Key contract on the centroid join
+# ---------------------------------------------------------------------------
+
+def test_tracks_from_features_refuses_a_repeated_object_in_a_frame():
+    """One centroid per (frame, label), enforced rather than assumed.
+
+    ``_prepare_for_tracking`` runs regionprops, so a label appears once per
+    frame. A features table assembled any other way -- two frames' props
+    concatenated without re-indexing, say -- would invent extra track rows
+    with fabricated centroids, and the displacement statistics the panel
+    reports would be computed over objects that do not exist.
+    """
+    import pandas as pd
+    from spacr.qt.widgets.timelapse_preview import _tracks_from_features
+
+    tracks = pd.DataFrame({"track_id": [1, 2], "frame": [0, 0],
+                           "original_label": [1, 2]})
+    features = pd.DataFrame({
+        "frame": [0, 0, 0],
+        "original_label": [1, 1, 2],       # label 1 measured twice in frame 0
+        "x": [1.0, 9.0, 2.0],
+        "y": [1.0, 9.0, 2.0],
+    })
+
+    with pytest.raises(pd.errors.MergeError, match="not a many-to-one merge"):
+        _tracks_from_features(tracks, features)
+
+
+def test_tracks_from_features_allows_two_tracks_on_one_label():
+    """The left side is deliberately unconstrained: merge/split events repeat a label."""
+    import pandas as pd
+    from spacr.qt.widgets.timelapse_preview import _tracks_from_features
+
+    # Two tracks claim label 1 in frame 0 -- exactly what a merge event looks
+    # like, and not an error.
+    tracks = pd.DataFrame({"track_id": [1, 2], "frame": [0, 0],
+                           "original_label": [1, 1]})
+    features = pd.DataFrame({"frame": [0], "original_label": [1],
+                             "x": [1.0], "y": [2.0]})
+
+    out = _tracks_from_features(tracks, features)
+    assert len(out) == 2
+    assert list(out["x"]) == [1.0, 1.0]
