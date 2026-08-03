@@ -754,14 +754,22 @@ def test_repeated_palette_events_do_not_re_fill_the_backdrop(
 
 def test_unrelated_change_events_are_ignored(qtbot, qt_theme_applied,
                                              fake_ambient, monkeypatch):
+    """Only a palette change re-themes; Enabled and Font changes are not one.
+
+    The stand-in used to raise, so the test's only failure mode was an
+    exception rather than an assertion — invisible to the suite-hygiene rule,
+    and silent about how many times it was called. It counts now, and the
+    count is what is asserted.
+    """
     from spacr.qt.screens import app_screen
     screen = _screen(qtbot, "measure")
 
-    def explode():
-        raise AssertionError("re-themed on the wrong event")
-    monkeypatch.setattr(app_screen, "_theme_wallpaper", explode)
+    calls = []
+    monkeypatch.setattr(app_screen, "_theme_wallpaper",
+                        lambda *a, **k: calls.append((a, k)))
     screen.changeEvent(QEvent(QEvent.EnabledChange))
     screen.changeEvent(QEvent(QEvent.FontChange))
+    assert calls == [], "re-themed on an event that is not a palette change"
 
 
 def test_a_screen_with_no_backdrop_shrugs_off_a_theme_switch(

@@ -276,7 +276,22 @@ def test_a_short_value_list_gets_no_scroll_area(panel):
 
 
 def test_removing_a_column_that_is_not_there_is_harmless(panel):
-    panel.remove_column("never_added")   # must not raise
+    """Harmless means the panel is UNCHANGED, not merely that nothing threw.
+
+    A `remove_column` that swallowed the miss but dropped the last real row on
+    its way out would have passed the old "must not raise" version of this
+    test, so the rows either side of the call are what is compared now.
+    """
+    panel.add_column("plateID")
+    before = dict(panel._rows)
+    assert before, "nothing to protect: the fixture panel has no rows"
+
+    panel.remove_column("never_added")
+
+    assert panel._rows == before
+    # …and the real column can still be removed afterwards.
+    panel.remove_column("plateID")
+    assert panel._rows == {}
 
 
 def test_adding_a_skipped_column_is_refused(panel):

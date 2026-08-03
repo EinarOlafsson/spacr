@@ -145,8 +145,15 @@ def test_closing_the_screen_stops_it_listening(screen, qtbot):
     process-wide registry and a deferred callback.
     """
     screen.recompute()
+    assert screen.is_linked, "the screen was never listening to begin with"
+    note_before = screen._filter_note
     screen.close()
+    assert not screen.is_linked, "closeEvent did not disconnect the screen"
 
-    # Must not raise: nothing should still be routed at the closed screen.
+    # Nothing should still be routed at the closed screen: not only must this
+    # not raise, it must not reach the screen at all. Comparing the note either
+    # side is what says so — "must not raise" alone passed just as well with
+    # the screen still subscribed and quietly recomputing on every change.
     linked_selection().set_filter(
         DataFilter().add(CategoryFilter("plateID", ("p2",))))
+    assert screen._filter_note == note_before

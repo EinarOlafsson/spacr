@@ -539,7 +539,18 @@ def test_training_split_can_be_built_with_the_png_folder_deleted(project):
 
 def test_training_split_from_the_object_table_alone(project):
     """No png_list, no crop folder: the metadata rules select on well
-    metadata, which every measurement row already carries."""
+    metadata, which every measurement row already carries.
+
+    ``cv_group_by`` is pinned to ``"none"`` on purpose. The default is
+    ``"well"``, and the two classes here ARE the two wells — every crop in
+    ``well_a01`` comes from A01 and every crop in ``well_a02`` from A02 — so a
+    well-grouped holdout has to put each class entirely on one side and
+    ``generate_training_dataset`` refuses with "Leakage-safe well-grouped
+    split leaves class 'well_a01' empty in train". That refusal is correct
+    product behaviour, not a bug: this test is about the CROP SOURCE, and
+    asking it for a grouping its own class definition makes impossible tested
+    nothing about that and failed both alone and in the file.
+    """
     from spacr.io import generate_training_dataset
     _drop_png_folder(project)
     conn = sqlite3.connect(_db(project))
@@ -550,6 +561,7 @@ def test_training_split_from_the_object_table_alone(project):
     train, test = generate_training_dataset({
         "src": project, "dataset_mode": "metadata", "png_type": "cell_png",
         "test_split": 0.25, "crop_source": "merged", "verbose": False,
+        "cv_group_by": "none",
         "metadata_rules": [
             {"name": "well_a01", "column": "columnID", "op": "==", "value": "c1"},
             {"name": "well_a02", "column": "columnID", "op": "==", "value": "c2"},
