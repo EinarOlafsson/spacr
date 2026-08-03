@@ -228,6 +228,13 @@ class RegressionQCContext:
         mean of ``y`` — a hinge/SVM classifier predicts class labels — so the
         response-scale panels can state that on the report instead of quoting
         an R² that means nothing.
+    :param decision_score: The continuous score wells are RANKED by, which is
+        not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label,
+        and an ROC computed on hard labels has exactly two operating points and
+        understates the model. ``build_context`` sets this to
+        ``decision_function(X)`` for a classifier and to ``fitted`` for
+        everything else, oriented so that LARGER means MORE LIKELY POSITIVE for
+        both.
     :param labels: Per-well labels (``prc`` where available), used to name
         outliers on the influence panels.
     :param weights: Per-well weights passed to the fit (cell counts, for the
@@ -255,6 +262,7 @@ class RegressionQCContext:
     labels: np.ndarray
     standardisation: Optional["ResidualStandardisation"] = None
     prediction_note: Optional[str] = None
+    decision_score: Optional[np.ndarray] = None
     weights: Optional[np.ndarray] = None
     metadata: Optional[pd.DataFrame] = None
     coef_df: Optional[pd.DataFrame] = None
@@ -294,6 +302,21 @@ class RegressionQCContext:
                 or (self.regression_type or "") == "poisson")
 
     @property
+    def is_classifier(self) -> bool:
+        """True when the fit is a discriminative classifier (``hinge``).
+
+        Separate from :attr:`is_binomial`, which asks whether a *binomial
+        likelihood* was fitted. A hinge/SVM has no likelihood at all, so it is
+        not binomial — but it is the one model spaCR offers whose whole output
+        is a discrimination, which is what ROC and precision-recall measure.
+        Excluding it from those two panels, which is what asking only
+        :attr:`is_binomial` did, left the classifier as the single model type
+        with no discrimination QC.
+        """
+        return ((self.regression_type or "") == "hinge"
+                or hasattr(self.model, "decision_function"))
+
+    @property
     def is_binary_response(self) -> bool:
         """True when every response value is exactly 0 or 1.
 
@@ -304,6 +327,16 @@ class RegressionQCContext:
         """
         finite = self.y[np.isfinite(self.y)]
         return finite.size > 0 and bool(np.all((finite == 0) | (finite == 1)))
+
+    @property
+    def ranking_score(self) -> np.ndarray:
+        """The score ROC and precision-recall rank wells by.
+
+        :attr:`decision_score` when the context carries one, otherwise
+        :attr:`fitted`. Larger is more likely positive in both cases; see
+        :attr:`decision_score`.
+        """
+        return self.fitted if self.decision_score is None else self.decision_score
 
 
 # ---------------------------------------------------------------------------
@@ -1221,6 +1254,61 @@ def _model_fitted_values(model, X):
     return np.asarray(predict(X), dtype=float).ravel()
 
 
+def _decision_score(model, X, y):
+    """The continuous score a classifier ranks by, oriented positive-is-higher.
+
+    Returns ``None`` for anything that is not a two-class discriminative
+    classifier, in which case the panels fall back to the fitted values.
+
+    **The orientation is the entire point of this function.** scikit-learn's
+    contract is that ``decision_function(x) > 0`` predicts ``classes_[1]``, and
+    ``roc_auc_score`` treats the LARGER label as the event. Those two agree
+    whenever ``classes_`` is ascending, which sklearn guarantees for its own
+    estimators — but the agreement is an assumption, and an ROC computed on a
+    score with the opposite convention returns ``1 - AUC``: 0.94 becomes 0.06,
+    0.62 becomes 0.38, and neither reads as an error on the plot. This is the
+    same trap R's ``yardstick`` sets by treating the FIRST factor level as the
+    event, which this project has already been bitten by.
+
+    So the orientation is derived from ``classes_`` rather than assumed, and
+    the score is negated when ``classes_[1]`` is the *smaller* label. It is
+    never derived from the data: choosing the sign that makes the AUC exceed
+    0.5 would guarantee a flattering answer on noise, which is precisely the
+    failure the panel exists to reveal.
+
+    :param model: Fitted estimator.
+    :param X: Design matrix the fit saw.
+    :param y: Response, used only for the length check.
+    :returns: 1-D float array aligned with ``y``, or ``None``.
+    """
+    decision = getattr(model, "decision_function", None)
+    if not callable(decision):
+        return None
+    try:
+        score = np.asarray(decision(X), dtype=float)
+    except Exception:                               # noqa: BLE001
+        # An estimator that advertises decision_function and cannot run it on
+        # its own design is not a reason to lose the other twenty panels.
+        return None
+    if score.ndim != 1 or score.size != np.size(y):
+        # Multi-class one-vs-rest returns (n, k): there is no single ranking to
+        # draw one ROC from, so the panel falls back and says so.
+        return None
+
+    classes = getattr(model, "classes_", None)
+    if classes is not None and len(classes) == 2:
+        try:
+            low, high = float(classes[0]), float(classes[1])
+        except (TypeError, ValueError):
+            return score                            # non-numeric labels
+        if high < low:
+            # classes_[1] is the SMALLER label, so a larger decision value
+            # means a more NEGATIVE well. sklearn sorts classes_ and so never
+            # lands here; a hand-rolled or wrapped estimator can.
+            return -score
+    return score
+
+
 #: Family/link wording per model class, for the axis labels and the report
 #: header. Only the GLM branch feeds :attr:`RegressionQCContext.is_binomial`
 #: and :attr:`~RegressionQCContext.is_count`; these names are prose. They exist
@@ -1442,6 +1530,8 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
             f"RMSE describe the distance from a decision, not the error of a "
             f"regression")
 
+    decision_score = _decision_score(model, frame, response)
+
     notes = []
     if source.startswith("design matrix"):
         notes.append(
@@ -1467,7 +1557,8 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
         scale=scale, labels=labels, standardisation=standardisation,
         prediction_note=prediction_note, weights=w, metadata=aligned_meta,
         coef_df=coef_df, regression_type=regression_type, family=family,
-        link=link, volcano_path=volcano_path, notes=notes)
+        link=link, volcano_path=volcano_path, notes=notes,
+        decision_score=decision_score)
 
 
 # ---------------------------------------------------------------------------
@@ -2179,10 +2270,16 @@ def _panel_calibration(ctx, ax):
 
 def _require_binary(ctx, what):
     """Raise unless the response is binary labels, which ``what`` needs."""
-    if not ctx.is_binomial:
+    if not (ctx.is_binomial or ctx.is_classifier):
         raise PanelUnavailable(
             f"{what} is defined for a binary response; this fit uses the "
             f"{ctx.family} family")
+    if ctx.is_classifier and not ctx.is_binary_response:
+        raise PanelUnavailable(
+            f"{what} needs 0/1 labels and this classifier was fitted on a "
+            f"response that is not binary; spaCR binarises it before the fit "
+            f"(binarise_response), so pass the binarised response to "
+            f"build_context if you want this panel")
     if not ctx.is_binary_response:
         raise PanelUnavailable(
             f"{what} needs 0/1 labels, but the response is a continuous "
@@ -2194,29 +2291,47 @@ def _require_binary(ctx, what):
 
 
 def _panel_roc(ctx, ax):
-    """ROC curve with AUC, for a genuinely binary response."""
+    """ROC curve with AUC, for a genuinely binary response.
+
+    Ranked by :attr:`~RegressionQCContext.ranking_score`, whose orientation is
+    fixed in :func:`build_context`: larger means more likely positive. That is
+    the whole content of this panel and it is the easy thing to get backwards —
+    a score built with the opposite convention reports ``1 - AUC``, which for a
+    good model lands near 0.05 and for a mediocre one near 0.4, neither of which
+    looks obviously wrong on a plot. ``tests/test_regression_orientation.py``
+    pins it from both ends.
+    """
     _require_binary(ctx, "an ROC curve")
     from sklearn.metrics import roc_auc_score, roc_curve
 
-    fpr, tpr, _ = roc_curve(ctx.y, ctx.fitted, sample_weight=ctx.weights)
-    auc = float(roc_auc_score(ctx.y, ctx.fitted, sample_weight=ctx.weights))
+    score = ctx.ranking_score
+    fpr, tpr, _ = roc_curve(ctx.y, score, sample_weight=ctx.weights)
+    auc = float(roc_auc_score(ctx.y, score, sample_weight=ctx.weights))
     ax.plot(fpr, tpr, color=_POINT, lw=1.6)
     ax.plot([0, 1], [0, 1], color=_GUIDE, ls="--", lw=1.0, label="chance")
     ax.legend(fontsize=7, frameon=False, loc="lower right")
     n_pos = int(np.sum(ctx.y == 1))
     _finish(ax, "ROC", "false positive rate", "true positive rate", n=ctx.n)
-    _note(ax, f"AUC = {auc:.3f}\n{n_pos} positive / {ctx.n - n_pos} negative")
-    return {"auc": auc, "n_positive": n_pos, "n_negative": int(ctx.n - n_pos)}
+    ranked_by = ("decision function" if ctx.decision_score is not None
+                 else "fitted value")
+    _note(ax, f"AUC = {auc:.3f}\n{n_pos} positive / {ctx.n - n_pos} negative\n"
+              f"ranked by {ranked_by}")
+    return {"auc": auc, "n_positive": n_pos, "n_negative": int(ctx.n - n_pos),
+            "ranked_by": ranked_by}
 
 
 def _panel_precision_recall(ctx, ax):
-    """Precision-recall curve with average precision and the prevalence baseline."""
+    """Precision-recall curve with average precision and the prevalence baseline.
+
+    Ranked by the same oriented score as :func:`_panel_roc`.
+    """
     _require_binary(ctx, "a precision-recall curve")
     from sklearn.metrics import average_precision_score, precision_recall_curve
 
-    precision, recall, _ = precision_recall_curve(ctx.y, ctx.fitted,
+    score = ctx.ranking_score
+    precision, recall, _ = precision_recall_curve(ctx.y, score,
                                                   sample_weight=ctx.weights)
-    ap = float(average_precision_score(ctx.y, ctx.fitted,
+    ap = float(average_precision_score(ctx.y, score,
                                        sample_weight=ctx.weights))
     prevalence = float(np.mean(ctx.y == 1))
     ax.plot(recall, precision, color=_POINT, lw=1.6)
