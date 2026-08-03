@@ -523,7 +523,10 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
             name (str): The name of the track.
             batch_filenames (list): List of batch filenames.
             object_type (str): The type of object to track.
-            masks (list): List of masks.
+            masks (list | np.ndarray): the frames of one field, either as a
+                list of 2-D label images (what ``spacr.object`` hands over,
+                because that is what ``CellposeModel.eval`` returns for a list
+                of images) or as a (T, H, W) array. Coerced to an array below.
             timelapse_displacement (int): The displacement for timelapse tracking.
             timelapse_memory (int): The memory for timelapse tracking.
             timelapse_remove_transient (bool): Whether to remove transient objects in timelapse tracking.
@@ -535,11 +538,24 @@ def _trackpy_track_cells(src, name, batch_filenames, object_type, masks, timelap
             list: The mask stack.
 
         """
-        
+
         from .plot import _visualize_and_save_timelapse_stack_with_tracks
         from .utils import _masks_to_masks_stack
-        
+
         print(f'Tracking objects with trackpy')
+
+        # `spacr.object.generate_cellpose_masks_sam` passes a LIST of 2-D
+        # frames, and everything below this line indexes it as an array:
+        # `_track_by_iou` reads `masks.shape[0]` and
+        # `_relabel_masks_based_on_tracks` builds `np.zeros(masks.shape, ...)`,
+        # both AttributeError on a list. In the timelapse_mode='iou' path the
+        # first of those is raised inside the retry loop of
+        # `_facilitate_trackin_with_adaptive_removal`, which swallowed it,
+        # shrank the search range 100 times and reported "Failed to track after
+        # 100 attempts" — a message about displacement for a bug about a type.
+        # One coercion at the door fixes both, and is a no-op when the caller
+        # already passes an array.
+        masks = np.asarray(masks)
 
         if timelapse_displacement is None:
             features = _prepare_for_tracking(masks)

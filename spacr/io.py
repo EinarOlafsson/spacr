@@ -940,10 +940,28 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                     files_processed += 1
                     continue
 
-                if timelapse:
-                    output_filename = f'{plate}_{well}_{field}.tif'
-                else:
-                    output_filename = f'{plate}_{well}_{field}_{timeID}.tif'
+                # One FOV file per TIMEPOINT, timelapse or not. The timelapse
+                # branch used to drop the timeID and name every frame of a
+                # field `<plate>_<well>_<field>.tif`, which had two effects,
+                # both silent:
+                #
+                #   * the `np.maximum` combine below then folded all N frames
+                #     into one max projection, so the movie was destroyed
+                #     before anything downstream saw it, and
+                #   * `_generate_time_lists` — which both
+                #     `_concatenate_channel` and `concatenate_and_normalize`
+                #     group on — skips any name with fewer than four
+                #     underscore-separated parts, so it returned [] for the
+                #     whole plate. No `*_norm_timelapse.npz` was written, no
+                #     masks were generated, and `preprocess_generate_masks`
+                #     died much later in `_pivot_counts_table` on
+                #     "no such table: object_counts".
+                #
+                # The non-timelapse spelling is exactly what
+                # `_generate_time_lists` parses (plate_well_field_time), so
+                # there is nothing for the timelapse branch to spell
+                # differently.
+                output_filename = f'{plate}_{well}_{field}_{timeID}.tif'
 
                 mip = np.max(np.stack(images), axis=0)
                 channels_seen.add(channel)

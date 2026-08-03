@@ -139,9 +139,28 @@ def test_img_format_string_is_wrapped_in_list(tmp_path):
     assert decoy.exists()
 
 
-def test_timelapse_naming_drops_timepoint_from_stack_name(tmp_path):
-    """With ``timelapse=True`` all timepoints of a FOV share one stack name."""
-    from spacr.io import _rename_and_organize_image_files
+def test_timelapse_naming_keeps_one_stack_per_timepoint(tmp_path):
+    """``timelapse=True`` must write one stack PER TIMEPOINT, timeID included.
+
+    This test used to assert the opposite — that all timepoints of a FOV share
+    one ``<plate>_<well>_<field>.npy`` — and so pinned a bug that made the whole
+    Timelapse module unusable, in two ways at once:
+
+    * the ``np.maximum`` combine in ``_rename_and_organize_image_files`` folded
+      every frame of a field into a single max projection, so the movie was
+      destroyed before anything downstream saw it; and
+    * ``_generate_time_lists`` (the grouper both ``_concatenate_channel`` and
+      ``concatenate_and_normalize`` build their timelapse stacks from) skips any
+      name with fewer than four underscore-separated parts, so it returned an
+      empty list for the whole plate. No ``*_norm_timelapse.npz`` was written,
+      no masks were generated, and ``preprocess_generate_masks`` died far away
+      in ``_pivot_counts_table`` on ``no such table: object_counts``.
+
+    ``plate_well_field_time`` is the spelling ``_generate_time_lists`` parses,
+    and it is what the non-timelapse branch already produced, so there was
+    nothing for the timelapse branch to spell differently.
+    """
+    from spacr.io import _generate_time_lists, _rename_and_organize_image_files
 
     src = tmp_path / "plate1"
     src.mkdir()
@@ -155,8 +174,19 @@ def test_timelapse_naming_drops_timepoint_from_stack_name(tmp_path):
 
     assert n_channels == 2
     stacks = sorted(os.listdir(src / "stack"))
-    assert stacks == ["plate1_A01_1.npy"], stacks   # no _<timeID> suffix
-    assert np.load(src / "stack" / "plate1_A01_1.npy").shape == (6, 8, 2)
+    assert stacks == ["plate1_A01_1_1.npy", "plate1_A01_1_2.npy"], stacks
+
+    # Each frame keeps its own pixels rather than being max-projected with the
+    # other: T0001 carries 11/12, T0002 carries 21/22.
+    first = np.load(src / "stack" / "plate1_A01_1_1.npy")
+    second = np.load(src / "stack" / "plate1_A01_1_2.npy")
+    assert first.shape == second.shape == (6, 8, 2)
+    assert (first[..., 0].max(), first[..., 1].max()) == (11, 12)
+    assert (second[..., 0].max(), second[..., 1].max()) == (21, 22)
+
+    # And the grouper downstream can actually see them as one time series.
+    groups = _generate_time_lists(stacks)
+    assert groups == [["plate1_A01_1_1.npy", "plate1_A01_1_2.npy"]], groups
 
 
 def test_existing_stack_file_is_not_overwritten(tmp_path, monkeypatch, capsys):
