@@ -73,9 +73,15 @@ def bootstrap():
     global _WE_OWN_THE_APP
     app = QApplication.instance()
     if app is None:
+        # NativeFormat as well as Ini. `preferences._settings()` builds
+        # `QSettings("spacr", "qt")`, which is a NativeFormat object and
+        # ignores setDefaultFormat/setPath(IniFormat, ...) — redirecting only
+        # Ini left every render reading the operator's own saved font scale
+        # and theme, so "deterministic" renders differed per machine.
+        sandbox = tempfile.mkdtemp(prefix="spacr-home-variants-")
         QSettings.setDefaultFormat(QSettings.IniFormat)
-        QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                          tempfile.mkdtemp(prefix="spacr-home-variants-"))
+        for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+            QSettings.setPath(fmt, QSettings.UserScope, sandbox)
         app = QApplication(sys.argv[:1])
         _WE_OWN_THE_APP = True
     _load_fonts()

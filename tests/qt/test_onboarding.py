@@ -6,12 +6,19 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
+    """Redirect QSettings into ``tmp_path`` before clearing it.
+
+    NativeFormat has to move as well: ``QSettings("spacr", "qt")`` — the
+    object ``first_run._settings()`` builds — ignores ``setDefaultFormat`` and
+    ``setPath(IniFormat, ...)``, so the Ini-only redirect left ``.clear()``
+    wiping the developer's real ``~/.config/spacr/qt.conf``.
+    """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-onboarding-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                        str(tmp_path))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     QSettings("spacr", "qt").clear()
     # `_skip_first_launch_tour` (autouse in conftest) marks the tour
     # seen so MainWindow-constructing tests don't fire the overlay,
