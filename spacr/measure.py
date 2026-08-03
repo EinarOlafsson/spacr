@@ -33,6 +33,9 @@ MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 # at the end of the run, and stamped into measurements.db so a downstream
 # regression cannot silently analyse 344 of 384 wells.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
+# One run id on every log line and every artifact, one seed reaching every
+# RNG, one on_error policy at each batch boundary. See spacr.runctx.
+from .runctx import run_context
 from .resume import plan_measure_resume
 # Opt-in extension points, so illumination correction and a user-drawn ROI can
 # change what is measured without editing this module. Both registries are
@@ -2709,224 +2712,276 @@ def measure_crop(settings):
     if isinstance(settings['src'], list):
         source_folders = settings['src']
         
-        for source_folder in source_folders:
-            cancellation_checkpoint()
-            print(f'Processing folder: {source_folder}')
+        # One run for the whole invocation: one id on every log line and
+        # every artifact it registers, one seed reaching numpy / random /
+        # torch, and one on_error policy honoured at the per-field
+        # boundary inside the pool loop. See spacr.runctx.
+        with run_context('measure', settings) as run:
+            for source_folder in source_folders:
+                cancellation_checkpoint()
+                print(f'Processing folder: {source_folder}')
             
-            source_folder = format_path_for_system(source_folder)
-            settings['src'] = source_folder
+                source_folder = format_path_for_system(source_folder)
+                settings['src'] = source_folder
 
-            settings = get_measure_crop_settings(settings)
-            settings = measure_test_mode(settings)
+                settings = get_measure_crop_settings(settings)
+                settings = measure_test_mode(settings)
 
-            src_fldr = settings['src']
+                src_fldr = settings['src']
             
-            if not os.path.basename(src_fldr).endswith('merged'):
-                print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
-                src_fldr = os.path.join(src_fldr, 'merged')
-                settings['src'] = src_fldr
-                print(f"Changed source folder to: {src_fldr}")
+                if not os.path.basename(src_fldr).endswith('merged'):
+                    print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
+                    src_fldr = os.path.join(src_fldr, 'merged')
+                    settings['src'] = src_fldr
+                    print(f"Changed source folder to: {src_fldr}")
             
-            if settings['cell_mask_dim'] is None:
-                settings['uninfected'] = True
-            if settings['pathogen_mask_dim'] is None:
-                settings['uninfected'] = True
-            if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
-                settings['cytoplasm'] = True
-            elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
-                settings['cytoplasm'] = True
-            else:
-                settings['cytoplasm'] = False
+                if settings['cell_mask_dim'] is None:
+                    settings['uninfected'] = True
+                if settings['pathogen_mask_dim'] is None:
+                    settings['uninfected'] = True
+                if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
+                    settings['cytoplasm'] = True
+                elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
+                    settings['cytoplasm'] = True
+                else:
+                    settings['cytoplasm'] = False
                 
-            settings['n_jobs'] = resolve_n_jobs(settings['n_jobs'])
+                settings['n_jobs'] = resolve_n_jobs(settings['n_jobs'])
 
-            settings_save = settings.copy()
-            settings_save['src'] = os.path.dirname(settings['src'])
-            save_settings(settings_save, name='measure_crop_settings', show=True)
+                settings_save = settings.copy()
+                settings_save['src'] = os.path.dirname(settings['src'])
+                save_settings(settings_save, name='measure_crop_settings', show=True)
 
-            if settings['timelapse_objects'] == 'nucleus':
-                if not settings['cell_mask_dim'] is None:
-                    tlo = settings['timelapse_objects']
-                    print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
+                if settings['timelapse_objects'] == 'nucleus':
+                    if not settings['cell_mask_dim'] is None:
+                        tlo = settings['timelapse_objects']
+                        print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
 
-            int_setting_keys = [
-                'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
-                'organelle_mask_dim', 'cell_min_size', 'nucleus_min_size',
-                'pathogen_min_size', 'organelle_min_size',
-                'cytoplasm_min_size',
-            ]
+                int_setting_keys = [
+                    'cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim',
+                    'organelle_mask_dim', 'cell_min_size', 'nucleus_min_size',
+                    'pathogen_min_size', 'organelle_min_size',
+                    'cytoplasm_min_size',
+                ]
             
-            # Category B, every one of these: the settings are wrong, so no
-            # field can be measured. Each historically printed a WARNING and
-            # returned None, which the caller cannot distinguish from a
-            # completed run that wrote no rows. SPACR_STRICT_ERRORS turns
-            # them into a ConfigurationError; the default stays as-is.
-            if isinstance(settings['normalize'], bool) and settings['normalize']:
-                print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
-                raise_if_strict(
-                    "settings['normalize'] must be a list of two percentiles, "
-                    "e.g. [1, 99] — not a bool. Nothing was measured.",
-                    settings=settings)
-                return
-
-            if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
-                if settings['normalize_by'] not in ['png', 'fov']:
-                    print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                # Category B, every one of these: the settings are wrong, so no
+                # field can be measured. Each historically printed a WARNING and
+                # returned None, which the caller cannot distinguish from a
+                # completed run that wrote no rows. SPACR_STRICT_ERRORS turns
+                # them into a ConfigurationError; the default stays as-is.
+                if isinstance(settings['normalize'], bool) and settings['normalize']:
+                    print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
                     raise_if_strict(
-                        "settings['normalize_by'] must be 'png' or 'fov', got "
-                        f"{settings['normalize_by']!r}. Nothing was measured.",
+                        "settings['normalize'] must be a list of two percentiles, "
+                        "e.g. [1, 99] — not a bool. Nothing was measured.",
                         settings=settings)
                     return
 
-            if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
-                print(f"WARNING: {int_setting_keys} must all be integers")
-                raise_if_strict(
-                    f"{int_setting_keys} must all be int or None. "
-                    "Nothing was measured.", settings=settings)
-                return
+                if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
+                    if settings['normalize_by'] not in ['png', 'fov']:
+                        print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                        raise_if_strict(
+                            "settings['normalize_by'] must be 'png' or 'fov', got "
+                            f"{settings['normalize_by']!r}. Nothing was measured.",
+                            settings=settings)
+                        return
 
-            if not isinstance(settings['channels'], list):
-                print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
-                raise_if_strict(
-                    "settings['channels'] must be a list of channel indices, "
-                    f"got {type(settings['channels']).__name__}. "
-                    "Nothing was measured.", settings=settings)
-                return
+                if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
+                    print(f"WARNING: {int_setting_keys} must all be integers")
+                    raise_if_strict(
+                        f"{int_setting_keys} must all be int or None. "
+                        "Nothing was measured.", settings=settings)
+                    return
 
-            if not isinstance(settings['crop_mode'], list):
-                print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
-                settings['crop_mode'] = [settings['crop_mode']]
-                settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
-                print(f"Converted crop_mode to list: {settings['crop_mode']}")
+                if not isinstance(settings['channels'], list):
+                    print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
+                    raise_if_strict(
+                        "settings['channels'] must be a list of channel indices, "
+                        f"got {type(settings['channels']).__name__}. "
+                        "Nothing was measured.", settings=settings)
+                    return
+
+                if not isinstance(settings['crop_mode'], list):
+                    print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
+                    settings['crop_mode'] = [settings['crop_mode']]
+                    settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
+                    print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
-            # MUST come before _save_settings_to_db: that writes the settings
-            # table with if_exists='replace', destroying the record of the run
-            # being resumed — which is what the settings comparison reads.
-            resume_plan = plan_measure_resume(settings)
+                # MUST come before _save_settings_to_db: that writes the settings
+                # table with if_exists='replace', destroying the record of the run
+                # being resumed — which is what the settings comparison reads.
+                resume_plan = plan_measure_resume(settings)
 
-            _save_settings_to_db(settings)
+                _save_settings_to_db(settings)
 
-            files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
-            if resume_plan is not None:
-                files = resume_plan.filter_files(files)
-            n_jobs = settings['n_jobs']
-            print(f'using {n_jobs} cpu cores')
-            print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
+                files = [f for f in os.listdir(settings['src']) if f.endswith('.npy')]
+                if resume_plan is not None:
+                    files = resume_plan.filter_files(files)
+                n_jobs = settings['n_jobs']
+                print(f'using {n_jobs} cpu cores')
+                print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
 
-            # One ledger per source folder. Both failure routes are covered:
-            # a worker that returned the cells==0 sentinel (it caught its own
-            # exception), and a worker that died outright — the latter used to
-            # be completely invisible, because apply_async stores the exception
-            # on an AsyncResult nobody ever read.
-            ledger = RunLedger('measure_crop')
-            index_to_file = dict(enumerate(files))
-            reported_files = set()
+                # One ledger per source folder. Both failure routes are covered:
+                # a worker that returned the cells==0 sentinel (it caught its own
+                # exception), and a worker that died outright — the latter used to
+                # be completely invisible, because apply_async stores the exception
+                # on an AsyncResult nobody ever read.
+                ledger = RunLedger('measure_crop')
+                # This folder's ledger joins the run: the ledger's run_id, every
+                # log line below and every artifact this run registers all carry
+                # one id, so the log of the run that produced a measurements.db
+                # can be pulled back with spacr.runctx.read_run_log().
+                run.adopt(ledger)
+                policy = run.policy.bind(ledger=ledger, record=False)
+                index_to_file = dict(enumerate(files))
+                reported_files = set()
 
-            def job_callback(result):
-                """Record one completed field and save its optional figures."""
-                completed_jobs.add(result[0])
-                item = index_to_file.get(result[0], result[0])
-                reported_files.add(item)
-                # cells is np.unique(cell_mask) on success and the int 0 when
-                # _measure_crop_core swallowed an exception for this field.
-                if isinstance(result[2], int) and result[2] == 0:
-                    ledger.record_failure(
-                        item, stage='measure',
-                        exc='field failed inside _measure_crop_core '
-                            '(worker traceback in ~/.spacr/logs/spacr.log)')
-                else:
-                    ledger.record_success(item, stage='measure')
-                process_meassure_crop_results([result], settings)
-                files_processed = len(completed_jobs)
-                files_to_process = len(files)
-                print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
+                def job_callback(result):
+                    """Record one completed field and save its optional figures."""
+                    completed_jobs.add(result[0])
+                    item = index_to_file.get(result[0], result[0])
+                    reported_files.add(item)
+                    # cells is np.unique(cell_mask) on success and the int 0 when
+                    # _measure_crop_core swallowed an exception for this field.
+                    if isinstance(result[2], int) and result[2] == 0:
+                        ledger.record_failure(
+                            item, stage='measure',
+                            exc='field failed inside _measure_crop_core '
+                                '(worker traceback in ~/.spacr/logs/spacr.log)')
+                    else:
+                        ledger.record_success(item, stage='measure')
+                    process_meassure_crop_results([result], settings)
+                    files_processed = len(completed_jobs)
+                    files_to_process = len(files)
+                    print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
 
-            def make_error_callback(job_file):
-                """Bind the filename into the pool's error callback.
+                def make_error_callback(job_file):
+                    """Bind the filename into the pool's error callback.
 
-                ``apply_async`` hands the error callback only the exception,
-                so the file has to be closed over. Without this hook a worker
-                that died outright vanished entirely: the exception sat on an
-                AsyncResult nobody read, and the run still printed
-                "Successfully completed run".
-                """
-                def _on_error(exc):
-                    reported_files.add(job_file)
-                    ledger.record_failure(job_file, stage='measure_worker', exc=exc)
-                return _on_error
+                    ``apply_async`` hands the error callback only the exception,
+                    so the file has to be closed over. Without this hook a worker
+                    that died outright vanished entirely: the exception sat on an
+                    AsyncResult nobody read, and the run still printed
+                    "Successfully completed run".
+                    """
+                    def _on_error(exc):
+                        reported_files.add(job_file)
+                        ledger.record_failure(job_file, stage='measure_worker', exc=exc)
+                    return _on_error
 
-            # One explicit context for both the Manager and the Pool. Mixing
-            # them -- a fork Manager serving a spawn Pool, say -- is how the
-            # shared time_ls proxy ends up unreachable from a worker.
-            ctx = _pool_context()
-            start_method = ctx.get_start_method()
-            # A spawn/forkserver worker is a fresh interpreter with empty hook
-            # registries, so a hook registered in *this* process would apply to
-            # nothing at all and the run would look completely normal. Say so
-            # before the pool starts rather than let it be invisible.
-            warn_if_hooks_will_not_reach_workers(start_method)
-            pool_jobs = resolve_pool_size(n_jobs, len(files),
-                                          start_method=start_method)
+                # One explicit context for both the Manager and the Pool. Mixing
+                # them -- a fork Manager serving a spawn Pool, say -- is how the
+                # shared time_ls proxy ends up unreachable from a worker.
+                ctx = _pool_context()
+                start_method = ctx.get_start_method()
+                # A spawn/forkserver worker is a fresh interpreter with empty hook
+                # registries, so a hook registered in *this* process would apply to
+                # nothing at all and the run would look completely normal. Say so
+                # before the pool starts rather than let it be invisible.
+                warn_if_hooks_will_not_reach_workers(start_method)
+                pool_jobs = resolve_pool_size(n_jobs, len(files),
+                                              start_method=start_method)
 
-            # _start_manager, not ctx.Manager(), because the bare call fails as
-            # an EOFError from deep inside multiprocessing with no message at
-            # all. See ManagerStartError.
-            with _start_manager(ctx) as manager:
-                time_ls = manager.list()
-                completed_jobs = set()  # Set to keep track of completed jobs
+                # _start_manager, not ctx.Manager(), because the bare call fails as
+                # an EOFError from deep inside multiprocessing with no message at
+                # all. See ManagerStartError.
+                # try/finally, because on_error='stop' aborts here and an
+                # aborted run's evidence is exactly what a reader needs:
+                # without this the fields nobody heard from go uncounted
+                # and measurements.db is never stamped, so a half-written
+                # database reads as one nobody ever measured into.
+                try:
+                    with _start_manager(ctx) as manager:
+                        time_ls = manager.list()
+                        completed_jobs = set()  # Set to keep track of completed jobs
 
-                with ctx.Pool(pool_jobs) as pool:
-                    # Bound outstanding work to one pool-width batch. Stop is
-                    # checked only after all fields in that batch have
-                    # completed their writes.
-                    for offset in range(0, len(files), pool_jobs):
-                        cancellation_checkpoint()
-                        pending = []
-                        for index in range(
-                                offset, min(offset + pool_jobs, len(files))):
-                            file = files[index]
-                            result = pool.apply_async(
-                                _measure_crop_core,
-                                args=(index, time_ls, file, settings),
-                            )
-                            pending.append((file, result))
-                        for file, async_result in pending:
-                            try:
-                                job_callback(async_result.get())
-                            except PipelineCancelled:
-                                raise
-                            except Exception as exc:
-                                make_error_callback(file)(exc)
-                        cancellation_checkpoint()
+                        with ctx.Pool(pool_jobs) as pool:
+                            # Bound outstanding work to one pool-width batch. Stop is
+                            # checked only after all fields in that batch have
+                            # completed their writes.
+                            for offset in range(0, len(files), pool_jobs):
+                                cancellation_checkpoint()
+                                pending = []
+                                for index in range(
+                                        offset, min(offset + pool_jobs, len(files))):
+                                    file = files[index]
+                                    result = pool.apply_async(
+                                        _measure_crop_core,
+                                        args=(index, time_ls, file, settings),
+                                    )
+                                    pending.append((file, index, result))
+                                for file, index, async_result in pending:
+                                    # on_error, at the per-field boundary. The
+                                    # ledger entry is written either way by
+                                    # job_callback / make_error_callback, which is
+                                    # why the policy is bound with record=False;
+                                    # what on_error decides is whether the run
+                                    # survives the field. retry re-submits the
+                                    # field rather than re-reading the
+                                    # AsyncResult, which can only be got once.
+                                    for attempt in policy.attempts_for(
+                                            file, stage='measure'):
+                                        with attempt:
+                                            try:
+                                                if attempt.number == 1:
+                                                    job_callback(async_result.get())
+                                                else:
+                                                    job_callback(pool.apply_async(
+                                                        _measure_crop_core,
+                                                        args=(index, time_ls, file,
+                                                              settings)).get())
+                                            except PipelineCancelled:
+                                                raise
+                                            except Exception as exc:
+                                                # Only on the last attempt: the
+                                                # ledger counts fields, not tries,
+                                                # so a field that failed twice and
+                                                # then worked is one success.
+                                                if attempt.last:
+                                                    make_error_callback(file)(exc)
+                                                raise
+                                cancellation_checkpoint()
 
-                    pool.close()
-                    pool.join()
+                            pool.close()
+                            pool.join()
+                finally:
+                    # Fields the pool never reported on at all (killed worker,
+                    # pool terminated before the task ran, or on_error='stop'
+                    # ending the run at the first bad field). Counting them
+                    # keeps n_attempted equal to the number of fields on disk.
+                    for job_file in files:
+                        if job_file not in reported_files:
+                            ledger.record_failure(job_file, stage='measure',
+                                                  exc='field produced no result')
 
-            # Fields the pool never reported on at all (killed worker, pool
-            # terminated before the task ran). Counting them keeps
-            # n_attempted equal to the number of fields on disk.
-            for job_file in files:
-                if job_file not in reported_files:
-                    ledger.record_failure(job_file, stage='measure',
-                                          exc='field produced no result')
+                    # Stamp measurements.db with the verdict, then print it
+                    # last. This is the bit that turns "we printed a warning"
+                    # into "the artifact knows it is suspect":
+                    # spacr.errors.read_run_status() on this db tells a
+                    # downstream reader how many fields are missing. In the
+                    # finally, because an aborted run is exactly the one whose
+                    # half-written database must not read as untouched.
+                    db_path = os.path.join(os.path.dirname(settings['src']),
+                                           'measurements', 'measurements.db')
+                    ledger.finalize(
+                        artifact=db_path if os.path.isfile(db_path) else None)
 
-            if settings['timelapse']:
-                if settings['timelapse_objects'] == 'nucleus':
-                    folder_path = settings['src']
-                    mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
-                    object_types = ['nucleus', 'pathogen', 'cell']
-                    _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
+                if settings['timelapse']:
+                    if settings['timelapse_objects'] == 'nucleus':
+                        folder_path = settings['src']
+                        mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
+                        object_types = ['nucleus', 'pathogen', 'cell']
+                        _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
-            # Stamp measurements.db with the verdict, then print it last.
-            # This is the bit that turns "we printed a warning" into "the
-            # artifact knows it is suspect": spacr.errors.read_run_status()
-            # on this db tells a downstream reader how many fields are missing.
-            db_path = os.path.join(os.path.dirname(settings['src']),
-                                   'measurements', 'measurements.db')
-            ledger.finalize(artifact=db_path if os.path.isfile(db_path) else None)
+                if ledger.is_complete:
+                    print("Successfully completed run")
 
-            if ledger.is_complete:
-                print("Successfully completed run")
+            # Record what this run produced, stamped with the run id every
+            # log line above carries, so an artifact and its log can be
+            # joined: spacr.runctx.read_run_log(artifact.run_id). The
+            # canonicalized settings, not the ones handed in, so the hash
+            # recorded against each artifact covers the values actually used.
+            run.register_outputs(settings=settings, roots=source_folders)
 
 def process_meassure_crop_results(partial_results, settings):
     """
