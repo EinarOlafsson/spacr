@@ -109,7 +109,7 @@ _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
 #: does not pull in QtGui/QtWidgets.
-PALETTE_THEMES = ("dark", "light", "space", "cell", "glass")
+PALETTE_THEMES = ("dark", "light", "cell", "glass")
 
 #: Persisted values. An existing install has ``prefs/theme`` set to one
 #: of dark/light/system/space; those keep resolving exactly as before,
@@ -298,19 +298,11 @@ def theme_choices() -> tuple:
         ("Glass", "glass"),
         ("Follow system", "system"),
     ]
-    space_labels = {
-        "galaxy": "Spiral galaxy",
-        "sun": "Star and corona",
-        "stars": "Deep starfield",
-        "deep_field": "Galaxy deep field",
-    }
+    # Space is gone; its variants are no longer offered. The wallpapers are
+    # named for what they show rather than prefixed with a theme the user
+    # never has to think about.
     choices.extend(
-        (f"Space — {space_labels.get(key, key.replace('_', ' ').title())}",
-         f"space:{key}")
-        for key in space_variants()
-    )
-    choices.extend(
-        (f"Cell — {title_for(key)}", f"cell:{key}")
+        (title_for(key), f"cell:{key}")
         for key in CELL_VARIANTS
     )
     return tuple(choices)
@@ -900,7 +892,7 @@ def set_db_browser_editable(on: bool) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Feature maturity — visibility of unfinished modules and settings
+# Module visibility — whether unfinished modules and settings are shown
 # ---------------------------------------------------------------------------
 
 DEFAULT_SHOW_ALPHA = True
@@ -1295,7 +1287,7 @@ class PreferencesDialog:
         db_edit_check.setChecked(get_db_browser_editable())
         form.addRow(tr("Database Browser"), db_edit_check)
 
-        # Feature maturity. Both are opt-out: existing users and fresh
+        # Module visibility. Both are opt-out: existing users and fresh
         # installs continue to see every feature until they choose a quieter,
         # stable-only interface.
         alpha_check = Toggle(tr("Show Alpha modules and settings"))
@@ -1317,7 +1309,7 @@ class PreferencesDialog:
         maturity_col.setContentsMargins(0, 0, 0, 0)
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
-        form.addRow(tr("Feature maturity"), _hbox_wrap(maturity_col))
+        form.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
 
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.

@@ -676,7 +676,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "데이터베이스 브라우저에서 편집 허용",
         "Leyfa breytingar í gagnagrunnsvafra",
         "Autoriser la modification dans l’explorateur de base de données"),
-    "Feature maturity": _row(
+    "Module visibility": _row(
         "Funktionsmognad", "Funktionsreife", "Madurez de funciones",
         "功能成熟度", "Maturidade dos recursos", "फ़ीचर परिपक्वता",
         "기능 성숙도", "Þroski eiginleika", "Maturité des fonctions"),

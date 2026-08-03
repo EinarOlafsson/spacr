@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QTimer
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QPushButton
 
 
@@ -62,6 +63,15 @@ class _SemanticButtonFilter(QObject):
     """Tag buttons globally and preserve Run's fill until work completes."""
 
     def classify(self, button: QPushButton) -> None:
+        # spaCR's dialog buttons are text, not text-plus-glyph. Qt's platform
+        # styles put a standard icon on the standard roles — a cross on
+        # Cancel and Close, a downward arrow on Save — which reads as system
+        # chrome dropped into the app's own type. Stripped here rather than at
+        # each call site, because this filter already sees every button in
+        # every dialog, including ones built after startup.
+        if not button.icon().isNull():
+            button.setIcon(QIcon())
+
         role = action_role(button.text())
         if role is None:
             if button.objectName() == "PrimaryButton":
