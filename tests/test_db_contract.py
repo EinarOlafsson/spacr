@@ -214,29 +214,6 @@ def test_the_writers_create_the_tables_the_schema_declares(project):
             f'schema.OWNED_TABLES')
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        'spacr/schema.py:1316 BOOKKEEPING_TABLES omits two tables spaCR '
-        'writes into measurements.db itself: settings_history '
-        '(spacr/io.py:2769, CREATE TABLE IF NOT EXISTS, written by '
-        '_save_settings_to_db) and run_status (spacr/errors.py:595, written '
-        'by RunLedger._stamp_db). OWNED_TABLES is documented at '
-        'spacr/schema.py:1318 as "Every table spaCR creates in a '
-        'measurements database. A table not in here was put there by someone '
-        'else and must be left alone by any migration" -- so the declaration '
-        'is false for these two. Consequences: (a) schema.table_key_columns '
-        'raises KeyParseError for both, so no caller can ask for their key '
-        'columns; (b) spacr/doctor.py:1588 computes '
-        '"names & set(OWNED_TABLES)", so it undercounts every project '
-        'database and, on one holding only run_status, reports "contains '
-        "none of spaCR's tables ... probably not a measurements database\" "
-        '-- measured, see the companion xfail below. schema.py is owned by '
-        'another agent in this session, so the fix (adding both names to '
-        'BOOKKEEPING_TABLES, and giving table_key_columns a key for them: '
-        "settings_history keys on ('run_id','stage','setting_key'), "
-        "run_status on ('run_id',)) is reported rather than applied."),
-)
 def test_every_table_a_spacr_writer_creates_is_declared_owned(project):
     """Nothing spaCR writes into its own database is a stranger to the schema.
 
@@ -254,24 +231,6 @@ def test_every_table_a_spacr_writer_creates_is_declared_owned(project):
         f'someone else')
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        'The user-visible half of the OWNED_TABLES gap above. A run that '
-        'dies before it measures anything leaves a measurements.db holding '
-        'only run_status (spacr/errors.py:595). spacr/doctor.py:1588 '
-        'intersects the table names with schema.OWNED_TABLES, which does '
-        'not contain run_status, so the intersection is empty and '
-        'doctor.py:1589-1602 reports WARN "is a valid SQLite file but '
-        "contains none of spaCR's tables (1 tables found). This is probably "
-        'not a measurements database." and advises pointing --db elsewhere. '
-        'It is spaCR\'s own database, spaCR wrote the table, and '
-        'errors.read_run_status reads that same file happily and names the '
-        'stage that failed -- so the doctor sends a user away from the one '
-        'file that explains their failed run. Fixed by declaring run_status '
-        'and settings_history in schema.BOOKKEEPING_TABLES; schema.py is '
-        'owned by another agent in this session.'),
-)
 def test_the_doctor_recognises_a_database_holding_only_a_run_stamp(tmp_path):
     """spaCR must recognise a database it wrote itself."""
     from pathlib import Path

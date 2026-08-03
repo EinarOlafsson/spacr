@@ -1320,9 +1320,37 @@ CROP_TABLES: Tuple[str, ...] = ('png_list',)
 MEASUREMENT_TABLES: Tuple[str, ...] = (
     OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES)
 
-#: Tables spaCR owns that are *not* keyed on a field: the settings snapshot
-#: and the per-file object tallies, both keyed on ``file_name``.
-BOOKKEEPING_TABLES: Tuple[str, ...] = ('settings', 'object_counts')
+#: Tables spaCR owns that are *not* keyed on a field: the settings snapshot,
+#: the per-file object tallies, and the two append-only run journals.
+#:
+#: ``settings_history`` (:data:`spacr.io.SETTINGS_HISTORY_TABLE`) and
+#: ``run_status`` (:data:`spacr.errors.RUN_STATUS_TABLE`) were missing here
+#: until the database-contract tests measured what spaCR actually writes.
+#: Two things were wrong while they were absent, both observed rather than
+#: theorised:
+#:
+#: * :func:`table_key_columns` raised ``KeyParseError`` for a table spaCR
+#:   itself creates.
+#: * ``spacr doctor`` intersects the tables it finds against
+#:   :data:`OWNED_TABLES`, so a database holding only ``run_status`` -- which
+#:   is precisely what a run that died before measuring leaves behind --
+#:   was reported as "contains none of spaCR's tables ... probably not a
+#:   measurements database", and the user was told to point ``--db``
+#:   somewhere else. Meanwhile :func:`spacr.errors.read_run_status` reads
+#:   that same file happily and can name the stage that failed. The one case
+#:   where the diagnosis mattered most was the one case it refused to make.
+BOOKKEEPING_TABLES: Tuple[str, ...] = (
+    'settings', 'object_counts', 'settings_history', 'run_status')
+
+#: Key columns for the bookkeeping tables, which do not carry a field
+#: identity. Both journals are append-only, so their keys are what makes one
+#: recorded run distinct rather than what makes one object distinct.
+BOOKKEEPING_KEY_COLUMNS = {
+    'settings': (),
+    'object_counts': ('file_name',),
+    'settings_history': ('run_id', 'stage', 'setting_key'),
+    'run_status': ('run_id', 'name'),
+}
 
 #: Every table spaCR creates in a measurements database. A table not in here
 #: was put there by someone else and must be left alone by any migration.
@@ -1662,7 +1690,7 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
             f'{table!r} is not a table spaCR owns; known tables are '
             f'{sorted(OWNED_TABLES)}.')
     if table in BOOKKEEPING_TABLES:
-        return ('file_name',) if table == 'object_counts' else ()
+        return BOOKKEEPING_KEY_COLUMNS[table]
     base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
     if table in CROP_TABLES:
         return base + (PRCFO_KEY,)
