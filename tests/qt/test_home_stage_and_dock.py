@@ -435,28 +435,31 @@ class TestPaneOpacity:
         prefs.set_pane_opacity(3.0)
         assert prefs.get_pane_opacity() == 1.0
 
-    def test_the_home_pane_is_painted_at_the_effective_alpha(
+    def test_the_home_pane_never_paints_a_box_behind_the_tiles(
             self, qtbot, qt_theme_applied, tmp_settings):
-        """The rounded box behind the tiles is a SURFACE at that alpha.
+        """The area the tiles sit in is transparent at any preference.
 
-        It used to be the page background — the same colour as the
-        window — which is a box whose opacity could never show a
-        difference on the two opaque themes.
+        It used to be painted as a surface at the effective alpha. The
+        tiles carry their own fill and rim, so any pane fill reads as a
+        dark container drawn around them, which is the one thing it must
+        not be. The preference still governs the shared module surfaces
+        the next test covers.
         """
         from spacr.qt import preferences as prefs
         from spacr.qt.widgets.home import _tab_qss
 
-        prefs.set_pane_opacity(0.5)
-        page = make_home_page()
-        qtbot.addWidget(page)
-        alpha = prefs.effective_pane_alpha()
-        assert alpha == theme.pane_alpha(prefs.resolve_effective_theme(), 0.5)
-
         palette = theme.palette_for(prefs.resolve_effective_theme())
-        expected = theme.css_color(palette["surface"], alpha)
-        qss = page._tabs.styleSheet()
-        assert expected in qss
-        assert qss == _tab_qss(palette, alpha)
+        for requested in (0.0, 0.5, 1.0):
+            prefs.set_pane_opacity(requested)
+            page = make_home_page()
+            qtbot.addWidget(page)
+            qss = page._tabs.styleSheet()
+            # Only the pane rule: the selected tab paints the surface
+            # colour on purpose, so it blends into the pane's edge.
+            pane = qss.split("QTabWidget#HomeTabs::pane {", 1)[1].split("}", 1)[0]
+            assert "background: transparent" in pane
+            assert palette["surface"] not in pane
+            assert qss == _tab_qss(palette, prefs.effective_pane_alpha())
 
     @pytest.mark.parametrize("name", theme.THEMES)
     def test_the_preference_controls_shared_module_surfaces(self, name):
