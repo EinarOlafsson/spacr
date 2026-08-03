@@ -70,7 +70,9 @@ from PySide6.QtWidgets import (
 )
 
 from ... import plate_qc as pqc
+from ...selection import DataFilter
 from ..bridge import make_thread
+from ..linked_selection import LinkedView
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from .db_browser import resolve_db_path
@@ -376,8 +378,14 @@ class PlateGridWidget(QWidget):
 # Screen
 # ---------------------------------------------------------------------------
 
-class PlateViewScreen(QWidget):
+class PlateViewScreen(LinkedView, QWidget):
     """Plate heatmap + edge-effect QC for a spaCR measurements database.
+
+    Joins the shared population through :class:`~spacr.qt.linked_selection.
+    LinkedView`: narrowing the Local Data Filter anywhere narrows the heatmap
+    too. It subscribes for the *filter* only — a selection highlights
+    individual objects, and a well is an aggregate of many, so there is
+    nothing here for one to light up.
 
     :param parent: parent widget.
     :param threaded: run database work on a worker thread (the default).
@@ -426,17 +434,13 @@ class PlateViewScreen(QWidget):
             "measurements/measurements.db.")
         self._update_controls()
 
-        # Redraw when the shared Local Data Filter moves. A bound method, not
-        # a lambda: the LinkedSelection is process-wide and outlives this
-        # screen, so a lambda would keep a destroyed page alive as a receiver
-        # -- the leak `HomePage` documents for the run registry. Dropped in
-        # closeEvent.
-        from ..linked_selection import linked_selection
-        self._link = linked_selection()
-        self._link.filter_changed.connect(self._on_shared_filter_changed)
-        self._link_connected = True
+        # Join the shared population. The mixin carries the rules this screen
+        # used to spell out itself: bound methods rather than lambdas (the
+        # link is process-wide and outlives every screen), a flag-guarded
+        # disconnect, and echo suppression.
+        self.link_selection("plate_view")
 
-    def _on_shared_filter_changed(self) -> None:
+    def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
         """Re-draw for a new filter, without re-reading the database.
 
         Silent when nothing is loaded: a filter change is not a reason to
@@ -448,20 +452,17 @@ class PlateViewScreen(QWidget):
     def closeEvent(self, event):
         """Stop listening to the process-wide filter before going away.
 
-        Guarded by a flag rather than by catching: Qt does not raise when a
-        disconnect finds nothing, it emits a `libpyside: Failed to disconnect`
-        RuntimeWarning straight to stderr, where no `except` can reach it. A
-        screen closed twice — which Qt does on teardown — would print one
-        every time and train the reader to ignore that warning.
+        The `except` is the one thing :meth:`LinkedView.unlink_selection` does
+        not do for us: it is flag-guarded, so a double close is already
+        silent, but during interpreter teardown the C++ side of the
+        process-wide `LinkedSelection` can be gone before this widget's
+        `closeEvent` runs, and PySide raises on the disconnect then.
         """
-        if getattr(self, "_link_connected", False):
-            self._link_connected = False
-            try:
-                self._link.filter_changed.disconnect(
-                    self._on_shared_filter_changed)
-            except (RuntimeError, TypeError):
-                # The singleton is gone during interpreter teardown.
-                pass
+        try:
+            self.unlink_selection()
+        except (RuntimeError, TypeError):
+            # The singleton is gone during interpreter teardown.
+            pass
         super().closeEvent(event)
 
     # -- construction ------------------------------------------------------
@@ -874,11 +875,10 @@ class PlateViewScreen(QWidget):
         source = self._frame
         self._filter_note = ""
         try:
-            from ..linked_selection import linked_selection
-            link = linked_selection()
-            if not link.filter.is_empty:
-                source = link.visible(self._frame)
-                self._filter_note = f" · filtered: {link.filter.describe()}"
+            data_filter = self.link.filter
+            if not data_filter.is_empty:
+                source = self.linked_visible(self._frame)
+                self._filter_note = f" · filtered: {data_filter.describe()}"
         except Exception as exc:
             source = self._frame
             self._filter_note = f" · filter ignored ({exc.__class__.__name__})"

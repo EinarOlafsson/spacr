@@ -1,10 +1,30 @@
-"""Interactive Image UMAP viewer with click, lasso, and DB annotation."""
+"""Interactive Image UMAP viewer with click, lasso, and DB annotation.
+
+The lasso is also the cheapest way spaCR has of asking "and where are those
+cells on the plate?", so the explorer joins the shared selection through
+:class:`spacr.qt.linked_selection.LinkedView`: a lasso publishes the objects
+it caught, and a selection made anywhere else lights up the same points here.
+
+The two directions are deliberately asymmetric, because a filter and a
+selection are not the same thing:
+
+* an incoming **selection** draws a ring around the matching points and
+  changes nothing else. It never removes a point, and it never becomes the
+  local lasso — "Label lasso selection" keeps meaning *the lasso drawn here*,
+  or a highlight arriving from the database browser could write annotations
+  the user never drew.
+* an incoming **filter** DIMS the points it excludes. Removing them would
+  redraw the embedding around the survivors, and a UMAP whose axes move when
+  you tick a checkbox is unreadable — the whole value of the projection is
+  that a point stays where it was.
+"""
 from __future__ import annotations
 
 import logging
 from typing import Dict, List, Optional, Sequence
 
 import numpy as np
+import pandas as pd
 from PIL import Image
 from PIL.ImageQt import ImageQt
 
@@ -15,9 +35,68 @@ from PySide6.QtWidgets import (
     QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
 
+from ... import schema
+from ...selection import OBJECT_KEY_COLUMNS, DataFilter, Selection, object_keys
 from ...umap_annotations import write_umap_annotations
+from ..linked_selection import LinkedView
 
 LOG = logging.getLogger("spacr.qt.umap_explorer")
+
+#: How much of its opacity a point keeps when the shared filter excludes it.
+#: Low enough to read as "not in the population", high enough that the shape
+#: of what was filtered out is still visible — which is most of the point of
+#: dimming rather than hiding.
+DIMMED_ALPHA = 0.12
+
+
+def _usable(value) -> bool:
+    """Whether ``value`` is a real identity token rather than a gap.
+
+    ``None``, ``NaN`` (which is what a missing sqlite value becomes once it
+    has been through pandas) and blank strings are all "this record does not
+    say", and each of them turns into the literal key ``'nan'`` if it reaches
+    :func:`~spacr.selection.object_keys`.
+    """
+    try:
+        if pd.isna(value):
+            return False
+    except (TypeError, ValueError):
+        return False
+    return str(value).strip() != ""
+
+
+def _record_identity(record: Dict) -> Optional[Dict[str, str]]:
+    """The object key columns for one UMAP record, or ``None``.
+
+    Two sources, in order of trust:
+
+    1. the key columns spelled out on the record;
+    2. its ``prcfo``, which :func:`spacr.core.generate_image_umap` copies
+       from the measurement row.
+
+    ``prcfo`` is *not* an object key: it spells the object as ``'o7'`` where
+    every object table stores ``object_label`` bare. Parsing it and rebuilding
+    the columns is what keeps a lasso here naming the same rows as a
+    selection made in the database browser.
+    """
+    known = {c: record.get(c) for c in OBJECT_KEY_COLUMNS}
+    if all(_usable(v) for v in known.values()):
+        return {c: str(v) for c, v in known.items()}
+    text = record.get(schema.PRCFO_KEY)
+    if not _usable(text):
+        return None
+    try:
+        obj = schema.parse_prcfo(text)
+    except Exception:
+        return None
+    return {
+        schema.PLATE_KEY: obj.plateID,
+        schema.ROW_KEY: obj.rowID,
+        schema.COLUMN_KEY: obj.columnID,
+        schema.FIELD_KEY: obj.fieldID,
+        schema.OBJECT_LABEL_KEY: schema.strip_prefix(
+            obj.objectID, schema.OBJECT_PREFIX),
+    }
 
 
 class _AnnotationWorker(QThread):
@@ -41,8 +120,12 @@ class _AnnotationWorker(QThread):
             self.finished_result.emit(0, len(self._records), str(exc))
 
 
-class ImageUmapExplorer(QWidget):
-    """Zoomable embedding: click a point, lasso a group, write labels."""
+class ImageUmapExplorer(LinkedView, QWidget):
+    """Zoomable embedding: click a point, lasso a group, write labels.
+
+    Linked to the shared selection as ``"umap"``. See the module docstring
+    for why an incoming selection highlights and an incoming filter dims.
+    """
 
     annotation_finished = Signal(int, int)
 
@@ -54,6 +137,21 @@ class ImageUmapExplorer(QWidget):
         self._selected = np.empty(0, dtype=int)
         self._picked: Optional[int] = None
         self._worker: Optional[_AnnotationWorker] = None
+        #: One frame row per point, carrying whatever identity the payload
+        #: could give it — the object key columns, plus any extra columns a
+        #: caller attached so the shared filter has something to filter on.
+        #: ``None`` when the payload named no objects at all.
+        self._point_frame: Optional[pd.DataFrame] = None
+        #: The object key of each point, aligned to ``_embedding``.
+        self._point_keys: Optional[pd.Index] = None
+        #: False for points the shared filter excludes. All-True when there
+        #: is no filter, or when this payload cannot honour the one there is.
+        self._point_visible = np.ones(0, dtype=bool)
+        #: Points named by a selection published elsewhere.
+        self._linked_points = np.empty(0, dtype=int)
+        #: Set when this payload cannot answer the active filter, so the
+        #: status line can say so rather than silently drawing everything.
+        self._filter_note = ""
         self._display = {
             "point_size": 26,
             "point_color": "cluster",
@@ -63,6 +161,9 @@ class ImageUmapExplorer(QWidget):
             "sidebar_width": 280,
         }
         self._build_ui()
+        # After the UI: both hooks repaint, and a filter can already be set
+        # by the time this screen opens.
+        self.link_selection("umap")
 
     def _build_ui(self):
         from matplotlib.figure import Figure
@@ -174,6 +275,7 @@ class ImageUmapExplorer(QWidget):
         self._scatter = None
         self._selection_artist = None
         self._picked_artist = None
+        self._linked_artist = None
         self._lasso = None
         self._canvas.mpl_connect("button_press_event", self._on_click)
         self._canvas.mpl_connect("scroll_event", self._on_scroll)
@@ -183,13 +285,24 @@ class ImageUmapExplorer(QWidget):
         ])
 
     def set_payload(self, payload: Dict) -> None:
-        """Load the arrays/records attached by ``generate_image_umap``."""
+        """Load the arrays/records attached by ``generate_image_umap``.
+
+        ``payload['frame']`` is optional: a DataFrame with one row per point,
+        carrying whatever the caller measured. Without it the explorer can
+        still identify its points (from the records' ``prcfo``) and so still
+        publishes and receives selections — but a filter on a measurement
+        column has nothing here to test, and is reported as ignored rather
+        than silently drawing everything as if it had applied.
+        """
         embedding = np.asarray(payload.get("embedding", []), dtype=float)
         if embedding.ndim != 2 or embedding.shape[1:] != (2,):
             raise ValueError("UMAP payload embedding must have shape (N, 2)")
         labels = np.asarray(payload.get("labels", []))
         records = list(payload.get("records", []))
         if len(labels) != len(embedding) or len(records) != len(embedding):
+            raise ValueError("UMAP payload arrays must have equal lengths")
+        frame = payload.get("frame")
+        if isinstance(frame, pd.DataFrame) and len(frame) != len(embedding):
             raise ValueError("UMAP payload arrays must have equal lengths")
         self._embedding = embedding
         self._labels = labels
@@ -205,7 +318,58 @@ class ImageUmapExplorer(QWidget):
             ])
         self._selected = np.empty(0, dtype=int)
         self._picked = None
+        self._build_point_identity(frame)
+        self._recompute_visible_points()
+        self._recompute_linked_points()
         self._draw_embedding()
+
+    # -- identity ----------------------------------------------------------
+
+    def _build_point_identity(self, frame: Optional[pd.DataFrame]) -> None:
+        """Work out which measured object each point is, once per payload.
+
+        Derived here rather than per lasso: parsing ninety thousand ``prcfo``
+        strings on every drag would make the lasso the slow part of a screen
+        whose whole job is to feel immediate.
+        """
+        self._point_frame = None
+        self._point_keys = None
+        if not len(self._embedding):
+            return
+        columns = list(OBJECT_KEY_COLUMNS)
+        identity = pd.DataFrame(
+            [_record_identity(r) or {} for r in self._records],
+            columns=columns)
+        if identity.isna().any(axis=None):
+            # A payload that names only *some* of its points is worse than
+            # one that names none, in both directions: half a lasso gets
+            # published as the whole of it, and a filter tested against a
+            # column of blanks dims every point as though it had matched
+            # nothing. Refuse the lot.
+            identity = identity.iloc[:, :0]
+        if isinstance(frame, pd.DataFrame):
+            table = frame.reset_index(drop=True)
+            missing = {c: identity[c] for c in identity.columns
+                       if c not in table.columns}
+            if missing:
+                table = table.assign(**missing)
+        else:
+            table = identity
+        if not len(table.columns):
+            return          # nothing to key on, and nothing to filter with
+        self._point_frame = table
+        if any(c not in table.columns for c in columns):
+            return
+        if table[columns].isna().any(axis=None):
+            return
+        try:
+            self._point_keys = object_keys(table)
+        except Exception:
+            self._point_keys = None
+
+    def point_keys(self) -> Optional[pd.Index]:
+        """The object key of each point, or ``None`` when unidentifiable."""
+        return self._point_keys
 
     def _draw_embedding(self) -> None:
         from matplotlib.widgets import LassoSelector
@@ -249,6 +413,13 @@ class ImageUmapExplorer(QWidget):
         self._picked_artist = self._axes.scatter(
             [], [], s=110, facecolors="none", edgecolors="#ffcc33",
             linewidths=float(self._display["outline_width"]))
+        # Selections made elsewhere get their own ring, in the accent colour
+        # rather than the foreground one, so "what I lassoed" and "what the
+        # table is showing me" stay tellable apart at a glance.
+        self._linked_artist = self._axes.scatter(
+            [], [], s=90, facecolors="none",
+            edgecolors=palette.get("accent", "#4A9EFF"),
+            linewidths=float(self._display["outline_width"]) * 1.6)
         if self._lasso is not None:
             self._lasso.disconnect_events()
         self._lasso = LassoSelector(
@@ -264,18 +435,135 @@ class ImageUmapExplorer(QWidget):
         for label in sorted(np.unique(self._labels), key=lambda value: str(value)):
             self._cluster_box.addItem(str(label), label)
         self._cluster_box.blockSignals(False)
-        writable = sum(
-            bool(row.get("db_path") and row.get("db_png_path"))
-            for row in self._records)
-        self._status.setText(
-            f"{len(self._records)} points · {writable} database-backed · "
-            "drag around points to select them.")
+        self._status.setText(self._payload_status())
         if len(self._selected):
             self._selection_artist.set_offsets(
                 self._embedding[self._selected])
         if self._picked is not None:
             self._picked_artist.set_offsets(
                 self._embedding[self._picked].reshape(1, 2))
+        self._apply_point_alpha()
+        self._draw_linked_points()
+        self._canvas.draw_idle()
+
+    def _payload_status(self) -> str:
+        """The resting status line, including how the shared filter landed."""
+        writable = sum(
+            bool(row.get("db_path") and row.get("db_png_path"))
+            for row in self._records)
+        return (f"{len(self._records)} points · {writable} database-backed · "
+                "drag around points to select them." + self._filter_note)
+
+    # -- the shared filter: dim, never remove -------------------------------
+
+    def _recompute_visible_points(self) -> None:
+        """Work out which points the shared filter keeps.
+
+        Degrades to "all of them" when the filter names something this
+        payload does not carry — an embedding drawn with every point missing
+        is a worse answer than a complete one — but records that it did, so
+        the status line can say the filter was ignored rather than let a
+        complete picture read as a filtered one.
+        """
+        count = len(self._embedding)
+        self._point_visible = np.ones(count, dtype=bool)
+        self._filter_note = ""
+        if not count:
+            return
+        try:
+            data_filter = self.link.filter
+        except Exception:
+            return
+        if data_filter.is_empty:
+            return
+        frame = self._point_frame
+        if frame is None:
+            self._filter_note = (
+                f" · filter ignored ({data_filter.describe()}): this "
+                "embedding carries no identities")
+            return
+        try:
+            kept = self.linked_visible(frame).index
+        except Exception as exc:
+            self._filter_note = (
+                f" · filter ignored ({exc.__class__.__name__})")
+            return
+        mask = np.zeros(count, dtype=bool)
+        positions = np.asarray(kept, dtype=np.int64)
+        mask[positions[(positions >= 0) & (positions < count)]] = True
+        self._point_visible = mask
+        self._filter_note = (
+            f" · filtered: {data_filter.describe()} "
+            f"({int(mask.sum())} of {count} points)")
+
+    def _apply_point_alpha(self) -> None:
+        """Repaint opacity so filtered-out points recede without moving.
+
+        A scalar alpha is restored when nothing is filtered, rather than an
+        array of identical values: the display settings are read back from
+        the artist elsewhere, and ``get_alpha()`` returning an array where a
+        float was set is a difference nobody asked for.
+        """
+        if self._scatter is None:
+            return
+        base = float(self._display["point_alpha"])
+        target = (base if self._point_visible.all()
+                  else np.where(self._point_visible, base,
+                                base * DIMMED_ALPHA))
+        if np.iterable(self._scatter.get_alpha()) and not np.iterable(target):
+            # `Artist.set_alpha` short-circuits on `alpha != self._alpha`,
+            # which raises "the truth value of an array is ambiguous" when
+            # the artist is currently holding a per-point array and a scalar
+            # is being set (matplotlib 3.10). Array→array and scalar→scalar
+            # are fine; only this direction needs the array dropped first,
+            # and there is no public call that does it.
+            self._scatter._alpha = None
+        self._scatter.set_alpha(target)
+
+    def visible_points(self) -> np.ndarray:
+        """Boolean mask of the points the shared filter keeps."""
+        return self._point_visible.copy()
+
+    def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        self._recompute_visible_points()
+        self._apply_point_alpha()
+        self._status.setText(self._payload_status())
+        self._canvas.draw_idle()
+
+    # -- the shared selection: highlight, never hide ------------------------
+
+    def _recompute_linked_points(self,
+                                 selection: Optional[Selection] = None) -> None:
+        """Which points a selection published elsewhere names."""
+        if selection is None:
+            try:
+                selection = self.link.selection
+            except Exception:
+                selection = Selection.none()
+        keys = self._point_keys
+        if keys is None or not selection.is_active or not len(self._embedding):
+            self._linked_points = np.empty(0, dtype=int)
+            return
+        self._linked_points = np.flatnonzero(
+            np.asarray(keys.isin(selection.keys), dtype=bool))
+
+    def _draw_linked_points(self) -> None:
+        if self._linked_artist is None:
+            return
+        points = (self._embedding[self._linked_points]
+                  if len(self._linked_points) else np.empty((0, 2)))
+        self._linked_artist.set_offsets(points)
+
+    def linked_points(self) -> np.ndarray:
+        """Indices of the points a selection made elsewhere is highlighting."""
+        return self._linked_points.copy()
+
+    def on_linked_selection_changed(self, selection: Selection) -> None:
+        """Ring the points somebody else selected. Nothing is hidden, and the
+        local lasso — which is what the annotation buttons write — is left
+        exactly as the user drew it."""
+        self._recompute_linked_points(selection)
+        self._draw_linked_points()
         self._canvas.draw_idle()
 
     def _on_scroll(self, event) -> None:
@@ -354,10 +642,30 @@ class ImageUmapExplorer(QWidget):
         points = (self._embedding[self._selected]
                   if len(self._selected) else np.empty((0, 2)))
         self._selection_artist.set_offsets(points)
-        self._status.setText(f"{len(self._selected)} point(s) selected.")
+        self._status.setText(f"{len(self._selected)} point(s) selected."
+                             + self._filter_note)
         if len(self._selected):
             self.show_point(int(self._selected[0]))
+        self._publish_local_selection()
         self._canvas.draw_idle()
+
+    def _publish_local_selection(self) -> None:
+        """Tell every other view what was just lassoed here.
+
+        Silent when the payload carries no identities: publishing a lasso as
+        an empty selection would tell the plate view "the user selected
+        nothing", wiping a highlight that was never this screen's to clear.
+
+        A lasso that legitimately caught nothing IS published, as an empty
+        selection — that is a result, and the resting state is a different
+        thing (:meth:`clear_linked_selection`).
+        """
+        if self._point_keys is None:
+            return
+        try:
+            self.publish_selection(self._point_keys[self._selected])
+        except Exception:
+            LOG.info("publishing the UMAP selection failed", exc_info=True)
 
     def _write_selected(self) -> None:
         if not len(self._selected):
@@ -400,6 +708,11 @@ class ImageUmapExplorer(QWidget):
         self.annotation_finished.emit(updated, skipped)
 
     def closeEvent(self, event):
+        try:
+            self.unlink_selection()
+        except (RuntimeError, TypeError):
+            # The process-wide link's C++ side is gone (interpreter teardown).
+            pass
         worker = self._worker
         if worker is not None:
             worker.requestInterruption()
