@@ -11,6 +11,11 @@ from .divider import Divider
 from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
 from .figure_queue import FigureQueue
+# Imported here, not lazily: it registers its QSS block through
+# `theme.register_widget_qss`, and `launch()` builds the stylesheet before the
+# first window. A block registered after that call is missing from the
+# stylesheet the application is actually given.
+from .graph_builder import ColumnWell, DropZone, GraphBuilderPanel, GraphCanvas
 from .hover_tooltip import HoverTooltip
 from .info_link import InfoLink
 from .umap_explorer import ImageUmapExplorer
@@ -24,9 +29,11 @@ __all__ = [
     "AIChatPanel", "AiToggleLabel", "AnimationLink", "AnimationPopup", "Card",
     "attach_column_picker",
     "ColumnPickerDialog",
-    "ColumnPickerButton", "ConsolePanel", "DataFilterPanel", "Divider",
+    "ColumnPickerButton", "ColumnWell", "ConsolePanel", "DataFilterPanel",
+    "Divider", "DropZone",
     "ElidingLabel", "ElidingPushButton",
-    "EmptyState", "FigureQueue", "HTile", "HoverTooltip", "InfoLink",
+    "EmptyState", "FigureQueue", "GraphBuilderPanel", "GraphCanvas",
+    "HTile", "HoverTooltip", "InfoLink",
     "ImageUmapExplorer", "LivePreviewPanel", "Section", "SettingLinkStack",
     "Tile", "Toggle",
     "UsageBar",
