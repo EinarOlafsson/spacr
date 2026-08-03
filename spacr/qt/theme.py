@@ -19,7 +19,7 @@ string to hand to `QApplication.setStyleSheet`.
    resolves (read-only, with a ``DeprecationWarning``) so the modules
    that have not been migrated yet keep working.
 
-Five themes ship: ``"dark"``, ``"light"``, ``"space"``, ``"cell"`` and
+Four themes ship: ``"dark"``, ``"light"``, ``"cell"`` and
 ``"glass"``.
 (Preferences also offers ``"system"``, which resolves to dark or light
 at runtime — it is not a palette of its own.) They are *themes*, not
@@ -246,6 +246,10 @@ THEMES = ("dark", "light", "cell", "glass")
 _PALETTES = {
     "dark": DARK_PALETTE,
     "light": LIGHT_PALETTE,
+    # Kept, though "space" is no longer offered: `palette_for` is called with
+    # whatever is persisted, and a settings file written by an older spaCR can
+    # still say "space". Resolving it beats raising; it simply cannot be
+    # chosen any more, and `THEMES` no longer lists it so nothing iterates it.
     "space": SPACE_PALETTE,
     "cell": CELL_PALETTE,
     "glass": GLASS_PALETTE,
@@ -2397,6 +2401,107 @@ QLabel#ChatBubbleAssistant {{
     border-radius: {R["md"]}px;
     padding: {S["sm"]}px {S["md"]}px;
     font-size: {F["body"]}px;
+}}
+
+/* -----------------------------------------------------------------
+ *  Tabs — Classifier Evaluation, Run History, and anything else
+ * -----------------------------------------------------------------
+ *  There was no generic tab styling, so Qt's own drew a flat opaque
+ *  strip with a large dark pane under it. These follow the Home tabs:
+ *  rounded top corners, a dark surface at the page opacity, and the
+ *  accent blue on hover so the tab under the pointer is unambiguous.
+ *
+ *  Scoped by :not() on the Home tab widget, which keeps its own rules —
+ *  it is the one place the pane is deliberately empty because the tiles
+ *  carry the fill.
+ */
+QTabWidget:!hover {{ }}
+QTabWidget::pane {{
+    background-color: {P["surface_alt"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+    top: -1px;
+}}
+QTabBar {{
+    background: transparent;
+}}
+QTabBar::tab {{
+    background-color: {P["surface"]};
+    color: {P["fg_muted"]};
+    border: 1px solid {P["border_soft"]};
+    border-bottom: none;
+    border-top-left-radius: {R["sm"]}px;
+    border-top-right-radius: {R["sm"]}px;
+    padding: {S["xs"]}px {S["md"]}px;
+    margin-right: 2px;
+}}
+QTabBar::tab:hover {{
+    background-color: {P["accent"]};
+    color: {P["bg"]};
+}}
+QTabBar::tab:selected {{
+    background-color: {P["surface_alt"]};
+    color: {P["accent"]};
+    border-bottom-color: {P["surface_alt"]};
+}}
+
+/* -----------------------------------------------------------------
+ *  Tables — every module that shows one
+ * -----------------------------------------------------------------
+ *  There was no table styling at all, so Qt's own took over: white
+ *  header text on a flat black bar that ignored the page opacity
+ *  because it was never a spaCR surface to begin with.
+ *
+ *  Each header cell is now its own rounded dark chip with a gap beside
+ *  it, the body carries the page opacity like every other panel, the
+ *  grid is a light hairline, and hovering a row turns it the accent
+ *  blue so the cell under the pointer is unambiguous.
+ */
+QTableView, QTableWidget, QTreeView, QTreeWidget {{
+    background-color: {P["surface_alt"]};
+    alternate-background-color: {P["surface"]};
+    gridline-color: {P["border_soft"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+    selection-background-color: {P["accent"]};
+    selection-color: {P["bg"]};
+}}
+QHeaderView {{
+    background: transparent;
+    border: none;
+}}
+QHeaderView::section {{
+    background-color: {P["surface_hi"]};
+    color: {P["fg"]};
+    border: none;
+    /* The gap that separates one chip from the next. A right/bottom
+       margin rather than a border, so the surface behind shows between
+       them instead of a drawn line. */
+    margin: 0px 2px 2px 0px;
+    padding: {S["xs"]}px {S["sm"]}px;
+    border-radius: {R["sm"]}px;
+    font-weight: 600;
+}}
+QHeaderView::section:hover {{
+    background-color: {P["accent"]};
+    color: {P["bg"]};
+}}
+QTableView::item, QTableWidget::item,
+QTreeView::item, QTreeWidget::item {{
+    padding: {S["xs"]}px {S["sm"]}px;
+    border: none;
+}}
+QTableView::item:hover, QTableWidget::item:hover,
+QTreeView::item:hover, QTreeWidget::item:hover {{
+    background-color: {P["accent"]};
+    color: {P["bg"]};
+}}
+/* The empty square where the two headers meet. Left unstyled it is the
+   one opaque corner in an otherwise translucent table. */
+QTableCornerButton::section {{
+    background-color: {P["surface_hi"]};
+    border: none;
+    border-radius: {R["sm"]}px;
 }}
 
 /* -----------------------------------------------------------------
