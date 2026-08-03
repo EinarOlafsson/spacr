@@ -20,11 +20,72 @@ The Qt code lives in three layers:
 """
 from __future__ import annotations
 
+import os
+import re
 import sys
 
 __all__ = ["run"]
 
 _VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
+
+#: Launch noise the user cannot act on, matched against Qt's own log lines.
+#:
+#: These do NOT come through Python's warning system, so
+#: `warnings.filterwarnings` never sees them — they are written by Qt's
+#: categorised logging, which is why they survived every filter in
+#: `spacr/__init__.py`.
+#:
+#: * the OpenType line fires once per screen that lays out text in a script
+#:   "Open Sans" has no table for. Qt falls back to a font that does and the
+#:   text renders correctly; the message is a note, not a failure.
+_QT_NOISE = re.compile(
+    r"OpenType support missing for|"
+    r"This plugin does not support (propagateSizeHints|raise)"
+)
+
+
+def _install_quiet_qt_logging() -> None:
+    """Drop known-harmless Qt log lines, pass everything else through.
+
+    Deliberately a filter rather than a blanket mute: a Qt warning about a
+    real problem — a missing plugin, a failed shader, an invalid pixmap — is
+    often the only clue there is, and swallowing the category wholesale is how
+    that clue gets lost.
+    """
+    try:
+        from PySide6.QtCore import QtMsgType, qInstallMessageHandler
+    except Exception:
+        return
+
+    def handler(mode, context, message):
+        if _QT_NOISE.search(message or ""):
+            return
+        stream = sys.stderr
+        label = {
+            QtMsgType.QtDebugMsg: "Qt debug",
+            QtMsgType.QtInfoMsg: "Qt info",
+            QtMsgType.QtWarningMsg: "Qt warning",
+            QtMsgType.QtCriticalMsg: "Qt critical",
+            QtMsgType.QtFatalMsg: "Qt fatal",
+        }.get(mode, "Qt")
+        print(f"{label}: {message}", file=stream)
+
+    qInstallMessageHandler(handler)
+
+
+def _quiet_gtk_accessibility() -> None:
+    """Stop GTK printing "Not loading module atk-bridge" on every window.
+
+    Qt's GTK platform theme pulls in GTK, which then reports that the AT-SPI
+    bridge is built in and need not be loaded as a module. It is written to
+    stderr by GTK itself in C, so neither Python's warning filters nor a Qt
+    message handler can reach it — the only lever is the environment variable
+    GTK reads before it decides, and it has to be set before GTK loads.
+
+    Only set when absent, so a user who deliberately wants the bridge (a
+    screen-reader setup) is not overridden.
+    """
+    os.environ.setdefault("NO_AT_BRIDGE", "1")
 
 #: Distributions that only `pip install "spacr[qt]"` brings in. PySide6 is
 #: declared in the `qt` extra (setup.py), *not* in core, so a plain
@@ -93,6 +154,12 @@ def run(argv: list[str] | None = None) -> int:
     """
     if argv is None:
         argv = sys.argv[1:]
+
+    # Before anything imports Qt or GTK: the AT-SPI variable is only read
+    # while GTK loads, and the Qt handler has to be in place before the first
+    # widget lays out text.
+    _quiet_gtk_accessibility()
+    _install_quiet_qt_logging()
 
     if len(argv) == 1 and argv[0] in _VERSION_FLAGS:
         from spacr.version import get_version
