@@ -405,6 +405,9 @@ class PlateViewScreen(QWidget):
         self._frame_key: Tuple[str, str, str] = ("", "", "")
         self._layout_df: Optional[pd.DataFrame] = None
         self._report: Optional[pqc.EdgeEffectReport] = None
+        #: Appended to the status line whenever the shared filter is narrowing
+        #: what this heatmap draws. Set by :meth:`recompute`.
+        self._filter_note = ""
         self._busy = False
         self._jobs: List[tuple] = []
         self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
@@ -422,6 +425,44 @@ class PlateViewScreen(QWidget):
             "Choose a measurements.db, or a run folder containing "
             "measurements/measurements.db.")
         self._update_controls()
+
+        # Redraw when the shared Local Data Filter moves. A bound method, not
+        # a lambda: the LinkedSelection is process-wide and outlives this
+        # screen, so a lambda would keep a destroyed page alive as a receiver
+        # -- the leak `HomePage` documents for the run registry. Dropped in
+        # closeEvent.
+        from ..linked_selection import linked_selection
+        self._link = linked_selection()
+        self._link.filter_changed.connect(self._on_shared_filter_changed)
+        self._link_connected = True
+
+    def _on_shared_filter_changed(self) -> None:
+        """Re-draw for a new filter, without re-reading the database.
+
+        Silent when nothing is loaded: a filter change is not a reason to
+        show an error on a screen the user has not pointed at a database yet.
+        """
+        if self._frame is not None:
+            self.recompute()
+
+    def closeEvent(self, event):
+        """Stop listening to the process-wide filter before going away.
+
+        Guarded by a flag rather than by catching: Qt does not raise when a
+        disconnect finds nothing, it emits a `libpyside: Failed to disconnect`
+        RuntimeWarning straight to stderr, where no `except` can reach it. A
+        screen closed twice — which Qt does on teardown — would print one
+        every time and train the reader to ignore that warning.
+        """
+        if getattr(self, "_link_connected", False):
+            self._link_connected = False
+            try:
+                self._link.filter_changed.disconnect(
+                    self._on_shared_filter_changed)
+            except (RuntimeError, TypeError):
+                # The singleton is gone during interpreter teardown.
+                pass
+        super().closeEvent(event)
 
     # -- construction ------------------------------------------------------
 
@@ -819,9 +860,32 @@ class PlateViewScreen(QWidget):
         plate = self._plate_combo.currentText() or None
         min_count = int(self._min_count_box.value())
         value_col = self._frame_key[2] or None
+
+        # Honour the shared Local Data Filter, so narrowing the population in
+        # one view narrows it here too. Applied to the frame already in
+        # memory rather than at the query, because the frame is cached across
+        # renders and a filter change must not cost a re-read of the database.
+        #
+        # It degrades to the unfiltered frame rather than refusing to draw: a
+        # filter carried over from another table can name columns this one
+        # does not have, and an empty heatmap is a worse answer than a
+        # complete one -- PROVIDED the view says which it is showing, which is
+        # what `_filter_note` puts on the status line.
+        source = self._frame
+        self._filter_note = ""
+        try:
+            from ..linked_selection import linked_selection
+            link = linked_selection()
+            if not link.filter.is_empty:
+                source = link.visible(self._frame)
+                self._filter_note = f" · filtered: {link.filter.describe()}"
+        except Exception as exc:
+            source = self._frame
+            self._filter_note = f" · filter ignored ({exc.__class__.__name__})"
+
         try:
             layout = pqc.plate_layout(
-                self._frame, value_col=value_col, plate=plate,
+                source, value_col=value_col, plate=plate,
                 grouping=grouping, min_count=min_count)
             report = pqc.detect_edge_effect(
                 layout, value_col=value_col, grouping=grouping)
@@ -857,7 +921,11 @@ class PlateViewScreen(QWidget):
                       f"fewer than {min_count} objects"
                       if report.n_dropped_min_count else "")
                    + (f", {n_blank} of the grid left blank" if n_blank else "")
-                   + ". " + report.summary)
+                   + ". " + report.summary
+                   # A filtered heatmap that does not say it is filtered is how
+                   # an edge-effect verdict gets read as covering the whole
+                   # plate when it covers a third of it.
+                   + getattr(self, "_filter_note", ""))
         self._set_status(message, error=False)
         self._update_controls()
         self.plate_rendered.emit(str(report.plate or ""))
