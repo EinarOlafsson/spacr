@@ -56,6 +56,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # path. Separate from `measure` so registering a hook does not import
     # matplotlib, skimage and cv2.
     "measure_hooks",
+    # Illumination / flat-field correction. Estimates the microscope's uneven
+    # illumination from the plate's own fields and applies it through the
+    # preprocessing hook above, so measure.py needs no second path.
+    "illumination",
     "measurement_schema",
     "sequencing",
     "timelapse",
