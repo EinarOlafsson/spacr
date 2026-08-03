@@ -43,6 +43,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .preview_controls import (
+    FlatButton, FlatComboBox, populate_channel_combo, populate_fov_combo,
+    selected_channel, sibling_sources,
+)
 from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.measure_preview")
@@ -120,6 +124,9 @@ class MeasurePreviewPanel(QWidget):
         self._propagate_cb = None
         self._thumb_px = 132
         self._crop_settings_dialog: Optional[CropSettingsDialog] = None
+        # Guards the FOV dropdown against re-entering itself while the array
+        # it just asked for is being installed.
+        self._loading_fov = False
         self._build_controls()
         self._build_ui()
         self._connect_controls()
@@ -245,15 +252,33 @@ class MeasurePreviewPanel(QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
+        # FOV and channel dropdowns sit immediately LEFT of the Choose
+        # control; all three wear the flat "Live toggle" look.
         pick_row = QHBoxLayout()
+        self._pick_row = pick_row
         self._path_label = QLabel(
             "No array loaded — drop a merged .npy here, or choose one")
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose merged array…")
-        pick_btn.clicked.connect(self._pick_file)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view. Lists every merged .npy sitting beside "
+                     "the loaded one; picking one loads it."))
+        self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Displayed channel. 'All channels' renders the crops "
+                     "from the PNG channels in Crop settings; picking one "
+                     "shows that channel alone."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        populate_channel_combo(self._channel_box, 0)
+        self._pick_btn = FlatButton("Choose merged array…", self)
+        self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
-        pick_row.addWidget(pick_btn)
+        pick_row.addWidget(self._fov_box)
+        pick_row.addWidget(self._channel_box)
+        pick_row.addWidget(self._pick_btn)
         root.addLayout(pick_row)
 
         actions = QHBoxLayout()
@@ -443,8 +468,41 @@ class MeasurePreviewPanel(QWidget):
         for widget in self._mask_dims.values():
             if widget.value() >= data.shape[2]:
                 widget.setValue(-1)
+        self._refresh_source_selectors()
         self.refresh()
         return True
+
+    # -- FOV / channel selectors ---------------------------------------
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the FOV and channel dropdowns for the loaded array."""
+        populate_fov_combo(
+            self._fov_box,
+            sibling_sources(self._data_path, _SUPPORTED),
+            current=self._data_path)
+        channels = int(self._data.shape[2]) if self._data is not None else 0
+        populate_channel_combo(self._channel_box, channels)
+
+    def _on_fov_changed(self, *_args) -> None:
+        """Load the field of view the user picked from the dropdown."""
+        if self._loading_fov:
+            return
+        path = self._fov_box.currentData()
+        if not path or path == self._data_path:
+            return
+        self._loading_fov = True
+        try:
+            self.load_array(path)
+        finally:
+            self._loading_fov = False
+
+    def display_channel(self) -> Optional[int]:
+        """Channel index the crops are rendered from, or ``None`` for all."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Re-render the crop grid from the newly selected channel."""
+        self.refresh()
 
     # -- propagation ---------------------------------------------------
 
@@ -585,6 +643,11 @@ class MeasurePreviewPanel(QWidget):
 
         channels = _parse_channels(self._png_dims.text())
         channels = [c for c in channels if 0 <= c < self._data.shape[2]]
+        # The channel dropdown is a *view* control: it does not change the
+        # png_dims that a real run would write, only what this grid shows.
+        one = self.display_channel()
+        if one is not None and 0 <= one < self._data.shape[2]:
+            channels = [one, one, one]
         if not channels:
             self._status.setText("PNG channels do not exist in this array.")
             return
@@ -727,6 +790,8 @@ class MeasurePreviewPanel(QWidget):
         values["categories"] = [
             entry.get("category") for entry in self._crops
         ]
+        values["display_channel"] = self.display_channel()
+        values["fov"] = self._fov_box.currentText()
         return values
 
 

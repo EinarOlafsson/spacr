@@ -45,6 +45,9 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSpinBox, QVBoxLayout,
     QWidget,
 )
+from .preview_controls import (
+    FlatButton, FlatComboBox, populate_channel_combo, selected_channel,
+)
 from .toggle import Toggle
 
 from .live_preview import numpy_to_qpixmap
@@ -605,22 +608,36 @@ class MotilityPreviewPanel(QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
+        # FOV and channel dropdowns sit immediately LEFT of the Choose
+        # control; all three wear the flat "Live toggle" look.
         pick = QHBoxLayout()
+        self._pick_row = pick
         self._path_label = QLabel(
             "No plate loaded — drop a folder holding merged/*.npy here, "
             "or choose one")
         self._path_label.setSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose plate folder…")
-        pick_btn.clicked.connect(self._pick_folder)
-        self._group_box = QComboBox()
-        self._group_box.setToolTip(
-            "(plate, well, field) group previewed. Each group is one time "
-            "series.")
-        self._group_box.currentIndexChanged.connect(self._on_group_changed)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view — the (plate, well, field) group "
+                     "previewed. Each group is one time series."))
+        self._fov_box.currentIndexChanged.connect(self._on_group_changed)
+        # Kept under its historical name for the integrations and tests that
+        # already drive it.
+        self._group_box = self._fov_box
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Plane of the merged array the preview reads its objects "
+                     "from. Bound to 'Tracked mask plane', so changing it "
+                     "re-reads and re-renders."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        self._pick_btn = FlatButton("Choose plate folder…", self)
+        self._pick_btn.clicked.connect(self._pick_folder)
         pick.addWidget(self._path_label, 1)
-        pick.addWidget(self._group_box)
-        pick.addWidget(pick_btn)
+        pick.addWidget(self._fov_box)
+        pick.addWidget(self._channel_box)
+        pick.addWidget(self._pick_btn)
         root.addLayout(pick)
 
         # -- array layout (changing one re-reads the merged arrays) ----------
@@ -733,6 +750,10 @@ class MotilityPreviewPanel(QWidget):
         self._straightness_filter.toggled.connect(self._on_metric_changed)
         self._tracked_object.currentTextChanged.connect(
             self._on_tracked_object_changed)
+        # One plane, two surfaces: the settings spinner and the flat dropdown
+        # in the pick row stay in step.
+        self._tracked_plane.valueChanged.connect(
+            self._sync_plane_combo_from_spin)
 
         act = QHBoxLayout()
         self._run_btn = QPushButton("Run preview", self)
@@ -821,6 +842,7 @@ class MotilityPreviewPanel(QWidget):
                 f"{key[0]} {key[1]} f{key[2]} ({len(metas)} frames)", key)
         self._group_box.blockSignals(False)
         self._autodetect_planes()
+        self._refresh_source_selectors()
         self._path_label.setText(
             f"{os.path.basename(os.path.dirname(merged.rstrip(os.sep)) or merged)}"
             f"  ·  {len(groups)} group(s)")
@@ -908,6 +930,8 @@ class MotilityPreviewPanel(QWidget):
             "unit": cal.unit,
             "calibrated": cal.known,
             "n_tracks": 0 if self._tracks is None else int(len(self._tracks)),
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
         }
 
     # -- running -----------------------------------------------------------
@@ -1039,10 +1063,73 @@ class MotilityPreviewPanel(QWidget):
         except Exception:
             LOG.debug("plane autodetect failed", exc_info=True)
 
+    # -- FOV / channel selectors -------------------------------------------
+
+    def _plane_count(self) -> int:
+        """Planes held by the first merged array of the selected group."""
+        try:
+            key = self._fov_box.currentData() or next(iter(self._groups))
+            first = self._groups[key][0]["filename"]
+            arr = np.load(os.path.join(self._merged_dir, first), mmap_mode="r")
+            return int(min(np.asarray(arr).shape))
+        except Exception:
+            LOG.debug("plane count unavailable", exc_info=True)
+            return 0
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the channel dropdown for the selected field of view."""
+        populate_channel_combo(
+            self._channel_box, self._plane_count(), include_all=False,
+            keep=f"Ch {int(self._tracked_plane.value())}")
+
+    def _sync_plane_spin_from_combo(self) -> None:
+        """Push the dropdown's plane into the tracked-mask-plane spinner."""
+        index = selected_channel(self._channel_box)
+        if index is None or int(self._tracked_plane.value()) == int(index):
+            return
+        self._tracked_plane.setValue(int(index))
+
+    def _sync_plane_combo_from_spin(self, *_args) -> None:
+        """Reflect a spinner-side plane change in the dropdown."""
+        box = getattr(self, "_channel_box", None)
+        if box is None:
+            return
+        index = box.findText(f"Ch {int(self._tracked_plane.value())}")
+        if index < 0 or index == box.currentIndex():
+            return
+        blocked = box.blockSignals(True)
+        try:
+            box.setCurrentIndex(index)
+        finally:
+            box.blockSignals(blocked)
+
+    def display_channel(self) -> Optional[int]:
+        """Merged-array plane the preview reads objects from."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Adopt the newly selected plane and drop the stale point table."""
+        if not hasattr(self, "_tracked_plane"):
+            return
+        self._sync_plane_spin_from_combo()
+        self._points = None
+        self._tracks = None
+        self._invite_rerun()
+
+    def _invite_rerun(self) -> None:
+        """Say the cache was dropped. Reading merged arrays is the expensive
+        half of this panel, so it stays an explicit ``Run preview`` — never a
+        side effect of touching a dropdown."""
+        if self._groups:
+            self._status.setText(
+                "Field / plane changed — run the preview to read it.")
+
     def _on_group_changed(self, *_):
         self._points = None
         self._tracks = None
         self._autodetect_planes()
+        self._refresh_source_selectors()
+        self._invite_rerun()
 
     def _on_tracked_object_changed(self, name: str) -> None:
         """Move the tracked mask plane to the chosen object's slot."""
