@@ -533,6 +533,13 @@ setup(
             'pytest>=8.0,<9',
             'pytest-qt>=4.4,<5',
             'tomli>=2.0; python_version < "3.11"',
+            # tests/test_key_parsing_properties.py states the plate / row /
+            # column / field / object key contract as properties rather than
+            # examples -- round-trip, arity, injectivity, idempotence, and
+            # agreement between the parsers that have not been collapsed yet.
+            # It registers a `derandomize=True` profile, so it is reproducible
+            # in CI rather than a source of intermittent red.
+            'hypothesis>=6.100,<7',
             # Quality-gate tooling. These are kept out of core dependencies:
             # users running microscopy pipelines do not need static-analysis
             # packages, while contributors get the same versions CI runs.
