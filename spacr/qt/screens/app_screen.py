@@ -921,6 +921,10 @@ class AppScreen(QWidget):
             getattr(self, "_settings_content", None),
             getattr(self, "_runtime_wrap", None),
             getattr(self, "_console_wrap", None),
+            # The Run / Stop / Import / Clear strip. It has no object name of
+            # its own, so without this it takes the blanket window fill and
+            # sits as an opaque band across the backdrop.
+            getattr(self, "_actions_row", None),
         )
 
     # ------------------------------------------------------------------
@@ -1444,6 +1448,11 @@ class AppScreen(QWidget):
         # Clear / Explain line up with the console, chat and System panel,
         # which all share the runtime panel's small left inset.
         actions = QWidget()
+        # Kept so `_clear_page_surfaces` can tag it. Untagged it inherits the
+        # blanket `QWidget { background-color: bg }` rule and paints an opaque
+        # strip behind Run / Stop — a black box no opacity setting could reach,
+        # because it is the window colour rather than a surface.
+        self._actions_row = actions
         row = QHBoxLayout(actions)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
