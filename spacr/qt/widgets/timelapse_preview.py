@@ -405,8 +405,14 @@ def backend_available(mode: str) -> Tuple[bool, str]:
 def _tracks_from_features(tracks_df, features):
     """Attach centroids to a track table that only carries labels."""
     cols = ["frame", "original_label", "x", "y"]
+    # many_to_one: ``features`` comes from regionprops, so it holds exactly one
+    # row per (frame, label); the track table may name one label twice in a
+    # frame when two tracks claim it at a merge/split event, which is why the
+    # left side is not constrained. A duplicated label on the features side
+    # would invent extra track rows with fabricated centroids. Same contract as
+    # the identical join in timelapse._track_by_iou's caller.
     return tracks_df.merge(features[cols], on=["frame", "original_label"],
-                           how="left")
+                           how="left", validate="many_to_one")
 
 
 def _link_iou(masks: np.ndarray, iou_threshold: float):
