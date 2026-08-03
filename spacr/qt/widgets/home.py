@@ -1175,8 +1175,30 @@ class HomePage(QWidget):
         are the things the user is meant to SEE, and they carry the page
         opacity themselves.
         """
-        from ..theme import make_transparent
-        from PySide6.QtWidgets import QScrollArea, QStackedWidget, QTabWidget
+        from ..theme import clear_container_surfaces, make_transparent
+        from PySide6.QtWidgets import (QLabel, QScrollArea, QStackedWidget,
+                                       QTabBar, QTabWidget)
+
+        # The generic sweep FIRST. Home used to hand-list five widgets it
+        # guessed were responsible, which is why measuring found three that
+        # were not on it: the hero's own QLabels, Qt's internal
+        # `qt_tabwidget_tabbar`, and the anonymous row hosts the tiles sit in.
+        # Naming widgets one at a time cannot keep up with a layout; sweeping
+        # by rule can.
+        clear_container_surfaces(self)
+
+        # Qt builds the tab bar itself, so it is neither anonymous nor ours to
+        # name at construction — it has to be reached through the tab widget.
+        for bar in self.findChildren(QTabBar):
+            make_transparent(bar)
+
+        # The hero's labels: the mark, the wordmark and the subtitle. They are
+        # type on the page, and a QLabel with no rule of its own takes the
+        # blanket window fill — which is what left a black band across the
+        # masthead after the Hero FRAME was already transparent.
+        hero = self.findChild(QWidget, "Hero")
+        if hero is not None:
+            make_transparent(*hero.findChildren(QLabel))
 
         make_transparent(*(w for w in (
             getattr(self, "_running_host", None),
@@ -1701,12 +1723,22 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0,
     pane_border = (css_color("#ffffff", 0.27)
                    if glass else P["border_soft"])
     radius = 14 if glass else 8
+    selected_fill = ("transparent" if pane_alpha <= 0.0
+                     else css_color(P["surface"], pane_alpha))
     return f"""
 QTabWidget#HomeTabs::pane {{
     border: 1px solid {pane_border};
     border-radius: {radius}px;
     background: transparent;
     top: -1px;
+}}
+/* The BAR, not the tabs on it. Qt builds `qt_tabwidget_tabbar` itself, and
+   with no rule of its own it takes the blanket window fill — measured as the
+   last opaque strip on the page after everything else was cleared. Tagging
+   the widget is not enough: the stylesheet wins over the property for this
+   one, so it needs saying here. */
+QTabWidget#HomeTabs > QTabBar {{
+    background: transparent;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{
     background: transparent;
@@ -1722,10 +1754,14 @@ QTabWidget#HomeTabs > QTabBar::tab:hover {{
     color: {P['fg']};
     background: {P['surface_alt']};
 }}
+/* The selected tab takes the page opacity like everything else. It paints
+   `surface` so it joins onto the pane's edge — but with the pane transparent
+   that made it the last solid black rectangle on the page, which is exactly
+   what "the tabs still have black backgrounds" was pointing at. */
 QTabWidget#HomeTabs > QTabBar::tab:selected {{
     color: {P['accent']};
-    background: {P['surface']};
+    background: {selected_fill};
     border: 1px solid {P['border_soft']};
-    border-bottom-color: {P['surface']};
+    border-bottom-color: {selected_fill};
 }}
 """
