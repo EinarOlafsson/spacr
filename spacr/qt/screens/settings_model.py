@@ -84,6 +84,14 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
                 f"{type(result).__name__}, expected dict"
             )
         return dict(result)
+    # Modules that shipped their own defaults through the `register_defaults`
+    # seam. Consulted after plugins and before the built-in dispatch below, so
+    # a registered module is served without editing this function -- which is
+    # the whole point of the seam, and without this line every
+    # `register_defaults` call in the codebase is inert.
+    from spacr.settings import defaults_for, has_registered_defaults
+    if has_registered_defaults(app_key):
+        return defaults_for(app_key, {})
     from spacr.settings import (
         get_identify_masks_finetune_default_settings,
         set_default_analyze_screen,
