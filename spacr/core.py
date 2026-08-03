@@ -20,6 +20,11 @@ import warnings
 # failures escalate to ConfigurationError under SPACR_STRICT_ERRORS.
 from .errors import RunLedger, raise_if_strict
 
+# One run id on every log line and every artifact, one seed reaching every
+# RNG, one on_error policy at each batch boundary. See spacr.runctx.
+from . import artifacts as artifact_status
+from .runctx import run_context
+
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 def preprocess_generate_masks(settings):
@@ -169,303 +174,324 @@ def preprocess_generate_masks(settings):
         # One ledger for the whole invocation: a run over four plates that
         # only managed three must not report as if it did four.
         ledger = RunLedger('preprocess_generate_masks')
-        for source_folder in source_folders:
-            cancellation_checkpoint()
+        # One run: one id on every log line and on every artifact this run
+        # registers (so the two can be joined), one seed reaching numpy /
+        # random / torch / cellpose, and one on_error policy honoured at
+        # the plate boundary below. See spacr.runctx.
+        module_key = 'timelapse' if settings.get('timelapse') else 'mask'
+        with run_context(module_key, settings, ledger=ledger) as run:
+            for source_folder in source_folders:
+                # on_error, at the plate boundary. stop (default) lets the
+                # failure out and the run ends here; skip records the plate on
+                # the ledger and in run.policy.skips and moves to the next one;
+                # retry re-attempts this plate with a backoff and then behaves
+                # like stop. See spacr.runctx.
+                for attempt in run.policy.attempts_for(source_folder,
+                                                       stage='plate'):
+                    with attempt:
+                        cancellation_checkpoint()
 
-            print(f'Processing folder: {source_folder}')
+                        print(f'Processing folder: {source_folder}')
 
-            source_folder = format_path_for_system(source_folder)
-            settings['src'] = source_folder
-            src = source_folder
-            settings = set_default_settings_preprocess_generate_masks(settings)
+                        source_folder = format_path_for_system(source_folder)
+                        settings['src'] = source_folder
+                        src = source_folder
+                        settings = set_default_settings_preprocess_generate_masks(settings)
 
-            settings = _set_organelle_defaults(settings)
+                        settings = _set_organelle_defaults(settings)
 
-            if settings['metadata_type'] == 'auto':
-                if settings['custom_regex'] != None:
-                    try:
-                        print(f"using regex: {settings['custom_regex']}")
-                        convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
-                    except Exception:
-                        try:
-                            convert_to_yokogawa(folder=source_folder)
-                        except Exception as e:
-                            # Category B: no file was renamed, so every step
-                            # below would operate on an empty/unrecognised
-                            # folder. Historically this printed and returned
-                            # None, which reads exactly like success.
-                            print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
-                            print(f'Error: {e}')
-                            ledger.record_failure(source_folder,
-                                                  stage='convert_metadata', exc=e)
-                            ledger.finalize()
+                        if settings['metadata_type'] == 'auto':
+                            if settings['custom_regex'] != None:
+                                try:
+                                    print(f"using regex: {settings['custom_regex']}")
+                                    convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
+                                except Exception:
+                                    try:
+                                        convert_to_yokogawa(folder=source_folder)
+                                    except Exception as e:
+                                        # Category B: no file was renamed, so every step
+                                        # below would operate on an empty/unrecognised
+                                        # folder. Historically this printed and returned
+                                        # None, which reads exactly like success.
+                                        print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
+                                        print(f'Error: {e}')
+                                        ledger.record_failure(source_folder,
+                                                              stage='convert_metadata', exc=e)
+                                        ledger.finalize()
+                                        raise_if_strict(
+                                            f"Could not apply Yokogawa naming to {source_folder} "
+                                            f"with regex {settings['custom_regex']!r} or without "
+                                            f"one; nothing downstream can run on this folder.",
+                                            exc=e, settings=settings)
+                                        return
+                            else:
+                                try:
+                                    convert_to_yokogawa(folder=source_folder)
+                                except Exception as e:
+                                    print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
+                                    print(f'Error: {e}')
+                                    ledger.record_failure(source_folder,
+                                                          stage='convert_metadata', exc=e)
+                                    ledger.finalize()
+                                    raise_if_strict(
+                                        f"Could not apply Yokogawa naming to {source_folder}; "
+                                        f"nothing downstream can run on this folder.",
+                                        exc=e, settings=settings)
+                                    return
+
+                        if (
+                            settings['cell_channel'] is None and
+                            settings['nucleus_channel'] is None and
+                            settings['pathogen_channel'] is None and
+                            settings.get('organelle_channel') is None
+                        ):
+                            # Category B: with no object channel there is nothing to
+                            # segment, so returning None here is indistinguishable from
+                            # a successful run that produced no masks.
+                            print(f'Error: At least one of cell_channel, nucleus_channel, pathogen_channel or organelle_channel must be defined')
                             raise_if_strict(
-                                f"Could not apply Yokogawa naming to {source_folder} "
-                                f"with regex {settings['custom_regex']!r} or without "
-                                f"one; nothing downstream can run on this folder.",
-                                exc=e, settings=settings)
+                                'At least one of cell_channel / nucleus_channel / '
+                                'pathogen_channel / organelle_channel must be set; '
+                                'no masks can be generated.', settings=settings)
                             return
-                else:
-                    try:
-                        convert_to_yokogawa(folder=source_folder)
-                    except Exception as e:
-                        print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
-                        print(f'Error: {e}')
-                        ledger.record_failure(source_folder,
-                                              stage='convert_metadata', exc=e)
-                        ledger.finalize()
-                        raise_if_strict(
-                            f"Could not apply Yokogawa naming to {source_folder}; "
-                            f"nothing downstream can run on this folder.",
-                            exc=e, settings=settings)
-                        return
-
-            if (
-                settings['cell_channel'] is None and
-                settings['nucleus_channel'] is None and
-                settings['pathogen_channel'] is None and
-                settings.get('organelle_channel') is None
-            ):
-                # Category B: with no object channel there is nothing to
-                # segment, so returning None here is indistinguishable from
-                # a successful run that produced no masks.
-                print(f'Error: At least one of cell_channel, nucleus_channel, pathogen_channel or organelle_channel must be defined')
-                raise_if_strict(
-                    'At least one of cell_channel / nucleus_channel / '
-                    'pathogen_channel / organelle_channel must be set; '
-                    'no masks can be generated.', settings=settings)
-                return
             
-            save_settings(settings, name='gen_mask_settings')
+                        save_settings(settings, name='gen_mask_settings')
             
-            # The bundled toxo_pv_lumen / toxo_cyto models were Cellpose-3
-            # checkpoints and are gone: Cellpose 4 ships only cpsam, and their
-            # CPnet weights cannot load into its Transformer. This guard also
-            # never fired — it *constructed* a ValueError without raising it.
+                        # The bundled toxo_pv_lumen / toxo_cyto models were Cellpose-3
+                        # checkpoints and are gone: Cellpose 4 ships only cpsam, and their
+                        # CPnet weights cannot load into its Transformer. This guard also
+                        # never fired — it *constructed* a ValueError without raising it.
             
-            if settings['timelapse']:
-                settings['randomize'] = False
+                        if settings['timelapse']:
+                            settings['randomize'] = False
             
-            if settings['preprocess']:
-                if not settings['masks']:
-                    print(f'WARNING: channels for mask generation are defined when preprocess = True')
+                        if settings['preprocess']:
+                            if not settings['masks']:
+                                print(f'WARNING: channels for mask generation are defined when preprocess = True')
             
-            if isinstance(settings['save'], bool):
-                settings['save'] = [settings['save']]*3
+                        if isinstance(settings['save'], bool):
+                            settings['save'] = [settings['save']]*3
 
-            if settings['verbose']:
-                from .utils import pretty_print_settings
-                pretty_print_settings(settings, title="Mask Generation Settings")
+                        if settings['verbose']:
+                            from .utils import pretty_print_settings
+                            pretty_print_settings(settings, title="Mask Generation Settings")
 
-            if settings['test_mode']:
-                print(f'Starting Test mode ...')
+                        if settings['test_mode']:
+                            print(f'Starting Test mode ...')
 
-            if settings['preprocess']:
-                settings, src = preprocess_img_data(settings)
+                        if settings['preprocess']:
+                            settings, src = preprocess_img_data(settings)
 
-            files_to_process = sum([
-                settings['cell_channel'] is not None,
-                settings['nucleus_channel'] is not None,
-                settings['pathogen_channel'] is not None,
-                settings.get('organelle_channel') is not None
-            ])
-            files_processed = 0
+                        files_to_process = sum([
+                            settings['cell_channel'] is not None,
+                            settings['nucleus_channel'] is not None,
+                            settings['pathogen_channel'] is not None,
+                            settings.get('organelle_channel') is not None
+                        ])
+                        files_processed = 0
 
-            if settings['masks']:
-                mask_src = os.path.join(src, 'masks')
+                        if settings['masks']:
+                            mask_src = os.path.join(src, 'masks')
                 
-                if settings['cell_channel'] != None:
-                    cancellation_checkpoint()
-                    time_ls=[]
-                    if check_mask_folder(
-                            src, 'cell_mask_stack',
-                            resume=settings.get('resume', False)):
-                        start = time.time()
-                        generate_cellpose_masks_sam(mask_src, settings, 'cell')
-                        stop = time.time()
-                        duration = (stop - start)
-                        time_ls.append(duration)
-                        files_processed += 1
-                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
-                    
-                if settings['nucleus_channel'] != None:
-                    cancellation_checkpoint()
-                    time_ls=[]
-                    if check_mask_folder(
-                            src, 'nucleus_mask_stack',
-                            resume=settings.get('resume', False)):
-                        start = time.time()
-                        generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
-                        stop = time.time()
-                        duration = (stop - start)
-                        time_ls.append(duration)
-                        files_processed += 1
-                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
-                    
-                if settings['pathogen_channel'] != None:
-                    cancellation_checkpoint()
-                    time_ls=[]
-                    if check_mask_folder(
-                            src, 'pathogen_mask_stack',
-                            resume=settings.get('resume', False)):
-                        start = time.time()
-                        generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
-                        stop = time.time()
-                        duration = (stop - start)
-                        time_ls.append(duration)
-                        files_processed += 1
-                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
-                        
-                if settings['organelle_channel'] != None:
-                    cancellation_checkpoint()
-                    time_ls=[]
-                    if check_mask_folder(
-                            src, 'organelle_mask_stack',
-                            resume=settings.get('resume', False)):
-                        start = time.time()
-                        generate_organelle_masks_sam(mask_src, settings, 'organelle')
-                        stop = time.time()
-                        duration = (stop - start)
-                        time_ls.append(duration)
-                        files_processed += 1
-                        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'organelle_mask_gen')
-
-                if settings['adjust_cells']:
-                    if not settings['timelapse']:
-                        if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
-                            start = time.time()
-                            cell_folder = os.path.join(mask_src, 'cell_mask_stack')
-                            nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
-                            parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                            
-                            organelle_folder = None
-                            if settings.get('organelle_channel') is not None:
-                                candidate = os.path.join(mask_src, 'organelle_mask_stack')
-                                if os.path.exists(candidate):
-                                    organelle_folder = candidate
-                            
-                            print(f'Adjusting cell masks with nuclei and pathogen masks')
-                            adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
-                            stop = time.time()
-                            adjust_time = (stop-start)/60
-                            print(f'Cell mask adjustment: {adjust_time} min.')
-                            
-                if os.path.exists(os.path.join(src,'measurements')):
-                    _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
-
-                # resume (opt-in, default False): skip fields whose merged
-                # stack is already present and verified complete, so a crash
-                # at field 900 of 1000 does not cost the first 900. Validated
-                # rather than stat'ed — see spacr.resume.
-                _load_and_concatenate_arrays(
-                    src,
-                    settings.get('channels'),
-                    settings.get('cell_channel'),
-                    settings.get('nucleus_channel'),
-                    settings.get('pathogen_channel'),
-                    settings.get('organelle_channel'),
-                    resume=settings.get('resume', False)
-                )
-                
-                if settings['plot']:
-                    if not settings['timelapse']:
-                        if settings['test_mode'] == True:
-                            # Test mode plots every merged field. This used to
-                            # take len() of the merged *path string*, i.e. a
-                            # number that tracks how deeply the run folder is
-                            # nested and has nothing to do with how many
-                            # fields exist.
-                            merged_dir = os.path.join(src, 'merged')
-                            settings['examples_to_plot'] = len(
-                                [f for f in os.listdir(merged_dir)
-                                 if f.endswith('.npy')]
-                            ) if os.path.isdir(merged_dir) else 0
-
-                        # A separate ledger: an overlay PDF that fails to
-                        # render is cosmetic and must NOT brand the masks
-                        # themselves as partial. It still gets accounted for.
-                        plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
-                        try:
-                            merged_src = os.path.join(src,'merged')
-                            files = os.listdir(merged_src)
-                        except Exception as e:
-                            print(f'Failed to plot image mask overly. Error: {e}')
-                            plot_ledger.record_failure(os.path.join(src, 'merged'),
-                                                       stage='list_merged', exc=e)
-                            files = []
-                        else:
-                            random.shuffle(files)
-                        time_ls = []
-
-                        for i, file in enumerate(files):
-                            cancellation_checkpoint()
-                            start = time.time()
-                            if i+1 <= settings['examples_to_plot']:
-                                file_path = os.path.join(merged_src, file)
-
-                                # Per example, not per batch: the old single
-                                # try around the whole loop meant one
-                                # unplottable field silently cancelled every
-                                # remaining example.
-                                with plot_ledger.item(
-                                        file, stage='plot_mask_overlay',
-                                        echo='Failed to plot image mask overly. Error'):
-                                    plot_image_mask_overlay(
-                                        file_path,
-                                        settings['channels'],
-                                        settings['cell_channel'],
-                                        settings['nucleus_channel'],
-                                        settings['pathogen_channel'],
-                                        organelle_channel=settings.get('organelle_channel'),
-                                        figuresize=10,
-                                        percentiles=(1,99),
-                                        thickness=3,
-                                        save_pdf=True
-                                    )
+                            if settings['cell_channel'] != None:
+                                cancellation_checkpoint()
+                                time_ls=[]
+                                if check_mask_folder(
+                                        src, 'cell_mask_stack',
+                                        resume=settings.get('resume', False)):
+                                    start = time.time()
+                                    generate_cellpose_masks_sam(mask_src, settings, 'cell')
                                     stop = time.time()
-                                    duration = stop-start
+                                    duration = (stop - start)
                                     time_ls.append(duration)
-                                    files_processed = i+1
-                                    files_to_process = settings['examples_to_plot']
-                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
-
-                        plot_ledger.finalize()
-                    else:
-                        plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
+                                    files_processed += 1
+                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
                     
-            torch.cuda.empty_cache()
-            gc.collect()
+                            if settings['nucleus_channel'] != None:
+                                cancellation_checkpoint()
+                                time_ls=[]
+                                if check_mask_folder(
+                                        src, 'nucleus_mask_stack',
+                                        resume=settings.get('resume', False)):
+                                    start = time.time()
+                                    generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
+                                    stop = time.time()
+                                    duration = (stop - start)
+                                    time_ls.append(duration)
+                                    files_processed += 1
+                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
+                    
+                            if settings['pathogen_channel'] != None:
+                                cancellation_checkpoint()
+                                time_ls=[]
+                                if check_mask_folder(
+                                        src, 'pathogen_mask_stack',
+                                        resume=settings.get('resume', False)):
+                                    start = time.time()
+                                    generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
+                                    stop = time.time()
+                                    duration = (stop - start)
+                                    time_ls.append(duration)
+                                    files_processed += 1
+                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
+                        
+                            if settings['organelle_channel'] != None:
+                                cancellation_checkpoint()
+                                time_ls=[]
+                                if check_mask_folder(
+                                        src, 'organelle_mask_stack',
+                                        resume=settings.get('resume', False)):
+                                    start = time.time()
+                                    generate_organelle_masks_sam(mask_src, settings, 'organelle')
+                                    stop = time.time()
+                                    duration = (stop - start)
+                                    time_ls.append(duration)
+                                    files_processed += 1
+                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'organelle_mask_gen')
+
+                            if settings['adjust_cells']:
+                                if not settings['timelapse']:
+                                    if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
+                                        start = time.time()
+                                        cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+                                        nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+                                        parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+                            
+                                        organelle_folder = None
+                                        if settings.get('organelle_channel') is not None:
+                                            candidate = os.path.join(mask_src, 'organelle_mask_stack')
+                                            if os.path.exists(candidate):
+                                                organelle_folder = candidate
+                            
+                                        print(f'Adjusting cell masks with nuclei and pathogen masks')
+                                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                                        stop = time.time()
+                                        adjust_time = (stop-start)/60
+                                        print(f'Cell mask adjustment: {adjust_time} min.')
+                            
+                            if os.path.exists(os.path.join(src,'measurements')):
+                                _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
+
+                            # resume (opt-in, default False): skip fields whose merged
+                            # stack is already present and verified complete, so a crash
+                            # at field 900 of 1000 does not cost the first 900. Validated
+                            # rather than stat'ed — see spacr.resume.
+                            _load_and_concatenate_arrays(
+                                src,
+                                settings.get('channels'),
+                                settings.get('cell_channel'),
+                                settings.get('nucleus_channel'),
+                                settings.get('pathogen_channel'),
+                                settings.get('organelle_channel'),
+                                resume=settings.get('resume', False)
+                            )
+                
+                            if settings['plot']:
+                                if not settings['timelapse']:
+                                    if settings['test_mode'] == True:
+                                        # Test mode plots every merged field. This used to
+                                        # take len() of the merged *path string*, i.e. a
+                                        # number that tracks how deeply the run folder is
+                                        # nested and has nothing to do with how many
+                                        # fields exist.
+                                        merged_dir = os.path.join(src, 'merged')
+                                        settings['examples_to_plot'] = len(
+                                            [f for f in os.listdir(merged_dir)
+                                             if f.endswith('.npy')]
+                                        ) if os.path.isdir(merged_dir) else 0
+
+                                    # A separate ledger: an overlay PDF that fails to
+                                    # render is cosmetic and must NOT brand the masks
+                                    # themselves as partial. It still gets accounted for.
+                                    plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
+                                    try:
+                                        merged_src = os.path.join(src,'merged')
+                                        files = os.listdir(merged_src)
+                                    except Exception as e:
+                                        print(f'Failed to plot image mask overly. Error: {e}')
+                                        plot_ledger.record_failure(os.path.join(src, 'merged'),
+                                                                   stage='list_merged', exc=e)
+                                        files = []
+                                    else:
+                                        random.shuffle(files)
+                                    time_ls = []
+
+                                    for i, file in enumerate(files):
+                                        cancellation_checkpoint()
+                                        start = time.time()
+                                        if i+1 <= settings['examples_to_plot']:
+                                            file_path = os.path.join(merged_src, file)
+
+                                            # Per example, not per batch: the old single
+                                            # try around the whole loop meant one
+                                            # unplottable field silently cancelled every
+                                            # remaining example.
+                                            with plot_ledger.item(
+                                                    file, stage='plot_mask_overlay',
+                                                    echo='Failed to plot image mask overly. Error'):
+                                                plot_image_mask_overlay(
+                                                    file_path,
+                                                    settings['channels'],
+                                                    settings['cell_channel'],
+                                                    settings['nucleus_channel'],
+                                                    settings['pathogen_channel'],
+                                                    organelle_channel=settings.get('organelle_channel'),
+                                                    figuresize=10,
+                                                    percentiles=(1,99),
+                                                    thickness=3,
+                                                    save_pdf=True
+                                                )
+                                                stop = time.time()
+                                                duration = stop-start
+                                                time_ls.append(duration)
+                                                files_processed = i+1
+                                                files_to_process = settings['examples_to_plot']
+                                                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
+
+                                    plot_ledger.finalize()
+                                else:
+                                    plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
+                    
+                        torch.cuda.empty_cache()
+                        gc.collect()
             
-            # By default keep only merged/ (masks are embedded there + labels
-            # are in the database). keep_intermediate / keep_original_images
-            # opt out. The legacy delete_intermediate flag forces cleanup too.
-            from .utils import cleanup_pipeline_folders
-            keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
-            keep_original = settings.get('keep_original_images', False) and not settings.get('delete_intermediate', False)
-            cleanup_pipeline_folders(src,
-                                     keep_intermediate=keep_intermediate,
-                                     keep_original=keep_original)
+                        # By default keep only merged/ (masks are embedded there + labels
+                        # are in the database). keep_intermediate / keep_original_images
+                        # opt out. The legacy delete_intermediate flag forces cleanup too.
+                        from .utils import cleanup_pipeline_folders
+                        keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
+                        keep_original = settings.get('keep_original_images', False) and not settings.get('delete_intermediate', False)
+                        cleanup_pipeline_folders(src,
+                                                 keep_intermediate=keep_intermediate,
+                                                 keep_original=keep_original)
 
-            ledger.record_success(source_folder, stage='preprocess_generate_masks')
-            print("Successfully completed run")
+                        print("Successfully completed run")
 
-        # Last thing on screen: a four-plate run that only completed three
-        # says so here, and the per-folder db carries the same verdict.
-        ledger.finalize()
-        for source_folder in source_folders:
-            db_path = os.path.join(format_path_for_system(source_folder),
-                                   'measurements', 'measurements.db')
-            if os.path.isfile(db_path):
-                ledger.stamp(db_path)
+            # Last thing on screen: a four-plate run that only completed three
+            # says so here, and the per-folder db carries the same verdict.
+            ledger.finalize()
+            for source_folder in source_folders:
+                db_path = os.path.join(format_path_for_system(source_folder),
+                                       'measurements', 'measurements.db')
+                if os.path.isfile(db_path):
+                    ledger.stamp(db_path)
 
-        # Run completion hook: record what this run produced, and what it was
-        # produced from, in the project's artifact registry. strict=False —
-        # a registry that cannot be written is worth one printed line, never
-        # a lost run. See spacr/artifacts.py.
-        from .artifacts import register_run_outputs
-        register_run_outputs(
-            'timelapse' if settings.get('timelapse') else 'mask',
-            settings, roots=source_folders, strict=False)
+            # Run completion hook: record what this run produced, and what it was
+            # produced from, in the project's artifact registry. strict=False —
+            # a registry that cannot be written is worth one printed line, never
+            # a lost run. See spacr/artifacts.py.
+            #
+            #
+            # run_id is the same id every log line this run emitted carries,
+            # which is what makes "show me the log of the run that produced
+            # this file" answerable:
+            # spacr.runctx.read_run_log(artifact.run_id).
+            from .artifacts import register_run_outputs
+            register_run_outputs(
+                module_key, settings, roots=source_folders, strict=False,
+                run_id=run.run_id,
+                status=(artifact_status.STATUS_COMPLETE if ledger.is_complete
+                        else artifact_status.STATUS_PARTIAL))
     return
 
 

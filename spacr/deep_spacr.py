@@ -23,6 +23,9 @@ from torch.utils.data import DataLoader, Subset
 # averaged away silently, and an optional plot that fails must still be
 # visible somewhere other than /dev/null.
 from .errors import RunLedger
+# One seed reaching Python, NumPy and Torch (CPU + CUDA) rather than only
+# the split helpers. See spacr.runctx.
+from .runctx import resolve_seed, seed_everything, seed_worker, torch_generator
 from .torch_artifacts import (
     load_model_artifact,
     restore_training_state,
@@ -874,6 +877,10 @@ def _cross_validate_model(settings, num_classes):
                 settings.get('class_balance', 'none'),
             )
         workers = max(0, int(settings.get('n_jobs', 0) or 0))
+        # A shuffled loader with no generator draws its permutation from
+        # torch's global RNG, and a worker inherits (fork) or loses (spawn)
+        # the parent's stream -- so the inner folds were never reproducible
+        # even with random_seed set. See spacr.runctx.seed_worker.
         return DataLoader(
             dataset,
             batch_size=settings['batch_size'],
@@ -882,6 +889,8 @@ def _cross_validate_model(settings, num_classes):
             num_workers=workers,
             pin_memory=settings['pin_memory'],
             persistent_workers=(workers > 0),
+            generator=torch_generator(stream='inner_cv'),
+            worker_init_fn=seed_worker if workers > 0 else None,
         )
 
     rows = []
@@ -1170,6 +1179,16 @@ def train_test_model(settings):
     from .settings import get_train_test_model_settings
 
     settings = get_train_test_model_settings(settings)
+
+    # random_seed used to reach the split helpers below and nothing else:
+    # torch's own initialisation -- weight init, dropout, the shuffle inside
+    # every DataLoader -- was never seeded at all, so two "identical" runs
+    # trained two different models. One call fixes Python, NumPy and Torch
+    # (CPU and CUDA); what it still cannot promise is in
+    # spacr.runctx.SeedReport.caveats, and cudnn.benchmark (set True at the
+    # top of this module) is one of the things deterministic=True undoes.
+    seed_everything(resolve_seed(settings),
+                    deterministic=bool(settings.get('deterministic', False)))
 
     _empty_device_cache()
     gc.collect()
@@ -2012,7 +2031,11 @@ def generate_activation_map(settings):
     
     # Load dataset
     dataset = TarImageDataset(settings['dataset'], transform=transform)
-    data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=settings['shuffle'], num_workers=n_jobs, pin_memory=True)
+    # Seeded generator + worker init: which images land in the activation-map
+    # batches is otherwise a different sample every run.
+    data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=settings['shuffle'], num_workers=n_jobs, pin_memory=True,
+                             generator=torch_generator(stream='activation_maps'),
+                             worker_init_fn=seed_worker if n_jobs else None)
 
     # Initialize generator based on cam_type
     if use_attribution:
