@@ -98,6 +98,7 @@ Owns `annotate.py`, `deep_spacr.py`, `classifier_evaluation.py`.
 | # | Item | L0 |
 |---|---|---|
 | 4.1 | `N2` `B17` **Illumination correction / flat-field** — the only item that changes your numbers rather than your view; root cause of the edge effects `plate_view` detects *(0.5)* | ✓ |
+| 4.1b | **Wire illumination correction into the pipeline and GUI** — `4.1` landed the estimator and corrector (`e40ec9cb`) but nothing calls `prepare_illumination_correction(settings)`, because `measure.py` and `core.py` were off-limits to it. Until this lands the feature is unreachable. Also files its settings under a Categories heading and declares the growth *(4.1)* | — |
 | 4.2 | `C1` Measure QC banner — `seg_qc`'s verdict shown on opening Measure. **Informs, does not block** | — |
 | 4.3 | `A3` `Z11` Diameter estimator wiring | — |
 | 4.4 | `C6` Barcode QC — reads per well, collision rate, unmapped fraction. Sweep driven by **target gRNAs per well**: you state the target, the module derives the threshold and sweeps around it | — |
