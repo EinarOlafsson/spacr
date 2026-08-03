@@ -97,21 +97,12 @@ def test_glass_styles_every_module_box_with_rgba_material():
     assert "qlineargradient" in qss
     for selector in (
         "QFrame#Card {",
+        "QFrame#ConsoleBox {",
         "QFrame#SectionCard {",
         "QLineEdit, QSpinBox",
     ):
         rule = _rule(qss, selector)
         assert "rgba(" in rule, f"{selector} remained opaque"
-
-    # ConsoleBox is deliberately NOT in that list any more. It is the frame
-    # AROUND the console and the chat box, and both of those carry the page
-    # opacity themselves — so a filled wrapper only stacked a second slab of
-    # the same colour behind them. That was the "black box behind them" which
-    # survived every opacity change, because it was a different widget from
-    # the one being dialled. Only its rim remains.
-    console = _rule(qss, "QFrame#ConsoleBox {")
-    assert "background-color: transparent" in console
-    assert "border" in console, "the grouping rim should stay"
 
 
 def test_glass_adds_neutral_light_field_specular_rims_and_rounding():

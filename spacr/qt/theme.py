@@ -2359,14 +2359,12 @@ QWidget#ConsolePanel {{
     background-color: transparent;
     border: none;
 }}
-/* The frame AROUND the console and the chat box paints nothing. Those two
-   carry the page opacity themselves (`surface_alt` is already alpha'd), so a
-   filled wrapper behind them only stacked a second slab of the same colour —
-   the "black box behind them" that survived every opacity change because it
-   was a different widget from the one being dialled. Only the rim remains,
-   which is what makes it read as one grouped panel. */
+/* The console box KEEPS its dark surface, at the page opacity. Making it
+   transparent (tried, reverted) left a rounded outline floating on the opaque
+   container behind it — the fill is what makes it read as a console. What has
+   to go is that container, which `_clear_page_surfaces` now tags. */
 QFrame#ConsoleBox {{
-    background-color: transparent;
+    background-color: {P["surface_alt"]};
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}

@@ -375,15 +375,16 @@ class Panel(QWidget):
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
-        # No fill. The panels down the right-hand aside used to paint an
-        # opaque `surface_alt` (from `active_palette()`, which returns raw hex,
-        # so the opacity preference never reached them at all), then briefly
-        # painted it at the preference. The instruction settled on removing the
-        # black box outright, so only the outline remains — enough to read as a
-        # panel, nothing to sit as a slab over the animated background.
+        # The rounded box KEEPS its dark-grey fill — at the page opacity.
+        # `active_palette()` returns raw hex, which is why the preference never
+        # reached these panels; `pane_surface` reads it. Making the box itself
+        # transparent (tried, reverted) left nothing but a floating outline:
+        # the fill is what makes it read as a panel. What has to go is the
+        # CONTAINER behind it, which is handled in `_clear_page_surfaces`.
+        from ..theme import pane_surface
         box.setStyleSheet(
             "QFrame#HomePanelBox {"
-            "background: transparent;"
+            f"background: {pane_surface('surface_alt')};"
             f"border: 1px solid {P['border_soft']};"
             "border-radius: 8px; }")
         self.body_layout = QVBoxLayout(box)
@@ -392,6 +393,13 @@ class Panel(QWidget):
         self.body_layout.setSpacing(SPACING["xs"])
         col.addWidget(box)
         self._box = box
+        # The Panel wrapper positions a header and the box; it paints nothing.
+        # Untagged it takes the blanket `QWidget { background-color: bg }`
+        # rule, and six of these stacked down the aside read as one large
+        # black column behind every panel — which is exactly what they looked
+        # like.
+        from ..theme import make_transparent
+        make_transparent(self)
 
     def add(self, widget: QWidget) -> QWidget:
         widget.setStyleSheet("background: transparent;")
@@ -1157,18 +1165,39 @@ class HomePage(QWidget):
         Without this the animation runs, costs its frames, and reaches the
         eye through nothing but the gaps between widgets.
 
-        The tile pane is deliberately NOT tagged. It is drawn by
-        :func:`_tab_qss` at :meth:`_pane_alpha`, which is precisely the
-        control the user has over how much of the animation shows through
-        behind the tiles; tagging it here would pin it at "always fully
-        transparent" and take that choice away.
+        Everything that only POSITIONS things is tagged. That is most of the
+        page: every plain ``QWidget`` container inherits the blanket
+        ``QWidget {{ background-color: bg }}`` rule, so an untagged one paints
+        an opaque slab whatever the opacity preference says — it is the window
+        colour, not a surface, which is why no amount of dialling reached it.
+
+        Not tagged, on purpose: the rounded panel boxes and the tiles. Those
+        are the things the user is meant to SEE, and they carry the page
+        opacity themselves.
         """
         from ..theme import make_transparent
+        from PySide6.QtWidgets import QScrollArea, QStackedWidget, QTabWidget
 
         make_transparent(*(w for w in (
             getattr(self, "_running_host", None),
             getattr(self, "_hint_bar", None),
+            getattr(self, "_tabs", None),
         ) if w is not None))
+
+        # Every scroll area, its viewport, and the stacked pages the tabs keep
+        # their tab bodies in. These are the containers behind the tile rows
+        # and their headings.
+        tabs = getattr(self, "_tabs", None)
+        if tabs is not None:
+            for area in tabs.findChildren(QScrollArea):
+                make_transparent(area, area.viewport())
+            make_transparent(*tabs.findChildren(QStackedWidget))
+            # The direct page widgets of each tab: one per category, each the
+            # host for that category's rows and headings.
+            for i in range(tabs.count()):
+                page = tabs.widget(i)
+                if page is not None:
+                    make_transparent(page)
         # The body wrapper is the first child of `outer` and has no object
         # name of its own, so it is reached through the layout.
         layout = self.layout()
@@ -1548,7 +1577,13 @@ class HomePage(QWidget):
 
     def _build_aside(self) -> QWidget:
         from ..preferences import scaled_px
+        from ..theme import make_transparent
         aside = QWidget()
+        # The column itself paints nothing. Untagged it runs the full height of
+        # the window as one black slab behind every panel in it — the "one
+        # large black box spanning all right side elements and going down to
+        # the bottom".
+        make_transparent(aside)
         aside.setFixedWidth(scaled_px(self.ASIDE_W))
         col = QVBoxLayout(aside)
         col.setContentsMargins(0, 0, 0, 0)
