@@ -71,6 +71,24 @@ def install(window: QMainWindow) -> None:
     for i in range(1, 10):
         _bind(window, f"Ctrl+{i}",
                 lambda idx=i: _nav_by_index(window, idx - 1))
+    _install_window_hooks(window)
+
+
+def _install_window_hooks(window: QMainWindow) -> None:
+    """Let modules that own a menu entry or a global filter wire themselves.
+
+    This runs once from ``MainWindow.__init__``, after ``_build_menu_bar``,
+    which makes it the first moment a module can reach a live menu bar — the
+    same route :mod:`spacr.qt.first_run` and :mod:`spacr.qt.command_palette`
+    take to find one. Each hook is guarded on its own: an optional help
+    entry must never cost anyone a window.
+    """
+    try:
+        from .widgets.feature_dictionary import install_window_hooks
+        install_window_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the feature dictionary hooks",
+                  exc_info=True)
 
 
 def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> None:

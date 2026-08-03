@@ -176,7 +176,59 @@ def run(argv: list[str] | None = None) -> int:
         print(_QT_MISSING_MESSAGE.format(module=module), file=sys.stderr)
         return 1
 
+    register_self_registering_modules()
+
     # Deliberately outside the `try`: an ImportError raised *during* a run —
     # a screen lazily importing an optional reader, say — is a real failure
     # and must not be reported as "Qt is not installed".
     return launch(argv)
+
+
+#: Modules that own an app and register it through
+#: :func:`spacr.qt.app.register_app` from their own file, rather than through
+#: a row written into ``app.py``. Each exposes a zero-argument, idempotent
+#: ``register()``.
+#:
+#: They are imported by :func:`register_self_registering_modules`, which
+#: :func:`run` calls between ``from .app import launch`` and the call to it —
+#: and that position is the whole point. ``app.py`` is fully executed by then,
+#: so ``register_app`` exists to be imported; and ``MainWindow.__init__`` has
+#: not run yet, so the menu bar, the sidebar and Home have not yet read the
+#: registry. A module imported any earlier — from ``widgets/__init__.py``,
+#: say, which ``app.py`` itself imports on its 39th line — finds
+#: ``spacr.qt.app`` half-initialised and can register nothing.
+SELF_REGISTERING_MODULES = (
+    "spacr.qt.widgets.feature_dictionary",
+    # Not an app of its own: it registers a screen FACTORY for every module
+    # that declares ports, so the generic AppScreen gains the auto-chaining /
+    # staleness / next-step strip without a line inside the shared screen.
+    "spacr.qt.chaining",
+    "spacr.qt.screens.run_compare",
+)
+
+
+def register_self_registering_modules() -> tuple[str, ...]:
+    """Import each of :data:`SELF_REGISTERING_MODULES` and let it register.
+
+    Idempotent — every ``register()`` is written to be safe to call twice, so
+    a second launch in one process (the test suite does this) does not raise
+    on a duplicate app key.
+
+    One module's failure costs that module's app and nothing else: an
+    optional panel must never stop the GUI from starting.
+
+    :returns: the module names that registered without raising.
+    """
+    import importlib
+    import logging
+
+    registered: list[str] = []
+    for name in SELF_REGISTERING_MODULES:
+        try:
+            importlib.import_module(name).register()
+        except Exception:
+            logging.getLogger("spacr.qt").exception(
+                "Could not register the app owned by %s", name)
+        else:
+            registered.append(name)
+    return tuple(registered)
