@@ -1233,10 +1233,21 @@ class MainWindow(QMainWindow):
         mark = QLabel()
         mark.setAlignment(Qt.AlignHCenter)
         mark.setStyleSheet("background: transparent;")
+        # The PNG straight off disk, not `iconset.icon()`. That helper
+        # recolours an icon to the theme's ink so monochrome glyphs stay
+        # legible — correct for a toolbar symbol, wrong for a logo, which has
+        # its own colours and should look the same on every theme.
         try:
-            logo = iconset.icon("logo_spacr")
-            if logo is not None and not logo.isNull():
-                mark.setPixmap(logo.pixmap(QSize(96, 96)))
+            import os
+
+            from PySide6.QtGui import QPixmap
+
+            pixmap = QPixmap(os.path.join(
+                iconset.RESOURCE_DIR, "logo_spacr.png"))
+            if not pixmap.isNull():
+                mark.setPixmap(pixmap.scaled(
+                    QSize(96, 96), Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation))
         except Exception:
             pass
         col.addWidget(mark)

@@ -110,6 +110,10 @@ from ..theme import RADIUS, SPACING, palette_for
 #: The whole alphabet. ATGC, uppercase, nothing else.
 BASES = ("A", "T", "G", "C")
 
+#: The shipped glyph colour. Teal reads as DNA-ish without competing with
+#: spaCR's own accent, and stays legible on both flat themes.
+DEFAULT_COLOR = "#009B9B"
+
 #: The one non-base token. Exact casing is load-bearing.
 SPACR_TOKEN = "spaCR"
 
@@ -158,9 +162,13 @@ DEFAULT_FONT_PX = 16
 MIN_FONT_PX = 4
 MAX_FONT_PX = 96
 
-#: Frame-rate cap. 24 fps is plenty for falling text and leaves the
-#: pipeline the other 97 % of the tick.
-DEFAULT_FPS = 24
+#: Frame-rate cap. 24 fps was enough for the fast columns and visibly stepped on the slow
+#: ones: a column at 4 cells/s advances one whole glyph every 6 frames, so it
+#: sat still and then jumped. Positions are quantised to whole cells, so the
+#: only way to smooth that is to give the slow columns more frames to move in.
+#: 60 costs more, but the dirty-rect repaint means an idle column still costs
+#: nothing — only the columns that actually crossed a cell boundary repaint.
+DEFAULT_FPS = 60
 MIN_FPS = 1
 MAX_FPS = 60
 
@@ -170,7 +178,9 @@ MAX_FPS = 60
 #: especially over a light theme, where a low-alpha accent colour on a pale
 #: surface has almost no contrast to spend. Raised, and exposed as a slider so
 #: it can be dialled per taste and per theme rather than guessed at once here.
-DEFAULT_OPACITY = 0.42
+#: Glyph opacity. 20% keeps the rain a texture behind the screen content
+#: rather than something competing with it.
+DEFAULT_OPACITY = 0.20
 
 #: Slider bounds for the opacity control, as whole percent.
 MIN_OPACITY_PCT = 5
@@ -323,8 +333,15 @@ class Column:
     :ivar speed: base fall rate in cells/second, before the multiplier.
     :ivar head: row of the leading glyph, fractional and often negative
         (the string starts above the canvas).
-    :ivar row: ``floor(head)`` as painted — the column is only dirty
-        when *this* changes, which is what keeps slow columns cheap.
+    :ivar row: ``floor(head)`` — the cell the head occupies. Still used for
+        the dirty-span arithmetic, which works in rows.
+    :ivar y_px: the strip's top edge in PIXELS, rounded from the fractional
+        head. THIS is what the column is painted at and what decides whether
+        it is dirty. Painting at ``row * cell`` quantised every column to
+        whole glyph heights, so a slow column (4 cells/s) sat still for six
+        frames and then jumped a whole character — the stepping that reads as
+        choppy. Raising the frame rate cannot fix that on its own: the
+        position simply has fewer places it is allowed to be.
     :ivar hi_start: first cell index of the highlighted run.
     :ivar hi_end: one past the last cell index of the highlighted run.
     :ivar word_index: cell index of the multi-character token, or -1.
@@ -337,6 +354,7 @@ class Column:
     speed: float
     head: float
     row: int
+    y_px: int
     hi_start: int
     hi_end: int
     word_index: int
@@ -492,6 +510,7 @@ class DnaRainEngine:
         if column is None:
             return Column(tokens=tokens, length=length, speed=speed,
                           head=head, row=int(math.floor(head)),
+                          y_px=0,
                           hi_start=hi_start, hi_end=hi_end,
                           word_index=word_index)
         column.tokens = tokens
@@ -499,6 +518,7 @@ class DnaRainEngine:
         column.speed = speed
         column.head = head
         column.row = int(math.floor(head))
+        column.y_px = self._y_px(column)
         column.hi_start = hi_start
         column.hi_end = hi_end
         column.word_index = word_index
@@ -513,6 +533,17 @@ class DnaRainEngine:
         self.respawns += 1
 
     # -- stepping ------------------------------------------------------
+    def _y_px(self, column: "Column") -> int:
+        """Top edge of ``column``'s strip in pixels, from its FRACTIONAL head.
+
+        Rounding here rather than flooring to a cell is the whole of the
+        smoothing: the strip may now sit at any pixel, so a slow column
+        creeps a pixel at a time instead of holding still and jumping a full
+        glyph. It is still an integer, so a column that has not moved a whole
+        pixel yet is skipped and costs nothing.
+        """
+        return int(round((column.head - column.length + 1) * self.cell_size))
+
     def advance(self, dt: float) -> List[Tuple[int, int, int]]:
         """Step the simulation by ``dt`` seconds.
 
@@ -536,11 +567,23 @@ class DnaRainEngine:
                 self._respawn(column)
                 respawned = True
             new_row = int(math.floor(column.head))
-            if new_row == old_row and not respawned:
+            old_y = column.y_px
+            new_y = self._y_px(column)
+            # Dirty on PIXEL movement, not cell movement. The old test — "did
+            # the integer row change" — is what made slow columns step: they
+            # were skipped for five frames out of six and then redrawn a whole
+            # glyph lower.
+            if new_y == old_y and not respawned:
                 continue
             column.row = new_row
-            top = max(0, min(old_top, new_row - column.length + 1))
-            bottom = min(rows - 1, max(old_row, new_row))
+            column.y_px = new_y
+            # The span still has to be expressed in rows, so widen it by a
+            # cell on each side to cover a strip that now straddles a
+            # boundary.
+            cell = max(1, self.cell_size)
+            top = max(0, min(old_y, new_y) // cell - 1)
+            bottom = min(rows - 1,
+                         (max(old_y, new_y) + column.length * cell) // cell + 1)
             if bottom >= top:
                 dirty.append((index, top, bottom))
         return dirty
@@ -1075,8 +1118,7 @@ class DnaRainWidget(QWidget):
         order = sorted(touched)
         for index in order:
             column = engine.columns[index]
-            painter.drawPixmap(index * cell,
-                               (column.row - column.length + 1) * cell,
+            painter.drawPixmap(index * cell, column.y_px,
                                self._strip_for(index))
 
         # There is no second pass. The spaCR splice used to need one: the word
