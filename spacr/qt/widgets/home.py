@@ -95,6 +95,13 @@ from ..theme import (
 )
 from .divider import Divider
 
+#: Hero brand sizes. The mark and wordmark are the first thing on the first
+#: screen, so they are sized to read as a masthead rather than as a row of
+#: labels. Kept as named constants because the logo's pixmap scale and the
+#: label's font size have to move together to stay optically balanced.
+HERO_LOGO_PX = 72
+HERO_TITLE_PX = 52
+
 
 def active_palette() -> dict:
     """The palette for the theme that is on screen *right now*.
@@ -1033,7 +1040,13 @@ class HomePage(QWidget):
         self._hint_bar = QLabel(_DEFAULT_HINT)
         self._hint_bar.setObjectName("HintBar")
         self._hint_bar.setAlignment(Qt.AlignHCenter)
-        self._hint_bar.setMinimumHeight(32)
+        # Derived from the font rather than pinned at 32. A hard number is a
+        # promise about text metrics that no longer holds the moment the font
+        # scale, the theme's font stack or a label's size role changes — the
+        # hint text needed 35 px against a 32 px floor and clipped. Asking the
+        # label for its own sizeHint keeps the bar correct across all of them.
+        self._hint_bar.setMinimumHeight(
+            max(32, self._hint_bar.sizeHint().height() + SPACING["xs"]))
         outer.addWidget(self._hint_bar)
 
         # Live job state. The registry is process-wide and outlives this
@@ -1215,16 +1228,17 @@ class HomePage(QWidget):
         logo = _find_logo_pixmap()
         if logo is not None:
             label = QLabel()
-            label.setPixmap(logo.scaled(44, 44, Qt.KeepAspectRatio,
+            label.setPixmap(logo.scaled(HERO_LOGO_PX, HERO_LOGO_PX,
+                                        Qt.KeepAspectRatio,
                                         Qt.SmoothTransformation))
-            label.setFixedSize(44, 44)
+            label.setFixedSize(HERO_LOGO_PX, HERO_LOGO_PX)
             label.setStyleSheet("background: transparent;")
             row.addWidget(label)
 
         title = QLabel("spaCR")
         title.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 300;"
-            f"font-size: 34px; color: {P['accent']};"
+            f"font-size: {HERO_TITLE_PX}px; color: {P['accent']};"
             "letter-spacing: -0.6px; background: transparent;")
         row.addWidget(title)
 
@@ -1634,22 +1648,16 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0,
              glass: bool = False) -> str:
     """QSS for the Home tab widget.
 
-    :param pane_alpha: opacity of the rounded box behind the tiles. This
-        is the user's ``pane_opacity`` preference *after*
-        :func:`spacr.qt.theme.pane_alpha` has clamped it up to the
-        theme's legibility floor, so it is safe to paint as given.
+    :param pane_alpha: accepted for call compatibility and no longer
+        painted. The pane behind the tiles is always fully transparent.
 
-    The pane is a *surface*, not the page background. It used to be
-    ``bg`` on the reasoning that the tiles were drawn on ``surface`` and
-    a surface pane would erase the only separation they had. The tiles
-    now carry their own rim, so the separation no longer comes from the
-    fill — and a pane painted in ``bg`` is a box the same colour as the
-    window, i.e. a preference for its opacity that could never show a
-    difference on the two opaque themes.
+    The tiles carry their own fill and rim, so the pane never had to be a
+    surface to separate them — and a filled pane reads as a dark box the
+    tiles sit inside, which is not the intended layering. Only the 1px
+    outline remains: it is what the selected tab joins onto, and without
+    it the tab strip floats with nothing under it.
     """
-    from ..theme import css_color, glass_material
-    pane_fill = (glass_material(P["surface"], pane_alpha)
-                 if glass else css_color(P["surface"], pane_alpha))
+    from ..theme import css_color
     pane_border = (css_color("#ffffff", 0.27)
                    if glass else P["border_soft"])
     radius = 14 if glass else 8
@@ -1657,7 +1665,7 @@ def _tab_qss(P: dict, pane_alpha: float = 1.0,
 QTabWidget#HomeTabs::pane {{
     border: 1px solid {pane_border};
     border-radius: {radius}px;
-    background: {pane_fill};
+    background: transparent;
     top: -1px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab {{
