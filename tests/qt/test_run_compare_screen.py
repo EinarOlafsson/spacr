@@ -23,9 +23,21 @@ pytest.importorskip("PySide6")
 
 from spacr.artifacts import Registry
 from spacr.qt.app import APPS, unregister_app
-from spacr.qt.screens import run_compare as screen
 
-unregister_app(screen.APP_KEY)
+# Snapshot BEFORE the import: reaching this screen initialises the
+# ``spacr.qt.screens`` package, which imports every self-registering screen
+# there is. Collecting this file must leave the registry exactly as it found
+# it, so whatever that import added is taken back out again — this one and
+# every other screen's — and the tests below register what they need.
+_APPS_BEFORE = {row[0] for row in APPS}
+
+from spacr.qt.screens import run_compare as screen  # noqa: E402
+
+# Not a `del _key` afterwards: another test module may have imported the
+# screens package already, in which case the delta is empty, the loop never
+# binds the name, and the `del` would fail collection of this whole file.
+for _key in sorted({row[0] for row in APPS} - _APPS_BEFORE):
+    unregister_app(_key)
 
 
 BASE_SETTINGS = {
