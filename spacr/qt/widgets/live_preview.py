@@ -54,6 +54,10 @@ from PySide6.QtWidgets import (
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
     QSizePolicy, QSpinBox, QVBoxLayout, QWidget,
 )
+from .preview_controls import (
+    FlatButton, FlatComboBox, channel_view, populate_channel_combo,
+    populate_fov_combo, selected_channel, sibling_sources,
+)
 from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.live_preview")
@@ -794,6 +798,12 @@ class LivePreviewPanel(QWidget):
         self._run_token: int = 0
         # Callback(dict) that pushes tuned live settings into the main panel.
         self._propagate_cb = None
+        # One random colour per compartment for the 'auto' outline mode,
+        # re-rolled on every preview run (see _roll_auto_outline_colours).
+        self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
+        # Guards the FOV dropdown against re-entering itself while the image
+        # it just asked for is being installed.
+        self._loading_fov = False
         self._build_ui()
         self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
@@ -961,17 +971,35 @@ class LivePreviewPanel(QWidget):
 
         # -- VISIBLE compact layout --------------------------------------
 
-        # File picker row
+        # File picker row — FOV and channel dropdowns sit immediately LEFT of
+        # the Choose control, all three wearing the flat "Live toggle" look.
         pick_row = QHBoxLayout()
+        self._pick_row = pick_row
         self._path_label = QLabel(
             "No preview image loaded — drag & drop an image here to load it",
             self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose image…", self)
-        pick_btn.clicked.connect(self._pick_file)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view. Lists every supported image sitting "
+                     "beside the loaded one; picking one loads it."))
+        self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Displayed channel. 'All channels' shows the image as "
+                     "stored; picking one shows that plane alone. This is a "
+                     "view control — the segmentation channels live in Live "
+                     "settings."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        populate_channel_combo(self._channel_box, 0)
+        self._pick_btn = FlatButton("Choose image…", self)
+        self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
-        pick_row.addWidget(pick_btn)
+        pick_row.addWidget(self._fov_box)
+        pick_row.addWidget(self._channel_box)
+        pick_row.addWidget(self._pick_btn)
         root.addLayout(pick_row)
 
         # Action row — Run + Live settings + status
@@ -1117,6 +1145,46 @@ class LivePreviewPanel(QWidget):
         self._flows = {}
         self._path_label.setText(str(path))
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}")
+        self._refresh_source_selectors()
+        self._refresh_canvases()
+
+    # -- FOV / channel selectors ------------------------------------------
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the FOV and channel dropdowns for the loaded image."""
+        populate_fov_combo(
+            self._fov_box,
+            sibling_sources(self._image_path, SUPPORTED_SUFFIXES),
+            current=self._image_path)
+        channels = (int(self._image.shape[2])
+                    if self._image is not None and self._image.ndim == 3
+                    else 0)
+        populate_channel_combo(self._channel_box, channels)
+
+    def _on_fov_changed(self, *_args) -> None:
+        """Load the field of view the user picked from the dropdown."""
+        if self._loading_fov:
+            return
+        path = self._fov_box.currentData()
+        if not path or (self._image_path is not None
+                        and str(self._image_path) == str(path)):
+            return
+        self._loading_fov = True
+        try:
+            self.load_image(path)
+        finally:
+            self._loading_fov = False
+
+    def display_channel(self) -> Optional[int]:
+        """Channel index the canvases show, or ``None`` for all channels."""
+        return selected_channel(self._channel_box)
+
+    def _display_image(self) -> Optional[np.ndarray]:
+        """The loaded image reduced to the selected display channel."""
+        return channel_view(self._image, self.display_channel())
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Re-render both canvases for the newly selected channel."""
         self._refresh_canvases()
 
     def set_propagate_callback(self, cb) -> None:
@@ -1190,6 +1258,8 @@ class LivePreviewPanel(QWidget):
             "hi_pct": float(self._hi_pct.value()),
             "outline_thickness": self._outline_thickness.value(),
             "outline_colour": self._outline_colour.currentText(),
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
         }
 
     def cancel_preview(self) -> bool:
@@ -1439,8 +1509,9 @@ class LivePreviewPanel(QWidget):
         norm = self._normalise_check.isChecked()
         lo = float(self._lo_pct.value())
         hi = float(self._hi_pct.value())
+        shown = self._display_image()
         src_pix = numpy_to_qpixmap(
-            _to_uint8(self._image, normalise=norm, lo_pct=lo, hi_pct=hi))
+            _to_uint8(shown, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
 
         mode = self._view_mode.currentText() if hasattr(self, "_view_mode") else "Overlay"
@@ -1452,7 +1523,7 @@ class LivePreviewPanel(QWidget):
                 self._label_rgb()))
         elif self._masks:   # Overlay (default)
             overlay = overlay_masks(
-                self._image, self._masks,
+                shown, self._masks,
                 outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
                 normalise=norm, lo_pct=lo, hi_pct=hi,
@@ -1671,7 +1742,7 @@ class LivePreviewPanel(QWidget):
         if not (0 <= idx < len(self._history)):
             return
         snap = self._history[idx]
-        img = snap["image"]
+        img = channel_view(snap["image"], self.display_channel())
         norm, lo, hi = snap["norm"], snap["lo"], snap["hi"]
         src_pix = numpy_to_qpixmap(
             _to_uint8(img, normalise=norm, lo_pct=lo, hi_pct=hi))

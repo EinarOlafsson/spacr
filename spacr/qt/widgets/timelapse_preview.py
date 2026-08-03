@@ -58,6 +58,10 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QSpinBox,
     QVBoxLayout, QWidget,
 )
+from .preview_controls import (
+    FlatButton, FlatComboBox, populate_channel_combo, populate_fov_combo,
+    selected_channel, sibling_sources,
+)
 from .toggle import Toggle
 
 # Reuse the Mask live preview's rendering + canvas primitives wholesale so
@@ -845,6 +849,10 @@ class TimelapsePreviewPanel(QWidget):
         self._pending_signature: Optional[tuple] = None
         self._propagate_cb = None
         self._settings: Dict[str, Any] = {}
+        self._sequence_path: Optional[Path] = None
+        # Guards the FOV dropdown against re-entering itself while the
+        # sequence it just asked for is being opened.
+        self._loading_fov = False
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
@@ -859,22 +867,39 @@ class TimelapsePreviewPanel(QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
+        # FOV and channel dropdowns sit immediately LEFT of the Choose
+        # control; all of them wear the flat "Live toggle" look.
         pick = QHBoxLayout()
+        self._pick_row = pick
         self._path_label = QLabel(
             "No sequence loaded — drop a folder of frames, a multi-page TIFF, "
             "or a (T, H, W) .npy stack here")
         self._path_label.setSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Preferred)
-        seq_btn = QPushButton("Choose sequence…")
-        seq_btn.clicked.connect(self._pick_sequence)
-        mask_btn = QPushButton("Masks…")
-        mask_btn.setToolTip(
-            "Optional: point at a folder or stack of ready-made label images "
-            "to skip segmentation entirely.")
-        mask_btn.clicked.connect(self._pick_masks)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view. Lists the other sequences sitting beside "
+                     "the loaded one; picking one loads it."))
+        self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Channel shown and segmented. Bound to the segmentation "
+                     "channel, so the frame you look at is the frame Cellpose "
+                     "sees."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        self._seq_btn = FlatButton("Choose sequence…", self)
+        self._seq_btn.clicked.connect(self._pick_sequence)
+        self._mask_btn = FlatButton(
+            "Masks…", self,
+            tooltip=("Optional: point at a folder or stack of ready-made "
+                     "label images to skip segmentation entirely."))
+        self._mask_btn.clicked.connect(self._pick_masks)
         pick.addWidget(self._path_label, 1)
-        pick.addWidget(seq_btn)
-        pick.addWidget(mask_btn)
+        pick.addWidget(self._fov_box)
+        pick.addWidget(self._channel_box)
+        pick.addWidget(self._seq_btn)
+        pick.addWidget(self._mask_btn)
         root.addLayout(pick)
 
         # -- segmentation settings (changing one invalidates the mask cache) --
@@ -1000,6 +1025,10 @@ class TimelapsePreviewPanel(QWidget):
         # Pure display knobs never touch masks or tracks.
         self._tail.valueChanged.connect(lambda *_: self._refresh_canvases())
         self._normalise.toggled.connect(lambda *_: self._refresh_canvases())
+        # One channel, two surfaces: the settings spinner and the flat
+        # dropdown in the pick row are kept in step so the frame the user
+        # looks at is always the frame Cellpose is handed.
+        self._channel.valueChanged.connect(self._sync_channel_combo_from_spin)
 
         act = QHBoxLayout()
         self._run_btn = QPushButton("Run preview", self)
@@ -1120,8 +1149,93 @@ class TimelapsePreviewPanel(QWidget):
         self._frame_slider.setMaximum(max(0, len(seq) - 1))
         self._frame_slider.setValue(0)
         self._play_btn.setEnabled(len(seq) > 1)
+        self._sequence_path = Path(os.fspath(path))
+        self._refresh_source_selectors()
         self._refresh_canvases()
         return True
+
+    # -- FOV / channel selectors -------------------------------------------
+
+    def _frame_channel_count(self) -> int:
+        """How many channels one frame of the loaded sequence holds."""
+        seq = self._sequence
+        if seq is None or not len(seq):
+            return 0
+        try:
+            frame = np.asarray(seq.frame(0))
+        except Exception:
+            return 0
+        if frame.ndim != 3:
+            # A plain 2-D frame still has one channel; reporting zero would
+            # leave the dropdown empty and looking broken.
+            return 1
+        # Same channel-axis heuristic ``frame_channel`` applies.
+        if frame.shape[-1] <= 8 and frame.shape[0] > 8:
+            return int(frame.shape[-1])
+        if frame.shape[0] <= 8 and frame.shape[-1] > 8:
+            return int(frame.shape[0])
+        return int(frame.shape[-1])
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the FOV and channel dropdowns for the loaded sequence."""
+        source = getattr(self, "_sequence_path", None)
+        if source is not None:
+            populate_fov_combo(
+                self._fov_box,
+                sibling_sources(source, FRAME_SUFFIXES,
+                                directories=source.is_dir()),
+                current=source)
+        populate_channel_combo(
+            self._channel_box, self._frame_channel_count(), include_all=False,
+            keep=f"Ch {int(self._channel.value())}")
+        self._sync_channel_spin_from_combo()
+
+    def _sync_channel_spin_from_combo(self) -> None:
+        """Push the dropdown's channel into the segmentation spinner."""
+        index = selected_channel(self._channel_box)
+        if index is None or int(self._channel.value()) == int(index):
+            return
+        self._channel.setValue(int(index))
+
+    def _sync_channel_combo_from_spin(self, *_args) -> None:
+        """Reflect a spinner-side channel change in the dropdown."""
+        box = getattr(self, "_channel_box", None)
+        if box is None:
+            return
+        wanted = f"Ch {int(self._channel.value())}"
+        index = box.findText(wanted)
+        if index < 0 or index == box.currentIndex():
+            return
+        blocked = box.blockSignals(True)
+        try:
+            box.setCurrentIndex(index)
+        finally:
+            box.blockSignals(blocked)
+
+    def _on_fov_changed(self, *_args) -> None:
+        """Load the field of view the user picked from the dropdown."""
+        if self._loading_fov:
+            return
+        path = self._fov_box.currentData()
+        current = getattr(self, "_sequence_path", None)
+        if not path or (current is not None and str(current) == str(path)):
+            return
+        self._loading_fov = True
+        try:
+            self.load_sequence(path)
+        finally:
+            self._loading_fov = False
+
+    def display_channel(self) -> Optional[int]:
+        """Channel index the canvases show, or ``None`` when unset."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Show (and segment) the newly selected channel."""
+        if not hasattr(self, "_channel"):
+            return
+        self._sync_channel_spin_from_combo()
+        self._refresh_canvases()
 
     def load_masks(self, path) -> bool:
         """Use ready-made label images instead of segmenting."""
@@ -1214,6 +1328,8 @@ class TimelapsePreviewPanel(QWidget):
             "min_length": int(self._min_len.value()),
             "max_frames": int(self._max_frames.value()),
             "n_frames": len(self._sequence) if self._sequence else 0,
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
         }
 
     # -- cache key ---------------------------------------------------------
