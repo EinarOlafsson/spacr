@@ -41,6 +41,7 @@ from __future__ import annotations
 import colorsys
 import logging
 import os
+import random
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -320,6 +321,32 @@ def _random_outline_palette(
     return np.rint(np.asarray(colours) * 255.0).astype(np.uint8)
 
 
+#: Random-colour generator for the ``auto`` outline mode. Module level so a
+#: test can seed it; unseeded it draws from the OS entropy pool, which is what
+#: makes two preview runs come out in two different colours.
+_AUTO_COLOUR_RNG = random.Random()
+
+
+def random_outline_colour(rng: Optional[random.Random] = None
+                          ) -> Tuple[int, int, int]:
+    """Return one vivid random RGB triple for the ``auto`` outline mode.
+
+    Hue is uniform over the full circle while saturation and value stay high,
+    so the colour is always legible on top of a micrograph — a uniform draw in
+    RGB would regularly produce muddy near-grey outlines nobody can see.
+
+    :param rng: optional generator, for reproducible tests.
+    :returns: ``(r, g, b)`` in 0..255.
+    """
+    source = rng if rng is not None else _AUTO_COLOUR_RNG
+    hue = source.random()
+    saturation = 0.70 + 0.30 * source.random()
+    value = 0.85 + 0.15 * source.random()
+    red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
+    return (int(round(red * 255)), int(round(green * 255)),
+            int(round(blue * 255)))
+
+
 def overlay_masks(image: np.ndarray,
                     masks: Dict[str, np.ndarray],
                     outline_rgb: Optional[Tuple[int, int, int]] = None,
@@ -327,7 +354,9 @@ def overlay_masks(image: np.ndarray,
                     normalise: bool = True,
                     lo_pct: float = 2.0,
                     hi_pct: float = 98.0,
-                    random_outline: bool = False) -> np.ndarray:
+                    random_outline: bool = False,
+                    outline_colors: Optional[
+                        Dict[str, Tuple[int, int, int]]] = None) -> np.ndarray:
     """Return an RGB uint8 view of ``image`` with every mask's boundary
     drawn in the object's colour (or ``outline_rgb`` when supplied).
 
@@ -342,6 +371,11 @@ def overlay_masks(image: np.ndarray,
     :param random_outline: assign every positive object label a vivid,
         stable categorical colour. This takes precedence over
         ``outline_rgb`` and corresponds to ``color (random)`` in Mask Live.
+    :param outline_colors: per-compartment colour overrides used when no
+        global ``outline_rgb`` is given. This is how the panel's ``auto``
+        mode reaches the renderer: it holds one random colour per
+        compartment for the current run. Falls back to
+        :data:`OBJECT_COLORS` for anything it does not name.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -387,8 +421,11 @@ def overlay_masks(image: np.ndarray,
             b2[:, 1:]  |= boundary[:, :-1]
             b2[:, :-1] |= boundary[:, 1:]
             boundary = b2
-        colour = outline_rgb if outline_rgb is not None else \
-            OBJECT_COLORS.get(obj_type, (32, 220, 32))
+        colour = outline_rgb
+        if colour is None and outline_colors:
+            colour = outline_colors.get(obj_type)
+        if colour is None:
+            colour = OBJECT_COLORS.get(obj_type, (32, 220, 32))
         rgb[boundary] = np.array(colour, dtype=np.uint8)
     return rgb
 
@@ -914,11 +951,16 @@ class LivePreviewPanel(QWidget):
 
         # Outline appearance
         self._outline_colour = QComboBox(self)
+        # These entries are looked up by text in _outline_rgb; the language
+        # pass must not rewrite them, or every choice would miss the mapping
+        # and silently fall back to the per-compartment default (green for
+        # cells) — an outline colour that can never be changed.
+        self._outline_colour.setProperty("i18nSkipItems", True)
         for name in ("auto", "color (random)", "green", "magenta",
                      "yellow", "cyan", "white", "red"):
             self._outline_colour.addItem(name)
         self._outline_colour.currentIndexChanged.connect(
-            self._refresh_canvases)
+            self._on_outline_colour_changed)
         self._outline_thickness = QSpinBox(self)
         self._outline_thickness.setRange(1, 5)
         self._outline_thickness.setValue(1)
@@ -1011,6 +1053,8 @@ class LivePreviewPanel(QWidget):
         # What the right-hand canvas shows: outline overlay, the raw label
         # mask, or the Cellpose flow field.
         self._view_mode = QComboBox(self)
+        # Read back by text in _refresh_canvases — never translate.
+        self._view_mode.setProperty("i18nSkipItems", True)
         self._view_mode.addItems(["Overlay", "Masks", "Flows"])
         self._view_mode.setToolTip(
             "Right canvas: outline overlay · label masks · Cellpose flows")
@@ -1487,20 +1531,55 @@ class LivePreviewPanel(QWidget):
             postprocess_settings=post,
         )
 
+    #: Fixed colours the outline-colour combo offers by name.
+    OUTLINE_COLOURS: Dict[str, Tuple[int, int, int]] = {
+        "green":   (32, 220, 32),
+        "magenta": (222, 82, 200),
+        "yellow":  (255, 220, 32),
+        "cyan":    (32, 200, 220),
+        "white":   (240, 240, 240),
+        "red":     (240, 60, 60),
+    }
+
     def _outline_rgb(self) -> Optional[Tuple[int, int, int]]:
         """Translate the outline-colour combo choice into an RGB tuple,
-        or ``None`` for ``auto`` and ``color (random)``. The latter is
-        handled separately by :func:`overlay_masks`."""
-        choice = self._outline_colour.currentText()
-        mapping = {
-            "green":   (32, 220, 32),
-            "magenta": (222, 82, 200),
-            "yellow":  (255, 220, 32),
-            "cyan":    (32, 200, 220),
-            "white":   (240, 240, 240),
-            "red":     (240, 60, 60),
-        }
-        return mapping.get(choice)   # None on "auto"
+        or ``None`` for ``auto`` and ``color (random)``. ``auto`` is drawn
+        from :meth:`_auto_outline_colour` and ``color (random)`` is handled
+        per object label by :func:`overlay_masks`."""
+        return self.OUTLINE_COLOURS.get(self._outline_colour.currentText())
+
+    def _roll_auto_outline_colours(self) -> None:
+        """Draw a fresh random colour per compartment for ``auto`` mode.
+
+        ``auto`` used to mean "the compartment's fixed colour", which made
+        every cell preview green no matter what — the setting looked stuck.
+        It now means a random colour, re-rolled once per preview run so the
+        outline stays put while the user tunes thickness or normalisation.
+        """
+        self._auto_outline_colours = {
+            comp: random_outline_colour() for comp in COMPARTMENTS}
+
+    def _auto_outline_colour(self, obj_type: str) -> Tuple[int, int, int]:
+        """The current random ``auto`` colour for one compartment."""
+        colour = self._auto_outline_colours.get(obj_type)
+        if colour is None:
+            colour = random_outline_colour()
+            self._auto_outline_colours[obj_type] = colour
+        return colour
+
+    def _auto_outline_map(self) -> Dict[str, Tuple[int, int, int]]:
+        """Per-compartment ``auto`` colours covering everything on screen."""
+        if not self._auto_outline_colours:
+            self._roll_auto_outline_colours()
+        for obj_type in self._masks:
+            self._auto_outline_colour(obj_type)
+        return dict(self._auto_outline_colours)
+
+    def _on_outline_colour_changed(self, *_args) -> None:
+        """Re-render, re-rolling the random colours when ``auto`` is chosen."""
+        if self._outline_colour.currentText() == "auto":
+            self._roll_auto_outline_colours()
+        self._refresh_canvases()
 
     def _refresh_canvases(self):
         """Re-render both views from the current image + masks."""
@@ -1529,7 +1608,8 @@ class LivePreviewPanel(QWidget):
                 normalise=norm, lo_pct=lo, hi_pct=hi,
                 random_outline=(
                     self._outline_colour.currentText() == "color (random)"
-                ))
+                ),
+                outline_colors=self._auto_outline_map())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)
@@ -1543,18 +1623,40 @@ class LivePreviewPanel(QWidget):
             self._refresh_canvases()
 
     def _label_rgb(self) -> np.ndarray:
-        """Render the current label masks as a distinct-colour image (0 = black)."""
+        """Render the current label masks as a distinct-colour image (0 = black).
+
+        The chosen outline colour tints this view too. It used to be painted
+        straight from :data:`OBJECT_COLORS`, so the ``Masks`` view stayed
+        green for cells no matter which colour the user picked — the colour
+        control simply did not reach this renderer.
+        """
         h, w = self._image.shape[:2]
         out = np.zeros((h, w, 3), dtype=np.uint8)
+        chosen = self._outline_rgb()
+        random_mode = self._outline_colour.currentText() == "color (random)"
+        auto_colours = self._auto_outline_map()
         for obj, mask in self._masks.items():
             if mask is None or mask.shape[:2] != (h, w):
                 continue
-            base = np.array(OBJECT_COLORS.get(obj, (200, 200, 200)), dtype=np.uint8)
-            # Vary brightness a little per label so neighbours are separable.
             labels = mask.astype(np.int64)
             present = labels > 0
             if not present.any():
                 continue
+            if random_mode:
+                # Same categorical map the overlay uses, so 'color (random)'
+                # means one thing in both views.
+                ids = np.unique(labels[present])
+                palette = _random_outline_palette(
+                    ids, RANDOM_OUTLINE_SEEDS.get(obj, 0))
+                out[present] = palette[np.searchsorted(ids, labels[present])]
+                continue
+            if chosen is not None:
+                base_rgb = chosen
+            else:
+                base_rgb = auto_colours.get(
+                    obj, OBJECT_COLORS.get(obj, (200, 200, 200)))
+            base = np.array(base_rgb, dtype=np.uint8)
+            # Vary brightness a little per label so neighbours are separable.
             shade = (0.5 + 0.5 * ((labels % 7) / 6.0)).astype(np.float32)
             for c in range(3):
                 out[..., c] = np.where(
@@ -1691,6 +1793,11 @@ class LivePreviewPanel(QWidget):
         raw = getattr(self, "_raw_masks", None)
         if not raw or self._image is None:
             return
+        if snapshot:
+            # A new run gets a new 'auto' colour. Re-rolling here rather than
+            # on every repaint keeps the outline steady while the user drags
+            # thickness or percentile sliders.
+            self._roll_auto_outline_colours()
         post = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
             post.update(self._compartment_settings())
@@ -1748,10 +1855,18 @@ class LivePreviewPanel(QWidget):
             _to_uint8(img, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
         if snap["masks"]:
+            # The random and auto modes have to be forwarded here too. They
+            # were not, so scrubbing back through history repainted every
+            # outline in the per-compartment default — green for cells —
+            # whatever the user had chosen.
             overlay = overlay_masks(
                 img, snap["masks"], outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
-                normalise=norm, lo_pct=lo, hi_pct=hi)
+                normalise=norm, lo_pct=lo, hi_pct=hi,
+                random_outline=(
+                    self._outline_colour.currentText() == "color (random)"
+                ),
+                outline_colors=self._auto_outline_map())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)

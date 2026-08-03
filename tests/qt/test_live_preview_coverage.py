@@ -917,7 +917,9 @@ class TestPanelRendering:
         m[10:20, 10:20] = 1
         p._masks = {"cell": m}
         p._refresh_canvases()
-        assert _pixmap_pixel(p._mask_view, 10, 10) == LP.OBJECT_COLORS["cell"]
+        # 'auto' draws a random colour now, not the compartment's fixed green.
+        assert _pixmap_pixel(p._mask_view, 10, 10) == \
+            p._auto_outline_colour("cell")
 
     def test_outline_colour_choice_repaints_the_overlay(self, qtbot,
                                                         gray_tif):
@@ -987,7 +989,8 @@ class TestPanelRendering:
         m[20:24, 20:24] = 2
         p._masks = {"nucleus": m}
         rgb = p._label_rgb()
-        base = np.array(LP.OBJECT_COLORS["nucleus"])
+        # Under 'auto' the Masks view is tinted with the run's random colour.
+        base = np.array(p._auto_outline_colour("nucleus"))
         for y, x, lbl in ((5, 5, 1), (21, 21, 2)):
             shade = 0.5 + 0.5 * ((lbl % 7) / 6.0)
             assert np.allclose(rgb[y, x], np.clip(base * shade, 0, 255)
@@ -1048,7 +1051,8 @@ class TestPanelRendering:
         m[10:20, 10:20] = 1
         p._masks = {"cell": m}
         p._view_mode.setCurrentText("Flows")     # but _flows is empty
-        assert _pixmap_pixel(p._mask_view, 10, 10) == LP.OBJECT_COLORS["cell"]
+        assert _pixmap_pixel(p._mask_view, 10, 10) == \
+            p._auto_outline_colour("cell")
 
     @pytest.mark.parametrize("channels", [1, 5])
     def test_a_tif_with_an_odd_channel_count_loads_and_renders(
@@ -1073,7 +1077,8 @@ class TestPanelRendering:
         m[5:12, 5:12] = 1
         p._masks = {"cell": m}
         p._refresh_canvases()
-        assert _pixmap_pixel(p._mask_view, 5, 5) == LP.OBJECT_COLORS["cell"]
+        assert _pixmap_pixel(p._mask_view, 5, 5) == \
+            p._auto_outline_colour("cell")
 
     def test_normalise_toggle_repaints_the_source_canvas(self, qtbot,
                                                          gray_tif):
@@ -1415,8 +1420,10 @@ class TestCompareScrubber:
         assert label.startswith("1/2")
         assert "cpsam/cell" in label          # the model used for that run
         assert "cell=1" in label
-        # The older run's single object is what got repainted.
-        assert _pixmap_pixel(p._mask_view, 2, 2) == LP.OBJECT_COLORS["cell"]
+        # The older run's single object is what got repainted, in the current
+        # 'auto' colour — the scrubber honours the outline setting now.
+        assert _pixmap_pixel(p._mask_view, 2, 2) == \
+            p._auto_outline_colour("cell")
         assert first[2, 2] == 1
 
     def test_scrubbing_to_a_maskless_run_shows_the_source(self, qtbot,
