@@ -728,6 +728,46 @@ def pane_alpha(theme: str, opacity: Optional[float] = None) -> float:
     return max(wanted, pane_alpha_floor(theme))
 
 
+def pane_surface(role: str = "surface_alt",
+                 theme: Optional[str] = None,
+                 opacity: Optional[float] = None) -> str:
+    """A page-surface colour, already carrying the user's page opacity.
+
+    The single accessor every container should use, including the ones styled
+    inline rather than through :func:`stylesheet`. Those were the gap: Home's
+    aside panels, the dock and the tile boxes all read
+    :func:`active_palette` directly, which returns **raw hex**, so they stayed
+    fully opaque no matter what the preference said and the setting looked
+    broken from the page the user lands on.
+
+    Reads the live preference when ``opacity`` is not given, so a caller does
+    not have to plumb it through — and falls back to the theme's designed
+    scrim if preferences cannot be read at all, which is what a first run
+    mid-generation gets.
+
+    :param role: a palette key, normally ``surface``/``surface_alt``/``tile``.
+    :param theme: theme name; ``None`` resolves the effective one.
+    :param opacity: 0..1 override; ``None`` reads the preference.
+    :returns: a QSS colour — plain hex when opaque, ``rgba()`` when not.
+    """
+    if theme is None:
+        try:
+            from .preferences import resolve_effective_theme
+            theme = resolve_effective_theme()
+        except Exception:
+            theme = "dark"
+    if opacity is None:
+        try:
+            from .preferences import get_pane_opacity
+            opacity = get_pane_opacity()
+        except Exception:
+            opacity = None
+    base = palette_for(theme)
+    colour_role = SCRIM_ROLES.get(role, role)
+    return css_color(base.get(colour_role, base["surface_alt"]),
+                     panel_alpha(theme, role, opacity))
+
+
 def panel_alpha(theme: str, role: str,
                 opacity: Optional[float] = None) -> float:
     """Apply the page-opacity preference to a shared UI surface role.
@@ -1426,15 +1466,45 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     ELEVATED = css_color(
         base["surface_alt"], panel_alpha(theme, "elevated", surface_opacity))
     over_image = theme in IMAGE_THEMES
-    TILE_BG = (css_color(
-        base["surface"], panel_alpha(theme, "tile", surface_opacity))
-               if over_image else "transparent")
+    # Tiles take page opacity on every theme. Over an image they always did;
+    # on the flat themes they were `transparent`, which looked identical to
+    # the window and meant the tile itself could not be dialled — the user
+    # asked for the tiles AND the boxes they sit in to follow the setting.
+    # `transparent` is still the right answer at 100%, because a fully opaque
+    # tile over an identical window colour is what the flat themes looked like
+    # before, so the alpha is applied to the surface colour rather than
+    # replacing it with a hard block.
+    TILE_BG = css_color(base["surface"],
+                        panel_alpha(theme, "tile", surface_opacity))
     # Scrollbar troughs paint over the window; over a photograph they must not
     # be an opaque black block. Group-box titles are transparent below.
     TROUGH = "transparent" if over_image else base["bg"]
-    CONSOLE_BG = (P["surface_alt"] if over_image else "#0a0b0d")
-    # The dock never goes through a scrim — see `dock_colour`.
-    DOCK_BG = dock_colour(theme)
+    # The console honours page opacity on EVERY theme, not just the image
+    # ones. `#0a0b0d` was a hard-coded near-black, so on dark and light the
+    # console stayed a solid slab no matter where the slider was — one of the
+    # containers the preference visibly failed to reach.
+    CONSOLE_BG = (P["surface_alt"] if over_image else css_color(
+        "#0a0b0d", panel_alpha(theme, "surface_alt", surface_opacity)))
+    # The dock takes page opacity on the FLAT themes and stays opaque over an
+    # image. Two user instructions meet here and both are kept:
+    #
+    #   #16j — "the dock to the left should never have a transparent
+    #   background, either dark gray or white". A navigation column is chrome:
+    #   it is what you look at when you have lost your place. It used to paint
+    #   `surface`, which the image themes re-render through `scrim_alpha`, so
+    #   on Space the app list was a ghost with a galaxy behind every row.
+    #
+    #   Later — page opacity should reach "the dock" as well.
+    #
+    # On dark and light there is no wallpaper to show through, only the
+    # ambient animation, so thinning the dock does exactly what was asked and
+    # nothing #16j was protecting against. Over Space or Cell the picture is
+    # behind it and the old complaint applies verbatim — and the legibility
+    # floor does NOT save it there (Cell floors at 0.047), so the split is
+    # explicit rather than left to the solver.
+    DOCK_BG = (dock_colour(theme) if over_image else css_color(
+        dock_colour(theme),
+        panel_alpha(theme, "surface_alt", surface_opacity)))
     # The hairline every tile carries, and the three maturity hues its
     # hover switches to. `RIM` is the theme's ink; the hover fill is the
     # stage colour at a low alpha so the tile lights UP rather than being
