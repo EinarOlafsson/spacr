@@ -98,6 +98,7 @@ __all__ = [
     'strip_prefix',
     # wells
     'parse_well', 'well_id', 'is_positional_well', 'is_positional_pair',
+    'is_row_column_pair',
     # identities
     'FieldID', 'ObjectID',
     'compose_prc', 'compose_prcf', 'compose_prcfo',
@@ -710,6 +711,43 @@ def is_positional_pair(row: Any, column: Any) -> bool:
             and column_text[:1].lower() != KEY_PREFIXES[COLUMN_KEY])
 
 
+def is_row_column_pair(row: Any, column: Any) -> bool:
+    """True when ``(row, column)`` is recognisably a well's row and column.
+
+    Deliberately narrow. It is the guard that stops a right-to-left key parse
+    from absorbing a *deeper* key into an underscored plate id, so it must
+    reject a ``(columnID, fieldID)`` pair and a ``(fieldID, objectID)`` pair:
+    a ``columnID`` is never ``'f1'`` and a ``rowID`` is never ``'c1'``.
+
+    :func:`parse_prcf` and ``ml._split_prc`` are both right-to-left parses of
+    a separator-joined key whose leftmost component may itself contain the
+    separator, and both need exactly this test to tell "the plate is called
+    ``exp1_plate1``" from "you handed me a key one level too deep". It lives
+    here so there is one answer to "is this a row and a column?".
+
+    :param row: candidate ``rowID`` token.
+    :param column: candidate ``columnID`` token.
+    :returns: whether the pair can be a row and a column.
+    """
+    row_text, column_text = str(row).strip(), str(column).strip()
+    if not row_text or not column_text:
+        return False
+    if is_positional_pair(row_text, column_text):
+        # parse_well puts an unrecognisable well into both slots verbatim, so
+        # an equal unprefixed pair is that passthrough and not a deeper key's
+        # tail (a field never equals the column it sits in).
+        return True
+    if row_text[:1].lower() == KEY_PREFIXES[ROW_KEY]:
+        row_ok = row_index(row_text) is not None
+    else:
+        row_ok = row_index_from_letters(row_text) is not None
+    if not row_ok:
+        return False
+    if column_text[:1].lower() == KEY_PREFIXES[COLUMN_KEY]:
+        return column_index(column_text) is not None
+    return column_text.isdigit()
+
+
 def parse_well(well: Any, *, strict: bool = False) -> Tuple[str, str]:
     """Return ``(rowID, columnID)`` for a well identifier.
 
@@ -1069,6 +1107,24 @@ def parse_prcf(text: Any) -> FieldID:
     ``ml.py`` splits ``prcfo`` left to right into a fixed five columns, so a
     timelapse key with six parts silently misaligns every column.
 
+    **Extra components are not automatically an underscored plate.** A key
+    with more components than ``plate_row_column_field[_time]`` is one of two
+    things, and they mean opposite things:
+
+    * ``'exp1_plate1_r2_c12_f1'`` — a plate id containing the separator. The
+      right-to-left rule handles it, and that is the case the absorption
+      exists for.
+    * ``'plate1_r1_c1_f1_f2'`` — a key one level too deep, or a key whose
+      components are not what they claim. Absorbing it would return
+      ``plateID='plate1_r1'``, ``rowID='c1'``, ``columnID='f1'`` — half the
+      well inside the plate and a field id in the column slot — and every
+      per-well figure grouped on that is a plausible wrong number with
+      nothing anywhere saying so.
+
+    The two are told apart with :func:`is_row_column_pair`, which is the same
+    guard ``ml._split_prc`` applies for the same reason. Anything else with
+    extra components is refused rather than guessed at.
+
     :param text: e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.
     :returns: the :class:`FieldID`.
     :raises KeyParseError: when the string is not a ``prcf``.
@@ -1084,17 +1140,44 @@ def parse_prcf(text: Any) -> FieldID:
     field_key = parts.pop()
     column_key = parts.pop()
     row_key = parts.pop()
-    if not parts:
+    plate_key = KEY_SEPARATOR.join(parts)
+    if not parts or not plate_key.strip():
         raise KeyParseError(f'{text!r} is not a prcf: it has no plate.')
     if field_key[:1].lower() != 'f':
         raise KeyParseError(
             f'{text!r} is not a prcf: {field_key!r} is not a field id.')
-    return FieldID(plateID=KEY_SEPARATOR.join(parts), rowID=row_key,
+    if not row_key.strip() or not column_key.strip():
+        # An empty component is not a missing token, it is a token every
+        # field of the plate shares: join on it and they all merge. This is
+        # the same refusal ``ml._split_prc`` makes, for the same reason.
+        raise KeyParseError(
+            f'{text!r} is not a prcf: its row is {row_key!r} and its column '
+            f'is {column_key!r}, and an empty one identifies no well — every '
+            f'field of {plate_key!r} would be keyed the same.')
+    if len(parts) > 1 and not is_row_column_pair(row_key, column_key):
+        raise KeyParseError(
+            f'{text!r} is not a prcf: the plate would have to absorb '
+            f'{len(parts)} components, and its row and column would then be '
+            f'{row_key!r} and {column_key!r}, which are not a row and a '
+            f'column. If this really is a plate id containing '
+            f'{KEY_SEPARATOR!r}, its row and column must be written the way '
+            f'spaCR writes them (r<N>/letters and c<N>/digits) for the plate '
+            f'to be separable from them.')
+    return FieldID(plateID=plate_key, rowID=row_key,
                    columnID=column_key, fieldID=field_key, timeID=time_key)
 
 
 def parse_prcfo(text: Any) -> ObjectID:
     """Parse a ``prcfo`` string back into an :class:`ObjectID`.
+
+    The object prefix is stripped before the label is re-canonicalised, which
+    is what makes this the inverse of :func:`compose_prcfo` for **every**
+    label rather than only the numeric ones. :func:`object_id` reads an
+    already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` →
+    ``'o7'``), but it cannot do that for a preserved non-numeric token, so
+    handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'``
+    parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``.
+    A key that grows every time it passes through the parser joins to nothing.
 
     :param text: e.g. ``'plate1_r1_c1_f2_o7'`` or ``'plate1_r1_c1_f2_t3_o7'``.
     :returns: the :class:`ObjectID`.
@@ -1110,7 +1193,7 @@ def parse_prcfo(text: Any) -> ObjectID:
         raise KeyParseError(
             f'{text!r} is not a prcfo: {object_key!r} is not an object id.')
     field = parse_prcf(KEY_SEPARATOR.join(parts))
-    return field.with_object(object_key)
+    return field.with_object(strip_prefix(object_key, OBJECT_PREFIX))
 
 
 # ---------------------------------------------------------------------------
