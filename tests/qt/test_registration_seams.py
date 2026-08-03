@@ -62,8 +62,16 @@ def registry_sandbox():
 
 @pytest.fixture
 def qss_sandbox():
-    """Restore the widget-QSS registry after the test."""
+    """Run with an EMPTY widget-QSS registry, and restore it afterwards.
+
+    Emptied on the way in, not just restored on the way out: real widgets
+    register blocks at import time now (``spacr.qt.widgets.field_fade``
+    is the first), so whether a given block is present here depends on
+    which test module ran before this one. These tests are about the seam
+    itself and have to start from nothing to mean anything.
+    """
     saved = dict(theme_mod._WIDGET_QSS)
+    theme_mod._WIDGET_QSS.clear()
     yield
     theme_mod._WIDGET_QSS.clear()
     theme_mod._WIDGET_QSS.update(saved)

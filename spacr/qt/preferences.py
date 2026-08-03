@@ -34,6 +34,7 @@ Public API::
         get_db_browser_editable, set_db_browser_editable,
         get_dock_mode, set_dock_mode,
         get_pane_opacity, set_pane_opacity, effective_pane_alpha,
+        get_field_fade_enabled, set_field_fade_enabled,
         get_show_alpha, set_show_alpha,
         get_show_beta, set_show_beta, maturity_is_visible,
         apply_preferences_to_app,
@@ -66,6 +67,11 @@ Values:
   are, or the relative material strength in Glass. Clamped up to
   :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the
   preference is a request, legibility is not negotiable.
+* ``field_fade``: bool, default ``True``. Whether an input field's
+  container and outline ramp from solid on the left to fully transparent
+  on the right. Fields are **exempt from ``pane_opacity``** while this is
+  on — see :func:`get_field_fade_enabled` and
+  :mod:`spacr.qt.widgets.field_fade`.
 * ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
@@ -89,7 +95,11 @@ Values:
 """
 from __future__ import annotations
 
+import logging
+
 from PySide6.QtCore import QSettings
+
+LOG = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Keys
@@ -106,6 +116,7 @@ _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
+_KEY_FIELD_FADE = "prefs/field_fade"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
 _KEY_SHOW_BETA = "prefs/show_beta"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
@@ -833,6 +844,55 @@ def effective_pane_alpha() -> float:
 
 
 # ---------------------------------------------------------------------------
+# The field fade — the exception to the setting above
+# ---------------------------------------------------------------------------
+
+#: On by default. The fade is what makes a form of value boxes read as
+#: values rather than as a wall of boxes, and it is the shipped look;
+#: the preference exists because an effect that touches every input in
+#: the app has to be refusable.
+DEFAULT_FIELD_FADE = True
+
+
+def get_field_fade_enabled() -> bool:
+    """Whether input fields dissolve towards their right edge.
+
+    ``True`` (the default) means every line edit, combo box and spin box
+    paints its container and outline through
+    :func:`spacr.qt.theme.field_fade_alpha` — solid where the value
+    starts, gone at the right edge — and is **exempt** from
+    ``pane_opacity``. The text inside is never faded.
+
+    ``False`` restores the flat opaque input styling exactly:
+    :func:`spacr.qt.widgets.field_fade.field_fade_qss` emits nothing, so
+    the built-in rules in :func:`spacr.qt.theme.stylesheet` are the only
+    thing that styles a field, and the paint hook returns immediately.
+    """
+    return _as_bool(_settings().value(_KEY_FIELD_FADE, DEFAULT_FIELD_FADE),
+                    DEFAULT_FIELD_FADE)
+
+
+def set_field_fade_enabled(on: bool) -> None:
+    """Turn the field fade on or off.
+
+    Flushed immediately and the paint hook's cache dropped, so the very
+    next repaint honours it. Re-applying the stylesheet
+    (:func:`apply_preferences_to_app`) is what makes it land on fields
+    that are already on screen.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_FIELD_FADE, bool(on))
+    settings.sync()
+    try:
+        from .widgets.field_fade import invalidate_field_fade
+        invalidate_field_fade()
+    except Exception:
+        # Headless, or PySide6 not importable: the cache cannot be stale
+        # if it was never built.
+        pass
+
+
+# ---------------------------------------------------------------------------
 # Colour-blind mode
 # ---------------------------------------------------------------------------
 
@@ -1028,9 +1088,32 @@ def apply_preferences_to_app(app=None) -> None:
     background = theme_background_path(theme)
 
     apply_qpalette(app, theme=theme)
+
+    # Fields before the stylesheet, not after: importing the module is what
+    # registers its QSS block, and dropping the cached preference is what
+    # lets that block agree with the painter about whether the effect is on.
+    # Do it the other way round and the first save after a toggle emits the
+    # previous state's stylesheet.
+    try:
+        from .widgets.field_fade import (install_field_fade,
+                                         invalidate_field_fade)
+        invalidate_field_fade()
+        install_field_fade(app)
+    except Exception:
+        LOG.exception("Could not install the field fade")
+
     app.setStyleSheet(stylesheet(
         theme=theme, font_scale=scale, background=background,
         surface_opacity=get_pane_opacity()))
+
+    # A field whose QSS did not change still has to redraw: turning the
+    # effect off while its block was already empty changes only what the
+    # paint hook does.
+    try:
+        from .widgets.field_fade import repaint_fields
+        repaint_fields(app)
+    except Exception:
+        pass
     # Run/Propagate and Stop/Close-style buttons are tagged centrally,
     # including QDialogButtonBox buttons created after startup.
     from .button_roles import install_button_roles
@@ -1312,6 +1395,20 @@ class PreferencesDialog:
         opacity_col.addWidget(opacity_value)
         form.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
 
+        # The one surface Page opacity does not reach, and why it sits
+        # directly under the slider: this is the exception to the row above.
+        field_fade_check = Toggle(tr("Fade fields towards the right"))
+        field_fade_check.setObjectName("FieldFadeEnabled")
+        field_fade_check.setToolTip(
+            "Input fields ignore Page opacity and dissolve instead: solid "
+            "where the value starts, fully transparent at their right edge, "
+            "fading faster the further right it goes. The outline fades with "
+            "the box; the text inside never fades. Clear this for plain "
+            "opaque fields."
+        )
+        field_fade_check.setChecked(get_field_fade_enabled())
+        form.addRow(tr("Field fade"), field_fade_check)
+
         # Colour-blind mode
         cb_combo = QComboBox()
         for label, key in (
@@ -1444,6 +1541,7 @@ class PreferencesDialog:
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
+            set_field_fade_enabled(field_fade_check.isChecked())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
             set_db_browser_editable(db_edit_check.isChecked())
