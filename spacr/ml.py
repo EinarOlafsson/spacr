@@ -60,6 +60,23 @@ if not (sys.platform.startswith(('win', 'darwin')) or os.environ.get('DISPLAY'))
     matplotlib.use('Agg')
 
 import warnings
+
+
+def _run_random_state(default=None):
+    """Return the active run's seed, for an estimator's ``random_state=``.
+
+    Imported inside the call rather than at module scope: :mod:`spacr.runctx`
+    reaches :mod:`spacr.settings`, which reaches back here, and a top-level
+    import would be a cycle. Outside a run this is whatever ``default`` was,
+    which is the literal these call sites used to hard-code.
+
+    :param default: the value to use when no run is open.
+    :returns: the run seed, or ``default``.
+    """
+    from .runctx import random_state
+    return random_state(default)
+
+
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 
@@ -126,6 +143,23 @@ class QuasiBinomial(Binomial):
 
 def calculate_p_values(X, y, model):
     """Return OLS-style p-values for a fitted model's coefficients.
+
+    **These are not valid frequentist p-values for a penalised fit**, and the
+    two callers that reach them know it in different ways. The standard error
+    is the unpenalised ``rse * sqrt(diag((X'X)^-1))`` while the coefficient it
+    is divided into has been shrunk, so the test is mis-specified. The
+    direction of the error is the one that matters here and it is the safe one:
+    the penalty shrinks the numerator and inflates the residual in the
+    denominator, so the statistic is too SMALL and the p-value too large. A
+    penalised fit under-detects here; it does not manufacture hits.
+
+    ``lasso`` and ``elasticnet`` do not rely on this at all —
+    :data:`NO_P_VALUE_TYPES` routes them to a bootstrap selection frequency
+    instead. ``ridge`` does, because it never sets a coefficient to exactly
+    zero and so has no selection frequency to report (every feature would score
+    1.0), and a conservative test is a better answer than no test.
+    ``tests/test_regression_orientation.py`` pins the null case, which is where
+    an anticonservative version of this would show.
 
     :param X: Design matrix (``n x p``).
     :param y: Observed responses.
@@ -1062,9 +1096,34 @@ UNSUPPORTED_REGRESSION_TYPES = {
 #: ``'lasso'`` is the archetype — sklearn has no covariance estimator at all,
 #: so the run would report ordinary p-values under a robust-sounding label.
 #:
-#: ``alpha`` is only listed for the backends that penalise; ``groups`` and
-#: ``weights`` are supplied by :func:`regression` from the data, not by the
-#: user, so they are not policed here.
+#: ``alpha`` is only listed for the backends that penalise; ``groups``,
+#: ``weights`` and ``exposure`` are supplied by :func:`regression` from the
+#: data, not by the user, so they are not policed here.
+#:
+#: ``random_row_column_effects`` is not in this table because it is not a knob
+#: on a backend: it REPLACES the backend with a mixed model. That collision is
+#: settled by :func:`_reconcile_random_row_column_effects` before any fitting
+#: starts, which then uses this same table to police the knobs the mixed fit
+#: cannot read.
+#:
+#: What each type reads that is NOT a policed setting, so this table is not
+#: mistaken for the whole story:
+#:
+#: * ``wls`` and the three binomial links (``logit``, ``probit``,
+#:   ``quasi_binomial``) read the per-well ``weights`` — the cell count. For
+#:   the binomial links it is ``var_weights``, which is what tells the variance
+#:   function that a fraction measured from 400 cells is firmer evidence than
+#:   one from 30. ``glm`` reads it too when it auto-selects a binomial family.
+#: * ``poisson``, ``horseshoe``, and ``glm`` when it picks Poisson, read
+#:   ``exposure`` as ``offset(log(cell_count))`` — which is what makes their
+#:   coefficients effects on a per-cell RATE instead of on the well's headcount.
+#: * ``mixed`` reads ``groups``, the plate. :func:`_mixed_model_groups` says
+#:   why it is the plate and not the well.
+#: * ``hinge`` reads no kernel setting and is not going to get one: a
+#:   non-linear kernel has no ``coef_``, so there would be no per-gRNA
+#:   coefficient for :func:`process_model_coefficients` to table, no volcano
+#:   plot and no hit list. Everything downstream of the fit is built on one
+#:   linear coefficient per feature.
 REGRESSION_SETTINGS_USED = {
     'ols': ('cov_type',),
     'wls': ('cov_type',),
@@ -1078,12 +1137,21 @@ REGRESSION_SETTINGS_USED = {
     'probit': ('cov_type',),
     'quantile': ('quantile',),
     'mixed': (),
-    'lasso': ('alpha',),
+    'lasso': ('alpha', 'lasso_n_boot', 'lasso_selection_threshold'),
     'ridge': ('alpha',),
-    'elasticnet': ('alpha', 'l1_ratio'),
-    'hinge': ('alpha', 'hinge_threshold'),
+    'elasticnet': ('alpha', 'l1_ratio', 'lasso_n_boot',
+                   'lasso_selection_threshold'),
+    'hinge': ('alpha', 'hinge_threshold', 'hinge_n_boot'),
     'horseshoe': (),
 }
+
+#: The subset of :data:`REGRESSION_SETTINGS_USED` that :func:`regression_model`
+#: never sees, because they configure what :func:`perform_regression` does with
+#: the coefficients AFTER the fit rather than the fit itself. They are policed
+#: at the entry point instead, by :func:`_reject_unused_run_settings`, so a
+#: number set on the panel and read by nothing still fails loudly.
+RUN_LEVEL_SETTINGS = ('lasso_n_boot', 'lasso_selection_threshold',
+                      'hinge_n_boot')
 
 #: Backends that report a coefficient but no frequentist p-value, so
 #: ``p_value <= 0.05`` is not a hit rule for them. :func:`perform_regression`
@@ -1207,6 +1275,18 @@ _SETTING_NOT_APPLICABLE = {
     'huber_t': "it is the residual, in units of the estimated scale, at which "
                "Huber's loss switches from squared to linear; only the robust "
                "fits have that switch.",
+    'lasso_n_boot': "it sizes the bootstrap that ranks features by SELECTION "
+                    "frequency, and only a penalty that sets coefficients to "
+                    "exactly zero selects anything - ridge keeps every "
+                    "feature, so its selection frequency is 1.0 by "
+                    "construction, and the likelihood fits are ranked by their "
+                    "own p-values.",
+    'lasso_selection_threshold': "it is the cut on that same selection "
+                                 "frequency, which only the sparse penalties "
+                                 "produce.",
+    'hinge_n_boot': "it sizes the bootstrap that stands in for the standard "
+                    "errors an SVM does not have; every other model reports "
+                    "its own inference.",
 }
 
 
@@ -1229,7 +1309,9 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                       wells: a handful of runaway wells no longer drag the fit.
     ``glm``           GLM with the family auto-selected from the response by
                       :func:`pick_glm_family_and_link`.
-    ``poisson``       Poisson GLM with a log link, for per-well counts.
+    ``poisson``       Poisson GLM with a log link and ``offset(log(exposure))``,
+                      for per-well counts - so the coefficients are effects on
+                      the per-cell RATE, not on the well's headcount.
     ``quasi_binomial`` Binomial GLM whose dispersion is estimated from the
                       Pearson chi-square, for overdispersed fractions.
     ``beta``          Beta regression, for a fraction strictly inside (0, 1).
@@ -1253,7 +1335,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     :param groups: Cluster identifiers for the mixed model.
     :param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and
         the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by
-        5-fold cross-validation.
+        5-fold cross-validation for all four (mean squared error for the
+        penalised least-squares three, balanced accuracy for ``hinge``).
     :param cov_type: Covariance estimator for the likelihood fits
         (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.
     :param weights: Per-observation weights - the well's cell count. Used as
@@ -1267,7 +1350,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         the estimated residual scale. 1.345 gives 95% efficiency under
         normality.
     :param exposure: Per-observation exposure (the well's cell count) used as
-        ``offset(log(exposure))`` by ``horseshoe``.
+        ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by
+        ``glm`` when it auto-selects a Poisson family).
     :returns: Fitted statsmodels / sklearn estimator.
     :raises ValueError: on an unsupported ``regression_type``, or when a
         setting the chosen backend cannot read was set to a non-default value.
@@ -1331,10 +1415,57 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             fit_kwargs['cov_type'] = cov_type
         return sm.GLM(y, X, **kwargs).fit(**fit_kwargs)
 
+    def _poisson_offset():
+        """``log(exposure)``, or None with a warning when there is no exposure.
+
+        A per-well POSITIVE COUNT is not comparable between wells of different
+        size: ``process_scores`` sums the response for the count models, so a
+        well of 2000 cells contributes roughly four times the count of a well
+        of 500 at the identical underlying rate. Modelling that count without
+        ``offset(log(Ntotal))`` asks the covariates to explain well size, and
+        any covariate correlated with it comes back as a hit. Measured on a
+        400-well simulation with a nuisance covariate that drives well size and
+        nothing else, and a true rate coefficient of +1.5: without the offset
+        the nuisance term came back at +1.88 with p = 0, ahead of the real
+        effect; with it, +0.002 with p = 0.90.
+
+        :returns: ``log(exposure)`` aligned with ``y``, or None.
+        :raises ValueError: when the exposure is not positive and finite —
+            ``log`` of it would be NaN/-inf and every downstream number would
+            silently follow.
+        """
+        if exposure is None:
+            print("Warning: no per-well cell count reached the Poisson fit, so "
+                  "it models the raw count with no offset(log(cell_count)). "
+                  "Wells of different size are then not comparable and any "
+                  "covariate correlated with well size will look like a hit. "
+                  "Run the scores through process_scores so each well carries "
+                  "its cell count.")
+            return None
+        n_total = np.asarray(exposure, dtype=float).ravel()
+        if n_total.size != np.asarray(y, dtype=float).reshape(-1).size:
+            raise ValueError(
+                f"the Poisson exposure has {n_total.size} entries but the "
+                f"response has {np.asarray(y).reshape(-1).size}; each well "
+                f"must carry its own cell count.")
+        if not np.isfinite(n_total).all() or np.any(n_total <= 0):
+            raise ValueError(
+                "the Poisson exposure is the well's cell count, so it must be "
+                f"finite and strictly positive; got "
+                f"{np.nanmin(n_total)}-{np.nanmax(n_total)}. A well with no "
+                f"cells has no rate to estimate and must be filtered out "
+                f"(min_cell_count) rather than offset by log(0).")
+        return np.log(n_total)
+
     def _glm_auto():
         family = pick_glm_family_and_link(y)
         if isinstance(family, sm.families.Poisson):
             _validate_poisson_response(y, X)
+            # Same exposure the explicit 'poisson' branch uses. A family chosen
+            # BY the data must be fitted the same way as one chosen by name, or
+            # 'glm' and 'poisson' silently disagree on the same response.
+            return sm.GLM(y, X, family=family, offset=_poisson_offset()).fit(
+                **({'cov_type': cov_type} if cov_type else {}))
         kwargs = {'family': family}
         if weights is not None and isinstance(family, sm.families.Binomial):
             # A per-well fraction estimated from 30 cells and one estimated
@@ -1351,7 +1482,11 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     def _glm_poisson():
         _validate_poisson_response(y, X)
         family = sm.families.Poisson(link=sm.families.links.Log())
-        return sm.GLM(y, X, family=family).fit(
+        # offset(log(cell_count)) turns the fit from "how many positive objects
+        # are in this well" into "what fraction of this well's cells are
+        # positive", which is the quantity the screen is about. See
+        # _poisson_offset for the measurement that made this non-optional.
+        return sm.GLM(y, X, family=family, offset=_poisson_offset()).fit(
             **({'cov_type': cov_type} if cov_type else {}))
 
     def _wls():
@@ -1394,13 +1529,83 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         # "larger alpha shrinks harder" true across every penalised backend;
         # without it, alpha would mean the opposite here than it does for
         # lasso and ridge, on the same settings key.
-        strength = 1.0 if (alpha is None or (isinstance(alpha, str)
-                                             and alpha == 'auto')) else float(alpha)
+        if use_auto_alpha:
+            # alpha='auto' means "choose the penalty by cross-validation" for
+            # lasso, ridge and elasticnet, and it has to mean the same thing
+            # here. It used to mean C = 1: 'auto' and alpha=1.0 produced
+            # byte-identical coefficients, so a user who asked for a
+            # cross-validated margin got an arbitrary fixed one under a label
+            # that says otherwise.
+            return _find_best_hinge_alpha(y_binary)
+        strength = float(alpha)
         if strength <= 0:
             raise ValueError(
                 f"alpha must be positive for hinge regression; got {alpha!r}.")
-        model = LinearSVC(C=1.0 / strength, loss='hinge', dual=True,
-                          max_iter=20000, random_state=0)
+        model = _hinge_estimator(strength)
+        model.fit(X, y_binary)
+        return model
+
+    def _hinge_estimator(strength):
+        """A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).
+
+        ``class_weight='balanced'`` because a screen's positive class is
+        routinely a small minority of wells: an unweighted hinge on a 95/5
+        split minimises its loss by calling every well negative, which returns
+        a coefficient vector of ~0 for every gRNA and reads downstream as "no
+        hits". Balancing reweights each class by its inverse frequency, so the
+        decision boundary is fitted to separate the classes rather than to
+        count them.
+        """
+        return LinearSVC(C=1.0 / strength, loss='hinge', dual=True,
+                         max_iter=20000, random_state=0,
+                         class_weight='balanced')
+
+    def _find_best_hinge_alpha(y_binary):
+        """Pick the hinge penalty by stratified CV on balanced accuracy.
+
+        The same 5-fold shape ``_find_best_alpha`` uses for the penalised
+        least-squares backends. Balanced accuracy rather than accuracy: on an
+        imbalanced screen plain accuracy is maximised by the degenerate
+        all-negative fit, so scoring on it would cross-validate its way to the
+        very failure ``class_weight='balanced'`` exists to prevent.
+
+        Falls back to the unpenalised-scale default ``C = 1`` when the response
+        has too few wells in a class to split five ways — a two-fold CV on
+        three positive wells is noise, and choosing a penalty from noise is
+        worse than not choosing one.
+        """
+        from sklearn.model_selection import cross_val_score
+
+        strengths = np.logspace(-3, 3, 13)
+        minority = int(min(np.sum(y_binary == 0), np.sum(y_binary == 1)))
+        n_splits = min(5, minority)
+        if n_splits < 2:
+            print(f"hinge: alpha='auto' needs at least two wells in each "
+                  f"class to cross-validate and the smaller class has "
+                  f"{minority}; falling back to alpha=1.")
+            model = _hinge_estimator(1.0)
+            model.fit(X, y_binary)
+            return model
+
+        folds = StratifiedKFold(n_splits=n_splits, shuffle=True,
+                                random_state=0)
+        scores = []
+        for strength in strengths:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                fold_scores = cross_val_score(
+                    _hinge_estimator(strength), X, y_binary, cv=folds,
+                    scoring='balanced_accuracy')
+            scores.append(float(np.mean(fold_scores)))
+        # Ties go to the STRONGER penalty (the larger alpha): among margins
+        # that separate the held-out wells equally well, the one that shrinks
+        # hardest is the one that generalises, and argmax on a raw list would
+        # instead take the weakest.
+        best = float(strengths[len(strengths) - 1
+                               - int(np.argmax(scores[::-1]))])
+        print(f"Optimal alpha for hinge: {best:.4g} "
+              f"(balanced accuracy {max(scores):.4f}, {n_splits}-fold)")
+        model = _hinge_estimator(best)
         model.fit(X, y_binary)
         return model
 
@@ -1459,6 +1664,24 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
             # reaches the user as "0 significant gRNAs", which is
             # indistinguishable from a screen with no hits. The default
             # alpha=1 does this to a fraction-scale design every time.
+            if use_auto_alpha:
+                # The penalty was not mis-set, it was CHOSEN: cross-validation
+                # preferred the empty model to every non-empty one it tried, so
+                # no gRNA predicted the held-out wells better than the mean did.
+                # Telling this user to "set alpha to 'auto'" - which the old
+                # message did, unconditionally - is telling them to do the
+                # thing they just did.
+                raise ValueError(
+                    f"{regression_type} with alpha='auto' cross-validated its "
+                    f"way to the empty model: every one of the "
+                    f"{X.shape[1]} coefficients is exactly zero, because no "
+                    f"gRNA predicted the held-out wells better than their mean "
+                    f"did. That is a null screen, not a misconfiguration - the "
+                    f"fit is refused rather than written out as '0 significant "
+                    f"gRNAs', which is what it would look like. Check the "
+                    f"dependent variable and the aggregation, or fit an "
+                    f"unpenalised model ('ols') to see the effect sizes the "
+                    f"penalty is shrinking away.")
             raise ValueError(
                 f"{regression_type} shrank all {X.shape[1]} coefficients to "
                 f"exactly zero at alpha={alpha!r}: the penalty is far larger "
@@ -1621,6 +1844,110 @@ class _HorseshoeResults:
     def summary(self):
         """Return the per-term posterior summary, for save_summary_to_file."""
         return self.estimates
+
+#: Regression types ``random_row_column_effects=True`` may be combined with.
+#: ``'ols'`` is here because it is the DEFAULT value of ``regression_type``, so
+#: it cannot be told apart from "the user never touched the model dropdown";
+#: ``None`` means "choose from the response", which the mixed branch answers.
+#: Every other name is a deliberate choice that the mixed override would throw
+#: away.
+_RANDOM_EFFECTS_COMPATIBLE = (None, 'ols', 'mixed')
+
+
+#: Defaults for the run-level settings, matched to
+#: ``get_perform_regression_default_settings``. A value equal to its default is
+#: "the panel posted it", not "the user asked for it" — the same rule
+#: :func:`_reject_unused_settings` uses for the model knobs.
+_RUN_LEVEL_DEFAULTS = {
+    'lasso_n_boot': 200,
+    'lasso_selection_threshold': 0.6,
+    'hinge_n_boot': 200,
+}
+
+
+def _reject_unused_run_settings(settings):
+    """Refuse a post-fit setting the chosen model will never read.
+
+    :func:`regression_model` polices the six knobs that reach the estimator,
+    and raises before a wrong number can become a result. These three do not
+    reach the estimator at all — they configure how :func:`perform_regression`
+    turns coefficients into a hit list — so nothing was checking them, and
+    ``lasso_selection_threshold=0.9`` on an OLS run passed through fifteen of
+    the seventeen types in silence.
+
+    ``regression_type=None`` is policed as strictly as a named one:
+    :func:`check_distribution` only ever auto-selects ``logit``, ``beta``,
+    ``quasi_binomial``, ``ols`` or ``glm``, none of which reads any of these,
+    so "it might pick lasso" is not a reason to let them through.
+
+    :param settings: The finished settings dict.
+    :raises ValueError: naming the setting, the type and the alternative.
+    """
+    reg_type = settings.get('regression_type', 'ols')
+    _reject_unused_settings(reg_type, {
+        name: (settings.get(name, default), default)
+        for name, default in _RUN_LEVEL_DEFAULTS.items()})
+    return settings
+
+
+def _reconcile_random_row_column_effects(settings):
+    """Make ``random_row_column_effects=True`` and ``regression_type`` agree.
+
+    :func:`regression` reacts to the flag by fitting a MixedLM with row and
+    column variance components, whatever ``regression_type`` says — and
+    ``_perform_regression_set_paths`` had already named the results folder
+    after ``settings['regression_type']``. A run configured as ``'lasso'`` with
+    the flag on therefore fitted a mixed model and wrote it to
+    ``results/<screen>/lasso/``, where nothing in the folder, the volcano
+    filename or the settings CSV disagreed. Every penalty setting that run
+    carried was ignored too, silently, because the mixed branch never reaches
+    :func:`regression_model` and so never reaches
+    :func:`_reject_unused_settings`.
+
+    Two things happen here, both before any file is written:
+
+    * an incompatible model choice is REFUSED, naming both settings;
+    * a compatible one is rewritten to ``'mixed'`` in ``settings``, so the
+      folder, the volcano filename and the saved settings all name the model
+      that was actually fitted.
+
+    :param settings: The finished settings dict; mutated in place.
+    :raises ValueError: when the flag is combined with a named model that is
+        not a mixed model, or with a setting the mixed model cannot read.
+    """
+    if not settings.get('random_row_column_effects', False):
+        return settings
+
+    reg_type = settings.get('regression_type', 'ols')
+    if reg_type not in _RANDOM_EFFECTS_COMPATIBLE:
+        raise ValueError(
+            f"random_row_column_effects=True fits a mixed model with row and "
+            f"column variance components, so it cannot also fit "
+            f"regression_type={reg_type!r}: one of the two has to go. It used "
+            f"to win silently, and the {reg_type!r} settings went with it — "
+            f"the run wrote a MixedLM fit into results/<screen>/{reg_type}/ "
+            f"and said nothing. Set random_row_column_effects=False to fit "
+            f"{reg_type!r}, or regression_type='mixed' to fit the mixed model.")
+
+    # The mixed branch reads none of the per-model knobs, so any of them set
+    # away from its default is a request nothing will honour. Same seam, same
+    # message shape, as the fixed-effects path.
+    _reject_unused_settings('mixed', {
+        'alpha': (1.0 if settings.get('alpha') in (None, 'auto')
+                  else settings.get('alpha', 1.0), 1.0),
+        'l1_ratio': (settings.get('l1_ratio', 0.5), 0.5),
+        'cov_type': (settings.get('cov_type'), None),
+        'quantile': (settings.get('quantile', 0.5), 0.5),
+        'hinge_threshold': (settings.get('hinge_threshold'), None),
+        'huber_t': (settings.get('huber_t', 1.345), 1.345),
+    })
+
+    if reg_type != 'mixed':
+        print(f"random_row_column_effects=True: fitting 'mixed' rather than "
+              f"{reg_type!r}, and naming the results folder for it.")
+    settings['regression_type'] = 'mixed'
+    return settings
+
 
 def _mixed_model_groups(df, dependent_variable, model_index):
     """Return the random-intercept grouping for ``regression_type='mixed'``.
@@ -2152,6 +2479,12 @@ def perform_regression(settings):
                 print(f'Possible regression types: '
                       f'{list(REGRESSION_TYPES) + [None]}')
                 raise ValueError(f"Unsupported regression type {reg_type}")
+
+            # Order matters: the reconcile can rewrite regression_type to
+            # 'mixed', and the run-level knobs have to be policed against the
+            # model that will actually be fitted.
+            _reconcile_random_row_column_effects(settings)
+            _reject_unused_run_settings(settings)
 
             return count_data_df, score_data_df
     
@@ -3828,8 +4161,13 @@ def ml_analysis(
     from .utils import filter_dataframe_features
     from .plot import plot_permutation, plot_feature_importance
 
-    random_state = 42
-    
+    # The run's seed, not a literal. Every estimator below takes this as
+    # random_state, and an estimator given an explicit random_state ignores
+    # the NumPy global stream -- so hard-coding 42 here silently overrode
+    # whatever the user set as random_seed. Falls back to 42 outside a run,
+    # which is what it always was.
+    random_state = _run_random_state(42)
+
     if 'cells_per_well' in df.columns:
         df = df.drop(columns=['cells_per_well'])
 
@@ -4517,7 +4855,7 @@ def interpret_vision_model(settings=None):
     # toggles. The forest and the importance frame are shared by all three;
     # only the reporting and the CSV write belong to feature_importance itself.
     if settings['feature_importance'] or settings['permutation_importance'] or settings['shap']:
-        model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
+        model = RandomForestClassifier(random_state=_run_random_state(42), n_jobs=settings['n_jobs'])
         model.fit(X, y)
 
         feature_importances = model.feature_importances_
@@ -4542,7 +4880,7 @@ def interpret_vision_model(settings=None):
     # Step 2: Permutation Importance
     if settings['permutation_importance']:
         print(f"Permutation Importance ...")
-        perm_importance = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=settings['n_jobs'])
+        perm_importance = permutation_importance(model, X, y, n_repeats=10, random_state=_run_random_state(42), n_jobs=settings['n_jobs'])
         perm_importance_df = pd.DataFrame({'feature': X.columns, 'importance': perm_importance.importances_mean})
         perm_importance_df = perm_importance_df.sort_values(by='importance', ascending=False)
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
@@ -4569,7 +4907,7 @@ def interpret_vision_model(settings=None):
         X_top = X[top_features]
 
         # Refit the model on this subset of features
-        model = RandomForestClassifier(random_state=42, n_jobs=settings['n_jobs'])
+        model = RandomForestClassifier(random_state=_run_random_state(42), n_jobs=settings['n_jobs'])
         model.fit(X_top, y)
 
         # Sample a smaller subset of rows to speed up SHAP
@@ -4579,7 +4917,7 @@ def interpret_vision_model(settings=None):
             # empty matrix to explain -> IndexError. Clamp to at least one
             # row; for >=100 objects the clamp is a no-op.
             sample = max(1, min(int(len(X_top) / 100), len(X_top)))
-            X_sample = X_top.sample(sample, random_state=42)
+            X_sample = X_top.sample(sample, random_state=_run_random_state(42))
         else:
             X_sample = X_top
 
