@@ -510,6 +510,13 @@ setup(
             'spacr-leakage=spacr.cli_leakage:main',
             # SQLite health, integrity, locking, and reader/writer probe.
             'spacr-db-audit=spacr.cli_database:main',
+            # Whole-installation diagnosis: which spacr is actually running
+            # (the stale-editable-install trap), which optional extras are
+            # missing, whether the GPU is usable, whether Cellpose matches the
+            # API the code calls, and whether a project database or settings
+            # file is sound. One line per check, a copyable fix on every line
+            # that is not PASS, and a non-zero exit so CI can gate on it.
+            'spacr-doctor=spacr.doctor:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',

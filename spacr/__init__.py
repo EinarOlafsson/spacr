@@ -104,6 +104,8 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "object",
     "cli",
     "cli_database",
+    # Whole-installation diagnosis behind `spacr-doctor`.
+    "doctor",
     "cli_leakage",
     "cli_plugins",
     "cli_remote",
