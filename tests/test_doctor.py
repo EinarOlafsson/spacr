@@ -460,9 +460,17 @@ def test_importable_spacr_dirs_tolerates_a_broken_spec_lookup(monkeypatch):
         "find_spec",
         lambda _name: (_ for _ in ()).throw(ValueError("bad finder")),
     )
-    # sys.path still has the real checkout in an editable dev tree, so this
-    # asserts only that the failure is absorbed rather than raised.
-    doctor._importable_spacr_dirs()
+    # The finder is dead, so the spec branch contributes nothing — but the
+    # sys.path scan behind it still runs, and the in-tree checkout is on
+    # sys.path (tests/conftest.py puts it there). Absorbing the failure has to
+    # mean "fall through to the scan", not "return empty": an early return
+    # would report "no spacr installed" for the most common developer setup
+    # there is, which is the bug this function exists to avoid.
+    import spacr
+
+    found = doctor._importable_spacr_dirs()
+    assert all(isinstance(p, Path) for p in found)
+    assert Path(spacr.__file__).resolve().parent in found
 
 
 def test_importable_spacr_dirs_uses_cwd_for_the_empty_sys_path_entry(
