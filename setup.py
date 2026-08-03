@@ -624,6 +624,24 @@ setup(
         # so this extra is a no-op for anyone who has spaCR installed at all —
         # it exists to stop a printed instruction being a lie.
         'umap': ['umap-learn>=0.5.11,<1.0'],
+        # `pip install spacr[anndata]` — `spacr.anndata_export`, which writes
+        # the measurement tables out as a .h5ad so scanpy, scvi-tools and
+        # squidpy can read a spaCR run directly. Optional rather than core
+        # for one reason: anndata pulls h5py, and h5py is the one wheel in
+        # this neighbourhood that still needs a HDF5 toolchain on a platform
+        # without a prebuilt binary. Every import of it in
+        # spacr/anndata_export/ is function-local behind
+        # `require_anndata()`, which raises ANNDATA_MISSING_MESSAGE naming
+        # this extra rather than an ImportError from inside anndata's own
+        # import machinery.
+        #
+        # The `<0.13` cap is not defensive: anndata 0.12 requires Python
+        # >=3.11, and spaCR still supports 3.10, so pip needs the room to
+        # resolve back to the 0.11 line there. scanpy is deliberately NOT
+        # declared — writing the file needs anndata alone, reading it is the
+        # user's own environment, and pinning scanpy would drag in a second
+        # copy of the leiden/igraph stack for a file spaCR only writes.
+        'anndata': ['anndata>=0.10,<0.13'],
         'full': ['opencv-python'],
         'qt': [
             'PySide6>=6.6,<7',
@@ -747,6 +765,7 @@ setup(
             'readlif',
             'mahotas>=1.4.13,<2.0',
             'btrack>=0.7.0,<1.0',
+            'anndata>=0.10,<0.13',
         ],
     },
 )

@@ -770,6 +770,12 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     ``elif`` that selects them, in spacr/ml.py and spacr/hyperparam.py, and
     neither was declared anywhere).
 
+    ``anndata`` joined it when ``spacr/anndata_export/`` landed. It is a
+    pure-Python wheel on every platform spaCR supports and its heaviest
+    dependency, h5py, publishes wheels for all of them, so unlike
+    ``attribution`` it constrains nothing — the extra exists to keep h5py out
+    of a plain ``pip install spacr``, not because ``all`` cannot have it.
+
     ``attribution`` is deliberately NOT aggregated, and that is the
     interesting entry. torchcam declares ``numpy<2.0.0``; no numpy satisfying
     that has a cp313 wheel; so putting it in ``all`` would make
@@ -781,7 +787,7 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
     aggregated = ("qt", "tutorial", "trackastra", "ultrack", "boosting",
-                  "czi", "nd2", "lif", "zernike", "btrack")
+                  "czi", "nd2", "lif", "zernike", "btrack", "anndata")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"
