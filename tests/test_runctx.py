@@ -206,6 +206,32 @@ def test_read_run_log_of_an_unknown_run_is_empty_not_an_error(private_logs):
     assert runctx.read_run_log("neverhappened") == []
 
 
+def test_info_lines_survive_a_host_that_never_called_setup_logging(
+        tmp_path, monkeypatch):
+    """A handler only sees what its *logger* let through.
+
+    A bare ``import spacr`` leaves the root logger at WARNING, so without
+    the run opening the ``spacr`` level the per-run log would hold the
+    warnings and none of the INFO lines that say what the run actually
+    did. Deliberately does not use the ``private_logs`` fixture, which
+    forces DEBUG and would hide exactly this.
+    """
+    monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "logs"))
+    root, spacr_logger = logging.getLogger(), logging.getLogger("spacr")
+    monkeypatch.setattr(root, "level", logging.WARNING)
+    monkeypatch.setattr(spacr_logger, "level", logging.NOTSET)
+
+    with runctx.run_context("mask", {}) as run:
+        logging.getLogger("spacr.core").info("a quiet but important line")
+        run_id = run.run_id
+
+    messages = {record["message"] for record in runctx.read_run_log(run_id)}
+    assert "a quiet but important line" in messages
+    # ...and the host's own configuration is handed back untouched.
+    assert spacr_logger.level == logging.NOTSET
+    assert root.level == logging.WARNING
+
+
 # ---------------------------------------------------------------------------
 # S5 — the same seed gives bit-identical output; a different one does not
 # ---------------------------------------------------------------------------
