@@ -34,6 +34,27 @@ MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 # regression cannot silently analyse 344 of 384 wells.
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .resume import plan_measure_resume
+# Opt-in extension points, so illumination correction and a user-drawn ROI can
+# change what is measured without editing this module. Both registries are
+# empty by default and both entry points return their input object unchanged
+# when they are, so an ordinary run is byte-identical to one from before they
+# existed. spacr.measure_hooks imports numpy, the stdlib and spacr.errors only
+# -- registering a hook must not drag in matplotlib/skimage/cv2. Re-exported
+# here so `from spacr.measure import register_preprocessing_hook` also works.
+from .measure_hooks import (
+    MeasurementHookError,
+    PreprocessingContext,
+    RegionContext,
+    apply_preprocessing_hooks,
+    apply_region_filter_hooks,
+    preprocessing_hooks,
+    region_filter_hooks,
+    register_preprocessing_hook,
+    register_region_filter_hook,
+    unregister_preprocessing_hook,
+    unregister_region_filter_hook,
+    warn_if_hooks_will_not_reach_workers,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -2185,6 +2206,29 @@ def _measure_crop_core(index, time_ls, file, settings):
             figs[f'{file_name}__before_filtration'] = fig
 
         channel_arrays = data[..., settings['channels']].astype(data_type)
+
+        # PREPROCESSING EXTENSION POINT. Registered hooks see exactly the
+        # array the intensity measurements see: the channels named by
+        # settings['channels'], already selected out of the merged stack, and
+        # not one feature computed yet. This is where a flat-field /
+        # illumination correction belongs. The PNG crops below are cut from
+        # `data` and are deliberately NOT rewritten, so the thumbnails stay a
+        # faithful record of what the microscope wrote while the numbers in
+        # measurements.db carry the correction.
+        #
+        # The `if` is not just a micro-optimisation: with an empty registry
+        # nothing is allocated and channel_arrays is the identical object, so
+        # the default path cannot differ from the pre-hook one.
+        if preprocessing_hooks():
+            channel_arrays = apply_preprocessing_hooks(
+                channel_arrays,
+                PreprocessingContext(
+                    file_name=file_name,
+                    channels=settings['channels'],
+                    settings=settings,
+                    volumetric=volumetric,
+                    spacing=spacing))
+
         if settings['cell_mask_dim'] is not None:
             cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
 
@@ -2259,6 +2303,53 @@ def _measure_crop_core(index, time_ls, file, settings):
         
         if settings.get('organelle_min_size') and settings['organelle_min_size'] != 0:
             organelle_mask = _filter_object(organelle_mask, settings['organelle_min_size'])
+
+        # REGION-FILTER EXTENSION POINT. Registered filters are handed the
+        # label ids of each object type (and, only if they ask, the centroids)
+        # and return a keep/drop boolean per object; a dropped label is zeroed
+        # out of its mask right here. This is where a user-drawn ROI belongs:
+        # "only measure inside this polygon".
+        #
+        # The position is load-bearing in two directions.
+        #
+        # Downstream: every size filter has already run, so a filter sees the
+        # objects that would actually have been measured -- and nothing has
+        # been measured yet, so keeping 5 of 500 objects costs 5 objects' worth
+        # of morphology, intensity, texture, radial-distribution and Zernike
+        # work rather than 500 followed by a DataFrame subset.
+        #
+        # Upstream of _exclude_objects: culling a cell there propagates to its
+        # nucleus/pathogen/cytoplasm (they are multiplied by the surviving cell
+        # mask), which is what keeps the validate='one_to_one' parent joins in
+        # _morphological_measurements satisfiable. Filtering after it would let
+        # an ROI keep a nucleus whose cell it had just deleted.
+        #
+        # It is also upstream of the `data[..., <mask>_dim] = ...` write-backs,
+        # so the PNG crops and region arrays cover the same objects the
+        # database does -- an object outside the ROI is not measured AND not
+        # cropped, rather than appearing in one output and not the other.
+        if region_filter_hooks():
+            _region_masks = {
+                'cell': cell_mask, 'nucleus': nucleus_mask,
+                'pathogen': pathogen_mask, 'organelle': organelle_mask,
+                'cytoplasm': cytoplasm_mask,
+            }
+            for _object_type in list(_region_masks):
+                _before = _region_masks[_object_type]
+                _kept, _dropped = apply_region_filter_hooks(
+                    _before, object_type=_object_type,
+                    file_name=file_name, settings=settings, spacing=spacing)
+                _region_masks[_object_type] = _kept
+                if _dropped and settings['verbose']:
+                    _total = int(np.count_nonzero(np.unique(_before)))
+                    print(f"{file_name}: region filter dropped "
+                          f"{len(_dropped)} of {_total} "
+                          f"{_object_type} object(s).")
+            cell_mask = _region_masks['cell']
+            nucleus_mask = _region_masks['nucleus']
+            pathogen_mask = _region_masks['pathogen']
+            organelle_mask = _region_masks['organelle']
+            cytoplasm_mask = _region_masks['cytoplasm']
 
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
             cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
@@ -2769,6 +2860,11 @@ def measure_crop(settings):
             # shared time_ls proxy ends up unreachable from a worker.
             ctx = _pool_context()
             start_method = ctx.get_start_method()
+            # A spawn/forkserver worker is a fresh interpreter with empty hook
+            # registries, so a hook registered in *this* process would apply to
+            # nothing at all and the run would look completely normal. Say so
+            # before the pool starts rather than let it be invisible.
+            warn_if_hooks_will_not_reach_workers(start_method)
             pool_jobs = resolve_pool_size(n_jobs, len(files),
                                           start_method=start_method)
 
