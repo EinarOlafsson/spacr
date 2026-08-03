@@ -270,7 +270,7 @@ def test_recorder_hides_pointer_unless_the_step_is_a_click(
     widget = _red_widget(qtbot, 200, 200)
     rec = Recorder(widget, tmp_path / "f", size=(200, 200))
 
-    passive = _to_array(QImage(str(rec.snap(cursor_pos=(100, 100))))
+    passive = _to_array(QImage(str(rec.snap(cursor_pos=(100, 100)))))
     clicked = _to_array(QImage(str(rec.snap(
         cursor_pos=(100, 100), show_pointer=True))))
 
