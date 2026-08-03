@@ -580,6 +580,14 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                              "or load_evaluation_bundle from Python instead.",
     "run_history": "Run History is an interactive searchable dashboard; headless, "
                    "call spacr.run_journal.search_runs() instead.",
+    "data_manager": "Data Manager shows what a project costs in disk and makes "
+                    "you read the deletion before it happens, which is the "
+                    "whole point of it -- so there is deliberately no one-shot "
+                    "headless delete. From Python: "
+                    "spacr.data_manager.scan_project(src) for the per-kind "
+                    "sizes, plan_prune(src) for exactly what is regenerable "
+                    "and what is being kept, then prune(plan, "
+                    "confirm=plan.token) once you have read the plan.",
 }
 
 
