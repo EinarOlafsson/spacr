@@ -124,6 +124,7 @@ Owns `annotate.py`, `deep_spacr.py`, `classifier_evaluation.py`.
 | 5.7 | `Z8` Field-fade gradient — 0→100% left to right, accelerating, outlines included, container not text; on by default, preference to disable | — |
 | 5.8 | `Z1` Zoom must reach tab text, the right-hand home panel, tooltips, and text buttons (Live, AI) | — |
 | 5.9 | `Z9` Container styling batch — Align & Stitch "press Plan", Plate Viewer "press Render", Model Compare A/B, Training Runs area, Classifier Evaluation area + tabs, Run History tabs + container | — |
+| 5.9b | **Ambient background controls + a real aurora** — preferences for **blur**, **movement speed** and **size range**, applying across `blobs` / `aurora` / `ripple` / `drift`; make the aurora move like actual aurora borealis (curtain folds propagating along the arc, vertical ray structure, brightness pulsing — not a drifting smear); add an **aurora borealis palette** built from the real emission lines. Requested 2026-08-03 | — |
 | 5.10 | `Z12` `A5` Cellpose model list read from the API, not hard-coded | — |
 | 5.11 | Silence the cellpose `Sparse invariant checks` warning at launch | — |
 | 5.12 | `F9` **Repair the demo set** | — |
