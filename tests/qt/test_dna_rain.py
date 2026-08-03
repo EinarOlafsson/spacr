@@ -494,12 +494,20 @@ def test_apply_theme_takes_colours_from_the_palette(qtbot):
         assert widget.background_color().name() == QColor(palette["bg"]).name()
 
 
-def test_default_colours_come_from_the_theme_palette(qtbot):
+def test_the_background_default_comes_from_the_theme_palette(qtbot):
+    """The fill follows the theme. The glyph colour deliberately does not.
+
+    They used to be one rule — both from the palette — which made the
+    rain the theme accent, i.e. the exact blue of the Run button and the
+    AI toggle two inches away. Only the background has to match the
+    page; the glyphs are the effect.
+    """
     from spacr.qt.theme import palette_for
     widget = make_widget(qtbot, theme="light")
     palette = palette_for("light")
-    assert widget.color().name() == QColor(palette["accent"]).name()
     assert widget.background_color().name() == QColor(palette["bg"]).name()
+    assert widget.color().name() == QColor(dr.DEFAULT_COLOR).name()
+    assert widget.color().name() != QColor(palette["accent"]).name()
 
 
 def test_effective_theme_falls_back_when_preferences_explode(monkeypatch):
@@ -899,11 +907,16 @@ def test_settings_bar_emits_its_signals(qtbot):
         bar.set_font_size(28)
 
 
-def test_settings_bar_takes_defaults_from_the_theme(qtbot):
-    from spacr.qt.theme import palette_for
+def test_settings_bar_defaults_to_the_shipped_teal_whatever_the_theme(qtbot):
+    """Not the palette accent — that is the Run button's blue.
+
+    The bar used to open on ``palette['accent']``, so binding it to a
+    rain that was already teal was the only thing that made the swatch
+    agree with the glyphs.
+    """
     bar = DnaRainSettingsBar(theme="space")
     qtbot.addWidget(bar)
-    assert bar.color().name() == QColor(palette_for("space")["accent"]).name()
+    assert bar.color().name() == QColor(dr.DEFAULT_COLOR).name()
 
 
 # ---------------------------------------------------------------------------
@@ -922,7 +935,9 @@ def test_install_dna_rain_wires_everything(qtbot):
     assert rain.parent() is host
     assert rain.geometry() == host.rect()
     assert rain.settings_bar is not None
-    assert layout.indexOf(rain.settings_bar) >= 0
+    # The BUTTON goes in the layout; the settings themselves do not.
+    assert layout.indexOf(rain.settings_button) >= 0
+    assert layout.indexOf(rain.settings_bar) < 0
     # Behind the content, and out of the way of the pointer.
     children = [c for c in host.children() if isinstance(c, QWidget)]
     assert children[0] is rain
@@ -940,8 +955,10 @@ def test_install_dna_rain_without_a_layout(qtbot):
     qtbot.addWidget(host)
     host.resize(300, 200)
     rain = install_dna_rain(host, None, seed=1)
-    assert rain.settings_bar.parent() is host
-    assert rain.settings_bar.parentWidget() is host
+    # Nowhere to put the button, so it is left for the caller — but the
+    # settings are still built, and still inside the popover.
+    assert rain.settings_button.parentWidget() is host
+    assert rain.settings_bar.parentWidget() is rain.settings_popover
 
 
 def test_install_dna_rain_is_inert_until_shown(qtbot):
@@ -967,7 +984,11 @@ def test_hook_attaches_to_the_real_sequencing_screen(qtbot, qt_theme_applied):
     assert rain.geometry() == screen.rect()
     children = [c for c in screen.children() if isinstance(c, QWidget)]
     assert children[0] is rain, "rain must be at the bottom of the stack"
-    assert screen.layout().indexOf(rain.settings_bar) >= 0
+    # The button found the AI toggle on its own, so it went to the
+    # actions row rather than to the layout it was handed.
+    assert screen.layout().indexOf(rain.settings_button) < 0
+    row = screen._ai_switch.parentWidget().layout()
+    assert row.indexOf(rain.settings_button) >= 0
 
     screen.show()
     qtbot.waitExposed(screen)
@@ -1333,3 +1354,542 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
         raise RuntimeError("preferences are gone")
     monkeypatch.setattr("spacr.qt.preferences.resolve_effective_theme", boom)
     screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
+
+
+# ---------------------------------------------------------------------------
+# The DNA button and its popover
+#
+# The settings used to be a bar pinned across the bottom of the sequencing
+# screen: five controls permanently on show under the settings form the user
+# is actually there to fill in. They now live behind a DNA toggle built from
+# the same class as the AI toggle it sits beside.
+# ---------------------------------------------------------------------------
+
+def _sequencing_screen(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+    screen = AppScreen("map_barcodes")
+    qtbot.addWidget(screen)
+    screen.resize(1200, 800)
+    return screen
+
+
+def test_the_dna_button_sits_immediately_beside_the_ai_button(
+        qtbot, qt_theme_applied):
+    """Beside, and before: AI keeps its provider chevron next to it."""
+    screen = _sequencing_screen(qtbot)
+    rain = screen._dna_rain
+    assert rain is not None
+    button = rain.settings_button
+    row = screen._ai_switch.parentWidget().layout()
+    assert row.indexOf(button) == row.indexOf(screen._ai_switch) - 1
+
+
+def test_the_dna_button_is_the_ai_button_not_a_lookalike(qtbot,
+                                                        qt_theme_applied):
+    """Same class, same object name, so the QSS cannot drift apart."""
+    from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+    screen = _sequencing_screen(qtbot)
+    button = screen._dna_rain.settings_button
+    assert isinstance(button, AiToggleLabel)
+    assert button.objectName() == screen._ai_switch.objectName()
+    assert button.text() == "DNA"
+    # And it inks like one: off is the theme fg, on is the accent.
+    button.setChecked(False)
+    off = button.styleSheet()
+    button.setChecked(True)
+    assert button.styleSheet() != off
+    screen._ai_switch.setChecked(True)
+    assert button.styleSheet() == screen._ai_switch.styleSheet()
+
+
+def test_the_settings_are_hidden_until_the_button_is_clicked(
+        qtbot, qt_theme_applied):
+    """The whole point of the change: no permanent strip of controls."""
+    screen = _sequencing_screen(qtbot)
+    rain = screen._dna_rain
+    screen.show()
+    qtbot.waitExposed(screen)
+
+    assert not rain.settings_popover.isVisible()
+    assert not rain.settings_bar.isVisible()
+    # It is nowhere in the screen's own widget tree either — not merely
+    # hidden inside it.
+    assert rain.settings_bar.window() is rain.settings_popover
+
+    qtbot.mouseClick(rain.settings_button, Qt.LeftButton)
+    assert rain.settings_button.isChecked()
+    assert rain.settings_button.is_open()
+    assert rain.settings_popover.isVisible()
+    assert rain.settings_bar.isVisible()
+
+    qtbot.mouseClick(rain.settings_button, Qt.LeftButton)
+    assert not rain.settings_button.isChecked()
+    assert not rain.settings_button.is_open()
+    assert not rain.settings_popover.isVisible()
+
+
+def test_the_popover_re_themes_itself_every_time_it_opens(qtbot, monkeypatch):
+    """It is a top-level window, so the screen's re-style never reaches it.
+
+    Both the popup frame and the panel inside it state their own
+    surface; left alone across a theme switch that is a dark card under
+    freshly light text.
+    """
+    from spacr.qt.theme import palette_for
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(400, 300)
+    host.show()
+    qtbot.waitExposed(host)
+    monkeypatch.setattr(
+        "spacr.qt.preferences.resolve_effective_theme", lambda: "dark")
+    rain = install_dna_rain(host, None, seed=8, theme="dark")
+    rain.settings_button.setChecked(True)
+    assert palette_for("dark")["surface"] in rain.settings_bar.styleSheet()
+    rain.settings_button.setChecked(False)
+
+    monkeypatch.setattr(
+        "spacr.qt.preferences.resolve_effective_theme", lambda: "light")
+    rain.settings_button.setChecked(True)
+    assert palette_for("light")["surface"] in rain.settings_bar.styleSheet()
+    assert palette_for("light")["surface_alt"] in \
+        rain.settings_popover.styleSheet()
+
+
+def test_closing_the_popover_any_other_way_un_toggles_the_button(
+        qtbot, qt_theme_applied):
+    """Escape, a click elsewhere, a tab switch — the button must follow."""
+    from PySide6.QtGui import QKeyEvent
+    from PySide6.QtCore import QEvent as _QEvent
+    screen = _sequencing_screen(qtbot)
+    rain = screen._dna_rain
+    screen.show()
+    qtbot.waitExposed(screen)
+    button = rain.settings_button
+
+    button.setChecked(True)
+    assert rain.settings_popover.isVisible()
+    rain.settings_popover.keyPressEvent(
+        QKeyEvent(_QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier))
+    assert not rain.settings_popover.isVisible()
+    assert not button.isChecked(), "the button was left lit with nothing open"
+
+    # And the screen going away takes the popover with it, rather than
+    # leaving it floating over whichever module the user switched to.
+    button.setChecked(True)
+    assert rain.settings_popover.isVisible()
+    screen.hide()
+    assert not rain.settings_popover.isVisible()
+
+
+def _press_popover_at(popover, global_pos):
+    """The press Qt delivers to a Qt.Popup before it closes it."""
+    from PySide6.QtCore import QEvent as _QEvent, QPointF
+    from PySide6.QtGui import QMouseEvent
+    popover.mousePressEvent(QMouseEvent(
+        _QEvent.MouseButtonPress,
+        QPointF(popover.mapFromGlobal(global_pos)), QPointF(global_pos),
+        Qt.LeftButton, Qt.LeftButton, Qt.NoModifier))
+
+
+def _open_rain_in_a_window(qtbot):
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(400, 300)
+    host.show()
+    qtbot.waitExposed(host)
+    return install_dna_rain(host, None, seed=5)
+
+
+def test_the_click_that_closes_the_popover_does_not_reopen_it(qtbot):
+    """A Qt.Popup closes on the press, which is then replayed underneath.
+
+    Without the guard that is open-close-open inside one click, and the
+    popover looks like it will not close.
+    """
+    rain = _open_rain_in_a_window(qtbot)
+    button = rain.settings_button
+    button.setChecked(True)
+    assert rain.settings_popover.isVisible()
+
+    # Exactly what Qt does: press -> popup -> close -> replay at button.
+    _press_popover_at(rain.settings_popover,
+                      button.mapToGlobal(button.rect().center()))
+    rain.settings_popover.hide()
+    assert not button.isChecked()
+    button.setChecked(True)                 # the replayed half
+    assert not rain.settings_popover.isVisible()
+    assert not button.isChecked()
+
+
+def test_a_click_somewhere_else_does_not_arm_the_guard(qtbot):
+    """Dismiss by clicking away, then click DNA — that must open it."""
+    rain = _open_rain_in_a_window(qtbot)
+    button = rain.settings_button
+    button.setChecked(True)
+
+    away = button.mapToGlobal(button.rect().center())
+    away.setY(away.y() + 400)
+    _press_popover_at(rain.settings_popover, away)
+    rain.settings_popover.hide()
+    assert not button.isChecked()
+    button.setChecked(True)
+    assert rain.settings_popover.isVisible()
+
+
+def test_a_deliberate_second_click_still_opens_it(qtbot):
+    """A close the button asked for never arms the guard."""
+    rain = _open_rain_in_a_window(qtbot)
+    button = rain.settings_button
+    button.setChecked(True)
+    button.setChecked(False)
+    assert not rain.settings_popover.isVisible()
+    button.setChecked(True)
+    assert rain.settings_popover.isVisible()
+
+
+def test_a_press_inside_the_popover_is_not_a_close(qtbot):
+    """Moving a slider must not look like the dismissing click."""
+    rain = _open_rain_in_a_window(qtbot)
+    popover = rain.settings_popover
+    rain.settings_button.setChecked(True)
+    _press_popover_at(popover, popover.mapToGlobal(popover.rect().center()))
+    assert popover.isVisible()
+    assert not popover.just_closed()
+
+
+def test_every_setting_in_the_popover_reaches_the_renderer(qtbot):
+    """Four controls, four pieces of renderer state. No decoration."""
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(800, 600)
+    rain = install_dna_rain(host, None, seed=9)
+    bar = rain.settings_button.settings_bar
+    assert bar is rain.settings_bar
+
+    bar.set_color("#7733aa")
+    assert rain.color().name() == "#7733aa"
+    assert bar.color().name() == "#7733aa"
+
+    bar.set_speed(2.5)
+    assert rain.speed() == pytest.approx(2.5)
+    assert bar.speed() == pytest.approx(2.5)
+
+    bar.set_opacity(0.45)
+    assert rain.opacity() == pytest.approx(0.45, abs=0.01)
+    assert bar.opacity() == pytest.approx(0.45, abs=0.01)
+
+    bar.set_font_size(28)
+    assert rain.font_size() == 28
+    assert bar.font_size() == 28
+    assert rain.engine.n_columns == 800 // 28
+
+    bar.set_random_color(True)
+    assert rain.random_colors() is True
+    assert bar.random_color() is True
+
+
+def test_the_popover_hands_the_button_a_bound_bar(qtbot):
+    """Opened cold, the controls must already show what the rain is doing."""
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(600, 400)
+    rain = install_dna_rain(host, None, seed=2, color="#123456",
+                            opacity=0.33, font_size=22, random_colors=True)
+    rain.set_speed(1.75)
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(bar)
+    bar.bind(rain)
+    assert bar.color().name() == "#123456"
+    assert bar.opacity() == pytest.approx(0.33, abs=0.01)
+    assert bar.font_size() == 22
+    assert bar.speed() == pytest.approx(1.75)
+    assert bar.random_color() is True
+
+
+def test_the_grid_layout_carries_the_same_controls_as_the_row(qtbot):
+    """The popover's shape is a layout choice, not a different widget."""
+    row = DnaRainSettingsBar()
+    grid = DnaRainSettingsBar(vertical=True)
+    qtbot.addWidget(row)
+    qtbot.addWidget(grid)
+    for bar in (row, grid):
+        assert bar._swatch is not None and bar._random is not None
+        assert bar.speed() == pytest.approx(1.0)
+        assert bar.opacity() == pytest.approx(dr.DEFAULT_OPACITY, abs=0.01)
+        assert bar.font_size() == dr.DEFAULT_FONT_PX
+    assert grid.sizeHint().height() > row.sizeHint().height(), \
+        "a grid is taller than a row"
+    assert grid.sizeHint().width() < row.sizeHint().width(), \
+        "and narrower — a row of five controls is half a screen wide"
+
+
+def test_a_host_without_an_ai_toggle_falls_back_to_the_layout(qtbot):
+    """Discovery is a default, not a requirement."""
+    host = QWidget()
+    qtbot.addWidget(host)
+    layout = QVBoxLayout(host)
+    host.resize(400, 300)
+    rain = install_dna_rain(host, layout, seed=3)
+    assert dr._find_ai_toggle(host) is None
+    assert layout.indexOf(rain.settings_button) >= 0
+
+
+def test_an_explicit_anchor_wins_over_discovery(qtbot):
+    from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+    host = QWidget()
+    qtbot.addWidget(host)
+    outer = QVBoxLayout(host)
+    row_host = QWidget()
+    row = QVBoxLayout(row_host)
+    ai = AiToggleLabel()
+    chosen = AiToggleLabel(text="Live")
+    row.addWidget(ai)
+    row.addWidget(chosen)
+    outer.addWidget(row_host)
+    host.resize(400, 300)
+
+    assert dr._find_ai_toggle(host) is ai
+    rain = install_dna_rain(host, outer, anchor=chosen, seed=3)
+    assert row.indexOf(rain.settings_button) == row.indexOf(chosen) - 1
+
+
+def test_the_button_survives_an_anchor_with_no_layout(qtbot):
+    """A widget that is not in a layout cannot be sat beside."""
+    host = QWidget()
+    qtbot.addWidget(host)
+    layout = QVBoxLayout(host)
+    orphan = QWidget(host)
+    rain = install_dna_rain(host, layout, anchor=orphan, seed=3)
+    assert layout.indexOf(rain.settings_button) >= 0
+
+
+# ---------------------------------------------------------------------------
+# Random colour
+#
+# Per column, and re-rolled on every respawn — not one random colour per
+# session. A column is the unit the effect is built out of: it already has its
+# own length, speed, start row and highlight run, so a colour of its own is
+# the same kind of variation, and it costs nothing because the strips are
+# already cached per column.
+# ---------------------------------------------------------------------------
+
+def test_random_colour_gives_the_columns_more_than_one_colour(qtbot):
+    widget = make_widget(qtbot, _w=640, _h=480, random_colors=True)
+    colors = {widget.column_color(i).name()
+              for i in range(widget.engine.n_columns)}
+    assert len(colors) > 1, "random colour produced one colour"
+    assert len(colors) > 10, f"only {len(colors)} colours across 40 columns"
+
+
+def test_without_random_colour_every_column_is_the_picked_one(qtbot):
+    widget = make_widget(qtbot, _w=640, _h=480, color="#00ff88")
+    colors = {widget.column_color(i).name()
+              for i in range(widget.engine.n_columns)}
+    assert colors == {"#00ff88"}
+
+
+def test_random_colour_reaches_the_painted_output(qtbot):
+    """The accessor could agree with itself and still paint one colour."""
+    widget = make_widget(qtbot, _w=320, _h=240, font_size=16, opacity=1.0,
+                         background="#000000", spacr_probability=0.0,
+                         random_colors=True)
+    widget.show()
+    qtbot.waitExposed(widget)
+    for _ in range(30):
+        widget.advance_frame(DT)
+    image = widget.grab().toImage()
+    hues = set()
+    for x in range(image.width()):
+        for y in range(0, image.height(), 3):
+            pixel = image.pixelColor(x, y)
+            if pixel.lightnessF() > 0.12 and pixel.saturationF() > 0.3:
+                hues.add(pixel.hue() // 15)
+    assert len(hues) > 3, f"only {len(hues)} hue families were painted"
+
+
+def test_random_colour_is_per_column_not_per_session(qtbot):
+    """Two neighbours differ, and a column changes when it respawns."""
+    widget = make_widget(qtbot, _w=640, _h=480, random_colors=True)
+    first = widget.column_color(0).name()
+    assert any(widget.column_color(i).name() != first
+               for i in range(1, widget.engine.n_columns))
+
+    column = widget.engine.columns[0]
+    seen = {first}
+    for _ in range(40):
+        widget.engine._respawn(column)
+        seen.add(widget.column_color(0).name())
+    assert len(seen) > 5, "a column keeps its colour forever"
+
+
+def test_random_colours_borrow_vividness_from_the_picked_colour(qtbot):
+    """Only the hue is random; a grey pick still gives visible colours."""
+    widget = make_widget(qtbot, _w=640, _h=480, color="#7a7a7a",
+                         random_colors=True)
+    colors = [widget.column_color(i)
+              for i in range(widget.engine.n_columns)]
+    assert all(c.saturationF() >= dr.RANDOM_MIN_SATURATION - 1e-6
+               for c in colors)
+    assert all(dr.RANDOM_MIN_LIGHTNESS - 1e-6 <= c.lightnessF()
+               <= dr.RANDOM_MAX_LIGHTNESS + 1e-6 for c in colors)
+    assert len({c.hue() for c in colors}) > 5
+
+
+def test_the_picked_colour_still_steers_a_random_field(qtbot):
+    """Moving the swatch has to change something while random is on."""
+    widget = make_widget(qtbot, _w=640, _h=480, color="#009B9B",
+                         random_colors=True)
+    before = [widget.column_color(i) for i in range(widget.engine.n_columns)]
+    widget.set_color("#ffd0d0")             # pale: lighter, less saturated
+    after = [widget.column_color(i) for i in range(widget.engine.n_columns)]
+    assert [c.name() for c in before] != [c.name() for c in after]
+    assert (sum(c.lightnessF() for c in after)
+            > sum(c.lightnessF() for c in before))
+    # Hues are untouched by the pick; only saturation and lightness are.
+    assert [c.hue() for c in before] == [c.hue() for c in after]
+
+
+def test_toggling_random_colour_re_renders_the_strips(qtbot):
+    """The colours are baked into the cached strips, so they must drop."""
+    widget = make_widget(qtbot, _w=320, _h=240)
+    widget.show()
+    qtbot.waitExposed(widget)
+    widget.grab()
+    generation = widget._style_gen
+    widget.set_random_colors(True)
+    assert widget._style_gen > generation
+    assert widget._strips == []
+    widget.set_random_colors(True)          # no-op, no re-render
+    assert widget._style_gen == generation + 1
+
+
+def test_random_colour_does_not_change_where_anything_falls():
+    """The hues come from their own RNG, so a seed still reproduces a rain."""
+    plain = DnaRainEngine(960, 640, 16, seed=99)
+    for _ in range(50):
+        plain.advance(DT)
+    coloured = DnaRainEngine(960, 640, 16, seed=99)
+    for _ in range(50):
+        coloured.advance(DT)
+    assert plain.snapshot() == coloured.snapshot()
+    assert [c.hue for c in plain.columns] == [c.hue for c in coloured.columns]
+    # ... and a different seed gives different hues.
+    other = DnaRainEngine(960, 640, 16, seed=100)
+    assert [c.hue for c in other.columns] != [c.hue for c in plain.columns]
+
+
+def test_a_seedless_engine_still_rolls_hues():
+    engine = DnaRainEngine(320, 240, 16, seed=None)
+    hues = [c.hue for c in engine.columns]
+    assert len(set(hues)) > 1
+    assert all(0.0 <= h < 1.0 for h in hues)
+
+
+def test_the_random_pen_cache_is_bounded(qtbot):
+    """One entry per whole degree of hue, however long the rain runs."""
+    widget = make_widget(qtbot, _w=640, _h=480, random_colors=True)
+    widget.show()
+    qtbot.waitExposed(widget)
+    for _ in range(200):
+        widget.advance_frame(DT)
+        widget.grab()
+    assert widget._hue_pens, "random mode never built a pen"
+    assert len(widget._hue_pens) <= 360
+    assert all(0 <= key < 360 for key in widget._hue_pens)
+
+
+def test_a_colour_change_drops_the_random_pens(qtbot):
+    widget = make_widget(qtbot, _w=320, _h=240, random_colors=True)
+    widget.show()
+    qtbot.waitExposed(widget)
+    widget.grab()
+    assert widget._hue_pens
+    widget.set_color("#ff0000")
+    assert widget._hue_pens == {}
+
+
+def test_the_random_toggle_round_trips_through_the_bar(qtbot):
+    widget = make_widget(qtbot)
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(bar)
+    bar.bind(widget)
+    assert bar.random_color() is False
+    with qtbot.waitSignal(bar.random_color_changed):
+        bar.set_random_color(True)
+    assert widget.random_colors() is True
+    bar.set_random_color(False)
+    assert widget.random_colors() is False
+
+
+def test_the_bar_opens_on_whatever_the_rain_is_already_doing(qtbot):
+    widget = make_widget(qtbot, random_colors=True)
+    bar = DnaRainSettingsBar()
+    qtbot.addWidget(bar)
+    bar.bind(widget)
+    assert bar.random_color() is True
+
+
+# ---------------------------------------------------------------------------
+# The shipped defaults
+#
+# Every one of these was chosen by the user after seeing it on screen, and
+# every one of them has been silently wrong at least once — the teal was a
+# constant nothing read, and the rain ran in the theme accent for weeks.
+# ---------------------------------------------------------------------------
+
+def test_the_shipped_defaults_are_the_ones_that_were_asked_for():
+    assert dr.DEFAULT_COLOR.lower() == "#009b9b"
+    assert QColor(dr.DEFAULT_COLOR).getRgb()[:3] == (0, 155, 155)
+    assert dr.DEFAULT_OPACITY == pytest.approx(0.20)
+    assert dr.DEFAULT_FONT_PX == 16
+    assert dr.DEFAULT_FPS == 60
+
+
+def test_a_rain_built_with_no_arguments_uses_them(qtbot):
+    widget = make_widget(qtbot)
+    assert widget.color().name() == "#009b9b"
+    assert widget.opacity() == pytest.approx(0.20)
+    assert widget.font_size() == 16
+    assert widget.speed() == pytest.approx(1.0)
+    assert widget.fps() == 60
+    assert widget.random_colors() is False
+
+
+def test_the_defaults_survive_all_the_way_to_the_real_screen(
+        qtbot, qt_theme_applied):
+    """Constants are only defaults if the thing the user sees uses them."""
+    screen = _sequencing_screen(qtbot)
+    rain = screen._dna_rain
+    bar = rain.settings_bar
+    assert rain.color().name() == "#009b9b"
+    assert rain.opacity() == pytest.approx(0.20)
+    assert rain.font_size() == 16
+    assert rain.speed() == pytest.approx(1.0)
+    assert rain.random_colors() is False
+    # And the popover opens showing exactly that, rather than its own
+    # idea of a default.
+    assert bar.color().name() == "#009b9b"
+    assert round(bar.opacity() * 100) == 20
+    assert bar.font_size() == 16
+    assert bar.speed() == pytest.approx(1.0)
+    assert bar.random_color() is False
+    assert "#009b9b" in bar._swatch.styleSheet().lower()
+
+
+def test_the_teal_actually_reaches_the_glyphs(qtbot):
+    """The default is a painted colour, not a docstring."""
+    widget = make_widget(qtbot, _w=320, _h=240, background="#000000",
+                         opacity=1.0, spacr_probability=0.0)
+    widget.show()
+    qtbot.waitExposed(widget)
+    for _ in range(30):
+        widget.advance_frame(DT)
+    image = widget.grab().toImage()
+    teal = 0
+    for x in range(image.width()):
+        for y in range(0, image.height(), 3):
+            pixel = image.pixelColor(x, y)
+            if pixel.green() > 60 and pixel.blue() > 60 and pixel.red() < 40:
+                teal += 1
+    assert teal > 20, f"only {teal} teal-ish pixels were painted"
