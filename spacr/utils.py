@@ -7697,9 +7697,20 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
     return anova_df, kruskal_df
 
 def combine_results(rf_df, anova_df, kruskal_df):
-    """Combine the results into a single DataFrame."""
-    combined_df = rf_df.merge(anova_df, on='Feature', how='left')
-    combined_df = combined_df.merge(kruskal_df, on='Feature', how='left')
+    """Combine the results into a single DataFrame.
+
+    All three frames are keyed on ``Feature`` and carry exactly one row per
+    feature: ``rf_df`` is built from the feature list, and
+    :func:`perform_statistical_tests` sends each feature to *either* ANOVA or
+    Kruskal-Wallis, never both. Hence ``one_to_one``. A repeated ``Feature``
+    -- the signature of a frame with duplicated column names, or of two runs'
+    results concatenated by mistake -- would multiply the importance rows and
+    report the same feature several times as if independently ranked.
+    """
+    combined_df = rf_df.merge(anova_df, on='Feature', how='left',
+                              validate='one_to_one')
+    combined_df = combined_df.merge(kruskal_df, on='Feature', how='left',
+                                    validate='one_to_one')
     return combined_df
 
 def cluster_feature_analysis(all_df, cluster_col='cluster'):
@@ -8093,12 +8104,37 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     # Drop rows where gene extraction failed
     #df_results = df_results.dropna(subset=['gene'])
     
-    # Merge the two dataframes on the gene column. Metadata rows whose ID had
-    # no parsable gene must not act as a join key: pandas treats NaN keys as
-    # equal, so every unparsable result row (e.g. 'Intercept') would otherwise
-    # fan out against every unparsable metadata row.
-    merged_df = pd.merge(df_results, df_metadata.dropna(subset=['gene']),
-                         on='gene', how='left')
+    # Metadata rows whose ID had no parsable gene must not act as a join key:
+    # pandas treats NaN keys as equal, so every unparsable result row (e.g.
+    # 'Intercept') would otherwise fan out against every unparsable metadata
+    # row.
+    df_metadata = df_metadata.dropna(subset=['gene'])
+
+    # One annotation row per gene, enforced rather than assumed. Curated
+    # exports list a gene once per transcript/isoform -- the bundled
+    # 'toxoplasma_metadata.csv' repeats 30 Gene IDs two to four times, each
+    # copy carrying a different protein length and GO term set. Joined as-is
+    # those genes came back two to four times in the regression results, and
+    # every downstream consumer (volcano plots, the significant-hit tables,
+    # toxo.py) counted each copy as an independent hit. The result must stay
+    # one row per regression feature, so the metadata is collapsed to the
+    # first row per gene and the collapse is reported rather than hidden.
+    duplicated_genes = df_metadata['gene'].duplicated(keep=False)
+    if duplicated_genes.any():
+        collapsed = sorted(df_metadata.loc[duplicated_genes, 'gene'].unique())
+        print(
+            f"{metadata_file}: {int(duplicated_genes.sum())} rows share "
+            f"{len(collapsed)} gene id(s), e.g. {collapsed[:5]}; usually one "
+            f"row per transcript of the same gene. Keeping the first row of "
+            f"each so the merge cannot duplicate regression results -- the "
+            f"annotations of the dropped rows are not carried over."
+        )
+        df_metadata = df_metadata.drop_duplicates(subset=['gene'], keep='first')
+
+    # many_to_one: many regression terms can name one gene (one row per gRNA in
+    # the per-gRNA results), but each gene gets one annotation row.
+    merged_df = pd.merge(df_results, df_metadata, on='gene', how='left',
+                         validate='many_to_one')
     
     # Generate the new file name
     base, ext = os.path.splitext(results_file)
