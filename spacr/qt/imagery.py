@@ -171,7 +171,7 @@ MASTERS: Dict[str, dict] = {
         "theme": "cell",
         "source_crop": (0.0, 0.0, 1.0, 1.0),
         "focus": 0.46,
-        "title": "Microtubule network (confocal)",
+        "title": "Tubules",
     },
     "filopodia": {
         "source": "cell_2.png",
@@ -182,7 +182,7 @@ MASTERS: Dict[str, dict] = {
         # frame's darker border rows.
         "source_crop": (0.03, 0.025, 0.97, 0.90),
         "focus": 0.50,
-        "title": "Filopodia (confocal)",
+        "title": "Cytoskeleton",
         "annotation": (0.8252, 0.9249, 0.9488, 0.9528),
     },
     "deep_field": {
