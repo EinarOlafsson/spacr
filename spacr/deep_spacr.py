@@ -1429,6 +1429,18 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None):
     ``figure`` lets the GUI update one zoomable monitor in place instead of
     adding an epoch snapshot to the figure gallery every time.  ``plt.show``
     is captured by the Qt bridge and re-renders figures marked as live.
+
+    The show is ``block=False``, and that is load-bearing rather than a
+    style choice. This runs *inside* the epoch loop, so on any interpreter
+    whose matplotlib backend is interactive — which is every machine with
+    PySide6 installed, i.e. every spaCR install, because matplotlib then
+    picks 'qtagg' — a blocking ``plt.show()`` enters the Qt main loop and
+    never comes back. Training stops dead at the end of epoch 1 with no
+    error and no output; measured on the classify demo, which hung for as
+    long as it was left running with the whole stack parked in
+    ``backend_qt.start_main_loop``. Inside the Qt GUI the bridge's
+    ``_capture_show(*args, **kwargs)`` replaces ``plt.show`` entirely and
+    ignores the keyword, so the GUI path is unchanged.
     """
     import matplotlib.pyplot as plt
     if not train_hist:
@@ -1459,7 +1471,7 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None):
     suffix = f' / {total_epochs}' if total_epochs else ''
     fig.suptitle(f'Training — epoch {last}{suffix}')
     plt.tight_layout()
-    plt.show()
+    plt.show(block=False)
     return fig
 
 
