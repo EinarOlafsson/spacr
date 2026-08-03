@@ -104,6 +104,205 @@ _install_gui_stubs()
 
 
 # ---------------------------------------------------------------------------
+# QSettings sandbox
+#
+# `QSettings("spacr", "qt")` — the two-argument constructor every spacr Qt
+# module uses — is built with `QSettings::NativeFormat`, ALWAYS. It ignores
+# `QSettings.setDefaultFormat(IniFormat)`, so the redirect that several test
+# modules reach for
+#
+#     QSettings.setDefaultFormat(QSettings.IniFormat)
+#     QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, tmp_path)
+#
+# isolates nothing at all: the object still resolves to the developer's real
+# `~/.config/spacr/qt.conf`, and the `.clear()` those fixtures follow it with
+# DELETES THE USER'S PREFERENCES — 53 times in one full run. The same hole let
+# `spacr.qt.prefs` write pytest tmp paths into the real
+# `~/.config/Olafsson Lab/SpaCR.conf`, where a later test could read them back:
+# cross-test pollution AND collateral damage from one bug.
+#
+# The fix is to redirect every (format, scope) pair, including NativeFormat,
+# at a throwaway sandbox before a single test module is imported, and then to
+# re-point it at a PER-TEST directory so no two tests ever share a store. A
+# teardown guard fails the offending test loudly if its QSettings ever
+# resolved outside the sandbox or the pytest temp tree.
+# ---------------------------------------------------------------------------
+
+import atexit as _atexit
+import hashlib as _hashlib
+import shutil as _shutil
+
+#: Throwaway root that stands in for the user's config directory.
+_QSETTINGS_SANDBOX = Path(tempfile.mkdtemp(prefix="spacr-qsettings-"))
+_atexit.register(_shutil.rmtree, str(_QSETTINGS_SANDBOX), True)
+
+#: `(exists, size, mtime_ns)` for the real files a leak would damage, taken
+#: once before the redirect goes in. Empty when PySide6 is not installed.
+_QSETTINGS_REAL_STATE: dict = {}
+
+#: Directories a QSettings file is allowed to resolve under. The sandbox plus
+#: pytest's own basetemp, because a test module may legitimately point its own
+#: settings at its ``tmp_path``.
+_QSETTINGS_ALLOWED_ROOTS: list = [_QSETTINGS_SANDBOX]
+
+_QSETTINGS_ACTIVE = False
+
+
+def _qsettings_module():
+    """Return ``PySide6.QtCore.QSettings``, or None when PySide6 is absent."""
+    try:
+        from PySide6.QtCore import QSettings
+    except Exception:
+        return None
+    return QSettings
+
+
+def _redirect_qsettings(target) -> None:
+    """Point every QSettings (format, scope) pair at ``target``.
+
+    NativeFormat is the one that matters — it is what the two-argument
+    constructor uses — but all four combinations are redirected so no
+    constructor spelling can escape.
+    """
+    settings = _qsettings_module()
+    if settings is None:
+        return
+    for fmt in (settings.NativeFormat, settings.IniFormat):
+        for scope in (settings.UserScope, settings.SystemScope):
+            settings.setPath(fmt, scope, str(target))
+
+
+def _qsettings_probe_paths() -> list:
+    """Where the org/app pairs spacr uses would land right now."""
+    settings = _qsettings_module()
+    if settings is None:
+        return []
+    pairs = (("spacr", "qt"), ("Olafsson Lab", "SpaCR"))
+    out = []
+    for org, app in pairs:
+        try:
+            out.append(settings(org, app).fileName())
+        except Exception:
+            continue
+    return out
+
+
+def _stat_signature(path) -> tuple:
+    try:
+        info = os.stat(path)
+    except OSError:
+        return (False, 0, 0)
+    return (True, info.st_size, info.st_mtime_ns)
+
+
+def pytest_configure(config):
+    """Sandbox QSettings before any test module is imported.
+
+    Collection imports test modules, and a module-level ``QSettings(...)``
+    would otherwise hit the real store, so this runs in ``pytest_configure``
+    rather than in a fixture.
+    """
+    global _QSETTINGS_ACTIVE
+    if _qsettings_module() is None:
+        return
+    # Snapshot the real files FIRST — the guard compares against this.
+    for real in _qsettings_probe_paths():
+        _QSETTINGS_REAL_STATE[real] = _stat_signature(real)
+        parent = os.path.dirname(real)
+        _QSETTINGS_REAL_STATE[parent] = _stat_signature(parent)
+    _redirect_qsettings(_QSETTINGS_SANDBOX)
+    _QSETTINGS_ACTIVE = True
+
+    try:
+        basetemp = config._tmp_path_factory.getbasetemp()
+    except Exception:
+        basetemp = None
+    if basetemp is not None:
+        _QSETTINGS_ALLOWED_ROOTS.append(Path(str(basetemp)).resolve())
+    # pytest's basetemp lives under a per-user root that also holds the
+    # previous runs' directories; allow the whole tree so a module fixture
+    # pointing at its own tmp_path is fine.
+    _QSETTINGS_ALLOWED_ROOTS.append(
+        Path(tempfile.gettempdir()).resolve() / f"pytest-of-{_current_user()}")
+
+
+def _current_user() -> str:
+    for key in ("USER", "USERNAME", "LOGNAME"):
+        value = os.environ.get(key)
+        if value:
+            return value
+    try:
+        import getpass
+        return getpass.getuser()
+    except Exception:
+        return "unknown"
+
+
+def _inside_allowed_root(path) -> bool:
+    try:
+        resolved = Path(path).resolve()
+    except Exception:
+        return False
+    for root in _QSETTINGS_ALLOWED_ROOTS:
+        try:
+            resolved.relative_to(root)
+            return True
+        except ValueError:
+            continue
+    return False
+
+
+@pytest.fixture(autouse=True)
+def _isolated_qsettings_store(request):
+    """Give every test its own QSettings directory, and prove it stayed there.
+
+    Autouse and declared in the ROOT conftest so it is set up before any
+    per-module preference fixture and torn down after all of them — which is
+    what makes the teardown assertion meaningful.
+    """
+    if not _QSETTINGS_ACTIVE:
+        yield
+        return
+    digest = _hashlib.sha1(
+        request.node.nodeid.encode("utf-8", "replace")).hexdigest()[:16]
+    per_test = _QSETTINGS_SANDBOX / "per-test" / digest
+    _redirect_qsettings(per_test)
+    try:
+        yield
+    finally:
+        escaped = [p for p in _qsettings_probe_paths()
+                   if not _inside_allowed_root(p)]
+        damaged = [p for p, was in _QSETTINGS_REAL_STATE.items()
+                   if _stat_signature(p) != was]
+        # Always restore the sandbox, even on failure, so one leaky module
+        # cannot drag the rest of the session down with it. Re-baselining the
+        # real files keeps the blame on the FIRST test that touched them
+        # instead of failing every test that runs after it.
+        _redirect_qsettings(_QSETTINGS_SANDBOX)
+        for path in damaged:
+            _QSETTINGS_REAL_STATE[path] = _stat_signature(path)
+        if escaped:
+            raise AssertionError(
+                "QSettings escaped the test sandbox.\n"
+                f"  resolved outside the sandbox: {escaped}\n"
+                f"  real files touched: {damaged}\n"
+                "Use `QSettings(str(tmp_path / 'x.ini'), QSettings.IniFormat)` "
+                "or monkeypatch the module's `_settings` factory. "
+                "`QSettings.setPath(IniFormat, ...)` does NOT redirect "
+                "`QSettings(org, app)` — that constructor is NativeFormat.")
+        if damaged:
+            # A changed real file with the sandbox still correctly in place
+            # means something OUTSIDE this process wrote it — a second pytest
+            # run, or the app itself. Warn rather than fail: an unrelated
+            # process must not be able to turn this suite red.
+            import warnings
+            warnings.warn(
+                "the real QSettings files changed while a test ran, but this "
+                f"process was correctly sandboxed: {damaged}. Another process "
+                "is writing them.", RuntimeWarning, stacklevel=1)
+
+
+# ---------------------------------------------------------------------------
 # CI suite classification
 # ---------------------------------------------------------------------------
 
