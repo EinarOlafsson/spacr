@@ -1381,10 +1381,10 @@ QFrame#Card, QFrame#ConsoleBox {{
     border: 1px solid {rim};
     border-radius: 14px;
 }}
+/* The masthead is type on the page, not a card — no glass body, no rim. */
 QFrame#Hero {{
-    background: {surface};
-    border: 1px solid {rim};
-    border-radius: 18px;
+    background: transparent;
+    border: none;
 }}
 QFrame#SectionCard {{
     background: {surface};
@@ -1690,13 +1690,12 @@ QFrame#Card {{
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
+/* The masthead — logo, spaCR wordmark, end-to-end subtitle. No fill and no
+   rim: it is type on the page, not a card. It used to paint a diagonal
+   gradient with a border, which read as a black box drawn around the brand. */
 QFrame#Hero {{
-    background-color: qlineargradient(
-        x1: 0, y1: 0, x2: 1, y2: 1,
-        stop: 0 {P["surface_alt"]}, stop: 1 {P["surface"]}
-    );
-    border: 1px solid {P["border"]};
-    border-radius: {R["lg"]}px;
+    background: transparent;
+    border: none;
 }}
 QPushButton#Tile:hover {{
     border: 1px solid {P["accent"]};
@@ -2360,8 +2359,14 @@ QWidget#ConsolePanel {{
     background-color: transparent;
     border: none;
 }}
+/* The frame AROUND the console and the chat box paints nothing. Those two
+   carry the page opacity themselves (`surface_alt` is already alpha'd), so a
+   filled wrapper behind them only stacked a second slab of the same colour —
+   the "black box behind them" that survived every opacity change because it
+   was a different widget from the one being dialled. Only the rim remains,
+   which is what makes it read as one grouped panel. */
 QFrame#ConsoleBox {{
-    background-color: {P["surface_alt"]};
+    background-color: transparent;
     border: 1px solid {P["border_soft"]};
     border-radius: {R["md"]}px;
 }}
