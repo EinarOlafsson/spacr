@@ -1104,6 +1104,15 @@ def install_api_tooltips(
     for widget in owner.findChildren(QWidget):
         if widget.property("settingHelpLabel"):
             continue
+        # The dots this pass CREATES carry `settingKey` themselves, so they
+        # are found by the sweep the next time it runs and decorated as though
+        # they were settings — each one growing its own pair of dots. That is
+        # what made the live-preview panel sprout duplicates every time the
+        # form was re-gated (switching Primary object from cell to nucleus).
+        # They are help, not settings; skip them.
+        if widget.property("apiTooltipDisplayRole") in (
+                "api-link", "animation-link"):
+            continue
         key = widget.property("settingKey")
         if key and widget not in mapped:
             mapped[widget] = str(key)
@@ -1121,6 +1130,12 @@ def install_api_tooltips(
             # A one-widget form row (usually a Toggle/QCheckBox) carries its
             # own visible label. Keep hover help on its text and put the same
             # teal API dot immediately after the combined label/control.
+            # Remove before installing. Qt keeps a LIST of filters and calls
+            # each installation separately, so decorating the same widget
+            # twice makes one hover emit two tooltips and two animation
+            # popups. `removeEventFilter` is a no-op when the filter is not
+            # installed, which makes this idempotent for free.
+            widget.removeEventFilter(event_filter)
             widget.installEventFilter(event_filter)
             _add_api_dot_to_combined_control(
                 owner, widget, app_key, key, html)
@@ -1137,6 +1152,14 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
+        # Idempotent, for the reason above: this decoration pass runs again
+        # whenever the live-preview form is re-gated -- changing the primary
+        # object from cell to nucleus, for instance -- and a second
+        # installation on the same label duplicated every tooltip and every
+        # setting animation on the panel. The API dots did not duplicate
+        # because `_add_api_dot_to_label` guards on a property; the filter had
+        # no such guard.
+        label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
 
         # The editor itself remains quiet on hover. Keep its metadata so tests,
@@ -1147,6 +1170,30 @@ def install_api_tooltips(
         _add_api_dot_to_label(label, app_key, key, html)
 
 
+def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
+    """Return the real label inside a `SettingLabelWithInfo` host.
+
+    The first decoration pass replaces the form's label with a host widget
+    holding ``[stretch][label][dots]``. On a SECOND pass
+    ``QFormLayout.labelForField`` therefore hands back the HOST, not the
+    label — a fresh widget with none of the label's guard properties — so the
+    pass decorated it again and the panel grew a second dot, a second
+    animation dot and a second tooltip per setting. That is what switching
+    Primary object from cell to nucleus did in the Mask live preview.
+
+    Unwrapping restores the invariant the guards rely on: the same label
+    object is found every time.
+    """
+    if candidate is None:
+        return None
+    if candidate.objectName() != "SettingLabelWithInfo":
+        return candidate
+    for child in candidate.findChildren(QWidget):
+        if child.property("settingHelpLabel"):
+            return child
+    return candidate
+
+
 def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget]:
     """Find the visual label immediately to the left of a popup field."""
     remembered = getattr(field, "_spacr_setting_label", None)
@@ -1154,7 +1201,7 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
         try:
             remembered.objectName()
             if remembered.window() is owner.window():
-                return remembered
+                return _unwrap_setting_label(remembered)
         except RuntimeError:
             pass
 
@@ -1166,7 +1213,7 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
         # end up beside the editor instead of on the form label.
         candidate: Optional[QWidget] = field
         while isinstance(candidate, QWidget):
-            label = form.labelForField(candidate)
+            label = _unwrap_setting_label(form.labelForField(candidate))
             if isinstance(label, QWidget):
                 field._spacr_setting_label = label
                 return label
