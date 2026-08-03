@@ -28,6 +28,7 @@ Public API::
         get_ambient_theme, set_ambient_theme,
         get_ambient_palette, set_ambient_palette,
         ambient_default_palette, apply_ambient_preferences,
+        get_setting_animations_enabled, set_setting_animations_enabled,
         get_font_scale, set_font_scale,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
@@ -77,6 +78,11 @@ Values:
   :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes
   are *per theme*, so see :func:`get_ambient_palette` for how the two
   keys stay consistent with each other.
+* ``setting_animations``: bool, default ``True``. Whether a setting's
+  hover tooltip plays its explanatory animation beside the text. Off
+  leaves the text tooltip exactly as it was, and leaves the purple
+  animation dot working — see
+  :func:`get_setting_animations_enabled`.
 * ``language``: one of the bundled language codes from
   :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a
   persisted value is invalid.
@@ -105,6 +111,7 @@ _KEY_SHOW_BETA = "prefs/show_beta"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
+_KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
@@ -667,6 +674,45 @@ def apply_ambient_preferences(app=None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Setting animations in tooltips
+# ---------------------------------------------------------------------------
+
+#: Shown by default. The animation is the fastest way to understand what a
+#: geometric setting like ``cell_diameter`` or ``merge_pathogens`` actually
+#: does, and it costs nothing until a tooltip is on screen.
+DEFAULT_SETTING_ANIMATIONS = True
+
+
+def get_setting_animations_enabled() -> bool:
+    """Whether setting tooltips play their animation beside the text.
+
+    Default ``True``. When ``False`` the tooltip is text only: no GIF is
+    decoded, no frames are cached and no timer runs. The purple animation
+    dot beside the setting keeps working either way — that is a click the
+    user asked for, whereas this preference is about what a *hover* does.
+
+    Read on every tooltip, not once at startup:
+    :class:`spacr.qt.widgets.hover_tooltip.HoverTooltip` is a process-wide
+    singleton that outlives the Preferences dialog, so caching this would
+    keep animating until the app was restarted.
+    """
+    return _as_bool(_settings().value(_KEY_SETTING_ANIMATIONS,
+                                      DEFAULT_SETTING_ANIMATIONS),
+                    DEFAULT_SETTING_ANIMATIONS)
+
+
+def set_setting_animations_enabled(on: bool) -> None:
+    """Turn the animation inside setting tooltips on or off.
+
+    Flushed immediately so the very next hover honours it — see
+    :func:`get_setting_animations_enabled` for why nothing caches it.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_SETTING_ANIMATIONS, bool(on))
+    settings.sync()
+
+
+# ---------------------------------------------------------------------------
 # Font scale
 # ---------------------------------------------------------------------------
 
@@ -1167,6 +1213,17 @@ class PreferencesDialog:
         ambient_check.toggled.connect(_sync_ambient_enabled)
         _sync_ambient_enabled(ambient_check.isChecked())
 
+        setting_anim_check = Toggle(tr("Animate setting tooltips"))
+        setting_anim_check.setObjectName("SettingAnimationsEnabled")
+        setting_anim_check.setToolTip(
+            "Hovering a setting shows a short animation of what it does, "
+            "beside the explanation. Clear this for text-only tooltips; "
+            "the purple dot beside each setting still opens the same "
+            "animation on demand."
+        )
+        setting_anim_check.setChecked(get_setting_animations_enabled())
+        form.addRow(tr("Setting animations"), setting_anim_check)
+
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
         scale_slider.setRange(int(FONT_SCALE_MIN * 100),
@@ -1383,6 +1440,7 @@ class PreferencesDialog:
                 # decorative background must never be the reason the
                 # whole Preferences dialog refuses to close.
                 set_ambient_palette(palette_choice)
+            set_setting_animations_enabled(setting_anim_check.isChecked())
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
