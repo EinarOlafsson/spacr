@@ -1830,11 +1830,13 @@ QLabel#HTileDesc {{
 }}
 /* Home hero subtitle ("End-to-end microscopy → …"): styled here (not inline)
    so it scales with the font-size preference and reads in the primary
-   (white on dark) text colour. */
+   (white on dark) text colour. Sized at "subtitle" rather than "body" so it
+   carries the masthead beside the enlarged wordmark instead of trailing it
+   as ordinary paragraph text; it still moves with the font preference. */
 QLabel#HeroSubtitle {{
     color: {P["fg"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
-    font-size: {F["body"]}px;
+    font-size: {F["subtitle"]}px;
     font-weight: 300;
     background: transparent;
     padding-left: 8px;
