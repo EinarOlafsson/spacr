@@ -1193,17 +1193,84 @@ class MainWindow(QMainWindow):
             return
 
     def _show_about(self):
-        """Show the About dialog with the installed spacr version."""
+        """Show the About panel: mark, name, version, licence, lab.
+
+        Laid out like a macOS About window — mark, name, version, then the
+        small print — because that is a shape people already know how to read.
+
+        The licence is named exactly and links to the canonical text rather
+        than being paraphrased. PolyForm Noncommercial is not one a reader can
+        guess the terms of, and "© Olafsson Lab" alone says nothing about what
+        they may actually do with the software.
+        """
+        from PySide6.QtCore import QSize
+        from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+        from .theme import active_palette
+
         try:
             import spacr
             version = spacr.__version__
         except Exception:
             version = "unknown"
-        QMessageBox.about(self, "About spaCR",
-                          f"<h3>spaCR</h3>"
-                          f"<p>Spatial single-cell analysis for microscopy data.</p>"
-                          f"<p><b>Version:</b> {version}</p>"
-                          f"<p>© Olafsson Lab</p>")
+
+        try:
+            import platform
+
+            from PySide6.QtCore import qVersion
+            build = (f"Python {platform.python_version()} · Qt {qVersion()}")
+        except Exception:
+            build = ""
+
+        palette = active_palette()
+        dialog = QDialog(self)
+        dialog.setWindowTitle("About spaCR")
+        dialog.setObjectName("AboutDialog")
+        col = QVBoxLayout(dialog)
+        col.setContentsMargins(36, 28, 36, 24)
+        col.setSpacing(0)
+
+        mark = QLabel()
+        mark.setAlignment(Qt.AlignHCenter)
+        mark.setStyleSheet("background: transparent;")
+        try:
+            logo = iconset.icon("logo_spacr")
+            if logo is not None and not logo.isNull():
+                mark.setPixmap(logo.pixmap(QSize(96, 96)))
+        except Exception:
+            pass
+        col.addWidget(mark)
+        col.addSpacing(14)
+
+        def _line(html, size, *, muted=False, weight=400, gap=0):
+            label = QLabel(html)
+            label.setAlignment(Qt.AlignHCenter)
+            label.setTextFormat(Qt.RichText)
+            label.setOpenExternalLinks(True)
+            label.setWordWrap(True)
+            colour = palette["fg_muted"] if muted else palette["fg"]
+            label.setStyleSheet(
+                f"background: transparent; color: {colour};"
+                f"font-size: {size}px; font-weight: {weight};")
+            col.addWidget(label)
+            if gap:
+                col.addSpacing(gap)
+
+        _line("spaCR", 26, weight=600)
+        _line("Spatial phenotype analysis of CRISPR&#8209;Cas9 screens",
+              13, muted=True, gap=10)
+        _line(f"Version {version}", 12, muted=True)
+        _line(build, 11, muted=True, gap=16) if build else col.addSpacing(16)
+        _line(
+            'Licensed under the '
+            '<a href="https://polyformproject.org/licenses/noncommercial/1.0.0">'
+            'PolyForm Noncommercial License 1.0.0</a>.<br>'
+            'Free for research and other noncommercial use.',
+            11, muted=True, gap=10)
+        _line("© Olafsson Lab", 11, muted=True)
+
+        dialog.setFixedWidth(420)
+        dialog.exec()
 
     def _open_log_folder(self):
         """Open the ~/.spacr/logs folder in the OS file browser."""
@@ -1564,6 +1631,21 @@ class MainWindow(QMainWindow):
             return
         if key not in self._screens:
             self._screens[key] = self._build_screen(key)
+            # Every screen gets the same page treatment here, because this is
+            # the one place they all pass through. It cannot live in
+            # `AppScreen`: most screens are not AppScreens — Annotate, Align &
+            # Stitch, Format Converter, Import Project, Plate Queue, Batch
+            # Runner, Distributed Jobs, Database Browser, Make Masks, Model
+            # Compare, Model Zoo, Plate Viewer, Annotator Agreement, Training
+            # Runs, Classifier Evaluation, Run History and Report are plain
+            # QWidget trees, so they never got the backdrop or the surface
+            # clearing and sat as black slabs while the pipeline screens did
+            # not.
+            try:
+                self._theme_screen(self._screens[key], key)
+            except Exception:
+                # Decoration must never stop a screen from opening.
+                LOG.exception("Could not theme the %s screen", key)
             self._stack.addWidget(self._screens[key])
             try:
                 from .i18n import retranslate_widget_tree
@@ -1604,8 +1686,46 @@ class MainWindow(QMainWindow):
             n_fields=int(request.get("n_fields", 0) or 0),
         )
 
+    def _theme_screen(self, screen: QWidget, key: str) -> None:
+        """Clear a screen's containers and give it the ambient backdrop.
+
+        Skipped for anything that already handles its own: ``AppScreen`` does
+        both in its constructor, and the sequencing screen has the DNA rain.
+        """
+        from .screens.app_screen import AppScreen, uses_ambient_background
+        from .theme import clear_container_surfaces
+
+        if isinstance(screen, AppScreen):
+            return
+
+        clear_container_surfaces(screen)
+
+        if not uses_ambient_background(key):
+            return
+        try:
+            from .preferences import (get_ambient_enabled, get_ambient_palette,
+                                      get_ambient_theme, resolve_effective_theme,
+                                      theme_background_path)
+            if not get_ambient_enabled():
+                return
+            from .widgets.ambient import install_ambient
+            install_ambient(
+                screen, None,
+                theme=get_ambient_theme(), palette=get_ambient_palette(),
+                backdrop=theme_background_path(resolve_effective_theme()))
+        except Exception:
+            LOG.exception("Could not install the backdrop for %s", key)
+
     def _build_screen(self, key: str) -> QWidget:
-        """Return a freshly-built screen widget for the given app ``key``."""
+        """Return a freshly-built screen widget for the given app ``key``.
+
+        Construction only. The page treatment — clearing the containers and
+        installing the ambient backdrop — is :meth:`_theme_screen`, applied by
+        the caller that puts the screen on screen. Keeping them apart matters:
+        `tests/qt/test_all_module_smoke.py` calls this unbound against a
+        stand-in host and inspects its bytecode for the ``self._on_*`` slots it
+        wires, so a wrapper here hides those names and breaks that contract.
+        """
         try:
             from spacr.plugins import get_app, load_object
             plugin_app = get_app(key)

@@ -117,7 +117,9 @@ PALETTE_THEMES = ("dark", "light", "space", "cell", "glass")
 #: with more themes) falls back to :data:`DEFAULT_THEME` rather than
 #: raising.
 VALID_THEMES = PALETTE_THEMES + ("system",)
-DEFAULT_THEME = "dark"
+#: Follow the reader's OS colour scheme unless they choose otherwise. A
+#: desktop app that ignores the system setting looks broken on a light desktop.
+DEFAULT_THEME = "system"
 
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
@@ -125,7 +127,13 @@ _KEY_CELL_VARIANT  = "prefs/cell_variant"
 
 FONT_SCALE_MIN = 0.75
 FONT_SCALE_MAX = 2.00
-DEFAULT_FONT_SCALE = 1.0
+#: Presented as "Zoom" rather than "Font scale", because it scales the whole
+#: interface — spacing, tiles, dots and icons move with the type, so calling it
+#: a font setting undersells what the control does.
+#:
+#: 150% is the default: spaCR's natural size was laid out on a 1080p display,
+#: and on the 4K panels it is now used on everything reads small.
+DEFAULT_FONT_SCALE = 1.5
 
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"
