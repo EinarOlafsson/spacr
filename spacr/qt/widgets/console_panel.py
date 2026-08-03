@@ -689,23 +689,12 @@ class ConsolePanel(QWidget):
         # Console font-size control — its own right-aligned row below the input
         # so the text box stays full width, flush with the console + system
         # boxes. Adjusts every stdout/AI entry live.
-        self._font_pt = int(QFontDatabase.systemFont(
-            QFontDatabase.FixedFont).pointSize()) or 10
-        font_row = QWidget()
-        frow = QHBoxLayout(font_row)
-        frow.setContentsMargins(0, 0, 0, 0)
-        frow.addStretch(1)
-        font_lbl = QLabel("Font size")
-        font_lbl.setObjectName("Muted")
-        frow.addWidget(font_lbl)
-        self._font_spin = QSpinBox()
-        self._font_spin.setRange(7, 22)
-        self._font_spin.setValue(self._font_pt)
-        self._font_spin.setToolTip("Console font size")
-        self._font_spin.setFixedWidth(56)
-        self._font_spin.valueChanged.connect(self.set_console_font_pt)
-        frow.addWidget(self._font_spin)
-        outer.addWidget(font_row)
+        # No per-module font-size spinner any more. The console and the AI
+        # chat now follow the global Zoom preference like every other piece of
+        # text in the app: a second, module-local control for the same thing
+        # meant the console could disagree with the interface around it, and
+        # meant setting it once did not carry to the next module.
+        self._font_pt = self._zoomed_font_pt()
 
         # AppScreen creates + owns the AI toggle/provider menu and calls
         # our setters when they change. Panel-internal state stays here
@@ -716,6 +705,28 @@ class ConsolePanel(QWidget):
     # ------------------------------------------------------------------
     # Font size
     # ------------------------------------------------------------------
+    @staticmethod
+    def _zoomed_font_pt() -> int:
+        """The console point size, from the platform's fixed font x Zoom.
+
+        The base is the system's monospace size so the console still looks
+        native, and the Zoom preference multiplies it so the console tracks
+        the rest of the interface. Falls back to the unscaled base if
+        preferences cannot be read at all, which is what a first run
+        mid-generation gets.
+        """
+        base = int(QFontDatabase.systemFont(
+            QFontDatabase.FixedFont).pointSize()) or 10
+        try:
+            from ..preferences import get_font_scale
+            return max(6, int(round(base * get_font_scale())))
+        except Exception:
+            return base
+
+    def apply_zoom(self) -> None:
+        """Re-read Zoom and restyle every entry. Called on a preferences save."""
+        self.set_console_font_pt(self._zoomed_font_pt())
+
     def set_console_font_pt(self, pt: int) -> None:
         """Set the console font size and apply it to every existing entry."""
         self._font_pt = int(pt)
