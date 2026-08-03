@@ -108,7 +108,12 @@ def test_a_failed_download_logs_from_its_worker_thread(qtbot, tmp_path,
     qtbot.waitUntil(lambda: bool(widget_threads), timeout=10000)
 
     assert outcome[0][0] is None
-    assert "Max retries exceeded" in outcome[0][1]
+    # The callback gets the explained message, not the raw exception text:
+    # `explain_download_failure` turns a connection error into a sentence
+    # naming huggingface.co and pointing at the offline synthetic demos. The
+    # raw "Max retries exceeded" still reaches the LOG.warning below, which is
+    # what this test is actually about.
+    assert "Could not reach huggingface.co" in outcome[0][1]
     assert not _off_gui(widget_threads, gui_thread), (
         "console entries were constructed off the GUI thread: "
         f"{_off_gui(widget_threads, gui_thread)}")
@@ -322,7 +327,14 @@ def test_an_empty_append_is_still_a_no_op_from_a_worker_thread(qtbot,
 
 def test_hf_download_still_reports_the_failure_text(qapp, tmp_path,
                                                     monkeypatch, caplog):
-    """The warning that triggers all of this is worth keeping."""
+    """The warning that triggers all of this is worth keeping.
+
+    Two audiences, two texts, and they are deliberately different. The *log*
+    keeps the raw exception with its traceback — that is what a bug report is
+    read from. The *signal* carries what ``explain_download_failure`` made of
+    it, because that string goes straight into a QMessageBox and "no dns" is
+    not something a user can act on.
+    """
     monkeypatch.setattr(
         hf, "_list_files",
         lambda repo, sub: (_ for _ in ()).throw(ConnectionError("no dns")))
@@ -331,5 +343,12 @@ def test_hf_download_still_reports_the_failure_text(qapp, tmp_path,
     worker.finished.connect(lambda *a: seen.append(a))
     with caplog.at_level(logging.WARNING, logger="spacr.qt.hf_download"):
         worker.run()
-    assert seen == [(False, "", "", "no dns")]
+    assert len(seen) == 1, seen
+    ok, dataset, settings, error = seen[0]
+    assert (ok, dataset, settings) == (False, "", "")
+    assert "Could not reach huggingface.co" in error
+    assert "internet connection" in error
     assert any("hf download failed" in r.message for r in caplog.records)
+    assert any("no dns" in str(r.getMessage()) for r in caplog.records), (
+        "the raw exception must survive into the log even though the dialog "
+        "gets the explained version")
