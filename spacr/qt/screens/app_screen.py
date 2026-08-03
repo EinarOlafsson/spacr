@@ -920,16 +920,16 @@ class AppScreen(QWidget):
         console and the chat box, and black boxes behind the live-view images,
         after the boxes on top of them were thinned.
         """
-        from PySide6.QtWidgets import QScrollArea, QSplitter
-        from ..theme import make_transparent
+        from ..theme import clear_container_surfaces, make_transparent
 
-        # Containers reached by walking, because they are built by helpers that
-        # do not hand back a handle: every scroll area and its viewport, and
-        # every splitter panel on the page.
-        for area in self.findChildren(QScrollArea):
-            make_transparent(area, area.viewport())
-        for splitter in self.findChildren(QSplitter):
-            make_transparent(splitter)
+        # The same generic sweep every other screen uses. This used to be a
+        # hand-written list plus scroll areas and splitters, which is the
+        # shape that kept missing things on Home too: an ANONYMOUS QWidget
+        # used as a container has no QSS rule of its own, so it paints the
+        # window colour and no opacity setting can reach it. That is what left
+        # a black box under the AI chat box and a dead black rectangle between
+        # the chat and the System panel.
+        clear_container_surfaces(self)
 
         make_transparent(
             getattr(self, "_header", None),
