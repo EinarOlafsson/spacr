@@ -995,6 +995,18 @@ def apply_preferences_to_app(app=None) -> None:
     # screens that are already open instead of at the next launch.
     apply_ambient_preferences(app)
 
+    # The console and AI chat paint their own entries with an explicit point
+    # size, so the stylesheet's font scale never reaches them. Push Zoom into
+    # every open one here, or changing it would only affect consoles opened
+    # afterwards.
+    try:
+        from .widgets.console_panel import ConsolePanel
+        for widget in app.allWidgets():
+            if isinstance(widget, ConsolePanel):
+                widget.apply_zoom()
+    except Exception:
+        pass
+
     # Apply the verbose-logger preference too — cheap to re-apply, and
     # this is the one place that runs on every prefs save. Also
     # attaches the rotating file handler if it isn't already, so every
