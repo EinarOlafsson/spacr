@@ -723,22 +723,33 @@ class TestPreferencesDialog:
             self, qtbot, qt_theme_applied, tmp_settings, monkeypatch):
         """A number the app quietly ignores is worse than no control.
 
-        On an image theme the legibility floor is well above zero, so
-        the readout has to admit that "20 %" is going to be honoured as
-        something else."""
+        On an image theme the legibility floor is above zero, so the readout
+        has to admit that a request below it is going to be honoured as
+        something else.
+
+        Was pinned to ``"space"`` and a 10 % request. Space was retired, and
+        ``pane_alpha("space", 0.10)`` became a plain 0.10 — no overrule, no
+        "held at", permanently red. The surviving photographic theme is Cell;
+        the request below is derived from *its* floor rather than written
+        down, so a change to the wallpaper cannot make this stale again.
+        """
         from spacr.qt import preferences as prefs
         from PySide6.QtWidgets import QLabel
 
         monkeypatch.setattr(prefs, "apply_preferences_to_app", lambda *a: None)
-        monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "space")
+        monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "cell")
+        floor_pct = theme.pane_alpha_floor("cell") * 100
+        asked = max(0, int(floor_pct) - 1)   # strictly under the floor
+        assert theme.pane_alpha("cell", asked / 100.0) > asked / 100.0, (
+            "the request has to be one the floor actually overrules")
         dlg = prefs.PreferencesDialog()
         qtbot.addWidget(dlg)
         slider = self._opacity_slider(dlg)
-        slider.setValue(10)
+        slider.setValue(asked)
         readouts = [lbl.text() for lbl in dlg.findChildren(QLabel)
-                    if lbl.text().startswith("10%")]
+                    if lbl.text().startswith(f"{asked}%")]
         assert readouts, "the slider has no readout"
-        held = int(round(theme.pane_alpha("space", 0.10) * 100))
+        held = int(round(theme.pane_alpha("cell", asked / 100.0) * 100))
         assert f"held at {held}%" in readouts[0], readouts
         # …and when nothing is being overruled it says only the number.
         slider.setValue(100)
