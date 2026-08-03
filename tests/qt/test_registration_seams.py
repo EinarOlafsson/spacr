@@ -116,6 +116,38 @@ def test_sections_are_the_ones_that_have_apps_not_the_ones_declared():
     assert all(app_mod._SECTION_NOTE_LIBRARY.values())
     # ...and the published notes track the published sections exactly.
     assert set(app_mod.SECTION_NOTES) == set(app_mod.SECTIONS)
+    # Published as a tuple for this name's whole life, so it still has to
+    # read as one — the container changed, the meaning did not.
+    assert app_mod.SECTIONS == tuple(app_mod.SECTIONS)
+    assert app_mod.SECTIONS == list(app_mod.SECTIONS)
+    assert not (app_mod.SECTIONS != tuple(app_mod.SECTIONS))
+
+
+def test_an_importer_of_sections_cannot_hold_a_stale_snapshot(
+        registry_sandbox):
+    """`from spacr.qt.app import SECTIONS` binds the object, not a copy.
+
+    A module that registers the first app of a new section does so
+    AFTER app.py has finished importing -- by definition, since it has
+    to import app.py to reach `register_app`. While SECTIONS was a tuple
+    that `_refresh_sections` rebound, every module that had already read
+    the name kept a snapshot from before that registration and never saw
+    the new section appear. Graph Builder hit exactly this.
+    """
+    from spacr.qt.app import SECTIONS as imported_earlier
+
+    assert imported_earlier is app_mod.SECTIONS
+    assert app_mod.SECTION_EXPLORE not in imported_earlier
+
+    app_mod.register_app("stale_probe", "Stale Probe", "…",
+                         app_mod.SECTION_EXPLORE)
+
+    # The name that was imported BEFORE the registration sees it.
+    assert app_mod.SECTION_EXPLORE in imported_earlier
+    assert list(imported_earlier) == list(app_mod.SECTIONS)
+
+    app_mod.unregister_app("stale_probe")
+    assert app_mod.SECTION_EXPLORE not in imported_earlier
 
 
 def test_a_registered_app_reaches_every_reader_of_the_registry(
@@ -276,8 +308,12 @@ def test_going_over_the_cap_warns_but_still_starts(registry_sandbox, caplog):
 
 
 def test_unregister_puts_everything_back(registry_sandbox):
+    # Copied, not aliased. APPS, SECTIONS and SECTION_NOTES are all
+    # published by mutation, so holding the object rather than its
+    # contents would make every assertion below compare a thing to
+    # itself and pass whatever unregister_app did.
     before_apps = list(app_mod.APPS)
-    before_sections = app_mod.SECTIONS
+    before_sections = list(app_mod.SECTIONS)
     before_notes = dict(app_mod.SECTION_NOTES)
 
     app_mod.register_app("design_probe", "Design Probe", "…",
