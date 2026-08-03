@@ -17,6 +17,23 @@ Three separate contracts live here, in this order:
 """
 from __future__ import annotations
 
+
+
+import hashlib
+import os
+import threading
+
+import pytest
+
+from PySide6.QtCore import QEvent, Qt
+from PySide6.QtGui import QEnterEvent
+from PySide6.QtWidgets import QLabel, QPushButton
+
+from spacr.qt import bridge, iconset
+from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
+                          make_home_page, section_members)
+from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
+
 @pytest.fixture(autouse=True)
 def _pinned_zoom():
     """Measure geometry at 1.0, whatever the user's zoom default is.
@@ -41,21 +58,6 @@ def _pinned_zoom():
     finally:
         prefs.set_font_scale(original)
 
-
-import hashlib
-import os
-import threading
-
-import pytest
-
-from PySide6.QtCore import QEvent, Qt
-from PySide6.QtGui import QEnterEvent
-from PySide6.QtWidgets import QLabel, QPushButton
-
-from spacr.qt import bridge, iconset
-from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
-                          make_home_page, section_members)
-from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
 
 BACKUP_DIR = os.path.join(iconset.RESOURCE_DIR, "backup_icons")
 

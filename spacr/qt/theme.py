@@ -237,7 +237,11 @@ GLASS_PALETTE = {
 
 #: The themes with a palette of their own. ``"system"`` is a
 #: *preference* value that resolves to one of these, not an entry here.
-THEMES = ("dark", "light", "space", "cell", "glass")
+#: "space" was retired: the generated skies were a lot of machinery for a
+#: backdrop nobody chose, and the Cell wallpapers do the same job with the
+#: lab's own images. A persisted "space" falls back to dark — see
+#: `preferences.get_theme`.
+THEMES = ("dark", "light", "cell", "glass")
 
 _PALETTES = {
     "dark": DARK_PALETTE,
@@ -252,7 +256,7 @@ _PALETTES = {
 #: default, translucent scrims on panels, and opaque popups — so the QSS
 #: branches on membership here rather than on a theme name. The public name
 #: is retained because Space and Cell predate the generated Glass backdrop.
-IMAGE_THEMES = ("space", "cell", "glass")
+IMAGE_THEMES = ("cell", "glass")
 
 
 # ---------------------------------------------------------------------------

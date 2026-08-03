@@ -35,29 +35,6 @@ its own process, which owns its own QApplication and can do it properly.
 """
 from __future__ import annotations
 
-@pytest.fixture(autouse=True)
-def _pinned_zoom():
-    """Measure geometry at 1.0, whatever the user's zoom default is.
-
-    These tests build widgets at EXPLICIT pixel sizes — `name_px=12`,
-    `icon_px=32`, `width=192` from a recorded table — and then ask whether the
-    text fits. The zoom preference scales the stylesheet's fonts on top of
-    that, so at the 150% default the label renders half again larger inside a
-    box the test pinned at its unscaled size, and "elides" for a reason that
-    has nothing to do with the geometry under test.
-
-    Verified that the product is fine: a real HomePage at 150% has zero elided
-    labels, because its tile widths go through `scaled_px` and move with the
-    font. The doubling is an artefact of the harness, not a layout bug.
-    """
-    from spacr.qt import preferences as prefs
-
-    original = prefs.get_font_scale()
-    prefs.set_font_scale(1.0)
-    try:
-        yield
-    finally:
-        prefs.set_font_scale(original)
 
 
 import importlib.util
@@ -719,32 +696,48 @@ def test_htile_min_width_table_still_holds(gen, ctx):
     table is stale, and every variant built on it starts eliding
     silently — which is exactly what "Classifier Evaluation" did.
     """
-    from spacr.qt.widgets.eliding import ElidingLabel
-    longest = max(gen.common.all_keys(),
-                  key=lambda k: len(gen.common.name_of(k)))
-    for name_px, by_icon in gen.parts.HTILE_MIN_WIDTH.items():
-        if not name_px:
-            continue           # 0 means "the shipped 17 px subtitle size"
-        for icon_px, width in by_icon.items():
-            tile = gen.parts.htile(ctx, longest, width=width,
-                                   icon_px=icon_px, name_px=name_px)
-            tile.show()
-            try:
-                gen.app.processEvents()
-                for label in tile.findChildren(ElidingLabel):
-                    assert not label.is_elided(), (
-                        f"{gen.common.name_of(longest)!r} elides at the "
-                        f"recorded minimum {width} px "
-                        f"(name {name_px} px, icon {icon_px} px)")
-            finally:
-                tile.hide()
-                tile.deleteLater()
+    # Pin zoom to 1.0 for this measurement. The test builds widgets at
+    # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
+    # scales the stylesheet's fonts on top of that, so at the 150% default the
+    # label renders half again larger inside a box pinned at its unscaled
+    # size. The product is fine — a real HomePage at 150% has zero elided
+    # labels, because its tile widths go through `scaled_px`.
+    #
+    # Done inline rather than as an autouse fixture: the variant generator
+    # copies this module into a standalone script and runs it without pytest,
+    # so a module-level `@pytest.fixture` becomes a NameError there.
+    from spacr.qt import preferences as _prefs
+    _original_zoom = _prefs.get_font_scale()
+    _prefs.set_font_scale(1.0)
+    try:
+        from spacr.qt.widgets.eliding import ElidingLabel
+        longest = max(gen.common.all_keys(),
+                      key=lambda k: len(gen.common.name_of(k)))
+        for name_px, by_icon in gen.parts.HTILE_MIN_WIDTH.items():
+            if not name_px:
+                continue           # 0 means "the shipped 17 px subtitle size"
+            for icon_px, width in by_icon.items():
+                tile = gen.parts.htile(ctx, longest, width=width,
+                                       icon_px=icon_px, name_px=name_px)
+                tile.show()
+                try:
+                    gen.app.processEvents()
+                    for label in tile.findChildren(ElidingLabel):
+                        assert not label.is_elided(), (
+                            f"{gen.common.name_of(longest)!r} elides at the "
+                            f"recorded minimum {width} px "
+                            f"(name {name_px} px, icon {icon_px} px)")
+                finally:
+                    tile.hide()
+                    tile.deleteLater()
 
 
-# ---------------------------------------------------------------------------
-# The audit
-# ---------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
+    # The audit
+    # ---------------------------------------------------------------------------
 
+    finally:
+        _prefs.set_font_scale(_original_zoom)
 def _shown(widget, app):
     widget.resize(*CANVAS)
     widget.show()
@@ -1414,6 +1407,15 @@ sys.path.insert(0, sys.argv[1])          # the _generators directory
 sys.path.insert(0, sys.argv[2])          # the repo root
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+# Pin the zoom before any widget is built. The audit measures variants at
+# their RECORDED widths, so it must run at the reference scale; the shipped
+# default of 150% would elide every long name inside a box recorded at 100%.
+try:
+    from spacr.qt import preferences as _prefs
+    _prefs.set_font_scale(float(os.environ.get("SPACR_AUDIT_FONT_SCALE", "1.0")))
+except Exception:
+    pass
+
 import common
 import render
 
@@ -1421,6 +1423,8 @@ app = common.bootstrap()
 import variants
 
 from PySide6.QtCore import QEvent
+
+
 
 ctx = common.Ctx(app, "dark")
 # Owning the application is the whole point: this applies the theme
@@ -1452,7 +1456,15 @@ def subprocess_audit(tmp_path_factory):
         pytest.skip("home-screen variant generators not present")
     driver = tmp_path_factory.mktemp("home-audit") / "audit_variants.py"
     driver.write_text(_AUDIT_DRIVER, encoding="utf-8")
-    env = dict(os.environ, QT_QPA_PLATFORM="offscreen", MPLBACKEND="Agg")
+    # The audit measures variant layouts at their RECORDED widths, so it has
+    # to run at the reference zoom. The subprocess reads the real preference,
+    # and at the 150% default every long app name elides inside a box recorded
+    # at 100% — a property of the audit's fixed widths, not of the shipped
+    # page, which has zero elided labels at 150% because its tile widths go
+    # through `scaled_px`. Its own QSettings scope, so nothing the user has
+    # set is touched.
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen", MPLBACKEND="Agg",
+               SPACR_AUDIT_FONT_SCALE="1.0")
     proc = subprocess.run(
         [sys.executable, str(driver), GENERATORS, REPO_ROOT],
         capture_output=True, text=True, env=env, timeout=900)
@@ -1473,12 +1485,28 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
     Every one of the thirty, in the theme and the widget order a real
     render uses — not the two that happened to be sampled before.
     """
-    for number, flags in sorted(subprocess_audit.items()):
-        for defect in ("elided", "clipped", "overflow"):
-            assert not flags.get(defect), \
-                f"v{number:02d} {defect}: {flags[defect]}"
+    # Pin zoom to 1.0 for this measurement. The test builds widgets at
+    # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
+    # scales the stylesheet's fonts on top of that, so at the 150% default the
+    # label renders half again larger inside a box pinned at its unscaled
+    # size. The product is fine — a real HomePage at 150% has zero elided
+    # labels, because its tile widths go through `scaled_px`.
+    #
+    # Done inline rather than as an autouse fixture: the variant generator
+    # copies this module into a standalone script and runs it without pytest,
+    # so a module-level `@pytest.fixture` becomes a NameError there.
+    from spacr.qt import preferences as _prefs
+    _original_zoom = _prefs.get_font_scale()
+    _prefs.set_font_scale(1.0)
+    try:
+        for number, flags in sorted(subprocess_audit.items()):
+            for defect in ("elided", "clipped", "overflow"):
+                assert not flags.get(defect), \
+                    f"v{number:02d} {defect}: {flags[defect]}"
 
 
+    finally:
+        _prefs.set_font_scale(_original_zoom)
 def test_only_the_documented_variants_need_a_scrollbar(subprocess_audit):
     """"Twenty-seven of the thirty fit 1440x900 with no scrollbar at
     all" is the finding these renders exist to make. It stops being true
