@@ -58,12 +58,15 @@ users read, reasonably, as the image themes not working.
 """
 from __future__ import annotations
 
+import logging
 import warnings
 from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
+
+LOG = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -1491,10 +1494,129 @@ QGroupBox {{
 """
 
 
+# ---------------------------------------------------------------------------
+# The widget QSS seam — how a new widget styles itself without editing this
+# ---------------------------------------------------------------------------
+# `stylesheet()` is one 1100-line f-string, and every widget added to the
+# app used to need a block inside it. That makes this file the bottleneck
+# for anyone building a widget, and it makes two people building two
+# widgets a merge conflict in a literal nobody can review line by line.
+#
+# A widget registers its own block instead, at import time, from its own
+# module:
+#
+#     from spacr.qt.theme import register_widget_qss, pane_surface
+#
+#     def _gate_editor_qss(palette, opacity):
+#         return f'''
+#     QFrame#GateEditor {{
+#         background: {pane_surface("surface_alt", palette["theme"], opacity)};
+#         border: 1px solid {palette["border_soft"]};
+#     }}'''
+#
+#     register_widget_qss("GateEditor", _gate_editor_qss)
+#
+# Registered blocks are appended LAST, after the glass layer, so a widget
+# can override a general rule that would otherwise win on specificity —
+# and so the built-in look is unchanged while nothing is registered.
+
+#: registration name → ``fn(palette, opacity) -> str``. Insertion-ordered:
+#: QSS is order-sensitive between rules of equal specificity, so "first
+#: registered wins ties" is the contract, and it is the import order of
+#: the widgets themselves.
+_WIDGET_QSS: Dict[str, object] = {}
+
+
+def register_widget_qss(name: str, fn, *, replace: bool = False):
+    """Register a QSS block appended to every generated stylesheet.
+
+    :param name: stable identifier, normally the widget's ``objectName``.
+        It is what the block is reported and unregistered by; it does not
+        appear in the QSS.
+    :param fn: ``fn(palette, opacity) -> str``, called once per
+        :func:`stylesheet` call.
+
+        ``palette`` is the theme's palette with the three surface roles
+        (``surface``, ``surface_alt``, ``surface_hi``) already rendered
+        through the user's page opacity — the same values the built-in
+        rules interpolate, so a registered block matches the app without
+        doing the alpha maths. Two reserved non-colour keys ride along:
+        ``theme`` (the theme name, which :func:`pane_surface`,
+        :func:`pane_alpha` and :func:`palette_for` all want) and
+        ``font_scale``.
+
+        ``opacity`` is the user's page-opacity preference, or ``None``
+        for "use the theme's designed scrim". Pass it straight through
+        to :func:`pane_surface` / :func:`pane_alpha` / :func:`panel_alpha`
+        rather than interpreting it: ``None`` is not 1.0, and the
+        legibility floor is theirs to apply.
+    :param replace: allow re-registering ``name``. Off by default so two
+        widgets cannot quietly claim one name.
+    :raises ValueError: on a duplicate name without ``replace``.
+    :raises TypeError: if ``fn`` is not callable.
+    """
+    name = str(name)
+    if not name:
+        raise ValueError("a widget QSS block needs a name")
+    if not callable(fn):
+        raise TypeError(f"widget QSS {name!r} is not callable: {fn!r}")
+    if name in _WIDGET_QSS and not replace:
+        raise ValueError(
+            f"widget QSS {name!r} is already registered; pass replace=True "
+            "if that is really what you mean")
+    _WIDGET_QSS[name] = fn
+    return fn
+
+
+def unregister_widget_qss(name: str) -> bool:
+    """Drop a registered block. ``True`` if there was one."""
+    return _WIDGET_QSS.pop(str(name), None) is not None
+
+
+def widget_qss_names() -> Tuple[str, ...]:
+    """Every registered block name, in registration order."""
+    return tuple(_WIDGET_QSS)
+
+
+def registered_widget_qss(palette: dict,
+                          opacity: Optional[float] = None) -> str:
+    """Render every registered block into one QSS fragment.
+
+    Empty (not even a newline) while nothing is registered, which is what
+    keeps the shipped stylesheet byte-identical to the one that had no
+    seam at all.
+
+    A block that raises, or returns something that is not a string, is
+    dropped with a logged traceback rather than taking the stylesheet
+    down: an unstyled widget is a cosmetic fault, and an exception here
+    would leave the whole application unstyled — black text on a black
+    window — because one contributed widget had a typo.
+    """
+    parts = []
+    for name, fn in list(_WIDGET_QSS.items()):
+        try:
+            block = fn(palette, opacity)
+        except Exception:
+            LOG.exception("Widget QSS %s failed to render", name)
+            continue
+        if not isinstance(block, str):
+            LOG.error("Widget QSS %s returned %s, expected str",
+                      name, type(block).__name__)
+            continue
+        if block.strip():
+            parts.append(f"\n/* --- registered widget QSS: {name} --- */\n"
+                         f"{block.strip()}\n")
+    return "".join(parts)
+
+
 def stylesheet(theme: str = "dark", font_scale: float = 1.0,
                background: Optional[str] = None,
                surface_opacity: Optional[float] = None) -> str:
     """Return the QSS string that styles every custom widget in the app.
+
+    Blocks registered with :func:`register_widget_qss` are appended after
+    everything below, so a widget's own rules win a specificity tie
+    against the general ones.
 
     :param theme: one of :data:`THEMES`; unknown values fall back to dark.
     :param font_scale: multiplier applied to every font size in
@@ -1597,6 +1719,14 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
         _glass_material_layer(base, surface_opacity)
         if theme == "glass" else ""
     )
+    # Contributed blocks, rendered against the same surfaces the rules
+    # below use. `theme` and `font_scale` ride along because a widget
+    # that wants `pane_surface`/`pane_alpha` needs the theme name, and
+    # this callback is the only place it would otherwise have to guess it
+    # (guessing means reading the preference again, which is wrong while
+    # a stylesheet is being generated for a theme that is not yet live).
+    WIDGET_QSS = registered_widget_qss(
+        dict(P, theme=theme, font_scale=font_scale), surface_opacity)
     return f"""
 /* -----------------------------------------------------------------
  *  Base
@@ -2667,5 +2797,5 @@ QStatusBar {{
     font-size: {F["small"]}px;
     padding: 0px {S["sm"]}px;
 }}
-{GLASS_LAYER}
+{GLASS_LAYER}{WIDGET_QSS}
 """

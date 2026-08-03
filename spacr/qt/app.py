@@ -6,6 +6,7 @@ QApplication bootstrap + MainWindow.
 """
 from __future__ import annotations
 
+import inspect
 import logging
 import os
 import sys
@@ -164,12 +165,21 @@ class _PipelinePreloader:
 #   Segmentation    build, train, pick and check the Cellpose models
 #     models        the Mask step runs.
 #   Results & QC    read what came out and decide whether to believe it.
+#   Explore         ask the numbers a question you did not plan for.
 #   Toxoplasma      parasite-specific readouts.
+#   Design          plan the next experiment before it runs.
 #
 # A section holds AT MOST `MAX_APPS_PER_SECTION` apps. Past that nobody
 # reads the row — which is exactly how "Tools" grew to sixteen entries and
 # became unusable. If a section is full, the honest fix is a new section
 # with a name that means something, not a longer row.
+#
+# Explore and Design are the two that fix accordingly: the modules queued
+# behind this file (Graph Builder, pivot/formula, gate editor, feature
+# explorer, layer viewer; power/design, experiment designer) would have
+# taken Results & QC from eight to fifteen. They are DECLARED and EMPTY —
+# no tab, no heading, nothing drawn — until their first app registers,
+# because a tab that opens on an empty pane is worse than no tab.
 #
 # The names are as short as they can be and still mean something: they
 # are TAB LABELS on Home, where long names would not fit on one line, and
@@ -179,13 +189,53 @@ SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
 SECTION_RESULTS = "Results & QC"
 SECTION_TOXO = "Toxoplasma"
+#: Interactive analysis: build a plot, pivot a table, draw a gate, page
+#: through image layers. Results & QC is what a *finished run* produced —
+#: this is the user asking the numbers a question they did not plan for,
+#: and it is the home of the Graph Builder family. It exists because
+#: those apps are neither a pipeline step nor a QC verdict, and filing
+#: seven of them under Results & QC would take that row past the cap.
+SECTION_EXPLORE = "Explore"
+#: Everything that happens BEFORE the microscope: power, sample size,
+#: plate layout, controls and replicates. The only section whose apps
+#: consume no images, which is exactly why it is not Data.
+SECTION_DESIGN = "Design"
 
-#: Tab, sidebar and heading order, in workflow order: the end-to-end
-#: pipeline first, then getting data in and running it at scale, then
-#: the segmentation models that pipeline depends on, then reading the
-#: results, then the Toxoplasma-specific assays.
-SECTIONS = (SECTION_CORE, SECTION_DATA, SECTION_MODELS, SECTION_RESULTS,
-            SECTION_TOXO)
+#: Every section an app may be filed under, in workflow order: the
+#: end-to-end pipeline first, then getting data in and running it at
+#: scale, then the segmentation models that pipeline depends on, then
+#: reading the results, then asking them questions, then the
+#: Toxoplasma-specific assays, and finally planning the next experiment.
+#:
+#: This is the DECLARATION. :data:`SECTIONS` is the subset that has apps
+#: — see :func:`_refresh_sections`.
+SECTION_ORDER = (SECTION_CORE, SECTION_DATA, SECTION_MODELS,
+                 SECTION_RESULTS, SECTION_EXPLORE, SECTION_TOXO,
+                 SECTION_DESIGN)
+
+#: One line per section, drawn under its heading on that category's tab.
+#: A category with two apps in it looks broken until it says why.
+#:
+#: Every section in :data:`SECTION_ORDER` has a line here, including the
+#: ones no app has claimed yet: the note is written when the section is
+#: named, not when the tab appears, so the first module to register into
+#: an empty section gets a described tab rather than a bare heading.
+#: :data:`SECTION_NOTES` is the live subset, kept in step with
+#: :data:`SECTIONS` by :func:`_refresh_sections`.
+_SECTION_NOTE_LIBRARY = {
+    SECTION_CORE: "Images in, single-object measurements out, hits called.",
+    SECTION_DATA: ("Images and tables into a spaCR project, many plates run "
+                   "unattended, the numbers back out."),
+    SECTION_MODELS: ("Build, train, pick and check the Cellpose models the "
+                     "Mask step runs."),
+    SECTION_RESULTS: ("Read what came out, decide whether to believe it, "
+                      "hand it to someone else."),
+    SECTION_EXPLORE: ("Ask the measurements a question you did not plan "
+                      "for: build a plot, pivot a table, draw a gate."),
+    SECTION_TOXO: "Parasite-specific readouts.",
+    SECTION_DESIGN: ("Plan the experiment before it runs: power, sample "
+                     "size, plate layout, controls and replicates."),
+}
 
 _PLUGIN_SECTION_MAP = {
     "core": SECTION_CORE,
@@ -193,6 +243,13 @@ _PLUGIN_SECTION_MAP = {
     "models": SECTION_MODELS,
     "results": SECTION_RESULTS,
     "toxo": SECTION_TOXO,
+    # `spacr.plugins._SECTIONS` does not accept these two yet, so no
+    # plugin can reach them today. They are mapped here so that widening
+    # the plugin allow-list is a one-line change there rather than a
+    # KeyError that takes every plugin app down with it — the loop below
+    # catches per-registry, not per-plugin.
+    "explore": SECTION_EXPLORE,
+    "design": SECTION_DESIGN,
 }
 
 #: Hard cap on apps per section. Enforced by tests, not at runtime — a
@@ -205,7 +262,195 @@ _PLUGIN_SECTION_MAP = {
 #: when a section stops being readable.
 MAX_APPS_PER_SECTION = 13
 
-APPS = [
+#: **The** app list — ``(key, name, description, section)`` per app, in
+#: section order. Every consumer in the process reads this one object:
+#: the sidebar, the menu bar, Home, the command palette, the shortcut
+#: map and the docs count.
+#:
+#: It is BUILT, not written down. The rows below go through
+#: :func:`register_app`, and so does every plugin app and every module
+#: that registers itself at import time — one door, so the ordering and
+#: the validation cannot differ between a built-in and a newcomer.
+#:
+#: Mutating this list directly still works and is still wrong: it skips
+#: the section validation, the duplicate-key check and the
+#: :data:`SECTIONS` refresh.
+APPS: List[Tuple[str, str, str, str]] = []
+
+#: app key → screen factory, for apps that ship their own screen.
+#:
+#: :meth:`MainWindow._build_screen` consults this before its built-in
+#: chain, so a module can own its screen without a line in that chain.
+#: See :func:`register_app` for the calling convention.
+APP_FACTORIES: dict = {}
+
+#: The sections that actually hold apps, in :data:`SECTION_ORDER` order.
+#: Rebuilt by :func:`_refresh_sections` on every registration.
+#:
+#: Derived rather than declared because a declared-but-empty section is a
+#: tab that opens on an empty pane — the thing
+#: ``test_no_category_tab_is_empty`` exists to forbid. A new section is
+#: therefore named in :data:`SECTION_ORDER` today and appears in the UI
+#: the day its first app registers, which is what lets a module add
+#: itself to one without editing this file.
+SECTIONS: Tuple[str, ...] = ()
+
+#: The live subset of :data:`_SECTION_NOTE_LIBRARY` — one note per
+#: section in :data:`SECTIONS`, same keys, always. Mutated in place (not
+#: rebound) so ``from .app import SECTION_NOTES`` cannot go stale.
+SECTION_NOTES: dict = {}
+
+
+def _refresh_sections() -> None:
+    """Recompute :data:`SECTIONS` and :data:`SECTION_NOTES` from ``APPS``."""
+    global SECTIONS
+    live = tuple(s for s in SECTION_ORDER
+                 if any(row[3] == s for row in APPS))
+    SECTIONS = live
+    SECTION_NOTES.clear()
+    SECTION_NOTES.update({s: _SECTION_NOTE_LIBRARY[s] for s in live})
+
+
+def _insert_position(section: str) -> int:
+    """Index in :data:`APPS` where a row for ``section`` belongs.
+
+    After the last row of its own section, and after every section that
+    comes earlier in :data:`SECTION_ORDER`. Keeping ``APPS`` grouped is
+    not cosmetic: the sidebar starts a new heading every time the
+    section changes as it walks the list, so a row filed out of order
+    draws its section's heading a second time.
+    """
+    rank = SECTION_ORDER.index(section)
+    position = 0
+    for index, row in enumerate(APPS):
+        try:
+            row_rank = SECTION_ORDER.index(row[3])
+        except ValueError:
+            row_rank = len(SECTION_ORDER)
+        if row_rank <= rank:
+            position = index + 1
+    return position
+
+
+def register_app(key: str, name: str, desc: str, section: str, *,
+                 factory=None, stage: Optional[str] = None
+                 ) -> Tuple[str, str, str, str]:
+    """Add one app to the registry. The seam a new module registers through.
+
+    Call it at import time from the module that owns the app::
+
+        from spacr.qt.app import register_app, SECTION_EXPLORE, STAGE_ALPHA
+
+        register_app("graph_builder", "Graph Builder",
+                     "Drag columns onto x / y / colour / facet",
+                     SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)
+
+    :param key: stable app id. Load-bearing — ``bridge``, ``cli``,
+        ``validate``, the drag-and-drop handlers, ``settings_model`` and
+        saved user state all key off it, so it is chosen once and never
+        renamed. Must be unique across built-ins and plugins.
+    :param name: display name; the sidebar row, tile and menu entry.
+    :param desc: one-line summary; the tooltip and status tip.
+    :param section: one of :data:`SECTION_ORDER`. A section with no apps
+        has no tab, so registering the first app into a new section is
+        what makes that section appear.
+    :param factory: optional zero-argument callable returning the app's
+        ``QWidget`` screen. It may declare ``app_key`` and/or ``host``
+        keyword parameters — ``host`` is the :class:`MainWindow`, for a
+        screen that has signals to connect — and is given whichever of
+        the two it accepts. Omit it and the app gets the generic
+        settings-driven ``AppScreen``, like every pipeline module.
+    :param stage: optional :data:`STAGES` member. Omitted means stable,
+        which is also what deleting the entry later means.
+    :returns: the row that was appended, so a caller can keep it.
+    :raises ValueError: on a duplicate key, an unknown section, an
+        unknown stage or an empty name/description.
+    :raises TypeError: if ``factory`` is not callable.
+    """
+    key = str(key)
+    if not key:
+        raise ValueError("an app needs a key")
+    if any(row[0] == key for row in APPS):
+        raise ValueError(f"app key {key!r} is already registered")
+    if not str(name).strip() or not str(desc).strip():
+        raise ValueError(f"app {key!r} needs a name and a description")
+    if section not in SECTION_ORDER:
+        raise ValueError(
+            f"app {key!r} has unknown section {section!r}; declare it in "
+            f"SECTION_ORDER (have: {', '.join(SECTION_ORDER)})")
+    if stage is not None and stage not in STAGES:
+        raise ValueError(f"app {key!r} has unknown stage {stage!r}")
+    if factory is not None and not callable(factory):
+        raise TypeError(f"app {key!r} factory {factory!r} is not callable")
+
+    row = (key, str(name), str(desc), section)
+    APPS.insert(_insert_position(section), row)
+    if factory is not None:
+        APP_FACTORIES[key] = factory
+    if stage is not None:
+        APP_STAGE[key] = stage
+    _refresh_sections()
+    # The cap is a design rule, not a runtime one: a violation is fixed
+    # by splitting the section, and refusing to start the app would not
+    # help anyone do that. The suite fails on it; this makes a late
+    # registration (a plugin, a lazily-imported module) visible too.
+    count = sum(1 for r in APPS if r[3] == section)
+    if count > MAX_APPS_PER_SECTION:
+        LOG.warning(
+            "Section %r now holds %d apps, over the %d cap — split it "
+            "rather than letting the row grow past what anyone reads.",
+            section, count, MAX_APPS_PER_SECTION)
+    return row
+
+
+def unregister_app(key: str) -> bool:
+    """Remove app ``key`` from the registry. ``True`` if there was one.
+
+    The counterpart to :func:`register_app`, for a plugin that unloads
+    and for tests that must not leak a registration into the next one —
+    a stray row in :data:`APPS` is a stray tile, a stray sidebar entry
+    and a stray Ctrl+N binding for every test that follows.
+    """
+    key = str(key)
+    before = len(APPS)
+    APPS[:] = [row for row in APPS if row[0] != key]
+    APP_FACTORIES.pop(key, None)
+    APP_STAGE.pop(key, None)
+    _refresh_sections()
+    return len(APPS) != before
+
+
+def registered_factory(key: str):
+    """The factory registered for ``key``, or ``None``."""
+    return APP_FACTORIES.get(key)
+
+
+def _call_screen_factory(factory, key: str, host=None):
+    """Invoke a registered screen ``factory`` with the arguments it declares.
+
+    The contract is deliberately "take what you need": ``lambda:
+    MyScreen()`` is a complete factory, and a screen that has signals to
+    wire declares ``host`` and gets the :class:`MainWindow`. Resolved by
+    inspecting the signature rather than by calling and retrying on
+    ``TypeError`` — a retry cannot tell a wrong call from a ``TypeError``
+    raised *inside* a factory that was called correctly, and would then
+    build the screen twice.
+    """
+    kwargs = {}
+    try:
+        params = inspect.signature(factory).parameters
+    except (TypeError, ValueError):
+        # Builtins and C callables have no introspectable signature.
+        params = {}
+    takes_any = any(p.kind is inspect.Parameter.VAR_KEYWORD
+                    for p in params.values())
+    for wanted, value in (("app_key", key), ("host", host)):
+        if takes_any or wanted in params:
+            kwargs[wanted] = value
+    return factory(**kwargs)
+
+
+_BUILTIN_APPS = [
     # (key, human name, description, section)
     #
     # `section` is what the app IS ABOUT. How finished it is lives in
@@ -316,26 +561,47 @@ APP_STAGE = {
     "activation":      STAGE_BETA,
 }
 
+# The built-ins go through the same door as everything else. Registering
+# 34 rows one at a time on every import is what keeps `register_app`
+# honest: an ordering or validation mistake in it shows up here, at
+# import, rather than the first time somebody adds the 35th app.
+for _row in _BUILTIN_APPS:
+    register_app(*_row)
+del _row
+
 # Plugin apps use the same registry rows and maturity annotations as built-ins.
 # Contributions can add a key but never replace one.
 try:
     from spacr.plugins import plugin_apps as _plugin_apps, record_diagnostic
-    _builtin_app_keys = {row[0] for row in APPS}
     for _plugin_app in _plugin_apps():
-        if _plugin_app.key in _builtin_app_keys:
+        # Recomputed per plugin, not snapshotted before the loop: the old
+        # snapshot held built-in keys only, so two plugins claiming the
+        # same key both landed in APPS and the duplicate only showed up
+        # as two identical sidebar rows.
+        if _plugin_app.key in {row[0] for row in APPS}:
             record_diagnostic(
                 _plugin_app.key,
                 f"Plugin app key {_plugin_app.key!r} collides with a built-in "
                 "Qt app; the built-in app was kept.",
             )
             continue
-        APPS.append((
-            _plugin_app.key,
-            _plugin_app.name,
-            _plugin_app.description,
-            _PLUGIN_SECTION_MAP[_plugin_app.section],
-        ))
-        APP_STAGE[_plugin_app.key] = _plugin_app.stage
+        try:
+            register_app(
+                _plugin_app.key,
+                _plugin_app.name,
+                _plugin_app.description,
+                _PLUGIN_SECTION_MAP[_plugin_app.section],
+                stage=_plugin_app.stage,
+            )
+        except (ValueError, TypeError) as _exc:
+            # Everything `spacr.plugins` already validates — section,
+            # stage, non-empty name — plus anything it starts allowing
+            # that this registry does not. One bad contribution is
+            # dropped; the rest of the plugins still load.
+            record_diagnostic(
+                _plugin_app.key,
+                f"Plugin app {_plugin_app.key!r} was not registered: {_exc}",
+            )
 except Exception:
     LOG.exception("Could not add plugin apps to the Qt registry")
 
@@ -419,20 +685,6 @@ def home_bands(
     """
     grouped = [(s, section_members(s, apps)) for s in SECTIONS]
     return [(s, rows) for s, rows in grouped if rows]
-
-
-#: One line per section, drawn under its heading on that category's tab.
-#: A category with two apps in it looks broken until it says why.
-SECTION_NOTES = {
-    SECTION_CORE: "Images in, single-object measurements out, hits called.",
-    SECTION_DATA: ("Images and tables into a spaCR project, many plates run "
-                   "unattended, the numbers back out."),
-    SECTION_MODELS: ("Build, train, pick and check the Cellpose models the "
-                     "Mask step runs."),
-    SECTION_RESULTS: ("Read what came out, decide whether to believe it, "
-                      "hand it to someone else."),
-    SECTION_TOXO: "Parasite-specific readouts.",
-}
 
 
 def make_home_page(parent=None):
@@ -1756,6 +2008,14 @@ class MainWindow(QMainWindow):
             except Exception:
                 LOG.exception("Could not build plugin screen for %s", key)
                 raise
+        registered = registered_factory(key)
+        if registered is not None:
+            screen = _call_screen_factory(registered, key, self)
+            if not isinstance(screen, QWidget):
+                raise TypeError(
+                    f"the factory registered for {key!r} returned "
+                    f"{type(screen).__name__}, expected QWidget")
+            return screen
         if key == "annotate":
             from .screens.annotate import AnnotateScreen
             screen = AnnotateScreen()

@@ -1,5 +1,6 @@
 """Defaults, types, categories, descriptions, and validation for settings."""
 
+import inspect
 import os, ast
 
 #from wsgiref import types
@@ -48,6 +49,190 @@ def bundled_barcode_path(kind):
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "resources", "data", filename)
     )
+
+
+# ---------------------------------------------------------------------------
+# The defaults seam — how a module ships settings without editing this file
+# ---------------------------------------------------------------------------
+# Everything below this block is the settings of the modules that existed
+# when this file was one file: ~3800 lines of defaults factories, types,
+# tooltips and categories, all of which a new module used to have to
+# append to. Six workstreams appending to the same file is six merge
+# conflicts, and the file is nobody's to own.
+#
+# A module registers instead, at import time, from its own file:
+#
+#     from spacr.settings import register_defaults
+#
+#     def _defaults(settings=None):
+#         settings = dict(settings or {})
+#         settings.setdefault("src", "")
+#         settings.setdefault("bins", 32)
+#         return settings
+#
+#     register_defaults(
+#         "graph_builder", _defaults,
+#         expected_types={"bins": int},
+#         tooltips={"bins": "(int) - Histogram bins. Default 32."},
+#         categories={"General": ["bins"]})
+#
+# The existing `set_default_*` / `get_*_settings` functions are NOT
+# touched and NOT auto-registered: they are reached through the dispatch
+# in `gui_core.setup_settings_panel` and
+# `qt.screens.settings_model.resolve_default_settings`, and mirroring
+# them here would create a second answer to "what are Mask's defaults?".
+# This registry holds only what registers itself.
+
+#: app key → defaults factory. Written by :func:`register_defaults`.
+_DEFAULTS_REGISTRY = {}
+
+
+def register_defaults(app_key, fn, *, replace=False, expected_types=None,
+                      tooltips=None, categories=None, description=None):
+    """Register the defaults factory for ``app_key``.
+
+    :param app_key: the app key the factory belongs to — the same key the
+        module registered with :func:`spacr.qt.app.register_app`.
+    :param fn: callable returning the module's settings dict. Called as
+        ``fn(settings)`` when it takes an argument and ``fn()`` when it
+        does not, so both existing shapes in this file work unchanged.
+    :param replace: allow overwriting an existing registration. Off by
+        default: two modules quietly claiming one key is the failure this
+        registry exists to make loud.
+    :param expected_types: optional ``{key: type-or-tuple}`` merged into
+        :data:`expected_types`. Without it a new key is untyped and
+        :func:`check_settings` cannot validate it.
+    :param tooltips: optional ``{key: text}`` merged into
+        :data:`tooltips`. Without it the settings panel has no help for
+        the key, which the GUI suite fails on.
+    :param categories: optional ``{category: [key, ...]}`` merged into
+        :data:`categories`; unknown category names are created. A key
+        already in that category is not added twice.
+    :param description: optional module blurb for :data:`descriptions`.
+    :raises ValueError: on a re-registration without ``replace``, or when
+        a merged type/tooltip/description would change one that already
+        exists — a module may add to the shared tables, never rewrite
+        another module's entry.
+    :raises TypeError: if ``fn`` is not callable.
+    """
+    app_key = str(app_key)
+    if not app_key:
+        raise ValueError("defaults need an app key")
+    if not callable(fn):
+        raise TypeError(f"defaults for {app_key!r} are not callable: {fn!r}")
+    if app_key in _DEFAULTS_REGISTRY and not replace:
+        raise ValueError(
+            f"defaults for {app_key!r} are already registered; pass "
+            "replace=True if that is really what you mean")
+
+    _merge_declarations(app_key, expected_types, tooltips, categories,
+                        description)
+    _DEFAULTS_REGISTRY[app_key] = fn
+    return fn
+
+
+def _merge_declarations(app_key, types_, tips, cats, description):
+    """Fold a module's type/tooltip/category/description contributions in.
+
+    Done before the factory is stored so a rejected contribution leaves
+    the registry untouched — a half-registered module whose keys are
+    typed but whose defaults are missing is harder to diagnose than one
+    that failed at import.
+    """
+    for key, type_ in dict(types_ or {}).items():
+        existing = expected_types.get(key, type_)
+        if existing != type_:
+            raise ValueError(
+                f"{app_key!r} declares {key!r} as {type_!r}, but it is "
+                f"already declared as {existing!r}")
+        expected_types[key] = type_
+    for key, text in dict(tips or {}).items():
+        existing = tooltips.get(key, text)
+        if existing != text:
+            raise ValueError(
+                f"{app_key!r} redefines the tooltip for {key!r}; extend the "
+                "existing text instead of replacing another module's help")
+        tooltips[key] = text
+    for name, keys in dict(cats or {}).items():
+        bucket = categories.setdefault(name, [])
+        for key in keys:
+            if key not in bucket:
+                bucket.append(key)
+    if description is not None:
+        existing = descriptions.get(app_key, description)
+        if existing != description:
+            raise ValueError(
+                f"{app_key!r} already has a description; edit that one "
+                "rather than registering a second")
+        descriptions[app_key] = description
+
+
+def unregister_defaults(app_key):
+    """Drop a registered defaults factory. ``True`` if there was one.
+
+    Only the factory: the types, tooltips and categories it merged stay,
+    because another module may already have added keys to the same
+    category and unpicking a merge is guesswork.
+    """
+    return _DEFAULTS_REGISTRY.pop(str(app_key), None) is not None
+
+
+def has_registered_defaults(app_key):
+    """Whether a module registered a defaults factory for ``app_key``."""
+    return str(app_key) in _DEFAULTS_REGISTRY
+
+
+def registered_default_apps():
+    """Every app key with registered defaults, in registration order."""
+    return tuple(_DEFAULTS_REGISTRY)
+
+
+def defaults_for(app_key, settings=None):
+    """The registered defaults dict for ``app_key``.
+
+    The read side of :func:`register_defaults`, and what a settings panel
+    calls. Returns a fresh dict every time: the caller edits what it gets
+    back, and a factory that hands out one shared dict would let one
+    module's screen edit another's defaults.
+
+    :param settings: values to seed the factory with, exactly like the
+        ``settings`` argument of every ``set_default_*`` in this file.
+    :raises KeyError: when nothing is registered for ``app_key``.
+    :raises TypeError: when the factory does not return a dict.
+    """
+    app_key = str(app_key)
+    try:
+        fn = _DEFAULTS_REGISTRY[app_key]
+    except KeyError:
+        raise KeyError(
+            f"no defaults registered for {app_key!r}; known: "
+            f"{', '.join(_DEFAULTS_REGISTRY) or '(none)'}") from None
+    result = fn(dict(settings or {})) if _takes_an_argument(fn) else fn()
+    if not isinstance(result, dict):
+        raise TypeError(
+            f"defaults for {app_key!r} returned {type(result).__name__}, "
+            "expected dict")
+    return dict(result)
+
+
+def _takes_an_argument(fn):
+    """Whether ``fn`` accepts a positional settings dict.
+
+    Signature inspection rather than "call it and retry on TypeError":
+    a retry cannot tell a wrong call from a TypeError raised *inside* a
+    factory that was called correctly, and would run half of it twice.
+    """
+    try:
+        params = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return True  # not introspectable — assume the common shape
+    for param in params.values():
+        if param.kind in (inspect.Parameter.POSITIONAL_ONLY,
+                          inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                          inspect.Parameter.VAR_POSITIONAL):
+            return True
+    return False
+
 
 def set_default_plot_merge_settings():
     """Return the default settings dict for plotting merged mask overlays.
