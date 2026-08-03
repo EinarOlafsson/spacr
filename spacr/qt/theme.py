@@ -813,6 +813,105 @@ def panel_alpha(theme: str, role: str,
     return max(wanted, floor)
 
 
+# ---------------------------------------------------------------------------
+# The field fade — the one surface the page-opacity preference does NOT own
+# ---------------------------------------------------------------------------
+# Everything above answers "how solid is this panel?" with a single number.
+# An input field answers it with a ramp instead, and it is deliberately
+# *exempt* from :func:`panel_alpha`:
+#
+#   "the fields should not be subject to the occupacy setting. the fields
+#    could gradually become fully transparent (not the text in the field
+#    but the container) with the transparency growing faster towards the
+#    right. outlines should also be subject to the same effect."
+#
+# So a field is painted fully opaque at its left edge — whatever the page
+# slider says — and dissolves to nothing at its right edge. Two properties
+# fall out of that and both matter:
+#
+# * The page-opacity slider cannot make a field harder to read. Its left
+#   edge, where the value starts, is always a solid surface.
+# * The ramp has to be *convex* in transparency, not linear. A linear ramp
+#   is already 50 % gone at the midpoint, which is where the text still is.
+#
+# The curve is therefore a cubic ease-in on TRANSPARENCY:
+#
+#     transparency(t) = t ** FIELD_FADE_EXPONENT
+#     alpha(t)        = 1 - t ** FIELD_FADE_EXPONENT
+#
+# with ``t`` the fraction of the way across the field, 0 at the left edge
+# and 1 at the right. At the midpoint the container is still 87.5 % opaque;
+# it is 58 % at three-quarters, 27 % at nine-tenths, and gone at the edge.
+# That is "faster towards the right" spelled as a number: d(transparency)/dt
+# is 0 at the left edge and 3 at the right.
+
+#: Exponent of the ease-in applied to TRANSPARENCY across a field's width.
+#: 1.0 would be a linear fade, which loses the middle of the field where
+#: the value is. 3.0 (cubic) keeps the left half essentially solid and
+#: spends the whole fade on the trailing third.
+FIELD_FADE_EXPONENT = 3.0
+
+#: How many colour stops the cubic is sampled at when it is handed to a
+#: ``QLinearGradient``, which only interpolates linearly between stops.
+#: 17 evenly-spaced stops hold the piecewise-linear error under
+#: 6*(1/16)**2/8 = 0.003 alpha — below one 8-bit level, so the rendered
+#: ramp is the cubic to the last representable bit.
+FIELD_FADE_STOPS = 17
+
+
+def field_fade_alpha(t: float) -> float:
+    """Alpha of a field's *container* at fraction ``t`` across its width.
+
+    ``t`` is clamped to [0, 1]. ``field_fade_alpha(0.0)`` is 1.0 — a field
+    is fully opaque where its value begins, no matter what the page-opacity
+    preference is set to — and ``field_fade_alpha(1.0)`` is 0.0.
+
+    This is the container and its outline only. The text is drawn *after*
+    the ramp, at full alpha, and never passes through this function.
+    """
+    t = max(0.0, min(1.0, float(t)))
+    return 1.0 - t ** FIELD_FADE_EXPONENT
+
+
+def field_fade_profile(stops: int = FIELD_FADE_STOPS):
+    """The sampled ramp as ``((t, alpha), ...)``, left edge first.
+
+    What a ``QLinearGradient`` is built from, and what a test asserts the
+    shape of without needing a QApplication.
+    """
+    stops = max(2, int(stops))
+    return tuple((i / (stops - 1), field_fade_alpha(i / (stops - 1)))
+                 for i in range(stops))
+
+
+def field_chrome(theme: str = "dark") -> Dict[str, object]:
+    """Colours and geometry the field fade paints a field's container with.
+
+    One place so the painter and the QSS that gets out of its way cannot
+    drift apart, and so a theme that restyles its inputs restyles the fade
+    with them. Every colour is ``(hex, alpha)``: the ramp is applied as a
+    **multiplier** on that alpha, so a theme whose border is intrinsically
+    translucent (Glass paints a white rim at 16 %) keeps its own material
+    and still reaches zero at the right edge, while the flat themes start
+    from a genuinely solid 1.0 exactly as the request asks.
+
+    Note what is *not* here: :func:`panel_alpha`. Fields are exempt from
+    the page-opacity preference — see :func:`field_fade_alpha`.
+    """
+    base = palette_for(theme)
+    glass = theme == "glass"
+    return {
+        # Glass rounds its inputs to 10px; everything else uses RADIUS.sm.
+        "radius": 10.0 if glass else float(RADIUS["sm"]),
+        "fill": (base["surface_alt"], 1.0),
+        "fill_disabled": (base["surface"], 1.0),
+        "border": (("#ffffff", 0.16) if glass else (base["border"], 1.0)),
+        "border_focus": (base["accent"], 1.0),
+        "border_disabled": (("#ffffff", 0.10) if glass
+                            else (base["border_soft"], 1.0)),
+    }
+
+
 def palette_for(theme: str = "dark") -> dict:
     """Return the palette dict for ``theme``.
 
