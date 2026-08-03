@@ -121,9 +121,25 @@ def test_gui_only_and_runnable_are_disjoint():
     assert not (set(cli.INTERACTIVE_ONLY) & set(cli.MODULES))
 
 
+def live_app_keys():
+    """Every app key, including screens that register themselves on import.
+
+    :data:`APP_KEYS` above is the table inside ``app.py``, snapshotted when
+    this module is imported. Since the registration seam landed, a screen may
+    own its row instead — ``register_app`` at import time — and those rows
+    only exist once ``spacr.qt.screens`` has been imported, which importing
+    ``spacr.qt.app`` does not do. A question about whether a key names a
+    *real* app therefore has to ask the live registry; asked of the snapshot,
+    every seam-registered app looks like a ghost.
+    """
+    import spacr.qt.screens                # noqa: F401 - the import registers
+    from spacr.qt.app import APPS as LIVE
+    return {row[0] for row in LIVE}
+
+
 def test_the_gui_only_list_holds_no_apps_that_no_longer_exist():
     """A stale entry hides a genuinely unknown module behind a helpful lie."""
-    ghosts = sorted(set(cli.INTERACTIVE_ONLY) - set(APP_KEYS))
+    ghosts = sorted(set(cli.INTERACTIVE_ONLY) - live_app_keys())
     assert not ghosts, (
         f"cli.INTERACTIVE_ONLY names apps that are not in spacr.qt.app.APPS: "
         f"{ghosts}")

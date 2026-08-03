@@ -149,6 +149,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # current?" has an answer. Both are dependency-light on purpose.
     "ports",
     "artifacts",
+    # Disk accounting built on those two: what a project costs per artifact
+    # kind, what of it is regenerable and may therefore be pruned, and
+    # archiving that leaves the registry knowing where the data went.
+    "data_manager",
     "validate",
     "updater",
     "version",
