@@ -208,6 +208,41 @@ def test_apply_classify_demo_opens_annotate_screen(qtbot,
     assert hasattr(screen, "_open_source")
 
 
+def test_the_classify_demo_actually_opens_its_crops_in_annotate(
+        qtbot, qt_theme_applied, tmp_path):
+    """The handoff, not just the route.
+
+    Landing on the Annotate screen is not the outcome a user cares about;
+    seeing the 64 crops is. `_apply_demo_to_screen` hands AnnotateScreen the
+    demo ROOT, and the screen goes looking for ``measurements/measurements.db``
+    and a ``png_list`` table under it — so the generator's folder layout and
+    the screen's expectation have to agree, and neither of them is checked by
+    the layout/pre-flight tests above.
+    """
+    win = _new_mainwindow(qtbot, qt_theme_applied)
+    layout = win._run_demo_generator("classify", str(tmp_path / "classify"))
+    win._on_nav_selected("annotate")
+    screen = win._screens.get("annotate")
+    screen._settings.grid_rows = 2
+    screen._settings.grid_cols = 2
+    screen._rebuild_grid()
+
+    win._apply_demo_to_screen(screen, layout)
+    try:
+        qtbot.waitUntil(lambda: len(screen._page_paths) == 4, timeout=10000)
+        # Every crop the generator wrote is reachable through the screen.
+        assert screen._total == 64, screen._total
+        assert screen._settings.db_path == str(layout.db_path)
+        for path, _label in screen._page_paths:
+            assert Path(path).is_file(), path
+        # Unlabelled to start with: the demo's `annotate` column is what the
+        # Classify run trains on, and the user is here to set it.
+        assert screen._settings.annotation_column == "annotate"
+    finally:
+        if screen._worker:
+            screen._worker.stop(wait=True)
+
+
 def test_demo_menu_has_expected_entries(qtbot, qt_theme_applied):
     """Menu wiring — every demo is a QAction under &Demos, including the
     real-dataset end-to-end option."""
