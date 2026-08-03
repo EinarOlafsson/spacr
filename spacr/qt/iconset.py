@@ -514,4 +514,9 @@ _NAME_TO_GLYPH = {
     "align":           "fa5s.border-all",
     "map_barcodes":    "fa5s.barcode",
     "ai_console":      "fa5s.robot",
+    # Stacked platters: the app is about what a project weighs on disk and
+    # what of it can safely go. Without an entry here a new key falls back
+    # to the shared puzzle piece, which is artwork every unfiled app draws
+    # — indistinguishable tiles on Home.
+    "data_manager":    "fa5s.hdd",
 }
