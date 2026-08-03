@@ -172,20 +172,21 @@ def test_pane_opacity_controls_how_much_of_the_backdrop_shows_on_home(
         "honoured exactly")
 
 
-def test_the_tile_pane_is_not_forced_transparent(qtbot, qt_theme_applied):
-    """At 100 % the page must look exactly as it did before the feature.
+def test_the_tile_pane_is_cleared_with_the_other_containers(
+        qtbot, qt_theme_applied):
+    """The box behind the tiles is a container, so it paints nothing.
 
-    `_clear_page_surfaces` tags the *positioning* containers. Tagging the
-    tile pane too would pin it at fully transparent and take the opacity
-    preference away from the user entirely.
+    This flipped once. It was briefly held out of `_clear_page_surfaces` so
+    the opacity preference could dial it — then the instruction settled on
+    removing the black boxes behind the tiles outright and letting the TILES
+    carry the opacity instead, which is where it can actually be seen.
     """
     prefs.set_ambient_enabled(True)
     prefs.set_pane_opacity(1.0)
     page = _home()
     qtbot.addWidget(page)
 
-    assert page._pane_alpha() == pytest.approx(1.0)
-    assert not page._tabs.property(theme.TRANSPARENT_PROPERTY)
+    assert page._tabs.property(theme.TRANSPARENT_PROPERTY) is True
 
 
 @pytest.mark.parametrize("requested", [1.0, 0.75, 0.5, 0.25])

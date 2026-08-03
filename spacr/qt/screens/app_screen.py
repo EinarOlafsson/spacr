@@ -909,11 +909,28 @@ class AppScreen(QWidget):
         and the two runtime wrappers are *pages*: they position things
         and should show whatever is behind them. The cards inside them —
         ``Section``, ``Card``, the console — are not tagged and stay the
-        opaque, readable surface the settings form sits on, which is
-        exactly the "grey categories on top of the animated black"
-        layering this screen is supposed to have.
+        readable surface the settings form sits on, at the page opacity,
+        which is exactly the "grey categories over the animated
+        background" layering this screen is supposed to have.
+
+        Every plain ``QWidget`` used as a container has to be listed. An
+        untagged one inherits the blanket ``QWidget {{ background-color: bg }}``
+        rule and paints the WINDOW colour — not a surface — so no opacity
+        setting can reach it. That is what left a black slab spanning the
+        console and the chat box, and black boxes behind the live-view images,
+        after the boxes on top of them were thinned.
         """
+        from PySide6.QtWidgets import QScrollArea, QSplitter
         from ..theme import make_transparent
+
+        # Containers reached by walking, because they are built by helpers that
+        # do not hand back a handle: every scroll area and its viewport, and
+        # every splitter panel on the page.
+        for area in self.findChildren(QScrollArea):
+            make_transparent(area, area.viewport())
+        for splitter in self.findChildren(QSplitter):
+            make_transparent(splitter)
+
         make_transparent(
             getattr(self, "_header", None),
             getattr(self, "_body_splitter", None),
