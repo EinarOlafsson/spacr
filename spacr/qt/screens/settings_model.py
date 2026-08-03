@@ -305,7 +305,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "compression", "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
-            "strict_errors", "max_failure_rate", "verbose", "n_jobs",
+            "strict_errors", "max_failure_rate", "on_error",
+            "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs",
             "batch_size", "pipeline_style", "diameter_estimate_n_fields",
         )),
     ),
@@ -341,7 +342,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
         )),
         ("Runtime & Reliability", (
-            "resume", "strict_errors", "max_failure_rate", "dry_run",
+            "resume", "strict_errors", "max_failure_rate", "on_error",
+            "on_error_attempts", "on_error_backoff", "random_seed", "dry_run",
             "verbose", "n_jobs",
         )),
     ),
@@ -391,7 +393,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Runtime & Reliability", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
-            "strict_errors", "max_failure_rate", "dry_run", "verbose",
+            "strict_errors", "max_failure_rate", "on_error",
+            "on_error_attempts", "on_error_backoff", "random_seed", "dry_run", "verbose",
             "n_jobs", "batch_size", "pipeline_style",
             "diameter_estimate_n_fields",
         )),
@@ -469,7 +472,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Regression Plots", (
             "volcano", "log_x", "log_y", "x_lim", "split_axis_lims",
         )),
-        ("Runtime & Reliability", ("strict_errors", "max_failure_rate")),
+        ("Runtime & Reliability", (
+            "strict_errors", "max_failure_rate", "on_error",
+            "on_error_attempts", "on_error_backoff", "random_seed",
+        )),
     ),
     "activation": (
         ("Model & Data", (
