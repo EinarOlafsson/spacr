@@ -6,11 +6,17 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_qsettings(qt_theme_applied, tmp_path):
+    """Redirect QSettings into ``tmp_path`` before clearing it.
+
+    NativeFormat, not just Ini: ``QSettings("spacr", "qt")`` is a NativeFormat
+    object no matter what ``setDefaultFormat`` says, so an Ini-only redirect
+    left the ``.clear()`` calls below deleting the real user preferences.
+    """
     from PySide6.QtCore import QSettings
 
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(
-        QSettings.IniFormat, QSettings.UserScope, str(tmp_path))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     QSettings("spacr", "qt").clear()
     yield
     QSettings("spacr", "qt").clear()

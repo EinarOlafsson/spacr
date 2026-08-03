@@ -6,13 +6,20 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
-    """Route QSettings into a temp .ini so tests don't touch real prefs."""
+    """Route QSettings into a temp store so tests don't touch real prefs.
+
+    NativeFormat is the one that has to move: ``QSettings("spacr", "qt")`` —
+    what ``preferences._settings()`` builds — is a NativeFormat object and
+    ignores ``setDefaultFormat``/``setPath(IniFormat, ...)`` entirely. Setting
+    only the Ini path left ``.clear()`` below pointed at the developer's real
+    ``~/.config/spacr/qt.conf``.
+    """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-prefs-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                        str(tmp_path))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     QSettings("spacr", "qt").clear()
     # Re-mark first-launch tour seen after the QSettings clear so the
     # autouse conftest fixture keeps its promise.
@@ -712,27 +719,53 @@ def test_apply_ambient_preferences_without_the_module(
 
 
 def test_apply_ambient_preferences_without_an_application(
-    fake_ambient, monkeypatch, qt_theme_applied,
+    fake_ambient, monkeypatch, qtbot, qt_theme_applied,
 ):
-    """Headless callers (a settings migration, a script) get a no-op."""
+    """Headless callers (a settings migration, a script) get a no-op.
+
+    A no-op, not merely a non-throw: a live ambient widget is put in front of
+    it and must come out with nothing recorded. "Must not raise" on its own
+    passed just as happily if the function had walked the tree anyway.
+    """
     from PySide6.QtWidgets import QApplication
     from spacr.qt.preferences import apply_ambient_preferences
 
+    widget = fake_ambient.AmbientWidget()
+    qtbot.addWidget(widget)
     monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
-    apply_ambient_preferences()          # must not raise
+    apply_ambient_preferences()
+    assert widget.themes == [] and widget.palettes == []
+    assert widget.animating is None
 
 
 def test_apply_ambient_preferences_when_the_widget_list_fails(
-    fake_ambient, qt_theme_applied,
+    fake_ambient, qtbot, qt_theme_applied,
 ):
-    """A Qt teardown can make allWidgets() itself fail; do not propagate."""
+    """A Qt teardown can make allWidgets() itself fail; do not propagate.
+
+    Asserts the failure was actually reached (``allWidgets`` was called) and
+    that the walk stopped there, leaving a live widget untouched — neither of
+    which "must not raise" could tell apart from the function returning early
+    for some entirely different reason.
+    """
     from spacr.qt.preferences import apply_ambient_preferences
 
+    widget = fake_ambient.AmbientWidget()
+    qtbot.addWidget(widget)
+
     class _DyingApp:
+        def __init__(self):
+            self.asked = 0
+
         def allWidgets(self):
+            self.asked += 1
             raise RuntimeError("application is being destroyed")
 
-    apply_ambient_preferences(_DyingApp())   # must not raise
+    app = _DyingApp()
+    apply_ambient_preferences(app)
+    assert app.asked == 1, "the widget list was never asked for"
+    assert widget.themes == [] and widget.palettes == []
+    assert widget.animating is None
 
 
 def test_apply_preferences_to_app_applies_the_ambient_prefs(
