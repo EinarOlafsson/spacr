@@ -634,19 +634,9 @@ _USER_HOME_PATH = re.compile(r"^/(home|Users)/[^/\s]+/")
 
 #: (module, reason) pairs allowed to mention a user-home path.
 USER_HOME_PATH_RATCHET = {
-    # Asserts the string is ABSENT from spacr's shipped defaults -- the guard
-    # against exactly the problem this rule is about.
-    "test_settings_portable_defaults.py",
     # A synthetic path whose point is the space in the directory name (URL
     # quoting); never touched on disk.
     "qt/test_space_theme.py",
-    # DEBT: the four @slow E2E tests default to
-    # /home/carruthers/datasets/claude/{plate1,settings} and auto-skip
-    # everywhere else, so they report green on every machine but one. They
-    # already honour SPACR_E2E_DATA / SPACR_E2E_SETTINGS; the fix is to drop
-    # the hard-coded defaults so the env vars are REQUIRED, making the tests
-    # explicitly opt-in instead of silently skipped.
-    "test_e2e_real_dataset.py",
 }
 
 
@@ -721,19 +711,31 @@ def test_conftest_hard_codes_no_absolute_path_at_all():
         f"paths from tmp_path / tmp_path_factory or from the repo root.")
 
 
-def test_the_e2e_dataset_paths_are_overridable_by_environment():
-    """The one module on the path ratchet must at least honour env vars.
+def test_the_e2e_dataset_paths_come_only_from_the_environment():
+    """The real-dataset module must carry no built-in path at all.
 
-    This is what keeps the debt bounded: whatever the built-in default is, a
-    second machine has to be able to point the module somewhere real without
-    editing it.
+    It used to *default* to a dataset under one developer's home directory and
+    skip when that was absent, so on every other machine its four @slow stages
+    reported green while running nothing. Env-var support alone was not enough
+    to fix that -- the default is what made opting out invisible -- so the
+    contract is now that the two variables are the only way in.
     """
-    source = (TESTS_DIR / "test_e2e_real_dataset.py").read_text(encoding="utf-8")
+    path = TESTS_DIR / "test_e2e_real_dataset.py"
+    source = path.read_text(encoding="utf-8")
     assert "SPACR_E2E_DATA" in source
     assert "SPACR_E2E_SETTINGS" in source
     assert "os.environ.get" in source, (
-        "the hard-coded dataset path is not overridable, so the module can "
+        "the dataset path is not read from the environment, so the module can "
         "only ever run on the machine it was written on")
+    # Docstrings are prose (the module's usage example shows a placeholder
+    # path); a literal in code is a path the module would actually use.
+    baked_in = [(n.lineno, n.value[:70])
+                for n in _string_constants(_parse(path))
+                if n.value.startswith("/") and len(n.value) > 1]
+    assert not baked_in, (
+        f"test_e2e_real_dataset.py bakes in absolute path(s): {baked_in}. A "
+        "default path is what turns 'you have not opted in' into a silent "
+        "pass; the environment variables must be the only source.")
 
 
 # ---------------------------------------------------------------------------
