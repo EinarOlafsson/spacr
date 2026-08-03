@@ -636,10 +636,16 @@ def test_every_qt_section_hint_names_a_real_category():
     known = {c.upper().strip() for c in S.categories}
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).
+    # Classify is the reason this list has to be exhaustive rather than
+    # representative: nine of its ten categories exist only in
+    # `_APP_CATEGORY_SPECS`-style Qt regroups and appear nowhere in
+    # `S.categories`, so leaving it out reported all nine as dead.
     from spacr.qt.screens.settings_model import categories_for_app
     for app_key in (
         "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
         "timelapse", "motility", "regression", "activation", "replication",
+        "classify", "train_cellpose", "cellpose_masks", "cellpose_all",
+        "analyze_plaques", "recruitment", "invasion",
     ):
         known.update(
             c.upper().strip()

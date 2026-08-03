@@ -675,6 +675,699 @@ def categories_for_app(
     return result
 
 
+# ---------------------------------------------------------------------------
+# Category help — one blurb per settings CATEGORY
+# ---------------------------------------------------------------------------
+#
+# A category is a collapsible header in a module's settings panel; the map
+# above decides which keys land under which header. These are the blurbs the
+# panel shows for the header itself, keyed by the title uppercased and
+# stripped, because that is what a rendered ``Section`` has in hand.
+#
+# They are deliberately NOT restatements of the heading. Someone reading
+# "Image Preprocessing" already knows the words; what they cannot tell is what
+# the group decides and whether today's problem lives inside it. Each entry
+# therefore says what the settings determine and when you would open them.
+#
+# ``CATEGORY_TOOLTIPS_BY_APP`` overrides this table for the handful of
+# headings that genuinely mean different things per module: "Cellpose" is a
+# training schedule under Train Cellpose and a set of inference thresholds
+# under Cellpose Masks, and "Runtime & Reliability" carries Timelapse's stage
+# toggles but only ``n_jobs`` under Motility.
+#
+# ``app_screen`` re-exports this as ``SECTION_HINTS`` for the tests and
+# integrations that already read it by that name.
+CATEGORY_TOOLTIPS: Dict[str, str] = {
+    # -- shared headings from spacr.settings.categories --------------------
+    "PATHS":
+        "Where the module reads its images or tables from, plus any lookup "
+        "file it needs alongside them. Set these when you point the module "
+        "at a new plate or experiment; every other group assumes they are "
+        "right.",
+    "GENERAL":
+        "The few decisions the rest of the run depends on: which channel is "
+        "which, whether intensities are normalised, and whether preview "
+        "figures are drawn. Worth a look on any dataset you have not run "
+        "before.",
+    "CELL":
+        "How the cell mask is found and cleaned up — model, expected "
+        "diameter, probability and flow thresholds, background floor. Open "
+        "it when cells are missed, merged into their neighbours, or split "
+        "in two.",
+    "NUCLEUS":
+        "How the nucleus mask is found and cleaned up — model, expected "
+        "diameter, probability and flow thresholds, background floor. "
+        "Nuclei are the easiest object to get right, so they are a good "
+        "place to check the channel assignment.",
+    "PATHOGEN":
+        "How the pathogen mask is found and cleaned up — model, expected "
+        "diameter, probability and flow thresholds, background floor. "
+        "Tightly packed parasites fusing into one object are the usual "
+        "reason to come here.",
+    "ORGANELLE":
+        "Everything the organelle mask needs, in the order you set it up: "
+        "shape family and detection method, the background and contrast "
+        "correction applied first, the knobs belonging to the method you "
+        "chose, the size, intensity and border filters applied to what was "
+        "found, and which parent compartment the results are summarised "
+        "into. Expect to spend time here — punctate, tubular and "
+        "ring-shaped organelles each want a different method.",
+    "CELLPOSE":
+        "How Cellpose itself is run: expected object diameter, probability "
+        "and flow thresholds, rescaling and inversion. Reach for these when "
+        "masks are systematically too many, too few or the wrong size; "
+        "which model runs is chosen under Model Training.",
+    "SEGMENTATION QC":
+        "Automatic pass/fail checks on the finished masks — object counts, "
+        "size and split ratios, border and foreground fractions, and how "
+        "much of a plate may fail before the run is called off. Tighten "
+        "them once you know what a good field looks like; loosen them when "
+        "a legitimately unusual plate keeps being rejected.",
+    "MEASUREMENTS":
+        "Which objects are measured and which features are computed for "
+        "them — intensity, morphology, texture, radial distribution and "
+        "colocalisation. Switch families off to keep the table narrow and "
+        "the run short; switch them on when an analysis needs a column that "
+        "is not there.",
+    "FILTER SETTINGS":
+        "Which segmented objects survive into the measurement table: the "
+        "minimum size per compartment, whether uninfected cells are kept, "
+        "and whether a pathogen straddling two cells merges them. Change "
+        "them when debris is being measured, or when real cells vanish.",
+    "OBJECT CROPS":
+        "The per-object images written next to the measurements — crop mode "
+        "and size, which mask each crop is centred on, how far it is "
+        "dilated, and which channels are baked in. Annotate and the CV "
+        "classifier read these later, so set them before generating a "
+        "training set.",
+    "PLATE LAYOUT & CONTROLS":
+        "The plate map: which wells hold which cell line, strain and "
+        "treatment, which are the positive and negative controls, and how "
+        "wells are grouped for reporting. Filled in once per plate design; "
+        "everything downstream labels its results from it.",
+    "TRAINING DATASET":
+        "How the labelled training set is assembled from the database — "
+        "annotation column versus well metadata, which crop type, how many "
+        "objects per class, and how much is held back for testing. Revisit "
+        "it when the classes come out imbalanced or the model sees too few "
+        "examples.",
+    "MODEL TRAINING":
+        "Which model is fitted and how: architecture or starting weights, "
+        "classes, input channels and size, epochs, optimiser, learning-rate "
+        "schedule, loss and augmentation. This is where an underfitting or "
+        "overfitting run gets fixed.",
+    "ML CLASSIFIER":
+        "The classical, non-image classifier fitted on measured features — "
+        "algorithm, tree count, regularisation, feature pruning and "
+        "permutation importance. Use it when the phenotype is already "
+        "captured by the measurement columns and a CNN would be overkill.",
+    "EMBEDDING & CLUSTERING":
+        "How the feature table is reduced to two dimensions and clustered "
+        "on top of that — neighbourhood size, distance metric, and the "
+        "DBSCAN/KMeans parameters with their noise handling. Change these "
+        "when the embedding is one undifferentiated blob, or shatters into "
+        "dozens of tiny clusters.",
+    "UMAP DISPLAY":
+        "How the embedding is drawn, in both the static figure and the "
+        "interactive explorer: point size, colour and opacity, cluster "
+        "outlines, how many thumbnails are sampled, canvas and sidebar "
+        "widths, and figure saving. Presentation only — none of it moves a "
+        "point.",
+    "ACTIVATION MAPS":
+        "Attribution settings for a trained image model — which method, "
+        "which layer is hooked, how the map is overlaid, and the "
+        "normalisation applied at inference. Open it when you want to know "
+        "what the classifier is actually looking at.",
+    "PLOT":
+        "What is drawn from the results and how it looks — figure size, "
+        "colour map, which control is shown alongside, and how many panels "
+        "are produced. Cosmetic: it changes the figures, never the numbers.",
+    "TIMELAPSE":
+        "Linking masks of the same object across frames when the data has a "
+        "time axis. Only relevant to a time series; a single-timepoint "
+        "plate ignores it.",
+    "ADVANCED":
+        "Run-level knobs that rarely need touching — verbosity, worker and "
+        "batch sizing, background handling, and whether results are written "
+        "at all. Come here to make a run quieter or lighter on the machine, "
+        "or to keep a scratch run from saving anything.",
+    "3D SETTINGS (BETA)":
+        "Experimental volumetric handling: how the z-axis is read, whether "
+        "planes are projected or stitched, and the physical voxel size used "
+        "for calibration. Needed only for z-stacks — and the voxel size is "
+        "what makes a 3-D measurement physically meaningful.",
+    "4D SETTINGS (BETA)":
+        "Experimental time-plus-volume handling: how the time axis is laid "
+        "out, the interval between frames, which backend links objects, and "
+        "how far one may move between frames. For data that is both a "
+        "z-stack and a time series.",
+    "MOTILITY (BETA)":
+        "The beta motility assay run inline with the mask pipeline: whether "
+        "it runs at all, and the per-object tracking parameters it uses. "
+        "The standalone Motility Assay module is the fuller version of the "
+        "same analysis.",
+    "MOTILITY ADVANCED (BETA)":
+        "Fine-grained control over the beta motility pipeline — which "
+        "features are selected and the filter windows applied to tracks. "
+        "Only worth opening once the basic assay runs and the tracks look "
+        "wrong in a specific way.",
+    "REGRESSION":
+        "The model that maps screen scores onto gRNA or well effect sizes, "
+        "its covariates, and the control-based threshold used to call a "
+        "hit. Change the family when the score distribution breaks the "
+        "assumptions the default makes.",
+    "INVASION ASSAY":
+        "The two-colour invasion readout: which channels carry the outside "
+        "and total stains, how the outside signal is measured, how its "
+        "threshold is chosen and sanity-checked, and which objects count as "
+        "parasites at all. The table the parasites are read from is under "
+        "Measurements.",
+    "SEQUENCING":
+        "How reads become barcode counts — read mode and direction, the "
+        "target sequence and regex, where the barcode starts and ends, "
+        "chunk size, and how the output is compressed. Match these to how "
+        "the library was built and how it was sequenced.",
+    "REPLICATION ASSAY":
+        "How parasites are assigned to vacuoles and counted into "
+        "replication states, including the warning raised when a vacuole "
+        "holds a biologically implausible, non-power-of-two number of "
+        "parasites.",
+    "ENDODYOGENY SIZE PROXY (LEGACY)":
+        "The older area-bin approximation of replication state, kept so "
+        "historical analyses still reproduce. New runs should use the "
+        "direct parasite-per-vacuole counts instead.",
+    # -- Mask / Timelapse --------------------------------------------------
+    "INPUT & METADATA":
+        "The image folder, which channel holds which object, and how spaCR "
+        "reads plate, well and field out of the file names. Nothing "
+        "segments correctly until the channel assignment and the naming "
+        "convention here are right.",
+    "WORKFLOW & TEST RUN":
+        "Which stages actually execute, whether this is a small test pass "
+        "over a few fields, and whether an interrupted run picks up where "
+        "it stopped. Start every new dataset here with a test run before "
+        "committing to the full plate.",
+    "IMAGE PREPROCESSING":
+        "What happens to the pixels before any mask is made — intensity "
+        "normalisation, projection, upscaling, denoising, and how fields "
+        "are batched. Reach for it when the images are dim, noisy, or at a "
+        "different scale from the one the model expects.",
+    "CELL SEGMENTATION":
+        "Everything that produces the cell mask: model and expected "
+        "diameter, probability and flow thresholds, background removal, and "
+        "the size, intensity and border filters applied afterwards. The "
+        "group to open when cells are missed, merged or split.",
+    "NUCLEUS SEGMENTATION":
+        "Everything that produces the nucleus mask: model and expected "
+        "diameter, thresholds, background removal, and the size, intensity "
+        "and border filters applied afterwards. Usually the easiest object "
+        "to get right, so a good sanity check on the channel assignment.",
+    "PATHOGEN SEGMENTATION":
+        "Everything that produces the pathogen mask: model and expected "
+        "diameter, thresholds, background removal, and the size, intensity "
+        "and border filters applied afterwards. Parasites packed into one "
+        "vacuole fusing into a single object is the usual reason to come "
+        "here.",
+    "ORGANELLE SEGMENTATION":
+        "Everything the organelle mask needs, in the order you set it up: "
+        "shape family and detection method, the background and contrast "
+        "correction applied first, the knobs belonging to the method you "
+        "chose (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), "
+        "the size, intensity and border filters applied to what was found, "
+        "and which parent compartment the results are summarised into. The "
+        "largest group in the module, because punctate, tubular and "
+        "ring-shaped organelles each want a different method.",
+    "QUALITY CONTROL":
+        "Automatic pass/fail checks on the finished masks — object counts, "
+        "size and split ratios, border and foreground fractions, and how "
+        "much of a plate may fail before the run is called off. Tighten "
+        "them once you know what a good field looks like; loosen them when "
+        "an unusual but legitimate plate keeps being rejected.",
+    "VOLUMETRIC PROCESSING (BETA)":
+        "How a z-stack is turned into something segmentable — whether "
+        "planes are projected or stitched, which axis is z, and the "
+        "physical voxel size. Ignore it entirely for single-plane data.",
+    "TIME AXES & TRACKING (BETA)":
+        "How the time axis is read and, experimentally, how objects are "
+        "linked between frames. The full tracking workflow is the Timelapse "
+        "module; this is the inline version.",
+    "VISUALIZATION & DIAGNOSTICS":
+        "The diagnostic figures a run draws as it goes — how many example "
+        "fields, at what size, with which colour map and normalisation. "
+        "Useful while tuning, and the first thing to switch off for a long "
+        "unattended run.",
+    "OUTPUT & STORAGE":
+        "What survives the run: which masks and images are written, which "
+        "intermediates are kept, how arrays are compressed, and whether "
+        "objects are filtered or merged on the way out. Disk usage is "
+        "decided here.",
+    "RUNTIME & RELIABILITY":
+        "How hard the run pushes the machine and what it does when a field "
+        "fails — worker count, batch size, the tolerated failure rate, and "
+        "how much it prints. Turn strict errors on while debugging; raise "
+        "the failure tolerance for a plate with known-bad fields.",
+    "ACQUISITION & AXES":
+        "How the file's dimensions map onto time and z, the interval "
+        "between frames, and the physical voxel size. Getting the axis "
+        "order right is the prerequisite for any tracking, and everything "
+        "downstream inherits it.",
+    "TRACKING SETUP":
+        "Which objects are tracked, over which range of frames, whether "
+        "short-lived tracks are discarded, and the frame rate of the movies "
+        "that come out. Start here, then pick a linker under Tracking "
+        "Backends.",
+    "TRACKING BACKENDS":
+        "Which algorithm links objects between frames — Trackastra, Ultrack "
+        "or a plain distance/overlap linker — and the parameters belonging "
+        "to whichever you pick. Switch backends when cells swap identities "
+        "or tracks break at division.",
+    # -- Measure -----------------------------------------------------------
+    "INPUT & EXPERIMENT":
+        "The folder holding the masked images and the experiment name the "
+        "measurements are filed under. Set once at the start of a "
+        "measurement run.",
+    "MASK & CHANNEL MAPPING":
+        "Which plane of the stack holds each mask and each intensity "
+        "channel, whether a cytoplasm compartment is derived, and whether "
+        "the data is a time series. A wrong index here quietly measures the "
+        "wrong object, so it is worth checking twice.",
+    "MEASUREMENT FEATURES":
+        "Which families of measurement are computed for every object — "
+        "intensity, morphology, texture, radial distribution and "
+        "colocalisation, with their parameters. More features means a wider "
+        "table and a longer run, so enable what the analysis needs.",
+    "OBJECT FILTERING":
+        "Which objects are large enough, infected enough or clean enough to "
+        "be measured at all. Raise the minimum sizes when debris is being "
+        "counted; lower them when small but real objects disappear.",
+    "CROP OUTPUT":
+        "The per-object PNGs and arrays written alongside the measurements "
+        "— crop mode and size, which channels and masks are included, "
+        "dilation, and how they are normalised. These are the images "
+        "Annotate and the CV classifier read later.",
+    "PREVIEW & DIAGNOSTICS":
+        "The small test run and the plots used to check a configuration "
+        "before committing to a whole plate. The fastest way to find out "
+        "that a channel index is wrong.",
+    "3D CALIBRATION (BETA)":
+        "The physical size of a voxel and the anisotropy between z and xy. "
+        "Only these turn volumetric measurements from pixel counts into "
+        "real units.",
+    # -- Motility ----------------------------------------------------------
+    "OBJECTS & CHANNELS":
+        "The measurement source, which tracked object the assay is about, "
+        "and which channels carry the cell, nucleus and pathogen signal. "
+        "The rest of the assay is only as good as this mapping.",
+    "SPATIAL & TEMPORAL CALIBRATION":
+        "Pixel size and seconds per frame — the two numbers that convert "
+        "movement in pixels into micrometres per second. Wrong here means "
+        "every speed in the report is wrong by a constant factor.",
+    "MOTION FILTERING":
+        "The rules that keep implausible tracks out of the result — the "
+        "largest jump allowed between frames, how straight a path has to "
+        "be, and the outlier cutoff. Tighten them when tracking errors show "
+        "up as impossibly fast cells.",
+    "INFECTION CLASSIFICATION":
+        "How a tracked cell is called infected, uninfected or ambiguous — "
+        "which strategy is used, which table it reads, and where the "
+        "probability cutoffs sit. The strategy chosen here decides which of "
+        "the groups below actually apply.",
+    "XGBOOST INFECTION MODEL":
+        "Training and tree parameters for the supervised infection "
+        "classifier, plus the probability threshold and margin that turn "
+        "its output into a call. In play only when the strategy above is "
+        "the XGBoost one.",
+    "INFECTION CLUSTERING":
+        "The unsupervised alternative: how many clusters, how the pathogen "
+        "channel is weighted, and the minimum separation and silhouette a "
+        "split has to reach before it is trusted. Use it when there are no "
+        "labels to train on.",
+    "EMBEDDING SEARCH":
+        "The UMAP and t-SNE parameter ranges searched while trying to "
+        "separate infected from uninfected phenotypes. Widen the grids when "
+        "nothing separates the groups; fix single values to make a result "
+        "reproducible.",
+    "MOTILITY PLOTS & QC":
+        "Axis limits and the diagnostic graphs used to review track quality "
+        "and the infection call. Look here first when the summary numbers "
+        "are surprising.",
+    # -- Classify (CV) -----------------------------------------------------
+    "PLATE SOURCES & WORKFLOW":
+        "Which plates the classifier is built from, the experiment it is "
+        "filed under, and which stages run — build the training set, train, "
+        "test. Uncheck the stages you have already done to re-run only the "
+        "part you are iterating on.",
+    "LABELS & CLASSES":
+        "Where the labels come from and what they mean — an annotation "
+        "column or well metadata, the class names, and the measurement that "
+        "defines them. Everything the model learns rests on this being the "
+        "label you think it is.",
+    "CROPS & DATASET SPLIT":
+        "Which crops feed the model, from which tables and channels, at "
+        "what size, and how they are divided into train and test — "
+        "including whether classes are balanced down to the smallest one. "
+        "Decide the split before training, not after.",
+    "MODEL ARCHITECTURE":
+        "The network being trained: backbone or custom weights, whether a "
+        "checkpoint is resumed, input channels and image size, dropout and "
+        "initialisation. Change the backbone when the model is too small "
+        "for the phenotype, or too large for the data you have.",
+    "OPTIMIZATION & LOSS":
+        "How the network is fitted — optimiser, learning rate and decay, "
+        "schedule, loss function and class balancing, epochs, batch size, "
+        "augmentation and early stopping. This is where a diverging or "
+        "underfitting run gets fixed.",
+    "VALIDATION":
+        "The held-out fraction, whether cross-validation runs and over how "
+        "many folds, what the folds are grouped by, and the score cutoff "
+        "used to call a class. Group folds by plate or well when the score "
+        "has to survive contact with a new plate.",
+    "EVALUATION WORKBENCH":
+        "The deeper evaluation pass — nested cross-validation, probability "
+        "calibration, and the leakage audit that checks the same object did "
+        "not appear in both train and test. Run it before believing a "
+        "headline accuracy.",
+    "FULL DATASET & INFERENCE":
+        "Applying a trained model to everything: which archive or dataset "
+        "is scored, which model file is loaded, how much is sampled, and "
+        "how many top examples are kept. Separate from training, so a "
+        "finished model can be re-applied without refitting.",
+    "MONITORING & RUNTIME":
+        "What the run reports while it happens and how hard it works — "
+        "plots, TensorBoard, intermediate saves, the random seed, workers "
+        "and failure strictness. Fix the seed here when a result has to be "
+        "reproducible.",
+    # -- Classify (ML) -----------------------------------------------------
+    "DATA & CONTROLS":
+        "The measurement database this model is fitted on, the wells that "
+        "define the positive and negative classes, and the column holding "
+        "existing labels. Get these wrong and every number downstream is "
+        "meaningless, so check them first.",
+    "FEATURE PREPARATION":
+        "Which measurement columns are allowed into the model, and the "
+        "variance, correlation, object-count and compartment filters "
+        "applied before fitting. Prune here when the feature table is wide, "
+        "redundant, or contains a column that leaks the answer.",
+    "PLATE & BATCH CORRECTION":
+        "Whether per-plate offsets are removed before analysis, which "
+        "column identifies the batch, and which wells anchor the "
+        "correction. Use it when plates were run on different days or "
+        "instruments and plate identity shows up as a larger effect than "
+        "the biology.",
+    "CLASSIFIER & VALIDATION":
+        "The estimator itself and how honestly it is scored — algorithm, "
+        "learning rate and regularisation, held-out fraction and "
+        "cross-validation. Change these when the model overfits, or when "
+        "the reported accuracy looks too good to be true.",
+    "FEATURE SELECTION & IMPORTANCE":
+        "Whether features are pruned before the final fit, and how repeated "
+        "permutation importance is computed afterwards. This is the part "
+        "that answers which measurements the decision is actually based on.",
+    "OUTPUT & DATABASE":
+        "Whether model scores are written back into the measurements "
+        "database so later modules can read them. Leave it off for "
+        "exploratory fits you would rather not record.",
+    "PLOTS & HEATMAPS":
+        "Which feature the heatmap shows, how wells are grouped, and the "
+        "colour map and value range used to draw it. Presentation of the "
+        "classifier's output; it does not change the fit.",
+    # -- Regression --------------------------------------------------------
+    "INPUT TABLES":
+        "The metadata, score and count tables the regression runs on. All "
+        "three have to agree on well and gRNA naming — disagreement there "
+        "is the usual cause of an empty result.",
+    "CONTROLS & PLATE DESIGN":
+        "The plate identifier, which wells are the positive and negative "
+        "controls, and any row filter applied before fitting. The controls "
+        "set the scale the effect sizes are reported on.",
+    "MODEL & COVARIATES":
+        "The regression family, the response variable, how replicates are "
+        "aggregated and transformed, regularisation, and the covariance "
+        "structure. Switch families when the residuals are clearly not what "
+        "the default assumes.",
+    "HIT CALLING & OUTLIERS":
+        "How much evidence a gRNA needs before it can be a hit — minimum "
+        "cell and well counts, the control-derived threshold and its "
+        "multiplier, and outlier rejection. Tighten these when the hit list "
+        "fills up with low-count noise.",
+    "REGRESSION PLOTS":
+        "The volcano plot, and the axis transforms and ranges used to draw "
+        "the regression output. Cosmetic: the fitted coefficients do not "
+        "change.",
+    "ADDITIONAL SETTINGS":
+        "The remaining knobs belonging to individual regression families "
+        "and plots — bootstrap counts, quantile and hinge parameters, "
+        "solver tolerance and axis limits. Only the ones for the model you "
+        "chose above have any effect.",
+    # -- Activation --------------------------------------------------------
+    "MODEL & DATA":
+        "The trained model, the dataset it is applied to, and the input "
+        "channels, object type and image size it expects. These have to "
+        "match how the model was trained or the maps mean nothing.",
+    "ATTRIBUTION METHOD":
+        "Which algorithm explains the prediction — Grad-CAM, SmoothGrad, "
+        "occlusion or integrated gradients — which layer it hooks, and the "
+        "parameters of whichever you pick. Methods disagree; comparing two "
+        "is often more informative than tuning one.",
+    "ATTRIBUTION VALIDATION":
+        "The checks that separate a real explanation from a pretty picture "
+        "— insertion and deletion steps, the baseline they are measured "
+        "against, and the model-weight sanity check. Worth running before "
+        "an attribution map goes into a figure.",
+    "MAP DISPLAY":
+        "How the finished map is rendered — input and map normalisation, "
+        "overlay on the source image, and whether it is plotted at all. "
+        "Presentation only.",
+    "MAP QUANTIFICATION":
+        "Turning a map into numbers: channel correlation and the Manders "
+        "thresholds used to ask how much of the attribution sits on a given "
+        "structure.",
+    "OUTPUT & RUNTIME":
+        "Whether maps are saved, whether the input order is shuffled, and "
+        "the batch size and worker count used to generate them.",
+    # -- Replication -------------------------------------------------------
+    "ASSAY INPUTS":
+        "The measurements database, the parasite table inside it, and the "
+        "compartment the parasites were measured in. The assay scores "
+        "existing measurements — it does not segment anything itself.",
+    "VACUOLE ASSIGNMENT":
+        "How individual parasites are grouped into vacuoles — an existing "
+        "vacuole identifier, or a spatial link whose distance scales with "
+        "parasite size — and whether a host cell is required. The whole "
+        "replication readout rests on this grouping.",
+    "CONDITION METADATA":
+        "Which wells hold which cell line, strain and treatment, and the "
+        "column and level the conditions are grouped and reported at.",
+    "REPLICATION SCORING":
+        "How grouped parasites become a replication state: the largest "
+        "vacuole accepted, the warning for biologically implausible counts, "
+        "and whether wells with cells but no parasites are seeded as zeros. "
+        "Leaving those wells out silently inflates the mean.",
+    "ASSAY OUTPUT":
+        "Whether the assay's results and figures are written, and the "
+        "colour map used to draw them.",
+    # -- External Masks ----------------------------------------------------
+    "INPUT MAPPING":
+        "How externally generated images and label masks are found and "
+        "paired — the input list, the project folder written to, recursion, "
+        "plate and well layout, z handling and naming. Preview the mapping "
+        "before writing anything; this is where a mismatched pairing is "
+        "caught.",
+}
+
+
+#: Per-module overrides for headings that mean different things per module.
+#: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
+CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "map_barcodes": {
+        "PATHS":
+            "The sequencing reads and the three reference CSVs the barcodes "
+            "are looked up in — gRNA, row and column. A mapping run that "
+            "returns nothing is almost always one of these pointing at the "
+            "wrong file.",
+    },
+    "train_cellpose": {
+        "CELLPOSE":
+            "The shape of the training run itself — whether it starts from "
+            "scratch, how many epochs, the tile size images are cut to, and "
+            "the diameter the data is rescaled to. Which weights are "
+            "trained is chosen under Model Training.",
+        "ADVANCED":
+            "Batch size, background removal and how much the run prints. "
+            "Reduce the batch size when the GPU runs out of memory.",
+    },
+    "cellpose_masks": {
+        "GENERAL":
+            "Which channels are handed to Cellpose and whether they are "
+            "normalised first. Two settings, and both change the mask.",
+        "MODEL TRAINING":
+            "Which model does the segmenting — a packaged Cellpose model, "
+            "or a custom weights file of your own. Nothing is trained here; "
+            "this is the model picker.",
+        "ADVANCED":
+            "Batch size, background removal, saving and verbosity for the "
+            "mask run. Reduce the batch size when the GPU runs out of "
+            "memory.",
+    },
+    "cellpose_all": {
+        "GENERAL":
+            "Which channels every candidate model is run on, whether they "
+            "are normalised, and whether the comparison figures are drawn.",
+        "ADVANCED":
+            "Batch size, background removal, saving and verbosity for the "
+            "model comparison run.",
+    },
+    "analyze_plaques": {
+        "ADVANCED":
+            "Batch size, background level, whether masks and results are "
+            "written, and how much the run prints.",
+    },
+    "umap": {
+        "PATHS":
+            "The measurements database the embedding is built from. One "
+            "setting, and every other group depends on it.",
+        "MEASUREMENTS":
+            "Which tables and feature columns enter the embedding, and "
+            "which are excluded or dropped for being redundant. The single "
+            "most effective place to change what the map looks like.",
+        "PLATE LAYOUT & CONTROLS":
+            "Rules that drop whole rows out of the embedding by column "
+            "value — a failed well, an untreated control, a plate you are "
+            "not interested in today.",
+        "PLOT":
+            "How many rows are drawn and which column colours the points. "
+            "Colouring by a metadata column is the quickest way to see "
+            "whether a cluster is biology or batch.",
+        "ADVANCED":
+            "Where the crops are read from, worker count and verbosity. "
+            "Rarely touched once a project is set up.",
+    },
+    "recruitment": {
+        "GENERAL":
+            "Which array plane holds each mask and each intensity channel, "
+            "and whether preview figures are drawn. A wrong index here "
+            "measures the wrong compartment without complaining.",
+        "MEASUREMENTS":
+            "The size and intensity windows an object has to fall inside to "
+            "count, plus the per-well cell limits. These gates decide which "
+            "cells the recruitment ratio is averaged over.",
+        "PLATE LAYOUT & CONTROLS":
+            "Which wells hold which cell line, strain and treatment, and "
+            "which channel the recruitment is measured on. Filled in once "
+            "per plate design.",
+        "PLOT":
+            "Figure size, which control is drawn alongside, and how many "
+            "example plots are produced.",
+    },
+    "invasion": {
+        "MEASUREMENTS":
+            "Which measurement table the parasites are read from and which "
+            "compartment they were measured in. The assay scores existing "
+            "measurements rather than segmenting again.",
+        "PLATE LAYOUT & CONTROLS":
+            "Which wells hold which cell line, strain and treatment, and "
+            "the column and level the invasion rates are grouped and "
+            "reported at.",
+        "PLOT":
+            "The colour map the assay's figures are drawn with. Worth "
+            "changing for a diverging scale when the interesting result is "
+            "movement away from the control in both directions.",
+        "ADVANCED":
+            "Whether results are written to disk, and how much the run "
+            "prints. Leave saving off while you are still deciding on a "
+            "threshold.",
+    },
+    "external_masks": {
+        "GENERAL":
+            "The experiment name, channel list, normalisation and whether a "
+            "cytoplasm compartment is derived — the frame the imported "
+            "masks are measured in. Check the channel list matches the "
+            "images you are importing.",
+        "TIMELAPSE":
+            "Which objects are linked across frames when the imported data "
+            "is a time series. Leave it alone for single-timepoint plates.",
+        "MEASUREMENTS":
+            "Which feature families are computed for the imported masks — "
+            "intensity, texture, radial distribution and colocalisation. "
+            "The expensive ones are off by default.",
+        "ADVANCED":
+            "Resume, failure tolerance, dry runs, worker count and "
+            "verbosity for the import. Turn strict errors on the first time "
+            "you import someone else's data.",
+    },
+    "timelapse": {
+        "RUNTIME & RELIABILITY":
+            "Which stages run, whether this is a small test pass, and how "
+            "the run behaves under load and failure — workers, batch size, "
+            "tolerated failure rate and verbosity. Track a few fields in "
+            "test mode before committing to a whole plate.",
+    },
+    "motility": {
+        "RUNTIME & RELIABILITY":
+            "How many worker processes the assay uses. Lower it when the "
+            "machine has other work to do.",
+    },
+    "ml_analyze": {
+        "RUNTIME & RELIABILITY":
+            "How many cores the fit is spread over, and how much it prints "
+            "on the way. Lower the worker count when the machine has other "
+            "work to do; raise the verbosity when a fit is failing and you "
+            "cannot see where.",
+    },
+    "regression": {
+        "RUNTIME & RELIABILITY":
+            "Whether a failed plate stops the run, and how large a fraction "
+            "of failures is tolerated before it does.",
+    },
+    "replication": {
+        "OBJECT FILTERING":
+            "The area window a segmented object has to fall inside to count "
+            "as a parasite. Debris below it and clumps above it are "
+            "excluded.",
+        "RUNTIME & RELIABILITY":
+            "How much the assay prints as it runs. Turn it up when a well "
+            "comes out empty and you need to see which step discarded its "
+            "parasites.",
+    },
+}
+
+
+def category_tooltip(
+    app_key: str,
+    title: str,
+    language: Optional[str] = None,
+) -> str:
+    """Return the plain-language blurb for one settings category.
+
+    Resolution order: the module's own override, then the shared table, then
+    a generic sentence built from the title. The generic one is a *visible*
+    fallback rather than an empty string so a brand-new category is never
+    silently blank — ``tests/qt/test_category_tooltips.py`` fails on it.
+
+    :param app_key: module the category is being rendered for.
+    :param title: category title as shown on the header (any case).
+    :param language: optional language override; defaults to the UI language.
+    """
+    key = str(title or "").upper().strip()
+    if not key:
+        return ""
+    text = CATEGORY_TOOLTIPS_BY_APP.get(str(app_key or ""), {}).get(key)
+    if not text:
+        text = CATEGORY_TOOLTIPS.get(key, "")
+    if not text:
+        text = f"Settings that control {str(title).lower().strip()}."
+    return _translated_body(text, language)
+
+
+def category_tooltip_is_curated(app_key: str, title: str) -> bool:
+    """True when a category has a written blurb rather than the fallback."""
+    key = str(title or "").upper().strip()
+    return bool(
+        CATEGORY_TOOLTIPS_BY_APP.get(str(app_key or ""), {}).get(key)
+        or CATEGORY_TOOLTIPS.get(key)
+    )
+
+
 def get_tooltips() -> Dict[str, str]:
     """Return per-key tooltip text (spacr.settings.descriptions and .tooltips)."""
     tips: Dict[str, str] = {}
