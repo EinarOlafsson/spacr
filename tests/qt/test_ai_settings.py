@@ -6,14 +6,20 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
-    """Point QSettings at an isolated .ini file so tests don't leak
-    into the developer's real preferences."""
+    """Point QSettings at an isolated store so tests don't leak
+    into the developer's real preferences.
+
+    NativeFormat has to be redirected too: ``QSettings("spacr", "qt")``
+    ignores ``setDefaultFormat``/``setPath(IniFormat, ...)``, so the Ini-only
+    redirect this used to do left the ``.clear()`` below aimed at the real
+    ``~/.config/spacr/qt.conf``.
+    """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-ai-settings-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                        str(tmp_path))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     # Reset any prior state per test
     from spacr.qt.ai import settings as s
     QSettings("spacr", "qt").clear()
