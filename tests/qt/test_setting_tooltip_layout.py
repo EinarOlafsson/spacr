@@ -329,13 +329,32 @@ def test_an_empty_body_shows_nothing(tooltip, qtbot):
 
 
 def test_a_dead_anchor_does_not_take_the_event_loop_down(tooltip, qtbot):
-    """The popup holds a plain reference to a widget it does not own."""
+    """The popup holds a plain reference to a widget it does not own.
+
+    Surviving the dead anchor is half of it; the other half is that the popup
+    then does what it was called to do — drops the stale reference and hides.
+    A ``_maybe_hide`` that caught the RuntimeError and returned early would
+    have left the tooltip on screen for the rest of the session and still
+    passed the old "must not raise" version of this test.
+    """
+    import shiboken6
+
     anchor = _anchor(qtbot)
     tooltip.show_for(anchor, HTML)
-    anchor.deleteLater()
+    assert tooltip.isVisible()
+
+    # `deleteLater()` + `del` did NOT reproduce the bug: the deferred delete
+    # needs an event-loop turn, so the C++ object was still alive and
+    # `underMouse()` answered normally. Destroy the C++ half outright and keep
+    # the Python wrapper — which is exactly the state a module switch inside
+    # the hide delay leaves the singleton holding.
     anchor.setParent(None)
-    del anchor
-    tooltip._maybe_hide()                     # must not raise
+    shiboken6.delete(anchor)
+    assert not shiboken6.isValid(anchor), "the anchor is not actually dead"
+
+    tooltip._maybe_hide()
+    assert not tooltip.isVisible()
+    assert tooltip._anchor is None, "the dead anchor was kept"
 
 
 def test_the_text_wraps_to_the_narrow_column_without_clipping(tooltip, qtbot):

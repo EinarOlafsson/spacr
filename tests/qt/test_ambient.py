@@ -522,13 +522,45 @@ def test_the_buffer_is_reallocated_only_when_the_canvas_changes():
 @pytest.mark.parametrize("size", [(1, 1), (3, 400), (1920, 1080), (0, 0)])
 @pytest.mark.parametrize("theme", AMBIENT_THEMES)
 def test_absurd_canvases_still_paint_without_raising(theme, size):
+    """A degenerate canvas is survivable, and survivable means two things.
+
+    "Does not raise" was the whole test, which cannot fail on anything an
+    engine does short of an exception — including painting outside the rect it
+    was given, or leaving itself in a state where the next frame is blank. Both
+    are asserted now:
+
+    * a zero-width or zero-height request paints NOTHING (the sentinel fill is
+      still intact everywhere), rather than spilling over the 1x1 image the
+      caller had to allocate to hold it;
+    * whatever the absurd size did, the engine still renders a normal frame
+      afterwards — the property that actually matters to a resizing window.
+    """
+    sentinel = QColor("#ff00ff")
     engine = make_engine(theme, "spacr", DARK, seed=2)
     engine.set_time(9.0)
     width, height = size
     image = QImage(max(1, width), max(1, height), QImage.Format_RGB32)
+    image.fill(sentinel)
     painter = QPainter(image)
     engine.paint(painter, width, height)
     painter.end()
+
+    def _touched(img):
+        return any(QColor(img.pixel(x, y)).name() != sentinel.name()
+                   for x in range(img.width())
+                   for y in range(img.height()))
+
+    if width == 0 or height == 0:
+        assert not _touched(image), (
+            f"{theme} painted outside a {size} canvas")
+
+    after = QImage(200, 120, QImage.Format_RGB32)
+    after.fill(sentinel)
+    painter = QPainter(after)
+    engine.paint(painter, 200, 120)
+    painter.end()
+    assert _touched(after), (
+        f"{theme} stopped painting after a {size} canvas")
 
 
 def test_a_half_written_engine_fails_loudly_rather_than_painting_nothing():
