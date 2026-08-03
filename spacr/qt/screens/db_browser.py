@@ -105,7 +105,16 @@ from spacr.database_concurrency import (
     transaction,
 )
 
-from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
+import pandas as pd
+
+from PySide6.QtCore import (
+    QAbstractTableModel,
+    QItemSelection,
+    QItemSelectionModel,
+    QModelIndex,
+    Qt,
+    Signal,
+)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -127,7 +136,9 @@ from PySide6.QtWidgets import (
 )
 from ..widgets.toggle import Toggle
 
+from ...selection import OBJECT_KEY_COLUMNS, DataFilter, Selection
 from ..bridge import make_thread
+from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
@@ -1126,8 +1137,19 @@ class PreviewModel(QAbstractTableModel):
 # Screen
 # ---------------------------------------------------------------------------
 
-class DbBrowserScreen(QWidget):
+class DbBrowserScreen(LinkedView, QWidget):
     """Browser for a spaCR measurements database — read-only by default.
+
+    Joined to the shared selection as ``"db_browser"``, in both directions:
+
+    * selecting rows publishes them, so a row picked out here lights up on
+      the plate heatmap and in the UMAP;
+    * a selection published elsewhere selects and scrolls to the same rows;
+    * a filter published elsewhere HIDES rows, which a selection never does.
+
+    All three act on the rows already fetched. Nothing here re-queries: the
+    shared filter is a lens over the page in memory, and the row-count label
+    keeps saying how much of the table that page is.
 
     :param threaded: run queries on a worker thread (the default). Tests
         pass ``False`` to get deterministic, synchronous behaviour.
@@ -1219,6 +1241,19 @@ class DbBrowserScreen(QWidget):
         self.last_edit_sql: str = ""
         self.confirm_edit_mode: Callable[[str], bool] = self._default_confirm
 
+        # -- linked selection state ----------------------------------------
+        # True while an incoming selection is being written into the view.
+        # Echo suppression stops this screen hearing its *own* publications,
+        # but not itself re-publishing what it was just told: the round trip
+        # would replace the shared selection with the part of it this page
+        # happens to have loaded, quietly narrowing a lasso to one chunk.
+        self._syncing_selection: bool = False
+        #: Model rows the shared filter hides, by row index.
+        self._linked_hidden: set = set()
+        #: Appended to the status line while the shared filter is narrowing
+        #: what this table shows, or explaining why it could not be applied.
+        self._linked_filter_note: str = ""
+
         self._build_ui()
         # Match the pipeline screens: the database file, its measurements/
         # folder, and the enclosing run folder can all be dropped anywhere on
@@ -1230,6 +1265,9 @@ class DbBrowserScreen(QWidget):
             "Choose a measurements.db, or a run folder containing "
             "measurements/measurements.db.")
         self._update_controls()
+        # After the UI: both hooks paint into the view, and a filter can
+        # already be set by the time this screen opens.
+        self.link_selection("db_browser")
 
     # -- construction ------------------------------------------------------
 
@@ -1340,6 +1378,15 @@ class DbBrowserScreen(QWidget):
         # balloon to fill the window while its neighbours stay clipped.
         header.setStretchLastSection(False)
         header.setDefaultSectionSize(150)
+        # Publish whatever the user picks out, and re-hide the filtered rows
+        # whenever the row set moves under the view. `setRowHidden` is
+        # positional and Qt clears it on a model reset, so both signals are
+        # needed: `modelReset` for a new page, a column search or a sort, and
+        # `rowsInserted` for the chunks that arrive as the user scrolls.
+        self._view.selectionModel().selectionChanged.connect(
+            self._on_view_selection_changed)
+        self._model.modelReset.connect(self._apply_linked_filter)
+        self._model.rowsInserted.connect(self._apply_linked_filter)
         right_layout.addWidget(self._view, 1)
 
         page_row = QHBoxLayout()
@@ -1822,7 +1869,181 @@ class DbBrowserScreen(QWidget):
         if self._filter_label:
             bits.append(f"filter: {self._filter_label}")
         bits.append("edit mode" if self._edit_mode else "read-only")
-        self._set_status(" · ".join(bits))
+        # A table quietly showing two thirds of its rows is how a count gets
+        # reported as the whole population.
+        self._set_status(" · ".join(bits) + self._linked_filter_note)
+
+    # -- the shared filter and selection -----------------------------------
+
+    def _linked_frame(self, columns: Sequence[str]) -> pd.DataFrame:
+        """The loaded rows as a frame, indexed by model row number.
+
+        Only the columns asked for, and only those this table actually has:
+        a measurement table is 500 columns wide and a shared filter names
+        two of them. Building the whole page as a frame on every filter
+        change would make a slider drag cost more than the query did.
+
+        The positional index is load-bearing — it is what turns the filtered
+        frame back into the row numbers to hide.
+        """
+        available = self._model.all_columns()
+        at = {c: i for i, c in enumerate(available)}
+        wanted = [c for c in dict.fromkeys(columns) if c in at]
+        rows = self._model.rows()
+        return pd.DataFrame({c: [row[at[c]] for row in rows] for c in wanted},
+                            index=range(len(rows)), columns=wanted)
+
+    def _apply_linked_filter(self, *_args) -> None:
+        """Hide the rows the shared filter excludes.
+
+        Hiding rather than dropping: the model still holds every fetched row,
+        so an edit made before the filter arrived still addresses the row it
+        was made against, and clearing the filter costs no re-query.
+
+        Degrades to hiding nothing when the filter names a column this table
+        does not have — a filter carried over from the ``cell`` table to
+        ``png_list`` is the common case, and an empty table is a worse answer
+        than a complete one, PROVIDED the status line says which it is.
+        """
+        total = self._model.rowCount()
+        hidden: set = set()
+        note = ""
+        try:
+            data_filter = self.link.filter
+        except Exception:
+            data_filter = DataFilter()
+        if total and not data_filter.is_empty:
+            try:
+                frame = self._linked_frame(
+                    [c.column for c in data_filter.clauses])
+                kept = {int(i) for i in self.linked_visible(frame).index}
+                hidden = {row for row in range(total) if row not in kept}
+                note = (f" · filtered: {data_filter.describe()} "
+                        f"({total - len(hidden)} of {total} loaded rows)")
+            except Exception as exc:
+                hidden = set()
+                note = f" · filter ignored ({exc.__class__.__name__})"
+        previous, self._linked_hidden = self._linked_hidden, hidden
+        if hidden or previous:
+            # Skipped entirely while nothing is filtered, and this runs once
+            # per chunk: a walk over every loaded row on each of the 4 000
+            # chunks of a 400 k-row table is the difference between scrolling
+            # and not scrolling.
+            for row in range(total):
+                self._view.setRowHidden(row, row in hidden)
+        changed = note != self._linked_filter_note
+        self._linked_filter_note = note
+        if changed and self._db is not None and self._table:
+            self._report_table_status()
+
+    def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        self._apply_linked_filter()
+
+    def hidden_rows(self) -> List[int]:
+        """Model rows the shared filter is hiding, ascending."""
+        return sorted(self._linked_hidden)
+
+    def visible_rows(self) -> List[int]:
+        """Model rows the shared filter keeps on screen, ascending."""
+        return [row for row in range(self._model.rowCount())
+                if row not in self._linked_hidden]
+
+    # -- selection ---------------------------------------------------------
+
+    def rows_for_selection(self, selection: Selection) -> List[int]:
+        """The loaded rows ``selection`` names, ascending.
+
+        Empty — not an error — for a table with no object identity in it
+        (``png_list`` keyed on a path, a summary, a view). A shared selection
+        simply has nothing to say about those rows.
+        """
+        if not selection.is_active or not self._model.rowCount():
+            return []
+        try:
+            mask = selection.mask_for(self._linked_frame(OBJECT_KEY_COLUMNS))
+        except Exception:
+            return []
+        return [row for row, keep in enumerate(mask) if keep]
+
+    def selected_rows(self) -> List[int]:
+        """The rows the user currently has selected, ascending."""
+        model = self._view.selectionModel()
+        if model is None:
+            return []
+        return sorted({index.row() for index in model.selectedIndexes()})
+
+    def select_rows(self, rows: Sequence[int]) -> List[int]:
+        """Select ``rows`` as a user would, publishing them to every view.
+
+        :returns: the rows that were in range and got selected.
+        """
+        model = self._view.selectionModel()
+        columns = self._model.columnCount()
+        total = self._model.rowCount()
+        wanted = sorted({int(r) for r in rows if 0 <= int(r) < total})
+        if model is None or not columns:
+            return []
+        model.clearSelection()
+        if wanted:
+            model.select(self._selection_block(wanted),
+                         QItemSelectionModel.Select)
+        return wanted
+
+    def _selection_block(self, rows: Sequence[int]) -> QItemSelection:
+        """One whole-row-per-range selection covering ``rows``."""
+        block = QItemSelection()
+        last = self._model.columnCount() - 1
+        for row in rows:
+            block.select(self._model.index(row, 0),
+                         self._model.index(row, last))
+        return block
+
+    def _on_view_selection_changed(self, *_args) -> None:
+        """Publish what the user picked out.
+
+        An *empty* selection is deliberately not published. Qt clears the
+        view selection on every model reset — a new chunk, a column search, a
+        sort — and publishing that as "the user selected nothing" would wipe
+        a lasso drawn in the UMAP every time this screen loaded a page.
+        Returning to the resting state is :meth:`clear_linked_selection`'s
+        job, not a side effect of scrolling.
+        """
+        if self._syncing_selection:
+            return
+        rows = self.selected_rows()
+        if not rows:
+            return
+        try:
+            self.publish_selection(
+                self._linked_frame(OBJECT_KEY_COLUMNS).iloc[rows])
+        except Exception:
+            # No object identity in this table; selecting a row in it is a
+            # local act, not something the other views can follow.
+            return
+
+    def on_linked_selection_changed(self, selection: Selection) -> None:
+        """Select and scroll to the rows somebody else picked.
+
+        Nothing is hidden: rows the selection does not name stay exactly
+        where they are. Only the shared *filter* removes rows from view.
+        """
+        model = self._view.selectionModel()
+        if model is None or not self._model.columnCount():
+            return
+        rows = self.rows_for_selection(selection)
+        # Guarded, not merely echo-suppressed: this screen would otherwise
+        # re-publish what it was just told, replacing a selection of ninety
+        # thousand objects with the hundred of them this page has loaded.
+        self._syncing_selection = True
+        try:
+            model.clearSelection()
+            if rows:
+                model.select(self._selection_block(rows),
+                             QItemSelectionModel.Select)
+                self._view.scrollTo(self._model.index(rows[0], 0),
+                                    QAbstractItemView.PositionAtCenter)
+        finally:
+            self._syncing_selection = False
 
     # -- filtering ---------------------------------------------------------
 
@@ -2429,7 +2650,14 @@ class DbBrowserScreen(QWidget):
         Destroying a QThread that is still running aborts the process, so
         we wait (briefly) rather than hope. Jobs that have not started yet
         are simply dropped — nothing has been spawned for them.
+
+        The shared link outlives this screen, so let go of it too.
         """
+        try:
+            self.unlink_selection()
+        except (RuntimeError, TypeError):
+            # The process-wide link's C++ side is gone (interpreter teardown).
+            pass
         for _fn, _on_done, kind, _token in self._queue:
             self._release(kind)
         self._queue.clear()
