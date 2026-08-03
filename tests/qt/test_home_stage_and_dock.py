@@ -435,22 +435,17 @@ class TestPaneOpacity:
         prefs.set_pane_opacity(3.0)
         assert prefs.get_pane_opacity() == 1.0
 
-    def test_the_home_pane_follows_the_opacity_preference(
+    def test_the_home_pane_paints_no_box_behind_the_tiles(
             self, qtbot, qt_theme_applied, tmp_settings):
-        """The box the tiles sit in is painted at the effective alpha.
+        """The container behind the tiles is gone, not dialled.
 
-        It briefly never painted at all, on the reasoning that the tiles carry
-        their own fill and rim so any pane fill reads as a dark container
-        drawn around them. That reasoning is sound, and is precisely why the
-        alpha belongs to the user: the request was that page opacity reach
-        "the black containers that the module tiles are in" as well as the
-        tiles themselves, and a pane hardcoded transparent is one the setting
-        cannot reach — pinned at 0%, with the slider dragged to solid leaving
-        it invisible.
-
-        Zero still yields a fully transparent pane, which is the look that
-        change was after. It is simply no longer the only thing the control
-        can produce.
+        Settled after three passes — a surface at the effective alpha, then
+        transparent, then briefly painted at the preference on the reading
+        that opacity should "apply to the containers the tiles are in". The
+        final instruction is the clearest of the three: remove the black boxes
+        behind the tiles, and make the TILES subject to opacity instead. So
+        the container paints nothing, and the dialling moved to the tile fill
+        where it is actually visible — which the next test covers.
         """
         from spacr.qt import preferences as prefs
         from spacr.qt.widgets.home import _tab_qss
@@ -464,12 +459,25 @@ class TestPaneOpacity:
             # Only the pane rule: the selected tab paints the surface
             # colour on purpose, so it blends into the pane's edge.
             pane = qss.split("QTabWidget#HomeTabs::pane {", 1)[1].split("}", 1)[0]
-            effective = prefs.effective_pane_alpha()
-            if effective <= 0.0:
-                assert "background: transparent" in pane
-            else:
-                assert theme.css_color(palette["surface"], effective) in pane
-            assert qss == _tab_qss(palette, effective)
+            assert "background: transparent" in pane
+            assert palette["surface"] not in pane
+            assert qss == _tab_qss(palette, prefs.effective_pane_alpha())
+
+    @pytest.mark.parametrize("requested", [0.25, 0.6, 1.0])
+    def test_the_tiles_themselves_carry_the_opacity(self, requested):
+        """Where the dialling went when the pane stopped painting.
+
+        The tile is the thing the user sees; making IT translucent is what
+        lets the animated backdrop through without leaving a box drawn around
+        the grid.
+        """
+        name = "dark"
+        palette = theme.palette_for(name)
+        qss = theme.stylesheet(name, surface_opacity=requested)
+        expected = theme.css_color(
+            palette["surface"], theme.panel_alpha(name, "tile", requested))
+        assert expected in qss, \
+            f"tiles did not take the {requested} opacity"
 
     @pytest.mark.parametrize("name", theme.THEMES)
     def test_the_preference_controls_shared_module_surfaces(self, name):
