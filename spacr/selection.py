@@ -17,8 +17,8 @@ numpy**, with no Qt anywhere:
 
 :mod:`spacr.qt.linked_selection` wraps it in a ``QObject`` with signals.
 
-Two ideas, kept separate on purpose
------------------------------------
+Three ideas, kept separate on purpose
+-------------------------------------
 
 **A filter** narrows the population everyone is looking at: "wells with at
 least 200 cells, plate 3 only". It is declarative, cheap to describe, and
@@ -32,6 +32,14 @@ Conflating the two is the usual mistake. A filter can be re-applied to a
 different table (another plate, a re-run) and still mean something; a
 selection cannot, because it names individual objects.
 
+**A request** (:class:`ObjectRequest`) is neither: it is one act of routing.
+"Open exactly these twelve objects, because they are the cells this model
+called infected and the annotator called uninfected." A filter and a selection
+are *state* that every view reads; a request is an *event* that travels once,
+from the view that made it to the view that can show it. It carries the reason
+with it, because a view showing twelve crops out of ninety thousand has to be
+able to say why those twelve — otherwise they read as the whole dataset.
+
 Identity
 --------
 
@@ -44,6 +52,7 @@ row in the plate view without a lookup table in between.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -57,7 +66,9 @@ __all__ = [
     "CategoryFilter",
     "DataFilter",
     "Selection",
+    "ObjectRequest",
     "object_keys",
+    "as_key_index",
     "OBJECT_KEY_COLUMNS",
 ]
 
@@ -289,5 +300,171 @@ class Selection:
         return cls(keys=object_keys(df, timelapse=timelapse), source=source)
 
     @classmethod
+    def from_keys(cls, keys: Any, source: str = "",
+                  *, timelapse: bool = False) -> "Selection":
+        """Select exactly ``keys`` — anything :func:`as_key_index` accepts.
+
+        The counterpart to :meth:`from_frame` for a view that never had the
+        frame: a scatter plot holding an array of keys, or a screen restoring
+        a selection from a settings file.
+        """
+        return cls(keys=as_key_index(keys, timelapse=timelapse), source=source)
+
+    @classmethod
     def none(cls) -> "Selection":
         return cls(keys=None, source="")
+
+
+# ---------------------------------------------------------------------------
+# "Show me exactly these objects"
+# ---------------------------------------------------------------------------
+
+def as_key_index(keys: Any, *, timelapse: bool = False) -> pd.Index:
+    """Coerce whatever names a set of objects into object keys.
+
+    :param keys: one of
+
+        * a :class:`Selection` — its keys. A *resting* selection (``keys is
+          None``) raises: "open nothing" is not a request, and turning it into
+          an empty one would silently open an empty view.
+        * a :class:`pandas.DataFrame` carrying :data:`OBJECT_KEY_COLUMNS` —
+          :func:`object_keys` of it.
+        * a single ``str`` — ONE key. Special-cased on purpose: a string is
+          iterable, so falling through to the iterable branch would open one
+          object per character, which is the sort of thing that produces a
+          grid of 23 empty tiles rather than an error.
+        * any other iterable of keys — an Index, a Series, a list — coerced
+          with ``str``.
+
+    :param timelapse: passed to :func:`object_keys` for the frame case, so a
+        timelapse table keys each frame of an object separately.
+    :returns: a :class:`pandas.Index` of ``str``.
+    :raises TypeError: if ``keys`` is not something that can name objects.
+    :raises ValueError: for a resting :class:`Selection`.
+
+    Order is preserved and duplicates are dropped. Order is load-bearing: it
+    is what carries "worst errors first" from a confusion-matrix cell through
+    to whatever opens them, and a duplicated key would draw the same crop
+    twice in the grid.
+    """
+    if isinstance(keys, Selection):
+        if keys.keys is None:
+            raise ValueError(
+                "a resting Selection names no objects; there is nothing to "
+                "open. Check `selection.is_active` first — 'nothing selected' "
+                "and 'an empty selection' are different states.")
+        values: Iterable[Any] = list(keys.keys)
+    elif isinstance(keys, pd.DataFrame):
+        values = list(object_keys(keys, timelapse=timelapse))
+    elif isinstance(keys, str):
+        values = [keys]
+    else:
+        try:
+            values = list(keys)
+        except TypeError:
+            raise TypeError(
+                f"cannot read object keys out of {type(keys).__name__}; pass "
+                f"a DataFrame, a Selection, a key string, or an iterable of "
+                f"key strings") from None
+    seen = set()
+    unique = []
+    for value in values:
+        text = str(value)
+        if text not in seen:
+            seen.add(text)
+            unique.append(text)
+    return pd.Index(unique, dtype=object)
+
+
+@dataclass(frozen=True, eq=False)
+class ObjectRequest:
+    """One "open exactly these objects" act, on its way to whatever shows them.
+
+    Built by the view that asked and handed, unchanged, to the opener
+    registered for :attr:`kind` — see
+    :func:`spacr.qt.linked_selection.open_objects`. Openers take this one
+    object rather than a handful of arguments so the request can grow a field
+    without breaking every registered opener.
+
+    :param keys: anything :func:`as_key_index` accepts. Normalised to a
+        :class:`pandas.Index` of :data:`OBJECT_KEY_COLUMNS` keys on
+        construction, so an opener may assume ``request.keys`` is an Index of
+        ``str``, in the caller's order, without duplicates.
+    :param reason: why these objects, in the words the receiving view will
+        put on screen ("predicted infected, annotated uninfected"). Required
+        and non-blank: a grid showing twelve crops out of ninety thousand and
+        not saying why is read as the whole dataset.
+    :param source: the view that asked ("umap", "classifier_evaluation").
+    :param kind: the destination. Left empty by callers who take the default;
+        the router stamps the kind it actually dispatched to, so an opener
+        registered for two kinds can tell which one it was reached through.
+    :param timelapse: whether ``keys`` carry a timepoint, so the receiver
+        resolves them against its own table the same way they were built.
+    :param context: free-form extras for the destination — per-key scores to
+        sort by, a column to annotate into. Copied and made read-only, so a
+        caller mutating their dict cannot change a request already sent.
+    :raises ValueError: on a blank ``reason``.
+
+    An EMPTY request is legal. A confusion-matrix cell holding no errors is a
+    real answer, and the destination saying "0 objects · no errors in this
+    cell" is more use than an exception the caller has to catch.
+    """
+
+    keys: Any
+    reason: str
+    source: str = ""
+    kind: str = ""
+    timelapse: bool = False
+    context: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "keys", as_key_index(self.keys, timelapse=self.timelapse))
+        reason = str(self.reason).strip()
+        if not reason:
+            raise ValueError(
+                "an object request needs a reason: it becomes the line the "
+                "receiving view shows above a subset, and without it a "
+                "handful of crops reads as the whole population")
+        object.__setattr__(self, "reason", reason)
+        object.__setattr__(self, "context", MappingProxyType(dict(self.context)))
+
+    def __len__(self) -> int:
+        return len(self.keys)
+
+    def select_from(self, df: pd.DataFrame) -> pd.DataFrame:
+        """The rows of ``df`` this request names, **in the request's order**.
+
+        Not a mask, and not ``df``'s order: the caller's order is the answer
+        for a request built worst-first, and a boolean mask would silently
+        re-sort it back into table order. Keys with no row in ``df`` are
+        dropped — a request can name objects a narrower table does not carry,
+        and that is a smaller result, not an error.
+        """
+        if df.empty:
+            return df.iloc[:0]
+        rank_of = {key: i for i, key in enumerate(self.keys)}
+        ranks = np.array(
+            [rank_of.get(k, -1) for k in object_keys(df, timelapse=self.timelapse)],
+            dtype=np.int64)
+        keep = ranks >= 0
+        kept = df.loc[keep]
+        return kept.iloc[np.argsort(ranks[keep], kind="stable")]
+
+    def as_selection(self) -> Selection:
+        """The same objects as a :class:`Selection`, to publish as a highlight.
+
+        Opening a subset and highlighting it everywhere else are two acts, and
+        this is the seam between them: a receiver that wants the plate view to
+        light up the crops it just opened publishes this, rather than the
+        router doing it behind the user's back and wiping the lasso they made
+        it with.
+        """
+        return Selection(keys=self.keys, source=self.source)
+
+    def describe(self) -> str:
+        """One line for the receiving view's header."""
+        n = len(self.keys)
+        noun = "object" if n == 1 else "objects"
+        whence = f" (from {self.source})" if self.source else ""
+        return f"{n} {noun} · {self.reason}{whence}"
