@@ -728,6 +728,11 @@ ALPHA_MODULES = {
     # built, tested and reachable, not yet trusted end to end.
     "pipeline_graph", "hit_list", "profiler", "methods_export",
     "image_scatter",
+    # And the two that read the links the database has always held rather
+    # than adding anything to it: the cell → nucleus → pathogen tree, and
+    # correcting a mask and its tracks by hand with every edit journalled.
+    # Same posture again — reachable, tested, not yet trusted end to end.
+    "lineage", "curate",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -736,7 +741,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """30 alpha, 9 beta, named one at a time.
+    """32 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -746,7 +751,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 30 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 32 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
