@@ -477,6 +477,12 @@ class RunHandle(QObject):
         #: :attr:`PipelineWorker.blocks_shutdown`.
         self.blocks_shutdown = bool(
             getattr(worker, "blocks_shutdown", True))
+        #: False for housekeeping the user did not start and cannot act on.
+        #: Home's run banner and anything else that reports "a run is in
+        #: progress" must skip these. The usage poller submits every two
+        #: seconds, so without this Home flashes "<module> usage - running"
+        #: on and off for as long as a module screen is open.
+        self.user_visible = bool(getattr(worker, "user_visible", True))
         worker.line_ready.connect(self._on_line)
 
     # -- state ---------------------------------------------------------
@@ -1227,6 +1233,7 @@ def make_thread(
     app_key: str = "",
     *,
     journal: bool = True,
+    user_visible: bool = True,
 ) -> tuple["QThread", PipelineWorker]:
     """Return ``(thread, worker)`` — the caller connects the worker's signals
     and calls ``thread.start()``.
@@ -1278,6 +1285,9 @@ def make_thread(
         fn, settings, worker_count=allocation, app_key=app_key,
         journal=journal,
     )
+    # Set on the worker rather than passed to its constructor, so a
+    # PipelineWorker built anywhere else keeps the visible default.
+    worker.user_visible = bool(user_visible)
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     # quit() is explicitly thread-safe. A DirectConnection matters during
