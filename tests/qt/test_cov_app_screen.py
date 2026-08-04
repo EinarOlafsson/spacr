@@ -805,7 +805,7 @@ class TestHoverHints:
         assert (scr._btn_run.pos(), scr._btn_stop.pos()) == before
 
     def test_enter_and_leave_drive_the_hint_strip_and_the_popup(self, qtbot):
-        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip, split_api_link
         scr = _make_screen(qtbot, "mask")
         label, hint = next(iter(scr._hint_map.items()))
         html = scr._html_tip_map[label]
@@ -815,7 +815,13 @@ class TestHoverHints:
         scr.eventFilter(label, QEvent(QEvent.Enter))
         assert scr._hint_strip.text() == hint
         assert tip._anchor is label
-        assert tip._label.text() == html
+        # The popup renders the body's trailing documentation link as its own
+        # blue "API" word, so the prose it shows is that body without the
+        # anchor. The URL is not lost — it moves to the word.
+        body, url = split_api_link(html)
+        assert tip._label.text() == body
+        assert tip.api_url() == url
+        assert url.startswith("https://")
 
         scr.eventFilter(label, QEvent(QEvent.Leave))
         assert scr._hint_strip.text() == scr._default_hint()
