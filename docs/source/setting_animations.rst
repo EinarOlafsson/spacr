@@ -3,10 +3,12 @@ Setting animation gallery
 
 spaCR includes short, deterministic GIFs for settings whose effect is
 easier to understand visually. In the desktop interface, hovering a
-setting shows its explanation; clicking the teal **Animation** word in
+setting shows its explanation; pressing the teal **Animation** word in
 that tooltip's footer reveals the corresponding animation to the right
-of the text, and keeps it there for the rest of the session. Set
-*Setting animations* in Preferences to show them without asking.
+of the text. It is revealed for that setting only — the next setting is
+text again until its own **Animation** is pressed, and nothing is
+decoded until it is. Set *Setting animations* in Preferences to show
+them without asking.
 
 The diagrams use a shared biological grammar: white fibroblast or
 motile immune-cell outlines, blue nuclei with unequal nucleoli, teal
