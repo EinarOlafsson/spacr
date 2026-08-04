@@ -62,6 +62,7 @@ from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.pivot_builder import PivotPanel
 from .graph_builder import read_table, table_names
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.tabulate")
 
@@ -107,9 +108,13 @@ class TabulateScreen(QWidget):
         head = QHBoxLayout()
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
-        title = QLabel("Tabulate", self)
-        title.setObjectName("ScreenTitle")
-        head.addWidget(title)
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, then drop columns on Rows, Columns and Values.",
+        )
+        self._header = header
+        head.addWidget(header)
 
         self._source = QLabel("no table loaded", self)
         self._source.setObjectName("TabulateSourceLabel")

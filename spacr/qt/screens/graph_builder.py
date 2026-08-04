@@ -40,6 +40,7 @@ from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.graph_builder import GraphBuilderPanel
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.graph_builder")
 
@@ -114,9 +115,14 @@ class GraphBuilderScreen(QWidget):
         head = QHBoxLayout()
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
-        title = QLabel("Graph Builder", self)
-        title.setObjectName("ScreenTitle")
-        head.addWidget(title)
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, then drop columns on X, Y, colour, "
+                        "size and facet.",
+        )
+        self._header = header
+        head.addWidget(header)
 
         self._source = QLabel("no table loaded", self)
         self._source.setObjectName("GraphSourceLabel")

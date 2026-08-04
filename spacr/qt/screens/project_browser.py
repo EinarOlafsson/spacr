@@ -48,6 +48,7 @@ from PySide6.QtWidgets import (
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.project_browser")
 
@@ -107,6 +108,15 @@ class ProjectBrowserScreen(QWidget):
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
         outer.setSpacing(SPACING["sm"])
+
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Add the folder your projects live in, then pick "
+                        "one to see what it holds.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         controls = QHBoxLayout()
         controls.setSpacing(SPACING["sm"])
