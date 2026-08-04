@@ -501,8 +501,9 @@ class DataFilter:
         return " and ".join(c.describe() for c in self.clauses)
 
 
-def _match(typed_rows: pd.Index, untyped_rows: pd.Index,
-           wanted: Iterable[Any]) -> np.ndarray:
+def _match(typed_rows: pd.Index, untyped_rows: Any,
+           wanted: Iterable[Any], *,
+           any_untyped_rows: bool = True) -> np.ndarray:
     """Which rows ``wanted`` names, matching types by specificity.
 
     The one answer to "does this key name this row". See
@@ -511,6 +512,15 @@ def _match(typed_rows: pd.Index, untyped_rows: pd.Index,
     :func:`match_keys` and every linked view need the *same* answer. Two
     implementations of this question is how a selection and the crops it
     opens come to disagree, and that is invisible until somebody counts tiles.
+
+    :param untyped_rows: the same rows keyed without their type — an Index,
+        or a zero-argument callable returning one. Callable because on the
+        hot path it costs a second pass over a million rows and is very often
+        not needed at all.
+    :param any_untyped_rows: whether any row states no type. ``False`` lets
+        the "a typed key names an untyped row" clause be skipped outright,
+        which is the whole of the work for a fully typed frame matched
+        against fully typed keys.
     """
     keys = [str(k) for k in wanted]
     # `Index.isin` already returns an ndarray — unlike `Series.isin`, which
@@ -520,19 +530,23 @@ def _match(typed_rows: pd.Index, untyped_rows: pd.Index,
         return mask
 
     loose = [k for k in keys if key_object_type(k) is None]
-    narrowed = {untyped_object_key(k) for k in keys
-                if key_object_type(k) is not None}
+    narrowed = ({untyped_object_key(k) for k in keys
+                 if key_object_type(k) is not None}
+                if any_untyped_rows else set())
+    if not loose and not narrowed:
+        return mask
+    plain = untyped_rows() if callable(untyped_rows) else untyped_rows
     if loose:
         # A key naming no type names the object whatever its type.
-        mask |= np.asarray(untyped_rows.isin(loose), dtype=bool)
+        mask |= np.asarray(plain.isin(loose), dtype=bool)
     if narrowed:
         # A typed key still names a row that has not said what it is — but
         # only such a row. Without the `row_untyped` guard a selection of
         # `nucleus1` would light up `pathogen1`, which is the collapse
         # rebuilt one level up.
-        row_untyped = np.asarray(typed_rows) == np.asarray(untyped_rows)
+        row_untyped = np.asarray(typed_rows) == np.asarray(plain)
         mask |= (row_untyped
-                 & np.asarray(untyped_rows.isin(narrowed), dtype=bool))
+                 & np.asarray(plain.isin(narrowed), dtype=bool))
     return mask
 
 
@@ -565,10 +579,26 @@ def _match_frame(df: pd.DataFrame, wanted: Iterable[Any], *,
 
     Built off the key columns rather than off strings, so the untyped form is
     *rebuilt* exactly rather than parsed back out of a composed key.
+
+    A frame that states no type composes ONE set of keys, not two: the typed
+    and untyped forms are then the same string, and this is the hot path — it
+    is what a lasso runs over a million rows on every drag.
     """
-    typed_rows = object_keys(df, timelapse=timelapse, object_type=object_type)
-    untyped_rows = untyped_object_keys(df, timelapse=timelapse)
-    return _match(typed_rows, untyped_rows, wanted)
+    cols = _key_columns(timelapse)
+    missing = [c for c in cols if c not in df.columns]
+    if missing:
+        raise FilterError(
+            f"cannot build object keys: {df.shape[0]}-row frame is missing "
+            f"{missing}. Available columns include "
+            f"{sorted(df.columns)[:8]}...")
+    if df.empty:
+        return np.zeros(0, dtype=bool)
+    prefixes = _object_prefixes(df, object_type)
+    typed_rows = _compose(df, cols, prefixes)
+    if prefixes is None:
+        return _match(typed_rows, typed_rows, wanted)
+    return _match(typed_rows, lambda: _compose(df, cols, None), wanted,
+                  any_untyped_rows=bool(prefixes.eq("").any()))
 
 
 @dataclass
