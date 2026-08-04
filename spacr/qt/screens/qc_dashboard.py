@@ -83,8 +83,8 @@ def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
     ``QWidget {{ background-color: bg }}``, which is the WINDOW colour and
     not a surface, and no setting can reach it.
     """
-    from ..theme import pane_surface
-    cards_bg = pane_surface("surface_alt", palette.get("theme"), opacity)
+    from ..theme import block_surface
+    cards_bg = block_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
 #{CARDS_OBJECT} {{
     background: {cards_bg};

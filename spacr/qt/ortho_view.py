@@ -68,8 +68,8 @@ def _ortho_qss(palette: Dict[str, Any], opacity) -> str:
     volume itself is still drawn opaque on top, in
     :meth:`OrthoPanel.paintEvent`.
     """
-    from .theme import pane_surface
-    plane_bg = pane_surface("surface", palette.get("theme"), opacity)
+    from .theme import block_surface
+    plane_bg = block_surface("surface", palette.get("theme"), opacity)
     return f"""
 QWidget#OrthoView {{
     background: transparent;

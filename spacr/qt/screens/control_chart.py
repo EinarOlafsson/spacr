@@ -51,7 +51,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import (RADIUS, SPACING, active_palette, pane_surface,
+from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
 
 #: The control column's object name, and what the QSS block below keys off.
@@ -85,7 +85,7 @@ def _control_chart_qss(palette: dict, opacity=None) -> str:
     it shows it through instead of painting an opaque rectangle over the
     thing that was just made translucent.
     """
-    surface = pane_surface("surface_alt", palette.get("theme"), opacity)
+    surface = block_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
 QWidget#{CONTROLS_OBJECT}, QWidget#{OUTPUT_OBJECT} {{
     background: {surface};

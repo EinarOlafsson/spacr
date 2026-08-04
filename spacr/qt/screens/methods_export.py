@@ -55,7 +55,7 @@ from PySide6.QtWidgets import (
 from ...methods_export import (build_digest, render_methods, render_prompt,
                                render_results)
 from ..job_runner import JobRunner
-from ..theme import SPACING, pane_surface, register_widget_qss
+from ..theme import SPACING, block_surface, register_widget_qss
 from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "MethodsExportScreen", "make_methods_export_screen",
@@ -107,7 +107,7 @@ APP_TRANSLATIONS = (
 
 def _methods_qss(palette: dict, opacity) -> str:
     """QSS for the source panel and the provenance strip."""
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QFrame#MethodsExportSources {{
     background: {surface};

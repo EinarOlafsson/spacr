@@ -95,7 +95,7 @@ from ..widgets.toggle import Toggle
 from ... import model_zoo as zoo
 from ..bridge import make_thread
 from ..theme import (RADIUS, SPACING, active_palette,
-                     ensure_widget_qss_applied, pane_surface,
+                     block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
 
@@ -169,7 +169,7 @@ def _model_zoo_qss(palette: dict, opacity=None) -> str:
     picture — so the name stays, for the tests and for anything that
     later needs to reach it.
     """
-    surface = pane_surface("surface_alt", palette.get("theme"), opacity)
+    surface = block_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
 QGroupBox#{GROUP_NAME} {{
     background: {surface};
