@@ -646,6 +646,11 @@ def test_every_qt_section_hint_names_a_real_category():
         "timelapse", "motility", "regression", "activation", "replication",
         "classify", "train_cellpose", "cellpose_masks", "cellpose_all",
         "analyze_plaques", "recruitment", "invasion",
+        # Curated layouts of their own whose headings exist nowhere else.
+        # Barcode QC and Illumination register settings that are in no
+        # shared category at all, and Power draws its own screen; leaving
+        # any of the four out reports all of their blurbs as dead.
+        "barcode_qc", "illumination", "anndata_export", "power",
     ):
         known.update(
             c.upper().strip()
