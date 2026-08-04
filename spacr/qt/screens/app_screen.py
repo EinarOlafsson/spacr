@@ -34,13 +34,195 @@ from PySide6.QtWidgets import (
 from ..bridge import make_thread, resolve_pipeline_entry
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..theme import SPACING
+from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
 from ..widgets import Card, Divider, InfoLink, Section, UsageBar
 from .settings_model import (
     CATEGORY_TOOLTIPS,
     SettingsWidgets,
     category_tooltip,
 )
+
+
+#: Object name the settings column carries, and what the block below keys
+#: off. It is the column itself, and — see `_settings_panel_qss` — the
+#: rule that names it is a rule saying *paint nothing*.
+SETTINGS_PANEL_NAME = "SettingsBox"
+
+#: The "Point <module> at some data" banner at the top of that column.
+EMPTY_STATE_NAME = "EmptyStateBanner"
+
+
+def _settings_panel_qss(palette: dict, opacity=None) -> str:
+    """The settings column paints nothing. The categories are the panels.
+
+    Three positions were tried on this column, and the third is the one
+    that was asked for:
+
+    1. **An opaque slab.** A ``QScrollArea``'s viewport auto-fills with the
+       palette's **Window** brush — not a surface — so no page-opacity
+       setting could reach it and the column sat as a black rectangle over
+       the animated backdrop.
+    2. **A panel of its own.** Turning the auto-fill off left the column
+       with nothing, so it was given the console box's treatment: a
+       dark-grey rounded surface at the page opacity. That put a box round
+       a column of boxes, and every category then composited two
+       translucent greys — 0.51 at a requested 30 %, a shade no position of
+       the slider can produce.
+    3. **Nothing at all**, which is this. The categories float directly on
+       the theme as separate rounded panels with the backdrop visible in
+       the gaps between them. Most module screens are a list of categories
+       and a list needs no box round it; a container would be a box around
+       a box.
+
+    So the rules here are all subtractive, and the surface the user sees is
+    ``QFrame#SectionCard`` in the shared stylesheet, which already goes
+    through the page-opacity roles. Removing the column's fill is what lets
+    the slider reach the categories: they were never broken, they were
+    composited onto things that were.
+
+    An ID selector on the column anyway, rather than leaving it unstyled —
+    an unstyled ``QScrollArea`` inherits the blanket
+    ``QWidget {{ background-color: bg }}``, the WINDOW colour, which is
+    exactly position 1. Saying it explicitly also keeps the decision
+    findable, and the viewport keeps the container sweep's transparent tag.
+
+    The banner is the same story one layer in. "Point <module> at some
+    data" is an :class:`~spacr.qt.widgets.EmptyState` — a ``QWidget``
+    subclass, so the sweep's ``type(w) is QWidget`` test skips it — renamed
+    to ``EmptyStateBanner``, which also takes it out of the ``QFrame#Card``
+    rule it would otherwise have matched. Between the two it had no rule at
+    all and painted the window colour: a black box at the top of the
+    column. It is a line of type on the page, so it paints nothing.
+    """
+    return f"""
+QScrollArea#{SETTINGS_PANEL_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QWidget#{EMPTY_STATE_NAME} {{
+    background: transparent;
+    border: none;
+}}
+"""
+
+
+# ``replace=True``: this module owns the name, and a reimport must
+# re-register rather than raise and leave every module screen unstyled.
+register_widget_qss(SETTINGS_PANEL_NAME, _settings_panel_qss, replace=True)
+
+
+#: What a module screen tells the user to do when it has nothing more
+#: specific to say. Every ``AppScreen`` is the same gesture — fill the form
+#: in, press Run — so the instruction is the same sentence.
+DEFAULT_INSTRUCTION = "Configure settings, then press Run."
+
+
+class ModuleHeader(QWidget):
+    """The masthead every module page wears: name, description, instruction.
+
+    Three pieces of text in a fixed relationship, and the relationship is
+    the point:
+
+    * the **module name**, large — ``DisplayHeading``, which is 30 px
+      against a 13 px body;
+    * the **description** beside it, one muted line saying what the module
+      is for, with the API documentation link after it;
+    * the **instruction** under the name, one muted line saying what to do
+      on this page.
+
+    Trailing controls — a source label, a table picker, a Load button —
+    go on the same row through :meth:`add_trailing`, right-aligned past
+    the stretch, so a screen that had its own header row keeps it.
+
+    This was written inline inside :class:`AppScreen` and stayed there,
+    which is the whole of the defect it now fixes. Roughly twenty-five
+    screens arrived in two days, none of them an ``AppScreen``, and each
+    rolled its own header: a ``QLabel`` tagged ``ScreenTitle`` — an object
+    name with **no rule anywhere in the stylesheet**, so it rendered at
+    body size — or, on four of them, a bare paragraph with no title at
+    all. Copying the styling into each of them would have set the same
+    trap for the twenty-sixth; a shared component cannot drift.
+
+    Transparent by construction. A header is a page region, not a card,
+    and an untagged ``QWidget`` inherits the blanket
+    ``QWidget {{ background-color: bg }}`` — the WINDOW colour, which no
+    page-opacity setting can reach — so it would sit as an opaque band
+    across the backdrop. ``AppScreen`` used to tag its header by hand in
+    ``_clear_page_surfaces``; every screen gets it here instead.
+
+    :param title: the module name, shown large.
+    :param description: one line to the right of the name. Never wrapped —
+      it may shrink below its ideal width rather than force the window
+      wider — and repeated as a tooltip so a truncated one is readable.
+    :param instruction: one line under the name. Omitted if empty.
+    :param app_key: registry key. Given one, the description gets the
+      module's API documentation link beside it.
+    """
+
+    def __init__(self, title: str, description: str = "",
+                 instruction: str = "", *, app_key: Optional[str] = None,
+                 parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.setObjectName("ModuleHeader")
+        from ..theme import make_transparent
+        make_transparent(self)
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["lg"])
+
+        title_col = QVBoxLayout()
+        title_col.setContentsMargins(0, 0, 0, 0)
+        title_col.setSpacing(2)
+        self.title_label = QLabel(str(title))
+        self.title_label.setObjectName("DisplayHeading")
+        title_col.addWidget(self.title_label)
+        self.instruction_label = QLabel(str(instruction or ""))
+        self.instruction_label.setObjectName("Muted")
+        self.instruction_label.setWordWrap(True)
+        self.instruction_label.setVisible(bool(instruction))
+        title_col.addWidget(self.instruction_label)
+        row.addLayout(title_col)
+
+        self.description_label: Optional[QLabel] = None
+        self.info_link = None
+        if description:
+            intro_row = QHBoxLayout()
+            intro_row.setContentsMargins(0, 0, 0, 0)
+            intro_row.setSpacing(SPACING["sm"])
+            blurb = QLabel(str(description))
+            blurb.setObjectName("Muted")
+            # One line, flush left. The label may shrink below its ideal
+            # width so a long blurb never forces the window wider.
+            blurb.setWordWrap(False)
+            blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+            blurb.setMinimumWidth(0)
+            blurb.setToolTip(str(description))
+            intro_row.addWidget(blurb)
+            self.description_label = blurb
+            if app_key:
+                from .settings_model import api_docs_url
+                info = InfoLink(api_docs_url(app_key),
+                                tooltip=str(description), parent=self)
+                info.setObjectName("ModuleInfoLink")
+                intro_row.addWidget(info)
+                self.info_link = info
+            row.addLayout(intro_row)
+
+        row.addStretch(1)
+        self._row = row
+
+    def add_trailing(self, widget: QWidget, stretch: int = 0) -> QWidget:
+        """Put ``widget`` on the header row, right of the stretch.
+
+        For the screens whose header row also carries controls — Control
+        Chart's table picker and Load button, Graph Builder's source
+        label. They keep their row; they stop having to build the title
+        part of it themselves.
+        """
+        self._row.addWidget(widget, stretch)
+        return widget
 
 
 # The hover description must never reflow the runtime controls. Four lines
@@ -339,57 +521,28 @@ class AppScreen(QWidget):
         self._hint_map: dict = {}       # widget → plain-text hint
         self._html_tip_map: dict = {}   # widget → HTML tooltip (sticky popup)
 
+        # This module is imported lazily by `app.py`, long after the launch
+        # stylesheet was generated, so the block registered above is not in
+        # it. Without this the settings column opens unpanelled — see
+        # `ensure_widget_qss_applied`.
+        ensure_widget_qss_applied(SETTINGS_PANEL_NAME)
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
         # ─── Header ───────────────────────────────────────────────────
-        # Title + subtitle on the left, followed on the same row by a short
-        # single-line "what this does" blurb and an information link. Everything is
-        # left-aligned; the trailing stretch takes up the slack.
-        header = QWidget()
+        # The shared masthead — see `ModuleHeader`. This screen was where it
+        # was written and for a long time where it stayed, which is how
+        # twenty-odd screens ended up with a title at body size.
+        header = ModuleHeader(
+            APP_TITLES.get(app_key, app_key.title()),
+            description=APP_INTROS.get(app_key) or "",
+            instruction=DEFAULT_INSTRUCTION,
+            app_key=app_key,
+        )
         self._header = header
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(SPACING["lg"])
-
-        title_col = QVBoxLayout()
-        title_col.setContentsMargins(0, 0, 0, 0)
-        title_col.setSpacing(2)
-        title = QLabel(APP_TITLES.get(app_key, app_key.title()))
-        title.setObjectName("DisplayHeading")
-        title_col.addWidget(title)
-        subtitle = QLabel("Configure settings, then press Run.")
-        subtitle.setObjectName("Muted")
-        title_col.addWidget(subtitle)
-        header_layout.addLayout(title_col)
-
-        intro_text = APP_INTROS.get(app_key)
-        if intro_text:
-            from ..screens.settings_model import api_docs_url
-            intro_row = QHBoxLayout()
-            intro_row.setContentsMargins(0, 0, 0, 0)
-            intro_row.setSpacing(SPACING["sm"])
-            blurb = QLabel(intro_text)
-            blurb.setObjectName("Muted")
-            # One line, flush left. The label may shrink below its ideal
-            # width so a long blurb never forces the window wider.
-            blurb.setWordWrap(False)
-            blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
-            blurb.setMinimumWidth(0)
-            blurb.setToolTip(intro_text)
-            intro_row.addWidget(blurb)
-            info = InfoLink(
-                api_docs_url(app_key),
-                tooltip=intro_text,
-                parent=header,
-            )
-            info.setObjectName("ModuleInfoLink")
-            intro_row.addWidget(info)
-            header_layout.addLayout(intro_row)
-        header_layout.addStretch(1)
         outer.addWidget(header)
 
         outer.addWidget(Divider())
@@ -496,6 +649,31 @@ class AppScreen(QWidget):
         self._ambient_applied = None
         if uses_ambient_background(self.app_key):
             self._install_ambient()
+
+        # And unconditionally, whatever happened above. This used to run ONLY
+        # as a side effect of installing an animation — the DNA rain calls it
+        # before, `_install_ambient` after — on the reasoning that a screen
+        # with nothing behind it should be left opaque rather than transparent
+        # over emptiness.
+        #
+        # That reasoning was wrong, and it is what made the settings half of
+        # every module screen a solid black rectangle for anybody who had
+        # turned the ambient backdrop off in Preferences: `_install_ambient`
+        # returns early when the preference is off, so the sweep never ran, so
+        # every layout container on the page kept the blanket
+        # `QWidget { background-color: bg }` — the WINDOW colour, which no
+        # page-opacity setting can reach. Measured over a probe backdrop with
+        # the preference off, the settings column, the categories, the gaps
+        # between them and the console box all read 0.000: the whole page was
+        # one opaque slab and only the cards on top of it looked deliberate.
+        #
+        # There is never "nothing behind it". With no animation the thing
+        # behind is the window's own `bg`, which is the theme — exactly what
+        # the page is supposed to show between the floating category panels.
+        # `clear_container_surfaces` is idempotent, so the calls inside the
+        # two install paths stay where they are for their own ordering
+        # reasons and this one costs a second pass over the tree.
+        self._clear_page_surfaces()
 
     # ------------------------------------------------------------------
     # Ambient backdrop
@@ -775,6 +953,10 @@ class AppScreen(QWidget):
     def _build_settings_panel(self) -> QWidget:
         scroll = QScrollArea()
         self._settings_scroll = scroll
+        # The column paints nothing — see `_settings_panel_qss`. The name is
+        # what that block keys off; without it the scroll area falls through
+        # to the blanket window fill, which is where this started.
+        scroll.setObjectName(SETTINGS_PANEL_NAME)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
         # A QScrollArea's viewport auto-fills by default, and what it fills
@@ -782,12 +964,17 @@ class AppScreen(QWidget):
         # can reach it and the settings column reads as an opaque slab over
         # the animated backdrop. The sidebar (app.py) and Home
         # (widgets/home.py) already say this for their own scroll areas; this
-        # one was the odd one out.
+        # one was the odd one out. The column still scrolls; it just does not
+        # paint.
         scroll.viewport().setAutoFillBackground(False)
 
         content = QWidget()
         self._settings_content = content
         layout = QVBoxLayout(content)
+        # No box round the categories, so the only inset is the gutter that
+        # keeps them clear of the scrollbar. The spacing below is what makes
+        # them read as separate floating panels: it is where the theme shows
+        # between one category and the next.
         layout.setContentsMargins(0, 0, SPACING["sm"], 0)
         layout.setSpacing(SPACING["sm"])
 
@@ -1011,7 +1198,7 @@ class AppScreen(QWidget):
         # Auto-hide once the user sets src
         if isinstance(src_widget, QLineEdit):
             src_widget.textChanged.connect(self._maybe_hide_empty_state)
-        card.setObjectName("EmptyStateBanner")
+        card.setObjectName(EMPTY_STATE_NAME)
         return card
 
     def _wire_live_preview_autoload(self) -> None:
@@ -1165,7 +1352,11 @@ class AppScreen(QWidget):
         console_header = QLabel("Console")
         console_header.setObjectName("CardTitle")
         console_col.addWidget(console_header)
-        self._console = ConsolePanel(active_app_label=app_title)
+        # `persist_key` is what lets the console remember where the user put
+        # the divider between its output box and the AI chat box, per screen:
+        # a tall chat box on Mask does not force one on Sequencing.
+        self._console = ConsolePanel(active_app_label=app_title,
+                                     persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_col.addWidget(self._console, 1)
 

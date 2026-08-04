@@ -68,6 +68,45 @@ from PySide6.QtWidgets import (
 
 LOG = logging.getLogger("spacr.qt.recipes")
 
+#: The button this module hangs on the settings-search strip.
+RECIPE_BUTTON_NAME = "SettingsRecipeButton"
+
+
+def _recipe_button_qss(palette: dict, opacity=None) -> str:
+    """Make the Recipes button float on the page like the one beside it.
+
+    A named ``QToolButton`` with no rule of its own takes the blanket
+    ``QWidget {{ background-color: bg }}`` — the WINDOW colour, which is
+    near-black and is not a surface, so no page-opacity setting reaches
+    it. It sat as a black rectangle on a strip that is meant to be type on
+    the page.
+
+    Deliberately the same shape as ``QToolButton#SettingsSearchDisclosure``
+    beside it: transparent body, hairline border, accent on hover. The two
+    are peers on one row and any difference between them reads as a
+    mistake.
+    """
+    return f"""
+QToolButton#{RECIPE_BUTTON_NAME} {{
+    background: transparent;
+    color: {palette["fg_dim"]};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: 6px;
+    padding: 3px 10px;
+}}
+QToolButton#{RECIPE_BUTTON_NAME}:hover {{
+    color: {palette["fg"]};
+    border-color: {palette["accent"]};
+}}
+"""
+
+
+try:  # pragma: no cover - present in every real launch
+    from .theme import register_widget_qss as _register_widget_qss
+    _register_widget_qss(RECIPE_BUTTON_NAME, _recipe_button_qss, replace=True)
+except Exception:  # pragma: no cover
+    LOG.debug("could not register the recipe-button QSS", exc_info=True)
+
 #: Override for the recipe folder, mirroring ``SPACR_MACRO_DIR``.
 RECIPE_DIR_ENV = "SPACR_RECIPE_DIR"
 
@@ -561,7 +600,7 @@ def install(screen) -> Optional[QToolButton]:
     if bar is None or not hasattr(bar, "add_trailing_widget"):
         return None
     button = QToolButton(bar)
-    button.setObjectName("SettingsRecipeButton")
+    button.setObjectName(RECIPE_BUTTON_NAME)
     button.setText("Recipes")
     button.setCursor(Qt.PointingHandCursor)
     button.setToolTip(
