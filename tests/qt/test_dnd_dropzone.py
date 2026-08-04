@@ -358,6 +358,40 @@ def test_accepted_folder_drop_calls_apply_and_accepts_event(zone, tmp_path,
     assert msgbox.calls == []
 
 
+def test_a_real_handler_still_applies_inside_the_drop_event(
+        zone, tmp_path, qtbot, msgbox):
+    """``apply`` became a dispatcher, not an asynchronous call.
+
+    The work a mask drop does moved onto a worker thread, but ``_on_drop``
+    still calls ``apply`` — and ``apply`` still finishes — inside the drop
+    event. Everything downstream depends on that: the source field is set
+    before the user's next click, the event is accepted for the right
+    reason, and a handler that raises is still reported by ``_on_drop``.
+    """
+    from spacr.qt import dnd_handlers as dh
+
+    folder = tmp_path / "plate01"
+    # A name the cellvoyager pattern matches, so the report finishes without
+    # opening the (modal) regex editor.
+    _mkimg(folder / "plate1_A01_T0001F001L01A01Z01C01.tif")
+    w = zone(dh.MaskDropHandler())
+
+    ev = _drop(w, [folder])
+
+    assert ev.isAccepted() is True
+    # Synchronously, before the event loop has turned once:
+    assert f"[drop] mask src = {folder}" in w._console.text
+    # ...and the reading of the folder is still outstanding at that point.
+    assert "regex" not in w._console.text
+    try:
+        qtbot.waitUntil(lambda: "[drop] regex (cellvoyager)" in w._console.text,
+                        timeout=20000)
+    finally:
+        scanner = getattr(w, "_dnd_scanner", None)
+        if scanner is not None:
+            scanner.shutdown()
+
+
 def test_drop_passes_the_screen_not_the_target(zone, tmp_path, qtbot):
     """install_dropzone can point at a different owner than the widget."""
     seen = {}
