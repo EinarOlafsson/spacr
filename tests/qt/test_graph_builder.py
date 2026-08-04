@@ -736,12 +736,23 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
         registry_sandbox):
     """No row in `app.py`'s table, no branch in `_build_screen`.
 
-    `register()` is deliberately not called at import — see its docstring —
-    so this drives it and asserts the result, which is the same thing the
-    one line that wires it in will do.
+    ``app.py`` calls :func:`register` from ``_SELF_REGISTERING_APPS``, so the
+    row already exists on ``import spacr.qt.app``. The registration is
+    therefore unwound and redone inside the sandbox — the same thing
+    ``test_power_screen`` does, and for the same reason: what is asserted
+    should be what a *fresh* call does rather than what an earlier import
+    left behind.
+
+    Asserting ``register() is True`` against the shipped registry asserted
+    that the app was NOT yet reachable, which stopped being the property
+    worth pinning the moment it became reachable.
     """
     from spacr.qt.screens import graph_builder as screen_mod
     app_mod = registry_sandbox
+
+    assert screen_mod.APP_KEY in {row[0] for row in app_mod.APPS}, \
+        "the row is registered from app.py._SELF_REGISTERING_APPS"
+    app_mod.unregister_app(screen_mod.APP_KEY)
 
     assert screen_mod.register() is True
     row = next((r for r in app_mod.APPS if r[0] == screen_mod.APP_KEY), None)
