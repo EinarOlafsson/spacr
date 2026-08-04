@@ -36,3 +36,16 @@ already recognises.
 14. **gate_editor_14** - Half-drawn -- the polygon still open, vertex handles showing the hand.
 15. **gate_editor_15** - A gate drawn inside a gate, on what the first one kept.
 16. **gate_editor_16** - Cloud and gate with no axes; the most whitespace and the best of these at 16 px.
+
+
+Flow-plot set, drawn from a real FSC-A / SSC-A density
+plot the user supplied. Where 01-10 each pick one idea
+about gating, these reproduce the picture a flow user
+already recognises.
+
+11. **gate_editor_11** - Density cloud, a hand-drawn polygon gate and the percentage inside it -- the flow plot in full.
+12. **gate_editor_12** - Cloud, axes and gate, without the percentage.
+13. **gate_editor_13** - The gate filled: what it selects, solid over the cloud.
+14. **gate_editor_14** - Half-drawn -- the polygon still open, vertex handles showing the hand.
+15. **gate_editor_15** - A gate drawn inside a gate, on what the first one kept.
+16. **gate_editor_16** - Cloud and gate with no axes; the most whitespace and the best of these at 16 px.
