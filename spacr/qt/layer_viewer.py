@@ -58,6 +58,7 @@ from .widgets.preview_controls import FlatButton, FlatComboBox
 LOG = logging.getLogger(__name__)
 
 __all__ = [
+    "CanvasTool",
     "LayerCanvas",
     "LayerListWidget",
     "LayerViewer",
@@ -169,6 +170,54 @@ def stack_from_paths(image_path=None, labels_path=None, *,
 
 
 # ---------------------------------------------------------------------------
+# Tools — what takes the canvas's mouse away from picking
+# ---------------------------------------------------------------------------
+
+class CanvasTool:
+    """Something that borrows the canvas's mouse: an ROI pen, a counter.
+
+    Two features need a click to mean something other than "select the object
+    under the cursor" — drawing a polygon vertex (:mod:`spacr.qt.roi_tool`) and
+    dropping a counted marker (:mod:`spacr.qt.counting_tool`) — and both need
+    it in *world* coordinates, not widget pixels, so that a point placed at 8×
+    zoom lands where the same point placed at 1× does.
+
+    Every handler is given the world position the canvas has already resolved
+    and returns ``True`` when it consumed the event. Returning ``False`` (the
+    default for every method here) leaves the canvas doing exactly what it did
+    before tools existed, which is what makes attaching one reversible.
+
+    Subclass and override what you need; the base class is inert, so a tool
+    that only wants clicks does not have to implement four no-ops.
+    """
+
+    #: What the cursor becomes while this tool is attached. ``None`` leaves it.
+    cursor = None
+
+    def press(self, view: "LayerCanvas", world: Dict[str, float],
+              event: Any) -> bool:
+        """A mouse button went down at ``world``. Return True to consume it."""
+        return False
+
+    def move(self, view: "LayerCanvas", world: Dict[str, float],
+             event: Any) -> bool:
+        """The cursor moved to ``world`` with no drag in progress."""
+        return False
+
+    def double_click(self, view: "LayerCanvas", world: Dict[str, float],
+                     event: Any) -> bool:
+        """A double click at ``world`` — how a polygon is closed."""
+        return False
+
+    def key(self, view: "LayerCanvas", event: Any) -> bool:
+        """A key was pressed while the canvas had focus."""
+        return False
+
+    def detach(self) -> None:
+        """The tool was taken off the canvas. Drop anything half-drawn."""
+
+
+# ---------------------------------------------------------------------------
 # The canvas
 # ---------------------------------------------------------------------------
 
@@ -199,6 +248,7 @@ class LayerCanvas(QFrame):
         self._axes = ("y", "x")
         self._depth: Dict[str, float] = {}
         self._drag: Optional[QPoint] = None
+        self._tool: Optional[CanvasTool] = None
         self._stack.subscribe(self._on_layers_changed)
 
     # -- model ----------------------------------------------------------
@@ -226,6 +276,43 @@ class LayerCanvas(QFrame):
     def _on_layers_changed(self, event: LayerEvent) -> None:
         if event.kind in LayerEvent.REPAINT:
             self.update()
+
+    # -- tools ------------------------------------------------------------
+    @property
+    def tool(self) -> Optional[CanvasTool]:
+        """The :class:`CanvasTool` currently borrowing the mouse, if any."""
+        return self._tool
+
+    def set_tool(self, tool: Optional[CanvasTool]) -> Optional[CanvasTool]:
+        """Attach a tool (or ``None`` to go back to picking); returns the old one.
+
+        Keyboard focus is granted only while a tool is attached: a tool
+        typically wants Escape and Backspace, and a canvas that grabbed focus
+        the rest of the time would swallow the arrow keys the surrounding
+        screen uses.
+        """
+        previous = self._tool
+        if previous is tool:
+            return previous
+        if previous is not None:
+            previous.detach()
+        self._tool = tool
+        if tool is None:
+            self.setFocusPolicy(Qt.NoFocus)
+            self.unsetCursor()
+        else:
+            self.setFocusPolicy(Qt.StrongFocus)
+            if tool.cursor is not None:
+                self.setCursor(tool.cursor)
+        self.update()
+        return previous
+
+    def _tool_world(self, event) -> Optional[Dict[str, float]]:
+        """The world point under an event, or ``None`` with nothing to show."""
+        canvas = self._ensure_canvas()
+        if canvas is None:
+            return None
+        return canvas.world_at(*self._pixel(event))
 
     # -- the world window -----------------------------------------------
     @property
@@ -320,21 +407,45 @@ class LayerCanvas(QFrame):
             self.setCursor(Qt.ClosedHandCursor)
             return
         canvas = self._ensure_canvas()
-        if canvas is None or event.button() != Qt.LeftButton:
+        if canvas is None:
+            return
+        if self._tool is not None and self._tool.press(
+                self, canvas.world_at(*self._pixel(event)), event):
+            self.update()
+            return
+        if event.button() != Qt.LeftButton:
             return
         row, column = self._pixel(event)
         self.picked.emit(*self._stack.pick(canvas, row, column))
 
     def mouseDoubleClickEvent(self, event) -> None:
         canvas = self._ensure_canvas()
-        if canvas is None or event.button() != Qt.LeftButton:
+        if canvas is None:
+            return
+        if self._tool is not None and self._tool.double_click(
+                self, canvas.world_at(*self._pixel(event)), event):
+            self.update()
+            return
+        if event.button() != Qt.LeftButton:
             return
         row, column = self._pixel(event)
         self.activated.emit(*self._stack.pick(canvas, row, column))
 
+    def keyPressEvent(self, event) -> None:
+        if self._tool is not None and self._tool.key(self, event):
+            self.update()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
     def mouseMoveEvent(self, event) -> None:
         canvas = self._ensure_canvas()
         if canvas is None:
+            return
+        if (self._drag is None and self._tool is not None
+                and self._tool.move(self, canvas.world_at(*self._pixel(event)),
+                                    event)):
+            self.update()
             return
         if self._drag is not None:
             position = event.position().toPoint()
