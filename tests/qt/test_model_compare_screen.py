@@ -196,7 +196,16 @@ def test_the_screen_is_registered_under_segmentation_models(
     assert name == "Model Compare"
     from spacr.qt.app import SECTION_MODELS, app_stage
     assert section == SECTION_MODELS
-    assert app_stage(key) == "alpha"
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(key) == "stable"
     assert description
     assert APP_TITLES[key] == "Model Compare"
     assert APP_INTROS[key]
