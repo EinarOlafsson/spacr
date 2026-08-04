@@ -58,8 +58,8 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass, field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple, Union)
+from typing import (Any, Dict, List, Mapping, Optional, Sequence, Tuple,
+                    Union)
 
 from . import ports
 from .artifacts import Artifact, Registry, Staleness, registry_path
@@ -311,15 +311,13 @@ class PipelineGraph:
         The "what does re-running this invalidate?" question, answered from
         the graph already in memory rather than by another registry walk.
         """
-        return self._reach(artifact_id, {e.source: None for e in self.edges},
-                           forward=True)
+        return self._reach(artifact_id, forward=True)
 
     def upstream(self, artifact_id: str) -> Tuple[Node, ...]:
         """Every node this one was derived from, transitively."""
-        return self._reach(artifact_id, {}, forward=False)
+        return self._reach(artifact_id, forward=False)
 
-    def _reach(self, start: str, _unused: Mapping[str, Any],
-               *, forward: bool) -> Tuple[Node, ...]:
+    def _reach(self, start: str, *, forward: bool) -> Tuple[Node, ...]:
         """Breadth-first reachability in one direction, cycle-guarded."""
         adjacency: Dict[str, List[str]] = {}
         for edge in self.edges:
@@ -730,8 +728,3 @@ def to_dot(graph: PipelineGraph) -> str:
         lines.append(f'  "{edge.source}" -> "{edge.target}"{style};')
     lines.append("}")
     return "\n".join(lines)
-
-
-def _iter_ids(nodes: Iterable[Node]) -> Tuple[str, ...]:
-    """Artifact ids of ``nodes``, in the order given."""
-    return tuple(node.artifact_id for node in nodes)
