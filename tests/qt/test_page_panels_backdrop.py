@@ -479,7 +479,135 @@ def _ortho_view(qtbot):
                             for name, panel in screen.panels.items()}
 
 
+# ---------------------------------------------------------------------------
+# The views that had no surface AT ALL
+# ---------------------------------------------------------------------------
+# `clear_container_surfaces` sweeps every `QAbstractScrollArea` by type, and
+# `QAbstractItemView` and `QPlainTextEdit` are both one — so the shipped
+# `QTableView/QTreeView { background-color: surface_alt }` rule never landed on
+# any view in the application. Where a view sits on a tab pane the pane
+# supplies the surface and it looked right by accident; where nothing is
+# behind it, the backdrop arrived untouched at 1.000 and the text floated on
+# the animation. The screens below say which of their views IS the page, with
+# `spacr.qt.theme.mark_surface` — see that function for why the sweep could
+# not simply be narrowed instead.
+#
+# Two regions here are deliberately the OTHER case, and they are the ones that
+# make this file able to fail: Control Chart's report and violations table sit
+# on the `ControlChartOutput` panel, and Tabulate's well list sits on
+# `PivotShelf`. They were correct before this change and must still measure one
+# panel thick, not two — `test_each_region_is_one_panel_thick` is what checks
+# that they were not swept up by a blanket fix.
+
+
+def _project_browser(qtbot):
+    from spacr.qt.screens.project_browser import ProjectBrowserScreen
+    window, screen = _show(qtbot,
+                           lambda: ProjectBrowserScreen(threaded=False))
+    return window, screen, {"search folders": screen._root_list,
+                            "project table": screen._table,
+                            "detail": screen._detail}
+
+
+def _napari_bridge(qtbot):
+    from spacr.qt.screens.napari_bridge import NapariBridgeScreen
+    window, screen = _show(qtbot, NapariBridgeScreen)
+    return window, screen, {"status log": screen.status}
+
+
+def _hit_list(qtbot):
+    from spacr.qt.screens.hit_list import HitListScreen
+    window, screen = _show(qtbot, lambda: HitListScreen(threaded=False))
+    return window, screen, {"hits": screen._table}
+
+
+def _lineage(qtbot):
+    from spacr.qt.screens.lineage import LineageScreen
+    window, screen = _show(qtbot, LineageScreen)
+    return window, screen, {"object tree": screen.tree,
+                            "orphans": screen.orphan_list}
+
+
+def _profiler(qtbot):
+    from spacr.qt.screens.profiler import ProfilerScreen
+    window, screen = _show(qtbot, lambda: ProfilerScreen(threaded=False))
+    return window, screen, {"input tree": screen._inputs}
+
+
+def _pipeline_graph(qtbot):
+    from spacr.qt.screens.pipeline_graph import PipelineGraphScreen
+    window, screen = _show(qtbot,
+                           lambda: PipelineGraphScreen(threaded=False))
+    return window, screen, {"details": screen._details}
+
+
+def _power_views(qtbot):
+    from spacr.qt.screens.power import PowerScreen
+    window, screen = _show(qtbot, lambda: PowerScreen(threaded=False))
+    # The caveat panel is the one region here that is not a scroll area. It
+    # is a plain QWidget subclass, and those ignore a QSS background unless
+    # `WA_StyledBackground` is set — it measured 1.000 with the rule already
+    # in the sheet and matching, which is why `mark_surface` sets it.
+    return window, screen, {"caveats": screen._caveats,
+                            "sample sizes": screen._table}
+
+
+def _gate_editor_tree(qtbot):
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+    window, screen = _show(qtbot, lambda: GateEditorScreen(threaded=False))
+    return window, screen, {"gate hierarchy": _named(screen,
+                                                     "GateHierarchy")}
+
+
+def _feature_explorer_table(qtbot):
+    from spacr.qt.screens.feature_explorer import FeatureExplorerScreen
+    window, screen = _show(qtbot,
+                           lambda: FeatureExplorerScreen(threaded=False))
+    return window, screen, {"ranking table": _named(screen, "ExplorerTable")}
+
+
+def _tabulate_pivot(qtbot):
+    from spacr.qt.screens.tabulate import TabulateScreen
+    window, screen = _show(qtbot, lambda: TabulateScreen(threaded=False))
+    # The well list is the control case: it sits ON `PivotShelf` and was
+    # already correct, so it must not gain a second surface.
+    return window, screen, {"pivot grid": _named(screen, "PivotTable"),
+                            "well list (on the shelf)":
+                                _named(screen, "PivotWellList")}
+
+
+def _control_chart_output(qtbot):
+    from spacr.qt.screens.control_chart import ControlChartScreen
+    window, screen = _show(qtbot,
+                           lambda: ControlChartScreen(threaded=False))
+    # All three are the control case: they sit on `ControlChartOutput` and
+    # `ControlChartControls`, which are panels already.
+    return window, screen, {"report (on the panel)": screen.report,
+                            "violations (on the panel)": screen.violations,
+                            "levels (on the panel)": screen._levels}
+
+
+def _dose_response_views(qtbot):
+    from spacr.qt.screens.dose_response import DoseResponseScreen
+    window, screen = _show(qtbot,
+                           lambda: DoseResponseScreen(threaded=False))
+    return window, screen, {"fit table": screen.table,
+                            "report": screen.report}
+
+
 SCREENS = (
+    ("Project Browser", _project_browser),
+    ("napari Bridge", _napari_bridge),
+    ("Hit List", _hit_list),
+    ("Lineage", _lineage),
+    ("Profiler", _profiler),
+    ("Pipeline Graph", _pipeline_graph),
+    ("Power views", _power_views),
+    ("Gate Editor tree", _gate_editor_tree),
+    ("Feature Explorer table", _feature_explorer_table),
+    ("Tabulate pivot", _tabulate_pivot),
+    ("Control Chart output", _control_chart_output),
+    ("Dose Response views", _dose_response_views),
     ("Align & Stitch", _align),
     ("Plate Viewer", _plate),
     ("Model Compare", _model_compare),
@@ -734,3 +862,67 @@ def test_the_tab_strips_are_styled_like_home(module_name, tabs_attr,
     # slab: `rgba(` is what `pane_surface` returns below 100 %.
     assert block.count("rgba(") >= 2, (
         "the tab and the pane must both carry the page opacity")
+
+
+# ---------------------------------------------------------------------------
+# The opt-out itself, without a screen in the way
+# ---------------------------------------------------------------------------
+
+def test_the_sweep_skips_a_view_that_declared_itself_a_surface(qtbot):
+    """`mark_surface` is the whole distinction, so assert it directly.
+
+    The pixel tests above prove the outcome on twelve real screens. This
+    proves the mechanism: an unmarked view is still tagged transparent
+    exactly as it always was — which is what keeps the tables sitting on
+    panes from stacking two greys — and a marked one is left alone, along
+    with its viewport, which is the half that actually paints.
+    """
+    from PySide6.QtWidgets import QTableWidget, QVBoxLayout
+    from spacr.qt.theme import (SURFACE_PROPERTY, TRANSPARENT_PROPERTY,
+                                clear_container_surfaces, is_surface,
+                                mark_surface)
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    layout = QVBoxLayout(root)
+    passenger = QTableWidget(1, 1, root)
+    page = QTableWidget(1, 1, root)
+    layout.addWidget(passenger)
+    layout.addWidget(page)
+
+    mark_surface(page)
+    assert is_surface(page) and not is_surface(passenger)
+
+    clear_container_surfaces(root)
+
+    for widget, label in ((passenger, "passenger"), (passenger.viewport(),
+                                                     "passenger viewport")):
+        assert widget.property(TRANSPARENT_PROPERTY) is True, (
+            f"the {label} must still be swept — a table on a pane that keeps "
+            "a fill of its own stacks two translucent greys")
+    for widget, label in ((page, "page"), (page.viewport(),
+                                           "page viewport")):
+        assert not widget.property(TRANSPARENT_PROPERTY), (
+            f"the {label} was declared a surface and the sweep tagged it "
+            "anyway, so the backdrop arrives under the text")
+        assert widget.property(SURFACE_PROPERTY) is True
+
+
+def test_the_surface_marker_has_a_rule_in_every_theme(qt_theme_applied):
+    """A property nothing styles is a property that does nothing.
+
+    The marker is only half the fix: the sweep leaving a view alone gives
+    it whatever rule it already matched, and a bare ``QListWidget`` matches
+    nothing but the blanket ``QWidget`` fill — the WINDOW colour, which is
+    not a surface. Three of the marked views are exactly that.
+    """
+    from spacr.qt.theme import SURFACE_PROPERTY, THEMES, stylesheet
+
+    selector = f'*[{SURFACE_PROPERTY}="true"]'
+    for name in THEMES:
+        qss = stylesheet(name, surface_opacity=OPACITY)
+        assert selector in qss, (
+            f"the {name} theme has no rule for {selector}")
+        block = qss.split(selector, 1)[1].split("}", 1)[0]
+        assert "background-color" in block, (
+            f"{selector} must set a background in {name}; got {block!r}")
