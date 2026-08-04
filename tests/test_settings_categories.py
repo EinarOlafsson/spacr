@@ -248,6 +248,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Shared correction before UMAP, ML screen analysis, and regression.
     "batch_correction", "batch_column", "batch_control_column",
     "batch_control_values", "batch_min_samples", "batch_missing_control",
+    # and the two ComBat added afterwards: the covariate whose biology the
+    # empirical-Bayes fit must protect, and the mean-only variant.
+    "batch_covariate_column", "batch_combat_mean_only",
     # Four keys perform_regression indexes directly that had no default, no
     # expected_types entry and no category, so no panel could offer them and
     # get_perform_regression_default_settings could not produce a dict the
