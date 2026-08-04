@@ -459,10 +459,36 @@ class ClassifierEvaluationScreen(QWidget):
         thread.start()
 
     def _retire_jobs(self) -> None:
-        """Drop ownership of completed worker pairs."""
-        self._jobs = [
-            pair for pair in self._jobs if pair[0].isRunning()
-        ]
+        """Drop ownership of pairs whose QThread has stopped.
+
+        A bare ``isRunning()`` filter leaked every pair: by the time this
+        queued slot runs, ``thread.finished -> deleteLater`` has reaped the
+        QThread's C++ half and ``isRunning()`` raises ``RuntimeError`` out
+        of the slot, so the assignment never happens. See
+        :func:`spacr.qt.bridge.prune_job_pairs`.
+        """
+        from ..bridge import prune_job_pairs
+
+        self._jobs = prune_job_pairs(self._jobs, self.sender())
+
+    def closeEvent(self, event) -> None:
+        """Drain scan/load workers before Qt destroys this screen.
+
+        A job left running here outlives its owner but stays in the
+        process-wide run registry, which ``MainWindow.closeEvent`` reads to
+        decide whether the application may quit.
+        """
+        from ..bridge import drain_thread
+
+        for thread, worker in list(self._jobs):
+            if worker is not None:
+                try:
+                    worker.request_cancel("classifier-evaluation closed")
+                except Exception:
+                    pass
+            drain_thread(thread, worker, timeout_ms=3000)
+        self._jobs.clear()
+        super().closeEvent(event)
 
     def _clear_bundle(self) -> None:
         """Clear all views and disable bundle actions."""

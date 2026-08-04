@@ -471,6 +471,12 @@ class RunHandle(QObject):
         self.progress: Optional[tuple] = None
         #: Last non-blank line the job printed — what it is doing now.
         self.last_line = ""
+        #: Whether a still-running instance of this job is a reason to
+        #: refuse to close the application. Cached at construction because
+        #: :meth:`retire` drops ``self.worker``. See
+        #: :attr:`PipelineWorker.blocks_shutdown`.
+        self.blocks_shutdown = bool(
+            getattr(worker, "blocks_shutdown", True))
         worker.line_ready.connect(self._on_line)
 
     # -- state ---------------------------------------------------------
@@ -586,13 +592,27 @@ class RunRegistry(QObject):
     ) -> List[RunHandle]:
         """Cancel every active job and wait up to one shared deadline.
 
-        The return value contains workers that are still live.  They are kept
-        registered and strongly referenced; callers must refuse to destroy the
-        GUI rather than use ``QThread.terminate()`` mid-write.
+        The return value contains workers that are still live **and whose
+        survival is a reason not to close** — see
+        :attr:`RunHandle.blocks_shutdown`. They are kept registered and
+        strongly referenced; callers must refuse to destroy the GUI rather
+        than use ``QThread.terminate()`` mid-write.
+
+        Read-only UI housekeeping (``journal=False`` — a history refresh, a
+        model scan) is cancelled and waited for exactly like everything
+        else, but it never appears in the return value. It writes nothing,
+        so there is no half-written artefact to protect, and a caller that
+        treats it as a veto turns "the run-history list is still loading"
+        into "the application cannot be closed". ``MainWindow.closeEvent``
+        answers a non-empty return by refusing to close *and showing a
+        modal*: on a headless run — CI, a test shard — nothing can ever
+        dismiss that modal, and the process spins in its nested event loop
+        with no forward progress. A housekeeping job that outlived the
+        screen which started it used to be enough to trigger it.
 
         :param timeout_ms: total wait budget across all active threads.
         :param reason: cancellation reason recorded by each worker.
-        :returns: handles whose threads did not stop within the budget.
+        :returns: handles that block shutdown and did not stop in the budget.
         """
         handles = self.active()
         for handle in handles:
@@ -610,7 +630,10 @@ class RunRegistry(QObject):
                 thread.wait(remaining_ms)
             except RuntimeError:
                 pass
-        return [handle for handle in handles if handle.is_running()]
+        return [
+            handle for handle in handles
+            if handle.is_running() and handle.blocks_shutdown
+        ]
 
     def clear(self) -> None:
         """Drop every handle. For tests — never call this on a live app."""
@@ -628,6 +651,150 @@ def registry() -> RunRegistry:
     if _REGISTRY is None:
         _REGISTRY = RunRegistry()
     return _REGISTRY
+
+
+# ---------------------------------------------------------------------------
+# Draining a QThread without ever terminating it
+# ---------------------------------------------------------------------------
+
+#: ``(thread, worker)`` pairs that outlived the widget which owned them.
+#: Parking a stubborn thread here is not a leak-with-a-nice-name: it is the
+#: only way to satisfy Qt's rule that a QThread must not be destroyed while
+#: it is running, once the owner has decided to go away anyway. Entries are
+#: released by :func:`prune_parked_threads`, which every :func:`drain_thread`
+#: call runs first.
+_PARKED_THREADS: List[tuple] = []
+_PARKED_LOCK = threading.Lock()
+
+
+def prune_parked_threads() -> int:
+    """Release parked ``(thread, worker)`` pairs whose thread has exited.
+
+    :returns: how many pairs are still parked afterwards.
+    """
+    with _PARKED_LOCK:
+        alive = []
+        for pair in _PARKED_THREADS:
+            try:
+                if pair[0].isRunning():
+                    alive.append(pair)
+            except RuntimeError:
+                # The C++ QThread is already gone, which can only happen
+                # after it finished — nothing left to hold on to.
+                pass
+        _PARKED_THREADS[:] = alive
+        return len(_PARKED_THREADS)
+
+
+def parked_thread_count() -> int:
+    """How many stubborn threads are currently parked. For diagnostics."""
+    with _PARKED_LOCK:
+        return len(_PARKED_THREADS)
+
+
+def thread_has_stopped(thread) -> bool:
+    """True when ``thread`` is finished, never started, or already deleted.
+
+    ``None`` counts as stopped, and so does a QThread whose C++ half PySide6
+    has already taken away: asking it anything raises ``RuntimeError``, and
+    an object that no longer exists is certainly not still running. That
+    case is not exotic — ``make_thread`` wires ``thread.finished ->
+    thread.deleteLater``, so any GUI pump that delivers a retirement slot
+    has usually flushed the deferred delete on the way.
+    """
+    if thread is None:
+        return True
+    try:
+        return not thread.isRunning()
+    except RuntimeError:
+        return True
+
+
+def prune_job_pairs(pairs, finished=None) -> List[tuple]:
+    """Return the ``(thread, worker)`` pairs a screen must still hold.
+
+    The idiom this replaces — ``[p for p in jobs if p[0].isRunning()]``
+    wired to ``thread.finished`` — is wrong twice over, and the two errors
+    hid each other:
+
+    * The slot is queued onto the GUI thread, so it runs *after* the OS
+      thread has gone. ``make_thread`` also wires ``thread.finished ->
+      thread.deleteLater``, and the same pump that delivers this call
+      flushes that deferred delete first — so ``isRunning()`` raises
+      ``RuntimeError: Internal C++ object already deleted`` from inside a Qt
+      slot. The list comprehension never completes and **every** pair is
+      retained, forever, along with its worker.
+    * ``self.sender()`` is not a way out: Qt nulls the sender of a queued
+      call whose emitter has since been destroyed, which is exactly what
+      ``deleteLater`` just did. A screen keyed on it silently retires
+      nothing.
+
+    So: a wrapper whose C++ half is gone is *proof* of retirement (
+    ``deleteLater`` is only ever posted from ``thread.finished``), and a
+    ``finished`` sender is used when Qt still offers one.
+
+    :param pairs: the screen's ``(thread, worker)`` ownership list.
+    :param finished: the QThread that just finished, when known.
+    :returns: the pairs still worth holding a reference to.
+    """
+    kept: List[tuple] = []
+    for pair in pairs:
+        thread = pair[0] if pair else None
+        if finished is not None and thread is finished:
+            continue
+        if not thread_has_stopped(thread):
+            kept.append(pair)
+    return kept
+
+
+def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
+    """Ask ``thread`` to stop, wait for it, and **never** terminate it.
+
+    ``QThread.terminate()`` is ``pthread_cancel`` under the covers, and
+    every thread in this application runs Python. A cancelled thread that
+    happened to hold the GIL never releases it and the whole process stops
+    making progress; one cancelled inside a Qt or PySide internal leaves a
+    corrupt heap and the process dies later, somewhere unrelated. Neither
+    failure names the line that caused it, which is why
+    :meth:`RunRegistry.cancel_all` documents "refuse to destroy the GUI
+    rather than use ``QThread.terminate()``" — this function is how a
+    caller does that.
+
+    A thread that will not stop is *parked* (see :data:`_PARKED_THREADS`)
+    so that nothing drops the last reference to a running QThread — which
+    is the abort this whole module is arranged around.
+
+    :param thread: the QThread to drain. ``None`` is accepted and is a no-op.
+    :param worker: object to keep alive alongside a parked thread.
+    :param timeout_ms: how long to wait for the thread to exit.
+    :returns: True when the thread has stopped (or was already gone).
+    """
+    prune_parked_threads()
+    if thread is None:
+        return True
+    try:
+        if not thread.isRunning():
+            return True
+    except RuntimeError:
+        # Internal C++ object already deleted — it cannot still be running.
+        return True
+    try:
+        # quit() is documented thread-safe and posts to the thread's OWN
+        # event loop, unlike a queued connection to this GUI-affine object.
+        thread.quit()
+        stopped = bool(thread.wait(max(0, int(timeout_ms))))
+    except RuntimeError:
+        return True
+    if stopped:
+        return True
+    with _PARKED_LOCK:
+        _PARKED_THREADS.append((thread, worker))
+    LOG.warning(
+        "A worker thread did not stop within %d ms; it is parked rather "
+        "than terminated so the process is not left with a corrupt heap.",
+        timeout_ms,
+    )
+    return False
 
 
 class PipelineWorker(QObject):
@@ -701,6 +868,24 @@ class PipelineWorker(QObject):
         than a missing feature.
         """
         return bool(getattr(self._fn, PAUSABLE_ATTR, False))
+
+    @property
+    def blocks_shutdown(self) -> bool:
+        """Whether this job still running is a reason not to close the app.
+
+        True for analysis runs. They write masks, measurements and model
+        files, so stopping one anywhere other than a declared safe boundary
+        risks the half-written artefact :mod:`spacr.resume` exists to clean
+        up, and the honest response to "close now" is to wait.
+
+        False for the read-only background jobs the UI runs on its own
+        behalf — refreshing run history, scanning a model folder, polling a
+        job queue. ``journal=False`` already means exactly that (see
+        :meth:`__init__`): nothing is produced, so nothing can be left
+        half-produced, and a caller that lets one veto shutdown converts a
+        list refresh into an application that will not quit.
+        """
+        return self._journal_enabled
 
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
@@ -1011,6 +1196,16 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "analyze_plaques":
             from spacr.submodules import analyze_plaques
             return _ret(log_call(analyze_plaques))
+        # Apps that registered their own entry point. The chain above is
+        # the built-in table; this is the seam a module registered
+        # through `spacr.qt.app.register_app(..., entry="mod:func")`
+        # reaches, so a new pipeline app is one registration call rather
+        # than a branch here plus seven other files. Consulted before
+        # plugins because a built-in registration is not a contribution.
+        from .app import registered_entry
+        registered = registered_entry(app_key)
+        if registered is not None:
+            return _ret(log_call(registered))
         from spacr.plugins import get_app, load_object
         plugin_app = get_app(app_key)
         if plugin_app is not None:

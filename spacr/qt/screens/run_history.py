@@ -297,11 +297,38 @@ class RunHistoryScreen(QWidget):
         self._finish_refresh(ok and not bool(self.last_error))
 
     def _retire_jobs(self) -> None:
-        """Release stopped QThread/worker ownership pairs."""
-        self._jobs = [
-            pair for pair in self._jobs
-            if pair[0] is not None and pair[0].isRunning()
-        ]
+        """Release ownership pairs whose QThread has stopped.
+
+        A bare ``[p for p in self._jobs if p[0].isRunning()]`` leaked every
+        pair here: by the time this queued slot runs, ``thread.finished ->
+        deleteLater`` has reaped the QThread's C++ half and ``isRunning()``
+        raises ``RuntimeError`` out of the slot, so the assignment never
+        happens. See :func:`spacr.qt.bridge.prune_job_pairs`.
+        """
+        from ..bridge import prune_job_pairs
+
+        self._jobs = prune_job_pairs(self._jobs, self.sender())
+
+    def closeEvent(self, event) -> None:
+        """Drain the history worker before Qt destroys this screen.
+
+        Without this the screen could be destroyed with its refresh still
+        running. The job survives — ``bridge.make_thread`` registers it
+        process-wide — but it survives *ownerless*, and an ownerless job in
+        the run registry is what ``MainWindow.closeEvent`` reads when it
+        decides whether the application may quit.
+        """
+        from ..bridge import drain_thread
+
+        for thread, worker in list(self._jobs):
+            if worker is not None:
+                try:
+                    worker.request_cancel("run-history screen closed")
+                except Exception:
+                    pass
+            drain_thread(thread, worker, timeout_ms=3000)
+        self._jobs.clear()
+        super().closeEvent(event)
 
     def _finish_refresh(self, ok: bool) -> None:
         """Rebuild filters/table after synchronous or threaded loading."""

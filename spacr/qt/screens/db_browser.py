@@ -2551,8 +2551,18 @@ class DbBrowserScreen(LinkedView, QWidget):
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(
             lambda ok, jid=job_id: self._job_settled.emit(jid, bool(ok)))
-        thread.finished.connect(
-            lambda jid=job_id: self._thread_retired.emit(jid))
+        # A BOUND METHOD, not a closure — and the contrast with the line
+        # above is the whole point. ``worker`` is moveToThread'd, so a
+        # closure on ITS signal runs on the worker thread and re-emitting a
+        # Signal is the only safe thing to do from one. ``thread`` is the
+        # opposite case: the QThread object is GUI-affine, so PySide6 makes
+        # it the receiver for a closure, and ``make_thread`` connects
+        # ``thread.finished -> thread.deleteLater`` FIRST. Slots run in
+        # connection order, so the DeferredDelete is posted ahead of the
+        # closure's metacall and Qt discards queued events for a destroyed
+        # receiver: the job was never retired and ``active_jobs()`` never
+        # returned to zero.
+        thread.finished.connect(self._retire_finished_jobs)
         self._update_controls()
         thread.start()
 
@@ -2583,6 +2593,21 @@ class DbBrowserScreen(LinkedView, QWidget):
                 ok = False
         self._update_controls()
         self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        It sweeps rather than naming a sender: by the time this runs the
+        emitting QThread may be exactly what is gone —
+        ``thread.finished -> thread.deleteLater`` is connected first — and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for job_id, entry in list(self._jobs.items()):
+            if thread_has_stopped(entry[0]):
+                self._retire_job(job_id)
 
     def _retire_job(self, job_id: int) -> None:
         """Release *this* job's refs once its own event loop has exited.
