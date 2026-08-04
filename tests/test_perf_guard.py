@@ -240,12 +240,33 @@ def test_the_spacr_qt_launch_path_never_imports_spacr_utils():
     # modules (and whatever they import) would be outside this guard.
     assert result["registered"] == result["expected"], (
         f"only {result['registered']} of {result['expected']} registered")
-    assert result["seconds"] < 4.0, (
+    # Measured 0.57 s against spacr.utils' 3.3 s. A 4 s absolute ceiling on
+    # that looked generous and was not: this box runs the whole suite beside
+    # several agents, and the guard failed on wall clock alone inside a batch
+    # where it had passed on its own moments before. A guard that flakes gets
+    # deleted, and deleting this one would cost the invariant above.
+    #
+    # So the duration is claimed as a RATIO against the import it exists to
+    # avoid, taken in the same conditions seconds apart: whatever the machine
+    # is doing to one subprocess it is doing to the other. Measured 0.17x
+    # (0.57 / 3.3); a Qt layer that reached spacr.utils by any road could not
+    # be below 1.0. The absolute ceiling stays, at a value only a catastrophe
+    # reaches, because a ratio alone would pass if both halves got slow
+    # together.
+    heavy_cost = best_of(SPACR_UTILS, runs=2)["seconds"]
+    ratio = result["seconds"] / heavy_cost
+    assert ratio < 0.5, (
+        f"the spacr-qt launch path cost {result['seconds']:.2f} s against "
+        f"spacr.utils' {heavy_cost:.2f} s in the same conditions — "
+        f"{ratio:.2f}x, where it measured 0.17x. Something heavy arrived at "
+        "module level")
+    assert result["seconds"] < 15.0, (
         f"the spacr-qt launch path imported in {result['seconds']:.2f} s; it "
-        "measured 0.57 s. Something heavy arrived at module level")
+        "measured 0.57 s")
     assert result["rss_mb"] < 600.0, (
         f"the spacr-qt launch path held {result['rss_mb']:.0f} MB resident; "
-        "it measured 172 MB")
+        "it measured 172 MB. Memory is not noisy the way wall clock is, so "
+        "this ceiling is 3.5x and means something")
 
 
 @_NEEDS_QT
