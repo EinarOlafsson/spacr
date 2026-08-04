@@ -98,6 +98,33 @@ present (``prob = gene_in_well`` is a 0/1 vector), ignoring how abundant each
 gene is. :func:`simulate_imaging_plate` defaults to ``imaging_split='abundance'``
 and keeps ``'uniform'`` for exact R parity.
 
+Two things neither package modelled
+-----------------------------------
+The list above is about *fidelity* to the R. These two are about fidelity to a
+real screen, and both make the answer worse — which is why they are worth
+having and why they are **off by default**. A simulator whose baseline shifted
+under a version bump would make every power figure already quoted from it
+wrong, so turning either on is an explicit act.
+
+* **Sequencing error** (:func:`misassign_reads`,
+  ``sequencing_error_rate=``). Both packages treat the read fraction as an
+  exact record of which genotypes were in a well. Substitution errors, index
+  hopping, PCR chimeras and mismatch-tolerant demultiplexing all credit reads
+  to the wrong gene. Simulating it says the direct dilution is small — but
+  that it silently disables the unidentified-gene check, turning genes that
+  were correctly reported as untested into confident non-hits. On the
+  reference design that costs ten times more than the dilution does. See
+  :func:`misassign_reads`.
+* **Well dropout from too few imaged cells**
+  (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the
+  microscope found three cells enters the fit as one observation next to a
+  well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1,
+  and its standard error is several times the classifier's whole signal gap.
+  The Poisson offset stops it dominating the scale of the fit; it does not
+  stop its read-fraction covariate being paired with noise. Dropping such
+  wells is what an analyst does by hand, and it costs wells — so which way the
+  trade comes out is a thing to simulate rather than assert.
+
 Column names follow the R package exactly so the model half can consume them by
 name — including the upstream misspelling ``n_barcodes_per_genes_per_well``,
 which is kept rather than quietly corrected, because renaming it would break the
@@ -135,7 +162,11 @@ __all__ = [
     'simulate_imaging_plate',
     'simulate_sequencing_plate',
     'simulate_screen',
+    'misassign_reads',
+    'drop_low_cell_wells',
     'MAX_HYPERGEOMETRIC_URN',
+    'DEFAULT_SEQUENCING_ERROR_RATE',
+    'DEFAULT_MIN_CELLS_PER_WELL',
 ]
 
 #: numpy's exact multivariate hypergeometric sampler documents a hard ceiling of
@@ -144,6 +175,23 @@ __all__ = [
 #: cells-per-well parameter is wrong by orders of magnitude, so we say so rather
 #: than sample something subtly wrong.
 MAX_HYPERGEOMETRIC_URN = 10 ** 9
+
+#: A sane starting point for :func:`misassign_reads`, and the value the design
+#: screen offers. Illumina's own substitution error is ~0.1 % per base, but the
+#: quantity that matters here is the rate at which a *whole barcode* ends up
+#: credited to the wrong gene, which also collects index hopping (0.1-2 % on a
+#: patterned flow cell), PCR chimeras, and demultiplexing mismatch tolerance.
+#: 0.5 % is the low end of what a real amplicon screen sees; a screen with
+#: single-mismatch barcode rescue and a non-patterned flow cell can be under
+#: it, and one with a crowded barcode set will be well over.
+DEFAULT_SEQUENCING_ERROR_RATE = 0.005
+
+#: A sane starting point for :func:`drop_low_cell_wells`. Below roughly 25
+#: imaged cells the well's positive *fraction* is quantised in steps of 4 %
+#: and its binomial standard error is larger than the classifier's whole
+#: signal gap, so the well contributes noise the model cannot down-weight
+#: enough. Zero means the filter is off, which is the default everywhere.
+DEFAULT_MIN_CELLS_PER_WELL = 25
 
 #: Relative tolerance used to decide that a requested variance *equals* the
 #: requested mean, i.e. that the count distribution is Poisson. Without a
@@ -1177,6 +1225,211 @@ def simulate_imaging_plate(
 
 
 # ---------------------------------------------------------------------------
+# Stage 4a — sequencing error
+# ---------------------------------------------------------------------------
+
+def misassign_reads(
+    reads: np.ndarray,
+    sequencing_error_rate: float,
+    *,
+    rng: Optional[np.random.Generator] = None,
+    seed: Optional[int] = None,
+) -> np.ndarray:
+    """Credit a fraction of each well's reads to the wrong gene.
+
+    Neither spaCRPower nor the port had this stage, and its absence is
+    optimistic in a specific way: it makes the read fraction an *exact*
+    measure of which genotypes were in a well. In a real amplicon screen it is
+    not. A barcode arrives at the wrong gene through base-call substitutions,
+    index hopping on a patterned flow cell, PCR chimeras across the pooled
+    reaction, and mismatch-tolerant demultiplexing — and every one of those
+    mechanisms moves reads *toward the middle*, because the destination is
+    drawn from the whole library rather than from the wells the source
+    genotype was actually in.
+
+    Mis-assignment gives a gene phantom reads in wells it never entered, so
+    the covariate the model regresses positive counts on is a
+    shrunk-toward-uniform version of the truth. The obvious consequence is
+    regression dilution — an attenuated coefficient and a smaller apparent
+    effect — and measuring it in this simulator says that at realistic rates
+    it is **small**: on the 452-gene reference design, 0.5 % mis-assignment
+    moves the hit/non-hit separation from 0.799 to 0.794 among the genes that
+    were identifiable to begin with. Deep sequencing averages most of it away.
+
+    The consequence that is *not* obvious, and is much larger, is what it does
+    to the genes that were never testable. A gene that landed in every well,
+    or in none, has a constant read-fraction column; its coefficient is
+    confounded with the intercept and ``power_model.prepare_model_data``
+    reports it as unidentified rather than as a non-hit. That check is the
+    one honest thing standing between a thin design and a page of confident
+    negative results — and mis-assignment defeats it, because phantom reads
+    give every gene a covariate that *varies*. On the same reference design,
+    0.5 % error takes the scored library from 317 genes to all 452: the 135
+    genes that were correctly flagged "untested" become scored non-hits with
+    a covariate made entirely of noise, and the screen-wide separation falls
+    from 0.799 to 0.723 — fourteen times the direct dilution, and all of it
+    from a safeguard being switched off rather than from any loss of signal.
+
+    So the reason to simulate this is not to price the noise. It is that a
+    screen with sequencing error and a screen without it disagree about *how
+    many genes were tested*, and only one of them is telling the truth.
+
+    The model, per well:
+
+    1. Each gene's reads survive independently with probability
+       ``1 - sequencing_error_rate``.
+    2. Everything lost is pooled and redistributed **uniformly across the
+       whole library**, including genes absent from the well and including the
+       gene it came from.
+
+    Uniform, not abundance-weighted, because the destination of a misread
+    barcode is set by which barcodes are one edit away from it, not by how
+    much of the source was in the tube. And because self-assignment is
+    allowed, the *effective* mis-assignment rate is
+    ``sequencing_error_rate * (1 - 1/n_genes)``; at a 452-gene library that is
+    a 0.2 % correction, and keeping it makes the read total exactly conserved,
+    which is a much more useful invariant to be able to assert.
+
+    Cross-*well* hopping — a read landing in the wrong sample entirely — is
+    not modelled. It needs a plate-level index layout the simulator does not
+    carry, and within-well gene confusion is the mechanism that dilutes the
+    effect being measured.
+
+    :param reads: ``(n_genes, n_wells)`` integer read counts.
+    :param sequencing_error_rate: probability a read is credited elsewhere,
+        in ``[0, 1]``. ``0.0`` returns the input unchanged.
+    :param rng: Generator to draw from; mutually exclusive with ``seed``.
+    :param seed: Seed for a fresh generator; mutually exclusive with ``rng``.
+    :returns: a new ``(n_genes, n_wells)`` array. Every column sums to
+        exactly what it summed to before.
+    :raises ScreenDesignError: If the rate is outside ``[0, 1]``, the array is
+        not 2-D or holds a negative count, or neither/both of ``rng`` and
+        ``seed`` are given.
+
+    :example:
+
+    Total reads are conserved, and at a full error rate nothing of the
+    original assignment survives except by chance:
+
+    >>> counts = np.array([[100, 0], [0, 100]])
+    >>> out = misassign_reads(counts, 1.0, seed=3)
+    >>> [int(column.sum()) for column in out.T]
+    [100, 100]
+    """
+    generator = resolve_rng(rng, seed)
+    rate = float(sequencing_error_rate)
+    if not np.isfinite(rate) or rate < 0.0 or rate > 1.0:
+        raise ScreenDesignError(
+            f'sequencing_error_rate is a probability and must be in [0, 1], '
+            f'got {sequencing_error_rate!r}'
+        )
+    counts = np.asarray(reads)
+    if counts.ndim != 2:
+        raise ScreenDesignError(
+            f'misassign_reads expects a (n_genes, n_wells) matrix, got shape '
+            f'{counts.shape}'
+        )
+    counts = counts.astype(np.int64)
+    if (counts < 0).any():
+        raise ScreenDesignError('read counts must not be negative')
+    if rate == 0.0 or counts.size == 0:
+        return counts.copy()
+
+    n_genes = counts.shape[0]
+    lost = generator.binomial(counts, rate)
+    kept = counts - lost
+    uniform = np.full(n_genes, 1.0 / n_genes)
+    out = kept
+    for well_column in range(counts.shape[1]):
+        pool = int(lost[:, well_column].sum())
+        if pool == 0:
+            continue
+        out[:, well_column] += generator.multinomial(pool, uniform)
+    return out
+
+
+def drop_low_cell_wells(
+    screen: pd.DataFrame,
+    min_cells_per_well: int,
+    *,
+    drop: bool = True,
+) -> pd.DataFrame:
+    """Remove wells whose imaged cell count is too low to be informative.
+
+    The second thing neither spaCRPower nor the port did. A well where the
+    microscope found three cells produces a positive *fraction* that can only
+    take the values 0, 1/3, 2/3 and 1; its binomial standard error is around
+    0.27, which is three times the entire gap between the classifier's
+    hit-cell and background rates. It carries essentially no information about
+    which genotypes were in it — and it enters the fit as one more observation
+    alongside a well with four hundred cells.
+
+    The Poisson offset does part of the job: a well with three cells has a
+    small expected count, so it does not dominate the *scale* of the fit. What
+    the offset does not do is stop the well's read-fraction covariate from
+    being paired with a response that is almost pure noise, and a screen with
+    a long tail of thin wells is a screen whose covariate-response
+    relationship is being averaged against nothing.
+
+    Dropping them is what an analyst does by hand, and it costs something:
+    fewer wells is less power. Simulating both sides of that trade is the
+    reason this is a parameter rather than a fixed rule.
+
+    Whole wells go, never single ``(gene, well)`` rows. A partially dropped
+    well would leave the well's positive total and its cell total describing
+    different sets of genes, which is a table the model half is entitled to
+    assume cannot exist.
+
+    :param screen: joined screen table; needs ``well`` and one of
+        ``imaging_n_cells_per_well`` / ``imaging_n_cells_per_gene_per_well``.
+    :param min_cells_per_well: wells with **fewer** imaged cells than this are
+        removed. ``0`` disables the filter and returns the input unchanged.
+    :param drop: ``False`` annotates with ``well_kept`` and removes nothing,
+        for a caller that wants to see what would go.
+    :returns: a new frame carrying a boolean ``well_kept`` column, filtered
+        when ``drop``. ``frame.attrs['n_wells_dropped']`` and
+        ``['n_wells_before']`` record the cost.
+    :raises MalformedPlateError: If neither cell-count column is present, or a
+        well's ``imaging_n_cells_per_well`` is not constant within the well.
+    :raises ScreenDesignError: If ``min_cells_per_well`` is negative.
+    """
+    threshold = _check_count('min_cells_per_well', min_cells_per_well)
+    frame = screen.copy()
+    if 'well' not in frame.columns:
+        raise MalformedPlateError(
+            "drop_low_cell_wells needs a 'well' column; got "
+            f"{list(frame.columns)}"
+        )
+    if 'imaging_n_cells_per_well' in frame.columns:
+        per_well = frame.groupby('well')['imaging_n_cells_per_well']
+        if int(per_well.nunique().max() or 1) > 1:
+            raise MalformedPlateError(
+                'imaging_n_cells_per_well varies within a well; it is the '
+                'well total repeated on every row and cannot differ between '
+                'the genes of one well.'
+            )
+        totals = per_well.first()
+    elif 'imaging_n_cells_per_gene_per_well' in frame.columns:
+        totals = frame.groupby('well')['imaging_n_cells_per_gene_per_well'].sum()
+    else:
+        raise MalformedPlateError(
+            'drop_low_cell_wells needs imaging_n_cells_per_well or '
+            'imaging_n_cells_per_gene_per_well to know how thin a well is.'
+        )
+    keep = totals >= threshold
+    frame['well_kept'] = frame['well'].map(keep).astype(bool)
+    n_before = int(len(keep))
+    n_dropped = int((~keep).sum())
+    if drop and n_dropped:
+        frame = frame.loc[frame['well_kept']].reset_index(drop=True)
+    frame.attrs.update(screen.attrs)
+    frame.attrs['n_wells_before'] = n_before
+    frame.attrs['n_wells_dropped'] = n_dropped
+    frame.attrs['min_cells_per_well'] = threshold
+    return frame
+
+
+# ---------------------------------------------------------------------------
 # Stage 4 — the sequencing plate
 # ---------------------------------------------------------------------------
 
@@ -1189,12 +1442,13 @@ def simulate_sequencing_plate(
     *,
     sequencing_n_cells_per_well_var: Optional[float] = None,
     read_depth_cv: float = 0.0,
+    sequencing_error_rate: float = 0.0,
     rng: Optional[np.random.Generator] = None,
     seed: Optional[int] = None,
 ) -> pd.DataFrame:
     """Simulate the barcode read counts for each genotype in each well.
 
-    Three steps per well:
+    Four steps per well, the last of them optional:
 
     1. Cells contributing DNA: ``gene_in_well * Count(lambda, var)``. This is
        normally far larger than the *imaged* count, because sequencing sees the
@@ -1210,6 +1464,11 @@ def simulate_sequencing_plate(
        reading a finite library is sampling without replacement, and modelling it
        as multinomial overstates how much independent information deep wells
        carry.
+    4. **Mis-assignment**, when ``sequencing_error_rate > 0``: a fraction of
+       the reads is credited to the wrong gene. Off by default, because it is
+       not in the R and a silently different baseline would make every number
+       already quoted from this module wrong. See :func:`misassign_reads` for
+       what it models and why it always costs power.
 
     **Two departures from the R original, both deliberate.** Upstream computes
     ``n_reads_per_well = round(n_reads_total / nrow(well_data))`` inside a
@@ -1237,15 +1496,26 @@ def simulate_sequencing_plate(
     :param read_depth_cv: Coefficient of variation of read depth between wells.
         ``0.0`` gives every well exactly ``n_reads_per_well``; real screens are
         far from uniform, and shallow wells are where hits go to die.
+    :param sequencing_error_rate: probability a read is credited to the wrong
+        gene, in ``[0, 1]``. ``0.0`` (the default) is the R behaviour;
+        :data:`DEFAULT_SEQUENCING_ERROR_RATE` is a realistic figure.
     :param rng: Generator to draw from; mutually exclusive with ``seed``.
     :param seed: Seed for a fresh generator; mutually exclusive with ``rng``.
     :returns: DataFrame with one row per ``(gene, well)`` and columns
         ``[gene, well, sequencing_n_cells_per_well_lambda,
         sequencing_n_cells_per_well_var, n_reads_per_well, n_reads_total,
         pcr_factor, sequencing_n_cells_per_gene_per_well,
-        n_barcodes_per_genes_per_well, n_reads_per_gene_per_well]``.
+        n_barcodes_per_genes_per_well, sequencing_error_rate,
+        n_reads_true_per_gene_per_well, n_reads_per_gene_per_well]``.
         ``n_barcodes_per_genes_per_well`` keeps the R package's misspelling so
         the two are joinable by name.
+
+        ``n_reads_per_gene_per_well`` is what the analyst sees, i.e. **after**
+        mis-assignment, because that is what the model half must consume for
+        the dilution to be in the answer.
+        ``n_reads_true_per_gene_per_well`` is the same quantity before it, so
+        a test can plant the truth and measure how far the observation moved.
+        With the error rate at zero the two are identical.
     :raises ScreenDesignError: If a parameter is out of range, or neither/both of
         ``rng`` and ``seed`` given.
     :raises SequencingScaleError: If a well's amplified barcode pool exceeds
@@ -1361,9 +1631,13 @@ def simulate_sequencing_plate(
     frame['n_reads_per_well'] = np.tile(well_depth, genes.size)
     frame['n_reads_total'] = np.int64(well_depth.sum())
     frame['pcr_factor'] = np.tile(pcr_factor, genes.size)
+    observed = misassign_reads(reads, sequencing_error_rate, rng=generator)
+
     frame['sequencing_n_cells_per_gene_per_well'] = cells.reshape(-1)
     frame['n_barcodes_per_genes_per_well'] = barcodes.reshape(-1)
-    frame['n_reads_per_gene_per_well'] = reads.reshape(-1)
+    frame['sequencing_error_rate'] = float(sequencing_error_rate)
+    frame['n_reads_true_per_gene_per_well'] = reads.reshape(-1)
+    frame['n_reads_per_gene_per_well'] = observed.reshape(-1)
     return frame
 
 
@@ -1391,6 +1665,8 @@ def simulate_screen(
     *,
     sequencing_n_cells_per_well_var: Optional[float] = None,
     read_depth_cv: float = 0.0,
+    sequencing_error_rate: float = 0.0,
+    min_cells_per_well: int = 0,
     imaging_split: str = 'abundance',
     rng: Optional[np.random.Generator] = None,
     seed: Optional[int] = None,
@@ -1424,6 +1700,13 @@ def simulate_screen(
     :param n_reads_per_well: See :func:`simulate_sequencing_plate`.
     :param sequencing_n_cells_per_well_var: See :func:`simulate_sequencing_plate`.
     :param read_depth_cv: See :func:`simulate_sequencing_plate`.
+    :param sequencing_error_rate: See :func:`misassign_reads`. Off by default;
+        turning it on always lowers power, because a mis-assigned read moves
+        the covariate toward uniform and attenuates the coefficient.
+    :param min_cells_per_well: See :func:`drop_low_cell_wells`. Off by
+        default. Turning it on trades wells for well quality, and which way
+        that comes out depends on how long the thin tail is -- which is the
+        thing worth simulating rather than arguing about.
     :param imaging_split: See :func:`simulate_imaging_plate`.
     :param rng: Generator to draw from; mutually exclusive with ``seed``.
     :param seed: Seed for a fresh generator; mutually exclusive with ``rng``.
@@ -1486,6 +1769,7 @@ def simulate_screen(
         n_reads_per_well=n_reads_per_well,
         sequencing_n_cells_per_well_var=sequencing_n_cells_per_well_var,
         read_depth_cv=read_depth_cv,
+        sequencing_error_rate=sequencing_error_rate,
         rng=sequencing_rng,
     )
 
@@ -1499,4 +1783,9 @@ def simulate_screen(
         sequencing_plate, on=['well', 'gene'], how='left', validate='1:1'
     )
     screen.attrs['n_prob_clipped'] = spot_plate.attrs.get('n_prob_clipped', 0)
+    # Last, and after the join, because it is a decision about *wells* taken
+    # on the realised imaged cell total -- which is only known once the
+    # imaging plate exists, and which the sequencing plate knows nothing
+    # about. A well removed here takes its sequencing rows with it.
+    screen = drop_low_cell_wells(screen, min_cells_per_well)
     return screen
