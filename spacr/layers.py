@@ -79,6 +79,8 @@ __all__ = [
     "Blending",
     "Spacing",
     "Canvas",
+    "OrthoViews",
+    "CanvasLink",
     "Colormap",
     "colormap",
     "COLORMAPS",
@@ -631,6 +633,36 @@ class Spacing:
 # Canvas — a window onto the world
 # ---------------------------------------------------------------------------
 
+def _extent_of(source: Any) -> Tuple[Dict[str, Tuple[float, float]], str]:
+    """``({axis: (low, high)}, units)`` for a stack, a layer or an extent map."""
+    if isinstance(source, LayerStack):
+        return source.world_extent(), source.units
+    if isinstance(source, Layer):
+        return source.world_extent(), source.spacing.units
+    return ({str(k): (float(v[0]), float(v[1]))
+             for k, v in dict(source).items()}, "px")
+
+
+def _voxel_steps(source: Any) -> Dict[str, float]:
+    """World size of one element along each axis, over everything with a grid.
+
+    The finest voxel wins where two layers disagree, because that is the
+    smallest step a slice slider could usefully take: a slider that stepped by
+    the coarse layer's z would skip slices of the fine one.
+    """
+    steps: Dict[str, float] = {}
+    layers = (list(source) if isinstance(source, LayerStack)
+              else [source] if isinstance(source, Layer) else [])
+    for layer in layers:
+        if not layer.shape:
+            continue
+        for axis, size in zip(layer.spacing.axes, layer.spacing.scale):
+            size = abs(float(size))
+            if axis not in steps or size < steps[axis]:
+                steps[axis] = size
+    return steps
+
+
 @dataclass(frozen=True)
 class Canvas:
     """The world window a render fills: an origin, a step and a size.
@@ -718,16 +750,7 @@ class Canvas:
             ``{axis: (low, high)}`` extent mapping.
         :param margin: fraction of the extent to add on every side.
         """
-        if isinstance(source, LayerStack):
-            extent = source.world_extent()
-            units = source.units
-        elif isinstance(source, Layer):
-            extent = source.world_extent()
-            units = source.spacing.units
-        else:
-            extent = {str(k): (float(v[0]), float(v[1]))
-                      for k, v in dict(source).items()}
-            units = "px"
+        extent, units = _extent_of(source)
         missing = [a for a in axes if a not in extent]
         if missing:
             raise LayerError(
@@ -834,6 +857,479 @@ class Canvas:
         merged = dict(self.depth)
         merged.update({k: float(v) for k, v in coords.items()})
         return replace(self, depth=merged)
+
+
+# ---------------------------------------------------------------------------
+# Orthogonal views — one volume, three planes
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class OrthoViews:
+    """The three planes of one volume, laid out so that they line up.
+
+    A z-stack seen only from above hides the thing a z-stack is acquired for.
+    The three canvases here are the top view and the two side views through a
+    crosshair, arranged the way ImageJ's orthogonal views are:
+
+    * :attr:`xy` — the top view, rows ``y`` and columns ``x``, at depth ``z``;
+    * :attr:`zx` — BELOW it, rows ``z`` and columns ``x``, so it shares its
+      columns with the top view;
+    * :attr:`yz` — BESIDE it, rows ``y`` and columns ``z``, so it shares its
+      rows with the top view.
+
+    **Every panel uses one world-units-per-pixel scale.** That is the whole
+    difficulty, and it is why this is a class rather than three
+    :meth:`Canvas.covering` calls. Confocal stacks in this codebase are
+    routinely 0.65 µm in xy and 2 µm in z; a side view drawn one pixel per
+    slice is three times too thin, and it does not look wrong — it looks like
+    a slightly flat cell. Nuclear sphericity, colocalisation depth and every
+    3-D shape feature read off such a picture are wrong by a factor nobody
+    sees. Here the side views are :math:`z_{span}/step` pixels tall, so a
+    10-slice 2 µm stack is 31 px of a 0.65 µm/px view, not 10.
+
+    Build one with :meth:`covering` and move the crosshair with :meth:`at`.
+    """
+
+    xy: Canvas
+    zx: Canvas
+    yz: Canvas
+    point: Mapping[str, float]
+    steps: Mapping[str, float] = field(default_factory=dict)
+    extent: Mapping[str, Tuple[float, float]] = field(default_factory=dict)
+
+    #: The world axes, depth first: ``(z, y, x)``.
+    DEFAULT_AXES: ClassVar[Tuple[str, str, str]] = ("z", "y", "x")
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "point", MappingProxyType(
+            {str(k): float(v) for k, v in dict(self.point).items()}))
+        object.__setattr__(self, "steps", MappingProxyType(
+            {str(k): float(v) for k, v in dict(self.steps).items()}))
+        object.__setattr__(self, "extent", MappingProxyType(
+            {str(k): (float(v[0]), float(v[1]))
+             for k, v in dict(self.extent).items()}))
+
+    # -- construction ----------------------------------------------------
+    @classmethod
+    def covering(cls, source: Any, *, width: int = 512,
+                 point: Optional[Mapping[str, float]] = None,
+                 axes: Tuple[str, str, str] = DEFAULT_AXES,
+                 margin: float = 0.0) -> "OrthoViews":
+        """Three canvases showing all of ``source``, crossing at ``point``.
+
+        :param source: a :class:`LayerStack`, a :class:`Layer` or a
+            ``{axis: (low, high)}`` extent mapping.
+        :param width: the top view's width in pixels. Every other panel size
+            follows from it and from the world extents, so that the layout
+            lines up and nothing is squashed.
+        :param point: where the crosshair starts, ``{axis: world}``. Defaults
+            to the middle of the volume, which is the slice a user opening a
+            stack wants to see first — slice 0 of a confocal stack is usually
+            empty.
+        :param axes: the three world axes, depth first.
+        :param margin: fraction of the extent to add on every side.
+        :raises LayerError: if the source does not span all three axes — an
+            orthogonal view of a 2-D field is not a view, it is a mistake, and
+            silently drawing one plane would hide it.
+        """
+        extent, units = _extent_of(source)
+        depth_axis, row_axis, column_axis = (str(a) for a in axes)
+        missing = [a for a in (depth_axis, row_axis, column_axis)
+                   if a not in extent]
+        if missing:
+            raise LayerError(
+                f"cannot build orthogonal views on axes {tuple(axes)}: nothing "
+                f"in the source spans {missing} (it spans {sorted(extent)}). "
+                f"A 2-D field has no second plane to show.")
+        spans: Dict[str, float] = {}
+        lows: Dict[str, float] = {}
+        for axis in (depth_axis, row_axis, column_axis):
+            lo, hi = extent[axis]
+            pad = (hi - lo) * float(margin)
+            lo, hi = lo - pad, hi + pad
+            lows[axis] = lo
+            spans[axis] = max(hi - lo, _EPS)
+        width = max(1, int(width))
+        # One scale for all three panels. Anything else is the squashed side
+        # view this class exists to prevent.
+        scale = spans[column_axis] / width
+        rows = max(1, int(round(spans[row_axis] / scale)))
+        depth_pixels = max(1, int(round(spans[depth_axis] / scale)))
+
+        centre = {axis: lows[axis] + 0.5 * spans[axis]
+                  for axis in (depth_axis, row_axis, column_axis)}
+        centre.update({str(k): float(v) for k, v in dict(point or {}).items()})
+
+        def _canvas(pair, shape):
+            origin = tuple(lows[a] + 0.5 * scale for a in pair)
+            pinned = {a: v for a, v in centre.items() if a not in pair}
+            return Canvas(origin=origin, step=(scale, scale), shape=shape,
+                          axes=pair, depth=pinned, units=units)
+
+        steps = _voxel_steps(source)
+        return cls(xy=_canvas((row_axis, column_axis), (rows, width)),
+                   zx=_canvas((depth_axis, column_axis),
+                              (depth_pixels, width)),
+                   yz=_canvas((row_axis, depth_axis), (rows, depth_pixels)),
+                   point=centre, steps=steps,
+                   extent={a: extent[a] for a in
+                           (depth_axis, row_axis, column_axis)})
+
+    # -- queries ---------------------------------------------------------
+    @property
+    def axes(self) -> Tuple[str, str, str]:
+        """The three world axes, depth first."""
+        return (self.zx.axes[0], self.xy.axes[0], self.xy.axes[1])
+
+    @property
+    def scale(self) -> float:
+        """World units per pixel — the same in every panel, by construction."""
+        return self.xy.step[1]
+
+    def canvases(self) -> Dict[str, Canvas]:
+        """``{'xy': …, 'zx': …, 'yz': …}`` — what a three-panel view draws."""
+        return {"xy": self.xy, "zx": self.zx, "yz": self.yz}
+
+    def slider(self, axis: str) -> Tuple[float, float, float]:
+        """``(low, high, step)`` in WORLD units for a slice slider.
+
+        The step is the source's own voxel size along that axis, so dragging
+        the slider moves one slice at a time rather than an arbitrary
+        fraction of the volume — and a µm-calibrated stack's slider is
+        labelled in µm, which is the number a user can check against the
+        acquisition settings.
+        """
+        axis = str(axis)
+        if axis not in self.extent:
+            raise LayerError(
+                f"no axis {axis!r} in these views; they span "
+                f"{sorted(self.extent)}")
+        low, high = self.extent[axis]
+        return low, high, self.steps.get(axis, self.scale)
+
+    def n_slices(self, axis: str) -> int:
+        """How many slices the slider on ``axis`` has."""
+        low, high, step = self.slider(axis)
+        return max(1, int(round((high - low) / max(step, _EPS))))
+
+    # -- moving the crosshair --------------------------------------------
+    def at(self, **coords: float) -> "OrthoViews":
+        """The same views with the crosshair moved: ``views.at(z=12.0)``.
+
+        Each panel is re-pinned at the axes it does not span, so moving z
+        changes what the top view shows and nothing else — which is what makes
+        a z slider one call rather than three.
+        """
+        point = dict(self.point)
+        point.update({str(k): float(v) for k, v in coords.items()})
+        moved = {}
+        for name, canvas in self.canvases().items():
+            pinned = {a: v for a, v in point.items() if a not in canvas.axes}
+            moved[name] = replace(canvas, depth=pinned)
+        return replace(self, point=point, **moved)
+
+    def clamped(self, **coords: float) -> "OrthoViews":
+        """:meth:`at`, with each coordinate held inside the volume.
+
+        What a slider wants: dragging past the last slice shows the last
+        slice, not an empty canvas that looks like a failed load.
+        """
+        held = {}
+        for axis, value in coords.items():
+            low, high = self.extent.get(str(axis), (float(value),
+                                                    float(value)))
+            held[axis] = min(max(float(value), low), high)
+        return self.at(**held)
+
+    def at_pixel(self, panel: str, row: float, column: float) -> "OrthoViews":
+        """Move the crosshair to the world point under a pixel of one panel.
+
+        Clicking the side view to move the top view's slice, which is the
+        interaction an orthogonal view is for.
+        """
+        canvas = self.canvases().get(str(panel))
+        if canvas is None:
+            raise LayerError(
+                f"no panel {panel!r}; the panels are 'xy', 'zx' and 'yz'")
+        world = canvas.world_at(row, column)
+        return self.clamped(**{a: world[a] for a in canvas.axes})
+
+    def zoomed(self, factor: float) -> "OrthoViews":
+        """Every panel ``factor``× closer, about the crosshair.
+
+        All three together, and about the crosshair rather than about each
+        panel's own middle, so the panels still line up afterwards.
+        """
+        factor = float(factor)
+        if factor <= 0 or not math.isfinite(factor):
+            raise LayerError(f"zoom factor must be positive, got {factor}")
+        moved = {}
+        for name, canvas in self.canvases().items():
+            centre = canvas.pixel_at(self.point)
+            moved[name] = canvas.zoomed(factor, centre=centre)
+        return replace(self, **moved)
+
+    def resized(self, width: int) -> "OrthoViews":
+        """The same crosshair at a different pixel width, panels still aligned."""
+        return replace(
+            type(self).covering(self.extent, width=width, point=self.point,
+                                axes=self.axes),
+            steps=self.steps)
+
+    def render(self, stack: "LayerStack") -> Dict[str, np.ndarray]:
+        """``{panel: (H, W, 3)}`` — the same stack drawn on all three planes."""
+        return {name: stack.render(canvas)
+                for name, canvas in self.canvases().items()}
+
+    def describe(self) -> str:
+        """One line for a status bar: where the crosshair is."""
+        body = " · ".join(f"{a} {self.point[a]:.6g}" for a in self.axes
+                          if a in self.point)
+        return f"{body} ({self.xy.units})"
+
+
+# ---------------------------------------------------------------------------
+# Linked canvases — N panels, one world window
+# ---------------------------------------------------------------------------
+
+class CanvasLink:
+    """Several canvases held on the same world window.
+
+    The model under a comparison grid: four panels showing four channels of
+    one field, or the same field at four timepoints, or the same well under
+    four conditions. Panning one pans all of them, zooming one zooms all of
+    them, and the point is that a difference between two panels is a
+    difference in the *data* rather than a difference in where they happen to
+    be looking.
+
+    What is shared is the world window — the origin and the step — and NOT the
+    pixel shape, because the panels are different widgets with different sizes.
+    Sharing the shape would make the grid's own layout part of the state; this
+    way a panel that is 10 px narrower shows 10 px less of the same view at the
+    same magnification, which is what a grid of unequal cells should do.
+
+    A panel can opt out with :meth:`unlock`, for the ordinary case of wanting
+    to look closely at one of them without losing the others' place.
+    """
+
+    def __init__(self, canvases: Optional[Mapping[str, Canvas]] = None):
+        self._canvases: Dict[str, Canvas] = {}
+        self._locked: Dict[str, bool] = {}
+        self._listeners: List[Callable[[str], None]] = []
+        for key, canvas in dict(canvases or {}).items():
+            self.add(key, canvas)
+
+    # -- the panels ------------------------------------------------------
+    def __len__(self) -> int:
+        return len(self._canvases)
+
+    def __contains__(self, key: Any) -> bool:
+        return str(key) in self._canvases
+
+    def __getitem__(self, key: str) -> Canvas:
+        try:
+            return self._canvases[str(key)]
+        except KeyError:
+            raise LayerError(
+                f"no panel {key!r}; the panels are {list(self._canvases)}"
+            ) from None
+
+    @property
+    def keys(self) -> Tuple[str, ...]:
+        """Every panel's key, in the order they were added."""
+        return tuple(self._canvases)
+
+    def canvases(self) -> Dict[str, Canvas]:
+        """``{key: canvas}`` — a copy, so a caller cannot mutate the link."""
+        return dict(self._canvases)
+
+    def add(self, key: str, canvas: Canvas, *, locked: bool = True) -> Canvas:
+        """Put a panel in the link, adopting the shared window if there is one.
+
+        A panel added to a link that has already been panned starts where the
+        others are, not where it was built — otherwise adding a fifth channel
+        to a grid the user has zoomed into shows the whole field in one cell.
+        """
+        if not isinstance(canvas, Canvas):
+            raise LayerError(f"a linked panel needs a Canvas, got {canvas!r}")
+        key = str(key)
+        if key in self._canvases:
+            raise LayerError(f"panel {key!r} is already in this link")
+        self._locked[key] = bool(locked)
+        leader = self._leader()
+        if locked and leader is not None:
+            canvas = self._aligned(canvas, leader)
+        self._canvases[key] = canvas
+        self._emit(key)
+        return canvas
+
+    def remove(self, key: str) -> Canvas:
+        """Take a panel out and return its canvas."""
+        canvas = self[key]
+        del self._canvases[str(key)]
+        self._locked.pop(str(key), None)
+        self._emit(str(key))
+        return canvas
+
+    def _leader(self) -> Optional[Canvas]:
+        for key, canvas in self._canvases.items():
+            if self._locked.get(key, True):
+                return canvas
+        return None
+
+    @staticmethod
+    def _aligned(canvas: Canvas, leader: Canvas) -> Canvas:
+        """``canvas`` on ``leader``'s world window, keeping its own pixel size."""
+        return replace(canvas, origin=leader.origin, step=leader.step)
+
+    # -- locking ---------------------------------------------------------
+    def is_locked(self, key: str) -> bool:
+        """Whether a panel follows the others."""
+        self[key]
+        return self._locked.get(str(key), True)
+
+    def lock(self, key: str) -> None:
+        """Make a panel follow the others again, moving it there now."""
+        canvas = self[key]
+        self._locked[str(key)] = True
+        leader = self._leader()
+        if leader is not None:
+            self._canvases[str(key)] = self._aligned(canvas, leader)
+        self._emit(str(key))
+
+    def unlock(self, key: str) -> None:
+        """Let a panel be moved on its own."""
+        self[key]
+        self._locked[str(key)] = False
+        self._emit(str(key))
+
+    # -- moving ----------------------------------------------------------
+    def set(self, key: str, canvas: Canvas) -> None:
+        """Replace one panel's canvas, and bring the locked ones with it."""
+        if not isinstance(canvas, Canvas):
+            raise LayerError(f"a linked panel needs a Canvas, got {canvas!r}")
+        key = str(key)
+        self[key]
+        self._canvases[key] = canvas
+        if self._locked.get(key, True):
+            for other, existing in list(self._canvases.items()):
+                if other != key and self._locked.get(other, True):
+                    self._canvases[other] = self._aligned(existing, canvas)
+        self._emit(key)
+
+    def resize(self, key: str, height: int, width: int) -> None:
+        """A panel's widget changed size. Only that panel's shape changes.
+
+        The STEP is held, not the span — the opposite of
+        :meth:`Canvas.resized`, and deliberately. In a linked grid the shared
+        quantity is the magnification: a cell that is 10 px narrower than its
+        neighbour must show 10 px less of the sample at the same scale, or the
+        two pictures are at different magnifications and the comparison the
+        grid exists for is not one.
+        """
+        height, width = max(1, int(height)), max(1, int(width))
+        self._canvases[str(key)] = replace(self[key], shape=(height, width))
+        self._emit(str(key))
+
+    def zoom(self, factor: float, *, key: Optional[str] = None,
+             centre: Optional[Tuple[float, float]] = None) -> None:
+        """Zoom ``key`` (or every panel) by ``factor``, about ``centre``.
+
+        The world point under ``centre`` in the panel being driven is what the
+        other panels are zoomed about too — not their own middles, or a wheel
+        over one cell would slide the rest of the grid sideways.
+        """
+        driver = self._require_key(key)
+        canvas = self[driver]
+        if centre is None:
+            centre = ((canvas.shape[0] - 1) / 2.0, (canvas.shape[1] - 1) / 2.0)
+        anchor = canvas.world_at(*centre)
+        self._apply(driver, lambda c: c.zoomed(
+            factor, centre=c.pixel_at(anchor)))
+
+    def pan(self, d_row: float, d_column: float, *,
+            key: Optional[str] = None) -> None:
+        """Pan by a number of the DRIVING panel's pixels.
+
+        Converted to world before it is handed to the others, so a grid whose
+        panels are at different zooms (one unlocked, then relocked) still moves
+        by the same distance across the sample rather than the same number of
+        pixels.
+        """
+        driver = self._require_key(key)
+        canvas = self[driver]
+        shift = (canvas.step[0] * float(d_row), canvas.step[1] * float(d_column))
+        self._apply(driver, lambda c: replace(c, origin=(
+            c.origin[0] + shift[0], c.origin[1] + shift[1])))
+
+    def at_depth(self, *, key: Optional[str] = None, **coords: float) -> None:
+        """Move every locked panel to another slice: ``link.at_depth(z=12.0)``."""
+        driver = self._require_key(key)
+        self._apply(driver, lambda c: c.at_depth(**coords))
+
+    def reset(self, source: Any, **kwargs: Any) -> None:
+        """Fit every locked panel to ``source`` again, keeping its pixel size."""
+        for key, canvas in list(self._canvases.items()):
+            if not self._locked.get(key, True):
+                continue
+            fitted = Canvas.covering(source, height=canvas.shape[0],
+                                     width=canvas.shape[1], axes=canvas.axes,
+                                     depth=dict(canvas.depth), **kwargs)
+            self._canvases[key] = fitted
+        self._emit("")
+
+    def _require_key(self, key: Optional[str]) -> str:
+        if key is not None:
+            self[key]
+            return str(key)
+        if not self._canvases:
+            raise LayerError("this link has no panels to move")
+        return next(iter(self._canvases))
+
+    def _apply(self, driver: str, move: Callable[[Canvas], Canvas]) -> None:
+        """Apply ``move`` to ``driver`` and to every other locked panel."""
+        follow = self._locked.get(driver, True)
+        for key, canvas in list(self._canvases.items()):
+            if key == driver or (follow and self._locked.get(key, True)):
+                self._canvases[key] = move(canvas)
+        self._emit(driver)
+
+    # -- events ----------------------------------------------------------
+    def subscribe(self, listener: Callable[[str], None]
+                  ) -> Callable[[str], None]:
+        """Be told, with the key that moved, whenever a panel changes.
+
+        Held by strong reference, exactly like :meth:`LayerStack.subscribe`: a
+        view that subscribes must :meth:`unsubscribe` when it closes.
+        """
+        if not callable(listener):
+            raise LayerError(f"a listener must be callable, got {listener!r}")
+        if listener not in self._listeners:
+            self._listeners.append(listener)
+        return listener
+
+    def unsubscribe(self, listener: Callable[[str], None]) -> bool:
+        """Stop being told. ``True`` if this call is what removed it."""
+        try:
+            self._listeners.remove(listener)
+        except ValueError:
+            return False
+        return True
+
+    def _emit(self, key: str) -> None:
+        for listener in list(self._listeners):
+            listener(key)
+
+    def describe(self) -> str:
+        """One line per panel — what it is showing and whether it follows."""
+        if not self._canvases:
+            return "no panels"
+        lines = []
+        for key, canvas in self._canvases.items():
+            state = "linked" if self._locked.get(key, True) else "free"
+            lines.append(f"{key}: {canvas.shape[1]}×{canvas.shape[0]} at "
+                         f"{canvas.step[1]:.4g} {canvas.units}/px · {state}")
+        return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
