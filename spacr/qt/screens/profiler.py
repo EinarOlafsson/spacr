@@ -70,6 +70,7 @@ from ...profiler import (LINKS, Profile, from_coefficients, profile,
                          response_scale, sensitivity)
 from ..job_runner import JobRunner
 from ..theme import SPACING, active_palette, pane_surface, register_widget_qss
+from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
            "make_profiler_screen", "register"]
@@ -340,15 +341,14 @@ class ProfilerScreen(QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel(APP_NAME)
-        title.setObjectName("ScreenTitle")
-        outer.addWidget(title)
-
-        subtitle = QLabel(
-            "Move one input; hold the rest; see what the fitted model says.")
-        subtitle.setObjectName("Muted")
-        subtitle.setWordWrap(True)
-        outer.addWidget(subtitle)
+        header = ModuleHeader(
+            APP_NAME,
+            description="Move one input; hold the rest; see what the fitted "
+                        "model says.",
+            instruction="Load a coefficient table, then sweep one input.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         picker = QHBoxLayout()
         picker.setSpacing(SPACING["sm"])

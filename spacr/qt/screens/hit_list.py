@@ -62,6 +62,7 @@ from PySide6.QtWidgets import (
 from ...hits import FLAG_MEANING, HitList, build_hit_list
 from ..job_runner import JobRunner
 from ..theme import SPACING, pane_surface, register_widget_qss
+from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "HitListScreen", "make_hit_list_screen", "register"]
 
@@ -200,16 +201,15 @@ class HitListScreen(QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel(APP_NAME)
-        title.setObjectName("ScreenTitle")
-        outer.addWidget(title)
-
-        subtitle = QLabel(
-            "One row per gene: effect size, FDR, how many of its guides "
-            "agree, and the annotation.")
-        subtitle.setObjectName("Muted")
-        subtitle.setWordWrap(True)
-        outer.addWidget(subtitle)
+        header = ModuleHeader(
+            APP_NAME,
+            description="One row per gene: effect size, FDR, how many of its "
+                        "guides agree, and the annotation.",
+            instruction="Point it at a regression results folder, then "
+                        "filter and annotate.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         picker = QHBoxLayout()
         picker.setSpacing(SPACING["sm"])

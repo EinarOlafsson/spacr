@@ -74,6 +74,7 @@ from ...pipeline_graph import (STATE_CURRENT, STATE_MISSING, STATE_STALE,
                                to_dot)
 from ..job_runner import JobRunner
 from ..theme import SPACING, active_palette, pane_surface, register_widget_qss
+from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "GraphCanvas", "PipelineGraphScreen", "layout_rects",
            "make_pipeline_graph_screen", "register"]
@@ -427,16 +428,15 @@ class PipelineGraphScreen(QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel(APP_NAME)
-        title.setObjectName("ScreenTitle")
-        outer.addWidget(title)
-
-        subtitle = QLabel(
-            "What produced what, and which of it still follows from its "
-            "inputs.")
-        subtitle.setObjectName("Muted")
-        subtitle.setWordWrap(True)
-        outer.addWidget(subtitle)
+        header = ModuleHeader(
+            APP_NAME,
+            description="What produced what, and which of it still follows "
+                        "from its inputs.",
+            instruction="Choose a project folder, then click a box to see "
+                        "what made it.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         picker = QHBoxLayout()
         picker.setSpacing(SPACING["sm"])
