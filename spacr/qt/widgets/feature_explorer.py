@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (
     QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, mark_surface
 from .feature_rank import (
     AUC, DEFAULT_TOP, STATISTIC_FAILURE_MODES, STATISTIC_LABELS, STATISTICS,
     ExplorerError, ExplorerResult, ExplorerSpec, candidate_labels,
@@ -140,6 +140,10 @@ class FeatureExplorerPanel(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.currentCellChanged.connect(self._on_row_changed)
+        # `FeatureExplorerPanel` is transparent scaffolding by design
+        # (see the GraphBuilder block), so the ranking table is the page
+        # here; the distribution canvas beside it paints its own panel.
+        mark_surface(self.table)
         body.addWidget(self.table)
 
         self._figure_holder = QWidget(self)
