@@ -61,6 +61,7 @@ from PySide6.QtWidgets import (
     QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
 
+from ..job_runner import JobRunner
 from ..theme import RADIUS, SPACING, active_palette, register_widget_qss
 from .graph_spec import SCATTER, GraphSpec
 # `_canvas_class` is the owned-timer FigureCanvas fix — a matplotlib canvas
@@ -521,6 +522,11 @@ class PCAPanel(QWidget):
         :class:`~spacr.qt.linked_selection.LinkedSelection` for tests; ``None``
         joins the process-wide one, which is what makes brushing a cluster
         here highlight it everywhere else.
+    :param threaded: run the decomposition on a worker thread. **Defaults to
+        False**, and the default is the interesting part -- see
+        :meth:`recompute`. ``PCAScreen`` passes its own ``threaded`` through,
+        so the application gets the threaded panel and a panel built directly
+        keeps returning its result from the call.
     """
 
     #: Emitted after every successful decomposition.
@@ -529,13 +535,17 @@ class PCAPanel(QWidget):
     #: the signal is for a host that wants it in a status bar.
     failed = Signal(str)
 
-    def __init__(self, parent=None, *, link=None, source: str = "pca"):
+    def __init__(self, parent=None, *, link=None, source: str = "pca",
+                 threaded: bool = False):
         super().__init__(parent)
         self.setObjectName("PCAPanel")
         self._frame: Optional[pd.DataFrame] = None
         self._result: Optional[PCAResult] = None
         self._scores: Optional[pd.DataFrame] = None
         self._building = False
+        self._threaded = bool(threaded)
+        self._jobs = JobRunner(self, threaded=self._threaded,
+                               app_key="pca fit")
 
         outer = QHBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -692,29 +702,92 @@ class PCAPanel(QWidget):
 
     # -- computing ---------------------------------------------------------
     def recompute(self) -> Optional[PCAResult]:
-        """Decompose and redraw. Refusals become a message, never a traceback."""
+        """Decompose and redraw. Refusals become a message, never a traceback.
+
+        THE CONTRACT, and how it was resolved. This method returned its
+        ``PCAResult`` synchronously, and the sklearn fit behind it is **1.63 s
+        on a 200 000-row x 48-column table** -- measured, and recorded as
+        ``PCA_STALL_BUDGET_S`` in ``tests/qt/test_gui_responsiveness.py``
+        rather than hidden, because that is a 1.63 s frozen window on every
+        option change and every filter change.
+
+        The fit now runs on a worker, and this returns ``None`` while it does.
+        Rather than pretend that is the same thing, the panel takes a
+        ``threaded`` flag:
+
+        * ``threaded=False`` (the default, and what a directly-constructed
+          panel gets) runs the fit inline through :class:`JobRunner`'s
+          unthreaded path and returns the ``PCAResult`` exactly as before.
+        * ``threaded=True`` -- what ``PCAScreen`` passes, so the application
+          gets it -- dispatches and returns ``None``. The result arrives at
+          :meth:`_on_computed`, which is where the drawing was already done,
+          and ``computed`` is emitted from there as it always was.
+
+        A host that wants the result asynchronously has always had
+        ``computed``; nothing that listens to it changed. A caller that reads
+        the return value gets the old behaviour by not asking for threading,
+        which is honest about the fact that a value cannot be returned before
+        it has been computed.
+
+        :returns: the decomposition, or ``None`` when it was refused or is
+            still running.
+        """
         if self._frame is None or self._frame.empty:
             self._show_failure("Load a table first.")
             return None
-        try:
-            result = pca(self._frame, self.spec())
-        except PCAError as exc:
-            self._show_failure(str(exc))
-            return None
-        except Exception as exc:  # pragma: no cover - defensive
-            LOG.info("PCA failed", exc_info=True)
-            self._show_failure(f"PCA failed: {exc}")
-            return None
+        frame = self._frame
+        spec = self.spec()
+        # A superseded fit must not paint over the one the user asked for:
+        # dragging the components spin box starts one per value.
+        self._jobs.cancel()
 
+        def _fit():
+            try:
+                result = pca(frame, spec)
+            except PCAError as exc:
+                return {"error": str(exc)}
+            except Exception as exc:  # pragma: no cover - defensive
+                LOG.info("PCA failed", exc_info=True)
+                return {"error": f"PCA failed: {exc}"}
+            # `scores_frame` is another pass over the table; it belongs on
+            # this side of the boundary with the fit, not on the GUI thread.
+            return {"result": result, "scores": result.scores_frame(frame)}
+
+        self._jobs.submit(_fit, self._on_fit_done)
+        # Unthreaded, `submit` has already run the fit and `_on_fit_done`, so
+        # `_result` is this call's result. Threaded, it is whatever was on
+        # screen before, and returning that would be a lie about which spec it
+        # came from.
+        return None if self._threaded else self._result
+
+    def _on_fit_done(self, outcome: dict) -> None:
+        """Draw one decomposition. GUI thread only."""
+        error = outcome.get("error")
+        if error is not None:
+            self._show_failure(error)
+            return
+        result = outcome["result"]
         self._result = result
-        self._scores = result.scores_frame(self._frame)
+        self._scores = outcome["scores"]
         self._sync_component_pickers(result)
         self.scree.set_result(result, highlight=self._plane())
         self.canvas.set_result(result, self._scores)
         self._apply_view()
         self.report.setText(result.report())
         self.computed.emit(result)
-        return result
+
+    def active_jobs(self) -> int:
+        """How many decompositions are still winding down."""
+        return self._jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a decomposition has not delivered its result."""
+        return self._jobs.is_busy()
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Abandon an in-flight fit rather than let it outlive the panel."""
+        self._jobs.shutdown()
+        super().closeEvent(event)
 
     def _show_failure(self, message: str) -> None:
         self._result = None

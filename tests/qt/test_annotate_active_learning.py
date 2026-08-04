@@ -81,6 +81,25 @@ def _key(index: int, column: str) -> str:
     return f"p1_r1_{column}_f1_{index}"
 
 
+def _settle(widget, timeout_s: float = 20.0) -> None:
+    """Pump until the screen's population count has delivered.
+
+    Counting the population is database work -- with a threshold filter it
+    joins every measurement table through ``spacr.io._read_and_join_tables``,
+    which measured 4.8 s of frozen window on a 60 000-object database -- so it
+    runs on a worker thread and lands on a later turn of the event loop.
+    """
+    import time
+    from PySide6.QtWidgets import QApplication
+    end = time.perf_counter() + timeout_s
+    while time.perf_counter() < end:
+        if not widget.is_busy() and widget.active_jobs() == 0:
+            return
+        QApplication.processEvents()
+        time.sleep(0.005)
+    raise AssertionError("the population count never finished")
+
+
 # ---------------------------------------------------------------------------
 # open_object_request
 # ---------------------------------------------------------------------------
@@ -126,6 +145,9 @@ def test_a_routed_subset_survives_a_queue_rebuild(screen):
 
     screen.clear_object_request()
     assert screen._object_request is None
+    # Unpinning the subset recounts the whole population, and counting is now
+    # database work on a worker thread — see AnnotateScreen._refresh_total.
+    _settle(screen)
     assert screen._total == TOTAL_CROPS
 
 

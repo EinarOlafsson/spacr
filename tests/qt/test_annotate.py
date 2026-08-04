@@ -283,6 +283,11 @@ def test_annotate_screen_next_prev(qtbot, qt_theme_applied,
     screen._settings.grid_cols = 2
     screen._rebuild_grid()
     screen._open_source(str(synth_annotate_source))
+    # Opening a source counts the population on a worker thread, and paging
+    # is bounded by that count, so wait for it before stepping.
+    qtbot.waitUntil(
+        lambda: not screen.is_busy() and screen.active_jobs() == 0,
+        timeout=20000)
     start = screen._offset
     screen._on_next()
     assert screen._offset > start
