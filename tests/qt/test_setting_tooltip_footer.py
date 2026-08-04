@@ -6,8 +6,8 @@ Six complaints, six measurements — none of them taken on trust:
 * a text-only popup is exactly as tall as its text;
 * beside an animation, the text block is exactly as tall as the square;
 * the square's corners really are round (its corner pixels are background);
-* a word inside the popup folds the animation away and back, and the popup
-  resizes with it;
+* a word inside the popup reveals the animation and folds it away again, and
+  the popup resizes with it;
 * the last line is two words — **API** in the theme accent, **Animation** in
   teal, neither underlined — and each one does its job.
 
@@ -325,7 +325,7 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
     from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
     from spacr.setting_animations import animation_for_setting
 
-    prefs.set_setting_animations_enabled(True)   # measure all 141, not one
+    prefs.set_setting_animations_enabled(True)   # measure them all, not one
     heights = []
     for key, text in get_tooltips().items():
         if animation_for_setting(key) is None:
@@ -422,7 +422,7 @@ def test_the_reveal_survives_a_move_to_the_next_setting(tooltip, qtbot):
 
     Session scope, deliberately: per-hover would un-reveal the moment the
     pointer moved on, and per-setting would ask a reader who wants animations
-    to click all 141 of them.
+    to click every one of them.
     """
     _reveal(tooltip, _anchor(qtbot))
     assert tooltip.animations_shown()

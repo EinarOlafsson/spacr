@@ -1050,9 +1050,10 @@ def set_spinner_delay(seconds: float) -> None:
 # ---------------------------------------------------------------------------
 
 #: Off by default. Every hover is text only until the reader clicks the
-#: **Animation** word in the tooltip footer. 141 packaged animations are 141
-#: decoded movies, and a hover that only wanted the sentence should not pay
-#: for one; this preference is for the reader who never wants to be asked.
+#: **Animation** word in the tooltip footer: the packaged animations cover 143
+#: settings and each one is a decoded movie, so a hover that only wanted the
+#: sentence should not pay for one. This preference is for the reader who
+#: never wants to be asked.
 DEFAULT_SETTING_ANIMATIONS = False
 
 
