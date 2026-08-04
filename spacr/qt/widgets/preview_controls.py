@@ -93,7 +93,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QPushButton, QSpinBox
 
-from ..theme import FONT_SIZE, active_palette
+from ..theme import active_palette, font_px
 
 LOG = logging.getLogger("spacr.qt.preview_controls")
 
@@ -139,9 +139,10 @@ def _flat_qss(selector: str) -> str:
     return (
         f"{selector}#{FLAT_CONTROL_NAME} {{"
         f"  color: {palette['fg']};"
-        f"  font-size: {FONT_SIZE['body']}px;"
+        f"  font-size: {font_px('body')}px;"
         f"  font-weight: 600;"
-        f"  padding: 4px 10px;"
+        f"  padding: {max(2, round(font_px('body') * 4 / 13))}px"
+        f" {max(4, round(font_px('body') * 10 / 13))}px;"
         f"  background: transparent;"
         f"  border: none;"
         f"  border-radius: 0px;"

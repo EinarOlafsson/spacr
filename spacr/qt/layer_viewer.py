@@ -52,7 +52,7 @@ from ..layers import (Blending, COLORMAPS, Canvas, FieldKey, ImageLayer,
                       LabelsLayer, LayerError, LayerEvent, LayerStack,
                       PointsLayer, ShapesLayer, Spacing)
 from .linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
-from .theme import register_widget_qss
+from .theme import font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
 
 LOG = logging.getLogger(__name__)
@@ -115,7 +115,7 @@ QLabel#LayerViewerStatus {{
 }}
 QLabel#LayerViewerHeading {{
     color: {palette["fg_dim"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
     letter-spacing: 1px;
 }}
 """

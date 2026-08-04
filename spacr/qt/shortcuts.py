@@ -370,10 +370,11 @@ def show_cheat_sheet(parent) -> None:
         by_cat.setdefault(s.category, []).append(s)
 
     for cat, specs in by_cat.items():
+        from .theme import font_px
         hdr = QLabel(f"<b>{cat}</b>")
         hdr.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 600; font-size: 12px;"
+            f"font-weight: 600; font-size: {font_px(12)}px;"
             "letter-spacing: 1.5px; margin-top: 8px;"
         )
         layout.addWidget(hdr)
@@ -392,7 +393,7 @@ def show_cheat_sheet(parent) -> None:
 
 def _overlay_qss(palette: dict, opacity) -> str:
     """QSS for the ``?`` overlay, registered through the theme seam."""
-    from .theme import pane_surface
+    from .theme import font_px, pane_surface
     surface = pane_surface("surface", palette["theme"], opacity)
     return f"""
 QWidget#{OVERLAY_CARD_NAME} {{
@@ -401,12 +402,12 @@ QWidget#{OVERLAY_CARD_NAME} {{
     border-radius: 12px;
 }}
 QLabel#ShortcutOverlayTitle {{
-    font-size: 18px;
+    font-size: {font_px(18)}px;
     color: {palette["fg"]};
     padding-bottom: 8px;
 }}
 QLabel#ShortcutOverlayCategory {{
-    font-size: 10px;
+    font-size: {font_px(10)}px;
     font-weight: 600;
     letter-spacing: 2px;
     color: {palette["accent"]};
@@ -421,7 +422,7 @@ QLabel#ShortcutOverlayLabel {{
 }}
 QLabel#ShortcutOverlayHint {{
     color: {palette["fg_dim"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
     padding-top: 12px;
 }}
 """

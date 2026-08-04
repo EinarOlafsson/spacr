@@ -2895,6 +2895,7 @@ class _Chip(QFrame):
 
     def __init__(self, text: str, colours: dict, parent=None):
         super().__init__(parent)
+        from ..theme import font_px
         self.setObjectName("SettingChip")
         self._text = text
         row = QHBoxLayout(self)
@@ -2922,14 +2923,14 @@ class _Chip(QFrame):
             QLabel#SettingChipText {{
                 color: {colours['fg']};
                 background: transparent;
-                font-size: 12px;
+                font-size: {font_px(12)}px;
             }}
             QToolButton#SettingChipClose {{
                 color: {colours['fg_muted']};
                 background: transparent;
                 border: none;
                 padding: 0px 2px;
-                font-size: 13px;
+                font-size: {font_px(13)}px;
             }}
             QToolButton#SettingChipClose:hover {{ color: {colours['error']}; }}
             """
@@ -2949,7 +2950,7 @@ class _ChipStrip(QWidget):
     def __init__(self, placeholder: str = "add value…",
                  removable: bool = False, parent=None):
         super().__init__(parent)
-        from ..theme import active_palette
+        from ..theme import active_palette, font_px
         self._colours = active_palette()
         self._chips: List[_Chip] = []
 
@@ -3241,7 +3242,7 @@ class _ListEditor(QWidget):
         self._footer.clicked.connect(self._on_footer)
         self._footer.setStyleSheet(
             f"QToolButton#SettingListFooter {{ color: {self._colours['accent']};"
-            f" background: transparent; border: none; font-size: 12px;"
+            f" background: transparent; border: none; font-size: {font_px(12)}px;"
             f" padding: 0px; text-align: left; }}"
         )
         self._outer.addWidget(self._footer, 0, Qt.AlignLeft)
