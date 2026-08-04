@@ -170,19 +170,19 @@ def stroked(c, path, w, cap=Qt.FlatCap) -> QPainterPath:
 #: (angle deg, radius) -- designed, not jittered, so it is reproducible and
 #: can be tuned; screen coordinates, y down
 BLOB = [
-    (0, 0.405), (36, 0.400), (72, 0.372), (108, 0.330), (144, 0.352),
-    (180, 0.382), (216, 0.408), (252, 0.398), (288, 0.418), (324, 0.424),
+    (0, 0.394), (36, 0.375), (72, 0.328), (108, 0.302), (144, 0.344),
+    (180, 0.380), (216, 0.407), (252, 0.372), (288, 0.388), (324, 0.414),
 ]
 
 #: a deliberately calmer silhouette for the "regularised" variant
 BLOB_SMOOTH = [
-    (0, 0.400), (36, 0.396), (72, 0.384), (108, 0.372), (144, 0.380),
-    (180, 0.392), (216, 0.400), (252, 0.396), (288, 0.404), (324, 0.406),
+    (0, 0.386), (36, 0.378), (72, 0.360), (108, 0.348), (144, 0.360),
+    (180, 0.376), (216, 0.388), (252, 0.378), (288, 0.386), (324, 0.392),
 ]
 
-BCX, BCY = 0.500, 0.505
-NUC = (0.560, 0.505, 0.112)     # nucleus cx, cy, r
-GRID = 0.140                    # grid pitch about the centre
+BCX, BCY = 0.500, 0.502
+NUC = (0.548, 0.500, 0.108)     # nucleus cx, cy, r
+GRID = 0.135                    # grid pitch about the centre
 
 
 def blob_pts(scale=1.0, table=BLOB, cx=BCX, cy=BCY):
@@ -205,17 +205,34 @@ def grid_path(c, pitch=GRID, cx=BCX, cy=BCY, span=0.62) -> QPainterPath:
     return pa
 
 
-def draw_vacuole(c, cx, cy, length, rot=0.0, w=THIN):
-    """The parasitophorous vacuole capsule of the parent logo: a rounded
-    capsule carrying two tachyzoite dots."""
-    c.p.save()
-    c.p.translate(cx * c.n, cy * c.n)
-    c.p.rotate(rot)
+#: parasitophorous vacuole of the parent logo: cx, cy, length, rotation
+VAC = (0.362, 0.336, 0.208, -20.0)
+
+
+def vacuole_paths(c, cx, cy, length, rot=0.0):
+    """(capsule outline, tachyzoite a, tachyzoite b) in device coordinates."""
     h = length * 0.46
-    c.rect(-length / 2, -h / 2, length, h, w=w, r=h / 2)
-    c.disc(-length * 0.19, 0.0, h * 0.21)
-    c.disc(length * 0.17, 0.0, h * 0.19)
-    c.p.restore()
+    body = p_rect(c, -length / 2, -h / 2, length, h, r=h / 2)
+    d1 = p_circle(c, -length * 0.19, 0.0, h * 0.21)
+    d2 = p_circle(c, length * 0.17, 0.0, h * 0.19)
+    t = QTransform()
+    t.translate(cx * c.n, cy * c.n)
+    t.rotate(rot)
+    return t.map(body), t.map(d1), t.map(d2)
+
+
+def vacuole_halo(c, w, pad=40.0, vac=VAC):
+    """The capsule grown by ``pad``, so the grid can be cut clear of it -- the
+    parent logo achieves the same separation by greying the grid down."""
+    body, _a, _b = vacuole_paths(c, *vac)
+    return body.united(stroked(c, body, w + 2 * pad, cap=Qt.RoundCap))
+
+
+def draw_vacuole(c, w=THIN, vac=VAC):
+    body, d1, d2 = vacuole_paths(c, *vac)
+    c.stroke(body, w)
+    c.fill(d1)
+    c.fill(d2)
 
 
 # ==========================================================================
@@ -232,43 +249,36 @@ def sh_c_dot(c, c_ring=None, c_dot=None):
 
 def sh_quadrant(c, c_frame=None, c_hit=None):
     """A field split in four; exactly one cell is a hit."""
-    x0, x1 = 0.145, 0.855
+    x0, x1 = 0.150, 0.850
     m = 0.500
+    g = BOLD / 1024.0          # keep the fill clear of the rules
     c.set_ink(c_hit)
-    pad = 0.055
-    c.rect(m + pad, x0 + pad, x1 - m - 2 * pad, m - x0 - 2 * pad,
-           filled=True, r=0.030)
+    c.rect(m + g, x0 + g, x1 - m - 2 * g, m - x0 - 2 * g, filled=True, r=0.026)
     c.set_ink(c_frame)
-    c.rect(x0, x0, x1 - x0, x1 - x0, w=BOLD, r=0.070)
+    c.rect(x0, x0, x1 - x0, x1 - x0, w=BOLD, r=0.060)
     c.line(m, x0, m, x1, w=BOLD)
     c.line(x0, m, x1, m, w=BOLD)
 
 
 def sh_orbit(c, c_orbit=None, c_dot=None):
-    """One body, one orbit: the smallest possible statement of a spatial
-    relationship."""
+    """One body, one ring: the smallest statement of a spatial relationship.
+    The body deliberately overruns the ring on both sides so the mark cannot
+    collapse into an eye at small sizes."""
     c.set_ink(c_orbit)
-    c.ell(0.500, 0.500, 0.420, 0.178, rot=-27.0, w=BOLD)
+    c.ell(0.500, 0.500, 0.455, 0.138, rot=-31.0, w=BOLD)
     c.set_ink(c_dot)
-    c.disc(0.500, 0.500, 0.158)
+    c.disc(0.500, 0.500, 0.225)
 
 
-def sh_vesica(c, c_edge=None, c_dot=None):
-    """A pointed-oval cell -- an outline that is not a circle."""
-    q = c.n
-    rx, ry, bulge = 0.385, 0.190, 1.30
-    pa = QPainterPath()
-    pa.moveTo(-rx * q, 0.0)
-    pa.quadTo(0.0, -ry * bulge * q, rx * q, 0.0)
-    pa.quadTo(0.0, ry * bulge * q, -rx * q, 0.0)
-    pa.closeSubpath()
-    t = QTransform()
-    t.translate(0.500 * q, 0.500 * q)
-    t.rotate(-22.0)
-    c.set_ink(c_edge)
-    c.stroke(t.map(pa), BOLD)
+def sh_plate(c, c_frame=None, c_dot=None):
+    """The plate: a notched A1 corner and one well called.  The only
+    rectilinear silhouette in the set, so it cannot be confused with the rest."""
+    x0, x1, n = 0.155, 0.845, 0.190
+    c.set_ink(c_frame)
+    c.polyline([(x0 + n, x0), (x1, x0), (x1, x1), (x0, x1), (x0, x0 + n)],
+               w=BOLD, close=True)
     c.set_ink(c_dot)
-    c.disc(0.560, 0.452, 0.098)
+    c.disc(0.500, 0.500, 0.172)
 
 
 def sh_matrix(c, c_dot=None, c_hit=None):
@@ -330,25 +340,37 @@ def sh_pin(c, c_body=None, c_hole=None):
         c.fill(p_circle(c, cx, cy, 0.108))
 
 
-def sh_thread(c, c_line=None, c_dot=None):
-    """The perturbation: one guide, one target."""
-    pa = QPainterPath()
-    pa.moveTo(c.pt(0.150, 0.800))
-    pa.cubicTo(c.pt(0.330, 0.900), c.pt(0.300, 0.560), c.pt(0.470, 0.520))
-    c.set_ink(c_line)
-    c.stroke(pa, HEAVY)
-    c.set_ink(c_dot)
-    c.disc(0.650, 0.372, 0.222)
+def sh_cut(c, c_a=None, c_b=None):
+    """The edit: one body, one clean cut, the two halves slid apart."""
+    ang = -32.0
+    gap = 0.070
+    disc = p_circle(c, 0.500, 0.500, 0.352)
+    knife = QPainterPath()
+    knife.addRect(QRectF(-1.0 * c.n, 0.0, 2.0 * c.n, 1.0 * c.n))
+    t = QTransform()
+    t.translate(0.500 * c.n, 0.500 * c.n)
+    t.rotate(ang)
+    lower = t.map(knife)
+    dx = gap / 2.0 * math.sin(math.radians(ang))
+    dy = gap / 2.0 * math.cos(math.radians(ang))
+    off = QTransform()
+    off.translate(dx * c.n, dy * c.n)
+    c.set_ink(c_a)
+    c.fill(off.map(disc.intersected(lower)))
+    off2 = QTransform()
+    off2.translate(-dx * c.n, -dy * c.n)
+    c.set_ink(c_b)
+    c.fill(off2.map(disc.subtracted(lower)))
 
 
 def sh_focus(c, c_frame=None, c_dot=None):
     """A region of interest, and the one object inside it."""
-    a, b, L = 0.150, 0.850, 0.235
+    a, b, L = 0.150, 0.850, 0.215
     c.set_ink(c_frame)
-    c.polyline([(a, a + L), (a, a), (a + L, a)], w=BOLD)
-    c.polyline([(b, b - L), (b, b), (b - L, b)], w=BOLD)
+    c.polyline([(a, a + L), (a, a), (a + L, a)], w=HEAVY)
+    c.polyline([(b, b - L), (b, b), (b - L, b)], w=HEAVY)
     c.set_ink(c_dot)
-    c.disc(0.500, 0.500, 0.190)
+    c.disc(0.500, 0.500, 0.185)
 
 
 # ==========================================================================
@@ -357,7 +379,7 @@ def sh_focus(c, c_frame=None, c_dot=None):
 
 def sh_blob(c, grid=True, nucleus="solid", vacuole=False, satellite=False,
             hit=False, ticks=False, cross=False, knockout=False,
-            table=BLOB, w_edge=MED, w_grid=HAIR, w_nuc=THIN,
+            table=BLOB, w_edge=68.0, w_grid=34.0, w_nuc=44.0, nuc=NUC,
             c_edge=None, c_grid=None, c_body=None):
     """The parent mark, parameterised.  Every group-B variant is this call
     with a different set of parts switched on."""
@@ -366,26 +388,28 @@ def sh_blob(c, grid=True, nucleus="solid", vacuole=False, satellite=False,
     if knockout:
         area = QPainterPath(bp)
         if grid:
-            area = area.subtracted(stroked(c, grid_path(c), 30.0))
-        if cross:
-            gp = QPainterPath()
-            gp.addPath(p_line(c, BCX, BCY - 0.62, BCX, BCY + 0.62))
-            gp.addPath(p_line(c, BCX - 0.62, BCY, BCX + 0.62, BCY))
-            area = area.subtracted(stroked(c, gp, 34.0))
+            area = area.subtracted(stroked(c, grid_path(c), 46.0))
         if nucleus:
-            area = area.subtracted(p_circle(c, *NUC))
+            area = area.subtracted(p_circle(c, *nuc))
         c.set_ink(c_edge)
         c.fill(area)
         return
 
     if grid:
         c.set_ink(c_grid)
-        c.clip_path(bp)
-        gp = grid_path(c)
-        c.stroke(gp, w_grid)
-        if hit:
-            c.rect(BCX - GRID, BCY - GRID, 2 * GRID, 2 * GRID, filled=True)
+        area = bp
+        # cut the grid clear of the bodies, the way the parent logo separates
+        # them by greying the grid down
+        if nucleus == "solid":
+            area = area.subtracted(p_circle(c, nuc[0], nuc[1], nuc[2] + 0.036))
+        if vacuole:
+            area = area.subtracted(vacuole_halo(c, w_nuc))
+        c.clip_path(area)
+        c.stroke(grid_path(c), w_grid)
         c.unclip()
+        if hit:
+            cellp = p_rect(c, BCX - GRID, BCY - GRID, 2 * GRID, 2 * GRID)
+            c.fill(cellp.subtracted(p_circle(c, *nuc)))
     if cross:
         c.set_ink(c_grid)
         c.clip_path(bp)
@@ -402,13 +426,13 @@ def sh_blob(c, grid=True, nucleus="solid", vacuole=False, satellite=False,
 
     c.set_ink(c_body)
     if nucleus == "solid":
-        c.disc(*NUC)
+        c.disc(*nuc)
     elif nucleus == "ring":
-        c.circ(NUC[0], NUC[1], NUC[2], w=w_nuc)
+        c.circ(nuc[0], nuc[1], nuc[2], w=w_nuc)
     if satellite:
-        c.disc(0.345, 0.662, 0.052)
+        c.disc(0.372, 0.646, 0.058)
     if vacuole:
-        draw_vacuole(c, 0.352, 0.336, 0.212, rot=-20.0, w=w_nuc)
+        draw_vacuole(c, w=w_nuc)
 
 
 # ==========================================================================
@@ -428,8 +452,9 @@ CANDIDATES = [
      "A field split in four with exactly one cell filled - the screen, and its hit."),
     ("concept_03_orbit", "concept", False,
      "One body, one orbit - the smallest statement of a spatial relationship."),
-    ("concept_04_vesica", "concept", False,
-     "A pointed-oval cell with an offset nucleus - an outline that is not a circle."),
+    ("concept_04_plate", "concept", False,
+     "A plate with its notched A1 corner and one well called - the only "
+     "rectilinear form in the set."),
     ("concept_05_matrix", "concept", False,
      "A 3x3 array with one well called - the screen as a rhythm, no container."),
     ("concept_06_split", "concept", False,
@@ -438,8 +463,8 @@ CANDIDATES = [
      "The organism as one shape: a solid crescent, nothing else."),
     ("concept_08_pin", "concept", False,
      "A map pin whose counter is the cell - a phenotype, located."),
-    ("concept_09_thread", "concept", False,
-     "One guide stroke arriving at one solid target - the perturbation."),
+    ("concept_09_cut", "concept", False,
+     "One body, one clean cut, the halves slid apart - the edit."),
     ("concept_10_focus", "concept", False,
      "Two corner brackets and the one object between them - a region of interest."),
 
@@ -461,7 +486,7 @@ CANDIDATES = [
     ("variant_08_regular", "variant", False,
      "The silhouette regularised: the same cell, calmer, with grid and nucleus."),
     ("variant_09_grid_hit", "variant", False,
-     "One grid square filled solid and the nucleus opened - the hit, inside the cell."),
+     "One square of the spatial grid filled solid - the hit, inside the cell."),
     ("variant_10_ticks", "variant", False,
      "The grid implied by ticks straddling the membrane rather than drawn across it."),
 
@@ -494,27 +519,30 @@ DRAW = {
     "concept_01_c_dot": _wrap(sh_c_dot),
     "concept_02_quadrant": _wrap(sh_quadrant),
     "concept_03_orbit": _wrap(sh_orbit),
-    "concept_04_vesica": _wrap(sh_vesica),
+    "concept_04_plate": _wrap(sh_plate),
     "concept_05_matrix": _wrap(sh_matrix),
     "concept_06_split": _wrap(sh_split),
     "concept_07_crescent": _wrap(sh_crescent),
     "concept_08_pin": _wrap(sh_pin),
-    "concept_09_thread": _wrap(sh_thread),
+    "concept_09_cut": _wrap(sh_cut),
     "concept_10_focus": _wrap(sh_focus),
 
     "variant_01_grid_nucleus": _wrap(sh_blob),
     "variant_02_grid_vacuole": _wrap(sh_blob, vacuole=True),
-    "variant_03_bare": _wrap(sh_blob, grid=False, w_edge=BOLD),
-    "variant_04_cross": _wrap(sh_blob, grid=False, cross=True, w_grid=THIN),
-    "variant_05_solid": _wrap(sh_blob, grid=False, knockout=True),
-    "variant_06_solid_grid": _wrap(sh_blob, knockout=True),
-    "variant_07_satellite": _wrap(sh_blob, grid=False, satellite=True, w_edge=BOLD),
+    "variant_03_bare": _wrap(sh_blob, grid=False, w_edge=HEAVY),
+    "variant_04_cross": _wrap(sh_blob, grid=False, cross=True, w_grid=MED),
+    "variant_05_solid": _wrap(sh_blob, grid=False, knockout=True,
+                              nuc=(0.548, 0.500, 0.130)),
+    "variant_06_solid_grid": _wrap(sh_blob, knockout=True,
+                                   nuc=(0.500, 0.502, 0.098)),
+    "variant_07_satellite": _wrap(sh_blob, grid=False, satellite=True, w_edge=HEAVY),
     "variant_08_regular": _wrap(sh_blob, table=BLOB_SMOOTH),
-    "variant_09_grid_hit": _wrap(sh_blob, hit=True, nucleus="ring", w_nuc=MED),
-    "variant_10_ticks": _wrap(sh_blob, grid=False, ticks=True, w_grid=THIN),
+    "variant_09_grid_hit": _wrap(sh_blob, hit=True, nucleus=None),
+    "variant_10_ticks": _wrap(sh_blob, grid=False, ticks=True, w_grid=MED,
+                              w_edge=BOLD),
 
-    "thin_01_grid_nucleus": _wrap(sh_blob, w_edge=MED * 0.60, w_grid=HAIR * 0.60,
-                                  w_nuc=THIN * 0.60),
+    "thin_01_grid_nucleus": _wrap(sh_blob, w_edge=68.0 * 0.60, w_grid=34.0 * 0.60,
+                                  w_nuc=44.0 * 0.60),
 
     "colour_01_teal_c_dot": _wrap(sh_c_dot, c_ring=TEAL, c_dot=TEAL),
     "colour_02_teal_blob": _wrap(sh_blob, c_edge=TEAL, c_grid=TEAL, c_body=TEAL),
@@ -697,7 +725,7 @@ def main(argv):
 
     sheet(CANDIDATES, images, os.path.join(outdir, "_sheet_dark.png"), DARK_BG)
     sheet(CANDIDATES, images, os.path.join(outdir, "_sheet_light.png"), LIGHT_BG)
-    small_sheet(CANDIDATES, images, os.path.join(outdir, "_sheet_small_dark.png"),
+    small_sheet(CANDIDATES, images, os.path.join(outdir, "_sheet_small.png"),
                 DARK_BG)
     small_sheet(CANDIDATES, images, os.path.join(outdir, "_sheet_small_light.png"),
                 LIGHT_BG)
