@@ -816,14 +816,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "{name} के लिए API संदर्भ खोलें", "{name} API 참조 열기",
         "Opna API-tilvísun fyrir {name}",
         "Ouvrir la référence API de {name}"),
-    "Show animation for {name}": _row(
-        "Visa animation för {name}",
-        "Animation für {name} anzeigen",
-        "Mostrar animación de {name}",
-        "显示 {name} 的动画", "Mostrar animação de {name}",
-        "{name} का ऐनिमेशन दिखाएँ", "{name} 애니메이션 보기",
-        "Sýna hreyfimynd fyrir {name}",
-        "Afficher l’animation de {name}"),
     "API: {url}": _row(
         "API: {url}", "API: {url}", "API: {url}", "API：{url}",
         "API: {url}", "API: {url}", "API: {url}", "API: {url}",
