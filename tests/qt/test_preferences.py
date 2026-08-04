@@ -434,6 +434,15 @@ def fake_ambient(monkeypatch):
         def set_size_scale(self, value):
             self.motion["size"] = value
 
+        def set_resolution(self, value):
+            self.motion["resolution"] = value
+
+        def set_density(self, value):
+            self.motion["density"] = value
+
+        def set_direction(self, name):
+            self.motion["direction"] = name
+
     module.AmbientWidget = _RecordingAmbient
     # Both bindings, so code reaching the module either way sees the same
     # object. It deliberately has no ``theme_note``, which also exercises
@@ -880,8 +889,10 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
 ):
     """The startup/save path is what makes 'no restart' true."""
     from spacr.qt.preferences import (
-        apply_preferences_to_app, set_ambient_blur, set_ambient_enabled,
-        set_ambient_size, set_ambient_speed, set_ambient_theme,
+        apply_preferences_to_app, set_ambient_blur, set_ambient_density,
+        set_ambient_drift_direction, set_ambient_enabled,
+        set_ambient_resolution, set_ambient_size, set_ambient_speed,
+        set_ambient_theme,
     )
     widget = fake_ambient.AmbientWidget()
     qtbot.addWidget(widget)
@@ -892,14 +903,23 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
     set_ambient_blur(1.5)
     set_ambient_speed(0.5)
     set_ambient_size(2.0)
+    set_ambient_resolution(1.75)
+    set_ambient_density(2.5)
+    set_ambient_drift_direction("random")
 
     apply_preferences_to_app()
     assert widget.themes[-1] == "mesh"
     assert widget.animating is True
-    # Blur, speed and size ride the same path as the theme, or a screen that
-    # was open when Preferences was saved keeps the old motion until it is
+    # Every control rides the same path as the theme, or a screen that was
+    # open when Preferences was saved keeps the old motion until it is
     # rebuilt — which for a module screen means until the app restarts.
-    assert widget.motion == {"blur": 1.5, "speed": 0.5, "size": 2.0}
+    # All of them, not a subset: this loop is inside one try/except, so a
+    # setter added to Preferences and forgotten here would be swallowed and
+    # nobody would find out until a user reported that a slider does
+    # nothing until the app is restarted.
+    assert widget.motion == {"blur": 1.5, "speed": 0.5, "size": 2.0,
+                             "resolution": 1.75, "density": 2.5,
+                             "direction": "random"}
 
 
 # ---------------------------------------------------------------------------

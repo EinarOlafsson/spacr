@@ -49,6 +49,33 @@ to remember to set and, more importantly, remember to clear: the registry is
 the same state every screen's ``active_jobs()`` is counting, and it is
 maintained by ``make_thread`` itself, so a job that forgets to tell anyone it
 started still turns the spinner on.
+
+When it appears
+===============
+Not immediately. Most of what goes through ``make_thread`` -- reading a
+measurement table, listing a plate, loading a settings file -- is finished
+inside a second, and an indicator that appears and vanishes in that time is
+not information. It is a flicker at the edge of vision, and it teaches the
+reader to stop looking at the one place the app says it is busy.
+
+So the widget waits :func:`spacr.qt.preferences.get_spinner_delay` seconds
+(default 2) before showing. The mechanism is a **delay, not a prediction**:
+:meth:`ActivitySpinner._sync` starts a single-shot timer the moment work
+begins and the spinner becomes visible only if :meth:`ActivitySpinner.is_busy`
+is *still* true when that timer fires. A job that finishes at 1.9 s cancels
+the timer on its way out and never puts anything on screen -- there is no
+estimate of duration anywhere in this file, and therefore nothing to be wrong
+about.
+
+The clock runs on the *work*, not on the job. A second job starting while
+the timer is pending does not restart it: the timer is armed on the
+idle-to-busy edge only, so two seconds of continuous background activity
+shows the spinner even if no single job lasted that long. Going idle
+disarms it, and the next burst of work starts a fresh two seconds.
+
+Hiding is not delayed. The moment the registry goes quiet the widget hides
+and its animation timer stops -- a spinner that lingered after the work
+finished would be saying something untrue.
 """
 from __future__ import annotations
 
@@ -83,6 +110,20 @@ BRAID_POINTS = 18
 BRAID_TWISTS = 2.5
 
 
+def _preferred_delay_ms() -> int:
+    """The appearance delay from Preferences, in milliseconds.
+
+    Defended like every other preference read from a widget: a spinner that
+    cannot find the setting is a spinner on the shipped default, never a
+    screen that refuses to open.
+    """
+    try:
+        from ..preferences import get_spinner_delay
+        return max(0, int(round(get_spinner_delay() * 1000)))
+    except Exception:
+        return 2000
+
+
 class ActivitySpinner(QWidget):
     """A small braided ring, visible only while background work is running.
 
@@ -97,10 +138,16 @@ class ActivitySpinner(QWidget):
     :param auto: watch the run registry. ``False`` leaves the widget under
         manual :meth:`set_busy` control, which is what the tests use to
         drive it without spawning threads.
+    :param delay_ms: how long work has to run before this appears. ``None``
+        -- the default -- reads
+        :func:`spacr.qt.preferences.get_spinner_delay` at construction, which
+        is the only place that preference is consulted: the widget is built
+        per screen, so a change to it reaches the next screen opened without
+        this file having to watch a settings key.
     """
 
     def __init__(self, parent: Optional[QWidget] = None, diameter: int = 16,
-                 auto: bool = True) -> None:
+                 auto: bool = True, delay_ms: Optional[int] = None) -> None:
         super().__init__(parent)
         self._diameter = max(8, int(diameter))
         self.setFixedSize(self._diameter, self._diameter)
@@ -116,6 +163,21 @@ class ActivitySpinner(QWidget):
         self._timer = QTimer(self)
         self._timer.setInterval(INTERVAL_MS)
         self._timer.timeout.connect(self._advance)
+        self._delay_ms = (_preferred_delay_ms() if delay_ms is None
+                          else max(0, int(delay_ms)))
+        #: Armed on the idle-to-busy edge, and only then. Not restarted by a
+        #: second job, so the delay measures how long *work* has been going
+        #: rather than how long the longest single job has.
+        self._delay = QTimer(self)
+        self._delay.setSingleShot(True)
+        self._delay.timeout.connect(self._on_delay_elapsed)
+        #: Has the current stretch of work earned the spinner yet? Kept as
+        #: its own flag rather than read back off ``isVisible()``, because a
+        #: widget can be visible for reasons that have nothing to do with
+        #: this decision -- a caller that called ``show()`` on it, a layout
+        #: that adopted it -- and reading visibility would let any of those
+        #: quietly cancel the delay.
+        self._due = False
         #: Frames painted since construction. Read by the CPU-cost test.
         self.frames_painted = 0
         self.hide()
@@ -177,19 +239,78 @@ class ActivitySpinner(QWidget):
         self._manual_busy = bool(busy)
         self._sync()
 
+    def delay_ms(self) -> int:
+        """How long work must run before this widget appears, in ms."""
+        return self._delay_ms
+
+    def set_delay_ms(self, value: int) -> None:
+        """Change the appearance delay. Applies from the next idle-to-busy
+        edge; it never yanks a spinner that is already up off the screen."""
+        self._delay_ms = max(0, int(value))
+
+    def is_waiting(self) -> bool:
+        """True while work is running but the delay has not elapsed.
+
+        The state that makes this a delay rather than a guess: busy, not
+        shown, not spinning, costing nothing but one pending timer.
+        """
+        return self._delay.isActive()
+
     def _sync(self) -> None:
-        """Match the widget to the current busy state. Idempotent."""
-        busy = self.is_busy()
-        if busy and not self._timer.isActive():
-            self._timer.start()
-        elif not busy and self._timer.isActive():
-            self._timer.stop()
-            self._angle = 0.0
-        if busy != self.isVisible():
-            self.setVisible(busy)
+        """Match the widget to the current busy state. Idempotent.
+
+        Three states, not two. *Idle*: hidden, both timers stopped. *Waiting*:
+        work is running, the single-shot delay is armed, nothing on screen.
+        *Showing*: the delay elapsed with work still running.
+
+        Arming happens on the idle-to-busy edge only — ``isActive()`` is
+        checked before ``start()``, and ``start()`` on a running QTimer
+        restarts it. Without that guard a stream of short jobs would push the
+        deadline forward for ever and the spinner would never appear during a
+        genuinely long stretch of work.
+        """
+        if not self.is_busy():
+            # Hiding is immediate and unconditional. Anything else would
+            # leave the widget saying something that is not true.
+            self._delay.stop()
+            self._due = False
+            if self._timer.isActive():
+                self._timer.stop()
+                self._angle = 0.0
+            if self.isVisible():
+                self.setVisible(False)
+            self.setToolTip(self._describe())
+            return
+        if not self._due:
+            if self._delay_ms <= 0:
+                self._due = True
+            elif not self._delay.isActive():
+                self._delay.start(self._delay_ms)
         self.setToolTip(self._describe())
-        if busy:
-            self.update()
+        if self._due:
+            self._show_now()
+
+    def _on_delay_elapsed(self) -> None:
+        """The delay fired. Show only if there is still work to show.
+
+        This is the whole of the "not a prediction" claim: the question is
+        asked *after* the wait, about the present, so a job that finished at
+        1.9 s is simply not busy here and nothing appears.
+        """
+        if self.is_busy():
+            self._due = True
+            self._show_now()
+
+    def _show_now(self) -> None:
+        self.setVisible(True)
+        # ``isVisible`` is False while an ancestor is hidden, and the whole
+        # idle-costs-zero claim rests on never running the animation timer
+        # for pixels nobody can see. ``showEvent`` starts it if and when the
+        # screen this lives on comes back.
+        if self.isVisible() and not self._timer.isActive():
+            self._timer.start()
+        self.setToolTip(self._describe())
+        self.update()
 
     def _describe(self) -> str:
         """A tooltip naming what is running, for the times it matters."""
@@ -218,14 +339,25 @@ class ActivitySpinner(QWidget):
         switched away from, the window was minimised, the screen closed.
         A timer left running there is exactly the invisible spin this
         widget exists to avoid.
+
+        The pending appearance delay goes with it, for the same reason: a
+        screen the user has left should not schedule itself back on.
         """
         self._timer.stop()
+        self._delay.stop()
         super().hideEvent(event)
 
     def showEvent(self, event):      # noqa: N802 - Qt override
-        """Resume only if there is still something to report."""
+        """Resume only if there is still something to report — and only if
+        the work had already earned the spinner before the screen went away.
+
+        Without the :attr:`_due` half of that condition, coming back to a
+        screen would restart the animation for work that started three
+        milliseconds ago, which is precisely the flicker the delay exists to
+        prevent.
+        """
         super().showEvent(event)
-        if self.is_busy() and not self._timer.isActive():
+        if self._due and self.is_busy() and not self._timer.isActive():
             self._timer.start()
 
     # -- painting ---------------------------------------------------------
