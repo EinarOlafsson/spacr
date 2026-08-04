@@ -284,6 +284,11 @@ SELF_REGISTERING_MODULES = (
     "spacr.qt.screens.trellis",
     "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.feature_explorer",
+    # Flags an object — or a whole well, which is the more common failure —
+    # as extreme by a robust rule, and writes a COLUMN rather than dropping a
+    # row. Safe to have on by default for exactly that reason: nothing it
+    # decides is destructive until the user acts on it.
+    "spacr.qt.screens.outliers",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps
