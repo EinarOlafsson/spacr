@@ -1836,6 +1836,7 @@ def scan_parameters(
     verbose: bool = False,
     simulate_fn: Optional[Callable[..., pd.DataFrame]] = None,
     fit_kwargs: Optional[Mapping[str, Any]] = None,
+    on_point: Optional[Callable[[Mapping[str, Any]], Any]] = None,
     **parameters: Any,
 ) -> pd.DataFrame:
     """Sweep a design grid: simulate, fit, score, at every combination.
@@ -1883,11 +1884,31 @@ def scan_parameters(
     :param simulate_fn: screen simulator; defaults to
         :func:`spacr.power_simulate.simulate_screen`.
     :param fit_kwargs: extra keyword arguments for :func:`fit_model`.
+    :param on_point: called once per completed (point, replicate) with a
+        mapping ``{"index", "total", "point_index", "n_points",
+        "replicate", "resumed", "row"}`` — ``index`` and ``total`` count
+        fits, one-based, so ``index / total`` is a progress fraction, and
+        ``row`` is that fit's result record.
+
+        **Returning exactly ``False`` stops the sweep** and returns the
+        rows completed so far; anything else (including ``None``)
+        continues.  This exists for one reason: a sweep is minutes long
+        and a GUI has to be able to show where it is and to stop it
+        without killing the thread.  Between points is the only safe
+        granularity — one fit is atomic — so a cancel is honoured after
+        the fit in flight, not during it.  The callback runs on the
+        calling thread, inline; it must not block, and a callback that
+        raises aborts the sweep rather than being swallowed, because a
+        broken progress reporter is a bug in the caller and hiding it
+        would leave the sweep running with nothing watching it.
     :param parameters: simulator parameters, scalar or sequence.
     :returns: ``pandas.DataFrame``, one row per (grid point, replicate),
         with every parameter column plus the columns in
         ``_SCAN_RESULT_COLUMNS``.  Rows loaded from a resumed progress
-        file are included.
+        file are included.  ``DataFrame.attrs`` carries ``n_planned``
+        (fits the full grid would have run) and ``cancelled`` (whether
+        ``on_point`` stopped it early), so a short frame can be told from
+        a small grid.
     :raises PowerFitError: if no parameters were given, ``on_error`` is
         not recognised, ``n_replicates < 1``, the progress file exists
         with a different column layout (appending misaligned rows to a
@@ -2000,13 +2021,44 @@ def scan_parameters(
                 )
 
     rows: List[Dict[str, Any]] = []
+    cancelled = False
+
+    def _report(row: Dict[str, Any], point_index: int, replicate: int,
+                resumed: bool) -> bool:
+        """Hand one finished row to ``on_point``; True means "keep going".
+
+        Kept as a closure over the loop counters rather than inlined twice
+        so the resumed and freshly-computed paths cannot drift apart —
+        a progress bar that skips the rows a resume restored is a progress
+        bar that runs backwards on the second attempt.
+        """
+        if on_point is None:
+            return True
+        verdict = on_point({
+            "index": len(rows),
+            "total": n_points,
+            "point_index": point_index,
+            "n_points": len(combinations),
+            "replicate": replicate,
+            "resumed": resumed,
+            "row": row,
+        })
+        # `is False`, not falsy: a callback that returns 0, "" or an empty
+        # list has almost certainly returned something incidental, and
+        # stopping a five-minute sweep on that is not a decision to infer.
+        return verdict is not False
 
     for point_index, combination in enumerate(combinations, start=1):
+        if cancelled:
+            break
         point_params = dict(zip(names, combination))
         for replicate in range(int(n_replicates)):
             key = _run_key(point_params, replicate, seed, resolved_backend)
             if key in done:
                 rows.append(done[key])
+                if not _report(done[key], point_index, replicate, True):
+                    cancelled = True
+                    break
                 continue
 
             # Seed derived from the point's identity, not from iteration order,
@@ -2137,8 +2189,20 @@ def scan_parameters(
                     mode="a",
                     header=not (path.exists() and path.stat().st_size > 0),
                 )
+            # After the progress file, so a cancelled sweep can still be
+            # resumed from the point it stopped at rather than redoing it.
+            if not _report(row, point_index, replicate, False):
+                cancelled = True
+                break
 
     frame = pd.DataFrame(rows, columns=result_columns)
+    frame.attrs["n_planned"] = n_points
+    frame.attrs["cancelled"] = bool(cancelled)
+    if cancelled:
+        logger.info(
+            "power_model.scan_parameters: stopped by on_point after %d of "
+            "%d fit(s).", len(frame), n_points,
+        )
     n_failed = int((frame["status"] == "failed").sum())
     n_unconverged = int((frame["status"] == "not_converged").sum())
     if n_failed or n_unconverged:
