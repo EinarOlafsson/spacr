@@ -106,19 +106,38 @@ __all__ = [
     "PNG_KEY",
     "PNG_TABLE",
     "PRED_COLUMN_CANDIDATES",
+    "ROUND_LOG_TABLE",
+    "ROUND_PRED_PREFIX",
+    "ROUND_TABLE",
     "UNCERTAINTY_MEASURES",
+    "RoundResult",
+    "StoppingVerdict",
+    "annotation_coverage",
     "as_probabilities",
     "build_queue",
+    "crops_for_object_keys",
     "disagreement",
+    "ensure_round_tables",
     "entropy",
+    "format_coverage_summary",
+    "format_learning_curve",
     "format_queue_summary",
+    "holdout_report",
+    "label_rounds",
+    "learning_curve",
     "least_confidence",
     "margin",
+    "next_round",
     "predict_probabilities",
     "probabilities_from_logits",
     "queue_rows",
     "rank_by_uncertainty",
+    "record_labels",
+    "record_round",
     "resolve_measure",
+    "retrain_round",
+    "round_features",
+    "should_stop",
     "uncertainty_scores",
 ]
 
@@ -162,6 +181,18 @@ _METADATA_COLUMNS: Tuple[str, ...] = (
     "plateID", "rowID", "columnID", "fieldID", "prc", "prcfo", "file_name",
     "cell_id", "nucleus_id", "pathogen_id", "cytoplasm_id",
 )
+
+#: Prefix of the per-class probability columns :func:`retrain_round` writes
+#: back into ``png_list``. One column per class (``al_prob_0``, ``al_prob_1``,
+#: …) rather than one positive-class score, so a three-class screen re-ranks
+#: on the full distribution rather than on a collapsed binary proxy.
+ROUND_PRED_PREFIX = "al_prob_"
+
+#: Per-label provenance: which round each annotation was made in.
+ROUND_TABLE = "annotation_rounds"
+
+#: Per-round record: the learning curve, one row per retrain.
+ROUND_LOG_TABLE = "annotation_round_log"
 
 
 # ---------------------------------------------------------------------------
@@ -762,8 +793,14 @@ def _resolve_pred_columns(pred_column: Any, columns: Sequence[str],
             raise ValueError("pred_column was an empty list.")
         return [str(c) for c in wanted]
 
-    # Multi-class columns first: pred_0, pred_1, … / prob_0, prob_1, …
-    for prefix in ("pred_", "prob_", "score_"):
+    # Multi-class columns first. ``al_prob_`` comes FIRST on purpose: it is
+    # written by :func:`retrain_round`, i.e. by a model trained on the labels
+    # made in this very annotation session, and it is therefore always
+    # fresher than whatever the last full Classify run left in ``pred``.
+    # Without this, round 2 of an active-learning loop re-ranks against the
+    # round-0 model and serves back the same crops — the loop looks closed
+    # and is not.
+    for prefix in (ROUND_PRED_PREFIX, "pred_", "prob_", "score_"):
         numbered = sorted(
             (c for c in available
              if c.startswith(prefix) and c[len(prefix):].isdigit()),
@@ -1248,3 +1285,1542 @@ def format_queue_summary(queue: pd.DataFrame) -> str:
     lines.append("")
     lines.append(CALIBRATION_NOTE)
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Annotation coverage — how many labels, of which class, from where
+# ---------------------------------------------------------------------------
+
+def _well_key(frame: pd.DataFrame, columns: Sequence[str]) -> pd.Series:
+    """Readable ``plate/row/column`` key per row, or ``'(unknown)'``."""
+    present = [c for c in columns if c in frame.columns]
+    if not present or not len(frame):
+        return pd.Series(["(unknown)"] * len(frame), index=frame.index,
+                         dtype=object)
+    return frame[present].astype(str).apply("/".join, axis=1)
+
+
+def _concentration(counts: "pd.Series") -> Dict[str, Any]:
+    """How lopsided a count distribution is, in three numbers.
+
+    :param counts: labels per group, any order.
+    :returns: ``n``, ``n_groups``, ``top``, ``top_n``, ``top_share`` and
+        ``hhi`` — the Herfindahl index, the sum of squared shares. ``hhi``
+        is 1.0 when every label came from one group and ``1/k`` when they
+        are spread evenly over ``k``; it is the single number that says
+        "these 200 labels are really 1.06 wells' worth" without needing the
+        whole table.
+    """
+    total = int(counts.sum())
+    if not total:
+        return {"n": 0, "n_groups": 0, "top": None, "top_n": 0,
+                "top_share": 0.0, "hhi": 0.0, "effective_groups": 0.0}
+    ordered = counts.sort_values(ascending=False)
+    shares = (ordered / total).to_numpy(dtype=float)
+    hhi = float(np.sum(shares ** 2))
+    return {
+        "n": total,
+        "n_groups": int((ordered > 0).sum()),
+        "top": str(ordered.index[0]),
+        "top_n": int(ordered.iloc[0]),
+        "top_share": float(ordered.iloc[0]) / total,
+        "hhi": hhi,
+        # 1/HHI: how many equally-sized groups the labels are "worth".
+        "effective_groups": (1.0 / hhi) if hhi else 0.0,
+    }
+
+
+def annotation_coverage(db_path: str, annotation_column: str = "annotate",
+                        table: str = PNG_TABLE, key: str = PNG_KEY,
+                        image_type: Optional[str] = None) -> pd.DataFrame:
+    """Where the annotations actually came from: per class, per well, per plate.
+
+    "I labelled 200 cells" is not a description of a training set. *Which*
+    200 decides what the classifier learns, and the failure this function
+    exists to make visible is the one that never announces itself: 190 of the
+    200 came from a single well, so the model learned that well's staining,
+    focus and confluency rather than the biology, and every held-out number
+    drawn from a random split of those objects is optimistic.
+
+    Reads ``png_list`` read-only, plus :data:`ROUND_TABLE` when it is there,
+    so labels can also be attributed to the active-learning round that
+    surfaced them.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the column the Annotate app writes into.
+    :param table: crop table (default ``png_list``).
+    :param key: row key (default ``png_path``).
+    :param image_type: substring filter on the key, matching the Annotate
+        screen's own filter.
+    :returns: one row per ``(plateID, rowID, columnID, class)`` that has at
+        least one annotation, with ``n`` and ``share`` — plus the whole
+        breakdown in ``attrs['spacr_annotation_coverage']``:
+        ``by_class``, ``by_plate``, ``by_well``, ``by_class_plate``,
+        ``by_class_well``, ``by_round``, ``by_source``, ``concentration``
+        (per class) and ``notes``.
+    :raises ValueError: when the table has no such column — an empty result
+        would read as "nothing annotated yet", which is a different fact.
+    :raises FileNotFoundError: when the database is not there.
+    """
+    notes: List[str] = []
+    con = _connect(db_path)
+    try:
+        columns = _table_columns(con, table, db_path)
+        if key not in columns:
+            raise ValueError(
+                f"{table!r} has no {key!r} column, so an annotation cannot be "
+                f"attributed to a crop.")
+        if annotation_column not in columns:
+            raise ValueError(
+                f"{table!r} has no {annotation_column!r} column — nothing has "
+                f"been annotated into it yet. The Annotate app creates the "
+                f"column the first time it saves. Columns present: "
+                f"{', '.join(columns)}.")
+        meta = [c for c in ("plateID", "rowID", "columnID", "fieldID", "prc")
+                if c in columns]
+        select = list(dict.fromkeys([key, annotation_column] + meta))
+        rows = con.execute(
+            f"SELECT {', '.join(_quote_ident(c) for c in select)} "
+            f"FROM {_quote_ident(table)}").fetchall()
+        rounds = _read_rounds(con, annotation_column)
+    finally:
+        con.close()
+
+    frame = pd.DataFrame(rows, columns=select)
+    n_rows = len(frame)
+    if image_type:
+        frame = frame[frame[key].astype(str).str.contains(
+            str(image_type), regex=False)]
+
+    well_cols = [c for c in ("plateID", "rowID", "columnID") if c in frame.columns]
+    frame = frame.assign(_well=_well_key(frame, well_cols))
+    if "plateID" in frame.columns:
+        frame = frame.assign(_plate=frame["plateID"].astype(str))
+    else:
+        frame = frame.assign(_plate="(unknown)")
+        notes.append(
+            f"{table} has no plateID column, so nothing here can be attributed "
+            f"to a plate; every label is reported under '(unknown)'.")
+
+    wells_total = int(frame["_well"].nunique()) if len(frame) else 0
+    labelled = frame[frame[annotation_column].notna()].copy()
+    n_annotated = len(labelled)
+    if n_annotated:
+        labelled["_class"] = labelled[annotation_column].map(_class_name)
+
+    if not rounds.empty and n_annotated:
+        labelled = labelled.merge(
+            rounds, how="left", left_on=key, right_on="png_path")
+        labelled["round"] = labelled["round"].fillna(-1).astype(int)
+        labelled["source"] = labelled["source"].fillna("unrecorded")
+    else:
+        labelled["round"] = -1
+        labelled["source"] = "unrecorded"
+        if n_annotated:
+            notes.append(
+                f"No {ROUND_TABLE} rows for {annotation_column!r}, so no label "
+                f"can be attributed to an annotation round. Rounds are "
+                f"recorded from the Annotate screen; labels written before "
+                f"that read as 'unrecorded'.")
+
+    if not n_annotated:
+        out = pd.DataFrame(columns=["plateID", "rowID", "columnID", "class",
+                                    "n", "share"])
+        out.attrs["spacr_annotation_coverage"] = {
+            "db_path": str(db_path), "table": table,
+            "annotation_column": annotation_column,
+            "n_rows": n_rows, "n_annotated": 0, "n_classes": 0,
+            "wells_total": wells_total, "wells_annotated": 0,
+            "plates_total": int(frame["_plate"].nunique()) if len(frame) else 0,
+            "plates_annotated": 0,
+            "by_class": {}, "by_plate": {}, "by_well": {},
+            "by_class_plate": {}, "by_class_well": {},
+            "by_round": {}, "by_source": {}, "concentration": {},
+            "notes": notes + [
+                f"Nothing is annotated in {annotation_column!r} yet "
+                f"({n_rows} crops in {table})."],
+        }
+        return out
+
+    group_cols = [c for c in ("plateID", "rowID", "columnID") if c in labelled.columns]
+    grouped = (labelled.groupby(group_cols + ["_class"], dropna=False)
+               .size().reset_index(name="n")
+               if group_cols else
+               labelled.groupby(["_class"]).size().reset_index(name="n"))
+    grouped = grouped.rename(columns={"_class": "class"})
+    grouped["share"] = grouped["n"] / float(n_annotated)
+    grouped = grouped.sort_values(["class", "n"], ascending=[True, False]
+                                  ).reset_index(drop=True)
+
+    by_class = {k: int(v) for k, v in
+                labelled["_class"].value_counts().sort_index().items()}
+    by_plate = {str(k): int(v) for k, v in
+                labelled["_plate"].value_counts().sort_index().items()}
+    by_well = {str(k): int(v) for k, v in
+               labelled["_well"].value_counts().sort_index().items()}
+    by_class_plate = {
+        str(cls): {str(p): int(n) for p, n in
+                   sub["_plate"].value_counts().sort_index().items()}
+        for cls, sub in labelled.groupby("_class")}
+    by_class_well = {
+        str(cls): {str(w): int(n) for w, n in
+                   sub["_well"].value_counts().sort_index().items()}
+        for cls, sub in labelled.groupby("_class")}
+    concentration = {
+        str(cls): _concentration(sub["_well"].value_counts())
+        for cls, sub in labelled.groupby("_class")}
+    concentration["__all__"] = _concentration(labelled["_well"].value_counts())
+
+    for cls, stats in concentration.items():
+        if cls == "__all__" or stats["n"] < 10 or stats["n_groups"] < 1:
+            continue
+        if stats["top_share"] >= 0.5 and stats["n_groups"] > 1:
+            notes.append(
+                f"Class {cls}: {stats['top_n']} of {stats['n']} labels "
+                f"({stats['top_share']:.0%}) come from one well "
+                f"({stats['top']}). A classifier trained on this learns that "
+                f"well as much as it learns the class.")
+        elif stats["n_groups"] == 1:
+            notes.append(
+                f"Class {cls}: all {stats['n']} labels come from the single "
+                f"well {stats['top']}. There is no way to tell the class "
+                f"apart from the well, and a random train/test split of these "
+                f"objects will report an accuracy that does not transfer.")
+
+    counts = pd.Series(by_class)
+    if len(counts) > 1 and int(counts.min()) * 5 < int(counts.max()):
+        notes.append(
+            f"Class balance is {':'.join(str(int(v)) for v in counts)} "
+            f"({', '.join(map(str, counts.index))}). The smallest class has "
+            f"{int(counts.min())} labels; per-class accuracy, not the "
+            f"aggregate, is the number to read on a model trained here.")
+
+    out = grouped
+    out.attrs["spacr_annotation_coverage"] = {
+        "db_path": str(db_path), "table": table,
+        "annotation_column": annotation_column,
+        "n_rows": n_rows, "n_annotated": int(n_annotated),
+        "n_classes": len(by_class),
+        "wells_total": wells_total,
+        "wells_annotated": int(labelled["_well"].nunique()),
+        "plates_total": int(frame["_plate"].nunique()),
+        "plates_annotated": int(labelled["_plate"].nunique()),
+        "by_class": by_class,
+        "by_plate": by_plate,
+        "by_well": by_well,
+        "by_class_plate": by_class_plate,
+        "by_class_well": by_class_well,
+        "by_round": {int(k): int(v) for k, v in
+                     labelled["round"].value_counts().sort_index().items()},
+        "by_source": {str(k): int(v) for k, v in
+                      labelled["source"].value_counts().sort_index().items()},
+        "concentration": concentration,
+        "notes": notes,
+    }
+    return out
+
+
+def _class_name(value: Any) -> str:
+    """``1.0`` and ``1`` are the same class; report it as ``'1'``."""
+    if isinstance(value, float) and float(value).is_integer():
+        return str(int(value))
+    return str(value)
+
+
+def _object_label(value: Any) -> str:
+    """``'o5'``/``5``/``5.0`` → ``'5'``; anything unusable → ``''``.
+
+    ``png_list`` stores the object id as TEXT ``'o5'`` while every object
+    table stores an integer, and the sentinels ``'omulti'`` / ``'onone'`` /
+    ``'error'`` are real values in that column. Both facts are load-bearing
+    here: a naive ``int(value)`` raises on the sentinels, and a naive string
+    compare never matches an integer key.
+    """
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if not text or text.lower() in ("nan", "none", "null"):
+        return ""
+    if text[:1] in ("o", "O"):
+        text = text[1:]
+    if not text:
+        return ""
+    try:
+        return str(int(float(text)))
+    except (TypeError, ValueError):
+        return ""
+
+
+def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
+                          table: str = PNG_TABLE, key: str = PNG_KEY,
+                          annotation_column: Optional[str] = None,
+                          timelapse: bool = False,
+                          image_type: Optional[str] = None
+                          ) -> List[Tuple[str, Optional[int]]]:
+    """Resolve object keys to crop rows, **in the caller's order**.
+
+    The database half of the object-routing contract in
+    :mod:`spacr.qt.linked_selection`: a scatter plot or a confusion-matrix
+    cell names objects by :data:`spacr.selection.OBJECT_KEY_COLUMNS` key,
+    and the Annotate screen has to turn those into the crops it paginates.
+    Kept here rather than in the Qt screen so it is testable without a
+    display, and so a second consumer does not have to reimplement the
+    ``'o5'``-versus-``5`` trap in :func:`_object_label`.
+
+    Order is preserved because it is the whole point of a routed request:
+    "worst errors first" survives the trip only if this does not re-sort into
+    table order. Keys with no crop are dropped — a request may name objects a
+    crop table does not carry, and that is a shorter result, not an error.
+
+    :param db_path: path to ``measurements.db``.
+    :param keys: object keys. A ``png_path``, a ``prcfo`` or a ``file_name``
+        is also accepted, so a caller working from a crop table rather than
+        a measurement table does not need a translation step.
+    :param table: crop table.
+    :param key: crop key column.
+    :param annotation_column: read the existing label too, so an already
+        annotated crop renders with its colour rather than blank.
+    :param timelapse: the keys carry a timepoint.
+    :param image_type: substring filter on the crop key.
+    :returns: ``[(png_path, annotation or None), …]`` in the keys' order.
+    """
+    wanted = [str(k) for k in keys]
+    if not wanted:
+        return []
+    con = _connect(db_path)
+    try:
+        columns = _table_columns(con, table, db_path)
+        if key not in columns:
+            raise ValueError(
+                f"{table!r} has no {key!r} column, so an object key cannot be "
+                f"resolved to a crop.")
+        has_annotation = bool(annotation_column
+                              and annotation_column in columns)
+        select = [key]
+        for extra in ("prcfo", "file_name", "plateID", "rowID", "columnID",
+                      "fieldID", "timeID", "cell_id", "nucleus_id",
+                      "pathogen_id", "cytoplasm_id", "organelle_id"):
+            if extra in columns and extra not in select:
+                select.append(extra)
+        if has_annotation and annotation_column not in select:
+            select.append(annotation_column)
+        rows = con.execute(
+            f"SELECT {', '.join(_quote_ident(c) for c in select)} "
+            f"FROM {_quote_ident(table)}").fetchall()
+    finally:
+        con.close()
+
+    index = {c: i for i, c in enumerate(select)}
+    id_columns = [c for c in ("cell_id", "nucleus_id", "pathogen_id",
+                              "cytoplasm_id", "organelle_id") if c in index]
+    meta_columns = ["plateID", "rowID", "columnID", "fieldID"]
+    if timelapse:
+        meta_columns.append("timeID")
+
+    by_key: Dict[str, Tuple[str, Optional[int]]] = {}
+    for row in rows:
+        path = str(row[index[key]])
+        if image_type and str(image_type) not in path:
+            continue
+        annotation = None
+        if has_annotation:
+            raw = row[index[annotation_column]]
+            annotation = None if raw is None else int(raw)
+        entry = (path, annotation)
+
+        label = ""
+        for column in id_columns:
+            label = _object_label(row[index[column]])
+            if label:
+                break
+        prcfo = (str(row[index["prcfo"]])
+                 if "prcfo" in index and row[index["prcfo"]] is not None
+                 else "")
+        if not label and prcfo:
+            label = _object_label(prcfo.rsplit("_", 1)[-1])
+        if label and all(c in index for c in meta_columns):
+            parts = [str(row[index[c]]) for c in meta_columns]
+            by_key.setdefault("_".join(parts + [label]), entry)
+        file_name = (str(row[index["file_name"]])
+                     if "file_name" in index and
+                     row[index["file_name"]] is not None else "")
+        for candidate in (path, prcfo, file_name):
+            if candidate:
+                by_key.setdefault(candidate, entry)
+
+    out: List[Tuple[str, Optional[int]]] = []
+    seen = set()
+    for wanted_key in wanted:
+        entry = by_key.get(wanted_key)
+        if entry is None or entry[0] in seen:
+            continue
+        seen.add(entry[0])
+        out.append(entry)
+    return out
+
+
+def format_coverage_summary(coverage: pd.DataFrame) -> str:
+    """Render :func:`annotation_coverage` as text, worst concentration first.
+
+    :param coverage: the frame from :func:`annotation_coverage`.
+    :returns: multi-line text, no trailing newline.
+    """
+    meta: Dict[str, Any] = dict(
+        coverage.attrs.get("spacr_annotation_coverage", {}))
+    lines: List[str] = []
+    db = os.path.basename(str(meta.get("db_path", ""))) or "(unknown database)"
+    lines.append(f"Annotation coverage — {db} "
+                 f"[{meta.get('annotation_column', '?')}]")
+    lines.append(
+        f"{meta.get('n_annotated', 0)} of {meta.get('n_rows', 0)} crops "
+        f"annotated · {meta.get('n_classes', 0)} classes · "
+        f"{meta.get('plates_annotated', 0)}/{meta.get('plates_total', 0)} "
+        f"plates · {meta.get('wells_annotated', 0)}/"
+        f"{meta.get('wells_total', 0)} wells")
+
+    by_class = meta.get("by_class") or {}
+    if not by_class:
+        lines.append("")
+        lines.append("Nothing annotated yet.")
+        for note in meta.get("notes", []):
+            lines.append(f"  ! {note}")
+        return "\n".join(lines)
+
+    total = sum(by_class.values()) or 1
+    conc = meta.get("concentration") or {}
+    lines.append("")
+    lines.append("Per class:")
+    lines.append(f"  {'class':<10}{'labels':>8}{'share':>8}{'wells':>8}"
+                 f"{'plates':>8}{'busiest well':>22}{'its share':>11}")
+    for cls in sorted(by_class, key=str):
+        n = int(by_class[cls])
+        stats = conc.get(str(cls), {})
+        plates = len(meta.get("by_class_plate", {}).get(str(cls), {}) or {})
+        lines.append(
+            f"  {str(cls):<10}{n:>8}{_share(n, total):>8}"
+            f"{stats.get('n_groups', 0):>8}{plates:>8}"
+            f"{str(stats.get('top') or '—'):>22}"
+            f"{_share(int(stats.get('top_n', 0)), n):>11}")
+    overall = conc.get("__all__", {})
+    if overall.get("effective_groups"):
+        lines.append(
+            f"  All {overall['n']} labels are spread over "
+            f"{overall['n_groups']} wells, but weighted by size they are "
+            f"worth {overall['effective_groups']:.1f} evenly-sampled wells "
+            f"(1/HHI).")
+
+    by_plate = meta.get("by_plate") or {}
+    if len(by_plate) > 1:
+        lines.append("")
+        lines.append("Per plate: " + " · ".join(
+            f"{p}: {n}" for p, n in sorted(by_plate.items())))
+
+    by_well = meta.get("by_well") or {}
+    if by_well:
+        busiest = sorted(by_well.items(), key=lambda kv: -kv[1])[:10]
+        lines.append("")
+        lines.append("Busiest wells (plate/row/column):")
+        for well, n in busiest:
+            lines.append(f"  {well:<22}{n:>7}{_share(n, total):>9}")
+
+    by_round = meta.get("by_round") or {}
+    if by_round:
+        lines.append("")
+        named = {("before rounds were recorded" if int(k) < 0
+                  else f"round {int(k)}"): v for k, v in by_round.items()}
+        lines.append("Per round: " + " · ".join(
+            f"{k}: {v}" for k, v in named.items()))
+
+    if meta.get("notes"):
+        lines.append("")
+        for note in meta["notes"]:
+            lines.append(f"! {note}")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Round bookkeeping — the loop's memory
+# ---------------------------------------------------------------------------
+
+def _utc_now() -> str:
+    """ISO-8601 UTC, to the second — the stamp every round row carries."""
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _write_connection(db_path: str) -> sqlite3.Connection:
+    """A writable connection to ``db_path``, for the round tables only.
+
+    Separate from :func:`_connect`, which is read-only on purpose: building a
+    queue must never be able to write, and the two connections being visibly
+    different is what keeps that true.
+    """
+    if not db_path or not str(db_path).strip():
+        raise ValueError("No database path given.")
+    path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"No such database: {path}")
+    return sqlite3.connect(path, timeout=30)
+
+
+def ensure_round_tables(db_path: str) -> None:
+    """Create :data:`ROUND_TABLE` and :data:`ROUND_LOG_TABLE` if absent.
+
+    Two tables, not one. Per-label provenance and per-round metrics have
+    different cardinalities and different lifetimes: a label keeps its round
+    forever, a round's held-out accuracy is rewritten if the round is re-fit.
+    """
+    con = _write_connection(db_path)
+    try:
+        con.execute(f"""
+            CREATE TABLE IF NOT EXISTS {_quote_ident(ROUND_TABLE)} (
+                png_path TEXT NOT NULL,
+                annotation_column TEXT NOT NULL,
+                round INTEGER NOT NULL,
+                first_round INTEGER NOT NULL,
+                label INTEGER,
+                source TEXT NOT NULL DEFAULT 'manual',
+                labelled_utc TEXT NOT NULL,
+                PRIMARY KEY (png_path, annotation_column)
+            )""")
+        con.execute(f"""
+            CREATE TABLE IF NOT EXISTS {_quote_ident(ROUND_LOG_TABLE)} (
+                annotation_column TEXT NOT NULL,
+                round INTEGER NOT NULL,
+                finished_utc TEXT NOT NULL,
+                n_labels INTEGER NOT NULL DEFAULT 0,
+                n_new_labels INTEGER NOT NULL DEFAULT 0,
+                n_holdout INTEGER NOT NULL DEFAULT 0,
+                holdout_accuracy REAL,
+                holdout_f1_macro REAL,
+                per_class_json TEXT,
+                split_rule TEXT,
+                model_type TEXT,
+                model_path TEXT,
+                card_path TEXT,
+                measure TEXT,
+                diversity TEXT,
+                notes_json TEXT,
+                PRIMARY KEY (annotation_column, round)
+            )""")
+        con.commit()
+    finally:
+        con.close()
+
+
+def _read_rounds(con: sqlite3.Connection,
+                 annotation_column: str) -> pd.DataFrame:
+    """Per-label round provenance, or an empty frame when unrecorded."""
+    names = {r[0] for r in con.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    if ROUND_TABLE not in names:
+        return pd.DataFrame(columns=["png_path", "round", "first_round",
+                                     "source", "labelled_utc"])
+    rows = con.execute(
+        f"SELECT png_path, round, first_round, source, labelled_utc "
+        f"FROM {_quote_ident(ROUND_TABLE)} WHERE annotation_column = ?",
+        (str(annotation_column),)).fetchall()
+    return pd.DataFrame(rows, columns=["png_path", "round", "first_round",
+                                       "source", "labelled_utc"])
+
+
+def record_labels(db_path: str, annotation_column: str,
+                  labels: Dict[str, Any], round_index: int,
+                  source: str = "manual") -> int:
+    """Stamp each label with the round it was made in.
+
+    Called by the Annotate screen every time it flushes a batch. The round a
+    label came from is what makes early-round bias auditable: the first
+    round's labels are drawn from whatever ordering existed before any model
+    had seen this screen, and if 80 % of a class's labels carry round 0 then
+    the "active learning" was mostly not active.
+
+    ``first_round`` is preserved across re-labelling while ``round`` follows
+    the current value, so both "when was this crop first looked at" and
+    "which round set the label it has now" survive a correction.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the column the labels were written into.
+    :param labels: ``{png_path: class or None}``. ``None`` is a *cleared*
+        label and is recorded as such rather than dropped — a crop that was
+        looked at and deliberately left blank is not the same as one never
+        seen.
+    :param round_index: the round these labels belong to.
+    :param source: how the crop reached the annotator — ``'manual'``,
+        ``'queue'``, or a caller's own tag.
+    :returns: number of rows written.
+    """
+    if not labels:
+        return 0
+    ensure_round_tables(db_path)
+    stamp = _utc_now()
+    payload = [
+        (str(path), str(annotation_column), int(round_index),
+         int(round_index),
+         (None if value is None else int(value)), str(source), stamp)
+        for path, value in labels.items()]
+    con = _write_connection(db_path)
+    try:
+        con.executemany(
+            f"INSERT INTO {_quote_ident(ROUND_TABLE)} "
+            f"(png_path, annotation_column, round, first_round, label, "
+            f"source, labelled_utc) VALUES (?, ?, ?, ?, ?, ?, ?) "
+            f"ON CONFLICT(png_path, annotation_column) DO UPDATE SET "
+            f"round=excluded.round, label=excluded.label, "
+            f"source=excluded.source, labelled_utc=excluded.labelled_utc",
+            payload)
+        con.commit()
+    finally:
+        con.close()
+    return len(payload)
+
+
+def label_rounds(db_path: str,
+                 annotation_column: str = "annotate") -> pd.DataFrame:
+    """Per-label round provenance as a frame (empty when never recorded)."""
+    con = _connect(db_path)
+    try:
+        return _read_rounds(con, annotation_column)
+    finally:
+        con.close()
+
+
+def next_round(db_path: str, annotation_column: str = "annotate") -> int:
+    """The round number the next batch of labels belongs to.
+
+    Round 0 is "before any model was retrained from inside Annotate" — the
+    labels that seeded the loop. The first retrain produces round 1.
+    """
+    try:
+        con = _connect(db_path)
+    except (FileNotFoundError, ValueError):
+        return 0
+    try:
+        names = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        if ROUND_LOG_TABLE not in names:
+            return 0
+        row = con.execute(
+            f"SELECT MAX(round) FROM {_quote_ident(ROUND_LOG_TABLE)} "
+            f"WHERE annotation_column = ?",
+            (str(annotation_column),)).fetchone()
+    finally:
+        con.close()
+    return int(row[0]) + 1 if row and row[0] is not None else 0
+
+
+def record_round(db_path: str, annotation_column: str, round_index: int,
+                 **fields: Any) -> None:
+    """Append (or replace) one row of the learning curve.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the column this round labelled into.
+    :param round_index: the round number.
+    :param fields: any of ``n_labels``, ``n_new_labels``, ``n_holdout``,
+        ``holdout_accuracy``, ``holdout_f1_macro``, ``per_class`` (dict),
+        ``split_rule``, ``model_type``, ``model_path``, ``card_path``,
+        ``measure``, ``diversity``, ``notes`` (list).
+    """
+    import json
+    ensure_round_tables(db_path)
+    values = {
+        "annotation_column": str(annotation_column),
+        "round": int(round_index),
+        "finished_utc": _utc_now(),
+        "n_labels": int(fields.get("n_labels", 0) or 0),
+        "n_new_labels": int(fields.get("n_new_labels", 0) or 0),
+        "n_holdout": int(fields.get("n_holdout", 0) or 0),
+        "holdout_accuracy": _as_float_or_none(fields.get("holdout_accuracy")),
+        "holdout_f1_macro": _as_float_or_none(fields.get("holdout_f1_macro")),
+        "per_class_json": json.dumps(fields.get("per_class") or {}),
+        "split_rule": str(fields.get("split_rule") or ""),
+        "model_type": str(fields.get("model_type") or ""),
+        "model_path": str(fields.get("model_path") or ""),
+        "card_path": str(fields.get("card_path") or ""),
+        "measure": str(fields.get("measure") or ""),
+        "diversity": str(fields.get("diversity") or ""),
+        "notes_json": json.dumps(list(fields.get("notes") or [])),
+    }
+    con = _write_connection(db_path)
+    try:
+        con.execute(
+            f"INSERT OR REPLACE INTO {_quote_ident(ROUND_LOG_TABLE)} "
+            f"({', '.join(_quote_ident(c) for c in values)}) "
+            f"VALUES ({', '.join('?' * len(values))})",
+            tuple(values.values()))
+        con.commit()
+    finally:
+        con.close()
+
+
+def _as_float_or_none(value: Any) -> Optional[float]:
+    """``float(value)`` unless it is None or non-finite."""
+    if value is None:
+        return None
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return out if np.isfinite(out) else None
+
+
+def learning_curve(db_path: str,
+                   annotation_column: str = "annotate") -> pd.DataFrame:
+    """Held-out accuracy per round, oldest first — the curve to watch flatten.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the column the rounds labelled into.
+    :returns: a frame with one row per round: ``round``, ``finished_utc``,
+        ``n_labels``, ``n_new_labels``, ``n_holdout``, ``holdout_accuracy``,
+        ``holdout_f1_macro``, ``per_class`` (dict), ``split_rule``,
+        ``model_type``, ``model_path``, ``card_path``, ``notes`` (list), and
+        the derived ``gain`` (accuracy change since the previous round).
+        Empty (with those columns) when no round has been recorded.
+    """
+    import json
+    columns = ["round", "finished_utc", "n_labels", "n_new_labels",
+               "n_holdout", "holdout_accuracy", "holdout_f1_macro",
+               "per_class", "split_rule", "model_type", "model_path",
+               "card_path", "measure", "diversity", "notes", "gain"]
+    try:
+        con = _connect(db_path)
+    except (FileNotFoundError, ValueError):
+        return pd.DataFrame(columns=columns)
+    try:
+        names = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        if ROUND_LOG_TABLE not in names:
+            return pd.DataFrame(columns=columns)
+        rows = con.execute(
+            f"SELECT round, finished_utc, n_labels, n_new_labels, n_holdout, "
+            f"holdout_accuracy, holdout_f1_macro, per_class_json, split_rule, "
+            f"model_type, model_path, card_path, measure, diversity, "
+            f"notes_json FROM {_quote_ident(ROUND_LOG_TABLE)} "
+            f"WHERE annotation_column = ? ORDER BY round",
+            (str(annotation_column),)).fetchall()
+    finally:
+        con.close()
+
+    if not rows:
+        return pd.DataFrame(columns=columns)
+    frame = pd.DataFrame(rows, columns=[
+        "round", "finished_utc", "n_labels", "n_new_labels", "n_holdout",
+        "holdout_accuracy", "holdout_f1_macro", "per_class_json",
+        "split_rule", "model_type", "model_path", "card_path", "measure",
+        "diversity", "notes_json"])
+    frame["per_class"] = [json.loads(v or "{}") for v in frame.pop("per_class_json")]
+    frame["notes"] = [json.loads(v or "[]") for v in frame.pop("notes_json")]
+    frame["gain"] = frame["holdout_accuracy"].astype(float).diff()
+    return frame[columns]
+
+
+# ---------------------------------------------------------------------------
+# The stopping rule
+# ---------------------------------------------------------------------------
+
+class StoppingVerdict:
+    """Whether the last stretch of annotation bought anything measurable.
+
+    :param stop: the recommendation.
+    :param reason: one sentence, in the words the screen shows.
+    :param gain: held-out accuracy change over the window examined.
+    :param labels_in_window: how many labels that change is attributed to.
+    :param window_from: the round the window opened at.
+    :param confident: whether ``gain`` is larger than one standard error of
+        the held-out accuracy itself. When it is *not*, "flat" and "we
+        cannot tell" look identical from the numbers, and this says which
+        you have.
+    :param noise: one standard error of the latest held-out accuracy,
+        ``sqrt(p(1-p)/n)``.
+    :param trend: ``'rising'``, ``'flat'``, ``'falling'`` or ``'unknown'``.
+    """
+
+    __slots__ = ("stop", "reason", "gain", "labels_in_window", "window_from",
+                 "confident", "noise", "trend")
+
+    def __init__(self, stop: bool, reason: str, *, gain: Optional[float] = None,
+                 labels_in_window: int = 0, window_from: Optional[int] = None,
+                 confident: bool = False, noise: Optional[float] = None,
+                 trend: str = "unknown"):
+        self.stop = bool(stop)
+        self.reason = str(reason)
+        self.gain = gain
+        self.labels_in_window = int(labels_in_window)
+        self.window_from = window_from
+        self.confident = bool(confident)
+        self.noise = noise
+        self.trend = str(trend)
+
+    def __bool__(self) -> bool:
+        """True when the recommendation is to stop."""
+        return self.stop
+
+    def __repr__(self) -> str:
+        return (f"StoppingVerdict(stop={self.stop!r}, trend={self.trend!r}, "
+                f"gain={self.gain!r}, labels_in_window="
+                f"{self.labels_in_window!r})")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """A JSON-friendly copy, for a card or a log."""
+        return {name: getattr(self, name) for name in self.__slots__}
+
+
+def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
+                min_gain: float = 0.003,
+                min_rounds: int = 2) -> StoppingVerdict:
+    """Has the last ``label_window`` labels moved held-out accuracy at all?
+
+    The rule, in one line: **look back over whole rounds until at least
+    ``label_window`` new labels have accumulated, and compare held-out
+    accuracy at the two ends. If it moved by less than ``min_gain``, stop.**
+
+    Why this rule and not another:
+
+    * **Labels, not rounds, are the unit of cost.** A round is whatever size
+      the annotator felt like; "no improvement for 3 rounds" says nothing
+      when the rounds were 5, 300 and 8 labels. The thing being spent is
+      human attention, one crop at a time, so the window is measured in
+      crops.
+    * **It looks *back over* rounds, not *at* the last one.** A single round
+      that happened to land flat is noise; the question is whether the last
+      fifty labels — however they were divided up — bought anything.
+    * **It refuses to answer early.** Below ``label_window`` labels since the
+      first recorded round there is no window to measure, and a rule that
+      fired anyway would tell people to stop after their first twelve labels.
+    * **It distinguishes "flat" from "unmeasurable".** Held-out accuracy on
+      80 objects has a standard error near 0.05; a 0.3 % change is inside
+      the noise, and :attr:`StoppingVerdict.confident` says so instead of
+      dressing it up. Flat *is* still the recommendation — if more labels
+      are not moving a number you can measure, they are not buying anything
+      you can demonstrate — but the reason says the held-out set is too
+      small to prove convergence, which is a different piece of work.
+    * **A falling curve stops too, and says so.** Accuracy going down is not
+      convergence; it usually means the newest labels disagree with the
+      earlier ones, or that the held-out split moved. Either way, more of
+      the same is the wrong next move.
+
+    :param curve: the frame from :func:`learning_curve`.
+    :param label_window: how many labels the window must cover.
+    :param min_gain: accuracy change below which the window counts as flat.
+    :param min_rounds: rounds required before any verdict is given.
+    :returns: a :class:`StoppingVerdict`; ``bool(verdict)`` is the answer.
+    """
+    if curve is None or not len(curve):
+        return StoppingVerdict(
+            False, "No round has been recorded yet — retrain once to start "
+                   "the curve.")
+    usable = curve[curve["holdout_accuracy"].notna()].reset_index(drop=True)
+    if len(usable) < max(1, int(min_rounds)):
+        return StoppingVerdict(
+            False,
+            f"Only {len(usable)} round(s) with a held-out score; "
+            f"{int(min_rounds)} are needed before a stopping rule means "
+            f"anything.",
+            trend="unknown")
+
+    latest = usable.iloc[-1]
+    accuracy = float(latest["holdout_accuracy"])
+    n_holdout = int(latest.get("n_holdout", 0) or 0)
+    noise = (float(np.sqrt(max(accuracy * (1.0 - accuracy), 0.0) / n_holdout))
+             if n_holdout > 0 else None)
+
+    # Walk back until the window covers enough NEW labels.
+    accumulated = 0
+    index = len(usable) - 1
+    while index > 0 and accumulated < int(label_window):
+        accumulated += int(usable.iloc[index].get("n_new_labels", 0) or 0)
+        index -= 1
+    baseline = usable.iloc[index]
+    gain = accuracy - float(baseline["holdout_accuracy"])
+    window_from = int(baseline["round"])
+
+    if accumulated < int(label_window):
+        return StoppingVerdict(
+            False,
+            f"Only {accumulated} labels since round {window_from}; the rule "
+            f"waits for {int(label_window)} before calling a plateau. "
+            f"Held-out accuracy has moved {gain:+.3f} so far.",
+            gain=gain, labels_in_window=accumulated, window_from=window_from,
+            noise=noise, trend="unknown")
+
+    confident = bool(noise is not None and abs(gain) > noise)
+    if gain < -max(float(min_gain), 0.0):
+        return StoppingVerdict(
+            True,
+            f"Held-out accuracy FELL {abs(gain):.1%} over the last "
+            f"{accumulated} labels (round {window_from} → "
+            f"{int(latest['round'])}). That is not convergence: check "
+            f"whether the newest labels disagree with the earlier ones "
+            f"before adding more.",
+            gain=gain, labels_in_window=accumulated, window_from=window_from,
+            confident=confident, noise=noise, trend="falling")
+
+    if gain < float(min_gain):
+        reason = (
+            f"The last {accumulated} labels moved held-out accuracy by "
+            f"{gain:+.1%} (round {window_from} → {int(latest['round'])}, now "
+            f"{accuracy:.1%}). That is below the {float(min_gain):.1%} "
+            f"threshold — annotating more of the same is not buying "
+            f"measurable accuracy.")
+        if noise is not None and abs(gain) <= noise:
+            reason += (
+                f" Note that the held-out set is only {n_holdout} objects, so "
+                f"one standard error is {noise:.1%}: this says the gain is "
+                f"unmeasurable, not that it is provably zero. A larger "
+                f"held-out set is the way to tell those apart.")
+        return StoppingVerdict(
+            True, reason, gain=gain, labels_in_window=accumulated,
+            window_from=window_from, confident=confident, noise=noise,
+            trend="flat")
+
+    return StoppingVerdict(
+        False,
+        f"Still learning: the last {accumulated} labels moved held-out "
+        f"accuracy {gain:+.1%} (round {window_from} → "
+        f"{int(latest['round'])}, now {accuracy:.1%}). Keep going.",
+        gain=gain, labels_in_window=accumulated, window_from=window_from,
+        confident=confident, noise=noise, trend="rising")
+
+
+def format_learning_curve(curve: pd.DataFrame,
+                          verdict: Optional[StoppingVerdict] = None) -> str:
+    """Render the round-by-round curve and the stopping verdict as text."""
+    lines = ["Active-learning rounds"]
+    if curve is None or not len(curve):
+        lines.append("")
+        lines.append("No round recorded yet. Retrain from Annotate to start "
+                     "the curve.")
+        return "\n".join(lines)
+    lines.append(f"  {'round':>5}{'labels':>8}{'new':>6}{'held-out':>10}"
+                 f"{'acc':>8}{'gain':>8}  worst class")
+    for _, row in curve.iterrows():
+        acc = row["holdout_accuracy"]
+        gain = row["gain"]
+        per_class = row["per_class"] or {}
+        worst = ""
+        if per_class:
+            name = min(per_class, key=lambda k: per_class[k])
+            worst = f"{name} {float(per_class[name]):.3f}"
+        lines.append(
+            f"  {int(row['round']):>5}{int(row['n_labels']):>8}"
+            f"{int(row['n_new_labels']):>6}{int(row['n_holdout']):>10}"
+            f"{('  —  ' if acc is None or not np.isfinite(float(acc)) else f'{float(acc):8.3f}')}"
+            f"{('     —  ' if gain is None or not np.isfinite(float(gain)) else f'{float(gain):+8.3f}')}"
+            f"  {worst}")
+    if verdict is not None:
+        lines.append("")
+        lines.append(("STOP — " if verdict.stop else "CONTINUE — ")
+                     + verdict.reason)
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Retraining a round: fit on the labels so far, re-score, re-rank
+# ---------------------------------------------------------------------------
+
+def holdout_report(y_true: Any, probs: Any,
+                   classes: Optional[Sequence[Any]] = None) -> Dict[str, Any]:
+    """Held-out metrics, with the confusion matrix they were derived from.
+
+    Torch-free, so both the classical-ML round here and
+    :func:`spacr.deep_spacr.held_out_report` can use one implementation and
+    a model card written by either says the same thing in the same shape.
+
+    Every derived figure is exactly the standard function of the matrix —
+    ``accuracy = trace / total``, ``per_class[c] = M[c, c] / M[c, :].sum()``
+    — so a reader can recompute the card rather than trust it.
+
+    :param y_true: integer class ids, shape ``(N,)``.
+    :param probs: ``(N,)`` positive-class probabilities, or ``(N, C)`` rows.
+    :param classes: class names in head order.
+    :returns: ``n``, ``num_classes``, ``classes``, ``accuracy``,
+        ``f1_macro``, ``per_class_accuracy``, ``class_support``,
+        ``predicted_support``, ``confusion_matrix``.
+    """
+    y_true = np.asarray(y_true, dtype=int).reshape(-1)
+    matrix_in = np.asarray(probs, dtype=float)
+    if matrix_in.ndim == 1:
+        matrix_in = np.column_stack([1.0 - matrix_in, matrix_in])
+    elif matrix_in.ndim == 2 and matrix_in.shape[1] == 1:
+        col = matrix_in[:, 0]
+        matrix_in = np.column_stack([1.0 - col, col])
+    n_classes = int(matrix_in.shape[1]) if matrix_in.size else \
+        int(max(2, (y_true.max() + 1) if y_true.size else 2))
+    preds = (matrix_in.argmax(axis=1).astype(int) if matrix_in.size
+             else np.zeros(0, dtype=int))
+
+    matrix = np.zeros((n_classes, n_classes), dtype=np.int64)
+    if y_true.size:
+        inside = (y_true >= 0) & (y_true < n_classes)
+        np.add.at(matrix, (y_true[inside], preds[inside]), 1)
+    row_sums = matrix.sum(axis=1)
+    per_class = np.where(row_sums > 0,
+                         np.diag(matrix) / np.maximum(row_sums, 1), 0.0)
+    total = int(matrix.sum())
+
+    # Macro F1 straight off the matrix — no sklearn import on this path, and
+    # the number is then provably the same function of the matrix as the
+    # accuracy beside it.
+    col_sums = matrix.sum(axis=0)
+    diag = np.diag(matrix).astype(float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        precision = np.where(col_sums > 0, diag / np.maximum(col_sums, 1), 0.0)
+        recall = np.where(row_sums > 0, diag / np.maximum(row_sums, 1), 0.0)
+        f1 = np.where((precision + recall) > 0,
+                      2 * precision * recall / np.maximum(precision + recall, 1e-12),
+                      0.0)
+    present = row_sums + col_sums > 0
+    f1_macro = float(f1[present].mean()) if present.any() else float("nan")
+
+    names = ([str(c) for c in classes] if classes is not None
+             and len(classes) == n_classes
+             else [f"class_{i}" for i in range(n_classes)])
+    return {
+        "n": int(len(y_true)),
+        "num_classes": n_classes,
+        "classes": names,
+        "accuracy": (float(np.trace(matrix)) / total) if total else float("nan"),
+        "f1_macro": f1_macro,
+        "per_class_accuracy": [float(v) for v in per_class],
+        "class_support": [int(v) for v in row_sums],
+        "predicted_support": [int(v) for v in col_sums],
+        "confusion_matrix": [[int(v) for v in row] for row in matrix],
+    }
+
+
+#: What ``group_by`` accepts, and the columns each strategy groups over.
+_SPLIT_GROUPS: Dict[str, Tuple[str, ...]] = {
+    "well": ("plateID", "rowID", "columnID"),
+    "plate": ("plateID",),
+    "field": ("plateID", "rowID", "columnID", "fieldID"),
+    "none": (),
+}
+
+
+def _grouped_split(groups: np.ndarray, labels: np.ndarray, holdout: float,
+                   seed: int, notes: List[str]) -> Tuple[np.ndarray, np.ndarray, str]:
+    """Draw a held-out set that does not share a well with the training set.
+
+    The default random split is the reason active-learning accuracy numbers
+    are usually too good: with 190 of 200 labels from one well, a random 20 %
+    holds out objects whose near neighbours are in the training set, and the
+    model is scored on memorising a field of view.
+
+    :returns: ``(train_index, test_index, rule)`` — ``rule`` is the sentence
+        that goes into the model card.
+    """
+    from sklearn.model_selection import (GroupShuffleSplit,
+                                         StratifiedGroupKFold,
+                                         train_test_split)
+
+    n = len(labels)
+    distinct = np.unique(groups) if len(groups) else np.zeros(0)
+    frac = min(max(float(holdout), 0.05), 0.5)
+
+    if len(distinct) < 2:
+        where = distinct[0] if len(distinct) else "(unknown)"
+        notes.append(
+            f"Every label comes from one group ({where}), so a grouped "
+            f"held-out split is impossible. Falling back to a stratified "
+            f"random split of objects, whose accuracy will be optimistic — "
+            f"it measures how well the model memorised this one well, not "
+            f"whether it transfers.")
+        train_idx, test_idx = train_test_split(
+            np.arange(n), test_size=frac, random_state=seed,
+            stratify=labels if len(np.unique(labels)) > 1 else None)
+        return (np.sort(train_idx), np.sort(test_idx),
+                f"stratified random {frac:.0%} of objects — NOT grouped, "
+                f"because all labels came from {where}")
+
+    n_splits = int(max(2, min(round(1.0 / frac), len(distinct))))
+    try:
+        splitter = StratifiedGroupKFold(n_splits=n_splits, shuffle=True,
+                                        random_state=seed)
+        for train_idx, test_idx in splitter.split(np.zeros((n, 1)), labels,
+                                                  groups):
+            if len(np.unique(labels[test_idx])) >= 2:
+                return (np.sort(train_idx), np.sort(test_idx),
+                        f"StratifiedGroupKFold({n_splits}) over "
+                        f"{len(distinct)} groups — no group appears on both "
+                        f"sides")
+        notes.append(
+            "No stratified grouped fold contained more than one class in the "
+            "held-out half; falling back to GroupShuffleSplit, so the "
+            "held-out class balance is whatever the groups happened to give.")
+    except ValueError as exc:
+        notes.append(f"StratifiedGroupKFold could not split these labels "
+                     f"({exc}); falling back to GroupShuffleSplit.")
+
+    splitter = GroupShuffleSplit(n_splits=1, test_size=frac,
+                                 random_state=seed)
+    train_idx, test_idx = next(iter(splitter.split(np.zeros((n, 1)), labels,
+                                                   groups)))
+    return (np.sort(train_idx), np.sort(test_idx),
+            f"GroupShuffleSplit({frac:.0%}) over {len(distinct)} groups — no "
+            f"group appears on both sides")
+
+
+def round_features(db_path: str, table: str = PNG_TABLE,
+                   key: str = PNG_KEY,
+                   tables: Sequence[str] = ("cell", "nucleus", "pathogen",
+                                            "cytoplasm"),
+                   nuclei_limit: int = 10,
+                   pathogen_limit: int = 10) -> pd.DataFrame:
+    """The measurement features for every crop, indexed by ``png_path``.
+
+    The feature matrix an in-screen retrain fits on. Measurement features
+    rather than pixels on purpose: the point of retraining from inside
+    Annotate is to get a fresh ranking in seconds, on the machine the
+    annotator is sitting at, without a GPU and without leaving the screen.
+    A CNN retrain is the right thing to do at the *end* of the loop, not
+    between two pages of crops.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: crop table carrying ``png_path`` and ``prcfo``.
+    :param key: the crop key column.
+    :param tables: object tables to merge features from; missing ones are
+        skipped.
+    :param nuclei_limit: passed through to :func:`spacr.io._read_and_merge_data`.
+    :param pathogen_limit: likewise.
+    :returns: numeric features indexed by ``png_path``.
+    :raises ValueError: when no object table with features could be read.
+    """
+    from .io import _read_and_merge_data, _read_db
+
+    con = _connect(db_path)
+    try:
+        columns = _table_columns(con, table, db_path)
+        if "prcfo" not in columns:
+            raise ValueError(
+                f"{table!r} has no 'prcfo' column, so a crop cannot be matched "
+                f"to its measurements. Re-run Measure with save_png=True.")
+        rows = con.execute(
+            f"SELECT {_quote_ident(key)}, \"prcfo\" FROM {_quote_ident(table)}"
+        ).fetchall()
+        available = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type IN ('table','view')"
+        ).fetchall()}
+    finally:
+        con.close()
+
+    wanted = [t for t in tables if t in available]
+    if not wanted:
+        raise ValueError(
+            f"{os.path.basename(str(db_path))} has none of the object tables "
+            f"{', '.join(tables)}, so there are no features to fit on. Run "
+            f"Measure first, or pass features= explicitly.")
+
+    merged, _ = _read_and_merge_data([str(db_path)], wanted, False,
+                                     nuclei_limit=nuclei_limit,
+                                     pathogen_limit=pathogen_limit)
+    crops = pd.DataFrame(rows, columns=[key, "prcfo"]).dropna(subset=["prcfo"])
+    numeric = merged.select_dtypes(include=[np.number])
+    joined = crops.join(numeric, on="prcfo", how="inner")
+    return joined.drop(columns=["prcfo"]).set_index(key)
+
+
+class RoundResult:
+    """What one retrain round produced.
+
+    :param round_index: the round number recorded.
+    :param n_labels: labels the model was fitted on.
+    :param n_new_labels: labels added since the previous round.
+    :param report: the :func:`holdout_report` for this round.
+    :param split_rule: how the held-out set was drawn, in words.
+    :param scored: how many crops were re-scored in the database.
+    :param score_columns: the columns written back.
+    :param model_path: where the fitted model was saved, if it was.
+    :param card_path: the model card beside it, if one was written.
+    :param verdict: the :class:`StoppingVerdict` after this round.
+    :param notes: anything the round wants the annotator to know.
+    """
+
+    __slots__ = ("round_index", "n_labels", "n_new_labels", "report",
+                 "split_rule", "scored", "score_columns", "model_path",
+                 "card_path", "verdict", "notes", "classes", "model_type")
+
+    def __init__(self, **fields: Any):
+        for name in self.__slots__:
+            setattr(self, name, fields.get(name))
+        self.notes = list(self.notes or [])
+        self.score_columns = list(self.score_columns or [])
+        self.report = dict(self.report or {})
+
+    @property
+    def accuracy(self) -> float:
+        """Held-out accuracy of this round."""
+        return float(self.report.get("accuracy", float("nan")))
+
+    @property
+    def per_class(self) -> Dict[str, float]:
+        """``{class name: held-out accuracy}`` for this round."""
+        names = self.report.get("classes") or []
+        accs = self.report.get("per_class_accuracy") or []
+        return {str(names[i]) if i < len(names) else f"class_{i}": float(a)
+                for i, a in enumerate(accs)}
+
+    def __repr__(self) -> str:
+        return (f"RoundResult(round={self.round_index!r}, "
+                f"n_labels={self.n_labels!r}, accuracy={self.accuracy:.4f})")
+
+    def summary(self) -> str:
+        """One paragraph: the round, its numbers and what to do next."""
+        lines = [f"Round {self.round_index}: fitted on {self.n_labels} labels "
+                 f"({self.n_new_labels} new), held out "
+                 f"{self.report.get('n', 0)}."]
+        lines.append(f"Split: {self.split_rule}")
+        lines.append(f"Held-out accuracy {self.accuracy:.3f} · macro-F1 "
+                     f"{float(self.report.get('f1_macro', float('nan'))):.3f}")
+        per_class = self.per_class
+        if per_class:
+            lines.append("Per class: " + " · ".join(
+                f"{k} {v:.3f}" for k, v in per_class.items()))
+            worst = min(per_class, key=per_class.get)
+            if per_class[worst] < 0.6:
+                lines.append(
+                    f"Weakest class is {worst} at {per_class[worst]:.3f} — the "
+                    f"aggregate above is not describing it.")
+        lines.append(f"Re-scored {self.scored} crops into "
+                     f"{', '.join(self.score_columns) or 'nothing'}; the queue "
+                     f"re-ranks on the next rebuild.")
+        if self.verdict is not None:
+            lines.append(("STOP — " if self.verdict.stop else "CONTINUE — ")
+                         + self.verdict.reason)
+        for note in self.notes:
+            lines.append(f"! {note}")
+        return "\n".join(lines)
+
+
+def retrain_round(db_path: str, annotation_column: str = "annotate", *,
+                  features: Optional[pd.DataFrame] = None,
+                  model_type: str = "logistic_regression",
+                  group_by: str = "well", holdout: float = 0.25,
+                  seed: int = 0, min_labels: int = 8,
+                  round_index: Optional[int] = None,
+                  table: str = PNG_TABLE, key: str = PNG_KEY,
+                  image_type: Optional[str] = None,
+                  write_scores: bool = True, save_model: bool = True,
+                  model_dir: Optional[str] = None,
+                  write_card: bool = True,
+                  label_window: int = 50,
+                  min_gain: float = 0.003,
+                  measure: Any = DEFAULT_MEASURE,
+                  diversity: Any = "well") -> RoundResult:
+    """Fit a model on the labels so far, score every crop, close the loop.
+
+    This is the half of active learning that has been missing: the queue put
+    the informative crops in front of the annotator, and then nothing
+    happened. Annotating without retraining is not active learning — it is
+    ordinary annotation in a clever order, and the order goes stale after the
+    first few dozen labels because it still reflects a model that has not
+    seen any of them.
+
+    One call does all five things the loop needs:
+
+    1. fits a model on every label in ``annotation_column``;
+    2. scores it on a **grouped** held-out split, so the number is not an
+       artefact of 190 labels coming from one well;
+    3. writes per-class probabilities back into ``png_list`` as
+       :data:`ROUND_PRED_PREFIX` columns, which :func:`build_queue` prefers
+       over the older ``pred`` — so the next queue is genuinely re-ranked;
+    4. records the round, giving :func:`learning_curve` another point;
+    5. returns the :class:`StoppingVerdict` for the curve so far.
+
+    :param db_path: path to ``measurements.db``.
+    :param annotation_column: the column holding the labels.
+    :param features: feature matrix indexed by the crop key. Omitted, it is
+        read from the measurement tables with :func:`round_features`.
+    :param model_type: ``'logistic_regression'`` (default — it is the one
+        that behaves at 20 labels), ``'random_forest'`` or
+        ``'gradient_boosting'``.
+    :param group_by: ``'well'`` (default), ``'plate'``, ``'field'`` or
+        ``'none'``. What the held-out split refuses to share.
+    :param holdout: fraction held out.
+    :param seed: makes the split and the fit reproducible.
+    :param min_labels: refuse to fit below this many labels.
+    :param round_index: override the round number; defaults to
+        :func:`next_round`.
+    :param table: crop table.
+    :param key: crop key column.
+    :param image_type: substring filter on the crop key.
+    :param write_scores: write the new probabilities back into the database.
+    :param save_model: joblib-dump the fitted model beside the database.
+    :param model_dir: where to put it; defaults to ``<db dir>/active_learning``.
+    :param write_card: write a model card beside the saved model.
+    :param label_window: passed to :func:`should_stop`.
+    :param min_gain: passed to :func:`should_stop`.
+    :param measure: recorded with the round, for the queue that follows.
+    :param diversity: likewise.
+    :returns: a :class:`RoundResult`.
+    :raises ValueError: below ``min_labels`` labels, or with fewer than two
+        classes annotated — neither is something to paper over with a model
+        that will produce a confident-looking ranking out of nothing.
+    """
+    notes: List[str] = []
+
+    con = _connect(db_path)
+    try:
+        columns = _table_columns(con, table, db_path)
+        if annotation_column not in columns:
+            raise ValueError(
+                f"{table!r} has no {annotation_column!r} column — there are no "
+                f"labels to retrain on yet.")
+        meta = [c for c in ("plateID", "rowID", "columnID", "fieldID")
+                if c in columns]
+        select = list(dict.fromkeys([key, annotation_column] + meta))
+        rows = con.execute(
+            f"SELECT {', '.join(_quote_ident(c) for c in select)} "
+            f"FROM {_quote_ident(table)}").fetchall()
+    finally:
+        con.close()
+
+    crops = pd.DataFrame(rows, columns=select)
+    if image_type:
+        crops = crops[crops[key].astype(str).str.contains(
+            str(image_type), regex=False)]
+    crops = crops.set_index(key)
+    # A database measured with more than one crop_mode holds several rows per
+    # prcfo. A duplicated key here fans the feature join out, so the label
+    # vector and the feature matrix stop lining up row for row and the model
+    # is fitted against the wrong labels — silently, with a plausible score.
+    crops = crops.loc[~crops.index.duplicated(keep="first")]
+
+    if features is None:
+        features = round_features(db_path, table=table, key=key)
+    features = features.select_dtypes(include=[np.number])
+    features = features.loc[~features.index.duplicated(keep="first")]
+    shared = crops.index.intersection(features.index)
+    if not len(shared):
+        raise ValueError(
+            f"No crop in {table} has a row in the feature matrix, so nothing "
+            f"can be fitted. Check that Measure and the crop export ran over "
+            f"the same objects.")
+    crops = crops.loc[shared]
+    matrix = features.loc[shared]
+
+    labelled_mask = crops[annotation_column].notna()
+    n_labels = int(labelled_mask.sum())
+    if n_labels < int(min_labels):
+        raise ValueError(
+            f"Only {n_labels} labels in {annotation_column!r} (need at least "
+            f"{int(min_labels)}). A model fitted on fewer will still emit a "
+            f"confident-looking ranking, and it will be noise.")
+
+    raw_labels = crops.loc[labelled_mask, annotation_column].to_numpy()
+    class_values = sorted({_class_value(v) for v in raw_labels})
+    if len(class_values) < 2:
+        raise ValueError(
+            f"Every label in {annotation_column!r} is class "
+            f"{class_values[0] if class_values else 'none'}. A classifier "
+            f"needs at least two classes; keep annotating until the other "
+            f"one appears.")
+    class_index = {value: i for i, value in enumerate(class_values)}
+    y = np.array([class_index[_class_value(v)] for v in raw_labels], dtype=int)
+
+    train_matrix = matrix.loc[labelled_mask.to_numpy()]
+    x = np.nan_to_num(train_matrix.to_numpy(dtype=float), nan=0.0,
+                      posinf=0.0, neginf=0.0)
+
+    group_cols = [c for c in _SPLIT_GROUPS.get(str(group_by), ())
+                  if c in crops.columns]
+    if str(group_by) != "none" and not group_cols:
+        notes.append(
+            f"{table} carries none of the columns needed to group by "
+            f"{group_by!r}, so the held-out split is a plain random one and "
+            f"its accuracy is optimistic.")
+    groups = (crops.loc[labelled_mask, group_cols].astype(str)
+              .apply("/".join, axis=1).to_numpy()
+              if group_cols else np.arange(n_labels).astype(str))
+
+    train_idx, test_idx, split_rule = _grouped_split(
+        groups, y, holdout, int(seed), notes)
+
+    model = _build_round_model(model_type, int(seed), len(class_values))
+    model.fit(x[train_idx], y[train_idx])
+    test_probs = _predict_proba(model, x[test_idx], len(class_values))
+    report = holdout_report(y[test_idx], test_probs,
+                            [str(v) for v in class_values])
+
+    all_x = np.nan_to_num(matrix.to_numpy(dtype=float), nan=0.0,
+                          posinf=0.0, neginf=0.0)
+    all_probs = _predict_proba(model, all_x, len(class_values))
+
+    if round_index is None:
+        round_index = next_round(db_path, annotation_column)
+    previous = learning_curve(db_path, annotation_column)
+    prior_labels = (int(previous["n_labels"].iloc[-1]) if len(previous)
+                    else 0)
+    n_new = max(0, n_labels - prior_labels)
+
+    score_columns: List[str] = []
+    scored = 0
+    if write_scores:
+        score_columns = [f"{ROUND_PRED_PREFIX}{i}"
+                         for i in range(len(class_values))]
+        scored = _write_round_scores(db_path, matrix.index, all_probs,
+                                     score_columns, table=table, key=key)
+
+    model_path = ""
+    card_path = ""
+    if save_model:
+        target_dir = model_dir or os.path.join(
+            os.path.dirname(os.path.abspath(str(db_path))), "active_learning")
+        os.makedirs(target_dir, exist_ok=True)
+        model_path = os.path.join(
+            target_dir, f"round_{int(round_index):03d}_{model_type}.joblib")
+        try:
+            import joblib
+            joblib.dump({"model": model, "classes": class_values,
+                         "features": list(matrix.columns)}, model_path)
+        except Exception as exc:
+            notes.append(f"Could not save the round model ({exc}).")
+            model_path = ""
+        if model_path and write_card:
+            card_path = _write_round_card(
+                model_path, report, split_rule, round_index,
+                annotation_column, db_path, class_values, matrix.columns,
+                model_type, n_labels, n_new, notes)
+
+    per_class = {str(name): float(acc) for name, acc in
+                 zip(report["classes"], report["per_class_accuracy"])}
+    record_round(db_path, annotation_column, int(round_index),
+                 n_labels=n_labels, n_new_labels=n_new,
+                 n_holdout=report["n"],
+                 holdout_accuracy=report["accuracy"],
+                 holdout_f1_macro=report["f1_macro"],
+                 per_class=per_class, split_rule=split_rule,
+                 model_type=model_type, model_path=model_path,
+                 card_path=card_path,
+                 measure=str(measure), diversity=str(diversity),
+                 notes=notes)
+
+    verdict = should_stop(learning_curve(db_path, annotation_column),
+                          label_window=label_window, min_gain=min_gain)
+    return RoundResult(round_index=int(round_index), n_labels=n_labels,
+                       n_new_labels=n_new, report=report,
+                       split_rule=split_rule, scored=scored,
+                       score_columns=score_columns, model_path=model_path,
+                       card_path=card_path, verdict=verdict, notes=notes,
+                       classes=[str(v) for v in class_values],
+                       model_type=model_type)
+
+
+def _class_value(value: Any) -> Any:
+    """``1.0`` and ``1`` are one class; normalise to int where possible."""
+    if isinstance(value, float) and float(value).is_integer():
+        return int(value)
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    return value
+
+
+def _build_round_model(model_type: str, seed: int, n_classes: int):
+    """The estimator a round fits. Small-data-first, no torch, no GPU."""
+    name = str(model_type).lower().replace("-", "_")
+    if name in ("logistic_regression", "logistic", "lr"):
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import StandardScaler
+        # Scaled, because measurement features span areas in the thousands
+        # and intensities in the fractions, and an unscaled linear model on
+        # that is a model of whichever column has the biggest units.
+        return Pipeline([
+            ("scale", StandardScaler()),
+            ("model", LogisticRegression(max_iter=2000, random_state=seed,
+                                         class_weight="balanced")),
+        ])
+    if name in ("random_forest", "rf"):
+        from sklearn.ensemble import RandomForestClassifier
+        return RandomForestClassifier(n_estimators=300, random_state=seed,
+                                      n_jobs=-1, class_weight="balanced")
+    if name in ("gradient_boosting", "hist_gradient_boosting", "gb"):
+        from sklearn.ensemble import HistGradientBoostingClassifier
+        return HistGradientBoostingClassifier(random_state=seed)
+    raise ValueError(
+        f"Unknown model_type {model_type!r}; use 'logistic_regression', "
+        f"'random_forest' or 'gradient_boosting'.")
+
+
+def _predict_proba(model: Any, x: np.ndarray, n_classes: int) -> np.ndarray:
+    """``(N, n_classes)`` probabilities, padding classes the fit never saw.
+
+    A fold that happened to contain only two of three classes leaves an
+    estimator whose ``predict_proba`` has two columns. Returning that
+    unpadded would silently renumber the classes downstream — the queue
+    would call class 2 "class 1" — so the missing columns are filled with
+    zeros in the right places instead.
+    """
+    if not len(x):
+        return np.zeros((0, n_classes))
+    probs = np.asarray(model.predict_proba(x), dtype=float)
+    seen = np.asarray(getattr(model, "classes_", np.arange(probs.shape[1])),
+                      dtype=int)
+    if probs.shape[1] == n_classes and np.array_equal(seen,
+                                                      np.arange(n_classes)):
+        return probs
+    out = np.zeros((probs.shape[0], n_classes), dtype=float)
+    for column, class_id in enumerate(seen):
+        if 0 <= int(class_id) < n_classes:
+            out[:, int(class_id)] = probs[:, column]
+    return out
+
+
+def _write_round_scores(db_path: str, keys: Any, probs: np.ndarray,
+                        columns: Sequence[str], table: str = PNG_TABLE,
+                        key: str = PNG_KEY) -> int:
+    """Write per-class probabilities back into ``table``; rows updated.
+
+    Goes through :func:`spacr.predictions.merge_prediction_results`, which
+    already knows that ``png_list`` has a real column called ``rowID`` that
+    shadows SQLite's ``rowid`` — the exact trap a hand-rolled UPDATE here
+    would fall into.
+    """
+    from .predictions import merge_prediction_results
+
+    frame = pd.DataFrame(np.asarray(probs, dtype=float),
+                         columns=list(columns))
+    frame[key] = list(keys)
+    report = merge_prediction_results(
+        frame, db_path, {c: (c, "REAL") for c in columns},
+        table=table, key=key, verbose=False)
+    return int(getattr(report, "matched_rows", 0) or 0)
+
+
+def _write_round_card(model_path: str, report: Dict[str, Any],
+                      split_rule: str, round_index: int,
+                      annotation_column: str, db_path: str,
+                      class_values: Sequence[Any], feature_columns: Any,
+                      model_type: str, n_labels: int, n_new: int,
+                      notes: List[str]) -> str:
+    """Write the model card for one round's model. Never fatal."""
+    try:
+        from .deep_spacr import model_card
+        coverage = annotation_coverage(db_path, annotation_column)
+        coverage_meta = dict(
+            coverage.attrs.get("spacr_annotation_coverage", {}))
+        card, card_path, _artifact = model_card(
+            model_path,
+            settings={"annotation_column": annotation_column,
+                      "model_type": model_type, "round": int(round_index),
+                      "db_path": str(db_path)},
+            classes=[str(v) for v in class_values],
+            split_rule=split_rule,
+            held_out=report,
+            class_balance={"annotated": coverage_meta.get("by_class", {})},
+            dataset_src=os.path.dirname(os.path.abspath(str(db_path))),
+            module="active_learning",
+            extra={
+                "round": int(round_index),
+                "n_labels": int(n_labels),
+                "n_new_labels": int(n_new),
+                "n_features": int(len(list(feature_columns))),
+                "annotation_coverage": {
+                    k: coverage_meta.get(k) for k in
+                    ("by_class", "by_plate", "by_well", "by_round",
+                     "concentration", "wells_annotated", "plates_annotated")},
+            },
+        )
+        return card_path
+    except Exception as exc:
+        notes.append(f"Round model card could not be written ({exc}).")
+        return ""
