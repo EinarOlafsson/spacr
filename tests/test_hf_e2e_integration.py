@@ -91,11 +91,32 @@ def _make_stub_dataset(dst: Path) -> Path:
     return plate
 
 
+#: What each stage's settings file is actually CALLED in the
+#: ``einarolafsson/spacr_settings`` pack. This used to be derived as
+#: ``f"{app_key}_settings.csv"``, and the pack has never shipped a file by
+#: either of those names — so ``_load_settings_for`` found nothing, silently
+#: fell back to ``resolve_default_settings``, and the mask stage refused with
+#: "at least one of cell_channel / nucleus_channel / pathogen_channel /
+#: organelle_channel must be set" because the defaults name no channel. A
+#: whole E2E chain was running on defaults and nobody could see it, because
+#: the lookup was a miss rather than an error. The names are asserted below
+#: instead of guessed, so a rename in the pack says so.
+_PACK_CSV = {
+    "mask": "gen_masks_settings.csv",
+    "measure": "crop_measure_settings.csv",
+}
+
+
 def _make_stub_settings(dst: Path) -> Path:
-    """Emit minimal settings CSVs mirroring the HF settings pack."""
+    """Emit minimal settings CSVs mirroring the HF settings pack.
+
+    Same file names as the pack, including its ``Key,Value`` header row, so
+    stub mode exercises the same lookup the real mode does.
+    """
     settings = dst / "settings"; settings.mkdir(parents=True,
                                                     exist_ok=True)
-    (settings / "mask_settings.csv").write_text(
+    (settings / _PACK_CSV["mask"]).write_text(
+        "Key,Value\n"
         "src,\n"
         "metadata_type,cellvoyager\n"
         "channels,\"[0, 1, 2]\"\n"
@@ -105,11 +126,12 @@ def _make_stub_settings(dst: Path) -> Path:
         "test_mode,false\n"
         "batch_size,2\n"
     )
-    (settings / "measure_settings.csv").write_text(
+    (settings / _PACK_CSV["measure"]).write_text(
+        "Key,Value\n"
         "src,\n"
         "plot,false\n"
     )
-    (settings / "annotate_settings.csv").write_text("src,\n")
+    (settings / "annotate_settings.csv").write_text("Key,Value\nsrc,\n")
     return settings
 
 
@@ -144,27 +166,41 @@ def _prepared_workspace(tmp_path_factory):
 
 def _load_settings_for(app_key: str,
                           settings_root: Path, src: Path) -> dict:
+    import ast
+
     from spacr.qt.screens.settings_model import resolve_default_settings
     settings = dict(resolve_default_settings(app_key))
-    csv = settings_root / f"{app_key}_settings.csv"
-    if csv.is_file():
-        import csv as _csv
-        with csv.open() as fh:
-            for row in _csv.reader(fh):
-                if not row or row[0].startswith("#") or len(row) < 2:
-                    continue
-                k, v = row[0].strip(), row[1]
-                if v.lower() in ("true", "false"):
-                    v = v.lower() == "true"
-                else:
+    csv = settings_root / _PACK_CSV[app_key]
+    assert csv.is_file(), (
+        f"the settings pack has no {csv.name}; the chain below would run on "
+        f"resolve_default_settings({app_key!r}) alone and prove nothing. "
+        f"What it does ship: "
+        f"{sorted(p.name for p in settings_root.glob('*.csv'))}")
+    import csv as _csv
+    with csv.open() as fh:
+        for row in _csv.reader(fh):
+            if not row or row[0].startswith("#") or len(row) < 2:
+                continue
+            k, v = row[0].strip(), row[1]
+            if k == "Key":                      # the pack's header row
+                continue
+            if v.lower() in ("true", "false"):
+                v = v.lower() == "true"
+            else:
+                try:
+                    v = int(v)
+                except ValueError:
                     try:
-                        v = int(v)
+                        v = float(v)
                     except ValueError:
+                        # `channels,"[0, 1, 2, 3]"` and `png_dims,"[0, 2, 3]"`
+                        # are lists on the page and were being handed to the
+                        # pipeline as the string "[0, 1, 2, 3]".
                         try:
-                            v = float(v)
-                        except ValueError:
+                            v = ast.literal_eval(v)
+                        except (ValueError, SyntaxError):
                             pass
-                settings[k] = v
+            settings[k] = v
     settings["src"] = str(src)
     return settings
 
