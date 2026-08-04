@@ -556,12 +556,30 @@ def registry_sandbox():
     A leaked row is a leaked tile, a leaked sidebar button and a leaked
     keyboard binding for every test that runs afterwards, so the list object is
     restored in place rather than trusting an unregister call.
+
+    It also rolls Tabulate's key FORWARD to "not registered" on the way in.
+    ``spacr.qt.app._SELF_REGISTERING_APPS`` now carries
+    ``spacr.qt.screens.tabulate``, and that list runs at ``spacr.qt.app``
+    IMPORT time — so by the time this fixture is built the row is already
+    there and ``register()`` would answer False on its first call, making the
+    test below an assertion about import order rather than about the seam.
+    Clearing the one key first makes the drive genuine; the wholesale restore
+    afterwards puts back whatever was there.
     """
     from spacr.qt import app as app_mod
+    from spacr.qt.screens import tabulate as screen_module
     apps = list(app_mod.APPS)
     factories = dict(app_mod.APP_FACTORIES)
     stages = dict(app_mod.APP_STAGE)
     meta = dict(app_mod.APP_META)
+
+    for row in [r for r in app_mod.APPS if r[0] == screen_module.APP_KEY]:
+        app_mod.APPS.remove(row)
+    app_mod.APP_FACTORIES.pop(screen_module.APP_KEY, None)
+    app_mod.APP_STAGE.pop(screen_module.APP_KEY, None)
+    app_mod.APP_META.pop(screen_module.APP_KEY, None)
+    app_mod._refresh_sections()
+
     yield app_mod
     app_mod.APPS[:] = apps
     app_mod.APP_FACTORIES.clear()
@@ -573,12 +591,25 @@ def registry_sandbox():
     app_mod._refresh_sections()
 
 
-def test_the_screen_is_not_registered_until_app_py_says_so(qtbot):
-    """One row in app.py's `_SELF_REGISTERING_APPS` turns it on; not this file."""
-    from spacr.qt.app import APPS
+def test_app_py_says_so_and_importing_it_registers_the_screen(qtbot):
+    """Inverted 2026-08-04. This used to read "the screen is NOT registered
+    until app.py says so" and assert the row was absent, because Tabulate was
+    held back while Explore sat at the ``MAX_APPS_PER_SECTION`` ceiling.
+
+    Explore is under the ceiling now and app.py's ``_SELF_REGISTERING_APPS``
+    carries ``spacr.qt.screens.tabulate``, so importing ``spacr.qt.app``
+    registers it — which is the whole point of that list. Left as it was, this
+    test pinned a finished, tested screen as switched off, which is exactly
+    how the screen stayed invisible for a fortnight in the first place.
+    """
+    from spacr.qt import app as app_mod
     from spacr.qt.screens import tabulate as screen
 
-    assert not any(row[0] == screen.APP_KEY for row in APPS)
+    assert ("spacr.qt.screens.tabulate", "register") in \
+        app_mod._SELF_REGISTERING_APPS
+    assert any(row[0] == screen.APP_KEY for row in app_mod.APPS), (
+        "importing spacr.qt.app no longer registers Tabulate; the screen has "
+        "no tile again")
     qtbot.addWidget(screen.make_tabulate_screen())
 
 
