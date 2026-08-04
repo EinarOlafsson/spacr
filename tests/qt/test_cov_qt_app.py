@@ -220,6 +220,12 @@ EXPECTED_SECTIONS = {
     # Two runs of the same project read against each other is a reading of
     # what a finished run produced, which is what this section is.
     "run_compare":     SECTION_RESULTS,
+    # The "hand it on" pair, and Results & QC rather than Explore because
+    # neither asks the data anything new: the Hit List is the ranked table
+    # a screen produced, and Methods & Results is that run written up. Both
+    # read a finished run rather than interrogating it.
+    "hit_list":        SECTION_RESULTS,
+    "methods_export":  SECTION_RESULTS,
     # Explore's first two. The section was declared and empty until they
     # registered -- "page through image layers" is the example in its own
     # definition, and the Graph Builder family is what it was named for.
@@ -235,6 +241,14 @@ EXPECTED_SECTIONS = {
     # Explore's fifth: what is inside what. The cell_id links have been in
     # the database since the first Measure run and had no view.
     "lineage":         SECTION_EXPLORE,
+    # Explore's sixth and seventh, and both are Explore for the section's
+    # own reason -- they ask a question of what a run left behind rather
+    # than reporting it. Pipeline Graph asks "does this output still follow
+    # from its inputs"; the Prediction Profiler moves one input of a fitted
+    # model and watches the prediction move. Neither has a report to show
+    # you if you do not ask.
+    "pipeline_graph":  SECTION_EXPLORE,
+    "profiler":        SECTION_EXPLORE,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
@@ -263,6 +277,8 @@ EXPECTED_STAGES = {
     "data_manager": "alpha",
     "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
     "image_scatter": "alpha", "lineage": "alpha", "curate": "alpha",
+    "hit_list": "alpha", "methods_export": "alpha",
+    "pipeline_graph": "alpha", "profiler": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -281,14 +297,18 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Twenty-five alpha, nine beta, eight stable -- Illumination, Barcode
-    QC, Layer Viewer and Graph Builder each arrived alpha, and so do
-    Power / Design, AnnData Export and Run Compare, which is what
-    "built and reachable, not yet trusted end to end" means for a
-    feature whose first users are reading this sentence. Signing an app
-    off is deleting a line from ``APP_STAGE`` and from here; nothing
-    else moves, which is the whole point of maturity not being a
-    section."""
+    Thirty-two alpha, nine beta, eight stable. The alpha column is the
+    one that keeps growing and the beta and stable columns have not
+    moved in a long time, which is the true shape of this project: an
+    app arrives "built and reachable, not yet trusted end to end", and
+    only use promotes it. Illumination, Barcode QC, Layer Viewer and
+    Graph Builder arrived that way; so did Power / Design, AnnData
+    Export and Run Compare; and so do the four here -- Hit List,
+    Methods & Results, Pipeline Graph and the Prediction Profiler.
+
+    Signing an app off is deleting a line from ``APP_STAGE`` and from
+    here; nothing else moves, which is the whole point of maturity not
+    being a section."""
     actual = {key: app_stage(key) for key, *_r in APPS}
     expected = {key: EXPECTED_STAGES.get(key, "stable")
                 for key, *_r in APPS}
@@ -297,7 +317,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 28, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 32, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():

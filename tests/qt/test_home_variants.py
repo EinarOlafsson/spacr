@@ -315,6 +315,17 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     hold the registry, so slack cannot accumulate quietly, and raising it
     forces the four new apps to be filed rather than piled into the
     fallback band.
+
+    Curate and Lineage then took the registry to forty-nine and this went
+    red at "Report has 12", which is the failure working exactly as it was
+    written to: they had been piled into the fallback band rather than
+    filed. The cap did NOT move again and nothing left Report. Neither app
+    belonged there — fixing a mask by hand is producing a mask, and a
+    containment tree is a measurement — so they went to Segment and
+    Measure, the two bands that still had room. Forty-nine over five is
+    ten, so the floor below is met exactly with the cap where it was. A
+    fallback overflow is usually this: not a band that is too small, but a
+    key filed nowhere.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:

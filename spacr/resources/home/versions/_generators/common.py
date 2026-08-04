@@ -431,16 +431,26 @@ CATS_BROAD3 = _with_late_registrations([
 #:   variants, which is recorded in v02's own comment and in the
 #:   argument it prints.
 #:
-#: The cap was eight, which kept that to ONE wrapped row per band, and it
-#: is now NINE. Three more apps — Power / Design, AnnData Export and Run
-#: Compare — take the registry to forty-two, and forty-two into five bands
-#: is nine however they are shared out; there is no arrangement of five
-#: bands of eight that holds it. Nine is still one wrapped row (seven,
-#: then two) rather than a third, which is what the rule was ever about:
-#: the ceiling for "one wrapped row" is fourteen, and eight was simply the
-#: smallest number that fitted thirty-eight. Both alternatives are still
-#: refused for the reasons below — a sixth band breaks the five-column
-#: variants, a wider grid elides the names.
+#: The cap was eight, which kept that to ONE wrapped row per band, then
+#: nine, and it is now TEN. Each rise is the same arithmetic: the cap is
+#: the smallest number that can hold the registry over five bands, so
+#: forty-two apps forced nine and forty-nine force ten. Ten is still one
+#: wrapped row (seven, then three) rather than a third, which is what the
+#: rule was ever about: the ceiling for "one wrapped row" is fourteen, and
+#: each cap is simply the smallest number that fitted the registry of the
+#: day. Both alternatives are still refused for the reasons below — a
+#: sixth band breaks the five-column variants, a wider grid elides the
+#: names.
+#:
+#: Curate and Lineage arrived after the cap had already moved to ten and
+#: Report was already holding ten, so the fallback made Report twelve and
+#: the test went red. Nothing moved out of Report and the cap did not rise
+#: again: NEITHER app belonged in Report. Fixing a mask by hand is
+#: producing a mask (Segment, which had eight) and a containment tree is a
+#: measurement (Measure, which had nine). Forty-nine over five bands is
+#: 10/9/10/10/10, which is the floor exactly — that is what a fallback
+#: overflow usually means, that the band the key really belongs in still
+#: had room.
 #: ``test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row``
 #: is what makes the next app a decision rather than a silently squashed
 #: page, and it asserts the floor too, so a cap left loose after apps are
@@ -467,9 +477,14 @@ CATS_STAGE5 = _with_late_registrations([
                  "data_manager"]),
     # Layer Viewer is here because looking at a label mask over its image
     # is how a segmentation is judged; it is the eye on this band's work.
+    # Curate is the hand on it: Layer Viewer is where you see that a cell
+    # was split in two, and this is where you join it back up. Fixing a
+    # mask is producing a mask, so it is this band and not a later one —
+    # ``EXPECTED_SECTIONS`` files it under Core beside Mask and Timelapse
+    # on exactly that argument, and this is the second table agreeing.
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
                  "train_cellpose", "model_zoo", "model_compare",
-                 "layer_viewer"]),
+                 "layer_viewer", "curate"]),
     # Annotator Agreement moves here from Report, beside Annotate. It is
     # not a report on the screen, it is the check on the labelling step:
     # kappa between two annotation columns says whether the labels this
@@ -482,9 +497,16 @@ CATS_STAGE5 = _with_late_registrations([
     # each other with the object under the cursor beside them is how you
     # find out whether what was measured is what you meant to measure —
     # asked of the measurements, not of the screen they add up to.
+    # Lineage is here for the third turn of the same argument, and it is
+    # the strongest of the three: the cell → nucleus → pathogen tree is
+    # not derived from the measurements, it IS one of them. Measure is
+    # what writes the ``cell_id`` links, so the band that produced the
+    # relationship is the band that reads it. The fallback would have put
+    # it under Report, which is only where an uncategorised key lands —
+    # not an argument that a containment tree is a deliverable.
     ("Measure", ["measure", "annotate", "agreement", "motility",
-                 "image_scatter", "analyze_plaques", "recruitment",
-                 "invasion", "replication"]),
+                 "image_scatter", "lineage", "analyze_plaques",
+                 "recruitment", "invasion", "replication"]),
     # Barcode QC sits beside Map Barcodes and Regression because the
     # number it derives — the abundance threshold — is what the
     # regression consumes as fraction_threshold. It is part of analysing
