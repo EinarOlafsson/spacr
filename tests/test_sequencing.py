@@ -321,10 +321,9 @@ def test_generate_barecode_mapping_end_to_end(synth_illumina_reads,
         "test": False,
         "fill_na": False,
     }
-    try:
-        generate_barecode_mapping(settings)
-    except Exception as e:
-        pytest.skip(f"generate_barecode_mapping not runnable on fixtures: {e}")
+    # Unguarded: the fixtures above are built for exactly this call, so "not
+    # runnable on fixtures" could only ever mean spacr.sequencing had broken.
+    generate_barecode_mapping(settings)
     # The entry point must run end-to-end and emit its output artefacts
     # (the per-well count table + QC report). Barcode-recovery
     # CORRECTNESS is validated separately by the regex/consensus tests

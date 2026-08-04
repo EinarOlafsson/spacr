@@ -56,26 +56,40 @@ import pytest
 # ---------------------------------------------------------------------------
 
 def _require_gpu_stack():
-    try:
-        import torch
-    except Exception as e:
-        pytest.skip(f"torch unavailable: {e}")
+    # importorskip, not `except Exception`: "the package is not installed"
+    # raises ImportError and is an environment fact, while "the package is
+    # installed and detonates on import" is a bug and must fail here.
+    torch = pytest.importorskip("torch")
     if not torch.cuda.is_available():
         pytest.skip("no CUDA — full-pipeline E2E is GPU-only")
     for mod in ("cellpose", "xgboost", "shap"):
-        try:
-            __import__(mod)
-        except Exception as e:
-            pytest.skip(f"{mod} unavailable: {e}")
+        pytest.importorskip(mod)
 
 
 # ---------------------------------------------------------------------------
 # Synthetic 4-channel plate
 # ---------------------------------------------------------------------------
 
+#: Four wells, two fields each -- the same 32 images the plate always had,
+#: redistributed. Two wells was not enough for the pipeline to reach stage 4:
+#: ``generate_training_dataset`` splits train/test by WELL (correctly -- crops
+#: from one well on both sides of that boundary is the leakage spaCR now
+#: refuses), so a two-well plate put A01 entirely in train and A02 entirely in
+#: test, and the further train/val split inside ``generate_loaders`` was then
+#: looking at a single well. ``make_validation_holdout`` refuses that with
+#: "A leakage-safe validation split needs at least two distinct groups", which
+#: is right: you cannot hold out a group when there is only one.
+#:
+#: A leakage-safe three-way split therefore needs at least three wells -- one
+#: for test, two for train/val. Four keeps the arithmetic comfortable. This was
+#: invisible while stage 4 wrapped train_test_model in
+#: ``except Exception: pytest.skip("train_test_model bailed on synthetic
+#: dataset")``: the stage reported skipped rather than "the E2E plate cannot
+#: train a classifier at all".
 def _make_four_channel_plate(dst: Path,
-                                 wells: Tuple[str, ...] = ("A01", "A02"),
-                                 fields: Tuple[int, ...] = (1, 2, 3, 4),
+                                 wells: Tuple[str, ...] = ("A01", "A02",
+                                                           "A03", "A04"),
+                                 fields: Tuple[int, ...] = (1, 2),
                                  size: int = 160) -> Path:
     """Emit a cellvoyager plate with FOUR channels laid out for the
     canonical spaCR object types:
@@ -234,10 +248,10 @@ def test_stage_2_measure_and_crop(_pipeline_workspace):
     settings = _measure_settings(plate,
                                     _four_object_mask_settings(plate))
     t0 = time.time()
-    try:
-        measure_crop(settings)
-    except Exception as e:
-        pytest.skip(f"measure_crop bailed on synthetic dataset: {e}")
+    # Unguarded: stage 1 wrote these masks and _measure_settings is derived
+    # from the same settings dict, so "bailed on synthetic dataset" was the
+    # pipeline failing on its own output -- which is what an E2E is for.
+    measure_crop(settings)
     print(f"[e2e] stage 2 (measure + crop) took "
             f"{time.time() - t0:.1f}s")
 
@@ -372,10 +386,8 @@ def test_stage_4_train_resnet_10_epochs(_pipeline_workspace):
         "schedule": None,
     }
     t0 = time.time()
-    try:
-        train_test_model(settings)
-    except Exception as e:
-        pytest.skip(f"train_test_model bailed on synthetic dataset: {e}")
+    # Unguarded: stage 3 produced the annotated dataset these settings name.
+    train_test_model(settings)
     print(f"[e2e] stage 4 (train ResNet 10ep) took "
             f"{time.time() - t0:.1f}s")
 
@@ -410,12 +422,13 @@ def test_stage_5_apply_model_to_full_dataset(_pipeline_workspace):
     if not png_dirs:
         pytest.skip("no PNG crops to score")
     src_dir = str(next(iter(png_dirs)))
-    try:
-        result = apply_model(
-            src=src_dir, model_path=model_path,
-            image_size=64, batch_size=4, normalize=True, n_jobs=2)
-    except Exception as e:
-        pytest.skip(f"apply_model bailed on synthetic crops: {e}")
+    # Unguarded: the checkpoint is stage 4's own output and the crops are stage
+    # 2's, so apply_model failing here means spaCR cannot read what spaCR
+    # wrote. The two `if not ...: skip` guards above already cover the only
+    # honest reason to stand down -- an earlier stage produced nothing.
+    result = apply_model(
+        src=src_dir, model_path=model_path,
+        image_size=64, batch_size=4, normalize=True, n_jobs=2)
     # apply_model returns a DataFrame with path + pred columns
     assert result is not None
     assert len(result) > 0
