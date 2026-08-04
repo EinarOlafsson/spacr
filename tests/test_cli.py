@@ -202,13 +202,24 @@ def test_registered_entry_point_exists_on_disk(key):
     Checked with ast rather than an import so the whole registry is verified
     without loading torch — and so a renamed pipeline function fails here
     instead of at 3am on a compute node.
+
+    A dotted name may be a module OR a package, and until ``anndata_export``
+    every entry here was a flat ``.py``: the check built one path, so a
+    perfectly real ``spacr/anndata_export/__init__.py`` failed as "no such
+    file spacr/anndata_export.py". Both spellings are tried now, which is
+    what ``import`` itself does.
     """
     module = cli.MODULES[key]
     assert module.module_name.startswith("spacr."), module.module_name
-    path = PKG_ROOT / (module.module_name.split(".", 1)[1].replace(".", "/") + ".py")
-    assert path.is_file(), f"{key}: no such file {path}"
+    relative = module.module_name.split(".", 1)[1].replace(".", "/")
+    candidates = [PKG_ROOT / f"{relative}.py",
+                  PKG_ROOT / relative / "__init__.py"]
+    path = next((p for p in candidates if p.is_file()), None)
+    assert path is not None, (
+        f"{key}: no such module — tried "
+        f"{', '.join(str(p) for p in candidates)}")
     assert module.func_name in _top_level_defs(path), \
-        f"{key}: {path.name} does not define {module.func_name}"
+        f"{key}: {path} does not define {module.func_name}"
 
 
 @pytest.mark.parametrize("key", sorted(cli.MODULES))
