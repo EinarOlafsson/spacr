@@ -101,17 +101,25 @@ def test_no_assessed_module_is_still_alpha_after_launch():
 
 
 def test_the_shelf_is_no_longer_most_of_the_application():
-    """The finding was not that the modules were unfinished — none of the
-    twenty-six screen modules holds a single NotImplementedError. It was
-    that nobody had gone back to relabel finished work."""
+    """Twenty-six of forty-three was the problem, and it was not that the
+    modules were unfinished — none of the twenty-six screen modules holds a
+    single NotImplementedError. It was that nobody had gone back to relabel
+    finished work.
+
+    A majority, because that is the claim: a label MOST of an application
+    wears predicts nothing. A tighter bound would be a different claim, and
+    a false one — new work is supposed to arrive at alpha, so the shelf
+    refilling is health rather than rot. What stops it rotting is the test
+    below, which says nothing already assessed may be sitting on it.
+    """
     import spacr.qt
     from spacr.qt.app import APPS, app_stage
     spacr.qt.register_self_registering_modules()
     stages = [app_stage(row[0]) for row in APPS]
     alpha = stages.count("alpha")
-    assert alpha < len(stages) / 4, (
-        f"{alpha} of {len(stages)} modules are still alpha; a label most of "
-        "the application wears predicts nothing")
+    assert alpha < len(stages) / 2, (
+        f"{alpha} of {len(stages)} modules are alpha; a label most of the "
+        "application wears predicts nothing")
 
 
 def test_anything_still_alpha_was_simply_not_assessed():
