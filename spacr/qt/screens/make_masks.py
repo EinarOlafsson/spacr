@@ -861,6 +861,29 @@ class MakeMasksScreen(QWidget):
         else:
             self._sync_button_states()
 
+    def closeEvent(self, event):
+        """Drain the background image loader before Qt destroys this screen.
+
+        ``_MaskLoadWorker`` is parented to this widget, so without this the
+        screen's destructor deletes a QThread that is still decoding a large
+        TIFF, and Qt answers that with ``qFatal("QThread: Destroyed while
+        thread is still running")`` — a core dump, not an exception. The
+        window is exactly as wide as one image decode, which is why it shows
+        up in a loaded test shard and almost never by hand.
+        """
+        from ..bridge import drain_thread
+
+        self._pending_load = None
+        worker, self._load_worker = self._load_worker, None
+        if worker is not None:
+            try:
+                worker.requestInterruption()
+            except (AttributeError, RuntimeError):
+                pass
+            drain_thread(worker, timeout_ms=5000)
+        self._loading = False
+        super().closeEvent(event)
+
     def _load_pair(self, folder: str, filename: str, token: int) -> None:
         """Decode and apply a small pair synchronously."""
         try:

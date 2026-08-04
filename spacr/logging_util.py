@@ -91,6 +91,35 @@ _TRACE_STATE = threading.local()
 _PREVIOUS_SYS_PROFILE = None
 _PREVIOUS_THREAD_PROFILE = None
 
+#: Qt virtual-method overrides the trace must never fire on.
+#:
+#: These are not application logic. Qt calls them once per delivered event,
+#: thousands of times a second, and the GUI console is one of the sinks the
+#: resulting records go to -- which closes a loop through the event queue:
+#: delivering an event logs, logging writes a widget, writing a widget posts
+#: a repaint, delivering the repaint logs again. Measured as a Qt shard that
+#: made no forward progress at 100% CPU for twenty-five minutes with the GUI
+#: thread parked in ``spacr.qt.button_roles.eventFilter -> _trace_profile ->
+#: ConsolePanel.append_stdout``, and the same loop is reachable in the shipped
+#: app the moment "Verbose logging" is switched on.
+#:
+#: Excluding them costs nothing worth having. The hook exists to say which
+#: spaCR function a run went through, and ``paintEvent`` is not that. It is
+#: also what :func:`_trace_profile`'s own contract demands -- a tracing aid
+#: must never alter the code it observes, and one that stops event delivery
+#: keeping up has altered it beyond recognition.
+_TRACE_SKIP_NAMES = frozenset({
+    "event", "eventFilter", "customEvent", "childEvent", "timerEvent",
+    "paintEvent", "resizeEvent", "moveEvent", "showEvent", "hideEvent",
+    "closeEvent", "changeEvent", "enterEvent", "leaveEvent", "focusInEvent",
+    "focusOutEvent", "wheelEvent", "mouseMoveEvent", "mousePressEvent",
+    "mouseReleaseEvent", "mouseDoubleClickEvent", "hoverMoveEvent",
+    "hoverEnterEvent", "hoverLeaveEvent", "keyPressEvent", "keyReleaseEvent",
+    "dragEnterEvent", "dragMoveEvent", "dragLeaveEvent", "dropEvent",
+    "contextMenuEvent", "viewportEvent", "sizeHint", "minimumSizeHint",
+    "heightForWidth",
+})
+
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -281,9 +310,13 @@ def _trace_profile(frame, event, arg):
 
     Only Python ``call`` and ``return`` events for files inside the installed
     :mod:`spacr` package are recorded.  The logger implementation itself is
-    excluded to prevent recursion.
+    excluded to prevent recursion, and so are Qt's event-delivery overrides
+    (:data:`_TRACE_SKIP_NAMES`) -- tracing those feeds the GUI console from
+    inside event delivery, and the console's repaint is another event.
     """
     if event not in {"call", "return"}:
+        return
+    if frame.f_code.co_name in _TRACE_SKIP_NAMES:
         return
     filename = os.path.realpath(frame.f_code.co_filename)
     if not filename.startswith(_TRACE_ROOT) or filename == _TRACE_THIS_FILE:

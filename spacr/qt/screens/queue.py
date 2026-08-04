@@ -29,6 +29,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from spacr.cancellation import (
+    CancellationToken, PipelineCancelled, installed_token,
+)
+
 from ..plate_queue import (
     PlateQueue, QueueItem, Status, import_plates_from_csv,
 )
@@ -54,10 +58,28 @@ class _QueueRunner(QThread):
         super().__init__(parent)
         self._queue = queue
         self._stop = False
+        #: Cooperative Stop for the item that is running *right now*.
+        #: :meth:`stop` deliberately does not touch it — that control means
+        #: "no more items after this one". :meth:`abort` does, and is what
+        #: teardown needs: without it, closing the screen left an
+        #: hours-long pipeline running inside a QThread parented to a
+        #: widget Qt was about to destroy, which is a core dump, not an
+        #: exception.
+        self._token = CancellationToken()
 
     def stop(self) -> None:
         """Ask the runner to exit after the current item completes."""
         self._stop = True
+
+    def abort(self, reason: str = "queue screen closed") -> None:
+        """Stop after the current item's next declared safe boundary.
+
+        Shipped pipeline entry points poll :func:`spacr.cancellation.
+        checkpoint` at field/trial/job boundaries, so this stops the run
+        without ever interrupting a half-written mask or a partial insert.
+        """
+        self._stop = True
+        self._token.cancel(reason)
 
     def run(self) -> None:
         from ..bridge import resolve_pipeline_entry
@@ -73,7 +95,15 @@ class _QueueRunner(QThread):
                 if fn is None:
                     raise RuntimeError(
                         f"no pipeline for app_key={item.app_key!r}")
-                fn(item.settings)
+                with installed_token(self._token):
+                    self._token.checkpoint()
+                    fn(item.settings)
+            except PipelineCancelled as e:
+                self._queue.update(item.id, status=Status.QUEUED,
+                                      end_ts=None, error="")
+                LOG.info("queue item %s cancelled: %s", item.id, e)
+                self.item_state_changed.emit(item.id)
+                break
             except Exception as e:
                 LOG.warning("queue item %s failed: %s", item.id, e,
                               exc_info=True)
@@ -227,6 +257,29 @@ class QueueScreen(QWidget):
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         self._refresh_table()
+
+    def closeEvent(self, event):
+        """Stop the queue runner before Qt destroys this screen.
+
+        ``_QueueRunner`` is parented to this widget and executes whole
+        pipelines, so its thread can be hours long. Destroying the screen
+        with it running deletes a live QThread, which Qt answers with
+        ``qFatal("QThread: Destroyed while thread is still running")``.
+        It also does not go through :func:`spacr.qt.bridge.make_thread`, so
+        the process-wide run registry — and therefore
+        ``MainWindow.closeEvent``'s drain — has never been able to see it.
+        """
+        from ..bridge import drain_thread
+
+        self._tick.stop()
+        runner, self._runner = self._runner, None
+        if runner is not None:
+            try:
+                runner.abort()
+            except (AttributeError, RuntimeError):
+                pass
+            drain_thread(runner, timeout_ms=5000)
+        super().closeEvent(event)
 
     def _on_item_changed(self, item_id: str):
         self._refresh_table()
