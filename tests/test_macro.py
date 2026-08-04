@@ -717,14 +717,25 @@ class TestContracts:
         signatures out of the source rather than importing 25 modules, and
         fail here — loudly, in one place — if one ever stops taking the
         settings dict first.
+
+        A module may be a package. ``spacr.anndata_export`` is one, and it
+        reported "no module at spacr/anndata_export.py" — a missing-file
+        message for a module that is present, which is the reading-source
+        approach paying for itself in the wrong direction. ``<name>/
+        __init__.py`` is checked before that is concluded.
         """
         from spacr.validate import APP_FUNCTIONS
         offenders = []
         for key, dotted in sorted(APP_FUNCTIONS.items()):
             module_path, _, func = dotted.rpartition(".")
-            path = Path(REPO_ROOT, *module_path.split(".")).with_suffix(".py")
+            base = Path(REPO_ROOT, *module_path.split("."))
+            path = base.with_suffix(".py")
             if not path.is_file():
-                offenders.append(f"{key}: no module at {path}")
+                path = base / "__init__.py"
+            if not path.is_file():
+                offenders.append(
+                    f"{key}: no module at {base.with_suffix('.py')} "
+                    f"nor {base / '__init__.py'}")
                 continue
             tree = ast.parse(path.read_text())
             found = [node for node in tree.body
