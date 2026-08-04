@@ -34,10 +34,20 @@ _warnings.filterwarnings(
 # Cellpose 4 builds a sparse COO tensor in `dynamics.py` and torch notes that
 # invariant checking is off. It fires on the first mask of every run, names a
 # torch internal, and there is nothing a spaCR user can do about it.
+#
+# Both patterns are written the way `spacr.qt._LIBRARY_NOISE` explains, and
+# for the same two reasons. The message is not anchored: `filterwarnings`
+# matches it with `re.match`, so the anchored version this replaced would
+# have missed the same notice from any build of torch that prefixes it. The
+# module IS given, and it is the raising frame's dotted `__name__` -- NOT
+# the `cellpose/dynamics.py` path a traceback shows, which is the natural
+# thing to write here and matches nothing. Scoping it to cellpose means the
+# sentence is only ignored where it is noise.
 _warnings.filterwarnings(
     "ignore",
-    message=r"Sparse invariant checks are implicitly disabled.*",
+    message=r".*[Ss]parse invariant checks are implicitly disabled",
     category=UserWarning,
+    module=r"cellpose(\.|$)",
 )
 
 _SUBMODULES: Final[tuple[str, ...]] = (
