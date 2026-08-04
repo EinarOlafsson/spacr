@@ -641,11 +641,32 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         ch_idx = req.channels.get(obj, 0)
         image_2d = _select_channel(req.image, ch_idx)
 
-        # Preprocess — background subtraction if the user opted in.
+        # Preprocess — remove background if the user opted in, doing exactly
+        # what a real run does. `spacr.io._normalize_img_batch` runs
+        #
+        #     single_channel[single_channel < background] = 0
+        #
+        # per channel, reading `{obj}_background`. This used to subtract the
+        # background and clip at zero instead, which is a different image:
+        # thresholding leaves everything above the background where it is,
+        # subtraction shifts all of it down. And it read a plain `background`
+        # key that nothing writes -- the panel emits `{obj}_background` -- so
+        # the value was always the 100.0 default and turning the toggle on
+        # did nothing visible on any image whose real background was not
+        # near 100.
+        #
+        # Both keys are per-object on purpose: with "cell + nucleus"
+        # selected, the two channels get their own background and their own
+        # on/off, the same way the pipeline treats them.
         if req.preprocess_settings.get(f"remove_background_{obj}"):
-            bg = float(req.preprocess_settings.get("background", 100.0))
-            image_2d = np.clip(image_2d.astype(np.float32) - bg,
-                                0, None).astype(image_2d.dtype)
+            bg = float(req.preprocess_settings.get(
+                f"{obj}_background",
+                req.preprocess_settings.get("background", 100.0)))
+            # `_select_channel` hands back a view into `req.image`. Writing
+            # through it would zero the source for every object type after
+            # this one, and for the raw pane the panel shows beside the mask.
+            image_2d = image_2d.copy()
+            image_2d[image_2d < bg] = 0
 
         result = model.eval(
             image_2d,
@@ -772,6 +793,13 @@ class _ZoomView(QGraphicsView):
         self.setMouseTracking(True)
         self.viewport().setMouseTracking(True)
         self.setFrameShape(QGraphicsView.NoFrame)
+        # Panning has to be mirrored the same way zoom is. `ScrollHandDrag`
+        # moves the scroll bars rather than the transform, so `_apply_zoom`
+        # never sees a drag and the twin canvases stayed locked in scale
+        # while drifting apart in position -- zoom in, drag one, and the
+        # mask no longer sits over the cell it was drawn from.
+        self.horizontalScrollBar().valueChanged.connect(self._mirror_pan)
+        self.verticalScrollBar().valueChanged.connect(self._mirror_pan)
 
     def set_pixmap(self, pixmap: QPixmap) -> None:
         self._scene.clear()
@@ -833,6 +861,32 @@ class _ZoomView(QGraphicsView):
                 self._peer._apply_zoom(factor, broadcast=False)
             finally:
                 self._syncing = False
+
+    def _mirror_pan(self, _value: int = 0) -> None:
+        """Put the peer at the same scroll offset as this view.
+
+        Guarded on THIS view for the same reason ``_apply_zoom`` is: setting
+        the flag on the peer would make the peer's own handler a no-op, and
+        since assigning to its scroll bars fires that handler, the guard has
+        to be on the sender or the two views ping-pong.
+
+        Raw scroll-bar values rather than a mapped scene point: the two
+        canvases show the same image at the same scale and the same viewport
+        size, so their scroll ranges are identical, and copying the value
+        keeps them aligned to the pixel without a round trip through scene
+        coordinates.
+        """
+        peer = self._peer
+        if peer is None or self._syncing:
+            return
+        self._syncing = True
+        try:
+            peer.horizontalScrollBar().setValue(
+                self.horizontalScrollBar().value())
+            peer.verticalScrollBar().setValue(
+                self.verticalScrollBar().value())
+        finally:
+            self._syncing = False
 
     def mouseMoveEvent(self, event):
         if self._pixmap_item is not None:
@@ -1040,6 +1094,14 @@ class LivePreviewPanel(QWidget):
         for name in ("auto", "color (random)", "green", "magenta",
                      "yellow", "cyan", "white", "red"):
             self._outline_colour.addItem(name)
+        # Random is the default. A fixed colour is a coin flip against the
+        # image -- green outlines on a green channel are invisible exactly
+        # when you most need to see whether the mask landed -- and `auto`
+        # picks per compartment, so two touching objects of the same type
+        # share an outline and read as one. Set before the signal is
+        # connected so choosing it here does not fire a render on a panel
+        # that has no image yet.
+        self._outline_colour.setCurrentText("color (random)")
         self._outline_colour.currentIndexChanged.connect(
             self._on_outline_colour_changed)
         self._outline_thickness = QSpinBox(self)
@@ -1591,11 +1653,14 @@ class LivePreviewPanel(QWidget):
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
         self._common_widgets["remove_background"].setToolTip(
-            "(bool) Subtract the background intensity from the chosen object's "
-            "channel before segmentation.")
+            "(bool) Zero every pixel below the background intensity in the "
+            "chosen object's channel before segmentation. Applies to the "
+            "object selected above — with 'cell + nucleus' chosen, each "
+            "channel uses its own background.")
         self._common_widgets["background"].setToolTip(
-            "(int) Background intensity subtracted from the chosen object's "
-            "channel when 'Remove background' is on.")
+            "(int) Pixels below this intensity are set to 0 in the chosen "
+            "object's channel when 'Remove background' is on. Everything "
+            "above it is left where it is.")
         # Cell-only extra.
         self._adjust_cells = _spin("bool", None)
         self._adjust_cells.setToolTip(
@@ -1648,13 +1713,20 @@ class LivePreviewPanel(QWidget):
         for comp, group in self._compartment_widgets.items():
             for suffix, w in group.items():
                 out[f"{comp}_{suffix}"] = self._widget_value(w)
-        obj = self._primary_object()
-        out[f"{obj}_Signal_to_noise"] = self._widget_value(
-            self._common_widgets["signal_to_noise"])
-        out[f"remove_background_{obj}"] = self._widget_value(
-            self._common_widgets["remove_background"])
-        out[f"{obj}_background"] = self._widget_value(
-            self._common_widgets["background"])
+        # The common controls are one widget each, retargeted to whatever is
+        # selected. Written for EVERY selected object type, not just the
+        # primary: with "cell + nucleus" chosen, keying them off
+        # `_primary_object()` alone wrote `remove_background_cell` and left
+        # the nucleus channel with no key at all, so the segmentation worker
+        # -- which looks up `remove_background_{obj}` per object in its loop
+        # -- silently skipped it and the toggle appeared to do half a job.
+        for obj in self._selected_object_types():
+            out[f"{obj}_Signal_to_noise"] = self._widget_value(
+                self._common_widgets["signal_to_noise"])
+            out[f"remove_background_{obj}"] = self._widget_value(
+                self._common_widgets["remove_background"])
+            out[f"{obj}_background"] = self._widget_value(
+                self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
         return out
 
@@ -2257,7 +2329,12 @@ class LiveSettingsDialog(QDialog):
         for compartment, fields in p._compartment_widgets.items():
             for suffix, widget in fields.items():
                 widget_keys[widget] = f"{compartment}_{suffix}"
-        install_api_tooltips(self, "mask", widget_keys)
+        # No link dots here. This dialog has a setting on nearly every row --
+        # 68 dots were being drawn, one after each label and one after the
+        # combined controls -- so they stopped reading as "click for the API
+        # page" and started reading as texture down the form. The hover help
+        # is unaffected; it is still on every label.
+        install_api_tooltips(self, "mask", widget_keys, api_dots=False)
 
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.

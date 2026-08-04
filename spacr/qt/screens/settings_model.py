@@ -2392,6 +2392,8 @@ def install_api_tooltips(
     owner: QWidget,
     app_key: str,
     widget_keys: Optional[Dict[QWidget, str]] = None,
+    *,
+    api_dots: bool = True,
 ) -> None:
     """Give every mapped/generated popup setting label consistent API help.
 
@@ -2399,6 +2401,13 @@ def install_api_tooltips(
     property. Hand-built Live/Crop/Search controls are supplied in
     ``widget_keys``. Descriptive help belongs to the label, not the editable
     field; a compact teal dot immediately beside that label opens the API page.
+
+    :param api_dots: draw the teal link dots. Hover help is installed either
+        way -- this only controls the visible dot. Forms with a setting on
+        nearly every row read as a column of dots rather than a column of
+        settings, which is why the Mask live preview turns them off: 68 of
+        them on one dialog. Anywhere the settings are sparse enough for a dot
+        to look like an affordance rather than texture, leave it on.
     """
     event_filter = getattr(owner, "_api_tooltip_filter", None)
     if event_filter is None:
@@ -2441,8 +2450,9 @@ def install_api_tooltips(
             # installed, which makes this idempotent for free.
             widget.removeEventFilter(event_filter)
             widget.installEventFilter(event_filter)
-            _add_api_dot_to_combined_control(
-                owner, widget, app_key, key, html)
+            if api_dots:
+                _add_api_dot_to_combined_control(
+                    owner, widget, app_key, key, html)
             continue
 
         body_source = str(widget.property("apiTooltipDescriptionSource") or "")
@@ -2471,7 +2481,8 @@ def install_api_tooltips(
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
         widget.removeEventFilter(event_filter)
-        _add_api_dot_to_label(label, app_key, key, html)
+        if api_dots:
+            _add_api_dot_to_label(label, app_key, key, html)
 
 
 def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:

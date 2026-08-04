@@ -251,7 +251,9 @@ def test_the_dialog_leaves_the_diameter_usable_on_cpsam(qtbot):
         label = panel._diameter._spacr_setting_label
         assert "30/diameter" in label.toolTip()
         assert "href=" in label.toolTip()
-        assert getattr(label, "_spacr_api_dot", None) is not None
+        # No `_spacr_api_dot`: the live-preview dialog passes
+        # `api_dots=False`. The link is still in the label's tooltip, which
+        # is what the assertion above checks and what this test is about.
         panel._diameter.setValue(60.0)
     finally:
         panel._live_settings_dialog.close()

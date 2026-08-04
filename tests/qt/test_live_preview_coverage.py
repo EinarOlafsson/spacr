@@ -98,6 +98,14 @@ def _mime_for(*paths) -> QMimeData:
 def _panel(qtbot):
     p = LP.LivePreviewPanel()
     qtbot.addWidget(p)
+    # The shipped default is "color (random)", which is right for a user --
+    # a fixed colour is a coin flip against the image -- and useless for a
+    # test asserting on rendered pixels. Every rendering test below was
+    # relying on "auto" being the default without saying so; pin it here so
+    # the dependency is explicit and the colours are reproducible.
+    # `test_random_is_the_default_outline_colour` in
+    # tests/qt/test_live_preview_view_sync.py owns the default itself.
+    p._outline_colour.setCurrentText("auto")
     return p
 
 
@@ -564,23 +572,47 @@ class TestSegmentMulti:
         LP._segment_multi(self._req(diameter=0))
         assert fake_cellpose.instances[-1].calls[0]["diameter"] is None
 
-    def test_background_is_subtracted_before_segmentation(self, fake_cellpose):
+    def test_background_is_thresholded_not_subtracted(self, fake_cellpose):
+        """What is above the background keeps its value.
+
+        This used to assert 150.0 -- the preview subtracted the background
+        and clipped at zero. The pipeline thresholds instead
+        (``single_channel[single_channel < background] = 0`` in
+        :func:`spacr.io._normalize_img_batch`), and subtraction is a
+        different image: it moves every bright pixel down.
+        """
         req = self._req(
             channels={"cell": 1},
             preprocess_settings={"remove_background_cell": True,
-                                 "background": 50})
+                                 "cell_background": 50})
         LP._segment_multi(req)
-        # Channel 1 is a flat 200; 50 comes off it and the floor is 0.
+        # Channel 1 is a flat 200, which is above 50, so it is left alone.
         assert fake_cellpose.instances[-1].calls[0]["image"].mean() == \
-            pytest.approx(150.0)
+            pytest.approx(200.0)
 
-    def test_background_subtraction_clips_at_zero(self, fake_cellpose):
+    def test_everything_below_the_background_is_zeroed(self, fake_cellpose):
         req = self._req(
             channels={"cell": 0},
             preprocess_settings={"remove_background_cell": True,
-                                 "background": 5000})
+                                 "cell_background": 5000})
         LP._segment_multi(req)
         assert fake_cellpose.instances[-1].calls[0]["image"].max() == 0
+
+    def test_the_background_value_is_read_per_object(self, fake_cellpose):
+        """`{obj}_background`, not a plain `background`.
+
+        The worker read `background`, which nothing writes -- the panel
+        emits `{obj}_background` -- so the value was always the 100.0
+        default and moving the spinbox did nothing.
+        """
+        req = self._req(
+            channels={"cell": 1},
+            preprocess_settings={"remove_background_cell": True,
+                                 "cell_background": 5000,
+                                 "background": 1})
+        LP._segment_multi(req)
+        assert fake_cellpose.instances[-1].calls[0]["image"].max() == 0, (
+            "the per-object key must win over the generic one")
 
     def test_flows_are_captured_per_object(self, fake_cellpose):
         _, flows = LP._segment_multi(self._req(channels={"cell": 2}))
@@ -1899,9 +1931,12 @@ class TestLiveSettingsDialog:
             assert not p._lo_pct.isEnabled()
             assert p._lo_pct.toolTip() == ""
             assert "href=" in p._lo_pct._spacr_setting_label.toolTip()
-            assert getattr(
-                p._lo_pct._spacr_setting_label,
-                "_spacr_api_dot", None) is not None
+            # The API link dot used to be asserted here too. This dialog now
+            # passes `api_dots=False` -- 68 of them on one form read as
+            # texture rather than as an affordance -- so there is nothing to
+            # assert. What mattered about the row survives and is still
+            # checked above: greying the field out must not take the help
+            # away with it, and the help lives on the label.
             p._normalise_check.setChecked(True)
             assert p._lo_pct.isEnabled()
             assert "href=" in p._lo_pct._spacr_setting_label.toolTip()

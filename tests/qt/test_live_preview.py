@@ -221,7 +221,10 @@ class TestPanel:
             for index in range(panel._outline_colour.count())
         ]
         assert choices.count("color (random)") == 1
-        assert panel._outline_colour.currentText() == "auto"
+        # Random is the shipped default: a fixed colour is a coin flip
+        # against the image, and `auto` picks per compartment so two
+        # touching objects of the same type read as one.
+        assert panel._outline_colour.currentText() == "color (random)"
         panel._outline_colour.setCurrentText("color (random)")
         assert panel.current_params()["outline_colour"] == "color (random)"
         assert panel._outline_rgb() is None
@@ -371,7 +374,8 @@ class TestModelAwareOptions:
             assert panel._diameter.toolTip() == ""
             label = panel._diameter._spacr_setting_label
             tip = label.toolTip()
-            assert getattr(label, "_spacr_api_dot", None) is not None
+            # No `_spacr_api_dot`: this dialog passes `api_dots=False`.
+            # The API link still lives in the label's tooltip.
         finally:
             panel._live_settings_dialog.close()
 
@@ -538,13 +542,16 @@ class TestCompartmentSettings:
         qtbot.addWidget(dlg); dlg.show()
         for widget in dlg._managed_widgets():
             label = getattr(widget, "_spacr_setting_label", None)
+            # No `_spacr_api_dot` assertions: this dialog passes
+            # `api_dots=False`. What they were guarding -- that every
+            # managed widget got decorated, with the help on the label and
+            # the field left quiet -- is exactly what the tooltip
+            # assertions here check, and they are the half that matters.
             if label is not None:
                 assert widget.toolTip() == ""
                 assert "href=" in label.toolTip()
-                assert getattr(label, "_spacr_api_dot", None) is not None
             else:
                 assert "href=" in widget.toolTip()
-                assert getattr(widget, "_spacr_api_dot", None) is not None
         # object "cell": only the Cell panel is shown.
         p._object_box.setCurrentText("cell")
         dlg.refresh_visibility()

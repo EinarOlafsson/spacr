@@ -57,6 +57,10 @@ def outlined(qtbot, tmp_path):
     path = tmp_path / "tile.tif"
     tifffile.imwrite(str(path), arr)
     panel = _mask(qtbot)
+    # The shipped default is "color (random)". These tests are about which
+    # colour a given choice draws, so the fixture starts from "auto" -- what
+    # the default used to be -- and each test sets its own choice from there.
+    panel._outline_colour.setCurrentText("auto")
     panel.load_image(path)
     mask = np.zeros((40, 40), np.int32)
     mask[10:26, 10:26] = 1
