@@ -1396,18 +1396,30 @@ def _collect_run_status(settings: Mapping[str, Any],
     :param settings: the job's resolved settings, for locating its artifacts.
     :param before: :func:`_status_snapshot` taken before the job ran.
     :returns: ``{'status', 'n_attempted', 'n_succeeded', 'n_failed',
-        'artifacts', 'records'}``, or None when the job stamped nothing (which
-        means "no information", not "clean" — see
+        'artifacts', 'records', 'unreadable'}``, or None when the job stamped
+        nothing (which means "no information", not "clean" — see
         :func:`spacr.errors.run_is_complete`).
+
+    An artifact whose stamp cannot be read is recorded in ``unreadable`` and
+    downgrades the verdict to ``'partial'``. It used to be skipped outright,
+    which left the verdict resting on the artifacts that *did* open: a job
+    over two plates where one database was locked or truncated reported
+    'complete' off the other plate's clean stamp, and 'complete' is the word
+    the queue uses to decide there is nothing to re-run.
     """
     attempted = succeeded = failed = 0
     artifacts: List[str] = []
+    unreadable: List[str] = []
     records = 0
     for artifact in _status_artifacts(settings):
         key = str(artifact)
         try:
             stamps = read_run_status(artifact)
-        except Exception:
+        except Exception as exc:
+            LOG.warning(
+                "could not read the run status of %s (%s); this job cannot "
+                "be reported complete.", key, exc)
+            unreadable.append(key)
             continue
         fresh = stamps[int(before.get(key, 0)):]
         if not fresh:
@@ -1420,7 +1432,7 @@ def _collect_run_status(settings: Mapping[str, Any],
             failed += int(stamp.get('n_failed', 0) or 0)
     if not records:
         return None
-    if failed:
+    if failed or unreadable:
         status = 'partial'
     elif attempted:
         status = 'complete'
@@ -1433,6 +1445,7 @@ def _collect_run_status(settings: Mapping[str, Any],
         'n_failed': failed,
         'records': records,
         'artifacts': artifacts,
+        'unreadable': unreadable,
     }
 
 

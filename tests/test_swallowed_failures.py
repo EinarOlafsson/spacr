@@ -1,10 +1,10 @@
-"""Failures spaCR swallows with ``except Exception: pass`` that the user needs.
+"""Failures spaCR used to swallow with ``except Exception: pass``.
 
 Each test here forces one guarded statement in product code to fail and then
-asserts what the user *should* be left with. They are all
-``xfail(strict=True)``: the product code has not been changed, so each one
-fails today, and each one starts passing the moment its named site stops
-swallowing. The site and the one-line fix are named in the ``reason``.
+asserts what the user is left with. They were written as ``xfail(strict=True)``
+against the unfixed code; the sites have since been repaired and the markers
+are gone, so this file is now the regression guard for eight repairs rather
+than a list of complaints.
 
 The bar for inclusion is the same in every case — the swallow either loses
 data, reports success while having done less than it said, hides a
@@ -12,7 +12,24 @@ misconfiguration the user could fix, or substitutes a fallback for a failed
 computation and reports the resulting number as if it were the real one.
 Cleanup, cosmetics, optional imports and probes whose caller re-checks the
 same thing are deliberately absent: they swallow nothing worth telling
-anybody about.
+anybody about, and re-raising out of a repaint or a teardown turns a
+cosmetic failure into a crash.
+
+What each test pins, now that the sites are fixed:
+
+* ``cli.module_defaults`` raises ``SettingsError`` naming the defaults module
+  that will not import, instead of resolving the whole run against ``{}``;
+* ``notebook_export._read_settings`` lets the JSON error out, so the
+  "validate that the recorded settings parse" call above it validates;
+* ``batch._collect_run_status`` records the artifact whose stamp it could not
+  read and refuses the ``'complete'`` verdict;
+* ``run_journal.journal_totals`` and ``recent_runs`` log the run folder they
+  skipped;
+* ``model_compare.load_fields`` logs the field it could not read;
+* ``spacrops`` refuses a mosaic-manifest row it cannot parse rather than
+  writing a mosaic with a hole in it and returning the path;
+* ``ml._bootstrap_wald_p_values`` says how many resamples the p-values rest
+  on whenever it is not all of them.
 
 CPU-only, offline, deterministic.
 """
@@ -37,11 +54,6 @@ import pytest
 # instead of at the missing dependency.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/cli.py:736 swallows the ImportError from the defaults module and "
-    "returns {}, so spacr-run and the batch queue resolve settings with no "
-    "defaults and blame the user's --set. Fix: let the ImportError out of "
-    "module_defaults (or re-raise it as a SettingsError naming the module)."))
 def test_module_defaults_reports_a_defaults_module_that_will_not_import(
         monkeypatch):
     """A missing optional dependency must not read as an empty defaults dict."""
@@ -78,12 +90,6 @@ def test_module_defaults_reports_a_defaults_module_that_will_not_import(
 # user's face instead.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/notebook_export.py:63 swallows the JSON error, so the "
-    "'validate that the recorded settings parse' call at line 175 validates "
-    "nothing and the notebook is exported with a first cell that cannot run. "
-    "Fix: let json.JSONDecodeError out of _read_settings (or re-raise it as "
-    "the documented FileNotFoundError/ValueError from export_run)."))
 def test_export_run_refuses_a_run_whose_settings_do_not_parse(tmp_path):
     """A notebook that cannot load its own settings is not an export."""
     from spacr import notebook_export
@@ -107,12 +113,6 @@ def test_export_run_refuses_a_run_whose_settings_do_not_parse(tmp_path):
 # stamp that says a plate failed.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/batch.py:1410 swallows RunStatusUnreadable, so a locked or "
-    "truncated artifact silently leaves the queue's per-job verdict resting "
-    "on the artifacts it could read — 'complete' for a job that may have "
-    "failed. Fix: record the unreadable artifact on the summary and refuse "
-    "the 'complete' verdict (a warning-level log at minimum)."))
 def test_batch_job_summary_does_not_report_complete_over_an_unreadable_stamp(
         tmp_path, monkeypatch):
     """'complete' must mean every stamp was read, not every stamp that opened."""
@@ -155,10 +155,6 @@ def _run_folder(root: Path, name: str, manifest: str) -> Path:
     return d
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/run_journal.py:1081 swallows the manifest parse error, so "
-    "journal_totals() under-counts runs with no indication that a folder was "
-    "unreadable. Fix: LOG.warning the folder that could not be read."))
 def test_journal_totals_says_when_a_run_folder_could_not_be_read(
         tmp_path, monkeypatch, caplog):
     """A total that silently skips runs is a wrong number."""
@@ -181,10 +177,6 @@ def test_journal_totals_says_when_a_run_folder_could_not_be_read(
         "the third")
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/run_journal.py:870 swallows the manifest parse error, so a run "
-    "disappears from Run History with no trace. Fix: LOG.warning the folder "
-    "that could not be read."))
 def test_recent_runs_says_when_a_run_folder_could_not_be_read(
         tmp_path, monkeypatch, caplog):
     """A run the user can see on disk must not vanish from the history in silence."""
@@ -212,11 +204,6 @@ def test_recent_runs_says_when_a_run_folder_could_not_be_read(
 # asked for, and nothing on the figure or in the log says so.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/model_compare.py:1121 swallows the read error, so load_fields "
-    "returns fewer fields than requested and the comparison is drawn over a "
-    "subset the user never chose. Fix: log the unreadable field at warning "
-    "(the total-failure case already raises ValueError)."))
 def test_load_fields_says_which_field_it_could_not_read(tmp_path, caplog):
     """Comparing 2 of the 3 requested fields is not the comparison asked for."""
     from spacr import model_compare
@@ -255,11 +242,6 @@ def _manifest_row(path, x, y, m00="1"):
             "canvas_x": str(x), "canvas_y": str(y)}
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/spacrops.py:1442 swallows the malformed transform, so the tile is "
-    "silently missing from the mosaic and the file is written as if complete. "
-    "Fix: raise RuntimeError naming the manifest row (the builder already "
-    "raises for a manifest with no usable rows at all)."))
 def test_mosaic_builder_refuses_a_manifest_row_it_cannot_parse(tmp_path):
     """A tile dropped from a stitched mosaic is data the user never sees again."""
     pytest.importorskip("cv2")
@@ -299,11 +281,6 @@ def test_mosaic_builder_refuses_a_manifest_row_it_cannot_parse(tmp_path):
 # screen, reported with no hint that the inference never happened.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/ml.py:726 swallows every per-resample fit failure and only the "
-    "all-failed case raises, so a hinge regression can report p = 1 for every "
-    "gRNA off a single successful draw. Fix: count the skipped resamples and "
-    "log/raise when they are most of n_boot."))
 def test_bootstrap_p_values_do_not_hide_a_collapsed_resample_count(
         monkeypatch, caplog):
     """P-values from 1 of 200 resamples must not read like a clean null result."""

@@ -1439,8 +1439,19 @@ class spacrStitcher:
                     M = np.array([[float(r["M00"]), float(r["M01"]), float(r["M02"])],
                                   [float(r["M10"]), float(r["M11"]), float(r["M12"])]],
                                  dtype=np.float32)
-                except Exception:
-                    continue
+                except Exception as exc:
+                    # Dropping the row silently left the tile out of the
+                    # stitched image, wrote the file anyway and returned its
+                    # path as if the mosaic were whole. A hole in a mosaic is
+                    # data the user never gets back and never gets told about,
+                    # so this refuses the same way the "no usable rows" check
+                    # below already does.
+                    raise RuntimeError(
+                        f"{manifest_csv}: the mosaic row for {os.path.basename(p)} "
+                        f"has a size or transform that will not parse ({exc}). "
+                        f"Refusing to stitch — the output would be missing that "
+                        f"tile with nothing on the image to say so."
+                    ) from exc
                 rows.append({"path": p, "H": H, "W": W, "M": M})
         if not rows:
             raise RuntimeError("build_multichannel_mosaic_from_manifest: no usable rows in manifest.")

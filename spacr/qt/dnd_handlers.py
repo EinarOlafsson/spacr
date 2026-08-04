@@ -100,6 +100,13 @@ def _set_src_on(screen, path) -> bool:
 
 
 def _log(screen, msg: str) -> None:
+    """Put one line on the screen's console, if it has one.
+
+    Every caller also logs through :data:`LOG`, so a console that refuses the
+    line loses a convenience, not the message. Swallowed for that reason and
+    that reason only: this runs inside Qt's drop-event dispatch, where an
+    exception is a crash rather than an error dialog.
+    """
     if hasattr(screen, "_console"):
         try:
             screen._console.append_stdout(msg)
@@ -1210,17 +1217,31 @@ class PlateQueueDropHandler(DropHandler):
 
         from spacr.utils import load_settings
         added = 0
-        for settings_path in _settings_files(path):
+        skipped: list = []
+        snapshots = list(_settings_files(path))
+        for settings_path in snapshots:
             try:
                 settings = load_settings(
                     str(settings_path), setting_key="Key",
                     setting_value="Value")
             except Exception:
+                # The two-column spelling is the one spaCR writes; the
+                # single-argument call is the documented default and is what
+                # a hand-made snapshot is likely to use. Only the SECOND
+                # failure means the file is unreadable.
                 try:
                     settings = load_settings(str(settings_path))
-                except Exception:
+                except Exception as exc:
+                    LOG.warning("plate queue: skipping %s — its settings "
+                                "snapshot could not be read (%s)",
+                                settings_path.name, exc)
+                    skipped.append(settings_path.name)
                     continue
             if not isinstance(settings, dict):
+                LOG.warning("plate queue: skipping %s — its settings "
+                            "snapshot parsed to %s, not a settings dict",
+                            settings_path.name, type(settings).__name__)
+                skipped.append(settings_path.name)
                 continue
             settings["src"] = str(path)
             screen.add_item(
@@ -1228,6 +1249,14 @@ class PlateQueueDropHandler(DropHandler):
             added += 1
         if not added:
             raise ValueError(f"No readable settings snapshots found in {path}.")
+        if skipped:
+            # A partial drop used to report plain success: one unreadable
+            # snapshot among several meant that plate quietly never reached
+            # the queue, and the user found out when the run they expected
+            # was not in the list.
+            _log(screen,
+                 f"Queued {added} of {len(snapshots)} settings snapshots "
+                 f"from {path.name}. Skipped: {', '.join(skipped)}.")
 
 
 class BatchDropHandler(DropHandler):

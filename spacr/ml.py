@@ -1,5 +1,6 @@
 """Classical machine-learning and regression analysis pipelines."""
 
+import logging
 import os, sys, re
 import pandas as pd
 import numpy as np
@@ -47,6 +48,8 @@ from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, mi
 from xgboost import XGBClassifier
 
 from . import schema
+
+LOG = logging.getLogger("spacr.ml")
 
 from scipy.stats import kstest, normaltest
 
@@ -714,16 +717,22 @@ def _bootstrap_wald_p_values(model, X, y, n_boot=200, random_state=0):
     n = X_values.shape[0]
 
     draws = []
+    one_class = 0
+    unfittable = 0
+    last_failure = None
     for _ in range(int(n_boot)):
         idx = rng.integers(0, n, size=n)
         y_boot = y_values[idx]
         if np.unique(y_boot).size < 2:
             # One-class resample: the estimator has no boundary to fit. Common
             # on a screen with few positive wells, and not an error.
+            one_class += 1
             continue
         try:
             fitted = clone(model).fit(X_values[idx], y_boot)
-        except Exception:
+        except Exception as exc:
+            unfittable += 1
+            last_failure = exc
             continue
         draws.append(np.asarray(fitted.coef_, dtype=float).ravel())
 
@@ -733,6 +742,29 @@ def _bootstrap_wald_p_values(model, X, y, n_boot=200, random_state=0):
             f"standard error is available for the hinge coefficients. This "
             f"usually means one class holds only a handful of wells; check "
             f"hinge_threshold.")
+
+    # Only "none of them" used to be reported, and that is the case where the
+    # numbers are least dangerous, because it raises. 199 of 200 failing gave
+    # a standard deviation taken over one draw — zero by construction — which
+    # makes every p-value exactly 1.0: a hit list that reads like a clean
+    # screen with no significant gRNAs in it, with nothing anywhere saying the
+    # inference did not happen. So say how many draws the p-values rest on
+    # whenever it is not all of them.
+    dropped = int(n_boot) - len(draws)
+    if dropped:
+        LOG.warning(
+            "hinge bootstrap: %d of %d resamples produced no coefficients "
+            "(%d were one-class, %d would not fit%s). The p-values below are "
+            "computed from the remaining %d.",
+            dropped, int(n_boot), one_class, unfittable,
+            f"; last error: {last_failure}" if last_failure is not None else "",
+            len(draws))
+    if len(draws) < 2:
+        LOG.warning(
+            "hinge bootstrap: only %d resample(s) survived, so the coefficient "
+            "standard deviation is zero and EVERY p-value below is exactly "
+            "1.0. That is an absence of evidence, not evidence of absence — "
+            "do not read it as 'no significant gRNAs'.", len(draws))
 
     coefs = np.asarray(model.coef_, dtype=float).ravel()
     sd = np.std(np.vstack(draws), axis=0, ddof=1) if len(draws) > 1 else \
