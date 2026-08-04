@@ -11,6 +11,7 @@ Structure (horizontal splitter):
 """
 from __future__ import annotations
 
+import sys
 from functools import partial
 from html import escape
 from typing import Optional
@@ -195,6 +196,41 @@ except Exception:
     # Discovery records individual failures. Metadata lookup must not prevent
     # the built-in AppScreen class from importing.
     pass
+
+
+def _absorb_registered_app_metadata() -> None:
+    """Take the header and blurb of every registered app into the tables above.
+
+    The PULL half of the app-registration seam.
+    :func:`spacr.qt.app.register_app` PUSHES a new app's title and intro
+    into these two dicts when this module is already imported; this picks
+    up the apps that registered before it was. Between them, which module
+    is imported first stops mattering — and it used to matter a great
+    deal: a screen that registers itself could not be given a header
+    without a hand-edit in this file, so four finished features shipped
+    unreachable.
+
+    Read out of :data:`sys.modules` rather than imported, because
+    ``spacr.qt.app`` builds this screen and importing it from here would
+    be a cycle. ``setdefault``, so the hand-written entries above — where
+    the header deliberately differs from the sidebar name ("Mask
+    Generation" over the "Mask" tile) — stay the more specific answer.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    # `getattr(..., None)`: `spacr.qt.app` may be half-built when this
+    # runs (it imports the widget package before `register_app` exists),
+    # in which case there is nothing to pull and the push half of the
+    # seam delivers every row later.
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    for key, title in pull("title").items():
+        APP_TITLES.setdefault(key, title)
+    for key, intro in pull("intro").items():
+        APP_INTROS.setdefault(key, intro)
+
+
+_absorb_registered_app_metadata()
 
 
 #: Apps that get a live DNA-rain backdrop. Sequencing only — every
@@ -929,10 +965,23 @@ class AppScreen(QWidget):
 
         # Human-friendly title varies per app; the body is the same.
         title = f"Point {APP_TITLES.get(self.app_key, self.app_key).lower()} at some data"
+        # ...and so does the demo. This named "Demos → Mask demo…" on
+        # every screen, so Measure, Timelapse, Classify and Sequencing all
+        # offered a dataset that opens a DIFFERENT module: following the
+        # hint on the Measure screen generates raw images, navigates away
+        # to Mask, and leaves the empty screen the user was trying to fill
+        # exactly as empty. Ask which demo lands HERE, and say nothing
+        # specific when none does.
+        try:
+            from ..app import demo_label_for_app
+            demo = demo_label_for_app(self.app_key)
+        except Exception:
+            demo = None
+        offer = (f"use Demos → {demo} for a synthetic dataset"
+                 if demo else "pick a dataset from the Demos menu")
         subtitle = (
-            "Drop a folder of images anywhere on this window, or use "
-            "Demos → Mask demo… for a synthetic dataset. You can also "
-            "type a path into the src field below."
+            f"Drop a folder of images anywhere on this window, or {offer}. "
+            "You can also type a path into the src field below."
         )
         card = EmptyState(
             title=title, subtitle=subtitle,

@@ -283,26 +283,30 @@ def test_the_three_late_apps_are_categorised(gen_common):
 
 
 def test_no_stage_band_exceeds_the_eight_column_grid(gen_common):
-    """``CATS_STAGE5`` bands are drawn eight-wide; a ninth wraps.
+    """``CATS_STAGE5`` bands are drawn seven-wide; eight is one wrap.
 
-    Variants 02 and 23 both lay every band out as one row of tiles. A
-    band one wider than the grid silently becomes two rows, and that is
-    what pushed variant 23 past 900 px the first time three apps were
-    categorised into it.
+    Variants 02 and 23 lay every band out as one seven-column grid, so a
+    band of eight takes a second row and a band of fifteen would take
+    three. Five bands of seven was thirty-five slots for a registry of
+    thirty-four; Illumination, Barcode QC, Layer Viewer and Graph
+    Builder took it to thirty-eight, and thirty-eight does not go into
+    thirty-five.
 
-    The grid was seven columns and is now eight: five bands of seven was
-    thirty-five slots for a registry of thirty-four, and Illumination,
-    Barcode QC, Layer Viewer and Graph Builder took it to thirty-eight.
-    One more column costs each tile 24 px of width and keeps every band
-    a single row. The other way out — a sixth band — is not available:
-    variants 13 and 16 lay these out as exactly five columns and solve
-    the gap between them from that count, which is asserted here so the
-    next person to reach for it finds out from a test rather than from a
-    squashed page.
+    Neither way out was available. A sixth band is not: variants 13, 15
+    and 16 lay these out as exactly five columns and solve the gap
+    between them from that count, which is asserted below so the next
+    person to reach for it finds out here. A wider grid is not either:
+    at eight columns the tile is 166 px, and at that width thirty-four
+    of the thirty-eight names elide however small the font is set.
+
+    So a band may hold eight, and eight is the cap — one wrapped row,
+    never two.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 8, f"{title} has {len(keys)} apps, the grid fits 8"
+        assert len(keys) <= 8, (
+            f"{title} has {len(keys)} apps, which is two wrapped rows in a "
+            f"seven-column grid, not one")
 
 
 def test_check_coverage_names_what_is_wrong(gen_common):

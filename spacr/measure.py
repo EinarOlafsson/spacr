@@ -2734,7 +2734,23 @@ def measure_crop(settings):
                     src_fldr = os.path.join(src_fldr, 'merged')
                     settings['src'] = src_fldr
                     print(f"Changed source folder to: {src_fldr}")
-            
+
+                # Illumination / flat-field correction, if the settings ask
+                # for it. Here, and not earlier: it estimates from the merged
+                # fields this loop is about to measure, so it needs `src`
+                # after the /merged normalisation above, and it is per source
+                # folder because illumination differs between acquisition
+                # sessions. It installs a preprocessing hook (and the env
+                # vars that carry it into every spawned worker), so it has to
+                # run before the pool below is built rather than beside it.
+                #
+                # Off unless `illumination_correction` is True, in which case
+                # this call is the whole feature: without it the setting is a
+                # switch that does nothing and every intensity feature keeps
+                # its position-dependent bias. See spacr.illumination.
+                from .illumination import prepare_illumination_correction
+                prepare_illumination_correction(settings)
+
                 if settings['cell_mask_dim'] is None:
                     settings['uninfected'] = True
                 if settings['pathogen_mask_dim'] is None:

@@ -12,6 +12,7 @@ from __future__ import annotations
 import ast
 from html import escape
 import logging
+import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
@@ -62,6 +63,36 @@ def timelapse_and_motility_keys() -> set:
             | set(motility_settings) | set(motility_advanced_settings))
 
 
+def _registered_app_metadata(app_key: str) -> Dict[str, Any]:
+    """One app's :data:`spacr.qt.app.APP_META` entry, or ``{}``.
+
+    Read out of :data:`sys.modules`, never imported: ``spacr.qt.app``
+    builds the screens that build this model, so importing it from here
+    would be a cycle, and a process that has not loaded the registry
+    simply has no registered apps to ask about.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    return (getattr(app, "APP_META", {}).get(app_key) or {}) if app else {}
+
+
+def _import_registered_defaults_module(app_key: str) -> None:
+    """Import the module that registers ``app_key``'s settings defaults.
+
+    Named by ``register_app(..., defaults_module=...)``. Failure is
+    logged and swallowed: an unimportable optional dependency should cost
+    that app its settings panel, not stop the window opening.
+    """
+    module = _registered_app_metadata(app_key).get("defaults_module")
+    if not module or module in sys.modules:
+        return
+    import importlib
+    try:
+        importlib.import_module(module)
+    except Exception:
+        LOGGER.warning("Could not import %s, which owns the %r settings",
+                       module, app_key, exc_info=True)
+
+
 def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     """Return a fresh defaults dict for an app key, mirroring the Tk GUI
     dispatch in gui_core.setup_settings_panel."""
@@ -89,6 +120,14 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
     # a registered module is served without editing this function -- which is
     # the whole point of the seam, and without this line every
     # `register_defaults` call in the codebase is inert.
+    #
+    # Import first, ask second. `register_defaults` runs at the module's own
+    # import, so the seam only answers for a module something has already
+    # imported -- and a pipeline module has no reason to be imported by the
+    # process that is merely drawing its settings panel. `register_app(...,
+    # defaults_module=...)` names it; this is what makes the panel appear
+    # instead of an empty form.
+    _import_registered_defaults_module(app_key)
     from spacr.settings import defaults_for, has_registered_defaults
     if has_registered_defaults(app_key):
         return defaults_for(app_key, {})
@@ -1444,6 +1483,30 @@ _APP_API_MODULE = {
     "figure": "plot",
     "ai": "qt/ai",
 }
+
+
+def _absorb_registered_api_modules() -> None:
+    """Take the API-doc module of every registered app into the table above.
+
+    The PULL half of the app-registration seam;
+    :func:`spacr.qt.app.register_app` PUSHES into this table when this
+    module is already imported, and this picks up whatever registered
+    before it was, so the order of the two imports stops mattering.
+    Without it a module that registers itself sends its ⓘ link to the
+    generated API index rather than to its own page.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    # `getattr(..., None)`: `spacr.qt.app` may be half-built when this
+    # runs, in which case nothing has registered yet and the push half of
+    # the seam delivers every row later.
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    for key, module in pull("api_module").items():
+        _APP_API_MODULE.setdefault(key, module)
+
+
+_absorb_registered_api_modules()
 
 
 def api_docs_url(app_key: str, key: str = "") -> str:

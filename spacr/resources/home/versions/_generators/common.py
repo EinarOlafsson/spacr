@@ -319,13 +319,30 @@ USE_COUNTS = {
     "plate_view": 131, "db_browser": 118, "ml_analyze": 96, "report": 88,
     "queue": 71, "batch": 64, "map_barcodes": 59, "regression": 52,
     "convert": 47, "umap": 41, "make_masks": 38, "run_history": 35,
-    "timelapse": 33, "model_zoo": 29, "cellpose_masks": 27, "align": 24,
-    "distributed_jobs": 22, "foreign": 21, "external_masks": 20,
-    "agreement": 19, "activation": 17, "train_compare": 15,
-    "model_compare": 13, "classifier_evaluation": 12, "motility": 11,
+    "timelapse": 33, "graph_builder": 31, "model_zoo": 29,
+    "illumination": 28, "cellpose_masks": 27, "barcode_qc": 25,
+    "align": 24, "layer_viewer": 23, "distributed_jobs": 22, "foreign": 21,
+    "external_masks": 20, "agreement": 19, "activation": 17,
+    "train_compare": 15, "model_compare": 13,
+    "classifier_evaluation": 12, "motility": 11,
     "recruitment": 9, "analyze_plaques": 8, "invasion": 6,
     "replication": 6, "train_cellpose": 5,
 }
+
+#: What an app nobody has invented a count for is given. Below the
+#: smallest real entry, so a newcomer sorts to the bottom of every
+#: frequency-ordered variant, which is where a brand-new app belongs.
+UNUSED_APP_COUNT = 4
+
+for _key in all_keys():
+    # Variant 14 reads ``USE_COUNTS[k]`` for the badge on every tile, so a
+    # key missing here is not "sorts to the bottom", it is a KeyError that
+    # takes all thirty variants down. That is a hand-edit a module which
+    # registers itself from its own file cannot make, so the table fills
+    # itself and the literals above stay a statement about the apps
+    # somebody actually had an opinion on.
+    USE_COUNTS.setdefault(_key, UNUSED_APP_COUNT)
+del _key
 
 
 # ---------------------------------------------------------------------------
@@ -341,46 +358,118 @@ def cats_current() -> "List[Tuple[str, List[str]]]":
     return [(s, grouped[s]) for s in SECTIONS if grouped.get(s)]
 
 
-CATS_BROAD3 = [
-    ("Prepare", ["convert", "align", "foreign", "external_masks", "make_masks",
-                 "train_cellpose", "cellpose_masks", "model_zoo"]),
+def _with_late_registrations(
+    cats: "Sequence[Tuple[str, Sequence[str]]]",
+    fallback: str,
+) -> "List[Tuple[str, List[str]]]":
+    """``cats`` with every uncategorised registry key added to ``fallback``.
+
+    Each table below is a hand-made judgement about where an app belongs
+    and stays one: an app named in it lands where it was put. What this
+    adds is that an app NOBODY has filed — one that registered itself
+    from its own module after these literals were written — lands
+    somewhere real instead of making :func:`check_coverage` raise and
+    taking all thirty variants down with it.
+
+    The fallback band is chosen per table as the one whose question a
+    brand-new app is most likely to answer, and landing there is a
+    prompt to file it properly, not an answer. Note that this does NOT
+    relax the width rules: a band that overflows its grid still fails
+    ``test_no_stage_band_exceeds_the_eight_column_grid``, which is the
+    point — the layout decision has to be made by a person.
+
+    :param cats: the literal categorisation, ``(title, keys)`` per band.
+    :param fallback: the title of the band unfiled keys are appended to.
+    :returns: a fresh list; the literal is not mutated.
+    """
+    placed = {key for _title, keys in cats for key in keys}
+    missing = [key for key in all_keys() if key not in placed]
+    result = [(title, list(keys)) for title, keys in cats]
+    if missing:
+        for title, keys in result:
+            if title == fallback:
+                keys.extend(missing)
+                break
+    return result
+
+
+CATS_BROAD3 = _with_late_registrations([
+    ("Prepare", ["convert", "align", "foreign", "external_masks",
+                 "illumination", "make_masks", "train_cellpose",
+                 "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
              "classify", "ml_analyze", "map_barcodes", "regression",
              "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
     ("Review", ["plate_view", "agreement", "umap", "activation",
+                "barcode_qc", "layer_viewer", "graph_builder",
                 "train_compare", "classifier_evaluation", "model_compare",
-                "run_history", "db_browser", "report"]),
-]
+                "run_history", "db_browser", "data_manager", "report"]),
+], fallback="Review")
 
-#: Five stages of a run. Variants 02 and 23 both draw these as a 7-wide
-#: tile grid, one band per row, so **no band may exceed seven apps**: an
-#: eighth wraps that band onto a second row and the page stops fitting
-#: 900 px. Five bands of seven is thirty-five slots for a registry that
-#: is nearly that size already, so the next app added forces a real
-#: decision here rather than a silent overflow — which is what
-#: ``test_no_stage_band_exceeds_the_seven_column_grid`` is for.
-CATS_STAGE5 = [
+#: Five stages of a run. Variants 02 and 23 draw these as one seven-wide
+#: tile grid per band, so a band of more than seven takes a second row.
+#:
+#: Five bands of seven was thirty-five slots for a registry of
+#: thirty-four, and the note here said the next app added would force a
+#: real decision rather than a silent overflow. Four arrived at once —
+#: Illumination, Barcode QC, Layer Viewer, Graph Builder — and thirty-
+#: eight apps do not go into thirty-five slots. The decision taken:
+#:
+#: * not a sixth band. Variants 13, 15 and 16 lay these out as exactly
+#:   five columns and solve the gap between them from that count.
+#: * not a wider grid. At eight columns the tile is 166 px, and at that
+#:   width thirty-four of the thirty-eight names elide however small the
+#:   font is set — measured, not assumed.
+#: * so: three bands hold eight and wrap onto a second row in those two
+#:   variants, which is recorded in v02's own comment and in the
+#:   argument it prints.
+#:
+#: The cap stays at eight, which keeps that to ONE wrapped row per band.
+#: ``test_no_stage_band_exceeds_the_eight_column_grid`` is what makes
+#: the next app a decision rather than a silently squashed page.
+CATS_STAGE5 = _with_late_registrations([
+    # Illumination is a correction of the sensor, applied to the pixels
+    # before anything is segmented or measured — it belongs with the
+    # other things done to images on the way in, not with the results.
     ("Acquire", ["convert", "align", "foreign", "external_masks",
-                 "queue", "batch", "distributed_jobs"]),
+                 "illumination", "queue", "batch", "distributed_jobs"]),
+    # Layer Viewer is here because looking at a label mask over its image
+    # is how a segmentation is judged; it is the eye on this band's work.
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
-                 "train_cellpose", "model_zoo", "model_compare"]),
+                 "train_cellpose", "model_zoo", "model_compare",
+                 "layer_viewer"]),
     ("Measure", ["measure", "annotate", "motility", "analyze_plaques",
                  "recruitment", "invasion", "replication"]),
-    ("Analyse", ["classify", "ml_analyze", "map_barcodes", "regression",
-                 "umap", "activation"]),
+    # Barcode QC sits beside Map Barcodes and Regression because the
+    # number it derives — the abundance threshold — is what the
+    # regression consumes as fraction_threshold. It is part of analysing
+    # the screen, not of reporting it. Graph Builder is here for the
+    # same reason: asking the measurements a question you did not plan
+    # for is analysis, whatever you do with the answer afterwards.
+    ("Analyse", ["classify", "ml_analyze", "map_barcodes", "barcode_qc",
+                 "regression", "umap", "activation", "graph_builder"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
     # settings produced the numbers. Database Browser moves here from
     # Acquire for the same reason — exporting measurements.db is something
-    # you do with results, not to get images in.
+    # you do with results, not to get images in. Data Manager sits beside
+    # it for the third time the same argument is made: what a project
+    # costs on disk, and what of it is safe to delete, is a question
+    # about a finished run.
     ("Report",  ["plate_view", "agreement", "train_compare",
                  "classifier_evaluation", "run_history", "db_browser",
-                 "report"]),
-]
+                 "data_manager", "report"]),
+], fallback="Report")
 
-CATS_NARROW8 = [
+CATS_NARROW8 = _with_late_registrations([
+    # Segment stays exactly three, and Measure and Label exactly two:
+    # variant 04's whole argument is that a narrow category can be named
+    # honestly ("'Segment' is three apps and it is obvious which three")
+    # at the cost of two categories too small for a heading. Layer Viewer
+    # would be a fourth here on a technicality — it is where you LOOK at
+    # a mask, not one of the three things that make one.
     ("Segment",          ["mask", "timelapse", "cellpose_masks"]),
     ("Train models",     ["make_masks", "train_cellpose", "model_zoo",
                           "model_compare"]),
@@ -388,30 +477,33 @@ CATS_NARROW8 = [
     ("Label",            ["annotate", "agreement"]),
     ("Classify",         ["classify", "ml_analyze", "activation",
                           "train_compare", "classifier_evaluation"]),
-    ("Screens & reports", ["map_barcodes", "regression", "umap",
+    ("Screens & reports", ["map_barcodes", "barcode_qc", "regression",
+                           "umap", "graph_builder", "layer_viewer",
                            "plate_view", "report"]),
     ("Import & batch",   ["convert", "align", "foreign", "external_masks",
-                          "queue", "batch", "distributed_jobs",
-                          "run_history", "db_browser"]),
+                          "illumination", "queue", "batch",
+                          "distributed_jobs", "run_history", "db_browser",
+                          "data_manager"]),
     ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion",
                           "replication"]),
-]
+], fallback="Screens & reports")
 
-CATS_QUESTIONS = [
+CATS_QUESTIONS = _with_late_registrations([
     ("I have images. Where are my objects?",
      ["mask", "timelapse", "cellpose_masks", "make_masks", "train_cellpose",
-      "model_zoo", "model_compare", "align", "convert", "foreign",
-      "external_masks"]),
+      "model_zoo", "model_compare", "align", "convert", "illumination",
+      "foreign", "external_masks"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "motility", "analyze_plaques", "recruitment",
-      "invasion", "replication", "agreement"]),
+      "invasion", "replication", "agreement", "layer_viewer"]),
     ("I have a screen. Which genes matter?",
      ["classify", "ml_analyze", "map_barcodes", "regression", "umap",
-      "activation"]),
+      "activation", "graph_builder"]),
     ("Should I believe any of this?",
-     ["plate_view", "train_compare", "classifier_evaluation", "report",
-      "run_history", "db_browser", "queue", "batch", "distributed_jobs"]),
-]
+     ["plate_view", "barcode_qc", "train_compare", "classifier_evaluation",
+      "report", "run_history", "db_browser", "data_manager", "queue",
+      "batch", "distributed_jobs"]),
+], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [
     ("Segment images", CATS_QUESTIONS[0][1]),

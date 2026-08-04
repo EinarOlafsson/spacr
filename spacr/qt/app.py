@@ -289,6 +289,113 @@ APP_FACTORIES: dict = {}
 #: rebound) so ``from .app import SECTION_NOTES`` cannot go stale.
 SECTION_NOTES: dict = {}
 
+#: app key → everything a registered app needs OUTSIDE :data:`APPS`.
+#:
+#: A row in ``APPS`` draws a tile. It does not give the tile a header, a
+#: blurb, an API link, a translated name, a headless answer or a Run
+#: button that runs anything: those live in six tables in five other
+#: files, and four finished features sat unreachable for weeks because
+#: their authors could not edit them. :func:`register_app` now takes
+#: those strings ONCE, keeps them here, and fans them out — see
+#: :func:`_publish_meta` for the push and :func:`registered_metadata`
+#: for the pull.
+#:
+#: Fields, all optional: ``name``, ``title``, ``intro``, ``cli_note``,
+#: ``api_module``, ``entry``, ``translations``.
+APP_META: dict = {}
+
+#: ``(module, dict attribute, APP_META field)`` — the side tables a
+#: registration fans out into.
+#:
+#: Addressed by NAME and looked up in :data:`sys.modules`, never
+#: imported: ``spacr.cli`` must answer ``--list`` without loading
+#: PySide6, and importing ``app_screen`` from here would be a cycle.
+#: A table this module has not seen yet is not skipped — the module
+#: pulls what it missed when it is imported, through
+#: :func:`registered_metadata`. Push plus pull is what makes the seam
+#: order-independent, which is the whole problem: ``app.py`` imports
+#: ``spacr.qt.widgets`` before ``register_app`` exists, so a screen
+#: module cannot register during this module's own import, and any
+#: registration after it is by definition after somebody's snapshot.
+_META_TARGETS: Tuple[Tuple[str, str, str], ...] = (
+    ("spacr.qt.screens.app_screen", "APP_TITLES", "title"),
+    ("spacr.qt.screens.app_screen", "APP_INTROS", "intro"),
+    ("spacr.cli", "INTERACTIVE_ONLY", "cli_note"),
+    ("spacr.qt.screens.settings_model", "_APP_API_MODULE", "api_module"),
+)
+
+
+def registered_metadata(field: str) -> dict:
+    """``{app key: value}`` for one :data:`APP_META` field, empty ones dropped.
+
+    The PULL half of the seam. A side table calls this at the end of its
+    own import to absorb every app that registered before it existed::
+
+        _app = sys.modules.get("spacr.qt.app")
+        if _app is not None:
+            for _key, _value in _app.registered_metadata("title").items():
+                APP_TITLES.setdefault(_key, _value)
+
+    ``setdefault``, not assignment: a table's own hand-written entry is
+    the more specific one and wins.
+    """
+    return {key: meta[field] for key, meta in APP_META.items()
+            if meta.get(field)}
+
+
+def _publish_meta(key: str) -> None:
+    """Push one app's metadata into every side table already imported.
+
+    The PUSH half of the seam; see :data:`_META_TARGETS`. Failures are
+    swallowed per target: a side table that cannot take an entry must
+    not take the registration — and the sidebar tile — down with it.
+    """
+    meta = APP_META.get(key) or {}
+    for module_name, attribute, field in _META_TARGETS:
+        value = meta.get(field)
+        if not value:
+            continue
+        module = sys.modules.get(module_name)
+        table = getattr(module, attribute, None) if module is not None else None
+        if isinstance(table, dict):
+            table.setdefault(key, value)
+    values = meta.get("translations")
+    name = meta.get("name")
+    if values and name:
+        i18n = sys.modules.get("spacr.qt.i18n")
+        add = getattr(i18n, "add_translation", None) if i18n is not None else None
+        if callable(add):
+            try:
+                add(name, values)
+            except Exception:
+                LOG.warning("Could not translate app name %r", name,
+                            exc_info=True)
+
+
+def registered_entry(key: str):
+    """Import and return the pipeline callable app ``key`` registered.
+
+    ``None`` when the app registered no ``entry=``, which is what an
+    interactive-only app (its own screen, no Run button) does.
+
+    :func:`spacr.qt.bridge.resolve_pipeline_entry` consults this after
+    its own built-in chain, so ``register_app(..., entry="mod:func")`` is
+    all a new pipeline app needs for its Run button to run something.
+    Imported here, on demand, rather than at registration: registering an
+    app must not drag numpy, torch or pandas into a process that only
+    wanted to draw a sidebar.
+    """
+    target = (APP_META.get(key) or {}).get("entry")
+    if not target:
+        return None
+    module_name, _, func_name = str(target).partition(":")
+    if not module_name or not func_name:
+        raise ValueError(
+            f"app {key!r} declared entry={target!r}; it must be spelled "
+            f"'module:function'")
+    import importlib
+    return getattr(importlib.import_module(module_name), func_name)
+
 
 class _LiveSections(list):
     """The live section list — the type of :data:`SECTIONS`.
@@ -371,7 +478,13 @@ def _insert_position(section: str) -> int:
 
 
 def register_app(key: str, name: str, desc: str, section: str, *,
-                 factory=None, stage: Optional[str] = None
+                 factory=None, stage: Optional[str] = None,
+                 title: Optional[str] = None, intro: Optional[str] = None,
+                 cli_note: Optional[str] = None,
+                 api_module: Optional[str] = None,
+                 entry: Optional[str] = None,
+                 defaults_module: Optional[str] = None,
+                 translations: Optional[Tuple[str, ...]] = None,
                  ) -> Tuple[str, str, str, str]:
     """Add one app to the registry. The seam a new module registers through.
 
@@ -382,6 +495,12 @@ def register_app(key: str, name: str, desc: str, section: str, *,
         register_app("graph_builder", "Graph Builder",
                      "Drag columns onto x / y / colour / facet",
                      SECTION_EXPLORE, factory=make_screen, stage=STAGE_ALPHA)
+
+    The first four arguments put a tile on Home and a row in the sidebar.
+    The keyword arguments after ``stage`` are what make that tile a
+    working app: they are the app's strings, given ONCE here, and fanned
+    out into the tables that used to need a hand-edit each — see
+    :data:`APP_META`.
 
     :param key: stable app id. Load-bearing — ``bridge``, ``cli``,
         ``validate``, the drag-and-drop handlers, ``settings_model`` and
@@ -400,6 +519,36 @@ def register_app(key: str, name: str, desc: str, section: str, *,
         settings-driven ``AppScreen``, like every pipeline module.
     :param stage: optional :data:`STAGES` member. Omitted means stable,
         which is also what deleting the entry later means.
+    :param title: header shown at the top of the app's own screen.
+        Defaults to ``name``; give it only when the screen wants the
+        longer form ("Illumination Correction" over a tile that reads
+        "Illumination"). Reaches ``app_screen.APP_TITLES``.
+    :param intro: the paragraph beside that header — what the module
+        does, in a sentence or two. Defaults to ``desc``. Reaches
+        ``app_screen.APP_INTROS``.
+    :param cli_note: for an app with NO headless path: one sentence
+        saying so and what to do instead. Reaches
+        ``cli.INTERACTIVE_ONLY``, which is what ``spacr-run <key>``
+        prints instead of "unknown module". Mutually exclusive with
+        ``entry`` in spirit — an app is one or the other.
+    :param api_module: dotted-or-slashed module path under the generated
+        API docs ("qt/layer_viewer"), for the ⓘ link beside the settings.
+        Reaches ``settings_model._APP_API_MODULE``.
+    :param entry: ``"module:function"`` of the callable the Run button
+        runs. Resolved lazily by :func:`registered_entry` and consulted
+        by :func:`spacr.qt.bridge.resolve_pipeline_entry`; without it the
+        Run button answers "Not runnable".
+    :param defaults_module: the module whose import calls
+        :func:`spacr.settings.register_defaults` for this key.
+        ``settings_model.resolve_default_settings`` imports it before
+        asking whether the key has registered defaults — otherwise a
+        module that registers its settings at import has no settings
+        panel until something else happens to import it, and the app
+        opens on an empty form. Imported on demand, so registering an
+        app costs no numpy/pandas/torch at startup.
+    :param translations: the display ``name`` in the nine non-English
+        UI languages, in :data:`spacr.qt.i18n.LANGUAGES` order. Reaches
+        ``i18n._ROWS`` and its catalogs.
     :returns: the row that was appended, so a caller can keep it.
     :raises ValueError: on a duplicate key, an unknown section, an
         unknown stage or an empty name/description.
@@ -427,6 +576,17 @@ def register_app(key: str, name: str, desc: str, section: str, *,
         APP_FACTORIES[key] = factory
     if stage is not None:
         APP_STAGE[key] = stage
+    APP_META[key] = {
+        "name": row[1],
+        "title": str(title).strip() if title else row[1],
+        "intro": str(intro).strip() if intro else row[2],
+        "cli_note": str(cli_note).strip() if cli_note else "",
+        "api_module": str(api_module).strip() if api_module else "",
+        "entry": str(entry).strip() if entry else "",
+        "defaults_module": str(defaults_module).strip() if defaults_module else "",
+        "translations": tuple(translations) if translations else (),
+    }
+    _publish_meta(key)
     _refresh_sections()
     # The cap is a design rule, not a runtime one: a violation is fixed
     # by splitting the section, and refusing to start the app would not
@@ -454,6 +614,19 @@ def unregister_app(key: str) -> bool:
     APPS[:] = [row for row in APPS if row[0] != key]
     APP_FACTORIES.pop(key, None)
     APP_STAGE.pop(key, None)
+    meta = APP_META.pop(key, None)
+    if meta is not None:
+        # The side tables get the row taken back out too, or a plugin
+        # that unloads leaves a title, an intro, an API link and a
+        # "GUI-only" excuse behind for an app that no longer exists —
+        # and `test_the_gui_only_list_holds_no_apps_that_no_longer_
+        # exist` is exactly that failure. Only entries this app put
+        # there are removed: a hand-written one was not ours to drop.
+        for module_name, attribute, field in _META_TARGETS:
+            module = sys.modules.get(module_name)
+            table = getattr(module, attribute, None) if module else None
+            if isinstance(table, dict) and table.get(key) == meta.get(field):
+                table.pop(key, None)
     _refresh_sections()
     return len(APPS) != before
 
@@ -607,6 +780,98 @@ for _row in _BUILTIN_APPS:
     register_app(*_row)
 del _row
 
+
+# ---------------------------------------------------------------------------
+# Apps that live in their own module
+# ---------------------------------------------------------------------------
+# The two pipeline modules below are registered here rather than by
+# themselves, because they are not Qt modules: `spacr.illumination` and
+# `spacr.sequencing_qc` are imported into worker processes and into
+# `spacr-run`, and neither may grow an import of PySide6. Their strings
+# are theirs; the row is ours. Everything after `section=` is fanned out
+# by `register_app` — see APP_META.
+
+register_app(
+    "illumination", "Illumination",
+    "Estimate the flat-field from the plate itself and divide it out "
+    "before any intensity feature is measured",
+    SECTION_DATA,
+    stage=STAGE_ALPHA,
+    title="Illumination Correction",
+    intro=(
+        "No microscope lights a field evenly, so the same cell measures "
+        "brighter at the centre than at a corner — routinely 10–40% on a "
+        "widefield screen, and it does not average out of a per-well "
+        "aggregate. This estimates the illumination field from the plate's "
+        "own merged fields (a per-pixel median across fields, then a smooth "
+        "low-order surface), QCs it, and installs it as a preprocessing hook "
+        "that every measure worker applies before a single feature is "
+        "computed."),
+    api_module="illumination",
+    entry="spacr.illumination:prepare_illumination_correction",
+    defaults_module="spacr.illumination",
+    translations=("Belysning", "Beleuchtung", "Iluminación", "照明",
+                  "Iluminação", "प्रकाश", "조명", "Lýsing", "Éclairage"),
+)
+
+register_app(
+    "barcode_qc", "Barcode QC",
+    "Did the mapping run work, and where does the abundance threshold go",
+    SECTION_RESULTS,
+    stage=STAGE_ALPHA,
+    title="Barcode QC",
+    intro=(
+        "Reads per well, starved wells, unmapped reads, barcode collisions, "
+        "row/column position effects and library coverage for a finished "
+        "mapping run — and then the number everyone used to read off a "
+        "histogram once and copy forward: state how many gRNAs per well the "
+        "design intends and the abundance threshold that delivers it is "
+        "derived, swept either side of, and written out in words."),
+    api_module="sequencing_qc",
+    entry="spacr.sequencing_qc:barcode_qc",
+    defaults_module="spacr.sequencing_qc",
+    translations=("Streckkods-QC", "Barcode-QC", "CC de códigos de barras",
+                  "条形码质控", "CQ de código de barras", "बारकोड QC",
+                  "바코드 QC", "Strikamerkja-QC", "CQ des codes-barres"),
+)
+
+
+#: Modules that own their registry row and call ``register_app``
+#: themselves — ``module name`` → ``registration function name``.
+#:
+#: Imported HERE, at the bottom of this module, because that is the only
+#: place a screen module can register from and be seen by everybody.
+#: ``app.py`` imports ``spacr.qt.widgets`` at its line 41, before
+#: ``register_app`` exists, so nothing reachable from the top of this
+#: file can register; and a registration that happens later — when
+#: ``spacr.qt.screens`` is first imported, or when ``run()`` walks
+#: ``spacr.qt.SELF_REGISTERING_MODULES`` at launch — is a registration
+#: that some importer's snapshot of ``APPS`` predates, and that
+#: ``import spacr.qt.app`` alone does not produce at all. The inventory
+#: tests compare against ``APPS`` after importing this module, so a row
+#: that appears only sometimes is a ledger that fails only sometimes.
+#:
+#: Those two other seams still work and are still the right place for a
+#: screen that has no row of its own; every registration function named
+#: here is idempotent, so being called from both costs nothing.
+_SELF_REGISTERING_APPS = (
+    ("spacr.qt.layer_viewer", "register_layer_viewer_app"),
+    ("spacr.qt.screens.graph_builder", "register"),
+)
+
+import importlib as _importlib
+
+for _module_name, _func_name in _SELF_REGISTERING_APPS:
+    try:
+        getattr(_importlib.import_module(_module_name), _func_name)()
+    except Exception:
+        # One screen's import-time bug costs that screen and nothing
+        # else. The same posture this file already takes towards
+        # plugins, for the same reason: the window still opens.
+        LOG.exception("Could not register the app owned by %s", _module_name)
+del _module_name, _func_name
+
+
 # Plugin apps use the same registry rows and maturity annotations as built-ins.
 # Contributions can add a key but never replace one.
 try:
@@ -743,6 +1008,47 @@ def make_home_page(parent=None):
         categories=home_categories(apps),
         bands=[(s, [r[0] for r in rows]) for s, rows in home_bands(apps)],
         stages=home_stages())
+
+
+#: demo key → the label its entry carries in the Demos menu.
+#:
+#: Module level rather than inline in ``_build_menus`` because the menu is
+#: not the only thing that names a demo: an app screen with no ``src`` set
+#: offers the user the demo that would fill it, and it has to name the
+#: same one. That hint used to read "use Demos → Mask demo…" on EVERY
+#: screen, so Measure, Timelapse, Classify and Sequencing each pointed at
+#: a dataset that would not open them.
+#:
+#: Labels are kept verbatim: :mod:`spacr.qt.i18n` keys its catalog on the
+#: English string, so renaming one drops its translation in nine
+#: languages.
+DEMO_LABELS = {
+    "mask":         "Mask demo…",
+    "measure":      "Measure demo…",
+    "crop":         "Crop demo…",
+    "classify":     "Classify demo…",
+    "timelapse":    "Timelapse demo…",
+    "map_barcodes": "Sequencing demo…",
+}
+
+
+def demo_label_for_app(app_key: str) -> Optional[str]:
+    """The Demos-menu label of the demo that opens in app ``app_key``.
+
+    ``None`` when no demo lands there, which is most of the registry —
+    the caller says something generic rather than naming a demo that
+    would take the user somewhere else.
+
+    Resolved through :attr:`MainWindow.DEMO_TARGETS` (demo key → target
+    app) rather than a second table, so a demo that is re-pointed at a
+    different app moves its hint with it. The first match wins: two demos
+    land on ``measure`` (Measure and Crop) and the one named after the
+    app is the one it lists first.
+    """
+    for demo_key, (target, _generator) in MainWindow.DEMO_TARGETS.items():
+        if target == app_key and demo_key in DEMO_LABELS:
+            return DEMO_LABELS[demo_key]
+    return None
 
 
 # Explicit key -> icon-filename overrides for cases where the app_key
@@ -1194,14 +1500,7 @@ class MainWindow(QMainWindow):
 
         demo_menu = mb.addMenu("&Demos")
         self._demo_actions: dict[str, QAction] = {}
-        for app_key, label in (
-            ("mask",      "Mask demo…"),
-            ("measure",   "Measure demo…"),
-            ("crop",      "Crop demo…"),
-            ("classify",  "Classify demo…"),
-            ("timelapse", "Timelapse demo…"),
-            ("map_barcodes", "Sequencing demo…"),
-        ):
+        for app_key, label in DEMO_LABELS.items():
             act = QAction(label, self)
             act.setStatusTip(
                 f"Generate a synthetic {app_key} dataset and open it "

@@ -97,16 +97,36 @@ def test_the_tutorial_action_no_longer_calls_itself_unfinished(win):
 
 
 def test_the_landing_page_app_count_matches_the_shipped_app_list():
-    """``index.rst`` claimed "five pipeline apps"; ``len(APPS)`` is 34."""
+    """``index.rst`` claimed "five pipeline apps"; ``len(APPS)`` is 38."""
     index = (DOCS_SOURCE / "index.rst").read_text(encoding="utf-8")
     match = re.search(r"The GUI ships (\d+) apps", index)
     assert match, "index.rst no longer states how many apps ship"
     assert int(match.group(1)) == len(APPS)
 
 
+#: How ``index.rst`` is allowed to spell the number of categories. The
+#: sentence is prose, so the count is a word, and this is the map between
+#: the two — one edit here and one in the sentence when a section is
+#: added, rather than a regex nobody can read.
+_CATEGORY_WORDS = {4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight"}
+
+
 def test_the_landing_page_category_count_matches_the_shipped_sections():
+    """Explore made this six. The word and the live list have to agree.
+
+    Asserted against ``SECTIONS`` rather than a literal because sections
+    are derived — one appears the day its first app registers — so a
+    number typed here would be a claim nothing could check.
+    """
     from spacr.qt.app import SECTIONS
 
     index = (DOCS_SOURCE / "index.rst").read_text(encoding="utf-8")
-    assert re.search(r"grouped into five categories", index)
-    assert len(SECTIONS) == 5
+    word = _CATEGORY_WORDS[len(SECTIONS)]
+    assert re.search(rf"grouped into {word} categories", index), (
+        f"index.rst does not say the GUI has {word} ({len(SECTIONS)}) "
+        f"categories, which is what spacr.qt.app.SECTIONS holds: "
+        f"{list(SECTIONS)}")
+    for section in SECTIONS:
+        assert f"*{section}*" in index, (
+            f"index.rst names the categories one by one and never names "
+            f"{section!r}")

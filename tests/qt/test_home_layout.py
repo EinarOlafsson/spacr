@@ -165,8 +165,13 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
         "an app is missing from Home, or drawn on it twice")
 
     staged = [k for k in keys if app_stage(k) != "stable"]
-    assert len(staged) == 26, (
-        f"{len(staged)} apps staged, not 26 — if that is intended, say so "
+    # Thirty-one, up from twenty-six: Illumination, Barcode QC, Layer
+    # Viewer, Graph Builder and Data Manager each arrive alpha. The count
+    # is the user's list — it is how many of the apps in front of them
+    # carry a "not signed off" colour, and it drops by one every time an
+    # app is signed off.
+    assert len(staged) == 31, (
+        f"{len(staged)} apps staged, not 31 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

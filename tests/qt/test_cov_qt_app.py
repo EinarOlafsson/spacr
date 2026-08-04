@@ -203,6 +203,7 @@ EXPECTED_SECTIONS = {
     # Illumination correction is done TO the images on the way in, like
     # stitching and conversion -- not a reading of what came out.
     "illumination":    SECTION_DATA,
+    "data_manager":    SECTION_DATA,
     "plate_view":      SECTION_RESULTS,
     "agreement":       SECTION_RESULTS,
     "umap":            SECTION_RESULTS,
@@ -237,6 +238,7 @@ EXPECTED_STAGES = {
     "run_history": "alpha", "report": "alpha",
     "illumination": "alpha", "barcode_qc": "alpha",
     "layer_viewer": "alpha", "graph_builder": "alpha",
+    "data_manager": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -255,7 +257,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Twenty-one alpha, nine beta, eight stable -- Illumination, Barcode
+    Twenty-two alpha, nine beta, eight stable -- Illumination, Barcode
     QC, Layer Viewer and Graph Builder each arrive alpha, which is what
     "built and reachable, not yet trusted end to end" means for a
     feature whose first users are reading this sentence. Signing an app
@@ -270,7 +272,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 21, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 22, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():

@@ -117,6 +117,8 @@ APP_FUNCTIONS: Dict[str, str] = {
     "analyze_plaques": "spacr.submodules.analyze_plaques",
     "convert": "spacr.convert.convert_folder",
     "simulation": "spacr.sim.run_multiple_simulations",
+    "illumination": "spacr.illumination.prepare_illumination_correction",
+    "barcode_qc": "spacr.sequencing_qc.barcode_qc",
 }
 
 # Friendly spellings a caller (or a notebook) might reasonably use.
