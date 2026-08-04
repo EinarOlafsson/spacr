@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QFileDialog, QHBoxLayout,
 
 from ... import lineage as lin
 from ..job_runner import JobRunner
+from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import SPACING, active_palette
 
@@ -260,7 +261,11 @@ class LineageScreen(LinkedView, QWidget):
                 "(none — every child names a parent that exists)"))
             return
         for _index, row in self._orphans.iterrows():
-            key = lin.node_key(row)
+            # `orphans` stamps each row with the table it came from, so the
+            # key an unattached child publishes says which child it is —
+            # the same identity the tree uses, rather than one that names
+            # every object with that label in the field.
+            key = lin.node_key(row, str(row.get("table") or "") or None)
             claimed = str(row.get("parent_id") or "")
             text = (f"{row['table']} {row[lin.schema.OBJECT_LABEL_KEY]} → "
                     + (f"cell {claimed} (missing)" if claimed
@@ -328,11 +333,14 @@ class LineageScreen(LinkedView, QWidget):
         return ids
 
     def collision_note(self) -> str:
-        """One line naming the objects the shared key cannot tell apart.
+        """One line naming any objects the shared key cannot tell apart.
 
-        Empty when there are none. When there are, it is the difference
-        between "opening four objects showed three crops" being a mystery and
-        being a documented property of the key.
+        **Empty, now and normally.** The object key carries the object type,
+        so a cell's nucleus 1 and its pathogen 1 are two keys; this used to
+        fire on every family that had both, and it is kept as the alarm for
+        that ever being true again. It is cheap, and the failure it watches
+        for — "opening four objects showed three crops" — is otherwise a
+        mystery rather than a message.
         """
         collisions = lin.forest_key_collisions(self._forest)
         if not collisions:
@@ -340,9 +348,9 @@ class LineageScreen(LinkedView, QWidget):
         example = sorted(collisions)[0]
         return (f"{len(collisions)} object key(s) name more than one object — "
                 f"{example} is a "
-                f"{' and a '.join(collisions[example])}. The shared key is "
-                f"field plus label with no table in it, so every other view "
-                f"treats them as one object.")
+                f"{' and a '.join(collisions[example])}. Every other view "
+                f"treats them as one object, so opening this family will "
+                f"show fewer crops than it has objects.")
 
     # -- publishing ----------------------------------------------------------
     def _on_tree_selection(self) -> None:
@@ -403,7 +411,7 @@ class LineageScreen(LinkedView, QWidget):
         if selection.keys is None:
             self.tree.clearSelection()
             return
-        wanted = {str(key) for key in selection.keys}
+        wanted = [str(key) for key in selection.keys]
         blocked = self.tree.blockSignals(True)
         try:
             self.tree.clearSelection()
@@ -412,7 +420,7 @@ class LineageScreen(LinkedView, QWidget):
                         for i in range(self.tree.topLevelItemCount())]
             while iterator:
                 item = iterator.pop()
-                if str(item.data(0, _KEY_ROLE)) in wanted:
+                if match_keys([item.data(0, _KEY_ROLE)], wanted)[0]:
                     item.setSelected(True)
                     found += 1
                     parent = item.parent()

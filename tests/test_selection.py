@@ -23,6 +23,7 @@ from spacr.selection import (
     Selection,
     as_key_index,
     key_object_type,
+    match_keys,
     object_keys,
     untyped_object_key,
     untyped_object_keys,
@@ -675,3 +676,53 @@ def test_timelapse_keys_carry_the_type_too():
     keys = list(object_keys(frame, timelapse=True))
     assert keys == ["p1_r1_c1_f1_t1_pathogen1", "p1_r1_c1_f1_t2_pathogen1"]
     assert len(set(keys)) == 2
+
+
+# ---------------------------------------------------------------------------
+# match_keys — for the views that hold keys and not the frame
+# ---------------------------------------------------------------------------
+
+def test_match_keys_answers_the_same_question_as_mask_for():
+    """One rule, two entry points. Two rules is how they come to disagree."""
+    frame = _child_frame()
+    keys = list(object_keys(frame))
+    for wanted in (["p1_r1_c1_f1_nucleus1"], ["p1_r1_c1_f1_1"],
+                   ["p1_r1_c1_f1_pathogen2", "p1_r1_c1_f1_cell1"], []):
+        assert list(match_keys(keys, wanted)) == \
+            list(Selection.from_keys(wanted or ["nothing"]).mask_for(frame)
+                 if wanted else [False] * len(keys))
+
+
+def test_a_typed_publisher_reaches_an_untyped_subscriber():
+    """The failure this replaced a bare `isin` for.
+
+    The database browser knows it is showing the `cell` table and says so in
+    its keys; the UMAP's points come from a `prcfo` that states nothing.
+    Under exact equality the table highlighted NOTHING in the UMAP — which on
+    a scatter plot is indistinguishable from the user having lassoed empty
+    space, so it would have been found by somebody's confusion, not by a test.
+    """
+    untyped_points = ["p1_r1_c1_f1_1", "p1_r1_c1_f1_2", "p1_r1_c1_f1_3"]
+    published = ["p1_r1_c1_f1_cell2"]
+    assert list(match_keys(untyped_points, published)) == [False, True, False]
+
+
+def test_an_untyped_publisher_reaches_every_type_it_names():
+    typed_points = ["p1_r1_c1_f1_cell1", "p1_r1_c1_f1_nucleus1",
+                    "p1_r1_c1_f1_pathogen1", "p1_r1_c1_f1_pathogen2"]
+    assert list(match_keys(typed_points, ["p1_r1_c1_f1_1"])) == \
+        [True, True, True, False]
+
+
+def test_two_typed_sides_never_reach_across():
+    typed_points = ["p1_r1_c1_f1_nucleus1", "p1_r1_c1_f1_pathogen1"]
+    assert list(match_keys(typed_points, ["p1_r1_c1_f1_nucleus1"])) == \
+        [True, False]
+
+
+def test_match_keys_leaves_a_path_shaped_key_alone():
+    """Crop paths travel through the same routing contract."""
+    paths = ["/crops/cell_png/p1_r1_c1_f1_o1.png",
+             "/crops/nucleus_png/p1_r1_c1_f1_o1.png"]
+    assert list(match_keys(paths, [paths[1]])) == [False, True]
+    assert not match_keys(paths, ["p1_r1_c1_f1_1"]).any()

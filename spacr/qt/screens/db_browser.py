@@ -136,7 +136,8 @@ from PySide6.QtWidgets import (
 )
 from ..widgets.toggle import Toggle
 
-from ...selection import OBJECT_KEY_COLUMNS, DataFilter, Selection
+from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
+                          with_object_type)
 from ..bridge import make_thread
 from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
@@ -1885,13 +1886,23 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         The positional index is load-bearing — it is what turns the filtered
         frame back into the row numbers to hide.
+
+        Stamped with the table it came from, because the browser knows and
+        the frame does not: without it, selecting nucleus 1 here published
+        the same key as selecting pathogen 1, and the views that key was
+        supposed to reach landed on whichever of the two they held. A table
+        that is not one spaCR keys objects by — ``png_list``, a summary, a
+        user's own — is left alone by ``with_object_type``, which is the
+        right answer for something that has no object type.
         """
         available = self._model.all_columns()
         at = {c: i for i, c in enumerate(available)}
         wanted = [c for c in dict.fromkeys(columns) if c in at]
         rows = self._model.rows()
-        return pd.DataFrame({c: [row[at[c]] for row in rows] for c in wanted},
-                            index=range(len(rows)), columns=wanted)
+        frame = pd.DataFrame(
+            {c: [row[at[c]] for row in rows] for c in wanted},
+            index=range(len(rows)), columns=wanted)
+        return with_object_type(frame, self._table)
 
     def _apply_linked_filter(self, *_args) -> None:
         """Hide the rows the shared filter excludes.
