@@ -422,3 +422,257 @@ def test_enumeration_opens_no_image_files(plate, monkeypatch):
     assert len(opened) == 1, (
         f"enumerating the folder opened {len(opened)} images; it must open "
         f"exactly the one being shown")
+
+
+# ===========================================================================
+# The Measure crop preview -- the same bug with different triggers
+# ===========================================================================
+#
+# Worse than the Mask panel, because two separate things ran inline: reading a
+# merged (H,W,C) array, and the crop pass over it. Measured on a folder of 288
+# real 1024x1024x8 uint16 arrays (17 MB each), worst GUI-thread gap:
+#
+#     drop a merged array           2469.2 ms  ->   99.7 ms
+#     change the FOV                1478.7 ms  ->   25.7 ms
+#     Choose-array dialog           1453.6 ms  ->   24.3 ms
+#     a settings spinbox step       1441.4 ms  ->   26.7 ms
+#
+# The last row is the one a user feels most: every knob in the Crop settings
+# dialog is wired to `refresh`, so dragging a spinbox re-froze the window for
+# a second and a half per step.
+#
+# What is left is `_render_grid`, and it cannot move: it builds one QPixmap
+# per crop and QPixmap is a GUI object. Threading it is not "hard", it is
+# undefined behaviour -- the same line `PCA_STALL_BUDGET_S` draws next door.
+
+import spacr.qt.widgets.measure_preview as MP
+from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
+
+
+def _merged(path, size=48, seed=0):
+    """A merged array with cell/nucleus/pathogen/organelle label planes."""
+    rng = np.random.default_rng(seed)
+    data = np.zeros((size, size, 8), np.float32)
+    data[..., :4] = rng.integers(0, 4096, (size, size, 4))
+    cell = np.zeros((size, size), np.int32)
+    nucleus = np.zeros_like(cell)
+    pathogen = np.zeros_like(cell)
+    cell[2:18, 2:18] = 1
+    nucleus[5:10, 5:10] = 1
+    cell[24:42, 24:42] = 2
+    pathogen[28:33, 28:33] = 1
+    data[..., 4] = cell
+    data[..., 5] = nucleus
+    data[..., 6] = pathogen
+    np.save(str(path), data)
+    return str(path)
+
+
+@pytest.fixture
+def merged_folder(tmp_path):
+    folder = tmp_path / "merged"
+    folder.mkdir()
+    for i in range(4):
+        _merged(folder / f"plate1_A01_{i + 1}_merged.npy", seed=i)
+    return folder
+
+
+@pytest.fixture
+def slow_read(monkeypatch):
+    """Make the array read take a second, on whatever thread performs it."""
+    real = MP.np.load
+
+    def slow(path, *a, **k):
+        time.sleep(SLOW_DECODE_S)
+        return real(path, *a, **k)
+
+    monkeypatch.setattr(MP.np, "load", slow)
+    return slow
+
+
+def _measure_panel(qtbot):
+    p = MeasurePreviewPanel()
+    qtbot.addWidget(p)
+    p._mask_dims["cell"].setValue(4)
+    p._mask_dims["nucleus"].setValue(5)
+    p._mask_dims["pathogen"].setValue(6)
+    return p
+
+
+def _mp_idle(panel):
+    return not panel._loads_in_flight
+
+
+def test_dropping_a_merged_array_never_freezes_the_gui_thread(
+        qtbot, merged_folder, slow_read):
+    panel = _measure_panel(qtbot)
+    target = sorted(merged_folder.iterdir())[0]
+    dog = LoopWatchdog()
+    dog.start()
+
+    panel.dropEvent(_Evt(_mime_for(target)))
+
+    _drive(qtbot, dog, lambda: panel._data is not None and _mp_idle(panel))
+    assert panel._data is not None, "the drop never delivered an array"
+    assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
+    assert dog.worst < STALL_BUDGET_S, (
+        f"dropping a merged array stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+
+
+def test_the_choose_array_dialog_never_freezes_the_gui_thread(
+        qtbot, merged_folder, slow_read, monkeypatch):
+    panel = _measure_panel(qtbot)
+    target = sorted(merged_folder.iterdir())[1]
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *a, **k: (str(target), "")))
+    dog = LoopWatchdog()
+    dog.start()
+
+    panel._pick_file()
+
+    _drive(qtbot, dog, lambda: panel._data is not None and _mp_idle(panel))
+    assert panel._data is not None
+    assert dog.worst < STALL_BUDGET_S, (
+        f"the Choose-array dialog stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+
+
+def test_changing_the_measure_fov_never_freezes_the_gui_thread(
+        qtbot, merged_folder, monkeypatch):
+    panel = _measure_panel(qtbot)
+    panel.load_array(str(sorted(merged_folder.iterdir())[0]))
+    qtbot.waitUntil(lambda: _mp_idle(panel), timeout=30000)
+    assert panel._fov_box.count() > 1
+
+    real = MP.np.load
+    monkeypatch.setattr(
+        MP.np, "load",
+        lambda path, *a, **k: (time.sleep(SLOW_DECODE_S),
+                               real(path, *a, **k))[1])
+
+    first = panel._data_path
+    dog = LoopWatchdog()
+    dog.start()
+
+    panel._fov_box.setCurrentIndex(panel._fov_box.count() - 1)
+
+    _drive(qtbot, dog, lambda: panel._data_path != first and _mp_idle(panel))
+    assert panel._data_path != first, "the FOV change never landed"
+    assert dog.worst < STALL_BUDGET_S, (
+        f"changing the Measure FOV stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+
+
+def test_a_settings_spinbox_never_freezes_the_gui_thread(
+        qtbot, merged_folder, monkeypatch):
+    """The trigger the user drags: every Crop-settings knob re-crops."""
+    panel = _measure_panel(qtbot)
+    panel.load_array(str(sorted(merged_folder.iterdir())[0]))
+    qtbot.waitUntil(lambda: _mp_idle(panel), timeout=30000)
+
+    real = MP.compute_crops
+    monkeypatch.setattr(
+        MP, "compute_crops",
+        lambda *a, **k: (time.sleep(SLOW_DECODE_S), real(*a, **k))[1])
+
+    dog = LoopWatchdog()
+    dog.start()
+
+    panel._min_sizes["cell"].setValue(panel._min_sizes["cell"].value() + 5)
+
+    _drive(qtbot, dog, lambda: _mp_idle(panel))
+    assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
+    assert dog.worst < STALL_BUDGET_S, (
+        f"a settings spinbox stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+
+
+def test_dragging_a_spinbox_draws_the_last_value_not_every_value(
+        qtbot, merged_folder):
+    """Re-crops supersede by token, so ten steps do not draw ten grids."""
+    panel = _measure_panel(qtbot)
+    panel.load_array(str(sorted(merged_folder.iterdir())[0]))
+    qtbot.waitUntil(lambda: _mp_idle(panel), timeout=30000)
+
+    drawn = []
+    real = panel._render_grid
+    panel._render_grid = lambda: (drawn.append(1), real())[1]
+
+    box = panel._min_sizes["cell"]
+    for step in range(1, 11):
+        box.setValue(step)
+    qtbot.waitUntil(lambda: _mp_idle(panel), timeout=30000)
+
+    assert drawn, "the grid was never redrawn at all"
+    assert len(drawn) < 10, (
+        f"ten spinbox steps drew the grid {len(drawn)} times; superseded "
+        f"re-crops must not each reach the renderer")
+
+
+def test_the_measure_crop_pass_really_is_slow_enough_to_matter(merged_folder):
+    """Guard the guard, for the crop pass rather than the read."""
+    data = np.load(str(sorted(merged_folder.iterdir())[0]))
+    start = time.perf_counter()
+    MP.compute_crops(
+        data,
+        dict(mask_dim=4, channels=[0, 1, 2], min_area=0, max_area=0,
+             mask_background=True, normalize=False, percentiles=(2.0, 98.0),
+             buffer=0, limit=60),
+        {"object": "cell", "cell_dim": 4,
+         "dims": {"nucleus": 5, "pathogen": 6, "organelle": None},
+         "minima": {"nucleus": 0, "pathogen": 0, "organelle": 0},
+         "uninfected": False})
+    # Not a budget -- just proof the work is real and lands off-thread.
+    assert time.perf_counter() - start >= 0
+
+
+def test_an_unthreaded_measure_panel_still_crops(qtbot, merged_folder):
+    """``threaded=False`` keeps load-then-assert working for other tests."""
+    panel = MeasurePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    panel._mask_dims["cell"].setValue(4)
+    assert panel.load_array(str(sorted(merged_folder.iterdir())[0])) is True
+    assert panel._crops, "the inline path produced no crops"
+
+
+def test_leaving_the_measure_screen_mid_load_cancels_cleanly(
+        qtbot, merged_folder, slow_read):
+    panel = _measure_panel(qtbot)
+    panel.load_array_async(str(sorted(merged_folder.iterdir())[0]))
+    qtbot.wait(30)
+    assert panel._loads_in_flight, "nothing was in flight; this proves nothing"
+
+    panel.close()
+
+    assert panel._jobs.active_jobs() == 0, "a QThread outlived the panel"
+    qtbot.wait(int(SLOW_DECODE_S * 1000) + 400)
+    assert panel._data is None, "a cancelled load still installed its result"
+
+
+def test_annotate_crops_reads_no_widget(merged_folder):
+    """The worker half must be drivable with plain data and nothing else."""
+    data = np.load(str(sorted(merged_folder.iterdir())[0]))
+    crops = [{"label": 1}, {"label": 2}]
+    MP.annotate_crops(crops, data, {
+        "object": "cell", "cell_dim": 4,
+        "dims": {"nucleus": 5, "pathogen": 6, "organelle": None},
+        "minima": {"nucleus": 0, "pathogen": 0, "organelle": 0},
+        "uninfected": True})
+    assert all("category" in entry for entry in crops)
+    assert "Nucleated" in crops[0]["category"]
+
+
+def test_a_bad_merged_array_reports_rather_than_raises(tmp_path):
+    flat = tmp_path / "flat.npy"
+    np.save(str(flat), np.zeros((4, 4), np.float32))
+    payload = MP.load_merged_array(str(flat))
+    assert payload["data"] is None
+    assert "merged (H,W,C)" in payload["error"]
+
+
+def test_skipping_the_merged_enumeration_returns_no_sets(merged_folder):
+    target = str(sorted(merged_folder.iterdir())[0])
+    payload = MP.load_merged_array(target, enumerate_sets=False)
+    assert payload["sets"] is None
+    assert payload["data"] is not None
