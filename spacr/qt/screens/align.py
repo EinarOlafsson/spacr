@@ -50,7 +50,7 @@ from ..widgets.toggle import Toggle
 
 from ... import align as align_mod
 from ..bridge import make_thread
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
 
 __all__ = [
@@ -103,6 +103,11 @@ class TileLayoutWidget(QWidget):
         self._plan = None
         self.setMinimumHeight(240)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # The panel is drawn in `paintEvent`, so the widget itself must not
+        # also paint the blanket window fill underneath it — that fill is
+        # opaque and would swallow the backdrop before the translucent
+        # panel ever composited over it.
+        make_transparent(self)
 
     def set_plan(self, plan) -> None:
         """Show ``plan`` (an :class:`spacr.align.AlignPlan`), or ``None``."""
@@ -146,7 +151,11 @@ class TileLayoutWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = active_palette()
-        painter.fillRect(self.rect(), QColor(palette["surface"]))
+        # A rounded panel at the page opacity, not `fillRect(..., surface)`:
+        # the hex `active_palette` returns carries no alpha, so the empty
+        # state used to be the one flat black rectangle on an otherwise
+        # see-through page.
+        paint_panel(painter, self, role="surface", inset=0.5)
 
         rects = self.tile_rects()
         if not rects:
