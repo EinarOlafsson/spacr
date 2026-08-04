@@ -150,6 +150,35 @@ def test_the_last_run_is_found_without_being_named(logs):
     assert cr.find_last_run_id() == second
 
 
+def test_no_run_found_says_which_kind_of_nothing_it_was(logs, tmp_path):
+    """"No run was logged" and "the run directory could not be read" are
+    different answers, and a report that cannot tell them apart sends the
+    maintainer looking for a run that was there all along."""
+    problems: list = []
+    assert cr.find_last_run_id(problems) == ""
+    assert problems and "no run has logged anything" in problems[0]
+
+    report = cr.collect(checkout=str(tmp_path))
+    assert report.manifest["run_id_notes"] == problems
+
+
+def test_an_unreadable_run_directory_is_not_reported_as_an_empty_one(
+        logs, tmp_path, monkeypatch):
+    """The swallow this module would otherwise have had.
+
+    ``find_last_run_id`` must not raise -- it is called while a crash is being
+    reported -- but "must not raise" is not "must not say".
+    """
+    from spacr import runctx
+
+    monkeypatch.setattr(runctx, "runs_log_dir", lambda: (_ for _ in ()).throw(
+        PermissionError("the runs folder is not yours")))
+
+    problems: list = []
+    assert cr.find_last_run_id(problems) == ""
+    assert "not yours" in problems[0]
+
+
 def test_inside_a_run_the_active_id_wins_over_the_newest_file(logs):
     """The crash being reported is *this* run, not the one before it."""
     import logging

@@ -387,7 +387,7 @@ def _spacr_location() -> str:
         return f"unreadable: {exc}"
 
 
-def find_last_run_id() -> str:
+def find_last_run_id(problems: Optional[List[str]] = None) -> str:
     """Return the id of the most recent run this machine logged.
 
     The run ids live one JSONL file per run under
@@ -395,16 +395,25 @@ def find_last_run_id() -> str:
     there. An active run wins over it: inside a ``run_context`` the crash being
     reported is *this* run, not the one before it.
 
-    :returns: the run id, or ``''`` when nothing has been logged. Never raises
+    :param problems: optional list that anything which went wrong on the way to
+        the answer is appended to. The reason this exists rather than a bare
+        ``return ''``: "no run was found" and "the run directory could not be
+        read" are different answers, and a report that cannot tell them apart
+        sends the maintainer looking for a run that was there all along.
+        :func:`collect` passes one and puts it in the manifest.
+    :returns: the run id, or ``''`` when none could be identified. Never raises
         -- a missing log directory is an ordinary answer here.
     """
+    notes = problems if problems is not None else []
     try:
         from .runctx import current_run_id, runs_log_dir
-    except Exception:                       # noqa: BLE001 - reporting only
+    except Exception as exc:                # noqa: BLE001 - reporting only
+        notes.append(f"spacr.runctx could not be imported: {exc}")
         return ""
     try:
         active = current_run_id()
-    except Exception:                       # noqa: BLE001 - reporting only
+    except Exception as exc:                # noqa: BLE001 - reporting only
+        notes.append(f"the active run id could not be read: {exc}")
         active = ""
     if active and active != "no-run":
         return str(active)
@@ -412,9 +421,13 @@ def find_last_run_id() -> str:
         folder = Path(runs_log_dir())
         candidates = sorted(folder.glob("*.jsonl"),
                             key=lambda p: p.stat().st_mtime, reverse=True)
-    except Exception:                       # noqa: BLE001 - reporting only
+    except Exception as exc:                # noqa: BLE001 - reporting only
+        notes.append(f"the run log directory could not be listed: {exc}")
         return ""
-    return candidates[0].stem if candidates else ""
+    if not candidates:
+        notes.append(f"no run has logged anything under {folder}")
+        return ""
+    return candidates[0].stem
 
 
 def _doctor_sections(report: CrashReport, checkout: Optional[Path],
@@ -625,8 +638,11 @@ def collect(run_id: Optional[str] = None, *,
     :returns: the assembled :class:`CrashReport`. Never raises; a section that
         could not be gathered is named in :attr:`CrashReport.problems`.
     """
-    resolved_run = str(run_id) if run_id else find_last_run_id()
+    run_notes: List[str] = []
+    resolved_run = str(run_id) if run_id else find_last_run_id(run_notes)
     report = CrashReport(created_utc=_utcnow(), run_id=resolved_run)
+    if run_notes:
+        report.manifest["run_id_notes"] = run_notes
     report.manifest.update({
         "spacr_version": _spacr_version(),
         "spacr_location": _spacr_location(),
