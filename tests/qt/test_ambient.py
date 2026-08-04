@@ -480,14 +480,35 @@ def test_ripple_rings_fade_in_and_out_rather_than_popping():
             assert radius > 0
 
 
-def test_aurora_bands_cross_fade_between_two_palette_colours():
+def test_aurora_curtains_shimmer_without_leaving_their_own_colour():
+    """The body colour wanders and comes back; it does not cross-fade away.
+
+    The old engine gave each band a different palette entry and swung it all
+    the way over to the next one. A curtain is an emission line now, so every
+    one of them is built from the *same* colour and may only drift a fraction
+    of the way towards another (``AURORA_HUE_BLEND``). Both halves are
+    asserted, because either one alone is a different animation: it moves,
+    and it stays.
+    """
     engine = make_engine("aurora", "spacr", DARK, seed=8)
-    band = engine.bands[0]
-    seen = set()
-    for t in range(0, 60, 3):
-        engine.set_time(float(t))
-        seen.add(engine.band_color(band).name())
-    assert len(seen) > 10, "the hue is not shifting"
+    body = QColor(palette_colors("aurora", "spacr")[0])
+
+    def distance(colour):
+        return max(abs(colour.red() - body.red()),
+                   abs(colour.green() - body.green()),
+                   abs(colour.blue() - body.blue()))
+
+    span = max(distance(QColor(c))
+               for c in palette_colors("aurora", "spacr"))
+    for curtain in engine.curtains:
+        seen = set()
+        for t in range(0, 60, 3):
+            engine.set_time(float(t))
+            colour = engine.curtain_color(curtain)
+            seen.add(colour.name())
+            assert distance(colour) <= span * amb.AURORA_HUE_BLEND + 1, \
+                "a curtain left its own emission line"
+        assert len(seen) > 10, "the hue is not shifting"
 
 
 # ---------------------------------------------------------------------------

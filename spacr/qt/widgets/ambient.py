@@ -14,8 +14,12 @@ as a re-skin of the same one:
     *fields* rather than as a bag of circles. This is the one the feature was
     asked for.
 ``aurora``
-    Wide tilted curtains that slide across and cross-fade between two palette
-    colours — a gradient wash whose hue keeps changing.
+    Three overlapping curtains of vertical rays, folding along their own
+    length. The folds are travelling waves — several superposed frequencies
+    running lengthwise along the arc — with brightness surges on a separate
+    schedule, a sharp lower edge, a diffuse top, and the real thing's
+    vertical colour order: green through the body, red high up, a violet
+    fringe underneath.
 ``ripple``
     Concentric rings expanding out of three fixed sources and fading as they
     grow, like rain on water. Soft-edged, so it never reads as line work.
@@ -64,20 +68,59 @@ requirement rather than a nicety. Two things get it there:
    gradient shading is done over ~37 000 pixels instead of ~2 000 000. The one
    allocation happens on resize, never per frame.
 
-As shipped, at 1920x1080, offscreen raster, 120 frames each, including the
-full-screen background fill every frame:
+At 1920x1080, offscreen raster, 120 frames each, including the full-screen
+background fill every frame, best of five interleaved runs (the machine is
+shared, so a run now and a run in ten minutes are not comparable — the old
+and the new engine are loaded into one process and measured alternately):
 
-=========  ========  =========  =====================
- theme      dark      light      share of one core
-=========  ========  =========  =====================
- blobs      1.28 ms   1.84 ms    3.1 % / 4.4 %
- aurora     1.16 ms   1.67 ms    2.8 % / 4.0 %
- ripple     1.47 ms   2.01 ms    3.5 % / 4.8 %
- drift      0.65 ms   0.65 ms    1.6 %
-=========  ========  =========  =====================
+=========  ========  =========  ===================  ==================
+ theme      dark      light      share of one core    at 60 fps
+=========  ========  =========  ===================  ==================
+ blobs      1.21 ms   1.70 ms    2.9 % / 4.1 %        7.3 % / 10.2 %
+ aurora     1.40 ms   1.96 ms    3.4 % / 4.7 %        8.4 % / 11.8 %
+ ripple     1.31 ms   1.80 ms    3.1 % / 4.3 %        7.9 % / 10.8 %
+ drift      0.66 ms   0.66 ms    1.6 %                4.0 %
+=========  ========  =========  ===================  ==================
 
-and 0 % off screen. Light costs more because multiply is a slower blend than
-addition; the DNA rain next door costs 4.4 %, so this is in family.
+and 0 % off screen. The middle column is this module's own 24 fps cadence,
+which is what it actually costs; the last one is at 60 fps, for comparison
+with the DNA rain's documented 0.53 ms and 3.2 %.
+
+Light costs more because multiply is a slower blend than addition.
+
+The aurora rewrite is the one theme that moved: 0.96 -> 1.40 ms dark and
+1.52 -> 1.96 light, measured against the old curtains in the same process on
+the same frames. It buys ray striations, three travelling wave trains, a
+surge running along the arc on its own schedule, and the altitude-ordered
+colour ramp. It costs 0.44 ms, which makes it the dearest of the four by
+about 0.1 ms rather than the cheapest — a swap of places inside the range
+this module already documents, not a new order of magnitude.
+
+Most of what a buffered theme costs is not its artwork at all: clearing the
+buffer, blitting it up to 1920x1080 and filling the page underneath is
+0.93 ms of every frame in this table, and that number is bound by the
+destination pixels, so it does not care what was drawn into the source. The
+aurora's own drawing is 0.47 ms of its 1.40.
+
+The three user controls move the cost, deliberately and in the useful
+direction — a machine that cannot afford the backdrop can be told to soften
+it, and softening it is *cheaper* rather than dearer:
+
+===================  =======  ========  ========  =======
+ setting              blobs    aurora    ripple    drift
+===================  =======  ========  ========  =======
+ default              1.32     1.58      1.42      0.65
+ blur 25 %  (sharp)   1.48     1.79      1.51      0.56
+ blur 300 % (soft)    1.10     1.28      1.26      1.08
+ size 25 %            1.13     1.57      1.23      0.34
+ size 250 %           1.68     1.88      1.77      0.73
+===================  =======  ========  ========  =======
+
+Blur runs backwards to intuition and forwards for cost, because it *is* the
+buffer resolution: softer means shading fewer pixels and stretching them
+further. Only ``drift`` inverts that, being the one theme with no buffer —
+its blur is a second, wider pass per dot, which is why it has a cap
+(:data:`DRIFT_HALO_MAX_PX`).
 
 The design was picked on measurements, not taste. For blobs at 1920x1080:
 full-resolution gradients 2.18 ms, buffered-and-upscaled 1.16 ms,
@@ -103,8 +146,9 @@ from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QPointF, QRect,
                             QRectF, Qt, QTimer)
-from PySide6.QtGui import (QColor, QImage, QLinearGradient, QPainter, QPen,
-                           QPixmap, QRadialGradient)
+from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
+                           QPainterPath, QPen, QPixmap, QRadialGradient,
+                           QTransform)
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from ..theme import palette_for, relative_luminance
@@ -114,6 +158,8 @@ __all__ = [
     "AmbientWidget", "install_ambient", "theme_label", "theme_note",
     "palettes_for", "palette_label", "palette_note", "palette_colors",
     "default_palette_for", "is_valid_theme", "is_valid_palette",
+    "BLUR_RANGE", "SPEED_RANGE", "SIZE_RANGE",
+    "DEFAULT_BLUR", "DEFAULT_SPEED", "DEFAULT_SIZE", "preferred_motion",
 ]
 
 
@@ -140,7 +186,8 @@ _THEME_LABELS = {
 _THEME_NOTES = {
     "blobs": ("Soft colour blobs, large and small, drifting and slowly "
               "changing size."),
-    "aurora": "Wide curtains of colour sliding past and shifting hue.",
+    "aurora": ("Folded curtains of vertical rays, rippling along their own "
+               "length the way the northern lights do."),
     "ripple": "Rings spreading out from a few points and fading as they grow.",
     "drift": "A slow starfield in three layers of depth.",
 }
@@ -194,6 +241,17 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "The Okabe–Ito set. Its colours stay distinguishable under "
         "protanopia and deuteranopia — red–green deficiency, the common "
         "kind — because no pair in it differs by red versus green alone."),
+    # Not invented: these are the emission lines the sky actually radiates,
+    # converted to sRGB. Ordered by the role the aurora engine gives them —
+    # main, high, fringe, blend — see AURORA_RAMP.
+    "borealis": PaletteSpec(
+        "Aurora borealis",
+        ("#7CFC9E", "#FF3C5A", "#5B6BFF", "#D9FFA8"),
+        "The real thing's emission lines: atomic oxygen at 557.7 nm (the "
+        "dominant green), atomic oxygen at 630.0 nm (the red that only "
+        "appears high up), ionised nitrogen at 427.8 nm (the blue-violet "
+        "lower fringe), and the pale yellow-green where the green and the "
+        "red overlap."),
 }
 
 #: Which palettes each theme offers, and why the excluded ones are excluded.
@@ -202,11 +260,20 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
 #: ripple is a halo at a fifth of the alpha a blob gets, and a pale
 #: low-contrast hue at either scale is indistinguishable from the page.
 #: Offering it would be offering a setting that does nothing.
+#:
+#: ``borealis`` is offered wherever the animation reads as *sky* — the
+#: curtains it was built for, the diffuse fields of ``blobs`` (a quiet
+#: aurora is exactly that: 557.7 nm green low down with 630.0 nm red above
+#: it), and the ``drift`` starfield. It is withheld from ``ripple`` alone,
+#: whose motion is rain on water: a set named after the northern lights on
+#: a pond would be decoration, not a colour choice.
 _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
-    "blobs": ("spacr", "ember", "ocean", "pastel", "mono", "okabe"),
-    "aurora": ("spacr", "ember", "ocean", "pastel", "mono", "okabe"),
+    "blobs": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
+              "borealis"),
+    "aurora": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
+               "borealis"),
     "ripple": ("spacr", "ember", "ocean", "mono", "okabe"),
-    "drift": ("spacr", "ember", "ocean", "mono", "okabe"),
+    "drift": ("spacr", "ember", "ocean", "mono", "okabe", "borealis"),
 }
 
 
@@ -330,7 +397,50 @@ MAX_DT = 0.25
 #: 256 px upscales to 1920 with no visible artefact (the content is gradients)
 #: and keeps the gradient shading at ~2 % of the pixels. Raising it to 320
 #: measured 1.27 ms against 1.16 ms and looked identical.
+#:
+#: This is also the *blur* control: the buffer is upscaled with bilinear
+#: filtering, so shading the same picture over fewer pixels and stretching it
+#: further is a blur — and a free one, which a per-frame Gaussian is not.
+#: :data:`BLUR_RANGE` divides this edge. See :meth:`_BufferedEngine.blur_edge`.
 BUFFER_MAX_EDGE = 256
+
+#: Hard limits on the derived buffer edge. The low end is where bilinear
+#: upscaling starts to show its interpolation lattice rather than a blur; the
+#: high end is a cost ceiling — shading is per buffer pixel, so 384 already
+#: costs about twice what 256 does.
+BUFFER_MIN_EDGE = 96
+BUFFER_EDGE_CEILING = 384
+
+
+# ---------------------------------------------------------------------------
+# The three user controls: blur, speed and size
+# ---------------------------------------------------------------------------
+# All three are *multipliers on what the theme already does*, never absolute
+# pixels or seconds. 1.0 is the shipped animation, exactly — every engine is
+# written so that multiplying by 1.0 is the identity, and the tests assert
+# the default frame is byte-for-byte the frame from before these existed.
+# A multiplier is also the only formulation that means the same thing in all
+# four themes: "twice as big" is meaningful for a blob radius, a curtain, a
+# ripple wavelength and a 2 px star, where "40 px" is meaningful for none of
+# them.
+
+#: How soft the shapes are. Above 1.0 the buffer shrinks and the upscale
+#: stretches further; below 1.0 it grows and the picture sharpens (and costs
+#: more, which is the trade the user is making).
+BLUR_RANGE = (0.25, 3.0)
+DEFAULT_BLUR = 1.0
+
+#: A multiplier on the animation clock, so every per-theme period, drift rate
+#: and travel speed scales together and nothing has to be re-tuned. Applied
+#: in :meth:`AmbientEngine.advance`, never in :meth:`geometry` — changing the
+#: speed must not teleport an animation that is already on screen.
+SPEED_RANGE = (0.1, 4.0)
+DEFAULT_SPEED = 1.0
+
+#: A multiplier on each theme's own size range: blob radius, aurora curtain
+#: height and ray spacing, ripple wavelength, starfield dot diameter.
+SIZE_RANGE = (0.25, 2.5)
+DEFAULT_SIZE = 1.0
 
 #: A background at or below this WCAG relative luminance is treated as dark,
 #: which selects additive compositing. The five shipped themes measure 0.000
@@ -448,10 +558,17 @@ class AmbientEngine:
 
     def __init__(self, colors: Sequence[Union[QColor, str]],
                  background: Union[QColor, str],
-                 seed: Optional[int] = None):
+                 seed: Optional[int] = None,
+                 blur: float = DEFAULT_BLUR,
+                 speed: float = DEFAULT_SPEED,
+                 size: float = DEFAULT_SIZE):
         self.seed = seed
         self.time = 0.0
         self.frames = 0
+        # Before ``_configure``: a subclass may size something from them.
+        self.blur = _clamp(blur, *BLUR_RANGE)
+        self.speed = _clamp(speed, *SPEED_RANGE)
+        self.size = _clamp(size, *SIZE_RANGE)
         self._colors = self._coerce_colors(colors)
         self._background = _as_color(background, QColor("#000000"))
         self._configure(random.Random(seed))
@@ -502,15 +619,57 @@ class AmbientEngine:
         self._background = _as_color(color, self._background)
         self._restyle()
 
+    # -- the three user controls ---------------------------------------
+    def set_blur(self, value: float) -> None:
+        """How soft the shapes are, as a multiplier. 1.0 is as shipped.
+
+        Clamped to :data:`BLUR_RANGE`. Engines that cache anything sized by
+        it drop that cache here, never per frame.
+        """
+        value = _clamp(value, *BLUR_RANGE)
+        if value == self.blur:
+            return
+        self.blur = value
+        self._reblur()
+
+    def set_speed(self, value: float) -> None:
+        """Multiply every motion in the theme. Clamped to :data:`SPEED_RANGE`.
+
+        Deliberately a clock multiplier rather than a factor inside
+        :meth:`geometry`: a user dragging the slider in Preferences changes
+        how fast the animation goes *from here*, and never makes what is
+        already on screen jump to a different place.
+        """
+        self.speed = _clamp(value, *SPEED_RANGE)
+
+    def set_size(self, value: float) -> None:
+        """Scale every element's size. Clamped to :data:`SIZE_RANGE`."""
+        value = _clamp(value, *SIZE_RANGE)
+        if value == self.size:
+            return
+        self.size = value
+        self._resize()
+
+    def _reblur(self) -> None:
+        """Drop whatever the blur setting sized. Default: nothing to do."""
+
+    def _resize(self) -> None:
+        """Drop whatever the size setting sized. Default: nothing to do."""
+
     def advance(self, dt: float) -> None:
         """Step the clock by ``dt`` seconds. Negative steps are ignored.
+
+        The step is scaled by :attr:`speed`, so the clock counts *animation*
+        seconds rather than wall-clock ones: every period, rate and travel
+        speed in every theme is expressed against this clock and therefore
+        scales with one multiplier.
 
         :attr:`frames` counts every call, including the ignored ones, so a
         test can prove a hidden widget stopped *asking* for frames rather
         than only proving that its clock stood still.
         """
         if dt > 0:
-            self.time += float(dt)
+            self.time += float(dt) * self.speed
         self.frames += 1
 
     def set_time(self, seconds: float) -> None:
@@ -549,10 +708,28 @@ class _BufferedEngine(AmbientEngine):
         self._buffer: Optional[QImage] = None
         super().__init__(*args, **kwargs)
 
+    def _reblur(self) -> None:
+        """A new blur means a new buffer size — drop the old one now rather
+        than leaving the next paint to notice."""
+        self._buffer = None
+
+    def blur_edge(self) -> int:
+        """Longest buffer edge under the current blur setting.
+
+        The whole blur implementation: the buffer is upscaled to the canvas
+        with bilinear filtering, so halving its resolution doubles how far
+        every shaded pixel is stretched — a real blur, at *negative* cost.
+        A per-frame Gaussian over 2 000 000 pixels would be an order of
+        magnitude more expensive than everything else this module does put
+        together.
+        """
+        return _clamp_int(round(BUFFER_MAX_EDGE / self.blur),
+                          BUFFER_MIN_EDGE, BUFFER_EDGE_CEILING)
+
     def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
         """Buffer dimensions for a ``width`` x ``height`` canvas."""
         longest = max(int(width), int(height))
-        scale = max(1, int(math.ceil(longest / BUFFER_MAX_EDGE)))
+        scale = max(1, int(math.ceil(longest / self.blur_edge())))
         return (max(1, int(width) // scale), max(1, int(height) // scale))
 
     def _ensure_buffer(self, width: int, height: int) -> QImage:
@@ -690,7 +867,7 @@ class BlobsEngine(_BufferedEngine):
                   * math.sin(blob.rate_x * t + blob.phase_x)) * width
             cy = (blob.y + blob.drift_y
                   * math.sin(blob.rate_y * t + blob.phase_y)) * height
-            radius = blob.radius * short * (
+            radius = blob.radius * short * self.size * (
                 1.0 + blob.pulse
                 * math.sin(blob.pulse_rate * t + blob.pulse_phase))
             out.append((cx, cy, max(1.0, radius)))
@@ -710,101 +887,685 @@ class BlobsEngine(_BufferedEngine):
 
 
 # -- aurora -----------------------------------------------------------------
+#
+# What the real thing does, and what each part of it costs here.
+#
+# An aurora is not a band of colour sliding across the sky. It is a *folded
+# sheet seen edge-on*: charged particles spiral down the geomagnetic field
+# lines and light the atmosphere along them, so the sheet is made of vertical
+# rays, and the arc is where that sheet crosses the sky. Four things follow,
+# and all four are what makes it recognisable:
+#
+# 1. *Vertical ray striations.* The rays are the defining feature. A smooth
+#    band with no rays reads as a gradient, which is what this theme was
+#    before.
+# 2. *The folds travel ALONG the arc.* The sheet ripples the way a ribbon
+#    held at one end does — the fold pattern propagates lengthwise while the
+#    arc itself stays where it is. It does not slide sideways as a body.
+#    Every wave below is written ``sin(2*pi*(u - v*t)/lambda)``: a phase that
+#    depends on position and travels at ``v``, which is a travelling wave and
+#    nothing else.
+# 3. *Several frequencies at once.* One slow, long, deep fold with faster
+#    small ripples riding on it. A single sine is a flag, not an aurora.
+# 4. *Brightness surges* running along the arc on their own schedule, faster
+#    than the folds and on a different wavelength, so the two are visibly
+#    independent phenomena rather than one driving the other.
+#
+# Then the vertical colour structure, which is pure atomic physics and the
+# cheapest realism available. 557.7 nm atomic oxygen (green) through the body,
+# 630.0 nm atomic oxygen (red) at the top where the air is thin enough for
+# that slow transition to survive the wait, and 427.8 nm ionised nitrogen
+# (blue-violet) along the bottom. The lower edge is *sharp* — it is where the
+# particles finally run out of altitude — and the top is diffuse.
+#
+# The single most useful thing to know about that colour structure is that it
+# is a function of ALTITUDE, not of position within the curtain. The ramp is
+# therefore anchored to the frame and not to the folded edge, and everything
+# falls out of it for free:
+#
+# * where the fold dips low, the sheet's edge reaches into the violet, and
+#   where it rises, it does not — which is exactly what photographs show;
+# * the curtain looks *taller* where the fold dips, because its top is at a
+#   fixed altitude and only its bottom moved. Real rays behave that way for
+#   the same reason, and it costs nothing to reproduce;
+# * one affine brush transform per curtain is correct, so the curtain is one
+#   filled path and not a strip of separately anchored pieces. Anchoring per
+#   piece was tried first: it puts a step in the ramp at every seam, and at
+#   these alphas the step is ~13/255 — visible as vertical banding.
+#
+# How it is drawn, and why. Measured at 1920x1080 in the 256 px buffer: one
+# ``drawImage`` per ray costs ~5 us of Python-to-Qt overhead, so 150 rays is
+# 0.8 ms — more than this theme is allowed in total. Instead each curtain is
+# ONE filled path (the folded sheet) painted with a *tiled texture brush*
+# whose tile is the ray comb crossed with the colour ramp, and then filled a
+# second time with a small per-frame image holding the surge. The ray count
+# costs nothing because the rays are the brush rather than the geometry.
 
-#: Four fat curtains, not five thin ones. The first cut had five evenly
-#: spaced bands of similar thickness and it read as a test pattern — regular
-#: horizontal stripes. Fewer, thicker, wildly different sizes, overlapping,
-#: and each tilted a few degrees off horizontal: that reads as a wash.
-AURORA_BANDS = 4
-AURORA_THICKNESS = (0.22, 0.55)     # fraction of the canvas height
-AURORA_TILT = 14.0                  # max degrees off horizontal
-#: How far past the canvas edges a curtain is drawn. A tilted rectangle has
-#: to overhang or it leaves bare triangles in the corners.
-AURORA_OVERHANG = 1.9
+#: Three curtains at different depths. Two read as one curtain and a copy;
+#: four stop being separable at these alphas.
+AURORA_CURTAINS = 3
+
+#: Ray length — how far up the sheet is lit — as a fraction of the canvas
+#: height, scaled by the size setting. Comfortably deeper than the fold
+#: reaches, or a fold crest would lift the sheet's lower edge past the green
+#: and out of the top of its own colour ramp.
+AURORA_THICKNESS = (0.42, 0.70)
+
+#: Where each curtain's lower edge rests, as a fraction of the canvas height,
+#: and the jitter around it. Spread down the frame so the three overlap in
+#: depth rather than sitting on top of one another.
+AURORA_BASE = (0.62, 0.76, 0.90)
+AURORA_BASE_JITTER = 0.05
+
+#: The arc's slope across the frame, as a fraction of the canvas height. An
+#: arc that is exactly level reads as a horizon line. Small, because the
+#: colour ramp is anchored to altitude: a steeply tilted arc would have one
+#: end of it sitting in a different colour from the other.
+AURORA_TILT = 0.06
+
+#: How much wider than the canvas the arc is drawn. The folds have to enter
+#: and leave the frame rather than terminating at its edges.
+AURORA_OVERHANG = 1.12
+
+#: The slow bob of the whole arc's altitude, and its period. This is the only
+#: bulk motion the curtain has, and it is vertical: the folds do the rest.
 AURORA_DRIFT = (0.05, 0.18)
 AURORA_DRIFT_PERIOD = (30.0, 90.0)  # seconds
 AURORA_HUE_PERIOD = (18.0, 46.0)    # seconds per colour cross-fade cycle
-AURORA_ALPHA_DARK = 0.22
-AURORA_ALPHA_LIGHT = 0.42
+
+#: The fold, as three superposed travelling waves: ``(amplitude as a fraction
+#: of the canvas height, wavelength as a fraction of the arc's length, travel
+#: speed in arc-lengths per second)``. Long slow fold, medium ripple, fine
+#: ripple — the ratio between them is what stops it reading as a single sine,
+#: and the speeds differ so the pattern never repeats itself.
+AURORA_FOLDS = (
+    (0.055, 0.85, 0.020),
+    (0.022, 0.33, 0.052),
+    (0.009, 0.17, 0.088),
+)
+
+#: How far the fold can reach either way, which is what the colour ramp has
+#: to be anchored below.
+AURORA_FOLD_REACH = sum(amp for amp, _wl, _v in AURORA_FOLDS)
+
+#: The brightness surge running along the arc — faster than any fold and on
+#: its own wavelength. ``(depth, wavelength, speed)``.
+AURORA_PULSE = (0.62, 0.34, 0.075)
+
+#: How far up the curtain a surge reaches, as a share of the ray length, and
+#: how strong it is against the curtain's own peak alpha. Surges brighten the
+#: base of the sheet; the diffuse top does not pulse.
+#:
+#: The surge is painted over its own shorter path rather than over the whole
+#: sheet. Above :data:`AURORA_PULSE_HEIGHT` its texture is transparent, and a
+#: transparent source pixel still costs a read and a write of the destination
+#: — 45 % of the curtain's area, for nothing. That one change took the pass
+#: from 0.49 ms to 0.20.
+AURORA_PULSE_HEIGHT = 0.55
+AURORA_PULSE_GAIN = 0.85
+
+#: Resolution of the per-frame surge image. It is stretched over the curtain
+#: with bilinear filtering, so it only has to resolve the pulse: 16 samples
+#: across an arc holding three wavelengths is five per wavelength, and the
+#: gradient's linear interpolation between them is under 5 % off a sine. It
+#: started at 40x16 and that cost 0.27 ms a frame in ``setColorAt`` calls
+#: alone — three quarters of it thrown away by the bilinear filter.
+AURORA_PULSE_TEXTURE = (16, 16)
+
+#: How far past the curtain, as a share of the ray length, that image is
+#: stretched. A texture brush *wraps*, and a bilinear sample taken on the
+#: image's first row blends it with its last one — which drew a bright
+#: hairline straight across the top of every curtain until this padding put
+#: both rows outside the sheet, where nothing can sample them.
+AURORA_PULSE_PAD = 0.1
+
+#: How finely the surge image is cached. Its content is a pure function of
+#: the pulse's phase, so it does not have to be rebuilt every frame — and
+#: rebuilding it was 0.15 ms of a frame, nearly all of it spent constructing
+#: gradient stops. 64 steps is one every 0.07 s at the shipped pulse speed,
+#: which moves the pattern half a percent of the arc at a time.
+AURORA_PULSE_STEPS = 64
+AURORA_PULSE_CACHE = 256
+
+#: Per curtain: ``(rate multiplier, ray-spacing multiplier, alpha
+#: multiplier)``. Different rates are what stop the three from reading as one
+#: thick curtain; the further ones have finer rays and less of them.
+AURORA_DEPTHS = (
+    (1.00, 1.00, 1.00),
+    (0.62, 0.74, 0.72),
+    (1.45, 1.36, 0.55),
+)
+
+#: Spacing between ray centres as a fraction of the canvas width, scaled by
+#: the size setting. Expressed against the *canvas*, not the buffer, so the
+#: blur setting changes how soft the rays are and not how many there are.
+AURORA_RAY_SPACING = 0.019
+AURORA_RAY_MIN_PX = 1.5
+
+#: Samples along the arc. 40 resolves the 0.17 fold (Nyquist wants 12) with
+#: room to spare, and every one of them is Python arithmetic on every frame.
+AURORA_COLUMNS = 40
+
+#: The tile: three rays of different widths, so the comb repeats every third
+#: ray instead of every ray and never reads as a picket fence. The rays sit
+#: on a floor rather than on nothing, because the sheet between them still
+#: glows — rays are a modulation of a curtain, not a row of separate bars.
+#: ``(centre, half width, intensity)``, all as fractions of the tile.
+AURORA_TILE_RAYS = ((0.17, 0.115, 1.00), (0.49, 0.085, 0.86),
+                    (0.80, 0.100, 0.94))
+AURORA_TILE_FLOOR = 0.58
+
+#: Where in the tile the colour ramp sits, as fractions of its height. What
+#: is left over at each end is a transparent guard band. A tiled brush
+#: *repeats*, so the instant the sheet reached past the ramp it would wrap
+#: round and paint the violet fringe along the top of the curtain. The guards
+#: make that impossible rather than unlikely.
+#:
+#: There is no tile *size* here on purpose. The tile is built at exactly the
+#: pixel size it will be painted at — one tile per ray period across, one ray
+#: length plus its guards down — so the brush needs a translation and nothing
+#: else. Measured, per curtain fill at 1920x1080: a brush carrying a scale
+#: costs 0.106 ms, a pre-scaled one carrying only a translation costs 0.061,
+#: which is what a flat colour costs. Qt's raster engine has a fast tiled
+#: blit for ``TxTranslate`` brushes and a per-pixel inverse transform for
+#: everything else, and this is the whole difference between them.
+AURORA_TILE_RAMP = (0.10, 0.90)
+
+#: Smallest tile, in pixels. Below about this the ray comb is finer than the
+#: buffer can hold and turns into noise.
+AURORA_TILE_MIN_PX = 3
+
+#: How many distinct tiles to keep. Three curtains times twelve shimmer steps
+#: is 36; the rest of the headroom is for a window being resized, which
+#: changes the pixel size the tiles are built at.
+AURORA_TILE_CACHE = 96
+
+#: The vertical structure, lower edge upward: ``(height fraction, palette
+#: role, alpha)``. Full strength immediately at the bottom — the sheet's lower
+#: edge is a hard cut, and it is made by the polygon, not by the ramp. Above
+#: the middle it fades out over half the ray length, which is the diffuse top.
+#: The asymmetry between those two edges is as recognisable as the colour.
+AURORA_RAMP = (
+    (0.00, "fringe", 0.66),
+    (0.05, "fringe", 0.92),
+    (0.11, "main", 1.00),
+    (0.42, "main", 0.74),
+    (0.62, "blend", 0.36),
+    (0.82, "high", 0.15),
+    (1.00, "high", 0.00),
+)
+
+#: How far the curtain's body colour is allowed to wander towards another
+#: entry in the palette. Small on purpose: the body of an aurora is one
+#: emission line and stays that colour — it shimmers, it does not turn red.
+AURORA_HUE_BLEND = 0.28
+
+#: Quantisation of that shimmer, so the ray tile is built a few dozen times
+#: in the life of the widget instead of three times a frame.
+AURORA_HUE_STEPS = 12
+
+#: Higher than the old flat bands needed, because the ray comb, the ramp and
+#: the depth multiplier each take a bite out of it before anything reaches
+#: the page. Set on the mean lightness of a rendered frame rather than by
+#: eye, because "does it look too strong" is exactly the judgement that goes
+#: wrong on somebody else's monitor: 0.168 here, against 0.161 for blobs and
+#: 0.151 for ripple on a page at 0.078. This paints behind a settings form
+#: and is not allowed to be the loudest thing on it.
+AURORA_ALPHA_DARK = 0.35
+AURORA_ALPHA_LIGHT = 0.52
 
 
 @dataclass
-class Band:
+class Curtain:
     """One aurora curtain, in normalised units."""
 
     y: float
-    thickness: float
+    height: float
     tilt: float
     drift: float
     rate: float
     phase: float
     hue_rate: float
     hue_phase: float
+    fold_phase: Tuple[float, ...]
+    pulse_phase: float
+    depth: int
     color: int
 
 
 class AuroraEngine(_BufferedEngine):
-    """Wide curtains that slide past and cross-fade between hues.
+    """Folded curtains of vertical rays, rippling along their own length.
 
-    The bands are thick, tilted and overlap heavily on purpose — thin level
-    ones read as stripes, fat tilted ones read as a wash.
+    See the block comment above for the phenomenon, for why the colour ramp
+    is anchored to the frame rather than to the curtain, and for why it is
+    painted as two brush fills per curtain rather than as a few hundred
+    sprites.
 
-    :meth:`geometry` yields ``(cy, half_thickness)`` per band, in pixels.
+    :meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per
+    sampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them
+    per curtain in curtain order. The painter builds its paths from exactly
+    those numbers, so a test that tracks a fold crest through ``geometry`` is
+    tracking the crest that is on screen. ``brightness`` is the surge, and it
+    is the *model's* value: what gets painted is the same function with its
+    phase quantised into :data:`AURORA_PULSE_STEPS` so the surge texture can
+    be cached (see :meth:`_surge`).
     """
 
     name = "aurora"
 
+    def __init__(self, *args, **kwargs):
+        self._tiles: Dict[Tuple[int, int], QImage] = {}
+        self._surges: Dict[int, QImage] = {}
+        self._pulse_mask: Optional[QImage] = None
+        super().__init__(*args, **kwargs)
+
     def _configure(self, rng: random.Random) -> None:
-        self.bands: List[Band] = []
-        for i in range(AURORA_BANDS):
-            self.bands.append(Band(
-                # Spread the resting positions evenly, then jitter: bands
-                # rolled uniformly pile up and leave the top third empty.
-                y=(i + 0.5) / AURORA_BANDS + rng.uniform(-0.06, 0.06),
-                thickness=rng.uniform(*AURORA_THICKNESS),
+        self.curtains: List[Curtain] = []
+        for i in range(AURORA_CURTAINS):
+            base = AURORA_BASE[i % len(AURORA_BASE)]
+            self.curtains.append(Curtain(
+                y=base + rng.uniform(-AURORA_BASE_JITTER, AURORA_BASE_JITTER),
+                height=rng.uniform(*AURORA_THICKNESS),
                 tilt=rng.uniform(-AURORA_TILT, AURORA_TILT),
                 drift=rng.uniform(*AURORA_DRIFT),
                 rate=2 * math.pi / rng.uniform(*AURORA_DRIFT_PERIOD),
                 phase=rng.uniform(0.0, 2 * math.pi),
                 hue_rate=2 * math.pi / rng.uniform(*AURORA_HUE_PERIOD),
                 hue_phase=rng.uniform(0.0, 2 * math.pi),
+                # Every wave gets its own phase, or the three curtains fold
+                # in lockstep and the depth illusion collapses.
+                fold_phase=tuple(rng.uniform(0.0, 2 * math.pi)
+                                 for _ in AURORA_FOLDS),
+                pulse_phase=rng.uniform(0.0, 2 * math.pi),
+                depth=i,
                 color=i,
             ))
 
+    def _restyle(self) -> None:
+        super()._restyle()
+        self._tiles = {}
+        self._surges = {}
+
+    def _resize(self) -> None:
+        # Both caches are keyed on pixel sizes derived from it.
+        self._tiles = {}
+        self._surges = {}
+
+    # -- the model -----------------------------------------------------
+    def _rate(self, curtain: Curtain) -> float:
+        return AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][0]
+
+    def fold(self, curtain: Curtain, u: float, t: float) -> float:
+        """Fold displacement at position ``u`` along the arc, as a fraction
+        of the canvas height.
+
+        ``u`` runs 0..1 from one end of the arc to the other. Each component
+        is ``sin(2*pi*(u - v*t)/lambda)``: at a fixed time it is a shape in
+        ``u``, and as ``t`` advances that shape *slides along u* at ``v``
+        while the arc itself goes nowhere. That is the whole difference
+        between an aurora and a curtain being dragged sideways, and it is the
+        one property of this engine worth testing directly.
+
+        Scaled by the size setting along with everything else: a curtain half
+        the height with folds the same depth is a different phenomenon, not a
+        smaller one.
+        """
+        rate = self._rate(curtain)
+        total = 0.0
+        for (amp, wavelength, speed), phase in zip(AURORA_FOLDS,
+                                                   curtain.fold_phase):
+            total += amp * math.sin(
+                2 * math.pi * (u - speed * rate * t) / wavelength + phase)
+        return total * self.size
+
+    def pulse(self, curtain: Curtain, u: float, t: float) -> float:
+        """The surge's brightness at ``u``, in 0..1. Another travelling wave,
+        deliberately faster and shorter than every fold."""
+        depth, wavelength, speed = AURORA_PULSE
+        travelling = 0.5 + 0.5 * math.sin(
+            2 * math.pi * (u - speed * self._rate(curtain) * t) / wavelength
+            + curtain.pulse_phase)
+        return 1.0 - depth + depth * travelling
+
+    def anchor(self, curtain: Curtain, height: int) -> Tuple[float, float]:
+        """``(ramp zero, ray length)`` for one curtain, in pixels.
+
+        The ramp's zero is the altitude the emission stops at, so it sits
+        below everything the fold and the tilt can do — that is what keeps
+        every column of the sheet inside its own colour ramp.
+        """
+        base = curtain.y + curtain.drift * math.sin(
+            curtain.rate * self.time + curtain.phase)
+        reach = (AURORA_FOLD_REACH + abs(curtain.tilt) * 0.5) * self.size
+        return ((base + reach) * height,
+                max(1.0, curtain.height * self.size * height))
+
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Every travelling wave, evaluated along every arc.
+
+        The loop body is :meth:`fold` and :meth:`pulse` written out with
+        their constant parts hoisted — ``sin(2*pi*(u - v*t)/lambda + phi)``
+        is ``sin(k*u + (phi - k*v*t))``, and ``k`` and the bracket do not
+        depend on the column. It is the same arithmetic; it is here rather
+        than behind those two calls because this runs a hundred and twenty
+        times a frame and a Python call is not free. ``test_aurora_geometry_
+        is_the_model_it_documents`` holds the two forms together.
+        """
         t = self.time
         out = []
-        for band in self.bands:
-            cy = (band.y + band.drift
-                  * math.sin(band.rate * t + band.phase)) * height
-            out.append((cy, max(1.0, band.thickness * height * 0.5)))
+        sin = math.sin
+        two_pi = 2 * math.pi
+        span = width * AURORA_OVERHANG
+        left = (width - span) * 0.5
+        columns = AURORA_COLUMNS
+        p_depth, p_wavelength, p_speed = AURORA_PULSE
+        for curtain in self.curtains:
+            rate = self._rate(curtain)
+            depth_alpha = AURORA_DEPTHS[
+                curtain.depth % len(AURORA_DEPTHS)][2]
+            zero, ray = self.anchor(curtain, height)
+            base = curtain.y + curtain.drift * math.sin(
+                curtain.rate * t + curtain.phase)
+            top = zero - ray
+            tilt = curtain.tilt * self.size
+            folds = [(amp * self.size, two_pi / wavelength,
+                      phase - two_pi * speed * rate * t / wavelength)
+                     for (amp, wavelength, speed), phase
+                     in zip(AURORA_FOLDS, curtain.fold_phase)]
+            p_k = two_pi / p_wavelength
+            p_phase = (curtain.pulse_phase
+                       - two_pi * p_speed * rate * t / p_wavelength)
+            for i in range(columns + 1):
+                u = i / columns
+                displacement = base + tilt * (u - 0.5)
+                for amp, k, phase in folds:
+                    displacement += amp * sin(k * u + phase)
+                y = displacement * height
+                bright = depth_alpha * (
+                    1.0 - p_depth + p_depth
+                    * (0.5 + 0.5 * sin(p_k * u + p_phase)))
+                out.append((left + u * span, y,
+                            y - top if y > top else 0.0, bright))
         return tuple(out)
 
-    def band_color(self, band: Band) -> QColor:
-        """The band's colour right now — a cross-fade between two palette
-        entries, which is what "slowly shifts hue" means here."""
+    def hue_phase(self, curtain: Curtain) -> float:
+        """Where this curtain's slow colour shimmer stands, in 0..1."""
+        return 0.5 + 0.5 * math.sin(
+            curtain.hue_rate * self.time + curtain.hue_phase)
+
+    def curtain_color(self, curtain: Curtain, quantised: bool = False
+                      ) -> QColor:
+        """The curtain's body colour right now.
+
+        Always built from the palette's *first* colour, wandering up to
+        :data:`AURORA_HUE_BLEND` of the way towards one of the others and
+        back. Every curtain shares that body colour on purpose: the body of
+        an aurora is a single emission line — 557.7 nm oxygen — and the
+        palette's remaining entries are the top and the fringe, which the
+        ramp puts above and below it. Giving curtain two a red body and
+        curtain three a violet one, which is what indexing the palette by
+        curtain would do, is the one thing that stops the whole theme reading
+        as an aurora.
+
+        :param quantised: snap the shimmer to :data:`AURORA_HUE_STEPS` so the
+            ray tile can be cached.
+        """
         colors = self.paint_colors
-        a = colors[band.color % len(colors)]
-        b = colors[(band.color + 1) % len(colors)]
-        u = 0.5 + 0.5 * math.sin(band.hue_rate * self.time + band.hue_phase)
-        return _mix(a, b, u)
+        body = colors[0]
+        # Never index 0: a curtain whose wander target is its own body colour
+        # does not shimmer at all, which is what happened to the third one on
+        # every three-colour palette.
+        wander = colors[1 + curtain.color % (len(colors) - 1)] \
+            if len(colors) > 1 else body
+        u = self.hue_phase(curtain)
+        if quantised:
+            u = round(u * (AURORA_HUE_STEPS - 1)) / (AURORA_HUE_STEPS - 1)
+        return _mix(body, wander, AURORA_HUE_BLEND * u)
+
+    def ramp_colors(self, curtain: Curtain, quantised: bool = False
+                    ) -> Dict[str, QColor]:
+        """The four palette roles for one curtain: the body, the high red,
+        the low fringe, and the overlap between body and high.
+
+        Fixed roles rather than a rotation, because the vertical order is
+        physics. With ``borealis``, ``main`` is the 557.7 nm green, ``high``
+        the 630.0 nm red, ``fringe`` the 427.8 nm violet and ``blend`` the
+        pale yellow-green where the first two overlap. A palette with fewer
+        than four colours reuses what it has.
+        """
+        colors = self.paint_colors
+        n = len(colors)
+        main = self.curtain_color(curtain, quantised=quantised)
+        high = colors[1 % n]
+        fringe = colors[2 % n]
+        blend = colors[3] if n > 3 else _mix(main, high, 0.5)
+        return {"main": main, "high": high, "fringe": fringe, "blend": blend}
+
+    # -- painting ------------------------------------------------------
+    def _tile(self, curtain: Curtain, peak: float, width: int,
+              height: int) -> QImage:
+        """The ray comb crossed with the vertical colour ramp, as a tiling
+        texture, built at the exact pixel size it will be painted at.
+
+        Cached per (curtain, quantised shimmer, size). Nothing about it
+        changes from frame to frame: the ray period and the ray length are
+        fixed for a given canvas, and the curtain's slow colour shimmer is
+        quantised into :data:`AURORA_HUE_STEPS`. Three dozen of these get
+        built in the life of the widget, against three a frame if the tile
+        followed the clock.
+        """
+        step = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
+        key = (curtain.depth, step, width, height)
+        tile = self._tiles.get(key)
+        if tile is not None:
+            return tile
+        if len(self._tiles) >= AURORA_TILE_CACHE:
+            # Only a long run of resizes can get here. Start again rather
+            # than grow without bound.
+            self._tiles = {}
+
+        top_f, bottom_f = AURORA_TILE_RAMP
+        ramp_top = int(round(top_f * height))
+        ramp_bottom = max(ramp_top + 1, int(round(bottom_f * height)))
+        tile = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        tile.fill(Qt.transparent)
+        roles = self.ramp_colors(curtain, quantised=True)
+        alpha = peak * AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][2]
+        inner = QPainter(tile)
+        inner.setPen(Qt.NoPen)
+        # Ramp position 0 is the curtain's lower edge, which is the *bottom*
+        # of the ramp rows, so the gradient runs upward through the image.
+        gradient = QLinearGradient(0.0, float(ramp_bottom), 0.0,
+                                   float(ramp_top))
+        for stop, role, scale in AURORA_RAMP:
+            gradient.setColorAt(stop, _with_alpha(roles[role], alpha * scale))
+        inner.setBrush(gradient)
+        inner.drawRect(0, ramp_top, width, ramp_bottom - ramp_top)
+        # ... then cut the ray comb out of it. DestinationIn keeps the colour
+        # and replaces the alpha, which is one pass over 1 920 pixels, done
+        # about three dozen times in the life of the widget.
+        inner.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        comb = QLinearGradient(0.0, 0.0, float(width), 0.0)
+        floor = QColor(0, 0, 0, int(round(255 * AURORA_TILE_FLOOR)))
+        comb.setColorAt(0.0, floor)
+        for centre, half, strength in AURORA_TILE_RAYS:
+            comb.setColorAt(max(0.0, centre - half), floor)
+            comb.setColorAt(centre,
+                            QColor(0, 0, 0, int(round(255 * strength))))
+            comb.setColorAt(min(1.0, centre + half), floor)
+        comb.setColorAt(1.0, floor)
+        inner.setBrush(comb)
+        inner.drawRect(0, 0, width, height)
+        inner.end()
+        self._tiles[key] = tile
+        return tile
+
+    def _mask(self) -> QImage:
+        """The surge's vertical profile: solid along the lower edge, gone by
+        :data:`AURORA_PULSE_HEIGHT` of the way up. Built once, then reused as
+        the alpha of every per-frame surge image.
+
+        Positioned in the *padded* band (see :data:`AURORA_PULSE_PAD`), which
+        is why the stops are not at 0 and ``AURORA_PULSE_HEIGHT``: the
+        curtain's lower edge sits a padding's worth up from the bottom of the
+        image, and the ray length is a padded fraction of its height.
+        """
+        if self._pulse_mask is None:
+            width, height = AURORA_PULSE_TEXTURE
+            pad = AURORA_PULSE_PAD
+            band = 1.0 + 2 * pad
+            edge = pad / band              # the curtain's lower edge
+            reach = AURORA_PULSE_HEIGHT / band
+            mask = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+            mask.fill(Qt.transparent)
+            inner = QPainter(mask)
+            inner.setPen(Qt.NoPen)
+            # Stops run bottom-to-top, so 0.0 is the bottom of the image.
+            fade = QLinearGradient(0.0, float(height), 0.0, 0.0)
+            fade.setColorAt(0.0, QColor(0, 0, 0, 255))
+            fade.setColorAt(edge, QColor(0, 0, 0, 255))
+            fade.setColorAt(edge + reach * 0.45, QColor(0, 0, 0, 185))
+            fade.setColorAt(min(1.0, edge + reach), QColor(0, 0, 0, 0))
+            fade.setColorAt(1.0, QColor(0, 0, 0, 0))
+            inner.setBrush(fade)
+            inner.drawRect(0, 0, width, height)
+            inner.end()
+            self._pulse_mask = mask
+        return self._pulse_mask
+
+    def _surge(self, curtain: Curtain, peak: float) -> QImage:
+        """The travelling surge for one curtain, as a small image.
+
+        Horizontally it is the pulse; vertically it is the cached fade. It
+        has to be a two-dimensional texture rather than a gradient brush: a
+        horizontal gradient alone has no vertical falloff, so it would cut
+        off in a hard line across the curtain, and putting the falloff in the
+        path instead only moves the hard line somewhere else.
+
+        Cached on the pulse's phase, quantised, plus the curtain's shimmer
+        step — which is everything its content depends on, so the cache is a
+        memo and not an approximation of the model. It still steps in time,
+        and :data:`AURORA_PULSE_STEPS` is what decides how finely.
+        """
+        width, height = AURORA_PULSE_TEXTURE
+        _depth, wavelength, speed = AURORA_PULSE
+        phase = (curtain.pulse_phase
+                 - 2 * math.pi * speed * self._rate(curtain) * self.time
+                 / wavelength)
+        step = int(round(phase % (2 * math.pi)
+                         / (2 * math.pi) * AURORA_PULSE_STEPS))
+        hue = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
+        key = (curtain.depth, step % AURORA_PULSE_STEPS, hue)
+        image = self._surges.get(key)
+        if image is not None:
+            return image
+        if len(self._surges) >= AURORA_PULSE_CACHE:
+            self._surges = {}
+
+        image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        inner = QPainter(image)
+        inner.setPen(Qt.NoPen)
+        color = self.curtain_color(curtain, quantised=True)
+        gain = peak * AURORA_PULSE_GAIN
+        depth_alpha = AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][2]
+        quantised = step % AURORA_PULSE_STEPS * 2 * math.pi \
+            / AURORA_PULSE_STEPS
+        gradient = QLinearGradient(0.0, 0.0, float(width), 0.0)
+        stops = width
+        for k in range(stops):
+            u = k / (stops - 1)
+            bright = depth_alpha * self._pulse_at(u, quantised)
+            gradient.setColorAt(u, _with_alpha(color, gain * bright))
+        inner.setBrush(gradient)
+        inner.drawRect(0, 0, width, height)
+        inner.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        inner.drawImage(0, 0, self._mask())
+        inner.end()
+        self._surges[key] = image
+        return image
+
+    @staticmethod
+    def _pulse_at(u: float, phase: float) -> float:
+        """The surge profile at ``u`` for a given travelling phase."""
+        depth, wavelength, _speed = AURORA_PULSE
+        return 1.0 - depth + depth * (
+            0.5 + 0.5 * math.sin(2 * math.pi * u / wavelength + phase))
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         peak = AURORA_ALPHA_DARK if self.dark else AURORA_ALPHA_LIGHT
-        span = width * AURORA_OVERHANG
-        for band, (cy, half) in zip(self.bands, self.geometry(width, height)):
-            color = self.band_color(band)
-            gradient = QLinearGradient(0.0, -half, 0.0, half)
-            gradient.setColorAt(0.0, _with_alpha(color, 0.0))
-            gradient.setColorAt(0.5, _with_alpha(color, peak))
-            gradient.setColorAt(1.0, _with_alpha(color, 0.0))
-            painter.save()
-            painter.translate(width * 0.5, cy)
-            painter.rotate(band.tilt)
-            painter.setBrush(gradient)
-            painter.drawRect(QRectF(-span * 0.5, -half, span, 2 * half))
-            painter.restore()
+        # The fold is a near-horizontal edge in a buffer that is about to be
+        # stretched sevenfold. Without antialiasing it upscales as a visible
+        # staircase; with it, it costs about 0.03 ms.
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        samples = self.geometry(width, height)
+        stride = AURORA_COLUMNS + 1
+        top_f, bottom_f = AURORA_TILE_RAMP
+        rays_per_tile = len(AURORA_TILE_RAYS)
+        pulse_w, pulse_h = AURORA_PULSE_TEXTURE
+        ray_px = max(AURORA_RAY_MIN_PX,
+                     AURORA_RAY_SPACING * self.size * width)
+        for index, curtain in enumerate(self.curtains):
+            columns = samples[index * stride:(index + 1) * stride]
+            if len(columns) < 2:
+                continue
+            zero, ray = self.anchor(curtain, height)
+            top = zero - ray
+            sheet = self._sheet(columns, top)
 
+            spacing = ray_px * AURORA_DEPTHS[
+                curtain.depth % len(AURORA_DEPTHS)][1]
+            tile = self._tile(
+                curtain, peak,
+                max(AURORA_TILE_MIN_PX,
+                    int(round(spacing * rays_per_tile))),
+                max(AURORA_TILE_MIN_PX,
+                    int(round(ray / (bottom_f - top_f)))))
+            brush = QBrush(tile)
+            # Translation only — see AURORA_TILE_RAMP for why that matters.
+            brush.setTransform(QTransform.fromTranslate(
+                0.0, zero - bottom_f * tile.height()))
+            painter.setBrush(brush)
+            painter.drawPath(sheet)
+
+            # The surge, over its own shorter path: it is transparent above
+            # AURORA_PULSE_HEIGHT and the rest of the sheet is not worth
+            # compositing nothing onto. It is a texture brush rather than a
+            # blit so that the path clips it — a surge that spilled past the
+            # sheet's lower edge would soften the one edge that has to stay
+            # hard.
+            left, right = columns[0][0], columns[-1][0]
+            band = ray * (1.0 + 2 * AURORA_PULSE_PAD)
+            surge = QBrush(self._surge(curtain, peak))
+            surge.setTransform(QTransform(
+                (right - left) / pulse_w, 0.0, 0.0, band / pulse_h,
+                left, top - ray * AURORA_PULSE_PAD))
+            painter.setBrush(surge)
+            painter.drawPath(self._sheet(
+                columns, zero - ray * (AURORA_PULSE_HEIGHT
+                                       + AURORA_PULSE_PAD)))
+        painter.setRenderHint(QPainter.Antialiasing, False)
+
+    @staticmethod
+    def _sheet(columns, top: float) -> QPainterPath:
+        """The sheet as a closed path: along its folded lower edge, then
+        straight back across a flat top.
+
+        The top is flat, and that is not a shortcut. It sits exactly where
+        the colour ramp has faded to nothing, so the polygon's upper boundary
+        is invisible — which is the only way to get a *diffuse* top out of a
+        hard-edged polygon. All the visible shape is in the lower edge, which
+        is where a real curtain keeps it too.
+        """
+        path = QPainterPath()
+        path.moveTo(columns[0][0], columns[0][1])
+        for x, y, _h, _b in columns[1:]:
+            path.lineTo(x, y)
+        path.lineTo(columns[-1][0], top)
+        path.lineTo(columns[0][0], top)
+        path.closeSubpath()
+        return path
 
 # -- ripple -----------------------------------------------------------------
 
@@ -868,7 +1629,10 @@ class RippleEngine(_BufferedEngine):
         out = []
         for source in self.sources:
             cx, cy = source.x * width, source.y * height
-            reach = source.reach * half_diagonal
+            # The size setting is the ripple's *wavelength*: the rings of one
+            # source are evenly spaced across its reach, so stretching the
+            # reach stretches the spacing between them by the same factor.
+            reach = source.reach * half_diagonal * self.size
             for k in range(RIPPLE_RINGS):
                 u = (t / source.period + source.phase
                      + k / RIPPLE_RINGS) % 1.0
@@ -928,6 +1692,23 @@ DRIFT_ALPHA_STEPS = 8
 #: has less room than a bright dot on black.
 DRIFT_DARKEN_ON_LIGHT = 0.35
 DRIFT_LIGHT_BOOST = 1.25
+
+#: Blur, for the one theme that is not painted through the blur buffer. A dot
+#: cannot be softened by shading it over fewer pixels — it *is* one pixel — so
+#: above 1.0 each one gets a second, wider, dimmer pass around it: a halo.
+#: The widening and the dimming are tied together so the dot's total light
+#: stays roughly constant, which is what "the same star, out of focus" means.
+DRIFT_HALO_SPREAD = 1.6      # extra diameter per unit of blur above 1
+DRIFT_HALO_ALPHA = 0.34      # halo alpha as a share of the dot's own
+#: A cap, because this is the one theme whose cost is *area* rather than a
+#: fixed buffer: two hundred dots at maximum blur and maximum size would
+#: otherwise light a quarter of the page and cost 3.2 ms a frame, which is
+#: more than the whole module is allowed. Blurrier than this looks the same
+#: anyway — the dot is already a soft disc by then.
+DRIFT_HALO_MAX_PX = 14.0
+#: Below this, antialiasing goes off: the dots stop having a soft rim at all,
+#: which is the only way left to make a 2 px dot harder-edged.
+DRIFT_HARD_EDGE_BLUR = 0.8
 
 
 @dataclass
@@ -989,9 +1770,28 @@ class DriftEngine(AmbientEngine):
         super()._restyle()
         self._pens = {}
 
+    def _reblur(self) -> None:
+        self._pens = {}
+
+    def _resize(self) -> None:
+        self._pens = {}
+
     def _tint(self, color: QColor) -> QColor:
         return QColor(color) if self.dark \
             else _mix(color, QColor(0, 0, 0), DRIFT_DARKEN_ON_LIGHT)
+
+    def dot_size(self, layer: int) -> float:
+        """Diameter of a ``layer`` dot, in pixels, under the size setting."""
+        return DRIFT_LAYERS[layer][0] * self.size
+
+    def halo_size(self, layer: int) -> float:
+        """Diameter of the soft pass around a dot. Equal to the dot itself
+        when there is no blur to apply, which is how the default frame stays
+        exactly what it was."""
+        dot = self.dot_size(layer)
+        return min(DRIFT_HALO_MAX_PX,
+                   dot * (1.0 + DRIFT_HALO_SPREAD
+                          * max(0.0, self.blur - 1.0)))
 
     def count_for(self, width: int, height: int) -> int:
         """How many of the pool this canvas gets."""
@@ -1008,7 +1808,7 @@ class DriftEngine(AmbientEngine):
             # Upward, and wrapped: the field never runs out.
             y = (particle.y - particle.speed * t) % 1.0
             out.append((x % 1.0 * width, y * height,
-                        DRIFT_LAYERS[particle.layer][0]))
+                        self.dot_size(particle.layer)))
         return tuple(out)
 
     def _alpha_step(self, layer: int) -> int:
@@ -1023,16 +1823,20 @@ class DriftEngine(AmbientEngine):
         return _clamp_int(round(value * (DRIFT_ALPHA_STEPS - 1)),
                           0, DRIFT_ALPHA_STEPS - 1)
 
-    def _pen(self, color_index: int, layer: int, step: int) -> QPen:
-        key = (color_index, layer, step)
+    def _pen(self, color_index: int, layer: int, step: int,
+             halo: bool = False) -> QPen:
+        key = (color_index, layer, step, halo)
         pen = self._pens.get(key)
         if pen is None:
             colors = self.paint_colors
             alpha = step / (DRIFT_ALPHA_STEPS - 1)
+            if halo:
+                alpha *= DRIFT_HALO_ALPHA
             pen = QPen(_with_alpha(colors[color_index % len(colors)], alpha))
             # A round-capped pen makes drawPoints draw filled circles, which
             # is how a batch of dots gets drawn in one call.
-            pen.setWidthF(DRIFT_LAYERS[layer][0])
+            pen.setWidthF(self.halo_size(layer) if halo
+                          else self.dot_size(layer))
             pen.setCapStyle(Qt.RoundCap)
             self._pens[key] = pen
         return pen
@@ -1040,7 +1844,8 @@ class DriftEngine(AmbientEngine):
     def paint(self, painter: QPainter, width: int, height: int) -> None:
         if width <= 0 or height <= 0:
             return
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.Antialiasing,
+                              self.blur > DRIFT_HARD_EDGE_BLUR)
         n_colors = len(self.paint_colors)
         steps = [self._alpha_step(i) for i in range(len(DRIFT_LAYERS))]
         buckets: Dict[Tuple[int, int, int], List[QPointF]] = {}
@@ -1049,6 +1854,12 @@ class DriftEngine(AmbientEngine):
             key = (particle.color % n_colors, particle.layer,
                    steps[particle.layer])
             buckets.setdefault(key, []).append(QPointF(x, y))
+        # The halo goes down first, so the crisp core sits on top of it
+        # rather than being washed out by it.
+        if self.blur > 1.0:
+            for key, points in buckets.items():
+                painter.setPen(self._pen(*key, halo=True))
+                painter.drawPoints(points)
         for key, points in buckets.items():
             painter.setPen(self._pen(*key))
             painter.drawPoints(points)
@@ -1063,12 +1874,36 @@ _ENGINES = {
 
 
 def make_engine(theme: str, palette: str, background: Union[QColor, str],
-                seed: Optional[int] = None) -> AmbientEngine:
-    """Build the engine for ``theme``/``palette``. Raises on unknown names."""
+                seed: Optional[int] = None,
+                blur: float = DEFAULT_BLUR,
+                speed: float = DEFAULT_SPEED,
+                size: float = DEFAULT_SIZE) -> AmbientEngine:
+    """Build the engine for ``theme``/``palette``. Raises on unknown names.
+
+    ``blur``/``speed``/``size`` are the user's three multipliers; the
+    defaults are the shipped animation exactly.
+    """
     _require_theme(theme)
     _require_palette(theme, palette)
     return _ENGINES[theme](palette_colors(theme, palette), background,
-                           seed=seed)
+                           seed=seed, blur=blur, speed=speed, size=size)
+
+
+def preferred_motion() -> Tuple[float, float, float]:
+    """``(blur, speed, size)`` from the user's preferences.
+
+    Read here rather than passed in by every install site, for the same
+    reason :func:`_theme_background` is: the two callers that build ambient
+    widgets are a module screen and Home, and neither of them has any
+    business knowing what the animation's knobs are called. Falls back to
+    the shipped defaults if preferences cannot be read at all.
+    """
+    try:
+        from ..preferences import (get_ambient_blur, get_ambient_size,
+                                   get_ambient_speed)
+        return (get_ambient_blur(), get_ambient_speed(), get_ambient_size())
+    except Exception:
+        return (DEFAULT_BLUR, DEFAULT_SPEED, DEFAULT_SIZE)
 
 
 # ---------------------------------------------------------------------------
@@ -1106,11 +1941,22 @@ class AmbientWidget(QWidget):
                  background: Union[QColor, str, None] = None,
                  backdrop=None,
                  fps: int = DEFAULT_FPS,
-                 seed: Optional[int] = None):
+                 seed: Optional[int] = None,
+                 blur: Optional[float] = None,
+                 speed: Optional[float] = None,
+                 size: Optional[float] = None):
         super().__init__(parent)
         self._theme = _require_theme(theme)
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
+        # Unset means "whatever the user asked for in Preferences", so a
+        # screen built after a settings change comes up already correct
+        # instead of waiting for the next apply_ambient_preferences().
+        stored = preferred_motion() if None in (blur, speed, size) else None
+        self._blur = _clamp(stored[0] if blur is None else blur, *BLUR_RANGE)
+        self._speed = _clamp(stored[1] if speed is None else speed,
+                             *SPEED_RANGE)
+        self._size = _clamp(stored[2] if size is None else size, *SIZE_RANGE)
         # Remember whether the caller *chose* the colour. If they did, a
         # later application palette change is theirs to react to; if they did
         # not, this widget follows the theme itself rather than leaving a
@@ -1126,7 +1972,9 @@ class AmbientWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
         self._engine = make_engine(self._theme, self._palette,
-                                   self._background, seed=seed)
+                                   self._background, seed=seed,
+                                   blur=self._blur, speed=self._speed,
+                                   size=self._size)
 
         self._animating = True
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
@@ -1196,9 +2044,47 @@ class AmbientWidget(QWidget):
         """Replace the engine, preserving the clock. The old one is dropped
         on the next line and collected; it owns no Qt parent and no timer."""
         engine = make_engine(self._theme, self._palette, self._background,
-                             seed=self._seed)
+                             seed=self._seed, blur=self._blur,
+                             speed=self._speed, size=self._size)
         engine.set_time(self._engine.time)
         self._engine = engine
+        self.update()
+
+    # -- blur, speed and size ------------------------------------------
+    def blur(self) -> float:
+        """How soft the shapes are; 1.0 is the shipped animation."""
+        return self._blur
+
+    def set_blur(self, value: float) -> None:
+        """Set the softness multiplier. Clamped to :data:`BLUR_RANGE`."""
+        self._blur = _clamp(value, *BLUR_RANGE)
+        self._engine.set_blur(self._blur)
+        self.update()
+
+    def speed(self) -> float:
+        """The motion multiplier; 1.0 is the shipped animation."""
+        return self._speed
+
+    def set_speed(self, value: float) -> None:
+        """Set the motion multiplier. Clamped to :data:`SPEED_RANGE`.
+
+        Takes effect on the next step, so nothing already on screen moves.
+        """
+        self._speed = _clamp(value, *SPEED_RANGE)
+        self._engine.set_speed(self._speed)
+
+    def size_scale(self) -> float:
+        """The element-size multiplier; 1.0 is the shipped animation.
+
+        Not ``size()`` — :class:`QWidget` already owns that name and it
+        returns a ``QSize``.
+        """
+        return self._size
+
+    def set_size_scale(self, value: float) -> None:
+        """Set the element-size multiplier. Clamped to :data:`SIZE_RANGE`."""
+        self._size = _clamp(value, *SIZE_RANGE)
+        self._engine.set_size(self._size)
         self.update()
 
     # -- appearance ----------------------------------------------------
@@ -1441,7 +2327,9 @@ def install_ambient(host: QWidget, layout=None, *,
     :param backdrop: wallpaper to composite over; see
         :meth:`AmbientWidget.set_backdrop`.
     :param kwargs: forwarded to :class:`AmbientWidget` (``background``,
-        ``fps``, ``seed``).
+        ``fps``, ``seed``, ``blur``, ``speed``, ``size``). The last three
+        default to the user's preferences, so a caller that does not care
+        about them should not pass them.
     :returns: the widget, already shown and lowered.
     """
     widget = AmbientWidget(host, theme=theme, palette=palette,
