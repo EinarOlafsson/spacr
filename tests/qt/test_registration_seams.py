@@ -361,8 +361,23 @@ def test_an_unknown_stage_or_uncallable_factory_is_refused(registry_sandbox):
     assert not any(row[0] == "probe" for row in app_mod.APPS)
 
 
-def test_going_over_the_cap_warns_but_still_starts(registry_sandbox, caplog):
-    """The cap is a design rule. Refusing to start would not help fix it."""
+def test_going_over_the_cap_still_starts_and_no_longer_says_so(
+        registry_sandbox, caplog):
+    """The cap is a design rule. Refusing to start would not help fix it.
+
+    Inverted 2026-08-04. This used to require a "over the 13 cap" warning on
+    the registration that crosses the line, and two things had moved under it:
+    the cap is ``MAX_APPS_PER_SECTION`` and is 20 now, and the warning itself
+    was removed on purpose (``spacr/qt/app.py:596``) because it fired once per
+    app past the cap — a full section produced a stream of identical lines at
+    launch — and said nothing the suite does not already assert.
+
+    So the half that is still a claim about behaviour is asserted, and the
+    silence is asserted as the deliberate thing it is: the registration is
+    accepted, the app is reachable, and nothing is logged. The cap is enforced
+    by ``tests/qt/test_cov_qt_app.py``, which is where a violation should be
+    read about.
+    """
     room = app_mod.MAX_APPS_PER_SECTION - len(
         app_mod.section_members(app_mod.SECTION_MODELS))
     for i in range(room):
@@ -371,9 +386,16 @@ def test_going_over_the_cap_warns_but_still_starts(registry_sandbox, caplog):
     with caplog.at_level(logging.WARNING, logger=app_mod.LOG.name):
         app_mod.register_app("one_too_many", "One Too Many", "…",
                              app_mod.SECTION_MODELS)
-    assert any("over the 13 cap" in rec.getMessage()
-               for rec in caplog.records)
-    assert any(row[0] == "one_too_many" for row in app_mod.APPS)
+
+    assert any(row[0] == "one_too_many" for row in app_mod.APPS), (
+        "a registration past the cap must still be accepted; refusing it "
+        "would take the app away without helping anyone split the section")
+    assert "one_too_many" in {
+        key for key, *_ in app_mod.section_members(app_mod.SECTION_MODELS)}
+    assert not [rec.getMessage() for rec in caplog.records
+                if "cap" in rec.getMessage()], (
+        "the per-registration cap warning is back; it fires once per app past "
+        "the cap, so a full section logs a stream of identical lines at launch")
 
 
 def test_unregister_puts_everything_back(registry_sandbox):
