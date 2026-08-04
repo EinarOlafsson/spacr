@@ -849,6 +849,33 @@ class _ZoomView(QGraphicsView):
 # Widget
 # ---------------------------------------------------------------------------
 
+#: Last resort if `spacr.settings` cannot be reached at all — a stub in
+#: sys.modules, a partially-installed tree. A dropdown with nothing in it
+#: is a dead end, so there is always something here.
+_FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
+
+
+def _model_menu():
+    """What the Cellpose model combo offers, read from the Cellpose API.
+
+    Delegates to :func:`spacr.settings.cellpose_model_menu`, which asks
+    ``cellpose.models`` for its stock list plus any checkpoint the user
+    registered, then appends the accepted-but-mapped legacy spellings so a
+    saved preview setting still loads.
+
+    Wrapped because this is a *widget*: it must build even when
+    ``spacr.settings`` is a stand-in (a test that stubs the descriptions
+    table does exactly that). It degrades to the shipped list rather than
+    to an empty combo.
+    """
+    try:
+        from ...settings import cellpose_model_menu
+        menu = tuple(cellpose_model_menu())
+    except Exception:
+        return _FALLBACK_MODELS
+    return menu or _FALLBACK_MODELS
+
+
 class LivePreviewPanel(QWidget):
     """Interactive segmentation preview — Mask app only."""
 
@@ -946,13 +973,16 @@ class LivePreviewPanel(QWidget):
         # them back on close so their values persist across opens.
         # All widgets are children of `self` so they're never
         # garbage-collected while re-parented.
-        # cyto3/cyto2/nuclei are kept here only as accepted-but-mapped
-        # aliases, so a saved preview setting still loads. They are NOT four
+        # Read from the Cellpose API, not from a literal — see
+        # `spacr.settings.cellpose_model_menu`. It returns whatever
+        # `cellpose.models` reports plus any checkpoint the user has
+        # registered, then the accepted-but-mapped aliases cyto3/cyto2/
+        # nuclei so a saved preview setting still loads. Those are NOT four
         # choices: Cellpose 4 drops model_type= with a "not used in v4.0.1+"
-        # log line, so all four entries run the same cpsam weights. The
-        # pipeline maps them forward in settings.normalize_cellpose_model_name.
+        # log line, so all four run the same cpsam weights. The pipeline maps
+        # them forward in settings.normalize_cellpose_model_name.
         self._model_box = QComboBox(self)
-        self._model_box.addItems(["cpsam", "cyto3", "cyto2", "nuclei"])
+        self._model_box.addItems(list(_model_menu()))
         self._model_box.currentIndexChanged.connect(
             self._on_model_or_object_changed)
 
@@ -1962,6 +1992,33 @@ class LivePreviewPanel(QWidget):
         self._compare_label.setText(
             f"{idx + 1}/{len(self._history)}  "
             f"{snap['model']}/{snap['object']}  {snap['summary']}")
+
+    # -- the model list is live ------------------------------------------
+    def refresh_model_choices(self) -> None:
+        """Re-read the Cellpose model list and add anything new.
+
+        `spacr.settings.cellpose_model_choices` only reads the API when
+        Cellpose is already imported, because importing it costs ~2.5 s and
+        this panel is built while a page is being laid out. That means the
+        first build usually gets the shipped fallback — so ask again every
+        time the panel is shown. After the first segmentation Cellpose is
+        loaded and a checkpoint the user registered appears here.
+
+        Additive on purpose: the current selection is never disturbed, and
+        an entry is never removed, so a value the user picked cannot vanish
+        under them because a probe came back thinner.
+        """
+        wanted = _model_menu()
+        have = {self._model_box.itemText(i)
+                for i in range(self._model_box.count())}
+        for index, name in enumerate(wanted):
+            if name not in have:
+                self._model_box.insertItem(index, name)
+
+    def showEvent(self, event):  # noqa: N802 (Qt naming)
+        """Refresh the model list whenever the panel comes back on screen."""
+        super().showEvent(event)
+        self.refresh_model_choices()
 
 
 # ---------------------------------------------------------------------------
