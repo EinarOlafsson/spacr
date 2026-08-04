@@ -398,7 +398,10 @@ def test_a_column_dropped_twice_lands_once(panel):
 
 def test_the_well_only_takes_a_column_payload(panel):
     text_only = QMimeData()
-    text_only.setText("/home/someone/a-file.tif")
+    # See the same payload in test_graph_builder.py: /tmp, not a home
+    # directory, because nothing here opens it and the hygiene rule cannot
+    # tell a decorative path from a one-machine precondition.
+    text_only.setText("/tmp/a-file.tif")
     panel.wells[AXIS_ROWS]._list.dropEvent(QDropEvent(
         QPointF(1, 1), Qt.CopyAction, text_only, Qt.LeftButton, Qt.NoModifier))
     assert panel.wells[AXIS_ROWS].columns() == ()

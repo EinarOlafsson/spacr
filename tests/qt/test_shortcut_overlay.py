@@ -153,9 +153,23 @@ def test_ctrl_f_lands_in_the_settings_search_box(window, qtbot):
 
 
 def test_ctrl_f_is_harmless_on_a_screen_without_a_form(window):
+    """"Harmless" is two claims, and neither is "it did not raise".
+
+    Home has no settings strip, so ``_focus_settings_search`` has to leave
+    the screen exactly as it found it — it returns early rather than
+    swallowing the key or focusing something arbitrary.
+    """
     from spacr.qt.shortcuts import _focus_settings_search
     window._on_nav_selected("__home__")
-    _focus_settings_search(window)  # must not raise
+    home = window._stack.currentWidget()
+    assert getattr(home, "_settings_search", None) is None, \
+        "Home grew a settings strip; this test no longer covers the case"
+    before = window.focusWidget()
+
+    _focus_settings_search(window)
+
+    assert window._stack.currentWidget() is home
+    assert window.focusWidget() is before
 
 
 # ---------------------------------------------------------------------------

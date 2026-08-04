@@ -885,18 +885,38 @@ def test_a_post_fit_setting_the_model_never_reads_is_refused(setting, value,
 ])
 def test_the_type_that_does_read_a_post_fit_setting_accepts_it(reg_type,
                                                                setting):
+    """Accepted, and handed back unchanged.
+
+    ``_reject_unused_run_settings`` returns the dict it was given, so the
+    assertion is that the value survives rather than that the call did not
+    raise: a version that quietly dropped the knob it had just approved
+    would pass "it did not raise" and lose the setting.
+    """
     from spacr.ml import _reject_unused_run_settings
 
-    _reject_unused_run_settings({"regression_type": reg_type, setting: 0.42})
+    settings = {"regression_type": reg_type, setting: 0.42}
+    returned = _reject_unused_run_settings(settings)
+
+    assert returned is settings
+    assert returned == {"regression_type": reg_type, setting: 0.42}
 
 
 def test_a_post_fit_setting_left_at_its_default_is_not_refused():
-    """The GUI posts every widget on the panel, touched or not."""
+    """The GUI posts every widget on the panel, touched or not.
+
+    All three post-fit knobs, at their defaults, on a type that reads none
+    of them: accepted, and every one of them still there afterwards.
+    """
     from spacr.ml import _reject_unused_run_settings
 
-    _reject_unused_run_settings({
+    at_defaults = {
         "regression_type": "ols", "lasso_n_boot": 200,
-        "lasso_selection_threshold": 0.6, "hinge_n_boot": 200})
+        "lasso_selection_threshold": 0.6, "hinge_n_boot": 200}
+    returned = _reject_unused_run_settings(dict(at_defaults))
+    assert returned == at_defaults
+
+    bare = _reject_unused_run_settings({"regression_type": "ols"})
+    assert bare == {"regression_type": "ols"}
     _reject_unused_run_settings({"regression_type": "ols"})
 
 

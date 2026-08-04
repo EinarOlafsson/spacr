@@ -7,6 +7,8 @@ panel is showing, and that a click also reaches the shared selection.
 """
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 import pytest
 
@@ -77,12 +79,26 @@ def test_a_2d_field_says_it_has_no_second_plane(qtbot, qt_theme_applied):
     view._on_panel_clicked("xy", 1.0, 1.0)
 
 
-def test_the_panels_paint_without_raising(qtbot, qt_theme_applied):
+def test_the_panels_paint_without_raising(qtbot, qt_theme_applied, caplog):
+    """And "it did not raise" cannot be the assertion.
+
+    ``OrthoPanel.paintEvent`` wraps its whole body in ``except Exception:
+    LOG.exception(...)``, deliberately — a paint handler that raises takes
+    the window down with it. So a paint that fails outright still returns
+    normally, and a test that only calls ``repaint()`` passes either way.
+    What has to be checked is that nothing was caught, and that the paint
+    reached a canvas rather than the "No volume" early return.
+    """
     view = _view(qtbot, width=96)
     view.show()
     qtbot.waitExposed(view)
-    for panel in view.panels.values():
-        panel.repaint()
+    with caplog.at_level(logging.ERROR, logger=ov.LOG.name):
+        for panel in view.panels.values():
+            panel.repaint()
+    assert not caplog.records, \
+        [record.getMessage() for record in caplog.records]
+    assert set(view.panels) == {"xy", "zx", "yz"}
+    assert all(panel.canvas is not None for panel in view.panels.values())
 
 
 # ---------------------------------------------------------------------------
