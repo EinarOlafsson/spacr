@@ -77,10 +77,16 @@ STALL_BUDGET_S = 0.400
 #: ``_apply_view``, measured separately, and a matplotlib canvas is a GUI
 #: object. Threading it is not "hard", it is undefined behaviour.
 #:
-#: So the budget came down from 1.63 s of *computation* to the cost of one
-#: redraw, and it is stated rather than hidden so it cannot quietly grow
-#: back.
-PCA_STALL_BUDGET_S = 1.000
+#: So this budget is no longer measuring computation at all; it is measuring
+#: one redraw. It was 1.000 while the fit was inline, and it is 1.500 now --
+#: which looks like the wrong direction until you notice what changed with
+#: it: `PCAScreen.active_jobs()` now includes the panel's, so the watchdog
+#: covers the *draw* as well as the read, and the draw was never inside the
+#: window before. 881 ms measured on a 200 000-row table with the machine
+#: otherwise idle leaves a 1.000 budget no headroom at all, and this file's
+#: own rule is that a flaky responsiveness test gets deleted rather than
+#: fixed. Stated rather than hidden, so it cannot quietly grow again.
+PCA_STALL_BUDGET_S = 1.500
 
 #: Per-screen budgets. Anything absent uses :data:`STALL_BUDGET_S`.
 BUDGETS = {"pca": PCA_STALL_BUDGET_S}
@@ -390,28 +396,44 @@ def _console_text(console) -> str:
     return "\n".join(b.text() for b in console.findChildren(_StdoutBlock))
 
 
-def _spinner_watcher(parent):
-    """A real :class:`ActivitySpinner` plus a record of whether it ever ran.
+class _BusyWatcher(QObject):
+    """Did the window have anything to say it was busy, while it was busy?
 
-    The spinner is driven by the process-wide run registry rather than by a
-    flag each screen sets, so this is also a check that the newly-threaded
-    work went through ``make_thread`` at all: a job that bypassed it would
-    stay invisible to the user, who would then be looking at a window that
-    is responsive but gives no sign of being busy.
+    Samples the process-wide run registry -- :func:`spacr.qt.bridge.registry`
+    -- on a 5 ms timer for the length of an operation. That registry is what
+    drives :class:`~spacr.qt.widgets.activity_spinner.ActivitySpinner`, and
+    ``make_thread`` maintains it, so a non-empty reading is exactly the fact
+    worth pinning: **the work went through ``make_thread``**. Work that
+    bypassed it would leave the user with a responsive window that gives no
+    sign of doing anything, which is its own bug and is the one this catches.
+
+    It deliberately does *not* assert on the spinner widget. Two reasons, and
+    the first is the substantive one: the spinner defers appearing by two
+    seconds so that brief work never flashes one, so for a job of about a
+    second the shipped widget correctly shows nothing and an assertion that
+    it turned would be asserting the opposite of the intended behaviour.
+    Second, it would couple this file to that widget's timing policy, which
+    is a preference the user can change.
     """
-    from spacr.qt.widgets.activity_spinner import ActivitySpinner
 
-    spinner = ActivitySpinner(parent)
-    seen = {"spun": False}
-    real_sync = spinner._sync
+    def __init__(self, parent=None, interval_ms: int = 5):
+        super().__init__(parent)
+        self.busy_seen = False
+        self._timer = QTimer(self)
+        self._timer.setInterval(interval_ms)
+        self._timer.timeout.connect(self._sample)
+        self._timer.start()
 
-    def watched():
-        real_sync()
-        if spinner.is_spinning():
-            seen["spun"] = True
+    def _sample(self):
+        from spacr.qt.bridge import registry
+        try:
+            if registry().active():
+                self.busy_seen = True
+        except RuntimeError:            # pragma: no cover - teardown race
+            self._timer.stop()
 
-    spinner._sync = watched
-    return spinner, seen
+    def stop(self):
+        self._timer.stop()
 
 
 # -- 1. the worst one: network I/O in a click handler ----------------------
@@ -440,7 +462,7 @@ def test_filing_an_issue_does_not_freeze_the_window_for_half_a_minute(
     screen._last_error_text = "Traceback (most recent call last):\nboom"
     qtbot.waitUntil(lambda: screen.active_jobs() == 0, timeout=20000)
 
-    spinner, seen = _spinner_watcher(screen)
+    busy = _BusyWatcher(screen)
     dog = LoopWatchdog(screen)
     dog.start()
     dispatch = time.perf_counter()
@@ -460,10 +482,10 @@ def test_filing_an_issue_does_not_freeze_the_window_for_half_a_minute(
     # And it really filed, rather than being responsive by doing nothing.
     text = _console_text(screen._console)
     assert "opened pre-filled report" in text, text[-400:]
-    assert seen["spun"], (
-        "the spinner never turned — the work went off the GUI thread without "
-        "going through make_thread, so the window looks idle while it runs")
-    assert spinner is not None
+    assert busy.busy_seen, (
+        "the run registry never saw this job — the work went off the GUI "
+        "thread without going through make_thread, so nothing can tell the "
+        "user the window is busy")
 
 
 def test_a_failed_issue_report_still_reaches_the_console(qtbot, monkeypatch):
@@ -562,7 +584,7 @@ def test_counting_the_annotate_population_never_freezes_the_gui_thread(
     qtbot.waitExposed(screen)
     qtbot.wait(50)
 
-    spinner, seen = _spinner_watcher(screen)
+    busy = _BusyWatcher(screen)
     dog = LoopWatchdog(screen)
     dog.start()
     dispatch = time.perf_counter()
@@ -585,8 +607,7 @@ def test_counting_the_annotate_population_never_freezes_the_gui_thread(
     assert screen._total > 0
     assert screen._filtered_rows is not None
     assert len(screen._filtered_rows) == screen._total
-    assert seen["spun"], "the spinner never turned during the count"
-    assert spinner is not None
+    assert busy.busy_seen, "the run registry never saw the count"
 
 
 def test_the_annotate_count_really_is_slow_enough_to_matter(annotate_db):
@@ -862,7 +883,7 @@ def test_recomputing_a_pca_never_freezes_the_gui_thread(qtbot, big_db):
     qtbot.waitUntil(lambda: not screen.is_busy() and screen.active_jobs() == 0,
                     timeout=90000)
 
-    spinner, seen = _spinner_watcher(screen)
+    busy = _BusyWatcher(screen)
     dog = LoopWatchdog(screen)
     dog.start()
     dispatch = time.perf_counter()
@@ -881,8 +902,8 @@ def test_recomputing_a_pca_never_freezes_the_gui_thread(qtbot, big_db):
         f"{dog.worst * 1000:.0f} ms "
         f"(budget {PCA_STALL_BUDGET_S * 1000:.0f} ms)")
     assert screen.pca.result is not None, "responsive by computing nothing"
-    assert seen["spun"], "the spinner never turned during the decomposition"
-    assert spinner is not None
+    assert busy.busy_seen, (
+        "the run registry never saw the decomposition")
 
 
 def test_an_unthreaded_pca_panel_still_returns_its_result(qtbot):
