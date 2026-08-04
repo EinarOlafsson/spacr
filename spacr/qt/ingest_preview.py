@@ -26,11 +26,17 @@ to a ``filename_map.csv`` via :func:`rows_to_mappings` +
 """
 from __future__ import annotations
 
+import heapq
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 # The columns every preview row carries, in table order.
 ROW_COLUMNS = ("original", "plate", "well", "field", "channel", "time", "canonical")
+
+#: "Not supplied" for :func:`plan_folder_extraction`'s ``template``, which
+#: has to tell "detect it yourself" apart from "detection already ran and
+#: came back empty" — both of which a caller expresses as a value.
+_UNSET = object()
 
 
 def _yokogawa_name(well: str, time: int, field: int, channel: int) -> str:
@@ -82,7 +88,9 @@ def plan_container_extraction(desc: Any, plate: str = "plate1",
 
 
 def plan_folder_extraction(root: Any, plate: str = "plate1",
-                           limit: Optional[int] = 200
+                           limit: Optional[int] = 200,
+                           files: Optional[Iterable[Path]] = None,
+                           template: Any = _UNSET,
                            ) -> List[Dict[str, Any]]:
     """Enumerate the planes a folder-structured dataset would map to.
 
@@ -95,24 +103,38 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
     :param plate: plate id used in the canonical names.
     :param limit: cap on the number of rows returned (the table only needs
         a representative preview). ``None`` for no cap.
+    :param files: image paths to plan from, instead of walking ``root``.
+        May be a generator — it is consumed here. A caller that has already
+        walked the tree (see :func:`spacr.qt.folder_metadata.iter_image_files`)
+        passes it in so the tree is not walked a second time.
+    :param template: an already-detected
+        :class:`~spacr.qt.folder_metadata.FolderTemplate`, or ``None`` for
+        "detection ran and found nothing". Omit to detect here — which walks
+        the tree again, so a caller that already has one should pass it.
     :returns: one row dict per source image, or ``[]`` if nothing matched.
     """
     from . import folder_metadata as fm
 
     root = Path(root)
-    if not root.is_dir():
+    if files is None and not root.is_dir():
         return []
 
-    template = fm.detect_folder_metadata(root)
+    if template is _UNSET:
+        template = fm.detect_folder_metadata(root)
     labels = tuple(getattr(template, "depth_labels", ()) or ()) if template else ()
     have_well = "well" in labels
     have_field = "field" in labels
     have_channel = ("channel" in labels
                     or bool(getattr(template, "chan_from_filename", False)))
 
-    files = sorted(_iter_all_images(root))
-    if limit is not None:
-        files = files[:limit]
+    if files is None:
+        files = fm.iter_image_files(root)
+    # ``nsmallest`` is ``sorted(...)[:limit]`` without ever holding the whole
+    # tree in memory: it keeps ``limit`` candidates and drops the rest as it
+    # goes. The previous line materialised every path under the folder — for
+    # a 100 000-image plate, to then take 200 of them.
+    files = (sorted(files) if limit is None
+             else heapq.nsmallest(limit, files))
     if not files:
         return []
 
@@ -122,12 +144,6 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
         have_channel=have_channel,
     )
     return [mapping_to_row(m) for m in mappings]
-
-
-def _iter_all_images(root: Path) -> List[Path]:
-    exts = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
-    return [p for p in root.rglob("*")
-            if p.is_file() and p.suffix.lower() in exts]
 
 
 def mapping_to_row(m: Any) -> Dict[str, Any]:

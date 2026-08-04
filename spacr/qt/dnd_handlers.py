@@ -34,13 +34,24 @@ so users can also drop a settings CSV on any screen to load it.
 """
 from __future__ import annotations
 
+import logging
+from itertools import chain, islice
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Callable, Dict, List, Optional
+
+from PySide6.QtCore import QEvent, QObject
 
 from .dnd import (
-    DropHandler, find_image_folders_nearby, has_images_in,
-    sample_image_names,
+    DropHandler, IMAGE_EXTS, find_image_folders_nearby, has_images_in,
+    _report_drop_problem,
 )
+# Two extension sets, deliberately: IMAGE_EXTS (above) is what the filename
+# preview will *sample*, containers included; RASTER_EXTS is what counts as
+# one image on disk.
+from .folder_metadata import IMAGE_EXTS as RASTER_EXTS
+from .job_runner import JobRunner
+
+LOG = logging.getLogger("spacr.qt.dnd_handlers")
 
 
 # ---------------------------------------------------------------------------
@@ -97,6 +108,259 @@ def _log(screen, msg: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Scanning a dropped folder without freezing the window
+#
+# A drop is delivered inside Qt's event dispatch, so everything a handler
+# does happens on the GUI thread with the event loop stopped. Reading a
+# directory is not "a bit of I/O": a user dropped a 100 000-file plate folder
+# and the window froze for over a second -- three separate recursive walks of
+# the same tree, one to detect a folder layout and two more inside the
+# extraction planner, which called the detector again.
+#
+# So the walking moves to a worker via :class:`spacr.qt.job_runner.JobRunner`,
+# and only the walking. ``handler.apply`` still runs -- and returns --
+# synchronously; what changes is that the answer arrives a moment later,
+# through a completion handler that runs back on the GUI thread and is the
+# only place allowed to touch a widget.
+# ---------------------------------------------------------------------------
+
+#: How many image files the folder-layout guess looks at. The layout repeats,
+#: so a probe is enough -- and stopping here means a folder with no layout to
+#: find is never fully walked.
+_FOLDER_PROBE = 30
+
+
+def _is_alive(obj) -> bool:
+    """True unless ``obj``'s C++ half has been destroyed underneath it.
+
+    The Qt equivalent of "is this still there". PySide6 keeps handing out the
+    Python wrapper after Qt has deleted the object it wraps, and touching it
+    then raises ``RuntimeError: Internal C++ object already deleted`` -- from
+    inside a slot, where there is no Python caller to catch it. Same shape as
+    the ``getattr(self, "_target", None)`` guard in
+    :meth:`spacr.qt.dnd._DropzoneFilter.eventFilter`: a destroyed wrapper is
+    the answer, not an error.
+    """
+    if not isinstance(obj, QObject):
+        return True          # a plain Python screen cannot be half-deleted
+    try:
+        from shiboken6 import isValid
+    except Exception:
+        try:
+            obj.objectName()
+        except RuntimeError:
+            return False
+        return True
+    try:
+        return bool(isValid(obj))
+    except Exception:
+        return False
+
+
+class _DropScanner(QObject):
+    """The one background walker a screen uses for its dropped folders.
+
+    Parked on the **screen**, not on :class:`spacr.qt.dnd._DropzoneFilter`.
+    The filter is a bare QObject with no ``closeEvent`` and no lifecycle hook
+    of any kind, so a runner living there could never be told the screen is
+    going away; the screen, being a widget, gets a Close event this can watch
+    for. When the screen is not a QObject at all (a test double, a small
+    controller object) the runner simply has no Qt parent and dies with the
+    attribute that holds it.
+    """
+
+    def __init__(self, screen) -> None:
+        # Assigned BEFORE super().__init__: parenting can deliver a ChildAdded
+        # event synchronously, and this object is an event filter, so it must
+        # already be able to answer for itself. (The same race that put the
+        # assignment first in ``_DropzoneFilter.__init__``.)
+        self._screen = screen
+        parent = screen if isinstance(screen, QObject) else None
+        super().__init__(parent)
+        self._runner = JobRunner(self, app_key="folder scan")
+        if parent is not None:
+            parent.installEventFilter(self)
+
+    # -- lifecycle --------------------------------------------------------
+    def eventFilter(self, obj, event):     # noqa: N802  (Qt naming)
+        # Every event delivered to the screen comes through here, so the
+        # cheap discriminator goes first and the attribute lookup second.
+        # ``getattr`` rather than ``self._screen`` for the reason spelled out
+        # in ``_DropzoneFilter.eventFilter``: Qt keeps delivering events to a
+        # filter after PySide6 has emptied its wrapper's __dict__, and an
+        # AttributeError raised there has no Python caller to catch it.
+        if (event.type() == QEvent.Close
+                and obj is getattr(self, "_screen", None)):
+            self.shutdown()
+        return False                        # never consume the event
+
+    def shutdown(self) -> None:
+        """Drop the results in flight and wait briefly for their threads.
+
+        Qt aborts the process if a running QThread is destroyed, so leaving a
+        screen mid-scan has to be answered here rather than by hoping.
+        """
+        runner = getattr(self, "_runner", None)
+        if runner is None:
+            return
+        try:
+            runner.shutdown()
+        except RuntimeError:
+            pass
+
+    # -- work -------------------------------------------------------------
+    def submit(self, fn: Callable[[], Any],
+               on_done: Callable[[Any], None]) -> bool:
+        """Run ``fn`` on a worker thread, then ``on_done`` on the GUI thread."""
+        return self._runner.submit(
+            fn, lambda result: self._deliver(on_done, result))
+
+    def _deliver(self, on_done: Callable[[Any], None], result) -> None:
+        """Hand a finished scan to its handler, unless the screen has gone."""
+        screen = getattr(self, "_screen", None)
+        if screen is None or not _is_alive(screen) or not _is_alive(self):
+            return
+        on_done(result)
+
+    # -- state (used by tests and by anything that wants to wait) ----------
+    def is_busy(self) -> bool:
+        runner = getattr(self, "_runner", None)
+        return bool(runner is not None and runner.is_busy())
+
+    def active_jobs(self) -> int:
+        runner = getattr(self, "_runner", None)
+        return 0 if runner is None else runner.active_jobs()
+
+
+def _scanner_for(screen) -> Optional[_DropScanner]:
+    """Return ``screen``'s scanner, creating it on the first drop.
+
+    ``None`` when there is nowhere to keep one — a screen that refuses new
+    attributes has nothing to hold a thread alive, and the caller runs the
+    scan inline instead of leaking one.
+    """
+    scanner = getattr(screen, "_dnd_scanner", None)
+    if scanner is not None and _is_alive(scanner):
+        return scanner
+    try:
+        scanner = _DropScanner(screen)
+        screen._dnd_scanner = scanner
+    except Exception:
+        LOG.debug("no background scanner for %r", type(screen), exc_info=True)
+        return None
+    return scanner
+
+
+def _scan_then(screen, fn: Callable[[], Any],
+               on_done: Callable[[Any], None]) -> bool:
+    """Scan off the GUI thread; report back on it.
+
+    :param fn: the filesystem work. Runs on a worker thread, so it may not
+        touch a single widget — it returns plain data instead.
+    :param on_done: given ``fn``'s return value, on the GUI thread. This is
+        where logging, dialogs and settings widgets belong.
+    :returns: True when the scan was dispatched to a thread, False when it
+        had to run inline (no owner to hold one).
+    """
+    scanner = _scanner_for(screen)
+    if scanner is not None:
+        try:
+            scanner.submit(fn, on_done)
+            return True
+        except Exception:
+            # Qt refused to start a thread. Better a stall than no report.
+            LOG.debug("falling back to an inline folder scan", exc_info=True)
+    try:
+        result = fn()
+    except Exception:
+        LOG.debug("folder scan failed", exc_info=True)
+        return False
+    on_done(result)
+    return False
+
+
+def scan_is_busy(screen) -> bool:
+    """True while a dropped folder is still being walked for ``screen``."""
+    scanner = getattr(screen, "_dnd_scanner", None)
+    return bool(scanner is not None and _is_alive(scanner)
+                and scanner.is_busy())
+
+
+def active_scan_jobs(screen) -> int:
+    """How many folder-scan threads ``screen`` still owns."""
+    scanner = getattr(screen, "_dnd_scanner", None)
+    if scanner is None or not _is_alive(scanner):
+        return 0
+    return scanner.active_jobs()
+
+
+# -- the scans themselves. Worker-thread code: no Qt, no widgets, data out. --
+
+def scan_mask_folder(path, sample: int = 20) -> Dict[str, Any]:
+    """List the top level of a dropped folder once. Worker-safe.
+
+    Returns the filenames the regex preview samples plus the total image
+    count the report quotes. Both used to come from two separate listings of
+    the same directory, taken on the GUI thread.
+    """
+    root = Path(path)
+    if not root.is_dir():
+        return {"names": [], "total": 0}
+    try:
+        entries = sorted(p for p in root.iterdir() if p.is_file())
+    except OSError:
+        return {"names": [], "total": 0}
+    names = [p.name for p in entries
+             if p.suffix.lower() in IMAGE_EXTS][:sample]
+    # The count deliberately uses the narrower raster set, as it always has:
+    # it is quoted as "N of M total sampled" beside a filename-regex preview,
+    # and one .nd2 container is not M images yet.
+    total = sum(1 for p in entries if p.suffix.lower() in RASTER_EXTS)
+    return {"names": names, "total": total}
+
+
+def scan_folder_structure(path) -> Dict[str, Any]:
+    """Walk a dropped folder ONCE and return the folder-metadata report.
+
+    Worker-safe: plain data in, plain data out, nothing Qt. The single walk
+    is the point. This replaced three walks of the same tree —
+    ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another
+    and called ``detect_folder_metadata`` again for a third — all on the GUI
+    thread, all inside the drop event.
+
+    The probe is pulled off the *same* lazy generator the planner then drains,
+    so a folder whose layout is not recognisable costs 30 files, not a
+    traversal.
+
+    :returns: ``{"labels": (...), "rows": [...], "error": ""}``. Empty
+        ``labels`` means no folder layout was recognised and there is nothing
+        to report.
+    """
+    from . import folder_metadata as fm
+    from . import ingest_preview as ip
+
+    out: Dict[str, Any] = {"labels": (), "rows": [], "error": ""}
+    try:
+        walk = fm.iter_image_files(path)
+        probe = list(islice(walk, _FOLDER_PROBE))
+        # Reached through the module, not a from-import, so that patching
+        # ``spacr.qt.folder_metadata.detect_folder_metadata`` still works.
+        template = fm.detect_folder_metadata(path, files=probe)
+    except Exception:
+        return out
+    labels = getattr(template, "depth_labels", None) if template else None
+    if not labels:
+        return out                    # the rest of the tree is never walked
+    out["labels"] = tuple(labels)
+    try:
+        out["rows"] = ip.plan_folder_extraction(
+            path, files=chain(probe, walk), template=template)
+    except Exception as exc:
+        out["error"] = str(exc) or exc.__class__.__name__
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Mask — the star handler with regex-preview canvas
 # ---------------------------------------------------------------------------
 
@@ -131,12 +395,26 @@ class MaskDropHandler(DropHandler):
         src = path.parent if path.is_file() else path
         _set_src_on(screen, str(src))
         _log(screen, f"[drop] mask src = {src}\n")
-        # Fire the console-based regex report asynchronously so the
-        # UI doesn't stall while it reads image filenames + auto-
-        # detects the regex.
+        if path.is_dir():
+            # Read the folder on a worker thread and render the report when
+            # it comes back.
+            #
+            # What this replaced: ``QTimer.singleShot(50, ...)``, commented
+            # "asynchronously so the UI doesn't stall". It is not
+            # asynchronous. A single-shot timer defers to the next turn of
+            # the event loop and then runs everything ON the GUI thread, with
+            # the loop stopped — the freeze just started 50 ms later than the
+            # drop, which is why it was never traced back to here.
+            _scan_then(screen,
+                       lambda: scan_mask_folder(path),
+                       lambda scan: _render_mask_report(path, screen, scan))
+            return
+        # A single container file. Describing it reads a header, not a tree,
+        # and the branch has to set widgets and open a table — so it stays on
+        # the GUI thread, one turn later so the src field paints first.
         try:
             from PySide6.QtCore import QTimer
-            QTimer.singleShot(50, lambda: _report_regex_on_mask(path, screen))
+            QTimer.singleShot(0, lambda: _report_regex_on_mask(path, screen))
         except Exception:
             pass
 
@@ -144,6 +422,12 @@ class MaskDropHandler(DropHandler):
 def _report_regex_on_mask(path: Path, screen) -> None:
     """Sample filenames, apply / auto-detect the metadata regex, and
     write a tabular report into the AppScreen's Console.
+
+    Synchronous — it reads the folder inline. :meth:`MaskDropHandler.apply`
+    does **not** call it that way: a drop scans on a worker thread and calls
+    :func:`_render_mask_report` with the result. This entry point is for
+    callers that already know the folder is small (and for tests that want
+    the whole report in one call).
 
     On a good match: prints an aligned column table of up to 10
     randomly-sampled records + a ``✓ All required fields captured``
@@ -160,49 +444,62 @@ def _report_regex_on_mask(path: Path, screen) -> None:
         ``.nd2`` / multi-page tiff / big ``.npy``) — reported via
         :mod:`spacr.qt.multi_format`.
     """
-    from . import regex_detect as rd
     from . import multi_format as mf
+
+    # ── Folder path ───────────────────────────────────────────────
+    if not path.is_file():
+        _render_mask_report(path, screen, scan_mask_folder(path))
+        return
 
     _log(screen, "\n")
 
     # ── Single-file dataset path ──────────────────────────────────
-    if path.is_file():
-        desc = mf.describe_file(path)
-        if desc is not None:
-            # Container formats (nd2/czi/lif/multi-page tiff/npz) are expanded
-            # to the canonical Yokogawa layout by the pipeline's auto converter.
-            # Set metadata_type='auto' so that conversion actually runs, and
-            # point src at the containing folder.
-            _set_screen_setting(screen, "metadata_type", "auto")
-            _log(screen,
-                 f"[drop] single-file dataset: {desc.summary()}\n"
-                 f"       Set metadata_type = 'auto' — spaCR will auto-extract "
-                 f"every image (channels/z/fields) from this container into the "
-                 f"canonical filename structure on the first Run, and write a "
-                 f"filename_map.csv linking each generated file back to it.\n")
-            # Preview the planned extraction and let the user edit the
-            # plate/well/field/channel assignment before committing.
-            try:
-                from . import ingest_preview as ip
-                rows = ip.plan_container_extraction(desc)
-                if rows:
-                    _log(screen, f"[drop] planned extraction — "
-                                 f"{ip.summarize_rows(rows)}\n")
-                    _open_metadata_table(rows, path.parent, screen)
-            except Exception as e:
-                _log(screen, f"[drop] metadata preview unavailable: {e}\n")
-            return
+    desc = mf.describe_file(path)
+    if desc is None:
         _log(screen, f"[drop] dropped file {path.name} — unrecognised "
                      f"single-file dataset format.\n")
         return
+    # Container formats (nd2/czi/lif/multi-page tiff/npz) are expanded
+    # to the canonical Yokogawa layout by the pipeline's auto converter.
+    # Set metadata_type='auto' so that conversion actually runs, and
+    # point src at the containing folder.
+    _set_screen_setting(screen, "metadata_type", "auto")
+    _log(screen,
+         f"[drop] single-file dataset: {desc.summary()}\n"
+         f"       Set metadata_type = 'auto' — spaCR will auto-extract "
+         f"every image (channels/z/fields) from this container into the "
+         f"canonical filename structure on the first Run, and write a "
+         f"filename_map.csv linking each generated file back to it.\n")
+    # Preview the planned extraction and let the user edit the
+    # plate/well/field/channel assignment before committing.
+    try:
+        from . import ingest_preview as ip
+        rows = ip.plan_container_extraction(desc)
+        if rows:
+            _log(screen, f"[drop] planned extraction — "
+                         f"{ip.summarize_rows(rows)}\n")
+            _open_metadata_table(rows, path.parent, screen)
+    except Exception as e:
+        _log(screen, f"[drop] metadata preview unavailable: {e}\n")
 
-    # ── Folder path ───────────────────────────────────────────────
-    imgs = sample_image_names(path, n=20)
-    if not imgs:
+
+def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
+    """Write the filename-regex report for a finished :func:`scan_mask_folder`.
+
+    The GUI-thread half of a folder drop: it reads and writes settings
+    widgets and can open the regex editor, so it must run here — while
+    everything that touched the filesystem already happened on the worker
+    that produced ``scan``.
+    """
+    from . import regex_detect as rd
+
+    _log(screen, "\n")
+    filenames = list(scan.get("names") or ())
+    if not filenames:
         _log(screen, "[drop] no images found in the top level of "
-                     f"{path.name} — nothing to preview.\n")
+                     f"{Path(path).name} — nothing to preview.\n")
         return
-    filenames = [p.name for p in imgs]
+    total_images = int(scan.get("total") or 0)
 
     # Read the user's current custom_regex (may be empty)
     custom = ""
@@ -228,7 +525,7 @@ def _report_regex_on_mask(path: Path, screen) -> None:
          f"[drop] mask · folder = {path}\n"
          f"[drop] regex ({label}) — matched {n_matches}/"
          f"{len(filenames)} sampled filenames\n"
-         f"[drop] {len(imgs)} of {_count_images(path)} total sampled "
+         f"[drop] {len(filenames)} of {total_images} total sampled "
          f"— showing up to 10 rows:\n\n")
 
     if records:
@@ -280,15 +577,22 @@ def _set_screen_setting(screen, key: str, value) -> bool:
 
 def _report_folder_structure(path, screen) -> None:
     """Detect metadata from the folder structure and report it as an
-    alternative to a filename regex (folder_metadata is otherwise unwired)."""
-    try:
-        from . import folder_metadata as fm
-        template = fm.detect_folder_metadata(str(path))
-    except Exception:
-        template = None
-    if template is None:
-        return
-    labels = getattr(template, "depth_labels", None)
+    alternative to a filename regex (folder_metadata is otherwise unwired).
+
+    Returns as soon as the walk is **dispatched**. The walk itself is
+    :func:`scan_folder_structure` on a worker thread, and
+    :func:`_render_folder_structure` writes the report when it lands — that
+    split is the whole fix for "I dropped a big folder in and it froze".
+    Wait for it with :func:`scan_is_busy`.
+    """
+    _scan_then(screen,
+               lambda: scan_folder_structure(path),
+               lambda result: _render_folder_structure(path, screen, result))
+
+
+def _render_folder_structure(path, screen, result: Dict[str, Any]) -> None:
+    """Report a finished :func:`scan_folder_structure`. GUI thread only."""
+    labels = (result or {}).get("labels") or ()
     if not labels:
         return
     _log(screen,
@@ -298,18 +602,20 @@ def _report_folder_structure(path, screen) -> None:
          "       If your images are organised by folder (e.g. plate/well/"
          "field) rather than by filename, this can be used instead of a "
          "filename regex.\n")
-    # Make the detection actionable: build a preview of how each image would
-    # be named and open the editable metadata table so the user can accept or
+    error = result.get("error") or ""
+    if error:
+        _log(screen, f"[drop] folder-structure preview unavailable: {error}\n")
+        return
+    # Make the detection actionable: the preview of how each image would be
+    # named opens in the editable metadata table so the user can accept or
     # correct it, writing a filename_map.csv the pipeline consumes.
-    try:
-        from . import ingest_preview as ip
-        rows = ip.plan_folder_extraction(path)
-        if rows:
-            _log(screen, f"[drop] folder-structure plan — "
-                         f"{ip.summarize_rows(rows)}\n")
-            _open_metadata_table(rows, path, screen)
-    except Exception as e:
-        _log(screen, f"[drop] folder-structure preview unavailable: {e}\n")
+    rows = result.get("rows") or []
+    if not rows:
+        return
+    from . import ingest_preview as ip
+    _log(screen, f"[drop] folder-structure plan — "
+                 f"{ip.summarize_rows(rows)}\n")
+    _open_metadata_table(rows, path, screen)
 
 
 #: Fallback owner for metadata dialogs whose screen cannot hold a reference.
@@ -397,10 +703,10 @@ def _push_regex_to_screen(pattern: Optional[str], screen) -> None:
         pass
 
 
-def _count_images(path: Path) -> int:
-    exts = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
-    return sum(1 for c in path.iterdir()
-                if c.is_file() and c.suffix.lower() in exts)
+# NOTE: ``_count_images`` used to live here, and the report called it right
+# after ``sample_image_names`` -- two listings of the same directory, both on
+# the GUI thread. :func:`scan_mask_folder` produces the sample and the count
+# from one listing, on a worker.
 
 
 # ---------------------------------------------------------------------------
@@ -988,14 +1294,46 @@ class ModelZooDropHandler(DropHandler):
 
     def apply(self, path: Path, screen) -> None:
         source = path.parent if path.is_file() else path
-        is_model = (
-            path.is_file() and path.name.lower().endswith(_MODEL_SUFFIXES)
-        ) or _contains_suffix(source, _MODEL_SUFFIXES, recursive=True)
-        if is_model:
+        # The cheap answers first, inline: a dropped checkpoint, or a
+        # checkpoint sitting at the top level of the dropped folder. That is
+        # one directory listing which stops at the first hit — and it is what
+        # a real model folder looks like, so the common drop stays fully
+        # synchronous.
+        if ((path.is_file() and path.name.lower().endswith(_MODEL_SUFFIXES))
+                or _contains_suffix(source, _MODEL_SUFFIXES)):
             screen.scan(str(source))
-        elif screen.set_fields_source(str(source)) is False:
-            raise ValueError(getattr(screen, "last_error", "")
-                             or f"Could not load fields from {source}.")
+            return
+        # Nothing up top. Answering "is there one further down?" means
+        # walking the entire tree, and it is the NO that costs — ``any()``
+        # short-circuits on a hit but a negative answer visits every file.
+        # That is exactly the "dropped a plate folder on the wrong screen"
+        # case: 100 000 files, a second of dead window. Off the GUI thread it
+        # goes, and the branch it decides goes with it.
+        _scan_then(
+            screen,
+            lambda: _contains_suffix(source, _MODEL_SUFFIXES, recursive=True),
+            lambda is_model: _apply_model_zoo_source(source, screen, is_model),
+        )
+
+
+def _apply_model_zoo_source(source: Path, screen, is_model: bool) -> None:
+    """GUI-thread half of :meth:`ModelZooDropHandler.apply`."""
+    if is_model:
+        screen.scan(str(source))
+        return
+    if screen.set_fields_source(str(source)) is not False:
+        return
+    # ``apply`` returned long ago, so raising here would surface as an
+    # unhandled exception in the Qt event loop instead of being caught by
+    # ``dnd._on_drop`` — and the user would be told nothing at all. Report it
+    # exactly as that handler would have.
+    reason = (getattr(screen, "last_error", "")
+              or f"Could not load fields from {source}.")
+    _report_drop_problem(
+        screen, Path(source), f"The drop handler failed: {reason}",
+        "Check that the path is readable and that its contents match this "
+        "module, then try again.",
+    )
 
 
 class ResultsDatabaseDropHandler(DatabaseDropHandler):

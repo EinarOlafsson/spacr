@@ -9,16 +9,27 @@ The mask handler's console report is the interesting one: it is exercised for
 a folder of images (matching regex / non-matching regex / user-supplied
 regex), for a single-file container drop, for an empty folder, and for a
 folder whose *directory layout* carries the metadata.
+
+Reading a dropped folder happens on a worker thread, so a handler reports
+back *after* ``apply`` has returned. Tests that assert on the report wait for
+the scan with :func:`_settle`; tests that assert ``apply`` was called still
+assert it synchronously, because dispatching is all ``apply`` does and it
+still does it inside the drop event.
 """
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
 import pytest
 import tifffile
-from PySide6.QtWidgets import QComboBox, QLabel, QLineEdit, QWidget
+from PySide6.QtCore import (QMimeData, QObject, QPoint, QPointF, Qt, QTimer,
+                            QUrl)
+from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from PySide6.QtWidgets import (QApplication, QComboBox, QLabel, QLineEdit,
+                               QWidget)
 
 from spacr.qt import dnd_handlers as dh
 from spacr.qt.dnd_handlers import (
@@ -26,7 +37,7 @@ from spacr.qt.dnd_handlers import (
     MakeMasksDropHandler,
     MapBarcodesDropHandler, MaskDropHandler, MeasureDropHandler,
     MeasurementsDropHandler, SourceDropHandler, get_handler,
-    _count_images, _log, _open_metadata_table, _open_regex_editor,
+    _log, _open_metadata_table, _open_regex_editor,
     _push_regex_to_screen, _report_folder_structure, _report_regex_on_mask,
     _set_screen_setting, _set_src_on,
 )
@@ -134,6 +145,57 @@ def _close_metadata_dialogs():
                 d.deleteLater()
             except Exception:
                 pass
+
+
+@pytest.fixture(autouse=True)
+def _drain_folder_scans(monkeypatch):
+    """No test may walk away from a running folder scan.
+
+    Qt aborts the process when a running QThread is destroyed along with the
+    widget that owns it, so a test that asserts before its scan lands has to
+    leave the thread drained rather than merely abandoned. Every scanner
+    built during the test is shut down here, whether the test waited or not.
+    """
+    made = []
+    real_init = dh._DropScanner.__init__
+
+    def spy(self, screen):
+        real_init(self, screen)
+        made.append(self)
+
+    monkeypatch.setattr(dh._DropScanner, "__init__", spy)
+    yield made
+    for scanner in made:
+        try:
+            scanner.shutdown()
+        except Exception:
+            pass
+
+
+def _settle(qtbot, screen, timeout=20000):
+    """Pump the event loop until ``screen`` has no folder scan left.
+
+    Waits on the scanner rather than on the console text so that a scan
+    which deliberately produced nothing still counts as finished — the
+    assertion that follows is then about the report, and says so.
+    """
+    qtbot.waitUntil(
+        lambda: not dh.scan_is_busy(screen)
+        and dh.active_scan_jobs(screen) == 0, timeout=timeout)
+
+
+@pytest.fixture
+def logged(monkeypatch):
+    """Every message the drop handlers write to a console, in order."""
+    out = []
+    real = dh._log
+
+    def spy(screen, msg):
+        out.append(msg)
+        real(screen, msg)
+
+    monkeypatch.setattr(dh, "_log", spy)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -316,7 +378,7 @@ def test_set_screen_setting_returns_false_without_a_settings_model():
 
 
 # ---------------------------------------------------------------------------
-# _push_regex_to_screen / _count_images
+# _push_regex_to_screen / scan_mask_folder
 # ---------------------------------------------------------------------------
 
 def test_push_regex_sets_the_custom_regex_widget(qtbot):
@@ -355,14 +417,41 @@ def test_push_regex_swallows_a_broken_screen():
     assert vars(b) == {}                    # nothing invented on the screen
 
 
-def test_count_images_counts_only_plain_image_extensions(tmp_path):
+def test_scan_counts_only_plain_image_extensions_at_the_top_level(tmp_path):
+    """One directory listing feeds both halves of the report.
+
+    The count quoted as "N of M total sampled" is deliberately narrower than
+    the sample, and always was: it sits beside a *filename* regex preview,
+    and one .nd2 container is not M images yet. It is top-level only for the
+    same reason — the report is about this folder, not the tree under it.
+    """
     for name in ("a.tif", "b.TIFF", "c.png", "d.jpg", "e.jpeg"):
         (tmp_path / name).write_bytes(b"x")
     for name in ("f.czi", "g.nd2", "h.lif", "notes.txt"):
         (tmp_path / name).write_bytes(b"x")
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "deep.tif").write_bytes(b"x")
-    assert _count_images(tmp_path) == 5
+
+    scan = dh.scan_mask_folder(tmp_path)
+    assert scan["total"] == 5
+    assert sorted(scan["names"]) == ["a.tif", "b.TIFF", "c.png", "d.jpg",
+                                     "e.jpeg", "f.czi", "g.nd2", "h.lif"]
+
+
+def test_scan_of_a_missing_path_or_a_file_is_empty(tmp_path):
+    assert dh.scan_mask_folder(tmp_path / "gone") == {"names": [], "total": 0}
+    a_file = tmp_path / "a.tif"
+    a_file.write_bytes(b"x")
+    assert dh.scan_mask_folder(a_file) == {"names": [], "total": 0}
+
+
+def test_scan_respects_its_sample_cap(tmp_path):
+    for i in range(30):
+        (tmp_path / f"img_{i:03d}.tif").write_bytes(b"x")
+    scan = dh.scan_mask_folder(tmp_path, sample=4)
+    assert scan["names"] == ["img_000.tif", "img_001.tif", "img_002.tif",
+                             "img_003.tif"]
+    assert scan["total"] == 30
 
 
 # ---------------------------------------------------------------------------
@@ -399,13 +488,45 @@ def test_mask_apply_sets_src_and_schedules_the_report(qtbot, screen, tmp_path):
     MaskDropHandler().apply(folder, screen)
     assert screen.w("src").text() == str(folder)
     assert f"[drop] mask src = {folder}\n" in screen.log
-    # The regex report is deferred through a QTimer so the UI never stalls.
-    qtbot.waitUntil(lambda: "regex (cellvoyager)" in screen.log, timeout=3000)
+    # apply() dispatched the folder read; it did not perform it. The result
+    # comes back through a queued signal, which cannot possibly have been
+    # delivered before apply() returned.
+    assert "regex" not in screen.log
+    qtbot.waitUntil(lambda: "regex (cellvoyager)" in screen.log, timeout=20000)
 
 
-def test_mask_apply_still_sets_src_when_the_timer_is_unavailable(
+def test_mask_apply_still_reports_when_the_screen_cannot_hold_a_scanner(
+        qtbot, tmp_path):
+    """Defensive branch: nowhere to park a worker → the scan runs inline.
+
+    A screen that refuses new attributes cannot hold a JobRunner, and a
+    worker thread nobody owns is a thread that outlives the window. The
+    report matters more than the responsiveness of a screen shaped like
+    this, so it is produced inline — but it must still be a report and not
+    an exception.
+    """
+    class Slotted:
+        __slots__ = ("_console",)
+
+        def __init__(self):
+            self._console = _Console()
+
+    folder = tmp_path / "plate1"
+    _mkimg(folder / "plate1_A01_T0001F001L01A01Z01C01.tif")
+    screen = Slotted()
+    MaskDropHandler().apply(folder, screen)
+    # No wait: with nowhere to park a scanner the report is synchronous.
+    assert "[drop] regex (cellvoyager)" in screen._console.text
+    assert not hasattr(screen, "_dnd_scanner")
+
+
+def test_mask_apply_on_a_container_survives_a_missing_timer(
         qtbot, screen, tmp_path, monkeypatch):
-    """Defensive branch: no QTimer → src is still set, no exception escapes."""
+    """Defensive branch: no QTimer → src is still set, no exception escapes.
+
+    Only the single-file branch still defers through a timer; a folder drop
+    goes to a worker instead.
+    """
     import PySide6.QtCore as real_qtcore
 
     class _NoTimer:
@@ -414,15 +535,15 @@ def test_mask_apply_still_sets_src_when_the_timer_is_unavailable(
                 raise AttributeError("QTimer unavailable")
             return getattr(real_qtcore, name)
 
-    folder = tmp_path / "plate1"
-    _mkimg(folder / "a.tif")
+    stack = tmp_path / "run.tif"
+    tifffile.imwrite(str(stack), np.zeros((6, 8, 9), np.uint16))
     monkeypatch.setitem(sys.modules, "PySide6.QtCore", _NoTimer())
     try:
-        MaskDropHandler().apply(folder, screen)
+        MaskDropHandler().apply(stack, screen)
     finally:
         monkeypatch.undo()
-    assert screen.w("src").text() == str(folder)
-    assert "regex" not in screen.log
+    assert screen.w("src").text() == str(tmp_path)
+    assert "single-file dataset" not in screen.log
 
 
 # ---------------------------------------------------------------------------
@@ -660,10 +781,14 @@ def test_report_on_unrecognised_file_says_so(screen, tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_folder_structure_detects_plate_well_field_layout(
-        screen, tmp_path, _close_metadata_dialogs):
+        qtbot, screen, tmp_path, _close_metadata_dialogs):
     _mkimg(tmp_path / "plate1" / "A01" / "f01" / "C01.tif")
     _mkimg(tmp_path / "plate1" / "A01" / "f02" / "C01.tif")
     _report_folder_structure(tmp_path, screen)
+    # The walk is on a worker: nothing has been reported yet, and that is
+    # the whole point of the call returning this fast.
+    assert screen.log == ""
+    _settle(qtbot, screen)
     log = screen.log
     assert "[drop] folder-structure alternative" in log
     assert "path depth → plate / well / field" in log
@@ -672,55 +797,63 @@ def test_folder_structure_detects_plate_well_field_layout(
 
 
 def test_folder_structure_writes_the_map_into_the_dropped_folder(
-        screen, tmp_path, _close_metadata_dialogs):
+        qtbot, screen, tmp_path, _close_metadata_dialogs):
     _mkimg(tmp_path / "plate1" / "A01" / "f01" / "C01.tif")
     _report_folder_structure(tmp_path, screen)
+    _settle(qtbot, screen)
     dlg = screen._metadata_dialogs[0]
     dlg._apply()
     assert dlg.written_path == tmp_path / "filename_map.csv"
     assert (tmp_path / "filename_map.csv").is_file()
 
 
-def test_folder_structure_silent_when_nothing_is_detected(screen, tmp_path):
+def test_folder_structure_silent_when_nothing_is_detected(qtbot, screen,
+                                                           tmp_path):
     _mkimg(tmp_path / "loose.tif")
     _report_folder_structure(tmp_path, screen)
+    _settle(qtbot, screen)
     assert screen.log == ""
 
 
-def test_folder_structure_silent_when_detection_raises(screen, tmp_path,
+def test_folder_structure_silent_when_detection_raises(qtbot, screen, tmp_path,
                                                         monkeypatch):
     def boom(root, *a, **k):
         raise OSError("permission denied")
 
+    # Patched on the module, which is how the scan reaches it — the worker
+    # calls ``fm.detect_folder_metadata``, never a from-import.
     monkeypatch.setattr("spacr.qt.folder_metadata.detect_folder_metadata",
                         boom)
     _report_folder_structure(tmp_path, screen)
+    _settle(qtbot, screen)
     assert screen.log == ""
 
 
-def test_folder_structure_silent_when_template_has_no_labels(screen, tmp_path,
-                                                              monkeypatch):
+def test_folder_structure_silent_when_template_has_no_labels(
+        qtbot, screen, tmp_path, monkeypatch):
     class Empty:
         depth_labels = ()
 
     monkeypatch.setattr("spacr.qt.folder_metadata.detect_folder_metadata",
                         lambda root, *a, **k: Empty())
     _report_folder_structure(tmp_path, screen)
+    _settle(qtbot, screen)
     assert screen.log == ""
 
 
 def test_folder_structure_opens_no_table_when_the_plan_is_empty(
-        screen, tmp_path, monkeypatch):
+        qtbot, screen, tmp_path, monkeypatch):
     _mkimg(tmp_path / "plate1" / "A01" / "f01" / "C01.tif")
     monkeypatch.setattr("spacr.qt.ingest_preview.plan_folder_extraction",
                         lambda root, *a, **k: [])
     _report_folder_structure(tmp_path, screen)
+    _settle(qtbot, screen)
     assert "[drop] folder-structure alternative" in screen.log
     assert "folder-structure plan" not in screen.log
     assert getattr(screen, "_metadata_dialogs", []) == []
 
 
-def test_folder_structure_reports_a_failing_planner(screen, tmp_path,
+def test_folder_structure_reports_a_failing_planner(qtbot, screen, tmp_path,
                                                      monkeypatch):
     _mkimg(tmp_path / "plate1" / "A01" / "f01" / "C01.tif")
 
@@ -729,6 +862,7 @@ def test_folder_structure_reports_a_failing_planner(screen, tmp_path,
 
     monkeypatch.setattr("spacr.qt.ingest_preview.plan_folder_extraction", boom)
     _report_folder_structure(tmp_path, screen)
+    _settle(qtbot, screen)
     assert "[drop] folder-structure alternative" in screen.log
     assert ("[drop] folder-structure preview unavailable: planner exploded"
             in screen.log)
@@ -1345,7 +1479,26 @@ def test_results_handlers_use_each_screens_database_api(tmp_path):
     assert agreement.path == plate.path == str(db)
 
 
-def test_model_zoo_distinguishes_models_from_benchmark_fields(tmp_path):
+class _Zoo:
+    """Model Zoo screen double: records which branch the handler chose."""
+
+    last_error = ""
+
+    def __init__(self):
+        self.scanned = ""
+        self.field_source = ""
+        self.fields_ok = True
+
+    def scan(self, path):
+        self.scanned = path
+        return True
+
+    def set_fields_source(self, path):
+        self.field_source = path
+        return self.fields_ok
+
+
+def test_model_zoo_distinguishes_models_from_benchmark_fields(qtbot, tmp_path):
     model_dir = tmp_path / "models"
     model_dir.mkdir()
     (model_dir / "custom.CP_model").write_bytes(b"model")
@@ -1353,27 +1506,50 @@ def test_model_zoo_distinguishes_models_from_benchmark_fields(tmp_path):
     fields.mkdir()
     (fields / "field.tif").write_bytes(b"image")
 
-    class Zoo:
-        last_error = ""
-
-        def __init__(self):
-            self.scanned = ""
-            self.field_source = ""
-
-        def scan(self, path):
-            self.scanned = path
-            return True
-
-        def set_fields_source(self, path):
-            self.field_source = path
-            return True
-
-    screen = Zoo()
+    screen = _Zoo()
     handler = dh.ModelZooDropHandler()
+
+    # A checkpoint at the top level is one directory listing that stops at
+    # the first hit, so this half stays synchronous.
     handler.apply(model_dir, screen)
-    handler.apply(fields, screen)
     assert screen.scanned == str(model_dir)
-    assert screen.field_source == str(fields)
+
+    # No checkpoint up top. Deciding needs a recursive walk, which runs on a
+    # worker — so the branch is taken after apply() has returned.
+    handler.apply(fields, screen)
+    assert screen.field_source == ""
+    qtbot.waitUntil(lambda: screen.field_source == str(fields), timeout=20000)
+    assert screen.scanned == str(model_dir)      # unchanged: not a model dir
+
+
+def test_model_zoo_reports_a_refused_field_source_to_the_console(qtbot,
+                                                                  tmp_path):
+    """The failure still reaches the console once the branch is async.
+
+    ``apply`` used to raise, and ``dnd._on_drop`` turned that into a
+    "[drop rejected]" report. Raising from a completion handler would land
+    in the Qt event loop instead, where nobody would ever see it.
+    """
+    fields = tmp_path / "fields"
+    fields.mkdir()
+    (fields / "field.tif").write_bytes(b"image")
+
+    class Refusing(QWidget, _Zoo):
+        def __init__(self):
+            QWidget.__init__(self)
+            _Zoo.__init__(self)
+            self.fields_ok = False
+            self.last_error = "the fields folder has no readable images"
+            self._console = _Console()
+
+    screen = Refusing()
+    qtbot.addWidget(screen)
+    dh.ModelZooDropHandler().apply(fields, screen)
+    qtbot.waitUntil(lambda: "[drop rejected]" in screen._console.text,
+                    timeout=20000)
+    text = screen._console.text
+    assert "the fields folder has no readable images" in text
+    assert "Suggestion: Check that the path is readable" in text
 
 
 def test_plate_queue_drop_adds_each_settings_snapshot_with_plate_src(tmp_path):
@@ -1404,6 +1580,263 @@ def test_plate_queue_drop_adds_each_settings_snapshot_with_plate_src(tmp_path):
 def test_get_handler_returns_a_fresh_instance_each_call():
     a, b = get_handler("mask"), get_handler("mask")
     assert a is not b
+
+
+# ---------------------------------------------------------------------------
+# Dropping a big folder must not freeze the window
+#
+# The bug these pin, in the user's words: "I dropped a big folder in and it
+# froze." A drop is delivered inside Qt's event dispatch, and the mask handler
+# walked the whole tree there -- three times, because the extraction planner
+# re-ran the layout detector. Measured on a 100 006-file plate folder with the
+# watchdog below: the Mask drop stalled the GUI thread for 1168 ms and the
+# Model Zoo drop for 980 ms. Afterwards: 79 ms and 56 ms, and one walk instead
+# of three.
+#
+# The assertions are on the event loop, not on the presence of a thread. A
+# handler could thread the walk and still block on delivery, and the user
+# could not tell the difference.
+# ---------------------------------------------------------------------------
+
+#: The longest the GUI thread may stop pumping events while a dropped folder
+#: is read, in seconds. Stated rather than derived, the same way
+#: tests/qt/test_gui_responsiveness.py states its budget: comfortably above
+#: what the fixed code measures, comfortably below the freeze it replaced.
+#:
+#: The measured breakdown on the machine this was written on, dropping the
+#: fixture below onto a real ``AppScreen("mask")``, with the drop event
+#: itself returning in 10-28 ms:
+#:
+#:     the worker's walk, seen as GIL/scheduler jitter   130-200 ms
+#:     _render_mask_report (console text, widget reads)   60-71 ms
+#:     the 200-row metadata table the plan opens          78-80 ms
+#:
+#: None of the last two can move off the GUI thread -- they *are* the GUI
+#: work. Under load (this box runs ~20 test suites at once) the whole thing
+#: peaks around 400 ms, against 1168-1238 ms before the fix.
+DROP_STALL_BUDGET_S = 0.700
+
+#: The fixture folder, as wells x fields x channels -- 100 000 files. Sized
+#: so that walking it once inline is comfortably over the budget: otherwise
+#: the budget would still pass with the threading removed, which
+#: :func:`test_walking_the_big_folder_inline_is_slow_enough_to_matter` exists
+#: to prevent.
+_BIG_WELLS, _BIG_FIELDS, _BIG_CHANS = 20, 100, 50
+
+
+class LoopWatchdog(QObject):
+    """Record the gap between consecutive GUI-thread timer ticks.
+
+    Copied from tests/qt/test_gui_responsiveness.py, which explains why this
+    is the only measurement that matches what a user notices: the gap since
+    the previous tick is exactly how long the GUI thread spent inside
+    something that never returned to the event loop.
+    """
+
+    def __init__(self, parent=None, interval_ms: int = 1):
+        super().__init__(parent)
+        self._last = time.perf_counter()
+        self.worst = 0.0
+        self.ticks = 0
+        self._timer = QTimer(self)
+        self._timer.setTimerType(Qt.PreciseTimer)
+        self._timer.setInterval(interval_ms)
+        self._timer.timeout.connect(self._tick)
+
+    def start(self):
+        self._last = time.perf_counter()
+        self.worst = 0.0
+        self.ticks = 0
+        self._timer.start()
+
+    def stop(self):
+        self._timer.stop()
+
+    def _tick(self):
+        now = time.perf_counter()
+        gap = now - self._last
+        self._last = now
+        self.ticks += 1
+        if gap > self.worst:
+            self.worst = gap
+
+
+def _drive(qtbot, dog, done, budget_s=60.0):
+    """Pump the event loop until ``done()``, never blocking it."""
+    end = time.perf_counter() + budget_s
+    while time.perf_counter() < end and not done():
+        qtbot.wait(20)
+    qtbot.wait(50)
+    dog.stop()
+
+
+def _drop(widget, paths):
+    """Replay the window system's enter -> move -> drop on ``widget``."""
+    mime = QMimeData()
+    mime.setUrls([QUrl.fromLocalFile(str(p)) for p in paths])
+    QApplication.sendEvent(widget, QDragEnterEvent(
+        QPoint(4, 4), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier))
+    QApplication.sendEvent(widget, QDragMoveEvent(
+        QPoint(4, 4), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier))
+    event = QDropEvent(QPointF(4, 4), Qt.CopyAction, mime,
+                       Qt.LeftButton, Qt.NoModifier)
+    QApplication.sendEvent(widget, event)
+    return event
+
+
+@pytest.fixture(scope="session")
+def big_folder(tmp_path_factory):
+    """A plate folder big enough that walking it on the GUI thread shows.
+
+    100 000 empty files in 2 000 nested subfolders: it is the walk that
+    costs, not the bytes. Session-scoped because building it takes about
+    three seconds and three tests share it. The top-level images are named
+    so that no known metadata regex matches them, which is what sends the
+    mask report down the folder-structure branch -- the one that used to
+    walk the tree twice more.
+    """
+    root = tmp_path_factory.mktemp("big_plate") / "plate1"
+    root.mkdir()
+    for i in range(5):
+        (root / f"random_image_{i}.png").touch()
+    for well in range(1, _BIG_WELLS + 1):
+        for field in range(1, _BIG_FIELDS + 1):
+            leaf = root / f"A{well:02d}" / f"f{field:03d}"
+            leaf.mkdir(parents=True)
+            for chan in range(1, _BIG_CHANS + 1):
+                (leaf / f"ch{chan:02d}.tif").touch()
+    return root
+
+
+@pytest.fixture
+def structured_folder(tmp_path):
+    """Small tree with the same shape: unmatched names + plate/well/field."""
+    for i in range(3):
+        (tmp_path / f"random_image_{i}.png").write_bytes(b"II*\x00")
+    for well in ("A01", "A02"):
+        for field in ("f01", "f02"):
+            _mkimg(tmp_path / "plate1" / well / field / "C01.tif")
+    return tmp_path
+
+
+def _mask_screen(qtbot):
+    """A real AppScreen with a real dropzone, as the user has it."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    screen.resize(900, 700)
+    screen.show()
+    qtbot.waitExposed(screen)
+    qtbot.wait(50)
+    return screen
+
+
+def test_walking_the_big_folder_inline_is_slow_enough_to_matter(big_folder):
+    """Guard against the fixture shrinking until the budget proves nothing.
+
+    If one walk of this folder were already inside the budget, the test below
+    would pass with the threading removed. It is not: this measures around
+    1 000 ms, and the drop used to do it three times.
+    """
+    from spacr.qt.folder_metadata import iter_image_files
+
+    start = time.perf_counter()
+    found = sum(1 for _ in iter_image_files(big_folder))
+    elapsed = time.perf_counter() - start
+    assert found >= _BIG_WELLS * _BIG_FIELDS * _BIG_CHANS
+    assert elapsed > DROP_STALL_BUDGET_S, (
+        f"walking the fixture took only {elapsed * 1000:.0f} ms, which is "
+        f"inside the {DROP_STALL_BUDGET_S * 1000:.0f} ms budget — the "
+        "responsiveness test above it no longer proves anything. Grow "
+        "_BIG_WELLS/_BIG_FIELDS/_BIG_CHANS until this passes again.")
+
+
+def test_dropping_a_big_folder_never_freezes_the_gui_thread(
+        qtbot, big_folder, logged):
+    """The drop that used to block for a second now blocks for milliseconds."""
+    screen = _mask_screen(qtbot)
+
+    dog = LoopWatchdog(screen)
+    dog.start()
+    dispatch = time.perf_counter()
+    event = _drop(screen, [big_folder])
+    dispatch = time.perf_counter() - dispatch
+    _drive(qtbot, dog,
+           lambda: not dh.scan_is_busy(screen)
+           and dh.active_scan_jobs(screen) == 0)
+
+    assert event.isAccepted()
+    # The drop event itself must return immediately: it dispatches, it does
+    # not read. This is the part the user is holding the mouse button for.
+    assert dispatch < 0.100, (
+        f"the drop event took {dispatch * 1000:.0f} ms to return; the folder "
+        "is still being read on the GUI thread")
+    assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
+    assert dog.worst < DROP_STALL_BUDGET_S, (
+        f"dropping a big folder stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms "
+        f"(budget {DROP_STALL_BUDGET_S * 1000:.0f} ms)")
+    # And it really did the work, rather than staying responsive by skipping
+    # it: the scan came back, the layout was recognised, and the plan opened.
+    text = "".join(logged)
+    assert "[drop] folder-structure alternative" in text, text[-2000:]
+    assert "path depth → well / field" in text
+    assert "[drop] folder-structure plan — 200 images" in text
+    assert len(getattr(screen, "_metadata_dialogs", [])) == 1
+
+
+def test_a_dropped_folder_is_walked_once_not_three_times(
+        qtbot, screen, structured_folder, monkeypatch):
+    """One traversal, shared. It used to be three of the same tree.
+
+    ``detect_folder_metadata`` walked it, then ``plan_folder_extraction``
+    walked it again *and* called ``detect_folder_metadata`` for a third.
+    """
+    walked = []
+    real_rglob = Path.rglob
+
+    def counting(self, pattern, *args, **kwargs):
+        walked.append(str(self))
+        return real_rglob(self, pattern, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "rglob", counting)
+    MaskDropHandler().apply(structured_folder, screen)
+    _settle(qtbot, screen)
+
+    # Three unmatched top-level images plus the four in the plate tree: the
+    # plan covers every image under the dropped folder, which is what makes
+    # the single walk worth sharing.
+    assert "[drop] folder-structure plan — 7 images" in screen.log
+    ours = [w for w in walked if w.startswith(str(structured_folder))]
+    assert ours == [str(structured_folder)], ours
+
+
+def test_closing_a_screen_mid_scan_leaves_no_thread_and_delivers_nothing(
+        qtbot, big_folder, logged):
+    """Leaving mid-walk must not crash, leak a thread, or report into a
+    widget on its way out.
+
+    Qt aborts the process if a running QThread is destroyed, and a scan that
+    delivers into a closed screen is a use-after-free. Both are why the
+    scanner is parked on the screen and watches for its Close event.
+    """
+    screen = _mask_screen(qtbot)
+    _drop(screen, [big_folder])
+    # Wait for the first (cheap) scan to land, which is what dispatches the
+    # recursive one -- so the close below really does happen mid-walk.
+    qtbot.waitUntil(lambda: any("mask · folder" in m for m in logged),
+                    timeout=30000)
+    assert dh.active_scan_jobs(screen) >= 1
+
+    before = len(logged)
+    screen.close()                          # mid-scan, deliberately
+
+    assert dh.active_scan_jobs(screen) == 0
+    assert not dh.scan_is_busy(screen)
+    qtbot.wait(300)
+    assert logged[before:] == []
+    assert len(getattr(screen, "_metadata_dialogs", [])) == 0
 
 
 def test_unknown_modules_accept_a_general_source_folder(tmp_path):
