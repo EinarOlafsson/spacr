@@ -182,11 +182,49 @@ def frozen_home_panels():
 # ---------------------------------------------------------------------------
 
 def test_every_categorisation_covers_every_app(gen_common):
-    """No proposed grouping may drop, duplicate or invent an app key."""
-    for name in ("CATS_BROAD3", "CATS_STAGE5", "CATS_NARROW8",
-                 "CATS_QUESTIONS", "CATS_INTENT4"):
-        gen_common.check_coverage(getattr(gen_common, name))
-    gen_common.check_coverage(gen_common.cats_current())
+    """No proposed grouping may drop, duplicate or invent an app key.
+
+    The bands are measured here rather than handed to
+    :func:`common.check_coverage` and left at that. ``check_coverage``
+    returns ``None``, so a version of it that stopped raising — or one
+    whose ``all_keys()`` drifted away from the registry — would leave a
+    body of bare calls green while every variant quietly lost an app.
+    The last block is the other half of the same worry: the checker
+    itself has to reject each of the three defects it names.
+    """
+    from spacr.qt.app import APPS
+    registry = {key for key, *_rest in APPS}
+    assert registry, "the app registry is empty"
+
+    tables = [(name, getattr(gen_common, name))
+              for name in ("CATS_BROAD3", "CATS_STAGE5", "CATS_NARROW8",
+                           "CATS_QUESTIONS", "CATS_INTENT4")]
+    tables.append(("cats_current()", gen_common.cats_current()))
+    for name, cats in tables:
+        placed = [key for _title, keys in cats for key in keys]
+        assert len(placed) == len(set(placed)), (
+            f"{name} lists a key twice: "
+            f"{sorted(k for k in set(placed) if placed.count(k) > 1)}")
+        assert set(placed) == registry, (
+            f"{name} misses {sorted(registry - set(placed))} and invents "
+            f"{sorted(set(placed) - registry)}")
+        assert gen_common.check_coverage(cats) is None
+
+    # The checker the generators call at build time has to be able to
+    # fail, or none of the above is worth anything to them.
+    good = [(title, list(keys)) for title, keys in tables[0][1]]
+    victim = sorted(registry)[0]
+    dropped = [(title, [k for k in keys if k != victim]) for title, keys in good]
+    with pytest.raises(AssertionError, match="not categorised"):
+        gen_common.check_coverage(dropped)
+    duplicated = [(title, list(keys)) for title, keys in good]
+    duplicated[0][1].append(duplicated[0][1][0])
+    with pytest.raises(AssertionError, match="duplicate keys"):
+        gen_common.check_coverage(duplicated)
+    invented = [(title, list(keys)) for title, keys in good]
+    invented[0][1].append("no_such_app")
+    with pytest.raises(AssertionError, match="unknown keys"):
+        gen_common.check_coverage(invented)
 
 
 def test_orderings_are_permutations_of_the_real_registry(gen_common):
@@ -244,16 +282,27 @@ def test_the_three_late_apps_are_categorised(gen_common):
         assert late <= placed, f"{name} is missing {sorted(late - placed)}"
 
 
-def test_no_stage_band_exceeds_the_seven_column_grid(gen_common):
-    """``CATS_STAGE5`` bands are drawn seven-wide; an eighth wraps.
+def test_no_stage_band_exceeds_the_eight_column_grid(gen_common):
+    """``CATS_STAGE5`` bands are drawn eight-wide; a ninth wraps.
 
-    Variants 02 and 23 both lay every band out as one row of seven
-    tiles. A band of eight silently becomes two rows, and that is what
-    pushed variant 23 past 900 px the first time these three apps were
-    categorised.
+    Variants 02 and 23 both lay every band out as one row of tiles. A
+    band one wider than the grid silently becomes two rows, and that is
+    what pushed variant 23 past 900 px the first time three apps were
+    categorised into it.
+
+    The grid was seven columns and is now eight: five bands of seven was
+    thirty-five slots for a registry of thirty-four, and Illumination,
+    Barcode QC, Layer Viewer and Graph Builder took it to thirty-eight.
+    One more column costs each tile 24 px of width and keeps every band
+    a single row. The other way out — a sixth band — is not available:
+    variants 13 and 16 lay these out as exactly five columns and solve
+    the gap between them from that count, which is asserted here so the
+    next person to reach for it finds out from a test rather than from a
+    squashed page.
     """
+    assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 7, f"{title} has {len(keys)} apps, the grid fits 7"
+        assert len(keys) <= 8, f"{title} has {len(keys)} apps, the grid fits 8"
 
 
 def test_check_coverage_names_what_is_wrong(gen_common):
@@ -993,10 +1042,17 @@ def test_write_markdown_never_types_an_app_count(gen, sandbox):
                   gen.common.CATS_INTENT4):
         allowed |= {len(keys) for _title, keys in table}
     allowed.add(len(gen.common.PINNED))
-    # The point of the set is that it can never contain a near-miss of
-    # the registry size — 29 against 34 is what this test exists to
-    # reject, and none of the sources above can produce it.
-    assert 29 not in allowed or whole == 29
+    # The point of the set is that every member of it is DERIVED from the
+    # live registry, so none of them can drift the way a typed literal
+    # did. This used to be spelled `29 not in allowed` -- the exact stale
+    # number the file was written about. That sentinel had to go, and its
+    # going is the same lesson twice: with 38 apps and 9 Core ones, "the
+    # other 29" is a true sentence, so the guard was itself pinned to a
+    # registry size.
+    assert whole in allowed
+    assert allowed and all(0 < n <= whole for n in allowed), (
+        f"a number the prose may print is not a size anything has: "
+        f"{sorted(allowed)} against {whole} apps")
     path = gen.render.write_markdown(gen.variants.VARIANTS,
                                      ("dark", "light"),
                                      gen.render.load_audit(), 1356, 850)
@@ -1162,10 +1218,29 @@ def test_prune_stale_dirs_removes_only_unregistered_variants(gen, sandbox):
 
 
 def test_prune_stale_dirs_is_a_no_op_without_a_versions_dir(gen, tmp_path,
-                                                            monkeypatch):
-    monkeypatch.setattr(gen.common, "versions_dir",
-                        lambda: str(tmp_path / "nope"))
-    gen.render._prune_stale_dirs([])          # must not raise
+                                                            monkeypatch,
+                                                            capsys):
+    """A missing versions dir means *nothing happens* — not "mkdir it".
+
+    The second half is the control: the identical call against a root
+    that does exist deletes ``v01_ghost``, so the silence above is a
+    property of the missing directory and not of a pruner that never
+    prunes.
+    """
+    missing = tmp_path / "nope"
+    ghost = tmp_path / "v01_ghost"
+    ghost.mkdir()
+
+    monkeypatch.setattr(gen.common, "versions_dir", lambda: str(missing))
+    assert gen.render._prune_stale_dirs([]) is None
+    assert not missing.exists(), "the pruner created the directory it skipped"
+    assert [p.name for p in tmp_path.iterdir()] == ["v01_ghost"]
+    assert capsys.readouterr().out == ""
+
+    monkeypatch.setattr(gen.common, "versions_dir", lambda: str(tmp_path))
+    gen.render._prune_stale_dirs([])
+    assert not ghost.exists()
+    assert "pruned stale v01_ghost" in capsys.readouterr().out
 
 
 def test_variant_dir_is_the_numbered_slug_folder(gen):

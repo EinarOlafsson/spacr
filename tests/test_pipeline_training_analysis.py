@@ -266,10 +266,42 @@ def test_analyze_recruitment_runs_on_pipeline_db(spacr_measure_run):
         "verbose": False,
     }
     try:
-        analyze_recruitment(settings)
+        result = analyze_recruitment(settings)
     except Exception as e:  # pragma: no cover - the fixture doesn't have
                              # the full plate metadata this function needs
         pytest.skip(
             f"analyze_recruitment needs a fuller plate metadata layout than "
             f"the synthetic pipeline fixture provides: {e}"
         )
+
+    # --- success path -----------------------------------------------------
+    # analyze_recruitment returns [cells, wells]: the per-PV frame and the
+    # per-well summary, both also written under <plate>/results/.
+    cells, wells = result
+    assert isinstance(cells, pd.DataFrame), f"cells is a {type(cells)}"
+    assert isinstance(wells, pd.DataFrame), f"wells is a {type(wells)}"
+    assert not cells.empty, "analyze_recruitment produced no per-PV rows"
+    assert not wells.empty, "analyze_recruitment produced no per-well rows"
+
+    # The recruitment ratios are the whole point of the run: present AND
+    # actually computed, not an all-NaN column from a failed division.
+    for col in ("pathogen_cell_mean_mean", "pathogen_cytoplasm_mean_mean",
+                "pathogen_nucleus_mean_mean"):
+        assert col in cells.columns, (
+            f"missing recruitment column {col}; got {list(cells.columns)[:25]}")
+        assert cells[col].notna().any(), f"{col} is entirely NaN"
+    # The rows survived condition annotation (everything else is dropped).
+    assert "condition" in cells.columns
+    assert cells["condition"].notna().all()
+
+    # wells aggregates cells by well, so it cannot be the larger of the two.
+    assert 0 < len(wells) <= len(cells)
+
+    # Both frames are on disk next to the plate.
+    results_dir = Path(spacr_measure_run["src"]) / "results"
+    cells_csv = results_dir / "cells.csv"
+    wells_csv = results_dir / "wells.csv"
+    assert cells_csv.is_file(), f"{cells_csv} not written"
+    assert wells_csv.is_file(), f"{wells_csv} not written"
+    assert len(pd.read_csv(cells_csv)) == len(cells)
+    assert len(pd.read_csv(wells_csv)) == len(wells)

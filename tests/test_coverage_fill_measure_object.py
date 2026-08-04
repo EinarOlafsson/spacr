@@ -352,7 +352,16 @@ def _obj_settings(**over):
 
 
 def test_validate_organelle_settings_ok():
-    OBJ._validate_organelle_settings("spots", "otsu")   # no raise
+    """A legal pair validates to ``None`` -- and the acceptance is per-pair.
+
+    On its own "did not raise" is satisfied by a guard whose body is
+    ``return``. ``ridge`` is the discriminator: legal for ``network``,
+    refused for ``spots``, and the message says which morphology refused it.
+    """
+    assert OBJ._validate_organelle_settings("spots", "otsu") is None
+    assert OBJ._validate_organelle_settings("network", "ridge") is None
+    with pytest.raises(ValueError, match="morphology='spots'"):
+        OBJ._validate_organelle_settings("spots", "ridge")
 
 
 def test_validate_organelle_settings_bad_morphology():

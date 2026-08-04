@@ -36,11 +36,37 @@ def test_plot_histogram_writes_pdf_to_dst(tmp_path, rng):
     plt.close("all")
 
 
-def test_plot_histogram_dst_none_still_returns():
+def test_plot_histogram_dst_none_still_returns(tmp_path, monkeypatch):
+    """``dst=None`` writes nothing but still draws the histogram.
+
+    The sibling test above pins the file-writing half of the contract; this
+    one pins the other half, so the pair discriminates: with ``dst`` a PDF
+    appears, without it *no* file does — and either way the bars are drawn.
+    """
     from spacr.plot import plot_histogram
     df = pd.DataFrame({"x": np.arange(50, dtype=float)})
-    # Should not raise even with no dst.
+    # A relative savefig path would land in the cwd, so watch the cwd too.
+    monkeypatch.chdir(tmp_path)
+    plt.close("all")
+
     plot_histogram(df, "x", dst=None)
+
+    # Nothing was written anywhere it could reach.
+    assert list(tmp_path.rglob("*")) == []
+
+    fig = plt.gcf()
+    assert len(fig.axes) == 1
+    ax = fig.axes[0]
+    assert len(ax.patches) > 0
+    # Every value landed in a bar — a blank figure totals 0.
+    assert sum(p.get_height() for p in ax.patches) == pytest.approx(len(df))
+    # The bars span the data range 0..49.
+    left = min(p.get_x() for p in ax.patches)
+    right = max(p.get_x() + p.get_width() for p in ax.patches)
+    assert left <= 0.0 and right >= 49.0
+    assert ax.get_title() == "Histogram of x"
+    assert ax.get_xlabel() == "x"
+    assert ax.get_ylabel() == "Frequency"
     plt.close("all")
 
 

@@ -204,18 +204,40 @@ def test_settings_expected_types_and_descriptions_both_present():
     assert isinstance(S.descriptions, dict) and len(S.descriptions) > 0
 
 
+def _groups_per_setting(categories):
+    """Map each setting key to the list of category groups that claim it."""
+    owners = {}
+    for group, items in categories.items():
+        for key in items:
+            owners.setdefault(key, []).append(group)
+    return owners
+
+
 def test_settings_categories_dict_no_duplicate_setting_across_groups():
-    """A setting appearing in multiple category groups indicates a group
-    definition bug — check no setting appears twice."""
+    """Each setting belongs to exactly one category group.
+
+    The GUI renders one widget per (group, key) pair, so a key listed in two
+    groups draws two widgets bound to the same setting — the second one
+    silently overwrites whatever the user typed into the first.
+    """
     import spacr.settings as S
-    seen = {}
-    for group, items in S.categories.items():
-        for it in items:
-            if it in seen and seen[it] != group:
-                # It's OK if a setting is intentionally shared; just warn.
-                # We only assert no INCONSISTENCY: for now, allow.
-                pass
-            seen[it] = group
+
+    owners = _groups_per_setting(S.categories)
+    duplicated = {k: v for k, v in owners.items() if len(v) > 1}
+    assert not duplicated, (
+        "settings claimed by more than one category group: " +
+        "; ".join(f"{k} -> {v}" for k, v in sorted(duplicated.items())))
+    # Guard against the invariant passing because there is nothing to check.
+    assert len(owners) > 100
+    assert len(S.categories) > 1
+
+    # Contrast: the same detector on a dict that DOES duplicate a key must
+    # flag it — otherwise the assertion above proves nothing.
+    planted = dict(S.categories)
+    a_key = next(iter(next(iter(S.categories.values()))))
+    planted["__planted_group__"] = [a_key]
+    planted_owners = _groups_per_setting(planted)
+    assert len(planted_owners[a_key]) == 2
 
 
 def test_settings_category_value_dependencies_organelle_method_removed_stardist():

@@ -88,10 +88,37 @@ def test_section_places_an_information_icon_beside_the_label(qtbot):
 
 
 def test_tile_emits_clicked(qtbot):
-    tile = Tile(text="Mask", caption="Mask")
-    qtbot.addWidget(tile)
-    with qtbot.waitSignal(tile.clicked, timeout=1000):
-        tile._button.click()
+    """Clicking a tile tells the caller which tile, and only that one.
+
+    ``Tile.clicked`` carries no payload, so a home screen identifies the
+    tile by the object it connected — which only works if the signal stays
+    per-instance. Two tiles here prove it is not a shared broadcast.
+    """
+    mask = Tile(text="Mask", caption="Segment cells")
+    measure = Tile(text="Measure", caption="Extract features")
+    qtbot.addWidget(mask)
+    qtbot.addWidget(measure)
+
+    fired = []
+    mask.clicked.connect(lambda: fired.append(mask.text))
+    measure.clicked.connect(lambda: fired.append(measure.text))
+
+    with qtbot.waitSignal(mask.clicked, timeout=1000):
+        mask._button.click()
+    assert fired == ["Mask"], "the wrong tile (or both) reported the click"
+
+    with qtbot.waitSignal(measure.clicked, timeout=1000):
+        measure._button.click()
+    assert fired == ["Mask", "Measure"]
+
+    # A tile is a momentary action, not a mode: the click leaves no state
+    # latched behind on the button.
+    assert mask._button.isCheckable() is False
+    assert mask._button.isChecked() is False
+    assert mask._button.isDown() is False
+    # It still identifies itself the same way after being clicked.
+    assert mask.text == "Mask"
+    assert mask._button.toolTip() == "Segment cells"
 
 
 def test_toggle_toggling(qtbot):

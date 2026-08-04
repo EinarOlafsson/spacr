@@ -689,13 +689,38 @@ def test_closing_survives_a_thread_whose_c_plus_plus_side_is_already_gone(
     widget closes the Python wrapper can be pointing at nothing. Touching it
     raises RuntimeError, and that must not stop the window from closing."""
     class DeadThread:
+        def __init__(self):
+            self.raised = 0
+
         def isRunning(self):
+            self.raised += 1
             raise RuntimeError("Internal C++ object already deleted.")
+
+    class LiveThread:
+        """A wrapper whose C++ side is still there, and is not running."""
+
+        def __init__(self):
+            self.asked = 0
+
+        def isRunning(self):
+            self.asked += 1
+            return False
 
     widget = ModelCompareScreen(threaded=True)
     qtbot.addWidget(widget)
-    widget._jobs.append((DeadThread(), None))
-    widget.close()
+    widget.show()
+    assert widget.isVisible()
+
+    dead, live = DeadThread(), LiveThread()
+    widget._jobs.extend([(dead, None), (live, None)])
+
+    assert widget.close() is True         # accepted, not vetoed
+    assert not widget.isVisible()
+    # The RuntimeError path was really taken, and the corpse did not stop
+    # the sweep. Without these the test stays green for a `closeEvent`
+    # that never looked at `_jobs` at all — which is the whole subject.
+    assert dead.raised == 1
+    assert live.asked == 1
 
 
 def test_a_second_comparison_is_refused_while_one_is_running(qtbot,

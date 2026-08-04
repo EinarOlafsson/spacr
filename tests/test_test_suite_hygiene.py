@@ -158,187 +158,35 @@ def _broad_skip_handlers(fn):
 
 #: Tests that assert nothing today. Snapshot taken when this file was written;
 #: this list may only shrink. Fix the test, do not add to it.
-ASSERTION_FREE_RATCHET = {
-    "qt/test_console_thread_safety.py": {
-        "test_a_collected_console_target_is_dropped_rather_than_resurrected",
-        "test_the_relay_swallows_an_exploding_console",
-    },
-    "qt/test_cov_qt_app.py": {
-        "test_a_zoo_request_is_dropped_if_compare_cannot_be_configured",
-        "test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op",
-        "test_missing_font_directory_is_not_an_error",
-    },
-    "qt/test_db_browser.py": {
-        "test_thread_startup_has_no_signal_disconnect_warning",
-    },
-    "qt/test_dna_rain.py": {
-        "test_a_broken_theme_lookup_does_not_break_the_switch",
-        "test_settings_bar_emits_its_signals",
-        "test_unrelated_change_events_are_ignored",
-    },
-    "qt/test_e2e_pipeline.py": {
-        "test_measure_crop_runs_on_measure_demo",
-        "test_preprocess_generate_masks_runs_on_mask_demo",
-    },
-    "qt/test_home_variants.py": {
-        "test_every_categorisation_covers_every_app",
-        "test_prune_stale_dirs_is_a_no_op_without_a_versions_dir",
-    },
-    "qt/test_live_palette_consumers.py": {
-        "test_qt_app_import_has_no_frozen_palette_warning",
-    },
-    "qt/test_live_preview.py": {
-        "test_switch_modes_no_crash",
-    },
-    "qt/test_model_compare_screen.py": {
-        "test_closing_survives_a_thread_whose_c_plus_plus_side_is_already_gone",
-    },
-    "qt/test_photo_themes.py": {
-        "test_no_role_lookup_raises_for_any_theme",
-    },
-    "qt/test_preferences.py": {
-        "test_apply_preferences_to_app_does_not_raise",
-        "test_preferences_dialog_builds_and_closes",
-    },
-    "qt/test_shortcuts_and_notify.py": {
-        "test_announce_pipeline_finished_does_not_raise",
-        "test_show_cheat_sheet_opens_and_closes",
-    },
-    "qt/test_space_theme.py": {
-        "test_refreshing_a_broken_window_is_swallowed",
-    },
-    "qt/test_track_previews.py": {
-        "test_motility_propagate_failure_is_swallowed",
-        "test_propagate_failure_is_swallowed",
-    },
-    "qt/test_tutorial_engine.py": {
-        "test_cursor_overlay_draws_on_pixmap",
-        "test_highlight_overlay_draws_on_pixmap",
-    },
-    "qt/test_widgets.py": {
-        "test_tile_emits_clicked",
-    },
-    "test_analysis_modules_t10.py": {
-        "test_analyze_entrypoint_smoke",
-    },
-    "test_cli.py": {
-        "test_noshow_survives_a_matplotlib_that_raises",
-    },
-    "test_cov_deep_spacr_smoothgrad_examples.py": {
-        "test_visualize_smooth_grad_handles_image_size_mismatch",
-    },
-    "test_cov_deep_spacr_train_test_entry.py": {
-        "test_split_dir",
-    },
-    "test_coverage_fill_cellpose_gpu_funcs.py": {
-        "test_channel_selection_per_model",
-        "test_check_cellpose_models",
-        "test_custom_model_present",
-        "test_generate_masks_non_normalize_resize",
-        "test_generate_plot_resize",
-        "test_grayscale_and_verbose",
-        "test_identify_verbose_resize",
-        "test_no_cuda_branch",
-        "test_non_normalize_resize_path",
-        "test_normalize_path_runs",
-    },
-    "test_coverage_fill_cli_init.py": {
-        "test_timer_noop_when_not_started",
-    },
-    "test_coverage_fill_gui_elements.py": {
-        "test_modify_figure_properties_none",
-        "test_save_figure_as_format_cancelled",
-    },
-    "test_coverage_fill_io.py": {
-        "test_save_settings_to_db",
-    },
-    "test_coverage_fill_measure_object.py": {
-        "test_validate_organelle_settings_ok",
-    },
-    "test_coverage_fill_plot2.py": {
-        "test_plot_histograms_and_stats",
-    },
-    "test_coverage_fill_toxo.py": {
-        "test_go_term_enrichment_by_column",
-        "test_plot_gene_phenotypes",
-    },
-    "test_coverage_fill_utils8.py": {
-        "test_model_metrics",
-    },
-    "test_deep_spacr_inference.py": {
-        "test_generate_activation_map_gradcam",
-        "test_generate_activation_map_saliency",
-    },
-    "test_dry_run.py": {
-        "test_measure_crop_dry_run_never_starts_a_worker_pool",
-        "test_measure_crop_dry_run_returns_before_any_heavy_import",
-        "test_preprocess_generate_masks_dry_run_loads_no_model",
-    },
-    "test_e2e_real_pipeline.py": {
-        "test_stage6_core_umap_and_graphs",
-    },
-    "test_errors.py": {
-        "test_to_dict_is_json_serialisable_even_with_tracebacks",
-    },
-    "test_gui_elements.py": {
-        "test_spacr_switch_toggles",
-    },
-    "test_io_helpers_more.py": {
-        "test_create_movies_from_npy_per_channel",
-    },
-    "test_more_helpers.py": {
-        "test_utils_check_index_short_prefix_ok",
-    },
-    "test_more_helpers_2.py": {
-        "test_plot_histogram_dst_none_still_returns",
-    },
-    "test_more_helpers_3.py": {
-        "test_utils_copy_images_to_consolidated_no_op_on_empty_map",
-    },
-    "test_more_helpers_5.py": {
-        "test_toxo_plot_gene_heatmaps_smoke",
-        "test_toxo_plot_gene_phenotypes_smoke",
-    },
-    "test_more_helpers_6.py": {
-        "test_utils_check_index_various_element_counts",
-    },
-    "test_more_helpers_7.py": {
-        "test_plot_lorenz_curves_smoke_synthetic_csvs",
-        "test_plot_visualize_masks_binary_and_multilabel",
-        "test_plot_visualize_masks_runs_on_three_masks",
-    },
-    "test_more_helpers_8.py": {
-        "test_settings_categories_dict_no_duplicate_setting_across_groups",
-    },
-    "test_new_widgets.py": {
-        "test_spacr_toggle_command_swallows_exceptions",
-    },
-    "test_object.py": {
-        "test_validate_organelle_settings_accepts_valid_combos",
-    },
-    "test_pipeline_training_analysis.py": {
-        "test_analyze_recruitment_runs_on_pipeline_db",
-    },
-    "test_plot.py": {
-        "test_generate_plate_heatmap_output_is_plottable",
-    },
-    "test_python314_optional_native.py": {
-        "test_core_modules_do_not_eagerly_import_optional_native_features",
-    },
-    "test_regressions.py": {
-        "test_measure_module_imports",
-    },
-    "test_smoke.py": {
-        "test_module_imports",
-        "test_source_parses",
-    },
-    "test_tstack.py": {
-        "test_the_guard_accepts_a_list_of_2d_frames",
-    },}
+#:
+#: **It is empty.** All 81 entries were given real assertions; the ceiling below
+#: is 0, so the rule is now absolute rather than ratcheted and the next
+#: assertion-free test to appear anywhere in ``tests/`` fails this file.
+#:
+#: What "a real assertion" meant, case by case, because the temptation is to
+#: satisfy the rule rather than the test:
+#:
+#: * A "does not raise" test asserts the resulting STATE. A validator returns
+#:   ``None`` for a legal pair *and refuses the neighbouring illegal one* --
+#:   without the second half, a guard whose body is ``return`` passes.
+#: * A test whose subject is "this renders" asserts PIXELS or widget geometry.
+#:   ``test_cursor_overlay_draws_on_pixmap`` reads the QPixmap back and pins
+#:   which pixels moved and where; the mask outline colour sat stuck on green
+#:   for months behind a test that asserted the setting instead.
+#: * A swallowed-exception test asserts that the broken collaborator was really
+#:   reached and that a working one alongside still gets through. "Nothing
+#:   raised" is also true of a call that never happened.
+#:
+#: One entry was deleted rather than fixed:
+#: ``test_analysis_modules_t10.py::test_analyze_entrypoint_smoke`` skipped for
+#: its entire life on a missing ``prcf`` column, so it had never executed a
+#: line of the three analyze_* entry points it named -- all of which are driven
+#: for real by the ``test_cov_submodules_*`` modules.
+ASSERTION_FREE_RATCHET: dict[str, set[str]] = {}
 
 #: Total entries above. Pinned so a fix that "resolves" a violation by adding
-#: two more cannot pass.
-ASSERTION_FREE_CEILING = 78
+#: two more cannot pass. Zero: the debt is paid, and it may not be re-borrowed.
+ASSERTION_FREE_CEILING = 0
 
 
 def _assertion_free_tests():
@@ -414,9 +262,6 @@ BROAD_SKIP_RATCHET = {
     "qt/test_gui_run_and_console.py": {
         "_require_gpu_cellpose": 2,
     },
-    "test_analysis_modules_t10.py": {
-        "test_analyze_entrypoint_smoke": 1,
-    },
     "test_analysis_submodules_real_data.py": {
         "_require_gpu_cellpose": 2,
         "test_apply_cellpose_model_writes_results": 1,
@@ -429,14 +274,8 @@ BROAD_SKIP_RATCHET = {
     "test_cov_gui_elements_widgets_progress.py": {
         MODULE_SCOPE: 1,
     },
-    "test_coverage_fill_io.py": {
-        "test_save_settings_to_db": 1,
-    },
     "test_coverage_fill_settings.py": {
         "test_defaults_function_populates_dict": 1,
-    },
-    "test_coverage_fill_toxo.py": {
-        "test_plot_gene_phenotypes": 1,
     },
     "test_e2e_real_dataset.py": {
         "test_e2e_real_stage_2_measure": 2,
@@ -466,13 +305,6 @@ BROAD_SKIP_RATCHET = {
     },
     "test_io_classes_more.py": {
         "test_save_mask_timelapse_as_gif": 1,
-    },
-    "test_io_helpers_more.py": {
-        "test_create_movies_from_npy_per_channel": 1,
-    },
-    "test_more_helpers_5.py": {
-        "test_toxo_plot_gene_heatmaps_smoke": 1,
-        "test_toxo_plot_gene_phenotypes_smoke": 1,
     },
     "test_more_helpers_6.py": {
         "test_object_preprocess_batch_rolling_ball_only": 1,
@@ -507,8 +339,12 @@ BROAD_SKIP_RATCHET = {
         "_require_gpu_cellpose": 3,
     },}
 
-#: Total HANDLERS above, not keys. 46 in function bodies + 4 at module scope.
-BROAD_SKIP_CEILING = 50
+#: Total HANDLERS above, not keys. 40 in function bodies + 4 at module scope.
+#: Was 50. Six came off while the assertion-free rule was being paid down:
+#: giving a test a real assertion usually means making its call SUCCEED
+#: deterministically, at which point the handler that turned a failure into a
+#: skip has nothing left to catch and can go.
+BROAD_SKIP_CEILING = 44
 
 
 def _scan_broad_skips(tree):

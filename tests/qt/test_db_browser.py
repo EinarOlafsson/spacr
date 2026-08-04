@@ -2178,15 +2178,51 @@ def test_threaded_query_retires_its_thread(qtbot, qt_theme_applied, measdb):
 def test_thread_startup_has_no_signal_disconnect_warning(
         qtbot, qt_theme_applied, measdb):
     """The shared worker no longer self-deletes, so DB Browser must not try
-    to disconnect a nonexistent deleteLater slot for every queued query."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("error", RuntimeWarning)
+    to disconnect a nonexistent deleteLater slot for every queued query.
+
+    ``simplefilter("error")`` cannot express this: libpyside raises the
+    warning from inside a Qt slot, where an exception is printed and
+    swallowed rather than failing the test. The warnings are *recorded*
+    instead and read afterwards.
+    """
+    # The measurement first: libpyside really does route a failed
+    # disconnect through Python's warnings machinery, and this recorder
+    # really does catch it. Without this, "no warnings" below could just
+    # mean the recorder was blind.
+    from PySide6.QtCore import QObject, Signal
+
+    class _Probe(QObject):
+        went = Signal(bool)
+
+    probe = _Probe()
+    with warnings.catch_warnings(record=True) as probe_log:
+        warnings.simplefilter("always")
+        probe.went.disconnect(lambda ok: None)      # never connected
+    assert [rec for rec in probe_log
+            if issubclass(rec.category, RuntimeWarning)
+            and "disconnect" in str(rec.message)], (
+        "the recorder cannot see a failed disconnect at all")
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
         w = DbBrowserScreen(threaded=True)
         qtbot.addWidget(w)
         w.set_database(measdb.path)
         qtbot.waitUntil(lambda: not w.is_busy(), timeout=10000)
         qtbot.waitUntil(lambda: w.active_jobs() == 0, timeout=10000)
+        jobs_run = w._next_job_id
         w.close()
+
+    # The flow really did put work through _start_job — otherwise there
+    # was nothing for a stray disconnect to happen in.
+    assert jobs_run > 0, "no threaded job ever started"
+    assert w.current_table() == "cell" and w.loaded_rows() > 0
+    offenders = [str(rec.message) for rec in caught
+                 if issubclass(rec.category, RuntimeWarning)
+                 and "disconnect" in str(rec.message)]
+    assert offenders == [], (
+        f"{len(offenders)} failed disconnect(s) over {jobs_run} job(s): "
+        + "; ".join(sorted(set(offenders))))
 
 
 def test_overlapping_threaded_jobs_do_not_drop_a_live_thread(

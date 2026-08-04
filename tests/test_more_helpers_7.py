@@ -21,7 +21,13 @@ import pytest
 # ===========================================================================
 
 def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
-    """Two synthetic gRNA-count CSVs, verify function runs without raising."""
+    """One curve per CSV plus the combined curve, and the more unequal plate
+    bows further from the diagonal.
+
+    df2's counts are df1's squared, so plate 2 *must* be more unequal than
+    plate 1: a bigger Gini and a smaller area under its Lorenz curve. Two
+    identical (or absent) curves cannot satisfy that.
+    """
     from spacr.plot import plot_lorenz_curves
     df1 = pd.DataFrame({
         "grna_name": [f"g{i}" for i in range(20)],
@@ -33,10 +39,44 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
     })
     p1 = tmp_path / "d1.csv"; p2 = tmp_path / "d2.csv"
     df1.to_csv(p1, index=False); df2.to_csv(p2, index=False)
+    plt.close("all")
     # Deliberately NOT wrapped in try/pytest.skip. Swallowing the exception is
     # exactly what hid the remove_keys=None crash: this call raised TypeError
     # on every invocation and the suite reported a tidy "skipped".
     plot_lorenz_curves(csv_files=[str(p1), str(p2)], save=False)
+
+    fig = plt.gcf()
+    assert len(fig.axes) == 1
+    ax = fig.axes[0]
+    # plate 1, plate 2, combined.
+    assert len(ax.lines) == 3
+    labels = [ln.get_label() for ln in ax.lines]
+    assert labels[0].startswith("plate 1 (Gini: ")
+    assert labels[1].startswith("plate 2 (Gini: ")
+    assert labels[2].startswith("Combined (Gini: ")
+    assert [t.get_text() for t in ax.get_legend().get_texts()] == labels
+
+    areas, ginis = [], []
+    for line, label in zip(ax.lines, labels):
+        x = np.asarray(line.get_xdata(), dtype=float)
+        y = np.asarray(line.get_ydata(), dtype=float)
+        # A Lorenz curve runs (0,0) -> (1,1) and never decreases.
+        assert (x[0], y[0]) == (0.0, 0.0)
+        assert (x[-1], y[-1]) == pytest.approx((1.0, 1.0))
+        assert np.all(np.diff(y) >= -1e-12)
+        assert np.all(y <= x + 1e-12)          # bows below the diagonal
+        areas.append(float(np.trapz(y, x)))
+        ginis.append(float(label.split("Gini: ")[1].rstrip(")")))
+
+    # The whole point of the fixture: plate 2 is the unequal one.
+    assert ginis[1] > ginis[0] > 0
+    assert areas[1] < areas[0]
+    # Printed Gini and drawn area are two views of the same number.
+    for area, gini in zip(areas, ginis):
+        assert gini == pytest.approx(1 - 2 * area, abs=1e-3)
+    # save=False must not leave a results directory behind.
+    assert not (tmp_path / "results").exists()
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["d1.csv", "d2.csv"]
     plt.close("all")
 
 
@@ -66,16 +106,36 @@ def test_plot_permutation_returns_figure():
 # ===========================================================================
 
 def test_plot_visualize_masks_runs_on_three_masks():
+    """Three panels, each showing the mask it was handed."""
     from spacr.plot import visualize_masks
     m = np.zeros((10, 10), dtype=np.int32)
     m[2:8, 2:8] = 1
-    # Should not raise on three masks (uses plt.show which is a no-op on Agg).
+    plt.close("all")
     visualize_masks(m, m.copy(), m.copy(), title="test")
+
+    fig = plt.gcf()
+    assert len(fig.axes) == 3
+    assert fig._suptitle.get_text() == "test"
+    for ax, panel in zip(fig.axes, ["Mask 1", "Mask 2", "Mask 3"]):
+        assert ax.get_title() == panel
+        assert len(ax.images) == 1
+        # The array handed to imshow is the mask itself, not an empty canvas.
+        drawn = np.asarray(ax.images[0].get_array())
+        assert drawn.shape == m.shape
+        assert np.array_equal(drawn, m)
+        assert int((drawn > 0).sum()) == 36      # the 6x6 object really is drawn
+        assert not ax.axison
     plt.close("all")
 
 
 def test_plot_visualize_masks_binary_and_multilabel():
-    """Should handle both binary and multi-label masks in one call."""
+    """Binary and multi-label panels are coloured on their own label counts.
+
+    The contrast is the test: panels 1 and 3 hold a single object, panel 2
+    holds three. The panels must therefore differ in the array handed to
+    ``imshow``, in the normalisation and in the size of the random colormap —
+    a figure that drew the same thing three times fails on every one of them.
+    """
     from spacr.plot import visualize_masks
     binary = np.zeros((10, 10), dtype=np.uint8)
     binary[2:5, 2:5] = 1
@@ -83,7 +143,29 @@ def test_plot_visualize_masks_binary_and_multilabel():
     multi[2:4, 2:4] = 1
     multi[5:7, 5:7] = 2
     multi[7:9, 7:9] = 3
+    plt.close("all")
     visualize_masks(binary, multi, binary.copy(), title="mixed")
+
+    fig = plt.gcf()
+    assert len(fig.axes) == 3
+    assert fig._suptitle.get_text() == "mixed"
+    assert all(len(ax.images) == 1 for ax in fig.axes)
+    drawn = [np.asarray(ax.images[0].get_array()) for ax in fig.axes]
+
+    for panel, source in zip(drawn, [binary, multi, binary]):
+        assert np.array_equal(panel, source)
+
+    # Panel 2 carries three distinct non-zero labels; panels 1 and 3 carry one.
+    assert [len(np.unique(p[p > 0])) for p in drawn] == [1, 3, 1]
+    assert sorted(np.unique(drawn[1])) == [0, 1, 2, 3]
+    assert sorted(np.unique(drawn[0])) == [0, 1]
+    assert not np.array_equal(drawn[0], drawn[1])
+    assert np.array_equal(drawn[0], drawn[2])
+
+    # The colormap is sized off the label count, and only the non-binary panel
+    # is normalised against its own maximum.
+    assert [ax.images[0].cmap.N for ax in fig.axes] == [2, 4, 2]
+    assert fig.axes[1].images[0].norm.vmax == 3
     plt.close("all")
 
 

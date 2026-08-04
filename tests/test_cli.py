@@ -1074,15 +1074,35 @@ def test_noshow_is_inert_without_matplotlib(monkeypatch):
 
 
 def test_noshow_survives_a_matplotlib_that_raises(monkeypatch):
-    """Restoring plt.show must never be the thing that fails a completed run."""
+    """Restoring plt.show must never be the thing that fails a completed run.
+
+    The restore is what the docstring promises and what nothing was checking:
+    ``__exit__`` calls ``plt.close("all")``, which explodes here too, and if
+    that took the restore down with it every later ``plt.show()`` in the
+    process would stay shimmed and silently close figures instead of drawing
+    them.
+    """
     plt = pytest.importorskip("matplotlib.pyplot")
+    original_show, original_close = plt.show, plt.close
 
     def _boom(*args, **kwargs):
         raise RuntimeError("backend gone")
 
     with cli._NoShow():
+        assert plt.show is not original_show, "show was never shimmed"
         monkeypatch.setattr(plt, "close", _boom)
-        plt.show()  # the shim swallows the failure
+        assert plt.show() is None       # the shim swallows the failure
+    assert plt.show is original_show, "a raising close left plt.show shimmed"
+
+    # ...and the shim is a real close, not a no-op: with a working backend it
+    # disposes of the current figure, which is the leak it exists to stop.
+    monkeypatch.setattr(plt, "close", original_close)
+    fig = plt.figure()
+    assert plt.fignum_exists(fig.number)
+    with cli._NoShow():
+        plt.show()
+        assert not plt.fignum_exists(fig.number), "the shim closed nothing"
+    assert plt.show is original_show
 
 
 def test_setup_logging_replaces_its_handler():

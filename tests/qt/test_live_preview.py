@@ -626,11 +626,43 @@ class TestViewModes:
         assert "cell" in p._flows
         assert np.array_equal(p._flows_rgb(), flow)
 
-    def test_switch_modes_no_crash(self, qtbot):
+    def test_switch_modes_renders_three_different_images(self, qtbot):
+        """Each mode has to put a *different* picture on the mask canvas.
+
+        The three branches of ``_refresh_canvases`` all end in
+        ``_mask_view.set_pixmap``, so a mode that silently fell through
+        to another one still runs clean — the only thing that tells them
+        apart is the pixels. The left canvas is the contrast case: it is
+        mode-independent, so it must come out byte-identical all three
+        times while the right one changes.
+        """
+        from PySide6.QtGui import QImage
+
         p = self._panel_with_image(qtbot)
         mask = np.zeros((32, 32), np.int32); mask[4:10, 4:10] = 1
         p._masks = {"cell": mask}
-        p._flows = {"cell": np.zeros((32, 32, 3), np.uint8)}
-        for m in ("Overlay", "Masks", "Flows"):
-            p._view_mode.setCurrentText(m)
-            p._refresh_canvases()   # must not raise
+        flows = np.zeros((32, 32, 3), np.uint8)
+        flows[..., 0] = 200          # a flat red field: unlike either other view
+        p._flows = {"cell": flows}
+
+        def _bytes(view):
+            item = view._pixmap_item
+            assert item is not None
+            pixmap = item.pixmap()
+            assert not pixmap.isNull()
+            assert (pixmap.width(), pixmap.height()) == (32, 32)
+            return bytes(pixmap.toImage()
+                         .convertToFormat(QImage.Format_RGB32).constBits())
+
+        masks_view, source_view = {}, {}
+        for mode in ("Overlay", "Masks", "Flows"):
+            p._view_mode.setCurrentText(mode)
+            p._refresh_canvases()
+            masks_view[mode] = _bytes(p._mask_view)
+            source_view[mode] = _bytes(p._src_view)
+
+        assert len(set(masks_view.values())) == 3, (
+            "two view modes rendered the same image: "
+            f"{[m for m in masks_view if list(masks_view.values()).count(masks_view[m]) > 1]}")
+        assert len(set(source_view.values())) == 1, \
+            "the source canvas must not depend on the mask view mode"

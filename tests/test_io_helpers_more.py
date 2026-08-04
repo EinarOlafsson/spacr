@@ -250,13 +250,52 @@ def test_copy_missclassified(tmp_path, rng):
 
 
 def test_create_movies_from_npy_per_channel(tmp_path, rng):
+    """One movie per channel per field, each holding one frame per timepoint.
+
+    Two fields are written so the per-(plate, well, field) loop is pinned:
+    when that loop was dedented only the *last* field ever got a movie. The
+    broad ``except Exception: pytest.skip`` is gone — OpenCV writes these
+    deterministically, and the skip could only mask the drop.
+    """
+    import cv2
     from spacr.io import _create_movies_from_npy_per_channel
     src = tmp_path / "stack"; src.mkdir()
     # filename must be plate_well_field_time.npy for the regex to match
-    for i in range(3):
-        np.save(src / f"plate1_A01_f1_{i}.npy",
-                rng.integers(0, 500, (16, 16, 2)).astype(np.uint16))
-    try:
-        _create_movies_from_npy_per_channel(str(src), fps=2)
-    except Exception as e:
-        pytest.skip(f"movie writer unavailable: {e}")
+    for field in ("f1", "f2"):
+        for i in range(3):
+            np.save(src / f"plate1_A01_{field}_{i}.npy",
+                    rng.integers(0, 500, (16, 16, 2)).astype(np.uint16))
+
+    _create_movies_from_npy_per_channel(str(src), fps=2)
+
+    movies = sorted(p.name for p in (tmp_path / "movies").iterdir())
+    assert movies == [
+        "plate1_A01_f1_channel_0.mp4", "plate1_A01_f1_channel_1.mp4",
+        "plate1_A01_f2_channel_0.mp4", "plate1_A01_f2_channel_1.mp4",
+    ]
+
+    frames = {}
+    for name in movies:
+        path = tmp_path / "movies" / name
+        assert path.stat().st_size > 0
+        cap = cv2.VideoCapture(str(path))
+        read = []
+        while True:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            read.append(frame)
+        cap.release()
+        # One frame per .npy timepoint, at the source resolution.
+        assert len(read) == 3, f"{name} holds {len(read)} frames"
+        assert read[0].shape[:2] == (16, 16)
+        frames[name] = read
+
+    # The channels are split, not duplicated: the two channels of a field
+    # carry different pixels, and so do successive timepoints.
+    ch0 = frames["plate1_A01_f1_channel_0.mp4"]
+    ch1 = frames["plate1_A01_f1_channel_1.mp4"]
+    assert not np.array_equal(ch0[0], ch1[0])
+    assert not np.array_equal(ch0[0], ch0[1])
+    # ...and the second field is its own movie, not a copy of the first.
+    assert not np.array_equal(ch0[0], frames["plate1_A01_f2_channel_0.mp4"][0])

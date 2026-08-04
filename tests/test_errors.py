@@ -565,10 +565,27 @@ def test_to_json_writes_the_whole_ledger_and_makes_parent_dirs(tmp_path):
 
 
 def test_to_dict_is_json_serialisable_even_with_tracebacks():
+    """The traceback is the field that makes this hard, so assert it survives.
+
+    A ``to_dict`` that simply dropped ``traceback_str`` would serialise
+    perfectly and pass a bare ``json.dumps(...)``; one that kept the live
+    traceback object would not serialise at all. Only checking the round trip
+    *and* the text distinguishes the two from a correct implementation.
+    """
     ledger = RunLedger('serialisable')
     with ledger.item('a'):
         raise ValueError('x')
-    json.dumps(ledger.to_dict())            # must not raise
+
+    payload = ledger.to_dict()
+    assert json.loads(json.dumps(payload)) == payload, \
+        'a value survived to_dict() but changed identity through JSON'
+
+    failure, = payload['failures']
+    assert failure['exc_type'] == 'ValueError'
+    assert failure['message'] == 'x'
+    assert isinstance(failure['timestamp'], float)
+    assert 'Traceback (most recent call last)' in failure['traceback_str']
+    assert "raise ValueError('x')" in failure['traceback_str']
 
 
 def test_run_id_and_started_time_are_recorded():
