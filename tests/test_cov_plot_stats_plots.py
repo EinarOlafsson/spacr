@@ -520,8 +520,16 @@ def test_jitterplot_is_deterministic(fake_db_readers):
     pd.testing.assert_frame_equal(a, b)
 
 
-def test_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys):
+def test_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys,
+                                         monkeypatch):
+    import spacr.plot as P
     from spacr.plot import jitterplot_by_annotation
+
+    # ``save_figure`` writes the user's preferred figure format and rewrites the
+    # extension to match; with no preference store (the case under pytest) that
+    # default is PDF. This test asserts an exact ``.png`` on disk plus the PNG
+    # magic bytes, so it states the preference it means.
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
 
     dst = tmp_path / "jitter.png"
     out = jitterplot_by_annotation(

@@ -34,6 +34,24 @@ def _close_figures():
     plt.close("all")
 
 
+@pytest.fixture(autouse=True)
+def _png_figure_preference(monkeypatch):
+    """Say which figure format these tests are asserting.
+
+    ``_make_adjusted_qc_panel`` writes through ``spacr.plot.save_figure``,
+    which follows the user's figure-format preference and rewrites the file
+    extension to match. Under pytest there is no preference store, so the
+    preference falls back to ``spacr.plot.DEFAULT_FIGURE_FORMAT`` -- PDF. The
+    panel tests below assert an exact ``.png`` filename, so they state the
+    preference instead of inheriting the shipped default.
+
+    (``_infection_qc_histogram`` is unaffected either way: it pins ``fmt="png"``
+    on purpose, because the panel reads that file back with ``mpimg.imread``.)
+    """
+    import spacr.plot as P
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
+
+
 def _qc_df(n_cells=30, frames=2, chan=2, col="p95", seed=0,
            plate="plate1", well="A01"):
     """Per-frame per-cell table with a clean infected / uninfected split.
