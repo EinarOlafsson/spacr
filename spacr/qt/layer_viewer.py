@@ -638,6 +638,10 @@ class LayerViewer(LinkedView, QWidget):
         self._stack.subscribe(self._on_layers_changed)
         self.link_selection(LINK_SOURCE)
         self._sync_controls()
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from .dnd import install_for
+        install_for(self, "layer_viewer")
 
     # -- construction ----------------------------------------------------
     def _build(self) -> None:

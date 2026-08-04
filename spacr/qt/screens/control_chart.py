@@ -51,12 +51,39 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import SPACING, active_palette
+from ..theme import (RADIUS, SPACING, active_palette, pane_surface,
+                     register_widget_qss)
+
+#: The control column's object name, and what the QSS block below keys off.
+CONTROLS_OBJECT = "ControlChartControls"
+
+
+def _control_chart_qss(palette: dict, opacity=None) -> str:
+    """This screen's QSS block, appended to every generated stylesheet.
+
+    The control column is a named ``QWidget`` and had no rule of its own,
+    so it fell through to the blanket ``QWidget {{ background-color: bg }}``
+    -- the WINDOW colour, not a surface, which no page-opacity setting can
+    reach. It is a page surface now, the same one the Graph Builder's and
+    the Trellis's shelves take.
+    """
+    return f"""
+QWidget#{CONTROLS_OBJECT} {{
+    background: {pane_surface("surface_alt", palette.get("theme"), opacity)};
+    border-radius: {RADIUS["md"]}px;
+}}
+"""
+
+
+# `replace=True`: reachable through the screens package and by direct
+# import, and a second import must refresh the block rather than raise.
+register_widget_qss("ControlChart", _control_chart_qss, replace=True)
 # `_canvas_class` is the owned-timer FigureCanvas fix: matplotlib schedules its
 # idle draw on a static QTimer that is not owned by the canvas and can fire
 # after Qt has deleted it, which is a segfault on close. Imported from the one
 # place that has it rather than copied.
-from ..widgets.graph_builder import _canvas_class, categorical_colours
+from ..widgets.graph_builder import (_canvas_class, _page_surface_axes,
+                                     categorical_colours)
 from ..widgets.control_chart import (
     ESTIMATOR_AUTO, ESTIMATOR_LABELS, ESTIMATORS, RULES_ALL, RULES_DEFAULT,
     RULES_LIMITS_ONLY, RULE_DETECTS, RULE_NAMES, DEFAULT_BASELINE,
@@ -121,9 +148,11 @@ class ControlChartCanvas(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
-        self.figure = Figure(figsize=(8.0, 4.2), facecolor=palette["surface"])
+        # No `facecolor` and no inline `background:` -- the canvas paints
+        # the page panel in its own `paintEvent` under a transparent figure
+        # patch, and either of those would put the opaque rectangle back.
+        self.figure = Figure(figsize=(8.0, 4.2))
         self.canvas = _canvas_class()(self.figure)
-        self.canvas.setStyleSheet(f"background: {palette['surface']};")
         self.canvas.setMinimumHeight(260)
         outer.addWidget(self.canvas, 1)
 
@@ -143,8 +172,10 @@ class ControlChartCanvas(QWidget):
         """Redraw from the held result. Idempotent."""
         palette = active_palette()
         self.figure.clear()
+        # `clear()` restores the rc facecolor and its alpha with it.
+        self.figure.patch.set_alpha(0.0)
         ax = self.figure.add_subplot(111)
-        ax.set_facecolor(palette["surface"])
+        _page_surface_axes(ax, palette)
         for side in ("top", "right"):
             ax.spines[side].set_visible(False)
         for side in ("left", "bottom"):
@@ -341,16 +372,23 @@ class ControlChartScreen(QWidget):
         body.setStretchFactor(0, 0)
         body.setStretchFactor(1, 1)
         outer.addWidget(body, 1)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "control_chart")
 
     # -- the form ---------------------------------------------------------
     def _build_controls(self) -> QWidget:
         """The left-hand column: what a plate is, what the control is, and the
         three statistical choices that change the answer."""
         panel = QWidget(self)
-        panel.setObjectName("ControlChartControls")
+        panel.setObjectName(CONTROLS_OBJECT)
         panel.setMaximumWidth(330)
         form = QFormLayout(panel)
-        form.setContentsMargins(0, 0, SPACING["sm"], 0)
+        # Room for the panel's own rounded surface: the column sits ON a
+        # page surface now rather than straight on the window.
+        form.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                SPACING["sm"], SPACING["sm"])
         form.setSpacing(SPACING["xs"])
 
         self._plate = QComboBox(panel)

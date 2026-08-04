@@ -92,6 +92,10 @@ class LineageScreen(LinkedView, QWidget):
         self._orphans = pd.DataFrame()
         self._build()
         self.link_selection(LINK_SOURCE)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "lineage")
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:

@@ -413,6 +413,10 @@ class PipelineGraphScreen(QWidget):
             self._set_verdict(
                 "Choose a spaCR project folder to draw what it has produced.",
                 problem=False)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "pipeline_graph")
 
     # -- construction -----------------------------------------------------
 

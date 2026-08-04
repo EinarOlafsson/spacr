@@ -118,6 +118,33 @@ def install_dropzone(target: QWidget, handler: DropHandler,
     target.installEventFilter(f)
 
 
+def install_for(target: QWidget, app_key: str, screen: QWidget = None) -> bool:
+    """Attach ``app_key``'s drop policy to ``target``. Never raises.
+
+    The one line a screen adds to accept drops. Which policy that is comes
+    from :func:`spacr.qt.dnd_handlers.get_handler`, so a screen never names a
+    handler class and a screen with no declared policy still gets the
+    source-folder fallback.
+
+    Failure is a missing convenience, not a broken screen — a Qt build with no
+    drag-and-drop, or a handler whose import fails, must not stop the screen
+    being constructed. It is logged and the screen goes up without a dropzone.
+
+    :param target: the widget that receives the drag/drop events.
+    :param app_key: the registered app key, e.g. ``"graph_builder"``.
+    :param screen: the object handed to ``handler.apply``; ``target`` when
+        omitted.
+    :returns: whether the dropzone was installed.
+    """
+    try:
+        from .dnd_handlers import get_handler
+        install_dropzone(target, get_handler(app_key), screen or target)
+        return True
+    except Exception:
+        LOG.debug("no dropzone installed for %s", app_key, exc_info=True)
+        return False
+
+
 class _DropzoneFilter(QObject):
     """Event filter that routes drag/drop events on ``target`` into
     the :class:`DropHandler` attached to it."""

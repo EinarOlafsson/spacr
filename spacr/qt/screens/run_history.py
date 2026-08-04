@@ -147,6 +147,10 @@ class RunHistoryScreen(QWidget):
         self._record_by_id: Dict[str, Dict[str, Any]] = {}
         self._build_ui()
         self._set_status("Open this module to load the run journal.")
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "run_history")
 
     def _build_ui(self) -> None:
         """Construct filters, run table, and tabbed detail inspector."""

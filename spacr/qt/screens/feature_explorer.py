@@ -115,6 +115,10 @@ class FeatureExplorerScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         outer.addWidget(body, 1)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "feature_explorer")
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:

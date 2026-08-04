@@ -197,6 +197,10 @@ class ClassifierEvaluationScreen(QWidget):
         self._set_status(
             tr("Choose or drop a classifier run folder, then select Scan.")
         )
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "classifier_evaluation")
 
     def _build_ui(self) -> None:
         """Construct source controls and tabbed evaluation views."""

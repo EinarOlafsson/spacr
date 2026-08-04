@@ -1656,9 +1656,22 @@ def resolve_drop(module: str,
         targets.append(DropTarget(
             module=key, setting=source_key(key), role=PROJECT, kind=PROJECT,
             value=root, location=root, source=FROM_LAYOUT))
+    filled: set = set()
     for port in ports:
+        # A port that is not declared by a module has no settings key of its
+        # own; its role stands in, so a screen asking for two kinds gets two
+        # answers rather than two ports fighting over ``src``.
         binding = (binding_for(key, port) if declared
-                   else Binding(key, port.role, source_key(key), form))
+                   else Binding(key, port.role, port.role, form))
+        if binding.setting in filled:
+            # The key already has its answer. Classify declares both a
+            # measurements database and an optional ``data/**/*_png`` crop
+            # folder, and *both* bind to ``src`` — so resolving the second
+            # would recursively glob a folder of a hundred thousand crops to
+            # arrive at the string already in hand. A drop happens with the
+            # mouse button down; this is the difference between one
+            # millisecond and forty.
+            continue
         current = None if settings is None else settings.get(binding.setting)
         if root not in stores:
             stores[root] = _registry_for(root, registry)
@@ -1672,6 +1685,7 @@ def resolve_drop(module: str,
                 value=_value_for(artifact, port, binding, current),
                 location=artifact.path, source=FROM_REGISTRY,
                 required=port.required))
+            filled.add(binding.setting)
             continue
         resolved = _ports.resolve_port(port, root)
         if not resolved.exists:
@@ -1690,6 +1704,7 @@ def resolve_drop(module: str,
             kind=port.kind, value=value, location=location,
             source=FROM_LAYOUT, required=port.required,
             paths=resolved.paths))
+        filled.add(binding.setting)
 
     # A database is the one artifact a project can legitimately hold two of.
     # Picking the first would be exactly the silent wrong answer this is here
