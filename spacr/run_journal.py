@@ -66,6 +66,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
 
+# The macro recorder. Imported at the top rather than inside `open_run`
+# because it costs nothing to: `spacr.macro` imports only the standard
+# library, and reaches for spacr.ports / spacr.artifacts / spacr.settings
+# lazily, inside the functions that need them. Both calls swallow every
+# exception on purpose — the emitted script is a record of the run, never
+# a condition of it.
+from .macro import begin_recording, finish_recording
+
 LOG = logging.getLogger("spacr.run_journal")
 
 MANIFEST_SCHEMA_VERSION = 2
@@ -792,6 +800,10 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     # A running manifest makes an interrupted process visible and auditable.
     run._write_manifest()
     LOG.info("run opened → %s", run.dir)
+    # Macro recorder, half one: start watching for the run id the pipeline
+    # is about to mint. See spacr/macro.py — the script lands next to this
+    # manifest when the run closes.
+    macro = begin_recording(app_key, run.settings, run_dir=run.dir)
     prev_active = current_run()
     _RUN_LOCAL.active = run
     try:
@@ -821,6 +833,9 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             # A manifest failure is never silent, but it also must not mask the
             # original pipeline exception during context-manager unwinding.
             LOG.exception("Could not finalize run manifest in %s", run.dir)
+        # Macro recorder, half two: write the Python script that repeats
+        # this run — and, when it continues one, the whole chain before it.
+        finish_recording(macro, status=run.status, settings=run.settings)
         LOG.info("run closed [%s] in %.1fs → %s",
                   run.status, run.end_ts - run.start_ts, run.dir)
 
