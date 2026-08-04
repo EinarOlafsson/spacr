@@ -44,7 +44,7 @@ from PySide6.QtWidgets import (QComboBox, QFileDialog, QFrame, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QSizePolicy,
                                QSplitter, QVBoxLayout, QWidget)
 
-from ...selection import (OBJECT_KEY_COLUMNS, object_keys,
+from ...selection import (OBJECT_KEY_COLUMNS, match_keys, object_keys,
                           with_object_type)
 from ..crop_thumbs import CropThumbnails, crop_paths_for_keys
 from ..job_runner import JobRunner
@@ -733,8 +733,11 @@ class ImageScatterScreen(LinkedView, QWidget):
         if selection.keys is None or not self._keys:
             self.canvas.set_selected([])
             return
-        wanted = set(str(k) for k in selection.keys)
-        self.canvas.set_selected([key in wanted for key in self._keys])
+        # Matched by specificity rather than by equality: a view that states
+        # no object type still has to light up for one that does, and the
+        # other way round. See `spacr.selection.match_keys`.
+        self.canvas.set_selected(
+            list(match_keys(self._keys, selection.keys)))
 
     def on_linked_filter_changed(self, data_filter) -> None:
         """The population narrowed: say so. A filter hides, so re-plot.

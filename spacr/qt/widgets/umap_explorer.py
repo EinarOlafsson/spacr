@@ -36,7 +36,8 @@ from PySide6.QtWidgets import (
 )
 
 from ... import schema
-from ...selection import OBJECT_KEY_COLUMNS, DataFilter, Selection, object_keys
+from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
+                          match_keys, object_keys)
 from ...umap_annotations import write_umap_annotations
 from ..linked_selection import LinkedView
 
@@ -544,8 +545,13 @@ class ImageUmapExplorer(LinkedView, QWidget):
         if keys is None or not selection.is_active or not len(self._embedding):
             self._linked_points = np.empty(0, dtype=int)
             return
+        # `match_keys`, not `Index.isin`: the table publishes `..._f1_cell1`
+        # now that a reader states which table it read, while these points
+        # are keyed off a `prcfo` that states nothing. Exact equality
+        # highlighted nothing at all, which on a UMAP is indistinguishable
+        # from the user having lassoed empty space.
         self._linked_points = np.flatnonzero(
-            np.asarray(keys.isin(selection.keys), dtype=bool))
+            match_keys(keys, selection.keys))
 
     def _draw_linked_points(self) -> None:
         if self._linked_artist is None:
