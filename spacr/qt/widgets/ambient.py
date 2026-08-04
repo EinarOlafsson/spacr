@@ -225,7 +225,7 @@ from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
                            QTransform)
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
-from ..theme import palette_for, relative_luminance
+from ..theme import page_colour, palette_for, relative_luminance
 
 __all__ = [
     "AMBIENT_THEMES", "ANIMATION_CHOICES", "NO_ANIMATION",
@@ -827,12 +827,22 @@ def _pool_size(base: int) -> int:
 
 
 def _theme_background() -> QColor:
-    """The current theme's flat page colour, or the dark one if unavailable."""
+    """The current theme's flat page colour, or the dark one if unavailable.
+
+    ``page``, not ``bg``. The docstring said "page colour" all along and
+    the code read the *window* colour, which on the dark theme is
+    ``#000000`` — so the flat fill under the animation was pure black,
+    and on the frames and in the gaps where the animation is thin that is
+    what reached the eye. See the ``page`` block in :mod:`spacr.qt.theme`.
+    """
     try:
-        from ..preferences import resolve_effective_theme
-        return QColor(palette_for(resolve_effective_theme())["bg"])
+        from ..theme import active_page_colour
+        return QColor(active_page_colour())
     except Exception:
-        return QColor(palette_for("dark")["bg"])
+        # `page_colour` is imported at module scope, so this arm cannot
+        # itself fail on an import the way a second `from ..theme import`
+        # could — and a backdrop must never raise on its way to a screen.
+        return QColor(page_colour("dark"))
 
 
 # ---------------------------------------------------------------------------
