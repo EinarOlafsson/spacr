@@ -213,6 +213,42 @@ def test_a_metadata_file_with_one_row_per_transcript_cannot_multiply_a_gene(
     assert hits.gene("100").annotation["Gene Name"] == "name-100"
 
 
+def test_the_bundled_toxoplasma_metadata_cannot_multiply_a_gene(frames):
+    """The same regression, against the file the bug was found in.
+
+    ``spacr/resources/data/toxoplasma_metadata.csv`` really does list 30 Gene
+    IDs between 2 and 32 times, one row per transcript. A synthetic fixture
+    proves the code path; this proves the shipped data does not break it.
+    """
+    import spacr
+
+    path = os.path.join(os.path.dirname(os.path.abspath(spacr.__file__)),
+                        "resources", "data", "toxoplasma_metadata.csv")
+    if not os.path.isfile(path):
+        pytest.skip("the bundled toxoplasma metadata is not installed")
+    raw = pd.read_csv(path)
+    repeats = raw["Gene ID"].value_counts()
+    assert repeats.max() > 1, (
+        "this test is only meaningful while the file repeats a gene")
+
+    collapsed, notes = load_gene_metadata(path)
+
+    assert collapsed["gene"].is_unique
+    assert len(collapsed) == raw["Gene ID"].nunique()
+    assert notes and "one row per transcript" in notes[0]
+
+    genes = collapsed["gene"].head(40).tolist()
+    table = pd.DataFrame({
+        "feature": [f"gene_fraction:gene[{gene}]" for gene in genes],
+        "coefficient": [0.1 * index for index in range(len(genes))],
+        "p_value": [0.01] * len(genes)})
+
+    hits = build_hit_list({"gene": table}, metadata_files=[path])
+
+    assert len(hits) == len(table), (
+        "joining the real annotation changed the row count")
+
+
 def test_the_collapse_is_reported_rather_than_hidden(tmp_path):
     path = _metadata(tmp_path / "toxo.csv", repeats=4)
 
