@@ -30,6 +30,10 @@ Public API::
         get_ambient_blur, set_ambient_blur,
         get_ambient_speed, set_ambient_speed,
         get_ambient_size, set_ambient_size,
+        get_ambient_resolution, set_ambient_resolution,
+        get_ambient_density, set_ambient_density,
+        get_ambient_drift_direction, set_ambient_drift_direction,
+        get_spinner_delay, set_spinner_delay,
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
         get_font_scale, set_font_scale,
@@ -87,13 +91,28 @@ Values:
   :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes
   are *per theme*, so see :func:`get_ambient_palette` for how the two
   keys stay consistent with each other.
-* ``ambient_blur`` / ``ambient_speed`` / ``ambient_size``: floats, all
-  default ``1.0``, all *multipliers* on what the chosen animation already
-  does — how soft its shapes are, how fast it moves, and how large its
-  elements are. 1.0 is the shipped animation in every theme, exactly, so a
+* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /
+  ``ambient_density``: floats, all default ``1.0``, all *multipliers* on
+  what the chosen animation already does — how fast it moves, how large its
+  elements are, how much detail it is drawn with and how many elements
+  there are. 1.0 is the shipped animation in every theme, exactly, so a
   user who never touches them sees no change. Clamped on read and on write
   to the ranges the engines declare
-  (:data:`spacr.qt.widgets.ambient.BLUR_RANGE` and friends).
+  (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).
+* ``ambient_blur``: float, default ``0.0`` — how much the finished picture
+  is softened, in units of eight screen pixels. **Its meaning changed**: it
+  used to run 0.25–3.0 with 1.0 as the shipped look and sharpened the
+  picture by enlarging the shading buffer, which made "sharp" and "not
+  blocky" the same slider. Sharpening is now ``ambient_resolution``'s job
+  and this one only softens. A value stored under the old scale is
+  translated once, on read — see :func:`_migrate_ambient_motion`.
+* ``ambient_drift_direction``: ``"up"`` | ``"down"`` | ``"random"``
+  (default ``"up"``). Which way the Starfield animation travels. A
+  preference rather than three entries in the animation menu; see
+  :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.
+* ``spinner_delay``: float seconds, default ``2.0``. How long background
+  work has to run before the activity spinner appears at all — see
+  :func:`get_spinner_delay`.
 * ``setting_animations``: bool, default ``True``. Whether a setting's
   hover tooltip plays its explanatory animation beside the text. Off
   leaves the text tooltip exactly as it was, and leaves the purple
@@ -135,6 +154,15 @@ _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
 _KEY_AMBIENT_BLUR    = "prefs/ambient_blur"
 _KEY_AMBIENT_SPEED   = "prefs/ambient_speed"
 _KEY_AMBIENT_SIZE    = "prefs/ambient_size"
+_KEY_AMBIENT_RESOLUTION = "prefs/ambient_resolution"
+_KEY_AMBIENT_DENSITY = "prefs/ambient_density"
+_KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
+#: Which generation of the motion keys the store was last written by. Only
+#: ``ambient_blur`` has ever changed meaning, and this is how a value written
+#: under the old one is recognised — see :func:`_migrate_ambient_motion`.
+_KEY_AMBIENT_SCALE   = "prefs/ambient_motion_scale"
+AMBIENT_MOTION_SCALE = 2
+_KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 
 #: Themes with a palette of their own — mirrors
@@ -641,22 +669,77 @@ def set_ambient_palette(name: str) -> None:
 # then rejected would be a preference that silently does nothing.
 
 def _ambient_ranges():
-    """``(blur, speed, size)`` ranges and defaults, from the widget module.
+    """``(blur, speed, size, resolution, density)`` ranges and defaults, from
+    the widget module.
 
     Imported lazily and defended, like every other ambient read here: this
     module is imported headless (no QtGui) in places, and a decorative
     setting is never a reason to fail.
     """
     try:
-        from .widgets.ambient import (BLUR_RANGE, DEFAULT_BLUR, DEFAULT_SIZE,
-                                      DEFAULT_SPEED, SIZE_RANGE, SPEED_RANGE)
+        from .widgets.ambient import (BLUR_RANGE, DEFAULT_BLUR,
+                                      DEFAULT_DENSITY, DEFAULT_RESOLUTION,
+                                      DEFAULT_SIZE, DEFAULT_SPEED,
+                                      DENSITY_RANGE, RESOLUTION_RANGE,
+                                      SIZE_RANGE, SPEED_RANGE)
         return ((BLUR_RANGE, DEFAULT_BLUR), (SPEED_RANGE, DEFAULT_SPEED),
-                (SIZE_RANGE, DEFAULT_SIZE))
+                (SIZE_RANGE, DEFAULT_SIZE),
+                (RESOLUTION_RANGE, DEFAULT_RESOLUTION),
+                (DENSITY_RANGE, DEFAULT_DENSITY))
     except Exception:
-        return (((0.25, 3.0), 1.0), ((0.1, 4.0), 1.0), ((0.25, 2.5), 1.0))
+        return (((0.0, 3.0), 0.0), ((0.1, 4.0), 1.0), ((0.25, 2.5), 1.0),
+                ((0.25, 2.0), 1.0), ((0.25, 3.0), 1.0))
+
+
+def _migrate_ambient_motion() -> None:
+    """Bring a store written under the old blur scale up to the current one.
+
+    ``ambient_blur`` used to be a *buffer resolution* divisor: 0.25 meant a
+    four-times-larger buffer (sharp, dear), 1.0 the shipped one, 3.0 a
+    third of it (soft, cheap). One slider therefore answered two questions,
+    and the sharp end of it is now a separate ``ambient_resolution``. A
+    stored value is translated rather than reinterpreted, because
+    reinterpreting it would silently invert what half the range meant:
+
+        resolution <- 1 / old        (0.25 asked for four times the pixels)
+        blur       <- max(0, old-1)  (only the soft half was ever a blur)
+
+    Recognised by the absence of :data:`AMBIENT_MOTION_SCALE` rather than by
+    guessing from the value, because 1.0 is a legal reading on both scales.
+    Runs once; writes the marker even when there was nothing to migrate, so
+    a default store is not re-examined on every read.
+
+    Never raises. A preference that cannot be migrated is a preference that
+    stays at its default, which is a cosmetic loss.
+    """
+    settings = _settings()
+    try:
+        if int(settings.value(_KEY_AMBIENT_SCALE, 0) or 0) >= \
+                AMBIENT_MOTION_SCALE:
+            return
+    except (TypeError, ValueError):
+        pass
+    try:
+        raw = settings.value(_KEY_AMBIENT_BLUR, None)
+        if raw is not None:
+            old = float(raw)
+            if old == old and old > 0:      # not NaN
+                (res_low, res_high), _ = _ambient_ranges()[3]
+                (blur_low, blur_high), _ = _ambient_ranges()[0]
+                settings.setValue(
+                    _KEY_AMBIENT_RESOLUTION,
+                    max(res_low, min(res_high, 1.0 / old)))
+                settings.setValue(
+                    _KEY_AMBIENT_BLUR,
+                    max(blur_low, min(blur_high, max(0.0, old - 1.0))))
+        settings.setValue(_KEY_AMBIENT_SCALE, AMBIENT_MOTION_SCALE)
+        settings.sync()
+    except Exception:
+        LOG.debug("could not migrate the ambient motion keys", exc_info=True)
 
 
 def _ambient_multiplier(key: str, index: int) -> float:
+    _migrate_ambient_motion()
     (low, high), default = _ambient_ranges()[index]
     try:
         value = float(_settings().value(key, default))
@@ -668,6 +751,7 @@ def _ambient_multiplier(key: str, index: int) -> float:
 
 
 def _set_ambient_multiplier(key: str, index: int, value: float) -> None:
+    _migrate_ambient_motion()
     (low, high), default = _ambient_ranges()[index]
     try:
         value = float(value)
@@ -681,7 +765,11 @@ def _set_ambient_multiplier(key: str, index: int, value: float) -> None:
 
 
 def get_ambient_blur() -> float:
-    """How soft the animated background's shapes are. 1.0 is as designed.
+    """How much the animated background is softened. 0.0 is as designed.
+
+    In units of eight screen pixels of area averaging, which is exactly the
+    softness the buffered animations shipped with — so 1.0 asks for the old
+    look at whatever detail :func:`get_ambient_resolution` is set to.
 
     Clamped to ``spacr.qt.widgets.ambient.BLUR_RANGE`` on read, so a value
     from a newer build or a hand-edited file cannot ask for a blur the
@@ -691,9 +779,80 @@ def get_ambient_blur() -> float:
 
 
 def set_ambient_blur(value: float) -> None:
-    """Set the softness multiplier. Out-of-range values are clamped, not
-    refused: this is a slider, and there is no user error to report."""
+    """Set the softening. Out-of-range values are clamped, not refused:
+    this is a slider, and there is no user error to report."""
     _set_ambient_multiplier(_KEY_AMBIENT_BLUR, 0, value)
+
+
+def get_ambient_resolution() -> float:
+    """How much detail the animated background is drawn with, as a
+    multiplier on each animation's own shading buffer. 1.0 is as designed.
+
+    Separate from :func:`get_ambient_blur` on purpose: this decides how much
+    of the geometry is computed, blur decides how much of it is then thrown
+    away, and having one control do both was the reason the aurora could
+    only be soft *and* blocky. Costs quadratically — 2.0 is four times the
+    pixels — which is why the range stops where it does.
+    """
+    return _ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3)
+
+
+def set_ambient_resolution(value: float) -> None:
+    """Set the detail multiplier. Clamped."""
+    _set_ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3, value)
+
+
+def get_ambient_density() -> float:
+    """How many elements the animated background draws — blobs, curtains,
+    ripple sources, stars, discs, cells — as a multiplier on each
+    animation's own count. 1.0 is as designed.
+
+    Density and resolution share one cost budget in the engines
+    (:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), so asking for the top of
+    both ranges at once gets a trimmed density rather than a stalled frame.
+    """
+    return _ambient_multiplier(_KEY_AMBIENT_DENSITY, 4)
+
+
+def set_ambient_density(value: float) -> None:
+    """Set the element-count multiplier. Clamped."""
+    _set_ambient_multiplier(_KEY_AMBIENT_DENSITY, 4, value)
+
+
+def get_ambient_drift_direction() -> str:
+    """Which way the Starfield animation travels.
+
+    Validated on read against
+    :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`, so a value from a
+    newer build or a hand-edited file falls back to the default rather than
+    reaching an engine that cannot honour it.
+    """
+    try:
+        from .widgets.ambient import (DEFAULT_DRIFT_DIRECTION,
+                                      DRIFT_DIRECTIONS)
+    except Exception:
+        DEFAULT_DRIFT_DIRECTION, DRIFT_DIRECTIONS = "up", ("up", "down",
+                                                           "random")
+    raw = str(_settings().value(_KEY_AMBIENT_DRIFT_DIR,
+                                DEFAULT_DRIFT_DIRECTION))
+    return raw if raw in DRIFT_DIRECTIONS else DEFAULT_DRIFT_DIRECTION
+
+
+def set_ambient_drift_direction(name: str) -> None:
+    """Persist one of :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`.
+
+    :raises ValueError: if ``name`` is not one of them.
+    """
+    try:
+        from .widgets.ambient import DRIFT_DIRECTIONS
+    except Exception:
+        DRIFT_DIRECTIONS = ("up", "down", "random")
+    if name not in DRIFT_DIRECTIONS:
+        raise ValueError(f"unknown starfield direction {name!r}. "
+                         f"Choose from {DRIFT_DIRECTIONS}.")
+    settings = _settings()
+    settings.setValue(_KEY_AMBIENT_DRIFT_DIR, name)
+    settings.sync()
 
 
 def get_ambient_speed() -> float:
@@ -758,6 +917,9 @@ def apply_ambient_preferences(app=None) -> None:
     blur = get_ambient_blur() if enabled else None
     speed = get_ambient_speed() if enabled else None
     size = get_ambient_size() if enabled else None
+    resolution = get_ambient_resolution() if enabled else None
+    density = get_ambient_density() if enabled else None
+    direction = get_ambient_drift_direction() if enabled else None
     for widget in widgets:
         try:
             if not isinstance(widget, AmbientWidget):
@@ -789,15 +951,77 @@ def apply_ambient_preferences(app=None) -> None:
                 widget.set_theme(theme)
                 widget.set_palette(palette)
                 # After the theme: a theme change rebuilds the engine, and
-                # these three ride on it.
+                # all of these ride on it.
                 widget.set_blur(blur)
                 widget.set_speed(speed)
                 widget.set_size_scale(size)
+                widget.set_resolution(resolution)
+                widget.set_density(density)
+                widget.set_direction(direction)
             except Exception:
                 LOG.debug("could not restyle an ambient backdrop",
                           exc_info=True)
         except Exception:
             continue
+
+
+# ---------------------------------------------------------------------------
+# The activity spinner
+# ---------------------------------------------------------------------------
+
+#: How long work has to run before the spinner appears, in seconds.
+#:
+#: Two, because the spinner exists to say "this is going to take a moment",
+#: and the great majority of what goes through ``make_thread`` — reading a
+#: measurement table, listing a plate, loading a settings file — is done
+#: inside one. A spinner that appears and vanishes inside a second is not
+#: information, it is a flicker in the corner of the eye, and it trains the
+#: reader to stop looking at the one place the app says it is busy.
+DEFAULT_SPINNER_DELAY = 2.0
+
+#: Nought is a real setting: it means "always show it", which is what
+#: somebody debugging a hang wants. The top is chosen so a mistyped value
+#: cannot hide the indicator for the length of a real job.
+SPINNER_DELAY_MIN = 0.0
+SPINNER_DELAY_MAX = 10.0
+
+
+def get_spinner_delay() -> float:
+    """How long background work must run before the activity spinner shows.
+
+    In seconds, default :data:`DEFAULT_SPINNER_DELAY`. This is a *delay
+    before showing*, not a prediction: the widget starts a single-shot timer
+    when work begins and only becomes visible if the work is still running
+    when it fires, so a job that finishes at 1.9 s never puts a spinner on
+    screen at all. See :class:`spacr.qt.widgets.activity_spinner
+    .ActivitySpinner`.
+
+    Clamped on read: a hand-edited file must not be able to hide the
+    indicator for the length of a real job.
+    """
+    try:
+        value = float(_settings().value(_KEY_SPINNER_DELAY,
+                                        DEFAULT_SPINNER_DELAY))
+    except (TypeError, ValueError):
+        return DEFAULT_SPINNER_DELAY
+    if value != value:                     # NaN
+        return DEFAULT_SPINNER_DELAY
+    return max(SPINNER_DELAY_MIN, min(SPINNER_DELAY_MAX, value))
+
+
+def set_spinner_delay(seconds: float) -> None:
+    """Set the spinner's appearance delay, in seconds. Clamped, not
+    refused."""
+    try:
+        value = float(seconds)
+    except (TypeError, ValueError):
+        value = DEFAULT_SPINNER_DELAY
+    if value != value:
+        value = DEFAULT_SPINNER_DELAY
+    settings = _settings()
+    settings.setValue(_KEY_SPINNER_DELAY,
+                      max(SPINNER_DELAY_MIN, min(SPINNER_DELAY_MAX, value)))
+    settings.sync()
 
 
 # ---------------------------------------------------------------------------
@@ -1404,17 +1628,55 @@ class PreferencesDialog:
         )
         form.addRow(tr("Animation palette"), ambient_palette_combo)
 
-        # The three shape-of-the-motion controls, beside the animation they
-        # shape. Each is a percentage of what the chosen animation already
-        # does, so 100 % is the designed look in every theme and every one of
-        # them starts there. Percentages rather than pixels or seconds
-        # because "40 px" means nothing to a starfield and "6 seconds" means
-        # nothing to a blob.
+        # Which way the starfield goes. Only meaningful for that one
+        # animation, so it is shown only when that animation is chosen
+        # rather than sitting greyed out under five others.
+        ambient_dir_combo = QComboBox()
+        ambient_dir_combo.setObjectName("AmbientDriftDirection")
+        try:
+            from .widgets.ambient import (DRIFT_DIRECTIONS,
+                                          drift_direction_label,
+                                          drift_direction_note)
+        except ImportError:      # pragma: no cover - ambient always imports
+            DRIFT_DIRECTIONS = ()
+            drift_direction_label = drift_direction_note = None
+        for key in DRIFT_DIRECTIONS:
+            ambient_dir_combo.addItem(tr(drift_direction_label(key)), key)
+        current_dir = get_ambient_drift_direction()
+        for i in range(ambient_dir_combo.count()):
+            if ambient_dir_combo.itemData(i) == current_dir:
+                ambient_dir_combo.setCurrentIndex(i); break
+        dir_label = QLabel(tr("Starfield direction"))
+        form.addRow(dir_label, ambient_dir_combo)
+
+        def _sync_direction_row(*_args):
+            wanted = ambient_theme_combo.currentData() == "drift"
+            dir_label.setVisible(wanted)
+            ambient_dir_combo.setVisible(wanted)
+            key = ambient_dir_combo.currentData()
+            if key is not None and drift_direction_note is not None:
+                ambient_dir_combo.setToolTip(tr(drift_direction_note(key)))
+
+        ambient_theme_combo.currentIndexChanged.connect(_sync_direction_row)
+        ambient_dir_combo.currentIndexChanged.connect(_sync_direction_row)
+        _sync_direction_row()
+
+        # The shape-of-the-motion controls, beside the animation they shape.
+        # Each is a percentage of what the chosen animation already does, so
+        # 100 % is the designed look in every theme and every one of them
+        # starts there — except blur, whose designed value is 0 %, because
+        # the animation ships unsoftened and the softening is what this one
+        # adds. Percentages rather than pixels or seconds because "40 px"
+        # means nothing to a starfield and "6 seconds" means nothing to a
+        # blob.
         (blur_lo, blur_hi) = _ambient_ranges()[0][0]
         (speed_lo, speed_hi) = _ambient_ranges()[1][0]
         (size_lo, size_hi) = _ambient_ranges()[2][0]
+        (res_lo, res_hi) = _ambient_ranges()[3][0]
+        (den_lo, den_hi) = _ambient_ranges()[4][0]
 
-        def _percent_row(name, label_text, low, high, current, tip):
+        def _percent_row(name, label_text, low, high, current, tip,
+                         designed=1.0):
             slider = QSlider(Qt.Horizontal)
             slider.setObjectName(name)
             slider.setRange(int(round(low * 100)), int(round(high * 100)))
@@ -1424,11 +1686,12 @@ class PreferencesDialog:
             slider.setValue(int(round(current * 100)))
             slider.setToolTip(tip)
             value = QLabel()
+            mark = int(round(designed * 100))
 
             def _update(v):
                 # Say when it is the designed value, because "100%" alone
                 # does not tell a reader that it is the one to come back to.
-                value.setText(f"{v}% — as designed" if v == 100
+                value.setText(f"{v}% — as designed" if v == mark
                               else f"{v}%")
 
             slider.valueChanged.connect(_update)
@@ -1440,13 +1703,24 @@ class PreferencesDialog:
             form.addRow(tr(label_text), _hbox_wrap(column))
             return slider
 
+        resolution_slider = _percent_row(
+            "AmbientResolution", "Animation detail",
+            res_lo, res_hi, get_ambient_resolution(),
+            "How much detail the animation is drawn with. This is the one "
+            "that decides whether it looks pixelated: it sets how many "
+            "pixels the picture is worked out in before it is stretched to "
+            "fill the page. Costs roughly the square of what it says — "
+            "200 % is four times the work — so turn it down on a machine "
+            "that is busy.")
         blur_slider = _percent_row(
             "AmbientBlur", "Animation blur",
             blur_lo, blur_hi, get_ambient_blur(),
-            "How out of focus the animation is. Above 100 % it is softer "
-            "and, because softening it means drawing it smaller and "
-            "stretching it further, also cheaper; below 100 % it sharpens "
-            "and costs more.")
+            "How out of focus the animation is, on top of whatever detail "
+            "it was drawn with. 0 % leaves it as sharp as the detail "
+            "setting allows; 100 % is the softness the animations used to "
+            "ship with. Unlike detail, this one is nearly free — and the "
+            "two together are what let the backdrop be soft without being "
+            "blocky.", designed=0.0)
         speed_slider = _percent_row(
             "AmbientSpeed", "Animation speed",
             speed_lo, speed_hi, get_ambient_speed(),
@@ -1458,17 +1732,27 @@ class PreferencesDialog:
             "AmbientSize", "Animation size",
             size_lo, size_hi, get_ambient_size(),
             "How large the moving elements are: blob width, curtain height, "
-            "the spacing between ripples, star size. Scaled against each "
-            "animation's own range, so one setting means the same thing in "
-            "all four.")
+            "the spacing between ripples, star size, cell diameter. Scaled "
+            "against each animation's own range, so one setting means the "
+            "same thing in all of them.")
+        density_slider = _percent_row(
+            "AmbientDensity", "Animation density",
+            den_lo, den_hi, get_ambient_density(),
+            "How many things there are: blobs, aurora curtains, ripple "
+            "sources, stars, bokeh discs, cells. Density and detail share "
+            "one cost budget, so asking for the most of both trims the "
+            "density rather than dropping frames.")
 
         def _sync_ambient_enabled(on):
             """Grey out the pickers when there is nothing to paint."""
             ambient_theme_combo.setEnabled(bool(on))
             ambient_palette_combo.setEnabled(bool(on))
+            ambient_dir_combo.setEnabled(bool(on))
+            resolution_slider.setEnabled(bool(on))
             blur_slider.setEnabled(bool(on))
             speed_slider.setEnabled(bool(on))
             size_slider.setEnabled(bool(on))
+            density_slider.setEnabled(bool(on))
 
         ambient_check.toggled.connect(_sync_ambient_enabled)
         _sync_ambient_enabled(ambient_check.isChecked())
@@ -1483,6 +1767,38 @@ class PreferencesDialog:
         )
         setting_anim_check.setChecked(get_setting_animations_enabled())
         form.addRow(tr("Setting animations"), setting_anim_check)
+
+        # How long work has to run before the busy indicator appears.
+        # Seconds, not a percentage: this one is a real duration and the
+        # reader is entitled to see it as one.
+        spinner_slider = QSlider(Qt.Horizontal)
+        spinner_slider.setObjectName("SpinnerDelay")
+        spinner_slider.setRange(int(SPINNER_DELAY_MIN * 10),
+                                int(SPINNER_DELAY_MAX * 10))
+        spinner_slider.setSingleStep(1)
+        spinner_slider.setPageStep(5)
+        spinner_slider.setTickInterval(10)
+        spinner_slider.setValue(int(round(get_spinner_delay() * 10)))
+        spinner_slider.setToolTip(
+            "How long a background job has to run before the spinner beside "
+            "Clear console appears. Short jobs never show it at all — the "
+            "timer starts when the work does and the spinner only appears "
+            "if the work is still going when it fires, so nothing flashes. "
+            "Set it to 0 to see every job."
+        )
+        spinner_value = QLabel()
+
+        def _update_spinner_lbl(v):
+            spinner_value.setText(
+                tr("show immediately") if v == 0 else f"{v / 10:.1f} s")
+
+        spinner_slider.valueChanged.connect(_update_spinner_lbl)
+        _update_spinner_lbl(spinner_slider.value())
+        spinner_column = QVBoxLayout()
+        spinner_column.setContentsMargins(0, 0, 0, 0)
+        spinner_column.addWidget(spinner_slider)
+        spinner_column.addWidget(spinner_value)
+        form.addRow(tr("Show busy spinner after"), _hbox_wrap(spinner_column))
 
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
@@ -1717,6 +2033,12 @@ class PreferencesDialog:
             set_ambient_blur(blur_slider.value() / 100.0)
             set_ambient_speed(speed_slider.value() / 100.0)
             set_ambient_size(size_slider.value() / 100.0)
+            set_ambient_resolution(resolution_slider.value() / 100.0)
+            set_ambient_density(density_slider.value() / 100.0)
+            direction_choice = ambient_dir_combo.currentData()
+            if direction_choice is not None:
+                set_ambient_drift_direction(direction_choice)
+            set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())

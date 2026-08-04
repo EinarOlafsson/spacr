@@ -318,13 +318,17 @@ def test_negative_and_zero_steps_do_not_move_the_clock_backwards():
 #: Minimum share of a 320x200 frame each theme must actually paint, and
 #: minimum share that must differ between two animation times.
 #:
-#: One threshold cannot serve both kinds of theme. The soft fields cover
+#: One threshold cannot serve every kind of theme. The soft fields cover
 #: 87-95 % of the page; a starfield lights a few hundred pixels out of 64 000
 #: by design, and demanding 15 % of it would be demanding that it stop being
-#: a starfield. The numbers below are half of what each theme measures, so
-#: they catch "it stopped painting" without pinning the artwork down.
-MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003}
-MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006}
+#: a starfield. ``bokeh`` measures 58 % and ``cells`` 17 %, which is what
+#: discrete objects on a page look like as against a wash. The numbers below
+#: are half of what each theme measures, so they catch "it stopped painting"
+#: without pinning the artwork down.
+MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
+               "bokeh": 0.28, "cells": 0.08}
+MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
+               "bokeh": 0.30, "cells": 0.11}
 
 
 def all_pixels(image: QImage):
