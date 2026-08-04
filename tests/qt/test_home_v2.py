@@ -20,6 +20,7 @@ from __future__ import annotations
 
 
 import hashlib
+import json
 import os
 import threading
 
@@ -59,7 +60,22 @@ def _pinned_zoom():
         prefs.set_font_scale(original)
 
 
-BACKUP_DIR = os.path.join(iconset.RESOURCE_DIR, "backup_icons")
+#: `backup_icons/` held every candidate that was drawn and is gone: 931 PNGs,
+#: 55 MB, and `MANIFEST.in`'s `recursive-include spacr/resources/icons *` put
+#: all of it in the sdist. Every candidate is still in git history.
+#:
+#: What the folder made checkable was "the installed icon is still the one
+#: that was chosen", and that property is worth keeping, so it moved into
+#: `chosen_icons.json`: one row per installed icon, its sha256, and the
+#: candidate it came from. The digest catches the drift the old comparison
+#: caught -- artwork replaced or regenerated without anyone deciding to --
+#: without shipping the originals to every user to do it.
+ICON_MANIFEST = os.path.join(iconset.RESOURCE_DIR, "chosen_icons.json")
+
+
+def _manifest():
+    with open(ICON_MANIFEST, encoding="utf-8") as fh:
+        return json.load(fh)
 
 #: The seventeen the user picked, canonical name -> chosen candidate.
 CHOSEN = {
@@ -160,12 +176,35 @@ def home(qtbot, qt_theme_applied, _empty_journal):
 
 @pytest.mark.parametrize("name,candidate", sorted(CHOSEN.items()))
 def test_the_chosen_icon_is_the_one_installed(name, candidate):
+    """The installed artwork is still the byte-for-byte chosen candidate.
+
+    Compared against the digest recorded when it was installed rather than
+    against the candidate file, which no longer ships. A regenerated
+    generator that quietly changes a shipped icon fails here, which is what
+    this test was always for.
+    """
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
-    source = os.path.join(BACKUP_DIR, name, candidate)
     assert os.path.isfile(installed), f"{name}.png is missing"
-    assert os.path.isfile(source), f"{candidate} vanished from backup_icons"
-    assert _digest(installed) == _digest(source), (
-        f"{name}.png is not {candidate} — the chosen artwork was replaced")
+    row = _manifest().get(name)
+    assert row, f"{name} has no row in chosen_icons.json"
+    assert row["candidate"] == f"{name}/{candidate}", (
+        f"chosen_icons.json says {name} came from {row['candidate']}, "
+        f"this test says {name}/{candidate} — one of them is out of date")
+    assert _digest(installed) == row["sha256"], (
+        f"{name}.png is no longer {candidate} — the chosen artwork changed")
+
+
+def test_every_installed_icon_is_in_the_manifest():
+    """No icon ships without its provenance recorded.
+
+    The manifest is the only remaining record of which candidate a shipped
+    icon came from, so an icon added without a row silently loses that.
+    """
+    installed = {p[:-4] for p in os.listdir(iconset.RESOURCE_DIR)
+                 if p.endswith(".png")}
+    missing = sorted(installed - set(_manifest()))
+    assert not missing, (
+        f"installed with no row in chosen_icons.json: {missing}")
 
 
 @pytest.mark.parametrize("name,family,candidate",
@@ -181,11 +220,14 @@ def test_a_cross_family_pick_is_installed_under_its_own_name(
     explaining that ``convert.png`` belonged to somebody else. An app
     with its own picture should have its own file."""
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
-    source = os.path.join(BACKUP_DIR, family, candidate)
-    assert os.path.isfile(source), f"{family}/{candidate} vanished"
     assert os.path.isfile(installed), f"{name}.png is missing"
-    assert _digest(installed) == _digest(source), (
-        f"{name}.png is not {family}/{candidate}")
+    row = _manifest().get(name)
+    assert row, f"{name} has no row in chosen_icons.json"
+    assert row["candidate"] == f"{family}/{candidate}", (
+        f"chosen_icons.json says {name} came from {row['candidate']}, "
+        f"this test says {family}/{candidate}")
+    assert _digest(installed) == row["sha256"], (
+        f"{name}.png is no longer {family}/{candidate}")
 
     from spacr.qt.app import _FORCE_GLYPH, _ICON_OVERRIDES
     assert name not in _ICON_OVERRIDES, (
@@ -257,8 +299,12 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
     assert DELIBERATE_SHARED_ARTWORK <= shared, (
         f"a documented borrowing stopped happening: "
         f"{DELIBERATE_SHARED_ARTWORK - shared}")
+    # Every app now has its own artwork, so the allowance below covers
+    # nothing: `placeholders` is empty and any undocumented sharing fails.
+    # Kept rather than deleted because a new app registered before its icon
+    # is drawn lands on the placeholder again, and that should not fail this
+    # test the day it is added.
     placeholders = apps_without_artwork()
-    assert placeholders, "every app has artwork now — delete this allowance"
     for group in shared - DELIBERATE_SHARED_ARTWORK:
         assert group <= placeholders, (
             f"{sorted(group)} draw the same picture and nothing says why. "
@@ -270,23 +316,24 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
 def test_an_icon_nobody_asked_to_change_was_not_changed(name):
     """"If a module icon is not mentioned, I like its current icon."
 
-    Asserted as: the shipped file is none of the candidates that were
-    drawn for it. That is a stronger claim than a hash of the current
-    bytes, and it does not have to be updated when the artwork is
-    legitimately revised later.
+    This used to assert the shipped file was none of the candidates drawn
+    for it, which survived a legitimate revision without needing an edit.
+    The candidates are gone, so it is now asserted as: the row carries no
+    provenance, meaning no candidate was ever adopted, and the bytes still
+    match. That is the weaker form -- a deliberate redraw of one of these
+    six has to update `chosen_icons.json` -- but it still catches the thing
+    that actually goes wrong, which is one of them being replaced by a
+    candidate meant for a different module.
     """
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
     assert os.path.isfile(installed)
-    folder = os.path.join(BACKUP_DIR, name)
-    if not os.path.isdir(folder):
-        pytest.skip(f"no candidate set was generated for {name}")
-    shipped = _digest(installed)
-    matches = [f for f in sorted(os.listdir(folder))
-               if f.lower().endswith(".png") and not f.startswith("_")
-               and _digest(os.path.join(folder, f)) == shipped]
-    assert not matches, (
-        f"{name}.png was swapped for {matches} — it was left off the "
-        "list on purpose")
+    row = _manifest().get(name)
+    assert row, f"{name} has no row in chosen_icons.json"
+    assert row["candidate"] is None, (
+        f"{name}.png was swapped for {row['candidate']} — it was left off "
+        "the list on purpose")
+    assert _digest(installed) == row["sha256"], (
+        f"{name}.png changed — it was left off the list on purpose")
 
 
 def test_cellpose_all_and_cellpose_masks_are_no_longer_the_same_file():
@@ -737,6 +784,10 @@ ALPHA_MODULES = {
     # layout and controls decided before an image exists, and the five QC
     # verdicts read back off a finished one.
     "experiment_design", "qc_dashboard",
+    # And the two that were written, tested and left unregistered: the
+    # component view and the pivot-table builder. Registering them is what
+    # made them alpha; they were not reachable at all before.
+    "pca", "tabulate",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -745,7 +796,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """34 alpha, 9 beta, named one at a time.
+    """36 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -755,7 +806,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 34 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 36 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 

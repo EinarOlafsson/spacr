@@ -1,0 +1,298 @@
+{
+  "abort": {
+    "candidate": "abort/abort_01.png",
+    "sha256": "1405770732517edb3e22729f5b7b4bd071cd7ceae8418cb087106bdeae3c4cf7"
+  },
+  "activation": {
+    "candidate": "activation/activation_01.png",
+    "sha256": "127504aa7ce59e8596b8db0fb2fd48de21802bf9c7a1eb097cdbe8a1cb20808e"
+  },
+  "agreement": {
+    "candidate": "agreement/agreement_04.png",
+    "sha256": "15cbe14a5a2e7c7ce85928d7a4b4aab1af912e745a1a7cb1fbc23eed63448d25"
+  },
+  "align": {
+    "candidate": "cellpose_all/cellpose_all_01.png",
+    "sha256": "6afd091f429923e884378d4613d0c6a75703b9ded7ecdf3c120795745758aae6"
+  },
+  "analyze_plaques": {
+    "candidate": "analyze_plaques/plaque.png",
+    "sha256": "356b7b0bcb61574890d58b91bd6fcd7d4252146e972bf886a685b447d5dfb327"
+  },
+  "anndata_export": {
+    "candidate": "anndata_export/anndata_export_02.png",
+    "sha256": "d32eb28a921a648cd5936154eb55fc980ef2528cfa9fef6fc001ac8f5ac34d92"
+  },
+  "annotate": {
+    "candidate": "annotate/annotate_01.png",
+    "sha256": "d433738ac193bbaeb5e256052bcbc3f70f58ed11f460a1864aa1dbaa0a5c2928"
+  },
+  "app_icon": {
+    "candidate": null,
+    "sha256": "2a19c083b9405ffb001af6fa3cab9cb5b7eb5d17a1982b107f9d18eb345d5272"
+  },
+  "barcode_qc": {
+    "candidate": "barcode_qc/barcode_qc_01.png",
+    "sha256": "05933f096bf4311bc25dd079226fa914476cd14d4bdb5ae1b586514b55ac6774"
+  },
+  "batch": {
+    "candidate": "batch/batch_07.png",
+    "sha256": "2e159ecad7a5ccb5e8beede4c8127cae0853d1a88b3c0b1facd314907f34e696"
+  },
+  "cellpose_all": {
+    "candidate": "cellpose_all/cellpose_all_01.png",
+    "sha256": "6afd091f429923e884378d4613d0c6a75703b9ded7ecdf3c120795745758aae6"
+  },
+  "cellpose_masks": {
+    "candidate": null,
+    "sha256": "1d558e20e045f29dfe3a7fb651a870332417a7b6b0b280b9c961315356a10da8"
+  },
+  "classifier_evaluation": {
+    "candidate": "classifier_evaluation/classifier_evaluation_10.png",
+    "sha256": "037a7f5c4bc8c14ddef1f22a9eb4740e2071a3bef59eec5d0e5b7c398db54537"
+  },
+  "classify": {
+    "candidate": "classify/classify_06.png",
+    "sha256": "87586ca97634f8c41efc134250346a1cd76887843065ae2be93fbb09351c20e1"
+  },
+  "control_chart": {
+    "candidate": "control_chart/graph_builder_06.png",
+    "sha256": "21ecf1656c9762e95a115996571eb1f99524f5e57fff2ee1a50fda0a582d3ac2"
+  },
+  "convert": {
+    "candidate": "convert/convert_04.png",
+    "sha256": "d21e9aba4b07645f6a88385b6442c3288f26a9275e3659350f56878877fcd6f8"
+  },
+  "curate": {
+    "candidate": "curate/curate_05.png",
+    "sha256": "51da5fbd8c2ff1f5b24af787b3f5ca2eeb2c5ec85e51bea6fa4d988634568de8"
+  },
+  "data_manager": {
+    "candidate": "data_manager/data_manager_01.png",
+    "sha256": "7553badf396c5cce8b3ba3e3f9324c0fceca372e006485ebb61d9ac9a5546a56"
+  },
+  "db_browser": {
+    "candidate": "batch/batch_01.png",
+    "sha256": "42a48940ed39479fe1c1068b00c239ce96d253b18bad743013e6c6a1bbc2a638"
+  },
+  "default": {
+    "candidate": "default/default_01.png",
+    "sha256": "7b05214d8e8c6f55b11ae0c64a55d9b499c6939c215b2f9f699f7404fda3e9e4"
+  },
+  "distributed_jobs": {
+    "candidate": "distributed_jobs/distributed_jobs_07.png",
+    "sha256": "1a855ec6ad73837d907e7666782832b26f2ef15d513694e43311fbaa544fa0eb"
+  },
+  "dose_response": {
+    "candidate": "dose_response/dose_response_01.png",
+    "sha256": "3fe2b2d790d5fbe74098ab89086e2094c6b167dfd712a2a07a80143874af1751"
+  },
+  "download": {
+    "candidate": "download/download_05.png",
+    "sha256": "39da0afa5b144c6ef36c9e9e4d27917594660f436a559de8976fffdcc0b1f6db"
+  },
+  "experiment_design": {
+    "candidate": "experiment_design/experiment_design_02.png",
+    "sha256": "d579ed78bb78ddc73e86fa8de2afe6717e43df67963fc8312306559ca795cbb0"
+  },
+  "external_masks": {
+    "candidate": "external_masks/external_masks_10.png",
+    "sha256": "cd375bda3ad5c2b6627e9913d0ddbac3a6cf1da697115441aa433e8b9966bd2f"
+  },
+  "feature_dict": {
+    "candidate": "feature_dict/feature_dict_03.png",
+    "sha256": "084c3cd053d8cbe832ced831d65d33e0715e325bebe2fd2222e3924e58023d22"
+  },
+  "feature_explorer": {
+    "candidate": "feature_explorer/feature_explorer_01.png",
+    "sha256": "4283dd2fe4314921ed695b632a17f3e971a9e63c86ec879f887774aae650296b"
+  },
+  "flow_chart_v3": {
+    "candidate": null,
+    "sha256": "570ef291d8265c4a40e412d4a43127a7f6c0689ea03f3f7811562a3075e69f59"
+  },
+  "foreign": {
+    "candidate": "download/download_03.png",
+    "sha256": "69d4fec3a502d435dcbb368fc42341a056ed67e96c159f700f4b353bd85f18de"
+  },
+  "gate_editor": {
+    "candidate": "gate_editor/gate_editor_12.png",
+    "sha256": "2687dda8c424666adb799f0655e2f16eeebda44491689ccf5291d6eb2db0186e"
+  },
+  "graph_builder": {
+    "candidate": "graph_builder/graph_builder_10.png",
+    "sha256": "d8aa9de221028b8f274c9efd4bdce22bf2b9dd5c870d6702af0feeb23638ba82"
+  },
+  "hit_list": {
+    "candidate": "hit_list/hit_list_02.png",
+    "sha256": "1904f71837d8215c37a174c4423997568207ffc3009cc0f51e20507eccc9c091"
+  },
+  "illumination": {
+    "candidate": "illumination/illumination_12.png",
+    "sha256": "9d6702b74d3f70f3499d2c799176e85ac6bcf9fb35af762170a812ca93118ec4"
+  },
+  "image_scatter": {
+    "candidate": "image_scatter/image_scatter_06.png",
+    "sha256": "6de07e823f31eb5fda21d038dc4d5414acaf2823de83ca8998b8b2d81840a3b5"
+  },
+  "invasion": {
+    "candidate": "invasion/invasion_01.png",
+    "sha256": "12a0ba13f86224ba22e0f4a91aa3a17ca724e0a5c9c28aec55ff9509390664e0"
+  },
+  "layer_viewer": {
+    "candidate": "layer_viewer/layer_viewer_01.png",
+    "sha256": "3c5dc2c1e1f2811fd910449d22f9abf757b965a699c4b19b32e95c6086a13244"
+  },
+  "lineage": {
+    "candidate": "lineage/lineage_07.png",
+    "sha256": "73e51bcd4b3362f116c613b51d46f12e580c271c294526b5821f55ab227ff2c4"
+  },
+  "logo_spacr": {
+    "candidate": null,
+    "sha256": "67b904fbc8416dfcaa3608c363c2bbf637e9cddc64b552c38ed0d1144e19a3f2"
+  },
+  "logo_spacr_v1": {
+    "candidate": null,
+    "sha256": "a86ddeddb76b01e7e1975dbcd6b7e8d11d973f4a80f9cfa86810978f13065e4c"
+  },
+  "make_masks": {
+    "candidate": "make_masks/make_masks_09.png",
+    "sha256": "6c49b4480897d252a13f400f455a955d32355dd01503052b90bfe95eb8c52705"
+  },
+  "map_barcodes": {
+    "candidate": "map_barcodes/map_barcodes_05.png",
+    "sha256": "06b7296c1cc9fb7d40b62b348f1de3923a096bfc868ca84045215b0d85de6895"
+  },
+  "mask": {
+    "candidate": "mask/mask_01.png",
+    "sha256": "f02bed8a09403c016e34b63188392fcd947432b984d0524e286a76b1a8ef1468"
+  },
+  "measure": {
+    "candidate": null,
+    "sha256": "19df9d94dfb767c0ff5e78099c284d99ef03eb728424c16cfdc06fef04f6bce6"
+  },
+  "methods_export": {
+    "candidate": "methods_export/methods_export_10.png",
+    "sha256": "2d209b33bbbc491b820aec44c39ff4f18f57da59f708c0eaea5f2314b32a2f5d"
+  },
+  "ml_analyze": {
+    "candidate": null,
+    "sha256": "59cf5afcba46d977df88c7d7c67d3252618fe34217ce5015edb1d741fee6ff6a"
+  },
+  "model_compare": {
+    "candidate": "model_compare/model_compare_05.png",
+    "sha256": "c861610adea2482d50c63e5fbda931b50aacbde0b6c5edb339bf2ac378c69720"
+  },
+  "model_zoo": {
+    "candidate": "model_zoo/model_zoo_05.png",
+    "sha256": "ed1cc1309e485a2bb806a44223787ca439b37deaa408ee32c60b6e29733b95e5"
+  },
+  "motility": {
+    "candidate": "recruitment/recruitment_02.png",
+    "sha256": "d2ef5f3efd31ef7363ffe4c64b27bb002d50e4615e51c073da85c604a1f78133"
+  },
+  "napari_bridge": {
+    "candidate": "napari_bridge/napari_bridge_13.png",
+    "sha256": "e9910b93c227a729cfe4e5da849d8e4f525f8b35efe5a3c76c9e1dc0400dcedb"
+  },
+  "outliers": {
+    "candidate": "outliers/outliers_04.png",
+    "sha256": "52c3fe65f32efab848140256dc52aaca29aeef8421d5deb7044b43cd1b149f80"
+  },
+  "pca": {
+    "candidate": "pca/pca_03.png",
+    "sha256": "5e5b3d3719b6804084b75ea4c379c3dfa50e0c2b1a322bca5b16c35b74358e0f"
+  },
+  "pipeline_graph": {
+    "candidate": "pipeline_graph/pipeline_graph_03.png",
+    "sha256": "abd92c262d8c242c4c3ec0fcc380a99d6a633e27b92d471edd8b6c1c58fb7f40"
+  },
+  "plaque": {
+    "candidate": null,
+    "sha256": "356b7b0bcb61574890d58b91bd6fcd7d4252146e972bf886a685b447d5dfb327"
+  },
+  "plate_view": {
+    "candidate": "plate_view/plate_view_01.png",
+    "sha256": "318786fa90a0039286915f7209136caf883f25eceaf2f5e87b5e63d547a8714d"
+  },
+  "power": {
+    "candidate": "power/power_10.png",
+    "sha256": "f79e57c550035f63e97cfd1d4be09a7f9a17e8af362be5fb92a00a28776cac29"
+  },
+  "profiler": {
+    "candidate": "profiler/profiler_01.png",
+    "sha256": "042dd3c25abc0e12c1ad840c58f0b1eabfb9999191cc0c09190d32ffa851bdf2"
+  },
+  "project_browser": {
+    "candidate": "project_browser/db_browser_10.png",
+    "sha256": "0416c5c1a87a08f9ef49a82cb8bb0e7b50a3742643c12db17840c49c36d1aeb8"
+  },
+  "qc_dashboard": {
+    "candidate": "qc_dashboard/qc_dashboard_02.png",
+    "sha256": "e0f553245b88590ca210d8441e5db6d5ed37224045f2db3c5283a98878fa10d3"
+  },
+  "queue": {
+    "candidate": "queue/queue_01.png",
+    "sha256": "8b1a1668b28ed01244d5d37988b5c59110537b9cf2270539890d189cda7ca0ca"
+  },
+  "recruitment": {
+    "candidate": "cellpose_masks/cellpose_masks_06.png",
+    "sha256": "93928491f59d4e6aa8ca9ca1182927ab6a8eee6b25182767ea43b03b79c213f9"
+  },
+  "regression": {
+    "candidate": "regression/regression_03.png",
+    "sha256": "7699b6233fc64e62e48c7937cc2363df5bfcb9f01e0e258c4f3cec7a4cee867d"
+  },
+  "replication": {
+    "candidate": "replication/replication_04.png",
+    "sha256": "f000c0fd8b5e5051c2317136286aa150559ed41cda7a24b6b883000eee0931bd"
+  },
+  "report": {
+    "candidate": "report/report_06.png",
+    "sha256": "19535589134930b4e37590806ea5aa53958f0fcddab6f796cf41434ae5d480a5"
+  },
+  "run": {
+    "candidate": "run/run_03.png",
+    "sha256": "6a0ea341c31eb2cd1d79d7bb29378b46bfaaa9f98363612b0f97cecf8182f0ad"
+  },
+  "run_compare": {
+    "candidate": "run_compare/run_compare_04.png",
+    "sha256": "266f7661ae6cf33f892089e1909f06bc5422496b66a0913e70e6ec954738da55"
+  },
+  "run_history": {
+    "candidate": "run_history/run_history_07.png",
+    "sha256": "b1f5c49ef19b73352426583c5e66f8ac5fa652c200e554d0a5433411dc3dfbd9"
+  },
+  "sequencing": {
+    "candidate": "sequencing/sequencing_06.png",
+    "sha256": "df08542aac04b51cdc30d4f96cdaa69be7875a1cf480fbc238c0df6e10fa7646"
+  },
+  "settings": {
+    "candidate": "settings/settings_02.png",
+    "sha256": "fe8ab7b96844e1658b6b0fd545a57ce303fc02e77a9ae4f24b4c1ae7442ea553"
+  },
+  "tabulate": {
+    "candidate": "tabulate/tabulate_01.png",
+    "sha256": "c0ffddd3cda3cb438b466c9edb918eede0a34ac173941d77f6557df3933888b8"
+  },
+  "timelapse": {
+    "candidate": "convert/convert_09.png",
+    "sha256": "1c9fbdbfc26a129caf2d3a506b82ea9e30d5cfb0e1c43cfdb74c148f0ffc1b38"
+  },
+  "train_cellpose": {
+    "candidate": null,
+    "sha256": "fcf67f47f07a6b3b940029ac71270092e82680b66f08f290146200b2ccea34b9"
+  },
+  "train_compare": {
+    "candidate": "settings/settings_07.png",
+    "sha256": "59c23da62931715d10f3e3a17f2ceb4c5ce65fa0656bbb3efb23224c66ac7d99"
+  },
+  "trellis": {
+    "candidate": "trellis/trellis_01.png",
+    "sha256": "cefacedfcda877a2357eab4d70f6c146cd83de2ccbd4070d1378f3cd7a46ca72"
+  },
+  "umap": {
+    "candidate": "umap/umap_01.png",
+    "sha256": "484a0ec2a19a370419ce13871e3f5040acb596486b2bb7d6ab6c83a6008912a8"
+  }
+}
