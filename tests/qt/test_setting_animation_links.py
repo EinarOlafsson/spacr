@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QMovie
 from PySide6.QtWidgets import QFormLayout, QLabel, QSpinBox, QToolButton, QWidget
 
 from spacr.qt.screens.settings_model import (
@@ -74,19 +73,46 @@ def test_animation_caption_retranslates_with_setting_help(qtbot):
     assert animation.accessibleName() == animation.toolTip()
 
 
-def test_click_starts_square_movie_and_hiding_stops_it(qtbot):
+def test_click_starts_square_animation_and_hiding_stops_it(qtbot):
     root, _label, _field = _setting_row(qtbot, "n_neighbors")
     animation = root.findChild(AnimationLink)
 
     qtbot.mouseClick(animation, Qt.LeftButton)
     popup = AnimationPopup.instance()
     qtbot.waitUntil(popup.isVisible)
-    assert popup._movie is not None
-    assert popup._movie.isValid()
-    assert popup._movie.scaledSize().width() == popup._movie.scaledSize().height()
-    assert popup._movie.state() in {QMovie.Running, QMovie.Paused}
+    view = popup.animation_view()
+    assert view.frame_count() > 1
+    assert view.width() == view.height() == AnimationPopup.DISPLAY_SIZE
+    assert view.is_playing()
     assert not popup.findChildren(QToolButton)
 
     popup.hide()
-    qtbot.waitUntil(lambda: popup._movie is None)
+    qtbot.waitUntil(lambda: not view.is_playing())
+    root.close()
+
+
+def test_the_clicked_dot_shows_the_same_zoom_the_hover_does(qtbot):
+    """The dot used to open a BIGGER window with a SMALLER illustration.
+
+    ``QMovie`` can only scale a GIF, so the 300-pixel popup showed the raw
+    frame — content covering about a third of the square — while a 220-pixel
+    hover showed the zoomed one at three quarters. Same asset, same rule.
+    """
+    from spacr.qt.widgets import animation_zoom as az
+
+    root, _label, _field = _setting_row(qtbot, "n_neighbors")
+    link = root.findChild(AnimationLink)
+
+    qtbot.mouseClick(link, Qt.LeftButton)
+    popup = AnimationPopup.instance()
+    qtbot.waitUntil(popup.isVisible)
+
+    frame = az.from_qimage(popup.animation_view().pixmap().toImage())
+    measured = az.content_extent([frame])
+    raw = az.source_content_extent(str(link.animation().path))
+    assert az.MIN_FILL <= measured <= az.MAX_FILL, (
+        f"the clicked popup shows {measured:.1%} of its square")
+    assert measured > raw, (
+        f"no zoom was applied: {measured:.1%} of the square vs {raw:.1%} raw")
+    popup.hide()
     root.close()
