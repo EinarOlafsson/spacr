@@ -210,6 +210,14 @@ SELF_REGISTERING_MODULES = (
     # chaining's screen rather than the other way round; both orders work.
     "spacr.qt.prerun",
     "spacr.qt.screens.run_compare",
+    # Three Explore screens built on the Graph Builder's spec engine. Each
+    # owns a tested, idempotent register() that fans its name, intro, CLI
+    # note, api_module and nine translations out of one register_app call.
+    # All that was ever missing was the row that runs it: the agent that
+    # wrote them could not add it while this file was being edited.
+    "spacr.qt.screens.trellis",
+    "spacr.qt.screens.gate_editor",
+    "spacr.qt.screens.feature_explorer",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps
