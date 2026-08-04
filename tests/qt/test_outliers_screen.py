@@ -344,7 +344,7 @@ def test_a_cancelled_export_dialog_writes_nothing(screen, tmp_path,
 # Registration
 # ---------------------------------------------------------------------------
 
-def test_register_is_idempotent_and_lands_in_results_and_qc():
+def test_register_is_idempotent_and_lands_in_explore():
     """One row in `spacr.qt.SELF_REGISTERING_MODULES` turns the screen on."""
     from spacr.qt import app as app_mod
 
