@@ -35,6 +35,32 @@ def _make_fig(seed: int = 0):
     return fig
 
 
+@pytest.fixture(autouse=True)
+def _isolate_figure_prefs(monkeypatch, tmp_path_factory):
+    """Keep this file out of the developer's real preference store.
+
+    Two tests below call the real ``prefs.set_figure_format(...)`` to put the
+    queue into PDF mode, and ``preferences._settings()`` returns
+    ``QSettings(_ORG, _APP)`` — the *installed application's* store. So running
+    this file rewrote whatever the person running it had chosen in
+    Preferences → Figure format and left it wherever the last test happened to
+    put it. A test that changes the machine it runs on is not isolated, and
+    this one changed it silently and permanently.
+
+    Redirecting ``_settings`` at a per-session ini file keeps the tests
+    exercising the real getters and setters — the plumbing is the thing under
+    test, so stubbing it out would remove the point — while confining every
+    write to a temp directory.
+    """
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences as prefs
+
+    store = tmp_path_factory.mktemp("figure_queue_prefs") / "prefs.ini"
+    monkeypatch.setattr(
+        prefs, "_settings",
+        lambda: QSettings(str(store), QSettings.Format.IniFormat))
+
+
 class TestBasics:
     def test_figure_settings_fields_link_to_api_docs(self, qtbot):
         from spacr.qt.widgets.figure_queue import _FigureSettingsDialog
