@@ -878,6 +878,14 @@ _SELF_REGISTERING_APPS = (
     # ``import spacr.qt.app``, i.e. exactly the sometimes-there row the
     # note above is about. Both calls are idempotent.
     ("spacr.qt.screens.run_compare", "register"),
+    # PCA and Tabulate: both finished, both tested, both defining register()
+    # that nothing called. They were held back when Explore was at the
+    # MAX_APPS_PER_SECTION ceiling of 13; it is at 8 now, so the reason has
+    # expired. Found by the README pass, which declined to advertise a screen
+    # with no tile -- which is the right instinct and also how a feature stays
+    # invisible for a fortnight.
+    ("spacr.qt.screens.pca", "register"),
+    ("spacr.qt.screens.tabulate", "register"),
 )
 
 import importlib as _importlib
