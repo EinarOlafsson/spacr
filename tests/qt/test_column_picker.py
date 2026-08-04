@@ -28,6 +28,8 @@ from __future__ import annotations
 import hashlib
 import os
 import sqlite3
+import sys
+import time
 
 import pytest
 
@@ -59,6 +61,8 @@ from spacr.qt.widgets.column_picker import (
     set_field_text,
     validate_column_name,
 )
+
+from tests.qt.test_gui_responsiveness import LoopWatchdog, STALL_BUDGET_S
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +127,20 @@ def _dialog(qtbot, db_path, **kw):
     d = ColumnPickerDialog(db_path=db_path, **kw)
     qtbot.addWidget(d)
     return d
+
+
+def _settled(qtbot, dialog, timeout=20000):
+    """Pump until a threaded dialog has finished reading, then return it.
+
+    ``ColumnPickerButton.make_dialog`` builds its dialog with
+    ``threaded=True``, so a runner injected in place of ``exec()`` has to
+    let the event loop turn exactly as the real modal would before there
+    is anything to inspect. The default (unthreaded) dialogs the rest of
+    this file constructs are never busy, so calling this on one is a
+    no-op.
+    """
+    qtbot.waitUntil(lambda: not dialog.is_busy(), timeout=timeout)
+    return dialog
 
 
 def _digest(path):
@@ -245,7 +263,8 @@ def test_attach_passes_through_a_tooltip_and_an_on_pick_callback(qtbot, measdb):
                                   on_pick=seen.append)
     assert button.toolTip() == "Pick the annotation column"
     button.set_dialog_runner(
-        lambda d: (d.select_column("annotate"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("annotate"),
+                   QDialog.Accepted)[1])
     button.open_picker()
     assert seen == ["annotate"]
 
@@ -318,7 +337,8 @@ def test_picking_a_column_fills_the_host_field(qtbot, measdb):
     seen = []
     button.picked.connect(seen.append)
     button.set_dialog_runner(
-        lambda d: (d.select_column("annotate"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("annotate"),
+                   QDialog.Accepted)[1])
 
     assert button.open_picker() == "annotate"
     assert field.text() == "annotate"
@@ -332,7 +352,8 @@ def test_cancelling_leaves_the_host_field_alone(qtbot, measdb):
                                 field=field)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (d.set_name("something_else"), QDialog.Rejected)[1])
+        lambda d: (_settled(qtbot, d).set_name("something_else"),
+                   QDialog.Rejected)[1])
     assert button.open_picker() == ""
     assert field.text() == "annotate"
 
@@ -345,7 +366,7 @@ def test_clicking_the_button_opens_the_picker_and_no_modal(qtbot, measdb):
 
     def _runner(dialog):
         opened.append(dialog)
-        dialog.select_column("test")
+        _settled(qtbot, dialog).select_column("test")
         return QDialog.Accepted
 
     button.set_dialog_runner(_runner)
@@ -370,7 +391,8 @@ def test_a_list_valued_field_is_appended_to_not_overwritten(qtbot, measdb):
                                 field=field)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (d.select_column("test"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("test"),
+                   QDialog.Accepted)[1])
     button.open_picker()
     assert field.text() == "['annotate', 'test']"
 
@@ -382,7 +404,8 @@ def test_a_comma_separated_field_is_appended_to(qtbot, measdb):
                                 field=field, multi=True)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (d.select_column("nucleus_area"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("nucleus_area"),
+                   QDialog.Accepted)[1])
     button.open_picker()
     assert field.text() == "cell_area, nucleus_area"
     # Picking the same one twice does not duplicate it.
@@ -397,7 +420,8 @@ def test_appending_to_a_list_field_ignores_a_duplicate(qtbot, measdb):
                                 field=field)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (d.select_column("annotate"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("annotate"),
+                   QDialog.Accepted)[1])
     button.open_picker()
     assert field.text() == "['annotate']"
 
@@ -409,7 +433,8 @@ def test_appending_to_an_empty_multi_field_just_sets_the_name(qtbot, measdb):
                                 field=field, multi=True)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (d.select_column("cell_area"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("cell_area"),
+                   QDialog.Accepted)[1])
     button.open_picker()
     assert field.text() == "cell_area"
 
@@ -422,7 +447,8 @@ def test_a_combo_box_host_is_filled_too(qtbot, measdb):
                                 field=combo)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (d.select_column("test"), QDialog.Accepted)[1])
+        lambda d: (_settled(qtbot, d).select_column("test"),
+                   QDialog.Accepted)[1])
     button.open_picker()
     assert combo.currentText() == "test"
 
@@ -599,7 +625,7 @@ def test_opening_the_dialog_runs_no_count(qtbot, measdb):
     assert "COUNT(" not in sql
     assert "SELECT *" not in sql
     # The row figure came from max(rowid), and says so.
-    assert any("MAX(ROWID)" in s.upper() for s in d.executed_sql())
+    assert any("MAX(_ROWID_)" in s.upper() for s in d.executed_sql())
     assert "estimate" in d._summary.text()
 
 
@@ -880,3 +906,267 @@ def test_the_name_edit_is_exposed_for_hosts_that_want_to_focus_it(qtbot,
     assert isinstance(d.name_edit(), QLineEdit)
     d.name_edit().setText("annotate")
     assert d.chosen_column() == "annotate"
+
+
+# ---------------------------------------------------------------------------
+# max(rowid) is spelt _rowid_, and that is not pedantry
+# ---------------------------------------------------------------------------
+
+def test_a_table_with_its_own_rowid_column_still_reports_an_estimate(qtbot,
+                                                                    tmp_path):
+    """Every spaCR object table declares ``rowID`` — the plate row.
+
+    SQLite identifiers are case-insensitive, so a bare ``max(rowid)``
+    takes the maximum of *that text column*: a full table scan (the one
+    thing this dialog promises not to do) whose answer is then ``'r16'``,
+    and ``int('r16')`` raises ``ValueError`` — not a ``sqlite3.Error``,
+    so it escaped straight past the handler and into the event loop.
+    """
+    path = tmp_path / "measurements.db"
+    con = sqlite3.connect(str(path))
+    con.execute("CREATE TABLE cell (plateID TEXT, rowID TEXT, "
+                "columnID TEXT, cell_area REAL)")
+    for i in range(30):
+        con.execute("INSERT INTO cell VALUES (?,?,?,?)",
+                    ("plate1", f"r{i % 16 + 1:02d}", f"c{i % 24 + 1:02d}",
+                     100.0 + i))
+    con.commit()
+    con.close()
+
+    d = _dialog(qtbot, str(path), table="cell")
+
+    assert d.banner_text() == ""
+    assert d.column_names() == ["plateID", "rowID", "columnID", "cell_area"]
+    assert "≈ 30 rows (estimate)" in d._summary.text()
+    # It asked the b-tree, not the rowID column.
+    assert any("MAX(_ROWID_)" in s.upper() for s in d.executed_sql())
+    assert not any(s.upper().endswith("MAX(ROWID) FROM \"CELL\"")
+                   for s in d.executed_sql())
+    assert SchemaReader(str(path)).estimate_rows("cell") == 30
+
+
+def test_a_table_that_declares_every_rowid_spelling_reports_no_estimate(
+        qtbot, tmp_path):
+    """All three aliases shadowed — say nothing rather than something wrong."""
+    path = tmp_path / "shadow.db"
+    con = sqlite3.connect(str(path))
+    con.execute('CREATE TABLE t ("_rowid_" TEXT, "oid" TEXT, "rowid" TEXT)')
+    con.execute("INSERT INTO t VALUES ('a', 'b', 'c')")
+    con.commit()
+    con.close()
+
+    assert SchemaReader(str(path)).estimate_rows("t") is None
+    d = _dialog(qtbot, str(path), table="t")
+    assert "row count unknown" in d._summary.text()
+
+
+# ---------------------------------------------------------------------------
+# The window appears before the schema does
+# ---------------------------------------------------------------------------
+
+class _SlowReader(SchemaReader):
+    """A reader that costs 300 ms per statement, in the place it is read.
+
+    Opening the picker is four statements — probe, list tables, read the
+    chosen table's columns, estimate its rows — so this stands in for a
+    database on a cold cache or a network mount without needing one.
+    Injected rather than monkeypatched because ``reader=`` is already how
+    this file exercises schema behaviour.
+    """
+
+    delay = 0.3
+
+    def _fetch(self, sql, params=()):
+        time.sleep(self.delay)
+        return super()._fetch(sql, params)
+
+
+def _drive(qtbot, dog, done, budget_s=30.0):
+    """Pump the event loop until ``done()``, never blocking it."""
+    end = time.perf_counter() + budget_s
+    while time.perf_counter() < end and not done():
+        qtbot.wait(20)
+    qtbot.wait(50)
+    dog.stop()
+
+
+def test_the_default_dialog_is_fully_populated_when_it_returns(qtbot, measdb):
+    """The synchronous default, stated as a test rather than assumed.
+
+    Every other dialog in this file relies on it, and the threaded mode
+    exists precisely because it is *not* free — so the contract that the
+    default keeps is worth pinning on its own.
+    """
+    d = _dialog(qtbot, measdb.path, table="png_list")
+
+    assert not d.is_busy()
+    assert d.active_jobs() == 0
+    assert d.table_names() == ["cell", "png_list"]
+    assert d.chosen_table() == "png_list"
+    assert d.column_names() == list(PNG_COLUMNS)
+    assert "estimate" in d._summary.text()
+
+
+def test_opening_the_picker_never_freezes_the_gui_thread(qtbot, measdb):
+    """``threaded=True``: the window is up while sqlite is still reading."""
+    dog = LoopWatchdog()
+    dog.start()
+    build = time.perf_counter()
+    d = ColumnPickerDialog(reader=_SlowReader(measdb.path), table="png_list",
+                           threaded=True)
+    build = time.perf_counter() - build
+    qtbot.addWidget(d)
+    d.show()
+    # Up, and honest about what it is doing, before any of it has landed.
+    assert d.is_busy()
+    assert d.table_names() == []
+    assert "Reading the schema" in d._source.text()
+
+    _drive(qtbot, dog, lambda: not d.is_busy())
+
+    assert build < 0.100, (
+        f"the constructor took {build * 1000:.0f} ms to return; it is still "
+        "reading the schema on the GUI thread")
+    assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
+    assert dog.worst < STALL_BUDGET_S, (
+        f"opening the picker stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms (budget {STALL_BUDGET_S * 1000:.0f} ms)")
+    # And the 900 ms of reading really did arrive, rather than the dialog
+    # staying responsive by never loading anything.
+    assert d.table_names() == ["cell", "png_list"]
+    assert d.chosen_table() == "png_list"
+    assert d.column_names() == list(PNG_COLUMNS)
+    assert "estimate" in d._summary.text()
+    assert measdb.path in d._source.text()
+
+
+def test_the_slow_reader_really_is_slow_enough_for_the_budget_to_mean_something(
+        measdb):
+    """Guard against the stand-in shrinking until the test proves nothing."""
+    from spacr.qt.widgets.column_picker import read_schema
+
+    start = time.perf_counter()
+    payload = read_schema(measdb.path, _SlowReader(measdb.path), "png_list")
+    elapsed = time.perf_counter() - start
+
+    assert [c for c, _t in payload["columns"]] == list(PNG_COLUMNS)
+    assert elapsed > 0.5, (
+        f"opening the schema took only {elapsed * 1000:.0f} ms inline; run "
+        "on the GUI thread it would already be under the budget")
+
+
+def test_switching_tables_reads_off_the_gui_thread_too(qtbot, measdb):
+    """The second table is as slow as the first, and just as unblocking."""
+    d = ColumnPickerDialog(reader=_SlowReader(measdb.path), table="png_list",
+                           threaded=True)
+    qtbot.addWidget(d)
+    qtbot.waitUntil(lambda: not d.is_busy(), timeout=20000)
+
+    dog = LoopWatchdog(d)
+    dog.start()
+    assert d.select_table("cell")
+    _drive(qtbot, dog, lambda: not d.is_busy())
+
+    assert dog.ticks > 10
+    assert dog.worst < STALL_BUDGET_S, (
+        f"switching tables stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+    assert d.chosen_table() == "cell"
+    assert d.column_names() == list(CELL_COLUMNS)
+
+    # And selecting *nothing* — which is what clearing the list emits —
+    # empties the panel rather than reading a table called "".
+    d._on_table_changed("")
+    qtbot.waitUntil(lambda: not d.is_busy(), timeout=20000)
+    assert d.column_names() == []
+    assert d._summary.text() == ""
+
+
+def test_the_button_opens_the_threaded_dialog(qtbot, measdb):
+    """The real user-facing path is the asynchronous one."""
+    field = QLineEdit("")
+    qtbot.addWidget(field)
+    button = ColumnPickerButton(lambda: measdb.path, table="png_list",
+                                field=field)
+    qtbot.addWidget(button)
+
+    d = button.make_dialog()
+    qtbot.addWidget(d)
+    # Nothing has been delivered yet: the completion is a queued call, so
+    # it cannot have run before this line whatever the database costs.
+    assert d.is_busy()
+    assert d.table_names() == []
+
+    qtbot.waitUntil(lambda: not d.is_busy(), timeout=20000)
+    assert d.table_names() == ["cell", "png_list"]
+    assert d.chosen_table() == "png_list"
+
+
+def test_closing_the_picker_mid_load_delivers_nothing_and_leaves_no_thread(
+        qtbot, measdb, monkeypatch):
+    """The user clicked SQL on the wrong field and closed it again.
+
+    Qt aborts the process when a running QThread is destroyed, and a
+    worker delivering into a dismissed dialog is a use-after-free. The
+    third failure mode is quieter: PySide6 raises ``RuntimeError: Signal
+    source has been deleted`` out of the relay, which surfaces as an
+    unhandled exception in the event loop and fails whichever test runs
+    next.
+    """
+    raised = []
+    monkeypatch.setattr(sys, "excepthook",
+                        lambda *exc: raised.append(exc), raising=False)
+    monkeypatch.setattr(sys, "unraisablehook",
+                        lambda unraisable: raised.append(unraisable),
+                        raising=False)
+
+    d = ColumnPickerDialog(reader=_SlowReader(measdb.path), table="png_list",
+                           threaded=True)
+    qtbot.addWidget(d)
+    delivered = []
+    monkeypatch.setattr(d, "_apply_schema", delivered.append)
+
+    assert d.active_jobs() >= 1
+    d.reject()                           # mid-load, deliberately
+
+    assert d.active_jobs() == 0
+    assert not d.is_busy()
+    qtbot.wait(400)
+    assert delivered == []
+    assert raised == []
+    assert d.table_names() == []
+
+
+def test_the_sql_hook_stays_accurate_across_the_thread_boundary(qtbot, measdb):
+    """``executed_sql`` is the "what did opening this cost" assertion.
+
+    Threaded, the statements are appended on a worker thread; the hook
+    has to answer for them all once the load is done, and still prove
+    that none of them was a count.
+    """
+    d = ColumnPickerDialog(db_path=measdb.path, table="png_list",
+                           threaded=True)
+    qtbot.addWidget(d)
+    assert d.executed_sql() == []        # nothing opened yet, and it says so
+
+    qtbot.waitUntil(lambda: not d.is_busy(), timeout=20000)
+
+    sql = d.executed_sql()
+    assert len(sql) == 4                 # probe, tables, table_info, estimate
+    joined = " ".join(sql).upper()
+    assert "COUNT(" not in joined
+    assert "SELECT *" not in joined
+    assert any("MAX(_ROWID_)" in s.upper() for s in sql)
+
+
+def test_a_threaded_open_of_a_missing_database_still_reports_inline(qtbot,
+                                                                    tmp_path):
+    """Failures do not become modal just because they arrived late."""
+    d = ColumnPickerDialog(db_path=str(tmp_path / "nope"), threaded=True)
+    qtbot.addWidget(d)
+    qtbot.waitUntil(lambda: not d.is_busy(), timeout=20000)
+
+    assert "No database at" in d.banner_text()
+    assert "No database open" in d._source.text()
+    assert d.table_names() == []
+    assert d.action() == ACTION_INVALID

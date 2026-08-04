@@ -80,6 +80,8 @@ from PySide6.QtWidgets import (
 )
 from ..widgets.toggle import Toggle
 from ..i18n import tr
+from ..bridge import drain_thread
+from ..job_runner import JobRunner
 
 from ..annotate_engine import (
     AnnotateSettings,
@@ -132,6 +134,14 @@ IMAGE_RADIUS = max(1, TILE_RADIUS - TILE_INSET)
 # How many keyboard assignments can be walked back with `u`. Bounded so a
 # long session can't grow the stack without limit.
 UNDO_LIMIT = 128
+
+#: How long `closeEvent` waits for a native worker before parking it, in ms.
+#: Generous, because a Cellpose/PyTorch page decode or an sklearn fit really
+#: can take this long, and interrupting one mid-write is the SIGSEGV this
+#: screen's teardown is arranged to avoid. Bounded, because the alternative --
+#: `QThread.wait()` with no argument -- is ULONG_MAX milliseconds, and a
+#: wedged worker then hangs the close forever with the window still on screen.
+CLOSE_DRAIN_MS = 15000
 
 
 def tile_palette() -> Dict[str, str]:
@@ -641,6 +651,69 @@ def _load_thumb_image_worker(row, src, settings):
     return img.resize(s.image_size), annotation
 
 
+def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
+    """How many objects the grid is paging through, and which ones.
+
+    Runs on a worker thread, and is module-level rather than a method so that
+    it *cannot* reach a widget: everything it needs arrives in ``s``, and
+    everything it produces goes back as a plain dict for
+    :meth:`AnnotateScreen._apply_total` to paint.
+
+    The expensive branch is the last one. ``fetch_filtered_paths`` joins every
+    measurement table in the database into a single pandas frame through
+    :func:`spacr.io._read_and_join_tables` before it can apply a threshold --
+    2.6 s on a 60 000-object database, measured, and it used to run inline on
+    every settings apply.
+
+    :param s: a frozen copy of the screen's settings.
+    :param filter_active: whether a measurement/threshold filter is set,
+        decided by the screen because it is a question about its own controls.
+    :returns: ``filtered_rows``, ``total``, ``queue_summary`` and an optional
+        ``note`` for the page label.
+    """
+    if s.queue_by_uncertainty:
+        # Order the unlabelled crops by how unsure the model is about them,
+        # so the annotator spends their time on the decision boundary. The
+        # queue is a snapshot, rebuilt on every settings apply, so crops
+        # labelled since the last rebuild drop out then rather than now.
+        from ... import active_learning as al
+        try:
+            queue = al.build_queue(
+                s.db_path, s.annotation_column,
+                measure=s.queue_measure,
+                diversity=(s.queue_diversity or "none"),
+                limit=(s.queue_limit or None),
+                image_type=s.image_type, seed=0)
+        except (FileNotFoundError, ValueError) as exc:
+            # No model scores yet is the ordinary case before a classifier
+            # has run, so fall back to page order and say why rather than
+            # showing an empty grid.
+            return {"filtered_rows": None,
+                    "total": count_rows(s.db_path, s.image_type),
+                    "queue_summary": "",
+                    "note": f"Uncertainty queue unavailable: {exc}"}
+        rows = al.queue_rows(queue)
+        return {"filtered_rows": rows, "total": len(rows),
+                "queue_summary": al.format_queue_summary(queue), "note": ""}
+    if filter_active:
+        # Cache the filtered set once so pagination + total agree
+        rows = fetch_filtered_paths(
+            s.db_path,
+            s.annotation_column,
+            s.measurement if isinstance(s.measurement, list)
+            else [s.measurement],
+            s.threshold if isinstance(s.threshold, list) else [s.threshold],
+            s.threshold_direction if isinstance(s.threshold_direction, list)
+            else [s.threshold_direction],
+            s.image_type,
+        )
+        return {"filtered_rows": rows, "total": len(rows),
+                "queue_summary": "", "note": ""}
+    return {"filtered_rows": None,
+            "total": count_rows(s.db_path, s.image_type),
+            "queue_summary": "", "note": ""}
+
+
 class _SettingsDialog(QDialog):
     """Modal dialog that edits an :class:`AnnotateSettings` in place."""
 
@@ -982,6 +1055,11 @@ class AnnotateScreen(QWidget):
         self._pending_page_load = None
         self._page_gen = 0
         self._closing = False
+        # Counting the population is database work, not widget work — see
+        # `_refresh_total`. Its own runner, separate from the page loader,
+        # because a settings apply cancels the count without disturbing the
+        # crops already on screen.
+        self._total_jobs = JobRunner(self, app_key="annotate count")
         # A drag-resize used to launch one QThread (and one inner thread pool)
         # per geometry event.  Debounce it and keep only the newest page
         # request so native image/model code never overlaps with itself.
@@ -1549,8 +1627,7 @@ class AnnotateScreen(QWidget):
             return
         self._flush_pending()
         self._rebuild_grid()
-        self._refresh_total()
-        self._load_page()
+        self._refresh_total(then=self._load_page)
 
     # ------------------------------------------------------------------
     # Actions
@@ -1603,8 +1680,10 @@ class AnnotateScreen(QWidget):
         self._object_rows = None
         self._last_round = None
         self._refresh_round_state()
-        self._refresh_total()
-        QTimer.singleShot(0, self._rebuild_and_load)
+        # `_rebuild_and_load` used to be deferred a turn so the viewport was
+        # realized before the grid was sized. The count is now asynchronous,
+        # so its delivery is already a later turn and does the same job.
+        self._refresh_total(then=self._rebuild_and_load)
 
     def _rebuild_and_load(self):
         """Rebuild the grid against the (now realized) viewport, then load."""
@@ -1623,8 +1702,7 @@ class AnnotateScreen(QWidget):
         if self._settings.src != old_src or self._settings.annotation_column != old_col:
             self._open_source(self._settings.src)
         else:
-            self._refresh_total()
-            self._load_page()
+            self._refresh_total(then=self._load_page)
 
     def _on_next(self):
         self._flush_pending()
@@ -1817,8 +1895,7 @@ class AnnotateScreen(QWidget):
         # starts showing genuinely different crops.
         if self._object_request is None:
             self._offset = 0
-            self._refresh_total()
-            self._load_page()
+            self._refresh_total(then=self._load_page)
 
     @Slot(str)
     def _on_retrain_failed(self, message: str) -> None:
@@ -1915,8 +1992,7 @@ class AnnotateScreen(QWidget):
         self._object_rows = None
         self._request_note = ""
         self._offset = 0
-        self._refresh_total()
-        self._load_page()
+        self._refresh_total(then=self._load_page)
 
     def _on_train_cv(self):
         """Save any pending annotations, then hand off to Classify."""
@@ -1971,8 +2047,7 @@ class AnnotateScreen(QWidget):
             return
         self._pending_updates.clear()
         clear_column(self._settings.db_path, col)
-        self._refresh_total()
-        self._load_page()
+        self._refresh_total(then=self._load_page)
 
     def _on_thumb_left(self, slot: int):
         self._toggle_annotation(slot, 1)
@@ -1987,62 +2062,73 @@ class AnnotateScreen(QWidget):
         s = self._settings
         return bool(s.measurement and s.threshold and s.threshold_direction)
 
-    def _refresh_total(self):
-        s = self._settings
+    def active_jobs(self) -> int:
+        """How many population counts are still winding down."""
+        return self._total_jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a population count has not delivered its result."""
+        return self._total_jobs.is_busy()
+
+    def _refresh_total(self, then=None):
+        """Recount the population, off the GUI thread, then run ``then``.
+
+        This was the heaviest single GUI-thread call in the application. With
+        a threshold filter set it reaches ``fetch_filtered_paths``, which
+        calls :func:`spacr.io._read_and_join_tables` -- every measurement
+        table in the database joined into one pandas frame -- and it ran on
+        every source open, every settings apply, every retrain and every
+        clear. Measured with the event-loop watchdog on a 60 000-object
+        database: **2.6 s of frozen window**, and a real screen's database is
+        larger than that.
+
+        The counting now happens in :func:`_compute_total`, which is a
+        module-level function precisely so it cannot reach a widget. What is
+        left here is the part that must be on the GUI thread: reading the
+        settings, and painting the result.
+
+        :param then: called on the GUI thread once the new totals are in
+            place. Every caller previously followed ``_refresh_total()`` with
+            ``_load_page()`` on the next line; that is what this is for, and
+            passing it is how the ordering survives becoming asynchronous.
+        """
         if self._object_rows is not None:
             # A routed request pins the population. Rebuilding the queue or
             # the threshold filter underneath it would replace the twelve
             # crops somebody was sent here to look at with ninety thousand,
             # under the same "12 objects · predicted infected" heading.
+            # No I/O, so no thread: this stays synchronous.
             self._filtered_rows = self._object_rows
             self._total = len(self._object_rows)
             self._queue_summary = ""
+            if then is not None:
+                then()
             return
-        if s.queue_by_uncertainty:
-            # Order the unlabelled crops by how unsure the model is about them,
-            # so the annotator spends their time on the decision boundary. The
-            # queue is a snapshot, rebuilt on every settings apply, so crops
-            # labelled since the last rebuild drop out then rather than now.
-            from ... import active_learning as al
-            try:
-                queue = al.build_queue(
-                    s.db_path, s.annotation_column,
-                    measure=s.queue_measure,
-                    diversity=(s.queue_diversity or "none"),
-                    limit=(s.queue_limit or None),
-                    image_type=s.image_type, seed=0)
-            except (FileNotFoundError, ValueError) as exc:
-                # No model scores yet is the ordinary case before a classifier
-                # has run, so fall back to page order and say why rather than
-                # showing an empty grid.
-                self._filtered_rows = None
-                self._total = count_rows(s.db_path, s.image_type)
-                self._queue_summary = ""
-                self._page_label.setText(f"Uncertainty queue unavailable: {exc}")
-                return
-            self._queue_summary = al.format_queue_summary(queue)
-            self._filtered_rows = al.queue_rows(queue)
-            self._total = len(self._filtered_rows)
+        # Freeze the settings now. They are a mutable dataclass with mutable
+        # lists inside it, and the dialog can be reopened while the count is
+        # still running.
+        settings = deepcopy(self._settings)
+        filter_active = self._filter_active()
+        # A newer count supersedes an older one, exactly as a newer page load
+        # supersedes an older one -- otherwise two settings applies in quick
+        # succession leave whichever count happened to finish last on screen.
+        self._total_jobs.cancel()
+        self._total_jobs.submit(
+            lambda: _compute_total(settings, filter_active),
+            lambda outcome, _then=then: self._apply_total(outcome, _then))
+
+    def _apply_total(self, outcome: dict, then=None) -> None:
+        """Install a worker-computed population count. GUI thread only."""
+        if self._closing:
             return
-        self._queue_summary = ""
-        if self._filter_active():
-            # Cache the filtered set once so pagination + total agree
-            self._filtered_rows = fetch_filtered_paths(
-                self._settings.db_path,
-                self._settings.annotation_column,
-                self._settings.measurement if isinstance(self._settings.measurement, list)
-                else [self._settings.measurement],
-                self._settings.threshold if isinstance(self._settings.threshold, list)
-                else [self._settings.threshold],
-                self._settings.threshold_direction if isinstance(
-                    self._settings.threshold_direction, list
-                ) else [self._settings.threshold_direction],
-                self._settings.image_type,
-            )
-            self._total = len(self._filtered_rows)
-        else:
-            self._filtered_rows = None
-            self._total = count_rows(self._settings.db_path, self._settings.image_type)
+        self._filtered_rows = outcome.get("filtered_rows")
+        self._total = int(outcome.get("total") or 0)
+        self._queue_summary = outcome.get("queue_summary") or ""
+        note = outcome.get("note")
+        if note:
+            self._page_label.setText(note)
+        if then is not None:
+            then()
 
     def _load_page(self):
         if self._closing:
@@ -2651,13 +2737,26 @@ class AnnotateScreen(QWidget):
         self._resize_timer.stop()
         self._pending_page_load = None
         self._flush_pending()
+        # The population count is a read-only query. Abandon it: nothing it
+        # could half-finish is worth waiting for.
+        self._total_jobs.shutdown()
         retrain = self._retrain_worker
         if retrain is not None:
             # sklearn fits and the score write-back are native/SQLite work;
             # tearing the widget down under them is the same class of crash
-            # as the page worker below, so wait rather than time out.
+            # as the page worker below, so this waits rather than dropping the
+            # reference. It waits with a BUDGET, though, and that is the
+            # change: `wait()` with no argument is ULONG_MAX milliseconds, so
+            # a fit that wedged -- a BLAS thread spinning, an SQLite writer
+            # blocked on a lock another process holds -- hung the close
+            # *permanently*, window still on screen, nothing to click, no way
+            # out but SIGKILL. `drain_thread` waits the budget and then PARKS
+            # the thread rather than terminating it: nothing mid-write is
+            # interrupted and the last reference to a running QThread is never
+            # dropped, which is the abort this is all arranged around. The
+            # close completes either way.
             retrain.requestInterruption()
-            retrain.wait()
+            stopped = drain_thread(retrain, timeout_ms=CLOSE_DRAIN_MS)
             self._retrain_worker = None
             try:
                 retrain.done.disconnect(self._on_retrain_done)
@@ -2665,25 +2764,33 @@ class AnnotateScreen(QWidget):
                 retrain.finished.disconnect(self._on_retrain_finished)
             except (RuntimeError, TypeError):
                 pass
-            retrain.deleteLater()
+            if stopped:
+                # Only when it really stopped. `deleteLater` on a parked,
+                # still-running QThread is the abort being avoided; the park
+                # list owns it from here.
+                retrain.deleteLater()
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
         self._page_gen += 1   # invalidate any in-flight results
         worker = self._page_worker
         if worker is not None:
-            # Do not use a timeout here. Cellpose/PyTorch can remain in native
-            # inference longer than four seconds; letting QWidget destruction
-            # continue in that window is the intermittent SIGSEGV/abort.
+            # Cellpose/PyTorch can stay in native inference for a long time,
+            # and letting QWidget destruction continue in that window is the
+            # intermittent SIGSEGV/abort — so this waits too, and for the same
+            # reason as the retrain worker it waits a bounded time and parks
+            # what will not stop. A page that is still decoding must not be
+            # able to hold the window open forever.
             worker.requestInterruption()
-            worker.wait()
+            stopped = drain_thread(worker, timeout_ms=CLOSE_DRAIN_MS)
             self._page_worker = None
             try:
                 worker.done.disconnect(self._on_page_loaded)
                 worker.finished.disconnect(self._on_page_worker_finished)
             except (RuntimeError, TypeError):
                 pass
-            worker.deleteLater()
+            if stopped:
+                worker.deleteLater()
         try:
             self._console.shutdown()
         except Exception:

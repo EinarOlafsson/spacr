@@ -52,7 +52,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
     QComboBox,
@@ -99,6 +99,13 @@ COLOUR_SCALES: Tuple[Tuple[str, Any], ...] = (
 #: safe; :func:`spacr.qt.preferences.color_blind_continuous_cmap` swaps it
 #: for cividis when a colour-vision mode is on.
 DEFAULT_CMAP = "viridis"
+
+#: How long an option change waits for the next one before recomputing, in ms.
+#: The aggregation behind a tick is 487 ms and the spin box emits about every
+#: 50 ms while its arrow is held, so without this a drag queues a job per tick
+#: and the plate the user stopped on is drawn last, after every plate they
+#: passed through. Short enough that a single click still feels immediate.
+RECOMPUTE_COALESCE_MS = 120
 
 #: Tables tried first when a database opens, in order of usefulness.
 PREFERRED_TABLES: Tuple[str, ...] = ("cell", "object", "nucleus", "pathogen",
@@ -425,6 +432,15 @@ class PlateViewScreen(LinkedView, QWidget):
         self.last_error: str = ""
 
         self._job_settled.connect(self._on_job_settled)
+        # One aggregation per gesture rather than one per spin-box tick — see
+        # `_on_view_changed`. Unthreaded, there is no timer at all and an
+        # option change recomputes on the spot, which is the same rule
+        # `_run_job` already follows: `threaded=False` means "behave exactly
+        # as this did before any of it moved off the GUI thread".
+        self._recompute_timer = QTimer(self)
+        self._recompute_timer.setSingleShot(True)
+        self._recompute_timer.setInterval(RECOMPUTE_COALESCE_MS)
+        self._recompute_timer.timeout.connect(self.recompute)
         self._build_ui()
         from ..dnd import install_dropzone
         from ..dnd_handlers import get_handler
@@ -793,10 +809,20 @@ class PlateViewScreen(LinkedView, QWidget):
         No database round-trip: the long frame is already in memory, and a
         user dragging the min-objects spin box should not re-query a
         500 000-row table on every tick.
+
+        Nor should it start an aggregation on every tick. Holding the spin
+        box's arrow emits ``valueChanged`` about every 50 ms and the groupby
+        behind it takes ten times that, so the ticks used to queue up faster
+        than they could be served and the last one the user actually wanted
+        was the last to be drawn. Coalescing here means one aggregation for
+        one gesture, dispatched when the value stops moving.
         """
         if self._loading or self._frame is None:
             return
-        self.recompute()
+        if not self._threaded:
+            self.recompute()
+            return
+        self._recompute_timer.start()
 
     def render_plate(self) -> bool:
         """Read the chosen measurement and draw the plate.
@@ -852,7 +878,30 @@ class PlateViewScreen(LinkedView, QWidget):
     def recompute(self) -> bool:
         """Rebuild the well grid + report from the frame already in memory.
 
-        :returns: True when a plate was drawn.
+        The aggregation runs off the GUI thread. ``pqc.plate_layout`` is a
+        full-frame groupby and ``detect_edge_effect`` a second pass over the
+        result: **487 ms** on a real measurement table, measured, and it fired
+        on every tick of the min-objects spin box. Dragging that box was a
+        sequence of half-second freezes.
+
+        THE CONTRACT. ``recompute()`` returns a bool that a caller reads, and
+        it now means "a plate was drawn **or is being drawn**" rather than "a
+        plate was drawn". The refusals -- no frame yet, and a failed
+        aggregation -- are unchanged and still synchronous, because the first
+        does no work and the second is reported by the completion handler in
+        exactly the place it was reported before. So the only caller-visible
+        difference is that ``True`` may arrive before the grid is painted.
+
+        That was made safe rather than assumed safe: ``threaded=False``
+        (which every test in ``test_plate_view.py`` and
+        ``test_plate_view_linked_filter.py`` constructs the screen with) runs
+        the job inline through :meth:`_run_job`, so those callers still get
+        the old meaning exactly. A caller that needs to know the grid is up
+        waits on :meth:`active_jobs`, as ``render_plate``'s callers already
+        do -- ``render_plate`` has returned "started, not finished" since the
+        database read was threaded, and this is the same promise.
+
+        :returns: True when a plate was drawn, or a draw was started.
         """
         if self._frame is None:
             self._set_status("Nothing loaded yet — press Render.", error=True)
@@ -861,6 +910,7 @@ class PlateViewScreen(LinkedView, QWidget):
         plate = self._plate_combo.currentText() or None
         min_count = int(self._min_count_box.value())
         value_col = self._frame_key[2] or None
+        frame = self._frame
 
         # Honour the shared Local Data Filter, so narrowing the population in
         # one view narrows it here too. Applied to the frame already in
@@ -872,32 +922,62 @@ class PlateViewScreen(LinkedView, QWidget):
         # does not have, and an empty heatmap is a worse answer than a
         # complete one -- PROVIDED the view says which it is showing, which is
         # what `_filter_note` puts on the status line.
-        source = self._frame
-        self._filter_note = ""
+        #
+        # `is_empty` and `describe()` are read HERE, on the GUI thread, so the
+        # worker is handed a frame and a note and never looks at the link.
+        note = ""
+        narrow = None
         try:
             data_filter = self.link.filter
             if not data_filter.is_empty:
-                source = self.linked_visible(self._frame)
-                self._filter_note = f" · filtered: {data_filter.describe()}"
+                narrow = self.linked_visible
+                note = f" · filtered: {data_filter.describe()}"
         except Exception as exc:
-            source = self._frame
-            self._filter_note = f" · filter ignored ({exc.__class__.__name__})"
+            note = f" · filter ignored ({exc.__class__.__name__})"
 
-        try:
-            layout = pqc.plate_layout(
-                source, value_col=value_col, plate=plate,
-                grouping=grouping, min_count=min_count)
-            report = pqc.detect_edge_effect(
-                layout, value_col=value_col, grouping=grouping)
-        except Exception as e:
+        def _job():
+            source = frame
+            filter_note = note
+            if narrow is not None:
+                try:
+                    source = narrow(frame)
+                except Exception as exc:
+                    source = frame
+                    filter_note = f" · filter ignored ({exc.__class__.__name__})"
+            try:
+                layout = pqc.plate_layout(
+                    source, value_col=value_col, plate=plate,
+                    grouping=grouping, min_count=min_count)
+                report = pqc.detect_edge_effect(
+                    layout, value_col=value_col, grouping=grouping)
+            except Exception as exc:
+                # Carried back as data rather than raised. An aggregation that
+                # refuses -- "no such column", "this plate is not in the
+                # frame" -- is a sentence for the status line, and it was
+                # written by this screen before the work moved to a thread.
+                # Letting it out as a worker error would relabel it "Plate
+                # view failed: …" and leave the old grid on screen.
+                return {"error": exc}
+            return {"layout": layout, "report": report, "note": filter_note}
+
+        return self._run_job(
+            _job,
+            lambda result: self._draw_plate(result, min_count))
+
+    def _draw_plate(self, result: Dict[str, Any], min_count: int) -> None:
+        """Paint one worker-computed plate layout. GUI thread only."""
+        error = result.get("error")
+        if error is not None:
             self._layout_df = None
             self._report = None
             self._grid.clear()
             self._report_view.setPlainText("")
-            self._set_status(str(e) or e.__class__.__name__, error=True)
+            self._set_status(str(error) or error.__class__.__name__,
+                             error=True)
             self._update_controls()
-            return False
-
+            return
+        layout, report = result["layout"], result["report"]
+        self._filter_note = result["note"]
         self._layout_df = layout
         self._report = report
         spec = COLOUR_SCALES[max(self._scale_combo.currentIndex(), 0)][1]
@@ -929,7 +1009,6 @@ class PlateViewScreen(LinkedView, QWidget):
         self._set_status(message, error=False)
         self._update_controls()
         self.plate_rendered.emit(str(report.plate or ""))
-        return True
 
     def _blank_well_count(self, layout: pd.DataFrame) -> int:
         """Wells on the nominal grid with nothing behind them."""

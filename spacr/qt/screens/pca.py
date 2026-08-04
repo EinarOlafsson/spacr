@@ -134,7 +134,9 @@ class PCAScreen(QWidget):
 
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
-        self.pca = PCAPanel(self, link=link)
+        # The sklearn fit is 1.63 s on a 200 000-row table; the panel
+        # runs it on a worker when the screen does its reads on one.
+        self.pca = PCAPanel(self, link=link, threaded=threaded)
         body.addWidget(self.pca)
 
         self.filters = DataFilterPanel(self, link=link)
@@ -251,12 +253,17 @@ class PCAScreen(QWidget):
             f"could not read {os.path.basename(path)}: {message}")
 
     def active_jobs(self) -> int:
-        """How many worker threads are still winding down."""
-        return self._jobs.active_jobs()
+        """How many worker threads are still winding down.
+
+        The panel's own count is included: the read and the decomposition are
+        two jobs a caller cannot tell apart, and a `waitUntil(active_jobs()
+        == 0)` that stopped at the read would return before the plot exists.
+        """
+        return self._jobs.active_jobs() + self.pca.active_jobs()
 
     def is_busy(self) -> bool:
-        """True while a table read is in flight."""
-        return self._jobs.is_busy()
+        """True while a table read or a decomposition is in flight."""
+        return self._jobs.is_busy() or self.pca.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
         if self._path and name:
@@ -355,7 +362,13 @@ class PCAScreen(QWidget):
         # screen: Qt aborts the process if a running QThread is
         # destroyed, and a worker that delivers into a closed widget
         # is a use-after-free.
+        #
+        # The panel's decomposition too. `close()` on a child widget does not
+        # reliably reach its `closeEvent`, and the panel's runner is the one
+        # holding the long job — leaving it out is exactly the leak this line
+        # exists to prevent.
         self._jobs.shutdown()
+        self.pca._jobs.shutdown()
         try:
             self._link.filter_changed.disconnect(self._on_filter_changed)
         except (RuntimeError, TypeError):

@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
 
 from ..bridge import make_thread, resolve_pipeline_entry
 from ..i18n import tr
+from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets import Card, Divider, InfoLink, Section, UsageBar
 from .settings_model import (
@@ -419,6 +420,18 @@ class AppScreen(QWidget):
         # panel, the strip they describe themselves into belongs to the
         # runtime panel, so the two can only be connected once both exist.
         self._wire_category_hints()
+
+        # Two runners, not one, and the split is deliberate. Both of these are
+        # background work — the usage poll shells out to nvidia-smi, filing an
+        # issue shells out to `gh` and then talks to api.github.com — but they
+        # run on wildly different clocks. `_refresh_usage` skips a tick while
+        # its own sample is still out, so that a machine slow enough to still
+        # be inside nvidia-smi 2 s later does not accumulate a backlog. Share
+        # a runner with the issue report and that guard also swallows every
+        # poll for the up-to-28 s an issue report can take, freezing the usage
+        # bars for the whole of it.
+        self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage")
+        self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
 
         # Timer to poll RAM/GPU/CPU periodically
         self._usage_timer = QTimer(self)
@@ -1738,6 +1751,10 @@ class AppScreen(QWidget):
         # it — previously this only revealed the button, so nothing was ever
         # sent unless the user also clicked. Open the pre-filled report now.
         if enabled:
+            # `_on_file_issue` dispatches and returns; a failure inside the
+            # report itself comes back through `_on_issue_filed`, which prints
+            # the same "[issue] auto-file failed" line. This `except` still
+            # covers the part that stayed synchronous -- reading the widgets.
             try:
                 self._on_file_issue()
             except Exception as e:
@@ -1858,7 +1875,22 @@ class AppScreen(QWidget):
         self.error_explain_requested.emit(self._last_error_text, self.app_key)
 
     def _on_file_issue(self) -> None:
-        """Open a pre-filled GitHub issue for the last captured traceback."""
+        """Open a pre-filled GitHub issue for the last captured traceback.
+
+        The reporting itself runs on a worker thread, and the reason is a
+        number: :func:`spacr.qt.ai.issue_report.file_issue` resolves a GitHub
+        token -- which falls through to ``subprocess.run(["gh", "auth",
+        "token"], timeout=8)`` -- and then POSTs to ``api.github.com`` with
+        ``urlopen(timeout=20)``. Run inline, as this was, the worst case is
+        **28 seconds of a frozen window** with no cursor, no repaint and no
+        way to cancel, in response to a single click. Measured with the
+        event-loop watchdog at 2420 ms against 1.2 s stand-ins for both
+        halves; the timeouts above are what it becomes on a bad network.
+
+        Only the settings snapshot stays here, because reading a widget's
+        value is the one part that *must* happen on the GUI thread. The
+        console line is written when the worker returns.
+        """
         if not self._last_error_text:
             return
         # Best-effort settings snapshot from the current settings model
@@ -1889,13 +1921,36 @@ class AppScreen(QWidget):
         except Exception:
             settings_snapshot = {}
         from ..ai.issue_report import file_issue
-        url = file_issue(self._last_error_text,
-                          active_app=self.app_key,
-                          settings=settings_snapshot)
+        traceback_text = self._last_error_text
+        app_key = self.app_key
+
+        def _file():
+            # The failure is carried back as data rather than raised. The
+            # auto-file path used to wrap this call in `try/except` to print
+            # "[issue] auto-file failed"; once the call is asynchronous that
+            # `except` can no longer see it, and a report that silently fails
+            # to send is worse than one that fails loudly.
+            try:
+                return {"url": file_issue(traceback_text, active_app=app_key,
+                                          settings=settings_snapshot)}
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                return {"error": exc}
+
+        self._console.append_notice(
+            "[issue] building the report and reaching GitHub…\n")
+        self._jobs.submit(_file, self._on_issue_filed)
+
+    def _on_issue_filed(self, outcome: dict) -> None:
+        """Say where the report went, or why it did not. GUI thread only."""
+        error = (outcome or {}).get("error")
+        if error is not None:
+            self._console.append_notice(
+                "[issue] auto-file failed: {detail}\n", detail=error)
+            return
         self._console.append_notice(
             "[issue] opened pre-filled report in your browser — review + "
             "submit to complete filing.\n{url}...\n",
-            url=url[:100],
+            url=str((outcome or {}).get("url") or "")[:100],
         )
 
     def _propagate_live_settings(self, settings: dict) -> None:
@@ -1972,6 +2027,28 @@ class AppScreen(QWidget):
                 return
             self._thread = None
             self._worker = None
+        # Stop polling before shutting the runner down, or the 2 s timer can
+        # start one more job while `shutdown` is draining the last.
+        try:
+            self._usage_timer.stop()
+        except (AttributeError, RuntimeError):
+            pass
+        # The usage poll and the issue report are abandoned rather than waited
+        # for: neither writes anything a half-finished copy of would damage,
+        # and `shutdown` parks any that outlast its budget instead of
+        # terminating them mid-call.
+        for name in ("_usage_jobs", "_jobs"):
+            jobs = getattr(self, name, None)
+            if jobs is not None:
+                try:
+                    jobs.shutdown()
+                except RuntimeError:
+                    pass
+        # The settings panel's own background work goes with the screen. The
+        # exclusion editor reads distinct values off a worker, and it is a
+        # child widget, so navigation destroying the panel never gives it a
+        # close event of its own to shut that down from.
+        self._shutdown_settings_widgets()
         # Clean up the figure queue's temp dir if present.
         fq = getattr(self, "_figure_queue", None)
         if fq is not None:
@@ -1986,6 +2063,29 @@ class AppScreen(QWidget):
             except Exception:
                 pass
         super().closeEvent(event)
+
+    def _shutdown_settings_widgets(self) -> None:
+        """Stop any background work a settings widget owns.
+
+        Only the exclusion editor has any today -- it reads a column's
+        distinct values off a worker thread -- but the rule is stated by
+        capability rather than by class name, so a settings widget that
+        acquires a worker later is covered without this having to be
+        remembered.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) if model is not None else None
+        try:
+            values = list(widgets.values()) if widgets else []
+        except Exception:
+            return
+        for widget in values:
+            shutdown = getattr(widget, "shutdown", None)
+            if callable(shutdown):
+                try:
+                    shutdown()
+                except (RuntimeError, TypeError):
+                    pass
 
     def _on_finished(self, ok: bool):
         from ..button_roles import set_button_busy
@@ -2212,35 +2312,102 @@ class AppScreen(QWidget):
         self._per_core_wrap.setVisible(checked)
 
     def _refresh_usage(self):
-        # RAM
-        try:
-            import psutil
-            self._usage_ram.set_value(psutil.virtual_memory().percent)
-            self._usage_cpu.set_value(psutil.cpu_percent(interval=None))
-            if self._btn_cpu_toggle.isChecked() and self._per_core_bars:
-                per_core = psutil.cpu_percent(interval=None, percpu=True)
-                for bar, pct in zip(self._per_core_bars, per_core):
-                    bar.set_value(pct)
-        except Exception:
-            pass
-        # GPU / VRAM
-        try:
-            import GPUtil
-            gpus = GPUtil.getGPUs()
-            if gpus:
-                gpu = gpus[0]
-                self._usage_gpu.set_value(gpu.load * 100)
-                self._usage_vram.set_value(gpu.memoryUtil * 100)
-            else:
-                self._usage_gpu.set_value(0)
-                self._usage_vram.set_value(0)
-        except Exception:
-            pass
+        """Sample RAM/CPU/GPU on a worker; paint the bars when it returns.
+
+        ``GPUtil.getGPUs()`` spawns ``nvidia-smi`` and waits for it: **25 ms**,
+        measured, every single call. This runs on a 2 s timer and once more
+        during every screen build, so inline it was a guaranteed 25 ms hitch
+        twice a minute per open module and a 25 ms tax on opening one. psutil
+        is 0.13 ms and could have stayed, but sampling everything in one place
+        means one job rather than a split rule about which half is cheap.
+
+        Nothing here touches a widget except the two ``set_value`` calls in
+        :meth:`_apply_usage`, which run on the GUI thread. Overlapping polls
+        are skipped rather than queued -- a machine slow enough to still be
+        inside nvidia-smi 2 s later must not accumulate a backlog of them.
+        """
+        if self._usage_jobs.is_busy():
+            return
+        # Read the toggle here: it is a widget, and the worker may not look
+        # at one.
+        per_core = bool(self._btn_cpu_toggle.isChecked()
+                        and self._per_core_bars)
+        self._usage_jobs.submit(lambda: _sample_usage(per_core),
+                                self._apply_usage)
+
+    def _apply_usage(self, sample: dict) -> None:
+        """Paint one worker-taken usage sample. GUI thread only."""
+        if not sample:
+            return
+        ram = sample.get("ram")
+        if ram is not None:
+            self._usage_ram.set_value(ram)
+        cpu = sample.get("cpu")
+        if cpu is not None:
+            self._usage_cpu.set_value(cpu)
+        for bar, pct in zip(self._per_core_bars, sample.get("per_core") or ()):
+            bar.set_value(pct)
+        gpu = sample.get("gpu")
+        if gpu is not None:
+            self._usage_gpu.set_value(gpu)
+        vram = sample.get("vram")
+        if vram is not None:
+            self._usage_vram.set_value(vram)
+
+    def active_jobs(self) -> int:
+        """How many of this screen's background jobs are still winding down.
+
+        The pipeline run is deliberately not counted: it has its own Stop
+        button, its own console and its own refusal-to-close in
+        :meth:`closeEvent`. This is the housekeeping work -- the usage poll
+        and the issue report -- that a test drives to quiescence.
+        """
+        return self._jobs.active_jobs() + self._usage_jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a background job has not yet delivered its result."""
+        return self._jobs.is_busy() or self._usage_jobs.is_busy()
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _sample_usage(per_core: bool) -> dict:
+    """Read RAM/CPU/GPU utilisation. Runs on a worker thread.
+
+    Module-level and widget-free on purpose: this is the whole of what
+    :meth:`AppScreen._refresh_usage` sends off the GUI thread, so it must be
+    impossible for it to reach a widget. A missing psutil or GPUtil, or a
+    machine with no GPU, leaves that key out rather than failing the sample --
+    the bars keep their last value, which is a truer picture than zero.
+
+    :param per_core: whether the per-core panel is open and wants its own
+        reading. Decided by the caller, on the GUI thread, from the toggle.
+    :returns: a plain dict; every key optional.
+    """
+    sample: dict = {}
+    try:
+        import psutil
+        sample["ram"] = psutil.virtual_memory().percent
+        sample["cpu"] = psutil.cpu_percent(interval=None)
+        if per_core:
+            sample["per_core"] = psutil.cpu_percent(interval=None, percpu=True)
+    except Exception:
+        pass
+    try:
+        import GPUtil
+        gpus = GPUtil.getGPUs()
+        if gpus:
+            sample["gpu"] = gpus[0].load * 100
+            sample["vram"] = gpus[0].memoryUtil * 100
+        else:
+            sample["gpu"] = 0
+            sample["vram"] = 0
+    except Exception:
+        pass
+    return sample
+
 
 def QtGui_QListWidgetItem_helper(fig, idx: int):
     """Build a :class:`QListWidgetItem` with a low-DPI thumbnail render
