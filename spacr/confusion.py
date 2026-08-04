@@ -187,11 +187,17 @@ def object_keys_for(frame: pd.DataFrame,
 
     Duplicates are dropped. They are not assumed away: two rows can
     legitimately share a key — augmented copies of one crop collapse onto the
-    same ``object`` stem, and :func:`spacr.selection.object_keys` is not
-    injective when an identity component contains the key separator — so
-    :func:`key_collisions` says how many rows the grid will be short of the
-    count the matrix showed, rather than leaving that to be discovered by
-    counting tiles.
+    same ``object`` stem — so :func:`key_collisions` says how many rows the
+    grid will be short of the count the matrix showed, rather than leaving
+    that to be discovered by counting tiles.
+
+    Two sources of duplication have since been removed from underneath this,
+    and both were silent: :func:`spacr.selection.object_keys` was not
+    injective when an identity component contained the key separator (it now
+    escapes one), and it carried no object type, so a nucleus 1 and a
+    pathogen 1 in one field were one key. What is left here is the
+    augmentation case, which is real and belongs to the training set rather
+    than to the key.
     """
     _values, unique = _key_values(frame, column)
     return pd.Index(unique, dtype=object)
@@ -205,6 +211,11 @@ def key_collisions(frame: pd.DataFrame,
     hold fewer objects than the confusion cell counted, and the difference is
     this number — worth saying on screen rather than leaving as an unexplained
     discrepancy between a matrix and a grid.
+
+    A bundle whose ``object_key`` column carries the object type
+    (:data:`spacr.selection.OBJECT_TYPE_COLUMN`) no longer counts a cell's
+    nucleus and its pathogen as one object here, because they are no longer
+    one key.
     """
     values, unique = _key_values(frame, column)
     return len(values) - len(unique)
