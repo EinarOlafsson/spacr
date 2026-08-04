@@ -86,7 +86,8 @@ from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
 from ..bridge import make_thread
-from ..theme import (SPACING, active_palette, pane_surface,
+from ..theme import (RADIUS, SPACING, active_palette,
+                     ensure_widget_qss_applied, pane_surface,
                      register_widget_qss)
 from ..widgets import Divider
 
@@ -167,8 +168,15 @@ def _coerce(raw: str) -> Any:
 MODEL_PANEL_NAME = "ModelComparePanel"
 
 
+#: The two result tables and the two mask canvases. Named so the block
+#: below can reach them; the canvases used to carry an inline stylesheet
+#: instead, which is what made them black.
+RESULT_TABLE_NAME = "ModelCompareTable"
+PREVIEW_NAME = "ModelComparePreview"
+
+
 def _model_panel_qss(palette: dict, opacity) -> str:
-    """Give Model A and Model B a real panel, at the page opacity.
+    """Give every container on this page a real panel, at the page opacity.
 
     The shipped ``QGroupBox`` rule is ``background: transparent`` — right
     for a group box nested inside a card that already has a surface, wrong
@@ -176,6 +184,26 @@ def _model_panel_qss(palette: dict, opacity) -> str:
     fill they read as bare dark areas: a border drawn around a hole. This
     gives them the same rounded translucent surface every other panel in
     the application has, so the page-opacity slider moves them too.
+
+    Two more regions on the same page were black for two more reasons.
+
+    The **mask canvases** carried ``setStyleSheet("background: " +
+    active_palette()["bg"])`` — raw hex, and the WINDOW colour rather than
+    a surface, so they were opaque by construction and no slider position
+    could touch them. They measured 0.23 of the backdrop against a panel's
+    0.70. They are a rule here now, through :func:`pane_surface`. A
+    rendered comparison still paints an opaque ``QPixmap`` on top: the
+    preference reaches the container, never the picture.
+
+    The **result tables** had no fill at all — they measured 1.000, the
+    backdrop arriving untouched. The shipped ``QTableWidget`` rule does
+    give them ``surface_alt``, but ``clear_container_surfaces`` tags every
+    ``QAbstractScrollArea`` transparent by type, and a ``QTableWidget`` is
+    one. That is right for a table sitting ON a panel — Control Chart's
+    ``ControlChartLevels`` is one, and it shows the column through — and
+    wrong for a table that IS the container, which is what these two are.
+    An ID selector outranks the ``*[spacrTransparent="true"]`` attribute
+    rule, so naming them is enough to give them their surface back.
     """
     surface = pane_surface("surface_alt", palette["theme"], opacity)
     return f"""
@@ -187,6 +215,16 @@ QGroupBox#{MODEL_PANEL_NAME} {{
 QGroupBox#{MODEL_PANEL_NAME}::title {{
     background: transparent;
     color: {palette["fg_muted"]};
+}}
+QTableWidget#{RESULT_TABLE_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+}}
+QLabel#{PREVIEW_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
 }}
 """
 
@@ -329,6 +367,13 @@ class ModelCompareScreen(QWidget):
         self._pending: List[tuple] = []
         self.last_error: str = ""
 
+        # `app.py` imports this module inside the branch that builds the
+        # screen, which is long after the launch stylesheet was generated —
+        # so the block registered above is not in the sheet that is live and
+        # the panels open bare. That is why the fix measured correct in a
+        # test and was still black in the running app.
+        ensure_widget_qss_applied(MODEL_PANEL_NAME)
+
         self._build_ui()
         from ..dnd import install_dropzone
         from ..dnd_handlers import get_handler
@@ -461,7 +506,11 @@ class ModelCompareScreen(QWidget):
         canvas.setAlignment(Qt.AlignCenter)
         canvas.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        canvas.setStyleSheet(f"background: {active_palette()['bg']};")
+        # No inline stylesheet: it used to be
+        # `background: {active_palette()["bg"]}`, raw hex and the window
+        # colour, which is opaque by construction. The panel is a rule now
+        # (see `_model_panel_qss`), reached by this name.
+        canvas.setObjectName(PREVIEW_NAME)
         layout.addWidget(canvas, 1)
         parent.addWidget(holder)
         return canvas, caption
@@ -469,6 +518,12 @@ class ModelCompareScreen(QWidget):
     @staticmethod
     def _prepare_table(table: QTableWidget) -> None:
         """Common read-only look for every result table."""
+        # These two tables ARE the containers on this half of the page —
+        # nothing else is under them — so they keep a surface where a table
+        # sitting on a panel would show it through. The name is what the
+        # registered block reaches, and what outranks the transparent tag
+        # `clear_container_surfaces` puts on every scroll area.
+        table.setObjectName(RESULT_TABLE_NAME)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setAlternatingRowColors(True)
         table.verticalHeader().setVisible(False)
