@@ -6,7 +6,12 @@ measured here rather than described:
 * the animation is to the RIGHT of the text, not above or below it;
 * the text starts level with the TOP of the animation, not centred on it;
 * the text column is exactly as WIDE as the square animation;
-* and a preference turns the animation off entirely.
+* and none of it happens until it is asked for.
+
+Animations are off by default, so every geometry test here goes through
+:func:`_reveal` — a hover followed by a click on the footer's **Animation**
+word — which makes each of them a measurement of the reveal as well as of
+the layout.
 
 The zoom that makes the animation worth showing at this size is measured in
 ``test_setting_animation_zoom.py``; the end-to-end check that the frames
@@ -74,12 +79,27 @@ def _anchor(qtbot, key: str = ANIMATED_KEY) -> QLabel:
     return label
 
 
+def _reveal(tooltip, anchor, html: str = HTML):
+    """Hover, then click **Animation** — the only way to see one now.
+
+    Animations are off by default. Every geometry test below therefore goes
+    through the reveal, which makes each of them a test of the reveal too:
+    the measured layout is what the click actually produces, not what the
+    widget could produce if something else had switched it on.
+    """
+    tooltip.show_for(anchor, html)
+    assert not tooltip.animation_view().isVisible(), (
+        "the animation was already showing; the reveal proves nothing")
+    tooltip.animation_link().clicked.emit()
+    return tooltip
+
+
 # ---------------------------------------------------------------------------
 # The four layout requirements
 # ---------------------------------------------------------------------------
 
 def test_the_animation_sits_to_the_right_of_the_text(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
 
     text = tooltip.text_label()
     view = tooltip.animation_view()
@@ -101,7 +121,7 @@ def test_the_text_box_starts_level_with_the_top_of_the_animation(
     """
     from PySide6.QtCore import QPoint
 
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
 
     text = tooltip.text_label()
     view = tooltip.animation_view()
@@ -123,7 +143,7 @@ def test_the_first_line_of_prose_is_at_the_top_of_the_square(tooltip, qtbot):
     with its own default ``AlignVCenter`` still in force — top-aligned by
     geometry, centred to the eye. So this measures the rendered pixels.
     """
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     view = tooltip.animation_view()
     painted = az.from_qimage(tooltip.grab().toImage())
 
@@ -140,7 +160,13 @@ def test_the_first_line_of_prose_is_at_the_top_of_the_square(tooltip, qtbot):
 
 
 def test_the_text_column_is_exactly_as_wide_as_the_animation(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    """Short help gets the neat pair of equal columns.
+
+    The ladder in ``TEXT_WIDTH_STEPS`` starts at the square's own width and
+    only leaves it when the prose would not fit inside the square's HEIGHT,
+    so this is the case the "same width as the square" requirement names.
+    """
+    _reveal(tooltip, _anchor(qtbot), "<b>Cell diameter</b><br>Short.")
 
     text = tooltip.text_label()
     view = tooltip.animation_view()
@@ -148,8 +174,46 @@ def test_the_text_column_is_exactly_as_wide_as_the_animation(tooltip, qtbot):
     assert view.width() == view.height(), "the animation box is not square"
 
 
-def test_the_preference_off_removes_the_animation(tooltip, qtbot):
-    prefs.set_setting_animations_enabled(False)
+def test_the_square_stays_220_however_wide_the_prose_makes_the_column(
+        tooltip, qtbot):
+    """The square never moves; only the text column widens under it."""
+    _reveal(tooltip, _anchor(qtbot))
+
+    view = tooltip.animation_view()
+    assert view.width() == view.height() == HoverTooltip.ANIMATION_SIZE
+    column = tooltip.text_column()
+    assert column.width() in HoverTooltip.TEXT_WIDTH_STEPS
+    assert column.height() == HoverTooltip.ANIMATION_SIZE
+
+
+def test_the_first_hover_of_a_session_measures_its_prose_in_the_right_font(
+        tooltip, qtbot):
+    """A regression found while making animations opt-in.
+
+    ``_apply_theme`` sets the prose font in the popup's stylesheet, and an
+    unpolished ``QLabel`` answers ``heightForWidth`` in the application font
+    instead — 119 px where the truth was 250. The first hover of the session
+    therefore chose the narrowest column and pinned the label to half the
+    height its text needed, clipping the help; every hover after it measured
+    correctly. So the same anchor is hovered twice and the two geometries
+    must agree.
+    """
+    anchor = _anchor(qtbot)
+    _reveal(tooltip, anchor)
+    first = (tooltip.text_column().width(), tooltip.text_label().height())
+
+    tooltip.show_for(anchor, HTML)
+    assert (tooltip.text_column().width(),
+            tooltip.text_label().height()) == first, (
+        f"the first hover laid out at {first} and the second at "
+        f"{(tooltip.text_column().width(), tooltip.text_label().height())}")
+    label = tooltip.text_label()
+    assert label.height() >= label.heightForWidth(label.width()), (
+        "the prose is pinned shorter than it needs and is being clipped")
+
+
+def test_a_plain_hover_leaves_the_animation_out(tooltip, qtbot):
+    """The default, and the whole point of the change."""
     tooltip.show_for(_anchor(qtbot), HTML)
 
     view = tooltip.animation_view()
@@ -157,7 +221,7 @@ def test_the_preference_off_removes_the_animation(tooltip, qtbot):
     assert not view.isVisible()
     assert view.frame_count() == 0, "frames were decoded for a hidden panel"
     assert not view.is_playing()
-    # And the text is no longer squeezed into half a popup.
+    # And the text is not squeezed into half a popup it does not need.
     assert tooltip.text_label().maximumWidth() == HoverTooltip.TEXT_WIDTH
 
 
@@ -165,9 +229,16 @@ def test_the_preference_off_removes_the_animation(tooltip, qtbot):
 # The preference, in use
 # ---------------------------------------------------------------------------
 
-def test_the_preference_defaults_to_on():
-    assert prefs.DEFAULT_SETTING_ANIMATIONS is True
-    assert prefs.get_setting_animations_enabled() is True
+def test_the_preference_defaults_to_off_like_the_tooltip():
+    """One default, in two places, agreeing.
+
+    The preference means "show animations WITHOUT asking" now, so it and the
+    tooltip's own default have to say the same thing or the user has two
+    switches that disagree.
+    """
+    assert prefs.DEFAULT_SETTING_ANIMATIONS is False
+    assert prefs.get_setting_animations_enabled() is False
+    assert HoverTooltip().animations_shown() is False
 
 
 def test_the_preference_is_read_on_every_hover(tooltip, qtbot):
@@ -178,15 +249,37 @@ def test_the_preference_is_read_on_every_hover(tooltip, qtbot):
     """
     anchor = _anchor(qtbot)
     tooltip.show_for(anchor, HTML)
+    assert tooltip.animation() is None
+
+    prefs.set_setting_animations_enabled(True)
+    tooltip.show_for(anchor, HTML)
     assert tooltip.animation() is not None
 
     prefs.set_setting_animations_enabled(False)
     tooltip.show_for(anchor, HTML)
     assert tooltip.animation() is None
 
+
+def test_the_preference_overrules_a_session_reveal(tooltip, qtbot):
+    """Preferences has the last word, or the two switches disagree.
+
+    Reveal by clicking, then turn the preference ON and OFF again: without
+    the session override being dropped when the preference changes, the
+    click would keep animations on for ever and the dialog could never take
+    them away.
+    """
+    anchor = _anchor(qtbot)
+    _reveal(tooltip, anchor)
+    assert tooltip.animations_shown() is True
+
     prefs.set_setting_animations_enabled(True)
+    assert tooltip.animations_shown() is True
+    prefs.set_setting_animations_enabled(False)
+    assert tooltip.animations_shown() is False
+
     tooltip.show_for(anchor, HTML)
-    assert tooltip.animation() is not None
+    assert tooltip.animation() is None
+    assert not tooltip.animation_view().isVisible()
 
 
 def test_the_preference_survives_a_round_trip():
@@ -225,7 +318,7 @@ def test_the_frames_on_screen_are_the_zoomed_ones(tooltip, qtbot):
     one closes the loop by measuring what the widget put on screen, so a
     later refactor cannot leave the zoom working and the widget bypassing it.
     """
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     view = tooltip.animation_view()
     pixmap = view.pixmap()
     assert not pixmap.isNull()
@@ -240,7 +333,7 @@ def test_the_frames_on_screen_are_the_zoomed_ones(tooltip, qtbot):
 
 
 def test_the_animation_plays_and_stops_with_the_popup(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     view = tooltip.animation_view()
     assert view.frame_count() > 1
     assert view.is_playing()
@@ -256,10 +349,11 @@ def test_the_animation_plays_and_stops_with_the_popup(tooltip, qtbot):
 def test_re_hovering_the_same_setting_does_not_restart_the_animation(
         tooltip, qtbot):
     anchor = _anchor(qtbot)
-    tooltip.show_for(anchor, HTML)
+    _reveal(tooltip, anchor)
     view = tooltip.animation_view()
     first = view.slug()
     frames = view.frame_count()
+    assert frames > 1
 
     tooltip.show_for(anchor, HTML)
     assert view.slug() == first
@@ -313,7 +407,14 @@ def test_a_real_decorated_settings_form_gets_the_animation(tooltip, qtbot):
     install_api_tooltips(owner, "mask")
 
     assert label.property("settingKey") == ANIMATED_KEY
-    tooltip.show_for(label, str(label.property("apiTooltipHtml")))
+    html = str(label.property("apiTooltipHtml"))
+    tooltip.show_for(label, html)
+    # The animation is known but not shown, so the word is there to click.
+    assert tooltip.animation() is None
+    assert tooltip.offered_animation() is not None
+    assert tooltip.animation_link().isVisible()
+
+    tooltip.animation_link().clicked.emit()
     assert tooltip.animation() is not None
     assert tooltip.animation().slug == ANIMATED_KEY
     assert tooltip.animation_view().isVisible()
@@ -369,19 +470,19 @@ def test_a_dead_anchor_does_not_take_the_event_loop_down(tooltip, qtbot):
 
 def test_the_text_wraps_to_the_narrow_column_without_clipping(tooltip, qtbot):
     """A 220-pixel column makes the popup tall; it must not truncate."""
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     text = tooltip.text_label()
     assert text.height() >= text.heightForWidth(HoverTooltip.ANIMATION_SIZE)
     assert tooltip.height() >= tooltip.animation_view().height()
 
 
 def test_the_popup_is_wide_enough_for_both_columns(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     assert tooltip.width() >= 2 * HoverTooltip.ANIMATION_SIZE
 
 
 def test_frames_are_real_pictures_not_blank(tooltip, qtbot):
     """A black square would satisfy every geometric assertion above."""
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     frame = az.from_qimage(tooltip.animation_view().pixmap().toImage())
     assert np.count_nonzero(frame) > 0
