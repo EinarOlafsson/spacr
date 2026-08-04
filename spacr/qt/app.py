@@ -256,11 +256,13 @@ _PLUGIN_SECTION_MAP = {
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
 #:
-#: Raised from 9 to 13 by #16i and kept there. Nine was the width of the
-#: Core pipeline and nothing more; a cap that is exactly the size of the
-#: biggest section is a cap that fires on the next app added rather than
-#: when a section stops being readable.
-MAX_APPS_PER_SECTION = 13
+#: Raised 9 -> 13 -> 20. Nine was the width of the Core pipeline and
+#: nothing more; a cap exactly the size of the biggest section fires on the
+#: next app added rather than when a section stops being readable. Twenty
+#: was set on request once the registry passed fifty apps: at that size the
+#: sections that fill up are the ones doing real work, and splitting Explore
+#: into two half-named tabs would have been worse than a longer row.
+MAX_APPS_PER_SECTION = 20
 
 #: **The** app list — ``(key, name, description, section)`` per app, in
 #: section order. Every consumer in the process reads this one object:
@@ -592,12 +594,11 @@ def register_app(key: str, name: str, desc: str, section: str, *,
     # by splitting the section, and refusing to start the app would not
     # help anyone do that. The suite fails on it; this makes a late
     # registration (a plugin, a lazily-imported module) visible too.
-    count = sum(1 for r in APPS if r[3] == section)
-    if count > MAX_APPS_PER_SECTION:
-        LOG.warning(
-            "Section %r now holds %d apps, over the %d cap — split it "
-            "rather than letting the row grow past what anyone reads.",
-            section, count, MAX_APPS_PER_SECTION)
+    # The warning this used to log is gone by request. It fired on every
+    # registration past the cap, once per app, so a full section produced a
+    # stream of identical lines at launch -- and it told the reader nothing
+    # the suite does not already assert. The cap itself still stands and
+    # tests/qt/test_cov_qt_app.py still enforces it.
     return row
 
 

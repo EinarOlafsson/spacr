@@ -179,6 +179,12 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
+    # Both were finished and tested but deliberately unregistered while
+    # Explore sat at the old cap; `baa704fc` switched them on once it did
+    # not, and this ledger was the last thing still describing them as
+    # absent.
+    "pca":             SECTION_EXPLORE,
+    "tabulate":        SECTION_EXPLORE,
     "mask":            SECTION_CORE,
     "timelapse":       SECTION_CORE,
     "motility":        SECTION_CORE,
@@ -356,11 +362,16 @@ def test_no_section_holds_more_than_the_cap():
     Nine was the width of the Core pipeline and nothing more, so it
     would have fired on the next Core app rather than when a row stopped
     being readable. #16i raised it to thirteen for a staging section
-    that no longer exists; the number stays, because thirteen is still
-    about where a row stops being scannable and nine was never about
-    anything but a coincidence."""
+    that no longer exists.
+
+    Twenty was set on request once the registry passed fifty apps. The
+    argument for thirteen was that a longer row stops being scannable,
+    and that is still true -- but the sections that actually fill up are
+    the ones doing real work, and splitting Explore into two half-named
+    tabs to satisfy a number would have been worse than the long row it
+    avoided."""
     counts = _counts()
-    assert MAX_APPS_PER_SECTION == 13
+    assert MAX_APPS_PER_SECTION == 20
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
     assert not over, (
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "
