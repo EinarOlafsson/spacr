@@ -213,19 +213,29 @@ DELIBERATE_SHARED_ARTWORK = {
     frozenset({"Cellpose Masks", "Train Cellpose"}),
 }
 
-#: Apps no icon has been drawn for. They fall back to the same generated
-#: placeholder, so ANY subset of them can come out identical — which
-#: subset depends on what has re-inked the icon cache, so pinning one
-#: exact grouping here would be pinning test order.
-#:
-#: Recorded as debt rather than allowed away: they are alpha, and
-#: artwork is part of signing an app off. External Masks has been in
-#: this state alone since it shipped and only became visible when three
-#: more landed beside it — which is what a "no two apps by ACCIDENT"
-#: test is for.
-APPS_WITHOUT_ARTWORK = {
-    "External Masks", "Illumination", "Barcode QC", "Layer Viewer",
-}
+def apps_without_artwork():
+    """Display names of every app with no icon file and no override.
+
+    Derived from the resource directory rather than typed out. These
+    apps fall back to a generated placeholder, so ANY subset of them can
+    come out pixel-identical — which subset depends on what has re-inked
+    the icon cache before this test runs, so a pinned grouping here
+    would be a pinned test order.
+
+    It is an allowance, not an approval: drawing an icon is part of
+    signing an app off, and an app that gains one leaves this set on its
+    own. External Masks sat in it alone since it shipped, invisible to
+    this test until three more apps landed beside it — which is exactly
+    what a "no two apps by ACCIDENT" test is for.
+    """
+    import os
+    from spacr.qt import iconset
+    from spacr.qt.app import _ICON_OVERRIDES
+
+    return {name for key, name, *_rest in APPS
+            if key not in _ICON_OVERRIDES
+            and not os.path.isfile(
+                os.path.join(iconset.RESOURCE_DIR, f"{key}.png"))}
 
 
 def test_no_two_apps_render_the_same_picture_by_accident(qapp):
@@ -247,8 +257,10 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
     assert DELIBERATE_SHARED_ARTWORK <= shared, (
         f"a documented borrowing stopped happening: "
         f"{DELIBERATE_SHARED_ARTWORK - shared}")
+    placeholders = apps_without_artwork()
+    assert placeholders, "every app has artwork now — delete this allowance"
     for group in shared - DELIBERATE_SHARED_ARTWORK:
-        assert group <= APPS_WITHOUT_ARTWORK, (
+        assert group <= placeholders, (
             f"{sorted(group)} draw the same picture and nothing says why. "
             f"Either give one of them its own icon, or record the "
             f"borrowing in _ICON_OVERRIDES and here.")
