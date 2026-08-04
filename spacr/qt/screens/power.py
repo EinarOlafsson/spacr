@@ -1372,10 +1372,18 @@ _SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
         "curve sweeps it."),
     "power_wells_per_plate": (
         384, int,
-        "(int) - Wells per plate: 96, 384 or 1536. Total wells is this times "
-        "power_n_plates."),
+        "(int) - Wells per plate: 96, 384 or 1536. With the plate count it "
+        "sets the total number of wells, and raising it buys replication "
+        "rather than cells - a 1536 plate holds four times the wells of a 384 "
+        "at the same imaging cost per well, so power rises while cells per "
+        "well stays where you set it."),
     "power_n_plates": (
-        4, int, "(int) - Plates in the screen. 4 x 384 in the real screen."),
+        4, int,
+        "(int) - Plates in the screen; four 384-well plates in the real one. "
+        "This is the cheapest axis to move: another plate is another full set "
+        "of wells, and because plate is a random effect in the model it also "
+        "buys a better estimate of plate-to-plate variance rather than "
+        "confounding with it."),
     "power_constructs_per_well": (
         4.6, float,
         "(float) - Mean library constructs spotted into each well. The knob "
