@@ -75,7 +75,7 @@ import os
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -1002,6 +1002,12 @@ class HomePage(QWidget):
     #: Emitted when the page wants the window to run its update check.
     update_check_requested = Signal()
 
+    #: Declared on the class so a paint that arrives mid-construction —
+    #: a nested layout activation delivers one on some styles — finds an
+    #: answer instead of an ``AttributeError``. ``AppScreen`` learned the
+    #: same lesson; see its backdrop-state block.
+    _ambient = None
+
     #: The tile, at 100 % font scale. One size for every tab, and read
     #: from :mod:`spacr.qt.theme` rather than written here, because the
     #: stylesheet needs the same numbers — see
@@ -1116,6 +1122,61 @@ class HomePage(QWidget):
         #: one page in the app that is flat.
         self._ambient = None
         self._install_ambient()
+
+        # And unconditionally, whatever happened above — the same
+        # correction the module screens already carry. This used to run
+        # only inside the successful-install arm, on the reasoning that a
+        # page with nothing behind it should stay opaque; that reasoning
+        # is what left Home a solid `bg` slab for anyone with the ambient
+        # preference off or the Animation preference set to `none`. There
+        # is never nothing behind it: `paintEvent` paints the page, which
+        # is what these containers are supposed to be showing.
+        # `clear_container_surfaces` is idempotent, so the call inside
+        # `_install_ambient` stays where it is for its own ordering
+        # reasons and this one costs a second pass over the tree.
+        self._clear_page_surfaces()
+
+    # -- the page itself -----------------------------------------------
+    def page_fill(self):
+        """The flat colour Home paints itself, or ``None``.
+
+        The same rule, and the same reasoning, as
+        :meth:`spacr.qt.screens.app_screen.AppScreen.page_fill`: with an
+        animation installed the animation is the page, with an image
+        theme the window's wallpaper is, and otherwise it is this — a
+        real colour rather than the ``bg`` slab that no page-opacity
+        setting can reach.
+
+        Never raises.
+        """
+        if self._ambient is not None:
+            return None
+        try:
+            from ..preferences import resolve_effective_theme
+            from ..theme import IMAGE_THEMES, page_colour
+            theme = resolve_effective_theme()
+            if theme in IMAGE_THEMES:
+                return None
+            return QColor(page_colour(theme))
+        except Exception:
+            return None
+
+    def paintEvent(self, event) -> None:
+        """Paint the page under everything Home lays out.
+
+        Does not chain to ``super()`` when it fills: the base
+        implementation is what draws the stylesheet background, and that
+        background is the slab being replaced.
+        """
+        colour = self.page_fill()
+        if colour is None:
+            super().paintEvent(event)
+            return
+        painter = QPainter(self)
+        try:
+            painter.fillRect(self.rect(), colour)
+        finally:
+            painter.end()
 
     # -- ambient backdrop ----------------------------------------------
     def _install_ambient(self) -> None:
