@@ -31,6 +31,15 @@ import matplotlib.pyplot as plt
 
 import spacr.object as O
 
+from tests.cellpose_api_contract import (
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -62,16 +71,38 @@ def fake_model(monkeypatch):
     holder = {"model": None, "n_objects": 2}
 
     class _M:
-        def __init__(self, gpu=None, pretrained_model=None, device=None, **kwargs):
+        """``CellposeModel`` double declaring the installed 4.0.7 signature.
+
+        Neither method takes ``**kwargs``: ``generate_cellpose_masks_sam`` is a
+        real call site, so an argument cellpose 4 removed has to raise
+        ``TypeError`` here rather than vanish into a catch-all.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                     diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
             self.gpu = gpu
             self.pretrained_model = pretrained_model
             self.device = device
+            self.init_kwargs = init_arguments(locals())
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
             self.eval_kwargs = []
+            self.eval_configured = []
             self.eval_inputs = []
             holder["model"] = self
 
-        def eval(self, x=None, **kwargs):
-            self.eval_kwargs.append(kwargs)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
+            self.eval_kwargs.append(eval_arguments(locals()))
+            self.eval_configured.append(configured_eval_arguments(locals()))
             imgs = [np.asarray(im) for im in x]
             self.eval_inputs.append(imgs)
             masks, flows = [], []
@@ -84,7 +115,12 @@ def fake_model(monkeypatch):
                     m[12:18, 12:18] = 2
                 masks.append(m)
                 flows.append(np.zeros((h, w), dtype=np.float32))
-            return masks, flows, None, None
+            # THREE values. This used to return four -- the cellpose 3 shape.
+            # The installed 4.0.7 returns (masks, flows, styles) on both of its
+            # return paths, so a four-value double would bless a
+            # ``masks, flows, styles, diams = model.eval(...)`` unpack that
+            # raises ValueError on every real run.
+            return masks, flows, None
 
     monkeypatch.setattr(O, "cp_models", types.SimpleNamespace(CellposeModel=_M))
     return holder
