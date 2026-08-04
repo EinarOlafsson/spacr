@@ -144,6 +144,12 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "sp_stats",
     "sim",
     "object",
+    # Image I/O against the two standards a lab is most likely to already be
+    # keeping plates in. Both sit behind optional extras, so importing either
+    # without its dependency names the `pip install "spacr[...]"` that fixes
+    # it rather than raising six frames deep.
+    "ome_zarr",
+    "omero",
     "cli",
     "cli_database",
     # Whole-installation diagnosis behind `spacr-doctor`.
