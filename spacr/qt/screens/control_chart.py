@@ -57,6 +57,10 @@ from ..theme import (RADIUS, SPACING, active_palette, pane_surface,
 #: The control column's object name, and what the QSS block below keys off.
 CONTROLS_OBJECT = "ControlChartControls"
 
+#: The column under the chart — the report and the violations table. It is
+#: the third of the page's three regions and the one that had no panel.
+OUTPUT_OBJECT = "ControlChartOutput"
+
 
 def _control_chart_qss(palette: dict, opacity=None) -> str:
     """This screen's QSS block, appended to every generated stylesheet.
@@ -66,10 +70,25 @@ def _control_chart_qss(palette: dict, opacity=None) -> str:
     -- the WINDOW colour, not a surface, which no page-opacity setting can
     reach. It is a page surface now, the same one the Graph Builder's and
     the Trellis's shelves take.
+
+    The output column under the chart was the region left over. It was an
+    ANONYMOUS ``QWidget``, so ``clear_container_surfaces`` tagged it
+    transparent as scaffolding -- and the report and the violations table
+    inside it are both ``QAbstractScrollArea``, which that sweep tags by
+    type as well. Three transparent things stacked: the whole lower right
+    of the page measured 1.000, the backdrop arriving untouched, which
+    over a dark window is the black rectangle that was reported.
+
+    The panel goes on the column rather than on the two widgets, which is
+    the treatment Classifier Evaluation's and Run History's tab panes
+    take: the container is the surface, and a read-only display sitting on
+    it shows it through instead of painting an opaque rectangle over the
+    thing that was just made translucent.
     """
+    surface = pane_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
-QWidget#{CONTROLS_OBJECT} {{
-    background: {pane_surface("surface_alt", palette.get("theme"), opacity)};
+QWidget#{CONTROLS_OBJECT}, QWidget#{OUTPUT_OBJECT} {{
+    background: {surface};
     border-radius: {RADIUS["md"]}px;
 }}
 """
@@ -92,6 +111,7 @@ from ..widgets.control_chart import (
     zprime_chart,
 )
 from .graph_builder import read_table, table_names
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.control_chart")
 
@@ -303,9 +323,14 @@ class ControlChartScreen(QWidget):
         head = QHBoxLayout()
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
-        title = QLabel("Control Charts", self)
-        title.setObjectName("ScreenTitle")
-        head.addWidget(title)
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, name the plate column and the "
+                        "measurement, then read the chart.",
+        )
+        self._header = header
+        head.addWidget(header)
 
         self._source = QLabel("no table loaded", self)
         self._source.setObjectName("ControlChartSourceLabel")
@@ -342,8 +367,14 @@ class ControlChartScreen(QWidget):
         right.addWidget(self.canvas)
 
         lower = QWidget(self)
+        # Named, so it is a panel rather than scaffolding the container
+        # sweep tags transparent -- see `_control_chart_qss`.
+        lower.setObjectName(OUTPUT_OBJECT)
         lower_layout = QVBoxLayout(lower)
-        lower_layout.setContentsMargins(0, 0, 0, 0)
+        # Room for the column's own rounded surface around the report and
+        # the violations table, which show it through.
+        lower_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                        SPACING["sm"], SPACING["sm"])
         lower_layout.setSpacing(SPACING["xs"])
         self.report = QPlainTextEdit(lower)
         self.report.setObjectName("ControlChartReport")

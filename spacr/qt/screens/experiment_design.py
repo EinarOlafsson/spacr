@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 
 from ..job_runner import JobRunner
 from ..theme import SPACING, register_widget_qss
+from .app_screen import ModuleHeader
 from ...schema import letters_from_row_index
 from ..widgets.plate_layout import (
     EDGE_LEAVE_EMPTY, EDGE_USE, LAYOUTS, PLATE_FORMATS, ROLES,
@@ -175,6 +176,15 @@ class ExperimentDesignScreen(QWidget):
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
         outer.setSpacing(SPACING["md"])
+
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Name the plate, choose the format, lay the "
+                        "conditions out, then export the map.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         intro = QLabel(APP_INTRO)
         intro.setWordWrap(True)

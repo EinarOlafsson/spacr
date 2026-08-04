@@ -56,6 +56,7 @@ from ...methods_export import (build_digest, render_methods, render_prompt,
                                render_results)
 from ..job_runner import JobRunner
 from ..theme import SPACING, pane_surface, register_widget_qss
+from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "MethodsExportScreen", "make_methods_export_screen",
            "register"]
@@ -194,16 +195,15 @@ class MethodsExportScreen(QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel(APP_NAME)
-        title.setObjectName("ScreenTitle")
-        outer.addWidget(title)
-
-        subtitle = QLabel(
-            "The two paragraphs of the paper that are pure transcription, "
-            "written from the run rather than from memory.")
-        subtitle.setObjectName("Muted")
-        subtitle.setWordWrap(True)
-        outer.addWidget(subtitle)
+        header = ModuleHeader(
+            APP_NAME,
+            description="The two paragraphs of the paper that are pure "
+                        "transcription, written from the run rather than"
+                        "from memory.",
+            instruction="Choose a run folder, then draft and export.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         sources = QFrame()
         sources.setObjectName("MethodsExportSources")

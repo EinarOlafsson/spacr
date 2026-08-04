@@ -45,6 +45,7 @@ from PySide6.QtWidgets import (
 from ... import data_manager as dm
 from ...ports import ALL_KINDS
 from ..theme import SPACING, font_px, pane_surface, register_widget_qss
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
 
@@ -255,9 +256,13 @@ class DataManagerScreen(QWidget):
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
 
-        title = QLabel("Data Manager", self)
-        title.setObjectName("ScreenTitle")
-        head.addWidget(title)
+        header = ModuleHeader(
+            "Data Manager",
+            description="What is on disk for this project, and what it cost",
+            instruction="Choose a project, then rescan to remeasure it.",
+        )
+        self._header = header
+        head.addWidget(header)
 
         self.project_label = QLabel(self._root or "no project chosen", self)
         self.project_label.setObjectName("DataManagerProject")

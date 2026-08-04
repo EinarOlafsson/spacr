@@ -54,6 +54,7 @@ from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.pca_view import PCAPanel
 from .graph_builder import read_table, table_names
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.pca")
 
@@ -96,9 +97,14 @@ class PCAScreen(QWidget):
         head = QHBoxLayout()
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
-        title = QLabel("PCA", self)
-        title.setObjectName("ScreenTitle")
-        head.addWidget(title)
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, tick the features to decompose, then "
+                        "read the scree plot.",
+        )
+        self._header = header
+        head.addWidget(header)
 
         self._source = QLabel("no table loaded", self)
         self._source.setObjectName("PCASourceLabel")

@@ -102,6 +102,7 @@ from ..widgets.power_design import (
     simulator_kwargs,
     wells_grid,
 )
+from .app_screen import ModuleHeader
 
 __all__ = [
     "APP_KEY",
@@ -599,6 +600,15 @@ class PowerScreen(QWidget):
         root.setContentsMargins(SPACING["md"], SPACING["md"],
                                 SPACING["md"], SPACING["md"])
         root.setSpacing(SPACING["sm"])
+
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Describe the library and the effect you want to "
+                        "catch; the curves say how many wells.",
+        )
+        self._header = header
+        root.addWidget(header)
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(self._build_form())
