@@ -242,7 +242,11 @@ def test_a_drop_zone_only_takes_a_column_payload(qtbot):
     zone = DropZone("x")
     qtbot.addWidget(zone)
     text_only = QMimeData()
-    text_only.setText("/home/someone/a-file.tif")
+    # A file dragged in from a file manager. Under /tmp rather than under a
+    # home directory: it is never touched on disk, and
+    # `test_no_user_home_paths_in_the_suite` cannot tell a decorative path
+    # from a precondition that only exists on one machine.
+    text_only.setText("/tmp/a-file.tif")
     zone.dropEvent(QDropEvent(QPointF(1, 1), Qt.CopyAction, text_only,
                               Qt.LeftButton, Qt.NoModifier))
     assert zone.column is None
