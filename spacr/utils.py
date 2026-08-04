@@ -7556,6 +7556,8 @@ def preprocess_data(
     batch_column="plateID",
     batch_control_column=None,
     batch_control_values=None,
+    batch_covariate_column=None,
+    batch_combat_mean_only=False,
     batch_min_samples=3,
     batch_missing_control="error",
 ):
@@ -7570,10 +7572,16 @@ def preprocess_data(
     :param exclude: features to exclude from filtering.
     :param column_list: optional explicit column subset applied before selecting numeric columns.
     :param batch_correction: ``none``, ``center``, ``zscore``,
-        ``robust_zscore`` or ``control_center``.
+        ``robust_zscore``, ``control_center`` or ``combat``.
     :param batch_column: metadata column identifying acquisition batches.
     :param batch_control_column: metadata column selecting reference controls.
     :param batch_control_values: reference value(s) for ``control_center``.
+    :param batch_covariate_column: metadata column(s) naming the biology
+        ``combat`` must preserve. Required by ``combat``, ignored by every
+        other method — and left blank, ``combat`` refuses to run rather than
+        removing the contrast along with the plate effect.
+    :param batch_combat_mean_only: correct only ``combat``'s additive shift
+        and leave each batch's scale alone.
     :param batch_min_samples: minimum rows/reference controls per batch.
     :param batch_missing_control: ``error`` or ``skip`` when a batch lacks
         enough controls.
@@ -7665,6 +7673,8 @@ def preprocess_data(
             batch_column=batch_column,
             batch_control_column=batch_control_column,
             batch_control_values=batch_control_values,
+            batch_covariate_column=batch_covariate_column,
+            batch_combat_mean_only=batch_combat_mean_only,
             batch_min_samples=batch_min_samples,
             batch_missing_control=batch_missing_control,
         )
