@@ -44,7 +44,8 @@ from PySide6.QtWidgets import (
 
 from ... import data_manager as dm
 from ...ports import ALL_KINDS
-from ..theme import SPACING, font_px, pane_surface, register_widget_qss
+from ..theme import (SPACING, block_surface, font_px,
+                     register_widget_qss)
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
@@ -78,7 +79,7 @@ def _data_manager_qss(palette: dict, opacity) -> str:
     the shipped stylesheet — a screen that restyles tables is a screen that
     stops following the theme.
     """
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QFrame#DataManagerTotals {{
     background: {surface};

@@ -3048,8 +3048,8 @@ def _alphabet_qss(palette: dict, opacity) -> str:
     does the work, so the control still reads on a monochrome display and for
     a red-green colour-blind reader choosing red and green channels.
     """
-    from ..theme import pane_surface
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    from ..theme import block_surface
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QToolButton#SettingAlphabetChip {{
     background: {surface};

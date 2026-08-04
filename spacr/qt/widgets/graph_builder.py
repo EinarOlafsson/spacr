@@ -1414,8 +1414,8 @@ class GraphBuilderPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _graph_builder_qss(palette, opacity) -> str:
-    from ..theme import pane_surface
-    surface_alt = pane_surface("surface_alt", palette["theme"], opacity)
+    from ..theme import block_surface
+    surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QWidget#GraphShelf, QWidget#TrellisShelf {{
     background: {surface_alt};

@@ -59,7 +59,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import (RADIUS, SPACING, pane_surface, register_widget_qss)
+from ..theme import (RADIUS, SPACING, block_surface, register_widget_qss)
 
 #: The control column's object name, and what the QSS block below keys off.
 CONTROLS_OBJECT = "OutlierControls"
@@ -77,7 +77,7 @@ def _outliers_qss(palette: dict, opacity=None) -> str:
     """
     return f"""
 QWidget#{CONTROLS_OBJECT} {{
-    background: {pane_surface("surface_alt", palette.get("theme"), opacity)};
+    background: {block_surface("surface_alt", palette.get("theme"), opacity)};
     border-radius: {RADIUS["md"]}px;
 }}
 """

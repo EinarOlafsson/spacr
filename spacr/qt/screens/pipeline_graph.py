@@ -73,8 +73,8 @@ from ...pipeline_graph import (STATE_CURRENT, STATE_MISSING, STATE_STALE,
                                PipelineGraph, build_graph, stale_summary,
                                to_dot)
 from ..job_runner import JobRunner
-from ..theme import (SPACING, active_palette, mark_surface, pane_surface,
-                     register_widget_qss)
+from ..theme import (SPACING, active_palette, block_surface,
+                     mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "GraphCanvas", "PipelineGraphScreen", "layout_rects",
@@ -151,7 +151,7 @@ def _graph_qss(palette: dict, opacity) -> str:
     surface every other pane on the screen sits on — a graph floating on the
     window background reads as a dialog that failed to draw.
     """
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QScrollArea#PipelineGraphCanvasArea {{
     background: {surface};

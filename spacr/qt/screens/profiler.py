@@ -69,8 +69,8 @@ from PySide6.QtWidgets import (
 from ...profiler import (LINKS, Profile, from_coefficients, profile,
                          response_scale, sensitivity)
 from ..job_runner import JobRunner
-from ..theme import (SPACING, active_palette, mark_surface, pane_surface,
-                     register_widget_qss)
+from ..theme import (SPACING, active_palette, block_surface,
+                     mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
@@ -136,7 +136,7 @@ SLIDER_STEPS = 200
 
 def _profiler_qss(palette: dict, opacity) -> str:
     """QSS for the plot frame and the held-value panel."""
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QFrame#ProfilerPlot {{
     background: {surface};

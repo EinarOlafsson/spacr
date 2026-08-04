@@ -621,8 +621,8 @@ def _bar_qss(palette: dict, opacity) -> str:
     The Recipes button is the same fault and lives in
     :mod:`spacr.qt.recipes`, which styles it there.
     """
-    from .theme import font_px, pane_surface
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    from .theme import block_surface, font_px
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QWidget#{PANE_NAME}, QWidget#{BAR_NAME},
 QLabel#{MODIFIED_NAME}Label, QCheckBox#{MODIFIED_NAME} {{

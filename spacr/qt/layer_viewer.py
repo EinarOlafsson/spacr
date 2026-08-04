@@ -95,8 +95,8 @@ def _layer_viewer_qss(palette: Dict[str, Any], opacity) -> str:
     opaque on top of the panel in :meth:`LayerCanvas.paintEvent`, and the
     preference was never meant to reach the pictures themselves.
     """
-    from .theme import pane_surface
-    canvas_bg = pane_surface("surface", palette.get("theme"), opacity)
+    from .theme import block_surface
+    canvas_bg = block_surface("surface", palette.get("theme"), opacity)
     return f"""
 QWidget#LayerViewer {{
     background: transparent;

@@ -61,7 +61,7 @@ from PySide6.QtWidgets import (
 
 from ...hits import FLAG_MEANING, HitList, build_hit_list
 from ..job_runner import JobRunner
-from ..theme import (SPACING, mark_surface, pane_surface,
+from ..theme import (SPACING, block_surface, mark_surface,
                      register_widget_qss)
 from .app_screen import ModuleHeader
 
@@ -126,7 +126,7 @@ def _hit_list_qss(palette: dict, opacity) -> str:
     the page opacity, and a screen that restyles them is a screen that stops
     following the theme.
     """
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QFrame#HitListFilters {{
     background: {surface};
