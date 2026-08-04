@@ -503,6 +503,20 @@ class ProfilerScreen(QWidget):
         if model is None:                             # pragma: no cover
             self._set_status("The model could not be read.", problem=True)
             return
+        # A live fitted object carries its own link and applies it inside
+        # predict(); the combo would be a control that changes nothing, which
+        # is worse than no control. It is only meaningful for a model
+        # rebuilt from a coefficient table, where the link is genuinely
+        # unknown and has to be supplied.
+        from ...profiler import FittedLinear
+
+        rebuilt = isinstance(model, FittedLinear)
+        self._link.setEnabled(rebuilt)
+        self._link.setToolTip(
+            self._link.toolTip() if rebuilt else
+            f"This model carries its own link, applied on the "
+            f"{response_scale(model)} scale. The setting only applies to a "
+            f"model rebuilt from a written-out coefficient table.")
         design = self.design()
         if design.empty:
             self._set_status("That model has no inputs to profile.",
