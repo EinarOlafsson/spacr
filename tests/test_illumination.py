@@ -1120,3 +1120,130 @@ def test_describe_says_what_the_field_is_and_where_it_came_from(tmp_path):
     assert 'polynomial degree 4 over 12 field(s)' in text
     assert model.meta['src'] == [os.path.abspath(merged)]
     assert model.field_for('plate1').nonuniformity()[0] > 0.1
+
+
+# ---------------------------------------------------------------------------
+# The pipeline call: measure_crop installs the correction itself (item 4.1b)
+# ---------------------------------------------------------------------------
+# Everything above proves the correction works once something has called
+# `prepare_illumination_correction`. Nothing did. `illumination_correction`
+# was a setting the GUI showed, the CLI accepted and the docs described, and
+# the only effect of turning it on was that a run took the same length of
+# time and produced the same biased numbers.
+
+def test_measure_crop_prepares_the_correction_before_it_measures(
+        tmp_path, monkeypatch):
+    """The call, at the point in ``measure_crop`` where it has to be.
+
+    Two things have to be true and only one of them is "it is called":
+    the settings it is handed must already have ``src`` pointed at the
+    *merged* folder (the estimate reads the same fields the run
+    measures, and the raw plate folder holds no ``.npy`` at all), and it
+    must happen before the worker pool is built, because installing the
+    hook is what writes the env vars a spawned worker reads.
+    """
+    from spacr import measure as measure_mod
+    from spacr.settings import get_measure_crop_settings
+
+    seen = {}
+
+    def spy(settings, **kwargs):
+        seen['src'] = settings['src']
+        seen['before_pool'] = 'pool' not in seen
+        return None
+
+    monkeypatch.setattr(ill, 'prepare_illumination_correction', spy)
+
+    def no_pool(*args, **kwargs):
+        seen['pool'] = True
+        raise RuntimeError('stop here')
+
+    # `_start_manager` is the last thing measure_crop does before it opens
+    # the worker pool, so failing it puts the boundary exactly where the
+    # ordering claim is.
+    monkeypatch.setattr(measure_mod, '_start_manager', no_pool)
+
+    plate = tmp_path / 'plate'
+    merged = plate / 'merged'
+    os.makedirs(merged)
+    truth = quadratic_vignette((64, 64))
+    write_plate(merged, truth, n_fields=2, n_objects=2, radius=5)
+
+    settings = get_measure_crop_settings(settings={})
+    settings.update({
+        # The plate folder, NOT the merged one: measure_crop appends
+        # /merged itself, and the call has to sit after that or the
+        # estimate looks for fields in a folder that has none.
+        'src': str(plate), 'channels': [0, 1],
+        'cell_mask_dim': 2, 'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4,
+        'illumination_correction': True,
+        'save_measurements': False, 'save_png': False, 'save_arrays': False,
+        'plot': False, 'verbose': False, 'timelapse': False,
+        'crop_mode': ['cell'], 'normalize': [1, 99], 'normalize_by': 'png',
+        'experiment': 'exp', 'n_jobs': 1, 'test_mode': False,
+    })
+    try:
+        measure_mod.measure_crop(settings)
+    except Exception:
+        # The run is stopped at the pool on purpose; what is under test
+        # is everything that happened before it.
+        pass
+
+    assert seen.get('src'), (
+        "measure_crop never called prepare_illumination_correction, so "
+        "illumination_correction=True does nothing at all")
+    assert os.path.basename(seen['src']) == 'merged', (
+        f"the correction was pointed at {seen['src']!r}, which holds no "
+        f"merged fields to estimate from")
+    assert seen.get('before_pool') is True, (
+        "the correction was installed after the worker pool was built, so "
+        "no spawned worker inherits it")
+
+
+def test_measure_crop_leaves_an_uncorrected_run_alone(tmp_path, monkeypatch):
+    """Off by default: the call is made, and it does nothing.
+
+    The guard lives in `prepare_illumination_correction` rather than at
+    the call site, so this asserts the real function -- not a spy -- is
+    reached and returns None without touching the hook registry.
+    """
+    from spacr import measure as measure_mod
+    from spacr.settings import get_measure_crop_settings
+
+    before = dict(mh.preprocessing_hooks())
+    calls = []
+    real = ill.prepare_illumination_correction
+
+    def watched(settings, **kwargs):
+        calls.append(settings.get('illumination_correction'))
+        return real(settings, **kwargs)
+
+    monkeypatch.setattr(ill, 'prepare_illumination_correction', watched)
+    monkeypatch.setattr(measure_mod, '_start_manager',
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            RuntimeError('stop here')))
+
+    plate = tmp_path / 'plate'
+    merged = plate / 'merged'
+    os.makedirs(merged)
+    write_plate(merged, quadratic_vignette((64, 64)), n_fields=2,
+                n_objects=2, radius=5)
+
+    settings = get_measure_crop_settings(settings={})
+    settings.update({
+        'src': str(plate), 'channels': [0, 1],
+        'cell_mask_dim': 2, 'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4,
+        'save_measurements': False, 'save_png': False, 'save_arrays': False,
+        'plot': False, 'verbose': False, 'timelapse': False,
+        'crop_mode': ['cell'], 'normalize': [1, 99], 'normalize_by': 'png',
+        'experiment': 'exp', 'n_jobs': 1, 'test_mode': False,
+    })
+    try:
+        measure_mod.measure_crop(settings)
+    except Exception:
+        pass
+
+    assert calls and not calls[0], "the default is no longer 'off'"
+    assert dict(mh.preprocessing_hooks()) == before, (
+        "a run with illumination_correction off installed a hook anyway")
+    assert not os.path.isdir(plate / 'illumination')

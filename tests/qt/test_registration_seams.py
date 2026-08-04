@@ -98,16 +98,22 @@ def test_the_built_in_table_is_registered_through_the_same_door():
 
 
 def test_sections_are_the_ones_that_have_apps_not_the_ones_declared():
-    """`SECTION_ORDER` declares seven; `SECTIONS` publishes the live five.
+    """`SECTION_ORDER` declares seven; `SECTIONS` publishes the live six.
 
     An empty section is a tab that opens on an empty pane, which
     ``test_no_category_tab_is_empty`` forbids -- so a new section is
     named today and appears the day its first app registers. That is
     what lets a module claim one without editing app.py.
+
+    Explore is the proof rather than the hypothetical it used to be: it
+    was declared and empty here until Layer Viewer and Graph Builder
+    registered into it from their own modules, and it now has a tab.
+    Design is still declared and still empty, which is the state this
+    test was written to describe.
     """
     assert app_mod.SECTION_EXPLORE in app_mod.SECTION_ORDER
     assert app_mod.SECTION_DESIGN in app_mod.SECTION_ORDER
-    assert app_mod.SECTION_EXPLORE not in app_mod.SECTIONS
+    assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
     assert app_mod.SECTION_DESIGN not in app_mod.SECTIONS
     assert set(app_mod.SECTIONS) == {row[3] for row in app_mod.APPS}
     # Every declared section has its note written now, so the first app
@@ -137,17 +143,19 @@ def test_an_importer_of_sections_cannot_hold_a_stale_snapshot(
     from spacr.qt.app import SECTIONS as imported_earlier
 
     assert imported_earlier is app_mod.SECTIONS
-    assert app_mod.SECTION_EXPLORE not in imported_earlier
+    # Design is the section nothing has claimed yet, so it is the one
+    # that can still be made to appear from nothing inside a test.
+    assert app_mod.SECTION_DESIGN not in imported_earlier
 
     app_mod.register_app("stale_probe", "Stale Probe", "…",
-                         app_mod.SECTION_EXPLORE)
+                         app_mod.SECTION_DESIGN)
 
     # The name that was imported BEFORE the registration sees it.
-    assert app_mod.SECTION_EXPLORE in imported_earlier
+    assert app_mod.SECTION_DESIGN in imported_earlier
     assert list(imported_earlier) == list(app_mod.SECTIONS)
 
     app_mod.unregister_app("stale_probe")
-    assert app_mod.SECTION_EXPLORE not in imported_earlier
+    assert app_mod.SECTION_DESIGN not in imported_earlier
 
 
 def test_a_registered_app_reaches_every_reader_of_the_registry(
@@ -205,32 +213,33 @@ def test_a_registered_app_is_drawn_on_home_and_in_the_sidebar(
 
 def test_claiming_an_empty_section_makes_it_appear_with_its_note(
         qtbot, qt_theme_applied, registry_sandbox):
-    """The first Explore app is what gives Explore a tab.
+    """The first app of an empty section is what gives it a tab.
 
-    This is the whole point of the two new sections: seven new modules
+    This is the whole point of the two extra sections: seven new modules
     would take Results & QC past `MAX_APPS_PER_SECTION`, and the fix is
     a section with a name that means something -- registered into, not
-    edited in.
+    edited in. Explore has since been claimed for real, by Layer Viewer
+    and Graph Builder, so Design is the empty one this now demonstrates
+    on; the mechanism is the same one Explore went through.
     """
-    assert app_mod.SECTION_EXPLORE not in app_mod.SECTIONS
+    empty = app_mod.SECTION_DESIGN
+    assert empty not in app_mod.SECTIONS
 
-    app_mod.register_app("graph_builder_probe", "Graph Builder",
-                         "Drag columns onto x / y / colour / facet",
-                         app_mod.SECTION_EXPLORE)
+    app_mod.register_app("power_probe", "Power Calculator",
+                         "How many wells this effect size needs", empty)
 
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
-    assert (app_mod.SECTION_NOTES[app_mod.SECTION_EXPLORE]
-            == app_mod._SECTION_NOTE_LIBRARY[app_mod.SECTION_EXPLORE])
+    assert empty in app_mod.SECTIONS
+    assert (app_mod.SECTION_NOTES[empty]
+            == app_mod._SECTION_NOTE_LIBRARY[empty])
     assert set(app_mod.SECTION_NOTES) == set(app_mod.SECTIONS)
 
     page = app_mod.make_home_page()
     qtbot.addWidget(page)
     labels = [page._tabs.tabText(i) for i in range(page._tabs.count())]
-    assert any(lbl.startswith(app_mod.SECTION_EXPLORE) for lbl in labels)
+    assert any(lbl.startswith(empty) for lbl in labels)
     # The tab carries its own note, which is why the note is written when
     # the section is named rather than when it fills up.
-    assert any(app_mod._SECTION_NOTE_LIBRARY[app_mod.SECTION_EXPLORE]
-               in lbl.text()
+    assert any(app_mod._SECTION_NOTE_LIBRARY[empty] in lbl.text()
                for lbl in page.findChildren(QLabel))
 
 
@@ -601,3 +610,316 @@ def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,
         assert (pixel.red(), pixel.green(), pixel.blue()) == (255, 0, 255)
     finally:
         qapp.setStyleSheet(previous)
+
+
+# ---------------------------------------------------------------------------
+# Part C — the side tables a registration has to reach
+# ---------------------------------------------------------------------------
+# A row in `APPS` draws a tile. It does not give the tile a header, a
+# blurb, an API link, a translated name, an answer to `spacr-run <key>`
+# or a Run button that runs anything: those lived in six tables in five
+# other files, and four finished, tested features sat unreachable for
+# weeks because their authors could not edit those files. `register_app`
+# now takes those strings once and fans them out. These are the tests
+# that say so — against the shipped tables, not against APP_META.
+
+#: The four features item 0.7 was written to make reachable, with what
+#: each one is: `entry` for the ones with a headless pipeline function,
+#: `factory` for the ones that are their own screen. Every app must be
+#: one or the other -- an app with neither has a Run button that says
+#: "Not runnable" and no screen of its own to explain why.
+WIRED_IN = {
+    "illumination": "entry",
+    "barcode_qc": "entry",
+    "layer_viewer": "factory",
+    "graph_builder": "factory",
+}
+
+
+@pytest.mark.parametrize("key", sorted(WIRED_IN))
+def test_the_waiting_feature_is_in_the_registry_under_a_live_section(key):
+    """It has a row, and that row is filed somewhere with a tab."""
+    rows = [row for row in app_mod.APPS if row[0] == key]
+    assert len(rows) == 1, f"{key} is registered {len(rows)} times"
+    _key, name, desc, section = rows[0]
+    assert name.strip() and desc.strip()
+    assert section in app_mod.SECTIONS, (
+        f"{key} is filed under {section!r}, which has no tab")
+    assert app_mod.section_members(section), f"{section} draws an empty tab"
+    # ...and it is reachable from the two derived views the UI draws from.
+    assert key in dict(app_mod.home_categories())[section]
+    bands = {s: [r[0] for r in rows_] for s, rows_ in app_mod.home_bands()}
+    assert key in bands[section]
+
+
+@pytest.mark.parametrize("key", sorted(WIRED_IN))
+def test_the_waiting_feature_has_a_header_and_an_intro(key):
+    """The screen tables, which used to need a hand-edit per app."""
+    from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
+
+    assert APP_TITLES.get(key, "").strip(), (
+        f"{key} has no header in app_screen.APP_TITLES, so its screen is "
+        f"titled with its raw app key")
+    intro = APP_INTROS.get(key, "")
+    assert len(intro) > 40, (
+        f"{key}'s intro is too short to tell anyone what the module does: "
+        f"{intro!r}")
+
+
+@pytest.mark.parametrize("key", sorted(WIRED_IN))
+def test_the_waiting_feature_is_translated_into_every_ui_language(key):
+    """`test_i18n` walks APPS and requires this; here it is per app."""
+    from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
+
+    name = {row[0]: row[1] for row in app_mod.APPS}[key]
+    for code in VALID_LANGUAGE_CODES:
+        if code == "en":
+            continue
+        assert CATALOGS[code].get(name, "").strip(), (
+            f"{key} ({name!r}) has no {code} translation, so its sidebar "
+            f"row is English in a Korean window")
+
+
+@pytest.mark.parametrize("key", sorted(WIRED_IN))
+def test_the_waiting_feature_links_to_its_own_api_page(key):
+    """An unknown key lands on the generated API index instead."""
+    from spacr.qt.screens.settings_model import _APP_API_MODULE, api_docs_url
+
+    assert key in _APP_API_MODULE, f"{key} has no API doc module"
+    url = api_docs_url(key)
+    assert url.endswith("index.html") and "/spacr/" in url
+    assert _APP_API_MODULE[key] in url
+
+
+@pytest.mark.parametrize("key", sorted(WIRED_IN))
+def test_the_waiting_feature_answers_spacr_run(key):
+    """Headless-runnable or declared GUI-only, with a sentence saying so.
+
+    `tests/test_app_registry_parity.py` asserts this across the whole
+    registry; the point of repeating it here is the failure message, and
+    that these four are the ones the item was about.
+    """
+    from spacr import cli
+
+    if WIRED_IN[key] == "entry":
+        assert key in cli.MODULES, (
+            f"{key} has a pipeline entry point, so `spacr-run {key}` has to "
+            f"work; it answers 'unknown module'")
+        assert key not in cli.INTERACTIVE_ONLY
+    else:
+        assert key in cli.INTERACTIVE_ONLY, (
+            f"{key} has no headless path and does not say so, so "
+            f"`spacr-run {key}` answers 'unknown module' and the user "
+            f"concludes they typed it wrong")
+        assert len(cli.INTERACTIVE_ONLY[key]) >= 40
+
+
+@pytest.mark.parametrize("key", sorted(k for k, v in WIRED_IN.items()
+                                       if v == "entry"))
+def test_the_run_button_resolves_to_something_runnable(key):
+    """The measured symptom: Run said "Not runnable" for all of these.
+
+    `AppScreen._on_run` calls `resolve_pipeline_entry` and shows the
+    "Not runnable" box when it returns None, so this is the assertion
+    that the button does something -- and it resolves the real callable,
+    through the real bridge, not a stand-in.
+    """
+    from spacr.qt.bridge import resolve_pipeline_entry
+
+    entry = resolve_pipeline_entry(key)
+    assert entry is not None and callable(entry), (
+        f"the {key} Run button reports 'Not runnable'")
+    # The registries have to name the SAME function, or the app is
+    # validated against one callable and runs another.
+    from spacr import cli
+    from spacr.validate import APP_FUNCTIONS
+
+    inner = getattr(entry, "__wrapped__", entry)
+    assert inner.__name__ == cli.MODULES[key].func_name
+    assert APP_FUNCTIONS[key].rsplit(".", 1)[-1] == inner.__name__
+
+
+@pytest.mark.parametrize("key", sorted(k for k, v in WIRED_IN.items()
+                                       if v == "factory"))
+def test_the_screen_owning_app_builds_its_own_screen(qtbot, qt_theme_applied,
+                                                     key):
+    """The other half: an app with no Run button has a screen instead."""
+    from PySide6.QtWidgets import QWidget
+
+    factory = app_mod.registered_factory(key)
+    assert factory is not None, f"{key} registered no screen factory"
+    widget = app_mod._call_screen_factory(factory, key)
+    qtbot.addWidget(widget)
+    assert isinstance(widget, QWidget)
+
+
+@pytest.mark.parametrize("key", sorted(WIRED_IN))
+def test_the_waiting_feature_has_a_settings_panel_or_a_screen(key):
+    """A generic AppScreen with no defaults opens on an empty form.
+
+    Illumination and Barcode QC register their settings at their own
+    module's import, which the process drawing the panel has no reason
+    to have done -- `register_app(..., defaults_module=...)` is what
+    closes that, and this is the assertion that it did.
+    """
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    if WIRED_IN[key] == "factory":
+        pytest.skip(f"{key} builds its own screen, not a settings form")
+    settings = resolve_default_settings(key)
+    assert isinstance(settings, dict) and settings, (
+        f"the {key} screen would open on an empty settings form")
+
+
+def test_a_registration_reaches_every_side_table_in_one_call(registry_sandbox):
+    """The seam itself: one call, six tables, no hand-edits.
+
+    This is the property item 0.7 exists for. Everything above asserts
+    it for the four apps that were waiting; this asserts it for an app
+    that did not exist when any of those tables were written, which is
+    the only way to know the seam works rather than that somebody typed
+    six entries correctly.
+    """
+    from spacr import cli
+    from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
+    from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
+    from spacr.qt.screens.settings_model import _APP_API_MODULE
+
+    key = "fanout_probe"
+    assert key not in APP_TITLES and key not in cli.INTERACTIVE_ONLY
+
+    app_mod.register_app(
+        key, "Fanout Probe", "One call, every table",
+        app_mod.SECTION_RESULTS, stage=app_mod.STAGE_ALPHA,
+        title="Fanout Probe (header)", intro="What the module does, at length.",
+        cli_note="Fanout Probe is interactive; run it in the GUI (spacr-qt).",
+        api_module="qt/fanout_probe",
+        translations=("a", "b", "c", "d", "e", "f", "g", "h", "i"))
+    try:
+        assert APP_TITLES[key] == "Fanout Probe (header)"
+        assert APP_INTROS[key] == "What the module does, at length."
+        assert cli.INTERACTIVE_ONLY[key].startswith("Fanout Probe")
+        assert _APP_API_MODULE[key] == "qt/fanout_probe"
+        for code in VALID_LANGUAGE_CODES:
+            if code != "en":
+                assert CATALOGS[code]["Fanout Probe"]
+    finally:
+        app_mod.unregister_app(key)
+
+    # ...and unregistering takes them back out again, or a plugin that
+    # unloads leaves a GUI-only excuse behind for an app that is gone.
+    assert key not in APP_TITLES
+    assert key not in APP_INTROS
+    assert key not in cli.INTERACTIVE_ONLY
+    assert key not in _APP_API_MODULE
+
+
+def test_title_and_intro_fall_back_to_the_name_and_the_description(
+        registry_sandbox):
+    """The minimum registration still yields a titled, described screen.
+
+    Four strings are the price of a working app, not eight: an app that
+    says nothing more than its row gets a header and a blurb anyway.
+    """
+    from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
+
+    app_mod.register_app("minimal_probe", "Minimal Probe",
+                         "The one-line description", app_mod.SECTION_RESULTS)
+    try:
+        assert APP_TITLES["minimal_probe"] == "Minimal Probe"
+        assert APP_INTROS["minimal_probe"] == "The one-line description"
+    finally:
+        app_mod.unregister_app("minimal_probe")
+
+
+def test_a_registered_entry_is_spelled_module_colon_function(registry_sandbox):
+    """A typo in the entry has to name itself, not resolve to None.
+
+    `resolve_pipeline_entry` swallows exceptions and returns None, which
+    is the right behaviour for a broken pipeline import and exactly the
+    wrong one for a malformed registration: the app would silently be
+    "Not runnable" forever.
+    """
+    app_mod.register_app("entry_probe", "Entry Probe", "…",
+                         app_mod.SECTION_RESULTS,
+                         entry="spacr.illumination.illumination_settings")
+    with pytest.raises(ValueError, match="module:function"):
+        app_mod.registered_entry("entry_probe")
+
+    app_mod.unregister_app("entry_probe")
+    app_mod.register_app("entry_probe", "Entry Probe", "…",
+                         app_mod.SECTION_RESULTS,
+                         entry="spacr.illumination:illumination_settings")
+    from spacr.illumination import illumination_settings
+    assert app_mod.registered_entry("entry_probe") is illumination_settings
+    # No entry at all is not an error -- it is what an app with its own
+    # screen and no headless path looks like.
+    assert app_mod.registered_entry("annotate") is None
+
+
+def test_an_earlier_import_of_sections_sees_the_four_new_apps():
+    """`from spacr.qt.app import SECTIONS` cannot go stale.
+
+    Graph Builder and Layer Viewer are the first apps of the Explore
+    section, and they register from their own modules, after `app.py`
+    has finished importing. While `SECTIONS` was a tuple that
+    `_refresh_sections` rebound, every module holding the name -- and
+    `tests/qt/test_home_layout.py`, which takes it at collection --
+    kept a snapshot from before that, and Explore never appeared.
+    """
+    from spacr.qt.app import SECTIONS as imported_here
+
+    assert imported_here is app_mod.SECTIONS
+    assert app_mod.SECTION_EXPLORE in imported_here
+    assert {row[3] for row in app_mod.APPS} <= set(imported_here)
+
+
+def test_the_empty_state_names_this_screens_own_demo():
+    """It said "use Demos → Mask demo…" on every screen.
+
+    Measure, Timelapse, Classify and Sequencing each pointed the user at
+    a dataset that opens a DIFFERENT module, so following the hint left
+    the screen the user was trying to fill exactly as empty.
+    """
+    assert app_mod.demo_label_for_app("mask") == "Mask demo…"
+    assert app_mod.demo_label_for_app("measure") == "Measure demo…"
+    assert app_mod.demo_label_for_app("timelapse") == "Timelapse demo…"
+    # The classify demo lands on Annotate (it generates crops to label),
+    # so that is where its hint belongs -- not on the Classify screen.
+    assert app_mod.demo_label_for_app("annotate") == "Classify demo…"
+    assert app_mod.demo_label_for_app("map_barcodes") == "Sequencing demo…"
+    # ...and an app with no demo says nothing rather than naming one.
+    assert app_mod.demo_label_for_app("regression") is None
+    assert app_mod.demo_label_for_app("barcode_qc") is None
+    # Every demo the menu offers reaches an app that exists.
+    keys = {row[0] for row in app_mod.APPS}
+    for demo_key in app_mod.DEMO_LABELS:
+        target = app_mod.MainWindow.DEMO_TARGETS[demo_key][0]
+        assert target in keys, f"the {demo_key} demo opens a missing app"
+
+
+@pytest.mark.parametrize("app_key,expected", [
+    ("measure", "Measure demo…"),
+    ("timelapse", "Timelapse demo…"),
+    # No demo lands on Image UMAP, so its banner must not name one --
+    # this is the case that used to read "use Demos → Mask demo…".
+    ("umap", None),
+])
+def test_the_empty_state_banner_offers_the_right_demo(
+        qtbot, qt_theme_applied, app_key, expected):
+    """Through the shipped banner, not the lookup it calls."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen(app_key)
+    qtbot.addWidget(screen)
+    banner = screen._build_empty_state_banner()
+    if banner is None:
+        pytest.skip(f"{app_key} has no src field to leave empty")
+    text = " ".join(lbl.text() for lbl in banner.findChildren(QLabel))
+    if expected is None:
+        assert "demo…" not in text, (
+            f"{app_key} has no demo but the banner names one: {text!r}")
+        assert "Demos menu" in text
+    else:
+        assert expected in text, (
+            f"the {app_key} banner offers the wrong demo: {text!r}")

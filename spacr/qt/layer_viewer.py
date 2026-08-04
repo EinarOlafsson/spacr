@@ -803,33 +803,59 @@ def make_layer_viewer_screen(**_kwargs) -> LayerViewer:
     return LayerViewer()
 
 
+#: Display name, one-line description and the header copy the shipped
+#: ``AppScreen`` tables want, written here beside the screen so that wiring
+#: the app in is one call rather than five strings invented in five files.
+#: :func:`spacr.qt.app.register_app` fans them out.
+APP_NAME = "Layer Viewer"
+APP_DESCRIPTION = "Images, masks, points and ROIs as separate layers in one world"
+APP_INTRO = (
+    "One world, many layers: an image channel, the label mask over it, the "
+    "points and the shapes, each with its own colormap, opacity, blending "
+    "and visibility, reordered by dragging. Picking an object here selects "
+    "the same object in every other open view, and vice versa.")
+#: What ``spacr.cli.INTERACTIVE_ONLY`` wants: why this app has no headless
+#: run, and what to do instead.
+APP_CLI_NOTE = (
+    "Layer Viewer is an interactive image viewer — the layer stack, the "
+    "blending and the picking are the whole feature; run it in the GUI "
+    "(spacr-qt). Headless, build a spacr.layers stack from Python instead.")
+
+
 def register_layer_viewer_app(*, section: Optional[str] = None,
                               stage: Optional[str] = None,
                               key: str = LAYER_VIEWER_APP_KEY):
-    """Put the viewer in the app registry, through the public seam.
+    """Put the viewer in the app registry, through the public seam. Idempotent.
 
-    NOT called at import time, deliberately. ``spacr.qt.app.APPS`` is only the
-    front of a registration: the suite additionally requires the key to appear
-    in ``cli.INTERACTIVE_ONLY``, ``settings_model._APP_API_MODULE``,
-    ``app_screen.APP_TITLES`` and ``APP_INTROS``, the nine ``i18n._ROWS``
-    translations of the display name, the six home-variant category tables in
-    ``spacr/resources/home/versions/_generators/common.py``, the app count in
-    ``docs/source/index.rst``, and the ``EXPECTED_SECTIONS`` / ``EXPECTED_STAGES``
-    ledgers in ``tests/qt/test_cov_qt_app.py`` — files owned by other parts of
-    the tree. Registering here and not there would leave the suite red for
-    everyone.
+    Called at import from the bottom of :mod:`spacr.qt.app`, which is the
+    only place a registration is visible to everybody — see
+    ``_SELF_REGISTERING_APPS`` there for why it cannot be called at the top
+    of this module.
 
-    So the wiring is finished and one call away: this function is the call,
-    and it is exercised by ``tests/qt/test_layer_viewer.py`` in a sandbox that
-    puts the registry back. Make those entries, call this at import from
-    :mod:`spacr.qt.layer_viewer`, and the viewer appears in the sidebar.
+    Everything after ``section`` is a table this key used to need a
+    hand-edit in: the screen header and blurb, the "no headless run"
+    sentence, the API doc link, and the display name in nine languages.
+    :func:`spacr.qt.app.register_app` distributes them; this function only
+    has to know them.
 
-    :returns: the registry row that was added.
+    :returns: the registry row that was added, or ``None`` when the key was
+        already registered. Safe to call twice: this module is reachable
+        from three import paths and a duplicate key would otherwise raise.
     """
-    from .app import SECTION_RESULTS, STAGE_ALPHA, register_app
+    from .app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
+    if any(row[0] == key for row in APPS):
+        return None
     return register_app(
-        key, "Layer Viewer",
-        "Images, masks, points and ROIs as separate layers in one world",
-        section or SECTION_RESULTS,
+        key, APP_NAME, APP_DESCRIPTION,
+        # Explore, not Results & QC: "page through image layers" is the
+        # example in that section's own definition. Results & QC is what a
+        # finished run produced; this is asking the images a question.
+        section or SECTION_EXPLORE,
         factory=make_layer_viewer_screen,
-        stage=STAGE_ALPHA if stage is None else stage)
+        stage=STAGE_ALPHA if stage is None else stage,
+        intro=APP_INTRO,
+        cli_note=APP_CLI_NOTE,
+        api_module="qt/layer_viewer",
+        translations=("Lagervisare", "Ebenenansicht", "Visor de capas",
+                      "图层查看器", "Visualizador de camadas", "लेयर व्यूअर",
+                      "레이어 뷰어", "Lagaskoðari", "Visionneuse de calques"))
