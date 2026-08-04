@@ -106,6 +106,24 @@ def test_spacr_toggle_command_swallows_exceptions(tk_root):
     t.toggle()
     tk_root.update_idletasks()
 
+    # Survived: the widget is still alive and the state change went through
+    # even though the callback blew up after it.
+    assert t.winfo_exists()
+    assert t._canvas.winfo_exists()
+    assert t.get() is True
+    assert t._canvas.itemcget(t._track, "fill").lower() == t.active_color.lower()
+
+    # Still usable: a WORKING command registered afterwards fires. This is
+    # the contrast case — it proves the swallow above hid an exception rather
+    # than skipping the callback machinery altogether.
+    fired = []
+    t.command = lambda: fired.append(1)
+    t.toggle()
+    tk_root.update_idletasks()
+    assert fired == [1]
+    assert t.get() is False
+    assert t._canvas.itemcget(t._track, "fill").lower() == t.inactive_color.lower()
+
 
 def test_spacr_toggle_animation_lands_at_correct_position(tk_root):
     """After toggle+animation, the knob should end up at the correct end."""

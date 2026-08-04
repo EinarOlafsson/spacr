@@ -332,9 +332,33 @@ def test_an_empty_query_lists_everything():
     assert len(search_features("")) == len(feature_docs())
 
 
-def test_search_never_raises_on_junk():
-    for junk in ("", "   ", "%%%", "<<>>", "a" * 500, "SELECT * FROM cell"):
-        search_features(junk)
+def test_junk_input_returns_nothing_rather_than_everything():
+    """What junk *returns* is the point; "did not raise" pins nothing.
+
+    Both directions are failure modes the panel would ship silently. A query
+    of punctuation that widened to the whole catalogue looks like a working
+    search returning 137 irrelevant rows; a whitespace-only query that stopped
+    being stripped would return zero and look like "nothing matches" for what
+    is really the empty query.
+    """
+    catalogue = len(feature_docs())
+
+    # Whitespace is stripped, so "   " is the empty query: list everything.
+    for blank in ("", "   ", "\t\n "):
+        assert len(search_features(blank)) == catalogue
+
+    # Punctuation and a 500-character run of one letter match nothing at all,
+    # and must NOT fall back to the full listing.
+    for junk in ("%%%", "<<>>", "a" * 500):
+        assert search_features(junk) == [], f"{junk[:12]!r} widened the search"
+
+    # A pasted SQL fragment tokenises to real words ("cell" is mentioned in
+    # some definitions), so it finds a handful -- bounded, not the catalogue.
+    sql = search_features("SELECT * FROM cell")
+    assert 0 < len(sql) < catalogue
+    assert all(h.score > 0 and h.reason for h in sql)
+    # ...and every hit is a real doc, not a placeholder.
+    assert all(h.doc.key for h in sql)
 
 
 # --------------------------------------------------------------------------

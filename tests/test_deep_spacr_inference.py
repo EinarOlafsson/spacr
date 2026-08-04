@@ -23,23 +23,35 @@ def _png(path, rng, size=32):
     return str(path)
 
 
-def _save_model(path, num_classes=2):
+def _save_model(path, num_classes=2, image_size=32, seed=None):
+    """Build and save an untrained resnet18 classifier.
+
+    ``seed`` fixes the random initialisation. Grad-CAM over random weights is
+    genuinely seed-dependent — some draws leave ``F.relu`` suppressing the whole
+    CAM, or give every image the same map — so any test that asserts on map
+    CONTENT has to pin the draw rather than inherit whatever RNG state the
+    previous test left behind.
+    """
     import torch
     from spacr.utils import TorchModel
+    if seed is not None:
+        torch.manual_seed(seed)
     m = TorchModel(model_name="resnet18", pretrained=False,
-                   num_classes=num_classes, image_size=32)
+                   num_classes=num_classes, image_size=image_size)
     torch.save(m, path)
     return str(path)
 
 
-def _tar_of_pngs(tmp_path, rng, n=6):
-    d = tmp_path / "imgs"; d.mkdir(exist_ok=True)
+def _tar_of_pngs(tmp_path, rng, n=6, size=32, tar_dir=None):
+    d = tmp_path / "imgs"; d.mkdir(parents=True, exist_ok=True)
     names = []
     for i in range(n):
         p = d / f"plate1_A01_f1_o{i}.png"
-        _png(p, rng)
+        _png(p, rng, size=size)
         names.append(p.name)
-    tar_path = tmp_path / "ds.tar"
+    tar_dir = tmp_path if tar_dir is None else tar_dir
+    tar_dir.mkdir(parents=True, exist_ok=True)
+    tar_path = tar_dir / "ds.tar"
     with tarfile.open(tar_path, "w") as t:
         for nm in names:
             t.add(d / nm, arcname=nm)
@@ -169,30 +181,121 @@ def _activation_settings(tar_path, model_path, **over):
     return s
 
 
+def _written_maps(root, dataset_tar, cam_type):
+    """The activation-map PNGs ``generate_activation_map`` wrote, by name.
+
+    They land in ``<tar dir>/<tar stem>/<cam_type>/class_<pred>/<plate>/<well>/``,
+    so collect them by basename regardless of which class the model picked.
+    """
+    stem = os.path.splitext(os.path.basename(dataset_tar))[0]
+    save_dir = os.path.join(os.path.dirname(dataset_tar), stem, cam_type)
+    out = {}
+    for dirpath, _dirs, files in os.walk(save_dir):
+        for name in files:
+            out[name] = np.array(Image.open(os.path.join(dirpath, name)))
+    return save_dir, out
+
+
 def test_generate_activation_map_saliency(tmp_path, rng):
+    """One saliency map per input image, and each one carries real signal.
+
+    No try/skip: this crashed on the DEFAULT two-class model for as long as the
+    multi-logit prediction bug existed, and the swallow reported it as a tidy
+    "skipped" instead of a failure. What is asserted now is the OUTPUT — the
+    per-image PNGs, their count, their size, and the fact that they are neither
+    flat nor six copies of the same picture.
+    """
     from spacr.deep_spacr import generate_activation_map
-    tar_path, _ = _tar_of_pngs(tmp_path, rng)
-    model_path = _save_model(tmp_path / "m.pth")
-    # No try/skip: this crashed on the DEFAULT two-class model for as long as
-    # the multi-logit prediction bug existed, and the swallow reported it as a
-    # tidy "skipped" instead of a failure.
-    generate_activation_map(_activation_settings(tar_path, model_path))
+    root = tmp_path / "exp"
+    tar_path, names = _tar_of_pngs(root, rng, n=6,
+                                   tar_dir=root / "datasets")
+    model_path = _save_model(tmp_path / "m.pth", seed=1)
+
+    generate_activation_map(
+        _activation_settings(tar_path, model_path, save=True))
+
+    save_dir, maps = _written_maps(root, tar_path, "saliency_image")
+    # one map per input PNG, named after it
+    assert sorted(maps) == sorted(names)
+    for name, arr in maps.items():
+        assert arr.shape == (32, 32), name          # the model's input size
+        assert arr.dtype == np.uint8, name
+        assert np.isfinite(arr).all(), name
+        # the min-max rescale in the product code puts a live map on 0..255;
+        # a flat map would be all-zero (the rng == 0 guard).
+        assert (arr.min(), arr.max()) == (0, 255), name
+        assert len(np.unique(arr)) > 10, name
+    # ...and they are six different pictures, not one map saved six times
+    distinct = {arr.tobytes() for arr in maps.values()}
+    assert len(distinct) == 6
+
+    # Contrast: save=False computes the same maps and writes nothing, so the
+    # file assertions above are reading the save branch and not a leftover.
+    quiet_root = tmp_path / "quiet"
+    quiet_tar, _ = _tar_of_pngs(quiet_root, rng, n=6,
+                                tar_dir=quiet_root / "datasets")
+    generate_activation_map(
+        _activation_settings(quiet_tar, model_path, save=False))
+    # (the class_<n>/plate/well folders are still made — only the PNGs are not)
+    _quiet_dir, quiet_maps = _written_maps(quiet_root, quiet_tar,
+                                           "saliency_image")
+    assert quiet_maps == {}
 
 
 def test_generate_activation_map_gradcam(tmp_path, rng):
-    # No try/skip: like the saliency sibling above, this ran head-first into the
-    # multi-logit prediction bug on the default two-class model and the swallow
-    # reported it as "skipped". Running clean IS the assertion here.
+    """Grad-CAM writes one map per image at the input resolution.
+
+    No try/skip: like the saliency sibling above, this ran head-first into the
+    multi-logit prediction bug on the default two-class model and the swallow
+    reported it as "skipped". The maps themselves are asserted instead.
+
+    64x64 inputs are used so resnet18's last conv keeps a 2x2 spatial extent;
+    the 32x32 contrast at the end collapses it to 1x1, which is the documented
+    flat-CAM case the product guards against producing NaN.
+    """
     from spacr.deep_spacr import generate_activation_map
-    tar_path, _ = _tar_of_pngs(tmp_path, rng)
-    model_path = _save_model(tmp_path / "m.pth")
-    from spacr.utils import recommend_target_layers, TorchModel
+    from spacr.utils import recommend_target_layers
     import torch as _t
-    model = _t.load(model_path, weights_only=False)
-    recommended, _all = recommend_target_layers(model)
+
+    root = tmp_path / "exp"
+    tar_path, names = _tar_of_pngs(root, rng, n=6, size=64,
+                                   tar_dir=root / "datasets")
+    model_path = _save_model(tmp_path / "m.pth", image_size=64, seed=1)
+    recommended, all_layers = recommend_target_layers(
+        _t.load(model_path, weights_only=False))
+    assert recommended[0] == all_layers[-1]      # the last conv layer
+
     generate_activation_map(_activation_settings(
-        tar_path, model_path, cam_type="gradcam",
+        tar_path, model_path, cam_type="gradcam", image_size=64, save=True,
         target_layer=recommended[0]))
+
+    _save_dir, maps = _written_maps(root, tar_path, "gradcam")
+    assert sorted(maps) == sorted(names)
+    for name, arr in maps.items():
+        assert arr.shape == (64, 64), name       # upsampled back to the input
+        assert np.isfinite(arr).all(), name
+        assert (arr.min(), arr.max()) == (0, 255), name
+        assert len(np.unique(arr)) > 10, name
+    assert len({arr.tobytes() for arr in maps.values()}) == 6
+
+    # Contrast: at 32x32 the target layer collapses to 1x1, F.relu suppresses
+    # the whole CAM and the product's `rng > 0` guard must emit an all-ZERO
+    # map rather than the 0/0 -> NaN -> undefined uint8 cast it used to.
+    flat_root = tmp_path / "flat"
+    flat_tar, flat_names = _tar_of_pngs(flat_root, rng, n=6, size=32,
+                                        tar_dir=flat_root / "datasets")
+    flat_model = _save_model(tmp_path / "m32.pth", image_size=32, seed=1)
+    flat_layers, _ = recommend_target_layers(
+        _t.load(flat_model, weights_only=False))
+    generate_activation_map(_activation_settings(
+        flat_tar, flat_model, cam_type="gradcam", image_size=32, save=True,
+        target_layer=flat_layers[0]))
+    _flat_dir, flat_maps = _written_maps(flat_root, flat_tar, "gradcam")
+    assert sorted(flat_maps) == sorted(flat_names)
+    for name, arr in flat_maps.items():
+        assert arr.shape == (32, 32), name
+        assert not np.isnan(arr).any(), name
+        assert (arr.min(), arr.max()) == (0, 0), name
 
 
 def test_recommend_target_layers():
