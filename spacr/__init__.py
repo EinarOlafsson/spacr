@@ -138,6 +138,12 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "plugins",
     "remote_execution",
     "run_journal",
+    # The macro recorder: every run also emits the Python script that
+    # repeats it — real imports, a real settings dict, a real call — with
+    # the run id, the settings hash and a machine-readable record of what
+    # was chosen versus defaulted. `run_journal` hooks it; nothing else
+    # needs to know it exists.
+    "macro",
     "notebook_export",
     "custom_features",
     "umap_annotations",
