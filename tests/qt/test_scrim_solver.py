@@ -367,22 +367,35 @@ class TestAppScreenPageSurfaces:
         for section in sections:
             assert not section.property(theme.TRANSPARENT_PROPERTY)
 
-    def test_a_screen_with_no_backdrop_at_all_is_untouched(
+    def test_a_screen_with_no_backdrop_still_clears_its_containers(
             self, qtbot, qt_theme_applied, monkeypatch):
-        """Surfaces are only dissolved when something is painting behind them.
+        """With no animation the containers are cleared anyway — and must be.
 
-        This used to build ``AppScreen("measure")`` and assert its surfaces
-        were opaque, on the reasoning that only ``map_barcodes`` had an
-        animation behind it. That premise is gone: every non-sequencing screen
-        now installs the ambient backdrop, so ``measure``'s surfaces are
-        cleared for exactly the same reason the rain screen's are, and the old
-        assertion was pinning a fact rather than a rule.
+        This assertion has now been inverted twice, and the second time is
+        the interesting one.
 
-        The rule it was actually protecting is the one kept here — clearing a
-        page surface is only ever correct when there IS a backdrop, because a
-        transparent container over a plain themed page paints nothing and the
-        form loses its background. So the case to pin is the one with the
-        ambient background switched off.
+        It started as "``AppScreen('measure')``'s surfaces are opaque", on the
+        premise that only ``map_barcodes`` had an animation behind it. That
+        premise went when every non-sequencing screen gained the ambient
+        backdrop. It was then rewritten to pin what looked like the rule
+        underneath — *clearing a page surface is only correct when there IS a
+        backdrop, because a transparent container over a plain themed page
+        paints nothing and the form loses its background* — and asserted the
+        containers stayed opaque with the preference off.
+
+        That rule was the bug. Nothing was lost by clearing them; what was
+        lost was the page, because the only thing behind them was the blanket
+        ``QWidget {{ background-color: bg }}`` and on the dark theme that is
+        ``#000000``. Users reported it three times as a black box behind the
+        settings categories. The page has a colour of its own now — see the
+        ``page`` block in :mod:`spacr.qt.theme` and
+        :meth:`spacr.qt.screens.app_screen.AppScreen.page_fill` — so
+        "transparent container over a plain themed page" is exactly right,
+        and is what the sweep is for.
+
+        So the rule pinned here is the corrected one: the sweep is
+        unconditional, and the page under it is never the window colour.
+        ``tests/qt/test_page_is_never_black.py`` measures the pixels.
         """
         from spacr.qt import preferences as prefs
         monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: False)
@@ -391,8 +404,14 @@ class TestAppScreenPageSurfaces:
         qtbot.addWidget(screen)
         assert getattr(screen, "_ambient", None) is None, \
             "the preference is off, so no backdrop should have been installed"
-        assert not screen._header.property(theme.TRANSPARENT_PROPERTY)
-        assert not screen._body_splitter.property(theme.TRANSPARENT_PROPERTY)
+        assert screen._header.property(theme.TRANSPARENT_PROPERTY) is True
+        assert screen._body_splitter.property(
+            theme.TRANSPARENT_PROPERTY) is True
+        # And what they now show is a colour, not the window fill.
+        fill = screen.page_fill()
+        assert fill is not None and fill.getRgb()[:3] != (0, 0, 0), (
+            "the containers were cleared and the page behind them is pure "
+            "black, which is the defect this pair of assertions exists for")
 
     def test_a_screen_with_the_ambient_backdrop_clears_its_surfaces(
             self, qtbot, qt_theme_applied, monkeypatch):

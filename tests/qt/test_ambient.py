@@ -925,8 +925,14 @@ def test_theme_background_falls_back_when_preferences_are_unreadable(
     from spacr.qt import preferences
     monkeypatch.setattr(preferences, "resolve_effective_theme",
                         lambda: (_ for _ in ()).throw(RuntimeError("boom")))
-    from spacr.qt.theme import palette_for
-    assert amb._theme_background() == QColor(palette_for("dark")["bg"])
+    from spacr.qt.theme import page_colour, palette_for
+    # `page`, not `bg`. The flat fill under the animation is the PAGE
+    # colour — this function's docstring always said so and the code read
+    # the window colour, which on the dark theme is `#000000`, so the
+    # frames and thin patches of every animation showed pure black. See
+    # the `page` block in spacr.qt.theme.
+    assert amb._theme_background() == QColor(page_colour("dark"))
+    assert amb._theme_background() != QColor(palette_for("dark")["bg"])
 
 
 # ---------------------------------------------------------------------------

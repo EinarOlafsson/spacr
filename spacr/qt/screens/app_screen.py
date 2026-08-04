@@ -17,7 +17,7 @@ from html import escape
 from typing import Optional
 
 from PySide6.QtCore import QEvent, Qt, QTimer, QThread, Signal
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -768,6 +768,11 @@ class AppScreen(QWidget):
         except Exception:
             pass
         _discard_widget(widget)
+        # `page_fill` returns a colour only while there is no backdrop, so
+        # taking the animation away is exactly the moment this screen
+        # becomes responsible for its own page. Without the repaint the
+        # Preferences toggle leaves the hole it used to leave for good.
+        self.update()
 
     def refresh_ambient_background(self) -> None:
         """Re-read the ambient preferences and apply them to this screen.
@@ -854,6 +859,10 @@ class AppScreen(QWidget):
             return
         self.refresh_ambient_background()
         self._retheme_backdrops()
+        # The page colour is resolved at paint time from the live theme,
+        # so a theme switch has to ask for a repaint — nothing else on
+        # this screen invalidates it.
+        self.update()
 
     def _retheme_backdrops(self) -> None:
         """Re-apply the current theme's fill + wallpaper to both backdrops.
@@ -872,6 +881,12 @@ class AppScreen(QWidget):
         which is a cosmetic miss on the image themes only — not a reason
         to skip the flat fill, which is what fixes the black-rectangle
         case on dark -> light.
+
+        The fill is ``page``, not ``bg``. It used to be ``bg``, which
+        meant that on the dark theme every palette event — and re-applying
+        the stylesheet raises one — pushed ``#000000`` back into a
+        backdrop that had been built with the page colour. A backdrop
+        that is correct only until the next theme refresh is not correct.
         """
         backdrops = [w for w in (getattr(self, "_dna_rain", None),
                                  getattr(self, "_ambient", None))
@@ -879,10 +894,10 @@ class AppScreen(QWidget):
         if not backdrops:
             return
         try:
-            from ..theme import palette_for
+            from ..theme import page_colour
             from ..preferences import resolve_effective_theme
             theme = resolve_effective_theme()
-            fill = palette_for(theme)["bg"]
+            fill = page_colour(theme)
             wallpaper = _theme_wallpaper()
         except Exception:
             return
@@ -900,6 +915,66 @@ class AppScreen(QWidget):
                     set_backdrop(wallpaper)
             except Exception:
                 pass
+
+    # ------------------------------------------------------------------
+    # The page itself
+    # ------------------------------------------------------------------
+    def page_fill(self):
+        """The flat colour this screen paints itself, or ``None``.
+
+        ``_clear_page_surfaces`` makes every layout container transparent
+        so that whatever is behind them shows through. That is right, and
+        it is only half a page: something still has to *be* behind them.
+        With an animation installed that something is the animation. With
+        the ambient preference off, or the Animation preference set to
+        ``none``, nothing was — so the containers showed the blanket
+        ``QWidget {{ background-color: bg }}``, which on the dark theme is
+        ``#000000``. That is the black box behind the settings categories,
+        reported three times: not a container the sweep missed, a page
+        with no colour of its own.
+
+        ``None`` — meaning "let the stylesheet paint what it always did" —
+        in exactly two cases:
+
+        * a backdrop is installed. It covers the screen and paints its own
+          fill, so a second full-rect fill under it is wasted work.
+        * an image theme. There the window paints the wallpaper (or, with
+          no cached image, a gradient in the theme's own hues) and
+          ``QWidget`` is transparent precisely so it shows through; a flat
+          fill here would paint over the picture the theme exists for.
+
+        Never raises: a page that cannot resolve its colour falls back to
+        the rendering it had before this existed.
+        """
+        if self._ambient is not None or self._dna_rain is not None:
+            return None
+        try:
+            from ..preferences import resolve_effective_theme
+            from ..theme import IMAGE_THEMES, page_colour
+            theme = resolve_effective_theme()
+            if theme in IMAGE_THEMES:
+                return None
+            return QColor(page_colour(theme))
+        except Exception:
+            return None
+
+    def paintEvent(self, event) -> None:
+        """Paint the page under everything this screen lays out.
+
+        Deliberately does **not** chain to ``super()`` when it fills. The
+        base implementation is what draws the stylesheet background, and
+        the stylesheet background is the ``bg`` slab being replaced —
+        calling it afterwards would paint black straight back over this.
+        """
+        colour = self.page_fill()
+        if colour is None:
+            super().paintEvent(event)
+            return
+        painter = QPainter(self)
+        try:
+            painter.fillRect(self.rect(), colour)
+        finally:
+            painter.end()
 
     def _clear_page_surfaces(self) -> None:
         """Stop this screen's layout containers painting over the backdrop.
