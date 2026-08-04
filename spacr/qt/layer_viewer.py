@@ -85,13 +85,24 @@ LINK_SOURCE = "layer_viewer"
 # ---------------------------------------------------------------------------
 
 def _layer_viewer_qss(palette: Dict[str, Any], opacity) -> str:
-    """The viewer's own QSS block, appended to every generated stylesheet."""
+    """The viewer's own QSS block, appended to every generated stylesheet.
+
+    The canvas frame used to take ``palette["bg"]`` — the WINDOW colour,
+    which is not a surface and which no page-opacity setting can reach, so
+    the largest region on the Curate and Layer Viewer pages stayed a flat
+    slab over the animated backdrop wherever the slider was. It is a page
+    surface now. The *image* is unaffected: the rendered pixmap is drawn
+    opaque on top of the panel in :meth:`LayerCanvas.paintEvent`, and the
+    preference was never meant to reach the pictures themselves.
+    """
+    from .theme import pane_surface
+    canvas_bg = pane_surface("surface", palette.get("theme"), opacity)
     return f"""
 QWidget#LayerViewer {{
     background: transparent;
 }}
 QFrame#LayerCanvasFrame {{
-    background: {palette["bg"]};
+    background: {canvas_bg};
     border: 1px solid {palette["border_soft"]};
     border-radius: 10px;
 }}
