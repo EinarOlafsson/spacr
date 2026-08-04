@@ -260,24 +260,29 @@ def test_the_preference_is_read_on_every_hover(tooltip, qtbot):
     assert tooltip.animation() is None
 
 
-def test_the_preference_overrules_a_session_reveal(tooltip, qtbot):
-    """Preferences has the last word, or the two switches disagree.
+def test_a_press_reaches_one_setting_and_the_preference_reaches_the_rest(
+        tooltip, qtbot):
+    """The two do not compete, because they speak about different things.
 
-    Reveal by clicking, then turn the preference ON and OFF again: without
-    the session override being dropped when the preference changes, the
-    click would keep animations on for ever and the dialog could never take
-    them away.
+    A press says "show me THIS one"; the preference says "stop asking me
+    about any of them". Every setting the reader did not press follows the
+    preference, so the dialog can never be made useless by a click.
     """
-    anchor = _anchor(qtbot)
-    _reveal(tooltip, anchor)
+    pressed = _anchor(qtbot)
+    _reveal(tooltip, pressed)
     assert tooltip.animations_shown() is True
+
+    other = _anchor(qtbot, "cell_CP_prob")
+    tooltip.show_for(other, HTML)
+    assert tooltip.animations_shown() is False, "the press leaked sideways"
 
     prefs.set_setting_animations_enabled(True)
-    assert tooltip.animations_shown() is True
-    prefs.set_setting_animations_enabled(False)
-    assert tooltip.animations_shown() is False
+    tooltip.show_for(other, HTML)
+    assert tooltip.animation() is not None
+    assert tooltip.animation_view().isVisible()
 
-    tooltip.show_for(anchor, HTML)
+    prefs.set_setting_animations_enabled(False)
+    tooltip.show_for(other, HTML)
     assert tooltip.animation() is None
     assert not tooltip.animation_view().isVisible()
 
