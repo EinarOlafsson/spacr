@@ -3056,7 +3056,7 @@ def _alphabet_qss(palette: dict, opacity) -> str:
     return f"""
 QToolButton#SettingAlphabetChip {{
     background: {surface};
-    color: {palette["text_dim"]};
+    color: {palette["fg_dim"]};
     border: 1px solid {palette["border_soft"]};
     border-radius: 10px;
     padding: 2px 12px;
@@ -3065,7 +3065,7 @@ QToolButton#SettingAlphabetChip:hover {{
     border-color: {palette["accent"]};
 }}
 QToolButton#SettingAlphabetChip:checked {{
-    color: {palette["text"]};
+    color: {palette["fg"]};
     border: 1px solid {palette["accent"]};
     font-weight: 600;
 }}
