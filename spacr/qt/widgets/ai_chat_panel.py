@@ -736,7 +736,15 @@ class AIChatPanel(QWidget):
         Must run before the panel is destroyed — otherwise Python drops
         the last reference to a running QThread and Qt aborts with
         ``QThread: Destroyed while thread '' is still running``.
+
+        Never terminates a thread: see
+        :func:`spacr.qt.bridge.drain_thread` and the note in
+        :meth:`spacr.qt.widgets.console_panel.ConsolePanel.shutdown` for
+        why ``QThread.terminate()`` on a Python thread trades one crash
+        for a worse, unattributable one.
         """
+        from ..bridge import drain_thread
+
         worker, thread = self._worker, self._thread
         try:
             for p in ai_module.list_providers():
@@ -748,18 +756,9 @@ class AIChatPanel(QWidget):
                 worker.cancel()
             except Exception:
                 pass
-        for t in [thread] + [pair[0] for pair in list(self._retired)]:
-            if t is None:
-                continue
-            try:
-                if t.isRunning():
-                    t.quit()
-                    t.wait(3000)
-                    if t.isRunning():
-                        t.terminate()
-                        t.wait(1000)
-            except RuntimeError:
-                pass
+        drain_thread(thread, worker, timeout_ms=3000)
+        for pair in list(self._retired):
+            drain_thread(pair[0], pair[1], timeout_ms=1000)
         self._thread = None
         self._worker = None
         self._retired.clear()
