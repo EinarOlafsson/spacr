@@ -61,7 +61,8 @@ from PySide6.QtWidgets import (
 
 from ...hits import FLAG_MEANING, HitList, build_hit_list
 from ..job_runner import JobRunner
-from ..theme import SPACING, pane_surface, register_widget_qss
+from ..theme import (SPACING, mark_surface, pane_surface,
+                     register_widget_qss)
 from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "HitListScreen", "make_hit_list_screen", "register"]
@@ -341,6 +342,9 @@ class HitListScreen(QWidget):
         header = self._table.header()
         header.setStretchLastSection(True)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
+        # The hit list IS the page below the filter bar. The bar is the
+        # only panel on this screen and the tree does not sit on it.
+        mark_surface(self._table)
         outer.addWidget(self._table, 1)
 
         self._legend = QLabel("")

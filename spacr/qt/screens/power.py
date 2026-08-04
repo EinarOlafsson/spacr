@@ -88,8 +88,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import (SPACING, active_palette, make_transparent, paint_panel,
-                     register_widget_qss)
+from ..theme import (SPACING, active_palette, make_transparent,
+                     mark_surface, paint_panel, register_widget_qss)
 from ..widgets.power_design import (
     CAVEATS,
     PLATE_FORMATS,
@@ -832,6 +832,10 @@ class PowerScreen(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._table.setMinimumHeight(140)
+        # The caveat list and the sample-size table are the two regions
+        # of this column with nothing behind them; the two curve views
+        # between them paint their own panel in `paintEvent`.
+        mark_surface(self._caveats, self._table)
         layout.addWidget(self._table, 1)
         return panel
 

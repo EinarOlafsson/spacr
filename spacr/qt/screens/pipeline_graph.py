@@ -73,7 +73,8 @@ from ...pipeline_graph import (STATE_CURRENT, STATE_MISSING, STATE_STALE,
                                PipelineGraph, build_graph, stale_summary,
                                to_dot)
 from ..job_runner import JobRunner
-from ..theme import SPACING, active_palette, pane_surface, register_widget_qss
+from ..theme import (SPACING, active_palette, mark_surface, pane_surface,
+                     register_widget_qss)
 from .app_screen import ModuleHeader
 
 __all__ = ["APP_KEY", "GraphCanvas", "PipelineGraphScreen", "layout_rects",
@@ -513,6 +514,9 @@ class PipelineGraphScreen(QWidget):
         self._details.setPlainText(
             "Click a box for the run that produced it, its settings digest, "
             "and what re-running it would invalidate.")
+        # The canvas half has `PipelineGraphCanvasArea` for a surface;
+        # the detail pane is the other half and is a page surface too.
+        mark_surface(self._details)
         splitter.addWidget(self._details)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)

@@ -42,7 +42,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
-from ..theme import SPACING
+from ..theme import SPACING, mark_surface
 
 LOG = logging.getLogger("spacr.qt.screens.napari_bridge")
 
@@ -125,6 +125,9 @@ class NapariBridgeScreen(QWidget):
         self.status.setReadOnly(True)
         self.status.setPlaceholderText(
             "Choose a mask and press Open in napari.")
+        # The log IS this screen's body — nothing is behind it — so it
+        # keeps a surface where the sweep would leave it see-through.
+        mark_surface(self.status)
         outer.addWidget(self.status, 1)
         # Drop anywhere on this screen: the path is resolved through spaCR's
         # project layout, so the plate folder finds what this screen reads.

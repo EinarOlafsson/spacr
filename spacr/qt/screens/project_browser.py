@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import SPACING
+from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.project_browser")
@@ -176,6 +176,10 @@ class ProjectBrowserScreen(QWidget):
             "Pick a project to see its stages, what is stale and why, and "
             "what could run next.")
         split.addWidget(self._detail)
+        # All three regions of this screen ARE the page: there is no card and
+        # no tab pane behind any of them, so without this the sweep leaves
+        # them showing the backdrop straight through the text.
+        mark_surface(self._root_list, self._table, self._detail)
         split.setStretchFactor(0, 3)
         split.setStretchFactor(1, 2)
         outer.addWidget(split, 1)

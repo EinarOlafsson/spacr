@@ -50,7 +50,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import (RADIUS, SPACING, active_palette, font_px,
+from ..theme import (RADIUS, SPACING, active_palette, font_px, mark_surface,
                      register_widget_qss)
 from .graph_builder import COLUMN_MIME, ColumnWell
 from .pivot_spec import (
@@ -467,6 +467,9 @@ class PivotPanel(QWidget):
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(SPACING["xs"])
         self.table = PivotTable(right)
+        # The shelf half of the splitter has `PivotShelf` for a surface;
+        # the grid is the other half and sits straight on the page.
+        mark_surface(self.table)
         right_layout.addWidget(self.table, 1)
         self.notice = QLabel("", right)
         self.notice.setObjectName("PivotNotice")

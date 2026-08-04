@@ -45,7 +45,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...selection import DataFilter
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, mark_surface
 from .graph_builder import GraphCanvas
 from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
@@ -327,6 +327,10 @@ class GateTree(QWidget):
             "The gating hierarchy. Select a gate to draw the next one inside "
             "it; the plot then shows that gate's population.")
         self.tree.currentItemChanged.connect(self._on_selection)
+        # `GateEditorPanel` is transparent scaffolding by design (see
+        # the GraphBuilder block), so the hierarchy has nothing behind
+        # it and is the page itself.
+        mark_surface(self.tree)
         outer.addWidget(self.tree, 1)
 
         row = QHBoxLayout()
