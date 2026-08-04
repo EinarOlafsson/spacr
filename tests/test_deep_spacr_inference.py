@@ -380,12 +380,24 @@ def test_deep_spacr_train_only(tmp_path, rng):
     """The orchestrator wires generate_training_dataset -> train_test_model."""
     from spacr.deep_spacr import deep_spacr
     src = tmp_path / "ds"
+    # spaCR crop identities, not `nc_0.png`. da7b5b00 made train_test_model
+    # audit the split for leakage, and `spacr.classifier_evaluation.
+    # sample_identity` reads plate / well / field / object out of the FILENAME:
+    # for `nc_0.png` it reads plate="nc", well="nc_0", object="nc_0", and this
+    # fixture wrote the same eight stems into `train/` and `test/`, so every
+    # object and every well appeared on both sides of the boundary. The audit
+    # was right -- a real dataset named that way would leak -- so the fixture
+    # is what changes: one well per crop, unique across both splits, which is
+    # what a plate of real spaCR crops looks like.
+    well_number = 0
     for split in ("train", "test"):
         for cls in ("nc", "pc"):
             d = src / split / cls
             d.mkdir(parents=True)
-            for i in range(4):
-                _png(d / f"{cls}_{i}.png", rng)
+            for _ in range(4):
+                well_number += 1
+                well = f"{chr(ord('A') + well_number // 12)}{well_number % 12 + 1:02d}"
+                _png(d / f"plate1_{well}_f1_o1.png", rng)
     settings = {
         "src": str(src), "classes": ["nc", "pc"], "model_type": "resnet18",
         "epochs": 1, "batch_size": 2, "image_size": 32,
