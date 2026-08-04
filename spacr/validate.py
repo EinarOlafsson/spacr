@@ -119,6 +119,12 @@ APP_FUNCTIONS: Dict[str, str] = {
     "simulation": "spacr.sim.run_multiple_simulations",
     "illumination": "spacr.illumination.prepare_illumination_correction",
     "barcode_qc": "spacr.sequencing_qc.barcode_qc",
+    # Reads a finished measurements.db and writes one file. It has no rules
+    # of its own in _check_app_specific yet, but being named here is what
+    # stops pre-flight answering "unknown app 'anndata_export'; only the
+    # generic checks were run" -- and for an exporter the generic checks
+    # (src exists, holds a project, types are right) are the ones that matter.
+    "anndata_export": "spacr.anndata_export.run_anndata_export",
 }
 
 # Friendly spellings a caller (or a notebook) might reasonably use.

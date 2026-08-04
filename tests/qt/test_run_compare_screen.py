@@ -49,10 +49,27 @@ BASE_SETTINGS = {
 
 @pytest.fixture
 def registered():
-    """Register the app for one test, then put the registry back."""
-    screen.register()
+    """Guarantee the app is registered for one test, then put it back.
+
+    It used to unregister unconditionally on the way out, on the
+    assumption that this fixture was what had put the row there. It is
+    not any more: ``app.py`` names this screen in its own
+    ``_SELF_REGISTERING_APPS``, so the row already exists, ``register()``
+    answers False, and an unconditional teardown DELETES a shipped app
+    from the registry for every test that runs afterwards — a
+    whole-registry inventory failure in some other file, caused by a
+    fixture in this one and blamed on whatever pytest collected next.
+
+    So it undoes only what it did.
+    """
+    added = screen.register()
     yield screen.APP_KEY
-    unregister_app(screen.APP_KEY)
+    if added:
+        unregister_app(screen.APP_KEY)
+    else:
+        assert any(row[0] == screen.APP_KEY for row in APPS), (
+            "this fixture found the row already registered and the test "
+            "removed it; the registry is now short an app")
 
 
 def _measurements(path, entries):

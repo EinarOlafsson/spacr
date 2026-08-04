@@ -56,10 +56,10 @@ Pipeline overview
    :alt: spaCR workflow
    :align: center
 
-The GUI ships 39 apps, grouped into six categories — *Core*, *Data*,
-*Segmentation models*, *Results & QC*, *Explore*, and *Toxoplasma*. The nine
-Core apps form the main pipeline; these five are the path most screens take,
-each with its own :doc:`API reference <api/index>` module:
+The GUI ships 42 apps, grouped into seven categories — *Core*, *Data*,
+*Segmentation models*, *Results & QC*, *Explore*, *Toxoplasma*, and *Design*.
+The nine Core apps form the main pipeline; these five are the path most
+screens take, each with its own :doc:`API reference <api/index>` module:
 
 +---------------------+-----------------------------------------------------+
 | **Mask**            | Cellpose segmentation of cells, nuclei, pathogens.  |

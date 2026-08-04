@@ -43,6 +43,7 @@ from spacr.qt.app import (
     MAX_APPS_PER_SECTION,
     SECTION_CORE,
     SECTION_DATA,
+    SECTION_DESIGN,
     SECTION_EXPLORE,
     SECTION_MODELS,
     SECTION_RESULTS,
@@ -213,15 +214,27 @@ EXPECTED_SECTIONS = {
     "run_history":     SECTION_RESULTS,
     "report":          SECTION_RESULTS,
     "barcode_qc":      SECTION_RESULTS,
+    # Two runs of the same project read against each other is a reading of
+    # what a finished run produced, which is what this section is.
+    "run_compare":     SECTION_RESULTS,
     # Explore's first two. The section was declared and empty until they
     # registered -- "page through image layers" is the example in its own
     # definition, and the Graph Builder family is what it was named for.
     "layer_viewer":    SECTION_EXPLORE,
     "graph_builder":   SECTION_EXPLORE,
+    # Explore's third, and it is Explore rather than Results & QC for the
+    # same reason as the other two: handing measurements.db to scanpy or
+    # scvi-tools is asking the numbers something spaCR did not plan for.
+    "anndata_export":  SECTION_EXPLORE,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
     "replication":     SECTION_TOXO,
+    # Design's first and, for now, only app. The section has been declared
+    # and empty since the sections were named; its note ("Plan the
+    # experiment before it runs: power, sample size, plate layout,
+    # controls and replicates") was written for this.
+    "power":           SECTION_DESIGN,
 }
 
 #: How finished every app is, as a second ledger on the same app keys.
@@ -239,6 +252,7 @@ EXPECTED_STAGES = {
     "illumination": "alpha", "barcode_qc": "alpha",
     "layer_viewer": "alpha", "graph_builder": "alpha",
     "data_manager": "alpha",
+    "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -257,8 +271,9 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Twenty-two alpha, nine beta, eight stable -- Illumination, Barcode
-    QC, Layer Viewer and Graph Builder each arrive alpha, which is what
+    Twenty-five alpha, nine beta, eight stable -- Illumination, Barcode
+    QC, Layer Viewer and Graph Builder each arrived alpha, and so do
+    Power / Design, AnnData Export and Run Compare, which is what
     "built and reachable, not yet trusted end to end" means for a
     feature whose first users are reading this sentence. Signing an app
     off is deleting a line from ``APP_STAGE`` and from here; nothing
@@ -272,7 +287,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 22, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 25, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():

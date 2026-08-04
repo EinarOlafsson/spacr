@@ -233,6 +233,28 @@ def v02(ctx: Ctx) -> QWidget:
     # the trade this variant now records — a taller page against an
     # unreadable one — and it is why the argument above no longer claims
     # vertical slack.
+    #
+    # THIS VARIANT IS KNOWN RED, and the next person to look at it should
+    # not have to spend the afternoon that produced these numbers. It has
+    # TWO defects and they have different causes:
+    #
+    #   * 905 px asked of a 900 px canvas. Easy: spacing 16 -> 13 and
+    #     height 64 -> 60 brings it to 875.
+    #   * fourteen names elide, and that is NOT a consequence of the
+    #     overflow. Measured: with the overflow gone and the icon left at
+    #     40 px, all fourteen still elide. The cause is the 190 px tile,
+    #     and 190 is already the widest a seven-column grid allows
+    #     (1384 px of content, six 8 px gaps). Six columns would give a
+    #     224 px tile and a tenth row, on a page with no room for a
+    #     ninth. Shrinking the icon to 26 px clears all but the three
+    #     longest names, at which point the tile is a caption with a
+    #     bullet beside it.
+    #
+    # So a person has to decide whether this surface shows fewer apps,
+    # gets a taller canvas, or accepts elision with tooltips. It is a
+    # design decision rather than a defect to tune away, and it predates
+    # the apps switched on around it — at thirty-nine apps this variant
+    # asked for the same 905 px and elided the same fourteen names.
     for title, keys in CATS_STAGE5:
         page.body.addWidget(cat_header(ctx, title, note=f"{len(keys)} apps"))
         page.body.addWidget(htile_grid(ctx, keys, cols=7, width=190,
@@ -1009,9 +1031,28 @@ def v19(ctx: Ctx) -> QWidget:
             "screen is the only page every user sees every session, and "
             "four bullets is a cheap rent to charge it.")
 def v20(ctx: Ctx) -> QWidget:
-    page = Page(ctx, margins=MARGINS, spacing=13)
+    # The rent went up. This variant spends its vertical budget on the
+    # release panel and pays for it with `cats_current()` — one caption
+    # plus one grid per LIVE section — so a section costs a caption AND a
+    # full tile row even when it holds one app. Design arrived holding
+    # exactly one, and seven sections of forty-two apps asked for 958 px
+    # of a 900 px canvas.
+    #
+    # Paid out of tile height and inter-block spacing rather than by
+    # dropping the panel, which is the only thing this variant is for, or
+    # by cutting the captions, which is how it replaces the tabs. Widening
+    # the grid was measured and refused: at nine columns the row count
+    # does fall by one, but the tile falls to 146 px with it, and v02's
+    # note already records that a name elides below 166.
+    #
+    # Measured, not guessed: 958 -> 893 px, and one FEWER elided name than
+    # before, because the smaller icon gives the label back the width.
+    # Seven px of slack is thin, but the next app is free — every section
+    # has room left on its last row of six, and only an EIGHTH section
+    # costs another caption-plus-row.
+    page = Page(ctx, margins=MARGINS, spacing=9)
     top, row = transparent(horizontal=True, spacing=16)
-    frame, col = panel(ctx, margins=(18, 14, 18, 14), spacing=8)
+    frame, col = panel(ctx, margins=(18, 11, 18, 11), spacing=6)
     col.addWidget(text_label(ctx, f"New in spaCR {MOCK['version']}", size=17,
                              weight=600))
     bullets, brow = transparent(horizontal=True, spacing=22)
@@ -1039,8 +1080,8 @@ def v20(ctx: Ctx) -> QWidget:
                                        color=ctx.P["fg_dim"],
                                        tracking="1.6px", upper=True))
         page.body.addWidget(htile_grid(ctx, keys, cols=6, width=222,
-                                       icon_px=36, name_px=12, height=58,
-                                       vspace=6))
+                                       icon_px=34, name_px=12, height=52,
+                                       vspace=5))
     page.body.addStretch(1)
     return page.finish()
 

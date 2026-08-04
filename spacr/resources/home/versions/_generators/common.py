@@ -375,8 +375,8 @@ def _with_late_registrations(
     brand-new app is most likely to answer, and landing there is a
     prompt to file it properly, not an answer. Note that this does NOT
     relax the width rules: a band that overflows its grid still fails
-    ``test_no_stage_band_exceeds_the_eight_column_grid``, which is the
-    point — the layout decision has to be made by a person.
+    ``test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row``,
+    which is the point — the layout decision has to be made by a person.
 
     :param cats: the literal categorisation, ``(title, keys)`` per band.
     :param fallback: the title of the band unfiled keys are appended to.
@@ -394,7 +394,10 @@ def _with_late_registrations(
 
 
 CATS_BROAD3 = _with_late_registrations([
-    ("Prepare", ["convert", "align", "foreign", "external_masks",
+    # Power / Design is the only app in the registry that runs BEFORE the
+    # images exist. "Prepare" is the closest of these three to that, and
+    # it is where a screener would look for it.
+    ("Prepare", ["power", "convert", "align", "foreign", "external_masks",
                  "illumination", "make_masks", "train_cellpose",
                  "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
@@ -403,6 +406,7 @@ CATS_BROAD3 = _with_late_registrations([
              "recruitment", "invasion", "replication"]),
     ("Review", ["plate_view", "agreement", "umap", "activation",
                 "barcode_qc", "layer_viewer", "graph_builder",
+                "anndata_export", "run_compare",
                 "train_compare", "classifier_evaluation", "model_compare",
                 "run_history", "db_browser", "data_manager", "report"]),
 ], fallback="Review")
@@ -425,14 +429,29 @@ CATS_BROAD3 = _with_late_registrations([
 #:   variants, which is recorded in v02's own comment and in the
 #:   argument it prints.
 #:
-#: The cap stays at eight, which keeps that to ONE wrapped row per band.
-#: ``test_no_stage_band_exceeds_the_eight_column_grid`` is what makes
-#: the next app a decision rather than a silently squashed page.
+#: The cap was eight, which kept that to ONE wrapped row per band, and it
+#: is now NINE. Three more apps — Power / Design, AnnData Export and Run
+#: Compare — take the registry to forty-two, and forty-two into five bands
+#: is nine however they are shared out; there is no arrangement of five
+#: bands of eight that holds it. Nine is still one wrapped row (seven,
+#: then two) rather than a third, which is what the rule was ever about:
+#: the ceiling for "one wrapped row" is fourteen, and eight was simply the
+#: smallest number that fitted thirty-eight. Both alternatives are still
+#: refused for the reasons below — a sixth band breaks the five-column
+#: variants, a wider grid elides the names.
+#: ``test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row``
+#: is what makes the next app a decision rather than a silently squashed
+#: page, and it asserts the floor too, so a cap left loose after apps are
+#: removed fails as loudly as one left too tight.
 CATS_STAGE5 = _with_late_registrations([
     # Illumination is a correction of the sensor, applied to the pixels
     # before anything is segmented or measured — it belongs with the
     # other things done to images on the way in, not with the results.
-    ("Acquire", ["convert", "align", "foreign", "external_masks",
+    #
+    # Power / Design comes before even that: it is what you run to decide
+    # how many wells to image at all. There is no band earlier than
+    # Acquire and a sixth is refused above, so it leads this one.
+    ("Acquire", ["power", "convert", "align", "foreign", "external_masks",
                  "illumination", "queue", "batch", "distributed_jobs"]),
     # Layer Viewer is here because looking at a label mask over its image
     # is how a segmentation is judged; it is the eye on this band's work.
@@ -446,9 +465,13 @@ CATS_STAGE5 = _with_late_registrations([
     # regression consumes as fraction_threshold. It is part of analysing
     # the screen, not of reporting it. Graph Builder is here for the
     # same reason: asking the measurements a question you did not plan
-    # for is analysis, whatever you do with the answer afterwards.
+    # for is analysis, whatever you do with the answer afterwards. AnnData
+    # Export is the same argument once more — the .h5ad exists to be
+    # analysed in scanpy, and the export is the first step of that
+    # analysis rather than something you hand to a collaborator.
     ("Analyse", ["classify", "ml_analyze", "map_barcodes", "barcode_qc",
-                 "regression", "umap", "activation", "graph_builder"]),
+                 "regression", "umap", "activation", "graph_builder",
+                 "anndata_export"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
@@ -457,10 +480,13 @@ CATS_STAGE5 = _with_late_registrations([
     # you do with results, not to get images in. Data Manager sits beside
     # it for the third time the same argument is made: what a project
     # costs on disk, and what of it is safe to delete, is a question
-    # about a finished run.
+    # about a finished run. Run Compare joins them on the same grounds and
+    # beside Run History in particular: "what did I change between these
+    # two runs, and did the numbers move" is the question Run History
+    # answers for one run and this one answers for two.
     ("Report",  ["plate_view", "agreement", "train_compare",
-                 "classifier_evaluation", "run_history", "db_browser",
-                 "data_manager", "report"]),
+                 "classifier_evaluation", "run_history", "run_compare",
+                 "db_browser", "data_manager", "report"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([
@@ -479,30 +505,38 @@ CATS_NARROW8 = _with_late_registrations([
                           "train_compare", "classifier_evaluation"]),
     ("Screens & reports", ["map_barcodes", "barcode_qc", "regression",
                            "umap", "graph_builder", "layer_viewer",
-                           "plate_view", "report"]),
-    ("Import & batch",   ["convert", "align", "foreign", "external_masks",
+                           "anndata_export", "plate_view", "report"]),
+    # Power / Design and Run Compare are both "things you do around a run
+    # rather than to the images": one decides how big the run has to be,
+    # the other reads two of them against each other. This is variant 04's
+    # widest, most administrative category and it is where they belong.
+    ("Import & batch",   ["power", "convert", "align", "foreign",
+                          "external_masks",
                           "illumination", "queue", "batch",
-                          "distributed_jobs", "run_history", "db_browser",
-                          "data_manager"]),
+                          "distributed_jobs", "run_history", "run_compare",
+                          "db_browser", "data_manager"]),
     ("Toxoplasma",       ["analyze_plaques", "recruitment", "invasion",
                           "replication"]),
 ], fallback="Screens & reports")
 
 CATS_QUESTIONS = _with_late_registrations([
+    # Power / Design answers the question BEFORE the first one here — "do
+    # I have enough images?" — and the honest place for it is the band
+    # about getting images, since that is the decision it feeds.
     ("I have images. Where are my objects?",
      ["mask", "timelapse", "cellpose_masks", "make_masks", "train_cellpose",
       "model_zoo", "model_compare", "align", "convert", "illumination",
-      "foreign", "external_masks"]),
+      "foreign", "external_masks", "power"]),
     ("I have objects. What are they like?",
      ["measure", "annotate", "motility", "analyze_plaques", "recruitment",
       "invasion", "replication", "agreement", "layer_viewer"]),
     ("I have a screen. Which genes matter?",
      ["classify", "ml_analyze", "map_barcodes", "regression", "umap",
-      "activation", "graph_builder"]),
+      "activation", "graph_builder", "anndata_export"]),
     ("Should I believe any of this?",
      ["plate_view", "barcode_qc", "train_compare", "classifier_evaluation",
-      "report", "run_history", "db_browser", "data_manager", "queue",
-      "batch", "distributed_jobs"]),
+      "report", "run_history", "run_compare", "db_browser", "data_manager",
+      "queue", "batch", "distributed_jobs"]),
 ], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [

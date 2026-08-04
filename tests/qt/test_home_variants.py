@@ -282,31 +282,42 @@ def test_the_three_late_apps_are_categorised(gen_common):
         assert late <= placed, f"{name} is missing {sorted(late - placed)}"
 
 
-def test_no_stage_band_exceeds_the_eight_column_grid(gen_common):
-    """``CATS_STAGE5`` bands are drawn seven-wide; eight is one wrap.
+def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
+        gen_common):
+    """``CATS_STAGE5`` bands are drawn seven-wide; a band may wrap ONCE.
 
     Variants 02 and 23 lay every band out as one seven-column grid, so a
     band of eight takes a second row and a band of fifteen would take
     three. Five bands of seven was thirty-five slots for a registry of
     thirty-four; Illumination, Barcode QC, Layer Viewer and Graph
-    Builder took it to thirty-eight, and thirty-eight does not go into
-    thirty-five.
+    Builder took it to thirty-eight, and Power / Design, AnnData Export
+    and Run Compare to forty-two.
 
-    Neither way out was available. A sixth band is not: variants 13, 15
-    and 16 lay these out as exactly five columns and solve the gap
+    Neither way out was ever available. A sixth band is not: variants 13,
+    15 and 16 lay these out as exactly five columns and solve the gap
     between them from that count, which is asserted below so the next
     person to reach for it finds out here. A wider grid is not either:
     at eight columns the tile is 166 px, and at that width thirty-four
-    of the thirty-eight names elide however small the font is set.
+    of the names elide however small the font is set.
 
-    So a band may hold eight, and eight is the cap — one wrapped row,
-    never two.
+    So the cap is the number of tiles that fits in TWO rows of seven,
+    and it was written as ``8`` while eight was the largest band there
+    was. Forty-two apps do not go into five bands of eight — nine is the
+    arithmetic floor — so the number is now nine, which is still one
+    wrapped row and not two. Fourteen is where a third row starts; the
+    cap is deliberately well below it, so that filling a band remains a
+    decision somebody takes rather than a page that quietly gets taller.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 8, (
-            f"{title} has {len(keys)} apps, which is two wrapped rows in a "
-            f"seven-column grid, not one")
+        assert len(keys) <= 9, (
+            f"{title} has {len(keys)} apps, which is more than the one "
+            f"wrapped row a seven-column grid may take")
+    # ...and the floor is real: any cap below it would be unsatisfiable.
+    total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
+    assert -(-total // 5) == 9, (
+        f"{total} apps over five bands no longer needs a nine-wide band; "
+        f"tighten the cap above rather than leaving the slack unused")
 
 
 def test_check_coverage_names_what_is_wrong(gen_common):

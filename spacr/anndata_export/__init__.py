@@ -200,12 +200,15 @@ __all__ = [
     "NAN_ZERO",
     "anndata_export_settings",
     "build_anndata",
+    "default_out_path",
     "export_anndata",
     "export_anndata_set",
     "feature_columns",
     "register_anndata_app",
     "register_anndata_settings",
     "require_anndata",
+    "resolve_db_path",
+    "run_anndata_export",
 ]
 
 
@@ -1649,6 +1652,106 @@ def anndata_export_settings(settings: Optional[Mapping[str, Any]] = None
     return resolved
 
 
+def resolve_db_path(src: Union[str, os.PathLike]) -> str:
+    """The ``measurements.db`` a settings ``src`` means.
+
+    ``src`` is a project root everywhere else in spaCR, and this module's
+    argument is a database, so one of the two has to give. A path that ends
+    in a database file is taken as one, and anything else is read as a
+    project root laid out the way every spaCR writer leaves it.
+
+    :param src: project root, or the database itself.
+    :returns: an absolute path, which is NOT checked for existence -- an
+        absent file is :func:`spacr.validate.validate_settings`'s report to
+        make, with the path in it, rather than an exception from here.
+    """
+    src = os.path.abspath(os.path.expanduser(os.fspath(src)))
+    if os.path.splitext(src)[1].lower() in (".db", ".sqlite", ".sqlite3"):
+        return src
+    return os.path.join(src, "measurements", "measurements.db")
+
+
+def default_out_path(src: Union[str, os.PathLike],
+                     single_table: str = "") -> str:
+    """Where the export lands when ``anndata_out`` is empty.
+
+    ``<project>/results/<project name>.h5ad`` -- beside the other things a
+    finished run produced, named after the project, because a folder of
+    ``export.h5ad`` files is a folder nobody can tell apart.
+
+    :param src: project root, or the database.
+    :param single_table: the one object table being exported, if any; it
+        joins the file name, since a nucleus-level export and a cell-level
+        one of the same project are different files.
+    :returns: an absolute ``.h5ad`` path.
+    """
+    root = _project_root(resolve_db_path(src), None)
+    name = os.path.basename(root.rstrip(os.sep)) or "spacr"
+    if single_table:
+        name = f"{name}_{single_table}"
+    return os.path.join(root, "results", f"{name}.h5ad")
+
+
+def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
+                       ) -> ExportResult:
+    """Run the export from a settings dict. The headless entry point.
+
+    The ``fn(settings)`` shape ``spacr-run``, the Qt Run button and
+    :mod:`spacr.validate` all dispatch to, wrapped around
+    :func:`export_anndata` -- which keeps its own explicit keyword
+    signature, because a function whose arguments are a dict is a function
+    nobody can call from a notebook.
+
+    Every key it reads is one :func:`anndata_export_settings` declares and
+    :func:`register_anndata_settings` gave a type and a tooltip, so the form
+    the GUI draws and the keys honoured here are the same list.
+
+    :param settings: the run settings. ``src`` is the project root (or the
+        database); everything else falls back to
+        :func:`anndata_export_settings`.
+    :returns: the :class:`ExportResult`, whose ``describe()`` is what the
+        console prints.
+    :raises ValueError: when ``src`` is empty -- there is nothing to export
+        and no path to name in the message otherwise.
+    :raises AnnDataExtraMissing: when ``anndata`` is not installed.
+    """
+    resolved = anndata_export_settings(settings)
+    src = str(resolved.get("src") or "").strip()
+    if not src:
+        raise ValueError(
+            "anndata_export needs src: the spaCR project whose "
+            "measurements/measurements.db is exported.")
+
+    db_path = resolve_db_path(src)
+    single_table = str(resolved.get("anndata_single_table") or "").strip()
+    out_path = str(resolved.get("anndata_out") or "").strip()
+    if not out_path:
+        out_path = default_out_path(src, single_table)
+
+    tables = resolved.get("anndata_tables") or list(DEFAULT_TABLES)
+    if isinstance(tables, str):
+        # A settings.csv round trip spells a list as one comma-separated
+        # cell; taking it apart here means `--set anndata_tables=cell,nucleus`
+        # works and does not silently export a table called "cell,nucleus".
+        tables = [part.strip() for part in tables.split(",") if part.strip()]
+
+    row_limit = int(resolved.get("anndata_row_limit") or 0)
+    compression = str(resolved.get("anndata_compression") or "").strip()
+
+    return export_anndata(
+        db_path, out_path,
+        compression=compression or None,
+        register=bool(resolved.get("anndata_register_artifact", True)),
+        settings=resolved,
+        tables=tuple(tables),
+        single_table=single_table or None,
+        row_limit=row_limit or None,
+        nan_policy=str(resolved.get("anndata_nan_policy") or NAN_KEEP),
+        dtype=str(resolved.get("anndata_dtype") or "float32"),
+        compute_umap=bool(resolved.get("anndata_compute_umap", False)),
+    )
+
+
 _TYPES = {
     "anndata_out": str,
     "anndata_tables": list,
@@ -1741,6 +1844,23 @@ def register_anndata_settings(replace: bool = False) -> bool:
     return True
 
 
+#: "AnnData Export" in the nine non-English UI languages, in
+#: :data:`spacr.qt.i18n.LANGUAGES` order after English -- sv, de, es, zh_CN,
+#: pt, hi, ko, is, fr. "AnnData" is a file format and a library name, so it
+#: is not translated in any of them; the verb around it is.
+APP_TRANSLATIONS = (
+    "AnnData-export",
+    "AnnData-Export",
+    "Exportar a AnnData",
+    "导出 AnnData",
+    "Exportar para AnnData",
+    "AnnData निर्यात",
+    "AnnData 내보내기",
+    "AnnData-útflutningur",
+    "Export AnnData",
+)
+
+
 def register_anndata_app(replace: bool = False) -> bool:
     """Register the Qt app row through :func:`spacr.qt.app.register_app`.
 
@@ -1749,6 +1869,22 @@ def register_anndata_app(replace: bool = False) -> bool:
     with. Importing ``spacr.qt.app`` from here would drag PySide6 (and, on
     some platforms, a display connection) into every headless export, which
     is the opposite of what an optional GUI is for.
+
+    That guard is also why ``spacr.qt.app`` names this function in its own
+    ``_SELF_REGISTERING_APPS`` table and calls it from the bottom of its
+    import: called only from here, the row existed or not depending on
+    whether something else had already imported the Qt registry, which is
+    an app inventory decided by import order.
+
+    **No screen of its own, and none is wanted.** The app registers no
+    ``factory``, so it gets the generic settings-driven ``AppScreen`` -- and
+    every knob this module has is already a typed, tooltipped key in
+    :func:`register_anndata_settings`, so that generic form IS the export
+    dialog. ``defaults_module`` is what makes it appear: it tells
+    ``settings_model`` to import this module before asking whether the key
+    has defaults. The Run button runs :func:`run_anndata_export`, which is
+    also what ``spacr-run anndata_export`` runs -- an export is a batch step
+    you want on the cluster after Measure, not an interactive tool.
 
     :param replace: re-register over an existing row.
     :returns: True if it registered, False otherwise.
@@ -1764,7 +1900,12 @@ def register_anndata_app(replace: bool = False) -> bool:
         module.register_app(
             APP_KEY, "AnnData Export",
             "Write the measurements as .h5ad for scanpy and scvi-tools",
-            module.SECTION_EXPLORE, stage=module.STAGE_ALPHA)
+            module.SECTION_EXPLORE, stage=module.STAGE_ALPHA,
+            title="AnnData Export", intro=_DESCRIPTION,
+            api_module="anndata_export",
+            entry="spacr.anndata_export:run_anndata_export",
+            defaults_module="spacr.anndata_export",
+            translations=APP_TRANSLATIONS)
         return True
     except Exception:                              # pragma: no cover - env
         # A registry that has changed shape, or a section that no longer
