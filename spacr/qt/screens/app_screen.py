@@ -777,6 +777,13 @@ class AppScreen(QWidget):
         self._settings_scroll = scroll
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
+        # A QScrollArea's viewport auto-fills by default, and what it fills
+        # with is the WINDOW colour -- not a surface -- so no opacity setting
+        # can reach it and the settings column reads as an opaque slab over
+        # the animated backdrop. The sidebar (app.py) and Home
+        # (widgets/home.py) already say this for their own scroll areas; this
+        # one was the odd one out.
+        scroll.viewport().setAutoFillBackground(False)
 
         content = QWidget()
         self._settings_content = content
