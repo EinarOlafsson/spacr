@@ -96,3 +96,127 @@ warnings.warn("spaCR test sentinel", FutureWarning)
     )
     assert proc.returncode == 0
     assert "spaCR test sentinel" in proc.stderr
+
+
+# ---------------------------------------------------------------------------
+# The cellpose sparse-tensor notice.
+#
+# Torch reports that invariant checking is off every time cellpose builds the
+# sparse COO tensor it makes masks out of, so `spacr` printed it on every
+# start. The filter is exercised the only way that proves anything: by
+# raising the warning from a compiled unit whose filename really is
+# cellpose's `dynamics.py`, because the filter is scoped by the *path* of the
+# raising file and a warning raised from the test's own file would not be
+# scoped the same way whatever the message said.
+# ---------------------------------------------------------------------------
+
+_RAISE_FROM_CELLPOSE = r'''
+import sys
+import warnings
+{setup}
+import cellpose.dynamics as _dyn
+
+_src = (
+    "import warnings\n"
+    "def emit(text):\n"
+    "    warnings.warn(text, UserWarning)\n"
+)
+_ns = {{"__name__": "cellpose.dynamics", "__file__": _dyn.__file__}}
+exec(compile(_src, _dyn.__file__, "exec"), _ns)
+{body}
+print("emitted")
+'''
+
+
+def _run_emitting(setup: str, body: str):
+    code = _RAISE_FROM_CELLPOSE.format(setup=setup, body=body)
+    proc = subprocess.run(
+        [sys.executable, "-W", "default", "-c", code],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+        timeout=180,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "emitted" in proc.stdout
+    return proc
+
+
+SPARSE_NOTICE = "Sparse invariant checks are implicitly disabled"
+
+
+def test_the_cellpose_sparse_notice_is_silent_after_importing_spacr():
+    """The message as reported, and the same message with a prefix.
+
+    The prefixed case is the one that matters: the filter this replaced
+    anchored at the start of the sentence, because
+    ``warnings.filterwarnings`` matches ``message`` with ``re.match`` and
+    not ``re.search``. Any build of torch that says
+    ``torch.sparse_coo_tensor: <sentence>`` walked straight past it, which
+    is a filter that looks right in a diff and does nothing on the machine
+    that has the problem.
+    """
+    proc = _run_emitting(
+        setup="import spacr",
+        body=('_ns["emit"]("%s. To enable them, use ...")\n'
+              '_ns["emit"]("torch.sparse_coo_tensor: %s")'
+              % (SPARSE_NOTICE, SPARSE_NOTICE)),
+    )
+    assert SPARSE_NOTICE not in proc.stderr
+
+
+def test_the_qt_launcher_restores_the_filter_and_does_not_stack_it():
+    """``spacr.qt._quiet_library_warnings`` is what ``run()`` calls first.
+
+    Asserted against a wiped filter list, because that is the only state in
+    which it does anything: on a clean launch ``import spacr`` has already
+    installed the rule and this is a no-op. Wiping first is also how the
+    idempotence claim is made honestly — the count below would be satisfied
+    by the import's own filter otherwise, whatever the function did.
+
+    Importing ``spacr.qt`` must not need PySide6 for any of it: the quieters
+    live in the package ``__init__`` precisely so they run before anything
+    heavy is imported.
+    """
+    proc = _run_emitting(
+        setup=("import spacr.qt\n"
+               "warnings.resetwarnings()\n"
+               "warnings.simplefilter('default')\n"
+               "spacr.qt._quiet_library_warnings()\n"
+               "spacr.qt._quiet_library_warnings()  # idempotent\n"
+               "assert sum(1 for f in warnings.filters\n"
+               "           if getattr(f[3], 'pattern', '') "
+               "and 'cellpose' in f[3].pattern) == 1"),
+        body='_ns["emit"]("%s")' % SPARSE_NOTICE,
+    )
+    assert SPARSE_NOTICE not in proc.stderr
+
+
+def test_the_sparse_filter_does_not_swallow_the_rest_of_cellpose():
+    """Precision, both ways round.
+
+    A different warning from cellpose still reaches the user, and the
+    silenced sentence still reaches the user when something that is not
+    cellpose says it — otherwise "ignore this text" would hide a real
+    spaCR bug that happened to word itself the same way.
+    """
+    proc = _run_emitting(
+        setup="import spacr",
+        body='_ns["emit"]("cellpose has something real to say")',
+    )
+    assert "cellpose has something real to say" in proc.stderr
+
+    code = (
+        "import warnings\n"
+        "import spacr\n"
+        'warnings.warn("%s", UserWarning)\n'
+        'print("emitted")\n' % SPARSE_NOTICE
+    )
+    other = subprocess.run(
+        [sys.executable, "-W", "default", "-c", code],
+        cwd=REPO_ROOT, text=True, capture_output=True, timeout=180,
+        check=False,
+    )
+    assert other.returncode == 0, other.stderr
+    assert SPARSE_NOTICE in other.stderr
