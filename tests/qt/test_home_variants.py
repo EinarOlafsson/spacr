@@ -303,20 +303,28 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     So the cap is the number of tiles that fits in TWO rows of seven,
     and it was written as ``8`` while eight was the largest band there
     was. Forty-two apps do not go into five bands of eight — nine is the
-    arithmetic floor — so the number is now nine, which is still one
-    wrapped row and not two. Fourteen is where a third row starts; the
-    cap is deliberately well below it, so that filling a band remains a
-    decision somebody takes rather than a page that quietly gets taller.
+    arithmetic floor — so it became nine, and Pipeline Graph, Hit List,
+    Prediction Profiler and Methods & Results take the registry to
+    forty-six, whose floor is TEN. Ten is still one wrapped row (seven,
+    then three) and not two. Fourteen is where a third row starts; the
+    cap stays below it, so that filling a band remains a decision
+    somebody takes rather than a page that quietly gets taller.
+
+    The cap moving is not the same as the bands drifting, which is what
+    the floor below is for: the number is always the SMALLEST that can
+    hold the registry, so slack cannot accumulate quietly, and raising it
+    forces the four new apps to be filed rather than piled into the
+    fallback band.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 9, (
+        assert len(keys) <= 10, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
     # ...and the floor is real: any cap below it would be unsatisfiable.
     total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert -(-total // 5) == 9, (
-        f"{total} apps over five bands no longer needs a nine-wide band; "
+    assert -(-total // 5) == 10, (
+        f"{total} apps over five bands no longer needs a ten-wide band; "
         f"tighten the cap above rather than leaving the slack unused")
 
 
