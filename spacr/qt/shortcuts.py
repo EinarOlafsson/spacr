@@ -22,9 +22,11 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, List
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import QDialog, QLabel, QMainWindow, QVBoxLayout
+from PySide6.QtCore import QEvent, Qt
+from PySide6.QtGui import QColor, QKeySequence, QPainter, QShortcut
+from PySide6.QtWidgets import (
+    QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout, QWidget,
+)
 
 LOG = logging.getLogger("spacr.qt.shortcuts")
 
@@ -51,6 +53,8 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
     ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
+    ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
+    ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
     ShortcutSpec("?",            "Show this cheat sheet",  "Help"),
 ]
@@ -65,6 +69,8 @@ def install(window: QMainWindow) -> None:
     _bind(window, "Ctrl+K", lambda: _open_palette(window))
     _bind(window, "Ctrl+,", lambda: _open_preferences(window))
     _bind(window, "Ctrl+/", lambda: _toggle_ai(window))
+    _bind(window, "Ctrl+F", lambda: _focus_settings_search(window))
+    _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
     _bind(window, "?",      lambda: _help_key(window))
     # Ctrl+1 .. Ctrl+9 → nth app in the sidebar
@@ -89,6 +95,27 @@ def _install_window_hooks(window: QMainWindow) -> None:
     except Exception:
         LOG.debug("Could not install the feature dictionary hooks",
                   exc_info=True)
+    try:
+        from .settings_search import install_window_hooks as _search_hooks
+        _search_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the settings search hooks",
+                  exc_info=True)
+    try:
+        from .recipes import install_window_hooks as _recipe_hooks
+        _recipe_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the recipe hooks", exc_info=True)
+    try:
+        from .preview_registry import install_window_hooks as _preview_hooks
+        _preview_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the preview hooks", exc_info=True)
+    try:
+        from .walkthrough import install_window_hooks as _walkthrough_hooks
+        _walkthrough_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the walkthrough hooks", exc_info=True)
 
 
 def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> None:
@@ -169,8 +196,169 @@ def _toggle_ai(window: QMainWindow) -> None:
         pass
 
 
+#: objectNames, so the theme can reach the overlay and tests can find it.
+OVERLAY_NAME = "ShortcutOverlay"
+OVERLAY_CARD_NAME = "ShortcutOverlayCard"
+
+
+class ShortcutOverlay(QWidget):
+    """The ``?`` overlay — every shortcut, over the window, dismissed by any key.
+
+    A modal dialog was the wrong shape for this. The question a user asks by
+    pressing ``?`` is "what can I press *here*", and the answer is worth
+    about two seconds; a dialog with a title bar and a close button makes
+    them commit to a mode, find the button, and leave it. An overlay dims
+    what is behind, answers, and disappears on the next keystroke or click —
+    including on ``?`` itself, so the key that opened it also closes it.
+
+    Laid out in columns by category rather than one long list, because
+    fifteen bindings in one column is a scroll and in three is a glance.
+    """
+
+    def __init__(self, window: QWidget):
+        super().__init__(window)
+        self.setObjectName(OVERLAY_NAME)
+        self._window = window
+        self.setGeometry(window.rect())
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+        self._card = QWidget(self)
+        self._card.setObjectName(OVERLAY_CARD_NAME)
+        grid = QGridLayout(self._card)
+        grid.setContentsMargins(28, 24, 28, 24)
+        grid.setHorizontalSpacing(36)
+        grid.setVerticalSpacing(6)
+
+        title = QLabel("Keyboard shortcuts", self._card)
+        title.setObjectName("ShortcutOverlayTitle")
+        grid.addWidget(title, 0, 0, 1, 2)
+
+        by_cat: dict[str, list[ShortcutSpec]] = {}
+        for spec in SHORTCUTS:
+            by_cat.setdefault(spec.category, []).append(spec)
+
+        column = 0
+        for category, specs in by_cat.items():
+            row = 1
+            header = QLabel(category.upper(), self._card)
+            header.setObjectName("ShortcutOverlayCategory")
+            grid.addWidget(header, row, column, 1, 2)
+            row += 1
+            for spec in specs:
+                keys = QLabel(spec.keys, self._card)
+                keys.setObjectName("ShortcutOverlayKeys")
+                keys.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                grid.addWidget(keys, row, column)
+                label = QLabel(spec.label, self._card)
+                label.setObjectName("ShortcutOverlayLabel")
+                grid.addWidget(label, row, column + 1)
+                row += 1
+            column += 2
+
+        hint = QLabel("Press any key to close.", self._card)
+        hint.setObjectName("ShortcutOverlayHint")
+        grid.addWidget(hint, grid.rowCount(), 0, 1, max(column, 2))
+
+        self._reposition()
+        window.installEventFilter(self)
+
+    # -- painting -----------------------------------------------------
+    def paintEvent(self, event) -> None:
+        """Dim whatever is behind the card."""
+        painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor(0, 0, 0, 170))
+        painter.end()
+
+    def resizeEvent(self, event) -> None:
+        """Keep the card centred when the window resizes."""
+        self._reposition()
+
+    def _reposition(self) -> None:
+        hint = self._card.sizeHint()
+        self._card.setGeometry(
+            max(0, (self.width() - hint.width()) // 2),
+            max(0, (self.height() - hint.height()) // 2),
+            hint.width(), hint.height(),
+        )
+
+    # -- dismissal ----------------------------------------------------
+    def eventFilter(self, obj, event):
+        """Track the window's size so the overlay stays full-bleed."""
+        if obj is self._window and event.type() == QEvent.Resize:
+            self.setGeometry(self._window.rect())
+        return super().eventFilter(obj, event)
+
+    def keyPressEvent(self, event) -> None:
+        """Any key closes it — that is the whole interaction."""
+        self.dismiss()
+
+    def mousePressEvent(self, event) -> None:
+        """A click anywhere closes it too."""
+        self.dismiss()
+
+    def dismiss(self) -> None:
+        """Close the overlay and let go of the window."""
+        try:
+            self._window.removeEventFilter(self)
+        except RuntimeError:
+            pass
+        self.close()
+        self.deleteLater()
+
+
+def _focus_settings_search(window: QMainWindow) -> None:
+    """Put the caret in the current module's settings search box.
+
+    Ctrl+F on a settings form should mean "find a setting", which is the
+    only thing on that screen anyone searches. Screens without a strip are
+    left alone rather than swallowing the key.
+    """
+    try:
+        screen = window._stack.currentWidget()
+    except Exception:
+        return
+    bar = getattr(screen, "_settings_search", None)
+    if bar is None:
+        return
+    try:
+        bar._input.setFocus()
+        bar._input.selectAll()
+    except Exception:
+        LOG.debug("could not focus the settings search box", exc_info=True)
+
+
+def _open_recipes(window: QMainWindow) -> None:
+    """Open the recipe dialog for the module on screen."""
+    try:
+        from .recipes import _RecipeMenuHandler
+        _RecipeMenuHandler(window).on_triggered()
+    except Exception as e:
+        LOG.debug("recipes not available: %s", e)
+
+
 def show_cheat_sheet(parent) -> None:
-    """Show a modal listing every registered shortcut, grouped by category."""
+    """Show every registered shortcut, grouped by category.
+
+    An overlay when ``parent`` is a real window, so ``?`` answers and gets
+    out of the way. A modal dialog remains the fallback for a parentless or
+    zero-sized caller, where an overlay would have nothing to cover.
+    """
+    if isinstance(parent, QWidget) and parent.width() > 0 \
+            and parent.height() > 0:
+        existing = getattr(parent, "_spacr_shortcut_overlay", None)
+        if existing is not None:
+            try:
+                existing.dismiss()
+            except RuntimeError:
+                pass
+        overlay = ShortcutOverlay(parent)
+        parent._spacr_shortcut_overlay = overlay
+        overlay.show()
+        overlay.raise_()
+        overlay.setFocus()
+        return overlay
+
     dlg = QDialog(parent)
     dlg.setWindowTitle("spaCR — Keyboard shortcuts")
     dlg.setMinimumWidth(420)
@@ -199,3 +387,48 @@ def show_cheat_sheet(parent) -> None:
             layout.addWidget(row)
 
     dlg.exec()
+    return None
+
+
+def _overlay_qss(palette: dict, opacity) -> str:
+    """QSS for the ``?`` overlay, registered through the theme seam."""
+    from .theme import pane_surface
+    surface = pane_surface("surface", palette["theme"], opacity)
+    return f"""
+QWidget#{OVERLAY_CARD_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["accent"]};
+    border-radius: 12px;
+}}
+QLabel#ShortcutOverlayTitle {{
+    font-size: 18px;
+    color: {palette["text"]};
+    padding-bottom: 8px;
+}}
+QLabel#ShortcutOverlayCategory {{
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: {palette["accent"]};
+    padding-top: 10px;
+}}
+QLabel#ShortcutOverlayKeys {{
+    font-family: monospace;
+    color: {palette["text"]};
+}}
+QLabel#ShortcutOverlayLabel {{
+    color: {palette["text_dim"]};
+}}
+QLabel#ShortcutOverlayHint {{
+    color: {palette["text_dim"]};
+    font-size: 11px;
+    padding-top: 12px;
+}}
+"""
+
+
+try:  # pragma: no cover - present in every real launch
+    from .theme import register_widget_qss as _register_widget_qss
+    _register_widget_qss(OVERLAY_NAME, _overlay_qss, replace=True)
+except Exception:  # pragma: no cover
+    LOG.debug("could not register the shortcut-overlay QSS", exc_info=True)
