@@ -85,10 +85,12 @@ __all__ = [
     'ObjectTableSchemaError',
     # key names
     'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'TIME_KEY',
-    'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY',
+    'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY', 'OBJECT_TYPE_KEY',
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
+    'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
+    'is_object_type',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
     'canonical_column_name',
     # scalars
@@ -198,8 +200,43 @@ KEY_PREFIXES: Dict[str, str] = {
 }
 
 #: Objects are prefixed too, but ``object_label`` is stored bare and only
-#: gains its ``o`` when composed into ``prcfo``. See :func:`compose_prcfo`.
+#: gains its prefix when composed into ``prcfo``. See :func:`compose_prcfo`.
+#:
+#: ``'o'`` is the prefix for an object whose **type is not stated** — the only
+#: form spaCR has ever written to disk. An object whose type *is* known is
+#: prefixed with the type instead (``'nucleus7'``); see :data:`OBJECT_TYPES`.
 OBJECT_PREFIX = 'o'
+
+#: The column naming which object table a row came from.
+#:
+#: Object tables are one-type-per-table (``cell``, ``nucleus``, …), so the
+#: type is normally carried by *which table you read* rather than by a column.
+#: This is the name it takes when a frame has to carry it — a union of two
+#: tables, a lineage, an AnnData ``obs`` — and the name
+#: :func:`spacr.selection.object_keys` looks for.
+OBJECT_TYPE_KEY = 'object_type'
+
+#: The object types that may be written into an object key.
+#:
+#: The same set as :data:`OBJECT_TABLES` (pinned by a test), declared here
+#: because :func:`object_id` needs the vocabulary and the table tuples are
+#: defined much further down.
+#:
+#: **Why a type belongs in the key at all.** The object key was the field plus
+#: the object label, with no table in it, so a nucleus labelled 1 and a
+#: pathogen labelled 1 in the same field were *the same key*. A cell's own
+#: children are exactly the objects most likely to collide, which is where
+#: object linking is most useful, so four objects opened as three and which
+#: one you got depended on the row order of ``png_list``.
+OBJECT_TYPES: Tuple[str, ...] = (
+    'cell', 'cytoplasm', 'nucleus', 'pathogen', 'organelle')
+
+#: :data:`OBJECT_TYPES`, longest first. The match must be longest-first
+#: because ``'organelle'`` starts with ``'o'``, which is the untyped prefix:
+#: shortest-first would read ``'organelle7'`` as an untyped object labelled
+#: ``'rganelle7'``.
+_OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
+    sorted(OBJECT_TYPES, key=len, reverse=True))
 
 #: What ``prc`` / ``prcf`` / ``prcfo`` are joined on. A plate name containing
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
@@ -592,25 +629,178 @@ def time_id(time: Any, *, strict: bool = False) -> str:
     return _prefixed_id(TIME_KEY, time, strict=strict)
 
 
-def object_id(label: Any, *, strict: bool = False) -> str:
-    """Return the canonical ``'o<N>'`` object id used in ``prcfo``.
+def object_type_prefix(object_type: Any) -> str:
+    """Return the canonical prefix an object of ``object_type`` is keyed with.
 
-    :param label: object label, bare or already ``'o<N>'``.
-    :param strict: raise instead of preserving an unparseable token.
-    :returns: ``'o<N>'``.
-    :raises KeyParseError: on an empty token, or any bad token when ``strict``.
+    ``None`` — the type is not stated — gives :data:`OBJECT_PREFIX`. Anything
+    else is folded to lower case and checked, because the prefix has to be
+    separable from the label that follows it with no separator in between:
+
+    * it may not be empty, or every typed key would be an untyped one;
+    * it may not contain :data:`KEY_SEPARATOR`, for the reason
+      :func:`_check_plate` gives — the key is separator-joined;
+    * it may not contain a **digit**, or the split is ambiguous. Type
+      ``'cell1'`` with label ``7`` and type ``'cell'`` with label ``17`` both
+      write ``'cell17'``, which is the "two identities, one key" failure this
+      whole module exists to end.
+
+    The vocabulary is **closed**: :data:`OBJECT_TYPES` and nothing else. An
+    open one would mean every unrecognised token in the object slot became a
+    type, and ``'plate1_r1_c1_f2_x7'`` — which is not an object key — would
+    parse as object 7 of type ``'x'``. Widening what counts as a key is how a
+    malformed key becomes a plausible wrong answer instead of an error, and a
+    closed vocabulary is the same choice :data:`KEY_PREFIXES` already makes
+    for rows, columns, fields and timepoints.
+
+    A caller holding a table name it is not sure about asks
+    :func:`is_object_type` first and leaves the frame untyped otherwise — an
+    untyped key is exactly what spaCR wrote before, so that is a no-change,
+    not a failure.
+
+    :param object_type: one of :data:`OBJECT_TYPES`, or ``None``.
+    :returns: the prefix, lower case.
+    :raises KeyParseError: for a type that cannot be written into a key.
     """
-    value = parse_int_token(label)
-    if value is not None:
-        return f'{OBJECT_PREFIX}{value}'
-    text = '' if label is None else str(label).strip()
+    if object_type is None:
+        return OBJECT_PREFIX
+    text = str(object_type).strip()
     if not text:
         raise KeyParseError(
-            f'cannot build an object id from {label!r}: it is empty.')
-    if strict:
+            'cannot key an object on an empty object type. Pass None for '
+            '"the type is not stated" — that is a different fact from "the '
+            'type is the empty string", and only one of them is an identity.')
+    lowered = text.lower()
+    if lowered not in OBJECT_TYPES:
         raise KeyParseError(
-            f'cannot build an object id from {label!r}: it holds no integer.')
-    return f'{OBJECT_PREFIX}{_sanitise_token(text)}'
+            f'{object_type!r} is not an object type spaCR keys objects by; '
+            f'expected one of {list(OBJECT_TYPES)}. The vocabulary is closed '
+            f'on purpose: if any token could be a type, every malformed key '
+            f'would parse as an object of some invented type instead of '
+            f'raising. Ask is_object_type() and leave the frame untyped when '
+            f'the answer is no.')
+    return lowered
+
+
+def is_object_type(object_type: Any) -> bool:
+    """Whether ``object_type`` can be written into an object key.
+
+    The question a reader asks about the table it just loaded before stamping
+    :data:`OBJECT_TYPE_KEY` on the frame. ``png_list``, a summary table or a
+    user's own table answer False, and the frame stays untyped — which is the
+    key spaCR has always written, so nothing regresses.
+    """
+    if object_type is None:
+        return False
+    return str(object_type).strip().lower() in OBJECT_TYPES
+
+
+def split_object_id(token: Any, *, require_prefix: bool = True
+                    ) -> Tuple[Optional[str], str]:
+    """Split an object id into ``(object type, label)``.
+
+    The inverse of :func:`object_id`::
+
+        split_object_id('nucleus7')  -> ('nucleus', '7')
+        split_object_id('o7')        -> (None, '7')
+        split_object_id('omulti')    -> (None, 'multi')
+        split_object_id('7')         -> (None, '')        # not an object id
+
+    A type of ``None`` means *not stated*, which is what ``'o'`` has always
+    meant and is exactly what every key written before object types existed
+    carries. It is not "unknown and therefore probably a cell".
+
+    :param token: the last component of a ``prcfo``.
+    :param require_prefix: when False a bare label (``'7'``) is accepted and
+        read as an untyped id. That is the shape
+        :func:`spacr.selection.object_keys` writes, where the label is joined
+        bare rather than through :data:`OBJECT_PREFIX`.
+    :returns: ``(type or None, label)``. An **empty label** means ``token`` is
+        not an object id at all; callers must check it rather than assuming
+        the split succeeded.
+    """
+    text = '' if token is None else str(token).strip()
+    if not text:
+        return (None, '')
+    lowered = text.lower()
+    for kind in _OBJECT_TYPE_MATCH:
+        if lowered.startswith(kind) and len(text) > len(kind):
+            return (kind, text[len(kind):])
+    if lowered.startswith(OBJECT_PREFIX) and len(text) > len(OBJECT_PREFIX):
+        return (None, text[len(OBJECT_PREFIX):])
+    if not require_prefix and text[:1].isdigit():
+        # A bare label: '7'. Untyped, and the only reading that does not
+        # invent a type it was never given. Guarded on a leading digit so an
+        # unrecognised token ('x7') is still not an object id — see
+        # :func:`object_type_prefix` on why the vocabulary is closed.
+        return (None, text)
+    return (None, '')
+
+
+def object_id(label: Any, *, object_type: Any = None,
+              strict: bool = False) -> str:
+    """Return the canonical object id used in ``prcfo``.
+
+    ``'o<N>'`` when the object's type is not stated, and ``'<type><N>'`` when
+    it is — ``object_id(7, object_type='nucleus')`` is ``'nucleus7'``. The
+    type goes into the *key*, not beside it, because the key is the only thing
+    that travels: a lasso publishes strings, and a string that cannot say
+    which of a cell's four children it means is a string that opens the wrong
+    crop.
+
+    An already-composed id round-trips, with or without a type
+    (``object_id('nucleus7') == 'nucleus7'``), so this is idempotent and safe
+    to apply to a value that has already been through it.
+
+    :param label: object label — bare, ``'o<N>'``, or ``'<type><N>'``.
+    :param object_type: the object table this object came from, or ``None``
+        for "not stated". A type on ``label`` that disagrees with this is an
+        error rather than a silent overwrite.
+    :param strict: raise instead of preserving an unparseable token.
+    :returns: the object id.
+    :raises KeyParseError: on an empty token, a conflicting type, any bad
+        token when ``strict``, or a composition that would not read back.
+    """
+    text = '' if label is None else str(label).strip()
+    carried, remainder = split_object_id(text)
+    if remainder:
+        if object_type is None:
+            object_type = carried
+        elif carried is not None and carried != object_type_prefix(object_type):
+            raise KeyParseError(
+                f'object id {label!r} already says it is a {carried!r} but '
+                f'was handed object_type={object_type!r}. One object has one '
+                f'type; guessing which of the two is right is how a nucleus '
+                f'ends up keyed as a pathogen.')
+        label = remainder
+    prefix = object_type_prefix(object_type)
+
+    value = parse_int_token(label)
+    if value is not None:
+        body = str(value)
+    else:
+        body = '' if label is None else str(label).strip()
+        if not body:
+            raise KeyParseError(
+                f'cannot build an object id from {label!r}: it is empty.')
+        if strict:
+            raise KeyParseError(
+                f'cannot build an object id from {label!r}: it holds no '
+                f'integer.')
+        body = _sanitise_token(body)
+    composed = f'{prefix}{body}'
+    # Prove the round trip rather than trusting the vocabulary. The one case
+    # this catches in practice: an untyped id whose preserved label starts
+    # with a declared type's remainder, e.g. label 'rganelle7' composing to
+    # 'organelle7', which reads back as an organelle.
+    read_type, read_label = split_object_id(composed)
+    if read_label != body or (read_type or None) != (
+            None if prefix == OBJECT_PREFIX else prefix):
+        raise KeyParseError(
+            f'object id {composed!r} (type {object_type!r}, label {body!r}) '
+            f'would read back as type {read_type!r} label {read_label!r}. '
+            f'Two identities cannot share one key; rename the object type or '
+            f'give the object a numeric label.')
+    return composed
 
 
 def strip_prefix(value: Any, prefix: str) -> str:
@@ -657,8 +847,15 @@ def time_index(value: Any) -> Optional[int]:
 
 
 def object_index(value: Any) -> Optional[int]:
-    """``'o41'`` → ``41``; an unparseable id → ``None``."""
-    return _index_of(value, OBJECT_PREFIX)
+    """``'o41'`` and ``'nucleus41'`` → ``41``; an unparseable id → ``None``.
+
+    Split through :func:`split_object_id` rather than by stripping ``'o'``, so
+    a typed id reads back as the number it is instead of as ``None``.
+    """
+    _kind, label = split_object_id(value, require_prefix=False)
+    if not label:
+        return None
+    return parse_int_token(label, allow_prefix=False)
 
 
 # ---------------------------------------------------------------------------
@@ -943,7 +1140,7 @@ def compose_prcf(plate: Any, row: Any, column: Any, field: Any,
 
 
 def compose_prcfo(plate: Any, row: Any, column: Any, field: Any,
-                  obj: Any, time: Any = None) -> str:
+                  obj: Any, time: Any = None, object_type: Any = None) -> str:
     """Return the ``prcfo`` object key: ``'plate1_r1_c1_f2_o7'``.
 
     With a timepoint the object still goes last:
@@ -951,16 +1148,25 @@ def compose_prcfo(plate: Any, row: Any, column: Any, field: Any,
     ``utils._map_wells_png(timelapse=True)`` and the ``prcf + '_' + 'o' +
     object_label`` composition in ``io._read_and_join_tables``.
 
+    With an ``object_type`` the object component carries it:
+    ``'plate1_r1_c1_f2_nucleus7'``. **The untyped form is unchanged**, which
+    is why every ``prcfo`` already on disk still composes and parses byte for
+    byte as it did — the type is a refinement of the key, not a new spelling
+    of it.
+
     :param plate: plate id.
     :param row: row index or ``'r<N>'``.
     :param column: column index or ``'c<N>'``.
     :param field: field token.
-    :param obj: object label, bare or ``'o<N>'``.
+    :param obj: object label, bare, ``'o<N>'`` or ``'<type><N>'``.
     :param time: timepoint token, or ``None``.
+    :param object_type: the object table this object came from, or ``None``
+        for "not stated".
     :returns: the composed key.
     """
     return KEY_SEPARATOR.join(
-        [compose_prcf(plate, row, column, field, time), object_id(obj)])
+        [compose_prcf(plate, row, column, field, time),
+         object_id(obj, object_type=object_type)])
 
 
 @dataclass(frozen=True)
@@ -1006,11 +1212,18 @@ class FieldID:
         except (KeyParseError, WellParseError):
             return None
 
-    def with_object(self, obj: Any) -> 'ObjectID':
-        """Return the :class:`ObjectID` for one object in this field."""
+    def with_object(self, obj: Any, object_type: Any = None) -> 'ObjectID':
+        """Return the :class:`ObjectID` for one object in this field.
+
+        :param obj: object label, bare or already prefixed.
+        :param object_type: which object table it came from, or ``None`` for
+            "not stated". A nucleus and a pathogen with the same label in the
+            same field are two objects, and without this they are one key.
+        """
         return ObjectID(plateID=self.plateID, rowID=self.rowID,
                         columnID=self.columnID, fieldID=self.fieldID,
-                        timeID=self.timeID, objectID=object_id(obj))
+                        timeID=self.timeID,
+                        objectID=object_id(obj, object_type=object_type))
 
     def to_dict(self, *, include_prcf: bool = False) -> Dict[str, str]:
         """Return the identity as the dict the tables carry.
@@ -1065,7 +1278,12 @@ class FieldID:
 class ObjectID:
     """One segmented object's identity — the ``prcfo`` a merged row is keyed on.
 
-    :ivar objectID: ``'o<N>'``.
+    :ivar objectID: ``'o<N>'`` when the object's type is not stated, or
+        ``'<type><N>'`` when it is. The type lives *inside* this field rather
+        than beside it so that two :class:`ObjectID` values compare equal
+        exactly when they name the same object — a separate ``objectType``
+        field would let ``('o7', 'nucleus')`` and ``('nucleus7', None)``
+        describe one object and compare unequal.
     """
 
     plateID: str
@@ -1074,6 +1292,20 @@ class ObjectID:
     fieldID: str
     objectID: str
     timeID: Optional[str] = None
+
+    @property
+    def objectType(self) -> Optional[str]:
+        """Which object table this object came from, or ``None``.
+
+        ``None`` is "not stated", which is what every key written before
+        object types existed carries. It is emphatically not "a cell".
+        """
+        return split_object_id(self.objectID)[0]
+
+    @property
+    def objectLabel(self) -> str:
+        """The label with the type (or ``'o'``) taken back off: ``'7'``."""
+        return split_object_id(self.objectID)[1]
 
     @property
     def field(self) -> FieldID:
@@ -1093,8 +1325,16 @@ class ObjectID:
         return KEY_SEPARATOR.join([self.prcf, self.objectID])
 
     def to_dict(self, *, include_prcf: bool = False) -> Dict[str, str]:
-        """Return the identity as a dict, including ``prcfo``."""
+        """Return the identity as a dict, including ``prcfo``.
+
+        ``object_type`` appears only when the object has one. An untyped id
+        emits the same dict it always did, so a reader that never learned
+        about types sees no new column on data that has no type to report.
+        """
         out = self.field.to_dict(include_prcf=include_prcf)
+        object_type = self.objectType
+        if object_type is not None:
+            out[OBJECT_TYPE_KEY] = object_type
         out[PRCFO_KEY] = self.prcfo
         return out
 
@@ -1179,7 +1419,13 @@ def parse_prcfo(text: Any) -> ObjectID:
     parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``.
     A key that grows every time it passes through the parser joins to nothing.
 
-    :param text: e.g. ``'plate1_r1_c1_f2_o7'`` or ``'plate1_r1_c1_f2_t3_o7'``.
+    A **typed** object component is read back with its type:
+    ``'plate1_r1_c1_f2_nucleus7'`` gives ``objectType == 'nucleus'``. An
+    untyped one gives ``None``, which is what every key written before object
+    types existed means and is not the same fact as "cell".
+
+    :param text: e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or
+        ``'plate1_r1_c1_f2_nucleus7'``.
     :returns: the :class:`ObjectID`.
     :raises KeyParseError: when the string is not a ``prcfo``.
     """
@@ -1189,11 +1435,15 @@ def parse_prcfo(text: Any) -> ObjectID:
             f'{text!r} is not a prcfo: expected at least '
             f'plate_row_column_field_object, got {len(parts)} part(s).')
     object_key = parts.pop()
-    if object_key[:1].lower() != OBJECT_PREFIX:
+    object_type, object_label = split_object_id(object_key)
+    if not object_label:
         raise KeyParseError(
-            f'{text!r} is not a prcfo: {object_key!r} is not an object id.')
+            f'{text!r} is not a prcfo: {object_key!r} is not an object id. '
+            f'An object component is a label behind a prefix — '
+            f'{OBJECT_PREFIX!r} when the type is not stated, or the object '
+            f'type itself ({", ".join(OBJECT_TYPES)}).')
     field = parse_prcf(KEY_SEPARATOR.join(parts))
-    return field.with_object(strip_prefix(object_key, OBJECT_PREFIX))
+    return field.with_object(object_label, object_type=object_type)
 
 
 # ---------------------------------------------------------------------------
@@ -1301,7 +1551,10 @@ PARENT_OBJECT_TABLES: Tuple[str, ...] = ('cell', 'cytoplasm')
 #: Object tables whose rows carry a ``cell_id`` link to their parent cell.
 CHILD_OBJECT_TABLES: Tuple[str, ...] = ('nucleus', 'pathogen', 'organelle')
 
-#: Every per-object measurement table.
+#: Every per-object measurement table. The same set as :data:`OBJECT_TYPES`,
+#: which is declared further up because :func:`object_id` needs the vocabulary
+#: before this point; ``tests/test_schema.py`` pins the two together so a new
+#: object table cannot gain a table without gaining a key prefix.
 OBJECT_TABLES: Tuple[str, ...] = PARENT_OBJECT_TABLES + CHILD_OBJECT_TABLES
 
 #: Per-parent rollups of the organelles inside them. One row per parent.
