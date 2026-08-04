@@ -727,16 +727,29 @@ def module_defaults(module: Module) -> Dict[str, Any]:
 
     :param module: the module whose defaults are wanted.
     :returns: dict of defaults; empty when the pipeline has no helper.
+    :raises SettingsError: when the defaults module will not import. This used
+        to return ``{}`` so that ``--describe`` survived a missing optional
+        dependency, but :func:`resolve_settings` is the **run** path, not just
+        the describe path: convert, illumination, foreign, external_masks,
+        barcode_qc, anndata_export and every plugin app then ran on a settings
+        dict with no defaults in it, and ``spacr-run convert --set
+        z_handling=max`` was rejected with "names a setting that does not exist
+        for module 'convert'" — pointing the user at their own command line
+        instead of at the dependency that is actually missing. ``--describe``
+        is unaffected: it has its own guard around this call.
     """
     fn = None
     if module.defaults_entry:
         target, _, name = module.defaults_entry.partition(":")
         try:
             fn = getattr(importlib.import_module(target), name, None)
-        except Exception:
-            # A missing optional dependency must not break --describe; the run
-            # itself will fail loudly in import_entry with a real message.
-            return {}
+        except Exception as exc:
+            raise SettingsError(
+                f"module {module.key!r} keeps its defaults in {target!r}, "
+                f"which will not import: {exc}. Install what it needs (or "
+                f"fix the import) — until then spaCR cannot tell which "
+                f"settings this module has, so it cannot check yours."
+            ) from exc
     elif module.defaults:
         from . import settings as _settings
 
