@@ -206,6 +206,19 @@ class CanvasTool:
         """The cursor moved to ``world`` with no drag in progress."""
         return False
 
+    def release(self, view: "LayerCanvas", world: Dict[str, float],
+                event: Any) -> bool:
+        """The mouse button came up at ``world`` — the end of a drag.
+
+        What turns a drag into ONE action. A brush stroke is dozens of
+        :meth:`move` calls and exactly one thing the user did, so undo has to
+        take back the stroke rather than the last few pixels of it; without a
+        release the tool cannot tell where one stroke ends and the next
+        begins. Inert by default, like the rest of this class, so a tool that
+        only wants clicks is unaffected.
+        """
+        return False
+
     def double_click(self, view: "LayerCanvas", world: Dict[str, float],
                      event: Any) -> bool:
         """A double click at ``world`` — how a polygon is closed."""
@@ -464,6 +477,13 @@ class LayerCanvas(QFrame):
         if self._drag is not None:
             self._drag = None
             self.unsetCursor()
+            return
+        # Offered to the tool AFTER the pan check, so releasing a shift-drag
+        # pan never reads as the end of a brush stroke.
+        canvas = self._ensure_canvas()
+        if self._tool is not None and canvas is not None and self._tool.release(
+                self, canvas.world_at(*self._pixel(event)), event):
+            self.update()
 
 
 # ---------------------------------------------------------------------------
@@ -940,6 +960,7 @@ APP_CLI_NOTE = (
 COMPANION_APPS = (
     ("spacr.qt.screens.image_scatter", "register"),
     ("spacr.qt.screens.lineage", "register"),
+    ("spacr.qt.screens.curate", "register"),
 )
 
 
