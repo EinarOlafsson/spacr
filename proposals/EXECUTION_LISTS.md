@@ -240,3 +240,25 @@ anything spaCR does not own. No killing processes the user started, no
 `drop_caches`, nothing needing root, nothing that could lose another
 program's work. A cleanup that costs somebody their unsaved analysis is
 worse than a slow spaCR.
+
+---
+
+## Requested 2026-08-04 — drop anything, anywhere, and let the module find it
+
+Every module — the new ones as much as the old — accepts a drop of a folder
+or a file, and **resolves it through spaCR's own layout** rather than making
+the user navigate to the exact artifact.
+
+Drop a project source folder on a module that wants a database and it looks
+in `src/measurements/measurements.db`. On one that wants a table, it offers
+the tables inside that database. On one that wants a CSV, it looks in
+`results/`. And so on for every declared input kind.
+
+The vocabulary for this already exists and must not be re-invented:
+`spacr/ports.py` declares what each module consumes (`measurements-db`,
+`regression-results`, `settings-csv`, `masks`, `crops`, `model-weights`, …),
+`resolve_port` already maps a port to the paths that satisfy it inside a
+project root, and `project_root()` finds the root from a dropped path.
+`spacr/chaining.py` resolves the same question for auto-chaining and must
+give the same answer — a folder dropped and a folder auto-chained must not
+disagree about where the database is.
