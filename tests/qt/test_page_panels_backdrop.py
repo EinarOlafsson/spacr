@@ -29,6 +29,25 @@ string can tell you whether any of them worked:
     raw ``surface_alt``. Both are registered blocks now, through
     :func:`spacr.qt.theme.pane_surface`.
 
+Then roughly twenty-five screens landed in a day, most of them written
+without any of that, and the file grew a row for each: the six chart
+screens that share one ``FigureCanvasQTAgg``, the two layer canvases and
+the three orthogonal planes that took ``palette["bg"]`` (the WINDOW
+colour, which is not a surface), and the six named containers that had no
+rule of their own and so fell through to the blanket
+``QWidget {{ background-color: bg }}`` — the same window colour by another
+route. A fourth cause joins the three above:
+
+``a QScrollArea whose viewport auto-fills``
+    ``autoFillBackground`` is a widget attribute and paints the palette's
+    Window brush before any stylesheet is consulted, so no QSS can undo
+    it. ``viewport().setAutoFillBackground(False)`` is the only fix.
+
+One thing is deliberately measured the other way round. Opacity reaches
+the container and never the picture, so
+:func:`test_the_image_itself_stays_opaque` loads a field into a layer
+canvas and requires it to read *below* :data:`OPAQUE`.
+
 **Measured, not read.** Sampling a colour cannot tell "opaque black"
 from "a dark part of the backdrop", so every number here comes from
 rendering the screen over solid black and again over solid white and
@@ -369,6 +388,30 @@ def _layer_viewer(qtbot):
                                                    "LayerCanvasFrame")}
 
 
+def _control_chart(qtbot):
+    from spacr.qt.screens.control_chart import (CONTROLS_OBJECT,
+                                                ControlChartScreen)
+    window, screen = _show(qtbot,
+                           lambda: ControlChartScreen(threaded=False))
+    return window, screen, {"chart canvas": screen.canvas.canvas,
+                            "control column": _named(screen,
+                                                     CONTROLS_OBJECT)}
+
+
+def _dose_response(qtbot):
+    from spacr.qt.screens.dose_response import DoseResponseScreen
+    window, screen = _show(qtbot,
+                           lambda: DoseResponseScreen(threaded=False))
+    return window, screen, {"curve canvas": screen.canvas}
+
+
+def _outliers(qtbot):
+    from spacr.qt.screens.outliers import CONTROLS_OBJECT, OutliersScreen
+    window, screen = _show(qtbot, lambda: OutliersScreen(threaded=False))
+    return window, screen, {"control column": _named(screen,
+                                                     CONTROLS_OBJECT)}
+
+
 def _ortho_view(qtbot):
     from spacr.qt.ortho_view import OrthoView
     window, screen = _show(qtbot, OrthoView)
@@ -396,6 +439,9 @@ SCREENS = (
     ("Curate", _curate),
     ("Layer Viewer", _layer_viewer),
     ("Ortho View", _ortho_view),
+    ("Control Chart", _control_chart),
+    ("Dose Response", _dose_response),
+    ("Outliers", _outliers),
 )
 
 
@@ -466,6 +512,10 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
         Curate            layer canvas      0.000 -> 0.702
         Layer Viewer      layer canvas      0.000 -> 0.702
         Ortho View        xy / zx / yz      0.000 -> 0.702
+        Control Chart     chart canvas      0.000 -> 0.698
+        Control Chart     control column    0.000 -> 0.702
+        Dose Response     curve canvas      0.000 -> 0.698
+        Outliers          control column    0.000 -> 0.698
     """
     _window, screen, regions = build(qtbot)
     alpha = _transmission(screen)
