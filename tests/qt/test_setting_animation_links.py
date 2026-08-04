@@ -116,3 +116,34 @@ def test_the_clicked_dot_shows_the_same_zoom_the_hover_does(qtbot):
         f"no zoom was applied: {measured:.1%} of the square vs {raw:.1%} raw")
     popup.hide()
     root.close()
+
+
+def test_an_undecodable_asset_shows_the_error_card_instead_of_raising(
+        qtbot, tmp_path):
+    """The failure branch moved from ``QMovie.isValid`` to the zoom loader.
+
+    A missing or corrupt GIF must still end in the error card — a hover that
+    raises out of a click handler takes the event loop with it.
+    """
+    from types import SimpleNamespace
+
+    root, _label, _field = _setting_row(qtbot, "n_neighbors")
+    link = root.findChild(AnimationLink)
+    broken = tmp_path / "broken.gif"
+    broken.write_bytes(b"not a gif at all")
+    # A distinct slug on purpose: the player keeps the frames it already has
+    # when the same slug is loaded again, so reusing the real one would have
+    # this test measure the PREVIOUS animation still on screen.
+    corrupt = SimpleNamespace(
+        slug="deliberately_broken", title="Broken", path=broken)
+
+    popup = AnimationPopup.instance()
+    popup.show_animation(link, corrupt)
+
+    assert popup.isVisible()
+    assert not popup.animation_view().isVisible()
+    assert popup.animation_view().frame_count() == 0
+    assert popup._error.isVisible()
+    assert "could not be loaded" in popup._error.text()
+    popup.hide()
+    root.close()
