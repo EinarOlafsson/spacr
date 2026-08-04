@@ -360,6 +360,17 @@ def registry_sandbox():
     failed when this file happened to run first, which is the worst way for it
     to fail. Driven off ``_META_TARGETS`` so a fifth side table is undone
     without this fixture being edited.
+
+    **It also rolls this one key FORWARD to "not registered" before the test.**
+    ``spacr.qt.SELF_REGISTERING_MODULES`` now carries
+    ``spacr.qt.screens.control_chart``, so any earlier test in the same process
+    that calls ``spacr.qt.register_self_registering_modules()`` —
+    ``tests/qt/test_settings_search.py`` does, to render the real stylesheet —
+    leaves the row already in place. ``register()`` then answers ``False`` on
+    its first call, and the test below is asserting the collection order of the
+    suite rather than the seam. Clearing the key first makes the drive genuine
+    in either order; the wholesale restore afterwards still puts back whatever
+    was there.
     """
     import sys
 
@@ -374,6 +385,16 @@ def registry_sandbox():
         table = getattr(module, attribute, None) if module else None
         if isinstance(table, dict):
             side.append((table, dict(table)))
+
+    for row in [r for r in app_mod.APPS if r[0] == APP_KEY]:
+        app_mod.APPS.remove(row)
+    app_mod.APP_FACTORIES.pop(APP_KEY, None)
+    app_mod.APP_STAGE.pop(APP_KEY, None)
+    app_mod.APP_META.pop(APP_KEY, None)
+    for table, _saved in side:
+        table.pop(APP_KEY, None)
+    app_mod._refresh_sections()
+
     yield app_mod
     app_mod.APPS[:] = apps
     app_mod.APP_FACTORIES.clear()
@@ -388,13 +409,34 @@ def registry_sandbox():
     app_mod._refresh_sections()
 
 
-def test_the_screen_is_not_registered_until_the_registry_list_says_so(qtbot):
-    """One row in `spacr.qt.SELF_REGISTERING_MODULES` turns it on; not this
-    file. The seam is built and tested, and left switched off, because a new
-    APPS row belongs to a change in a file this one does not own."""
-    from spacr.qt.app import APPS
+def test_the_registry_list_says_so_and_a_launch_registers_the_screen(
+        qtbot, registry_sandbox):
+    """Inverted 2026-08-04. This used to read "the screen is NOT registered
+    until the registry list says so" and assert the row was absent, because
+    the seam shipped switched off — the row belonged to a file this one does
+    not own.
 
-    assert not any(row[0] == APP_KEY for row in APPS)
+    The row now exists: ``spacr.qt.SELF_REGISTERING_MODULES`` carries
+    ``spacr.qt.screens.control_chart``, so every launched app has Control
+    Charts in the registry. Left as it was, this test pinned the feature as
+    unreachable and would have kept a finished screen invisible — and it only
+    went red when something earlier in the process happened to run the
+    registration pass, so it read as a flake rather than as stale. It asserts
+    the switched-ON state instead: the module is listed, and the launch-time
+    call is what puts the row into ``APPS``.
+    """
+    import spacr.qt
+
+    app_mod = registry_sandbox
+    assert ("spacr.qt.screens.control_chart"
+            in spacr.qt.SELF_REGISTERING_MODULES)
+    # The sandbox cleared the key, so the row below is this call's doing.
+    assert not any(row[0] == APP_KEY for row in app_mod.APPS)
+
+    registered = spacr.qt.register_self_registering_modules()
+
+    assert "spacr.qt.screens.control_chart" in registered
+    assert any(row[0] == APP_KEY for row in app_mod.APPS)
     qtbot.addWidget(make_control_chart_screen())
 
 

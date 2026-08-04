@@ -392,43 +392,51 @@ def test_crop_demo_runs_end_to_end_through_measure_crop(tmp_path: Path):
 
 @pytest.mark.integration
 @pytest.mark.heavy
-def test_the_measure_demos_organelle_plane_is_measured_into_nothing(tmp_path: Path):
-    """KNOWN GAP, pinned here so it announces itself when it is fixed.
+def test_the_measure_demos_organelle_plane_is_summarised_but_not_tabulated(
+        tmp_path: Path):
+    """HALF the gap this used to pin has closed. Inverted 2026-08-04.
 
     The measure demo ships an organelle channel, an organelle label plane with
-    64 real labels per field and ``organelle_mask_dim=7`` — and a measure run
-    over it writes cell/nucleus/pathogen/cytoplasm and *no organelle table at
-    all*. All four organelle writes in ``spacr.measure._measure_crop_core``
-    are gated on ``settings.get('summarize_organelles_by') is not None``, and
-    ``spacr.settings.get_measure_crop_settings`` never sets that key.
+    64 real labels per field and ``organelle_mask_dim=7``. Until
+    ``00379ddc fix(measure): a measure run wrote no organelle table at all``,
+    a measure run over it wrote cell/nucleus/pathogen/cytoplasm and *nothing*
+    organelle-shaped: all four organelle writes in
+    ``spacr.measure._measure_crop_core`` are gated on
+    ``settings.get('summarize_organelles_by') is not None`` and
+    ``get_measure_crop_settings`` never set the key. This test asserted that
+    absence, which — left alone — is exactly how a finished fix stays
+    invisible. So it now asserts the fix instead, and keeps pinning the half
+    that is still open.
 
-    That much was already recorded. What was wrong was the remedy — "default
-    it for measure the way the Mask app does" — and this test runs the
-    pipeline three ways to show why, because the difference between them is
+    ``get_measure_crop_settings`` now defaults the key to ``'cell'``, the same
+    value ``set_default_settings_preprocess_generate_masks`` uses and the only
+    form ``spacr.settings.expected_types`` declares (it says ``str``). The
+    pipeline is still run three ways, because the difference between them is
     invisible from the settings alone:
 
-    * as shipped                      → no ``organelle`` table;
-    * ``summarize_organelles_by='cell'``, which is exactly what
-      ``set_default_settings_preprocess_generate_masks`` defaults and the only
-      form ``spacr.settings.expected_types`` declares (it says ``str``)
-      → ``cell_organelle_summary`` appears and there is *still* no
-      ``organelle`` table, because ``measure.py`` asks
-      ``"organelle" in <value>`` and that is a substring test on a string;
+    * as shipped, i.e. defaulted to ``'cell'`` → ``cell_organelle_summary``
+      appears, one row per cell;
+    * ``summarize_organelles_by='cell'`` spelled out → identical, which is
+      what "the default is 'cell'" has to mean;
+    * both cases leave *no* raw ``organelle`` table, because ``measure.py``
+      asks ``"organelle" in <value>`` and that is a substring test on a
+      string;
     * ``summarize_organelles_by=['cell', 'organelle']`` → both tables, one row
       per organelle label. So the demo's pixels are fine and always were.
 
-    The demo cannot ship the working value: pre-flight rejects the list
-    outright ("is a list, but str is expected"), and the Measure screen has no
-    widget for the key, so ``apply_settings_dict`` drops it and ``collect()``
-    never emits it — a CSV key that changes what a CLI run measures and
-    nothing about a GUI run. The wiring needed is in ``spacr/settings.py``
-    (widen ``expected_types``, default it to ``['cell', 'organelle']``) and
-    ``spacr/qt/screens/settings_model.py`` (a widget in the measure sections).
+    STILL OPEN, and still pinned below: the demo cannot ship the working list
+    value. Pre-flight rejects it outright ("is a list, but str is expected"),
+    and the Measure screen has no widget for the key, so
+    ``apply_settings_dict`` drops it and ``collect()`` never emits it — a CSV
+    key that changes what a CLI run measures and nothing about a GUI run. The
+    wiring still needed is in ``spacr/settings.py`` (widen ``expected_types``)
+    and ``spacr/qt/screens/settings_model.py`` (a widget in the measure
+    sections).
 
-    When the first assertion fails, that wiring has landed: delete this test,
-    ship the key from ``demo_settings('measure'/'crop')``, and let
-    ``test_crop_demo_runs_end_to_end_through_measure_crop`` assert the
-    organelle rows alongside the rest.
+    When the *second* assertion fails, that wiring has landed too: invert this
+    test again to ship the key from ``demo_settings('measure'/'crop')`` and
+    let ``test_crop_demo_runs_end_to_end_through_measure_crop`` assert the
+    per-organelle rows alongside the rest.
     """
     import sqlite3
 
@@ -446,12 +454,13 @@ def test_the_measure_demos_organelle_plane_is_measured_into_nothing(tmp_path: Pa
     n_organelles = int(np.count_nonzero(np.unique(arr[..., 7])))
     assert n_organelles == syn.CELL_GRID ** 2 * syn._ORGANELLES_PER_CELL
 
-    # Blocker 1: the key is not defaulted for measure.
+    # Closed: measure defaults the key, so a plain run summarises organelles.
     resolved = get_measure_crop_settings(dict(shipped))
-    assert resolved.get("summarize_organelles_by") is None, (
-        "spacr.settings now defaults summarize_organelles_by for measure — "
-        "see this test's docstring for what to do next.")
-    # Blocker 2: and the value that would work cannot be shipped anyway.
+    assert resolved.get("summarize_organelles_by") == "cell", (
+        "get_measure_crop_settings stopped defaulting summarize_organelles_by "
+        "— the measure demo is back to measuring its organelle plane into "
+        "nothing, which is the regression this test was inverted to catch.")
+    # Still open: the value that writes the raw table cannot be shipped.
     assert expected_types["summarize_organelles_by"] is str
     with_list = dict(shipped)
     with_list["summarize_organelles_by"] = ["cell", "organelle"]
@@ -477,11 +486,14 @@ def test_the_measure_demos_organelle_plane_is_measured_into_nothing(tmp_path: Pa
 
     as_shipped = _tables(shipped, "as_shipped")
     assert as_shipped["cell"] > 0
+    assert as_shipped["cell_organelle_summary"] == as_shipped["cell"], (
+        "a shipped measure run must summarise organelles per cell now that "
+        "the key is defaulted")
     assert "organelle" not in as_shipped, (
-        "the organelle gap has closed on its own — check what changed")
-    assert "cell_organelle_summary" not in as_shipped
+        "'cell' is a *string*; measure.py's `\"organelle\" in value` is a "
+        "substring test, so the raw per-organelle table stays opt-in")
 
-    # The mask app's default, and the only str the type table allows.
+    # The mask app's default spelled out: the same run, by definition.
     as_str = _tables({**shipped, "summarize_organelles_by": "cell"}, "as_str")
     assert as_str["cell_organelle_summary"] == as_shipped["cell"]
     assert "organelle" not in as_str, (
