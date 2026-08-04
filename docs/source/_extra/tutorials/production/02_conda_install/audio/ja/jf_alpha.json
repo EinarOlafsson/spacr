@@ -4,47 +4,77 @@
   "voice": "jf_alpha",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 63.5,
+  "total_duration": 84.9,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.625,
-      "scene_end": 13.075,
-      "duration": 13.075,
-      "text": "このチュートリアルでは,Condaでインストールをカバーします. システム内の残りの部分を変更せずに,孤立した Python 環境を作成して spaCR をインストールします."
+      "speech_end": 14.5,
+      "scene_end": 15.2,
+      "duration": 15.2,
+      "text": "コンダ環境は,spaCRとその科学的な依存を関連のないプロジェクトから切り離しています. Python3point12は現在最も広範なオプションパッケージ互換性を提供しています.",
+      "speech_text": "コンダ環境は,スペーカーとその科学的な依存を関連のないプロジェクトから切り離しています. Python3point12は現在最も広範なオプションパッケージ互換性を提供しています.",
+      "phonemes": "konda kaŋkʲoː βa, sɨpeːkaː to sono kaɡakɯtekʲina iʣoɴ o kanɾeɴ no nai pɯɾoʥekɯto kaɾa kʲiɾʲihanaɕite imasɨ. Python saɴ point ʥɨːɲi βa ɡeɴʣai moʔtomo koːhaɴ na opɯɕoɴ paʔkeːʥi ɡokaɴseː o teːkʲoː ɕite imasɨ."
     },
     {
       "scene": 2,
-      "speech_start": 13.075,
-      "speech_end": 26.424999999999997,
-      "scene_end": 26.874999999999996,
-      "duration": 13.799999999999997,
-      "text": "spaCR セクションから Installation with Conda を開きます。 Miniconda,Anaconda,または他のConda対応管理者をインストールして,Python3point12で環境を作成します."
+      "speech_start": 15.2,
+      "speech_end": 20.575,
+      "scene_end": 21.275,
+      "duration": 6.074999999999999,
+      "text": "Python3point12と pipで spacrという環境を作成します",
+      "speech_text": "Python3point12と pipで スペーカーという環境を作成します",
+      "phonemes": "Python saɴ point ʥɨːɲi to pip de sɨpeːkaː to jɯː kaŋkʲoː o sakɯseː ɕi masɨ"
     },
     {
       "scene": 3,
-      "speech_start": 26.874999999999996,
-      "speech_end": 37.449999999999996,
-      "scene_end": 37.9,
-      "duration": 11.025000000000002,
-      "text": "主な構成領域では,環境をアクティブに動かす.その Pythonと pip実行可能なものがその環境に属していることを確認する."
+      "speech_start": 21.275,
+      "speech_end": 29.7,
+      "scene_end": 30.4,
+      "duration": 9.125,
+      "text": "環境を活性化する 何かをインストールする前に Python が spacr 環境に属していることを確認してください.",
+      "speech_text": "環境を活性化する 何かをインストールする前に Python が スペーカー 環境に属していることを確認してください.",
+      "phonemes": "kaŋkʲoː o kaʔseː ka sɨɾɯ naŋka o iɴsɨtoːɾɯ sɨɾɯ mae ɲi Python ɡa sɨpeːkaː kaŋkʲoː ɲi ʣokɯɕite iɾɯ koto o kakɯɲiɴ ɕite kɯdasai."
     },
     {
       "scene": 4,
-      "speech_start": 37.9,
-      "speech_end": 54.45,
-      "scene_end": 54.900000000000006,
-      "duration": 17.000000000000007,
-      "text": "実行完了前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.アクティブ環境内にパイプ付きの spaCR をインストールします. コンダフォージパッケージはまだすぐに到着します."
+      "speech_start": 30.4,
+      "speech_end": 40.775,
+      "scene_end": 41.475,
+      "duration": 11.075000000000003,
+      "text": "パイthon インタプリターで Pip をアップグレードする. python -m pipを使用すると,別のパイプ実行可能なものがパッケージを受け取ることを防ぐ.",
+      "speech_text": "パイthon インタプリターで Pip をアップグレードする. python -m pipを使用すると,別のパイプ実行可能なものがパッケージを受け取ることを防ぐ.",
+      "phonemes": "pai thon intapɯɾʲita de Pip o aʔpɯɡɯɾeːdo sɨɾɯ. python - m pip o ɕijoː sɨɾɯ to, beʦɨ no paipɯ ʥiʔkoː kanoː na mono ɡa paʔkeːʥi o ɯketoɾɯ koto o ɸɯseɡɯ."
     },
     {
       "scene": 5,
-      "speech_start": 54.900000000000006,
-      "speech_end": 62.85000000000001,
-      "scene_end": 63.50000000000001,
-      "duration": 8.600000000000001,
-      "text": "作業流が完了すると spaCR を同じ環境から起動し,関連のないプロジェクトから隔離します."
+      "speech_start": 41.475,
+      "speech_end": 52.35,
+      "scene_end": 53.050000000000004,
+      "duration": 11.575000000000003,
+      "text": "デスクトップアプリケーションでは, qt 追加で spacr をインストールします. ヘッドレスワークステーションやサーバーでは平らなスペースパケットを使用します.",
+      "speech_text": "デスクトップアプリケーションでは, qt 追加で スペーカー をインストールします. ヘッドレスワークステーションやサーバーでは平らなスペースパケットを使用します.",
+      "phonemes": "desɨkɯtoʔpɯ apɯɾʲikeːɕoɴ de βa, qt ʦɨika de sɨpeːkaː o iɴsɨtoːɾɯ ɕi masɨ. heʔdo ɾesɨ βaːkɯsɨteːɕoɴ ja saːbaː de βa taiɾa na sɨpeːsɨ pakeʔto o ɕijoː ɕi masɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 53.050000000000004,
+      "speech_end": 67.375,
+      "scene_end": 68.075,
+      "duration": 15.024999999999999,
+      "text": "初回起動の前に spaCR-doctor を実行します。診断ツールは、現在のインストール、Qt、PyTorch、オプション機能、ハードウェア対応を確認し、失敗した項目ごとに修正方法を提示します。",
+      "speech_text": "初回起動の前に スペーカー-doctor を実行します。診断ツールは、現在のインストール、Qt、PyTorch、オプション機能、ハードウェア対応を確認し、失敗した項目ごとに修正方法を提示します。",
+      "phonemes": "ɕokai kʲidoː no mae ɲi sɨpeːkaː - doctor o ʥiʔkoː ɕi masɨ ɕindaɴ ʦɨːɾɯ βa ɡeɴʣai no iɴsɨtoːɾɯ Qt PyTorch opɯɕoɴ kʲinoː haːdoβea taioː o kakɯɲiɴ ɕi ɕiʔpai ɕita koːmokɯ ɡoto ɲi ɕɨːseː hoːhoː o teːʥi ɕi masɨ"
+    },
+    {
+      "scene": 7,
+      "speech_start": 68.075,
+      "speech_end": 84.2,
+      "scene_end": 84.9,
+      "duration": 16.825000000000003,
+      "text": "conda-forge パッケージはまだ公開されていないため、現時点では conda install -c conda-forge spacr を実行しないでください。利用可能になったら、spaCR リポジトリから公式レシピとチャンネルへのリンクが提供されます。",
+      "speech_text": "conda-forge パッケージはまだ公開されていないため、現時点では conda install -c conda-forge スペーカー を実行しないでください。利用可能になったら、スペーカー リポジトリから公式レシピとチャンネルへのリンクが提供されます。",
+      "phonemes": "conda - forge paʔkeːʥi βa mada koːkai saɾete inai tame ɡeɴ ʥiteɴ de βa conda install - c conda - forge sɨpe kaː o ʥiʔkoː ɕinai de kɯdasai ɾʲijoː kanoː ɲi naʔtaɾa sɨpeːkaː ɾʲipoʥitoɾʲi kaɾa koːɕikʲi ɾeɕipʲi to ʨanneɾɯ e no ɾʲiŋkɯ ɡa teːkʲoː saɾemasɨ"
     }
   ]
 }

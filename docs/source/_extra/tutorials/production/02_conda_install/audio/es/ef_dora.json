@@ -4,47 +4,77 @@
   "voice": "ef_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.45,
+  "total_duration": 72.025,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.775,
-      "scene_end": 8.225,
-      "duration": 8.225,
-      "text": "Este tutorial cubre Instalación con Conda. Crea un entorno Python aislado e instala spaCR sin cambiar el resto de tu sistema."
+      "speech_end": 11.925,
+      "scene_end": 12.625,
+      "duration": 12.625,
+      "text": "Un entorno Conda mantiene spaCR y sus dependencias científicas separadas de proyectos no relacionados. Python tres puntos doce ofrece actualmente la más amplia compatibilidad de paquetes opcionales.",
+      "speech_text": "Un entorno Conda mantiene espáquer y sus dependencias científicas separadas de proyectos no relacionados. Python tres puntos doce ofrece actualmente la más amplia compatibilidad de paquetes opcionales.",
+      "phonemes": "ˈun entˈoɾno kˈonda mantjˈene espˈakeɾ i sus ðˌependˈɛnθjas θjentˈifikas sˌepaɾˈaðas ðe pɾoʝˈektos nˈo rˌelaθjonˈaðos. pˈiton tɾˈes pˈuntos ðˈoθe ofɾˈeθe aktwˈalmˈente la mˈas ˈamplia kˌompatˌiβiliðˈad ðe pakˈetes ˌopθjonˈales."
     },
     {
       "scene": 2,
-      "speech_start": 8.225,
-      "speech_end": 21.674999999999997,
-      "scene_end": 22.124999999999996,
-      "duration": 13.899999999999997,
-      "text": "Abra Installation with Conda en la sección spaCR. Abra la instalación con Conda desde la sección spaCR. Instale Miniconda, Anaconda u otro administrador compatible con Conda, y luego cree un entorno con Python tres puntos doce."
+      "speech_start": 12.625,
+      "speech_end": 19.0,
+      "scene_end": 19.7,
+      "duration": 7.074999999999999,
+      "text": "Abre una terminal habilitada con Conda y crea un entorno llamado spacr con Python tres puntos doce y pip.",
+      "speech_text": "Abre una terminal habilitada con Conda y crea un entorno llamado espáquer con Python tres puntos doce y pip.",
+      "phonemes": "ˈaβɾe ˈuna tˌeɾminˈal ˌaβilitˈaða kon kˈonda i kɾˈea ˈun entˈoɾno ʎamˈaðo espˈakeɾ kom pˈiton tɾˈes pˈuntos ðˈoθe i pˈip."
     },
     {
       "scene": 3,
-      "speech_start": 22.124999999999996,
-      "speech_end": 29.525,
-      "scene_end": 29.974999999999998,
-      "duration": 7.850000000000001,
-      "text": "En el área de configuración principal, active el entorno y confirme que sus ejecutables Python y pip pertenecen a ese entorno."
+      "speech_start": 19.7,
+      "speech_end": 25.225,
+      "scene_end": 25.925,
+      "duration": 6.225000000000001,
+      "text": "Activar el entorno. Confirme que Python pertenece al entorno spacr antes de instalar algo.",
+      "speech_text": "Activar el entorno. Confirme que Python pertenece al entorno espáquer antes de instalar algo.",
+      "phonemes": "ˌaktiβˈaɾ el entˈoɾno. konfˈiɾme ke pˈitom pˌeɾtenˈeθe al entˈoɾno espˈakeɾ ˈantes ðe ˌinstalˈaɾ ˈalɣo."
     },
     {
       "scene": 4,
-      "speech_start": 29.974999999999998,
-      "speech_end": 37.9,
-      "scene_end": 38.35,
-      "duration": 8.375000000000004,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+      "speech_start": 25.925,
+      "speech_end": 34.15,
+      "scene_end": 34.85,
+      "duration": 8.925,
+      "text": "Actualizar pip a través del intérprete Python activo. El uso de python -m pip impide que un ejecutable de pipa diferente reciba el paquete.",
+      "speech_text": "Actualizar pip a través del intérprete Python activo. El uso de python -m pip impide que un ejecutable de pipa diferente reciba el paquete.",
+      "phonemes": "ˌaktwaliθˈaɾ pˈip a tɾaβˈes ðel intˈeɾpɾete pˈiton aktˈiβo. el ˈuso ðe pˈiton ˈɛme pˈip impˈiðe ke ˈun ˌexekutˈaβle ðe pˈipa ðˌifeɾˈɛnte reθˈiβa el pakˈete."
     },
     {
       "scene": 5,
-      "speech_start": 38.35,
-      "speech_end": 45.800000000000004,
-      "scene_end": 46.45,
-      "duration": 8.100000000000001,
-      "text": "Cuando finalice el flujo de trabajo, inicie el spaCR desde el mismo entorno y manténgalo aislado de proyectos no relacionados."
+      "speech_start": 34.85,
+      "speech_end": 43.875,
+      "scene_end": 44.575,
+      "duration": 9.725000000000001,
+      "text": "Para la aplicación de escritorio, instale spacr con el qt extra. Utilizar el paquete de espacio simple para una estación de trabajo o servidor sin cabeza.",
+      "speech_text": "Para la aplicación de escritorio, instale espáquer con el qt extra. Utilizar el paquete de espacio simple para una estación de trabajo o servidor sin cabeza.",
+      "phonemes": "pˌaɾa la ˌaplikaθjˈon de ˌeskɾitˈoɾjo, instˈale espˈakeɾ kon el kˌutˈe ˈekstɾa. ˌutiliθˈaɾ el pakˈete ðe espˈaθjo sˈimple pˌaɾa ˈuna ˌestaθjˈon de tɾaβˈaxo o sˌeɾβiðˈoɾ sin kaβˈeθa."
+    },
+    {
+      "scene": 6,
+      "speech_start": 44.575,
+      "speech_end": 58.5,
+      "scene_end": 59.2,
+      "duration": 14.625,
+      "text": "Ejecute spaCR-doctor antes del primer inicio. La herramienta de diagnóstico comprueba la instalación activa, Qt, PyTorch, los componentes opcionales y la compatibilidad del hardware, y propone una solución para cada comprobación fallida.",
+      "speech_text": "Ejecute espáquer-doctor antes del primer inicio. La herramienta de diagnóstico comprueba la instalación activa, Qt, PyTorch, los componentes opcionales y la compatibilidad del hardware, y propone una solución para cada comprobación fallida.",
+      "phonemes": "ˌexekˈute espˈakeɾðoktˈoɾ ˈantes ðel pɾimˈeɾ inˈiθjo. la ˌeramjˈɛnta ðe ðjaɡnˈostiko kˌompɾuˈeβa la ˌinstalaθjˈon aktˈiβa, kˌutˈe, pˈi tˈoɾʧ, los kˌomponˈɛntes ˌopθjonˈales i la kˌompatˌiβiliðˈad ðel hˈaɾdweɾ, i pɾopˈone ˈuna sˌoluθjˈom pˌaɾa kˈaða kˌompɾoβaθjˈon faʎˈiða."
+    },
+    {
+      "scene": 7,
+      "speech_start": 59.2,
+      "speech_end": 71.325,
+      "scene_end": 72.025,
+      "duration": 12.825000000000003,
+      "text": "El paquete de conda-forge todavía no está publicado, así que no ejecute conda install -c conda-forge spacr por ahora. Cuando esté disponible, el repositorio de spaCR enlazará la receta y el canal oficiales.",
+      "speech_text": "El paquete de conda-forge todavía no está publicado, así que no ejecute conda install -c conda-forge espáquer por ahora. Cuando esté disponible, el repositorio de espáquer enlazará la receta y el canal oficiales.",
+      "phonemes": "el pakˈete ðe kˈondafˈoɾxe tˌoðaβˈia nˈo estˈa pˌuβlikˈaðo, asˈi ke nˈo ˌexekˈute kˈonda instˈaʎ θˈe kˈondafˈoɾxe espˈakeɾ poɾ aˈoɾa. kwˌando estˈe ðˌisponˈiβle, el rˌepositˈoɾjo ðe espˈakeɾ ˌenlaθaɾˈa la reθˈeta i el kanˈal ˌofiθjˈales."
     }
   ]
 }

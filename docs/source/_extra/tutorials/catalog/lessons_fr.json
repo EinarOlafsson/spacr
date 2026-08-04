@@ -28,47 +28,59 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI and GitHub",
+      "title": "PyPI, GitHub et conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Apprenez où spaCR sort, le code source, les installateurs, les problèmes, et la branche nocturne en direct.",
+      "description": "Choisissez la source officielle pour une version packaged, un installateur de bureau, une branche de développement ou un futur package conda-forge.",
       "objectives": [
-        "Trouvez spaCR sur PyPI et GitHub.",
-        "Distinguer les émissions de la branche nocturne.",
-        "Localiser les installateurs, libérer les notes et les problèmes."
+        "Identifier le paquet officiel de PyPI et le référentiel de GitHub.",
+        "Distinguer les émissions stables de la branche de nightly.",
+        "Comprendre l'état actuel de la publication conda-forge."
       ],
-      "prerequisite": "Aucune installation n'est requise pour cette orientation.",
+      "prerequisite": "Aucune installation n'est requise.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre PyPI et GitHub. Apprenez où spaCR sort, code source, installateurs, problèmes et la branche nocturne en direct.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre paï pi et GitHub. Apprenez où spakeur sort, code source, installateurs, problèmes et la branche nocturne en direct."
+          "narration": "Avant d'installer spaCR, connaissez les trois routes de distribution officielles: PyPI pour le paquet Python publié, GitHub pour les installateurs de code source et de bureau, et conda-forge une fois son paquet révisé publié.",
+          "visual": "sources",
+          "hold_after": 0.7,
+          "speech_text": "Avant d'installer spakeur, connaissez les trois routes de distribution officielles: paï pi pour le paquet Python publié, GitHub pour les installateurs de code source et de bureau, et conda-forge une fois son paquet révisé publié."
         },
         {
-          "narration": "Ouvrez PyPI and GitHub dans la section spaCR. Utilisez PyPI pour le paquet Python actuel et GitHub pour le code source, les versions et le suivi des problèmes.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez paï pi and GitHub dans la section spakeur. Utilisez paï pi pour le paquet Python actuel et GitHub pour le code source, les versions et le suivi des problèmes."
+          "narration": "La page spaCR sur PyPI montre la version stable actuelle et la commande pip install spacr. Les fichiers de sortie comprennent une roue Python et une archive source.",
+          "visual": "pypi_release",
+          "hold_after": 0.7,
+          "speech_text": "La page spakeur sur paï pi montre la version stable actuelle et la commande pip install spakeur. Les fichiers de sortie comprennent une roue Python et une archive source."
         },
         {
-          "narration": "Dans la zone de configuration principale, comparez la version stable en emballage avec la branche de développement nocturne et choisissez celle qui convient à votre travail.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, comparez la version stable en emballage avec la branche de développement nocturne et choisissez celle qui convient à votre travail."
+          "narration": "PyPI renvoie également à la documentation, au référentiel source et au tracker de la question. Vérifiez les versions requises de Python et la date de sortie avant de modifier un environnement existant.",
+          "visual": "pypi_links",
+          "hold_after": 0.7,
+          "speech_text": "paï pi renvoie également à la documentation, au référentiel source et au tracker de la question. Vérifiez les versions requises de Python et la date de sortie avant de modifier un environnement existant."
         },
         {
-          "narration": "Avant l'exécution complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant l'exécution complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "narration": "Sur GitHub, main correspond à la branche source publiée, tandis que nightly contient des modifications plus récentes encore en cours de test. Utilisez nightly uniquement si vous avez précisément besoin d’une modification non encore publiée.",
+          "visual": "github_repo",
+          "hold_after": 0.7,
+          "speech_text": "Sur GitHub, main correspond à la branche source publiée, tandis que nightly contient des modifications plus récentes encore en cours de test. Utilisez nightly uniquement si vous avez précisément besoin d’une modification non encore publiée."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, vous saurez où installer le spaCR, inspecter les changements et signaler un problème reproduisable.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, vous saurez où installer le spakeur, inspecter les changements et signaler un problème reproduisable."
+          "narration": "GitHub Releases fournit les installateurs Windows, macOS et Linux, les notes de sortie, les fichiers de paquets Python et les sumes de vérification SHA-256.",
+          "visual": "github_release",
+          "hold_after": 0.7,
+          "speech_text": "GitHub Releases fournit les installateurs Windows, macOS et Linux, les notes de sortie, les fichiers de paquets Python et les sumes de vérification SHA-256."
+        },
+        {
+          "narration": "La recette conda-forge est préparée dans le référentiel, mais aucun paquet spaCR n'est encore publié sur le canal conda-forge. Pour l'instant, créez un environnement Conda et installez spaCR de PyPI à l'intérieur.",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "La recette conda-forge est préparée dans le référentiel, mais aucun paquet spakeur n'est encore publié sur le canal conda-forge. Pour l'instant, créez un environnement Conda et installez spakeur de paï pi à l'intérieur."
+        },
+        {
+          "narration": "Utilisez PyPI ou pip pour un environnement Python, GitHub Releases pour un installateur natif et la branche nightly uniquement pour le développement. Les tutoriels suivants démontrent chaque itinéraire d'installation sans lancer l'application.",
+          "visual": "decision",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez paï pi ou pip pour un environnement Python, GitHub Releases pour un installateur natif et la branche nightly uniquement pour le développement. Les tutoriels suivants démontrent chaque itinéraire d'installation sans lancer l'application."
         }
       ]
     },
@@ -76,47 +88,59 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation with Conda",
+      "title": "Installation avec Conda",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Créez un environnement Python isolé et installez spaCR sans changer le reste de votre système.",
+      "description": "Créez un environnement Python 3.12 isolé et installez le bureau ou le paquet sans tête.",
       "objectives": [
-        "Comprendre quand utiliser Installation avec Conda.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Créer et vérifier un environnement spaCR isolé.",
+        "Choisissez le bureau ou l'installation sans tête.",
+        "Valider l'installation avant le lancement de spaCR."
       ],
-      "prerequisite": "Installez un gestionnaire d'environnement compatible avec Conda.",
+      "prerequisite": "Installez Miniforge, Miniconda, Anaconda ou un autre gestionnaire compatible avec Conda.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Installation avec Conda. Créez un environnement Python isolé et installez spaCR sans changer le reste de votre système.",
+          "narration": "Un environnement Conda distingue spaCR et ses dépendances scientifiques des projets non liés. Python trois point douze offre actuellement la plus large compatibilité optionnelle des paquets.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Installation avec Conda. Créez un environnement Python isolé et installez spakeur sans changer le reste de votre système."
+          "hold_after": 0.7,
+          "speech_text": "Un environnement Conda distingue spakeur et ses dépendances scientifiques des projets non liés. Python trois point douze offre actuellement la plus large compatibilité optionnelle des paquets."
         },
         {
-          "narration": "Ouvrez Installation with Conda dans la section spaCR. Installez Miniconda, Anaconda ou un autre gestionnaire compatible avec Conda, puis créez un environnement avec Python trois points douze.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Installation with Conda dans la section spakeur. Installez Miniconda, Anaconda ou un autre gestionnaire compatible avec Conda, puis créez un environnement avec Python trois points douze."
+          "narration": "Ouvrez un terminal Conda et créez un environnement appelé spacr avec Python 3 point 12 et pip.",
+          "visual": "create",
+          "hold_after": 0.7,
+          "speech_text": "Ouvrez un terminal Conda et créez un environnement appelé spakeur avec Python 3 point 12 et pip."
         },
         {
-          "narration": "Dans la zone de configuration principale, activez l'environnement et confirmez que ses exécutables Python et pip appartiennent à cet environnement.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, activez l'environnement et confirmez que ses exécutables Python et pip appartiennent à cet environnement."
+          "narration": "Activez l'environnement. Confirmez que Python appartient à l'environnement spacr avant d'installer quoi que ce soit.",
+          "visual": "activate",
+          "hold_after": 0.7,
+          "speech_text": "Activez l'environnement. Confirmez que Python appartient à l'environnement spakeur avant d'installer quoi que ce soit."
         },
         {
-          "narration": "Avant la pleine opération, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la pleine opération, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+          "narration": "Mettre à niveau pip à travers l'interprète Python actif. L' utilisation de python -m pip empêche un autre pip executable de recevoir le colis.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "Mettre à niveau pip à travers l'interprète Python actif. L' utilisation de python -m pip empêche un autre pip executable de recevoir le colis."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, lancez spaCR à partir du même environnement et gardez-le isolé des projets non liés.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, lancez spakeur à partir du même environnement et gardez-le isolé des projets non liés."
+          "narration": "Pour l'application de bureau, installez spacr avec le qt extra. Utilisez le paquet spacr simple pour une station de travail ou un serveur sans tête.",
+          "visual": "desktop",
+          "hold_after": 0.7,
+          "speech_text": "Pour l'application de bureau, installez spakeur avec le qt extra. Utilisez le paquet spakeur simple pour une station de travail ou un serveur sans tête."
+        },
+        {
+          "narration": "Exécutez spaCR-doctor avant le premier démarrage. L'outil de diagnostic vérifie l'installation active, Qt, PyTorch, les composants facultatifs et la prise en charge du matériel, puis propose une solution pour chaque contrôle en échec.",
+          "visual": "doctor",
+          "hold_after": 0.7,
+          "speech_text": "Exécutez spakeur-doctor avant le premier démarrage. L'outil de diagnostic vérifie l'installation active, Qt, PyTorch, les composants facultatifs et la prise en charge du matériel, puis propose une solution pour chaque contrôle en échec."
+        },
+        {
+          "narration": "Le paquet conda-forge n'est pas encore publié ; n'exécutez donc pas conda install -c conda-forge spacr pour le moment. Lorsqu'il sera disponible, le dépôt spaCR fournira les liens vers la recette et le canal officiels.",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "Le paquet conda-forge n'est pas encore publié ; n'exécutez donc pas conda install -c conda-forge spakeur pour le moment. Lorsqu'il sera disponible, le dépôt spakeur fournira les liens vers la recette et le canal officiels."
         }
       ]
     },
@@ -124,47 +148,59 @@
       "id": "03_pip_install",
       "number": 3,
       "slug": "pip_install",
-      "title": "Installation with pip",
+      "title": "Installation avec pip",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installez spaCR dans un environnement Python isolé existant pour une utilisation sur ordinateur de bureau ou sans tête.",
+      "description": "Installez spaCR dans un environnement virtuel standard sans utiliser Conda.",
       "objectives": [
-        "Comprendre quand utiliser l'installation avec pip.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Créer un environnement virtuel sur chaque système d'exploitation pris en charge.",
+        "Installez la bonne variante du paquet spaCR.",
+        "Vérifiez l'environnement avant de lancer l'application."
       ],
-      "prerequisite": "Créer ou activer un environnement Python isolé.",
+      "prerequisite": "Installez une version Python prise en charge; Python 3.12 est recommandé.",
       "scenes": [
         {
-          "narration": "Cet didacticiel couvre Installation avec pip. Installez spaCR dans un environnement Python isolé existant pour une utilisation sur ordinateur de bureau ou sans tête.",
+          "narration": "L'itinéraire de pip fonctionne sur Windows, macOS et Linux. Utilisez toujours un environnement virtuel isolé plutôt que de modifier l'installation Python du système d'exploitation.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Cet didacticiel couvre Installation avec pip. Installez spakeur dans un environnement Python isolé existant pour une utilisation sur ordinateur de bureau ou sans tête."
+          "hold_after": 0.7,
+          "speech_text": "L'itinéraire de pip fonctionne sur Windows, macOS et Linux. Utilisez toujours un environnement virtuel isolé plutôt que de modifier l'installation Python du système d'exploitation."
         },
         {
-          "narration": "Ouvrez Installation with pip dans la section spaCR. Confirmez que l'environnement utilise une version Python prise en charge; Python trois point douze est recommandé.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Installation with pip dans la section spakeur. Confirmez que l'environnement utilise une version Python prise en charge; Python trois point douze est recommandé."
+          "narration": "Sur macOS ou Linux, créez l'environnement avec Python 3 point 12, puis activez-le à partir de son répertoire bin.",
+          "visual": "venv_posix",
+          "hold_after": 0.7,
+          "speech_text": "Sur macOS ou Linux, créez l'environnement avec Python 3 point 12, puis activez-le à partir de son répertoire bin."
         },
         {
-          "narration": "Dans la zone de configuration principale, mettez à niveau pip si nécessaire et décidez si vous avez besoin du bureau, du développement ou des suppléments scientifiques optionnels.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, mettez à niveau pip si nécessaire et décidez si vous avez besoin du bureau, du développement ou des suppléments scientifiques optionnels."
+          "narration": "Sur Windows, utilisez le lanceur Python pour créer l'environnement et l'activer depuis le répertoire Scripts.",
+          "visual": "venv_windows",
+          "hold_after": 0.7,
+          "speech_text": "Sur Windows, utilisez le lanceur Python pour créer l'environnement et l'activer depuis le répertoire Scripts."
         },
         {
-          "narration": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "narration": "Améliorer le pip dans l'environnement actif. La commande python -m pip maintient l'installation liée au Python que vous venez d'activer.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "Améliorer le pip dans l'environnement actif. La commande python -m pip maintient l'installation liée au Python que vous venez d'activer."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, la même installation peut lancer l'application de bureau ou exécuter des flux de travail scriptés sur un poste de travail ou un serveur.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, la même installation peut lancer l'application de bureau ou exécuter des flux de travail scriptés sur un poste de travail ou un serveur."
+          "narration": "Installez le pack spacr simple pour une utilisation sans tête, ou le spacr avec le qt extra pour l'interface de bureau.",
+          "visual": "install",
+          "hold_after": 0.7,
+          "speech_text": "Installez le pack spakeur simple pour une utilisation sans tête, ou le spakeur avec le qt extra pour l'interface de bureau."
+        },
+        {
+          "narration": "Vérifiez la version importée et exécutez spacr-doctor. Résoudre les contrôles ratés avant d'ouvrir les données expérimentales.",
+          "visual": "verify",
+          "hold_after": 0.7,
+          "speech_text": "Vérifiez la version importée et exécutez spakeur-doctor. Résoudre les contrôles ratés avant d'ouvrir les données expérimentales."
+        },
+        {
+          "narration": "L'environnement est prêt. Gardez- le activé chaque fois que vous utilisez spaCR, et utilisez python -m pip install --upgrade spacr lorsque vous le mettez à jour intentionnellement.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "L'environnement est prêt. Gardez- le activé chaque fois que vous utilisez spakeur, et utilisez python -m pip install --upgrade spakeur lorsque vous le mettez à jour intentionnellement."
         }
       ]
     },
@@ -172,47 +208,65 @@
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Platform installers",
+      "title": "Installateurs de plateforme",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Installez spaCR sur Windows, macOS ou Linux sans gérer Python manuellement.",
+      "description": "Installez spaCR sur Windows, macOS ou Linux sans une installation Python ou Conda existante.",
       "objectives": [
-        "Comprendre quand utiliser les installateurs de plateforme.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Sélectionnez l'installateur correct pour Windows, macOS ou Linux.",
+        "Gérer les options de sécurité et d'accélération de la plateforme.",
+        "Localiser les diagnostics si l'installation échoue."
       ],
-      "prerequisite": "Aucune installation Python ou Conda existante n'est requise.",
+      "prerequisite": "Téléchargez l'installateur de votre système d'exploitation à partir de la version officielle de GitHub.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre les installateurs de plateforme. Installez spaCR sur Windows, macOS ou Linux sans gérer manuellement Python.",
+          "narration": "Les installateurs natifs légers créent un temps d'exécution privé Python trois points douze, puis téléchargent Qt, PyTorch, spaCR, et ses dépendances scientifiques.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre les installateurs de plateforme. Installez spakeur sur Windows, macOS ou Linux sans gérer manuellement Python."
+          "hold_after": 0.7,
+          "speech_text": "Les installateurs natifs légers créent un temps d'exécution privé Python trois points douze, puis téléchargent Qt, PyTorch, spakeur, et ses dépendances scientifiques."
         },
         {
-          "narration": "Ouvrez Platform installers dans la section spaCR. Téléchargez l'installateur pour votre système d'exploitation à partir de la version actuelle de GitHub.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Platform installers dans la section spakeur. Téléchargez l'installateur pour votre système d'exploitation à partir de la version actuelle de GitHub."
+          "narration": "Téléchargez les installateurs uniquement à partir de la dernière version de spaCR GitHub. Associer le fichier à votre système d'exploitation et utiliser le fichier SHA-256 publié lorsque vous devez vérifier le téléchargement.",
+          "visual": "release",
+          "hold_after": 0.7,
+          "speech_text": "Téléchargez les installateurs uniquement à partir de la dernière version de spakeur GitHub. Associer le fichier à votre système d'exploitation et utiliser le fichier SHA-256 publié lorsque vous devez vérifier le téléchargement."
         },
         {
-          "narration": "Dans la zone de configuration principale, examiner les instructions de sécurité du système d'exploitation, l'emplacement privé de l'exécution et le backend d'accélération demandé.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, examiner les instructions de sécurité du système d'exploitation, l'emplacement privé de l'exécution et le backend d'accélération demandé."
+          "narration": "Sur Windows 10 ou 11, ouvrez l'exécutable d'installation en ligne. L'installation du processeur portable est par défaut; l'accélération NVIDIA est un composant d'installation optionnel.",
+          "visual": "windows",
+          "hold_after": 0.7,
+          "speech_text": "Sur Windows 10 ou 11, ouvrez l'exécutable d'installation en ligne. L'installation du processeur portable est par défaut; l'accélération NVIDIA est un composant d'installation optionnel."
         },
         {
-          "narration": "Avant la pleine exécution, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Permettez à l'installateur de terminer et de conserver son journal d'installation si quelque chose ne fonctionne pas.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la pleine exécution, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Permettez à l'installateur de terminer et de conserver son journal d'installation si quelque chose ne fonctionne pas."
+          "narration": "Sur macOS 11 ou version ultérieure, ouvrez le package universel pour Intel et Apple silicone. Si Gatekeeper bloque le paquet non notarié, utilisez Privacy and Security, Open Anyway, puis roulez-le à nouveau.",
+          "visual": "macos",
+          "hold_after": 0.7,
+          "speech_text": "Sur macOS 11 ou version ultérieure, ouvrez le package universel pour Intel et Apple silicone. Si Gatekeeper bloque le paquet non notarié, utilisez Privacy and Security, Open Anyway, puis roulez-le à nouveau."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, utilisez le lanceur natif tandis que spaCR maintient son propre temps d'exécution Python géré.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, utilisez le lanceur natif tandis que spakeur maintient son propre temps d'exécution Python géré."
+          "narration": "Sur 64 bits Linux, faites exécuter le fichier .run téléchargé, puis démarrez-le à partir d'un terminal. L'installation par défaut utilise PyTorch compatible avec le processeur.",
+          "visual": "linux",
+          "hold_after": 0.7,
+          "speech_text": "Sur 64 bits Linux, faites exécuter le fichier .run téléchargé, puis démarrez-le à partir d'un terminal. L'installation par défaut utilise PyTorch compatible avec le processeur."
+        },
+        {
+          "narration": "Pour le matériel NVIDIA pris en charge sur Linux, passez par --torch-backend auto. Cela sélectionne l'accélération lorsqu'elle est disponible sans faire des bibliothèques CUDA la fonction par défaut silencieuse.",
+          "visual": "linux_gpu",
+          "hold_after": 0.7,
+          "speech_text": "Pour le matériel NVIDIA pris en charge sur Linux, passez par --torch-backend auto. Cela sélectionne l'accélération lorsqu'elle est disponible sans faire des bibliothèques CUDA la fonction par défaut silencieuse."
+        },
+        {
+          "narration": "Chaque installateur valide le remplacement avant de changer de version. Une mise à jour interrompue laisse l'environnement précédent intact, et install.log reste dans le répertoire d'installation privé spaCR.",
+          "visual": "safety",
+          "hold_after": 0.7,
+          "speech_text": "Chaque installateur valide le remplacement avant de changer de version. Une mise à jour interrompue laisse l'environnement précédent intact, et install.log reste dans le répertoire d'installation privé spakeur."
+        },
+        {
+          "narration": "Après l'installation, utilisez le lanceur du système d'exploitation. Aucune configuration séparée de Python ou de Conda n'est requise.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "Après l'installation, utilisez le lanceur du système d'exploitation. Aucune configuration séparée de Python ou de Conda n'est requise."
         }
       ]
     },

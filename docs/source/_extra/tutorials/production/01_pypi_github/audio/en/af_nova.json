@@ -4,47 +4,77 @@
   "voice": "af_nova",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.46,
+  "total_duration": 78.95,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.345,
-      "scene_end": 8.795,
-      "duration": 8.795,
-      "text": "This tutorial covers PyPI and GitHub. Learn where spaCR releases, source code, installers, issues, and the nightly branch live."
+      "speech_end": 11.9,
+      "scene_end": 12.6,
+      "duration": 12.6,
+      "text": "Before installing spaCR, know the three official distribution routes: PyPI for the released Python package, GitHub for source code and desktop installers, and conda-forge once its reviewed package is published.",
+      "speech_text": "Before installing spacer, know the three official distribution routes: pie pee for the released Python package, GitHub for source code and desktop installers, and conda-forge once its reviewed package is published.",
+      "phonemes": "bəfˈɔɹ ɪnstˈɔlɪŋ spˈAsəɹ, nˈO ðə θɹˈi əfˈɪʃᵊl dˌɪstɹəbjˈuʃən ɹˈuts: pˈI pˈi fɔɹ ðə ɹəlˈist pˈIθˌɑn pˈækɪʤ, ɡˌɪthˈʌb fɔɹ sˈɔɹs kˈOd ænd dˈɛsktˌɑp ɪnstˈɔləɹz, ænd kˈɑndəfˈɔɹʤ wˈʌns ɪts ɹəvjˈud pˈækɪʤ ɪz pˈʌblɪʃt."
     },
     {
       "scene": 2,
-      "speech_start": 8.795,
-      "speech_end": 17.96,
-      "scene_end": 18.41,
-      "duration": 9.615,
-      "text": "Open PyPI and GitHub from the spaCR section. Use PyPI for the current Python package and GitHub for source code, releases, and issue tracking."
+      "speech_start": 12.6,
+      "speech_end": 21.725,
+      "scene_end": 22.425,
+      "duration": 9.825000000000001,
+      "text": "The spaCR page on PyPI shows the current stable release and the command pip install spacr. Release files include a Python wheel and a source archive.",
+      "speech_text": "The spacer page on pie pee shows the current stable release and the command pip install spacer. Release files include a Python wheel and a source archive.",
+      "phonemes": "ðə spˈAsəɹ pˈAʤ ˌɔn pˈI pˈi ʃˈOz ðə kˈɜɹənt stˈAbᵊl ɹəlˈis ænd ðə kəmˈænd pˈɪp ɪnstˈɔl spˈAsəɹ. ɹəlˈis fˈIlz ɪnklˈud ɐ pˈIθˌɑn wˈil ænd ɐ sˈɔɹs ˈɑɹkˌIv."
     },
     {
       "scene": 3,
-      "speech_start": 18.41,
-      "speech_end": 26.810000000000002,
-      "scene_end": 27.26,
-      "duration": 8.850000000000001,
-      "text": "In the main configuration area, compare the stable packaged release with the nightly development branch and choose the one appropriate for your work."
+      "speech_start": 22.425,
+      "speech_end": 32.85,
+      "scene_end": 33.550000000000004,
+      "duration": 11.125000000000004,
+      "text": "PyPI also links to the documentation, source repository, and issue tracker. Check the required Python versions and release date before changing an existing environment.",
+      "speech_text": "pie pee also links to the documentation, source repository, and issue tracker. Check the required Python versions and release date before changing an existing environment.",
+      "phonemes": "pˈI pˈi ˈɔlsO lˈɪŋks tə ðə dˌɑkjəməntˈAʃən, sˈɔɹs ɹəpˈɑzətˌɔɹi, ænd ˈɪʃu tɹˈækəɹ. ʧˈɛk ðə ɹəkwˈIəɹd pˈIθˌɑn vˈɜɹʒənz ænd ɹəlˈis dˈAt bəfˈɔɹ ʧˈAnʤɪŋ ɐn ɪɡzˈɪstɪŋ ənvˈIɹənmᵊnt."
     },
     {
       "scene": 4,
-      "speech_start": 27.26,
-      "speech_end": 38.260000000000005,
-      "scene_end": 38.71000000000001,
-      "duration": 11.450000000000006,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Open the release notes before installing so that version and platform requirements are clear."
+      "speech_start": 33.550000000000004,
+      "speech_end": 42.925000000000004,
+      "scene_end": 43.62500000000001,
+      "duration": 10.075000000000003,
+      "text": "On GitHub, main is the released source line and nightly contains newer work still being tested. Use nightly only when you specifically need an unreleased change.",
+      "speech_text": "On GitHub, main is the released source line and nightly contains newer work still being tested. Use nightly only when you specifically need an unreleased change.",
+      "phonemes": "ˌɔn ɡˌɪthˈʌb, mˈAn ɪz ðə ɹəlˈist sˈɔɹs lˈIn ænd nˈItli kəntˈAnz nˈuəɹ wˈɜɹk stˈɪl bˈiɪŋ tˈɛstᵻd. jˈuz nˈItli ˈOnli wˌɛn ju spəsˈɪfəkᵊli nˈid ɐn ˌʌnɹəlˈist ʧˈAnʤ."
     },
     {
       "scene": 5,
-      "speech_start": 38.71000000000001,
-      "speech_end": 45.81000000000001,
-      "scene_end": 46.46000000000001,
-      "duration": 7.75,
-      "text": "When the workflow finishes, you will know where to install spaCR, inspect changes, and report a reproducible problem."
+      "speech_start": 43.62500000000001,
+      "speech_end": 52.60000000000001,
+      "scene_end": 53.30000000000001,
+      "duration": 9.675000000000004,
+      "text": "GitHub Releases provides the Windows, macOS, and Linux installers, release notes, Python package files, and SHA-256 checksums.",
+      "speech_text": "GitHub Releases provides the Windows, macOS, and Linux installers, release notes, Python package files, and S H A two fifty six checksums.",
+      "phonemes": "ɡˌɪthˈʌb ɹəlˈisᵻz pɹəvˈIdz ðə wˈɪndOz, mˌækˌOˈɛs, ænd lˈɪnəks ɪnstˈɔləɹz, ɹəlˈis nˈOts, pˈIθˌɑn pˈækɪʤ fˈIlz, ænd ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks ʧˈɛksˌʌmz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 53.30000000000001,
+      "speech_end": 65.12500000000001,
+      "scene_end": 65.82500000000002,
+      "duration": 12.525000000000006,
+      "text": "The conda-forge recipe is prepared in the repository, but no spaCR package is published on the conda-forge channel yet. For now, create a Conda environment and install spaCR from PyPI inside it.",
+      "speech_text": "The conda-forge recipe is prepared in the repository, but no spacer package is published on the conda-forge channel yet. For now, create a Conda environment and install spacer from pie pee inside it.",
+      "phonemes": "ðə kˈɑndəfˈɔɹʤ ɹˈɛsəpˌi ɪz pɹipˈɛɹd ɪn ðə ɹəpˈɑzətˌɔɹi, bˌʌt nˈO spˈAsəɹ pˈækɪʤ ɪz pˈʌblɪʃt ˌɔn ðə kˈɑndəfˈɔɹʤ ʧˈænᵊl jˈɛt. fˌɔɹ nˈW, kɹiˈAt ɐ kˈɑndə ənvˈIɹənmᵊnt ænd ɪnstˈɔl spˈAsəɹ fɹʌm pˈI pˈi ɪnsˈId ɪt."
+    },
+    {
+      "scene": 7,
+      "speech_start": 65.82500000000002,
+      "speech_end": 78.25000000000001,
+      "scene_end": 78.95000000000002,
+      "duration": 13.125,
+      "text": "Use PyPI or pip for a Python environment, GitHub Releases for a native installer, and the nightly branch only for development. The next tutorials demonstrate each installation route without launching the application.",
+      "speech_text": "Use pie pee or pip for a Python environment, GitHub Releases for a native installer, and the nightly branch only for development. The next tutorials demonstrate each installation route without launching the application.",
+      "phonemes": "jˈuz pˈI pˈi ɔɹ pˈɪp fɔɹ ɐ pˈIθˌɑn ənvˈIɹənmᵊnt, ɡˌɪthˈʌb ɹəlˈisᵻz fɔɹ ɐ nˈATɪv ɪnstˈɔləɹ, ænd ðə nˈItli bɹˈænʧ ˈOnli fɔɹ dəvˈɛləpmənt. ðə nˈɛkst tutˈɔɹiəlz dˈɛmənstɹˌAt ˈiʧ ˌɪnztəlˈAʃən ɹˈut wɪðˈWt lˈɑnʧɪŋ ði ˌæpləkˈAʃən."
     }
   ]
 }

@@ -4,47 +4,87 @@
   "voice": "em_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 54.125,
+  "total_duration": 93.375,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.3,
-      "scene_end": 8.75,
-      "duration": 8.75,
-      "text": "Este tutorial abarca los instaladores de la plataforma. Instale spaCR en Windows, macOS o Linux sin administrar Python manualmente."
+      "speech_end": 10.2,
+      "scene_end": 10.899999999999999,
+      "duration": 10.899999999999999,
+      "text": "Los instaladores nativos ligeros crean un tiempo de ejecución privado de Python tres puntos doce, luego descargan Qt, PyTorch, spaCR y sus dependencias científicas.",
+      "speech_text": "Los instaladores nativos ligeros crean un tiempo de ejecución privado de Python tres puntos doce, luego descargan Qt, PyTorch, espáquer y sus dependencias científicas.",
+      "phonemes": "los ˌinstalaðˈoɾes natˈiβos lixˈeɾos kɾˈean ˈun tjˈempo ðe ˌexekuθjˈom pɾiβˈaðo ðe pˈiton tɾˈes pˈuntos ðˈoθe, luˈeɣo ðeskˈaɾɣan kˌutˈe, pˈi tˈoɾʧ, espˈakeɾ i sus ðˌependˈɛnθjas θjentˈifikas."
     },
     {
       "scene": 2,
-      "speech_start": 8.75,
-      "speech_end": 20.15,
-      "scene_end": 20.599999999999998,
-      "duration": 11.849999999999998,
-      "text": "Abra Platform installers en la sección spaCR. Abre los instaladores de la plataforma desde la sección spaCR. Descarga el instalador para tu sistema operativo desde la versión actual de GitHub."
+      "speech_start": 10.899999999999999,
+      "speech_end": 23.474999999999998,
+      "scene_end": 24.174999999999997,
+      "duration": 13.274999999999999,
+      "text": "Descarga los instaladores sólo de la última versión de spaCR GitHub. Compare el archivo con su sistema operativo y use el archivo SHA-256 publicado cuando necesite verificar la descarga.",
+      "speech_text": "Descarga los instaladores sólo de la última versión de espáquer GitHub. Compare el archivo con su sistema operativo y use el archivo SHA-256 publicado cuando necesite verificar la descarga.",
+      "phonemes": "deskˈaɾɣa los ˌinstalaðˈoɾes sˈolo ðe la ˈultima βeɾsjˈon de espˈakeɾ xˈit ˈub. kompˈaɾe el aɾʧˈiβo kon su sistˈema ˌopeɾatˈiβo i ˈuse el aɾʧˈiβo ˌeseˌaʧeˈa dosθjˈentos θinkwˌɛntaisˈAs pˌuβlikˈaðo kwˌando nˌeθesˈite βˌeɾifikˈaɾ la ðeskˈaɾɣa."
     },
     {
       "scene": 3,
-      "speech_start": 20.599999999999998,
-      "speech_end": 31.525,
-      "scene_end": 31.974999999999998,
-      "duration": 11.375,
-      "text": "En el área de configuración principal, revise las instrucciones de seguridad del sistema operativo, la ubicación privada del tiempo de ejecución y el backend de aceleración solicitado."
+      "speech_start": 24.174999999999997,
+      "speech_end": 35.324999999999996,
+      "scene_end": 36.025,
+      "duration": 11.850000000000001,
+      "text": "En Windows 10 o 11, abra el ejecutable de configuración en línea. La instalación portátil de la CPU es por defecto; la aceleración NVIDIA es un componente de instalación opcional.",
+      "speech_text": "En Windows 10 o 11, abra el ejecutable de configuración en línea. La instalación portátil de la CPU es por defecto; la aceleración NVIDIA es un componente de instalación opcional.",
+      "phonemes": "en wˈindows ðjˈɛθ o ˈonθe, ˈaβɾa el ˌexekutˈaβle ðe kˌonfiɣˌuɾaθjˈon en lˈinea. la ˌinstalaθjˈom poɾtˈatil ðe la θˌepˌeˈu ˈes poɾ ðefˈekto; la ˌaθelˌeɾaθjˈon ˈɛneβˈiðja ˈes ˈun kˌomponˈɛnte ðe ˌinstalaθjˈon ˌopθjonˈal."
     },
     {
       "scene": 4,
-      "speech_start": 31.974999999999998,
-      "speech_end": 44.625,
-      "scene_end": 45.075,
-      "duration": 13.100000000000005,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible. Permita que el instalador termine y guarde su registro de instalación si algo falla."
+      "speech_start": 36.025,
+      "speech_end": 48.275,
+      "scene_end": 48.975,
+      "duration": 12.950000000000003,
+      "text": "En macOS once o más recientes, abra el paquete universal para Intel y Apple silicon. Si Gatekeeper bloquea el paquete no notariado, usa Privacy and Security, Open Anyway, y luego vuelve a ejecutarlo.",
+      "speech_text": "En macOS once o más recientes, abra el paquete universal para Intel y Apple silicon. Si Gatekeeper bloquea el paquete no notariado, usa Privacy and Security, Open Anyway, y luego vuelve a ejecutarlo.",
+      "phonemes": "en mˈak ˌoˈɛse ˈonθe o mˈas reθjˈɛntes, ˈaβɾa el pakˈete ˌuniβeɾsˈal pˌaɾa intˈel i ˈapəl silˈikon. si ɣˌatekˌeepˈeɾ βlokˈea el pakˈete nˈo nˌotaɾjˈaðo, ˈusa pɾiβˈaθi ˈand sˌekuɾˈiti, ˈopen ˌaniwˈI, i luˈeɣo βwˈelβe a ˌexekutˈaɾlo."
     },
     {
       "scene": 5,
-      "speech_start": 45.075,
-      "speech_end": 53.475,
-      "scene_end": 54.125,
-      "duration": 9.049999999999997,
-      "text": "Cuando el flujo de trabajo termine, utilice el lanzador nativo mientras spaCR mantiene su propio tiempo de ejecución de Python administrado."
+      "speech_start": 48.975,
+      "speech_end": 59.8,
+      "scene_end": 60.5,
+      "duration": 11.524999999999999,
+      "text": "En 64 bits Linux, haga ejecutable el archivo .run descargado, y luego inicie desde un terminal. La instalación predeterminada utiliza PyTorch compatible con la CPU.",
+      "speech_text": "En 64 bits Linux, haga ejecutable el archivo .run descargado, y luego inicie desde un terminal. La instalación predeterminada utiliza PyTorch compatible con la CPU.",
+      "phonemes": "en sɛsˌɛntaikwˈatɾo βˈits lˈinuks, ˈaɣa ˌexekutˈaβle el aɾʧˈiβo .rˈun dˌeskaɾɣˈaðo, i luˈeɣo inˈiθje ðˌesðe ˈun tˌeɾminˈal. la ˌinstalaθjˈom pɾˌeðetˌeɾminˈaða ˌutilˈiθa pˈi tˈoɾʧ kˌompatˈiβle kon la θˌepˌeˈu."
+    },
+    {
+      "scene": 6,
+      "speech_start": 60.5,
+      "speech_end": 71.4,
+      "scene_end": 72.10000000000001,
+      "duration": 11.600000000000009,
+      "text": "Para el hardware NVIDIA soportado en Linux, pasa por --torch-backend auto. Esto selecciona la aceleración cuando está disponible sin hacer que las bibliotecas CUDA sean el default silencioso.",
+      "speech_text": "Para el hardware NVIDIA soportado en Linux, pasa por --torch-backend auto. Esto selecciona la aceleración cuando está disponible sin hacer que las bibliotecas CUDA sean el default silencioso.",
+      "phonemes": "pˌaɾa el hˈaɾdweɾ ˈɛneβˈiðja sˌopoɾtˈaðo en lˈinuks, pˈasa poɾ tˈoɾʧβakˈɛnð ˈWto. ˈesto sˌelekθjˈona la ˌaθelˌeɾaθjˈon kwˌando estˈa ðˌisponˈiβle sin aθˈeɾ ke las βˌiβliotˈekas kˈuða sˈean el ðefˈWlt sˌilenθjˈoso."
+    },
+    {
+      "scene": 7,
+      "speech_start": 72.10000000000001,
+      "speech_end": 84.10000000000001,
+      "scene_end": 84.80000000000001,
+      "duration": 12.700000000000003,
+      "text": "Cada instalador valida el reemplazo antes de cambiar las versiones. Una actualización interrumpida deja intacto el entorno anterior, e install.log permanece en el directorio privado de instalaciones spaCR.",
+      "speech_text": "Cada instalador valida el reemplazo antes de cambiar las versiones. Una actualización interrumpida deja intacto el entorno anterior, e install.log permanece en el directorio privado de instalaciones espáquer.",
+      "phonemes": "kˈaða ˌinstalaðˈoɾ βalˈiða el rˌeemplˈaθo ˈantes ðe kambjˈaɾ las βeɾsjˈones. ˈuna ˌaktwalˌiθaθjˈon ˌinterumpˈiða ðˈexa intˈakto el entˈoɾno ˌanteɾjˈoɾ, e instˈaʎ.lˈoɡ pˌeɾmanˈeθe en el ðˌiɾektˈoɾjo pɾiβˈaðo ðe ˌinstalaθjˈones espˈakeɾ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 84.80000000000001,
+      "speech_end": 92.67500000000001,
+      "scene_end": 93.37500000000001,
+      "duration": 8.575000000000003,
+      "text": "Después de la instalación, utilice el lanzador del sistema operativo. No se requiere una configuración separada de Python o Conda.",
+      "speech_text": "Después de la instalación, utilice el lanzador del sistema operativo. No se requiere una configuración separada de Python o Conda.",
+      "phonemes": "despwˈes ðe la ˌinstalaθjˈon, ˌutilˈiθe el lˌanθaðˈoɾ ðel sistˈema ˌopeɾatˈiβo. nˈo se rekjˈeɾe ˈuna kˌonfiɣˌuɾaθjˈon sˌepaɾˈaða ðe pˈiton o kˈonda."
     }
   ]
 }
