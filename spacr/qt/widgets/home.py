@@ -1692,7 +1692,12 @@ class HomePage(QWidget):
     # -- live state ----------------------------------------------------
     def _on_runs_changed(self) -> None:
         """Show every active job across the top, oldest first."""
-        active = [h for h in self._registry.active() if h.app_key]
+        # `user_visible` is False for housekeeping the user did not start --
+        # the two-second usage poll above all. Without this filter Home
+        # flashed a blue "<module> usage - running" banner on and off
+        # continuously while any module screen was open.
+        active = [h for h in self._registry.active()
+                  if h.app_key and getattr(h, "user_visible", True)]
         while len(self._banners) < len(active):
             self._new_running_banner()
         for index, banner in enumerate(self._banners):
