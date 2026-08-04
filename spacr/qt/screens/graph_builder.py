@@ -156,6 +156,10 @@ class GraphBuilderScreen(QWidget):
         outer.addWidget(body, 1)
 
         self.builder.canvas.rendered.connect(self._on_rendered)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "graph_builder")
 
     # -- data -----------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:

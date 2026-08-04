@@ -51,6 +51,10 @@ class CurateScreen(QWidget):
         self._mask_path = ""
         self.brush: Optional[BrushPanel] = None
         self._build()
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "curate")
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:

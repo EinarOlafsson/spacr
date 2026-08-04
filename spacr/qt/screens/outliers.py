@@ -59,7 +59,33 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import SPACING
+from ..theme import (RADIUS, SPACING, pane_surface, register_widget_qss)
+
+#: The control column's object name, and what the QSS block below keys off.
+CONTROLS_OBJECT = "OutlierControls"
+
+
+def _outliers_qss(palette: dict, opacity=None) -> str:
+    """This screen's QSS block, appended to every generated stylesheet.
+
+    The control column is a named ``QWidget`` and had no rule of its own,
+    so it fell through to the blanket ``QWidget {{ background-color: bg }}``
+    -- the WINDOW colour, not a surface, which no page-opacity setting can
+    reach. It is a page surface now, the same one the Graph Builder's and
+    the Trellis's shelves take, and the feature picker inside it is a
+    transparent display that shows it through rather than a second panel.
+    """
+    return f"""
+QWidget#{CONTROLS_OBJECT} {{
+    background: {pane_surface("surface_alt", palette.get("theme"), opacity)};
+    border-radius: {RADIUS["md"]}px;
+}}
+"""
+
+
+# `replace=True`: reachable through the screens package and by direct
+# import, and a second import must refresh the block rather than raise.
+register_widget_qss("Outliers", _outliers_qss, replace=True)
 from ..widgets.outlier_model import (
     DEFAULT_ALPHA, DEFAULT_IQR_C, DEFAULT_MAD_K, DEFAULT_MIN_WELL_OBJECTS,
     METHOD_IQR, METHOD_MAD, METHOD_MAHALANOBIS, TRANSFORM_LOG10,
@@ -197,6 +223,10 @@ class OutliersScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         outer.addWidget(body, 1)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "outliers")
 
     # -- construction ------------------------------------------------------
     def _make_table(self, name: str) -> QTableWidget:
@@ -214,10 +244,13 @@ class OutliersScreen(QWidget):
     def _build_controls(self) -> QWidget:
         """The right-hand column: what to test, how, and where the line is."""
         panel = QWidget(self)
-        panel.setObjectName("OutlierControls")
+        panel.setObjectName(CONTROLS_OBJECT)
         panel.setMaximumWidth(360)
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # Room for the panel's own rounded surface: the column sits ON a
+        # page surface now rather than straight on the window.
+        layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                  SPACING["sm"], SPACING["sm"])
         layout.setSpacing(SPACING["sm"])
 
         self.features = FeaturePicker(panel)

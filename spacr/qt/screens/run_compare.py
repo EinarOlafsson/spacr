@@ -168,6 +168,10 @@ class RunCompareScreen(QWidget):
             self._set_verdict(
                 "Choose a spaCR project folder to list the runs it recorded.",
                 blocked=False)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "run_compare")
 
     # -- construction -----------------------------------------------------
 

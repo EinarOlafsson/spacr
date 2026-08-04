@@ -126,6 +126,10 @@ class NapariBridgeScreen(QWidget):
         self.status.setPlaceholderText(
             "Choose a mask and press Open in napari.")
         outer.addWidget(self.status, 1)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "napari_bridge")
 
     # -- the form -----------------------------------------------------------
     def _path_row(self, label: str, edit: QLineEdit, chooser) -> QHBoxLayout:

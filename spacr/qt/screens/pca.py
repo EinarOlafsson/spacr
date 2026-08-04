@@ -158,6 +158,10 @@ class PCAScreen(QWidget):
         self._refilter.timeout.connect(self._recompute_filtered)
         self._link = self.pca.canvas.link
         self._link.filter_changed.connect(self._on_filter_changed)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "pca")
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:

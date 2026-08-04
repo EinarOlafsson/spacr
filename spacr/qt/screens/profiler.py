@@ -326,6 +326,10 @@ class ProfilerScreen(QWidget):
             self._set_status(
                 "Choose a regression results.csv — its coefficients are the "
                 "model.", problem=False)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "profiler")
 
     # -- construction -----------------------------------------------------
 
