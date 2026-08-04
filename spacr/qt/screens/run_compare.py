@@ -52,7 +52,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...run_compare import RunComparison, RunRef, compare_runs, runs_in
-from ..theme import SPACING, pane_surface, register_widget_qss
+from ..theme import SPACING, block_surface, register_widget_qss
 from .app_screen import ModuleHeader
 
 __all__ = ["RunCompareScreen", "APP_KEY", "register"]
@@ -111,7 +111,7 @@ def _banner_qss(palette: dict, opacity) -> str:
     carry the page opacity, and a screen that restyles them is a screen
     that stops following the theme.
     """
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QFrame#RunCompareBanner {{
     background: {surface};

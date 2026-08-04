@@ -87,8 +87,8 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
     ``QWidget {{ background-color: bg }}``, which is the WINDOW colour and
     not a surface, so no setting could ever reach it.
     """
-    from ..theme import pane_surface
-    findings_bg = pane_surface("surface_alt", palette.get("theme"), opacity)
+    from ..theme import block_surface
+    findings_bg = block_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
 #{FINDINGS_OBJECT} {{
     background: {findings_bg};

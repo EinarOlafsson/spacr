@@ -49,7 +49,7 @@ from ...selection import (OBJECT_KEY_COLUMNS, match_keys, object_keys,
 from ..crop_thumbs import CropThumbnails, crop_paths_for_keys
 from ..job_runner import JobRunner
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
-from ..theme import (RADIUS, SPACING, active_palette, pane_surface,
+from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
 
 LOG = logging.getLogger(__name__)
@@ -160,7 +160,7 @@ def _image_scatter_qss(palette: dict, opacity=None) -> str:
     """
     return f"""
 QFrame#{CANVAS_OBJECT} {{
-    background: {pane_surface("surface", palette.get("theme"), opacity)};
+    background: {block_surface("surface", palette.get("theme"), opacity)};
     border: 1px solid {palette["border_soft"]};
     border-radius: {RADIUS["md"]}px;
 }}

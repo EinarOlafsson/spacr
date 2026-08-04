@@ -393,8 +393,8 @@ def show_cheat_sheet(parent) -> None:
 
 def _overlay_qss(palette: dict, opacity) -> str:
     """QSS for the ``?`` overlay, registered through the theme seam."""
-    from .theme import font_px, pane_surface
-    surface = pane_surface("surface", palette["theme"], opacity)
+    from .theme import block_surface, font_px
+    surface = block_surface("surface", palette["theme"], opacity)
     return f"""
 QWidget#{OVERLAY_CARD_NAME} {{
     background: {surface};

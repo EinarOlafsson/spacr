@@ -626,8 +626,8 @@ class PivotPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _pivot_qss(palette, opacity) -> str:
-    from ..theme import pane_surface
-    surface_alt = pane_surface("surface_alt", palette["theme"], opacity)
+    from ..theme import block_surface
+    surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QWidget#PivotShelf {{
     background: {surface_alt};
