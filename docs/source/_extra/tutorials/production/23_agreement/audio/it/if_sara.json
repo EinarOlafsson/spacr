@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.675,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.65,
+      "scene_end": 4.1,
+      "duration": 4.1,
+      "text": "Questo tutorial riguarda l'accordo con l'annotatore."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.1,
+      "speech_end": 17.975,
+      "scene_end": 18.425,
+      "duration": 14.325000000000001,
+      "text": "Apri Annotator Agreement dalla sezione Results and quality control. Apri Accordo di annotatore dalla sezione Risultati e controllo qualità. Scegli un database di progetti e due o più colonne di annotamento che coprono gli stessi oggetti."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.425,
+      "speech_end": 28.700000000000003,
+      "scene_end": 29.150000000000002,
+      "duration": 10.725000000000001,
+      "text": "Nella zona di configurazione principale, selezionare la gestione delle classi, la politica di etichetta mancante, il raggruppamento, il campionamento e la statistica dell'accordo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.150000000000002,
+      "speech_end": 38.125,
+      "scene_end": 38.575,
+      "duration": 9.425,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di test quando disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.575,
+      "speech_end": 50.025000000000006,
+      "scene_end": 50.675000000000004,
+      "duration": 12.100000000000001,
+      "text": "Quando il flusso di lavoro è terminato, le tabelle di accordo e una revisione focalizzata definiscono il sostegno alla riconciliazione delle etichette e al miglioramento del protocollo."
+    }
+  ]
+}

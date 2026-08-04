@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.725,
+      "scene_end": 9.174999999999999,
+      "duration": 9.174999999999999,
+      "text": "Ce tutoriel couvre les masques Cellpose. Générer et examiner les masques Cellpose avec un flux de travail de modèle-application axé."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.174999999999999,
+      "speech_end": 18.225,
+      "scene_end": 18.675,
+      "duration": 9.500000000000002,
+      "text": "Ouvrez Cellpose Masks dans la section Segmentation models. Sélectionnez les images, les canaux et un modèle Cellpose intégré ou personnalisé."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.675,
+      "speech_end": 29.925,
+      "scene_end": 30.375,
+      "duration": 11.7,
+      "text": "Dans la zone de configuration principale, configurez le diamètre, les seuils de débit et de probabilité cellulaire, la normalisation, le carrelage et l'utilisation du matériel."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.375,
+      "speech_end": 38.15,
+      "scene_end": 38.6,
+      "duration": 8.225000000000001,
+      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.6,
+      "speech_end": 48.075,
+      "scene_end": 48.725,
+      "duration": 10.125,
+      "text": "Lorsque le flux de travail est terminé, des masques d'étiquette et des images de contrôle visuel de la qualité sont écrits à côté des entrées cartographiées."
+    }
+  ]
+}

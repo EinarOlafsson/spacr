@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 77.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 15.05,
+      "scene_end": 15.5,
+      "duration": 15.5,
+      "text": "このチュートリアルでは,データベースブラウザをカバーします. sqlite コマンドラインを使用せずに,ブラウザ,フィルター,クエリ,およびdb点の測定を輸出します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 15.5,
+      "speech_end": 29.775,
+      "scene_end": 30.224999999999998,
+      "duration": 14.724999999999998,
+      "text": "Data and batch runs セクションから Database Browser を開きます。 spaCR SQLite データベースを開いて,テーブルまたは保存されたクエリを選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 30.224999999999998,
+      "speech_end": 45.05,
+      "scene_end": 45.5,
+      "duration": 15.275000000000002,
+      "text": "主な構成領域では,列,フィルター,分類,行制限,結合,そして安全な読み込みのみまたは編集可能な行動を設定します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 45.5,
+      "speech_end": 64.0,
+      "scene_end": 64.45,
+      "duration": 18.950000000000003,
+      "text": "実行完了前に,可視設定をチェックし,可用である場合の先見またはテストモードを使用します. 対象識別子を輸出または許可された編集を行うときに先見查询および保存します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 64.45,
+      "speech_end": 77.075,
+      "scene_end": 77.72500000000001,
+      "duration": 13.275000000000006,
+      "text": "ワークフローが完了すると,フィルタ化された表は元のデータベースが追跡可能である間にコピーまたは輸出することができます."
+    }
+  ]
+}

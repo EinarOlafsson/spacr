@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.975,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.3,
+      "scene_end": 9.75,
+      "duration": 9.75,
+      "text": "Este tutorial abrange a criação de máscaras. Construir, corrigir e curar rotulagem de segmentação de forma interativa para dados de treinamento Cellpose."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.75,
+      "speech_end": 22.925,
+      "scene_end": 23.375,
+      "duration": 13.625,
+      "text": "Abra Make Masks na seção Segmentation models. Abra as máscaras de fabricação na seção Modelos de Segmentação. Abra imagens representativas de microscopia e quaisquer máscaras existentes que devem ser refinadas."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.375,
+      "speech_end": 33.725,
+      "scene_end": 34.175000000000004,
+      "duration": 10.800000000000004,
+      "text": "Na área de configuração principal, selecione canais, normalização, ferramentas de pincel ou barra mágica, operações de objetos e comportamento de armazenamento de rótulos."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.175000000000004,
+      "speech_end": 48.7,
+      "scene_end": 49.150000000000006,
+      "duration": 14.975000000000001,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. corrigir os limites e objetos faltantes em um subconjunto de treinamento diversificado em vez de apenas campos fáceis."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.150000000000006,
+      "speech_end": 59.325,
+      "scene_end": 59.975,
+      "duration": 10.824999999999996,
+      "text": "Quando o fluxo de trabalho estiver concluído, as imagens emparelhadas e as máscaras de etiqueta seleccionadas estarão prontas para o treinamento personalizado do Cellpose."
+    }
+  ]
+}

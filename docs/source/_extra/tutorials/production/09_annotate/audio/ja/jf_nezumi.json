@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 67.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 14.375,
+      "scene_end": 14.825,
+      "duration": 14.825,
+      "text": "この教程では\"アノート\"をカバーしています.格子上の単品作物をレビューし,モデル訓練や品質管理のために信頼できるラベルを割り当てます."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.825,
+      "speech_end": 22.875,
+      "scene_end": 23.325,
+      "duration": 8.5,
+      "text": "Core セクションから Annotate を開きます。 データベース表と注釈列を選択する."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.325,
+      "speech_end": 35.675,
+      "scene_end": 36.125,
+      "duration": 12.8,
+      "text": "主な構成領域では,クラス,表示チャネル,分類,サンプリング,およびレビューセットを定義するフィルターを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.125,
+      "speech_end": 56.425,
+      "scene_end": 56.875,
+      "duration": 20.75,
+      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します. 代表的なオブジェクトを標識し,頻繁に保存し,不確実または矛盾する例を再確認します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 56.875,
+      "speech_end": 67.1,
+      "scene_end": 67.75,
+      "duration": 10.875,
+      "text": "作業流が完了すると,注釈はオブジェクト識別子が完ぺきでプロジェクトデータベースに書き戻されます."
+    }
+  ]
+}

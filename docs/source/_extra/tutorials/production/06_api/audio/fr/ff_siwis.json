@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.975,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 4.175,
+      "scene_end": 4.625,
+      "duration": 4.625,
+      "text": "Ce tutoriel couvre l'API Python et les flux de travail sans tête."
+    },
+    {
+      "scene": 2,
+      "speech_start": 4.625,
+      "speech_end": 16.65,
+      "scene_end": 17.099999999999998,
+      "duration": 12.474999999999998,
+      "text": "Ouvrez Python API and headless workflows dans la section spaCR. Commencez à partir des paramètres exportés par l'application de bureau ou construisez un dictionnaire de paramètres validé en Python."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.099999999999998,
+      "speech_end": 27.674999999999997,
+      "scene_end": 28.124999999999996,
+      "duration": 11.024999999999999,
+      "text": "Dans la zone de configuration principale, sélectionnez le point d'entrée du pipeline, le chemin de source, le chemin de sortie, le nombre de travailleurs et les options matérielles."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.124999999999996,
+      "speech_end": 45.39999999999999,
+      "scene_end": 45.849999999999994,
+      "duration": 17.724999999999998,
+      "text": "Avant la mise en marche complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Exécutez le pipeline dans un terminal, un ordinateur portable, un planificateur ou un travail à distance tout en préservant les journaux et les paramètres."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.849999999999994,
+      "speech_end": 56.324999999999996,
+      "scene_end": 56.974999999999994,
+      "duration": 11.125,
+      "text": "Lorsque le flux de travail est terminé, le projet contient les mêmes masques, mesures, bases de données, chiffres et enregistrements d'exécution produits par l'application de bureau."
+    }
+  ]
+}

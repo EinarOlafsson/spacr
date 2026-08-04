@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_tebukuro",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.3,
+      "scene_end": 13.75,
+      "duration": 13.75,
+      "text": "このチュートリアルではプレートビューアをカバーします.プレート熱地図としてあらゆる測定を調査し,空間的な文物やエッジ効果を特定します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.75,
+      "speech_end": 26.3,
+      "scene_end": 26.75,
+      "duration": 13.0,
+      "text": "Results and quality control セクションから Plate Viewer を開きます。 プレート,井戸,状態識別子を含む測定データベースを開きます."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.75,
+      "speech_end": 37.0,
+      "scene_end": 37.45,
+      "duration": 10.700000000000003,
+      "text": "主な構成領域では,測定,集積,正常化,色スケール,制御,プレートレイアウトを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.45,
+      "speech_end": 55.800000000000004,
+      "scene_end": 56.25000000000001,
+      "duration": 18.800000000000004,
+      "text": "完全実行前に,可視設定をレビューし,可用である場合のプレビューまたはテストモードを使用します. 原料と正常化されたビューを比較し,疑わしい井戸または体系的な辺パターンを検査します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 56.25000000000001,
+      "speech_end": 65.15,
+      "scene_end": 65.80000000000001,
+      "duration": 9.550000000000004,
+      "text": "作業流が完了すると,熱地図,選択された井戸表,エッジ効果診断が輸出される."
+    }
+  ]
+}

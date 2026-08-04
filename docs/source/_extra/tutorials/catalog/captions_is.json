@@ -1,0 +1,834 @@
+{
+  "schema": 1,
+  "language": "is",
+  "source_language": "en",
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "scenes": [
+        {
+          "narration": "Áður en þú setur upp spaCR skaltu þekkja þrjár opinberar dreifingarleiðir: PyPI fyrir gefið út Python-pakkann, GitHub fyrir kjali og skrifborðsstjóra og conda-forge þegar endurskoðað pakkann er birt."
+        },
+        {
+          "narration": "spaCR síðan á PyPI sýnir núverandi stöðugan útgáfu og skipanina pip install spacr. Útgáfu skrár innihalda Python hjól og uppspretta skrá."
+        },
+        {
+          "narration": "PyPI tengist einnig heimildum, uppsprettageymslunni og útgáfunni. Skoðaðu þörfin Python útgáfur og útgáfudag áður en þú breytir fyrirliggjandi umhverfi."
+        },
+        {
+          "narration": "Á GitHub er main útgefna kóðalínan, en nightly inniheldur nýrri breytingar sem eru enn í prófun. Notaðu nightly aðeins þegar þú þarft sérstaklega á óútgefinni breytingu að halda."
+        },
+        {
+          "narration": "GitHub Releases veitir Windows, macOS og Linux uppsetningar, útgáfu athugasemdir, Python pakka skrár, og SHA-256 prófsum."
+        },
+        {
+          "narration": "Uppskriftin á conda-forge er gerð í geymslunni en engin spaCR pakka er birt á conda-forge-miðlinum enn. Til þessa, búa til Conda umhverfi og setja spaCR frá PyPI inni í það."
+        },
+        {
+          "narration": "Notaðu PyPI eða pip fyrir Python umhverfi, GitHub Releases fyrir innfædd uppsetningu og nightly grein aðeins fyrir þróun. Næstu námskeiðin sýna hverja uppsetningarleið án þess að forritinu verði sett í gang."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "scenes": [
+        {
+          "narration": "Umhverfi Conda heldur spaCR og vísindalega háðstöðum þess frá ótengdum verkefnum. Python þrír punktur tólf býður upp á víðasta valfrjáls samhæfni á pakkanum."
+        },
+        {
+          "narration": "Opnaðu Conda-mögulega endaspyrnu og skapaðu umhverfi sem heitir spacr með Python þremur punktum tólf og pip."
+        },
+        {
+          "narration": "Virktu umhverfið. Staðfestir að Python tilheyrir spacr umhverfi áður en þú setur eitthvað."
+        },
+        {
+          "narration": "Uppfæra pip í gegnum virkan Python túlka. Með því að nota python -m pip kemur ekki í veg fyrir að annað framkvæmdastykki fá pakka."
+        },
+        {
+          "narration": "Fyrir skrifborðsforritið skaltu setja upp spacr með qt extra. Notaðu hreinn rúmpakka fyrir vinnustað eða netþjón án höfuð."
+        },
+        {
+          "narration": "Keyrðu spaCR-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst."
+        },
+        {
+          "narration": "conda-forge pakkinn hefur ekki verið gefinn út enn, svo ekki keyra skipunina conda install -c conda-forge spacr í dag. Þegar pakkinn verður tiltækur verður tengt í opinberu uppskriftina og rásina frá spaCR hugbúnaðarsafninu."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "scenes": [
+        {
+          "narration": "Pip leið virkar á Windows, macOS og Linux. Notaðu alltaf einangrað virtulegt umhverfi í stað þess að breyta Python uppsetningu rekstrarkerfisins."
+        },
+        {
+          "narration": "Á macOS eða Linux skaltu búa til umhverfið með Python 3 point 12 og svo virkja það úr skránni."
+        },
+        {
+          "narration": "Á Windows skaltu nota Python launcherinn til að búa til umhverfið og virkja það úr skránni Scripts."
+        },
+        {
+          "narration": "Uppfæra pip í virkum umhverfi. Beiðnin python -m pip heldur uppsetningu tengd Python sem þú hefur reynt."
+        },
+        {
+          "narration": "Settu upp einfaldan spacr-pakka til að nota án höfuð eða spacr með qt extra fyrir skrifborðsvið."
+        },
+        {
+          "narration": "Verið innfluttu útgáfu og keyrið spacr-doctor. Ljúka einhverjum misteknum athugunum áður en opnað er tilraunaupplýsingar."
+        },
+        {
+          "narration": "Umhverfið er nú tilbúið. Hafðu það virkt hvenær sem þú notar spaCR og notaðu python -m pip install --upgrade spacr þegar þú uppfærir það viljandi."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "scenes": [
+        {
+          "narration": "Léttvægir innfæddir uppsetjendur búa til einka Python þrjár stig tólf reksturstíma, svo hlaða niður Qt, PyTorch, spaCR, og vísindalega háð."
+        },
+        {
+          "narration": "Sækja uppsetningar aðeins úr nýjustu spaCR GitHub útgáfu. Samræma skráina við stýrikerfið þitt og notaðu gefið út SHA-256 skráina þegar þú þarft að staðfesta niðurhal."
+        },
+        {
+          "narration": "Á Windows tíu eða ellefu opnaðu uppsetningu á netinu. Flutningur CPU uppsetningu er sjálfgefið; NVIDIA hraða er valfrjáls uppsetningarhluti."
+        },
+        {
+          "narration": "Á macOS 11 eða nýri opnaðu alþjóðlega pakkann fyrir Intel og Apple silicon. Ef Gatekeeper blokkar ekki staðfest pakkann, notaðu persónuvernd og öryggi, Opna samt og keyra hana aftur."
+        },
+        {
+          "narration": "Á 64 bitum Linux, gera niðurhlaðaðu .run skrá framkvæmd, svo byrja það frá enda. Varauppsettan uppsetningu notar CPU sambærilegt PyTorch."
+        },
+        {
+          "narration": "Til að fá stuðning við NVIDIA vélbúnað á Linux skaltu fara í gegnum --torch-backend auto. Þetta velur hraðun þegar hún er í boði án þess að CUDA bókasafnið sé þögugt sjálfgefið."
+        },
+        {
+          "narration": "Hver uppsetjandi staðfestir skiptingu áður en breyting á útgáfum. Með truflaðri uppfærslu er fyrri umhverfið óbreytt og install.log er áfram í einkareknu spaCR uppsetningarskrá."
+        },
+        {
+          "narration": "Eftir uppsetningu skaltu nota rekstrarkerfið. Ekki er þörf á að setja Python eða Conda upp."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um heimaskjá og leiðsögn. Skoðaðu umsóknina, hópana hennar, keyrið samantekningar, þroskavísitölur og umfjöllunartækni."
+        },
+        {
+          "narration": "Opnaðu Startskjárinn og leiða frá Húsdeildinni. Byrjaðu á skrifborðsforritinu spaCR og byrjaðu á Heim."
+        },
+        {
+          "narration": "Í aðal uppsetningar svæðinu, notaðu hliðarbarinn, flokkur greinar, leitbar app flísar, og skipanarpalletta til að ná að vinna á vinnuflóð."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. Opnaðu einni lífrann aðeins þegar þú ætlar að hafa samskipti við hann. Merkið er sýnt aðeins fyrir raunverulega smelli."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið geturðu farið í gegnum forritið og skilið stöðuupplýsingarnar sem sýndar eru á Heim."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Python API og höfuðlaus vinnuflæði. Kynntu endurtekjanlegum spaCR pipelines frá Python eða skell án skrifborðsvið."
+        },
+        {
+          "narration": "Opna Python API og höfuðlaus vinnuflæði frá spaCR kafla. Byrjaðu á stillingum sem eru útflutin af skrifborðsforritinu eða byggðu staðfestar stillingarorðabók í Python."
+        },
+        {
+          "narration": "Í helstu skipulagssvæðinu skaltu velja aðgangspunktið til pípulagsins, uppsprettaleiðina, útgáfuleiðina, starfsmannafjölda og vélbúnaðarvalkostir."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. framkvæma pípulínuna í endaspæli, nótbóki, skipulagsmanni eða fjarstarfi á meðan dagskrá og stillingar eru varðveittar."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, verkefnið inniheldur sömu grímur, mælingar, gagnagrunnar, tölur og rekstur skrá sem framleitt er af skrifborðsforritinu."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Mask. Skiptaðu út fjórstöðvarmikroskóp tilrauninni í kjarn, frumur, lípíðdropa og parazitumáskar."
+        },
+        {
+          "narration": "Opnuðu grímuna frá kjarnaöflunni. Notaðu upplýsingasafnið með 13 sviðum. Seðill núll er kjarn, seðill eitt er endoplasma reticulum, seðill tvö er lípíddropa og seðill þrjú er parazitur."
+        },
+        {
+          "narration": "Í aðalmyndunarsvæðinu er hægt að greina kjarninn úr núllum, frumur úr endoplasma-reticulum-kanali, lípíddropa með vinnuflæði organella og parazitum úr þriðja kanali."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. Skoðaðu umboðsvið og keyrið síðan fjórar skiptingarferðirnar yfir gagnasetinn."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, inniheldur möskapallinn samræmdir hlutmerki og sameinuð mynd-með-mskjölur sem eru tilbúnir til að mæla."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Measure. Útleiða á hvern fyrirbæri, morfólíu, textúr, colocalization og rúmlega eiginleika úr skiptum myndum."
+        },
+        {
+          "narration": "Opið mæli frá kjarnaskiptinu. Veldu verkefnið sem inniheldur myndir og grímur sem Mask hefur framleitt."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu skal nota kanal einn, endoplasma reticulum, sem áhugaveginn kanal og velja hlutartípa og lögunar fjölskyldur til að mæla."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. sjá frumgróður þegar þörf er á, og vinna síðan við hvert valda svið og hlutartíp."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið geymir mælingar db eftirsóknarlegar ein- og hlutalínur og valfrjáls myndatökur til athugasemda eða flokkunar."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Annotate. Skoðaðu einstaka gróður á netinu og veitið áreiðanlegar merkingar til módelþjálfunar eða gæðaeftirlits."
+        },
+        {
+          "narration": "Opnaðu athugasemdir úr kjarnaöflunni. Opnaðu verkefni með hlutföllum og veldu gagnagrunnaborðið og athugasemda."
+        },
+        {
+          "narration": "Í helstu skipulagssvæðinu skaltu velja flokkar, sýningarsvæði, flokkun, sýnatöku og allar sía sem skilgreina yfirlit."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. merkja fyrirmyndandi hlutir, geyma oft og skoða aftur óvissa eða ágreinandi dæmi."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, eru athugasemdir skrifaðar aftur í verkefnis gagnagrunn með fyrirbæra auðkenningar heilbrigð."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um skilgreiningu, tölvuþjónustu. Þjálfa og beita myndalögðu taugasambandið á merktar einstaka hlutföllargróður."
+        },
+        {
+          "narration": "Opið skilgreiningu, tölvuþjónusta frá kjarnaöflunni. Veldu athugasemdir afgróður möppur eða verkefni gagnagrunn með traustum flokksmerki."
+        },
+        {
+          "narration": "Í meginmyndasvæðinu skaltu velja myndasmiðjur, arkitektúr, skiptasmíð, aukning, flokksstærð og þjálfunarstjórn."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. þjálfa á þjálfunarskiptinu, fylgjast með staðfestingarhegðun og meta einu sinni á geymdum gögnum."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, spaCR geymir fyrirmyndina, mælikvarða, spár, klassa dæmi og keyrir metadata til síðar notkunar."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um flokkun, vélfræðslu. Hreyfingar sem byggjast á eiginleikum lestanna, svo sem XGBoost eða tilviljunarskógur úr mæluðum upplýsingum um eitt hlut."
+        },
+        {
+          "narration": "Opið flokkun, vélmenntun frá kjarnaöflunni. Veldu mælingar gagnagrunn, merkingar dálkur, eiginleika fjölskyldur og tilrauna flokkunar dálkur."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skaltu setja upp sía, skálun, val á eiginleikum, flokks jafnvægi, módelfjölskyldu og lækjaskynd."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. val á módelum sem gildir á milli og geyma sér eftirfarandi mat þegar mögulegt er."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið fær verkefnið spá, mikilvægi eiginleika, árangursborðs og rafrænum módelum."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um stígmerki kortsins. Tengdu stígkerfi og leiðsögn til kynslóða sem mældust í sýnishornmyndum."
+        },
+        {
+          "narration": "Opnaðu stígmerki á kortinu í kjarnaöflunni. Gefðu FASTQ skrár, stígmerki skilgreiningar, plötu metadata og samsvarandi mikroskópsverkefni."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu þarf að skilgreina röð, stöng og leiðsögn á stígkerfi ásamt gæðamörkum og reglum um ósamræmi."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu eftirfarandi gæði og kortlagningshlutfall áður en samþykkt er að sameina verkefnin."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið eru leiðsögn tengdar brunnum og einangruðum fyllmyndum í sporhæfum töflum."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Regression. Áætla truflunaráhrif og greina einkenni sem tengjast stefnubrögðum eða ástandsniviðum."
+        },
+        {
+          "narration": "Opið afturflutningur frá kjarnaskiptinu. Veldu kortlagðar mælingar, viðbrögðbreytingar, stjórnir, flokkunarstöðvar og fyrirspurningar fyrir frambjóðendur."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skaltu velja umbreytingar, sambreytingar, módelfjölskyldu, tilviljunaráhrif, fleiri prófunar leiðréttingar og gæðafler."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu greiningu fyrirmyndanna og stjórna hegðun áður en túlkað er efnisgildi."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið skrifar spaCR áhrifstærðir, óvissu, breytt merkingu, greiningar og tölur."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Make Masks. Skipuleggja, leiðrétta og skipuleggja deildatökumerki fyrir Cellpose þjálfunarupplýsingar með gagnvirkum hætti."
+        },
+        {
+          "narration": "Opnaðu Make Masks í flokknum fyrir fyrirmyndir. Opið fyrirmyndandi mikroskópismyndir og allar núverandi grímur sem ætti að endurbæta."
+        },
+        {
+          "narration": "Í helstu skipulagssvæðinu veldu leiðir, normalisering, bursta eða töfrandi verkfæri, hlutastarfsemi og merkingar-spara hegðun."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. til að leiðrétta mörk og saknar hlutir í fjölbreyttri þjálfunarsamningi en ekki aðeins auðveldum sviðum."
+        },
+        {
+          "narration": "Þegar vinnubreytingin er lokið eru parið myndir og valið merkimaskur tilbúnir til sérsniðinnar Cellpose þjálfunar."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Image UMAP. Rannsókna kynslóðahverfi með því að setja inn mæld hlutir og sýna mynd afgróður þeirra sem glyphs."
+        },
+        {
+          "narration": "Opnaðu UMAP myndina í kaflanum Niðurstöður og gæðaeftirlit. Veldu mælingar gagnagrunn, mynd afurðir, eiginleika sett og hópun metadata."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu skaltu stillta sía, skala, nágranna, lágmarksfjarlægð, klústrun, sýnatöku og myndefnasýning."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður nokkurra endurnýjanlegra innbygginga og staðfesting þess að hópur séu ekki rekin af plötum eða myndatökugerðum."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, geymir spaCR samhæfingar, klústermerki, myndamerti og innbyggingar tölur tilbúnar til birtingar."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um virkni kort. Skoðaðu myndasvæði sem hafa mest áhrif á þjálfaðan tölvuþjónustur."
+        },
+        {
+          "narration": "Opnaðu virkjunarmið úr kafla Niðurstöður og gæðaeftirlit. Veldu þjálfaðan sjónmynd og fyrirmyndandi hlutföll úr áhugaflokkum."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skaltu velja tilheyrslumaðferð, markmiðsslag, markmiðflokkur, leiðir, normalisering og sýnatöku."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður kort á milli réttra, rangra, mjög áreiðanlegra og lág áreiðanlegra dæmi."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið hjálpa virkjunarskipti og tilvísunarmælingar til að meta hvort líkan lærði líffræðilegar vísbendingar."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Timelapse. Segmenta, tengja og mæla frumur eða sjúkdómsfrumur í tímasetningu."
+        },
+        {
+          "narration": "Opnaðu Timelapse frá kjarnaskiptinu. Veldu tímalaus myndasett sem skránafn varðveita svið, tíma, dýpd og kanal vísitölur."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu er hægt að skipuleggja skiptingu, fylgjandi hluttegundir, tengingarstíl, hámarksþéttingu, aðgerðir við gönguflokki og formyndatökur."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta spor á fulltrúlegum hreyfingum áður en farið er að vinna með alla tímasetuna."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið er geymd tímavísunartengd grímur, spor, mælingar og vegleiðingar samantektir með stöðugum hlut auðkenni."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Motility test. Tilgreina hraða, flutning, áhaldið og sýkingar gæðaeftirlit mælikvarða úr tíma leysa myndum."
+        },
+        {
+          "narration": "Opið hreyfingarpróf frá kjarnaskiptinu. Opnuð eftirfylgjandi tímabilsgögn með áreiðanlegum tímabilum og rými."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skaltu velja sporfiltrar, lágmarksvaran, sléttingu, hreyfishæfni mælikvarða, sýkingarskilgreiningar og hópur á velri hæð."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu brautfyrirlit og útilokaði brotnar, stöðugar verkfæri eða ólíklegar spor."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið skrifar spaCR hreyfanleika töflur fyrir hverja braut og fyrir hverja skilyrði, gæðametris og tölur."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Train Cellpose. Þjálfaðu sérsniðinn Cellpose eða CPSAM-samhæfan segmenteringarmynd úr valiðum mynd-maskparum."
+        },
+        {
+          "narration": "Opnaðu Cellpose lestinn frá sviði fyrirmyndir. Gæta fjölbreyttar þjálfunar- og staðfestingarmyndir með vandlega leiðréttum merkisgrímum."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skaltu velja leiðir, grunnmynd, þvermál, aukning, námshlutfall, tímabil, flokksstærð og staðfestingarhlutfall."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. eftirlit með þjálfunar- og staðfestingartapum og prófstöðvum á sviðum sem ekki voru notuð til þjálfunar."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið er valið eftirlitsstað, menntunarskrá, staðfestingarspá og stillingar geymdar saman."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Cellpose grímur. Gerðu og endurskoðuðu Cellpose grímur með markvissri vinnuflæði fyrirmyndir og forrit."
+        },
+        {
+          "narration": "Opnaðu Cellpose grímur í flokknum fyrir fyrirmyndir. Veldu sýnishorn, leiðir og innbyggða eða sérsniðna Cellpose líkan."
+        },
+        {
+          "narration": "Í aðalmyndunar svæðinu, stilltu þvermál, flæði og líkindastigum frumur, normalisering, flísun og vélbúnaðarnotkun."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. að sjá fyrirsýn á nokkrum fulltrúlegum sviðum áður en módelinn er beitt fullri uppspretta."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið, eru merkingargrímur og myndir með sjónrænum gæðaeftirlit skrifuð við hliðina á kortlagðum inngöngum."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um samræmi við fyrirmyndir. Kynntu tveimur Cellpose- módelum á sömu sviðum og samanberðu grímur, tal og samning mælikvarða."
+        },
+        {
+          "narration": "Opið fyrirmynd Samanburður úr flokkunni fyrirmyndir. Veldu tvö tiltekna módel og fulltrúlegt sett af líffræðilegum sviðum."
+        },
+        {
+          "narration": "Í aðalmyndunar svæðinu samræmaðu leiðir og fyrirvinnslu og settu síðan inn þröskulær og viðmið um samræmi við hlutir."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. endurskoða hlið við hlið yfirlagningu ásamt hlutalög, yfirlagningu og breyttu Rand-vísitölu munum."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, er samanburðarskýrslan tilgreindur hvar hver fyrirmynd vinnur, tapar, deilir eða sameinar hlutir."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um dýragarðsmyndarmyndina. Skoða, staðfesta, hlaða niður og mælikvarða endurtekjanlegar skipta- og flokkaraðgerðir."
+        },
+        {
+          "narration": "Opnuð dýragarðabúð fyrirmyndir frá flokkunni fyrirmyndir. Opnaðu katalóginn og veldu fyrirmyndir sem eru sambærilegar við núverandi verkefni og innleiðslukanalar."
+        },
+        {
+          "narration": "Á aðalmyndunar svæðinu, endurskoða uppruna, leyfi, endurskoðunarefni, væntanleg fyrirvinnslu, verkefnistegund og staðbundna tilgengni."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. til að gera viðmiðun á loforðandi gerðum á nokkrum fulltrúlegum sviðum áður en farið er að samþykkja eina til að gera fullkomið tilraun."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið, verða staðfestar fyrirmyndaskrár og niðurstöður viðmiðunarmerkja tengdar metaupplýsingum þeirra."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Annotator samning. Mæra samning milli athugasemda og endurskoða þau atriði sem valda ósammála."
+        },
+        {
+          "narration": "Opið tilkynningarmáli frá kafla um niðurstöður og gæðaeftirlit. Veldu verkefnis gagnagrunn og tvær eða fleiri athugasemda stólfur sem fela saman hlutina."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skal valið flokksvinnslu, saknarmerki stefnu, hópun, sýnatöku og samningstaða."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu Cohen eða Fleiss kappa ásamt flokksspecifikkum fordæmi um rugl og ósamræmi."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið setja samningastafur og einbeittar endurskoðun til stuðnings við samræmingu á merkingum og umbætur á forritinu."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um próf á plötu. Mæra uppbyggingu plötu og breytingar á aðstæðum frá plötumyndum."
+        },
+        {
+          "narration": "Opið plötupróf frá Toxoplasma próf kafla. Færðu fram myndir af plötu, skipulag plötu, pikslaviðræðingu, aðstæður og stjórn."
+        },
+        {
+          "narration": "Í aðalmyndatölu skaltu stillta bakgrunnsréttu, þröskulíf, hreinsun fyrirbæra, plötu stærðarfiltrar og brunnarsamtöku."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta skiptingar á skiptingu á yfirborðum í stjórn- og meðferðarbrúnum áður en gerð er að greiningu."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið skilar spaCR skýrslum um töflur, svæði, samantekningar, tölur og gögn um gæðastjórnun."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um ráðningar. Tilgreina mælikvarða tilboðs á áhugasamband til paraþíða eða sjúkdómsframleiðenda tengda svæðum."
+        },
+        {
+          "narration": "Opinn ráðningur frá Toxoplasma prófunar deild. Notaðu mældra frumur, parazitum og líffæra grímur með 1. kanali, endoplasma reticulum, sem áhugaveginn kanali."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skilgreinaðu ráðningarsvæðið, bakgrunnsviðmiðun, hlutfiltrar, hópun og eðlilegingarstefnu."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. athuga yfirlag á hlutastöðum og stjórna dreifingum áður en aðstæður eru samanburðar."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið eru rekstrarmarki fyrir hlut og samantekt á skilyrðum geymd með kjarnorðkenningum."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um innrásarpróf. Notaðu tveggja litna utan- gegn innri litun til að greina tengda frá innrásuðum parazitum."
+        },
+        {
+          "narration": "Opið innrásarpróf frá Toxoplasma próf kafla. Gæta fyrir parazitum og gestgjafafrumur, innri og ytri flækkanálum, plötum metadata og stjórnum."
+        },
+        {
+          "narration": "Í aðalmyndunar svæðinu er hægt að setja áhersluþróunarstigir, að sameina hlutir, að takast á við óskiljanleika og að hópa á velum stigi."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. yfirlit um fylgdar, innrásar og óvissa dæmi áður en samþykkt er flokkunarreglan."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið skýrir spaCR tölur og innrásarvirkni fyrir brunn og ástandi með myndum um gæðastjórnun."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um afritunarpróf. Skoraðu parazitum fyrir hverja prófun og samantektðu innrafrænni umbreytingu eftir skilyrði."
+        },
+        {
+          "narration": "Opið replikationspróf frá Toxoplasma próf kafla. Veldu hópfrumur, vacuole og parazit mælingar ásamt ástandi metadata."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu er hægt að skipuleggja rúmlega skiptingu, fyrirbærafiltrar, parazit-tölur, stjórnun og tölfræðilegar samanburðir."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu prófunar á öllu fjölda og staðfesta að blönduð eða flokkað grímur séu útilokað."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, eru parazitaskiptingar á hvern prófun, endurbreytingarhraða, tölfræði og tölur geymdar."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um æfingar. Samanberðu nokkrar módelþjálfunarferðir með því að yfirlaða beygjur og breyta stillingum þeirra."
+        },
+        {
+          "narration": "Opið námskeið frá niðurstöðum og gæðaeftirlitum. Veldu hlaupa möppur eða skráðar æfingarupplýsingar sem ætti að bera saman."
+        },
+        {
+          "narration": "Í helstu skipulagssvæðinu skaltu velja mælikvarða, sléttingu, hópun, staðfestingarviðmið og stillingarkerfi til að sýna."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður um samræmi, ofhæfingu, stöðugleika og viðhaldandi árangur í stað þess að velja út af þjálfun tap einungis."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið eru samanburðartölur og stillingar-muntablaðir tilgreindar sterkasta endurnýjanlega rekstur."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um skýrslu. Búðu til að deila HTML eða PDF samantekt sem inniheldur gæðaeftirlit, tölur, tölur, stillingar og útgáfur."
+        },
+        {
+          "narration": "Opið skýrsla frá niðurstöðum og gæðaeftirlitum. Veldu lokið verkefni spaCR og hlaupa, töflur, tölur og deildir til að innihalda."
+        },
+        {
+          "narration": "Í aðalmyndunar svæðinu er hægt að setja upp titil, höfundur, skilyrði merkingar, gæðamörk, útgáfuformat og friðhelgi einkalífsins viðkvæma sviði."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. sjá fyrirlit á skýrslunni og leysa saknar skrár eða misteknar gæðakönnun áður en útflutningur fer fram."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið skráir flytjanlegur skýrsla niðurstöður ásamt stillingum og hugbúnaðarútgáfum sem nauðsynlegar eru til að endurrita þær."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Plate Queue. Kæða fleiri plötur í gegnum sama staðfestan rörleið."
+        },
+        {
+          "narration": "Opnaðu línuna á plötunni í deildinni Upplýsingar og flokka. Bæta upp úr plötum og veldu sameiginlega modulsöð og stillingar sem settar eru fyrirfram."
+        },
+        {
+          "narration": "Í aðalmyndunarsvæðinu, endurskoða plötu röð, per-plötu yfirlýsingar, starfsmann takmörk, mistök stefna, endurskoða hegðun og útgáfu rætur."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. Byrjaðu á litlum plötu eða prófvöllum og láttu síðan röðina vinna plötu í röð með sýnilegum stöðu."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið fær hvert plötu einangrað verkefni og rekstur á meðan röðin varðveitir heildarframfarir."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um ytri grímur. Breyttu vörumerki frá þriðja aðila og kjarnmyndum í mælt, sporanlegt verkefni spaCR."
+        },
+        {
+          "narration": "Opnaðu ytri grímur í deildinni Upplýsingar og flokka. Gefðu upp upprunamyndir, ytri grímur, nöfnreglur, hluttegundir og valfrjálsir mælingatöflur."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu er hægt að kortleggja myndir í grímur, staðfesta lögun og merkingar samningar, velja ummerking og skilgreina mælingarmöguleikar."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. fyrirsjáarsetning og hlut telja á nokkrum sviðum áður en innflutningur á heildar gagnasetinu er gerður."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, geymir spaCR eðlilegar grímur, kortlagðar myndir, mælingar og uppruna tilbúinn til athugasemda."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Align og Stitch. Skráðu myndir og smíðu stitið mosaík í smám saman án þess að halda öllu listanum í minni."
+        },
+        {
+          "narration": "Opna samræmingu og stitning frá gagna- og flokkavinnslustöðu. Veldu flísar kaup, staða samhæfingar eða yfirlagning metadata, leiðir og áfangastað."
+        },
+        {
+          "narration": "Í aðalmyndunar svæðinu er hægt að setja upp skráningarhátt, viðmiðunarleið, yfirlagningu, blending, leiðréttingu, stærð hluta og útgáfuformat."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu samræmingar og námsfyrirlit áður en búið er að byggja upp fullt mosaík."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið eru skráðar flísar, saumaðar myndir, breytingar og kortunarmetadata geymdar."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Plate Viewer. Rannsókna hvaða mælingar sem eru sem hitamappur á plötum og skilgreina rýmið fyrirbæri eða hliðaráhrif."
+        },
+        {
+          "narration": "Opnuð plötunarsýning frá niðurstöðum og gæðaeftirlitum. Opnaðu mælingar gagnagrunn með plötu, brunn og skilríki ástand."
+        },
+        {
+          "narration": "Í aðalmyndunarsvæðinu skaltu velja mælingu, samsetningu, normaliseringu, litaskálu, stjórnun og skipulag plötu."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður á grófum og eðlilegum skoðunum og skoðaðir grunsamlegar brunnur eða kerfisbundnar hliðarmöntur."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið er hægt að flytja út hitameppur, valda borðborð og greiningar á hliðaráhrifum."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Database Browser. Skoðaðu, sía, leita og flytja út mælingar dot db án þess að nota skipunarlínuna sqlite."
+        },
+        {
+          "narration": "Opnaðu gagnagrunnaþjónustuna í deildinni Upplýsingar og flokka. Opnaðu gagnagrunn spaCR SQLite og veldu töflu eða vistaðan fyrirspurn."
+        },
+        {
+          "narration": "Í aðal uppsetningar svæði, stilltu stólur, sía, flokkun, röð mörk, sameiningar, og öruggt les-eins eða breyta hegðun."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. sjá fyrirsögn og varðveita hlutatilgreiningar þegar útflutningur er gerður eða leyfðar breytingar eru gerðar."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið er hægt að afrita eða flytja út síaðar töflur á meðan upprunalegu gagnagrunnan er eftirsjáanleg."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Format Converter. Breyttu ND2, CZI, LIF, OME-TIFF og tengd mikroskópisformat í kortlagðar TIFF skrár í Yokogawa stíl."
+        },
+        {
+          "narration": "Opið Format Converter úr deildinni Gögn og flokka rekur. Veldu heimildaskrár, röð eða atriði, nefndir á kanali, tíma- og djúptækni meðhöndlun og útgáfu möppu."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu má sjá fyrirsýn á hvernig uppsprettaþættir kortast til plötu, brunn, sviði, tíma, dýpdi og kanal vísitölur."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta kortunina á litlum sýni áður en hver skrá er breytt."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið skrifar spaCR staðlaða TIFF og kort aftur til upprunalegu skrár og metadata."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um innflytjunarverkefni. Færðu myndum, grímum og mælingatöflu annars rannsóknarstofu í verkefni spaCR."
+        },
+        {
+          "narration": "Opna innflutningsprojekt úr deildinni Upplýsingar og flokka. Færðu fram myndir, valfrjálsanar grímur, mælingatöflu og stöðugar ytri auðkenningar."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu er að kortleggja erlendar stöngur á spaCR auðkenningar, leiðir, hlutstypir, plöturmetadata og upprunafelda."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta sameiningar, saknað gildi, samræmi við myndaskjá og duplíta auðkenningar áður en innflutningur er gerður."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið varðveitir staðalinn verkefni tengsl aftur til hverrar upprunalegu skrá og auðkenning."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Batch Runner. Lögð í röð, verkefni og stillingar til að endurskapa óeftirlitinn framkvæmd."
+        },
+        {
+          "narration": "Opnuð er Batch Runner úr deildinni Upplýsingar og batch runs. Að bæta við verkefnum og setja saman raðfylgjuna sem hvert verkefni ætti að keyra."
+        },
+        {
+          "narration": "Í aðal uppsetningar svæði skaltu velja fyrirsettingar, háðstæður, auðlindar takmörk, endurreisa hegðun, logging og mistök stefnu."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta útgáfuverkefnið, prófa eitt verkefni og fara svo í eftirfarandi röð yfir nótt eða án eftirlits."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið, hefur hvert starf sitt eigin stöðu, stillingar snjallsmynd, dagskrá, útgöngur, og endurtekið hlaup skrá."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um dreifð störf. Senda og fylgjast með vinnu spaCR á SSH vinnustaðum, Slurm hópum, eða ský og HPC boðum."
+        },
+        {
+          "narration": "Opnaðu dreifðu störf í deildinni Upplýsingar og flokka. Skipuleggðu fjarlægð prófíll, tengslshátt, vinnubréf, umhverfi og gögn leiðar."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæði, skilgreina skipulags auðlindir, skipunarskjald, skrá samræmingur, trúnaðarmerki og stöðu könnun."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. leggja fram litla staðfestingarstarf áður en farið er í dýrar greiningar."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er lokið fylgir staðbundin skrár með fjarlægum vinnuaðilum, dagskrá, stöðu, flutnum ritgerðum og mistökum."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um mat á flokkunum. Rannsóknarfyrirsagnir, hnísað á milli staðfestingar, mælingar, lækkunar og árangur á hverri plötu."
+        },
+        {
+          "narration": "Opinn flokkunargerður Úttekt frá greininni Niðurstöður og gæðaeftirlit. Veldu spár með staðreynd, skiptum metaupplýsingum, skilgreindum á plötum, líkindum og fyrirmyndasögnum."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu er hægt að setja upp flokksskránni, þröskulær, klúðunarbúðir, hópun, óvissa um upptöku og lækkunatökur."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. til að meta framhaldið og hegðun á plötunni áður en flokkunargerðir eru notuð til líffræðilegra niðurstöðu."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, spaCR framleiðir greinar um mismunun, mælikvarða, rugl, lækkun og styrkleika."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Run History. Leitaðu í stillingar, skrár, viðvörun, mistök og árangur á hverju starfi á einum stað."
+        },
+        {
+          "narration": "Opnaðu rekstrarfrásögn úr greininni Niðurstöður og gæðaeftirlit. Opnaðu rekstrarregistrið fyrir núverandi vinnusvæði eða valda verkefni rót."
+        },
+        {
+          "narration": "Í aðalmyndatölu svæðinu skal sía eftir stýri, stöðu, dagsetningu, verkefni, útgáfu, viðvörun, tímabil eða auðlindarnotkun."
+        },
+        {
+          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. opna hlaup til að skoða óbreyttar stillingar, dagskrá, útgöngur og mistök samhengi."
+        },
+        {
+          "narration": "Þegar vinnuflokkurinn er búinn geturðu endurgefið, borið saman, haldið áfram eða greint frá fyrri vinnu án þess að giska á hvernig hún var unnin."
+        }
+      ]
+    }
+  ]
+}

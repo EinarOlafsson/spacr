@@ -16,6 +16,9 @@ include requirements.txt
 
 # Recursively include specific folders and file types
 recursive-include docs *.rst *.py *.html *.css *.js *.inv *.pickle *.png *.svg *.ttf *.woff *.woff2 *.eot *.txt *.bat Makefile
+# The interactive tutorial media is published with the documentation but is
+# not part of the Python source distribution.
+prune docs/source/_extra/tutorials
 recursive-include path *.csv *.db
 recursive-include settings *.csv
 recursive-include source *.py *.rst

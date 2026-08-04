@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoni",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 38.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.15,
+      "scene_end": 6.6000000000000005,
+      "duration": 6.6000000000000005,
+      "text": "通过一个专注的模型应用工作流程生成和审查Cellpose掩膜."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.6000000000000005,
+      "speech_end": 14.900000000000002,
+      "scene_end": 15.350000000000001,
+      "duration": 8.75,
+      "text": "从 Segmentation models 部分打开 Cellpose Masks。 选择显微镜图像,道以及内置或定制的 Cellpose 模型."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.350000000000001,
+      "speech_end": 22.25,
+      "scene_end": 22.7,
+      "duration": 7.349999999999998,
+      "text": "在主要配置区域,配置直径,流量和细胞概率门,正常化,板和硬件使用."
+    },
+    {
+      "scene": 4,
+      "speech_start": 22.7,
+      "speech_end": 29.7,
+      "scene_end": 30.15,
+      "duration": 7.449999999999999,
+      "text": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 30.15,
+      "speech_end": 37.6,
+      "scene_end": 38.25,
+      "duration": 8.100000000000001,
+      "text": "在工作流程完成后,在映射输入旁边写出标签掩膜和视觉质量控制图像."
+    }
+  ]
+}

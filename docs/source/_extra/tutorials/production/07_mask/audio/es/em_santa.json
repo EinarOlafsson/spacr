@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.85,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.65,
+      "scene_end": 10.1,
+      "duration": 10.1,
+      "text": "Este tutorial cubre Mask. Segmentar el experimento de microscopía de cuatro canales suministrado en núcleos, células, gotas de lípidos y máscaras de parásitos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.1,
+      "speech_end": 20.6,
+      "scene_end": 21.05,
+      "duration": 10.950000000000001,
+      "text": "Abra Mask en la sección Core. El canal cero es el núcleo, el canal uno es el retículo endoplasmático, el canal dos son las gotas de lípidos y el canal tres es el parásito."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.05,
+      "speech_end": 33.45,
+      "scene_end": 33.900000000000006,
+      "duration": 12.850000000000005,
+      "text": "En el área de configuración principal, detectar núcleos del canal cero, células del canal endoplasmico-retículo, gotas de lípidos con el flujo de trabajo de las manchas de la organella y parásitos del canal tres."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.900000000000006,
+      "speech_end": 48.425000000000004,
+      "scene_end": 48.87500000000001,
+      "duration": 14.975000000000001,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible. Compruebe un campo representativo, luego ejecute los cuatro pasos de segmentación a través del conjunto de datos."
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.87500000000001,
+      "speech_end": 59.2,
+      "scene_end": 59.85,
+      "duration": 10.974999999999994,
+      "text": "Cuando el flujo de trabajo termina, la carpeta de máscaras contiene etiquetas de objetos alineadas y matrices de imágenes más más máscaras fusionadas listas para medición."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_aoede",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.05,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.5,
+      "scene_end": 8.95,
+      "duration": 8.95,
+      "text": "This tutorial covers Make Masks. Interactively construct, correct, and curate segmentation labels for Cellpose training data."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.95,
+      "speech_end": 18.45,
+      "scene_end": 18.9,
+      "duration": 9.95,
+      "text": "Open Make Masks from the Segmentation models section. Open representative microscopy images and any existing masks that should be refined."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.9,
+      "speech_end": 28.075,
+      "scene_end": 28.525,
+      "duration": 9.625,
+      "text": "In the main configuration area, select channels, normalization, brush or magic-wand tools, object operations, and label-saving behavior."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.525,
+      "speech_end": 41.349999999999994,
+      "scene_end": 41.8,
+      "duration": 13.274999999999999,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. correct boundaries and missing objects across a diverse training subset rather than only easy fields."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.8,
+      "speech_end": 48.4,
+      "scene_end": 49.05,
+      "duration": 7.25,
+      "text": "When the workflow finishes, paired images and curated label masks are ready for custom Cellpose training."
+    }
+  ]
+}
