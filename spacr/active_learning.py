@@ -97,12 +97,28 @@ from urllib.parse import quote as _urlquote
 import numpy as np
 import pandas as pd
 
+from . import schema
 from .agreement import PNG_KEY, PNG_TABLE
+
+#: ``png_list``'s per-crop id column, and the object type it means.
+#:
+#: ``filepaths_to_database`` writes exactly one of these per row — the one for
+#: the crop mode it was called with — so which column holds a label *is* the
+#: crop's object type. Derived from :data:`spacr.schema.OBJECT_TYPES` rather
+#: than written out, which keeps it identical to
+#: :data:`spacr.utils.PNG_CROP_MODE_BY_ID_COLUMN` without importing
+#: :mod:`spacr.utils` and its multi-second chain into this module (see the
+#: module docstring). ``tests/test_active_learning_loop.py`` pins the two
+#: together.
+PNG_ID_COLUMN_TYPES: Dict[str, str] = {
+    f"{object_type}_id": object_type for object_type in schema.OBJECT_TYPES
+}
 
 __all__ = [
     "CALIBRATION_NOTE",
     "DEFAULT_MEASURE",
     "DIVERSITY_GROUPS",
+    "PNG_ID_COLUMN_TYPES",
     "PNG_KEY",
     "PNG_TABLE",
     "PRED_COLUMN_CANDIDATES",
@@ -1572,10 +1588,21 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     table order. Keys with no crop are dropped — a request may name objects a
     crop table does not carry, and that is a shorter result, not an error.
 
+    **A typed key resolves to that object's own crop.** ``png_list`` records
+    which object type a crop is by which of its ``<type>_id`` columns holds
+    the label (:data:`PNG_ID_COLUMN_TYPES`), so a nucleus 1 and a pathogen 1
+    in the same field are two crops. They used to be one: both keyed on
+    ``plate_r1_c1_f1_1``, this function kept the first, and which of the two
+    you opened depended on the row order of the table. An *untyped* key still
+    keeps the first — it names an object without saying which, which is what
+    it has always meant — and a typed key against a crop table that cannot say
+    what its rows are falls back to the untyped one rather than resolving
+    nothing.
+
     :param db_path: path to ``measurements.db``.
-    :param keys: object keys. A ``png_path``, a ``prcfo`` or a ``file_name``
-        is also accepted, so a caller working from a crop table rather than
-        a measurement table does not need a translation step.
+    :param keys: object keys, typed or not. A ``png_path``, a ``prcfo`` or a
+        ``file_name`` is also accepted, so a caller working from a crop table
+        rather than a measurement table does not need a translation step.
     :param table: crop table.
     :param key: crop key column.
     :param annotation_column: read the existing label too, so an already
@@ -1610,9 +1637,10 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     finally:
         con.close()
 
+    from .selection import untyped_object_key
+
     index = {c: i for i, c in enumerate(select)}
-    id_columns = [c for c in ("cell_id", "nucleus_id", "pathogen_id",
-                              "cytoplasm_id", "organelle_id") if c in index]
+    id_columns = [c for c in PNG_ID_COLUMN_TYPES if c in index]
     meta_columns = ["plateID", "rowID", "columnID", "fieldID"]
     if timelapse:
         meta_columns.append("timeID")
@@ -1628,11 +1656,24 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             annotation = None if raw is None else int(raw)
         entry = (path, annotation)
 
+        # WHICH id column holds the label is the crop's object type:
+        # `filepaths_to_database` writes exactly one per row, the one for the
+        # crop mode it was called with. That is what lets a nucleus crop and a
+        # pathogen crop of the same label in the same field be told apart —
+        # they used to resolve to one key and the first row in the table won.
+        stated = [(column, _object_label(row[index[column]]))
+                  for column in id_columns]
+        stated = [(column, value) for column, value in stated if value]
+        object_type = None
         label = ""
-        for column in id_columns:
-            label = _object_label(row[index[column]])
-            if label:
-                break
+        if len(stated) == 1:
+            label = stated[0][1]
+            object_type = PNG_ID_COLUMN_TYPES[stated[0][0]]
+        elif stated:
+            # Two id columns filled is a row that does not say what it is.
+            # The old first-wins precedence still gives a label to key on;
+            # claiming a type from it would be a guess.
+            label = stated[0][1]
         prcfo = (str(row[index["prcfo"]])
                  if "prcfo" in index and row[index["prcfo"]] is not None
                  else "")
@@ -1640,7 +1681,14 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             label = _object_label(prcfo.rsplit("_", 1)[-1])
         if label and all(c in index for c in meta_columns):
             parts = [str(row[index[c]]) for c in meta_columns]
+            # Both spellings, so a caller working from either side resolves.
+            # The untyped one is first-wins on purpose: it is an
+            # under-specified name, and it named one of these crops before
+            # the type existed.
             by_key.setdefault("_".join(parts + [label]), entry)
+            if object_type is not None:
+                by_key.setdefault(
+                    "_".join(parts + [f"{object_type}{label}"]), entry)
         file_name = (str(row[index["file_name"]])
                      if "file_name" in index and
                      row[index["file_name"]] is not None else "")
@@ -1652,6 +1700,13 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     seen = set()
     for wanted_key in wanted:
         entry = by_key.get(wanted_key)
+        if entry is None:
+            # A typed key against a crop table that cannot say what its rows
+            # are. Dropping the type is the honest fallback: the row has not
+            # contradicted the key, it has said nothing.
+            reduced = untyped_object_key(wanted_key)
+            if reduced != wanted_key:
+                entry = by_key.get(reduced)
         if entry is None or entry[0] in seen:
             continue
         seen.add(entry[0])
