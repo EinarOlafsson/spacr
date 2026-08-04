@@ -1823,6 +1823,7 @@ class PreferencesDialog:
 
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
+        scale_slider.setObjectName("FontScale")
         scale_slider.setRange(int(FONT_SCALE_MIN * 100),
                                 int(FONT_SCALE_MAX * 100))
         scale_slider.setSingleStep(5)
@@ -1865,6 +1866,11 @@ class PreferencesDialog:
 
         # Page opacity — shared by Home and every module surface.
         opacity_slider = QSlider(Qt.Horizontal)
+        # Named because (0, 100) stopped identifying it: the spinner-delay
+        # slider is (0, SPINNER_DELAY_MAX * 10) = (0, 100) too, and anything
+        # picking this control out of findChildren by its range silently got
+        # that one instead.
+        opacity_slider.setObjectName("PaneOpacity")
         opacity_slider.setRange(0, 100)
         opacity_slider.setSingleStep(5)
         opacity_slider.setPageStep(10)

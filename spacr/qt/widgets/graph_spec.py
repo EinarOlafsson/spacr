@@ -75,6 +75,7 @@ The one thing not on offer is quietly plotting the head of the frame.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field, replace
 from typing import Any, Dict, Mapping, Optional, Tuple
 
@@ -466,12 +467,40 @@ def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
 # Faceting
 # ---------------------------------------------------------------------------
 
+_DIGIT_RUN = re.compile(r"(\d+)")
+
+
 def _sort_key(text: str):
-    """Numeric-aware ordering, so plate 2 sorts before plate 10."""
+    """Numeric-aware ordering, so plate 2 sorts before plate 10.
+
+    The whole-string ``float()`` this used to be only delivered that for a
+    level that was a bare number. A level of ``"P10"`` is not, so it fell to
+    the text branch and sorted *before* ``"P2"`` — and plate, well and
+    condition levels almost always carry a prefix, so the docstring's own
+    example was the case that did not work. Facet panels came out
+    P1, P10, P11, P2.
+
+    A level that IS a bare number keeps the old whole-string comparison, so
+    ``-10`` still sorts before ``-5`` and numeric levels still come ahead of
+    prefixed ones. Everything else is split on runs of digits and compared
+    chunk by chunk, digits as numbers and the rest as text.
+    """
     try:
-        return (0, float(text), "")
+        value = float(text)
     except (TypeError, ValueError):
-        return (1, 0.0, text)
+        pass
+    else:
+        # NaN has no order, and one in a sort key makes the whole sort
+        # arbitrary rather than wrong in one place. Treat it as text.
+        if value == value:
+            return ((0, value, ""),)
+    key = []
+    for index, chunk in enumerate(_DIGIT_RUN.split(str(text))):
+        if index % 2:                       # split() alternates text, digits
+            key.append((1, float(chunk), ""))
+        else:
+            key.append((2, 0.0, chunk))
+    return tuple(key)
 
 
 def _level_series(frame: pd.DataFrame, column: str) -> pd.Series:
