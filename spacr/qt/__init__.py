@@ -299,6 +299,11 @@ SELF_REGISTERING_MODULES = (
     # estimated from a STATED baseline and applied forward, so a drift is
     # visible before it has ruined the screen rather than after.
     "spacr.qt.screens.control_chart",
+    # Every project on disk in one table -- stage, size, last run, what is
+    # stale -- built entirely on `spacr.projects`, which is built on ports,
+    # artifacts, data_manager and chaining. A project the registry has never
+    # seen is listed too; that is the case it exists for.
+    "spacr.qt.screens.project_browser",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps
