@@ -72,15 +72,6 @@ PLATE_OBJECT = "spacrPlateMap"
 FINDINGS_OBJECT = "spacrDesignFindings"
 STATUS_OBJECT = "spacrDesignStatus"
 
-#: One colour per role, resolved from the palette so both themes work.
-_ROLE_PALETTE_KEY = {
-    ROLE_NEGATIVE: "info",
-    ROLE_POSITIVE: "warning",
-    ROLE_TREATMENT: "accent",
-    "blank": "fg_muted",
-}
-
-
 def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
     """QSS for this screen, rebuilt on every theme change.
 
