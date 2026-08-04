@@ -73,8 +73,23 @@ STATUS_OBJECT = "spacrQCStatus"
 
 
 def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
-    """QSS for this screen, rebuilt on every theme change."""
+    """QSS for this screen, rebuilt on every theme change.
+
+    ``palette`` arrives with its surface roles already rendered through the
+    page-opacity preference, so every rule below that names one follows the
+    slider. The card panel needs a rule at all for that to matter: a named
+    ``QWidget`` with no rule of its own falls back to the blanket
+    ``QWidget {{ background-color: bg }}``, which is the WINDOW colour and
+    not a surface, and no setting can reach it.
+    """
+    from ..theme import pane_surface
+    cards_bg = pane_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
+#{CARDS_OBJECT} {{
+    background: {cards_bg};
+    border: 1px solid {palette['border_soft']};
+    border-radius: 6px;
+}}
 #{VERDICT_OBJECT} {{
     color: {palette['fg']};
     background: {palette['surface_alt']};
@@ -173,12 +188,22 @@ class QCDashboardScreen(QWidget):
         self._cards_panel = QWidget()
         self._cards_panel.setObjectName(CARDS_OBJECT)
         self._cards_layout = QVBoxLayout(self._cards_panel)
-        self._cards_layout.setContentsMargins(0, 0, 0, 0)
+        # Room for the panel's own border: the cards sit ON a surface now
+        # rather than directly on the window, and zero margins would put the
+        # first heading through the hairline.
+        self._cards_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                              SPACING["sm"], SPACING["sm"])
         self._cards_layout.setSpacing(SPACING["sm"])
         self._cards_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         scroll = QScrollArea()
         scroll.setWidget(self._cards_panel)
         scroll.setWidgetResizable(True)
+        # A QScrollArea's viewport auto-fills by default, and what it fills
+        # with is the WINDOW colour -- not a surface -- so no page-opacity
+        # setting can reach it and the card column reads as an opaque slab
+        # over the animated backdrop. Same call the settings column and the
+        # sidebar make.
+        scroll.viewport().setAutoFillBackground(False)
         scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Expanding)
         outer.addWidget(scroll, 1)

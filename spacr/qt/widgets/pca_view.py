@@ -69,7 +69,8 @@ from .graph_spec import SCATTER, GraphSpec
 # whose deferred draw cannot fire after Qt has deleted it, which is a segfault
 # on close. Imported rather than copied: two copies of a crash fix is one copy
 # too many, and the scree plot needs the same protection the scores plot has.
-from .graph_builder import GraphCanvas, _canvas_class, categorical_colours
+from .graph_builder import (GraphCanvas, _canvas_class, _page_surface_axes,
+                            categorical_colours)
 from .pca_model import (
     DEFAULT_COMPONENTS, NAN_AUTO, NAN_COMPLETE, NAN_DROP_FEATURES, NAN_MEAN,
     NAN_POLICIES, SCALE_MODES, SCALE_NONE, SCALE_ZSCORE, PCAError, PCAResult,
@@ -294,13 +295,16 @@ class ScreePlot(QWidget):
         self._highlight: Tuple[int, int] = (0, 1)
 
         from matplotlib.figure import Figure
-        palette = active_palette()
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
-        self._figure = Figure(figsize=(3.4, 2.4), facecolor=palette["surface"])
-        self._canvas = _canvas_class()(self._figure)
-        self._canvas.setStyleSheet(f"background: {palette['surface']};")
+        # No `facecolor` and no inline `background:` — the canvas paints the
+        # page panel in its own `paintEvent` under a transparent figure patch.
+        self._figure = Figure(figsize=(3.4, 2.4))
+        # `panel=False`: the scree plot sits inside `PCAShelf`, which is
+        # already a page surface, and a second panel under the figure would
+        # read 0.49 at a requested 30 % -- a shade the slider cannot reach.
+        self._canvas = _canvas_class()(self._figure, panel=False)
         self._canvas.setMinimumHeight(150)
         outer.addWidget(self._canvas, 1)
         self._canvas.mpl_connect("button_press_event", self._on_click)
@@ -314,8 +318,10 @@ class ScreePlot(QWidget):
     def render_now(self) -> None:
         palette = active_palette()
         self._figure.clear()
+        # `clear()` restores the rc facecolor and its alpha with it.
+        self._figure.patch.set_alpha(0.0)
         ax = self._figure.add_subplot(111)
-        ax.set_facecolor(palette["surface"])
+        _page_surface_axes(ax, palette)
         for side in ("top", "right"):
             ax.spines[side].set_visible(False)
         for side in ("left", "bottom"):

@@ -49,7 +49,8 @@ from ...selection import (OBJECT_KEY_COLUMNS, match_keys, object_keys,
 from ..crop_thumbs import CropThumbnails, crop_paths_for_keys
 from ..job_runner import JobRunner
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
-from ..theme import SPACING, active_palette
+from ..theme import (RADIUS, SPACING, active_palette, pane_surface,
+                     register_widget_qss)
 
 LOG = logging.getLogger(__name__)
 
@@ -138,6 +139,39 @@ def numeric_columns(frame: pd.DataFrame) -> List[str]:
 # The canvas
 # ---------------------------------------------------------------------------
 
+#: The object name the canvas is styled by, and what the QSS block below
+#: keys off. Named as a constant so a test can ask for it rather than
+#: re-typing a string that has to match in two places.
+CANVAS_OBJECT = "ImageScatterCanvas"
+
+
+def _image_scatter_qss(palette: dict, opacity=None) -> str:
+    """This screen's QSS block, appended to every generated stylesheet.
+
+    ``ScatterCanvas`` is a ``QFrame`` with an object name and, until this
+    block existed, no rule of its own — so it fell through to the blanket
+    ``QWidget {{ background-color: bg }}``. That is the WINDOW colour, not a
+    surface, which is why the largest region on the page stayed a flat slab
+    at every position of the page-opacity slider. It is a page surface now.
+
+    The points are drawn over it from a pixmap filled with
+    ``Qt.transparent``, so the panel shows between them rather than being
+    covered by a second opaque rectangle.
+    """
+    return f"""
+QFrame#{CANVAS_OBJECT} {{
+    background: {pane_surface("surface", palette.get("theme"), opacity)};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+}}
+"""
+
+
+# `replace=True`: reachable through the screens package and by direct
+# import, and a second import must refresh the block rather than raise.
+register_widget_qss("ImageScatter", _image_scatter_qss, replace=True)
+
+
 class ScatterCanvas(QFrame):
     """Points in data space, painted once and blitted.
 
@@ -153,7 +187,7 @@ class ScatterCanvas(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setObjectName("ImageScatterCanvas")
+        self.setObjectName(CANVAS_OBJECT)
         self.setMouseTracking(True)
         self.setMinimumSize(240, 200)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

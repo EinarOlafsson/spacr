@@ -60,13 +60,22 @@ _TICKS = 1000
 
 
 def _ortho_qss(palette: Dict[str, Any], opacity) -> str:
-    """This view's QSS block, appended to every generated stylesheet."""
+    """This view's QSS block, appended to every generated stylesheet.
+
+    The three planes used to take ``palette["bg"]`` — the WINDOW colour,
+    not a surface, so no page-opacity setting could reach them and the
+    whole view was three flat slabs. They are page surfaces now; the
+    volume itself is still drawn opaque on top, in
+    :meth:`OrthoPanel.paintEvent`.
+    """
+    from .theme import pane_surface
+    plane_bg = pane_surface("surface", palette.get("theme"), opacity)
     return f"""
 QWidget#OrthoView {{
     background: transparent;
 }}
 QFrame#OrthoPanel {{
-    background: {palette["bg"]};
+    background: {plane_bg};
     border: 1px solid {palette["border_soft"]};
     border-radius: 8px;
 }}

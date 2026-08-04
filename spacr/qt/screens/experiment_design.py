@@ -78,8 +78,22 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
     Registered rather than set inline: an inline stylesheet is baked at
     construction and survives a theme switch, so a well painted under the
     dark theme keeps its dark-theme colour on a light background.
+
+    ``palette`` arrives with its surface roles already rendered through the
+    page-opacity preference, so a rule naming one follows the slider. The
+    findings panel needs a rule at all for that to matter: a named
+    ``QWidget`` with no rule of its own takes the blanket
+    ``QWidget {{ background-color: bg }}``, which is the WINDOW colour and
+    not a surface, so no setting could ever reach it.
     """
+    from ..theme import pane_surface
+    findings_bg = pane_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
+#{FINDINGS_OBJECT} {{
+    background: {findings_bg};
+    border: 1px solid {palette['border_soft']};
+    border-radius: 6px;
+}}
 #{PLATE_OBJECT} {{
     background: {palette['surface_alt']};
     border: 1px solid {palette['border']};
@@ -248,6 +262,10 @@ class ExperimentDesignScreen(QWidget):
         scroll = QScrollArea()
         scroll.setWidget(self._plate_panel)
         scroll.setWidgetResizable(True)
+        # The viewport auto-fills with the WINDOW colour, which no page
+        # opacity can reach. The plate map covers most of it, but the strip
+        # beside a short plate is the same slab the settings column was.
+        scroll.viewport().setAutoFillBackground(False)
         scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
                              QSizePolicy.Policy.Expanding)
         outer.addWidget(scroll, 1)
@@ -256,7 +274,10 @@ class ExperimentDesignScreen(QWidget):
         self._findings_panel = QWidget()
         self._findings_panel.setObjectName(FINDINGS_OBJECT)
         self._findings_layout = QVBoxLayout(self._findings_panel)
-        self._findings_layout.setContentsMargins(0, 0, 0, 0)
+        # Room for the panel's own border, now that the findings sit on a
+        # surface rather than straight on the window.
+        self._findings_layout.setContentsMargins(SPACING["sm"], SPACING["xs"],
+                                                 SPACING["sm"], SPACING["xs"])
         self._findings_layout.setSpacing(2)
         outer.addWidget(self._findings_panel)
 
