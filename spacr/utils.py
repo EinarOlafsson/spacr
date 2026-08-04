@@ -2417,6 +2417,276 @@ def _assert_measurement_units_compatible(db_path, table, stamp):
         f"or re-measure the whole plate one way.")
 
 
+class ImportedCopyNotReleased(ValueError):
+    """The table being appended to holds an import's copy of the same field.
+
+    ``foreign.run_import`` copies the imported frame into the canonical
+    ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty,
+    so a project built purely by import is readable by every spaCR tool. That
+    copy is a convenience and it stops being one the moment spaCR measures the
+    same field: :func:`_merge_and_save_to_database` *appends*, so its rows land
+    beside theirs, in different columns, with nothing in the row marking the
+    seam -- and every ``count_cell`` downstream becomes the sum of two
+    populations. That is F34.
+
+    A resume supersedes the copy before measuring (see
+    :func:`spacr.resume.supersede_imported_copies`) or refuses and says so,
+    which covers every path *through* a resume. This covers the path around
+    one: a direct ``measure_crop`` with ``resume`` off.
+
+    Raised only when the copy cannot be handed back **provably losslessly** --
+    no ``foreign_<object>`` to check the rows against, a row in the copy with
+    no twin in it, a timelapse whose frames the importer never keyed, or a
+    delete that did not act on the rows the count cleared. In every one of
+    those cases the field's rows are not written, because a refused write can
+    be re-run and a mixed table cannot be un-mixed.
+    """
+
+
+def _field_key_predicate(frame, key_columns, alias):
+    """A WHERE fragment matching exactly the field identities ``frame`` carries.
+
+    One parenthesised ``OR`` of ``AND`` groups over the four key columns, plus
+    its parameters, so that the count and the delete below can be handed *one*
+    predicate rather than two statements that could drift apart.
+
+    Naming ``rowID`` here is safe, and is worth saying out loud given what that
+    identifier has cost this project twice: it is used as one of four *key*
+    columns, always together, quoted and alias-qualified, and it means the
+    plate row -- which is exactly what it is. The destructive spelling was
+    ``rowid``, the implicit row identity, which a declared ``rowID`` shadows.
+
+    :param frame: the rows about to be appended.
+    :param key_columns: :data:`spacr.schema.FIELD_KEY_COLUMNS`.
+    :param alias: table alias every column reference is qualified by.
+    :returns: ``(predicate, params)``.
+    :raises ImportedCopyNotReleased: when ``frame`` lacks a key column, so the
+        identity of what is being written cannot be established.
+    """
+    missing = [c for c in key_columns if c not in frame.columns]
+    if missing:
+        raise ImportedCopyNotReleased(
+            f"cannot establish which field these rows belong to: the frame "
+            f"has no {missing} column(s), and a delete keyed on fewer columns "
+            f"than the writer used would take other fields with it.")
+    keys = list(dict.fromkeys(
+        tuple(row) for row in frame[list(key_columns)].astype(str).itertuples(
+            index=False, name=None)))
+    group = '(' + ' AND '.join(
+        f'{alias}."{c}" = ?' for c in key_columns) + ')'
+    predicate = '(' + ' OR '.join([group] * len(keys)) + ')'
+    params = [value for key in keys for value in key]
+    return predicate, params
+
+
+def _verified_delete(conn, table, alias, predicate, params, what):
+    """Count with a predicate, delete with the *same* predicate, verify.
+
+    The shape of :func:`spacr.data_manager._verified_write`, which exists for
+    the same reason: this project has been destroyed twice by a delete written
+    against a row identity that was not one. ``DELETE ... WHERE rowid IN (...)``
+    removed a whole table because every spaCR object table declares a column
+    called ``rowID`` and SQLite identifiers are case-insensitive; the obvious
+    repair -- delete by the declared key -- was equally destructive, because an
+    import's row and a measurement's row for one object share all five key
+    columns.
+
+    So no row identity is named. The caller supplies one predicate string; it
+    is interpolated once, into both statements, so a later edit cannot change
+    one without the other, and any difference between the two numbers is a
+    failure rather than a result.
+
+    :param conn: open connection, inside a transaction.
+    :param table: table to delete from.
+    :param alias: alias bound to ``table`` in both statements -- the predicate
+        qualifies its column references by it.
+    :param predicate: the WHERE clause, without ``WHERE``.
+    :param params: its parameters, bound to both statements.
+    :param what: what this delete is, for the error message.
+    :returns: rows removed, which equals the rows counted.
+    :raises ImportedCopyNotReleased: on any difference. The caller's
+        transaction rolls back and nothing is written -- not the delete, and
+        not the measurements that were to follow it.
+    """
+    counted = int(conn.execute(
+        f'SELECT COUNT(*) FROM "{table}" AS {alias} WHERE {predicate}',
+        tuple(params)).fetchone()[0])
+    removed = int(conn.execute(
+        f'DELETE FROM "{table}" AS {alias} WHERE {predicate}',
+        tuple(params)).rowcount or 0)
+    if removed != counted:
+        raise ImportedCopyNotReleased(
+            f"refusing to {what}: the delete removed {removed} row(s) from "
+            f"'{table}' where the count that gated it said {counted}. The "
+            f"statement did not act on the rows that were checked, so nothing "
+            f"about the result can be trusted. The transaction was rolled "
+            f"back, and this field's measurements were not written.")
+    return removed
+
+
+def _release_imported_rows_for_field(db_path, table, frame, timelapse=False):
+    """Hand back an import's copy of the field about to be measured into ``table``.
+
+    Called immediately before the append, and only for the canonical object
+    tables an import can have copied into. It asks
+    :func:`spacr.resume.importer_rows_clause` whether this table holds rows a
+    foreign import wrote, narrows that to the field ``frame`` is for, and
+    removes exactly those -- verified against ``foreign_<table>`` row by row
+    first, and gated on a count taken with the same predicate as the delete.
+
+    Scoping to the field is what makes this safe to do at the writer, where a
+    whole-table release is not. ``resume.supersede_imported_copies`` refuses to
+    release a table when some field it covers is neither measured nor queued,
+    because a half-released table leaves that field with no rows at all. Here
+    the released field's replacement rows are the very next statement, so the
+    field is never left empty; the import's other fields keep their rows and
+    their provenance, and are released the same way when their turn comes.
+
+    Nothing here can lose a measurement. What is removed is a duplicate of
+    ``foreign_<table>``, which nothing in spaCR may delete from, and the
+    importer's own numbers stay exactly where they were.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: destination table, one of
+        :data:`spacr.schema.CANONICAL_OBJECT_TABLES`.
+    :param frame: the rows about to be appended, carrying the field key.
+    :param timelapse: True for a timelapse run.
+    A locked database is retried on the same schedule as the append that
+    follows it, and for the same reason: ``measure_crop`` writes one field per
+    worker into a single SQLite file, contention is normal and transient, and a
+    check that turned a busy database into a lost field would re-introduce the
+    bug ``_append_to_measurements_db`` exists to prevent. The reads are taken
+    on a read-only connection so this can never be the thing holding the lock.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: destination table, one of
+        :data:`spacr.schema.CANONICAL_OBJECT_TABLES`.
+    :param frame: the rows about to be appended, carrying the field key.
+    :param timelapse: True for a timelapse run.
+    :returns: number of imported rows released, ``0`` when the table holds none
+        for this field -- which is the ordinary case, and costs three reads of
+        ``sqlite_master`` on a project that has never seen an import.
+    :raises ImportedCopyNotReleased: when the copy is there and cannot be
+        released provably losslessly. Refusing costs one field's measurements,
+        which a re-run replaces; mixing costs every count in the project, which
+        nothing detects.
+    :raises sqlite3.OperationalError: when the database stays locked for every
+        attempt, exactly as the append would.
+    """
+    if not os.path.isfile(db_path):
+        return 0
+    delay = 0.2
+    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+        try:
+            return _release_imported_rows_once(db_path, table, frame, timelapse)
+        except sqlite3.OperationalError as e:
+            if 'locked' not in str(e).lower() or attempt == DB_WRITE_ATTEMPTS:
+                raise
+            print(f"measurements.db busy checking {table} for an imported copy "
+                  f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
+            time.sleep(delay)
+            delay *= 2
+
+
+def _release_imported_rows_once(db_path, table, frame, timelapse=False):
+    """One attempt of :func:`_release_imported_rows_for_field`.
+
+    Split out so the retry above wraps the whole question -- read the
+    provenance, verify the twins, delete -- rather than any one statement of
+    it. Retrying a statement inside a transaction could duplicate an earlier
+    write; retrying the whole thing cannot, because it re-reads the state it
+    decides on and the delete is gated on a count taken beside it.
+    """
+    from . import resume as _resume
+    from .database_concurrency import connect, transaction
+
+    alias = 's'
+    conn = connect(db_path, readonly=True, timeout=DB_WRITE_TIMEOUT)
+    try:
+        if not conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                (table,)).fetchone():
+            return 0
+        importer_clause = _resume.importer_rows_clause(conn, table)
+        if importer_clause is None:
+            return 0                      # no import ever wrote into this table
+        total = int(conn.execute(
+            f'SELECT COUNT(*) FROM "{table}" AS {alias} '
+            f'WHERE {importer_clause}').fetchone()[0])
+        if not total:
+            return 0                      # claimed once, already handed back
+        have = {row[1] for row in conn.execute(f'PRAGMA table_info("{table}")')}
+        absent = [c for c in schema.FIELD_KEY_COLUMNS if c not in have]
+        if absent:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {total} row(s) a foreign import "
+                f"copied there, and it has no {absent} column, so which field "
+                f"they belong to cannot be established. spaCR is about to "
+                f"measure into the same table and the two populations would be "
+                f"indistinguishable. Nothing was written. Measure into a "
+                f"different output folder, or re-run the import.")
+        key_predicate, params = _field_key_predicate(
+            frame, schema.FIELD_KEY_COLUMNS, alias)
+        held = int(conn.execute(
+            f'SELECT COUNT(*) FROM "{table}" AS {alias} '
+            f'WHERE {importer_clause} AND {key_predicate}',
+            tuple(params)).fetchone()[0])
+        if not held:
+            return 0                      # their rows are for other fields
+        field = str(frame['prcf'].iloc[0]) if 'prcf' in frame.columns else '?'
+        if timelapse:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {held} row(s) a foreign import "
+                f"copied there for field {field}, and this is a timelapse run. "
+                f"The importer writes no timeID, so which frame a copied row "
+                f"belongs to cannot be established from the database, and "
+                f"releasing it on the four field columns alone would be a "
+                f"delete keyed on fewer columns than the writer used. Nothing "
+                f"was written. Measure this plate into a different output "
+                f"folder.")
+        from .foreign import FOREIGN_PREFIX, _twin_condition
+
+        twin = _twin_condition(conn, table)
+        if twin is None:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {held} row(s) a foreign import "
+                f"copied there for field {field}, and "
+                f"'{FOREIGN_PREFIX}{table}' -- the importer's own copy of "
+                f"exactly those rows -- is not in this database, so removing "
+                f"them would destroy the only copy. spaCR will not append "
+                f"beside them either: the table would then hold two "
+                f"populations no reader could tell apart. Nothing was written. "
+                f"Re-run the import to restore it, or measure into a different "
+                f"output folder.")
+        orphans = int(conn.execute(
+            f'SELECT COUNT(*) FROM "{table}" AS {alias} '
+            f'WHERE {importer_clause} AND {key_predicate} AND NOT {twin}',
+            tuple(params)).fetchone()[0])
+        if orphans:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {held} imported row(s) for "
+                f"field {field} and {orphans} of them have no matching row in "
+                f"'{FOREIGN_PREFIX}{table}', so they exist nowhere else and "
+                f"removing them would lose them. Nothing was written. Re-run "
+                f"the import into this destination, which rewrites both tables "
+                f"from the source, and measure again.")
+    finally:
+        conn.close()
+
+    # Only now, and only for a table that really holds their copy of this
+    # field, is a write connection opened at all.
+    writer = connect(db_path, timeout=DB_WRITE_TIMEOUT)
+    try:
+        with transaction(writer, mode='IMMEDIATE', attempts=6,
+                         busy_timeout=DB_WRITE_TIMEOUT):
+            return _verified_delete(
+                writer, table, alias,
+                f'{importer_clause} AND {twin} AND {key_predicate}', params,
+                f"release the import's copy of field {field} from '{table}'")
+    finally:
+        writer.close()
+
+
 def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False, stamp=None):
         """Merge morphology and intensity DataFrames and append to the measurements SQLite DB.
 
@@ -2503,6 +2773,14 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
                 )
             db_path = f'{source_folder}/measurements/measurements.db'
             _assert_measurement_units_compatible(db_path, table_type, stamp)
+            if table_type in schema.CANONICAL_OBJECT_TABLES:
+                # F34. A foreign import copies its rows into the canonical
+                # table when the destination is empty; appending beside them
+                # makes every downstream count the sum of two populations. The
+                # copy for this field is handed back first, or nothing is
+                # written -- both before the insert, never after.
+                _release_imported_rows_for_field(
+                    db_path, table_type, merged_df, timelapse=timelapse)
             _append_to_measurements_db(db_path, table_type, merged_df)
 
 
