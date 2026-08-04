@@ -59,7 +59,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 from .preview_controls import (
-    FlatButton, FlatComboBox, populate_channel_combo, populate_fov_combo,
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
     selected_channel, sibling_sources,
 )
 from .toggle import Toggle
@@ -859,6 +860,9 @@ class TimelapsePreviewPanel(QWidget):
         # Guards the FOV dropdown against re-entering itself while the
         # sequence it just asked for is being opened.
         self._loading_fov = False
+        # Bounded, reproducible sample of the folder's sequences — the
+        # dropdown never lists a whole plate. See ImageSetSampler.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
@@ -882,10 +886,13 @@ class TimelapsePreviewPanel(QWidget):
             "or a (T, H, W) .npy stack here")
         self._path_label.setSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Preferred)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
         self._fov_box = FlatComboBox(
             self,
-            tooltip=("Field of view. Lists the other sequences sitting beside "
-                     "the loaded one; picking one loads it."))
+            tooltip=("Field of view. Lists a random sample of the sequences "
+                     "sitting beside the loaded one; picking one loads it."))
         self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
         self._channel_box = FlatComboBox(
             self,
@@ -902,6 +909,7 @@ class TimelapsePreviewPanel(QWidget):
                      "label images to skip segmentation entirely."))
         self._mask_btn.clicked.connect(self._pick_masks)
         pick.addWidget(self._path_label, 1)
+        pick.addWidget(self._max_sets_box)
         pick.addWidget(self._fov_box)
         pick.addWidget(self._channel_box)
         pick.addWidget(self._seq_btn)
@@ -1150,13 +1158,15 @@ class TimelapsePreviewPanel(QWidget):
         self._tracks = None
         self._mask_cache.clear()
         self._path_label.setText(seq.describe())
-        self._status.setText(
-            f"Loaded {seq.describe()} — run the preview to segment + link.")
         self._frame_slider.setMaximum(max(0, len(seq) - 1))
         self._frame_slider.setValue(0)
         self._play_btn.setEnabled(len(seq) > 1)
         self._sequence_path = Path(os.fspath(path))
         self._refresh_source_selectors()
+        note = self.sample_note()
+        self._status.setText(
+            f"Loaded {seq.describe()} — run the preview to segment + link."
+            + (f" ({note})" if note else ""))
         self._refresh_canvases()
         return True
 
@@ -1183,14 +1193,24 @@ class TimelapsePreviewPanel(QWidget):
         return int(frame.shape[-1])
 
     def _refresh_source_selectors(self) -> None:
-        """Re-fill the FOV and channel dropdowns for the loaded sequence."""
+        """Re-fill the sets and channel dropdowns for the loaded sequence.
+
+        A timelapse field of view is a whole folder of frames (or one stack),
+        so there is nothing to group — but a plate still holds thousands of
+        them, and the dropdown lists a bounded random sample rather than all
+        of them. The listing is cached per folder, so stepping through fields
+        re-lists nothing.
+        """
         source = getattr(self, "_sequence_path", None)
         if source is not None:
-            populate_fov_combo(
-                self._fov_box,
-                sibling_sources(source, FRAME_SUFFIXES,
-                                directories=source.is_dir()),
-                current=source)
+            directories = source.is_dir()
+            self._sampler.enumerate_paths(
+                source.parent,
+                lambda: sibling_sources(source, FRAME_SUFFIXES,
+                                        directories=directories))
+            self._sample_note = apply_sample_to_combo(
+                self._fov_box, self._max_sets_box, self._sampler, source,
+                tooltip="Field of view")
         populate_channel_combo(
             self._channel_box, self._frame_channel_count(), include_all=False,
             keep=f"Ch {int(self._channel.value())}")
@@ -1217,6 +1237,19 @@ class TimelapsePreviewPanel(QWidget):
             box.setCurrentIndex(index)
         finally:
             box.blockSignals(blocked)
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-listing."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._refresh_source_selectors()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
 
     def _on_fov_changed(self, *_args) -> None:
         """Load the field of view the user picked from the dropdown."""

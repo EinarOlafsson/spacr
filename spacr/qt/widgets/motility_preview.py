@@ -46,7 +46,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from .preview_controls import (
-    FlatButton, FlatComboBox, populate_channel_combo, selected_channel,
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSet, ImageSetSampler, configure_max_sets_box,
+    populate_channel_combo, selected_channel,
 )
 from .toggle import Toggle
 
@@ -598,6 +600,9 @@ class MotilityPreviewPanel(QWidget):
         self._merged_dir: str = ""
         self._worker: Optional[_MotilityWorker] = None
         self._propagate_cb = None
+        # Bounded, reproducible sample of the plate's time series — the
+        # dropdown never lists them all. See ImageSetSampler.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_ui()
         self.setAcceptDrops(True)
 
@@ -617,10 +622,14 @@ class MotilityPreviewPanel(QWidget):
             "or choose one")
         self._path_label.setSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Preferred)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
         self._fov_box = FlatComboBox(
             self,
             tooltip=("Field of view — the (plate, well, field) group "
-                     "previewed. Each group is one time series."))
+                     "previewed. Each group is one time series. Lists a "
+                     "random sample of the plate, not all of it."))
         self._fov_box.currentIndexChanged.connect(self._on_group_changed)
         # Kept under its historical name for the integrations and tests that
         # already drive it.
@@ -635,6 +644,7 @@ class MotilityPreviewPanel(QWidget):
         self._pick_btn = FlatButton("Choose plate folder…", self)
         self._pick_btn.clicked.connect(self._pick_folder)
         pick.addWidget(self._path_label, 1)
+        pick.addWidget(self._max_sets_box)
         pick.addWidget(self._fov_box)
         pick.addWidget(self._channel_box)
         pick.addWidget(self._pick_btn)
@@ -835,20 +845,72 @@ class MotilityPreviewPanel(QWidget):
         self._groups = groups
         self._points = None
         self._tracks = None
-        self._group_box.blockSignals(True)
-        self._group_box.clear()
-        for key, metas in groups.items():
-            self._group_box.addItem(
-                f"{key[0]} {key[1]} f{key[2]} ({len(metas)} frames)", key)
-        self._group_box.blockSignals(False)
+        self._sampler.invalidate()
+        self._populate_group_box()
         self._autodetect_planes()
         self._refresh_source_selectors()
         self._path_label.setText(
             f"{os.path.basename(os.path.dirname(merged.rstrip(os.sep)) or merged)}"
             f"  ·  {len(groups)} group(s)")
         self._status.setText(
-            f"{len(groups)} time series found — run the preview.")
+            f"{len(groups)} time series found — {self.sample_note()}. "
+            "Run the preview.")
         return True
+
+    def _populate_group_box(self) -> None:
+        """Fill the groups dropdown with a bounded random sample of the plate.
+
+        A 384-well plate produces thousands of time series and listing them
+        all made the dropdown, and every refresh of it, cost more than the
+        preview itself. The sample is drawn across the whole plate and is
+        reproducible — see
+        :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`.
+
+        The dropdown stores each group's ``(plate, well, field)`` **key** as
+        item data, not a path, so it populates itself rather than going
+        through :func:`apply_sample_to_combo`.
+        """
+        if self._sampler.directory != self._merged_dir:
+            self._sampler.adopt(
+                self._merged_dir,
+                [ImageSet(key=key, directory=self._merged_dir,
+                          channels={"": metas[0]["filename"]})
+                 for key, metas in self._groups.items()],
+                [])
+        self._sampler.set_max(
+            configure_max_sets_box(self._max_sets_box, self._sampler.total))
+        current = self._group_box.currentData()
+        keep = next((s for s in self._sampler.sets if s.key == current), None)
+        shown = self._sampler.sample(keep=keep)
+        self._sample_note = self._sampler.describe(len(shown))
+        blocked = self._group_box.blockSignals(True)
+        try:
+            self._group_box.clear()
+            for item in shown:
+                metas = self._groups.get(item.key) or []
+                self._group_box.addItem(
+                    f"{item.key[0]} {item.key[1]} f{item.key[2]} "
+                    f"({len(metas)} frames)", item.key)
+            index = self._group_box.findData(current)
+            if index >= 0:
+                self._group_box.setCurrentIndex(index)
+        finally:
+            self._group_box.blockSignals(blocked)
+        self._group_box.setToolTip(
+            f"Field of view — {self._sample_note}.\n\n{MAX_SETS_TOOLTIP}")
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-grouping."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._populate_group_box()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
 
     def set_propagate_callback(self, cb) -> None:
         """Register a ``callback(dict)`` used to push tuned settings back."""
