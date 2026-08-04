@@ -199,16 +199,16 @@ def test_hf_e2e_mask_stage(_prepared_workspace):
 def test_hf_e2e_measure_stage(_prepared_workspace):
     """Measure stage runs against the previous stage's mask output."""
     dataset, settings_root = _prepared_workspace
-    try:
-        from spacr.measure import measure_crop
-    except Exception as e:
-        pytest.skip(f"measure module unavailable: {e}")
+    # No guard: spacr.measure is spaCR's own code, not an optional dependency.
+    # An ImportError here is the bug, not a reason to stand the stage down.
+    from spacr.measure import measure_crop
 
     settings = _load_settings_for("measure", settings_root, dataset)
-    try:
-        measure_crop(settings)
-    except Exception as e:
-        pytest.skip(f"measure stage bailed on the HF dataset: {e}")
+    # Unguarded: _prepared_workspace has already run the mask stage over this
+    # dataset, so measure_crop is being handed spaCR's own output. "Bailed on
+    # the HF dataset" is the result this stage exists to report, not a reason
+    # to withhold it.
+    measure_crop(settings)
     # A measurements DB somewhere under scratch is proof-of-life
     assert list(dataset.rglob("measurements.db")), \
         "measure stage wrote no measurements.db"

@@ -80,10 +80,9 @@ def test_object_preprocess_batch_rolling_ball_only(rng):
     batch = rng.uniform(0, 1, size=(2, 32, 32)).astype(np.float32)
     settings = {"organelle_rolling_ball": True,
                 "organelle_rolling_ball_radius": 5}
-    try:
-        out = _preprocess_batch(batch, settings)
-    except Exception as e:  # pragma: no cover - skimage version differences
-        pytest.skip(f"rolling_ball unavailable: {e}")
+    # Unguarded: skimage.restoration.rolling_ball is a hard dependency of
+    # spacr.object, so a failure here is spaCR's, not the environment's.
+    out = _preprocess_batch(batch, settings)
     # Shape preserved; values non-negative after background subtraction.
     assert out.shape == batch.shape
     assert (out >= 0).all()

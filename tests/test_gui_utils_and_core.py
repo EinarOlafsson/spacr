@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import pytest
 
-try:
-    import spacr.gui_utils as GU
-except Exception as e:  # pragma: no cover
-    pytest.skip(f"spacr.gui_utils unavailable in this env: {e}",
-                allow_module_level=True)
+# Unguarded on purpose: tests/conftest.py stubs mouseinfo, pyautogui and
+# screeninfo before any test module loads, so the display-less import failure
+# this guard was written for cannot happen. An ImportError here is a bug in
+# spacr.gui_utils, and skipping the whole file on it is exactly how such a bug
+# survives a release.
+import spacr.gui_utils as GU
 
 
 # ---------------------------------------------------------------------------

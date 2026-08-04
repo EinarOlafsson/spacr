@@ -31,11 +31,13 @@ pytestmark = pytest.mark.slow
 # ---------------------------------------------------------------------------
 
 def _require(module: str) -> None:
-    """Skip the test if `module` isn't importable."""
-    try:
-        __import__(module)
-    except Exception as e:
-        pytest.skip(f"required module not importable: {module} ({e})")
+    """Skip the test if `module` isn't installed.
+
+    ``importorskip`` rather than ``except Exception``: a package that is not
+    installed raises ImportError and is a reason to skip, while a package that
+    IS installed and blows up on import is a bug and has to fail.
+    """
+    pytest.importorskip(module)
 
 
 def _minimal_mask_settings(src: str) -> Dict[str, Any]:

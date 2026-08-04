@@ -19,11 +19,11 @@ from tkinter import ttk
 
 import pytest
 
-try:
-    import spacr.gui_elements as ge
-except Exception as e:  # pragma: no cover - env without a usable display
-    pytest.skip(f"spacr.gui_elements unavailable in this env: {e}",
-                allow_module_level=True)
+# Unguarded on purpose: tests/conftest.py stubs mouseinfo, pyautogui and
+# screeninfo before any test module loads, so the display-less import failure
+# this guard was written for cannot happen any more. An import failure here is
+# a bug in spacr.gui_elements, and it must fail the file rather than skip it.
+import spacr.gui_elements as ge
 
 
 # ---------------------------------------------------------------------------
