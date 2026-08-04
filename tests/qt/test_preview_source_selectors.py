@@ -100,7 +100,11 @@ def _mask(qtbot):
 
 def _measure(qtbot):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    panel = MeasurePreviewPanel()
+    # threaded=False: these tests are about what the dropdowns *select*, not
+    # about which thread does the reading. The runner then runs each job
+    # inline, emitting the same signals in the same order, so the assertions
+    # can stay on the line after the control is driven.
+    panel = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     return panel
 

@@ -40,7 +40,7 @@ def _categorised_merged_npy(tmp_path):
 
 def test_panel_loads_and_crops(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._mask_dim.setValue(4)          # cell mask is at slice 4 here
     assert p.load_array(_merged_npy(tmp_path)) is True
@@ -51,7 +51,7 @@ def test_panel_loads_and_crops(qtbot, tmp_path):
 
 def test_area_filter_and_settings(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._mask_dim.setValue(4)
     p.load_array(_merged_npy(tmp_path))
@@ -61,7 +61,7 @@ def test_area_filter_and_settings(qtbot, tmp_path):
 
 def test_propagation_maps_measure_keys(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._channels.setText("0,2,4")
     p._crop_size.setValue(200)
@@ -80,7 +80,7 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
     from spacr.qt.widgets.measure_preview import (
         CropSettingsDialog, MeasurePreviewPanel,
     )
-    panel = MeasurePreviewPanel()
+    panel = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     dialog = CropSettingsDialog(panel)
     qtbot.addWidget(dialog)
@@ -109,7 +109,7 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
 
 def test_cells_are_grouped_by_nucleus_pathogen_and_organelle(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    panel = MeasurePreviewPanel()
+    panel = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel._mask_dims["organelle"].setValue(7)
     assert panel.load_array(_categorised_merged_npy(tmp_path))
@@ -142,7 +142,7 @@ def test_measure_filter_settings_are_a_separate_section(qtbot):
 
 def test_click_selects_thumb(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._mask_dim.setValue(4)
     p.load_array(_merged_npy(tmp_path))
