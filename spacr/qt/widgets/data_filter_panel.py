@@ -35,6 +35,7 @@ on the same column.
 """
 from __future__ import annotations
 
+import weakref
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -67,15 +68,69 @@ DEBOUNCE_MS = 200
 _IDENTITY_COLUMNS = frozenset({"object_label", "prcfo", "prcf", "prc"})
 
 
+#: ``id(frame) -> (weakref to frame, shape, kinds)``. See
+#: :func:`classify_columns`. Entries whose frame has been collected are
+#: pruned on the next miss.
+_KINDS_CACHE: Dict[int, tuple] = {}
+
+#: How many frames' classifications to remember. Loading one table calls
+#: :func:`classify_columns` seven times through four callers, and two frames
+#: (raw and filtered) are live at once, so four is generous.
+_KINDS_CACHE_MAX = 4
+
+
 def classify_columns(frame: pd.DataFrame) -> Dict[str, str]:
     """Sort ``frame``'s columns into ``'category'``, ``'range'`` or ``'skip'``.
 
     Pure and Qt-free so the rule can be tested directly — the panel is only a
     rendering of it.
 
+    **Memoised per frame object.** The classification runs
+    ``Series.nunique()`` over every column, which on a 200 000-row x
+    48-column measurement table costs 230 ms. Loading one table used to pay
+    that *four* times inside a single ``set_frame`` — this function, plus
+    :func:`spacr.qt.widgets.graph_spec.column_kinds`, plus
+    ``GraphSpec.kinds_for``, plus ``plottable_columns``, each re-deriving the
+    same answer from the same object — 0.9 s of the ~1.9 s the GUI thread
+    spent delivering a freshly loaded frame.
+
+    The key is the frame's *identity*, not its contents: a subset has fewer
+    rows and can genuinely classify differently, so re-deriving for a filtered
+    frame is correct rather than wasteful. ``id()`` alone would be unsound
+    because CPython reuses addresses, so the entry also holds a ``weakref``
+    and the hit is confirmed with ``is`` — a collected frame cannot produce a
+    false hit, because its weakref resolves to ``None``. The shape is checked
+    too, since a frame can be mutated in place.
+
     :param frame: any measurement-shaped frame.
-    :returns: column name → kind.
+    :returns: column name → kind. A fresh dict on every call, because callers
+        (``GraphSpec.kinds_for``) update it in place.
     """
+    key = id(frame)
+    entry = _KINDS_CACHE.get(key)
+    if entry is not None:
+        ref, shape, cached = entry
+        if ref() is frame and shape == frame.shape:
+            return dict(cached)
+    kinds = _classify_columns_uncached(frame)
+    if len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
+        for dead in [k for k, (r, _s, _c) in _KINDS_CACHE.items()
+                     if r() is None]:
+            _KINDS_CACHE.pop(dead, None)
+        while len(_KINDS_CACHE) >= _KINDS_CACHE_MAX:
+            _KINDS_CACHE.pop(next(iter(_KINDS_CACHE)), None)
+    try:
+        _KINDS_CACHE[key] = (weakref.ref(frame), frame.shape, kinds)
+    except TypeError:
+        # Not weak-referenceable. Skip the cache rather than risk an
+        # id-reuse false hit.
+        pass
+    return dict(kinds)
+
+
+def _classify_columns_uncached(frame: pd.DataFrame) -> Dict[str, str]:
+    """The rule itself, so the cache is one wrapper that can be tested
+    against the thing it wraps."""
     kinds: Dict[str, str] = {}
     for name in frame.columns:
         if name in _IDENTITY_COLUMNS:
