@@ -368,16 +368,24 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     ten, so the floor below is met exactly with the cap where it was. A
     fallback overflow is usually this: not a band that is too small, but a
     key filed nowhere.
+
+    Experiment Design and the QC Dashboard then took it to fifty-one,
+    which is where the cap genuinely had to move: fifty-one over five is
+    ELEVEN however the bands are shared out, so no filing decision could
+    have avoided it. Both were still filed on their merits first --
+    Experiment Design beside Power in Acquire, the QC Dashboard in Report
+    -- and the result is 11/9/10/10/11, the floor exactly. Eleven is
+    seven, then four. Fifteen is where a third row starts.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 10, (
+        assert len(keys) <= 11, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
     # ...and the floor is real: any cap below it would be unsatisfiable.
     total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert -(-total // 5) == 10, (
-        f"{total} apps over five bands no longer needs a ten-wide band; "
+    assert -(-total // 5) == 11, (
+        f"{total} apps over five bands no longer needs an eleven-wide band; "
         f"tighten the cap above rather than leaving the slack unused")
 
 
