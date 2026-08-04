@@ -347,12 +347,33 @@ def registry_sandbox():
     A leaked row is a leaked tile, a leaked sidebar button and a leaked
     keyboard binding for every test that runs afterwards, so the list object is
     restored in place rather than trusting an unregister call.
+
+    **The side tables have to come back too.** ``register_app`` fans the app's
+    strings out through ``app._META_TARGETS`` into ``cli.INTERACTIVE_ONLY``,
+    ``app_screen.APP_TITLES`` / ``APP_INTROS`` and
+    ``settings_model._APP_API_MODULE``. Rolling back ``APPS`` alone left this
+    app's "GUI only" sentence in ``cli.INTERACTIVE_ONLY`` with no row in
+    ``APPS`` behind it — a module that does not exist still answering
+    ``spacr-run`` with a helpful lie, which is precisely what
+    ``tests/test_app_registry_parity.py::
+    test_the_gui_only_list_holds_no_apps_that_no_longer_exist`` is for. It only
+    failed when this file happened to run first, which is the worst way for it
+    to fail. Driven off ``_META_TARGETS`` so a fifth side table is undone
+    without this fixture being edited.
     """
+    import sys
+
     from spacr.qt import app as app_mod
     apps = list(app_mod.APPS)
     factories = dict(app_mod.APP_FACTORIES)
     stages = dict(app_mod.APP_STAGE)
     meta = dict(app_mod.APP_META)
+    side = []
+    for module_name, attribute, _field in app_mod._META_TARGETS:
+        module = sys.modules.get(module_name)
+        table = getattr(module, attribute, None) if module else None
+        if isinstance(table, dict):
+            side.append((table, dict(table)))
     yield app_mod
     app_mod.APPS[:] = apps
     app_mod.APP_FACTORIES.clear()
@@ -361,6 +382,9 @@ def registry_sandbox():
     app_mod.APP_STAGE.update(stages)
     app_mod.APP_META.clear()
     app_mod.APP_META.update(meta)
+    for table, saved in side:
+        table.clear()
+        table.update(saved)
     app_mod._refresh_sections()
 
 

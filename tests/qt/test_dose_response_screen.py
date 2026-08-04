@@ -277,12 +277,37 @@ def registry_sandbox():
     is restored in place rather than trusting an unregister call. The same
     fixture :mod:`tests.qt.test_control_chart_screen` uses, for the same
     reason.
+
+    **The side tables have to come back too, and forgetting them cost a real
+    failure.** ``register_app`` does not only append to ``APPS`` — it fans the
+    app's strings out through ``app._META_TARGETS`` into ``cli.INTERACTIVE_ONLY``,
+    ``app_screen.APP_TITLES`` / ``APP_INTROS`` and
+    ``settings_model._APP_API_MODULE``. Rolling back ``APPS`` alone left this
+    app's "GUI only, here is what to do instead" sentence in
+    ``cli.INTERACTIVE_ONLY`` with no matching row in ``APPS``, which is exactly
+    the ghost ``tests/test_app_registry_parity.py::
+    test_the_gui_only_list_holds_no_apps_that_no_longer_exist`` exists to catch
+    — an app that no longer exists, still answering ``spacr-run`` with a
+    helpful lie. It failed only when this file ran before that one, which is
+    the worst way for it to fail.
+
+    The restore is driven off ``_META_TARGETS`` rather than a hand-written
+    list, so a fifth side table added to the seam is undone here without this
+    fixture being edited.
     """
+    import sys
+
     from spacr.qt import app as app_mod
     apps = list(app_mod.APPS)
     factories = dict(app_mod.APP_FACTORIES)
     stages = dict(app_mod.APP_STAGE)
     meta = dict(app_mod.APP_META)
+    side = []
+    for module_name, attribute, _field in app_mod._META_TARGETS:
+        module = sys.modules.get(module_name)
+        table = getattr(module, attribute, None) if module else None
+        if isinstance(table, dict):
+            side.append((table, dict(table)))
     yield app_mod
     app_mod.APPS[:] = apps
     app_mod.APP_FACTORIES.clear()
@@ -291,6 +316,9 @@ def registry_sandbox():
     app_mod.APP_STAGE.update(stages)
     app_mod.APP_META.clear()
     app_mod.APP_META.update(meta)
+    for table, saved in side:
+        table.clear()
+        table.update(saved)
     app_mod._refresh_sections()
 
 
