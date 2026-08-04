@@ -63,10 +63,14 @@ def plate(tmp_path):
             "png_list", connection, index=False)
     finally:
         connection.close()
+    # `cell`-typed keys, because `load_scatter_frame` stamps the table it
+    # read: without the type a cell 1 and a nucleus 1 in this field would
+    # publish the same string, and clicking one would open whichever crop
+    # png_list happened to list first.
     return {"db": str(db_path), "frame": frame,
-            "keys": [f"plate1_r1_c1_f1_{i + 1}" for i in range(4)],
-            "paths": {f"plate1_r1_c1_f1_{i + 1}": str(crops / f"object{i}.png")
-                      for i in range(4)}}
+            "keys": [f"plate1_r1_c1_f1_cell{i + 1}" for i in range(4)],
+            "paths": {f"plate1_r1_c1_f1_cell{i + 1}":
+                      str(crops / f"object{i}.png") for i in range(4)}}
 
 
 @pytest.fixture
@@ -173,7 +177,7 @@ def test_hovering_a_point_emits_once_and_leaving_clears_it(qtbot):
 def test_a_crop_is_decoded_once_however_often_it_is_hovered(qtbot, plate,
                                                             qt_theme_applied):
     cache = CropThumbnails(plate["db"])
-    path = plate["paths"]["plate1_r1_c1_f1_1"]
+    path = plate["paths"]["plate1_r1_c1_f1_cell1"]
 
     assert cache.peek(path) is None          # nothing decoded yet
     first = cache.pixmap(path)
@@ -223,7 +227,7 @@ def test_crop_paths_resolve_in_one_pass_when_every_key_is_present(plate):
 
 
 def test_crop_paths_still_line_up_when_some_keys_have_no_crop(plate):
-    keys = [plate["keys"][0], "plate1_r1_c1_f1_999", plate["keys"][3]]
+    keys = [plate["keys"][0], "plate1_r1_c1_f1_cell999", plate["keys"][3]]
     resolved = crop_paths_for_keys(plate["db"], keys)
     assert resolved == {keys[0]: plate["paths"][keys[0]],
                         keys[2]: plate["paths"][keys[2]]}

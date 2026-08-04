@@ -44,7 +44,8 @@ from PySide6.QtWidgets import (QComboBox, QFileDialog, QFrame, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QSizePolicy,
                                QSplitter, QVBoxLayout, QWidget)
 
-from ...selection import OBJECT_KEY_COLUMNS, object_keys
+from ...selection import (OBJECT_KEY_COLUMNS, object_keys,
+                          with_object_type)
 from ..crop_thumbs import CropThumbnails, crop_paths_for_keys
 from ..job_runner import JobRunner
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
@@ -106,7 +107,11 @@ def load_scatter_frame(db_path: str, table: str,
             f'SELECT * FROM "{str(table)}" LIMIT {int(limit)}', connection)
     finally:
         connection.close()
-    return frame
+    # The frame does not know what it is; this function does. Without the
+    # stamp a point in the nucleus table and a point in the pathogen table
+    # publish the same key when they share a label, and clicking one opens
+    # whichever crop the table happened to list first.
+    return with_object_type(frame, table)
 
 
 def list_tables(db_path: str) -> List[str]:

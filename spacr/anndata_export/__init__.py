@@ -178,8 +178,9 @@ import numpy as np
 import pandas as pd
 
 from .. import schema
-from ..selection import (OBJECT_KEY_COLUMNS, DataFilter, FilterError,
-                         Selection, object_keys)
+from ..selection import (OBJECT_KEY_COLUMNS, OBJECT_TYPE_COLUMN, DataFilter,
+                         FilterError, Selection, object_keys,
+                         untyped_object_key, with_object_type)
 
 __all__ = [
     "ANNDATA_EXTRA",
@@ -454,7 +455,12 @@ def _read_frame(db_path: str, tables: Sequence[str],
             frame = pd.read_sql(f'SELECT * FROM "{single_table}"', connection)
         finally:
             connection.close()
-        return frame, (single_table,)
+        # The frame does not know which table it is; this function does, and
+        # `obs_names` is built from it. Without the stamp a per-table export
+        # of `nucleus` and one of `pathogen` index the same object two ways
+        # when the labels overlap -- and they always overlap, because each
+        # mask is labelled from 1 independently.
+        return with_object_type(frame, single_table), (single_table,)
 
     wanted = [t for t in tables if t in present]
     if not wanted:
@@ -477,7 +483,9 @@ def _read_frame(db_path: str, tables: Sequence[str],
         raise ValueError(
             f"could not join {wanted} from {db_path}; the join returned "
             f"nothing. Run `spacr doctor --db {db_path}` for the diagnosis.")
-    return frame, tuple(wanted)
+    # One row per CELL -- the join is anchored there and the children arrive
+    # as columns, not rows -- so that is the type of every observation.
+    return with_object_type(frame, "cell"), tuple(wanted)
 
 
 def _attach_png_labels(frame: pd.DataFrame, db_path: str, anchor: str,
@@ -544,7 +552,11 @@ def _attach_png_labels(frame: pd.DataFrame, db_path: str, anchor: str,
     png[schema.OBJECT_LABEL_KEY] = labels.loc[png.index].astype("int64")
 
     try:
-        keys = object_keys(png, timelapse=timelapse)
+        # `id_column` is the anchor's own id column, so these crops are
+        # anchor-typed. Both sides of the reindex below have to be keyed the
+        # same way or every attached label lands as NaN -- which is silent,
+        # and costs exactly the annotation columns this function exists for.
+        keys = object_keys(png, timelapse=timelapse, object_type=anchor)
     except FilterError:
         # A timelapse database whose png_list still spells the timepoint
         # `time_id` (see spacr.schema.TIME_COLUMN_ALIASES) cannot be keyed
@@ -940,7 +952,13 @@ def _align_embedding(values: Any, keys: pd.Index,
                 f"numeric coordinate columns to go with them.")
         indexed = values.set_index(
             object_keys(values, timelapse=timelapse))[coordinate_columns]
-        missing = [k for k in keys if k not in indexed.index]
+        # An embedding computed before object types existed, or by a caller
+        # that did not state one, keys its rows untyped. It still names the
+        # same objects, so it is resolved by dropping the type rather than
+        # reported as a population mismatch.
+        wanted = [k if k in indexed.index else untyped_object_key(k)
+                  for k in keys]
+        missing = [k for k in wanted if k not in indexed.index]
         if missing:
             raise ValueError(
                 f"embedding {name!r} has no coordinates for "
@@ -948,7 +966,7 @@ def _align_embedding(values: Any, keys: pd.Index,
                 f"(first: {missing[:3]}). It was computed on a different "
                 f"population; recompute it on the filtered frame or pass "
                 f"the same filter to both.")
-        return np.asarray(indexed.loc[list(keys)].to_numpy(), dtype=np.float32)
+        return np.asarray(indexed.loc[wanted].to_numpy(), dtype=np.float32)
 
     array = np.asarray(values, dtype=np.float32)
     if array.ndim == 1:

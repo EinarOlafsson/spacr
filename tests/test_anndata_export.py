@@ -166,11 +166,20 @@ def fresh_project(tmp_path):
 
 @pytest.fixture(scope="module")
 def joined_frame(project):
-    """The frame the exporter starts from, read the same way it reads it."""
+    """The frame the exporter starts from, read the same way it reads it.
+
+    Stamped with ``cell`` because that is what the joined export is: one row
+    per cell, with the children arriving as columns. Without the stamp the
+    keys here would be the untyped ones spaCR wrote before the object type
+    went into the key, and the comparisons below would be testing a different
+    identity from the one the exporter now writes.
+    """
     from spacr.io import _read_and_join_tables
+    from spacr.selection import with_object_type
 
     _root, db = project
-    return _read_and_join_tables(db, list(ax.DEFAULT_TABLES))
+    return with_object_type(
+        _read_and_join_tables(db, list(ax.DEFAULT_TABLES)), "cell")
 
 
 @pytest.fixture(scope="module")
@@ -260,7 +269,12 @@ def test_obs_names_are_the_schema_object_key(exported, joined_frame):
     # And the key really is the schema's, not a lookalike.
     row = joined_frame.iloc[0]
     assert adata.obs_names[0] == schema.KEY_SEPARATOR.join(
-        str(row[c]) for c in OBJECT_KEY_COLUMNS)
+        str(row[c]) for c in OBJECT_KEY_COLUMNS[:-1]
+    ) + schema.KEY_SEPARATOR + schema.object_id(
+        row[schema.OBJECT_LABEL_KEY], object_type="cell")
+    # The type is IN the key, so a cell 1 and a nucleus 1 in one field are
+    # two observations rather than one collision AnnData would refuse.
+    assert adata.obs_names[0].endswith("_cell1")
 
 
 def test_obs_carries_every_object_key_column(exported):
@@ -322,7 +336,8 @@ def test_the_attached_labels_match_png_list_row_for_row(project):
 
     png[schema.OBJECT_LABEL_KEY] = object_label_from_png_id(
         png["cell_id"]).astype("int64")
-    expected = png.set_index(object_keys(png))["infected"]
+    expected = png.set_index(
+        object_keys(png, object_type="cell"))["infected"]
     got = adata.obs["infected"].astype(float)
     for key in adata.obs_names:
         assert float(got.loc[key]) == float(expected.loc[key]), key
@@ -399,7 +414,7 @@ def test_duplicate_object_keys_are_refused_rather_than_repaired(tmp_path):
     with pytest.raises(ax.DuplicateObjectKeys) as excinfo:
         ax.build_anndata(db_of(root), single_table="cell", verbose=False)
     assert "unique obs_names" in str(excinfo.value)
-    assert "plate1_r1_c1_f1_1" in str(excinfo.value)
+    assert "plate1_r1_c1_f1_cell1" in str(excinfo.value)
     assert "will not guess" in str(excinfo.value)
 
     from spacr.io import MergeCardinalityError
@@ -508,7 +523,8 @@ def test_drop_objects_removes_exactly_the_incomplete_rows(project):
     assert adata.n_obs == len(FIELDS) * N_OBJECTS - len(FIELDS)
     assert len(adata.obs) == adata.n_obs
     # The rows that went are the ones with no pathogen: the last of each field.
-    assert not any(key.endswith(f"_{N_OBJECTS}") for key in adata.obs_names)
+    assert not any(key.endswith(f"_cell{N_OBJECTS}")
+                   for key in adata.obs_names)
 
 
 @pytest.mark.parametrize("policy", [ax.NAN_ZERO, ax.NAN_MEAN])
@@ -592,8 +608,16 @@ def test_a_keyed_embedding_is_aligned_by_key_not_by_position(project,
         db, embeddings={"umap": embedding}, data_filter=data_filter,
         verbose=False)
 
+    # The embedding carries only the key columns, so it keys its rows
+    # UNTYPED -- which is what an embedding computed by any earlier release,
+    # or by a caller that never states a type, looks like. It still names the
+    # same objects, and the exporter resolves it by dropping the type rather
+    # than reporting a population mismatch.
+    from spacr.selection import untyped_object_key
+
     lookup = embedding.set_index(object_keys(embedding))
-    expected = lookup.loc[list(adata.obs_names), ["umap_1", "umap_2"]]
+    expected = lookup.loc[[untyped_object_key(k) for k in adata.obs_names],
+                          ["umap_1", "umap_2"]]
     np.testing.assert_allclose(
         adata.obsm["X_umap"], expected.to_numpy(dtype=np.float32))
 
@@ -680,11 +704,16 @@ def test_a_filtered_export_holds_exactly_the_filtered_objects(project,
 
 def test_a_selection_narrows_to_exactly_its_keys(project, joined_frame):
     _root, db = project
-    wanted = list(object_keys(joined_frame))[::4]
+    from spacr.selection import untyped_object_keys
+
+    # Deliberately UNTYPED -- the keys a selection saved before the object
+    # type went into the key. They still name the same objects, so an old
+    # selection still exports the population it always meant.
+    wanted = list(untyped_object_keys(joined_frame))[::4]
     selection = Selection.from_keys(wanted, source="umap")
 
     adata, _ = ax.build_anndata(db, selection=selection, verbose=False)
-    assert set(adata.obs_names) == set(wanted)
+    assert set(adata.obs_names) == set(list(object_keys(joined_frame))[::4])
     assert adata.n_obs == len(wanted)
     assert adata.uns["spacr"]["filter"]["selection_source"] == "umap"
     assert adata.uns["spacr"]["filter"]["selection_size"] == len(wanted)
@@ -860,7 +889,7 @@ def test_the_written_file_reads_back_identically(fresh_project):
 
     back = anndata.read_h5ad(out)
     assert back.shape == (result.n_obs, result.n_vars)
-    assert list(back.obs_names) == list(object_keys(frame))
+    assert list(back.obs_names) == list(object_keys(frame, object_type="cell"))
     assert list(back.var_names) == ax.feature_columns(frame, db_path=db)
     np.testing.assert_allclose(
         back.obsm["X_umap"],

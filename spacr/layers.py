@@ -1352,10 +1352,18 @@ class FieldKey:
         (and the timepoint too, when ``timelapse``).
     :param timelapse: key each frame of an object separately, which requires a
         ``timeid`` in ``values``.
+    :param object_type: which mask this layer segments (``'cell'``,
+        ``'nucleus'``, …). Without it the keys are untyped, so clicking the
+        nucleus labelled 1 publishes the same string as clicking the pathogen
+        labelled 1 in the same field, and the two views the click was supposed
+        to link land on whichever of the two their table happened to hold
+        first. ``None`` is honest for a mask loaded from a file that does not
+        say what it is.
     """
 
     values: Mapping[str, Any]
     timelapse: bool = False
+    object_type: Optional[str] = None
 
     def __post_init__(self) -> None:
         values = {str(k): v for k, v in dict(self.values).items()}
@@ -1369,6 +1377,10 @@ class FieldKey:
                 f"view.")
         object.__setattr__(self, "values", MappingProxyType(values))
         object.__setattr__(self, "timelapse", bool(self.timelapse))
+        object.__setattr__(
+            self, "object_type",
+            str(self.object_type).strip().lower()
+            if self.object_type is not None else None)
 
     @classmethod
     def columns(cls, *, timelapse: bool = False) -> Tuple[str, ...]:
@@ -1383,7 +1395,8 @@ class FieldKey:
 
     @classmethod
     def from_row(cls, row: Mapping[str, Any], *,
-                 timelapse: bool = False) -> "FieldKey":
+                 timelapse: bool = False,
+                 object_type: Optional[str] = None) -> "FieldKey":
         """Take the key columns out of a measurement row (or any mapping).
 
         Anything else on the row is dropped — a field key is an identity, and
@@ -1391,8 +1404,13 @@ class FieldKey:
         field compare unequal.
         """
         wanted = cls.columns(timelapse=timelapse)
+        if object_type is None:
+            from . import schema as _schema
+            candidate = row.get(_schema.OBJECT_TYPE_KEY)
+            object_type = candidate if _schema.is_object_type(candidate) \
+                else None
         return cls(values={c: row[c] for c in wanted if c in row},
-                   timelapse=timelapse)
+                   timelapse=timelapse, object_type=object_type)
 
     def frame(self, labels: Iterable[int]):
         """A one-column-per-key-column frame for ``labels``, in their order."""
@@ -1404,7 +1422,8 @@ class FieldKey:
 
     def object_keys(self, labels: Iterable[int]):
         """:class:`pandas.Index` of object keys for ``labels``, in order."""
-        return object_keys(self.frame(labels), timelapse=self.timelapse)
+        return object_keys(self.frame(labels), timelapse=self.timelapse,
+                           object_type=self.object_type)
 
     def object_key(self, label: int) -> str:
         """The one object key for ``label``."""
