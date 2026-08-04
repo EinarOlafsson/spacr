@@ -68,6 +68,7 @@ from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, SPACING, active_palette
+from ..verbose_logger import console_write, console_write_in_progress
 
 
 # ---------------------------------------------------------------------------
@@ -244,6 +245,9 @@ class _StdoutBlock(QPlainTextEdit):
 
     LINE_HEIGHT_PERCENT = 145
 
+    #: Characters kept in one block. Older text is dropped from the head.
+    MAX_CHARS = 200_000
+
     def __init__(self, text: str = "", error: bool = False, parent=None,
                  text_color: Optional[str] = None):
         super().__init__(parent)
@@ -270,7 +274,12 @@ class _StdoutBlock(QPlainTextEdit):
             text_color = color_error() if error else color_output()
         self._text_color = text_color
         self._refresh_style()
-        self._buf: List[str] = []
+        #: Characters currently in the document. Tracked rather than derived
+        #: from ``toPlainText()``, which copies the whole document.
+        self._chars = 0
+        #: ``sizeHint`` cache — see :meth:`sizeHint`.
+        self._size_key: tuple = ()
+        self._size_value = 32
         self._user_height: Optional[int] = None
         self._height_handle = _BlockHeightHandle(self)
         self._height_handle.show()
@@ -288,16 +297,25 @@ class _StdoutBlock(QPlainTextEdit):
                 self.objectName(), self._text_color, self._font_pt,
                 SPACING["sm"], SPACING["md"]))
 
-    def _apply_line_spacing(self) -> None:
-        """Apply 145% leading to every paragraph in the plain-text document."""
-        cursor = QTextCursor(self.document())
-        cursor.select(QTextCursor.Document)
+    def _block_format(self) -> QTextBlockFormat:
+        """The 145% leading every paragraph in this block carries."""
         block_format = QTextBlockFormat()
         block_format.setLineHeight(
             float(self.LINE_HEIGHT_PERCENT),
             QTextBlockFormat.ProportionalHeight.value,
         )
-        cursor.mergeBlockFormat(block_format)
+        return block_format
+
+    def _apply_line_spacing(self) -> None:
+        """Apply the leading to every paragraph in the document.
+
+        Whole-document, therefore O(document): only for the rare events that
+        genuinely change every paragraph, such as a font-size change.
+        :meth:`append` formats the paragraphs it creates and nothing else.
+        """
+        cursor = QTextCursor(self.document())
+        cursor.select(QTextCursor.Document)
+        cursor.mergeBlockFormat(self._block_format())
 
     def set_console_font_pt(self, pt: int) -> None:
         """Apply the console size while retaining Open Sans Light."""
@@ -316,31 +334,80 @@ class _StdoutBlock(QPlainTextEdit):
         return self.toPlainText()
 
     def append(self, text: str) -> None:
-        """Append ``text`` to the block, capping the buffer at 200k chars."""
-        self._buf.append(text)
-        # Cap the buffer to keep the UI snappy for very long runs.
-        joined = "".join(self._buf)
-        if len(joined) > 200_000:
-            joined = joined[-200_000:]
-            self._buf = [joined]
-        self.setPlainText(joined)
-        self._apply_line_spacing()
+        """Append ``text`` in place, trimming the head past :attr:`MAX_CHARS`.
+
+        Costs what the new text costs, not what the console already holds.
+        This used to rebuild the entire document on every line —
+        ``setPlainText("".join(buf))`` plus a document-wide
+        ``mergeBlockFormat`` — which made a run's own output quadratic in
+        its length. Measured on this tree: 0.56 ms per line for the first
+        500, 6.64 ms per line by line 3000, and level there only because
+        the 200k cap had been reached.
+
+        That is not merely slow. With Verbose logging on,
+        ``spacr.logging_util``'s profile hook emits a record on entry to
+        every spaCR function — including the ones inside Qt event delivery
+        — and each record lands here. At 7 ms a line the GUI thread cannot
+        drain its own queue: the process sits at 100% CPU making no forward
+        progress, which is exactly how the Qt shard "live-lock" presented.
+        """
+        if not text:
+            return
+        doc = self.document()
+        cursor = QTextCursor(doc)
+        cursor.movePosition(QTextCursor.End)
+        first_touched = cursor.blockNumber()
+        cursor.insertText(text)
+        self._chars += len(text)
+        # Format only the paragraphs this insert created or extended. Qt does
+        # copy the previous block's format into a new one, but not on every
+        # insertion path, so it is set rather than assumed — over the new
+        # range only.
+        fmt_cursor = QTextCursor(doc.findBlockByNumber(first_touched))
+        fmt_cursor.setPosition(cursor.position(), QTextCursor.KeepAnchor)
+        fmt_cursor.mergeBlockFormat(self._block_format())
+        self._trim_to_cap()
         self.updateGeometry()
 
+    def _trim_to_cap(self) -> None:
+        """Drop whole paragraphs off the head until back under the cap.
+
+        Removing from the front costs what is removed. Re-setting the
+        document to its own tail — the previous approach — costs what is
+        kept, on every single line once the cap is reached.
+        """
+        doc = self.document()
+        while self._chars > self.MAX_CHARS and doc.blockCount() > 1:
+            block = doc.begin()
+            removed = block.length()      # paragraph text + its separator
+            cursor = QTextCursor(block)
+            cursor.movePosition(
+                QTextCursor.NextBlock, QTextCursor.KeepAnchor)
+            cursor.removeSelectedText()
+            self._chars = max(0, self._chars - removed)
+
     def sizeHint(self) -> QSize:
-        """Report the full document height; the outer console owns scrolling."""
+        """Report the full document height; the outer console owns scrolling.
+
+        Cached: Qt asks for a size hint several times per layout pass, and
+        the answer can only change when the text, the width or the font
+        does. Without the cache each of those calls walks every paragraph.
+        """
         if self._user_height is not None:
             return QSize(
                 max(120, super().sizeHint().width()), self._user_height)
-        layout = self.document().documentLayout()
-        height = 0.0
-        block = self.document().begin()
-        while block.isValid():
-            height += layout.blockBoundingRect(block).height()
-            block = block.next()
-        chrome = (2 * SPACING["sm"]) + 2
-        return QSize(max(120, super().sizeHint().width()),
-                     max(32, int(round(height)) + chrome))
+        key = (self._chars, self.viewport().width(), self._font_pt)
+        if key != self._size_key:
+            layout = self.document().documentLayout()
+            height = 0.0
+            block = self.document().begin()
+            while block.isValid():
+                height += layout.blockBoundingRect(block).height()
+                block = block.next()
+            chrome = (2 * SPACING["sm"]) + 2
+            self._size_key = key
+            self._size_value = max(32, int(round(height)) + chrome)
+        return QSize(max(120, super().sizeHint().width()), self._size_value)
 
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
@@ -815,23 +882,39 @@ class ConsolePanel(QWidget):
         Safe to call from any thread: an off-thread call is re-posted to
         the GUI thread through :attr:`_relay_stdout` and returns without
         touching a widget. See :meth:`_on_gui_thread`.
+
+        Re-entrant calls on the same thread are refused. Drawing a line
+        runs Python inside a QWidget, and with verbose logging on the
+        function-trace profile hook logs on entry to every spaCR function
+        it passes through — including this one. Both console log sinks feed
+        that record straight back here, and ``_StdoutBlock.append`` answers
+        it with a nested ``setPlainText`` whose first act is to destroy the
+        QTextDocument's frames — the ones the outer call is still inside.
+        gdb: ``QTextFrame::~QTextFrame -> QTextDocumentPrivate::clear``,
+        ``#0`` in freed memory. Reproduced as ``pytest
+        tests/qt/test_all_module_smoke.py
+        tests/qt/test_batch_f_diagnostics.py`` (exit 139).
         """
         if not text:
             return
         if not self._on_gui_thread():
             self._relay_stdout.emit(text)
             return
-        if self._current_stdout is None:
-            # Open a "spaCR output — <module> — <function>" banner + a fresh
-            # blue-text block. Reused until a different entry type breaks it.
-            accent = color_output()
-            self.begin_topic(self._output_banner("spaCR output"),
-                             accent=accent)
-            self._current_stdout = _StdoutBlock(text_color=accent)
-            self._insert_entry(self._current_stdout)
-            self._last_entry_kind = "stdout"
-        self._current_stdout.append(text)
-        self._scroll_to_bottom()
+        if console_write_in_progress():
+            return
+        with console_write():
+            if self._current_stdout is None:
+                # Open a "spaCR output — <module> — <function>" banner + a
+                # fresh blue-text block. Reused until a different entry type
+                # breaks it.
+                accent = color_output()
+                self.begin_topic(self._output_banner("spaCR output"),
+                                 accent=accent)
+                self._current_stdout = _StdoutBlock(text_color=accent)
+                self._insert_entry(self._current_stdout)
+                self._last_entry_kind = "stdout"
+            self._current_stdout.append(text)
+            self._scroll_to_bottom()
 
     def append_notice(self, source: str, **values: object) -> None:
         """Append one localized spaCR-authored UI notice.
@@ -884,11 +967,16 @@ class ConsolePanel(QWidget):
         if not self._on_gui_thread():
             self._relay_error.emit(tb)
             return
-        red = color_error()
-        self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
-        block = _StdoutBlock(tb, error=True, text_color=red)
-        self._insert_entry(block)
-        self._last_entry_kind = "stdout"
+        # Same re-entrancy refusal as append_stdout, and for the same
+        # reason: this path also builds a _StdoutBlock and fills it.
+        if console_write_in_progress():
+            return
+        with console_write():
+            red = color_error()
+            self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
+            block = _StdoutBlock(tb, error=True, text_color=red)
+            self._insert_entry(block)
+            self._last_entry_kind = "stdout"
 
     def clear(self) -> None:
         """Wipe every entry (topic bars, stdout blocks, chat bubbles)."""
@@ -1030,7 +1118,23 @@ class ConsolePanel(QWidget):
         The cancel path kills the CLI subprocess directly so the
         stream reader unblocks immediately; we then wait for the
         worker's run() to return and the QThread to quit normally.
+
+        There is deliberately no ``QThread.terminate()`` fallback. It used
+        to be here, described as a last resort, and it was reached far more
+        often than "last resort" suggests: `spacr.qt.ai.worker` queued
+        `worker.finished -> thread.quit` to the GUI-affine QThread object,
+        so the event that stops the thread sat behind this method's own
+        `wait()` and the wait timed out on streams that had already
+        finished. Terminating a thread that is running Python is
+        `pthread_cancel`: if it dies holding the GIL the process stops
+        making progress with every thread still alive, and if it dies
+        inside Qt or PySide the heap is corrupt and the crash lands
+        somewhere unrelated later. `bridge.drain_thread` parks a thread
+        that will not stop instead, which keeps the "never destroy a
+        running QThread" rule without buying it with undefined behaviour.
         """
+        from ..bridge import drain_thread
+
         worker = self._ai_worker
         thread = self._ai_thread
         # Defensively belt-and-suspender: also try every provider's
@@ -1045,30 +1149,13 @@ class ConsolePanel(QWidget):
                 worker.cancel()
             except Exception:
                 pass
-        if thread is not None and thread.isRunning():
-            try:
-                thread.quit()
-                thread.wait(3000)
-                if thread.isRunning():
-                    # Last resort — Qt itself asks the thread to stop.
-                    thread.terminate()
-                    thread.wait(1000)
-            except Exception:
-                pass
+        drain_thread(thread, worker, timeout_ms=3000)
         self._ai_thread = None
         self._ai_worker = None
         # Also drain any retired (post-finished) threads that haven't
         # been fully cleaned up yet.
-        for t, _w in list(self._retired):
-            try:
-                if t.isRunning():
-                    t.quit()
-                    t.wait(1000)
-                    if t.isRunning():
-                        t.terminate()
-                        t.wait(500)
-            except Exception:
-                pass
+        for pair in list(self._retired):
+            drain_thread(pair[0], pair[1], timeout_ms=1000)
         self._retired.clear()
 
     def closeEvent(self, event) -> None:

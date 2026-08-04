@@ -727,10 +727,17 @@ class DistributedJobsScreen(QWidget):
             callback(self._pending_result)
 
     def _retire_workers(self) -> None:
-        """Release only QThreads that have completely stopped."""
-        self._workers = [
-            pair for pair in self._workers if pair[0].isRunning()
-        ]
+        """Release ownership pairs whose QThread has stopped.
+
+        A bare ``isRunning()`` filter leaked every pair: by the time this
+        queued slot runs, ``thread.finished -> deleteLater`` has reaped the
+        QThread's C++ half and ``isRunning()`` raises ``RuntimeError`` out
+        of the slot, so the assignment never happens. See
+        :func:`spacr.qt.bridge.prune_job_pairs`.
+        """
+        from ..bridge import prune_job_pairs
+
+        self._workers = prune_job_pairs(self._workers, self.sender())
 
     def _set_busy(self, busy: bool) -> None:
         """Update semantic action states while a network call is active."""
@@ -985,11 +992,27 @@ class DistributedJobsScreen(QWidget):
         super().hideEvent(event)
 
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Stop polling and retain live worker objects until they exit."""
+        """Stop polling and drain live workers before the screen goes away.
+
+        ``requestInterruption`` on its own was decorative — ``_work`` never
+        polls it — and left the screen's REST calls running with nobody
+        owning them. An ownerless job stays in the process-wide run
+        registry, which is what ``MainWindow.closeEvent`` consults when it
+        decides whether the application may quit.
+        """
+        from ..bridge import drain_thread
+
         self._timer.stop()
-        for thread, _worker in list(self._workers):
+        for thread, worker in list(self._workers):
+            if worker is not None:
+                try:
+                    worker.request_cancel("distributed-jobs screen closed")
+                except Exception:
+                    pass
             try:
                 thread.requestInterruption()
             except Exception:
                 pass
+            drain_thread(thread, worker, timeout_ms=3000)
+        self._workers.clear()
         super().closeEvent(event)
