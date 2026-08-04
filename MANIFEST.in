@@ -62,12 +62,15 @@ prune spacr/notebooks/old
 # ---------------------------------------------------------------------------
 # Review artefacts: kept in git, deliberately NOT shipped.
 #
-# `recursive-include spacr/resources/icons *` above sweeps in backup_icons/
-# (240 candidate icons, 22 MB) and spacr/resources/home/versions/ holds 90
-# home-screen renders (13 MB). Together they took the sdist to 93 MB -- close
-# to PyPI's 100 MB per-file limit -- and made every user download 35 MB of
-# images they will never open. They exist for the maintainer to choose from,
-# so they belong in the repository and not in the distribution.
+# `recursive-include spacr/resources/icons *` above would sweep in anything
+# left under the icons tree, and spacr/resources/home/versions/ holds 90
+# home-screen renders (13 MB) that exist for the maintainer to choose from.
+# They belong in the repository and not in the distribution.
+#
+# backup_icons/ held the 931 drawn candidates and was deleted once every icon
+# was chosen; the generators that drew them are in tools/icon_generators/ and
+# the candidates themselves are in git history. The prune stays as a guard
+# against the folder being regenerated in place and shipped by accident.
 # ---------------------------------------------------------------------------
 prune spacr/resources/icons/backup_icons
 prune spacr/resources/home
