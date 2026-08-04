@@ -302,7 +302,11 @@ class OrthoView(LinkedView, QWidget):
             if widget is not None:
                 widget.deleteLater()
             elif item.layout() is not None:
+                # The rows are nested layouts; draining the widgets and then
+                # the layout keeps `set_stack` from leaving an empty row
+                # behind every time it is called.
                 self._drain(item.layout())
+                item.layout().deleteLater()
         self._sliders = {}
         if self._views is None:
             return
