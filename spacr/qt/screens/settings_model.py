@@ -3009,6 +3009,17 @@ class _ChipStrip(QWidget):
             self.changed.emit()
 
 
+#: Column-name settings that hold any number of names, rendered as a chip
+#: strip rather than a text box.
+#:
+#: They are declared ``(str, None)`` in :mod:`spacr.settings`, which is what
+#: sent them to a single-value field: one column per run, and a SQL button
+#: that replaced whatever was already typed. The declaration stays as it is
+#: -- every consumer accepts a bare string and always has -- so old settings
+#: CSVs keep loading and the CLI keeps working; only the control widens.
+EXCLUDE_LIST_KEYS: Tuple[str, ...] = ("exclude",)
+
+
 #: Settings whose legal values are a short, closed, ordered set.
 #:
 #: ``train_channels`` is the reason this table exists. It is declared a plain
@@ -3699,6 +3710,29 @@ class SettingsWidgets:
                 key=key,
                 default=self._defaults.get(key, default),
                 choices=FIXED_ALPHABETS[key],
+                parent=parent,
+            )
+        # 'Exclude' names measurement columns to drop from the feature set,
+        # and there is never a reason it should be exactly one -- but
+        # spacr.settings declares it (str, None), so list_shape_for
+        # (deliberately conservative, and reading only what is declared) sent
+        # it to a plain text box. One column per run, and the SQL button
+        # overwrote whatever was already there. It gets the same chip strip
+        # as Classify (CV)'s `classes`: type a name and it becomes a chip to
+        # the right, remove them one at a time, and the SQL button beside it
+        # (COLUMN_TABLES) hands back however many columns were selected.
+        # Consumers already take either shape -- utils.filter_dataframe_
+        # features and preprocess_data both wrap a bare str in a list -- so a
+        # settings CSV written before this still loads, and one written now
+        # still runs on the CLI.
+        if key in EXCLUDE_LIST_KEYS:
+            return _ListEditor(
+                key=key,
+                default=self._defaults.get(key, default),
+                nested_capable=False,
+                allow_none=True,
+                element_type=str,
+                container=list,
                 parent=parent,
             )
         # Unlike enumerated strings, a list remains a list in every module.
