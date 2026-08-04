@@ -697,7 +697,11 @@ _BUILTIN_APPS = [
     ("db_browser",     "Database Browser", "Browse and export measurements.db without the sqlite3 CLI", SECTION_DATA),
     # -- Segmentation models: build, train, pick and check the Cellpose
     #    models the Mask step runs.
-    ("make_masks",     "Make Masks",     "Fine-tune Cellpose models for your dataset",                  SECTION_MODELS),
+    # Not a training screen despite where it sits: MakeMasksScreen is the
+    # brush, the flood fill and the object operations, i.e. correcting a
+    # mask by hand. It carried Train Cellpose's description verbatim, which
+    # is the app directly below it.
+    ("make_masks",     "Make Masks",     "Correct a mask by hand: brush, flood fill, relabel, fill, remove small",  SECTION_MODELS),
     ("train_cellpose", "Train Cellpose", "Train custom Cellpose models",                                SECTION_MODELS),
     ("cellpose_masks", "Cellpose Masks", "Cellpose mask generation",                                    SECTION_MODELS),
     ("model_compare",  "Model Compare",  "Two Cellpose models on the same fields: masks side by side, object-count and ARI deltas", SECTION_MODELS),
