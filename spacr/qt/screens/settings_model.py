@@ -492,7 +492,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Tables", ("metadata_files", "score_data", "count_data")),
         ("Controls & Plate Design", (
             "plateID", "positive_control", "negative_control", "controls",
-            "filter_column", "filter_value",
+            "control_wells", "filter_column", "filter_value",
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
@@ -500,8 +500,18 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "batch_missing_control",
         )),
         ("Model & Covariates", (
-            "regression_type", "dependent_variable", "agg_type", "transform",
+            "regression_type", "dependent_variable", "score_column",
+            "invert_dependent_variable", "agg_type", "transform",
             "alpha", "cov_type", "random_row_column_effects",
+        )),
+        # The estimator-specific knobs, added by the robust and regularised
+        # fits after this layout was first written. They landed in
+        # "Additional Settings" -- the bucket a layout exists to keep empty --
+        # because only the shared estimator settings above were named.
+        ("Estimator Tuning", (
+            "l1_ratio", "quantile", "huber_t", "tolerance",
+            "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
+            "lasso_selection_threshold",
         )),
         ("Hit Calling & Outliers", (
             "min_cell_count", "fraction_threshold", "target_unique_count",
@@ -509,11 +519,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "min_n", "toxo",
         )),
         ("Regression Plots", (
-            "volcano", "log_x", "log_y", "x_lim", "split_axis_lims",
+            "volcano", "log_x", "log_y", "x_lim", "y_lims",
+            "split_axis_lims",
         )),
         ("Runtime & Reliability", (
             "strict_errors", "max_failure_rate", "on_error",
-            "on_error_attempts", "on_error_backoff", "random_seed",
+            "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
         )),
     ),
     "activation": (
@@ -1719,6 +1730,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Which wells anchor the threshold, and how many objects a well or a "
         "plate must contribute before its number is believed. Raise the "
         "minimums when sparse wells produce implausibly extreme rates.",
+    # -- Regression --------------------------------------------------------
+    "ESTIMATOR TUNING":
+        "The knobs that belong to one estimator rather than to all of them — "
+        "the elastic-net mixing ratio, the quantile being fitted, Huber's "
+        "cut-off, the convergence tolerance, and the bootstrap counts behind "
+        "the hinge and lasso selection thresholds. Only the ones matching "
+        "the model chosen above have any effect.",
     # -- Power / Design ----------------------------------------------------
     #
     # "Power analysis" is the single heading `spacr/qt/screens/power.py`

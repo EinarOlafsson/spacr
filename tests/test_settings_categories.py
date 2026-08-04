@@ -255,6 +255,33 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # CLI alike. (`verbose` and `control_wells`, the other two it was missing,
     # were already categorised under Advanced and Invasion Assay.)
     "score_column", "tolerance", "invert_dependent_variable", "y_lims",
+    # -- keys a module merged in through `spacr.settings.register_defaults`
+    #
+    # These do not come from the regroup at all. `register_defaults(...,
+    # categories=...)` folds a module's own categories into the shared map at
+    # the moment that module is imported, which is the seam a new module is
+    # supposed to use instead of editing the table. They therefore arrive
+    # whenever something imports the module, and the count above cannot
+    # predict them -- but listing them keeps the "growth is deliberate"
+    # contract, because a key here still had to be declared somewhere.
+    #
+    # Power / Design (`spacr/qt/screens/power.py`), one heading of its own:
+    "power_n_genes", "power_n_grnas_per_gene", "power_score_per",
+    "power_cells_per_well", "power_wells_per_plate", "power_n_plates",
+    "power_constructs_per_well", "power_background_positive_rate",
+    "power_effect_fold", "power_hit_rate", "power_reads_per_well",
+    "power_n_replicates", "power_detection_auroc", "power_seed",
+    "power_backend",
+    # AnnData Export (`spacr/anndata_export/__init__.py`):
+    "anndata_out", "anndata_single_table", "anndata_nan_policy",
+    "anndata_tables", "anndata_dtype", "anndata_row_limit",
+    "anndata_compute_umap", "anndata_compression",
+    "anndata_register_artifact",
+    # The robust and regularised regression fits: knobs that belong to one
+    # estimator rather than to all of them.
+    "l1_ratio", "quantile", "huber_t",
+    "hinge_threshold", "hinge_n_boot",
+    "lasso_n_boot", "lasso_selection_threshold",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -364,11 +391,26 @@ def test_no_previously_categorised_key_is_lost():
 
 
 def test_every_added_key_is_declared():
-    """Growth of the map is deliberate, not accidental."""
+    """Growth of the map is deliberate, not accidental.
+
+    Containment, not equality. ``register_defaults(..., categories=...)``
+    folds a module's own categories into the shared map at the moment that
+    module is imported — that is the seam a new module is meant to use
+    instead of editing the table — so which of them are present depends on
+    what the process has imported by now. Under equality the test failed in
+    both directions at once: unimported modules' keys were "listed but
+    absent" and imported ones were "present but unlisted", and which it
+    reported depended on test ordering.
+
+    The direction worth keeping is the one the failure message describes: a
+    key may not appear in the map without being declared here. A listed key
+    that this process has not imported costs nothing.
+    """
     added = set(_all_categorised_keys()) - KEYS_BEFORE_REGROUP
-    assert added == set(KEYS_ADDED_BY_REGROUP), (
+    undeclared = sorted(added - set(KEYS_ADDED_BY_REGROUP))
+    assert not undeclared, (
         "categories gained keys that KEYS_ADDED_BY_REGROUP does not list: "
-        f"{sorted(added - set(KEYS_ADDED_BY_REGROUP))}"
+        f"{undeclared}"
     )
 
 
@@ -739,6 +781,11 @@ def _rendered_sections(app_key):
         ("regression", [
             "Input Tables", "Controls & Plate Design",
             "Plate & Batch Correction", "Model & Covariates",
+            # Added when the robust and regularised fits brought knobs that
+            # belong to one estimator rather than to all of them. Until they
+            # were named, they landed in "Additional Settings" — the bucket
+            # this whole test exists to keep empty.
+            "Estimator Tuning",
             "Hit Calling & Outliers", "Regression Plots",
             "Runtime & Reliability",
         ]),
