@@ -28,47 +28,59 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI and GitHub",
+      "title": "パイピパカゲトケン,ギトブトケン,コンダフォゲトケン",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "spaCRのリリース,ソースコード,インストーラ,問題,そして夜間支店のライブをご覧ください.",
+      "description": "パッケージ版,デスクトップインストーラ,開発部門,または将来の conda-forge パッケージの公式ソースを選択します.",
       "objectives": [
-        "PyPIや GitHubで spaCR を検索する",
-        "夜間分から放出を区別する",
-        "インストール機,リリースメモ,問題などを検索します"
+        "PyPIの公式パッケージとGitHubのリポジトリを特定する.",
+        "nightly部門から安定したリリースを区別する.",
+        "現在 conda-forge 出版の現状を理解する."
       ],
-      "prerequisite": "この方向性には設置は必要ありません.",
+      "prerequisite": "設置は必要ありません.",
       "scenes": [
         {
-          "narration": "このチュートリアルでは PyPIとGitHubをカバーしています. spaCRのリリース,ソースコード,インストーラ,問題,そしてナイトリーブランチがどこに配信されているかを知ることができます.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "このチュートリアルでは パイピーとGitHubをカバーしています. スペーカーのリリース,ソースコード,インストーラ,問題,そしてナイトリーブランチがどこに配信されているかを知ることができます."
+          "narration": "spaCRをインストールする前に,公式の3つの配布経路を知ってください:リリースされた Python パッケージのPyPI,ソースコードとデスクトップインストーラのためのGitHub,レビューされたパッケージが公開された後に conda-forge.",
+          "visual": "sources",
+          "hold_after": 0.7,
+          "speech_text": "スペーカーをインストールする前に,公式の3つの配布経路を知ってください:リリースされた Python パッケージのパイピー,ソースコードとデスクトップインストーラのためのGitHub,レビューされたパッケージが公開された後に conda-forge."
         },
         {
-          "narration": "spaCR セクションから PyPI and GitHub を開きます。 現在の Python パッケージの PyPI および GitHub をソースコード,リリース,問題追跡のために使用します.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "スペーカー セクションから パイピー and GitHub を開きます。 現在の Python パッケージの パイピー および GitHub をソースコード,リリース,問題追跡のために使用します."
+          "narration": "PyPI の spaCR ページでは,現在の安定版と pip install spacr コマンドが表示されます. リリースファイルには,Pythonホイールとソースアーカイブが含まれます.",
+          "visual": "pypi_release",
+          "hold_after": 0.7,
+          "speech_text": "パイピー の スペーカー ページでは,現在の安定版と pip install スペーカー コマンドが表示されます. リリースファイルには,Pythonホイールとソースアーカイブが含まれます."
         },
         {
-          "narration": "主な構成領域では,安定したパッケージ化リリースと夜間開発部門を比較して,あなたの仕事に適したものを選択してください.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "主な構成領域では,安定したパッケージ化リリースと夜間開発部門を比較して,あなたの仕事に適したものを選択してください."
+          "narration": "PyPI は,ドキュメント,ソースリポジトリ,および問題トラッカーにもリンクしています. 既存の環境を変更する前に,必要な Python バージョンとリリース日付を確認します.",
+          "visual": "pypi_links",
+          "hold_after": 0.7,
+          "speech_text": "パイピー は,ドキュメント,ソースリポジトリ,および問題トラッカーにもリンクしています. 既存の環境を変更する前に,必要な Python バージョンとリリース日付を確認します."
         },
         {
-          "narration": "実行完了する前に,可視設定をレビューし,プリビューまたはテストモードを使用してください.インストール前にリリースノートを開いて,バージョンとプラットフォームの要件が明確になります.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "実行完了する前に,可視設定をレビューし,プリビューまたはテストモードを使用してください.インストール前にリリースノートを開いて,バージョンとプラットフォームの要件が明確になります."
+          "narration": "GitHub では main が公開済みのソース系列で、nightly にはテスト中の新しい変更が含まれます。未公開の変更が明確に必要な場合にだけ nightly を使用してください。",
+          "visual": "github_repo",
+          "hold_after": 0.7,
+          "speech_text": "GitHub では main が公開済みのソース系列で、nightly にはテスト中の新しい変更が含まれます。未公開の変更が明確に必要な場合にだけ nightly を使用してください。"
         },
         {
-          "narration": "作業流が完了すると spaCR をどこに設置するか 変更を確認し 再現可能な問題について報告します",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "作業流が完了すると スペーカー をどこに設置するか 変更を確認し 再現可能な問題について報告します"
+          "narration": "GitHub ReleasesはWindows,macOS,Linuxのインストーラ,リリースノート,Pythonパッケージファイル,およびSHA-256のチェックサムを提供しています.",
+          "visual": "github_release",
+          "hold_after": 0.7,
+          "speech_text": "GitHub ReleasesはWindows,macOS,Linuxのインストーラ,リリースノート,Pythonパッケージファイル,およびSHA-256のチェックサムを提供しています."
+        },
+        {
+          "narration": "conda-forgeのレシピはリポジトリで作成されていますが,spaCRのパッケージはまだ conda-forgeチャンネルで公開されていません. 今のところ,コンダ環境を作成し,その中にPyPIからspaCRをインストールしてください.",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "conda-forgeのレシピはリポジトリで作成されていますが,スペーカーのパッケージはまだ conda-forgeチャンネルで公開されていません. 今のところ,コンダ環境を作成し,その中にパイピーからスペーカーをインストールしてください."
+        },
+        {
+          "narration": "Python環境では PyPI または pip を使用し,ネイティブインストーラでは GitHub Releases を使用し,開発のために nightly ブランチのみを使用します. 次のチュートリアルでは,アプリケーションを起動することなく,各インストール経路を示します.",
+          "visual": "decision",
+          "hold_after": 0.7,
+          "speech_text": "Python環境では パイピー または pip を使用し,ネイティブインストーラでは GitHub Releases を使用し,開発のために nightly ブランチのみを使用します. 次のチュートリアルでは,アプリケーションを起動することなく,各インストール経路を示します."
         }
       ]
     },
@@ -76,47 +88,59 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation with Conda",
+      "title": "コンダによる設置",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "システム内の残りの部分を変更せずに spaCR をインストールします",
+      "description": "パイthon 3.12 環境を分離して,デスクトップやヘッドレスパッケージをインストールします.",
       "objectives": [
-        "コンダとインスタレーションを使用する時を把握する",
-        "重要な入力と設定を設定する.",
-        "作業流を実行して,その出力を特定します."
+        "孤立したspaCR環境を作成し検証する.",
+        "デスクトップまたはヘッドレスインストールを選択してください.",
+        "spaCRを起動する前に装置を検証する."
       ],
-      "prerequisite": "コンダ対応の環境管理器を設置する",
+      "prerequisite": "Miniforge, Miniconda, Anaconda,または他のコンダ対応マネージャーをインストールします.",
       "scenes": [
         {
-          "narration": "このチュートリアルでは,Condaでインストールをカバーします. システム内の残りの部分を変更せずに,孤立した Python 環境を作成して spaCR をインストールします.",
+          "narration": "コンダ環境は,spaCRとその科学的な依存を関連のないプロジェクトから切り離しています. Python3point12は現在最も広範なオプションパッケージ互換性を提供しています.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "このチュートリアルでは,Condaでインストールをカバーします. システム内の残りの部分を変更せずに,孤立した Python 環境を作成して スペーカー をインストールします."
+          "hold_after": 0.7,
+          "speech_text": "コンダ環境は,スペーカーとその科学的な依存を関連のないプロジェクトから切り離しています. Python3point12は現在最も広範なオプションパッケージ互換性を提供しています."
         },
         {
-          "narration": "spaCR セクションから Installation with Conda を開きます。 Miniconda,Anaconda,または他のConda対応管理者をインストールして,Python3point12で環境を作成します.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "スペーカー セクションから Installation with Conda を開きます。 Miniconda,Anaconda,または他のConda対応管理者をインストールして,Python3point12で環境を作成します."
+          "narration": "Python3point12と pipで spacrという環境を作成します",
+          "visual": "create",
+          "hold_after": 0.7,
+          "speech_text": "Python3point12と pipで スペーカーという環境を作成します"
         },
         {
-          "narration": "主な構成領域では,環境をアクティブに動かす.その Pythonと pip実行可能なものがその環境に属していることを確認する.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "主な構成領域では,環境をアクティブに動かす.その Pythonと pip実行可能なものがその環境に属していることを確認する."
+          "narration": "環境を活性化する 何かをインストールする前に Python が spacr 環境に属していることを確認してください.",
+          "visual": "activate",
+          "hold_after": 0.7,
+          "speech_text": "環境を活性化する 何かをインストールする前に Python が スペーカー 環境に属していることを確認してください."
         },
         {
-          "narration": "実行完了前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.アクティブ環境内にパイプ付きの spaCR をインストールします. コンダフォージパッケージはまだすぐに到着します.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "実行完了前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.アクティブ環境内にパイプ付きの スペーカー をインストールします. コンダフォージパッケージはまだすぐに到着します."
+          "narration": "パイthon インタプリターで Pip をアップグレードする. python -m pipを使用すると,別のパイプ実行可能なものがパッケージを受け取ることを防ぐ.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "パイthon インタプリターで Pip をアップグレードする. python -m pipを使用すると,別のパイプ実行可能なものがパッケージを受け取ることを防ぐ."
         },
         {
-          "narration": "作業流が完了すると spaCR を同じ環境から起動し,関連のないプロジェクトから隔離します.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "作業流が完了すると スペーカー を同じ環境から起動し,関連のないプロジェクトから隔離します."
+          "narration": "デスクトップアプリケーションでは, qt 追加で spacr をインストールします. ヘッドレスワークステーションやサーバーでは平らなスペースパケットを使用します.",
+          "visual": "desktop",
+          "hold_after": 0.7,
+          "speech_text": "デスクトップアプリケーションでは, qt 追加で スペーカー をインストールします. ヘッドレスワークステーションやサーバーでは平らなスペースパケットを使用します."
+        },
+        {
+          "narration": "初回起動の前に spaCR-doctor を実行します。診断ツールは、現在のインストール、Qt、PyTorch、オプション機能、ハードウェア対応を確認し、失敗した項目ごとに修正方法を提示します。",
+          "visual": "doctor",
+          "hold_after": 0.7,
+          "speech_text": "初回起動の前に スペーカー-doctor を実行します。診断ツールは、現在のインストール、Qt、PyTorch、オプション機能、ハードウェア対応を確認し、失敗した項目ごとに修正方法を提示します。"
+        },
+        {
+          "narration": "conda-forge パッケージはまだ公開されていないため、現時点では conda install -c conda-forge spacr を実行しないでください。利用可能になったら、spaCR リポジトリから公式レシピとチャンネルへのリンクが提供されます。",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "conda-forge パッケージはまだ公開されていないため、現時点では conda install -c conda-forge スペーカー を実行しないでください。利用可能になったら、スペーカー リポジトリから公式レシピとチャンネルへのリンクが提供されます。"
         }
       ]
     },
@@ -124,47 +148,59 @@
       "id": "03_pip_install",
       "number": 3,
       "slug": "pip_install",
-      "title": "Installation with pip",
+      "title": "パイプによる設置",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "デスクトップまたはヘッドレス使用のために既存の孤立した Python 環境に spaCR をインストールする.",
+      "description": "Conda を使用せずに標準的な仮想環境に spaCR をインストールします.",
       "objectives": [
-        "インストールと pip を何時使用するか理解する.",
-        "重要な入力と設定を設定する.",
-        "作業流を実行して,その出力を特定します."
+        "サポートされている各オペレーティング システムで仮想環境を作成します.",
+        "spaCR パッケージの正しいバージョンをインストールする.",
+        "アプリケーションを起動する前に環境を確認する."
       ],
-      "prerequisite": "孤立した Python 環境を作成またはアクティブ化します",
+      "prerequisite": "サポートされている Python バージョンをインストールする. Python 3.12 が推奨されます.",
       "scenes": [
         {
-          "narration": "このチュートリアルでは,Pype のインストールについて説明します. デスクトップまたはヘッドレスで使用するために既存の Python 環境で spaCR をインストールします.",
+          "narration": "パイプ経路は Windows, macOS, Linuxで動作します. オペレーティングシステムの Python インストールを変更するのではなく,常に孤立した仮想環境を使用します.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "このチュートリアルでは,Pype のインストールについて説明します. デスクトップまたはヘッドレスで使用するために既存の Python 環境で スペーカー をインストールします."
+          "hold_after": 0.7,
+          "speech_text": "パイプ経路は Windows, macOS, Linuxで動作します. オペレーティングシステムの Python インストールを変更するのではなく,常に孤立した仮想環境を使用します."
         },
         {
-          "narration": "spaCR セクションから Installation with pip を開きます。 Python 3 point 12 は推奨されます.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "スペーカー セクションから Installation with pip を開きます。 Python 3 point 12 は推奨されます."
+          "narration": "MacOSや Linux では Python 3 point 12 で環境を作成して,bin ディレクトリから起動します.",
+          "visual": "venv_posix",
+          "hold_after": 0.7,
+          "speech_text": "MacOSや Linux では Python 3 point 12 で環境を作成して,bin ディレクトリから起動します."
         },
         {
-          "narration": "必要な場合は,メインの設定領域で,pipをアップグレードして,デスクトップ,開発,またはオプションの科学追加が必要かどうかを決定します.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "必要な場合は,メインの設定領域で,pipをアップグレードして,デスクトップ,開発,またはオプションの科学追加が必要かどうかを決定します."
+          "narration": "Windows では Python ロンチャーを使用して環境を作成し,Scripts ディレクトリから起動します.",
+          "visual": "venv_windows",
+          "hold_after": 0.7,
+          "speech_text": "Windows では Python ロンチャーを使用して環境を作成し,Scripts ディレクトリから起動します."
         },
         {
-          "narration": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します."
+          "narration": "活発な環境でパイプをアップグレードする. パイトンパイプトーケンのコマンドは インストールが 起動した パイトンに 結びついています",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "活発な環境でパイプをアップグレードする. パイトンパイプトーケンのコマンドは インストールが 起動した パイトンに 結びついています"
         },
         {
-          "narration": "作業流が完了すると,同じインストールでデスクトップアプリを起動したり,作業ステーションやサーバーでスクリプトによる作業流を実行することができます.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "作業流が完了すると,同じインストールでデスクトップアプリを起動したり,作業ステーションやサーバーでスクリプトによる作業流を実行することができます."
+          "narration": "ヘッドレスの使用のための平凡な spacr パッケージをインストールするか,デスクトップインターフェースのための qt エクストラと spacr をインストールします.",
+          "visual": "install",
+          "hold_after": 0.7,
+          "speech_text": "ヘッドレスの使用のための平凡な スペーカー パッケージをインストールするか,デスクトップインターフェースのための qt エクストラと スペーカー をインストールします."
+        },
+        {
+          "narration": "輸入されたバージョンを確認し,spacr-doctorを実行します. 実験データを開く前に失敗したチェックを解決する.",
+          "visual": "verify",
+          "hold_after": 0.7,
+          "speech_text": "輸入されたバージョンを確認し,スペーカー-doctorを実行します. 実験データを開く前に失敗したチェックを解決する."
+        },
+        {
+          "narration": "環境は準備ができています spaCR を使用するたびに有効にして,意図的に更新する際に python -m pip install --upgrade spacr を使用してください.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "環境は準備ができています スペーカー を使用するたびに有効にして,意図的に更新する際に python -m pip install --upgrade スペーカー を使用してください."
         }
       ]
     },
@@ -172,47 +208,65 @@
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Platform installers",
+      "title": "プラットフォームインストーラ",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Python を手動で管理せずに Windows, macOS,または Linux に spaCR をインストールします.",
+      "description": "Python または Conda のインストールなしで Windows, macOS,または Linux に spaCR をインストールする.",
       "objectives": [
-        "プラットフォームインストーラを使用する時期を理解する",
-        "重要な入力と設定を設定する.",
-        "作業流を実行して,その出力を特定します."
+        "Windows, macOS,または Linux の正しいインストーラを選択してください.",
+        "プラットフォームのセキュリティと加速の選択を扱う.",
+        "設置が失敗すると診断をします"
       ],
-      "prerequisite": "PythonやCondaのインストールは必要ありません.",
+      "prerequisite": "公式GitHubリリースからオペレーティングシステムへのインストーラをダウンロードします.",
       "scenes": [
         {
-          "narration": "このチュートリアルでは,Pythonを手動管理せずにWindows,macOS,Linuxで spaCRをインストールします.",
+          "narration": "軽量ネイティブインストーラはプライベート パイthon3ポイント12の実行時間を作成し,Qt,PyTorch,spaCR,およびその科学的依存をダウンロードします.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "このチュートリアルでは,Pythonを手動管理せずにWindows,macOS,Linuxで スペーカーをインストールします."
+          "hold_after": 0.7,
+          "speech_text": "軽量ネイティブインストーラはプライベート パイthon3ポイント12の実行時間を作成し,Qt,PyTorch,スペーカー,およびその科学的依存をダウンロードします."
         },
         {
-          "narration": "spaCR セクションから Platform installers を開きます。 GitHub の現在のリリースからオペレーティングシステムへのインストーラをダウンロードする.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "スペーカー セクションから Platform installers を開きます。 GitHub の現在のリリースからオペレーティングシステムへのインストーラをダウンロードする."
+          "narration": "spaCR GitHub 最新版からインストールをダウンロードする ダウンロードを確認するために公開された SHA-256 ファイルを操作システムにマッチします.",
+          "visual": "release",
+          "hold_after": 0.7,
+          "speech_text": "スペーカー GitHub 最新版からインストールをダウンロードする ダウンロードを確認するために公開された SHA-256 ファイルを操作システムにマッチします."
         },
         {
-          "narration": "主な構成領域では,オペレーティングシステムのセキュリティプロンプト,プライベートランタイムロケーション,および要求された加速バックエンドをレビューする.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "主な構成領域では,オペレーティングシステムのセキュリティプロンプト,プライベートランタイムロケーション,および要求された加速バックエンドをレビューする."
+          "narration": "Windows 10 または 11 では,オンラインセットアップ実行式を開く. NVIDIA加速はオプションのインストーラコンポーネントである.",
+          "visual": "windows",
+          "hold_after": 0.7,
+          "speech_text": "Windows 10 または 11 では,オンラインセットアップ実行式を開く. NVIDIA加速はオプションのインストーラコンポーネントである."
         },
         {
-          "narration": "実行完了する前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.インストールが完了し,何か故障した場合のインストールログを保存できるようにしてください.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "実行完了する前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します.インストールが完了し,何か故障した場合のインストールログを保存できるようにしてください."
+          "narration": "MacOS 11 またはそれ以降では,インテルとアップルのシリコンのユニバーサルパッケージを開きます. もしゲートキーパーが公認されていないパケットを ブロックしたら プライバシーとセキュリティを 使いましょう",
+          "visual": "macos",
+          "hold_after": 0.7,
+          "speech_text": "MacOS 11 またはそれ以降では,インテルとアップルのシリコンのユニバーサルパッケージを開きます. もしゲートキーパーが公認されていないパケットを ブロックしたら プライバシーとセキュリティを 使いましょう"
         },
         {
-          "narration": "作業流が完了すると spaCR が独自の Python 実行時間を保持する間,ネイティブランチャーを使用します.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "作業流が完了すると スペーカー が独自の Python 実行時間を保持する間,ネイティブランチャーを使用します."
+          "narration": "64 ビット Linux で,ダウンロードした .run ファイルを実行可能にして,端末から起動します. デフォルトインストールではCPU対応のPyTorchを使用します.",
+          "visual": "linux",
+          "hold_after": 0.7,
+          "speech_text": "64 ビット Linux で,ダウンロードした .run ファイルを実行可能にして,端末から起動します. デフォルトインストールではCPU対応のPyTorchを使用します."
+        },
+        {
+          "narration": "Linux でサポートされている NVIDIA ハードウェアについては,--torch-backend auto をパスしてください. これは CUDA ライブラリを默認して使わずに,利用可能なときに加速を選択します.",
+          "visual": "linux_gpu",
+          "hold_after": 0.7,
+          "speech_text": "Linux でサポートされている NVIDIA ハードウェアについては,--torch-backend auto をパスしてください. これは CUDA ライブラリを默認して使わずに,利用可能なときに加速を選択します."
+        },
+        {
+          "narration": "各インストーラはバージョンを切り替える前に交換を検証する. 停止した更新は以前の環境を無傷にしており,install.logはプライベートなspaCRインストールディレクトリに残っています.",
+          "visual": "safety",
+          "hold_after": 0.7,
+          "speech_text": "各インストーラはバージョンを切り替える前に交換を検証する. 停止した更新は以前の環境を無傷にしており,install.logはプライベートなスペーカーインストールディレクトリに残っています."
+        },
+        {
+          "narration": "インストール後,オペレーティングシステムランチャーを使用します. パーソナル Python や Conda の設定は必要ありません.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "インストール後,オペレーティングシステムランチャーを使用します. パーソナル Python や Conda の設定は必要ありません."
         }
       ]
     },

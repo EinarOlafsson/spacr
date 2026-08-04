@@ -28,47 +28,59 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI and GitHub",
+      "title": "皮帕卡基顿,吉图布托肯和康达福格托肯",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "了解 spaCR 发布地点,源代码,安装器,问题,以及夜间分支的现场.",
+      "description": "选择包装版本,桌面安装器,开发分支或未来的conda-forge包的官方来源.",
       "objectives": [
-        "在PyPI和GitHub上找到 spaCR.",
-        "区分分分发放量与夜间分支.",
-        "查找安装器,发布说明和问题."
+        "确定官方PyPI包和GitHub存储库.",
+        "与nightly分支区分稳定释放.",
+        "了解目前 conda-forge 出版物状况."
       ],
-      "prerequisite": "没有任何安装要求进行这种方向.",
+      "prerequisite": "不需要安装.",
       "scenes": [
         {
-          "narration": "了解 spaCR 发布,源代码,安装器,问题以及夜间分支的现场.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "了解 斯佩克尔 发布,源代码,安装器,问题以及夜间分支的现场."
+          "narration": "在安装spaCR之前,请了解三个官方分销路线:PyPI用于发布的Python包,GitHub用于源代码和桌面安装器,以及conda-forge一旦其审查的包发布.",
+          "visual": "sources",
+          "hold_after": 0.7,
+          "speech_text": "在安装斯佩克尔之前,请了解三个官方分销路线:派皮用于发布的Python包,GitHub用于源代码和桌面安装器,以及conda-forge一旦其审查的包发布."
         },
         {
-          "narration": "从 spaCR 部分打开 PyPI and GitHub。 使用 PyPI 来处理当前的 Python 包,以及 GitHub 来源代码,发布和问题跟踪.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 斯佩克尔 部分打开 派皮 and GitHub。 使用 派皮 来处理当前的 Python 包,以及 GitHub 来源代码,发布和问题跟踪."
+          "narration": "在 PyPI 的 spaCR 页面上显示了当前的稳定版本和命令 pip install spacr. 释放文件包括Python轮子和源档案.",
+          "visual": "pypi_release",
+          "hold_after": 0.7,
+          "speech_text": "在 派皮 的 斯佩克尔 页面上显示了当前的稳定版本和命令 pip install 斯佩克尔. 释放文件包括Python轮子和源档案."
         },
         {
-          "narration": "在主要配置区域中,将稳定包装版本与夜间开发分支进行比较,然后选择适合您的工作的分支.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,将稳定包装版本与夜间开发分支进行比较,然后选择适合您的工作的分支."
+          "narration": "PyPI还链接到文档,源存储库和问题追踪器. 在更改现有环境之前,请检查所需的Python版本和发布日期.",
+          "visual": "pypi_links",
+          "hold_after": 0.7,
+          "speech_text": "派皮还链接到文档,源存储库和问题追踪器. 在更改现有环境之前,请检查所需的Python版本和发布日期."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在安装之前打开发布说明,以便版本和平台要求清晰.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在安装之前打开发布说明,以便版本和平台要求清晰."
+          "narration": "在 GitHub 上，main 是已发布的源代码分支，nightly 包含仍在测试中的较新更改。仅当您明确需要尚未发布的更改时，才使用 nightly。",
+          "visual": "github_repo",
+          "hold_after": 0.7,
+          "speech_text": "在 GitHub 上，main 是已发布的源代码分支，nightly 包含仍在测试中的较新更改。仅当您明确需要尚未发布的更改时，才使用 nightly。"
         },
         {
-          "narration": "当工作流程完成时,你将知道在哪里安装 spaCR,检查变化,并报告可复制的问题.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,你将知道在哪里安装 斯佩克尔,检查变化,并报告可复制的问题."
+          "narration": "GitHub Releases提供了Windows,macOS和Linux安装器,发布说明,Python包文件和SHA-256检查总数.",
+          "visual": "github_release",
+          "hold_after": 0.7,
+          "speech_text": "GitHub Releases提供了Windows,macOS和Linux安装器,发布说明,Python包文件和SHA-256检查总数."
+        },
+        {
+          "narration": "在存储库中准备 conda-forge 配方,但目前还没有在 conda-forge 道上发布任何 spaCR 包装. 现在,创建一个Conda环境,并安装PyPI的spaCR.",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "在存储库中准备 conda-forge 配方,但目前还没有在 conda-forge 道上发布任何 斯佩克尔 包装. 现在,创建一个Conda环境,并安装派皮的斯佩克尔."
+        },
+        {
+          "narration": "使用PyPI或pip用于Python环境,GitHub Releases用于本地安装器,nightly分支仅用于开发. 下面的教程展示了每个安装路线,而不需要启动应用程序.",
+          "visual": "decision",
+          "hold_after": 0.7,
+          "speech_text": "使用派皮或pip用于Python环境,GitHub Releases用于本地安装器,nightly分支仅用于开发. 下面的教程展示了每个安装路线,而不需要启动应用程序."
         }
       ]
     },
@@ -76,47 +88,59 @@
       "id": "02_conda_install",
       "number": 2,
       "slug": "conda_install",
-      "title": "Installation with Conda",
+      "title": "使用Conda安装",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "创建一个孤立的Python环境,并安装 spaCR,而不需要改变其余的系统.",
+      "description": "创建一个孤立的Python 3.12环境并安装桌面或无头包.",
       "objectives": [
-        "了解什么时候使用安装与康达.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "创建和验证一个孤立的spaCR环境.",
+        "选择桌面或无头安装.",
+        "在启动spaCR之前验证安装."
       ],
-      "prerequisite": "安装一个兼容Conda的环境管理器.",
+      "prerequisite": "安装Miniforge,Miniconda,Anaconda或其他与Conda兼容的管理器.",
       "scenes": [
         {
-          "narration": "创建一个孤立的Python环境,并安装 spaCR而不需要改变其余的系统.",
+          "narration": "康达环境使spaCR及其科学依赖部门与无关项目保持分开. 目前,Python三点十二提供了最广泛的可选包兼容性.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "创建一个孤立的Python环境,并安装 斯佩克尔而不需要改变其余的系统."
+          "hold_after": 0.7,
+          "speech_text": "康达环境使斯佩克尔及其科学依赖部门与无关项目保持分开. 目前,Python三点十二提供了最广泛的可选包兼容性."
         },
         {
-          "narration": "从 spaCR 部分打开 Installation with Conda。 安装Miniconda,Anaconda或其他与Conda 兼容的管理器,然后创建一个 Python 三点十二的环境.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 斯佩克尔 部分打开 Installation with Conda。 安装Miniconda,Anaconda或其他与Conda 兼容的管理器,然后创建一个 Python 三点十二的环境."
+          "narration": "打开一个支持Conda的终端,并创建一个名为 spacr的环境,",
+          "visual": "create",
+          "hold_after": 0.7,
+          "speech_text": "打开一个支持Conda的终端,并创建一个名为 斯佩克尔的环境,"
         },
         {
-          "narration": "在主配置区域中,激活环境并确认其Python和Pip执行可用于该环境.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主配置区域中,激活环境并确认其Python和Pip执行可用于该环境."
+          "narration": "激活环境. 在安装任何东西之前,请确认Python属于spacr环境.",
+          "visual": "activate",
+          "hold_after": 0.7,
+          "speech_text": "激活环境. 在安装任何东西之前,请确认Python属于斯佩克尔环境."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 安装在活跃环境中使用的管道 spaCR; 快速发布的conda-forge包.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 安装在活跃环境中使用的管道 斯佩克尔; 快速发布的conda-forge包."
+          "narration": "通过活跃的Python解释器升级Pip. 使用python -m pip防止其他管执行器接收包裹.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "通过活跃的Python解释器升级Pip. 使用python -m pip防止其他管执行器接收包裹."
         },
         {
-          "narration": "当工作流程完成时,从同一个环境中启动spaCR,并将其与无关项目隔离.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,从同一个环境中启动斯佩克尔,并将其与无关项目隔离."
+          "narration": "对于桌面应用程序,安装 spacr 与qt额外. 使用无头工作站或服务器的平坦空间包.",
+          "visual": "desktop",
+          "hold_after": 0.7,
+          "speech_text": "对于桌面应用程序,安装 斯佩克尔 与qt额外. 使用无头工作站或服务器的平坦空间包."
+        },
+        {
+          "narration": "首次启动前请运行 spaCR-doctor。诊断工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每个失败的检查提供修复建议。",
+          "visual": "doctor",
+          "hold_after": 0.7,
+          "speech_text": "首次启动前请运行 斯佩克尔-doctor。诊断工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每个失败的检查提供修复建议。"
+        },
+        {
+          "narration": "conda-forge 软件包尚未发布，因此目前不要运行 conda install -c conda-forge spacr。软件包发布后，spaCR 仓库将提供官方配方和频道的链接。",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "conda-forge 软件包尚未发布，因此目前不要运行 conda install -c conda-forge 斯佩克尔。软件包发布后，斯佩克尔 仓库将提供官方配方和频道的链接。"
         }
       ]
     },
@@ -124,47 +148,59 @@
       "id": "03_pip_install",
       "number": 3,
       "slug": "pip_install",
-      "title": "Installation with pip",
+      "title": "采用 pip 的安装",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "安装 spaCR 在现有的孤立的 Python 环境中用于桌面或无头使用.",
+      "description": "在没有使用Conda的情况下安装spaCR在标准的虚拟环境中.",
       "objectives": [
-        "了解何时使用Pip安装.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "在每个支持的操作系统上创建虚拟环境.",
+        "安装正确的spaCR包装变体.",
+        "在启动应用程序之前检查环境."
       ],
-      "prerequisite": "创建或激活一个孤立的Python环境.",
+      "prerequisite": "安装支持的Python版本;建议安装Python 3.12.",
       "scenes": [
         {
-          "narration": "通过Pip安装,在现有的孤立Python环境中安装 spaCR,用于桌面或无头使用.",
+          "narration": "在Windows,macOS和Linux上运行了 pip路线. 始终使用孤立的虚拟环境,而不是修改操作系统的Python安装.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "通过Pip安装,在现有的孤立Python环境中安装 斯佩克尔,用于桌面或无头使用."
+          "hold_after": 0.7,
+          "speech_text": "在Windows,macOS和Linux上运行了 pip路线. 始终使用孤立的虚拟环境,而不是修改操作系统的Python安装."
         },
         {
-          "narration": "从 spaCR 部分打开 Installation with pip。 确认环境使用支持的 Python 版本; Python 三点十二是建议的.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 斯佩克尔 部分打开 Installation with pip。 确认环境使用支持的 Python 版本; Python 三点十二是建议的."
+          "narration": "在macOS或Linux上,使用Python3 point12创建环境,然后从其垃圾桶目录中激活它.",
+          "visual": "venv_posix",
+          "hold_after": 0.7,
+          "speech_text": "在macOS或Linux上,使用Python3 point12创建环境,然后从其垃圾桶目录中激活它."
         },
         {
-          "narration": "在主要配置区域,如果需要,升级 pip,然后决定是否需要桌面,开发或可选的科学附加工具.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域,如果需要,升级 pip,然后决定是否需要桌面,开发或可选的科学附加工具."
+          "narration": "在Windows上,使用Python启动器创建环境并从Scripts目录中激活它.",
+          "visual": "venv_windows",
+          "hold_after": 0.7,
+          "speech_text": "在Windows上,使用Python启动器创建环境并从Scripts目录中激活它."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 运行 pip安装 spaCR,然后在开始实验之前验证命令和Python进口.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 运行 pip安装 斯佩克尔,然后在开始实验之前验证命令和Python进口."
+          "narration": "在活跃环境中升级 pip. 命令python -m pip将安装绑定到你刚刚激活的Python.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "在活跃环境中升级 pip. 命令python -m pip将安装绑定到你刚刚激活的Python."
         },
         {
-          "narration": "当工作流程完成时,同一个安装可以启动桌面应用程序或在工作站或服务器上运行脚本工作流程.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,同一个安装可以启动桌面应用程序或在工作站或服务器上运行脚本工作流程."
+          "narration": "安装无头使用的平面 spacr 包,或者为桌面接口安装的 qt 额外的 spacr.",
+          "visual": "install",
+          "hold_after": 0.7,
+          "speech_text": "安装无头使用的平面 斯佩克尔 包,或者为桌面接口安装的 qt 额外的 斯佩克尔."
+        },
+        {
+          "narration": "检查进口版本,然后运行spacr-doctor. 在开启实验数据之前,解决任何失败的检查.",
+          "visual": "verify",
+          "hold_after": 0.7,
+          "speech_text": "检查进口版本,然后运行斯佩克尔-doctor. 在开启实验数据之前,解决任何失败的检查."
+        },
+        {
+          "narration": "环境现在已经准备好了. 每当使用spaCR时,保持其激活,并在故意更新时使用python -m pip install --upgrade spacr.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "环境现在已经准备好了. 每当使用斯佩克尔时,保持其激活,并在故意更新时使用python -m pip install --upgrade 斯佩克尔."
         }
       ]
     },
@@ -172,47 +208,65 @@
       "id": "04_platform_installers",
       "number": 4,
       "slug": "platform_installers",
-      "title": "Platform installers",
+      "title": "平台安装器",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "在Windows,macOS或Linux上安装 spaCR,而不需要手动管理Python.",
+      "description": "在Windows,macOS或Linux上安装spaCR,没有现有的Python或Conda安装.",
       "objectives": [
-        "了解何时使用平台安装器.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "选择Windows,macOS或Linux的正确安装器.",
+        "处理平台安全和加速选择.",
+        "如果安装失败,请检查诊断."
       ],
-      "prerequisite": "没有需要现有的Python或Conda安装.",
+      "prerequisite": "在官方GitHub版本中下载操作系统安装器.",
       "scenes": [
         {
-          "narration": "通过使用Python,在Windows,macOS或Linux上安装 spaCR.",
+          "narration": "轻量级的本土安装器创建了一个私人Python三点十二运行时间,然后下载Qt,PyTorch,spaCR及其科学依赖.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "通过使用Python,在Windows,macOS或Linux上安装 斯佩克尔."
+          "hold_after": 0.7,
+          "speech_text": "轻量级的本土安装器创建了一个私人Python三点十二运行时间,然后下载Qt,PyTorch,斯佩克尔及其科学依赖."
         },
         {
-          "narration": "从 spaCR 部分打开 Platform installers。 从 GitHub 的当前版本下载操作系统安装器.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 斯佩克尔 部分打开 Platform installers。 从 GitHub 的当前版本下载操作系统安装器."
+          "narration": "仅从最新的spaCR GitHub版本下载安装器. 当您需要验证下载时,将文件与操作系统匹配,并使用已发布的SHA-256文件.",
+          "visual": "release",
+          "hold_after": 0.7,
+          "speech_text": "仅从最新的斯佩克尔 GitHub版本下载安装器. 当您需要验证下载时,将文件与操作系统匹配,并使用已发布的SHA-256文件."
         },
         {
-          "narration": "在主配置区域,检查操作系统安全提示,私人运行时间位置和要求的加速后端.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主配置区域,检查操作系统安全提示,私人运行时间位置和要求的加速后端."
+          "narration": "在Windows 10或11上,打开在线设置可执行的. 移动CPU安装是默认的;NVIDIA加速是可选的安装组件.",
+          "visual": "windows",
+          "hold_after": 0.7,
+          "speech_text": "在Windows 10或11上,打开在线设置可执行的. 移动CPU安装是默认的;NVIDIA加速是可选的安装组件."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 如果有任何故障,请允许安装器完成并保存安装日志.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 如果有任何故障,请允许安装器完成并保存安装日志."
+          "narration": "在 macOS 11 或更新版本上,打开英特尔和果的通用包. 如果Gatekeeper封锁了未经公证的包裹,请使用隐私和安全,打开,然后再运行它.",
+          "visual": "macos",
+          "hold_after": 0.7,
+          "speech_text": "在 macOS 11 或更新版本上,打开英特尔和果的通用包. 如果Gatekeeper封锁了未经公证的包裹,请使用隐私和安全,打开,然后再运行它."
         },
         {
-          "narration": "当工作流程完成时,使用本地发射器,而 spaCR 保持其自己的管理 Python 运行时间.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,使用本地发射器,而 斯佩克尔 保持其自己的管理 Python 运行时间."
+          "narration": "在64位Linux上,使下载的 .run文件可执行,然后从终端启动. 默认安装使用与CPU兼容的PyTorch.",
+          "visual": "linux",
+          "hold_after": 0.7,
+          "speech_text": "在64位Linux上,使下载的 .run文件可执行,然后从终端启动. 默认安装使用与CPU兼容的PyTorch."
+        },
+        {
+          "narration": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend auto. 这将在可用时选择加速,而不会使CUDA图书馆默认默认.",
+          "visual": "linux_gpu",
+          "hold_after": 0.7,
+          "speech_text": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend auto. 这将在可用时选择加速,而不会使CUDA图书馆默认默认."
+        },
+        {
+          "narration": "每个安装器在更换版本之前验证了更换. 一个中断的更新使之前的环境保持完整,并且install.log仍然存在于私人spaCR安装目录中.",
+          "visual": "safety",
+          "hold_after": 0.7,
+          "speech_text": "每个安装器在更换版本之前验证了更换. 一个中断的更新使之前的环境保持完整,并且install.log仍然存在于私人斯佩克尔安装目录中."
+        },
+        {
+          "narration": "在安装后,使用操作系统发射器. 不需要单独的Python或Conda设置.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "在安装后,使用操作系统发射器. 不需要单独的Python或Conda设置."
         }
       ]
     },

@@ -28,53 +28,74 @@
       "id": "01_pypi_github",
       "number": 1,
       "slug": "pypi_github",
-      "title": "PyPI and GitHub",
+      "title": "PyPI, GitHub, and conda-forge",
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Learn where spaCR releases, source code, installers, issues, and the nightly branch live.",
+      "description": "Choose the official source for a packaged release, desktop installer, development branch, or future conda-forge package.",
       "objectives": [
-        "Find spaCR on PyPI and GitHub.",
-        "Distinguish releases from the nightly branch.",
-        "Locate installers, release notes, and issues."
+        "Identify the official PyPI package and GitHub repository.",
+        "Distinguish stable releases from the nightly branch.",
+        "Understand the current conda-forge publication status."
       ],
-      "prerequisite": "No installation is required for this orientation.",
+      "prerequisite": "No installation is required.",
       "scenes": [
         {
-          "narration": "This tutorial covers PyPI and GitHub. Learn where spaCR releases, source code, installers, issues, and the nightly branch live.",
-          "visual": "overview",
-          "hold_after": 0.45,
+          "narration": "Before installing spaCR, know the three official distribution routes: PyPI for the released Python package, GitHub for source code and desktop installers, and conda-forge once its reviewed package is published.",
+          "visual": "sources",
+          "hold_after": 0.7,
+          "speech_text": "Before installing spacer, know the three official distribution routes: pie pee for the released Python package, GitHub for source code and desktop installers, and conda-forge once its reviewed package is published.",
           "shorten_spoken_words": {
-            "pype": 0.055
-          },
-          "speech_text": "This tutorial covers PyPe and GitHub. Learn where spaCR releases, source code, installers, issues, and the nightly branch live."
+            "pee": 0.075
+          }
         },
         {
-          "narration": "Open PyPI and GitHub from the spaCR section. Use PyPI for the current Python package and GitHub for source code, releases, and issue tracking.",
-          "visual": "input",
-          "hold_after": 0.45,
+          "narration": "The spaCR page on PyPI shows the current stable release and the command pip install spacr. Release files include a Python wheel and a source archive.",
+          "visual": "pypi_release",
+          "hold_after": 0.7,
+          "speech_text": "The spacer page on pie pee shows the current stable release and the command pip install spacer. Release files include a Python wheel and a source archive.",
           "shorten_spoken_words": {
-            "pype": 0.055
-          },
-          "speech_text": "Open PyPe and GitHub from the spaCR section. Use PyPe for the current Python package and GitHub for source code, releases, and issue tracking."
+            "pee": 0.075
+          }
         },
         {
-          "narration": "In the main configuration area, compare the stable packaged release with the nightly development branch and choose the one appropriate for your work.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, compare the stable packaged release with the nightly development branch and choose the one appropriate for your work."
+          "narration": "PyPI also links to the documentation, source repository, and issue tracker. Check the required Python versions and release date before changing an existing environment.",
+          "visual": "pypi_links",
+          "hold_after": 0.7,
+          "speech_text": "pie pee also links to the documentation, source repository, and issue tracker. Check the required Python versions and release date before changing an existing environment.",
+          "shorten_spoken_words": {
+            "pee": 0.075
+          }
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. Open the release notes before installing so that version and platform requirements are clear.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Open the release notes before installing so that version and platform requirements are clear."
+          "narration": "On GitHub, main is the released source line and nightly contains newer work still being tested. Use nightly only when you specifically need an unreleased change.",
+          "visual": "github_repo",
+          "hold_after": 0.7,
+          "speech_text": "On GitHub, main is the released source line and nightly contains newer work still being tested. Use nightly only when you specifically need an unreleased change."
         },
         {
-          "narration": "When the workflow finishes, you will know where to install spaCR, inspect changes, and report a reproducible problem.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, you will know where to install spaCR, inspect changes, and report a reproducible problem."
+          "narration": "GitHub Releases provides the Windows, macOS, and Linux installers, release notes, Python package files, and SHA-256 checksums.",
+          "visual": "github_release",
+          "hold_after": 0.7,
+          "speech_text": "GitHub Releases provides the Windows, macOS, and Linux installers, release notes, Python package files, and S H A two fifty six checksums."
+        },
+        {
+          "narration": "The conda-forge recipe is prepared in the repository, but no spaCR package is published on the conda-forge channel yet. For now, create a Conda environment and install spaCR from PyPI inside it.",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "The conda-forge recipe is prepared in the repository, but no spacer package is published on the conda-forge channel yet. For now, create a Conda environment and install spacer from pie pee inside it.",
+          "shorten_spoken_words": {
+            "pee": 0.075
+          }
+        },
+        {
+          "narration": "Use PyPI or pip for a Python environment, GitHub Releases for a native installer, and the nightly branch only for development. The next tutorials demonstrate each installation route without launching the application.",
+          "visual": "decision",
+          "hold_after": 0.7,
+          "speech_text": "Use pie pee or pip for a Python environment, GitHub Releases for a native installer, and the nightly branch only for development. The next tutorials demonstrate each installation route without launching the application.",
+          "shorten_spoken_words": {
+            "pee": 0.075
+          }
         }
       ]
     },
@@ -86,43 +107,55 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Create an isolated Python environment and install spaCR without changing the rest of your system.",
+      "description": "Create an isolated Python 3.12 environment and install the desktop or headless package into it.",
       "objectives": [
-        "Understand when to use Installation with Conda.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Create and verify an isolated spaCR environment.",
+        "Choose the desktop or headless installation.",
+        "Validate the installation before launching spaCR."
       ],
-      "prerequisite": "Install a Conda-compatible environment manager.",
+      "prerequisite": "Install Miniforge, Miniconda, Anaconda, or another Conda-compatible manager.",
       "scenes": [
         {
-          "narration": "This tutorial covers Installation with Conda. Create an isolated Python environment and install spaCR without changing the rest of your system.",
+          "narration": "A Conda environment keeps spaCR and its scientific dependencies separate from unrelated projects. Python three point twelve currently offers the broadest optional-package compatibility.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Installation with Conda. Create an isolated Python environment and install spaCR without changing the rest of your system."
+          "hold_after": 0.7,
+          "speech_text": "A Conda environment keeps spacer and its scientific dependencies separate from unrelated projects. Python three point twelve currently offers the broadest optional-package compatibility."
         },
         {
-          "narration": "Open Installation with Conda from the spaCR section. Install Miniconda, Anaconda, or another Conda-compatible manager, then create an environment with Python three point twelve.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Installation with Conda from the spaCR section. Install Miniconda, Anaconda, or another Conda-compatible manager, then create an environment with Python three point twelve."
+          "narration": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve and pip.",
+          "visual": "create",
+          "hold_after": 0.7,
+          "speech_text": "Open a Conda-enabled terminal and create an environment named spacer with Python three point twelve and pip."
         },
         {
-          "narration": "In the main configuration area, activate the environment and confirm that its Python and pip executables belong to that environment.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, activate the environment and confirm that its Python and pip executables belong to that environment."
+          "narration": "Activate the environment. Confirm that Python belongs to the spacr environment before installing anything.",
+          "visual": "activate",
+          "hold_after": 0.7,
+          "speech_text": "Activate the environment. Confirm that Python belongs to the spacer environment before installing anything."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. Install spaCR with pip inside the active environment; the conda-forge package is still coming soon.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Install spaCR with pip inside the active environment; the conda-forge package is still coming soon."
+          "narration": "Upgrade pip through the active Python interpreter. Using python -m pip prevents a different pip executable from receiving the package.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "Upgrade pip through the active Python interpreter. Using python dash m pip prevents a different pip executable from receiving the package."
         },
         {
-          "narration": "When the workflow finishes, launch spaCR from the same environment and keep it isolated from unrelated projects.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, launch spaCR from the same environment and keep it isolated from unrelated projects."
+          "narration": "For the desktop application, install spacr with the qt extra. Use the plain spacr package for a headless workstation or server.",
+          "visual": "desktop",
+          "hold_after": 0.7,
+          "speech_text": "For the desktop application, install spacer with the qt extra. Use the plain spacer package for a headless workstation or server."
+        },
+        {
+          "narration": "Run spacr-doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check.",
+          "visual": "doctor",
+          "hold_after": 0.7,
+          "speech_text": "Run spacer doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check."
+        },
+        {
+          "narration": "The conda-forge package is not published yet, so do not run conda install -c conda-forge spacr today. When it becomes available, the official recipe and channel will be linked from the spaCR repository.",
+          "visual": "conda_status",
+          "hold_after": 0.7,
+          "speech_text": "The conda-forge package is not published yet, so do not run conda install -c conda-forge spacer today. When it becomes available, the official recipe and channel will be linked from the spacer repository."
         }
       ]
     },
@@ -134,43 +167,55 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Install spaCR in an existing isolated Python environment for desktop or headless use.",
+      "description": "Install spaCR into a standard virtual environment without using Conda.",
       "objectives": [
-        "Understand when to use Installation with pip.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Create a virtual environment on each supported operating system.",
+        "Install the correct spaCR package variant.",
+        "Verify the environment before launching the application."
       ],
-      "prerequisite": "Create or activate an isolated Python environment.",
+      "prerequisite": "Install a supported Python version; Python 3.12 is recommended.",
       "scenes": [
         {
-          "narration": "This tutorial covers Installation with pip. Install spaCR in an existing isolated Python environment for desktop or headless use.",
+          "narration": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Installation with pip. Install spaCR in an existing isolated Python environment for desktop or headless use."
+          "hold_after": 0.7,
+          "speech_text": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation."
         },
         {
-          "narration": "Open Installation with pip from the spaCR section. Confirm that the environment uses a supported Python version; Python three point twelve is recommended.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Installation with pip from the spaCR section. Confirm that the environment uses a supported Python version; Python three point twelve is recommended."
+          "narration": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory.",
+          "visual": "venv_posix",
+          "hold_after": 0.7,
+          "speech_text": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory."
         },
         {
-          "narration": "In the main configuration area, upgrade pip if needed and decide whether you need the desktop, development, or optional scientific extras.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, upgrade pip if needed and decide whether you need the desktop, development, or optional scientific extras."
+          "narration": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory.",
+          "visual": "venv_windows",
+          "hold_after": 0.7,
+          "speech_text": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. Run pip install spaCR, then verify the command and Python import before starting an experiment.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Run pip install spaCR, then verify the command and Python import before starting an experiment."
+          "narration": "Upgrade pip in the active environment. The command python -m pip keeps installation tied to the Python you just activated.",
+          "visual": "upgrade",
+          "hold_after": 0.7,
+          "speech_text": "Upgrade pip in the active environment. The command python dash m pip keeps installation tied to the Python you just activated."
         },
         {
-          "narration": "When the workflow finishes, the same installation can launch the desktop app or run scripted workflows on a workstation or server.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the same installation can launch the desktop app or run scripted workflows on a workstation or server."
+          "narration": "Install the plain spacr package for headless use, or spacr with the qt extra for the desktop interface.",
+          "visual": "install",
+          "hold_after": 0.7,
+          "speech_text": "Install the plain spacer package for headless use, or spacer with the qt extra for the desktop interface."
+        },
+        {
+          "narration": "Verify the imported version and run spacr-doctor. Resolve any failed checks before opening experimental data.",
+          "visual": "verify",
+          "hold_after": 0.7,
+          "speech_text": "Verify the imported version and run spacer doctor. Resolve any failed checks before opening experimental data."
+        },
+        {
+          "narration": "The environment is now ready. Keep it activated whenever you use spaCR, and use python -m pip install --upgrade spacr when you intentionally update it.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "The environment is now ready. Keep it activated whenever you use spacer, and use python dash m pip install dash dash upgrade spacer when you intentionally update it."
         }
       ]
     },
@@ -182,43 +227,61 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Install spaCR on Windows, macOS, or Linux without managing Python manually.",
+      "description": "Install spaCR on Windows, macOS, or Linux without an existing Python or Conda installation.",
       "objectives": [
-        "Understand when to use Platform installers.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Select the correct installer for Windows, macOS, or Linux.",
+        "Handle platform security and acceleration choices.",
+        "Locate diagnostics if installation fails."
       ],
-      "prerequisite": "No existing Python or Conda installation is required.",
+      "prerequisite": "Download the installer for your operating system from the official GitHub release.",
       "scenes": [
         {
-          "narration": "This tutorial covers Platform installers. Install spaCR on Windows, macOS, or Linux without managing Python manually.",
+          "narration": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its scientific dependencies.",
           "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Platform installers. Install spaCR on Windows, macOS, or Linux without managing Python manually."
+          "hold_after": 0.7,
+          "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spacer, and its scientific dependencies."
         },
         {
-          "narration": "Open Platform installers from the spaCR section. Download the installer for your operating system from the current GitHub release.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Platform installers from the spaCR section. Download the installer for your operating system from the current GitHub release."
+          "narration": "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+          "visual": "release",
+          "hold_after": 0.7,
+          "speech_text": "Download installers only from the latest spacer GitHub Release. Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download."
         },
         {
-          "narration": "In the main configuration area, review operating-system security prompts, the private runtime location, and the requested acceleration backend.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, review operating-system security prompts, the private runtime location, and the requested acceleration backend."
+          "narration": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
+          "visual": "windows",
+          "hold_after": 0.7,
+          "speech_text": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. Allow the installer to finish and preserve its install log if anything fails.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Allow the installer to finish and preserve its install log if anything fails."
+          "narration": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+          "visual": "macos",
+          "hold_after": 0.7,
+          "speech_text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again."
         },
         {
-          "narration": "When the workflow finishes, use the native launcher while spaCR keeps its own managed Python runtime.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, use the native launcher while spaCR keeps its own managed Python runtime."
+          "narration": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
+          "visual": "linux",
+          "hold_after": 0.7,
+          "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch."
+        },
+        {
+          "narration": "For supported NVIDIA hardware on Linux, pass --torch-backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
+          "visual": "linux_gpu",
+          "hold_after": 0.7,
+          "speech_text": "For supported NVIDIA hardware on Linux, pass dash dash torch backend auto. This selects acceleration when available without making CUDA libraries the silent default."
+        },
+        {
+          "narration": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+          "visual": "safety",
+          "hold_after": 0.7,
+          "speech_text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory."
+        },
+        {
+          "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+          "visual": "finish",
+          "hold_after": 0.7,
+          "speech_text": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
         }
       ]
     },
@@ -248,7 +311,7 @@
           "narration": "Open Home screen and navigation from the Home section. Launch the spaCR desktop application and begin on Home.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "Open Home screen and navigation from the Home section. Launch the spaCR desktop application and begin on Home."
+          "speech_text": "Open Home screen and navigation from the Home section. Launch the spacer desktop application and begin on Home."
         },
         {
           "narration": "In the main configuration area, use the sidebar, category tabs, searchable app tiles, and command palette to reach a workflow.",
@@ -290,13 +353,13 @@
           "narration": "This tutorial covers Python API and headless workflows. Run reproducible spaCR pipelines from Python or a shell without the desktop interface.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Python API and headless workflows. Run reproducible spaCR pipelines from Python or a shell without the desktop interface."
+          "speech_text": "This tutorial covers Python API and headless workflows. Run reproducible spacer pipelines from Python or a shell without the desktop interface."
         },
         {
           "narration": "Open Python API and headless workflows from the spaCR section. Start from settings exported by the desktop app or construct a validated settings dictionary in Python.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "Open Python API and headless workflows from the spaCR section. Start from settings exported by the desktop app or construct a validated settings dictionary in Python."
+          "speech_text": "Open Python API and headless workflows from the spacer section. Start from settings exported by the desktop app or construct a validated settings dictionary in Python."
         },
         {
           "narration": "In the main configuration area, select the pipeline entry point, source path, output path, worker count, and hardware options.",
@@ -506,7 +569,7 @@
           "narration": "When the workflow finishes, spaCR saves the model, metrics, predictions, class examples, and run metadata for later application.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR saves the model, metrics, predictions, class examples, and run metadata for later application."
+          "speech_text": "When the workflow finishes, spacer saves the model, metrics, predictions, class examples, and run metadata for later application."
         }
       ]
     },
@@ -650,7 +713,7 @@
           "narration": "When the workflow finishes, spaCR writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures."
+          "speech_text": "When the workflow finishes, spacer writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures."
         }
       ]
     },
@@ -746,7 +809,7 @@
           "narration": "When the workflow finishes, spaCR saves coordinates, cluster labels, image maps, and publication-ready embedding figures.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR saves coordinates, cluster labels, image maps, and publication-ready embedding figures."
+          "speech_text": "When the workflow finishes, spacer saves coordinates, cluster labels, image maps, and publication-ready embedding figures."
         }
       ]
     },
@@ -890,7 +953,7 @@
           "narration": "When the workflow finishes, spaCR writes per-track and per-condition motility tables, quality metrics, and figures.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR writes per-track and per-condition motility tables, quality metrics, and figures."
+          "speech_text": "When the workflow finishes, spacer writes per-track and per-condition motility tables, quality metrics, and figures."
         }
       ]
     },
@@ -1178,7 +1241,7 @@
           "narration": "When the workflow finishes, spaCR reports plaque counts, areas, summaries, statistics, and quality-control figures.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR reports plaque counts, areas, summaries, statistics, and quality-control figures."
+          "speech_text": "When the workflow finishes, spacer reports plaque counts, areas, summaries, statistics, and quality-control figures."
         }
       ]
     },
@@ -1274,7 +1337,7 @@
           "narration": "When the workflow finishes, spaCR reports counts and invasion efficiency per well and condition with quality-control images.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR reports counts and invasion efficiency per well and condition with quality-control images."
+          "speech_text": "When the workflow finishes, spacer reports counts and invasion efficiency per well and condition with quality-control images."
         }
       ]
     },
@@ -1400,7 +1463,7 @@
           "narration": "Open Report from the Results and quality control section. Choose a completed spaCR project and the runs, tables, figures, and sections to include.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "Open Report from the Results and quality control section. Choose a completed spaCR project and the runs, tables, figures, and sections to include."
+          "speech_text": "Open Report from the Results and quality control section. Choose a completed spacer project and the runs, tables, figures, and sections to include."
         },
         {
           "narration": "In the main configuration area, configure title, authorship, condition labels, quality thresholds, output format, and privacy-sensitive fields.",
@@ -1490,7 +1553,7 @@
           "narration": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spaCR project.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spaCR project."
+          "speech_text": "This tutorial covers External Masks. Turn third-party label masks and source images into a measured, traceable spacer project."
         },
         {
           "narration": "Open External Masks from the Data and batch runs section. Provide source images, external masks, naming rules, object types, and optional measurement tables.",
@@ -1514,7 +1577,7 @@
           "narration": "When the workflow finishes, spaCR stores normalized masks, mapped images, measurements, and provenance ready for annotation.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR stores normalized masks, mapped images, measurements, and provenance ready for annotation."
+          "speech_text": "When the workflow finishes, spacer stores normalized masks, mapped images, measurements, and provenance ready for annotation."
         }
       ]
     },
@@ -1640,7 +1703,7 @@
           "narration": "Open Database Browser from the Data and batch runs section. Open a spaCR SQLite database and select a table or saved query.",
           "visual": "input",
           "hold_after": 0.45,
-          "speech_text": "Open Database Browser from the Data and batch runs section. Open a spaCR SQLite database and select a table or saved query."
+          "speech_text": "Open Database Browser from the Data and batch runs section. Open a spacer SQLite database and select a table or saved query."
         },
         {
           "narration": "In the main configuration area, configure columns, filters, sorting, row limits, joins, and safe read-only or editable behavior.",
@@ -1706,7 +1769,7 @@
           "narration": "When the workflow finishes, spaCR writes standardized TIFFs and a map back to the original files and metadata.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR writes standardized TIFFs and a map back to the original files and metadata."
+          "speech_text": "When the workflow finishes, spacer writes standardized TIFFs and a map back to the original files and metadata."
         }
       ]
     },
@@ -1730,7 +1793,7 @@
           "narration": "This tutorial covers Import Project. Bring another laboratory's images, masks, and measurement table into a spaCR project.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Import Project. Bring another laboratory's images, masks, and measurement table into a spaCR project."
+          "speech_text": "This tutorial covers Import Project. Bring another laboratory's images, masks, and measurement table into a spacer project."
         },
         {
           "narration": "Open Import Project from the Data and batch runs section. Provide images, optional masks, a measurement table, and stable external identifiers.",
@@ -1742,7 +1805,7 @@
           "narration": "In the main configuration area, map foreign columns onto spaCR identifiers, channels, object types, plate metadata, and provenance fields.",
           "visual": "settings",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, map foreign columns onto spaCR identifiers, channels, object types, plate metadata, and provenance fields."
+          "speech_text": "In the main configuration area, map foreign columns onto spacer identifiers, channels, object types, plate metadata, and provenance fields."
         },
         {
           "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate joins, missing values, image-mask alignment, and duplicate identifiers before import.",
@@ -1826,7 +1889,7 @@
           "narration": "This tutorial covers Distributed Jobs. Submit and monitor spaCR work on SSH workstations, Slurm clusters, or cloud and HPC commands.",
           "visual": "overview",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Distributed Jobs. Submit and monitor spaCR work on SSH workstations, Slurm clusters, or cloud and HPC commands."
+          "speech_text": "This tutorial covers Distributed Jobs. Submit and monitor spacer work on SSH workstations, Slurm clusters, or cloud and HPC commands."
         },
         {
           "narration": "Open Distributed Jobs from the Data and batch runs section. Configure a remote profile, connection method, working directory, environment, and data paths.",
@@ -1898,7 +1961,7 @@
           "narration": "When the workflow finishes, spaCR produces discrimination, calibration, confusion, leakage, and robustness reports.",
           "visual": "output",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spaCR produces discrimination, calibration, confusion, leakage, and robustness reports."
+          "speech_text": "When the workflow finishes, spacer produces discrimination, calibration, confusion, leakage, and robustness reports."
         }
       ]
     },

@@ -4,47 +4,77 @@
   "voice": "pm_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.25,
+  "total_duration": 58.6,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.275,
-      "scene_end": 8.725,
-      "duration": 8.725,
-      "text": "Este tutorial abrange Instalação com pip. Instale spaCR em um ambiente Python isolado existente para uso em desktop ou sem cabeça."
+      "speech_end": 9.55,
+      "scene_end": 10.25,
+      "duration": 10.25,
+      "text": "A rota de pip funciona no Windows, macOS e Linux. Use sempre um ambiente virtual isolado em vez de modificar a instalação Python do sistema operacional.",
+      "speech_text": "A rota de pip funciona no Windows, macOS e Linux. Use sempre um ambiente virtual isolado em vez de modificar a instalação Python do sistema operacional.",
+      "phonemes": "a xˈɔtæ ʤy pˈip fˌũŋsiˈonæ nʊ wˈiŋdows, mˈɛk ˌɔˈɛsy i lˈinʊks. ˈuzy sˌAmpri ũŋ ˌɐ̃mbiˈAŋʧy vˌiɾətuˈW ˌizolˈadw ˈAŋ vˈez ʤy mˌoʤifikˈaɾ a ˌiŋstalasˈɐ̃ʊ̃ pˈIθɐ̃ŋ dʊ sˌistˈemæ ˌopeɾˌasionˈW."
     },
     {
       "scene": 2,
-      "speech_start": 8.725,
-      "speech_end": 19.65,
-      "scene_end": 20.099999999999998,
-      "duration": 11.374999999999998,
-      "text": "Abra Installation with pip na seção spaCR. Abra a instalação com pip da seção spaCR. Confirme que o ambiente usa uma versão Python suportada; recomendamos Python três pontos doze."
+      "speech_start": 10.25,
+      "speech_end": 17.125,
+      "scene_end": 17.825,
+      "duration": 7.574999999999999,
+      "text": "No macOS ou Linux, crie o ambiente com Python 3 ponto 12, e depois ative-o a partir do seu diretório bin.",
+      "speech_text": "No macOS ou Linux, crie o ambiente com Python 3 ponto 12, e depois ative-o a partir do seu diretório bin.",
+      "phonemes": "nʊ mˈɛk ˌɔˈɛsy ow lˈinʊks, krˈij u ˌɐ̃mbiˈAŋʧy koŋ pˈIθɐ̃ŋ trˈes pˈoŋtʊ dˈozy, i depˈoɪz ˌaʧˈivju a paɾəʧˈir dʊ seʊ ʤˌiɾetˈɔɾjʊ bˈin."
     },
     {
       "scene": 3,
-      "speech_start": 20.099999999999998,
-      "speech_end": 28.9,
-      "scene_end": 29.349999999999998,
-      "duration": 9.25,
-      "text": "Na área de configuração principal, atualize pip se necessário e decida se precisa do desktop, desenvolvimento ou extras científicos opcionais."
+      "speech_start": 17.825,
+      "speech_end": 23.65,
+      "scene_end": 24.349999999999998,
+      "duration": 6.524999999999999,
+      "text": "No Windows, use o lançador Python para criar o ambiente e ativá-lo a partir do diretório Scripts.",
+      "speech_text": "No Windows, use o lançador Python para criar o ambiente e ativá-lo a partir do diretório Scripts.",
+      "phonemes": "nʊ wˈiŋdows, ˈuzj ʊ lˌɐ̃ŋsadˈor pˈIθɐ̃ŋ pˌaɾæ kriˈaɾ u ˌɐ̃mbiˈAŋʧj i ˌaʧivˈalw a paɾəʧˈir dʊ ʤˌiɾetˈɔɾjʊ skrˈipts."
     },
     {
       "scene": 4,
-      "speech_start": 29.349999999999998,
-      "speech_end": 36.824999999999996,
-      "scene_end": 37.275,
-      "duration": 7.925000000000001,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+      "speech_start": 24.349999999999998,
+      "speech_end": 31.449999999999996,
+      "scene_end": 32.15,
+      "duration": 7.800000000000001,
+      "text": "Avaliar o pip no ambiente ativo. O comando python -m pip mantém a instalação ligada ao Python que acabaste de ativar.",
+      "speech_text": "Avaliar o pip no ambiente ativo. O comando python -m pip mantém a instalação ligada ao Python que acabaste de ativar.",
+      "phonemes": "ˌavaliˈaɾ ʊ pˈip nʊ ˌɐ̃mbiˈAŋʧj ˌaʧˈivʊ. ʊ kˌomˈɐ̃ŋdʊ pˈIθɐ̃ŋ ˈeme pˈip mɐ̃ŋtˈAŋ a ˌiŋstalasˈɐ̃ʊ̃ lˌiɡˈadæ W pˈIθɐ̃ŋ ky ˌakabˈasʧy ʤj ˌaʧivˈar."
     },
     {
       "scene": 5,
-      "speech_start": 37.275,
-      "speech_end": 47.599999999999994,
-      "scene_end": 48.24999999999999,
-      "duration": 10.974999999999994,
-      "text": "Quando o fluxo de trabalho terminar, a mesma instalação pode iniciar o aplicativo de desktop ou executar fluxos de trabalho scriptados em uma estação de trabalho ou servidor."
+      "speech_start": 32.15,
+      "speech_end": 39.1,
+      "scene_end": 39.800000000000004,
+      "duration": 7.650000000000006,
+      "text": "Instalar o pacote de espaço comum para uso sem cabeça, ou o espaço com o qt extra para a interface de desktop.",
+      "speech_text": "Instalar o pacote de espaço comum para uso sem cabeça, ou o espaço com o qt extra para a interface de desktop.",
+      "phonemes": "ˌiŋstalˈaɾ ʊ pˌakˈɔʧy ʤj ˌespˈasʊ komˈũŋ pˌaɾæ ˈuzʊ sˈAŋ kˌabˈesæ, ow u ˌespˈasʊ koŋ ʊ kˌetˈe ˈestræ pˌaɾæ a ˌiŋteɾəfˈasy ʤy desktˈɔp."
+    },
+    {
+      "scene": 6,
+      "speech_start": 39.800000000000004,
+      "speech_end": 48.2,
+      "scene_end": 48.900000000000006,
+      "duration": 9.100000000000001,
+      "text": "Verificar a versão importada e executar spacr-doctor. Resolver quaisquer verificações falhadas antes de abrir os dados experimentais.",
+      "speech_text": "Verificar a versão importada e executar espáquer-doctor. Resolver quaisquer verificações falhadas antes de abrir os dados experimentais.",
+      "phonemes": "vˌeɾifikˈaɾ a veɾəsˈɐ̃ʊ̃ ˌimpoɾətˈadæ i ˌezekutˈaɾ ˌespˈakɛrdoktˈor. xˌezowvˈer kwIskˌɛr vˌeɾifˌikasˈõjs fˌaljˈadæz ˈɐ̃ŋʧyz ʤj abrˈiɾ ʊz dˈadʊz ˌespeɾˌimAŋtˈIs."
+    },
+    {
+      "scene": 7,
+      "speech_start": 48.900000000000006,
+      "speech_end": 57.900000000000006,
+      "scene_end": 58.60000000000001,
+      "duration": 9.700000000000003,
+      "text": "O ambiente está pronto. Mantenha- o ativado sempre que utilizar o spaCR e use o python -m pip install --upgrade spacr quando o atualizar intencionalmente.",
+      "speech_text": "O ambiente está pronto. Mantenha- o ativado sempre que utilizar o espáquer e use o python -m pip install --upgrade espáquer quando o atualizar intencionalmente.",
+      "phonemes": "u ˌɐ̃mbiˈAŋʧj estˌa prˈoŋtʊ. mˌɐ̃ŋtˈeɲæ u ˌaʧivˈadʊ sˌAmpry ky ˌuʧilizˈaɾ u ˌespˈakɛɾ i ˈuzj ʊ pˈIθɐ̃ŋ ˈeme pˈip iŋstˈal æpɡrˈAd ˌespˈakɛr kwˈɐ̃ŋdw u ˌatuˌalizˈaɾ ˌiŋtAŋsˌionWmˈAŋʧy."
     }
   ]
 }

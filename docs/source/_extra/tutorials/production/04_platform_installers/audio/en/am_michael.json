@@ -4,47 +4,87 @@
   "voice": "am_michael",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 52.925,
+  "total_duration": 105.25,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.425,
-      "scene_end": 10.875,
-      "duration": 10.875,
-      "text": "This tutorial covers Platform installers. Install spaCR on Windows, macOS, or Linux without managing Python manually."
+      "speech_end": 11.55,
+      "scene_end": 12.25,
+      "duration": 12.25,
+      "text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its scientific dependencies.",
+      "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spacer, and its scientific dependencies.",
+      "phonemes": "ðə lˈItwˌAt nˈATɪv ɪnstˈɔləɹz kɹiˈAt ɐ pɹˈIvət pˈIθˌɑn θɹˈi pˈYnt twˈɛlv ɹˈʌntIm, ðˈɛn dˈWnlˌOd kjˌutˈi, pˈI tˈɔɹʧ, spˈAsəɹ, ænd ɪts sˌIəntˈɪfɪk dəpˈɛndᵊnsiz."
     },
     {
       "scene": 2,
-      "speech_start": 10.875,
-      "speech_end": 20.15,
-      "scene_end": 20.599999999999998,
-      "duration": 9.724999999999998,
-      "text": "Open Platform installers from the spaCR section. Download the installer for your operating system from the current GitHub release."
+      "speech_start": 12.25,
+      "speech_end": 25.85,
+      "scene_end": 26.55,
+      "duration": 14.3,
+      "text": "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+      "speech_text": "Download installers only from the latest spacer GitHub Release. Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download.",
+      "phonemes": "dˈWnlˌOd ɪnstˈɔləɹz ˈOnli fɹʌm ðə lˈATᵻst spˈAsəɹ ɡˌɪthˈʌb ɹəlˈis. mˈæʧ ðə fˈIl tə jʊɹ ˈɑpəɹˌATɪŋ sˈɪstəm ænd jˈuz ðə pˈʌblɪʃt ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks fˈIl wˌɛn ju nˈid tə vˈɛɹəfˌI ðə dˈWnlˌOd."
     },
     {
       "scene": 3,
-      "speech_start": 20.599999999999998,
-      "speech_end": 31.275,
-      "scene_end": 31.724999999999998,
-      "duration": 11.125,
-      "text": "In the main configuration area, review operating-system security prompts, the private runtime location, and the requested acceleration backend."
+      "speech_start": 26.55,
+      "speech_end": 39.825,
+      "scene_end": 40.525000000000006,
+      "duration": 13.975000000000005,
+      "text": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
+      "speech_text": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
+      "phonemes": "ˌɔn wˈɪndOz tˈɛn ɔɹ əlˈɛvᵊn, ˈOpᵊn ði ˌɑnlˈIn sˈɛTˌʌp ˈɛksəkjˌuTəbᵊl. ðə pˈɔɹTəbᵊl sˌipˌijˈu ˌɪnztəlˈAʃən ɪz ðə dəfˈɔlt; ɛnvˈɪdiə əksˌɛləɹˈAʃən ɪz ɐn ˈɑpʃənᵊl ɪnstˈɔləɹ kəmpˈOnənt."
     },
     {
       "scene": 4,
-      "speech_start": 31.724999999999998,
-      "speech_end": 44.4,
-      "scene_end": 44.85,
-      "duration": 13.125000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Allow the installer to finish and preserve its install log if anything fails."
+      "speech_start": 40.525000000000006,
+      "speech_end": 55.2,
+      "scene_end": 55.900000000000006,
+      "duration": 15.375,
+      "text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "speech_text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "phonemes": "ˌɔn mˌækˌOˈɛs əlˈɛvᵊn ɔɹ nˈuəɹ, ˈOpᵊn ðə jˌunəvˈɜɹsᵊl pˈækɪʤ fɔɹ ˈɪntˌɛl ænd ˈæpᵊl sˈɪləkˌɑn. ˌɪf ɡˈAtkˌipəɹ blˈɑks ði ʌnnˈɑTəɹɹˌIzd pˈækɪʤ, jˈuz pɹˈIvəsi ænd səkjˈʊɹəTi, ˈOpᵊn ˈɛniwˌA, ðˈɛn ɹˈʌn ɪt əɡˈɛn."
     },
     {
       "scene": 5,
-      "speech_start": 44.85,
-      "speech_end": 52.275,
-      "scene_end": 52.925,
-      "duration": 8.074999999999996,
-      "text": "When the workflow finishes, use the native launcher while spaCR keeps its own managed Python runtime."
+      "speech_start": 55.900000000000006,
+      "speech_end": 67.60000000000001,
+      "scene_end": 68.30000000000001,
+      "duration": 12.400000000000006,
+      "text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
+      "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
+      "phonemes": "ˌɔn sˈɪksti fˈɔɹ bˈɪt lˈɪnəks, mˌAk ðə dˈWnlˌOdᵻd ɹˈʌn fˈIl ˈɛksəkjˌuTəbᵊl, ðˈɛn stˈɑɹt ɪt fɹʌm ɐ tˈɜɹmənəl. ðə dəfˈɔlt ˌɪnztəlˈAʃən jˈuzᵻz sipijˌukəmpˈæTəbᵊl pˈI tˈɔɹʧ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 68.30000000000001,
+      "speech_end": 81.00000000000001,
+      "scene_end": 81.70000000000002,
+      "duration": 13.400000000000006,
+      "text": "For supported NVIDIA hardware on Linux, pass --torch-backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
+      "speech_text": "For supported NVIDIA hardware on Linux, pass dash dash torch backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
+      "phonemes": "fˌɔɹ səpˈɔɹTᵻd ɛnvˈɪdiə hˈɑɹdwˌɛɹ ˌɔn lˈɪnəks, pˈæs dˈæʃ dˈæʃ tˈɔɹʧ bˈækənd ˈɔTO. ðˌɪs səlˈɛkts əksˌɛləɹˈAʃən wˌɛn əvˈAləbᵊl wɪðˈWt mˈAkɪŋ sˌijˌudˌiˈA lˈIbɹˌɛɹiz ðə sˈIlənt dəfˈɔlt."
+    },
+    {
+      "scene": 7,
+      "speech_start": 81.70000000000002,
+      "speech_end": 95.92500000000001,
+      "scene_end": 96.62500000000001,
+      "duration": 14.924999999999997,
+      "text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+      "speech_text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory.",
+      "phonemes": "ˈiʧ ɪnstˈɔləɹ vˈælɪdˌAts ðə ɹəplˈAsmᵊnt bəfˈɔɹ swˈɪʧɪŋ vˈɜɹʒənz. ɐn ˌɪntəɹˈʌptᵻd ˈʌpdˌAt lˈivz ðə pɹˈiviəs ənvˈIɹənmᵊnt ɪntˈækt, ænd ɪnstˈɔl dˈɑt lˈɔɡ ɹəmˈAnz ɪn ðə pɹˈIvət spˈAsəɹ ˌɪnztəlˈAʃən dəɹˈɛktəɹi."
+    },
+    {
+      "scene": 8,
+      "speech_start": 96.62500000000001,
+      "speech_end": 104.55000000000001,
+      "scene_end": 105.25000000000001,
+      "duration": 8.625,
+      "text": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+      "speech_text": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+      "phonemes": "ˈæftəɹ ˌɪnztəlˈAʃən, jˈuz ði ˈɑpəɹˌATɪŋ sˈɪstəm lˈɔnʧəɹ. nˈO sˈɛpəɹət pˈIθˌɑn ɔɹ kˈɑndə sˈɛTˌʌp ɪz ɹəkwˈIəɹd."
     }
   ]
 }
