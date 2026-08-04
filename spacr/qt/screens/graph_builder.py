@@ -252,64 +252,58 @@ APP_INTRO = (
     "the column types. Facet down and across for small multiples on shared "
     "axes, and brush a region to highlight the same objects in every other "
     "open view.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = "Interactive chart building; there is no batch equivalent."
+#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run,
+#: and what to reach for instead. Printed by `spacr-run graph_builder`, so it
+#: is the only thing between a user and "I must have typed the name wrong".
+APP_CLI_NOTE = (
+    "Graph Builder is interactive chart building — the drop zones and the "
+    "brush are the whole feature; run it in the GUI (spacr-qt). Headless, "
+    "call spacr.plot from Python and pick the columns yourself.")
+#: The display name in the nine non-English UI languages, in
+#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
+APP_NAME_TRANSLATIONS = (
+    "Diagrambyggare", "Diagramm-Baukasten", "Constructor de gráficos",
+    "图表构建器", "Construtor de gráficos", "ग्राफ़ बिल्डर", "그래프 빌더",
+    "Grafasmiður", "Générateur de graphiques")
 
 
 def register() -> bool:
     """Put the Graph Builder in the app registry. Idempotent.
 
-    **Not called at import**, deliberately, and this is the one piece of the
-    screen that is not finished — see the note below.
+    Called at import from the bottom of :mod:`spacr.qt.app` — see
+    ``_SELF_REGISTERING_APPS`` there. It is called from *there* rather than
+    at the top of this module because ``app.py`` imports
+    ``spacr.qt.widgets`` at its line 41, before ``register_app`` exists, so
+    nothing reachable from the top of that file can register during its
+    import; and a registration that happens later is one that some
+    importer's snapshot of the registry predates.
+
+    That used to be fatal as well as untidy, because ``SECTIONS`` was
+    *rebound* rather than mutated, so a late registration into the
+    previously empty Explore section was invisible to every module that had
+    already imported the name. It is a list mutated in place now, so a late
+    registration is seen everywhere — but registering from one deterministic
+    point is still what keeps the app inventory the same on every import
+    path, and the ledgers that check it honest.
+
+    Everything after ``SECTION_EXPLORE`` below is a table this key used to
+    need a hand-edit in: the screen header and blurb
+    (``app_screen.APP_TITLES`` / ``APP_INTROS``), the "no headless run"
+    sentence (``cli.INTERACTIVE_ONLY``), the API doc link
+    (``settings_model._APP_API_MODULE``) and the nine translations of the
+    display name (``i18n._ROWS``). :func:`spacr.qt.app.register_app`
+    distributes them.
 
     :returns: ``True`` if this call is what registered it. Safe to call
         again: a module imported twice, or a test that re-imports it, must
         not raise on the duplicate key.
-
-    Wiring it in
-    ------------
-
-    One line in :mod:`spacr.qt.app`, after the built-in rows are registered::
-
-        from .screens.graph_builder import register as _register_graph_builder
-        _register_graph_builder()
-
-    plus four side-table entries the shipped suite requires of *every*
-    registered app, none of which has a registration seam yet:
-
-    * ``spacr.qt.screens.app_screen.APP_TITLES[APP_KEY] = APP_NAME`` and
-      ``APP_INTROS[APP_KEY] = APP_INTRO``
-      (``test_home_layout::test_every_app_has_a_title_and_an_intro``);
-    * ``spacr.cli.INTERACTIVE_ONLY[APP_KEY] = APP_CLI_NOTE``
-      (``test_app_entry_consistency``);
-    * :data:`APP_NAME` and the section name in every catalogue of
-      :mod:`spacr.qt.i18n` (``test_i18n``);
-    * the Home generator tables in
-      ``spacr/resources/home/versions/_generators/common.py``
-      (``test_home_variants``).
-
-    Why it is not called here
-    -------------------------
-
-    :data:`spacr.qt.app.SECTIONS` is **rebound** by ``_refresh_sections``
-    rather than mutated in place, so every ``from spacr.qt.app import
-    SECTIONS`` taken before a registration goes stale — including the one
-    ``tests/qt/test_home_layout.py`` takes at collection time. Registering
-    into a *previously empty* section from outside ``app.py`` therefore makes
-    ``test_every_app_is_in_a_declared_section`` fail with "apps in undeclared
-    sections: ['Explore']", however correct the registration is.
-
-    Nothing this module can do fixes that: ``app.py`` imports
-    ``spacr.qt.widgets`` at its line 41, *before* ``register_app`` exists, so
-    no module reachable from there can register during ``app.py``'s own
-    import, and any later registration is by definition after somebody's
-    snapshot. The fix is one word in ``app.py`` — publish ``SECTIONS`` by
-    mutating a list in place, the way ``SECTION_NOTES`` already is — and it
-    belongs to whoever owns that file.
     """
     from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
     if any(row[0] == APP_KEY for row in APPS):
         return False
     register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_graph_builder_screen, stage=STAGE_ALPHA)
+                 factory=make_graph_builder_screen, stage=STAGE_ALPHA,
+                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
+                 api_module="qt/screens/graph_builder",
+                 translations=APP_NAME_TRANSLATIONS)
     return True

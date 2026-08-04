@@ -1188,3 +1188,143 @@ def test_end_to_end_from_fastq_the_derived_threshold_recovers_the_design(
     # the ones the reads were built from.
     assert out["unmapped"]["unmapped_fraction"] == pytest.approx(0.0, abs=1e-9)
     assert f"{choice.threshold:.4f}" in out["recommendation"]
+
+
+# ---------------------------------------------------------------------------
+# The pipeline call: generate_barecode_mapping QCs each sample as it lands
+# ---------------------------------------------------------------------------
+# Everything above proves `barcode_qc` answers the two questions a mapping
+# run raises. Nothing asked it. A user had to know this module existed, find
+# the sample folder, and type the paths -- and the questions ("did it work",
+# "where does the threshold go") are ones nobody comes back for once the
+# counts are on disk.
+
+def _mapping_folder(tmp_path):
+    """A src folder `parse_gz_files` sees one paired sample in."""
+    src = tmp_path / "fastq"
+    src.mkdir()
+    for name in ("s1_R1_001.fastq.gz", "s1_R2_001.fastq.gz"):
+        (src / name).write_bytes(b"")
+    return src
+
+
+def _mapping_settings(src, **over):
+    from spacr.settings import set_default_generate_barecode_mapping
+
+    settings = set_default_generate_barecode_mapping({"src": str(src)})
+    settings.update(over)
+    return settings
+
+
+def _stub_reader(count_rows):
+    """Stand in for the chunked read path: write the two CSVs and stop.
+
+    The reads themselves are not what is under test here -- where the QC
+    is called from is. This writes exactly the two files a real sample
+    leaves behind, which is what the hook is handed.
+    """
+    def reader(**kwargs):
+        pd.DataFrame(count_rows).to_csv(kwargs["unique_combinations_csv"],
+                                        index=False)
+        # The real qc.csv columns: one row per chunk, counting the reads
+        # seen and the ones each barcode lookup could not resolve.
+        pd.DataFrame([{"columnID": 5, "rowID": 4, "grna_name": 6,
+                       "total_reads": 400}]).to_csv(
+            kwargs["qc_csv_file"], index=False)
+    return reader
+
+
+COUNT_ROWS = {
+    "plateID": ["plate1"] * 8,
+    "rowID": ["A"] * 8,
+    "columnID": ["01", "01", "02", "02", "03", "03", "04", "04"],
+    "grna_name": ["g1", "g2", "g3", "g4", "g1", "g3", "g2", "g4"],
+    "count": [90, 10, 80, 20, 70, 30, 60, 40],
+}
+
+
+def test_the_mapping_run_qcs_each_sample_it_finishes(tmp_path, monkeypatch):
+    """The hook, at the end of the per-sample loop, on that sample's table."""
+    import spacr.sequencing as SEQ
+
+    src = _mapping_folder(tmp_path)
+    monkeypatch.setattr(SEQ, "paired_read_chunked_processing",
+                        _stub_reader(COUNT_ROWS))
+    seen = {}
+    real = QC.barcode_qc
+
+    def watched(settings):
+        seen["count_data"] = settings["count_data"]
+        seen["dst"] = settings["dst"]
+        seen["target"] = settings["target_grnas_per_well"]
+        return real(settings)
+
+    monkeypatch.setattr(QC, "barcode_qc", watched)
+
+    SEQ.generate_barecode_mapping(_mapping_settings(
+        src, barcode_qc=True, target_grnas_per_well=2, plot=False))
+
+    dst = src / "s1_paired"
+    assert (dst / "unique_combinations.csv").is_file(), "the run wrote nothing"
+    assert seen.get("count_data") == str(dst / "unique_combinations.csv"), (
+        "the QC was not run on the table this sample had just written")
+    assert seen["dst"] == str(dst / "barcode_qc")
+    assert seen["target"] == 2
+    # ...and it left its answer beside the counts, which is the whole
+    # point of running it here rather than telling the user to.
+    assert os.path.isdir(seen["dst"])
+
+
+def test_the_mapping_run_does_not_qc_unless_it_is_asked_to(tmp_path,
+                                                           monkeypatch):
+    """Opt-in: the QC pulls in plotting and statistics a read path must not.
+
+    Off is also what a run that predates this module's existence expects,
+    and `barcode_qc` is not in the mapping defaults, so the check has to
+    survive a settings dict that has never heard of the key.
+    """
+    import spacr.sequencing as SEQ
+
+    src = _mapping_folder(tmp_path)
+    monkeypatch.setattr(SEQ, "paired_read_chunked_processing",
+                        _stub_reader(COUNT_ROWS))
+    called = []
+    monkeypatch.setattr(QC, "barcode_qc",
+                        lambda settings: called.append(settings))
+
+    settings = _mapping_settings(src)
+    assert "barcode_qc" not in settings
+    SEQ.generate_barecode_mapping(settings)
+
+    assert (src / "s1_paired" / "unique_combinations.csv").is_file()
+    assert not called, "the QC ran on a settings dict that never asked for it"
+
+
+def test_a_qc_failure_never_costs_the_run_its_counts(tmp_path, monkeypatch,
+                                                     capsys):
+    """The counts are on disk by the time the QC starts. They stay there.
+
+    A missing barcode reference, a panel that cannot plot, an unreadable
+    qc.csv -- every one of those is a reason to lose the report and none
+    of them is a reason to lose a mapping run that may have taken hours.
+    """
+    import spacr.sequencing as SEQ
+
+    src = _mapping_folder(tmp_path)
+    monkeypatch.setattr(SEQ, "paired_read_chunked_processing",
+                        _stub_reader(COUNT_ROWS))
+
+    def explode(settings):
+        raise RuntimeError("the QC could not plot")
+
+    monkeypatch.setattr(QC, "barcode_qc", explode)
+
+    SEQ.generate_barecode_mapping(_mapping_settings(
+        src, barcode_qc=True, target_grnas_per_well=2))
+
+    counts = src / "s1_paired" / "unique_combinations.csv"
+    assert counts.is_file(), "a QC failure destroyed the run's own output"
+    assert len(pd.read_csv(counts)) == 8
+    printed = capsys.readouterr().out
+    assert "barcode QC failed" in printed
+    assert "the counts themselves were written" in printed.lower()
