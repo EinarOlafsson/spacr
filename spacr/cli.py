@@ -452,6 +452,40 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "'first' only when lossy projection is intentional."),
     ),
     Module(
+        key="illumination",
+        summary=("Estimate the plate's illumination field and install the "
+                 "correction every measure worker applies."),
+        entry="spacr.illumination:prepare_illumination_correction",
+        defaults=None,
+        defaults_entry="spacr.illumination:illumination_settings",
+        validate_key="illumination",
+        requires=("src — the merged field folder measure_crop reads",
+                  "channels — merged-stack channel indices to estimate",
+                  "illumination_correction=True, or the call does nothing"),
+        writes=("<plate>/illumination/illumination_model.npz",
+                "<plate>/illumination/ — the QC figures and report"),
+        note=("measure_crop calls this itself when illumination_correction "
+              "is on, so running it separately is for estimating and "
+              "inspecting the field before committing to it. The model it "
+              "writes can then be reused with illumination_model=<path>."),
+    ),
+    Module(
+        key="barcode_qc",
+        summary=("QC a barcode-mapping run and derive its abundance "
+                 "threshold from a gRNAs-per-well target."),
+        entry="spacr.sequencing_qc:barcode_qc",
+        defaults=None,
+        defaults_entry="spacr.sequencing_qc:barcode_qc_defaults",
+        validate_key="barcode_qc",
+        requires=("count_data — unique_combinations.csv from a mapping run",
+                  "target_grnas_per_well — how many gRNAs the design intends"),
+        writes=("<dst>/ — the sweep, the per-well tables, the QC figures "
+                "and the written recommendation",),
+        note=("Run it after map_barcodes and before regression: the "
+              "threshold it recommends is what ml.process_reads takes as "
+              "fraction_threshold."),
+    ),
+    Module(
         key="simulation",
         summary="Sweep the pooled-screen simulator across a grid of parameters.",
         entry="spacr.sim:run_multiple_simulations",
@@ -589,6 +623,39 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                     "and what is being kept, then prune(plan, "
                     "confirm=plan.token) once you have read the plan.",
 }
+
+
+def _absorb_registered_gui_only() -> None:
+    """Take the "no headless run" sentence of every registered GUI-only app.
+
+    The PULL half of the app-registration seam: a screen that registers
+    itself through :func:`spacr.qt.app.register_app` gives that sentence
+    once, as ``cli_note=``, and ``register_app`` PUSHES it into the table
+    above when this module is already imported. This picks up the apps
+    that registered before it was, so which of the two modules is
+    imported first stops mattering — and it did matter: the order pytest
+    happened to collect in decided whether
+    ``test_every_app_has_a_cli_module_or_is_declared_gui_only`` passed.
+
+    Read out of :data:`sys.modules`, never imported. This module answers
+    ``--list`` and ``--describe`` on a cluster with no display and often
+    no PySide6 installed at all; importing ``spacr.qt.app`` to find out
+    what a GUI-only module is called would be exactly the wrong trade. A
+    process that never loaded the Qt registry keeps the built-in table
+    above, which is what it had before this existed.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    # `getattr(..., None)`: the Qt registry may be half-built when this
+    # runs, in which case nothing has registered yet and the push half of
+    # the seam delivers every row later.
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    for key, note in pull("cli_note").items():
+        INTERACTIVE_ONLY.setdefault(key, note)
+
+
+_absorb_registered_gui_only()
 
 
 def resolve_module(name: Any) -> Optional[Module]:

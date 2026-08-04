@@ -24,6 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os
 import re
+import sys
 from typing import Dict, Iterable, Mapping, Optional
 
 
@@ -594,6 +595,25 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Toxoplasma", "Toxoplasma", "Toxoplasma", "弓形虫",
         "Toxoplasma", "टोक्सोप्लाज़्मा", "톡소플라스마",
         "Toxoplasma", "Toxoplasma"),
+    # Data Manager registers itself but predates the `translations=`
+    # keyword on `register_app`, so its nine live here rather than beside
+    # its screen. Moving them into that call is a two-line change in
+    # `spacr/qt/screens/data_manager.py` and deleting this row.
+    "Data Manager": _row(
+        "Datahanterare", "Datenverwaltung", "Gestor de datos", "数据管理器",
+        "Gerenciador de dados", "डेटा प्रबंधक", "데이터 관리자",
+        "Gagnastjóri", "Gestionnaire de données"),
+    # Declared in `SECTION_ORDER` and drawn the day their first app
+    # registers. Written here when the section was named rather than when
+    # its tab appeared, for the same reason `_SECTION_NOTE_LIBRARY` is:
+    # the first module to claim an empty section must get a described,
+    # translated tab, not an English heading in nine languages.
+    "Explore": _row(
+        "Utforska", "Erkunden", "Explorar", "探索", "Explorar",
+        "अन्वेषण", "탐색", "Kanna", "Explorer"),
+    "Design": _row(
+        "Design", "Entwurf", "Diseño", "实验设计", "Planejamento",
+        "डिज़ाइन", "설계", "Hönnun", "Conception"),
     "Core Pipeline": _row(
         "Kärnflöde", "Kernpipeline", "Flujo principal", "核心流程",
         "Fluxo principal", "मुख्य पाइपलाइन", "핵심 파이프라인",
@@ -1491,6 +1511,78 @@ def _build_catalogs(
 
 CATALOGS = _build_catalogs(_ROWS)
 TERM_CATALOGS = _build_catalogs(_TERM_ROWS)
+
+
+def add_translation(source: str, values: Iterable[str]) -> bool:
+    """Add one parallel translation row after the catalogs are built.
+
+    The half of the app-registration seam that lands here. Every app name
+    and every section name has to appear in every one of the nine
+    catalogs — ``tests/qt/test_i18n.py`` walks ``spacr.qt.app.APPS`` and
+    asserts it — so an app registered from its own module used to need
+    nine hand-edits in this file. It now gives its translations once, to
+    :func:`spacr.qt.app.register_app`, and they arrive here.
+
+    :data:`_ROWS` and :data:`CATALOGS` are both updated IN PLACE.
+    Rebinding either would strand every module that imported the name,
+    and ``retranslate_widget_tree`` holds one for the life of a window.
+
+    :param source: the English string, exactly as the UI spells it.
+    :param values: its translations, in :data:`LANGUAGES` order after
+        English (sv, de, es, zh_CN, pt, hi, ko, is, fr).
+    :returns: ``True`` if the row was added, ``False`` if ``source`` was
+        already catalogued — registering the same app name twice is a
+        no-op, not a conflict.
+    :raises ValueError: if ``values`` is not one string per language, or
+        any of them is blank. A missing translation fails here, where the
+        app name is in the message, rather than as a blank sidebar row in
+        Korean.
+    """
+    source = str(source)
+    if source in _ROWS:
+        return False
+    row = _row(*[str(value) for value in values])
+    if not all(value.strip() for value in row):
+        raise ValueError(f"translation row for {source!r} has a blank entry")
+    _ROWS[source] = row
+    for code, value in zip(_TRANSLATED_CODES, row):
+        CATALOGS[code][source] = value
+    return True
+
+
+def _absorb_registered_app_names() -> None:
+    """Catalogue the display name of every app registered so far.
+
+    The PULL half of the seam: :func:`spacr.qt.app.register_app` pushes a
+    new app's name into the catalogs above when this module is already
+    imported, and this picks up the apps that registered before it was.
+    Between them the order of the two imports stops mattering.
+
+    Read out of :data:`sys.modules` rather than imported: ``spacr.qt.app``
+    imports the widget package, which imports this module, so importing it
+    from here would be a cycle. An unregistered process simply finds
+    nothing.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    # `getattr(..., None)`, not a bare attribute read: `spacr.qt.app`
+    # imports the widget package (which imports this module) at its line
+    # 41, so it is present in `sys.modules` and only PARTIALLY built
+    # while this runs. There is nothing registered yet at that point --
+    # the push half delivers it later.
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    metadata = getattr(app, "APP_META", {})
+    for key, values in pull("translations").items():
+        name = (metadata.get(key) or {}).get("name") or key
+        try:
+            add_translation(name, values)
+        except ValueError:
+            # A bad row costs that app its translations, not the app.
+            pass
+
+
+_absorb_registered_app_names()
 
 
 def normalize_language(code: object) -> str:

@@ -211,25 +211,28 @@ def v01(ctx: Ctx) -> QWidget:
     adds="Nothing.",
     removes="The insights dashboard and the empty 'Reserved for featured "
             "content' box. The hint bar stays.",
-    argument="Same five-row shape people already know, but the names "
+    argument="Same five-band shape people already know, but the names "
             "answer 'where am I in my run?' instead of 'what kind of "
-            f"code is this?', and all {common.n_apps()} apps are visible "
-            "at once with vertical slack left over.")
+            f"code is this?', and all {common.n_apps()} apps are on one "
+            "surface with nothing hidden off the right edge.")
 def v02(ctx: Ctx) -> QWidget:
     page = Page(ctx, margins=MARGINS)
     page.body.addWidget(hero(ctx, compact=True))
-    # Seven columns, not six. No stage band holds more than seven apps
-    # (see CATS_STAGE5), so seven is exactly the width at which every
-    # band is one row and the page is five rows of tiles: 681 px of the
-    # 900 available. At six columns the four seven-app bands each wrap
-    # onto a second row and the page asks for 905 px, which Qt resolves
-    # by silently squashing something.
+    # Seven columns. Six was too few — the seven-app bands each wrapped
+    # onto a second row and the page asked for 905 px, which Qt resolved
+    # by silently squashing something. Eight is too many: 1384 px of
+    # content over eight columns is a 166 px tile, and at that width
+    # thirty-four of the thirty-eight names elide however small the font
+    # is set (measured; nine px still elides six of them). Seven is the
+    # widest grid whose tile can hold a name.
     #
-    # The price is the name size: 1384 px of content over seven columns
-    # is a 190 px tile, and "Classifier Evaluation" (the longest name in
-    # the registry) only fits inside that at 11 px. That is the same
-    # trade this variant already made at six columns and 13 px — it is
-    # the constraint recorded as finding 4, not a new one.
+    # So this no longer fits five rows: the registry outgrew five bands
+    # of seven when Illumination, Barcode QC, Layer Viewer and Graph
+    # Builder arrived, and thirty-eight apps cannot go into thirty-five
+    # slots. The three bands that hold eight take a second row. That is
+    # the trade this variant now records — a taller page against an
+    # unreadable one — and it is why the argument above no longer claims
+    # vertical slack.
     for title, keys in CATS_STAGE5:
         page.body.addWidget(cat_header(ctx, title, note=f"{len(keys)} apps"))
         page.body.addWidget(htile_grid(ctx, keys, cols=7, width=190,

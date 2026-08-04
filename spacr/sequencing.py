@@ -732,6 +732,58 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
 
     _finish_saver(save_queue, save_process)
 
+
+def _run_barcode_qc(settings, dst, count_csv, qc_csv):
+    """QC one finished sample, if the settings asked for it. Never raises.
+
+    Called at the end of each sample's turn in
+    :func:`generate_barecode_mapping`, once that sample's
+    ``unique_combinations.csv`` and ``qc.csv`` are on disk. The point of
+    running it here rather than leaving it to the user is that the two
+    questions a mapping run raises -- did it work, and where does the
+    abundance threshold go -- are asked about *this* run's numbers, and
+    nobody goes back for them once the counts exist.
+
+    Wrapped, deliberately and completely. The reads are mapped and the
+    table is written by the time this is reached: a QC panel that cannot
+    plot, a missing barcode reference or an unreadable ``qc.csv`` must
+    cost the report and nothing else. A run that already produced its
+    output must never be lost to the analysis OF that output.
+
+    :param settings: the mapping settings dict. Reads
+        ``barcode_qc`` (default False -- the QC is opt-in, because it
+        pulls in plotting and statistics the read workers do not want)
+        and ``target_grnas_per_well``, which is the number the threshold
+        is derived from.
+    :param dst: the sample's output folder; the QC lands in
+        ``<dst>/barcode_qc``.
+    :param count_csv: that sample's ``unique_combinations.csv``.
+    :param qc_csv: that sample's ``qc.csv``.
+    :returns: the :func:`spacr.sequencing_qc.barcode_qc` result dict, or
+        None when the QC was off or failed.
+    """
+    if not settings.get('barcode_qc', False):
+        return None
+    try:
+        from .sequencing_qc import barcode_qc
+        result = barcode_qc({
+            'count_data': count_csv,
+            'qc_data': qc_csv,
+            'row_csv': settings.get('row_csv'),
+            'column_csv': settings.get('column_csv'),
+            'grna_csv': settings.get('grna_csv'),
+            'target_grnas_per_well': settings.get('target_grnas_per_well', 1),
+            'dst': os.path.join(dst, 'barcode_qc'),
+        })
+        print(result.get('recommendation', ''))
+        return result
+    except Exception as exc:
+        print(f"WARNING: barcode QC failed for {dst}: {exc}. The counts "
+              f"themselves were written and are unaffected; run "
+              f"spacr.sequencing_qc.barcode_qc on them directly to see why.")
+        return None
+
+
 def generate_barecode_mapping(settings=None):
     """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.
 
@@ -856,6 +908,13 @@ def generate_barecode_mapping(settings=None):
                                  n_jobs=settings['n_jobs'],
                                  test=settings['test'],
                                  fill_na=settings['fill_na'])
+
+                        # The table exists now; QC it while we know which
+                        # sample it belongs to. Inside the attempt so a
+                        # per-sample on_error policy still applies, but
+                        # itself never raising -- see _run_barcode_qc.
+                        _run_barcode_qc(settings, dst,
+                                        unique_combinations_csv, qc_csv_file)
 
 # Function to read the CSV, compute reverse complement, and save it
 def barecodes_reverse_complement(csv_file):
