@@ -5,7 +5,6 @@ import pandas as pd
 from multiprocessing import Pool, cpu_count, Queue, Process
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 from . import schema
 # One run id on every log line and every artifact, one seed, and the
@@ -962,25 +961,15 @@ def graph_sequencing_stats(settings):
     """
     from .utils import correct_metadata_column_names, correct_metadata
 
-    def _plot_density(df, dependent_variable, dst=None):
-        """Plot a KDE of ``dependent_variable`` in ``df``, optionally saving under ``dst``."""
-        plt.figure(figsize=(10, 10))
-        sns.kdeplot(df[dependent_variable], fill=True, alpha=0.6)
-        plt.title(f'Density Plot of {dependent_variable}')
-        plt.xlabel(dependent_variable)
-        plt.ylabel('Density')
-        if dst is not None:
-            filename = os.path.join(dst, 'dependent_variable_density.pdf')
-            plt.savefig(filename, format='pdf')
-            print(f'Saved density plot to {filename}')
-        plt.show()
-
     def find_and_visualize_fraction_threshold(df, target_unique_count=5, log_x=False, log_y=False, dst=None):
         """Return the fraction threshold whose per-well unique gRNA mean is closest to ``target_unique_count``."""
 
-        def _line_plot(df, x='fraction_threshold', y='unique_count', log_x=False, log_y=False):
-            if x not in df.columns or y not in df.columns:
-                raise ValueError(f"Columns '{x}' and/or '{y}' not found in the DataFrame.")
+        def _line_plot(df, x, y, log_x, log_y):
+            # No "are x and y in df.columns?" guard: this is a closure with one
+            # call site eight lines below, and `df` there is the results_df
+            # built two lines above it with exactly these two columns. The
+            # check could not fire, so it was a branch no test could ever
+            # reach honestly -- removed rather than excused.
             fig, ax = plt.subplots(figsize=(10, 10))
             ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
             ax.set_xlabel(x)
@@ -1082,7 +1071,6 @@ def graph_sequencing_stats(settings):
                   how='left', validate='many_to_one')
 
     print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
-    #_plot_density(df, dependent_variable='unique_counts')
 
     # rowID sometimes arrives as the composite '<plate>_<row>' that count CSVs
     # carry in their 'plate_row' column; plot_plates wants the row alone.
