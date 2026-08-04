@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
+from ..linked_selection import linked_selection
 from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.feature_explorer import FeatureExplorerPanel
@@ -57,6 +58,9 @@ class FeatureExplorerScreen(QWidget):
         self.setObjectName("FeatureExplorerScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
+        # Injectable, so a test drives a private link rather than the
+        # process-wide one every other open view is also listening to.
+        self._link = link if link is not None else linked_selection()
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -111,7 +115,6 @@ class FeatureExplorerScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         outer.addWidget(body, 1)
-        self._link = self.filters._link
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
