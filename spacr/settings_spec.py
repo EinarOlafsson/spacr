@@ -95,6 +95,12 @@ def convert_settings_dict_for_gui(settings):
     # (if torchvision happens to be imported already we extend it with the full
     # zoo, for free).
     torchvision_models = _torchvision_model_names()
+    # Same bargain, for the same measured reason: `cellpose.models` pulls in
+    # torch (~2.5 s) and this runs while a settings page is being built, so
+    # the accessor reads the API only when Cellpose is already loaded and
+    # degrades to the shipped list otherwise. It is never empty.
+    from .settings import cellpose_model_choices
+    cellpose_models = list(cellpose_model_choices())
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
 
     variables = {}
@@ -113,7 +119,7 @@ def convert_settings_dict_for_gui(settings):
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
-        'model_name': ('combo', ['cpsam'], 'cpsam'),
+        'model_name': ('combo', cellpose_models, cellpose_models[0]),
         'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
@@ -138,7 +144,8 @@ def convert_settings_dict_for_gui(settings):
         'transform': ('combo', ['log', 'sqrt', 'square', None], None),
         'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
         'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'unet'], 'otsu'),
-        'organelle_model_name': ('combo', ['cpsam'], 'cpsam'),
+        'organelle_model_name': ('combo', cellpose_models,
+                                 cellpose_models[0]),
         'organelle_ridge_filter': ('combo', ['frangi', 'sato', 'meijering'], 'frangi'),
         'organelle_network_threshold': ('combo', ['otsu', 'adaptive'], 'otsu'),
         'organelle_ring_fill_method': ('combo', ['flood', 'convex'], 'flood'),
