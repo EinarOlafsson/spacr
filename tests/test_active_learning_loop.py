@@ -549,6 +549,89 @@ def test_crops_for_object_keys_also_accepts_paths_and_prcfo(screen):
                                         rows[6]["png_path"]]
 
 
+def _two_children_db(tmp_path):
+    """A crop table holding a nucleus 1 and a pathogen 1 in ONE field.
+
+    The exact collision the object type went into the key for: two objects
+    that used to share ``p1_r1_c1_f1_1``, so one of them could not be opened
+    and which one depended on the row order below.
+    """
+    db = str(tmp_path / "measurements.db")
+    frame = pd.DataFrame([
+        {"png_path": "/crops/nucleus_png/p1_r1_c1_f1_o1.png",
+         "file_name": "p1_r1_c1_f1_o1.png", "prcfo": "p1_r1_c1_f1_o1",
+         "plateID": "p1", "rowID": "r1", "columnID": "c1", "fieldID": "f1",
+         "nucleus_id": "o1", "pathogen_id": None},
+        {"png_path": "/crops/pathogen_png/p1_r1_c1_f1_o1.png",
+         "file_name": "p1_r1_c1_f1_o1.png", "prcfo": "p1_r1_c1_f1_o1",
+         "plateID": "p1", "rowID": "r1", "columnID": "c1", "fieldID": "f1",
+         "nucleus_id": None, "pathogen_id": "o1"},
+    ])
+    con = sqlite3.connect(db)
+    try:
+        frame.to_sql("png_list", con, index=False)
+    finally:
+        con.close()
+    return db
+
+
+def test_a_nucleus_and_a_pathogen_with_one_label_open_as_two_crops(tmp_path):
+    """The defect, end to end. Two keys in, two different crops out."""
+    db = _two_children_db(tmp_path)
+    resolved = al.crops_for_object_keys(
+        db, ["p1_r1_c1_f1_nucleus1", "p1_r1_c1_f1_pathogen1"])
+    assert [p for p, _ in resolved] == [
+        "/crops/nucleus_png/p1_r1_c1_f1_o1.png",
+        "/crops/pathogen_png/p1_r1_c1_f1_o1.png"]
+    # And in the caller's order, not the table's.
+    reversed_order = al.crops_for_object_keys(
+        db, ["p1_r1_c1_f1_pathogen1", "p1_r1_c1_f1_nucleus1"])
+    assert [p for p, _ in reversed_order] == [
+        "/crops/pathogen_png/p1_r1_c1_f1_o1.png",
+        "/crops/nucleus_png/p1_r1_c1_f1_o1.png"]
+
+
+def test_an_untyped_key_still_opens_one_of_them_as_it_always_did(tmp_path):
+    """Under-specified, not broken. It named one crop before and still does."""
+    db = _two_children_db(tmp_path)
+    resolved = al.crops_for_object_keys(db, ["p1_r1_c1_f1_1"])
+    assert len(resolved) == 1
+
+
+def test_a_typed_key_falls_back_when_the_crop_table_cannot_say_what_it_is(
+        tmp_path):
+    """A row that has said nothing has not contradicted the key.
+
+    Resolving nothing here would take a lasso made in a typed view and open
+    an empty grid on a database whose ``png_list`` predates the ``*_id``
+    columns — silence where there used to be a crop.
+    """
+    db = str(tmp_path / "measurements.db")
+    con = sqlite3.connect(db)
+    try:
+        pd.DataFrame([{
+            "png_path": "/crops/cell_png/p1_r1_c1_f1_o1.png",
+            "file_name": "p1_r1_c1_f1_o1.png", "prcfo": "p1_r1_c1_f1_o1",
+            "plateID": "p1", "rowID": "r1", "columnID": "c1",
+            "fieldID": "f1",
+        }]).to_sql("png_list", con, index=False)
+    finally:
+        con.close()
+    resolved = al.crops_for_object_keys(db, ["p1_r1_c1_f1_nucleus1"])
+    assert [p for p, _ in resolved] == ["/crops/cell_png/p1_r1_c1_f1_o1.png"]
+
+
+def test_the_png_id_column_map_is_the_one_the_writer_uses():
+    """Derived from the schema to keep spacr.utils out of this import chain.
+
+    Two copies of the same mapping is how they drift, and a drift here means
+    a crop's object type is read off a column the writer never fills.
+    """
+    from spacr.utils import PNG_CROP_MODE_BY_ID_COLUMN
+
+    assert al.PNG_ID_COLUMN_TYPES == PNG_CROP_MODE_BY_ID_COLUMN
+
+
 def test_object_label_survives_the_png_list_sentinels():
     assert al._object_label("o5") == "5"
     assert al._object_label(5) == "5"
