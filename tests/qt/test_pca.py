@@ -657,6 +657,14 @@ def test_a_brush_in_pc_space_can_be_opened_as_objects(qtbot, link):
     assert len(opened[0].keys) == len(link.selection)
 
 
+def _settled(qtbot, screen, timeout: int = 20000):
+    """Wait for a PCAScreen's read and decomposition to deliver."""
+    qtbot.waitUntil(
+        lambda: not screen.is_busy() and screen.active_jobs() == 0,
+        timeout=timeout)
+    return screen
+
+
 def test_the_shared_filter_narrows_the_population_and_the_pca_with_it(
         qtbot, link):
     """A filter is a new PCA, not the old one with points removed: the centre,
@@ -668,11 +676,16 @@ def test_the_shared_filter_narrows_the_population_and_the_pca_with_it(
     qtbot.addWidget(screen)
     frame = cluster_frame()
     screen.set_frame(frame)
+    # The screen threads its panel (see PCAPanel.recompute): the sklearn fit
+    # is 1.63 s on a real table, so it runs on a worker and the result lands
+    # on a later turn of the event loop rather than on the call's return.
+    _settled(qtbot, screen)
     everything = screen.pca.result
     assert len(everything) == len(frame)
 
     link.set_filter(DataFilter([CategoryFilter("gene", ("control",))]))
     screen._recompute_filtered()
+    _settled(qtbot, screen)
     controls = screen.pca.result
     assert len(controls) == len(frame[frame["gene"] == "control"])
     # The separation was the biggest axis; without it the components move.
