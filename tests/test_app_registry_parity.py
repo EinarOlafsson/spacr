@@ -411,12 +411,37 @@ def test_the_missing_column_map_warning_only_fires_on_a_real_run(tmp_path):
 
 
 def test_a_defaults_helper_that_cannot_be_imported_does_not_break_describe():
-    """--describe has to answer even against a half-installed environment."""
+    """--describe has to answer even against a half-installed environment.
+
+    The two halves are deliberately different, and this test used to assert
+    only the first and never call describe at all. ``module_defaults`` is the
+    **run** path: it once returned ``{}`` here, which made every module with
+    its own helper -- convert, illumination, foreign, external_masks,
+    barcode_qc, anndata_export, every plugin app -- run on a settings dict
+    with no defaults in it, so ``--set z_handling=max`` came back as "names a
+    setting that does not exist for module 'convert'". It now raises and names
+    the dependency. ``--describe`` keeps its own guard around that call, so it
+    still prints the contract it can work out without the helper.
+    """
     broken = cli.Module(key="_broken", summary="", entry="spacr.foreign:import_project",
                         defaults=None, validate_key="",
                         defaults_entry="spacr_no_such_module:default_settings")
-    assert cli.module_defaults(broken) == {}
+
+    # The run path fails loudly, pointing at the dependency and not at the
+    # user's command line.
+    with pytest.raises(cli.SettingsError) as excinfo:
+        cli.module_defaults(broken)
+    message = str(excinfo.value)
+    assert "_broken" in message and "spacr_no_such_module" in message
+    assert "will not import" in message
+
+    # The describe path still answers, and answers usefully.
+    described = cli.render_module_description(broken)
     assert broken.defaults_label == "spacr_no_such_module.default_settings()"
+    assert "spacr_no_such_module.default_settings()" in described
+    assert "spacr.foreign.import_project(settings)" in described
+    # ...without inventing a settings count it could not compute.
+    assert "keys, all optional" not in described
 
 
 def test_describe_names_whichever_defaults_helper_a_module_has():
