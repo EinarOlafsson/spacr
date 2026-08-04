@@ -402,7 +402,7 @@ QWidget#{OVERLAY_CARD_NAME} {{
 }}
 QLabel#ShortcutOverlayTitle {{
     font-size: 18px;
-    color: {palette["text"]};
+    color: {palette["fg"]};
     padding-bottom: 8px;
 }}
 QLabel#ShortcutOverlayCategory {{
@@ -414,13 +414,13 @@ QLabel#ShortcutOverlayCategory {{
 }}
 QLabel#ShortcutOverlayKeys {{
     font-family: monospace;
-    color: {palette["text"]};
+    color: {palette["fg"]};
 }}
 QLabel#ShortcutOverlayLabel {{
-    color: {palette["text_dim"]};
+    color: {palette["fg_dim"]};
 }}
 QLabel#ShortcutOverlayHint {{
-    color: {palette["text_dim"]};
+    color: {palette["fg_dim"]};
     font-size: 11px;
     padding-top: 12px;
 }}

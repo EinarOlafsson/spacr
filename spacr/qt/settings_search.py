@@ -601,18 +601,18 @@ QLineEdit#{INPUT_NAME}:focus {{
     border-color: {palette["accent"]};
 }}
 QLabel#{COUNT_NAME} {{
-    color: {palette["text_dim"]};
+    color: {palette["fg_dim"]};
     font-size: 11px;
 }}
 QToolButton#{DISCLOSURE_NAME} {{
     background: transparent;
-    color: {palette["text_dim"]};
+    color: {palette["fg_dim"]};
     border: 1px solid {palette["border_soft"]};
     border-radius: 6px;
     padding: 3px 10px;
 }}
 QToolButton#{DISCLOSURE_NAME}:checked {{
-    color: {palette["text"]};
+    color: {palette["fg"]};
     border-color: {palette["accent"]};
 }}
 """
