@@ -589,7 +589,15 @@ def test_test_cellpose_model_saves_csv_and_diagnostic_pngs(tmp_path, cp_stub,
                                                            monkeypatch):
     """save=True writes one PNG per image plus test_results.csv."""
     import matplotlib.pyplot as plt
+    import spacr.plot as P
     from spacr.submodules import test_cellpose_model
+
+    # The diagnostic goes through ``spacr.plot.save_figure``, which writes the
+    # user's preferred figure format and rewrites the extension to match. With
+    # no preference store (the case under pytest) that default is PDF, so a
+    # test asserting an exact ``.png`` name and the PNG magic bytes has to
+    # state the preference it is asserting.
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
 
     labels = [
         _label_image(32, [(1, (2, 10, 2, 10))]),
