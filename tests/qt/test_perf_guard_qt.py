@@ -119,11 +119,49 @@ def best_ms(step, iterations: int, runs: int = 8,
     return best
 
 
+def raster_calibration_ms() -> float:
+    """Cost of one full-page ``fillRect`` at 1920x1080, measured here and now.
+
+    The frame ceilings below were absolute, and an absolute wall clock on a
+    shared machine is a coin flip: the ``ripple`` guard failed at 7.0 ms in a
+    batch on a box running the suite beside several agents, having passed on
+    its own minutes earlier. A guard that flakes gets deleted, and these are
+    worth keeping.
+
+    So each frame cost is *also* claimed as a multiple of this — one raster
+    primitive, on the same image, in the same process, seconds apart. Whatever
+    the machine is doing to the frame it is doing to the fill, so the ratio
+    survives a loaded box while still moving the moment the painting itself
+    gets more expensive. Measured on this tree at load average 30: fill
+    0.141 ms, blobs 29x, aurora 59x, ripple 31x, drift 8.6x, and the same
+    ratios within a few percent on a quiet one.
+
+    :returns: milliseconds for one fill, best of :func:`best_ms`'s repeats.
+    """
+    canvas = QImage(FRAME_W, FRAME_H, QImage.Format_RGB32)
+    painter = QPainter(canvas)
+    fill = QColor(DARK)
+
+    def once():
+        painter.fillRect(canvas.rect(), fill)
+
+    try:
+        for _ in range(20):
+            once()
+        return best_ms(once, FRAMES)
+    finally:
+        painter.end()
+
+
 # ---------------------------------------------------------------------------
 # Backdrops: what one frame costs at 1920x1080
 # ---------------------------------------------------------------------------
 
-DNA_RAIN_CEILING_MS = 4.0
+#: Absolute backstop only. The load-immune claim is the ratio beside it.
+DNA_RAIN_CEILING_MS = 12.0
+#: Measured 4x the bare fill on this tree; a regression to either rejected
+#: drawing path (12 ms and 35 ms a frame) is 85x and 250x.
+DNA_RAIN_CEILING_RATIO = 20.0
 
 
 def test_one_dna_rain_frame_costs_under_four_milliseconds(qtbot):
@@ -162,24 +200,37 @@ def test_one_dna_rain_frame_costs_under_four_milliseconds(qtbot):
     for _ in range(60):          # warm the pre-rendered strip cache
         frame()
     per_frame = best_ms(frame, FRAMES, target=DNA_RAIN_CEILING_MS)
+    calibration = raster_calibration_ms()
+    ratio = per_frame / calibration
 
     assert widget.engine.n_columns == 120        # the documented canvas
+    assert ratio < DNA_RAIN_CEILING_RATIO, (
+        f"a DNA rain frame costs {per_frame:.2f} ms against {calibration:.3f} "
+        f"ms for one full-page fill measured beside it — {ratio:.1f}x, where "
+        f"it measured 4x. The module documents 0.53 ms/frame; the two drawing "
+        f"paths this design rejected are 85x and 250x")
     assert per_frame < DNA_RAIN_CEILING_MS, (
         f"a DNA rain frame costs {per_frame:.2f} ms at {FRAME_W}x{FRAME_H} "
         f"({per_frame * 60 * 100 / 1000:.1f} % of a core at 60 fps); the "
         "module documents 0.53 ms and this tree measured 0.56 ms")
 
 
-@pytest.mark.parametrize("theme, ceiling_ms, documented, measured", [
-    ("blobs", 7.0, 1.21, 1.65),
-    ("aurora", 14.0, 1.40, 3.36),
-    ("ripple", 7.0, 1.31, 1.81),
-    ("drift", 3.0, 0.66, 0.64),
+@pytest.mark.parametrize("theme, ceiling_ms, ceiling_ratio, documented, measured", [
+    ("blobs", 20.0, 60.0, 1.21, 1.65),
+    ("aurora", 40.0, 120.0, 1.40, 3.36),
+    ("ripple", 20.0, 60.0, 1.31, 1.81),
+    ("drift", 9.0, 20.0, 0.66, 0.64),
 ])
 def test_one_ambient_frame_costs_what_the_module_says_it_does(
-        qapp, theme, ceiling_ms, documented, measured):
-    """Per-theme frame ceilings, 4.2-4.7x over what this tree measures quiet
-    and 1.8-2.5x over what it measures with the machine fully loaded.
+        qapp, theme, ceiling_ms, ceiling_ratio, documented, measured):
+    """Per-theme frame cost, claimed as a multiple of one full-page fill.
+
+    The ratio is the guard; the millisecond ceiling beside it is a backstop
+    that only a catastrophe reaches. See :func:`raster_calibration_ms` for why
+    the absolute one alone was not keepable: it flaked on a loaded box, and a
+    guard that flakes gets deleted. Measured on this tree at load average 30 —
+    blobs 29x, aurora 59x, ripple 31x, drift 8.6x — so each ceiling is about
+    2x the loaded measurement and the ratios hold on a quiet machine too.
 
     The protocol is the module's own: 1920x1080, offscreen raster, 120 frames,
     the full-page background fill included in every one of them, best of up to
@@ -207,12 +258,19 @@ def test_one_ambient_frame_costs_what_the_module_says_it_does(
         per_frame = best_ms(frame, FRAMES, target=ceiling_ms)
     finally:
         painter.end()
+    calibration = raster_calibration_ms()
+    ratio = per_frame / calibration
 
+    assert ratio < ceiling_ratio, (
+        f"an ambient '{theme}' frame costs {per_frame:.2f} ms against "
+        f"{calibration:.3f} ms for one full-page fill measured beside it — "
+        f"{ratio:.1f}x, ceiling {ceiling_ratio}x. Documented {documented} ms, "
+        f"measured {measured} ms on this tree")
     assert per_frame < ceiling_ms, (
         f"an ambient '{theme}' frame costs {per_frame:.2f} ms at "
         f"{FRAME_W}x{FRAME_H} ({per_frame * 24 * 100 / 1000:.1f} % of a core "
         f"at this module's 24 fps); documented {documented} ms, measured "
-        f"{measured} ms on this tree, ceiling {ceiling_ms} ms")
+        f"{measured} ms on this tree, backstop {ceiling_ms} ms")
 
 
 # ---------------------------------------------------------------------------
