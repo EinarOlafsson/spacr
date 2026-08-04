@@ -1246,7 +1246,15 @@ class TestPanelSettings:
         assert req.diameter == pytest.approx(17.0)
         assert req.flow_threshold == pytest.approx(0.15)
         assert req.cellprob == pytest.approx(-2.0)
-        assert req.channels == {"cell": 1, "nucleus": 2}
+        # Every object type carries a channel now, not just the two the
+        # panel used to expose. `channels.get(obj, 0)` used to fall back to
+        # 0 for pathogen and organelle, so selecting either segmented the
+        # cell channel. Asserted per key so adding a sixth object type does
+        # not fail this test for the wrong reason.
+        assert req.channels["cell"] == 1
+        assert req.channels["nucleus"] == 2
+        assert set(req.channels) >= {"cell", "nucleus", "pathogen",
+                                     "organelle"}
         assert req.object_types == ("cell", "nucleus")
         # The cached Mask-app settings and the compartment widgets are merged
         # into one dict used for both pre and post.
