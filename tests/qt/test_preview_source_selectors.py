@@ -156,14 +156,28 @@ def test_every_live_preview_has_fov_and_channel_left_of_choose(
                          ids=[p[0] for p in PREVIEW_PANELS])
 def test_the_selectors_wear_the_live_toggle_look(qtbot, app_key, build,
                                                  _choose):
-    """Text only: the theme's foreground, 600 weight, body size, no chrome."""
-    from spacr.qt.theme import FONT_SIZE, active_palette
+    """Text only: the theme's foreground, 600 weight, body size, no chrome.
+
+    Body size means ``font_px('body')``, not ``FONT_SIZE['body']``, and the
+    difference is the whole of b99ffc67. A per-widget ``setStyleSheet`` beats
+    the application sheet whatever the selector says, so every surface that
+    writes its own sheet — these selectors, the Live/AI toggles, the tab
+    strips — stayed at the literal 13 px while the rest of the interface
+    scaled with Zoom. They go through ``font_px`` now, which at the shipped
+    150 % default answers 20. Asserting the literal pinned the bug: it would
+    have gone red the day Zoom started reaching this text, which is what
+    happened.
+    """
+    from spacr.qt.theme import FONT_SIZE, active_palette, font_px
     from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
 
     panel = build(qtbot)
     live = AiToggleLabel(text="Live")
     qtbot.addWidget(live)
     palette = active_palette()
+    body_px = font_px("body")
+    assert body_px >= FONT_SIZE["body"] * 0.75, (
+        "font_px('body') is no longer derived from FONT_SIZE['body']")
     controls = [panel._fov_box, panel._channel_box,
                 panel._seq_btn if app_key == "timelapse" else panel._pick_btn]
     for control in controls:
@@ -171,16 +185,18 @@ def test_the_selectors_wear_the_live_toggle_look(qtbot, app_key, build,
         qss = control.styleSheet()
         # The same three declarations the Live toggle paints itself with.
         assert f"color: {palette['fg']}" in qss
-        assert f"font-size: {FONT_SIZE['body']}px" in qss
+        assert f"font-size: {body_px}px" in qss
         assert "font-weight: 600" in qss
         # ... and no box chrome of any kind.
         assert "background: transparent" in qss
         assert "border: none" in qss
         assert "border-radius: 0px" in qss
-    # The Live toggle really does declare those same values.
+    # The Live toggle really does declare those same values — which is what
+    # "wears the Live toggle look" means, and it is asserted against the
+    # toggle's own sheet rather than against a constant both could drift from.
     live_qss = live.styleSheet()
     assert f"color: {palette['fg']}" in live_qss
-    assert f"font-size: {FONT_SIZE['body']}px" in live_qss
+    assert f"font-size: {body_px}px" in live_qss
     assert "font-weight: 600" in live_qss
 
 
