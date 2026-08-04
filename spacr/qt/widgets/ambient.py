@@ -228,7 +228,10 @@ from PySide6.QtWidgets import QSizePolicy, QWidget
 from ..theme import palette_for, relative_luminance
 
 __all__ = [
-    "AMBIENT_THEMES", "DEFAULT_THEME", "DEFAULT_PALETTE", "PALETTE_SETS",
+    "AMBIENT_THEMES", "ANIMATION_CHOICES", "NO_ANIMATION",
+    "animation_label", "animation_note", "is_animation_choice",
+    "total_frames_painted",
+    "DEFAULT_THEME", "DEFAULT_PALETTE", "PALETTE_SETS",
     "AmbientWidget", "install_ambient", "theme_label", "theme_note",
     "palettes_for", "palette_label", "palette_note", "palette_colors",
     "default_palette_for", "is_valid_theme", "is_valid_palette",
@@ -246,8 +249,30 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 #: Every theme, in the order a menu should list them.
+#:
+#: These are the *paintable* ones — every name here has an engine behind it.
+#: The menu the user sees is :data:`ANIMATION_CHOICES`, which is this list
+#: with "no animation at all" in front of it; keeping the two apart is what
+#: lets ``make_engine``, ``_require_theme`` and every engine test go on
+#: meaning "a thing that can be drawn".
 AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift",
                                    "bokeh", "cells")
+
+#: The animation choice that draws nothing and runs no timer.
+#:
+#: Not a seventh engine that happens to paint an empty frame — that would
+#: still be a timer, a repaint and a composite sixty times a second for a
+#: picture that is identical every time. It is the absence of the widget:
+#: :func:`spacr.qt.preferences.get_ambient_enabled` reports ``False`` while
+#: it is selected, and the three install sites (``AppScreen``, Home and
+#: ``MainWindow._theme_screen``) all read that *before* they construct
+#: anything. The cost is zero because nothing exists, which is the only kind
+#: of zero worth claiming.
+NO_ANIMATION = "none"
+
+#: What the Animation preference offers, in menu order: nothing, then the
+#: six animations.
+ANIMATION_CHOICES: Tuple[str, ...] = (NO_ANIMATION,) + AMBIENT_THEMES
 
 #: What the feature was asked for, so it is what you get by default.
 DEFAULT_THEME = "blobs"
@@ -430,6 +455,40 @@ def theme_label(name: str) -> str:
 def theme_note(name: str) -> str:
     """One-line description of ``name``, for a tooltip."""
     return _THEME_NOTES[_require_theme(name)]
+
+
+def is_animation_choice(name) -> bool:
+    """True for anything the Animation preference may hold — including
+    :data:`NO_ANIMATION`, which :func:`is_valid_theme` rejects because it
+    cannot be painted."""
+    return name in ANIMATION_CHOICES
+
+
+def animation_label(name: str) -> str:
+    """Human label for an entry of :data:`ANIMATION_CHOICES`.
+
+    "None" rather than "Off": the row is called Animation and this is one of
+    the animations it can be set to, the way a font size can be set to zero.
+    """
+    if name == NO_ANIMATION:
+        return "None"
+    return theme_label(name)
+
+
+def animation_note(name: str) -> str:
+    """One-line description of an animation choice, for a tooltip.
+
+    The note for "None" states the cost, because that is the only reason a
+    reader picks it — and the claim is asserted rather than advertised: see
+    ``tests/qt/test_ambient_none.py``, which counts painted frames over a
+    real second instead of trusting this sentence.
+    """
+    if name == NO_ANIMATION:
+        return ("No backdrop at all: nothing is drawn behind the module "
+                "pages and no animation timer runs anywhere in spaCR, so "
+                "the cost while idle is exactly zero rather than nearly "
+                "nothing. The page keeps its ordinary theme colour.")
+    return theme_note(name)
 
 
 def palettes_for(theme: str) -> Tuple[str, ...]:
@@ -2860,6 +2919,20 @@ def preferred_motion() -> Motion:
 # Widget
 # ---------------------------------------------------------------------------
 
+#: Frames painted by every ambient backdrop in this process, ever.
+#:
+#: Process-wide and not per widget, because the claim "None costs nothing"
+#: is about the *application*, and the widget it would be counted on is the
+#: one that does not exist. A test selects None, drives a real screen, and
+#: asserts this number does not move.
+_TOTAL_FRAMES = 0
+
+
+def total_frames_painted() -> int:
+    """How many ambient frames this process has painted. For tests."""
+    return _TOTAL_FRAMES
+
+
 class AmbientWidget(QWidget):
     """The live backdrop: paints an :class:`AmbientEngine` at a capped rate.
 
@@ -2955,6 +3028,12 @@ class AmbientWidget(QWidget):
                                    direction=self._direction)
 
         self._animating = True
+        #: Frames this backdrop has actually painted. The activity spinner
+        #: carries the same counter for the same reason: "it costs nothing
+        #: while it is off" is a claim about frames, and a test that reads a
+        #: flag instead would pass just as happily on a timer that is
+        #: running and drawing something invisible.
+        self.frames_painted = 0
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._clock = QElapsedTimer()
         # One timer for the life of the widget. Switching theme swaps the
@@ -3304,6 +3383,9 @@ class AmbientWidget(QWidget):
         return QPoint(x - offset.x(), y - offset.y())
 
     def paintEvent(self, event):
+        global _TOTAL_FRAMES
+        self.frames_painted += 1
+        _TOTAL_FRAMES += 1
         painter = QPainter(self)
         rect = self.rect()
         self._paint_base(painter, rect)
