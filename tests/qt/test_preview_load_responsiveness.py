@@ -676,3 +676,235 @@ def test_skipping_the_merged_enumeration_returns_no_sets(merged_folder):
     payload = MP.load_merged_array(target, enumerate_sets=False)
     assert payload["sets"] is None
     assert payload["data"] is not None
+
+
+# ===========================================================================
+# Timelapse and Motility -- the other two panels with the same shape
+# ===========================================================================
+#
+# Measured on 400 field folders of 12 frames each (timelapse) and a merged/
+# folder of 3072 arrays in 384 time series (motility), worst GUI-thread gap:
+#
+#     timelapse: drop a field folder     13.7 ms  ->  33.2 ms
+#     timelapse: FOV change               3.3 ms  ->   3.4 ms
+#     timelapse: Choose-sequence          2.9 ms  ->   6.2 ms
+#     motility:  drop a plate folder    548.8 ms  ->  41.2 ms
+#     motility:  Choose-plate dialog   1634.9 ms  -> 338.9 ms
+#
+# Motility is the clear win: `group_merged_files` reads and parses every name
+# in `merged/`, which is thousands of entries on a 384-well plate.
+#
+# Timelapse is reported honestly as a small *regression* on that fixture, and
+# it is worth stating why it was kept. `FrameSequence.open` reads headers
+# only, so opening a 12-frame folder was already cheap and what replaced it is
+# mostly the ~20 ms of starting a worker. What the threading buys is the case
+# the fixture does not represent -- a folder of thousands of frames, a large
+# multi-page TIFF, or any of this over a network mount, where the open is
+# unbounded -- plus the spinner, which cannot turn for work the registry never
+# sees. `test_a_slow_sequence_open_never_freezes_the_gui_thread` pins that
+# case; the 20 ms is the premium paid for it, and it is below one frame at
+# 60 fps.
+
+import spacr.qt.widgets.motility_preview as MO
+import spacr.qt.widgets.timelapse_preview as TL
+from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
+from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
+
+
+@pytest.fixture
+def frame_folders(tmp_path):
+    """Two sibling fields of view, each a folder of frames."""
+    root = tmp_path / "plate"
+    rng = np.random.default_rng(0)
+    for name in ("field1", "field2"):
+        folder = root / name
+        folder.mkdir(parents=True)
+        for t in range(4):
+            tifffile.imwrite(
+                str(folder / f"t{t:02d}.tif"),
+                rng.integers(0, 4096, (32, 32), dtype=np.uint16))
+    return root
+
+
+@pytest.fixture
+def motility_plate(tmp_path):
+    """A plate folder holding merged/plate_well_field_time.npy."""
+    merged = tmp_path / "plate" / "merged"
+    merged.mkdir(parents=True)
+    arr = np.zeros((32, 32, 4), np.uint16)
+    arr[..., 0] = 500
+    labels = np.zeros((32, 32), np.int32)
+    labels[4:14, 4:14] = 1
+    labels[18:28, 18:28] = 2
+    arr[..., 2] = labels
+    arr[..., 3] = labels
+    for field in (1, 2):
+        for t in range(1, 5):
+            np.save(str(merged / f"plate1_A01_{field}_{t}.npy"), arr)
+    return tmp_path / "plate"
+
+
+def _tl_idle(panel):
+    return not panel._loads_in_flight
+
+
+def _mo_idle(panel):
+    return not panel._loads_in_flight
+
+
+def test_a_slow_sequence_open_never_freezes_the_gui_thread(
+        qtbot, frame_folders, monkeypatch):
+    """The case the cheap fixture does not represent: an unbounded open."""
+    panel = TimelapsePreviewPanel()
+    qtbot.addWidget(panel)
+    real = TL.FrameSequence.open
+
+    def slow(path, **kwargs):
+        time.sleep(SLOW_DECODE_S)
+        return real(path, **kwargs)
+
+    monkeypatch.setattr(TL.FrameSequence, "open", staticmethod(slow))
+
+    dog = LoopWatchdog()
+    dog.start()
+    panel.dropEvent(_Evt(_mime_for(frame_folders / "field1")))
+    _drive(qtbot, dog, lambda: panel._sequence is not None and _tl_idle(panel))
+
+    assert panel._sequence is not None, "the drop never opened the sequence"
+    assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
+    assert dog.worst < STALL_BUDGET_S, (
+        f"opening a sequence stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+
+
+def test_the_timelapse_picker_and_fov_both_route_through_the_worker(
+        qtbot, frame_folders, monkeypatch):
+    panel = TimelapsePreviewPanel()
+    qtbot.addWidget(panel)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        staticmethod(lambda *a, **k: str(
+                            frame_folders / "field1")))
+    panel._pick_sequence()
+    qtbot.waitUntil(lambda: panel._sequence is not None, timeout=30000)
+    assert panel._fov_box.count() == 2
+
+    first = panel._sequence.label
+    panel._fov_box.setCurrentIndex(1)
+    qtbot.waitUntil(lambda: panel._sequence.label != first, timeout=30000)
+    assert panel._sequence.label == str(frame_folders / "field2")
+
+
+def test_leaving_the_timelapse_screen_mid_open_cancels_cleanly(
+        qtbot, frame_folders, monkeypatch):
+    panel = TimelapsePreviewPanel()
+    qtbot.addWidget(panel)
+    real = TL.FrameSequence.open
+    monkeypatch.setattr(
+        TL.FrameSequence, "open",
+        staticmethod(lambda path, **kw: (time.sleep(SLOW_DECODE_S),
+                                         real(path, **kw))[1]))
+    panel.load_sequence_async(str(frame_folders / "field1"))
+    qtbot.wait(30)
+    assert panel._loads_in_flight, "nothing in flight; this proves nothing"
+
+    panel.close()
+
+    assert panel._jobs.active_jobs() == 0, "a QThread outlived the panel"
+    qtbot.wait(int(SLOW_DECODE_S * 1000) + 400)
+    assert panel._sequence is None
+
+
+def test_an_unthreaded_timelapse_panel_still_opens(qtbot, frame_folders):
+    panel = TimelapsePreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    assert panel.load_sequence(str(frame_folders / "field1")) is True
+    assert panel._sequence is not None
+
+
+def test_dropping_a_plate_never_freezes_the_gui_thread(
+        qtbot, motility_plate, monkeypatch):
+    """`group_merged_files` parses every name in merged/ -- thousands."""
+    panel = MotilityPreviewPanel()
+    qtbot.addWidget(panel)
+    real = MO.group_merged_files
+    monkeypatch.setattr(
+        MO, "group_merged_files",
+        lambda d: (time.sleep(SLOW_DECODE_S), real(d))[1])
+
+    dog = LoopWatchdog()
+    dog.start()
+    panel.dropEvent(_Evt(_mime_for(motility_plate)))
+    _drive(qtbot, dog, lambda: bool(panel._groups) and _mo_idle(panel))
+
+    assert panel._groups, "the drop never scanned the plate"
+    assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
+    assert dog.worst < STALL_BUDGET_S, (
+        f"dropping a plate stalled the GUI thread for "
+        f"{dog.worst * 1000:.0f} ms")
+
+
+def test_the_motility_picker_routes_through_the_worker(
+        qtbot, motility_plate, monkeypatch):
+    panel = MotilityPreviewPanel()
+    qtbot.addWidget(panel)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        staticmethod(lambda *a, **k: str(motility_plate)))
+    panel._pick_folder()
+    qtbot.waitUntil(lambda: bool(panel._groups), timeout=30000)
+    assert len(panel._groups) == 2
+
+
+def test_leaving_the_motility_screen_mid_scan_cancels_cleanly(
+        qtbot, motility_plate, monkeypatch):
+    panel = MotilityPreviewPanel()
+    qtbot.addWidget(panel)
+    real = MO.group_merged_files
+    monkeypatch.setattr(
+        MO, "group_merged_files",
+        lambda d: (time.sleep(SLOW_DECODE_S), real(d))[1])
+    panel.load_folder_async(str(motility_plate))
+    qtbot.wait(30)
+    assert panel._loads_in_flight, "nothing in flight; this proves nothing"
+
+    panel.close()
+
+    assert panel._jobs.active_jobs() == 0, "a QThread outlived the panel"
+    qtbot.wait(int(SLOW_DECODE_S * 1000) + 400)
+    assert not panel._groups
+
+
+def test_an_unthreaded_motility_panel_still_scans(qtbot, motility_plate):
+    panel = MotilityPreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    assert panel.load_folder(str(motility_plate)) is True
+    assert len(panel._groups) == 2
+
+
+def test_a_plate_with_no_time_series_reports_rather_than_raising(
+        qtbot, tmp_path):
+    merged = tmp_path / "plate" / "merged"
+    merged.mkdir(parents=True)
+    np.save(str(merged / "plate1_A01_1_1.npy"), np.zeros((8, 8, 3), np.uint16))
+    panel = MotilityPreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    assert panel.load_folder(str(tmp_path / "plate")) is False
+    assert "time series" in panel._status.text()
+
+
+def test_the_scan_payload_reads_no_widget(motility_plate):
+    payload = MO.scan_plate_payload(str(motility_plate))
+    assert payload["error"] == ""
+    assert len(payload["groups"]) == 2
+
+
+def test_the_sequence_payload_warms_the_first_frame(frame_folders):
+    """Frame 0 is decoded on the worker so the GUI thread's read is a hit."""
+    payload = TL.open_sequence_payload(
+        str(frame_folders / "field1"), 12, list_siblings=True)
+    assert payload["error"] == ""
+    seq = payload["sequence"]
+    before = seq.read_count
+    seq.frame(0)
+    assert seq.read_count == before, (
+        "frame 0 was not cached by the worker, so the GUI thread re-read it")
+    assert payload["siblings"] and len(payload["siblings"]) == 2

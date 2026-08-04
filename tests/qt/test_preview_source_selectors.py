@@ -111,14 +111,17 @@ def _measure(qtbot):
 
 def _timelapse(qtbot):
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
-    panel = TimelapsePreviewPanel()
+    # threaded=False: these tests are about what the dropdowns *select*, not
+    # about which thread does the opening. See _measure.
+    panel = TimelapsePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     return panel
 
 
 def _motility(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    # threaded=False: see _measure.
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     return panel
 
