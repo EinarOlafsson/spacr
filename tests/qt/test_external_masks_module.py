@@ -4,7 +4,8 @@ from __future__ import annotations
 import numpy as np
 import tifffile
 
-from spacr.qt.app import APPS, SECTION_DATA, STAGE_ALPHA, app_stage
+from spacr.qt import maturity
+from spacr.qt.app import APPS, SECTION_DATA, STAGE_BETA, app_stage
 from spacr.qt.bridge import resolve_pipeline_entry
 from spacr.qt.dnd_handlers import ExternalMasksDropHandler, get_handler
 from spacr.qt.screens.settings_model import SettingsWidgets
@@ -16,10 +17,27 @@ def _write(path, array):
     tifffile.imwrite(path, np.asarray(array), photometric="minisblack")
 
 
-def test_module_is_an_alpha_data_app_with_a_real_pipeline_entry():
+def test_module_is_a_beta_data_app_with_a_real_pipeline_entry():
+    """Beta, not alpha, and the reason is recorded next to the decision.
+
+    `spacr.qt.maturity` assessed all twenty-six alpha modules against the
+    evidence in the repository. This one keeps a caveat rather than going
+    straight to stable -- a real `spacr-run external_masks` pipeline with a
+    defaults entry and a tutorial lesson, but 49 assertions across two small
+    files, the thinnest test evidence of any CLI-backed module in the batch.
+
+    The promotions are applied by `register_self_registering_modules`, which
+    runs at every launch. A bare test process may not have called it, so
+    `maturity.apply` is called directly rather than depending on whether
+    some earlier test happened to -- and `apply` alone, because it touches
+    only APP_STAGE and cannot re-register anything.
+    """
+    maturity.apply()
+
     record = next(app for app in APPS if app[0] == "external_masks")
     assert record[3] == SECTION_DATA
-    assert app_stage("external_masks") == STAGE_ALPHA
+    assert app_stage("external_masks") == STAGE_BETA
+    assert maturity.reason_for("external_masks")
     assert resolve_pipeline_entry("external_masks").__name__
     assert isinstance(get_handler("external_masks"), ExternalMasksDropHandler)
 

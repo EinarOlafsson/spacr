@@ -156,7 +156,16 @@ def test_the_screen_registers_itself_as_an_app(qapp, registered):
     assert row[3] == "Results & QC"
     from spacr.qt.app import APP_FACTORIES, app_stage
     assert screen.APP_KEY in APP_FACTORIES
-    assert app_stage(screen.APP_KEY) == "alpha"
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(screen.APP_KEY) == "beta"
 
 
 def test_registering_twice_is_a_no_op(qapp, registered):

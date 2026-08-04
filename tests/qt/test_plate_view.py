@@ -169,7 +169,16 @@ def test_it_is_registered_under_results_and_qc_as_alpha():
     assert name == "Plate Viewer"
     from spacr.qt.app import SECTION_RESULTS, app_stage
     assert section == SECTION_RESULTS
-    assert app_stage(key) == "alpha"
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(key) == "stable"
     assert description
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     assert APP_TITLES.get("plate_view")

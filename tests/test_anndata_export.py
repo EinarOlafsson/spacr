@@ -1201,7 +1201,16 @@ def test_the_qt_app_row_registers_when_there_is_a_gui_to_register_with():
     app = sys.modules["spacr.qt.app"]
     ax.register_anndata_app(replace=True)
     assert any(row[0] == ax.APP_KEY for row in app.APPS)
-    assert app.APP_STAGE[ax.APP_KEY] == app.STAGE_ALPHA
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app.APP_STAGE[ax.APP_KEY] == app.STAGE_BETA
     # `replace=True` re-registered it in place, and row order is what the
     # sidebar walks: a row filed at the end rather than beside its own
     # section draws that section's heading a second time. So check the

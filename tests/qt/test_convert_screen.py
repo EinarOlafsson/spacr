@@ -162,7 +162,16 @@ def test_it_is_registered_under_data_as_alpha():
     assert entry[1] == "Format Converter"
     from spacr.qt.app import SECTION_DATA, app_stage
     assert entry[3] == SECTION_DATA
-    assert app_stage(entry[0]) == "alpha"
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(entry[0]) == "stable"
     assert entry[2].strip()
 
 

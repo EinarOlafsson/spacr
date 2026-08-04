@@ -575,9 +575,18 @@ def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
     assert APP_KEY in {row[0] for row in app_mod.APPS}, \
         "the row is registered from app.py._SELF_REGISTERING_APPS"
 
+    # A section with no rows under it is not drawn, which is what makes
+    # removing the last app close the tab. Power was Design's only app when
+    # this was written; `experiment_design` has since joined it, so the
+    # claim is stated as the rule rather than as the count — otherwise the
+    # test reads as a regression in Power the day anything else is filed
+    # under Design.
+    neighbours = [row[0] for row in app_mod.APPS
+                  if row[3] == app_mod.SECTION_DESIGN and row[0] != APP_KEY]
     app_mod.unregister_app(APP_KEY)
-    assert app_mod.SECTION_DESIGN not in app_mod.SECTIONS, (
-        "Power is Design's only app, so removing it should close the tab")
+    assert (app_mod.SECTION_DESIGN in app_mod.SECTIONS) == bool(neighbours), (
+        "a section is drawn exactly when something is filed under it; "
+        f"Design still holds {neighbours}")
 
     assert register() is True
     assert register() is False, "a second import must not raise or duplicate"
@@ -586,7 +595,16 @@ def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
     assert row[3] == app_mod.SECTION_DESIGN
     assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
     assert app_mod.APP_FACTORIES[APP_KEY] is make_power_screen
-    assert app_mod.APP_STAGE[APP_KEY] == app_mod.STAGE_ALPHA
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_mod.APP_STAGE[APP_KEY] == app_mod.STAGE_BETA
     assert app_mod.APP_META[APP_KEY]["api_module"] == "qt/screens/power"
     assert "power" in app_mod.APP_META[APP_KEY]["cli_note"].lower()
     # GUI-only, and the seam is what delivers the sentence that says so.
