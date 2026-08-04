@@ -235,6 +235,52 @@ CAVEATS: Tuple[Caveat, ...] = (
         changes_the_number=True,
     ),
     Caveat(
+        key="sequencing_error_hides_untested_genes",
+        headline=(
+            "Sequencing error is OFF by default. Turning it on barely dilutes "
+            "the effect — but it stops the untested-gene check from firing."
+        ),
+        detail=(
+            "Neither spaCRPower nor this port modelled mis-assigned barcode "
+            "reads. Simulating them says the direct dilution is small: on the "
+            "452-gene reference design, 0.5 % mis-assignment moves the "
+            "hit/non-hit separation from 0.799 to 0.794 among genes that were "
+            "testable to begin with. The large effect is elsewhere. A gene "
+            "that landed in every well or in none has a constant read "
+            "fraction and is reported as UNTESTED rather than as a non-hit — "
+            "and phantom reads give every such gene a covariate that varies, "
+            "so it is scored, at chance, on noise. On that design 0.5 % error "
+            "takes the scored library from 317 genes to all 452 and drops the "
+            "screen-wide separation from 0.799 to 0.723: fourteen times the "
+            "dilution, entirely from a safeguard switching off. Set "
+            "sequencing_error_rate in spacr.power_simulate.simulate_screen."
+        ),
+        changes_the_number=True,
+    ),
+    Caveat(
+        key="thin_wells_count_the_same_as_full_ones",
+        headline=(
+            "Well dropout is OFF by default: a well with three imaged cells "
+            "enters the fit next to a well with four hundred."
+        ),
+        detail=(
+            "Its positive fraction can only be 0, 1/3, 2/3 or 1, and its "
+            "standard error is several times the whole gap between the "
+            "classifier's hit-cell and background rates. The Poisson offset "
+            "stops such a well dominating the scale of the fit; it does not "
+            "stop its read-fraction covariate being paired with a response "
+            "that is almost pure noise. Dropping thin wells is what an "
+            "analyst does by hand, and it costs wells, so which way the trade "
+            "comes out depends on how long the thin tail is — which is worth "
+            "simulating rather than arguing about. Set min_cells_per_well in "
+            "spacr.power_simulate.simulate_screen; 25 is a sane starting "
+            "point. Note that the mean cells per well on this form is a MEAN: "
+            "at 123 with a variance of 8000 a real fraction of wells lands "
+            "under 25."
+        ),
+        changes_the_number=True,
+    ),
+    Caveat(
         key="reads_per_well_is_per_well",
         headline=(
             "'Reads per well' is per well. spaCRPower divided its read "
@@ -363,6 +409,15 @@ class DesignSpec:
     :ivar pcr_factor_mu: log-scale mean of the per-well amplification.
     :ivar pcr_factor_var: log-scale variance of it.
     :ivar read_depth_cv: coefficient of variation of depth between wells.
+    :ivar sequencing_error_rate: probability a barcode read is credited to
+        the wrong gene. ``0.0`` reproduces spaCRPower and every power figure
+        this screen has ever printed; see the
+        ``sequencing_error_hides_untested_genes`` caveat for why the number
+        that moves is not the one you would expect.
+    :ivar min_cells_per_well: wells with fewer imaged cells than this are
+        dropped before the fit. ``0`` keeps every well, which is what both
+        packages did; see the ``thin_wells_count_the_same_as_full_ones``
+        caveat.
     :ivar imaging_split: ``"abundance"`` or ``"uniform"``; see the
         ``even_split_overstates_power`` caveat.
     :ivar n_replicates: simulated screens per grid point.
@@ -402,6 +457,13 @@ class DesignSpec:
     pcr_factor_mu: float = 2.0
     pcr_factor_var: float = 1.0
     read_depth_cv: float = 0.35
+    # Both default to the R behaviour rather than to the realistic value. A
+    # simulator whose baseline moved under a version bump would make every
+    # power figure already quoted from this screen wrong, and "the number
+    # changed because spaCR got more honest" is indistinguishable from "the
+    # number changed because something broke" to the person reading it.
+    sequencing_error_rate: float = 0.0
+    min_cells_per_well: int = 0
     imaging_split: str = "abundance"
 
     # -- how the sweep is run ---------------------------------------------
@@ -559,6 +621,8 @@ def simulator_kwargs(spec: DesignSpec) -> Dict[str, Any]:
         "pcr_factor_var": float(spec.pcr_factor_var),
         "n_reads_per_well": float(spec.reads_per_well),
         "read_depth_cv": float(spec.read_depth_cv),
+        "sequencing_error_rate": float(spec.sequencing_error_rate),
+        "min_cells_per_well": int(spec.min_cells_per_well),
         "imaging_split": str(spec.imaging_split),
     }
 
