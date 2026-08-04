@@ -962,7 +962,7 @@ def classifier_evaluation_02(c):
 
 
 def classifier_evaluation_03(c):
-    """Cross-validation folds: the held-out block moving down the rows."""
+    """Cross-validation folds: a different block held out in every row."""
     held = (2, 0, 3)
     for j in range(3):
         y = 0.18 + j * 0.26
@@ -1193,7 +1193,7 @@ def hit_list_04(c):
             c.bar(0.10, y - 0.048, w, 0.096, filled=True)
         else:
             c.bar(0.10, y - 0.048, w, 0.096, filled=False, w=W_MAIN)
-    c.line(0.04, 0.60, 0.96, 0.60, W_MAIN, dash=[7, 8])
+    c.line(0.04, 0.60, 0.96, 0.60, W_MAIN)
     c.disc(0.92, 0.60, 0.052)
 
 
@@ -1403,7 +1403,7 @@ GROUPS = {
              classifier_evaluation_01),
             ("Calibration: predicted against observed, points sagging off the line.",
              classifier_evaluation_02),
-            ("Cross-validation folds: the held-out block moving down the rows.",
+            ("Cross-validation folds: a different block held out in every row.",
              classifier_evaluation_03),
             ("A test set sealed away from training and only opened to score.",
              classifier_evaluation_04),
