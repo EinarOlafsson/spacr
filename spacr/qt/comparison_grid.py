@@ -33,7 +33,7 @@ from PySide6.QtWidgets import (QCheckBox, QGridLayout, QHBoxLayout, QLabel,
 from ..layers import (Canvas, CanvasLink, LabelsLayer, LayerError, LayerStack)
 from .layer_viewer import LayerCanvas
 from .linked_selection import LinkedView
-from .theme import register_widget_qss
+from .theme import font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton
 
 LOG = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ QWidget#ComparisonGrid {{
 }}
 QLabel#ComparisonPanelName {{
     color: {palette["fg_dim"]};
-    font-size: 10px;
+    font-size: {font_px(10)}px;
     letter-spacing: 1px;
 }}
 QLabel#ComparisonStatus {{

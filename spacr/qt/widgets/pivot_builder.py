@@ -50,7 +50,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import RADIUS, SPACING, active_palette, register_widget_qss
+from ..theme import (RADIUS, SPACING, active_palette, font_px,
+                     register_widget_qss)
 from .graph_builder import COLUMN_MIME, ColumnWell
 from .pivot_spec import (
     AGGREGATION_LABELS, AGGREGATIONS, COUNT_ONLY, LOW_N, MEAN, N, SD,
@@ -645,7 +646,7 @@ QListWidget#PivotWellList {{
 }}
 QLabel#PivotNotice {{
     color: {palette["fg_muted"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
 }}
 QTableWidget#PivotTable {{
     border: 1px solid {palette["border_soft"]};

@@ -80,12 +80,13 @@ class CommandPalette(QDialog):
         self._input.setPlaceholderText(tr(
             "Type to filter — Enter to run, Esc to cancel"))
         self._input.setObjectName("CommandInput")
+        from .theme import font_px
         self._input.setStyleSheet(
             "QLineEdit#CommandInput {"
             "  border: none;"
             "  padding: 14px 18px;"
             "  font-family: 'Open Sans', sans-serif;"
-            "  font-size: 15px;"
+            f"  font-size: {font_px(15)}px;"
             "}"
         )
         outer.addWidget(self._input)

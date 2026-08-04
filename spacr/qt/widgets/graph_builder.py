@@ -59,7 +59,8 @@ from PySide6.QtWidgets import (
 
 from ...selection import Selection, object_keys
 from ..linked_selection import LinkedView
-from ..theme import RADIUS, SPACING, active_palette, register_widget_qss
+from ..theme import (RADIUS, SPACING, active_palette, font_px,
+                     register_widget_qss)
 from .graph_spec import (
     BAR, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL, FACET_ROW, HEATMAP,
     HISTOGRAM, LINE, MISSING_LEVEL, PLOT_KINDS, SCATTER, SIZE, VIOLIN, X, Y,
@@ -1364,7 +1365,7 @@ QPushButton#GraphDropZoneClear {{
 }}
 QLabel#GraphNotice, QLabel#GraphColumnCount {{
     color: {palette["fg_muted"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
 }}
 QListWidget#GraphColumnList {{
     background: transparent;

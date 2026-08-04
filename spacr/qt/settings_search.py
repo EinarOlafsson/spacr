@@ -588,7 +588,7 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
 
 def _bar_qss(palette: dict, opacity) -> str:
     """QSS for the strip, registered through the theme seam."""
-    from .theme import pane_surface
+    from .theme import font_px, pane_surface
     surface = pane_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QLineEdit#{INPUT_NAME} {{
@@ -602,7 +602,7 @@ QLineEdit#{INPUT_NAME}:focus {{
 }}
 QLabel#{COUNT_NAME} {{
     color: {palette["fg_dim"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
 }}
 QToolButton#{DISCLOSURE_NAME} {{
     background: transparent;
