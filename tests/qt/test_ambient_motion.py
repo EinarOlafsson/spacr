@@ -43,9 +43,12 @@ from PySide6.QtGui import QColor, QImage, QPainter              # noqa: E402
 from spacr.qt.widgets import ambient as amb                     # noqa: E402
 from spacr.qt.widgets.ambient import (AMBIENT_THEMES,           # noqa: E402
                                       BLUR_RANGE, BUFFER_MAX_EDGE,
-                                      DEFAULT_BLUR, DEFAULT_SIZE,
-                                      DEFAULT_SPEED, SIZE_RANGE,
-                                      SPEED_RANGE, AmbientWidget,
+                                      DEFAULT_BLUR, DEFAULT_DENSITY,
+                                      DEFAULT_DRIFT_DIRECTION,
+                                      DEFAULT_RESOLUTION, DEFAULT_SIZE,
+                                      DEFAULT_SPEED, DENSITY_RANGE,
+                                      DRIFT_DIRECTIONS, RESOLUTION_RANGE,
+                                      SIZE_RANGE, SPEED_RANGE, AmbientWidget,
                                       make_engine, palette_colors,
                                       palettes_for)
 
@@ -78,6 +81,26 @@ def rows(image: QImage):
             for y in range(image.height())]
 
 
+def lum_array(image: QImage, band=(0.0, 1.0)):
+    """Luminance of ``image`` as a NumPy array, optionally row-banded.
+
+    The per-pixel ``pixelColor`` reader above is fine for a 640x400 frame and
+    is thirty seconds a frame at 1920x1080, which is the size the pixelation
+    complaint is about. This reads the buffer once.
+    """
+    import numpy as np
+
+    fixed = image.convertToFormat(QImage.Format_RGB32)
+    raw = np.frombuffer(fixed.constBits(), dtype=np.uint8).reshape(
+        fixed.height(), fixed.bytesPerLine() // 4, 4)
+    raw = raw[:, :fixed.width(), :3].astype(np.float64)
+    # Qt's RGB32 is BGRA in memory.
+    grid = 0.0722 * raw[..., 0] + 0.7152 * raw[..., 1] + 0.2126 * raw[..., 2]
+    top = int(band[0] * grid.shape[0])
+    bottom = max(top + 3, int(band[1] * grid.shape[0]))
+    return grid[top:bottom]
+
+
 def luminance(pixel) -> float:
     r, g, b = pixel
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
@@ -102,6 +125,84 @@ def sharpness(image: QImage) -> float:
 def lit_pixels(image: QImage, background=DARK) -> int:
     flat = QColor(background).getRgb()[:3]
     return sum(1 for row in rows(image) for pixel in row if pixel != flat)
+
+
+def lattice_ratio(image: QImage, period: int, band=(0.0, 1.0)) -> float:
+    """How plainly the bilinear upscale grid shows in ``image``.
+
+    Second differences of the luminance, averaged per column and per row,
+    then split by phase modulo ``period``: the ratio of the worst phase to
+    the mean over all phases. Bilinear interpolation is C0 and not C1, so a
+    picture stretched from a small buffer has all its curvature concentrated
+    on the block boundaries and this comes out well above 1; a picture with
+    nothing on that period has no preferred phase and it comes out at 1.
+
+    ``band`` restricts the rows examined, as fractions of the height — the
+    aurora only occupies part of the frame, and averaging its lower edge
+    together with two thirds of empty page dilutes exactly what is being
+    asked about.
+    """
+    import numpy as np
+
+    if period < 2:
+        return 1.0
+    grid = lum_array(image, band)
+    scores = []
+    for axis in (1, 0):
+        second = np.abs(np.diff(np.diff(grid, axis=axis), axis=axis))
+        profile = second.mean(axis=1 - axis)
+        index = np.arange(profile.size) + 1
+        means = np.array([profile[index % period == phase].mean()
+                          for phase in range(period)])
+        scores.append(means.max() / max(1e-12, means.mean()))
+    return float(np.mean(scores))
+
+
+def comb_contrast(image: QImage, band=(0.62, 0.74)) -> float:
+    """RMS of the high-frequency part of a horizontal profile through the
+    aurora's curtains — which is the ray comb and nothing else.
+
+    Under-resolving the comb does not move the rays, it *smears* them, so
+    this is the measure that says whether they survived.
+    """
+    import numpy as np
+
+    profile = lum_array(image, band).mean(axis=0)
+    window = 81
+    local = np.convolve(profile, np.ones(window) / window, mode="valid")
+    centre = profile[window // 2: window // 2 + local.size]
+    return float(np.sqrt(np.mean((centre - local) ** 2)))
+
+
+def centroid(engine, width=W, height=H):
+    """Mean particle position, in normalised units."""
+    points = engine.geometry(width, height)
+    return (sum(x for x, _y, _d in points) / len(points) / width,
+            sum(y for _x, y, _d in points) / len(points) / height)
+
+
+def wrapped_steps(engine, dt, frames, width=W, height=H):
+    """Per-particle (dx, dy) between consecutive frames, in normalised
+    units, with the wrap at the edge of the field taken out.
+
+    A particle that leaves the top and comes back at the bottom moved a
+    hair, not a whole screen, and a test that failed to say so would be
+    measuring the modulo rather than the motion.
+    """
+    def shortest(a, b):
+        delta = (b - a) % 1.0
+        return delta - 1.0 if delta > 0.5 else delta
+
+    previous = engine.geometry(width, height)
+    steps = []
+    for _ in range(frames):
+        engine.advance(dt)
+        current = engine.geometry(width, height)
+        steps.append([(shortest(a[0] / width, b[0] / width),
+                       shortest(a[1] / height, b[1] / height))
+                      for a, b in zip(previous, current)])
+        previous = current
+    return steps
 
 
 def best_shift(a, b, limit):
@@ -143,6 +244,12 @@ def shipped_module():
     Skips rather than fails where there is no git checkout to read (a source
     tarball, a wheel test): the assertion this feeds is worth having and is
     not worth breaking someone else's packaging over.
+
+    The two guards below name the exceptions "there is no git here" can
+    actually raise -- OSError when the binary is missing, SubprocessError when
+    git runs and refuses -- so that anything else (a wrong repo root, a bad
+    encoding) still fails this fixture instead of quietly retiring the
+    comparison it feeds.
     """
     path = "spacr/qt/widgets/ambient.py"
     try:
@@ -150,7 +257,7 @@ def shipped_module():
             ["git", "log", "--format=%H", "--", path],
             capture_output=True, text=True, check=True,
             cwd=_repo_root()).stdout.split()
-    except Exception as exc:                       # no git, no history
+    except (OSError, subprocess.SubprocessError) as exc:  # no git, no history
         pytest.skip(f"cannot read the shipped engine from git: {exc}")
     for revision in revisions:
         try:
@@ -158,7 +265,7 @@ def shipped_module():
                 ["git", "show", f"{revision}:{path}"],
                 capture_output=True, text=True, check=True,
                 cwd=_repo_root()).stdout
-        except Exception:
+        except (OSError, subprocess.SubprocessError):
             # A shallow clone lists revisions whose blobs it does not have.
             break
         if "DEFAULT_BLUR" in source:
@@ -179,9 +286,24 @@ def _repo_root():
     return str(Path(amb.__file__).resolve().parents[3])
 
 
-#: The aurora is a deliberate redesign, so it is the one theme whose frames
-#: are *supposed* to differ from the shipped ones.
-UNCHANGED_THEMES = tuple(t for t in AMBIENT_THEMES if t != "aurora")
+#: Which themes the byte-for-byte comparison against the shipped engine can
+#: still be made for, and why the other two are out.
+#:
+#: ``aurora`` is out because it is a deliberate redesign — twice over now.
+#: The first was the curtains themselves; the second is its buffer, which
+#: went from 240x135 to 960x540 at 1080p because the old one was measured to
+#: throw away a quarter of its own ray comb (see ``AURORA_BUFFER_EDGE``).
+#: That is the one shipped default this change moves, it is moved on
+#: measurement rather than taste, and it is stated here rather than papered
+#: over by loosening the comparison.
+#:
+#: ``bokeh`` and ``cells`` are out because they did not exist to be shipped.
+#:
+#: Everything else — blobs, ripples, the starfield — is still held to the
+#: original frame, byte for byte, on both kinds of page. Resolution, blur and
+#: density all default to the identity, so a user who never opens the new
+#: controls cannot tell they exist.
+UNCHANGED_THEMES = ("blobs", "ripple", "drift")
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
@@ -227,12 +349,16 @@ def test_the_default_multipliers_are_the_identity(theme):
     """
     engine = make_engine(theme, "spacr", DARK, seed=3)
 
-    # Blur: the buffer is the shipped one.
+    # Resolution: the buffer is this theme's own declared one.
     if isinstance(engine, amb._BufferedEngine):
-        assert engine.blur_edge() == BUFFER_MAX_EDGE
-        longest = max(1920, 1080)
-        scale = max(1, int(math.ceil(longest / BUFFER_MAX_EDGE)))
+        assert engine.resolution_edge() == engine.base_edge
+        scale = max(1, int(math.ceil(max(1920, 1080) / engine.base_edge)))
         assert engine.buffer_size(1920, 1080) == (1920 // scale, 1080 // scale)
+        # Blur: nothing is done to the buffer at all.
+        assert engine.blur_scale(1920, 1080) == 1.0
+
+    # Density: the theme's own element count.
+    assert engine.effective_density() == 1.0
 
     # Speed: the clock counts real seconds.
     engine.advance(0.25)
@@ -253,6 +379,13 @@ def test_the_default_multipliers_are_the_identity(theme):
     elif theme == "ripple":
         reach = max(amb.RIPPLE_REACH) * 0.5 * math.hypot(W, H)
         assert max(r for _x, _y, r, _f in engine.geometry(W, H)) <= reach + 1
+    elif theme == "bokeh":
+        ceiling = max(amb.BOKEH_RADIUS) * min(W, H)
+        assert max(r for _x, _y, r, _f in engine.geometry(W, H)) <= ceiling + 1
+    elif theme == "cells":
+        ceiling = max(amb.CELL_RADIUS) * min(W, H)
+        assert max(a for _x, _y, a, _b, _t in engine.geometry(W, H)) \
+            <= ceiling + 1
     else:
         assert max(h for _x, _y, h, _b in engine.geometry(W, H)) \
             <= max(amb.AURORA_THICKNESS) * H * 1.5
@@ -262,7 +395,10 @@ def test_the_default_multipliers_are_the_identity(theme):
 # Each control moves the picture, in its own direction
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("theme", ["blobs", "aurora", "ripple"])
+BUFFERED_THEMES = ["blobs", "aurora", "ripple", "bokeh", "cells"]
+
+
+@pytest.mark.parametrize("theme", BUFFERED_THEMES)
 def test_blur_softens_the_frame(theme):
     """More blur, fewer high frequencies. Measured on the pixels, because
     "the buffer got smaller" is an implementation detail and this is the
@@ -279,38 +415,169 @@ def test_blur_softens_the_frame(theme):
         engine.set_time(9.0)
         return render(engine)
 
-    sharp, normal, soft = (sharpness(frame(b)) for b in (0.4, 1.0, 2.5))
-    assert sharp > normal > soft, \
-        f"{theme}: sharpness went {sharp:.3f} -> {normal:.3f} -> {soft:.3f}"
+    sharp, middling, soft = (sharpness(frame(b)) for b in (0.0, 1.2, 3.0))
+    assert sharp > middling > soft, \
+        f"{theme}: sharpness went {sharp:.3f} -> {middling:.3f} -> {soft:.3f}"
 
 
-def test_blur_is_the_buffer_resolution_not_a_per_frame_filter():
+@pytest.mark.parametrize("theme", BUFFERED_THEMES)
+def test_resolution_reduces_pixelation(theme):
+    """The complaint this pair of controls was built for, measured.
+
+    Bilinear upscaling is C0 but not C1: inside a block the picture is
+    (near enough) linear, so its second difference is ~0, and at every block
+    boundary the slope kinks and the second difference spikes. Ask which
+    phase of the known upscale grid carries the most of that energy and
+    compare it with the average phase, and you have a number that is 1.0
+    when the grid cannot be found in the picture and rises with how plainly
+    it can. That is pixelation, and nothing else in the frame has a reason
+    to sit on that period.
+    """
+    def lattice(resolution):
+        # 1920x1080, because that is the size the complaint is about and
+        # because several themes are not upscaled at all on a small canvas.
+        engine = make_engine(theme, "spacr", DARK, seed=5,
+                             resolution=resolution)
+        engine.set_time(9.0)
+        period = engine.buffer_scale(1920, 1080)
+        # The three settings below are chosen so the buffer divides the
+        # canvas exactly. At a scale that does not (101 buffer pixels over
+        # 1920) the upscale factor is 19.01 and the block grid slides a
+        # whole pixel across the frame, which is easier on the eye and
+        # smears the phase this measurement is binning by. That is a fact
+        # about the metric, not about the picture, so it is arranged away
+        # rather than measured through.
+        assert 1920 % period == 0 and 1080 % period == 0, \
+            f"{theme}: scale {period} does not divide the canvas"
+        return lattice_ratio(render(engine, 1920, 1080), period)
+
+    coarse, shipped, fine = (lattice(r) for r in (0.5, 1.0, 2.0))
+    assert coarse > shipped > fine, \
+        f"{theme}: lattice went {coarse:.3f} -> {shipped:.3f} -> {fine:.3f}"
+    # Measured in *excess over none*: 1.0 is a picture with no findable
+    # grid in it, so the quantity that has to fall is the part above 1, and
+    # a theme that is already almost clean at its default has almost nothing
+    # left to lose. Halving it is the claim.
+    assert (fine - 1.0) < (coarse - 1.0) * 0.5, \
+        f"{theme}: lattice went {coarse:.3f} -> {shipped:.3f} -> {fine:.3f}"
+
+
+def test_the_aurora_is_no_longer_pixelated_at_1080p():
+    """The specific report — "the aurora looks super pixelated" — with a
+    number on it, against the buffer it used to be shaded into.
+
+    Two measurements, because the theme has two kinds of structure that a
+    small buffer wrecks: the upscale lattice over the band its lower edge
+    runs through, and the contrast of the ray comb, which is 36 screen
+    pixels per ray and was being resolved at four and a half.
+    """
+    def frame(edge):
+        engine = make_engine("aurora", "spacr", DARK, seed=7)
+        engine.base_edge = edge
+        engine._buffer = None
+        engine.set_time(11.0)
+        return engine, render(engine, 1920, 1080)
+
+    was, was_image = frame(256)          # the buffer that shipped
+    now, now_image = frame(amb.AURORA_BUFFER_EDGE)
+    assert was.buffer_scale(1920, 1080) == 8
+    assert now.buffer_scale(1920, 1080) == 2
+
+    band = (0.40, 0.98)
+    before = lattice_ratio(was_image, 8, band)
+    after = lattice_ratio(now_image, 2, band)
+    assert before > 1.5, f"the old buffer measured clean at {before:.3f}"
+    assert after < 1.15, f"the new one still measures {after:.3f}"
+    assert after < before / 1.4
+
+    # ...and the rays are actually there now rather than smeared into the
+    # sheet. Contrast of the horizontal profile through a curtain.
+    assert comb_contrast(now_image) > comb_contrast(was_image) * 1.15
+
+
+@pytest.mark.parametrize("theme", BUFFERED_THEMES)
+def test_resolution_and_blur_are_two_different_axes(theme):
+    """Four corners of the grid, and all four have to be different frames.
+
+    This is the whole bug report. The two used to be one control, so
+    "sharp" and "not blocky" could not be asked for separately and the
+    top-left and bottom-right corners of this grid were the same picture.
+    """
+    frames = {}
+    for resolution in (0.4, 2.0):
+        for blur in (0.0, 3.0):
+            engine = make_engine(theme, "spacr", DARK, seed=5,
+                                 resolution=resolution, blur=blur)
+            engine.set_time(9.0)
+            frames[(resolution, blur)] = render(engine)
+
+    corners = list(frames)
+    for i, a in enumerate(corners):
+        for b in corners[i + 1:]:
+            assert frames[a] != frames[b], f"{theme}: {a} renders as {b}"
+
+    # And they are different in the directions they claim. Blur softens at
+    # either resolution; resolution de-blocks at either blur.
+    for resolution in (0.4, 2.0):
+        assert sharpness(frames[(resolution, 0.0)]) > \
+            sharpness(frames[(resolution, 3.0)]), \
+            f"{theme}: blur did not soften at resolution {resolution}"
+
+    # Sharp AND soft: the frame that could not be asked for before. It is
+    # softer than the sharp-and-hard one and less blocky than the
+    # coarse-and-soft one — one property from each axis, at once.
+    sharp_soft = frames[(2.0, 3.0)]
+    assert sharpness(sharp_soft) < sharpness(frames[(2.0, 0.0)])
+    coarse_soft = frames[(0.4, 3.0)]
+    assert lattice_ratio(sharp_soft, 1) <= lattice_ratio(coarse_soft, 8)
+
+
+def test_blur_is_one_pass_over_the_buffer_not_a_full_screen_filter():
     """The mechanism matters as much as the effect: a Gaussian over two
     million pixels every frame is the thing this must not be."""
-    coarse = make_engine("blobs", "spacr", DARK, seed=5, blur=2.5)
-    fine = make_engine("blobs", "spacr", DARK, seed=5, blur=0.4)
-    assert coarse.blur_edge() < BUFFER_MAX_EDGE < fine.blur_edge()
-    assert coarse.buffer_size(1920, 1080)[0] < fine.buffer_size(1920, 1080)[0]
+    engine = make_engine("blobs", "spacr", DARK, seed=5, blur=2.0)
+    # The softening happens on the small buffer, and the buffer that gets
+    # shaded is still the resolution setting's, not the blur's.
+    assert engine.buffer_size(1920, 1080) == \
+        make_engine("blobs", "spacr", DARK, seed=5).buffer_size(1920, 1080)
+    assert engine.blur_scale(1920, 1080) > 1.0
 
-    # ... and it is still allocated once, not per frame.
-    render(coarse, 1920, 1080)
-    buffer = coarse._buffer
+    # ... and the shading buffer is still allocated once, not per frame.
+    render(engine, 1920, 1080)
+    buffer = engine._buffer
     for _ in range(5):
-        coarse.advance(1 / 24)
-        render(coarse, 1920, 1080)
-    assert coarse._buffer is buffer
+        engine.advance(1 / 24)
+        render(engine, 1920, 1080)
+    assert engine._buffer is buffer
+
+
+def test_the_blur_unit_is_the_softness_that_shipped():
+    """Blur 1.0 is defined as "the softness the buffered themes always had",
+    which at the shipped 240x135 buffer was an eight-fold bilinear stretch.
+    So at that resolution it must ask for nothing extra, and at four times
+    the detail it must ask for exactly four times the averaging — that is
+    what makes the setting mean the same thing on screen at any resolution.
+    """
+    shipped = make_engine("blobs", "spacr", DARK, seed=5, blur=1.0)
+    assert shipped.buffer_scale(1920, 1080) == 8
+    assert shipped.blur_scale(1920, 1080) == pytest.approx(1.0)
+
+    detailed = make_engine("blobs", "spacr", DARK, seed=5, blur=1.0,
+                           resolution=2.0)
+    assert detailed.buffer_scale(1920, 1080) == 4
+    assert detailed.blur_scale(1920, 1080) == pytest.approx(2.0)
 
 
 def test_blur_spreads_the_starfield_rather_than_resizing_it():
-    """Drift is not painted through the blur buffer, so it needs its own
-    mechanism — and that mechanism must not just be "bigger dots", which is
-    what the size control does."""
+    """Drift has no buffer to average down, so it needs its own mechanism —
+    and that mechanism must not just be "bigger dots", which is what the
+    size control does."""
     def engine(blur):
         made = make_engine("drift", "spacr", DARK, seed=5, blur=blur)
         made.set_time(9.0)
         return made
 
-    hard, normal, soft = engine(0.5), engine(1.0), engine(2.5)
+    hard, normal, soft = engine(0.0), engine(1.0), engine(2.5)
     # The dots themselves are the same size at every blur.
     assert {round(d, 6) for _x, _y, d in hard.geometry(W, H)} == \
         {round(d, 6) for _x, _y, d in soft.geometry(W, H)}
@@ -408,31 +675,358 @@ def test_the_three_controls_are_reversible(theme):
     assert render(engine) == before
 
 
-@pytest.mark.parametrize("value,expected", [
-    (-4.0, BLUR_RANGE[0]), (99.0, BLUR_RANGE[1]),
+@pytest.mark.parametrize("control,limits", [
+    ("blur", BLUR_RANGE), ("speed", SPEED_RANGE), ("size", SIZE_RANGE),
+    ("resolution", RESOLUTION_RANGE), ("density", DENSITY_RANGE),
 ])
-def test_absurd_values_are_clamped_not_obeyed(value, expected):
-    engine = make_engine("blobs", "spacr", DARK, seed=1, blur=value)
-    assert engine.blur == expected
-    assert BUFFER_MAX_EDGE // 8 <= engine.blur_edge() <= BUFFER_MAX_EDGE * 2
+@pytest.mark.parametrize("value,end", [(-4.0, 0), (99.0, 1)])
+def test_absurd_values_are_clamped_not_obeyed(control, limits, value, end):
+    engine = make_engine("blobs", "spacr", DARK, seed=1, **{control: value})
+    assert getattr(engine, control) == limits[end]
+    assert amb.BUFFER_MIN_EDGE <= engine.resolution_edge() \
+        <= amb.BUFFER_EDGE_CEILING
+    assert engine.buffer_size(1920, 1080)[0] * \
+        engine.buffer_size(1920, 1080)[1] <= amb.BUFFER_MAX_PIXELS
     render(engine, 1920, 1080)          # and it still paints
 
 
-def test_the_widget_exposes_all_three_and_they_reach_the_engine(qtbot):
+def test_the_widget_exposes_them_all_and_they_reach_the_engine(qtbot):
     widget = AmbientWidget(theme="ripple", palette="ocean", background=DARK,
-                           seed=2, blur=1.0, speed=1.0, size=1.0)
+                           seed=2, blur=0.0, speed=1.0, size=1.0,
+                           resolution=1.0, density=1.0, direction="up")
     qtbot.addWidget(widget)
     widget.set_blur(2.0)
     widget.set_speed(0.5)
     widget.set_size_scale(1.5)
-    assert (widget.blur(), widget.speed(), widget.size_scale()) == \
-        (2.0, 0.5, 1.5)
-    assert (widget.engine.blur, widget.engine.speed, widget.engine.size) == \
-        (2.0, 0.5, 1.5)
+    widget.set_resolution(1.5)
+    widget.set_density(2.0)
+    widget.set_direction("down")
+
+    def state(source):
+        return (source.blur, source.speed, source.size, source.resolution,
+                source.density, source.direction)
+
+    wanted = (2.0, 0.5, 1.5, 1.5, 2.0, "down")
+    assert (widget.blur(), widget.speed(), widget.size_scale(),
+            widget.resolution(), widget.density(),
+            widget.direction()) == wanted
+    assert state(widget.engine) == wanted
     # ... and they survive the engine being replaced under a theme switch.
     widget.set_theme("drift")
-    assert (widget.engine.blur, widget.engine.speed, widget.engine.size) == \
-        (2.0, 0.5, 1.5)
+    assert state(widget.engine) == wanted
+
+
+# ---------------------------------------------------------------------------
+# What the cost is bounded by
+# ---------------------------------------------------------------------------
+# Wall-clock assertions belong in a benchmark, not in a test suite that runs
+# on a shared machine. What is asserted here is the *structure* the cost
+# figures rest on: the shading pass has a hard ceiling in pixels, the blur
+# adds one pass over a buffer no bigger than that, and the theme that was
+# made dearer is dearer by exactly the amount its docstring claims.
+
+@pytest.mark.parametrize("theme", BUFFERED_THEMES)
+@pytest.mark.parametrize("canvas", [(1920, 1080), (3840, 2160), (5120, 2880),
+                                    (800, 600), (37, 11)])
+def test_the_shading_pass_has_a_hard_ceiling(theme, canvas):
+    """The buffer edge is a ratio to the canvas, and a ratio alone lets a
+    bigger display quietly buy a bigger shading pass. This is the absolute
+    ceiling that stops it."""
+    engine = make_engine(theme, "spacr", DARK, seed=5, resolution=2.0,
+                         density=3.0)
+    width, height = engine.buffer_size(*canvas)
+    assert width * height <= amb.BUFFER_MAX_PIXELS, \
+        f"{theme} at {canvas} shades {width}x{height}"
+    assert width >= 1 and height >= 1
+    engine.set_time(4.0)
+    render(engine, *canvas)                     # and it still paints
+
+
+@pytest.mark.parametrize("theme", BUFFERED_THEMES)
+def test_the_blur_never_enlarges_anything(theme):
+    """One extra pass, over something no bigger than the buffer that was
+    already being shaded — which is the whole claim that blur is cheap."""
+    engine = make_engine(theme, "spacr", DARK, seed=5, blur=BLUR_RANGE[1])
+    engine.set_time(4.0)
+    render(engine, 1920, 1080)
+    shaded = engine._buffer
+    softened = engine._soften(shaded, 1920, 1080)
+    assert softened.width() <= shaded.width()
+    assert softened.height() <= shaded.height()
+    assert softened.width() >= 2 and softened.height() >= 2
+
+
+def test_the_auroras_buffer_is_the_size_its_docstring_claims():
+    """The one shipped default this change moves, pinned to the number the
+    module documents it as. If it is ever changed again, the docstring's
+    cost table and its measurement table both have to move with it."""
+    engine = make_engine("aurora", "spacr", DARK, seed=5)
+    assert engine.base_edge == amb.AURORA_BUFFER_EDGE == 960
+    assert engine.buffer_size(1920, 1080) == (960, 540)
+    # ... and it really is the only one that moved.
+    for theme in ("blobs", "ripple"):
+        other = make_engine(theme, "spacr", DARK, seed=5)
+        assert other.base_edge == BUFFER_MAX_EDGE == 256
+        assert other.buffer_size(1920, 1080) == (240, 135)
+
+
+# ---------------------------------------------------------------------------
+# Density
+# ---------------------------------------------------------------------------
+
+#: What each theme calls the thing density multiplies, and how many of them
+#: it draws by default.
+ELEMENT_COUNTS = [
+    ("blobs", "blobs", lambda e: len(e.geometry(W, H)), amb.BLOB_COUNT),
+    ("aurora", "curtains",
+     lambda e: len(e.geometry(W, H)) // (amb.AURORA_COLUMNS + 1),
+     amb.AURORA_CURTAINS),
+    ("ripple", "sources",
+     lambda e: len(e.geometry(W, H)) // amb.RIPPLE_RINGS, amb.RIPPLE_SOURCES),
+    ("bokeh", "discs", lambda e: len(e.geometry(W, H)), amb.BOKEH_COUNT),
+    ("cells", "cells", lambda e: len(e.geometry(W, H)), amb.CELL_COUNT),
+]
+
+
+@pytest.mark.parametrize("theme,noun,count,shipped", ELEMENT_COUNTS)
+def test_density_changes_how_many_things_are_drawn(theme, noun, count,
+                                                   shipped):
+    """The count comes off ``geometry``, which is what the painter builds
+    the frame from — so this is the number of things in the picture, not a
+    field on the engine that might or might not be read."""
+    sparse = make_engine(theme, "spacr", DARK, seed=5, density=0.5)
+    normal = make_engine(theme, "spacr", DARK, seed=5)
+    dense = make_engine(theme, "spacr", DARK, seed=5, density=3.0)
+    assert count(normal) == shipped
+    assert count(sparse) < count(normal) < count(dense)
+    assert count(dense) == pytest.approx(3 * shipped, abs=1)
+
+
+@pytest.mark.parametrize("theme,noun,count,shipped", ELEMENT_COUNTS)
+def test_density_reaches_the_pixels(theme, noun, count, shipped):
+    """More elements, more of the page lit. Asserted on the frame, because
+    a count that never made it into a draw call is not a density."""
+    def frame(density):
+        engine = make_engine(theme, "spacr", DARK, seed=5, density=density)
+        engine.set_time(9.0)
+        return render(engine)
+
+    assert lit_pixels(frame(0.4)) < lit_pixels(frame(1.0)) \
+        < lit_pixels(frame(3.0))
+
+
+def test_density_moves_the_starfield_too():
+    """Drift counts its particles from the canvas area rather than from a
+    constant, so it needs its own check that the multiplier is applied."""
+    sparse = make_engine("drift", "spacr", DARK, seed=5, density=0.5)
+    normal = make_engine("drift", "spacr", DARK, seed=5)
+    dense = make_engine("drift", "spacr", DARK, seed=5, density=3.0)
+    assert len(sparse.geometry(W, H)) < len(normal.geometry(W, H)) \
+        < len(dense.geometry(W, H))
+    assert lit_pixels(render(sparse)) < lit_pixels(render(dense))
+
+
+@pytest.mark.parametrize("theme,noun,count,shipped", ELEMENT_COUNTS)
+def test_density_never_re_rolls_what_is_already_on_screen(theme, noun, count,
+                                                          shipped):
+    """Turning the slider up adds elements; it does not move the ones that
+    were there. The pool is rolled once, at the top of the range."""
+    engine = make_engine(theme, "spacr", DARK, seed=5)
+    engine.set_time(7.0)
+    before = engine.geometry(W, H)
+    engine.set_density(3.0)
+    after = engine.geometry(W, H)
+    assert len(after) > len(before)
+    assert after[:len(before)] == before
+
+
+@pytest.mark.parametrize("theme,noun,count,shipped", ELEMENT_COUNTS)
+def test_density_and_resolution_share_one_budget(theme, noun, count, shipped):
+    """The clamp that stops the two controls multiplying into a frame nobody
+    can afford: 2.0 detail is four times the pixels, 3.0 density is three
+    times the elements, and twelve times the work behind every screen in the
+    app is not a setting, it is a bug with a slider on it."""
+    alone = make_engine(theme, "spacr", DARK, seed=5, density=3.0)
+    assert alone.effective_density() == pytest.approx(3.0), \
+        "density on its own was trimmed"
+    detailed = make_engine(theme, "spacr", DARK, seed=5, resolution=2.0)
+    assert detailed.effective_density() == pytest.approx(1.0), \
+        "detail on its own was trimmed"
+
+    both = make_engine(theme, "spacr", DARK, seed=5, density=3.0,
+                       resolution=2.0)
+    assert both.effective_density() < 3.0
+    assert both.work / both.density * both.effective_density() \
+        == pytest.approx(amb.WORK_BUDGET)
+    assert count(both) < count(alone)
+
+
+@pytest.mark.parametrize("background", [DARK, LIGHT])
+def test_density_makes_the_field_busier_and_not_brighter(background):
+    """A density control with no alpha compensation is a *brightness*
+    control wearing a misleading name.
+
+    Additive compositing means N overlapping fields are N times the light,
+    and this module's alphas were set on the mean lightness of a rendered
+    frame precisely so the backdrop is never the loudest thing behind a
+    settings form. Uncompensated, density 300 % measured 0.288 against a
+    0.076 page where the default measures 0.135 — brighter than double.
+    So what has to be asserted is that the mean lightness does *not* track
+    the element count, while the count itself does.
+    """
+    def lightness(density):
+        engine = make_engine(theme, "spacr", background, seed=7,
+                             density=density)
+        engine.set_time(9.0)
+        grid = rows(render(engine, background=background))
+        return sum(luminance(px) for row in grid for px in row) / (
+            len(grid) * len(grid[0]) * 255.0)
+
+    for theme in ("blobs", "aurora", "ripple", "bokeh", "cells"):
+        page = luminance(QColor(background).getRgb()[:3]) / 255.0
+        default, dense = lightness(1.0), lightness(3.0)
+        # Against the page, because that is what "loud" means here.
+        assert abs(dense - page) < abs(default - page) * 1.4, (
+            f"{theme}: three times the elements made the frame "
+            f"{abs(dense - page) / max(1e-6, abs(default - page)):.2f} "
+            "times as loud")
+
+
+def test_the_starfield_is_exempt_from_the_alpha_compensation():
+    """It has nothing to compensate: a couple of hundred dots light 0.65 %
+    of the page and almost never land on each other, so dividing their alpha
+    by three would delete two thirds of the stars rather than un-brighten
+    anything."""
+    assert make_engine("drift", "spacr", DARK, seed=7,
+                       density=3.0).alpha_scale() == 1.0
+    assert make_engine("blobs", "spacr", DARK, seed=7,
+                       density=3.0).alpha_scale() == pytest.approx(1 / 3)
+    # A sparser field is a quieter one; four times the alpha on a quarter of
+    # the blobs would clip to white rather than compensate.
+    assert make_engine("blobs", "spacr", DARK, seed=7,
+                       density=0.25).alpha_scale() == 1.0
+
+
+def test_the_starfields_budget_ignores_resolution():
+    """Drift has no buffer, so detail costs it nothing and must not be
+    allowed to spend its density."""
+    engine = make_engine("drift", "spacr", DARK, seed=5, density=3.0,
+                         resolution=2.0)
+    assert engine.effective_density() == pytest.approx(3.0)
+
+
+# ---------------------------------------------------------------------------
+# Which way the starfield goes
+# ---------------------------------------------------------------------------
+
+def starfield(direction, seed=5):
+    engine = make_engine("drift", "spacr", DARK, seed=seed,
+                         direction=direction)
+    engine.set_time(0.0)
+    return engine
+
+
+@pytest.mark.parametrize("direction,sign", [("up", -1.0), ("down", 1.0)])
+def test_the_shared_directions_move_the_field_that_way(direction, sign):
+    """Centroid displacement across frames, with the wrap taken out."""
+    engine = starfield(direction)
+    steps = wrapped_steps(engine, 1 / 24, 24)
+    total_y = sum(sum(dy for _dx, dy in frame) / len(frame)
+                  for frame in steps)
+    assert total_y * sign > 0, \
+        f"{direction}: the field's centroid moved {total_y:+.4f} in y"
+    # ...and it is a shared vector: everything goes the same way.
+    same = [dy for frame in steps for _dx, dy in frame]
+    assert all(dy * sign >= 0 for dy in same), \
+        f"{direction}: some particles went the other way"
+
+
+def test_up_and_down_are_mirror_images():
+    up = wrapped_steps(starfield("up"), 1 / 24, 12)
+    down = wrapped_steps(starfield("down"), 1 / 24, 12)
+    for a, b in zip(up, down):
+        for (_ax, ay), (_bx, by) in zip(a, b):
+            assert ay == pytest.approx(-by, abs=1e-9)
+
+
+def test_random_gives_every_speck_its_own_direction():
+    """Not one shared vector: the headings are spread right round the
+    circle, so the field mixes instead of travelling.
+
+    The centroid is therefore the wrong thing to look for motion in — it
+    barely moves, because the displacements cancel. What moves is every
+    individual speck, and by more than the shared directions manage.
+    """
+    engine = starfield("random")
+    steps = wrapped_steps(engine, 1 / 24, 24)
+
+    per_particle = list(zip(*[list(frame) for frame in steps]))
+    travel = [(sum(dx for dx, _dy in track), sum(dy for _dx, dy in track))
+              for track in per_particle]
+    headings = [math.atan2(dy, dx) for dx, dy in travel]
+    quadrants = {int((h + math.pi) / (math.pi / 2)) % 4 for h in headings}
+    assert quadrants == {0, 1, 2, 3}, \
+        f"only {len(quadrants)} quadrants of heading are represented"
+
+    # The centroid stays put while the specks do not.
+    drift_x = sum(dx for dx, _dy in travel) / len(travel)
+    drift_y = sum(dy for _dx, dy in travel) / len(travel)
+    typical = sum(math.hypot(dx, dy) for dx, dy in travel) / len(travel)
+    assert math.hypot(drift_x, drift_y) < typical * 0.5, \
+        "the random field is really one shared vector"
+    assert typical > 0, "nothing moved at all"
+
+    # ...and every speck really is moving, not just some of them.
+    assert min(math.hypot(dx, dy) for dx, dy in travel) > 0
+
+
+def test_random_wanders_rather_than_running_straight():
+    """A per-particle *heading* alone would be a straight line each. The
+    wander is what makes it read as diffusion, and it has to be visible in
+    the path: the direction of travel over one second must not be the
+    direction over the next."""
+    engine = starfield("random")
+    first = wrapped_steps(engine, 1 / 24, 24)
+    second = wrapped_steps(engine, 1 / 24, 24)
+
+    def bearings(steps):
+        tracks = list(zip(*[list(f) for f in steps]))
+        return [math.atan2(sum(dy for _dx, dy in t),
+                           sum(dx for dx, _dy in t)) for t in tracks]
+
+    turned = [abs(math.atan2(math.sin(b - a), math.cos(b - a)))
+              for a, b in zip(bearings(first), bearings(second))]
+    assert max(turned) > 0.05, "every path was a straight line"
+
+
+def test_the_direction_is_the_starfields_alone_and_the_others_ignore_it():
+    """It reaches every engine, because the widget does not know which one
+    it is holding. The ones with no direction have to shrug it off."""
+    for theme in AMBIENT_THEMES:
+        if theme == "drift":
+            continue
+        plain = make_engine(theme, "spacr", DARK, seed=5)
+        odd = make_engine(theme, "spacr", DARK, seed=5, direction="random")
+        plain.set_time(6.0)
+        odd.set_time(6.0)
+        assert render(plain) == render(odd), theme
+
+
+def test_an_unknown_direction_is_ignored_rather_than_painted():
+    engine = make_engine("drift", "spacr", DARK, seed=5, direction="sideways")
+    assert engine.direction == DEFAULT_DRIFT_DIRECTION
+    engine.set_direction("diagonally")
+    assert engine.direction == DEFAULT_DRIFT_DIRECTION
+
+
+def test_the_direction_survives_a_theme_switch(qtbot):
+    widget = AmbientWidget(theme="drift", palette="spacr", background=DARK,
+                           seed=2, direction="down")
+    qtbot.addWidget(widget)
+    assert widget.engine.direction == "down"
+    widget.set_theme("blobs")
+    widget.set_theme("drift")
+    assert widget.engine.direction == "down"
 
 
 # ---------------------------------------------------------------------------
@@ -691,8 +1285,8 @@ def test_the_lower_edge_is_sharp_and_the_top_is_diffuse():
 
 def test_three_curtains_at_different_depths():
     engine = aurora()
-    assert len(engine.curtains) == 3
-    bases = {round(c.y, 3) for c in engine.curtains}
+    assert engine.count() == 3
+    bases = {round(c.y, 3) for c in engine.curtains[:engine.count()]}
     assert len(bases) == 3
     engine.set_time(5.0)
     one = render(aurora(curtains=1))
@@ -708,7 +1302,7 @@ def test_the_aurora_geometry_is_the_model_it_documents():
     engine.set_time(13.0)
     stride = amb.AURORA_COLUMNS + 1
     samples = engine.geometry(W, H)
-    for index, curtain in enumerate(engine.curtains):
+    for index, curtain in enumerate(engine.curtains[:engine.count()]):
         zero, ray = engine.anchor(curtain, H)
         for i in range(stride):
             u = i / amb.AURORA_COLUMNS
@@ -803,12 +1397,51 @@ def test_the_preferences_default_to_the_shipped_animation(prefs):
     assert prefs.get_ambient_blur() == DEFAULT_BLUR
     assert prefs.get_ambient_speed() == DEFAULT_SPEED
     assert prefs.get_ambient_size() == DEFAULT_SIZE
+    assert prefs.get_ambient_resolution() == DEFAULT_RESOLUTION
+    assert prefs.get_ambient_density() == DEFAULT_DENSITY
+    assert prefs.get_ambient_drift_direction() == DEFAULT_DRIFT_DIRECTION
+
+
+def test_an_old_blur_setting_is_translated_rather_than_reinterpreted(prefs):
+    """``ambient_blur`` used to be a buffer-resolution divisor, so its sharp
+    half meant the opposite of what it means now. A store written under the
+    old scale is converted once, and the user's intent survives: whoever
+    asked for the sharpest backdrop gets the most detail, not a blur.
+    """
+    prefs._settings().setValue("prefs/ambient_blur", 0.25)   # old: sharpest
+    prefs._settings().remove("prefs/ambient_motion_scale")
+    assert prefs.get_ambient_resolution() == pytest.approx(2.0)
+    assert prefs.get_ambient_blur() == pytest.approx(0.0)
+
+    prefs._settings().setValue("prefs/ambient_blur", 3.0)    # old: softest
+    prefs._settings().remove("prefs/ambient_motion_scale")
+    assert prefs.get_ambient_blur() == pytest.approx(2.0)
+    assert prefs.get_ambient_resolution() == pytest.approx(1 / 3)
+
+    # ...and it runs once. A value written under the new scale stays put.
+    prefs.set_ambient_blur(1.5)
+    prefs.set_ambient_resolution(1.25)
+    assert prefs.get_ambient_blur() == pytest.approx(1.5)
+    assert prefs.get_ambient_resolution() == pytest.approx(1.25)
+
+
+def test_the_drift_direction_round_trips_and_is_validated(prefs):
+    for name in DRIFT_DIRECTIONS:
+        prefs.set_ambient_drift_direction(name)
+        assert prefs.get_ambient_drift_direction() == name
+    with pytest.raises(ValueError):
+        prefs.set_ambient_drift_direction("sideways")
+    # A hand-edited file, or a downgrade from a build with more of them.
+    prefs._settings().setValue("prefs/ambient_drift_direction", "widdershins")
+    assert prefs.get_ambient_drift_direction() == DEFAULT_DRIFT_DIRECTION
 
 
 @pytest.mark.parametrize("getter,setter,limits", [
     ("get_ambient_blur", "set_ambient_blur", BLUR_RANGE),
     ("get_ambient_speed", "set_ambient_speed", SPEED_RANGE),
     ("get_ambient_size", "set_ambient_size", SIZE_RANGE),
+    ("get_ambient_resolution", "set_ambient_resolution", RESOLUTION_RANGE),
+    ("get_ambient_density", "set_ambient_density", DENSITY_RANGE),
 ])
 def test_the_preferences_round_trip_and_clamp(prefs, getter, setter, limits):
     low, high = limits
@@ -830,34 +1463,75 @@ def test_a_new_backdrop_picks_the_preferences_up(prefs, qtbot):
     prefs.set_ambient_blur(2.0)
     prefs.set_ambient_speed(0.5)
     prefs.set_ambient_size(1.5)
+    prefs.set_ambient_resolution(1.5)
+    prefs.set_ambient_density(2.0)
+    prefs.set_ambient_drift_direction("down")
     widget = AmbientWidget(theme="blobs", palette="spacr", background=DARK,
                            seed=1)
     qtbot.addWidget(widget)
-    assert (widget.blur(), widget.speed(), widget.size_scale()) == \
-        (2.0, 0.5, 1.5)
+    assert (widget.blur(), widget.speed(), widget.size_scale(),
+            widget.resolution(), widget.density(), widget.direction()) == \
+        (2.0, 0.5, 1.5, 1.5, 2.0, "down")
     assert widget.engine.blur == 2.0
+    assert widget.engine.resolution == 1.5
 
 
-def test_the_dialog_offers_the_three_controls_and_saves_them(prefs, qtbot,
-                                                             qt_theme_applied):
-    from PySide6.QtWidgets import QDialogButtonBox, QSlider
+def test_the_dialog_offers_the_controls_and_saves_them(prefs, qtbot,
+                                                       qt_theme_applied):
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox, QSlider
 
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
     sliders = {s.objectName(): s for s in dialog.findChildren(QSlider)}
-    for name in ("AmbientBlur", "AmbientSpeed", "AmbientSize"):
+    # Every one opens on its designed value — which for blur is 0 %, because
+    # the animation ships unsoftened and this control only adds softening.
+    designed = {"AmbientBlur": 0, "AmbientSpeed": 100, "AmbientSize": 100,
+                "AmbientResolution": 100, "AmbientDensity": 100}
+    for name, mark in designed.items():
         assert name in sliders, sorted(sliders)
-        assert sliders[name].value() == 100, "does not open on the default"
+        assert sliders[name].value() == mark, \
+            f"{name} does not open on the default"
 
     sliders["AmbientBlur"].setValue(180)
     sliders["AmbientSpeed"].setValue(60)
     sliders["AmbientSize"].setValue(140)
+    sliders["AmbientResolution"].setValue(150)
+    sliders["AmbientDensity"].setValue(200)
+    combo = dialog.findChild(QComboBox, "AmbientDriftDirection")
+    assert combo is not None, "no starfield direction control"
+    combo.setCurrentIndex([combo.itemData(i) for i in
+                           range(combo.count())].index("random"))
     dialog.findChild(QDialogButtonBox).button(
         QDialogButtonBox.Save).click()
 
     assert prefs.get_ambient_blur() == pytest.approx(1.8)
     assert prefs.get_ambient_speed() == pytest.approx(0.6)
     assert prefs.get_ambient_size() == pytest.approx(1.4)
+    assert prefs.get_ambient_resolution() == pytest.approx(1.5)
+    assert prefs.get_ambient_density() == pytest.approx(2.0)
+    assert prefs.get_ambient_drift_direction() == "random"
+
+
+def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
+                                                           qt_theme_applied):
+    """It applies to one animation out of six. Showing it greyed out under
+    the other five would be five wrong answers to "what does this do"."""
+    from PySide6.QtWidgets import QComboBox
+
+    prefs.set_ambient_theme("blobs")
+    dialog = prefs.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitExposed(dialog)
+    combo = dialog.findChild(QComboBox, "AmbientDriftDirection")
+    theme_combo = dialog.findChild(QComboBox, "AmbientTheme")
+    assert not combo.isVisible()
+
+    keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
+    theme_combo.setCurrentIndex(keys.index("drift"))
+    assert combo.isVisible()
+    theme_combo.setCurrentIndex(keys.index("ripple"))
+    assert not combo.isVisible()
 
 
 def test_the_controls_grey_out_with_the_animation(prefs, qtbot,
@@ -871,8 +1545,9 @@ def test_the_controls_grey_out_with_the_animation(prefs, qtbot,
     toggle = dialog.findChild(Toggle, "AmbientEnabled")
     sliders = [s for s in dialog.findChildren(QSlider)
                if s.objectName() in ("AmbientBlur", "AmbientSpeed",
+                                     "AmbientResolution", "AmbientDensity",
                                      "AmbientSize")]
-    assert len(sliders) == 3
+    assert len(sliders) == 5
     toggle.setChecked(False)
     assert not any(s.isEnabled() for s in sliders)
     toggle.setChecked(True)

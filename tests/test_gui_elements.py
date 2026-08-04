@@ -13,16 +13,14 @@ import pytest
 
 pytestmark = pytest.mark.gui  # tag: needs a display
 
-# spacr.gui_elements imports pyautogui, which imports mouseinfo, which
-# unconditionally opens an X display at IMPORT time and raises
-# Xlib.error.DisplayConnectionError when the DISPLAY xauth cookie isn't
-# available (common in subprocess pytest runs launched via coverage). Skip
-# the whole file cleanly rather than crashing collection.
-try:
-    import spacr.gui_elements as ge
-except Exception as e:  # pragma: no cover
-    pytest.skip(f"spacr.gui_elements unavailable in this env: {e}",
-                allow_module_level=True)
+# spacr.gui_elements imports pyautogui, which imports mouseinfo, which used to
+# open an X display at IMPORT time and raise Xlib.error.DisplayConnectionError
+# when the DISPLAY xauth cookie wasn't available. tests/conftest.py now stubs
+# mouseinfo, pyautogui and screeninfo before any test module loads, so that
+# failure mode is gone and the guard that skipped this ENTIRE file on
+# `except Exception` had nothing environmental left to catch -- only a real
+# import-time bug in spacr.gui_elements, which must fail rather than skip.
+import spacr.gui_elements as ge
 
 
 # ---------------------------------------------------------------------------
