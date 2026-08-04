@@ -64,26 +64,47 @@ _GATE = (
     (0.300, 0.520),
 )
 
-#: A density cloud as concentric rings of points: rings near the centre are
-#: full, rings outside it are progressively sparser. Two centres, because the
-#: supplied plot has a main population and a small debris cluster low-left.
-_CENTRES = (((0.520, 0.520), 1.00), ((0.300, 0.690), 0.42))
+#: The cloud. Two populations, each a 2-D Gaussian -- the main one and the
+#: small debris cluster low-left the supplied plot also has.
+#:
+#: The first version of this drew concentric rings of points, which produced
+#: a rosette: perfectly radially symmetric, and the user correctly called it
+#: "a weird star shape". Real flow data has no symmetry at all. Points now
+#: come from a seeded normal distribution, which is reproducible (fixed seed,
+#: rolled once at import) and looks like data because it IS distributed like
+#: data. Sizes vary too -- a cloud of identical dots reads as a pattern.
+_CLOUD_POPULATIONS = (
+    # (cx, cy, sx, sy, rho, n)  -- rho tilts the ellipse, which the main
+    # population in the supplied plot clearly has.
+    (0.520, 0.520, 0.135, 0.105, 0.45, 150),
+    (0.300, 0.700, 0.045, 0.035, 0.10, 30),
+)
 
 
-def _cloud(c, rings=7, dense=True):
-    """Points thinning outwards from each centre."""
-    for (cx, cy), scale in _CENTRES:
-        for r_i in range(1, rings + 1):
-            frac = r_i / float(rings)
-            radius = 0.055 + 0.185 * frac * scale
-            n = max(3, int((16 if dense else 9) * (1.15 - frac)))
-            dot = (0.013 if dense else 0.015) * (1.25 - 0.7 * frac)
-            for k in range(n):
-                a = 2.0 * math.pi * (k / float(n)) + r_i * 0.7
-                x = cx + radius * math.cos(a) * 1.25
-                y = cy + radius * math.sin(a) * 0.85
-                if 0.22 < x < 0.88 and 0.18 < y < 0.80:
-                    c.disc(x, y, dot * scale)
+def _cloud_points():
+    """Deterministic scatter: a fixed seed, rolled once."""
+    import random
+    rng = random.Random(20260804)
+    pts = []
+    for cx, cy, sx, sy, rho, n in _CLOUD_POPULATIONS:
+        for _ in range(n):
+            u, v = rng.gauss(0.0, 1.0), rng.gauss(0.0, 1.0)
+            # correlate the two axes so the cloud leans, as real FSC/SSC does
+            x = cx + sx * u
+            y = cy + sy * (rho * u + (1.0 - rho ** 2) ** 0.5 * v)
+            if _X0 + 0.02 < x < _X1 - 0.01 and _Y1 + 0.01 < y < _Y0 - 0.02:
+                pts.append((x, y, rng.uniform(0.006, 0.013)))
+    return tuple(pts)
+
+
+_CLOUD = _cloud_points()
+
+
+def _cloud(c, rings=None, dense=True):
+    """Draw the scatter. `rings`/`dense` kept so callers need no change."""
+    step = 1 if dense else 2
+    for x, y, r in _CLOUD[::step]:
+        c.disc(x, y, r)
 
 
 def _pct(c, x=0.78, y=0.470):
