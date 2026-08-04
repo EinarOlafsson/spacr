@@ -1445,9 +1445,74 @@ class LivePreviewPanel(QWidget):
         """Channel index the canvases show, or ``None`` for all channels."""
         return selected_channel(self._channel_box)
 
+    def _background_for_channel(self, channel: Optional[int]) -> Optional[float]:
+        """The background threshold that applies to one displayed channel.
+
+        ``None`` when nothing should be removed from it. The channel is
+        matched to an object type the same way the pipeline does it in
+        :func:`spacr.io._normalize_img_batch`: a channel is the cell channel
+        or the nucleus channel, and it takes that object's background. A
+        channel belonging to neither -- a stain the user is only looking at
+        -- is left alone, because no background was ever chosen for it.
+        """
+        if channel is None or not hasattr(self, "_common_widgets"):
+            return None
+        if not self._widget_value(self._common_widgets["remove_background"]):
+            return None
+        channels = {"cell": int(self._cell_channel.value()),
+                    "nucleus": int(self._nucleus_channel.value())}
+        for obj in self._selected_object_types():
+            if channels.get(obj) == int(channel):
+                return float(self._widget_value(
+                    self._common_widgets["background"]))
+        return None
+
+    def _apply_display_background(self, shown):
+        """Show the intensity image the segmentation actually ran on.
+
+        Background removal used to happen only inside the worker, so the
+        masks moved when it was switched on and the image they were drawn
+        over did not -- the one pane that could show you *why* the objects
+        changed was the pane still displaying the original pixels.
+
+        The threshold is the same one the worker applies, so this is not a
+        second implementation of the rule: both zero everything below
+        ``{obj}_background``, and both leave what is above it untouched.
+        """
+        if shown is None:
+            return shown
+        channel = self.display_channel()
+        if channel is not None:
+            background = self._background_for_channel(channel)
+            if background is None:
+                return shown
+            # `channel_view` returns a VIEW into `self._image`. Writing
+            # zeros through it would destroy the loaded image, so the next
+            # render -- and the segmentation worker, which reads the same
+            # array -- would see an image already thresholded once, again.
+            out = shown.copy()
+            out[out < background] = 0
+            return out
+
+        # "All channels": each one takes its own object's background, so a
+        # composite cannot show a cleaned cell channel beside a raw nucleus.
+        if getattr(shown, "ndim", 0) != 3:
+            return shown
+        out = None
+        for index in range(shown.shape[2]):
+            background = self._background_for_channel(index)
+            if background is None:
+                continue
+            if out is None:
+                out = shown.copy()
+            plane = out[..., index]
+            plane[plane < background] = 0
+        return shown if out is None else out
+
     def _display_image(self) -> Optional[np.ndarray]:
         """The loaded image reduced to the selected display channel."""
-        return channel_view(self._image, self.display_channel())
+        return self._apply_display_background(
+            channel_view(self._image, self.display_channel()))
 
     def _on_display_channel_changed(self, *_args) -> None:
         """Re-render both canvases for the newly selected channel."""
@@ -1649,6 +1714,21 @@ class LivePreviewPanel(QWidget):
             "remove_background": _spin("bool", None),
             "background": _spin("int", (0, 100_000, 100)),
         }
+        # Both reach the displayed intensity image, not only the worker, so
+        # both have to repaint. Without this the toggle looked inert until
+        # the next Run: the pixels it removes were already gone from the
+        # segmentation and still on screen.
+        self._common_widgets["remove_background"].toggled.connect(
+            self._refresh_canvases)
+        self._common_widgets["background"].valueChanged.connect(
+            self._refresh_canvases)
+        # Which channel gets thresholded depends on the cell/nucleus channel
+        # indices and on which object is selected, so moving any of those has
+        # to repaint too -- otherwise pointing "cell" at a different channel
+        # leaves the cleaned pixels on the old one.
+        self._cell_channel.valueChanged.connect(self._refresh_canvases)
+        self._nucleus_channel.valueChanged.connect(self._refresh_canvases)
+        self._object_box.currentIndexChanged.connect(self._refresh_canvases)
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
