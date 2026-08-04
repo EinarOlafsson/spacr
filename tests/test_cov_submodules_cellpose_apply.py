@@ -296,7 +296,15 @@ def test_apply_cellpose_model_circularize_drops_outside_objects_and_plots(
 ):
     """circularize=True masks predictions to the inscribed circle and
     save=True renders one 4-panel PNG per image."""
+    import spacr.plot as P
     from spacr.submodules import apply_cellpose_model
+
+    # The diagnostic goes through ``spacr.plot.save_figure``, which writes the
+    # user's preferred figure format and rewrites the extension to match. With
+    # no preference store (the case under pytest) that default is PDF, so a
+    # test asserting the exact ``cellpose_result_NNN.png`` names has to state
+    # the preference it is asserting.
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
 
     src = tmp_path / "apply_circ"
     src.mkdir()
