@@ -89,6 +89,15 @@ NO_P_VALUE_TYPES: Tuple[str, ...] = ("lasso", "elasticnet")
 #: The FDR a hit list defaults to calling a hit at.
 DEFAULT_ALPHA = 0.05
 
+#: The bootstrap selection frequency a hit list defaults to calling a hit at
+#: for the penalised backends, which have no p-value to correct.
+#: :data:`DEFAULT_ALPHA` cannot serve for both: a q-value of 0.05 is strict
+#: and a selection frequency of 0.05 is "chosen in one bootstrap in twenty",
+#: which would call almost every gene a hit and report it as significant.
+#: Matches ``lasso_selection_threshold``'s own default in
+#: :func:`spacr.ml.perform_regression`.
+DEFAULT_SELECTION_THRESHOLD = 0.6
+
 #: Flags a row can carry. Each one is a reason to look twice, not a reason to
 #: drop the row — dropping it would hide the very thing the flag is for.
 FLAG_CONTROL = "control"
@@ -842,6 +851,13 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
     ranking = ("selection-frequency"
                if str(regression_type).strip().lower() in NO_P_VALUE_TYPES
                else "q-value")
+    if ranking == "selection-frequency" and float(alpha) == DEFAULT_ALPHA:
+        # The threshold means the opposite thing on this branch, so the
+        # default has to change with it: 0.05 as a SELECTION FREQUENCY is
+        # "chosen in one bootstrap in twenty", which would report almost the
+        # whole design as significant. An alpha the caller passed explicitly
+        # is theirs and is left alone.
+        alpha = DEFAULT_SELECTION_THRESHOLD
     if ranking == "q-value":
         table["q_value"] = benjamini_hochberg(
             table.get("p_value", pd.Series([np.nan] * len(table))))
