@@ -69,6 +69,11 @@ INPUT_NAME = "SettingsSearchInput"
 COUNT_NAME = "SettingsSearchCount"
 MODIFIED_NAME = "SettingsSearchModified"
 DISCLOSURE_NAME = "SettingsSearchDisclosure"
+#: The wrapper `install` puts around the strip AND the settings scroll area,
+#: so the two occupy one splitter slot. It spans the whole settings column,
+#: which is what made it the single most damaging unstyled widget on the
+#: page — see `_bar_qss`.
+PANE_NAME = "SettingsSearchPane"
 
 #: Where the per-module Essentials/All choice is remembered.
 _QSETTINGS_ORG = "spacr"
@@ -506,7 +511,7 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         sizes = list(parent.sizes())
         bar = SettingsSearchBar(screen)
         container = QWidget(parent)
-        container.setObjectName("SettingsSearchPane")
+        container.setObjectName(PANE_NAME)
         column = QVBoxLayout(container)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(0)
@@ -587,10 +592,43 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
 
 
 def _bar_qss(palette: dict, opacity) -> str:
-    """QSS for the strip, registered through the theme seam."""
+    """QSS for the strip, registered through the theme seam.
+
+    The first four rules are the important ones and they all say the same
+    thing: **paint nothing**.
+
+    The strip is not a card. It is type and controls sitting on the page,
+    the way the module masthead is, and what belongs behind it is the
+    theme. But every widget here is *named*, and a named widget is exactly
+    what :func:`spacr.qt.theme.clear_container_surfaces` leaves alone — it
+    tags only anonymous ``QWidget`` scaffolding, on the reasonable
+    assumption that a name means somebody styled it on purpose. Nobody had
+    styled these, so they fell through to the blanket
+    ``QWidget {{ background-color: bg }}``, and ``bg`` is the WINDOW
+    colour: near-black, and not a surface, so no page-opacity setting can
+    reach it.
+
+    :data:`PANE_NAME` is the one that did the damage. It is the wrapper
+    :func:`install` puts around the strip *and* the settings scroll area,
+    so it spans the entire settings column — an opaque black rectangle
+    behind the whole thing. Everything in front of it was translucent and
+    correct, and every one of them still measured 0.000 at every position
+    of the slider, because what showed through was the black pane rather
+    than the page. That is the "the container is not subject to the
+    opacity setting" report, and the categories inside it with it: neither
+    was broken, both were composited onto a black rectangle.
+
+    The Recipes button is the same fault and lives in
+    :mod:`spacr.qt.recipes`, which styles it there.
+    """
     from .theme import font_px, pane_surface
     surface = pane_surface("surface_alt", palette["theme"], opacity)
     return f"""
+QWidget#{PANE_NAME}, QWidget#{BAR_NAME},
+QLabel#{MODIFIED_NAME}Label, QCheckBox#{MODIFIED_NAME} {{
+    background: transparent;
+    border: none;
+}}
 QLineEdit#{INPUT_NAME} {{
     background: {surface};
     border: 1px solid {palette["border_soft"]};
