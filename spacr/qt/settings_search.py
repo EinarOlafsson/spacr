@@ -52,6 +52,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QScrollArea,
+    QSizePolicy,
     QSplitter,
     QToolButton,
     QVBoxLayout,
@@ -132,6 +133,11 @@ class SettingsSearchBar(QWidget):
     def __init__(self, screen: QWidget, parent: Optional[QWidget] = None):
         super().__init__(parent)
         self.setObjectName(BAR_NAME)
+        # Fixed height, explicitly. The strip is two rows tall and the scroll
+        # area under it wants everything else; without this the two share the
+        # pane by their stretch factors and the search box ends up 800 pixels
+        # high on first layout.
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self._screen = screen
         self._app_key = str(getattr(screen, "app_key", "") or "")
         self._model = getattr(screen, "_settings_model", None)
@@ -509,6 +515,15 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         # what frees the slot the container then takes.
         column.addWidget(scroll, 1)
         parent.insertWidget(index, container)
+        # `setParent` hides a widget, and a hidden widget is one a layout
+        # skips. Without these two the QVBoxLayout saw no visible children,
+        # left the scroll area at the geometry it had as a splitter pane,
+        # and centred the strip on top of the settings form -- both of them
+        # drawing over each other at full pane height. Nothing that reads
+        # form-row visibility notices, which is why it has a geometry test.
+        container.show()
+        scroll.show()
+        bar.show()
         if len(sizes) == parent.count():
             parent.setSizes(sizes)
     except Exception:
