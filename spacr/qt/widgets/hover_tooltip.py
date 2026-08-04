@@ -12,9 +12,9 @@ actually hides when neither the anchor nor the popup itself is under
 the cursor.
 
 A hover shows **text only**. No GIF is decoded, no frames are cached and no
-timer runs until the reader asks for the animation: 141 packaged animations
-are 141 decoded movies, and a hover that only wanted the sentence should not
-pay for one.
+timer runs until the reader asks for the animation: the 94 packaged animations
+cover 143 settings, and every one of them is a decoded movie. A hover that
+only wanted the sentence should not pay for one.
 
 Asked for, the animation appears to the RIGHT of the text. Both columns start
 at the same top edge, so the first line of prose and the first frame are read
@@ -40,7 +40,7 @@ That reveal lasts the SESSION, not the hover and not the setting. The popup is
 a process-wide singleton, so the state has nowhere else to live, and it is the
 only scope that makes one click useful: per-hover would un-reveal the moment
 the pointer moved, and per-setting would ask a reader who wants animations to
-click all 141 of them.
+click every one of the 143 that have one.
 
 The one place to say "always" is the *Setting animations* preference, which is
 where the session state STARTS from — see :func:`HoverTooltip.animations_shown`.

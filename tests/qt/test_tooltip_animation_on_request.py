@@ -1,9 +1,9 @@
 """What a hover costs now, and what the **Animation** word buys.
 
 The tooltip used to decode a movie on every hover of an animated setting —
-141 packaged animations, one GIF read, cropped, zoomed and cached per hover.
-It shows text only now, and reveals the animation when the reader clicks
-**Animation** in the footer.
+one GIF read, cropped, zoomed and cached, across the 143 settings the 94
+packaged animations cover. It shows text only now, and reveals the animation
+when the reader clicks **Animation** in the footer.
 
 The saving is measured by counting the REAL decode calls, not by reading a
 flag: a flag can say "off" while the loader runs anyway, which is exactly the
@@ -118,7 +118,7 @@ def test_the_counter_can_see_a_decode_when_there_is_one(
 
 
 def test_hovering_the_whole_registry_decodes_nothing(tooltip, qtbot, decodes):
-    """All 141, since 141 decoded movies was the cost being removed."""
+    """Every animated setting, since a decode each was the cost removed."""
     from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
     from spacr.setting_animations import animation_for_setting
 
