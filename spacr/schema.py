@@ -1797,6 +1797,39 @@ def _model_feature_role(
     return declared, ignore_non_numeric
 
 
+#: What to tell a user whose feature table will not fit. Written once so the
+#: strict selector and the coercion step give the same advice, and so the
+#: advice matches the control that actually exists: Exclude takes any number
+#: of columns (type one and press Enter, or pick several at once with SQL).
+_EXCLUDE_ADVICE = (
+    "What to do: put these names in the 'Exclude' setting -- it takes any "
+    "number of columns, typed one at a time or picked several at once with "
+    "the SQL button -- or re-measure so they are written as numbers."
+)
+
+
+def _non_numeric_feature_error(problems) -> 'ModelFeatureSchemaError':
+    """Build the one error that names *every* unusable feature.
+
+    ``problems`` is a list of ``(name, dtype, reason)``. Reporting the first
+    offender and stopping made the user fix them one run at a time -- and a
+    run that has already read and merged a 400k-row measurements database
+    before it fails is not a cheap thing to repeat.
+    """
+    lines = [f'  - {name} ({dtype}): {reason}' for name, dtype, reason in problems]
+    count = len(problems)
+    head = (f'{count} declared model feature{"s" if count != 1 else ""} '
+            f'{"are" if count != 1 else "is"} not numeric, so '
+            f'{"they cannot" if count != 1 else "it cannot"} be fitted:')
+    return ModelFeatureSchemaError(
+        head + '\n' + '\n'.join(lines) + '\n' + _EXCLUDE_ADVICE)
+
+
+def _all_missing(series) -> bool:
+    """True when a column carries no value at all, only nulls."""
+    return bool(len(series)) and bool(series.isna().all())
+
+
 def coerce_model_feature_types(
         frame,
         *,
@@ -1804,14 +1837,28 @@ def coerce_model_feature_types(
         exclude=(),
         allow_unknown: bool = False,
 ):
-    """Convert numeric strings in declared model features to numeric dtypes.
+    """Repair the two representations of a numeric measurement pandas fumbles.
 
-    SQLite can return a measurement column as ``object`` when values were
-    inserted as text, even if every non-empty value is a valid number. Model
-    boundaries call this helper before strict schema validation so those
-    lossless representations remain usable. A genuinely non-numeric token is
-    never silently changed to missing data: it raises
-    :class:`ModelFeatureSchemaError` with representative values.
+    **A column with no values at all comes back as ``object``.** This is the
+    common one and it is not a data problem: ``pandas.read_sql`` builds the
+    frame from the rows it gets, so a column that is ``NULL`` in every row
+    arrives as a column of ``None`` and pandas types that ``object`` -- even
+    though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest
+    NaN, and whole measurements are legitimately NaN for a whole database:
+    ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform
+    object, and ``mode_intensity`` was NaN for every object in every database
+    written before the SciPy shim in ``measure._extended_regionprops_table``.
+    Such a column is converted to ``float64`` NaN, which is what it always
+    meant. Nothing is lost, so nothing is warned about -- and the caller's
+    own all-NaN filter then drops it and says so.
+
+    **Numeric text is coerced, loudly.** Values inserted as text make pandas
+    use ``object`` for the whole column even when every one of them is a
+    valid number; ``'12.0'`` is recoverable and is recovered, with a
+    :class:`UserWarning` naming the columns, because a measurement stored as
+    text is a database that wants looking at. ``'n/a'`` is not recoverable
+    and is never quietly turned into NaN and fitted on: it raises
+    :class:`ModelFeatureSchemaError` naming *every* offending column at once.
 
     The input frame is returned unchanged when no conversion is needed. A
     shallow copy is made on the first conversion, so callers do not have their
@@ -1829,6 +1876,8 @@ def coerce_model_feature_types(
     blocked = {str(column) for column in exclude}
     converted_frame = frame
     copied = False
+    problems: list[tuple[str, Any, str]] = []
+    coerced_text: list[str] = []
 
     for column in frame.columns:
         name = str(column)
@@ -1845,23 +1894,47 @@ def coerce_model_feature_types(
         if ignore_non_numeric:
             continue
 
-        # Empty strings in SQLite measurement tables represent the same
-        # missing value as NULL. Preserve that distinction before conversion.
-        normalized = series.replace(r'^\s*$', pd.NA, regex=True)
-        numeric = pd.to_numeric(normalized, errors='coerce')
-        invalid = normalized.notna() & numeric.isna()
-        if invalid.any():
-            examples = list(dict.fromkeys(
-                str(value) for value in normalized[invalid].head(3)))
-            raise ModelFeatureSchemaError(
-                f'Declared model feature {name!r} must be numeric, got '
-                f'{series.dtype} with non-numeric value(s) '
-                f'{examples!r}. Convert or exclude it before fitting.')
+        if _all_missing(series):
+            # No value was read, so no value can be misread. float64 NaN is
+            # the same fact in a dtype the model boundary accepts.
+            numeric = series.astype('float64')
+        else:
+            # Empty strings in SQLite measurement tables represent the same
+            # missing value as NULL. Preserve that distinction before
+            # conversion.
+            normalized = series.replace(r'^\s*$', pd.NA, regex=True)
+            numeric = pd.to_numeric(normalized, errors='coerce')
+            invalid = normalized.notna() & numeric.isna()
+            if invalid.any():
+                examples = list(dict.fromkeys(
+                    str(value) for value in normalized[invalid].head(3)))
+                problems.append((
+                    name, series.dtype,
+                    f'{int(invalid.sum())} value(s) are not numbers, '
+                    f'e.g. {", ".join(repr(v) for v in examples)}'))
+                continue
+            coerced_text.append(name)
 
         if not copied:
             converted_frame = frame.copy(deep=False)
             copied = True
         converted_frame[column] = numeric
+
+    if problems:
+        raise _non_numeric_feature_error(problems)
+
+    if coerced_text:
+        import warnings
+        shown = ', '.join(coerced_text[:8])
+        more = ('' if len(coerced_text) <= 8
+                else f' (and {len(coerced_text) - 8} more)')
+        warnings.warn(
+            f'{len(coerced_text)} measurement column(s) were stored as text '
+            f'and have been read as numbers for this run: {shown}{more}. '
+            f'Every value converted exactly -- nothing became missing -- but '
+            f'the database holds text where numbers belong, so re-measure or '
+            f'repair it rather than relying on this each time.',
+            UserWarning, stacklevel=2)
 
     return converted_frame
 
@@ -1882,6 +1955,10 @@ def model_feature_columns(
     ``allow_unknown`` is for generic statistics over user-created frames;
     database-backed model paths should retain the strict default.
 
+    Every unusable column is reported in one error, with its dtype and why it
+    is unusable. Refusing the first one and stopping made a user fix them one
+    whole run at a time.
+
     :raises ModelFeatureSchemaError: if a declared feature is non-numeric.
     """
     import pandas as pd
@@ -1895,6 +1972,7 @@ def model_feature_columns(
     explicit = {str(column) for column in extra_features}
     blocked = {str(column) for column in exclude}
     selected: list[str] = []
+    problems: list[tuple[str, Any, str]] = []
     for column in frame.columns:
         name = str(column)
         if name in blocked or is_provenance_column(name):
@@ -1912,15 +1990,33 @@ def model_feature_columns(
         if not is_numeric_dtype(series.dtype):
             if ignore_non_numeric:
                 continue
-            raise ModelFeatureSchemaError(
-                f'Declared model feature {name!r} must be numeric, got '
-                f'{series.dtype}. Convert or exclude it before fitting.')
+            if _all_missing(series):
+                reason = ('every value is missing -- pandas types an '
+                          'all-NULL column object however SQLite declares '
+                          'it. coerce_model_feature_types repairs this; '
+                          'this frame did not pass through it')
+            else:
+                sample = list(dict.fromkeys(
+                    str(value) for value in series.dropna().head(3)))
+                reason = ('holds values that are not numbers, e.g. '
+                          + ', '.join(repr(v) for v in sample))
+            problems.append((name, series.dtype, reason))
+            continue
         selected.append(column)
+    if problems:
+        raise _non_numeric_feature_error(problems)
     return selected
 
 
 def model_feature_frame(frame, **kwargs):
-    """Return ``frame`` restricted to :func:`model_feature_columns`."""
+    """Return ``frame`` restricted to :func:`model_feature_columns`.
+
+    Unlike :func:`model_feature_columns` this owns the data it hands back, so
+    it repairs what is losslessly repairable first
+    (:func:`coerce_model_feature_types`) instead of refusing a frame whose
+    only fault is that pandas typed an all-NULL measurement ``object``.
+    """
+    frame = coerce_model_feature_types(frame, **kwargs)
     return frame.loc[:, model_feature_columns(frame, **kwargs)].copy()
 
 
