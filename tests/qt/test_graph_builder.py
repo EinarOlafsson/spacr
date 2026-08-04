@@ -286,6 +286,33 @@ def test_two_way_faceting_draws_every_combination_including_the_empty_ones(
     assert grid.col_levels == ("r1", "r2", "r3")
 
 
+def test_facet_levels_sort_plate_2_before_plate_10():
+    """The "numeric-aware" ordering above, on levels that carry a prefix.
+
+    ``_sort_key`` was a whole-string ``float()``, so it was numeric-aware for
+    a level that was a bare number and lexicographic for everything else —
+    and a plate id is never a bare number. The fixture above only ever used
+    single digits, so P1..P9 hid it. With ten plates the panels came out
+    P1, P10, P11, P2, and a reader scanning left to right for a dose or a
+    time course read the wrong panel.
+    """
+    plates = [f"P{i}" for i in (1, 2, 10, 11)]
+    wells = [f"A{i}" for i in (1, 2, 10, 11)]
+    ten = pd.DataFrame({
+        "plateID": plates * 3,
+        "wellID": wells * 3,
+        "area": np.arange(len(plates) * 3, dtype=float),
+        "intensity": np.arange(len(plates) * 3, dtype=float),
+    })
+
+    grid = facet_grid(ten, GraphSpec(x="area", y="intensity",
+                                     facet_row="plateID",
+                                     facet_col="wellID"))
+
+    assert grid.row_levels == ("P1", "P2", "P10", "P11")
+    assert grid.col_levels == ("A1", "A2", "A10", "A11")
+
+
 def test_one_way_faceting_is_a_single_row_or_column(frame):
     spec = GraphSpec(x="area", facet_col="rowID")
     grid = facet_grid(frame, spec)
