@@ -53,6 +53,7 @@ from PySide6.QtWidgets import (
 
 from ...run_compare import RunComparison, RunRef, compare_runs, runs_in
 from ..theme import SPACING, pane_surface, register_widget_qss
+from .app_screen import ModuleHeader
 
 __all__ = ["RunCompareScreen", "APP_KEY", "register"]
 
@@ -182,16 +183,14 @@ class RunCompareScreen(QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel("Run Compare")
-        title.setObjectName("ScreenTitle")
-        outer.addWidget(title)
-
-        subtitle = QLabel(
-            "Two runs of the same project: what settings moved, what the "
-            "counts did, and which hits changed.")
-        subtitle.setObjectName("Muted")
-        subtitle.setWordWrap(True)
-        outer.addWidget(subtitle)
+        header = ModuleHeader(
+            "Run Compare",
+            description="Two runs of the same project: what settings moved, "
+                        "what the counts did, and which hits changed.",
+            instruction="Choose a project, then pick the two runs to compare.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         picker = QHBoxLayout()
         picker.setSpacing(SPACING["sm"])

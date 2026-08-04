@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 
 from ..job_runner import JobRunner
 from ..theme import SPACING, register_widget_qss
+from .app_screen import ModuleHeader
 from ..widgets.qc_summary import (
     Dashboard, format_dashboard, read_dashboard,
 )
@@ -164,6 +165,15 @@ class QCDashboardScreen(QWidget):
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
         outer.setSpacing(SPACING["md"])
+
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Point it at a project or plate folder, then "
+                        "refresh.",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         intro = QLabel(APP_INTRO)
         intro.setWordWrap(True)

@@ -93,6 +93,7 @@ from ..widgets.outlier_model import (
 )
 from ..widgets.pca_view import FeaturePicker
 from .graph_builder import read_table, table_names
+from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.outliers")
 
@@ -169,9 +170,13 @@ class OutliersScreen(QWidget):
         head = QHBoxLayout()
         head.setContentsMargins(0, 0, 0, 0)
         head.setSpacing(SPACING["sm"])
-        title = QLabel("Outliers", self)
-        title.setObjectName("ScreenTitle")
-        head.addWidget(title)
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, choose the rule and the columns, then scan.",
+        )
+        self._header = header
+        head.addWidget(header)
 
         self._source = QLabel("no table loaded", self)
         self._source.setObjectName("OutlierSourceLabel")
