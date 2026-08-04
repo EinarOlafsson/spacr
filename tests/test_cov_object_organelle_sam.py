@@ -504,15 +504,36 @@ class _FakeCellposeModel:
         self._masks = masks
         self.calls = []
 
-    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-        # x and channel_axis are named rather than absorbed into **kwargs, so
-        # the pair can be handed to the real cellpose.transforms.convert_image
-        # before anything is recorded. The `channel_axis == -1` assertion
-        # below only pins the literal spaCR passes; this proves Cellpose would
-        # actually accept it for the shapes spaCR produces here -- the check
-        # that channel_axis=3 slipped past for fifteen tests.
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # The installed 4.0.7 parameter list, verbatim, with no **kwargs, so
+        # Python's own argument binding rejects anything cellpose 4 removed
+        # instead of absorbing it. `channel_axis` also goes through the real
+        # cellpose.transforms.convert_image before anything is recorded: the
+        # `channel_axis == -1` assertion below only pins the literal spaCR
+        # passes, while this proves Cellpose would accept it for the shapes
+        # spaCR produces -- the check that channel_axis=3 slipped past for
+        # fifteen tests.
         check_cellpose_eval_call(x, channel_axis)
-        self.calls.append({"x": x, "channel_axis": channel_axis, **kwargs})
+        self.calls.append({
+            "x": x, "batch_size": batch_size, "resample": resample,
+            "channels": channels, "channel_axis": channel_axis,
+            "z_axis": z_axis, "normalize": normalize, "invert": invert,
+            "rescale": rescale, "diameter": diameter,
+            "flow_threshold": flow_threshold,
+            "cellprob_threshold": cellprob_threshold, "do_3D": do_3D,
+            "anisotropy": anisotropy, "flow3D_smooth": flow3D_smooth,
+            "stitch_threshold": stitch_threshold, "min_size": min_size,
+            "max_size_fraction": max_size_fraction, "niter": niter,
+            "augment": augment, "tile_overlap": tile_overlap,
+            "bsize": bsize, "compute_masks": compute_masks,
+            "progress": progress,
+        })
         n = len(x)
         masks = [self._masks[i] for i in range(n)]
         flows = [np.zeros((3,) + m.shape, dtype=np.float32) for m in masks]

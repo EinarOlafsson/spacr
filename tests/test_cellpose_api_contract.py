@@ -218,9 +218,6 @@ def test_cellpose_eval_returns_three_values():
 PARTIAL_SIGNATURE_RATCHET = {
     ("test_cellpose4_model_story.py", "_M"): 3,
     ("test_cellpose4_spacrops_submodules.py", "_FakeCellposeModel"): 1,
-    ("test_cellpose_channel_axis_contract.py", "_AxisRecordingModel"): 1,
-    ("test_cellpose_channel_axis_contract.py", "_ThreeTupleModel"): 1,
-    ("test_cov_object_organelle_sam.py", "_FakeCellposeModel"): 1,
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_FakeModel"): 1,
     ("test_coverage_fill_cellpose_gpu_funcs.py", "_BadEvalModel"): 1,
     ("test_coverage_fill_pipeline_v2.py", "_FakeModel"): 1,
@@ -230,7 +227,7 @@ PARTIAL_SIGNATURE_RATCHET = {
 }
 
 #: Total partial ``eval`` methods above, not keys.
-PARTIAL_SIGNATURE_CEILING = 13
+PARTIAL_SIGNATURE_CEILING = 10
 
 
 def _eval_doubles():

@@ -29,6 +29,7 @@ matplotlib.use("Agg")
 from cellpose import transforms
 
 from spacr import spacr_cellpose as SC
+from tests.conftest import MISSING_CHANNEL_AXIS
 
 
 # The only two shapes spacr.io's loaders hand to model.eval: a channels-last
@@ -98,8 +99,20 @@ class _AxisRecordingModel:
         self.pretrained_model = k.get("pretrained_model", "fake")
         self.calls = []
 
-    def eval(self, x=None, channel_axis="__absent__", **kwargs):
-        assert channel_axis != "__absent__", "spaCR must pass channel_axis"
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # The installed parameter list verbatim, no **kwargs: a caller passing
+        # something cellpose 4 removed now fails to bind here rather than
+        # being absorbed. The local "__absent__" sentinel this used has been
+        # replaced by the suite-wide MISSING_CHANNEL_AXIS, which is the one
+        # substitution the signature contract sanctions.
+        assert channel_axis is not MISSING_CHANNEL_AXIS, (
+            "spaCR must pass channel_axis")
         arr = np.asarray(x)
         converted = transforms.convert_image(arr, channel_axis=channel_axis)
         self.calls.append({"ndim": arr.ndim, "channel_axis": channel_axis})
@@ -261,8 +274,21 @@ class _ThreeTupleModel(_AxisRecordingModel):
     exercised, so the ``len(output) == 3`` unpack went untested at both.
     """
 
-    def eval(self, x=None, channel_axis="__absent__", **kwargs):
-        mask, flows, _, _ = super().eval(x=x, channel_axis=channel_axis, **kwargs)
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # Forwarded positionally, in the installed order, so a parameter added
+        # or reordered in the parent cannot silently change what this passes.
+        mask, flows, _, _ = super().eval(
+            x, batch_size, resample, channels, channel_axis, z_axis,
+            normalize, invert, rescale, diameter, flow_threshold,
+            cellprob_threshold, do_3D, anisotropy, flow3D_smooth,
+            stitch_threshold, min_size, max_size_fraction, niter, augment,
+            tile_overlap, bsize, compute_masks, progress)
         return mask, flows, None
 
 
