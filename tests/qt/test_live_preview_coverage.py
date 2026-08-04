@@ -101,6 +101,17 @@ def _panel(qtbot):
     return p
 
 
+def _wait_loaded(qtbot, panel, timeout=5000):
+    """Pump the event loop until the panel's asynchronous load has landed.
+
+    The GUI load paths return before the image exists -- that is the whole
+    point of them -- so a test that drives one waits rather than asserting on
+    the next line.
+    """
+    qtbot.waitUntil(lambda: not panel._image_loaders, timeout=timeout)
+    qtbot.wait(10)
+
+
 def _pixmap_pixel(view, x=0, y=0):
     """Read back an actual rendered pixel from a ``_ZoomView``."""
     item = view._pixmap_item
@@ -795,6 +806,7 @@ class TestDragAndDrop:
         drop = _Evt(_mime_for(gray_tif))
         p.dropEvent(drop)
         assert drop.accepted
+        _wait_loaded(qtbot, p)
         assert p._image is not None and p._image.shape == (48, 48)
         assert p._path_label.text() == str(gray_tif)
 
@@ -849,6 +861,7 @@ class TestPanelIO:
         monkeypatch.setattr(QFileDialog, "getOpenFileName",
                             staticmethod(lambda *a, **k: (str(gray_tif), "")))
         p._pick_file()
+        _wait_loaded(qtbot, p)
         assert p._image is not None
         assert p._path_label.text() == str(gray_tif)
 

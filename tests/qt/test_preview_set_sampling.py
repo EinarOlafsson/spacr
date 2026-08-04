@@ -199,6 +199,12 @@ def test_preview_opens_only_the_sample_never_the_plate(
 
     for index in range(sample_size):
         panel._fov_box.setCurrentIndex(index)
+        # The FOV dropdown loads asynchronously, so a user stepping through
+        # the list is modelled by waiting for each field to arrive. Firing all
+        # twenty into the same event-loop turn would instead measure the
+        # supersede logic -- correct behaviour, but not the thing this test is
+        # about, and it would under-count the opens.
+        qtbot.waitUntil(lambda: not panel._image_loaders, timeout=20000)
 
     opened = counter.unique
     assert len(opened) == sample_size, (
@@ -581,6 +587,6 @@ def test_fov_and_channel_dropdowns_still_work(big_plate, qtbot):
     assert panel._fov_box.count() in (DEFAULT_MAX_SETS, DEFAULT_MAX_SETS + 1)
     first = panel._image_path
     panel._fov_box.setCurrentIndex(panel._fov_box.count() - 1)
-    assert panel._image_path != first
+    qtbot.waitUntil(lambda: panel._image_path != first, timeout=20000)
     assert panel._image is not None
     assert panel.display_channel() is None      # "All channels"

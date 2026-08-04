@@ -220,7 +220,9 @@ def test_mask_fov_dropdown_lists_the_folder_and_switches_the_image(
     before = _rendered(panel._src_view)
     panel._fov_box.setCurrentIndex(1)
 
-    assert panel._image_path == second
+    # The FOV dropdown now decodes off the GUI thread, so the new image lands
+    # a turn or two later rather than inside setCurrentIndex.
+    qtbot.waitUntil(lambda: panel._image_path == second, timeout=20000)
     after = _rendered(panel._src_view)
     assert not np.array_equal(before, after), \
         "picking another field of view did not change the displayed image"

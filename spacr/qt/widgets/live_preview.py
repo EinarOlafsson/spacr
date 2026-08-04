@@ -61,6 +61,7 @@ from .preview_controls import (
     populate_channel_combo, sample_image_sets, sample_seed, selected_channel,
 )
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
@@ -495,69 +496,66 @@ def first_supported_image(source: Path) -> Optional[Path]:
     return None
 
 
-class _ImageLoadWorker(QThread):
-    """Discover, enumerate and decode one preview source off the GUI thread.
+def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
+                        enumerate_sets: bool = True) -> Dict[str, Any]:
+    """Discover, enumerate and decode one preview source. Data in, data out.
 
-    Emits :attr:`enumerated` before :attr:`loaded`, so the panel's sampler is
-    already warm by the time the decoded image asks it to refill the sets
-    dropdown and no directory scan lands on the GUI thread.
+    This is the whole of a preview load, written so it touches **no widget and
+    no Qt object** and can therefore be handed straight to
+    :class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of
+    a hand-rolled ``QThread`` that emitted two signals, which kept the panel's
+    sampler warm by ordering ``enumerated`` before ``loaded``; returning both
+    halves in one dict gets the same ordering for free, because the caller
+    adopts the enumeration and installs the image in a single GUI-thread call.
 
     The enumeration reads **file names only** — it never opens an image — so
-    the single decode this worker performs is still the only file read for a
-    folder of any size.
+    the single decode here stays the only file read for a folder of any size.
+
+    :param source: image file or directory to load a preview from.
+    :param max_sets: cap for the sample drawn when ``source`` is a directory.
+    :param enumerate_sets: ``False`` skips the folder scan entirely. The FOV
+        dropdown hands out a path from a set the sampler already produced, so
+        re-scanning for it would burn a full pass over a 98 000-file plate to
+        rediscover what is already cached.
+    :returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is
+        ``None`` when no enumeration was done or it failed, which the caller
+        reads as "leave the sampler alone".
     """
-
-    loaded = Signal(int, object, object, str)
-    #: ``(token, directory, sets, channel IDs)``
-    enumerated = Signal(int, object, object, object)
-
-    def __init__(self, source: Path, token: int, parent=None,
-                 max_sets: int = DEFAULT_MAX_SETS):
-        super().__init__(parent)
-        self.source = Path(source)
-        self.token = int(token)
-        self.max_sets = int(max_sets)
-
-    def run(self) -> None:
-        """Find/decode the image and emit ``(token, path, array, error)``."""
-        try:
-            path = first_supported_image(self.source)
-            if path is not None:
-                try:
-                    sets, channels = enumerate_image_sets(
-                        path.parent, SUPPORTED_SUFFIXES)
-                    self.enumerated.emit(
-                        self.token, str(path.parent), sets, channels)
-                    if sets and self.source.is_dir():
-                        # Open on one of the sampled sets. Whichever file
-                        # sorts first is A01 field 1, which on a plate-ordered
-                        # folder is exactly the corner the sample exists to
-                        # stop the preview from standing in for.
-                        picked = sample_image_sets(
-                            sets, self.max_sets,
-                            sample_seed(path.parent, len(sets),
-                                        self.max_sets))
-                        if picked:
-                            path = picked[0].path()
-                except Exception:
-                    # A folder we cannot group is still a folder we can show
-                    # one image from; the panel falls back to per-file sets.
-                    LOG.exception("Could not enumerate image sets under %s",
-                                  path.parent)
-            array = load_preview_image(path) if path is not None else None
-            self.loaded.emit(self.token, path, array, "")
-        except Exception as exc:
-            LOG.exception("Could not load live-preview source %s", self.source)
-            self.loaded.emit(
-                self.token, None, None,
-                str(exc) or exc.__class__.__name__)
-
-
-# A panel may be closed while a slow NAS read is still in progress. Keeping a
-# process-level reference until ``finished`` prevents Python from destroying a
-# running QThread (which aborts the process); Qt automatically drops queued
-# deliveries to a panel that no longer exists.
-_ACTIVE_IMAGE_LOADERS: set = set()
+    out: Dict[str, Any] = {
+        "path": None, "array": None, "directory": None,
+        "sets": None, "channels": None, "error": "",
+    }
+    try:
+        source = Path(source)
+        path = first_supported_image(source)
+        if path is not None and enumerate_sets:
+            try:
+                sets, channels = enumerate_image_sets(
+                    path.parent, SUPPORTED_SUFFIXES)
+                out["directory"] = str(path.parent)
+                out["sets"] = sets
+                out["channels"] = channels
+                if sets and source.is_dir():
+                    # Open on one of the sampled sets. Whichever file sorts
+                    # first is A01 field 1, which on a plate-ordered folder is
+                    # exactly the corner the sample exists to stop the preview
+                    # from standing in for.
+                    picked = sample_image_sets(
+                        sets, max_sets,
+                        sample_seed(path.parent, len(sets), max_sets))
+                    if picked:
+                        path = picked[0].path()
+            except Exception:
+                # A folder we cannot group is still a folder we can show one
+                # image from; the panel falls back to per-file sets.
+                LOG.exception("Could not enumerate image sets under %s",
+                              path.parent)
+        out["path"] = path
+        out["array"] = load_preview_image(path) if path is not None else None
+    except Exception as exc:
+        LOG.exception("Could not load live-preview source %s", source)
+        out["error"] = str(exc) or exc.__class__.__name__
+    return out
 
 
 @dataclass
@@ -881,7 +879,7 @@ class LivePreviewPanel(QWidget):
 
     preview_ready = Signal(object)   # {object_type: mask}
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
         self._image: Optional[np.ndarray] = None
         self._image_path: Optional[Path] = None
@@ -890,7 +888,16 @@ class LivePreviewPanel(QWidget):
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
-        self._image_loaders: List[_ImageLoadWorker] = []
+        # Every preview load goes through here rather than through a QThread
+        # this file owns. That is not tidiness: `JobRunner` submits via
+        # `bridge.make_thread`, which is what puts the job in the process-wide
+        # run registry, and the registry is the *only* thing the activity
+        # spinner watches. The hand-rolled loader this replaced ran off the GUI
+        # thread perfectly well and still left the user staring at a frozen-
+        # looking window with no spinner, because nothing ever told the
+        # registry it existed.
+        self._load_jobs = JobRunner(self, threaded=threaded,
+                                    app_key="preview image")
         self._image_load_token: int = 0
         # Bumped whenever the run in flight is superseded (a new image, an
         # explicit cancel). A worker's result is only accepted when the token
@@ -958,7 +965,11 @@ class LivePreviewPanel(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        self.load_image(path)
+        # Asynchronously — the drop handler must return to the event loop
+        # immediately. The decode is the small half; the expensive half is
+        # enumerating the folder the dropped file came out of, which is what
+        # froze the window for 643 ms on a 98 304-file plate.
+        self.load_source_async(path)
 
     # -- construction ------------------------------------------------------
 
@@ -1193,9 +1204,13 @@ class LivePreviewPanel(QWidget):
     def load_image(self, path):
         """Synchronously load one image.
 
-        Intended for explicit programmatic calls and tests. GUI autoload uses
-        :meth:`load_source_async` so directory walking and decoding never block
-        the application thread.
+        Intended for explicit programmatic calls and tests, and for those only.
+        **Every** GUI path — the drop handler, the FOV dropdown and the
+        Choose-image dialog — goes through :meth:`load_source_async`, so that
+        neither the decode nor the folder enumeration behind
+        ``_refresh_source_selectors`` can block the application thread. Three of
+        them used to call this instead, which is what the docstring already
+        claimed was not happening.
         """
         try:
             arr = load_preview_image(Path(path))
@@ -1205,13 +1220,28 @@ class LivePreviewPanel(QWidget):
         self._install_loaded_image(Path(path), arr)
         return True
 
-    def load_source_async(self, source) -> bool:
+    @property
+    def _image_loaders(self) -> List[int]:
+        """The loads still in flight, as a list so ``not ...`` reads naturally.
+
+        Kept under its historical name because callers and tests wait on it
+        going empty. It is now derived from the runner rather than stored, so
+        a cancelled load empties it too — a stored list would have to be
+        pruned by hand on every exit path and would strand the panel as
+        permanently "loading" the one time that was missed.
+        """
+        runner = getattr(self, "_load_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_source_async(self, source, *, enumerate_sets: bool = True) -> bool:
         """Discover and decode a file/folder source on a worker thread.
 
         New requests supersede older ones by token. An old decoder is allowed
         to finish safely, but its result is ignored.
 
         :param source: direct supported image or directory containing images.
+        :param enumerate_sets: ``False`` reuses the sampler's cached listing
+            instead of re-scanning. See :func:`load_source_payload`.
         :returns: ``True`` when a worker was started.
         """
         text = os.fspath(source).strip() if source is not None else ""
@@ -1219,44 +1249,51 @@ class LivePreviewPanel(QWidget):
             return False
         self._image_load_token += 1
         token = self._image_load_token
-        worker = _ImageLoadWorker(Path(text), token,
-                                  max_sets=self._sampler.max_sets)
-        worker.loaded.connect(self._on_source_loaded)
-        worker.enumerated.connect(self._on_source_enumerated)
-        # Bound method only. A closure here would make the QThread itself the
-        # receiver, so the connection — and the job — would never retire.
-        worker.finished.connect(self._retire_image_loader)
-        self._image_loaders.append(worker)
-        _ACTIVE_IMAGE_LOADERS.add(worker)
+        max_sets = int(self._sampler.max_sets)
         self._status.setText(f"Loading preview from {text}…")
-        worker.start()
+        self._load_jobs.submit(
+            lambda: load_source_payload(text, max_sets, enumerate_sets),
+            lambda payload, _t=token: self._on_source_payload(_t, payload))
         return True
 
-    def _on_source_loaded(self, token: int, path, arr, error: str) -> None:
-        """Apply the newest asynchronous image result on the GUI thread."""
-        if token != self._image_load_token:
+    def _on_source_payload(self, token: int, payload) -> None:
+        """Apply the newest asynchronous load result. Always on the GUI thread.
+
+        Adopting the enumeration *before* installing the image is what keeps
+        the folder scan off this thread: ``_refresh_source_selectors`` asks the
+        sampler to enumerate on every single load, and that call is a cache hit
+        only because the worker's listing has already landed here.
+        """
+        if token != self._image_load_token or not isinstance(payload, dict):
             return
+        error = payload.get("error") or ""
         if error:
             self._status.setText(f"Load failed: {error}")
             return
+        sets = payload.get("sets")
+        if sets is not None:
+            self._sampler.adopt(payload.get("directory"), sets,
+                                payload.get("channels") or [])
+        path, arr = payload.get("path"), payload.get("array")
         if path is None or arr is None:
             self._status.setText("No supported preview image found.")
             return
         self._install_loaded_image(Path(path), arr)
 
-    def _on_source_enumerated(self, token: int, directory, sets,
-                              channels) -> None:
-        """Adopt the worker's folder enumeration before its image lands."""
-        if token != self._image_load_token:
-            return
-        self._sampler.adopt(directory, sets or [], channels or [])
+    def shutdown(self) -> None:
+        """Abandon any load in flight and leave no QThread behind.
 
-    def _retire_image_loader(self) -> None:
-        """Release completed image-loader QThreads on the GUI thread."""
-        sender = self.sender()
-        _ACTIVE_IMAGE_LOADERS.discard(sender)
-        self._image_loaders = [
-            worker for worker in self._image_loaders if worker is not sender]
+        Called from :meth:`closeEvent`, and safe to call directly when a
+        screen is torn down without one.
+        """
+        runner = getattr(self, "_load_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def closeEvent(self, event):    # noqa: N802 (Qt naming)
+        """Cancel a load in progress rather than let it outlive the panel."""
+        self.shutdown()
+        super().closeEvent(event)
 
     def _install_loaded_image(self, path: Path, arr: np.ndarray) -> None:
         """Replace preview state with an already-decoded image."""
@@ -1334,7 +1371,11 @@ class LivePreviewPanel(QWidget):
             return
         self._loading_fov = True
         try:
-            self.load_image(path)
+            # enumerate_sets=False: this path came *out* of the sampler, so the
+            # folder is already enumerated. Re-scanning would spend a full pass
+            # over the plate to rediscover the listing we are holding, which is
+            # the cost the sampling work in 5d5c5c92 removed.
+            self.load_source_async(path, enumerate_sets=False)
         finally:
             self._loading_fov = False
 
@@ -1841,7 +1882,9 @@ class LivePreviewPanel(QWidget):
             "Images (*.tif *.tiff *.png *.jpg *.jpeg)",
         )
         if path:
-            self.load_image(path)
+            # The chosen file may live in a folder the sampler has never seen,
+            # so this one does enumerate — off the GUI thread.
+            self.load_source_async(path)
 
     def _on_hover(self, x: int, y: int):
         """Render the pinned hover-info line for the pixel under the cursor."""
