@@ -36,6 +36,7 @@ pytest.importorskip("PySide6")
 from spacr import power_model as pm
 from spacr.qt.screens.power import (
     APP_KEY,
+    APP_NAME,
     CaveatPanel,
     PowerCurveView,
     PowerScreen,
@@ -556,18 +557,27 @@ def registry_sandbox():
 
 def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
         registry_sandbox):
-    """The seam works, even though the row is not switched on yet.
+    """The row is on, and registering it is what makes Design appear.
 
-    ``SECTION_DESIGN`` has been declared and empty since the sections were
-    written — its note already reads "Plan the experiment before it runs:
-    power, sample size, plate layout…" — and this is the app it was written
-    for. Registering is NOT done at import: see :func:`register`'s docstring
-    for the three pieces of collateral that have to land first, none of which
-    this module owns.
+    ``SECTION_DESIGN`` was declared and empty from the day the sections
+    were named — its note already read "Plan the experiment before it
+    runs: power, sample size, plate layout…" — and this is the app it was
+    written for. ``app.py`` now calls :func:`register` from
+    ``_SELF_REGISTERING_APPS``, so the row exists on ``import
+    spacr.qt.app`` and the tab is drawn.
+
+    The registration is unwound and redone inside the sandbox, so what is
+    asserted is what a fresh call does rather than what some earlier
+    import left behind — including the idempotence, which is load-bearing
+    because three different seams call this function.
     """
     app_mod = registry_sandbox
-    assert APP_KEY not in {row[0] for row in app_mod.APPS}, \
-        "the row is meant to be off until its collateral lands"
+    assert APP_KEY in {row[0] for row in app_mod.APPS}, \
+        "the row is registered from app.py._SELF_REGISTERING_APPS"
+
+    app_mod.unregister_app(APP_KEY)
+    assert app_mod.SECTION_DESIGN not in app_mod.SECTIONS, (
+        "Power is Design's only app, so removing it should close the tab")
 
     assert register() is True
     assert register() is False, "a second import must not raise or duplicate"
@@ -579,6 +589,14 @@ def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
     assert app_mod.APP_STAGE[APP_KEY] == app_mod.STAGE_ALPHA
     assert app_mod.APP_META[APP_KEY]["api_module"] == "qt/screens/power"
     assert "power" in app_mod.APP_META[APP_KEY]["cli_note"].lower()
+    # GUI-only, and the seam is what delivers the sentence that says so.
+    from spacr import cli
+    assert cli.INTERACTIVE_ONLY.get(APP_KEY, "").strip()
+    assert APP_KEY not in cli.MODULES
+    # Nine translations, so no window draws this row in English by default.
+    from spacr.qt.i18n import CATALOGS, VALID_LANGUAGE_CODES
+    for code in VALID_LANGUAGE_CODES[1:]:
+        assert CATALOGS[code].get(APP_NAME, "").strip(), code
 
 
 def test_the_factory_builds_a_working_screen(registry_sandbox):
@@ -598,8 +616,18 @@ def test_the_settings_seam_registers_typed_and_documented_keys(
     An untyped key cannot be validated by ``check_settings`` and an
     untooltipped one fails the GUI suite's help coverage, so registering
     without them would be registering a problem for somebody else.
+
+    The defaults are unregistered first: ``register()`` calls
+    ``register_settings()`` and ``register()`` now runs at ``import
+    spacr.qt.app``, so by the time any test runs the keys are already
+    there and a bare first call would answer False. Undoing it and doing
+    it again is what keeps this a test of the call rather than of what
+    some earlier import happened to leave behind.
     """
     from spacr import settings as settings_mod
+
+    settings_mod.unregister_defaults(APP_KEY)
+    assert not settings_mod.has_registered_defaults(APP_KEY)
 
     assert register_settings() is True
     assert register_settings() is False
