@@ -104,6 +104,7 @@ __all__ = [
     "with_object_type",
     "key_object_type",
     "untyped_object_key",
+    "match_keys",
     "as_key_index",
     "OBJECT_KEY_COLUMNS",
     "OBJECT_TYPE_COLUMN",
@@ -500,18 +501,18 @@ class DataFilter:
         return " and ".join(c.describe() for c in self.clauses)
 
 
-def _match_keys(df: pd.DataFrame, wanted: Iterable[Any], *,
-                timelapse: bool = False,
-                object_type: Any = None) -> np.ndarray:
-    """Rows of ``df`` named by ``wanted``, matching types by specificity.
+def _match(typed_rows: pd.Index, untyped_rows: pd.Index,
+           wanted: Iterable[Any]) -> np.ndarray:
+    """Which rows ``wanted`` names, matching types by specificity.
 
-    See :meth:`Selection.mask_for` for the rule and why it is that rule.
-    Factored out because :meth:`ObjectRequest.select_from` needs the same
-    answer, and two implementations of "does this key name this row" is how a
-    selection and the crops it opens come to disagree.
+    The one answer to "does this key name this row". See
+    :meth:`Selection.mask_for` for the rule and why it is that rule; the
+    reason it lives in one function is that :meth:`ObjectRequest.select_from`,
+    :func:`match_keys` and every linked view need the *same* answer. Two
+    implementations of this question is how a selection and the crops it
+    opens come to disagree, and that is invisible until somebody counts tiles.
     """
     keys = [str(k) for k in wanted]
-    typed_rows = object_keys(df, timelapse=timelapse, object_type=object_type)
     # `Index.isin` already returns an ndarray — unlike `Series.isin`, which
     # returns a Series. Calling `.to_numpy()` on it raises.
     mask = np.asarray(typed_rows.isin(keys), dtype=bool)
@@ -521,9 +522,6 @@ def _match_keys(df: pd.DataFrame, wanted: Iterable[Any], *,
     loose = [k for k in keys if key_object_type(k) is None]
     narrowed = {untyped_object_key(k) for k in keys
                 if key_object_type(k) is not None}
-    if not loose and not narrowed:
-        return mask
-    untyped_rows = untyped_object_keys(df, timelapse=timelapse)
     if loose:
         # A key naming no type names the object whatever its type.
         mask |= np.asarray(untyped_rows.isin(loose), dtype=bool)
@@ -536,6 +534,41 @@ def _match_keys(df: pd.DataFrame, wanted: Iterable[Any], *,
         mask |= (row_untyped
                  & np.asarray(untyped_rows.isin(narrowed), dtype=bool))
     return mask
+
+
+def match_keys(keys: Any, wanted: Iterable[Any]) -> np.ndarray:
+    """Boolean mask over ``keys`` of the ones ``wanted`` names.
+
+    The key-to-key form of :meth:`Selection.mask_for`, for a view that holds
+    an array of keys rather than the frame they came from — a scatter plot, a
+    UMAP that derived its point identity once at load, a tree. Those views
+    reached for a bare ``Index.isin``, which asks for exact equality, and
+    exact equality is the wrong question the moment one side of a link states
+    an object type and the other does not: a table publishing ``…_f1_cell1``
+    highlighted **nothing at all** in a UMAP whose points are keyed
+    ``…_f1_1``. Silence, in the one place a linked view has to be loud.
+
+    :param keys: the view's own keys, in its own order.
+    :param wanted: the keys to match against — a selection's, a request's.
+    :returns: a boolean :class:`numpy.ndarray` aligned to ``keys``.
+    """
+    typed_rows = pd.Index([str(k) for k in keys], dtype=object)
+    untyped_rows = pd.Index([untyped_object_key(k) for k in typed_rows],
+                            dtype=object)
+    return _match(typed_rows, untyped_rows, wanted)
+
+
+def _match_frame(df: pd.DataFrame, wanted: Iterable[Any], *,
+                 timelapse: bool = False,
+                 object_type: Any = None) -> np.ndarray:
+    """:func:`match_keys` for a caller that still has the frame.
+
+    Built off the key columns rather than off strings, so the untyped form is
+    *rebuilt* exactly rather than parsed back out of a composed key.
+    """
+    typed_rows = object_keys(df, timelapse=timelapse, object_type=object_type)
+    untyped_rows = untyped_object_keys(df, timelapse=timelapse)
+    return _match(typed_rows, untyped_rows, wanted)
 
 
 @dataclass
@@ -589,8 +622,8 @@ class Selection:
             return np.ones(len(df), dtype=bool)
         if df.empty:
             return np.zeros(0, dtype=bool)
-        return _match_keys(df, self.keys, timelapse=timelapse,
-                           object_type=object_type)
+        return _match_frame(df, self.keys, timelapse=timelapse,
+                            object_type=object_type)
 
     @classmethod
     def from_frame(cls, df: pd.DataFrame, source: str = "",

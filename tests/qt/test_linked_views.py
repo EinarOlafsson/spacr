@@ -131,18 +131,34 @@ def _lasso(explorer, x0, y0, x1, y1) -> None:
 # ---------------------------------------------------------------------------
 
 def test_the_two_views_agree_on_what_names_an_object(umap, browser):
-    """Both sides must land on the same key or nothing below works.
+    """Both sides must NAME THE SAME OBJECTS or nothing below works.
 
     The UMAP gets there through ``prcfo`` (which spells the object ``'o3'``)
     and the table through ``object_label`` (which spells it ``3``). If that
     conversion is ever dropped the linking silently stops matching anything,
     which looks exactly like "the user lassoed empty space".
+
+    The two no longer produce the *identical string*, and that is deliberate:
+    the browser knows it is showing the ``cell`` table and says so in its
+    keys, while these points came from a ``prcfo`` that states no type. The
+    typed key is the more specific name for the same object, so what has to
+    hold is that each side matches the other row for row —
+    :func:`spacr.selection.match_keys`, not ``==``. Asserting equality here
+    would force the browser to throw away what it knows.
     """
-    from spacr.selection import OBJECT_KEY_COLUMNS, object_keys
+    from spacr.selection import (OBJECT_KEY_COLUMNS, match_keys, object_keys,
+                                 untyped_object_key)
 
     assert umap.point_keys() is not None
     table = browser._linked_frame(OBJECT_KEY_COLUMNS)
-    assert list(umap.point_keys()) == list(object_keys(table))
+    theirs = list(object_keys(table))
+    ours = list(umap.point_keys())
+
+    assert theirs[0].endswith("_cell1"), "the browser states its table"
+    assert [untyped_object_key(k) for k in theirs] == ours
+    for index, key in enumerate(theirs):
+        matched = match_keys(ours, [key])
+        assert matched.sum() == 1 and bool(matched[index]), key
 
 
 # ---------------------------------------------------------------------------
