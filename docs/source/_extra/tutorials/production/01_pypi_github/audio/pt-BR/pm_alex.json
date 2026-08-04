@@ -4,47 +4,77 @@
   "voice": "pm_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 52.55,
+  "total_duration": 86.675,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.825,
-      "scene_end": 8.275,
-      "duration": 8.275,
-      "text": "Este tutorial abrange PyPI e GitHub. Saiba onde spaCR lança, código fonte, instaladores, problemas e o ramo noturno ao vivo."
+      "speech_end": 13.125,
+      "scene_end": 13.825,
+      "duration": 13.825,
+      "text": "Antes de instalar o spaCR, conheça as três rotas oficiais de distribuição: PyPI para o pacote Python lançado, GitHub para os instaladores de código-fonte e desktop e conda-forge após a publicação do pacote revisto.",
+      "speech_text": "Antes de instalar o espáquer, conheça as três rotas oficiais de distribuição: pai pi para o pacote Python lançado, GitHub para os instaladores de código-fonte e desktop e conda-forge após a publicação do pacote revisto.",
+      "phonemes": "ˈɐ̃ŋʧyz ʤj ˌiŋstalˈaɾ u ˌespˈakɛr, kˌoɲˈesæ as trˈez xˈɔtæz ˌofisiˈIz ʤy ʤˌistribuɪsˈɐ̃ʊ̃: pˈI pˈi pˌaɾæ ʊ pˌakˈɔʧy pˈIθɐ̃ŋ lˌɐ̃ŋsˈadʊ, ʒˈiʧ ˈub pˌaɾæ ʊz ˌiŋstaladˈoɾyz ʤy kˈɔʤiɡʊfˈoŋʧj i desktˈɔp i kˈoŋdæfˈɔɾəʒj apˈɔz a pˌublikasˈɐ̃ʊ̃ dʊ pˌakˈɔʧy xˌevˈistʊ."
     },
     {
       "scene": 2,
-      "speech_start": 8.275,
-      "speech_end": 19.6,
-      "scene_end": 20.05,
-      "duration": 11.775,
-      "text": "Abra PyPI and GitHub na seção spaCR. Abra PyPI e GitHub na seção spaCR. Use PyPI para o pacote Python atual e GitHub para código fonte, lançamentos e rastreamento de problemas."
+      "speech_start": 13.825,
+      "speech_end": 23.275,
+      "scene_end": 23.974999999999998,
+      "duration": 10.149999999999999,
+      "text": "A página spaCR no PyPI mostra a versão estável atual e o comando pip install spacr. Os arquivos de liberação incluem uma roda Python e um arquivo fonte.",
+      "speech_text": "A página espáquer no pai pi mostra a versão estável atual e o comando pip install espáquer. Os arquivos de liberação incluem uma roda Python e um arquivo fonte.",
+      "phonemes": "a pˈaʒinæ ˌespˈakɛr nʊ pˈI pˈi mˈɔstræ a veɾəsˈɐ̃ʊ̃ ˌestˈaveʊ ˌatuˈW i ʊ kˌomˈɐ̃ŋdʊ pˈip iŋstˈal ˌespˈakɛr. ʊz ˌaɾəkˈivʊz ʤy lˌibeɾasˈɐ̃ʊ̃ ˌiŋklˈuAŋ ˌumæ xˈɔdæ pˈIθɐ̃ŋ i ũŋ ˌaɾəkˈivʊ fˈoŋʧy."
     },
     {
       "scene": 3,
-      "speech_start": 20.05,
-      "speech_end": 29.075000000000003,
-      "scene_end": 29.525000000000002,
-      "duration": 9.475000000000001,
-      "text": "Na área de configuração principal, compare a versão embalada estável com a divisão de desenvolvimento noturno e escolha a adequada para o seu trabalho."
+      "speech_start": 23.974999999999998,
+      "speech_end": 35.324999999999996,
+      "scene_end": 36.025,
+      "duration": 12.05,
+      "text": "O PyPI também liga à documentação, ao repositório de fontes e ao rastreador de questões. Verifique as versões Python necessárias e a data de lançamento antes de alterar um ambiente existente.",
+      "speech_text": "O pai pi também liga à documentação, ao repositório de fontes e ao rastreador de questões. Verifique as versões Python necessárias e a data de lançamento antes de alterar um ambiente existente.",
+      "phonemes": "ʊ pˈI pˈi tɐ̃mbˈAŋ lˈiɡ ˌaː dˌokumˌAŋtasˈɐ̃ʊ̃, W xˌepozitˈɔɾjʊ ʤy fˈoŋʧyz i W xˌastreadˈor ʤy kestˈõjs. vˌeɾifˈikj az veɾəsˈõjs pˈIθɐ̃ŋ nˌesesˈaɾjæz i a dˈatæ ʤy lˌɐ̃ŋsæmˈAŋtw ˈɐ̃ŋʧyz ʤj ˌWteɾˈaɾ ũŋ ˌɐ̃mbiˈAŋʧj ˌezistˈAŋʧy."
     },
     {
       "scene": 4,
-      "speech_start": 29.525000000000002,
-      "speech_end": 43.35,
-      "scene_end": 43.800000000000004,
-      "duration": 14.275000000000002,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível. Abra as notas de lançamento antes da instalação para que as exigências da versão e da plataforma sejam claras."
+      "speech_start": 36.025,
+      "speech_end": 48.775,
+      "scene_end": 49.475,
+      "duration": 13.450000000000003,
+      "text": "No GitHub, main é a linha de código-fonte publicada, enquanto nightly contém alterações mais recentes que ainda estão em teste. Use nightly somente quando precisar especificamente de uma alteração ainda não publicada.",
+      "speech_text": "No GitHub, main é a linha de código-fonte publicada, enquanto nightly contém alterações mais recentes que ainda estão em teste. Use nightly somente quando precisar especificamente de uma alteração ainda não publicada.",
+      "phonemes": "nʊ ʒˈiʧ ˈub, maˈin ɛ a lˈiɲæ ʤy kˈɔʤiɡʊfˈoŋʧy pˌublikˈadæ, ˌAŋkwˈɐ̃ŋtʊ nˈiɡtli koŋtˈAŋ ˌWteɾasˈõjz mˈIz xˌesˈAŋʧys ky ˌaˈiŋdæ estˌɐ̃ʊ̃ ˈAŋ tˈɛsʧy. ˈuzy nˈiɡtli sˌomˈAŋʧy kwˈɐ̃ŋdʊ prˌesizˈaɾ ˌespesˌifikæmˈAŋʧy ʤj ˌumæ ˌWteɾasˈɐ̃ʊ̃ ˌaˈiŋdæ nˌɐ̃ʊ̃ pˌublikˈadæ."
     },
     {
       "scene": 5,
-      "speech_start": 43.800000000000004,
-      "speech_end": 51.900000000000006,
-      "scene_end": 52.550000000000004,
-      "duration": 8.75,
-      "text": "Quando o fluxo de trabalho terminar, você saberá onde instalar o spaCR, inspecionar as alterações e relatar um problema reprodutivel."
+      "speech_start": 49.475,
+      "speech_end": 60.375,
+      "scene_end": 61.075,
+      "duration": 11.600000000000001,
+      "text": "O GitHub Releases fornece os instaladores Windows, macOS e Linux, notas de lançamento, arquivos de pacotes Python e sumas de verificação SHA-256.",
+      "speech_text": "O GitHub Releases fornece os instaladores Windows, macOS e Linux, notas de lançamento, arquivos de pacotes Python e sumas de verificação SHA-256.",
+      "phonemes": "ʊ ʒˈiʧ ˈub xˌeleˈazys fˌoɾənˈɛsj ʊz ˌiŋstaladˈoɾyz wˈiŋdows, mˈɛk ˌɔˈɛsy i lˈinʊks, nˈɔtæz ʤy lˌɐ̃ŋsæmˈAŋtʊ, ˌaɾəkˈivʊz ʤy pˌakˈɔʧys pˈIθɐ̃ŋ i sˈumæz ʤy vˌeɾifˌikasˈɐ̃ʊ̃ ˌɛsyaɡˌaˈa dˌuzˈAŋtʊzˌi siŋkwˈAŋtæisˈAs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 61.075,
+      "speech_end": 72.425,
+      "scene_end": 73.125,
+      "duration": 12.049999999999997,
+      "text": "A receita conda-forge é preparada no repositório, mas ainda não se publica no canal conda-forge nenhum pacote spaCR. Por enquanto, crie um ambiente Conda e instale spaCR de PyPI dentro dele.",
+      "speech_text": "A receita conda-forge é preparada no repositório, mas ainda não se publica no canal conda-forge nenhum pacote espáquer. Por enquanto, crie um ambiente Conda e instale espáquer de pai pi dentro dele.",
+      "phonemes": "a xˌesˈAtæ kˈoŋdæfˈɔɾəʒj ɛ prˌepaɾˈadæ nʊ xˌepozitˈɔɾjʊ, maz ˌaˈiŋdæ nˌɐ̃ʊ̃ sy pˌublˈikæ nʊ kɐ̃nˈW kˈoŋdæfˈɔɾəʒy neɲˈũŋ pˌakˈɔʧj ˌespˈakɛr. poɾ ˌAŋkwˈɐ̃ŋtʊ, krˈij ũŋ ˌɐ̃mbiˈAŋʧy kˈoŋdæ i ˌiŋstˈali ˌespˈakɛr ʤy pˈI pˈi dˈAŋtrʊ dˈely."
+    },
+    {
+      "scene": 7,
+      "speech_start": 73.125,
+      "speech_end": 85.975,
+      "scene_end": 86.675,
+      "duration": 13.549999999999997,
+      "text": "Use PyPI ou pip para um ambiente Python, GitHub Releases para um instalador nativo e o ramo nightly apenas para desenvolvimento. Os seguintes tutoriais demonstram cada rota de instalação sem iniciar o aplicativo.",
+      "speech_text": "Use pai pi ou pip para um ambiente Python, GitHub Releases para um instalador nativo e o ramo nightly apenas para desenvolvimento. Os seguintes tutoriais demonstram cada rota de instalação sem iniciar o aplicativo.",
+      "phonemes": "ˈuzy pˈI pˈi ow pˈip pˌaɾæ ũŋ ˌɐ̃mbiˈAŋʧy pˈIθɐ̃ŋ, ʒˈiʧ ˈub xˌeleˈazys pˌaɾæ ũŋ ˌiŋstaladˈor nˌaʧˈivw i ʊ xˈɐ̃mʊ nˈiɡtli ˌapˈenæs pˌaɾæ dˌezAŋvˌowvimˈAŋtʊ. ʊs sˌeɡˈiŋʧys tˌutoɾiˈIz dˌemˈoŋstrɐ̃ʊ̃ kˈadæ xˈɔtæ ʤj ˌiŋstalasˈɐ̃ʊ̃ sˈAŋ ˌinisiˈaɾ u ˌaplikaʧˈivʊ."
     }
   ]
 }
