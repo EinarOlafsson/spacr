@@ -34,7 +34,8 @@ from PySide6.QtWidgets import (
 from ...run_journal import search_runs
 from ..bridge import make_thread
 from ..iconset import icon
-from ..theme import SPACING, active_palette
+from ..theme import (SPACING, active_palette, page_tabs_qss,
+                     register_widget_qss)
 from ..widgets import Divider
 
 LOG = logging.getLogger(__name__)
@@ -100,6 +101,24 @@ def _bytes(value: Any) -> str:
 def _json_text(value: Any) -> str:
     """Pretty-print a possibly non-JSON-native value."""
     return json.dumps(value, indent=2, sort_keys=True, default=str)
+
+
+#: ``objectName`` of the tab strip, and the name its QSS block is
+#: registered under. The tabs ARE the page on this screen, so they take
+#: Home's treatment — rounded top corners, a dark-grey tab, the accent
+#: blue on hover — at the page opacity, instead of the shipped rules'
+#: opaque `surface`/`surface_alt` hex.
+TABS_NAME = "RunHistoryTabs"
+
+
+def _tabs_qss(palette: dict, opacity) -> str:
+    """QSS for the tab strip, registered through the theme seam."""
+    return page_tabs_qss(TABS_NAME, palette, opacity)
+
+
+# ``replace=True``: this module owns the name, so a reimport re-registers
+# rather than raising and leaving the tabs unstyled.
+register_widget_qss(TABS_NAME, _tabs_qss, replace=True)
 
 
 class RunHistoryScreen(QWidget):
@@ -212,6 +231,7 @@ class RunHistoryScreen(QWidget):
         detail_layout.addLayout(action_row)
 
         self._tabs = QTabWidget(detail)
+        self._tabs.setObjectName(TABS_NAME)
         self._overview = self._text_tab("Run summary and performance")
         self._settings = self._text_tab("Exact resolved settings")
         self._outputs = self._text_tab("Input, output, and model hashes")
