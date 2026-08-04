@@ -1833,8 +1833,21 @@ expected_types = {
     "measurement": str,
     "nr_imgs": int,
     "um_per_pixel": (int, float),
-    "pathogen_limit": int,
-    "nuclei_limit": int,
+    # Their own tooltip says "(int, bool, or None)" and four factories ship
+    # True (analyze_screen, deep_spacr, generate_training_dataset,
+    # analyze_recruitment's siblings), but they were declared plain int -- so
+    # check_settings answered those modules' OWN defaults with "Expected type
+    # int for 'nuclei_limit', but got 'True'" and gui_core's `if len(errors) >
+    # 0: return` refused to start the run.
+    #
+    # (bool, int) rather than (bool, int, type(None)): the three-way tuple has
+    # no branch of its own and would fall into the generic loop, where bool()
+    # is tried first and bool('10') is True -- turning "keep cells with 10 or
+    # fewer nuclei" into "keep single-nucleus cells only". The (bool, int)
+    # branch already handles None, the true/false spellings and an integer,
+    # which is exactly the documented set of values.
+    "pathogen_limit": (bool, int),
+    "nuclei_limit": (bool, int),
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
@@ -2012,6 +2025,18 @@ expected_types = {
     "learning_rate": float,
     "weight_decay": float,
     "batch_size": int,
+    # The three v1/v2 pipeline keys. They were defaulted by
+    # set_default_settings_preprocess_generate_masks and listed under the
+    # "Advanced" category -- so both GUIs built a widget for them -- but were
+    # declared nowhere, and an undeclared key is not merely untyped: Tk's
+    # check_settings reports "not found in expected types" and `continue`s,
+    # dropping the key from the dict it returns, and Qt's
+    # _coerce_to_expected_type hands the raw widget string through. Switching
+    # the pipeline to v2 in the panel therefore did nothing at all, and
+    # batch_fields reached the streaming loop as the string '8'.
+    "pipeline_style": str,
+    "batch_fields": int,
+    "keep_npz": bool,
     "n_epochs": int,
     "from_scratch": bool,
     "width_height": list,
@@ -2357,6 +2382,63 @@ expected_types = {
     'nucleus_max_intensity_percentile':(int, type(None)),
     'pathogen_max_intensity_percentile':(int, type(None)),
     'organelle_max_intensity_percentile':(int, type(None)),
+
+    # ------------------------------------------------------------------
+    # Keys their module ships AND puts a widget on, but that nothing ever
+    # declared. Undeclared is not "untyped and otherwise fine": the settings
+    # panel builds its widget map from the module's own defaults factory, so
+    # each of these became a field, and check_settings answers a field it
+    # cannot type with
+    #     errors.append("Warning: Key '<k>' not found in expected types")
+    # and `continue`. gui_core.import_settings then does
+    #     if len(errors) > 0: return
+    # -- so pressing Run did nothing at all, with the reason only in the log
+    # queue. Map Barcodes was unstartable from the Tk GUI for eleven of these
+    # at once; Training Dataset, Activation Maps, Endodyogeny, Class
+    # Proportion and Check Cellpose Models each had their own.
+    #
+    # Every type below is the type of the value that module already ships,
+    # and tests/test_settings_full_coverage.py round-trips each factory's
+    # defaults through check_settings to prove it: a wrong type here would
+    # show up as a value that does not survive its own default.
+    'regex': str,
+    'target_sequence': str,
+    'expected_end': int,
+    'column_csv': str,
+    'grna_csv': str,
+    'row_csv': str,
+    'save_h5': bool,
+    'comp_type': str,
+    'comp_level': int,
+    'mode': str,
+    'fill_na': bool,
+    'class_metadata': list,
+    'metadata_item_1_name': (str, type(None)),
+    'metadata_item_1_value': (str, type(None)),
+    'metadata_item_2_name': (str, type(None)),
+    'metadata_item_2_value': (str, type(None)),
+    'size': int,
+    'test_split': float,
+    'cam_type': str,
+    'correlation': bool,
+    'shuffle': bool,
+    'class_column': str,
+    'group_by_class': bool,
+    'max_area': int,
+    'max_bins': (int, type(None)),
+    'min_area_bin': int,
+    'um_per_px': float,
+    'grayscale': bool,
+    'invert': bool,
+    'percentiles': (list, type(None)),
+    'plateID': str,
+    'random_test': bool,
+    'target_size': int,
+    'CP_probability': int,
+    'FT': int,
+    'circularize': bool,
+    'nr': int,
+    'save_dtype': str,
 }
 
 #: Settings that are declared -- typed here, tooltipped, offered by a GUI
@@ -2446,6 +2528,30 @@ tooltips = {
     "pathogen_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_Signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
     "nucleus_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.",
     "batch_size": "(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training.",
+    "pipeline_style": "(str) - Which mask pipeline runs. 'v1' is the disk-based chain (rename, per-channel folders, npy, npz, mask npy, merged/) that measure, annotate and every downstream tool expect, and is the fully tested path. 'v2' streams from the originals and writes one npy per field with masks appended in place, using roughly 60-80% less disk but producing no .npz. Default 'v1'.",
+    "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
+    "keep_npz": "(bool) - Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch out under merged/_scratch/ instead of discarding it, so the intermediate a failing run was working on can be inspected. Costs the disk the streaming pipeline exists to save, so turn it on only while diagnosing. Default False.",
+    "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_CP_prob used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
+    "FT": "(int) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_FT. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Default 100, which effectively accepts every candidate.",
+    "circularize": "(bool) - Replace each detected mask with a circle of equivalent area centred on its centroid before measuring. Useful when the object really is round and the segmentation outline is noisy, because it removes boundary jitter from area and intensity statistics; wrong whenever shape itself is the phenotype, since it erases exactly the elongation being measured. Default False.",
+    "class_column": "(str) - Column holding the per-object class label that the class-proportion analysis counts. Rows where it is missing are filled with 0 rather than dropped, so a column naming the wrong field silently reports every object as class zero instead of failing. It is also pasted onto the condition when group_by_class is on. Default 'test'.",
+    "class_metadata": "(list of lists) - One inner list per training class, holding the metadata values that select that class's objects, for example [['c1'],['c2']] for a two-class run keyed on column. Order fixes the class indices the model learns, so reordering the inner lists relabels the whole training set. Values that occur in no row make the generator select nothing and stop. Default [['c1'], ['c2']].",
+    "fill_na": "(bool) - When a barcode does not match any entry in its reference CSV, count it under its raw sequence instead of dropping it. Off, the groupby silently discards every unmatched read, so a reference with the wrong orientation produces a small clean table rather than an obviously empty one. Turn it on to see how much of the run failed to map. Default False.",
+    "group_by_class": "(bool) - Whether the endodyogeny condition labels are split by class before proportions are computed: on, the condition string has the class_column value appended, so each condition-class combination becomes its own group; off, classes are pooled within a condition. It changes what the bars count, not how the statistics are weighted. Default False.",
+    "max_area": "(int) - Upper area cutoff applied before the endodyogeny bins are built; objects larger than it are dropped entirely. Applied AFTER um_per_px scaling, so it is expressed in whatever unit that leaves - square microns when a scale is set, square pixels when it is None. The default is large enough to keep everything, so it only matters once you lower it. Default 1000000000.",
+    "max_bins": "(int or None) - Cap on the number of area bins the endodyogeny histogram is divided into. None lets the bin count follow the data range and min_area_bin, which is usually what you want; an integer truncates the range so the largest objects are pooled into the final bin. Set it when plates with different size ranges must share one axis. Default None.",
+    "metadata_item_1_name": "(str or None) - Name given to the first extra metadata grouping written alongside each generated training crop, for example 'nc' and 'pc' for negative and positive controls. It only labels the group; the values that select the rows are metadata_item_1_value. None writes no extra grouping at all. Default None.",
+    "metadata_item_1_value": "(str or None) - The metadata values selecting the rows that belong to metadata_item_1_name, for example [['c19','c2'],['c3','c4']]. Values that occur in no row contribute no crops, and because the generator reports only the final count a typo here looks like a class that is simply rare. None disables the grouping. Default None.",
+    "metadata_item_2_name": "(str or None) - Name of the second extra metadata grouping for generated training crops, used when one grouping is not enough to describe the design, for example a treatment axis crossed with the control axis of item 1. Purely a label; metadata_item_2_value selects the rows. None writes no second grouping. Default None.",
+    "metadata_item_2_value": "(str or None) - The metadata values selecting rows for metadata_item_2_name, in the same nested form as metadata_item_1_value. It is matched independently of item 1, so a row can belong to both groupings at once and will then be written under each. None disables the second grouping. Default None.",
+    "min_area_bin": "(int) - Width of the smallest area bin in the endodyogeny histogram, and therefore the resolution at which small parasites are distinguished from one another. Expressed in the same unit as max_area, so it follows um_per_px when a scale is set. Too small a value produces sparse noisy bins; too large merges real division states. Default 500.",
+    "nr": "(int) - How many example fields are drawn when a preprocessing step plots what it produced. It affects only the diagnostic figure, never the arrays written to disk, so raising it costs plotting time and nothing else. Lower it to one on large plates where the preview is only a sanity check. Default 1.",
+    "plateID": "(str) - Plate name stamped onto count and score rows that carry no plate of their own, and used as the first field of the plate_row_column key that joins the two tables. It is ignored with a warning when the input already contains more than one distinct plate, so it matters only for single-plate inputs. Default 'plate1'.",
+    "save_dtype": "(str) - NumPy dtype the preprocessed image arrays are written as. 'uint16' preserves the full range of a typical microscope camera; narrowing it to 'uint8' quarters the disk cost and permanently discards intensity resolution that every downstream measurement depends on. Widening it to a float type costs disk and buys nothing on integer input. Default 'uint16'.",
+    "size": "(int) - Edge length in pixels of each square crop written into the generated training dataset. It has to match what the classifier expects at training time, and enlarging it later cannot recover detail that was thrown away here, so pick it for the smallest object you need the model to see rather than for the current model. Default 224.",
+    "target_size": "(int) - Edge length the training images and masks are resized to before Cellpose fine-tuning, applied to both axes so the input becomes square. Larger keeps fine boundary detail and costs VRAM and time roughly quadratically; smaller trains faster and blurs exactly the outlines the model is being taught. Default 1000.",
+    "test_split": "(float) - Fraction of the generated crops held out as the test set, between 0 and 1. The split respects the grouping level chosen elsewhere, so crops from one well do not straddle it and the score is not inflated by the model recognising the well. Raising it buys a steadier estimate and costs training data. Default 0.1.",
+    "um_per_px": "(float or None) - Physical size of one pixel, used to convert the endodyogeny area column into square microns before binning. Set it and max_area, min_area_bin and every reported area are in microns; leave it None and they stay in pixels, which makes numbers from objectives of different magnification incomparable. Default 0.1.",
     "cell_FT": "(float) - Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3 (GUI allows -1 to 3). Default 1.0.",
     "cell_CP_prob": "(float) - Cellpose cellprob_threshold: only pixels whose predicted cell probability exceeds it are assigned to a mask. Raise it to shrink outlines and drop faint or spurious cells; lower it to grow outlines and recover dim ones. Valid range roughly -6 to 6, default 0. Lower it first when whole cells are missing.",
     "channels": "(list of int) - Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3].",
@@ -3317,12 +3423,28 @@ def check_settings(vars_dict, expected_types, q=None):
         try:
             if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
                 if value is None:
-                    parsed_value = None
-                else:
-                    try:
-                        parsed_value = ast.literal_eval(value)
-                    except (ValueError, SyntaxError):
-                        raise ValueError(f"Expected a list or list of lists but got an invalid format: {value}")
+                    # Blank means "not set", and for these keys that is a
+                    # legal, shipped value: cell_/pathogen_/treatment_plate_
+                    # metadata default to None in eight factories (recruitment,
+                    # invasion, replication, endodyogeny, class proportion,
+                    # plot_data_from_db) and timelapse_frame_limits is declared
+                    # (list, NoneType) outright.
+                    #
+                    # This used to assign `parsed_value = None` and fall
+                    # straight into the `else` two lines below, which raised
+                    # "Expected a list ... but got NoneType" -- so every one of
+                    # those modules reported errors and dropped its own default
+                    # the moment it was run from the Tk panel untouched. The
+                    # assignment was evidence of the intent and nothing else:
+                    # no value of `value` could reach the list branch through
+                    # it.
+                    settings[key] = None
+                    continue
+
+                try:
+                    parsed_value = ast.literal_eval(value)
+                except (ValueError, SyntaxError):
+                    raise ValueError(f"Expected a list or list of lists but got an invalid format: {value}")
 
                 if isinstance(parsed_value, list):
                     if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
@@ -3406,7 +3528,12 @@ def check_settings(vars_dict, expected_types, q=None):
 
             elif expected_type == (str, type(None), list):
                 if isinstance(value, list):
-                    settings[key] = parse_list(value) if value else None
+                    # Already a list: keep it. This used to call parse_list,
+                    # which ast.literal_eval()s its argument and so raises on
+                    # anything that is not a string -- the one branch reached
+                    # by a value that is already the declared type was the one
+                    # that threw the value away and logged a format error.
+                    settings[key] = list(value) if value else None
                 elif isinstance(value, str):
                     settings[key] = str(value)
                 else:
