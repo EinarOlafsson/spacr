@@ -68,26 +68,44 @@ __all__ = [
     "CAUSE_FIX",
     "CAUSE_TEXT",
     "ChainedInput",
+    "DB_SUFFIXES",
+    "DropChoice",
+    "DropResolution",
+    "DropTarget",
+    "FROM_LAYOUT",
+    "FROM_REGISTRY",
     "HeldPin",
+    "MAX_CHILDREN",
+    "MAX_CLIMB",
     "NextStep",
     "PATH",
     "PIN_STATE_ENV",
     "PLACEHOLDER_PATHS",
+    "PROJECT",
     "PinStore",
     "ROOT",
     "Resolution",
     "StaleNote",
+    "TABLE_SUFFIXES",
     "binding_for",
     "candidate_roots",
     "chained_inputs",
+    "db_candidates",
     "explain_causes",
     "is_empty_path",
+    "layout_directories",
+    "looks_laid_out",
     "next_steps",
     "pin_store",
     "placeholder_paths",
+    "ports_for_kinds",
+    "project_root_of",
     "register_binding",
+    "resolve_drop",
     "resolve_settings",
+    "result_tables",
     "same_path",
+    "satisfies",
     "source_key",
     "stale_inputs",
     "stale_outputs",
@@ -1146,3 +1164,551 @@ def next_steps(module: str,
             steps.append(step)
     steps.sort(key=lambda s: (not s.ok, s.module))
     return tuple(steps)
+
+
+# ---------------------------------------------------------------------------
+# Layout-aware drops
+# ---------------------------------------------------------------------------
+#
+# A dropped folder and an auto-chained one have to arrive at the same answer.
+# Two answers to "where is the database" is how a screen and the run it
+# launches come to disagree, so the drop path does not re-derive anything: it
+# asks the registry through :func:`chained_inputs` exactly as auto-chaining
+# does, and only when the registry has nothing does it fall back to the
+# declared layout in :data:`spacr.ports.PORTS`.
+#
+# The fallback is the difference between the two, and it is additive: where
+# auto-chaining leaves a field empty because no run was ever registered, a
+# drop still fills it from the folder the user just pointed at. Where the
+# registry *does* have a row, both produce the same string.
+
+#: Suffixes a SQLite measurements database is written with.
+DB_SUFFIXES: Tuple[str, ...] = (".db", ".sqlite", ".sqlite3")
+
+#: Suffixes a result table is written with, in the order a picker offers them.
+TABLE_SUFFIXES: Tuple[str, ...] = (".csv", ".tsv", ".parquet")
+
+#: How far above a dropped path the project root may sit. Four covers the
+#: deepest declared layout, ``data/<plate>/<class>_png/<file>``.
+MAX_CLIMB = 4
+
+#: How many children of a dropped folder are examined when looking for the
+#: projects inside it. A drop happens while the user is holding the mouse
+#: button down, so the search is bounded rather than exhaustive: somebody who
+#: drops a folder of two thousand plates is answering a different question.
+MAX_CHILDREN = 200
+
+#: Where a drop's answer came from.
+FROM_REGISTRY = "registry"
+FROM_LAYOUT = "layout"
+
+#: What a screen that takes a whole project resolves to. Deliberately *not* a
+#: member of :data:`spacr.ports.ALL_KINDS`: the project folder is not an
+#: artifact any module produces, it is the thing artifacts live in, and adding
+#: it to the port vocabulary would put it in the module graph.
+PROJECT = "project"
+
+_LAYOUT_CACHE: Dict[str, Any] = {}
+
+
+def _first_component(relative: str) -> str:
+    """Return the leading path component of ``relative``, or ``""``."""
+    head = os.path.normpath(relative).split(os.sep)[0]
+    if head in ("", ".", os.sep) or any(ch in head for ch in "*?["):
+        return ""
+    return head
+
+
+def layout_directories() -> Tuple[str, ...]:
+    """Return the folder names spaCR's project layout uses, sorted.
+
+    Read off :data:`spacr.ports.PORTS` rather than typed out — ``merged``,
+    ``measurements``, ``masks``, ``data``, ``model``, ``results``,
+    ``settings``, ``orig``, ``consolidated`` all come from a declaration
+    somebody already wrote — so a plugin that declares a port makes its own
+    folder part of the layout without editing a list here.
+
+    Cached against the size of the registry, so a late
+    :func:`spacr.ports.register_module_ports` is picked up.
+    """
+    if _LAYOUT_CACHE.get("size") == len(_ports.PORTS):
+        return _LAYOUT_CACHE["dirs"]
+    names: set = set()
+    for spec in _ports.PORTS.values():
+        for port in spec.consumes + spec.produces:
+            if port.path:
+                if os.sep in os.path.normpath(port.path):
+                    names.add(_first_component(port.path))
+                elif port.pattern or not os.path.splitext(port.path)[1]:
+                    names.add(_first_component(port.path))
+            for alternative in port.pattern.split("|"):
+                if "/" in alternative:
+                    names.add(_first_component(alternative))
+    dirs = tuple(sorted(n for n in names if n))
+    _LAYOUT_CACHE.update(size=len(_ports.PORTS), dirs=dirs)
+    return dirs
+
+
+def project_root_of(path: Any, *, max_climb: int = MAX_CLIMB) -> str:
+    """Return the project root a dropped path belongs to.
+
+    The layout is walked *upwards*: ``<root>/measurements/measurements.db``,
+    ``<root>/merged``, ``<root>/data/plate1/cell_png`` and ``<root>`` itself
+    all answer ``<root>``, because ``measurements``, ``merged`` and ``data``
+    are declared folders (:func:`layout_directories`) and nothing else on the
+    way up is.
+
+    The highest declared folder within ``max_climb`` wins, so a drop deep
+    inside ``data/`` still lands on the project rather than on a crop folder.
+
+    :param path: the dropped file or folder.
+    :param max_climb: how many levels above the drop to consider.
+    :returns: an absolute path. Never raises: a path that is nowhere near a
+        project answers with its own folder, which is what a direct drop
+        wants anyway.
+    """
+    if path is None:
+        return ""
+    current = os.path.abspath(os.path.expanduser(os.fspath(path)))
+    if os.path.isfile(current) or os.path.splitext(current)[1]:
+        current = os.path.dirname(current)
+    known = set(layout_directories())
+    root = current
+    for _ in range(max_climb + 1):
+        parent = os.path.dirname(current)
+        if not parent or parent == current:
+            break
+        if os.path.basename(current) in known:
+            root = parent
+        current = parent
+    return root
+
+
+def ports_for_kinds(kinds: Sequence[str]) -> Tuple[Port, ...]:
+    """Return the canonical declaration of where each kind lives.
+
+    A screen that is not a pipeline module — the table explorers, the
+    viewers — still says what it wants in the shared vocabulary, and this is
+    what turns that word into a path. The declaration is looked up in
+    :data:`spacr.ports.PORTS`: a *produced* port first, because the module
+    that writes a kind is the one that knows where it goes, and a consumed
+    port only when nothing produces it.
+
+    :param kinds: vocabulary terms such as :data:`spacr.ports.MEASUREMENTS_DB`.
+    :returns: one :class:`spacr.ports.Port` per kind that is declared
+        anywhere, in the order asked for. An undeclared kind is skipped
+        rather than guessed at.
+    """
+    produced: Dict[str, Port] = {}
+    consumed: Dict[str, Port] = {}
+    for spec in _ports.PORTS.values():
+        for port in spec.produces:
+            produced.setdefault(port.kind, port)
+        for port in spec.consumes:
+            consumed.setdefault(port.kind, port)
+    found: List[Port] = []
+    for kind in kinds:
+        port = produced.get(kind) or consumed.get(kind)
+        if port is not None:
+            found.append(port)
+    return tuple(found)
+
+
+def db_candidates(root: str) -> Tuple[str, ...]:
+    """Return every SQLite database in a project, the declared one first.
+
+    The declared location comes from the :data:`spacr.ports.MEASUREMENTS_DB`
+    port; the rest is a shallow listing of the root and of the folder that
+    port names. Two databases in one project is not an error and not a thing
+    to guess about — it is a question, and this is the list to ask it with.
+    """
+    if not root or not os.path.isdir(root):
+        return ()
+    declared = ports_for_kinds((_ports.MEASUREMENTS_DB,))
+    found: List[str] = []
+    folders: List[str] = [root]
+    for port in declared:
+        target = os.path.join(root, port.path) if port.path else root
+        if os.path.isfile(target):
+            found.append(target)
+        holder = os.path.dirname(target)
+        if os.path.isdir(holder) and holder not in folders:
+            folders.append(holder)
+    for folder in folders:
+        try:
+            entries = sorted(os.listdir(folder))
+        except OSError:
+            continue
+        for name in entries:
+            candidate = os.path.join(folder, name)
+            if (name.lower().endswith(DB_SUFFIXES)
+                    and os.path.isfile(candidate)
+                    and candidate not in found):
+                found.append(candidate)
+    return tuple(found)
+
+
+def result_tables(root: str) -> Tuple[str, ...]:
+    """Return the result tables a project has written, sorted.
+
+    The folders searched are the ones the result-bearing ports declare —
+    ``results/`` and ``settings/`` today — one level deep, so a drop on a
+    screen that reads "a table or a CSV" can offer the CSVs beside the
+    database tables instead of making the user go and find them.
+    """
+    if not root or not os.path.isdir(root):
+        return ()
+    kinds = (_ports.REGRESSION_RESULTS, _ports.EMBEDDING, _ports.SETTINGS_CSV)
+    folders: List[str] = []
+    for port in ports_for_kinds(kinds):
+        target = os.path.join(root, port.path) if port.path else root
+        holder = target if not os.path.splitext(target)[1] else os.path.dirname(target)
+        if os.path.isdir(holder) and holder not in folders:
+            folders.append(holder)
+    found: List[str] = []
+    for folder in folders:
+        for base, _dirs, files in os.walk(folder):
+            if os.path.relpath(base, folder).count(os.sep) >= 1:
+                _dirs[:] = []
+            for name in files:
+                if name.lower().endswith(TABLE_SUFFIXES):
+                    found.append(os.path.join(base, name))
+    return tuple(sorted(dict.fromkeys(found)))
+
+
+@dataclass(frozen=True)
+class DropTarget:
+    """One settings key a drop can fill, and what it resolved to.
+
+    :param module: the screen the drop landed on.
+    :param setting: the settings key it fills.
+    :param role: the port's role.
+    :param kind: the :mod:`spacr.ports` kind.
+    :param value: what the settings key should become — the project root for
+        a :data:`ROOT` binding, the artifact itself for a :data:`PATH` one.
+    :param location: the artifact's own path, always. This is what an
+        interface shows the user: "it resolved to *this*".
+    :param source: :data:`FROM_REGISTRY` when the answer came from a
+        recorded run — the same answer auto-chaining gives — or
+        :data:`FROM_LAYOUT` when it came from the declared folder layout.
+    :param required: whether the screen needs this input.
+    :param paths: the individual files the port's pattern matched, for a
+        screen that wants one file rather than the folder holding them.
+    """
+
+    module: str
+    setting: str
+    role: str
+    kind: str
+    value: Any
+    location: str
+    source: str
+    required: bool = True
+    paths: Tuple[str, ...] = ()
+
+    def describe(self) -> str:
+        """One line naming what was found and where."""
+        return f"{self.kind} → {self.location} (from the {self.source})"
+
+
+@dataclass(frozen=True)
+class DropChoice:
+    """A question a drop cannot answer on its own.
+
+    Two databases in a folder, two projects under the folder that was
+    dropped, two tables in the database — each has a right answer and none of
+    them is "the first one". :attr:`options` is what to offer.
+
+    :param question: the sentence to put above the list.
+    :param kind: the vocabulary term the options are candidates for.
+    :param options: the candidates, in the order to offer them.
+    :param setting: the settings key the answer fills, when there is one.
+    """
+
+    question: str
+    kind: str
+    options: Tuple[str, ...]
+    setting: str = ""
+
+
+@dataclass(frozen=True)
+class DropResolution:
+    """What a dropped path means to one screen.
+
+    :param module: the screen key.
+    :param dropped: the path the user dropped, absolute.
+    :param root: the project root it resolved to.
+    :param targets: the inputs that were found.
+    :param choices: the questions that have to be asked first.
+    :param problems: :class:`spacr.validate.Problem` for every input that is
+        missing — the same sentences :func:`spacr.ports.check_ready` writes,
+        because they come from it.
+    """
+
+    module: str
+    dropped: str
+    root: str
+    targets: Tuple[DropTarget, ...] = ()
+    choices: Tuple[DropChoice, ...] = ()
+    problems: Tuple[Any, ...] = ()
+
+    def __bool__(self) -> bool:
+        """True when the drop resolved to something usable."""
+        return self.ok
+
+    @property
+    def ok(self) -> bool:
+        """True when every required input was found."""
+        return bool(self.targets) and not any(
+            p.is_error for p in self.problems)
+
+    @property
+    def ambiguous(self) -> bool:
+        """True when the drop has to be asked about rather than applied."""
+        return bool(self.choices)
+
+    def target_for(self, kind: str) -> Optional[DropTarget]:
+        """Return the resolved target of ``kind``, or None."""
+        for target in self.targets:
+            if target.kind == kind:
+                return target
+        return None
+
+    @property
+    def reason(self) -> str:
+        """One human-readable line: what it resolved to, or why it did not."""
+        if self.choices:
+            choice = self.choices[0]
+            return f"{choice.question} ({len(choice.options)} candidates)"
+        if self.targets:
+            return "; ".join(t.describe() for t in self.targets)
+        errors = [p for p in self.problems if p.is_error]
+        if errors:
+            return f"{errors[0].message}. {errors[0].fix}"
+        return f"nothing this module reads was found in {self.root}"
+
+
+def looks_laid_out(folder: str) -> bool:
+    """True when ``folder`` holds any of spaCR's declared layout folders.
+
+    The cheap structural answer to "is this a project?", nine ``stat`` calls
+    against :func:`layout_directories`. :func:`spacr.projects.looks_like_project`
+    is the thorough one and reads the registry and every module's outputs;
+    a drop happens while the mouse button is still down, so this is the one
+    that runs there.
+    """
+    if not folder or not os.path.isdir(folder):
+        return False
+    return any(os.path.isdir(os.path.join(folder, name))
+               for name in layout_directories())
+
+
+def satisfies(root: str, ports: Sequence[Port]) -> bool:
+    """True when ``root`` holds everything ``ports`` requires.
+
+    With no ports the question is "is this a project at all?", which is what a
+    screen that takes a whole project — the pipeline graph, the QC dashboard —
+    is asking.
+    """
+    if not ports:
+        return looks_laid_out(root)
+    return all(_ports.resolve_port(port, root).exists
+               for port in ports if port.required)
+
+
+def _problems_for(module: str, ports: Sequence[Port], root: str,
+                  registry: Optional[Registry]) -> Tuple[Any, ...]:
+    """Say why a drop found nothing, in :func:`check_ready`'s own words."""
+    if not ports:
+        from .validate import ERROR, Problem
+        return (Problem(
+            ERROR, PROJECT,
+            f"{root} is not a spaCR project folder",
+            "Drop the plate folder itself — the one holding "
+            f"{', '.join(layout_directories()[:4])} and the rest of the "
+            "layout — or a folder containing several of them."),)
+    try:
+        readiness = _ports.check_ready(module, root=root, registry=registry)
+    except _ports.UnknownModule:
+        pass
+    else:
+        return readiness.problems
+    problems: List[Any] = []
+    for port in ports:
+        problems.extend(_ports.port_problems(port, root))
+    return tuple(problems)
+
+
+def _sub_projects(folder: str, ports: Sequence[Port]) -> Tuple[str, ...]:
+    """Return the immediate children of ``folder`` that satisfy ``ports``.
+
+    Dropping the folder that holds a screen's plates is a normal thing to do
+    and it has no single answer, so it becomes a question rather than a guess.
+
+    A child named by the layout — ``masks``, ``merged``, ``results`` — is
+    never a sub-project. Without that exclusion, a plate whose raw images had
+    been cleaned away answered "did you mean ``masks/``?", because a folder of
+    label TIFFs does satisfy a raw-image port when you only look at file
+    extensions.
+    """
+    if not folder or not os.path.isdir(folder):
+        return ()
+    known = set(layout_directories())
+    found: List[str] = []
+    try:
+        entries = sorted(os.listdir(folder))
+    except OSError:
+        return ()
+    for name in entries[:MAX_CHILDREN]:
+        child = os.path.join(folder, name)
+        if name in known or not os.path.isdir(child):
+            continue
+        if satisfies(child, ports):
+            found.append(child)
+    return tuple(found)
+
+
+def resolve_drop(module: str,
+                 dropped: Any,
+                 *,
+                 kinds: Sequence[str] = (),
+                 form: str = PATH,
+                 settings: Optional[Mapping[str, Any]] = None,
+                 registry: Optional[Registry] = None,
+                 max_climb: int = MAX_CLIMB) -> DropResolution:
+    """Work out what a dropped path means to ``module``.
+
+    The whole point of the function is that it is *the same* resolution
+    auto-chaining performs. For every input the module declares, the registry
+    is asked first — :meth:`spacr.artifacts.Registry.latest` for that kind in
+    that project, exactly as :func:`chained_inputs` asks it — so a drop and an
+    auto-chain fill the field with the same string. Only when no run was ever
+    registered does the declared layout in :data:`spacr.ports.PORTS` answer
+    instead, and then it answers with the folder the ports say it is in.
+
+    Ambiguity is returned, never guessed:
+
+    * the dropped folder holds several projects → :class:`DropChoice`;
+    * the project holds several databases → :class:`DropChoice`;
+    * nothing satisfies the module → :attr:`DropResolution.problems`, which
+      is :func:`spacr.ports.check_ready`'s own list of sentences.
+
+    :param module: the screen key. When it declares ports those are used;
+        otherwise ``kinds`` says what it wants.
+    :param dropped: the path the user dropped.
+    :param kinds: vocabulary terms, for a screen with no port declaration.
+    :param form: :data:`ROOT` or :data:`PATH` — what a ``kinds``-driven screen
+        wants in its field. A declared module's own bindings always win.
+    :param settings: the settings dict being edited, for its current values.
+    :param registry: an open registry to ask instead of each project's own.
+    :param max_climb: how far above the drop the project root may sit.
+    :returns: a :class:`DropResolution`.
+    """
+    path = os.path.abspath(os.path.expanduser(os.fspath(dropped)))
+    key = _canonical(module)
+    try:
+        spec = _ports.module_ports(key)
+        ports = tuple(spec.consumes)
+        key = spec.key
+        declared = True
+    except _ports.UnknownModule:
+        ports = ports_for_kinds(kinds)
+        declared = False
+    if not ports:
+        ports = ports_for_kinds(kinds)
+
+    climbed = project_root_of(path, max_climb=max_climb)
+    direct = path if os.path.isdir(path) else os.path.dirname(path)
+    candidates = [r for r in (climbed, direct, os.path.dirname(direct)) if r]
+    ordered: List[str] = []
+    for candidate in candidates:
+        if candidate not in ordered:
+            ordered.append(candidate)
+
+    root = ordered[0] if ordered else direct
+    for candidate in ordered:
+        if satisfies(candidate, ports):
+            root = candidate
+            break
+
+    choices: List[DropChoice] = []
+    satisfied = satisfies(root, ports)
+    if not satisfied:
+        children = _sub_projects(direct, ports)
+        if len(children) == 1:
+            root = children[0]
+            satisfied = True
+        elif len(children) > 1:
+            choices.append(DropChoice(
+                question=f"{len(children)} projects under "
+                         f"{os.path.basename(direct)} can be used here — "
+                         f"which one?",
+                kind=ports[0].kind if ports else "",
+                options=children,
+                setting=(binding_for(key, ports[0]).setting if ports else "")))
+
+    stores: Dict[str, Optional[Registry]] = {}
+    targets: List[DropTarget] = []
+    if not ports and satisfied:
+        # A screen that takes the project itself. There is no port to resolve
+        # and nothing to look up: the answer is the folder the layout walk
+        # arrived at, which is the point of having walked it.
+        targets.append(DropTarget(
+            module=key, setting=source_key(key), role=PROJECT, kind=PROJECT,
+            value=root, location=root, source=FROM_LAYOUT))
+    for port in ports:
+        binding = (binding_for(key, port) if declared
+                   else Binding(key, port.role, source_key(key), form))
+        current = None if settings is None else settings.get(binding.setting)
+        if root not in stores:
+            stores[root] = _registry_for(root, registry)
+        store = stores[root]
+        artifact = None if store is None else store.latest(port.kind,
+                                                           project=root)
+        if artifact is not None:
+            targets.append(DropTarget(
+                module=key, setting=binding.setting, role=port.role,
+                kind=port.kind,
+                value=_value_for(artifact, port, binding, current),
+                location=artifact.path, source=FROM_REGISTRY,
+                required=port.required))
+            continue
+        resolved = _ports.resolve_port(port, root)
+        if not resolved.exists:
+            continue
+        # ``target`` and not ``paths[0]``: the port's declared location is the
+        # artifact, whether that is one file (``measurements/measurements.db``)
+        # or the folder a pattern selects inside (``merged/*.npy``). Naming
+        # the first matching file would make a re-drop of the same folder
+        # resolve differently as soon as another field was written.
+        location = resolved.target
+        value = root if binding.form == ROOT else location
+        if isinstance(current, (list, tuple)):
+            value = [value]
+        targets.append(DropTarget(
+            module=key, setting=binding.setting, role=port.role,
+            kind=port.kind, value=value, location=location,
+            source=FROM_LAYOUT, required=port.required,
+            paths=resolved.paths))
+
+    # A database is the one artifact a project can legitimately hold two of.
+    # Picking the first would be exactly the silent wrong answer this is here
+    # to avoid.
+    if any(t.kind == _ports.MEASUREMENTS_DB for t in targets):
+        available = db_candidates(root)
+        if len(available) > 1:
+            chosen = next(t for t in targets
+                          if t.kind == _ports.MEASUREMENTS_DB)
+            choices.append(DropChoice(
+                question=f"{os.path.basename(root)} holds "
+                         f"{len(available)} databases — which one?",
+                kind=_ports.MEASUREMENTS_DB, options=available,
+                setting=chosen.setting))
+
+    problems: Tuple[Any, ...] = ()
+    if not targets and not choices:
+        problems = _problems_for(key if declared else "", ports, root,
+                                 registry)
+    return DropResolution(module=key, dropped=path, root=root,
+                          targets=tuple(targets), choices=tuple(choices),
+                          problems=problems)
