@@ -966,27 +966,33 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
 # ---------------------------------------------------------------------------
 
 def test_dialog_offers_the_ambient_controls(qtbot, qt_theme_applied):
+    """The Animation row, which is now the whole of the on/off decision.
+
+    The separate "Animate module backgrounds" toggle is gone: None is an
+    entry in this list. Two controls that both mean "no backdrop" could
+    disagree with each other, and a reader had no way to know which one
+    won.
+    """
     from PySide6.QtWidgets import QComboBox
     from spacr.qt.i18n import tr
     from spacr.qt.preferences import PreferencesDialog
-    from spacr.qt.widgets.toggle import Toggle
 
     ambient = _ambient()
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
 
-    check = dlg.findChild(Toggle, "AmbientEnabled")
     theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
     palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
-    assert check is not None and theme_combo is not None
+    assert theme_combo is not None
     assert palette_combo is not None
 
-    assert check.isChecked() is True
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
-    assert keys == list(ambient.AMBIENT_THEMES)
+    assert keys == list(ambient.ANIMATION_CHOICES)
+    assert keys[0] == ambient.NO_ANIMATION, "None is offered first"
+    assert keys[1:] == list(ambient.AMBIENT_THEMES)
     # Human labels, not raw keys.
     labels = [theme_combo.itemText(i) for i in range(theme_combo.count())]
-    assert labels == [tr(ambient.theme_label(k)) for k in keys]
+    assert labels == [tr(ambient.animation_label(k)) for k in keys]
 
     theme = theme_combo.currentData()
     palette_keys = [palette_combo.itemData(i)
@@ -1014,42 +1020,64 @@ def test_dialog_palette_list_follows_the_selected_theme(qtbot,
         theme = theme_combo.itemData(index)
         offered = [palette_combo.itemData(i)
                    for i in range(palette_combo.count())]
-        assert offered == list(ambient.palettes_for(theme))
-        assert palette_combo.currentData() in ambient.palettes_for(theme)
+        if theme == ambient.NO_ANIMATION:
+            # None has no engine to ask for palettes, and offering the
+            # previous animation's colours for a backdrop that will not be
+            # drawn would be a picker that lies.
+            assert offered == []
+            assert not palette_combo.isEnabled()
+        else:
+            assert offered == list(ambient.palettes_for(theme))
+            assert palette_combo.currentData() in ambient.palettes_for(theme)
+            assert palette_combo.isEnabled()
         # The picker also says what the animation looks like.
         from spacr.qt.i18n import tr
-        assert theme_combo.toolTip() == tr(ambient.theme_note(theme))
+        assert theme_combo.toolTip() == tr(ambient.animation_note(theme))
         assert theme_combo.toolTip()
 
 
 def test_dialog_disables_the_pickers_when_the_animation_is_off(
     qtbot, qt_theme_applied,
 ):
-    from PySide6.QtWidgets import QComboBox
-    from spacr.qt.preferences import PreferencesDialog
-    from spacr.qt.widgets.toggle import Toggle
+    """Choosing None greys out everything that shapes a backdrop.
 
+    The Animation row itself stays enabled — it is how the reader gets an
+    animation back — and the controls stay visible rather than vanishing,
+    so what None costs them is still legible.
+    """
+    from PySide6.QtWidgets import QComboBox, QSlider
+    from spacr.qt.preferences import PreferencesDialog
+
+    ambient = _ambient()
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
-    check = dlg.findChild(Toggle, "AmbientEnabled")
     theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
     palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
+    sliders = [dlg.findChild(QSlider, name) for name in
+               ("AmbientResolution", "AmbientBlur", "AmbientSpeed",
+                "AmbientSize", "AmbientDensity")]
+    keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
 
-    assert theme_combo.isEnabled() and palette_combo.isEnabled()
-    check.setChecked(False)
-    assert not theme_combo.isEnabled()
+    theme_combo.setCurrentIndex(keys.index(ambient.AMBIENT_THEMES[0]))
+    assert palette_combo.isEnabled()
+    assert all(slider.isEnabled() for slider in sliders)
+
+    theme_combo.setCurrentIndex(keys.index(ambient.NO_ANIMATION))
+    assert theme_combo.isEnabled(), "the way back must stay reachable"
     assert not palette_combo.isEnabled()
-    check.setChecked(True)
-    assert theme_combo.isEnabled() and palette_combo.isEnabled()
+    assert not any(slider.isEnabled() for slider in sliders)
+
+    theme_combo.setCurrentIndex(keys.index(ambient.AMBIENT_THEMES[0]))
+    assert palette_combo.isEnabled()
+    assert all(slider.isEnabled() for slider in sliders)
 
 
 def test_dialog_saves_the_ambient_choices(qtbot, qt_theme_applied):
     from PySide6.QtWidgets import QComboBox, QDialogButtonBox
     from spacr.qt.preferences import (
-        PreferencesDialog, get_ambient_enabled, get_ambient_palette,
-        get_ambient_theme,
+        PreferencesDialog, get_ambient_animation, get_ambient_enabled,
+        get_ambient_palette, get_ambient_theme,
     )
-    from spacr.qt.widgets.toggle import Toggle
 
     ambient = _ambient()
     dlg = PreferencesDialog()
@@ -1068,21 +1096,26 @@ def test_dialog_saves_the_ambient_choices(qtbot, qt_theme_applied):
     assert get_ambient_palette() == wanted_palette
     assert get_ambient_enabled() is True
 
-    # ...and the off switch, which is the user's explicit ask.
+    # ...and the off switch, which is now the None entry itself.
     dlg2 = PreferencesDialog()
     qtbot.addWidget(dlg2)
-    dlg2.findChild(Toggle, "AmbientEnabled").setChecked(False)
+    combo2 = dlg2.findChild(QComboBox, "AmbientTheme")
+    keys = [combo2.itemData(i) for i in range(combo2.count())]
+    combo2.setCurrentIndex(keys.index(ambient.NO_ANIMATION))
     dlg2.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert get_ambient_animation() == ambient.NO_ANIMATION
     assert get_ambient_enabled() is False
 
     # Reopening reflects what was saved rather than the defaults.
     dlg3 = PreferencesDialog()
     qtbot.addWidget(dlg3)
-    assert dlg3.findChild(Toggle, "AmbientEnabled").isChecked() is False
     assert (dlg3.findChild(QComboBox, "AmbientTheme").currentData()
-            == wanted_theme)
-    assert (dlg3.findChild(QComboBox, "AmbientPalette").currentData()
-            == wanted_palette)
+            == ambient.NO_ANIMATION)
+    # The palette list is empty while None is selected — but the *stored*
+    # palette is untouched, so the animation the user comes back to is the
+    # one they left.
+    assert dlg3.findChild(QComboBox, "AmbientPalette").count() == 0
+    assert get_ambient_palette() == wanted_palette
 
 
 def test_dialog_save_never_writes_an_impossible_pair(fake_ambient, qtbot,

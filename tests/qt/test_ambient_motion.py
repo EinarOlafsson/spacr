@@ -1525,6 +1525,10 @@ def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
     qtbot.waitExposed(dialog)
     combo = dialog.findChild(QComboBox, "AmbientDriftDirection")
     theme_combo = dialog.findChild(QComboBox, "AmbientTheme")
+    # Preferences is tabbed now, so a control also counts as invisible when
+    # its tab is not showing — true, and not the claim under test. Bring the
+    # tab these two live on to the front first, then ask.
+    _show_tab_holding(dialog, combo)
     assert not combo.isVisible()
 
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
@@ -1534,21 +1538,42 @@ def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
     assert not combo.isVisible()
 
 
+def _show_tab_holding(dialog, widget):
+    """Make the Preferences tab that holds ``widget`` the current one."""
+    from PySide6.QtWidgets import QTabWidget
+    tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+    assert tabs is not None, "Preferences is not tabbed"
+    for index in range(tabs.count()):
+        if tabs.widget(index).isAncestorOf(widget):
+            tabs.setCurrentIndex(index)
+            return tabs.tabText(index)
+    raise AssertionError("that control is not on any tab")
+
+
 def test_the_controls_grey_out_with_the_animation(prefs, qtbot,
                                                   qt_theme_applied):
-    from PySide6.QtWidgets import QSlider
+    """The off switch is the None entry in the Animation list itself.
 
-    from spacr.qt.widgets.toggle import Toggle
+    There used to be a separate "Animate module backgrounds" toggle beside
+    it. Two controls that both mean "no backdrop" can disagree, and a reader
+    had no way to know which one won, so the one that is also an animation
+    choice is the one that stayed.
+    """
+    from PySide6.QtWidgets import QComboBox, QSlider
+
+    from spacr.qt.widgets.ambient import AMBIENT_THEMES, NO_ANIMATION
 
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
-    toggle = dialog.findChild(Toggle, "AmbientEnabled")
+    theme_combo = dialog.findChild(QComboBox, "AmbientTheme")
     sliders = [s for s in dialog.findChildren(QSlider)
                if s.objectName() in ("AmbientBlur", "AmbientSpeed",
                                      "AmbientResolution", "AmbientDensity",
                                      "AmbientSize")]
     assert len(sliders) == 5
-    toggle.setChecked(False)
+    keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
+
+    theme_combo.setCurrentIndex(keys.index(NO_ANIMATION))
     assert not any(s.isEnabled() for s in sliders)
-    toggle.setChecked(True)
+    theme_combo.setCurrentIndex(keys.index(AMBIENT_THEMES[0]))
     assert all(s.isEnabled() for s in sliders)
