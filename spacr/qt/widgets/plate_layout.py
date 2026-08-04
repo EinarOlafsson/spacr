@@ -36,7 +36,7 @@ artifact that carries a randomised design.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import random
