@@ -118,6 +118,7 @@ Owns `annotate.py`, `deep_spacr.py`, `classifier_evaluation.py`.
 | 5.1 | `Z7` **Tooltip animations** — animation to the **right** of the text, text top-aligned, text box the same width as the square, content auto-zoomed to 70–80% (measured median 63.9%; 72 of 94 below 70%), plus an off switch | — |
 | 5.2 | `Z6` **DNA rain settings** — move them behind a DNA button beside the AI button in map_barcodes; add the random-colour option | — |
 | 5.3 | `Z4` Live view — FOV and channel dropdowns left of "choose image", styled like the Live button; "choose image" restyled to match; in mask, measure and the rest | — |
+| 5.3b | **Live preview must not load the whole experiment** — on a large screen it lags badly. Apply the regex to enumerate sets and channels, then load only a sample (default **20 random sets**), with a user-settable maximum placed **left of the sets dropdown**. Requested 2026-08-03 *(5.3)* | — |
 | 5.4 | `Z5` Mask outline colour stuck green — automatic should be random | — |
 | 5.5 | `Z10` System panel — RAM, GPU and VRAM bar regions are not subject to opacity; CPU is | — |
 | 5.6 | `Z2` Tooltips for every settings category, shown under the run/stop panel | — |
