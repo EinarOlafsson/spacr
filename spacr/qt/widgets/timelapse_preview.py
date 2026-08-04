@@ -64,6 +64,7 @@ from .preview_controls import (
     selected_channel, sibling_sources,
 )
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 # Reuse the Mask live preview's rendering + canvas primitives wholesale so
 # the two panels behave identically from the user's side: the same zoom/pan
@@ -858,6 +859,41 @@ def _model_menu():
     return menu or _FALLBACK_MODELS
 
 
+def open_sequence_payload(path, max_frames: int = 12,
+                          list_siblings: bool = True) -> Dict[str, Any]:
+    """Open a sequence and list its neighbours. No Qt, so it runs on a worker.
+
+    Warms the sequence's own frame cache with frame 0, because
+    ``_frame_channel_count`` decodes exactly that frame on the GUI thread to
+    fill the channel dropdown -- doing it here turns that read into a cache
+    hit rather than a second trip to disk.
+
+    :param list_siblings: ``False`` reuses the sampler's cached listing; the
+        FOV dropdown hands out a path it has already enumerated.
+    :returns: ``{path, sequence, siblings, error}``.
+    """
+    out: Dict[str, Any] = {"path": str(path), "sequence": None,
+                           "siblings": None, "error": ""}
+    try:
+        seq = FrameSequence.open(path, max_frames=max_frames)
+    except Exception as exc:
+        out["error"] = f"Load failed: {exc}"
+        return out
+    try:
+        seq.frame(0)
+    except Exception:
+        LOG.debug("could not warm the first frame of %s", path, exc_info=True)
+    out["sequence"] = seq
+    if list_siblings:
+        try:
+            target = Path(os.fspath(path))
+            out["siblings"] = sibling_sources(
+                target, FRAME_SUFFIXES, directories=target.is_dir())
+        except Exception:
+            LOG.exception("Could not list sequences beside %s", path)
+    return out
+
+
 class TimelapsePreviewPanel(QWidget):
     """Interactive tracking preview — Timelapse module.
 
@@ -869,8 +905,17 @@ class TimelapsePreviewPanel(QWidget):
 
     preview_ready = Signal(object)   # TrackStats, or None on failure
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
+        # Opening a sequence reads a TIFF header or memory-maps a stack, and
+        # then lists every sibling field of view. On a plate that is not GUI
+        # -thread work. `threaded=False` runs each job inline, emitting the
+        # same signals in the same order, so a test can drive this panel
+        # synchronously without the behaviour diverging.
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="timelapse preview")
+        #: Bumped whenever a newer open supersedes the one in flight.
+        self._load_token = 0
         self._sequence: Optional[FrameSequence] = None
         self._mask_sequence: Optional[FrameSequence] = None
         self._masks: Optional[np.ndarray] = None
@@ -1169,18 +1214,79 @@ class TimelapsePreviewPanel(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        self.load_sequence(p)
+        self.load_sequence_async(p)
 
     # -- public API --------------------------------------------------------
 
-    def load_sequence(self, path) -> bool:
-        """Open ``path`` as the preview sequence. Errors land inline."""
-        self._stop_playback()
-        try:
-            seq = FrameSequence.open(path, max_frames=self._max_frames.value())
-        except Exception as e:
-            self._status.setText(f"Load failed: {e}")
+    @property
+    def _loads_in_flight(self) -> List[int]:
+        """Outstanding opens, as a list so ``not ...`` reads naturally."""
+        runner = getattr(self, "_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_sequence_async(self, path, *, list_siblings: bool = True) -> bool:
+        """Open ``path`` on a worker, then install it on the GUI thread.
+
+        Every GUI entry point -- the drop handler, the Choose-sequence dialog
+        and the FOV dropdown -- comes through here.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
             return False
+        self._stop_playback()
+        self._load_token += 1
+        token = self._load_token
+        cap = int(self._max_frames.value())
+        self._status.setText(f"Opening {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: open_sequence_payload(text, cap, list_siblings),
+            lambda payload, _t=token: self._on_sequence_loaded(_t, payload))
+        return True
+
+    def _on_sequence_loaded(self, token: int, payload) -> None:
+        """Install an opened sequence. Always on the GUI thread."""
+        if token != self._load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._status.setText(payload["error"])
+            return
+        seq = payload.get("sequence")
+        if seq is None:
+            return
+        siblings = payload.get("siblings")
+        if siblings is not None:
+            # Adopt before installing, so `_refresh_source_selectors` finds
+            # the listing cached rather than walking the plate again.
+            self._sampler.enumerate_paths(
+                Path(payload["path"]).parent, lambda: siblings, force=True)
+        self._install_sequence(payload["path"], seq)
+
+    def shutdown(self) -> None:
+        """Abandon anything in flight and leave no QThread behind."""
+        runner = getattr(self, "_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def load_sequence(self, path) -> bool:
+        """Synchronously open ``path`` as the preview sequence.
+
+        For programmatic callers and tests, mirroring
+        ``LivePreviewPanel.load_image``. The GUI uses
+        :meth:`load_sequence_async`.
+        """
+        self._stop_playback()
+        payload = open_sequence_payload(
+            path, int(self._max_frames.value()), list_siblings=False)
+        if payload["error"]:
+            self._status.setText(payload["error"])
+            return False
+        self._install_sequence(path, payload["sequence"])
+        return True
+
+    def _install_sequence(self, path, seq) -> bool:
+        """Adopt an already-opened sequence and redraw."""
         self._sequence = seq
         self._masks = None
         self._tracked = None
@@ -1290,7 +1396,9 @@ class TimelapsePreviewPanel(QWidget):
             return
         self._loading_fov = True
         try:
-            self.load_sequence(path)
+            # The path came out of the sampler, so the folder is already
+            # listed; re-listing would rediscover what is in hand.
+            self.load_sequence_async(path, list_siblings=False)
         finally:
             self._loading_fov = False
 
@@ -1645,7 +1753,7 @@ class TimelapsePreviewPanel(QWidget):
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of frames")
         if path:
-            self.load_sequence(path)
+            self.load_sequence_async(path)
 
     def _pick_masks(self):
         path = QFileDialog.getExistingDirectory(
@@ -1661,6 +1769,9 @@ class TimelapsePreviewPanel(QWidget):
         result by a few instructions.
         """
         self._stop_playback()
+        # Cancel the load before waiting on the segmentation worker: leaving
+        # the screen mid-open must not leave a QThread behind either.
+        self.shutdown()
         worker = self._worker
         if worker is not None:
             try:
