@@ -148,9 +148,21 @@ def test_repairing_an_all_null_measurement_warns_about_nothing():
     """Nothing was lost, so nothing is announced. Only text coercion is loud."""
     frame = pd.DataFrame({"cell_channel_0_mode_intensity": [None, None]})
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        schema.coerce_model_feature_types(frame)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        converted = schema.coerce_model_feature_types(frame)
+
+    assert [str(w.message) for w in caught] == []
+    # Silence is only meaningful if the repair actually happened: the column
+    # of None really did become float64 NaN, not "left alone, quietly".
+    assert converted["cell_channel_0_mode_intensity"].dtype == "float64"
+    assert converted["cell_channel_0_mode_intensity"].isna().all()
+    # ...and the same call IS loud when a repair says something about the
+    # database, so the silence above is about this column and not about a
+    # code path that can never warn at all.
+    with pytest.warns(UserWarning, match="stored as text"):
+        schema.coerce_model_feature_types(
+            pd.DataFrame({"cell_channel_0_mode_intensity": ["1.5", "2.5"]}))
 
 
 def test_numeric_text_measurements_are_losslessly_coerced():

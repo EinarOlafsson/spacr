@@ -1203,10 +1203,28 @@ def set_spacr_mode(mode: str) -> None:
 
 
 def mode_label(mode: str) -> str:
+    """The name the dropdown shows for ``mode`` — e.g. ``"Extra Performance"``.
+
+    :param mode: One of :data:`SPACR_MODES`.
+    :returns: The human-readable label from :data:`MODE_LABELS`, falling back
+        to ``mode`` itself when the name is not one this module knows, so a
+        stored value from a newer build still renders as text rather than as
+        a blank row.
+    """
     return MODE_LABELS.get(mode, str(mode))
 
 
 def mode_note(mode: str) -> str:
+    """What ``mode`` does, as the standing description under the dropdown.
+
+    The note says what is freed, when it is freed, and whether the visual
+    settings are touched. It is not the warning — :func:`mode_warning` carries
+    what *switching* to the mode costs you, and is shown on selection.
+
+    :param mode: One of :data:`SPACR_MODES`.
+    :returns: The prose from :data:`MODE_NOTES`, or ``""`` for a mode this
+        module does not know, so the caller can render it unconditionally.
+    """
     return MODE_NOTES.get(mode, "")
 
 
