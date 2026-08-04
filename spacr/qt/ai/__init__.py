@@ -13,10 +13,16 @@ Public entry points:
     configured_providers()     -> [ChatProvider, ...] (only ones with a key)
     default_system_prompt()    -> str (spacr-aware assistant persona)
     error_explainer_prompt()   -> str (system prompt for the "Explain error" flow)
+    availability()             -> Availability (which providers are usable, and
+                                  what to type when none are)
+    generate_sections(digest)  -> ManuscriptDraft (the paper's Methods and
+                                  Results, with every number checked back
+                                  against the run digest)
 """
 from __future__ import annotations
 
 from . import settings
+from .manuscript import Availability, ManuscriptDraft, availability, generate_sections
 from .providers import (
     ChatProvider,
     configured_providers,
@@ -26,10 +32,14 @@ from .providers import (
 from .prompts import default_system_prompt, error_explainer_prompt
 
 __all__ = [
+    "Availability",
     "ChatProvider",
+    "ManuscriptDraft",
+    "availability",
     "configured_providers",
     "default_system_prompt",
     "error_explainer_prompt",
+    "generate_sections",
     "get_provider",
     "list_providers",
     "settings",
