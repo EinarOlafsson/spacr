@@ -44,7 +44,7 @@ from PySide6.QtWidgets import (
 
 from ... import data_manager as dm
 from ...ports import ALL_KINDS
-from ..theme import SPACING, pane_surface, register_widget_qss
+from ..theme import SPACING, font_px, pane_surface, register_widget_qss
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
 
@@ -86,7 +86,7 @@ QFrame#DataManagerTotals {{
 }}
 QLabel#DataManagerTotal {{
     font-weight: 600;
-    font-size: 15px;
+    font-size: {font_px(15)}px;
 }}
 QLabel#DataManagerNote[warn="true"] {{
     color: {palette["error"]};

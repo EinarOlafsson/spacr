@@ -91,7 +91,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import (
-    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, palette_for,
+    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px, palette_for,
 )
 from .divider import Divider
 
@@ -300,7 +300,7 @@ class AppTile(QPushButton):
         #   by its longest name.
         name.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         name.setStyleSheet(
-            f"color: {P['fg']}; font-size: 14px; font-weight: 500;"
+            f"color: {P['fg']}; font-size: {font_px(14)}px; font-weight: 500;"
             "background: transparent;")
         col.addWidget(name)
         self._name_lbl = name
@@ -367,7 +367,8 @@ class Panel(QWidget):
         self.header.setObjectName("HomePanelHeader")
         self.header.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
-            "font-size: 10px; letter-spacing: 2px; background: transparent;"
+            f"font-size: {font_px(10)}px; letter-spacing: 2px;"
+            "background: transparent;"
             f"color: {P['fg_muted']};")
         if self.is_beta:
             self.header.setToolTip(BETA_PANEL_TOOLTIP)
@@ -416,13 +417,13 @@ def _row(label: str, value: str, value_colour: Optional[str] = None,
     lay.setContentsMargins(0, 0, 0, 0)
     lay.setSpacing(SPACING["sm"])
     left = QLabel(label)
-    left.setStyleSheet(f"color: {P['fg_muted']}; font-size: 11px;"
+    left.setStyleSheet(f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
                        "font-weight: 500; background: transparent;")
     left.setMinimumWidth(48)
     right = QLabel(value)
     right.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     right.setStyleSheet(
-        f"color: {value_colour or P['fg']}; font-size: 12px;"
+        f"color: {value_colour or P['fg']}; font-size: {font_px(12)}px;"
         "font-weight: 500; background: transparent;"
         + ("font-family: 'JetBrains Mono', monospace;" if mono else ""))
     lay.addWidget(left)
@@ -482,12 +483,12 @@ class RunningBanner(QFrame):
         text_col.setSpacing(1)
         self._title = QLabel("")
         self._title.setStyleSheet(
-            f"color: {P['fg']}; font-size: 14px; font-weight: 600;"
+            f"color: {P['fg']}; font-size: {font_px(14)}px; font-weight: 600;"
             "background: transparent;")
         self._sub = QLabel("")
         self._sub.setObjectName("HomeRunningSub")
         self._sub.setStyleSheet(
-            f"color: {P['fg_muted']}; font-size: 11px;"
+            f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "background: transparent;")
         text_col.addWidget(self._title)
         text_col.addWidget(self._sub)
@@ -647,8 +648,9 @@ class QueuedPanel(Panel):
                           else P["fg_muted"]))
         if len(pending) > self.MAX_ROWS:
             more = QLabel(f"+{len(pending) - self.MAX_ROWS} more")
-            more.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
-                               "background: transparent;")
+            more.setStyleSheet(
+                f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
+                "background: transparent;")
             self.add(more)
         self.show()
 
@@ -697,8 +699,9 @@ class RecentRunsPanel(Panel):
             runs = self.read()
         if not runs:
             hint = QLabel("No runs yet.")
-            hint.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
-                               "font-style: italic; background: transparent;")
+            hint.setStyleSheet(
+                f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
+                "font-style: italic; background: transparent;")
             hint.setWordWrap(True)
             self.add(hint)
             return
@@ -724,12 +727,12 @@ class RecentRunsPanel(Panel):
         dot.setFixedWidth(12)
         dot.setStyleSheet(
             f"color: {P['success'] if ok else P['error']};"
-            "font-size: 11px; background: transparent;")
+            f"font-size: {font_px(11)}px; background: transparent;")
         name = QLabel(key)
-        name.setStyleSheet(f"color: {P['fg']}; font-size: 12px;"
+        name.setStyleSheet(f"color: {P['fg']}; font-size: {font_px(12)}px;"
                            "background: transparent;")
         when = QLabel(_fmt_elapsed(elapsed))
-        when.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
+        when.setStyleSheet(f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
                            "background: transparent;")
         lay.addWidget(dot)
         lay.addWidget(name, 1)
@@ -898,7 +901,7 @@ class StageLegend(Panel):
             f"QLabel#{name_id} {{ background: {colour};"
             f" border: 1px solid {P['border']}; border-radius: 3px; }}")
         name = QLabel(label)
-        name.setStyleSheet(f"color: {P['fg']}; font-size: 12px;"
+        name.setStyleSheet(f"color: {P['fg']}; font-size: {font_px(12)}px;"
                            "font-weight: 500; background: transparent;")
         lay.addWidget(chip)
         lay.addWidget(name, 1)
@@ -943,7 +946,7 @@ class NewsPanel(Panel):
             "Reserved for featured content — news and what's new land here.")
         self._placeholder.setWordWrap(True)
         self._placeholder.setStyleSheet(
-            f"color: {P['fg_dim']}; font-size: 11px;"
+            f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
         self.add(self._placeholder)
 
@@ -1313,20 +1316,25 @@ class HomePage(QWidget):
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["md"])
 
+        # The mark and the wordmark move together, so both take the Zoom
+        # multiplier: scaling only the text leaves a 52 px logo beside
+        # 78 px lettering, which is the one thing the two constants exist
+        # to prevent.
+        logo_px = font_px(HERO_LOGO_PX)
         logo = _find_logo_pixmap()
         if logo is not None:
             label = QLabel()
-            label.setPixmap(logo.scaled(HERO_LOGO_PX, HERO_LOGO_PX,
+            label.setPixmap(logo.scaled(logo_px, logo_px,
                                         Qt.KeepAspectRatio,
                                         Qt.SmoothTransformation))
-            label.setFixedSize(HERO_LOGO_PX, HERO_LOGO_PX)
+            label.setFixedSize(logo_px, logo_px)
             label.setStyleSheet("background: transparent;")
             row.addWidget(label)
 
         title = QLabel("spaCR")
         title.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 300;"
-            f"font-size: {HERO_TITLE_PX}px; color: {P['accent']};"
+            f"font-size: {font_px(HERO_TITLE_PX)}px; color: {P['accent']};"
             "letter-spacing: -0.6px; background: transparent;")
         row.addWidget(title)
 
@@ -1437,10 +1445,11 @@ class HomePage(QWidget):
         label = QLabel(title.upper())
         label.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
-            "font-size: 11px; letter-spacing: 2px; background: transparent;"
+            f"font-size: {font_px(11)}px; letter-spacing: 2px;"
+            "background: transparent;"
             f"color: {P['fg_muted']};")
         note = QLabel(str(count))
-        note.setStyleSheet(f"color: {P['fg_dim']}; font-size: 11px;"
+        note.setStyleSheet(f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
                            "background: transparent;")
         row.addWidget(label)
         row.addWidget(note)
@@ -1476,7 +1485,8 @@ class HomePage(QWidget):
         heading = QLabel(section.upper())
         heading.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
-            "font-size: 11px; letter-spacing: 2px; background: transparent;"
+            f"font-size: {font_px(11)}px; letter-spacing: 2px;"
+            "background: transparent;"
             f"color: {P['fg_muted']};")
         head_col.addWidget(heading)
 
@@ -1486,7 +1496,7 @@ class HomePage(QWidget):
             caption.setObjectName("HomeSectionNote")
             caption.setWordWrap(True)
             caption.setStyleSheet(
-                f"color: {P['fg_dim']}; font-size: 12px;"
+                f"color: {P['fg_dim']}; font-size: {font_px(12)}px;"
                 "background: transparent;")
             head_col.addWidget(caption)
         col.addWidget(head)
@@ -1817,7 +1827,7 @@ QTabWidget#HomeTabs > QTabBar::tab {{
     border-top-right-radius: 6px;
     padding: 7px 14px;
     margin-right: 2px;
-    font-size: 13px;
+    font-size: {font_px(13)}px;
 }}
 QTabWidget#HomeTabs > QTabBar::tab:hover {{
     color: {P['fg']};

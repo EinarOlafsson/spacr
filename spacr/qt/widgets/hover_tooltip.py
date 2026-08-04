@@ -62,7 +62,7 @@ from PySide6.QtGui import (QDesktopServices, QGuiApplication, QPainter,
 from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QToolTip,
                                QVBoxLayout, QWidget)
 
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, font_px
 
 
 LOGGER = logging.getLogger(__name__)
@@ -426,7 +426,7 @@ class HoverTooltip(QFrame):
             f"}}"
             f"QLabel {{"
             f"  color: {palette['fg']};"
-            f"  font-size: 12px;"
+            f"  font-size: {font_px('small')}px;"
             f"  background: transparent;"
             f"}}"
             # Transparent, not black: the rounded corners are cut into the

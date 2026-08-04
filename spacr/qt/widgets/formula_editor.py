@@ -48,7 +48,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem, QPushButton, QVBoxLayout, QWidget,
 )
 
-from ..theme import RADIUS, SPACING, register_widget_qss
+from ..theme import RADIUS, SPACING, font_px, register_widget_qss
 from .formula import (
     FUNCTION_HELP, ColumnFormula, ColumnResult, FormulaError, FormulaSet,
     compute,
@@ -427,7 +427,7 @@ def _formula_qss(palette, _opacity) -> str:
     QLabel#FormulaStatus[state="idle"] {{ color: {palette['fg_muted']}; }}
     QLabel#FormulaHelp {{
         color: {palette['fg_muted']};
-        font-size: 11px;
+        font-size: {font_px(11)}px;
     }}
     QListWidget#FormulaList {{
         border: 1px solid {palette['border_soft']};
