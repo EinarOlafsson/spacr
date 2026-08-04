@@ -1,8 +1,11 @@
-|Docs| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
    :alt: Documentation
+.. |Tutorials| image:: https://img.shields.io/badge/Tutorials-Interactive%20walkthrough-4A9EFF
+   :target: https://einarolafsson.github.io/spacr/tutorials/
+   :alt: Interactive tutorials
 .. |PyPI| image:: https://img.shields.io/pypi/v/spacr
    :target: https://pypi.org/project/spacr/
    :alt: PyPI version
@@ -79,6 +82,8 @@ Why spaCR?
 
 Workflow at a glance
 ~~~~~~~~~~~~~~~~~~~~
+
+|Tutorials|
 
 .. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
    :alt: spaCR workflow and output organization
@@ -629,7 +634,10 @@ those releases.
 Tutorials
 ~~~~~~~~~
 
-Tutorials are coming soon.
+The `interactive spaCR tutorial library
+<https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated,
+captioned walkthroughs of installation and application workflows in multiple
+languages.
 
 Citing spaCR
 ~~~~~~~~~~~~

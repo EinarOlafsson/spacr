@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.525,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.6,
+      "scene_end": 9.049999999999999,
+      "duration": 9.049999999999999,
+      "text": "Este tutorial abrange mapas de ativação. Inscreva as regiões de imagem que mais influenciam um classificador de visão computacional treinado."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.049999999999999,
+      "speech_end": 23.0,
+      "scene_end": 23.45,
+      "duration": 14.4,
+      "text": "Abra Activation maps na seção Results and quality control. Abra mapas de ativação na seção Resultados e controle de qualidade Selecione um modelo de visão treinado e culturas de objetos representativas de classes de interesse."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.45,
+      "speech_end": 31.125,
+      "scene_end": 31.575,
+      "duration": 8.125,
+      "text": "Na área de configuração principal, escolha o método de atribuição, camada-alvo, classe-alvo, canais, normalização e amostragem."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.575,
+      "speech_end": 44.45,
+      "scene_end": 44.900000000000006,
+      "duration": 13.325000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare mapas entre exemplos corretos, incorretos, de alta confiança e de baixa confiança."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.900000000000006,
+      "speech_end": 54.87500000000001,
+      "scene_end": 55.525000000000006,
+      "duration": 10.625,
+      "text": "Quando o fluxo de trabalho termina, as superposições de ativação e as medições de atribuição ajudam a avaliar se o modelo aprendeu sinais biologicamente plausíveis."
+    }
+  ]
+}

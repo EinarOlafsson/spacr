@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.0,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.35,
+      "scene_end": 9.799999999999999,
+      "duration": 9.799999999999999,
+      "text": "Questo tutorial copre il modello di confronto. eseguire due modelli Cellpose sui medesimi campi e confrontare maschere, conteggi e metriche di accordo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.799999999999999,
+      "speech_end": 22.45,
+      "scene_end": 22.9,
+      "duration": 13.1,
+      "text": "Apri Model Compare dalla sezione Segmentation models. Apri modello Confronta dalla sezione Modelli di segmentazione. Scegli due modelli candidati e un insieme rappresentativo di campi di microscopia."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.9,
+      "speech_end": 32.599999999999994,
+      "scene_end": 33.05,
+      "duration": 10.149999999999999,
+      "text": "Nella zona di configurazione principale, corrispondere i canali e la pre-elaborazione, quindi configurare le soglie e i criteri di corrispondenza degli oggetti."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.05,
+      "speech_end": 48.949999999999996,
+      "scene_end": 49.4,
+      "duration": 16.35,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. controllare le sovrapposizioni fianco a fianco insieme al numero di oggetti, sovrapposizioni e differenze di Rand-index regolate."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.4,
+      "speech_end": 57.35,
+      "scene_end": 58.0,
+      "duration": 8.600000000000001,
+      "text": "Quando il flusso di lavoro è finito, il rapporto di confronto identifica dove ogni modello guadagna, perde, divide o fonde oggetti."
+    }
+  ]
+}

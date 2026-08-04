@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.5,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.125,
+      "scene_end": 8.575,
+      "duration": 8.575,
+      "text": "Este tutorial abarca el ensayo de placa. Medir la formación de placa y los cambios dependientes de la condición de las imágenes de placa."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.575,
+      "speech_end": 21.025,
+      "scene_end": 21.474999999999998,
+      "duration": 12.899999999999999,
+      "text": "Abra Plaque assay en la sección Toxoplasma assays. Abre el ensayo de placa en la sección de ensayos de Toxoplasma. Proporcione imágenes de placa, diseño de placa, calibración de píxeles, condiciones y controles."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.474999999999998,
+      "speech_end": 30.9,
+      "scene_end": 31.349999999999998,
+      "duration": 9.875,
+      "text": "En el área de configuración principal, configure la corrección de fondo, el umbral, la limpieza de objetos, los filtros de tamaño de placa y el agrupamiento de pozos."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.349999999999998,
+      "speech_end": 39.625,
+      "scene_end": 40.075,
+      "duration": 8.725000000000005,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.075,
+      "speech_end": 48.85,
+      "scene_end": 49.5,
+      "duration": 9.424999999999997,
+      "text": "Cuando el flujo de trabajo termina, spaCR informa el recuento de placas, las áreas, los resúmenes, las estadísticas y las cifras de control de calidad."
+    }
+  ]
+}

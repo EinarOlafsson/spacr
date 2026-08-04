@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_alice",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.125,
+      "scene_end": 9.575,
+      "duration": 9.575,
+      "text": "This tutorial covers Annotate. Review single-object crops on a grid and assign reliable labels for model training or quality control."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.575,
+      "speech_end": 17.549999999999997,
+      "scene_end": 17.999999999999996,
+      "duration": 8.424999999999997,
+      "text": "Open Annotate from the Core section. Open a project with object crops and select the database table and annotation column."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.999999999999996,
+      "speech_end": 25.9,
+      "scene_end": 26.349999999999998,
+      "duration": 8.350000000000001,
+      "text": "In the main configuration area, choose classes, display channels, sorting, sampling, and any filters that define the review set."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.349999999999998,
+      "speech_end": 38.824999999999996,
+      "scene_end": 39.275,
+      "duration": 12.925,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. label representative objects, save frequently, and revisit uncertain or conflicting examples."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.275,
+      "speech_end": 46.375,
+      "scene_end": 47.025,
+      "duration": 7.75,
+      "text": "When the workflow finishes, annotations are written back to the project database with object identifiers intact."
+    }
+  ]
+}

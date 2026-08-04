@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_alice",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.725,
+      "scene_end": 10.174999999999999,
+      "duration": 10.174999999999999,
+      "text": "This tutorial covers Train Cellpose. Train a custom Cellpose or CPSAM-compatible segmentation model from curated image-mask pairs."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.174999999999999,
+      "speech_end": 19.299999999999997,
+      "scene_end": 19.749999999999996,
+      "duration": 9.574999999999998,
+      "text": "Open Train Cellpose from the Segmentation models section. Provide diverse training and validation images with carefully corrected label masks."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.749999999999996,
+      "speech_end": 28.724999999999994,
+      "scene_end": 29.174999999999994,
+      "duration": 9.424999999999997,
+      "text": "In the main configuration area, choose channels, base model, diameter, augmentation, learning rate, epochs, batch size, and validation split."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.174999999999994,
+      "speech_end": 41.24999999999999,
+      "scene_end": 41.699999999999996,
+      "duration": 12.525000000000002,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. monitor training and validation losses and test checkpoints on fields that were not used for training."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.699999999999996,
+      "speech_end": 48.974999999999994,
+      "scene_end": 49.62499999999999,
+      "duration": 7.924999999999997,
+      "text": "When the workflow finishes, the selected checkpoint, training history, validation predictions, and settings are stored together."
+    }
+  ]
+}

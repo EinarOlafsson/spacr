@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 43.3,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.725,
+      "scene_end": 9.174999999999999,
+      "duration": 9.174999999999999,
+      "text": "这本教程涵盖了分类,机器学习. 从测量单个对象数据中训练基于功能的分类器,如XGBoost或随机森林."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.174999999999999,
+      "speech_end": 16.65,
+      "scene_end": 17.099999999999998,
+      "duration": 7.924999999999999,
+      "text": "从 Core 部分打开 Classify, machine learning。 选择测量数据库,标签列,功能家庭和实验组列."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.099999999999998,
+      "speech_end": 23.949999999999996,
+      "scene_end": 24.399999999999995,
+      "duration": 7.299999999999997,
+      "text": "在主配置区域,配置过,扩展,特征选择,类平衡,模型家族和防泄漏分区."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.399999999999995,
+      "speech_end": 35.224999999999994,
+      "scene_end": 35.675,
+      "duration": 11.275000000000002,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 交叉验证模型选择,并在可能的情况下保留延期的评估设置."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.675,
+      "speech_end": 42.65,
+      "scene_end": 43.3,
+      "duration": 7.625,
+      "text": "当工作流程完成时,项目会收到预测,功能重要性,性能表格和序列化模型."
+    }
+  ]
+}
