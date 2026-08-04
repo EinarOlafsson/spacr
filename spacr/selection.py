@@ -48,6 +48,38 @@ Objects are identified by :func:`object_keys` — the schema's own row key
 with the schema separator. That is the one identity every table in
 ``measurements.db`` already agrees on, so a key from the UMAP means the same
 row in the plate view without a lookup table in between.
+
+**The object type is part of that identity.** It did not used to be, and the
+collapse was real: object tables are one type per table, so a nucleus
+labelled 1 and a pathogen labelled 1 in the same field composed to the
+*identical* key. A cell's own children are exactly the objects most likely to
+collide, which is where object linking is most useful — four objects opened
+as three crops, and which one you got depended on the row order of
+``png_list`` (:func:`spacr.active_learning.crops_for_object_keys` keeps the
+first). The type now goes into the object component of the key, exactly as
+:func:`spacr.schema.object_id` writes it::
+
+    plate1_r1_c1_f1_7          # type not stated  (what spaCR always wrote)
+    plate1_r1_c1_f1_nucleus7   # type stated
+    plate1_r1_c1_f1_pathogen7  # a different object, and now a different key
+
+A frame states its type either by carrying :data:`OBJECT_TYPE_COLUMN` or by
+the reader passing ``object_type=`` — readers know which table they read, and
+:func:`with_object_type` is the one line that puts it on the frame.
+
+Two rules keep the change from breaking anything already written:
+
+*Untyped keys do not move.* The untyped form is byte for byte what it was, so
+every key in every stored selection, exported ``.h5ad`` and prediction bundle
+still composes and parses as it did. There is nothing on disk to migrate.
+
+*An untyped key is LESS SPECIFIC, not wrong.* ``plate1_r1_c1_f1_7`` means
+"the object labelled 7 in that field", which is exactly what it always meant
+— so it matches that object whatever its type, rather than silently matching
+one of them. Symmetrically a typed key still matches a row that has not said
+what it is. :meth:`Selection.mask_for` and :meth:`ObjectRequest.select_from`
+both apply that rule, and it is the whole migration: an old key is read as
+the thing it always said, never re-read as something narrower.
 """
 from __future__ import annotations
 
@@ -68,8 +100,13 @@ __all__ = [
     "Selection",
     "ObjectRequest",
     "object_keys",
+    "untyped_object_keys",
+    "with_object_type",
+    "key_object_type",
+    "untyped_object_key",
     "as_key_index",
     "OBJECT_KEY_COLUMNS",
+    "OBJECT_TYPE_COLUMN",
 ]
 
 
@@ -87,13 +124,143 @@ class FilterError(ValueError):
 #: The columns that identify one measured object, in the order they are
 #: joined. Taken from :mod:`spacr.schema` rather than written out here, so a
 #: schema change moves this with it.
+#:
+#: :data:`OBJECT_TYPE_COLUMN` is deliberately **not** in here. These are the
+#: columns a frame must have before it can be keyed at all, and every object
+#: table has them; the type is a refinement a frame may or may not carry, and
+#: adding it to this tuple would turn every ``all(c in frame.columns for c in
+#: OBJECT_KEY_COLUMNS)`` check in the GUI — the check that decides whether a
+#: view can join the shared selection — from True to False on every table
+#: spaCR has ever written.
 OBJECT_KEY_COLUMNS: Tuple[str, ...] = (
     schema.FIELD_KEY_COLUMNS + (schema.OBJECT_LABEL_KEY,)
 )
 
+#: The optional column naming which object table a row came from.
+#:
+#: Present, it makes the key say which of a cell's children an object is.
+#: Absent, keys are untyped and mean exactly what they always meant. See the
+#: module docstring; :func:`with_object_type` is how a reader puts it on.
+OBJECT_TYPE_COLUMN: str = schema.OBJECT_TYPE_KEY
 
-def object_keys(df: pd.DataFrame,
-                *, timelapse: bool = False) -> pd.Index:
+#: A reversible escape for the two characters that would otherwise make a key
+#: unsplittable or ambiguous.
+#:
+#: ``schema._check_plate`` refuses a separator in a plate id for exactly this
+#: reason, and ``object_keys`` had no equivalent: ``("p_x", "r1", "c1", "f1",
+#: 1)`` and ``("p", "x_r1", "c1", "f1", 1)`` both composed to
+#: ``"p_x_r1_c1_f1_1"``. Two distinct objects, one key, and every view that
+#: resolves a key back to a row shows or annotates the wrong object.
+#:
+#: Escaping rather than refusing, because a key is built from data that is
+#: already on disk: refusing would take a view that shows the wrong object and
+#: turn it into a view that raises, and the user cannot go back and rename the
+#: plate in a database they already have. ``%`` has to be escaped too or the
+#: escape is not reversible — a plate literally named ``p%5Fx`` would collide
+#: with a plate named ``p_x``.
+_KEY_ESCAPES: Tuple[Tuple[str, str], ...] = (
+    ("%", "%25"),
+    (schema.KEY_SEPARATOR, "%5F"),
+)
+
+
+def with_object_type(df: pd.DataFrame, object_type: Any) -> pd.DataFrame:
+    """Return a copy of ``df`` stamped with the object table it came from.
+
+    The one line a reader adds after loading a table, so every key built from
+    the frame afterwards says which of a cell's children it names. Readers are
+    where this belongs: a frame does not know what it is, but whatever ran
+    ``SELECT * FROM nucleus`` does.
+
+    An ``object_type`` spaCR does not key objects by — ``png_list``, a
+    summary, a user's own table — is a **no-op**, not an error. Such a table's
+    rows are keyed the way they always were, which is the correct answer for
+    something that is not one of the four analysis compartments.
+
+    :param df: any frame.
+    :param object_type: an object table name, or ``None``.
+    :returns: ``df`` unchanged, or a copy carrying :data:`OBJECT_TYPE_COLUMN`.
+    """
+    if not schema.is_object_type(object_type):
+        return df
+    out = df.copy()
+    out[OBJECT_TYPE_COLUMN] = str(object_type).strip().lower()
+    return out
+
+
+def _escape_component(values: pd.Series) -> pd.Series:
+    """Percent-escape ``%`` and the key separator, in that order."""
+    out = values
+    for character, escape in _KEY_ESCAPES:
+        out = out.str.replace(character, escape, regex=False)
+    return out
+
+
+def _object_prefixes(df: pd.DataFrame, object_type: Any) -> Optional[pd.Series]:
+    """The per-row type prefix, or ``None`` when the frame states no type.
+
+    ``None`` rather than a column of ``''`` so the caller can take the fast
+    path — an untyped frame is the overwhelmingly common one and must not pay
+    for a feature it is not using.
+    """
+    if object_type is not None:
+        prefix = schema.object_type_prefix(object_type)
+        return pd.Series(prefix, index=df.index, dtype=object)
+    if OBJECT_TYPE_COLUMN not in df.columns:
+        return None
+    raw = df[OBJECT_TYPE_COLUMN].astype(str).str.strip().str.lower()
+    blank = raw.isin(("", "nan", "none", "null")) | df[OBJECT_TYPE_COLUMN].isna()
+    stated = raw[~blank]
+    if stated.empty:
+        return None
+    # Validate the vocabulary once per call rather than once per row: an
+    # object table has a handful of distinct types and tens of millions of
+    # rows, and `object_type_prefix` raising per row would be the slow part
+    # of the only function on the lasso's hot path.
+    for value in stated.unique():
+        schema.object_type_prefix(value)
+    return raw.where(~blank, "")
+
+
+def _key_columns(timelapse: bool) -> list:
+    cols = list(OBJECT_KEY_COLUMNS)
+    if timelapse:
+        # Insert the timepoint before the object label, matching the order
+        # `ObjectTableSchema.row_key_columns(timelapse=True)` uses.
+        cols = list(schema.TIMEPOINT_KEY_COLUMNS) + [schema.OBJECT_LABEL_KEY]
+    return cols
+
+
+def _compose(df: pd.DataFrame, cols: list,
+             prefixes: Optional[pd.Series]) -> pd.Index:
+    """Join the key columns, escaping only if a component needs it."""
+    parts = [df[c].astype(str) for c in cols]
+    if prefixes is not None:
+        parts[-1] = prefixes.astype(str).str.cat(parts[-1])
+    joined = parts[0]
+    for p in parts[1:]:
+        joined = joined.str.cat(p, sep=schema.KEY_SEPARATOR)
+    # One pass over the composed key tells us whether any component smuggled
+    # a separator in: a well-formed key has exactly one per join. Checking
+    # here rather than per column keeps the common case — nothing to escape,
+    # and the key is byte for byte what it always was — at two extra passes
+    # instead of ten.
+    expected = len(cols) - 1
+    needs_escape = bool(
+        (joined.str.count(schema.KEY_SEPARATOR) != expected).any()
+        or joined.str.contains("%", regex=False).any())
+    if needs_escape:
+        parts = [_escape_component(df[c].astype(str)) for c in cols]
+        if prefixes is not None:
+            parts[-1] = prefixes.astype(str).str.cat(parts[-1])
+        joined = parts[0]
+        for p in parts[1:]:
+            joined = joined.str.cat(p, sep=schema.KEY_SEPARATOR)
+    return pd.Index(joined.to_numpy(), dtype=object)
+
+
+def object_keys(df: pd.DataFrame, *, timelapse: bool = False,
+                object_type: Any = None) -> pd.Index:
     """Return one stable key per row of ``df``.
 
     :param df: any frame carrying the object key columns.
@@ -102,14 +269,22 @@ def object_keys(df: pd.DataFrame,
         collapses every frame of an object onto a single key, which is the
         bug that has bitten this codebase repeatedly in the other direction
         (see ``schema.parse_prcfo``).
+    :param object_type: the object table these rows came from. Overrides
+        :data:`OBJECT_TYPE_COLUMN` when the frame also carries one. ``None``
+        means "read it off the frame, and leave the keys untyped if it does
+        not say" — *not* "these are cells".
     :returns: a :class:`pandas.Index` of ``str``, aligned to ``df.index``.
     :raises FilterError: if any key column is missing.
+    :raises spacr.schema.KeyParseError: if a stated type is not one spaCR
+        keys objects by.
+
+    A typed key is exactly the ``prcfo`` :func:`spacr.schema.compose_prcfo`
+    writes for the same object, so the two identities converge as soon as the
+    type is known. They differ only in the untyped case, where this joins the
+    label bare and ``prcfo`` writes ``'o7'`` — kept that way on purpose, since
+    changing it would move every key that already exists.
     """
-    cols = list(OBJECT_KEY_COLUMNS)
-    if timelapse:
-        # Insert the timepoint before the object label, matching the order
-        # `ObjectTableSchema.row_key_columns(timelapse=True)` uses.
-        cols = list(schema.TIMEPOINT_KEY_COLUMNS) + [schema.OBJECT_LABEL_KEY]
+    cols = _key_columns(timelapse)
     missing = [c for c in cols if c not in df.columns]
     if missing:
         raise FilterError(
@@ -118,11 +293,82 @@ def object_keys(df: pd.DataFrame,
             f"{sorted(df.columns)[:8]}...")
     if df.empty:
         return pd.Index([], dtype=object)
-    parts = [df[c].astype(str) for c in cols]
-    joined = parts[0]
-    for p in parts[1:]:
-        joined = joined.str.cat(p, sep=schema.KEY_SEPARATOR)
-    return pd.Index(joined.to_numpy(), dtype=object)
+    return _compose(df, cols, _object_prefixes(df, object_type))
+
+
+def untyped_object_keys(df: pd.DataFrame,
+                        *, timelapse: bool = False) -> pd.Index:
+    """The keys ``df`` would have had before object types existed.
+
+    Not a legacy shim: it is the *less specific* name for the same rows, and
+    it is what makes an old key go on meaning what it always meant. A key
+    naming no type says "the object labelled 7 in that field" and has to match
+    that object whatever its type — see :meth:`Selection.mask_for`.
+    """
+    cols = _key_columns(timelapse)
+    missing = [c for c in cols if c not in df.columns]
+    if missing:
+        raise FilterError(
+            f"cannot build object keys: {df.shape[0]}-row frame is missing "
+            f"{missing}. Available columns include "
+            f"{sorted(df.columns)[:8]}...")
+    if df.empty:
+        return pd.Index([], dtype=object)
+    return _compose(df, cols, None)
+
+
+def _split_key(key: Any) -> Optional[Tuple[str, Optional[str], str]]:
+    """``(everything before the object, type or None, label)``, or ``None``.
+
+    ``None`` for anything that is not an object key. That matters more than it
+    looks: a crop path and a file name travel through the same routing
+    contract (:func:`spacr.active_learning.crops_for_object_keys` resolves
+    all three), and ``'…/plate1_r1_c1_f1_o7.png'`` would otherwise split into
+    an object labelled ``'7.png'`` and be rewritten out from under the caller
+    that was relying on it to name a file.
+
+    The label is required to be **digits**, which is what
+    :func:`spacr.schema.validate_object_table_frame` already enforces on
+    ``object_label``. That is the check that tells a key from a path.
+    """
+    text = str(key)
+    head, separator, token = text.rpartition(schema.KEY_SEPARATOR)
+    if not separator:
+        return None
+    object_type, label = schema.split_object_id(token, require_prefix=False)
+    if not label or not label.isdigit():
+        return None
+    return (head + separator, object_type, label)
+
+
+def key_object_type(key: Any) -> Optional[str]:
+    """The object type ``key`` states, or ``None`` when it states none.
+
+    ``None`` means *not stated*. It does not mean "cell", and nothing here
+    will ever guess: every key spaCR wrote before today is untyped, so a
+    default would put a type on the whole world's existing data.
+    """
+    split = _split_key(key)
+    return None if split is None else split[1]
+
+
+def untyped_object_key(key: Any) -> str:
+    """``key`` with the object type taken back off, for a looser comparison.
+
+    ``'p_r1_c1_f1_nucleus7'`` → ``'p_r1_c1_f1_7'``, and a key that already
+    states no type is returned unchanged. A ``prcfo`` reduces the same way
+    (``'p_r1_c1_f1_o7'`` → ``'p_r1_c1_f1_7'``), which is what lets a key
+    copied out of a crop table match a key built from a measurement table.
+
+    Anything this cannot read as an object key — a crop path, a file name — is
+    returned untouched rather than mangled: those travel through the same
+    routing contract and must survive it.
+    """
+    split = _split_key(key)
+    if split is None:
+        return str(key)
+    head, _object_type, label = split
+    return head + label
 
 
 @dataclass(frozen=True)
@@ -254,6 +500,44 @@ class DataFilter:
         return " and ".join(c.describe() for c in self.clauses)
 
 
+def _match_keys(df: pd.DataFrame, wanted: Iterable[Any], *,
+                timelapse: bool = False,
+                object_type: Any = None) -> np.ndarray:
+    """Rows of ``df`` named by ``wanted``, matching types by specificity.
+
+    See :meth:`Selection.mask_for` for the rule and why it is that rule.
+    Factored out because :meth:`ObjectRequest.select_from` needs the same
+    answer, and two implementations of "does this key name this row" is how a
+    selection and the crops it opens come to disagree.
+    """
+    keys = [str(k) for k in wanted]
+    typed_rows = object_keys(df, timelapse=timelapse, object_type=object_type)
+    # `Index.isin` already returns an ndarray — unlike `Series.isin`, which
+    # returns a Series. Calling `.to_numpy()` on it raises.
+    mask = np.asarray(typed_rows.isin(keys), dtype=bool)
+    if not keys or mask.all():
+        return mask
+
+    loose = [k for k in keys if key_object_type(k) is None]
+    narrowed = {untyped_object_key(k) for k in keys
+                if key_object_type(k) is not None}
+    if not loose and not narrowed:
+        return mask
+    untyped_rows = untyped_object_keys(df, timelapse=timelapse)
+    if loose:
+        # A key naming no type names the object whatever its type.
+        mask |= np.asarray(untyped_rows.isin(loose), dtype=bool)
+    if narrowed:
+        # A typed key still names a row that has not said what it is — but
+        # only such a row. Without the `row_untyped` guard a selection of
+        # `nucleus1` would light up `pathogen1`, which is the collapse
+        # rebuilt one level up.
+        row_untyped = np.asarray(typed_rows) == np.asarray(untyped_rows)
+        mask |= (row_untyped
+                 & np.asarray(untyped_rows.isin(narrowed), dtype=bool))
+    return mask
+
+
 @dataclass
 class Selection:
     """The keys the user has pointed at, plus the filter they sit inside.
@@ -274,8 +558,8 @@ class Selection:
     def __len__(self) -> int:
         return 0 if self.keys is None else len(self.keys)
 
-    def mask_for(self, df: pd.DataFrame,
-                 *, timelapse: bool = False) -> np.ndarray:
+    def mask_for(self, df: pd.DataFrame, *, timelapse: bool = False,
+                 object_type: Any = None) -> np.ndarray:
         """Boolean mask of the rows of ``df`` that are in this selection.
 
         With no selection every row is in it — the resting state highlights
@@ -283,32 +567,51 @@ class Selection:
         selected" when nothing is gets the whole frame rather than an empty
         one, which is what keeps ``df[sel.mask_for(df)]`` meaning "the data
         the user is looking at".
+
+        **Types are matched by specificity, not by equality**, and that is the
+        whole of the object-type migration:
+
+        * two typed keys match when they agree — a nucleus 1 is not a
+          pathogen 1, which is the collapse this exists to end;
+        * a key stating no type matches a row of *any* type. It says "the
+          object labelled 7 in that field", which is exactly what it said
+          before types existed, so every selection ever saved goes on naming
+          what it named. It is deliberately not narrowed to one type: an old
+          key that quietly resolved to one of four objects is the bug, and
+          replacing it with a *different* silent choice would not be a fix.
+        * a typed key matches a row stating no type. The row has not
+          contradicted it; it has said nothing.
+
+        :param object_type: the table ``df`` came from, when the frame does
+            not carry :data:`OBJECT_TYPE_COLUMN` itself.
         """
         if self.keys is None:
             return np.ones(len(df), dtype=bool)
         if df.empty:
             return np.zeros(0, dtype=bool)
-        # `Index.isin` already returns an ndarray — unlike `Series.isin`,
-        # which returns a Series. Calling `.to_numpy()` on it raises.
-        return np.asarray(
-            object_keys(df, timelapse=timelapse).isin(self.keys), dtype=bool)
+        return _match_keys(df, self.keys, timelapse=timelapse,
+                           object_type=object_type)
 
     @classmethod
     def from_frame(cls, df: pd.DataFrame, source: str = "",
-                   *, timelapse: bool = False) -> "Selection":
+                   *, timelapse: bool = False,
+                   object_type: Any = None) -> "Selection":
         """Select exactly the rows of ``df``."""
-        return cls(keys=object_keys(df, timelapse=timelapse), source=source)
+        return cls(keys=object_keys(df, timelapse=timelapse,
+                                    object_type=object_type), source=source)
 
     @classmethod
     def from_keys(cls, keys: Any, source: str = "",
-                  *, timelapse: bool = False) -> "Selection":
+                  *, timelapse: bool = False,
+                  object_type: Any = None) -> "Selection":
         """Select exactly ``keys`` — anything :func:`as_key_index` accepts.
 
         The counterpart to :meth:`from_frame` for a view that never had the
         frame: a scatter plot holding an array of keys, or a screen restoring
         a selection from a settings file.
         """
-        return cls(keys=as_key_index(keys, timelapse=timelapse), source=source)
+        return cls(keys=as_key_index(keys, timelapse=timelapse,
+                                     object_type=object_type), source=source)
 
     @classmethod
     def none(cls) -> "Selection":
@@ -319,7 +622,8 @@ class Selection:
 # "Show me exactly these objects"
 # ---------------------------------------------------------------------------
 
-def as_key_index(keys: Any, *, timelapse: bool = False) -> pd.Index:
+def as_key_index(keys: Any, *, timelapse: bool = False,
+                 object_type: Any = None) -> pd.Index:
     """Coerce whatever names a set of objects into object keys.
 
     :param keys: one of
@@ -338,6 +642,7 @@ def as_key_index(keys: Any, *, timelapse: bool = False) -> pd.Index:
 
     :param timelapse: passed to :func:`object_keys` for the frame case, so a
         timelapse table keys each frame of an object separately.
+    :param object_type: likewise — the object table a frame came from.
     :returns: a :class:`pandas.Index` of ``str``.
     :raises TypeError: if ``keys`` is not something that can name objects.
     :raises ValueError: for a resting :class:`Selection`.
@@ -346,6 +651,14 @@ def as_key_index(keys: Any, *, timelapse: bool = False) -> pd.Index:
     is what carries "worst errors first" from a confusion-matrix cell through
     to whatever opens them, and a duplicated key would draw the same crop
     twice in the grid.
+
+    Key **strings are passed through untouched**, including untyped ones. It
+    is tempting to normalise them here, and it would be wrong: a caller may
+    legitimately hand over a ``prcfo``, a crop path or a file name (see
+    :func:`spacr.active_learning.crops_for_object_keys`), and rewriting those
+    into something that looks like an object key would break the resolution
+    they were relying on. Untyped and typed keys are reconciled where they are
+    *compared* — :func:`_match_keys` — not where they are collected.
     """
     if isinstance(keys, Selection):
         if keys.keys is None:
@@ -355,7 +668,8 @@ def as_key_index(keys: Any, *, timelapse: bool = False) -> pd.Index:
                 "and 'an empty selection' are different states.")
         values: Iterable[Any] = list(keys.keys)
     elif isinstance(keys, pd.DataFrame):
-        values = list(object_keys(keys, timelapse=timelapse))
+        values = list(object_keys(keys, timelapse=timelapse,
+                                  object_type=object_type))
     elif isinstance(keys, str):
         values = [keys]
     else:
@@ -432,7 +746,8 @@ class ObjectRequest:
     def __len__(self) -> int:
         return len(self.keys)
 
-    def select_from(self, df: pd.DataFrame) -> pd.DataFrame:
+    def select_from(self, df: pd.DataFrame, *,
+                    object_type: Any = None) -> pd.DataFrame:
         """The rows of ``df`` this request names, **in the request's order**.
 
         Not a mask, and not ``df``'s order: the caller's order is the answer
@@ -440,13 +755,43 @@ class ObjectRequest:
         re-sort it back into table order. Keys with no row in ``df`` are
         dropped — a request can name objects a narrower table does not carry,
         and that is a smaller result, not an error.
+
+        Types are matched by specificity, exactly as
+        :meth:`Selection.mask_for` describes: an exact match first, then a key
+        that states no type, then a typed key against a row that states none.
+        Trying them in that order is what keeps a request naming both a
+        nucleus 1 and a pathogen 1 opening as two rows rather than one.
+
+        :param object_type: the table ``df`` came from, when the frame does
+            not carry :data:`OBJECT_TYPE_COLUMN` itself.
         """
         if df.empty:
             return df.iloc[:0]
-        rank_of = {key: i for i, key in enumerate(self.keys)}
-        ranks = np.array(
-            [rank_of.get(k, -1) for k in object_keys(df, timelapse=self.timelapse)],
-            dtype=np.int64)
+        exact = {key: i for i, key in enumerate(self.keys)}
+        loose: dict = {}
+        narrowed: dict = {}
+        for i, key in enumerate(self.keys):
+            if key_object_type(key) is None:
+                loose.setdefault(key, i)
+            else:
+                narrowed.setdefault(untyped_object_key(key), i)
+        typed_rows = object_keys(df, timelapse=self.timelapse,
+                                 object_type=object_type)
+        if loose or narrowed:
+            plain_rows = untyped_object_keys(df, timelapse=self.timelapse)
+        else:
+            plain_rows = typed_rows
+
+        def rank(typed: str, plain: str) -> int:
+            found = exact.get(typed)
+            if found is None:
+                found = loose.get(plain)
+            if found is None and typed == plain:
+                found = narrowed.get(plain)
+            return -1 if found is None else found
+
+        ranks = np.array([rank(t, p) for t, p in zip(typed_rows, plain_rows)],
+                         dtype=np.int64)
         keep = ranks >= 0
         kept = df.loc[keep]
         return kept.iloc[np.argsort(ranks[keep], kind="stable")]
