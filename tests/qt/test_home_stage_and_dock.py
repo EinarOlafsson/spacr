@@ -680,11 +680,18 @@ class TestPreferencesDialog:
         raise AssertionError("no dock-mode combo in the Preferences dialog")
 
     def _opacity_slider(self, dlg):
+        """The page-opacity slider, found by name rather than by range.
+
+        This used to take the first slider whose range was ``(0, 100)``, and
+        was silently returning the wrong control: the spinner-delay slider
+        runs ``0 .. SPINNER_DELAY_MAX * 10``, which is also ``(0, 100)``, and
+        is built first. Both assertions below were then reading a delay in
+        tenths of a second as a percentage. The dialog now names the control.
+        """
         from PySide6.QtWidgets import QSlider
-        for slider in dlg.findChildren(QSlider):
-            if (slider.minimum(), slider.maximum()) == (0, 100):
-                return slider
-        raise AssertionError("no page-opacity slider in the dialog")
+        slider = dlg.findChild(QSlider, "PaneOpacity")
+        assert slider is not None, "no page-opacity slider in the dialog"
+        return slider
 
     def test_the_dock_mode_round_trips_through_the_dialog(
             self, qtbot, qt_theme_applied, tmp_settings, monkeypatch):
