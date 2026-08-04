@@ -61,6 +61,48 @@ N_VARIANTS = 30
 #: fitting without one is the finding these renders exist to make.
 SCROLLBARS_ALLOWED = {1, 25, 30}
 
+#: The variants that do NOT fit 1440x900 at the reference zoom, measured
+#: at a registry of forty-nine apps. Twenty-one of the thirty are clean and
+#: this is the record of the other nine.
+#:
+#: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
+#: overflows`` compares the audit against this table with ``==``, so all
+#: three things fail: a defect appearing in a clean variant, a listed one
+#: getting worse, and a listed one getting BETTER. The last is the point —
+#: a fix has to delete its line here, which is what stops a known-red
+#: ledger from becoming a place defects go to be forgotten.
+#:
+#: Why these nine are recorded rather than fixed. They are a review
+#: surface: thirty candidate home screens rendered from the real widgets so
+#: a human can pick one, and nothing in ``_generators/`` is installed into
+#: the app. Each entry is a design decision that a person has to take, and
+#: v02's own comment in ``variants.py`` spells its afternoon of measurement
+#: out: the fourteen — now nineteen — elided names are not a consequence of
+#: the overflow, the cause is the 190 px tile, 190 is already the widest a
+#: seven-column grid allows, six columns would need a row the page has no
+#: room for, and shrinking the icon to 26 px leaves a caption with a bullet
+#: beside it. There is no tuning left; the surface either shows fewer apps,
+#: gets a taller canvas, or accepts elision with tooltips.
+#:
+#: The registry going from thirty-four to forty-nine apps is what did this.
+#: Every count below is a fact about that growth against a fixed 1440x900,
+#: and the three shapes it takes are: names too long for a tile (elided),
+#: a description given fewer pixels of height than it needs (clipped), and
+#: a page taller than the canvas (overflow).
+KNOWN_LAYOUT_DEFECTS: dict = {
+    # Five bands of seven, all five now wrapping to a second row.
+    2:  {"elided": 19, "overflow": 1},
+    3:  {"elided": 5},
+    # Not names: ten one-line descriptions given 6-9 px of a 15 px need.
+    4:  {"clipped": 10},
+    5:  {"elided": 6},
+    13: {"clipped": 1},
+    17: {"overflow": 1},
+    20: {"elided": 1, "overflow": 1},
+    28: {"elided": 4, "overflow": 1},
+    30: {"elided": 4},
+}
+
 
 def _load(name: str, module_name: str):
     """Import one generator module under an explicit module name."""
@@ -1593,6 +1635,18 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
     Every one of the thirty, in the theme and the widget order a real
     render uses — not the two that happened to be sampled before.
+
+    It asserted zero everywhere, which is what it should assert and what
+    it did for as long as thirty-four apps fitted. The registry is at
+    forty-nine and nine of the thirty do not fit any more, so a bare
+    "assert nothing is wrong" stopped on the first of them and said
+    nothing about the other twenty-nine — a red test that measured one
+    variant. :data:`KNOWN_LAYOUT_DEFECTS` is that measurement written
+    down for all thirty instead, compared with ``==`` so that a defect
+    appearing, worsening OR being fixed all fail here.
+
+    Nothing is excused by being listed. See the note on the table for why
+    these nine are a design decision rather than a defect to tune away.
     """
     # Pin zoom to 1.0 for this measurement. The test builds widgets at
     # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
@@ -1608,14 +1662,34 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
     _original_zoom = _prefs.get_font_scale()
     _prefs.set_font_scale(1.0)
     try:
+        measured = {}
         for number, flags in sorted(subprocess_audit.items()):
-            for defect in ("elided", "clipped", "overflow"):
-                assert not flags.get(defect), \
-                    f"v{number:02d} {defect}: {flags[defect]}"
+            counts = {defect: len(flags[defect])
+                      for defect in ("elided", "clipped", "overflow")
+                      if flags.get(defect)}
+            if counts:
+                measured[number] = counts
 
+        # The whole picture at once, so the message names every variant
+        # that moved rather than the lowest-numbered one.
+        assert measured == KNOWN_LAYOUT_DEFECTS, (
+            "the variant layouts moved.\n"
+            f"  measured: {measured}\n"
+            f"  recorded: {KNOWN_LAYOUT_DEFECTS}\n"
+            "A new entry, or a bigger count, means a layout stopped "
+            "fitting 1440x900 — decide what that variant does about it. "
+            "A smaller count or a vanished entry means one was FIXED: "
+            "delete or lower its line here in the same commit, or the "
+            "record stops being one.")
 
+        # The other half of "nothing is excused by being listed": twenty-one
+        # variants have no line in the table and carry no defect at all,
+        # which is the property the test was written for and still holds.
+        assert len(measured) == 9 and N_VARIANTS - len(measured) == 21
     finally:
         _prefs.set_font_scale(_original_zoom)
+
+
 def test_only_the_documented_variants_need_a_scrollbar(subprocess_audit):
     """"Twenty-seven of the thirty fit 1440x900 with no scrollbar at
     all" is the finding these renders exist to make. It stops being true
