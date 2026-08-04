@@ -1547,17 +1547,28 @@ def generate_organelle_masks_sam(src, settings, object_type):
             stack = data['data']
             filenames = data['filenames']
 
+        # A stack every field of which is already on disk is skipped in
+        # silence otherwise, and a silent skip is indistinguishable from a
+        # crash to whoever is watching the log. Before c305bd1b the whole
+        # stack was tested up front and said so; that check was replaced by
+        # the per-batch `_check_masks` filter, which validates a truncated
+        # `.npy` and is the better test -- but it took the sentence with it.
+        fields_skipped = 0
+        fields_attempted = 0
         for i in range(0, stack.shape[0], batch_size):
             cancellation_checkpoint()
             start = time.time()
             batch = stack[i: i + batch_size]
             batch_filenames = filenames[i: i + batch_size].tolist()
             if not settings.get('plot', False):
+                offered = len(batch_filenames)
                 batch, batch_filenames = _check_masks(
                     batch, batch_filenames, output_folder,
                     resume=settings.get('resume', False))
+                fields_skipped += offered - len(batch_filenames)
             if batch.size == 0:
                 continue
+            fields_attempted += len(batch_filenames)
 
             # ---------------------------------------------------------- #
             #  Extract the organelle channel
@@ -1662,6 +1673,13 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 batch_filenames = []
 
             gc.collect()
+
+        if fields_skipped and not fields_attempted:
+            print(f'All files in {os.path.basename(path)} already processed. '
+                  f'Skipping.')
+        elif fields_skipped:
+            print(f'{fields_skipped} of {int(stack.shape[0])} files in '
+                  f'{os.path.basename(path)} already processed. Skipping those.')
 
     torch.cuda.empty_cache()
     _run_seg_qc(src, settings, object_type)
