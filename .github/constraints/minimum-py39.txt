@@ -70,6 +70,11 @@ PySide6==6.6.0
 qtawesome==1.3.0
 pytest==8.0.0
 pytest-qt==4.4.0
+# The `dev` extra's property-based suite (tests/test_key_parsing_properties.py).
+# It arrived in setup.py without a floor here, which left the minimum job
+# resolving whatever hypothesis pip felt like — the one profile whose entire
+# purpose is that nothing floats.
+hypothesis==6.100.0
 tomli==2.0.0
 ruff==0.9.0
 mypy==1.11.0
