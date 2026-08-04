@@ -199,8 +199,18 @@ def test_agreement_is_registered_under_results_and_qc_as_alpha():
     assert section == SECTION_RESULTS, (
         f"agreement filed under {section!r}; scoring annotation passes "
         "is reading a result")
-    assert app_stage(key) == "alpha", (
-        "it is not signed off, and the tile colour is what says so")
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(key) == "stable", (
+        "130 tests and 431 assertions, a shipped lesson and a README "
+        "section: the tile colour has to say that")
 
 
 def test_agreement_has_a_title_and_an_intro():

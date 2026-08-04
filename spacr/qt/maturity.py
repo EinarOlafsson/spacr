@@ -208,7 +208,16 @@ def apply(stages: Dict[str, str] = None) -> List[str]:
         current = str(stages.get(app_key, "stable"))
         if order.get(current, 2) >= order.get(stage, 0):
             continue
-        stages[app_key] = stage
+        if stage == "stable":
+            # Stable is the ABSENCE of a line, not a line reading "stable".
+            # ``APP_STAGE`` exists to record what is *not* signed off, and
+            # signing an app off is deleting its entry — writing the word in
+            # would give the table a second way to say the same thing, which
+            # `test_every_app_has_a_stage_and_it_is_written_down_once` exists
+            # to prevent.
+            stages.pop(app_key, None)
+        else:
+            stages[app_key] = stage
         changed.append(app_key)
 
     for app_key in RETIREMENTS:
