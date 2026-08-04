@@ -7745,7 +7745,8 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
     :param df: input DataFrame.
     :param channel_of_interest: int, str, list, or ``'morphology'`` to select feature groups.
-    :param exclude: features to drop from the final list.
+    :param exclude: feature(s) to drop from the final list. A single name or
+        any number of them; the Qt 'Exclude' field collects a list.
     :param remove_low_variance_features: apply :func:`remove_low_variance_columns`.
     :param remove_highly_correlated_features: apply :func:`remove_highly_correlated_columns`.
     :param verbose: print filter details.
@@ -7763,6 +7764,16 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
             "Requested feature exclusions are not present in the input "
             f"table: {missing_exclusions}. Available columns: "
             f"{sorted(map(str, df.columns))}.")
+    # Repair before the strict boundary judges. A measurement that is NULL in
+    # every row of the database -- mode_intensity in anything measured before
+    # the SciPy shim, skew/kurtosis wherever every object is uniform -- reaches
+    # here as an OBJECT column of None, because pandas types an all-NULL result
+    # set from its rows and never asks SQLite what it declared. model_feature_
+    # columns then refused it, naming one column, and the run stopped on data
+    # that has nothing wrong with it. See schema.coerce_model_feature_types:
+    # numeric text is recovered loudly, unreadable text still refuses, and it
+    # refuses with every offending column named at once.
+    df = schema.coerce_model_feature_types(df, exclude=excluded_features)
     declared_features = schema.model_feature_columns(
         df, exclude=excluded_features)
     legacy_non_features = {
