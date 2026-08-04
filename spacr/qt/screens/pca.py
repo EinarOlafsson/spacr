@@ -49,6 +49,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.pca_view import PCAPanel
@@ -76,11 +77,16 @@ class PCAScreen(QWidget):
         use.
     """
 
-    def __init__(self, parent=None, *, link=None):
+    def __init__(self, parent=None, *, link=None, threaded: bool = True):
         super().__init__(parent)
         self.setObjectName("PCAScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
+        # Every table read goes through here, so it never runs on the GUI
+        # thread and always shows up in the run registry (and so in the
+        # background-activity spinner).
+        self._jobs = JobRunner(self, threaded=threaded, app_key="pca")
+        self._jobs.job_failed.connect(self._on_load_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -183,7 +189,19 @@ class PCAScreen(QWidget):
             self.load_path(path)
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
-        """Load a CSV or one table of a SQLite measurement database."""
+        """Load a CSV or one table of a SQLite measurement database.
+
+        The read runs on a worker thread. ``SELECT * FROM cell`` into pandas
+        measures 1.5 s for a 200 000-row measurement table on a warm local
+        SSD, and this method used to run it inline: the whole window stopped
+        redrawing for the read. Listing the table names stays inline -- it is
+        one ``sqlite_master`` query, measured at 0.4 ms -- because the picker
+        has to be populated before the read is dispatched, to know which
+        table to read.
+
+        Returns as soon as the read is dispatched;
+        :meth:`_on_frame_loaded` finishes on the GUI thread.
+        """
         self._path = path
         names: List[str] = []
         if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
@@ -202,18 +220,43 @@ class PCAScreen(QWidget):
             self._table_picker.setCurrentText(table)
         self._table_picker.blockSignals(False)
         chosen = table or (self._table_picker.currentText() or None)
-        try:
-            frame = read_table(path, chosen)
-        except Exception as exc:
-            LOG.info("could not read %s", path, exc_info=True)
-            self._source.setText(
-                f"could not read {os.path.basename(path)}: {exc}")
-            return
+        # A second load supersedes the first. Without this, switching table
+        # twice in quick succession delivers the frames in whatever order the
+        # reads happen to finish, and the picker ends up disagreeing with the
+        # panel below it.
+        self._jobs.cancel()
+        self._source.setText(
+            f"loading {os.path.basename(path)}"
+            + (f" · {chosen}" if chosen else "") + "…")
+        self._jobs.submit(
+            lambda p=path, t=chosen: (t, read_table(p, t)),
+            self._on_frame_loaded)
+
+    def _on_frame_loaded(self, payload) -> None:
+        """Hand a worker-read frame to the panel. GUI thread only."""
+        chosen, frame = payload
+        path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
         self.set_frame(
             frame,
             label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
                   f"× {len(frame.columns)} columns")
+
+    def _on_load_failed(self, message: str) -> None:
+        """Report a failed read inline. Never a modal — a dialog nobody can
+        dismiss is how a headless run hangs."""
+        path = self._path or ""
+        LOG.info("could not read %s: %s", path, message)
+        self._source.setText(
+            f"could not read {os.path.basename(path)}: {message}")
+
+    def active_jobs(self) -> int:
+        """How many worker threads are still winding down."""
+        return self._jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a table read is in flight."""
+        return self._jobs.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
         if self._path and name:
@@ -308,6 +351,11 @@ class PCAScreen(QWidget):
             self._source.setText(f"could not open those objects: {exc}")
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        # Abandon an in-flight read rather than let it outlive the
+        # screen: Qt aborts the process if a running QThread is
+        # destroyed, and a worker that delivers into a closed widget
+        # is a use-after-free.
+        self._jobs.shutdown()
         try:
             self._link.filter_changed.disconnect(self._on_filter_changed)
         except (RuntimeError, TypeError):

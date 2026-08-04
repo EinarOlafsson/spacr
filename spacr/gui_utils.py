@@ -1,6 +1,18 @@
 """Shared helpers for spaCR's legacy Tk graphical interface."""
 
-import os, io, sys, ast, ctypes, sqlite3, requests, time, traceback, torch, cv2
+# NOTE the absence of `torch`. It is used by exactly one function in this
+# module (`initialize_cuda`), and importing it here costs 1.40 s -- measured,
+# cProfile, `torch/__init__.py` cumulative -- on the GUI thread, because the
+# Qt layer imports this module for one function:
+# `settings_model.build_sections` needs `convert_settings_dict_for_gui` and
+# nothing else. That import is what made the FIRST module open freeze the
+# window for over two seconds. `main()` prewarms this module in a background
+# thread, but a user who clicks a module before the prewarm finishes blocks
+# on the import lock and waits anyway.
+#
+# This is the same reasoning already written down for `torchvision` in
+# `convert_settings_dict_for_gui` below, applied to its parent.
+import os, io, sys, ast, ctypes, sqlite3, requests, time, traceback, cv2
 import logging
 import tkinter as tk
 from tkinter import ttk
@@ -122,8 +134,15 @@ def attach_dependency_listeners(vars_dict, categories, category_dependencies, ca
 def initialize_cuda():
     """Initialize CUDA in the main process by performing a trivial GPU op.
 
+    Imports ``torch`` here rather than at module scope: this is the only
+    function in the module that needs it, and a caller that wants CUDA
+    initialised is already paying for a GPU stack. See the note at the top of
+    the file for the 1.40 s this keeps off the GUI thread.
+
     :returns: None.
     """
+    import torch
+
     if torch.cuda.is_available():
         # Allocate a small tensor on the GPU
         _ = torch.tensor([0.0], device='cuda')
