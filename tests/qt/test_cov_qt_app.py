@@ -91,6 +91,8 @@ class _ModalRecorder:
         self.questions: list = []
         self.answers: list = []
         self.threads: list = []
+        #: (objectName, windowTitle, every label's text) per `QDialog.exec`.
+        self.dialogs: list = []
 
     def titles(self, kind: str) -> list:
         return [t for t, _text in getattr(self, kind)]
@@ -126,6 +128,30 @@ def modals(monkeypatch):
     monkeypatch.setattr(QMessageBox, "warning", _warning)
     monkeypatch.setattr(QMessageBox, "information", _information)
     monkeypatch.setattr(QMessageBox, "about", _about)
+
+    # `QDialog.exec` too, and this one is not optional. b530f70a replaced
+    # `QMessageBox.about(...)` with a hand-built About panel that ends in
+    # `dialog.exec()`, so `_show_about()` stopped going through the seam above
+    # and started a NESTED MODAL EVENT LOOP instead. Offscreen there is nobody
+    # to close it: the test did not fail, it hung, and a hung test takes the
+    # whole 60-minute Qt job down with it rather than one assertion.
+    #
+    # Recording the dialog's own title and the text of every label it built
+    # keeps the assertions saying what they said about the QMessageBox --
+    # "About spaCR" was shown, and the version was in it -- against the widget
+    # that is actually shown now.
+    from PySide6.QtWidgets import QDialog, QLabel
+
+    def _exec(dialog, *a, **kw):
+        labels = [w.text() for w in dialog.findChildren(QLabel)]
+        rec.dialogs.append((dialog.objectName(), dialog.windowTitle(),
+                            "\n".join(labels)))
+        if dialog.objectName() == "AboutDialog":
+            rec.about.append((dialog.windowTitle(), "\n".join(labels)))
+        return QDialog.Accepted
+
+    monkeypatch.setattr(QDialog, "exec", _exec)
+    monkeypatch.setattr(QDialog, "exec_", _exec, raising=False)
     return rec
 
 
@@ -295,6 +321,12 @@ EXPECTED_STAGES = {
     "hit_list": "alpha", "methods_export": "alpha",
     "pipeline_graph": "alpha", "profiler": "alpha",
     "experiment_design": "alpha", "qc_dashboard": "alpha",
+    # PCA and Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS
+    # started calling their register(); both arrive alpha, like every screen
+    # that is built and reachable but not yet trusted end to end. Absent from
+    # this table they read as "stable", which is the one claim nobody has
+    # earned yet.
+    "pca": "alpha", "tabulate": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -334,7 +366,10 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 34, "beta": 9, "stable": 8}
+    # 36 alpha since PCA and Tabulate started registering. The beta and stable
+    # columns have still not moved, which is the shape the docstring above
+    # describes: alpha is the column that grows, and only use empties it.
+    assert counts == {"alpha": 36, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -773,18 +808,46 @@ def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
 
 
 def test_every_other_key_builds_a_generic_app_screen(win):
+    """Which keys get a screen of their own, asserted in both directions.
+
+    ``curate`` grew a ``CurateScreen`` and this test walked into it one key at
+    a time, stopping at the first surprise with a bare ``assert False`` — so
+    it reported "curate is not an AppScreen" and could not say whether
+    anything else had moved as well. Every key is built and the two sets are
+    compared, which also catches the opposite drift: a dedicated screen
+    quietly falling back to the generic one is a screen the user stops
+    seeing, and the old shape could not fail on that at all.
+    """
     from spacr.qt.screens.app_screen import AppScreen
     dedicated = {"annotate", "make_masks", "queue", "db_browser", "agreement",
                  "plate_view", "model_compare", "align", "convert", "foreign",
                  "batch", "distributed_jobs", "model_zoo", "report", "train_compare",
-                 "classifier_evaluation", "run_history"}
-    generic = [k for k, *_r in APPS if k not in dedicated]
-    assert generic, "expected some generic AppScreen apps"
-    for key in generic:
+                 "classifier_evaluation", "run_history",
+                 # Sixteen more since this set was last written, and the old
+                 # one-key-at-a-time shape could only ever name the first of
+                 # them. Every one of these is a screen built for its own job
+                 # rather than a settings form over a pipeline entry point.
+                 "curate", "data_manager", "experiment_design",
+                 "graph_builder", "hit_list", "image_scatter", "layer_viewer",
+                 "lineage", "methods_export", "pca", "pipeline_graph",
+                 "power", "profiler", "qc_dashboard", "run_compare",
+                 "tabulate"}
+
+    built_generic, built_dedicated = set(), set()
+    for key, *_r in APPS:
         screen = win._build_screen(key)
-        assert isinstance(screen, AppScreen)
-        assert screen.app_key == key
+        if isinstance(screen, AppScreen):
+            built_generic.add(key)
+            assert screen.app_key == key
+        else:
+            built_dedicated.add(key)
         screen.deleteLater()
+
+    assert built_generic, "expected some generic AppScreen apps"
+    assert built_dedicated == dedicated & {k for k, *_r in APPS}, (
+        "the set of apps with a screen of their own moved. Newly dedicated: "
+        f"{sorted(built_dedicated - dedicated)}; no longer dedicated: "
+        f"{sorted((dedicated & {k for k, *_r in APPS}) - built_dedicated)}")
 
 
 def test_clicking_a_home_tile_navigates(win, qtbot):
@@ -889,10 +952,21 @@ def test_about_shows_the_installed_version(win, modals):
 
 def test_about_says_unknown_when_the_version_cannot_be_read(
         win, modals, monkeypatch):
+    """The word, not the markup.
+
+    b530f70a rebuilt the About panel as a laid-out dialog instead of a
+    QMessageBox, so the version is its own label reading "Version unknown"
+    rather than a "<b>Version:</b> unknown" fragment inside one rich-text
+    blob. The claim is unchanged — an unreadable version says so out loud
+    instead of showing an empty space — so it is asserted on the text the
+    panel renders rather than on the HTML it no longer emits.
+    """
     import spacr
     monkeypatch.delattr(spacr, "__version__")
     win._show_about()
-    assert "<b>Version:</b> unknown" in modals.about[0][1]
+    body = modals.about[0][1]
+    assert "Version unknown" in body, body
+    assert "Version:" not in body     # the old QMessageBox spelling is gone
 
 
 def test_resolve_version_reports_the_package_version(win):
