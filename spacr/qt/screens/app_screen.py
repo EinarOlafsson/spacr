@@ -583,7 +583,8 @@ class AppScreen(QWidget):
         # a runner with the issue report and that guard also swallows every
         # poll for the up-to-28 s an issue report can take, freezing the usage
         # bars for the whole of it.
-        self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage")
+        self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage",
+                                    user_visible=False)
         self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
 
         # Timer to poll RAM/GPU/CPU periodically

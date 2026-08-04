@@ -70,6 +70,11 @@ class JobRunner(QObject):
         synchronously without the behaviour diverging.
     :param app_key: the name jobs appear under in the run registry, and so in
         the activity spinner's tooltip.
+    :param user_visible: ``False`` for housekeeping the user did not start.
+        Such a job still turns the activity spinner -- something IS running --
+        but never claims a run banner. The usage poller submits every two
+        seconds; without this Home flashes "<module> usage - running" on and
+        off for as long as a module screen is open.
     """
 
     #: One job finished. ``True`` when it ran and its handler ran cleanly.
@@ -84,10 +89,12 @@ class JobRunner(QObject):
     _settled = Signal(int, bool)
 
     def __init__(self, parent: Optional[QObject] = None, *,
-                 threaded: bool = True, app_key: str = "") -> None:
+                 threaded: bool = True, app_key: str = "",
+                 user_visible: bool = True) -> None:
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._app_key = app_key or "loading"
+        self._user_visible = bool(user_visible)
         self._jobs: Dict[int, Tuple[Any, Any]] = {}
         self._pending: Dict[int, Tuple[Dict[str, Any], Callable, int]] = {}
         self._next_id = 0
@@ -134,7 +141,8 @@ class JobRunner(QObject):
         # reason to refuse to close the application.
         thread, worker = make_thread(
             lambda payload, _fn=fn: _capture(_fn, payload), box,
-            app_key=self._app_key, journal=False)
+            app_key=self._app_key, journal=False,
+            user_visible=self._user_visible)
         # Strong references. PySide6 does not keep the worker alive through
         # the started->run connection alone, and a collected worker means the
         # thread spins forever without ever calling run().
