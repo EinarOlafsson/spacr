@@ -1,17 +1,21 @@
-"""Purple setting-animation link and its click-triggered GIF popup."""
+"""Purple setting-animation link and its click-triggered animation popup."""
 from __future__ import annotations
 
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QPoint, QSize, Qt
-from PySide6.QtGui import QGuiApplication, QHideEvent, QKeyEvent, QMovie
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtGui import QGuiApplication, QHideEvent, QKeyEvent
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
 from spacr.setting_animations import SettingAnimation
 
 from ..theme import SPACING, active_palette
 from .dot_link import DotLink
+# The same player the hover tooltip uses. Imported for its zoom and its
+# rounded corners: a `QMovie` can only scale a GIF, so the dot used to open a
+# 300-pixel window showing a smaller illustration than a 220-pixel hover did.
+from .hover_tooltip import AnimationView
 
 
 LOGGER = logging.getLogger(__name__)
@@ -30,13 +34,10 @@ class AnimationPopup(QFrame):
         )
         self.setObjectName("SettingAnimationPopup")
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self._movie: Optional[QMovie] = None
         self._animation: Optional[SettingAnimation] = None
 
-        self._image = QLabel(self)
+        self._image = AnimationView(self.DISPLAY_SIZE, self)
         self._image.setObjectName("SettingAnimationImage")
-        self._image.setAlignment(Qt.AlignCenter)
-        self._image.setFixedSize(self.DISPLAY_SIZE, self.DISPLAY_SIZE)
 
         self._error = QLabel(self)
         self._error.setObjectName("SettingAnimationError")
@@ -70,7 +71,9 @@ class AnimationPopup(QFrame):
             f"border: 1px solid {palette['border']};"
             "border-radius: 8px;"
             "}"
-            "QLabel#SettingAnimationImage { background: #000000; }"
+            # Transparent, not black: the rounded corners are cut into the
+            # frames themselves and a square background would fill them in.
+            "QLabel#SettingAnimationImage { background: transparent; }"
             "QLabel#SettingAnimationError {"
             f"background: #000000; color: {palette['error']};"
             "padding: 12px;"
@@ -90,7 +93,6 @@ class AnimationPopup(QFrame):
             tooltip.cancel_hide()
             tooltip.hide()
 
-        self._stop_movie()
         self._apply_theme()
         self._animation = animation
         self.setWindowTitle(animation.title)
@@ -101,10 +103,11 @@ class AnimationPopup(QFrame):
         self._error.hide()
         self._image.show()
 
-        movie = QMovie(str(animation.path))
-        movie.setCacheMode(QMovie.CacheAll)
-        movie.setScaledSize(QSize(self.DISPLAY_SIZE, self.DISPLAY_SIZE))
-        if not movie.isValid():
+        # Zoomed by `animation_zoom`, exactly as the hover tooltip zooms it,
+        # so the same illustration is not smaller in the bigger window.
+        if self._image.load(animation):
+            self._error.hide()
+        else:
             LOGGER.error(
                 "Could not load setting animation %s from %s",
                 animation.slug,
@@ -116,16 +119,19 @@ class AnimationPopup(QFrame):
                 "See the debug log for its asset path."
             )
             self._error.show()
-            movie.deleteLater()
-        else:
-            self._movie = movie
-            self._image.setMovie(movie)
 
         self.adjustSize()
         self._position_near(anchor)
         self.show()
-        if self._movie is not None:
-            self._movie.start()
+        self._image.play()
+
+    def animation_view(self) -> AnimationView:
+        """The square player — exposed for layout and zoom tests."""
+        return self._image
+
+    def animation(self) -> Optional[SettingAnimation]:
+        """The registry entry currently loaded, or ``None``."""
+        return self._animation
 
     def _position_near(self, anchor: QWidget) -> None:
         """Centre over the setting row, preferring the space above it."""
@@ -163,18 +169,9 @@ class AnimationPopup(QFrame):
             y = min(max(geometry.top(), y), geometry.bottom() - self.height() + 1)
         self.move(x, y)
 
-    def _stop_movie(self) -> None:
-        """Stop and detach the current movie before reuse or shutdown."""
-        movie = self._movie
-        self._movie = None
-        self._image.setMovie(None)
-        if movie is not None:
-            movie.stop()
-            movie.deleteLater()
-
     def hideEvent(self, event: QHideEvent) -> None:
-        """Stop GIF decoding whenever the popup is no longer visible."""
-        self._stop_movie()
+        """Stop swapping frames whenever the popup is no longer visible."""
+        self._image.stop()
         super().hideEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:

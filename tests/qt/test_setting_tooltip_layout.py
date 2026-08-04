@@ -93,15 +93,25 @@ def test_the_animation_sits_to_the_right_of_the_text(tooltip, qtbot):
 
 def test_the_text_box_starts_level_with_the_top_of_the_animation(
         tooltip, qtbot):
+    """Both in the POPUP's coordinates.
+
+    The prose lives inside a text column now, so ``text.y()`` is an offset
+    within that column and comparing it with the animation's ``y`` would be
+    comparing two different origins — a test that passes by accident.
+    """
+    from PySide6.QtCore import QPoint
+
     tooltip.show_for(_anchor(qtbot), HTML)
 
     text = tooltip.text_label()
     view = tooltip.animation_view()
-    assert text.y() == view.y(), (
+    text_top = text.mapTo(tooltip, QPoint(0, 0)).y()
+    view_top = view.mapTo(tooltip, QPoint(0, 0)).y()
+    assert text_top == view_top, (
         "the text is not top-aligned with the animation "
-        f"(text y={text.y()}, animation y={view.y()})")
+        f"(text y={text_top}, animation y={view_top})")
     assert view.height() > text.height(), (
-        "the text happens to be as tall as the square, so this test cannot "
+        "the prose happens to fill the whole square, so this test cannot "
         "tell top alignment from centring")
 
 
