@@ -29,7 +29,7 @@ import json
 import os
 import sqlite3
 import time
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, List, Optional, Sequence, Tuple
 
 __all__ = [
     "VERDICTS", "VERDICT_ORDER", "QCCard", "Dashboard",
