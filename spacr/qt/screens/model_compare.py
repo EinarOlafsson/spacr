@@ -86,7 +86,8 @@ from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
 from ..bridge import make_thread
-from ..theme import SPACING, active_palette
+from ..theme import (SPACING, active_palette, pane_surface,
+                     register_widget_qss)
 from ..widgets import Divider
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
@@ -161,6 +162,40 @@ def _coerce(raw: str) -> Any:
         return raw
 
 
+#: Object name the two comparison panels carry, so the block below can
+#: reach them without restyling every group box in the application.
+MODEL_PANEL_NAME = "ModelComparePanel"
+
+
+def _model_panel_qss(palette: dict, opacity) -> str:
+    """Give Model A and Model B a real panel, at the page opacity.
+
+    The shipped ``QGroupBox`` rule is ``background: transparent`` — right
+    for a group box nested inside a card that already has a surface, wrong
+    here, where these two are the *only* containers on the page. With no
+    fill they read as bare dark areas: a border drawn around a hole. This
+    gives them the same rounded translucent surface every other panel in
+    the application has, so the page-opacity slider moves them too.
+    """
+    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    return f"""
+QGroupBox#{MODEL_PANEL_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: 12px;
+}}
+QGroupBox#{MODEL_PANEL_NAME}::title {{
+    background: transparent;
+    color: {palette["fg_muted"]};
+}}
+"""
+
+
+# ``replace=True``: this module owns the name, and a reimport must
+# re-register rather than raise and leave the panels unstyled.
+register_widget_qss(MODEL_PANEL_NAME, _model_panel_qss, replace=True)
+
+
 class _ModelPanel(QGroupBox):
     """The settings for one side of the comparison.
 
@@ -172,6 +207,7 @@ class _ModelPanel(QGroupBox):
     def __init__(self, title: str, parent: Optional[QWidget] = None,
                  diameter: float = 30.0):
         super().__init__(title, parent)
+        self.setObjectName(MODEL_PANEL_NAME)
         form = QFormLayout(self)
         form.setContentsMargins(SPACING["sm"], SPACING["md"],
                                 SPACING["sm"], SPACING["sm"])

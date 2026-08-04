@@ -57,7 +57,7 @@ import os
 from typing import Any, Callable, Dict, List, Optional, Sequence
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush, QColor, QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -78,7 +78,8 @@ from PySide6.QtWidgets import (
 
 from ... import train_compare as tc
 from ..bridge import make_thread
-from ..theme import SPACING, active_palette, palette_for
+from ..theme import (SPACING, active_palette, make_transparent,
+                     paint_panel, palette_for)
 from ..widgets import Divider
 
 LOG = logging.getLogger(__name__)
@@ -117,6 +118,74 @@ def _cell(text: str) -> QTableWidgetItem:
     item = QTableWidgetItem(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
+
+
+#: Built once, on first use — see :func:`panel_canvas_class`.
+_PANEL_CANVAS = None
+
+
+def panel_canvas_class():
+    """The ``FigureCanvasQTAgg`` subclass that sits ON the page.
+
+    ``FigureCanvasQT.__init__`` sets ``WA_OpaquePaintEvent`` and a white
+    palette, and the figure carries a solid ``facecolor``. Three opaque
+    things stacked: the area right of "Runs found" was a flat dark
+    rectangle whatever the page-opacity slider said, with square corners
+    where every other container on the page has rounded ones.
+
+    QSS cannot fix that — a ``WA_OpaquePaintEvent`` widget never lets the
+    sheet's background through, and a stylesheet cannot round a canvas
+    matplotlib draws edge to edge. So the panel is drawn in
+    ``paintEvent``, underneath the figure, and the figure's own patch is
+    made fully transparent so the panel is what shows.
+
+    Built lazily and cached: no screen in this package imports matplotlib
+    at module scope, and subclassing its Qt backend would do exactly that.
+    """
+    global _PANEL_CANVAS
+    if _PANEL_CANVAS is not None:
+        return _PANEL_CANVAS
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+
+    class PanelCanvas(FigureCanvasQTAgg):
+        """A matplotlib canvas drawn on a rounded translucent panel."""
+
+        def __init__(self, figure):
+            super().__init__(figure)
+            self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+            make_transparent(self)
+            # The panel below is the surface now. Leaving the patch
+            # opaque would paint the old rectangle straight back over it.
+            figure.patch.set_alpha(0.0)
+
+        def paintEvent(self, event):  # noqa: N802 (Qt naming)
+            """Draw the panel, then let matplotlib draw over it."""
+            painter = QPainter(self)
+            paint_panel(painter, self, role="surface", inset=0.5)
+            painter.end()
+            super().paintEvent(event)
+
+    _PANEL_CANVAS = PanelCanvas
+    return PanelCanvas
+
+
+def _page_alpha() -> float:
+    """The page-opacity preference as a plain float for matplotlib.
+
+    Matplotlib takes alpha as a number, not as a QSS colour, so the QSS
+    accessors are no help here. Degrades to the theme's designed scrim.
+    """
+    from ..theme import panel_alpha
+    theme = "dark"
+    opacity = None
+    try:
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        theme = resolve_effective_theme()
+        opacity = get_pane_opacity()
+    except Exception:
+        pass
+    return float(panel_alpha(theme, "surface_alt", opacity))
 
 
 def _active_palette() -> dict:
@@ -259,14 +328,9 @@ class TrainCompareScreen(QWidget):
         # Matplotlib canvas — created here so the same figure is reused for
         # every overlay rather than leaking one per click.
         from matplotlib.figure import Figure
-        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-        plot_palette = _active_palette()
         self._figure = Figure(
-            figsize=(7.0, 4.2), tight_layout=True,
-            facecolor=plot_palette["surface"])
-        self._canvas = FigureCanvasQTAgg(self._figure)
-        self._canvas.setStyleSheet(
-            f"background: {plot_palette['surface']};")
+            figsize=(7.0, 4.2), tight_layout=True)
+        self._canvas = panel_canvas_class()(self._figure)
         self._canvas.setMinimumHeight(240)
         self._canvas.mpl_connect("pick_event", self._on_pick)
         right.addWidget(self._canvas)
@@ -573,7 +637,10 @@ class TrainCompareScreen(QWidget):
 
     def _clear_plot(self) -> None:
         self._figure.clear()
-        self._figure.set_facecolor(_active_palette()["surface"])
+        # `clear()` restores the rc facecolor AND its alpha, so the
+        # transparency `PanelCanvas` set has to be re-asserted or the
+        # first redraw paints the opaque rectangle straight back.
+        self._figure.patch.set_alpha(0.0)
         self._figure.spacr_series_by_label = {}
         self._canvas.draw_idle()
         self._picked.setText("")
@@ -597,8 +664,12 @@ class TrainCompareScreen(QWidget):
     def _style_axes(ax, pal: dict) -> None:
         """Match the plot to the app palette so it doesn't glare."""
         fig = ax.figure
-        fig.set_facecolor(pal["surface"])
-        ax.set_facecolor(pal["surface"])
+        fig.patch.set_alpha(0.0)
+        # The axes keep a fill — the plotting area is meant to read as a
+        # panel within the panel — but at the page opacity, so the slider
+        # reaches the plot too rather than stopping at its frame.
+        ax.patch.set_facecolor(pal["surface_alt"])
+        ax.patch.set_alpha(_page_alpha())
         for spine in ax.spines.values():
             spine.set_color(pal["border"])
         ax.tick_params(colors=pal["fg_muted"])
