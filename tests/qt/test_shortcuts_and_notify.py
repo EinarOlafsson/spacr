@@ -104,53 +104,33 @@ def test_sidebar_buttons_have_accessible_names(qtbot, qt_theme_applied):
 def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
     """The cheat sheet really appears, and lists every registered binding.
 
-    ``show_cheat_sheet`` blocks in ``exec()``, so the dialog can only be
-    inspected from inside its own event loop — which is also the only way
-    to tell "it opened and I closed it" apart from "it never opened".
+    It is an overlay over the window rather than a modal dialog now: ``?``
+    asks a two-second question, and a modal makes the reader commit to a
+    mode and find a close button to leave it. So the inspection is direct —
+    no nested event loop, because nothing blocks — and closing it is the
+    keystroke that a user would actually press.
     """
-    from spacr.qt.shortcuts import SHORTCUTS, show_cheat_sheet
+    from spacr.qt.shortcuts import (
+        SHORTCUTS, ShortcutOverlay, show_cheat_sheet,
+    )
     from spacr.qt.app import MainWindow
-    from PySide6.QtCore import QTimer
-    from PySide6.QtWidgets import QApplication, QDialog, QLabel
+    from PySide6.QtWidgets import QLabel
 
     win = MainWindow()
     qtbot.addWidget(win)
+    win.resize(1280, 860)
 
-    seen = {}
-    ticks = {"n": 0}
-    timer = QTimer()
-    timer.setInterval(50)
+    overlay = show_cheat_sheet(win)
+    qtbot.addWidget(overlay)
+    assert isinstance(overlay, ShortcutOverlay), (
+        "show_cheat_sheet never put an overlay on screen")
+    assert overlay.parentWidget() is win
 
-    def inspect_and_close():
-        ticks["n"] += 1
-        dlg = QApplication.activeModalWidget()
-        if isinstance(dlg, QDialog):
-            seen["title"] = dlg.windowTitle()
-            seen["min_width"] = dlg.minimumWidth()
-            seen["rows"] = [lbl.text() for lbl in dlg.findChildren(QLabel)]
-            timer.stop()
-            dlg.accept()
-        elif ticks["n"] > 40:
-            # Give up rather than hang forever; the assertions below then
-            # report *why* (no modal dialog was ever put on screen).
-            timer.stop()
-            for w in QApplication.topLevelWidgets():
-                if isinstance(w, QDialog) and w.isVisible():
-                    w.reject()
-
-    timer.timeout.connect(inspect_and_close)
-    timer.start()
-    show_cheat_sheet(win)
-    timer.stop()
-
-    assert seen, "show_cheat_sheet never put a modal QDialog on screen"
-    assert seen["title"] == "spaCR — Keyboard shortcuts"
-    assert seen["min_width"] >= 420
-
-    rows = seen["rows"]
-    # One header per category plus one row per binding, all non-empty.
+    rows = [lbl.text() for lbl in overlay._card.findChildren(QLabel)]
+    # A title, a header per category, a keys+label pair per binding, and the
+    # closing hint. All non-empty.
     categories = {s.category for s in SHORTCUTS}
-    assert len(rows) == len(SHORTCUTS) + len(categories)
+    assert len(rows) == 2 * len(SHORTCUTS) + len(categories) + 2
     assert all(r.strip() for r in rows)
 
     text = "\n".join(rows)
@@ -158,9 +138,12 @@ def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
         assert spec.keys in text, f"{spec.keys} missing from the cheat sheet"
         assert spec.label in text, f"{spec.label!r} missing from the cheat sheet"
     for cat in categories:
-        assert f"<b>{cat}</b>" in text
+        assert cat.upper() in text
 
     # Contrast: the search above is discriminating, not "in a big blob of
-    # HTML everything matches" — a binding that is not registered is absent.
+    # text everything matches" — a binding that is not registered is absent.
     assert "Ctrl+Shift+Q" not in text
     assert "Reticulate splines" not in text
+
+    overlay.dismiss()
+    assert not overlay.isVisible()
