@@ -33,6 +33,69 @@ def qt_theme_applied(qapp):
     return qapp
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _font_scale_starts_at_one():
+    """Start every session at scale 1.0, whatever the last one left behind.
+
+    The font scale is persisted, so it is ambient state that survives the
+    process. A run that ended with 1.5 set the starting scale for the next
+    one, and for the one after that -- and CI, starting from nothing, ran at
+    1.0. So the suite measured a different application locally than on the
+    runners, silently, for as long as nobody reset it.
+
+    It showed up as failures that read like real regressions and were not:
+    ``scaled_px(320)`` returning 480, twenty modules "failing" the smoke test
+    on clipped and elided labels, the search strip sitting 11px down. All of
+    it was 1.5.
+
+    Per-test restoration is below; this is the floor under it, so the first
+    test of a session cannot inherit the last test of the previous one.
+    """
+    from spacr.qt import preferences
+
+    try:
+        preferences.set_font_scale(1.0)
+    except Exception:
+        pass
+    yield
+
+
+@pytest.fixture(autouse=True)
+def _restore_font_scale():
+    """Put the font scale back the way the test found it.
+
+    The same shape of leak as ``_restore_app_registry`` below, and it took
+    ``test_settings_search``'s geometry test down the same way: passes on its
+    own file, fails after any other qt file, and the blame lands on whichever
+    test drew the short straw rather than on the one that leaked.
+
+    ``test_preferences`` sets the scale ten times and restores it none;
+    ``test_zoom_reaches_text`` sets it once and never puts it back;
+    ``test_home_variants`` sets it five times and restores twice. Whoever ran
+    last decided the scale for everything after them. At 1.5,
+    ``test_the_strip_is_a_thin_band_above_the_form_not_over_it`` measured the
+    search strip at ``y=11`` instead of ``0`` -- a real geometry difference at
+    a scale no assertion in that file had asked for.
+
+    Restored here rather than in each caller, so a file that starts changing
+    the scale tomorrow is covered without anyone remembering to.
+    """
+    from spacr.qt import preferences
+
+    try:
+        original = preferences.get_font_scale()
+    except Exception:
+        yield
+        return
+    try:
+        yield
+    finally:
+        try:
+            preferences.set_font_scale(original)
+        except Exception:
+            pass
+
+
 @pytest.fixture(autouse=True)
 def _restore_app_registry():
     """Put ``spacr.qt.app``'s registry back the way the test found it.
