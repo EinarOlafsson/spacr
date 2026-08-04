@@ -157,10 +157,19 @@ _FORM_FIELDS = frozenset({
 })
 
 #: The held fields, in the order the "held fixed" line lists them.
+#:
+#: Every :class:`DesignSpec` field the form does not ask for belongs here, or
+#: ``set_spec`` stops round-tripping: ``spec()`` rebuilds the dataclass from
+#: the form plus this dict, so a field in neither silently reverts to its
+#: default and the sweep runs a different screen from the one that was loaded.
+#: ``sequencing_error_rate`` and ``min_cells_per_well`` are listed for exactly
+#: that reason -- both default to the spaCRPower behaviour, and a run that
+#: turned either on has to still say so when it is reloaded.
 _HELD_FIELDS = (
     "gene_abundance_alpha", "cells_per_well_var", "class_pos_var",
     "class_neg_var", "well_abundance_var", "sequencing_cells_per_well",
-    "pcr_factor_mu", "pcr_factor_var", "read_depth_cv", "imaging_split",
+    "pcr_factor_mu", "pcr_factor_var", "read_depth_cv",
+    "sequencing_error_rate", "min_cells_per_well", "imaging_split",
 )
 
 

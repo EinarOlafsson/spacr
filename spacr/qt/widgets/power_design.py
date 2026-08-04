@@ -252,8 +252,9 @@ CAVEATS: Tuple[Caveat, ...] = (
             "so it is scored, at chance, on noise. On that design 0.5 % error "
             "takes the scored library from 317 genes to all 452 and drops the "
             "screen-wide separation from 0.799 to 0.723: fourteen times the "
-            "dilution, entirely from a safeguard switching off. Set "
-            "sequencing_error_rate in spacr.power_simulate.simulate_screen."
+            "dilution, entirely from a safeguard switching off. Turn it on "
+            "with set_spec(DesignSpec(sequencing_error_rate=0.005)), or pass "
+            "sequencing_error_rate to spacr.power_simulate.simulate_screen."
         ),
         changes_the_number=True,
     ),
@@ -272,11 +273,11 @@ CAVEATS: Tuple[Caveat, ...] = (
             "that is almost pure noise. Dropping thin wells is what an "
             "analyst does by hand, and it costs wells, so which way the trade "
             "comes out depends on how long the thin tail is — which is worth "
-            "simulating rather than arguing about. Set min_cells_per_well in "
-            "spacr.power_simulate.simulate_screen; 25 is a sane starting "
-            "point. Note that the mean cells per well on this form is a MEAN: "
-            "at 123 with a variance of 8000 a real fraction of wells lands "
-            "under 25."
+            "simulating rather than arguing about. Turn it on with "
+            "set_spec(DesignSpec(min_cells_per_well=25)), or pass "
+            "min_cells_per_well to spacr.power_simulate.simulate_screen. Note "
+            "that the cells per well on this form is a MEAN: at 123 with a "
+            "variance of 8000 a real fraction of wells lands under 25."
         ),
         changes_the_number=True,
     ),
