@@ -4,47 +4,77 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.0,
+  "total_duration": 90.4,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.5,
-      "scene_end": 8.95,
-      "duration": 8.95,
-      "text": "Questo tutorial copre PyPI e GitHub. Scopri dove spaCR rilascia, codice sorgente, installatori, problemi e il ramo notturno in diretta."
+      "speech_end": 14.05,
+      "scene_end": 14.75,
+      "duration": 14.75,
+      "text": "Prima di installare spaCR, conoscere le tre vie di distribuzione ufficiali: PyPI per il pacchetto Python rilasciato, GitHub per il codice sorgente e gli installatori desktop, e conda-forge una volta che il pacchetto rivisto è stato pubblicato.",
+      "speech_text": "Prima di installare spàker, conoscere le tre vie di distribuzione ufficiali: pai pi per il pacchetto Python rilasciato, GitHub per il codice sorgente e gli installatori desktop, e conda-forge una volta che il pacchetto rivisto è stato pubblicato.",
+      "phonemes": "prˈima dɪ installˈare spˈaker, konˈoʃere le trˈe vˈie dɪ distribʊʦiˈone ʊffiʧˈalɪ: pˈaj pˈi per il pakːˈetːo pˈIθən rilaʃˈato, ʤˈit ˈub per il kˈɔdiʧe sorʤˈɛnte e ʎɪ installatˈorɪ dˈesk tˌɔp, e kˈondafˈɔrʤe ˌʊna vˈɔlta ke il pakːˈetːo rivˈisto e stˈato pʊbːlikˈato."
     },
     {
       "scene": 2,
-      "speech_start": 8.95,
-      "speech_end": 22.049999999999997,
-      "scene_end": 22.499999999999996,
-      "duration": 13.549999999999997,
-      "text": "Apri PyPI and GitHub dalla sezione spaCR. Aprire PyPI e GitHub dalla sezione spaCR. Utilizzare PyPI per il pacchetto Python corrente e GitHub per il codice sorgente, le release e il monitoraggio dei problemi."
+      "speech_start": 14.75,
+      "speech_end": 24.825,
+      "scene_end": 25.525,
+      "duration": 10.774999999999999,
+      "text": "La pagina spaCR su PyPI mostra la versione stabile corrente e il comando pip install spacr. I file di rilascio includono una ruota Python e un archivio sorgente.",
+      "speech_text": "La pagina spàker su pai pi mostra la versione stabile corrente e il comando pip install spàker. I file di rilascio includono una ruota Python e un archivio sorgente.",
+      "phonemes": "la pˈaʤina spˈaker sʊ pˈaj pˈi mˈostra la versjˈone stˈabile korɾˈɛnte e il komˈando pˈip ˈinstal spˈaker. i fˈile dɪ rilˈaʃo inklˈudono ˌʊna rʊˈɔta pˈIθən e ʊn arkˈivio sorʤˈɛnte."
     },
     {
       "scene": 3,
-      "speech_start": 22.499999999999996,
-      "speech_end": 32.474999999999994,
-      "scene_end": 32.925,
-      "duration": 10.425,
-      "text": "Nella zona di configurazione principale, confrontare la versione stabile confezionata con la branca di sviluppo notturna e scegliere quella adatta al vostro lavoro."
+      "speech_start": 25.525,
+      "speech_end": 37.974999999999994,
+      "scene_end": 38.675,
+      "duration": 13.149999999999999,
+      "text": "PyPI ha anche collegamenti alla documentazione, al repository di fonti e al monitor delle emissioni. Controllare le versioni di Python richieste e la data di rilascio prima di modificare un ambiente esistente.",
+      "speech_text": "pai pi ha anche collegamenti alla documentazione, al repository di fonti e al monitor delle emissioni. Controllare le versioni di Python richieste e la data di rilascio prima di modificare un ambiente esistente.",
+      "phonemes": "pˈaj pˈi a ˌanke kolleɡamˈentɪ ˌalla dokʊmentaʦiˈone, al repozitˈorɪ dɪ fˈontɪ e al mˈɔnitor dˌelle emiSjˈonɪ. kontrollˈare le versjˈonɪ dɪ pˈIθən rikjˈɛste e la dˈata dɪ rilˈaʃo prˈima dɪ modifikˈare ʊn ambiˈɛnte ezistˈɛnte."
     },
     {
       "scene": 4,
-      "speech_start": 32.925,
-      "speech_end": 42.0,
-      "scene_end": 42.45,
-      "duration": 9.525000000000006,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+      "speech_start": 38.675,
+      "speech_end": 51.724999999999994,
+      "scene_end": 52.425,
+      "duration": 13.75,
+      "text": "Su GitHub, main è la linea di codice sorgente pubblicata, mentre nightly contiene modifiche più recenti ancora in fase di test. Usa nightly solo quando ti serve specificamente una modifica non ancora pubblicata.",
+      "speech_text": "Su GitHub, main è la linea di codice sorgente pubblicata, mentre nightly contiene modifiche più recenti ancora in fase di test. Usa nightly solo quando ti serve specificamente una modifica non ancora pubblicata.",
+      "phonemes": "sʊ ʤˈit ˈub, mˈIn e la lˈinea dɪ kˈɔdiʧe sorʤˈɛnte pʊbːlikˈata, mˌentre nˈiɡtlɪ kontjˈɛne modˈifike pjʊ reʧˈɛntɪ ankˈora in fˈaze dɪ tˈɛst. ˈuza nˈiɡtlɪ sˈolo kwˈando tɪ sˈɛrve speʧifikamˈente ˌʊna modˈifika non ankˈora pʊbːlikˈata."
     },
     {
       "scene": 5,
-      "speech_start": 42.45,
-      "speech_end": 50.35,
-      "scene_end": 51.0,
-      "duration": 8.549999999999997,
-      "text": "Quando il flusso di lavoro è finito, saprai dove installare spaCR, controllare i cambiamenti e segnalare un problema riproducibile."
+      "speech_start": 52.425,
+      "speech_end": 62.9,
+      "scene_end": 63.6,
+      "duration": 11.175000000000004,
+      "text": "GitHub Releases fornisce gli installatori di Windows, macOS e Linux, le note di rilascio, i file di pacchetto Python e le somme di controllo SHA-256.",
+      "speech_text": "GitHub Releases fornisce gli installatori di Windows, macOS e Linux, le note di rilascio, i file di pacchetto Python e le somme di controllo SHA-256.",
+      "phonemes": "ʤˈit ˈub releˈazes fornˈiʃe ʎɪ installatˈorɪ dɪ wˈɪndows, mˈak ˌɔːˈɛSe e lˈinʊks, le nˈɔte dɪ rilˈaʃo, i fˈile dɪ pakːˈetːo pˈIθən e le sˈomme dɪ kontrˈɔllo ˌɛSeˌakːaˈaː dʊeʧˈɛnto ʧinkwˈantasˈɛj."
+    },
+    {
+      "scene": 6,
+      "speech_start": 63.6,
+      "speech_end": 75.55,
+      "scene_end": 76.25,
+      "duration": 12.649999999999999,
+      "text": "La ricetta conda-forge è preparata nel repository, ma non è ancora pubblicato alcun pacchetto spaCR sul canale conda-forge. Per ora, crea un ambiente Conda e installa spaCR da PyPI all'interno.",
+      "speech_text": "La ricetta conda-forge è preparata nel repository, ma non è ancora pubblicato alcun pacchetto spàker sul canale conda-forge. Per ora, crea un ambiente Conda e installa spàker da pai pi all'interno.",
+      "phonemes": "la riʧˈɛtːa kˈondafˈɔrʤe e prepaɾˈata nel repozitˈorɪ, ma non e ankˈora pʊbːlikˈato alkˌʊn pakːˈetːo spˈaker sʊl kanˈale kˈondafˈɔrʤe. per ˈora, krˈɛa ʊn ambiˈɛnte kˈonda e instˈalla spˈaker da pˈaj pˈi allintˈɛrno."
+    },
+    {
+      "scene": 7,
+      "speech_start": 76.25,
+      "speech_end": 89.7,
+      "scene_end": 90.4,
+      "duration": 14.150000000000006,
+      "text": "Utilizzare PyPI o pip per un ambiente Python, GitHub Releases per un installatore nativo e la branca nightly solo per lo sviluppo. I seguenti tutorial mostrano ogni percorso di installazione senza lanciare l'applicazione.",
+      "speech_text": "Utilizzare pai pi o pip per un ambiente Python, GitHub Releases per un installatore nativo e la branca nightly solo per lo sviluppo. I seguenti tutorial mostrano ogni percorso di installazione senza lanciare l'applicazione.",
+      "phonemes": "ʊtiliʣːˈare pˈaj pˈi o pˈip per ʊn ambiˈɛnte pˈIθən, ʤˈit ˈub releˈazes per ʊn installatˈore natˈivo e la brˈanka nˈiɡtlɪ sˈolo per lo zvilˈupːo. i seɡwˈɛntɪ tʊtˈɔrial mˈɔstrano ˌoɲɲɪ perkˈorso dɪ installaʦiˈone sˌɛnʦa lanʧˈare lapːlikaʦiˈone."
     }
   ]
 }

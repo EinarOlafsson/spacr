@@ -4,47 +4,77 @@
   "voice": "bm_daniel",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.425,
+  "total_duration": 68.25,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.05,
-      "scene_end": 9.5,
-      "duration": 9.5,
-      "text": "This tutorial covers Installation with Conda. Create an isolated Python environment and install spaCR without changing the rest of your system."
+      "speech_end": 11.325,
+      "scene_end": 12.024999999999999,
+      "duration": 12.024999999999999,
+      "text": "A Conda environment keeps spaCR and its scientific dependencies separate from unrelated projects. Python three point twelve currently offers the broadest optional-package compatibility.",
+      "speech_text": "A Conda environment keeps spacer and its scientific dependencies separate from unrelated projects. Python three point twelve currently offers the broadest optional-package compatibility.",
+      "phonemes": "ɐ kˈɒndə ɪnvˈIɹənmᵊnt kˈiːps spˈAsə and ɪts sˌIəntˈɪfɪk dɪpˈɛndᵊnsiz sˈɛpəɹət fɹɒm ʌnɹɪlˈAtɪd pɹˈɒʤɛkts. pˈIθn θɹˈiː pˈYnt twˈɛlv kˈʌɹəntli ˈɒfəz ðə bɹˈɔːdɪst ˈɒpʃənᵊlpˌakɪʤ kəmpˌatɪbˈɪlɪti."
     },
     {
       "scene": 2,
-      "speech_start": 9.5,
-      "speech_end": 20.375,
-      "scene_end": 20.825,
-      "duration": 11.325,
-      "text": "Open Installation with Conda from the spaCR section. Install Miniconda, Anaconda, or another Conda-compatible manager, then create an environment with Python three point twelve."
+      "speech_start": 12.024999999999999,
+      "speech_end": 18.724999999999998,
+      "scene_end": 19.424999999999997,
+      "duration": 7.399999999999999,
+      "text": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve and pip.",
+      "speech_text": "Open a Conda-enabled terminal and create an environment named spacer with Python three point twelve and pip.",
+      "phonemes": "ˈQpᵊn ɐ kˈɒndəɹɛnˈAbᵊld tˈɜːmɪnᵊl and kɹɪˈAt ɐn ɪnvˈIɹənmᵊnt nˈAmd spˈAsə wɪð pˈIθn θɹˈiː pˈYnt twˈɛlv and pˈɪp."
     },
     {
       "scene": 3,
-      "speech_start": 20.825,
-      "speech_end": 28.9,
-      "scene_end": 29.349999999999998,
-      "duration": 8.524999999999999,
-      "text": "In the main configuration area, activate the environment and confirm that its Python and pip executables belong to that environment."
+      "speech_start": 19.424999999999997,
+      "speech_end": 25.9,
+      "scene_end": 26.599999999999998,
+      "duration": 7.175000000000001,
+      "text": "Activate the environment. Confirm that Python belongs to the spacr environment before installing anything.",
+      "speech_text": "Activate the environment. Confirm that Python belongs to the spacer environment before installing anything.",
+      "phonemes": "ˈaktɪvAt ði ɪnvˈIɹənmᵊnt. kənfˈɜːm ðat pˈIθn bɪlˈɒŋz tə ðə spˈAsə ɪnvˈIɹənmᵊnt bɪfˈɔː ɪnstˈɔːlɪŋ ˈɛnɪθɪŋ."
     },
     {
       "scene": 4,
-      "speech_start": 29.349999999999998,
-      "speech_end": 41.3,
-      "scene_end": 41.75,
-      "duration": 12.400000000000002,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Install spaCR with pip inside the active environment; the conda-forge package is still coming soon."
+      "speech_start": 26.599999999999998,
+      "speech_end": 35.05,
+      "scene_end": 35.75,
+      "duration": 9.150000000000002,
+      "text": "Upgrade pip through the active Python interpreter. Using python -m pip prevents a different pip executable from receiving the package.",
+      "speech_text": "Upgrade pip through the active Python interpreter. Using python dash m pip prevents a different pip executable from receiving the package.",
+      "phonemes": "ˌʌpɡɹˈAd pˈɪp θɹuː ði ˈaktɪv pˈIθn ɪntˈɜːpɹɪtə. jˈuːzɪŋ pˈIθn dˈaʃ ˈɛm pˈɪp pɹɪvˈɛnts ɐ dˈɪfəɹənt pˈɪp ˈɛksɪkjuːtəbᵊl fɹɒm ɹɪsˈiːvɪŋ ðə pˈakɪʤ."
     },
     {
       "scene": 5,
-      "speech_start": 41.75,
-      "speech_end": 48.775,
-      "scene_end": 49.425,
-      "duration": 7.674999999999997,
-      "text": "When the workflow finishes, launch spaCR from the same environment and keep it isolated from unrelated projects."
+      "speech_start": 35.75,
+      "speech_end": 43.85,
+      "scene_end": 44.550000000000004,
+      "duration": 8.800000000000004,
+      "text": "For the desktop application, install spacr with the qt extra. Use the plain spacr package for a headless workstation or server.",
+      "speech_text": "For the desktop application, install spacer with the qt extra. Use the plain spacer package for a headless workstation or server.",
+      "phonemes": "fˌɔː ðə dˈɛsktɒp ˌaplɪkˈAʃᵊn, ɪnstˈɔːl spˈAsə wɪð ðə kjˌuːtˈiː ˈɛkstɹə. jˈuːz ðə plˈAn spˈAsə pˈakɪʤ fɔː ɐ hˈɛdləs wˈɜːkstˌAʃᵊn ɔː sˈɜːvə."
+    },
+    {
+      "scene": 6,
+      "speech_start": 44.550000000000004,
+      "speech_end": 55.2,
+      "scene_end": 55.900000000000006,
+      "duration": 11.350000000000001,
+      "text": "Run spacr-doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check.",
+      "speech_text": "Run spacer doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check.",
+      "phonemes": "ɹˈʌn spˈAsə dˈɒktə bɪfˈɔː ðə fˈɜːst lˈɔːnʧ. ˌɪt ɹɪpˈɔːts ði ˈaktɪv ɪnstəlˈAʃᵊn, kjˌuːtˈiː, pˈI tˈɔːʧ, ˈɒpʃənᵊl kəmpˈQnənts, and hˈɑːdwɛː səpˈɔːt wɪð ɐ səʤˈɛstɪd fˈɪks fɔː ˈɛvəɹi fˈAld ʧˈɛk."
+    },
+    {
+      "scene": 7,
+      "speech_start": 55.900000000000006,
+      "speech_end": 67.55000000000001,
+      "scene_end": 68.25000000000001,
+      "duration": 12.350000000000009,
+      "text": "The conda-forge package is not published yet, so do not run conda install -c conda-forge spacr today. When it becomes available, the official recipe and channel will be linked from the spaCR repository.",
+      "speech_text": "The conda-forge package is not published yet, so do not run conda install -c conda-forge spacer today. When it becomes available, the official recipe and channel will be linked from the spacer repository.",
+      "phonemes": "ðə kˈɒndəfˈɔːʤ pˈakɪʤ ɪz nˌɒt pˈʌblɪʃt jˈɛt, sˌQ dˈuː nˌɒt ɹˈʌn kˈɒndə ɪnstˈɔːl —sˈiː kˈɒndəfˈɔːʤ spˈAsə tədˈA. wˌɛn ɪt bɪkˈʌmz əvˈAləbᵊl, ði əfˈɪʃl ɹˈɛsɪpi and ʧˈanᵊl wɪl biː lˈɪŋkt fɹɒm ðə spˈAsə ɹɪpˈɒsɪtəɹi."
     }
   ]
 }

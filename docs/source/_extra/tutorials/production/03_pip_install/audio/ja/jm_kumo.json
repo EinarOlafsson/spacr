@@ -4,47 +4,77 @@
   "voice": "jm_kumo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 57.15,
+  "total_duration": 79.95,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 13.05,
-      "scene_end": 13.5,
-      "duration": 13.5,
-      "text": "このチュートリアルでは,Pype のインストールについて説明します. デスクトップまたはヘッドレスで使用するために既存の Python 環境で spaCR をインストールします."
+      "speech_end": 13.525,
+      "scene_end": 14.225,
+      "duration": 14.225,
+      "text": "パイプ経路は Windows, macOS, Linuxで動作します. オペレーティングシステムの Python インストールを変更するのではなく,常に孤立した仮想環境を使用します.",
+      "speech_text": "パイプ経路は Windows, macOS, Linuxで動作します. オペレーティングシステムの Python インストールを変更するのではなく,常に孤立した仮想環境を使用します.",
+      "phonemes": "paipɯ keːɾo βa Windows, macOS, Linux de doːsa ɕi masɨ. opeɾeːtʲiŋɡɯ ɕisɨtemɯ no Python iɴsɨtoːɾɯ o heŋkoː sɨɾɯ no de βa nakɯ, ʦɨne ɲi koɾʲiʦɨ ɕita kasoː kaŋkʲoː o ɕijoː ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 13.5,
-      "speech_end": 21.375,
-      "scene_end": 21.825,
-      "duration": 8.325,
-      "text": "spaCR セクションから Installation with pip を開きます。 Python 3 point 12 は推奨されます."
+      "speech_start": 14.225,
+      "speech_end": 22.25,
+      "scene_end": 22.95,
+      "duration": 8.725,
+      "text": "MacOSや Linux では Python 3 point 12 で環境を作成して,bin ディレクトリから起動します.",
+      "speech_text": "MacOSや Linux では Python 3 point 12 で環境を作成して,bin ディレクトリから起動します.",
+      "phonemes": "Mac OS ja Linux de βa Python saɴ point ʥɨːɲi de kaŋkʲoː o sakɯseː ɕite, bin dʲiɾekɯtoɾʲi kaɾa kʲidoː ɕi masɨ."
     },
     {
       "scene": 3,
-      "speech_start": 21.825,
-      "speech_end": 34.0,
-      "scene_end": 34.45,
-      "duration": 12.625000000000004,
-      "text": "必要な場合は,メインの設定領域で,pipをアップグレードして,デスクトップ,開発,またはオプションの科学追加が必要かどうかを決定します."
+      "speech_start": 22.95,
+      "speech_end": 30.825,
+      "scene_end": 31.525,
+      "duration": 8.575,
+      "text": "Windows では Python ロンチャーを使用して環境を作成し,Scripts ディレクトリから起動します.",
+      "speech_text": "Windows では Python ロンチャーを使用して環境を作成し,Scripts ディレクトリから起動します.",
+      "phonemes": "Windows de βa Python ɾoɴ ʨaː o ɕijoː ɕite kaŋkʲoː o sakɯseː ɕi, Scripts dʲiɾekɯtoɾʲi kaɾa kʲidoː ɕi masɨ."
     },
     {
       "scene": 4,
-      "speech_start": 34.45,
-      "speech_end": 43.050000000000004,
-      "scene_end": 43.50000000000001,
-      "duration": 9.050000000000004,
-      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します."
+      "speech_start": 31.525,
+      "speech_end": 41.974999999999994,
+      "scene_end": 42.675,
+      "duration": 11.149999999999999,
+      "text": "活発な環境でパイプをアップグレードする. パイトンパイプトーケンのコマンドは インストールが 起動した パイトンに 結びついています",
+      "speech_text": "活発な環境でパイプをアップグレードする. パイトンパイプトーケンのコマンドは インストールが 起動した パイトンに 結びついています",
+      "phonemes": "kaʔpaʦɨ na kaŋkʲoː de paipɯ o aʔpɯɡɯɾeːdo sɨɾɯ. paitompaipɯtoːkeɴ no komando βa iɴsɨtoːɾɯ ɡa kʲidoː ɕita pai toɴ ɲi mɯsɨbʲiʦɨi te imasɨ"
     },
     {
       "scene": 5,
-      "speech_start": 43.50000000000001,
-      "speech_end": 56.50000000000001,
-      "scene_end": 57.150000000000006,
-      "duration": 13.649999999999999,
-      "text": "作業流が完了すると,同じインストールでデスクトップアプリを起動したり,作業ステーションやサーバーでスクリプトによる作業流を実行することができます."
+      "speech_start": 42.675,
+      "speech_end": 54.724999999999994,
+      "scene_end": 55.425,
+      "duration": 12.75,
+      "text": "ヘッドレスの使用のための平凡な spacr パッケージをインストールするか,デスクトップインターフェースのための qt エクストラと spacr をインストールします.",
+      "speech_text": "ヘッドレスの使用のための平凡な スペーカー パッケージをインストールするか,デスクトップインターフェースのための qt エクストラと スペーカー をインストールします.",
+      "phonemes": "heʔdo ɾesɨ no ɕijoː no tame no heːboɴ na sɨpe kaː paʔkeːʥi o iɴsɨtoːɾɯ sɨɾɯ ka, desɨkɯtoʔpɯ intaːɸeːsɨ no tame no qt ekɯsɨtoɾa to sɨpeːkaː o iɴsɨtoːɾɯ ɕi masɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 55.425,
+      "speech_end": 65.85,
+      "scene_end": 66.55,
+      "duration": 11.125,
+      "text": "輸入されたバージョンを確認し,spacr-doctorを実行します. 実験データを開く前に失敗したチェックを解決する.",
+      "speech_text": "輸入されたバージョンを確認し,スペーカー-doctorを実行します. 実験データを開く前に失敗したチェックを解決する.",
+      "phonemes": "jɯɲɨː saɾeta baːʥoɴ o kakɯɲiɴ ɕi, sɨpeːkaː - doctor o ʥiʔkoː ɕi masɨ. ʥiʔkeɴ deːta o çiɾakɯ mae ɲi ɕiʔpai ɕita ʨeʔkɯ o kaikeʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 66.55,
+      "speech_end": 79.25,
+      "scene_end": 79.95,
+      "duration": 13.400000000000006,
+      "text": "環境は準備ができています spaCR を使用するたびに有効にして,意図的に更新する際に python -m pip install --upgrade spacr を使用してください.",
+      "speech_text": "環境は準備ができています スペーカー を使用するたびに有効にして,意図的に更新する際に python -m pip install --upgrade スペーカー を使用してください.",
+      "phonemes": "kaŋkʲoː βa ʥɨmbʲi ɡa dekʲite imasɨ sɨpeːkaː o ɕijoː sɨɾɯ tabʲi ɲi jɯːkoː ɲi ɕite, itotekʲi ɲi koːɕiɴ sɨɾɯ sai ɲi python - m pip install -- upgrade sɨpe kaː o ɕijoː ɕite kɯdasai."
     }
   ]
 }

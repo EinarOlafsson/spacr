@@ -4,47 +4,77 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 52.375,
+  "total_duration": 66.7,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.925,
-      "scene_end": 11.375,
-      "duration": 11.375,
-      "text": "Cet didacticiel couvre Installation avec pip. Installez spaCR dans un environnement Python isolé existant pour une utilisation sur ordinateur de bureau ou sans tête."
+      "speech_end": 11.85,
+      "scene_end": 12.549999999999999,
+      "duration": 12.549999999999999,
+      "text": "L'itinéraire de pip fonctionne sur Windows, macOS et Linux. Utilisez toujours un environnement virtuel isolé plutôt que de modifier l'installation Python du système d'exploitation.",
+      "speech_text": "L'itinéraire de pip fonctionne sur Windows, macOS et Linux. Utilisez toujours un environnement virtuel isolé plutôt que de modifier l'installation Python du système d'exploitation.",
+      "phonemes": "litineʁˈɛʁ də pˈip fɔ̃ksjˈɔn syʁ wˈɪndQz, mˈak ˌoˈɛs e linˈyks. ytilizˈe tuʒˌuʁz œ̃n ɑ̃viʁɔnmˈɑ̃ viʁtyˈɛl izolˈe plytˈoː kə də modifjˈe lɛ̃stalasjˈɔ̃ pitˈɔ̃ dy sistˈɛm dɛksplwatasjˈɔ̃."
     },
     {
       "scene": 2,
-      "speech_start": 11.375,
-      "speech_end": 21.2,
-      "scene_end": 21.65,
-      "duration": 10.274999999999999,
-      "text": "Ouvrez Installation with pip dans la section spaCR. Confirmez que l'environnement utilise une version Python prise en charge; Python trois point douze est recommandé."
+      "speech_start": 12.549999999999999,
+      "speech_end": 20.224999999999998,
+      "scene_end": 20.924999999999997,
+      "duration": 8.374999999999998,
+      "text": "Sur macOS ou Linux, créez l'environnement avec Python 3 point 12, puis activez-le à partir de son répertoire bin.",
+      "speech_text": "Sur macOS ou Linux, créez l'environnement avec Python 3 point 12, puis activez-le à partir de son répertoire bin.",
+      "phonemes": "syʁ mˈak ˌoˈɛs u linˈyks, kʁeˈe lɑ̃viʁɔnmˈɑ̃ avˌɛk pitˈɔ̃ tʁwˈa pwˌɛ̃ dˈuz, pyˈiz aktivˈelə a paʁtˈiʁ də sˈɔ̃ ʁepɛʁtwˈaʁ bˈin."
     },
     {
       "scene": 3,
-      "speech_start": 21.65,
-      "speech_end": 31.875,
-      "scene_end": 32.325,
-      "duration": 10.675000000000004,
-      "text": "Dans la zone de configuration principale, mettez à niveau pip si nécessaire et décidez si vous avez besoin du bureau, du développement ou des suppléments scientifiques optionnels."
+      "speech_start": 20.924999999999997,
+      "speech_end": 27.624999999999996,
+      "scene_end": 28.324999999999996,
+      "duration": 7.399999999999999,
+      "text": "Sur Windows, utilisez le lanceur Python pour créer l'environnement et l'activer depuis le répertoire Scripts.",
+      "speech_text": "Sur Windows, utilisez le lanceur Python pour créer l'environnement et l'activer depuis le répertoire Scripts.",
+      "phonemes": "syʁ wˈɪndQz, ytilizˈe lə lɑ̃sˈœʁ pitˈɔ̃ puʁ kʁeˈe lɑ̃viʁɔnmˈɑ̃ e laktivˈe dəpyˌi lə ʁepɛʁtwˈaʁ skʁˈipt."
     },
     {
       "scene": 4,
-      "speech_start": 32.325,
-      "speech_end": 40.6,
-      "scene_end": 41.050000000000004,
-      "duration": 8.725000000000001,
-      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+      "speech_start": 28.324999999999996,
+      "speech_end": 36.599999999999994,
+      "scene_end": 37.3,
+      "duration": 8.975000000000001,
+      "text": "Améliorer le pip dans l'environnement actif. La commande python -m pip maintient l'installation liée au Python que vous venez d'activer.",
+      "speech_text": "Améliorer le pip dans l'environnement actif. La commande python -m pip maintient l'installation liée au Python que vous venez d'activer.",
+      "phonemes": "ameljoʁˈe lə pˈip dɑ̃ lɑ̃viʁɔnmˈɑ̃ aktˈif. la kɔmˈɑ̃d pitˈɔ̃ ˈɛm pˈip mɛ̃tjˈɛ̃ lɛ̃stalasjˈɔ̃ ljˈe o pitˈɔ̃ kə vu vənˈe daktivˈe."
     },
     {
       "scene": 5,
-      "speech_start": 41.050000000000004,
-      "speech_end": 51.72500000000001,
-      "scene_end": 52.37500000000001,
-      "duration": 11.325000000000003,
-      "text": "Lorsque le flux de travail est terminé, la même installation peut lancer l'application de bureau ou exécuter des flux de travail scriptés sur un poste de travail ou un serveur."
+      "speech_start": 37.3,
+      "speech_end": 45.199999999999996,
+      "scene_end": 45.9,
+      "duration": 8.600000000000001,
+      "text": "Installez le pack spacr simple pour une utilisation sans tête, ou le spacr avec le qt extra pour l'interface de bureau.",
+      "speech_text": "Installez le pack spakeur simple pour une utilisation sans tête, ou le spakeur avec le qt extra pour l'interface de bureau.",
+      "phonemes": "ɛ̃stalˈe lə pˈak spakˈœʁ sˈɛ̃pl puʁ yn ytilizasjˈɔ̃ sɑ̃ tˈɛt, u lə spakˈœʁ avˌɛk lə kˌytˈe ɛkstʁˈa puʁ lɛ̃tɛʁfˈas də byʁˈo."
+    },
+    {
+      "scene": 6,
+      "speech_start": 45.9,
+      "speech_end": 54.275,
+      "scene_end": 54.975,
+      "duration": 9.075000000000003,
+      "text": "Vérifiez la version importée et exécutez spacr-doctor. Résoudre les contrôles ratés avant d'ouvrir les données expérimentales.",
+      "speech_text": "Vérifiez la version importée et exécutez spakeur-doctor. Résoudre les contrôles ratés avant d'ouvrir les données expérimentales.",
+      "phonemes": "veʁifjˈe la vɛʁsjˈɔ̃ ɛ̃pɔʁtˈe e ɛɡzekytˈe spakˈœʁdɔktˈɔʁ. ʁezˈudʁ le kɔ̃tʁˈoːl ʁatˈez avˌɑ̃ duvʁˈiʁ le dɔnˈez ɛkspeʁimɑ̃tˈal."
+    },
+    {
+      "scene": 7,
+      "speech_start": 54.975,
+      "speech_end": 66.0,
+      "scene_end": 66.7,
+      "duration": 11.725000000000001,
+      "text": "L'environnement est prêt. Gardez- le activé chaque fois que vous utilisez spaCR, et utilisez python -m pip install --upgrade spacr lorsque vous le mettez à jour intentionnellement.",
+      "speech_text": "L'environnement est prêt. Gardez- le activé chaque fois que vous utilisez spakeur, et utilisez python -m pip install --upgrade spakeur lorsque vous le mettez à jour intentionnellement.",
+      "phonemes": "lɑ̃viʁɔnmˈɑ̃ ɛ pʁˈɛ. ɡaʁdˈe lə aktivˈe ʃak fwˈa kə vuz ytilizˈe spakˈœʁ, e ytilizˈe pitˈɔ̃ ˈɛm pˈip ɪnstˈɔːl ˈʌpɡɹAd spakˈœʁ lˌɔʁskə vu lə mɛtˈez a ʒˈuʁ ɛ̃tɑ̃sjɔnɛlmˈɑ̃."
     }
   ]
 }
