@@ -1,9 +1,10 @@
 """A plate dropped on the queue that is silently not queued.
 
 Companion to ``tests/test_swallowed_failures.py`` for the one Qt swallow
-site that costs the user work rather than polish. ``xfail(strict=True)``:
-the product code is unchanged, so this fails today and starts passing the
-moment the site stops swallowing.
+site that cost the user work rather than polish. Written as
+``xfail(strict=True)`` against the unfixed handler; the handler now logs the
+snapshot it skipped and says "Queued N of M" on the console, so this is the
+regression guard for that.
 
 No QApplication is needed — ``PlateQueueDropHandler.apply`` takes a
 duck-typed screen.
@@ -38,12 +39,6 @@ def _snapshot(folder, name):
     return path
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/qt/dnd_handlers.py:1213 swallows the second load_settings attempt "
-    "and `continue`s, so a plate whose settings snapshot will not parse is "
-    "dropped from the queue and the drop still reports success as long as one "
-    "other snapshot parsed. Fix: log the skipped snapshot at warning and say "
-    "'queued N of M' in the console."))
 def test_plate_queue_drop_reports_a_snapshot_it_could_not_read(
         tmp_path, monkeypatch, caplog):
     """Queuing 1 of 2 dropped plates in silence is work the user loses."""
