@@ -17,7 +17,7 @@ from html import escape
 from typing import Optional
 
 from PySide6.QtCore import QEvent, Qt, QTimer, QThread, Signal
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
+from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -626,6 +626,11 @@ class AppScreen(QWidget):
                 # its frames, and reached the eye only through the few
                 # pixels of layout spacing between widgets.
                 self._clear_page_surfaces()
+                # The page colour follows whether a backdrop got installed, so
+                # it is resolved wherever that is decided -- and it has to reach
+                # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
+                # still uses `bg` and flashes black. See _sync_page_palette.
+                self._sync_page_palette()
                 self._dna_rain = install_dna_rain(
                     self, outer, backdrop=_theme_wallpaper())
             except Exception:
@@ -675,6 +680,11 @@ class AppScreen(QWidget):
         # two install paths stay where they are for their own ordering
         # reasons and this one costs a second pass over the tree.
         self._clear_page_surfaces()
+        # The page colour follows whether a backdrop got installed, so
+        # it is resolved wherever that is decided -- and it has to reach
+        # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
+        # still uses `bg` and flashes black. See _sync_page_palette.
+        self._sync_page_palette()
 
     # ------------------------------------------------------------------
     # Ambient backdrop
@@ -728,6 +738,11 @@ class AppScreen(QWidget):
                                      palette=wanted[1],
                                      backdrop=_theme_wallpaper())
             self._clear_page_surfaces()
+            # The page colour follows whether a backdrop got installed, so
+            # it is resolved wherever that is decided -- and it has to reach
+            # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
+            # still uses `bg` and flashes black. See _sync_page_palette.
+            self._sync_page_palette()
             self._ambient = widget
         except Exception:
             self._ambient = None
@@ -772,6 +787,7 @@ class AppScreen(QWidget):
         # taking the animation away is exactly the moment this screen
         # becomes responsible for its own page. Without the repaint the
         # Preferences toggle leaves the hole it used to leave for good.
+        self._sync_page_palette()
         self.update()
 
     def refresh_ambient_background(self) -> None:
@@ -861,7 +877,9 @@ class AppScreen(QWidget):
         self._retheme_backdrops()
         # The page colour is resolved at paint time from the live theme,
         # so a theme switch has to ask for a repaint — nothing else on
-        # this screen invalidates it.
+        # this screen invalidates it. The palette moves with it, or Qt
+        # keeps erasing to the OLD theme's page between the two.
+        self._sync_page_palette()
         self.update()
 
     def _retheme_backdrops(self) -> None:
@@ -957,6 +975,78 @@ class AppScreen(QWidget):
             return QColor(page_colour(theme))
         except Exception:
             return None
+
+    def _sync_page_palette(self) -> None:
+        """Put the page colour in ``QPalette.Window``, not only in the paint.
+
+        ``paintEvent`` alone is not enough, and the difference is visible.
+        Qt erases a damaged region to the widget's background *before*
+        calling ``paintEvent``, and this widget's background role is
+        ``bg`` — ``#000000`` on the dark theme. In a settled frame the fill
+        lands on top and nothing shows. Between the erase and the paint —
+        during the repaint storms that come with a resize, an expose, a
+        theme switch, or the Preferences ambient toggle — the erase is what
+        is on screen: a black box that appears and disappears on its own.
+
+        That is also why rendering the screen offscreen could not
+        reproduce it. ``QWidget.render`` forces one full synchronous paint,
+        so the erase never gets a chance to be seen, and the measurement
+        came back clean for a screen the user was watching flash.
+
+        Setting the role makes Qt's own erase the page colour, so there is
+        no ordering in which black can appear. The ``paintEvent`` fill
+        stays: it is what covers the stylesheet's ``bg`` slab, which the
+        palette does not reach.
+        """
+        # Re-entrancy guard, and it is not theoretical: `setPalette` posts a
+        # `PaletteChange`, `changeEvent` handles `PaletteChange` by calling
+        # this method, and the second call sets the palette again. That
+        # recursed until the stack ran out -- a core dump on startup, not a
+        # flicker. The flag makes the nested call a no-op; the outer one
+        # finishes the work.
+        if getattr(self, "_syncing_page", False):
+            return
+        colour = self.page_fill()
+        # Idempotent, so the re-polish a stylesheet change triggers cannot
+        # turn into a repaint loop of its own on a screen that is already
+        # showing the right colour.
+        applied = getattr(self, "_page_applied", "unset")
+        wanted = None if colour is None else colour.name()
+        if applied == wanted:
+            return
+
+        self._syncing_page = True
+        try:
+            if colour is None:
+                # Back to whatever the stylesheet and the app palette say.
+                self.setAutoFillBackground(False)
+                self.setPalette(QPalette())
+                self.setStyleSheet("")
+            else:
+                palette = QPalette(self.palette())
+                palette.setColor(QPalette.Window, colour)
+                self.setPalette(palette)
+                self.setAutoFillBackground(True)
+                # And in the screen's OWN stylesheet, which is what makes
+                # this stick. `autoFillBackground` is not ours to hold: the
+                # surface sweep and the theme passes both walk this tree
+                # setting it, screens are built and re-themed in an order
+                # that is not fixed, and more than one AppScreen is alive
+                # during startup. Whoever runs last wins, and when the loser
+                # was this method the erase went back to `bg` -- black at
+                # launch, cured by any Preferences change that re-ran the
+                # sync, black again on the next launch. Exactly the report.
+                #
+                # A type selector, so it applies to this screen and not to
+                # the children it would otherwise cascade to: the cards and
+                # panels carry their own surface colour at the page opacity,
+                # and painting the page colour onto them would flatten the
+                # layering the scheme is built on.
+                self.setStyleSheet(
+                    f"AppScreen {{ background-color: {colour.name()}; }}")
+            self._page_applied = wanted
+        finally:
+            self._syncing_page = False
 
     def paintEvent(self, event) -> None:
         """Paint the page under everything this screen lays out.
@@ -1130,20 +1220,19 @@ class AppScreen(QWidget):
                         self._html_tip_map[lbl_widget] = html
                         lbl_widget.installEventFilter(self)
                         break
-                info = None
-                if field_key is not None:
-                    from .settings_model import build_setting_link_widget
-                    info, api_dot, animation_dot = build_setting_link_widget(
-                        self.app_key,
-                        field_key,
-                        html,
-                        str(body_source),
-                        parent=section,
-                    )
-                    lbl_widget._spacr_api_dot = api_dot
-                    if animation_dot is not None:
-                        lbl_widget._spacr_animation_dot = animation_dot
-                section.add_row(lbl_widget, widget, info_widget=info)
+                # No API link dot on the settings form. It sat between the
+                # label and the field and carried a tooltip of its own, so
+                # the help popped when the pointer was over the row's
+                # right-hand side -- which reads as "the field has a
+                # tooltip", because from the user's side of the screen that
+                # is exactly what it looks like. 191 of them on the Mask
+                # form alone.
+                #
+                # Nothing is lost but the mark: the API link is still in the
+                # label's tooltip HTML (the `href=` several tests assert on),
+                # so the reference is one hover and one click away, and the
+                # help itself is unchanged and still on the label.
+                section.add_row(lbl_widget, widget, info_widget=None)
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
 
