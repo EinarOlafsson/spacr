@@ -122,10 +122,47 @@ report(seconds=time.perf_counter() - start)
 
 
 def run_payload(code: str) -> dict:
-    """Run ``code`` in a fresh interpreter and return the JSON it reported."""
+    """Run ``code`` in a fresh interpreter and return the JSON it reported.
+
+    The GPU is hidden from the subprocess, and that is what makes the numbers
+    in this file mean the same thing everywhere. Every ceiling here was
+    measured on a CPU-only runner, where ``import spacr.utils`` holds 833 MB.
+    On a workstation with a CUDA device the same import can initialise a CUDA
+    context — the driver, cuBLAS and cuDNN, not spaCR — and the identical
+    import measures **3721 MB**, four and a half times the ceiling.
+
+    It did not even fail consistently, which is how it read as flakiness for
+    an evening: run this file alone and the import took the CPU path at
+    839 MB; run it after ``tests/test_models_regression_umap.py`` in the slow
+    suite and it took the CUDA path at 3721 MB, deterministically, in both
+    directions, every time.
+
+    ``CUDA_VISIBLE_DEVICES=""`` pins it to the path the docstrings describe:
+    what a pipeline start costs and what the GUI would have to hold. Measured
+    with it set, on the GPU box, the answer is 839 MB — the CI number, to
+    within noise. Nothing here asserts anything about CUDA.
+
+    The OpenMP and TensorFlow variables go too, and they are the other half of
+    the same story. With CUDA hidden the import still measured 1877 MB after
+    that same neighbour, because something it imports pulls TENSORFLOW into
+    the pytest process, and TensorFlow sets ``KMP_DUPLICATE_LIB_OK=True``,
+    ``KMP_INIT_AT_FORK=FALSE``, ``TF2_BEHAVIOR`` and ``TPU_ML_PLATFORM`` in
+    ``os.environ`` at import. ``run_payload`` copied the environment, so those
+    reached the measured subprocess and more than doubled its resident set
+    through OpenMP alone. A guard whose number depends on which test ran
+    before it is not a guard, so the variables that change the answer are
+    named and dropped here. (spaCR itself never imports TensorFlow —
+    ``tests/test_no_tensorflow_guard.py`` — and CI does not install it, which
+    is why this only ever bit a workstation.)
+    """
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(
         [str(REPO_ROOT), env.get("PYTHONPATH", "")]).rstrip(os.pathsep)
+    env["CUDA_VISIBLE_DEVICES"] = ""
+    for name in list(env):
+        if name.startswith(("KMP_", "OMP_", "TPU_ML_PLATFORM")) or name in (
+                "TF2_BEHAVIOR", "ENABLE_RUNTIME_UPTIME_TELEMETRY"):
+            del env[name]
     out = subprocess.run([sys.executable, "-c", code], capture_output=True,
                          text=True, cwd=str(REPO_ROOT), env=env, timeout=900)
     assert out.returncode == 0, (
