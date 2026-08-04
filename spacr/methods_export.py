@@ -809,7 +809,7 @@ def caveats_for(digest: Mapping[str, Any]) -> List[str]:
         caveats.append(f"The random seed was {seed}.")
 
     policy = str(run.get("on_error") or "")
-    skipped = int(run.get("n_skipped") or 0)
+    skipped = int(_finite(run.get("n_skipped")) or 0)
     if policy == "skip":
         caveats.append(
             f"The error policy was on_error=skip, so failing units were "
@@ -848,10 +848,11 @@ def caveats_for(digest: Mapping[str, Any]) -> List[str]:
             "describes.")
 
     held = classifier.get("held_out") or {}
-    if held.get("accuracy") is not None:
+    accuracy = _finite(held.get("accuracy"))
+    if accuracy is not None:
         caveats.append(
             f"The classifier's held-out accuracy was "
-            f"{held['accuracy']:.4g} on {held.get('n')} objects "
+            f"{accuracy:.4g} on {held.get('n')} objects "
             f"(macro F1 {held.get('f1_macro')}).")
     if classifier.get("split_rule"):
         caveats.append(
@@ -859,8 +860,8 @@ def caveats_for(digest: Mapping[str, Any]) -> List[str]:
     for warning in classifier.get("warnings") or ():
         caveats.append(f"The model card warns: {warning}")
 
-    stale = int(provenance.get("n_stale") or 0)
-    missing = int(provenance.get("n_missing") or 0)
+    stale = int(_finite(provenance.get("n_stale")) or 0)
+    missing = int(_finite(provenance.get("n_missing")) or 0)
     if stale:
         caveats.append(
             f"{stale} registered artifact(s) are stale — an input was "
