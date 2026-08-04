@@ -246,15 +246,25 @@ class TestWidgetConstruction:
             assert "Open spaCR API documentation" in scr._html_tip_map[lbl]
             assert "https://" in hint
 
+        # And no API link dot beside the field. There was one per setting
+        # -- 191 on this form -- each carrying a tooltip of its own, sitting
+        # between the label and the field. Hovering the right-hand side of a
+        # row popped help, which from the user's side of the screen is
+        # indistinguishable from "the field has a tooltip", and was reported
+        # as exactly that.
+        #
+        # The API link is not lost: it is in the label's tooltip HTML, which
+        # the `<a href=` and `/api/` assertions above and below cover.
         from spacr.qt.widgets.info_link import InfoLink
         setting_links = [
             link for link in scr.findChildren(InfoLink)
             if link.objectName() == "SettingInfoLink"
         ]
-        assert len(setting_links) == len(scr._settings_model._widgets)
-        for link in setting_links:
-            assert link.toolTip()
-            assert "/api/" in link.url()
+        assert not setting_links, (
+            f"{len(setting_links)} API link dots are still on the settings "
+            f"form; the help belongs to the label alone")
+        for html in scr._html_tip_map.values():
+            assert "/api/" in html
 
     def test_a_row_widget_the_model_does_not_own_keeps_its_own_tooltip(
             self, qtbot, monkeypatch):
