@@ -2605,7 +2605,15 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _sys.version_info.micro, current_log_file())
 
     win = MainWindow(initial_app=initial_app)
-    win.show()
+    # Maximised, not full-screen: the title bar, the window controls and the
+    # OS panel stay where the user expects them, and un-maximising still
+    # returns the 1200x720 minimum this window declares.
+    #
+    # `showMaximized` rather than `show()` plus a resize to the screen
+    # geometry: the latter fakes it, gets the available area wrong next to a
+    # taskbar or a second monitor, and leaves the window in the normal state
+    # so the maximise button appears to do nothing on the first click.
+    win.showMaximized()
 
     # Pre-warm the heavy imports that a module screen needs (spacr.gui_utils
     # pulls torch + cv2 ≈ 3-4 s; spacr.settings ≈ 1 s) in a BACKGROUND thread
