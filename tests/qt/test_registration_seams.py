@@ -40,6 +40,25 @@ from spacr.qt import theme as theme_mod
 # Fixtures — a registration must never outlive the test that made it
 # ---------------------------------------------------------------------------
 
+#: A section that exists only while a `registry_sandbox` test is running.
+#:
+#: Two of the tests below have to make a section APPEAR FROM NOTHING --
+#: that is the property, not a detail of how they are written -- and for
+#: that they need a declared section no app has claimed. They used Design,
+#: which was the only one left, and Power / Design has now claimed it.
+#:
+#: Borrowing the last unclaimed real section was always the bug: it made
+#: the proof's subject something another workstream could switch on, and
+#: it did. This one cannot be claimed, because it is not in the shipped
+#: `SECTION_ORDER` at all -- the fixture puts it there for the length of
+#: one test and takes it out again. The property it pins is the
+#: `SECTIONS`-rebinding bug fixed in `ea43a35c`, which is worth keeping a
+#: subject for.
+SANDBOX_SECTION = "Sandbox"
+SANDBOX_NOTE = ("Declared by the test fixture, claimed by nothing until a "
+                "test claims it.")
+
+
 @pytest.fixture
 def registry_sandbox():
     """Restore the whole app registry after the test.
@@ -47,16 +66,33 @@ def registry_sandbox():
     A leaked row is a leaked tile, a leaked sidebar button and a leaked
     Ctrl+N binding for every test that runs afterwards, so this restores
     the list object in place rather than trusting `unregister_app`.
+
+    It also DECLARES :data:`SANDBOX_SECTION` for the length of the test,
+    with a note, so a test that needs an unclaimed section has one that no
+    shipped app can take away. `SECTION_ORDER` is rebound rather than
+    mutated because it is a tuple; every function that reads it
+    (`register_app`, `_insert_position`, `_refresh_sections`) reads it as a
+    module global at call time, so the rebinding is visible where it has to
+    be. `_SECTION_NOTE_LIBRARY` is a dict and is mutated in place, because
+    `_refresh_sections` indexes it and a rebinding would strand the copy
+    app.py holds.
     """
     apps = list(app_mod.APPS)
     factories = dict(app_mod.APP_FACTORIES)
     stages = dict(app_mod.APP_STAGE)
+    order = app_mod.SECTION_ORDER
+    notes = dict(app_mod._SECTION_NOTE_LIBRARY)
+    app_mod.SECTION_ORDER = tuple(order) + (SANDBOX_SECTION,)
+    app_mod._SECTION_NOTE_LIBRARY[SANDBOX_SECTION] = SANDBOX_NOTE
     yield
     app_mod.APPS[:] = apps
     app_mod.APP_FACTORIES.clear()
     app_mod.APP_FACTORIES.update(factories)
     app_mod.APP_STAGE.clear()
     app_mod.APP_STAGE.update(stages)
+    app_mod.SECTION_ORDER = order
+    app_mod._SECTION_NOTE_LIBRARY.clear()
+    app_mod._SECTION_NOTE_LIBRARY.update(notes)
     app_mod._refresh_sections()
 
 
@@ -98,24 +134,35 @@ def test_the_built_in_table_is_registered_through_the_same_door():
 
 
 def test_sections_are_the_ones_that_have_apps_not_the_ones_declared():
-    """`SECTION_ORDER` declares seven; `SECTIONS` publishes the live six.
+    """`SECTIONS` is DERIVED from `APPS`, never declared beside it.
 
     An empty section is a tab that opens on an empty pane, which
     ``test_no_category_tab_is_empty`` forbids -- so a new section is
     named today and appears the day its first app registers. That is
     what lets a module claim one without editing app.py.
 
-    Explore is the proof rather than the hypothetical it used to be: it
-    was declared and empty here until Layer Viewer and Graph Builder
-    registered into it from their own modules, and it now has a tab.
-    Design is still declared and still empty, which is the state this
-    test was written to describe.
+    Both of the sections that were declared and empty when this was
+    written have since been claimed from their own modules, which is the
+    mechanism working rather than the property lapsing: Explore by Layer
+    Viewer and Graph Builder, Design by Power / Design. All seven are
+    live, so the "appears from nothing" half of the property no longer
+    has a shipped subject and is pinned instead by
+    ``test_an_importer_of_sections_cannot_hold_a_stale_snapshot`` and
+    ``test_claiming_an_empty_section_makes_it_appear_with_its_note`` on
+    :data:`SANDBOX_SECTION`, which the fixture declares and no app can
+    ever claim. What is asserted here is the steady state: the published
+    list is exactly the sections `APPS` uses, in declared order.
     """
     assert app_mod.SECTION_EXPLORE in app_mod.SECTION_ORDER
     assert app_mod.SECTION_DESIGN in app_mod.SECTION_ORDER
     assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
-    assert app_mod.SECTION_DESIGN not in app_mod.SECTIONS
+    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
     assert set(app_mod.SECTIONS) == {row[3] for row in app_mod.APPS}
+    # Derived, not a copy of the declaration that happens to match: the
+    # order is SECTION_ORDER's and the membership is APPS'.
+    assert list(app_mod.SECTIONS) == [
+        section for section in app_mod.SECTION_ORDER
+        if any(row[3] == section for row in app_mod.APPS)]
     # Every declared section has its note written now, so the first app
     # to claim one gets a described tab rather than a bare heading.
     assert set(app_mod._SECTION_NOTE_LIBRARY) == set(app_mod.SECTION_ORDER)
@@ -139,23 +186,29 @@ def test_an_importer_of_sections_cannot_hold_a_stale_snapshot(
     that `_refresh_sections` rebound, every module that had already read
     the name kept a snapshot from before that registration and never saw
     the new section appear. Graph Builder hit exactly this.
+
+    The subject is :data:`SANDBOX_SECTION`, declared by the fixture for
+    the length of this test. It used to be Design, on the grounds that
+    Design was the one section nothing had claimed -- which made this
+    proof's subject something any workstream could take away by shipping
+    an app, and Power / Design duly did. A section the fixture invents
+    cannot be claimed out from under it.
     """
     from spacr.qt.app import SECTIONS as imported_earlier
 
     assert imported_earlier is app_mod.SECTIONS
-    # Design is the section nothing has claimed yet, so it is the one
-    # that can still be made to appear from nothing inside a test.
-    assert app_mod.SECTION_DESIGN not in imported_earlier
+    assert SANDBOX_SECTION in app_mod.SECTION_ORDER
+    assert SANDBOX_SECTION not in imported_earlier
 
     app_mod.register_app("stale_probe", "Stale Probe", "…",
-                         app_mod.SECTION_DESIGN)
+                         SANDBOX_SECTION)
 
     # The name that was imported BEFORE the registration sees it.
-    assert app_mod.SECTION_DESIGN in imported_earlier
+    assert SANDBOX_SECTION in imported_earlier
     assert list(imported_earlier) == list(app_mod.SECTIONS)
 
     app_mod.unregister_app("stale_probe")
-    assert app_mod.SECTION_DESIGN not in imported_earlier
+    assert SANDBOX_SECTION not in imported_earlier
 
 
 def test_a_registered_app_reaches_every_reader_of_the_registry(
@@ -218,11 +271,18 @@ def test_claiming_an_empty_section_makes_it_appear_with_its_note(
     This is the whole point of the two extra sections: seven new modules
     would take Results & QC past `MAX_APPS_PER_SECTION`, and the fix is
     a section with a name that means something -- registered into, not
-    edited in. Explore has since been claimed for real, by Layer Viewer
-    and Graph Builder, so Design is the empty one this now demonstrates
-    on; the mechanism is the same one Explore went through.
+    edited in. Explore was claimed that way by Layer Viewer and Graph
+    Builder, and Design by Power / Design, which is the mechanism working
+    twice over.
+
+    It leaves this test without a shipped empty section to demonstrate on,
+    so it demonstrates on :data:`SANDBOX_SECTION` -- declared by the
+    fixture, noted by the fixture, claimed by nothing. Written against a
+    section the fixture owns, the test says what it always meant to say
+    ("a section appears when its first app registers") instead of
+    depending on which real section happened not to have shipped yet.
     """
-    empty = app_mod.SECTION_DESIGN
+    empty = SANDBOX_SECTION
     assert empty not in app_mod.SECTIONS
 
     app_mod.register_app("power_probe", "Power Calculator",
@@ -325,10 +385,15 @@ def test_unregister_puts_everything_back(registry_sandbox):
     before_sections = list(app_mod.SECTIONS)
     before_notes = dict(app_mod.SECTION_NOTES)
 
+    # Into SANDBOX_SECTION, so unregistering has to take a whole section
+    # and its note back out again -- the harder half of "everything back",
+    # and the half that reads as a no-op if the probe joins a section that
+    # already had apps in it.
     app_mod.register_app("design_probe", "Design Probe", "…",
-                         app_mod.SECTION_DESIGN,
+                         SANDBOX_SECTION,
                          factory=QWidget, stage=app_mod.STAGE_BETA)
-    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
+    assert SANDBOX_SECTION in app_mod.SECTIONS
+    assert SANDBOX_SECTION in app_mod.SECTION_NOTES
 
     assert app_mod.unregister_app("design_probe") is True
     assert app_mod.unregister_app("design_probe") is False
@@ -623,16 +688,24 @@ def test_a_registered_block_actually_paints_the_widget(qtbot, qapp,
 # now takes those strings once and fans them out. These are the tests
 # that say so — against the shipped tables, not against APP_META.
 
-#: The four features item 0.7 was written to make reachable, with what
-#: each one is: `entry` for the ones with a headless pipeline function,
-#: `factory` for the ones that are their own screen. Every app must be
-#: one or the other -- an app with neither has a Run button that says
-#: "Not runnable" and no screen of its own to explain why.
+#: The features item 0.7 was written to make reachable, with what each one
+#: is: `entry` for the ones with a headless pipeline function, `factory`
+#: for the ones that are their own screen. Every app must be one or the
+#: other -- an app with neither has a Run button that says "Not runnable"
+#: and no screen of its own to explain why.
 WIRED_IN = {
     "illumination": "entry",
     "barcode_qc": "entry",
     "layer_viewer": "factory",
     "graph_builder": "factory",
+    # The three that landed just after the seam did and were unreachable
+    # for exactly the same reason. AnnData Export is the first app here
+    # with an `entry` and NO screen of its own on purpose: its settings
+    # are already typed and tooltipped, so the generic AppScreen draws the
+    # export form and the Run button runs the export.
+    "power": "factory",
+    "run_compare": "factory",
+    "anndata_export": "entry",
 }
 
 

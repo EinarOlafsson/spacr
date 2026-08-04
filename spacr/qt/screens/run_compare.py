@@ -60,6 +60,38 @@ __all__ = ["RunCompareScreen", "APP_KEY", "register"]
 #: state, the command palette and ``spacr-qt run_compare`` all key off it.
 APP_KEY = "run_compare"
 
+#: The paragraph under this app's header, handed to the seam as ``intro``.
+APP_INTRO = (
+    "Two runs of the same project, side by side. What you changed (the "
+    "settings diff, grouped the way the settings panel groups them, showing "
+    "only what moved), what came out (objects, wells and fields per plate) "
+    "and which hits moved — appeared, vanished, or just changed rank. Runs "
+    "that are not comparable are not diffed: the banner says why, and you "
+    "can override it.")
+
+#: Why there is no ``spacr-run run_compare``; reaches
+#: ``spacr.cli.INTERACTIVE_ONLY``, which prints it instead of "unknown
+#: module".
+APP_CLI_NOTE = (
+    "Run Compare is an interactive side-by-side of two runs; headless, call "
+    "spacr.run_compare.runs_in(project) to list them and "
+    "spacr.run_compare.compare_runs(a, b) for the same three tables.")
+
+#: "Run Compare" in the nine non-English UI languages, in
+#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
+#: pt, hi, ko, is, fr. "Run" is a pipeline run, not the verb.
+APP_TRANSLATIONS = (
+    "Jämför körningar",
+    "Läufe vergleichen",
+    "Comparar ejecuciones",
+    "运行对比",
+    "Comparar execuções",
+    "रन तुलना",
+    "실행 비교",
+    "Bera saman keyrslur",
+    "Comparer les exécutions",
+)
+
 #: Column layouts, so the tests and the drawing code cannot disagree.
 _SETTINGS_COLUMNS = ("Setting", "A", "B", "Change")
 _COUNT_COLUMNS = ("Count", "A", "B", "Δ", "%")
@@ -539,6 +571,21 @@ def register() -> bool:
     reloaded module, a test that cleared the registry) is a no-op instead
     of taking the import down.
 
+    It is also named in ``spacr.qt.app._SELF_REGISTERING_APPS`` and in
+    :data:`spacr.qt.SELF_REGISTERING_MODULES`, which is belt and braces
+    rather than a mistake: the first is what makes the row exist under a
+    bare ``import spacr.qt.app`` — an inventory that depended on whether
+    something else had imported this module is an inventory that fails on
+    whichever file pytest collected first — and the second is the launch
+    path, which must still work if the first ever fails. All three calls
+    land on this function and it registers once.
+
+    **GUI-only.** ``cli_note`` and no ``entry``: the answer this screen
+    gives is three tables you read against each other, and
+    :mod:`spacr.run_compare` is already the headless half — the note names
+    the two functions rather than wrapping them in a settings file that
+    would have to invent a spelling for "these two runs".
+
     :returns: True when this call is what registered it.
     """
     from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
@@ -550,6 +597,11 @@ def register() -> bool:
         SECTION_RESULTS,
         factory=lambda: RunCompareScreen(),
         stage=STAGE_ALPHA,
+        title="Run Compare",
+        intro=APP_INTRO,
+        cli_note=APP_CLI_NOTE,
+        api_module="qt/screens/run_compare",
+        translations=APP_TRANSLATIONS,
     )
     return True
 

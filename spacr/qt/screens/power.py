@@ -1292,6 +1292,23 @@ APP_INTRO = (
 APP_CLI_NOTE = ("Interactive design exploration; "
                 "spacr.power_model.scan_parameters() is the headless "
                 "equivalent and takes the same parameters.")
+#: :data:`APP_NAME` in the nine non-English UI languages, in
+#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
+#: pt, hi, ko, is, fr. Handed to ``register_app(translations=…)``, which is
+#: what puts them in every catalog; a missing one is a blank sidebar row in
+#: that language rather than an English one. "Power" is the statistical
+#: term throughout, not electrical power.
+APP_TRANSLATIONS = (
+    "Styrka / design",
+    "Teststärke / Design",
+    "Potencia / diseño",
+    "检验效能 / 设计",
+    "Poder / delineamento",
+    "सांख्यिकीय शक्ति / डिज़ाइन",
+    "검정력 / 설계",
+    "Tölfræðilegt afl / hönnun",
+    "Puissance / plan",
+)
 
 
 #: The settings this app has, as ``{key: (default, type, tooltip)}``.
@@ -1459,30 +1476,21 @@ def register() -> bool:
     :returns: ``True`` if this call is what registered it. Safe to call
         twice — a module imported from two paths must not raise.
 
-    **Not called at import**, and this is deliberate. Turning the screen on is
-    one row in ``app.py``'s ``_SELF_REGISTERING_APPS`` table::
+    Called from ``app.py``'s ``_SELF_REGISTERING_APPS`` table, at the bottom
+    of that module, which is the one point where a registration is visible to
+    everybody and happens on ``import spacr.qt.app`` rather than only at
+    launch. This module does not call it at its own import, so merely reading
+    the screen's code does not add a row.
 
-        ("spacr.qt.screens.power", "register"),
-
-    which is not added here because ``spacr/qt/app.py`` belongs to another
-    change in flight, and because a new ``APPS`` row currently reddens ~25
-    per-app inventory tests for reasons this screen cannot fix. What the row
-    additionally needs before it is switched on, none of which is this
-    module's to write:
-
-    * ``SECTION_DESIGN`` becomes non-empty, so
-      ``test_registration_seams.test_sections_are_the_ones_that_have_apps_not_the_ones_declared``
-      must drop its ``SECTION_DESIGN not in SECTIONS`` assertion — that test
-      says in its own docstring that it "was written to describe" the empty
-      state.
-    * the per-app inventory tests want a tutorial page, a settings panel and
-      a Home tile for every key; this app has no pipeline settings at all
-      (its form IS its settings), so it wants either a
-      :func:`spacr.settings.register_defaults` factory or an exemption.
-    * ``translations`` for the nine non-English UI languages.
-
-    The registration itself is exercised by the test suite in a sandbox that
-    registers and then restores ``APPS``, so the seam is known to work.
+    **GUI-only, deliberately.** It passes ``cli_note`` and no ``entry``, so
+    ``spacr-run power`` answers with :data:`APP_CLI_NOTE` instead of "unknown
+    module". The reason is not that the sweep cannot run headless — it can,
+    and the note names the call — but that its *inputs* are not a settings
+    file. Every other ``spacr-run`` module takes a ``src`` and processes it;
+    this one takes a design, and its output is a curve you read by comparing
+    points on it. A settings.csv that pinned one point of that curve would be
+    a worse interface to :func:`spacr.power_model.scan_parameters` than
+    calling it, which is exactly what the note tells the user to do.
     """
     from ..app import APPS, SECTION_DESIGN, STAGE_ALPHA, register_app
     if any(row[0] == APP_KEY for row in APPS):
@@ -1495,5 +1503,6 @@ def register() -> bool:
         factory=make_power_screen, stage=STAGE_ALPHA,
         title="Power / Design", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
         api_module="qt/screens/power",
-        defaults_module="spacr.qt.screens.power")
+        defaults_module="spacr.qt.screens.power",
+        translations=APP_TRANSLATIONS)
     return True

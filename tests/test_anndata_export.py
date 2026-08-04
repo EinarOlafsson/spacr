@@ -1070,8 +1070,128 @@ def test_registering_the_settings_twice_is_a_no_op():
     assert ax.register_anndata_settings() is False
 
 
+# ---------------------------------------------------------------------------
+# the headless entry point: fn(settings), which is what everything dispatches
+# ---------------------------------------------------------------------------
+
+def test_a_project_root_resolves_to_the_database_every_writer_leaves(tmp_path):
+    """`src` is a project root everywhere else in spaCR, so it is here too."""
+    root = tmp_path / "plate1"
+    assert ax.resolve_db_path(str(root)) == str(
+        root / "measurements" / "measurements.db")
+
+
+@pytest.mark.parametrize("name", ["measurements.db", "other.sqlite",
+                                  "x.SQLITE3"])
+def test_a_path_that_is_already_a_database_is_taken_as_one(tmp_path, name):
+    """Passing the .db directly is the notebook spelling; do not append."""
+    db = tmp_path / name
+    assert ax.resolve_db_path(str(db)) == str(db)
+
+
+def test_the_default_output_is_named_after_the_project(tmp_path):
+    """A folder of `export.h5ad` files is a folder nobody can tell apart."""
+    root = tmp_path / "screen_A"
+    out = ax.default_out_path(str(root))
+    assert out == str(root / "results" / "screen_A.h5ad")
+    # A one-table export is a DIFFERENT file, at a different granularity,
+    # so it must not overwrite the joined one.
+    assert ax.default_out_path(str(root), "nucleus") == str(
+        root / "results" / "screen_A_nucleus.h5ad")
+
+
+def test_run_anndata_export_writes_the_file_the_settings_describe(
+        fresh_project):
+    """The `fn(settings)` shape spacr-run and the Run button both call."""
+    root, _db = fresh_project
+    result = ax.run_anndata_export({"src": root, "anndata_compression": ""})
+
+    assert result.path == os.path.join(root, "results",
+                                       os.path.basename(root) + ".h5ad")
+    assert os.path.isfile(result.path)
+    assert result.n_obs > 0 and result.n_vars > 0
+
+    anndata = ax.require_anndata()
+    written = anndata.read_h5ad(result.path)
+    assert written.shape == (result.n_obs, result.n_vars)
+
+
+def test_run_anndata_export_honours_the_keys_the_panel_shows(fresh_project,
+                                                             tmp_path):
+    """Every setting the form draws has to reach the export, or the form is
+    a set of switches that do nothing -- which is the bug the whole
+    registration seam exists to stop."""
+    root, _db = fresh_project
+    out = tmp_path / "chosen.h5ad"
+    result = ax.run_anndata_export({
+        "src": root,
+        "anndata_out": str(out),
+        "anndata_single_table": "nucleus",
+        "anndata_row_limit": 3,
+        "anndata_dtype": "float64",
+        "anndata_nan_policy": ax.NAN_ZERO,
+        "anndata_register_artifact": False,
+        "anndata_compression": "",
+    })
+
+    assert result.path == str(out) and os.path.isfile(out)
+    assert result.n_obs == 3, "the row limit was ignored"
+    assert result.nan_policy == ax.NAN_ZERO
+    assert result.artifact_id == "", "registration was asked to be off"
+
+    anndata = ax.require_anndata()
+    written = anndata.read_h5ad(out)
+    assert written.X.dtype == np.float64
+    # single_table means one row per nucleus, not the join averaged onto
+    # its parent cell -- the whole reason the setting exists.
+    assert written.uns["spacr"]["anchor_object"] == "nucleus"
+
+
+def test_a_comma_separated_table_list_survives_a_settings_csv_round_trip(
+        fresh_project, tmp_path):
+    """`--set anndata_tables=cell,nucleus` must not export a table called
+    "cell,nucleus"; a settings.csv spells a list as one cell."""
+    root, _db = fresh_project
+    out = tmp_path / "two.h5ad"
+    result = ax.run_anndata_export({
+        "src": root, "anndata_out": str(out),
+        "anndata_tables": "cell, nucleus",
+        "anndata_compression": "",
+    })
+    assert result.n_obs > 0
+    assert os.path.isfile(out)
+
+
+def test_run_anndata_export_without_src_says_so_rather_than_guessing():
+    with pytest.raises(ValueError) as excinfo:
+        ax.run_anndata_export({})
+    assert "src" in str(excinfo.value)
+
+
+def test_the_registries_all_name_run_anndata_export():
+    """cli, validate and the Qt bridge must dispatch to the same callable."""
+    from spacr import cli
+    from spacr.validate import APP_FUNCTIONS
+
+    assert cli.MODULES[ax.APP_KEY].func_name == "run_anndata_export"
+    assert cli.MODULES[ax.APP_KEY].module_name == "spacr.anndata_export"
+    assert APP_FUNCTIONS[ax.APP_KEY].endswith("run_anndata_export")
+    assert ax.APP_KEY not in cli.INTERACTIVE_ONLY, (
+        "an app with a settings form and a real headless entry point must "
+        "not also claim it cannot run headless")
+    assert cli.resolve_module("h5ad").key == ax.APP_KEY
+
+
 def test_the_qt_app_row_registers_when_there_is_a_gui_to_register_with():
-    """No Qt app module in this process means no row, and no import of one."""
+    """No Qt app module in this process means no row, and no import of one.
+
+    The teardown re-registers rather than leaving the registry short. It
+    used to end on ``unregister_app`` on the grounds that this test was
+    what had put the row there; ``spacr.qt.app`` now names
+    ``register_anndata_app`` in ``_SELF_REGISTERING_APPS``, so the row is
+    part of the shipped registry and deleting it here would fail the
+    whole-registry inventories in a different file entirely.
+    """
     if "spacr.qt.app" not in sys.modules:
         assert ax.register_anndata_app() is False
         assert "spacr.qt.app" not in sys.modules, (
@@ -1082,7 +1202,15 @@ def test_the_qt_app_row_registers_when_there_is_a_gui_to_register_with():
     ax.register_anndata_app(replace=True)
     assert any(row[0] == ax.APP_KEY for row in app.APPS)
     assert app.APP_STAGE[ax.APP_KEY] == app.STAGE_ALPHA
-    app.unregister_app(ax.APP_KEY)
+    # `replace=True` re-registered it in place, and row order is what the
+    # sidebar walks: a row filed at the end rather than beside its own
+    # section draws that section's heading a second time. So check the
+    # blocks are still contiguous, not just that the row came back.
+    row = next(r for r in app.APPS if r[0] == ax.APP_KEY)
+    assert row[3] == app.SECTION_EXPLORE
+    blocks = [s for i, s in enumerate(r[3] for r in app.APPS)]
+    runs = [s for i, s in enumerate(blocks) if i == 0 or blocks[i - 1] != s]
+    assert len(runs) == len(set(runs)), f"a section is split in two: {runs}"
 
 
 # ---------------------------------------------------------------------------

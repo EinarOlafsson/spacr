@@ -857,6 +857,27 @@ register_app(
 _SELF_REGISTERING_APPS = (
     ("spacr.qt.layer_viewer", "register_layer_viewer_app"),
     ("spacr.qt.screens.graph_builder", "register"),
+    # The three that arrived just after the seam landed and sat finished,
+    # tested and unreachable for the same reason the first four did.
+    #
+    # Power is the first app of the Design section, so this row is also
+    # what makes that tab appear — the section has been declared, noted
+    # and empty since the sections were named.
+    ("spacr.qt.screens.power", "register"),
+    # AnnData Export has no screen of its own: it registers settings, so
+    # the generic ``AppScreen`` draws its form, and an ``entry=`` so the
+    # Run button on that form runs the export. It is listed here rather
+    # than left to its own import-time call because that call is a no-op
+    # unless ``spacr.qt.app`` is ALREADY in ``sys.modules`` — deliberately,
+    # so a headless export never drags PySide6 in — which made whether the
+    # row existed depend on import order.
+    ("spacr.anndata_export", "register_anndata_app"),
+    # Run Compare registers at its own import and is named in
+    # ``spacr.qt.SELF_REGISTERING_MODULES`` too, which only runs at
+    # ``run()``. That made the row appear at launch and not under
+    # ``import spacr.qt.app``, i.e. exactly the sometimes-there row the
+    # note above is about. Both calls are idempotent.
+    ("spacr.qt.screens.run_compare", "register"),
 )
 
 import importlib as _importlib

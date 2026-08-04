@@ -45,11 +45,24 @@ from spacr.qt.screens.settings_model import (
 
 # Modules that render their own bespoke screen rather than the shared
 # settings form. They have no categories, so nothing here applies to them.
+#
+# Power / Design and Run Compare are here for that reason and no other:
+# both register a screen factory, so the shared form is never built for
+# them. Power is the one that would otherwise show up, because it DOES
+# register defaults -- its form is its settings, and the keys are recorded
+# in spacr.settings under one "Power analysis" heading so that the macro
+# recorder, the settings diff and the per-app inventory can see them. That
+# heading is never drawn as a settings-panel section, so writing a section
+# blurb for it would be writing help for a screen nobody opens.
+#
+# The rule this set encodes: an app belongs here when it has a factory. An
+# app with a factory AND registered defaults, like Power, is the only kind
+# that can reach the parametrisation below by accident.
 CUSTOM_SCREENS = frozenset({
     "annotate", "make_masks", "queue", "db_browser", "agreement",
     "plate_view", "model_compare", "align", "convert", "foreign", "batch",
     "distributed_jobs", "model_zoo", "report", "train_compare",
-    "classifier_evaluation", "run_history",
+    "classifier_evaluation", "run_history", "power", "run_compare",
 })
 
 

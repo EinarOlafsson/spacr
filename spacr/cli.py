@@ -497,6 +497,29 @@ _MODULE_LIST: Tuple[Module, ...] = (
         note=("No set_default_* helper exists for the simulator, so every key must "
               "come from the settings file."),
     ),
+    # Hand-written, and it has to be: the seam that publishes an app's other
+    # strings cannot derive `requires`, `writes` or `note`, which are the
+    # three things `--describe` exists to print. The app row itself comes
+    # from spacr.anndata_export.register_anndata_app.
+    Module(
+        key="anndata_export",
+        summary="Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.",
+        entry="spacr.anndata_export:run_anndata_export",
+        defaults=None,
+        defaults_entry="spacr.anndata_export:anndata_export_settings",
+        validate_key="anndata_export",
+        requires=("src — a spaCR project whose measurements/measurements.db "
+                  "the measure module has written",),
+        writes=("<src>/results/<project>.h5ad — objects x features, with obs, "
+                "var, obsm and the run's provenance in uns",
+                "a row in artifacts.db downstream of measurements.db, so "
+                "re-running Measure marks the export stale"),
+        note=("Needs the optional extra: pip install \"spacr[anndata]\". Set "
+              "anndata_single_table to export one object table at its own "
+              "granularity — the default join averages nuclei and pathogens "
+              "onto their parent cell, and no downstream analysis can undo "
+              "that."),
+    ),
 )
 
 MODULES: Dict[str, Module] = {m.key: m for m in _MODULE_LIST}
@@ -536,6 +559,9 @@ ALIASES: Dict[str, str] = {
     "motility_assay": "motility",
     "sim": "simulation",
     "activation_map": "activation",
+    "anndata": "anndata_export",
+    "h5ad": "anndata_export",
+    "run_anndata_export": "anndata_export",
 }
 
 

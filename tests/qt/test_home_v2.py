@@ -551,16 +551,18 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert app_mod.SECTION_DESIGN == "Design"
     assert app_mod.SECTIONS == (
         "Core", "Data", "Segmentation models", "Results & QC", "Explore",
-        "Toxoplasma")
-    # Declared but unclaimed, so it draws nothing.
-    assert app_mod.SECTION_DESIGN not in app_mod.SECTIONS
+        "Toxoplasma", "Design")
+    # Design draws a tab now: Power / Design claimed it, which is the last
+    # of the seven declared sections to be claimed. It was the example of
+    # a declared-but-empty section for as long as it was empty.
+    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
     # The staging categories are gone as *places*. Named here so that
     # re-adding one has to argue with this line first.
     assert not hasattr(app_mod, "SECTION_ALPHA")
     assert not hasattr(app_mod, "SECTION_BETA")
     assert not hasattr(app_mod, "MATURITY_SECTIONS")
     assert not hasattr(app_mod, "STAGED_FROM")
-    assert len(app_mod.SECTIONS) + 1 == 7
+    assert len(app_mod.SECTIONS) == 7
 
 
 def test_every_app_has_a_stage_and_it_is_written_down_once():
@@ -600,12 +602,14 @@ def test_home_is_the_first_tab_and_holds_everything(home):
 def test_the_category_tabs_follow_the_workflow_order(home):
     """One tab per live section, and each label counts its own tab.
 
-    Six now that Explore has apps in it; it was five, and seven while
-    Alpha and Beta had tabs of their own. ``section_members`` is what
-    the tab draws, so it is what the label has to count.
+    Seven now that Design has an app in it; it was six when Explore
+    filled, five before that, and seven for a different reason while
+    Alpha and Beta had tabs of their own — every section declared has
+    now been claimed. ``section_members`` is what the tab draws, so it
+    is what the label has to count.
     """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS) == 6
+    assert len(labels) == len(SECTIONS) == 7
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
@@ -714,6 +718,9 @@ ALPHA_MODULES = {
     # alpha: built and reachable, not yet trusted end to end.
     "illumination", "barcode_qc", "layer_viewer", "graph_builder",
     "data_manager",
+    # And the three that landed just after the seam that would have made
+    # them reachable, and waited the same way for the same reason.
+    "power", "anndata_export", "run_compare",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -722,7 +729,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """22 alpha, 9 beta, named one at a time.
+    """25 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -732,7 +739,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 22 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 25 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
