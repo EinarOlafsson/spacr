@@ -350,6 +350,25 @@ def test_the_strip_is_a_thin_band_above_the_form_not_over_it(qtbot):
     Every behavioural assertion in this file still passed, because form-row
     visibility knows nothing about where the row is on screen.
     """
+    # Pinned, because this test measures pixels. The font scale is
+    # persisted in QSettings, so it is ambient state rather than anything
+    # this file sets: whatever the last run left behind decides it. At 1.5
+    # the styled pane's padding scales with it and the strip sits at y=11,
+    # so this test passed alone and failed after any other qt file -- and
+    # the blame landed on whichever test drew the short straw.
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt import theme
+    from spacr.qt.preferences import get_font_scale, set_font_scale
+    _scale = get_font_scale()
+    set_font_scale(1.0)
+    # The scale is baked into the stylesheet when it is built, and the app
+    # stylesheet is applied once per session. Changing the preference alone
+    # leaves the already-applied 1.5 padding on the pane, so it has to be
+    # rebuilt for the new scale to reach the layout.
+    _app = QApplication.instance()
+    _app.setStyleSheet(theme.stylesheet())
+
     from spacr.qt.app import MainWindow
     window = MainWindow()
     qtbot.addWidget(window)
@@ -364,6 +383,14 @@ def test_the_strip_is_a_thin_band_above_the_form_not_over_it(qtbot):
     scroll = screen._settings_scroll
     assert bar is not None
 
+    try:
+        _assert_thin_band(bar, scroll)
+    finally:
+        set_font_scale(_scale)
+        _app.setStyleSheet(theme.stylesheet())
+
+
+def _assert_thin_band(bar, scroll):
     assert bar.isVisible() and scroll.isVisible()
     assert not bar.geometry().intersects(scroll.geometry()), (
         f"the strip {bar.geometry()} overlaps the form {scroll.geometry()}")
