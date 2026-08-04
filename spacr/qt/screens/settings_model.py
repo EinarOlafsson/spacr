@@ -537,185 +537,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "save", "shuffle", "batch_size", "n_jobs",
         )),
     ),
-    "recruitment": (
-        ("Data source", ("src",)),
-        ("Mask & Channel Mapping", (
-            "cell_mask_dim", "cell_chann_dim", "nucleus_mask_dim",
-            "nucleus_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim",
-            "channel_dims", "channel_of_interest",
-        )),
-        ("Object Filtering", (
-            "cell_size_range", "cell_intensity_range", "nucleus_size_range",
-            "nucleus_intensity_range", "pathogen_size_range",
-            "pathogen_intensity_range", "cells_per_well",
-            "target_intensity_min", "nuclei_limit", "pathogen_limit",
-        )),
-        ("Plate Layout & Controls", ("@Plate Layout & Controls",)),
-        ("Plots & Diagnostics", (
-            "plot", "figuresize", "plot_control", "plot_nr",
-        )),
-    ),
-    "invasion": (
-        ("Assay Inputs", ("src", "parasite_table", "compartment")),
-        ("Channels & Intensity", (
-            "outside_channel", "total_channel", "intensity_statistic",
-            "background_correction", "min_total_intensity",
-        )),
-        ("Thresholding", (
-            "outside_threshold_method", "outside_threshold",
-            "threshold_agreement_tolerance", "threshold_sensitivity",
-            "bimodality_cutoff", "extracellular_class",
-        )),
-        ("Controls & Minimum Counts", (
-            "control_wells", "control_quantile", "min_control_objects",
-            "min_objects_for_threshold", "min_objects_for_bimodality",
-            "min_parasites_per_well", "inflation_warn",
-        )),
-        ("Object Filtering", ("min_parasite_area", "max_parasite_area")),
-        ("Condition Metadata", ("@Plate Layout & Controls",)),
-        ("Assay Output", (
-            "cmap", "qc_plot_max_panels", "seed_wells_from_cells", "save",
-        )),
-        ("Runtime & Reliability", ("verbose",)),
-    ),
-    # -- the three Cellpose-facing modules -------------------------------
-    #
-    # All three used to render the shared "Cellpose" category as one drop of
-    # ten to thirteen knobs. They are not one decision: the model you run,
-    # the thresholds that decide how much it finds, the geometry it sees and
-    # the background correction applied before it are four separate
-    # questions, asked at four different times. The groups below are the same
-    # four in all three modules so that moving between them is not a
-    # relearning exercise.
-    "cellpose_masks": (
-        ("Input & Channels", (
-            "src", "channels", "grayscale", "invert", "normalize",
-            "percentiles",
-        )),
-        ("Model", ("model_name", "custom_model", "diameter")),
-        ("Detection Thresholds", (
-            "CP_prob", "flow_threshold", "rescale", "resample", "fill_in",
-        )),
-        ("Image Geometry", ("resize", "target_height", "target_width")),
-        ("Background & Denoising", (
-            "remove_background", "background", "Signal_to_noise",
-        )),
-        ("Output & Runtime", ("save", "batch_size", "verbose")),
-    ),
-    "cellpose_all": (
-        ("Input & Channels", (
-            "channels", "grayscale", "invert", "normalize", "percentiles",
-        )),
-        ("Model", ("diameter",)),
-        ("Detection Thresholds", ("CP_prob", "flow_threshold")),
-        ("Image Geometry", ("resize", "target_height", "target_width")),
-        ("Background & Denoising", (
-            "remove_background", "background", "Signal_to_noise",
-        )),
-        ("Output & Runtime", ("plot", "save", "batch_size", "verbose")),
-    ),
-    "train_cellpose": (
-        ("Starting Point", ("model_type", "from_scratch", "model_name")),
-        ("Training Schedule", (
-            "n_epochs", "learning_rate", "weight_decay", "batch_size",
-            "augment",
-        )),
-        ("Image Geometry", (
-            "width_height", "target_size", "diameter", "resize",
-        )),
-        ("Background & Denoising", (
-            "remove_background", "background", "Signal_to_noise",
-        )),
-        ("Output & Runtime", ("verbose",)),
-    ),
-    "analyze_plaques": (
-        ("Input & Channels", ("src", "masks")),
-        ("Model", ("diameter",)),
-        ("Detection Thresholds", (
-            "CP_prob", "flow_threshold", "rescale", "resample", "fill_in",
-        )),
-        ("Image Geometry", ("resize", "target_height", "target_width")),
-        ("Background & Denoising", (
-            "remove_background", "background", "Signal_to_noise",
-        )),
-        ("Output & Runtime", ("save", "batch_size", "verbose")),
-    ),
-    "map_barcodes": (
-        ("Sequencing Input", ("src", "mode", "single_direction")),
-        ("Barcode References", ("grna_csv", "row_csv", "column_csv")),
-        ("Read Parsing", (
-            "target_sequence", "regex", "offset_start", "expected_end",
-        )),
-        ("Output & Storage", (
-            "save_h5", "comp_type", "comp_level", "fill_na",
-        )),
-        ("Runtime & Reliability", ("chunk_size", "n_jobs", "test")),
-    ),
-    "barcode_qc": (
-        ("Reference & Count Tables", (
-            "grna_csv", "row_csv", "column_csv", "count_data", "qc_data",
-        )),
-        ("Well Expectations", (
-            "target_grnas_per_well", "target_statistic", "min_reads_per_well",
-        )),
-        ("Starvation & Exclusion", (
-            "starved_read_fraction", "exclude_starved_wells",
-        )),
-        ("Position & Collision Checks", (
-            "position_effect_ratio", "collision_max_distance",
-        )),
-        ("Threshold Sweep", ("sweep_span", "sweep_points")),
-        ("QC Output", ("dst", "plot", "save")),
-        ("Runtime & Reliability", ("verbose",)),
-    ),
-    "illumination": (
-        ("Input & Channels", ("src", "channels")),
-        ("Correction Model", (
-            "illumination_correction", "illumination_model",
-            "illumination_estimator", "illumination_degree",
-            "illumination_dark",
-        )),
-        ("Field Sampling", (
-            "illumination_per_plate", "illumination_max_fields",
-        )),
-        ("QC & Failure Handling", (
-            "illumination_qc", "illumination_on_missing",
-        )),
-    ),
-    # Power / Design draws its own screen, so these groups are never a
-    # settings form. They are still the layout of record: the settings diff,
-    # the run journal and `utils.pretty_print_settings` all group by
-    # category, and fifteen keys under one "Power analysis" heading make a
-    # design change unreadable in all three.
-    "power": (
-        ("Library Design", (
-            "power_n_genes", "power_n_grnas_per_gene",
-            "power_constructs_per_well",
-        )),
-        ("Plate Layout", (
-            "power_wells_per_plate", "power_n_plates", "power_n_replicates",
-            "power_cells_per_well",
-        )),
-        ("Effect & Prevalence", (
-            "power_effect_fold", "power_hit_rate",
-            "power_background_positive_rate", "power_detection_auroc",
-        )),
-        ("Sequencing Depth", ("power_reads_per_well",)),
-        ("Simulation", ("power_score_per", "power_backend", "power_seed")),
-    ),
-    "anndata_export": (
-        ("Input Tables", ("src", "anndata_tables")),
-        ("Output File", (
-            "anndata_out", "anndata_single_table", "anndata_compression",
-            "anndata_dtype",
-        )),
-        ("Rows & Missing Values", (
-            "anndata_row_limit", "anndata_nan_policy",
-        )),
-        ("Post-processing", (
-            "anndata_compute_umap", "anndata_register_artifact",
-        )),
-    ),
     "replication": (
         ("Assay Inputs", ("src", "parasite_table", "compartment")),
         ("Vacuole Assignment", (
@@ -741,104 +562,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
 }
 
 
-#: Settings a first-time user of a module has to touch beyond its first
-#: group, in the same ``@Section``-or-key language as
-#: :data:`_APP_CATEGORY_SPECS`.
-#:
-#: The first group of a curated layout is by construction the "what you must
-#: set" group — every layout in this module opens with the inputs — so it is
-#: taken as essential automatically and never restated here. This table only
-#: adds the second thing: Measure's mask-to-channel mapping, Regression's
-#: model choice, Train Cellpose's schedule. Anything naming a key or a group
-#: that no longer exists is dropped silently, the same way a spec token is,
-#: so a stale entry costs a row of disclosure and never an exception.
-_APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
-    "mask": ("preprocess", "masks", "test_mode", "test_images", "plot",
-             "save"),
-    "timelapse": ("timelapse", "t_stack", "frame_interval_s",
-                  "timelapse_objects", "test_mode", "save"),
-    "measure": ("@Mask & Channel Mapping", "test_mode"),
-    "motility": ("@Spatial & Temporal Calibration",),
-    "ml_analyze": ("channel_of_interest", "model_type_ml"),
-    "regression": ("@Controls & Plate Design", "regression_type",
-                   "dependent_variable"),
-    "activation": ("cam_type", "target_layer"),
-    "replication": ("@Vacuole Assignment",),
-    "recruitment": ("@Mask & Channel Mapping",),
-    "invasion": ("@Channels & Intensity",),
-    "cellpose_masks": ("@Model",),
-    "cellpose_all": ("@Model",),
-    "analyze_plaques": ("@Model",),
-    "train_cellpose": ("n_epochs", "learning_rate"),
-    "map_barcodes": ("@Barcode References",),
-    "barcode_qc": ("@Well Expectations",),
-    "illumination": ("illumination_correction", "illumination_model"),
-    "anndata_export": ("anndata_out",),
-    "classify": ("@Labels & Classes", "model_type", "train_channels"),
-    "umap": ("tables", "reduction_method", "color_by"),
-    "external_masks": ("channels", "experiment"),
-}
-
-
-def _expand_layout_tokens(
-    source: Dict[str, List[str]],
-    tokens: Tuple[str, ...],
-) -> List[str]:
-    """Resolve ``@Section``-or-key tokens against a category map, in order.
-
-    The same token language :data:`_APP_CATEGORY_SPECS` uses, so a layout and
-    the essentials drawn from it can never disagree about what ``@Cell``
-    means. (:func:`_categories_from_spec` keeps its own copy of the loop
-    because it additionally has to remember which keys earlier *sections*
-    already claimed; this one resolves a single flat list.)
-
-    Unknown tokens and keys the module does not actually have are dropped,
-    and a key named twice is kept once, at its first position.
-    """
-    available = {key for keys in source.values() for key in keys}
-    out: List[str] = []
-    for token in tokens:
-        candidates = (
-            source.get(token[1:], []) if token.startswith("@") else [token]
-        )
-        for key in candidates:
-            if key in available:
-                out.append(key)
-    return list(dict.fromkeys(out))
-
-
-def essential_keys(
-    app_key: str,
-    categories: Optional[Dict[str, List[str]]] = None,
-) -> List[str]:
-    """The settings a first-time user of ``app_key`` should meet first.
-
-    Progressive disclosure needs a defensible answer to "which of these 190
-    matter?", and a hand-written list per module would rot the first time a
-    layout changed. So it is *derived*: the first group of the module's
-    curated layout, which is always its inputs, plus whatever
-    :data:`_APP_ESSENTIAL_EXTRAS` adds for that module.
-
-    A module with no curated layout gets the first shared category, which is
-    "Paths" — still the right answer, just a thinner one.
-
-    :param app_key: the module's app key.
-    :param categories: optional pre-computed :func:`categories_for_app`
-        output, to save recomputing it.
-    :returns: setting keys in display order, without duplicates.
-    """
-    cats = (categories if categories is not None
-            else categories_for_app(app_key, get_categories()))
-    ordered = list(cats.items())
-    keys: List[str] = list(ordered[0][1]) if ordered else []
-    keys.extend(
-        _expand_layout_tokens(
-            cats, _APP_ESSENTIAL_EXTRAS.get(str(app_key or ""), ())
-        )
-    )
-    return list(dict.fromkeys(keys))
-
-
 def _categories_from_spec(
     source: Dict[str, List[str]],
     spec: Tuple[Tuple[str, Tuple[str, ...]], ...],
@@ -850,24 +573,12 @@ def _categories_from_spec(
     for title, tokens in spec:
         keys: List[str] = []
         for token in tokens:
-            if token.startswith("@"):
-                # A group reference can only mean what the shared map says
-                # it means, so it is filtered by what is actually in there.
-                candidates = [key for key in source.get(token[1:], [])
-                              if key in available]
-            else:
-                # A literal key is the spec ASSERTING where that setting
-                # belongs, and it outranks the shared category map — which
-                # for Barcode QC and Illumination has never heard of their
-                # keys at all. Filtering literals by `available` sent all
-                # eleven of Barcode QC's checks to the trailing "Other"
-                # bucket, which is the exact thing the layout exists to
-                # prevent. Whether the key exists is decided at render time,
-                # where `build_sections` already drops any key that produced
-                # no widget.
-                candidates = [token]
+            candidates = (
+                source.get(token[1:], [])
+                if token.startswith("@") else [token]
+            )
             for key in candidates:
-                if key not in assigned:
+                if key in available and key not in assigned:
                     assigned.add(key)
                     keys.append(key)
         ordered[title] = keys
@@ -887,69 +598,6 @@ def get_categories() -> Dict[str, List[str]]:
     """Return the {category_name: [setting keys]} mapping."""
     from spacr.settings import categories
     return categories
-
-
-#: Below this many settings a module cannot render as an undifferentiated
-#: list — six rows fit on one screen and read as one group whatever they are
-#: called. Modules at or under it are exempt from :func:`has_curated_layout`;
-#: everything above it has to say what its groups are.
-CURATION_THRESHOLD = 6
-
-#: Modules whose layout is curated inline in :func:`categories_for_app`
-#: rather than declared in :data:`_APP_CATEGORY_SPECS`.
-#:
-#: Classify is the odd one out on purpose: its ten groups are built as a
-#: literal ``ordered`` dict because several of them list keys that are in no
-#: shared category at all, which the ``@Name``-expanding spec form cannot
-#: express. UMAP and External Masks reshape the shared categories in place —
-#: they add groups ("UMAP Display", "Input mapping") rather than replacing
-#: the whole layout, and a spec would have to restate every key they leave
-#: alone. All three are curated; none of them is a spec.
-_INLINE_LAYOUT_APPS = frozenset({"classify", "umap", "external_masks"})
-
-
-def has_curated_layout(app_key: str) -> bool:
-    """Return True when ``app_key``'s settings panel has a layout of its own.
-
-    "Of its own" means somebody decided what this module's groups are — a
-    :data:`_APP_CATEGORY_SPECS` entry, an inline regroup in
-    :func:`categories_for_app`, or a plugin that shipped ``categories``.
-
-    Falling back to the shared category map is *not* curated. That map is
-    keyed by what a setting is (a path, a plot option, "Advanced"), not by
-    what the module does with it, so a module that relies on it renders as
-    however many buckets its keys happen to fall into — which for Cellpose
-    Masks was thirteen knobs under one "Cellpose" heading.
-
-    :param app_key: the module's app key.
-    """
-    key = str(app_key or "")
-    if key in _APP_CATEGORY_SPECS or key in _INLINE_LAYOUT_APPS:
-        return True
-    try:
-        from spacr.plugins import get_app
-        plugin_app = get_app(key)
-    except Exception:
-        return False
-    return bool(plugin_app is not None and plugin_app.categories)
-
-
-def needs_curated_layout(app_key: str) -> bool:
-    """Return True when ``app_key`` has enough settings to need grouping.
-
-    Interactive modules whose settings dict is the ``{"src": ...}``
-    placeholder render a bespoke screen, not the shared form; they have
-    nothing to group. :data:`CURATION_THRESHOLD` draws the line.
-
-    :param app_key: the module's app key.
-    """
-    try:
-        return len(resolve_default_settings(app_key)) > CURATION_THRESHOLD
-    except Exception:
-        # An app whose defaults will not resolve has no settings panel to
-        # judge. Reporting "needs a layout" would fail the invariant test for
-        # a reason that has nothing to do with layouts.
-        return False
 
 
 def categories_for_app(
@@ -984,13 +632,17 @@ def categories_for_app(
                 while key in keys:
                     keys.remove(key)
         result = {"Input mapping": list(input_keys), **result}
-    # Map Barcodes used to relocate `n_jobs` and `test` into "Sequencing"
-    # here, so the module would stop rendering an "Advanced" tab holding one
-    # setting and a "Model Training" tab holding another. That left thirteen
-    # unrelated keys in one "Sequencing" drop; `_APP_CATEGORY_SPECS` now
-    # names all five groups the module actually has, which places those two
-    # keys — and every other one — explicitly. The relocation is not deleted
-    # behaviour, it is superseded behaviour.
+    if app_key == "map_barcodes":
+        moved = ("n_jobs", "test")
+        for keys in result.values():
+            for key in moved:
+                while key in keys:
+                    keys.remove(key)
+        sequencing = result.setdefault("Sequencing", [])
+        for key in moved:
+            if key not in sequencing:
+                sequencing.append(key)
+
     if app_key == "umap":
         batch_correction = (
             "batch_correction", "batch_column", "batch_control_column",
@@ -1579,222 +1231,54 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "plate and well layout, z handling and naming. Preview the mapping "
         "before writing anything; this is where a mismatched pairing is "
         "caught.",
-    # -- shared by the three Cellpose-facing modules -----------------------
-    #
-    # Mask, Cellpose Masks, Cellpose All and Train Cellpose ask the same four
-    # questions about a segmentation run in the same order. Naming the groups
-    # identically is the point: someone who learned them once should not have
-    # to relearn them in the next module.
-    "INPUT & CHANNELS":
-        "Where the images come from and which planes of each one the module "
-        "actually looks at, plus whether they are normalised or inverted "
-        "first. A run that finds nothing at all is usually a channel index "
-        "pointing at an empty plane.",
-    "MODEL":
-        "Which weights do the segmenting — a packaged model, or a checkpoint "
-        "of your own — and the object size they should expect. Nothing is "
-        "trained here; this is the picker, and the expected size matters "
-        "more than the choice of weights.",
-    "DETECTION THRESHOLDS":
-        "How much the model is allowed to find: the probability floor below "
-        "which a candidate is discarded, how strictly flow has to agree, and "
-        "whether holes are filled. Come here when there are too many objects, "
-        "too few, or one blob where two cells belong.",
-    "IMAGE GEOMETRY":
-        "The pixel dimensions the images are resampled to before anything "
-        "else happens. Getting this wrong rescales every object and quietly "
-        "changes what the expected size means, so set it once per "
-        "acquisition and leave it.",
-    "BACKGROUND & DENOISING":
-        "Correction applied before segmentation: the intensity floor treated "
-        "as empty and the signal-to-noise gate a field has to clear. Raise "
-        "the floor when autofluorescence is being segmented as objects; "
-        "lower it when genuinely dim cells disappear.",
-    # -- Train Cellpose ----------------------------------------------------
-    "STARTING POINT":
-        "What the training run begins from — a pretrained model fine-tuned "
-        "on your data, or randomly initialised weights — and the name the "
-        "result is saved under. Fine-tuning needs far fewer labelled images "
-        "than starting from scratch.",
-    "TRAINING SCHEDULE":
-        "How long the fit runs and how fast it moves: epochs, learning rate, "
-        "weight decay, batch size and augmentation. Reach for these when the "
-        "loss stops falling early, or when the model memorises the training "
-        "images instead of generalising.",
-    # -- Map Barcodes ------------------------------------------------------
-    "SEQUENCING INPUT":
-        "The read files and whether they are treated as a pair or a single "
-        "direction. Everything downstream assumes this is right, and a "
-        "single-end run pointed at paired reads finds nothing without "
-        "reporting an error.",
-    "BARCODE REFERENCES":
-        "The three lookup CSVs a read is matched against — gRNA, row and "
-        "column. A mapping run that returns no counts at all is almost "
-        "always one of these three pointing at the wrong file, or at a file "
-        "written with different column names.",
-    "READ PARSING":
-        "How a barcode is located inside each read: the anchoring sequence, "
-        "the regular expression around it, and where the match is expected "
-        "to begin and end. Change these when the library was built with a "
-        "different adapter layout.",
-    # -- Barcode QC --------------------------------------------------------
-    "REFERENCE & COUNT TABLES":
-        "The barcode references and the counts produced by a mapping run, "
-        "which the checks below are computed from. Point them at the outputs "
-        "of the run you want to judge, not at a newer plate.",
-    "WELL EXPECTATIONS":
-        "What a healthy well should look like — how many distinct guides it "
-        "ought to carry, which statistic that is judged by, and the read "
-        "floor below which a well is not worth trusting. These set the bar "
-        "that everything else is measured against.",
-    "STARVATION & EXCLUSION":
-        "How wells that received too few reads are detected and whether they "
-        "are dropped before the rest of the analysis. Leaving them in drags "
-        "every plate-level summary toward noise, so exclude them once you "
-        "trust the read floor above.",
-    "POSITION & COLLISION CHECKS":
-        "Two systematic artefacts worth ruling out before believing a hit: "
-        "counts that track a well's position on the plate, and barcodes "
-        "close enough in sequence to be confused for one another. Both look "
-        "like biology until they are checked.",
-    "THRESHOLD SWEEP":
-        "The range and resolution of the scan used to show how the results "
-        "would change under a different cut-off. Widen the span when the "
-        "chosen threshold sits near the edge of the scanned range.",
-    "QC OUTPUT":
-        "Where the report is written and whether figures are drawn and kept. "
-        "Leave saving off while you are still deciding which checks matter "
-        "for this library.",
-    # -- Illumination ------------------------------------------------------
-    "CORRECTION MODEL":
-        "How the uneven lighting field is estimated and removed — the family "
-        "of surface fitted, the estimator behind it, its flexibility, and "
-        "the dark reference subtracted first. Too flexible a surface absorbs "
-        "real biological signal along with the shading.",
-    "FIELD SAMPLING":
-        "How many fields the correction is estimated from and whether each "
-        "plate gets its own estimate. More fields make a steadier surface "
-        "and a slower run; per-plate estimates matter when plates were "
-        "acquired in separate sessions.",
-    "QC & FAILURE HANDLING":
-        "Whether the fitted surface is checked before being applied, and "
-        "what happens when a plate has no usable estimate — skip it, or stop "
-        "the run. Stopping is the safer choice the first time you correct an "
-        "unfamiliar dataset.",
-    # -- AnnData Export ----------------------------------------------------
-    "OUTPUT FILE":
-        "Where the exported object is written and how it is shaped: one "
-        "matrix or one per table, the numeric precision kept, and the "
-        "compression applied. Precision and compression trade file size "
-        "against how faithfully the measurements survive the round trip.",
-    "ROWS & MISSING VALUES":
-        "How many rows are exported and what happens to gaps in them — kept "
-        "as missing, dropped, or filled. Downstream tools differ sharply in "
-        "what they tolerate, so this usually follows from whatever reads the "
-        "file next.",
-    "POST-PROCESSING":
-        "Optional work done after the matrix is written: computing an "
-        "embedding inside the exported object, and recording it as a run "
-        "artifact so later steps can find it. Both are off by default "
-        "because both cost time.",
-    # -- Recruitment / Invasion -------------------------------------------
-    "DATA SOURCE":
-        "The measurements this module reads. One setting, and every group "
-        "below assumes it is right — point it at the project folder a "
-        "measure run wrote, not at the raw images.",
-    "PLOTS & DIAGNOSTICS":
-        "Whether preview figures are drawn, how large they are, and how many "
-        "examples are produced. Worth turning on for the first plate of an "
-        "experiment and off again once the numbers are trusted.",
-    "CHANNELS & INTENSITY":
-        "Which channels carry the signals the assay compares, the statistic "
-        "each object is summarised by, and whether background is subtracted "
-        "first. Swapping two channels here inverts the result without "
-        "producing an error.",
-    "THRESHOLDING":
-        "How the cut-off separating the two populations is chosen, and how "
-        "much disagreement between methods is tolerated before the run says "
-        "so. This is the single most consequential group in the assay.",
-    "CONTROLS & MINIMUM COUNTS":
-        "Which wells anchor the threshold, and how many objects a well or a "
-        "plate must contribute before its number is believed. Raise the "
-        "minimums when sparse wells produce implausibly extreme rates.",
-    # -- Power / Design ----------------------------------------------------
-    #
-    # "Power analysis" is the single heading `spacr/qt/screens/power.py`
-    # registers all fifteen of its keys under, which is what the settings
-    # diff and the run journal group them by when the module's own screen is
-    # not involved. The five headings below are what the layout splits it
-    # into; this entry covers the undivided one.
-    "POWER ANALYSIS":
-        "Everything a screening design has to commit to before a plate is "
-        "poured: library size and redundancy, how it is spread over plates "
-        "and replicates, the effect worth detecting and how rare it is, "
-        "sequencing depth, and how the estimate itself is simulated.",
-    "LIBRARY DESIGN":
-        "The size and redundancy of the screening library: how many genes "
-        "are targeted, how many guides each one gets, and how many "
-        "constructs land in a well. Guides per gene is usually the cheapest "
-        "lever on detection power.",
-    "PLATE LAYOUT":
-        "How the library is spread over physical plates — wells per plate, "
-        "plate count, replicates, and cells sampled per well. This is where "
-        "a design becomes a number of plates somebody has to actually run.",
-    "EFFECT & PREVALENCE":
-        "What the screen is looking for and how rare it is: the effect size "
-        "worth detecting, the fraction of genes expected to show it, the "
-        "background rate underneath, and how well the readout separates a "
-        "hit from a miss. Optimism here is the usual reason a real screen "
-        "underperforms its power curve.",
-    "SEQUENCING DEPTH":
-        "How many reads each well is allotted. Too few and guide counts "
-        "become noise before any biology is involved, which no amount of "
-        "extra replicates recovers.",
-    "SIMULATION":
-        "How the estimate itself is produced — the level the score is "
-        "computed at, the backend that runs it, and the random seed. Fix "
-        "the seed when you want two designs compared rather than two draws.",
 }
 
 
 #: Per-module overrides for headings that mean different things per module.
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "map_barcodes": {
+        "PATHS":
+            "The sequencing reads and the three reference CSVs the barcodes "
+            "are looked up in — gRNA, row and column. A mapping run that "
+            "returns nothing is almost always one of these pointing at the "
+            "wrong file.",
+    },
     "train_cellpose": {
-        # Train Cellpose fits weights; the other three run them. "Model"
-        # therefore names the thing being produced rather than the thing
-        # being picked, which is a different sentence.
-        "OUTPUT & RUNTIME":
-            "How much the training run prints as it goes. Turn it up when a "
-            "fit is diverging and the loss curve alone does not say which "
-            "epoch it went wrong at.",
+        "CELLPOSE":
+            "The shape of the training run itself — whether it starts from "
+            "scratch, how many epochs, the tile size images are cut to, and "
+            "the diameter the data is rescaled to. Which weights are "
+            "trained is chosen under Model Training.",
+        "ADVANCED":
+            "Batch size, background removal and how much the run prints. "
+            "Reduce the batch size when the GPU runs out of memory.",
     },
     "cellpose_masks": {
-        "OUTPUT & RUNTIME":
-            "Whether the masks are written, how many images are handed to "
-            "the GPU at once, and how much the run prints. Reduce the batch "
-            "size when the GPU runs out of memory.",
+        "GENERAL":
+            "Which channels are handed to Cellpose and whether they are "
+            "normalised first. Two settings, and both change the mask.",
+        "MODEL TRAINING":
+            "Which model does the segmenting — a packaged Cellpose model, "
+            "or a custom weights file of your own. Nothing is trained here; "
+            "this is the model picker.",
+        "ADVANCED":
+            "Batch size, background removal, saving and verbosity for the "
+            "mask run. Reduce the batch size when the GPU runs out of "
+            "memory.",
     },
     "cellpose_all": {
-        "MODEL":
-            "The object size every candidate model is told to expect. The "
-            "point of this module is that the models differ, so this is the "
-            "one thing held constant while they are compared.",
-        "OUTPUT & RUNTIME":
-            "Whether the comparison figures and masks are written, the GPU "
-            "batch size, and how much each candidate run prints on its way "
-            "through.",
+        "GENERAL":
+            "Which channels every candidate model is run on, whether they "
+            "are normalised, and whether the comparison figures are drawn.",
+        "ADVANCED":
+            "Batch size, background removal, saving and verbosity for the "
+            "model comparison run.",
     },
     "analyze_plaques": {
-        "MODEL":
-            "The expected plaque diameter, and whether previously written "
-            "masks are reused instead of segmenting again. Plaques are far "
-            "larger than cells, so the default cell-sized expectation is "
-            "almost never right here.",
-        "OUTPUT & RUNTIME":
-            "Whether masks and results are written, the GPU batch size, and "
-            "how much the run prints. Leave saving off for the first pass "
-            "over a new plate.",
+        "ADVANCED":
+            "Batch size, background level, whether masks and results are "
+            "written, and how much the run prints.",
     },
     "umap": {
         "PATHS":
@@ -1817,11 +1301,11 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "Rarely touched once a project is set up.",
     },
     "recruitment": {
-        "MASK & CHANNEL MAPPING":
+        "GENERAL":
             "Which array plane holds each mask and each intensity channel, "
-            "and which one the recruitment is measured on. A wrong index "
-            "here measures the wrong compartment without complaining.",
-        "OBJECT FILTERING":
+            "and whether preview figures are drawn. A wrong index here "
+            "measures the wrong compartment without complaining.",
+        "MEASUREMENTS":
             "The size and intensity windows an object has to fall inside to "
             "count, plus the per-well cell limits. These gates decide which "
             "cells the recruitment ratio is averaged over.",
@@ -1829,25 +1313,27 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "Which wells hold which cell line, strain and treatment, and "
             "which channel the recruitment is measured on. Filled in once "
             "per plate design.",
+        "PLOT":
+            "Figure size, which control is drawn alongside, and how many "
+            "example plots are produced.",
     },
     "invasion": {
-        "ASSAY INPUTS":
+        "MEASUREMENTS":
             "Which measurement table the parasites are read from and which "
             "compartment they were measured in. The assay scores existing "
             "measurements rather than segmenting again.",
-        "CONDITION METADATA":
+        "PLATE LAYOUT & CONTROLS":
             "Which wells hold which cell line, strain and treatment, and "
             "the column and level the invasion rates are grouped and "
             "reported at.",
-        "ASSAY OUTPUT":
-            "The colour map the assay's figures are drawn with, how many QC "
-            "panels are produced, and whether wells with cells but no scored "
-            "parasites are seeded as zeros. Leaving those wells out "
-            "silently inflates the invasion rate.",
-        "RUNTIME & RELIABILITY":
-            "How much the assay prints as it runs. Turn it up while you are "
-            "still deciding on a threshold and need to see which wells the "
-            "controls were drawn from.",
+        "PLOT":
+            "The colour map the assay's figures are drawn with. Worth "
+            "changing for a diverging scale when the interesting result is "
+            "movement away from the control in both directions.",
+        "ADVANCED":
+            "Whether results are written to disk, and how much the run "
+            "prints. Leave saving off while you are still deciding on a "
+            "threshold.",
     },
     "external_masks": {
         "GENERAL":
@@ -3023,162 +2509,6 @@ class _ChipStrip(QWidget):
             self.changed.emit()
 
 
-#: Settings whose legal values are a short, closed, ordered set.
-#:
-#: ``train_channels`` is the reason this table exists. It is declared a plain
-#: ``list``, so it rendered as a free-text chip strip that accepted ``x``,
-#: ``red``, ``4`` and ``rgb`` without complaint — and
-#: :func:`spacr.io._resolve_channel_indices` maps letters to planes with
-#: three ``if 'r' in channels`` tests, so an off-alphabet value is dropped
-#: silently and the model trains on fewer planes than the user asked for.
-#: :func:`spacr.deep_spacr.train_test_model` then joins the same list into a
-#: directory name, so the typo reaches the filesystem too.
-#:
-#: Order is part of the alphabet, not part of the user's input: ``['b','r']``
-#: and ``['r','b']`` select the same two planes but write two different model
-#: directories. A control that can only emit canonical order removes that
-#: whole class of confusion, which a text field cannot.
-FIXED_ALPHABETS: Dict[str, Tuple[Tuple[Any, str], ...]] = {
-    "train_channels": (("r", "Red"), ("g", "Green"), ("b", "Blue")),
-}
-
-
-def _alphabet_qss(palette: dict, opacity) -> str:
-    """QSS for the fixed-alphabet toggles, registered through the theme seam.
-
-    Selected and unselected have to differ at a glance without colour alone
-    carrying the meaning — the text is the value either way, and the border
-    does the work, so the control still reads on a monochrome display and for
-    a red-green colour-blind reader choosing red and green channels.
-    """
-    from ..theme import pane_surface
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
-    return f"""
-QToolButton#SettingAlphabetChip {{
-    background: {surface};
-    color: {palette["text_dim"]};
-    border: 1px solid {palette["border_soft"]};
-    border-radius: 10px;
-    padding: 2px 12px;
-}}
-QToolButton#SettingAlphabetChip:hover {{
-    border-color: {palette["accent"]};
-}}
-QToolButton#SettingAlphabetChip:checked {{
-    color: {palette["text"]};
-    border: 1px solid {palette["accent"]};
-    font-weight: 600;
-}}
-"""
-
-
-try:  # pragma: no cover - the theme seam is present in every real launch
-    from ..theme import register_widget_qss as _register_widget_qss
-    _register_widget_qss("SettingAlphabetChip", _alphabet_qss, replace=True)
-except Exception:  # pragma: no cover
-    LOGGER.debug("Could not register the alphabet-chip QSS", exc_info=True)
-
-
-class _AlphabetSelect(QWidget):
-    """Multi-select over a fixed, ordered alphabet of values.
-
-    One checkable pill per legal value, always shown, always in the
-    alphabet's own order. Nothing else can be entered and nothing can be
-    entered twice, so the two failure modes of the free-text strip it
-    replaces — an unrecognised letter that is silently dropped downstream,
-    and a permutation that changes the output path without changing the
-    result — are both unrepresentable.
-
-    ``get_value`` / ``set_value`` mirror :class:`_ListEditor`'s contract so
-    the settings-CSV import path, the Live Preview propagation path and
-    :meth:`SettingsWidgets.collect` need no special case beyond the class.
-    """
-
-    changed = Signal()
-
-    def __init__(self, key: str = "", default: Any = None,
-                 choices: Tuple[Tuple[Any, str], ...] = (), parent=None):
-        super().__init__(parent)
-        self._key = key
-        self._choices = tuple(choices)
-        self._buttons: List[Tuple[Any, QToolButton]] = []
-
-        row = QHBoxLayout(self)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(6)
-        for value, label in self._choices:
-            button = QToolButton(self)
-            button.setObjectName("SettingAlphabetChip")
-            button.setText(str(label))
-            button.setCheckable(True)
-            button.setCursor(Qt.PointingHandCursor)
-            button.setFocusPolicy(Qt.StrongFocus)
-            # The accessible name is the value, not the label: a screen
-            # reader user is choosing 'r', and "Red" is only the gloss.
-            button.setAccessibleName(str(value))
-            button.setProperty("alphabetValue", value)
-            button.toggled.connect(self._on_toggled)
-            row.addWidget(button)
-            self._buttons.append((value, button))
-        row.addStretch(1)
-
-        self.set_value(default)
-
-    # -- public contract -------------------------------------------------
-    def get_value(self) -> List[Any]:
-        """The checked values, always in alphabet order."""
-        return [value for value, button in self._buttons if button.isChecked()]
-
-    def set_value(self, value: Any) -> None:
-        """Check exactly the members of ``value``; ignore anything else.
-
-        Strings are parsed as Python literals first, because settings CSVs
-        and the Live Preview both hand back ``"['r', 'g']"`` rather than a
-        list. A value outside the alphabet is dropped rather than shown,
-        which is the whole point of the control — but it is dropped
-        *visibly*, because the pill for it simply is not lit.
-        """
-        wanted = self._as_members(value)
-        for member, button in self._buttons:
-            blocked = button.blockSignals(True)
-            button.setChecked(member in wanted)
-            button.blockSignals(blocked)
-        self.changed.emit()
-
-    def text(self) -> str:
-        """Line-edit-compatible rendering, for callers that expect one."""
-        return repr(self.get_value())
-
-    def setText(self, value: str) -> None:  # noqa: N802 - QLineEdit contract
-        """Accept a textual value, for callers that expect a QLineEdit."""
-        self.set_value(value)
-
-    def choices(self) -> Tuple[Any, ...]:
-        """The legal values, in order. Public so tests need no internals."""
-        return tuple(value for value, _label in self._choices)
-
-    # -- internals -------------------------------------------------------
-    def _on_toggled(self, _checked: bool) -> None:
-        self.changed.emit()
-
-    @staticmethod
-    def _as_members(value: Any) -> set:
-        if value is None:
-            return set()
-        if isinstance(value, str):
-            text = value.strip()
-            try:
-                parsed = ast.literal_eval(text)
-            except (ValueError, SyntaxError):
-                # A bare "r,g" or "r g" from a hand-edited CSV.
-                parsed = [part for part in text.replace(",", " ").split()
-                          if part]
-            value = parsed
-        if isinstance(value, (list, tuple, set, frozenset)):
-            return set(value)
-        return {value}
-
-
 class _ListEditor(QWidget):
     """The widget behind every list-valued setting.
 
@@ -3561,99 +2891,6 @@ class SettingsWidgets:
         """Return the plain-text hint (description + docs URL) for a setting."""
         return plain_tooltip(self._tooltips.get(key, ""), self.app_key, key)
 
-    # ------------------------------------------------------------------
-    # Finding a setting among the many
-    # ------------------------------------------------------------------
-    #
-    # Mask alone renders 190 settings under thirteen collapsed headings.
-    # Someone who knows the knob exists still has to guess which heading
-    # somebody else filed it under, and someone who only knows what they want
-    # to change ("stop merging touching cells") has no entry point at all.
-    #
-    # So the haystack is deliberately wider than the key: the description is
-    # the only part of a setting written in the language a user thinks in.
-    # Searching "gpu" has to find `n_jobs`, and "touching" has to find
-    # `merge_edge_pathogen_cells`, and neither word is in either name.
-
-    def search_text_for(self, key: str) -> str:
-        """The lower-cased haystack one setting is matched against.
-
-        Three fields, in the order a reader would scan them: the key as the
-        API spells it, the label as the form spells it, and the description
-        as the tooltip explains it.
-
-        :param key: the setting key.
-        """
-        return " ".join((
-            str(key),
-            self._label_for(key),
-            self.plain_tooltip_for(key),
-        )).lower()
-
-    def keys_matching(self, query: str) -> List[str]:
-        """Setting keys matching every whitespace-separated term in ``query``.
-
-        Terms are ANDed and matched as substrings, which is what makes
-        "cell diameter" narrow rather than widen — the alternative, OR, turns
-        a second word into a way of getting *more* results, which is the
-        opposite of what typing more means.
-
-        An empty or whitespace-only query matches everything, so the caller
-        can wire this straight to ``textChanged`` without special-casing the
-        moment the box is cleared.
-
-        :param query: raw text from the search box.
-        :returns: matching keys, in the order the widgets were built.
-        """
-        terms = str(query or "").lower().split()
-        if not terms:
-            return list(self._widgets)
-        out: List[str] = []
-        for key in self._widgets:
-            haystack = self.search_text_for(key)
-            if all(term in haystack for term in terms):
-                out.append(key)
-        return out
-
-    def modified_keys(self) -> List[str]:
-        """Setting keys whose widget no longer holds the module's default.
-
-        Compared with the same normaliser the run journal and the settings
-        diff use, so "differs from default" means one thing across the app.
-        Without that, a value round-tripped through CSV — ``channels`` read
-        back as the string ``"[0, 1, 2]"`` — reads as an edit here and as
-        unchanged there.
-
-        :returns: keys in the order the widgets were built.
-        """
-        from ..settings_diff import _values_equal
-
-        out: List[str] = []
-        for key, widget in self._widgets.items():
-            if key not in self._defaults:
-                # Rendered but not defaulted: there is nothing to differ
-                # from, so calling it modified would be an assertion the
-                # module never made.
-                continue
-            try:
-                current = self._coerce_to_expected_type(
-                    key, self._read_widget(widget))
-            except Exception:
-                continue
-            if not _values_equal(current, self._defaults[key]):
-                out.append(key)
-        return out
-
-    def essential_keys(self) -> List[str]:
-        """The rendered subset of :func:`essential_keys` for this module.
-
-        Filtered to keys that actually produced a widget, so a key named in
-        a layout but skipped by ``convert_settings_dict_for_gui`` cannot make
-        the disclosure control promise a row that is not there.
-        """
-        return [key for key in essential_keys(self.app_key)
-                if key in self._widgets]
-
     def _label_for(self, key: str) -> str:
         try:
             from spacr.plugins import get_app
@@ -3697,17 +2934,6 @@ class SettingsWidgets:
         if self.app_key == "map_barcodes" and key == "regex":
             return BarcodeRegexWidget(
                 value=self._defaults.get(key, default),
-                parent=parent,
-            )
-        # A closed alphabet gets a control that cannot express anything
-        # outside it. Checked BEFORE the chip-editor override below, because
-        # `train_channels` is in CHANNEL_LIST_KEYS and would otherwise take
-        # the free-text path that let 'x' through.
-        if key in FIXED_ALPHABETS:
-            return _AlphabetSelect(
-                key=key,
-                default=self._defaults.get(key, default),
-                choices=FIXED_ALPHABETS[key],
                 parent=parent,
             )
         # Unlike enumerated strings, a list remains a list in every module.
@@ -3895,9 +3121,8 @@ class SettingsWidgets:
             elif isinstance(
                 w,
                 (
-                    _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
-                    BarcodeRegexWidget, RowExclusionEditor,
-                    ExternalMaskInputWidget,
+                    _ListEditor, _ListEdit, _ScalarEdit, BarcodeRegexWidget,
+                    RowExclusionEditor, ExternalMaskInputWidget,
                 ),
             ):
                 w.set_value(value)
@@ -3955,7 +3180,7 @@ class SettingsWidgets:
         if isinstance(
             w,
             (
-                _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
+                _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
             ),
         ):
