@@ -348,7 +348,11 @@ def test_create_grouped_plot(tmp_path):
     # The groups are 3 sigma apart by construction, so every comparison has
     # to come out significant -- a table of NaNs would otherwise pass.
     assert (pairwise["p-value"] < 0.01).all(), results
-    _nonempty_file(tmp_path / "grouped_plot.png")
+    # The extension follows the figure-format preference now, not a
+    # literal in create_grouped_plot -- see spacr.plot.save_figure.
+    written = list(tmp_path.glob("grouped_plot.*"))
+    assert len(written) == 1, f"expected one grouped plot, got {written}"
+    _nonempty_file(written[0])
     assert (tmp_path / "test_results.csv").is_file()
 
 

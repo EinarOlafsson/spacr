@@ -3018,7 +3018,12 @@ def process_meassure_crop_results(partial_results, settings):
                 save_dir = os.path.join(os.path.dirname(settings['src']), 'results', f"{part_1}")
                 os.makedirs(save_dir, exist_ok=True)
                 fig_path = os.path.join(save_dir, f"{part_2}.pdf")
-                fig.savefig(fig_path)
+                # Imported here, not at module scope: `spacr.plot` pulls in
+                # torch, cv2, seaborn, statsmodels and pingouin, and this
+                # module is on the cold measure-worker spawn path. See
+                # tests/test_measure_spawn.py.
+                from .plot import save_figure
+                fig_path = save_figure(fig, fig_path)
                 plt.figure(fig.number)
                 plt.show()
                 plt.close(fig)
