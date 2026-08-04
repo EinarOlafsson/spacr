@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_adam",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.55,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.45,
+      "scene_end": 8.899999999999999,
+      "duration": 8.899999999999999,
+      "text": "This tutorial covers Model Zoo. Browse, verify, download, and benchmark reusable segmentation and classifier models."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.899999999999999,
+      "speech_end": 18.174999999999997,
+      "scene_end": 18.624999999999996,
+      "duration": 9.724999999999998,
+      "text": "Open Model Zoo from the Segmentation models section. Open the catalog and select models compatible with the current task and input channels."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.624999999999996,
+      "speech_end": 27.049999999999997,
+      "scene_end": 27.499999999999996,
+      "duration": 8.875,
+      "text": "In the main configuration area, review provenance, license, checksum, expected preprocessing, task type, and local availability."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.499999999999996,
+      "speech_end": 40.275,
+      "scene_end": 40.725,
+      "duration": 13.225000000000005,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. benchmark promising models on a few representative fields before adopting one for a full experiment."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.725,
+      "speech_end": 47.9,
+      "scene_end": 48.55,
+      "duration": 7.824999999999996,
+      "text": "When the workflow finishes, verified model files and benchmark results remain associated with their metadata."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.425,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.175,
+      "scene_end": 10.625,
+      "duration": 10.625,
+      "text": "Questo tutorial copre la misura. Estrazione per intensità di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali da immagini segmentate."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.625,
+      "speech_end": 19.8,
+      "scene_end": 20.25,
+      "duration": 9.625,
+      "text": "Apri Measure dalla sezione Core. Apri la sezione Misura dal Core. Seleziona il progetto contenente pile di immagini e maschere prodotte da Mask."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.25,
+      "speech_end": 32.075,
+      "scene_end": 32.525000000000006,
+      "duration": 12.275000000000006,
+      "text": "Nella zona di configurazione principale, utilizzare il canale uno, il reticolo endoplasmico, come canale di interesse e scegliere i tipi di oggetti e le famiglie di caratteristiche da misurare."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.525000000000006,
+      "speech_end": 41.60000000000001,
+      "scene_end": 42.05000000000001,
+      "duration": 9.525000000000006,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.05000000000001,
+      "speech_end": 53.77500000000001,
+      "scene_end": 54.42500000000001,
+      "duration": 12.375,
+      "text": "Quando il flusso di lavoro è terminato, i punti di misurazione db memorizzano le righe tracciabili di singoli oggetti e le colture di immagine opzionali per l'anotamento o la classificazione."
+    }
+  ]
+}

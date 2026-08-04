@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_alpha",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 58.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.4,
+      "scene_end": 10.85,
+      "duration": 10.85,
+      "text": "このチュートリアルでは 複製試験をカバーします 掃除体ごとに寄生虫をスコアし 条件によって細胞内複製を概要します"
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.85,
+      "speech_end": 22.1,
+      "scene_end": 22.55,
+      "duration": 11.700000000000001,
+      "text": "Toxoplasma assays セクションから Replication assay を開きます。 状態メタデータとともに宿主細胞,真空体,寄生虫測定を選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.55,
+      "speech_end": 32.375,
+      "scene_end": 32.825,
+      "duration": 10.275000000000002,
+      "text": "主な構成領域では,空間割り当て,オブジェクトフィルター,寄生虫数料箱,制御,統計比較を構成します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.825,
+      "speech_end": 49.375,
+      "scene_end": 49.825,
+      "duration": 17.0,
+      "text": "完全な実行前に,可視設定をチェックし,可用である場合のプレビューまたはテストモードを使用します. 完全なカウント範囲の真空を検査し,合併または断片化マスクが除外されていることを確認します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 49.825,
+      "speech_end": 57.725,
+      "scene_end": 58.375,
+      "duration": 8.549999999999997,
+      "text": "作業が完了すると 寄生虫のバキュールごとに 配分 複製率 統計 統計 統計が保存されます"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 89.4,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.85,
+      "scene_end": 10.549999999999999,
+      "duration": 10.549999999999999,
+      "text": "Os instaladores nativos leves criam um Python privado três pontos doze tempo de execução, depois baixam Qt, PyTorch, spaCR, e suas dependências científicas.",
+      "speech_text": "Os instaladores nativos leves criam um Python privado três pontos doze tempo de execução, depois baixam Qt, PyTorch, espáquer, e suas dependências científicas.",
+      "phonemes": "ʊz ˌiŋstaladˈoɾyz nˌaʧˈivʊz lˈɛvys krˈiɐ̃ʊ̃ ũŋ pˈIθɐ̃ŋ prˌivˈadʊ trˈes pˈoŋtʊz dˈozy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃, depˈoɪz bˈIʃɐ̃ʊ̃ kˌetˈe, pi tˈoɾəʃ, ˌespˈakɛr, i sˌuæz dˌepAŋdˈAŋsjæs sˌiAŋʧˈifikæs."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.549999999999999,
+      "speech_end": 23.125,
+      "scene_end": 23.825,
+      "duration": 13.275,
+      "text": "Descarregar instaladores apenas da última versão spaCR GitHub. Compare o arquivo com o seu sistema operacional e use o arquivo SHA-256 publicado quando precisar verificar o download.",
+      "speech_text": "Descarregar instaladores apenas da última versão espáquer GitHub. Compare o arquivo com o seu sistema operacional e use o arquivo SHA-256 publicado quando precisar verificar o download.",
+      "phonemes": "dˌeskaxeɡˈaɾ ˌiŋstaladˈoɾyz ˌapˈenæz da ˈulʧimæ veɾəsˈɐ̃ʊ̃ ˌespˈakɛr ʒˈiʧ ˈub. kˌompˈaɾi u ˌaɾəkˈivʊ koŋ ʊ seʊ sˌistˈemæ ˌopeɾˌasionˈW i ˈuzj u ˌaɾəkˈivw ˌɛsyaɡˌaˈa dˌuzˈAŋtʊzˌi siŋkwˈAŋtæisˈAs pˌublikˈadʊ kwˈɐ̃ŋdʊ prˌesizˈar vˌeɾifikˈaɾ ʊ dWŋlˈowd."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.825,
+      "speech_end": 34.125,
+      "scene_end": 34.825,
+      "duration": 11.000000000000004,
+      "text": "No Windows 10 ou 11, abra o executável de configuração online. A instalação da CPU portátil é o padrão; A aceleração NVIDIA é um componente de instalação opcional.",
+      "speech_text": "No Windows 10 ou 11, abra o executável de configuração online. A instalação da CPU portátil é o padrão; A aceleração NVIDIA é um componente de instalação opcional.",
+      "phonemes": "nʊ wˈiŋdows dˈɛz ow ˈoŋzy, ˈabræ u ˌezekutˈaveʊ ʤy kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ oŋlˈIŋ. a ˌiŋstalasˈɐ̃ʊ̃ da sˌepˌeˈu pˌoɾətˈaʧiʊ ɛ ʊ padrˈɐ̃ʊ̃; a ˌaselˌeɾasˈɐ̃ʊ̃ nvˌiʤˈiæ ɛ ũŋ kˌomponˈAŋʧy ʤj ˌiŋstalasˈɐ̃ʊ̃ ˌopsionˈW."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.825,
+      "speech_end": 47.150000000000006,
+      "scene_end": 47.85000000000001,
+      "duration": 13.025000000000006,
+      "text": "No macOS 11 ou superior, abra o pacote universal para Intel e Apple silicon. Se o gatekeeper bloquear o pacote não notariado, use Privacy and Security, Open Anyway, e depois execute-o novamente.",
+      "speech_text": "No macOS 11 ou superior, abra o pacote universal para Intel e Apple silicon. Se o gatekeeper bloquear o pacote não notariado, use Privacy and Security, Open Anyway, e depois execute-o novamente.",
+      "phonemes": "nʊ mˈɛk ˌɔˈɛsy ˈoŋzy ow sˌupeɾiˈor, ˈabræ ʊ pˌakˈɔʧj ˌuniveɾəsˈW pˌaɾæ iŋtˈɛʊ i ˈɛpow sˌilikˈoŋ. sj ʊ ɡˌatekˌeepˈer blˌokeˈaɾ ʊ pˌakˈɔʧy nˌɐ̃ʊ̃ nˌotaɾiˈadʊ, ˈuzy prˌivˈasi ˈɐ̃ŋd sˌekuɾˈiti, ˈopAŋ ˌæniwˈI, i depˈoɪz ˌezekˈuʧjʊ nˌovæmˈAŋʧy."
+    },
+    {
+      "scene": 5,
+      "speech_start": 47.85000000000001,
+      "speech_end": 57.400000000000006,
+      "scene_end": 58.10000000000001,
+      "duration": 10.25,
+      "text": "Em 64 bits Linux, torne o arquivo .run baixado executável, e inicie-o a partir de um terminal. A instalação padrão usa PyTorch compatível com a CPU.",
+      "speech_text": "Em 64 bits Linux, torne o arquivo .run baixado executável, e inicie-o a partir de um terminal. A instalação padrão usa PyTorch compatível com a CPU.",
+      "phonemes": "ˈAŋ sˌesˈAŋtæikwˈatrʊ bˈitz lˈinʊks, tˈɔɾənj u ˌaɾəkˈivʊ .xˈũŋ bˌIʃˈadw ˌezekutˈaveʊ, i ˌinisˈiju a paɾəʧˈir ʤj ũŋ tˌeɾəminˈW. a ˌiŋstalasˈɐ̃ʊ̃ padrˈɐ̃ʊ̃ ˈuzæ pi tˈoɾəʃ kˌompaʧˈiveʊ koŋ a sˌepˌeˈu."
+    },
+    {
+      "scene": 6,
+      "speech_start": 58.10000000000001,
+      "speech_end": 68.30000000000001,
+      "scene_end": 69.00000000000001,
+      "duration": 10.900000000000006,
+      "text": "Para o hardware NVIDIA suportado no Linux, passe por --torch-backend auto. Isso seleciona a aceleração quando disponível sem tornar as bibliotecas CUDA o padrão silencioso.",
+      "speech_text": "Para o hardware NVIDIA suportado no Linux, passe por --torch-backend auto. Isso seleciona a aceleração quando disponível sem tornar as bibliotecas CUDA o padrão silencioso.",
+      "phonemes": "pˌaɾæ ʊ hˈardweə nvˌiʤˈiæ sˌupoɾətˈadʊ nʊ lˈinʊks, pˈasy por tˈoɾəʃbakˈAŋd ˈWtʊ. ˈisʊ sˌelesiˈonæ a ˌaselˌeɾasˈɐ̃ʊ̃ kwˈɐ̃ŋdʊ ʤˌisponˈiveʊ sˈAŋ toɾənˈaɾ az bˌibliotˈɛkæs kˈudæ ʊ padrˈɐ̃ʊ̃ sˌilAŋsiˈozʊ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 69.00000000000001,
+      "speech_end": 80.55000000000001,
+      "scene_end": 81.25000000000001,
+      "duration": 12.25,
+      "text": "Cada instalador valida a substituição antes de alternar versões. Uma atualização interrompida deixa intacto o ambiente anterior e o install.log permanece no diretório privado de instalação spaCR.",
+      "speech_text": "Cada instalador valida a substituição antes de alternar versões. Uma atualização interrompida deixa intacto o ambiente anterior e o install.log permanece no diretório privado de instalação espáquer.",
+      "phonemes": "kˈadæ ˌiŋstaladˈor vˌalˈidæ a sˌubsʧituɪsˈɐ̃ʊ̃ ˈɐ̃ŋʧyz ʤj ˌWteɾənˈar veɾəsˈõjs. ˌumæ ˌatuˌalizasˈɐ̃ʊ̃ ˌiŋtexompˈidæ dˈAʃæ ˌiŋtˈaktw u ˌɐ̃mbiˈAŋʧj ˌɐ̃ŋteɾiˈoɾ i u iŋstˈal.lˈɔɡ pˌeɾəmænˈɛsy nʊ ʤˌiɾetˈɔɾjʊ prˌivˈadʊ ʤj ˌiŋstalasˈɐ̃ʊ̃ ˌespˈakɛr."
+    },
+    {
+      "scene": 8,
+      "speech_start": 81.25000000000001,
+      "speech_end": 88.70000000000002,
+      "scene_end": 89.40000000000002,
+      "duration": 8.150000000000006,
+      "text": "Após a instalação, use o lançador do sistema operacional. Não é necessária uma configuração separada do Python ou do Conda.",
+      "speech_text": "Após a instalação, use o lançador do sistema operacional. Não é necessária uma configuração separada do Python ou do Conda.",
+      "phonemes": "apˈɔz a ˌiŋstalasˈɐ̃ʊ̃, ˈuzj ʊ lˌɐ̃ŋsadˈor dʊ sˌistˈemæ ˌopeɾˌasionˈW. nˌɐ̃ʊ̃ ɛ nˌesesˈaɾjæ ˌumæ kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ sˌepaɾˈadæ dʊ pˈIθɐ̃ŋ ow dʊ kˈoŋdæ."
+    }
+  ]
+}

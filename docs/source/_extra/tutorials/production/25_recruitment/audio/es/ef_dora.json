@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.475,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.15,
+      "scene_end": 9.6,
+      "duration": 9.6,
+      "text": "Este tutorial abarca el reclutamiento. Cuantificar el reclutamiento de una señal de canal de interés a los parásitos o regiones asociadas con patógenos."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.6,
+      "speech_end": 23.75,
+      "scene_end": 24.2,
+      "duration": 14.6,
+      "text": "Abra Recruitment en la sección Toxoplasma assays. Reclutamiento abierto desde la sección de análisis de Toxoplasma. Utilice máscaras de células, parásitos y órganos medidos con el canal uno, el retículo endoplasmático, como el canal de interés."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.2,
+      "speech_end": 33.35,
+      "scene_end": 33.800000000000004,
+      "duration": 9.600000000000005,
+      "text": "En el área de configuración principal, defina la región de reclutamiento, referencia de fondo, filtros de objetos, agrupación y estrategia de normalización."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.800000000000004,
+      "speech_end": 41.725,
+      "scene_end": 42.175000000000004,
+      "duration": 8.375,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.175000000000004,
+      "speech_end": 50.825,
+      "scene_end": 51.475,
+      "duration": 9.299999999999997,
+      "text": "Cuando el flujo de trabajo termina, los puntajes de reclutamiento por objeto y los resúmenes de condiciones se almacenan con identificadores de origen."
+    }
+  ]
+}

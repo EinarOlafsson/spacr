@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 46.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.425,
+      "scene_end": 6.875,
+      "duration": 6.875,
+      "text": "带其他实验室的图像,掩膜和测量表进入一个 spaCR 项目."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.875,
+      "speech_end": 15.325,
+      "scene_end": 15.774999999999999,
+      "duration": 8.899999999999999,
+      "text": "从 Data and batch runs 部分打开 Import Project。 提供图像,可选掩膜,测量表和稳定的外部标识符."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.774999999999999,
+      "speech_end": 24.775,
+      "scene_end": 25.224999999999998,
+      "duration": 9.45,
+      "text": "在主要配置区域中,将外来列映射到 spaCR 标识符,道,对象类型,板块元数据和来源字段上."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.224999999999998,
+      "speech_end": 38.05,
+      "scene_end": 38.5,
+      "duration": 13.275000000000002,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在进口之前验证结合,缺少值,图像掩膜对齐和重复识别符."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.5,
+      "speech_end": 46.275,
+      "scene_end": 46.925,
+      "duration": 8.424999999999997,
+      "text": "当工作流程完成时,标准化的项目将保存返回每个原始文件和标识器的链接."
+    }
+  ]
+}

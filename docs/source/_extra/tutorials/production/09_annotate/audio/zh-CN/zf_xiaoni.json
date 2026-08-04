@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoni",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 39.925,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.05,
+      "scene_end": 8.5,
+      "duration": 8.5,
+      "text": "通过\"单个物体作物\"进行对格格的审查,并为模型培训或质量控制分配可靠的标签."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.5,
+      "speech_end": 16.2,
+      "scene_end": 16.65,
+      "duration": 8.149999999999999,
+      "text": "从 Core 部分打开 Annotate。 打开一个项目,使用对象作物,然后选择数据库表和注释列."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.65,
+      "speech_end": 24.075,
+      "scene_end": 24.525,
+      "duration": 7.875,
+      "text": "在主配置区域中,选择类,显示道,排序,样本取,以及定义审查集的任何过器."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.525,
+      "speech_end": 31.849999999999998,
+      "scene_end": 32.3,
+      "duration": 7.774999999999999,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.3,
+      "speech_end": 39.275,
+      "scene_end": 39.925,
+      "duration": 7.625,
+      "text": "当工作流程完成时,注释将被保存完整的对象识别符写回项目数据库."
+    }
+  ]
+}

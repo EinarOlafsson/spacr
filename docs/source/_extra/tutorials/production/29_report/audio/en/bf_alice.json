@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_alice",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.95,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.9,
+      "scene_end": 10.35,
+      "duration": 10.35,
+      "text": "This tutorial covers Report. Create a shareable HTML or PDF summary containing quality control, figures, statistics, settings, and versions."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.35,
+      "speech_end": 19.95,
+      "scene_end": 20.4,
+      "duration": 10.049999999999999,
+      "text": "Open Report from the Results and quality control section. Choose a completed spaCR project and the runs, tables, figures, and sections to include."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.4,
+      "speech_end": 29.4,
+      "scene_end": 29.849999999999998,
+      "duration": 9.45,
+      "text": "In the main configuration area, configure title, authorship, condition labels, quality thresholds, output format, and privacy-sensitive fields."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.849999999999998,
+      "speech_end": 41.375,
+      "scene_end": 41.825,
+      "duration": 11.975000000000005,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview the report and resolve missing files or failed quality checks before export."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.825,
+      "speech_end": 50.300000000000004,
+      "scene_end": 50.95,
+      "duration": 9.125,
+      "text": "When the workflow finishes, a portable report records conclusions together with the settings and software versions needed to reproduce them."
+    }
+  ]
+}

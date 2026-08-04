@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 61.775,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.15,
+      "scene_end": 10.6,
+      "duration": 10.6,
+      "text": "Este tutorial cubre la evaluación de clasificadores. Auditoría de predicciones sostenidas, validación cruzada anidada, calibración, filtración y rendimiento por placa."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.6,
+      "speech_end": 27.025,
+      "scene_end": 27.474999999999998,
+      "duration": 16.875,
+      "text": "Abra Classifier Evaluation en la sección Results and quality control. Abre la evaluación del clasificador de los resultados y la sección de control de calidad. Elige predicciones con la verdad de base, metadatos divididos, identificadores de placas, probabilidades y registros de modelos."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.474999999999998,
+      "speech_end": 38.349999999999994,
+      "scene_end": 38.8,
+      "duration": 11.325,
+      "text": "En el área de configuración principal, configure el orden de las clases, los umbrales, los contenedores de calibración, el agrupamiento, la incertidumbre de arranque y las comprobaciones de fugas."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.8,
+      "speech_end": 53.525,
+      "scene_end": 53.975,
+      "duration": 15.175000000000004,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Evaluar el comportamiento prolongado y por placa antes de utilizar un clasificador para las conclusiones biológicas."
+    },
+    {
+      "scene": 5,
+      "speech_start": 53.975,
+      "speech_end": 61.125,
+      "scene_end": 61.775,
+      "duration": 7.799999999999997,
+      "text": "Cuando el flujo de trabajo termina, spaCR produce informes de discriminación, calibración, confusión, fuga y robustez."
+    }
+  ]
+}

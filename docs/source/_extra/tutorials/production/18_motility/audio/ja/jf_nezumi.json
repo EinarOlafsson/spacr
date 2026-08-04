@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 76.65,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 15.15,
+      "scene_end": 15.6,
+      "duration": 15.6,
+      "text": "このチュートリアルではモチリティアッセイをカバーしています. 速度,移動,持続性,および感染品質制御メトリックを時間解決画像から量化します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 15.6,
+      "speech_end": 28.475,
+      "scene_end": 28.925,
+      "duration": 13.325000000000001,
+      "text": "Core セクションから Motility assay を開きます。 信頼性の高い時間間隔と空間校正で追跡されたタイムラップスのデータを開く."
+    },
+    {
+      "scene": 3,
+      "speech_start": 28.925,
+      "speech_end": 43.25,
+      "scene_end": 43.7,
+      "duration": 14.775000000000002,
+      "text": "主な構成領域では,トラックフィルター,最小期間,スラッティング,動力メトリック,感染定義,および井戸レベルグループを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 43.7,
+      "speech_end": 62.75,
+      "scene_end": 63.2,
+      "duration": 19.5,
+      "text": "完全走行前に,可視設定をチェックし,可用である場合の先見またはテストモードを使用します.軌道の先見を検査し,壊れた,静止した文物,または不可能なトラックを除外します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 63.2,
+      "speech_end": 76.0,
+      "scene_end": 76.65,
+      "duration": 13.450000000000003,
+      "text": "作業流が完了すると, spaCR は,トラックの毎回および条件の毎回動力表,品質メトリック,および数字を書き出す."
+    }
+  ]
+}

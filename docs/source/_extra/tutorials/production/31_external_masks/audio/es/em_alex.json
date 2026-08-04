@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 60.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.575,
+      "scene_end": 10.024999999999999,
+      "duration": 10.024999999999999,
+      "text": "Este tutorial cubre las máscaras externas. Convertir las máscaras de etiquetas de terceros y las imágenes de origen en un proyecto spaCR medido y rastreable."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.024999999999999,
+      "speech_end": 24.375,
+      "scene_end": 24.825,
+      "duration": 14.8,
+      "text": "Abra External Masks en la sección Data and batch runs. Abrir máscaras externas en la sección Datos y ejecuciones de lote. Proporcione imágenes de origen, máscaras externas, reglas de nombramiento, tipos de objetos y tablas de medición opcionales."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.825,
+      "speech_end": 35.4,
+      "scene_end": 35.85,
+      "duration": 11.025000000000002,
+      "text": "En el área de configuración principal, mapear las imágenes a las máscaras, validar las convenciones de forma y etiquetado, elegir el reetiquetado y definir las opciones de medición."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.85,
+      "speech_end": 50.5,
+      "scene_end": 50.95,
+      "duration": 15.100000000000001,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. La alineación de vista previa y el recuento de objetos en varios campos antes de importar el conjunto completo de datos."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.95,
+      "speech_end": 59.6,
+      "scene_end": 60.25,
+      "duration": 9.299999999999997,
+      "text": "Cuando el flujo de trabajo termina, spaCR almacena máscaras normalizadas, imágenes mapeadas, mediciones y procedencia listas para la anotación."
+    }
+  ]
+}

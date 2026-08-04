@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 77.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 14.25,
+      "scene_end": 14.7,
+      "duration": 14.7,
+      "text": "このチュートリアルでは,Cellposeを訓練します. キュレーティングされた画像マスクペアからカスタムなCellposeまたはCPSAM対応のセグメントモデルを訓練します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.7,
+      "speech_end": 29.375,
+      "scene_end": 29.825,
+      "duration": 15.125,
+      "text": "Segmentation models セクションから Train Cellpose を開きます。 慎重に修正されたラベルマスクで多様なトレーニングおよび検証画像を提供してください."
+    },
+    {
+      "scene": 3,
+      "speech_start": 29.825,
+      "speech_end": 43.65,
+      "scene_end": 44.1,
+      "duration": 14.275000000000002,
+      "text": "主な構成領域では,チャンネル,ベースモデル,直径,拡張,学習速率,時代,バッチサイズ,検証分割を選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 44.1,
+      "speech_end": 64.325,
+      "scene_end": 64.775,
+      "duration": 20.675000000000004,
+      "text": "完全実行前に,可視設定をチェックし,利用可能な場合,前見またはテストモードを使用します.訓練および検証損失を監視し,訓練に使用されていないフィールドでのテストチェックポイントをチェックします."
+    },
+    {
+      "scene": 5,
+      "speech_start": 64.775,
+      "speech_end": 76.375,
+      "scene_end": 77.025,
+      "duration": 12.25,
+      "text": "作業流が完了すると,選択されたチェックポイント,トレーニング履歴,検証予測,設定が一緒に保存されます."
+    }
+  ]
+}

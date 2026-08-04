@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.775,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.85,
+      "scene_end": 10.549999999999999,
+      "duration": 10.549999999999999,
+      "text": "La ruta de pip funciona en Windows, macOS y Linux. Siempre utilice un entorno virtual aislado en lugar de modificar la instalación de Python del sistema operativo.",
+      "speech_text": "La ruta de pip funciona en Windows, macOS y Linux. Siempre utilice un entorno virtual aislado en lugar de modificar la instalación de Python del sistema operativo.",
+      "phonemes": "la rˈuta ðe pˈip funθjˈona en wˈindows, mˈak ˌoˈɛse i lˈinuks. sjˈempɾe ˌutilˈiθe ˈun entˈoɾno βiɾtwˈal Islˈaðo en luɣˈaɾ ðe mˌoðifikˈaɾ la ˌinstalaθjˈon de pˈiton del sistˈema ˌopeɾatˈiβo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.549999999999999,
+      "speech_end": 17.15,
+      "scene_end": 17.849999999999998,
+      "duration": 7.299999999999999,
+      "text": "En macOS o Linux, crea el entorno con Python 3 punto 12, y luego activalo desde su directorio bin.",
+      "speech_text": "En macOS o Linux, crea el entorno con Python 3 punto 12, y luego activalo desde su directorio bin.",
+      "phonemes": "en mˈak ˌoˈɛse o lˈinuks, kɾˈea el entˈoɾno kom pˈiton tɾˈes pˈunto ðˈoθe, i luˈeɣo ˌaktiβˈalo ðˌesðe su ðˌiɾektˈoɾjo βˈin."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.849999999999998,
+      "speech_end": 23.974999999999998,
+      "scene_end": 24.674999999999997,
+      "duration": 6.824999999999999,
+      "text": "En Windows, utiliza el lanzador de Python para crear el entorno y activarlo desde el directorio Scripts.",
+      "speech_text": "En Windows, utiliza el lanzador de Python para crear el entorno y activarlo desde el directorio Scripts.",
+      "phonemes": "en wˈindows, ˌutilˈiθa el lˌanθaðˈoɾ ðe pˈitom pˌaɾa kɾeˈaɾ el entˈoɾno i ˌaktiβˈaɾlo ðˌesðe el ðˌiɾektˈoɾjo skɾˈipːts."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.674999999999997,
+      "speech_end": 32.525,
+      "scene_end": 33.225,
+      "duration": 8.550000000000004,
+      "text": "Actualizar pip en el entorno activo. El comando python -m pip mantiene la instalación vinculada al Python que acabas de activar.",
+      "speech_text": "Actualizar pip en el entorno activo. El comando python -m pip mantiene la instalación vinculada al Python que acabas de activar.",
+      "phonemes": "ˌaktwaliθˈaɾ pˈip en el entˈoɾno aktˈiβo. el komˈando pˈiton ˈɛme pˈip mantjˈene la ˌinstalaθjˈom bˌinkulˈaða al pˈiton ke akˈaβas ðe ˌaktiβˈaɾ."
+    },
+    {
+      "scene": 5,
+      "speech_start": 33.225,
+      "speech_end": 40.175000000000004,
+      "scene_end": 40.87500000000001,
+      "duration": 7.650000000000006,
+      "text": "Instale el paquete de espacio simple para uso sin cabeza, o el espacio con el qt extra para la interfaz de escritorio.",
+      "speech_text": "Instale el paquete de espacio simple para uso sin cabeza, o el espacio con el qt extra para la interfaz de escritorio.",
+      "phonemes": "instˈale el pakˈete ðe espˈaθjo sˈimple pˌaɾa ˈuso sin kaβˈeθa, o el espˈaθjo kon el kˌutˈe ˈekstɾa pˌaɾa la ˌinteɾfˈaθ ðe ˌeskɾitˈoɾjo."
+    },
+    {
+      "scene": 6,
+      "speech_start": 40.87500000000001,
+      "speech_end": 48.550000000000004,
+      "scene_end": 49.25000000000001,
+      "duration": 8.375,
+      "text": "Verifique la versión importada y ejecute spacr-doctor. Resolver los controles fallidos antes de abrir los datos experimentales.",
+      "speech_text": "Verifique la versión importada y ejecute espáquer-doctor. Resolver los controles fallidos antes de abrir los datos experimentales.",
+      "phonemes": "bˌeɾifˈike la βeɾsjˈon ˌimpoɾtˈaða i ˌexekˈute espˈakeɾðoktˈoɾ. rˌesolβˈeɾ los kontɾˈoles faʎˈiðos ˈantes ðe aβɾˈiɾ los ðˈatos ˌekspeɾˌimentˈales."
+    },
+    {
+      "scene": 7,
+      "speech_start": 49.25000000000001,
+      "speech_end": 59.075,
+      "scene_end": 59.775000000000006,
+      "duration": 10.524999999999999,
+      "text": "El medio ambiente está listo. Manténgalo activado cada vez que utilice spaCR, y utilice python -m pip install --upgrade spacr cuando lo actualice intencionalmente.",
+      "speech_text": "El medio ambiente está listo. Manténgalo activado cada vez que utilice espáquer, y utilice python -m pip install --upgrade espáquer cuando lo actualice intencionalmente.",
+      "phonemes": "el mˈeðjo ambjˈɛnte estˈa lˈisto. mantˈeŋɡalo ˌaktiβˈaðo kˈaða βˈeθ ke ˌutilˈiθe espˈakeɾ, i ˌutilˈiθe pˈiton ˈɛme pˈip instˈaʎ upɣɾˈaðe espˈakeɾ kwˌando lo ˌaktwalˈiθe ˌintenθjonˈalmˈente."
+    }
+  ]
+}

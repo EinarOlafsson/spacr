@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_heart",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.675,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.25,
+      "scene_end": 10.7,
+      "duration": 10.7,
+      "text": "This tutorial covers Classify, machine learning. Train feature-based classifiers such as XGBoost or random forest from measured single-object data."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.7,
+      "speech_end": 20.674999999999997,
+      "scene_end": 21.124999999999996,
+      "duration": 10.424999999999997,
+      "text": "Open Classify, machine learning from the Core section. Choose a measurements database, label column, feature families, and experimental grouping columns."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.124999999999996,
+      "speech_end": 30.299999999999997,
+      "scene_end": 30.749999999999996,
+      "duration": 9.625,
+      "text": "In the main configuration area, configure filtering, scaling, feature selection, class balancing, model family, and leakage-safe splits."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.749999999999996,
+      "speech_end": 42.949999999999996,
+      "scene_end": 43.4,
+      "duration": 12.650000000000002,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. cross-validate model choices and reserve a held-out evaluation set when possible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.4,
+      "speech_end": 51.025,
+      "scene_end": 51.675,
+      "duration": 8.274999999999999,
+      "text": "When the workflow finishes, the project receives predictions, feature importance, performance tables, and serialized models."
+    }
+  ]
+}

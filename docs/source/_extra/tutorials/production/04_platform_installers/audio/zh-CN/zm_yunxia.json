@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 85.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.875,
+      "scene_end": 10.575,
+      "duration": 10.575,
+      "text": "轻量级的本土安装器创建了一个私人Python三点十二运行时间,然后下载Qt,PyTorch,spaCR及其科学依赖.",
+      "speech_text": "轻量级的本土安装器创建了一个私人Python三点十二运行时间,然后下载Qt,PyTorch,斯佩克尔及其科学依赖.",
+      "phonemes": "ʨʰi→ŋlja↘ŋʨi↗ tɤ pə↓ntʰu↓ a→nꭧwa→ŋ ʨʰi↘ ꭧʰwa↘ŋʨjɛ↘n lɤ i↗kɤ↘ sɨ→ɻə↗nPythonsa→ntjɛ↓n ʂɨ↗ɚ↘ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n,ɻa↗nxou↘ ɕja↘ʦai↘Qt,PyTorch,sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʨi↗ʨʰi↗ kʰɤ→ɕɥe↗ i→lai↘."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.575,
+      "speech_end": 22.125,
+      "scene_end": 22.825,
+      "duration": 12.25,
+      "text": "仅从最新的spaCR GitHub版本下载安装器. 当您需要验证下载时,将文件与操作系统匹配,并使用已发布的SHA-256文件.",
+      "speech_text": "仅从最新的斯佩克尔 GitHub版本下载安装器. 当您需要验证下载时,将文件与操作系统匹配,并使用已发布的SHA-256文件.",
+      "phonemes": "ʨi↓n ʦʰʊ↗ŋ ʦwei↘ɕi→n tɤ sɨ→ pʰei↘kʰɤ↘ ɚ↓ GitHubpa↓npə↓n ɕja↘ʦai↘a→nꭧwa→ŋ ʨʰi↘. ta→ŋ ni↗n ɕy→jau↘ jɛ↘nꭧə↘ŋ ɕja↘ʦai↘ ʂɨ↗,ʨja→ŋ wə↗nʨjɛ↘n y↓ ʦʰau→ʦwo↘ɕi↘tʰʊ↓ŋ pʰi↓pʰei↘,pi↘ŋ ʂɨ↓jʊ↘ŋ i↓ fa→pu↘ tɤSHAfu↘ ɚ↘pai↓u↓ʂɨ↗ ljou↘ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.825,
+      "speech_end": 32.2,
+      "scene_end": 32.900000000000006,
+      "duration": 10.075000000000006,
+      "text": "在Windows 10或11上,打开在线设置可执行的. 移动CPU安装是默认的;NVIDIA加速是可选的安装组件.",
+      "speech_text": "在Windows 10或11上,打开在线设置可执行的. 移动CPU安装是默认的;NVIDIA加速是可选的安装组件.",
+      "phonemes": "ʦai↘Windows ʂɨ↗ xwo↘ ʂɨ↗i→ ʂa↘ŋ,ta↓kʰai→ ʦai↘ɕjɛ↘n ʂɤ↘ꭧɨ↘ kʰɤ↓ ꭧɨ↗ɕi↗ŋ tɤ. i↗tʊ↘ŋCPUa→nꭧwa→ŋ ʂɨ↘ mwo↘ɻə↘n tɤ;NVIDIAʨja→su↘ ʂɨ↘ kʰɤ↓ɕɥɛ↓n tɤ a→nꭧwa→ŋ ʦu↓ʨjɛ↘n."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.900000000000006,
+      "speech_end": 44.87500000000001,
+      "scene_end": 45.57500000000001,
+      "duration": 12.675000000000004,
+      "text": "在 macOS 11 或更新版本上,打开英特尔和果的通用包. 如果Gatekeeper封锁了未经公证的包裹,请使用隐私和安全,打开,然后再运行它.",
+      "speech_text": "在 macOS 11 或更新版本上,打开英特尔和果的通用包. 如果Gatekeeper封锁了未经公证的包裹,请使用隐私和安全,打开,然后再运行它.",
+      "phonemes": "ʦai↘ macOS ʂɨ↗i→ xwo↘ kə→ŋɕi→n pa↓npə↓n ʂa↘ŋ,ta↓kʰai→ i→ŋtʰɤ↘ɚ↓ xɤ↗kwo↓ tɤ tʰʊ→ŋjʊ↘ŋ pau→. ɻu↗kwo↓Gatekeeperfə→ŋswo↓ lɤ wei↘ʨi→ŋ kʊ→ŋꭧə↘ŋ tɤ pau→kwo↓,ʨʰi↓ŋ ʂɨ↓jʊ↘ŋ i↓nsɨ→ xɤ↗ a→nʨʰɥɛ↗n,ta↓kʰai→,ɻa↗nxou↘ ʦai↘ y↘nɕi↗ŋ tʰa→."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.57500000000001,
+      "speech_end": 54.47500000000001,
+      "scene_end": 55.17500000000001,
+      "duration": 9.600000000000001,
+      "text": "在64位Linux上,使下载的 .run文件可执行,然后从终端启动. 默认安装使用与CPU兼容的PyTorch.",
+      "speech_text": "在64位Linux上,使下载的 .run文件可执行,然后从终端启动. 默认安装使用与CPU兼容的PyTorch.",
+      "phonemes": "ʦai↘ ljou↘ʂɨ↗sɨ↘wei↘Linuxʂa↘ŋ,ʂɨ↓ ɕja↘ʦai↘ tɤ .runwə↗nʨjɛ↘n kʰɤ↓ ꭧɨ↗ɕi↗ŋ,ɻa↗nxou↘ ʦʰʊ↗ŋ ꭧʊ→ŋtwa→n ʨʰi↓tʊ↘ŋ. mwo↘ɻə↘n a→nꭧwa→ŋ ʂɨ↓jʊ↘ŋ y↓CPUʨjɛ→nɻʊ↗ŋ tɤPyTorch."
+    },
+    {
+      "scene": 6,
+      "speech_start": 55.17500000000001,
+      "speech_end": 64.82500000000002,
+      "scene_end": 65.52500000000002,
+      "duration": 10.350000000000009,
+      "text": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend auto. 这将在可用时选择加速,而不会使CUDA图书馆默认默认.",
+      "speech_text": "对于 Linux 上支持的 NVIDIA 硬件,请通过--torch-backend auto. 这将在可用时选择加速,而不会使CUDA图书馆默认默认.",
+      "phonemes": "twei↘y↗ Linux ʂa↘ŋ ꭧɨ→ꭧʰɨ↗ tɤ NVIDIA i↘ŋʨjɛ↘n,ʨʰi↓ŋ tʰʊ→ŋkwo↘--torch-backend auto. ꭧɤ↘ ʨja→ŋ ʦai↘ kʰɤ↓jʊ↘ŋ ʂɨ↗ ɕɥɛ↓nʦɤ↗ ʨja→su↘,ɚ↗ pu↗xwei↘ ʂɨ↓CUDAtʰu↗ʂu→kwa↓n mwo↘ɻə↘n mwo↘ɻə↘n."
+    },
+    {
+      "scene": 7,
+      "speech_start": 65.52500000000002,
+      "speech_end": 77.92500000000003,
+      "scene_end": 78.62500000000003,
+      "duration": 13.100000000000009,
+      "text": "每个安装器在更换版本之前验证了更换. 一个中断的更新使之前的环境保持完整,并且install.log仍然存在于私人spaCR安装目录中.",
+      "speech_text": "每个安装器在更换版本之前验证了更换. 一个中断的更新使之前的环境保持完整,并且install.log仍然存在于私人斯佩克尔安装目录中.",
+      "phonemes": "mei↓kɤ↘ a→nꭧwa→ŋ ʨʰi↘ ʦai↘ kə→ŋxwa↘n pa↓npə↓n ꭧɨ→ʨʰjɛ↗n jɛ↘nꭧə↘ŋ lɤ kə→ŋxwa↘n. i↗kɤ↘ ꭧʊ→ŋtwa↘n tɤ kə→ŋɕi→n ʂɨ↓ ꭧɨ→ʨʰjɛ↗n tɤ xwa↗nʨi↘ŋ pau↓ꭧʰɨ↗ wa↗nꭧə↓ŋ,pi↘ŋʨʰje↓install.logɻə↗ŋɻa↗n ʦʰwə↗nʦai↘ y↗ sɨ→ɻə↗n sɨ→ pʰei↘kʰɤ↘ ɚ↓ a→nꭧwa→ŋ mu↘lu↘ ꭧʊ→ŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 78.62500000000003,
+      "speech_end": 85.05000000000003,
+      "scene_end": 85.75000000000003,
+      "duration": 7.125,
+      "text": "在安装后,使用操作系统发射器. 不需要单独的Python或Conda设置.",
+      "speech_text": "在安装后,使用操作系统发射器. 不需要单独的Python或Conda设置.",
+      "phonemes": "ʦai↘ a→nꭧwa→ŋ xou↘,ʂɨ↓jʊ↘ŋ ʦʰau→ʦwo↘ɕi↘tʰʊ↓ŋ fa→ʂɤ↘ʨʰi↘. pu↘ ɕy→jau↘ ta→ntu↗ tɤPythonxwo↘Condaʂɤ↘ꭧɨ↘."
+    }
+  ]
+}

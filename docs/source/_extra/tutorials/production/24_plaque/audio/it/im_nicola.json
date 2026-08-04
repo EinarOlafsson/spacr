@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 63.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.05,
+      "scene_end": 10.5,
+      "duration": 10.5,
+      "text": "Questo tutorial copre l'analisi della placche. Misurare la formazione della placche e le variazioni dipendenti dalla condizione dalle immagini della placche."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.5,
+      "speech_end": 24.35,
+      "scene_end": 24.8,
+      "duration": 14.3,
+      "text": "Apri Plaque assay dalla sezione Toxoplasma assays. Apri la piastra di test dalla sezione Assess Toxoplasma. Fornisci immagini della piastra, layout della piastra, calibrazione dei pixel, condizioni e controlli."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.8,
+      "speech_end": 36.275,
+      "scene_end": 36.725,
+      "duration": 11.925,
+      "text": "Nella zona di configurazione principale, configurare la correzione di sfondo, la soglia, la pulizia degli oggetti, i filtri di dimensioni della targa e il raggruppamento dei pozzi."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.725,
+      "speech_end": 53.425,
+      "scene_end": 53.875,
+      "duration": 17.15,
+      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di preview o di prova quando disponibile. verificare le sovrapposizioni di segmentazione tra i pozzi di controllo e di trattamento prima dell'analisi di lotto."
+    },
+    {
+      "scene": 5,
+      "speech_start": 53.875,
+      "speech_end": 63.075,
+      "scene_end": 63.725,
+      "duration": 9.850000000000001,
+      "text": "Quando il flusso di lavoro è terminato, spaCR segnala i numeri di placche, le aree, le riassume, le statistiche e i dati del controllo della qualità."
+    }
+  ]
+}

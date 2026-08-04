@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 75.5,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.925,
+      "scene_end": 12.625,
+      "duration": 12.625,
+      "text": "Un ambiente Conda mantiene spaCR e le sue dipendenze scientifiche separate da progetti non correlati. Python tre punti dodici offre attualmente la più ampia compatibilità opzionale pacchetto.",
+      "speech_text": "Un ambiente Conda mantiene spàker e le sue dipendenze scientifiche separate da progetti non correlati. Python tre punti dodici offre attualmente la più ampia compatibilità opzionale pacchetto.",
+      "phonemes": "ʊn ambiˈɛnte kˈonda mantjˈɛne spˈaker e le sˌʊe dipendˈɛnʦe ʃentˈifike sepaɾˈate da proʤˈɛtːɪ non korɾelˈatɪ. pˈIθən trˈe pˈuntɪ dˈodiʧɪ ˈoffre atːʊalmˈente la pjʊ ˈampia kompatibilitˈa opʦionˈale pakːˈetːo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 12.625,
+      "speech_end": 19.7,
+      "scene_end": 20.4,
+      "duration": 7.774999999999999,
+      "text": "Aprire un terminale abilitato con Conda e creare un ambiente chiamato spacr con Python tre punti dodici e pip.",
+      "speech_text": "Aprire un terminale abilitato con Conda e creare un ambiente chiamato spàker con Python tre punti dodici e pip.",
+      "phonemes": "aprˈire ʊn terminˈale abilitˈato kon kˈonda e kreˈare ʊn ambiˈɛnte kjamˈato spˈaker kon pˈIθən trˈe pˈuntɪ dˈodiʧɪ e pˈip."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.4,
+      "speech_end": 27.174999999999997,
+      "scene_end": 27.874999999999996,
+      "duration": 7.474999999999998,
+      "text": "Attivare l'ambiente. Confirma che Python appartiene all'ambiente spacr prima di installare qualsiasi cosa.",
+      "speech_text": "Attivare l'ambiente. Confirma che Python appartiene all'ambiente spàker prima di installare qualsiasi cosa.",
+      "phonemes": "atːivˈare lambiˈɛnte. konfˈirma ke pˈIθən apːartjˈɛne allambiˈɛnte spˈaker prˈima dɪ installˈare kwalsˈiazɪ kˈɔza."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.874999999999996,
+      "speech_end": 36.9,
+      "scene_end": 37.6,
+      "duration": 9.725000000000005,
+      "text": "Aggiornare pip attraverso l'interprete Python attivo. L' uso di python -m pip impedisce di ricevere il pacchetto da un altro pip executable.",
+      "speech_text": "Aggiornare pip attraverso l'interprete Python attivo. L' uso di python -m pip impedisce di ricevere il pacchetto da un altro pip executable.",
+      "phonemes": "aʤːornˈare pˈip atːravˈɛrso lintˈɛrprete pˈIθən atːˈivo. ˈɛlle ˈuzo dɪ pˈIθən ˈɛmme pˈip impedˈiʃe dɪ riʧˈevere il pakːˈetːo da ʊn ˈaltro pˈip eksekʊtˈable."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.6,
+      "speech_end": 47.150000000000006,
+      "scene_end": 47.85000000000001,
+      "duration": 10.250000000000007,
+      "text": "Per l'applicazione desktop, installa spacr con il qt extra. Utilizzare il semplice pacchetto spacr per una stazione di lavoro o un server senza testa.",
+      "speech_text": "Per l'applicazione desktop, installa spàker con il qt extra. Utilizzare il semplice pacchetto spàker per una stazione di lavoro o un server senza testa.",
+      "phonemes": "per lapːlikaʦiˈone dˈesk tˌɔp, instˈalla spˈaker kon il kˌʊtˈɪ ˈɛkstra. ʊtiliʣːˈare il sˈempliʧe pakːˈetːo spˈaker per ˌʊna staʦiˈone dɪ lavˈɔro o ʊn sˈɛrver sˌɛnʦa tˈɛsta."
+    },
+    {
+      "scene": 6,
+      "speech_start": 47.85000000000001,
+      "speech_end": 61.17500000000001,
+      "scene_end": 61.875000000000014,
+      "duration": 14.025000000000006,
+      "text": "Esegui spaCR-doctor prima del primo avvio. Lo strumento diagnostico controlla l'installazione attiva, Qt, PyTorch, i componenti opzionali e il supporto hardware e propone una soluzione per ogni controllo non superato.",
+      "speech_text": "Esegui spàker-doctor prima del primo avvio. Lo strumento diagnostico controlla l'installazione attiva, Qt, PyTorch, i componenti opzionali e il supporto hardware e propone una soluzione per ogni controllo non superato.",
+      "phonemes": "ezˈeɡwɪ spˈakerdoktˈɔr prˈima del prˈimo avvˈio. lo strʊmˈento djaɲˈɔstiko kontrˈɔlla linstallaʦiˈone atːˈiva, kˌʊtˈɪ, pˈi tˈɔrʧ, i komponˈɛntɪ opʦionˈalɪ e il sʊpːˈɔrto ˈaːɾd̪ wer e propˈone ˌʊna solʊʦiˈone per ˌoɲɲɪ kontrˈɔllo non sʊperˈato."
+    },
+    {
+      "scene": 7,
+      "speech_start": 61.875000000000014,
+      "speech_end": 74.80000000000001,
+      "scene_end": 75.50000000000001,
+      "duration": 13.625,
+      "text": "Il pacchetto conda-forge non è ancora pubblicato, quindi per ora non eseguire conda install -c conda-forge spacr. Quando sarà disponibile, il repository spaCR conterrà i collegamenti alla ricetta e al canale ufficiali.",
+      "speech_text": "Il pacchetto conda-forge non è ancora pubblicato, quindi per ora non eseguire conda install -c conda-forge spàker. Quando sarà disponibile, il repository spàker conterrà i collegamenti alla ricetta e al canale ufficiali.",
+      "phonemes": "il pakːˈetːo kˈondafˈɔrʤe non e ankˈora pʊbːlikˈato, kwˈindɪ per ˈora non ezeɡwˈire kˈonda ˈinstal ʧˈi kˈondafˈɔrʤe spˈaker. kwˈando saɾˌa disponˈibile, il repozitˈorɪ spˈaker konterɾˈa i kolleɡamˈentɪ ˌalla riʧˈɛtːa e al kanˈale ʊffiʧˈalɪ."
+    }
+  ]
+}

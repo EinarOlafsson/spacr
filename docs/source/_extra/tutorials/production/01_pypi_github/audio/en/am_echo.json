@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_echo",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 80.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.3,
+      "scene_end": 13.0,
+      "duration": 13.0,
+      "text": "Before installing spaCR, know the three official distribution routes: PyPI for the released Python package, GitHub for source code and desktop installers, and conda-forge once its reviewed package is published.",
+      "speech_text": "Before installing spacer, know the three official distribution routes: pie pee for the released Python package, GitHub for source code and desktop installers, and conda-forge once its reviewed package is published.",
+      "phonemes": "bəfˈɔɹ ɪnstˈɔlɪŋ spˈAsəɹ, nˈO ðə θɹˈi əfˈɪʃᵊl dˌɪstɹəbjˈuʃən ɹˈuts: pˈI pˈi fɔɹ ðə ɹəlˈist pˈIθˌɑn pˈækɪʤ, ɡˌɪthˈʌb fɔɹ sˈɔɹs kˈOd ænd dˈɛsktˌɑp ɪnstˈɔləɹz, ænd kˈɑndəfˈɔɹʤ wˈʌns ɪts ɹəvjˈud pˈækɪʤ ɪz pˈʌblɪʃt."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.0,
+      "speech_end": 22.425,
+      "scene_end": 23.125,
+      "duration": 10.125,
+      "text": "The spaCR page on PyPI shows the current stable release and the command pip install spacr. Release files include a Python wheel and a source archive.",
+      "speech_text": "The spacer page on pie pee shows the current stable release and the command pip install spacer. Release files include a Python wheel and a source archive.",
+      "phonemes": "ðə spˈAsəɹ pˈAʤ ˌɔn pˈI pˈi ʃˈOz ðə kˈɜɹənt stˈAbᵊl ɹəlˈis ænd ðə kəmˈænd pˈɪp ɪnstˈɔl spˈAsəɹ. ɹəlˈis fˈIlz ɪnklˈud ɐ pˈIθˌɑn wˈil ænd ɐ sˈɔɹs ˈɑɹkˌIv."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.125,
+      "speech_end": 33.675,
+      "scene_end": 34.375,
+      "duration": 11.25,
+      "text": "PyPI also links to the documentation, source repository, and issue tracker. Check the required Python versions and release date before changing an existing environment.",
+      "speech_text": "pie pee also links to the documentation, source repository, and issue tracker. Check the required Python versions and release date before changing an existing environment.",
+      "phonemes": "pˈI pˈi ˈɔlsO lˈɪŋks tə ðə dˌɑkjəməntˈAʃən, sˈɔɹs ɹəpˈɑzətˌɔɹi, ænd ˈɪʃu tɹˈækəɹ. ʧˈɛk ðə ɹəkwˈIəɹd pˈIθˌɑn vˈɜɹʒənz ænd ɹəlˈis dˈAt bəfˈɔɹ ʧˈAnʤɪŋ ɐn ɪɡzˈɪstɪŋ ənvˈIɹənmᵊnt."
+    },
+    {
+      "scene": 4,
+      "speech_start": 34.375,
+      "speech_end": 44.025,
+      "scene_end": 44.725,
+      "duration": 10.350000000000001,
+      "text": "On GitHub, main is the released source line and nightly contains newer work still being tested. Use nightly only when you specifically need an unreleased change.",
+      "speech_text": "On GitHub, main is the released source line and nightly contains newer work still being tested. Use nightly only when you specifically need an unreleased change.",
+      "phonemes": "ˌɔn ɡˌɪthˈʌb, mˈAn ɪz ðə ɹəlˈist sˈɔɹs lˈIn ænd nˈItli kəntˈAnz nˈuəɹ wˈɜɹk stˈɪl bˈiɪŋ tˈɛstᵻd. jˈuz nˈItli ˈOnli wˌɛn ju spəsˈɪfəkᵊli nˈid ɐn ˌʌnɹəlˈist ʧˈAnʤ."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.725,
+      "speech_end": 54.025000000000006,
+      "scene_end": 54.72500000000001,
+      "duration": 10.000000000000007,
+      "text": "GitHub Releases provides the Windows, macOS, and Linux installers, release notes, Python package files, and SHA-256 checksums.",
+      "speech_text": "GitHub Releases provides the Windows, macOS, and Linux installers, release notes, Python package files, and S H A two fifty six checksums.",
+      "phonemes": "ɡˌɪthˈʌb ɹəlˈisᵻz pɹəvˈIdz ðə wˈɪndOz, mˌækˌOˈɛs, ænd lˈɪnəks ɪnstˈɔləɹz, ɹəlˈis nˈOts, pˈIθˌɑn pˈækɪʤ fˈIlz, ænd ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks ʧˈɛksˌʌmz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 54.72500000000001,
+      "speech_end": 66.85000000000001,
+      "scene_end": 67.55000000000001,
+      "duration": 12.825000000000003,
+      "text": "The conda-forge recipe is prepared in the repository, but no spaCR package is published on the conda-forge channel yet. For now, create a Conda environment and install spaCR from PyPI inside it.",
+      "speech_text": "The conda-forge recipe is prepared in the repository, but no spacer package is published on the conda-forge channel yet. For now, create a Conda environment and install spacer from pie pee inside it.",
+      "phonemes": "ðə kˈɑndəfˈɔɹʤ ɹˈɛsəpˌi ɪz pɹipˈɛɹd ɪn ðə ɹəpˈɑzətˌɔɹi, bˌʌt nˈO spˈAsəɹ pˈækɪʤ ɪz pˈʌblɪʃt ˌɔn ðə kˈɑndəfˈɔɹʤ ʧˈænᵊl jˈɛt. fˌɔɹ nˈW, kɹiˈAt ɐ kˈɑndə ənvˈIɹənmᵊnt ænd ɪnstˈɔl spˈAsəɹ fɹʌm pˈI pˈi ɪnsˈId ɪt."
+    },
+    {
+      "scene": 7,
+      "speech_start": 67.55000000000001,
+      "speech_end": 80.05000000000001,
+      "scene_end": 80.75000000000001,
+      "duration": 13.200000000000003,
+      "text": "Use PyPI or pip for a Python environment, GitHub Releases for a native installer, and the nightly branch only for development. The next tutorials demonstrate each installation route without launching the application.",
+      "speech_text": "Use pie pee or pip for a Python environment, GitHub Releases for a native installer, and the nightly branch only for development. The next tutorials demonstrate each installation route without launching the application.",
+      "phonemes": "jˈuz pˈI pˈi ɔɹ pˈɪp fɔɹ ɐ pˈIθˌɑn ənvˈIɹənmᵊnt, ɡˌɪthˈʌb ɹəlˈisᵻz fɔɹ ɐ nˈATɪv ɪnstˈɔləɹ, ænd ðə nˈItli bɹˈænʧ ˈOnli fɔɹ dəvˈɛləpmənt. ðə nˈɛkst tutˈɔɹiəlz dˈɛmənstɹˌAt ˈiʧ ˌɪnztəlˈAʃən ɹˈut wɪðˈWt lˈɑnʧɪŋ ði ˌæpləkˈAʃən."
+    }
+  ]
+}

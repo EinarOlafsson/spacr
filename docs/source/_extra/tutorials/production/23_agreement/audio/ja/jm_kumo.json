@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jm_kumo",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 63.45,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.225,
+      "scene_end": 13.674999999999999,
+      "duration": 13.674999999999999,
+      "text": "このチュートリアルでは,アノテーションの合意について説明します. アノテーションの列間の合意を測定し,意見の不一致の原因となるオブジェクトをレビューします."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.674999999999999,
+      "speech_end": 27.0,
+      "scene_end": 27.45,
+      "duration": 13.775,
+      "text": "Results and quality control セクションから Annotator Agreement を開きます。 プロジェクトデータベースと同じオブジェクトをカバーする2つ以上の注記列を選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.45,
+      "speech_end": 36.425,
+      "scene_end": 36.875,
+      "duration": 9.425,
+      "text": "主な構成領域では,クラス処理,欠損ラベルポリシー,グループ化,サンプリング,合意統計を選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.875,
+      "speech_end": 53.0,
+      "scene_end": 53.45,
+      "duration": 16.575000000000003,
+      "text": "完全な実行前に,可視設定をレビューし,可用である場合のプレビューまたはテストモードを使用します.クラス別混乱と意見の不一致の例とともにコーエンまたはフリース・カッパを検査します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 53.45,
+      "speech_end": 62.800000000000004,
+      "scene_end": 63.45,
+      "duration": 10.0,
+      "text": "作業流が完了すると,合意表と集中的なレビューは,ラベルの和解とプロトコル改善をサポートします."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 57.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.825,
+      "scene_end": 9.274999999999999,
+      "duration": 9.274999999999999,
+      "text": "Este tutorial abarca el Acuerdo de Anotador. Medir el acuerdo entre las columnas de anotación y revisar los objetos responsables del desacuerdo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.274999999999999,
+      "speech_end": 23.4,
+      "scene_end": 23.849999999999998,
+      "duration": 14.575,
+      "text": "Abra Annotator Agreement en la sección Results and quality control. Abre el Acuerdo de anotador en la sección Resultados y control de calidad. Elige una base de datos de proyectos y dos o más columnas de anotación que cubran los mismos objetos."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.849999999999998,
+      "speech_end": 33.175,
+      "scene_end": 33.625,
+      "duration": 9.775000000000002,
+      "text": "En el área de configuración principal, seleccione el manejo de clases, la política de etiquetas faltantes, el agrupamiento, la muestreo y la estadística de acuerdo."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.625,
+      "speech_end": 47.6,
+      "scene_end": 48.050000000000004,
+      "duration": 14.425000000000004,
+      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. inspeccione Cohen o Fleiss kappa junto con ejemplos de confusión y desacuerdo específicos de la clase."
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.050000000000004,
+      "speech_end": 57.150000000000006,
+      "scene_end": 57.800000000000004,
+      "duration": 9.75,
+      "text": "Cuando el flujo de trabajo termina, las tablas de acuerdo y una revisión enfocada establecen la compatibilidad de las etiquetas y la mejora del protocolo."
+    }
+  ]
+}

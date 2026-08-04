@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 53.9,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.825,
+      "scene_end": 10.274999999999999,
+      "duration": 10.274999999999999,
+      "text": "Questo tutorial copre Align e Stitch. Registrare le piastrelle di immagine e costruire un mosaico cucito in graduazione senza tenere l'intera tela in memoria."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.274999999999999,
+      "speech_end": 22.599999999999998,
+      "scene_end": 23.049999999999997,
+      "duration": 12.774999999999999,
+      "text": "Apri Align and Stitch dalla sezione Data and batch runs. Apri Align e Stitch dalla sezione Data and batch runs. Scegli acquisizioni a piastrelle, coordinate di fase o metadati sovrapposti, canali e destinazione."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.049999999999997,
+      "speech_end": 34.849999999999994,
+      "scene_end": 35.3,
+      "duration": 12.25,
+      "text": "Nella zona di configurazione principale, configurare il metodo di registrazione, il canale di riferimento, la sovrapposizione, la miscelazione, la correzione, la dimensione del pezzo e il formato di uscita."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.3,
+      "speech_end": 44.275,
+      "scene_end": 44.725,
+      "duration": 9.425000000000004,
+      "text": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 44.725,
+      "speech_end": 53.25,
+      "scene_end": 53.9,
+      "duration": 9.174999999999997,
+      "text": "Quando il flusso di lavoro è finito, vengono salvati i tessuti registrati, le immagini cucite, le trasformazioni e i metadati di mappatura."
+    }
+  ]
+}

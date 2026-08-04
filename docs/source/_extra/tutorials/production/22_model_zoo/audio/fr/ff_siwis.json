@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 41.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 2.6,
+      "scene_end": 3.0500000000000003,
+      "duration": 3.0500000000000003,
+      "text": "Ce tutoriel couvre le modèle zoo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.0500000000000003,
+      "speech_end": 12.8,
+      "scene_end": 13.25,
+      "duration": 10.2,
+      "text": "Ouvrez Model Zoo dans la section Segmentation models. Ouvrez le catalogue et sélectionnez les modèles compatibles avec la tâche et les canaux d'entrée actuels."
+    },
+    {
+      "scene": 3,
+      "speech_start": 13.25,
+      "speech_end": 23.95,
+      "scene_end": 24.4,
+      "duration": 11.149999999999999,
+      "text": "Dans la zone de configuration principale, vérifier la provenance, la licence, la somme de contrôle, le prétraitement prévu, le type de tâche et la disponibilité locale."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.4,
+      "speech_end": 31.775,
+      "scene_end": 32.225,
+      "duration": 7.825000000000003,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il y en a un."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.225,
+      "speech_end": 41.1,
+      "scene_end": 41.75,
+      "duration": 9.524999999999999,
+      "text": "Lorsque le flux de travail est terminé, les fichiers de modèle vérifiés et les résultats des indices de référence restent associés à leurs métadonnées."
+    }
+  ]
+}

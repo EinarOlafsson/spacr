@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunyang",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 38.65,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.075,
+      "scene_end": 8.524999999999999,
+      "duration": 8.524999999999999,
+      "text": "这本教程涵盖了分类,计算机视觉. 训练和应用基于图像的神经网络给注释的单个对象作物."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.524999999999999,
+      "speech_end": 16.075,
+      "scene_end": 16.525,
+      "duration": 8.0,
+      "text": "从 Core 部分打开 Classify, computer vision。 选择注释式产品文件或可靠类标签的项目数据库."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.525,
+      "speech_end": 23.25,
+      "scene_end": 23.7,
+      "duration": 7.175000000000001,
+      "text": "在主要配置区域中,选择图像道,架构,分类策略,增强,批量大小和训练控制."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.7,
+      "speech_end": 30.225,
+      "scene_end": 30.675,
+      "duration": 6.975000000000001,
+      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 30.675,
+      "speech_end": 38.0,
+      "scene_end": 38.65,
+      "duration": 7.974999999999998,
+      "text": "当工作流程完成时, spaCR 将模型,指标,预测,类型示例保存,并运行元数据以后应用."
+    }
+  ]
+}

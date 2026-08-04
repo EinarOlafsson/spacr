@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_bella",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.65,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.225,
+      "scene_end": 6.675,
+      "duration": 6.675,
+      "text": "This tutorial covers Plate Queue. Chain multiple plates through the same validated pipeline."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.675,
+      "speech_end": 15.274999999999999,
+      "scene_end": 15.724999999999998,
+      "duration": 9.049999999999997,
+      "text": "Open Plate Queue from the Data and batch runs section. Add plate sources and choose the shared module sequence and settings preset."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.724999999999998,
+      "speech_end": 25.275,
+      "scene_end": 25.724999999999998,
+      "duration": 10.0,
+      "text": "In the main configuration area, review plate order, per-plate overrides, worker limits, failure policy, resume behavior, and output roots."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.724999999999998,
+      "speech_end": 39.099999999999994,
+      "scene_end": 39.55,
+      "duration": 13.825,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. start with a small plate or test field, then let the queue process plates sequentially with visible status."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.55,
+      "speech_end": 48.0,
+      "scene_end": 48.65,
+      "duration": 9.100000000000001,
+      "text": "When the workflow finishes, each plate receives an isolated project and run record while the queue preserves overall progress."
+    }
+  ]
+}

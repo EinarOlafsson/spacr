@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.175,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.95,
+      "scene_end": 8.4,
+      "duration": 8.4,
+      "text": "Ce tutoriel couvre Timelapse. Segmenter, relier et mesurer les cellules ou les agents pathogènes dans les cadres d'une série de temps."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.4,
+      "speech_end": 18.925,
+      "scene_end": 19.375,
+      "duration": 10.975,
+      "text": "Ouvrez Timelapse dans la section Core. Sélectionnez un ensemble d'images résolues dans le temps dont les noms de fichiers conservent les indices de champ, de temps, de profondeur et de canal."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.375,
+      "speech_end": 31.35,
+      "scene_end": 31.8,
+      "duration": 12.425,
+      "text": "Dans la zone de configuration principale, configurer la segmentation, les types d'objets suivis, le mode de liaison, le déplacement maximum, la manipulation des espaces et les cadres d'aperçu."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.8,
+      "speech_end": 39.425,
+      "scene_end": 39.875,
+      "duration": 8.075,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.875,
+      "speech_end": 50.525,
+      "scene_end": 51.175,
+      "duration": 11.299999999999997,
+      "text": "Lorsque le flux de travail est terminé, les masques, les pistes, les mesures et les résumés de trajectoires indexés dans le temps sont stockés avec des identités d'objets stables."
+    }
+  ]
+}

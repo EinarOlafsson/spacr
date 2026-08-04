@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 54.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.65,
+      "scene_end": 10.1,
+      "duration": 10.1,
+      "text": "Este tutorial abrange as corridas de treinamento. Comparar várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.1,
+      "speech_end": 18.625,
+      "scene_end": 19.075,
+      "duration": 8.975,
+      "text": "Abra Training Runs na seção Results and quality control. Abrir a execução de treinamentos na secção Resultados e controlo de qualidade."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.075,
+      "speech_end": 28.275,
+      "scene_end": 28.724999999999998,
+      "duration": 9.649999999999999,
+      "text": "Na área de configuração principal, escolha métricas, suavização, agrupamento, critérios de ponto de verificação e os campos de configuração a exibir."
+    },
+    {
+      "scene": 4,
+      "speech_start": 28.724999999999998,
+      "speech_end": 43.425,
+      "scene_end": 43.875,
+      "duration": 15.150000000000002,
+      "text": "Antes da corrida completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare convergência, sobre-ajustamento, estabilidade e desempenho prolongado em vez de selecionar apenas pela perda de treinamento."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.875,
+      "speech_end": 53.7,
+      "scene_end": 54.35,
+      "duration": 10.475000000000001,
+      "text": "Quando o fluxo de trabalho estiver concluído, os números de comparação e as tabelas de diferença de configuração identificam a corrida mais forte reprodutível."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "ef_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.325,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.85,
+      "scene_end": 9.299999999999999,
+      "duration": 9.299999999999999,
+      "text": "Este tutorial cubre Clasificar, visión por ordenador. Entrenar y aplicar una red neuronal basada en imágenes a cultivos de un solo objeto anotados."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.299999999999999,
+      "speech_end": 22.575,
+      "scene_end": 23.025,
+      "duration": 13.725,
+      "text": "Abra Classify, computer vision en la sección Core. Abre Clasificar, visión por ordenador desde la sección Core. Seleccione carpetas de cultivos anotadas o una base de datos de proyectos con etiquetas de clases confiables."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.025,
+      "speech_end": 32.825,
+      "scene_end": 33.275000000000006,
+      "duration": 10.250000000000007,
+      "text": "En el área de configuración principal, elija los canales de imagen, la arquitectura, la estrategia dividida, el aumento, el tamaño del lote y los controles de entrenamiento."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.275000000000006,
+      "speech_end": 41.12500000000001,
+      "scene_end": 41.57500000000001,
+      "duration": 8.300000000000004,
+      "text": "Antes de la carrera completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 41.57500000000001,
+      "speech_end": 50.67500000000001,
+      "scene_end": 51.32500000000001,
+      "duration": 9.75,
+      "text": "Cuando el flujo de trabajo termina, spaCR guarda el modelo, métricas, predicciones, ejemplos de clases y ejecuta metadatos para su posterior aplicación."
+    }
+  ]
+}

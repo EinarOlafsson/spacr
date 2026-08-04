@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoni",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 49.4,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.65,
+      "scene_end": 7.1000000000000005,
+      "duration": 7.1000000000000005,
+      "text": "通过四通道显微镜实验,将其分成核,细胞,脂滴和寄生虫掩膜."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.1000000000000005,
+      "speech_end": 15.650000000000002,
+      "scene_end": 16.1,
+      "duration": 9.0,
+      "text": "从 Core 部分打开 Mask。 通道零是核,通通道一是内质网,通通道二是脂质滴,通通道三是寄生虫."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.1,
+      "speech_end": 26.725,
+      "scene_end": 27.175,
+      "duration": 11.075,
+      "text": "在主要配置区域中,检测到从零道的核,从子宫膜膜道的细胞,与器官斑点工作流动的脂质滴滴,和从三道的寄生虫."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.175,
+      "speech_end": 39.55,
+      "scene_end": 40.0,
+      "duration": 12.825,
+      "text": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式. 检查一个代表性字段,然后在数据集中运行四个细分传递."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.0,
+      "speech_end": 48.75,
+      "scene_end": 49.4,
+      "duration": 9.399999999999999,
+      "text": "工作流程完成后,掩膜文件包含对齐的对象标签和合并的图像加掩膜阵列,准备进行测量."
+    }
+  ]
+}

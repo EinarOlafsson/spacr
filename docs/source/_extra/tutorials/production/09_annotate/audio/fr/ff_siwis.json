@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.65,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.15,
+      "scene_end": 10.6,
+      "duration": 10.6,
+      "text": "Ce tutoriel couvre Annotate.Voir les cultures à objet unique sur une grille et attribuer des étiquettes fiables pour la formation des modèles ou le contrôle de la qualité."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.6,
+      "speech_end": 19.65,
+      "scene_end": 20.099999999999998,
+      "duration": 9.499999999999998,
+      "text": "Ouvrez Annotate dans la section Core. Ouvrez un projet avec des cultures d'objets et sélectionnez la table de base de données et la colonne d'annotation."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.099999999999998,
+      "speech_end": 31.0,
+      "scene_end": 31.45,
+      "duration": 11.350000000000001,
+      "text": "Dans la zone de configuration principale, choisissez les classes, les canaux d'affichage, le tri, le prélèvement d'échantillons et tous les filtres qui définissent l'ensemble de révision."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.45,
+      "speech_end": 45.825,
+      "scene_end": 46.275000000000006,
+      "duration": 14.825000000000006,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. étiquettez des objets représentatifs, économisez fréquemment et revuez des exemples incertains ou contradictoires."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.275000000000006,
+      "speech_end": 55.00000000000001,
+      "scene_end": 55.650000000000006,
+      "duration": 9.375,
+      "text": "Lorsque le flux de travail est terminé, les annotations sont réécrites dans la base de données du projet avec les identifiants d'objets intacts."
+    }
+  ]
+}

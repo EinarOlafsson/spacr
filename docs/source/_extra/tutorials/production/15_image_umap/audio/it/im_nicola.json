@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 68.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.3,
+      "scene_end": 10.75,
+      "duration": 10.75,
+      "text": "Questo tutorial copre l'Image UMAP. Esplora i quartieri fenotipici inserendo oggetti misurati e visualizzando le loro colture di immagine come glifi."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.75,
+      "speech_end": 26.2,
+      "scene_end": 26.65,
+      "duration": 15.899999999999999,
+      "text": "Apri Image UMAP dalla sezione Results and quality control. Apri UMAP immagine dalla sezione Risultati e controllo qualità. Scegli un database di misurazioni, colture di immagine, set di funzionalità e metadati di raggruppamento."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.65,
+      "speech_end": 38.099999999999994,
+      "scene_end": 38.55,
+      "duration": 11.899999999999999,
+      "text": "Nell'area di configurazione principale, configurare filtraggio, scalazione, vicini, distanza minima, raggruppamento, campionamento e canali di visualizzazione delle immagini."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.55,
+      "speech_end": 56.625,
+      "scene_end": 57.075,
+      "duration": 18.525000000000006,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare diverse inserzioni riproducibili e verificare che i cluster non siano guidati da piastre o da artefatti di immagini."
+    },
+    {
+      "scene": 5,
+      "speech_start": 57.075,
+      "speech_end": 67.375,
+      "scene_end": 68.025,
+      "duration": 10.950000000000003,
+      "text": "Quando il flusso di lavoro è terminato, spaCR salva coordinate, etichette di cluster, mappe di immagini e figure di inserimento pronte per la pubblicazione."
+    }
+  ]
+}

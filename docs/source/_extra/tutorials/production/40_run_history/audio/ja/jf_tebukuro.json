@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_tebukuro",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 69.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.625,
+      "scene_end": 14.075,
+      "duration": 14.075,
+      "text": "このチュートリアルでは,実行履歴をカバーします. すべての仕事の設定,ファイル,警告,失敗,およびパフォーマンスを 1 つの場所から検索します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.075,
+      "speech_end": 27.85,
+      "scene_end": 28.3,
+      "duration": 14.225000000000001,
+      "text": "Results and quality control セクションから Run History を開きます。 現在の作業空間または選択されたプロジェクトルーツの実行レジストリを開きます."
+    },
+    {
+      "scene": 3,
+      "speech_start": 28.3,
+      "speech_end": 40.55,
+      "scene_end": 41.0,
+      "duration": 12.7,
+      "text": "主な構成領域では,モジュール,状態,日付,プロジェクト,バージョン,警告,期間,またはリソース使用によってフィルタします."
+    },
+    {
+      "scene": 4,
+      "speech_start": 41.0,
+      "speech_end": 58.775,
+      "scene_end": 59.225,
+      "duration": 18.225,
+      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します.変更できない設定,ログ,出力,故障のコンテキストをチェックするために実行を開きます."
+    },
+    {
+      "scene": 5,
+      "speech_start": 59.225,
+      "speech_end": 69.075,
+      "scene_end": 69.72500000000001,
+      "duration": 10.500000000000007,
+      "text": "作業が完了すると,作業の仕方を知らずに,再現,比較,再開,または報告することができます."
+    }
+  ]
+}

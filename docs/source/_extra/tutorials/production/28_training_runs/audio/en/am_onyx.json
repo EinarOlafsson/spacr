@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_onyx",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 46.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.375,
+      "scene_end": 7.825,
+      "duration": 7.825,
+      "text": "This tutorial covers Training Runs. Compare several model-training runs by overlaying curves and diffing their settings."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.825,
+      "speech_end": 16.525,
+      "scene_end": 16.974999999999998,
+      "duration": 9.149999999999999,
+      "text": "Open Training Runs from the Results and quality control section. Select run folders or registered training records that should be compared."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.974999999999998,
+      "speech_end": 24.5,
+      "scene_end": 24.95,
+      "duration": 7.975000000000001,
+      "text": "In the main configuration area, choose metrics, smoothing, grouping, checkpoint criteria, and the settings fields to display."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.95,
+      "speech_end": 37.6,
+      "scene_end": 38.050000000000004,
+      "duration": 13.100000000000005,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare convergence, overfitting, stability, and held-out performance rather than selecting by training loss alone."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.050000000000004,
+      "speech_end": 45.7,
+      "scene_end": 46.35,
+      "duration": 8.299999999999997,
+      "text": "When the workflow finishes, comparison figures and settings-difference tables identify the strongest reproducible run."
+    }
+  ]
+}

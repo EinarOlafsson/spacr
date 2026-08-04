@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.6,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 2.975,
+      "scene_end": 3.4250000000000003,
+      "duration": 3.4250000000000003,
+      "text": "Este tutorial abrange o teste de replicação."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.4250000000000003,
+      "speech_end": 17.325,
+      "scene_end": 17.775,
+      "duration": 14.349999999999998,
+      "text": "Abra Replication assay na seção Toxoplasma assays. Avaliação de análises de replicação da seção de análises de Toxoplasma Selecione as medições de células hospedeiras, vacuóis e parasitas juntamente com os metadados da condição."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.775,
+      "speech_end": 27.125,
+      "scene_end": 27.575,
+      "duration": 9.8,
+      "text": "Na área de configuração principal, configure atribuição espacial, filtros de objetos, caixas de contagem de parasitas, controles e comparações estatísticas."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.575,
+      "speech_end": 35.275,
+      "scene_end": 35.725,
+      "duration": 8.150000000000002,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.725,
+      "speech_end": 43.95,
+      "scene_end": 44.6,
+      "duration": 8.875,
+      "text": "Quando o fluxo de trabalho termina, são guardadas as distribuições de parasitas por vacuo, as taxas de replicação, estatísticas e números."
+    }
+  ]
+}

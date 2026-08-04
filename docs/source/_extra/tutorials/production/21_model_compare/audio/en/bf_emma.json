@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_emma",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.425,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.4,
+      "scene_end": 8.85,
+      "duration": 8.85,
+      "text": "This tutorial covers Model Compare. Run two Cellpose models on the same fields and compare masks, counts, and agreement metrics."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.85,
+      "speech_end": 17.424999999999997,
+      "scene_end": 17.874999999999996,
+      "duration": 9.024999999999997,
+      "text": "Open Model Compare from the Segmentation models section. Choose two candidate models and a representative set of microscopy fields."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.874999999999996,
+      "speech_end": 25.799999999999997,
+      "scene_end": 26.249999999999996,
+      "duration": 8.375,
+      "text": "In the main configuration area, match channels and preprocessing, then configure thresholds and the object-matching criteria."
+    },
+    {
+      "scene": 4,
+      "speech_start": 26.249999999999996,
+      "speech_end": 38.75,
+      "scene_end": 39.2,
+      "duration": 12.950000000000006,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. review side-by-side overlays together with object-count, overlap, and adjusted-Rand-index differences."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.2,
+      "speech_end": 46.775000000000006,
+      "scene_end": 47.425000000000004,
+      "duration": 8.225000000000001,
+      "text": "When the workflow finishes, the comparison report identifies where each model gains, loses, splits, or merges objects."
+    }
+  ]
+}

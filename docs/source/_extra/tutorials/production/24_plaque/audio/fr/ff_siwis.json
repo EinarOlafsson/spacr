@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 46.1,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.9,
+      "scene_end": 9.35,
+      "duration": 9.35,
+      "text": "Ce tutoriel couvre l'analyse des plaques. Mesurer la formation des plaques et les changements dépendants de la condition à partir des images de plaques."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.35,
+      "speech_end": 16.825,
+      "scene_end": 17.275,
+      "duration": 7.924999999999999,
+      "text": "Ouvrez Plaque assay dans la section Toxoplasma assays. Ouvrez l'analyse de plaque dans la section des tests Toxoplasma."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.275,
+      "speech_end": 27.349999999999998,
+      "scene_end": 27.799999999999997,
+      "duration": 10.524999999999999,
+      "text": "Dans la zone de configuration principale, configurer la correction de fond, le seuil, le nettoyage des objets, les filtres de taille de plaque et le regroupement des puits."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.799999999999997,
+      "speech_end": 35.525,
+      "scene_end": 35.975,
+      "duration": 8.175000000000004,
+      "text": "Avant la pleine opération, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 35.975,
+      "speech_end": 45.45,
+      "scene_end": 46.1,
+      "duration": 10.125,
+      "text": "Lorsque le flux de travail est terminé, spaCR rapporte le nombre de plaques, les zones, les résumés, les statistiques et les chiffres du contrôle de la qualité."
+    }
+  ]
+}

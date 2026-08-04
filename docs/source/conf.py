@@ -95,6 +95,33 @@ templates_path  = ['_templates']
 html_static_path = ['_static']
 html_css_files  = ['custom.css']
 
+# -- Tutorial media --------------------------------------------------------
+# `_extra` is 712 MiB, 93% of it one narration .m4a per lesson x language x
+# voice. Copying it whole put the built site at ~88% of the GitHub Pages 1 GB
+# limit. tools/docs_media_budget.py stages a hardlinked subset -- every
+# lesson, every video, every caption, and the default voice in each of the
+# eight narrated languages -- and rewrites voice_catalog.js to offer exactly
+# what was published. Nothing is deleted; SPACR_DOCS_FULL_AUDIO=1 ships the
+# lot. There is deliberately no fallback to the unfiltered tree: a staging
+# failure that quietly republished 712 MiB is the thing this replaces.
+import importlib.util as _importlib_util
+import pathlib as _pathlib
+
+_budget_path = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', '..', 'tools', 'docs_media_budget.py'))
+_budget_spec = _importlib_util.spec_from_file_location(
+    'spacr_docs_media_budget', _budget_path)
+_budget = _importlib_util.module_from_spec(_budget_spec)
+_budget_spec.loader.exec_module(_budget)
+
+_voices = _budget.per_language_setting()
+_staged_extra = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', '_build', 'extra_staged'))
+_budget.stage(_pathlib.Path(_staged_extra), per_language=_voices)
+print(_budget.report(per_language=_voices))
+
+html_extra_path = [_staged_extra]
+
 html_theme_options = {
     # Auto-switching light/dark, with a manual toggle in the top bar
     'light_css_variables': {

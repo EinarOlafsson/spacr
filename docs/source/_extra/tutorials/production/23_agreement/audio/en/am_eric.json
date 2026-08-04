@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_eric",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.225,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.275,
+      "scene_end": 8.725,
+      "duration": 8.725,
+      "text": "This tutorial covers Annotator Agreement. Measure agreement between annotation columns and review the objects responsible for disagreement."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.725,
+      "speech_end": 17.674999999999997,
+      "scene_end": 18.124999999999996,
+      "duration": 9.399999999999997,
+      "text": "Open Annotator Agreement from the Results and quality control section. Choose a project database and two or more annotation columns covering the same objects."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.124999999999996,
+      "speech_end": 25.199999999999996,
+      "scene_end": 25.649999999999995,
+      "duration": 7.524999999999999,
+      "text": "In the main configuration area, select class handling, missing-label policy, grouping, sampling, and the agreement statistic."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.649999999999995,
+      "speech_end": 36.99999999999999,
+      "scene_end": 37.449999999999996,
+      "duration": 11.8,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect Cohen or Fleiss kappa together with class-specific confusion and disagreement examples."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.449999999999996,
+      "speech_end": 44.574999999999996,
+      "scene_end": 45.224999999999994,
+      "duration": 7.774999999999999,
+      "text": "When the workflow finishes, agreement tables and a focused review set support label reconciliation and protocol improvement."
+    }
+  ]
+}

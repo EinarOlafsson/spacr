@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 48.45,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.375,
+      "scene_end": 9.825,
+      "duration": 9.825,
+      "text": "Ce tutoriel couvre Make Masks. Construire, corriger et conserver des étiquettes de segmentation interactives pour les données de formation Cellpose."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.825,
+      "speech_end": 19.45,
+      "scene_end": 19.9,
+      "duration": 10.075,
+      "text": "Ouvrez Make Masks dans la section Segmentation models. Ouvrez les images représentatives de microscopie et les masques existants qui doivent être affinés."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.9,
+      "speech_end": 30.849999999999998,
+      "scene_end": 31.299999999999997,
+      "duration": 11.399999999999999,
+      "text": "Dans la zone de configuration principale, sélectionnez les canaux, la normalisation, les outils de pinceau ou de bande magique, les opérations d'objets et le comportement d'étiquette."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.299999999999997,
+      "speech_end": 39.0,
+      "scene_end": 39.45,
+      "duration": 8.150000000000006,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+    },
+    {
+      "scene": 5,
+      "speech_start": 39.45,
+      "speech_end": 47.800000000000004,
+      "scene_end": 48.45,
+      "duration": 9.0,
+      "text": "Lorsque le flux de travail est terminé, les images couplées et les masques d'étiquettes sont prêts pour une formation personnalisée de Cellpose."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 40.725,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.025,
+      "scene_end": 6.4750000000000005,
+      "duration": 6.4750000000000005,
+      "text": "量化对寄生虫或与病原体相关区域的兴趣信号的招募."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.4750000000000005,
+      "speech_end": 16.575,
+      "scene_end": 17.025,
+      "duration": 10.549999999999997,
+      "text": "从 Toxoplasma assays 部分打开 Recruitment。 使用测量细胞,寄生虫和机器人掩膜,以第一个通道,内膜网膜作为关注通道."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.025,
+      "speech_end": 24.724999999999998,
+      "scene_end": 25.174999999999997,
+      "duration": 8.149999999999999,
+      "text": "在主要配置区域中,定义招聘区域,背景参考,对象过器,组合和正常化策略."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.174999999999997,
+      "speech_end": 32.224999999999994,
+      "scene_end": 32.675,
+      "duration": 7.5,
+      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 32.675,
+      "speech_end": 40.074999999999996,
+      "scene_end": 40.724999999999994,
+      "duration": 8.049999999999997,
+      "text": "工作流程完成后,每个对象的招聘分数和条件总结将与源标识符存储."
+    }
+  ]
+}

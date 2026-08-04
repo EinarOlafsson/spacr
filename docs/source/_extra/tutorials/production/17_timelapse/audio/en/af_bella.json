@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_bella",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 52.775,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.075,
+      "scene_end": 8.524999999999999,
+      "duration": 8.524999999999999,
+      "text": "This tutorial covers Timelapse. Segment, link, and measure cells or pathogens across the frames of a time series."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.524999999999999,
+      "speech_end": 18.25,
+      "scene_end": 18.7,
+      "duration": 10.175,
+      "text": "Open Timelapse from the Core section. Select a time-resolved image set whose filenames preserve field, time, depth, and channel indices."
+    },
+    {
+      "scene": 3,
+      "speech_start": 18.7,
+      "speech_end": 29.4,
+      "scene_end": 29.849999999999998,
+      "duration": 11.149999999999999,
+      "text": "In the main configuration area, configure segmentation, tracked object types, linking mode, maximum displacement, gap handling, and preview frames."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.849999999999998,
+      "speech_end": 42.474999999999994,
+      "scene_end": 42.925,
+      "duration": 13.075,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate tracks on representative motion before processing the entire time series."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.925,
+      "speech_end": 52.125,
+      "scene_end": 52.775,
+      "duration": 9.850000000000001,
+      "text": "When the workflow finishes, time-indexed masks, tracks, measurements, and trajectory summaries are stored with stable object identities."
+    }
+  ]
+}

@@ -13,14 +13,36 @@ on:
 #           Source = "GitHub Actions" (not "Deploy from a branch").
 # If it's still "Deploy from a branch", this workflow silently uploads
 # but Pages keeps serving the old branch — flip the source once.
+#
+# ---------------------------------------------------------------------------
+# PUBLISHING IS main-ONLY. That is load-bearing, not tidiness.
+#
+# The push trigger used to run every step on `nightly` as well, so each
+# nightly push republished https://einarolafsson.github.io/spacr/ *from
+# nightly*, overwriting whatever main had last deployed. The public site
+# therefore documented unreviewed work, and re-running the main build was the
+# only way to put it back — until the next nightly push minutes later.
+#
+# nightly still BUILDS, because a docs build that only runs on main finds a
+# broken docstring after the merge instead of before. It just stops short of
+# the Pages target: no configure-pages, no `github-pages` artifact, no deploy
+# job — it fails the run if sphinx cannot produce index.html and then writes
+# a job summary. Everything that can touch production Pages is guarded by
+# `github.ref == 'refs/heads/main'`, which also covers workflow_dispatch
+# (it carries the dispatching ref).
+# ---------------------------------------------------------------------------
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Serialize per branch. A shared "pages" group here would let a nightly
+# validation build hold the group while a real main deploy queues behind it;
+# the genuine Pages serialization belongs on the deploy job, which only main
+# ever reaches.
 concurrency:
-  group: "pages"
+  group: docs-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -81,18 +103,60 @@ jobs:
           # Pages needs .nojekyll to preserve _static / _sources folders
           touch docs/_build/html/.nojekyll
 
+      # --- production Pages path: main only ------------------------------
       - name: Configure Pages
+        if: github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v6
 
       - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v5
         with:
           path: docs/_build/html
 
+      # --- everything else: build only, and say so ------------------------
+      # No artifact is uploaded on purpose. `html_extra_path = ['_extra']`
+      # copies docs/source/_extra/tutorials (723 MB of narration .m4a and
+      # lesson .mp4) into every build, so the site is ~876 MB; pushing that
+      # to artifact storage on every nightly push costs minutes per run for
+      # a preview nobody asked for. The build itself is the value here — it
+      # fails the run if sphinx cannot produce index.html. If a browsable
+      # nightly preview is ever wanted, upload a filtered subset or deploy
+      # it to a target that is not production Pages.
+      - name: Report build-only outcome (non-main)
+        if: github.ref != 'refs/heads/main'
+        # The ref goes through the environment, not through `${{ }}`
+        # interpolation into the shell: a branch name is attacker-influenced
+        # text, and interpolated text becomes shell source.
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          pages=$(find docs/_build/html -name '*.html' | wc -l)
+          size=$(du -sh docs/_build/html | cut -f1)
+          {
+            echo "### Docs built, not published"
+            echo ""
+            echo "Ref \`$REF_NAME\` is not \`main\`, so this build validated"
+            echo "the documentation and stopped there. GitHub Pages is"
+            echo "published from \`main\` only."
+            echo ""
+            echo "- HTML pages: $pages"
+            echo "- Built size: $size"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   deploy:
     name: Deploy to GitHub Pages
     needs: build
+    # The single gate on the production site. Without it, nightly pushes
+    # republish the public docs over main's build.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
+    # Real Pages deployments serialize against each other here rather than
+    # in the workflow-level group, so a nightly validation build never
+    # queues against a deploy.
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

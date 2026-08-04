@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.75,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.85,
+      "scene_end": 10.299999999999999,
+      "duration": 10.299999999999999,
+      "text": "Este tutorial abrange trabalhos distribuídos. Envie e monitore o trabalho spaCR em estações de trabalho SSH, clusters Slurm ou comandos em nuvem e HPC."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.299999999999999,
+      "speech_end": 22.825,
+      "scene_end": 23.275,
+      "duration": 12.975,
+      "text": "Abra Distributed Jobs na seção Data and batch runs. Abra trabalhos distribuídos na seção Dados e batches. Configure um perfil remoto, método de conexão, diretório de trabalho, ambiente e caminhos de dados."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.275,
+      "speech_end": 32.0,
+      "scene_end": 32.45,
+      "duration": 9.175000000000004,
+      "text": "Na área de configuração principal, defina recursos de cronograma, modelos de comando, sincronização de arquivos, credenciais e pesquisas de status."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.45,
+      "speech_end": 40.150000000000006,
+      "scene_end": 40.60000000000001,
+      "duration": 8.150000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.60000000000001,
+      "speech_end": 50.10000000000001,
+      "scene_end": 50.75000000000001,
+      "duration": 10.149999999999999,
+      "text": "Quando o fluxo de trabalho termina, os registros locais rastream identificadores remotos de trabalho, registros, estado, artefatos transferidos e falhas."
+    }
+  ]
+}

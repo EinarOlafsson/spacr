@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_liam",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.55,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.075,
+      "scene_end": 9.524999999999999,
+      "duration": 9.524999999999999,
+      "text": "This tutorial covers Align and Stitch. Register image tiles and build a stitched mosaic incrementally without holding the entire canvas in memory."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.524999999999999,
+      "speech_end": 18.625,
+      "scene_end": 19.075,
+      "duration": 9.55,
+      "text": "Open Align and Stitch from the Data and batch runs section. Choose tiled acquisitions, stage coordinates or overlap metadata, channels, and a destination."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.075,
+      "speech_end": 27.4,
+      "scene_end": 27.849999999999998,
+      "duration": 8.774999999999999,
+      "text": "In the main configuration area, configure registration method, reference channel, overlap, blending, correction, chunk size, and output format."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.849999999999998,
+      "speech_end": 38.349999999999994,
+      "scene_end": 38.8,
+      "duration": 10.95,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect pairwise alignment and seam previews before building the full mosaic."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.8,
+      "speech_end": 44.9,
+      "scene_end": 45.55,
+      "duration": 6.75,
+      "text": "When the workflow finishes, registered tiles, stitched images, transforms, and mapping metadata are saved."
+    }
+  ]
+}

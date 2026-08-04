@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_gongitsune",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 69.175,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 14.025,
+      "scene_end": 14.475,
+      "duration": 14.475,
+      "text": "このチュートリアルではモデル比較をカバーします.同じフィールドで2つのセルポースモデルを実行してマスク,カウント,および合意メトリックを比較します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.475,
+      "speech_end": 25.825,
+      "scene_end": 26.275,
+      "duration": 11.799999999999999,
+      "text": "Segmentation models セクションから Model Compare を開きます。 候補モデル2つと顕微鏡の代表的なフィールドを選択する."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.275,
+      "speech_end": 37.3,
+      "scene_end": 37.75,
+      "duration": 11.475000000000001,
+      "text": "主な構成領域では,チャネルと事前処理をマッチし,その後,限界値とオブジェクトマッチング基準を設定します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.75,
+      "speech_end": 55.4,
+      "scene_end": 55.85,
+      "duration": 18.1,
+      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します. オブジェクト数,重複,調整された Rand  индекスの違いとともに横並びの重複をレビューします."
+    },
+    {
+      "scene": 5,
+      "speech_start": 55.85,
+      "speech_end": 68.525,
+      "scene_end": 69.17500000000001,
+      "duration": 13.32500000000001,
+      "text": "作業流が完了すると,比較レポートは,各モデルが物体を獲得する,失う,分割する,または合併する場所を特定します."
+    }
+  ]
+}

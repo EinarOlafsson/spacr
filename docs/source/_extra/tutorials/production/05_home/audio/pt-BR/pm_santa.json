@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 47.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.325,
+      "scene_end": 10.774999999999999,
+      "duration": 10.774999999999999,
+      "text": "Este tutorial abrange a tela inicial e a navegação. Visite o aplicativo, seus grupos de módulos, execute resumos, indicadores de maturidade e controles de navegação."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.774999999999999,
+      "speech_end": 19.875,
+      "scene_end": 20.325,
+      "duration": 9.55,
+      "text": "Abra Home screen and navigation na seção Home. Abra a tela de Home e navega da seção Home. Lance o aplicativo de desktop spaCR e comece em Home."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.325,
+      "speech_end": 30.375,
+      "scene_end": 30.825,
+      "duration": 10.5,
+      "text": "Na área de configuração principal, use a barra lateral, as guias de categorias, os aplicativos pesquisáveis e a paleta de comandos para chegar a um fluxo de trabalho."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.825,
+      "speech_end": 38.4,
+      "scene_end": 38.85,
+      "duration": 8.025000000000002,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 38.85,
+      "speech_end": 46.5,
+      "scene_end": 47.15,
+      "duration": 8.299999999999997,
+      "text": "Quando o fluxo de trabalho terminar, você pode passar pelo aplicativo e entender as informações de status mostradas no Home."
+    }
+  ]
+}

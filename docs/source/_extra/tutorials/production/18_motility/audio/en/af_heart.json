@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_heart",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.4,
+      "scene_end": 10.85,
+      "duration": 10.85,
+      "text": "This tutorial covers Motility assay. Quantify velocity, displacement, persistence, and infection quality-control metrics from time-resolved images."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.85,
+      "speech_end": 19.375,
+      "scene_end": 19.825,
+      "duration": 8.975,
+      "text": "Open Motility assay from the Core section. Open tracked timelapse data with reliable time intervals and spatial calibration."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.825,
+      "speech_end": 29.475,
+      "scene_end": 29.925,
+      "duration": 10.100000000000001,
+      "text": "In the main configuration area, choose track filters, minimum duration, smoothing, motility metrics, infection definitions, and well-level groups."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.925,
+      "speech_end": 42.95,
+      "scene_end": 43.400000000000006,
+      "duration": 13.475000000000005,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect trajectory previews and exclude broken, stationary-artifact, or implausible tracks."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.400000000000006,
+      "speech_end": 50.7,
+      "scene_end": 51.35,
+      "duration": 7.949999999999996,
+      "text": "When the workflow finishes, spaCR writes per-track and per-condition motility tables, quality metrics, and figures."
+    }
+  ]
+}

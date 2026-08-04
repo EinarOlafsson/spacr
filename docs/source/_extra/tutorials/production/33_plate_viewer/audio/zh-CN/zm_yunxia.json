@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunxia",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 38.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.725,
+      "scene_end": 7.175,
+      "duration": 7.175,
+      "text": "探索任何测量作为一个板热地图,并识别空间文物或边缘效果."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.175,
+      "speech_end": 15.850000000000001,
+      "scene_end": 16.3,
+      "duration": 9.125,
+      "text": "从 Results and quality control 部分打开 Plate Viewer。 打开一个测量数据库,包含平板,井和状态标识符."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.3,
+      "speech_end": 23.5,
+      "scene_end": 23.95,
+      "duration": 7.649999999999999,
+      "text": "在主要配置区域中,选择测量,聚合,正常化,颜色尺度,控制和板布局."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.95,
+      "speech_end": 31.275,
+      "scene_end": 31.724999999999998,
+      "duration": 7.774999999999999,
+      "text": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式."
+    },
+    {
+      "scene": 5,
+      "speech_start": 31.724999999999998,
+      "speech_end": 38.15,
+      "scene_end": 38.8,
+      "duration": 7.074999999999999,
+      "text": "工作流程完成后,可出口热图,选定的井表和边缘效应诊断."
+    }
+  ]
+}

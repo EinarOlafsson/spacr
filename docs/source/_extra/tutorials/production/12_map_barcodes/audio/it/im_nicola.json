@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.025,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.175,
+      "scene_end": 10.625,
+      "duration": 10.625,
+      "text": "Questo tutorial copre i codici a barre Map. Connettere i codici a barre di sequenza e guida le identità ai fenotipi misurati in immagini microscopiche."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.625,
+      "speech_end": 24.3,
+      "scene_end": 24.75,
+      "duration": 14.125,
+      "text": "Apri Map Barcodes dalla sezione Core. Apri i codici a barre della mappa dalla sezione Core. Fornire file FASTQ, definizioni di codici a barre, metadati di piastra e il progetto di microscopia corrispondente."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.75,
+      "speech_end": 35.075,
+      "scene_end": 35.525000000000006,
+      "duration": 10.775000000000006,
+      "text": "Nella zona di configurazione principale, definire le layout di righe, colonne e codici a barre guida insieme a soglie di qualità e regole di incompatibilità."
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.525000000000006,
+      "speech_end": 44.675000000000004,
+      "scene_end": 45.12500000000001,
+      "duration": 9.600000000000001,
+      "text": "Prima di completare la corsa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.12500000000001,
+      "speech_end": 54.37500000000001,
+      "scene_end": 55.025000000000006,
+      "duration": 9.899999999999999,
+      "text": "Quando il flusso di lavoro è terminato, le identità della guida sono collegate a pozzi e fenotipi di singoli oggetti nelle tabelle tracciabili."
+    }
+  ]
+}

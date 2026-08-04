@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 56.075,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.475,
+      "scene_end": 9.924999999999999,
+      "duration": 9.924999999999999,
+      "text": "Ce tutoriel couvre les courses de formation. Comparer plusieurs courses de formation de modèle en superposant des courbes et en différenciant leurs paramètres."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.924999999999999,
+      "speech_end": 19.2,
+      "scene_end": 19.65,
+      "duration": 9.725,
+      "text": "Ouvrez Training Runs dans la section Results and quality control. Ouvrez les cours de formation dans la section Résultats et contrôle de la qualité."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.65,
+      "speech_end": 29.424999999999997,
+      "scene_end": 29.874999999999996,
+      "duration": 10.224999999999998,
+      "text": "Dans la zone de configuration principale, choisissez les mesures, l'allégement, le regroupement, les critères des points de contrôle et les champs de paramètres à afficher."
+    },
+    {
+      "scene": 4,
+      "speech_start": 29.874999999999996,
+      "speech_end": 45.199999999999996,
+      "scene_end": 45.65,
+      "duration": 15.775000000000002,
+      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez la convergence, le surmatch, la stabilité et les performances de la course plutôt que de choisir par défaut de formation seul."
+    },
+    {
+      "scene": 5,
+      "speech_start": 45.65,
+      "speech_end": 55.425,
+      "scene_end": 56.074999999999996,
+      "duration": 10.424999999999997,
+      "text": "Lorsque le flux de travail est terminé, les chiffres de comparaison et les tableaux de différence de paramètres identifient la course reproduisable la plus forte."
+    }
+  ]
+}

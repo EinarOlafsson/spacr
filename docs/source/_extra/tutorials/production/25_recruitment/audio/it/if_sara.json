@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "if_sara",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 52.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.275,
+      "scene_end": 10.725,
+      "duration": 10.725,
+      "text": "Questo tutorial riguarda il reclutamento.Quantificare il reclutamento di un canale di interesse di segnale ai parassiti o alle regioni associate a agenti patogeni."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.725,
+      "speech_end": 21.4,
+      "scene_end": 21.849999999999998,
+      "duration": 11.124999999999998,
+      "text": "Apri Recruitment dalla sezione Toxoplasma assays. Applicare le maschere di cellule, parassiti e organi con canale uno, il reticolo endoplasmico, come canale di interesse."
+    },
+    {
+      "scene": 3,
+      "speech_start": 21.849999999999998,
+      "speech_end": 32.199999999999996,
+      "scene_end": 32.65,
+      "duration": 10.8,
+      "text": "Nell'area di configurazione principale, definire la regione di reclutamento, il riferimento di sfondo, i filtri di oggetti, il raggruppamento e la strategia di normalizzazione."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.65,
+      "speech_end": 41.599999999999994,
+      "scene_end": 42.05,
+      "duration": 9.399999999999999,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.05,
+      "speech_end": 51.724999999999994,
+      "scene_end": 52.37499999999999,
+      "duration": 10.324999999999996,
+      "text": "Quando il flusso di lavoro è terminato, i punteggi di reclutamento per oggetto e i riassunti delle condizioni vengono memorizzati con identificatori di fonte."
+    }
+  ]
+}

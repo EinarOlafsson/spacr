@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_lily",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.25,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.15,
+      "scene_end": 7.6000000000000005,
+      "duration": 7.6000000000000005,
+      "text": "This tutorial covers Batch Runner. Queue modules, projects, and settings for reproducible unattended execution."
+    },
+    {
+      "scene": 2,
+      "speech_start": 7.6000000000000005,
+      "speech_end": 15.7,
+      "scene_end": 16.15,
+      "duration": 8.549999999999997,
+      "text": "Open Batch Runner from the Data and batch runs section. Add projects and assemble the ordered module sequence each project should run."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.15,
+      "speech_end": 24.049999999999997,
+      "scene_end": 24.499999999999996,
+      "duration": 8.349999999999998,
+      "text": "In the main configuration area, choose presets, dependencies, resource limits, resume behavior, logging, and failure policy."
+    },
+    {
+      "scene": 4,
+      "speech_start": 24.499999999999996,
+      "speech_end": 36.5,
+      "scene_end": 36.95,
+      "duration": 12.450000000000006,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate the batch plan, test one job, and then run the remaining queue overnight or unattended."
+    },
+    {
+      "scene": 5,
+      "speech_start": 36.95,
+      "speech_end": 44.6,
+      "scene_end": 45.25,
+      "duration": 8.299999999999997,
+      "text": "When the workflow finishes, every job has its own status, settings snapshot, logs, outputs, and resumable run record."
+    }
+  ]
+}

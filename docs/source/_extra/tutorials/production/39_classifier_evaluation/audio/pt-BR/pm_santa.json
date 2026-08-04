@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 59.7,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.875,
+      "scene_end": 9.325,
+      "duration": 9.325,
+      "text": "Este tutorial abrange a Avaliação de Classificadores. Auditamento de previsões, validação cruzada, calibração, vazamento e desempenho por placa."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.325,
+      "speech_end": 26.2,
+      "scene_end": 26.65,
+      "duration": 17.325,
+      "text": "Abra Classifier Evaluation na seção Results and quality control. Avaliação de Classificador aberto na seção Resultados e controle de qualidade. Escolha previsões com verdade de base, metadados divididos, identificadores de placas, probabilidades e registros executados por modelo."
+    },
+    {
+      "scene": 3,
+      "speech_start": 26.65,
+      "speech_end": 36.099999999999994,
+      "scene_end": 36.55,
+      "duration": 9.899999999999999,
+      "text": "Na área de configuração principal, configure ordem de classes, limiares, canos de calibração, agrupamento, incerteza de arranque e verificações de vazamento."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.55,
+      "speech_end": 50.875,
+      "scene_end": 51.325,
+      "duration": 14.775000000000006,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Avalie o comportamento de resistência e de cada placa antes de usar um classificador para conclusões biológicas."
+    },
+    {
+      "scene": 5,
+      "speech_start": 51.325,
+      "speech_end": 59.050000000000004,
+      "scene_end": 59.7,
+      "duration": 8.375,
+      "text": "Quando o fluxo de trabalho termina, o spaCR produz relatórios de discriminação, calibração, confusão, vazamento e robustez."
+    }
+  ]
+}

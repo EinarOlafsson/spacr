@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jm_kumo",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 109.525,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.95,
+      "scene_end": 13.649999999999999,
+      "duration": 13.649999999999999,
+      "text": "軽量ネイティブインストーラはプライベート パイthon3ポイント12の実行時間を作成し,Qt,PyTorch,spaCR,およびその科学的依存をダウンロードします.",
+      "speech_text": "軽量ネイティブインストーラはプライベート パイthon3ポイント12の実行時間を作成し,Qt,PyTorch,スペーカー,およびその科学的依存をダウンロードします.",
+      "phonemes": "keːɾʲoː neːtʲibɯ iɴsɨtoːɾa βa pɯɾaibeːto pai thon saɴ pointo ʥɨːɲi no ʥiʔkoː ʥikaɴ o sakɯseː ɕi, Qt, PyTorch, sɨpeːkaː, ojobʲi sono kaɡakɯtekʲi iʣoɴ o daɯnɾoːdo ɕi masɨ."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.649999999999999,
+      "speech_end": 26.4,
+      "scene_end": 27.099999999999998,
+      "duration": 13.45,
+      "text": "spaCR GitHub 最新版からインストールをダウンロードする ダウンロードを確認するために公開された SHA-256 ファイルを操作システムにマッチします.",
+      "speech_text": "スペーカー GitHub 最新版からインストールをダウンロードする ダウンロードを確認するために公開された SHA-256 ファイルを操作システムにマッチします.",
+      "phonemes": "sɨpeːkaː GitHub saiɕiɴ baɴ kaɾa iɴsɨtoːɾɯ o daɯnɾoːdo sɨɾɯ daɯnɾoːdo o kakɯɲiɴ sɨɾɯ tame ɲi koːkai saɾeta SHA - ɲi çi kɯɡoʥɨɯɾokɯ ɸaiɾɯ o soːsa ɕisɨtemɯ ɲi maʔʨi ɕi masɨ."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.099999999999998,
+      "speech_end": 37.425,
+      "scene_end": 38.125,
+      "duration": 11.025000000000002,
+      "text": "Windows 10 または 11 では,オンラインセットアップ実行式を開く. NVIDIA加速はオプションのインストーラコンポーネントである.",
+      "speech_text": "Windows 10 または 11 では,オンラインセットアップ実行式を開く. NVIDIA加速はオプションのインストーラコンポーネントである.",
+      "phonemes": "Windows ʥɨː mata βa ʥɨːiʨi de βa, oɴ ɾaiɴ seʔtoaʔpɯ ʥiʔkoː ɕikʲi o çiɾakɯ. NVIDIA kasokɯ βa opɯɕoɴ no iɴsɨtoːɾa kompoːnento de aɾɯ."
+    },
+    {
+      "scene": 4,
+      "speech_start": 38.125,
+      "speech_end": 54.2,
+      "scene_end": 54.900000000000006,
+      "duration": 16.775000000000006,
+      "text": "MacOS 11 またはそれ以降では,インテルとアップルのシリコンのユニバーサルパッケージを開きます. もしゲートキーパーが公認されていないパケットを ブロックしたら プライバシーとセキュリティを 使いましょう",
+      "speech_text": "MacOS 11 またはそれ以降では,インテルとアップルのシリコンのユニバーサルパッケージを開きます. もしゲートキーパーが公認されていないパケットを ブロックしたら プライバシーとセキュリティを 使いましょう",
+      "phonemes": "Mac OS ʥɨːiʨi mata βa soɾe ikoː de βa, inteɾɯ to aʔpɯɾɯ no ɕiɾʲikoɴ no jɯɲibaːsaɾɯ paʔkeːʥi o çiɾakʲimasɨ. moɕi ɡeːtokʲiːpaː ɡa koːɲiɴ saɾete inai pakeʔto o bɯɾoʔkɯ ɕitaɾa pɯɾaibaɕiː to sekʲɨɾʲitʲi o ʦɨkai maɕoː"
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.900000000000006,
+      "speech_end": 67.25,
+      "scene_end": 67.95,
+      "duration": 13.049999999999997,
+      "text": "64 ビット Linux で,ダウンロードした .run ファイルを実行可能にして,端末から起動します. デフォルトインストールではCPU対応のPyTorchを使用します.",
+      "speech_text": "64 ビット Linux で,ダウンロードした .run ファイルを実行可能にして,端末から起動します. デフォルトインストールではCPU対応のPyTorchを使用します.",
+      "phonemes": "ɾokɯʥɨː joɴ bʲiʔto Linux de, daɯnɾoːdo ɕita. run ɸaiɾɯ o ʥiʔkoː kanoː ɲi ɕite, tammaʦɨ kaɾa kʲidoː ɕi masɨ. deɸoɾɯto iɴsɨtoːɾɯ de βa CPU taioː no PyTorch o ɕijoː ɕi masɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 67.95,
+      "speech_end": 82.15,
+      "scene_end": 82.85000000000001,
+      "duration": 14.900000000000006,
+      "text": "Linux でサポートされている NVIDIA ハードウェアについては,--torch-backend auto をパスしてください. これは CUDA ライブラリを默認して使わずに,利用可能なときに加速を選択します.",
+      "speech_text": "Linux でサポートされている NVIDIA ハードウェアについては,--torch-backend auto をパスしてください. これは CUDA ライブラリを默認して使わずに,利用可能なときに加速を選択します.",
+      "phonemes": "Linux de sapoːto saɾete iɾɯ NVIDIA haːdoβea ɲi ʦɨite βa, -- torch - backend au to o pasɨ ɕite kɯdasai. koɾe βa CUDA ɾaibɯɾaɾʲi o ɕite ʦɨkaβazɨ ɲi, ɾʲijoː kanoː na tokʲi ɲi kasokɯ o sentakɯ ɕi masɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 82.85000000000001,
+      "speech_end": 98.67500000000001,
+      "scene_end": 99.37500000000001,
+      "duration": 16.525000000000006,
+      "text": "各インストーラはバージョンを切り替える前に交換を検証する. 停止した更新は以前の環境を無傷にしており,install.logはプライベートなspaCRインストールディレクトリに残っています.",
+      "speech_text": "各インストーラはバージョンを切り替える前に交換を検証する. 停止した更新は以前の環境を無傷にしており,install.logはプライベートなスペーカーインストールディレクトリに残っています.",
+      "phonemes": "kakɯ iɴsɨtoːɾa βa baːʥoɴ o kʲiɾʲikaeɾɯ mae ɲi koːkaɴ o keɴɕoː sɨɾɯ. teːɕi ɕita koːɕiɴ βa iʣeɴ no kaŋkʲoː o mɯkʲizɨ ɲi ɕite oɾʲi, install. log βa pɯɾaibeːto na sɨpeːkaːiɴsɨtoːɾɯdʲiɾekɯtoɾʲi ɲi nokoʔte imasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 99.37500000000001,
+      "speech_end": 108.82500000000002,
+      "scene_end": 109.52500000000002,
+      "duration": 10.150000000000006,
+      "text": "インストール後,オペレーティングシステムランチャーを使用します. パーソナル Python や Conda の設定は必要ありません.",
+      "speech_text": "インストール後,オペレーティングシステムランチャーを使用します. パーソナル Python や Conda の設定は必要ありません.",
+      "phonemes": "iɴsɨtoːɾɯ ɡo, opeɾeːtʲiŋɡɯ ɕisɨtemɯ ɾaɲʨaː o ɕijoː ɕi masɨ. paːsonaɾɯ Python ja Conda no seʔteː βa çiʦɨjoː aɾʲimaseɴ."
+    }
+  ]
+}

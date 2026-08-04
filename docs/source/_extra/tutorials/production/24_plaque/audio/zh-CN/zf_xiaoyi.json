@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zf_xiaoyi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 42.55,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.6,
+      "scene_end": 8.049999999999999,
+      "duration": 8.049999999999999,
+      "text": "这本教程涵盖了板块测试. 从板块图像中测量板块形成和依赖条件的变化."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.049999999999999,
+      "speech_end": 15.674999999999999,
+      "scene_end": 16.125,
+      "duration": 8.075000000000001,
+      "text": "从 Toxoplasma assays 部分打开 Plaque assay。 提供片图像,片布局,像素校准,条件和控制."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.125,
+      "speech_end": 22.775,
+      "scene_end": 23.224999999999998,
+      "duration": 7.099999999999998,
+      "text": "在主配置区域,配置背景纠正,门,对象清洁,板块尺寸过器和井组."
+    },
+    {
+      "scene": 4,
+      "speech_start": 23.224999999999998,
+      "speech_end": 34.074999999999996,
+      "scene_end": 34.525,
+      "duration": 11.3,
+      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式. 在批量分析之前,检查控制和处理井间的细分覆盖."
+    },
+    {
+      "scene": 5,
+      "speech_start": 34.525,
+      "speech_end": 41.9,
+      "scene_end": 42.55,
+      "duration": 8.024999999999999,
+      "text": "在工作流程完成后, spaCR 报告了牌数量,面积,总结,统计和质量控制数据."
+    }
+  ]
+}
