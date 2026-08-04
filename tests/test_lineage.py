@@ -5,6 +5,15 @@ Label 7 exists in every field of every plate, so the claim worth pinning
 hardest is that a child is attached to the cell in ITS OWN field — a tree that
 matched on the label alone would look entirely plausible and be wrong
 everywhere.
+
+The second claim, and the one this module is the reason for: a cell's nucleus
+1 and its pathogen 1 are **two objects with two keys**. They used to be two
+objects with one key, because the shared key was the field plus the label with
+no table in it, and a cell's own children are exactly the objects most likely
+to collide. ``key_collisions`` was the warning that said so; now that the
+object type is in the key it is a regression test, and it is exercised from
+both sides — ``build_forest(typed=False)`` still reproduces the collapse, so
+the detector is proved to detect rather than merely to return ``{}``.
 """
 from __future__ import annotations
 
@@ -60,14 +69,16 @@ def test_the_forest_matches_the_hand_built_parent_links(frames):
     flat = lin.lineage_frame(forest)
 
     assert list(zip(flat["key"], flat["parent_key"])) == [
-        ("plate1_r1_c1_f1_7", ""),
-        ("plate1_r1_c1_f1_1", "plate1_r1_c1_f1_7"),   # nucleus 1
-        ("plate1_r1_c1_f1_1", "plate1_r1_c1_f1_7"),   # pathogen 1
-        ("plate1_r1_c1_f1_2", "plate1_r1_c1_f1_7"),   # pathogen 2
-        ("plate1_r1_c1_f1_8", ""),
-        ("plate1_r1_c1_f2_7", ""),
-        ("plate1_r1_c1_f2_5", "plate1_r1_c1_f2_7"),
+        ("plate1_r1_c1_f1_cell7", ""),
+        ("plate1_r1_c1_f1_nucleus1", "plate1_r1_c1_f1_cell7"),
+        ("plate1_r1_c1_f1_pathogen1", "plate1_r1_c1_f1_cell7"),
+        ("plate1_r1_c1_f1_pathogen2", "plate1_r1_c1_f1_cell7"),
+        ("plate1_r1_c1_f1_cell8", ""),
+        ("plate1_r1_c1_f2_cell7", ""),
+        ("plate1_r1_c1_f2_nucleus5", "plate1_r1_c1_f2_cell7"),
     ]
+    # Nucleus 1 and pathogen 1 are the pair that used to share a key.
+    assert flat["key"].nunique() == len(flat)
 
 
 def test_a_child_attaches_to_the_cell_in_its_own_field_not_every_field(frames):
@@ -75,9 +86,9 @@ def test_a_child_attaches_to_the_cell_in_its_own_field_not_every_field(frames):
     by_key = {node.key: node for node in forest}
 
     # Both fields have a cell 7. Field 1's holds three children, field 2's one.
-    assert len(by_key["plate1_r1_c1_f1_7"].children) == 3
-    assert len(by_key["plate1_r1_c1_f2_7"].children) == 1
-    assert [child.table for child in by_key["plate1_r1_c1_f2_7"].children] \
+    assert len(by_key["plate1_r1_c1_f1_cell7"].children) == 3
+    assert len(by_key["plate1_r1_c1_f2_cell7"].children) == 1
+    assert [child.table for child in by_key["plate1_r1_c1_f2_cell7"].children] \
         == ["nucleus"]
 
 
@@ -85,12 +96,12 @@ def test_a_childless_parent_is_kept_because_that_is_the_negative_control(
         frames):
     forest = lin.build_forest(frames)
     childless = [node.key for node in forest if not node.children]
-    assert childless == ["plate1_r1_c1_f1_8"]
+    assert childless == ["plate1_r1_c1_f1_cell8"]
 
 
 def test_children_are_grouped_by_table_then_ordered_by_label(frames):
     forest = lin.build_forest(frames)
-    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_7")
+    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_cell7")
     assert [(c.table, c.label) for c in cell.children] == [
         ("nucleus", 1), ("pathogen", 1), ("pathogen", 2)]
 
@@ -99,14 +110,14 @@ def test_an_o_prefixed_parent_id_matches_the_integer_label(frames):
     # png_list stores 'o7'; the object tables store 7. Both must attach.
     frames["pathogen"]["cell_id"] = ["o7", "o7"]
     forest = lin.build_forest(frames)
-    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_7")
+    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_cell7")
     assert len(cell.children) == 3
 
 
 def test_a_sentinel_parent_id_attaches_to_nothing_rather_than_raising(frames):
     frames["pathogen"]["cell_id"] = ["onone", "omulti"]
     forest = lin.build_forest(frames)
-    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_7")
+    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_cell7")
     assert [c.table for c in cell.children] == ["nucleus"]
 
 
@@ -136,59 +147,100 @@ def test_a_table_missing_its_identity_columns_says_which(frames):
 
 def test_a_nodes_keys_are_itself_first_then_its_contents(frames):
     cell = next(n for n in lin.build_forest(frames)
-                if n.key == "plate1_r1_c1_f1_7")
-    assert cell.keys()[0] == "plate1_r1_c1_f1_7"
-    # Four objects but THREE keys: nucleus 1 and pathogen 1 collide, because
-    # the shared key is field plus label with no table in it.
-    assert cell.keys() == ("plate1_r1_c1_f1_7", "plate1_r1_c1_f1_1",
-                           "plate1_r1_c1_f1_2")
-    assert len(cell.node_ids()) == 4
+                if n.key == "plate1_r1_c1_f1_cell7")
+    assert cell.keys()[0] == "plate1_r1_c1_f1_cell7"
+    # Four objects, FOUR keys. It used to be three: nucleus 1 and pathogen 1
+    # collided, because the shared key was field plus label with no table in
+    # it, and `keys()` had to de-duplicate them.
+    assert cell.keys() == ("plate1_r1_c1_f1_cell7", "plate1_r1_c1_f1_nucleus1",
+                           "plate1_r1_c1_f1_pathogen1",
+                           "plate1_r1_c1_f1_pathogen2")
+    assert len(cell.node_ids()) == len(cell.keys()) == 4
 
 
 def test_a_node_id_carries_the_table_so_it_can_address_one_object(frames):
     cell = next(n for n in lin.build_forest(frames)
-                if n.key == "plate1_r1_c1_f1_7")
-    assert cell.node_id == "cell:plate1_r1_c1_f1_7"
+                if n.key == "plate1_r1_c1_f1_cell7")
+    assert cell.node_id == "cell:plate1_r1_c1_f1_cell7"
     assert set(cell.node_ids()) == {
-        "cell:plate1_r1_c1_f1_7", "nucleus:plate1_r1_c1_f1_1",
-        "pathogen:plate1_r1_c1_f1_1", "pathogen:plate1_r1_c1_f1_2"}
+        "cell:plate1_r1_c1_f1_cell7", "nucleus:plate1_r1_c1_f1_nucleus1",
+        "pathogen:plate1_r1_c1_f1_pathogen1",
+        "pathogen:plate1_r1_c1_f1_pathogen2"}
 
 
-def test_the_objects_the_shared_key_cannot_tell_apart_are_reported(frames):
+def test_a_correctly_keyed_forest_has_no_collisions_at_all(frames):
+    """The regression test. This fixture is the worst case on purpose.
+
+    Field 1's cell 7 holds a nucleus 1 and a pathogen 1 — the pair that used
+    to be one key — and the whole point of putting the object type into the
+    key is that this now returns nothing.
+    """
     forest = lin.build_forest(frames)
+    assert lin.forest_key_collisions(forest) == {}
+    for root in forest:
+        assert root.key_collisions() == {}
+
+
+def test_the_detector_still_finds_the_collapse_on_legacy_keys(frames):
+    """Proved to detect, not merely to return an empty dict.
+
+    ``typed=False`` rebuilds the keys spaCR wrote before object types
+    existed. A detector that only ever ran against fixed data would pass
+    just as well if it had been quietly broken.
+    """
+    forest = lin.build_forest(frames, typed=False)
     cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_7")
     assert cell.key_collisions() == {
         "plate1_r1_c1_f1_1": ("nucleus", "pathogen")}
     assert lin.forest_key_collisions(forest) == cell.key_collisions()
+    # Four objects, three keys: the crop grid was one tile short and which
+    # object went missing depended on the row order of png_list.
+    assert len(cell.node_ids()) == 4
+    assert len(cell.keys()) == 3
 
 
 def test_a_family_whose_labels_do_not_overlap_reports_no_collision(frames):
+    """Non-overlapping labels were the only safe case; now every case is."""
     frames["pathogen"] = _rows("pathogen", [(F1, 20, 7), (F1, 21, 7)])
-    forest = lin.build_forest(frames)
-    assert lin.forest_key_collisions(forest) == {}
-    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_7")
-    assert len(cell.keys()) == len(cell.node_ids()) == 4
+    for typed in (True, False):
+        forest = lin.build_forest(frames, typed=typed)
+        assert lin.forest_key_collisions(forest) == {}
+        cell = next(n for n in forest if n.table == "cell"
+                    and n.label == 7 and n.field.endswith("f1"))
+        assert len(cell.keys()) == len(cell.node_ids()) == 4
 
 
 def test_a_node_counts_what_is_inside_it_including_itself(frames):
     cell = next(n for n in lin.build_forest(frames)
-                if n.key == "plate1_r1_c1_f1_7")
+                if n.key == "plate1_r1_c1_f1_cell7")
     assert cell.counts() == {"cell": 1, "nucleus": 1, "pathogen": 2}
 
 
 def test_a_node_describes_what_is_inside_it(frames):
     forest = lin.build_forest(frames)
-    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_7")
-    empty = next(n for n in forest if n.key == "plate1_r1_c1_f1_8")
+    cell = next(n for n in forest if n.key == "plate1_r1_c1_f1_cell7")
+    empty = next(n for n in forest if n.key == "plate1_r1_c1_f1_cell8")
     assert cell.describe() == "cell 7 · 1 nucleus, 2 pathogen"
     assert "nothing inside it" in empty.describe()
 
 
 def test_asking_about_a_pathogen_returns_the_cell_around_it(frames):
-    tree = lin.tree_for(frames, "plate1_r1_c1_f1_2")
+    tree = lin.tree_for(frames, "plate1_r1_c1_f1_pathogen2")
+    assert tree is not None
+    assert tree.key == "plate1_r1_c1_f1_cell7"
+    assert tree.find("plate1_r1_c1_f1_pathogen2").table == "pathogen"
+
+
+def test_asking_about_a_key_that_names_two_objects_finds_the_cell(frames):
+    """A legacy key still reaches its tree, through the untyped forest.
+
+    ``plate1_r1_c1_f1_1`` names both a nucleus and a pathogen. It is not an
+    error — it is an under-specified name, and the honest thing is to find
+    the family that holds it rather than to guess which of the two.
+    """
+    tree = lin.tree_for(frames, "plate1_r1_c1_f1_1", typed=False)
     assert tree is not None
     assert tree.key == "plate1_r1_c1_f1_7"
-    assert tree.find("plate1_r1_c1_f1_2").table == "pathogen"
 
 
 def test_asking_about_something_that_is_not_there_returns_nothing(frames):

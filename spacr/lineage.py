@@ -32,21 +32,24 @@ publishes something every other view already understands. A child's parent is
 resolved *within its own field*: ``cell_id`` is a label, not a key, and label
 7 exists in every field on the plate.
 
-The shared key does not carry the object type
----------------------------------------------
+The shared key carries the object type — this module is why
+-----------------------------------------------------------
 
-:data:`spacr.selection.OBJECT_KEY_COLUMNS` is the field plus the object label,
-with no table in it, so a nucleus labelled 1 and a pathogen labelled 1 in the
-same field have **the same key**. That is the contract every other view
-already agrees on and this module does not get to change it — but the collapse
-is real, and a lineage tree is where it becomes visible, because a cell's own
-children are exactly the objects most likely to collide.
+:data:`spacr.selection.OBJECT_KEY_COLUMNS` used to be the field plus the
+object label, with no table in it, so a nucleus labelled 1 and a pathogen
+labelled 1 in the same field had **the same key**. A lineage tree is where
+that became visible, because a cell's own children are exactly the objects
+most likely to collide: four objects opened as three crops and which one you
+got depended on the row order of ``png_list``.
 
-So a node carries two identities. :attr:`LineageNode.node_id` includes the
-table and is what the tree addresses its rows by;
-:meth:`LineageNode.keys` returns shared keys, because that is what the routing
-contract takes. Where the two disagree, :meth:`LineageNode.key_collisions`
-says so, rather than letting four objects quietly open as three.
+:func:`spacr.selection.object_keys` now writes the object type into the key,
+so a node's shared key already says which table it came from and
+:attr:`LineageNode.node_id` is the same identity in a different spelling.
+Both are kept. ``node_id`` is what the tree addresses its rows by and cannot
+collide by construction; :meth:`LineageNode.key_collisions` compares the two
+and is now a **regression test rather than a warning** — it finds nothing on a
+correctly keyed forest, and :func:`build_forest` still takes ``typed=False``
+so the collapse can be reproduced on demand rather than only remembered.
 """
 from __future__ import annotations
 
@@ -136,10 +139,19 @@ def field_key(row: Mapping[str, Any]) -> str:
         str(row[column]) for column in schema.FIELD_KEY_COLUMNS)
 
 
-def node_key(row: Mapping[str, Any]) -> str:
-    """The shared object key of one row: field, then object label."""
-    return schema.KEY_SEPARATOR.join(
-        [field_key(row), str(row[schema.OBJECT_LABEL_KEY])])
+def node_key(row: Mapping[str, Any],
+             object_type: Optional[str] = None) -> str:
+    """The shared object key of one row: field, then the typed object id.
+
+    :param row: an object-table row.
+    :param object_type: which table it came from. ``None`` builds the untyped
+        key spaCR wrote before object types existed — the one that gives a
+        cell's nucleus 1 and its pathogen 1 the same name.
+    """
+    label = str(row[schema.OBJECT_LABEL_KEY])
+    if object_type is not None and schema.is_object_type(object_type):
+        label = schema.object_id(label, object_type=object_type)
+    return schema.KEY_SEPARATOR.join([field_key(row), label])
 
 
 @dataclass(frozen=True)
@@ -167,13 +179,14 @@ class LineageNode:
     # -- identity ------------------------------------------------------------
     @property
     def node_id(self) -> str:
-        """``'pathogen:plate1_r1_c1_f1_1'`` — identity WITH the object type.
+        """``'pathogen:plate1_r1_c1_f1_pathogen1'`` — the table, then the key.
 
-        :attr:`key` is the shared one every other view speaks, and it does not
-        carry the table (see the module docstring). This one does, and it is
-        what a tree row, a de-duplication or a lookup inside this module must
-        use: a cell's nucleus 1 and its pathogen 1 are two objects and one
-        :attr:`key`.
+        Distinct by construction, which :attr:`key` was not until the object
+        type went into it. Now that it has, this is the same identity said
+        twice — and it stays, because it is what proves the other one:
+        :meth:`key_collisions` is exactly the comparison between them, and a
+        second identity that cannot collide is what makes the first one's
+        collisions detectable rather than invisible.
         """
         return f"{self.table}{ID_SEPARATOR}{self.key}"
 
@@ -201,12 +214,12 @@ class LineageNode:
         The order a selection made on this node publishes in, so the parent
         comes first and the crops open with the cell at the front of the grid.
 
-        **Shorter than the subtree when types collide.** The shared key has no
-        table in it, so a nucleus 1 and a pathogen 1 inside the same cell are
-        one key. De-duplicating is the only honest thing to do here — sending
-        the same key twice would draw the same crop twice — but the loss is
-        real, and :meth:`key_collisions` is how a caller sees it rather than
-        wondering why four objects opened as three.
+        **As long as the subtree**, now that the shared key carries the object
+        type. It used not to be: a nucleus 1 and a pathogen 1 inside the same
+        cell were one key, de-duplicating was the only honest thing to do
+        (sending the same key twice would draw the same crop twice), and four
+        objects opened as three. :meth:`key_collisions` is the check that this
+        no longer happens — it returns nothing on a typed forest.
         """
         out: List[str] = []
         seen = set()
@@ -219,10 +232,13 @@ class LineageNode:
     def key_collisions(self) -> Dict[str, Tuple[str, ...]]:
         """``{shared key: the tables that share it}``, for the ones that do.
 
-        Empty in the healthy case. Non-empty means this subtree holds objects
-        that every other view will treat as one — the crop grid will show one
-        of them, and which one depends on the order ``png_list`` happens to be
-        in. Worth saying out loud; see the module docstring.
+        **Empty on a correctly keyed forest** — that is now the assertion this
+        method exists to make, not a hope. Non-empty means this subtree holds
+        objects that every other view will treat as one: the crop grid shows
+        one of them, and which one depends on the order ``png_list`` happens
+        to be in. That was the ordinary case before the object type went into
+        the key; it is a regression now, and it is still detectable because
+        :attr:`node_id` cannot collide even when :attr:`key` can.
         """
         by_key: Dict[str, List[str]] = {}
         for _depth, node in self.walk():
@@ -269,13 +285,20 @@ def _normalise(frame: pd.DataFrame, table: str) -> pd.DataFrame:
 
 
 def build_forest(frames: Mapping[str, pd.DataFrame], *,
-                 root: str = ROOT_TABLE) -> Tuple[LineageNode, ...]:
+                 root: str = ROOT_TABLE,
+                 typed: bool = True) -> Tuple[LineageNode, ...]:
     """Assemble object tables into one tree per root object.
 
     :param frames: ``{table name: rows}``. Only the tables named in
         :data:`LINEAGE_TABLES` are read; anything else is ignored, so a
         caller can hand over everything it loaded.
     :param root: the table whose rows become the roots.
+    :param typed: put each node's object table into its shared key, so a
+        cell's nucleus 1 and its pathogen 1 are two keys. ``False`` rebuilds
+        the untyped keys spaCR wrote before object types existed — kept so
+        the collapse can be *reproduced* rather than only remembered, which
+        is what makes :meth:`LineageNode.key_collisions` a test with two
+        sides to it.
     :returns: one :class:`LineageNode` per root row, in field order then
         label order.
     :raises LineageError: when the root table is absent or unusable. A
@@ -311,7 +334,7 @@ def build_forest(frames: Mapping[str, pd.DataFrame], *,
             parent_label = _object_label(row.get(parent_column))
             if not parent_label:
                 continue
-            node = _node(row, table)
+            node = _node(row, table, typed=typed)
             by_parent.setdefault((node.field, parent_label), []).append(node)
 
     roots: List[LineageNode] = []
@@ -319,7 +342,7 @@ def build_forest(frames: Mapping[str, pd.DataFrame], *,
     parent_rows.sort(key=lambda r: (field_key(r),
                                     _sort_label(r[schema.OBJECT_LABEL_KEY])))
     for row in parent_rows:
-        node = _node(row, root)
+        node = _node(row, root, typed=typed)
         label = _object_label(row[schema.OBJECT_LABEL_KEY])
         children = tuple(by_parent.get((node.field, label), ()))
         roots.append(LineageNode(key=node.key, table=root, label=node.label,
@@ -346,15 +369,18 @@ def _sort_label(value: Any) -> Tuple[int, Any]:
     return (0, int(text)) if text else (1, str(value))
 
 
-def _node(row: Mapping[str, Any], table: str) -> LineageNode:
+def _node(row: Mapping[str, Any], table: str, *,
+          typed: bool = True) -> LineageNode:
     label = _object_label(row.get(schema.OBJECT_LABEL_KEY))
-    return LineageNode(key=node_key(row), table=table,
+    return LineageNode(key=node_key(row, table if typed else None),
+                       table=table,
                        label=int(label) if label else 0,
                        field=field_key(row), children=(), row=dict(row))
 
 
 def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
-             root: str = ROOT_TABLE) -> Optional[LineageNode]:
+             root: str = ROOT_TABLE,
+             typed: bool = True) -> Optional[LineageNode]:
     """The tree containing ``key``, or ``None``.
 
     ``key`` may name the root or anything inside it: asked about a pathogen,
@@ -363,7 +389,7 @@ def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
     calls :meth:`LineageNode.find` on the result.
     """
     wanted = str(key)
-    for node in build_forest(frames, root=root):
+    for node in build_forest(frames, root=root, typed=typed):
         if node.find(wanted) is not None:
             return node
     return None
