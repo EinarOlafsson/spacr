@@ -39,6 +39,7 @@ from natsort import natsorted
 from torch.utils.data import Dataset
 
 from . import schema
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 
 #: How many image/label pairs :func:`train_cellpose` previews before training.
@@ -357,7 +358,8 @@ def test_cellpose_model(settings):
         axs[4].axis('off')
 
         save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
-        plt.savefig(save_path, dpi=200, bbox_inches='tight')
+        save_path = save_figure(plt.gcf(), save_path,
+                                bbox_inches='tight')
         plt.show()
         plt.close(fig)
         
@@ -579,7 +581,8 @@ def apply_cellpose_model(settings):
         axs[3].axis('off')
 
         save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
-        plt.savefig(save_path, dpi=200, bbox_inches='tight')
+        save_path = save_figure(plt.gcf(), save_path,
+                                bbox_inches='tight')
         plt.show()
         plt.close(fig)
         
@@ -1329,7 +1332,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
 
         # Save the plot if a save path is provided
         if save_path:
-            plt.savefig(save_path, format='pdf', dpi=600, bbox_inches='tight')
+            save_path = save_figure(plt.gcf(), save_path,
+                                    bbox_inches='tight')
             print(f"Plot saved to {save_path}")
 
         plt.show()
@@ -2165,7 +2169,8 @@ def analyze_endodyogeny(settings):
     if settings['save']:
         output_dir = os.path.join(settings['src'][0], 'results', 'analyze_endodyogeny')
         os.makedirs(output_dir, exist_ok=True)
-        fig.savefig(os.path.join(output_dir, 'chi_squared_results.pdf'), dpi=300, bbox_inches='tight')
+        save_figure(fig, os.path.join(output_dir, 'chi_squared_results'),
+                    bbox_inches='tight')
         df.to_csv(os.path.join(output_dir, 'data.csv'), index=False)
         results_df.to_csv(os.path.join(output_dir, 'chi_squared_results.csv'), index=False)
         pairwise_results_df.to_csv(os.path.join(output_dir, 'chi_squared_pairwise_results.csv'), index=False)
@@ -3286,10 +3291,13 @@ def analyze_replication(settings):
         comparisons.to_csv(os.path.join(output_dir, 'condition_comparisons.csv'), index=False)
         results_df.to_csv(os.path.join(output_dir, 'chi_squared_results.csv'), index=False)
         pairwise_df.to_csv(os.path.join(output_dir, 'chi_squared_pairwise_results.csv'), index=False)
-        well_fig.savefig(os.path.join(output_dir, 'parasites_per_vacuole_per_well.pdf'),
-                         dpi=300, bbox_inches='tight')
-        group_fig.savefig(os.path.join(output_dir, 'parasites_per_vacuole_by_condition.pdf'),
-                          dpi=300, bbox_inches='tight')
+        save_figure(well_fig,
+                    os.path.join(output_dir, 'parasites_per_vacuole_per_well'),
+                    bbox_inches='tight')
+        save_figure(group_fig,
+                    os.path.join(output_dir,
+                                 'parasites_per_vacuole_by_condition'),
+                    bbox_inches='tight')
         print(f"Replication assay results saved to {output_dir}")
 
     if settings['verbose']:
@@ -4853,13 +4861,14 @@ def analyze_invasion(settings):
         pairwise_df.to_csv(
             os.path.join(output_dir, 'chi_squared_pairwise_results.csv'),
             index=False)
-        well_fig.savefig(os.path.join(output_dir, 'invasion_per_well.pdf'),
-                         dpi=300, bbox_inches='tight')
-        group_fig.savefig(os.path.join(output_dir, 'invasion_by_condition.pdf'),
-                          dpi=300, bbox_inches='tight')
-        threshold_fig.savefig(
-            os.path.join(output_dir, 'outside_stain_thresholds.pdf'),
-            dpi=300, bbox_inches='tight')
+        save_figure(well_fig, os.path.join(output_dir, 'invasion_per_well'),
+                    bbox_inches='tight')
+        save_figure(group_fig,
+                    os.path.join(output_dir, 'invasion_by_condition'),
+                    bbox_inches='tight')
+        save_figure(threshold_fig,
+                    os.path.join(output_dir, 'outside_stain_thresholds'),
+                    bbox_inches='tight')
         print(f"Invasion assay results saved to {output_dir}")
 
     if settings['verbose']:
@@ -4954,7 +4963,8 @@ def analyze_class_proportion(settings):
         output_path_chi_pairwise = os.path.join(output_dir, 'class_frequency_test.csv')
         output_path_data = os.path.join(output_dir, 'class_chi_squared_data.csv')
         output_path_fig = os.path.join(output_dir, 'class_chi_squared.pdf')
-        fig.savefig(output_path_fig, dpi=300, bbox_inches='tight')
+        output_path_fig = save_figure(fig, output_path_fig,
+                                      bbox_inches='tight')
         results_df.to_csv(output_path_chi, index=False)
         pairwise_results.to_csv(output_path_chi_pairwise, index=False)
         df.to_csv(output_path_data, index=False)
@@ -4966,7 +4976,8 @@ def analyze_class_proportion(settings):
     fig2 = plot_plates(df, variable=settings['class_column'], grouping='mean', min_max='allq', cmap='viridis', min_count=0, verbose=True, dst=None)
     if settings['save']:
         output_path_fig2 = os.path.join(output_dir, 'class_heatmap.pdf')
-        fig2.savefig(output_path_fig2, dpi=300, bbox_inches='tight')
+        output_path_fig2 = save_figure(fig2, output_path_fig2,
+                                       bbox_inches='tight')
     
     plt.show()
     
@@ -5219,7 +5230,7 @@ def generate_score_heatmap(settings):
         heatmap_save = os.path.join(settings['dst'], f"scores_comparison_plate_{settings['plateID']}.pdf")
         mae_df.to_csv(mae_dst, index=False)
         merged_df.to_csv(merged_dst, index=False)
-        fig.savefig(heatmap_save, format='pdf', dpi=600, bbox_inches='tight')
+        heatmap_save = save_figure(fig, heatmap_save, bbox_inches='tight')
     return merged_df
 
 def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
@@ -5257,7 +5268,8 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
         
         if save:
             correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
-            plt.savefig(correlation_fig_path, dpi=300)
+            correlation_fig_path = save_figure(plt.gcf(),
+                                               correlation_fig_path)
         
         plt.show()
 
@@ -5306,7 +5318,8 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
         
         if save:
             effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
-            plt.savefig(effect_sizes_fig_path, dpi=300)
+            effect_sizes_fig_path = save_figure(plt.gcf(),
+                                                effect_sizes_fig_path)
         
         plt.show()
 

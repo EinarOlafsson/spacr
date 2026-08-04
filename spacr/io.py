@@ -2269,7 +2269,7 @@ def _get_avg_object_size(masks):
 
     return avg_num_objects_per_image, avg_object_size
     
-def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
+def _save_figure(fig, src, text, dpi=None, i=1, all_folders=1):
     from .utils import print_progress
     """
     Save a figure to a specified location.
@@ -2278,7 +2278,8 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     fig (matplotlib.figure.Figure): The figure to be saved.
     src (str): The source file path.
     text (str): The text to be included in the figure name.
-    dpi (int, optional): The resolution of the saved figure. Defaults to 300.
+    dpi (int, optional): Resolution. ``None`` (the default) follows the
+        user's figure-resolution preference -- see spacr.plot.save_figure.
     """
 
     save_folder = os.path.dirname(src)
@@ -2288,7 +2289,12 @@ def _save_figure(fig, src, text, dpi=300, i=1, all_folders=1):
     os.makedirs(save_folder, exist_ok=True)
     fig_name = f'{obj_type}_{name}_{text}.pdf'        
     save_location = os.path.join(save_folder, fig_name)
-    fig.savefig(save_location, bbox_inches='tight', dpi=dpi)
+    # Imported here, not at module scope: `spacr.plot` pulls in torch,
+    # cv2, seaborn, statsmodels and pingouin, and this module is on the
+    # cold measure-worker spawn path. See tests/test_measure_spawn.py.
+    from .plot import save_figure
+    save_location = save_figure(fig, save_location, dpi=dpi,
+                                bbox_inches='tight')
 
     files_processed = i
     files_to_process = all_folders
@@ -3234,7 +3240,7 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     :returns: None
     """
 
-    def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=600):
+    def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=None):
         
         pdf_path = os.path.join(path, f'{column}.pdf')
 
@@ -3258,7 +3264,8 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
         plt.tight_layout()
 
         if save:
-            plt.savefig(pdf_path, format='pdf', dpi=dpi)
+            from .plot import save_figure
+            pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
         else:
             plt.show()
 
