@@ -1806,6 +1806,64 @@ def widget_qss_names() -> Tuple[str, ...]:
     return tuple(_WIDGET_QSS)
 
 
+#: The marker :func:`registered_widget_qss` writes above every block. It is
+#: what tells a live stylesheet apart from one generated before a screen
+#: module was imported.
+_WIDGET_QSS_MARKER = "/* --- registered widget QSS: {name} --- */"
+
+
+def ensure_widget_qss_applied(*names: str) -> bool:
+    """Re-apply the application stylesheet if ``names`` are missing from it.
+
+    The registration seam has one seam of its own, and it is silent. A block
+    is registered at its module's **import**, and the application stylesheet
+    is generated **once at launch**, before ``MainWindow`` exists. A screen
+    that ``app.py`` imports lazily — inside the ``if key == …`` branch that
+    builds it — therefore registers its block minutes after the only
+    stylesheet that would have carried it, and the screen opens unstyled.
+
+    That is not hypothetical: Model Compare's panels were given a page
+    surface, the test that measures them passed (a test imports the module
+    before it applies the stylesheet), and the panels were still bare in the
+    running app, because ``spacr.qt.screens.model_compare`` is not in
+    ``sys.modules`` when the stylesheet is built. The screens listed in
+    ``spacr.qt.SELF_REGISTERING_MODULES`` are imported at launch and never
+    had the problem, which is why it went unnoticed for as long as it did.
+
+    Call this from the constructor of a screen whose module registers a
+    block. It is a no-op in every case except the one it exists for: no
+    ``QApplication``, no stylesheet yet, or the block already present.
+
+    :param names: registered block names the caller needs to be live.
+    :returns: ``True`` if the stylesheet was regenerated.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+    except Exception:  # pragma: no cover - PySide6 is a hard dependency here
+        return False
+    app = QApplication.instance()
+    if app is None:
+        return False
+    sheet = app.styleSheet()
+    if not sheet:
+        # Nothing has styled the application, so there is nothing to be
+        # missing from and re-applying would install a stylesheet the caller
+        # never asked for.
+        return False
+    if all(_WIDGET_QSS_MARKER.format(name=name) in sheet for name in names):
+        return False
+    try:
+        from .preferences import apply_preferences_to_app
+    except Exception:
+        return False
+    try:
+        apply_preferences_to_app(app)
+    except Exception:
+        LOG.exception("Could not re-apply the stylesheet for %s", names)
+        return False
+    return True
+
+
 def page_tabs_qss(object_name: str, palette: dict, opacity=None) -> str:
     """Home's tab treatment, for a tab strip that IS the page.
 
