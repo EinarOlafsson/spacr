@@ -289,6 +289,12 @@ SELF_REGISTERING_MODULES = (
     # row. Safe to have on by default for exactly that reason: nothing it
     # decides is destructive until the user acts on it.
     "spacr.qt.screens.outliers",
+    # Four-parameter logistic with a confidence interval on EC50 -- and a
+    # refusal wherever an EC50 would be a guess: an incomplete curve reports a
+    # one-sided bound instead of a number, and non-monotone data is not fitted
+    # at all. Filed under Design, with Power: an EC50 is fitted to choose the
+    # concentration the next experiment will use.
+    "spacr.qt.screens.dose_response",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps
