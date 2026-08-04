@@ -1833,22 +1833,29 @@ class LabelMaskDropHandler(LayoutDropHandler):
 
 
 class LayerStackDropHandler(LabelMaskDropHandler):
-    """Layer Viewer: the dropped array, as image or as labels."""
+    """Layer Viewer: the dropped array, added as an image or as labels.
 
-    suffixes = (".tif", ".tiff", ".png", ".npy", ".npz")
+    A viewer stacks layers, so a multi-drop of an image and its mask lands as
+    two layers rather than as the first one.
+    """
+
+    suffixes = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".npy", ".npz")
+
+    def accepts_multiple(self) -> bool:
+        return True
 
     def deliver(self, screen, value: str, target) -> None:
-        mask = self._one_mask(screen, value, target)
-        if mask is None:
+        chosen = self._one_mask(screen, value, target)
+        if chosen is None:
             return
         # A file that came out of ``masks/`` is a label array; anything else
         # the user dropped is the image they want to look at.
         as_labels = (target is not None and target.kind == _kinds.MASKS) or (
-            "mask" in Path(mask).parent.name.lower())
+            "mask" in Path(chosen).parent.name.lower())
         if as_labels:
-            screen.stack_from_paths(labels_path=mask)
+            screen.add_labels_file(chosen)
         else:
-            screen.stack_from_paths(image_path=mask)
+            screen.add_image_file(chosen)
 
 
 class MethodsSourcesDropHandler(LayoutDropHandler):
@@ -1949,17 +1956,14 @@ def _ask_for_one(screen, headline: str, question: str,
     Headless (no QApplication, or a screen that is not a widget) is the one
     exception, and it declines rather than choosing.
     """
-    from .dnd import suggest_alternatives_dialog
+    from .dnd import choose_one_dialog
 
     try:
-        picked = suggest_alternatives_dialog(
-            screen, Path(headline), [Path(o) for o in options],
-            why=question)
+        return choose_one_dialog(screen, headline, question, list(options))
     except Exception:
         LOG.debug("could not ask which of %d options was meant", len(options),
                   exc_info=True)
         return None
-    return None if picked is None else str(picked)
 
 
 # ---------------------------------------------------------------------------

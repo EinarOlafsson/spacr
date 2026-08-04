@@ -465,6 +465,50 @@ def suggest_alternatives_dialog(
     return alternatives[row]
 
 
+def choose_one_dialog(parent, headline: str, question: str,
+                      options: Sequence[str]) -> Optional[str]:
+    """Ask which of ``options`` was meant. ``None`` when nobody answered.
+
+    Distinct from :func:`suggest_alternatives_dialog`, which says the drop
+    *cannot be used*. This one is asked when the drop resolved perfectly and
+    landed on more than one right answer — two tables in the database, two
+    masks in ``masks/`` — where "did you mean…" would be telling the user
+    they made a mistake they did not make.
+
+    :param parent: the widget to centre the dialog on.
+    :param headline: what was found, e.g. "plate1.db holds 4 tables."
+    :param question: what is being asked, e.g. "Which one should be loaded?"
+    :param options: the candidates, in the order to offer them.
+    :returns: the chosen option, or None when cancelled.
+    """
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Which one?")
+    dlg.setMinimumWidth(520)
+    layout = QVBoxLayout(dlg)
+
+    header = QLabel(f"<b>{headline}</b><br>{question}")
+    header.setTextFormat(Qt.RichText)
+    header.setWordWrap(True)
+    layout.addWidget(header)
+
+    listing = QListWidget()
+    for option in options:
+        listing.addItem(QListWidgetItem(str(option)))
+    listing.setCurrentRow(0)
+    listing.itemDoubleClicked.connect(lambda *_: dlg.accept())
+    layout.addWidget(listing, 1)
+
+    buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    buttons.accepted.connect(dlg.accept)
+    buttons.rejected.connect(dlg.reject)
+    layout.addWidget(buttons)
+
+    if dlg.exec() != QDialog.Accepted:
+        return None
+    row = listing.currentRow()
+    return None if row < 0 else str(options[row])
+
+
 # ---------------------------------------------------------------------------
 # Filesystem helpers reused by handlers
 # ---------------------------------------------------------------------------
