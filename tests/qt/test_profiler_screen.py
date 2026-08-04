@@ -308,6 +308,24 @@ def test_every_link_the_profiler_offers_is_selectable(screen):
     offered = {screen._link.itemText(i) for i in range(screen._link.count())}
 
     assert offered == set(LINKS)
+    assert screen._link.isEnabled(), (
+        "a model rebuilt from coefficients does not record its link, so the "
+        "user has to supply it")
+
+
+def test_a_live_model_carries_its_own_link_so_the_control_is_disabled(
+        qtbot, design):
+    """A control that changes nothing is worse than no control."""
+    import statsmodels.api as sm
+
+    y = 1.0 + 3.0 * design["fraction:grna[100_1]"]
+    widget = screen_module.ProfilerScreen(threaded=False)
+    qtbot.addWidget(widget)
+
+    widget.set_model(sm.OLS(y, design).fit(), design=design)
+
+    assert widget._link.isEnabled() is False
+    assert "carries its own link" in widget._link.toolTip()
 
 
 # ---------------------------------------------------------------------------
