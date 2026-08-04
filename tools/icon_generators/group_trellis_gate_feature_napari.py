@@ -11,8 +11,8 @@ Three of these four are, left to themselves, "a chart with something on it",
 and the registry is already full of those: ``graph_builder``, ``power``,
 ``regression``, ``classifier_evaluation``, ``hit_list``, ``image_scatter``,
 ``plate_view``, ``qc_dashboard``, ``barcode_qc``, plus ``pca``, ``tabulate``,
-``feature_dict``, ``outliers`` and ``dose_response``.  Every candidate below is
-held to one line and none is allowed to wander::
+``feature_dict``, ``outliers`` and ``dose_response`` being drawn in parallel.
+Every candidate below is held to one line and none is allowed to wander::
 
     trellis         THE REPETITION IS THE SUBJECT.  Never one chart.  Every
                     candidate is a grid of frames that are DELIBERATELY THE
@@ -99,9 +99,8 @@ a decision the user should make with the alternative in front of them, so both
 kinds are drawn:
 
 * ``napari_bridge_01`` .. ``05`` evoke **napari's own visual identity** -- a
-  monochrome four-petal pinwheel rosette in the manner of their mark.
-  Choosing one of these means shipping a monochrome derivative of a
-  third-party trademark.
+  monochrome four-petal rosette in the manner of their mark.  Choosing one of
+  these means shipping a monochrome derivative of a third-party trademark.
 * ``napari_bridge_06`` .. ``10`` are **original spaCR marks about the
   handoff** and carry no third-party mark at all.
 
@@ -113,7 +112,7 @@ repository.
 is what discarded the first pass of several of these.  So: grids are at most
 3x3 and a panel's content is ONE solid element rather than a little chart;
 distributions are solid filled humps rather than outlined curves; dot clouds
-are two or three discs rather than a spray; a "word" is a filled capsule bar;
+are five or six discs rather than a spray; a "word" is a filled capsule bar;
 and strokes stay at ``W_MAIN``/``W_SEC`` because ``W_FINE`` is half a pixel at
 48 px.
 
@@ -135,7 +134,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from _draw import W_MAIN, W_SEC  # noqa: E402
+from _draw import W_FINE, W_MAIN, W_SEC  # noqa: E402
 from _emit import default_outdir, emit_groups  # noqa: E402
 
 DASH = [1.4, 1.6]
@@ -299,6 +298,14 @@ def window(c, x, y, w_, h, wd=W_SEC, bar=0.16):
     c.line(x, y + h * bar, x + w_, y + h * bar, wd)
     c.disc(x + w_ * 0.09, y + h * bar * 0.52, min(w_, h) * 0.045)
     c.disc(x + w_ * 0.20, y + h * bar * 0.52, min(w_, h) * 0.045)
+
+
+def field(c, x, y, w_, h, wd=W_SEC, n=3):
+    """A spaCR field of view: a frame with a couple of cells in it."""
+    c.rect(x, y, w_, h, w=wd)
+    ps = ((0.32, 0.36, 0.19), (0.68, 0.62, 0.23), (0.34, 0.74, 0.14))[:n]
+    for fx, fy, fr in ps:
+        c.ell(x + w_ * fx, y + h * fy, w_ * fr, h * fr * 0.86, 0.0, W_SEC)
 
 
 # =====================================================================
@@ -525,13 +532,12 @@ def gate_editor_08(c):
 
 def gate_editor_09(c):
     """The strategy as a chain: each canvas shows only what the last gate kept."""
-    for k, (x, n_in, out) in enumerate(((0.02, 2, 2), (0.365, 2, 1),
-                                        (0.71, 1, 0))):
-        c.rect(x, 0.22, 0.27, 0.56, w=W_SEC)
-        blob(c, x + 0.135, 0.46, 0.105, rot=25 * k, w=W_MAIN * 1.6)
-        inner = [(x + 0.105, 0.43), (x + 0.170, 0.51)]
-        dots(c, inner[:n_in], r=0.030)
-        rings(c, [(x + 0.070, 0.69), (x + 0.215, 0.68)][:out], r=0.032)
+    for k, (x, keep) in enumerate(((0.02, 3), (0.365, 2), (0.71, 1))):
+        c.rect(x, 0.26, 0.27, 0.48, w=W_SEC)
+        pts = [(x + 0.085, 0.42), (x + 0.175, 0.52), (x + 0.085, 0.62)]
+        dots(c, pts[:keep], r=0.038)
+        rings(c, pts[keep:], r=0.034)
+        blob(c, x + 0.125, 0.50, 0.098 - 0.012 * k, rot=25 * k, w=W_MAIN * 1.5)
         if k < 2:
             c.arrow(x + 0.285, 0.50, x + 0.348, 0.50, W_MAIN, head=0.062)
 
@@ -556,7 +562,7 @@ def feature_explorer_01(c):
         y = 0.30 + j * 0.215
         hump(c, 0.48 - sep, y, 0.42, 0.155)
         hump(c, 0.48 + sep, y, 0.42, 0.155, filled=False, wd=W_MAIN)
-        c.line(0.05, y, 0.95, y, W_SEC * 0.9)
+        c.line(0.05, y, 0.95, y, W_FINE * 1.2)
 
 
 def feature_explorer_02(c):
@@ -603,8 +609,8 @@ def feature_explorer_05(c):
     c.line(0.92, y - 0.055, 0.92, y + 0.055, W_MAIN)
     hump(c, 0.16, 0.34, 0.26, 0.21)
     hump(c, 0.16, 0.34, 0.26, 0.21, filled=False, wd=W_MAIN)
-    hump(c, 0.70, 0.34, 0.22, 0.21)
-    hump(c, 0.86, 0.34, 0.22, 0.21, filled=False, wd=W_MAIN)
+    hump(c, 0.74, 0.34, 0.22, 0.21)
+    hump(c, 0.90, 0.34, 0.22, 0.21, filled=False, wd=W_MAIN)
     for fx, r in ((0.26, 0.036), (0.40, 0.036), (0.58, 0.036), (0.80, 0.060)):
         c.disc(fx, y + 0.16, r)
         c.line(fx, y, fx, y + 0.16 - r, W_SEC)
@@ -630,10 +636,8 @@ def feature_explorer_07(c):
             c.arrow(cx, y + 0.14, cx, y - 0.03, W_MAIN, head=0.062)
         else:
             c.arrow(cx, y - 0.03, cx, y + 0.14, W_MAIN, head=0.062)
-        if up:
-            c.disc(0.84, y + 0.048, 0.040)
-        else:
-            c.circ(0.84, y + 0.048, 0.038, W_MAIN)
+        c.disc(0.84, y + 0.048, 0.040) if up else c.circ(0.84, y + 0.048,
+                                                         0.038, W_MAIN)
 
 
 def feature_explorer_08(c):
@@ -644,7 +648,7 @@ def feature_explorer_08(c):
     c.rect(0.54, 0.20, 0.42, 0.70, w=W_MAIN * 1.7)
     hump(c, 0.66, 0.78, 0.20, 0.26)
     hump(c, 0.85, 0.78, 0.20, 0.26, filled=False, wd=W_MAIN)
-    c.arrow(0.75, 0.17, 0.75, 0.06, W_MAIN * 1.4, head=0.080)
+    c.arrow(0.75, 0.16, 0.75, 0.03, W_MAIN * 1.4, head=0.080)
 
 
 def feature_explorer_09(c):
@@ -868,16 +872,17 @@ GROUPS = {
     ]),
 }
 
+
 TRADEMARK_NOTE = """
 Whose mark is on which candidate
 --------------------------------
 
 **01-05 carry napari's own visual identity** -- a monochrome four-petal
-pinwheel rosette in the manner of napari's mark. That mark is **napari's
-trademark, not spaCR's**. Labelling a bridge *to* napari with it is ordinary
-nominative use and is what most integrations do, but picking one of these
-means shipping a monochrome derivative of a third-party trademark, so it
-should be a decision rather than an accident.
+rosette in the manner of napari's mark. That mark is **napari's trademark, not
+spaCR's**. Labelling a bridge *to* napari with it is ordinary nominative use
+and is what most integrations do, but picking one of these means shipping a
+monochrome derivative of a third-party trademark, so it should be a decision
+rather than an accident.
 
 **06-10 are original spaCR marks about the handoff** -- two panes and traffic
 between them, a mask leaving rough and returning corrected, a label value that
