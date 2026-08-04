@@ -11,7 +11,7 @@ plugin registrations, for the same reason.
 """
 import logging as _logging
 
-for _module in ("data_manager", "pipeline_graph"):
+for _module in ("data_manager", "pipeline_graph", "hit_list"):
     try:
         __import__(f"{__name__}.{_module}")
     except Exception:  # pragma: no cover - defensive, per-module

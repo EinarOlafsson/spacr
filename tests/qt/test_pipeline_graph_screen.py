@@ -20,8 +20,6 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPoint                              # noqa: E402
-
 from spacr import artifacts                                    # noqa: E402
 from spacr.pipeline_graph import (STATE_CURRENT, STATE_MISSING,  # noqa: E402
                                   STATE_STALE)

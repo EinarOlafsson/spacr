@@ -50,7 +50,7 @@ through :class:`spacr.qt.job_runner.JobRunner`, off the GUI thread.
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 from PySide6.QtCore import QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPainterPath, QPen
