@@ -188,10 +188,11 @@ def test_count_phenotypes_produces_csv(tmp_path, capsys):
         "src": str(tmp_path),
         "annotation_column": "annotate",
     }
-    try:
-        SUB.count_phenotypes(settings)
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"count_phenotypes needs interactive display: {e}")
+    # Unguarded: count_phenotypes reads a sqlite table and writes a CSV, so
+    # "needs interactive display" was never true of the code path this test
+    # drives -- it was a blanket excuse standing in front of the assertions
+    # below, which are the whole test.
+    SUB.count_phenotypes(settings)
 
     # phenotype_counts.csv should be written in the same dir as the db.
     out_csv = tmp_path / "measurements" / "phenotype_counts.csv"

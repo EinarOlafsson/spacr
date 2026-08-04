@@ -33,8 +33,10 @@ def test_defaults_function_populates_dict(fn_name):
     except TypeError:
         # Some accept settings=None.
         result = fn(None)
-    except Exception as e:
-        pytest.skip(f"{fn_name} needs specific keys: {e}")
+    # No `except Exception: skip` here. "This defaults function needs specific
+    # keys" is precisely the failure a defaults function is supposed not to
+    # have: called with {} it must fill the dict in, not demand that the caller
+    # already did.
     # Defaults functions return the (mutated) settings dict.
     assert result is None or isinstance(result, dict)
 

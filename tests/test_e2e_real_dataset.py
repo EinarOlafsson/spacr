@@ -183,20 +183,20 @@ def test_e2e_real_stage_2_measure(_scratch, _settings_root):
                  for sub in ("masks", "measurements", "stack")):
         pytest.skip("mask stage didn't produce a downstream-ready layout")
 
-    try:
-        from spacr.measure import measure_crop
-    except Exception as e:
-        pytest.skip(f"measure module unavailable: {e}")
+    # No guard: spacr.measure is spaCR's own code, not an optional
+    # dependency. If it will not import, that is the bug this stage exists to
+    # find, and "measure module unavailable" was the excuse that hid it.
+    from spacr.measure import measure_crop
 
     settings = _load_settings_for("measure", _settings_root, _scratch)
     started = time.time()
-    try:
-        measure_crop(settings)
-    except Exception as e:
-        # Measure often has strict layout expectations. If the real
-        # dataset doesn't satisfy them we don't want a crash to fail
-        # the whole E2E — record + skip.
-        pytest.skip(f"measure stage bailed on this dataset: {e}")
+    # Unguarded. The old handler read "measure has strict layout expectations,
+    # so we don't want a crash to fail the whole E2E" -- but "measure_crop
+    # works on the real dataset" IS this stage, and a skip on failure meant the
+    # stage reported green for the one machine that opts in and reported
+    # nothing at all everywhere else. The `if not any(...)` guard above already
+    # covers the honest stand-down: stage 1 produced no layout to measure.
+    measure_crop(settings)
     elapsed = time.time() - started
     print(f"[e2e] measure stage completed in {elapsed:.1f}s")
 

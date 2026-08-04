@@ -28,6 +28,25 @@ held 38 (file, function) pairs against 46 actual handlers, so a second
 failure-swallowing handler could be added to any listed function and the
 rule would still be green.
 
+**Rules 1 and 2 are no longer ratchets: both lists are empty and both
+ceilings are 0.** For rule 2 that took three changes to the enforcement, on
+top of removing the 44 handlers, because a ratchet that only caps growth is
+not a ban:
+
+* the ceiling is asserted with ``==``, not ``<=``, so it can only be edited
+  deliberately and the room freed by removing one violation cannot be spent on
+  a new one somewhere else;
+* an entry whose real count has DROPPED fails too ("lower the ratchet"),
+  because an unspent allowance is a place the next violation can be added for
+  free -- which is exactly how such a list rots into a permanent licence;
+* the detector is proved against a table of evasions rather than trusted:
+  ``except BaseException``, ``except (ValueError, Exception)``,
+  ``except builtins.Exception``, ``raise unittest.SkipTest``, a ``pytest.skip``
+  moved one or two helper frames away, a bare ``return`` instead of a skip, the
+  handler pushed down into a nested ``def`` or hoisted to module scope, and the
+  module renamed out from under its allowance. See ``BROAD_SKIP_EVASIONS``
+  and ``BROAD_SKIP_ALLOWED`` for what is caught and what stays legal.
+
 Fix, do not extend. Every entry below is a test that is not currently earning
 its green.
 """
@@ -132,24 +151,165 @@ def _asserts_something(fn, helpers, memo, stack=()):
     return False
 
 
-def _is_broad_skip(handler):
-    """True when this ``except`` catches everything and turns it into a skip."""
-    caught = handler.type
-    broad = caught is None or (isinstance(caught, ast.Name)
-                               and caught.id in ("Exception", "BaseException"))
-    if not broad:
+#: Calls that end a test without running it.
+_SKIP_CALLS = frozenset({"skip", "importorskip", "xfail"})
+
+#: Exception classes whose ``raise`` IS a skip rather than a re-raise.
+#: ``except Exception: raise unittest.SkipTest(...)`` is this whole
+#: anti-pattern wearing a raise statement, and the first version of the rule --
+#: "any ``raise`` in the handler means the failure survives" -- waved it
+#: straight through.
+_SKIP_EXCEPTIONS = frozenset({"SkipTest", "Skipped", "OutcomeException"})
+
+#: Names that mean "catch everything".
+_BROAD_NAMES = frozenset({"Exception", "BaseException"})
+
+
+def _is_broad_type(caught):
+    """True when this ``except`` clause catches essentially everything.
+
+    Four spellings, identical in effect, of which the first version of this
+    rule recognised two:
+
+    * ``except:``                        -- ``caught is None``
+    * ``except Exception``               -- a Name
+    * ``except builtins.Exception``      -- an Attribute
+    * ``except (ValueError, Exception)`` -- a Tuple with a broad member. The
+      narrow name sitting beside it changes nothing about what is caught, but
+      it makes the clause *look* specific to a reader and to a rule that only
+      inspected ``ast.Name``.
+    """
+    if caught is None:
+        return True
+    if isinstance(caught, ast.Name):
+        return caught.id in _BROAD_NAMES
+    if isinstance(caught, ast.Attribute):
+        return caught.attr in _BROAD_NAMES
+    if isinstance(caught, ast.Tuple):
+        return any(_is_broad_type(element) for element in caught.elts)
+    return False
+
+
+def _raise_is_a_skip(node):
+    """True when this ``raise`` raises a skip instead of a failure.
+
+    A bare ``raise`` re-raises whatever was caught, so the failure survives and
+    the handler is honest. These do not:
+
+    * ``raise unittest.SkipTest(...)`` / ``raise Skipped(...)`` -- named class;
+    * ``raise pytest.skip.Exception(...)`` -- the SAME class, reached through
+      the function instead of imported. It is spelled ``<something>.Exception``
+      and slipped past the first version of this check, which only compared the
+      final attribute against a list of class names.
+    """
+    exc = node.exc
+    if exc is None:
+        return False                      # bare `raise`: the failure survives
+    if isinstance(exc, ast.Call):
+        exc = exc.func
+    if isinstance(exc, ast.Attribute):
+        if exc.attr in _SKIP_EXCEPTIONS:
+            return True
+        # `pytest.skip.Exception`, `pytest.xfail.Exception`: the attribute is
+        # `Exception` and the thing it hangs off is the skip function itself.
+        if exc.attr == "Exception":
+            owner = exc.value
+            name = (owner.attr if isinstance(owner, ast.Attribute)
+                    else getattr(owner, "id", ""))
+            return name in _SKIP_CALLS
         return False
-    if any(isinstance(n, ast.Raise) for n in ast.walk(handler)):
+    if isinstance(exc, ast.Name):
+        return exc.id in _SKIP_EXCEPTIONS
+    return False
+
+
+def _own_body(node):
+    """Every node under ``node`` that is not inside a nested function.
+
+    ``ast.walk`` would descend into a ``def`` written inside the body, which
+    both mis-attributes that inner function's handlers to the outer scope and
+    lets a ``return`` belonging to a nested closure read as an early exit from
+    the test.
+    """
+    out = []
+
+    def visit(parent):
+        for child in ast.iter_child_nodes(parent):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                  ast.Lambda)):
+                continue
+            out.append(child)
+            visit(child)
+
+    visit(node)
+    return out
+
+
+def _skipping_helpers(tree):
+    """Module-local function names that reach a skip when called.
+
+    ``except Exception: _bail(exc)``, where ``_bail`` calls ``pytest.skip``, is
+    the banned handler with one extra stack frame in front of it. Resolved to a
+    fixed point, so a chain of wrappers does not launder it either.
+    """
+    functions = {fn.name: fn for fn in _functions(tree)}
+    skipping = set()
+    while True:
+        grew = False
+        for name, fn in functions.items():
+            if name in skipping:
+                continue
+            for node in ast.walk(fn):
+                if isinstance(node, ast.Call) and (
+                        _call_name(node) in _SKIP_CALLS
+                        or _call_name(node) in skipping):
+                    skipping.add(name)
+                    grew = True
+                    break
+                if isinstance(node, ast.Raise) and _raise_is_a_skip(node):
+                    skipping.add(name)
+                    grew = True
+                    break
+        if not grew:
+            return skipping
+
+
+def _is_broad_skip(handler, skipping_helpers=frozenset(), in_a_test=False):
+    """True when this ``except`` catches everything and ends the test green.
+
+    Deliberately NOT covered: ``except Exception: pass`` / ``: continue``. It
+    is a weaker sibling -- almost every instance in this suite is a fixture
+    closing figures or a teardown that must not mask the real failure -- and
+    folding it in here would flag ~15 honest cleanups while the rule this file
+    is named for is about the skip. It wants its own rule, with its own list.
+    """
+    if not _is_broad_type(handler.type):
+        return False
+    body = _own_body(handler)
+    raises = [n for n in body if isinstance(n, ast.Raise)]
+    if any(not _raise_is_a_skip(r) for r in raises):
         return False                      # re-raises: the failure survives
-    return any(isinstance(n, ast.Call)
-               and _call_name(n) in ("skip", "importorskip", "xfail")
-               for n in ast.walk(handler))
+    if raises:
+        return True                       # ...and every raise was a skip
+    for node in body:
+        if isinstance(node, ast.Call):
+            name = _call_name(node)
+            if name in _SKIP_CALLS or name in skipping_helpers:
+                return True
+    # `except Exception: return` inside a test body is the same trade with the
+    # evidence removed: the test stops and reports PASSED, so there is not even
+    # a skipped line in the log for anyone to notice.
+    return in_a_test and any(isinstance(n, ast.Return) for n in body)
 
 
-def _broad_skip_handlers(fn):
-    """Line numbers of broad ``except`` blocks that skip without re-raising."""
-    return [node.lineno for node in ast.walk(fn)
-            if isinstance(node, ast.ExceptHandler) and _is_broad_skip(node)]
+def _owning_function(tree):
+    """``id(handler) -> innermost enclosing function name`` for one module."""
+    owner = {}
+    for fn in _functions(tree):
+        for node in _own_body(fn):
+            if isinstance(node, ast.ExceptHandler):
+                owner[id(node)] = fn.name
+    return owner
 
 
 # ---------------------------------------------------------------------------
@@ -239,160 +399,129 @@ def test_the_assertion_free_ratchet_only_shrinks():
 MODULE_SCOPE = "<module>"
 
 #: Scopes containing ``except Exception: ... pytest.skip(...)`` with no
-#: re-raise, and HOW MANY such handlers each holds. Most are harmless import
-#: guards; three of them were hiding real product bugs when this rule was
-#: written. Narrow the exception type (an import guard wants
-#: ``pytest.importorskip``; a download guard wants ``OSError``) rather than
-#: adding entries here.
+#: re-raise, and HOW MANY such handlers each holds, keyed
+#: ``file -> scope -> count``.
 #:
-#: The counts are load-bearing. As a set of (file, function) pairs this list
-#: held 38 entries against 46 real handlers, so a second failure-swallowing
-#: handler could be dropped into any already-listed function for free.
+#: **It is empty.** All 44 came off, and the ceiling below is 0, so the shape
+#: is now banned outright rather than ratcheted: the next one to appear
+#: anywhere under ``tests/`` fails this file. Nothing goes back on this list --
+#: :func:`test_the_broad_skip_ratchet_only_shrinks` pins the ceiling with
+#: ``==``, so adding an entry fails whether or not you also edit the total.
 #:
-#: ``"<module>"`` entries are handlers at module scope -- the
-#: ``try: import spacr.gui_elements / except Exception: pytest.skip(...,
-#: allow_module_level=True)`` shape. They are the highest-blast-radius form of
-#: this pattern (one of them turns a genuine import-time product failure into
-#: a whole FILE reporting skipped) and the previous implementation, which only
-#: walked function bodies, could not see a single one of them.
-BROAD_SKIP_RATCHET = {
-    "qt/test_e2e_pipeline.py": {
-        "_require": 1,
-    },
-    "qt/test_gui_run_and_console.py": {
-        "_require_gpu_cellpose": 2,
-    },
-    "test_analysis_submodules_real_data.py": {
-        "_require_gpu_cellpose": 2,
-        "test_apply_cellpose_model_writes_results": 1,
-        "test_count_phenotypes_real_db": 1,
-        "test_train_cellpose_writes_model": 1,
-    },
-    "test_cov_gui_elements_widgets_card_toggle.py": {
-        MODULE_SCOPE: 1,
-    },
-    "test_cov_gui_elements_widgets_progress.py": {
-        MODULE_SCOPE: 1,
-    },
-    "test_coverage_fill_settings.py": {
-        "test_defaults_function_populates_dict": 1,
-    },
-    "test_e2e_real_dataset.py": {
-        "test_e2e_real_stage_2_measure": 2,
-    },
-    "test_extended_coverage.py": {
-        "test_gui_elements_set_element_size_returns_dict": 1,
-        "test_gui_main_app_carries_color_settings": 1,
-        "test_gui_main_app_constructs": 1,
-    },
-    "test_full_pipeline_e2e.py": {
-        "_require_gpu_stack": 2,
-        "test_stage_2_measure_and_crop": 1,
-        "test_stage_4_train_resnet_10_epochs": 1,
-        "test_stage_5_apply_model_to_full_dataset": 1,
-    },
-    "test_gui_elements.py": {
-        MODULE_SCOPE: 1,
-    },
-    "test_gui_utils_and_core.py": {
-        MODULE_SCOPE: 1,
-    },
-    "test_hf_dataset.py": {
-        "test_cellposesam_on_hf_toxo_mito_field": 1,
-    },
-    "test_hf_e2e_integration.py": {
-        "test_hf_e2e_measure_stage": 2,
-    },
-    "test_io_classes_more.py": {
-        "test_save_mask_timelapse_as_gif": 1,
-    },
-    "test_more_helpers_6.py": {
-        "test_object_preprocess_batch_rolling_ball_only": 1,
-    },
-    "test_pipeline_e2e.py": {
-        "test_apply_model_runs_on_generated_pngs": 1,
-        "test_generate_dataset_creates_datasets_folder": 1,
-    },
-    "test_pipeline_training_analysis.py": {
-        "test_analyze_recruitment_runs_on_pipeline_db": 1,
-        "test_ml_analysis_random_forest_variant": 1,
-        "test_ml_analysis_returns_dataframe_and_importances": 1,
-        "test_train_test_model_produces_a_saved_model": 1,
-    },
-    "test_real_data_image_modules.py": {
-        "_require_gpu_cellpose": 2,
-        "test_module_measure_crop_writes_measurements_db": 1,
-    },
-    "test_sequencing.py": {
-        "test_generate_barecode_mapping_end_to_end": 1,
-    },
-    "test_submodules.py": {
-        "test_count_phenotypes_produces_csv": 1,
-    },
-    "test_utils_db_activation.py": {
-        "test_organelle_diagnostic_modes": 1,
-    },
-    "test_utils_training_advice.py": {
-        "test_suggest_training_changes_missing_csvs": 1,
-    },
-    "test_v1_v2_parity.py": {
-        "_require_gpu_cellpose": 3,
-    },}
+#: What the 44 turned out to be, and what replaced each:
+#:
+#: * **17 were import guards.** ``try: import torch / except Exception:
+#:   pytest.skip(...)`` says "torch is missing" and means "torch raised". They
+#:   became ``pytest.importorskip("torch")``, which catches ImportError only,
+#:   so a package that IS installed and detonates on import now fails.
+#: * **4 were at module scope** -- the ``try: import spacr.gui_elements /
+#:   except Exception: pytest.skip(..., allow_module_level=True)`` shape, the
+#:   highest-blast-radius form of this pattern, since one of them turns an
+#:   import-time product bug into a whole FILE reporting skipped. All four were
+#:   dead by the time they were read: ``tests/conftest.py`` stubs mouseinfo,
+#:   pyautogui and screeninfo before any test module loads, so the display-less
+#:   ImportError they were written for cannot happen. Deleted.
+#: * **1 was a real environmental guard** with the wrong exception type: a
+#:   ``subprocess.run(["git", ...])`` that skips where there is no checkout.
+#:   Narrowed to ``(OSError, subprocess.SubprocessError)``.
+#: * **The remaining 22 guarded PRODUCT BEHAVIOUR** -- ``try: measure_crop(...)
+#:   / except Exception: pytest.skip("measure bailed on this dataset")``. Every
+#:   one was deleted and the call left to fail. That is the point of the rule:
+#:   "the pipeline crashed on its own output" and "you are not set up to run
+#:   this" had been the same colour in the log.
+#:
+#: Two of those 22 were hiding a live bug, now pinned with
+#: ``@pytest.mark.xfail(strict=True)`` in ``test_extended_coverage.py``: see
+#: ``SECOND_TK_ROOT_ICON_BUG`` there.
+#:
+#: If you are here because this rule just failed you: the fix is a narrower
+#: ``except`` (``pytest.importorskip`` for a package, ``OSError`` for a file or
+#: a download), one of the markers pytest.ini already declares (``gpu``,
+#: ``nas``, ``network``, ``gui``, ``heavy``, ``slow``, ``qt``), or letting the
+#: failure fail. Not an entry here.
+BROAD_SKIP_RATCHET: dict[str, dict[str, int]] = {}
 
-#: Total HANDLERS above, not keys. 40 in function bodies + 4 at module scope.
-#: Was 50. Six came off while the assertion-free rule was being paid down:
-#: giving a test a real assertion usually means making its call SUCCEED
-#: deterministically, at which point the handler that turned a failure into a
-#: skip has nothing left to catch and can go.
-BROAD_SKIP_CEILING = 44
+#: Total HANDLERS above, not keys. Was 50, then 44, now zero. The ceiling is
+#: asserted with ``==``: it is a debt that has been paid off, and re-borrowing
+#: is the thing this file exists to prevent.
+BROAD_SKIP_CEILING = 0
 
 
 def _scan_broad_skips(tree):
     """``(scope, lineno)`` for every broad-except-to-skip handler in one tree.
 
-    ``scope`` is the enclosing function's name, or :data:`MODULE_SCOPE` when
-    the handler is not inside one. Module scope has to be walked separately:
-    ``_functions(tree)`` returns function bodies only, so an import guard at
-    the top of a file -- which skips the ENTIRE module on any exception -- was
-    invisible to this rule for its whole life.
+    ``scope`` is the INNERMOST enclosing function's name, or
+    :data:`MODULE_SCOPE` when the handler is not inside one. Both halves are
+    load-bearing:
+
+    * module scope, because an import guard at the top of a file skips the
+      ENTIRE file, and the first version of this rule walked function bodies
+      only and could not see a single one of them;
+    * innermost, because attributing a handler to every enclosing ``def``
+      double-counted nested helpers, and because a handler pushed down into a
+      nested ``def _try_it()`` inside an already-listed test must land on a
+      scope the ratchet does not name.
     """
+    owner = _owning_function(tree)
+    helpers = _skipping_helpers(tree)
     sites = []
-    functions = _functions(tree)
-    # Handlers reachable from a function body, by identity. `tree` is held by
-    # the caller for the whole call, so these ids stay valid.
-    inside_a_function = {id(n) for fn in functions for n in ast.walk(fn)
-                         if isinstance(n, ast.ExceptHandler)}
-    for fn in functions:
-        for lineno in _broad_skip_handlers(fn):
-            sites.append((fn.name, lineno))
     for node in ast.walk(tree):
-        if (isinstance(node, ast.ExceptHandler)
-                and id(node) not in inside_a_function
-                and _is_broad_skip(node)):
-            sites.append((MODULE_SCOPE, node.lineno))
+        if not isinstance(node, ast.ExceptHandler):
+            continue
+        scope = owner.get(id(node), MODULE_SCOPE)
+        if _is_broad_skip(node, helpers, in_a_test=scope.startswith("test")):
+            sites.append((scope, node.lineno))
     return sites
 
 
-def _broad_skip_sites():
-    """``(file, scope, lineno)`` for every broad-except-to-skip handler."""
+def _broad_skip_sites(modules=None):
+    """``(file, scope, lineno)`` for every broad-except-to-skip handler.
+
+    Walks EVERY ``*.py`` under ``tests/``, not just ``test_*.py``: moving the
+    handler into ``tests/helpers.py`` and calling it from the test would
+    otherwise retire it from this rule without retiring it from the suite.
+    """
     sites = []
-    for path in _test_modules():
+    for path in (_test_modules() if modules is None else modules):
         tree = _parse(path)
         for scope, lineno in _scan_broad_skips(tree):
             sites.append((_rel(path), scope, lineno))
     return sites
 
 
-def test_no_new_failure_swallowing_skips():
-    """``except Exception: pytest.skip(...)`` reports a bug as an excuse."""
+def _ratchet_verdict(sites, ratchet):
+    """``(over_budget, slack)`` for a set of sites judged against a ratchet.
+
+    ``over_budget`` -- a scope holding MORE handlers than it is allowed. That
+    covers a brand-new handler, a handler moved into a file the list does not
+    name (renaming the module retires its allowance), and a handler pushed into
+    a differently-named function inside a listed file.
+
+    ``slack`` -- a listed scope holding FEWER than its allowance. Slack is a
+    failure too. An allowance nobody is using is a place the next handler can
+    be added for free, which is precisely how a ratchet decays into a permanent
+    licence; the entry has to come down at the moment the handler goes.
+    """
     found = {}
-    for f, scope, lineno in _broad_skip_sites():
+    for f, scope, lineno in sites:
         found.setdefault((f, scope), []).append(lineno)
     over_budget = []
     for (f, scope), linenos in sorted(found.items()):
-        allowed = BROAD_SKIP_RATCHET.get(f, {}).get(scope, 0)
+        allowed = ratchet.get(f, {}).get(scope, 0)
         if len(linenos) > allowed:
             over_budget.append((f, scope, sorted(linenos), allowed))
+    slack = []
+    for f, scopes in sorted(ratchet.items()):
+        for scope, allowed in sorted(scopes.items()):
+            actual = len(found.get((f, scope), ()))
+            if actual < allowed:
+                slack.append((f, scope, actual, allowed))
+    return over_budget, slack
+
+
+def test_no_new_failure_swallowing_skips():
+    """``except Exception: pytest.skip(...)`` reports a bug as an excuse."""
+    over_budget, _ = _ratchet_verdict(_broad_skip_sites(), BROAD_SKIP_RATCHET)
     assert not over_budget, (
         "these scopes turn any failure into a skip more often than the "
         "ratchet allows:\n" +
@@ -403,60 +532,282 @@ def test_no_new_failure_swallowing_skips():
         "(pytest.importorskip for a missing package, OSError for a download), "
         "or re-raise. A skip must never be reachable from a bug in spaCR. "
         f"A scope of {MODULE_SCOPE!r} means the guard is at module level and "
-        "skips the whole file."
+        "skips the whole file. The ratchet is not somewhere to put a new one: "
+        "it is exact, and adding a line to it fails the ceiling test below."
+    )
+
+
+def test_the_broad_skip_ratchet_carries_no_unspent_allowance():
+    """A handler that was fixed must take its ratchet entry with it.
+
+    Without this, the list rots: the allowance for a scope survives the
+    handler it was written for, and the next broad-except dropped into that
+    same function is free. "Only caps growth" is not a ban.
+    """
+    _, slack = _ratchet_verdict(_broad_skip_sites(), BROAD_SKIP_RATCHET)
+    assert not slack, (
+        "BROAD_SKIP_RATCHET allows more handlers than these scopes still "
+        "hold:\n" +
+        "\n".join(f"  {f}: {scope} now has {actual}, ratchet allows {allowed}"
+                  for f, scope, actual, allowed in slack) +
+        "\n\nLower the ratchet: set each entry to the count that is really "
+        "there (drop the key entirely at zero) and subtract the difference "
+        "from BROAD_SKIP_CEILING. Leaving the old number behind hands the "
+        "next author a free handler in a scope nobody is watching."
     )
 
 
 def test_the_broad_skip_ratchet_only_shrinks():
+    """The ceiling is EXACT, so the total can only be edited downwards.
+
+    ``<=`` was not a ban. It let the suite sit at its historical high-water
+    mark forever and, worse, it meant a handler removed from one file bought
+    room for a handler added to another without either test noticing. ``==``
+    makes every change to the count a deliberate edit of this constant, and
+    the only direction the constant may be edited is down.
+    """
     total = sum(sum(scopes.values()) for scopes in BROAD_SKIP_RATCHET.values())
-    assert total <= BROAD_SKIP_CEILING, (
-        f"BROAD_SKIP_RATCHET grew to {total} handlers (ceiling "
-        f"{BROAD_SKIP_CEILING}).")
+    assert total == BROAD_SKIP_CEILING, (
+        f"BROAD_SKIP_RATCHET totals {total} handlers but BROAD_SKIP_CEILING "
+        f"is {BROAD_SKIP_CEILING}.\n"
+        f"  {total} > {BROAD_SKIP_CEILING}: you added a broad except -> skip. "
+        f"Do not raise the ceiling; catch the specific exception, or use "
+        f"pytest.importorskip / an existing marker (gpu, nas, network, gui, "
+        f"heavy, slow, qt), or let the failure fail.\n"
+        f"  {total} < {BROAD_SKIP_CEILING}: you removed one -- thank you -- "
+        f"now lower BROAD_SKIP_CEILING to {total} so the room you freed "
+        f"cannot be spent by somebody else.")
     missing = [f for f in BROAD_SKIP_RATCHET if not (TESTS_DIR / f).is_file()]
     assert not missing, (
         f"BROAD_SKIP_RATCHET names modules that no longer exist: {missing}")
 
 
-def test_the_broad_skip_rule_can_see_a_module_level_guard():
-    """The rule's own blind spot, pinned.
+# --- the detector's own coverage, proved rather than assumed ----------------
 
-    ``_broad_skip_sites`` used to walk function bodies only, so the single
-    highest-blast-radius spelling of this anti-pattern -- a module-level
-    ``except Exception: pytest.skip(..., allow_module_level=True)`` around an
-    import -- passed unseen. Four of them were live in the suite.
-    """
-    # First against synthesised source, so the proof does not depend on those
-    # four modules staying broken.
-    synthetic = ast.parse(textwrap.dedent("""
-        import pytest
+def _synthetic_sites(source):
+    """``{scope: [lineno, ...]}`` for a snippet of test source."""
+    sites = {}
+    for scope, lineno in _scan_broad_skips(ast.parse(textwrap.dedent(source))):
+        sites.setdefault(scope, []).append(lineno)
+    return sites
+
+
+#: Every way anyone has thought of to keep the shape and lose the rule, each
+#: paired with the scope the walk must attribute it to. Written as source
+#: rather than as live code so that proving the rule does not require shipping
+#: a test that really does swallow its failures.
+BROAD_SKIP_EVASIONS = {
+    "bare except": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except:
+                pytest.skip("bare")
+    """, "test_x"),
+    "except BaseException": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except BaseException as e:
+                pytest.skip(str(e))
+    """, "test_x"),
+    "a narrow name beside the broad one": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except (ValueError, Exception) as e:
+                pytest.skip(str(e))
+    """, "test_x"),
+    "the broad name reached through a module": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except builtins.Exception as e:
+                pytest.skip(str(e))
+    """, "test_x"),
+    "raise SkipTest instead of calling skip": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except Exception as e:
+                raise unittest.SkipTest(str(e))
+    """, "test_x"),
+    "raise the skip class reached through pytest.skip.Exception": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except BaseException as e:
+                raise pytest.skip.Exception(str(e))
+    """, "test_x"),
+    "raise the skip class imported under its own name": ("""
+        def test_x():
+            try:
+                spacr.thing()
+            except Exception as e:
+                raise Skipped(str(e))
+    """, "test_x"),
+    "the skip moved one frame away": ("""
+        def _bail(exc):
+            pytest.skip(f"nope: {exc}")
+
+        def test_x():
+            try:
+                spacr.thing()
+            except Exception as e:
+                _bail(e)
+    """, "test_x"),
+    "...and two frames away": ("""
+        def _really_bail(exc):
+            pytest.skip(f"nope: {exc}")
+
+        def _bail(exc):
+            _really_bail(exc)
+
+        def test_x():
+            try:
+                spacr.thing()
+            except Exception as e:
+                _bail(e)
+    """, "test_x"),
+    "return instead of skip, so not even a skipped line appears": ("""
+        def test_x():
+            try:
+                result = spacr.thing()
+            except Exception:
+                return
+            assert result
+    """, "test_x"),
+    "pushed down into a nested def inside a listed test": ("""
+        def test_x():
+            def _try_it():
+                try:
+                    return spacr.thing()
+                except Exception as e:
+                    pytest.skip(str(e))
+            assert _try_it()
+    """, "_try_it"),
+    "hoisted to module level, where it skips the whole file": ("""
         try:
             import spacr.gui_elements as ge
         except Exception as e:
             pytest.skip(f"unavailable: {e}", allow_module_level=True)
+    """, MODULE_SCOPE),
+}
 
-        def test_something():
+#: Handlers that are NOT this anti-pattern and must stay legal, or the rule
+#: pushes authors towards a bare ``except`` with no guard at all.
+BROAD_SKIP_ALLOWED = {
+    "a narrow exception the environment really can raise": """
+        def test_x():
             try:
-                import spacr.nowhere
+                import optional_thing
+            except ImportError as e:
+                pytest.skip(str(e))
+    """,
+    "broad, but the failure survives": """
+        def test_x():
+            try:
+                spacr.thing()
             except Exception:
-                pytest.skip("also broad, but inside a function")
-    """))
-    scopes = dict(_scan_broad_skips(synthetic))
-    assert MODULE_SCOPE in scopes, (
-        "a module-level `except Exception: pytest.skip(...)` is not being "
-        "seen; the module-scope walk in _scan_broad_skips is broken")
-    assert "test_something" in scopes, "the in-function walk regressed"
+                cleanup()
+                raise
+    """,
+    "broad, but re-raised as a better message": """
+        def test_x():
+            try:
+                spacr.thing()
+            except Exception as e:
+                raise AssertionError(f"spacr.thing() blew up: {e}") from e
+    """,
+    "a fixture swallowing its own teardown": """
+        @pytest.fixture
+        def _no_stray_figures():
+            yield
+            try:
+                plt.close("all")
+            except Exception:
+                pass
+    """,
+}
 
-    module_level = [(f, ln) for f, scope, ln in _broad_skip_sites()
-                    if scope == MODULE_SCOPE]
-    assert module_level, (
-        "no module-level broad-skip found anywhere in tests/. Either they "
-        "were all fixed -- in which case drop their MODULE_SCOPE entries from "
-        "BROAD_SKIP_RATCHET and this test -- or the module-scope walk in "
-        "_broad_skip_sites has stopped working.")
-    # And every one of them is accounted for, by file.
-    listed = {f for f, scopes in BROAD_SKIP_RATCHET.items()
-              if MODULE_SCOPE in scopes}
-    assert {f for f, _ in module_level} == listed
+
+@pytest.mark.parametrize("name", sorted(BROAD_SKIP_EVASIONS))
+def test_the_broad_skip_rule_catches_every_known_evasion(name):
+    """Each spelling that keeps the behaviour and dodges the old walk."""
+    source, expected_scope = BROAD_SKIP_EVASIONS[name]
+    sites = _synthetic_sites(source)
+    assert expected_scope in sites, (
+        f"the {name!r} spelling of except -> skip is invisible to "
+        f"_scan_broad_skips; it found {sorted(sites)} and not "
+        f"{expected_scope!r}")
+    assert len(sites[expected_scope]) == 1
+
+
+@pytest.mark.parametrize("name", sorted(BROAD_SKIP_ALLOWED))
+def test_the_broad_skip_rule_leaves_honest_handlers_alone(name):
+    """False positives would push authors towards no guard at all."""
+    assert _synthetic_sites(BROAD_SKIP_ALLOWED[name]) == {}, (
+        f"{name!r} is a legitimate handler and the rule flagged it")
+
+
+def test_the_broad_skip_rule_reads_modules_that_are_not_named_test(tmp_path):
+    """Moving the handler into a helper module must not retire it.
+
+    Two halves, both needed. The classifier must not care what the file is
+    called, and the collector must hand it files that are not called
+    ``test_*``; either one alone leaves ``tests/helpers.py`` as a laundry.
+    """
+    # 1. The walk itself is name-blind: the same handler in a module named
+    #    `helpers.py` is found exactly as it would be in a test file.
+    helper = tmp_path / "helpers.py"
+    helper.write_text(textwrap.dedent("""
+        import pytest
+
+        def load_the_thing():
+            try:
+                return spacr.thing()
+            except Exception as e:
+                pytest.skip(f"unavailable: {e}")
+    """), encoding="utf-8")
+    assert _scan_broad_skips(_parse(helper)) == [("load_the_thing", 7)]
+
+    # 2. ...and the collector really does hand it such modules. tests/ holds
+    #    plenty: conftest.py, resource_capabilities.py, synthetic_data.py.
+    walked = {_rel(p) for p in _test_modules()}
+    assert "conftest.py" in walked and "qt/conftest.py" in walked
+    non_test = {f for f in walked if not Path(f).name.startswith("test_")}
+    assert len(non_test) >= 3, (
+        f"the module glob has narrowed to test_*.py; it found {sorted(walked)[:5]}")
+
+
+def test_the_broad_skip_ratchet_does_not_survive_a_rename():
+    """The allowance is keyed by file AND scope, and both keys are exact.
+
+    Renaming the module, or moving the handler to a differently-named
+    function inside it, must land on an allowance of zero -- and must also
+    leave the vacated entry reporting slack, so the list cannot quietly keep
+    room for a handler that has gone somewhere else.
+    """
+    ratchet = {"test_old_name.py": {"test_thing": 1}}
+    same_place, slack = _ratchet_verdict(
+        [("test_old_name.py", "test_thing", 10)], ratchet)
+    assert not same_place and not slack, "the honest baseline is not clean"
+
+    renamed_file, slack = _ratchet_verdict(
+        [("test_new_name.py", "test_thing", 10)], ratchet)
+    assert renamed_file == [("test_new_name.py", "test_thing", [10], 0)]
+    assert slack == [("test_old_name.py", "test_thing", 0, 1)]
+
+    renamed_scope, slack = _ratchet_verdict(
+        [("test_old_name.py", "test_thing_again", 10)], ratchet)
+    assert renamed_scope == [("test_old_name.py", "test_thing_again", [10], 0)]
+    assert slack == [("test_old_name.py", "test_thing", 0, 1)]
+
+    doubled, slack = _ratchet_verdict(
+        [("test_old_name.py", "test_thing", 10),
+         ("test_old_name.py", "test_thing", 14)], ratchet)
+    assert doubled == [("test_old_name.py", "test_thing", [10, 14], 1)]
+    assert not slack
 
 
 # ---------------------------------------------------------------------------
@@ -640,24 +991,17 @@ def test_the_cellpose_mock_contract_notices_a_missing_channel_axis():
 #: neither "cellpose" nor "model", so the old ``if "cellpose" not in name and
 #: "model" not in name: continue`` walked straight past them -- while the
 #: docstring claimed the rule recognised a double by its method shape.
-CELLPOSE_MOCK_RATCHET = {
-    ("qt/test_annotate_worker_lifecycle.py", "FakeModel"): 1,
-    ("qt/test_cpsam_diameter.py", "_RecordingCellposeModel"): 1,
-    ("qt/test_live_preview_coverage.py", "_FakeCellposeModel"): 1,
-    ("test_cov_object_cellpose_masks.py", "_M"): 2,
-    ("test_cov_object_masks_sam.py", "_M"): 1,
-    ("test_cov_object_preprocess_segment.py", "_RecordingCP"): 1,
-    ("test_cov_submodules_cellpose_apply.py", "_FakeCellposeModel"): 1,
-    ("test_cov_submodules_cellpose_train_test.py", "_FakeCellposeModel"): 1,
-    ("test_coverage_fill_measure_object.py", "_FakeCP"): 1,
-    ("test_model_compare.py", "StubModel"): 1,
-    ("test_object_tstack_wiring.py", "_M"): 1,
-    ("test_object_tstack_wiring.py", "_Model"): 1,
-    ("test_spacrops_store_and_features.py", "CellposeModel"): 1,
-}
+#: EMPTY, and it stays empty. Every one of the fourteen ``eval`` doubles that
+#: used to live here now declares the installed ``CellposeModel.eval``
+#: signature in full -- real parameter names, real defaults, no ``**kwargs`` --
+#: so the argument list is enforced by Python's own binding rather than by this
+#: rule. ``tests/test_cellpose_api_contract.py`` is the stronger successor: it
+#: checks every double against ``inspect.signature`` of the installed cellpose
+#: and fails if one drifts.
+CELLPOSE_MOCK_RATCHET = {}
 
 #: Total offending ``eval`` methods above, not keys.
-CELLPOSE_MOCK_CEILING = 14
+CELLPOSE_MOCK_CEILING = 0
 
 
 #: Sentinel for "this default is not a python literal" (a Name like
@@ -831,15 +1175,59 @@ def test_the_cellpose_mock_rule_rejects_a_declared_but_ignored_axis():
 
 
 def test_the_cellpose_mock_rule_does_not_read_class_names():
-    """Six doubles were invisible because they are not called ``*Model``.
+    """The detector matches on method SHAPE, never on the class's name.
 
-    ``_M``, ``_RecordingCP`` and ``_FakeCP`` are CellposeModel stand-ins by
-    behaviour and by nothing else; a name filter cannot see them.
+    Six doubles were once invisible to this rule because they are not called
+    ``*Model``: ``_M``, ``_RecordingCP`` and ``_FakeCP`` are CellposeModel
+    stand-ins by behaviour and by nothing else, and a name filter cannot see
+    them. All six have since been fixed, so the guarantee is pinned against
+    synthesised source rather than against a broken mock the suite would
+    otherwise have to keep shipping for the test's benefit.
     """
-    by_name = {cls for _, cls, _, _ in _cellpose_mock_offenders()}
-    unnamed = {c for c in by_name
-               if "cellpose" not in c.lower() and "model" not in c.lower()}
-    assert unnamed, (
-        "no name-invisible Cellpose double found. Either they were all fixed "
-        "-- in which case trim CELLPOSE_MOCK_RATCHET and this test -- or the "
-        "candidate filter has gone back to matching on class names.")
+    def offenders(src):
+        tree = ast.parse(textwrap.dedent(src))
+        found = []
+        for cls in [n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]:
+            for fn in [n for n in cls.body
+                       if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]:
+                if fn.name != "eval" or fn.args.kwarg is None:
+                    continue
+                if _channel_axis_complaint(fn):
+                    found.append(cls.name)
+        return found
+
+    # Three names with nothing cellpose-ish about them, all caught.
+    assert offenders("""
+        class _M:
+            def eval(self, x, **kwargs):
+                return [], None
+        class _RecordingCP:
+            def eval(self, x, **kwargs):
+                return [], None
+        class Wibble:
+            def eval(self, x, **kwargs):
+                return [], None
+    """) == ["_M", "_RecordingCP", "Wibble"]
+
+    # ...and a class NAMED like a cellpose model still passes when its eval is
+    # compliant, so the rule is not reading the name in the other direction.
+    assert offenders("""
+        class CellposeModel:
+            def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+                check_cellpose_eval_call(x, channel_axis)
+                return [], None
+    """) == []
+
+
+def test_the_cellpose_mock_ratchet_is_empty_and_stays_that_way():
+    """The ``**kwargs`` doubles are gone; nothing may re-add one.
+
+    ``CELLPOSE_MOCK_RATCHET`` is the record of doubles that swallowed
+    ``channel_axis``. It reached zero when every double was rewritten to
+    declare the installed ``CellposeModel.eval`` signature in full. An empty
+    ratchet with a zero ceiling is what makes the next ``**kwargs`` double a
+    failure instead of a new entry.
+    """
+    assert CELLPOSE_MOCK_RATCHET == {}
+    assert CELLPOSE_MOCK_CEILING == 0
+    assert not _cellpose_mock_offenders()

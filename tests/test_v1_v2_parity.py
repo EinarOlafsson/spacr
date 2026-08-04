@@ -44,20 +44,14 @@ import pytest
 # ---------------------------------------------------------------------------
 
 def _require_gpu_cellpose():
-    try:
-        import torch                          # noqa: F401
-    except Exception as e:
-        pytest.skip(f"torch unavailable: {e}")
+    # importorskip, not `except Exception`: "the package is not installed"
+    # raises ImportError and is an environment fact, while "the package is
+    # installed and detonates on import" is a bug and must fail here.
+    torch = pytest.importorskip("torch")
     if not torch.cuda.is_available():
         pytest.skip("no CUDA device — this parity test is GPU-only")
-    try:
-        import cellpose                       # noqa: F401
-    except Exception as e:
-        pytest.skip(f"cellpose unavailable: {e}")
-    try:
-        import sklearn                        # noqa: F401
-    except Exception as e:
-        pytest.skip(f"scikit-learn unavailable (needed for ARI): {e}")
+    pytest.importorskip("cellpose")
+    pytest.importorskip("sklearn")            # needed for ARI
 
 
 # ---------------------------------------------------------------------------
