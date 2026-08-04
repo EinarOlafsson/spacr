@@ -163,6 +163,7 @@ Owns `annotate.py`, `deep_spacr.py`, `classifier_evaluation.py`.
 | 6.18 | `F16` `settings.py` to 100% — 240 units, the biggest single win | — |
 | 6.19 | `F17` `sequencing.py` to 100% — 84 units on a real science path | — |
 | 6.20 | **Every module to 100%** (excluding the Tk modules) — the standing goal | — |
+| 6.20b | **The GUI must never freeze, and must say when it is busy** | Every long operation — pulling in a large image set, loading a database, any run — moves off the GUI thread, and a spinner beside *Clear console* shows background work. Requested 2026-08-03: "when I pull a large image set into masks that takes 2 minutes to load, I don't want the application to hang for 2 minutes." Reuse `resources/icons/loading_spinner.gif`, but **800×600 × 144 frames is ~230 MB decoded** for a 16 px indicator — pre-scale once or draw procedurally |
 | 6.21 | `S6` Crash reporter — log, settings, versions, last run in one attachable file *(6.2, 6.5)* | — |
 | 6.22 | `F19` Get the docs site under the Pages ceiling; stop nightly republishing | — |
 
