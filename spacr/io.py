@@ -3138,7 +3138,14 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                 concatenated_array = np.load(ref_array_path)
 
                 if channels is not None:
-                    concatenated_array = np.take(concatenated_array, channels, axis=2)
+                    # axis=-1, not axis=2. The channel axis is the LAST one,
+                    # and it happens to be axis 2 only for a 2-D (Y, X, C)
+                    # field. On a z-stack -- (Z, Y, X, C) -- axis 2 is X, so
+                    # asking for channels [0, 1] returned a two-pixel-wide
+                    # image with every channel still attached, which then
+                    # merged, measured and produced numbers. The two spellings
+                    # are identical for 2-D, so the ordinary path is unchanged.
+                    concatenated_array = np.take(concatenated_array, channels, axis=-1)
 
                 # Add the array from the reference folder to 'stack_ls'
                 stack_ls.append(concatenated_array)
@@ -3147,8 +3154,14 @@ def _load_and_concatenate_arrays(src, channels, cell_chann_dim, nucleus_chann_di
                 for folder in folder_paths[1:]:
                     array_path = _mask_variant_path(folder, filename)
                     array = _load_array_any(array_path)
-                    if array.ndim == 2:
-                        array = np.expand_dims(array, axis=-1)  # Add an extra dimension if the array is 2D
+                    # A mask carries the image's spatial axes and no channel
+                    # axis, so it needs one appended -- whether that is
+                    # (Y, X) -> (Y, X, 1) or (Z, Y, X) -> (Z, Y, X, 1).
+                    # Testing `ndim == 2` covered only the first, and a 3-D
+                    # mask reached np.concatenate one axis short of the image
+                    # it belongs to.
+                    if array.ndim in (2, concatenated_array.ndim - 1):
+                        array = np.expand_dims(array, axis=-1)
                     stack_ls.append(array)
 
             if len(stack_ls) > 0:

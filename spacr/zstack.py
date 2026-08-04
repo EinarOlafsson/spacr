@@ -92,6 +92,9 @@ __all__ = [
     "restore_anisotropic", "stitch_planes", "relabel_volume",
     "flag_truncated_z", "volume_stats", "segment_3d", "plan_from_settings",
     "estimate_peak_bytes",
+    "MEASUREMENT_MEANING_3D", "MEASUREMENT_ADDED_3D",
+    "MEASUREMENT_UNAVAILABLE_3D", "describe_3d_measurement",
+    "report_3d_measurements",
     # --- 4D (Beta): t on top of z ---
     "AXIS_ORDER_TZYX", "AXIS_ORDER_ZTYX", "AXIS_ORDER_TYX", "AXIS_ORDERS",
     "BACKEND_IOU",
@@ -156,6 +159,223 @@ VOLUME_STATS_UNITS: Dict[str, str] = {
 #: Flag name for an object cut off by the first or last z plane, named to match
 #: ``seg_qc.FLAG_BORDER`` ("high_border_fraction") for its xy equivalent.
 FLAG_Z_TRUNCATED = "z_truncated"
+
+
+#: What each morphology measurement *means* once the object is a volume.
+#:
+#: ``spacr.measure`` already drops the two properties skimage refuses to
+#: compute in 3-D (``PROPS_2D_ONLY``: ``perimeter`` and ``eccentricity``), and
+#: it already stamps every row with ``measurement_ndim`` and
+#: ``measurement_units``. What neither of those says is that **some columns
+#: keep their name and change their meaning**, which is the failure mode that
+#: survives a code review: a 3-D run writes ``cell_area``, and a reader who
+#: knows that column holds px^2 gets um^3 without one thing looking wrong.
+#: Anything that pools 2-D and 3-D runs, or reuses a threshold fitted on one,
+#: needs this table and not just the stamp.
+#:
+#: Keys are the bare regionprops names, as they appear after the object-type
+#: prefix (``cell_``, ``nucleus_``, ...).
+#:
+#: ``kind`` is one of:
+#:
+#: * ``"same"`` -- dimensionless, or otherwise identical in meaning.
+#: * ``"renamed"`` -- computed and correct, but the name now describes a
+#:   different quantity in different units. These are the dangerous ones.
+#: * ``"absent"`` -- not written at all by a 3-D run.
+MEASUREMENT_MEANING_3D: Dict[str, Dict[str, str]] = {
+    "area": {
+        "kind": "renamed",
+        "means": "volume",
+        "units_2d": "px^2",
+        "units_3d": "um^3 (voxels when no voxel size is known)",
+        "note": (
+            "The same number is also written as volume_um3 / volume_voxels, "
+            "which is the column to read. area is kept only so a 2-D "
+            "downstream query does not break."
+        ),
+    },
+    "area_filled": {
+        "kind": "renamed", "means": "filled volume",
+        "units_2d": "px^2", "units_3d": "um^3",
+        "note": "A cavity enclosed in z counts as filled, not just an xy hole.",
+    },
+    "area_bbox": {
+        "kind": "renamed", "means": "bounding-box volume",
+        "units_2d": "px^2", "units_3d": "um^3",
+        "note": "The box now has a z extent; a flat object's box is thin.",
+    },
+    "convex_area": {
+        "kind": "renamed", "means": "convex-hull volume",
+        "units_2d": "px^2", "units_3d": "um^3",
+        "note": (
+            "NaN for an object that does not span all three axes -- a "
+            "single-plane label has no 3-D hull, and Qhull's answer for one "
+            "is not a volume."
+        ),
+    },
+    "equivalent_diameter_area": {
+        "kind": "renamed", "means": "diameter of the equal-VOLUME sphere",
+        "units_2d": "px", "units_3d": "um",
+        "note": (
+            "Still a length, so it looks comparable across a 2-D and a 3-D "
+            "run. It is not: one is the diameter of a disc of equal area."
+        ),
+    },
+    "solidity": {
+        "kind": "same", "means": "volume / convex-hull volume",
+        "units_2d": "ratio", "units_3d": "ratio",
+        "note": "NaN wherever convex_area is NaN.",
+    },
+    "extent": {
+        "kind": "same", "means": "volume / bounding-box volume",
+        "units_2d": "ratio", "units_3d": "ratio",
+        "note": (
+            "Systematically lower in 3-D than in 2-D for the same object, "
+            "because the bounding box gains a whole extra dimension of empty "
+            "corner. Do not carry a 2-D threshold across."
+        ),
+    },
+    "euler_number": {
+        "kind": "renamed", "means": "objects - handles + cavities",
+        "units_2d": "count (holes)", "units_3d": "count (handles, cavities)",
+        "note": (
+            "In 2-D this counts holes. In 3-D a hole bored through an object "
+            "is a handle and an enclosed void is a cavity, and the two enter "
+            "with opposite signs. A '1 means no holes' rule does not carry."
+        ),
+    },
+    "major_axis_length": {
+        "kind": "same", "means": "longest inertia-ellipsoid axis",
+        "units_2d": "px", "units_3d": "um",
+        "note": (
+            "An ellipsoid axis rather than an ellipse axis, so it can exceed "
+            "the 2-D value for the same object -- it is free to point out of "
+            "the imaging plane."
+        ),
+    },
+    "minor_axis_length": {
+        "kind": "same", "means": "shortest inertia-ellipsoid axis",
+        "units_2d": "px", "units_3d": "um",
+        "note": (
+            "In an anisotropic stack this is usually the z axis, which makes "
+            "it the measurement most sensitive to a wrong voxel_size_z_um."
+        ),
+    },
+    "feret_diameter_max": {
+        "kind": "same", "means": "largest caliper distance",
+        "units_2d": "px", "units_3d": "um",
+        "note": "Computed over the 3-D convex hull, so z counts.",
+    },
+    "perimeter": {
+        "kind": "absent", "means": "-",
+        "units_2d": "px", "units_3d": "-",
+        "note": (
+            "Not written by a 3-D run, and deliberately not replaced by a "
+            "surface area under the same name. A boundary length and a "
+            "surface area are different quantities in different units, and "
+            "sharing a column would make every perimeter-based filter and "
+            "every stored threshold silently wrong. Use "
+            "volume_stats()['surface_um2'] when a surface is what is wanted."
+        ),
+    },
+    "eccentricity": {
+        "kind": "absent", "means": "-",
+        "units_2d": "ratio", "units_3d": "-",
+        "note": (
+            "There is no eccentricity of a solid. An ellipsoid needs two "
+            "ratios, not one, and skimage raises rather than guess which. "
+            "major/minor_axis_length carry the shape information instead."
+        ),
+    },
+}
+
+#: Measurements a 3-D run writes that a 2-D run does not.
+MEASUREMENT_ADDED_3D: Tuple[str, ...] = ("volume_voxels", "volume_um3")
+
+#: Per-channel measurements a 3-D run does not produce, and why. These are not
+#: bugs waiting to be fixed; each is 2-D by construction.
+MEASUREMENT_UNAVAILABLE_3D: Dict[str, str] = {
+    "zernike": (
+        "Zernike moments are defined on a disc. There is a 3-D analogue, but "
+        "it is a different basis with different coefficients, and emitting it "
+        "under the same column names would silently redefine every feature a "
+        "trained classifier was fitted on."
+    ),
+    "homogeneity": (
+        "skimage's graycomatrix is 2-D only. A per-plane GLCM averaged over z "
+        "would be a texture of the planes rather than of the volume, and it "
+        "would change with the z step -- a number that moves when the same "
+        "cell is re-imaged more finely is not a feature."
+    ),
+}
+
+#: Object-type prefixes ``spacr.measure`` puts in front of a property name.
+_OBJECT_PREFIXES: Tuple[str, ...] = (
+    "cell_", "nucleus_", "pathogen_", "cytoplasm_", "organelle_",
+)
+
+
+def _bare_property(name: str) -> str:
+    """Strip the object-type prefix from a measurement column name."""
+    text = str(name)
+    for prefix in _OBJECT_PREFIXES:
+        if text.startswith(prefix):
+            return text[len(prefix):]
+    return text
+
+
+def describe_3d_measurement(name: str) -> Dict[str, str]:
+    """What one measurement column means in a 3-D run.
+
+    Accepts either the bare regionprops name (``"area"``) or a full column
+    name carrying its object-type prefix (``"cell_area"``).
+
+    :param name: measurement or column name.
+    :returns: a copy of the :data:`MEASUREMENT_MEANING_3D` entry, or an entry
+        with ``kind="unknown"`` for a name this table says nothing about.
+    """
+    text = str(name)
+    for key in (text, _bare_property(text)):
+        if key in MEASUREMENT_MEANING_3D:
+            return dict(MEASUREMENT_MEANING_3D[key])
+    return {
+        "kind": "unknown", "means": "-", "units_2d": "-", "units_3d": "-",
+        "note": (
+            "Not in the 3-D meaning table. Intensity statistics are unaffected "
+            "by dimensionality -- a mean is a mean over whatever voxels the "
+            "label covers -- so most unknowns here are safe. Anything spatial "
+            "is not covered and should be checked before it is trusted."
+        ),
+    }
+
+
+def report_3d_measurements(columns: Sequence[str]) -> Dict[str, List[str]]:
+    """Sort a real measurement table's columns by how 3-D treats them.
+
+    Meant to be run against the columns a 3-D run actually produced, so the
+    answer describes that run rather than an intention.
+
+    :param columns: column names from a measurements table.
+    :returns: ``{"same": [...], "renamed": [...], "added": [...],
+        "absent": [...], "unknown": [...]}``. ``"renamed"`` is the list to
+        read: those columns kept their 2-D name and changed their meaning.
+        ``"absent"`` lists the 2-D-only properties that ought to be missing;
+        one of them turning up in ``columns`` means a 2-D property was
+        computed on a volume, and it is reported under ``"renamed"`` so it
+        cannot be mistaken for a normal column.
+    """
+    out: Dict[str, List[str]] = {
+        "same": [], "renamed": [], "added": [], "unknown": [],
+        "absent": [name for name, entry in MEASUREMENT_MEANING_3D.items()
+                   if entry["kind"] == "absent"],
+    }
+    for column in columns:
+        if _bare_property(column) in MEASUREMENT_ADDED_3D:
+            out["added"].append(str(column))
+            continue
+        kind = describe_3d_measurement(column)["kind"]
+        out["renamed" if kind == "absent" else kind].append(str(column))
+    return out
 
 
 # ---------------------------------------------------------------------------
