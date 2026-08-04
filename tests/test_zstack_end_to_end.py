@@ -36,6 +36,8 @@ import spacr.io as spacr_io
 import spacr.object as spacr_object
 import spacr.zstack as zstack
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 Z_PLANES, HEIGHT, WIDTH, CHANNELS = 5, 48, 48, 2
 VOXEL_Z_UM, VOXEL_XY_UM = 2.0, 0.65
@@ -72,8 +74,18 @@ def fake_model(monkeypatch):
             out[BOX_B] = 2
             return out
 
-        def eval(self, x=None, **kwargs):
-            self.eval_kwargs.append(dict(kwargs))
+        def eval(self, x=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            # `channel_axis` is named rather than absorbed into **kwargs, and
+            # the pair goes through the real `cellpose.transforms.
+            # convert_image` before anything is recorded. A double that takes
+            # any axis cannot tell a working call from the `channel_axis=3`
+            # that broke every real run -- which is the whole point of a
+            # module that exists to cover the mask->measure seam.
+            check_cellpose_eval_call(x, channel_axis, **{
+                key: kwargs[key] for key in ("z_axis", "do_3D",
+                                             "stitch_threshold")
+                if key in kwargs})
+            self.eval_kwargs.append({"channel_axis": channel_axis, **kwargs})
             if isinstance(x, list):
                 masks = [self._label(np.asarray(i)) for i in x]
                 return masks, [np.zeros(m.shape, np.float32) for m in masks], \
