@@ -50,9 +50,9 @@ mixed-language help.
 The teal API dots beside settings retain the exact documentation URL in every
 language. Their hover captions and accessible names follow the selected
 language, and changing language refreshes already-open settings windows.
-Where visual help exists, a purple animation dot is stacked above the API dot;
-its hover caption and accessible name are localized by the same semantic
-setting metadata. The scientific drawing itself is language-neutral. See the
+Where visual help exists, the tooltip footer offers an **Animation** word that
+reveals the drawing beside the text. The scientific drawing itself is
+language-neutral. See the
 :doc:`setting animation gallery <setting_animations>` for every exact mapping.
 
 Translation safety
@@ -112,6 +112,5 @@ Related API
 * :mod:`spacr.qt.i18n_module_summaries` — reviewed built-in module help.
 * :mod:`spacr.qt.screens.settings_model` — semantic setting tooltips and API links.
 * :mod:`spacr.setting_animations` — exact setting-to-animation registry.
-* :mod:`spacr.qt.widgets.animation_link` — localized purple link and GIF popup.
 * :class:`spacr.qt.widgets.console_panel.ConsolePanel` — separate raw-output
   and localized-notice paths.
