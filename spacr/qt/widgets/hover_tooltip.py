@@ -12,9 +12,9 @@ actually hides when neither the anchor nor the popup itself is under
 the cursor.
 
 A hover shows **text only**. No GIF is decoded, no frames are cached and no
-timer runs until the reader asks for the animation: the 94 packaged animations
-cover 143 settings, and every one of them is a decoded movie. A hover that
-only wanted the sentence should not pay for one.
+timer runs until the reader asks for the animation: 141 settings have one, and
+each is a ~73 ms decoded movie. A hover that only wanted the sentence should
+not pay for one. Measured, a sweep of all 141: 0 decodes, 2.6 ms a hover.
 
 Asked for, the animation appears to the RIGHT of the text. Both columns start
 at the same top edge, so the first line of prose and the first frame are read
@@ -36,21 +36,46 @@ The last line is two words, not a sentence: **API** in the theme accent opens
 the same documentation page the old ``Open spaCR API documentation`` link did,
 and **Animation** in teal reveals the square — or folds it away again.
 
-That reveal lasts the SESSION, not the hover and not the setting. The popup is
-a process-wide singleton, so the state has nowhere else to live, and it is the
-only scope that makes one click useful: per-hover would un-reveal the moment
-the pointer moved, and per-setting would ask a reader who wants animations to
-click every one of the 143 that have one.
+That reveal is PER SETTING. Pressing **Animation** on ``cell_diameter`` shows
+``cell_diameter``'s animation and nothing else; move to the next setting and it
+is hidden again until its own **Animation** is pressed. A session-wide reveal
+was the obvious alternative and is exactly wrong for the machines this was
+asked for: one click would put every later hover back on the ~73 ms decode
+path for the rest of the run, which is the cost the change exists to avoid.
+Measured, the same sweep of 141 settings taken straight after a press: still
+0 decodes.
 
-The one place to say "always" is the *Setting animations* preference, which is
-where the session state STARTS from — see :func:`HoverTooltip.animations_shown`.
-It now means "show animations without asking", and its default followed the
-new default for the tooltip: off.
+Re-hovering the SAME setting keeps its reveal, so moving the pointer between a
+label and the popup below it does not fight the reader. The state is one key
+and one bool — see :meth:`HoverTooltip.animations_shown`.
+
+Nothing is decoded before a press. The **Animation** word is offered from a
+registry lookup, which reads no pixels; the GIF is read, measured, cropped,
+zoomed and rounded only when the word is pressed. Two caches sit under that,
+and neither is ever filled speculatively:
+
+* :func:`spacr.qt.widgets.animation_zoom.zoomed_animation` already keeps the
+  eight most recent zooms (~2.6 MB each), which is what turns a repeat press
+  from ~73 ms into ~2.9 ms;
+* this widget keeps the finished pixmaps of ONE animation — the one last
+  revealed, ~3.5 MB — so folding a setting away and back is free. They are
+  dropped the moment the pointer moves to a different setting.
+
+The *Setting animations* preference is the escape hatch for a reader who wants
+them always: on, every tooltip starts revealed and the word folds THIS one
+away; off — the default — every tooltip starts hidden and the word reveals
+THIS one. Because a press only ever names one setting, it can never leave the
+preference unable to take effect.
 
 Which animation is decided by the anchor's ``settingKey`` property, so no
 caller has to pass one; the callers that put help on a label already set it.
 Anything without that property — a section header, a home tile — gets a
 text-only popup with no **Animation** word to click.
+
+The popup is ONE surface. Its two layout containers paint nothing, so the
+rounded grey frame is the only fill and the page-opacity preference moves it
+as a single layer — see :meth:`HoverTooltip._apply_theme` for the black slab
+that taught us.
 
 Only one tooltip ever appears. The screens that anchor this popup also leave
 a native Qt tooltip on the same label (``refresh_api_tooltips`` re-applies it
@@ -123,6 +148,23 @@ def split_api_link(html: str) -> Tuple[str, str]:
         return html, ""
     body = _TRAILING_BREAKS_RE.sub("", html[:last.start()])
     return body, unescape(last.group(2))
+
+
+def _anchor_setting_key(anchor: Optional[QWidget]) -> str:
+    """The setting an anchor speaks for, or ``""``.
+
+    Both the reveal and the animation lookup are keyed on this, so it is one
+    function: two readings of the same property could drift apart and leave a
+    press scoped to a setting other than the one on screen.
+    """
+    if anchor is None:
+        return ""
+    try:
+        key = anchor.property("settingKey")
+    except RuntimeError:
+        # The anchor's C++ half is gone; there is nothing to read.
+        return ""
+    return str(key) if key else ""
 
 
 class _NativeTooltipSuppressor(QObject):
@@ -406,13 +448,15 @@ class HoverTooltip(QFrame):
         self._animation_view.hide()
         self._animation = None
         self._offered_animation = None
-        # Tri-state, and the tri-state is the point. ``None`` means "no click
-        # yet — follow the preference"; ``True``/``False`` are this session's
-        # override of it. Two independent booleans would be two switches that
-        # can disagree; this one defers to the preference until the reader
-        # says otherwise, and goes back to deferring when they change it.
-        self._animations_revealed: Optional[bool] = None
-        self._reveal_baseline: Optional[bool] = None
+        # The reveal, in two fields: which setting the reader pressed
+        # **Animation** on, and what they pressed it to. It applies to that
+        # setting and to nothing else, so hovering anything else falls back to
+        # the preference. A session-wide flag here is precisely the behaviour
+        # that was rejected — one press must not put every later hover back on
+        # the decode path.
+        self._setting_key = ""
+        self._toggled_key: Optional[str] = None
+        self._toggled_to = False
         self._api_url = ""
 
         lay = QHBoxLayout(self)
@@ -441,6 +485,25 @@ class HoverTooltip(QFrame):
             f"  background-color: {palette['surface_alt']};"
             f"  border: 1px solid {palette['border']};"
             f"  border-radius: 6px;"
+            f"}}"
+            # The two layout containers paint NOTHING. Both are plain
+            # `QWidget`s, so without this they inherit the application sheet's
+            # blanket `QWidget { background-color: bg }` — and `bg` is the
+            # WINDOW colour, #000000 in the dark theme, not a surface. The
+            # result was a black slab covering all but a 6-pixel margin of the
+            # popup's own rounded grey: 20669 black pixels inside a #161719
+            # frame. `theme.clear_container_surfaces` exists for exactly this
+            # and could not help — it only tags ANONYMOUS widgets as
+            # scaffolding, and both of these are named.
+            #
+            # Transparent rather than re-filled with the frame's colour on
+            # purpose: one surface, one alpha. Painting the same grey twice is
+            # what left the System panel's meters unable to thin out when the
+            # page-opacity slider moved, because the two translucent layers
+            # composited into something darker than either.
+            f"QWidget#HoverTooltipTextColumn,"
+            f"QWidget#HoverTooltipLinks {{"
+            f"  background: transparent;"
             f"}}"
             f"QLabel {{"
             f"  color: {palette['fg']};"
@@ -495,6 +558,10 @@ class HoverTooltip(QFrame):
         self._apply_theme()
         self._anchor = anchor
         self._claim_anchor(anchor)
+        # Which setting this tooltip is for, which is what the reveal is
+        # scoped to. Read before `_set_animation`, because that is what asks
+        # `animations_shown()` whether this particular setting was pressed.
+        self._setting_key = _anchor_setting_key(anchor)
         body, url = split_api_link(str(html))
         self._api_url = url
         self._api_link.setVisible(bool(url))
@@ -545,30 +612,32 @@ class HoverTooltip(QFrame):
         return self._api_url
 
     def animations_shown(self) -> bool:
-        """Whether a hover currently reveals the animation beside the text.
+        """Whether the setting currently hovered shows its animation.
 
-        Off unless asked for. The **Animation** word sets a session override;
-        with no override the *Setting animations* preference decides, and that
-        preference now means "show animations without asking" rather than
-        "show animations". Its default follows this one: off.
+        Off unless this setting was asked for. A press on **Animation** names
+        one setting; every other setting falls back to the *Setting
+        animations* preference, which means "show animations without asking"
+        and defaults, like this, to off.
 
-        Changing the preference clears the override, so Preferences is always
-        able to have the last word — otherwise a reader who clicked once could
-        never turn animations off again from the dialog, which is exactly the
-        two-switches-that-disagree failure this method exists to avoid.
+        Scoped to a setting rather than to the session on purpose: a reveal
+        that outlived the setting would put every later hover back on the
+        ~73 ms decode path after a single press, which is the cost the reader
+        was trying to avoid. Nothing here needs to guard the preference
+        either — a press cannot reach past the setting it named.
 
         Read on every hover, never cached: the popup is a process-wide
         singleton that outlives the Preferences dialog.
         """
         from ..preferences import get_setting_animations_enabled
 
-        preference = get_setting_animations_enabled()
-        if (self._animations_revealed is not None
-                and preference == self._reveal_baseline):
-            return self._animations_revealed
-        self._animations_revealed = None
-        self._reveal_baseline = None
-        return preference
+        if (self._toggled_key is not None
+                and self._toggled_key == self._setting_key):
+            return self._toggled_to
+        return get_setting_animations_enabled()
+
+    def toggled_setting(self) -> Optional[str]:
+        """The one setting a press has spoken for, or ``None`` — for tests."""
+        return self._toggled_key
 
     # ------------------------------------------------------------------
     # The two words
@@ -580,18 +649,21 @@ class HoverTooltip(QFrame):
         QDesktopServices.openUrl(QUrl(self._api_url))
 
     def toggle_animation(self) -> None:
-        """Reveal the animation beside the text, or fold it away again.
+        """Reveal this setting's animation, or fold it away again.
 
-        Deliberately not written to :mod:`spacr.qt.preferences`. This is the
-        reader asking to see one now; the preference is the reader asking to
-        stop being asked. The override lasts as long as the popup does — the
-        session, since the popup is a singleton — and is dropped as soon as
-        the preference it overrode changes.
+        Deliberately not written to :mod:`spacr.qt.preferences`, and
+        deliberately naming one setting. This is the reader asking to see
+        *this* animation; the preference is the reader asking to stop being
+        asked about any of them. Because the press names a setting, it cannot
+        turn animations on for the next one, and it cannot leave the
+        preference unable to take effect.
         """
-        from ..preferences import get_setting_animations_enabled
-
-        self._animations_revealed = not self.animations_shown()
-        self._reveal_baseline = get_setting_animations_enabled()
+        # Read BEFORE the key is claimed: afterwards `animations_shown` would
+        # answer with the state being written here rather than the one being
+        # inverted.
+        wanted = not self.animations_shown()
+        self._toggled_key = self._setting_key
+        self._toggled_to = wanted
         self._set_animation(self._offered_animation)
         self.adjustSize()
         if self.isVisible() and self._anchor is not None:
@@ -613,11 +685,7 @@ class HoverTooltip(QFrame):
         if animation is not _DERIVE:
             return animation
 
-        try:
-            key = anchor.property("settingKey") if anchor is not None else None
-        except RuntimeError:
-            # The anchor's C++ half is gone; there is nothing to look up.
-            return None
+        key = _anchor_setting_key(anchor)
         if not key:
             return None
         try:
@@ -637,10 +705,21 @@ class HoverTooltip(QFrame):
         self._offered_animation = animation
         revealed = self.animations_shown()
         if animation is not None and revealed:
+            # The only line in this class that reads a GIF, and it is reached
+            # only from a press or from the preference being on.
             showing = self._animation_view.load(animation)
+        elif (animation is not None
+                and self._animation_view.slug() == animation.slug):
+            # Folded away while still on the same setting: pause, keep the
+            # finished pixmaps (~3.5 MB for one animation), so pressing again
+            # costs nothing. Bounded at one animation and never filled before
+            # a press -- moving to any other setting hits the branch below.
+            self._animation_view.stop()
+            showing = False
         else:
-            # Nothing to show, or not asked for: decode nothing. This is the
-            # default path, and it is why a plain hover costs no decode.
+            # Nothing to show, or not asked for: decode nothing and drop the
+            # previous setting's frames. This is the default path, and it is
+            # why a plain hover costs no decode and holds no pixmaps.
             self._animation_view.clear_animation()
             showing = False
         self._animation = animation if showing else None
