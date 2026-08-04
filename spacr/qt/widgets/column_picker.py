@@ -71,7 +71,7 @@ import threading
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QItemSelectionModel, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -99,10 +99,16 @@ __all__ = [
     "ColumnPickerDialog",
     "SchemaReader",
     "attach_column_picker",
+    "chip_editor",
+    "field_is_list",
+    "field_text",
+    "field_values",
     "near_miss",
     "read_schema",
     "read_table",
     "resolve_db_path",
+    "set_field_text",
+    "set_field_values",
     "validate_column_name",
 ]
 
@@ -566,17 +572,25 @@ class ColumnPickerDialog(QDialog):
         injecting one is how tests exercise schema edge cases. Its reads
         are still threaded when ``threaded`` is set.
     :param threaded: read the schema on a worker thread. See above.
+    :param multi: let the user select several columns at once and return
+        every one of them (:meth:`chosen_columns`). For fields that hold a
+        *list* of columns — ``exclude``, ``annotation_columns`` — where one
+        name per press meant reopening the dialog, and re-reading the
+        schema, once per column the user wanted.
     """
 
     def __init__(self, db_path: Any = "", table: Optional[str] = None,
                  current: str = "", parent: Optional[QWidget] = None,
                  allow_new: bool = True,
                  reader: Optional[SchemaReader] = None,
-                 threaded: bool = False):
+                 threaded: bool = False,
+                 multi: bool = False):
         super().__init__(parent)
         from ..job_runner import JobRunner
 
-        self.setWindowTitle("Pick a database column")
+        self._multi = bool(multi)
+        self.setWindowTitle("Pick database columns" if self._multi
+                            else "Pick a database column")
         self.setObjectName("ColumnPickerDialog")
         self.setMinimumWidth(560)
 
@@ -650,9 +664,16 @@ class ColumnPickerDialog(QDialog):
         self._column_tree.setHeaderLabels(["Column", "Type", "Non-null"])
         self._column_tree.setRootIsDecorated(False)
         self._column_tree.setUniformRowHeights(True)
-        self._column_tree.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._column_tree.setSelectionMode(
+            QAbstractItemView.ExtendedSelection if self._multi
+            else QAbstractItemView.SingleSelection)
         self._column_tree.currentItemChanged.connect(self._on_column_changed)
         self._column_tree.itemDoubleClicked.connect(self._on_column_activated)
+        if self._multi:
+            # The selection, not the name box, is the answer in this mode,
+            # so the verdict has to follow it.
+            self._column_tree.itemSelectionChanged.connect(self._evaluate)
+        self._columns_label.setText(self._columns_heading(""))
         header = self._column_tree.header()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         right.addWidget(self._column_tree, 1)
@@ -761,13 +782,24 @@ class ColumnPickerDialog(QDialog):
             lambda r=self._reader, t=name: read_table(r, t),
             self._apply_table)
 
+    def _columns_heading(self, table: str) -> str:
+        """Heading over the column tree.
+
+        Multi-select is invisible otherwise: a tree looks exactly the same
+        whether it takes one row or twenty, so the heading has to say which.
+        """
+        base = f"Columns in {table}" if table else "Columns"
+        if not self._multi:
+            return base
+        return f"{base} — pick as many as you need (ctrl/shift-click)"
+
     def _begin_table(self, table: str) -> None:
         """Say a table is being read, without claiming to know anything."""
         self._column_tree.clear()
         self._columns = []
         self._count_btn.setEnabled(False)
         if table and self._reader is not None:
-            self._columns_label.setText(f"Columns in {table}")
+            self._columns_label.setText(self._columns_heading(table))
             self._summary.setText("reading…")
         else:
             self._summary.setText("")
@@ -794,7 +826,7 @@ class ColumnPickerDialog(QDialog):
         self._count_btn.setEnabled(False)
         if not table or self._reader is None:
             return
-        self._columns_label.setText(f"Columns in {table}")
+        self._columns_label.setText(self._columns_heading(table))
         if payload.get("error"):
             self._set_banner(payload["error"])
             return
@@ -851,6 +883,23 @@ class ColumnPickerDialog(QDialog):
         name = self._name.text()
         table = self.chosen_table() or "the table"
         existing = [c for c, _t in self._columns]
+
+        # Multi-select: once more than one row is highlighted the name box is
+        # no longer the answer, so judging the name would report on one column
+        # out of several. Every selected row is an existing column by
+        # construction, so the verdict is simply "use them".
+        picked = self._selected_column_names()
+        if self._multi and len(picked) > 1:
+            self._near = ""
+            self._action = ACTION_USE
+            shown = ", ".join(picked[:6])
+            more = "" if len(picked) <= 6 else f", and {len(picked) - 6} more"
+            self._status.setText(
+                f"{len(picked)} columns selected in {table} — all of them "
+                f"will be added: {shown}{more}.")
+            self._confirm.setVisible(False)
+            self._sync_ok()
+            return
         self._near = ""
 
         if self._reader is None or not existing:
@@ -957,9 +1006,60 @@ class ColumnPickerDialog(QDialog):
         """Return the name box, for hosts that want to prefill or focus it."""
         return self._name
 
+    def _selected_column_names(self) -> List[str]:
+        """The highlighted rows of the column tree, in table order."""
+        tree = getattr(self, "_column_tree", None)
+        if tree is None:
+            return []
+        return [tree.topLevelItem(i).text(0)
+                for i in range(tree.topLevelItemCount())
+                if tree.topLevelItem(i).isSelected()]
+
+    def is_multi(self) -> bool:
+        """Whether this dialog returns several columns."""
+        return self._multi
+
     def chosen_column(self) -> str:
         """Return the name currently in the box, trimmed."""
         return self._name.text().strip()
+
+    def chosen_columns(self) -> List[str]:
+        """Every column OK would hand back, in order and without repeats.
+
+        Always non-empty when :meth:`chosen_column` is — a single-select
+        dialog is the one-element case of this, so a caller can use this
+        alone. In multi mode the highlighted rows are the answer, with the
+        typed name added when it is not one of them (that is how a column
+        that does not exist yet is named).
+        """
+        picked = self._selected_column_names() if self._multi else []
+        typed = self.chosen_column()
+        if typed and typed not in picked:
+            # Only one row selected: the tree filled the name box from it, so
+            # `typed` IS that row and appending it would not add anything.
+            picked = picked + [typed]
+        return list(dict.fromkeys(picked))
+
+    def select_columns(self, names: Sequence[str]) -> List[str]:
+        """Highlight several columns at once. Returns the ones that existed."""
+        tree = self._column_tree
+        wanted = [str(n) for n in names]
+        tree.clearSelection()
+        found: List[str] = []
+        last = None
+        for i in range(tree.topLevelItemCount()):
+            item = tree.topLevelItem(i)
+            if item.text(0) in wanted:
+                item.setSelected(True)
+                found.append(item.text(0))
+                last = item
+        if last is not None:
+            # setCurrentItem would clear the selection we just made; the
+            # current item only matters for the name box and Count non-null.
+            tree.setCurrentItem(last, 0, QItemSelectionModel.NoUpdate)
+            self._name.setText(last.text(0))
+        self._evaluate()
+        return found
 
     def chosen_table(self) -> str:
         """Return the selected table name, or ``""``."""
@@ -1060,14 +1160,19 @@ class ColumnPickerButton(QToolButton):
         depends on a ``src`` field the user is still editing. A plain
         string is accepted and wrapped.
     :param table: table to preselect in the dialog.
-    :param field: the ``QLineEdit``/``QComboBox`` a picked name is written
-        into; may be ``None`` for a button that only emits :attr:`picked`.
-    :param multi: append to the field instead of replacing it (for fields
-        that hold a *list* of columns). ``None`` auto-detects.
+    :param field: the ``QLineEdit``/``QComboBox``/chip-strip editor a picked
+        name is written into; may be ``None`` for a button that only emits
+        :attr:`picked`.
+    :param multi: this field holds a *list* of columns — names are appended
+        rather than replacing what is there, and the dialog lets the user
+        select any number of columns in one visit instead of one per press.
+        ``None`` auto-detects (:func:`field_is_list`).
     """
 
-    #: Emitted with the chosen column name after the dialog is accepted.
+    #: Emitted once per chosen column name, after the dialog is accepted.
     picked = Signal(str)
+    #: Emitted once with every chosen name, after the dialog is accepted.
+    picked_many = Signal(list)
 
     def __init__(self, db_path_getter: Any = "", table: Optional[str] = None,
                  field: Optional[QWidget] = None, parent: Optional[QWidget] = None,
@@ -1126,33 +1231,49 @@ class ColumnPickerButton(QToolButton):
         *default* is the other one.
         """
         current = self.current_text()
-        if self.multi or (self.multi is None and _looks_like_list(current)):
+        multi = self.is_multi()
+        if multi:
             current = ""
         return ColumnPickerDialog(
             db_path=self.db_path(), table=self.table, current=current,
-            parent=self.window(), allow_new=self.allow_new, threaded=True)
+            parent=self.window(), allow_new=self.allow_new, threaded=True,
+            multi=multi)
+
+    def is_multi(self) -> bool:
+        """Whether this field holds a list of columns rather than one.
+
+        Explicit ``multi`` wins. Otherwise the *field* decides: a chip-strip
+        editor is list-valued whether or not it currently holds anything,
+        which a text inspection cannot tell (an empty one reads ``""``, and
+        an empty list field is exactly when the user most wants to add
+        several at once). Text fields keep the old shape test.
+        """
+        if self.multi is not None:
+            return bool(self.multi)
+        return field_is_list(self.field) or _looks_like_list(self.current_text())
 
     def open_picker(self) -> str:
-        """Open the picker; on OK, write the name into the field.
+        """Open the picker; on OK, write every chosen name into the field.
 
-        :returns: the chosen column name, or ``""`` when cancelled.
+        :returns: the first chosen column name, or ``""`` when cancelled.
+            :attr:`picked_many` carries the whole selection.
         """
         dialog = self.make_dialog()
         try:
             result = self._runner(dialog)
             if result != QDialog.Accepted:
                 return ""
-            name = dialog.chosen_column()
+            names = dialog.chosen_columns()
         finally:
             dialog.deleteLater()
-        if not name:
+        if not names:
             return ""
-        multi = self.multi
-        if multi is None:
-            multi = _looks_like_list(self.current_text())
-        set_field_text(self.field, name, append=bool(multi))
-        self.picked.emit(name)
-        return name
+        multi = self.is_multi()
+        set_field_values(self.field, names, append=multi)
+        for name in names:
+            self.picked.emit(name)
+        self.picked_many.emit(list(names))
+        return names[0]
 
 
 def _looks_like_list(text: str) -> bool:
@@ -1166,13 +1287,87 @@ def _looks_like_list(text: str) -> bool:
     return t.startswith("[") or ("," in t)
 
 
+def chip_editor(field: Optional[QWidget]) -> Optional[QWidget]:
+    """Return ``field`` when it is a chip-strip list editor, else ``None``.
+
+    Duck-typed on purpose: the editor lives in
+    :mod:`spacr.qt.screens.settings_model` and importing a *screen* from a
+    *widget* would invert the dependency (and, in practice, cycle). The test
+    is "not a text field, but speaks ``get_value``/``set_value``" — the
+    settings screen's ``_ScalarEdit`` and ``_ListEdit`` speak those too, but
+    they are ``QLineEdit`` subclasses and are caught by the branch above.
+    """
+    if field is None or isinstance(field, (QLineEdit, QComboBox)):
+        return None
+    if callable(getattr(field, "get_value", None)) and \
+            callable(getattr(field, "set_value", None)):
+        return field
+    return None
+
+
+def field_is_list(field: Optional[QWidget]) -> bool:
+    """Whether ``field`` holds a list of names rather than a single one."""
+    return chip_editor(field) is not None
+
+
+def field_values(field: Optional[QWidget]) -> List[str]:
+    """Return the column names ``field`` currently holds, in order."""
+    editor = chip_editor(field)
+    if editor is not None:
+        value = editor.get_value()
+        if value is None:
+            return []
+        if isinstance(value, (list, tuple)):
+            return [str(v).strip() for v in value if str(v).strip()]
+        return [str(value).strip()] if str(value).strip() else []
+    text = field_text(field).strip()
+    if not text:
+        return []
+    if text.startswith("[") and text.endswith("]"):
+        return [p.strip().strip("'\"") for p in text[1:-1].split(",")
+                if p.strip()]
+    return [p.strip() for p in text.split(",") if p.strip()]
+
+
 def field_text(field: Optional[QWidget]) -> str:
-    """Return the text of a line edit / combo box, ``""`` for anything else."""
+    """Return the text of a line edit / combo box / chip strip."""
     if isinstance(field, QComboBox):
         return field.currentText()
     if isinstance(field, QLineEdit):
         return field.text()
+    editor = chip_editor(field)
+    if editor is not None:
+        return ", ".join(field_values(editor))
     return ""
+
+
+def set_field_values(field: Optional[QWidget], names: Sequence[str],
+                     append: bool = False) -> bool:
+    """Write every name in ``names`` into ``field``. False when it could not.
+
+    The multi-column half of :func:`set_field_text`. A chip strip is set
+    from a real list — no punctuation round trip — and anything else keeps
+    its own list style through :func:`_appended`.
+    """
+    wanted = [str(n).strip() for n in names if str(n).strip()]
+    if field is None or not wanted:
+        return False
+    editor = chip_editor(field)
+    if editor is not None:
+        existing = field_values(editor) if append else []
+        editor.set_value(list(dict.fromkeys(existing + wanted)))
+        return True
+    if not append:
+        # Replacing a single-valued field with several names would lose all
+        # but one silently; keep them all, in the field's own style.
+        ok = set_field_text(field, wanted[0], append=False)
+        for name in wanted[1:]:
+            ok = set_field_text(field, name, append=True) and ok
+        return ok
+    ok = True
+    for name in wanted:
+        ok = set_field_text(field, name, append=True) and ok
+    return ok
 
 
 def set_field_text(field: Optional[QWidget], name: str,
