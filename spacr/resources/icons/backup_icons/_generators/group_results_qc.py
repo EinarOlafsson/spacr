@@ -138,7 +138,7 @@ def mark(c, cx, cy, r, kind):
         c.polyline([(cx, cy - r), (cx + r * 0.94, cy + r * 0.74),
                     (cx - r * 0.94, cy + r * 0.74)], close=True, filled=True)
     elif kind == "dash":
-        c.circ(cx, cy, r * 0.92, W_MAIN, dash=[1.6, 2.0])
+        c.circ(cx, cy, r * 0.92, W_SEC, dash=[1.1, 1.5])
     elif kind == "dot":
         c.disc(cx, cy, r * 0.32)
 
@@ -323,46 +323,41 @@ def plate_view_10(c):
 
 def experiment_design_01(c):
     """Condition marks assigned across the plate, with a key beside it."""
-    x, y, w, h = 0.06, 0.26, 0.62, 0.48
+    x, y, w, h = 0.04, 0.26, 0.60, 0.48
     c.rect(x, y, w, h, w=W_MAIN, r=0.028)
-    kinds = [["fill", "fill", "ring"], ["sqf", "sqf", "ring"],
-             ["tri", "tri", "ring"]]
-    for j in range(3):
+    kinds = [["fill", "sqf", "ring"], ["fill", "sqf", "ring"]]
+    for j in range(2):
         for i in range(3):
-            mark(c, x + w * (i + 0.5) / 3, y + h * (j + 0.5) / 3, 0.055,
+            mark(c, x + w * (i + 0.5) / 3, y + h * (j + 0.5) / 2, 0.072,
                  kinds[j][i])
-    for k, kind in enumerate(("fill", "sqf", "tri")):
-        mark(c, 0.80, 0.34 + k * 0.16, 0.050, kind)
-        c.bar(0.87, 0.34 + k * 0.16 - 0.016, 0.10, 0.032, filled=True)
+    for k, kind in enumerate(("fill", "sqf", "ring")):
+        mark(c, 0.76, 0.28 + k * 0.22, 0.062, kind)
+        c.bar(0.86, 0.28 + k * 0.22 - 0.022, 0.12, 0.044, filled=True)
 
 
 def experiment_design_02(c):
     """The plate cut into three treatment blocks, each braced as one."""
-    c.rect(0.06, 0.34, 0.88, 0.44, w=W_MAIN, r=0.028)
+    c.rect(0.06, 0.32, 0.88, 0.48, w=W_MAIN, r=0.028)
     kinds = ("fill", "sqf", "tri")
     for b in range(3):
         x0 = 0.06 + 0.88 * b / 3.0
         if b:
-            c.line(x0, 0.34, x0, 0.78, W_SEC, dash=[6, 7])
-        brace(c, x0 + 0.030, x0 + 0.263, 0.28, depth=0.070, w=W_SEC)
+            c.line(x0, 0.32, x0, 0.80, W_MAIN)
+        brace(c, x0 + 0.030, x0 + 0.263, 0.26, depth=0.075, w=W_MAIN)
         for j in range(2):
-            for i in range(2):
-                mark(c, x0 + 0.293 * (i + 0.5) / 2 + 0.001,
-                     0.34 + 0.44 * (j + 0.5) / 2, 0.055, kinds[b])
+            mark(c, x0 + 0.147, 0.32 + 0.48 * (j + 0.5) / 2, 0.078, kinds[b])
 
 
 def experiment_design_03(c):
     """Controls parked in the outside columns, samples in the middle."""
-    x, y, w, h = 0.06, 0.24, 0.88, 0.54
+    x, y, w, h = 0.06, 0.28, 0.88, 0.44
     c.rect(x, y, w, h, w=W_MAIN, r=0.030)
-    for j in range(3):
+    for j in range(2):
         for i in range(5):
-            cx, cy = x + w * (i + 0.5) / 5, y + h * (j + 0.5) / 3
-            mark(c, cx, cy, 0.056, "ring" if i in (0, 4) else "fill")
-    c.line(x + w * 0.20, y - 0.055, x + w * 0.20, y + h + 0.055, W_SEC,
-           dash=[6, 7])
-    c.line(x + w * 0.80, y - 0.055, x + w * 0.80, y + h + 0.055, W_SEC,
-           dash=[6, 7])
+            cx, cy = x + w * (i + 0.5) / 5, y + h * (j + 0.5) / 2
+            mark(c, cx, cy, 0.070, "ring" if i in (0, 4) else "fill")
+    c.line(x + w * 0.20, y - 0.070, x + w * 0.20, y + h + 0.070, W_MAIN)
+    c.line(x + w * 0.80, y - 0.070, x + w * 0.80, y + h + 0.070, W_MAIN)
 
 
 def experiment_design_04(c):
@@ -417,13 +412,13 @@ def experiment_design_07(c):
 
 def experiment_design_08(c):
     """A half-authored plate: assigned wells solid, the rest still blank."""
-    x, y, w, h = 0.06, 0.24, 0.88, 0.54
+    x, y, w, h = 0.06, 0.28, 0.88, 0.44
     c.rect(x, y, w, h, w=W_MAIN, r=0.030)
-    for j in range(3):
+    for j in range(2):
         for i in range(4):
-            cx, cy = x + w * (i + 0.5) / 4, y + h * (j + 0.5) / 3
-            mark(c, cx, cy, 0.058, "fill" if i < 2 else "dash")
-    c.line(x + w * 0.5, y - 0.070, x + w * 0.5, y + h + 0.070, W_MAIN)
+            cx, cy = x + w * (i + 0.5) / 4, y + h * (j + 0.5) / 2
+            mark(c, cx, cy, 0.078, "fill" if i < 2 else "dash")
+    c.line(x + w * 0.5, y - 0.080, x + w * 0.5, y + h + 0.080, W_MAIN)
 
 
 def experiment_design_09(c):
@@ -686,10 +681,10 @@ def qc_dashboard_09(c):
     c.arc(0.50, 0.72, 0.360, 0, 180, W_MAIN)
     c.line(0.14, 0.72, 0.86, 0.72, W_SEC)
     c.line(0.50, 0.36, 0.50, 0.24, W_MAIN)
-    tick(c, 0.23, 0.62, 0.075)
-    cross(c, 0.77, 0.62, 0.070)
-    a = math.radians(126.0)
-    c.line(0.50, 0.72, 0.50 + 0.28 * math.cos(a), 0.72 - 0.28 * math.sin(a),
+    tick(c, 0.26, 0.63, 0.075)
+    cross(c, 0.74, 0.63, 0.070)
+    a = math.radians(118.0)
+    c.line(0.50, 0.72, 0.50 + 0.25 * math.cos(a), 0.72 - 0.25 * math.sin(a),
            W_MAIN)
     c.disc(0.50, 0.72, 0.052)
 
@@ -779,10 +774,8 @@ def report_07(c):
     page(c, 0.06, 0.14, 0.50, 0.72)
     for y in (0.34, 0.48, 0.62, 0.74):
         textline(c, 0.14, y, 0.34 if y != 0.74 else 0.20, 0.040)
-    c.rect(0.60, 0.24, 0.30, 0.19, w=W_MAIN, r=0.095)
-    c.rect(0.66, 0.55, 0.30, 0.19, w=W_MAIN, r=0.095)
-    c.line(0.73, 0.42, 0.79, 0.57, W_MAIN)
-    c.line(0.83, 0.42, 0.89, 0.57, W_MAIN)
+    c.ring(0.70, 0.38, 0.115, 0.050)
+    c.ring(0.83, 0.58, 0.115, 0.050)
 
 
 def report_08(c):
@@ -896,18 +889,18 @@ def agreement_06(c):
 
 def agreement_07(c):
     """Two label ribbons compared tile by tile, the odd tile flagged."""
-    top = (2, 2, 0, 2, 0)
-    bot = (2, 2, 0, 0, 0)
-    for i in range(5):
-        x = 0.06 + i * 0.180
+    top = (2, 0, 2, 0)
+    bot = (2, 0, 0, 0)
+    for i in range(4):
+        x = 0.06 + i * 0.230
         for j, row in enumerate((top, bot)):
-            y = 0.20 + j * 0.24
+            y = 0.16 + j * 0.28
             if row[i]:
-                c.rect(x, y, 0.140, 0.180, filled=True, r=0.024)
+                c.rect(x, y, 0.190, 0.220, filled=True, r=0.030)
             else:
-                c.rect(x, y, 0.140, 0.180, w=W_MAIN, r=0.024)
+                c.rect(x, y, 0.190, 0.220, w=W_MAIN, r=0.030)
         if top[i] != bot[i]:
-            cross(c, x + 0.070, 0.78, 0.075)
+            cross(c, x + 0.095, 0.82, 0.090)
 
 
 def agreement_08(c):
@@ -929,12 +922,12 @@ def agreement_09(c):
     calls = ((2, 2, 2), (2, 0, 2), (0, 0, 0))
     for j in range(3):
         for i in range(3):
-            mark(c, 0.12 + i * 0.17, 0.20 + j * 0.30, 0.062,
+            mark(c, 0.10 + i * 0.19, 0.18 + j * 0.32, 0.072,
                  "fill" if calls[j][i] else "ring")
-    c.line(0.56, 0.10, 0.56, 0.90, W_SEC, dash=[7, 8])
+    c.line(0.60, 0.06, 0.60, 0.94, W_MAIN)
     for j, row in enumerate(calls):
         maj = 1 if sum(1 for v in row if v) >= 2 else 0
-        mark(c, 0.82, 0.20 + j * 0.30, 0.086, "fill" if maj else "ring")
+        mark(c, 0.84, 0.18 + j * 0.32, 0.100, "fill" if maj else "ring")
 
 
 def agreement_10(c):
@@ -970,12 +963,12 @@ def classifier_evaluation_02(c):
 
 def classifier_evaluation_03(c):
     """Cross-validation folds: the held-out block moving down the rows."""
-    held = (3, 1, 2, 0)
-    for j in range(4):
-        y = 0.14 + j * 0.22
+    held = (2, 0, 3)
+    for j in range(3):
+        y = 0.18 + j * 0.26
         for i in range(4):
-            x = 0.08 + i * 0.22
-            c.rect(x, y, 0.18, 0.13, filled=(i == held[j]), w=W_MAIN, r=0.065)
+            x = 0.06 + i * 0.23
+            c.rect(x, y, 0.19, 0.17, filled=(i == held[j]), w=W_MAIN, r=0.085)
 
 
 def classifier_evaluation_04(c):
@@ -1108,11 +1101,11 @@ def barcode_qc_05(c):
 def barcode_qc_06(c):
     """The count histogram with the knee where background stops."""
     c.line(0.08, 0.88, 0.94, 0.88, W_MAIN)
-    hs = (0.14, 0.30, 0.20, 0.46, 0.64, 0.56, 0.34)
+    hs = (0.16, 0.28, 0.52, 0.70, 0.44)
     for i, h in enumerate(hs):
-        c.rect(0.10 + i * 0.12, 0.88 - h, 0.085, h, filled=True)
-    c.line(0.36, 0.14, 0.36, 0.88, W_MAIN, dash=[7, 8])
-    c.disc(0.36, 0.88, 0.055)
+        c.rect(0.08 + i * 0.18, 0.88 - h, 0.130, h, filled=True)
+    c.line(0.395, 0.10, 0.395, 0.88, W_MAIN, dash=[7, 8])
+    c.disc(0.395, 0.95, 0.055)
 
 
 def barcode_qc_07(c):

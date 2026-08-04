@@ -179,12 +179,14 @@ def punched(c, x, y, w_, h, holes, r=0.03):
     c.fill(pa)
 
 
-def lawn(c, x, y, w_, h, holes, cols=5, rows=4, r=0.072, w=W_FINE):
+def lawn(c, x, y, w_, h, holes, cols=5, rows=4, r=0.072, w=W_FINE, stagger=0.0):
     """A confluent monolayer of cells, cleared where a plaque sits."""
     for j in range(rows):
         for i in range(cols):
-            cx = x + w_ * (i + 0.5) / cols
+            cx = x + w_ * (i + 0.5) / cols + (stagger if j % 2 else 0.0)
             cy = y + h * (j + 0.5) / rows
+            if cx > x + w_:
+                continue
             if any((cx - hx) ** 2 + (cy - hy) ** 2 < hr * hr
                    for hx, hy, hr in holes):
                 continue
@@ -271,8 +273,8 @@ def timelapse_06(c):
 
 def timelapse_07(c):
     """The same cell three times over: dashed where it was, solid where it is now."""
-    c.ell(0.19, 0.74, 0.115, 0.100, 0, W_FINE, dash=[5, 6])
-    c.ell(0.43, 0.56, 0.128, 0.112, 0, W_SEC, dash=[7, 7])
+    c.ell(0.19, 0.74, 0.115, 0.100, 0, W_SEC, dash=[5, 5])
+    c.ell(0.43, 0.56, 0.128, 0.112, 0, W_SEC, dash=[6, 6])
     c.cell(0.73, 0.34, 0.165, w=W_MAIN, nuc=0.40)
     c.line(0.24, 0.68, 0.36, 0.62, W_FINE)
     c.line(0.51, 0.49, 0.61, 0.43, W_FINE)
@@ -295,7 +297,7 @@ def timelapse_09(c):
     """Frames stacked back into depth, the newest in front, along the time arrow."""
     for i, (x, y) in enumerate(((0.42, 0.04), (0.27, 0.21), (0.12, 0.38))):
         c.rect(x, y, 0.42, 0.38, w=W_SEC if i == 2 else W_FINE, r=0.02)
-    c.cell(0.31, 0.66, 0.105, w=W_SEC, nuc=0.42)
+    c.cell(0.30, 0.68, 0.078, w=W_SEC, nuc=0.44)
     c.arrow(0.44, 0.92, 0.86, 0.62, W_SEC, head=0.075)
 
 
@@ -359,9 +361,9 @@ def motility_04(c):
     c.disc(0.08, 0.26, 0.050)
     c.arrow(0.08, 0.26, 0.94, 0.26, W_MAIN, head=0.075)
     c.line(0.04, 0.50, 0.96, 0.50, W_FINE, dash=[6, 7])
-    c.disc(0.13, 0.74, 0.050)
-    c.smooth([(0.13, 0.74), (0.24, 0.64), (0.33, 0.80), (0.22, 0.86),
-              (0.30, 0.70), (0.40, 0.72)], w=W_MAIN)
+    c.disc(0.12, 0.72, 0.052)
+    c.smooth([(0.12, 0.72), (0.30, 0.60), (0.44, 0.84), (0.24, 0.92),
+              (0.34, 0.68), (0.50, 0.74)], w=W_MAIN)
 
 
 def motility_05(c):
@@ -435,11 +437,11 @@ def curate_01(c):
 
 def curate_02(c):
     """A pointer dragging one square control handle of a contour into place."""
-    blob(c, 0.46, 0.56, 0.280, w=W_SEC, phase=3)
+    blob(c, 0.46, 0.56, 0.280, w=W_MAIN, phase=3)
     for a in (0.9, 2.5, 4.1, 5.6):
         hx = 0.46 + 0.295 * math.cos(a)
         hy = 0.56 + 0.258 * math.sin(a)
-        c.rect(hx - 0.038, hy - 0.038, 0.076, 0.076, w=W_FINE, filled=True)
+        c.rect(hx - 0.050, hy - 0.050, 0.100, 0.100, w=W_FINE, filled=True)
     c.rect(0.60, 0.13, 0.095, 0.095, w=W_SEC)
     c.line(0.605, 0.235, 0.545, 0.330, W_FINE, dash=[5, 5])
     cursor(c, 0.735, 0.215, 0.21)
@@ -772,7 +774,7 @@ def image_scatter_03(c):
     c.axes(0.08, 0.08, 0.92, 0.92, w=W_SEC)
     for x, y, s in ((0.16, 0.60, 0.22), (0.42, 0.30, 0.22), (0.58, 0.62, 0.22)):
         crop(c, x, y, s, w=W_SEC, obj=0.28)
-    _points(c, ((0.34, 0.88), (0.80, 0.30), (0.86, 0.76)), 0.042)
+    _points(c, ((0.44, 0.84), (0.80, 0.30), (0.86, 0.74)), 0.042)
 
 
 def image_scatter_04(c):
@@ -979,10 +981,9 @@ def analyze_plaques_01(c):
 
 def analyze_plaques_02(c):
     """A square monolayer of packed cells with three bare gaps in it."""
-    holes = ((0.29, 0.34, 0.165), (0.72, 0.32, 0.120), (0.58, 0.72, 0.190))
-    lawn(c, 0.06, 0.10, 0.88, 0.80, holes, cols=5, rows=4, r=0.076, w=W_SEC)
-    for hx, hy, hr in holes:
-        c.circ(hx, hy, hr * 0.86, W_FINE, dash=[7, 7])
+    holes = ((0.32, 0.34, 0.190), (0.68, 0.67, 0.215))
+    c.rect(0.04, 0.08, 0.92, 0.84, w=W_MAIN, r=0.03)
+    lawn(c, 0.09, 0.13, 0.82, 0.74, holes, cols=6, rows=5, r=0.061, w=W_SEC)
 
 
 def analyze_plaques_03(c):
@@ -1033,8 +1034,8 @@ def analyze_plaques_06(c):
 def analyze_plaques_07(c):
     """The raw field on one side, its clearings picked out as solid shapes on the other."""
     c.rect(0.04, 0.24, 0.42, 0.52, w=W_SEC, r=0.03)
-    for x, y, r in ((0.16, 0.40, 0.075), (0.32, 0.62, 0.090)):
-        c.circ(x, y, r, W_FINE, dash=[5, 5])
+    for x, y, r in ((0.16, 0.40, 0.078), (0.32, 0.62, 0.092)):
+        c.circ(x, y, r, W_SEC, dash=[5, 5])
     c.arrow(0.47, 0.50, 0.53, 0.50, W_SEC, head=0.050)
     c.rect(0.58, 0.24, 0.38, 0.52, w=W_SEC, r=0.03)
     c.lens(0.70, 0.40, 0.075, 0.048)
