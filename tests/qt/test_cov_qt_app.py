@@ -229,6 +229,9 @@ EXPECTED_SECTIONS = {
     # Explore's fourth: a scatter you can hover to see the cell a point
     # stands for. Asking the measurements a question, not reading a run.
     "image_scatter":   SECTION_EXPLORE,
+    # Explore's fifth: what is inside what. The cell_id links have been in
+    # the database since the first Measure run and had no view.
+    "lineage":         SECTION_EXPLORE,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
@@ -256,7 +259,7 @@ EXPECTED_STAGES = {
     "layer_viewer": "alpha", "graph_builder": "alpha",
     "data_manager": "alpha",
     "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
-    "image_scatter": "alpha",
+    "image_scatter": "alpha", "lineage": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -291,7 +294,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 26, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 27, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():

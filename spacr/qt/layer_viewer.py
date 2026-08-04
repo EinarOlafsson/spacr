@@ -939,6 +939,7 @@ APP_CLI_NOTE = (
 #: ``(module, function)``. See :func:`register_companion_apps`.
 COMPANION_APPS = (
     ("spacr.qt.screens.image_scatter", "register"),
+    ("spacr.qt.screens.lineage", "register"),
 )
 
 
