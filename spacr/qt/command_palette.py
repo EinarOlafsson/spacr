@@ -113,10 +113,10 @@ class CommandPalette(QDialog):
             from .app import app_is_visible, app_stage, visible_apps
             apps = visible_apps()
         except Exception:
+            # `apps` is empty on this path, so the Apps loop below never runs
+            # and `app_stage` is never reached — only `app_is_visible` is,
+            # from the recent-runs loop, so only it needs a stand-in.
             apps = []
-
-            def app_stage(_key):
-                return "stable"
 
             def app_is_visible(_key):
                 return True
