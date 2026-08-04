@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_kore",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 51.575,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.825,
+      "scene_end": 10.274999999999999,
+      "duration": 10.274999999999999,
+      "text": "This tutorial covers Database Browser. Browse, filter, query, and export measurements dot db without using the sqlite command line."
+    },
+    {
+      "scene": 2,
+      "speech_start": 10.274999999999999,
+      "speech_end": 20.099999999999998,
+      "scene_end": 20.549999999999997,
+      "duration": 10.274999999999999,
+      "text": "Open Database Browser from the Data and batch runs section. Open a spaCR SQLite database and select a table or saved query."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.549999999999997,
+      "speech_end": 29.599999999999998,
+      "scene_end": 30.049999999999997,
+      "duration": 9.5,
+      "text": "In the main configuration area, configure columns, filters, sorting, row limits, joins, and safe read-only or editable behavior."
+    },
+    {
+      "scene": 4,
+      "speech_start": 30.049999999999997,
+      "speech_end": 42.9,
+      "scene_end": 43.35,
+      "duration": 13.300000000000004,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview queries and preserve object identifiers when exporting or making authorized edits."
+    },
+    {
+      "scene": 5,
+      "speech_start": 43.35,
+      "speech_end": 50.925000000000004,
+      "scene_end": 51.575,
+      "duration": 8.225000000000001,
+      "text": "When the workflow finishes, filtered tables can be copied or exported while the original database remains traceable."
+    }
+  ]
+}

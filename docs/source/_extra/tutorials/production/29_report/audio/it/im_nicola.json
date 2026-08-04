@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.875,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.15,
+      "scene_end": 11.6,
+      "duration": 11.6,
+      "text": "Questo tutorial copre Report. Crea un riassunto HTML o PDF condivisibile contenente controllo di qualità, figure, statistiche, impostazioni e versioni."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.6,
+      "speech_end": 25.075,
+      "scene_end": 25.525,
+      "duration": 13.924999999999999,
+      "text": "Apri Report dalla sezione Results and quality control. Apri Report dalla sezione Risultati e controllo qualità. Scegli un progetto spaCR completato e le corse, tabelle, figure e sezioni da includere."
+    },
+    {
+      "scene": 3,
+      "speech_start": 25.525,
+      "speech_end": 36.474999999999994,
+      "scene_end": 36.925,
+      "duration": 11.399999999999999,
+      "text": "Nell'area di configurazione principale, configurare titolo, autorizzazione, etichette di condizione, soglie di qualità, formato di uscita e campi sensibili alla privacy."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.925,
+      "speech_end": 53.599999999999994,
+      "scene_end": 54.05,
+      "duration": 17.125,
+      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. prevedere il report e risolvere i file mancanti o i controlli di qualità falliti prima dell'esportazione."
+    },
+    {
+      "scene": 5,
+      "speech_start": 54.05,
+      "speech_end": 65.225,
+      "scene_end": 65.875,
+      "duration": 11.825000000000003,
+      "text": "Quando il flusso di lavoro è terminato, un rapporto portatile registra le conclusioni insieme alle impostazioni e alle versioni del software necessarie per riprodurle."
+    }
+  ]
+}

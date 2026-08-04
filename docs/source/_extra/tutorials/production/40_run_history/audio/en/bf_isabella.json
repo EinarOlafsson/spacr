@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bf_isabella",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 45.05,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 7.7,
+      "scene_end": 8.15,
+      "duration": 8.15,
+      "text": "This tutorial covers Run History. Search every job's settings, files, warnings, failures, and performance from one place."
+    },
+    {
+      "scene": 2,
+      "speech_start": 8.15,
+      "speech_end": 16.450000000000003,
+      "scene_end": 16.900000000000002,
+      "duration": 8.750000000000002,
+      "text": "Open Run History from the Results and quality control section. Open the run registry for the current workspace or selected project roots."
+    },
+    {
+      "scene": 3,
+      "speech_start": 16.900000000000002,
+      "speech_end": 24.825000000000003,
+      "scene_end": 25.275000000000002,
+      "duration": 8.375,
+      "text": "In the main configuration area, filter by module, status, date, project, version, warning, duration, or resource use."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.275000000000002,
+      "speech_end": 36.800000000000004,
+      "scene_end": 37.25000000000001,
+      "duration": 11.975000000000005,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. open a run to inspect its immutable settings, logs, outputs, and failure context."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.25000000000001,
+      "speech_end": 44.400000000000006,
+      "scene_end": 45.050000000000004,
+      "duration": 7.799999999999997,
+      "text": "When the workflow finishes, you can reproduce, compare, resume, or report prior work without guessing how it was run."
+    }
+  ]
+}

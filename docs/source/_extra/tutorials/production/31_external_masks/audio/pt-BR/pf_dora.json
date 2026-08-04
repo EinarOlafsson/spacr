@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pf_dora",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 50.15,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.525,
+      "scene_end": 9.975,
+      "duration": 9.975,
+      "text": "Este tutorial abrange máscaras externas. Transforme as máscaras de rótulos de terceiros e as imagens de origem em um projeto de spaCR medido e rastreável."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.975,
+      "speech_end": 23.35,
+      "scene_end": 23.8,
+      "duration": 13.825000000000001,
+      "text": "Abra External Masks na seção Data and batch runs. Abra as máscaras externas na seção Dados e batches. forneça imagens de origem, máscaras externas, regras de nomeação, tipos de objetos e tabelas de medição opcionais."
+    },
+    {
+      "scene": 3,
+      "speech_start": 23.8,
+      "speech_end": 32.65,
+      "scene_end": 33.1,
+      "duration": 9.3,
+      "text": "Na área de configuração principal, mapear imagens para máscaras, validar convenções de forma e rótulo, escolher rótulo e definir opções de medição."
+    },
+    {
+      "scene": 4,
+      "speech_start": 33.1,
+      "speech_end": 40.4,
+      "scene_end": 40.85,
+      "duration": 7.75,
+      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+    },
+    {
+      "scene": 5,
+      "speech_start": 40.85,
+      "speech_end": 49.5,
+      "scene_end": 50.15,
+      "duration": 9.299999999999997,
+      "text": "Quando o fluxo de trabalho termina, o spaCR armazena máscaras normalizadas, imagens mapeadas, medições e proveniência prontas para anotação."
+    }
+  ]
+}

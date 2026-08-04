@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "zh-CN",
+  "voice": "zm_yunyang",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 36.8,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 6.075,
+      "scene_end": 6.525,
+      "duration": 6.525,
+      "text": "创建一个可共享的HTML或PDF总结,包含质量控制,数字,统计,设置和版本."
+    },
+    {
+      "scene": 2,
+      "speech_start": 6.525,
+      "speech_end": 14.575000000000001,
+      "scene_end": 15.025,
+      "duration": 8.5,
+      "text": "从 Results and quality control 部分打开 Report。 选择完成的 spaCR 项目,以及包括的运行,表格,数字和部分."
+    },
+    {
+      "scene": 3,
+      "speech_start": 15.025,
+      "speech_end": 22.25,
+      "scene_end": 22.7,
+      "duration": 7.674999999999999,
+      "text": "在主要配置区域中,配置标题,作者,条件标签,质量门,输出格式和隐私敏感的字段."
+    },
+    {
+      "scene": 4,
+      "speech_start": 22.7,
+      "speech_end": 29.125,
+      "scene_end": 29.575,
+      "duration": 6.875,
+      "text": "在完整运行之前,请检查可见设置,并在可用的前景或测试模式使用."
+    },
+    {
+      "scene": 5,
+      "speech_start": 29.575,
+      "speech_end": 36.15,
+      "scene_end": 36.8,
+      "duration": 7.224999999999998,
+      "text": "工作流程完成后,便携式报告记录结论,以及需要复制的设置和软件版本."
+    }
+  ]
+}

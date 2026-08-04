@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_nezumi",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 80.325,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 15.8,
+      "scene_end": 16.25,
+      "duration": 16.25,
+      "text": "このチュートリアルでは,Python APIとヘッドレスワークフローをカバーします. Pythonまたはデスクトップインターフェースなしでシェルから再生可能な spaCRパイプラインを実行します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 16.25,
+      "speech_end": 31.875,
+      "scene_end": 32.325,
+      "duration": 16.075000000000003,
+      "text": "spaCR セクションから Python API and headless workflows を開きます。 デスクトップアプリが輸出する設定からスタートするか,Python で検証された設定辞書を作成します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 32.325,
+      "speech_end": 44.375,
+      "scene_end": 44.825,
+      "duration": 12.5,
+      "text": "主な構成領域では,パイプライン入口点,ソースパス,出力パス,ワーカー数,ハードウェアオプションを選択します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 44.825,
+      "speech_end": 65.45,
+      "scene_end": 65.9,
+      "duration": 21.075000000000003,
+      "text": "実行完了前に,可視設定をレビューし,利用可能な場合,前見またはテストモードを使用します.ログと設定を保存しながら,端末,ノートブック,スケジュール,またはリモートワークでパイプラインを実行します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 65.9,
+      "speech_end": 79.67500000000001,
+      "scene_end": 80.32500000000002,
+      "duration": 14.425000000000011,
+      "text": "作業流が完了すると,プロジェクトにはデスクトップアプリが作成した同じマスク,測定,データベース,数字,実行記録が含まれます."
+    }
+  ]
+}

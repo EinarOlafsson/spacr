@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "it",
+  "voice": "im_nicola",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 52.975,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 3.425,
+      "scene_end": 3.875,
+      "duration": 3.875,
+      "text": "Questo tutorial copre Classify, machine learning."
+    },
+    {
+      "scene": 2,
+      "speech_start": 3.875,
+      "speech_end": 19.475,
+      "scene_end": 19.925,
+      "duration": 16.05,
+      "text": "Apri Classify, machine learning dalla sezione Core. Apri Classifica, apprendimento automatico dalla sezione Core. Scegli un database di misurazioni, colonna di etichette, famiglie di caratteristiche e colonne di raggruppamento sperimentale."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.925,
+      "speech_end": 32.0,
+      "scene_end": 32.45,
+      "duration": 12.525000000000002,
+      "text": "Nell'area di configurazione principale, configurare filtraggio, scalazione, selezione delle caratteristiche, bilanciamento delle classi, famiglia di modelli e scarti a sicurezza dalle perdite."
+    },
+    {
+      "scene": 4,
+      "speech_start": 32.45,
+      "speech_end": 42.050000000000004,
+      "scene_end": 42.50000000000001,
+      "duration": 10.050000000000004,
+      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di test quando è disponibile."
+    },
+    {
+      "scene": 5,
+      "speech_start": 42.50000000000001,
+      "speech_end": 52.325,
+      "scene_end": 52.975,
+      "duration": 10.474999999999994,
+      "text": "Quando il flusso di lavoro è finito, il progetto riceve previsioni, importanza delle caratteristiche, tabelle di prestazioni e modelli serializzati."
+    }
+  ]
+}

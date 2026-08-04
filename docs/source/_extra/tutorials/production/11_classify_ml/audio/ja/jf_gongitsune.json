@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "voice": "jf_gongitsune",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 69.9,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 14.175,
+      "scene_end": 14.625,
+      "duration": 14.625,
+      "text": "このチュートリアルでは,分類,機械学習をカバーします. 測定された単体データからXGBoostやランダムフォレストなどの機能ベースの分類者を訓練します."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.625,
+      "speech_end": 26.8,
+      "scene_end": 27.25,
+      "duration": 12.625,
+      "text": "Core セクションから Classify, machine learning を開きます。 測定データベース,ラベル列,機能ファミリー,実験グループ列を選択します."
+    },
+    {
+      "scene": 3,
+      "speech_start": 27.25,
+      "speech_end": 39.125,
+      "scene_end": 39.575,
+      "duration": 12.325000000000003,
+      "text": "主な構成領域では,フィルタリング,スケーリング,機能選択,クラスバランス,モデルファミリー,リーク防止分割を設定します."
+    },
+    {
+      "scene": 4,
+      "speech_start": 39.575,
+      "speech_end": 58.075,
+      "scene_end": 58.525000000000006,
+      "duration": 18.950000000000003,
+      "text": "完全な実行前に,可視設定をレビューし,可用である場合の先見またはテストモードを使用します.モデル選択を横断的に検証し,可能な限り,待たせられた評価セットを予約します."
+    },
+    {
+      "scene": 5,
+      "speech_start": 58.525000000000006,
+      "speech_end": 69.25,
+      "scene_end": 69.9,
+      "duration": 11.375,
+      "text": "作業流が完了すると,プロジェクトには予測,機能の重要性,パフォーマンス表,並行モデルが表示されます."
+    }
+  ]
+}

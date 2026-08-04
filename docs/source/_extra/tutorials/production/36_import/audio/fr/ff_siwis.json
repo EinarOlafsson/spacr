@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 55.05,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 8.625,
+      "scene_end": 9.075,
+      "duration": 9.075,
+      "text": "Ce tutoriel couvre le projet Import. Apportez les images, les masques et la table de mesure d'un autre laboratoire dans un projet spaCR."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.075,
+      "speech_end": 19.325,
+      "scene_end": 19.775,
+      "duration": 10.7,
+      "text": "Ouvrez Import Project dans la section Data and batch runs. Fournir des images, des masques optionnels, un tableau de mesure et des identifiants externes stables."
+    },
+    {
+      "scene": 3,
+      "speech_start": 19.775,
+      "speech_end": 30.9,
+      "scene_end": 31.349999999999998,
+      "duration": 11.575,
+      "text": "Dans la zone de configuration principale, cartographier les colonnes étrangères sur les identifiants spaCR, les canaux, les types d'objets, les métadonnées de plaque et les champs de provenance."
+    },
+    {
+      "scene": 4,
+      "speech_start": 31.349999999999998,
+      "speech_end": 46.175,
+      "scene_end": 46.625,
+      "duration": 15.275000000000002,
+      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Validez les joints, les valeurs manquantes, l'alignement du masque d'image et les identifiants de duplication avant d'importer."
+    },
+    {
+      "scene": 5,
+      "speech_start": 46.625,
+      "speech_end": 54.4,
+      "scene_end": 55.05,
+      "duration": 8.424999999999997,
+      "text": "Lorsque le flux de travail est terminé, le projet standardisé conserve les liens vers chaque fichier et identifiant d'origine."
+    }
+  ]
+}
