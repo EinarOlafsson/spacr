@@ -495,8 +495,17 @@ class TestTheScriptIsPython:
             if step is not None:
                 chain.steps.append(step)
         source = macro.render(chain)
-        ast.parse(source)
+        # `ast.parse` and `compile` on their own assert nothing: an empty
+        # string parses and compiles too, so a render that returned "" would
+        # have passed every shape here. What has to hold is that the script
+        # parses to real statements AND names every module it recorded --
+        # an emitted script that silently drops a step is the failure this
+        # parametrisation exists to catch.
+        tree = ast.parse(source)
+        assert tree.body, "render() produced a script with no statements"
         compile(source, "<macro>", "exec")
+        for module in set(modules):
+            assert module in source, f"{module} was recorded but not rendered"
 
     def test_an_interactive_module_is_recorded_but_not_called(
             self, tmp_path, isolated_journal):
