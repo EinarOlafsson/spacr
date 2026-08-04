@@ -74,18 +74,30 @@ def fake_model(monkeypatch):
             out[BOX_B] = 2
             return out
 
-        def eval(self, x=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-            # `channel_axis` is named rather than absorbed into **kwargs, and
-            # the pair goes through the real `cellpose.transforms.
-            # convert_image` before anything is recorded. A double that takes
-            # any axis cannot tell a working call from the `channel_axis=3`
-            # that broke every real run -- which is the whole point of a
-            # module that exists to cover the mask->measure seam.
-            check_cellpose_eval_call(x, channel_axis, **{
-                key: kwargs[key] for key in ("z_axis", "do_3D",
-                                             "stitch_threshold")
-                if key in kwargs})
-            self.eval_kwargs.append({"channel_axis": channel_axis, **kwargs})
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # The whole installed 4.0.7 parameter list, verbatim, with no
+            # **kwargs: Python's own argument binding is then the test, and an
+            # argument cellpose 4 removed raises TypeError here naming itself.
+            # `channel_axis` additionally goes through the real
+            # `cellpose.transforms.convert_image` before anything is recorded,
+            # because a double that takes any axis cannot tell a working call
+            # from the `channel_axis=3` that broke every real run -- the whole
+            # point of a module that exists to cover the mask->measure seam.
+            check_cellpose_eval_call(x, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D,
+                                     stitch_threshold=stitch_threshold)
+            self.eval_kwargs.append({
+                "channel_axis": channel_axis, "z_axis": z_axis,
+                "do_3D": do_3D, "stitch_threshold": stitch_threshold,
+                "diameter": diameter, "batch_size": batch_size,
+            })
             if isinstance(x, list):
                 masks = [self._label(np.asarray(i)) for i in x]
                 return masks, [np.zeros(m.shape, np.float32) for m in masks], \
