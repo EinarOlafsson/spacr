@@ -1063,19 +1063,34 @@ def test_measure_error_message_mentions_merged(tmp_path):
     assert "merged" in MeasureDropHandler().error_message(tmp_path)
 
 
-def test_measure_apply_drills_into_merged(qtbot, screen, tmp_path):
+def test_measure_apply_fills_src_with_the_plate_not_merged(
+        qtbot, screen, tmp_path):
+    """The plate folder — which is what auto-chaining fills the field with.
+
+    This used to drill *into* ``merged/`` while
+    :func:`spacr.chaining.resolve_settings` filled the same key with the
+    plate. Both run (``spacr.ports.project_root`` hops a trailing
+    ``merged``), which is exactly why the disagreement survived: it only
+    showed when a settings CSV written by one was read beside the other.
+    ``tests/qt/test_layout_drops.py`` is what now holds the two together.
+    """
     plate = tmp_path / "plateA"
     (plate / "merged").mkdir(parents=True)
+    np.save(plate / "merged" / "field_1.npy", np.zeros((4, 4, 3), np.uint16))
     MeasureDropHandler().apply(plate, screen)
-    assert screen.w("src").text() == str(plate / "merged")
-    assert f"[drop] measure src = {plate / 'merged'}\n" in screen.log
+    assert screen.w("src").text() == str(plate)
+    assert f"[drop] measure src = {plate}\n" in screen.log
+    assert f"[drop] merged arrays → {plate / 'merged'}" in "".join(screen.log)
 
 
-def test_measure_apply_keeps_a_merged_folder_as_is(qtbot, screen, tmp_path):
+def test_measure_apply_climbs_out_of_a_dropped_merged_folder(
+        qtbot, screen, tmp_path):
+    """Dropping ``merged/`` itself answers with the plate above it."""
     merged = tmp_path / "merged"
     merged.mkdir()
+    np.save(merged / "field_1.npy", np.zeros((4, 4, 3), np.uint16))
     MeasureDropHandler().apply(merged, screen)
-    assert screen.w("src").text() == str(merged)
+    assert screen.w("src").text() == str(tmp_path)
 
 
 # ---------------------------------------------------------------------------

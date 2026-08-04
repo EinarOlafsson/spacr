@@ -415,6 +415,10 @@ class DistributedJobsScreen(QWidget):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._update_poll_interval()
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "distributed_jobs")
 
     def _build_ui(self) -> None:
         """Construct profile, submission, table, and detail controls."""
@@ -549,24 +553,15 @@ class DistributedJobsScreen(QWidget):
         """Switch back to file mode when the user edits the path field."""
         self._settings_snapshot = None
 
-    def dragEnterEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Accept one local settings CSV/JSON."""
-        urls = event.mimeData().urls() if event.mimeData().hasUrls() else []
-        if any(
-            url.isLocalFile()
-            and Path(url.toLocalFile()).suffix.casefold() in {".csv", ".json"}
-            for url in urls
-        ):
-            event.acceptProposedAction()
-
-    def dropEvent(self, event) -> None:  # noqa: N802 - Qt override
-        """Use the first compatible dropped settings file."""
-        for url in event.mimeData().urls():
-            path = Path(url.toLocalFile())
-            if url.isLocalFile() and path.suffix.casefold() in {".csv", ".json"}:
-                self._settings_path.setText(str(path))
-                event.acceptProposedAction()
-                return
+    # NOTE: a hand-rolled ``dragEnterEvent``/``dropEvent`` pair used to sit
+    # here, taking the first local ``.csv``/``.json`` and nothing else. The
+    # shared dropzone installed in ``__init__``
+    # (:class:`spacr.qt.dnd_handlers.SubmissionSettingsDropHandler`) takes the
+    # same files *and* a plate folder, resolving ``settings/*.csv`` inside it
+    # and asking which snapshot was meant when there is more than one.
+    # Keeping both would have been keeping one: an installed event filter sees
+    # the event before the widget's own handler, so these two could never have
+    # run again.
 
     def _reload_profiles(self, selected: str = "") -> None:
         """Reload the profile combo from persistent storage."""

@@ -173,6 +173,10 @@ class ProjectBrowserScreen(QWidget):
         self._refresh_root_list()
         if self._roots:
             self.rescan()
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "project_browser")
 
     # -- the search folders -------------------------------------------------
     def roots(self) -> Tuple[str, ...]:

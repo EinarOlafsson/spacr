@@ -180,6 +180,10 @@ class MethodsExportScreen(QWidget):
         self._fields["model"].setText(model_path)
         self._set_provenance(
             "Name at least one source, then build the digest.", problem=False)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "methods_export")
 
     # -- construction -----------------------------------------------------
 

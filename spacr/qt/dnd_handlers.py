@@ -37,10 +37,12 @@ from __future__ import annotations
 import logging
 from itertools import chain, islice
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 from PySide6.QtCore import QEvent, QObject
 
+from .. import chaining as _ch
+from .. import ports as _kinds
 from .dnd import (
     DropHandler, IMAGE_EXTS, find_image_folders_nearby, has_images_in,
     _report_drop_problem,
@@ -755,11 +757,30 @@ class MeasureDropHandler(DropHandler):
                 "plate folder that contains one).")
 
     def apply(self, path: Path, screen) -> None:
+        # The plate folder, not ``merged/`` inside it.
+        #
+        # This used to drill *into* ``merged``, and auto-chaining fills the
+        # same field with the plate — so dropping a folder and letting the
+        # chain fill it produced two different strings for one project. Both
+        # run (``spacr.ports.project_root`` hops a trailing ``merged``), which
+        # is exactly why the disagreement survived: it only showed up when a
+        # settings CSV written by one was compared against the other.
+        #
+        # :func:`spacr.chaining.resolve_drop` is the single answer now, and it
+        # asks the registry first, so a plate whose merged arrays were written
+        # somewhere unusual resolves to where the producer says they are.
+        resolved = _resolve_for(self, "measure", path)
+        target = resolved.target_for(_kinds.MERGED_ARRAYS) if resolved else None
+        if target is not None:
+            _set_src_on(screen, str(target.value))
+            _log(screen, f"[drop] measure src = {target.value}\n"
+                         f"[drop] merged arrays → {target.location} "
+                         f"(from the {target.source})\n")
+            return
         if path.is_file():
             path = path.parent
-        # Normalise: if user dropped the parent, drill into merged/
-        if path.name != "merged" and (path / "merged").is_dir():
-            path = path / "merged"
+        if path.name == "merged":
+            path = path.parent
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] measure src = {path}\n")
 
@@ -928,6 +949,20 @@ class MeasurementsDropHandler(DropHandler):
                 "measurements/measurements.db.")
 
     def apply(self, path: Path, screen) -> None:
+        # Same resolution as auto-chaining, for the same reason as in
+        # :meth:`MeasureDropHandler.apply`: the registry knows where the
+        # producer actually wrote, and the declared layout answers when no
+        # run was ever registered.
+        app_key = str(getattr(screen, "app_key", "") or "")
+        resolution = _resolve_for(self, app_key, path) if app_key else None
+        target = (resolution.target_for(_kinds.MEASUREMENTS_DB)
+                  if resolution is not None else None)
+        if target is not None:
+            _set_src_on(screen, str(target.value))
+            _log(screen, f"[drop] src = {target.value}\n"
+                         f"[drop] measurements → {target.location} "
+                         f"(from the {target.source})\n")
+            return
         if path.is_file():
             path = path.parent
         if path.name == "measurements" and (path / "measurements.db").is_file():
@@ -966,6 +1001,13 @@ class SourceDropHandler(DropHandler):
     support automatically instead of requiring a registry edit for every
     screen. A dropped file is only accepted for known data extensions and is
     normalised to its containing directory.
+
+    Where the module declares ports, the value comes from
+    :func:`spacr.chaining.resolve_drop` — the same answer auto-chaining would
+    fill the field with — so dropping ``<plate>/measurements`` and letting the
+    chain fill ``src`` cannot produce two different strings. A module with no
+    declaration keeps the plain normalisation below, which is all there is to
+    go on.
     """
 
     _DATA_EXTS = {
@@ -983,6 +1025,18 @@ class SourceDropHandler(DropHandler):
         return "Drop an existing source folder or a supported data file."
 
     def apply(self, path: Path, screen) -> None:
+        app_key = str(getattr(screen, "app_key", "") or "")
+        resolution = (_resolve_for(self, app_key, path) if app_key else None)
+        if resolution is not None and resolution.targets:
+            target = resolution.targets[0]
+            if not _set_src_on(screen, str(target.value)):
+                raise TypeError(
+                    "This module has no source field to receive the drop.")
+            _log(screen,
+                 f"[drop] src = {target.value}\n"
+                 f"[drop] resolved {target.kind} → {target.location} "
+                 f"(from the {target.source})\n")
+            return
         if path.is_file():
             path = path.parent
         if path.name == "measurements" and (path / "measurements.db").is_file():
@@ -1411,6 +1465,504 @@ class ReportDropHandler(DropHandler):
 
 
 # ---------------------------------------------------------------------------
+# Layout-aware drops
+#
+# "It should be possible to drag-n-drop folders and files into every module,
+# and every module should be aware of the spaCR folder structure": drop the
+# project on a screen that reads a database and it finds
+# ``measurements/measurements.db``; drop it on one that reads a table and it
+# offers the tables in that database; drop the database itself and that still
+# works.
+#
+# None of the layout knowledge lives here. :func:`spacr.chaining.resolve_drop`
+# answers "where is the X in this project?" by asking the artifact registry
+# first -- the same question, through the same call, that auto-chaining asks --
+# and falling back to the declared paths in :data:`spacr.ports.PORTS`. Two
+# answers to "where is the database" is how a screen and the run it launches
+# come to disagree, so there is only one.
+#
+# What a handler adds is the last step: which of this screen's fields the
+# answer goes into.
+# ---------------------------------------------------------------------------
+
+def _resolve_for(handler, app_key: str, path: Path):
+    """Resolve ``path`` for ``app_key``, memoised for one drop.
+
+    ``can_accept``, ``error_message``, ``suggest_alternatives`` and ``apply``
+    are all called for the same path inside one drop, and each of them wants
+    the same answer. Resolving four times would list the same directories four
+    times while the user is still holding the mouse button down.
+    """
+    key = (app_key, str(path))
+    cached = getattr(handler, "_last_resolution", None)
+    if cached is not None and cached[0] == key:
+        return cached[1]
+    try:
+        resolution = _ch.resolve_drop(
+            app_key, path, kinds=getattr(handler, "kinds", ()),
+            form=getattr(handler, "form", _ch.PATH))
+    except Exception:
+        LOG.debug("could not resolve %s for %s", path, app_key, exc_info=True)
+        return None
+    handler._last_resolution = (key, resolution)
+    return resolution
+
+
+def table_names(path: Path) -> List[str]:
+    """Return the tables in a SQLite file, or ``[]`` for anything else.
+
+    One ``sqlite_master`` query; the table screens make the same one when they
+    load. Kept here so the drop can *ask* which table rather than let
+    ``load_path`` take the first one silently.
+    """
+    import sqlite3
+
+    if not str(path).lower().endswith(_ch.DB_SUFFIXES):
+        return []
+    try:
+        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return []
+    try:
+        return [str(row[0]) for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' "
+            "ORDER BY name")]
+    except sqlite3.DatabaseError:
+        return []
+    finally:
+        connection.close()
+
+
+class LayoutDropHandler(DropHandler):
+    """Drop policy for a screen that names what it wants, not where it is.
+
+    A subclass says two things: the vocabulary terms it consumes
+    (:attr:`kinds`, from :data:`spacr.ports.ALL_KINDS`) and what to do with
+    the answer (:meth:`deliver`). Everything between — climbing from the
+    dropped path to the project root, asking the registry, falling back to the
+    declared layout, noticing that the answer is ambiguous — is
+    :func:`spacr.chaining.resolve_drop`.
+
+    Ambiguity is routed through the machinery :mod:`spacr.qt.dnd` already has:
+    an ambiguous drop reports ``can_accept() is False`` and returns the
+    candidates from :meth:`suggest_alternatives`, so the user gets the "did
+    you mean…" chooser and :meth:`apply` is called again with their answer.
+    A drop that resolves to nothing reports
+    :attr:`spacr.chaining.DropResolution.reason`, which is
+    :func:`spacr.ports.check_ready`'s own sentence about what is missing.
+    """
+
+    #: What this screen consumes, in the shared vocabulary. Empty means "the
+    #: project folder itself".
+    kinds: tuple = ()
+    #: Whether the field wants the artifact (:data:`spacr.chaining.PATH`) or
+    #: the project it belongs to (:data:`spacr.chaining.ROOT`).
+    form: str = _ch.PATH
+    #: Suffixes this screen can be handed directly, bypassing the layout walk.
+    suffixes: tuple = ()
+    #: What to call the screen in a message.
+    label: str = ""
+
+    def __init__(self, app_key: str = "") -> None:
+        self.app_key = app_key or self.label or type(self).__name__
+        self._last_resolution = None
+
+    # -- the subclass hook -------------------------------------------------
+    def deliver(self, screen, value: str, target) -> None:
+        """Put ``value`` into the screen. Runs on the GUI thread.
+
+        :param screen: the screen the drop landed on.
+        :param value: the resolved path.
+        :param target: the :class:`spacr.chaining.DropTarget` it came from,
+            or None for a file the user dropped directly.
+        """
+        raise NotImplementedError
+
+    # -- DropHandler -------------------------------------------------------
+    def _direct(self, path: Path) -> bool:
+        """True when the dropped file is already the artifact wanted."""
+        return bool(path.is_file() and self.suffixes
+                    and path.name.lower().endswith(self.suffixes))
+
+    def resolve(self, path: Path):
+        """Return the :class:`spacr.chaining.DropResolution` for ``path``."""
+        return _resolve_for(self, self.app_key, path)
+
+    def can_accept(self, path: Path) -> bool:
+        if self._direct(path):
+            return True
+        if not path.is_dir():
+            return False
+        resolution = self.resolve(path)
+        return bool(resolution is not None and resolution.ok
+                    and not resolution.ambiguous)
+
+    def suggest_alternatives(self, path: Path) -> List[Path]:
+        resolution = self.resolve(path)
+        if resolution is None:
+            return []
+        found: List[Path] = []
+        for choice in resolution.choices:
+            found.extend(Path(option) for option in choice.options)
+        return found
+
+    def error_message(self, path: Path) -> str:
+        resolution = self.resolve(path)
+        if resolution is None:
+            return f"{self.app_key} cannot use {path.name!r}."
+        return resolution.reason
+
+    def apply(self, path: Path, screen) -> None:
+        if self._direct(path):
+            self.deliver(screen, str(path), None)
+            _log(screen, f"[drop] {self.app_key} ← {path}\n")
+            return
+        resolution = self.resolve(path)
+        if resolution is None or not resolution.targets:
+            reason = (resolution.reason if resolution is not None
+                      else f"{path} could not be read.")
+            _report_drop_problem(
+                screen, path, reason,
+                f"Drop the folder or file this screen names, or run the step "
+                f"that writes it into {getattr(resolution, 'root', path)}.")
+            return
+        target = resolution.targets[0]
+        self.deliver(screen, str(target.location), target)
+        _log(screen,
+             f"[drop] {self.app_key} ← {target.location}\n"
+             f"[drop] resolved {target.kind} in {resolution.root} "
+             f"(from the {target.source})\n")
+
+
+class ProjectFolderDropHandler(LayoutDropHandler):
+    """A screen that takes a whole project, wherever inside it you drop.
+
+    ``kinds`` is empty on purpose: there is no port for "the project", and
+    inventing one would put it in the module graph. The layout walk still
+    happens — dropping ``<plate>/measurements/measurements.db`` on the
+    pipeline graph opens ``<plate>``.
+    """
+
+    form = _ch.ROOT
+    #: The screen method that takes the project root, tried in order.
+    setters: tuple = ("load_project", "set_project", "set_source",
+                      "add_root", "set_src")
+
+    def can_accept(self, path: Path) -> bool:
+        resolution = self.resolve(path)
+        return bool(resolution is not None and resolution.ok
+                    and not resolution.ambiguous)
+
+    def deliver(self, screen, value: str, target) -> None:
+        for name in self.setters:
+            setter = getattr(screen, name, None)
+            if callable(setter):
+                if setter(value) is False:
+                    raise ValueError(getattr(screen, "last_error", "")
+                                     or f"Could not open {value}.")
+                return
+        raise TypeError(
+            f"{type(screen).__name__} has no way to receive a project folder.")
+
+
+class DataManagerDropHandler(ProjectFolderDropHandler):
+    """Data Manager: set the project, then measure it."""
+
+    def deliver(self, screen, value: str, target) -> None:
+        super().deliver(screen, value, target)
+        scan = getattr(screen, "scan", None)
+        if callable(scan):
+            scan()
+
+
+class ProjectRootsDropHandler(ProjectFolderDropHandler):
+    """Project Browser: several folders at once, each becoming a root."""
+
+    setters = ("add_root",)
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+
+class RunHistoryDropHandler(ProjectFolderDropHandler):
+    """Run History: select the run a dropped run folder belongs to."""
+
+    setters = ("select_run",)
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or path.is_file()
+
+    def apply(self, path: Path, screen) -> None:
+        folder = path if path.is_dir() else path.parent
+        refresh = getattr(screen, "refresh", None)
+        if callable(refresh):
+            refresh()
+        if screen.select_run(str(folder)) is False:
+            raise ValueError(
+                f"No run named {folder.name!r} is in the history. Drop the "
+                "run folder spaCR wrote, or clear the filters above.")
+        _log(screen, f"[drop] run_history ← {folder}\n")
+
+
+class TableDropHandler(LayoutDropHandler):
+    """A screen that reads one table: the explorers, the plotters, the gates.
+
+    Drop the project and it finds ``measurements/measurements.db``; drop the
+    database and it uses it; drop a CSV and it reads that. When the database
+    holds more than one table the table is *asked* rather than taken —
+    ``load_path`` picks the first one silently, which is fine for a file
+    dialog where the user chose the file and wrong for a drop where they
+    chose a folder.
+    """
+
+    kinds = (_kinds.MEASUREMENTS_DB,)
+    form = _ch.PATH
+    suffixes = _ch.DB_SUFFIXES + (".csv", ".tsv", ".parquet", ".txt")
+
+    def deliver(self, screen, value: str, target) -> None:
+        table = self._choose_table(screen, value)
+        if table is False:                     # the chooser was cancelled
+            return
+        screen.load_path(value, table or None)
+
+    def _choose_table(self, screen, value: str):
+        """Return the table to read, ``""`` for "there is only one", or False.
+
+        False means the user cancelled and nothing should be loaded.
+        """
+        names = table_names(Path(value))
+        if len(names) <= 1:
+            return names[0] if names else ""
+        picked = _ask_for_one(
+            screen, f"{Path(value).name} holds {len(names)} tables.",
+            "Which one should be loaded?", names)
+        return picked if picked is not None else False
+
+
+class ScatterTableDropHandler(TableDropHandler):
+    """Image Scatter: a path field, a table picker, then the read."""
+
+    def deliver(self, screen, value: str, target) -> None:
+        screen._db.setText(value)
+        screen.open_source()
+
+
+class LineageDropHandler(TableDropHandler):
+    """Lineage: a database path field and one load."""
+
+    def deliver(self, screen, value: str, target) -> None:
+        screen._db.setText(value)
+        screen.load()
+
+
+class CoefficientsDropHandler(LayoutDropHandler):
+    """Prediction Profiler: the regression coefficients under ``results/``."""
+
+    kinds = (_kinds.REGRESSION_RESULTS,)
+    suffixes = (".csv",)
+
+    def deliver(self, screen, value: str, target) -> None:
+        path = Path(value)
+        if path.is_dir():
+            candidates = [Path(p) for p in (target.paths if target else ())]
+            if not candidates:
+                candidates = sorted(path.glob("*.csv"))
+            if not candidates:
+                raise ValueError(f"No coefficient CSV was found in {path}.")
+            if len(candidates) > 1:
+                picked = _ask_for_one(
+                    screen, f"{path.name} holds {len(candidates)} tables.",
+                    "Which one holds the coefficients?",
+                    [str(c) for c in candidates])
+                if picked is None:
+                    return
+                path = Path(picked)
+            else:
+                path = candidates[0]
+        screen.load_coefficients(str(path))
+
+
+class ResultsFolderDropHandler(LayoutDropHandler):
+    """Hit List: the ``results/`` folder a regression wrote."""
+
+    kinds = (_kinds.REGRESSION_RESULTS,)
+    suffixes = ()
+
+    def deliver(self, screen, value: str, target) -> None:
+        folder = Path(value)
+        screen.load_folder(str(folder if folder.is_dir() else folder.parent))
+
+
+class LabelMaskDropHandler(LayoutDropHandler):
+    """Curate and Napari Bridge: one label mask, from wherever you drop.
+
+    Dropping the project resolves ``masks/``; a folder of masks is not one
+    mask, so the file is asked for rather than guessed at.
+    """
+
+    kinds = (_kinds.MASKS,)
+    suffixes = (".tif", ".tiff", ".png", ".npy")
+
+    def _one_mask(self, screen, value: str, target) -> Optional[str]:
+        path = Path(value)
+        if path.is_file():
+            return str(path)
+        candidates = [p for p in (target.paths if target else ())
+                      if p.lower().endswith(self.suffixes)]
+        if not candidates:
+            candidates = [str(p) for p in sorted(path.iterdir())
+                          if p.is_file()
+                          and p.name.lower().endswith(self.suffixes)]
+        if not candidates:
+            raise ValueError(f"No label mask was found in {path}.")
+        if len(candidates) == 1:
+            return candidates[0]
+        return _ask_for_one(
+            screen, f"{path.name} holds {len(candidates)} masks.",
+            "Which one should be opened?", candidates)
+
+    def deliver(self, screen, value: str, target) -> None:
+        mask = self._one_mask(screen, value, target)
+        if mask is None:
+            return
+        if hasattr(screen, "set_paths"):
+            screen.set_paths(mask=mask)
+            return
+        screen._mask_edit.setText(mask)
+        screen.open_mask()
+
+
+class LayerStackDropHandler(LabelMaskDropHandler):
+    """Layer Viewer: the dropped array, as image or as labels."""
+
+    suffixes = (".tif", ".tiff", ".png", ".npy", ".npz")
+
+    def deliver(self, screen, value: str, target) -> None:
+        mask = self._one_mask(screen, value, target)
+        if mask is None:
+            return
+        # A file that came out of ``masks/`` is a label array; anything else
+        # the user dropped is the image they want to look at.
+        as_labels = (target is not None and target.kind == _kinds.MASKS) or (
+            "mask" in Path(mask).parent.name.lower())
+        if as_labels:
+            screen.stack_from_paths(labels_path=mask)
+        else:
+            screen.stack_from_paths(image_path=mask)
+
+
+class MethodsSourcesDropHandler(LayoutDropHandler):
+    """Methods & Results: fill whichever of its four source fields fits."""
+
+    form = _ch.ROOT
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or path.is_file()
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def apply(self, path: Path, screen) -> None:
+        fields = getattr(screen, "_fields", {})
+        name = path.name.lower()
+        if path.is_file() and name.endswith(_MODEL_SUFFIXES):
+            key = "model"
+            value = str(path)
+        elif path.is_dir() and name == "results":
+            key, value = "results", str(path)
+        else:
+            resolution = self.resolve(path)
+            root = resolution.root if resolution is not None else str(path)
+            key, value = "project", root
+        widget = fields.get(key)
+        if widget is None:
+            raise TypeError("Methods & Results has no field for this drop.")
+        widget.setText(value)
+        _log(screen, f"[drop] methods_export {key} = {value}\n")
+
+
+class EvaluationBundleDropHandler(LayoutDropHandler):
+    """Classifier Evaluation: the run folder holding the evaluation bundle."""
+
+    kinds = (_kinds.MODEL_WEIGHTS,)
+    form = _ch.ROOT
+    suffixes = (".json", ".csv")
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or self._direct(path)
+
+    def deliver(self, screen, value: str, target) -> None:
+        screen._source.setText(value)
+        screen.scan()
+
+    def apply(self, path: Path, screen) -> None:
+        resolution = self.resolve(path)
+        value = str(path if path.is_dir() else path.parent)
+        if resolution is not None and resolution.targets:
+            value = str(resolution.targets[0].value)
+        self.deliver(screen, value, None)
+        _log(screen, f"[drop] classifier_evaluation ← {value}\n")
+
+
+class SubmissionSettingsDropHandler(LayoutDropHandler):
+    """Distributed Jobs: a settings snapshot to submit, or the plate with one."""
+
+    suffixes = (".csv", ".json", ".yaml", ".yml")
+
+    def can_accept(self, path: Path) -> bool:
+        return self._direct(path) or (
+            path.is_dir() and bool(_settings_files(path)))
+
+    def error_message(self, path: Path) -> str:
+        return ("Distributed Jobs needs a settings snapshot — a .csv or "
+                ".json file, or a plate folder with settings/*.csv in it.")
+
+    def apply(self, path: Path, screen) -> None:
+        chosen = path
+        if path.is_dir():
+            snapshots = _settings_files(path)
+            if not snapshots:
+                raise ValueError(f"No settings snapshot was found in {path}.")
+            if len(snapshots) > 1:
+                picked = _ask_for_one(
+                    screen, f"{path.name} holds {len(snapshots)} snapshots.",
+                    "Which one should be submitted?",
+                    [str(s) for s in snapshots])
+                if picked is None:
+                    return
+                chosen = Path(picked)
+            else:
+                chosen = snapshots[0]
+        screen._settings_path.setText(str(chosen))
+        module = getattr(screen, "_module", None)
+        if module is not None and hasattr(module, "setCurrentText"):
+            module.setCurrentText(_module_from_settings(chosen))
+        _log(screen, f"[drop] distributed_jobs settings = {chosen}\n")
+
+
+def _ask_for_one(screen, headline: str, question: str,
+                 options: Sequence[str]) -> Optional[str]:
+    """Ask which of ``options`` was meant. ``None`` when nobody answered.
+
+    A drop that silently takes the first of several is the failure this whole
+    change exists to avoid, so there is no "sensible default" branch here.
+    Headless (no QApplication, or a screen that is not a widget) is the one
+    exception, and it declines rather than choosing.
+    """
+    from .dnd import suggest_alternatives_dialog
+
+    try:
+        picked = suggest_alternatives_dialog(
+            screen, Path(headline), [Path(o) for o in options],
+            why=question)
+    except Exception:
+        LOG.debug("could not ask which of %d options was meant", len(options),
+                  exc_info=True)
+        return None
+    return None if picked is None else str(picked)
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
@@ -1444,6 +1996,55 @@ _HANDLERS = {
     "agreement":       ResultsDatabaseDropHandler,
     "train_compare":   TrainingRunsDropHandler,
     "report":          ReportDropHandler,
+
+    # -- the layout-aware screens ------------------------------------------
+    # One table out of a measurement database, or a CSV. All nine expose the
+    # same ``load_path(path, table=None)``, which is why one handler covers
+    # them: the difference between these screens is what they draw, not what
+    # they read.
+    "graph_builder":    TableDropHandler,
+    "trellis":          TableDropHandler,
+    "gate_editor":      TableDropHandler,
+    "feature_explorer": TableDropHandler,
+    "outliers":         TableDropHandler,
+    "control_chart":    TableDropHandler,
+    "dose_response":    TableDropHandler,
+    "pca":              TableDropHandler,
+    "tabulate":         TableDropHandler,
+    "image_scatter":    ScatterTableDropHandler,
+    "lineage":          LineageDropHandler,
+
+    # A whole project, from anywhere inside it.
+    "pipeline_graph":   ProjectFolderDropHandler,
+    "run_compare":      ProjectFolderDropHandler,
+    "qc_dashboard":     ProjectFolderDropHandler,
+    "data_manager":     DataManagerDropHandler,
+    "project_browser":  ProjectRootsDropHandler,
+    "run_history":      RunHistoryDropHandler,
+    "methods_export":   MethodsSourcesDropHandler,
+
+    # One artifact out of the layout.
+    "profiler":         CoefficientsDropHandler,
+    "hit_list":         ResultsFolderDropHandler,
+    "curate":           LabelMaskDropHandler,
+    "napari_bridge":    LabelMaskDropHandler,
+    "layer_viewer":     LayerStackDropHandler,
+    "classifier_evaluation": EvaluationBundleDropHandler,
+    "distributed_jobs": SubmissionSettingsDropHandler,
+}
+
+#: Screens where a drop is genuinely meaningless, recorded rather than left
+#: to look like an oversight. None of them reads a path: Experiment Design
+#: and Power compute a layout and a sample size from numbers typed into the
+#: screen, and Feature Dictionary is a searchable glossary that ships with
+#: spaCR. A drop target here would accept a folder and do nothing with it,
+#: which is worse than no target at all.
+NO_DROP_TARGET: Dict[str, str] = {
+    "experiment_design": "designs a plate layout from typed numbers; it "
+                         "reads no file",
+    "power": "computes a sample size from typed numbers; it reads no file",
+    "feature_dict": "is a glossary of spaCR's feature names, not a reader "
+                    "of data",
 }
 
 
@@ -1454,6 +2055,10 @@ def get_handler(app_key: str) -> DropHandler:
     can at least receive its source folder.
     """
     cls = _HANDLERS.get(app_key)
+    if cls is not None and issubclass(cls, LayoutDropHandler):
+        # The layout-aware handlers resolve against the module they are
+        # installed on, so they need to be told which one that is.
+        return cls(app_key)
     if cls is None:
         try:
             from spacr.plugins import get_app, load_object
@@ -1473,7 +2078,10 @@ def get_handler(app_key: str) -> DropHandler:
                 )
             except Exception:
                 pass
+    if cls is not None and issubclass(cls, LayoutDropHandler):
+        return cls(app_key)
     cls = cls or SourceDropHandler
     return cls()
-    def accepts_multiple(self) -> bool:
-        return True
+    # NOTE: an ``accepts_multiple`` override used to sit here, after the
+    # return, indented as if it were a method of this *function*. It was
+    # unreachable in both readings, so nothing it claimed was ever true.

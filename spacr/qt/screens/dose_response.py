@@ -58,7 +58,8 @@ from ..widgets.dose_response import (
     DoseResponseSpec, candidate_concentration_columns,
     candidate_response_columns, fit_frame,
 )
-from ..widgets.graph_builder import _canvas_class, categorical_colours
+from ..widgets.graph_builder import (_canvas_class, _page_surface_axes,
+                                     categorical_colours)
 from ..widgets.graph_spec import CATEGORICAL, column_kinds
 from .graph_builder import read_table, table_names
 
@@ -240,7 +241,9 @@ class DoseResponseScreen(QWidget):
 
         from matplotlib.figure import Figure
         palette = active_palette()
-        self._figure = Figure(figsize=(6.5, 4.6), facecolor=palette["surface"])
+        # No `facecolor`: the canvas paints the page panel in its own
+        # `paintEvent` under a transparent figure patch.
+        self._figure = Figure(figsize=(6.5, 4.6))
         self.canvas = _canvas_class()(self._figure)
         self.canvas.setObjectName("DoseResponseCanvas")
         body.addWidget(self.canvas)
@@ -271,6 +274,10 @@ class DoseResponseScreen(QWidget):
         body.setStretchFactor(0, 3)
         body.setStretchFactor(1, 2)
         outer.addWidget(body, 1)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "dose_response")
 
     # -- data --------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
@@ -479,8 +486,10 @@ class DoseResponseScreen(QWidget):
         """
         palette = active_palette()
         self._figure.clear()
+        # `clear()` restores the rc facecolor and its alpha with it.
+        self._figure.patch.set_alpha(0.0)
         axes = self._figure.add_subplot(111)
-        axes.set_facecolor(palette["surface"])
+        _page_surface_axes(axes, palette)
         axes.grid(True, color=palette["border_soft"], linewidth=0.6, alpha=0.5)
         axes.set_axisbelow(True)
         for side in ("top", "right"):
