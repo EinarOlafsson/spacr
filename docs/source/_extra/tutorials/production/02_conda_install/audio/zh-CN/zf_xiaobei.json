@@ -4,47 +4,77 @@
   "voice": "zf_xiaobei",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 53.125,
+  "total_duration": 76.075,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.725,
-      "scene_end": 8.174999999999999,
-      "duration": 8.174999999999999,
-      "text": "创建一个孤立的Python环境,并安装 spaCR而不需要改变其余的系统."
+      "speech_end": 11.875,
+      "scene_end": 12.575,
+      "duration": 12.575,
+      "text": "康达环境使spaCR及其科学依赖部门与无关项目保持分开. 目前,Python三点十二提供了最广泛的可选包兼容性.",
+      "speech_text": "康达环境使斯佩克尔及其科学依赖部门与无关项目保持分开. 目前,Python三点十二提供了最广泛的可选包兼容性.",
+      "phonemes": "kʰa→ŋta↗ xwa↗nʨi↘ŋ ʂɨ↓sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʨi↗ʨʰi↗ kʰɤ→ɕɥe↗ i→lai↘ pu↘mə↗n y↓ u↗kwa→n ɕja↘ŋmu↘ pau↓ꭧʰɨ↗ fə→nkʰai→. mu↘ʨʰjɛ↗n,Pythonsa→ntjɛ↓n ʂɨ↗ɚ↘ tʰi↗kʊ→ŋ lɤ ʦwei↘ kwa↓ŋfa↘n tɤ kʰɤ↓ ɕɥɛ↓npau→ ʨjɛ→nɻʊ↗ŋɕi↘ŋ."
     },
     {
       "scene": 2,
-      "speech_start": 8.174999999999999,
-      "speech_end": 20.7,
-      "scene_end": 21.15,
-      "duration": 12.975,
-      "text": "从 spaCR 部分打开 Installation with Conda。 安装Miniconda,Anaconda或其他与Conda 兼容的管理器,然后创建一个 Python 三点十二的环境."
+      "speech_start": 12.575,
+      "speech_end": 19.125,
+      "scene_end": 19.825,
+      "duration": 7.25,
+      "text": "打开一个支持Conda的终端,并创建一个名为 spacr的环境,",
+      "speech_text": "打开一个支持Conda的终端,并创建一个名为 斯佩克尔的环境,",
+      "phonemes": "ta↓kʰai→ i↗kɤ↘ ꭧɨ→ꭧʰɨ↗Condatɤ ꭧʊ→ŋtwa→n,pi↘ŋ ꭧʰwa↘ŋʨjɛ↘n i↗kɤ↘ mi↗ŋwei↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ tɤ xwa↗nʨi↘ŋ,"
     },
     {
       "scene": 3,
-      "speech_start": 21.15,
-      "speech_end": 28.775,
-      "scene_end": 29.224999999999998,
-      "duration": 8.075,
-      "text": "在主配置区域中,激活环境并确认其Python和Pip执行可用于该环境."
+      "speech_start": 19.825,
+      "speech_end": 27.4,
+      "scene_end": 28.099999999999998,
+      "duration": 8.274999999999999,
+      "text": "激活环境. 在安装任何东西之前,请确认Python属于spacr环境.",
+      "speech_text": "激活环境. 在安装任何东西之前,请确认Python属于斯佩克尔环境.",
+      "phonemes": "ʨi→xwo↗ xwa↗nʨi↘ŋ. ʦai↘ a→nꭧwa→ŋ ɻə↘nxɤ↗ tʊ→ŋɕi→ ꭧɨ→ʨʰjɛ↗n,ʨʰi↓ŋ ʨʰɥe↘ɻə↘nPythonʂu↓y↗ sɨ→ pʰei↘kʰɤ↘ ɚ↓ xwa↗nʨi↘ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 29.224999999999998,
-      "speech_end": 43.275,
-      "scene_end": 43.725,
-      "duration": 14.500000000000004,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 安装在活跃环境中使用的管道 spaCR; 快速发布的conda-forge包."
+      "speech_start": 28.099999999999998,
+      "speech_end": 36.25,
+      "scene_end": 36.95,
+      "duration": 8.850000000000005,
+      "text": "通过活跃的Python解释器升级Pip. 使用python -m pip防止其他管执行器接收包裹.",
+      "speech_text": "通过活跃的Python解释器升级Pip. 使用python -m pip防止其他管执行器接收包裹.",
+      "phonemes": "tʰʊ→ŋkwo↘ xwo↗ɥe↘ tɤPythonʨje↓ʂɨ↘ʨʰi↘ ʂə→ŋʨi↗Pip. ʂɨ↓jʊ↘ŋpython -m pipfa↗ŋꭧɨ↓ ʨʰi↗tʰa→ kwa↓n ꭧɨ↗ɕi↗ŋʨʰi↘ ʨje→ʂou→ pau→kwo↓."
     },
     {
       "scene": 5,
-      "speech_start": 43.725,
-      "speech_end": 52.475,
-      "scene_end": 53.125,
-      "duration": 9.399999999999999,
-      "text": "当工作流程完成时,从同一个环境中启动spaCR,并将其与无关项目隔离."
+      "speech_start": 36.95,
+      "speech_end": 46.125,
+      "scene_end": 46.825,
+      "duration": 9.875,
+      "text": "对于桌面应用程序,安装 spacr 与qt额外. 使用无头工作站或服务器的平坦空间包.",
+      "speech_text": "对于桌面应用程序,安装 斯佩克尔 与qt额外. 使用无头工作站或服务器的平坦空间包.",
+      "phonemes": "twei↘y↗ ꭧwo→mjɛ↘n i↘ŋjʊ↘ŋꭧʰə↗ŋɕy↘,a→nꭧwa→ŋ sɨ→ pʰei↘kʰɤ↘ ɚ↓ y↓qtɤ↗wai↘. ʂɨ↓jʊ↘ŋ u↗tʰou↗ kʊ→ŋʦwo↘ꭧa↘n xwo↘ fu↗u↘ʨʰi↘ tɤ pʰi↗ŋtʰa↓n kʰʊ→ŋʨjɛ→n pau→."
+    },
+    {
+      "scene": 6,
+      "speech_start": 46.825,
+      "speech_end": 60.85,
+      "scene_end": 61.550000000000004,
+      "duration": 14.725000000000001,
+      "text": "首次启动前请运行 spaCR-doctor。诊断工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每个失败的检查提供修复建议。",
+      "speech_text": "首次启动前请运行 斯佩克尔-doctor。诊断工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每个失败的检查提供修复建议。",
+      "phonemes": "ʂou↓ʦʰɨ↘ ʨʰi↓tʊ↘ŋ ʨʰjɛ↗n ʨʰi↓ŋ y↘nɕi↗ŋ sɨ→ pʰei↘kʰɤ↘ ɚ↓-doctor. ꭧə↓ntwa↘n kʊ→ŋʨy↘ xwei↘ ʨjɛ↓nꭧʰa↗ ta→ŋʨʰjɛ↗n a→nꭧwa→ŋ, Qt, PyTorch, kʰɤ↓ ɕɥɛ↓n ʦu↓ʨjɛ↘n xɤ↗ i↘ŋʨjɛ↘n ꭧɨ→ꭧʰɨ↗, pi↘ŋ wei↘ mei↓kɤ↘ ʂɨ→pai↘ tɤ ʨjɛ↓nꭧʰa↗ tʰi↗kʊ→ŋ ɕjou→fu↘ ʨjɛ↘ni↘."
+    },
+    {
+      "scene": 7,
+      "speech_start": 61.550000000000004,
+      "speech_end": 75.375,
+      "scene_end": 76.075,
+      "duration": 14.524999999999999,
+      "text": "conda-forge 软件包尚未发布，因此目前不要运行 conda install -c conda-forge spacr。软件包发布后，spaCR 仓库将提供官方配方和频道的链接。",
+      "speech_text": "conda-forge 软件包尚未发布，因此目前不要运行 conda install -c conda-forge 斯佩克尔。软件包发布后，斯佩克尔 仓库将提供官方配方和频道的链接。",
+      "phonemes": "conda-forge ɻwa↓nʨjɛ↘npau→ ʂa↘ŋwei↘ fa→pu↘, i→nʦʰɨ↓ mu↘ʨʰjɛ↗n pu↗jau↘ y↘nɕi↗ŋ conda install -c conda-forge sɨ→ pʰei↘kʰɤ↘ ɚ↓. ɻwa↓nʨjɛ↘npau→ fa→pu↘ xou↘, sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʦʰa→ŋkʰu↘ ʨja→ŋ tʰi↗kʊ→ŋ kwa→nfa→ŋ pʰei↘fa→ŋ xɤ↗ pʰi↗ntau↘ tɤ ljɛ↘nʨje→."
     }
   ]
 }
