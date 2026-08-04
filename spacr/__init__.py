@@ -231,6 +231,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # kind, what of it is regenerable and may therefore be pruned, and
     # archiving that leaves the registry knowing where the data went.
     "data_manager",
+    # Every project on disk in one list — stage reached, size, last run and
+    # what is stale — assembled from `ports`, `artifacts`, `data_manager` and
+    # `chaining` rather than re-derived. A project the registry has never
+    # seen is listed too, and is reported as unexamined rather than clean.
+    "projects",
     "validate",
     "updater",
     "version",
