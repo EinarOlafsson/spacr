@@ -1378,6 +1378,94 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
 #: that lays other widgets out but must not paint anything itself.
 TRANSPARENT_PROPERTY = "spacrTransparent"
 
+#: Dynamic property that marks a widget as *being* the page surface rather
+#: than sitting on one — the exact opposite of :data:`TRANSPARENT_PROPERTY`,
+#: and the one opt-out from :func:`clear_container_surfaces`. See
+#: :func:`mark_surface`, which is how a screen sets it.
+SURFACE_PROPERTY = "spacrSurface"
+
+
+def mark_surface(*widgets) -> None:
+    """Declare that ``widgets`` ARE the page surface, not passengers on one.
+
+    :func:`clear_container_surfaces` tags every ``QAbstractScrollArea`` by
+    type, and ``QAbstractItemView`` and ``QPlainTextEdit`` are both one. So
+    the shipped ``QTableView/QTreeView {{ background-color: surface_alt }}``
+    rule never landed on any view in the application: the attribute selector
+    for :data:`TRANSPARENT_PROPERTY` outranks a bare type selector, and the
+    view painted nothing at all.
+
+    Where a view sits on a tab pane or inside a card that is right, and it is
+    right by accident — the container behind supplies the surface and the view
+    shows it through. Where a view sits straight on the page there is nothing
+    behind it, and the backdrop arrives untouched: a measured 1.000
+    transmission, which over a near-black window colour reads as a black box
+    with the text floating on it.
+
+    So the sweep cannot simply be narrowed to exact types. Doing that flips
+    **every** view in the application at once, and the ones already sitting on
+    a pane would then stack two translucent greys and read about 0.49 — a
+    shade no position of the page-opacity slider can produce. Nor can a type
+    test make the distinction: Hit List's ``QTreeWidget`` is the page and
+    Control Chart's ``QListWidget`` is a passenger, and the pair after them is
+    the other way round. Only the screen that built the layout knows which it
+    is, so the screen is asked, once, per view.
+
+    Opt-**in** rather than opt-out on purpose. Today every view in the
+    application is swept, so opting in changes nothing except where a screen
+    says so, and a view nobody has looked at keeps the behaviour it was
+    written against.
+
+    Two screens said this before the mechanism existed, by giving the view an
+    object name and registering a whole QSS block for it — Model Compare's
+    result tables, Model Zoo's listing and provenance box. An ID selector
+    outranks the transparent tag the same way. This is that without the block:
+    one call, and either the shipped table rule or the
+    ``*[spacrSurface="true"]`` rule supplies the fill at the user's page
+    opacity. The second is not redundant: nothing in the sheet covers a bare
+    ``QListWidget``, which would otherwise fall through to the blanket
+    ``QWidget`` rule and paint the WINDOW colour, which is not a surface.
+
+    Safe to call before or after the sweep, and safe to call twice: the
+    transparent tag is cleared as well as the surface tag set, and the style
+    is re-polished so a visible widget changes immediately.
+
+    One Qt rule has to be paid on the way. A **subclass** of ``QWidget``
+    ignores a QSS background entirely unless ``WA_StyledBackground`` is set,
+    which is why Power's caveat panel still measured the backdrop untouched
+    with a matching rule sitting in the sheet. The attribute is set here for
+    those, and deliberately NOT for a ``QAbstractScrollArea``: a view already
+    paints its background through its viewport, and a second styled fill on
+    top of that is the two-surfaces-stacked fault again. Measured both ways
+    rather than reasoned about.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QAbstractScrollArea
+    for widget in widgets:
+        if widget is None:
+            continue
+        targets = [widget]
+        if isinstance(widget, QAbstractScrollArea):
+            targets.append(widget.viewport())
+        else:
+            widget.setAttribute(Qt.WA_StyledBackground, True)
+        for target in targets:
+            if target is None:
+                continue
+            target.setProperty(SURFACE_PROPERTY, True)
+            target.setProperty(TRANSPARENT_PROPERTY, False)
+            style = target.style()
+            if style is not None:
+                style.unpolish(target)
+                style.polish(target)
+
+
+def is_surface(widget) -> bool:
+    """Whether ``widget`` was declared a page surface by :func:`mark_surface`."""
+    if widget is None:
+        return False
+    return bool(widget.property(SURFACE_PROPERTY))
+
 
 def clear_container_surfaces(root) -> int:
     """Tag every layout container under ``root`` so it paints nothing.
@@ -1397,7 +1485,10 @@ def clear_container_surfaces(root) -> int:
       page opacity.
 
     Scroll areas, their viewports and splitters are always containers whatever
-    they are called, so they are tagged by type.
+    they are called, so they are tagged by type — **unless** the screen has
+    declared one a surface with :func:`mark_surface`. That is the one opt-out,
+    and it exists because the type test cannot tell a table that sits ON a
+    pane from a table that IS the page. See :func:`mark_surface`.
 
     :param root: the screen (or any subtree) to sweep.
     :returns: how many widgets were tagged, which is what a test asserts on.
@@ -1407,6 +1498,11 @@ def clear_container_surfaces(root) -> int:
 
     targets = []
     for area in root.findChildren(QAbstractScrollArea):
+        if is_surface(area):
+            # The screen says this view IS the page. Tagging it — or its
+            # viewport, which is the half that actually paints — would put
+            # the backdrop straight underneath the text.
+            continue
         targets.append(area)
         viewport = area.viewport()
         if viewport is not None:
@@ -1421,6 +1517,7 @@ def clear_container_surfaces(root) -> int:
         if type(widget) is QWidget and not widget.objectName():
             targets.append(widget)
 
+    targets = [w for w in targets if not is_surface(w)]
     make_transparent(*targets)
     return len(targets)
 
@@ -2105,6 +2202,20 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
  * `bg` and used to bury the rain under the first container it met. */
 *[{TRANSPARENT_PROPERTY}="true"] {{
     background: transparent;
+}}
+/* The opposite declaration — see `mark_surface`. A view that IS the page,
+ * rather than a passenger on a pane, needs a surface of its own, and most
+ * of them would not get one even if the sweep left them alone: the shipped
+ * rule covers QTableView/QTreeView but nothing covers a bare QListWidget,
+ * which then falls through to the blanket `QWidget` fill and paints the
+ * WINDOW colour, which is not a surface.
+ *
+ * Background only. Borders, radii and item padding stay with whatever type
+ * rule the widget already matched, so a marked table still looks like a
+ * table; QSS cascades per property, and only this one is being decided
+ * here. `P["surface_alt"]` already carries the user's page opacity. */
+*[{SURFACE_PROPERTY}="true"] {{
+    background-color: {P["surface_alt"]};
 }}
 /* Every QLabel is transparent by default so it inherits the bg of
  * whatever container it lives in (surface, surface_alt, hero card,

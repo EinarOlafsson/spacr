@@ -40,7 +40,7 @@ from ... import lineage as lin
 from ..job_runner import JobRunner
 from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, mark_surface
 
 LOG = logging.getLogger(__name__)
 
@@ -178,6 +178,9 @@ class LineageScreen(LinkedView, QWidget):
         split.setStretchFactor(0, 1)
         split.setStretchFactor(1, 0)
         split.setSizes([620, 300])
+        # Both halves of the splitter sit straight on the page; the
+        # splitter itself is scaffolding and paints nothing.
+        mark_surface(self.tree, self.orphan_list)
         outer.addWidget(split, 1)
 
         self.status = QLabel("", self)

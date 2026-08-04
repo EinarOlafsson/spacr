@@ -51,7 +51,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, mark_surface
 from ..widgets.dose_response import (
     CI_PROFILE, CI_WALD, STATUS_FITTED, STATUS_REFUSED,
     STATUS_UNBOUNDED, DoseResponseError, DoseResponseResult, DoseResponseSet,
@@ -273,6 +273,10 @@ class DoseResponseScreen(QWidget):
         self.report.setPlaceholderText(
             "Pick a concentration column and a response column, then Fit.")
         side.addWidget(self.report)
+        # The two halves of the side splitter are the page on this
+        # screen; the curve canvas beside them paints its own panel in
+        # `paintEvent`, and these two had nothing.
+        mark_surface(self.table, self.report)
         side.setStretchFactor(0, 1)
         side.setStretchFactor(1, 1)
 
