@@ -203,6 +203,12 @@ SELF_REGISTERING_MODULES = (
     # that declares ports, so the generic AppScreen gains the auto-chaining /
     # staleness / next-step strip without a line inside the shared screen.
     "spacr.qt.chaining",
+    # Also not an app: it decorates the Measure screen with the segmentation
+    # verdict seg_qc already computed and the Mask screen with the diameter
+    # estimator, by wrapping whatever factory is registered for those two
+    # keys. Listed AFTER chaining so the normal launch order composes onto
+    # chaining's screen rather than the other way round; both orders work.
+    "spacr.qt.prerun",
     "spacr.qt.screens.run_compare",
 )
 
