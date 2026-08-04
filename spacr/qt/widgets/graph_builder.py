@@ -51,6 +51,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import QMimeData, Qt, QTimer, Signal
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
@@ -60,7 +61,7 @@ from PySide6.QtWidgets import (
 from ...selection import Selection, object_keys
 from ..linked_selection import LinkedView
 from ..theme import (RADIUS, SPACING, active_palette, font_px,
-                     register_widget_qss)
+                     make_transparent, paint_panel, register_widget_qss)
 from .graph_spec import (
     BAR, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL, FACET_ROW, HEATMAP,
     HISTOGRAM, LINE, MISSING_LEVEL, PLOT_KINDS, SCATTER, SIZE, VIOLIN, X, Y,
@@ -386,23 +387,102 @@ class DropZone(QFrame):
 # The canvas
 # ---------------------------------------------------------------------------
 
-def _canvas_class():
-    """The figure canvas, with a deferred draw that cannot outlive the widget.
+def page_alpha() -> float:
+    """The page-opacity preference as a plain float, for matplotlib.
 
-    Matplotlib's Qt canvas schedules its idle draw with a static
-    ``QTimer.singleShot``, which is not owned by the canvas and can therefore
-    fire after Qt has deleted it — a segfault on close. An owned timer dies
-    with the widget. The same fix
-    :class:`spacr.qt.widgets.umap_explorer.ImageUmapExplorer` carries.
+    Matplotlib takes alpha as a number, not as a QSS colour, so
+    :func:`~spacr.qt.theme.pane_surface` is no help to an axes patch.
+    Degrades to the theme's designed scrim when preferences cannot be
+    read, which is what a first run mid-generation gets.
     """
+    from ..theme import panel_alpha
+    theme = "dark"
+    opacity = None
+    try:
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        theme = resolve_effective_theme()
+        opacity = get_pane_opacity()
+    except Exception:
+        pass
+    return float(panel_alpha(theme, "surface_alt", opacity))
+
+
+def _page_surface_axes(ax, palette) -> None:
+    """Give ``ax`` a plotting area that follows the page-opacity slider.
+
+    The axes keep a fill — the plotting area is meant to read as a panel
+    within the panel — but at the page alpha, so the preference reaches
+    the plot rather than stopping at its frame. ``set_facecolor`` with a
+    raw hex would be opaque by construction and would hide the panel the
+    canvas painted underneath.
+    """
+    ax.patch.set_facecolor(palette["surface_alt"])
+    ax.patch.set_alpha(page_alpha())
+
+
+#: Built once, on first use — see :func:`_canvas_class`.
+_CANVAS_CLASS = None
+
+
+def _canvas_class():
+    """The figure canvas: a deferred draw it owns, on a page panel.
+
+    Two problems, one class, because both need the same subclass and no
+    module in this package may import matplotlib's Qt backend at import
+    time.
+
+    *The timer.* Matplotlib's Qt canvas schedules its idle draw with a
+    static ``QTimer.singleShot``, which is not owned by the canvas and can
+    therefore fire after Qt has deleted it — a segfault on close. An owned
+    timer dies with the widget. The same fix
+    :class:`spacr.qt.widgets.umap_explorer.ImageUmapExplorer` carries.
+
+    *The slab.* ``FigureCanvasQT.__init__`` sets ``WA_OpaquePaintEvent``
+    and the figure carries a solid ``facecolor``: two opaque things
+    stacked, with square corners where every other container on the page
+    is rounded. QSS reaches neither — a ``WA_OpaquePaintEvent`` widget
+    never lets the sheet's background through — so the Graph Builder, the
+    Trellis, the Gate Editor, Tabulate, PCA and the Feature Explorer all
+    showed one flat rectangle whatever the page-opacity slider said. The
+    panel is therefore drawn in ``paintEvent``, under a figure whose own
+    patch is fully transparent, exactly as Training Runs does it.
+
+    Cached, so the six screens share one class rather than one per canvas.
+    """
+    global _CANVAS_CLASS
+    if _CANVAS_CLASS is not None:
+        return _CANVAS_CLASS
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     class OwnedTimerFigureCanvas(FigureCanvasQTAgg):
-        def __init__(self, figure):
+
+        def __init__(self, figure, *, panel: bool = True):
+            """:param panel: draw the page surface under the figure.
+
+            ``False`` for a canvas that is already sitting ON a panel — the
+            scree plot inside the PCA shelf, say. Two surfaces stacked read
+            0.49 at a requested 30 %, a shade no position of the slider can
+            reach, so the inner one shows the outer panel through instead.
+            """
             super().__init__(figure)
             self._spacr_draw_timer = QTimer(self)
             self._spacr_draw_timer.setSingleShot(True)
             self._spacr_draw_timer.timeout.connect(self._spacr_draw)
+            self._spacr_panel = bool(panel)
+            self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+            make_transparent(self)
+            # Whatever is below is the surface now. Leaving the patch opaque
+            # would paint the old rectangle straight back over it.
+            figure.patch.set_alpha(0.0)
+
+        def paintEvent(self, event):  # noqa: N802 - Qt name
+            """Draw the page panel, then let matplotlib draw over it."""
+            if self._spacr_panel:
+                painter = QPainter(self)
+                paint_panel(painter, self, role="surface", inset=0.5)
+                painter.end()
+            super().paintEvent(event)
 
         def draw_idle(self):
             self._draw_pending = True
@@ -422,6 +502,7 @@ def _canvas_class():
             self._spacr_draw_timer.stop()
             self._draw_pending = False
 
+    _CANVAS_CLASS = OwnedTimerFigureCanvas
     return OwnedTimerFigureCanvas
 
 
@@ -473,14 +554,16 @@ class GraphCanvas(LinkedView, QWidget):
     def _build_ui(self) -> None:
         from matplotlib.figure import Figure
 
-        palette = active_palette()
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["xs"])
 
-        self._figure = Figure(figsize=(7.5, 5.0), facecolor=palette["surface"])
+        # No `facecolor` and no inline `background:` — the canvas paints the
+        # page panel in its own `paintEvent` and its figure patch is
+        # transparent, so either of those would put an opaque rectangle back
+        # over it and stop the page-opacity slider reaching the chart.
+        self._figure = Figure(figsize=(7.5, 5.0))
         self._canvas = _canvas_class()(self._figure)
-        self._canvas.setStyleSheet(f"background: {palette['surface']};")
         outer.addWidget(self._canvas, 1)
 
         self._notice = QLabel("", self)
@@ -584,6 +667,10 @@ class GraphCanvas(LinkedView, QWidget):
         """Rebuild the figure from the current frame, spec, filter and selection."""
         self._debounce.stop()
         self._figure.clear()
+        # `clear()` restores the rc facecolor AND its alpha, so the
+        # transparency the canvas set has to be re-asserted or the first
+        # redraw paints the opaque rectangle straight back over the panel.
+        self._figure.patch.set_alpha(0.0)
         self._axes = {}
         self._axes_at = {}
         self._overlays = {}
@@ -646,7 +733,7 @@ class GraphCanvas(LinkedView, QWidget):
     def _render_message(self, text: str) -> None:
         palette = active_palette()
         ax = self._figure.add_subplot(111)
-        ax.set_facecolor(palette["surface"])
+        _page_surface_axes(ax, palette)
         for spine in ax.spines.values():
             spine.set_visible(False)
         ax.set_xticks([])
@@ -694,7 +781,7 @@ class GraphCanvas(LinkedView, QWidget):
     # -- drawing ----------------------------------------------------------
     def _style_axes(self, ax, palette) -> None:
         """Recessive chrome: hairline grid, two spines, muted ticks."""
-        ax.set_facecolor(palette["surface"])
+        _page_surface_axes(ax, palette)
         ax.grid(True, color=palette["border_soft"], linewidth=0.6, alpha=0.5)
         ax.set_axisbelow(True)
         for side in ("top", "right"):
@@ -1330,9 +1417,17 @@ def _graph_builder_qss(palette, opacity) -> str:
     from ..theme import pane_surface
     surface_alt = pane_surface("surface_alt", palette["theme"], opacity)
     return f"""
-QWidget#GraphShelf {{
+QWidget#GraphShelf, QWidget#TrellisShelf {{
     background: {surface_alt};
     border-radius: {RADIUS["md"]}px;
+}}
+/* Scaffolding, whatever it is called: the panels hold a splitter edge to
+ * edge and the canvas below paints the page surface. Without this they
+ * take the blanket `QWidget` rule, which is the WINDOW colour and not a
+ * surface, so no page-opacity setting could ever reach them. */
+QWidget#GraphBuilderPanel, QWidget#TrellisPanel, QWidget#GraphCanvas,
+QWidget#PCAPanel, QWidget#GateEditorPanel, QWidget#FeatureExplorerPanel {{
+    background: transparent;
 }}
 QFrame#GraphDropZone {{
     background: transparent;

@@ -88,7 +88,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import SPACING, active_palette, register_widget_qss
+from ..theme import (SPACING, active_palette, make_transparent, paint_panel,
+                     register_widget_qss)
 from ..widgets.power_design import (
     CAVEATS,
     PLATE_FORMATS,
@@ -361,6 +362,9 @@ class PowerCurveView(QWidget):
         self._threshold: float = 0.8
         self._x_label = ""
         self._palette = active_palette()
+        # The panel drawn in `paintEvent` is the surface; the widget itself
+        # must not also paint the blanket window fill underneath it.
+        make_transparent(self)
         self.setMinimumHeight(180)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -415,7 +419,11 @@ class PowerCurveView(QWidget):
         width = max(1, self.width() - left - right)
         height = max(1, self.height() - top - bottom)
 
-        painter.fillRect(self.rect(), QColor(palette["surface"]))
+        # A rounded translucent panel, not `fillRect(rect, surface)`: that
+        # hex carries no alpha, so the fill was opaque by construction
+        # whatever the page-opacity preference said, and the two curve views
+        # were the only flat rectangles on a page of panels.
+        paint_panel(painter, self, role="surface", inset=0.5)
         painter.setPen(QPen(QColor(palette["fg"]), 1))
         painter.drawText(6, metrics.ascent() + 2, self._title)
 
