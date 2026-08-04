@@ -697,8 +697,73 @@ setup(
         # versions while upstream wheels catch up.
         'btrack': ['btrack>=0.7.0,<1.0'],
 
+        # `pip install spacr[numpyro]` / `spacr[pymc]` — the two exact-NUTS
+        # backends of `spacr.power_model`, which fits the horseshoe Poisson
+        # hit model. Both are already imported inside the branch that selects
+        # them (`_fit_numpyro_nuts`, `_fit_pymc_nuts`) and `resolve_backend`
+        # already refuses to substitute one for another, naming the missing
+        # package — so an extra is what that guard was always describing, the
+        # same reasoning as `boosting`.
+        #
+        # Two extras rather than one because they are ALTERNATIVES, not a
+        # pair: the model needs one exact sampler, and `backend="auto"` takes
+        # numpyro if it is there, else pymc, else the torch ADVI that is
+        # always available. Making one extra install both would force a second
+        # multi-hundred-megabyte inference stack on a user who has already
+        # chosen the other. jax is named alongside numpyro because
+        # `_fit_numpyro_nuts` imports `jax` and `jax.numpy` directly rather
+        # than only through numpyro, and the dependency census — correctly —
+        # counts an import it can see.
+        #
+        # Neither is in `all`, for the reason the exclusions below give: jax
+        # resolves to a platform-specific build (CPU/CUDA/ROCm/Metal) and pymc
+        # brings PyTensor and a C compiler path. Someone typing `all` wants
+        # every feature, not a second numerical-computing runtime chosen for
+        # them.
+        'numpyro': ['numpyro>=0.13,<1.0', 'jax>=0.4,<1.0'],
+        'pymc': ['pymc>=5.10,<6.0'],
+
+        # `pip install spacr[zarr]` — `spacr.ome_zarr`, the OME-NGFF
+        # (OME-Zarr) reader/writer. The emerging standard for large
+        # bioimaging data: chunked, so a 100 GB plate is readable a tile at a
+        # time instead of all at once, and multiscale, so a plate overview
+        # does not decode full resolution to draw 200 px.
+        #
+        # It is an extra rather than a core dependency, and the reason is
+        # narrow: spaCR parses and writes the OME-NGFF *metadata* itself
+        # (`multiscales`, `axes`, `coordinateTransformations`) in pure Python,
+        # because that layout is the thing worth getting right and a library
+        # would only hide it. What zarr/numcodecs are needed for is the chunk
+        # CODEC — blosc, zstd, lz4 — which is where the compiled code lives.
+        # `spacr.ome_zarr` reads and writes stored/zlib chunks with the
+        # standard library alone, so a spaCR-written OME-Zarr round-trips on a
+        # plain `pip install spacr`; anything compressed with a third-party
+        # codec raises a message naming this extra rather than a traceback.
+        #
+        # `zarr>=2.16,<4` deliberately spans the v2/v3 rewrite: v2 reads
+        # zarr-format 2 (which is what OME-NGFF 0.4 is), v3 reads both, and
+        # `spacr.ome_zarr` supports either at runtime. numcodecs is named
+        # explicitly rather than relied on through zarr, because the codec is
+        # what is actually imported.
+        'zarr': ['zarr>=2.16,<4', 'numcodecs>=0.12,<1'],
+        # `pip install spacr[omero]` — `spacr.omero`, importing a dataset or
+        # plate by id from an OMERO server and exporting spaCR results back as
+        # annotations.
+        #
+        # Deliberately NOT in `all`, and this is the one exclusion that is not
+        # about wheels being missing: omero-py depends on zeroc-ice, a
+        # compiled C++ Ice runtime whose wheels lag Python releases by a long
+        # way and which otherwise needs a C++ toolchain plus the Ice
+        # development headers. Putting it in the extra most likely to be typed
+        # by someone who just wants everything would turn `pip install
+        # spacr[all]` into a source build of a C++ middleware stack, which is
+        # the same class of failure `attribution` is excluded for. Anyone who
+        # has an OMERO server has an installed Ice already, or knows they need
+        # one; nobody else should pay for it.
+        'omero': ['omero-py>=5.17,<6'],
+
         # `pip install spacr[all]` — every optional feature at once, minus
-        # four, each for a stated reason:
+        # eight, each for a stated reason:
         #   * `dev`   — test tooling, not a feature.
         #   * `full`  — the GUI-capable opencv build, which would shadow the
         #               headless one already in the core deps.
@@ -716,6 +781,23 @@ setup(
         #               the extra most likely to be typed by someone who just
         #               wants everything. `spacr[all,attribution]` remains
         #               available on 3.9-3.12 for anyone who wants both.
+        #   * `omero` — same class of exclusion as `attribution`, for the
+        #               reason spelled out at its own entry: omero-py pulls
+        #               zeroc-ice, a compiled C++ Ice runtime, and `all` must
+        #               not turn into a middleware source build.
+        #   * `numpyro`, `pymc` — the two exact-NUTS backends are alternatives
+        #               to each other and to a torch path that is always
+        #               present, so `all` would install two inference stacks
+        #               to use at most one. jax also resolves to a
+        #               platform-specific build and pymc brings PyTensor's
+        #               compiler path; neither belongs in the extra someone
+        #               types when they just want every feature.
+        #   * `zarr`  — kept out because it buys nothing for a user who did
+        #               not ask for it: `spacr.ome_zarr` reads and writes
+        #               stored/zlib OME-Zarr with the standard library alone,
+        #               and numcodecs (the part that is actually compiled)
+        #               only matters for third-party chunk codecs. Anyone who
+        #               has blosc-compressed NGFF data knows they do.
         #
         # Spelled out as concrete requirements rather than a recursive
         # `spacr[qt,tutorial,...]` self-reference so it resolves identically
