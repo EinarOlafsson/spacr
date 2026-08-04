@@ -13,8 +13,40 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     ignores ``setDefaultFormat``/``setPath(IniFormat, ...)`` entirely. Setting
     only the Ini path left ``.clear()`` below pointed at the developer's real
     ``~/.config/spacr/qt.conf``.
+
+    Every one of the four calls below is **process-global and permanent**, and
+    for a long time none of them was put back. The organisation name, the
+    application name and the default format therefore kept this module's
+    values for the rest of the session, and
+    ``tests/qt/test_all_module_smoke.py`` — which measures real pixels through
+    a themed ``QApplication`` — failed its setting-row background assertion on
+    every module whenever this file happened to run first. A shard ordering
+    decided whether the suite was green.
+
+    ``setPath`` is the one leak the root ``conftest`` already repairs (its
+    ``_isolated_qsettings_store`` re-points every format/scope pair on
+    teardown, and it is torn down after this one). The other three are
+    snapshotted and restored here.
+
+    The **QApplication's own appearance** is restored for the same reason and
+    it is the half that actually moved the pixels:
+    ``test_apply_preferences_to_app_takes_the_theme_and_the_font_scale`` puts
+    the app into the *light* palette at 125 % and leaves it there. The smoke
+    test downstream re-applies a dark stylesheet before it measures — but a
+    stylesheet is not a ``QPalette``, so the light palette survived and one
+    corner of the setting-label wrapper came back ``#161719`` instead of the
+    card's ``#0d0e10``.
     """
     from PySide6.QtCore import QCoreApplication, QSettings
+    from spacr.qt.first_run import mark_tour_seen
+
+    was_org = QCoreApplication.organizationName()
+    was_app = QCoreApplication.applicationName()
+    was_format = QSettings.defaultFormat()
+    was_palette = qt_theme_applied.palette()
+    was_stylesheet = qt_theme_applied.styleSheet()
+    was_font = qt_theme_applied.font()
+
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-prefs-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
@@ -22,13 +54,20 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
         QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     QSettings("spacr", "qt").clear()
     # Re-mark first-launch tour seen after the QSettings clear so the
-    # autouse conftest fixture keeps its promise.
+    # autouse conftest fixture keeps its promise. Imported at the top of the
+    # fixture rather than guarded: a spacr.qt that cannot supply
+    # mark_tour_seen is a product failure, and swallowing it here only moved
+    # the report to whichever unrelated test then met the tour dialog.
+    mark_tour_seen()
     try:
-        from spacr.qt.first_run import mark_tour_seen
-        mark_tour_seen()
-    except Exception:
-        pass
-    yield
+        yield
+    finally:
+        QCoreApplication.setOrganizationName(was_org)
+        QCoreApplication.setApplicationName(was_app)
+        QSettings.setDefaultFormat(was_format)
+        qt_theme_applied.setPalette(was_palette)
+        qt_theme_applied.setStyleSheet(was_stylesheet)
+        qt_theme_applied.setFont(was_font)
 
 
 # ---------------------------------------------------------------------------
