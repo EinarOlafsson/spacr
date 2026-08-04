@@ -56,8 +56,9 @@ from PySide6.QtWidgets import (
     QSizePolicy, QSpinBox, QVBoxLayout, QWidget,
 )
 from .preview_controls import (
-    FlatButton, FlatComboBox, channel_view, populate_channel_combo,
-    populate_fov_combo, selected_channel, sibling_sources,
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSetSampler, apply_sample_to_combo, channel_view, enumerate_image_sets,
+    populate_channel_combo, sample_image_sets, sample_seed, selected_channel,
 )
 from .toggle import Toggle
 
@@ -495,19 +496,54 @@ def first_supported_image(source: Path) -> Optional[Path]:
 
 
 class _ImageLoadWorker(QThread):
-    """Discover and decode one preview image away from the GUI thread."""
+    """Discover, enumerate and decode one preview source off the GUI thread.
+
+    Emits :attr:`enumerated` before :attr:`loaded`, so the panel's sampler is
+    already warm by the time the decoded image asks it to refill the sets
+    dropdown and no directory scan lands on the GUI thread.
+
+    The enumeration reads **file names only** — it never opens an image — so
+    the single decode this worker performs is still the only file read for a
+    folder of any size.
+    """
 
     loaded = Signal(int, object, object, str)
+    #: ``(token, directory, sets, channel IDs)``
+    enumerated = Signal(int, object, object, object)
 
-    def __init__(self, source: Path, token: int, parent=None):
+    def __init__(self, source: Path, token: int, parent=None,
+                 max_sets: int = DEFAULT_MAX_SETS):
         super().__init__(parent)
         self.source = Path(source)
         self.token = int(token)
+        self.max_sets = int(max_sets)
 
     def run(self) -> None:
         """Find/decode the image and emit ``(token, path, array, error)``."""
         try:
             path = first_supported_image(self.source)
+            if path is not None:
+                try:
+                    sets, channels = enumerate_image_sets(
+                        path.parent, SUPPORTED_SUFFIXES)
+                    self.enumerated.emit(
+                        self.token, str(path.parent), sets, channels)
+                    if sets and self.source.is_dir():
+                        # Open on one of the sampled sets. Whichever file
+                        # sorts first is A01 field 1, which on a plate-ordered
+                        # folder is exactly the corner the sample exists to
+                        # stop the preview from standing in for.
+                        picked = sample_image_sets(
+                            sets, self.max_sets,
+                            sample_seed(path.parent, len(sets),
+                                        self.max_sets))
+                        if picked:
+                            path = picked[0].path()
+                except Exception:
+                    # A folder we cannot group is still a folder we can show
+                    # one image from; the panel falls back to per-file sets.
+                    LOG.exception("Could not enumerate image sets under %s",
+                                  path.parent)
             array = load_preview_image(path) if path is not None else None
             self.loaded.emit(self.token, path, array, "")
         except Exception as exc:
@@ -841,6 +877,10 @@ class LivePreviewPanel(QWidget):
         # Guards the FOV dropdown against re-entering itself while the image
         # it just asked for is being installed.
         self._loading_fov = False
+        # Groups the source folder into image sets from file names alone and
+        # hands out a bounded, reproducible random sample of them. Caches the
+        # enumeration per folder, so stepping through fields costs nothing.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_ui()
         self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
@@ -1022,10 +1062,13 @@ class LivePreviewPanel(QWidget):
             self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
         self._fov_box = FlatComboBox(
             self,
-            tooltip=("Field of view. Lists every supported image sitting "
-                     "beside the loaded one; picking one loads it."))
+            tooltip=("Field of view. Lists a random sample of the image sets "
+                     "in this folder — set the sample size on its left."))
         self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
         self._channel_box = FlatComboBox(
             self,
@@ -1039,6 +1082,7 @@ class LivePreviewPanel(QWidget):
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
+        pick_row.addWidget(self._max_sets_box)
         pick_row.addWidget(self._fov_box)
         pick_row.addWidget(self._channel_box)
         pick_row.addWidget(self._pick_btn)
@@ -1145,11 +1189,13 @@ class LivePreviewPanel(QWidget):
             return False
         self._image_load_token += 1
         token = self._image_load_token
-        worker = _ImageLoadWorker(Path(text), token)
+        worker = _ImageLoadWorker(Path(text), token,
+                                  max_sets=self._sampler.max_sets)
         worker.loaded.connect(self._on_source_loaded)
+        worker.enumerated.connect(self._on_source_enumerated)
+        # Bound method only. A closure here would make the QThread itself the
+        # receiver, so the connection — and the job — would never retire.
         worker.finished.connect(self._retire_image_loader)
-        worker.finished.connect(
-            lambda w=worker: _ACTIVE_IMAGE_LOADERS.discard(w))
         self._image_loaders.append(worker)
         _ACTIVE_IMAGE_LOADERS.add(worker)
         self._status.setText(f"Loading preview from {text}…")
@@ -1168,9 +1214,17 @@ class LivePreviewPanel(QWidget):
             return
         self._install_loaded_image(Path(path), arr)
 
+    def _on_source_enumerated(self, token: int, directory, sets,
+                              channels) -> None:
+        """Adopt the worker's folder enumeration before its image lands."""
+        if token != self._image_load_token:
+            return
+        self._sampler.adopt(directory, sets or [], channels or [])
+
     def _retire_image_loader(self) -> None:
         """Release completed image-loader QThreads on the GUI thread."""
         sender = self.sender()
+        _ACTIVE_IMAGE_LOADERS.discard(sender)
         self._image_loaders = [
             worker for worker in self._image_loaders if worker is not sender]
 
@@ -1188,30 +1242,65 @@ class LivePreviewPanel(QWidget):
         self._raw_masks = {}
         self._flows = {}
         self._path_label.setText(str(path))
-        self._status.setText(f"Loaded {arr.shape} {arr.dtype}")
         self._refresh_source_selectors()
+        note = self.sample_note()
+        self._status.setText(f"Loaded {arr.shape} {arr.dtype}"
+                             + (f" — {note}" if note else ""))
         self._refresh_canvases()
 
     # -- FOV / channel selectors ------------------------------------------
 
     def _refresh_source_selectors(self) -> None:
-        """Re-fill the FOV and channel dropdowns for the loaded image."""
-        populate_fov_combo(
-            self._fov_box,
-            sibling_sources(self._image_path, SUPPORTED_SUFFIXES),
-            current=self._image_path)
+        """Re-fill the sets and channel dropdowns for the loaded image.
+
+        The sets dropdown lists a **sample**, not the folder: see
+        :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`. The
+        enumeration behind it is cached per folder, so this — which runs on
+        every single image load — re-scans nothing once the folder is known.
+        """
+        if self._image_path is not None:
+            self._sampler.enumerate(
+                Path(self._image_path).parent, SUPPORTED_SUFFIXES)
+        self._sample_note = apply_sample_to_combo(
+            self._fov_box, self._max_sets_box, self._sampler,
+            self._image_path, tooltip="Field of view")
         channels = (int(self._image.shape[2])
                     if self._image is not None and self._image.ndim == 3
                     else 0)
         populate_channel_combo(self._channel_box, channels)
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-enumerating."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._refresh_source_selectors()
+        self._announce_sample()
+
+    def _announce_sample(self) -> None:
+        """Restate the sample on the status line, where the user is looking."""
+        note = self.sample_note()
+        if note:
+            self._status.setText(note[:1].upper() + note[1:])
 
     def _on_fov_changed(self, *_args) -> None:
         """Load the field of view the user picked from the dropdown."""
         if self._loading_fov:
             return
         path = self._fov_box.currentData()
-        if not path or (self._image_path is not None
-                        and str(self._image_path) == str(path)):
+        if not path:
+            return
+        # The loaded file may be a different channel of the very set the combo
+        # points at; comparing raw paths would reload it for no reason.
+        picked = self._sampler.set_for_path(path)
+        if picked is not None and picked == self._sampler.set_for_path(
+                self._image_path):
+            return
+        if picked is None and self._image_path is not None \
+                and str(self._image_path) == str(path):
             return
         self._loading_fov = True
         try:

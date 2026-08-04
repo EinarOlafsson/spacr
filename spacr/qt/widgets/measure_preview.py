@@ -44,8 +44,9 @@ from PySide6.QtWidgets import (
 )
 
 from .preview_controls import (
-    FlatButton, FlatComboBox, populate_channel_combo, populate_fov_combo,
-    selected_channel, sibling_sources,
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
+    selected_channel,
 )
 from .toggle import Toggle
 
@@ -127,6 +128,9 @@ class MeasurePreviewPanel(QWidget):
         # Guards the FOV dropdown against re-entering itself while the array
         # it just asked for is being installed.
         self._loading_fov = False
+        # Bounded, reproducible sample of the folder's image sets — the
+        # dropdown never lists a whole plate. See ImageSetSampler.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_controls()
         self._build_ui()
         self._connect_controls()
@@ -260,10 +264,13 @@ class MeasurePreviewPanel(QWidget):
             "No array loaded — drop a merged .npy here, or choose one")
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
         self._fov_box = FlatComboBox(
             self,
-            tooltip=("Field of view. Lists every merged .npy sitting beside "
-                     "the loaded one; picking one loads it."))
+            tooltip=("Field of view. Lists a random sample of the merged .npy "
+                     "arrays beside the loaded one; picking one loads it."))
         self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
         self._channel_box = FlatComboBox(
             self,
@@ -276,6 +283,7 @@ class MeasurePreviewPanel(QWidget):
         self._pick_btn = FlatButton("Choose merged array…", self)
         self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
+        pick_row.addWidget(self._max_sets_box)
         pick_row.addWidget(self._fov_box)
         pick_row.addWidget(self._channel_box)
         pick_row.addWidget(self._pick_btn)
@@ -475,20 +483,40 @@ class MeasurePreviewPanel(QWidget):
     # -- FOV / channel selectors ---------------------------------------
 
     def _refresh_source_selectors(self) -> None:
-        """Re-fill the FOV and channel dropdowns for the loaded array."""
-        populate_fov_combo(
-            self._fov_box,
-            sibling_sources(self._data_path, _SUPPORTED),
-            current=self._data_path)
+        """Re-fill the sets and channel dropdowns for the loaded array.
+
+        The sets dropdown lists a bounded random sample, not the whole folder
+        — see :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`. A
+        measure run's ``merged`` folder holds one array per field of view, so
+        a 384-well plate puts thousands of entries in here.
+        """
+        if self._data_path:
+            self._sampler.enumerate(Path(self._data_path).parent, _SUPPORTED)
+        self._sample_note = apply_sample_to_combo(
+            self._fov_box, self._max_sets_box, self._sampler,
+            self._data_path, tooltip="Field of view")
         channels = int(self._data.shape[2]) if self._data is not None else 0
         populate_channel_combo(self._channel_box, channels)
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-enumerating."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._refresh_source_selectors()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
 
     def _on_fov_changed(self, *_args) -> None:
         """Load the field of view the user picked from the dropdown."""
         if self._loading_fov:
             return
         path = self._fov_box.currentData()
-        if not path or path == self._data_path:
+        if not path or str(path) == str(self._data_path):
             return
         self._loading_fov = True
         try:
