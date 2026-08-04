@@ -63,8 +63,10 @@ __all__ = [
     "LayerListWidget",
     "LayerViewer",
     "make_layer_viewer_screen",
+    "register_companion_apps",
     "register_layer_viewer_app",
     "stack_from_paths",
+    "COMPANION_APPS",
     "LAYER_VIEWER_APP_KEY",
     "LINK_SOURCE",
 ]
@@ -933,6 +935,45 @@ APP_CLI_NOTE = (
     "(spacr-qt). Headless, build a spacr.layers stack from Python instead.")
 
 
+#: Screens that ride in on this module's registration, as
+#: ``(module, function)``. See :func:`register_companion_apps`.
+COMPANION_APPS = (
+    ("spacr.qt.screens.image_scatter", "register"),
+)
+
+
+def register_companion_apps() -> tuple:
+    """Register the screens built on this viewer's world. Idempotent.
+
+    ``spacr.qt.app`` holds the one import-time table of self-registering
+    modules (``_SELF_REGISTERING_APPS``) and calls
+    :func:`register_layer_viewer_app` out of it. The screens in
+    :data:`COMPANION_APPS` grew out of this module: they either borrow the
+    layer world directly (a :class:`CanvasTool` on :class:`LayerCanvas`) or
+    join the same linked-selection contract this viewer joined. Registering
+    them from here rather than giving each one a row in ``app.py`` keeps the
+    chain one hop long and written down in a single tuple — the next screen
+    adds a line to it, not a mechanism.
+
+    One companion's failure costs that companion and nothing else, the same
+    posture ``app.py`` takes towards its own table and towards plugins: an
+    optional screen must never stop the window opening.
+
+    :returns: the module names that registered without raising.
+    """
+    import importlib
+
+    registered = []
+    for module_name, function_name in COMPANION_APPS:
+        try:
+            getattr(importlib.import_module(module_name), function_name)()
+        except Exception:
+            LOG.exception("Could not register the app owned by %s", module_name)
+        else:
+            registered.append(module_name)
+    return tuple(registered)
+
+
 def register_layer_viewer_app(*, section: Optional[str] = None,
                               stage: Optional[str] = None,
                               key: str = LAYER_VIEWER_APP_KEY):
@@ -954,6 +995,7 @@ def register_layer_viewer_app(*, section: Optional[str] = None,
         from three import paths and a duplicate key would otherwise raise.
     """
     from .app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
+    register_companion_apps()
     if any(row[0] == key for row in APPS):
         return None
     return register_app(
