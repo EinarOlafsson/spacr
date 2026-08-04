@@ -1292,6 +1292,44 @@ FONT_SIZE = {
     "hero":    42,   # empty-state hero numerals
 }
 
+def font_px(role_or_px, scale: Optional[float] = None) -> int:
+    """Return a font size in px with the user's Zoom preference applied.
+
+    The application stylesheet scales :data:`FONT_SIZE` itself (see
+    :func:`stylesheet`), so anything styled by it already tracks Zoom.
+    What does *not* is a widget that sets its own sheet — a per-widget
+    ``setStyleSheet`` beats the application sheet whatever the selector
+    says — or one that paints text with a ``QPainter``. Those surfaces
+    hard-coded a pixel number and so stayed 13 px at 150 %: the tab
+    strips, the Home aside, the hover tooltip, the Live/AI toggles.
+
+    Route every such number through here instead of writing a literal.
+
+    :param role_or_px: a :data:`FONT_SIZE` key (``"body"``, ``"small"``
+        …) or a raw base pixel size.
+    :param scale: override the preference — used by :func:`stylesheet`,
+        which is generating a sheet for a scale that may not be the
+        saved one yet. ``None`` reads the preference.
+    :returns: at least 6 px, so a tiny scale cannot collapse text.
+    """
+    base = FONT_SIZE.get(role_or_px) if isinstance(role_or_px, str) else None
+    if base is None:
+        try:
+            base = float(role_or_px)
+        except (TypeError, ValueError):
+            base = FONT_SIZE["body"]
+    if scale is None:
+        # Lazy: `preferences` imports this module, so a module-level
+        # import would be circular. Degrade to 1.0 rather than raising —
+        # an unscaled label is cosmetic, an exception in a paint is not.
+        try:
+            from .preferences import get_font_scale
+            scale = get_font_scale()
+        except Exception:
+            scale = 1.0
+    return max(6, int(round(float(base) * float(scale))))
+
+
 # Typography roles — pair size with weight + tracking + line-height
 TYPOGRAPHY = {
     "display":   {"size": FONT_SIZE["display"],  "weight": 300, "tracking": "-0.4px", "line_height": "1.15"},
@@ -1424,6 +1462,97 @@ def make_transparent(*widgets) -> None:
             if style is not None:
                 style.unpolish(target)
                 style.polish(target)
+
+
+def panel_qcolor(role: str = "surface",
+                 theme: Optional[str] = None,
+                 opacity: Optional[float] = None) -> QColor:
+    """:func:`pane_surface` as a ``QColor``, alpha included.
+
+    The QSS accessor is no use to a widget that draws itself: a
+    custom-painted canvas has no stylesheet to put ``rgba(...)`` in, and
+    the obvious ``QColor(active_palette()["surface"])`` it reaches for
+    instead is **raw hex** — fully opaque, whatever the page-opacity
+    preference says. That is how a screen ends up with one flat black
+    rectangle in the middle of a page of translucent panels.
+
+    :param role: palette key, normally ``surface``/``surface_alt``.
+    :param theme: theme name; ``None`` resolves the effective one.
+    :param opacity: 0..1 override; ``None`` reads the preference.
+    """
+    if theme is None:
+        try:
+            from .preferences import resolve_effective_theme
+            theme = resolve_effective_theme()
+        except Exception:
+            theme = "dark"
+    if opacity is None:
+        try:
+            from .preferences import get_pane_opacity
+            opacity = get_pane_opacity()
+        except Exception:
+            opacity = None
+    base = palette_for(theme)
+    colour = QColor(base.get(SCRIM_ROLES.get(role, role),
+                             base["surface_alt"]))
+    colour.setAlphaF(max(0.0, min(1.0, panel_alpha(theme, role, opacity))))
+    return colour
+
+
+def paint_panel(painter, widget, *, role: str = "surface",
+                radius: Optional[int] = None,
+                border: bool = True,
+                inset: float = 0.0,
+                theme: Optional[str] = None,
+                opacity: Optional[float] = None) -> None:
+    """Draw a rounded, translucent panel filling ``widget``.
+
+    The ``paintEvent`` counterpart of the QSS panel rules, for the
+    regions QSS cannot reach. Call it first in a ``paintEvent``, in
+    place of ``painter.fillRect(self.rect(), QColor(palette["surface"]))``
+    — that call is opaque by construction and is what makes a
+    custom-painted canvas read as a bare dark hole punched through the
+    page.
+
+    Composites rather than replaces: the widget must be
+    ``WA_TranslucentBackground`` or otherwise unfilled for the backdrop
+    to reach this, which is what tagging the parents with
+    :func:`make_transparent` arranges.
+
+    :param painter: an active ``QPainter`` on ``widget``.
+    :param widget: the widget being painted; its ``rect()`` is the panel.
+    :param role: palette key for the fill.
+    :param radius: corner radius in px; ``None`` uses ``RADIUS["md"]``.
+    :param border: draw the theme's soft hairline around the panel.
+    :param inset: shrink the panel by this many px on every side, so a
+        1 px border lands inside the widget instead of being clipped.
+    """
+    from PySide6.QtCore import QRectF, Qt
+    from PySide6.QtGui import QPainter, QPen
+
+    if theme is None:
+        try:
+            from .preferences import resolve_effective_theme
+            theme = resolve_effective_theme()
+        except Exception:
+            theme = "dark"
+    corner = float(RADIUS["md"] if radius is None else radius)
+    rect = QRectF(widget.rect()).adjusted(inset, inset, -inset, -inset)
+
+    painter.save()
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(panel_qcolor(role, theme, opacity))
+    painter.drawRoundedRect(rect, corner, corner)
+    if border:
+        base = palette_for(theme)
+        pen = QPen(QColor(base["border_soft"]))
+        pen.setWidthF(1.0)
+        painter.setPen(pen)
+        painter.setBrush(QColor(0, 0, 0, 0))
+        painter.drawRoundedRect(rect.adjusted(0.5, 0.5, -0.5, -0.5),
+                                corner, corner)
+    painter.restore()
 
 
 def _qss_url(path) -> str:
@@ -1675,6 +1804,81 @@ def unregister_widget_qss(name: str) -> bool:
 def widget_qss_names() -> Tuple[str, ...]:
     """Every registered block name, in registration order."""
     return tuple(_WIDGET_QSS)
+
+
+def page_tabs_qss(object_name: str, palette: dict, opacity=None) -> str:
+    """Home's tab treatment, for a tab strip that IS the page.
+
+    The shipped ``QTabBar``/``QTabWidget::pane`` rules paint
+    ``P["surface"]`` and ``P["surface_alt"]`` — **raw hex**, so a tab
+    strip that is the main content of a screen (Classifier Evaluation,
+    Run History) sat there as a flat opaque slab while the cards beside
+    it thinned with the slider.
+
+    This is the same shape Home uses, at the page opacity: rounded top
+    corners, a dark-grey tab by default, the accent blue under the
+    pointer, and a rounded translucent pane below it.
+
+    Register it per screen rather than making it a blanket rule — a tab
+    strip *inside* a card is on a surface already and must keep the
+    shipped look, or it double-fills.
+
+    :param object_name: ``objectName`` of the ``QTabWidget``.
+    :param palette: the palette handed to a registered block, including
+        the reserved ``theme`` key.
+    :param opacity: the page-opacity preference, passed straight through.
+    """
+    theme = palette.get("theme", "dark")
+    scale = palette.get("font_scale")
+    pane = pane_surface("surface_alt", theme, opacity)
+    tab = pane_surface("surface", theme, opacity)
+    return f"""
+QTabWidget#{object_name}::pane {{
+    background: {pane};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+    top: -1px;
+}}
+/* The bar itself, not the tabs on it. Qt builds `qt_tabwidget_tabbar`
+   and with no rule of its own it takes the blanket window fill. */
+QTabWidget#{object_name} > QTabBar {{
+    background: transparent;
+}}
+QTabWidget#{object_name} > QTabBar::tab {{
+    background: {tab};
+    color: {palette["fg_muted"]};
+    border: 1px solid {palette["border_soft"]};
+    border-bottom: none;
+    border-top-left-radius: {RADIUS["md"]}px;
+    border-top-right-radius: {RADIUS["md"]}px;
+    padding: 7px 14px;
+    margin-right: 2px;
+    font-size: {font_px("body", scale)}px;
+}}
+QTabWidget#{object_name} > QTabBar::tab:hover {{
+    background: {palette["accent"]};
+    color: {palette["bg"]};
+}}
+QTabWidget#{object_name} > QTabBar::tab:selected {{
+    background: {pane};
+    color: {palette["accent"]};
+    border-bottom-color: {pane};
+}}
+/* The container below the tabs. Qt builds the page stack itself, and a
+   read-only detail view is a *display*, not a field — left as one it
+   takes the shipped input fill and paints an opaque rectangle over the
+   pane that was just made translucent, which is the bare dark area
+   again one layer down. The pane is the panel; everything sitting on it
+   shows it through. */
+QTabWidget#{object_name} > QStackedWidget {{
+    background: transparent;
+}}
+QTabWidget#{object_name} QPlainTextEdit[readOnly="true"],
+QTabWidget#{object_name} QTextEdit[readOnly="true"] {{
+    background: transparent;
+    border: none;
+}}
+"""
 
 
 def registered_widget_qss(palette: dict,
@@ -2663,6 +2867,11 @@ QTabBar::tab {{
     border-top-right-radius: {R["sm"]}px;
     padding: {S["xs"]}px {S["md"]}px;
     margin-right: 2px;
+    /* Stated, not inherited. A tab strip that acquires a sheet of its
+       own later (Home's does) loses the blanket QWidget font-size, so
+       Zoom stops reaching the tab text unless the size is on the rule
+       that styles it. */
+    font-size: {F["body"]}px;
 }}
 QTabBar::tab:hover {{
     background-color: {P["accent"]};

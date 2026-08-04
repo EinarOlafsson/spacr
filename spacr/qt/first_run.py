@@ -240,10 +240,11 @@ class _TourOverlay(QWidget):
         col.setContentsMargins(20, 20, 20, 20)
         col.setSpacing(8)
 
+        from .theme import font_px
         self._step_lbl = QLabel("Step 1 / 5")
         self._step_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 600; font-size: 10px;"
+            f"font-weight: 600; font-size: {font_px(10)}px;"
             "letter-spacing: 2px; color: #4A9EFF;"
         )
         col.addWidget(self._step_lbl)
@@ -251,7 +252,7 @@ class _TourOverlay(QWidget):
         self._title_lbl = QLabel(steps[0].title)
         self._title_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 400; font-size: 20px; color: #e5e5e5;"
+            f"font-weight: 400; font-size: {font_px(20)}px; color: #e5e5e5;"
         )
         col.addWidget(self._title_lbl)
 
@@ -259,7 +260,7 @@ class _TourOverlay(QWidget):
         self._body_lbl.setWordWrap(True)
         self._body_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 300; font-size: 13px;"
+            f"font-weight: 300; font-size: {font_px(13)}px;"
             "color: #a1a6ad;"
         )
         col.addWidget(self._body_lbl)

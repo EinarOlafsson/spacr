@@ -62,7 +62,8 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import RADIUS, SPACING, active_palette, register_widget_qss
+from ..theme import (RADIUS, SPACING, active_palette, font_px,
+                     register_widget_qss)
 from .graph_spec import SCATTER, GraphSpec
 # `_canvas_class` is the owned-timer FigureCanvas fix — a matplotlib canvas
 # whose deferred draw cannot fire after Qt has deleted it, which is a segfault
@@ -896,11 +897,11 @@ QListWidget#PCAFeatureList {{
 }}
 QLabel#PCAFeatureCount {{
     color: {palette["fg_muted"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
 }}
 QLabel#PCAReport {{
     color: {palette["fg_dim"]};
-    font-size: 11px;
+    font-size: {font_px(11)}px;
 }}
 """
 

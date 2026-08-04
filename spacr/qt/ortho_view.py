@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QLabel,
 
 from ..layers import Canvas, LabelsLayer, LayerError, LayerStack, OrthoViews
 from .linked_selection import LinkedView
-from .theme import register_widget_qss
+from .theme import font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton
 
 LOG = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ QLabel#OrthoStatus {{
 }}
 QLabel#OrthoPanelName {{
     color: {palette["fg_dim"]};
-    font-size: 10px;
+    font-size: {font_px(10)}px;
     letter-spacing: 1px;
 }}
 """
