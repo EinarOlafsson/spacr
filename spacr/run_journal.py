@@ -750,8 +750,13 @@ class Run:
             with open(src, encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()
             (self.dir / "log.txt").write_text("".join(lines[-n:]))
-        except Exception:
-            pass
+        except Exception as exc:
+            # This is the run's own record of what it printed, and it is the
+            # first thing anyone opens when a run went wrong. A folder with no
+            # log.txt reads as "nothing was logged" rather than "the copy
+            # failed", so say which it was — but do not fail the run over it.
+            LOG.warning("could not copy the last %d log lines into %s (%s)",
+                        n, self.dir, exc)
 
 
 # ---------------------------------------------------------------------------

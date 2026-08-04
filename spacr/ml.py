@@ -2381,7 +2381,7 @@ def perform_regression(settings):
           IDs aligned by file position.
         - ``plate_from_order`` — auto-assign ``plate{i+1}`` from file
           order.
-        - ``batch_correction`` — optional ``center``, ``zscore``,
+        - ``batch_correction`` — optional ``combat``, ``center``, ``zscore``,
           ``robust_zscore`` or reference-control ``control_center``
           normalization of the dependent variable before well aggregation.
         - ``fraction_threshold``, ``min_n``, ``metadata_files``,
@@ -2710,13 +2710,17 @@ def perform_regression(settings):
         coef_sums = pd.Series(0.0, index=feature_index)
 
         successful = 0
+        dropped = 0
+        last_failure = None
         for _ in range(n_boot):
             idx = rng.integers(0, n, size=n)
             boot = X.iloc[idx].reset_index(drop=True)
             try:
                 yb, Xb = dmatrices(formula, data=boot, return_type='dataframe')
-            except Exception:
+            except Exception as exc:
                 # A resample can occasionally drop a factor level entirely.
+                dropped += 1
+                last_failure = exc
                 continue
             Xb = Xb.reindex(columns=feature_index, fill_value=0.0)
             yb = np.asarray(yb).ravel()
@@ -2729,6 +2733,19 @@ def perform_regression(settings):
         if successful == 0:
             raise RuntimeError("All bootstrap resamples failed to fit. "
                             "Check the formula and ensure factor levels are not too sparse.")
+
+        # Same trap as _bootstrap_wald_p_values: only "none of them" raised,
+        # and that is the harmless case. `selection_frequency` is divided by
+        # `successful`, so 199 of 200 resamples dropping gives a stability
+        # frequency computed from a single draw — every selected feature at
+        # 1.00 and every other at 0.00 — reported in the same column, with the
+        # same name, as a frequency over 200.
+        if dropped:
+            LOG.warning(
+                "stability selection: %d of %d resamples produced no design "
+                "matrix (last error: %s). selection_frequency and "
+                "mean_coefficient below are over the remaining %d, not over "
+                "%d.", dropped, n_boot, last_failure, successful, n_boot)
 
         return pd.DataFrame({
             'feature': feature_index,
@@ -2898,9 +2915,16 @@ def perform_regression(settings):
             correction_kwargs,
             write_report,
         )
+        # Beside `correction_kwargs`, not inside it: that helper's output
+        # is `**`-splatted into several different signatures, and adding a
+        # key to it turns every caller that has not grown the parameter
+        # into a TypeError. combat's two keys are named here instead.
         corrected, correction_report = correct_from_metadata(
             score_data_df[[dependent_variable]],
             score_data_df,
+            batch_covariate_column=settings.get('batch_covariate_column'),
+            batch_combat_mean_only=bool(
+                settings.get('batch_combat_mean_only', False)),
             **correction_kwargs(settings),
         )
         score_data_df.loc[:, dependent_variable] = corrected[
@@ -3965,6 +3989,13 @@ def generate_ml_scores(settings):
         default_control_column=settings.get('location_column'),
         default_control_values=settings.get('negative_control'),
     )
+    # Added here rather than in `correction_kwargs` — see the note at its
+    # other call site. `ml_analysis` grew both parameters; the helper's
+    # other consumers did not.
+    batch_kwargs['batch_covariate_column'] = settings.get(
+        'batch_covariate_column')
+    batch_kwargs['batch_combat_mean_only'] = bool(
+        settings.get('batch_combat_mean_only', False))
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
                                settings['location_column'],
@@ -4072,6 +4103,8 @@ def ml_analysis(
     batch_column='plateID',
     batch_control_column=None,
     batch_control_values=None,
+    batch_covariate_column=None,
+    batch_combat_mean_only=False,
     batch_min_samples=3,
     batch_missing_control='error',
 ):
@@ -4220,6 +4253,8 @@ def ml_analysis(
             batch_column=batch_column,
             batch_control_column=batch_control_column,
             batch_control_values=batch_control_values,
+            batch_covariate_column=batch_covariate_column,
+            batch_combat_mean_only=batch_combat_mean_only,
             batch_min_samples=batch_min_samples,
             batch_missing_control=batch_missing_control,
         )
