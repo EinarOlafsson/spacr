@@ -76,6 +76,20 @@ def _anchor(qtbot, key: str = ANIMATED_KEY) -> QLabel:
     return label
 
 
+def _reveal(tooltip, anchor, html: str = HTML):
+    """Hover, then click **Animation**.
+
+    Animations are off until asked for, so a test that wants to measure one
+    has to ask. The assertion in the middle is what stops this helper from
+    quietly passing if the default ever flips back.
+    """
+    tooltip.show_for(anchor, html)
+    assert not tooltip.animation_view().isVisible(), (
+        "the animation was already showing; the reveal proves nothing")
+    tooltip.animation_link().clicked.emit()
+    return tooltip
+
+
 def _grab(tooltip):
     return tooltip.grab().toImage()
 
@@ -288,7 +302,7 @@ def test_a_text_only_popup_is_exactly_as_tall_as_its_text(tooltip, qtbot):
 
 
 def test_the_text_block_is_exactly_as_tall_as_the_animation(tooltip, qtbot):
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
 
     column = tooltip.text_column()
     view = tooltip.animation_view()
@@ -311,11 +325,13 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
     from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
     from spacr.setting_animations import animation_for_setting
 
+    prefs.set_setting_animations_enabled(True)   # measure all 141, not one
     heights = []
     for key, text in get_tooltips().items():
         if animation_for_setting(key) is None:
             continue
         tooltip.show_for(_anchor(qtbot, key), format_tooltip(text, "mask", key))
+        assert tooltip.animation_view().isVisible(), f"{key}: no animation"
         heights.append((_inner_height(tooltip), key))
         assert tooltip.text_column().height() == HoverTooltip.ANIMATION_SIZE, (
             f"{key}: text block {tooltip.text_column().height()} px")
@@ -327,6 +343,7 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
 
 def test_the_column_only_widens_when_the_prose_needs_it(tooltip, qtbot):
     """Short help keeps the neat pair of equal columns."""
+    prefs.set_setting_animations_enabled(True)
     tooltip.show_for(_anchor(qtbot), "<b>Cell diameter</b><br>Short.")
     assert tooltip.text_column().width() == HoverTooltip.ANIMATION_SIZE
 
@@ -348,7 +365,7 @@ def test_the_animation_square_has_rounded_corners(tooltip, qtbot):
     UNDER the pixmap, and the pixmap is opaque to its own edges — which is
     why the corners stayed square while the rule said otherwise.
     """
-    tooltip.show_for(_anchor(qtbot), HTML)
+    _reveal(tooltip, _anchor(qtbot))
     view = tooltip.animation_view()
     image = _grab(tooltip)
     background = _background(image)
@@ -374,54 +391,76 @@ def test_the_animation_square_has_rounded_corners(tooltip, qtbot):
 
 
 # ---------------------------------------------------------------------------
-# 5. The toggle
+# 5. The reveal
 # ---------------------------------------------------------------------------
 
-def test_the_animation_word_folds_the_square_away_and_back(tooltip, qtbot):
+def test_the_animation_word_reveals_the_square_and_folds_it_back(
+        tooltip, qtbot):
     tooltip.show_for(_anchor(qtbot), HTML)
     view = tooltip.animation_view()
-    wide, tall = tooltip.width(), tooltip.height()
+    narrow, short = tooltip.width(), tooltip.height()
+    assert not view.isVisible(), "a plain hover is text only"
+    assert view.frame_count() == 0, "a plain hover decoded frames anyway"
+    assert tooltip.offered_animation() is not None, (
+        "the popup does not know which animation the word would show")
+
+    tooltip.animation_link().clicked.emit()
     assert view.isVisible()
+    assert tooltip.animation() is not None
+    assert view.frame_count() > 1
+    assert tooltip.width() > narrow and tooltip.height() > short, (
+        f"the popup did not grow: {tooltip.size()} was {narrow}x{short}")
 
     tooltip.animation_link().clicked.emit()
     assert not view.isVisible()
-    assert tooltip.animation() is None
     assert view.frame_count() == 0, "frames stayed decoded for a hidden panel"
-    assert tooltip.width() < wide and tooltip.height() < tall, (
-        f"the popup did not shrink: {tooltip.size()} was {wide}x{tall}")
-    assert tooltip.offered_animation() is not None, (
-        "the popup forgot which animation it was hiding")
-
-    tooltip.animation_link().clicked.emit()
-    assert view.isVisible()
-    assert view.frame_count() > 1
-    assert (tooltip.width(), tooltip.height()) == (wide, tall)
+    assert (tooltip.width(), tooltip.height()) == (narrow, short)
 
 
-def test_the_toggle_survives_a_move_to_the_next_setting(tooltip, qtbot):
-    """Collapsed once, collapsed for the settings hovered after it."""
-    tooltip.show_for(_anchor(qtbot), HTML)
-    tooltip.animation_link().clicked.emit()
-    assert tooltip.animation_collapsed()
+def test_the_reveal_survives_a_move_to_the_next_setting(tooltip, qtbot):
+    """Revealed once, revealed for the settings hovered after it.
+
+    Session scope, deliberately: per-hover would un-reveal the moment the
+    pointer moved on, and per-setting would ask a reader who wants animations
+    to click all 141 of them.
+    """
+    _reveal(tooltip, _anchor(qtbot))
+    assert tooltip.animations_shown()
 
     tooltip.show_for(_anchor(qtbot, "cell_CP_prob"), HTML)
-    assert not tooltip.animation_view().isVisible()
-    assert tooltip.offered_animation() is not None
+    assert tooltip.animation_view().isVisible()
+    assert tooltip.animation() is not None
+    assert tooltip.animation().slug != ANIMATED_KEY, (
+        "the second setting is showing the first one's animation")
 
 
-def test_the_toggle_does_not_touch_the_global_preference(tooltip, qtbot):
-    """Folding one popup away is not the same as turning the feature off."""
+def test_the_reveal_is_this_popup_and_not_the_next_process(tooltip, qtbot):
+    """It lives on the singleton, so a fresh popup starts unrevealed."""
+    _reveal(tooltip, _anchor(qtbot))
+    assert tooltip.animations_shown()
+
+    fresh = HoverTooltip()
+    qtbot.addWidget(fresh)
+    assert fresh.animations_shown() is False
+    fresh.show_for(_anchor(qtbot), HTML)
+    assert not fresh.animation_view().isVisible()
+
+
+def test_the_reveal_does_not_touch_the_global_preference(tooltip, qtbot):
+    """Showing one animation now is not the same as never being asked."""
+    assert prefs.get_setting_animations_enabled() is False
+    _reveal(tooltip, _anchor(qtbot))
+    assert prefs.get_setting_animations_enabled() is False
+
+
+def test_the_preference_on_reveals_without_a_click(tooltip, qtbot):
+    """The one place to say "always" — and it means "stop asking me"."""
     prefs.set_setting_animations_enabled(True)
     tooltip.show_for(_anchor(qtbot), HTML)
-    tooltip.animation_link().clicked.emit()
-    assert prefs.get_setting_animations_enabled() is True
-
-
-def test_the_preference_off_leaves_nothing_to_toggle(tooltip, qtbot):
-    prefs.set_setting_animations_enabled(False)
-    tooltip.show_for(_anchor(qtbot), HTML)
-    assert not tooltip.animation_link().isVisible()
-    assert not tooltip.animation_view().isVisible()
+    assert tooltip.animations_shown() is True
+    assert tooltip.animation_view().isVisible()
+    # And the word is still there, to fold this one away.
+    assert tooltip.animation_link().isVisible()
 
 
 def test_a_setting_without_an_animation_hides_the_word(tooltip, qtbot):
@@ -534,9 +573,10 @@ def test_clicking_animation_toggles_instead_of_opening_a_browser(
         lambda url: opened.append(url.toString()) or True,
     )
     tooltip.show_for(_anchor(qtbot), HTML)
+    assert not tooltip.animation_view().isVisible()
     qtbot.mouseClick(tooltip.animation_link(), Qt.LeftButton)
     assert opened == []
-    assert not tooltip.animation_view().isVisible()
+    assert tooltip.animation_view().isVisible()
 
 
 def test_a_body_with_no_link_hides_the_api_word(tooltip, qtbot):
