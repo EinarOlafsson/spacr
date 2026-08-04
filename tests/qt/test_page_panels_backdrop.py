@@ -247,8 +247,19 @@ def _plate(qtbot):
 def _model_compare(qtbot):
     from spacr.qt.screens.model_compare import ModelCompareScreen
     window, screen = _show(qtbot, ModelCompareScreen)
+    # The two mask canvases and the two result tables were reported black a
+    # second time, after the Model A / B panels above were fixed. The
+    # canvases carried `setStyleSheet("background: " +
+    # active_palette()["bg"])` — raw hex, and the WINDOW colour rather than
+    # a surface — and the tables had no fill at all, because
+    # `clear_container_surfaces` tags every QAbstractScrollArea transparent
+    # by type and a QTableWidget is one.
     return window, screen, {"Model A": screen._panel_a,
-                            "Model B": screen._panel_b}
+                            "Model B": screen._panel_b,
+                            "mask canvas A": screen._preview_a,
+                            "mask canvas B": screen._preview_b,
+                            "parameter table": screen._param_table,
+                            "per-field table": screen._row_table}
 
 
 def _train_compare(qtbot):
@@ -271,11 +282,36 @@ def _run_history(qtbot):
 
 
 def _region_rect(screen, widget) -> QRect:
-    """The rect to measure for ``widget`` — pane only, for a tab strip."""
-    from PySide6.QtWidgets import QTabWidget
+    """The part of ``widget`` its own QSS box actually paints.
+
+    A widget's geometry and the box its rule fills are not the same
+    rectangle, and the difference is page. :func:`_pane_rect` was the first
+    case of this — a tab bar is transparent on purpose — and there are two
+    more, both found by a correct panel failing the "one panel thick"
+    assertion from *above*:
+
+    * every panel here is rounded, so the corner arcs pass the backdrop.
+      On a large region that is a rounding error; on Model Compare's
+      360 px mask canvas the arc rows were enough of the clearest quarter
+      to report 0.769 for a panel measuring 0.702.
+    * a ``QGroupBox`` carries ``margin-top`` in the shared stylesheet, to
+      leave room for its title, and a QSS margin shrinks the painted box
+      **inside** the geometry. On Model Zoo's 127 px Download box that
+      band is most of the clearest rows and it reported 0.807.
+
+    Inset rather than switched to a modal statistic so the twenty rows
+    that already passed keep the number they were measured at.
+    """
+    from PySide6.QtWidgets import QGroupBox, QTabWidget
+    from spacr.qt.theme import RADIUS, SPACING
+
     if isinstance(widget, QTabWidget):
         return _pane_rect(screen, widget)
-    return _rect(screen, widget)
+    rect = _rect(screen, widget)
+    if isinstance(widget, QGroupBox):
+        rect = rect.adjusted(0, SPACING["md"], 0, 0)
+    corner = int(RADIUS["md"])
+    return rect.adjusted(corner, corner, -corner, -corner)
 
 
 # ---------------------------------------------------------------------------
@@ -390,12 +426,36 @@ def _layer_viewer(qtbot):
 
 def _control_chart(qtbot):
     from spacr.qt.screens.control_chart import (CONTROLS_OBJECT,
+                                                OUTPUT_OBJECT,
                                                 ControlChartScreen)
     window, screen = _show(qtbot,
                            lambda: ControlChartScreen(threaded=False))
+    # The output column under the chart was the region left over: an
+    # ANONYMOUS QWidget, so the sweep tagged it transparent as scaffolding,
+    # holding a QPlainTextEdit and a QTableWidget that the same sweep tags
+    # by type. Three transparent things stacked read 1.000 — the backdrop
+    # untouched, which over a dark window is a black rectangle.
     return window, screen, {"chart canvas": screen.canvas.canvas,
                             "control column": _named(screen,
-                                                     CONTROLS_OBJECT)}
+                                                     CONTROLS_OBJECT),
+                            "output column": _named(screen, OUTPUT_OBJECT)}
+
+
+def _model_zoo(qtbot):
+    from spacr.qt.screens.model_zoo import (DETAIL_NAME, GROUP_NAME,
+                                            TABLE_NAME, ModelZooScreen)
+    window, screen = _show(qtbot, lambda: ModelZooScreen(threaded=False))
+    # Five regions, and the page had all three causes at once: the preview
+    # painted raw `bg` inline, the two QGroupBoxes took the shipped
+    # `background: transparent` (a border drawn round a hole), and the
+    # listing and the provenance box were tagged transparent by type.
+    groups = screen.findChildren(QWidget, GROUP_NAME)
+    assert len(groups) == 2, (
+        f"expected two {GROUP_NAME} boxes on Model Zoo, found {len(groups)}")
+    return window, screen, {"Download": groups[0],
+                            "Test on fields": groups[1],
+                            "model listing": _named(screen, TABLE_NAME),
+                            "provenance": _named(screen, DETAIL_NAME)}
 
 
 def _dose_response(qtbot):
@@ -442,6 +502,7 @@ SCREENS = (
     ("Control Chart", _control_chart),
     ("Dose Response", _dose_response),
     ("Outliers", _outliers),
+    ("Model Zoo", _model_zoo),
 )
 
 
@@ -516,6 +577,34 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
         Control Chart     control column    0.000 -> 0.702
         Dose Response     curve canvas      0.000 -> 0.698
         Outliers          control column    0.000 -> 0.698
+
+    And the three the user reported a second time — Model Compare, Model
+    Zoo and Control Charts — after the rows above had gone in::
+
+        Model Compare     mask canvas A     0.231 -> 0.734
+        Model Compare     mask canvas B     0.233 -> 0.734
+        Model Compare     parameter table   1.000 -> 0.702
+        Model Compare     per-field table   1.000 -> 0.702
+        Model Zoo         Download          1.000 -> 0.702
+        Model Zoo         Test on fields    0.918 -> 0.701
+        Model Zoo         model listing     1.000 -> 0.702
+        Model Zoo         provenance        1.000 -> 0.702
+        Control Charts    output column     1.000 -> 0.699
+
+    Note which way those failed. Four of the nine measured 1.000 — the
+    backdrop arriving *untouched*, which is the opposite of a slab and
+    reads black for a different reason: a container with no surface over a
+    near-black window colour looks exactly like an opaque black box. The
+    two mask canvases are the classic version, opaque by construction from
+    a raw palette hex.
+
+    Model Compare's Model A / Model B are in that list from the first
+    round and were still black in the running app, which is worth
+    recording: their fix was correct and unreachable. ``app.py`` imports
+    ``spacr.qt.screens.model_compare`` inside the branch that builds the
+    screen, minutes after the launch stylesheet was generated, so the
+    block it registers at import was never in the sheet that was live.
+    See :func:`spacr.qt.theme.ensure_widget_qss_applied`.
     """
     _window, screen, regions = build(qtbot)
     alpha = _transmission(screen)
