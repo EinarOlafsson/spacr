@@ -433,6 +433,38 @@ def test_a_penalised_backend_ranks_by_selection_frequency_and_says_so():
     assert [h.gene for h in hits.significant(0.6)] == ["100"]
 
 
+def test_the_default_threshold_follows_what_the_threshold_means():
+    """0.05 as a SELECTION FREQUENCY would call almost everything a hit."""
+    from spacr.hits import DEFAULT_SELECTION_THRESHOLD
+
+    frame = pd.DataFrame({
+        "feature": ["gene_fraction:gene[100]", "gene_fraction:gene[200]"],
+        "coefficient": [0.4, 1.9],
+        "selection_frequency": [0.95, 0.30]})
+
+    penalised = build_hit_list({"gene": frame}, regression_type="lasso")
+    ordinary = build_hit_list({"gene": _gene_frame()}, regression_type="ols")
+
+    assert penalised.alpha == DEFAULT_SELECTION_THRESHOLD == 0.6
+    assert ordinary.alpha == DEFAULT_ALPHA == 0.05
+    assert [h.gene for h in penalised.significant()] == ["100"], (
+        "a gene chosen in 30% of bootstraps is not a hit at 0.6")
+    assert penalised.summary()["n_significant"] == 1
+
+
+def test_an_explicitly_given_threshold_is_left_alone():
+    frame = pd.DataFrame({
+        "feature": ["gene_fraction:gene[100]", "gene_fraction:gene[200]"],
+        "coefficient": [0.4, 1.9],
+        "selection_frequency": [0.95, 0.30]})
+
+    hits = build_hit_list({"gene": frame}, regression_type="lasso",
+                          alpha=0.25)
+
+    assert hits.alpha == 0.25
+    assert len(hits.significant()) == 2
+
+
 def test_the_no_p_value_list_matches_the_one_in_ml():
     from spacr.ml import NO_P_VALUE_TYPES as shipped
 
