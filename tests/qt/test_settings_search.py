@@ -339,6 +339,41 @@ def test_the_strip_sits_outside_the_scroll_area(mask_screen):
     assert bar.parentWidget() is scroll.parentWidget()
 
 
+def test_the_strip_is_a_thin_band_above_the_form_not_over_it(qtbot):
+    """Rendered geometry, because nothing else catches this.
+
+    Re-parenting the scroll area into the new container HIDES it -- that is
+    what `setParent` does -- and a layout skips hidden children. So the
+    QVBoxLayout saw one visible child, left the scroll area at the full-pane
+    geometry it had as a splitter pane, and centred the strip on top of it:
+    two widgets drawing over each other down the whole settings column.
+    Every behavioural assertion in this file still passed, because form-row
+    visibility knows nothing about where the row is on screen.
+    """
+    from spacr.qt.app import MainWindow
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1500, 950)
+    window.show()
+    qtbot.waitExposed(window)
+    window._on_nav_selected("mask")
+    qtbot.wait(300)
+
+    screen = window._screens["mask"]
+    bar = screen._settings_search
+    scroll = screen._settings_scroll
+    assert bar is not None
+
+    assert bar.isVisible() and scroll.isVisible()
+    assert not bar.geometry().intersects(scroll.geometry()), (
+        f"the strip {bar.geometry()} overlaps the form {scroll.geometry()}")
+    assert bar.y() == 0, "the strip is not at the top of the pane"
+    assert scroll.y() == bar.height()
+    # Two rows of controls, not a share of the pane.
+    assert 0 < bar.height() < 120
+    assert scroll.height() > 4 * bar.height()
+
+
 def test_installing_twice_adds_one_strip(mask_screen):
     first = install(mask_screen)
     assert install(mask_screen) is first
