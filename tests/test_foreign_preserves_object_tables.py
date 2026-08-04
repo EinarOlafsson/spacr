@@ -48,6 +48,7 @@ this.
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import sqlite3
 
@@ -61,6 +62,32 @@ from spacr import foreign as fg
 from spacr.errors import ConfigurationError
 
 SIZE = 24
+
+
+@contextlib.contextmanager
+def _pre_fix_writer():
+    """Write with ``measure_crop`` as it was before F34 was fixed at the writer.
+
+    ``utils._merge_and_save_to_database`` now hands back an import's copy of
+    the field it is about to write (``utils._release_imported_rows_for_field``),
+    so a canonical table holding *both* writers' rows for one field can no
+    longer be produced by measuring.
+
+    That state is exactly what the release below exists for, and every database
+    a spaCR release before the fix wrote can still be in it — a release that
+    stops being tested on a mixed table is a release tested only where
+    over-deleting is invisible, which is the gap that let the ``rowid`` bug
+    through. So the writer-side release is disabled for the duration of the
+    write, and nothing else is.
+    """
+    import spacr.utils as u
+
+    guard = u._release_imported_rows_for_field
+    u._release_imported_rows_for_field = lambda *a, **k: 0
+    try:
+        yield
+    finally:
+        u._release_imported_rows_for_field = guard
 
 
 # ---------------------------------------------------------------------------
@@ -367,11 +394,12 @@ def test_a_canonical_table_the_importer_wrote_and_measure_grew_is_protected(
     db = os.path.join(dst, "measurements", "measurements.db")
     assert len(_read(db, "cell")) == 4
 
-    _merge_and_save_to_database(
-        pd.DataFrame({"label": [1, 2], "cell_area": [36.0, 64.0]}),
-        pd.DataFrame({"label": [1, 2],
-                      "cell_channel_0_mean_intensity": [1.0, 2.0]}),
-        "cell", dst, "plate1_A01_1", "spacr_run")
+    with _pre_fix_writer():
+        _merge_and_save_to_database(
+            pd.DataFrame({"label": [1, 2], "cell_area": [36.0, 64.0]}),
+            pd.DataFrame({"label": [1, 2],
+                          "cell_channel_0_mean_intensity": [1.0, 2.0]}),
+            "cell", dst, "plate1_A01_1", "spacr_run")
     grown = _read(db, "cell")
     assert len(grown) == 6 and "cell_area" in grown.columns
 
@@ -838,7 +866,8 @@ def test_releasing_a_table_measure_has_grown_keeps_the_measured_rows(theirs,
     dst = tmp_path / "imported"
     db = fg.run_import(_plan(theirs), str(dst)).db_path
     # spaCR measures field 1, which the import also covers.
-    _measure_into(dst, "plate1_A01_1")
+    with _pre_fix_writer():                     # a pre-fix database
+        _measure_into(dst, "plate1_A01_1")
     mixed = _read(db, "cell")
     assert len(mixed) == 6
     assert int(mixed["cell_area"].notna().sum()) == 2
@@ -874,7 +903,8 @@ def test_the_measured_rows_that_survive_share_a_row_key_with_the_released(
     """
     dst = tmp_path / "imported"
     db = fg.run_import(_plan(theirs), str(dst)).db_path
-    _measure_into(dst, "plate1_A01_1")
+    with _pre_fix_writer():                     # a pre-fix database
+        _measure_into(dst, "plate1_A01_1")
 
     keys = _read(db, "cell")[["plateID", "rowID", "columnID", "fieldID",
                               "object_label"]]
@@ -913,7 +943,8 @@ def test_a_delete_that_does_not_match_the_checks_is_refused_and_rolled_back(
     """
     dst = tmp_path / "imported"
     db = fg.run_import(_plan(theirs), str(dst)).db_path
-    _measure_into(dst, "plate1_A01_1")
+    with _pre_fix_writer():                     # a pre-fix database
+        _measure_into(dst, "plate1_A01_1")
     real_twin = fg._twin_condition
 
     def twin_then_meddle(connection, object_type):
