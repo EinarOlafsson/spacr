@@ -867,7 +867,13 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
             continue
         try:
             m = json.loads(manifest_path.read_text())
-        except Exception:
+        except Exception as exc:
+            # Not fatal — one unreadable folder must not empty Run History —
+            # but not silent either. This dropped the run from the list with
+            # no trace anywhere, so a run the user can see on disk simply was
+            # not there in the app, and nothing said why.
+            LOG.warning("skipping run folder %s: its manifest.json could not "
+                        "be read (%s)", d.name, exc)
             continue
         all_entries.append({
             "dir":       d,
@@ -1078,7 +1084,13 @@ def journal_totals() -> Dict[str, int]:
             continue
         try:
             m = json.loads(manifest_path.read_text())
-        except Exception:
+        except Exception as exc:
+            # The Home dashboard's run count is this number. Skipping a folder
+            # in silence made it quietly short — "you have run 12 masks" when
+            # the answer is 13 and one manifest is damaged — and a total that
+            # is wrong by an unknown amount is worse than one that says so.
+            LOG.warning("run folder %s is not counted: its manifest.json "
+                        "could not be read (%s)", d.name, exc)
             continue
         totals["total_runs"] += 1
         app_key = m.get("app_key", "")
