@@ -64,12 +64,27 @@ def test_the_help_menu_never_opens_the_404_singular_path(win, monkeypatch):
 def test_the_tutorial_link_is_backed_by_a_file_that_html_extra_path_publishes():
     """Prove the URL resolves from the repo, without a network call.
 
-    ``html_extra_path`` copies ``_extra/<x>`` to ``<site root>/<x>``, so an
+    ``html_extra_path`` copies ``<staged>/<x>`` to ``<site root>/<x>``, so an
     ``index.html`` under ``_extra/tutorials/`` is exactly what makes
     ``/tutorials/`` a real page.
+
+    Updated 2026-08-04. This used to assert the literal
+    ``html_extra_path = ['_extra']``. dba297c6 stopped publishing ``_extra``
+    directly -- the tree is 712 MiB, 93% of it one narration track per lesson
+    x language x voice, which put the built site at 88% of the GitHub Pages
+    1 GB limit -- and now stages a hardlinked subset through
+    ``tools/docs_media_budget.py``. The literal is gone, so the regex matched
+    nothing and the test reported a working publish path as broken. What has
+    to stay true is that ``html_extra_path`` is set to the staging directory
+    ``docs_media_budget`` writes, and that the lesson index is in the source
+    tree it stages FROM; both are asserted instead of the spelling.
     """
     conf = (DOCS_SOURCE / "conf.py").read_text(encoding="utf-8")
-    assert re.search(r"^html_extra_path\s*=\s*\['_extra'\]", conf, re.M)
+    assert re.search(r"^html_extra_path\s*=\s*\[_staged_extra\]", conf, re.M), (
+        "conf.py no longer publishes the staged _extra subset; if the staging "
+        "step was removed the 1 GB Pages limit is back in play")
+    assert re.search(r"^_budget\.stage\(", conf, re.M), (
+        "html_extra_path names a staging directory nothing stages into")
 
     suffix = TUTORIALS_URL.split("github.io/spacr/", 1)[1].strip("/")
     assert suffix == "tutorials"
@@ -97,11 +112,55 @@ def test_the_tutorial_action_no_longer_calls_itself_unfinished(win):
 
 
 def test_the_landing_page_app_count_matches_the_shipped_app_list():
-    """``index.rst`` claimed "five pipeline apps"; ``len(APPS)`` is 38."""
+    """``index.rst`` claimed "five pipeline apps"; the GUI ships far more.
+
+    Counted AFTER ``register_self_registering_modules()``, which is what
+    ``spacr.qt.run`` does before ``MainWindow`` reads the registry — so this
+    is the number of apps a launched GUI actually offers, not the number that
+    happen to be in the module-level table. Nine apps register that way.
+
+    Counting the module-level table instead made this test order-dependent:
+    ``len(APPS)`` answered 53 in a fresh process and 62 in any run where
+    something had already triggered the registration pass, so the same
+    sentence in ``index.rst`` was right or wrong depending on collection
+    order. Registering here is idempotent, and the registry is put back
+    afterwards so no later test inherits it.
+    """
+    import sys
+
+    import spacr.qt
+    from spacr.qt import app as app_mod
+
+    apps = list(app_mod.APPS)
+    factories = dict(app_mod.APP_FACTORIES)
+    stages = dict(app_mod.APP_STAGE)
+    meta = dict(app_mod.APP_META)
+    side = []
+    for module_name, attribute, _field in app_mod._META_TARGETS:
+        module = sys.modules.get(module_name)
+        table = getattr(module, attribute, None) if module else None
+        if isinstance(table, dict):
+            side.append((table, dict(table)))
+    try:
+        spacr.qt.register_self_registering_modules()
+        shipped = len(app_mod.APPS)
+    finally:
+        app_mod.APPS[:] = apps
+        app_mod.APP_FACTORIES.clear()
+        app_mod.APP_FACTORIES.update(factories)
+        app_mod.APP_STAGE.clear()
+        app_mod.APP_STAGE.update(stages)
+        app_mod.APP_META.clear()
+        app_mod.APP_META.update(meta)
+        for table, saved in side:
+            table.clear()
+            table.update(saved)
+        app_mod._refresh_sections()
+
     index = (DOCS_SOURCE / "index.rst").read_text(encoding="utf-8")
     match = re.search(r"The GUI ships (\d+) apps", index)
     assert match, "index.rst no longer states how many apps ship"
-    assert int(match.group(1)) == len(APPS)
+    assert int(match.group(1)) == shipped
 
 
 #: How ``index.rst`` is allowed to spell the number of categories. The
