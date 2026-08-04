@@ -106,10 +106,14 @@ def test_toggle_paints_with_current_palette(qtbot, monkeypatch):
 def test_hover_tooltip_refreshes_after_theme_change(qtbot, monkeypatch):
     from spacr.qt.widgets import hover_tooltip
 
+    # Every key the popup reads. `accent` joined the list when the footer
+    # gained its blue "API" word; a stub palette missing a key the widget
+    # really uses reports a KeyError, not a theming failure.
     current = {
         "surface_alt": "#112233",
         "border": "#223344",
         "fg": "#eeeeee",
+        "accent": "#4A9EFF",
     }
     monkeypatch.setattr(
         hover_tooltip, "active_palette", lambda: current.copy())
@@ -118,7 +122,10 @@ def test_hover_tooltip_refreshes_after_theme_change(qtbot, monkeypatch):
     assert "#112233" in tip.styleSheet()
 
     current["surface_alt"] = "#445566"
+    current["accent"] = "#0a63c4"
     anchor = hover_tooltip.QWidget()
     qtbot.addWidget(anchor)
     tip.show_for(anchor, "Help")
     assert "#445566" in tip.styleSheet()
+    assert "#0a63c4" in tip.styleSheet(), (
+        "the API word kept the old theme's accent")

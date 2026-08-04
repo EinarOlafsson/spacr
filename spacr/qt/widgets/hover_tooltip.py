@@ -12,31 +12,55 @@ actually hides when neither the anchor nor the popup itself is under
 the cursor.
 
 Layout: explanation on the left, the setting's animation on the right.
-Two columns of the same width, both starting at the same top edge, so the
-first line of prose and the first frame of the animation are read together
-rather than one being hunted for beside the other::
+Both columns start at the same top edge, so the first line of prose and
+the first frame of the animation are read together rather than one being
+hunted for beside the other::
 
     +-----------------------------+-----------------------------+
     | Cell diameter (int)         |                             |
     | Expected cell diameter in   |         (animation)         |
     | pixels...                   |                             |
-    | Open spaCR API documenta... |                             |
+    | API  Animation              |                             |
     +-----------------------------+-----------------------------+
+
+The text column is exactly as tall as the animation square and no taller:
+its width is widened, one step at a time, until the prose fits inside the
+square's height. With no animation beside it the popup shrinks to the
+text — nothing is padded out to a shape it does not need.
+
+The last line is two words, not a sentence: **API** in the theme accent
+opens the same documentation page the old ``Open spaCR API documentation``
+link did, and **Animation** in teal collapses or restores the square. That
+per-popup toggle is deliberately separate from the *Setting animations*
+preference, which still decides whether an animation is offered at all.
 
 Which animation is decided by the anchor's ``settingKey`` property, so no
 caller has to pass one; the callers that put help on a label already set it.
 Anything without that property — a section header, a home tile — gets the
 text-only popup it always got. So does everything, if the user turns
 :func:`spacr.qt.preferences.get_setting_animations_enabled` off.
+
+Only one tooltip ever appears. The screens that anchor this popup also leave
+a native Qt tooltip on the same label (``refresh_api_tooltips`` re-applies it
+on every ``Enter``, for the accessibility tree), and Qt's own tooltip timer
+would pop that up a second later, on top of this one — two tooltips, one
+after the other. Claiming an anchor therefore installs
+:class:`_NativeTooltipSuppressor` on it, which swallows ``QEvent.ToolTip``
+while leaving ``toolTip()`` intact for screen readers.
 """
 from __future__ import annotations
 
 import logging
-from typing import Optional
+import re
+from html import unescape
+from typing import Optional, Tuple
 
-from PySide6.QtCore import QPoint, QTimer, Qt
-from PySide6.QtGui import QGuiApplication, QPixmap
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
+from PySide6.QtCore import (QEvent, QObject, QPoint, QRectF, QTimer, QUrl, Qt,
+                            Signal)
+from PySide6.QtGui import (QDesktopServices, QGuiApplication, QPainter,
+                           QPainterPath, QPixmap)
+from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QToolTip,
+                               QVBoxLayout, QWidget)
 
 from ..theme import SPACING, active_palette
 
@@ -48,6 +72,96 @@ LOGGER = logging.getLogger(__name__)
 #: which callers need to be able to say.
 _DERIVE = object()
 
+#: Qt's own "no maximum", which PySide6 does not export. Needed to undo a
+#: `setFixedWidth`/`setFixedHeight`, both of which pin the minimum as well.
+_UNBOUNDED = 16777215
+
+#: The teal half of the footer. The palette has no teal — `info` is a second
+#: name for the blue accent — so this is the DNA-rain default, which is the
+#: only teal spaCR already ships as a named constant.
+TEAL = "#009B9B"
+
+_ANCHOR_RE = re.compile(
+    r"<a\b[^>]*?href\s*=\s*([\"'])(.*?)\1[^>]*>(.*?)</a>",
+    re.IGNORECASE | re.DOTALL,
+)
+_TRAILING_BREAKS_RE = re.compile(r"(?:<br\s*/?>|\s)+$", re.IGNORECASE)
+
+
+def split_api_link(html: str) -> Tuple[str, str]:
+    """Split a trailing documentation link off a tooltip body.
+
+    ``settings_model.format_tooltip`` ends every setting's help with
+    ``<a href="...">Open spaCR API documentation</a>``. The popup renders
+    that destination as its own **API** word instead, so the anchor is taken
+    out of the prose here rather than in the formatter — the same string is
+    still used verbatim by the hint strip, the accessibility tree and every
+    other consumer of ``format_tooltip``.
+
+    Only a link that really is the last thing in the body is taken; a link
+    inside a sentence stays where the author put it.
+
+    :returns: ``(body_without_the_link, url)``; ``url`` is ``""`` when there
+        was no trailing link.
+    """
+    last = None
+    for match in _ANCHOR_RE.finditer(html):
+        last = match
+    if last is None or html[last.end():].strip():
+        return html, ""
+    body = _TRAILING_BREAKS_RE.sub("", html[:last.start()])
+    return body, unescape(last.group(2))
+
+
+class _NativeTooltipSuppressor(QObject):
+    """Swallow ``QEvent.ToolTip`` on every widget the popup speaks for.
+
+    The settings screens keep a native Qt tooltip on each setting label —
+    ``refresh_api_tooltips`` re-applies it on every ``Enter``, with
+    ``setToolTipDuration(-1)`` so it never times out — because that string is
+    what the accessibility tree reads out. Qt's tooltip timer then shows it
+    roughly 700 ms after the pointer settles, which is *after*
+    :meth:`HoverTooltip.show_for` has already put the sticky popup on screen:
+    two tooltips, one after the other, the second covering the first.
+
+    Deleting the label's ``toolTip()`` would fix the picture and cost the
+    screen reader its text. Eating the event keeps both.
+    """
+
+    def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
+        """Return ``True`` for tooltip requests, so Qt shows nothing."""
+        if event.type() == QEvent.ToolTip:
+            return True
+        return super().eventFilter(watched, event)
+
+
+class _LinkWord(QLabel):
+    """One coloured, underline-free word that behaves like a link.
+
+    Not an ``<a>``: Qt's rich text underlines anchors, and the two words were
+    asked for without one. Colour comes from the popup's own stylesheet (see
+    :meth:`HoverTooltip._apply_theme`) so both words re-theme together.
+    """
+
+    clicked = Signal()
+
+    def __init__(self, text: str, object_name: str,
+                 parent: Optional[QWidget] = None):
+        super().__init__(text, parent)
+        self.setObjectName(object_name)
+        self.setTextFormat(Qt.PlainText)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.NoFocus)
+
+    def mouseReleaseEvent(self, event):  # noqa: N802 (Qt naming)
+        """Emit :attr:`clicked` for a left button released over the word."""
+        if (event.button() == Qt.LeftButton
+                and self.rect().contains(event.position().toPoint())):
+            self.clicked.emit()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
 
 class _AnimationView(QLabel):
     """Plays one pre-zoomed setting animation at a fixed square size.
@@ -57,7 +171,15 @@ class _AnimationView(QLabel):
     :mod:`spacr.qt.widgets.animation_zoom`), which ``QMovie`` cannot do. It
     plays finished frames on a timer instead, honouring each frame's own
     delay so the generated timing survives.
+
+    The corners are rounded into the frames themselves. A stylesheet
+    ``border-radius`` rounds only the background the label paints *under* the
+    pixmap, and the pixmap is opaque to its own edges — so the square stayed
+    square however the sheet was written.
     """
+
+    #: Corner radius of the square, in pixels.
+    CORNER_RADIUS = 10
 
     def __init__(self, size: int, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -78,6 +200,28 @@ class _AnimationView(QLabel):
         """Slug of the animation currently loaded, or ``""``."""
         return self._slug
 
+    def rounded(self, pixmap: QPixmap) -> QPixmap:
+        """Return ``pixmap`` clipped to this view's rounded rectangle.
+
+        The black backing is painted inside the same path, not left to the
+        stylesheet: a square background behind a rounded pixmap would simply
+        fill the corners back in.
+        """
+        radius = float(self.CORNER_RADIUS)
+        out = QPixmap(pixmap.size())
+        out.fill(Qt.transparent)
+        painter = QPainter(out)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            path = QPainterPath()
+            path.addRoundedRect(QRectF(pixmap.rect()), radius, radius)
+            painter.setClipPath(path)
+            painter.fillPath(path, Qt.black)
+            painter.drawPixmap(0, 0, pixmap)
+        finally:
+            painter.end()
+        return out
+
     def load(self, animation) -> bool:
         """Load and start ``animation``; return whether anything is showing.
 
@@ -91,6 +235,7 @@ class _AnimationView(QLabel):
             return False
         if self._slug == animation.slug and self._frames:
             # Same setting hovered again: keep playing rather than restart.
+            self.play()
             return True
 
         zoomed = zoomed_animation(str(animation.path), self._size)
@@ -103,7 +248,8 @@ class _AnimationView(QLabel):
             return False
 
         self._frames = [
-            QPixmap.fromImage(to_qimage(frame)) for frame in zoomed.frames
+            self.rounded(QPixmap.fromImage(to_qimage(frame)))
+            for frame in zoomed.frames
         ]
         self._delays = list(zoomed.delays)
         self._slug = animation.slug
@@ -172,15 +318,18 @@ class HoverTooltip(QFrame):
 
     _INSTANCE: Optional["HoverTooltip"] = None
 
-    #: Side of the square animation box, and therefore the width of the text
-    #: column beside it — the two are the same width by design, so the popup
-    #: reads as two equal panels rather than a caption with a picture stuck
-    #: on the end.
+    #: Side of the square animation box.
     ANIMATION_SIZE = 220
 
-    #: Width the text uses when there is no animation to sit beside. The
-    #: narrow column only makes sense as half of a pair.
+    #: Width the text uses when there is no animation to sit beside.
     TEXT_WIDTH = 380
+
+    #: Widths tried, in order, for the text column when an animation IS
+    #: beside it. The first one whose prose fits inside the square's height
+    #: wins, so short help keeps the neat pair of equal columns and long help
+    #: spreads sideways instead of growing a tall ribbon. Measured against
+    #: every packaged animation's help text: 380 is enough for all of them.
+    TEXT_WIDTH_STEPS = (ANIMATION_SIZE, 260, 300, 340, TEXT_WIDTH)
 
     def __init__(self):
         # Popup window with tool-tip semantics but our own paint control.
@@ -191,7 +340,14 @@ class HoverTooltip(QFrame):
         self.setObjectName("HoverTooltip")
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self._apply_theme()
-        self._label = QLabel(self)
+
+        self._text_column = QWidget(self)
+        self._text_column.setObjectName("HoverTooltipTextColumn")
+        column = QVBoxLayout(self._text_column)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(SPACING["xs"])
+
+        self._label = QLabel(self._text_column)
         self._label.setObjectName("HoverTooltipText")
         self._label.setTextFormat(Qt.RichText)
         self._label.setOpenExternalLinks(True)
@@ -206,21 +362,55 @@ class HoverTooltip(QFrame):
         # while the widget's top edge stayed put — top-aligned by geometry
         # and centred to the eye, which is not what was asked for.
         self._label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        column.addWidget(self._label)
+
+        self._links = QWidget(self._text_column)
+        self._links.setObjectName("HoverTooltipLinks")
+        links_row = QHBoxLayout(self._links)
+        links_row.setContentsMargins(0, 0, 0, 0)
+        links_row.setSpacing(SPACING["sm"])
+        self._api_link = _LinkWord("API", "HoverTooltipApiLink", self._links)
+        self._api_link.setAccessibleName("API")
+        self._api_link.setAccessibleDescription(
+            "Open spaCR API documentation for this setting."
+        )
+        self._api_link.clicked.connect(self.open_api_documentation)
+        self._animation_link = _LinkWord(
+            "Animation", "HoverTooltipAnimationLink", self._links)
+        self._animation_link.setAccessibleName("Animation")
+        self._animation_link.setAccessibleDescription(
+            "Hide or show this setting's animation."
+        )
+        self._animation_link.clicked.connect(self.toggle_animation)
+        links_row.addWidget(self._api_link)
+        links_row.addWidget(self._animation_link)
+        links_row.addStretch(1)
+        column.addWidget(self._links)
+        # Holds the prose and the two words at the TOP of a column that is
+        # stretched to the height of the square beside it.
+        column.addStretch(1)
+
         self._animation_view = _AnimationView(self.ANIMATION_SIZE, self)
         self._animation_view.hide()
         self._animation = None
+        self._offered_animation = None
+        self._animation_collapsed = False
+        self._api_url = ""
+
         lay = QHBoxLayout(self)
         lay.setContentsMargins(SPACING["sm"], SPACING["xs"],
                                 SPACING["sm"], SPACING["xs"])
         lay.setSpacing(SPACING["sm"])
         # AlignTop on both, so the text starts level with the first frame
         # instead of floating to the middle of a 220-pixel square.
-        lay.addWidget(self._label, 0, Qt.AlignTop)
+        lay.addWidget(self._text_column, 0, Qt.AlignTop)
         lay.addWidget(self._animation_view, 0, Qt.AlignTop)
+
         self._hide_timer = QTimer(self)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._maybe_hide)
         self._anchor: Optional[QWidget] = None
+        self._tooltip_suppressor = _NativeTooltipSuppressor(self)
 
     def _apply_theme(self) -> None:
         """Refresh the popup's inline style from the theme on screen."""
@@ -239,13 +429,20 @@ class HoverTooltip(QFrame):
             f"  font-size: 12px;"
             f"  background: transparent;"
             f"}}"
-            # The animations are drawn on black and only make sense on it;
-            # over a light surface they would sit in a grey haze. No border:
-            # the label is sized to the pixmap exactly, and a border would
-            # eat into the content rect and clip a pixel off every edge.
+            # Transparent, not black: the rounded corners are cut into the
+            # frames themselves, and a background painted by the sheet would
+            # square them off again.
             f"QLabel#SettingTooltipAnimation {{"
-            f"  background: #000000;"
-            f"  border-radius: 4px;"
+            f"  background: transparent;"
+            f"}}"
+            # Two words, two colours, no underline anywhere.
+            f"QLabel#HoverTooltipApiLink {{"
+            f"  color: {palette['accent']};"
+            f"  text-decoration: none;"
+            f"}}"
+            f"QLabel#HoverTooltipAnimationLink {{"
+            f"  color: {TEAL};"
+            f"  text-decoration: none;"
             f"}}"
         )
 
@@ -266,7 +463,9 @@ class HoverTooltip(QFrame):
         """Show the tooltip beneath ``anchor`` with body ``html``.
 
         :param anchor: widget the popup docks to (clamped to its screen).
-        :param html: rich-text body; empty strings are ignored.
+        :param html: rich-text body; empty strings are ignored. A trailing
+            documentation link is moved out of the prose and into the **API**
+            word at the foot of the popup.
         :param animation: a :class:`spacr.setting_animations.SettingAnimation`
             to play beside the text, or ``None`` for text only. Left out, it
             is derived from the anchor's ``settingKey`` property — every
@@ -277,29 +476,14 @@ class HoverTooltip(QFrame):
             return
         self._apply_theme()
         self._anchor = anchor
-        self._label.setText(html)
+        self._claim_anchor(anchor)
+        body, url = split_api_link(str(html))
+        self._api_url = url
+        self._api_link.setVisible(bool(url))
+        self._label.setText(body)
         self._set_animation(self._resolve_animation(anchor, animation))
         self.adjustSize()
-        # Position: just below the anchor, left-aligned to its left edge,
-        # clamped to the screen so we never overflow.
-        try:
-            below_left = anchor.mapToGlobal(anchor.rect().bottomLeft())
-        except Exception:
-            below_left = QPoint(0, 0)
-        screen = QGuiApplication.screenAt(below_left) \
-                 or QGuiApplication.primaryScreen()
-        if screen is not None:
-            geo = screen.availableGeometry()
-            x = min(max(geo.left(), below_left.x()),
-                    geo.right() - self.width())
-            y = below_left.y() + 4
-            if y + self.height() > geo.bottom():
-                # Not enough space below — flip above
-                y = anchor.mapToGlobal(anchor.rect().topLeft()).y() \
-                    - self.height() - 4
-            self.move(x, y)
-        else:
-            self.move(below_left)
+        self._position_under(anchor)
         self.show()
 
     def start_hide(self, delay_ms: int = 250) -> None:
@@ -314,6 +498,10 @@ class HoverTooltip(QFrame):
         """The animation currently shown beside the text, or ``None``."""
         return self._animation
 
+    def offered_animation(self):
+        """The animation this anchor has, shown or collapsed by the toggle."""
+        return self._offered_animation
+
     def animation_view(self) -> _AnimationView:
         """The square animation panel — exposed for layout tests."""
         return self._animation_view
@@ -321,6 +509,50 @@ class HoverTooltip(QFrame):
     def text_label(self) -> QLabel:
         """The explanation panel — exposed for layout tests."""
         return self._label
+
+    def text_column(self) -> QWidget:
+        """The prose and the two link words, as one block."""
+        return self._text_column
+
+    def api_link(self) -> _LinkWord:
+        """The blue **API** word."""
+        return self._api_link
+
+    def animation_link(self) -> _LinkWord:
+        """The teal **Animation** word that toggles the square."""
+        return self._animation_link
+
+    def api_url(self) -> str:
+        """Documentation URL taken out of the body, or ``""``."""
+        return self._api_url
+
+    def animation_collapsed(self) -> bool:
+        """Whether the user folded the animation away with the toggle."""
+        return self._animation_collapsed
+
+    # ------------------------------------------------------------------
+    # The two words
+    # ------------------------------------------------------------------
+    def open_api_documentation(self) -> None:
+        """Open the documentation page the body's trailing link pointed at."""
+        if not self._api_url:
+            return
+        QDesktopServices.openUrl(QUrl(self._api_url))
+
+    def toggle_animation(self) -> None:
+        """Collapse or restore the animation beside the text.
+
+        Deliberately not written to :mod:`spacr.qt.preferences`: the
+        *Setting animations* preference decides whether an animation is
+        offered at all, and this is the reader folding one away in front of
+        them. It lasts as long as the popup does — which is the session,
+        since the popup is a singleton — and nothing else.
+        """
+        self._animation_collapsed = not self._animation_collapsed
+        self._set_animation(self._offered_animation)
+        self.adjustSize()
+        if self.isVisible() and self._anchor is not None:
+            self._position_under(self._anchor)
 
     # ------------------------------------------------------------------
     # Animation
@@ -358,23 +590,128 @@ class HoverTooltip(QFrame):
 
     def _set_animation(self, animation) -> None:
         """Show ``animation`` beside the text, or fall back to text only."""
-        showing = self._animation_view.load(animation)
+        self._offered_animation = animation
+        if animation is not None and not self._animation_collapsed:
+            showing = self._animation_view.load(animation)
+        else:
+            # Nothing to show, or folded away: decode nothing.
+            self._animation_view.clear_animation()
+            showing = False
         self._animation = animation if showing else None
         self._animation_view.setVisible(showing)
-        if showing:
-            # Equal columns: the text is exactly as wide as the square.
-            width = self.ANIMATION_SIZE
-            self._label.setFixedWidth(width)
-        else:
-            # Undo the fixed width — setFixedWidth pins the minimum too, and
-            # a text-only tooltip pinned to 220 px would be a tall ribbon.
-            width = self.TEXT_WIDTH
-            self._label.setMinimumWidth(0)
-            self._label.setMaximumWidth(width)
+        # Nothing to toggle when this setting has no animation, when the
+        # preference turned them all off, or when the asset would not decode
+        # — a word that visibly does nothing is worse than no word.
+        self._animation_link.setVisible(
+            animation is not None and (showing or self._animation_collapsed))
+        # Hidden, not merely empty: a zero-height row still costs the layout
+        # its spacing, which is exactly the slack a text-only popup was asked
+        # to lose.
+        self._links.setVisible(
+            self._api_link.isVisibleTo(self._links)
+            or self._animation_link.isVisibleTo(self._links))
+        self._resize_text_column(showing)
+
+    def _text_height_at(self, width: int) -> int:
+        """Height the prose plus the two words need at ``width`` pixels."""
+        prose = max(0, self._label.heightForWidth(width))
+        return prose + SPACING["xs"] + self._links.sizeHint().height()
+
+    def _fitting_text_width(self) -> int:
+        """Narrowest column width whose text fits inside the square's height."""
+        for width in self.TEXT_WIDTH_STEPS:
+            if self._text_height_at(width) <= self.ANIMATION_SIZE:
+                return width
+        return self.TEXT_WIDTH
+
+    def _unpin_text(self) -> None:
+        """Drop every explicit size on the text block.
+
+        Not housekeeping — a precondition of measuring it. ``QLabel``'s
+        ``heightForWidth`` ends in ``expandedTo(minimumSize())``, so a label
+        still pinned by the *previous* hover answers every width with the
+        previous hover's height, and the width ladder below then reads the
+        same number at 220 px and at 900 px and never finds a fit.
+        """
+        self._label.setMinimumSize(0, 0)
+        self._label.setMaximumSize(_UNBOUNDED, _UNBOUNDED)
+        self._links.setMinimumWidth(0)
+        self._links.setMaximumWidth(_UNBOUNDED)
+        self._text_column.setMinimumSize(0, 0)
+        self._text_column.setMaximumSize(_UNBOUNDED, _UNBOUNDED)
+
+    def _resize_text_column(self, with_animation: bool) -> None:
+        """Size the text block: square-high beside an animation, tight alone."""
+        self._unpin_text()
+        if not with_animation:
+            # Nothing pinned: the layout takes the popup down to what the
+            # prose and the two words actually occupy.
+            self._label.setMaximumWidth(self.TEXT_WIDTH)
+            return
+        width = self._fitting_text_width()
+        self._label.setFixedWidth(width)
         # QLabel's own size hint for wrapped rich text is derived from its
         # preferred, not its actual, width; without this the popup opens tall
         # enough for a couple of lines and clips the rest.
-        self._label.setMinimumHeight(max(0, self._label.heightForWidth(width)))
+        prose = max(0, self._label.heightForWidth(width))
+        needed = prose + SPACING["xs"] + self._links.sizeHint().height()
+        self._label.setFixedHeight(prose)
+        self._links.setFixedWidth(width)
+        self._text_column.setFixedWidth(width)
+        # Exactly the height of the square. `max` only matters for prose too
+        # long to fit even at the widest step, where the alternative would be
+        # truncating the user's help text.
+        self._text_column.setFixedHeight(max(self.ANIMATION_SIZE, needed))
+
+    # ------------------------------------------------------------------
+    # Placement
+    # ------------------------------------------------------------------
+    def _position_under(self, anchor: Optional[QWidget]) -> None:
+        """Dock the popup just below ``anchor``, clamped to its screen."""
+        try:
+            below_left = anchor.mapToGlobal(anchor.rect().bottomLeft())
+        except (AttributeError, RuntimeError):
+            below_left = QPoint(0, 0)
+        screen = QGuiApplication.screenAt(below_left) \
+            or QGuiApplication.primaryScreen()
+        if screen is None:
+            self.move(below_left)
+            return
+        geo = screen.availableGeometry()
+        x = min(max(geo.left(), below_left.x()), geo.right() - self.width())
+        y = below_left.y() + 4
+        if y + self.height() > geo.bottom():
+            # Not enough space below — flip above
+            try:
+                top = anchor.mapToGlobal(anchor.rect().topLeft()).y()
+            except (AttributeError, RuntimeError):
+                top = below_left.y()
+            y = top - self.height() - 4
+        self.move(x, y)
+
+    # ------------------------------------------------------------------
+    # The one-tooltip rule
+    # ------------------------------------------------------------------
+    def _claim_anchor(self, anchor: Optional[QWidget]) -> None:
+        """Take the anchor's tooltip duty away from Qt's own popup.
+
+        Idempotent by construction: Qt keeps a *list* of event filters and
+        calls each installation separately, so the remove-then-install pair
+        is what stops a re-hovered label from stacking suppressors. It also
+        keeps this filter LAST installed and therefore FIRST called, ahead of
+        the screen's own filter.
+        """
+        if anchor is None:
+            return
+        try:
+            anchor.removeEventFilter(self._tooltip_suppressor)
+            anchor.installEventFilter(self._tooltip_suppressor)
+        except RuntimeError:
+            # The anchor's C++ half is gone; there is no tooltip to suppress.
+            return
+        # A native tooltip already on screen — from the widget the pointer
+        # crossed on its way here — would otherwise sit over this one.
+        QToolTip.hideText()
 
     # ------------------------------------------------------------------
     def _maybe_hide(self) -> None:
@@ -423,3 +760,11 @@ class HoverTooltip(QFrame):
         """Restart the hide timer with a short delay when the cursor leaves."""
         self.start_hide(delay_ms=100)
         super().leaveEvent(event)
+
+
+#: Public name for the square player, so the click-to-open popup in
+#: :mod:`spacr.qt.widgets.animation_link` can show the same zoomed, rounded
+#: frames the hover does instead of a raw ``QMovie``.
+AnimationView = _AnimationView
+
+__all__ = ["AnimationView", "HoverTooltip", "TEAL", "split_api_link"]
