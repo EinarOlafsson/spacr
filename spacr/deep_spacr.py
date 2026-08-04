@@ -348,6 +348,18 @@ def _binary_metrics(y_true: np.ndarray, pos_probs: np.ndarray) -> dict:
         "f1_macro": (float(f1_score(y_true, pred, average='macro',
                                     zero_division=0))
                      if len(y_true) else float(np.nan)),
+        # Binary reported its two class accuracies under names nothing else
+        # understood, so every consumer that wanted "the per-class numbers"
+        # had to branch on the head shape. Report the same two values under
+        # the SAME key the multiclass path uses, so the live view, the
+        # TensorBoard scalars and the model card are one code path.
+        # neg/pos stay for backwards compatibility.
+        "per_class_accuracy": [
+            0.0 if not np.isfinite(acc_neg) else float(acc_neg),
+            0.0 if not np.isfinite(acc_pos) else float(acc_pos),
+        ],
+        "class_support": [int(neg_mask.sum()), int(pos_mask.sum())],
+        "num_classes": 2,
     }
 
 def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
@@ -371,6 +383,7 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
             "optimal_threshold": float(np.nan),
             "f1_macro": float(np.nan),
             "per_class_accuracy": [0.0] * int(C),
+            "class_support": [0] * int(C),
             "num_classes": int(C),
         }
 
@@ -417,8 +430,118 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
                                     zero_division=0))
                      if len(y_true) else float(np.nan)),
         "per_class_accuracy": per_class_acc.tolist(),
+        # Support belongs beside the accuracy it was computed from: a class
+        # at 0.40 over 500 objects is a broken classifier, the same 0.40 over
+        # 5 objects is two mistakes. Without it, the per-class line invites
+        # exactly the wrong reading.
+        "class_support": [int(v) for v in row_sums],
         "num_classes": int(C),
     }
+
+#: Prefix of the flat per-class accuracy columns written into ``train.csv`` /
+#: ``validation.csv`` and into the TensorBoard scalar names. Flat because a
+#: list in a DataFrame cell reaches the CSV as the string ``"[0.99, 0.4]"``,
+#: which nothing can plot and nobody can grep.
+PER_CLASS_ACC_PREFIX = 'acc_class_'
+
+
+def class_labels(metrics, classes=None):
+    """Names for the classes ``metrics`` describes, one per class.
+
+    :param metrics: a dict from :func:`_binary_metrics` /
+        :func:`_multiclass_metrics`.
+    :param classes: the folder names training read the classes from, in
+        head order, when they are known. Omitted, the names
+        :func:`attach_per_class_columns` stamped into ``metrics`` are used —
+        which is what lets the live plot and the model card name the classes
+        without every helper having to be handed the list again.
+    :returns: list of ``str``, length ``num_classes``. Falls back to
+        ``class_0, class_1, …`` — never to an empty list, because the caller
+        is about to index it per class.
+    """
+    per_class = list(metrics.get('per_class_accuracy') or [])
+    count = int(metrics.get('num_classes') or len(per_class) or 0)
+    names = [str(c) for c in (classes or metrics.get('class_names') or [])]
+    if len(names) == count and count:
+        return names
+    return [f'class_{i}' for i in range(count)]
+
+
+def per_class_accuracy(metrics, classes=None):
+    """``[(name, accuracy, support), …]`` for one epoch's metrics.
+
+    The single place that knows a binary head reports two classes and a
+    multiclass head reports C, so nothing downstream branches on head shape.
+
+    :param metrics: one epoch's metrics dict.
+    :param classes: optional class names in head order.
+    :returns: list of ``(name, float accuracy, int support)``; empty when the
+        metrics carry no per-class breakdown at all.
+    """
+    accs = list(metrics.get('per_class_accuracy') or [])
+    if not accs:
+        return []
+    names = class_labels(metrics, classes)
+    support = list(metrics.get('class_support') or [])
+    out = []
+    for i, acc in enumerate(accs):
+        name = names[i] if i < len(names) else f'class_{i}'
+        n = int(support[i]) if i < len(support) else 0
+        out.append((name, float(acc), n))
+    return out
+
+
+def attach_per_class_columns(metrics, classes=None):
+    """Add flat ``acc_class_<name>`` keys to ``metrics``, in place.
+
+    Called on every epoch dict before it reaches ``train.csv`` /
+    ``validation.csv``. The key set is fixed by the head size, which does not
+    change inside a run, so the appended CSV keeps one stable header — see
+    :func:`spacr.io._save_progress`, which writes the header only for the
+    first chunk.
+
+    :param metrics: one epoch's metrics dict; mutated and returned.
+    :param classes: optional class names in head order.
+    """
+    rows = per_class_accuracy(metrics, classes)
+    if rows:
+        # Stamped so the history is self-describing: everything downstream
+        # (the live plot, the model card) can name the classes from one
+        # epoch dict rather than needing the list threaded through it.
+        metrics['class_names'] = [name for name, _, _ in rows]
+    for name, acc, support in rows:
+        metrics[f'{PER_CLASS_ACC_PREFIX}{name}'] = float(acc)
+        metrics[f'n_{name}'] = int(support)
+    return metrics
+
+
+def format_per_class_accuracy(metrics, classes=None, prefix=''):
+    """One line naming every class and how it actually did.
+
+    A 96 % aggregate hiding a class at 40 % is the commonest way a
+    classifier looks finished and is not, and the aggregate is the only
+    number the epoch line used to print. The worst class is flagged
+    explicitly so it does not have to be spotted in a row of numbers.
+
+    :param metrics: one epoch's metrics dict.
+    :param classes: optional class names in head order.
+    :param prefix: text put in front of the line ("Train ", "Val ").
+    :returns: the line, or ``''`` when there is no per-class breakdown.
+    """
+    rows = per_class_accuracy(metrics, classes)
+    if not rows:
+        return ''
+    parts = [f"{name} {acc:.3f} (n={n})" for name, acc, n in rows]
+    line = f"{prefix}per-class acc.: " + ', '.join(parts)
+    finite = [(name, acc) for name, acc, _ in rows if np.isfinite(acc)]
+    if len(finite) > 1:
+        worst_name, worst_acc = min(finite, key=lambda t: t[1])
+        best_acc = max(a for _, a in finite)
+        if best_acc - worst_acc >= 0.10:
+            line += (f"  <- WORST: {worst_name} at {worst_acc:.3f}, "
+                     f"{best_acc - worst_acc:.3f} below the best class")
+    return line
+
 
 def evaluate_model_performance(model, loader, epoch, loss_type='auto',
                                loss_fn=None, num_classes=None):
@@ -1381,6 +1504,15 @@ def train_test_model(settings):
                 'augment': settings.get('augment', False),
             },
             classes=list(settings.get('classes') or []),
+            settings=settings,
+            split_rule=(
+                f"{settings['val_split']:.0%} of train/ held out for "
+                f"validation by generate_loaders, grouped by "
+                f"{settings.get('cv_group_by', 'well')}; test/ is a separate "
+                f"folder tree audited for leakage before training"
+                if settings.get('val_split') else
+                f"held out by generate_loaders, grouped by "
+                f"{settings.get('cv_group_by', 'well')}"),
         )
 
         if model is None:
@@ -1442,8 +1574,50 @@ def train_test_model(settings):
     if settings['test']:
         return result_loc
 
-def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None):
-    """Render or refresh live loss + accuracy curves for the training run.
+#: Colours the per-class accuracy panel cycles through. Deliberately not the
+#: train/val blue and red used by the two aggregate panels, so a class line is
+#: never mistaken for a split.
+_CLASS_CURVE_COLORS = ('#2ec27e', '#c061cb', '#e5a50a', '#62a0ea', '#ed333b',
+                       '#33d17a', '#dc8add', '#f6d32d', '#99c1f1', '#ff7800')
+
+
+def _per_class_series(history, classes=None):
+    """``(epochs, {class name: [accuracy per epoch]})`` out of an epoch history.
+
+    Epochs whose metrics carry no per-class breakdown contribute ``nan``
+    rather than being dropped, so the x-axis of the per-class panel stays
+    aligned with the two panels beside it.
+
+    :param history: list of per-epoch metrics dicts.
+    :param classes: optional class names in head order.
+    """
+    names = []
+    for entry in history:
+        rows = per_class_accuracy(entry, classes)
+        if len(rows) > len(names):
+            names = [name for name, _, _ in rows]
+    if not names:
+        return [], {}
+    epochs = [d.get('epoch', i + 1) for i, d in enumerate(history)]
+    series = {name: [] for name in names}
+    for entry in history:
+        by_name = {name: acc for name, acc, _ in per_class_accuracy(entry, classes)}
+        for name in names:
+            series[name].append(float(by_name.get(name, float('nan'))))
+    return epochs, series
+
+
+def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
+                          classes=None):
+    """Render or refresh live loss + accuracy + per-class curves for the run.
+
+    Three panels, not two. The aggregate accuracy panel answers "is it
+    learning"; the per-class panel answers "is it learning *all of it*",
+    which is the question a 96 % aggregate hiding a class at 40 % gets wrong
+    — and that failure is invisible for the whole run if the only live number
+    is the mean. Per-class lines come from the validation history when there
+    is one, because train accuracy on a minority class is the number least
+    worth trusting.
 
     ``figure`` lets the GUI update one zoomable monitor in place instead of
     adding an epoch snapshot to the figure gallery every time.  ``plt.show``
@@ -1468,13 +1642,19 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None):
     tr_loss = [d.get('loss', float('nan')) for d in train_hist]
     tr_acc = [d.get('accuracy', float('nan')) for d in train_hist]
 
+    # Prefer held-out per-class accuracy; fall back to train so a run without
+    # a validation split still gets the panel rather than a blank third.
+    class_hist = val_hist if val_hist else train_hist
+    class_split = 'val' if val_hist else 'train'
+    cls_ep, cls_series = _per_class_series(class_hist, classes)
+
     if figure is None:
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4))
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
         fig._spacr_live_update = True
     else:
         fig = figure
         fig.clear()
-        ax1, ax2 = fig.subplots(1, 2)
+        ax1, ax2, ax3 = fig.subplots(1, 3)
     ax1.plot(tr_ep, tr_loss, marker='o', ms=3, color='#4A9EFF', label='train')
     ax2.plot(tr_ep, tr_acc, marker='o', ms=3, color='#4A9EFF', label='train')
     if val_hist:
@@ -1486,6 +1666,28 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None):
     ax1.set_title('Loss'); ax1.set_xlabel('epoch'); ax1.legend(loc='best')
     ax2.set_title('Accuracy'); ax2.set_xlabel('epoch')
     ax2.set_ylim(0, 1.02); ax2.legend(loc='best')
+
+    if cls_series:
+        for i, (name, values) in enumerate(cls_series.items()):
+            ax3.plot(cls_ep, values, marker='o', ms=3,
+                     color=_CLASS_CURVE_COLORS[i % len(_CLASS_CURVE_COLORS)],
+                     label=str(name))
+        ax3.set_title(f'Per-class accuracy ({class_split})')
+        ax3.set_ylim(0, 1.02)
+        ax3.legend(loc='best', fontsize='small')
+        latest = {name: values[-1] for name, values in cls_series.items()
+                  if values and np.isfinite(values[-1])}
+        if len(latest) > 1:
+            worst = min(latest, key=latest.get)
+            ax3.set_xlabel(f'epoch — worst: {worst} at {latest[worst]:.3f}')
+        else:
+            ax3.set_xlabel('epoch')
+    else:
+        ax3.set_title('Per-class accuracy')
+        ax3.set_xlabel('epoch')
+        ax3.text(0.5, 0.5, 'no per-class metrics', ha='center', va='center',
+                 transform=ax3.transAxes, fontsize='small', color='#888888')
+
     last = tr_ep[-1] if tr_ep else 0
     suffix = f' / {total_epochs}' if total_epochs else ''
     fig.suptitle(f'Training — epoch {last}{suffix}')
@@ -1519,8 +1721,14 @@ def _open_tensorboard_writer(dst, enabled=True):
     return writer, log_dir
 
 
-def _log_tensorboard_epoch(writer, train_dict, val_dict, epoch):
-    """Write the scalar metrics produced by one epoch and flush immediately."""
+def _log_tensorboard_epoch(writer, train_dict, val_dict, epoch, classes=None):
+    """Write the scalar metrics produced by one epoch and flush immediately.
+
+    Per-class accuracy goes in as one scalar per class under
+    ``accuracy_<class>/<split>``, so the class that is not learning shows up
+    as a flat line beside the rising aggregate rather than being averaged
+    into it.
+    """
     if writer is None:
         return
     groups = (('train', train_dict), ('validation', val_dict))
@@ -1531,10 +1739,400 @@ def _log_tensorboard_epoch(writer, train_dict, val_dict, epoch):
             value = metrics.get(metric)
             if value is not None:
                 writer.add_scalar(f'{metric}/{split}', float(value), epoch)
+        for name, acc, _support in per_class_accuracy(metrics, classes):
+            if np.isfinite(acc):
+                writer.add_scalar(f'accuracy_{name}/{split}', float(acc), epoch)
     lr = train_dict.get('lr')
     if lr is not None:
         writer.add_scalar('learning_rate', float(lr), epoch)
     writer.flush()
+
+
+# ---------------------------------------------------------------------------
+# Model cards — what a checkpoint was trained on, and how well it did
+# ---------------------------------------------------------------------------
+
+#: Written beside ``<model>.pth`` as ``<model>.card.json``. A sidecar rather
+#: than a key inside the checkpoint, on purpose: the card has to be readable
+#: without ``torch.load``, which is how a reviewer, a shell script and a
+#: registry all get to it.
+MODEL_CARD_SUFFIX = '.card.json'
+
+#: The human-readable twin of the JSON, same stem.
+MODEL_CARD_MD_SUFFIX = '.card.md'
+
+#: The registry role a card is registered under. The weights themselves are
+#: registered as :data:`spacr.ports.MODEL_WEIGHTS` by the run; the card is a
+#: separate artifact so a checkpoint whose card is missing is visibly missing
+#: rather than silently uncarded.
+MODEL_CARD_ROLE = 'model-card'
+
+
+def held_out_report(y_true, probs, classes=None):
+    """Everything the card says about held-out performance, recomputable.
+
+    The card must not be the only place a number exists — a card that
+    reports 0.96 with nothing to check it against is a claim, not a record.
+    So this returns the confusion matrix alongside every derived figure, and
+    each figure is exactly the standard function of that matrix:
+    ``accuracy = trace / total`` and
+    ``per_class_accuracy[c] = M[c, c] / M[c, :].sum()``. Recomputing them
+    from ``confusion_matrix`` must reproduce them exactly, and the test suite
+    pins that.
+
+    :param y_true: integer class ids, shape ``(N,)``.
+    :param probs: ``(N,)`` positive-class probabilities for a single-logit
+        head, or ``(N, C)`` softmax rows for a C-logit head. The same two
+        shapes :func:`evaluate_model_performance` returns.
+    :param classes: class names in head order, when known.
+    :returns: dict with ``n``, ``num_classes``, ``classes``, ``accuracy``,
+        ``f1_macro``, ``per_class_accuracy``, ``class_support``,
+        ``predicted_support`` and ``confusion_matrix``.
+
+    The implementation lives in :func:`spacr.active_learning.holdout_report`,
+    which is torch-free, so a card written by a CNN round and a card written
+    by an in-Annotate classical round carry the identical shape and are
+    comparable side by side. Imported lazily: that module deliberately does
+    not pull torch, and this one already has.
+    """
+    from .active_learning import holdout_report
+    return holdout_report(y_true, probs, classes)
+
+
+def dataset_class_balance(src, classes=None):
+    """Count the images the classifier was trained on, per split, per class.
+
+    Reads the ``train/<class>/`` and ``test/<class>/`` folder tree
+    :func:`spacr.io.generate_dataset` writes, because that tree *is* the
+    training set — a class balance quoted from the settings would describe
+    what was requested rather than what ended up on disk.
+
+    :param src: dataset root holding ``train/`` (and optionally ``test/``).
+    :param classes: class names to count; discovered from the folder names
+        when omitted.
+    :returns: ``{split: {class: count}}`` for the splits that exist.
+    """
+    out = {}
+    root = str(src or '')
+    for split in ('train', 'test', 'val', 'validation'):
+        split_dir = os.path.join(root, split)
+        if not os.path.isdir(split_dir):
+            continue
+        names = [str(c) for c in classes] if classes else sorted(
+            d for d in os.listdir(split_dir)
+            if os.path.isdir(os.path.join(split_dir, d)) and not d.startswith('.'))
+        counts = {}
+        for name in names:
+            class_dir = os.path.join(split_dir, name)
+            if not os.path.isdir(class_dir):
+                counts[name] = 0
+                continue
+            counts[name] = sum(
+                1 for f in os.listdir(class_dir)
+                if not f.startswith('.')
+                and os.path.isfile(os.path.join(class_dir, f)))
+        if counts:
+            out[split] = counts
+    return out
+
+
+def _training_counts(balance):
+    """``{class: n}`` for the split a card should judge balance on.
+
+    ``balance`` arrives as ``{split: {class: n}}`` from
+    :func:`dataset_class_balance`, but a caller with a single population
+    (the in-Annotate rounds pass ``{'annotated': {...}}``) or a flat
+    ``{class: n}`` is just as legitimate. Resolving the shape here means no
+    caller has to know which one the note expects — the flat fallback used to
+    be taken literally, so a dict of dicts reached ``int()`` and the whole
+    card write failed, silently, with only a note to show for it.
+    """
+    if not isinstance(balance, dict) or not balance:
+        return {}
+    if isinstance(balance.get('train'), dict):
+        return balance['train']
+    nested = [v for v in balance.values() if isinstance(v, dict)]
+    if nested:
+        return nested[0] if len(nested) == 1 else {}
+    return balance
+
+
+def _imbalance_note(balance):
+    """A sentence when one class dominates the training set, else ``''``."""
+    counts = {}
+    for key, value in (balance or {}).items():
+        try:
+            count = int(value)
+        except (TypeError, ValueError):
+            continue
+        if count > 0:
+            counts[key] = count
+    total = sum(counts.values())
+    if len(counts) < 2 or not total:
+        return ''
+    biggest = max(counts, key=counts.get)
+    smallest = min(counts, key=counts.get)
+    share = counts[biggest] / total
+    if share < 0.7:
+        return ''
+    return (f"Class {biggest!r} is {share:.0%} of the training set and "
+            f"{smallest!r} is {counts[smallest] / total:.0%}. A model that "
+            f"always answered {biggest!r} would score {share:.0%} accuracy, "
+            f"so read the per-class numbers, not the aggregate.")
+
+
+def build_model_card(model_path, *, settings=None, classes=None,
+                     split_rule='', held_out=None, train_metrics=None,
+                     dataset_src=None, class_balance=None, module='train',
+                     epochs=None, history=None, extra=None):
+    """Assemble the record that travels with a checkpoint.
+
+    Answers, for a ``.pth`` somebody finds in six months: what was it trained
+    on, how was the held-out split drawn, how balanced were the classes, how
+    did it do *per class*, which spaCR wrote it, under which settings, when.
+
+    :param model_path: the checkpoint the card describes.
+    :param settings: the run's settings; only the material ones are hashed
+        and stored (:func:`spacr.artifacts.material_settings`).
+    :param classes: class names in head order.
+    :param split_rule: how the held-out set was drawn, in words — the field
+        most often left implicit and most often the reason a number is wrong
+        ("random 20 % of objects" leaks across wells; "grouped by well" does
+        not).
+    :param held_out: a :func:`held_out_report` dict.
+    :param train_metrics: the training-split metrics of the same epoch.
+    :param dataset_src: dataset root, for the class balance on disk.
+    :param class_balance: override for the counted balance.
+    :param module: producing module key for the registry.
+    :param epochs: epochs requested, when known.
+    :param history: per-epoch metrics, trimmed into the card as a curve.
+    :param extra: anything else worth recording.
+    :returns: a JSON-safe dict.
+    """
+    from .artifacts import material_settings, settings_hash
+    from .version import get_version
+
+    balance = class_balance if class_balance is not None else \
+        dataset_class_balance(dataset_src, classes) if dataset_src else {}
+    training_balance = _training_counts(balance)
+    card = {
+        'card_version': 1,
+        'model_path': os.path.abspath(str(model_path)),
+        'model_file': os.path.basename(str(model_path)),
+        'module': str(module),
+        'created_utc': datetime.datetime.now(
+            datetime.timezone.utc).isoformat(),
+        'spacr_version': get_version(),
+        'settings_hash': settings_hash(settings),
+        'settings': material_settings(settings),
+        'classes': [str(c) for c in (classes or [])],
+        'epochs': (int(epochs) if epochs is not None else None),
+        'training_set': {
+            'src': (os.path.abspath(str(dataset_src)) if dataset_src else ''),
+            'class_balance': balance,
+            'n_train': sum(int(v) for v in training_balance.values()
+                           if isinstance(v, (int, float))),
+            'imbalance_note': _imbalance_note(training_balance),
+        },
+        'split_rule': str(split_rule or 'not recorded'),
+        'held_out': dict(held_out or {}),
+        'train_metrics': {
+            k: v for k, v in (train_metrics or {}).items()
+            if not isinstance(v, (dict, list, tuple))
+            or k in ('per_class_accuracy', 'class_support')
+        },
+        'history': [
+            {k: v for k, v in entry.items()
+             if k in ('epoch', 'loss', 'accuracy', 'f1_macro',
+                      'per_class_accuracy', 'class_support')}
+            for entry in (history or [])
+        ],
+        'extra': dict(extra or {}),
+    }
+    if not card['split_rule'] or card['split_rule'] == 'not recorded':
+        card.setdefault('warnings', []).append(
+            "The split rule was not recorded, so nothing here says whether "
+            "the held-out numbers are leakage-free.")
+    if not card['held_out']:
+        card.setdefault('warnings', []).append(
+            "No held-out evaluation is attached: every number in this card "
+            "describes data the model was fitted on.")
+    return card
+
+
+def format_model_card(card):
+    """Render a card as Markdown — the version a human reads first."""
+    lines = [f"# Model card — {card.get('model_file', '?')}", '']
+    lines.append(f"* **spaCR version**: {card.get('spacr_version', '?')}")
+    lines.append(f"* **Created (UTC)**: {card.get('created_utc', '?')}")
+    lines.append(f"* **Settings hash**: `{card.get('settings_hash', '')}`")
+    lines.append(f"* **Produced by**: `{card.get('module', '?')}`")
+    classes = card.get('classes') or []
+    if classes:
+        lines.append(f"* **Classes** (head order): {', '.join(map(str, classes))}")
+    lines.append('')
+
+    training = card.get('training_set') or {}
+    lines.append('## Training set')
+    lines.append('')
+    lines.append(f"Source: `{training.get('src') or 'not recorded'}`")
+    lines.append('')
+    balance = training.get('class_balance') or {}
+    if balance:
+        for split, counts in balance.items():
+            total = sum(int(v) for v in counts.values()) or 1
+            lines.append(f"**{split}** ({total} images)")
+            lines.append('')
+            lines.append('| class | n | share |')
+            lines.append('| --- | ---: | ---: |')
+            for name, n in counts.items():
+                lines.append(f"| {name} | {int(n)} | {int(n) / total:.1%} |")
+            lines.append('')
+    if training.get('imbalance_note'):
+        lines.append(f"> {training['imbalance_note']}")
+        lines.append('')
+
+    lines.append('## Split rule')
+    lines.append('')
+    lines.append(str(card.get('split_rule', 'not recorded')))
+    lines.append('')
+
+    held = card.get('held_out') or {}
+    lines.append('## Held-out metrics')
+    lines.append('')
+    if not held:
+        lines.append('_None recorded._')
+        lines.append('')
+    else:
+        lines.append(f"n = {held.get('n', 0)} · accuracy "
+                     f"{held.get('accuracy', float('nan')):.4f} · macro-F1 "
+                     f"{held.get('f1_macro', float('nan')):.4f}")
+        lines.append('')
+        names = held.get('classes') or []
+        lines.append('| class | accuracy | support |')
+        lines.append('| --- | ---: | ---: |')
+        for i, acc in enumerate(held.get('per_class_accuracy') or []):
+            name = names[i] if i < len(names) else f'class_{i}'
+            support = (held.get('class_support') or [0] * (i + 1))[i]
+            lines.append(f"| {name} | {float(acc):.4f} | {int(support)} |")
+        lines.append('')
+        matrix = held.get('confusion_matrix') or []
+        if matrix:
+            lines.append('Confusion matrix (rows = true, columns = predicted):')
+            lines.append('')
+            header = ' | '.join(str(n) for n in names) or '?'
+            lines.append(f"| true \\ pred | {header} |")
+            lines.append('| --- |' + ' ---: |' * len(matrix[0]))
+            for i, row in enumerate(matrix):
+                name = names[i] if i < len(names) else f'class_{i}'
+                lines.append(f"| {name} | " +
+                             ' | '.join(str(int(v)) for v in row) + ' |')
+            lines.append('')
+            lines.append('Every figure above is a function of this matrix: '
+                         '`accuracy = trace / total`, '
+                         '`per-class[c] = M[c, c] / M[c, :].sum()`.')
+            lines.append('')
+
+    for warning in card.get('warnings') or []:
+        lines.append(f"> **Warning** {warning}")
+        lines.append('')
+    return '\n'.join(lines).rstrip() + '\n'
+
+
+def write_model_card(model_path, card, *, markdown=True):
+    """Write ``card`` beside ``model_path``; return the JSON card's path.
+
+    :param model_path: the checkpoint the card belongs to.
+    :param card: a :func:`build_model_card` dict.
+    :param markdown: also write the Markdown twin.
+    :returns: absolute path of the ``.card.json``.
+    """
+    from .checkpoint import json_safe
+    import json as _json
+
+    stem = os.path.splitext(os.path.abspath(str(model_path)))[0]
+    json_path = stem + MODEL_CARD_SUFFIX
+    os.makedirs(os.path.dirname(json_path) or '.', exist_ok=True)
+    with open(json_path, 'w') as handle:
+        _json.dump(json_safe(card), handle, indent=2, sort_keys=True)
+    if markdown:
+        with open(stem + MODEL_CARD_MD_SUFFIX, 'w') as handle:
+            handle.write(format_model_card(card))
+    return json_path
+
+
+def read_model_card(model_path):
+    """The card beside ``model_path``, or ``None`` when there is not one."""
+    import json as _json
+    stem = os.path.splitext(os.path.abspath(str(model_path)))[0]
+    json_path = stem + MODEL_CARD_SUFFIX
+    if not os.path.isfile(json_path):
+        return None
+    with open(json_path) as handle:
+        return _json.load(handle)
+
+
+def register_model_card(model_path, card, *, project=None, registry=None,
+                        inputs=(), run_id=''):
+    """Register the checkpoint and its card in the artifact registry.
+
+    Registering the *weights* with the card as ``extra`` — rather than only
+    dropping a JSON file next to them — is what makes the provenance real:
+    the row carries the content fingerprint of the ``.pth``, the settings
+    hash, the spaCR version and the ids of the artifacts it was derived from,
+    so "is this model stale?" has an answer that a hand-written note cannot
+    give.
+
+    :param model_path: the checkpoint.
+    :param card: a :func:`build_model_card` dict, stored as provenance.
+    :param project: project root; defaults to the checkpoint's own tree.
+    :param registry: an open :class:`spacr.artifacts.Registry`.
+    :param inputs: upstream artifact ids or :class:`spacr.artifacts.Artifact`.
+    :param run_id: the run this came out of.
+    :returns: the stored :class:`spacr.artifacts.Artifact`, or ``None`` when
+        the registry could not be written (a card on disk is still worth
+        having, so this never raises the run down).
+    """
+    from . import artifacts as artifacts_module
+    from .ports import MODEL_WEIGHTS
+
+    root = project or os.path.dirname(os.path.abspath(str(model_path)))
+    try:
+        store = registry if registry is not None else \
+            artifacts_module.open_registry(root)
+        return store.register(
+            module=str(card.get('module') or 'train'),
+            kind=MODEL_WEIGHTS,
+            role=MODEL_CARD_ROLE,
+            path=model_path,
+            project=root,
+            settings=card.get('settings') or {},
+            settings_digest=str(card.get('settings_hash') or ''),
+            inputs=inputs,
+            run_id=run_id,
+            extra=card,
+        )
+    except Exception as exc:
+        print(f"Model card written but not registered ({type(exc).__name__}: "
+              f"{exc}). The card is still on disk beside the weights.")
+        return None
+
+
+def model_card(model_path, *, registry=None, project=None, inputs=(),
+               run_id='', **card_kwargs):
+    """Build, write and register a card for ``model_path`` in one call.
+
+    :returns: ``(card, card_path, artifact_or_None)``.
+    """
+    card = build_model_card(model_path, **card_kwargs)
+    card_path = write_model_card(model_path, card)
+    artifact = register_model_card(model_path, card, project=project,
+                                   registry=registry, inputs=inputs,
+                                   run_id=run_id)
+    if artifact is not None:
+        card['artifact_id'] = artifact.artifact_id
+        write_model_card(model_path, card)
+    return card, card_path, artifact
 
 
 def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.0001,
@@ -1551,15 +2149,22 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 preprocessing=None, classes=None,
                 label_smoothing=0.1, focal_gamma=2.0, focal_alpha=None,
                 logit_adjust_tau=1.0,
+                settings=None, split_rule='', write_card=True,
                 ):
     """
     Trains a model (supports 2-class and >2-class via CrossEntropy).
-    
+
     New parameters:
         early_stopping_patience: number of epochs with no val improvement before stopping.
                                  Set to 0 to disable (original behavior).
+        settings: the run's settings dict, recorded (hashed) in the model card.
+        split_rule: how the held-out set was drawn, in words, for the card.
+        write_card: write ``<model>.card.json`` beside the weights and
+                    register it as an artifact. On by default: an uncarded
+                    checkpoint is a file nobody can audit six months later.
     """
-    
+
+
     if channels is None:
         channels = ['r', 'g', 'b']
     from .io import _save_model, _save_progress
@@ -1578,12 +2183,19 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     #counts = estimate_class_counts(train_loaders, head_dim) if head_dim >= 2 else None
 
     train_data_dir = os.path.join(src, 'train')
-    
+
     if os.path.isdir(train_data_dir):
+        # The folder names in ImageFolder's sorted order ARE the head order,
+        # so they win over whatever the caller passed.
         classes = sorted([d for d in os.listdir(train_data_dir) if os.path.isdir(os.path.join(train_data_dir, d)) and not d.startswith('.')])
-    else:
-        classes = None        
-    
+    elif not classes:
+        # ...but with no folder tree to read (a tar-backed dataset, a caller
+        # supplying its own loaders), the caller's list is the only class
+        # naming there is. The old `else: classes = None` threw it away, so
+        # the checkpoint and every per-class report came out as
+        # class_0/class_1 even when the names were passed in.
+        classes = None
+
     counts = estimate_class_counts(train_loaders, head_dim, src=train_data_dir, classes=classes) if (head_dim >= 2 and classes) else None
 
     loss_fn = build_loss(
@@ -1722,6 +2334,11 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     # above get consumed/cleared by _save_progress each epoch).
     live_train_hist, live_val_hist = [], []
     live_figure = None
+    # (epoch, metrics, [probs, labels]) of the epoch whose weights became the
+    # best checkpoint — the ONLY held-out evaluation that describes the file
+    # the model card is written beside. Using the last epoch's numbers for a
+    # checkpoint saved five epochs earlier is the quiet way a card lies.
+    held_out_raw = None
     # Kept separate from any training ledger: a failed live plot says nothing
     # about whether the weights are trustworthy.
     _curve_ledger = RunLedger('train_model:live_curves')
@@ -1784,6 +2401,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         # recorded it, so "why did the curve bend at epoch 30" was
         # unanswerable from the run folder alone.
         train_dict['lr'] = float(optimizer.param_groups[0]['lr'])
+        attach_per_class_columns(train_dict, classes)
         accumulated_train_dicts.append(train_dict)
 
         # initialize val_dict to None so the variable always exists for _save_model
@@ -1791,12 +2409,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
         is_best = False
         if val_loaders is not None and len(val_loaders) > 0:
-            val_dict, _ = evaluate_model_performance(
+            val_dict, val_raw = evaluate_model_performance(
                 model, val_loaders, epoch,
                 loss_type=loop_loss_type,
                 loss_fn=loss_fn,
                 num_classes=head_dim
             )
+            attach_per_class_columns(val_dict, classes)
             accumulated_val_dicts.append(val_dict)
             if schedule == 'reduce_lr_on_plateau':
                 scheduler.step(val_dict['loss'])
@@ -1808,6 +2427,12 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                   f"Val acc.: {val_dict.get('accuracy', float('nan')):.3f}, "
                   f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}, "
                   f"Val F1(macro): {val_dict.get('f1_macro', float('nan')):.3f}")
+            # The aggregate above is the number that hides a dead class.
+            # Print the breakdown on its own line, every epoch, held-out
+            # first — not once at the end, by which point the run is over.
+            class_line = format_per_class_accuracy(val_dict, classes, 'Val ')
+            if class_line:
+                print(f"  {class_line}")
 
             # track best validation accuracy for early stopping and best-model selection
             current_val_acc = val_dict.get('accuracy', 0.0)
@@ -1815,6 +2440,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                 best_val_acc = current_val_acc
                 is_best = True
                 epochs_without_improvement = 0
+                held_out_raw = (epoch, val_dict, val_raw)
             else:
                 epochs_without_improvement += 1
         else:
@@ -1822,6 +2448,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                   f"Train Loss: {train_dict.get('loss', float('nan')):.3f}, "
                   f"Train acc.: {train_dict.get('accuracy', float('nan')):.3f}, "
                   f"Train F1(macro): {train_dict.get('f1_macro', float('nan')):.3f}")
+            class_line = format_per_class_accuracy(train_dict, classes, 'Train ')
+            if class_line:
+                print(f"  {class_line}")
             current_train_acc = train_dict.get('accuracy', 0.0)
             if current_train_acc > best_val_acc:
                 best_val_acc = current_train_acc
@@ -1832,7 +2461,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
         try:
             _log_tensorboard_epoch(
-                tensorboard_writer, train_dict, val_dict, epoch)
+                tensorboard_writer, train_dict, val_dict, epoch, classes)
         except Exception as exc:
             print(f"TensorBoard logging disabled after an error: {exc}")
             try:
@@ -1844,14 +2473,21 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         # Live training curves — follow loss/accuracy in real time in the GUI
         # when plot is enabled. Each epoch refreshes the same figure (the GUI
         # bridge captures plt.show and routes it to the figure view).
+        # Accumulated unconditionally: the accumulators above are consumed
+        # and cleared by _save_progress every epoch, so this is the only
+        # in-memory record of the run, and the model card's curve needs it
+        # whether or not anyone asked for a live plot.
+        live_train_hist.append(train_dict)
+        if val_dict is not None:
+            live_val_hist.append(val_dict)
         if plot:
-            live_train_hist.append(train_dict)
-            if val_dict is not None:
-                live_val_hist.append(val_dict)
             # Cosmetic: a live curve that fails to render must not kill the
             # training run. It must not be *invisible* either — the bare
             # `pass` here hid a broken plot for the whole run.
             with _curve_ledger.item(f'epoch_{epoch}', stage='live_curves'):
+                # Class names ride along inside the epoch dicts (see
+                # attach_per_class_columns), so this call site keeps the
+                # signature every existing caller and stub already has.
                 live_figure = _plot_training_curves(
                     live_train_hist, live_val_hist, epochs, live_figure)
 
@@ -1927,6 +2563,48 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
     # return best_model_path if available, otherwise fall back to last model_path
     final_path = best_model_path if best_model_path is not None else model_path
+
+    if write_card and final_path:
+        # A card that fails to write must not lose the weights that were
+        # just trained for six hours, but it must also not fail silently —
+        # an uncarded checkpoint that nobody noticed is the state this
+        # feature exists to end.
+        try:
+            held_epoch, held_metrics, held_raw = (
+                held_out_raw if held_out_raw is not None else (None, None, None))
+            held = (held_out_report(held_raw[1], held_raw[0], classes)
+                    if held_raw is not None else {})
+            if held:
+                held['epoch'] = int(held_epoch)
+                held['selected_by'] = 'best validation accuracy'
+            rule = split_rule or (
+                f"validation split held out by generate_loaders "
+                f"(val_split={settings.get('val_split')}, grouped by "
+                f"{settings.get('cv_group_by', 'well')})"
+                if isinstance(settings, dict) and settings.get('val_split')
+                else '')
+            card, card_path, _artifact = model_card(
+                final_path,
+                settings=settings,
+                classes=classes,
+                split_rule=rule,
+                held_out=held,
+                train_metrics=(held_metrics if held_metrics is not None
+                               else train_dict),
+                dataset_src=src,
+                module='train',
+                epochs=epochs,
+                history=live_val_hist or live_train_hist,
+                extra={'model_type': model_type, 'channels': list(channels),
+                       'image_size': image_size, 'loss_type': loss_type,
+                       'optimizer_type': optimizer_type, 'schedule': schedule,
+                       'best_metric': float(best_val_acc)},
+            )
+            print(f"Model card: {card_path}")
+        except Exception as exc:
+            print(f"Could not write the model card for {final_path} "
+                  f"({type(exc).__name__}: {exc}). The weights are unaffected.")
+
     return model, final_path
 
 def generate_activation_map(settings):
