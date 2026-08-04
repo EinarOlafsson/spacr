@@ -6213,8 +6213,13 @@ def generate_training_dataset(settings):
     
     try:
         save_settings(settings, 'cv_dataset', show=False)
-    except Exception:
-        pass
+    except Exception as exc:
+        # The dataset is already on disk, so this must not undo it — but the
+        # snapshot beside it is how the split gets reproduced, and losing it
+        # in silence leaves a training set nobody can rebuild.
+        LOG.warning("the cv_dataset settings snapshot was not written (%s); "
+                    "the dataset in %s cannot be reproduced from disk.",
+                    exc, train_class_dir)
 
     return train_class_dir, test_class_dir
 
