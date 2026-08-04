@@ -48,6 +48,7 @@ from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, mi
 from xgboost import XGBClassifier
 
 from . import schema
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 LOG = logging.getLogger("spacr.ml")
 
@@ -643,7 +644,8 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         fig_path = os.path.join(dst, 'results')
         os.makedirs(fig_path, exist_ok=True)
         fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
-        fig.savefig(fig_file_path, format='pdf', dpi=600, bbox_inches='tight')
+        fig_file_path = save_figure(fig, fig_file_path,
+                                    bbox_inches='tight')
         print(f"Saved {fig_file_path}")
 
     plt.show()
@@ -4044,10 +4046,11 @@ def generate_ml_scores(settings):
     train_features_df.to_csv(ml_features, mode='w', encoding='utf-8')
     metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
 
-    plate_heatmap.savefig(plate_heatmap_path, format='pdf')
-    figs[0].savefig(permutation_fig_path, format='pdf')
-    figs[1].savefig(feature_importance_fig_path, format='pdf')
-    shap_fig.savefig(shap_fig_path, format='pdf')
+    plate_heatmap_path = save_figure(plate_heatmap, plate_heatmap_path)
+    permutation_fig_path = save_figure(figs[0], permutation_fig_path)
+    feature_importance_fig_path = save_figure(
+        figs[1], feature_importance_fig_path)
+    shap_fig_path = save_figure(shap_fig, shap_fig_path)
 
     # The model scored every object in every source database, so the scores
     # belong back on every one of those databases -- not only in a CSV, and not

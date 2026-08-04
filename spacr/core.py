@@ -24,6 +24,7 @@ from .errors import RunLedger, raise_if_strict
 # RNG, one on_error policy at each batch boundary. See spacr.runctx.
 from . import artifacts as artifact_status
 from .runctx import run_context
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
@@ -963,11 +964,11 @@ def generate_image_umap(settings=None, return_fig=False):
         os.makedirs(results_dir, exist_ok=True)
         reduction_method = settings['reduction_method'].upper()
         embedding_path = os.path.join(results_dir, f'{reduction_method}_embedding.pdf')
-        umap_plt.savefig(embedding_path, format='pdf')
+        embedding_path = save_figure(umap_plt, embedding_path)
         print(f'Saved {reduction_method} embedding to {embedding_path} and grid to {embedding_path}')
         if settings['plot_cluster_grids'] and settings['plot_images']:
             grid_path = os.path.join(results_dir, f'{reduction_method}_grid.pdf')
-            grid_plt.savefig(grid_path, format='pdf')
+            grid_path = save_figure(grid_plt, grid_path)
             print(f'Saved {reduction_method} embedding to {embedding_path} and grid to {grid_path}')
 
     # Export the clustering result, never the optional presentation labels.
@@ -1216,7 +1217,8 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     if save:
         results_dir = os.path.join(settings['src'], 'results')
         os.makedirs(results_dir, exist_ok=True)
-        plt.savefig(os.path.join(results_dir, 'hyperparameter_search.pdf'))
+        save_figure(plt.gcf(),
+                    os.path.join(results_dir, 'hyperparameter_search'))
     if return_fig:
         return fig
     if show and not save:
@@ -1339,7 +1341,10 @@ def generate_screen_graphs(settings):
         os.makedirs(dst, exist_ok=True)
         
         # Save the figure and results DataFrame
-        fig.savefig(os.path.join(dst, f"figure_controls_{i}_{settings['representation']}_{settings['summary_func']}_{settings['graph_type']}.pdf"), format='pdf')
+        save_figure(fig, os.path.join(
+            dst,
+            f"figure_controls_{i}_{settings['representation']}"
+            f"_{settings['summary_func']}_{settings['graph_type']}"))
         res.to_csv(os.path.join(dst, f"results_controls_{i}_{settings['representation']}_{settings['summary_func']}_{settings['graph_type']}.csv"), index=False)
 
     return

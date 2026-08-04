@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import matplotlib as mpl
 from IPython.display import display
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 from IPython.display import Image as ipyimage
 import trackpy as tp
 from skimage.measure import regionprops_table
@@ -1635,7 +1636,7 @@ def save_figure(fig, src, figure_number):
     results_fldr = os.path.join(source,'results')
     os.makedirs(results_fldr, exist_ok=True)
     fig_loc = os.path.join(results_fldr, f'figure_{figure_number}.pdf')
-    fig.savefig(fig_loc)
+    fig_loc = save_figure(fig, fig_loc)
     print(f'Saved figure:{fig_loc}')
 
 def save_results_dataframe(df, src, results_name):
@@ -2896,7 +2897,7 @@ def _make_intensity_motility_panel(
             out_name = f"{meta_tag}_{label_tag}_{method_label}.pdf"
 
         out_path = os.path.join(motility_dir, out_name)
-        fig.savefig(out_path)  # PDF inferred from extension
+        out_path = save_figure(fig, out_path)
         plt.close(fig)
         print(
             f"[summarise_tracks_from_merged] Saved per-well intensity+motility panel "
@@ -4259,7 +4260,7 @@ def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pa
     fig.tight_layout()
     base = os.path.splitext(sample_filename)[0]
     out_path = os.path.join(out_dir, f"merged_planes_{base}.pdf")
-    fig.savefig(out_path, bbox_inches="tight")
+    out_path = save_figure(fig, out_path, bbox_inches="tight")
     plt.close(fig)
     print(
         f"[_debug_plot_merged_planes] Saved merged plane debug figure to {out_path}"
@@ -5103,7 +5104,7 @@ def _infection_qc_pca_clustering(
             out_png = os.path.join(
                 motility_dir, f"infection_{embed_method}_qc_embedding.png"
             )
-            fig.savefig(out_png, dpi=150, bbox_inches="tight")
+            out_png = save_figure(fig, out_png, bbox_inches="tight")
             plt.close(fig)
     except Exception as e:
         print(f"[infection_intensity_qc:PCA] Failed to save embedding QC plot: {e}")
@@ -5883,7 +5884,7 @@ def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir
         out_ch = os.path.join(
             motility_dir, f"intensity_channel{ch}_infected_vs_uninfected.png"
         )
-        fig_ch.savefig(out_ch, dpi=300)
+        out_ch = save_figure(fig_ch, out_ch)
         plt.close(fig_ch)
         print(
             f"[summarise_tracks_from_merged] Saved intensity sanity plot "
@@ -6046,7 +6047,7 @@ def _make_motility_plots(
 
     plt.tight_layout()
     out_png_all = os.path.join(motility_dir, "motility_all_tracks.png")
-    fig_all.savefig(out_png_all, dpi=300)
+    out_png_all = save_figure(fig_all, out_png_all)
     plt.close(fig_all)
     print(
         f"[summarise_tracks_from_merged] Saved combined motility plot to "
@@ -6141,7 +6142,7 @@ def _make_motility_plots(
         out_well = os.path.join(
             motility_dir, f"motility_{plateID}_{wellID}_all_tracks.png"
         )
-        fig_w.savefig(out_well, dpi=300)
+        out_well = save_figure(fig_w, out_well)
         plt.close(fig_w)
         print(
             f"[summarise_tracks_from_merged] Saved per-well motility plot "
@@ -6166,7 +6167,7 @@ def _make_motility_plots(
             out_inf = os.path.join(
                 motility_dir, f"motility_{plateID}_{wellID}_infected_origin.png"
             )
-            fig_inf.savefig(out_inf, dpi=300)
+            out_inf = save_figure(fig_inf, out_inf)
             plt.close(fig_inf)
             print(
                 f"[summarise_tracks_from_merged] Saved per-well infected "
@@ -6191,7 +6192,7 @@ def _make_motility_plots(
             out_uninf = os.path.join(
                 motility_dir, f"motility_{plateID}_{wellID}_uninfected_origin.png"
             )
-            fig_uninf.savefig(out_uninf, dpi=300)
+            out_uninf = save_figure(fig_uninf, out_uninf)
             plt.close(fig_uninf)
             print(
                 f"[summarise_tracks_from_merged] Saved per-well uninfected "
@@ -6535,7 +6536,7 @@ def _make_adjusted_qc_panel(
 
     out_name = f"infection_qc_panel_{label_tag}_{meta_tag}.png"
     out_path = os.path.join(motility_dir, out_name)
-    fig.savefig(out_path, dpi=300)
+    out_path = save_figure(fig, out_path)
     plt.close(fig)
 
     print(
@@ -6837,7 +6838,7 @@ def _infection_qc_histogram(
         hist_filename = f"infection_intensity_histogram_{meta_tag}.png"
         hist_path = os.path.join(motility_dir, hist_filename)
         fig_h.tight_layout()
-        fig_h.savefig(hist_path, dpi=200)
+        hist_path = save_figure(fig_h, hist_path)
         plt.close(fig_h)
 
         print(f"[infection_intensity_qc] Saved histogram to: {hist_path}")

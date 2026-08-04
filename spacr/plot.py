@@ -36,6 +36,175 @@ from .errors import RunLedger, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import write_tiff
 
+#: Shipped answers, used when the preference store cannot be reached — a
+#: pipeline run from the CLI, a notebook, a machine with no Qt installed.
+#: They are the same values the Preferences dialog defaults to, so a headless
+#: run and a GUI run that never touched the setting produce the same files.
+DEFAULT_FIGURE_FORMAT = "pdf"
+DEFAULT_FIGURE_DPI = 300
+
+#: Formats the figure-format preference can hold.
+FIGURE_FORMATS = ("png", "pdf")
+
+#: matplotlib's Agg backend refuses a canvas above 2**16 px on either axis and
+#: is unusable well before that. `spacrGraph._standerdize_figure_format` forces
+#: a **10 inch minimum** square canvas and grows it with the group count, so
+#: the DPI the preference offers is not always deliverable: a 50-inch grouped
+#: graph at 1200 DPI is 60 000 px square, four gigapixels. `deliverable_dpi`
+#: says so instead of letting matplotlib raise -- or worse, letting the file
+#: appear at a resolution nobody asked for.
+MAX_FIGURE_PX = 2 ** 16 - 1
+
+#: Above this the raster is not a figure any more. 200 megapixels is a
+#: 14 000 px square, already past any display or printer.
+MAX_FIGURE_MEGAPIXELS = 200
+
+
+def figure_output_preferences():
+    """Return ``(format, dpi)`` from the user's preferences.
+
+    Degrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI`
+    rather than raising: the preference store is Qt's, and the pipelines that
+    call this run headless from the CLI and from notebooks, where importing
+    PySide6 to decide a file extension would be absurd.
+    """
+    try:
+        from .qt.preferences import get_figure_format, get_figure_png_dpi
+        fmt = str(get_figure_format()).strip().lower()
+        dpi = int(get_figure_png_dpi())
+    except Exception:
+        return DEFAULT_FIGURE_FORMAT, DEFAULT_FIGURE_DPI
+    if fmt not in FIGURE_FORMATS:
+        fmt = DEFAULT_FIGURE_FORMAT
+    if dpi <= 0:
+        dpi = DEFAULT_FIGURE_DPI
+    return fmt, dpi
+
+
+def deliverable_dpi(fig, dpi, path=None):
+    """The DPI this figure can actually be written at, and a word if it is not
+    the one that was asked for.
+
+    A resolution preference is a request, not a guarantee. ``spacrGraph`` pins
+    its canvas to at least 10 inches square and grows it with the number of
+    groups, so 600 and 1200 DPI are simply not available for a large grouped
+    figure -- the raster would be tens of thousands of pixels on a side.
+
+    The old behaviour was to hand the number to matplotlib and find out. This
+    returns the DPI that will be used and says, by name, when that is not the
+    DPI that was requested. Appearing to accept a setting and then quietly
+    delivering another one is the failure this avoids.
+
+    :param fig: the figure about to be written.
+    :param dpi: the requested dots per inch.
+    :param path: destination, named in the message when there is one.
+    :returns: the DPI to pass to ``savefig``.
+    """
+    try:
+        width_in, height_in = (float(v) for v in fig.get_size_inches())
+    except Exception:
+        return int(dpi)
+    longest = max(width_in, height_in, 0.01)
+    area = max(width_in * height_in, 0.0001)
+
+    by_edge = MAX_FIGURE_PX / longest
+    by_area = ((MAX_FIGURE_MEGAPIXELS * 1_000_000) / area) ** 0.5
+    ceiling = int(min(by_edge, by_area))
+    if ceiling >= int(dpi):
+        return int(dpi)
+
+    ceiling = max(72, ceiling)
+    where = f" for {path}" if path else ""
+    print(
+        f"Figure DPI: {int(dpi)} was requested but this figure is "
+        f"{width_in:.0f}x{height_in:.0f} inches, so {int(dpi)} DPI would be "
+        f"{int(width_in * dpi)}x{int(height_in * dpi)} pixels. Writing at "
+        f"{ceiling} DPI instead{where}. Grouped graphs (spacrGraph) pin the "
+        "canvas to at least 10 inches and grow it with the group count, so "
+        "the highest DPI settings cannot be delivered for them.")
+    return ceiling
+
+
+def _with_extension(path, fmt):
+    """``path`` with its extension replaced by ``fmt``.
+
+    Only a *known figure extension* is replaced. ``os.path.splitext`` on its
+    own would turn ``plate_2.5_umap`` into ``plate_2.pdf`` -- and
+    ``plate_2.6_umap`` into the same name, which is two figures overwriting
+    one file.
+    """
+    text = str(path)
+    stem, extension = os.path.splitext(text)
+    known = {".png", ".pdf", ".svg", ".jpg", ".jpeg", ".tif", ".tiff", ".eps"}
+    if extension.lower() in known:
+        return f"{stem}.{fmt}"
+    return f"{text}.{fmt}"
+
+
+def save_figure(fig, path, *, fmt=None, dpi=None, close=False, **kwargs):
+    """Write ``fig`` to ``path``, honouring the figure preferences.
+
+    The single place a spaCR figure the user keeps gets written. Before this
+    existed there were sixty-odd ``savefig`` calls, each with its own
+    hard-coded format and DPI, and the "Figure format" and "Resolution"
+    preferences reached exactly two of them -- both writing to a temp
+    directory. Everything a pipeline saved into its results folder ignored
+    both settings entirely.
+
+    Three things are decided here rather than left to the caller or to
+    matplotlib.
+
+    **The format follows the preference**, and the file NAME follows the
+    format: a PNG written to ``figure.pdf`` is a file no viewer opens. An
+    explicit ``fmt=`` still wins, for the few callers that genuinely need one
+    particular format.
+
+    **Fonts are embedded as TrueType** (``pdf.fonttype = 42``) for the length
+    of the save. matplotlib's default is Type 3, which draws every glyph as
+    its own content stream: the file is still vector, but Illustrator and
+    Inkscape open the text as unselectable outlines, and the preference that
+    selects this path is labelled "PDF (vector, editable)". Scoped with
+    ``rc_context`` so a caller that has deliberately chosen otherwise is not
+    changed underneath it.
+
+    **The DPI is passed**, always. A PDF page is resolution-independent, but
+    spaCR figures are full of ``imshow`` panels -- cell montages, mask
+    overlays, plate heatmaps -- and those are rasterised at the figure's own
+    100 DPI unless told otherwise. Without it, 100, 300 and 600 produced
+    byte-identical files. What is passed is :func:`deliverable_dpi`, which
+    says so out loud when the requested number is not achievable here.
+
+    :param fig: a matplotlib ``Figure``.
+    :param path: destination; its extension is corrected to the format.
+    :param fmt: force a format, bypassing the preference.
+    :param dpi: force a DPI, bypassing the preference.
+    :param close: close the figure once written.
+    :param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.).
+    :returns: the path actually written, as a ``str``.
+    """
+    preferred_fmt, preferred_dpi = figure_output_preferences()
+    chosen_fmt = str(fmt or preferred_fmt).strip().lower().lstrip(".")
+    if chosen_fmt not in FIGURE_FORMATS:
+        chosen_fmt = preferred_fmt
+    chosen_dpi = int(dpi) if dpi else preferred_dpi
+
+    destination = _with_extension(path, chosen_fmt)
+    directory = os.path.dirname(str(destination))
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+
+    kwargs.pop("format", None)
+    kwargs.pop("dpi", None)
+    from matplotlib import rc_context
+    with rc_context({"pdf.fonttype": 42}):
+        fig.savefig(destination, format=chosen_fmt,
+                    dpi=deliverable_dpi(fig, chosen_dpi, destination),
+                    **kwargs)
+    if close:
+        plt.close(fig)
+    return destination
+
+
 def plot_image_mask_overlay(
     file,
     channels,
@@ -238,7 +407,7 @@ def plot_image_mask_overlay(
             pdf_path = os.path.join(
                 pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
             )
-            fig.savefig(pdf_path, format='pdf')
+            pdf_path = save_figure(fig, pdf_path)
 
         plt.show()
         return fig
@@ -578,7 +747,7 @@ def plot_image_mask_overlay_magenta_outlines(
             pdf_path = os.path.join(
                 pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
             )
-            fig.savefig(pdf_path, format='pdf')
+            pdf_path = save_figure(fig, pdf_path)
 
         plt.show()
         return fig
@@ -1124,8 +1293,8 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                 plt.show()
 
                 if save:
-                    save_path = os.path.join(folder,f"{filename}.png")
-                    plt.savefig(save_path)
+                    save_path = os.path.join(folder, f"{filename}.png")
+                    save_path = save_figure(plt.gcf(), save_path)
 
     if overlay:
         print(f'Overlay will only work on the first two folders in the list')
@@ -2372,7 +2541,7 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
         for i in range(0, 1000):
             filename = os.path.join(dst, f'plate_heatmap_{i}.pdf')
             if not os.path.exists(filename):
-                fig.savefig(filename, format='pdf')
+                filename = save_figure(fig, filename)
                 print(f'Saved heatmap to {filename}')
                 break
 
@@ -2645,7 +2814,7 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
         results_dir = os.path.join(src, 'results')
         os.makedirs(results_dir, exist_ok=True)
         fig_path = os.path.join(results_dir, f'{filename}.pdf')
-        fig.savefig(fig_path, format='pdf')
+        fig_path = save_figure(fig, fig_path)
         print(f'Saved figure to {fig_path}')
     return
 
@@ -2750,7 +2919,7 @@ def plot_histogram(df, column, dst=None):
     
     if not dst is None:
         filename = os.path.join(dst, f'{column}_histogram.pdf')
-        plt.savefig(filename, format='pdf')
+        filename = save_figure(plt.gcf(), filename)
         print(f'Saved histogram to {filename}')
 
     plt.show()
@@ -2866,7 +3035,8 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         save_path = os.path.join(os.path.dirname(csv_files[0]), 'results')
         os.makedirs(save_path, exist_ok=True)
         save_file_path = os.path.join(save_path, 'lorenz_curve_with_gini.pdf')
-        plt.savefig(save_file_path, format='pdf', bbox_inches='tight')
+        save_file_path = save_figure(plt.gcf(), save_file_path,
+                                     bbox_inches='tight')
         print(f"Saved Lorenz Curve: {save_file_path}")
     
     plt.show()
@@ -3091,7 +3261,8 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     
     # Save the plot to a file or display it
     if output_path:
-        plt.savefig(output_path, bbox_inches='tight')
+        output_path = save_figure(plt.gcf(), output_path,
+                                  bbox_inches='tight')
         print(f"Jitter plot saved to {output_path}")
     else:
         plt.show()
@@ -3254,14 +3425,17 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     if isinstance(y_lim, list) and len(y_lim) == 2:
         plt.ylim(y_lim)
 
-    # If save is True, save the plot and results as PNG and CSV
+    # If save is True, save the plot and the results table
     if save:
-        # Save the plot as PNG
-        plot_path = os.path.join(output_dir, 'grouped_plot.png')
+        # No extension: `save_figure` appends the one the figure-format
+        # preference selects. Naming the file .png here and then writing a
+        # PDF into it was the old behaviour, and it is a file no viewer
+        # opens.
+        plot_path = os.path.join(output_dir, 'grouped_plot')
         plt.title(f'{test_name} results for {graph_type} plot')
         plt.xticks(rotation=45)
         plt.tight_layout()
-        plt.savefig(plot_path)
+        plot_path = save_figure(plt.gcf(), plot_path)
         print(f"Plot saved to {plot_path}")
 
         # Save the test results as a CSV file
@@ -4345,7 +4519,13 @@ class spacrGraph:
 
         # Figure
         plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
-        self.fig.savefig(plot_path, bbox_inches='tight', dpi=600, transparent=True, format='pdf')
+        # dpi=600 was hard-coded here, and this is exactly the figure that
+        # cannot always take it: `_standerdize_figure_format` pins the
+        # canvas to >=10 inches square and grows it with the group count.
+        # `save_figure` follows the preference and says so when the number
+        # asked for is not deliverable at this size.
+        plot_path = save_figure(self.fig, plot_path, bbox_inches='tight',
+                                transparent=True)
 
         # Stats
         stats_path = os.path.join(self.output_dir, f"{self.results_name}_stats.csv")
@@ -4665,9 +4845,13 @@ def plot_region(settings):
         return sorted(paths, key=lambda path: os.path.basename(path))
 
     def save_figure_as_pdf(fig, path):
-        """Save ``fig`` as a PDF, creating parent directories as needed."""
-        os.makedirs(os.path.dirname(path), exist_ok=True)  # Create directory if it doesn't exist
-        fig.savefig(path, format='pdf', dpi=600, bbox_inches='tight')
+        """Save ``fig`` in the user's chosen figure format.
+
+        Named for the format it used to hard-code; it follows the
+        preference now, like every other figure the user keeps, and
+        `save_figure` creates the parent directory itself.
+        """
+        path = save_figure(fig, path, bbox_inches='tight')
         print(f"Saved {path}")
 
     from .io import _read_db
@@ -5062,7 +5246,8 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     if save:
         if save_path is None:
             raise ValueError("save_path must be provided when save=True.")
-        plt.savefig(save_path, dpi=300, bbox_inches="tight", format='pdf')
+        save_path = save_figure(plt.gcf(), save_path,
+                                bbox_inches="tight")
         print(f"Venn diagram saved to {save_path}")
     else:
         plt.show()
@@ -5364,7 +5549,7 @@ def volcano_plot(
             )
 
     if save_path:
-        fig.savefig(save_path, bbox_inches="tight")
+        save_path = save_figure(fig, save_path, bbox_inches="tight")
     if show:
         plt.show()
 

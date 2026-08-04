@@ -208,7 +208,8 @@ def test_create_grouped_plot_saves_plot_and_stats(tmp_path):
         df, grouping_column="grp", data_column="v1", graph_type="bar",
         output_dir=str(tmp_path), save=True)
 
-    assert (tmp_path / "grouped_plot.png").is_file()
+    # The extension follows the figure-format preference now.
+    assert len(list(tmp_path.glob("grouped_plot.*"))) == 1
     csv = tmp_path / "test_results.csv"
     assert csv.is_file()
     on_disk = pd.read_csv(csv)
