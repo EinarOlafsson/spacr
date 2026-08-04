@@ -82,6 +82,23 @@ def _make_screen(qtbot, app_key: str) -> AppScreen:
     return scr
 
 
+def _settle(qtbot, scr, timeout: int = 20000) -> AppScreen:
+    """Wait for the screen's background jobs to deliver.
+
+    The usage poll and the issue report run on worker threads -- ``GPUtil``
+    shells out to ``nvidia-smi`` (25 ms, every 2 s) and filing an issue shells
+    out to ``gh`` and then talks to api.github.com, which together froze the
+    window for up to 28 seconds when they ran inline. The consequence for a
+    test is that the effect of ``_refresh_usage()`` or ``_on_file_issue()`` is
+    not visible when the call returns; it is visible once the event loop has
+    run. This is that wait, kept an explicit call rather than hidden inside
+    ``_make_screen`` so each test says which of its steps is asynchronous.
+    """
+    qtbot.waitUntil(lambda: not scr.is_busy() and scr.active_jobs() == 0,
+                    timeout=timeout)
+    return scr
+
+
 def _write_csv(path: Path, rows, header=("Key", "Value")) -> Path:
     with open(path, "w", newline="") as fh:
         w = csv.writer(fh)
@@ -1173,8 +1190,10 @@ class TestErrorRouting:
         scr._settings_model._widgets["batch_size"].setValue(11)
         scr._settings_model._widgets["denoise"].setChecked(True)
         scr._on_pipeline_error("BOOM-TB")
-
+        # The button is revealed synchronously; the report is filed on a
+        # worker, so everything below it waits for the job.
         assert scr._btn_file_issue.isEnabled()
+        _settle(qtbot, scr)
         assert seen["tb"] == "BOOM-TB"
         assert seen["app"] == "mask"
         # The snapshot carries the user's actual settings, typed.
@@ -1201,6 +1220,11 @@ class TestErrorRouting:
         monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue", _boom)
         scr = _make_screen(qtbot, "mask")
         scr._on_pipeline_error("TB")
+        # The failure now happens on the worker, so it comes back through the
+        # completion handler rather than out of the `except` around the call.
+        # It must still reach the console: an auto-filed report that silently
+        # fails to send is worse than one that fails loudly.
+        _settle(qtbot, scr)
         assert "[issue] auto-file failed: github down" in _console_text(
             scr._console)
 
@@ -1230,6 +1254,7 @@ class TestErrorRouting:
 
         scr._settings_model._widgets = _HostileWidgets()
         scr._on_file_issue()
+        _settle(qtbot, scr)
         assert seen["settings"] == {}
         assert "[issue] opened pre-filled report" in _console_text(
             scr._console)
@@ -1245,6 +1270,7 @@ class TestErrorRouting:
         box.setChecked(True)
         scr._settings_model._widgets = {"a_flag": box, "a_label": QLabel("x")}
         scr._on_file_issue()
+        _settle(qtbot, scr)
         assert seen["settings"] == {"a_flag": True}
 
     def test_file_issue_button_is_inert_without_a_traceback(self, qtbot,
@@ -1264,6 +1290,7 @@ class TestErrorRouting:
         scr._last_error_text = "TB"
         scr._settings_model = None
         scr._on_file_issue()
+        _settle(qtbot, scr)
         assert seen["settings"] == {}
 
     def test_explain_error_opens_the_flow_and_emits_for_mainwindow(
@@ -1766,7 +1793,9 @@ class TestUsage:
 
     def test_refresh_usage_writes_real_percentages(self, qtbot):
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)               # the poll the constructor started
         scr._refresh_usage()
+        _settle(qtbot, scr)
         import psutil                      # already a spaCR dependency
         assert _pct(scr._usage_ram) == pytest.approx(
             psutil.virtual_memory().percent, abs=5.0)
@@ -1779,9 +1808,11 @@ class TestUsage:
         fake.getGPUs = lambda: []
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)
         scr._usage_gpu.set_value(55)
         scr._usage_vram.set_value(55)
         scr._refresh_usage()
+        _settle(qtbot, scr)
         assert _pct(scr._usage_gpu) == 0
         assert _pct(scr._usage_vram) == 0
 
@@ -1796,7 +1827,9 @@ class TestUsage:
         fake.getGPUs = lambda: [_Gpu()]
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)
         scr._refresh_usage()
+        _settle(qtbot, scr)
         assert _pct(scr._usage_gpu) == 25
         assert _pct(scr._usage_vram) == 50
 
@@ -1812,9 +1845,11 @@ class TestUsage:
         fake.cpu_percent = _boom
         fake.cpu_count = _boom
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)
         scr._usage_ram.set_value(42)
         monkeypatch.setitem(sys.modules, "psutil", fake)
         scr._refresh_usage()
+        _settle(qtbot, scr)
         assert _pct(scr._usage_ram) == 42
 
     def test_per_core_toggle_creates_one_bar_per_core_and_fills_them(
