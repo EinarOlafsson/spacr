@@ -41,3 +41,17 @@ mark at all.
 
 Nothing was copied. No napari image file exists in this repository; the
 rosette is built from the same `_draw` primitives as every other icon here.
+
+
+Drawn from the napari app icon the user supplied. Every
+one of these is a monochrome derivative of napari's mark,
+which is their trademark and not spaCR's -- picking one
+means shipping it as such. 06-10 above are original and
+carry no third-party mark.
+
+11. **napari_bridge_11** - [napari mark - their trademark] The napari bean, solid.
+12. **napari_bridge_12** - [napari mark - their trademark] The napari bean as an outline.
+13. **napari_bridge_13** - [napari mark - their trademark] The bean solid inside the app-icon frame.
+14. **napari_bridge_14** - [napari mark - their trademark] The bean outlined inside the frame.
+15. **napari_bridge_15** - [napari mark - their trademark] Solid bean with the cream rim of the original carried as a knocked-out gap.
+16. **napari_bridge_16** - [napari mark - their trademark] The bean small in its frame; the most whitespace and the best of these at 16 px.
