@@ -332,10 +332,13 @@ def test_switching_primary_object_does_not_duplicate_setting_help(qtbot):
 
     ``LiveSettingsDialog.refresh_visibility`` re-runs the whole decoration
     pass, and it is wired to ``_object_box.currentTextChanged``. Before the
-    fix every setting then carried two API dots, two animation dots and
-    emitted two tooltips per hover.
+    fix every setting then carried two API dots and emitted two tooltips per
+    hover.
+
+    Counted on ``DotLink``, the base of every dot, so the count also fails if
+    the purple animation dot the user asked to be removed ever comes back.
     """
-    from spacr.qt.widgets.animation_link import AnimationLink
+    from spacr.qt.widgets.dot_link import DotLink
     from spacr.qt.widgets.info_link import InfoLink
     from spacr.qt.widgets.live_preview import LivePreviewPanel, LiveSettingsDialog
 
@@ -345,20 +348,22 @@ def test_switching_primary_object_does_not_duplicate_setting_help(qtbot):
     qtbot.addWidget(dialog)
 
     before_api = len(dialog.findChildren(InfoLink))
-    before_anim = len(dialog.findChildren(AnimationLink))
+    before_dots = len(dialog.findChildren(DotLink))
     assert before_api >= 1, "the popup should have been decorated at all"
+    assert before_dots == before_api, (
+        "a decorated setting carries only the teal API dot")
 
     panel._object_box.setCurrentText("nucleus")
     QApplication.processEvents()
     assert len(dialog.findChildren(InfoLink)) == before_api
-    assert len(dialog.findChildren(AnimationLink)) == before_anim
+    assert len(dialog.findChildren(DotLink)) == before_dots
 
     # And it is not a one-shot guard: users flip this repeatedly.
     for choice in ("cell", "pathogen", "cell + nucleus", "nucleus", "cell"):
         panel._object_box.setCurrentText(choice)
         QApplication.processEvents()
     assert len(dialog.findChildren(InfoLink)) == before_api
-    assert len(dialog.findChildren(AnimationLink)) == before_anim
+    assert len(dialog.findChildren(DotLink)) == before_dots
 
 
 def test_switching_primary_object_emits_one_tooltip_per_hover(qtbot):
@@ -443,10 +448,10 @@ def test_the_label_host_is_unwrapped_on_a_second_pass(qtbot):
     """The second cause, which the label cache hides in the live dialog.
 
     Pass one replaces the form's label with a ``SettingLabelWithInfo`` host
-    holding ``[stretch][label][dots]``. ``QFormLayout.labelForField`` then
+    holding ``[stretch][label][dot]``. ``QFormLayout.labelForField`` then
     hands back the HOST -- a fresh widget with none of the label's guard
     properties -- so pass two decorated it again and the row grew a second
-    dot, a second animation dot and a second tooltip.
+    dot and a second tooltip.
 
     Asserted on ``_unwrap_setting_label`` directly because
     ``_setting_label_for_field`` remembers the label on the field and never

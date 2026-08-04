@@ -2,8 +2,7 @@
 
 Reported from the Mask module's live preview: switching *Primary object* from
 cell to nucleus re-gates the form, the decoration pass runs again, and every
-setting then showed **two** tooltips and **two** setting animations on a single
-hover.
+setting then showed **two** tooltips on a single hover.
 
 Qt keeps a *list* of event filters and calls each installation separately, so a
 second `installEventFilter` on the same widget doubles every delivery. The API
@@ -104,12 +103,23 @@ def test_the_api_dot_still_appears_exactly_once(qtbot):
     assert first >= 1, "the panel should have gained an API dot at all"
 
 
-def test_the_animation_dot_still_appears_exactly_once(qtbot):
-    """`cell_diameter` has a packaged animation, so it gets the purple dot."""
-    from spacr.qt.widgets.animation_link import AnimationLink
+def test_a_decorated_label_carries_exactly_one_dot(qtbot):
+    """`cell_diameter` has a packaged animation and still gets ONE dot.
+
+    It used to get two: the teal API dot and a purple one that opened the
+    animation in a popup of its own. The hover tooltip shows the animation
+    inline now, so the purple one went — and this counts every dot on the
+    decorated label rather than instances of a type, which is the only form
+    that can still fail if a second dot of some other class comes back.
+    """
+    from spacr.qt.widgets.dot_link import DotLink
 
     owner, label, field = _panel(qtbot)
     install_api_tooltips(owner, "mask")
-    first = len(owner.findChildren(AnimationLink))
-    install_api_tooltips(owner, "mask")
-    assert len(owner.findChildren(AnimationLink)) == first
+    host = label.parentWidget()
+    assert host.objectName() == "SettingLabelWithInfo", (
+        "the label was never decorated, so counting its dots proves nothing")
+    dots = host.findChildren(DotLink)
+    assert len(dots) == 1, (
+        f"{[d.objectName() for d in dots]} — a setting label carries one dot")
+    assert dots[0].objectName() == "SettingInfoLink"

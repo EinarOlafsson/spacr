@@ -2217,21 +2217,6 @@ def _api_reference_tooltip(key: str, language: Optional[str] = None) -> str:
     )
 
 
-def _animation_reference_tooltip(
-    key: str,
-    language: Optional[str] = None,
-) -> str:
-    """Localized accessible caption for a setting's purple animation dot."""
-    from ..i18n import tr
-
-    code = _language_code(language)
-    return tr(
-        "Show animation for {name}",
-        code,
-        name=_translated_setting_name(key, code),
-    )
-
-
 def format_tooltip(
     text: str,
     app_key: str,
@@ -2392,11 +2377,6 @@ def refresh_api_tooltips(
         role = str(widget.property("apiTooltipDisplayRole") or "tooltip")
         if role == "metadata":
             widget.setToolTip("")
-        elif role == "animation-link":
-            caption = _animation_reference_tooltip(str(key), code)
-            widget.setToolTip(caption)
-            widget.setAccessibleName(caption)
-            widget.setAccessibleDescription(caption)
         elif role == "api-link":
             caption = _api_reference_tooltip(str(key), code)
             widget.setToolTip(caption)
@@ -2429,14 +2409,13 @@ def install_api_tooltips(
     for widget in owner.findChildren(QWidget):
         if widget.property("settingHelpLabel"):
             continue
-        # The dots this pass CREATES carry `settingKey` themselves, so they
-        # are found by the sweep the next time it runs and decorated as though
-        # they were settings — each one growing its own pair of dots. That is
-        # what made the live-preview panel sprout duplicates every time the
-        # form was re-gated (switching Primary object from cell to nucleus).
-        # They are help, not settings; skip them.
-        if widget.property("apiTooltipDisplayRole") in (
-                "api-link", "animation-link"):
+        # The dot this pass CREATES carries `settingKey` itself, so it is
+        # found by the sweep the next time it runs and decorated as though it
+        # were a setting — each one growing its own dot. That is what made the
+        # live-preview panel sprout duplicates every time the form was re-gated
+        # (switching Primary object from cell to nucleus).
+        # It is help, not a setting; skip it.
+        if widget.property("apiTooltipDisplayRole") == "api-link":
             continue
         key = widget.property("settingKey")
         if key and widget not in mapped:
@@ -2457,8 +2436,8 @@ def install_api_tooltips(
             # teal API dot immediately after the combined label/control.
             # Remove before installing. Qt keeps a LIST of filters and calls
             # each installation separately, so decorating the same widget
-            # twice makes one hover emit two tooltips and two animation
-            # popups. `removeEventFilter` is a no-op when the filter is not
+            # twice makes one hover emit two tooltips.
+            # `removeEventFilter` is a no-op when the filter is not
             # installed, which makes this idempotent for free.
             widget.removeEventFilter(event_filter)
             widget.installEventFilter(event_filter)
@@ -2480,10 +2459,10 @@ def install_api_tooltips(
         # Idempotent, for the reason above: this decoration pass runs again
         # whenever the live-preview form is re-gated -- changing the primary
         # object from cell to nucleus, for instance -- and a second
-        # installation on the same label duplicated every tooltip and every
-        # setting animation on the panel. The API dots did not duplicate
-        # because `_add_api_dot_to_label` guards on a property; the filter had
-        # no such guard.
+        # installation on the same label duplicated every tooltip on the
+        # panel. The API dots did not duplicate because
+        # `_add_api_dot_to_label` guards on a property; the filter had no such
+        # guard.
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
 
@@ -2499,12 +2478,12 @@ def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
     """Return the real label inside a `SettingLabelWithInfo` host.
 
     The first decoration pass replaces the form's label with a host widget
-    holding ``[stretch][label][dots]``. On a SECOND pass
+    holding ``[stretch][label][dot]``. On a SECOND pass
     ``QFormLayout.labelForField`` therefore hands back the HOST, not the
     label — a fresh widget with none of the label's guard properties — so the
-    pass decorated it again and the panel grew a second dot, a second
-    animation dot and a second tooltip per setting. That is what switching
-    Primary object from cell to nucleus did in the Mask live preview.
+    pass decorated it again and the panel grew a second dot and a second
+    tooltip per setting. That is what switching Primary object from cell to
+    nucleus did in the Mask live preview.
 
     Unwrapping restores the invariant the guards rely on: the same label
     object is found every time.
@@ -2568,16 +2547,19 @@ def build_setting_link_widget(
     html: str,
     body_source: str = "",
     parent: Optional[QWidget] = None,
-) -> Tuple[QWidget, QWidget, Optional[QWidget]]:
-    """Build API help and, when available, stacked animation help links.
+) -> Tuple[QWidget, QWidget, None]:
+    """Build the one teal API dot that sits beside a setting label.
 
-    The purple animation dot sits above the teal API dot. Their combined
-    28-pixel stack is vertically centred on the setting label, so the midpoint
-    between both marks aligns with the label text line.
+    A setting used to carry two dots: this one and a purple one that opened
+    the setting's animation in a popup of its own. The hover tooltip shows
+    that animation inline now, on request, so the purple dot was 585 coloured
+    marks of clutter for a window nothing else needed. It is gone, and so is
+    the stack that held the pair apart.
 
-    :returns: ``(layout_widget, api_dot, animation_dot_or_none)``.
+    :returns: ``(layout_widget, api_dot, None)``. The third slot is kept —
+        always ``None`` — because ``AppScreen`` unpacks three values; there is
+        no second dot for it to receive any more.
     """
-    from ..widgets.animation_link import AnimationLink, SettingLinkStack
     from ..widgets.info_link import InfoLink
 
     api_dot = InfoLink(
@@ -2591,37 +2573,8 @@ def build_setting_link_widget(
     api_dot.setProperty("apiTooltipDescription", body_source)
     api_dot.setProperty("apiTooltipHtml", html)
     api_dot.setProperty("apiTooltipDisplayRole", "api-link")
-
-    try:
-        from spacr.setting_animations import (
-            SettingAnimationError,
-            animation_for_setting,
-        )
-        animation = animation_for_setting(key)
-    except SettingAnimationError:
-        LOGGER.exception(
-            "Setting animation registry is invalid; %s.%s keeps API help only",
-            app_key,
-            key,
-        )
-        animation = None
-
-    if animation is None:
-        api_dot.setParent(parent)
-        return api_dot, api_dot, None
-
-    animation_dot = AnimationLink(
-        animation,
-        tooltip=_animation_reference_tooltip(key),
-    )
-    animation_dot.setProperty("settingsAppKey", app_key)
-    animation_dot.setProperty("settingKey", key)
-    animation_dot.setProperty("apiTooltipDescriptionSource", body_source)
-    animation_dot.setProperty("apiTooltipDescription", body_source)
-    animation_dot.setProperty("apiTooltipHtml", html)
-    animation_dot.setProperty("apiTooltipDisplayRole", "animation-link")
-    stack = SettingLinkStack(animation_dot, api_dot, parent=parent)
-    return stack, api_dot, animation_dot
+    api_dot.setParent(parent)
+    return api_dot, api_dot, None
 
 
 def _add_api_dot_to_label(
@@ -2651,14 +2604,12 @@ def _add_api_dot_to_label(
     label.setParent(host)
     row.addWidget(label)
     body_source = str(label.property("apiTooltipDescriptionSource") or "")
-    links, dot, animation_dot = build_setting_link_widget(
+    links, dot, _ = build_setting_link_widget(
         app_key, key, html, body_source, parent=host,
     )
     row.addWidget(links, 0, Qt.AlignVCenter)
     label.setProperty("settingApiDotInstalled", True)
     label._spacr_api_dot = dot
-    if animation_dot is not None:
-        label._spacr_animation_dot = animation_dot
 
 
 def _add_api_dot_to_combined_control(
@@ -2693,14 +2644,12 @@ def _add_api_dot_to_combined_control(
     field.setParent(host)
     row.addWidget(field)
     body_source = str(field.property("apiTooltipDescriptionSource") or "")
-    links, dot, animation_dot = build_setting_link_widget(
+    links, dot, _ = build_setting_link_widget(
         app_key, key, html, body_source, parent=host,
     )
     row.addWidget(links, 0, Qt.AlignVCenter)
     row.addStretch(1)
     field._spacr_api_dot = dot
-    if animation_dot is not None:
-        field._spacr_animation_dot = animation_dot
 
 
 # ---------------------------------------------------------------------------
