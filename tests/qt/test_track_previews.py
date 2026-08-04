@@ -1049,7 +1049,7 @@ def test_point_table_honours_the_frame_cap(plate_dir):
 
 def test_motility_panel_builds_offscreen(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert "px/frame" in panel._unit_label.text()
     assert panel.calibration().known is False
@@ -1065,7 +1065,7 @@ def test_motility_card_factory(qtbot):
 
 def test_motility_unreadable_input_reports_inline(qtbot, tmp_path):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(str(tmp_path / "nope")) is False
     assert "Load failed" in panel._status.text()
@@ -1075,7 +1075,7 @@ def test_motility_unreadable_input_reports_inline(qtbot, tmp_path):
 
 def test_motility_load_detects_groups_and_planes(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(plate_dir) is True
     assert panel._group_box.count() == 1
@@ -1085,7 +1085,7 @@ def test_motility_load_detects_groups_and_planes(qtbot, plate_dir):
 
 def test_motility_run_produces_a_summary(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000) as sig:
@@ -1125,7 +1125,7 @@ def test_metric_change_recomputes_without_rereading(qtbot, plate_dir, monkeypatc
 
 def test_setting_the_calibration_live_converts_the_velocities(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000) as raw:
@@ -1146,7 +1146,7 @@ def test_setting_the_calibration_live_converts_the_velocities(qtbot, plate_dir):
 
 def test_straightness_filter_drops_the_flagged_tracks(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000) as before:
@@ -1159,7 +1159,7 @@ def test_straightness_filter_drops_the_flagged_tracks(qtbot, plate_dir):
 
 def test_max_displacement_drops_impossible_tracks_live(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000):
@@ -1171,7 +1171,7 @@ def test_max_displacement_drops_impossible_tracks_live(qtbot, plate_dir):
 
 def test_motility_completion_handler_runs_on_the_gui_thread(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     seen = {}
     panel.preview_ready.connect(
@@ -1212,7 +1212,7 @@ def test_motility_panel_reports_a_worker_failure_inline(qtbot, plate_dir,
 
 def test_motility_propagation_never_invents_a_calibration(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     captured = {}
     panel.set_propagate_callback(captured.update)
@@ -1233,7 +1233,7 @@ def test_motility_propagation_never_invents_a_calibration(qtbot, plate_dir):
 def test_motility_propagate_keys_are_real_settings(qtbot):
     import spacr.settings as S
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel._pixels_per_um.setValue(1.78)
     panel._seconds_per_frame.setValue(60.0)
@@ -1247,7 +1247,7 @@ def test_motility_propagate_keys_are_real_settings(qtbot):
 def test_motility_apply_settings_round_trips(qtbot):
     import spacr.settings as S
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.apply_settings(
         S.get_automated_motility_assay_default_settings(settings={}))
@@ -1259,7 +1259,7 @@ def test_motility_apply_settings_round_trips(qtbot):
 
 def test_tracked_object_moves_the_mask_plane(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel._n_channels.setValue(4)
     panel._tracked_object.setCurrentText("pathogen")
@@ -1271,7 +1271,7 @@ def test_tracked_object_moves_the_mask_plane(qtbot):
 def test_motility_propagate_failure_is_swallowed(qtbot):
     """Same contract as the timelapse panel: one lost push, panel intact."""
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
 
     panel._max_disp.setValue(37.0)
@@ -1470,7 +1470,7 @@ def test_label_recovery_is_empty_frame_safe():
 
 def test_timelapse_accepts_a_dropped_folder(qtbot, frame_dir):
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
-    panel = TimelapsePreviewPanel()
+    panel = TimelapsePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     evt = _Evt(_mime_for(frame_dir))
     panel.dragEnterEvent(evt)
@@ -1500,7 +1500,7 @@ def test_timelapse_rejects_an_unsupported_drop(qtbot, tmp_path):
 def test_motility_accepts_a_dropped_plate_folder(qtbot, plate_dir, tmp_path):
     from PySide6.QtCore import QMimeData
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     evt = _Evt(_mime_for(plate_dir))
     panel.dragEnterEvent(evt)
@@ -1528,7 +1528,7 @@ def test_pickers_route_the_chosen_path(qtbot, monkeypatch, frame_dir, mask_dir,
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
 
-    panel = TimelapsePreviewPanel()
+    panel = TimelapsePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         staticmethod(lambda *a, **k: frame_dir))
@@ -1539,7 +1539,7 @@ def test_pickers_route_the_chosen_path(qtbot, monkeypatch, frame_dir, mask_dir,
     panel._pick_masks()
     assert panel._mask_sequence is not None
 
-    mot = MotilityPreviewPanel()
+    mot = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(mot)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         staticmethod(lambda *a, **k: plate_dir))
@@ -1568,7 +1568,7 @@ def test_closing_a_panel_waits_for_its_worker(qtbot, frame_dir,
     panel.close()                    # while the worker may still be running
     assert panel._worker is None or not panel._worker.isRunning()
 
-    mot = MotilityPreviewPanel()
+    mot = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(mot)
     mot.load_folder(plate_dir)
     mot.run_preview()
@@ -1590,7 +1590,7 @@ def test_a_second_run_while_one_is_in_flight_is_refused(qtbot, frame_dir,
         assert "already running" in panel._status.text()
     qtbot.waitUntil(lambda: panel._worker is None, timeout=8000)
 
-    mot = MotilityPreviewPanel()
+    mot = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(mot)
     mot.load_folder(plate_dir)
     mot.run_preview()
@@ -1612,7 +1612,7 @@ def test_an_empty_worker_result_is_reported(qtbot, frame_dir):
 def test_motility_empty_point_table_is_reported(qtbot, plate_dir):
     import pandas as pd
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     panel._on_worker_done(pd.DataFrame(), "")
@@ -1633,7 +1633,7 @@ def test_switching_group_clears_the_cache(qtbot, tmp_path):
             _disc(cell, 8, 6 + 2 * t, 3, 1)
             arr[4] = cell
             np.save(str(merged / f"plate1_A01_{field}_{t}.npy"), arr)
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(str(src)) is True
     assert panel._group_box.count() == 2
@@ -1646,7 +1646,7 @@ def test_switching_group_clears_the_cache(qtbot, tmp_path):
 
 def test_recompute_before_a_run_is_a_no_op(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.recompute()                 # nothing cached yet
     panel._min_len.setValue(9)        # metric change with no data
@@ -1899,7 +1899,7 @@ def test_propagate_toggle_pushes_on_every_run(qtbot, frame_dir,
 
 def test_motility_propagate_toggle_pushes_on_every_run(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     pushes = []
     panel.set_propagate_callback(lambda d: pushes.append(dict(d)))
@@ -1920,7 +1920,7 @@ def test_apply_settings_moves_the_diameter(qtbot):
 
 def test_motility_apply_settings_survives_junk(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.apply_settings({"max_displacement": "not a number"})   # no raise
     assert panel._max_disp.value() == pytest.approx(50.0)
@@ -1939,7 +1939,7 @@ def test_a_plate_whose_groups_are_all_single_frame_is_refused(qtbot, tmp_path):
     merged = tmp_path / "oneshot" / "merged"
     merged.mkdir(parents=True)
     np.save(str(merged / "plate1_A01_1_0.npy"), np.zeros((6, H, W), np.float32))
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(str(tmp_path / "oneshot")) is False
     assert "time series" in panel._status.text()
@@ -1982,7 +1982,7 @@ def test_resolve_accepts_a_file_inside_the_plate_folder(plate_dir):
 
 def test_summary_survives_a_cutoff_that_excludes_everything(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000):
@@ -2009,7 +2009,7 @@ def test_a_broken_plot_is_reported_not_raised(qtbot, plate_dir, monkeypatch):
 def test_plane_autodetect_survives_an_unreadable_array(qtbot, plate_dir,
                                                        monkeypatch):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     monkeypatch.setattr(np, "load",
                         lambda *a, **k: (_ for _ in ()).throw(OSError("gone")))
