@@ -694,9 +694,21 @@ def test_test_cellpose_model_renders_each_diagnostic_once(tmp_path, cp_stub,
                                                           monkeypatch):
     from spacr.submodules import test_cellpose_model
 
+    # The seam moved; the assertion did not. 63dbcc94 routed every kept figure
+    # through ``spacr.plot.save_figure``, which writes with ``fig.savefig``
+    # on the figure object -- so the module-level ``plt.savefig`` this used to
+    # watch is never called any more, at any format, and ``saved`` stayed
+    # empty. Watching ``SUB.save_figure`` counts the same event where the
+    # product now writes it, and records the path it actually wrote.
     saved = []
-    monkeypatch.setattr(SUB.plt, "savefig",
-                        lambda path, **kw: saved.append(str(path)))
+    real_save_figure = SUB.save_figure
+
+    def _record(fig, path, **kwargs):
+        written = real_save_figure(fig, path, **kwargs)
+        saved.append(str(written))
+        return written
+
+    monkeypatch.setattr(SUB, "save_figure", _record)
 
     labels = [_label_image(32, [(1, (2, 10, 2, 10))])]
     written = _write_pairs(tmp_path, "test", labels)
@@ -706,6 +718,7 @@ def test_test_cellpose_model_renders_each_diagnostic_once(tmp_path, cp_stub,
     test_cellpose_model(_test_settings(tmp_path, save=True))
 
     assert len(saved) == 1
+    assert os.path.isfile(saved[0])
 
 
 def test_test_cellpose_model_only_scores_matched_filenames(tmp_path, cp_stub,
