@@ -229,24 +229,30 @@ def test_the_anchor_keeps_its_tooltip_text_for_screen_readers(tooltip, qtbot):
 
 def test_claiming_the_same_anchor_twice_installs_one_suppressor(
         tooltip, qtbot):
-    """Qt keeps a LIST of filters; re-hovering must not grow it."""
+    """Qt keeps a LIST of filters; re-hovering must not grow it.
+
+    A doubled suppressor would still swallow the tooltip, so the symptom
+    here is not a second popup — it is a singleton that adds a filter to
+    every label it is ever shown for and never takes one away. What is
+    measured is therefore the remove/install pairing itself.
+    """
     anchor = _anchor(qtbot)
-    installs = []
-    original = anchor.installEventFilter
+    calls = []
+    real_install = anchor.installEventFilter
+    real_remove = anchor.removeEventFilter
 
-    def counting(filter_object):
-        installs.append(filter_object)
-        return original(filter_object)
+    anchor.installEventFilter = lambda f: (
+        calls.append(("install", f)), real_install(f))[1]
+    anchor.removeEventFilter = lambda f: (
+        calls.append(("remove", f)), real_remove(f))[1]
 
-    anchor.installEventFilter = counting
     for _ in range(4):
         tooltip.show_for(anchor, HTML)
-    assert installs.count(tooltip._tooltip_suppressor) == 4, (
-        "the popup stopped re-claiming its anchor")
-    # Each install is preceded by a remove, so the filter is present once —
-    # a doubled filter would swallow the event twice, which is harmless, but
-    # an unbounded list on a singleton is not.
-    tooltip._tooltip_suppressor.deleteLater()
+
+    suppressor = tooltip._tooltip_suppressor
+    ours = [action for action, f in calls if f is suppressor]
+    assert ours == ["remove", "install"] * 4, (
+        f"the popup does not remove before it installs: {ours}")
 
 
 # ---------------------------------------------------------------------------
