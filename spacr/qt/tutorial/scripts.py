@@ -117,6 +117,27 @@ def _menu_bar(window):
     return window.menuBar()
 
 
+def _find_menu(window, title: str):
+    """The menu-bar menu titled ``title``, ignoring ``&``, or ``None``.
+
+    Found through ``bar.findChildren(QMenu)`` rather than by walking
+    ``menuBar().actions()`` and calling ``QAction.menu()``. On PySide6 6.11
+    the QMenu wrapper that reading returns is only valid while the QAction
+    wrapper it came off is alive, so it goes stale the moment the function
+    returns — and keeping the owners alive as attributes segfaults during
+    the next event dispatch instead. ``findChildren`` hands back children
+    the bar owns in C++, valid for as long as the window is.
+
+    Delegates to :func:`spacr.qt.first_run.find_menu`, which is the same
+    lookup; a second copy is a second thing to get wrong.
+    """
+    try:
+        from ..first_run import find_menu
+    except Exception:
+        return None
+    return find_menu(window, title)
+
+
 def _menu_target(window, title: str):
     """Return ``(menubar, centre-of-the-<title>-menu)`` for a Step target.
 
@@ -125,14 +146,19 @@ def _menu_target(window, title: str):
     different font scale — cannot leave the cursor pointing at blank
     chrome.
 
+    The geometry is looked up through the menu's own ``menuAction()``, which
+    the QMenu owns, rather than through an action plucked out of the bar's
+    action list — see :func:`_find_menu` for why the latter does not
+    survive.
+
     :returns: ``(menubar, (x, y))``, or ``(menubar, None)`` when no menu
         with that title exists (the cursor then aims at the bar centre).
     """
     mb = window.menuBar()
-    for act in mb.actions():
-        if act.text().replace("&", "") == title:
-            rect = mb.actionGeometry(act)
-            return (mb, (rect.center().x(), rect.center().y()))
+    menu = _find_menu(window, title)
+    if menu is not None:
+        rect = mb.actionGeometry(menu.menuAction())
+        return (mb, (rect.center().x(), rect.center().y()))
     LOG.warning("tutorial: menu bar has no %r menu", title)
     return (mb, None)
 
@@ -218,18 +244,18 @@ def _open_demos_menu(window):
     rename of the menu is detectable instead of silently turning the
     step into a no-op.
 
-    Returns the menu's ``QAction`` rather than ``act.menu()``: the
-    menu-bar action is owned by the bar and stays valid, whereas the
-    QMenu wrapper handed back by ``QAction.menu()`` can come back
-    already-invalidated after a garbage collection.
+    Resolved through :func:`_find_menu`, which reaches the QMenu as a C++
+    child of the menu bar. The obvious reading — walk ``menuBar().actions()``
+    and call ``QAction.menu()`` — hands back a wrapper that dies with the
+    action wrapper it came off, so it was already invalid by the time this
+    returned.
 
-    :returns: the ``QAction`` titled "Demos", or ``None``.
+    :returns: the QMenu titled "Demos", or ``None``.
     """
-    for act in window.menuBar().actions():
-        if act.text().replace("&", "") == "Demos":
-            return act
-    LOG.warning("tutorial: no Demos menu on the menu bar")
-    return None
+    menu = _find_menu(window, "Demos")
+    if menu is None:
+        LOG.warning("tutorial: no Demos menu on the menu bar")
+    return menu
 
 
 # ---------------------------------------------------------------------------
