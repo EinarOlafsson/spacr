@@ -1,7 +1,11 @@
 """Defaults, types, categories, descriptions, and validation for settings."""
 
 import inspect
+import logging
+import sys
 import os, ast
+
+LOG = logging.getLogger(__name__)
 
 #from wsgiref import types
 
@@ -658,10 +662,112 @@ def set_default_settings_preprocess_img_data(settings):
     return settings
 
 
-#: What a Cellpose model setting may be, now that Cellpose 4 exists: the one
-#: stock model, or a path to a checkpoint the user trained themselves. There
-#: is no third option, so no dropdown in spaCR offers one.
+#: The fallback, and only the fallback: what a Cellpose model setting may be
+#: if Cellpose itself cannot be asked. Cellpose 4 ships one stock model, so a
+#: dropdown that degrades to this is still correct rather than merely
+#: non-empty. The live answer comes from :func:`cellpose_model_choices`.
 CELLPOSE_MODEL_CHOICES = ('cpsam',)
+
+#: Accepted-but-mapped spellings, appended to a model dropdown so a settings
+#: CSV written against Cellpose 3 still round-trips through the GUI. They all
+#: resolve to ``cpsam`` — see :func:`normalize_cellpose_model_name`.
+_CELLPOSE_ALIASES = ('cyto3', 'cyto2', 'nuclei')
+
+#: Resolved at most once per process. ``None`` = not read yet.
+_CELLPOSE_MODELS_CACHE = None
+
+
+def _read_cellpose_models():
+    """Ask Cellpose which models exist. ``()`` if it cannot be asked.
+
+    ``cellpose.models.MODEL_NAMES`` is the stock list and
+    ``cellpose.models.get_user_models()`` is the registry
+    ``cellpose.io.add_model`` writes — a user who trains a checkpoint and
+    registers it should see it in the dropdown without spaCR shipping a
+    new release.
+    """
+    try:
+        from cellpose import models as cp_models
+    except Exception:
+        LOG.debug("Cellpose could not be imported; using the shipped "
+                  "model list", exc_info=True)
+        return ()
+
+    names = list(getattr(cp_models, "MODEL_NAMES", ()) or ())
+    try:
+        names += list(cp_models.get_user_models() or ())
+    except Exception:
+        # A malformed ~/.cellpose/models/gui_models.txt must not cost the
+        # user the stock models as well.
+        LOG.debug("Could not read the Cellpose user-model registry",
+                  exc_info=True)
+
+    out, seen = [], set()
+    for name in names:
+        name = str(name).strip()
+        if name and name not in seen:
+            seen.add(name)
+            out.append(name)
+    return tuple(out)
+
+
+def cellpose_model_choices(block=False, refresh=False):
+    """Every Cellpose model on this machine, read from the Cellpose API.
+
+    The list used to be a literal, which meant spaCR could be wrong in
+    both directions: it offered models Cellpose 4 had removed, and it
+    could not offer a checkpoint the user had registered.
+
+    Importing ``cellpose.models`` costs ~2.5 s — it pulls in torch — and
+    this is called while a settings page is being built, so by default it
+    reads the API only when Cellpose is **already imported**. This is the
+    same bargain :func:`spacr.settings_spec._torchvision_model_names`
+    strikes for the torchvision zoo, and for the same measured reason. By
+    the time anything has segmented, Cellpose is loaded and the next
+    dropdown built is live.
+
+    :param block: import Cellpose if it is not loaded. For a caller that
+        can afford the wait and wants the definitive answer.
+    :param refresh: ignore the cache and ask again — for a caller that
+        has just registered a model.
+    :returns: a non-empty tuple, ``cpsam`` first. Never empty: a dropdown
+        with nothing in it is worse than one that is out of date.
+    """
+    global _CELLPOSE_MODELS_CACHE
+    if refresh:
+        _CELLPOSE_MODELS_CACHE = None
+    if _CELLPOSE_MODELS_CACHE is not None:
+        return _CELLPOSE_MODELS_CACHE
+
+    if block or sys.modules.get("cellpose.models") is not None:
+        names = _read_cellpose_models()
+        if names:
+            # Cache only a real answer. A miss because Cellpose is not
+            # loaded yet must not pin the fallback for the process.
+            _CELLPOSE_MODELS_CACHE = _cpsam_first(names)
+            return _CELLPOSE_MODELS_CACHE
+    return tuple(CELLPOSE_MODEL_CHOICES)
+
+
+def _cpsam_first(names):
+    """``names`` with the default model first, order otherwise preserved."""
+    default = CELLPOSE_MODEL_CHOICES[0]
+    if default in names:
+        return (default,) + tuple(n for n in names if n != default)
+    return tuple(names)
+
+
+def cellpose_model_menu(block=False, refresh=False):
+    """:func:`cellpose_model_choices` plus the legacy spellings.
+
+    What a *dropdown* offers, as opposed to what Cellpose has. The three
+    pre-SAM names are not four choices — Cellpose resolves all of them to
+    cpsam — but a user whose saved settings say ``cyto2`` has to be able
+    to see their own value in the combo rather than have it silently
+    replaced the first time they open the panel.
+    """
+    live = cellpose_model_choices(block=block, refresh=refresh)
+    return live + tuple(n for n in _CELLPOSE_ALIASES if n not in live)
 
 
 def normalize_cellpose_model_name(value, object_type=None, key=None):
