@@ -248,18 +248,33 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
         "batch_correction": [
             "none", "control_center", "robust_zscore", "center", "zscore",
+            # combat is last because it is the only one that needs an
+            # answer from the user first: without batch_covariate_column
+            # it refuses to run rather than deleting the contrast the
+            # screen is measuring. See spacr.batch_correction._combat.
+            "combat",
         ],
         "batch_missing_control": ["error", "skip"],
     },
     "ml_analyze": {
         "batch_correction": [
             "none", "control_center", "robust_zscore", "center", "zscore",
+            # combat is last because it is the only one that needs an
+            # answer from the user first: without batch_covariate_column
+            # it refuses to run rather than deleting the contrast the
+            # screen is measuring. See spacr.batch_correction._combat.
+            "combat",
         ],
         "batch_missing_control": ["error", "skip"],
     },
     "regression": {
         "batch_correction": [
             "none", "control_center", "robust_zscore", "center", "zscore",
+            # combat is last because it is the only one that needs an
+            # answer from the user first: without batch_covariate_column
+            # it refuses to run rather than deleting the contrast the
+            # screen is measuring. See spacr.batch_correction._combat.
+            "combat",
         ],
         "batch_missing_control": ["error", "skip"],
     },
@@ -296,7 +311,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
-            "batch_control_values", "batch_min_samples",
+            "batch_control_values", "batch_covariate_column",
+            "batch_combat_mean_only", "batch_min_samples",
             "batch_missing_control",
         )),
         ("Classifier & Validation", (
@@ -496,7 +512,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
-            "batch_control_values", "batch_min_samples",
+            "batch_control_values", "batch_covariate_column",
+            "batch_combat_mean_only", "batch_min_samples",
             "batch_missing_control",
         )),
         ("Model & Covariates", (
@@ -1005,7 +1022,8 @@ def categories_for_app(
     if app_key == "umap":
         batch_correction = (
             "batch_correction", "batch_column", "batch_control_column",
-            "batch_control_values", "batch_min_samples",
+            "batch_control_values", "batch_covariate_column",
+            "batch_combat_mean_only", "batch_min_samples",
             "batch_missing_control",
         )
         display = (

@@ -780,6 +780,9 @@ def generate_image_umap(settings=None, return_fig=False):
             all_df, settings['filter_by'],
             settings['remove_highly_correlated'], settings['log_data'],
             settings['exclude'],
+            batch_covariate_column=settings.get('batch_covariate_column'),
+            batch_combat_mean_only=bool(
+                settings.get('batch_combat_mean_only', False)),
             **correction_kwargs(
                 settings,
                 default_control_column=settings.get('col_to_compare'),
@@ -817,6 +820,9 @@ def generate_image_umap(settings=None, return_fig=False):
             all_df, settings['filter_by'],
             settings['remove_highly_correlated'], settings['log_data'],
             settings['exclude'],
+            batch_covariate_column=settings.get('batch_covariate_column'),
+            batch_combat_mean_only=bool(
+                settings.get('batch_combat_mean_only', False)),
             **correction_kwargs(
                 settings,
                 default_control_column=settings.get('col_to_compare'),
@@ -842,6 +848,10 @@ def generate_image_umap(settings=None, return_fig=False):
                 all_df, settings['filter_by'],
                 settings['remove_highly_correlated'], settings['log_data'],
                 settings['exclude'],
+                batch_covariate_column=settings.get(
+                    'batch_covariate_column'),
+                batch_combat_mean_only=bool(
+                    settings.get('batch_combat_mean_only', False)),
                 **correction_kwargs(
                     settings,
                     default_control_column=settings.get('col_to_compare'),
@@ -1114,6 +1124,9 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     numeric_data = preprocess_data(
         all_df, settings['filter_by'], settings['remove_highly_correlated'],
         settings['log_data'], settings['exclude'],
+        batch_covariate_column=settings.get('batch_covariate_column'),
+        batch_combat_mean_only=bool(
+            settings.get('batch_combat_mean_only', False)),
         **correction_kwargs(
             settings,
             default_control_column=settings.get('col_to_compare'),
