@@ -7,6 +7,16 @@ messages, separated by dark-gray "topic" bars ("Mask", "Measure",
 can type at any time; a switch on the left decides whether the
 message goes to the AI or is ignored.
 
+Resizing
+--------
+The scrolling console box and the AI chat box below it are the two halves
+of a vertical ``QSplitter``, so the handle between them can be dragged to
+trade height: a taller chat box is a shorter console, pixel for pixel. The
+default seats the handle exactly where the old fixed-height layout drew it,
+so nothing moves for a user who never drags. When the panel is built with a
+``persist_key`` the position is saved per screen (``QSplitter.saveState``,
+under ``console/split/<key>``) and restored the next time that screen opens.
+
 Public API
 ----------
 * begin_topic(label)          — insert a dark-gray divider bar
@@ -41,7 +51,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import QSize, Qt, QThread, Signal
+from PySide6.QtCore import QByteArray, QSize, Qt, QThread, Signal
 from PySide6.QtGui import (
     QFont,
     QFontDatabase,
@@ -57,6 +67,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSpinBox,
+    QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -141,6 +152,95 @@ def ai_color_for_provider(provider_name: Optional[str]) -> str:
     if "gemini" in p or "google" in p:
         return AI_COLOR_GEMINI
     return AI_COLOR_DEFAULT
+
+
+# ---------------------------------------------------------------------------
+# Console / AI-chat split
+#
+# The console box and the AI chat box sit in a vertical QSplitter so dragging
+# the handle trades height between them — a bigger chat box is a smaller
+# console and vice versa, the same gesture the live-preview card above already
+# uses against the console.
+#
+# The default deliberately reproduces what the panel looked like BEFORE the
+# splitter existed: the chat input was capped at 120px and the console took
+# everything else. A user who never touches the handle therefore sees no
+# change at all. The console is the busier panel during a run, which is the
+# state the app spends its long minutes in, so it keeps the lion's share by
+# default; the user who mostly talks to the AI between runs drags once and the
+# position is remembered.
+# ---------------------------------------------------------------------------
+
+#: Default height, in pixels, of the AI chat box — the height the old
+#: hard-coded ``setMaximumHeight(120)`` pinned it at.
+DEFAULT_CHAT_HEIGHT = 120
+
+#: Floor for the chat box. Also the splitter's stop, since
+#: ``setChildrenCollapsible(False)`` honours a child's minimum.
+CHAT_MIN_HEIGHT = 48
+
+#: Floor for the console box. Without one, a QScrollArea's minimum size hint
+#: is a couple of pixels and "not collapsible" would still let the console be
+#: dragged down to a sliver.
+CONSOLE_MIN_HEIGHT = 80
+
+#: QSettings key prefix for the persisted splitter state, one entry per
+#: screen (``console/split/mask``, ``console/split/measure``, …). Screens are
+#: used for different things and a user who wants a tall chat box on one does
+#: not necessarily want it on all of them.
+_SPLIT_KEY_PREFIX = "console/split"
+
+
+def _settings():
+    """The app's ``QSettings``, borrowed from :mod:`spacr.qt.preferences`.
+
+    Going through preferences rather than constructing ``QSettings`` here
+    keeps the org/app pair single-sourced — and, just as important, keeps this
+    module inside the sandbox the test suite installs, which redirects by
+    *path* and so only catches settings opened the same way everything else
+    opens them.
+    """
+    from ..preferences import _settings as _prefs_settings
+    return _prefs_settings()
+
+
+def get_split_state(screen_key: str):
+    """Return the saved ``QSplitter.saveState()`` blob for ``screen_key``.
+
+    :param screen_key: the screen's app key, e.g. ``"mask"``.
+    :returns: the stored ``QByteArray``, or ``None`` when the user has never
+        dragged this screen's handle (or the stored value is unusable).
+    """
+    key = str(screen_key or "").strip()
+    if not key:
+        return None
+    try:
+        raw = _settings().value(f"{_SPLIT_KEY_PREFIX}/{key}")
+    except Exception:
+        return None
+    # A settings backend can hand back a str (INI round-trip) or None. Only a
+    # real byte blob is restorable; anything else means "no preference", which
+    # leaves the caller on the default split rather than on a broken one.
+    if isinstance(raw, (bytes, bytearray, QByteArray)) and len(raw):
+        return QByteArray(raw)
+    return None
+
+
+def set_split_state(screen_key: str, state) -> None:
+    """Persist a ``QSplitter.saveState()`` blob against ``screen_key``.
+
+    Stored as the splitter's own state rather than as a pixel pair on
+    purpose: a saved ``[572, 120]`` means something different on a laptop
+    panel than on the 4K display the same user docks into, whereas
+    ``restoreState`` is the mechanism Qt itself defines for this.
+    """
+    key = str(screen_key or "").strip()
+    if not key:
+        return
+    try:
+        _settings().setValue(f"{_SPLIT_KEY_PREFIX}/{key}", QByteArray(state))
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -590,8 +690,16 @@ class _ChatInput(QTextEdit):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumHeight(48)
-        self.setMaximumHeight(120)
+        # The floor stays: one line of text plus the field's own padding. It
+        # doubles as the stop the splitter honours when the user drags the
+        # divider down onto the chat box.
+        self.setMinimumHeight(CHAT_MIN_HEIGHT)
+        # No ceiling. `setMaximumHeight(120)` used to live here, and it is
+        # exactly what made the chat box unresizable — the row was pinned at
+        # 120px no matter what the layout offered it. The 120 is now the
+        # splitter's DEFAULT size (:data:`DEFAULT_CHAT_HEIGHT`), so an
+        # untouched panel looks the same as it always did while the handle
+        # can still drag the box taller.
         self.setAcceptRichText(False)
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -630,6 +738,11 @@ class ConsolePanel(QWidget):
     do not orphan a running subprocess. See the module docstring for
     the full public surface.
 
+    The console box and the AI chat box are the two halves of a vertical
+    :class:`~PySide6.QtWidgets.QSplitter`, so the user can drag the handle
+    between them to trade height — a taller chat box is a shorter console.
+    Pass ``persist_key`` and the position is remembered per screen.
+
     :ivar ai_stream_finished: emitted when an AI stream ends (ok or
         error) so the parent screen can flip its Cancel button back.
     """
@@ -648,9 +761,18 @@ class ConsolePanel(QWidget):
     _relay_error = Signal(str)
     _relay_notice = Signal(str, object)
 
-    def __init__(self, active_app_label: str = "", parent=None):
+    def __init__(self, active_app_label: str = "", parent=None,
+                 persist_key: str = ""):
+        """
+        :param active_app_label: the app name shown in the output banner.
+        :param parent: parent widget.
+        :param persist_key: screen key the console/chat split is remembered
+            against (usually the screen's ``app_key``). Empty means the split
+            is not persisted, which is what a bare panel in a test wants.
+        """
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
+        self._persist_key = str(persist_key or "").strip()
         # QWidget (unlike QFrame) doesn't paint a QSS background/border/radius
         # unless told to — without this the ConsolePanel's rounded surface box
         # never draws and the console area shows straight through to the black
@@ -701,10 +823,37 @@ class ConsolePanel(QWidget):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
 
+        # The console box and the chat row are the two halves of a vertical
+        # splitter, so the handle between them trades height: drag it up and
+        # the chat box grows while the console shrinks by the same amount.
+        # This is the same gesture — and deliberately the same idiom — as the
+        # live-preview / console splitter one level up in AppScreen.
+        self._split = QSplitter(Qt.Vertical)
+        self._split.setObjectName("ConsoleSplit")
+        self._split.setChildrenCollapsible(False)
+        # The handle IS the gap that used to be `outer.setSpacing(SPACING.sm)`
+        # between the console box and the chat row. Matching it keeps the
+        # panel pixel-identical to the pre-splitter layout — Qt's 4px default
+        # would have quietly given the console 4 extra pixels — and 8px is a
+        # far easier target for the pointer than 4.
+        self._split.setHandleWidth(SPACING["sm"])
+        # The splitter is scaffolding, not a surface. AppScreen's
+        # `_clear_page_surfaces` sweep tags every QSplitter by type, but a
+        # ConsolePanel used on its own (or in a test) never gets that sweep,
+        # and an untagged QWidget takes the blanket window fill — an opaque
+        # slab straight across the panel, immune to the page-opacity setting.
+        try:
+            from ..theme import make_transparent
+            make_transparent(self._split)
+        except Exception:
+            pass
+        outer.addWidget(self._split, 1)
+
         # Console box — a rounded surface frame that wraps ONLY the scrolling
         # output. QFrame paints its QSS background/border/radius natively.
         self._console_box = QFrame()
         self._console_box.setObjectName("ConsoleBox")
+        self._console_box.setMinimumHeight(CONSOLE_MIN_HEIGHT)
         box_lay = QVBoxLayout(self._console_box)
         inset = SPACING["sm"]
         box_lay.setContentsMargins(inset, inset, inset, inset)
@@ -732,13 +881,14 @@ class ConsolePanel(QWidget):
         self._entries.addStretch(1)
         self._scroll.setWidget(self._holder)
         box_lay.addWidget(self._scroll, 1)
-        outer.addWidget(self._console_box, 1)
+        self._split.addWidget(self._console_box)
 
         # AI chat input — a separate row UNDER the console box (not inside it),
         # borderless wrapper so only the text field's own box shows, edges
         # flush with the console + system boxes. AI on/off toggle + provider
         # selector live in the AppScreen actions row.
         input_row = QWidget()
+        self._chat_row = input_row
         row = QHBoxLayout(input_row)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -751,7 +901,23 @@ class ConsolePanel(QWidget):
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
-        outer.addWidget(input_row)
+        self._split.addWidget(input_row)
+
+        # Only the console stretches when the WINDOW resizes. Giving both
+        # halves a stretch factor (as the live-preview splitter does, where
+        # both halves are content) would grow the chat box every time the
+        # window got taller — a visible change for a user who never touched
+        # the handle, which is precisely what this must not do. Stretch 0 on
+        # the chat box reproduces today's behaviour exactly: the chat box
+        # keeps whatever height it has, the console absorbs the rest.
+        self._split.setStretchFactor(0, 1)
+        self._split.setStretchFactor(1, 0)
+        self._apply_default_split()
+        self._restore_split()
+        # Written on release AND during the drag; QSettings coalesces in
+        # memory, and saving as it moves means a split survives even if the
+        # app is killed rather than closed.
+        self._split.splitterMoved.connect(self._on_split_moved)
 
         # Console font-size control — its own right-aligned row below the input
         # so the text box stays full width, flush with the console + system
@@ -768,6 +934,64 @@ class ConsolePanel(QWidget):
         # so we always know what to do on Enter.
         self._ai_active: bool = False
         self._current_provider_name: Optional[str] = None
+
+    # ------------------------------------------------------------------
+    # Console / chat split
+    # ------------------------------------------------------------------
+    def _apply_default_split(self) -> None:
+        """Seat the handle where the panel used to draw it with no splitter.
+
+        ``setSizes`` totals are advisory — Qt rescales them to the height the
+        splitter actually has, distributing the difference by stretch factor.
+        With the chat box on stretch 0 the whole difference lands on the
+        console, so the chat box comes out at exactly
+        :data:`DEFAULT_CHAT_HEIGHT` at any window size, which is what the old
+        ``setMaximumHeight(120)`` produced.
+        """
+        self._split.setSizes([max(CONSOLE_MIN_HEIGHT, 400), DEFAULT_CHAT_HEIGHT])
+
+    def _restore_split(self) -> None:
+        """Re-seat the handle where this screen's user last dragged it."""
+        if not self._persist_key:
+            return
+        state = get_split_state(self._persist_key)
+        if state is None:
+            return
+        try:
+            self._split.restoreState(state)
+        except Exception:
+            self._apply_default_split()
+        # `restoreState` also restores whatever collapsible flag was saved
+        # with the blob. Re-assert ours so a stale entry — written by an older
+        # build, or by hand — cannot bring back a console that vanishes when
+        # the handle is dragged to the top.
+        self._split.setChildrenCollapsible(False)
+
+    def _on_split_moved(self, _pos: int = 0, _index: int = 0) -> None:
+        """Persist the split as the user drags the handle."""
+        if not self._persist_key:
+            return
+        set_split_state(self._persist_key, self._split.saveState())
+
+    def split_sizes(self) -> List[int]:
+        """Current ``[console_height, chat_height]`` in pixels.
+
+        Public because it is the honest thing for a test — or a caller
+        arranging the screen — to read, rather than reaching into ``_split``.
+        """
+        return list(self._split.sizes())
+
+    def set_split_sizes(self, console_px: int, chat_px: int) -> None:
+        """Move the handle programmatically and persist the result.
+
+        Same end state as a user drag, so a caller restoring a layout and a
+        user dragging leave the panel in the same place.
+
+        :param console_px: height for the console box.
+        :param chat_px: height for the AI chat box.
+        """
+        self._split.setSizes([int(console_px), int(chat_px)])
+        self._on_split_moved()
 
     # ------------------------------------------------------------------
     # Font size
