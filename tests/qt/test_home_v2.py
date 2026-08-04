@@ -733,6 +733,10 @@ ALPHA_MODULES = {
     # correcting a mask and its tracks by hand with every edit journalled.
     # Same posture again — reachable, tested, not yet trusted end to end.
     "lineage", "curate",
+    # And the two that claim the ends of the run nothing owned: the plate
+    # layout and controls decided before an image exists, and the five QC
+    # verdicts read back off a finished one.
+    "experiment_design", "qc_dashboard",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -741,7 +745,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """32 alpha, 9 beta, named one at a time.
+    """34 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -751,7 +755,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 32 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 34 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 

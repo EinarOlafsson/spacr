@@ -432,15 +432,15 @@ CATS_BROAD3 = _with_late_registrations([
 #:   argument it prints.
 #:
 #: The cap was eight, which kept that to ONE wrapped row per band, then
-#: nine, and it is now TEN. Each rise is the same arithmetic: the cap is
-#: the smallest number that can hold the registry over five bands, so
-#: forty-two apps forced nine and forty-nine force ten. Ten is still one
-#: wrapped row (seven, then three) rather than a third, which is what the
-#: rule was ever about: the ceiling for "one wrapped row" is fourteen, and
-#: each cap is simply the smallest number that fitted the registry of the
-#: day. Both alternatives are still refused for the reasons below — a
-#: sixth band breaks the five-column variants, a wider grid elides the
-#: names.
+#: nine, then ten, and it is now ELEVEN. Each rise is the same arithmetic:
+#: the cap is the smallest number that can hold the registry over five
+#: bands, so forty-two apps forced nine, forty-nine forced ten and
+#: fifty-one force eleven. Eleven is still one wrapped row (seven, then
+#: four) rather than a third, which is what the rule was ever about: the
+#: ceiling for "one wrapped row" is fourteen, and each cap is simply the
+#: smallest number that fitted the registry of the day. Both alternatives
+#: are still refused for the reasons below — a sixth band breaks the
+#: five-column variants, a wider grid elides the names.
 #:
 #: Curate and Lineage arrived after the cap had already moved to ten and
 #: Report was already holding ten, so the fallback made Report twelve and
@@ -451,6 +451,15 @@ CATS_BROAD3 = _with_late_registrations([
 #: 10/9/10/10/10, which is the floor exactly — that is what a fallback
 #: overflow usually means, that the band the key really belongs in still
 #: had room.
+#:
+#: Experiment Design and the QC Dashboard then took it to fifty-one, and
+#: fifty-one over five bands is ELEVEN however it is shared out — so this
+#: time the cap really did have to move, and it moved by the arithmetic
+#: rather than by preference. Both were filed where they belong first:
+#: Experiment Design beside Power in Acquire (the plate layout decided
+#: before an image exists), the QC Dashboard in Report (five verdicts, none
+#: recomputed). 11/9/10/10/11. Eleven is still one wrapped row — seven,
+#: then four — and a third row does not start until fifteen.
 #: ``test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row``
 #: is what makes the next app a decision rather than a silently squashed
 #: page, and it asserts the floor too, so a cap left loose after apps are
@@ -472,9 +481,13 @@ CATS_STAGE5 = _with_late_registrations([
     # Distributed Jobs. CATS_NARROW8 already files it under "Import &
     # batch", so this makes the two tables agree rather than holding a third
     # opinion.
-    ("Acquire", ["power", "convert", "align", "foreign", "external_masks",
-                 "illumination", "queue", "batch", "distributed_jobs",
-                 "data_manager"]),
+    #
+    # Experiment Design is beside Power for the reason Power leads: it is
+    # the other half of this section's own note -- plate layout, controls
+    # and replicates, all decided before an image exists.
+    ("Acquire", ["power", "experiment_design", "convert", "align", "foreign",
+                 "external_masks", "illumination", "queue", "batch",
+                 "distributed_jobs", "data_manager"]),
     # Layer Viewer is here because looking at a label mask over its image
     # is how a segmentation is judged; it is the eye on this band's work.
     # Curate is the hand on it: Layer Viewer is where you see that a cell
@@ -538,9 +551,13 @@ CATS_STAGE5 = _with_late_registrations([
     # longer follow from their inputs. Hit List and Methods & Results are
     # the "hand it on" half made literal — the ranked table a collaborator
     # receives, and the two paragraphs of the paper.
+    # The QC Dashboard is the most literal member this band has: five
+    # verdicts on one screen, none of them recomputed, which is "decide
+    # whether to believe it" with nothing else in it.
     ("Report",  ["plate_view", "train_compare", "classifier_evaluation",
                  "run_history", "run_compare", "db_browser", "report",
-                 "pipeline_graph", "hit_list", "methods_export"]),
+                 "pipeline_graph", "hit_list", "methods_export",
+                 "qc_dashboard"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([

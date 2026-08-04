@@ -249,15 +249,24 @@ EXPECTED_SECTIONS = {
     # you if you do not ask.
     "pipeline_graph":  SECTION_EXPLORE,
     "profiler":        SECTION_EXPLORE,
+    # Explore's eighth. Five verdicts on one screen, none of them
+    # recomputed -- it reads what the QC steps already decided and asks
+    # whether they agree, which is a question about a run rather than a
+    # report of one.
+    "qc_dashboard":    SECTION_EXPLORE,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
     "replication":     SECTION_TOXO,
-    # Design's first and, for now, only app. The section has been declared
-    # and empty since the sections were named; its note ("Plan the
-    # experiment before it runs: power, sample size, plate layout,
-    # controls and replicates") was written for this.
+    # Design's first app. The section had been declared and empty since the
+    # sections were named; its note ("Plan the experiment before it runs:
+    # power, sample size, plate layout, controls and replicates") was
+    # written for this.
     "power":           SECTION_DESIGN,
+    # And its second, which claims the rest of that same note: the plate
+    # layout, the controls and the replicates, decided before an image
+    # exists.
+    "experiment_design": SECTION_DESIGN,
 }
 
 #: How finished every app is, as a second ledger on the same app keys.
@@ -279,6 +288,7 @@ EXPECTED_STAGES = {
     "image_scatter": "alpha", "lineage": "alpha", "curate": "alpha",
     "hit_list": "alpha", "methods_export": "alpha",
     "pipeline_graph": "alpha", "profiler": "alpha",
+    "experiment_design": "alpha", "qc_dashboard": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -297,14 +307,15 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Thirty-two alpha, nine beta, eight stable. The alpha column is the
+    Thirty-four alpha, nine beta, eight stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
     only use promotes it. Illumination, Barcode QC, Layer Viewer and
     Graph Builder arrived that way; so did Power / Design, AnnData
-    Export and Run Compare; and so do the four here -- Hit List,
-    Methods & Results, Pipeline Graph and the Prediction Profiler.
+    Export and Run Compare; and so did Hit List, Methods & Results,
+    Pipeline Graph and the Prediction Profiler; and so do Experiment
+    Design and the QC Dashboard.
 
     Signing an app off is deleting a line from ``APP_STAGE`` and from
     here; nothing else moves, which is the whole point of maturity not
@@ -317,7 +328,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 32, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 34, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
