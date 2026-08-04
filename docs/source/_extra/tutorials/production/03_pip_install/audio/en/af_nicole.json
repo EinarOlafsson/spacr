@@ -4,47 +4,77 @@
   "voice": "af_nicole",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 80.75,
+  "total_duration": 95.7,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 14.75,
-      "scene_end": 15.2,
-      "duration": 15.2,
-      "text": "This tutorial covers Installation with pip. Install spaCR in an existing isolated Python environment for desktop or headless use."
+      "speech_end": 16.225,
+      "scene_end": 16.925,
+      "duration": 16.925,
+      "text": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation.",
+      "speech_text": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation.",
+      "phonemes": "ðə pˈɪp ɹˈut wˈɜɹks ˌɔn wˈɪndOz, mˌækˌOˈɛs, ænd lˈɪnəks. ˈɔlwˌAz jˈuz ɐn ˈIsəlˌATᵻd vˈɜɹʧəwəl ənvˈIɹənmᵊnt ɹˈæðəɹ ðən mˈɑdᵻfˌIɪŋ ði ˈɑpəɹˌATɪŋ sˈɪstəmz pˈIθˌɑn ˌɪnztəlˈAʃən."
     },
     {
       "scene": 2,
-      "speech_start": 15.2,
-      "speech_end": 31.425,
-      "scene_end": 31.875,
-      "duration": 16.675,
-      "text": "Open Installation with pip from the spaCR section. Confirm that the environment uses a supported Python version; Python three point twelve is recommended."
+      "speech_start": 16.925,
+      "speech_end": 28.9,
+      "scene_end": 29.599999999999998,
+      "duration": 12.674999999999997,
+      "text": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory.",
+      "speech_text": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory.",
+      "phonemes": "ˌɔn mˌækˌOˈɛs ɔɹ lˈɪnəks, kɹiˈAt ði ənvˈIɹənmᵊnt wɪð pˈIθˌɑn θɹˈi pˈYnt twˈɛlv, ðˈɛn ˈæktəvˌAt ɪt fɹʌm ɪts bˈɪn dəɹˈɛktəɹi."
     },
     {
       "scene": 3,
-      "speech_start": 31.875,
-      "speech_end": 45.9,
-      "scene_end": 46.35,
-      "duration": 14.475000000000001,
-      "text": "In the main configuration area, upgrade pip if needed and decide whether you need the desktop, development, or optional scientific extras."
+      "speech_start": 29.599999999999998,
+      "speech_end": 39.474999999999994,
+      "scene_end": 40.175,
+      "duration": 10.575,
+      "text": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory.",
+      "speech_text": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory.",
+      "phonemes": "ˌɔn wˈɪndOz, jˈuz ðə pˈIθˌɑn lˈɔnʧəɹ tə kɹiˈAt ði ənvˈIɹənmᵊnt ænd ˈæktəvˌAt ɪt fɹʌm ðə skɹˈɪpts dəɹˈɛktəɹi."
     },
     {
       "scene": 4,
-      "speech_start": 46.35,
-      "speech_end": 67.025,
-      "scene_end": 67.47500000000001,
-      "duration": 21.125000000000007,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Run pip install spaCR, then verify the command and Python import before starting an experiment."
+      "speech_start": 40.175,
+      "speech_end": 53.5,
+      "scene_end": 54.2,
+      "duration": 14.025000000000006,
+      "text": "Upgrade pip in the active environment. The command python -m pip keeps installation tied to the Python you just activated.",
+      "speech_text": "Upgrade pip in the active environment. The command python dash m pip keeps installation tied to the Python you just activated.",
+      "phonemes": "ˈʌpɡɹˌAd pˈɪp ɪn ði ˈæktɪv ənvˈIɹənmᵊnt. ðə kəmˈænd pˈIθˌɑn dˈæʃ ˈɛm pˈɪp kˈips ˌɪnztəlˈAʃən tˈId tə ðə pˈIθˌɑn ju ʤˈʌst ˈæktəvˌATᵻd."
     },
     {
       "scene": 5,
-      "speech_start": 67.47500000000001,
-      "speech_end": 80.10000000000001,
-      "scene_end": 80.75000000000001,
-      "duration": 13.275000000000006,
-      "text": "When the workflow finishes, the same installation can launch the desktop app or run scripted workflows on a workstation or server."
+      "speech_start": 54.2,
+      "speech_end": 65.025,
+      "scene_end": 65.72500000000001,
+      "duration": 11.525000000000006,
+      "text": "Install the plain spacr package for headless use, or spacr with the qt extra for the desktop interface.",
+      "speech_text": "Install the plain spacer package for headless use, or spacer with the qt extra for the desktop interface.",
+      "phonemes": "ɪnstˈɔl ðə plˈAn spˈAsəɹ pˈækɪʤ fɔɹ hˈɛdləs jˈus, ɔɹ spˈAsəɹ wɪð ðə kjˌutˈi ˈɛkstɹə fɔɹ ðə dˈɛsktˌɑp ˈɪntəɹfˌAs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 65.72500000000001,
+      "speech_end": 77.7,
+      "scene_end": 78.4,
+      "duration": 12.674999999999997,
+      "text": "Verify the imported version and run spacr-doctor. Resolve any failed checks before opening experimental data.",
+      "speech_text": "Verify the imported version and run spacer doctor. Resolve any failed checks before opening experimental data.",
+      "phonemes": "vˈɛɹəfˌI ði ɪmpˈɔɹTᵻd vˈɜɹʒən ænd ɹˈʌn spˈAsəɹ dˈɑktəɹ. ɹəzˈɔlv ˈɛni fˈAld ʧˈɛks bəfˈɔɹ ˈOpᵊnɪŋ ɪkspˌɛɹəmˈɛntᵊl dˈATə."
+    },
+    {
+      "scene": 7,
+      "speech_start": 78.4,
+      "speech_end": 95.0,
+      "scene_end": 95.7,
+      "duration": 17.299999999999997,
+      "text": "The environment is now ready. Keep it activated whenever you use spaCR, and use python -m pip install --upgrade spacr when you intentionally update it.",
+      "speech_text": "The environment is now ready. Keep it activated whenever you use spacer, and use python dash m pip install dash dash upgrade spacer when you intentionally update it.",
+      "phonemes": "ði ənvˈIɹənmᵊnt ɪz nˈW ɹˈɛdi. kˈip ɪt ˈæktəvˌATᵻd wənˈɛvəɹ ju jˈuz spˈAsəɹ, ænd jˈuz pˈIθˌɑn dˈæʃ ˈɛm pˈɪp ɪnstˈɔl dˈæʃ dˈæʃ ˈʌpɡɹˌAd spˈAsəɹ wˌɛn ju ɪntˈɛnʧᵊnəli ˈʌpdˌAt ɪt."
     }
   ]
 }
