@@ -73,7 +73,7 @@ from ... import plate_qc as pqc
 from ...selection import DataFilter
 from ..bridge import make_thread
 from ..linked_selection import LinkedView
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
 from .db_browser import resolve_db_path
 
@@ -184,6 +184,9 @@ class PlateGridWidget(QWidget):
                              "then press Render.")
         self.setMinimumSize(320, 220)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # The panel is drawn in `paintEvent`; the widget must not also
+        # paint the blanket opaque window fill under it. See `paint_panel`.
+        make_transparent(self)
 
     # -- data --------------------------------------------------------------
 
@@ -325,7 +328,10 @@ class PlateGridWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, False)
         palette = active_palette()
-        painter.fillRect(self.rect(), QColor(palette["surface"]))
+        # A rounded panel at the page opacity. `fillRect(..., surface)` is
+        # opaque hex, which is why the "choose a database, a table, and a
+        # measurement, then press Render" state read as a bare dark area.
+        paint_panel(painter, self, role="surface", inset=0.5)
 
         if not self.has_plate():
             painter.setPen(QColor(palette["fg_muted"]))

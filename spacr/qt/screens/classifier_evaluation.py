@@ -67,7 +67,8 @@ from ..iconset import icon
 from ..i18n import tr
 from ..linked_selection import (DEFAULT_OPEN_KIND, has_object_opener,
                                 open_objects)
-from ..theme import SPACING, active_palette
+from ..theme import (SPACING, active_palette, page_tabs_qss,
+                     register_widget_qss)
 from ..widgets import Divider
 
 LOG = logging.getLogger(__name__)
@@ -142,6 +143,24 @@ def _item(value: Any) -> QTableWidgetItem:
     item = QTableWidgetItem(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
+
+
+#: ``objectName`` of the tab strip, and the name its QSS block is
+#: registered under. The tabs ARE the page on this screen, so they take
+#: Home's treatment — rounded top corners, a dark-grey tab, the accent
+#: blue on hover — at the page opacity, instead of the shipped rules'
+#: opaque `surface`/`surface_alt` hex.
+TABS_NAME = "ClassifierEvalTabs"
+
+
+def _tabs_qss(palette: dict, opacity) -> str:
+    """QSS for the tab strip, registered through the theme seam."""
+    return page_tabs_qss(TABS_NAME, palette, opacity)
+
+
+# ``replace=True``: this module owns the name, so a reimport re-registers
+# rather than raising and leaving the tabs unstyled.
+register_widget_qss(TABS_NAME, _tabs_qss, replace=True)
 
 
 class ClassifierEvaluationScreen(QWidget):
@@ -234,6 +253,7 @@ class ClassifierEvaluationScreen(QWidget):
         outer.addLayout(bundle_row)
 
         self._tabs = QTabWidget(self)
+        self._tabs.setObjectName(TABS_NAME)
         self._overview = QPlainTextEdit(self)
         self._overview.setReadOnly(True)
         confusion_page = self._build_confusion_page()
