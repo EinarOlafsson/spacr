@@ -385,6 +385,33 @@ def test_a_screen_without_a_settings_form_is_left_alone(qtbot):
     assert install(QWidget()) is None
 
 
+def test_every_registered_widget_qss_block_reaches_the_stylesheet(qapp):
+    """A bad palette key in a QSS block is invisible until someone looks.
+
+    ``registered_widget_qss`` catches whatever a block raises, logs it and
+    moves on -- which is right, since an unstyled widget must not take the
+    window down. The cost is that a typo makes the block silently vanish:
+    three blocks in this batch asked for ``palette["text_dim"]``, which the
+    palette spells ``fg_dim``, and all three shipped with no stylesheet at
+    all. The first one was found because Home started painting an opaque
+    slab over the ambient backdrop; the other two were found by looking.
+
+    So: render the real stylesheet and check every registered name is in
+    it. It costs one call and closes the whole class.
+    """
+    import spacr.qt
+    from spacr.qt import theme
+    spacr.qt.register_self_registering_modules()
+
+    names = theme.widget_qss_names()
+    assert names, "no widget QSS blocks are registered at all"
+    css = theme.stylesheet()
+    missing = sorted(n for n in names if n not in css)
+    assert not missing, (
+        "these registered QSS blocks raised while rendering and were "
+        f"swallowed, so their widgets ship unstyled: {missing}")
+
+
 # ---------------------------------------------------------------------------
 # 6. Fixed-alphabet multi-select
 # ---------------------------------------------------------------------------
