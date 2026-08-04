@@ -126,6 +126,7 @@ Owns `annotate.py`, `deep_spacr.py`, `classifier_evaluation.py`.
 | 5.8 | `Z1` Zoom must reach tab text, the right-hand home panel, tooltips, and text buttons (Live, AI) | — |
 | 5.9 | `Z9` Container styling batch — Align & Stitch "press Plan", Plate Viewer "press Render", Model Compare A/B, Training Runs area, Classifier Evaluation area + tabs, Run History tabs + container | — |
 | 5.9b | **Ambient background controls + a real aurora** — preferences for **blur**, **movement speed** and **size range**, applying across `blobs` / `aurora` / `ripple` / `drift`; make the aurora move like actual aurora borealis (curtain folds propagating along the arc, vertical ray structure, brightness pulsing — not a drifting smear); add an **aurora borealis palette** built from the real emission lines. Requested 2026-08-03 | — |
+| 5.9c | **Ambient resolution + density, starfield directions, more themes, and a spinner delay** | The aurora is pixelated because `5.9b` implemented *blur as buffer resolution* — the two are one knob and must be separated. Adds a resolution slider, a density slider, up/down/random starfield drift, further themes, and a minimum-duration preference so the activity spinner only appears for work over ~2 s. Requested 2026-08-03 *(5.9b, 6.20b)* | — |
 | 5.10 | `Z12` `A5` Cellpose model list read from the API, not hard-coded | — |
 | 5.11 | Silence the cellpose `Sparse invariant checks` warning at launch | — |
 | 5.12 | `F9` **Repair the demo set** | — |
@@ -186,3 +187,27 @@ Tutorials (Codex owns them). Not selected: `U6` undo for destructive actions,
 `U7` explain-this-run, `U9` units + provenance, `V6` plate over time, `L7`
 project manifest. `U6` is worth revisiting — F34/F35 exist precisely because
 deletes are irreversible.
+
+---
+
+## Open finding — the shared object key cannot name an object type
+
+`OBJECT_KEY_COLUMNS` is field + object label, with no table. So a nucleus
+labelled 1 and a pathogen labelled 1 in the same field carry the **same key**
+— and a cell's own children are exactly the objects most likely to collide.
+Four objects then open as three crops, and which one you get depends on
+`png_list` ordering.
+
+Found by the lineage work (2026-08-04), which did NOT change the contract:
+its tree carries a table-qualified `node_id` alongside the shared key, and
+`key_collisions()` names the colliding pairs, pinned by tests from both
+sides.
+
+This is not confined to lineage. It reaches `Selection.mask_for` and every
+`open_objects` caller — the UMAP lasso, the plate heatmap, the annotation
+grid, the confusion drill-down and the image-linked scatter. It is also the
+second known way that key is not injective: `test_key_parsing_properties.py`
+already pins a strict xfail for a component containing the separator.
+
+Deciding the fix is a contract change and needs a call: widen the key with
+the object type, or make every consumer carry a qualified id beside it.
