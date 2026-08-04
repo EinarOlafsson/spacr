@@ -489,22 +489,24 @@ def test_open_demos_menu_returns_the_menu_and_never_pops_it_up(main_window,
     """It must resolve the menu (so a rename is detectable) without
     actually popping it up — a live popup would grab input for the rest
     of the render."""
-    from PySide6.QtGui import QAction
+    from PySide6.QtWidgets import QMenu
     from spacr.qt.tutorial.scripts import _open_demos_menu
-    act = _open_demos_menu(main_window)
-    assert isinstance(act, QAction)
-    assert act.text().replace("&", "") == "Demos"
-    assert act in main_window.menuBar().actions()
+    menu = _open_demos_menu(main_window)
+    # The QMenu itself, reached as a C++ child of the menu bar — which is
+    # what the test has always been named for. It used to hand back the
+    # bar's QAction instead, because the QMenu that `QAction.menu()`
+    # returns is only valid while that action wrapper is alive and so could
+    # not be returned at all. `findChildren` has no such lifetime.
+    assert isinstance(menu, QMenu)
+    assert menu.title().replace("&", "") == "Demos"
+    assert menu in main_window.menuBar().findChildren(QMenu)
     # Resolving must not have opened anything.
     from PySide6.QtWidgets import QApplication
     assert QApplication.activePopupWidget() is None
 
     class NoMenus:
         def menuBar(self):
-            class MB:
-                def actions(self):
-                    return []
-            return MB()
+            return None
 
     with caplog.at_level("WARNING", logger="spacr.qt.tutorial"):
         assert _open_demos_menu(NoMenus()) is None
