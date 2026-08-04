@@ -12,13 +12,26 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     object ``first_run._settings()`` builds — ignores ``setDefaultFormat`` and
     ``setPath(IniFormat, ...)``, so the Ini-only redirect left ``.clear()``
     wiping the developer's real ``~/.config/spacr/qt.conf``.
+
+    **SystemScope has to move too, and leaving it behind was a real bug.**
+    ``tests/conftest.py::_redirect_qsettings`` points all four (format, scope)
+    pairs at one per-test sandbox directory, so ``<sandbox>/spacr/qt.conf`` is
+    the UserScope file AND the SystemScope file. ``_skip_first_launch_tour``
+    (autouse in ``tests/qt/conftest.py``, and it runs before this fixture)
+    writes the "tour seen" flag into it. Moving UserScope alone therefore left
+    SystemScope still pointing at a file that says the tour was seen — and
+    ``QSettings`` falls back from UserScope to SystemScope on a missing key, so
+    ``reset_tour_state()`` removed the flag and ``was_tour_shown()`` answered
+    True anyway. The two tests that assert the reset were red on the fallback,
+    not on ``first_run``.
     """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-onboarding-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
     for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
-        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
+        for scope in (QSettings.UserScope, QSettings.SystemScope):
+            QSettings.setPath(fmt, scope, str(tmp_path))
     QSettings("spacr", "qt").clear()
     # `_skip_first_launch_tour` (autouse in conftest) marks the tour
     # seen so MainWindow-constructing tests don't fire the overlay,
