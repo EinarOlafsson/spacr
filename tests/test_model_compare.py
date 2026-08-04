@@ -50,6 +50,16 @@ from spacr.model_compare import (
     segment_with_cellpose,
 )
 
+from tests.cellpose_api_contract import (
+    DEPRECATED_EVAL_ARGUMENTS,
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -893,11 +903,34 @@ def test_segment_with_cellpose_forwards_only_what_cellpose_4_reads(monkeypatch):
     seen = {}
 
     class StubModel:
-        def __init__(self, **kwargs):
-            seen['init'] = kwargs
+        """Both signatures are the installed cellpose 4.0.7 ones, verbatim.
 
-        def eval(self, x, **kwargs):
-            seen['eval'] = kwargs
+        With no ``**kwargs``, "model_compare forwards an argument cellpose 4
+        does not have" stops being an assertion this test has to remember to
+        make and becomes a ``TypeError`` raised by Python's own binding — which
+        is what ``diam_mean`` and ``model`` are: neither is an ``eval``
+        parameter at all, so forwarding either one now cannot pass silently.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam",
+                     model_type=None, diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
+            seen['init'] = init_arguments(locals())
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
+
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis,
+                                     require_channel_axis=False)
+            seen['eval'] = eval_arguments(locals())
+            seen['configured'] = configured_eval_arguments(locals())
             seen['n_images'] = len(x)
             return ([np.zeros((4, 4), np.int32) for _ in x], None, None)
 
@@ -909,10 +942,20 @@ def test_segment_with_cellpose_forwards_only_what_cellpose_4_reads(monkeypatch):
 
     assert len(masks) == 2 and masks[0].dtype == np.int32
     assert seen['init']['pretrained_model'] == "cpsam"     # cyto2 was remapped
+    assert seen['init']['model_type'] is None, (
+        "model_type= is accepted-and-dropped by cellpose 4; selecting weights "
+        "through it silently loads cpsam"
+    )
     assert seen['eval']['diameter'] == 45.0
+    # diam_mean and model are not eval parameters at all, so forwarding either
+    # would already have raised TypeError above. The dropped-but-accepted ones
+    # need an assertion: they must be left at cellpose's own default.
     assert "diam_mean" not in seen['eval']
-    assert "channels" not in seen['eval']
     assert "model" not in seen['eval']
+    assert seen['eval']['channels'] is None
+    assert not set(seen['configured']) & set(DEPRECATED_EVAL_ARGUMENTS), (
+        "model_compare forwarded an argument cellpose 4 accepts and discards"
+    )
     assert seen['n_images'] == 2
 
 

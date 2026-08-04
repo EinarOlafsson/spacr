@@ -28,6 +28,14 @@ from PySide6.QtWidgets import QFileDialog
 
 from spacr.qt.widgets import live_preview as LP
 
+from tests.cellpose_api_contract import (
+    MISSING_CHANNEL_AXIS,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers
@@ -107,17 +115,37 @@ def _pixmap_pixel(view, x=0, y=0):
 # ---------------------------------------------------------------------------
 
 class _FakeCellposeModel:
-    """Records how it was constructed and what images it was handed."""
+    """Records how it was constructed and what images it was handed.
+
+    Both signatures are the installed cellpose 4.0.7 ones, written out with
+    the real defaults and no ``**kwargs``. ``loaded_model`` is what the real
+    library would end up running: ``model_type=`` is warned about and dropped
+    in v4.0.1+, so it is ``pretrained_model`` — defaulting to ``cpsam`` —
+    whatever the caller asked for through ``model_type``.
+    """
 
     instances: list = []
 
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
+    def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                 diam_mean=None, device=None, nchan=None, use_bfloat16=True):
+        self.kwargs = init_arguments(locals())
+        self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                     model_type)
         self.calls: list = []
         type(self).instances.append(self)
 
-    def eval(self, image, **kwargs):
-        self.calls.append({"image": np.array(image, copy=True), **kwargs})
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # One 2-D plane per object type, axis auto-detected by cellpose.
+        check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
+        recorded = eval_arguments(locals())
+        image = x
+        self.calls.append({"image": np.array(image, copy=True), **recorded})
         mask = np.zeros(image.shape[:2], dtype=np.uint16)
         # One object whose size encodes the channel mean, so tests can prove
         # which slice reached the model.
@@ -457,16 +485,32 @@ class TestSegmentMulti:
         masks, flows = LP._segment_multi(self._req(model="cpsam"))
         model = fake_cellpose.instances[-1]
         assert model.kwargs["pretrained_model"] == "cpsam"
-        assert "model_type" not in model.kwargs
+        # model_type= is in cellpose 4's signature but is warned about and
+        # dropped, so "not passed" now means "left at the library default".
+        assert model.kwargs["model_type"] is None
+        assert model.loaded_model == "cpsam"
         assert set(masks) == {"cell"}
         assert masks["cell"].dtype == np.int32
         assert int(masks["cell"].max()) == 1
 
-    def test_legacy_model_is_loaded_by_type(self, fake_cellpose):
+    @pytest.mark.xfail(strict=True, reason=(
+        "spacr/qt/widgets/live_preview.py:637 selects a non-cpsam model with "
+        "CellposeModel(model_type=req.model). cellpose 4.0.7's "
+        "CellposeModel.__init__ logs 'model_type argument is not used in "
+        "v4.0.1+. Ignoring this argument...' and drops the value, leaving "
+        "pretrained_model at its 'cpsam' default -- so picking 'cyto2' in the "
+        "Live Preview silently segments with cpsam. Fix: pass the resolved "
+        "weights as pretrained_model= (spacr.utils._resolve_cellpose_pretrained "
+        "already maps legacy names), and drop model_type= entirely."))
+    def test_legacy_model_selection_actually_reaches_the_weights(
+            self, fake_cellpose):
+        """Choosing a legacy model must change which checkpoint is loaded."""
         LP._segment_multi(self._req(model="cyto2"))
         model = fake_cellpose.instances[-1]
-        assert model.kwargs["model_type"] == "cyto2"
-        assert "pretrained_model" not in model.kwargs
+        assert model.loaded_model != "cpsam", (
+            "the requested model was discarded by cellpose 4 and cpsam ran "
+            "instead"
+        )
 
     @pytest.mark.parametrize("available", [True, False])
     def test_gpu_flag_follows_torch(self, fake_cellpose, monkeypatch,

@@ -25,6 +25,14 @@ import os
 import numpy as np
 import pytest
 
+from tests.cellpose_api_contract import (
+    DEPRECATED_EVAL_ARGUMENTS,
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    eval_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers
@@ -41,16 +49,37 @@ def _no_stray_figures():
 class _RecordingCP:
     """Minimal CellposeModel stand-in that records every eval() call.
 
-    Returns cellpose-4 shaped output (masks, flows, styles, diams) so that
-    ``spacr.spacr_cellpose.parse_cellpose4_output`` can unpack it.
+    ``eval`` declares the installed cellpose 4.0.7 parameter list verbatim,
+    with the real defaults and no ``**kwargs``, so an argument cellpose 4
+    removed raises ``TypeError`` at the call site instead of disappearing.
+
+    It returns THREE values — ``(masks, flows, styles)`` — which is what 4.0.7
+    returns on both of its return paths. The previous docstring claimed
+    ``(masks, flows, styles, diams)`` was "cellpose-4 shaped"; that is the
+    cellpose 3 shape, and returning it would keep a four-value unpack green
+    against a library that raises ValueError on one.
     """
 
     def __init__(self):
         self.calls = []
+        self.configured = []
 
-    def eval(self, x, **kw):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # Both _segment_cellpose and _segment_cellpose_sam name channel_axis,
+        # so the value stays under the convert_image contract.
+        check_cellpose_eval_call(x, channel_axis)
+        # One snapshot, taken before any local of this method exists, so the
+        # two views describe exactly the bound parameters.
+        bound = locals()
+        self.configured.append(configured_eval_arguments(bound))
         arrs = [np.asarray(a) for a in x]
-        self.calls.append(dict(kw, x=arrs))
+        self.calls.append(dict(eval_arguments(bound), x=arrs))
         n = len(arrs)
         h, w = arrs[0].shape[:2]
         masks = []
@@ -64,7 +93,8 @@ class _RecordingCP:
             np.zeros((n, h, w), dtype=np.float32),
             np.zeros((n, h, w), dtype=np.float32),
         ]
-        return masks, flows, None, None
+        # Three values, not four -- see the class docstring.
+        return masks, flows, None
 
 
 def _patch_prepare_identity(monkeypatch):
@@ -83,7 +113,11 @@ def _patch_check_masks_empty(monkeypatch, n_channels=2):
     """Simulate 'every mask in this batch already exists on disk'."""
     import spacr.io as IO
     empty = np.zeros((0, 8, 8, n_channels), dtype=np.float32)
-    monkeypatch.setattr(IO, "_check_masks", lambda b, f, o: (empty, []))
+    # The stub must carry ``resume=`` too: io._check_masks grew that parameter
+    # and object.py passes it, so a three-parameter lambda raised TypeError
+    # rather than exercising the branch under test.
+    monkeypatch.setattr(IO, "_check_masks",
+                        lambda b, f, o, resume=False: (empty, []))
 
 
 _CLASSICAL_KEYS = (
@@ -439,8 +473,42 @@ def test_segment_cellpose_forwards_eval_kwargs(tmp_path):
     assert kw["resample"] is False
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    assert kw["channels"] == [0, 1]
+    assert kw["channels"] == [0, 1]     # what it passes; see the xfail below
     assert kw["rescale"] is None
+
+
+@pytest.mark.xfail(strict=True, reason=(
+    "spacr/object.py:1853 passes channels=[0, 1] to CellposeModel.eval. "
+    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
+    "more than 3 channels, only the first 3 channels will be used' and never "
+    "reads it, so the pair configures nothing -- the network takes the first "
+    "three planes of whatever array it is handed. spacr/object.py:1913, the "
+    "SAM sibling of this same function, already omits it. Fix: delete the "
+    "channels=[0, 1] argument; spacr.model_compare.IGNORED_ARGUMENTS already "
+    "documents 'channels' as this no-op."))
+def test_segment_cellpose_does_not_pass_a_dead_channels_argument(tmp_path):
+    """The hard-coded ``[0, 1]`` reaches nothing and must not be sent.
+
+    It is also wrong on its own terms: ``_segment_cellpose`` is called for
+    single-channel object types too, where a ``[0, 1]`` pair names a plane the
+    batch does not have. Cellpose 4 ignoring it is the only reason that has
+    never surfaced.
+    """
+    from spacr.object import _segment_cellpose
+
+    batch = np.zeros((1, 16, 16, 1), dtype=np.float32)
+    batch[0, 4:9, 4:9, 0] = 200.0
+    model = _RecordingCP()
+
+    _segment_cellpose(batch, ["a.npy"], model, _cp_settings(),
+                      "organelle", str(tmp_path))
+
+    configured = model.configured[0]
+    dead = sorted(set(configured) & set(DEPRECATED_EVAL_ARGUMENTS))
+    assert not dead, (
+        "cellpose 4 accepts and then discards: "
+        + ", ".join(f"{name}={configured[name]!r}" for name in dead)
+    )
 
 
 def test_segment_cellpose_remaps_and_clamps_organelle_channel(tmp_path, monkeypatch):
@@ -604,7 +672,11 @@ def test_segment_cellpose_sam_forwards_object_type_scoped_kwargs(tmp_path):
     assert kw["resample"] is False
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    assert "channels" not in kw           # SAM takes no channels argument
+    # No channel pair reaches cellpose. eval(channels=) is deprecated in
+    # v4.0.1+ and dropped, so leaving it at the library default is the only
+    # honest way to call it -- and this path does.
+    assert kw["channels"] is None
+    assert "channels" not in model.configured[0]
 
 
 def test_segment_cellpose_sam_resample_defaults_to_true(tmp_path):

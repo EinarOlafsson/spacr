@@ -33,6 +33,16 @@ import matplotlib.pyplot as plt
 import spacr.object as O
 import spacr.utils as U
 
+from tests.cellpose_api_contract import (
+    DEPRECATED_EVAL_ARGUMENTS,
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # --------------------------------------------------------------------------- #
 #  Fixtures
@@ -70,17 +80,43 @@ def fake_cellpose(monkeypatch):
     }
 
     class _M:
-        def __init__(self, gpu=None, pretrained_model=None, device=None, **kwargs):
+        """``CellposeModel`` double declaring the installed 4.0.7 signature.
+
+        No ``**kwargs`` on either method: ``generate_cellpose_masks`` is a real
+        call site, so an argument cellpose 4 removed must raise ``TypeError``
+        here instead of being swallowed. ``eval_configured`` holds only the
+        arguments spaCR set away from cellpose's own defaults, which is the
+        dict to ask "did spaCR configure this at all".
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                     diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
             self.gpu = gpu
             self.pretrained_model = pretrained_model
             self.device = device
-            self.init_kwargs = kwargs
+            self.init_kwargs = init_arguments(locals())
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
             self.eval_kwargs = []
+            self.eval_configured = []
             self.eval_inputs = []
             holder["model"] = self
 
-        def eval(self, x=None, **kwargs):
-            self.eval_kwargs.append(kwargs)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # object.py names channel_axis here, so the value stays under
+            # contract: it goes through the same convert_image the real eval
+            # runs before anything else.
+            check_cellpose_eval_call(x, channel_axis)
+            self.eval_kwargs.append(eval_arguments(locals()))
+            self.eval_configured.append(configured_eval_arguments(locals()))
             imgs = [np.asarray(im) for im in x]
             self.eval_inputs.append(imgs)
             masks, flows = [], []
@@ -335,7 +371,44 @@ def test_channels_are_remapped_to_the_compacted_stack(
 
     model = fake_cellpose["model"]
     assert model.eval_kwargs[0]["channels"] == expected_channels
+    # The remap that actually matters: the batch handed over holds exactly the
+    # selected planes. This half is real work; the channels= kwarg above is
+    # not -- see the xfail below.
     assert model.eval_inputs[0][0].shape == (32, 32, expected_depth)
+
+
+@pytest.mark.xfail(strict=True, reason=(
+    "spacr/object.py:1251 passes channels=channels to CellposeModel.eval. "
+    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
+    "more than 3 channels, only the first 3 channels will be used' and never "
+    "reads the value, so the carefully remapped pair reaches nothing. The "
+    "remap itself is still needed -- it selects the planes that go into the "
+    "batch -- but the kwarg is a Cellpose 3 leftover, and "
+    "spacr.model_compare.IGNORED_ARGUMENTS already lists 'channels' as this "
+    "exact no-op. Fix: drop channels= from the eval call; the sibling "
+    "generator spacr/object.py:1913 already omits it."))
+def test_generate_cellpose_masks_does_not_pass_a_dead_channels_argument(
+        tmp_path, fake_cellpose):
+    """A remapped channel list that Cellpose discards is not configuration.
+
+    The danger is not the wasted argument, it is the reading: the remap is
+    covered by tests, printed in verbose runs and surfaced as
+    ``cellpose_<obj>_channel``, all of which suggest it steers segmentation.
+    Under Cellpose 4 only the plane selection does.
+    """
+    src = tmp_path / "stack"
+    _write_npz(src, n=2, c=3)
+    settings = _settings(src, nucleus_channel=1, cell_channel=3,
+                         pathogen_channel=5)
+
+    O.generate_cellpose_masks(str(src), settings, "nucleus")
+
+    configured = fake_cellpose["model"].eval_configured[0]
+    dead = sorted(set(configured) & set(DEPRECATED_EVAL_ARGUMENTS))
+    assert not dead, (
+        "cellpose 4 accepts and then discards: "
+        + ", ".join(f"{name}={configured[name]!r}" for name in dead)
+    )
 
 
 def test_a_user_trained_checkpoint_reaches_cellpose(tmp_path, fake_cellpose):
@@ -997,15 +1070,32 @@ def fake_sam_model(monkeypatch):
     holder = {"model": None}
 
     class _M:
-        def __init__(self, gpu=None, pretrained_model=None, device=None, **kw):
+        """SAM-path ``CellposeModel`` double, installed 4.0.7 signature."""
+
+        def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                     diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
             self.gpu = gpu
             self.pretrained_model = pretrained_model
             self.device = device
+            self.init_kwargs = init_arguments(locals())
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
             self.eval_kwargs = []
+            self.eval_configured = []
             holder["model"] = self
 
-        def eval(self, x=None, **kwargs):
-            self.eval_kwargs.append(kwargs)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis)
+            self.eval_kwargs.append(eval_arguments(locals()))
+            self.eval_configured.append(configured_eval_arguments(locals()))
             masks, flows = [], []
             for im in x:
                 h, w = np.asarray(im).shape[:2]
