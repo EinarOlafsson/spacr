@@ -721,6 +721,13 @@ ALPHA_MODULES = {
     # And the three that landed just after the seam that would have made
     # them reachable, and waited the same way for the same reason.
     "power", "anndata_export", "run_compare",
+    # The five built on the provenance and run-record work: the DAG of
+    # what produced what, the ranked hit list, the profiler that sweeps a
+    # fitted model, the methods-and-results exporter, and the scatter that
+    # shows you the object under the cursor. Same posture as the rest —
+    # built, tested and reachable, not yet trusted end to end.
+    "pipeline_graph", "hit_list", "profiler", "methods_export",
+    "image_scatter",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -729,7 +736,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """25 alpha, 9 beta, named one at a time.
+    """30 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -739,7 +746,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 25 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 30 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
