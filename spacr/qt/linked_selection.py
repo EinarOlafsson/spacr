@@ -241,10 +241,23 @@ class LinkedSelection(QObject):
         Annotate screens opened in a session means the first one's
         ``closeEvent`` runs *after* the second has registered, and an
         unconditional withdrawal would leave the live screen unreachable.
+
+        Compared with ``==``, not ``is``. The pattern this module documents —
+        ``register_object_opener("annotate", self.open_object_request)`` in
+        the constructor and ``unregister_object_opener("annotate",
+        self.open_object_request)`` in ``closeEvent`` — hands over a
+        *different bound-method object* each time, because Python builds a
+        new one on every attribute access. Under an identity check that made
+        every withdrawal a silent no-op, so the process-wide registry kept a
+        reference to a destroyed screen and the next ``open_objects`` reached
+        it. Bound methods compare equal exactly when their ``__self__`` and
+        ``__func__`` match, which is the question being asked; anything that
+        does not define ``__eq__`` (a lambda, a ``partial``) still falls back
+        to identity, so the two-screen guarantee above is unchanged.
         """
         key = str(kind).strip()
         current = self._openers.get(key)
-        if current is None or (fn is not None and current is not fn):
+        if current is None or (fn is not None and current != fn):
             return False
         del self._openers[key]
         return True
