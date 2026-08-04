@@ -51,10 +51,17 @@ Both are closed, and the second half of this file is what closes them:
   ``TestUnreadableProvenanceFailsSafe``, including the database shape
   the previous attempt left unprotected.
 
-One ``xfail(strict=True)`` remains, in
-``TestACanonicalTableTheImporterFilled``: ``measure_crop`` appending
-into such a table with no resume anywhere near it. That is
-``spacr/utils.py``'s to fix and the marker names the change.
+The last ``xfail(strict=True)`` here — ``measure_crop`` appending into
+such a table with no resume anywhere near it — is closed.
+``utils._merge_and_save_to_database`` now hands back the import's copy
+of the field it is about to write, and refuses to write at all when it
+cannot prove the hand-back lossless: see
+``TestMeasureRefusesRatherThanMixes``. Scoping the release to the one
+field is what makes it safe at the writer, where the whole-table release
+``supersede_imported_copies`` performs is not: the released field's
+replacement rows are the very next statement, so no field is ever left
+with none. The count-and-delete-on-one-predicate property that gates it
+is asserted directly, by making the count lie.
 
 Everything here is built with the real writers — ``convert.convert_folder``
 , ``align.save_coordinates``, ``utils._merge_and_save_to_database`` and
@@ -163,6 +170,32 @@ def _measure_field(root, stem, tables=('cell', 'nucleus', 'png_list'),
         paths = [os.path.join(root, 'data', 'cell_png', f'{stem}_{i + 1}.png')
                  for i in range(n_objects)]
         filepaths_to_database(paths, {'timelapse': False}, root, 'cell')
+
+
+def _measure_field_pre_fix(root, stem, tables=('cell', 'nucleus'),
+                           n_objects=N_OBJECTS):
+    """``_measure_field`` as spaCR wrote it *before* F34 was fixed at the writer.
+
+    ``utils._merge_and_save_to_database`` now hands back an import's copy of
+    the field it is about to write, so the mixed state — one canonical table
+    holding both writers' rows for one field — can no longer be produced by
+    measuring. Every database written by a spaCR release before that fix can
+    still be in it, which is precisely why the resume-side protections below
+    must go on being measured on a real mixed table rather than on the
+    all-imported one where over-deleting is invisible.
+
+    So the writer-side release is disabled for the duration of the write, and
+    nothing else is: the rows, the schema and the provenance are produced by
+    the same real writers as everywhere else in this file.
+    """
+    import spacr.utils as u
+
+    guard = u._release_imported_rows_for_field
+    u._release_imported_rows_for_field = lambda *a, **k: 0
+    try:
+        _measure_field(root, stem, tables=tables, n_objects=n_objects)
+    finally:
+        u._release_imported_rows_for_field = guard
 
 
 def _counts(db_path):
@@ -665,20 +698,22 @@ class TestACanonicalTableTheImporterFilled:
         # spaCR has measured nothing here. Both fields are still to do.
         assert set(state.pending) == {'plate1_A01_1', 'plate1_A01_2'}
 
-    @pytest.mark.xfail(strict=True, reason=(
-        'F34, spread by measure: utils._merge_and_save_to_database appends '
-        'its rows into the canonical table an import filled, in a table it '
-        'never looks at the provenance of, with no column marking the seam '
-        '— and with no resume anywhere near it. A resume now supersedes the '
-        'copy before measuring (resume.supersede_imported_copies) or refuses '
-        'to and says so, which covers every path THROUGH a resume; this is '
-        'the path around one. The fix is in spacr/utils.py, which the change '
-        'that unmarked the two tests above did not own: '
-        '_merge_and_save_to_database must ask resume.importer_rows_clause '
-        'whether the table it is about to append to holds a foreign copy of '
-        'the field it is writing, and raise rather than mix.'))
-    def test_measure_does_not_append_into_a_table_an_import_filled(
+    def test_measure_releases_the_imports_copy_of_the_field_it_writes(
             self, imported):
+        """F34's residual, closed. Was ``xfail(strict=True)``.
+
+        ``measure_crop`` with no resume anywhere near it, writing ``f2``
+        into a ``cell`` an import filled. Measured before the fix: four
+        rows for ``f2`` — two imported and two measured, side by side,
+        the only thing telling them apart being which columns are NULL,
+        and every ``count_cell`` for that well the sum of two
+        populations.
+
+        The copy of *that field* is handed back first, so the table holds
+        one population per field. Nothing is lost: what went is a
+        duplicate of ``foreign_cell``, checked row by row against it
+        before the delete.
+        """
         _measure_field(imported['root'], 'plate1_A01_2', tables=('cell',),
                        n_objects=2)
         conn = sqlite3.connect(imported['db'])
@@ -687,9 +722,202 @@ class TestACanonicalTableTheImporterFilled:
                 'SELECT * FROM "cell" WHERE "fieldID" = ?', conn, params=('f2',))
         finally:
             conn.close()
-        # Two imported rows and two measured ones, side by side, and the
-        # only thing telling them apart is which columns are NULL.
         assert len(mixed) == 2
+        # ...and they are spaCR's, not the import's.
+        assert mixed['cell_area'].notna().all()
+        assert mixed['foreign_areashape_area'].isna().all()
+        # The other field the import covers is untouched — a per-field
+        # release, not a table-wide one, so f1 keeps its rows and its
+        # provenance until a run comes to replace them.
+        assert _fields_in(imported['db'], 'cell') == {'f1', 'f2'}
+        assert _counts(imported['db'])['cell'] == 4
+        # Their numbers are exactly where they were.
+        assert _counts(imported['db'])['foreign_cell'] == 4
+
+    def test_the_release_is_idempotent_over_a_second_measure(self, imported):
+        """Measuring the same field twice releases once and never refuses.
+
+        The second call finds no imported rows for that field — the first
+        took them — so it adds nothing to the statement it runs. What the
+        second write leaves behind is the pre-existing append behaviour of
+        ``measure_crop``, which is not what this fix is about; what it
+        must not do is raise, or take the first write's rows with it.
+        """
+        _measure_field(imported['root'], 'plate1_A01_2', tables=('cell',),
+                       n_objects=2)
+        _measure_field(imported['root'], 'plate1_A01_2', tables=('cell',),
+                       n_objects=2)
+
+        rows = _rows(imported['db'], 'SELECT * FROM cell')
+        assert len(rows) == 6                    # f1 theirs x2, f2 ours x4
+        assert int(rows['cell_area'].notna().sum()) == 4
+        assert _counts(imported['db'])['foreign_cell'] == 4
+
+    def test_a_field_the_import_never_covered_costs_nothing(self, imported):
+        """The control. ``f3`` is measure's alone, so nothing is released.
+
+        The release must be invisible on every field an import did not
+        cover — otherwise the guard would be deleting measure's own rows,
+        which is the failure it exists to prevent.
+        """
+        np.save(os.path.join(imported['root'], 'merged', 'plate1_A01_3.npy'),
+                np.zeros((16, 16, 2), np.uint16))
+        _measure_field(imported['root'], 'plate1_A01_3', tables=('cell',),
+                       n_objects=3)
+
+        rows = _rows(imported['db'], 'SELECT * FROM cell')
+        assert len(rows) == 7                    # theirs 4 + ours 3
+        assert set(rows['fieldID']) == {'f1', 'f2', 'f3'}
+        assert int(rows['cell_area'].notna().sum()) == 3
+
+    def test_a_project_that_never_saw_an_import_is_unchanged(self, project):
+        """No ``foreign_columns``, no ``foreign_*`` table, no clause, no cost.
+
+        The ordinary case, which must run exactly the statements it always
+        did — a guard that changed the common path would be a far bigger
+        risk than the bug it closes.
+        """
+        before = _counts(project['db'])
+        _measure_field(project['root'], 'plate1_A01_4', tables=('cell',),
+                       n_objects=3)
+        after = _counts(project['db'])
+        assert after['cell'] == before['cell'] + 3
+        assert set(_fields_in(project['db'], 'cell')) == {'f1', 'f2', 'f3',
+                                                          'f4'}
+
+
+class TestMeasureRefusesRatherThanMixes:
+    """When the copy cannot be handed back losslessly, nothing is written.
+
+    Refusing costs one field's measurements, which a re-run replaces.
+    Mixing costs every count in the project, and nothing detects it. So
+    every path that cannot *prove* the removal lossless raises, and the
+    message names the remedy.
+    """
+
+    def test_it_refuses_when_the_importers_own_copy_is_gone(self, imported):
+        """No ``foreign_cell`` to check against — so no delete, and no append.
+
+        Deleting would destroy the only copy; appending would mix. The
+        third option is the correct one.
+        """
+        from spacr.utils import ImportedCopyNotReleased
+
+        conn = sqlite3.connect(imported['db'])
+        try:
+            conn.execute('DROP TABLE "foreign_cell"')
+            conn.commit()
+        finally:
+            conn.close()
+        before = _rows(imported['db'], 'SELECT * FROM cell')
+
+        with pytest.raises(ImportedCopyNotReleased) as excinfo:
+            _measure_field(imported['root'], 'plate1_A01_2',
+                           tables=('cell',), n_objects=2)
+
+        message = str(excinfo.value)
+        assert 'foreign_cell' in message
+        assert 'only copy' in message
+        after = _rows(imported['db'], 'SELECT * FROM cell')
+        assert len(after) == len(before) == 4
+        assert 'cell_area' not in after.columns     # not one row written
+
+    def test_it_refuses_when_a_copied_row_has_no_twin(self, imported):
+        """One imported row edited out of ``foreign_cell``: it exists nowhere else.
+
+        The lossless check is row by row, not table by table, so a single
+        orphan stops the whole write.
+        """
+        from spacr.utils import ImportedCopyNotReleased
+
+        conn = sqlite3.connect(imported['db'])
+        try:
+            conn.execute('DELETE FROM "foreign_cell" WHERE "fieldID" = ? '
+                         'AND "object_label" = 1', ('f2',))
+            conn.commit()
+        finally:
+            conn.close()
+
+        with pytest.raises(ImportedCopyNotReleased) as excinfo:
+            _measure_field(imported['root'], 'plate1_A01_2',
+                           tables=('cell',), n_objects=2)
+
+        assert 'no matching row' in str(excinfo.value)
+        after = _rows(imported['db'], 'SELECT * FROM cell')
+        assert len(after) == 4
+        assert 'cell_area' not in after.columns
+
+    def test_it_refuses_a_timelapse_rather_than_key_on_fewer_columns(
+            self, imported):
+        """The importer writes no ``timeID``; a frame cannot be identified.
+
+        ``resume.supersede_imported_copies`` declines a timelapse for
+        exactly this reason, and the writer has to agree with it — a
+        release keyed on the four field columns alone would take every
+        frame of the field.
+        """
+        from spacr.utils import ImportedCopyNotReleased, _merge_and_save_to_database
+
+        morphology = pd.DataFrame({'label': [1, 2],
+                                   'cell_area': [100.0, 101.0]})
+        intensity = pd.DataFrame(
+            {'label': [1, 2], 'cell_channel_0_mean_intensity': [5.0, 5.0]})
+        with pytest.raises(ImportedCopyNotReleased) as excinfo:
+            _merge_and_save_to_database(morphology, intensity, 'cell',
+                                        imported['root'],
+                                        'plate1_A01_2_t1', 'exp', True)
+
+        assert 'timeID' in str(excinfo.value)
+        after = _rows(imported['db'], 'SELECT * FROM cell')
+        assert len(after) == 4
+        assert 'cell_area' not in after.columns
+
+    def test_a_delete_that_takes_a_number_nobody_counted_rolls_back(
+            self, imported):
+        """The property that is actually true, asserted by making it false.
+
+        Count and delete run on one predicate string, and the equality of
+        the two numbers is what the write is gated on — not the row
+        identity, which is what destroyed this table twice. Here the count
+        is made to lie; the delete must roll back and nothing at all may
+        be written.
+        """
+        import spacr.utils as u
+
+        class _Result:
+            def __init__(self, count=None, rowcount=0):
+                self._count = count
+                self.rowcount = rowcount
+
+            def fetchone(self):
+                return (self._count,)
+
+        class _LyingConnection:
+            """Answers the gating count with a number the delete cannot match."""
+
+            def __init__(self):
+                self.statements = []
+
+            def execute(self, sql, params=()):
+                self.statements.append(sql)
+                if sql.lstrip().upper().startswith('SELECT COUNT(*)'):
+                    return _Result(count=99)
+                return _Result(rowcount=2)
+
+        conn = _LyingConnection()
+        with pytest.raises(u.ImportedCopyNotReleased) as excinfo:
+            u._verified_delete(conn, 'cell', 's', '"fieldID" = ?', ['f2'],
+                               "release the import's copy of field f2")
+
+        message = str(excinfo.value)
+        assert 'did not act on the rows that were checked' in message
+        assert '99' in message and '2' in message
+        # One predicate string, interpolated into both statements, so the
+        # two cannot drift apart in a later edit.
+        assert len(conn.statements) == 2
+        assert all('"fieldID" = ?' in sql for sql in conn.statements)
+        assert conn.statements[0].startswith('SELECT COUNT(*)')
+        assert conn.statements[1].startswith('DELETE')
 
     def test_a_field_the_import_never_covered_is_still_clearable(self,
                                                                  imported):
@@ -807,14 +1035,17 @@ class TestOwnershipIsDecidedPerRow:
         """Both writers, the same field, one DELETE.
 
         ``f2`` has two imported rows. A ``measure_crop`` then writes two
-        of its own for the same field into the same table — the state
-        ``xfail`` ``test_measure_does_not_append_into_a_table_an_import_filled``
-        is about. Clearing ``f2`` has to take exactly the two measured
-        rows: a table-scoped claim keeps all four (unresumable), and no
-        claim at all takes all four (F34).
+        of its own for the same field into the same table — the state F34
+        was, written here by :func:`_measure_field_pre_fix` because the
+        writer no longer produces it (see
+        ``test_measure_releases_the_imports_copy_of_the_field_it_writes``)
+        and every database an older spaCR wrote still can be in it.
+        Clearing ``f2`` has to take exactly the two measured rows: a
+        table-scoped claim keeps all four (unresumable), and no claim at
+        all takes all four (F34).
         """
-        _measure_field(imported['root'], 'plate1_A01_2', tables=('cell',),
-                       n_objects=2)
+        _measure_field_pre_fix(imported['root'], 'plate1_A01_2',
+                               tables=('cell',), n_objects=2)
         assert len(_rows(imported['db'], 'SELECT * FROM cell')) == 6
 
         assert clear_field_rows(imported['db'], ['cell'],
@@ -1050,9 +1281,11 @@ class TestTheImportersCopyIsReleasedBeforeMeasuring:
         because everything was going anyway. That is the gap this closes.
         """
         project = _pristine_import(tmp_path, name='mixed')
-        # measure_crop wrote f1 -- the field the import also covers.
-        _measure_field(project['root'], 'plate1_A01_1',
-                       tables=('cell', 'nucleus'), n_objects=2)
+        # measure_crop wrote f1 -- the field the import also covers. Through
+        # the pre-fix writer: this is a database an older spaCR left behind,
+        # and the resume has to go on handling it correctly forever.
+        _measure_field_pre_fix(project['root'], 'plate1_A01_1',
+                               tables=('cell', 'nucleus'), n_objects=2)
         before = _rows(project['db'], 'SELECT * FROM cell')
         assert len(before) == 6
         assert int(before['cell_area'].notna().sum()) == 2
