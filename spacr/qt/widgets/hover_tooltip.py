@@ -11,10 +11,14 @@ The popup cancels its own hide timer if the mouse enters it, and only
 actually hides when neither the anchor nor the popup itself is under
 the cursor.
 
-Layout: explanation on the left, the setting's animation on the right.
-Both columns start at the same top edge, so the first line of prose and
-the first frame of the animation are read together rather than one being
-hunted for beside the other::
+A hover shows **text only**. No GIF is decoded, no frames are cached and no
+timer runs until the reader asks for the animation: 141 packaged animations
+are 141 decoded movies, and a hover that only wanted the sentence should not
+pay for one.
+
+Asked for, the animation appears to the RIGHT of the text. Both columns start
+at the same top edge, so the first line of prose and the first frame are read
+together rather than one being hunted for beside the other::
 
     +-----------------------------+-----------------------------+
     | Cell diameter (int)         |                             |
@@ -28,17 +32,25 @@ its width is widened, one step at a time, until the prose fits inside the
 square's height. With no animation beside it the popup shrinks to the
 text — nothing is padded out to a shape it does not need.
 
-The last line is two words, not a sentence: **API** in the theme accent
-opens the same documentation page the old ``Open spaCR API documentation``
-link did, and **Animation** in teal collapses or restores the square. That
-per-popup toggle is deliberately separate from the *Setting animations*
-preference, which still decides whether an animation is offered at all.
+The last line is two words, not a sentence: **API** in the theme accent opens
+the same documentation page the old ``Open spaCR API documentation`` link did,
+and **Animation** in teal reveals the square — or folds it away again.
+
+That reveal lasts the SESSION, not the hover and not the setting. The popup is
+a process-wide singleton, so the state has nowhere else to live, and it is the
+only scope that makes one click useful: per-hover would un-reveal the moment
+the pointer moved, and per-setting would ask a reader who wants animations to
+click all 141 of them.
+
+The one place to say "always" is the *Setting animations* preference, which is
+where the session state STARTS from — see :func:`HoverTooltip.animations_shown`.
+It now means "show animations without asking", and its default followed the
+new default for the tooltip: off.
 
 Which animation is decided by the anchor's ``settingKey`` property, so no
 caller has to pass one; the callers that put help on a label already set it.
-Anything without that property — a section header, a home tile — gets the
-text-only popup it always got. So does everything, if the user turns
-:func:`spacr.qt.preferences.get_setting_animations_enabled` off.
+Anything without that property — a section header, a home tile — gets a
+text-only popup with no **Animation** word to click.
 
 Only one tooltip ever appears. The screens that anchor this popup also leave
 a native Qt tooltip on the same label (``refresh_api_tooltips`` re-applies it
@@ -379,7 +391,7 @@ class HoverTooltip(QFrame):
             "Animation", "HoverTooltipAnimationLink", self._links)
         self._animation_link.setAccessibleName("Animation")
         self._animation_link.setAccessibleDescription(
-            "Hide or show this setting's animation."
+            "Show or hide this setting's animation."
         )
         self._animation_link.clicked.connect(self.toggle_animation)
         links_row.addWidget(self._api_link)
@@ -394,7 +406,13 @@ class HoverTooltip(QFrame):
         self._animation_view.hide()
         self._animation = None
         self._offered_animation = None
-        self._animation_collapsed = False
+        # Tri-state, and the tri-state is the point. ``None`` means "no click
+        # yet — follow the preference"; ``True``/``False`` are this session's
+        # override of it. Two independent booleans would be two switches that
+        # can disagree; this one defers to the preference until the reader
+        # says otherwise, and goes back to deferring when they change it.
+        self._animations_revealed: Optional[bool] = None
+        self._reveal_baseline: Optional[bool] = None
         self._api_url = ""
 
         lay = QHBoxLayout(self)
@@ -526,9 +544,31 @@ class HoverTooltip(QFrame):
         """Documentation URL taken out of the body, or ``""``."""
         return self._api_url
 
-    def animation_collapsed(self) -> bool:
-        """Whether the user folded the animation away with the toggle."""
-        return self._animation_collapsed
+    def animations_shown(self) -> bool:
+        """Whether a hover currently reveals the animation beside the text.
+
+        Off unless asked for. The **Animation** word sets a session override;
+        with no override the *Setting animations* preference decides, and that
+        preference now means "show animations without asking" rather than
+        "show animations". Its default follows this one: off.
+
+        Changing the preference clears the override, so Preferences is always
+        able to have the last word — otherwise a reader who clicked once could
+        never turn animations off again from the dialog, which is exactly the
+        two-switches-that-disagree failure this method exists to avoid.
+
+        Read on every hover, never cached: the popup is a process-wide
+        singleton that outlives the Preferences dialog.
+        """
+        from ..preferences import get_setting_animations_enabled
+
+        preference = get_setting_animations_enabled()
+        if (self._animations_revealed is not None
+                and preference == self._reveal_baseline):
+            return self._animations_revealed
+        self._animations_revealed = None
+        self._reveal_baseline = None
+        return preference
 
     # ------------------------------------------------------------------
     # The two words
@@ -540,15 +580,18 @@ class HoverTooltip(QFrame):
         QDesktopServices.openUrl(QUrl(self._api_url))
 
     def toggle_animation(self) -> None:
-        """Collapse or restore the animation beside the text.
+        """Reveal the animation beside the text, or fold it away again.
 
-        Deliberately not written to :mod:`spacr.qt.preferences`: the
-        *Setting animations* preference decides whether an animation is
-        offered at all, and this is the reader folding one away in front of
-        them. It lasts as long as the popup does — which is the session,
-        since the popup is a singleton — and nothing else.
+        Deliberately not written to :mod:`spacr.qt.preferences`. This is the
+        reader asking to see one now; the preference is the reader asking to
+        stop being asked. The override lasts as long as the popup does — the
+        session, since the popup is a singleton — and is dropped as soon as
+        the preference it overrode changes.
         """
-        self._animation_collapsed = not self._animation_collapsed
+        from ..preferences import get_setting_animations_enabled
+
+        self._animations_revealed = not self.animations_shown()
+        self._reveal_baseline = get_setting_animations_enabled()
         self._set_animation(self._offered_animation)
         self.adjustSize()
         if self.isVisible() and self._anchor is not None:
@@ -558,14 +601,15 @@ class HoverTooltip(QFrame):
     # Animation
     # ------------------------------------------------------------------
     def _resolve_animation(self, anchor: QWidget, animation):
-        """Decide which animation, if any, belongs beside this tooltip."""
-        from ..preferences import get_setting_animations_enabled
+        """Which animation this anchor HAS, shown or not.
 
-        if not get_setting_animations_enabled():
-            # Checked first and every time. The tooltip is a singleton that
-            # outlives Preferences, so a cached answer would keep animating
-            # for the rest of the session after the user cleared the box.
-            return None
+        A registry lookup, not a decode — nothing here reads a GIF, so asking
+        it on every hover costs nothing even when the answer stays folded
+        away. Whether it is put on screen is :meth:`animations_shown`'s call,
+        made in :meth:`_set_animation`; this one has to answer regardless,
+        because a setting with no animation is the one case where there is no
+        **Animation** word to click.
+        """
         if animation is not _DERIVE:
             return animation
 
@@ -591,19 +635,22 @@ class HoverTooltip(QFrame):
     def _set_animation(self, animation) -> None:
         """Show ``animation`` beside the text, or fall back to text only."""
         self._offered_animation = animation
-        if animation is not None and not self._animation_collapsed:
+        revealed = self.animations_shown()
+        if animation is not None and revealed:
             showing = self._animation_view.load(animation)
         else:
-            # Nothing to show, or folded away: decode nothing.
+            # Nothing to show, or not asked for: decode nothing. This is the
+            # default path, and it is why a plain hover costs no decode.
             self._animation_view.clear_animation()
             showing = False
         self._animation = animation if showing else None
         self._animation_view.setVisible(showing)
-        # Nothing to toggle when this setting has no animation, when the
-        # preference turned them all off, or when the asset would not decode
-        # — a word that visibly does nothing is worse than no word.
+        # Offered but hidden -> the word is the invitation. Showing -> the
+        # word folds it away again. Revealed but undecodable -> hide it: a
+        # word that visibly does nothing is worse than no word. No animation
+        # for this setting at all -> nothing to say.
         self._animation_link.setVisible(
-            animation is not None and (showing or self._animation_collapsed))
+            animation is not None and (showing or not revealed))
         # Hidden, not merely empty: a zero-height row still costs the layout
         # its spacing, which is exactly the slack a text-only popup was asked
         # to lose.
@@ -641,7 +688,19 @@ class HoverTooltip(QFrame):
         self._text_column.setMaximumSize(_UNBOUNDED, _UNBOUNDED)
 
     def _resize_text_column(self, with_animation: bool) -> None:
-        """Size the text block: square-high beside an animation, tight alone."""
+        """Size the text block: square-high beside an animation, tight alone.
+
+        Polished first, and that is not a formality. ``_apply_theme`` sets the
+        prose font through the popup's stylesheet, and an unpolished widget
+        answers ``heightForWidth`` in the *application* font — 119 px where
+        the real answer is 250. The first hover of the session therefore
+        picked the narrowest column in the ladder and then pinned the label to
+        a height barely half the text, clipping the help. Every later hover
+        measured correctly, so the fault only ever showed on the first one.
+        """
+        self.ensurePolished()
+        self._label.ensurePolished()
+        self._links.ensurePolished()
         self._unpin_text()
         if not with_animation:
             # Nothing pinned: the layout takes the popup down to what the
@@ -762,9 +821,4 @@ class HoverTooltip(QFrame):
         super().leaveEvent(event)
 
 
-#: Public name for the square player, so the click-to-open popup in
-#: :mod:`spacr.qt.widgets.animation_link` can show the same zoomed, rounded
-#: frames the hover does instead of a raw ``QMovie``.
-AnimationView = _AnimationView
-
-__all__ = ["AnimationView", "HoverTooltip", "TEAL", "split_api_link"]
+__all__ = ["HoverTooltip", "TEAL", "split_api_link"]
