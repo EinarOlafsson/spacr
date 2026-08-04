@@ -335,11 +335,17 @@ def test_switching_primary_object_does_not_duplicate_setting_help(qtbot):
     fix every setting then carried two API dots and emitted two tooltips per
     hover.
 
-    Counted on ``DotLink``, the base of every dot, so the count also fails if
-    the purple animation dot the user asked to be removed ever comes back.
+    This used to count ``DotLink``, the base of every dot. The dialog now
+    passes ``api_dots=False`` -- 68 dots down one form read as texture
+    rather than as an affordance -- so the count is taken on the decorated
+    labels themselves, which is what actually duplicated. ``DotLink`` is
+    still counted, pinned at zero: that keeps the guard against the purple
+    animation dot the user asked to have removed ever coming back, and
+    against the API dots quietly returning to this dialog.
     """
+    from PySide6.QtWidgets import QLabel
+
     from spacr.qt.widgets.dot_link import DotLink
-    from spacr.qt.widgets.info_link import InfoLink
     from spacr.qt.widgets.live_preview import LivePreviewPanel, LiveSettingsDialog
 
     panel = LivePreviewPanel()
@@ -347,23 +353,26 @@ def test_switching_primary_object_does_not_duplicate_setting_help(qtbot):
     dialog = LiveSettingsDialog(panel)
     qtbot.addWidget(dialog)
 
-    before_api = len(dialog.findChildren(InfoLink))
-    before_dots = len(dialog.findChildren(DotLink))
-    assert before_api >= 1, "the popup should have been decorated at all"
-    assert before_dots == before_api, (
-        "a decorated setting carries only the teal API dot")
+    def decorated():
+        return len([w for w in dialog.findChildren(QLabel)
+                    if w.property("settingHelpLabel") and w.toolTip()])
+
+    before = decorated()
+    assert before >= 1, "the popup should have been decorated at all"
+    assert not dialog.findChildren(DotLink), (
+        "this dialog draws no dots -- neither the teal API dot nor the "
+        "purple animation dot")
 
     panel._object_box.setCurrentText("nucleus")
     QApplication.processEvents()
-    assert len(dialog.findChildren(InfoLink)) == before_api
-    assert len(dialog.findChildren(DotLink)) == before_dots
+    assert decorated() == before
 
     # And it is not a one-shot guard: users flip this repeatedly.
     for choice in ("cell", "pathogen", "cell + nucleus", "nucleus", "cell"):
         panel._object_box.setCurrentText(choice)
         QApplication.processEvents()
-    assert len(dialog.findChildren(InfoLink)) == before_api
-    assert len(dialog.findChildren(DotLink)) == before_dots
+    assert decorated() == before
+    assert not dialog.findChildren(DotLink)
 
 
 def test_switching_primary_object_emits_one_tooltip_per_hover(qtbot):
