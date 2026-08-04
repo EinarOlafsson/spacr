@@ -259,6 +259,123 @@ def _region_rect(screen, widget) -> QRect:
     return _rect(screen, widget)
 
 
+# ---------------------------------------------------------------------------
+# The modules that landed after Z9
+# ---------------------------------------------------------------------------
+# Roughly twenty-five screens arrived in a day and most were written without
+# the treatment above, so they painted the same slabs for the same reasons.
+# Regions are looked up by object name rather than by private attribute: the
+# object name is what the QSS keys off, so a rename that breaks the styling
+# breaks this file too instead of silently measuring a different widget.
+
+def _named(screen, object_name: str):
+    """The one widget called ``object_name`` under ``screen``."""
+    from PySide6.QtWidgets import QWidget
+    found = screen.findChild(QWidget, object_name)
+    assert found is not None, (
+        f"no widget named {object_name!r} under {type(screen).__name__} — "
+        "renamed? the QSS block keys off the same name")
+    return found
+
+
+def _figure_of(screen):
+    """The ``FigureCanvasQTAgg`` inside this screen's ``GraphCanvas``.
+
+    The canvas is the thing that was opaque — ``WA_OpaquePaintEvent`` plus a
+    solid figure ``facecolor`` — and it has no object name of its own
+    because matplotlib made it.
+    """
+    return _named(screen, "GraphCanvas")._canvas
+
+
+def _qc_dashboard(qtbot):
+    from spacr.qt.screens.qc_dashboard import QCDashboardScreen
+    window, screen = _show(qtbot, QCDashboardScreen)
+    return window, screen, {"card column": screen._cards_panel}
+
+
+def _experiment_design(qtbot):
+    from spacr.qt.screens.experiment_design import ExperimentDesignScreen
+    window, screen = _show(qtbot, ExperimentDesignScreen)
+    return window, screen, {"findings": screen._findings_panel}
+
+
+def _power(qtbot):
+    from spacr.qt.screens.power import PowerScreen
+    window, screen = _show(qtbot, lambda: PowerScreen(threaded=False))
+    return window, screen, {"cells curve": screen._cells_view,
+                            "wells curve": screen._wells_view}
+
+
+def _graph_builder(qtbot):
+    from spacr.qt.screens.graph_builder import GraphBuilderScreen
+    window, screen = _show(qtbot, lambda: GraphBuilderScreen(threaded=False))
+    return window, screen, {"chart canvas": _figure_of(screen),
+                            "shelf": _named(screen, "GraphShelf")}
+
+
+def _trellis(qtbot):
+    from spacr.qt.screens.trellis import TrellisScreen
+    window, screen = _show(qtbot, lambda: TrellisScreen(threaded=False))
+    return window, screen, {"chart canvas": _figure_of(screen),
+                            "shelf": _named(screen, "TrellisShelf")}
+
+
+def _gate_editor(qtbot):
+    from spacr.qt.screens.gate_editor import GateEditorScreen
+    window, screen = _show(qtbot, lambda: GateEditorScreen(threaded=False))
+    return window, screen, {"chart canvas": _figure_of(screen)}
+
+
+def _feature_explorer(qtbot):
+    from spacr.qt.screens.feature_explorer import FeatureExplorerScreen
+    window, screen = _show(qtbot,
+                           lambda: FeatureExplorerScreen(threaded=False))
+    return window, screen, {"distributions": screen.explorer._canvas}
+
+
+def _tabulate(qtbot):
+    from spacr.qt.screens.tabulate import TabulateScreen
+    window, screen = _show(qtbot, lambda: TabulateScreen(threaded=False))
+    return window, screen, {"chart canvas": _figure_of(screen)}
+
+
+def _pca(qtbot):
+    from spacr.qt.screens.pca import PCAScreen
+    window, screen = _show(qtbot, lambda: PCAScreen(threaded=False))
+    return window, screen, {"chart canvas": _figure_of(screen),
+                            "scree plot": _named(screen, "PCAScreePlot")}
+
+
+def _image_scatter(qtbot):
+    from spacr.qt.screens.image_scatter import (CANVAS_OBJECT,
+                                                ImageScatterScreen)
+    window, screen = _show(qtbot,
+                           lambda: ImageScatterScreen(threaded=False))
+    return window, screen, {"point cloud": _named(screen, CANVAS_OBJECT)}
+
+
+def _curate(qtbot):
+    from spacr.qt.screens.curate import CurateScreen
+    window, screen = _show(qtbot, CurateScreen)
+    return window, screen, {"layer canvas": _named(screen,
+                                                   "LayerCanvasFrame")}
+
+
+def _layer_viewer(qtbot):
+    from spacr.qt.layer_viewer import LayerViewer
+    window, screen = _show(qtbot, LayerViewer)
+    return window, screen, {"layer canvas": _named(screen,
+                                                   "LayerCanvasFrame")}
+
+
+def _ortho_view(qtbot):
+    from spacr.qt.ortho_view import OrthoView
+    window, screen = _show(qtbot, OrthoView)
+    return window, screen, {name: panel
+                            for name, panel in screen.panels.items()}
+
+
 SCREENS = (
     ("Align & Stitch", _align),
     ("Plate Viewer", _plate),
@@ -266,6 +383,19 @@ SCREENS = (
     ("Training Runs", _train_compare),
     ("Classifier Evaluation", _classifier),
     ("Run History", _run_history),
+    ("QC Panel", _qc_dashboard),
+    ("Experiment Design", _experiment_design),
+    ("Power", _power),
+    ("Graph Builder", _graph_builder),
+    ("Trellis", _trellis),
+    ("Gate Editor", _gate_editor),
+    ("Feature Explorer", _feature_explorer),
+    ("Tabulate", _tabulate),
+    ("PCA", _pca),
+    ("Image Scatter", _image_scatter),
+    ("Curate", _curate),
+    ("Layer Viewer", _layer_viewer),
+    ("Ortho View", _ortho_view),
 )
 
 
@@ -316,6 +446,26 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
 
     Before the fix all seven read 0.000, except Classifier Evaluation's
     0.039 — which was its tab bar hairline and nothing else.
+
+    The modules that landed after Z9, measured the same way::
+
+        QC Panel          card column       0.000 -> 0.702
+        Experiment Design findings          0.000 -> 0.702
+        Power             cells curve       0.000 -> 0.698
+        Power             wells curve       0.000 -> 0.698
+        Graph Builder     chart canvas      0.000 -> 0.698
+        Graph Builder     shelf             0.699 -> 0.699
+        Trellis           chart canvas      0.000 -> 0.698
+        Trellis           shelf             0.000 -> 0.700
+        Gate Editor       chart canvas      0.000 -> 0.698
+        Feature Explorer  distributions     0.000 -> 0.698
+        Tabulate          chart canvas      0.216 -> 0.763
+        PCA               chart canvas      0.114 -> 0.733
+        PCA               scree plot        0.000 -> 0.702
+        Image Scatter     point cloud       0.000 -> 0.702
+        Curate            layer canvas      0.000 -> 0.702
+        Layer Viewer      layer canvas      0.000 -> 0.702
+        Ortho View        xy / zx / yz      0.000 -> 0.702
     """
     _window, screen, regions = build(qtbot)
     alpha = _transmission(screen)
@@ -329,6 +479,63 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
         f" at {OPACITY:.0%} page opacity — a panel passes about "
         f"{EXPECTED:.2f}. Measured: "
         + ", ".join(f"{k}={v:.3f}" for k, v in measured.items()))
+
+
+def test_the_probe_reports_zero_for_an_opaque_figure_canvas(
+        qtbot, app_theme_restored, monkeypatch):
+    """The same guard, for the matplotlib mode.
+
+    ``paint_panel`` is not what makes a ``FigureCanvasQTAgg`` translucent —
+    ``WA_OpaquePaintEvent`` off and ``figure.patch`` at alpha 0 are — so
+    monkeypatching ``paint_panel`` would prove nothing about this one. Put
+    the two opaque things back instead and the probe must see the slab.
+    """
+    from PySide6.QtCore import Qt as _Qt
+    from spacr.qt.screens.graph_builder import GraphBuilderScreen  # noqa: F401
+    from spacr.qt.widgets import graph_builder as gb
+
+    real = gb._canvas_class()
+
+    class _Opaque(real):
+        def __init__(self, figure, **kwargs):
+            super().__init__(figure, **kwargs)
+            self._spacr_panel = False
+            self.setAttribute(_Qt.WA_OpaquePaintEvent, True)
+            self.setAttribute(_Qt.WA_TranslucentBackground, False)
+            figure.patch.set_alpha(1.0)
+            figure.set_facecolor(gb.active_palette()["surface"])
+
+    monkeypatch.setattr(gb, "_canvas_class", lambda: _Opaque)
+    _window, screen, regions = _graph_builder(qtbot)
+    measured = _clearest(_transmission(screen),
+                         _rect(screen, regions["chart canvas"]))
+    assert measured < OPAQUE, (
+        f"the chart canvas passes {measured:.3f} of the backdrop with the "
+        "opaque figure restored, so this file's probe is not measuring what "
+        "made the six chart screens slabs")
+
+
+def test_the_image_itself_stays_opaque(qtbot, app_theme_restored):
+    """Opacity reaches the container, never the picture.
+
+    That was the instruction from the start, and it is the one place where
+    a *low* number is the pass: an empty layer canvas is a page panel at
+    0.70, and the same canvas with a field loaded is the field — drawn as
+    an opaque pixmap on top of the panel, which the page-opacity slider is
+    not allowed to wash out.
+    """
+    import numpy as np
+    from spacr.layers import LayerStack
+    from spacr.qt.layer_viewer import LayerViewer
+
+    stack = LayerStack()
+    stack.add_image(np.linspace(0, 1, 64 * 64).reshape(64, 64), name="field")
+    _window, screen = _show(qtbot, lambda: LayerViewer(stack))
+    canvas = _named(screen, "LayerCanvasFrame")
+    measured = _clearest(_transmission(screen), _rect(screen, canvas))
+    assert measured < OPAQUE, (
+        f"the loaded field passes {measured:.3f} of the backdrop — the "
+        "page-opacity preference has reached the image, and it must not")
 
 
 @pytest.mark.parametrize("name,build", SCREENS, ids=[n for n, _ in SCREENS])
