@@ -142,67 +142,29 @@ def _setting_row_contract(screen: AppScreen, qapp) -> None:
         f"expected its container color {expected}")
 
 
-#: BUG (spacr/qt/screens/settings_model.py:3245, unfixed): every module with
-#: a list-valued setting opens with no settings form at all.
+#: Fixed in `27b56db1`. `_ListEditor.__init__` -- the widget behind every
+#: list-valued setting -- styled its footer with `font_px(12)` while its
+#: local import three statements earlier read `from ..theme import
+#: active_palette`. Constructing it raised `NameError`, which propagated out
+#: of `SettingsWidgets.build_sections()`, and `AppScreen` put a "Failed to
+#: build settings for '<app>'" label where the whole form should be. Sixteen
+#: shipped modules -- mask, measure and classify among them -- were unusable
+#: in the Qt GUI.
 #:
-#: ``_ListEditor.__init__`` — the widget behind every list-valued setting —
-#: styles its footer with ``font-size: {font_px(12)}px``, but its local import
-#: three statements earlier is ``from ..theme import active_palette`` and the
-#: module has no ``font_px`` at module scope. Constructing the widget raises
-#: ``NameError: name 'font_px' is not defined``; that propagates out of
-#: ``SettingsWidgets.build_sections()``; and
-#: ``AppScreen._build_settings_panel`` catches it and puts a
-#: "Failed to build settings for '<app>'" label where the whole form should
-#: be. Sixteen of the shipped modules — including mask, measure and classify —
-#: are unusable in the Qt GUI as a result.
-#:
-#: The fix is one word, on line 3219: ``from ..theme import active_palette,
-#: font_px``. ``settings_model.py`` belongs to another workstream tonight, so
-#: this is pinned rather than repaired. ``strict=True`` on every entry: the
-#: moment that import lands, all sixteen XPASS and this list must be deleted
-#: rather than trimmed.
-SETTINGS_FORM_NAMEERROR = frozenset({
-    "mask", "timelapse", "motility", "measure", "classify", "regression",
-    "external_masks", "illumination", "train_cellpose", "cellpose_masks",
-    "umap", "activation", "anndata_export", "recruitment", "invasion",
-    "replication",
-})
-
-_SETTINGS_FORM_NAMEERROR_REASON = (
-    "spacr/qt/screens/settings_model.py:3245 — _ListEditor.__init__ formats "
-    "its footer stylesheet with font_px(12) but imports only active_palette "
-    "on line 3219, so every list-valued setting raises NameError and the "
-    "module's whole settings form is replaced by 'Failed to build settings'. "
-    "Fix: import font_px alongside active_palette."
-)
+#: The sixteen were pinned here as strict xfails so that the repair would
+#: announce itself. It did: they all XPASSed the moment the import landed,
+#: and the list is deleted rather than trimmed, exactly as its own note
+#: instructed. The parametrisation below now covers every registered app
+#: with no exceptions, which is the state that would have caught this in the
+#: first place.
 
 
 def _module_params():
-    """Every registered app key, with the blocked ones pinned."""
+    """Every registered app key. No exemptions -- see the note above."""
     for key, _name, _description, _section in APPS:
-        if key in SETTINGS_FORM_NAMEERROR:
-            yield pytest.param(key, marks=pytest.mark.xfail(
-                strict=True, reason=_SETTINGS_FORM_NAMEERROR_REASON))
-        else:
-            yield key
+        yield key
 
 
-def test_the_blocked_list_names_only_modules_that_still_exist():
-    """A stale key in the list above would silently retire a real module.
-
-    ``pytest.param`` is only reached for keys that are in ``APPS``, so a
-    module that was renamed or removed would leave its entry behind doing
-    nothing, and the next module to take that name would inherit an xfail
-    nobody chose for it.
-    """
-    registered = {key for key, _n, _d, _s in APPS}
-    unknown = sorted(SETTINGS_FORM_NAMEERROR - registered)
-    assert not unknown, (
-        f"SETTINGS_FORM_NAMEERROR names modules that are not registered: "
-        f"{unknown}")
-
-
-@pytest.mark.xfail(strict=True, reason=_SETTINGS_FORM_NAMEERROR_REASON)
 def test_a_list_valued_setting_can_build_its_editor(qtbot, qt_theme_applied):
     """The defect itself, in one line, without a screen around it.
 
