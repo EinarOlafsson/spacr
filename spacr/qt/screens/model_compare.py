@@ -87,7 +87,7 @@ from ..widgets.toggle import Toggle
 from ... import model_compare as mc
 from ..bridge import make_thread
 from ..theme import (RADIUS, SPACING, active_palette,
-                     ensure_widget_qss_applied, pane_surface,
+                     block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
 
@@ -191,7 +191,7 @@ def _model_panel_qss(palette: dict, opacity) -> str:
     active_palette()["bg"])`` — raw hex, and the WINDOW colour rather than
     a surface, so they were opaque by construction and no slider position
     could touch them. They measured 0.23 of the backdrop against a panel's
-    0.70. They are a rule here now, through :func:`pane_surface`. A
+    0.70. They are a rule here now, through :func:`block_surface`. A
     rendered comparison still paints an opaque ``QPixmap`` on top: the
     preference reaches the container, never the picture.
 
@@ -205,7 +205,7 @@ def _model_panel_qss(palette: dict, opacity) -> str:
     An ID selector outranks the ``*[spacrTransparent="true"]`` attribute
     rule, so naming them is enough to give them their surface back.
     """
-    surface = pane_surface("surface_alt", palette["theme"], opacity)
+    surface = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
 QGroupBox#{MODEL_PANEL_NAME} {{
     background: {surface};

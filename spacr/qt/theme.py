@@ -779,6 +779,51 @@ def pane_surface(role: str = "surface_alt",
                      panel_alpha(theme, role, opacity))
 
 
+def block_surface(role: str = "surface_alt",
+                  theme: Optional[str] = None,
+                  opacity: Optional[float] = None) -> str:
+    """:func:`pane_surface` for a registered QSS block: ``None`` IS the scrim.
+
+    The two differ in exactly one place, and it matters only there. A block
+    registered with :func:`register_widget_qss` is handed the ``opacity``
+    :func:`stylesheet` was called with, and that is ``None`` when the caller
+    asked for the theme's *designed* scrim rather than any user's setting —
+    the documented meaning of ``surface_opacity=None``, and what every
+    built-in rule in this file honours through :func:`panel_alpha`.
+
+    :func:`pane_surface` cannot honour it. Its ``None`` means "nobody told me,
+    go and look", so it reads the live page-opacity preference. That is right
+    for the inline and paint-time callers it was written for — Home's aside
+    panels have no ``stylesheet`` argument to plumb through — and wrong inside
+    a block, where ``None`` was already an answer. The consequence was that
+    ``stylesheet("dark")`` emitted ``rgba(22, 23, 25, 0.600)`` for every block
+    that passed it through: a function of its arguments quietly depending on a
+    QSettings value, which made the assertion that the opaque themes emit
+    plain hex pass or fail on module import order.
+
+    No user-visible change. The live path calls :func:`stylesheet` with the
+    preference already in hand, so ``opacity`` is a number there and the two
+    functions return the same string; the emitted sheet was compared byte for
+    byte across every theme at 30 %, 60 % and 100 %.
+
+    :param role: a palette key, normally ``surface``/``surface_alt``/``tile``.
+    :param theme: theme name; ``None`` resolves the effective one.
+    :param opacity: 0..1, straight from the block's own argument. ``None``
+        means the theme's designed scrim and is NOT looked up anywhere.
+    :returns: a QSS colour — plain hex when opaque, ``rgba()`` when not.
+    """
+    if theme is None:
+        try:
+            from .preferences import resolve_effective_theme
+            theme = resolve_effective_theme()
+        except Exception:
+            theme = "dark"
+    base = palette_for(theme)
+    colour_role = SCRIM_ROLES.get(role, role)
+    return css_color(base.get(colour_role, base["surface_alt"]),
+                     panel_alpha(theme, role, opacity))
+
+
 def panel_alpha(theme: str, role: str,
                 opacity: Optional[float] = None) -> float:
     """Apply the page-opacity preference to a shared UI surface role.
@@ -1872,9 +1917,15 @@ def register_widget_qss(name: str, fn, *, replace: bool = False):
 
         ``opacity`` is the user's page-opacity preference, or ``None``
         for "use the theme's designed scrim". Pass it straight through
-        to :func:`pane_surface` / :func:`pane_alpha` / :func:`panel_alpha`
+        to :func:`block_surface` / :func:`pane_alpha` / :func:`panel_alpha`
         rather than interpreting it: ``None`` is not 1.0, and the
         legibility floor is theirs to apply.
+
+        :func:`block_surface` and **not** :func:`pane_surface`, which is
+        the near-identical accessor for inline and paint-time callers. Its
+        ``None`` means "nobody told me" and reads the live preference, so a
+        block using it turns ``stylesheet(theme)`` into a function of a
+        QSettings value rather than of its arguments.
     :param replace: allow re-registering ``name``. Off by default so two
         widgets cannot quietly claim one name.
     :raises ValueError: on a duplicate name without ``replace``.
@@ -1981,12 +2032,14 @@ def page_tabs_qss(object_name: str, palette: dict, opacity=None) -> str:
     :param object_name: ``objectName`` of the ``QTabWidget``.
     :param palette: the palette handed to a registered block, including
         the reserved ``theme`` key.
-    :param opacity: the page-opacity preference, passed straight through.
+    :param opacity: the page-opacity preference, passed straight
+        through — ``None`` here means the theme's designed scrim, which is
+        why this reads :func:`block_surface` and not :func:`pane_surface`.
     """
     theme = palette.get("theme", "dark")
     scale = palette.get("font_scale")
-    pane = pane_surface("surface_alt", theme, opacity)
-    tab = pane_surface("surface", theme, opacity)
+    pane = block_surface("surface_alt", theme, opacity)
+    tab = block_surface("surface", theme, opacity)
     return f"""
 QTabWidget#{object_name}::pane {{
     background: {pane};

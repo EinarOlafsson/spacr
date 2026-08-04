@@ -997,6 +997,86 @@ class TestStylesheet:
                 assert theme.palette_for(name)[role] in qss, (
                     f"{name}.{role} came out as anything but plain hex")
 
+    def test_the_sheet_does_not_read_the_live_page_opacity(self, monkeypatch):
+        """`stylesheet(theme)` is a function of its arguments. Only.
+
+        It was not, and the test above is how that surfaced: it passed or
+        failed on which modules pytest had imported first. The cause is a
+        near-miss between two accessors. `pane_surface(role, theme, None)`
+        means "nobody told me, go and look" and reads the page-opacity
+        preference, which is right for the inline and paint-time callers it
+        was written for. Twenty-one registered QSS blocks were passing it the
+        `opacity` argument `stylesheet` hands them, where `None` already
+        means something else and specific -- the theme's DESIGNED scrim -- so
+        `stylesheet("dark")` emitted `rgba(22, 23, 25, 0.600)` from a
+        QSettings value the caller never mentioned. `theme.block_surface` is
+        the accessor whose `None` is the scrim, and the blocks use it.
+
+        Asserted as invariance under the preference rather than as an absence
+        of `rgba(`, because that is the actual property: a block is free to
+        emit translucency, it is not free to source it from the environment.
+        The modules are imported here on purpose -- a block that is not
+        registered cannot be checked, which is the same import-order
+        sensitivity in a different coat.
+        """
+        import spacr.qt.screens.control_chart  # noqa: F401
+        import spacr.qt.screens.hit_list  # noqa: F401
+        import spacr.qt.screens.model_compare  # noqa: F401
+        import spacr.qt.screens.model_zoo  # noqa: F401
+        import spacr.qt.screens.profiler  # noqa: F401
+        import spacr.qt.widgets.pca_view  # noqa: F401
+        import spacr.qt.widgets.pivot_builder  # noqa: F401
+
+        registered = theme.widget_qss_names()
+        assert len(registered) >= 7, (
+            f"only {len(registered)} blocks registered; this test cannot "
+            "see the fault it exists for")
+
+        sheets = {}
+        for pref in (0.15, 0.60, 1.0):
+            monkeypatch.setattr(preferences, "get_pane_opacity",
+                                lambda p=pref: p)
+            for name in theme.THEMES:
+                sheets.setdefault(name, []).append(theme.stylesheet(name))
+        for name, variants in sheets.items():
+            first = variants[0]
+            for pref, other in zip((0.15, 0.60, 1.0), variants):
+                assert other == first, (
+                    f"stylesheet({name!r}) changed when the page-opacity "
+                    f"preference was {pref} -- something in it is reading "
+                    "the preference instead of taking the argument")
+
+    def test_an_explicit_opacity_still_reaches_every_block(self):
+        """The other half: `None` being the scrim must not deafen the sheet.
+
+        A fix that made `stylesheet` ignore opacity everywhere would pass the
+        test above and break the slider. The live path passes a number, and
+        that number has to come out the other side.
+        """
+        import spacr.qt.screens.hit_list  # noqa: F401
+
+        thin = theme.stylesheet("dark", surface_opacity=0.30)
+        thick = theme.stylesheet("dark", surface_opacity=1.0)
+        assert thin != thick
+        assert theme.pane_surface("surface_alt", "dark", 0.30) in thin
+        assert theme.block_surface("surface_alt", "dark", 0.30) in thin
+
+    def test_the_two_surface_accessors_agree_whenever_asked(self):
+        """`block_surface` differs from `pane_surface` at `None` and nowhere
+        else, which is what makes the migration a no-op for users."""
+        for name in theme.THEMES:
+            for role in ("surface", "surface_alt", "surface_hi", "tile"):
+                for opacity in (0.0, 0.15, 0.30, 0.60, 1.0):
+                    assert (theme.block_surface(role, name, opacity)
+                            == theme.pane_surface(role, name, opacity)), (
+                        f"{name}/{role} at {opacity} differs between the two "
+                        "accessors; they must part company only at None")
+            assert theme.block_surface(role, name, None) == theme.css_color(
+                theme.palette_for(name)[theme.SCRIM_ROLES.get(role, role)],
+                theme.scrim_alpha(name, role)), (
+                    f"block_surface({role!r}, {name!r}, None) is not the "
+                    "theme's designed scrim")
+
     def test_image_themes_keep_their_popups_opaque(self):
         for name in theme.IMAGE_THEMES:
             qss = theme.stylesheet(name, background="/tmp/x.jpg")
