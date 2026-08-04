@@ -25,7 +25,10 @@ Public API::
         space_background_path, cell_background_path,
         theme_background_path,
         get_ambient_enabled, set_ambient_enabled,
+        get_ambient_animation, set_ambient_animation,
         get_ambient_theme, set_ambient_theme,
+        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,
+        confirm_resource_action, run_resource_action,
         get_ambient_palette, set_ambient_palette,
         get_ambient_blur, set_ambient_blur,
         get_ambient_speed, set_ambient_speed,
@@ -84,9 +87,22 @@ Values:
   are always visible.
 * ``ambient_enabled``: bool, default ``True``. Whether module screens
   paint the animated background at all. Turning it off is a first-class
-  choice — see :func:`get_ambient_enabled`.
+  choice — see :func:`get_ambient_enabled`. The user-facing control is the
+  ``None`` entry in the Animation list rather than a second switch: one
+  row, one meaning. Choosing an animation turns it back on.
+* ``spacr_mode``: ``"extra_performance"`` | ``"performance"`` |
+  ``"balanced"`` (default ``"balanced"``). How hard spaCR tries to stay out
+  of the machine's way — when it frees its own caches, and whether it
+  overrides the visual settings. Balanced does neither. See
+  :func:`set_spacr_mode` and :mod:`spacr.qt.resource_cleanup`, which owns
+  what a cleanup is allowed to touch (spaCR's own memory, and nothing
+  else — no other process, ever).
 * ``ambient_theme`` / ``ambient_palette``: which animation, and in which
-  colours. Validated against
+  colours. ``ambient_theme`` also holds
+  :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — read it with
+  :func:`get_ambient_animation`, which can answer ``"none"``, or with
+  :func:`get_ambient_theme`, whose answer is always something paintable.
+  Validated against
   :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and
   :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes
   are *per theme*, so see :func:`get_ambient_palette` for how the two
@@ -164,6 +180,10 @@ _KEY_AMBIENT_SCALE   = "prefs/ambient_motion_scale"
 AMBIENT_MOTION_SCALE = 2
 _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
+_KEY_SPACR_MODE = "prefs/spacr_mode"
+#: Where the visual settings Extra Performance overrode are kept, so
+#: leaving that mode gives the user back exactly what they had.
+_KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
 
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
@@ -574,10 +594,101 @@ def get_ambient_enabled() -> bool:
     installed at all — and any already-installed one is hidden and
     stopped by :func:`apply_ambient_preferences`, so the toggle takes
     effect the moment Preferences is saved rather than at the next launch.
+
+    **Two keys answer this one question, and both are honoured.** The
+    Animation preference gained a ``None`` entry (see
+    :data:`spacr.qt.widgets.ambient.NO_ANIMATION`), and "no animation" has
+    to mean *nothing is constructed* rather than "an engine that paints an
+    empty frame sixty times a second". The three install sites all read this
+    function before they build anything, so answering ``False`` for None
+    here is what makes the guarantee true everywhere at once, without a
+    second condition in three other modules that could drift apart.
+
+    The separate on/off key stays because it is the programmatic switch —
+    :mod:`spacr.qt.resource_cleanup` uses it, and so does any caller that
+    wants the animation back exactly as the user had it.
     """
+    if _raw_ambient_animation() == _no_animation_key():
+        return False
     return _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
                                       DEFAULT_AMBIENT_ENABLED),
                     DEFAULT_AMBIENT_ENABLED)
+
+
+def _no_animation_key() -> str:
+    """``NO_ANIMATION``, defended: this module is imported headless."""
+    try:
+        from .widgets.ambient import NO_ANIMATION
+        return NO_ANIMATION
+    except Exception:
+        return "none"
+
+
+def _animation_choices() -> tuple:
+    """Everything the Animation preference may hold, in menu order.
+
+    Falls back to "none plus whatever themes exist" rather than to a bare
+    default, so a stored animation stays readable against an ambient module
+    that predates this list — including the test doubles that stand in for
+    it.
+    """
+    try:
+        from .widgets.ambient import ANIMATION_CHOICES
+        return tuple(ANIMATION_CHOICES)
+    except Exception:
+        pass
+    try:
+        from .widgets.ambient import AMBIENT_THEMES
+        return (_no_animation_key(),) + tuple(AMBIENT_THEMES)
+    except Exception:
+        return (_no_animation_key(),)
+
+
+def _raw_ambient_animation() -> str:
+    """The stored animation choice, validated, ``None`` included.
+
+    :func:`get_ambient_theme` cannot do this job: it promises a *paintable*
+    theme, and half the callers hand what it returns straight to
+    ``make_engine``.
+    """
+    try:
+        from .widgets.ambient import DEFAULT_THEME as _default
+    except Exception:
+        _default = "blobs"
+    raw = str(_settings().value(_KEY_AMBIENT_THEME, _default))
+    return raw if raw in _animation_choices() else _default
+
+
+def get_ambient_animation() -> str:
+    """Which animation the user chose, or :data:`NO_ANIMATION` for none.
+
+    The value the Preferences dropdown shows. Use :func:`get_ambient_theme`
+    when you are about to paint something — it never returns ``"none"``.
+    """
+    return _raw_ambient_animation()
+
+
+def set_ambient_animation(name: str) -> None:
+    """Persist an entry of ``ANIMATION_CHOICES``, ``"none"`` included.
+
+    Choosing an animation turns the backdrop on, and choosing None turns it
+    off, so the dropdown is the whole control: a user who picks Blobs after
+    something switched the backdrop off gets Blobs, not silence.
+
+    Picking None does **not** disturb the stored theme's palette, so
+    switching back later restores exactly the animation that was there.
+    """
+    choices = _animation_choices()
+    if name not in choices:
+        raise ValueError(f"unknown animation {name!r}. Choose from {choices}.")
+    if name == _no_animation_key():
+        settings = _settings()
+        settings.setValue(_KEY_AMBIENT_THEME, name)
+        settings.setValue(_KEY_AMBIENT_ENABLED, False)
+        settings.sync()
+        return
+    set_ambient_theme(name)
+    set_ambient_enabled(True)
 
 
 def set_ambient_enabled(on: bool) -> None:
@@ -606,6 +717,10 @@ def get_ambient_theme() -> str:
         AMBIENT_THEMES, DEFAULT_THEME as DEFAULT_AMBIENT_THEME,
     )
     raw = str(_settings().value(_KEY_AMBIENT_THEME, DEFAULT_AMBIENT_THEME))
+    # "none" lands on the default here rather than propagating: this
+    # getter's whole contract is that its answer can be painted, and the
+    # callers that must not paint at all are gated on
+    # `get_ambient_enabled()`, which is already False in that case.
     return raw if raw in AMBIENT_THEMES else DEFAULT_AMBIENT_THEME
 
 
@@ -642,7 +757,14 @@ def ambient_default_palette(theme: str) -> str:
     raises for an unknown theme — it simply reports the global default.
     """
     from .widgets.ambient import DEFAULT_PALETTE, palettes_for
-    valid = palettes_for(theme)
+    try:
+        valid = palettes_for(theme)
+    except Exception:
+        # "Never raises for an unknown theme" was a claim this function did
+        # not keep: the real `palettes_for` raises ValueError on a name it
+        # has no engine for, which "none" now is, and the exception escaped
+        # a Qt slot in the middle of refilling the palette picker.
+        return DEFAULT_PALETTE
     if DEFAULT_PALETTE in valid:
         return DEFAULT_PALETTE
     return valid[0] if valid else DEFAULT_PALETTE
@@ -984,6 +1106,186 @@ def apply_ambient_preferences(app=None) -> None:
                           exc_info=True)
         except Exception:
             continue
+
+
+# ---------------------------------------------------------------------------
+# spaCR mode — how hard the app tries to stay out of the machine's way
+# ---------------------------------------------------------------------------
+
+#: The three modes, most aggressive first (the order the dropdown lists
+#: them, so the default is at the bottom where a reader lands last).
+SPACR_MODES = ("extra_performance", "performance", "balanced")
+
+#: Balanced. A tool that starts by taking things away from you has made a
+#: decision you did not ask for; the other two are opt-in and both warn.
+DEFAULT_SPACR_MODE = "balanced"
+
+MODE_LABELS = {
+    "extra_performance": "Extra Performance",
+    "performance": "Performance",
+    "balanced": "Balanced",
+}
+
+MODE_NOTES = {
+    "extra_performance": (
+        "Frees as much as is safe: spaCR drops its own caches, returns its "
+        "unused GPU blocks and retires its idle threads at launch AND "
+        "before every module run, and every visual setting goes to its "
+        "minimum — no animated backdrop, no field fade, no setting "
+        "animations."),
+    "performance": (
+        "Frees spaCR's own caches and unused GPU blocks once, at launch, "
+        "and whenever you press one of the four buttons below. Visual "
+        "settings are left alone."),
+    "balanced": (
+        "The default. Nothing is freed at launch or before a run, and your "
+        "visual settings stay exactly as you set them. The four buttons "
+        "below still work whenever you press them."),
+}
+
+#: Shown when the mode is *selected*, before it is saved. Both performance
+#: modes cost something, and the cost is named rather than implied.
+MODE_WARNINGS = {
+    "extra_performance": (
+        "Extra Performance overwrites your visual settings with their "
+        "minimums — the animated backdrop is switched off, field fade and "
+        "setting animations are cleared. They are remembered and put back "
+        "when you leave this mode.\n\n"
+        "spaCR will also drop its caches before every run, so the first "
+        "preview after a run redraws from disk. It never touches another "
+        "program's memory or processes."),
+    "performance": (
+        "Performance drops spaCR's own caches once at launch, so the first "
+        "screen you open redraws from disk instead of from memory. Your "
+        "visual settings are not changed.\n\n"
+        "It never touches another program's memory or processes."),
+    "balanced": "",
+}
+
+#: The visual settings Extra Performance overrides, and the value it
+#: overrides them with. Names are read back through this module's own
+#: setters, so a stashed value is validated on the way home like any other.
+_MODE_MINIMISED_VISUALS = (
+    "ambient_animation", "ambient_resolution", "ambient_density",
+    "setting_animations", "field_fade",
+)
+
+
+def get_spacr_mode() -> str:
+    """Which resource posture spaCR is in — one of :data:`SPACR_MODES`."""
+    raw = str(_settings().value(_KEY_SPACR_MODE, DEFAULT_SPACR_MODE))
+    return raw if raw in SPACR_MODES else DEFAULT_SPACR_MODE
+
+
+def set_spacr_mode(mode: str) -> None:
+    """Persist the mode, and move the visual settings with it.
+
+    Entering Extra Performance stashes the five visual settings it
+    overrides and writes their minimums; leaving it puts the stashed values
+    back. Nothing else about a mode change is retroactive — the launch
+    cleanup has already happened or not happened by the time anyone can
+    reach this dialog.
+
+    :raises ValueError: on an unknown mode.
+    """
+    if mode not in SPACR_MODES:
+        raise ValueError(f"unknown spaCR mode {mode!r}. "
+                         f"Choose from {SPACR_MODES}.")
+    previous = get_spacr_mode()
+    settings = _settings()
+    settings.setValue(_KEY_SPACR_MODE, mode)
+    settings.sync()
+    if mode == "extra_performance" and previous != "extra_performance":
+        _stash_visuals()
+        _minimise_visuals()
+    elif previous == "extra_performance" and mode != "extra_performance":
+        _restore_visuals()
+
+
+def mode_label(mode: str) -> str:
+    return MODE_LABELS.get(mode, str(mode))
+
+
+def mode_note(mode: str) -> str:
+    return MODE_NOTES.get(mode, "")
+
+
+def mode_warning(mode: str) -> str:
+    """What choosing ``mode`` will cost, or ``""`` when it costs nothing."""
+    return MODE_WARNINGS.get(mode, "")
+
+
+def _visual_snapshot() -> dict:
+    """The five settings Extra Performance overrides, as they are now."""
+    return {
+        "ambient_animation": get_ambient_animation(),
+        "ambient_resolution": get_ambient_resolution(),
+        "ambient_density": get_ambient_density(),
+        "setting_animations": get_setting_animations_enabled(),
+        "field_fade": get_field_fade_enabled(),
+    }
+
+
+def _stash_visuals() -> None:
+    import json
+    settings = _settings()
+    settings.setValue(_KEY_MODE_VISUAL_STASH,
+                      json.dumps(_visual_snapshot()))
+    settings.sync()
+
+
+def _minimise_visuals() -> None:
+    """Every overridden visual to its cheapest setting.
+
+    "Minimum" means the cheapest value the control offers, not zero for its
+    own sake: the animation goes to None (no widget, no timer at all — see
+    :func:`get_ambient_enabled`), detail and density to the bottom of the
+    ranges the engines declare, and the two per-paint effects off.
+    """
+    ranges = _ambient_ranges()
+    try:
+        set_ambient_animation(_no_animation_key())
+    except Exception:
+        LOG.debug("could not switch the animation off", exc_info=True)
+    set_ambient_resolution(ranges[3][0][0])
+    set_ambient_density(ranges[4][0][0])
+    set_setting_animations_enabled(False)
+    set_field_fade_enabled(False)
+
+
+def _restore_visuals() -> bool:
+    """Put back what :func:`_stash_visuals` recorded. ``True`` if it did.
+
+    A stash that cannot be read is discarded rather than guessed at: the
+    user keeps the minimums they can see and change, which is better than
+    being handed somebody's idea of a default.
+    """
+    import json
+    settings = _settings()
+    raw = settings.value(_KEY_MODE_VISUAL_STASH, "")
+    settings.remove(_KEY_MODE_VISUAL_STASH)
+    settings.sync()
+    try:
+        stashed = json.loads(str(raw)) if raw else None
+    except Exception:
+        stashed = None
+    if not isinstance(stashed, dict):
+        return False
+    try:
+        if "ambient_animation" in stashed:
+            set_ambient_animation(str(stashed["ambient_animation"]))
+        if "ambient_resolution" in stashed:
+            set_ambient_resolution(float(stashed["ambient_resolution"]))
+        if "ambient_density" in stashed:
+            set_ambient_density(float(stashed["ambient_density"]))
+        if "setting_animations" in stashed:
+            set_setting_animations_enabled(bool(stashed["setting_animations"]))
+        if "field_fade" in stashed:
+            set_field_fade_enabled(bool(stashed["field_fade"]))
+    except Exception:
+        LOG.debug("could not restore the stashed visuals", exc_info=True)
+        return False
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -1525,6 +1827,82 @@ def apply_preferences_to_app(app=None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# The four resource buttons
+# ---------------------------------------------------------------------------
+
+def confirm_resource_action(action: str, parent=None) -> bool:
+    """Ask before doing ``action``, by saying what it will do.
+
+    The dialog states the steps in the order they will happen and what the
+    action cannot do (see
+    :func:`spacr.qt.resource_cleanup.confirmation_text`), and its accept
+    button is labelled with the action rather than "OK". "Are you sure?"
+    is not a question anybody can answer: a user cannot consent to an
+    unnamed action, and a button called OK does not name one.
+
+    Cancel is the default, so a stray Return key does nothing.
+
+    :returns: ``True`` only if the user explicitly accepted.
+    """
+    from PySide6.QtWidgets import QMessageBox
+    from . import resource_cleanup
+    from .i18n import tr
+
+    title = resource_cleanup.confirmation_title(action)
+    box = QMessageBox(parent)
+    box.setObjectName("ResourceActionConfirm")
+    box.setIcon(QMessageBox.Question)
+    box.setWindowTitle(tr(title))
+    box.setText(tr(title))
+    box.setInformativeText(tr(resource_cleanup.confirmation_text(action)))
+    proceed = box.addButton(tr(title), QMessageBox.AcceptRole)
+    cancel = box.addButton(tr("Cancel"), QMessageBox.RejectRole)
+    box.setDefaultButton(cancel)
+    box.exec()
+    return box.clickedButton() is proceed
+
+
+def _show_resource_result(action: str, result, parent=None) -> None:
+    """Report what actually happened. Split out so a test can silence it."""
+    from PySide6.QtWidgets import QMessageBox
+    from . import resource_cleanup
+    from .i18n import tr
+
+    box = QMessageBox(parent)
+    box.setObjectName("ResourceActionResult")
+    box.setIcon(QMessageBox.Information)
+    box.setWindowTitle(tr(resource_cleanup.confirmation_title(action)))
+    box.setText(result.summary())
+    details = getattr(result, "details", ())
+    if details:
+        box.setDetailedText("\n".join(details))
+    box.exec()
+
+
+def run_resource_action(action: str, parent=None):
+    """Confirm ``action``, run it, and report the measured result.
+
+    :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` or
+        :class:`~spacr.qt.resource_cleanup.DiskReport`, or ``None`` when the
+        user declined — in which case **nothing ran**. The confirmation is
+        asked before any work is started, not after, which is the whole
+        point of asking.
+    """
+    from . import resource_cleanup
+    if not confirm_resource_action(action, parent):
+        return None
+    runner = {
+        "ram": lambda: resource_cleanup.clear_ram(aggressive=True),
+        "vram": resource_cleanup.clear_vram,
+        "cpu": resource_cleanup.clear_cpu,
+        "disk": resource_cleanup.disk_report,
+    }[action]
+    result = runner()
+    _show_resource_result(action, result, parent)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Preferences dialog
 # ---------------------------------------------------------------------------
 
@@ -1539,18 +1917,59 @@ class PreferencesDialog:
     def __new__(cls, parent=None):
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QComboBox, QDialog, QDialogButtonBox, QFormLayout,
-            QLabel, QSlider, QVBoxLayout,
+            QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame,
+            QLabel, QPushButton, QScrollArea, QSlider, QTabWidget,
+            QVBoxLayout, QWidget,
         )
         from .i18n import language_choices, tr
         from .widgets.toggle import Toggle
 
         dlg = QDialog(parent)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
-        dlg.setMinimumWidth(420)
+        dlg.setMinimumWidth(460)
         outer = QVBoxLayout(dlg)
 
-        form = QFormLayout()
+        # One scrollable column had grown to thirty controls, which is a
+        # column nobody reads to the bottom of: Module visibility and the
+        # figure format sat below five animation sliders, and the only way
+        # to find out whether a setting existed was to scroll past
+        # everything else. The tabs are by WHAT A SETTING IS ABOUT rather
+        # than by how often it is touched — a reader looking for "how much
+        # of my machine does this use" has one place to go, and so does a
+        # reader looking for "why is the text so small".
+        tabs = QTabWidget()
+        tabs.setObjectName("PreferencesTabs")
+
+        def _page(title: str, object_name: str) -> "QFormLayout":
+            """Add a tab and return the form to fill it with.
+
+            Each page scrolls on its own so that a small screen shortens
+            the tallest tab instead of the whole dialog, and every tab is
+            still reachable at any window height.
+            """
+            page = QWidget()
+            page.setObjectName(object_name)
+            column = QVBoxLayout(page)
+            column.setContentsMargins(4, 8, 4, 8)
+            page_form = QFormLayout()
+            page_form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+            column.addLayout(page_form)
+            column.addStretch(1)
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setWidget(page)
+            tabs.addTab(scroll, tr(title))
+            return page_form
+
+        # General first because Language is in it, and a reader who cannot
+        # read the interface has to be able to find that one without
+        # understanding any of the others.
+        form = _page("General", "PreferencesTabGeneral")
+        appearance = _page("Appearance", "PreferencesTabAppearance")
+        performance = _page("Performance", "PreferencesTabPerformance")
+        modules = _page("Modules", "PreferencesTabModules")
+        figures = _page("Figures", "PreferencesTabFigures")
 
         # Language is first so it remains discoverable even on a small screen.
         language_combo = QComboBox()
@@ -1580,42 +1999,43 @@ class PreferencesDialog:
         form.addRow(tr("Theme"), theme_combo)
 
         # Animated background — the drifting shapes behind every module
-        # page. Sits directly under Theme because it is the same kind of
-        # decision, and the off switch comes first: a user who finds the
-        # motion distracting must not have to read past two dropdowns to
-        # find the way out. Applied on Save, without a restart.
-        from .widgets.ambient import (
-            AMBIENT_THEMES, palette_label, palettes_for, theme_label,
-        )
+        # page. The first entry is None, and it is an animation choice
+        # rather than a separate switch: a user who finds the motion
+        # distracting reads one row, not a checkbox and a dropdown that can
+        # disagree with each other. Applied on Save, without a restart.
+        from .widgets.ambient import palette_label, palettes_for, theme_label
+        try:
+            from .widgets.ambient import (ANIMATION_CHOICES, NO_ANIMATION,
+                                          animation_label)
+        except ImportError:
+            # A build (or a test double) whose ambient module predates the
+            # None entry still gets a working dialog with its six
+            # animations, rather than a Preferences window that will not
+            # open because of a decorative setting.
+            from .widgets.ambient import AMBIENT_THEMES
+            ANIMATION_CHOICES = tuple(AMBIENT_THEMES)
+            NO_ANIMATION = _no_animation_key()
+            animation_label = theme_label
         try:
             # Purely descriptive, and resolved through the same import as
             # everything else above so the dialog cannot end up reading
             # two different ambient modules in one function.
-            from .widgets.ambient import theme_note
+            from .widgets.ambient import animation_note
         except ImportError:
-            theme_note = None
-
-        ambient_check = Toggle(tr("Animate module backgrounds"))
-        ambient_check.setObjectName("AmbientEnabled")
-        ambient_check.setToolTip(
-            "Slow, out-of-focus shapes drifting behind the module pages. "
-            "They stop completely whenever their page is not on screen, "
-            "so they cost nothing while a pipeline runs on another tab. "
-            "Clear this to have no animation anywhere; the Sequencing "
-            "page keeps its own DNA rain either way."
-        )
-        ambient_check.setChecked(get_ambient_enabled())
-        form.addRow(tr("Animated background"), ambient_check)
+            try:
+                from .widgets.ambient import theme_note as animation_note
+            except ImportError:
+                animation_note = None
 
         ambient_theme_combo = QComboBox()
         ambient_theme_combo.setObjectName("AmbientTheme")
-        for key in AMBIENT_THEMES:
-            ambient_theme_combo.addItem(tr(theme_label(key)), key)
-        current_ambient = get_ambient_theme()
+        for key in ANIMATION_CHOICES:
+            ambient_theme_combo.addItem(tr(animation_label(key)), key)
+        current_ambient = get_ambient_animation()
         for i in range(ambient_theme_combo.count()):
             if ambient_theme_combo.itemData(i) == current_ambient:
                 ambient_theme_combo.setCurrentIndex(i); break
-        form.addRow(tr("Animation"), ambient_theme_combo)
+        appearance.addRow(tr("Animation"), ambient_theme_combo)
 
         ambient_palette_combo = QComboBox()
         ambient_palette_combo.setObjectName("AmbientPalette")
@@ -1629,7 +2049,11 @@ class PreferencesDialog:
             selected, which is exactly what the stored keys do.
             """
             theme_key = ambient_theme_combo.currentData()
-            valid = palettes_for(theme_key)
+            # None has no palette to offer and no engine to ask, so the
+            # list is emptied rather than filled with the last theme's
+            # colours — an enabled-looking picker for a backdrop that is
+            # not being drawn is a control that lies.
+            valid = () if theme_key == NO_ANIMATION else palettes_for(theme_key)
             wanted = (preferred if preferred in valid
                       else ambient_default_palette(theme_key))
             blocked = ambient_palette_combo.blockSignals(True)
@@ -1647,7 +2071,8 @@ class PreferencesDialog:
             # names alone ("Ripples", "Starfield") do not tell a user
             # what they are about to put behind their work.
             ambient_theme_combo.setToolTip(
-                tr(theme_note(theme_key)) if theme_note is not None else "")
+                tr(animation_note(theme_key))
+                if animation_note is not None else "")
 
         ambient_theme_combo.currentIndexChanged.connect(
             lambda _index: _reload_ambient_palettes(
@@ -1657,7 +2082,7 @@ class PreferencesDialog:
             "Which colours the animation uses. \"spaCR\" is built from "
             "the app's own blue, magenta and green-cyan."
         )
-        form.addRow(tr("Animation palette"), ambient_palette_combo)
+        appearance.addRow(tr("Animation palette"), ambient_palette_combo)
 
         # Which way the starfield goes. Only meaningful for that one
         # animation, so it is shown only when that animation is chosen
@@ -1678,7 +2103,7 @@ class PreferencesDialog:
             if ambient_dir_combo.itemData(i) == current_dir:
                 ambient_dir_combo.setCurrentIndex(i); break
         dir_label = QLabel(tr("Starfield direction"))
-        form.addRow(dir_label, ambient_dir_combo)
+        appearance.addRow(dir_label, ambient_dir_combo)
 
         def _sync_direction_row(*_args):
             wanted = ambient_theme_combo.currentData() == "drift"
@@ -1707,7 +2132,7 @@ class PreferencesDialog:
         (den_lo, den_hi) = _ambient_ranges()[4][0]
 
         def _percent_row(name, label_text, low, high, current, tip,
-                         designed=1.0):
+                         designed=1.0, target=None):
             slider = QSlider(Qt.Horizontal)
             slider.setObjectName(name)
             slider.setRange(int(round(low * 100)), int(round(high * 100)))
@@ -1731,7 +2156,8 @@ class PreferencesDialog:
             column.setContentsMargins(0, 0, 0, 0)
             column.addWidget(slider)
             column.addWidget(value)
-            form.addRow(tr(label_text), _hbox_wrap(column))
+            (appearance if target is None else target).addRow(
+                tr(label_text), _hbox_wrap(column))
             return slider
 
         resolution_slider = _percent_row(
@@ -1774,19 +2200,26 @@ class PreferencesDialog:
             "one cost budget, so asking for the most of both trims the "
             "density rather than dropping frames.")
 
-        def _sync_ambient_enabled(on):
-            """Grey out the pickers when there is nothing to paint."""
-            ambient_theme_combo.setEnabled(bool(on))
-            ambient_palette_combo.setEnabled(bool(on))
-            ambient_dir_combo.setEnabled(bool(on))
-            resolution_slider.setEnabled(bool(on))
-            blur_slider.setEnabled(bool(on))
-            speed_slider.setEnabled(bool(on))
-            size_slider.setEnabled(bool(on))
-            density_slider.setEnabled(bool(on))
+        def _sync_ambient_enabled(*_args):
+            """Grey out the shaping controls when there is nothing to paint.
 
-        ambient_check.toggled.connect(_sync_ambient_enabled)
-        _sync_ambient_enabled(ambient_check.isChecked())
+            Driven by the Animation row itself now that None lives in it.
+            The controls stay *visible* rather than disappearing, so the
+            reader can see what choosing an animation would give them back;
+            they are simply not settings that mean anything while nothing
+            is being drawn.
+            """
+            on = ambient_theme_combo.currentData() != NO_ANIMATION
+            ambient_palette_combo.setEnabled(on)
+            ambient_dir_combo.setEnabled(on)
+            resolution_slider.setEnabled(on)
+            blur_slider.setEnabled(on)
+            speed_slider.setEnabled(on)
+            size_slider.setEnabled(on)
+            density_slider.setEnabled(on)
+
+        ambient_theme_combo.currentIndexChanged.connect(_sync_ambient_enabled)
+        _sync_ambient_enabled()
 
         setting_anim_check = Toggle(tr("Animate setting tooltips"))
         setting_anim_check.setObjectName("SettingAnimationsEnabled")
@@ -1798,7 +2231,7 @@ class PreferencesDialog:
             "setting's animation only."
         )
         setting_anim_check.setChecked(get_setting_animations_enabled())
-        form.addRow(tr("Setting animations"), setting_anim_check)
+        appearance.addRow(tr("Setting animations"), setting_anim_check)
 
         # How long work has to run before the busy indicator appears.
         # Seconds, not a percentage: this one is a real duration and the
@@ -1830,7 +2263,8 @@ class PreferencesDialog:
         spinner_column.setContentsMargins(0, 0, 0, 0)
         spinner_column.addWidget(spinner_slider)
         spinner_column.addWidget(spinner_value)
-        form.addRow(tr("Show busy spinner after"), _hbox_wrap(spinner_column))
+        appearance.addRow(tr("Show busy spinner after"),
+                          _hbox_wrap(spinner_column))
 
         # Font scale
         scale_slider = QSlider(Qt.Horizontal)
@@ -1924,7 +2358,7 @@ class PreferencesDialog:
         opacity_col = QVBoxLayout()
         opacity_col.addWidget(opacity_slider)
         opacity_col.addWidget(opacity_value)
-        form.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
+        appearance.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
 
         # The one surface Page opacity does not reach, and why it sits
         # directly under the slider: this is the exception to the row above.
@@ -1938,7 +2372,7 @@ class PreferencesDialog:
             "opaque fields."
         )
         field_fade_check.setChecked(get_field_fade_enabled())
-        form.addRow(tr("Field fade"), field_fade_check)
+        appearance.addRow(tr("Field fade"), field_fade_check)
 
         # Colour-blind mode
         cb_combo = QComboBox()
@@ -1967,7 +2401,7 @@ class PreferencesDialog:
             "you're triaging a bug."
         )
         verbose_check.setChecked(get_verbose_logging())
-        form.addRow(tr("Diagnostics"), verbose_check)
+        modules.addRow(tr("Diagnostics"), verbose_check)
 
         # Database Browser — off by default. The browser opens
         # measurements.db with mode=ro; this is the only switch that lets
@@ -1982,7 +2416,7 @@ class PreferencesDialog:
             "no undo — spaCR writes straight into your measurements file."
         )
         db_edit_check.setChecked(get_db_browser_editable())
-        form.addRow(tr("Database Browser"), db_edit_check)
+        modules.addRow(tr("Database Browser"), db_edit_check)
 
         # Module visibility. Both are opt-out: existing users and fresh
         # installs continue to see every feature until they choose a quieter,
@@ -2006,7 +2440,7 @@ class PreferencesDialog:
         maturity_col.setContentsMargins(0, 0, 0, 0)
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
-        form.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
+        modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
 
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
@@ -2031,7 +2465,7 @@ class PreferencesDialog:
         for i in range(fig_format_combo.count()):
             if fig_format_combo.itemData(i) == cur_fmt:
                 fig_format_combo.setCurrentIndex(i); break
-        form.addRow(tr("Figure format"), fig_format_combo)
+        figures.addRow(tr("Figure format"), fig_format_combo)
 
         png_dpi_combo = QComboBox()
         for dpi in VALID_PNG_DPIS:
@@ -2047,9 +2481,65 @@ class PreferencesDialog:
         for i in range(png_dpi_combo.count()):
             if png_dpi_combo.itemData(i) == cur_dpi:
                 png_dpi_combo.setCurrentIndex(i); break
-        form.addRow(tr("PNG resolution"), png_dpi_combo)
+        figures.addRow(tr("PNG resolution"), png_dpi_combo)
 
-        outer.addLayout(form)
+        # -- Performance ---------------------------------------------------
+        # The mode, then the four things the two performance modes press on
+        # your behalf. They are in the same tab deliberately: a mode that
+        # says "cleanup runs at launch" should be read next to the buttons
+        # that say exactly what a cleanup is, or "cleanup" is a word the
+        # user has to take on trust.
+        mode_combo = QComboBox()
+        mode_combo.setObjectName("SpacrMode")
+        for key in SPACR_MODES:
+            mode_combo.addItem(tr(mode_label(key)), key)
+        current_mode = get_spacr_mode()
+        for i in range(mode_combo.count()):
+            if mode_combo.itemData(i) == current_mode:
+                mode_combo.setCurrentIndex(i); break
+        performance.addRow(tr("spaCR mode"), mode_combo)
+
+        mode_note_label = QLabel()
+        mode_note_label.setObjectName("SpacrModeNote")
+        mode_note_label.setWordWrap(True)
+        performance.addRow("", mode_note_label)
+
+        def _sync_mode_note(*_args):
+            key = mode_combo.currentData()
+            mode_combo.setToolTip(tr(mode_note(key)))
+            text = tr(mode_note(key))
+            warning = mode_warning(key)
+            if warning:
+                # Warn on SELECTION, not on Save: a warning that arrives
+                # after the dialog has closed is a report, not a choice.
+                text = f"{text}\n\n⚠ {tr(warning)}"
+            mode_note_label.setText(text)
+
+        mode_combo.currentIndexChanged.connect(_sync_mode_note)
+        _sync_mode_note()
+
+        # The four buttons. Each one is confirmed by a dialog that NAMES
+        # what will happen — "are you sure?" is not something a user can
+        # consent to — and each reports what was actually freed, measured
+        # before and after, including when that is nothing.
+        def _resource_button(action, label_text, row_label):
+            button = QPushButton(tr(label_text))
+            button.setObjectName({
+                "ram": "ClearRamButton", "vram": "ClearVramButton",
+                "cpu": "ClearCpuButton", "disk": "CheckDiskButton",
+            }[action])
+            from . import resource_cleanup
+            button.setToolTip(resource_cleanup.confirmation_text(action))
+            button.clicked.connect(lambda: run_resource_action(action, dlg))
+            performance.addRow(tr(row_label), button)
+            return button
+
+        _resource_button("ram", "Clear RAM", "Memory")
+        _resource_button("vram", "Clear VRAM", "GPU memory")
+        _resource_button("cpu", "Clear CPU", "Threads")
+        _resource_button("disk", "Check disk space", "Disk")
+
+        outer.addWidget(tabs)
 
         preview = QLabel(
             "<span style='color:gray;'>Theme, font scale and the "
@@ -2076,11 +2566,11 @@ class PreferencesDialog:
         def _save():
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
-            set_ambient_enabled(ambient_check.isChecked())
-            # Theme first: it repairs a palette the new theme cannot
-            # draw, so the following call always validates against the
-            # theme the user just chose.
-            set_ambient_theme(ambient_theme_combo.currentData())
+            # One write for the whole Animation row: it stores the choice,
+            # repairs a palette the new animation cannot draw, and turns the
+            # backdrop off for None (which is what makes "no timer" true —
+            # every install site reads `get_ambient_enabled` first).
+            set_ambient_animation(ambient_theme_combo.currentData())
             palette_choice = ambient_palette_combo.currentData()
             if palette_choice is not None:
                 # An animation that offers no palette leaves the combo
@@ -2110,6 +2600,12 @@ class PreferencesDialog:
             set_show_beta(beta_check.isChecked())
             set_figure_format(fig_format_combo.currentData())
             set_figure_png_dpi(png_dpi_combo.currentData())
+            # LAST of the writes, and deliberately: entering Extra
+            # Performance overrides five of the settings written above with
+            # their minimums, and leaving it puts back what it stashed. Do
+            # it earlier and the dialog's own values would land on top,
+            # which would mean the mode silently did not take effect.
+            set_spacr_mode(mode_combo.currentData())
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()

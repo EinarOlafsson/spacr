@@ -310,6 +310,12 @@ SELF_REGISTERING_MODULES = (
     # inside the button handler, so this row costs nothing to anyone who has
     # not installed it.
     "spacr.qt.screens.napari_bridge",
+    # Not an app: it connects the pre-run cleanup to the run registry and
+    # performs whatever launch cleanup the chosen spaCR mode asks for. In
+    # Balanced — the default — both of those are a preference read and a
+    # return, so this row costs a user who never opens the Performance tab
+    # nothing at all.
+    "spacr.qt.resource_cleanup",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps
