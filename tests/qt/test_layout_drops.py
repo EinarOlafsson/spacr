@@ -846,3 +846,90 @@ def test_resolving_a_crowded_project_never_walks_its_crops(crowded_project,
         ch.resolve_drop(module, crowded_project)
     crops = os.path.join(crowded_project, "data")
     assert not [v for v in visited if v.startswith(crops)], visited
+
+
+# ---------------------------------------------------------------------------
+# Small things that would only ever fail in front of a user
+# ---------------------------------------------------------------------------
+
+def test_the_resolution_cache_does_not_outlive_its_answer(tmp_path):
+    """Run a step, drop the same folder again, and find what appeared.
+
+    One drop asks the handler four questions -- can you take it, why not,
+    what else would work, take it -- so the answer is memoised. Memoising it
+    for the session instead would mean a plate that had nothing in it when
+    you first tried still has nothing in it after Measure has run.
+    """
+    from pathlib import Path
+
+    plate = tmp_path / "plate1"
+    plate.mkdir()
+    handler = dh.get_handler("graph_builder")
+    assert handler.can_accept(Path(plate)) is False
+
+    _make_project(plate)
+    os.utime(plate)
+    assert handler.can_accept(Path(plate)) is True
+
+
+def test_a_database_in_a_folder_with_a_question_mark_still_lists_its_tables(
+        tmp_path):
+    """A URI is not a path. Quoting is what makes the read-only open safe."""
+    from pathlib import Path
+
+    odd = tmp_path / "screen #3 (rep?)"
+    odd.mkdir()
+    db = odd / "measurements.db"
+    connection = sqlite3.connect(db)
+    connection.execute("CREATE TABLE cell (a int)")
+    connection.commit()
+    connection.close()
+    assert dh.table_names(Path(db)) == ["cell"]
+
+
+def test_dropping_a_root_the_browser_already_watches_is_not_an_error(project):
+    """``add_root`` returns False for a duplicate; that is a no-op, not a fault."""
+    from pathlib import Path
+
+    class Screen:
+        def __init__(self):
+            self.roots = []
+
+        def add_root(self, path, scan=True):
+            if path in self.roots:
+                return False
+            self.roots.append(path)
+            return True
+
+    screen = Screen()
+    handler = dh.get_handler("project_browser")
+    handler.apply(Path(project), screen)
+    handler.apply(Path(project), screen)        # must not raise
+    assert screen.roots == [project]
+
+
+def test_the_layer_viewer_takes_an_image_and_its_mask_in_one_drop(project):
+    """A viewer stacks layers, so a multi-drop lands as two, not as the first."""
+    from pathlib import Path
+
+    class Screen:
+        def __init__(self):
+            self.images = []
+            self.labels = []
+
+        def add_image_file(self, path):
+            self.images.append(path)
+
+        def add_labels_file(self, path):
+            self.labels.append(path)
+
+    screen = Screen()
+    handler = dh.get_handler("layer_viewer")
+    assert handler.accepts_multiple() is True
+    image = Path(project) / "plate1_A01_f01_ch1.tif"
+    mask = Path(project) / "masks" / "plate1_A01_1.tif"
+    handler.apply(image, screen)
+    handler.apply(mask, screen)
+    assert screen.images == [str(image)]
+    assert screen.labels == [str(mask)], (
+        "a file out of masks/ is a label array, not another image")

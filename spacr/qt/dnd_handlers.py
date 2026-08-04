@@ -35,6 +35,7 @@ so users can also drop a settings CSV on any screen to load it.
 from __future__ import annotations
 
 import logging
+import os
 from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence
@@ -1492,8 +1493,16 @@ def _resolve_for(handler, app_key: str, path: Path):
     are all called for the same path inside one drop, and each of them wants
     the same answer. Resolving four times would list the same directories four
     times while the user is still holding the mouse button down.
+
+    The folder's mtime is part of the key, so the cache lasts exactly as long
+    as the answer does: run Measure and drop the same plate again, and the
+    database that appeared is found rather than remembered as absent.
     """
-    key = (app_key, str(path))
+    try:
+        stamp = os.stat(path).st_mtime_ns
+    except OSError:
+        stamp = 0
+    key = (app_key, str(path), stamp)
     cached = getattr(handler, "_last_resolution", None)
     if cached is not None and cached[0] == key:
         return cached[1]
@@ -1514,13 +1523,19 @@ def table_names(path: Path) -> List[str]:
     One ``sqlite_master`` query; the table screens make the same one when they
     load. Kept here so the drop can *ask* which table rather than let
     ``load_path`` take the first one silently.
+
+    Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a
+    ``#`` in its name would otherwise have everything after it read as query
+    parameters, and the open would fail on a database that is perfectly fine.
     """
     import sqlite3
+    from urllib.parse import quote
 
     if not str(path).lower().endswith(_ch.DB_SUFFIXES):
         return []
     try:
-        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        connection = sqlite3.connect(
+            f"file:{quote(str(path))}?mode=ro", uri=True)
     except sqlite3.Error:
         return []
     try:
@@ -1682,6 +1697,12 @@ class ProjectRootsDropHandler(ProjectFolderDropHandler):
 
     def accepts_multiple(self) -> bool:
         return True
+
+    def deliver(self, screen, value: str, target) -> None:
+        # ``add_root`` returns False for a root that is already listed, which
+        # is not a failure and must not be reported as one: dropping a folder
+        # the browser already watches should be a no-op, not an error dialog.
+        screen.add_root(value)
 
 
 class RunHistoryDropHandler(ProjectFolderDropHandler):
