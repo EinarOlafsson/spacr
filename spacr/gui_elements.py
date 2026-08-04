@@ -56,11 +56,26 @@ def _register_open_sans():
                         _p(f"Warning: Could not copy {ttf}: {e}")
             if copied > 0:
                 _p(f"Installed {copied} OpenSans font(s) to {fonts_dir}")
-            try:
-                subprocess.run(['fc-cache', '-f', fonts_dir], capture_output=True, timeout=10)
-                _p("Font cache updated successfully")
-            except Exception as e:
-                _p(f"Warning: Could not update font cache: {e}")
+            # ONLY when a font was actually installed. `fc-cache -f` forces a
+            # full rebuild, so it costs the same 2.007 s (measured, three
+            # runs, this machine) every single time -- it never gets cheaper
+            # for having run before. This function is called at import of
+            # `spacr.gui_elements`, which `spacr.gui_utils` pulls in, which
+            # `settings_model.build_sections` imports lazily when the first
+            # module screen is built. Opening Mask before the launcher's
+            # prewarm thread had finished therefore froze the Qt GUI for two
+            # seconds, on the GUI thread, for a font cache that was already
+            # correct. Nothing was copied -> nothing changed -> nothing to
+            # rebuild.
+            if copied > 0:
+                try:
+                    subprocess.run(['fc-cache', '-f', fonts_dir],
+                                   capture_output=True, timeout=10)
+                    _p("Font cache updated successfully")
+                except Exception as e:
+                    _p(f"Warning: Could not update font cache: {e}")
+            else:
+                _p("OpenSans already installed; font cache left alone")
 
             xresources = os.path.expanduser('~/.Xresources')
             needs_update = True

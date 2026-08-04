@@ -22,6 +22,8 @@ NEGATIVE_PREFIXES = (
 
 _FILTER_ATTRIBUTE = "_spacr_semantic_button_filter"
 _WIRED_PROPERTY = "_spacrButtonRoleWired"
+#: Latch so :func:`_adopt_activity_spinner` walks a button's parents once.
+_SPINNER_PROPERTY = "_spacrActivitySpinnerChecked"
 
 
 def _normalise(text: str) -> str:
@@ -57,6 +59,45 @@ def set_button_busy(button: QPushButton, busy: bool) -> None:
         return
     button.setProperty("buttonActionBusy", busy)
     _repolish(button)
+
+
+def _adopt_activity_spinner(button: QPushButton) -> None:
+    """Give the *Clear console* button its background-activity indicator.
+
+    The spinner belongs immediately to the right of that one button, and
+    this filter is already the application's single place for "do something
+    to a button wherever it appears" -- which is why the hook lives here
+    rather than in the screen that builds the row. Every module screen builds
+    its own actions row from the same code, so one hook covers all of them,
+    and a screen that has no such button is simply never matched.
+
+    Identification is by **object identity** against the owning screen's
+    ``_btn_clear`` attribute, not by button text: ``retranslate_widget_tree``
+    runs over each screen as it opens, so in any non-English locale the text
+    is not "Clear console" by the time this filter sees it.
+
+    The latch below is set **on success only**, and that is not a detail.
+    ``AppScreen`` builds its actions row as a parentless ``QWidget`` and
+    reparents it when it is added to a layout, so the button's first Polish
+    arrives while the walk cannot yet reach the screen. Latching on the
+    first attempt meant the walk never ran again once the tree was complete,
+    and the spinner was never installed -- which is exactly what happened,
+    and is why this comment exists. Retrying is cheap: at most eight
+    ``getattr`` calls, and only until it finds the one button it is looking
+    for.
+    """
+    if button.property(_SPINNER_PROPERTY):
+        return
+    host = button.parentWidget()
+    depth = 0
+    while host is not None and depth < 8:
+        if getattr(host, "_btn_clear", None) is button:
+            from .widgets.activity_spinner import attach_activity_spinner
+            if attach_activity_spinner(host) is not None:
+                button.setProperty(_SPINNER_PROPERTY, True)
+            return
+        host = host.parentWidget()
+        depth += 1
 
 
 class _SemanticButtonFilter(QObject):
@@ -122,6 +163,7 @@ class _SemanticButtonFilter(QObject):
             if event_type in (
                     QEvent.Show, QEvent.Polish, QEvent.ParentChange):
                 self.classify(watched)
+                _adopt_activity_spinner(watched)
             elif event_type == QEvent.EnabledChange:
                 self.classify(watched)
                 if (watched.isEnabled()
