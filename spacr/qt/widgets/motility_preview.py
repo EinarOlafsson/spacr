@@ -51,6 +51,7 @@ from .preview_controls import (
     populate_channel_combo, selected_channel,
 )
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 from .live_preview import numpy_to_qpixmap
 
@@ -580,6 +581,28 @@ class _MotilityWorker(QThread):
 # Panel
 # ---------------------------------------------------------------------------
 
+def scan_plate_payload(path) -> Dict[str, Any]:
+    """Resolve a plate's ``merged`` folder and group it. No Qt: worker-safe.
+
+    The expensive half of opening a plate: ``resolve_merged_dir`` lists the
+    candidate folder and ``group_merged_files`` reads every name in
+    ``merged/`` and parses it -- thousands of entries on a 384-well plate.
+
+    :returns: ``{path, merged, groups, error}``.
+    """
+    out: Dict[str, Any] = {"path": str(path), "merged": None,
+                           "groups": None, "error": ""}
+    try:
+        merged = resolve_merged_dir(path)
+        groups = group_merged_files(merged)
+    except Exception as exc:
+        out["error"] = f"Load failed: {exc}"
+        return out
+    out["merged"] = merged
+    out["groups"] = groups
+    return out
+
+
 class MotilityPreviewPanel(QWidget):
     """Interactive motility preview — Motility Assay module.
 
@@ -591,8 +614,17 @@ class MotilityPreviewPanel(QWidget):
 
     preview_ready = Signal(object)   # MotilitySummary, or None on failure
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
+        # Scanning a plate lists every file in `merged/` and parses each name:
+        # thousands of entries on a 384-well plate, and not GUI-thread work.
+        # `threaded=False` runs each job inline, emitting the same signals in
+        # the same order, so a test can drive this panel synchronously without
+        # the behaviour diverging.
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="motility preview")
+        #: Bumped whenever a newer scan supersedes the one in flight.
+        self._load_token = 0
         self._points = None          # cached — the expensive half
         self._tracks = None
         self._summary: Optional[MotilitySummary] = None
@@ -824,23 +856,77 @@ class MotilityPreviewPanel(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        self.load_folder(p)
+        self.load_folder_async(p)
 
     # -- public API --------------------------------------------------------
 
-    def load_folder(self, path) -> bool:
-        """Open a plate (or ``merged``) folder. Errors land inline."""
-        try:
-            merged = resolve_merged_dir(path)
-            groups = group_merged_files(merged)
-        except Exception as e:
-            self._status.setText(f"Load failed: {e}")
+    @property
+    def _loads_in_flight(self) -> List[int]:
+        """Outstanding scans, as a list so ``not ...`` reads naturally."""
+        runner = getattr(self, "_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_folder_async(self, path) -> bool:
+        """Scan a plate on a worker, then install it on the GUI thread.
+
+        Both GUI entry points -- the drop handler and the Choose-plate dialog
+        -- come through here.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
             return False
+        self._load_token += 1
+        token = self._load_token
+        self._status.setText(f"Scanning {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: scan_plate_payload(text),
+            lambda payload, _t=token: self._on_plate_scanned(_t, payload))
+        return True
+
+    def _on_plate_scanned(self, token: int, payload) -> None:
+        """Install a scanned plate. Always on the GUI thread."""
+        if token != self._load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._status.setText(payload["error"])
+            return
+        groups = payload.get("groups")
+        if not groups:
+            self._status.setText(
+                "No (plate, well, field) group has two or more time points — "
+                "a motility preview needs a time series.")
+            return
+        self._install_plate(payload["merged"], groups)
+
+    def shutdown(self) -> None:
+        """Abandon anything in flight and leave no QThread behind."""
+        runner = getattr(self, "_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def load_folder(self, path) -> bool:
+        """Synchronously open a plate (or ``merged``) folder.
+
+        For programmatic callers and tests, mirroring
+        ``LivePreviewPanel.load_image``. The GUI uses :meth:`load_folder_async`.
+        """
+        payload = scan_plate_payload(path)
+        if payload["error"]:
+            self._status.setText(payload["error"])
+            return False
+        groups = payload["groups"]
         if not groups:
             self._status.setText(
                 "No (plate, well, field) group has two or more time points — "
                 "a motility preview needs a time series.")
             return False
+        self._install_plate(payload["merged"], groups)
+        return True
+
+    def _install_plate(self, merged: str, groups) -> bool:
+        """Adopt an already-scanned plate and refresh the selectors."""
         self._merged_dir = merged
         self._groups = groups
         self._points = None
@@ -1207,7 +1293,7 @@ class MotilityPreviewPanel(QWidget):
         path = QFileDialog.getExistingDirectory(
             self, "Choose a plate folder holding merged/*.npy")
         if path:
-            self.load_folder(path)
+            self.load_folder_async(path)
 
     def closeEvent(self, event):
         """Let a running read finish before the widget is torn down.
@@ -1215,6 +1301,9 @@ class MotilityPreviewPanel(QWidget):
         A ``QThread`` collected while running aborts the process; the worker
         outlives the emit that produced its result by a few instructions.
         """
+        # Cancel the scan before waiting on the motility worker: leaving the
+        # screen mid-scan must not leave a QThread behind either.
+        self.shutdown()
         worker = self._worker
         if worker is not None:
             try:
