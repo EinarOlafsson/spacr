@@ -228,36 +228,106 @@ def test_a_record_logged_on_the_gui_thread_is_delivered_synchronously():
     assert any("same-thread line" in line for line in fake.lines)
 
 
-def test_a_collected_console_target_is_dropped_rather_than_resurrected():
-    """The weak reference still holds after the relay was introduced."""
-    class FakeConsole:
-        def append_stdout(self, text):
-            raise AssertionError("delivered to a dead console")
+class _Recorder:
+    """A console stand-in that only remembers what it was handed.
 
-    vl.register_console_target(FakeConsole())     # no strong reference kept
+    Deliberately holds nothing but the sink list: the *instance* stays
+    collectable so a test can drop it and still read what was (not)
+    written to it afterwards.
+    """
+
+    def __init__(self, sink):
+        self._sink = sink
+
+    def append_stdout(self, text):
+        self._sink.append(text)
+
+
+def test_a_collected_console_target_is_dropped_rather_than_resurrected():
+    """The weak reference still holds after the relay was introduced.
+
+    Raising from the dead console's ``append_stdout`` would prove
+    nothing — both sinks swallow every exception on purpose — so the
+    delivery is *recorded* instead. The second half of the test is the
+    control: the identical console, identical log call, one strong
+    reference, and the recording comes out non-empty.
+    """
+    delivered: list = []
+
+    vl.register_console_target(_Recorder(delivered))   # no strong reference
     vl._ensure_handler()
     import gc
     gc.collect()
+    assert vl._console_ref is not None
+    assert vl._console_ref() is None, "the console was kept alive by the relay"
+
     logging.getLogger("spacr.qt.hf_download").warning("into the void")
+    assert delivered == [], f"a collected console was written to: {delivered}"
+
+    # Control — same class, same logger, same sink, one strong reference.
+    live = _Recorder(delivered)
+    vl.register_console_target(live)
+    gc.collect()
+    assert vl._console_ref() is live
+    logging.getLogger("spacr.qt.hf_download").warning("still alive")
+    assert any("still alive" in line for line in delivered), (
+        "a live console got nothing either — the measurement is blind")
 
 
 def test_the_relay_swallows_an_exploding_console(qtbot):
-    """A broken console must never take the logging call down with it."""
+    """A broken console must never take the logging call down with it.
+
+    Asserted through what survives it, because "did not raise" is not
+    observable: the exploding console really was reached, a *second*
+    record still reaches it (one failure does not latch it off), a
+    target with no ``append_stdout`` is skipped rather than
+    deregistered, and the relay/handler that carried all that are the
+    same objects afterwards and still deliver to a healthy console.
+    """
+    log = logging.getLogger("spacr.qt.hf_download")
+    relay_before = vl._ensure_relay()
+    seen: list = []
+
     class Angry:
         def append_stdout(self, text):
+            seen.append(text)
             raise RuntimeError("Internal C++ object already deleted.")
 
     angry = Angry()
     vl.register_console_target(angry)
     vl._ensure_handler()
-    logging.getLogger("spacr.qt.hf_download").warning("boom")
+    log.warning("first-boom")
+    assert any("first-boom" in text for text in seen), (
+        "the exploding console was never reached — nothing was swallowed")
+    # NB: one record arrives more than once — the same handler is attached to
+    # every logger in the `spacr` -> `spacr.qt` -> `spacr.qt.hf_download`
+    # chain, so `callHandlers` runs it once per ancestor. Count messages,
+    # not deliveries.
+    log.warning("second-boom")
+    assert any("second-boom" in text for text in seen), (
+        f"the first failure latched the console off: {seen}")
+    assert vl._console_ref() is angry, (
+        "a console that raised once was deregistered")
 
     # And a target with no append_stdout at all is simply skipped.
     class Mute:
         pass
     mute = Mute()
     vl.register_console_target(mute)
-    logging.getLogger("spacr.qt.hf_download").warning("also fine")
+    log.warning("also fine")
+    assert vl._console_ref() is mute, (
+        "a target without append_stdout was dropped instead of skipped")
+
+    # Control: everything above ran through the live machinery, and it is
+    # still the same machinery — the next console gets its line.
+    healthy: list = []
+    good = _Recorder(healthy)
+    vl.register_console_target(good)
+    log.warning("after the boom")
+    assert vl._ensure_relay() is relay_before, "the relay was rebuilt"
+    assert vl._handler in log.handlers, "the handler fell off the logger"
+    assert any("after the boom" in text for text in healthy), (
+        "the broken console took the whole sink down with it")
 
 
 # ===========================================================================

@@ -63,13 +63,60 @@ def test_filter_objects_in_plot():
 # _plot_histograms_and_stats
 # ---------------------------------------------------------------------------
 
-def test_plot_histograms_and_stats():
+def test_plot_histograms_and_stats(capsys):
+    """One 30-bin histogram per condition, each holding that condition's rows.
+
+    The two conditions deliberately carry *different* row counts, so the bar
+    totals cannot both come out right by accident — and a figure that drew
+    nothing totals 0 for either of them.
+    """
     rng = np.random.default_rng(0)
     df = pd.DataFrame({
         "condition": rng.choice(["ctrl", "trt"], 100),
         "pred": rng.uniform(0, 1, 100),
     })
-    P._plot_histograms_and_stats(df)   # prints + plots; just must not raise
+    plt.close("all")
+    P._plot_histograms_and_stats(df)
+
+    figs = [plt.figure(n) for n in plt.get_fignums()]
+    assert len(figs) == 2                      # one per condition, no more
+
+    by_condition = {}
+    for fig in figs:
+        assert len(fig.axes) == 1
+        ax = fig.axes[0]
+        by_condition[ax.get_title().rsplit(": ", 1)[1]] = ax
+    assert set(by_condition) == {"ctrl", "trt"}
+
+    counts = {}
+    for condition, ax in by_condition.items():
+        subset = df[df["condition"] == condition]
+        # 30 bins were asked for and 30 bars must be drawn.
+        assert len(ax.patches) == 30
+        # Every row of this condition — and only this condition — is binned.
+        total = sum(p.get_height() for p in ax.patches)
+        assert total == pytest.approx(len(subset))
+        counts[condition] = total
+        # The dashed mean line sits exactly on the subset mean.
+        assert len(ax.lines) == 1
+        assert np.unique(ax.lines[0].get_xdata()) == pytest.approx(
+            subset["pred"].mean())
+        assert [t.get_text() for t in ax.get_legend().get_texts()] == [
+            f"Mean = {subset['pred'].mean():.2f}"]
+        assert ax.get_xlabel() == "Pred Value"
+        assert ax.get_ylabel() == "Count"
+
+    # Contrast: the split is uneven, so the two panels must disagree — one
+    # blank/constant pair of figures cannot satisfy both totals at once.
+    assert counts["ctrl"] != counts["trt"]
+    assert counts["ctrl"] + counts["trt"] == len(df)
+
+    out = capsys.readouterr().out
+    for condition in ("ctrl", "trt"):
+        subset = df[df["condition"] == condition]
+        assert f"Number of rows: {len(subset)}" in out
+        assert (f"Count of pred values over 0.5: "
+                f"{int((subset['pred'] > 0.5).sum())}") in out
 
 
 # ---------------------------------------------------------------------------

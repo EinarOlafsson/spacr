@@ -196,7 +196,26 @@ def test_measure_crop_dry_run_returns_before_any_heavy_import(monkeypatch, merge
     _plate, merged = merged_plate
     _stub_heavy_modules(monkeypatch, "spacr.io", "spacr.timelapse")
 
-    measure.measure_crop(measure_settings(merged))  # must not raise
+    problems = measure.measure_crop(measure_settings(merged))  # must not raise
+
+    # The stubs are still armed *after* the call — they were not swapped back
+    # out for the real modules, and touching one still explodes. So "nothing
+    # raised" means nothing was touched, not that the guard went inert.
+    for name in ("spacr.io", "spacr.timelapse"):
+        assert isinstance(sys.modules[name], _ExplodingModule)
+        with pytest.raises(AssertionError, match="compute was not skipped"):
+            getattr(sys.modules[name], "_save_settings_to_db")
+
+    # And it did the validate-only work it exists to do: a clean plate yields
+    # an empty problem list, and the plan naming the skipped entry point is
+    # printed even with every heavy module replaced by a landmine.
+    assert problems == []
+    out = capsys.readouterr().out
+    assert "spaCR pre-flight check" in out
+    assert "spacr.measure.measure_crop" in out
+    assert "3 merged arrays" in out
+    assert out.rstrip().endswith("dry_run=True — stopping here. "
+                                 "Set dry_run=False to run for real.")
 
 
 def test_measure_crop_without_dry_run_does_reach_the_heavy_imports(monkeypatch, merged_plate):
@@ -216,7 +235,21 @@ def test_measure_crop_dry_run_never_starts_a_worker_pool(monkeypatch, merged_pla
     monkeypatch.setattr(measure, "_measure_crop_core", boom)
     _plate, merged = merged_plate
 
-    measure.measure_crop(measure_settings(merged))
+    problems = measure.measure_crop(measure_settings(merged))
+
+    # The landmines are still in place (nothing restored them mid-call), so
+    # the clean return above is the dry_run guard's doing.
+    assert measure.mp.Pool is boom
+    assert measure._measure_crop_core is boom
+
+    # What the run DID do: validate, find nothing wrong, and print the plan
+    # including the workload it declined to hand to that pool.
+    assert problems == []
+    out = capsys.readouterr().out
+    assert "spaCR pre-flight check" in out
+    assert "spacr.measure.measure_crop" in out
+    assert "~3 fields to measure, n_jobs=2" in out
+    assert "dry_run=True" in out
 
 
 def test_measure_crop_dry_run_returns_the_problem_list(merged_plate, capsys):
@@ -273,7 +306,23 @@ def test_preprocess_generate_masks_dry_run_creates_no_output_folders(raw_plate, 
 def test_preprocess_generate_masks_dry_run_loads_no_model(monkeypatch, raw_plate, capsys):
     """The first local import is `from .object import generate_cellpose_masks...`."""
     _stub_heavy_modules(monkeypatch, "spacr.object", "spacr.io", "spacr.plot", "spacr.utils")
-    core.preprocess_generate_masks(mask_settings(raw_plate))  # must not raise
+
+    problems = core.preprocess_generate_masks(mask_settings(raw_plate))  # must not raise
+
+    # spacr.object is where the Cellpose model gets built; it is still the
+    # landmine, so no model was loaded through it. Same for the other three.
+    for name in ("spacr.object", "spacr.io", "spacr.plot", "spacr.utils"):
+        assert isinstance(sys.modules[name], _ExplodingModule)
+    with pytest.raises(AssertionError, match="compute was not skipped"):
+        getattr(sys.modules["spacr.object"], "generate_cellpose_masks")
+
+    # The validate-only work still happened and said so out loud.
+    assert problems == []
+    out = capsys.readouterr().out
+    assert "spacr.core.preprocess_generate_masks" in out
+    assert "no model has been loaded" in out
+    assert "12 raw image files" in out
+    assert "cell: channel 0" in out
 
 
 def test_preprocess_generate_masks_without_dry_run_reaches_the_model_imports(monkeypatch, raw_plate):
