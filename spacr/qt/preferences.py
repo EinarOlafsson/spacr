@@ -27,6 +27,9 @@ Public API::
         get_ambient_enabled, set_ambient_enabled,
         get_ambient_theme, set_ambient_theme,
         get_ambient_palette, set_ambient_palette,
+        get_ambient_blur, set_ambient_blur,
+        get_ambient_speed, set_ambient_speed,
+        get_ambient_size, set_ambient_size,
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
         get_font_scale, set_font_scale,
@@ -84,6 +87,13 @@ Values:
   :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes
   are *per theme*, so see :func:`get_ambient_palette` for how the two
   keys stay consistent with each other.
+* ``ambient_blur`` / ``ambient_speed`` / ``ambient_size``: floats, all
+  default ``1.0``, all *multipliers* on what the chosen animation already
+  does — how soft its shapes are, how fast it moves, and how large its
+  elements are. 1.0 is the shipped animation in every theme, exactly, so a
+  user who never touches them sees no change. Clamped on read and on write
+  to the ranges the engines declare
+  (:data:`spacr.qt.widgets.ambient.BLUR_RANGE` and friends).
 * ``setting_animations``: bool, default ``True``. Whether a setting's
   hover tooltip plays its explanatory animation beside the text. Off
   leaves the text tooltip exactly as it was, and leaves the purple
@@ -122,6 +132,9 @@ _KEY_SHOW_BETA = "prefs/show_beta"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
+_KEY_AMBIENT_BLUR    = "prefs/ambient_blur"
+_KEY_AMBIENT_SPEED   = "prefs/ambient_speed"
+_KEY_AMBIENT_SIZE    = "prefs/ambient_size"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
 
 #: Themes with a palette of their own — mirrors
@@ -619,6 +632,92 @@ def set_ambient_palette(name: str) -> None:
     settings.sync()
 
 
+# --- blur, speed and size --------------------------------------------------
+# Three multipliers on whatever the chosen animation already does, rather
+# than absolute pixels or seconds. 1.0 means "as shipped" in every theme, so
+# a user who never opens these controls sees the animation that was designed;
+# the ranges and the clamping live in the widget module next to the engines
+# that honour them, because a number this module accepted and the engine
+# then rejected would be a preference that silently does nothing.
+
+def _ambient_ranges():
+    """``(blur, speed, size)`` ranges and defaults, from the widget module.
+
+    Imported lazily and defended, like every other ambient read here: this
+    module is imported headless (no QtGui) in places, and a decorative
+    setting is never a reason to fail.
+    """
+    try:
+        from .widgets.ambient import (BLUR_RANGE, DEFAULT_BLUR, DEFAULT_SIZE,
+                                      DEFAULT_SPEED, SIZE_RANGE, SPEED_RANGE)
+        return ((BLUR_RANGE, DEFAULT_BLUR), (SPEED_RANGE, DEFAULT_SPEED),
+                (SIZE_RANGE, DEFAULT_SIZE))
+    except Exception:
+        return (((0.25, 3.0), 1.0), ((0.1, 4.0), 1.0), ((0.25, 2.5), 1.0))
+
+
+def _ambient_multiplier(key: str, index: int) -> float:
+    (low, high), default = _ambient_ranges()[index]
+    try:
+        value = float(_settings().value(key, default))
+    except (TypeError, ValueError):
+        return default
+    if value != value:            # NaN — a hand-edited INI can hold one
+        return default
+    return max(low, min(high, value))
+
+
+def _set_ambient_multiplier(key: str, index: int, value: float) -> None:
+    (low, high), default = _ambient_ranges()[index]
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        value = default
+    if value != value:
+        value = default
+    settings = _settings()
+    settings.setValue(key, max(low, min(high, value)))
+    settings.sync()
+
+
+def get_ambient_blur() -> float:
+    """How soft the animated background's shapes are. 1.0 is as designed.
+
+    Clamped to ``spacr.qt.widgets.ambient.BLUR_RANGE`` on read, so a value
+    from a newer build or a hand-edited file cannot ask for a blur the
+    engines will not paint.
+    """
+    return _ambient_multiplier(_KEY_AMBIENT_BLUR, 0)
+
+
+def set_ambient_blur(value: float) -> None:
+    """Set the softness multiplier. Out-of-range values are clamped, not
+    refused: this is a slider, and there is no user error to report."""
+    _set_ambient_multiplier(_KEY_AMBIENT_BLUR, 0, value)
+
+
+def get_ambient_speed() -> float:
+    """How fast the animated background moves, as a multiplier on each
+    theme's own motion. 1.0 is as designed."""
+    return _ambient_multiplier(_KEY_AMBIENT_SPEED, 1)
+
+
+def set_ambient_speed(value: float) -> None:
+    """Set the motion multiplier. Clamped."""
+    _set_ambient_multiplier(_KEY_AMBIENT_SPEED, 1, value)
+
+
+def get_ambient_size() -> float:
+    """How large the animated background's elements are, as a multiplier on
+    each theme's own size range. 1.0 is as designed."""
+    return _ambient_multiplier(_KEY_AMBIENT_SIZE, 2)
+
+
+def set_ambient_size(value: float) -> None:
+    """Set the element-size multiplier. Clamped."""
+    _set_ambient_multiplier(_KEY_AMBIENT_SIZE, 2, value)
+
+
 def apply_ambient_preferences(app=None) -> None:
     """Push the ambient preferences onto every live ambient widget.
 
@@ -656,6 +755,9 @@ def apply_ambient_preferences(app=None) -> None:
     # Only read — and only repaint into — what is going to be shown.
     theme = get_ambient_theme() if enabled else None
     palette = get_ambient_palette() if enabled else None
+    blur = get_ambient_blur() if enabled else None
+    speed = get_ambient_speed() if enabled else None
+    size = get_ambient_size() if enabled else None
     for widget in widgets:
         try:
             if not isinstance(widget, AmbientWidget):
@@ -665,8 +767,6 @@ def apply_ambient_preferences(app=None) -> None:
                 widget.set_animating(False)
                 widget.setVisible(False)
                 continue
-            widget.set_theme(theme)
-            widget.set_palette(palette)
             widget.setVisible(True)
             # Unconditionally True, NOT `widget.isVisible()`. A module screen
             # the user is not currently looking at has an invisible backdrop,
@@ -680,6 +780,22 @@ def apply_ambient_preferences(app=None) -> None:
             # comes back — which is what this function's docstring already
             # says is supposed to happen.
             widget.set_animating(True)
+            # Everything cosmetic goes *after* the run state, and in its own
+            # guard. The bug described above cost a session's worth of
+            # animation because one step of this loop threw and skipped the
+            # rest; a backdrop that comes back in last week's palette is a
+            # smaller failure than a backdrop that never moves again.
+            try:
+                widget.set_theme(theme)
+                widget.set_palette(palette)
+                # After the theme: a theme change rebuilds the engine, and
+                # these three ride on it.
+                widget.set_blur(blur)
+                widget.set_speed(speed)
+                widget.set_size_scale(size)
+            except Exception:
+                LOG.debug("could not restyle an ambient backdrop",
+                          exc_info=True)
         except Exception:
             continue
 
@@ -1288,10 +1404,71 @@ class PreferencesDialog:
         )
         form.addRow(tr("Animation palette"), ambient_palette_combo)
 
+        # The three shape-of-the-motion controls, beside the animation they
+        # shape. Each is a percentage of what the chosen animation already
+        # does, so 100 % is the designed look in every theme and every one of
+        # them starts there. Percentages rather than pixels or seconds
+        # because "40 px" means nothing to a starfield and "6 seconds" means
+        # nothing to a blob.
+        (blur_lo, blur_hi) = _ambient_ranges()[0][0]
+        (speed_lo, speed_hi) = _ambient_ranges()[1][0]
+        (size_lo, size_hi) = _ambient_ranges()[2][0]
+
+        def _percent_row(name, label_text, low, high, current, tip):
+            slider = QSlider(Qt.Horizontal)
+            slider.setObjectName(name)
+            slider.setRange(int(round(low * 100)), int(round(high * 100)))
+            slider.setSingleStep(5)
+            slider.setPageStep(25)
+            slider.setTickInterval(50)
+            slider.setValue(int(round(current * 100)))
+            slider.setToolTip(tip)
+            value = QLabel()
+
+            def _update(v):
+                # Say when it is the designed value, because "100%" alone
+                # does not tell a reader that it is the one to come back to.
+                value.setText(f"{v}% — as designed" if v == 100
+                              else f"{v}%")
+
+            slider.valueChanged.connect(_update)
+            _update(slider.value())
+            column = QVBoxLayout()
+            column.setContentsMargins(0, 0, 0, 0)
+            column.addWidget(slider)
+            column.addWidget(value)
+            form.addRow(tr(label_text), _hbox_wrap(column))
+            return slider
+
+        blur_slider = _percent_row(
+            "AmbientBlur", "Animation blur",
+            blur_lo, blur_hi, get_ambient_blur(),
+            "How out of focus the animation is. Above 100 % it is softer "
+            "and, because softening it means drawing it smaller and "
+            "stretching it further, also cheaper; below 100 % it sharpens "
+            "and costs more.")
+        speed_slider = _percent_row(
+            "AmbientSpeed", "Animation speed",
+            speed_lo, speed_hi, get_ambient_speed(),
+            "How fast the animation moves, against the speed each one was "
+            "designed at. It applies to every kind of motion in the chosen "
+            "animation at once, and changing it never makes what is already "
+            "on screen jump.")
+        size_slider = _percent_row(
+            "AmbientSize", "Animation size",
+            size_lo, size_hi, get_ambient_size(),
+            "How large the moving elements are: blob width, curtain height, "
+            "the spacing between ripples, star size. Scaled against each "
+            "animation's own range, so one setting means the same thing in "
+            "all four.")
+
         def _sync_ambient_enabled(on):
             """Grey out the pickers when there is nothing to paint."""
             ambient_theme_combo.setEnabled(bool(on))
             ambient_palette_combo.setEnabled(bool(on))
+            blur_slider.setEnabled(bool(on))
+            speed_slider.setEnabled(bool(on))
+            size_slider.setEnabled(bool(on))
 
         ambient_check.toggled.connect(_sync_ambient_enabled)
         _sync_ambient_enabled(ambient_check.isChecked())
@@ -1537,6 +1714,9 @@ class PreferencesDialog:
                 # decorative background must never be the reason the
                 # whole Preferences dialog refuses to close.
                 set_ambient_palette(palette_choice)
+            set_ambient_blur(blur_slider.value() / 100.0)
+            set_ambient_speed(speed_slider.value() / 100.0)
+            set_ambient_size(size_slider.value() / 100.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())

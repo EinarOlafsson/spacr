@@ -411,6 +411,7 @@ def fake_ambient(monkeypatch):
             self.themes = []
             self.palettes = []
             self.animating = None
+            self.motion = {}
 
         def set_theme(self, name):
             self.themes.append(name)
@@ -423,6 +424,15 @@ def fake_ambient(monkeypatch):
 
         def set_animating(self, on):
             self.animating = bool(on)
+
+        def set_blur(self, value):
+            self.motion["blur"] = value
+
+        def set_speed(self, value):
+            self.motion["speed"] = value
+
+        def set_size_scale(self, value):
+            self.motion["size"] = value
 
     module.AmbientWidget = _RecordingAmbient
     # Both bindings, so code reaching the module either way sees the same
@@ -870,7 +880,8 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
 ):
     """The startup/save path is what makes 'no restart' true."""
     from spacr.qt.preferences import (
-        apply_preferences_to_app, set_ambient_enabled, set_ambient_theme,
+        apply_preferences_to_app, set_ambient_blur, set_ambient_enabled,
+        set_ambient_size, set_ambient_speed, set_ambient_theme,
     )
     widget = fake_ambient.AmbientWidget()
     qtbot.addWidget(widget)
@@ -878,10 +889,17 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
     qtbot.waitExposed(widget)
     set_ambient_enabled(True)
     set_ambient_theme("mesh")
+    set_ambient_blur(1.5)
+    set_ambient_speed(0.5)
+    set_ambient_size(2.0)
 
     apply_preferences_to_app()
     assert widget.themes[-1] == "mesh"
     assert widget.animating is True
+    # Blur, speed and size ride the same path as the theme, or a screen that
+    # was open when Preferences was saved keeps the old motion until it is
+    # rebuilt — which for a module screen means until the app restarts.
+    assert widget.motion == {"blur": 1.5, "speed": 0.5, "size": 2.0}
 
 
 # ---------------------------------------------------------------------------
