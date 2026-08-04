@@ -45,7 +45,16 @@ def test_map_barcodes_defaults_use_the_bundled_csv_files():
     assert settings["row_csv"] == bundled_barcode_path("row")
 
 
-def test_map_barcodes_category_relocation_is_scoped_and_non_mutating():
+def test_map_barcodes_layout_is_scoped_and_non_mutating():
+    """The module's layout replaces the shared buckets; nothing else's does.
+
+    This used to check a two-key relocation into "Sequencing", which left
+    thirteen unrelated settings in one drop. `_APP_CATEGORY_SPECS` now names
+    all five groups the module has, so `n_jobs` and `test` are placed
+    explicitly rather than swept somewhere less wrong. What has not changed
+    — and is the load-bearing half — is that the regroup is scoped to this
+    one module and does not touch the caller's dict.
+    """
     from spacr.qt.screens.settings_model import categories_for_app
 
     source = {
@@ -56,9 +65,18 @@ def test_map_barcodes_category_relocation_is_scoped_and_non_mutating():
     mapped = categories_for_app("map_barcodes", source)
     report = categories_for_app("report", source)
 
-    assert mapped["Sequencing"] == ["mode", "n_jobs", "test"]
-    assert mapped["Advanced"] == ["verbose"]
-    assert mapped["Model Training"] == ["epochs"]
+    assert "Sequencing Input" in mapped
+    assert "Advanced" not in mapped
+    assert "Model Training" not in mapped
+    assert mapped["Sequencing Input"] == ["src", "mode", "single_direction"]
+    assert mapped["Runtime & Reliability"] == ["chunk_size", "n_jobs", "test"]
+    # The layout names every setting the module has, so its groups also name
+    # keys this synthetic source does not carry. `build_sections` filters
+    # those out at render time; here, what matters is that nothing the
+    # source DID carry was dropped.
+    placed = {k for keys in mapped.values() for k in keys}
+    assert {"mode", "n_jobs", "verbose", "test", "epochs"} <= placed
+
     assert report == source
     assert source["Advanced"] == ["n_jobs", "verbose"]
     assert source["Model Training"] == ["test", "epochs"]
@@ -79,7 +97,13 @@ def test_map_barcodes_ui_uses_sequencing_dropdowns_and_no_stray_tabs(
 
     assert "Advanced" not in names
     assert "Model Training" not in names
-    assert {"N jobs", "Test"} <= rows["Sequencing"]
+    assert "Paths" not in names
+    assert names == [
+        "Sequencing Input", "Barcode References", "Read Parsing",
+        "Output & Storage", "Runtime & Reliability",
+    ]
+    assert {"N jobs", "Test"} <= rows["Runtime & Reliability"]
+    assert {"Grna csv", "Row csv", "Column csv"} == rows["Barcode References"]
 
     expected = {
         "mode": ["paired", "single"],

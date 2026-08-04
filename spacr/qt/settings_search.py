@@ -46,7 +46,6 @@ from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QObject, Qt, QTimer
 from PySide6.QtWidgets import (
-    QCheckBox,
     QFormLayout,
     QHBoxLayout,
     QLabel,
@@ -58,6 +57,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from .widgets.toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.settings_search")
 
@@ -164,11 +165,19 @@ class SettingsSearchBar(QWidget):
         self._input.textChanged.connect(self._on_query_changed)
         row.addWidget(self._input, 1)
 
-        self._modified = QCheckBox("Modified", self)
+        # A `Toggle`, not a QCheckBox: every boolean control in the shell is
+        # a switch, and `tests/qt/test_widgets.py` bans the plain checkbox
+        # outright so one panel cannot quietly reintroduce it.
+        self._modified_label = QLabel("Modified", self)
+        self._modified_label.setObjectName(MODIFIED_NAME + "Label")
+        row.addWidget(self._modified_label, 0)
+
+        self._modified = Toggle(parent=self)
         self._modified.setObjectName(MODIFIED_NAME)
         self._modified.setToolTip(
             "Show only the settings that no longer hold this module's "
             "default value.")
+        self._modified.setAccessibleName("Show modified settings only")
         self._modified.toggled.connect(self._on_modified_toggled)
         row.addWidget(self._modified, 0)
 
