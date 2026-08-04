@@ -262,11 +262,16 @@ def test_defaults_and_gui_categories_expose_batch_correction():
             "error", "skip",
         ]
         grouped = categories_for_app(app_key, categories)
+        # combat's two keys sit with the rest of the group. They are not
+        # optional extras bolted on the end: batch_covariate_column is the
+        # answer that decides whether combat runs at all.
         assert grouped["Plate & Batch Correction"] == [
             "batch_correction",
             "batch_column",
             "batch_control_column",
             "batch_control_values",
+            "batch_covariate_column",
+            "batch_combat_mean_only",
             "batch_min_samples",
             "batch_missing_control",
         ]
@@ -284,6 +289,8 @@ def test_every_batch_setting_has_an_informative_api_tooltip():
         "batch_column",
         "batch_control_column",
         "batch_control_values",
+        "batch_covariate_column",
+        "batch_combat_mean_only",
         "batch_min_samples",
         "batch_missing_control",
     )
