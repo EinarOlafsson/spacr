@@ -216,10 +216,10 @@ def test_one_dna_rain_frame_costs_under_four_milliseconds(qtbot):
 
 
 @pytest.mark.parametrize("theme, ceiling_ms, ceiling_ratio, documented, measured", [
-    ("blobs", 20.0, 60.0, 1.21, 1.65),
-    ("aurora", 40.0, 120.0, 1.40, 3.36),
-    ("ripple", 20.0, 60.0, 1.31, 1.81),
-    ("drift", 9.0, 20.0, 0.66, 0.64),
+    ("blobs", 40.0, 120.0, 1.21, 1.65),
+    ("aurora", 80.0, 240.0, 1.40, 3.36),
+    ("ripple", 40.0, 120.0, 1.31, 1.81),
+    ("drift", 20.0, 40.0, 0.66, 0.64),
 ])
 def test_one_ambient_frame_costs_what_the_module_says_it_does(
         qapp, theme, ceiling_ms, ceiling_ratio, documented, measured):
@@ -227,10 +227,19 @@ def test_one_ambient_frame_costs_what_the_module_says_it_does(
 
     The ratio is the guard; the millisecond ceiling beside it is a backstop
     that only a catastrophe reaches. See :func:`raster_calibration_ms` for why
-    the absolute one alone was not keepable: it flaked on a loaded box, and a
-    guard that flakes gets deleted. Measured on this tree at load average 30 —
-    blobs 29x, aurora 59x, ripple 31x, drift 8.6x — so each ceiling is about
-    2x the loaded measurement and the ratios hold on a quiet machine too.
+    the absolute one alone was not keepable.
+
+    The headroom is 4x, and that number is measured rather than chosen. The
+    ratio is far steadier than the wall clock but it is not constant: the fill
+    is memory-bandwidth-bound and the engines are compute-bound, so contention
+    moves them apart. Measured on this tree: ripple 31x quiet, 35x at load
+    average 30, 65x in a batch with 65 pytest processes on the box. A ceiling
+    at 2x the quiet number fails there; at 4x it does not, and it still fails
+    the moment painting gets four times more expensive -- which is well under
+    the regressions this exists for. The two drawing paths this design
+    rejected are 10x and 27x the current cost.
+
+    Quiet ratios: blobs 29x, aurora 59x, ripple 31x, drift 8.6x.
 
     The protocol is the module's own: 1920x1080, offscreen raster, 120 frames,
     the full-page background fill included in every one of them, best of up to
