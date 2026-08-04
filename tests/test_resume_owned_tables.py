@@ -872,6 +872,51 @@ class TestMeasureRefusesRatherThanMixes:
         assert len(after) == 4
         assert 'cell_area' not in after.columns
 
+    def test_the_predicate_refuses_a_frame_with_no_field_key(self):
+        """A frame missing a key column cannot say which field it is for.
+
+        The message has to name the columns, because the caller that hits
+        this is a direct one -- ``measure_crop``'s own frames always carry
+        the four -- and "cannot establish the field" with no field named
+        is not actionable.
+        """
+        from spacr.utils import ImportedCopyNotReleased, _field_key_predicate
+        from spacr import schema
+
+        frame = pd.DataFrame({'plateID': ['plate1'], 'rowID': ['r1']})
+        with pytest.raises(ImportedCopyNotReleased) as excinfo:
+            _field_key_predicate(frame, schema.FIELD_KEY_COLUMNS, 's')
+
+        assert 'columnID' in str(excinfo.value)
+        assert 'fewer columns than the writer used' in str(excinfo.value)
+
+    def test_an_empty_frame_matches_no_row_rather_than_failing_to_parse(self):
+        """The defensive branch, exercised for real.
+
+        ``()`` -- an empty OR -- is not valid SQL, and a predicate that
+        will not parse inside a DELETE is a worse answer than one that
+        selects nothing. Asserted against SQLite rather than by reading
+        the string, because "is this valid SQL" is not a question a test
+        should answer by eye.
+        """
+        from spacr.utils import _field_key_predicate
+        from spacr import schema
+
+        empty = pd.DataFrame({c: [] for c in schema.FIELD_KEY_COLUMNS})
+        predicate, params = _field_key_predicate(
+            empty, schema.FIELD_KEY_COLUMNS, 's')
+
+        assert params == []
+        conn = sqlite3.connect(':memory:')
+        try:
+            conn.execute('CREATE TABLE t (a)')
+            conn.execute('INSERT INTO t VALUES (1)')
+            assert conn.execute(
+                f'SELECT COUNT(*) FROM t AS s WHERE {predicate}'
+            ).fetchone()[0] == 0
+        finally:
+            conn.close()
+
     def test_a_delete_that_takes_a_number_nobody_counted_rolls_back(
             self, imported):
         """The property that is actually true, asserted by making it false.
