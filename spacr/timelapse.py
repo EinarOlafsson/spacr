@@ -299,7 +299,14 @@ def _require_2d_frames(masks, caller):
     frames = masks if isinstance(masks, (list, tuple)) else np.asarray(masks)
     ndims = {int(np.ndim(frame)) for frame in frames}
     if ndims and ndims != {2}:
-        shape = getattr(np.asarray(masks), 'shape', None)
+        try:
+            shape = np.asarray(masks).shape
+        except ValueError:
+            # A ragged list -- 2-D frames alongside a volume -- cannot be
+            # stacked at all, and numpy's "inhomogeneous shape after 1
+            # dimensions" is precisely the opaque message this guard exists to
+            # replace. Describing the list is enough for the diagnostic.
+            shape = f'{len(frames)} frames of mixed shape'
         raise ValueError(
             f"{caller} needs a (T, Y, X) stack of 2-D frames and got frames of "
             f"{sorted(ndims)} dimension(s) (stack shape {shape}). Every tracker "
