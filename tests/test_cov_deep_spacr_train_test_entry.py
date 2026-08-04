@@ -405,8 +405,15 @@ def test_plot_training_curves_train_only_defaults_epoch_and_accuracy(captured_fi
 
     assert len(captured_figs) == 1
     fig = captured_figs[0]
-    ax1, ax2 = fig.axes
+    # Three panels since C10: loss, aggregate accuracy, and per-class
+    # accuracy. This history carries no per-class metrics, so the third panel
+    # says so rather than being left off (an absent panel and an absent class
+    # breakdown would look the same).
+    ax1, ax2, ax3 = fig.axes
     assert (ax1.get_title(), ax2.get_title()) == ('Loss', 'Accuracy')
+    assert ax3.get_title() == 'Per-class accuracy'
+    assert len(ax3.lines) == 0
+    assert any('no per-class metrics' in t.get_text() for t in ax3.texts)
     assert len(ax1.lines) == 1 and len(ax2.lines) == 1
 
     assert list(ax1.lines[0].get_xdata()) == [1, 2, 3]      # epoch defaulted
@@ -435,7 +442,7 @@ def test_plot_training_curves_with_val_history_and_total_epochs(captured_figs):
 
     assert len(captured_figs) == 1
     fig = captured_figs[0]
-    ax1, ax2 = fig.axes
+    ax1, ax2, _ax3 = fig.axes
     assert len(ax1.lines) == 2 and len(ax2.lines) == 2
 
     assert list(ax1.lines[1].get_xdata()) == [1, 2]
