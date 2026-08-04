@@ -73,6 +73,70 @@ def _install_quiet_qt_logging() -> None:
     qInstallMessageHandler(handler)
 
 
+#: Third-party warnings a spaCR user cannot act on, as
+#: ``(message regex, module regex)``. Unlike :data:`_QT_NOISE` these DO come
+#: through Python's warning system, so a filter is the right tool — but a
+#: filter written carelessly is how a real warning gets lost, so both halves
+#: of each entry are deliberate:
+#:
+#: * the message pattern is NOT anchored. ``warnings.filterwarnings``
+#:   matches ``message`` with ``re.match``, so a filter written against the
+#:   sentence a user quoted out of a traceback misses the same notice from a
+#:   build that prefixes it. Every pattern here begins with ``.*`` on
+#:   purpose.
+#: * the module pattern IS present, and it is the raising frame's DOTTED
+#:   ``__name__`` — ``warnings.warn`` reads ``globals()["__name__"]``, so a
+#:   pattern written against ``cellpose/dynamics.py`` (the path a traceback
+#:   shows) matches nothing at all. It is also matched with ``re.match``,
+#:   hence the explicit ``(\.|$)`` rather than a bare prefix that would also
+#:   catch a ``cellpose_something`` package. Scoping to the library keeps
+#:   "ignore this sentence" from also swallowing the same sentence raised by
+#:   spaCR's own code.
+#:
+#: The single entry: Cellpose 4 builds a sparse COO tensor in ``dynamics.py``
+#: for every mask it makes, and torch notes that invariant checking is off.
+#: It names a torch internal, it fires on the first mask of every run, and
+#: there is nothing a spaCR user can do about it.
+_LIBRARY_NOISE: tuple[tuple[str, str], ...] = (
+    (r".*[Ss]parse invariant checks are implicitly disabled",
+     r"cellpose(\.|$)"),
+)
+
+
+def _quiet_library_warnings() -> None:
+    """Ignore :data:`_LIBRARY_NOISE`, and nothing else, for this process.
+
+    ``spacr/__init__.py`` installs the same rule at import, which is what a
+    headless ``spacr-run`` or a spawned worker gets, so on a clean launch
+    this finds the filter already in place and does nothing. That is the
+    intended steady state. What it is for is the case where it is *not*
+    already in place: ``warnings.filters`` is process-global mutable state
+    and anything the launcher imports may reset it, and a screen that calls
+    ``warnings.resetwarnings()`` instead of ``catch_warnings()`` would
+    otherwise leave the rest of the session noisy. Re-asserting at launch
+    costs nothing and is the same shape as the two quieters beside it.
+
+    Idempotent, and it has to be: ``warnings.filterwarnings`` prepends
+    unconditionally, so a function called on every ``run()`` — which the
+    test suite drives repeatedly in one process — would otherwise grow
+    ``warnings.filters`` without bound.
+    """
+    import warnings
+
+    for message, module in _LIBRARY_NOISE:
+        # A filters entry is (action, message_re, category, module_re, lineno)
+        # with the two patterns compiled, so `.pattern` recovers what was asked
+        # for and the comparison is against the request rather than the object.
+        if any(action == "ignore" and category is UserWarning
+               and getattr(msg_re, "pattern", None) == message
+               and getattr(mod_re, "pattern", None) == module
+               for action, msg_re, category, mod_re, _lineno
+               in warnings.filters):
+            continue
+        warnings.filterwarnings(
+            "ignore", message=message, category=UserWarning, module=module)
+
+
 def _quiet_gtk_accessibility() -> None:
     """Stop GTK printing "Not loading module atk-bridge" on every window.
 
@@ -155,11 +219,13 @@ def run(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
-    # Before anything imports Qt or GTK: the AT-SPI variable is only read
-    # while GTK loads, and the Qt handler has to be in place before the first
-    # widget lays out text.
+    # Before anything imports Qt, GTK or torch: the AT-SPI variable is only
+    # read while GTK loads, the Qt handler has to be in place before the
+    # first widget lays out text, and the warning filter has to be in place
+    # before the pipeline preloader reaches cellpose.
     _quiet_gtk_accessibility()
     _install_quiet_qt_logging()
+    _quiet_library_warnings()
 
     if len(argv) == 1 and argv[0] in _VERSION_FLAGS:
         from spacr.version import get_version
