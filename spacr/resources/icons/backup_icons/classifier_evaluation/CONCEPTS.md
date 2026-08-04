@@ -5,7 +5,7 @@ White-on-transparent, 1024x1024 RGBA, spaCR house style
 
 1. **classifier_evaluation_01** - An ROC curve bulging away from the chance diagonal.
 2. **classifier_evaluation_02** - Calibration: predicted against observed, points sagging off the line.
-3. **classifier_evaluation_03** - Cross-validation folds: the held-out block moving down the rows.
+3. **classifier_evaluation_03** - Cross-validation folds: a different block held out in every row.
 4. **classifier_evaluation_04** - A test set sealed away from training and only opened to score.
 5. **classifier_evaluation_05** - Two score humps pulling apart either side of the decision point.
 6. **classifier_evaluation_06** - A precision-recall curve falling away as recall is pushed.
