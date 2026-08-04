@@ -211,3 +211,32 @@ already pins a strict xfail for a component containing the separator.
 
 Deciding the fix is a contract change and needs a call: widen the key with
 the object type, or make every consumer carry a qualified id beside it.
+
+---
+
+## Requested 2026-08-04 — spaCR mode, resource controls, preference tabs
+
+1. **Every new module gets the alpha colour and designation.** The maturity
+   pass promoted 12 apps to stable and 14 to beta on evidence; the ~20 that
+   landed after it are unassessed and must read as alpha until they are.
+2. **Animation preference gains a `None` option.**
+3. **`spaCR mode`**, three settings:
+   - **Extra Performance** — warns on activation. Frees RAM, VRAM and
+     processes as aggressively as is safe; all visual settings at minimum.
+     Cleanup runs at launch AND before every module run.
+   - **Performance** — warns on activation. Less aggressive; some visuals
+     permitted. Cleanup at launch, and otherwise only when the user presses
+     one of the four buttons.
+   - **Balanced** (default) — no cleanup at launch or on a run; visuals stay
+     exactly as the user set them.
+4. **Four manual buttons**: clear RAM, clear VRAM, clear CPU, check disk
+   space on the relevant drives. Each behind its own warning popup, and each
+   naming what it will actually do before it does it. These four are what the
+   two performance modes invoke.
+5. **Preferences organised into tabs.**
+
+**Safety constraint, non-negotiable:** "free resources" must never reach
+anything spaCR does not own. No killing processes the user started, no
+`drop_caches`, nothing needing root, nothing that could lose another
+program's work. A cleanup that costs somebody their unsaved analysis is
+worse than a slow spaCR.
