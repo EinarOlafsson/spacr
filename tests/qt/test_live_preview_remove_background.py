@@ -211,3 +211,112 @@ def test_hovering_a_field_shows_nothing_and_hovering_its_label_shows_help(
     finally:
         dialog.deleteLater()
         panel.deleteLater()
+
+
+# ===========================================================================
+# The intensity image on screen must be the one that was segmented
+# ===========================================================================
+
+def _panel_with_two_channels(lp, qapp):
+    """A panel holding a 2-channel image: channel 0 dim, channel 1 bright."""
+    panel = lp.LivePreviewPanel()
+    image = np.zeros((8, 8, 2), dtype=np.uint16)
+    image[..., 0] = 40          # cell channel   -- below a 100 background
+    image[..., 1] = 900         # nucleus channel-- above it
+    panel._image = image
+    panel._cell_channel.setValue(0)
+    panel._nucleus_channel.setValue(1)
+    panel._object_box.setCurrentText("cell")
+    panel._common_widgets["background"].setValue(100)
+    for _ in range(3):
+        qapp.processEvents()
+    return panel
+
+
+def test_the_displayed_intensity_image_shows_the_removed_background(
+        preview_module, qapp):
+    """The pane that shows you *why* the objects changed must change too.
+
+    Background removal used to happen only inside the worker, so switching
+    it on moved the masks while the image they were drawn over kept its
+    original pixels.
+    """
+    panel = _panel_with_two_channels(preview_module, qapp)
+    try:
+        # Single channel on screen. The panel's channel box is only
+        # populated by a real load, so the selection is stubbed rather than
+        # driven through the combo -- what is under test is the image the
+        # canvas is handed, not how the channel got picked.
+        panel.display_channel = lambda: 0
+
+        panel._common_widgets["remove_background"].setChecked(False)
+        before = panel._display_image()
+        assert before.max() == 40, "the fixture's cell channel is not 40"
+
+        panel._common_widgets["remove_background"].setChecked(True)
+        after = panel._display_image()
+        assert after.max() == 0, (
+            "channel 0 is 40 and the background is 100, so the displayed "
+            "image should be empty")
+    finally:
+        panel.deleteLater()
+
+
+def test_a_composite_cleans_only_the_channels_that_have_a_background(
+        preview_module, qapp):
+    """All-channels view: the cell channel is cleaned, the nucleus is not.
+
+    Otherwise a composite shows a cleaned cell channel beside a raw one and
+    reads as though the setting applied to everything.
+    """
+    panel = _panel_with_two_channels(preview_module, qapp)
+    try:
+        panel.display_channel = lambda: None       # "All channels"
+        panel._common_widgets["remove_background"].setChecked(True)
+        shown = panel._display_image()
+        assert shown.ndim == 3
+        assert shown[..., 0].max() == 0, "the cell channel was not cleaned"
+        assert shown[..., 1].max() == 900, (
+            "the nucleus channel is not the selected object and has no "
+            "background of its own; it must be left alone")
+    finally:
+        panel.deleteLater()
+
+
+def test_thresholding_the_display_does_not_destroy_the_loaded_image(
+        preview_module, qapp):
+    """`channel_view` returns a view into `_image`.
+
+    Writing zeros through it would threshold the loaded array in place, so
+    the next render -- and the worker, which reads the same array -- would
+    threshold an already-thresholded image.
+    """
+    panel = _panel_with_two_channels(preview_module, qapp)
+    try:
+        panel._common_widgets["remove_background"].setChecked(True)
+        for _ in range(3):
+            panel._display_image()
+        assert panel._image[..., 0].max() == 40, (
+            "the loaded image was thresholded in place")
+    finally:
+        panel.deleteLater()
+
+
+def test_a_channel_belonging_to_no_object_is_left_alone(
+        preview_module, qapp):
+    """Only the cell channel is selected, so the nucleus channel is untouched.
+
+    The pipeline picks the background by matching a channel to
+    `cell_channel` / `nucleus_channel`; a channel that matches neither never
+    had a background chosen for it.
+    """
+    panel = _panel_with_two_channels(preview_module, qapp)
+    try:
+        panel._common_widgets["remove_background"].setChecked(True)
+        panel._common_widgets["background"].setValue(5000)
+        # Channel 1 is the nucleus channel and 'cell' is the only object
+        # selected, so nothing applies to it even at a 5000 background.
+        assert panel._background_for_channel(1) is None
+        assert panel._background_for_channel(0) == 5000.0
+    finally:
+        panel.deleteLater()
