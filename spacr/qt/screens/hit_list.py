@@ -186,6 +186,10 @@ class HitListScreen(QWidget):
             self._set_summary(
                 "Choose a regression results folder — the one holding "
                 "results_gene.csv.", problem=False)
+        # Drop anywhere on this screen: the path is resolved through spaCR's
+        # project layout, so the plate folder finds what this screen reads.
+        from ..dnd import install_for
+        install_for(self, "hit_list")
 
     # -- construction -----------------------------------------------------
 
