@@ -436,21 +436,31 @@ def test_the_viewer_registers_its_own_qss_block():
 
 
 def test_the_app_registration_is_one_call_away(qtbot, qt_theme_applied):
-    """Registered in a sandbox: the seam works, without leaking a row.
+    """The seam works, and calling it again does not add a second row.
 
-    Not called at import — see `register_layer_viewer_app`'s docstring for the
-    nine other ledgers a live registration has to land in at the same time.
+    `spacr.qt.app._SELF_REGISTERING_APPS` now names this module, so importing
+    `spacr.qt.app` at all registers the row: a test that asserted the registry
+    was empty first was asserting the old design. What still has to hold is
+    that the registration is IDEMPOTENT — this module is reachable from three
+    import paths, and a duplicate key raises — and that the row's factory
+    really does build the screen.
     """
     from spacr.qt import app as app_mod
 
-    assert not any(row[0] == lv.LAYER_VIEWER_APP_KEY for row in app_mod.APPS)
     apps = list(app_mod.APPS)
     factories = dict(app_mod.APP_FACTORIES)
     stages = dict(app_mod.APP_STAGE)
     try:
-        row = lv.register_layer_viewer_app()
-        assert row[0] == lv.LAYER_VIEWER_APP_KEY
-        assert row in app_mod.APPS
+        rows = [row for row in app_mod.APPS
+                if row[0] == lv.LAYER_VIEWER_APP_KEY]
+        if not rows:
+            rows = [lv.register_layer_viewer_app()]
+        assert len(rows) == 1
+        assert rows[0][0] == lv.LAYER_VIEWER_APP_KEY
+        # Registered already: a second call is a no-op rather than a duplicate.
+        assert lv.register_layer_viewer_app() is None
+        assert len([row for row in app_mod.APPS
+                    if row[0] == lv.LAYER_VIEWER_APP_KEY]) == 1
         assert app_mod.registered_factory(lv.LAYER_VIEWER_APP_KEY) is \
             lv.make_layer_viewer_screen
         screen = app_mod.registered_factory(lv.LAYER_VIEWER_APP_KEY)()
@@ -464,7 +474,6 @@ def test_the_app_registration_is_one_call_away(qtbot, qt_theme_applied):
         app_mod.APP_STAGE.clear()
         app_mod.APP_STAGE.update(stages)
         app_mod._refresh_sections()
-    assert not any(row[0] == lv.LAYER_VIEWER_APP_KEY for row in app_mod.APPS)
 
 
 # ---------------------------------------------------------------------------
