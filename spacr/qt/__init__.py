@@ -210,6 +210,12 @@ SELF_REGISTERING_MODULES = (
     # chaining's screen rather than the other way round; both orders work.
     "spacr.qt.prerun",
     "spacr.qt.screens.run_compare",
+    # Not an app either: it corrects the maturity label on the modules whose
+    # evidence no longer matches "alpha". Listed LAST, after every module
+    # that registers an app of its own, because it can only reassess apps
+    # that are in the registry by the time it runs — a module registered
+    # after it would keep whatever stage it declared.
+    "spacr.qt.maturity",
 )
 
 
