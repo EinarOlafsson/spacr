@@ -23,3 +23,14 @@ The PNGs themselves are pure white, so on a light background they are invisible
 
 Regenerate with:
 `QT_QPA_PLATFORM=offscreen python3 _generators/group_data_io.py`
+
+
+Pulsar-map set, added on request: thin rays of unequal
+length from one source, after the Voyager plaque.
+
+11. **illumination_11** - 24 thin rays of unequal length from one point.
+12. **illumination_12** - 36 rays, denser, closest to the Voyager plaque's crowding.
+13. **illumination_13** - 16 rays, sparser, the most legible at 16 px.
+14. **illumination_14** - 24 rays inside the field circle they are correcting.
+15. **illumination_15** - An uneven field: the long rays all fall to one side.
+16. **illumination_16** - 28 rays leaving a solid core.
