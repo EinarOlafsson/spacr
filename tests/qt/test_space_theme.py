@@ -608,19 +608,46 @@ class TestRuntimeSwitch:
         assert calls == [1], "the owning window was not asked to rebuild"
 
     def test_refreshing_a_broken_window_is_swallowed(self, qapp, qtbot):
+        """A window that explodes mid-rebuild costs nothing but its own
+        repaint: the Save still lands, and the next window still rebuilds."""
         from PySide6.QtWidgets import QWidget
         from spacr.qt.preferences import _refresh_owner_window
 
+        calls = []
+
         class Rude(QWidget):
             def refresh_theme(self):
+                calls.append("rude")
                 raise RuntimeError("mid-teardown")
 
+        class Polite(QWidget):
+            def refresh_theme(self):
+                calls.append("polite")
+
         rude = Rude()
+        polite = Polite()
         qtbot.addWidget(rude)
+        qtbot.addWidget(polite)
+
         _refresh_owner_window(rude)          # must not raise
+        assert calls == ["rude"], "the broken window was never asked at all"
+
+        # Contrast: the failure did not latch anything off. A well-behaved
+        # window handed over straight afterwards still rebuilds.
+        _refresh_owner_window(polite)
+        assert calls == ["rude", "polite"]
+
+        # The degenerate parents are silent no-ops — they reach nobody
+        # rather than falling back to "refresh whatever is around".
         _refresh_owner_window(None)
         _refresh_owner_window(object())      # no .window() at all
         _refresh_owner_window(QWidget())     # no .refresh_theme at all
+        assert calls == ["rude", "polite"]
+
+        # And the rude window survived its own exception: it is still a
+        # live widget that gets asked again next time.
+        _refresh_owner_window(rude)
+        assert calls == ["rude", "polite", "rude"]
 
     def test_main_window_refresh_theme_is_wired_and_safe(self, qapp, qtbot):
         from spacr.qt.app import MainWindow

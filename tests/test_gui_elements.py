@@ -179,12 +179,40 @@ def test_spacr_button_fade_state(tk_root):
 
 
 def test_spacr_switch_toggles(tk_root):
+    """update_switch must RENDER the new state, not merely carry the variable.
+
+    Asserting ``v.get()`` would be circular — the test set it. What matters
+    is that the knob actually moved on the canvas and changed colour.
+    """
     v = tk.BooleanVar(value=False)
     w = ge.spacrSwitch(tk_root, text="power", variable=v)
     tk_root.update_idletasks()
+
+    off_coords = w.canvas.coords(w.switch)
+    off_fill = w.canvas.itemcget(w.switch, "fill")
+    assert off_coords == [4.0, 4.0, 16.0, 16.0]
+    assert off_fill.lower() == "#800080"
+
     # Directly flip via variable and re-render.
     v.set(True)
     w.update_switch()
+    tk_root.update_idletasks()
+
+    on_coords = w.canvas.coords(w.switch)
+    on_fill = w.canvas.itemcget(w.switch, "fill")
+    assert on_coords == [24.0, 4.0, 36.0, 16.0]
+    assert on_fill.lower() == "#008080"
+    # The contrast that makes the above load-bearing: the drawn state really
+    # does differ between off and on, in position and in colour.
+    assert on_coords[0] > off_coords[0]
+    assert on_fill.lower() != off_fill.lower()
+
+    # ...and back again, so the render tracks the variable in both directions.
+    v.set(False)
+    w.update_switch()
+    tk_root.update_idletasks()
+    assert w.canvas.coords(w.switch) == off_coords
+    assert w.canvas.itemcget(w.switch, "fill").lower() == off_fill
 
 
 def test_spacr_tooltip_constructs(tk_root):

@@ -39,13 +39,44 @@ def test_notify_esc_escapes_double_quotes():
     assert _esc(None) == ""
 
 
-def test_announce_pipeline_finished_does_not_raise(monkeypatch):
-    """Wrapper never raises even if all notification backends fail."""
+def test_announce_pipeline_finished_falls_back_to_the_tray(monkeypatch):
+    """When the OS backend declines, the tray gets the same message.
+
+    Nothing about "it did not raise" is worth pinning: the reason this
+    wrapper exists is the fallback, and the reason the fallback is useful
+    is that it carries the module, the status and the elapsed time.
+    """
     from spacr.qt import notify as n
-    monkeypatch.setattr(n, "notify", lambda *_a, **_k: False)
-    monkeypatch.setattr(n, "notify_tray", lambda *_a, **_k: False)
-    # Should complete cleanly, no exception
-    n.announce_pipeline_finished("mask", "success", 42.0)
+
+    os_calls, tray_calls = [], []
+    monkeypatch.setattr(n, "notify",
+                        lambda *a, **k: (os_calls.append(a), False)[1])
+    monkeypatch.setattr(n, "notify_tray",
+                        lambda *a, **k: (tray_calls.append(a), False)[1])
+
+    assert n.announce_pipeline_finished("mask", "success", 42.0) is None
+
+    # The OS backend was tried first, with a message naming the module,
+    # the status and the wall-clock time.
+    assert len(os_calls) == 1
+    title, body = os_calls[0][:2]
+    assert "mask" in title and "success" in title and "✓" in title
+    assert body == "Finished in 42.0s."
+    # It said no, so the tray was asked with exactly the same message.
+    assert tray_calls == [(title, body)]
+
+    # Contrast: when the OS backend accepts, the tray is NOT double-fired.
+    os_calls.clear()
+    tray_calls.clear()
+    monkeypatch.setattr(n, "notify",
+                        lambda *a, **k: (os_calls.append(a), True)[1])
+    n.announce_pipeline_finished("measure", "failed", 7.26)
+
+    assert len(os_calls) == 1
+    assert tray_calls == [], "the tray fired even though the OS backend took it"
+    title, body = os_calls[0][:2]
+    assert "measure" in title and "failed" in title and "⚠" in title
+    assert body == "Finished in 7.3s."      # one decimal, rounded
 
 
 def test_htile_has_accessibility_labels(qt_theme_applied):
@@ -71,18 +102,65 @@ def test_sidebar_buttons_have_accessible_names(qtbot, qt_theme_applied):
 
 
 def test_show_cheat_sheet_opens_and_closes(qtbot, qt_theme_applied):
-    from spacr.qt.shortcuts import show_cheat_sheet
+    """The cheat sheet really appears, and lists every registered binding.
+
+    ``show_cheat_sheet`` blocks in ``exec()``, so the dialog can only be
+    inspected from inside its own event loop — which is also the only way
+    to tell "it opened and I closed it" apart from "it never opened".
+    """
+    from spacr.qt.shortcuts import SHORTCUTS, show_cheat_sheet
     from spacr.qt.app import MainWindow
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication, QDialog, QLabel
+
     win = MainWindow()
     qtbot.addWidget(win)
-    # Sanity — verify the dialog can be created + closed without error.
-    # We can't actually exec() modally in a test, but we can at least
-    # verify the function exists + reaches the QDialog construction.
-    from PySide6.QtCore import QTimer
-    from PySide6.QtWidgets import QApplication, QDialog
-    def close_active():
-        d = QApplication.activeModalWidget()
-        if isinstance(d, QDialog):
-            d.accept()
-    QTimer.singleShot(200, close_active)
+
+    seen = {}
+    ticks = {"n": 0}
+    timer = QTimer()
+    timer.setInterval(50)
+
+    def inspect_and_close():
+        ticks["n"] += 1
+        dlg = QApplication.activeModalWidget()
+        if isinstance(dlg, QDialog):
+            seen["title"] = dlg.windowTitle()
+            seen["min_width"] = dlg.minimumWidth()
+            seen["rows"] = [lbl.text() for lbl in dlg.findChildren(QLabel)]
+            timer.stop()
+            dlg.accept()
+        elif ticks["n"] > 40:
+            # Give up rather than hang forever; the assertions below then
+            # report *why* (no modal dialog was ever put on screen).
+            timer.stop()
+            for w in QApplication.topLevelWidgets():
+                if isinstance(w, QDialog) and w.isVisible():
+                    w.reject()
+
+    timer.timeout.connect(inspect_and_close)
+    timer.start()
     show_cheat_sheet(win)
+    timer.stop()
+
+    assert seen, "show_cheat_sheet never put a modal QDialog on screen"
+    assert seen["title"] == "spaCR — Keyboard shortcuts"
+    assert seen["min_width"] >= 420
+
+    rows = seen["rows"]
+    # One header per category plus one row per binding, all non-empty.
+    categories = {s.category for s in SHORTCUTS}
+    assert len(rows) == len(SHORTCUTS) + len(categories)
+    assert all(r.strip() for r in rows)
+
+    text = "\n".join(rows)
+    for spec in SHORTCUTS:
+        assert spec.keys in text, f"{spec.keys} missing from the cheat sheet"
+        assert spec.label in text, f"{spec.label!r} missing from the cheat sheet"
+    for cat in categories:
+        assert f"<b>{cat}</b>" in text
+
+    # Contrast: the search above is discriminating, not "in a big blob of
+    # HTML everything matches" — a binding that is not registered is absent.
+    assert "Ctrl+Shift+Q" not in text
+    assert "Reticulate splines" not in text

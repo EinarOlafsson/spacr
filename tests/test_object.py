@@ -17,6 +17,11 @@ import spacr.object as O
 # _validate_organelle_settings — raises on bad combos
 # ---------------------------------------------------------------------------
 
+#: Every segmentation method the guard knows about, across all morphologies.
+ALL_ORGANELLE_METHODS = ("otsu", "adaptive", "log", "dog", "ridge",
+                         "hysteresis", "cellpose", "unet")
+
+
 @pytest.mark.parametrize("morph,method", [
     ("spots", "log"),
     ("spots", "dog"),
@@ -27,8 +32,25 @@ import spacr.object as O
     ("ring", "log"),
 ])
 def test_validate_organelle_settings_accepts_valid_combos(morph, method):
-    # Should not raise.
-    O._validate_organelle_settings(morph, method)
+    """Acceptance has to be per-PAIR, not a guard that returns regardless.
+
+    ``_validate_organelle_settings`` returning ``None`` proves nothing on its
+    own -- a body of ``return`` passes it for every input, including the
+    ``network``/``log`` combination the next test says must be refused. So ask
+    the guard what it believes: its rejection message lists the methods the
+    morphology really offers.
+    """
+    assert O._validate_organelle_settings(morph, method) is None
+
+    with pytest.raises(ValueError) as excinfo:
+        O._validate_organelle_settings(morph, "not-a-method")
+    allowed = str(excinfo.value).split("must be one of", 1)[1]
+    assert f"morphology='{morph}'" in str(excinfo.value)
+    assert f"'{method}'" in allowed, (
+        f"{morph} accepted {method} but does not list it as legal")
+    # ...and the map filters rather than waving everything through.
+    assert not all(f"'{m}'" in allowed for m in ALL_ORGANELLE_METHODS), (
+        f"morphology '{morph}' accepts every known method")
 
 
 def test_validate_organelle_settings_rejects_unknown_morphology():

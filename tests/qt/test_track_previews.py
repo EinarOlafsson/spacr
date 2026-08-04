@@ -734,15 +734,48 @@ def test_propagate_keys_are_real_timelapse_settings(qtbot, obj):
 
 
 def test_propagate_failure_is_swallowed(qtbot):
+    """A dead settings panel costs that one push and nothing else.
+
+    The point is not that no exception escaped — it is that the preview is
+    still wired up afterwards, so re-opening the settings screen and
+    pushing again works.
+    """
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
     panel = TimelapsePreviewPanel()
     qtbot.addWidget(panel)
 
-    def _explode(_d):
+    panel._mode_box.setCurrentText("trackpy")
+    panel._displacement.setValue(41.0)
+
+    seen_by_broken = []
+
+    def _explode(d):
+        seen_by_broken.append(dict(d))
         raise RuntimeError("settings panel is gone")
 
     panel.set_propagate_callback(_explode)
     panel.propagate_settings()          # must not raise
+
+    # It really was called: a propagate that quietly skipped the callback
+    # would also "not raise", and would be a different bug.
+    assert len(seen_by_broken) == 1
+    assert seen_by_broken[0]["timelapse_displacement"] == 41
+
+    # Contrast: a working callback registered after the failure still gets
+    # the panel's real, current settings.
+    captured = {}
+    panel.set_propagate_callback(captured.update)
+    panel._memory.setValue(4)
+    panel._object_box.setCurrentText("nucleus")
+    panel.propagate_settings()
+
+    assert captured["timelapse_mode"] == "trackpy"
+    assert captured["timelapse_displacement"] == 41
+    assert captured["timelapse_memory"] == 4
+    assert captured["timelapse_objects"] == ["nucleus"]
+    assert "nucleus_channel" in captured
+    # ... and the broken callback is gone, not still on a listener list.
+    assert len(seen_by_broken) == 1
 
 
 def test_apply_settings_seeds_the_panel(qtbot):
@@ -1236,12 +1269,36 @@ def test_tracked_object_moves_the_mask_plane(qtbot):
 
 
 def test_motility_propagate_failure_is_swallowed(qtbot):
+    """Same contract as the timelapse panel: one lost push, panel intact."""
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
     panel = MotilityPreviewPanel()
     qtbot.addWidget(panel)
-    panel.set_propagate_callback(
-        lambda _d: (_ for _ in ()).throw(RuntimeError("gone")))
+
+    panel._max_disp.setValue(37.0)
+    seen_by_broken = []
+
+    def _explode(d):
+        seen_by_broken.append(dict(d))
+        raise RuntimeError("gone")
+
+    panel.set_propagate_callback(_explode)
     panel.propagate_settings()          # must not raise
+
+    assert len(seen_by_broken) == 1
+    assert seen_by_broken[0]["max_displacement"] == 37.0
+
+    # Contrast: a working callback registered afterwards still receives the
+    # panel's real settings — including the value tuned before the failure.
+    captured = {}
+    panel.set_propagate_callback(captured.update)
+    panel._tracked_object.setCurrentText("cell")
+    panel._straightness.setValue(0.6)
+    panel.propagate_settings()
+
+    assert captured["tracked_object"] == "cell"
+    assert captured["max_displacement"] == 37.0
+    assert captured["straightness_threshold"] == pytest.approx(0.6)
+    assert len(seen_by_broken) == 1
 
 
 # ---------------------------------------------------------------------------

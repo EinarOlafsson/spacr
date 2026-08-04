@@ -247,21 +247,118 @@ def test_palette_for_returns_light_for_light(qt_theme_applied):
         assert palette_for("bogus")[key] == DARK_PALETTE[key]     # fallback
 
 
-def test_apply_preferences_to_app_does_not_raise(qt_theme_applied):
+def _qss_font_sizes(qss: str):
+    """Every ``font-size: Npx`` in a stylesheet, in source order."""
+    import re
+    return [int(px) for px in re.findall(r"font-size:\s*(\d+)px", qss)]
+
+
+def test_apply_preferences_to_app_takes_the_theme_and_the_font_scale(
+        qt_theme_applied):
+    """The QApplication has to actually *wear* the saved preferences.
+
+    Neither half is asserted against a literal. The palette is compared
+    to ``palette_for("light")`` and, in the same breath, to the dark
+    colour it must no longer be; the font sizes are compared to the
+    stylesheet this very call would have produced at 100 %, so an
+    ``apply`` that dropped the scale on the floor emits exactly the
+    baseline and fails.
+    """
+    from PySide6.QtGui import QPalette
     from spacr.qt.preferences import (
-        apply_preferences_to_app, set_theme, set_font_scale,
+        apply_preferences_to_app, get_language, get_pane_opacity,
+        set_theme, set_font_scale,
     )
+    from spacr.qt.theme import apply_qpalette, palette_for, stylesheet
+
+    app = qt_theme_applied
+    # Start from a known dark/100 % application, so nothing below can be
+    # satisfied by state an earlier test happened to leave behind. Only
+    # the palette and the QSS are seeded — `apply_preferences_to_app` is
+    # called exactly once, because it also walks every live widget.
+    apply_qpalette(app, theme="dark")
+    app.setStyleSheet(stylesheet(theme="dark", font_scale=1.0))
+    seeded_sizes = _qss_font_sizes(app.styleSheet())
+
     set_theme("light"); set_font_scale(1.25)
-    # Should complete cleanly — no exception even mid-swap
     apply_preferences_to_app()
 
+    light, dark = palette_for("light"), palette_for("dark")
+    assert light["bg"] != dark["bg"]        # the swap is observable at all
+    assert app.palette().color(QPalette.Window).name() == light["bg"]
+    assert app.palette().color(QPalette.WindowText).name() == light["fg"]
+    assert app.palette().color(QPalette.Base).name() == light["surface"]
+    assert app.palette().color(QPalette.Highlight).name() == light["accent"]
 
-def test_preferences_dialog_builds_and_closes(qtbot, qt_theme_applied):
-    from spacr.qt.preferences import PreferencesDialog
+    applied = _qss_font_sizes(app.styleSheet())
+    unscaled = _qss_font_sizes(stylesheet(theme="light", font_scale=1.0,
+                                          surface_opacity=get_pane_opacity()))
+    assert applied and len(applied) == len(unscaled) == len(seeded_sizes)
+    assert applied != seeded_sizes          # the QSS was replaced at all
+    assert applied != unscaled              # ... and the scale reached it
+    assert all(big >= small for small, big in zip(unscaled, applied))
+    assert max(applied) > max(unscaled)
+    # ... and it is the light stylesheet, not the dark QSS at 125 %.
+    assert light["bg"] in app.styleSheet()
+
+    assert app.property("spacrLanguage") == get_language()
+
+
+def test_preferences_dialog_shows_the_saved_values_and_cancel_saves_nothing(
+        qtbot, qt_theme_applied):
+    """Cancel is the whole test: every control is moved off the stored
+    value first, so a ``reject()`` that wrote anything through would be
+    read back below."""
+    from PySide6.QtWidgets import QComboBox, QDialog, QDialogButtonBox, QSlider
+    from spacr.qt.preferences import (
+        PreferencesDialog, get_color_blind_mode, get_font_scale,
+        get_theme_choice, set_color_blind_mode, set_font_scale,
+        set_theme_choice, theme_choices,
+    )
+
+    set_theme_choice("light")
+    set_font_scale(1.5)
+    set_color_blind_mode("tritanopia")
+
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
-    # Cancel — no persistence
-    dlg.reject()
+
+    def _combo(*wanted):
+        """The one combo offering exactly these keys — none are named."""
+        found = [c for c in dlg.findChildren(QComboBox)
+                 if [c.itemData(i) for i in range(c.count())] == list(wanted)]
+        assert len(found) == 1, f"{len(found)} combos offer {wanted}"
+        return found[0]
+
+    theme_combo = _combo(*[token for _label, token in theme_choices()])
+    cb_combo = _combo("off", "deuteranopia", "protanopia", "tritanopia")
+    language_combo = dlg.findChild(QComboBox, "LanguagePreference")
+    assert language_combo is not None
+    scale_slider = next(s for s in dlg.findChildren(QSlider)
+                        if (s.minimum(), s.maximum()) == (75, 200))
+
+    # It opened on what is stored.
+    assert theme_combo.currentData() == "light"
+    assert cb_combo.currentData() == "tritanopia"
+    assert scale_slider.value() == 150
+
+    # Move every one of them somewhere else, then cancel.
+    theme_combo.setCurrentIndex(
+        [theme_combo.itemData(i) for i in range(theme_combo.count())]
+        .index("dark"))
+    cb_combo.setCurrentIndex(0)
+    scale_slider.setValue(100)
+    assert theme_combo.currentData() != get_theme_choice()
+    assert cb_combo.currentData() != get_color_blind_mode()
+    assert scale_slider.value() / 100.0 != get_font_scale()
+
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel).click()
+
+    assert dlg.result() == QDialog.Rejected
+    assert not dlg.isVisible()
+    assert get_theme_choice() == "light"
+    assert get_color_blind_mode() == "tritanopia"
+    assert get_font_scale() == 1.5
 
 
 # ---------------------------------------------------------------------------

@@ -43,6 +43,7 @@ from spacr.qt.app import (
     MAX_APPS_PER_SECTION,
     SECTION_CORE,
     SECTION_DATA,
+    SECTION_EXPLORE,
     SECTION_MODELS,
     SECTION_RESULTS,
     SECTION_TOXO,
@@ -199,6 +200,9 @@ EXPECTED_SECTIONS = {
     "cellpose_masks":  SECTION_MODELS,
     "model_compare":   SECTION_MODELS,
     "model_zoo":       SECTION_MODELS,
+    # Illumination correction is done TO the images on the way in, like
+    # stitching and conversion -- not a reading of what came out.
+    "illumination":    SECTION_DATA,
     "plate_view":      SECTION_RESULTS,
     "agreement":       SECTION_RESULTS,
     "umap":            SECTION_RESULTS,
@@ -207,6 +211,12 @@ EXPECTED_SECTIONS = {
     "classifier_evaluation": SECTION_RESULTS,
     "run_history":     SECTION_RESULTS,
     "report":          SECTION_RESULTS,
+    "barcode_qc":      SECTION_RESULTS,
+    # Explore's first two. The section was declared and empty until they
+    # registered -- "page through image layers" is the example in its own
+    # definition, and the Graph Builder family is what it was named for.
+    "layer_viewer":    SECTION_EXPLORE,
+    "graph_builder":   SECTION_EXPLORE,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
@@ -225,6 +235,8 @@ EXPECTED_STAGES = {
     "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
     "classifier_evaluation": "alpha",
     "run_history": "alpha", "report": "alpha",
+    "illumination": "alpha", "barcode_qc": "alpha",
+    "layer_viewer": "alpha", "graph_builder": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -243,9 +255,13 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Seventeen alpha, nine beta, eight stable. Signing an app off is
-    deleting a line from ``APP_STAGE`` and from here; nothing else
-    moves, which is the whole point of maturity not being a section."""
+    Twenty-one alpha, nine beta, eight stable -- Illumination, Barcode
+    QC, Layer Viewer and Graph Builder each arrive alpha, which is what
+    "built and reachable, not yet trusted end to end" means for a
+    feature whose first users are reading this sentence. Signing an app
+    off is deleting a line from ``APP_STAGE`` and from here; nothing
+    else moves, which is the whole point of maturity not being a
+    section."""
     actual = {key: app_stage(key) for key, *_r in APPS}
     expected = {key: EXPECTED_STAGES.get(key, "stable")
                 for key, *_r in APPS}
@@ -254,7 +270,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 17, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 21, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -1105,9 +1121,42 @@ def test_apply_demo_with_an_unreadable_csv_falls_through(win, tmp_path,
 
 
 def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
-        win, tmp_path):
+        win, tmp_path, monkeypatch):
+    """None of the three hooks -> nothing happens, and in particular the
+    demo's settings CSV is never even read.
+
+    The second half is the control: the identical call against a screen
+    that *does* take settings reads the CSV and receives it, so "the CSV
+    was never read" is a measurement that can come out either way."""
+    import spacr.utils as sutils
     layout = win._run_demo_generator("mask", str(tmp_path))
-    win._apply_demo_to_screen(object(), layout)     # must not raise
+    read: list = []
+    real_load = sutils.load_settings
+
+    def _spy(*a, **k):
+        read.append(a[0] if a else None)
+        return real_load(*a, **k)
+    monkeypatch.setattr(sutils, "load_settings", _spy)
+
+    class _Bare:
+        """No apply_settings_dict, no _open_source, no _open_folder."""
+
+    bare = _Bare()
+    win._apply_demo_to_screen(bare, layout)
+    assert read == [], (
+        f"the demo CSV was read for a screen that cannot take it: {read}")
+    assert vars(bare) == {}, "something was pushed onto the screen anyway"
+
+    # Control — same layout, same call, a screen that can take settings.
+    got: list = []
+
+    class _Settings:
+        def apply_settings_dict(self, settings):
+            got.append(settings)
+
+    win._apply_demo_to_screen(_Settings(), layout)
+    assert read == [str(layout.settings_csv)]
+    assert got and isinstance(got[0], dict) and got[0]
 
 
 # ===========================================================================
@@ -1497,8 +1546,34 @@ def test_a_zoo_request_with_missing_keys_leaves_the_screen_alone(win):
 
 
 def test_a_zoo_request_is_dropped_if_compare_cannot_be_configured(win):
-    win._screens["model_compare"] = QWidget()      # no .configure
-    win._on_zoo_compare_requested({"model_a": "cyto3"})   # must not raise
+    """A ``model_compare`` entry without ``configure`` swallows the request.
+
+    Measured on the real screen, which is held aside and checked before
+    and after: it must be untouched. The control at the end puts it back
+    and fires the identical request, so "untouched" is a measurement that
+    demonstrably comes out differently when the hand-off does land.
+    """
+    win._on_nav_selected("model_compare")
+    real = win._screens["model_compare"]
+    before = real._panel_a.model_edit.text()
+    probe = "zoo-drop-probe"
+    assert before != probe, "the control below could not tell the two apart"
+
+    placeholder = QWidget()                        # no .configure
+    assert not hasattr(placeholder, "configure")
+    win._screens["model_compare"] = placeholder
+    win._on_zoo_compare_requested({"model_a": probe})
+
+    # Navigation still happened — the user is looking at Model Compare,
+    # only the preload was dropped.
+    assert win._visit_order[-1] == "model_compare"
+    assert real._panel_a.model_edit.text() == before, (
+        "the request reached the real screen anyway")
+
+    # Control — same request, a screen that can take it.
+    win._screens["model_compare"] = real
+    win._on_zoo_compare_requested({"model_a": probe})
+    assert real._panel_a.model_edit.text() == probe
 
 
 def test_snapshot_returns_the_settings_of_the_visible_app_screen(win):
@@ -1726,12 +1801,45 @@ def test_bundled_open_sans_is_registered(qapp):
 
 
 def test_missing_font_directory_is_not_an_error(monkeypatch):
+    """No fonts directory -> nothing is registered, quietly.
+
+    ``QFontDatabase.families()`` cannot show this: a font already loaded
+    by another test stays loaded, so the family list is unchanged either
+    way. The registration call itself is what is counted — and the
+    control at the end (same call, directory present) proves the counter
+    is wired to something that really does fire.
+    """
+    import PySide6.QtGui as qtgui
+
+    added: list = []
+
+    class _SpyDatabase:
+        @staticmethod
+        def addApplicationFont(path):
+            added.append(path)
+            return len(added)
+    monkeypatch.setattr(qtgui, "QFontDatabase", _SpyDatabase)
+
+    hidden = {"on": True}
     real_isdir = os.path.isdir
     monkeypatch.setattr(
         os.path, "isdir",
-        lambda p: False if str(p).endswith(os.path.join("resources", "fonts"))
+        lambda p: False if (hidden["on"]
+                            and str(p).endswith(
+                                os.path.join("resources", "fonts")))
         else real_isdir(p))
-    _load_bundled_fonts()          # must not raise
+
+    assert _load_bundled_fonts() is None
+    assert added == [], f"fonts were registered from nowhere: {added}"
+
+    # Control — the same call with the directory visible does register the
+    # bundled TTFs, so the empty list above is a real observation.
+    hidden["on"] = False
+    _load_bundled_fonts()
+    assert added, "the bundled fonts directory registered nothing at all"
+    assert all(p.lower().endswith((".ttf", ".otf")) for p in added)
+    assert any("OpenSans" in os.path.basename(p).replace(" ", "")
+               for p in added), added
 
 
 # ===========================================================================

@@ -897,14 +897,37 @@ def test_settings_bar_color_picker_applies_and_cancels(qtbot, monkeypatch):
 
 
 def test_settings_bar_emits_its_signals(qtbot):
+    """Each setter emits — carrying the value it was given, not just a ping.
+
+    A bar that fired its signals with stale values would still satisfy a
+    bare ``waitSignal``, and the rain bound to it would then be driven by
+    whatever the bar used to hold. The emitted argument is checked, and
+    so is the bar's own state afterwards, readout labels included: those
+    are the numbers the user reads back off the popover.
+    """
     bar = DnaRainSettingsBar()
     qtbot.addWidget(bar)
-    with qtbot.waitSignal(bar.color_changed):
+    assert bar.color().name() != "#010203"
+    assert bar.speed() != pytest.approx(2.0)
+    assert bar.font_size() != 28
+
+    with qtbot.waitSignal(bar.color_changed,
+                          check_params_cb=lambda c: c.name() == "#010203"):
         bar.set_color("#010203")
-    with qtbot.waitSignal(bar.speed_changed):
+    assert bar.color().name() == "#010203"
+    assert "#010203" in bar._swatch.styleSheet()
+
+    with qtbot.waitSignal(bar.speed_changed,
+                          check_params_cb=lambda v: v == pytest.approx(2.0)):
         bar.set_speed(2.0)
-    with qtbot.waitSignal(bar.font_size_changed):
+    assert bar.speed() == pytest.approx(2.0)
+    assert bar._speed_value.text() == "2.0x"
+
+    with qtbot.waitSignal(bar.font_size_changed,
+                          check_params_cb=lambda px: px == 28):
         bar.set_font_size(28)
+    assert bar.font_size() == 28
+    assert bar._font_value.text() == "28 px"
 
 
 def test_settings_bar_defaults_to_the_shipped_teal_whatever_the_theme(qtbot):
@@ -1313,7 +1336,20 @@ def test_a_theme_switch_re_backdrops_the_rain(qtbot, qt_theme_applied,
 
 
 def test_unrelated_change_events_are_ignored(qtbot, qt_theme_applied,
-                                             monkeypatch):
+                                             monkeypatch, tmp_path):
+    """Enabled/font changes must not re-theme the backdrop.
+
+    Raising from the stub proves nothing — ``_retheme_backdrops`` wraps
+    the whole resolve in ``except Exception``, so an AssertionError from
+    in there is swallowed and the test passes either way. What is
+    measured instead is the drawn state: a fill nothing in any theme
+    would pick is pushed at the rain, and it has to still be there.
+    Re-theming costs the rain its pre-rendered strip cache and a full
+    repaint, which is why it may not happen on every stylesheet touch.
+
+    The last three lines are the control: an event that *does* mean a
+    theme change moves the very same numbers.
+    """
     from PySide6.QtCore import QEvent
     from spacr.qt.screens import app_screen
     from spacr.qt.screens.app_screen import AppScreen
@@ -1321,12 +1357,32 @@ def test_unrelated_change_events_are_ignored(qtbot, qt_theme_applied,
     monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
     screen = AppScreen("map_barcodes")
     qtbot.addWidget(screen)
+    rain = screen._dna_rain
+    assert rain is not None
 
-    def explode():
-        raise AssertionError("re-themed on the wrong event")
-    monkeypatch.setattr(app_screen, "_theme_wallpaper", explode)
+    rain.set_background_color("#123456")
+    applied_before = screen._backdrop_applied
+
+    asked: list = []
+    monkeypatch.setattr(app_screen, "_theme_wallpaper",
+                        lambda: asked.append("resolved"))
     screen.changeEvent(QEvent(QEvent.EnabledChange))
     screen.changeEvent(QEvent(QEvent.FontChange))
+    assert asked == [], "the theme was re-resolved on an unrelated event"
+    assert rain.background_color().name() == "#123456", (
+        "the backdrop was repainted by an unrelated change event")
+    assert rain.backdrop() is None
+    assert screen._backdrop_applied == applied_before
+
+    # Control — the same three measurements, on an event that does mean
+    # "the theme moved".
+    path = tmp_path / "wall.png"
+    _backdrop(320, 240).save(str(path))
+    monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: str(path))
+    screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
+    assert rain.background_color().name() != "#123456"
+    assert rain.backdrop() is not None
+    assert screen._backdrop_applied != applied_before
 
 
 def test_a_screen_with_no_rain_shrugs_off_a_theme_switch(qtbot,
@@ -1342,18 +1398,52 @@ def test_a_screen_with_no_rain_shrugs_off_a_theme_switch(qtbot,
 def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
                                                          qt_theme_applied,
                                                          monkeypatch):
+    """A theme that cannot be resolved leaves the backdrop as it was.
+
+    Two things have to hold, and neither is "did not raise". The rain
+    must be left with a whole, valid appearance rather than a fill from
+    the new theme and a wallpaper from the old one — so the drawn state
+    is read back. And the failure must not poison
+    ``_backdrop_applied``: recording the tuple before resolving it would
+    make the *next*, working switch a no-op, which is what the control
+    at the end drives.
+    """
     from PySide6.QtCore import QEvent
     from spacr.qt.screens import app_screen
     from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.theme import palette_for
 
     monkeypatch.setattr(app_screen, "_theme_wallpaper", lambda: None)
     screen = AppScreen("map_barcodes")
     qtbot.addWidget(screen)
+    rain = screen._dna_rain
+    assert rain is not None
+
+    rain.set_color("#ff00ff")
+    rain.set_background_color("#123456")
+    rain.set_backdrop(_backdrop(64, 48))
 
     def boom():
         raise RuntimeError("preferences are gone")
     monkeypatch.setattr("spacr.qt.preferences.resolve_effective_theme", boom)
     screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
+
+    assert rain.background_color().isValid()
+    assert rain.background_color().name() == "#123456", (
+        "a half-applied theme: the fill moved without a theme to move to")
+    assert rain.backdrop() is not None, "the wallpaper was cleared"
+    assert rain.color().name() == "#ff00ff"
+    assert screen._backdrop_applied is None, (
+        "the failed lookup was cached and will skip the next real switch")
+
+    # Control — with the lookup working again, the same event does move
+    # the same numbers. This is what the poisoned cache would have eaten.
+    monkeypatch.setattr("spacr.qt.preferences.resolve_effective_theme",
+                        lambda: "light")
+    screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
+    assert rain.background_color().name() == \
+        QColor(palette_for("light")["bg"]).name()
+    assert screen._backdrop_applied == (palette_for("light")["bg"], None)
 
 
 # ---------------------------------------------------------------------------

@@ -22,6 +22,7 @@ the user's home directory is redirected through ``SPACR_SPACE_CACHE``.
 """
 from __future__ import annotations
 
+import math
 import resource
 
 import numpy as np
@@ -80,10 +81,42 @@ class TestPalettes:
                     f"{name}.{role} = {value!r} is not #rrggbb"
 
     def test_no_role_lookup_raises_for_any_theme(self):
+        """Every role a contrast rule names resolves, in every theme.
+
+        "It did not raise" is not the claim. A ``palette_for`` that
+        started handing back one default colour for anything it did not
+        know would never raise either — and every rule would then
+        measure the identity ratio, exactly 1.0, because both ends of
+        each pair would be that same colour. So the floor is asserted
+        against a deliberate identity measurement, and ``fg`` on ``bg``
+        (18.5:1 to 21:1 across the shipped themes) has to sit far above
+        it.
+        """
+        roles = {role for rule in theme.CONTRAST_RULES for role in rule[:2]}
+        assert len(theme.CONTRAST_RULES) >= 10 and len(roles) >= 10
         for name in list(theme.THEMES) + ["system", "", "no-such-theme"]:
             palette = theme.palette_for(name)
-            for fg, surface, _ in theme.CONTRAST_RULES:
-                theme.contrast_ratio(palette[fg], palette[surface])
+            assert roles.issubset(palette), \
+                f"{name} cannot resolve {sorted(roles - set(palette))}"
+            measured = []
+            for fg, surface, required in theme.CONTRAST_RULES:
+                ratio = theme.contrast_ratio(palette[fg], palette[surface])
+                assert isinstance(ratio, float) and math.isfinite(ratio), \
+                    f"{name}: {fg} on {surface} measured {ratio!r}"
+                assert 1.0 <= ratio <= 21.0, \
+                    f"{name}: {fg} on {surface} measured {ratio}"
+                measured.append((fg, surface, required, ratio))
+            # The identity floor, and the distance the real roles keep
+            # from it.
+            assert theme.contrast_ratio(palette["fg"], palette["fg"]) == \
+                pytest.approx(1.0)
+            assert theme.contrast_ratio(palette["fg"], palette["bg"]) >= 4.5, \
+                f"{name}: body text does not clear AA on its own background"
+            assert len({round(ratio, 2) for *_r, ratio in measured}) > 1, \
+                f"{name}: every rule measured the same ratio"
+            assert any(ratio >= required
+                       for *_r, required, ratio in measured), \
+                f"{name}: not one contrast rule is met"
 
     def test_cell_clears_aa_against_the_worst_case_it_can_actually_meet(self):
         """Renamed, and it now means something different.

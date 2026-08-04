@@ -127,8 +127,49 @@ def test_save_figure(tmp_path):
 
 
 def test_save_settings_to_db(tmp_path):
-    settings = {"src": str(tmp_path), "diameter": 30, "plot": False}
-    try:
-        IO._save_settings_to_db(settings)
-    except Exception as e:
-        pytest.skip(f"_save_settings_to_db needs a specific layout: {e}")
+    """The settings really land in ``<plate>/measurements/measurements.db``.
+
+    The old shape -- call it, swallow anything, skip -- passed on a machine
+    where the function wrote no database at all. It writes two tables and the
+    difference between them is the whole point of the function, so both are
+    checked: ``settings`` is replaced by the latest run, ``settings_history``
+    accumulates one tagged row set per run.
+    """
+    import sqlite3
+
+    src = tmp_path / "plate1" / "images"
+    src.mkdir(parents=True)
+    db = tmp_path / "plate1" / "measurements" / "measurements.db"
+
+    IO._save_settings_to_db({"src": str(src), "diameter": 30, "plot": False},
+                            stage="measure_crop")
+    assert db.exists(), "no measurements.db was written"
+
+    with sqlite3.connect(db) as conn:
+        latest = dict(conn.execute(
+            f'SELECT setting_key, setting_value FROM "{IO.SETTINGS_TABLE}"'
+        ).fetchall())
+        history = conn.execute(
+            f'SELECT run_id, stage, setting_key, setting_value '
+            f'FROM "{IO.SETTINGS_HISTORY_TABLE}"').fetchall()
+
+    # Values are stringified on the way in -- that is why resume compares text.
+    assert latest["diameter"] == "30"
+    assert latest["plot"] == "False"
+    assert latest["src"] == str(src)
+    assert {stage for _rid, stage, _k, _v in history} == {"measure_crop"}
+    assert len({rid for rid, *_ in history}) == 1
+
+    # A second stage replaces `settings` and APPENDS to the history: the
+    # repair this function exists for. Without both assertions an implementation
+    # that only ever wrote `settings` would pass.
+    IO._save_settings_to_db({"src": str(src), "diameter": 99},
+                            stage="preprocess")
+    with sqlite3.connect(db) as conn:
+        latest = dict(conn.execute(
+            f'SELECT setting_key, setting_value FROM "{IO.SETTINGS_TABLE}"'
+        ).fetchall())
+        stages = [row[0] for row in conn.execute(
+            f'SELECT DISTINCT stage FROM "{IO.SETTINGS_HISTORY_TABLE}"')]
+    assert latest["diameter"] == "99" and "plot" not in latest
+    assert set(stages) == {"measure_crop", "preprocess"}

@@ -193,13 +193,23 @@ def test_sequencing_extract_sequence_and_quality_empty_slice():
 
 @pytest.mark.parametrize("elements", [3, 4, 5])
 def test_utils_check_index_various_element_counts(elements):
-    """check_index accepts DataFrames whose index has exactly `elements`
-    parts."""
+    """check_index accepts exactly `elements` parts and refuses every other
+    count.
+
+    Accepting the right count proves nothing on its own -- a guard that never
+    raises accepts it too. The discriminator is that both neighbouring counts
+    are refused, so the function is genuinely comparing.
+    """
     from spacr.utils import check_index
     idx = ["_".join([f"x{i}" for i in range(elements)])] * 3
     df = pd.DataFrame({"val": [1, 2, 3]}, index=idx)
-    # No exception expected.
-    check_index(df, elements=elements, split_char="_")
+    assert check_index(df, elements=elements, split_char="_") is None
+
+    for wrong in (elements - 1, elements + 1):
+        with pytest.raises(ValueError) as excinfo:
+            check_index(df, elements=wrong, split_char="_")
+        assert f"{wrong} parts" in str(excinfo.value)
+        assert "3 problematic indices" in str(excinfo.value)
 
 
 # ===========================================================================

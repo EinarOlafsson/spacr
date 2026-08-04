@@ -1013,9 +1013,24 @@ def test_the_relabelled_stack_table_refuses_a_volume():
 
 
 def test_the_guard_accepts_a_list_of_2d_frames():
+    """The list path is checked per frame, not only the ndarray path.
+
+    A guard that only looked at ``np.asarray(masks).ndim`` would accept a list
+    whose frames are volumes -- exactly the input ``_track_by_iou`` links into
+    fiction -- so the discriminator here is that a list of 3-D frames is still
+    refused while the list of 2-D frames is waved through.
+    """
     frames = [np.zeros((8, 8), dtype=np.int32) for _ in range(3)]
-    TL._require_2d_frames(frames, "test")          # does not raise
-    TL._require_2d_frames(np.zeros((0, 8, 8)), "test")
+    assert TL._require_2d_frames(frames, "test") is None
+    # An empty stack has no frame to object to; the guard says nothing.
+    assert TL._require_2d_frames(np.zeros((0, 8, 8)), "test") is None
+
+    volumes = [np.zeros((4, 8, 8), dtype=np.int32) for _ in range(3)]
+    with pytest.raises(ValueError, match="2-D frames"):
+        TL._require_2d_frames(volumes, "test")
+    # ...and one bad frame among good ones is enough.
+    with pytest.raises(ValueError, match="2-D frames"):
+        TL._require_2d_frames(frames[:2] + volumes[:1], "test")
 
 
 # ===========================================================================

@@ -72,7 +72,7 @@ def _write_png(path: Path, value: int) -> None:
 
 
 @pytest.fixture
-def test_split_dir(tmp_path):
+def split_dir(tmp_path):
     """A dataset root with a populated ``test/`` split (2 classes, 1 image each)."""
     src = tmp_path / "dataset"
     nc = src / "test" / "nc" / "a.png"
@@ -233,12 +233,12 @@ def _install_test_loader(monkeypatch, batch, record):
 
 
 def test_test_only_run_loads_best_checkpoint_and_writes_results(
-        test_split_dir, monkeypatch, capsys):
+        split_dir, monkeypatch, capsys):
     """train=False/test=True: pick_best_model + torch.load + metrics + CSVs +
     misclassified copy + the ``return result_loc`` tail (637-672, 680-681)."""
     from spacr.deep_spacr import train_test_model
 
-    src, nc_png, pos_png = test_split_dir
+    src, nc_png, pos_png = split_dir
     model_dir = src / "model"
     model_dir.mkdir(parents=True)
     # two checkpoints; the higher-accuracy one must win
@@ -291,7 +291,7 @@ def test_test_only_run_loads_best_checkpoint_and_writes_results(
 
 
 def test_train_and_test_run_reuses_trained_model_and_returns_model_path(
-        test_split_dir, monkeypatch, capsys):
+        split_dir, monkeypatch, capsys):
     """train=True and test=True: the combined settings snapshot is written
     (line 583), the in-memory model is reused instead of a checkpoint, and the
     model path (not the CSV path) is returned."""
@@ -299,7 +299,7 @@ def test_train_and_test_run_reuses_trained_model_and_returns_model_path(
     import spacr.utils as sutils
     from spacr.deep_spacr import train_test_model
 
-    src, nc_png, pos_png = test_split_dir
+    src, nc_png, pos_png = split_dir
     record = {}
     _install_test_loader(monkeypatch, _batch(nc_png, pos_png), record)
 
@@ -327,14 +327,14 @@ def test_train_and_test_run_reuses_trained_model_and_returns_model_path(
     assert (dst / f'tinynet_time_{today}_test_acc.csv').is_file()
 
 
-def test_test_only_run_snapshots_its_settings(test_split_dir, monkeypatch):
+def test_test_only_run_snapshots_its_settings(split_dir, monkeypatch):
     """A test-only run should still write ``test_<model>_<epochs>.csv`` so the
     evaluation is reproducible — that is what the third arm of the save_settings
     ladder was written to do, and it was unreachable while the ladder sat inside
     ``if settings['train']:``."""
     from spacr.deep_spacr import train_test_model
 
-    src, nc_png, pos_png = test_split_dir
+    src, nc_png, pos_png = split_dir
     model_dir = src / "model"
     model_dir.mkdir(parents=True)
     torch.save(ConstantClassifier(), model_dir / "ck_epoch_1_acc_0.80.pth")
