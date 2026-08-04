@@ -2008,20 +2008,30 @@ class LabelsLayer(Layer):
         return self._field.object_keys(ids)
 
     # -- editing (the seam the brush item builds on) ---------------------
-    def paint(self, world: Mapping[str, float], label: int, *,
-              radius: float = 0.0) -> int:
-        """Set every element within ``radius`` world units of a point.
+    def brush_index(self, world: Mapping[str, float], *,
+                    radius: float = 0.0) -> Tuple[np.ndarray, ...]:
+        """The elements a world-space ball brush covers, as index arrays.
 
         The brush is a ball in WORLD space, so on an anisotropic stack it
         covers fewer z-slices than y-rows — which is what the user means by a
         5 µm brush. A brush measured in array elements would be a 5-slice
         cylinder, i.e. 10 µm deep and 3.25 µm wide on an ordinary spaCR stack.
 
-        :returns: how many elements changed.
+        Split out of :meth:`paint` so a caller that has to *record* what it
+        changed — :class:`spacr.curation.MaskCuration`, which keeps an undo
+        history and an audit trail — asks the layer for the geometry instead
+        of re-deriving the anisotropy rule and getting it subtly different.
+        There is one ball, and it is defined here.
+
+        :returns: one integer array per axis, ready to index :attr:`data`
+            with. Empty arrays when the brush falls entirely off the grid,
+            which indexes to nothing rather than raising.
         """
         sp = self._spacing
         centre = sp.data_from_map(world)
         radius = float(radius)
+        empty = tuple(np.zeros(0, dtype=np.intp)
+                      for _ in range(self._data.ndim))
         slices = []
         offsets = []
         for axis_at, size in enumerate(self._data.shape):
@@ -2029,7 +2039,7 @@ class LabelsLayer(Layer):
             lo = max(0, int(math.floor(centre[axis_at] - reach)))
             hi = min(int(size), int(math.ceil(centre[axis_at] + reach)) + 1)
             if lo >= hi:
-                return 0
+                return empty
             slices.append(slice(lo, hi))
             offsets.append((np.arange(lo, hi, dtype=np.float64)
                             - centre[axis_at]) * abs(sp.scale[axis_at]))
@@ -2039,12 +2049,39 @@ class LabelsLayer(Layer):
                                   for i in range(len(offsets))])
             dist2 = dist2 + shaped ** 2
         inside = dist2 <= max(radius, _EPS) ** 2
-        region = self._data[tuple(slices)]
-        changed = int(np.count_nonzero(inside & (region != int(label))))
+        local = np.nonzero(inside)
+        return tuple(np.asarray(part, dtype=np.intp) + s.start
+                     for part, s in zip(local, slices))
+
+    def set_labels_at(self, index: Sequence[np.ndarray], label: int) -> int:
+        """Set the elements ``index`` names to ``label``; how many changed.
+
+        The write half of :meth:`brush_index`, and the ONE place a labels
+        layer's data is edited element-wise — so exactly one call notifies.
+        A caller doing its own arithmetic on :attr:`data` would mutate the
+        array without telling the canvas, and the picture would come right
+        only at the next unrelated repaint.
+        """
+        index = tuple(index)
+        if not index or not len(index[0]):
+            return 0
+        previous = self._data[index]
+        changed = int(np.count_nonzero(previous != int(label)))
         if changed:
-            region[inside] = int(label)
+            self._data[index] = int(label)
             self._notify("paint", kind="data")
         return changed
+
+    def paint(self, world: Mapping[str, float], label: int, *,
+              radius: float = 0.0) -> int:
+        """Set every element within ``radius`` world units of a point.
+
+        :meth:`brush_index` owns the ball; this is that plus the write.
+
+        :returns: how many elements changed.
+        """
+        return self.set_labels_at(
+            self.brush_index(world, radius=radius), label)
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:

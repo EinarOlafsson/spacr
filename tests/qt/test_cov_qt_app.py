@@ -188,6 +188,9 @@ EXPECTED_SECTIONS = {
     "ml_analyze":      SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
     "regression":      SECTION_CORE,
+    # Correcting a mask and its tracks by hand is part of getting the data,
+    # not a reading of what came out — so Core, beside Mask and Timelapse.
+    "curate":          SECTION_CORE,
     "align":           SECTION_DATA,
     "convert":         SECTION_DATA,
     "foreign":         SECTION_DATA,
@@ -259,7 +262,7 @@ EXPECTED_STAGES = {
     "layer_viewer": "alpha", "graph_builder": "alpha",
     "data_manager": "alpha",
     "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
-    "image_scatter": "alpha", "lineage": "alpha",
+    "image_scatter": "alpha", "lineage": "alpha", "curate": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -294,7 +297,7 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 27, "beta": 9, "stable": 8}
+    assert counts == {"alpha": 28, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
