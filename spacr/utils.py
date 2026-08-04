@@ -2472,6 +2472,12 @@ def _field_key_predicate(frame, key_columns, alias):
     keys = list(dict.fromkeys(
         tuple(row) for row in frame[list(key_columns)].astype(str).itertuples(
             index=False, name=None)))
+    if not keys:
+        # An empty frame identifies no field, so it must match no row. The
+        # alternative -- ``()``, an empty OR -- is not valid SQL, and a
+        # predicate that fails to parse in a delete is a worse answer than one
+        # that selects nothing.
+        return '0', []
     group = '(' + ' AND '.join(
         f'{alias}."{c}" = ?' for c in key_columns) + ')'
     predicate = '(' + ' OR '.join([group] * len(keys)) + ')'
