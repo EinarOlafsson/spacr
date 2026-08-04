@@ -3234,7 +3234,12 @@ class _ListEditor(QWidget):
                  nested_capable: bool = False, allow_none: bool = False,
                  element_type: Any = None, container: Any = list, parent=None):
         super().__init__(parent)
-        from ..theme import active_palette
+        # font_px is used further down this method. Importing only
+        # active_palette here raised NameError out of build_sections(), and
+        # AppScreen turns that into "Failed to build settings for '<app>'" --
+        # so sixteen shipped modules, mask and measure and classify among
+        # them, opened with no settings form at all.
+        from ..theme import active_palette, font_px
         self._colours = active_palette()
         self._key = key
         self._nested_capable = bool(nested_capable)
