@@ -45,6 +45,15 @@ import spacr.object as O
 import spacr.settings as S
 import spacr.zstack as Z
 
+from tests.cellpose_api_contract import (
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # The 4D (Beta) block as ``spacr.settings`` declares it. Kept as a literal so
 # that renaming a key in settings.py without renaming it in zstack.py's
@@ -85,11 +94,28 @@ def fake_model(monkeypatch):
     holder = {"model": None}
 
     class _M:
-        def __init__(self, gpu=None, pretrained_model=None, device=None, **kw):
+        """``CellposeModel`` double declaring the installed 4.0.7 signatures.
+
+        No ``**kwargs``: ``generate_cellpose_masks_sam`` is a real call site and
+        the 2-D/3-D/4-D dispatch under test builds its eval kwargs by hand, so
+        a stray or renamed argument has to raise ``TypeError`` here.
+
+        ``eval_kwargs`` holds every bound parameter; ``eval_configured`` holds
+        only those spaCR set away from cellpose's default, which is what "the
+        4D settings must not leak into the 2-D call" actually means.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                     diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
             self.gpu = gpu
             self.pretrained_model = pretrained_model
             self.device = device
+            self.init_kwargs = init_arguments(locals())
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
             self.eval_kwargs = []
+            self.eval_configured = []
             self.eval_shapes = []
             holder["model"] = self
 
@@ -100,18 +126,35 @@ def fake_model(monkeypatch):
             out[12:18, 12:18] = 2
             return out
 
-        def eval(self, x=None, **kwargs):
-            self.eval_kwargs.append(kwargs)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # Every one of these call sites names channel_axis, and the 3-D one
+            # also names z_axis/do_3D -- all of which convert_image reads, so
+            # the whole axis combination goes through the real validator.
+            check_cellpose_eval_call(x, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D,
+                                     stitch_threshold=stitch_threshold)
+            bound = locals()
+            self.eval_kwargs.append(eval_arguments(bound))
+            self.eval_configured.append(configured_eval_arguments(bound))
             if isinstance(x, list):
                 self.eval_shapes.append([np.asarray(i).shape for i in x])
                 masks = [self._label(np.asarray(i)) for i in x]
                 flows = [np.zeros(m.shape, np.float32) for m in masks]
-                return masks, flows, None, None
+                # THREE values -- cellpose 4's (masks, flows, styles). This
+                # returned four, which is the cellpose 3 shape.
+                return masks, flows, None
             volume = np.asarray(x)
             self.eval_shapes.append(volume.shape)
             labels = np.stack([self._label(volume[z])
                                for z in range(volume.shape[0])])
-            return labels, [np.zeros(labels.shape, np.float32)], None, None
+            return labels, [np.zeros(labels.shape, np.float32)], None
 
     monkeypatch.setattr(O, "cp_models", types.SimpleNamespace(CellposeModel=_M))
     return holder
@@ -234,7 +277,9 @@ def test_2d_is_untouched_when_the_4d_settings_are_absent_or_present_but_off(
         "Cellpose was called differently; the 4D settings must not leak into "
         "the 2-D eval call"
     )
-    for kwargs in kwargs_a:
+    # "Not passed" now means "left at cellpose's own default", because the
+    # double declares the whole signature rather than collecting **kwargs.
+    for kwargs in fake_model["model"].eval_configured:
         assert "do_3D" not in kwargs
         assert "anisotropy" not in kwargs
         assert "z_axis" not in kwargs
@@ -658,19 +703,36 @@ def test_object_handles_a_flat_spec_end_to_end():
         O._require_t_axis(np.zeros((32, 32, 2)), flat, "b.npz")
 
     class _Model:
+        """Installed cellpose 4.0.7 ``eval`` signature, three-value return."""
+
         def __init__(self):
             self.shapes = []
 
-        def eval(self, x=None, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D,
+                                     stitch_threshold=stitch_threshold)
             images = x if isinstance(x, list) else [x]
             self.shapes.extend(np.asarray(i).shape for i in images)
             masks = [np.zeros(np.asarray(i).shape[:2], np.uint16)
                      for i in images]
-            return masks, [np.zeros(m.shape, np.float32) for m in masks], None, None
+            return masks, [np.zeros(m.shape, np.float32) for m in masks], None
 
     model = _Model()
+    # The eval kwargs generate_cellpose_masks_sam actually builds for this
+    # path (object.py's z_eval_kwargs), not an empty dict: channel_axis=-1 is
+    # part of how spaCR drives Cellpose here, and the double now holds it to
+    # the same convert_image contract the real eval applies.
     masks, result, intensity = O._segment_timepoints_with_t(
-        np.zeros((3, 16, 16, 2), np.float32), model, flat, {})
+        np.zeros((3, 16, 16, 2), np.float32), model, flat,
+        {"batch_size": 1, "normalize": False, "channel_axis": -1})
 
     assert len(masks) == 3 and all(m.shape == (16, 16) for m in masks)
     assert model.shapes == [(16, 16, 2)] * 3, "one plain 2-D call per frame"

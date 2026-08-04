@@ -26,6 +26,16 @@ matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt  # noqa: E402
 
+from tests.cellpose_api_contract import (  # noqa: E402
+    DEPRECATED_EVAL_ARGUMENTS,
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call  # noqa: E402
+
 
 # ---------------------------------------------------------------------------
 # housekeeping
@@ -92,16 +102,45 @@ def _install_fake_model(monkeypatch, mask_fn=None):
 
     if mask_fn is None:
         mask_fn = _label_mask
-    record = {"instances": [], "eval_calls": []}
+    record = {"instances": [], "init_args": [], "eval_calls": [],
+              "eval_configured": []}
 
     class _FakeCellposeModel:
-        def __init__(self, gpu=False, pretrained_model=None):
+        """``CellposeModel`` double declaring the installed 4.0.7 signatures.
+
+        No ``**kwargs`` anywhere: ``submodules.apply_cellpose_model`` is a real
+        call site, so an argument cellpose 4 removed raises ``TypeError`` here
+        rather than being swallowed. ``eval`` returns the three values 4.0.7
+        returns, which is also the arity the caller unpacks.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam",
+                     model_type=None, diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
+            record["init_args"].append(init_arguments(locals()))
             record["instances"].append(
                 {"gpu": gpu, "pretrained_model": pretrained_model}
             )
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
 
-        def eval(self, x, **kwargs):
-            record["eval_calls"].append({"x": list(x), **kwargs})
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # This loop deliberately leaves the axis to cellpose: it hands over
+            # plain 2-D planes. Whatever arrives must still be one
+            # convert_image accepts.
+            check_cellpose_eval_call(x, channel_axis,
+                                     require_channel_axis=False)
+            bound = locals()
+            record["eval_configured"].append(configured_eval_arguments(bound))
+            record["eval_calls"].append({"x": list(x),
+                                         **eval_arguments(bound)})
             n = len(x)
             return (
                 [mask_fn() for _ in range(n)],
@@ -176,6 +215,9 @@ def test_apply_cellpose_model_writes_measurements_and_summary(tmp_path, monkeypa
     # -- 3 images / batch_size 2 -> two eval calls of 2 and 1 images -------
     assert [len(c["x"]) for c in record["eval_calls"]] == [2, 1]
     first = record["eval_calls"][0]
+    # What spaCR passes today. See
+    # test_apply_cellpose_model_does_not_pass_a_dead_channels_pair below for
+    # what cellpose 4 does with it.
     assert first["channels"] == [0, 0]
     assert first["normalize"] is False
     assert first["diameter"] == 30
@@ -213,6 +255,40 @@ def test_apply_cellpose_model_writes_measurements_and_summary(tmp_path, monkeypa
     assert list(results_dir.glob("*.png")) == []
     # settings snapshot written by save_settings
     assert (src / "settings" / "apply_cellpose_model.csv").is_file()
+
+
+@pytest.mark.xfail(strict=True, reason=(
+    "spacr/submodules.py:621 passes channels=[0, 0] to CellposeModel.eval. "
+    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
+    "more than 3 channels, only the first 3 channels will be used' and never "
+    "reads the value, so the pair configures nothing -- it is a Cellpose 3 "
+    "leftover the migration missed, and spacr.model_compare.IGNORED_ARGUMENTS "
+    "already lists 'channels' as exactly this no-op. Fix: delete the "
+    "channels=[0, 0] argument and select channels before handing the image "
+    "over, as spacr/object.py:1913 already does."))
+def test_apply_cellpose_model_does_not_pass_a_dead_channels_pair(
+    tmp_path, monkeypatch, _no_blocking_show
+):
+    """No argument the installed cellpose silently discards may be passed.
+
+    Passing one is not cosmetic: it reads as configuration in the settings UI
+    and in the saved settings CSV, so a user tuning ``channels`` believes they
+    are steering segmentation while nothing downstream changes.
+    """
+    from spacr.submodules import apply_cellpose_model
+
+    src = tmp_path / "apply"
+    src.mkdir()
+    _write_images(src, n=1)
+    record = _install_fake_model(monkeypatch)
+    apply_cellpose_model(_apply_settings(src))
+
+    dead = sorted(set(record["eval_configured"][0]) & set(DEPRECATED_EVAL_ARGUMENTS))
+    assert not dead, (
+        "cellpose 4 accepts and then discards: "
+        + ", ".join(f"{name}={record['eval_configured'][0][name]!r}"
+                    for name in dead)
+    )
 
 
 def test_apply_cellpose_model_circularize_drops_outside_objects_and_plots(
