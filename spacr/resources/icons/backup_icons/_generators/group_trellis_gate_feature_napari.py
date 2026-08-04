@@ -525,12 +525,13 @@ def gate_editor_08(c):
 
 def gate_editor_09(c):
     """The strategy as a chain: each canvas shows only what the last gate kept."""
-    for k, (x, keep) in enumerate(((0.02, 3), (0.365, 2), (0.71, 1))):
-        c.rect(x, 0.26, 0.27, 0.48, w=W_SEC)
-        pts = [(x + 0.085, 0.42), (x + 0.175, 0.52), (x + 0.085, 0.62)]
-        dots(c, pts[:keep], r=0.038)
-        rings(c, pts[keep:], r=0.034)
-        blob(c, x + 0.125, 0.50, 0.098 - 0.012 * k, rot=25 * k, w=W_MAIN * 1.5)
+    for k, (x, n_in, out) in enumerate(((0.02, 2, 2), (0.365, 2, 1),
+                                        (0.71, 1, 0))):
+        c.rect(x, 0.22, 0.27, 0.56, w=W_SEC)
+        blob(c, x + 0.135, 0.46, 0.105, rot=25 * k, w=W_MAIN * 1.6)
+        inner = [(x + 0.105, 0.43), (x + 0.170, 0.51)]
+        dots(c, inner[:n_in], r=0.030)
+        rings(c, [(x + 0.070, 0.69), (x + 0.215, 0.68)][:out], r=0.032)
         if k < 2:
             c.arrow(x + 0.285, 0.50, x + 0.348, 0.50, W_MAIN, head=0.062)
 
@@ -602,8 +603,8 @@ def feature_explorer_05(c):
     c.line(0.92, y - 0.055, 0.92, y + 0.055, W_MAIN)
     hump(c, 0.16, 0.34, 0.26, 0.21)
     hump(c, 0.16, 0.34, 0.26, 0.21, filled=False, wd=W_MAIN)
-    hump(c, 0.74, 0.34, 0.22, 0.21)
-    hump(c, 0.90, 0.34, 0.22, 0.21, filled=False, wd=W_MAIN)
+    hump(c, 0.70, 0.34, 0.22, 0.21)
+    hump(c, 0.86, 0.34, 0.22, 0.21, filled=False, wd=W_MAIN)
     for fx, r in ((0.26, 0.036), (0.40, 0.036), (0.58, 0.036), (0.80, 0.060)):
         c.disc(fx, y + 0.16, r)
         c.line(fx, y, fx, y + 0.16 - r, W_SEC)
@@ -643,7 +644,7 @@ def feature_explorer_08(c):
     c.rect(0.54, 0.20, 0.42, 0.70, w=W_MAIN * 1.7)
     hump(c, 0.66, 0.78, 0.20, 0.26)
     hump(c, 0.85, 0.78, 0.20, 0.26, filled=False, wd=W_MAIN)
-    c.arrow(0.75, 0.16, 0.75, 0.03, W_MAIN * 1.4, head=0.080)
+    c.arrow(0.75, 0.17, 0.75, 0.06, W_MAIN * 1.4, head=0.080)
 
 
 def feature_explorer_09(c):
