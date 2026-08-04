@@ -100,12 +100,13 @@ def test_module_graph_neighbours_agree_with_ports():
     from spacr import ports
 
     graph = module_graph()
+    known = set(graph.modules)
     for module in graph.modules:
-        declared = tuple(m for m in ports.next_modules(module)
-                         if m in set(graph.modules))
-        assert graph.next_of(module) == declared
-        for consumer in declared:
-            assert module in graph.previous_of(consumer)
+        assert graph.next_of(module) == tuple(
+            m for m in ports.next_modules(module) if m in known)
+        assert graph.previous_of(module) == tuple(
+            m for m in ports.upstream_modules(module) if m in known), (
+            "the drawn edges must be exactly the ones ports declares")
 
 
 def test_layering_survives_a_cycle_instead_of_hanging():
@@ -195,6 +196,25 @@ def test_downstream_answers_what_a_re_run_invalidates(project):
 
     assert graph.downstream(project["preds"].artifact_id) == ()
     assert graph.upstream(project["masks"].artifact_id) == ()
+
+
+def test_the_graph_walk_agrees_with_the_registrys_own(project):
+    """The in-memory walk is a shortcut, not a second opinion.
+
+    ``Registry.downstream_of`` / ``upstream_of`` re-open the database per
+    call; the graph answers the same questions off the edges it already has.
+    They have to give the same answer or the picture and the registry
+    disagree about what a re-run invalidates.
+    """
+    registry = project["registry"]
+    graph = build_graph(project["root"])
+
+    for artifact in (project["masks"], project["db"], project["preds"]):
+        assert ({n.artifact_id for n in graph.downstream(artifact.artifact_id)}
+                == {a.artifact_id for a in registry.downstream_of(artifact)})
+        assert ({n.artifact_id for n in graph.upstream(artifact.artifact_id)}
+                == {a.artifact_id
+                    for a in registry.upstream_of(artifact, transitive=True)})
 
 
 def test_a_deleted_file_is_missing_and_not_merely_stale(project):
