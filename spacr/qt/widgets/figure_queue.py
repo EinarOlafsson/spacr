@@ -78,12 +78,119 @@ def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0) -> None:
         pass
 
 
+def _sibling_pdf(png_path) -> Path:
+    """The ``.pdf`` that belongs beside ``png_path``.
+
+    Every place in this module that reaches for a figure's vector page comes
+    through here, because the *only* thing that pairs the two files is that
+    the writer and the readers derive the same name — nothing records it.
+    ``Path.with_suffix`` on its own does not guarantee that: it replaces
+    whatever follows the last dot, so a caller handing over a path with a
+    dotted name and no extension (``run_2.5``) gets ``run_2.pdf`` — and so
+    does ``run_2.6``, which is two figures rasterising one page. Only a
+    trailing ``.png`` is treated as an extension here; anything else keeps its
+    whole name and gains a suffix, which cannot collide.
+
+    Both real callers (:mod:`spacr.qt.bridge` and :class:`FigureQueue`) pass
+    ``*.png``, so this changes nothing for them. It is here so that the one
+    invariant the vector page depends on is stated once instead of being
+    re-derived, identically, at every place that writes, moves, deletes or
+    rasterises a page.
+    """
+    path = Path(png_path)
+    if path.suffix.lower() == ".png":
+        return path.with_suffix(".pdf")
+    return path.with_name(path.name + ".pdf")
+
+
+def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
+    """Write ``fig`` to ``pdf_path`` as an *editable* vector page.
+
+    Three things are decided here rather than left to matplotlib's defaults.
+
+    **Fonts are embedded as TrueType** (``pdf.fonttype = 42``) for the length
+    of the save. matplotlib's default is Type 3, which draws every glyph as
+    its own little content stream: the file is still vector, but Illustrator
+    and Inkscape open the text as unselectable outlines. The preference that
+    turns this whole path on is labelled "PDF (vector, editable)", and Type 3
+    delivers only the first half of that. The setting is scoped with
+    ``rc_context`` so a pipeline that has deliberately chosen fonttype 3 for
+    its own ``savefig`` calls is not changed underneath it.
+
+    **The requested DPI is passed in**, even though a PDF page is
+    resolution-independent. Vector art ignores it; an ``imshow`` panel does
+    not — and spaCR figures are full of them (cell montages, mask overlays,
+    plate heatmaps). Without it those panels are embedded at the figure's own
+    100 DPI while the user has asked for 300, so the "vector" export is a
+    vector frame around a blurry bitmap. Note this is the *uncapped*
+    preference value: the display cap in :func:`render_figure_to_png` exists
+    to keep a screen raster quick to decode, and this file is not a screen
+    raster. The cost is real and worth stating — a full-page montage at the
+    1200 DPI the preference offers is a big file — but it is the number the
+    user chose, and silently substituting a smaller one is the bug this
+    function is fixing.
+
+    **The background stays the app theme's**, i.e. black under a dark theme.
+    That looks wrong for an export and is nevertheless right here. The PDF is
+    not only the export: :meth:`FigureQueue._request_pdf_refinement`
+    rasterises this same file at 2200 px and swaps it in as the on-screen
+    pixmap, so a white page would make every figure flash from dark to light a
+    moment after it appeared. And a white page would not fix anything on its
+    own — :func:`_style_figure_colors` has already painted the axes black and
+    the labels white *on the Figure object*, so ``facecolor="white"`` alone
+    yields black panels and white-on-white text, which is worse than a
+    consistent dark page. Restyling every artist for print is what the
+    "Figure settings…" dialog does, and it re-renders both files.
+
+    Returns True if the page was written.
+    """
+    pdf_path = Path(pdf_path)
+    try:
+        from matplotlib import rc_context
+        with rc_context({"pdf.fonttype": 42}):
+            fig.savefig(str(pdf_path), dpi=dpi, bbox_inches="tight",
+                        facecolor=bg)
+        return True
+    except Exception as exc:
+        # This used to be a bare ``except Exception: pass``, which made a
+        # failed export indistinguishable from a successful one: the PNG
+        # appeared, the caller returned True, and the only symptom a user
+        # could ever see was that the figure never sharpened.
+        LOG.warning("vector PDF export failed for %s: %s", pdf_path, exc)
+        # A half-written page is worse than no page — the queue would
+        # rasterise it and show a torn figure — and a *stale* one left over
+        # from an earlier render of this slot would show the wrong figure
+        # entirely. Either way the right state is "absent".
+        try:
+            pdf_path.unlink()
+        except OSError:
+            pass
+        return False
+
+
 def render_figure_to_png(fig, png_path: str) -> bool:
-    """Style ``fig`` per the app theme and save it as a display-capped PNG (and
-    a vector .pdf alongside in PDF mode). Pure matplotlib — no Qt — so it is
+    """Style ``fig`` per the app theme and save it as a display-capped PNG —
+    plus, in PDF mode, a genuinely vector ``.pdf`` beside it
+    (:func:`_export_vector_pdf`). Pure matplotlib — no Qt — so it is
     SAFE TO CALL FROM A WORKER THREAD, which is how the pipeline bridge keeps
-    the GUI responsive while lots of figures are produced. Returns True on
-    success."""
+    the GUI responsive while lots of figures are produced.
+
+    Returns True once the PNG — the raster the GUI actually displays — is on
+    disk. A failed *sibling PDF* does not turn that into False, and the
+    asymmetry is deliberate rather than sloppy: the callers turn False into
+    "no pixmap, no thumbnail", so reporting a missing export that way would
+    delete the figure from the gallery over a file nothing has asked for yet.
+    It is logged at WARNING instead, and
+    :meth:`FigureQueue._request_pdf_refinement` notices the absent page,
+    says so, and stops waiting for a render that will never arrive.
+
+    Note what the DPI preference does and does not reach. It sets the PNG's
+    resolution (subject to the display cap below) and the resolution of any
+    raster *inside* the PDF. It does not reach the figures a pipeline saves to
+    its own results directory: those go through ``savefig`` calls in
+    :mod:`spacr.plot`, :mod:`spacr.submodules` and friends, which hard-code
+    their own format and DPI and never consult preferences at all.
+    """
     try:
         from ..preferences import (get_figure_png_dpi, get_figure_format,
                                    get_figure_colors, get_figure_text_size)
@@ -107,16 +214,12 @@ def render_figure_to_png(fig, png_path: str) -> bool:
     try:
         fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
                     facecolor=bg)
-        if fmt == "pdf":
-            try:
-                fig.savefig(str(Path(png_path).with_suffix(".pdf")),
-                            bbox_inches="tight", facecolor=bg)
-            except Exception:
-                pass
-        return True
     except Exception as e:
         LOG.info("figure render failed: %s", e)
         return False
+    if fmt == "pdf":
+        _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
+    return True
 
 def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
                         timeout_ms: int = 30000):
@@ -339,9 +442,9 @@ class FigureQueue(QWidget):
             # Adopt the worker-rendered PNG (and its sibling .pdf, if any).
             try:
                 shutil.move(prerendered_png, str(png_path))
-                src_pdf = Path(prerendered_png).with_suffix(".pdf")
+                src_pdf = _sibling_pdf(prerendered_png)
                 if src_pdf.is_file():
-                    shutil.move(str(src_pdf), str(png_path.with_suffix(".pdf")))
+                    shutil.move(str(src_pdf), str(_sibling_pdf(png_path)))
                 pixmap = QPixmap(str(png_path))
                 if pixmap.isNull():
                     pixmap = None
@@ -367,13 +470,29 @@ class FigureQueue(QWidget):
         return idx
 
     def _refresh_live_figure(self, idx: int, prerendered_png: str) -> None:
-        """Replace one live figure's raster while preserving its gallery slot."""
+        """Replace one live figure's raster while preserving its gallery slot.
+
+        The vector page has to move with the raster, *including when there
+        isn't one*. A replacement that arrives without a sibling ``.pdf``
+        leaves the slot's previous page in place, and the refinement dispatched
+        a few lines below would then rasterise it and paint the figure this
+        call just superseded over the new one. That is not a corner case: the
+        training monitor re-emits a ``_spacr_live_update`` figure every epoch,
+        so the user would watch each new plot appear and then revert to the
+        first one. Deleting the orphan is what keeps the pairing honest.
+        """
         target = Path(self._png_paths[idx])
         try:
             shutil.move(prerendered_png, str(target))
-            src_pdf = Path(prerendered_png).with_suffix(".pdf")
+            src_pdf = _sibling_pdf(prerendered_png)
+            dst_pdf = _sibling_pdf(target)
             if src_pdf.is_file():
-                shutil.move(str(src_pdf), str(target.with_suffix(".pdf")))
+                shutil.move(str(src_pdf), str(dst_pdf))
+            elif dst_pdf.is_file():
+                try:
+                    dst_pdf.unlink()
+                except OSError:
+                    LOG.debug("could not drop stale vector page %s", dst_pdf)
             pixmap = QPixmap(str(target))
             if pixmap.isNull():
                 return
@@ -517,8 +636,19 @@ class FigureQueue(QWidget):
         png = self._png_paths.get(idx)
         if not png:
             return
-        pdf = Path(png).with_suffix(".pdf")
+        pdf = _sibling_pdf(png)
         if not pdf.is_file():
+            # PDF mode is on and the vector page is not there: the export
+            # failed (:func:`_export_vector_pdf` logged why) or this slot was
+            # filled from a prerender that never carried one. Silently
+            # returning made that indistinguishable from a page still on its
+            # way, which is how a broken PDF export stayed invisible. Record
+            # it as failed instead — one log line, and no re-stat of the same
+            # missing file on every subsequent navigation to this figure.
+            LOG.warning(
+                "figure #%d has no vector page at %s — showing the raster; "
+                "the PDF export did not happen", idx + 1, pdf)
+            self._pdf_state[idx] = "failed"
             return
         self._pdf_seq += 1
         token = self._pdf_seq
