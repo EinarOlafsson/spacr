@@ -172,6 +172,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # that tests (and notebooks) can build directly.
     "layers",
     "counting",
+    # The napari bridge: a field's image and mask out to napari, the
+    # corrected labels back, written the way spaCR writes masks and recorded
+    # in the same append-only curation ledger the brush uses. napari is an
+    # optional extra and is never imported at module scope.
+    "napari_bridge",
     # The shared filter/selection model the linked views are built on. Pure
     # pandas, no Qt, so it is usable headless and from a notebook too.
     "selection",

@@ -304,6 +304,12 @@ SELF_REGISTERING_MODULES = (
     # artifacts, data_manager and chaining. A project the registry has never
     # seen is listed too; that is the case it exists for.
     "spacr.qt.screens.project_browser",
+    # A field's image and mask out to napari, the corrected labels back,
+    # written the way spaCR writes masks and recorded in the same curation
+    # ledger the brush uses. napari is an optional extra and is imported
+    # inside the button handler, so this row costs nothing to anyone who has
+    # not installed it.
+    "spacr.qt.screens.napari_bridge",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps

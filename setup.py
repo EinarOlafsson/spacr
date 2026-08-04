@@ -642,6 +642,26 @@ setup(
         # user's own environment, and pinning scanpy would drag in a second
         # copy of the leiden/igraph stack for a file spaCR only writes.
         'anndata': ['anndata>=0.10,<0.13'],
+        # `pip install spacr[napari]` — `spacr.napari_bridge`, which hands a
+        # field's image and mask to napari, lets the user correct the mask
+        # there, and writes the corrected labels back the way spaCR writes
+        # masks with an entry in the curation ledger.
+        #
+        # Optional rather than core, and it is not a close call: napari is a
+        # whole second application, it brings its own Qt stack next to the
+        # PySide6 spaCR's GUI already runs on, and nobody needs it to correct
+        # a mask — the Curate screen has a brush, a label picker and track
+        # curation, and records the same ledger. This extra exists for people
+        # who would rather work in the viewer they already know.
+        #
+        # Every import of it is function-local, behind
+        # `spacr.napari_bridge.require_napari()`, which raises
+        # NAPARI_MISSING_MESSAGE naming this extra rather than an ImportError
+        # from inside napari's own import machinery. Deliberately NOT in
+        # `all`: aggregating it would put a second GUI framework, and a
+        # second binding for the one spaCR already pins, into the extra
+        # someone types when they just want every feature.
+        'napari': ['napari>=0.5,<1.0'],
         'full': ['opencv-python'],
         'qt': [
             'PySide6>=6.6,<7',
