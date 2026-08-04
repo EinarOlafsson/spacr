@@ -1,6 +1,6 @@
 """What the user asked the setting tooltip to look like, measured.
 
-Six complaints, six measurements — none of them taken on trust:
+Seven complaints, seven measurements — none of them taken on trust:
 
 * one tooltip appears on hover, not two;
 * a text-only popup is exactly as tall as its text;
@@ -9,7 +9,8 @@ Six complaints, six measurements — none of them taken on trust:
 * a word inside the popup reveals the animation and folds it away again, and
   the popup resizes with it;
 * the last line is two words — **API** in the theme accent, **Animation** in
-  teal, neither underlined — and each one does its job.
+  teal, neither underlined — and each one does its job;
+* and the popup is ONE surface: no black box inside the rounded grey.
 
 Every pixel assertion here carries a control that PROVES it can fail: the
 underline probe is run against a real ``<a href>`` label, the colour probe is
@@ -25,6 +26,7 @@ from PySide6.QtGui import QHelpEvent
 from PySide6.QtWidgets import QApplication, QLabel, QToolTip
 
 from spacr.qt import preferences as prefs
+from spacr.qt import theme
 from spacr.qt.theme import active_palette
 from spacr.qt.widgets import animation_zoom as az
 from spacr.qt.widgets.hover_tooltip import TEAL, HoverTooltip, split_api_link
@@ -413,25 +415,33 @@ def test_the_animation_word_reveals_the_square_and_folds_it_back(
 
     tooltip.animation_link().clicked.emit()
     assert not view.isVisible()
-    assert view.frame_count() == 0, "frames stayed decoded for a hidden panel"
+    assert not view.is_playing(), "a hidden panel is still swapping pixmaps"
+    # Paused, not discarded: the pointer is still on this setting, so the one
+    # animation's pixmaps are kept and pressing again is free. They go the
+    # moment the pointer moves on -- see the test below.
+    assert view.frame_count() > 1
     assert (tooltip.width(), tooltip.height()) == (narrow, short)
 
 
-def test_the_reveal_survives_a_move_to_the_next_setting(tooltip, qtbot):
-    """Revealed once, revealed for the settings hovered after it.
+def test_the_reveal_does_not_survive_a_move_to_the_next_setting(
+        tooltip, qtbot):
+    """One press, one animation. The next setting starts hidden again.
 
-    Session scope, deliberately: per-hover would un-reveal the moment the
-    pointer moved on, and per-setting would ask a reader who wants animations
-    to click every one of them.
+    Per setting, deliberately: a session-wide reveal would put every later
+    hover back on the decode path after a single press, which is the cost the
+    change exists to avoid on a weak machine.
     """
     _reveal(tooltip, _anchor(qtbot))
     assert tooltip.animations_shown()
 
     tooltip.show_for(_anchor(qtbot, "cell_CP_prob"), HTML)
-    assert tooltip.animation_view().isVisible()
-    assert tooltip.animation() is not None
-    assert tooltip.animation().slug != ANIMATED_KEY, (
-        "the second setting is showing the first one's animation")
+    assert not tooltip.animation_view().isVisible(), (
+        "the second setting inherited the first one's reveal")
+    assert tooltip.animation() is None
+    assert tooltip.animation_view().frame_count() == 0, (
+        "the first setting's pixmaps are still resident")
+    assert tooltip.animation_link().isVisible(), (
+        "and there is no way to ask for the second one's animation")
 
 
 def test_the_reveal_is_this_popup_and_not_the_next_process(tooltip, qtbot):
@@ -441,8 +451,8 @@ def test_the_reveal_is_this_popup_and_not_the_next_process(tooltip, qtbot):
 
     fresh = HoverTooltip()
     qtbot.addWidget(fresh)
-    assert fresh.animations_shown() is False
     fresh.show_for(_anchor(qtbot), HTML)
+    assert fresh.animations_shown() is False
     assert not fresh.animation_view().isVisible()
 
 
@@ -613,3 +623,107 @@ def test_a_link_in_the_middle_of_the_prose_is_left_alone():
 def test_the_url_is_unescaped_so_the_browser_gets_the_real_query():
     _head, url = split_api_link('T<br><a href="https://x/?a=1&amp;b=2">d</a>')
     assert url == "https://x/?a=1&b=2"
+
+
+# ---------------------------------------------------------------------------
+# 7. One surface: no black box inside the rounded grey container
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def themed_app():
+    """Apply the real application stylesheet, then put it back.
+
+    Without it these tests measure nothing: the black box comes from the
+    application sheet's blanket ``QWidget { background-color: bg }``, which a
+    bare ``HoverTooltip()`` in a stylesheet-less test app never sees. The
+    restore matters as much — this is a process-wide setting and the rest of
+    the session shares the QApplication.
+    """
+    app = QApplication.instance()
+    previous = app.styleSheet()
+
+    def apply(opacity: float) -> None:
+        app.setStyleSheet(
+            theme.stylesheet("dark", 1.0, surface_opacity=opacity))
+
+    yield apply
+    app.setStyleSheet(previous)
+
+
+def _interior_colours(tooltip):
+    """Every colour inside the popup's border, by pixel count, commonest first."""
+    pixels = az.from_qimage(_grab(tooltip)).astype(int)
+    inner = pixels[6:-6, 6:-6].reshape(-1, 3)
+    colours, counts = np.unique(inner, axis=0, return_counts=True)
+    order = np.argsort(-counts)
+    return [(colours[i], int(counts[i])) for i in order]
+
+
+@pytest.mark.parametrize("opacity", [1.0, 0.75, 0.5])
+def test_the_popup_is_one_surface_with_no_black_box_inside_it(
+        tooltip, qtbot, themed_app, opacity):
+    """Measured on the rendered pixels, at more than one page opacity.
+
+    The two layout containers are plain ``QWidget``s. Left to the application
+    sheet they painted ``bg`` — the WINDOW colour, ``#000000`` in the dark
+    theme — which put a black slab over all but a six-pixel margin of the
+    popup's own rounded grey. Asserting on the stylesheet string would not
+    have caught it: the rule that produced the black was in a different sheet.
+    """
+    themed_app(opacity)
+    tooltip.show_for(_anchor(qtbot), HTML)
+
+    container = _rgb(active_palette()["surface_alt"])
+    commonest, count = _interior_colours(tooltip)[0]
+    assert count > 5000, (
+        f"only {count} pixels share the commonest colour; the popup is too "
+        f"small for this measurement to mean anything")
+    assert np.abs(commonest - container).max() <= 2, (
+        f"the popup's interior is {commonest.tolist()}, not the container's "
+        f"{container.tolist()} — there is a box painted over it")
+
+    # And specifically NOT the window colour, which is what it used to be.
+    window = _rgb(active_palette()["bg"])
+    assert np.abs(commonest - window).max() > 2, (
+        "the interior is the window colour; the black box is still there")
+
+
+def test_every_layout_container_inside_the_popup_paints_nothing(
+        tooltip, qtbot, themed_app):
+    """Each container, sampled where it sits rather than in aggregate.
+
+    The colour histogram above would still pass if one small container were
+    black and the rest were right, so each one is read at its own corners.
+    """
+    themed_app(1.0)
+    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.animation_link().clicked.emit()      # the widest layout there is
+
+    image = _grab(tooltip)
+    container = _rgb(active_palette()["surface_alt"])
+    for name, widget in (("text column", tooltip.text_column()),
+                         ("links row", tooltip._links)):
+        origin = widget.mapTo(tooltip, QPoint(0, 0))
+        for dx, dy, corner in ((2, 2, "top-left"),
+                               (widget.width() - 3, widget.height() - 3,
+                                "bottom-right")):
+            pixel = image.pixelColor(origin.x() + dx, origin.y() + dy)
+            found = np.array([pixel.red(), pixel.green(), pixel.blue()], float)
+            assert np.abs(found - container).max() <= 2, (
+                f"the {name}'s {corner} is {found.tolist()}, not the "
+                f"container's {container.tolist()}")
+
+
+def test_the_probe_can_see_a_box_that_really_is_there(tooltip, qtbot,
+                                                      themed_app):
+    """The control: paint the container black on purpose and measure again."""
+    themed_app(1.0)
+    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.text_column().setStyleSheet(
+        "QWidget#HoverTooltipTextColumn { background: #000000; }")
+    tooltip.text_column().setAttribute(Qt.WA_StyledBackground, True)
+
+    commonest, _count = _interior_colours(tooltip)[0]
+    container = _rgb(active_palette()["surface_alt"])
+    assert np.abs(commonest - container).max() > 2, (
+        "the probe cannot see a black box it was pointed at")

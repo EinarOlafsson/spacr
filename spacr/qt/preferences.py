@@ -115,9 +115,9 @@ Values:
   :func:`get_spinner_delay`.
 * ``setting_animations``: bool, default ``False``. Whether a setting's
   hover tooltip plays its animation WITHOUT being asked. Off — the
-  default — leaves every hover text only until the reader clicks the
-  **Animation** word in the tooltip footer; see
-  :func:`get_setting_animations_enabled`.
+  default — leaves every hover text only until the reader presses the
+  **Animation** word in that tooltip's footer, which speaks for that one
+  setting; see :func:`get_setting_animations_enabled`.
 * ``language``: one of the bundled language codes from
   :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a
   persisted value is invalid.
@@ -1049,11 +1049,12 @@ def set_spinner_delay(seconds: float) -> None:
 # Setting animations in tooltips
 # ---------------------------------------------------------------------------
 
-#: Off by default. Every hover is text only until the reader clicks the
-#: **Animation** word in the tooltip footer: the packaged animations cover 143
-#: settings and each one is a decoded movie, so a hover that only wanted the
-#: sentence should not pay for one. This preference is for the reader who
-#: never wants to be asked.
+#: Off by default. Every hover is text only until the reader presses the
+#: **Animation** word in that tooltip's footer, and pressing it speaks for
+#: that setting alone: 141 settings have an animation and each one is a
+#: ~73 ms decoded movie, so neither a hover that only wanted the sentence nor
+#: the 140 hovers after a press should pay for one. This preference is the
+#: escape hatch for the reader who never wants to be asked.
 DEFAULT_SETTING_ANIMATIONS = False
 
 
@@ -1062,13 +1063,15 @@ def get_setting_animations_enabled() -> bool:
 
     Default ``False``: a hover is text only, no GIF is decoded, no frames are
     cached and no timer runs, and the teal **Animation** word in the footer is
-    the invitation to see one. Turning this on reveals the animation on every
-    hover instead — the meaning is "stop asking me", not "allow animations",
-    which is why it is not a second switch that can disagree with the word.
+    the invitation to see one — for that setting, once. Turning this on starts
+    every tooltip revealed instead, and the word then folds the one in front
+    of the reader away. The meaning is "stop asking me", not "allow
+    animations".
 
-    See :meth:`spacr.qt.widgets.hover_tooltip.HoverTooltip.animations_shown`
-    for how the two combine: this is the value the session state starts from,
-    and changing it clears any session override the word had set.
+    The two cannot disagree and neither needs to defer to the other, because
+    they are scoped differently: a press names exactly one setting, so it can
+    never stop this preference reaching the rest. See
+    :meth:`spacr.qt.widgets.hover_tooltip.HoverTooltip.animations_shown`.
 
     Read on every tooltip, not once at startup:
     :class:`spacr.qt.widgets.hover_tooltip.HoverTooltip` is a process-wide
@@ -1790,8 +1793,9 @@ class PreferencesDialog:
         setting_anim_check.setToolTip(
             "Hovering a setting shows a short animation of what it does, "
             "beside the explanation, without being asked. Cleared — the "
-            "default — every tooltip is text only until you click the "
-            "Animation word in its footer."
+            "default — every tooltip is text only until you press the "
+            "Animation word in its footer, and pressing it shows that one "
+            "setting's animation only."
         )
         setting_anim_check.setChecked(get_setting_animations_enabled())
         form.addRow(tr("Setting animations"), setting_anim_check)

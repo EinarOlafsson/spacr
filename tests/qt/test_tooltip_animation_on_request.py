@@ -243,20 +243,54 @@ def test_a_mouse_click_on_the_word_reveals_it_too(tooltip, qtbot):
 # 3. Where the reveal lives
 # ---------------------------------------------------------------------------
 
-def test_the_reveal_is_session_scoped_not_per_setting(tooltip, qtbot, decodes):
-    """One click, then every animated setting shows without another."""
+def test_one_press_never_puts_the_rest_of_the_run_back_on_the_decode_path(
+        tooltip, qtbot, decodes):
+    """A whole sweep of the registry after a press still decodes nothing.
+
+    The reason the reveal is per setting: a session-wide one would make one
+    click cost a decoded movie on every later hover for the rest of the run,
+    which is exactly what a weak machine cannot afford.
+    """
+    from spacr.qt.screens.settings_model import format_tooltip, get_tooltips
+    from spacr.setting_animations import animation_for_setting
+
     tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[0]), HTML)
     tooltip.animation_link().clicked.emit()
     assert len(decodes) == 1
 
-    for key in ANIMATED_KEYS[1:]:
-        tooltip.show_for(_anchor(qtbot, key), HTML)
-        assert tooltip.animation_view().isVisible(), f"{key} stayed hidden"
-    assert len(decodes) == len(ANIMATED_KEYS)
+    swept = 0
+    for key, text in get_tooltips().items():
+        if key == ANIMATED_KEYS[0] or animation_for_setting(key) is None:
+            continue
+        swept += 1
+        tooltip.show_for(_anchor(qtbot, key), format_tooltip(text, "mask", key))
+        assert not tooltip.animation_view().isVisible(), f"{key} was revealed"
+    assert swept > 100, "the animation registry did not load"
+    assert len(decodes) == 1, (
+        f"{len(decodes) - 1} settings decoded off the back of one press")
 
 
-def test_the_reveal_is_not_per_hover(tooltip, qtbot):
-    """Re-hovering the same setting does not put it back to text only."""
+def test_the_press_names_one_setting(tooltip, qtbot):
+    """The state is a key, so it is inspectable and cannot be a global flag."""
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[0]), HTML)
+    assert tooltip.toggled_setting() is None
+    tooltip.animation_link().clicked.emit()
+    assert tooltip.toggled_setting() == ANIMATED_KEYS[0]
+
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[1]), HTML)
+    assert tooltip.animations_shown() is False
+    tooltip.animation_link().clicked.emit()
+    assert tooltip.toggled_setting() == ANIMATED_KEYS[1], (
+        "the press did not move to the setting it was made on")
+
+
+def test_the_reveal_is_not_per_hover_within_one_setting(tooltip, qtbot):
+    """Re-hovering the SAME setting does not put it back to text only.
+
+    Moving the pointer from a label into the popup below it and back fires a
+    fresh ``Enter``; dropping the reveal there would fight the reader for no
+    gain, and it cannot leak, because the key has not changed.
+    """
     anchor = _anchor(qtbot)
     tooltip.show_for(anchor, HTML)
     tooltip.animation_link().clicked.emit()
@@ -273,7 +307,58 @@ def test_the_reveal_does_not_outlive_the_process(tooltip, qtbot):
 
     fresh = HoverTooltip()
     qtbot.addWidget(fresh)
+    fresh.show_for(_anchor(qtbot), HTML)
     assert fresh.animations_shown() is False
+
+
+# ---------------------------------------------------------------------------
+# 3b. Nothing is held before a press, and little after
+# ---------------------------------------------------------------------------
+
+def test_no_frames_are_held_until_a_press(tooltip, qtbot, decodes):
+    """Lazy, measured on the pixmaps as well as on the loader."""
+    view = tooltip.animation_view()
+    for key in ANIMATED_KEYS:
+        tooltip.show_for(_anchor(qtbot, key), HTML)
+        assert view.frame_count() == 0, f"{key} held frames unasked"
+    assert decodes == []
+
+
+def test_moving_to_another_setting_drops_the_previous_frames(
+        tooltip, qtbot, decodes):
+    """The pixmap cache is one animation deep, and it is the visible one."""
+    view = tooltip.animation_view()
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[0]), HTML)
+    tooltip.animation_link().clicked.emit()
+    assert view.frame_count() > 1
+    assert view.slug() == ANIMATED_KEYS[0]
+
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[1]), HTML)
+    assert view.frame_count() == 0, (
+        "the previous setting's pixmaps are still resident")
+    assert view.slug() == ""
+    assert len(decodes) == 1
+
+
+def test_folding_and_re_pressing_the_same_setting_does_not_decode_again(
+        tooltip, qtbot, decodes):
+    """Bounded at one animation, and it is what makes a repeat press free."""
+    view = tooltip.animation_view()
+    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.animation_link().clicked.emit()
+    frames = view.frame_count()
+    assert frames > 1 and len(decodes) == 1
+
+    tooltip.animation_link().clicked.emit()          # fold away
+    assert not view.isVisible()
+    assert not view.is_playing(), "a hidden panel is still swapping pixmaps"
+    assert view.frame_count() == frames, (
+        "the frames of the setting still under the pointer were thrown away")
+
+    tooltip.animation_link().clicked.emit()          # and back
+    assert view.isVisible()
+    assert view.is_playing()
+    assert len(decodes) == 1, "re-pressing the same setting decoded again"
 
 
 # ---------------------------------------------------------------------------
@@ -296,41 +381,72 @@ def test_the_preference_means_do_not_ask_me(tooltip, qtbot, decodes):
         "there is no way left to fold this one away")
 
 
-def test_turning_the_preference_off_takes_a_session_reveal_with_it(
-        tooltip, qtbot):
-    """Preferences keeps the last word, so the two switches cannot disagree.
+def test_a_press_cannot_stop_the_preference_taking_effect(tooltip, qtbot):
+    """The press names one setting, so it can never speak for the others.
 
-    The session override is remembered against the preference value it was
-    made under. Change that value and the override is dropped, which is what
-    stops one click from making the dialog's switch useless for the rest of
-    the run.
+    This is why no baseline bookkeeping is needed: turning the preference on
+    reaches every setting the reader did not press, and turning it off again
+    reaches every setting including the pressed one on the next hover.
     """
-    anchor = _anchor(qtbot)
-    tooltip.show_for(anchor, HTML)
+    pressed, other = ANIMATED_KEYS[0], ANIMATED_KEYS[1]
+    tooltip.show_for(_anchor(qtbot, pressed), HTML)
     tooltip.animation_link().clicked.emit()
     assert tooltip.animations_shown() is True
 
     prefs.set_setting_animations_enabled(True)
-    assert tooltip.animations_shown() is True, "the two now agree"
+    tooltip.show_for(_anchor(qtbot, other), HTML)
+    assert tooltip.animation_view().isVisible(), (
+        "the preference did not reach a setting nobody pressed")
 
     prefs.set_setting_animations_enabled(False)
-    assert tooltip.animations_shown() is False, (
-        "the click still overrides a preference the user has since changed")
-
-    tooltip.show_for(anchor, HTML)
+    tooltip.show_for(_anchor(qtbot, other), HTML)
     assert not tooltip.animation_view().isVisible()
 
 
 def test_the_word_folds_away_an_animation_the_preference_turned_on(
         tooltip, qtbot):
-    """The reveal works in both directions, whichever way it started."""
+    """The press works in both directions, whichever way it started."""
     prefs.set_setting_animations_enabled(True)
-    tooltip.show_for(_anchor(qtbot), HTML)
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[0]), HTML)
     assert tooltip.animation_view().isVisible()
 
     tooltip.animation_link().clicked.emit()
     assert tooltip.animations_shown() is False
     assert not tooltip.animation_view().isVisible()
-    assert tooltip.animation_view().frame_count() == 0
     assert prefs.get_setting_animations_enabled() is True, (
         "folding one popup away rewrote the global preference")
+
+    # And it folded away THIS setting only: the next one obeys the preference.
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[1]), HTML)
+    assert tooltip.animation_view().isVisible()
+
+
+# ---------------------------------------------------------------------------
+# 5. One press, one animation
+# ---------------------------------------------------------------------------
+
+def test_revealing_one_setting_leaves_the_next_tooltip_hidden(
+        tooltip, qtbot, decodes):
+    """The rule the user asked for, stated as plainly as it was asked.
+
+    Pressing **Animation** on one setting shows that setting's animation and
+    nothing else. The next tooltip starts hidden again and decodes nothing
+    until its own press — which is the whole point on a weak machine, where a
+    single click must not quietly put every later hover back on the decode
+    path.
+    """
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[0]), HTML)
+    tooltip.animation_link().clicked.emit()
+    assert tooltip.animation_view().isVisible()
+    assert len(decodes) == 1
+
+    tooltip.show_for(_anchor(qtbot, ANIMATED_KEYS[1]), HTML)
+    assert not tooltip.animation_view().isVisible(), (
+        "the second setting inherited the first one's reveal")
+    assert tooltip.animation() is None
+    assert len(decodes) == 1, (
+        f"the second tooltip decoded without being asked: {decodes[1:]}")
+
+    tooltip.animation_link().clicked.emit()
+    assert tooltip.animation_view().isVisible()
+    assert len(decodes) == 2
