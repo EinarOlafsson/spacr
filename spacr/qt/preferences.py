@@ -241,7 +241,18 @@ def set_language(language: str) -> None:
 # ---------------------------------------------------------------------------
 
 def get_figure_format() -> str:
-    """Return the saved figure format, falling back to ``pdf``."""
+    """Return the saved figure format, falling back to ``pdf``.
+
+    Read by :func:`spacr.qt.widgets.figure_queue.render_figure_to_png`, which
+    is the single consumer. ``pdf`` makes it write a vector page beside the
+    display raster; the queue then rasterises that page for a crisper view and
+    the user has a file that opens as editable art. Scope is worth stating,
+    since the name suggests otherwise: this is the format of the figures spaCR
+    renders **for its own Figures panel**. Figures a pipeline writes into a
+    results directory are saved by ``savefig`` calls in :mod:`spacr.plot`,
+    :mod:`spacr.submodules`, :mod:`spacr.ml` and friends, each of which
+    hard-codes its own format and never reads this preference.
+    """
     raw = str(_settings().value(_KEY_FIG_FORMAT, DEFAULT_FIG_FORMAT)).lower()
     return raw if raw in VALID_FIG_FORMATS else DEFAULT_FIG_FORMAT
 
@@ -258,7 +269,17 @@ def set_figure_format(fmt: str) -> None:
 
 
 def get_figure_png_dpi() -> int:
-    """Return the saved PNG resolution, or the 300-DPI default."""
+    """Return the saved PNG resolution, or the 300-DPI default.
+
+    Two consumers, and they treat it differently on purpose.
+    :func:`spacr.qt.widgets.figure_queue.render_figure_to_png` clamps it for
+    the on-screen raster — a 16x12" figure at 300 DPI is a 4800 px PNG that
+    costs more to decode than any screen can show — so a large figure is
+    displayed at a lower DPI than the one chosen here.
+    :func:`spacr.qt.widgets.figure_queue._export_vector_pdf` uses the value
+    unclamped, because the PDF is a file rather than a screenful and its
+    embedded rasters really do need the resolution the user asked for.
+    """
     try:
         raw = int(_settings().value(_KEY_FIG_PNG_DPI, DEFAULT_PNG_DPI))
     except (TypeError, ValueError):
@@ -1972,9 +1993,23 @@ class PreferencesDialog:
 
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
+        #
+        # Both tooltips say plainly what these two settings reach, because
+        # their labels invite a bigger reading than the truth. They govern the
+        # figures the app renders into the Figures panel; the figures a
+        # pipeline saves into its own results directory are written by
+        # ``savefig`` calls inside spacr.plot / spacr.submodules / spacr.ml,
+        # which choose their own format and DPI and never read preferences.
         fig_format_combo = QComboBox()
         fig_format_combo.addItem("PNG (raster, lighter)", "png")
         fig_format_combo.addItem("PDF (vector, editable)", "pdf")
+        fig_format_combo.setToolTip(
+            "How figures are rendered into the Figures panel. PDF also writes "
+            "a vector page with TrueType-embedded text — sharper on screen "
+            "when zoomed, and editable in Illustrator or Inkscape. Figures a "
+            "pipeline saves to its results folder keep the format that "
+            "pipeline chose and are not affected."
+        )
         cur_fmt = get_figure_format()
         for i in range(fig_format_combo.count()):
             if fig_format_combo.itemData(i) == cur_fmt:
@@ -1984,6 +2019,13 @@ class PreferencesDialog:
         png_dpi_combo = QComboBox()
         for dpi in VALID_PNG_DPIS:
             png_dpi_combo.addItem(f"{dpi} dpi", dpi)
+        png_dpi_combo.setToolTip(
+            "Resolution of the raster spaCR renders for the Figures panel, "
+            "and of any image embedded inside a vector PDF page. Very large "
+            "figures are rendered at a lower DPI for the screen so they stay "
+            "quick to draw; the PDF page is written at the full resolution "
+            "chosen here."
+        )
         cur_dpi = get_figure_png_dpi()
         for i in range(png_dpi_combo.count()):
             if png_dpi_combo.itemData(i) == cur_dpi:
