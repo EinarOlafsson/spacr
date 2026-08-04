@@ -94,6 +94,7 @@ __all__ = [
     "known_modules",
     "module_ports",
     "next_modules",
+    "port_problems",
     "producers_of",
     "project_root",
     "register_module_ports",
@@ -864,6 +865,25 @@ def _port_problems(resolved: ResolvedPort, *, sample: int) -> List[Problem]:
     if port.tables and os.path.isfile(resolved.target):
         problems.extend(_table_problems(port, resolved.target))
     return problems
+
+
+def port_problems(port: Port, root: str, *,
+                  sample: int = 3) -> Tuple[Problem, ...]:
+    """Return every blocking problem with one port resolved against ``root``.
+
+    The per-port half of :func:`check_ready`, exposed for callers that hold a
+    :class:`Port` but no module — a screen that says "I want a
+    ``measurements-db``" rather than "I am Measure". The sentences are the
+    ones :func:`check_ready` writes, because they are produced by the same
+    code: a drop that lands on nothing has to name what is missing in exactly
+    the words the readiness check would have used.
+
+    :param port: the declaration.
+    :param root: absolute project root to resolve it against.
+    :param sample: how many arrays to check the shape of; 0 skips the check.
+    :returns: :class:`spacr.validate.Problem` instances, possibly empty.
+    """
+    return tuple(_port_problems(resolve_port(port, root), sample=sample))
 
 
 def _registry_notes(registry: Any, resolved: ResolvedPort,
