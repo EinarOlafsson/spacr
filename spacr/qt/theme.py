@@ -80,6 +80,7 @@ LOG = logging.getLogger(__name__)
 DARK_PALETTE = {
     # Surfaces — pure black bg, subtle depth via layered near-blacks
     "bg":          "#000000",   # main window background
+    "page":        "#23252a",   # the page BEHIND the panels — see `page`
     "surface":     "#0d0e10",   # sidebar / panels — barely lifted from bg
     "surface_alt": "#161719",   # cards / grouped sections — one more step
     "surface_hi":  "#1f2124",   # hovered surfaces
@@ -121,6 +122,7 @@ DARK_PALETTE = {
 # old module-level import.
 LIGHT_PALETTE = {
     "bg":          "#fafafa",
+    "page":        "#e1e4e6",   # see `page` — a light theme goes the other way
     "surface":     "#ffffff",
     "surface_alt": "#f2f4f7",
     "surface_hi":  "#e6e9ee",
@@ -150,6 +152,7 @@ LIGHT_PALETTE = {
 # `accent` to clear AA — see :func:`effective_surface`.
 SPACE_PALETTE = {
     "bg":          "#04060d",   # fallback flat sky when no image is cached
+    "page":        "#232b3d",   # see `page`
     "surface":     "#080d18",
     "surface_alt": "#0d1524",
     "surface_hi":  "#182338",
@@ -187,6 +190,7 @@ SPACE_PALETTE = {
 # photograph and reading as a stain.
 CELL_PALETTE = {
     "bg":          "#02080b",   # fallback flat field when no image is cached
+    "page":        "#24363f",   # see `page`
     "surface":     "#061218",
     "surface_alt": "#0b1c23",
     "surface_hi":  "#152d37",
@@ -217,6 +221,11 @@ CELL_PALETTE = {
 # which was simply opaque navy when the global Page opacity was 100%.
 GLASS_PALETTE = {
     "bg":          "#0b0d11",
+    # The one palette whose `bg` was already a page: its surfaces are
+    # charcoal, not near-black, so `bg` clears them by 12.0 L* / 1.301:1
+    # without moving. Stated rather than defaulted so `page` is never
+    # "the key dark forgot" — see `page`.
+    "page":        "#0b0d11",
     "surface":     "#25272c",
     "surface_alt": "#2d3036",
     "surface_hi":  "#3a3e45",
@@ -1000,6 +1009,100 @@ def active_palette() -> dict:
 
 
 # ---------------------------------------------------------------------------
+# `page` — the colour of the surface the panels float ON
+# ---------------------------------------------------------------------------
+# `bg` is the WINDOW colour. It is `QPalette.Window`, it is the ink on a
+# filled accent button (`QPalette.HighlightedText`), it is the blanket
+# `QWidget { background-color: bg }` in `_window_block`, and in the dark
+# theme it is literally `#000000`. Thirty-six uses, most of which are not
+# "the page".
+#
+# For a long time it was the page anyway, by omission. A module screen
+# clears its layout containers (`clear_container_surfaces`) so the
+# backdrop shows between the settings cards — and when the ambient
+# animation is switched off there IS no backdrop, so what showed through
+# was the blanket window fill. Pure black. Measured on a real AppScreen
+# with `ambient_enabled=False`: 40 of 74 samples down the settings column
+# were exactly (0,0,0), and (0,0,0) was the single most common colour on
+# the whole screen (17,621 samples, against 11,420 for `surface`). Users
+# reported it three times as "a black box behind the settings
+# categories"; two fixes swept more containers transparent, which is the
+# right sweep and made the hole bigger, because the thing behind the
+# containers had no colour of its own.
+#
+# So the page gets one. `page` is a separate role from `bg` precisely so
+# that giving the page a colour cannot change selected-text rendering,
+# `QPalette.Window`, or the ink on a pressed button.
+#
+# The values are solved, not chosen. A page has to satisfy, at once:
+#
+# * **Separation from the resting panels.** `surface` and `surface_alt`
+#   are what a settings category is painted with, and they have to read
+#   as panels sitting on something. Judged in CIE L*, because near black
+#   the WCAG ratio saturates and stops discriminating — on the dark
+#   theme `bg`-to-`surface` is 1.087:1 whatever you do, and `#000000`
+#   against `#0d0e10` is 3.95 L* on a scale where the palette's own
+#   deliberate step is 3.75. The bar is one full palette step (>=3.5 L*)
+#   and >=1.15:1 from each. See `page_separation_report`.
+# * **Survival at 60 % page opacity**, where a panel is composited
+#   0.6 * panel + 0.4 * page and the separation shrinks by ~40 %. The bar
+#   there is >=2.0 L* and >=1.08:1.
+# * **Text still lands on it.** Every rule in :data:`CONTRAST_RULES` is
+#   enforced against `page` as a surface, so `fg`/`fg_muted`/`accent`
+#   clear 4.5:1 and `fg_dim` and the status hues clear 3.0:1 — hint text
+#   and disabled controls do sit straight on the page.
+#
+# On the dark theme those three close to a band two values wide.
+# `surface_alt` separation pushes from below and `fg_dim` at 3.0:1 caps
+# from above; `#23252a` sits in it at 1.170:1 / 6.96 L* from
+# `surface_alt` and 1.259:1 / 10.72 L* from `surface`, with `fg_dim` at
+# 3.04:1. The light theme is the same solve mirrored — the page goes
+# *down* so white cards lift off it — and closes just as tightly,
+# between `surface_alt` from below and `accent` at 4.5:1 from above.
+#
+# The consequence is that on the dark theme the page is now *lighter*
+# than the cards, which is not the usual dark-UI layering and is
+# deliberate: it is what the app already looks like with the animation
+# on. The ambient backdrop is brighter than `#0d0e10` nearly everywhere
+# (2 of 74 samples pure black with it enabled, against 40 with it off),
+# so dark cards floating on a lighter field is the established look and
+# `page` is the still frame of it, not a new idea.
+#
+# `surface_hi` is deliberately NOT in the solve. It is the *hover*
+# colour: converging toward the page as a card lifts is what hover is
+# for, and requiring a step from it as well pushes the page past
+# `fg_dim`'s AA ceiling with no band left at all.
+
+def page_colour(theme: str = "dark") -> str:
+    """The flat colour the page is painted with under ``theme``.
+
+    Prefer this over ``palette_for(theme)["bg"]`` anywhere the question
+    is "what is behind the panels". ``bg`` answers a different question
+    — see the block above — and on the dark theme it answers it
+    ``#000000``.
+
+    Falls back to ``bg`` for a palette that has no ``page``, so an older
+    or third-party palette dict still resolves rather than raising.
+    """
+    palette = palette_for(theme)
+    return palette.get("page") or palette["bg"]
+
+
+def active_page_colour() -> str:
+    """:func:`page_colour` for the theme that is on screen right now.
+
+    Falls back to dark, like :func:`active_palette`, and for the same
+    reason: a backdrop must never be the thing that stops a screen
+    opening.
+    """
+    try:
+        from .preferences import resolve_effective_theme
+        return page_colour(resolve_effective_theme())
+    except Exception:
+        return page_colour("dark")
+
+
+# ---------------------------------------------------------------------------
 # The name that was a trap
 # ---------------------------------------------------------------------------
 # `PALETTE` is served by module ``__getattr__`` rather than bound as a
@@ -1143,10 +1246,18 @@ def effective_surface(theme: str, role: str,
 #: `fg_dim`, whose only jobs are disabled controls and hint text, both
 #: explicitly exempt from 1.4.3, and for the status hues that mostly
 #: paint progress-bar chunks.
+#: `page` is in the surface list because text really does land on it: a
+#: section blurb, a hint under a field, an empty-state line all sit
+#: straight on the page between the cards. It is also what caps how far
+#: `page` may travel from the panels — see the `page` block above, where
+#: `fg_dim` at 3.0:1 is the ceiling the dark value is solved against.
+PAGE_SURFACES: Tuple[str, ...] = ("bg", "page", "surface", "surface_alt",
+                                  "surface_hi")
+
 CONTRAST_RULES: Tuple[Tuple[str, str, float], ...] = tuple(
     [(fg, surf, 4.5)
      for fg in ("fg", "fg_muted", "accent")
-     for surf in ("bg", "surface", "surface_alt", "surface_hi")]
+     for surf in PAGE_SURFACES]
     + [("accent", "accent_soft", 4.5),
        ("accent_hi", "accent_soft", 4.5),
        # `bg` is the ink on filled accent/danger surfaces: the selected
@@ -1159,7 +1270,7 @@ CONTRAST_RULES: Tuple[Tuple[str, str, float], ...] = tuple(
        ("button_accent_ink", "button_accent_lo", 4.5)]
     + [(fg, surf, 3.0)
        for fg in ("fg_dim", "success", "warning", "error")
-       for surf in ("bg", "surface", "surface_alt", "surface_hi")]
+       for surf in PAGE_SURFACES]
 )
 
 
@@ -1196,6 +1307,103 @@ def _describe(report: List[dict]) -> List[str]:
         f"{r['fg']} ({r['fg_color']}) on {r['bg']} ({r['bg_color']}): "
         f"{r['ratio']:.2f}:1 < {r['required']:.1f}:1"
         for r in report if not r["passes"]
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Does the page separate from the panels?
+# ---------------------------------------------------------------------------
+# :data:`CONTRAST_RULES` asks "can you read the text on it". This asks the
+# other question, the one nobody was asking when the dark page was
+# ``#000000``: can you see the *panel*. They are different measurements,
+# and the second one has no WCAG tier to borrow, because WCAG has nothing
+# to say about two surfaces neither of which is text.
+#
+# So it is measured twice. The ratio is kept because it is the number the
+# rest of this module speaks in; CIE L* is the one that decides, because
+# down at the black end the ratio stops discriminating — every pair of
+# near-blacks is "about 1.1:1" — while L* stays linear in perceived
+# lightness all the way to zero.
+
+#: The panel roles that rest ON the page. `surface_hi` is excluded: it is
+#: the hover colour, and converging toward the page is what it is for.
+PAGE_PANEL_ROLES: Tuple[str, ...] = ("surface", "surface_alt")
+
+#: One full palette step. The dark palette's own smallest deliberate
+#: surface step is `surface` -> `surface_alt` at 3.75 L*, so this is that,
+#: rounded down.
+PAGE_MIN_LSTAR = 3.5
+
+#: Roughly double the 1.087:1 that `#000000` against `#0d0e10` produced —
+#: which is to say, enough that the ratio agrees with L* rather than
+#: merely failing to contradict it.
+PAGE_MIN_RATIO = 1.15
+
+#: The page opacity a panel is judged at as well as at 1.0. Deliberately
+#: not the default (that is :data:`DEFAULT_PANE_OPACITY`, 1.0): a solve
+#: that only holds while panels are fully opaque is a solve that breaks
+#: for everyone who moved the slider.
+PAGE_FADED_OPACITY = 0.6
+
+#: At 60 % a panel composites 0.6*panel + 0.4*page, so a little over half
+#: the separation survives. These are that fraction of the bars above.
+PAGE_MIN_LSTAR_FADED = 2.0
+PAGE_MIN_RATIO_FADED = 1.08
+
+
+def lightness(color: str) -> float:
+    """CIE L* of ``color``, 0 (black) to 100 (white).
+
+    Perceptually uniform, which :func:`relative_luminance` is not and
+    :func:`contrast_ratio` is not: a ratio of 1.09:1 means something very
+    different between two near-blacks and between two near-whites, and
+    the page/panel question lives at both ends.
+    """
+    y = relative_luminance(color)
+    return 903.3 * y if y <= 0.008856 else 116.0 * (y ** (1.0 / 3.0)) - 16.0
+
+
+def page_separation_report(theme: str) -> List[dict]:
+    """How far each resting panel role sits from the page in ``theme``.
+
+    One entry per role in :data:`PAGE_PANEL_ROLES` per opacity in
+    ``(1.0, PAGE_FADED_OPACITY)``, carrying ``{"role", "opacity", "page",
+    "panel", "ratio", "delta_lstar", "min_ratio", "min_delta_lstar",
+    "passes"}``.
+
+    The faded rows composite the panel over the *page* rather than over
+    anything else, because the page is what is behind it — that is the
+    whole subject.
+    """
+    page = page_colour(theme)
+    palette = palette_for(theme)
+    out: List[dict] = []
+    for role in PAGE_PANEL_ROLES:
+        for opacity, min_ratio, min_dl in (
+                (1.0, PAGE_MIN_RATIO, PAGE_MIN_LSTAR),
+                (PAGE_FADED_OPACITY, PAGE_MIN_RATIO_FADED,
+                 PAGE_MIN_LSTAR_FADED)):
+            panel = (palette[role] if opacity >= 1.0
+                     else composite(palette[role], opacity, page))
+            ratio = contrast_ratio(page, panel)
+            delta = abs(lightness(page) - lightness(panel))
+            out.append({
+                "role": role, "opacity": opacity,
+                "page": page, "panel": panel,
+                "ratio": ratio, "delta_lstar": delta,
+                "min_ratio": min_ratio, "min_delta_lstar": min_dl,
+                "passes": ratio >= min_ratio and delta >= min_dl,
+            })
+    return out
+
+
+def page_separation_failures(theme: str) -> List[str]:
+    """Human-readable description of every separation ``theme`` fails."""
+    return [
+        f"{theme}: page ({r['page']}) vs {r['role']} ({r['panel']}) at "
+        f"{r['opacity']:.0%}: {r['ratio']:.3f}:1 / {r['delta_lstar']:.2f} L* "
+        f"< {r['min_ratio']:.2f}:1 / {r['min_delta_lstar']:.2f} L*"
+        for r in page_separation_report(theme) if not r["passes"]
     ]
 
 
@@ -2165,7 +2373,13 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
                         panel_alpha(theme, "tile", surface_opacity))
     # Scrollbar troughs paint over the window; over a photograph they must not
     # be an opaque black block. Group-box titles are transparent below.
-    TROUGH = "transparent" if over_image else base["bg"]
+    #
+    # `page`, not `bg`, on the flat themes. A trough runs the full height of
+    # the settings column and it took the WINDOW colour, so on the dark theme
+    # it was a black stripe down the page — the last 168 pure-black samples in
+    # that column after the page itself had a colour, and the only ones left.
+    # It is a groove IN the page, so the page is what it should be.
+    TROUGH = "transparent" if over_image else page_colour(theme)
     # The console honours page opacity on EVERY theme, not just the image
     # ones. `#0a0b0d` was a hard-coded near-black, so on dark and light the
     # console stayed a solid slab no matter where the slider was — one of the

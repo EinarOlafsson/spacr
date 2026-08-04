@@ -431,10 +431,20 @@ def test_a_raising_install_leaves_the_screen_usable(qtbot, qt_theme_applied,
     screen.show()
     qtbot.waitExposed(screen)
     assert not screen.grab().isNull(), "the screen does not render"
-    # And it is not left half-dressed: the surfaces are only cleared once
-    # something is actually painting back there.
-    from spacr.qt.theme import TRANSPARENT_PROPERTY
-    assert not screen._header.property(TRANSPARENT_PROPERTY)
+    # And it is not left half-dressed. This used to be asserted as "the
+    # header is not transparent, because surfaces are only cleared once
+    # something is painting back there" -- but `ModuleHeader.__init__`
+    # calls `make_transparent(self)` unconditionally and always has, so
+    # the assertion was false the day it was written and this test has
+    # been failing since. The rule it was reaching for is now true by
+    # construction and stated the other way round: there is always
+    # something painting back there, because `paintEvent` fills the page
+    # whenever the backdrop failed to install. That is exactly the case
+    # under test here, so assert the fill instead of the header.
+    from spacr.qt.theme import active_palette
+    assert screen.page_fill() is not None, (
+        "the ambient install raised, so the screen owns its own page fill; "
+        "without it `bg` (#000000 in the dark theme) shows through")
 
 
 def test_a_failed_install_leaves_no_orphan_widget(qtbot, qt_theme_applied,
@@ -701,7 +711,10 @@ def test_a_theme_switch_re_fills_the_backdrop(qtbot, qt_theme_applied,
     _switch_theme(qt_theme_applied, monkeypatch, "light")
 
     assert widget.backgrounds_set, "the new theme's fill never arrived"
-    assert widget.backgrounds_set[-1] == str(palette_for("light")["bg"])
+    # `page`, not `bg`: the backdrop fills the surface the panels float on,
+    # and that is now its own palette role. Filling with `bg` is what put a
+    # black box behind the settings column.
+    assert widget.backgrounds_set[-1] == str(palette_for("light")["page"])
 
 
 def test_a_theme_switch_keeps_the_users_animation_choice(qtbot,
@@ -797,7 +810,7 @@ def test_the_sequencing_rain_still_follows_the_theme(qtbot, qt_theme_applied,
     _switch_theme(qt_theme_applied, monkeypatch, "light")
 
     assert rain.background_color().name() == \
-        palette_for("light")["bg"].lower()
+        palette_for("light")["page"].lower()
     assert rain.color().name() == chosen, \
         "a colour the user picked must survive a theme switch"
 
