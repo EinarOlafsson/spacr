@@ -295,6 +295,10 @@ SELF_REGISTERING_MODULES = (
     # at all. Filed under Design, with Power: an EC50 is fitted to choose the
     # concentration the next experiment will use.
     "spacr.qt.screens.dose_response",
+    # A control's measured value plate by plate across a campaign, with limits
+    # estimated from a STATED baseline and applied forward, so a drift is
+    # visible before it has ruined the screen rather than after.
+    "spacr.qt.screens.control_chart",
     # Not an app either: it corrects the maturity label on the modules whose
     # evidence no longer matches "alpha". Listed LAST, after every module
     # that registers an app of its own, because it can only reassess apps
