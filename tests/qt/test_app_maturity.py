@@ -55,7 +55,25 @@ def test_the_promotions_are_applied_at_launch():
     changed = maturity.apply(stages)
     assert set(changed) == set(maturity.PROMOTIONS)
     for app_key, (stage, _reason) in maturity.PROMOTIONS.items():
-        assert stages[app_key] == stage
+        if stage == "stable":
+            assert app_key not in stages
+        else:
+            assert stages[app_key] == stage
+
+
+def test_signing_an_app_off_deletes_its_line_rather_than_rewriting_it():
+    """``APP_STAGE`` records what is NOT signed off.
+
+    "stable" is the absence of an entry, so promoting to stable has to
+    remove the key. Writing the word in gives the table a second way to say
+    the same thing, and the home suite fails on exactly that.
+    """
+    stable = [k for k, (s, _r) in maturity.PROMOTIONS.items() if s == "stable"]
+    assert stable, "no module was promoted to stable at all"
+    stages = {key: "alpha" for key in maturity.PROMOTIONS}
+    maturity.apply(stages)
+    assert not (set(stable) & set(stages))
+    assert set(stages.values()) <= {"alpha", "beta"}
 
 
 def test_applying_twice_changes_nothing_the_second_time():
