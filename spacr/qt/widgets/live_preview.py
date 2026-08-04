@@ -1059,6 +1059,15 @@ class LivePreviewPanel(QWidget):
         self._cell_channel = QSpinBox(self); self._cell_channel.setRange(0, 8)
         self._nucleus_channel = QSpinBox(self); self._nucleus_channel.setRange(0, 8)
         self._nucleus_channel.setValue(1)
+        # Pathogen and organelle are in OBJECT_TYPES and each has its own
+        # settings panel in the dialog, but neither had a channel control.
+        # `_build_request` built its channel map from cell and nucleus only,
+        # so `channels.get(obj, 0)` fell back to 0 and picking "pathogen"
+        # segmented the cell channel while appearing to work.
+        self._pathogen_channel = QSpinBox(self)
+        self._pathogen_channel.setRange(0, 8); self._pathogen_channel.setValue(2)
+        self._organelle_channel = QSpinBox(self)
+        self._organelle_channel.setRange(0, 8); self._organelle_channel.setValue(3)
 
         self._diameter = QDoubleSpinBox(self)
         self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
@@ -1126,6 +1135,10 @@ class LivePreviewPanel(QWidget):
             "(int) Image channel index used for cell segmentation.")
         self._nucleus_channel.setToolTip(
             "(int) Image channel index used for nucleus segmentation.")
+        self._pathogen_channel.setToolTip(
+            "(int) Image channel index used for pathogen segmentation.")
+        self._organelle_channel.setToolTip(
+            "(int) Image channel index used for organelle segmentation.")
         self._diameter.setToolTip(DIAMETER_TOOLTIP)
         self._flow.setToolTip(
             "(float) Cellpose flow threshold — higher keeps more masks.")
@@ -1460,7 +1473,9 @@ class LivePreviewPanel(QWidget):
         if not self._widget_value(self._common_widgets["remove_background"]):
             return None
         channels = {"cell": int(self._cell_channel.value()),
-                    "nucleus": int(self._nucleus_channel.value())}
+                    "nucleus": int(self._nucleus_channel.value()),
+                    "pathogen": int(self._pathogen_channel.value()),
+                    "organelle": int(self._organelle_channel.value())}
         for obj in self._selected_object_types():
             if channels.get(obj) == int(channel):
                 return float(self._widget_value(
@@ -1530,6 +1545,11 @@ class LivePreviewPanel(QWidget):
             "model_name": model,
             "cell_channel": int(self._cell_channel.value()),
             "nucleus_channel": int(self._nucleus_channel.value()),
+            # Propagated like the other two, so tuning a pathogen or
+            # organelle channel here reaches the main settings panel
+            # instead of being lost when the dialog closes.
+            "pathogen_channel": int(self._pathogen_channel.value()),
+            "organelle_channel": int(self._organelle_channel.value()),
             "cell_diameter": float(self._diameter.value()),
             "cell_FT": float(self._flow.value()),
             "cell_CP_prob": float(self._prob.value()),
@@ -1728,6 +1748,8 @@ class LivePreviewPanel(QWidget):
         # leaves the cleaned pixels on the old one.
         self._cell_channel.valueChanged.connect(self._refresh_canvases)
         self._nucleus_channel.valueChanged.connect(self._refresh_canvases)
+        self._pathogen_channel.valueChanged.connect(self._refresh_canvases)
+        self._organelle_channel.valueChanged.connect(self._refresh_canvases)
         self._object_box.currentIndexChanged.connect(self._refresh_canvases)
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
@@ -1819,8 +1841,10 @@ class LivePreviewPanel(QWidget):
     def _build_request(self) -> PreviewRequest:
         obj_types = self._selected_object_types()
         channels = {
-            "cell":    self._cell_channel.value(),
-            "nucleus": self._nucleus_channel.value(),
+            "cell":      self._cell_channel.value(),
+            "nucleus":   self._nucleus_channel.value(),
+            "pathogen":  self._pathogen_channel.value(),
+            "organelle": self._organelle_channel.value(),
         }
         # One unified settings dict drives both background subtraction
         # (pre) and filtering (post): the common "remove background" +
@@ -2267,6 +2291,8 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Primary object", panel._object_box)
         form.addRow("Cell channel", panel._cell_channel)
         form.addRow("Nucleus channel", panel._nucleus_channel)
+        form.addRow("Pathogen channel", panel._pathogen_channel)
+        form.addRow("Organelle channel", panel._organelle_channel)
         form.addRow("Diameter", panel._diameter)
         form.addRow("Flow threshold", panel._flow)
         form.addRow("Cell probability", panel._prob)
@@ -2393,6 +2419,8 @@ class LiveSettingsDialog(QDialog):
             p._object_box: "object_type",
             p._cell_channel: "cell_channel",
             p._nucleus_channel: "nucleus_channel",
+            p._pathogen_channel: "pathogen_channel",
+            p._organelle_channel: "organelle_channel",
             p._diameter: "cell_diameter",
             p._flow: "cell_FT",
             p._prob: "cell_CP_prob",
