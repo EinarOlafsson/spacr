@@ -726,17 +726,27 @@ def registry_sandbox():
     app_mod._refresh_sections()
 
 
-def test_the_screen_is_not_registered_until_app_py_says_so(qtbot):
-    """One row in app.py's `_SELF_REGISTERING_APPS` turns it on; not this file.
+def test_the_screen_is_registered(qtbot):
+    """The one row in app.py's `_SELF_REGISTERING_APPS` is present.
 
-    A new APPS row currently reddens the per-app inventory tests for reasons
-    this screen cannot fix, and `app.py` belongs to another change in flight —
-    so the seam is built and tested, and left switched off.
+    This test used to assert the opposite. The screen was finished and
+    tested but deliberately switched off, because a new APPS row reddened
+    the per-app inventory tests and Explore stood at
+    MAX_APPS_PER_SECTION. Both reasons expired -- the ledgers were filled
+    in and Explore came back down to eight -- and the row landed in
+    `baa704fc`, at which point this file was the only thing still
+    claiming the screen was unreachable.
+
+    Inverted rather than deleted: "is it on the sidebar" is worth
+    asserting in whichever direction is currently true, and a test that
+    pins the old state is how a finished feature stays invisible.
     """
     from spacr.qt.app import APPS
     from spacr.qt.screens import pca as screen
 
-    assert not any(row[0] == screen.APP_KEY for row in APPS)
+    assert any(row[0] == screen.APP_KEY for row in APPS), (
+        "pca is missing from APPS; its row in _SELF_REGISTERING_APPS "
+        "(spacr/qt/app.py) is what puts it there")
     qtbot.addWidget(screen.make_pca_screen())
 
 
@@ -745,6 +755,14 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     """Driving `register()` is the same thing the one line will do."""
     from spacr.qt.screens import pca as screen
     app_mod = registry_sandbox
+
+    # The sandbox SNAPSHOTS the registry and restores it afterwards; it does
+    # not empty it. So the screen is already registered here, from app.py's
+    # own call at import, and register() would correctly answer False. Take
+    # it back out first, then assert the round trip -- which is also the
+    # stronger test, because it exercises unregister as well.
+    assert app_mod.unregister_app(screen.APP_KEY) is True
+    assert not any(r[0] == screen.APP_KEY for r in app_mod.APPS)
 
     assert screen.register() is True
     assert screen.register() is False           # idempotent, not a raise
