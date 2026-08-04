@@ -46,7 +46,8 @@ from .feature_rank import (
     ExplorerError, ExplorerResult, ExplorerSpec, candidate_labels,
     distributions, rank_features,
 )
-from .graph_builder import categorical_colours, _canvas_class
+from .graph_builder import (_canvas_class, _page_surface_axes,
+                            categorical_colours)
 
 LOG = logging.getLogger("spacr.qt.feature_explorer")
 
@@ -145,8 +146,10 @@ class FeatureExplorerPanel(QWidget):
         holder = QVBoxLayout(self._figure_holder)
         holder.setContentsMargins(0, 0, 0, 0)
         from matplotlib.figure import Figure
-        palette = active_palette()
-        self._figure = Figure(figsize=(5.0, 6.0), facecolor=palette["surface"])
+        # No `facecolor`: the canvas paints the page panel in its own
+        # `paintEvent` under a transparent figure patch, so a solid one here
+        # would put the opaque rectangle straight back.
+        self._figure = Figure(figsize=(5.0, 6.0))
         self._canvas = _canvas_class()(self._figure)
         holder.addWidget(self._canvas, 1)
         body.addWidget(self._figure_holder)
@@ -243,6 +246,7 @@ class FeatureExplorerPanel(QWidget):
             self._result = None
             self.table.setRowCount(0)
             self._figure.clear()
+            self._figure.patch.set_alpha(0.0)
             self._canvas.draw_idle()
             self._summary.setText(str(exc))
             return None
@@ -281,6 +285,7 @@ class FeatureExplorerPanel(QWidget):
     def _draw(self, result: ExplorerResult) -> None:
         """A strip per feature, the classes overlaid on shared bin edges."""
         self._figure.clear()
+        self._figure.patch.set_alpha(0.0)
         palette = active_palette()
         drawn = result.scores[:MAX_DRAWN]
         if not drawn or self._frame is None:
@@ -291,7 +296,7 @@ class FeatureExplorerPanel(QWidget):
         colours = categorical_colours()
         for row, score in enumerate(drawn):
             ax = axes[row][0]
-            ax.set_facecolor(palette["surface"])
+            _page_surface_axes(ax, palette)
             for side in ("top", "right"):
                 ax.spines[side].set_visible(False)
             for side in ("left", "bottom"):
