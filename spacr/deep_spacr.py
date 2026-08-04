@@ -23,6 +23,7 @@ from torch.utils.data import DataLoader, Subset
 # averaged away silently, and an optional plot that fails must still be
 # visible somewhere other than /dev/null.
 from .errors import RunLedger
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 # One seed reaching Python, NumPy and Torch (CPU + CUDA) rather than only
 # the split helpers. See spacr.runctx.
 from .runctx import resolve_seed, seed_everything, seed_worker, torch_generator
@@ -2761,7 +2762,7 @@ def generate_activation_map(settings):
         if settings['plot']:
             fig = cam_generator.plot_activation_grid(inputs, activation_maps, predicted_classes, overlay=settings['overlay'], normalize=settings['normalize'])
             pdf_save_path = os.path.join(batch_grid_fldr,f"batch_{batch_idx}_grid.pdf")
-            fig.savefig(pdf_save_path, format='pdf')
+            pdf_save_path = save_figure(fig, pdf_save_path)
             print(f"Saved batch grid to {pdf_save_path}")
             #plt.show()
             display(fig)

@@ -6,6 +6,7 @@ import numpy as np
 from adjustText import adjust_text
 import pandas as pd
 from scipy.stats import fisher_exact
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 def custom_volcano_plot(
     data_path,
@@ -242,7 +243,8 @@ def custom_volcano_plot(
     )
 
     if save_path:
-        plt.savefig(save_path, format='pdf', bbox_inches='tight')
+        save_path = save_figure(plt.gcf(), save_path,
+                                bbox_inches='tight')
     plt.show()
 
     return hit_list
@@ -509,7 +511,8 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
 
     # Save the plot if a path is provided
     if save_path:
-        plt.savefig(save_path, format='pdf', dpi=600, bbox_inches='tight')
+        save_path = save_figure(plt.gcf(), save_path,
+                                bbox_inches='tight')
         print(f"Figure saved to {save_path}")
     
     plt.show()
@@ -570,7 +573,8 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
 
     # Save the plot if a path is provided
     if save_path:
-        plt.savefig(save_path, format='pdf', dpi=600, bbox_inches='tight')
+        save_path = save_figure(plt.gcf(), save_path,
+                                bbox_inches='tight')
         print(f"Figure saved to {save_path}")
 
     plt.show()
