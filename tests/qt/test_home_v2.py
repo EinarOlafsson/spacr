@@ -818,7 +818,12 @@ def test_every_tab_uses_the_same_large_tile(home):
     from spacr.qt.preferences import scaled_px
     assert home._tabs.tabText(1).startswith("Core")
     core = home._tabs.widget(1).findChildren(AppTile)
-    assert len(core) == len(section_members("Core")) == 9
+    # Ten since Curate joined the pipeline; it was nine for as long as Core
+    # was exactly the run. The number is spelled out rather than derived
+    # twice so that an app arriving in Core is a line changed here, but the
+    # property being tested is the equality on its left: the tab draws its
+    # members and nothing else.
+    assert len(core) == len(section_members("Core")) == 10
     for index in range(home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
