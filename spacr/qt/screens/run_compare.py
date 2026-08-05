@@ -35,7 +35,6 @@ from typing import Any, List, Optional, Tuple
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QFileDialog,
     QFrame,
@@ -92,6 +91,7 @@ APP_TRANSLATIONS = (
     "Bera saman keyrslur",
     "Comparer les exécutions",
 )
+from ..widgets.toggle import Toggle
 
 #: Column layouts, so the tests and the drawing code cannot disagree.
 _SETTINGS_COLUMNS = ("Setting", "A", "B", "Change")
@@ -240,7 +240,7 @@ class RunCompareScreen(QWidget):
         outer.addWidget(self._banner)
 
         options = QHBoxLayout()
-        self._show_all = QCheckBox("Show unchanged settings")
+        self._show_all = Toggle("Show unchanged settings")
         self._show_all.setToolTip(
             "Off, the settings tab shows only what differs — which is the "
             "question. On, it shows every key both runs set, so you can "

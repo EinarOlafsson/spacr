@@ -36,7 +36,7 @@ from typing import Any, Dict, List, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox, QFileDialog,
+    QAbstractItemView, QDialog, QDialogButtonBox, QFileDialog,
     QFrame, QHBoxLayout, QHeaderView, QLabel, QMessageBox, QPlainTextEdit,
     QProgressBar, QPushButton, QTabWidget, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QWidget,
@@ -47,6 +47,7 @@ from ...ports import ALL_KINDS
 from ..theme import (SPACING, block_surface, font_px,
                      register_widget_qss)
 from .app_screen import ModuleHeader
+from ..widgets.toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
 
@@ -162,7 +163,7 @@ class ConfirmDeleteDialog(QDialog):
         listing.setPlainText(self.describe())
         outer.addWidget(listing, 1)
 
-        self.acknowledged = QCheckBox(
+        self.acknowledged = Toggle(
             "I have read the list above and want these files deleted", self)
         self.acknowledged.setObjectName("DataManagerAcknowledge")
         outer.addWidget(self.acknowledged)
@@ -347,9 +348,9 @@ class DataManagerScreen(QWidget):
         picker.setContentsMargins(0, 0, 0, 0)
         picker.setSpacing(SPACING["sm"])
         picker.addWidget(QLabel("Consider:", page))
-        self.kind_boxes: Dict[str, QCheckBox] = {}
+        self.kind_boxes: Dict[str] = {}
         for kind in _OFFERED_KINDS:
-            box = QCheckBox(dm.KIND_LABELS.get(kind, kind), page)
+            box = Toggle(dm.KIND_LABELS.get(kind, kind), page)
             box.setObjectName(f"DataManagerKind_{kind}")
             box.setChecked(kind in dm.DEFAULT_PRUNABLE_KINDS)
             if kind in dm.PROTECTED_KINDS:

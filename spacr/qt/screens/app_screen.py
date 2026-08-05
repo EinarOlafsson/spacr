@@ -1232,7 +1232,15 @@ class AppScreen(QWidget):
                 # label's tooltip HTML (the `href=` several tests assert on),
                 # so the reference is one hover and one click away, and the
                 # help itself is unchanged and still on the label.
-                section.add_row(lbl_widget, widget, info_widget=None)
+                #
+                # The host stays, though, and is built here rather than by
+                # `Section.add_row` (which only makes one when there is an
+                # info widget to put in it). It is what right-aligns the
+                # label against the field: dropping it left the label
+                # left-aligned and half the row's width was suddenly the
+                # page showing through rather than the category surface.
+                section.add_row(lbl_widget, widget, info_widget=None,
+                                wrap_label=True)
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
 

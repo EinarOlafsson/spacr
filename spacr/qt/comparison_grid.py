@@ -27,7 +27,7 @@ from dataclasses import replace
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import (QCheckBox, QGridLayout, QHBoxLayout, QLabel,
+from PySide6.QtWidgets import (QGridLayout, QHBoxLayout, QLabel,
                                QVBoxLayout, QWidget)
 
 from ..layers import (Canvas, CanvasLink, LabelsLayer, LayerError, LayerStack)
@@ -35,6 +35,7 @@ from .layer_viewer import LayerCanvas
 from .linked_selection import LinkedView
 from .theme import font_px, register_widget_qss
 from .widgets.preview_controls import FlatButton
+from .widgets.toggle import Toggle
 
 LOG = logging.getLogger(__name__)
 
@@ -125,7 +126,7 @@ class ComparisonPanel(QWidget):
         self.caption = QLabel(title or self._key, self)
         self.caption.setObjectName("ComparisonPanelName")
         header.addWidget(self.caption, 1)
-        self.lock_box = QCheckBox("linked", self)
+        self.lock_box = Toggle("linked", self)
         self.lock_box.setChecked(True)
         self.lock_box.setToolTip(
             "Uncheck to pan and zoom this panel on its own without losing "

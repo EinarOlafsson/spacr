@@ -56,7 +56,7 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel,
+    QAbstractItemView, QComboBox, QGridLayout, QHBoxLayout, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
     QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
@@ -76,6 +76,7 @@ from .pca_model import (
     NAN_POLICIES, SCALE_MODES, SCALE_NONE, SCALE_ZSCORE, PCAError, PCAResult,
     PCASpec, candidate_features, component_index, component_name, pca,
 )
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.pca")
 
@@ -621,7 +622,7 @@ class PCAPanel(QWidget):
         options.addWidget(QLabel("Colour", shelf), 4, 0)
         options.addWidget(self._colour, 4, 1)
 
-        self._biplot = QCheckBox("Loadings biplot", shelf)
+        self._biplot = Toggle("Loadings biplot", shelf)
         self._biplot.setChecked(True)
         self._biplot.setToolTip(
             "Arrows are each feature's correlation with the two components. "
