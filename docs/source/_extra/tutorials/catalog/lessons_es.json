@@ -1236,47 +1236,193 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify, machine learning",
+      "title": "Clasificación (ML)",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
-      "description": "Clasificadores basados en las características del tren, como XGBoost o bosque aleatorio a partir de datos medidos de un solo objeto.",
+      "description": "Entrenar un clasificador interpretable basado en características en células medidas reales, con c1 como control negativo y c2 como control positivo.",
       "objectives": [
-        "Comprender cuándo usar Classify, aprendizaje automático.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Mapa de las dos primeras columnas de placa a los controles negativos y positivos.",
+        "Revisar la preparación de las características, la corrección de la placa, la validación, la importancia, la salida, la gráfica y las categorías de tiempo de ejecución.",
+        "Configure la búsqueda de hiperparámetros conscientes de fugas y entienda lo que escribirá Run."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Completar la medida para que el proyecto contenga mediciones/medidas.db, y definir pozos de control biológicamente válidos antes de su instalación.",
       "scenes": [
         {
-          "narration": "Este tutorial abarca Clasificar, aprendizaje automático. Entrenar clasificadores basados en características como XGBoost o bosque aleatorio a partir de datos medidos de un solo objeto.",
-          "visual": "overview",
+          "narration": "Clasificar ML entrena un modelo clásico de aprendizaje automático en mediciones por objeto. La consola informa sobre la carga de la base de datos, filtración, corrección de placa, ajuste de modelo, métricas de validación, importancia de las características, predicciones guardadas y errores.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abarca Clasificar, aprendizaje automático. Entrenar clasificadores basados en características como XGBoost o bosque aleatorio a partir de datos medidos de un solo objeto."
+          "speech_text": "Clasificar ML entrena un modelo clásico de aprendizaje automático en mediciones por objeto. La consola informa sobre la carga de la base de datos, filtración, corrección de placa, ajuste de modelo, métricas de validación, importancia de las características, predicciones guardadas y errores."
         },
         {
-          "narration": "Abra Classify, machine learning en la sección Core. Abre Clasificar, aprendizaje automático desde la sección Core. Elige una base de datos de mediciones, columna de etiqueta, familias de características y columnas de agrupación experimental.",
-          "visual": "input",
+          "narration": "El campo de chat acepta preguntas sobre este flujo de trabajo. Habilitar a la IA para encaminar una pregunta a través del proveedor seleccionado, y usar la flecha adyacente para abrir el menú del proveedor.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Classify, machine learning en la sección Core. Abre Clasificar, aprendizaje automático desde la sección Core. Elige una base de datos de mediciones, columna de etiqueta, familias de características y columnas de agrupación experimental."
+          "speech_text": "El campo de chat acepta preguntas sobre este flujo de trabajo. Habilitar a la IA para encaminar una pregunta a través del proveedor seleccionado, y usar la flecha adyacente para abrir el menú del proveedor."
         },
         {
-          "narration": "En el área de configuración principal, configurar el filtrado, la escala, la selección de características, el equilibrio de clases, la familia de modelos y las particiones a prueba de fugas.",
-          "visual": "settings",
+          "narration": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados, y dan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, configurar el filtrado, la escala, la selección de características, el equilibrio de clases, la familia de modelos y las particiones a prueba de fugas."
+          "speech_text": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados, y dan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible.",
-          "visual": "run",
+          "narration": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+          "speech_text": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de espáquer."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, el proyecto recibe predicciones, importancia de las características, tablas de rendimiento y modelos serializados.",
-          "visual": "output",
+          "narration": "Arrastre el proyecto de tutoriales medidos a Clasificar ML. El manipulador de caídas resuelve las mediciones/medidas.db, que describe 81.969 cultivos de células reales; 6.598 están en la columna c1 y 6.487 están en la columna c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Arrastre el proyecto de tutoriales medidos a Clasificar ML. El manipulador de caídas resuelve las mediciones/medidas.db, que describe 81.969 cultivos de células reales; 6.598 están en la columna c1 y 6.487 están en la columna c2."
+        },
+        {
+          "narration": "Los elementos esenciales muestran la base de datos, el control de mapas, el canal ER y la familia de modelos necesarios para una primera carrera de clasificación basada en características.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Los elementos esenciales muestran la base de datos, el control de mapas, el canal ER y la familia de modelos necesarios para una primera carrera de clasificación basada en características."
+        },
+        {
+          "narration": "Modificado limita el panel a valores que difieren de los valores predeterminados de spaCR, lo que hace que las opciones deliberadas como centrar el control, la poda de características y la salida de la base de datos sean fáciles de auditar.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado limita el panel a valores que difieren de los valores predeterminados de espáquer, lo que hace que las opciones deliberadas como centrar el control, la poda de características y la salida de la base de datos sean fáciles de auditar."
+        },
+        {
+          "narration": "Todas las configuraciones revelan cada categoría sin cambios de valores. Las categorías organizan los controles por su papel en el análisis.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas las configuraciones revelan cada categoría sin cambios de valores. Las categorías organizan los controles por su papel en el análisis."
+        },
+        {
+          "narration": "Recetas guarda esta configuración completa bajo un nombre, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recetas guarda esta configuración completa bajo un nombre, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable."
+        },
+        {
+          "narration": "Envía instantáneas remotas de las configuraciones de Clasificar ML resueltas y envía el trabajo al espacio de trabajo de Trabajos Distribuidos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envía instantáneas remotas de las configuraciones de Clasificar ML resueltas y envía el trabajo al espacio de trabajo de Trabajos Distribuidos."
+        },
+        {
+          "narration": "Distribuido trabajos mapea los caminos del proyecto y los recursos de cálculo a una estación de trabajo remota, slurm cluster, o el comando configurado, luego envía y monitorea la misma ejecución.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distribuido trabajos mapea los caminos del proyecto y los recursos de cálculo a una estación de trabajo remota, slurm cluster, o el comando configurado, luego envía y monitorea la misma ejecución."
+        },
+        {
+          "narration": "Datos y controles selecciona el proyecto de medición e identifica la columna de metadatos y los valores que definen ejemplos positivos y negativos. Verifique estas etiquetas antes de instalar algo.",
+          "visual": "12_category_01_data_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Datos y controles selecciona el proyecto de medición e identifica la columna de metadatos y los valores que definen ejemplos positivos y negativos. Verifique estas etiquetas antes de instalar algo."
+        },
+        {
+          "narration": "Características Preparación elige el canal de interés y elimina las mediciones excluidas, de baja variación, altamente correlacionadas, de bajo número o biológicamente inválidas antes del entrenamiento.",
+          "visual": "12_category_02_feature_preparation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Características Preparación elige el canal de interés y elimina las mediciones excluidas, de baja variación, altamente correlacionadas, de bajo número o biológicamente inválidas antes del entrenamiento."
+        },
+        {
+          "narration": "Control de corrección de placa y lote de normalización por placa. Aquí cada placa está centrada en sus células de control negativo c1 manteniendo el contraste biológico con c2.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Control de corrección de placa y lote de normalización por placa. Aquí cada placa está centrada en sus células de control negativo c1 manteniendo el contraste biológico con c2."
+        },
+        {
+          "narration": "El clasificador y la validación selecciona XGBoost u otro estimador, su complejidad y regularización, la fracción retenida y el comportamiento de validación cruzada.",
+          "visual": "12_category_04_classifier_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El clasificador y la validación selecciona XGBoost u otro estimador, su complejidad y regularización, la fracción retenida y el comportamiento de validación cruzada."
+        },
+        {
+          "narration": "La selección de características y la importancia controlan la poda final, el número de características retenidas y las pruebas de permutación repetidas que revelan qué mediciones respaldan el clasificador.",
+          "visual": "12_category_05_feature_selection_importance",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La selección de características y la importancia controlan la poda final, el número de características retenidas y las pruebas de permutación repetidas que revelan qué mediciones respaldan el clasificador."
+        },
+        {
+          "narration": "La salida y la base de datos determinan si las predicciones y las puntuaciones del modelo se escriben de nuevo en la base de datos de medición para módulos posteriores de spaCR.",
+          "visual": "12_category_06_output_database",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La salida y la base de datos determinan si las predicciones y las puntuaciones del modelo se escriben de nuevo en la base de datos de medición para módulos posteriores de espáquer."
+        },
+        {
+          "narration": "Plots and Heatmaps elige la característica resumida, la regla de agrupación, el mapa de color y el rango de valores utilizados para visualizar los resultados a nivel de placa. Estos controles no cambian el modelo instalado.",
+          "visual": "12_category_07_plots_heatmaps",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plots and Heatmaps elige la característica resumida, la regla de agrupación, el mapa de color y el rango de valores utilizados para visualizar los resultados a nivel de placa. Estos controles no cambian el modelo instalado."
+        },
+        {
+          "narration": "El tiempo de funcionamiento y la fiabilidad controlan el registro y el número de trabajadores. Utilice menos trabajadores cuando comparte una estación de trabajo y mantenga la salida verbal mientras valida un nuevo flujo de trabajo.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El tiempo de funcionamiento y la fiabilidad controlan el registro y el número de trabajadores. Utilice menos trabajadores cuando comparte una estación de trabajo y mantenga la salida verbal mientras valida un nuevo flujo de trabajo."
+        },
+        {
+          "narration": "Para este tutorial, columnID es la fuente de etiqueta: c1 es el control negativo y c2 es el control positivo. El mapeo utiliza las dos primeras columnas de placa exactamente como se solicita.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Para este tutorial, columnID es la fuente de etiqueta: c1 es el control negativo y c2 es el control positivo. El mapeo utiliza las dos primeras columnas de placa exactamente como se solicita."
+        },
+        {
+          "narration": "La búsqueda de hiperparámetros compara las tasas de aprendizaje de los candidatos, los recuentos de estimadores y los valores de regularización con validación de cinco veces. La tabla de resultados clasifica los ensayos completados utilizando el criterio seleccionado.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "search",
+          "hold_after": 0.45,
+          "speech_text": "La búsqueda de hiperparámetros compara las tasas de aprendizaje de los candidatos, los recuentos de estimadores y los valores de regularización con validación de cinco veces. La tabla de resultados clasifica los ensayos completados utilizando el criterio seleccionado."
+        },
+        {
+          "narration": "Configuraciones de búsqueda define el espacio exacto del candidato, el modo de búsqueda, el número de ensayos, los pliegues, la semilla aleatoria y el criterio de optimización. Cierra después de revisar los límites.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Configuraciones de búsqueda define el espacio exacto del candidato, el modo de búsqueda, el número de ensayos, los pliegues, la semilla aleatoria y el criterio de optimización. Cierra después de revisar los límites."
+        },
+        {
+          "narration": "Run valida el proyecto y controla el mapeo, prepara las características, aplica corrección de placa, evalúa el clasificador, calcula la importancia, dibuja resúmenes y escribe las salidas habilitadas. Pide una interrupción segura.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
+          "click_key": "run",
           "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, el proyecto recibe predicciones, importancia de las características, tablas de rendimiento y modelos serializados."
+          "speech_text": "Run valida el proyecto y controla el mapeo, prepara las características, aplica corrección de placa, evalúa el clasificador, calcula la importancia, dibuja resúmenes y escribe las salidas habilitadas. Pide una interrupción segura."
         }
       ]
     },

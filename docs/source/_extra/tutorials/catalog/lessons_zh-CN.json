@@ -1236,47 +1236,193 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify, machine learning",
+      "title": "分类 (ML)",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
-      "description": "基于列车特征的分类器,如XGBoost或随机森林,从单个对象数据中测量.",
+      "description": "在实际测量细胞上训练可解释的基于特征的分类器,以c1为负控制和c2为正控制.",
       "objectives": [
-        "了解什么时候使用分类,机器学习.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "将前两个板块列映射到负和正的控制点.",
+        "审查特征准备,板块纠正,验证,重要性,输出,图片和运行时间类别.",
+        "设置泄漏意识的超参数搜索,了解Run会写什么."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "完成测量,以便项目包含测量/测量.db,并在安装之前定义生物有效的控制井.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了分类,机器学习. 从测量单个对象数据中训练基于功能的分类器,如XGBoost或随机森林.",
-          "visual": "overview",
+          "narration": "按对象测量进行经典机器学习模型的训练. 控制台报告数据库加载,过,板块纠正,模型配件,验证指标,功能重要性,保存的预测和错误.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了分类,机器学习. 从测量单个对象数据中训练基于功能的分类器,如XGBoost或随机森林."
+          "speech_text": "按对象测量进行经典机器学习模型的训练. 控制台报告数据库加载,过,板块纠正,模型配件,验证指标,功能重要性,保存的预测和错误."
         },
         {
-          "narration": "从 Core 部分打开 Classify, machine learning。 选择测量数据库,标签列,功能家庭和实验组列.",
-          "visual": "input",
+          "narration": "聊天场接受有关工作流程的问题. 让人工智能通过选择的供应商引导一个问题,并使用相邻的箭头打开供应商菜单.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Classify, machine learning。 选择测量数据库,标签列,功能家庭和实验组列."
+          "speech_text": "聊天场接受有关工作流程的问题. 让人工智能通过选择的供应商引导一个问题,并使用相邻的箭头打开供应商菜单."
         },
         {
-          "narration": "在主配置区域,配置过,扩展,特征选择,类平衡,模型家族和防泄漏分区.",
-          "visual": "settings",
+          "narration": "提供商报告了克劳德,ChatGPT和双胞胎命令行客户端是否安装,并提供了其安装和登录命令. 证书留在每个供应商身上.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主配置区域,配置过,扩展,特征选择,类平衡,模型家族和防泄漏分区."
+          "speech_text": "提供商报告了克劳德,ChatGPT和双胞胎命令行客户端是否安装,并提供了其安装和登录命令. 证书留在每个供应商身上."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 交叉验证模型选择,并在可能的情况下保留延期的评估设置.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 交叉验证模型选择,并在可能的情况下保留延期的评估设置."
+          "speech_text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和斯佩克尔知情系统提示."
         },
         {
-          "narration": "当工作流程完成时,项目会收到预测,功能重要性,性能表格和序列化模型.",
-          "visual": "output",
+          "narration": "拖动测量教程项目进入分类 ML. 降落处理器解决测量/measurements.db,描述了81,969种实细胞作物;6,598种位于列c1和6,487种位于列c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "拖动测量教程项目进入分类 ML. 降落处理器解决测量/measurements dot db,描述了81,969种实细胞作物;6,598种位于列c1和6,487种位于列c2."
+        },
+        {
+          "narration": "基本文件显示了首个基于特征的分类运行所需的数据库,控制映射,ER频道和模型家族.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本文件显示了首个基于特征的分类运行所需的数据库,控制映射,ER频道和模型家族."
+        },
+        {
+          "narration": "修改限制了面板的值与spaCR默认值不同,使得控制中心化,功能剪裁和数据库输出等故意选择容易进行审计.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制了面板的值与斯佩克尔默认值不同,使得控制中心化,功能剪裁和数据库输出等故意选择容易进行审计."
+        },
+        {
+          "narration": "所有设置都显示每个类别,没有改变值. 类别按分析中的作用组织控制.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示每个类别,没有改变值. 类别按分析中的作用组织控制."
+        },
+        {
+          "narration": "配方将这个完整的配置存储在一个名称下,以后重新应用,或者进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将这个完整的配置存储在一个名称下,以后重新应用,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的分类 ML 设置的远程快照,并将工作发送到分布式工作工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的分类 ML 设置的远程快照,并将工作发送到分布式工作工作工作空间."
+        },
+        {
+          "narration": "分布式工作将项目路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将项目路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行."
+        },
+        {
+          "narration": "数据和控制选择测量项目并确定定义积极和负面示例的元数据列和值. 在安装任何东西之前,请检查这些标签.",
+          "visual": "12_category_01_data_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "数据和控制选择测量项目并确定定义积极和负面示例的元数据列和值. 在安装任何东西之前,请检查这些标签."
+        },
+        {
+          "narration": "特征 准备选择了所感兴趣的道,并在训练前删除了排除,变量较低,相关性较高,数量较低或生理上无效的测量.",
+          "visual": "12_category_02_feature_preparation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "特征 准备选择了所感兴趣的道,并在训练前删除了排除,变量较低,相关性较高,数量较低或生理上无效的测量."
+        },
+        {
+          "narration": "电盘和批量纠正控制每盘正常化. 在这里,每个板块都集中在其c1负控制细胞上,同时保持与c2的生物对比.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "电盘和批量纠正控制每盘正常化. 在这里,每个板块都集中在其c1负控制细胞上,同时保持与c2的生物对比."
+        },
+        {
+          "narration": "分类器和验证选择XGBoost或其他估计器,其复杂性和规律化,持久分数和交叉验证行为.",
+          "visual": "12_category_04_classifier_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "分类器和验证选择XGBoost或其他估计器,其复杂性和规律化,持久分数和交叉验证行为."
+        },
+        {
+          "narration": "功能选择和重要性控制最终切割,保留的特性数量和重复的变量测试,以显示哪些测量支持分类器.",
+          "visual": "12_category_05_feature_selection_importance",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "功能选择和重要性控制最终切割,保留的特性数量和重复的变量测试,以显示哪些测量支持分类器."
+        },
+        {
+          "narration": "输出和数据库确定后续spaCR模块的预测和模型分数是否被写回测量数据库.",
+          "visual": "12_category_06_output_database",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和数据库确定后续斯佩克尔模块的预测和模型分数是否被写回测量数据库."
+        },
+        {
+          "narration": "图片和热地图选择总结的功能,组分规则,颜色地图和值范围,用于可视化平板水平的结果. 这些控制不会改变安装模型.",
+          "visual": "12_category_07_plots_heatmaps",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "图片和热地图选择总结的功能,组分规则,颜色地图和值范围,用于可视化平板水平的结果. 这些控制不会改变安装模型."
+        },
+        {
+          "narration": "运行时间和可靠性控制伐木和工人数量. 在共享工作站时使用较少的员工,并在验证新工作流的同时保持口头输出.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运行时间和可靠性控制伐木和工人数量. 在共享工作站时使用较少的员工,并在验证新工作流的同时保持口头输出."
+        },
+        {
+          "narration": "在本教程中, columnID 是标签来源: c1 是负面控制和 c2 是正面控制. 在图表中使用了前两个板块列,正如要求的那样.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "在本教程中, columnID 是标签来源: c1 是负面控制和 c2 是正面控制. 在图表中使用了前两个板块列,正如要求的那样."
+        },
+        {
+          "narration": "超参数搜索比较了候选人学习率,估计器数量和规律化值, 结果表列了使用所选标准完成的试验.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "search",
+          "hold_after": 0.45,
+          "speech_text": "超参数搜索比较了候选人学习率,估计器数量和规律化值, 结果表列了使用所选标准完成的试验."
+        },
+        {
+          "narration": "搜索设置定义了准确的候选空间,搜索模式,试验数量,折叠,随机种子和优化标准. 在审查限制后关闭它.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "搜索设置定义了准确的候选空间,搜索模式,试验数量,折叠,随机种子和优化标准. 在审查限制后关闭它."
+        },
+        {
+          "narration": "运行验证项目和控制地图,准备功能,应用平板修正,评估分类器,计算重要性,绘制总结,并编写启用输出. 停止请求安全的中断.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
+          "click_key": "run",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,项目会收到预测,功能重要性,性能表格和序列化模型."
+          "speech_text": "运行验证项目和控制地图,准备功能,应用平板修正,评估分类器,计算重要性,绘制总结,并编写启用输出. 停止请求安全的中断."
         }
       ]
     },
