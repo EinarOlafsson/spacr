@@ -2920,48 +2920,177 @@
     {
       "id": "20_cellpose_masks",
       "number": 20,
-      "slug": "cellpose_masks",
-      "title": "Cellpose Masks",
+      "slug": "cellpose-masks",
+      "title": "Maschere Cellposetoken",
       "series": 2,
       "app_key": "cellpose_masks",
       "section": "Segmentation models",
-      "description": "Generare e rivedere le maschere Cellpose con un flusso di lavoro modello-applicazione focalizzato.",
+      "description": "Applicare i pesi Cellpose in stock o personalizzati ai campi di microscopia, ispezionare le sovrapposizioni e i flussi e salvare le maschere di istanza.",
       "objectives": [
-        "Comprendere quando usare le maschere Cellpose.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Connettere i file TIFF di microscopia e selezionare un punto di controllo a magazzino o personalizzato.",
+        "Canali di revisione, modello, soglie, geometria, denotamento e categorie di uscita.",
+        "Generare e ispezionare le maschere salvate, le sovrapposizioni e i flussi di Cellpose."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Utilizzare un modello convalidato per l'acquisizione e il tipo di oggetto; questa lezione continua con il checkpoint di calibrazione creato in Train Cellpose.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre le maschere Cellpose. Generare e rivedere le maschere Cellpose con un flusso di lavoro modello-applicazione focalizzato.",
-          "visual": "overview",
+          "narration": "Cellpose Masks applica un modello CPSAM di stock o un checkpoint personalizzato alle immagini di microscopia e scrive una maschera di etichetta di istanza per campo. La console registra la risoluzione del modello, la normalizzazione, il progresso e i percorsi di uscita.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre le maschere Cellpose. Generare e rivedere le maschere Cellpose con un flusso di lavoro modello-applicazione focalizzato."
+          "speech_text": "Cellpose Masks applica un modello CPSAM di stock o un checkpoint personalizzato alle immagini di microscopia e scrive una maschera di etichetta di istanza per campo. La console registra la risoluzione del modello, la normalizzazione, il progresso e i percorsi di uscita."
         },
         {
-          "narration": "Apri Cellpose Masks dalla sezione Segmentation models. Apri le maschere Cellpose dalla sezione Modelli di segmentazione. Selezionare immagini, canali e un modello Cellpose integrato o personalizzato.",
-          "visual": "input",
+          "narration": "Il campo di chat accetta le domande del flusso di lavoro locale. Abilitare l'IA per un provider configurato e utilizzare la freccia adiacente per selezionare un provider o aprire i suoi controlli.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Apri Cellpose Masks dalla sezione Segmentation models. Apri le maschere Cellpose dalla sezione Modelli di segmentazione. Selezionare immagini, canali e un modello Cellpose integrato o personalizzato."
+          "speech_text": "Il campo di chat accetta le domande del flusso di lavoro locale. Abilitare l'IA per un provider configurato e utilizzare la freccia adiacente per selezionare un provider o aprire i suoi controlli."
         },
         {
-          "narration": "Nell'area di configurazione principale, configurare il diametro, il flusso e le soglie di probabilità cellulare, la normalizzazione, la tessitura e l'uso hardware.",
-          "visual": "settings",
+          "narration": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e visualizzano i loro comandi di installazione e login mentre l'autenticazione rimane presso ciascun fornitore.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, configurare il diametro, il flusso e le soglie di probabilità cellulare, la normalizzazione, la tessitura e l'uso hardware."
+          "speech_text": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e visualizzano i loro comandi di installazione e login mentre l'autenticazione rimane presso ciascun fornitore."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile.",
-          "visual": "run",
+          "narration": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile."
+          "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spàker."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, le maschere di etichetta e le immagini di controllo della qualità visiva vengono scritte accanto agli input mappati.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, le maschere di etichetta e le immagini di controllo della qualità visiva vengono scritte accanto agli input mappati."
+          "narration": "Scaricare la cartella contenente campi TIFF. Questa fonte contiene sei vere colture cellulari di canale ER, normalizzate tra i percentili due e novantacinque punti cinque. Il canale zero seleziona il singolo piano di ciascun TIFF.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.5,
+          "speech_text": "Scaricare la cartella contenente campi TIFF. Questa fonte contiene sei vere colture cellulari di canale ER, normalizzate tra i percentili due e novantacinque punti cinque. Il canale zero seleziona il singolo piano di ciascun TIFF."
+        },
+        {
+          "narration": "Essentials mantiene visibile la fonte, i canali, la normalizzazione, il modello, il checkpoint personalizzato, il diametro, la probabilità e le soglie di flusso, l'interruttore di salvataggio, la dimensione del lotto e la preview verbo.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mantiene visibile la fonte, i canali, la normalizzazione, il modello, il checkpoint personalizzato, il diametro, la probabilità e le soglie di flusso, l'interruttore di salvataggio, la dimensione del lotto e la preview verbo."
+        },
+        {
+          "narration": "Modificato isola il checkpoint personalizzato di questa corsa, la normalizzazione del percentile, la dimensione del lotto due, il risparmio e l'uscita di figure verboose da default invariati.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificato isola il checkpoint personalizzato di questa corsa, la normalizzazione del percentile, la dimensione del lotto due, il risparmio e l'uscita di figure verboose da default invariati."
+        },
+        {
+          "narration": "Tutte le impostazioni rivelano sei categorie: ingresso e canali, modello, soglie di rilevazione, geometria dell'immagine, sfondo e negazione e uscita e tempo di esecuzione.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tutte le impostazioni rivelano sei categorie: ingresso e canali, modello, soglie di rilevazione, geometria dell'immagine, sfondo e negazione e uscita e tempo di esecuzione."
+        },
+        {
+          "narration": "Le ricette salvano la configurazione completa delle inferenze, le riapplicano in un'altra cartella di immagini o importano ed esportano un file di impostazioni riutilizzabile.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Le ricette salvano la configurazione completa delle inferenze, le riapplicano in un'altra cartella di immagini o importano ed esportano un file di impostazioni riutilizzabile."
+        },
+        {
+          "narration": "Invia istantanee remote del modello risolto, della fonte e delle soglie e invia il lavoro di segmentazione nello spazio di lavoro Jobs Distribuiti.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Invia istantanee remote del modello risolto, della fonte e delle soglie e invia il lavoro di segmentazione nello spazio di lavoro Jobs Distribuiti."
+        },
+        {
+          "narration": "Distributed Jobs mappa l'immagine, il modello e i percorsi di uscita verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mappa l'immagine, il modello e i percorsi di uscita verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione."
+        },
+        {
+          "narration": "Input and Channels seleziona la cartella dell'immagine, i piani, la gestione della scala grigia, l'inversione, la normalizzazione e i percentili. Un indice di canale sbagliato può far sembrare che un modello valido non rileva nulla.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Channels seleziona la cartella dell'immagine, i piani, la gestione della scala grigia, l'inversione, la normalizzazione e i percentili. Un indice di canale sbagliato può far sembrare che un modello valido non rileva nulla."
+        },
+        {
+          "narration": "Il modello sceglie i pesi CPSAM imballati o un punto di controllo personalizzato e fornisce il diametro dell'oggetto atteso. Il checkpoint personalizzato del tutorial precedente ha la priorità qui.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Il modello sceglie i pesi CPSAM imballati o un punto di controllo personalizzato e fornisce il diametro dell'oggetto atteso. Il checkpoint personalizzato del tutorial precedente ha la priorità qui."
+        },
+        {
+          "narration": "Le soglie di rilevamento controllano il livello di probabilità della cellula, l'accordo di flusso, la ridiscalazione, il campionamento e il riempimento dei fori. Aggiusta questi solo dopo aver verificato l'immagine e il modello corretti.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le soglie di rilevamento controllano il livello di probabilità della cellula, l'accordo di flusso, la ridiscalazione, il campionamento e il riempimento dei fori. Aggiusta questi solo dopo aver verificato l'immagine e il modello corretti."
+        },
+        {
+          "narration": "La geometria delle immagini ridimensionerà opzionalmente i campi prima di inferire e ripristinerà le maschere alle dimensioni originali. Tenere il rapporto di aspetto e la scala dei pixel coerenti con l'allenamento.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La geometria delle immagini ridimensionerà opzionalmente i campi prima di inferire e ripristinerà le maschere alle dimensioni originali. Tenere il rapporto di aspetto e la scala dei pixel coerenti con l'allenamento."
+        },
+        {
+          "narration": "In caso di segmentazione, viene applicata la rimozione opzionale di sfondo, un piano di intensità e uno schermo di segnale-ruido.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "In caso di segmentazione, viene applicata la rimozione opzionale di sfondo, un piano di intensità e uno schermo di segnale-ruido."
+        },
+        {
+          "narration": "La produzione e il tempo di esecuzione controllano il risparmio della maschera, la dimensione del lotto di inferenza e le cifre verbali. Riduci le dimensioni del lotto quando l'inferenza del modello esaurisce la memoria della GPU.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La produzione e il tempo di esecuzione controllano il risparmio della maschera, la dimensione del lotto di inferenza e le cifre verbali. Riduci le dimensioni del lotto quando l'inferenza del modello esaurisce la memoria della GPU."
+        },
+        {
+          "narration": "Questa corsa mantiene una soglia di probabilità di zero, una soglia di flusso di zero punto quattro, nessun ridimensionamento o campionamento, e riempie buchi interni in ogni oggetto accettato.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Questa corsa mantiene una soglia di probabilità di zero, una soglia di flusso di zero punto quattro, nessun ridimensionamento o campionamento, e riempie buchi interni in ogni oggetto accettato."
+        },
+        {
+          "narration": "Run carica il checkpoint, normalizza ogni lotto, predice le maschere e i flussi, riempie i buchi, salva ogni maschera e visualizza le diagnosi. STOP richiede un'interruzione sicura.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run carica il checkpoint, normalizza ogni lotto, predice le maschere e i flussi, riempie i buchi, salva ogni maschera e visualizza le diagnosi. STOP richiede un'interruzione sicura."
+        },
+        {
+          "narration": "Durante l'elaborazione, la console segnala il punto di controllo personalizzato risolto e il progresso del lotto mentre il pannello di immagini aggiunge immagini originali, sovrapposizioni di maschera rossa e campi di flusso.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante l'elaborazione, la console segnala il punto di controllo personalizzato risolto e il progresso del lotto mentre il pannello di immagini aggiunge immagini originali, sovrapposizioni di maschera rossa e campi di flusso."
+        },
+        {
+          "narration": "La corsa ha completato sei dei sei campi e salvato sei maschere. Il pannello finale mostra l'immagine originale di ER, le linee cellulari e i flussi Cellpose, rendendo visibile la qualità della segmentazione prima della misurazione a valle.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "La corsa ha completato sei dei sei campi e salvato sei maschere. Il pannello finale mostra l'immagine originale di ER, le linee cellulari e i flussi Cellpose, rendendo visibile la qualità della segmentazione prima della misurazione a valle."
         }
       ]
     },
