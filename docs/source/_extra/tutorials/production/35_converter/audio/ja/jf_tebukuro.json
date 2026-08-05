@@ -4,47 +4,107 @@
   "voice": "jf_tebukuro",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 71.4,
+  "total_duration": 254.38,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 14.975,
-      "scene_end": 15.424999999999999,
-      "duration": 15.424999999999999,
-      "text": "このチュートリアルでは,フォーマットコンバータをカバーします. ND2, CZI, LIF, OME-TIFF,および関連顕微鏡フォーマットをマッピングされた横川様式のTIFFファイルに変換します."
+      "speech_end": 21.225,
+      "scene_end": 21.925,
+      "duration": 21.925,
+      "text": "フォーマットコンバーターはベンダーまたは一般顕微鏡画像を横川様式のTIFF名に変換し,spaCR Mask and Measureが直接読み取ります. データから開いて バッチを運ぶ 中央の安全規則は プレビュー・ファーストとコンバージョン・セカンドです",
+      "speech_text": "フォーマットコンバーターはベンダーまたは一般顕微鏡画像を横川様式のTIFF名に変換し,スペーカー Mask and Measureが直接読み取ります. データから開いて バッチを運ぶ 中央の安全規則は プレビュー・ファーストとコンバージョン・セカンドです",
+      "phonemes": "ɸoːmaʔto kombaːtaː βa bendaː mata βa iʔpaɴ kembʲikʲoː ɡaʣoː o joɡaβa joːɕikʲi no TIFF meː ɲi heŋkaɴ ɕi, sɨpeːkaː Mask and Measure ɡa ʨokɯseʦɨ jomʲitoɾʲi masɨ. deːta kaɾa çiɾaite baʔʨi o hakobɯ ʨɨːoː no aɴʣeɴ kʲisokɯ βa pɯɾebʲɨː ɸaːsɨto to kombaːʥoɴ sekando desɨ"
     },
     {
       "scene": 2,
-      "speech_start": 15.424999999999999,
-      "speech_end": 30.4,
-      "scene_end": 30.849999999999998,
-      "duration": 15.424999999999999,
-      "text": "Data and batch runs セクションから Format Converter を開きます。 ソースファイル,シリーズまたはシーン,チャンネル名,時間と深さの処理,および出力フォルダーを選択します."
+      "speech_start": 21.925,
+      "speech_end": 47.375,
+      "scene_end": 48.135,
+      "duration": 26.209999999999997,
+      "text": "ソースフォルダを落とすか,ここから選択し,新しい目的地を選択します. このデモでは 転送された実験から 2つの実際の4チャネルのフィールドを使用します 彼らのピクセルはバイト対バイトにコピーされ,この変換例のために教程フォルダ構造とソースファイル名のみが準備された.",
+      "speech_text": "ソースフォルダを落とすか,ここから選択し,新しい目的地を選択します. このデモでは 転送された実験から 2つの実際の4チャネルのフィールドを使用します 彼らのピクセルはバイト対バイトにコピーされ,この変換例のために教程フォルダ構造とソースファイル名のみが準備された.",
+      "phonemes": "soːsɨ ɸoɾɯda o otosɨ ka, koko kaɾa sentakɯ ɕi, ataɾaɕiː mokɯtekʲiʨi o sentakɯ ɕi masɨ. kono demo de βa teɴsoː saɾeta ʥiʔkeɴ kaɾa ɲiʔno ʥiʔsai no joɴ ʨaneɾɯ no ɸʲiːɾɯdo o ɕijoː ɕi masɨ kaɾeɾa no pʲikɯseɾɯ βa baito tai baito ɲi kopʲiː saɾe, kono heŋkaɴ ɾeː no tame ɲi kʲoːteː ɸoɾɯda koːʣoː to soːsɨ ɸaiɾɯ meː nomʲi ɡa ʥɨmbʲi saɾeta."
     },
     {
       "scene": 3,
-      "speech_start": 30.849999999999998,
-      "speech_end": 43.3,
-      "scene_end": 43.75,
-      "duration": 12.900000000000002,
-      "text": "主な構成領域では,ソース次元がプレート,井戸,フィールド,時間,深度,チャンネルインデックスに映し出されていることをプレビューします."
+      "speech_start": 48.135,
+      "speech_end": 79.71,
+      "scene_end": 80.52999999999999,
+      "duration": 32.39499999999999,
+      "text": "レイアウトは,画像が直接源,井戸フォルダの下,または板と井戸フォルダの下にあるかどうかを記述します.自動検出は通常適切です. すべてのZ平面を保持することは 損失のないデフォルトです マックスプロジェクションとファーストプランモードは 飛行機を明示的に捨てる. プレート名は順序式または保存ソースフォルダーであり,Resumeはチェックポイントをスキップする前に検証します.",
+      "speech_text": "レイアウトは,画像が直接源,井戸フォルダの下,または板と井戸フォルダの下にあるかどうかを記述します.自動検出は通常適切です. すべてのZ平面を保持することは 損失のないデフォルトです マックスプロジェクションとファーストプランモードは 飛行機を明示的に捨てる. プレート名は順序式または保存ソースフォルダーであり,Resumeはチェックポイントをスキップする前に検証します.",
+      "phonemes": "ɾeːaɯto βa, ɡaʣoː ɡa ʨokɯseʦɨ ɡeɴ, ido ɸoɾɯda no moto, mata βa ita to ido ɸoɾɯda no ɕita ɲi aɾɯka doː ka o kʲiʥɨʦɨ ɕi masɨ. ʥidoː keɴɕɨʦɨ βa ʦɨːʥoː tekʲiseʦɨ desɨ. sɨbete no Z heːmeɴ o hoʥi sɨɾɯ koto βa soɴɕiʦɨ no nai deɸoɾɯto desɨ maʔkɯsɨ pɯɾoʥekɯɕoɴ to ɸaːsɨto pɯɾaɴ moːdo βa çikoːkʲi o meːʥi tekʲi ɲi sɨteɾɯ. pɯɾeːto meː βa ʥɨɲʥo ɕikʲi mata βa hoʣoɴ soːsɨ ɸoɾɯdaː de aɾʲi, Resume βa ʨeʔkɯpointo o sɨkʲiʔpɯ sɨɾɯ mae ɲi keɴɕoː ɕi masɨ."
     },
     {
       "scene": 4,
-      "speech_start": 43.75,
-      "speech_end": 60.125,
-      "scene_end": 60.575,
-      "duration": 16.825000000000003,
-      "text": "実行完了前に,可視設定を確認し,可用である場合のプレビューまたはテストモードを使用します. すべてのファイルを変換する前に小さなサンプルでマッピングを検証します."
+      "speech_start": 80.52999999999999,
+      "speech_end": 100.505,
+      "scene_end": 101.185,
+      "duration": 20.655000000000015,
+      "text": "自動レイアウト検出,無損Z処理,順序的なプレート名,新しい目的地が選択された場合は,プレビューをクリックします. プレビューはヘッダをスキャンし,マッピングを作成しますが,目的地を作成したり,画像を書かない.",
+      "speech_text": "自動レイアウト検出,無損Z処理,順序的なプレート名,新しい目的地が選択された場合は,プレビューをクリックします. プレビューはヘッダをスキャンし,マッピングを作成しますが,目的地を作成したり,画像を書かない.",
+      "phonemes": "ʥidoː ɾeːaɯto keɴɕɨʦɨ, mɯ soɴ Z ɕoɾʲi, ʥɨɲʥo tekʲi na pɯɾeːto meː, ataɾaɕiː mokɯtekʲiʨi ɡa sentakɯ saɾeta baai βa, pɯɾebʲɨː o kɯɾʲiʔkɯ ɕi masɨ. pɯɾebʲɨː βa heʔda o sɨkʲaɴ ɕi, maʔpʲiŋɡɯ o sakɯseː ɕi masɨ ɡa, mokɯtekʲiʨi o sakɯseː ɕitaɾʲi, ɡaʣoː o kakanai."
     },
     {
       "scene": 5,
-      "speech_start": 60.575,
-      "speech_end": 70.75,
-      "scene_end": 71.4,
-      "duration": 10.825000000000003,
-      "text": "作業流が完了すると, spaCR は標準化された TIFF と,元のファイルとメタデータに戻る地図を書き込みます."
+      "speech_start": 101.185,
+      "speech_end": 130.61,
+      "scene_end": 131.45000000000002,
+      "duration": 30.265000000000015,
+      "text": "変換前に完全な8ファイルプランが表示されます. 各行は正確なターゲット,プレート,井戸,フィールド,チャンネル,Z,時間,元の識別子,状態の隣に識別可能なソースを置く. 最初の出力はプレート1,A01,フィールド1,チャンネル1です. 最後の出力はフィールド2,チャンネル4です. ステータスは何も書かれていないことを確認します",
+      "speech_text": "変換前に完全な8ファイルプランが表示されます. 各行は正確なターゲット,プレート,井戸,フィールド,チャンネル,Z,時間,元の識別子,状態の隣に識別可能なソースを置く. 最初の出力はプレート1,A01,フィールド1,チャンネル1です. 最後の出力はフィールド2,チャンネル4です. ステータスは何も書かれていないことを確認します",
+      "phonemes": "heŋkaɴ mae ɲi kaɴʣeɴ na haʨi ɸaiɾɯ pɯɾaɴ ɡa çoːʥi saɾemasɨ. kakɯɡʲoː βa seːkakɯ na taːɡeʔto, pɯɾeːto, ido, ɸʲiːɾɯdo, ʨanneɾɯ, Z, ʥikaɴ, moto no ɕikʲibeʦɨ ɕi, ʥoːtai no tonaɾʲi ɲi ɕikʲibeʦɨ kanoː na soːsɨ o okɯ. saiɕo no ɕɨʦɨɾʲokɯ βa pɯɾeːto iʨi, A iʨi, ɸʲiːɾɯdo iʨi, ʨanneɾɯ iʨi desɨ. saiɡo no ɕɨʦɨɾʲokɯ βa ɸʲiːɾɯdo ɲi, ʨanneɾɯ joɴ desɨ. sɨteːtasɨ βa naɴ mo kaka ɾe te inai koto o kakɯɲiɴ ɕi masɨ"
+    },
+    {
+      "scene": 6,
+      "speech_start": 131.45000000000002,
+      "speech_end": 157.10000000000002,
+      "scene_end": 157.82000000000002,
+      "duration": 26.370000000000005,
+      "text": "概要を閲覧し,マッピングが正しい場合にのみ変換をクリックします. 衝突によって このボタンが 対象を覆すのではなく 機能しなくなります 有効なファイルは 原子的に別々の目的地に書き込まれます だからオリジナルの顕微鏡画像は 名前を変えたり 置き換えられたりしません",
+      "speech_text": "概要を閲覧し,マッピングが正しい場合にのみ変換をクリックします. 衝突によって このボタンが 対象を覆すのではなく 機能しなくなります 有効なファイルは 原子的に別々の目的地に書き込まれます だからオリジナルの顕微鏡画像は 名前を変えたり 置き換えられたりしません",
+      "phonemes": "ɡaijoː o eʦɨɾaɴ ɕi, maʔpʲiŋɡɯ ɡa tadaɕiː baai ɲi nomʲi heŋkaɴ o kɯɾʲiʔkɯ ɕi masɨ. ɕoːtoʦɨ ɲi joʔte kono botaɴ ɡa taiɕoː o kɯʦɨɡaesɨ no de βa nakɯ kʲinoː ɕi nakɯ naɾʲimasɨ jɯːkoː na ɸaiɾɯ βa ɡeɴɕi tekʲi ɲi beʦɨbeʦɨ no mokɯtekʲiʨi ɲi kakʲikoma ɾe masɨ dakaɾa oɾʲiʥinaɾɯ no kembʲikʲoː ɡaʣoː βa namae o kae taɾʲi okʲikae ɾaɾe taɾʲi ɕi maseɴ"
+    },
+    {
+      "scene": 7,
+      "speech_start": 157.82000000000002,
+      "speech_end": 183.07000000000002,
+      "scene_end": 183.87000000000003,
+      "duration": 26.05000000000001,
+      "text": "8つのTIFFは全て成功して書かれました. conversion_map.csv は,元の絶対および相対的な経路,ソース識別子,spaCR 結合識別子,次元,Zポリシー,メタデータに加えてすべてのターゲットを記録します. 準備されたソースTIFFハッシュは,変換後にバイトに一致するままである.",
+      "speech_text": "8つのTIFFは全て成功して書かれました. conversion_map.csv は,元の絶対および相対的な経路,ソース識別子,スペーカー 結合識別子,次元,Zポリシー,メタデータに加えてすべてのターゲットを記録します. 準備されたソースTIFFハッシュは,変換後にバイトに一致するままである.",
+      "phonemes": "βa ʨiʦɨ no TIFF βa sɨbete seːkoː ɕite kaka ɾe maɕita. conversion _ map. csv βa, moto no ʣeʔtai ojobʲi soːtaitekʲi na keːɾo, soːsɨ ɕikʲibeʦɨ ɕi, sɨpeːkaː keʦɨɡoː ɕikʲibeʦɨ ɕi, ʥiɡeɴ, Z poɾʲiɕiː, meta deːta ɲi kɯβaete sɨbete no taːɡeʔto o kʲiɾokɯ ɕi masɨ. ʥɨmbʲi saɾeta soːsɨ TIFF haʔɕɨ βa, heŋkaɴ ɡo ɲi baito ɲi iʔʨi sɨɾɯ mama de aɾɯ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 183.87000000000003,
+      "speech_end": 207.67000000000004,
+      "scene_end": 208.37000000000003,
+      "duration": 24.5,
+      "text": "停止または繰り返される変換のために再開を有効にします. 履歴書はファイル名のみを信頼するものではなく,原子フィールドチェックポイントに相談し,完成したフィールドに属するすべてのTIFFを検証し,フィールドをスキップすることが決定される前に確認します.",
+      "speech_text": "停止または繰り返される変換のために再開を有効にします. 履歴書はファイル名のみを信頼するものではなく,原子フィールドチェックポイントに相談し,完成したフィールドに属するすべてのTIFFを検証し,フィールドをスキップすることが決定される前に確認します.",
+      "phonemes": "teːɕi mata βa kɯɾʲikaesaɾeɾɯ heŋkaɴ no tame ɲi saikai o jɯːkoː ɲi ɕi masɨ. ɾʲiɾekʲiɕo βa ɸaiɾɯ meː nomʲi o ɕinɾai sɨɾɯ mono de βa nakɯ, ɡeɴɕi ɸʲiːɾɯdo ʨeʔkɯpointo ɲi soːdaɴ ɕi, kaɴseː ɕita ɸʲiːɾɯdo ɲi ʣokɯsɨɾɯ sɨbete no TIFF o keɴɕoː ɕi, ɸʲiːɾɯdo o sɨkʲiʔpɯ sɨɾɯ koto ɡa keʔteː saɾeɾɯ mae ɲi kakɯɲiɴ ɕi masɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 208.37000000000003,
+      "speech_end": 227.97000000000003,
+      "scene_end": 228.61,
+      "duration": 20.23999999999998,
+      "text": "同じ確認されたプランとリニューアルを有効にすると,再変換をクリックします. 1つのファイルが欠落または破損した場合,そのフィールド全体が再構築されます. 完全なフィールドは安全に再利用できます.",
+      "speech_text": "同じ確認されたプランとリニューアルを有効にすると,再変換をクリックします. 1つのファイルが欠落または破損した場合,そのフィールド全体が再構築されます. 完全なフィールドは安全に再利用できます.",
+      "phonemes": "onaʥi kakɯɲiɴ saɾeta pɯɾaɴ to ɾʲiɲɨːaɾɯ o jɯːkoː ɲi sɨɾɯ to, sai heŋkaɴ o kɯɾʲiʔkɯ ɕi masɨ. i ʨiʦɨ no ɸaiɾɯ ɡa keʦɨɾakɯ mata βa hasoɴ ɕita baai, sono ɸʲiːɾɯdo ʣentai ɡa sai koːʨikɯ saɾemasɨ. kaɴʣeɴ na ɸʲiːɾɯdo βa aɴʣeɴ ɲi sai ɾʲijoː dekʲimasɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 228.61,
+      "speech_end": 253.56,
+      "scene_end": 254.38,
+      "duration": 25.769999999999982,
+      "text": "両4チャネルのフィールドは検証を通過するので,リニューアルはゼロのファイルを書き出し,2つのリニューアルフィールドを報告します. 8列の起源地図と8つの変換されたTIFFは完了しており,spaCRの命名に逆転可能,損失のない,再起動安全な輸入を完了しています.",
+      "speech_text": "両4チャネルのフィールドは検証を通過するので,リニューアルはゼロのファイルを書き出し,2つのリニューアルフィールドを報告します. 8列の起源地図と8つの変換されたTIFFは完了しており,スペーカーの命名に逆転可能,損失のない,再起動安全な輸入を完了しています.",
+      "phonemes": "ɾʲoː joɴ ʨaneɾɯ no ɸʲiːɾɯdo βa keɴɕoː o ʦɨːka sɨɾɯ no de, ɾʲiɲɨːaɾɯ βa ʣeɾo no ɸaiɾɯ o kakʲidaɕi, ɲiʔno ɾʲiɲɨːaɾɯ ɸʲiːɾɯdo o hoːkokɯ ɕi masɨ. haʨi ɾeʦɨ no kʲiɡeɴ ʨizɨ toβa ʨiʦɨ no heŋkaɴ saɾeta TIFF βa kanɾʲoː ɕite oɾʲi, sɨpeːkaː no meːmeː ɲi ɡʲakɯteɴ kanoː, soɴɕiʦɨ no nai, saikʲidoː aɴʣeɴ na jɯɲɨː o kanɾʲoː ɕite imasɨ."
     }
   ]
 }

@@ -1914,19 +1914,34 @@
       "id": "35_converter",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Format Converter. Breyttu ND2, CZI, LIF, OME-TIFF og tengd mikroskópisformat í kortlagðar TIFF skrár í Yokogawa stíl."
+          "narration": "Format Converter breytir söluaðila eða almennar mikroskópíu myndir í Yokogawa-stíls TIFF nöfn sem spaCR Mask og Measure lesa beint. Opnaðu hann frá Data og hlaupið. Miðverndarreglan er að skoða fyrst og breyta í öðru."
         },
         {
-          "narration": "Opið Format Converter úr deildinni Gögn og flokka rekur. Veldu heimildaskrár, röð eða atriði, nefndir á kanali, tíma- og djúptækni meðhöndlun og útgáfu möppu."
+          "narration": "Settu upp uppruna möppuna eða veldu hana hér, svo veldu nýja áfangastað. Þessi sýning notar tvö raunverulega fjögurra-kanal sviði frá flutning tilraun. Pikslar þeirra voru afritaðir byte-for-byte; aðeins leiðbeiningarskrá mappunnar og heimildasöfn voru tilbúnar fyrir þetta umbreytingarfyrirmæli."
         },
         {
-          "narration": "Í aðalmyndasvæðinu má sjá fyrirsýn á hvernig uppsprettaþættir kortast til plötu, brunn, sviði, tíma, dýpdi og kanal vísitölur."
+          "narration": "Layout lýsir því hvort myndir sitja beint í uppspretta, undir brunnapallum eða undir plötu- og brunnapallum; sjálfvirka uppgötvun er yfirleitt viðeigandi. Að halda öllum Z-flaugum er taplaust sjálfgefið. Max-framleiðslur og fyrri flugleiðslutíma stafar skýrt frá flugvélum. Nöfn plátana geta verið raðfylgjandi eða varðveita heimildaskrár, og Resume staðfestir völlur eftirlitsstöðvar áður en þeir sleppa þeim."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta kortunina á litlum sýni áður en hver skrá er breytt."
+          "narration": "Með sjálfkrafa upptökun skipulags, taplaus Z meðhöndlun, raðfylgjandi plötu nöfn og nýjan áfangastað valinn, smelltu á Afsýning. Forsýningur skannar höfuðstöðvar og byggir kortið en skapar ekki áfangastað eða skrifar mynd."
         },
         {
-          "narration": "Þegar vinnuflæði er lokið skrifar spaCR staðlaða TIFF og kort aftur til upprunalegu skrár og metadata."
+          "narration": "Heildarráðstafan af átta skráum birtist fyrir umbreytingu. Hver röð setur þekkjanlega heimild sitt við hliðina á nákvæmni markmið, plötu, brunn, sviði, kanali, Z, tíma, upprunalegu auðkenningar og stöðu. Fyrsta útgáfan er plötu1, A01, svið 1, kanal 1; síðasta er svið 2, kanal 4. Staðan staðfestir að ekkert hefur verið skrifað."
+        },
+        {
+          "narration": "Skoðaðu samantektina og smelltu á Umbreyttu aðeins þegar kortið er rétt. Kollision slökkur á hnappnum í stað þess að yfirskrifa markmið. Gildar skrár eru skrifaðar á sjálfstæðan stað, þannig að upprunalegu mikroskópsmyndirnar eru aldrei breytt nafn eða skipt út."
+        },
+        {
+          "narration": "Allir átta TIFF voru skrifaðir með góðum árangri. conversion_map.csv skráir hvert markmið í viðbót við upprunalega algjört og hlutfalllegt braut, kjarnorðkenningar, spaCR sameiningarkenningar, stærðir, Z stefna og metadata. Tilbúin uppspretta TIFF-hashar verða eftir að hafa verið umbreyttar í bátum."
+        },
+        {
+          "narration": "Gakktu til að endurskoða fyrir truflandi eða endurteknu breytingu. Resume treystir ekki eingöngu skránafnum: það skoðar atómarsvæði og staðfestir hvert TIFF sem tilheyrir lokið sviði áður en það ákveður að hægt sé að sleppa sviði."
+        },
+        {
+          "narration": "Smelltu á Umbreyttu aftur með sama staðfestu áætlun og endurnýja virkjað. Ef einn skrá væri saknaður eða spilltur, væri allt svið hennar að byggja upp aftur; heill svið getur verið notað aftur örugglega."
+        },
+        {
+          "narration": "Bæði fjögurra-kanala sviði ganga staðfestingu, svo endurskoðun skrifar núll skrár og skýrslur tvö endurskoðun sviði. Átta röðum afkomu kortið og átta umbreyttir TIFF eru enn fullbúin og lokið endurgreiðanleg, taplaus og öruggur innflutningur í spaCR nafn."
         }
       ]
     },

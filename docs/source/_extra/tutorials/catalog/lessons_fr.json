@@ -4951,47 +4951,92 @@
       "id": "35_converter",
       "number": 35,
       "slug": "converter",
-      "title": "Format Converter",
+      "title": "Convertisseur de format",
       "series": 4,
       "app_key": "convert",
       "section": "Data and batch runs",
-      "description": "Convertir les formats ND2, CZI, LIF, OME-TIFF et microscopie connexes en fichiers TIFF de style Yokogawa cartographiés.",
+      "description": "Prévisualiser et convertir des fichiers de microscopie réels en noms Yokogawa TIFF compatibles avec spaCR avec une carte de provenance réversible.",
       "objectives": [
-        "Comprendre quand utiliser le convertisseur de format.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Choisissez un arbre source de l'image au microscope, destination, disposition, manipulation Z et schéma de nommage de plaque.",
+        "Vérifiez la cartographie complète de la source à la cible avant d'écrire une sortie.",
+        "Convertir automatiquement, inspecter la carte de provenance, et reprendre sans réécrire les champs complétés."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Un dossier contenant des images de microscopie ND2, CZI, LIF, OME-TIFF, TIFF, PNG, JPEG ou BMP.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Format Converter. Convertir ND2, CZI, LIF, OME-TIFF et les formats de microscopie connexes en fichiers TIFF de style Yokogawa cartographiés.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Format Converter. Convertir ND2, CZI, LIF, OME-TIFF et les formats de microscopie connexes en fichiers TIFF de style Yokogawa cartographiés."
+          "narration": "Le convertisseur de format convertit les images du fournisseur ou de la microscopie générale en des noms TIFF de style Yokogawa que spaCR Mask and Measure lisent directement. Ouvrez-le à partir de Data et de batches. La règle centrale de sécurité est de prévisualiser d'abord et de convertir en deuxième.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.7,
+          "speech_text": "Le convertisseur de format convertit les images du fournisseur ou de la microscopie générale en des noms TIFF de style Yokogawa que spakeur Mask and Measure lisent directement. Ouvrez-le à partir de Data et de batches. La règle centrale de sécurité est de prévisualiser d'abord et de convertir en deuxième."
         },
         {
-          "narration": "Ouvrez Format Converter dans la section Data and batch runs. Choisissez les fichiers source, les séries ou scènes, les noms de canaux, la gestion du temps et de la profondeur et un dossier de sortie.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Format Converter dans la section Data and batch runs. Choisissez les fichiers source, les séries ou scènes, les noms de canaux, la gestion du temps et de la profondeur et un dossier de sortie."
+          "narration": "Laissez tomber un dossier source ou choisissez ici, puis sélectionnez une nouvelle destination. Cette démonstration utilise deux vrais champs à quatre canaux de l'expérience transférée. Leurs pixels ont été copiés octet par octet; seule la structure du dossier tutoriel et les noms de fichiers source ont été préparés pour cet exemple de conversion.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "hold_after": 0.76,
+          "speech_text": "Laissez tomber un dossier source ou choisissez ici, puis sélectionnez une nouvelle destination. Cette démonstration utilise deux vrais champs à quatre canaux de l'expérience transférée. Leurs pixels ont été copiés octet par octet; seule la structure du dossier tutoriel et les noms de fichiers source ont été préparés pour cet exemple de conversion."
         },
         {
-          "narration": "Dans la zone de configuration principale, voir en avant comment les dimensions de source sont cartographiées à la plaque, au puits, au champ, au temps, à la profondeur et aux indices de canal.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, voir en avant comment les dimensions de source sont cartographiées à la plaque, au puits, au champ, au temps, à la profondeur et aux indices de canal."
+          "narration": "La mise en page décrit si les images se trouvent directement dans la source, sous les dossiers des puits, ou sous les dossiers des plaques et des puits; la détection automatique est normalement appropriée. Garder chaque plan Z est le défaut sans perte. La projection max et le mode premier plan rejettent explicitement les avions. Les noms de plaques peuvent être séquentiels ou préserver des dossiers sources, et Resume valide les points de contrôle de champ avant de les sauter.",
+          "visual": "03_options",
+          "focus_key": "options",
+          "hold_after": 0.82,
+          "speech_text": "La mise en page décrit si les images se trouvent directement dans la source, sous les dossiers des puits, ou sous les dossiers des plaques et des puits; la détection automatique est normalement appropriée. Garder chaque plan Z est le défaut sans perte. La projection max et le mode premier plan rejettent explicitement les avions. Les noms de plaques peuvent être séquentiels ou préserver des dossiers sources, et Resume valide les points de contrôle de champ avant de les sauter."
         },
         {
-          "narration": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Validez le cartographie sur un petit échantillon avant de convertir chaque fichier.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Validez le cartographie sur un petit échantillon avant de convertir chaque fichier."
+          "narration": "Avec la détection automatique de la mise en page, le traitement Z sans perte, les noms de plaques séquentielles et la nouvelle destination sélectionnée, cliquez sur Prévisualisation. L'aperçu scanne les en-têtes et construit la cartographie, mais ne crée pas la destination ou n'écrit pas d'image.",
+          "visual": "04_preview",
+          "focus_key": "configuration",
+          "click_key": "preview",
+          "hold_after": 0.68,
+          "speech_text": "Avec la détection automatique de la mise en page, le traitement Z sans perte, les noms de plaques séquentielles et la nouvelle destination sélectionnée, cliquez sur Prévisualisation. L'aperçu scanne les en-têtes et construit la cartographie, mais ne crée pas la destination ou n'écrit pas d'image."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, spaCR écrit des TIFF standardisés et une carte de retour aux fichiers et aux métadonnées originaux.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, spakeur écrit des TIFF standardisés et une carte de retour aux fichiers et aux métadonnées originaux."
+          "narration": "Le plan complet de huit fichiers apparaît avant la conversion. Chaque rangée place sa source reconnaissable à côté de la cible exacte, la plaque, le puits, le champ, le canal, la Z, l'heure, les identifiants originaux et l'état. La première sortie est plate1, A01, champ 1, canal 1; la dernière est champ 2, canal 4. Le statut confirme que rien n'a été écrit.",
+          "visual": "05_plan",
+          "focus_key": "mapping",
+          "hold_after": 0.84,
+          "speech_text": "Le plan complet de huit fichiers apparaît avant la conversion. Chaque rangée place sa source reconnaissable à côté de la cible exacte, la plaque, le puits, le champ, le canal, la Z, l'heure, les identifiants originaux et l'état. La première sortie est plate1, A01, champ 1, canal 1; la dernière est champ 2, canal 4. Le statut confirme que rien n'a été écrit."
+        },
+        {
+          "narration": "Consultez le résumé et cliquez sur Convertir uniquement lorsque la cartographie est correcte. Une collision désactive ce bouton plutôt que d'écraser une cible. Les fichiers valides sont écrits de manière atomique à la destination distincte, de sorte que les images microscopiques originales ne sont jamais renommées ou remplacées.",
+          "visual": "06_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.72,
+          "speech_text": "Consultez le résumé et cliquez sur Convertir uniquement lorsque la cartographie est correcte. Une collision désactive ce bouton plutôt que d'écraser une cible. Les fichiers valides sont écrits de manière atomique à la destination distincte, de sorte que les images microscopiques originales ne sont jamais renommées ou remplacées."
+        },
+        {
+          "narration": "Les huit TIFF ont tous été rédigés avec succès. conversion_map.csv enregistre chaque cible à côté de son chemin absolu et relatif d'origine, les identifiants de source, les identifiants de rejointe spaCR, les dimensions, la politique Z et les métadonnées. Les hashes TIFF de source préparés restent identiques en octets après conversion.",
+          "visual": "07_result",
+          "focus_key": "summary",
+          "hold_after": 0.8,
+          "speech_text": "Les huit TIFF ont tous été rédigés avec succès. conversion_map.csv enregistre chaque cible à côté de son chemin absolu et relatif d'origine, les identifiants de source, les identifiants de rejointe spakeur, les dimensions, la politique Z et les métadonnées. Les hashes TIFF de source préparés restent identiques en octets après conversion."
+        },
+        {
+          "narration": "Activer le Résumé pour une conversion interrompue ou répétée. Le résumé ne fait pas confiance aux noms de fichiers seuls: il consulte un point de contrôle de champ atomique et valide chaque TIFF appartenant à un champ terminé avant de décider que le champ peut être omis.",
+          "visual": "08_resume",
+          "focus_key": "options",
+          "click_key": "resume",
+          "hold_after": 0.7,
+          "speech_text": "Activer le Résumé pour une conversion interrompue ou répétée. Le résumé ne fait pas confiance aux noms de fichiers seuls: il consulte un point de contrôle de champ atomique et valide chaque TIFF appartenant à un champ terminé avant de décider que le champ peut être omis."
+        },
+        {
+          "narration": "Cliquez à nouveau sur Convertir avec le même plan vérifié et Résumé activé. Si un fichier manquait ou était corrompu, son champ entier serait reconstruit; les champs complets peuvent être réutilisés en toute sécurité.",
+          "visual": "09_resume_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.64,
+          "speech_text": "Cliquez à nouveau sur Convertir avec le même plan vérifié et Résumé activé. Si un fichier manquait ou était corrompu, son champ entier serait reconstruit; les champs complets peuvent être réutilisés en toute sécurité."
+        },
+        {
+          "narration": "Les deux champs à quatre canaux passent la validation, donc Resume écrit zéro fichiers et rapporte deux champs repris. La carte de provenance de huit rangées et huit TIFF convertis restent complets, terminant une importation réversible, sans perte et sans redémarrage dans la dénomination spaCR.",
+          "visual": "10_resumed",
+          "focus_key": "summary",
+          "hold_after": 0.82,
+          "speech_text": "Les deux champs à quatre canaux passent la validation, donc Resume écrit zéro fichiers et rapporte deux champs repris. La carte de provenance de huit rangées et huit TIFF convertis restent complets, terminant une importation réversible, sans perte et sans redémarrage dans la dénomination spakeur."
         }
       ]
     },

@@ -4,47 +4,107 @@
   "voice": "bm_daniel",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.45,
+  "total_duration": 160.63,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.2,
-      "scene_end": 10.649999999999999,
-      "duration": 10.649999999999999,
-      "text": "This tutorial covers Format Converter. Convert ND2, CZI, LIF, OME-TIFF, and related microscopy formats into mapped Yokogawa-style TIFF files."
+      "speech_end": 14.25,
+      "scene_end": 14.95,
+      "duration": 14.95,
+      "text": "Format Converter turns vendor or general microscopy images into the Yokogawa-style TIFF names that spaCR Mask and Measure read directly. Open it from Data and batch runs. The central safety rule is preview first and convert second.",
+      "speech_text": "Format Converter turns vendor or general microscopy images into the Yokogawa-style TIFF names that spacer Mask and Measure read directly. Open it from Data and batch runs. The central safety rule is preview first and convert second.",
+      "phonemes": "fˈɔːmat kənvˈɜːtə tˈɜːnz vˈɛndɔː ɔː ʤˈɛnəɹəl mIkɹˈɒskəpi ˈɪmɪʤɪz ˈɪntuː ðə jˌɒkəɡˈɑːwəstˈIl tˈɪf nˈAmz ðat spˈAsə mˈɑːsk and mˈɛʒə ɹˈɛd dɪɹˈɛktli. ˈQpᵊn ɪt fɹɒm dˈAtə and bˈaʧ ɹˈʌnz. ðə sˈɛntɹᵊl sˈAfti ɹˈuːl ɪz pɹˈiːvjuː fˈɜːst and kənvˈɜːt sˈɛkᵊnd."
     },
     {
       "scene": 2,
-      "speech_start": 10.649999999999999,
-      "speech_end": 19.974999999999998,
-      "scene_end": 20.424999999999997,
-      "duration": 9.774999999999999,
-      "text": "Open Format Converter from the Data and batch runs section. Choose source files, series or scenes, channel names, time and depth handling, and an output folder."
+      "speech_start": 14.95,
+      "speech_end": 31.325,
+      "scene_end": 32.085,
+      "duration": 17.135,
+      "text": "Drop a source folder or choose it here, then select a new destination. This demonstration uses two real four-channel fields from the transferred experiment. Their pixels were copied byte-for-byte; only the tutorial folder structure and source filenames were prepared for this conversion example.",
+      "speech_text": "Drop a source folder or choose it here, then select a new destination. This demonstration uses two real four-channel fields from the transferred experiment. Their pixels were copied byte-for-byte; only the tutorial folder structure and source filenames were prepared for this conversion example.",
+      "phonemes": "dɹˈɒp ɐ sˈɔːs fˈQldə ɔː ʧˈuːz ɪt hˈɪə, ðˈɛn sɪlˈɛkt ɐ njˈuː dˌɛstɪnˈAʃᵊn. ðˌɪs dˌɛmənstɹˈAʃᵊn jˈuːzɪz tˈuː ɹˈɪəl fˌɔːʧˈanᵊl fˈiːldz fɹɒm ðə tɹɑːnsfˈɜːd ɪkspˈɛɹɪmᵊnt. ðˌɛː pˈɪksᵊlz wɜː kˈɒpɪd bˈItfɔːbˈIt; ˈQnli ðə tjuːtˈɔːɹɪəl fˈQldə stɹˈʌkʧə and sˈɔːs fˈIlnAmz wɜː pɹɪpˈɛːd fɔː ðɪs kənvˈɜːʃᵊn ɪɡzˈɑːmpᵊl."
     },
     {
       "scene": 3,
-      "speech_start": 20.424999999999997,
-      "speech_end": 27.999999999999996,
-      "scene_end": 28.449999999999996,
-      "duration": 8.024999999999999,
-      "text": "In the main configuration area, preview how source dimensions map to plate, well, field, time, depth, and channel indices."
+      "speech_start": 32.085,
+      "speech_end": 52.135000000000005,
+      "scene_end": 52.955000000000005,
+      "duration": 20.870000000000005,
+      "text": "Layout describes whether images sit directly in the source, below well folders, or below plate and well folders; automatic detection is normally appropriate. Keep every Z plane is the lossless default. Max projection and first-plane mode explicitly discard planes. Plate names may be sequential or preserve source folders, and Resume validates field checkpoints before skipping them.",
+      "speech_text": "Layout describes whether images sit directly in the source, below well folders, or below plate and well folders; automatic detection is normally appropriate. Keep every Z plane is the lossless default. Max projection and first-plane mode explicitly discard planes. Plate names may be sequential or preserve source folders, and Resume validates field checkpoints before skipping them.",
+      "phonemes": "lˈAWt dɪskɹˈIbz wˈɛðə ˈɪmɪʤɪz sˈɪt dɪɹˈɛktli ɪn ðə sˈɔːs, bɪlˈQ wˈɛl fˈQldəz, ɔː bɪlˈQ plˈAt and wˈɛl fˈQldəz; ˌɔːtəmˈatɪk dɪtˈɛkʃᵊn ɪz nˈɔːməli əpɹˈQpɹɪət. kˈiːp ˈɛvəɹi zˈiː plˈAn ɪz ðə lˈɒsləs dɪfˈɔːlt. mˈaks pɹəʤˈɛkʃᵊn and fˌɜːstplˈAn mˈQd ɛksplˈɪsɪtli dɪskˈɑːd plˈAnz. plˈAt nˈAmz mˈA biː sɪkwˈɛnʃl ɔː pɹɪzˈɜːv sˈɔːs fˈQldəz, and ɹɪzjˈuːm vˈalɪdAts fˈiːld ʧˈɛkpYnts bɪfˈɔː skˈɪpɪŋ ðˌɛm."
     },
     {
       "scene": 4,
-      "speech_start": 28.449999999999996,
-      "speech_end": 38.55,
-      "scene_end": 39.0,
-      "duration": 10.550000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate the mapping on a small sample before converting every file."
+      "speech_start": 52.955000000000005,
+      "speech_end": 65.58000000000001,
+      "scene_end": 66.26000000000002,
+      "duration": 13.305000000000014,
+      "text": "With automatic layout detection, lossless Z handling, sequential plate names, and the new destination selected, click Preview. Preview scans headers and builds the mapping but does not create the destination or write an image.",
+      "speech_text": "With automatic layout detection, lossless Z handling, sequential plate names, and the new destination selected, click Preview. Preview scans headers and builds the mapping but does not create the destination or write an image.",
+      "phonemes": "wˌɪð ˌɔːtəmˈatɪk lˈAWt dɪtˈɛkʃᵊn, lˈɒsləs zˈiː hˈandlɪŋ, sɪkwˈɛnʃl plˈAt nˈAmz, and ðə njˈuː dˌɛstɪnˈAʃᵊn sɪlˈɛktɪd, klˈɪk pɹˈiːvjuː. pɹˈiːvjuː skˈanz hˈɛdəz and bˈɪldz ðə mˈapɪŋ bˌʌt dˈʌz nˌɒt kɹɪˈAt ðə dˌɛstɪnˈAʃᵊn ɔː ɹˈIt ɐn ˈɪmɪʤ."
     },
     {
       "scene": 5,
-      "speech_start": 39.0,
-      "speech_end": 45.8,
-      "scene_end": 46.449999999999996,
-      "duration": 7.449999999999996,
-      "text": "When the workflow finishes, spaCR writes standardized TIFFs and a map back to the original files and metadata."
+      "speech_start": 66.26000000000002,
+      "speech_end": 85.38500000000002,
+      "scene_end": 86.22500000000002,
+      "duration": 19.965000000000003,
+      "text": "The complete eight-file plan appears before conversion. Each row places its recognizable source beside the exact target, plate, well, field, channel, Z, time, original identifiers, and status. The first output is plate1, A01, field 1, channel 1; the last is field 2, channel 4. The status confirms that nothing has been written.",
+      "speech_text": "The complete eight-file plan appears before conversion. Each row places its recognizable source beside the exact target, plate, well, field, channel, Z, time, original identifiers, and status. The first output is plate1, A01, field 1, channel 1; the last is field 2, channel 4. The status confirms that nothing has been written.",
+      "phonemes": "ðə kəmplˈiːt ˌAtfˈIl plˈan əpˈɪəz bɪfˈɔː kənvˈɜːʃᵊn. ˈiːʧ ɹˈQ plˈAsɪz ɪts ɹˌɛkəɡnˈIzəbᵊl sˈɔːs bɪsˈId ði ɪɡzˈakt tˈɑːɡɪt, plˈAt, wˈɛl, fˈiːld, ʧˈanᵊl, zˈiː, tˈIm, əɹˈɪʤənᵊl IdˈɛntɪfIəz, and stˈAtəs. ðə fˈɜːst ˈWtpʊt ɪz plˈAt wˈʌn, ˈA zˈɪəɹQ wˈʌn, fˈiːld wˈʌn, ʧˈanᵊl wˈʌn; ðə lˈɑːst ɪz fˈiːld tˈuː, ʧˈanᵊl fˈɔː. ðə stˈAtəs kənfˈɜːmz ðat nˈʌθɪŋ haz biːn ɹˈɪtᵊn."
+    },
+    {
+      "scene": 6,
+      "speech_start": 86.22500000000002,
+      "speech_end": 101.10000000000002,
+      "scene_end": 101.82000000000002,
+      "duration": 15.594999999999999,
+      "text": "Review the summary and click Convert only when the mapping is correct. A collision disables this button rather than overwriting a target. Valid files are written atomically to the separate destination, so the original microscopy images are never renamed or replaced.",
+      "speech_text": "Review the summary and click Convert only when the mapping is correct. A collision disables this button rather than overwriting a target. Valid files are written atomically to the separate destination, so the original microscopy images are never renamed or replaced.",
+      "phonemes": "ɹɪvjˈuː ðə sˈʌməɹi and klˈɪk kˈɒnvəːt ˈQnli wˌɛn ðə mˈapɪŋ ɪz kəɹˈɛkt. ɐ kəlˈɪʒᵊn dɪsˈAbᵊlz ðɪs bˈʌtᵊn ɹˈɑːðə ðən ˌQvəɹˈItɪŋ ɐ tˈɑːɡɪt. vˈalɪd fˈIlz ɑː ɹˈɪtᵊn ətˈɒmɪkli tə ðə sˈɛpəɹət dˌɛstɪnˈAʃᵊn, sˌQ ði əɹˈɪʤənᵊl mIkɹˈɒskəpi ˈɪmɪʤɪz ɑː nˈɛvə ɹiːnˈAmd ɔː ɹɪplˈAst."
+    },
+    {
+      "scene": 7,
+      "speech_start": 101.82000000000002,
+      "speech_end": 118.44500000000002,
+      "scene_end": 119.24500000000002,
+      "duration": 17.424999999999997,
+      "text": "All eight TIFFs were written successfully. conversion_map.csv records every target beside its original absolute and relative path, source identifiers, spaCR join identifiers, dimensions, Z policy, and metadata. The prepared source TIFF hashes remain byte-identical after conversion.",
+      "speech_text": "All eight TIFFs were written successfully. conversion_map.csv records every target beside its original absolute and relative path, source identifiers, spacer join identifiers, dimensions, Z policy, and metadata. The prepared source TIFF hashes remain byte-identical after conversion.",
+      "phonemes": "ˈɔːl ˈAt tˈɪfs wɜː ɹˈɪtᵊn səksˈɛsfʊli. kənvˈɜːʃən mˈap.sˌiːˌɛsvˈiː ɹɪkˈɔːdz ˈɛvəɹi tˈɑːɡɪt bɪsˈId ɪts əɹˈɪʤənᵊl ˈabsəluːt and ɹˈɛlətɪv pˈɑːθ, sˈɔːs IdˈɛntɪfIəz, spˈAsə ʤˈYn IdˈɛntɪfIəz, dImˈɛnʃᵊnz, zˈiː pˈɒlɪsi, and mˈɛtədˌAtə. ðə pɹɪpˈɛːd sˈɔːs tˈɪf hˈaʃɪz ɹɪmˈAn bˌItIdˈɛntɪkᵊl ˈɑːftə kənvˈɜːʃᵊn."
+    },
+    {
+      "scene": 8,
+      "speech_start": 119.24500000000002,
+      "speech_end": 133.04500000000002,
+      "scene_end": 133.745,
+      "duration": 14.499999999999986,
+      "text": "Enable Resume for an interrupted or repeated conversion. Resume does not trust filenames alone: it consults an atomic field checkpoint and validates every TIFF belonging to a completed field before deciding that the field can be skipped.",
+      "speech_text": "Enable Resume for an interrupted or repeated conversion. Resume does not trust filenames alone: it consults an atomic field checkpoint and validates every TIFF belonging to a completed field before deciding that the field can be skipped.",
+      "phonemes": "ɪnˈAbᵊl ɹɪzjˈuːm fɔː ɐn ˌɪntəɹˈʌptɪd ɔː ɹɪpˈiːtɪd kənvˈɜːʃᵊn. ɹɪzjˈuːm dˈʌz nˌɒt tɹˈʌst fˈIlnAmz əlˈQn: ɪt kˈɒnsʌlts ɐn ətˈɒmɪk fˈiːld ʧˈɛkpYnt and vˈalɪdAts ˈɛvəɹi tˈɪf bɪlˈɒŋɪŋ tə ɐ kəmplˈiːtɪd fˈiːld bɪfˈɔː dɪsˈIdɪŋ ðat ðə fˈiːld kan biː skˈɪpt."
+    },
+    {
+      "scene": 9,
+      "speech_start": 133.745,
+      "speech_end": 144.395,
+      "scene_end": 145.035,
+      "duration": 11.289999999999992,
+      "text": "Click Convert again with the same verified plan and Resume enabled. If one file were missing or corrupt, its entire field would be rebuilt; complete fields can be reused safely.",
+      "speech_text": "Click Convert again with the same verified plan and Resume enabled. If one file were missing or corrupt, its entire field would be rebuilt; complete fields can be reused safely.",
+      "phonemes": "klˈɪk kˈɒnvəːt əɡˈɛn wɪð ðə sˈAm vˈɛɹɪfˌId plˈan and ɹɪzjˈuːm ɪnˈAbld. ˌɪf wˈʌn fˈIl wɜː mˈɪsɪŋ ɔː kəɹˈʌpt, ɪts ɪntˈIə fˈiːld wʊd biː ɹɪbˈɪlt; kəmplˈiːt fˈiːldz kan biː ɹˌiːjˈuːzd sˈAfli."
+    },
+    {
+      "scene": 10,
+      "speech_start": 145.035,
+      "speech_end": 159.81,
+      "scene_end": 160.63,
+      "duration": 15.594999999999999,
+      "text": "Both four-channel fields pass validation, so Resume writes zero files and reports two resumed fields. The eight-row provenance map and eight converted TIFFs remain complete, finishing a reversible, lossless, and restart-safe import into spaCR naming.",
+      "speech_text": "Both four-channel fields pass validation, so Resume writes zero files and reports two resumed fields. The eight-row provenance map and eight converted TIFFs remain complete, finishing a reversible, lossless, and restart-safe import into spacer naming.",
+      "phonemes": "bˈQθ fˌɔːʧˈanᵊl fˈiːldz pˈɑːs vˌalɪdˈAʃᵊn, sˌQ ɹɪzjˈuːm ɹˈIts zˈɪəɹQ fˈIlz and ɹɪpˈɔːts tˈuː ɹɪzjˈuːmd fˈiːldz. ði ˌAtɹˈQ pɹˈɒvɪnəns mˈap and ˈAt kənvˈɜːtɪd tˈɪfs ɹɪmˈAn kəmplˈiːt, fˈɪnɪʃɪŋ ɐ ɹɪvˈɜːsɪbᵊl, lˈɒsləs, and ɹˈiːstɑːtsˌAf ˈɪmpɔːt ˈɪntuː spˈAsə nˈAmɪŋ."
     }
   ]
 }
