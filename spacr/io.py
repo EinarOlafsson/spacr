@@ -1233,58 +1233,6 @@ def _merge_channels(src, plot=False):
 
     return num_matching_folders
 
-def _mip_all(src, include_first_chan=True):
-    
-    """
-    Generate maximum intensity projections (MIPs) for each NumPy array file in the specified directory.
-
-    Args:
-        src (str): The directory path containing the NumPy array files.
-        include_first_chan (bool, optional): Whether to include the first channel of the array in the MIP computation. 
-                                                Defaults to True.
-
-    Returns:
-        None
-    """
-
-    #print('========== generating MIPs ==========')
-    # Iterate over each file in the specified directory (src).
-    for filename in os.listdir(src):
-        # Check if the current file is a NumPy array file (with .npy extension).
-        if filename.endswith('.npy'):
-            # Load the array from the file.
-            array = np.load(os.path.join(src, filename))
-            # Normalize the array 
-            #array = normalize_to_dtype(array, q1=0, q2=99, percentiles=None)
-
-            if array.ndim != 3: # Check if the array is not 3-dimensional.
-                # Log a message indicating a zero array will be generated due to unexpected dimensions.
-                print(f"Generating zero array for {filename} due to unexpected dimensions: {array.shape}")
-                # A 2-D array has no depth axis to concatenate onto; promote it to
-                # (H, W, 1) first. Previously np.concatenate(..., axis=2) on the raw
-                # 2-D array raised AxisError.
-                if array.ndim == 2:
-                    array = array[:, :, np.newaxis]
-                # Create a zero array with the same height and width as the original array, but with a single depth layer.
-                zeros_array = np.zeros((array.shape[0], array.shape[1], 1))
-                # Concatenate the original array with the zero array along the depth axis.
-                concatenated = np.concatenate([array, zeros_array], axis=2)
-            else:
-                if include_first_chan:
-                    # Compute the MIP for the entire array along the third axis.
-                    mip = np.max(array, axis=2)
-                else:
-                    # Compute the MIP excluding the first layer of the array along the depth axis.
-                    mip = np.max(array[:, :, 1:], axis=2)
-                # Reshape the MIP to make it 3-dimensional.
-                mip = mip[:, :, np.newaxis]
-                # Concatenate the MIP with the original array.
-                concatenated = np.concatenate([array, mip], axis=2)
-            # save
-            np.save(os.path.join(src, filename), concatenated)
-    return
-
-#@log_function_call
 def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
     from .utils import print_progress
     """
@@ -2004,7 +1952,9 @@ def preprocess_img_data(settings):
         - ``custom_regex`` — override the built-in regex.
         - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``,
           ``organelle_channel``, ``channels`` — channel selection.
-        - ``all_to_mip`` — max-project z-stacks before saving.
+        - z-stacks are max-projected per field and channel during
+          ``_rename_and_organize_image_files``, before anything reaches
+          ``stack/``, so no setting gates it.
         - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` and
           the ``*_background`` cutoffs.
         - ``normalize``, ``lower_percentile``, ``save_dtype``.
@@ -2159,12 +2109,7 @@ def preprocess_img_data(settings):
                     print(f"plotting {settings['nr']} images from {src}/stack")
                     plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
 
-                if settings['all_to_mip']:
-                    _mip_all(stack_path)
-                    if settings['plot']:
-                        print(f"plotting {settings['nr']} images from {src}/stack")
-                        plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
-        
+
         except Exception as e:
             print(f"Error: {e}")
     

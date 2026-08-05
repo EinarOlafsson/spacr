@@ -78,7 +78,7 @@ def _fake_rename(n_files=4, n_channels=2, shape=(8, 8)):
     """Stub for ``_rename_and_organize_image_files``.
 
     Creates ``<src>/stack`` with ``n_files`` real ``.npy`` arrays (so the
-    downstream ``os.path.exists`` checks and ``_mip_all`` see something
+    downstream ``os.path.exists`` checks see something
     genuine) and reports ``n_channels`` channel folders.
     """
     rec = _Rec(ret=n_channels)
@@ -119,7 +119,6 @@ def _patch_common(monkeypatch, rename=None, keep=()):
         "concat": (IO, "concatenate_and_normalize"),
         "plot": (PLOT, "plot_arrays"),
         "movies": (IO, "_create_movies_from_npy_per_channel"),
-        "mip": (IO, "_mip_all"),
         "merge": (IO, "_merge_channels"),
     }
     for key, (mod, attr) in targets.items():
@@ -145,7 +144,6 @@ def _settings(src, **over):
         "batch_size": 1,
         "test_mode": False,
         "timelapse": False,
-        "all_to_mip": False,
         "normalize": True,
     }
     s.update(over)
@@ -441,39 +439,6 @@ def test_timelapse_triggers_movie_generation(tmp_path, monkeypatch):
     args, kwargs = recs["movies"].calls[0]
     assert args[0] == str(src / "stack")
     assert kwargs == {"fps": 7}
-
-
-def test_all_to_mip_appends_projection_and_replots(tmp_path, capsys, monkeypatch):
-    """all_to_mip + plot -> real _mip_all adds a MIP plane, plot runs twice."""
-    from spacr.io import preprocess_img_data
-    import spacr.io as IO
-
-    src = tmp_path / "plate1"
-    src.mkdir()
-    _write_tif(src / "plate1_A01_T0001F001L01A01Z01C01.tif", _tiny_img())
-
-    rename, _ = _fake_rename(n_files=2, n_channels=2)
-    recs = _patch_common(monkeypatch, rename=rename, keep=("mip",))  # real MIP
-    assert IO._mip_all.__module__ == "spacr.io"
-
-    settings = _settings(src, all_to_mip=True, plot=True, figuresize=4,
-                         cmap="gray", nr=1)
-    preprocess_img_data(settings)
-
-    stack = src / "stack"
-    arrs = sorted(stack.glob("*.npy"))
-    assert len(arrs) == 2
-    for p in arrs:
-        a = np.load(p)
-        assert a.shape == (8, 8, 3), "MIP plane was not appended"
-        assert np.array_equal(a[:, :, 2], np.max(a[:, :, :2], axis=2))
-
-    # plotted once before and once after the MIP
-    assert recs["plot"].n == 2
-    for call in recs["plot"].calls:
-        assert call[0][0] == str(stack)
-        assert call[0][1] == 4 and call[0][2] == "gray"
-    assert "plotting 1 images" in capsys.readouterr().out
 
 
 def test_batch_size_check_uses_image_count_not_path_length(tmp_path, capsys, monkeypatch):

@@ -1552,7 +1552,7 @@ def _specs() -> List[Spec]:
         ("stitch_threshold", "Z-plane stitch threshold", "stitch",
          ("stitch_threshold",)),
         ("z_projection", "Z projection", "projection",
-         ("z_projection", "all_to_mip", "pick_slice")),
+         ("z_projection", "pick_slice")),
         ("t_project_for_tracking", "Project volumes for tracking", "project_tracking",
          ("t_project_for_tracking",)),
         ("straightness_filter", "Remove overly straight tracks", "straightness",

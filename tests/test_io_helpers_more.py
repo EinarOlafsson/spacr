@@ -121,18 +121,6 @@ def test_concatenate_channel_writes_npz(tmp_path, rng):
     assert npzs or out is not None
 
 
-def test_mip_all(tmp_path, rng):
-    from spacr.io import _merge_channels, _mip_all
-    src = _chan_folders(tmp_path / "src", rng)
-    _merge_channels(str(src), plot=False)
-    _mip_all(str(src / "stack"))
-    assert any((src / "stack").glob("*.npy"))
-
-
-# ---------------------------------------------------------------------------
-# mask helpers
-# ---------------------------------------------------------------------------
-
 def test_check_masks_filters_existing(tmp_path):
     from spacr.io import _check_masks
     out = tmp_path / "out"; out.mkdir()
