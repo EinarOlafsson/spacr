@@ -1269,19 +1269,34 @@
       "id": "23_agreement",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Annotator samning. Mæra samning milli athugasemda og endurskoða þau atriði sem valda ósammála."
+          "narration": "Annotator Agreement samanber tvær eða fleiri flokksstöðvar án þess að breyta gagnagrunni. Notaðu hana fyrir tvo endurskoðendur, endurteknar athugasemdir eða endurskoðandi versus módel, og skoðaðu svo bæði samantektatölur og nákvæmlega uppskeru sem eru ósammála."
         },
         {
-          "narration": "Opið tilkynningarmáli frá kafla um niðurstöður og gæðaeftirlit. Veldu verkefnis gagnagrunn og tvær eða fleiri athugasemda stólfur sem fela saman hlutina."
+          "narration": "Veldu mælingar gagnagrunn eða run möppuna þar sem hún er. spaCR uppgötvar viðeigandi athugasemdir og spá stöngur úr PNG lista töflu og lætur uppspretta merkingar aðeins lesnar."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skal valið flokksvinnslu, saknarmerki stefnu, hópun, sýnatöku og samningstaða."
+          "narration": "Veldu a.m.k. tvær stöngur. Hér ER_Bulbs er borið saman við spá_1 á sömu frumur. Að auki valdir stöngur gera möguleika á öllum parilegum samanburðum og Fleiss kappa samantekt með margvíslegum ráturum."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu Cohen eða Fleiss kappa ásamt flokksspecifikkum fordæmi um rugl og ósamræmi."
+          "narration": "Smelltu á Teldu samning. Missandi merkingar eru meðhöndlaðar sem afstæðingar, ekki ósamræmi; hvert pari er aðeins metið á röðum þar sem báðar valdar dálkarnir innihalda flokk."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið setja samningastafur og einbeittar endurskoðun til stuðnings við samræmingu á merkingum og umbætur á forritinu."
+          "narration": "Útreikningurinn hlífir uppmerkingar eftir gróðri, telur uppfylltar og afstæðnar röður, byggir upp hvern ruglmatrix og finnur ósamræmi sem hægt er að rekja aftur til uppruna myndanna."
+        },
+        {
+          "narration": "Þessi raunveruleg pari hefur þúsund þrjár hundruð og fimmtíu og níu helstu röður, áttatíu þúsund og sex hundruð og tíu afstæðingar, átta ósammála og níutíu og níu stig fjórar prósent rau samning. Kappa Cohen er óskilgreind hérekki núll vegna þess að ER_Bulbs notar aðeins eina flokk á hverri fullri röð, sem gerir tilviljunar-samning nafnandann degenerated."
+        },
+        {
+          "narration": "Misjöfnunarmatrísin birtir þennan flokka ójafnvægi beint: þúsund þrjár hundruð og fimmtíu og einn röður eru flokka eitt í báðum stöngunum, en átta röður eru flokka eitt í ER_Bulbs og flokka tvö í spá_1. ER_Bulbs leggur ekki til fullnægjandi röð í flokki tvö."
+        },
+        {
+          "narration": "Samræmisborðið listar upp þessar átta raunverulegar rætur og báðar merkingarnar. Breyttu endurskoðunarmörkunum fyrir stærri samanburði, veldu hvaða röð sem er og notaðu forsýninguna í stað þess að taka ákvörðun út frá heildarmerki einungis."
+        },
+        {
+          "narration": "Að velja ósamræmi leysir upp geymd ræktunarbraut og sýnir snjallsýninguna við hliðina á tveimur flokksverðum hennar. Skoðaðu morfologið og samhengi merki áður en þú velur hvort merking, þröskul eða flokksskilgreining þarf að leiðrétta."
+        },
+        {
+          "narration": "Komdu í gegnum ósamræmdirnar til að dæma skipulega. Greinið frá hrá samkomulagi, flokks jafnvægi, afstæðingum, ruglunarmatrix og kappa saman; hér er óskilgreind kappa gagnlegt viðvörun um tíðni, ekki mistök samanburðarins."
         }
       ]
     },

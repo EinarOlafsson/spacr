@@ -3277,48 +3277,89 @@
     {
       "id": "23_agreement",
       "number": 23,
-      "slug": "agreement",
-      "title": "Annotator Agreement",
+      "slug": "annotator-agreement",
+      "title": "Acordo de Anotador",
       "series": 3,
       "app_key": "agreement",
-      "section": "Results and quality control",
-      "description": "Medir o acordo entre as colunas de anotações e rever os objetos responsáveis pelo desacordo.",
+      "section": "Assay workflows",
+      "description": "Comparar duas ou mais colunas de anotação categórica, inspecionar estatísticas de acordo e equilíbrio de classes, e revisar as culturas exatas onde os rótulos discordam.",
       "objectives": [
-        "Entender quando utilizar o Acordo de Annotador.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Carregar rótulos categóricos a partir de uma base de dados de medição ou executar uma pasta.",
+        "Interpretar linhas completas, abstenções, acordo bruto, kappa de Cohen e matriz de confusão juntos.",
+        "Abrir culturas reais de desacordo para adjudicação ou revisão da qualidade das anotações."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Preparar uma base de dados de medição spaCR contendo pelo menos duas colunas de anotação ou previsão categórica.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Acordo de Anotador.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Acordo de Anotador."
+          "narration": "O Acordo de Annotador compara duas ou mais colunas categóricas sem alterar a base de dados. Use-o para dois revisores, passes de anotação repetidas, ou uma verificação revisor-versus-modelo, e depois inspecione tanto as estatísticas sumárias quanto as culturas exatas que discordam.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.55,
+          "speech_text": "O Acordo de Annotador compara duas ou mais colunas categóricas sem alterar a base de dados. Use-o para dois revisores, passes de anotação repetidas, ou uma verificação revisor-versus-modelo, e depois inspecione tanto as estatísticas sumárias quanto as culturas exatas que discordam."
         },
         {
-          "narration": "Abra Annotator Agreement na seção Results and quality control. Abra o Acordo de Anotador na seção Resultados e controle de qualidade. Escolha um banco de dados do projeto e duas ou mais colunas de anotações que cobrem os mesmos objetos.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Annotator Agreement na seção Results and quality control. Abra o Acordo de Anotador na seção Resultados e controle de qualidade. Escolha um banco de dados do projeto e duas ou mais colunas de anotações que cobrem os mesmos objetos."
+          "narration": "Escolha um banco de dados de medições, ou a pasta de execução que o contém. O spaCR descobre colunas de anotação e previsão adequadas da tabela de lista PNG e deixa os rótulos de fonte somente leitura.",
+          "visual": "02_database",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Escolha um banco de dados de medições, ou a pasta de execução que o contém. O espáquer descobre colunas de anotação e previsão adequadas da tabela de lista PNG e deixa os rótulos de fonte somente leitura."
         },
         {
-          "narration": "Na área de configuração principal, selecione o tratamento de classes, a política de etiqueta faltante, o agrupamento, a amostragem e a estatística do acordo.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, selecione o tratamento de classes, a política de etiqueta faltante, o agrupamento, a amostragem e a estatística do acordo."
+          "narration": "Selecione pelo menos duas colunas. Aqui ER_Bulbs é comparado com as previsões_1 em todas as culturas celulares. As colunas selecionadas adicionais permitem todas as comparações em pares e um resumo Fleiss kappa multi-rater.",
+          "visual": "03_columns",
+          "focus_key": "columns",
+          "hold_after": 0.55,
+          "speech_text": "Selecione pelo menos duas colunas. Aqui ER_Bulbs é comparado com as previsões_1 em todas as culturas celulares. As colunas selecionadas adicionais permitem todas as comparações em pares e um resumo Fleiss kappa multi-rater."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+          "narration": "Clique em Contrato de Computação. Os rótulos faltantes são tratados como abstenções, não como desacordoes; cada par é avaliado apenas em linhas em que ambas as colunas selecionadas contêm uma categoria.",
+          "visual": "04_compute",
+          "focus_key": "compute",
+          "click_key": "compute",
+          "hold_after": 0.5,
+          "speech_text": "Clique em Contrato de Computação. Os rótulos faltantes são tratados como abstenções, não como desacordoes; cada par é avaliado apenas em linhas em que ambas as colunas selecionadas contêm uma categoria."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, as tabelas de acordo e uma revisão focada estabelecem a reconciliação dos rótulos e a melhoria do protocolo.",
-          "visual": "output",
+          "narration": "O cálculo alinha os rótulos por colheita, conta linhas completas e abstratas, constrói cada matriz de confusão e encontra desentendimentos que podem ser rastreados até suas imagens de origem.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "O cálculo alinha os rótulos por colheita, conta linhas completas e abstratas, constrói cada matriz de confusão e encontra desentendimentos que podem ser rastreados até suas imagens de origem."
+        },
+        {
+          "narration": "Este par real tem mil trêscentos cinquenta e nove linhas completas, oitenta mil seiscentos dez abstenções, oito discordâncias e noventa e nove pontos quatro por cento acordo bruto. A kappa de Cohen não é definida aqui  não zero  porque ER_Bulbs usa apenas uma classe em cada linha completa, fazendo o denominador de acordo de azar degenerar.",
+          "visual": "06_pairwise",
+          "focus_key": "pairwise",
+          "hold_after": 0.85,
+          "speech_text": "Este par real tem mil trêscentos cinquenta e nove linhas completas, oitenta mil seiscentos dez abstenções, oito discordâncias e noventa e nove pontos quatro por cento acordo bruto. A kappa de Cohen não é definida aqui  não zero  porque ER_Bulbs usa apenas uma classe em cada linha completa, fazendo o denominador de acordo de azar degenerar."
+        },
+        {
+          "narration": "A matriz de confusão expõe esse desequilíbrio de classe diretamente: mil trêscentos cinquenta e uma filas são classe um em ambas as colunas, enquanto oito filas são classe um em ER_Bulbs e classe dois em previsões_1. ER_Bulbs não contribui com filas completas de classe dois.",
+          "visual": "07_confusion",
+          "focus_key": "confusion",
+          "hold_after": 0.7,
+          "speech_text": "A matriz de confusão expõe esse desequilíbrio de classe diretamente: mil trêscentos cinquenta e uma filas são classe um em ambas as colunas, enquanto oito filas são classe um em ER_Bulbs e classe dois em previsões_1. ER_Bulbs não contribui com filas completas de classe dois."
+        },
+        {
+          "narration": "A tabela de desacordo lista essas oito culturas reais e ambas as etiquetas. Altere o limite de revisão para comparações maiores, selecione qualquer linha e use a pré-visualização em vez de decidir apenas a partir de uma pontuação agregada.",
+          "visual": "08_disagreements",
+          "focus_key": "review",
+          "hold_after": 0.6,
+          "speech_text": "A tabela de desacordo lista essas oito culturas reais e ambas as etiquetas. Altere o limite de revisão para comparações maiores, selecione qualquer linha e use a pré-visualização em vez de decidir apenas a partir de uma pontuação agregada."
+        },
+        {
+          "narration": "A seleção de um desacordo resolve o caminho de cultivo armazenado e exibe a imagem microscópica ao lado de seus dois valores categóricos. Revisar a morfologia e o contexto do sinal antes de escolher se um rótulo, um limiar ou uma definição de classe precisa de correção.",
+          "visual": "09_crop_one",
+          "focus_key": "crop",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, as tabelas de acordo e uma revisão focada estabelecem a reconciliação dos rótulos e a melhoria do protocolo."
+          "speech_text": "A seleção de um desacordo resolve o caminho de cultivo armazenado e exibe a imagem microscópica ao lado de seus dois valores categóricos. Revisar a morfologia e o contexto do sinal antes de escolher se um rótulo, um limiar ou uma definição de classe precisa de correção."
+        },
+        {
+          "narration": "Passar pelas linhas de desacordo para decidir sistematicamente. Relate acordo bruto, equilíbrio de classes, abstenções, matriz de confusão e kappa juntos; aqui o kappa não definido é um aviso útil sobre prevalência, não um fracasso da comparação.",
+          "visual": "10_crop_two",
+          "focus_key": "caption",
+          "hold_after": 0.75,
+          "speech_text": "Passar pelas linhas de desacordo para decidir sistematicamente. Relate acordo bruto, equilíbrio de classes, abstenções, matriz de confusão e kappa juntos; aqui o kappa não definido é um aviso útil sobre prevalência, não um fracasso da comparação."
         }
       ]
     },
