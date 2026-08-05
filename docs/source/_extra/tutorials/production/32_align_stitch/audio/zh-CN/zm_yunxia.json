@@ -4,47 +4,107 @@
   "voice": "zm_yunxia",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 45.0,
+  "total_duration": 168.365,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.95,
-      "scene_end": 7.4,
-      "duration": 7.4,
-      "text": "编辑图片片,并逐步构建一个编织的摩赛克,而不需要记住整个帆布."
+      "speech_end": 15.975,
+      "scene_end": 16.695,
+      "duration": 16.695,
+      "text": "亚利恩和斯蒂奇将显微图片记录在一个帆布上, 打开它,从数据和批量运行. 在spaCR编写任何东西之前,计划的第一布局是故意的:注册的信心,倒退位置,输出大小和内存使用可见.",
+      "speech_text": "亚利恩和斯蒂奇将显微图片记录在一个帆布上, 打开它,从数据和批量运行. 在斯佩克尔编写任何东西之前,计划的第一布局是故意的:注册的信心,倒退位置,输出大小和内存使用可见.",
+      "phonemes": "ja↘li↘ə→n xɤ↗ sɨ→ti↘ʨʰi↗ ʨja→ŋ ɕjɛ↓nwei→ tʰu↗pʰjɛ↘n ʨi↘lu↘ ʦai↘ i↗kɤ↘ fa→npu↘ ʂa↘ŋ, ta↓kʰai→ tʰa→,ʦʰʊ↗ŋ ʂu↘ʨy↘ xɤ↗ pʰi→lja↘ŋ y↘nɕi↗ŋ. ʦai↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ pjɛ→nɕje↓ ɻə↘nxɤ↗ tʊ→ŋɕi→ ꭧɨ→ʨʰjɛ↗n,ʨi↘xwa↘ tɤ ti↘i→ pu↘ʨy↗ ʂɨ↘ ku↘i↘ tɤ:ꭧu↘ʦʰɤ↘ tɤ ɕi↘nɕi→n,tau↘tʰwei↘ wei↘ꭧɨ↘,ʂu→ꭧʰu→ ta↘ɕjau↓ xɤ↗ nei↘ʦʰwə↗n ʂɨ↓jʊ↘ŋ kʰɤ↓ʨjɛ↘n."
     },
     {
       "scene": 2,
-      "speech_start": 7.4,
-      "speech_end": 16.075000000000003,
-      "scene_end": 16.525000000000002,
-      "duration": 9.125000000000002,
-      "text": "从 Data and batch runs 部分打开 Align and Stitch。 选择片收购,阶段坐标或重叠的元数据,道和目的地."
+      "speech_start": 16.695,
+      "speech_end": 33.045,
+      "scene_end": 33.765,
+      "duration": 17.07,
+      "text": "放下NPY或TIFF的文件,或者选择这里. 这个课程将一个真正的四通道显微镜领域出口为9个重叠的,仅仅是为了模仿3对3收购. 源像素仍然是真实的,而已知的重叠给了我们一个可复制的注册例子.",
+      "speech_text": "放下NPY或TIFF的文件,或者选择这里. 这个课程将一个真正的四通道显微镜领域出口为9个重叠的,仅仅是为了模仿3对3收购. 源像素仍然是真实的,而已知的重叠给了我们一个可复制的注册例子.",
+      "phonemes": "fa↘ŋɕja↘NPYxwo↘TIFFtɤ wə↗nʨjɛ↘n,xwo↘ꭧɤ↓ ɕɥɛ↓nʦɤ↗ ꭧɤ↘li↓. ꭧɤ↘kɤ kʰɤ↘ꭧʰə↗ŋ ʨja→ŋ i↗kɤ↘ ꭧə→nꭧə↘ŋ tɤ sɨ↘ tʰʊ→ŋtau↘ ɕjɛ↓nwei→ʨi↘ŋ li↓ŋy↘ ꭧʰu→kʰou↓ wei↘ ʨjou↓kɤ↘ ꭧʰʊ↗ŋtje↗ tɤ,ʨi↓nʨi↓n ʂɨ↘ wei↘lɤ mwo↗fa↓ŋ sa→ntwei↘ sa→n ʂou→kou↘. ɥɛ↗n ɕja↘ŋsu↘ ɻə↗ŋɻa↗n ʂɨ↘ ꭧə→nʂɨ↗ tɤ,ɚ↗ i↓ꭧɨ→ tɤ ꭧʰʊ↗ŋtje↗ kei↓ lɤ wo↓mən i↗kɤ↘ kʰɤ↓ fu↘ꭧɨ↘ tɤ ꭧu↘ʦʰɤ↘ li↘ʦɨ."
     },
     {
       "scene": 3,
-      "speech_start": 16.525000000000002,
-      "speech_end": 24.450000000000003,
-      "scene_end": 24.900000000000002,
-      "duration": 8.375,
-      "text": "在主配置区域,配置注册方法,参考道,重叠,混合,纠正,零件大小和输出格式."
+      "speech_start": 33.765,
+      "speech_end": 49.39,
+      "scene_end": 50.11,
+      "duration": 16.345,
+      "text": "描述收购的布局. 电网是3×3的,以排列大顺序的25%的名义重叠. 参考道1是脑膜网膜道;spaCR在该平面上解决一次登记,并对四个道都应用相同的转换,防止道到道切割.",
+      "speech_text": "描述收购的布局. 电网是3×3的,以排列大顺序的25%的名义重叠. 参考道1是脑膜网膜道;斯佩克尔在该平面上解决一次登记,并对四个道都应用相同的转换,防止道到道切割.",
+      "phonemes": "mjau↗ʂu↘ ʂou→kou↘ tɤ pu↘ʨy↗. tjɛ↘nwa↓ŋ ʂɨ↘ sa→n×sa→n tɤ,i↓ pʰai↗lje↘ ta↘ ʂwə↘nɕy↘ tɤ pai↓fə→nꭧɨ→ɚ↘ʂɨ↗u↓ tɤ mi↗ŋi↘ ꭧʰʊ↗ŋtje↗. ʦʰa→nkʰau↓ tau↘ i→ ʂɨ↘ nau↓mwo↗ wa↓ŋmwo↗ tau↘;sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʦai↘ kai→ pʰi↗ŋmjɛ↘n ʂa↘ŋ ʨje↓ʨɥe↗ i→ʦʰɨ↘ tə→ŋʨi↘,pi↘ŋ twei↘ sɨ↘kɤ↘ tau↘ tou→ i↘ŋjʊ↘ŋ ɕja→ŋtʰʊ↗ŋ tɤ ꭧwa↓nxwa↘n,fa↗ŋꭧɨ↓ tau↘ tau↘ tau↘ ʨʰje→kɤ→."
     },
     {
       "scene": 4,
-      "speech_start": 24.900000000000002,
-      "speech_end": 36.5,
-      "scene_end": 36.95,
-      "duration": 12.05,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在构建完整的摩赛克之前,检查对齐和接预览."
+      "speech_start": 50.11,
+      "speech_end": 66.63499999999999,
+      "scene_end": 67.335,
+      "duration": 17.224999999999994,
+      "text": "质量控制决定哪些对应进入全球解决方案. 最低的信心拒绝了弱的交叉关系,邻近半径增加了冗余的附近比较,Feather混合重叠的接,64兆字节的RAM预算限制了每个输出频段,而不是完成的布的大小.",
+      "speech_text": "质量控制决定哪些对应进入全球解决方案. 最低的信心拒绝了弱的交叉关系,邻近半径增加了冗余的附近比较,Feather混合重叠的接,64兆字节的RAM预算限制了每个输出频段,而不是完成的布的大小.",
+      "phonemes": "ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ ʨɥe↗ti↘ŋ na↓ɕje→ twei↘i↘ŋ ʨi↘nɻu↘ ʨʰɥɛ↗nʨʰjou↗ ʨje↓ʨɥe↗fa→ŋa↘n. ʦwei↘ti→ tɤ ɕi↘nɕi→n ʨy↘ʨɥe↗ lɤ ɻwo↘ tɤ ʨjau→ꭧʰa→ kwa→nɕi↘,li↗nʨi↘n pa↘nʨi↘ŋ ʦə→ŋʨja→ lɤ ɻʊ↓ŋy↗ tɤ fu↘ʨi↘n pi↓ʨjau↘,Featherxwə↘nxɤ↗ ꭧʰʊ↗ŋtje↗ tɤ ʨje→,ljou↘ʂɨ↗sɨ↘ ꭧau↘ ʦɨ↘ʨje↗ tɤRAMy↘swa↘n ɕjɛ↘nꭧɨ↘ lɤ mei↓kɤ↘ ʂu→ꭧʰu→ pʰi↗ntwa↘n,ɚ↗ pu↗ʂɨ↘ wa↗nꭧʰə↗ŋ tɤ pu↘ tɤ ta↘ɕjau↓."
     },
     {
       "scene": 5,
-      "speech_start": 36.95,
-      "speech_end": 44.35,
-      "scene_end": 45.0,
-      "duration": 8.049999999999997,
-      "text": "当工作流程完成时,记录的,接的图像,转换和地图的元数据都会被保存."
+      "speech_start": 67.335,
+      "speech_end": 83.85999999999999,
+      "scene_end": 84.53999999999999,
+      "duration": 17.205,
+      "text": "在写信之前点击计划. 规划阅读头和重叠条,估计邻居的抵消,并一起解决所有被接受的限制. 它既不会创建帆布,也不会输出文件,所以这是抓住错误的网格,顺序,重叠或参考频道的安全点.",
+      "speech_text": "在写信之前点击计划. 规划阅读头和重叠条,估计邻居的抵消,并一起解决所有被接受的限制. 它既不会创建帆布,也不会输出文件,所以这是抓住错误的网格,顺序,重叠或参考频道的安全点.",
+      "phonemes": "ʦai↘ ɕje↓ɕi↘n ꭧɨ→ʨʰjɛ↗n tjɛ↓nʨi→ ʨi↘xwa↘. kwei→xwa↘ ɥe↘tu↗ tʰou↗ xɤ↗ ꭧʰʊ↗ŋtje↗ tʰjau↗,ku→ʨi↘ li↗nʨy→ tɤ ti↓ɕjau→,pi↘ŋ i↘ʨʰi↓ ʨje↓ʨɥe↗ swo↓jou↓ pei↘ ʨje→ʂou↘ tɤ ɕjɛ↘nꭧɨ↘. tʰa→ ʨi↘ pu↗xwei↘ ꭧʰwa↘ŋʨjɛ↘n fa→npu↘,je↓ pu↗xwei↘ ʂu→ꭧʰu→ wə↗nʨjɛ↘n,swo↓i↓ ꭧɤ↘ʂɨ↘ ꭧwa→ꭧu↘ ʦʰwo↘u↘ tɤ wa↓ŋkɤ↗,ʂwə↘nɕy↘,ꭧʰʊ↗ŋtje↗ xwo↘ ʦʰa→nkʰau↓ pʰi↗ntau↘ tɤ a→nʨʰɥɛ↗n tjɛ↓n."
+    },
+    {
+      "scene": 6,
+      "speech_start": 84.53999999999999,
+      "speech_end": 100.53999999999999,
+      "scene_end": 101.32,
+      "duration": 16.78,
+      "text": "真正的计划记录了所有9个. 布局的颜色以保证记录的字段,而任何舞台位置的倒退将是色的. 报告列出了被接受和被拒绝的对,最糟糕的残余,最后的布尺寸,磁盘大小,以及限度内存的写字估计.",
+      "speech_text": "真正的计划记录了所有9个. 布局的颜色以保证记录的字段,而任何舞台位置的倒退将是色的. 报告列出了被接受和被拒绝的对,最糟糕的残余,最后的布尺寸,磁盘大小,以及限度内存的写字估计.",
+      "phonemes": "ꭧə→nꭧə↘ŋ tɤ ʨi↘xwa↘ ʨi↘lu↘ lɤ swo↓jou↓ ʨjou↓kɤ↘. pu↘ʨy↗ tɤ jɛ↗nsɤ↘ i↓ pau↓ꭧə↘ŋ ʨi↘lu↘ tɤ ʦɨ↘ twa↘n,ɚ↗ ɻə↘nxɤ↗ u↓tʰai↗ wei↘ꭧɨ↘ tɤ tau↘tʰwei↘ ʨja→ŋ ʂɨ↘ sɤ↘ tɤ. pau↘kau↘ lje↘ꭧʰu→ lɤ pei↘ ʨje→ʂou↘ xɤ↗ pei↘ ʨy↘ʨɥe↗ tɤ twei↘,ʦwei↘ ʦau→kau→ tɤ ʦʰa↗ny↗,ʦwei↘xou↘ tɤ pu↘ ꭧʰɨ↓ʦʰwə↘n,ʦʰɨ↗pʰa↗n ta↘ɕjau↓,i↓ʨi↗ ɕjɛ↘ntu↘ nei↘ʦʰwə↗n tɤ ɕje↓ʦɨ↘ ku→ʨi↘."
+    },
+    {
+      "scene": 7,
+      "speech_start": 101.32,
+      "speech_end": 118.695,
+      "scene_end": 119.41499999999999,
+      "duration": 18.095,
+      "text": "点击一个单个片来审核其解决的Y和X位置,方法,可靠性,残余和支持对数. 这种字段是通过注册而不是仅仅通过其名义的网格位置放置的;在进行大型摩赛克之前,使用相同的检查来检查弱或孤立的片.",
+      "speech_text": "点击一个单个片来审核其解决的Y和X位置,方法,可靠性,残余和支持对数. 这种字段是通过注册而不是仅仅通过其名义的网格位置放置的;在进行大型摩赛克之前,使用相同的检查来检查弱或孤立的片.",
+      "phonemes": "tjɛ↓nʨi→ i↗kɤ↘ ta→nkɤ↘ pʰjɛ↘nlai↗ ʂə↓nxɤ↗ ʨʰi↗ ʨje↓ʨɥe↗ tɤYxɤ↗Xwei↘ꭧɨ↘,fa→ŋfa↓,kʰɤ↓kʰau↘ɕi↘ŋ,ʦʰa↗ny↗ xɤ↗ ꭧɨ→ꭧʰɨ↗ twei↘ʂu↘. ꭧɤ↘ꭧʊ↓ŋ ʦɨ↘twa↘n ʂɨ↘ tʰʊ→ŋkwo↘ ꭧu↘ʦʰɤ↘ ɚ↗ pu↗ʂɨ↘ ʨi↓nʨi↓n tʰʊ→ŋkwo↘ ʨʰi↗ mi↗ŋi↘ tɤ wa↓ŋkɤ↗ wei↘ꭧɨ↘ fa↘ŋꭧɨ↘ tɤ;ʦai↘ ʨi↘nɕi↗ŋ ta↘ɕi↗ŋ mwo↗ sai↘kʰɤ↘ ꭧɨ→ʨʰjɛ↗n,ʂɨ↓jʊ↘ŋ ɕja→ŋtʰʊ↗ŋ tɤ ʨjɛ↓nꭧʰa↗ lai↗ ʨjɛ↓nꭧʰa↗ ɻwo↘ xwo↘ ku→li↘ tɤ pʰjɛ↘n."
+    },
+    {
+      "scene": 8,
+      "speech_start": 119.41499999999999,
+      "speech_end": 133.11499999999998,
+      "scene_end": 133.75499999999997,
+      "duration": 14.339999999999975,
+      "text": "选择一个新的目的地为编织的NPY堆. 选项测量数据库记录解决的坐标和输出路径. 在第一个运行中,请删除Overwrite,以便拒绝现有图像,而不是默默地更换.",
+      "speech_text": "选择一个新的目的地为编织的NPY堆. 选项测量数据库记录解决的坐标和输出路径. 在第一个运行中,请删除Overwrite,以便拒绝现有图像,而不是默默地更换.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ i↗kɤ↘ ɕi→n tɤ mu↘ti↘ti↘ wei↘ pjɛ→nꭧɨ→ tɤNPYtwei→. ɕɥɛ↓nɕja↘ŋ ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘ ʨi↘lu↘ ʨje↓ʨɥe↗ tɤ ʦwo↘pjau→ xɤ↗ ʂu→ꭧʰu→ lu↘ʨi↘ŋ. ʦai↘ ti↘i↗kɤ↘ y↘nɕi↗ŋ ꭧʊ→ŋ,ʨʰi↓ŋ ʂa→nꭧʰu↗Overwrite,i↓pjɛ↘n ʨy↘ʨɥe↗ ɕjɛ↘njou↓ tʰu↗ɕja↘ŋ,ɚ↗ pu↗ʂɨ↘ mwo↘mwo↘ti↘ kə→ŋxwa↘n."
+    },
+    {
+      "scene": 9,
+      "speech_start": 133.75499999999997,
+      "speech_end": 149.62999999999997,
+      "scene_end": 150.32999999999996,
+      "duration": 16.57499999999999,
+      "text": "在计划被接受后,只需点击写堆. 在图像成功后,spaCR将片组合成一个水平带,将羽毛混合在重叠中,并写出坐标. 因此,输出量可以超过可用的RAM,而内存保持在声明的预算范围内.",
+      "speech_text": "在计划被接受后,只需点击写堆. 在图像成功后,斯佩克尔将片组合成一个水平带,将羽毛混合在重叠中,并写出坐标. 因此,输出量可以超过可用的RAM,而内存保持在声明的预算范围内.",
+      "phonemes": "ʦai↘ ʨi↘xwa↘ pei↘ ʨje→ʂou↘ xou↘,ꭧɨ↓ ɕy→ tjɛ↓nʨi→ ɕje↓twei→. ʦai↘ tʰu↗ɕja↘ŋ ꭧʰə↗ŋkʊ→ŋ xou↘,sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʨja→ŋ pʰjɛ↘n ʦu↓xɤ↗ꭧʰə↗ŋ i↗kɤ↘ ʂwei↓pʰi↗ŋ tai↘,ʨja→ŋ y↓mau↗ xwə↘nxɤ↗ ʦai↘ ꭧʰʊ↗ŋtje↗ ꭧʊ→ŋ,pi↘ŋ ɕje↓ꭧʰu→ ʦwo↘pjau→. i→nʦʰɨ↓,ʂu→ꭧʰu→lja↘ŋ kʰɤ↓i↓ ꭧʰau→kwo↘ kʰɤ↓jʊ↘ŋ tɤRAM,ɚ↗ nei↘ʦʰwə↗n pau↓ꭧʰɨ↗ ʦai↘ ʂə→ŋmi↗ŋ tɤ y↘swa↘n fa↘nwei↗ nei↘."
+    },
+    {
+      "scene": 10,
+      "speech_start": 150.32999999999996,
+      "speech_end": 167.50499999999997,
+      "scene_end": 168.36499999999998,
+      "duration": 18.035000000000025,
+      "text": "经过验证的运行将所有9个子都写出来,没有一个被跳过,产生一个与源字段匹配的四通道接堆,并将9个行添加到排列坐标表中. 该报告保存了注册证据和有限内存的写作总结,使得下游分析之前可进行审计.",
+      "speech_text": "经过验证的运行将所有9个子都写出来,没有一个被跳过,产生一个与源字段匹配的四通道接堆,并将9个行添加到排列坐标表中. 该报告保存了注册证据和有限内存的写作总结,使得下游分析之前可进行审计.",
+      "phonemes": "ʨi→ŋkwo↘ jɛ↘nꭧə↘ŋ tɤ y↘nɕi↗ŋ ʨja→ŋ swo↓jou↓ ʨjou↓kɤ↘ ʦɨ tou→ ɕje↓ ꭧʰu→lai↗,mei↗jou↓ i↗kɤ↘ pei↘ tʰjau↘ kwo↘,ꭧʰa↓nʂə→ŋ i↗kɤ↘ y↓ɥɛ↗n ʦɨ↘ twa↘n pʰi↓pʰei↘ tɤ sɨ↘ tʰʊ→ŋtau↘ ʨje→twei→,pi↘ŋ ʨja→ŋ ʨjou↓kɤ↘ ɕi↗ŋ tʰjɛ→nʨja→ tau↘ pʰai↗lje↘ ʦwo↘pjau→ pjau↓ꭧʊ→ŋ. kai→ pau↘kau↘ pau↓ʦʰwə↗n lɤ ꭧu↘ʦʰɤ↘ ꭧə↘ŋʨy↘ xɤ↗ jou↓ɕjɛ↘n nei↘ʦʰwə↗n tɤ ɕje↓ʦwo↘ ʦʊ↓ŋʨje↗,ʂɨ↓tɤ ɕja↘jou↗ fə→nɕi→ ꭧɨ→ʨʰjɛ↗n kʰɤ↓ ʨi↘nɕi↗ŋ ʂə↓nʨi↘."
     }
   ]
 }

@@ -1788,19 +1788,34 @@
       "id": "32_align_stitch",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Align og Stitch. Skráðu myndir og smíðu stitið mosaík í smám saman án þess að halda öllu listanum í minni."
+          "narration": "Align og Stitch skráir mikroskópsflísar á einn leif án þess að skipta öllu mosaikinu. Opnaðu hann frá Data og hlaupið. Skipulagið áætlun-fyrsta er tilvitað: skráningar traust, fallback staðsetning, útgáfu stærð og minni notkun eru sýnileg áður en spaCR skrifar eitthvað."
         },
         {
-          "narration": "Opna samræmingu og stitning frá gagna- og flokkavinnslustöðu. Veldu flísar kaup, staða samhæfingar eða yfirlagning metadata, leiðir og áfangastað."
+          "narration": "Fylgdu foldri af NPY eða TIFF flísur, eða veldu það hér. Þessi námskeið útfært eitt raunverulegt fjögurra-kanalmikroskópisvæði sem níu yfirlagandi flísar einungis til að eftirlíða 3 á 3 kaup. Kynningspikslarnir eru sannir en þekkt yfirlag gefur okkur endurnýjanlegt skráningarfyrirmæli."
         },
         {
-          "narration": "Í aðalmyndunar svæðinu er hægt að setja upp skráningarhátt, viðmiðunarleið, yfirlagningu, blending, leiðréttingu, stærð hluta og útgáfuformat."
+          "narration": "Lýsaðu uppsögunarskipulagið. Gridinn er 3 á 3 með 25 prósent nafnlega yfirlagningu í röð stærri röð. Tilgangsleið 1 er endoplasma-reticulumleiðinni; spaCR leysir skráningu einu sinni á þeim flat og beitir sömu breytingu á öllum fjórum leiðunum, sem kemur í veg fyrir skerið frá leiðinni til leiðinni."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu samræmingar og námsfyrirlit áður en búið er að byggja upp fullt mosaík."
+          "narration": "Gæðieftirlit ákveða hvaða samræmingar í báru koma inn í alþjóðlega lausnina. Minimum traust hafnar veikum kross tengslum, nágrannshálfur bætir við óþarfi nærliggjandi samanburði, Feather blends yfirlagnar saum og 64 megabytes RAM fjárhagsáætlun takmarkar hvert útgáfuband frekar en stærð tilbúinna linsinsins."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið eru skráðar flísar, saumaðar myndir, breytingar og kortunarmetadata geymdar."
+          "narration": "Smelltu á Plan áður en þú skrifar. Skipulagið lesir flís-header og yfirlagningarstreifur, metir nágrannaskilningar og leysir allar samþykktar takmarkanir saman. Það skapar hvorki kanvas né útgáfu skrár, svo þetta er öruggur staðurinn til að fanga rangt gír, röð, yfirlagningu, eða vísitöl."
+        },
+        {
+          "narration": "Alvöru áætlunin skráir alla níu flísana. Litur skipulagsins skráðu sviði eftir öryggi, en hvern fallback á sviðinu væri appelsínulaus og útblásinn. Í skýrslunni eru skráðar samþykktar og hafnaðar par, verstu eftirstöðvar, endanlegar víddir, stærð á diskinu og reikning á skrif með takmörkuðum minni."
+        },
+        {
+          "narration": "Smelltu á einstaka flís til að athuga lausnar Y og X stöðu, aðferð, traust, eftirlif og fjölda stuðningspar. Þessi svið var settur með skráningu, ekki bara með nafnlegu stöðu þess á netinu; notaðu sömu skoðun til að kanna veik eða einangrað flís áður en þú gerir stórt mosaík."
+        },
+        {
+          "narration": "Veldu nýjan áfangastað fyrir saumað NPY stack. Í gagnagrunni valfrjálsa mælinganna eru skráðar lausnar flísastöfn og útgáfuleið. Haltu yfirskrifunum í fyrsta skipti svo að núverandi mosaík sé hafnað í stað þess að skiptast þögugt út."
+        },
+        {
+          "narration": "Smelltu á Skrifa stafla aðeins eftir að áætlunin er samþykkt. spaCR samanstendur flísana einn horisontalan band í einu, beitir fjóra blending í yfirlagningu og skrifar samhæfingar eftir að myndin hefur náð árangri. Útgangurinn getur því verið meiri en fyrirliggjandi RAM á meðan minni stendur innan við lýst fjárhagsáætlun."
+        },
+        {
+          "narration": "Verified run skrifar öll níu flísar án þess að neinn sleppti, framleiðir fjögurra kanala stitnuð stafla sem samsvarar upphafssvæðinu og bætir níu röðum við raðfestingar-samhæfingar töfluna. Skýrslan varðveitir bæði skráningargögn og samantekt á skráningu með takmörkuðum minni og gerir mosaikinn endurskoðandi fyrir niðurrásargreiningu."
         }
       ]
     },
