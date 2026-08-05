@@ -560,19 +560,70 @@
       "id": "12_map_barcodes",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Karten-Barcodes. Verknüpfen Sie Sequenzierungs-Barcodes und führen Sie die Identitäten an die in mikroskopischen Bildern gemessenen Phänotypen an."
+          "narration": "Karte Barcodes dekodieren Sequenzierung Lesen in Plattenpositionen und Führung Identitäten. Die Konsole berichtet über Probenentdeckung, Parser-Einstellungen, Lesezahlen, Batchfortschritt, Ausgangswege und Ausfälle."
         },
         {
-          "narration": "Öffnen Sie die Barcodes der Karte im Kernbereich. Bereitstellung von FASTQ-Dateien, Barcode-Definitionen, Plattenmetadaten und dem entsprechenden Mikroskopieprojekt."
+          "narration": "Die DNA-Taste öffnet die Live-Sequenzierung-Hintergrundsteuerung. Für dieses Tutorial ist die Sichtbarkeit auf 10 Prozent gesetzt, so dass die beweglichen Basen sichtbar bleiben, ohne mit Einstellungen oder Konsolentext zu konkurrieren."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich definieren Sie Zeilen-, Spalten- und Barcode-Layouts zusammen mit Qualitätsschwellen und Mischungsregeln."
+          "narration": "Das Chatfeld akzeptiert Fragen zum aktuellen Workflow. Aktivieren Sie die KI, einen ausgewählten Provider zu durchlaufen, und verwenden Sie den angrenzenden Pfeil, um das Providermenü zu öffnen."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Qualität der Sequenzierung und die Kartierungsraten vor der Annahme der fusionierten Aufgaben zu überprüfen."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlszeilen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Guide-Identitäten mit Brunnen und Einobjekt-Phänotypen in nachverfolgbaren Tabellen verknüpft."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
+        },
+        {
+          "narration": "Ziehen Sie den Ordner der synthetischen Sequenzierung in die Karten-Barcodes. spaCR findet die kombinierten Demo-Dateien R1 und R2 FASTQ auf der oberen Ebene und setzt den Quellordner automatisch ein."
+        },
+        {
+          "narration": "Essentials zeigt die Quelle, den Paarungs- oder Einlesungsmodus, Barcode-Referenzen, das Parsierungsmuster und die Stücksteuerungen an, die für einen ersten Kartenlauf benötigt werden."
+        },
+        {
+          "narration": "Modifizierte Grenzwerte des Panels auf Werte, die sich von den Standardwerte unterscheiden, was bei der Prüfung eines für eine Bibliothek spezifischen Leselayouts oder einer Rechenwahl nützlich ist."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede Kategorie ohne Veränderung der Werte. Die fünf Kategorien trennen Inputs, Referenzen, Parsing, Ausgänge und Laufzeitzuverlässigkeit ab."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Sequenzierungskonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots mit den gelösten Map Barcodes-Einstellungen und senden Sie den Job in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert die Sequenzierung von Pfaden und Berechnungsressourcen zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Ausgang."
+        },
+        {
+          "narration": "Sequencing Input wählt den FASTQ-Ordner aus und bestimmt, ob R1 und R2 als Paar kombiniert werden oder ob eine Leserichtung alleine verarbeitet wird."
+        },
+        {
+          "narration": "Barcode References verweist auf drei CSV-Suchtabellen: eine für gRNA-Barcodes, eine für Plattenreihen und eine für Plattenkolumnen. Jede Tabelle benötigt Namen- und Sequenzspalten."
+        },
+        {
+          "narration": "Lesen Sie Parsing-Anker auf einer bekannten Zielsequenz, extrahieren Sie ein festes Fenster und wenden Sie einen regulären Ausdruck mit benannten ColumnID-, gRNA- und rowID-Gruppen an."
+        },
+        {
+          "narration": "Ausgang und Speicher steuert optionale HDF5-Lese-Speicher, Kompression und ob unvergleichliche Barcode-Namen als fehlende Werte aufbewahrt werden. Die zusammengefassten CSV-Ausgänge werden immer geschrieben."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeitssätze werden pro Stück gelesen, die Anzahl der Arbeiter und der Testmodus. Kleinere Stücke verwenden weniger Speicher; der Testmodus validiert das erste Stück vor einem großen Sequenzierungslauf."
+        },
+        {
+          "narration": "Diese synthetische Bibliothek verwendet ein 26-Basen-Ziel, startet acht Basen vor diesem Anker und extrahiert 89 Basen. Der Regex benennt dann die erfassten Spalte, Führer und Zeilensequenzen."
+        },
+        {
+          "narration": "Der Tutorial-Ordner enthält 4.800 Paarlesungen, die über 24 synthetische Brunnen und 12 Barcodes verteilt sind. Der Paired-Modus vergleicht R1 mit dem umgekehrten R2-Konsens."
+        },
+        {
+          "narration": "Run validiert Wege und Referenzen, entdeckt gepaarte Proben, zählt Lesungen und startet die Kartierung von Strichcodes. Stop-Anfragen um eine ordentliche Unterbrechung."
+        },
+        {
+          "narration": "Der Fortschrittsindikator und die Konsole zeigen die aktive Probe und die Anzahl der Chargen an. Diese Demonstration verarbeitet fünf Batches von 1.000 Lesungen oder weniger."
+        },
+        {
+          "narration": "Der erfolgreiche Run schreibt unique_combinations.csv mit Zeile, Spalte, Guide und Count, plus qc.csv mit Kartenqualitätsstatistiken. Es speichert auch reproduzierbare Einstellungen, ein Manifest und ein erneut laufbares Makro."
         }
       ]
     },

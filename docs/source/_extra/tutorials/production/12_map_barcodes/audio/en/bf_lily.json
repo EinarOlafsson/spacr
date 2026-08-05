@@ -4,47 +4,227 @@
   "voice": "bf_lily",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.825,
+  "total_duration": 243.85,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.875,
-      "scene_end": 9.325,
-      "duration": 9.325,
-      "text": "This tutorial covers Map Barcodes. Connect sequencing barcodes and guide identities to the phenotypes measured in microscopy images."
+      "speech_end": 12.1,
+      "scene_end": 12.549999999999999,
+      "duration": 12.549999999999999,
+      "text": "Map Barcodes decodes sequencing reads into plate positions and guide identities. The console reports sample discovery, parser settings, read counts, batch progress, output paths, and failures.",
+      "speech_text": "Map Barcodes decodes sequencing reads into plate positions and guide identities. The console reports sample discovery, parser settings, read counts, batch progress, output paths, and failures.",
+      "phonemes": "mˈap bˈɑːkQdz diːkˈQdz sˈiːkwənsɪŋ ɹˈiːdz ˈɪntuː plˈAt pəzˈɪʃᵊnz and ɡˈId Idˈɛntɪtiz. ðə kˈɒnsQl ɹɪpˈɔːts sˈɑːmpᵊl dɪskˈʌvəɹi, pˈɑːzə sˈɛtɪŋz, ɹˈɛd kˈWnts, bˈaʧ pɹˈQɡɹɛs, ˈWtpʊt pˈɑːðz, and fˈAljəz."
     },
     {
       "scene": 2,
-      "speech_start": 9.325,
-      "speech_end": 18.525,
-      "scene_end": 18.974999999999998,
-      "duration": 9.649999999999999,
-      "text": "Open Map Barcodes from the Core section. Provide FASTQ files, barcode definitions, plate metadata, and the matching microscopy project."
+      "speech_start": 12.549999999999999,
+      "speech_end": 25.45,
+      "scene_end": 25.9,
+      "duration": 13.35,
+      "text": "The DNA button opens the live sequencing backdrop controls. For this tutorial, Visibility is set to 10 percent so the moving bases remain visible without competing with settings or console text.",
+      "speech_text": "The DNA button opens the live sequencing backdrop controls. For this tutorial, Visibility is set to 10 percent so the moving bases remain visible without competing with settings or console text.",
+      "phonemes": "ðə dˌiːˌɛnˈA bˈʌtᵊn ˈQpᵊnz ðə lˈIv sˈiːkwənsɪŋ bˈakdɹɒp kəntɹˈQlz. fˌɔː ðɪs tjuːtˈɔːɹɪəl, vˌɪzɪbˈɪlɪti ɪz sˈɛt tə tˈɛn pəsˈɛnt sˌQ ðə mˈuːvɪŋ bˈAsiːz ɹɪmˈAn vˈɪzɪbᵊl wɪðˈWt kəmpˈiːtɪŋ wɪð sˈɛtɪŋz ɔː kˈɒnsQl tˈɛkst."
     },
     {
       "scene": 3,
-      "speech_start": 18.974999999999998,
-      "speech_end": 27.0,
-      "scene_end": 27.45,
-      "duration": 8.475000000000001,
-      "text": "In the main configuration area, define row, column, and guide barcode layouts together with quality thresholds and mismatch rules."
+      "speech_start": 25.9,
+      "speech_end": 35.925,
+      "scene_end": 36.375,
+      "duration": 10.475000000000001,
+      "text": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+      "speech_text": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+      "phonemes": "ðə ʧˈat fˈiːld əksˈɛpts kwˈɛsʧᵊnz əbˈWt ðə kˈʌɹənt wˈɜːkflQ. ɪnˈAbᵊl ˈAˌI tə ɹˈuːt θɹuː ɐ sɪlˈɛktɪd pɹəvˈIdə, and jˈuːz ði əʤˈAsᵊnt ˈaɹQ tʊ ˈQpᵊn ðə pɹəvˈIdə mˈɛnjuː."
     },
     {
       "scene": 4,
-      "speech_start": 27.45,
-      "speech_end": 38.825,
-      "scene_end": 39.275000000000006,
-      "duration": 11.825000000000006,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect sequencing quality and mapping rates before accepting the merged assignments."
+      "speech_start": 36.375,
+      "speech_end": 47.325,
+      "scene_end": 47.775000000000006,
+      "duration": 11.400000000000006,
+      "text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and provides their install and login commands. Credentials stay with each vendor.",
+      "speech_text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and provides their install and login commands. Credentials stay with each vendor.",
+      "phonemes": "pɹəvˈIdəz ɹɪpˈɔːts wˈɛðə ðə klˈɔːd, ʧˌatʤˌiːpˌiːtˈiː, and ʤˈɛmɪniː kəmˈɑːndlˌIn klˈIənts ɑː ɪnstˈɔːld and pɹəvˈIdz ðɛː ɪnstˈɔːl and lˈɒɡɪn kəmˈɑːndz. kɹɪdˈɛnʃlz stˈA wɪð ˈiːʧ vˈɛndɔː."
     },
     {
       "scene": 5,
-      "speech_start": 39.275000000000006,
-      "speech_end": 46.175000000000004,
-      "scene_end": 46.825,
-      "duration": 7.549999999999997,
-      "text": "When the workflow finishes, guide identities are linked to wells and single-object phenotypes in traceable tables."
+      "speech_start": 47.775000000000006,
+      "speech_end": 57.025000000000006,
+      "scene_end": 57.47500000000001,
+      "duration": 9.700000000000003,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system prompt.",
+      "phonemes": "ˈAˌI sˈɛtɪŋz kəntɹˈQlz ɹɪspˈɒns dˈɛpθ, ˌɔːtəmˈatɪk ˈɛɹə ˌɛksplənˈAʃᵊnz, ˈɒpʃənᵊl ɡˌɪthˈʌb ˈɪʃjuː ɹɪpˈɔːtɪŋ, sˈInˌɪn, and ðə spˈAsəəwˌɛː sˈɪstɪm pɹˈɒmpt."
+    },
+    {
+      "scene": 6,
+      "speech_start": 57.47500000000001,
+      "speech_end": 69.25000000000001,
+      "scene_end": 69.70000000000002,
+      "duration": 12.225000000000009,
+      "text": "Drag the synthetic sequencing folder into Map Barcodes. spaCR finds the paired demo R1 and R2 FASTQ files at the top level and sets the source folder automatically.",
+      "speech_text": "Drag the synthetic sequencing folder into Map Barcodes. spacer finds the paired demo R1 and R2 FASTQ files at the top level and sets the source folder automatically.",
+      "phonemes": "dɹˈaɡ ðə sɪnθˈɛtɪk sˈiːkwənsɪŋ fˈQldə ˈɪntuː mˈap bˈɑːkQdz. spˈAsə fˈIndz ðə pˈɛːd dˈɛmQ ˈɑː wˈʌn and ˈɑː tˈuː ˌɛfˌAˌɛstˌiːkjˈuː fˈIlz at ðə tˈɒp lˈɛvᵊl and sˈɛts ðə sˈɔːs fˈQldə ˌɔːtəmˈatɪkli."
+    },
+    {
+      "scene": 7,
+      "speech_start": 69.70000000000002,
+      "speech_end": 78.40000000000002,
+      "scene_end": 78.85000000000002,
+      "duration": 9.150000000000006,
+      "text": "Essentials shows the source, paired or single-read mode, barcode references, parsing pattern, and chunk controls needed for a first mapping run.",
+      "speech_text": "Essentials shows the source, paired or single-read mode, barcode references, parsing pattern, and chunk controls needed for a first mapping run.",
+      "phonemes": "ɪsˈɛnʃlz ʃˈQz ðə sˈɔːs, pˈɛːd ɔː sˈɪŋɡᵊlɹˌiːd mˈQd, bˈɑːkQd ɹˈɛfəɹənsɪz, pˈɑːzɪŋ pˈatᵊn, and ʧˈʌŋk kəntɹˈQlz nˈiːdɪd fɔː ɐ fˈɜːst mˈapɪŋ ɹˈʌn."
+    },
+    {
+      "scene": 8,
+      "speech_start": 78.85000000000002,
+      "speech_end": 87.72500000000002,
+      "scene_end": 88.17500000000003,
+      "duration": 9.325000000000003,
+      "text": "Modified limits the panel to values that differ from the defaults, which is useful when auditing a library-specific read layout or compute choice.",
+      "speech_text": "Modified limits the panel to values that differ from the defaults, which is useful when auditing a library-specific read layout or compute choice.",
+      "phonemes": "mˈɒdɪfId lˈɪmɪts ðə pˈanᵊl tə vˈaljuːz ðat dˈɪfə fɹɒm ðə dɪfˈɔːlts, wˌɪʧ ɪz jˈuːsfʊl wˌɛn ˈɔːdɪtɪŋ ɐ lˌIbɹəɹispɪsˈɪfɪk ɹˈiːd lˈAWt ɔː kəmpjˈuːt ʧˈYs."
+    },
+    {
+      "scene": 9,
+      "speech_start": 88.17500000000003,
+      "speech_end": 98.10000000000002,
+      "scene_end": 98.55000000000003,
+      "duration": 10.375,
+      "text": "All settings reveals every category without changing values. The five categories separate inputs, references, parsing, outputs, and runtime reliability.",
+      "speech_text": "All settings reveals every category without changing values. The five categories separate inputs, references, parsing, outputs, and runtime reliability.",
+      "phonemes": "ˈɔːl sˈɛtɪŋz ɹɪvˈiːlz ˈɛvəɹi kˈatɪɡəɹi wɪðˈWt ʧˈAnʤɪŋ vˈaljuːz. ðə fˈIv kˈatɪɡəɹiz sˈɛpəɹAt ˈɪnpʊts, ɹˈɛfəɹənsɪz, pˈɑːzɪŋ, ˈWtpʊts, and ɹˈʌntIm ɹɪlˌIəbˈɪlɪti."
+    },
+    {
+      "scene": 10,
+      "speech_start": 98.55000000000003,
+      "speech_end": 107.55000000000003,
+      "scene_end": 108.00000000000003,
+      "duration": 9.450000000000003,
+      "text": "Recipes saves the complete sequencing configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete sequencing configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsɪpiz sˈAvz ðə kəmplˈiːt sˈiːkwənsɪŋ kənfˌɪɡəɹˈAʃᵊn ˈʌndə ɐ nˈAm, ɹˌiːəplˈIz ɪt lˈAtə, ɔː ˈɪmpɔːts and ˈɛkspɔːts ɐ ɹˌiːjˈuːzəbᵊl sˈɛtɪŋz fˈIl."
+    },
+    {
+      "scene": 11,
+      "speech_start": 108.00000000000003,
+      "speech_end": 115.30000000000003,
+      "scene_end": 115.75000000000003,
+      "duration": 7.75,
+      "text": "Submit remote snapshots the resolved Map Barcodes settings and sends the job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved Map Barcodes settings and sends the job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹɪmˈQt snˈapʃɒts ðə ɹɪzˈɒlvd mˈap bˈɑːkQdz sˈɛtɪŋz and sˈɛndz ðə ʤˈɒb tə ðə dɪstɹˈɪbjuːtɪd ʤˈɒbz wˈɜːkspAs."
+    },
+    {
+      "scene": 12,
+      "speech_start": 115.75000000000003,
+      "speech_end": 126.50000000000003,
+      "scene_end": 126.95000000000003,
+      "duration": 11.200000000000003,
+      "text": "Distributed Jobs maps sequencing paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "speech_text": "Distributed Jobs maps sequencing paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "phonemes": "dɪstɹˈɪbjuːtɪd ʤˈɒbz mˈaps sˈiːkwənsɪŋ pˈɑːðz and kəmpjˈuːt ɹɪzˈɔːsɪz tə ɐ ɹɪmˈQt wˈɜːkstˌAʃᵊn, slˈɜːm klˈʌstə, ɔː kənfˈɪɡəd kəmˈɑːnd, ðˈɛn səbmˈɪts and mˈɒnɪtəz ðə sˈAm ɹˈʌn."
+    },
+    {
+      "scene": 13,
+      "speech_start": 126.95000000000003,
+      "speech_end": 137.10000000000002,
+      "scene_end": 137.55,
+      "duration": 10.59999999999998,
+      "text": "Sequencing Input selects the FASTQ folder and determines whether R1 and R2 are combined as a pair or one read direction is processed alone.",
+      "speech_text": "Sequencing Input selects the FASTQ folder and determines whether R1 and R2 are combined as a pair or one read direction is processed alone.",
+      "phonemes": "sˈiːkwənsɪŋ ˈɪnpʊt sɪlˈɛkts ði ˌɛfˌAˌɛstˌiːkjˈuː fˈQldə and dɪtˈɜːmɪnz wˈɛðə ˈɑː wˈʌn and ˈɑː tˈuː ɑː kəmbˈInd az ɐ pˈɛː ɔː wˈʌn ɹˈiːd dɪɹˈɛkʃᵊn ɪz pɹˈQsɛst əlˈQn."
+    },
+    {
+      "scene": 14,
+      "speech_start": 137.55,
+      "speech_end": 148.72500000000002,
+      "scene_end": 149.175,
+      "duration": 11.625,
+      "text": "Barcode References points to three CSV lookup tables: one for gRNA barcodes, one for plate rows, and one for plate columns. Each table needs name and sequence columns.",
+      "speech_text": "Barcode References points to three CSV lookup tables: one for gRNA barcodes, one for plate rows, and one for plate columns. Each table needs name and sequence columns.",
+      "phonemes": "bˈɑːkQd ɹˈɛfəɹənsɪz pˈYnts tə θɹˈiː sˌiːˌɛsvˈiː lˈʊkʌp tˈAbᵊlz: wˈʌn fɔː ʤˌiːˌɑːˌɛnˈA bˈɑːkQdz, wˈʌn fɔː plˈAt ɹˈQz, and wˈʌn fɔː plˈAt kˈɒləmz. ˈiːʧ tˈAbᵊl nˈiːdz nˈAm and sˈiːkwəns kˈɒləmz."
+    },
+    {
+      "scene": 15,
+      "speech_start": 149.175,
+      "speech_end": 159.15,
+      "scene_end": 159.6,
+      "duration": 10.424999999999983,
+      "text": "Read Parsing anchors on a known target sequence, extracts a fixed window, and applies a regular expression with named columnID, gRNA, and rowID groups.",
+      "speech_text": "Read Parsing anchors on a known target sequence, extracts a fixed window, and applies a regular expression with named columnID, gRNA, and rowID groups.",
+      "phonemes": "ɹˈiːd pˈɑːzɪŋ ˈaŋkəz ˌɒn ɐ nˈQn tˈɑːɡɪt sˈiːkwəns, ɪkstɹˈakts ɐ fˈɪkst wˈɪndQ, and əplˈIz ɐ ɹˈɛɡjʊlə ɪkspɹˈɛʃᵊn wɪð nˈAmd kˌɒləmˌIdˈiː, ʤˌiːˌɑːˌɛnˈA, and ɹˈQˌɪd ɡɹˈuːps."
+    },
+    {
+      "scene": 16,
+      "speech_start": 159.6,
+      "speech_end": 171.92499999999998,
+      "scene_end": 172.37499999999997,
+      "duration": 12.774999999999977,
+      "text": "Output and Storage controls optional HDF5 read storage, compression, and whether unmatched barcode names are retained as missing values. The summarized CSV outputs are always written.",
+      "speech_text": "Output and Storage controls optional HDF5 read storage, compression, and whether unmatched barcode names are retained as missing values. The summarized CSV outputs are always written.",
+      "phonemes": "ˈWtpʊt and stˈɔːɹɪʤ kəntɹˈQlz ˈɒpʃənᵊl ˌAʧdˌiːˈɛf fˈIv ɹˈiːd stˈɔːɹɪʤ, kəmpɹˈɛʃᵊn, and wˈɛðə ʌnmˈaʧt bˈɑːkQd nˈAmz ɑː ɹɪtˈAnd az mˈɪsɪŋ vˈaljuːz. ðə sˈʌməɹIzd sˌiːˌɛsvˈiː ˈWtpʊts ɑː ˈɔːlwAz ɹˈɪtᵊn."
+    },
+    {
+      "scene": 17,
+      "speech_start": 172.37499999999997,
+      "speech_end": 183.17499999999998,
+      "scene_end": 183.62499999999997,
+      "duration": 11.25,
+      "text": "Runtime and Reliability sets reads per chunk, worker count, and test mode. Smaller chunks use less memory; test mode validates the first chunk before a large sequencing run.",
+      "speech_text": "Runtime and Reliability sets reads per chunk, worker count, and test mode. Smaller chunks use less memory; test mode validates the first chunk before a large sequencing run.",
+      "phonemes": "ɹˈʌntIm and ɹɪlˌIəbˈɪlɪti sˈɛts ɹˈiːdz pɜː ʧˈʌŋk, wˈɜːkə kˈWnt, and tˈɛst mˈQd. smˈɔːlə ʧˈʌŋks jˈuːz lˈɛs mˈɛməɹi; tˈɛst mˈQd vˈalɪdAts ðə fˈɜːst ʧˈʌŋk bɪfˈɔː ɐ lˈɑːʤ sˈiːkwənsɪŋ ɹˈʌn."
+    },
+    {
+      "scene": 18,
+      "speech_start": 183.62499999999997,
+      "speech_end": 195.82499999999996,
+      "scene_end": 196.27499999999995,
+      "duration": 12.649999999999977,
+      "text": "This synthetic library uses a 26-base target, starts eight bases before that anchor, and extracts 89 bases. The regex then names the captured column, guide, and row sequences.",
+      "speech_text": "This synthetic library uses a 26-base target, starts eight bases before that anchor, and extracts 89 bases. The regex then names the captured column, guide, and row sequences.",
+      "phonemes": "ðˌɪs sɪnθˈɛtɪk lˈIbɹəɹi jˈuːzɪz ɐ twˈɛnti sˈɪks bˈAs tˈɑːɡɪt, stˈɑːts ˈAt bˈAsiːz bɪfˈɔː ðˈat ˈaŋkə, and ɪkstɹˈakts ˈAti nˈIn bˈAsiːz. ðə ɹˈɛɡɛks ðˈɛn nˈAmz ðə kˈapʧəd kˈɒləm, ɡˈId, and ɹˈQ sˈiːkwənsɪz."
+    },
+    {
+      "scene": 19,
+      "speech_start": 196.27499999999995,
+      "speech_end": 209.14999999999995,
+      "scene_end": 209.59999999999994,
+      "duration": 13.324999999999989,
+      "text": "The tutorial folder contains 4,800 paired reads spread across 24 synthetic wells and 12 guide barcodes. Paired mode compares R1 with the reverse-complemented R2 consensus.",
+      "speech_text": "The tutorial folder contains 4,800 paired reads spread across 24 synthetic wells and 12 guide barcodes. Paired mode compares R1 with the reverse-complemented R2 consensus.",
+      "phonemes": "ðə tjuːtˈɔːɹɪəl fˈQldə kəntˈAnz fˈɔː θˈWzᵊnd ˈAt hˈʌndɹəd pˈɛːd ɹˈiːdz spɹˈɛd əkɹˈɒs twˈɛnti fˈɔː sɪnθˈɛtɪk wˈɛlz and twˈɛlv ɡˈId bˈɑːkQdz. pˈɛːd mˈQd kəmpˈɛːz ˈɑː wˈʌn wɪð ðə ɹɪvˌɜːskˈɒmplɪmɛntɪd ˈɑː tˈuː kənsˈɛnsəs."
+    },
+    {
+      "scene": 20,
+      "speech_start": 209.59999999999994,
+      "speech_end": 219.12499999999994,
+      "scene_end": 219.57499999999993,
+      "duration": 9.974999999999994,
+      "text": "Run validates paths and references, discovers paired samples, counts reads, and starts chunked barcode mapping. Stop requests an orderly interruption.",
+      "speech_text": "Run validates paths and references, discovers paired samples, counts reads, and starts chunked barcode mapping. Stop requests an orderly interruption.",
+      "phonemes": "ɹˈʌn vˈalɪdAts pˈɑːðz and ɹˈɛfəɹənsɪz, dɪskˈʌvəz pˈɛːd sˈɑːmpᵊlz, kˈWnts ɹˈiːdz, and stˈɑːts ʧˈʌŋkt bˈɑːkQd mˈapɪŋ. stˈɒp ɹɪkwˈɛsts ɐn ˈɔːdəli ˌɪntəɹˈʌpʃᵊn."
+    },
+    {
+      "scene": 21,
+      "speech_start": 219.57499999999993,
+      "speech_end": 228.79999999999993,
+      "scene_end": 229.24999999999991,
+      "duration": 9.674999999999983,
+      "text": "The progress indicator and console show the active sample and batch count. This demonstration processes five batches of 1,000 reads or fewer.",
+      "speech_text": "The progress indicator and console show the active sample and batch count. This demonstration processes five batches of 1,000 reads or fewer.",
+      "phonemes": "ðə pɹˈQɡɹɛs ˈɪndɪkAtə and kˈɒnsQl ʃˈQ ði ˈaktɪv sˈɑːmpᵊl and bˈaʧ kˈWnt. ðˌɪs dˌɛmənstɹˈAʃᵊn pɹˈQsɛsɪz fˈIv bˈaʧɪz ɒv wˈʌn θˈWzᵊnd ɹˈiːdz ɔː fjˈuːə."
+    },
+    {
+      "scene": 22,
+      "speech_start": 229.24999999999991,
+      "speech_end": 243.1999999999999,
+      "scene_end": 243.8499999999999,
+      "duration": 14.599999999999994,
+      "text": "The successful run writes unique_combinations.csv with row, column, guide, and count, plus qc.csv with mapping quality statistics. It also saves reproducible settings, a manifest, and a rerunnable macro.",
+      "speech_text": "The successful run writes unique_combinations.csv with row, column, guide, and count, plus qc.csv with mapping quality statistics. It also saves reproducible settings, a manifest, and a rerunnable macro.",
+      "phonemes": "ðə səksˈɛsfʊl ɹˈʌn ɹˈIts juːnˈiːk kˌɒmbɪnˈAʃənz.sˌiːˌɛsvˈiː wɪð ɹˈQ, kˈɒləm, ɡˈId, and kˈWnt, plˈʌs kjˌuːsˈiː.sˌiːˌɛsvˈiː wɪð mˈapɪŋ kwˈɒlɪti stətˈɪstɪks. ˌɪt ˈɔːlsQ sˈAvz ɹˌiːpɹədjˈuːsɪbᵊl sˈɛtɪŋz, ɐ mˈanɪfɛst, and ɐ ɹɪɹˈʌnəbᵊl mˈakɹQ."
     }
   ]
 }

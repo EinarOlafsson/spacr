@@ -1430,47 +1430,183 @@
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes",
+      "title": "Codici a barre di mappa",
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
-      "description": "Connettere i codici a barre di sequenza e le identità di guida ai fenotipi misurati in immagini microscopiche.",
+      "description": "La sequenziatura a coppia di decodifica si legge in righe di piastre, colonne e identità di gRNA utilizzando uno schermo sintetico riproducibile.",
       "objectives": [
-        "Comprendere quando usare i codici a barre della mappa.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Carico in coppia letture FASTQ e le tre tabelle di riferimento dei codici a barre.",
+        "Comprendere la sequenza di destinazione, l'espressione regolare, le compensazioni, le categorie di output e runtime.",
+        "Eseguire uno schermo sintetico di 4.800 letture e localizzare le sue combinazioni mappate e l'uscita di controllo della qualità."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Conoscere il layout di lettura utilizzato per codificare i codici a barre di riga, colonna e gRNA e preparare file CSV di riferimento con colonne di nome e sequenza.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre i codici a barre Map. Connettere i codici a barre di sequenza e guida le identità ai fenotipi misurati in immagini microscopiche.",
-          "visual": "overview",
+          "narration": "Map Barcodes decodifica sequenziamento letture in posizioni delle targhe e guida identità. La console segnala la scoperta del campione, le impostazioni del parser, i numeri di lettura, il progresso del lotto, i percorsi di uscita e i fallimenti.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre i codici a barre Map. Connettere i codici a barre di sequenza e guida le identità ai fenotipi misurati in immagini microscopiche."
+          "speech_text": "Map Barcodes decodifica sequenziamento letture in posizioni delle targhe e guida identità. La console segnala la scoperta del campione, le impostazioni del parser, i numeri di lettura, il progresso del lotto, i percorsi di uscita e i fallimenti."
         },
         {
-          "narration": "Apri Map Barcodes dalla sezione Core. Apri i codici a barre della mappa dalla sezione Core. Fornire file FASTQ, definizioni di codici a barre, metadati di piastra e il progetto di microscopia corrispondente.",
-          "visual": "input",
+          "narration": "Il pulsante del DNA apre i controlli di sfondo di sequenziamento live. Per questo tutorial, la visibilità è impostata al 10 per cento in modo che le basi in movimento rimangano visibili senza competere con le impostazioni o il testo della console.",
+          "visual": "02_dna_visibility",
+          "focus_key": "dna_settings",
+          "click_key": "dna_button",
           "hold_after": 0.45,
-          "speech_text": "Apri Map Barcodes dalla sezione Core. Apri i codici a barre della mappa dalla sezione Core. Fornire file FASTQ, definizioni di codici a barre, metadati di piastra e il progetto di microscopia corrispondente."
+          "speech_text": "Il pulsante del DNA apre i controlli di sfondo di sequenziamento live. Per questo tutorial, la visibilità è impostata al 10 per cento in modo che le basi in movimento rimangano visibili senza competere con le impostazioni o il testo della console."
         },
         {
-          "narration": "Nella zona di configurazione principale, definire le layout di righe, colonne e codici a barre guida insieme a soglie di qualità e regole di incompatibilità.",
-          "visual": "settings",
+          "narration": "Il campo di chat accetta domande sul flusso di lavoro attuale. Abilitare l'IA a percorrersi attraverso un provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+          "visual": "03_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, definire le layout di righe, colonne e codici a barre guida insieme a soglie di qualità e regole di incompatibilità."
+          "speech_text": "Il campo di chat accetta domande sul flusso di lavoro attuale. Abilitare l'IA a percorrersi attraverso un provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider."
         },
         {
-          "narration": "Prima di completare la corsa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile.",
-          "visual": "run",
+          "narration": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore.",
+          "visual": "04_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Prima di completare la corsa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile."
+          "speech_text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e forniscono i loro comandi di installazione e login. Le credenziali restano con ogni venditore."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, le identità della guida sono collegate a pozzi e fenotipi di singoli oggetti nelle tabelle tracciabili.",
-          "visual": "output",
+          "narration": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+          "visual": "05_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker."
+        },
+        {
+          "narration": "Trascinare la cartella di sequenziamento sintetico nei codici a barre della mappa. spaCR trova i file demo R1 e R2 FASTQ accoppiati al livello superiore e imposta automaticamente la cartella sorgente.",
+          "visual": "06_fastq_drop",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Trascinare la cartella di sequenziamento sintetico nei codici a barre della mappa. spàker trova i file demo R1 e R2 FASTQ accoppiati al livello superiore e imposta automaticamente la cartella sorgente."
+        },
+        {
+          "narration": "Essentials mostra la fonte, la modalità di coppia o singola lettura, i riferimenti al codice a barre, il modello di parsimento e i controlli di pezzi necessari per una prima esecuzione di mappatura.",
+          "visual": "07_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mostra la fonte, la modalità di coppia o singola lettura, i riferimenti al codice a barre, il modello di parsimento e i controlli di pezzi necessari per una prima esecuzione di mappatura."
+        },
+        {
+          "narration": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite, che è utile quando si verifica un layout di lettura o una scelta di calcolo specifico per la biblioteca.",
+          "visual": "08_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite, che è utile quando si verifica un layout di lettura o una scelta di calcolo specifico per la biblioteca."
+        },
+        {
+          "narration": "Tutte le impostazioni rivelano ogni categoria senza modificare i valori. Le cinque categorie separano le entrate, i riferimenti, l'analisi, le uscite e l'affidabilità del tempo di esecuzione.",
+          "visual": "09_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tutte le impostazioni rivelano ogni categoria senza modificare i valori. Le cinque categorie separano le entrate, i riferimenti, l'analisi, le uscite e l'affidabilità del tempo di esecuzione."
+        },
+        {
+          "narration": "Le ricette salvano la configurazione completa di sequenziamento sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile.",
+          "visual": "10_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Le ricette salvano la configurazione completa di sequenziamento sotto un nome, la riapplicano in seguito o importano ed esportano un file di impostazioni riutilizzabile."
+        },
+        {
+          "narration": "Invia istantanee remote delle impostazioni dei codici a barre Map risolti e invia il lavoro nello spazio di lavoro Jobs Distribuiti.",
+          "visual": "11_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Invia istantanee remote delle impostazioni dei codici a barre Map risolti e invia il lavoro nello spazio di lavoro Jobs Distribuiti."
+        },
+        {
+          "narration": "Distributed Jobs mappa i percorsi di sequenziamento e le risorse di calcolo a una stazione di lavoro remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+          "visual": "12_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mappa i percorsi di sequenziamento e le risorse di calcolo a una stazione di lavoro remota, a un cluster Slurm o a un comando configurato, quindi inviano e monitorano la stessa esecuzione."
+        },
+        {
+          "narration": "Sequencing Input seleziona la cartella FASTQ e determina se R1 e R2 sono combinati come coppia o se una direzione di lettura viene elaborata da sola.",
+          "visual": "13_category_01_sequencing_input",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Sequencing Input seleziona la cartella FASTQ e determina se R1 e R2 sono combinati come coppia o se una direzione di lettura viene elaborata da sola."
+        },
+        {
+          "narration": "Barcode References indica tre tabelle di ricerca CSV: una per i codici a barre di gRNA, una per le righe di piastre e una per le colonne di piastre. Ogni tabella ha bisogno di colonne di nome e di sequenza.",
+          "visual": "13_category_02_barcode_references",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Barcode References indica tre tabelle di ricerca CSV: una per i codici a barre di gRNA, una per le righe di piastre e una per le colonne di piastre. Ogni tabella ha bisogno di colonne di nome e di sequenza."
+        },
+        {
+          "narration": "Leggi l'ancoraggio di Parsing su una sequenza di destinazione nota, estraggere una finestra fissa e applicare un'espressione regolare con colonnaID, gRNA e gruppi rowID denominati.",
+          "visual": "13_category_03_read_parsing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Leggi l'ancoraggio di Parsing su una sequenza di destinazione nota, estraggere una finestra fissa e applicare un'espressione regolare con colonnaID, gRNA e gruppi rowID denominati."
+        },
+        {
+          "narration": "L'output and Storage controlla optional HDF5 read storage, compressione e se i nomi di codici a barre non corrispondenti vengono conservati come valori mancanti. Le output CSV riassunte sono sempre scritte.",
+          "visual": "13_category_04_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'output and Storage controlla optional HDF5 read storage, compressione e se i nomi di codici a barre non corrispondenti vengono conservati come valori mancanti. Le output CSV riassunte sono sempre scritte."
+        },
+        {
+          "narration": "I set di tempo di esecuzione e affidabilità si leggono per pezzo, il numero di lavoratori e la modalità di prova. I pezzi più piccoli usano meno memoria; la modalità di prova convalida il primo pezzo prima di un grande sequenziamento.",
+          "visual": "13_category_05_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "I set di tempo di esecuzione e affidabilità si leggono per pezzo, il numero di lavoratori e la modalità di prova. I pezzi più piccoli usano meno memoria; la modalità di prova convalida il primo pezzo prima di un grande sequenziamento."
+        },
+        {
+          "narration": "Questa biblioteca sintetica utilizza un bersaglio di 26 basi, inizia otto basi prima di quell'ancora e estrage 89 basi. Il regex nomina quindi le sequenze di colonna, guida e riga catturate.",
+          "visual": "18_regex_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Questa biblioteca sintetica utilizza un bersaglio di 26 basi, inizia otto basi prima di quell'ancora e estrage 89 basi. Il regex nomina quindi le sequenze di colonna, guida e riga catturate."
+        },
+        {
+          "narration": "La cartella del tutorial contiene 4.800 letture accoppiate distribuite su 24 pozzi sintetici e 12 codici a barre di guida. La modalità accoppiata confronta R1 con il consenso R2 completato al contrario.",
+          "visual": "19_paired_reads",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "La cartella del tutorial contiene 4.800 letture accoppiate distribuite su 24 pozzi sintetici e 12 codici a barre di guida. La modalità accoppiata confronta R1 con il consenso R2 completato al contrario."
+        },
+        {
+          "narration": "Run convalida percorsi e riferimenti, scopre campioni accoppiati, conta le letture e inizia la mappatura dei codici a barre. STOP richiede un'interruzione ordinata.",
+          "visual": "20_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run convalida percorsi e riferimenti, scopre campioni accoppiati, conta le letture e inizia la mappatura dei codici a barre. STOP richiede un'interruzione ordinata."
+        },
+        {
+          "narration": "L'indicatore di progresso e la console mostrano il campione attivo e il numero di lotti. Questa dimostrazione elabora cinque lotti di 1.000 letture o meno.",
+          "visual": "21_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "L'indicatore di progresso e la console mostrano il campione attivo e il numero di lotti. Questa dimostrazione elabora cinque lotti di 1.000 letture o meno."
+        },
+        {
+          "narration": "La corsa di successo scrive unique_combinations.csv con riga, colonna, guida e conteggio, più qc.csv con statistiche di qualità di mappatura. Salva anche impostazioni riproducibili, un manifesto e una macro riavviabile.",
+          "visual": "22_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, le identità della guida sono collegate a pozzi e fenotipi di singoli oggetti nelle tabelle tracciabili."
+          "speech_text": "La corsa di successo scrive unique_combinations.csv con riga, colonna, guida e conteggio, più qc.csv con statistiche di qualità di mappatura. Salva anche impostazioni riproducibili, un manifesto e una macro riavviabile."
         }
       ]
     },
