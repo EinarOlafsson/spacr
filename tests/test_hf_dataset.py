@@ -108,11 +108,10 @@ def test_cellposesam_on_hf_toxo_mito_field(hf_toxo_mito_field):
     """Run CellposeSAM on one real HF-hosted CellVoyager TIFF."""
     import numpy as np
     import torch
-    try:
-        from tifffile import imread
-        from cellpose.models import CellposeModel
-    except Exception as e:
-        pytest.skip(f"cellpose or tifffile missing: {e}")
+    # importorskip: a missing package is an environment fact; a package that
+    # is present and raises on import is a bug this test must not absorb.
+    imread = pytest.importorskip("tifffile").imread
+    CellposeModel = pytest.importorskip("cellpose.models").CellposeModel
     if not torch.cuda.is_available():
         pytest.skip("no CUDA available")
 

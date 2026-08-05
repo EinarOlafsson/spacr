@@ -4,47 +4,217 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 56.1,
+  "total_duration": 293.65,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.525,
-      "scene_end": 9.975,
-      "duration": 9.975,
-      "text": "Questo tutorial copre le maschere Cellpose. Generare e rivedere le maschere Cellpose con un flusso di lavoro modello-applicazione focalizzato."
+      "speech_end": 17.325,
+      "scene_end": 17.775,
+      "duration": 17.775,
+      "text": "Cellpose Masks applica un modello CPSAM di stock o un checkpoint personalizzato alle immagini di microscopia e scrive una maschera di etichetta di istanza per campo. La console registra la risoluzione del modello, la normalizzazione, il progresso e i percorsi di uscita.",
+      "speech_text": "Cellpose Masks applica un modello CPSAM di stock o un checkpoint personalizzato alle immagini di microscopia e scrive una maschera di etichetta di istanza per campo. La console registra la risoluzione del modello, la normalizzazione, il progresso e i percorsi di uscita.",
+      "phonemes": "ʧelpˈoze mˈasks ˈapːlika ʊn modˈɛllo kpsˈam dɪ stˈɔkː o ʊn kekːpˈɔint personaliʣːˈato ˌalle immˈaʤinɪ dɪ mikroskopˈia e skrˈive ˌʊna mˈaːskˌɛra dɪ etikˈetːa dɪ istˈanʦa per kˈampo. la kˈɔnsole reʤˈistra la rizolʊʦiˈone del modˈɛllo, la normaliʣːaʦiˈone, il proɡrˈɛSo e i perkˈorsɪ dɪ ʊʃˈita."
     },
     {
       "scene": 2,
-      "speech_start": 9.975,
-      "speech_end": 23.6,
-      "scene_end": 24.05,
-      "duration": 14.075000000000001,
-      "text": "Apri Cellpose Masks dalla sezione Segmentation models. Apri le maschere Cellpose dalla sezione Modelli di segmentazione. Selezionare immagini, canali e un modello Cellpose integrato o personalizzato."
+      "speech_start": 17.775,
+      "speech_end": 30.799999999999997,
+      "scene_end": 31.249999999999996,
+      "duration": 13.474999999999998,
+      "text": "Il campo di chat accetta le domande del flusso di lavoro locale. Abilitare l'IA per un provider configurato e utilizzare la freccia adiacente per selezionare un provider o aprire i suoi controlli.",
+      "speech_text": "Il campo di chat accetta le domande del flusso di lavoro locale. Abilitare l'IA per un provider configurato e utilizzare la freccia adiacente per selezionare un provider o aprire i suoi controlli.",
+      "phonemes": "il kˈampo dɪ ʧˈat aʧːˈetːa le domˈande del flˈuSo dɪ lavˈɔro lokˈale. abilitˈare lˈia per ʊn provˈaider konfiɡʊrˈato e ʊtiliʣːˈare la frˈeʧːa adjaʧˈɛnte per seleʦjonˈare ʊn provˈaider o aprˈire i sʊˌɔi kontrˈɔllɪ."
     },
     {
       "scene": 3,
-      "speech_start": 24.05,
-      "speech_end": 34.4,
-      "scene_end": 34.85,
-      "duration": 10.8,
-      "text": "Nell'area di configurazione principale, configurare il diametro, il flusso e le soglie di probabilità cellulare, la normalizzazione, la tessitura e l'uso hardware."
+      "speech_start": 31.249999999999996,
+      "speech_end": 44.625,
+      "scene_end": 45.075,
+      "duration": 13.825000000000006,
+      "text": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e visualizzano i loro comandi di installazione e login mentre l'autenticazione rimane presso ciascun fornitore.",
+      "speech_text": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e visualizzano i loro comandi di installazione e login mentre l'autenticazione rimane presso ciascun fornitore.",
+      "phonemes": "i fornitˈorɪ verˈifikano i kliˈent dɪ lˈinea dɪ komˈando klˈaʊde, ʧˈat ʤˌipˌitˈɪ e ʤˈɛminɪ e vizʊalˈiʣːano i lˌɔro komˈandɪ dɪ installaʦiˈone e lˈɔɡ in mˌentre laʊtentikaʦiˈone rimˈane prˈɛSo ʧaskˌʊn fornitˈore."
     },
     {
       "scene": 4,
-      "speech_start": 34.85,
-      "speech_end": 45.025000000000006,
-      "scene_end": 45.47500000000001,
-      "duration": 10.625000000000007,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile."
+      "speech_start": 45.075,
+      "speech_end": 58.875,
+      "scene_end": 59.325,
+      "duration": 14.25,
+      "text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spaCR.",
+      "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spàker.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano la profonditˈa dˌella rispˈosta, le spjeɡaʦiˈonɪ aʊtomˈatike dˌeʎɪ erɾˈorɪ, la seɲalaʦiˈone opʦionˈale dˌA problˈɛmɪ ʤˈit ˈub, il lˈɔɡ in e le istrʊʦiˈonɪ del sistˈɛma konsapˈevole dɪ spˈaker."
     },
     {
       "scene": 5,
-      "speech_start": 45.47500000000001,
-      "speech_end": 55.45000000000001,
-      "scene_end": 56.10000000000001,
-      "duration": 10.625,
-      "text": "Quando il flusso di lavoro è finito, le maschere di etichetta e le immagini di controllo della qualità visiva vengono scritte accanto agli input mappati."
+      "speech_start": 59.325,
+      "speech_end": 74.75,
+      "scene_end": 75.25,
+      "duration": 15.924999999999997,
+      "text": "Scaricare la cartella contenente campi TIFF. Questa fonte contiene sei vere colture cellulari di canale ER, normalizzate tra i percentili due e novantacinque punti cinque. Il canale zero seleziona il singolo piano di ciascun TIFF.",
+      "speech_text": "Scaricare la cartella contenente campi TIFF. Questa fonte contiene sei vere colture cellulari di canale ER, normalizzate tra i percentili due e novantacinque punti cinque. Il canale zero seleziona il singolo piano di ciascun TIFF.",
+      "phonemes": "skarikˈare la kartˈɛlla kontenˈɛnte kˈampɪ tˈiff. kwˌesta fˈonte kontjˈɛne sˌɛi vˈere koltˈure ʧellʊlˈarɪ dɪ kanˈale ˌeːˈɛrɾe, normaliʣːˈate tra i perʧentˈilɪ dˈue e novantaʧˈinkwe pˈuntɪ ʧˈinkwe. il kanˈale ʣˈɛro seleʦiˈona il sˈiŋɡolo pjˈano dɪ ʧaskˌʊn tˈiff."
+    },
+    {
+      "scene": 6,
+      "speech_start": 75.25,
+      "speech_end": 90.1,
+      "scene_end": 90.55,
+      "duration": 15.299999999999997,
+      "text": "Essentials mantiene visibile la fonte, i canali, la normalizzazione, il modello, il checkpoint personalizzato, il diametro, la probabilità e le soglie di flusso, l'interruttore di salvataggio, la dimensione del lotto e la preview verbo.",
+      "speech_text": "Essentials mantiene visibile la fonte, i canali, la normalizzazione, il modello, il checkpoint personalizzato, il diametro, la probabilità e le soglie di flusso, l'interruttore di salvataggio, la dimensione del lotto e la preview verbo.",
+      "phonemes": "eSˈentjals mantjˈɛne vizˈibile la fˈonte, i kanˈalɪ, la normaliʣːaʦiˈone, il modˈɛllo, il kekːpˈɔint personaliʣːˈato, il djˈametro, la probabilitˈa e le sˈoʎe dɪ flˈuSo, linterɾʊtːˈore dɪ salvatˈaʤːo, la dimensjˈone del lˈɔtːo e la prˈevjew vˈɛrbo."
+    },
+    {
+      "scene": 7,
+      "speech_start": 90.55,
+      "speech_end": 103.27499999999999,
+      "scene_end": 103.725,
+      "duration": 13.174999999999997,
+      "text": "Modificato isola il checkpoint personalizzato di questa corsa, la normalizzazione del percentile, la dimensione del lotto due, il risparmio e l'uscita di figure verboose da default invariati.",
+      "speech_text": "Modificato isola il checkpoint personalizzato di questa corsa, la normalizzazione del percentile, la dimensione del lotto due, il risparmio e l'uscita di figure verboose da default invariati.",
+      "phonemes": "modifikˈato ˈizola il kekːpˈɔint personaliʣːˈato dɪ kwˌesta kˈorsa, la normaliʣːaʦiˈone del perʧentˈile, la dimensjˈone del lˈɔtːo dˈue, il rispˈarmio e lʊʃˈita dɪ fiɡˈure verboˈoze da dɪfˈɒlt invariˈatɪ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 103.725,
+      "speech_end": 115.14999999999999,
+      "scene_end": 115.6,
+      "duration": 11.875,
+      "text": "Tutte le impostazioni rivelano sei categorie: ingresso e canali, modello, soglie di rilevazione, geometria dell'immagine, sfondo e negazione e uscita e tempo di esecuzione.",
+      "speech_text": "Tutte le impostazioni rivelano sei categorie: ingresso e canali, modello, soglie di rilevazione, geometria dell'immagine, sfondo e negazione e uscita e tempo di esecuzione.",
+      "phonemes": "tˈutːe le impostaʦiˈonɪ rivˈelano sˌɛi kateɡorˈie: iŋɡrˈɛSo e kanˈalɪ, modˈɛllo, sˈoʎe dɪ rilevaʦiˈone, ʤeometrˈia dellimmˈaʤine, sfˈondo e neɡaʦiˈone e ʊʃˈita e tˈɛmpo dɪ ezekʊʦiˈone."
+    },
+    {
+      "scene": 9,
+      "speech_start": 115.6,
+      "speech_end": 127.39999999999999,
+      "scene_end": 127.85,
+      "duration": 12.25,
+      "text": "Le ricette salvano la configurazione completa delle inferenze, le riapplicano in un'altra cartella di immagini o importano ed esportano un file di impostazioni riutilizzabile.",
+      "speech_text": "Le ricette salvano la configurazione completa delle inferenze, le riapplicano in un'altra cartella di immagini o importano ed esportano un file di impostazioni riutilizzabile.",
+      "phonemes": "le riʧˈɛtːe sˈalvano la konfiɡʊraʦiˈone komplˈɛta dˌelle inferˈɛnʦe, le riˈapːlikano in ʊnˈaltra kartˈɛlla dɪ immˈaʤinɪ o impˈɔrtano ed espˈɔrtano ʊn fˈile dɪ impostaʦiˈonɪ riʊtiliʣːˈabile."
+    },
+    {
+      "scene": 10,
+      "speech_start": 127.85,
+      "speech_end": 137.9,
+      "scene_end": 138.35,
+      "duration": 10.5,
+      "text": "Invia istantanee remote del modello risolto, della fonte e delle soglie e invia il lavoro di segmentazione nello spazio di lavoro Jobs Distribuiti.",
+      "speech_text": "Invia istantanee remote del modello risolto, della fonte e delle soglie e invia il lavoro di segmentazione nello spazio di lavoro Jobs Distribuiti.",
+      "phonemes": "ɪnvˈɪa istantˈanee remˈɔte del modˈɛllo rizˈɔlto, dˌella fˈonte e dˌelle sˈoʎe e ɪnvˈɪa il lavˈɔro dɪ seɡmentaʦiˈone nˈello spˈaʦio dɪ lavˈɔro ʤˈobs distribʊˈitɪ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 138.35,
+      "speech_end": 151.325,
+      "scene_end": 151.77499999999998,
+      "duration": 13.424999999999983,
+      "text": "Distributed Jobs mappa l'immagine, il modello e i percorsi di uscita verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+      "speech_text": "Distributed Jobs mappa l'immagine, il modello e i percorsi di uscita verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione.",
+      "phonemes": "distribˈuted ʤˈobs mˈapːa limmˈaʤine, il modˈɛllo e i perkˈorsɪ dɪ ʊʃˈita vˌɛrso ˌʊna workstˈatjon remˈɔta, ʊn klʊstˈɛr zlˈurm o ʊn komˈando konfiɡʊrˈato, kwˈindɪ invˈiano e mˈɔnitorano la stˈeSa ezekʊʦiˈone."
+    },
+    {
+      "scene": 12,
+      "speech_start": 151.77499999999998,
+      "speech_end": 166.62499999999997,
+      "scene_end": 167.07499999999996,
+      "duration": 15.299999999999983,
+      "text": "Input and Channels seleziona la cartella dell'immagine, i piani, la gestione della scala grigia, l'inversione, la normalizzazione e i percentili. Un indice di canale sbagliato può far sembrare che un modello valido non rileva nulla.",
+      "speech_text": "Input and Channels seleziona la cartella dell'immagine, i piani, la gestione della scala grigia, l'inversione, la normalizzazione e i percentili. Un indice di canale sbagliato può far sembrare che un modello valido non rileva nulla.",
+      "phonemes": "ˈinpʊt ˈand ʧˈanels seleʦiˈona la kartˈɛlla dellimmˈaʤine, i pjˈanɪ, la ʤestjˈone dˌella skˈala ɡrˈiʤa, linversjˈone, la normaliʣːaʦiˈone e i perʧentˈilɪ. ʊn ˈindiʧe dɪ kanˈale zbaʎˈato pʊˈɔ fˈar sembrˈare ke ʊn modˈɛllo vˈalido non rilˈɛva nˈulla."
+    },
+    {
+      "scene": 13,
+      "speech_start": 167.07499999999996,
+      "speech_end": 180.22499999999997,
+      "scene_end": 180.67499999999995,
+      "duration": 13.599999999999994,
+      "text": "Il modello sceglie i pesi CPSAM imballati o un punto di controllo personalizzato e fornisce il diametro dell'oggetto atteso. Il checkpoint personalizzato del tutorial precedente ha la priorità qui.",
+      "speech_text": "Il modello sceglie i pesi CPSAM imballati o un punto di controllo personalizzato e fornisce il diametro dell'oggetto atteso. Il checkpoint personalizzato del tutorial precedente ha la priorità qui.",
+      "phonemes": "il modˈɛllo ʃˈeʎe i pˈezɪ kpsˈam imballˈatɪ o ʊn pˈunto dɪ kontrˈɔllo personaliʣːˈato e fornˈiʃe il djˈametro delloʤːˈɛtːo atːˈezo. il kekːpˈɔint personaliʣːˈato del tʊtˈɔrial preʧedˈɛnte a la prioritˈa kwˈi."
+    },
+    {
+      "scene": 14,
+      "speech_start": 180.67499999999995,
+      "speech_end": 196.09999999999997,
+      "scene_end": 196.54999999999995,
+      "duration": 15.875,
+      "text": "Le soglie di rilevamento controllano il livello di probabilità della cellula, l'accordo di flusso, la ridiscalazione, il campionamento e il riempimento dei fori. Aggiusta questi solo dopo aver verificato l'immagine e il modello corretti.",
+      "speech_text": "Le soglie di rilevamento controllano il livello di probabilità della cellula, l'accordo di flusso, la ridiscalazione, il campionamento e il riempimento dei fori. Aggiusta questi solo dopo aver verificato l'immagine e il modello corretti.",
+      "phonemes": "le sˈoʎe dɪ rilevamˈento kontrˈɔllano il livˈɛllo dɪ probabilitˈa dˌella ʧˈɛllʊla, lakːˈɔrdo dɪ flˈuSo, la ridiskalaʦiˈone, il kampjonamˈento e il riempimˈento dˌA fˈorɪ. aʤːˈusta kwˌestɪ sˈolo dˈopo avˈɛr verifikˈato limmˈaʤine e il modˈɛllo korɾˈɛtːɪ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 196.54999999999995,
+      "speech_end": 210.64999999999995,
+      "scene_end": 211.09999999999994,
+      "duration": 14.549999999999983,
+      "text": "La geometria delle immagini ridimensionerà opzionalmente i campi prima di inferire e ripristinerà le maschere alle dimensioni originali. Tenere il rapporto di aspetto e la scala dei pixel coerenti con l'allenamento.",
+      "speech_text": "La geometria delle immagini ridimensionerà opzionalmente i campi prima di inferire e ripristinerà le maschere alle dimensioni originali. Tenere il rapporto di aspetto e la scala dei pixel coerenti con l'allenamento.",
+      "phonemes": "la ʤeometrˈia dˌelle immˈaʤinɪ ridimensjoneɾˈa opʦjonalmˈente i kˈampɪ prˈima dɪ inferˈire e ripristineɾˈa le mˈaːskˌɛre ˌalle dimensjˈonɪ oriʤinˈalɪ. tenˈere il rapːˈɔrto dɪ aspˈɛtːo e la skˈala dˌA pˈiksel koerˈɛntɪ kon lallenamˈento."
+    },
+    {
+      "scene": 16,
+      "speech_start": 211.09999999999994,
+      "speech_end": 219.62499999999994,
+      "scene_end": 220.07499999999993,
+      "duration": 8.974999999999994,
+      "text": "In caso di segmentazione, viene applicata la rimozione opzionale di sfondo, un piano di intensità e uno schermo di segnale-ruido.",
+      "speech_text": "In caso di segmentazione, viene applicata la rimozione opzionale di sfondo, un piano di intensità e uno schermo di segnale-ruido.",
+      "phonemes": "in kˈazo dɪ seɡmentaʦiˈone, vjˈɛne apːlikˈata la rimoʦiˈone opʦionˈale dɪ sfˈondo, ʊn pjˈano dɪ intensitˈa e ˈuno skˈermo dɪ seɲˈalerˈuido."
+    },
+    {
+      "scene": 17,
+      "speech_start": 220.07499999999993,
+      "speech_end": 235.52499999999992,
+      "scene_end": 235.9749999999999,
+      "duration": 15.899999999999977,
+      "text": "La produzione e il tempo di esecuzione controllano il risparmio della maschera, la dimensione del lotto di inferenza e le cifre verbali. Riduci le dimensioni del lotto quando l'inferenza del modello esaurisce la memoria della GPU.",
+      "speech_text": "La produzione e il tempo di esecuzione controllano il risparmio della maschera, la dimensione del lotto di inferenza e le cifre verbali. Riduci le dimensioni del lotto quando l'inferenza del modello esaurisce la memoria della GPU.",
+      "phonemes": "la prodʊʦiˈone e il tˈɛmpo dɪ ezekʊʦiˈone kontrˈɔllano il rispˈarmio dˌella mˈaːskˌɛra, la dimensjˈone del lˈɔtːo dɪ inferˈɛnʦa e le ʧˈifre verbˈalɪ. ridˈuʧɪ le dimensjˈonɪ del lˈɔtːo kwˈando linferˈɛnʦa del modˈɛllo ezaʊrˈiʃe la memˈɔria dˌella ʤˌipˌiˈuː."
+    },
+    {
+      "scene": 18,
+      "speech_start": 235.9749999999999,
+      "speech_end": 248.5499999999999,
+      "scene_end": 248.9999999999999,
+      "duration": 13.024999999999977,
+      "text": "Questa corsa mantiene una soglia di probabilità di zero, una soglia di flusso di zero punto quattro, nessun ridimensionamento o campionamento, e riempie buchi interni in ogni oggetto accettato.",
+      "speech_text": "Questa corsa mantiene una soglia di probabilità di zero, una soglia di flusso di zero punto quattro, nessun ridimensionamento o campionamento, e riempie buchi interni in ogni oggetto accettato.",
+      "phonemes": "kwˌesta kˈorsa mantjˈɛne ˌʊna sˈɔʎa dɪ probabilitˈa dɪ ʣˈɛro, ˌʊna sˈɔʎa dɪ flˈuSo dɪ ʣˈɛro pˈunto kwˈatːro, neSˌʊn ridimensjonamˈento o kampjonamˈento, e riˈempje bˈukɪ intˈɛrnɪ in ˌoɲɲɪ oʤːˈɛtːo aʧːetːˈato."
+    },
+    {
+      "scene": 19,
+      "speech_start": 248.9999999999999,
+      "speech_end": 260.8499999999999,
+      "scene_end": 261.2999999999999,
+      "duration": 12.300000000000011,
+      "text": "Run carica il checkpoint, normalizza ogni lotto, predice le maschere e i flussi, riempie i buchi, salva ogni maschera e visualizza le diagnosi. STOP richiede un'interruzione sicura.",
+      "speech_text": "Run carica il checkpoint, normalizza ogni lotto, predice le maschere e i flussi, riempie i buchi, salva ogni maschera e visualizza le diagnosi. STOP richiede un'interruzione sicura.",
+      "phonemes": "rˈun kˈarika il kekːpˈɔint, normalˈiʣːa ˌoɲɲɪ lˈɔtːo, predˈiʧe le mˈaːskˌɛre e i flˈuSɪ, riˈempje i bˈukɪ, sˈalva ˌoɲɲɪ mˈaːskˌɛra e vizʊalˈiʣːa le djˈaɲozɪ. stˈɔp rikjˈede ʊninterɾʊʦiˈone sikˈura."
+    },
+    {
+      "scene": 20,
+      "speech_start": 261.2999999999999,
+      "speech_end": 276.3749999999999,
+      "scene_end": 276.8249999999999,
+      "duration": 15.524999999999977,
+      "text": "Durante l'elaborazione, la console segnala il punto di controllo personalizzato risolto e il progresso del lotto mentre il pannello di immagini aggiunge immagini originali, sovrapposizioni di maschera rossa e campi di flusso.",
+      "speech_text": "Durante l'elaborazione, la console segnala il punto di controllo personalizzato risolto e il progresso del lotto mentre il pannello di immagini aggiunge immagini originali, sovrapposizioni di maschera rossa e campi di flusso.",
+      "phonemes": "dʊrˈante lelaboraʦiˈone, la kˈɔnsole seɲˈala il pˈunto dɪ kontrˈɔllo personaliʣːˈato rizˈɔlto e il proɡrˈɛSo del lˈɔtːo mˌentre il pannˈɛllo dɪ immˈaʤinɪ aʤːˈunʤe immˈaʤinɪ oriʤinˈalɪ, sovrapːoziʦiˈonɪ dɪ mˈaːskˌɛra rˈoSa e kˈampɪ dɪ flˈuSo."
+    },
+    {
+      "scene": 21,
+      "speech_start": 276.8249999999999,
+      "speech_end": 292.9499999999999,
+      "scene_end": 293.64999999999986,
+      "duration": 16.82499999999999,
+      "text": "La corsa ha completato sei dei sei campi e salvato sei maschere. Il pannello finale mostra l'immagine originale di ER, le linee cellulari e i flussi Cellpose, rendendo visibile la qualità della segmentazione prima della misurazione a valle.",
+      "speech_text": "La corsa ha completato sei dei sei campi e salvato sei maschere. Il pannello finale mostra l'immagine originale di ER, le linee cellulari e i flussi Cellpose, rendendo visibile la qualità della segmentazione prima della misurazione a valle.",
+      "phonemes": "la kˈorsa a kompletˈato sˌɛi dˌA sˌɛi kˈampɪ e salvˈato sˌɛi mˈaːskˌɛre. il pannˈɛllo finˈale mˈostra limmˈaʤine oriʤinˈale dɪ ˌeːˈɛrɾe, le lˈinee ʧellʊlˈarɪ e i flˈuSɪ ʧelpˈoze, rendˈɛndo vizˈibile la kwalitˈa dˌella seɡmentaʦiˈone prˈima dˌella mizʊraʦiˈone a vˈalle."
     }
   ]
 }

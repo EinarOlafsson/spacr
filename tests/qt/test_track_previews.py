@@ -734,15 +734,48 @@ def test_propagate_keys_are_real_timelapse_settings(qtbot, obj):
 
 
 def test_propagate_failure_is_swallowed(qtbot):
+    """A dead settings panel costs that one push and nothing else.
+
+    The point is not that no exception escaped — it is that the preview is
+    still wired up afterwards, so re-opening the settings screen and
+    pushing again works.
+    """
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
     panel = TimelapsePreviewPanel()
     qtbot.addWidget(panel)
 
-    def _explode(_d):
+    panel._mode_box.setCurrentText("trackpy")
+    panel._displacement.setValue(41.0)
+
+    seen_by_broken = []
+
+    def _explode(d):
+        seen_by_broken.append(dict(d))
         raise RuntimeError("settings panel is gone")
 
     panel.set_propagate_callback(_explode)
     panel.propagate_settings()          # must not raise
+
+    # It really was called: a propagate that quietly skipped the callback
+    # would also "not raise", and would be a different bug.
+    assert len(seen_by_broken) == 1
+    assert seen_by_broken[0]["timelapse_displacement"] == 41
+
+    # Contrast: a working callback registered after the failure still gets
+    # the panel's real, current settings.
+    captured = {}
+    panel.set_propagate_callback(captured.update)
+    panel._memory.setValue(4)
+    panel._object_box.setCurrentText("nucleus")
+    panel.propagate_settings()
+
+    assert captured["timelapse_mode"] == "trackpy"
+    assert captured["timelapse_displacement"] == 41
+    assert captured["timelapse_memory"] == 4
+    assert captured["timelapse_objects"] == ["nucleus"]
+    assert "nucleus_channel" in captured
+    # ... and the broken callback is gone, not still on a listener list.
+    assert len(seen_by_broken) == 1
 
 
 def test_apply_settings_seeds_the_panel(qtbot):
@@ -1016,7 +1049,7 @@ def test_point_table_honours_the_frame_cap(plate_dir):
 
 def test_motility_panel_builds_offscreen(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert "px/frame" in panel._unit_label.text()
     assert panel.calibration().known is False
@@ -1032,7 +1065,7 @@ def test_motility_card_factory(qtbot):
 
 def test_motility_unreadable_input_reports_inline(qtbot, tmp_path):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(str(tmp_path / "nope")) is False
     assert "Load failed" in panel._status.text()
@@ -1042,7 +1075,7 @@ def test_motility_unreadable_input_reports_inline(qtbot, tmp_path):
 
 def test_motility_load_detects_groups_and_planes(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(plate_dir) is True
     assert panel._group_box.count() == 1
@@ -1052,7 +1085,7 @@ def test_motility_load_detects_groups_and_planes(qtbot, plate_dir):
 
 def test_motility_run_produces_a_summary(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000) as sig:
@@ -1092,7 +1125,7 @@ def test_metric_change_recomputes_without_rereading(qtbot, plate_dir, monkeypatc
 
 def test_setting_the_calibration_live_converts_the_velocities(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000) as raw:
@@ -1113,7 +1146,7 @@ def test_setting_the_calibration_live_converts_the_velocities(qtbot, plate_dir):
 
 def test_straightness_filter_drops_the_flagged_tracks(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000) as before:
@@ -1126,7 +1159,7 @@ def test_straightness_filter_drops_the_flagged_tracks(qtbot, plate_dir):
 
 def test_max_displacement_drops_impossible_tracks_live(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000):
@@ -1138,7 +1171,7 @@ def test_max_displacement_drops_impossible_tracks_live(qtbot, plate_dir):
 
 def test_motility_completion_handler_runs_on_the_gui_thread(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     seen = {}
     panel.preview_ready.connect(
@@ -1179,7 +1212,7 @@ def test_motility_panel_reports_a_worker_failure_inline(qtbot, plate_dir,
 
 def test_motility_propagation_never_invents_a_calibration(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     captured = {}
     panel.set_propagate_callback(captured.update)
@@ -1200,7 +1233,7 @@ def test_motility_propagation_never_invents_a_calibration(qtbot, plate_dir):
 def test_motility_propagate_keys_are_real_settings(qtbot):
     import spacr.settings as S
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel._pixels_per_um.setValue(1.78)
     panel._seconds_per_frame.setValue(60.0)
@@ -1214,7 +1247,7 @@ def test_motility_propagate_keys_are_real_settings(qtbot):
 def test_motility_apply_settings_round_trips(qtbot):
     import spacr.settings as S
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.apply_settings(
         S.get_automated_motility_assay_default_settings(settings={}))
@@ -1226,7 +1259,7 @@ def test_motility_apply_settings_round_trips(qtbot):
 
 def test_tracked_object_moves_the_mask_plane(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel._n_channels.setValue(4)
     panel._tracked_object.setCurrentText("pathogen")
@@ -1236,12 +1269,36 @@ def test_tracked_object_moves_the_mask_plane(qtbot):
 
 
 def test_motility_propagate_failure_is_swallowed(qtbot):
+    """Same contract as the timelapse panel: one lost push, panel intact."""
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
-    panel.set_propagate_callback(
-        lambda _d: (_ for _ in ()).throw(RuntimeError("gone")))
+
+    panel._max_disp.setValue(37.0)
+    seen_by_broken = []
+
+    def _explode(d):
+        seen_by_broken.append(dict(d))
+        raise RuntimeError("gone")
+
+    panel.set_propagate_callback(_explode)
     panel.propagate_settings()          # must not raise
+
+    assert len(seen_by_broken) == 1
+    assert seen_by_broken[0]["max_displacement"] == 37.0
+
+    # Contrast: a working callback registered afterwards still receives the
+    # panel's real settings — including the value tuned before the failure.
+    captured = {}
+    panel.set_propagate_callback(captured.update)
+    panel._tracked_object.setCurrentText("cell")
+    panel._straightness.setValue(0.6)
+    panel.propagate_settings()
+
+    assert captured["tracked_object"] == "cell"
+    assert captured["max_displacement"] == 37.0
+    assert captured["straightness_threshold"] == pytest.approx(0.6)
+    assert len(seen_by_broken) == 1
 
 
 # ---------------------------------------------------------------------------
@@ -1413,7 +1470,7 @@ def test_label_recovery_is_empty_frame_safe():
 
 def test_timelapse_accepts_a_dropped_folder(qtbot, frame_dir):
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
-    panel = TimelapsePreviewPanel()
+    panel = TimelapsePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     evt = _Evt(_mime_for(frame_dir))
     panel.dragEnterEvent(evt)
@@ -1443,7 +1500,7 @@ def test_timelapse_rejects_an_unsupported_drop(qtbot, tmp_path):
 def test_motility_accepts_a_dropped_plate_folder(qtbot, plate_dir, tmp_path):
     from PySide6.QtCore import QMimeData
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     evt = _Evt(_mime_for(plate_dir))
     panel.dragEnterEvent(evt)
@@ -1471,7 +1528,7 @@ def test_pickers_route_the_chosen_path(qtbot, monkeypatch, frame_dir, mask_dir,
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
 
-    panel = TimelapsePreviewPanel()
+    panel = TimelapsePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         staticmethod(lambda *a, **k: frame_dir))
@@ -1482,7 +1539,7 @@ def test_pickers_route_the_chosen_path(qtbot, monkeypatch, frame_dir, mask_dir,
     panel._pick_masks()
     assert panel._mask_sequence is not None
 
-    mot = MotilityPreviewPanel()
+    mot = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(mot)
     monkeypatch.setattr(QFileDialog, "getExistingDirectory",
                         staticmethod(lambda *a, **k: plate_dir))
@@ -1511,7 +1568,7 @@ def test_closing_a_panel_waits_for_its_worker(qtbot, frame_dir,
     panel.close()                    # while the worker may still be running
     assert panel._worker is None or not panel._worker.isRunning()
 
-    mot = MotilityPreviewPanel()
+    mot = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(mot)
     mot.load_folder(plate_dir)
     mot.run_preview()
@@ -1533,7 +1590,7 @@ def test_a_second_run_while_one_is_in_flight_is_refused(qtbot, frame_dir,
         assert "already running" in panel._status.text()
     qtbot.waitUntil(lambda: panel._worker is None, timeout=8000)
 
-    mot = MotilityPreviewPanel()
+    mot = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(mot)
     mot.load_folder(plate_dir)
     mot.run_preview()
@@ -1555,7 +1612,7 @@ def test_an_empty_worker_result_is_reported(qtbot, frame_dir):
 def test_motility_empty_point_table_is_reported(qtbot, plate_dir):
     import pandas as pd
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     panel._on_worker_done(pd.DataFrame(), "")
@@ -1576,7 +1633,7 @@ def test_switching_group_clears_the_cache(qtbot, tmp_path):
             _disc(cell, 8, 6 + 2 * t, 3, 1)
             arr[4] = cell
             np.save(str(merged / f"plate1_A01_{field}_{t}.npy"), arr)
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(str(src)) is True
     assert panel._group_box.count() == 2
@@ -1589,7 +1646,7 @@ def test_switching_group_clears_the_cache(qtbot, tmp_path):
 
 def test_recompute_before_a_run_is_a_no_op(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.recompute()                 # nothing cached yet
     panel._min_len.setValue(9)        # metric change with no data
@@ -1842,7 +1899,7 @@ def test_propagate_toggle_pushes_on_every_run(qtbot, frame_dir,
 
 def test_motility_propagate_toggle_pushes_on_every_run(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     pushes = []
     panel.set_propagate_callback(lambda d: pushes.append(dict(d)))
@@ -1863,7 +1920,7 @@ def test_apply_settings_moves_the_diameter(qtbot):
 
 def test_motility_apply_settings_survives_junk(qtbot):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.apply_settings({"max_displacement": "not a number"})   # no raise
     assert panel._max_disp.value() == pytest.approx(50.0)
@@ -1882,7 +1939,7 @@ def test_a_plate_whose_groups_are_all_single_frame_is_refused(qtbot, tmp_path):
     merged = tmp_path / "oneshot" / "merged"
     merged.mkdir(parents=True)
     np.save(str(merged / "plate1_A01_1_0.npy"), np.zeros((6, H, W), np.float32))
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     assert panel.load_folder(str(tmp_path / "oneshot")) is False
     assert "time series" in panel._status.text()
@@ -1925,7 +1982,7 @@ def test_resolve_accepts_a_file_inside_the_plate_folder(plate_dir):
 
 def test_summary_survives_a_cutoff_that_excludes_everything(qtbot, plate_dir):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000):
@@ -1952,7 +2009,7 @@ def test_a_broken_plot_is_reported_not_raised(qtbot, plate_dir, monkeypatch):
 def test_plane_autodetect_survives_an_unreadable_array(qtbot, plate_dir,
                                                        monkeypatch):
     from spacr.qt.widgets.motility_preview import MotilityPreviewPanel
-    panel = MotilityPreviewPanel()
+    panel = MotilityPreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     monkeypatch.setattr(np, "load",
                         lambda *a, **k: (_ for _ in ()).throw(OSError("gone")))
@@ -2011,3 +2068,49 @@ def test_a_genuinely_multipage_tiff_is_read_one_page_at_a_time(tmp_path):
     assert seq.read_count == 0
     assert int(seq.frame(2)[0, 0]) == 3
     assert seq.read_count == 1, "reading one frame decoded more than one page"
+
+
+# ---------------------------------------------------------------------------
+# Key contract on the centroid join
+# ---------------------------------------------------------------------------
+
+def test_tracks_from_features_refuses_a_repeated_object_in_a_frame():
+    """One centroid per (frame, label), enforced rather than assumed.
+
+    ``_prepare_for_tracking`` runs regionprops, so a label appears once per
+    frame. A features table assembled any other way -- two frames' props
+    concatenated without re-indexing, say -- would invent extra track rows
+    with fabricated centroids, and the displacement statistics the panel
+    reports would be computed over objects that do not exist.
+    """
+    import pandas as pd
+    from spacr.qt.widgets.timelapse_preview import _tracks_from_features
+
+    tracks = pd.DataFrame({"track_id": [1, 2], "frame": [0, 0],
+                           "original_label": [1, 2]})
+    features = pd.DataFrame({
+        "frame": [0, 0, 0],
+        "original_label": [1, 1, 2],       # label 1 measured twice in frame 0
+        "x": [1.0, 9.0, 2.0],
+        "y": [1.0, 9.0, 2.0],
+    })
+
+    with pytest.raises(pd.errors.MergeError, match="not a many-to-one merge"):
+        _tracks_from_features(tracks, features)
+
+
+def test_tracks_from_features_allows_two_tracks_on_one_label():
+    """The left side is deliberately unconstrained: merge/split events repeat a label."""
+    import pandas as pd
+    from spacr.qt.widgets.timelapse_preview import _tracks_from_features
+
+    # Two tracks claim label 1 in frame 0 -- exactly what a merge event looks
+    # like, and not an error.
+    tracks = pd.DataFrame({"track_id": [1, 2], "frame": [0, 0],
+                           "original_label": [1, 1]})
+    features = pd.DataFrame({"frame": [0], "original_label": [1],
+                             "x": [1.0], "y": [2.0]})
+
+    out = _tracks_from_features(tracks, features)
+    assert len(out) == 2
+    assert list(out["x"]) == [1.0, 1.0]

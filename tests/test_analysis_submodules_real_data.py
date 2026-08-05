@@ -38,16 +38,13 @@ matplotlib.use("Agg")
 # ---------------------------------------------------------------------------
 
 def _require_gpu_cellpose():
-    try:
-        import torch
-    except Exception as e:
-        pytest.skip(f"torch unavailable: {e}")
+    # importorskip, not `except Exception`: "the package is not installed"
+    # raises ImportError and is an environment fact, while "the package is
+    # installed and detonates on import" is a bug and must fail here.
+    torch = pytest.importorskip("torch")
     if not torch.cuda.is_available():
         pytest.skip("no CUDA — cellpose submodule tests are GPU-only")
-    try:
-        import cellpose                                    # noqa: F401
-    except Exception as e:
-        pytest.skip(f"cellpose unavailable: {e}")
+    pytest.importorskip("cellpose")
 
 
 # ---------------------------------------------------------------------------
@@ -103,10 +100,11 @@ def test_train_cellpose_writes_model(tmp_path):
         "augment": False,
         "verbose": False,
     }
-    try:
-        train_cellpose(settings)
-    except Exception as e:
-        pytest.skip(f"train_cellpose bailed on synthetic set: {e}")
+    # Unguarded: _make_cellpose_train_set builds the image/mask pairs these
+    # settings point at, and the GPU precondition is already handled by
+    # _require_gpu_cellpose above. "bailed on synthetic set" was train_cellpose
+    # failing, reported as an excuse.
+    train_cellpose(settings)
     # A trained model directory should exist with content.
     model_dir = root / "models" / "cellpose_model"
     assert model_dir.is_dir()
@@ -119,8 +117,40 @@ def test_train_cellpose_writes_model(tmp_path):
 # apply_cellpose_model
 # ---------------------------------------------------------------------------
 
+#: What this test found the moment its ``except Exception: pytest.skip(
+#: "apply_cellpose_model bailed on synthetic imgs")`` came off.
+#:
+#: ``spacr/submodules.py:632`` calls ``model.eval(..., bsize=224)``. 224 was
+#: the Cellpose-3 default tile size; Cellpose-SAM's ViT carries a positional
+#: embedding of shape ``(1, 32, 32, 1024)`` -- a 256 px window at 8 px patches
+#: -- so a 224 px tile arrives as 28x28 patches and
+#: ``cellpose/vit_sam.py:61``'s ``x = x + self.encoder.pos_embed`` raises
+#: ``RuntimeError: The size of tensor a (28) must match the size of tensor b
+#: (32) at non-singleton dimension 2``.
+#:
+#: Confirmed directly against the installed Cellpose, independent of spaCR:
+#: the same eval call raises at ``bsize=224`` and succeeds at ``bsize=256``.
+#: It is not input-size dependent -- bsize is the tile fed to the net, so
+#: apply_cellpose_model cannot segment anything at all on Cellpose 4.x/SAM.
+#:
+#: ``spacr/submodules.py:432`` (``test_cellpose_model``) has the identical
+#: hard-coded 224 and is the same bug.
+#:
+#: Product fix, not made here: drop the hard-coded bsize (let Cellpose choose)
+#: or set it to the backbone's window. strict=True fails this test the moment
+#: that lands, so the pin cannot outlive the bug.
+CELLPOSE_SAM_BSIZE_BUG = (
+    "spacr/submodules.py:632 (and :432) hard-code bsize=224 in "
+    "CellposeModel.eval; Cellpose-SAM's pos_embed is 32x32 patches (256 px), "
+    "so 224 gives 28x28 and vit_sam.py:61 raises RuntimeError: The size of "
+    "tensor a (28) must match the size of tensor b (32). Verified against the "
+    "installed cellpose: bsize=224 raises, bsize=256 works."
+)
+
+
 @pytest.mark.slow
 @pytest.mark.gpu
+@pytest.mark.xfail(strict=True, reason=CELLPOSE_SAM_BSIZE_BUG)
 def test_apply_cellpose_model_writes_results(tmp_path):
     _require_gpu_cellpose()
     from spacr.submodules import apply_cellpose_model
@@ -158,10 +188,10 @@ def test_apply_cellpose_model_writes_results(tmp_path):
         "target_width": 96,
         "verbose": False,
     }
-    try:
-        apply_cellpose_model(settings)
-    except Exception as e:
-        pytest.skip(f"apply_cellpose_model bailed on synthetic imgs: {e}")
+    # Unguarded: the images above are sized for Cellpose-SAM's tiling on
+    # purpose, so a failure here is apply_cellpose_model's -- and it is. See
+    # CELLPOSE_SAM_BSIZE_BUG above.
+    apply_cellpose_model(settings)
     csvs = list((img_dir).rglob("*.csv"))
     assert csvs, "apply_cellpose_model wrote no result CSVs"
 
@@ -203,10 +233,10 @@ def test_count_phenotypes_real_db(tmp_path, monkeypatch):
     db = tmp_path / "measurements" / "measurements.db"
     _make_png_list_db(db)
     settings = {"src": str(db), "annotation_column": "value"}
-    try:
-        SUB.count_phenotypes(settings)
-    except Exception as e:
-        pytest.skip(f"count_phenotypes needs more than the stub db: {e}")
+    # Unguarded: _make_png_list_db writes the real png_list schema and
+    # display() is stubbed above, so "needs more than the stub db" was
+    # count_phenotypes failing rather than the fixture being thin.
+    SUB.count_phenotypes(settings)
     out = list(tmp_path.rglob("phenotype_counts.csv"))
     assert out, "count_phenotypes wrote no phenotype_counts.csv"
 

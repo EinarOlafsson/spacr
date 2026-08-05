@@ -796,7 +796,7 @@ def test_parse_field_value_lists(tmp_path):
 # ``AnnotateApp`` used to carry its own copy of this function. It had no
 # callers -- gui_core and spacr.qt.screens.settings_model both import the
 # gui_utils one -- and the copy had drifted stale (timelapse_mode without
-# trackastra/ultrack, optimizer_type with 2 of the 7 torch optimizers,
+# trackastra/ultrack, optimizer_type with only a subset of the torch optimizers,
 # loss_type with 2 of the 6 build_loss aliases). It was deleted rather than
 # resynced; these tests now exercise the single live implementation.
 # ===========================================================================
@@ -838,8 +838,7 @@ def test_annotate_app_no_longer_shadows_convert_settings_dict():
 
 def test_convert_settings_dict_uses_real_torchvision_model_list():
     """model_type options extend to the full zoo once torchvision is loaded."""
-    pytest.importorskip("torchvision")
-    import torchvision.models  # noqa: F401  -- must be in sys.modules
+    pytest.importorskip("torchvision.models")
     from spacr import gui_utils as GU
 
     kind, options, initial = GU.convert_settings_dict_for_gui(
@@ -927,8 +926,10 @@ def test_optimizer_and_loss_combos_are_all_accepted_by_the_pipeline():
         {"optimizer_type": "adamw", "loss_type": "auto"})
 
     _, opt_options, _ = specs["optimizer_type"]
-    assert set(opt_options) == {"adamw", "adam", "adagrad", "sgd",
-                                "rmsprop", "nadam", "radam"}
+    assert set(opt_options) == {
+        "adamw", "adam", "adamax", "adagrad", "adadelta", "asgd",
+        "sgd", "rmsprop", "nadam", "radam",
+    }
 
     torch = pytest.importorskip("torch")
     from spacr.utils import build_loss

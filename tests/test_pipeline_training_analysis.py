@@ -68,24 +68,24 @@ def test_ml_analysis_returns_dataframe_and_importances(rng):
     return the predicted DataFrame + the feature-importances table."""
     import spacr.ml as ML
     df = _fake_screen_df(rng, n=180)
-    try:
-        result = ML.ml_analysis(
-            df.copy(),
-            channel_of_interest=3,
-            location_column="columnID",
-            positive_control="c2",
-            negative_control="c1",
-            exclude=None,
-            n_repeats=2,          # keep runtime tiny
-            top_features=5,
-            n_estimators=50,
-            test_size=0.25,
-            model_type="xgboost",
-            n_jobs=1,
-            verbose=False,
-        )
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"ml_analysis failed on synthetic data: {e}")
+    # Unguarded: _fake_screen_df builds exactly the frame this call documents,
+    # so "failed on synthetic data" could only ever have been a bug in
+    # ml_analysis -- and the skip put it where nobody would read it.
+    result = ML.ml_analysis(
+        df.copy(),
+        channel_of_interest=3,
+        location_column="columnID",
+        positive_control="c2",
+        negative_control="c1",
+        exclude=None,
+        n_repeats=2,          # keep runtime tiny
+        top_features=5,
+        n_estimators=50,
+        test_size=0.25,
+        model_type="xgboost",
+        n_jobs=1,
+        verbose=False,
+    )
 
     # ml_analysis actually returns (list_of_results, list_of_figures) where
     # results is [df, permutation_df, feature_importance_df, model,
@@ -110,24 +110,24 @@ def test_ml_analysis_random_forest_variant(rng):
     model selector)."""
     import spacr.ml as ML
     df = _fake_screen_df(rng, n=90)
-    try:
-        result = ML.ml_analysis(
-            df.copy(),
-            channel_of_interest=3,
-            location_column="columnID",
-            positive_control="c2",
-            negative_control="c1",
-            exclude=None,
-            n_repeats=2,
-            top_features=3,
-            n_estimators=30,
-            test_size=0.3,
-            model_type="random_forest",
-            n_jobs=1,
-            verbose=False,
-        )
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"ml_analysis (random_forest) failed on synthetic data: {e}")
+    # Unguarded: the point of this test is that the model selector's
+    # random_forest branch works, and a skip on failure asserted nothing at all
+    # about the branch it names.
+    result = ML.ml_analysis(
+        df.copy(),
+        channel_of_interest=3,
+        location_column="columnID",
+        positive_control="c2",
+        negative_control="c1",
+        exclude=None,
+        n_repeats=2,
+        top_features=3,
+        n_estimators=30,
+        test_size=0.3,
+        model_type="random_forest",
+        n_jobs=1,
+        verbose=False,
+    )
 
     assert result is not None
 
@@ -152,30 +152,51 @@ def test_ml_analysis_raises_when_controls_absent(rng):
 # train_test_model — a 1-epoch training run on a tiny synthetic PNG dataset
 # ---------------------------------------------------------------------------
 
+#: Wells the crops are attributed to. Train and test share none, because
+#: ``train_test_model`` audits the split with ``cv_group_by='well'`` before a
+#: model sees a pixel and refuses to train on a leaking one.
+TRAIN_WELLS = ("A01", "A02", "A03", "A04")
+TEST_WELLS = ("B01", "B02")
+
+
 @pytest.fixture
 def synth_train_test_dataset(tmp_path, rng):
     """A minimal PNG dataset laid out as spacr's train_test_model expects:
        tmp_path/train/nc/*.png, tmp_path/train/pc/*.png,
        tmp_path/test/nc/*.png,  tmp_path/test/pc/*.png
     Uses 3-channel RGB PNGs, 64x64, deterministic per-class intensity so
-    training has a signal to chase."""
+    training has a signal to chase.
+
+    Filenames carry real spaCR crop identities (``<plate>_<well>_<field>_
+    <object>``) and train/test draw from DISJOINT wells. The earlier version
+    of this fixture emitted ``nc_000.png`` in both splits, which
+    ``spacr.classifier_evaluation.sample_identity`` reads as one and the same
+    object -- so ``train_test_model`` raised ``LeakageError`` (object=8,
+    well=8) and the test's ``except Exception: pytest.skip`` reported that as
+    "train_test_model failed on synthetic data". This test had therefore never
+    trained a model in its life. Leakage-free identities are the fixture's job,
+    and the audit refusing a leaking split is correct behaviour worth keeping.
+    """
     from PIL import Image
     root = tmp_path / "trainable"
 
-    def _emit(split, cls, n):
+    def _emit(split, cls, wells, per_well):
         d = root / split / cls
         d.mkdir(parents=True, exist_ok=True)
         base = 50 if cls == "nc" else 200
-        for i in range(n):
-            arr = np.clip(
-                rng.integers(base - 20, base + 20, size=(64, 64, 3), dtype=np.int16),
-                0, 255,
-            ).astype(np.uint8)
-            Image.fromarray(arr).save(d / f"{cls}_{i:03d}.png")
+        for well in wells:
+            for i in range(per_well):
+                arr = np.clip(
+                    rng.integers(base - 20, base + 20,
+                                 size=(64, 64, 3), dtype=np.int16),
+                    0, 255,
+                ).astype(np.uint8)
+                Image.fromarray(arr).save(
+                    d / f"plate1_{well}_f1_o{i:03d}{cls}.png")
 
     for cls in ("nc", "pc"):
-        _emit("train", cls, 8)
-        _emit("test", cls, 4)
+        _emit("train", cls, TRAIN_WELLS, 2)   # 8 per class
+        _emit("test", cls, TEST_WELLS, 2)     # 4 per class
     return {"src": str(root)}
 
 
@@ -220,10 +241,9 @@ def test_train_test_model_produces_a_saved_model(synth_train_test_dataset):
         "verbose": False,
         "early_stopping_patience": 0,
     }
-    try:
-        train_test_model(settings)
-    except Exception as e:  # pragma: no cover - integration path
-        pytest.skip(f"train_test_model failed on synthetic data: {e}")
+    # Unguarded: the fixture above builds the dataset these settings describe,
+    # so a failure here is spaCR's training path breaking, not the environment.
+    train_test_model(settings)
 
     # train_test_model writes to src/model/<model_type>/<train_channels>/epochs_1/
     model_dir = Path(synth_train_test_dataset["src"]) / "model" / "resnet18" / "rgb" / "epochs_1"
@@ -265,11 +285,39 @@ def test_analyze_recruitment_runs_on_pipeline_db(spacr_measure_run):
         "plot": False, "plot_control": False, "plot_nr": 0,
         "verbose": False,
     }
-    try:
-        analyze_recruitment(settings)
-    except Exception as e:  # pragma: no cover - the fixture doesn't have
-                             # the full plate metadata this function needs
-        pytest.skip(
-            f"analyze_recruitment needs a fuller plate metadata layout than "
-            f"the synthetic pipeline fixture provides: {e}"
-        )
+    # Unguarded: the plate metadata above is written to match the fixture's
+    # single well, so "needs a fuller plate metadata layout" was a guess about
+    # why it failed rather than a fact -- and it does not fail.
+    result = analyze_recruitment(settings)
+
+    # --- success path -----------------------------------------------------
+    # analyze_recruitment returns [cells, wells]: the per-PV frame and the
+    # per-well summary, both also written under <plate>/results/.
+    cells, wells = result
+    assert isinstance(cells, pd.DataFrame), f"cells is a {type(cells)}"
+    assert isinstance(wells, pd.DataFrame), f"wells is a {type(wells)}"
+    assert not cells.empty, "analyze_recruitment produced no per-PV rows"
+    assert not wells.empty, "analyze_recruitment produced no per-well rows"
+
+    # The recruitment ratios are the whole point of the run: present AND
+    # actually computed, not an all-NaN column from a failed division.
+    for col in ("pathogen_cell_mean_mean", "pathogen_cytoplasm_mean_mean",
+                "pathogen_nucleus_mean_mean"):
+        assert col in cells.columns, (
+            f"missing recruitment column {col}; got {list(cells.columns)[:25]}")
+        assert cells[col].notna().any(), f"{col} is entirely NaN"
+    # The rows survived condition annotation (everything else is dropped).
+    assert "condition" in cells.columns
+    assert cells["condition"].notna().all()
+
+    # wells aggregates cells by well, so it cannot be the larger of the two.
+    assert 0 < len(wells) <= len(cells)
+
+    # Both frames are on disk next to the plate.
+    results_dir = Path(spacr_measure_run["src"]) / "results"
+    cells_csv = results_dir / "cells.csv"
+    wells_csv = results_dir / "wells.csv"
+    assert cells_csv.is_file(), f"{cells_csv} not written"
+    assert wells_csv.is_file(), f"{wells_csv} not written"
+    assert len(pd.read_csv(cells_csv)) == len(cells)
+    assert len(pd.read_csv(wells_csv)) == len(wells)

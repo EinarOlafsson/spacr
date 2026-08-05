@@ -154,8 +154,8 @@ def test_get_cellpose_batch_size_without_cuda(monkeypatch, capsys):
     assert "CUDA is not available" in capsys.readouterr().out
 
 
-def test_get_cellpose_batch_size_swallows_driver_errors(monkeypatch):
-    """A driver blowing up inside get_device_properties falls back to 8."""
+def test_get_cellpose_batch_size_logs_driver_errors(monkeypatch, caplog):
+    """A driver failure is visible in logs and falls back to a safe batch size."""
     from spacr.utils import _get_cellpose_batch_size
     import torch
 
@@ -165,6 +165,7 @@ def test_get_cellpose_batch_size_swallows_driver_errors(monkeypatch):
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
     monkeypatch.setattr(torch.cuda, "get_device_properties", boom)
     assert _get_cellpose_batch_size() == 8
+    assert "Could not inspect CUDA memory" in caplog.text
 
 
 def test_get_cellpose_batch_size_exact_24gb(monkeypatch):

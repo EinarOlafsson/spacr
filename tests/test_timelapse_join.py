@@ -323,7 +323,7 @@ def test_reader_tolerates_the_two_spellings_when_the_migration_did_not_run(
         tmp_path, monkeypatch):
     """Readers stay tolerant even when nothing repaired the schema first.
 
-    ``rename_columns_in_db`` normally unifies the spellings before the join
+    ``ensure_database_schema`` normally unifies the spellings before the join
     ever sees them, but it needs a writable database — on a read-only copy, or
     on a table that carries both spellings at once, the two sides can still
     disagree at read time. Neutering the migration is the cheapest way to hold
@@ -331,9 +331,12 @@ def test_reader_tolerates_the_two_spellings_when_the_migration_did_not_run(
     """
     db = _build(tmp_path)
     _downgrade_png_list_to_time_id(db)
-    import spacr.utils
-    monkeypatch.setattr(spacr.utils, 'rename_columns_in_db',
-                        lambda path: [])
+    import spacr.database_schema
+    monkeypatch.setattr(
+        spacr.database_schema,
+        "ensure_database_schema",
+        lambda path: None,
+    )
 
     out = _read_and_join_tables(db, table_names=['cell', 'png_list'])
 

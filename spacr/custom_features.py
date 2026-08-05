@@ -38,7 +38,7 @@ import inspect
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List
 
 LOG = logging.getLogger("spacr.custom_features")
 

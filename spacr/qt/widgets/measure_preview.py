@@ -43,13 +43,156 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .preview_controls import (
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSetSampler, apply_sample_to_combo, enumerate_image_sets,
+    populate_channel_combo, selected_channel,
+)
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 LOG = logging.getLogger("spacr.qt.measure_preview")
 
 _MASK_DIMS = {"cell": 4, "nucleus": 5, "pathogen": 6, "organelle": 7}
 _OBJECTS = ("cell", "nucleus", "pathogen", "cytoplasm", "organelle")
 _SUPPORTED = (".npy",)
+
+
+def load_merged_array(path: str, enumerate_sets: bool = True
+                      ) -> Dict[str, Any]:
+    """Read one merged ``(H, W, C)`` array. No Qt, so it runs on a worker.
+
+    Also lists the sibling arrays, by name only, for the same reason
+    ``live_preview.load_source_payload`` does: ``_refresh_source_selectors``
+    enumerates the folder on every load, and doing that on the GUI thread cost
+    124 ms of the 2469 ms freeze this replaced.
+
+    :param enumerate_sets: ``False`` reuses the sampler's cached listing --
+        the FOV dropdown hands out a path it already enumerated.
+    :returns: ``{path, data, directory, sets, channels, error}``. ``data`` is
+        ``None`` whenever ``error`` is set or the file is not a merged array.
+    """
+    out: Dict[str, Any] = {"path": path, "data": None, "directory": None,
+                           "sets": None, "channels": None, "error": ""}
+    if enumerate_sets:
+        try:
+            sets, channels = enumerate_image_sets(Path(path).parent, _SUPPORTED)
+            out["directory"] = str(Path(path).parent)
+            out["sets"] = sets
+            out["channels"] = channels
+        except Exception:
+            # A folder we cannot group is still one we can show an array from.
+            LOG.exception("Could not enumerate merged arrays beside %s", path)
+    try:
+        data = np.load(path)
+    except Exception as exc:
+        out["error"] = f"Failed to load: {exc}"
+        return out
+    if data.ndim != 3:
+        out["error"] = (
+            f"Expected a merged (H,W,C) array; got shape {data.shape}")
+        return out
+    out["data"] = data
+    return out
+
+
+def _presence_in(data: np.ndarray, dim: Optional[int],
+                 cell_region: np.ndarray, minimum: int) -> Optional[bool]:
+    """Is a companion object present inside ``cell_region``?
+
+    Split out of ``MeasurePreviewPanel._presence`` so the scan -- which is
+    ``O(crops x labels x H x W)`` and was the slowest thing on the GUI thread
+    after the read itself -- can run on a worker. Reads no widget: every
+    threshold arrives as an argument.
+    """
+    if dim is None or dim >= data.shape[2]:
+        return None
+    mask = data[..., dim].astype(np.int64, copy=False)
+    labels = np.unique(mask[cell_region])
+    labels = labels[labels > 0]
+    if minimum <= 0:
+        return bool(labels.size)
+    for label in labels:
+        if int(np.count_nonzero(mask == label)) >= minimum:
+            return True
+    return False
+
+
+def _phenotype_label(name: str, value: Optional[bool]) -> str:
+    if value is None:
+        return f"{name} n/a"
+    if name == "Nucleus":
+        return "Nucleated" if value else "Unnucleated"
+    if name == "Pathogen":
+        return "Infected" if value else "Uninfected"
+    return "Organelle+" if value else "Organelle−"
+
+
+def annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
+                   params: Dict[str, Any]) -> None:
+    """Tag each crop with its phenotype category and whether filters keep it.
+
+    ``params`` is a snapshot of the widget values taken on the GUI thread --
+    see :meth:`MeasurePreviewPanel._category_params`. Passing a snapshot rather
+    than reading the widgets is what makes this safe to call from a worker.
+    """
+    object_name = params.get("object", "cell")
+    if data is None or object_name != "cell":
+        for entry in crops:
+            entry["category"] = object_name.capitalize()
+            entry["included"] = True
+        return
+    cell_dim = params.get("cell_dim")
+    if cell_dim is None or cell_dim >= data.shape[2]:
+        return
+    dims = params.get("dims", {})
+    minima = params.get("minima", {})
+    allow_uninfected = bool(params.get("uninfected", False))
+    cell_mask = data[..., cell_dim].astype(np.int64, copy=False)
+    for entry in crops:
+        region = cell_mask == int(entry["label"])
+        nucleus = _presence_in(data, dims.get("nucleus"), region,
+                               int(minima.get("nucleus", 0)))
+        pathogen = _presence_in(data, dims.get("pathogen"), region,
+                                int(minima.get("pathogen", 0)))
+        organelle = _presence_in(data, dims.get("organelle"), region,
+                                 int(minima.get("organelle", 0)))
+        entry["phenotype"] = {
+            "nucleus": nucleus,
+            "pathogen": pathogen,
+            "organelle": organelle,
+        }
+        entry["category"] = " · ".join((
+            _phenotype_label("Nucleus", nucleus),
+            _phenotype_label("Pathogen", pathogen),
+            _phenotype_label("Organelle", organelle),
+        ))
+        # The pipeline requires a nucleus when all companion masks exist, and
+        # additionally requires a pathogen when uninfected is off.
+        included = nucleus is not False
+        if not allow_uninfected:
+            included = included and pathogen is True
+        entry["included"] = bool(included)
+
+
+def compute_crops(data: np.ndarray, crop_kwargs: Dict[str, Any],
+                  category_params: Dict[str, Any]) -> Dict[str, Any]:
+    """Crop the objects out of ``data`` and categorise them. Worker-safe.
+
+    The whole of what ``refresh`` used to do inline, minus the drawing:
+    ``QPixmap`` is a GUI object and building one off the GUI thread is
+    undefined behaviour, so the pixmaps stay in :meth:`_render_grid`.
+
+    :returns: ``{crops, error}``.
+    """
+    from spacr.measure import crop_objects_from_array
+
+    try:
+        crops = crop_objects_from_array(data, **crop_kwargs)
+    except Exception as exc:
+        return {"crops": [], "error": f"Crop failed: {exc}"}
+    annotate_crops(crops, data, category_params)
+    return {"crops": crops, "error": ""}
 
 
 def _rounded_pixmap(pm: QPixmap, radius: int = 8) -> QPixmap:
@@ -111,7 +254,7 @@ class _CropThumb(QLabel):
 class MeasurePreviewPanel(QWidget):
     """Preview Measure crops and propagate a faithful run configuration."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
         self._data: Optional[np.ndarray] = None
         self._data_path: Optional[str] = None
@@ -120,6 +263,24 @@ class MeasurePreviewPanel(QWidget):
         self._propagate_cb = None
         self._thumb_px = 132
         self._crop_settings_dialog: Optional[CropSettingsDialog] = None
+        # Reading a merged array and cropping it are both far too slow for the
+        # GUI thread: a 1024x1024x8 array off a warm SSD froze the window for
+        # 2469 ms on a drop and 1441 ms on every single spinbox step. Both now
+        # go through the runner, which also registers them so the activity
+        # spinner turns. `threaded=False` runs each job inline, emitting the
+        # same signals in the same order, so a test can drive this panel
+        # synchronously without the behaviour diverging.
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="measure preview")
+        #: Bumped whenever a load or a re-crop supersedes the one in flight.
+        self._load_token = 0
+        self._crop_token = 0
+        # Guards the FOV dropdown against re-entering itself while the array
+        # it just asked for is being installed.
+        self._loading_fov = False
+        # Bounded, reproducible sample of the folder's image sets — the
+        # dropdown never lists a whole plate. See ImageSetSampler.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_controls()
         self._build_ui()
         self._connect_controls()
@@ -245,15 +406,37 @@ class MeasurePreviewPanel(QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
+        # FOV and channel dropdowns sit immediately LEFT of the Choose
+        # control; all three wear the flat "Live toggle" look.
         pick_row = QHBoxLayout()
+        self._pick_row = pick_row
         self._path_label = QLabel(
             "No array loaded — drop a merged .npy here, or choose one")
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose merged array…")
-        pick_btn.clicked.connect(self._pick_file)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view. Lists a random sample of the merged .npy "
+                     "arrays beside the loaded one; picking one loads it."))
+        self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Displayed channel. 'All channels' renders the crops "
+                     "from the PNG channels in Crop settings; picking one "
+                     "shows that channel alone."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        populate_channel_combo(self._channel_box, 0)
+        self._pick_btn = FlatButton("Choose merged array…", self)
+        self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
-        pick_row.addWidget(pick_btn)
+        pick_row.addWidget(self._max_sets_box)
+        pick_row.addWidget(self._fov_box)
+        pick_row.addWidget(self._channel_box)
+        pick_row.addWidget(self._pick_btn)
         root.addLayout(pick_row)
 
         actions = QHBoxLayout()
@@ -416,7 +599,7 @@ class MeasurePreviewPanel(QWidget):
         path = self._dropped_path(event)
         if path:
             event.acceptProposedAction()
-            self.load_array(path)
+            self.load_array_async(path)
         else:
             event.ignore()
 
@@ -424,18 +607,68 @@ class MeasurePreviewPanel(QWidget):
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a merged .npy array", "", "NumPy arrays (*.npy)")
         if path:
-            self.load_array(path)
+            self.load_array_async(path)
+
+    @property
+    def _loads_in_flight(self) -> List[int]:
+        """Outstanding loads and re-crops, as a list so ``not ...`` reads well."""
+        runner = getattr(self, "_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_array_async(self, path: str, *,
+                         enumerate_sets: bool = True) -> bool:
+        """Read ``path`` on a worker, then install it on the GUI thread.
+
+        Every GUI entry point -- the drop handler, the Choose-array dialog and
+        the FOV dropdown -- comes through here. A 17 MB merged array is not a
+        cheap read, and the crop pass that follows it is far worse.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = str(path).strip() if path else ""
+        if not text:
+            return False
+        self._load_token += 1
+        token = self._load_token
+        self._status.setText(f"Loading {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: load_merged_array(text, enumerate_sets),
+            lambda payload, _t=token: self._on_array_loaded(_t, payload))
+        return True
+
+    def _on_array_loaded(self, token: int, payload) -> None:
+        """Install a loaded array. Always on the GUI thread."""
+        if token != self._load_token or not isinstance(payload, dict):
+            return
+        sets = payload.get("sets")
+        if sets is not None:
+            # Adopt before installing, so the enumerate() inside
+            # _refresh_source_selectors is a cache hit rather than a re-scan.
+            self._sampler.adopt(payload.get("directory"), sets,
+                                payload.get("channels") or [])
+        if payload.get("error"):
+            self._status.setText(payload["error"])
+            return
+        data = payload.get("data")
+        if data is None:
+            return
+        self._install_array(payload["path"], data)
 
     def load_array(self, path: str) -> bool:
-        try:
-            data = np.load(path)
-        except Exception as exc:
-            self._status.setText(f"Failed to load: {exc}")
+        """Synchronously read and install one merged array.
+
+        The sibling of ``LivePreviewPanel.load_image``: for programmatic
+        callers and tests. The GUI uses :meth:`load_array_async`.
+        """
+        payload = load_merged_array(path)
+        if payload["error"]:
+            self._status.setText(payload["error"])
             return False
-        if data.ndim != 3:
-            self._status.setText(
-                f"Expected a merged (H,W,C) array; got shape {data.shape}")
-            return False
+        self._install_array(path, payload["data"])
+        return True
+
+    def _install_array(self, path: str, data: np.ndarray) -> None:
+        """Adopt an already-read array and re-crop from it."""
         self._data = data
         self._data_path = path
         self._path_label.setText(
@@ -443,8 +676,72 @@ class MeasurePreviewPanel(QWidget):
         for widget in self._mask_dims.values():
             if widget.value() >= data.shape[2]:
                 widget.setValue(-1)
+        self._refresh_source_selectors()
         self.refresh()
-        return True
+
+    def shutdown(self) -> None:
+        """Abandon anything in flight and leave no QThread behind."""
+        runner = getattr(self, "_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def closeEvent(self, event):  # noqa: N802
+        self.shutdown()
+        super().closeEvent(event)
+
+    # -- FOV / channel selectors ---------------------------------------
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the sets and channel dropdowns for the loaded array.
+
+        The sets dropdown lists a bounded random sample, not the whole folder
+        — see :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`. A
+        measure run's ``merged`` folder holds one array per field of view, so
+        a 384-well plate puts thousands of entries in here.
+        """
+        if self._data_path:
+            self._sampler.enumerate(Path(self._data_path).parent, _SUPPORTED)
+        self._sample_note = apply_sample_to_combo(
+            self._fov_box, self._max_sets_box, self._sampler,
+            self._data_path, tooltip="Field of view")
+        channels = int(self._data.shape[2]) if self._data is not None else 0
+        populate_channel_combo(self._channel_box, channels)
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-enumerating."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._refresh_source_selectors()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
+
+    def _on_fov_changed(self, *_args) -> None:
+        """Load the field of view the user picked from the dropdown."""
+        if self._loading_fov:
+            return
+        path = self._fov_box.currentData()
+        if not path or str(path) == str(self._data_path):
+            return
+        self._loading_fov = True
+        try:
+            # The path came out of the sampler, so the folder is already
+            # listed; re-scanning would rediscover what is in hand.
+            self.load_array_async(path, enumerate_sets=False)
+        finally:
+            self._loading_fov = False
+
+    def display_channel(self) -> Optional[int]:
+        """Channel index the crops are rendered from, or ``None`` for all."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Re-render the crop grid from the newly selected channel."""
+        self.refresh()
 
     # -- propagation ---------------------------------------------------
 
@@ -519,72 +816,54 @@ class MeasurePreviewPanel(QWidget):
         object_name: str,
         cell_region: np.ndarray,
     ) -> Optional[bool]:
+        """Widget-reading wrapper over :func:`_presence_in`."""
         if self._data is None:
             return None
-        dim = _optional_spin_value(self._mask_dims[object_name])
-        if dim is None or dim >= self._data.shape[2]:
-            return None
-        mask = self._data[..., dim].astype(np.int64, copy=False)
-        labels = np.unique(mask[cell_region])
-        labels = labels[labels > 0]
-        minimum = int(self._min_sizes[object_name].value())
-        if minimum <= 0:
-            return bool(labels.size)
-        for label in labels:
-            if int(np.count_nonzero(mask == label)) >= minimum:
-                return True
-        return False
+        return _presence_in(
+            self._data, _optional_spin_value(self._mask_dims[object_name]),
+            cell_region, int(self._min_sizes[object_name].value()))
 
     @staticmethod
     def _phenotype_text(name: str, value: Optional[bool]) -> str:
-        if value is None:
-            return f"{name} n/a"
-        if name == "Nucleus":
-            return "Nucleated" if value else "Unnucleated"
-        if name == "Pathogen":
-            return "Infected" if value else "Uninfected"
-        return "Organelle+" if value else "Organelle−"
+        return _phenotype_label(name, value)
+
+    def _category_params(self) -> Dict[str, Any]:
+        """Snapshot every widget value :func:`annotate_crops` needs.
+
+        Taken on the GUI thread and handed to the worker as plain data. The
+        worker must never read a widget.
+        """
+        return {
+            "object": self._object_box.currentText(),
+            "cell_dim": _optional_spin_value(self._mask_dims["cell"]),
+            "dims": {name: _optional_spin_value(self._mask_dims[name])
+                     for name in ("nucleus", "pathogen", "organelle")},
+            "minima": {name: int(self._min_sizes[name].value())
+                       for name in ("nucleus", "pathogen", "organelle")},
+            "uninfected": bool(self._uninfected.isChecked()),
+        }
 
     def _annotate_cell_categories(self) -> None:
-        if self._data is None or self._object_box.currentText() != "cell":
-            for entry in self._crops:
-                entry["category"] = self._object_box.currentText().capitalize()
-                entry["included"] = True
-            return
-        cell_dim = _optional_spin_value(self._mask_dims["cell"])
-        if cell_dim is None or cell_dim >= self._data.shape[2]:
-            return
-        cell_mask = self._data[..., cell_dim].astype(np.int64, copy=False)
-        for entry in self._crops:
-            region = cell_mask == int(entry["label"])
-            nucleus = self._presence("nucleus", region)
-            pathogen = self._presence("pathogen", region)
-            organelle = self._presence("organelle", region)
-            parts = (
-                self._phenotype_text("Nucleus", nucleus),
-                self._phenotype_text("Pathogen", pathogen),
-                self._phenotype_text("Organelle", organelle),
-            )
-            entry["phenotype"] = {
-                "nucleus": nucleus,
-                "pathogen": pathogen,
-                "organelle": organelle,
-            }
-            entry["category"] = " · ".join(parts)
-            # The pipeline requires a nucleus when all companion masks exist,
-            # and additionally requires a pathogen when uninfected is off.
-            included = nucleus is not False
-            if not self._uninfected.isChecked():
-                included = included and pathogen is True
-            entry["included"] = bool(included)
+        annotate_crops(self._crops, self._data, self._category_params())
 
     def refresh(self) -> None:
+        """Re-crop the loaded array and redraw the grid.
+
+        Dispatches: the crop pass runs on a worker and the grid is rebuilt when
+        it lands. Every knob in the Crop settings dialog is wired to this, so
+        it used to freeze the window for 1441 ms per spinbox step on a
+        1024x1024x8 array. Re-cropping supersedes by token, so dragging a
+        spinbox through ten values draws the last one rather than all ten.
+        """
         if self._data is None:
             return
-        from spacr.measure import crop_objects_from_array
-
         channels = _parse_channels(self._png_dims.text())
         channels = [c for c in channels if 0 <= c < self._data.shape[2]]
+        # The channel dropdown is a *view* control: it does not change the
+        # png_dims that a real run would write, only what this grid shows.
+        one = self.display_channel()
+        if one is not None and 0 <= one < self._data.shape[2]:
+            channels = [one, one, one]
         if not channels:
             self._status.setText("PNG channels do not exist in this array.")
             return
@@ -596,26 +875,35 @@ class MeasurePreviewPanel(QWidget):
             self._render_grid()
             return
 
-        minimum = int(self._min_sizes[self._object_box.currentText()].value())
-        try:
-            self._crops = crop_objects_from_array(
-                self._data,
-                mask_dim=mask_dim,
-                channels=channels,
-                min_area=minimum,
-                max_area=int(self._max_area.value()),
-                mask_background=not self._use_bbox.isChecked(),
-                normalize=self._normalise.isChecked(),
-                percentiles=(
-                    float(self._lo_pct.value()), float(self._hi_pct.value())
-                ),
-                buffer=int(self._buffer.value()),
-                limit=int(self._max_crops.value()),
-            )
-        except Exception as exc:
-            self._status.setText(f"Crop failed: {exc}")
+        crop_kwargs = dict(
+            mask_dim=mask_dim,
+            channels=channels,
+            min_area=int(self._min_sizes[self._object_box.currentText()].value()),
+            max_area=int(self._max_area.value()),
+            mask_background=not self._use_bbox.isChecked(),
+            normalize=self._normalise.isChecked(),
+            percentiles=(
+                float(self._lo_pct.value()), float(self._hi_pct.value())
+            ),
+            buffer=int(self._buffer.value()),
+            limit=int(self._max_crops.value()),
+        )
+        data = self._data
+        params = self._category_params()
+        self._crop_token += 1
+        token = self._crop_token
+        self._jobs.submit(
+            lambda: compute_crops(data, crop_kwargs, params),
+            lambda result, _t=token: self._on_crops_ready(_t, result))
+
+    def _on_crops_ready(self, token: int, result) -> None:
+        """Draw the crop grid. Always on the GUI thread -- QPixmap demands it."""
+        if token != self._crop_token or not isinstance(result, dict):
             return
-        self._annotate_cell_categories()
+        if result.get("error"):
+            self._status.setText(result["error"])
+            return
+        self._crops = result.get("crops") or []
         self._selected.clear()
         self._render_grid()
         groups = len({entry.get("category") for entry in self._crops})
@@ -727,6 +1015,8 @@ class MeasurePreviewPanel(QWidget):
         values["categories"] = [
             entry.get("category") for entry in self._crops
         ]
+        values["display_channel"] = self.display_channel()
+        values["fov"] = self._fov_box.currentText()
         return values
 
 
@@ -806,6 +1096,45 @@ class CropSettingsDialog(QDialog):
         buttons.rejected.connect(self.close)
         outer.addWidget(buttons)
         panel._refresh_control_gates()
+        from ..screens.settings_model import install_api_tooltips
+        widget_keys = {
+            panel._experiment: "experiment",
+            panel._measurement_channels: "channels",
+            panel._object_box: "crop_mode",
+            panel._mask_dims["cell"]: "cell_mask_dim",
+            panel._mask_dims["nucleus"]: "nucleus_mask_dim",
+            panel._mask_dims["pathogen"]: "pathogen_mask_dim",
+            panel._mask_dims["organelle"]: "organelle_mask_dim",
+            panel._cytoplasm: "cytoplasm",
+            panel._plot: "plot",
+            panel._test_mode: "test_mode",
+            panel._timelapse: "timelapse",
+            panel._save_png: "save_png",
+            panel._save_arrays: "save_arrays",
+            panel._crop_width: "png_size",
+            panel._crop_height: "png_size",
+            panel._lock_aspect: "lock_aspect_ratio",
+            panel._png_dims: "png_dims",
+            panel._use_bbox: "use_bounding_box",
+            panel._buffer: "bounding_box_padding",
+            panel._normalise: "normalize",
+            panel._lo_pct: "lower_percentile",
+            panel._hi_pct: "upper_percentile",
+            panel._normalize_by: "normalize_by",
+            panel._dilate: "dialate_pngs",
+            panel._dilate_ratio: "dialate_png_ratios",
+            panel._uninfected: "uninfected",
+            panel._merge_edge_pathogen_cells:
+                "merge_edge_pathogen_cells",
+            panel._max_area: "preview_max_area",
+            panel._max_crops: "preview_max_crops",
+            panel._group_cells: "preview_group_cells",
+        }
+        for name, widget in panel._crop_mode_checks.items():
+            widget_keys[widget] = "crop_mode"
+        for name, widget in panel._min_sizes.items():
+            widget_keys[widget] = f"{name}_min_size"
+        install_api_tooltips(self, "measure", widget_keys)
         self.resize(620, 720)
 
     def closeEvent(self, event):

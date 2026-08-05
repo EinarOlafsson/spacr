@@ -25,6 +25,7 @@ The suite pins the properties the module lives or dies by:
 """
 from __future__ import annotations
 
+import importlib.util
 import numpy as np
 import pytest
 import sys
@@ -191,6 +192,24 @@ def _fast_kwargs(name):
 #: Every method that works on a plain CNN — i.e. all but attention rollout.
 CNN_METHODS = [n for n in sorted(ATTRIBUTION_METHODS)
                if n != "attention_rollout"]
+TORCHCAM_METHODS = {
+    name for name, spec in ATTRIBUTION_METHODS.items()
+    if spec.backend == "torchcam"
+}
+TORCHCAM_AVAILABLE = importlib.util.find_spec("torchcam") is not None
+requires_torchcam = pytest.mark.skipif(
+    not TORCHCAM_AVAILABLE,
+    reason="optional TorchCAM backend is not installed",
+)
+
+
+@pytest.fixture(autouse=True)
+def _skip_uninstalled_parametrized_backend(request):
+    """Skip numerical cases that execute an unavailable optional backend."""
+    callspec = getattr(request.node, "callspec", None)
+    name = callspec.params.get("name") if callspec is not None else None
+    if name in TORCHCAM_METHODS and not TORCHCAM_AVAILABLE:
+        pytest.skip("optional TorchCAM backend is not installed")
 
 
 # ---------------------------------------------------------------------------
@@ -301,6 +320,7 @@ class TestEveryMethodOnBothHeads:
             attribute(TinyCNN(n_out=3), image, "saliency", target=5)
         assert "3 classes" in str(excinfo.value)
 
+    @requires_torchcam
     def test_the_model_is_left_in_the_mode_it_arrived_in(self, image):
         model = TinyCNN(n_out=2)
         model.train()
@@ -347,6 +367,7 @@ class TestSingleLogitVersusMultiLogit:
         x[0, :6, :6] = 2.0
         return model, x
 
+    @requires_torchcam
     def test_the_prediction_of_a_single_logit_head_is_read_correctly(self):
         model, x = self._negative_logit_model_and_image()
         wrapped = ClassScoreModel(model)
@@ -361,6 +382,7 @@ class TestSingleLogitVersusMultiLogit:
         probs = class_scores(wrapped, x[None])
         assert float(probs[0, 0]) > float(probs[0, 1])
 
+    @requires_torchcam
     def test_the_default_target_map_is_class_zeros_not_class_ones(self):
         """The inversion, asserted directly.
 
@@ -450,6 +472,7 @@ class TestSmoothGrad:
         smoothed = self._across_run_std(model, image, n_samples=24)
         assert smoothed < noisy, (noisy, smoothed)
 
+    @requires_torchcam
     def test_it_works_for_a_cam_too_where_noise_tunnel_does_not_apply(self,
                                                                      image):
         model = TinyCNN(n_out=2)
@@ -714,6 +737,7 @@ class TestRandomizationSanityCheck:
         assert "PASSES" in check.verdict()
         assert check.gap > 0.5
 
+    @requires_torchcam
     def test_every_stage_is_reported_in_the_order_applied(self, image):
         check = randomization_sanity_check(TinyCNN(n_out=2), image, "gradcam",
                                            seed=0)
@@ -871,6 +895,7 @@ class TestCompareMethods:
         assert not atts[1].map.any()
         assert any("placeholder" in n for n in atts[1].notes)
 
+    @requires_torchcam
     def test_skip_failures_off_re_raises(self, image):
         with pytest.raises(NoSpatialLayerError):
             compare_methods(MLPNet(), image, ["gradcam"], skip_failures=False)
@@ -894,6 +919,7 @@ class TestTransformers:
         assert att.single_logit is True
         assert np.isfinite(att.map).all()
 
+    @requires_torchcam
     def test_a_cam_on_a_patch_embedding_is_refused_by_name(self, image):
         """The pure-ViT trap: there *is* a Conv2d, and a CAM over it is junk.
 
@@ -908,6 +934,7 @@ class TestTransformers:
         assert "patch embedding" in message
         assert "attention_rollout" in message
 
+    @requires_torchcam
     def test_the_patch_embedding_cam_can_be_forced_explicitly(self, image):
         att = attribute(TinyViT(), image, "gradcam", allow_pre_attention=True)
         assert att.map.shape == (IMG, IMG)
@@ -918,6 +945,7 @@ class TestTransformers:
             assert np.isfinite(att.map).all()
             assert att.map.shape == (IMG, IMG)
 
+    @requires_torchcam
     def test_a_conv_free_model_names_itself_in_the_cam_error(self, image):
         with pytest.raises(NoSpatialLayerError) as excinfo:
             attribute(MLPNet(), image, "gradcam", model_type="linear_probe")
@@ -972,6 +1000,7 @@ class TestOcclusionAndLayers:
         row, col = att.peak()
         assert row < 6 and col < 6
 
+    @requires_torchcam
     def test_a_bad_layer_name_lists_the_available_layers(self, image):
         with pytest.raises(AttributionError) as excinfo:
             attribute(TinyCNN(n_out=2), image, "gradcam",
@@ -989,6 +1018,7 @@ class TestOcclusionAndLayers:
         assert resolve_layer(model, "features.4") is model.features[4]
         assert recommended_layer(MLPNet()) is None
 
+    @requires_torchcam
     def test_a_named_earlier_layer_changes_the_cam(self, image):
         model = TinyCNN(n_out=2)
         late = attribute(model, image, "gradcam", layer="features.4").map
@@ -1038,6 +1068,7 @@ class TestOcclusionAndLayers:
             att = attribute(ReusedRelu(), image, name, **_fast_kwargs(name))
             assert np.isfinite(att.map).all()
 
+    @requires_torchcam
     def test_a_layer_that_never_runs_is_reported(self, image):
         class Detached(nn.Module):
             """Owns a conv that the forward pass never calls."""
@@ -1086,6 +1117,7 @@ class TestAttributionObject:
         att2 = attribute(TinyCNN(n_out=2), image, "saliency")
         assert not any("single-logit binary head" in n for n in att2.notes)
 
+    @requires_torchcam
     def test_the_signed_per_channel_form_is_kept_where_it_exists(self, image):
         att = attribute(TinyCNN(n_out=2), image, "input_x_gradient")
         assert att.raw is not None and att.raw.shape == (3, IMG, IMG)
@@ -1099,6 +1131,7 @@ class TestAttributionObject:
 # ---------------------------------------------------------------------------
 
 class TestAttributionMapGenerator:
+    @requires_torchcam
     def test_it_returns_maps_and_predictions_for_a_batch(self):
         torch.manual_seed(2)
         batch = torch.randn(3, 3, IMG, IMG)

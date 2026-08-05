@@ -164,7 +164,21 @@ tutorial.ipynb
 tutorial_colab.ipynb
 
 #do not include docs
-/docs
+/docs/*
+!/docs/source/
+/docs/source/*
+!/docs/source/module_audit.rst
+!/docs/source/localization.rst
+!/docs/source/setting_animations.rst
+!/docs/source/checkpoint_resume.rst
+!/docs/source/reproducibility_manifests.rst
+!/docs/source/run_history.rst
+!/docs/source/batch_correction.rst
+!/docs/source/classifier_evaluation.rst
+!/docs/source/umap_multiobjective.rst
+!/docs/source/distributed_execution.rst
+!/docs/source/_extra/
+!/docs/source/_extra/**
 
 #MacOS files that don't need to be tracked
 .DS_Store

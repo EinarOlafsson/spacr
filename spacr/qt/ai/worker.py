@@ -118,6 +118,31 @@ def make_stream_thread(
 
     Callers must ALSO keep a Python reference to the worker until
     the stream truly finishes (see ConsolePanel._retire).
+
+    Two wiring details are load-bearing; both are the same contract
+    :func:`spacr.qt.bridge.make_thread` documents, and this function used
+    to get them wrong:
+
+    * ``worker.finished -> thread.quit`` is a **DirectConnection**. The
+      QThread object is created here, on the GUI thread, so it is
+      GUI-affine — a queued ``quit()`` is posted to the *GUI* thread's
+      event queue, not to the worker's. Measured: with a queued
+      connection, a GUI thread that goes straight into ``thread.wait()``
+      (which is exactly what ``ConsolePanel.shutdown`` and every "drain
+      before closing" path does) waits out its whole timeout on a worker
+      that has already finished, because the event that would stop the
+      thread is sitting behind the wait. ``QThread::quit`` is explicitly
+      thread-safe, so calling it inline from the worker thread is correct.
+    * There is deliberately **no** ``worker.deleteLater``. The worker's
+      affinity is the worker thread, so a deferred delete is posted into a
+      loop that is stopping, while the panel drops the object's last
+      Python reference from the GUI thread — two owners, one object.
+      ``bridge.make_thread``'s ownership essay records the gdb trace
+      (``QThread -> sendPostedEvents -> ~QObject -> Sbk_GetPyOverride``)
+      and the measurement: 3 crashes in 8 runs. A PySide6 object built in
+      Python is already owned by Python; ``ConsolePanel``/``AIChatPanel``
+      hold it in ``_retired`` until the thread has exited and free it
+      there, on the thread that holds it.
     """
     from PySide6.QtCore import Qt
     thread = QThread(parent)
@@ -125,9 +150,8 @@ def make_stream_thread(
     worker.setParent(None)              # worker moves to thread, no parent
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
-    # Queue the deletion + quit so they run AFTER user-facing slots
-    # (which are also queued but connected earlier).
-    worker.finished.connect(thread.quit, Qt.QueuedConnection)
-    worker.finished.connect(worker.deleteLater, Qt.QueuedConnection)
+    worker.finished.connect(thread.quit, Qt.DirectConnection)
+    # The QThread is GUI-affine, so its deferred delete is flushed by the
+    # GUI thread's own loop. That one is safe, and it is the only one.
     thread.finished.connect(thread.deleteLater, Qt.QueuedConnection)
     return thread, worker

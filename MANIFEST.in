@@ -2,6 +2,7 @@ recursive-include spacr/resources/models/cp *
 recursive-include spacr/resources/icons *
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/data *.csv
+recursive-include spacr/resources/setting_animations *.gif *.json
 # Theme wallpapers: three JPEGs, ~3.9 MB total. Cropped, capped at
 # 3840x2400 and pre-exposed by spacr/qt/imagery.py; the originals
 # (25 MB) are deliberately not shipped.
@@ -15,9 +16,27 @@ include *.yaml
 include requirements.txt
 
 # Recursively include specific folders and file types
-recursive-include docs *.rst *.py *.html *.css *.js *.inv *.pickle *.png *.svg *.ttf *.woff *.woff2 *.eot *.txt *.bat Makefile
+#
+# docs/SOURCE only, never `docs` itself. deploy_docs.sh's old workflow copied
+# `docs/build/html/*` into the root of `docs/`, and that build output is still
+# committed there (docs/_modules, docs/_static, docs/_sources, docs/api,
+# docs/searchindex.js, ...). A `recursive-include docs *.html *.js *.css *.png`
+# swept all 29 MB of it back into the sdist, straight past the "built docs are
+# not a distribution artefact" prunes at the bottom of this file -- those name
+# docs/_build, a directory this layout has never had. Anchoring the include on
+# docs/source means the sdist carries what regenerates the site (~1 MB of .rst
+# plus conf.py and its static assets), not a stale copy of the site itself.
+# *.inv and *.pickle are gone with it: objects.inv and environment.pickle are
+# pure Sphinx build state. `*.bat` and `Makefile` are gone too -- neither has
+# ever existed under docs/, and both only ever produced "no files found
+# matching ... under directory 'docs'" warnings.
+recursive-include docs/source *.rst *.py *.html *.css *.js *.png *.svg *.ttf *.woff *.woff2 *.eot *.txt
 # The interactive tutorial media is published with the documentation but is
-# not part of the Python source distribution.
+# not part of the Python source distribution. The include above is anchored on
+# docs/source, so without this prune it reaches into _extra/tutorials and
+# ships the player (app_v2.js, lesson_catalog.js, index.html, styles.css and
+# the rest) inside every sdist. The .m4a and .mp4 never matched its extension
+# list, so the size never made the problem obvious.
 prune docs/source/_extra/tutorials
 recursive-include path *.csv *.db
 recursive-include settings *.csv
@@ -50,12 +69,15 @@ prune spacr/notebooks/old
 # ---------------------------------------------------------------------------
 # Review artefacts: kept in git, deliberately NOT shipped.
 #
-# `recursive-include spacr/resources/icons *` above sweeps in backup_icons/
-# (240 candidate icons, 22 MB) and spacr/resources/home/versions/ holds 90
-# home-screen renders (13 MB). Together they took the sdist to 93 MB -- close
-# to PyPI's 100 MB per-file limit -- and made every user download 35 MB of
-# images they will never open. They exist for the maintainer to choose from,
-# so they belong in the repository and not in the distribution.
+# `recursive-include spacr/resources/icons *` above would sweep in anything
+# left under the icons tree, and spacr/resources/home/versions/ holds 90
+# home-screen renders (13 MB) that exist for the maintainer to choose from.
+# They belong in the repository and not in the distribution.
+#
+# backup_icons/ held the 931 drawn candidates and was deleted once every icon
+# was chosen; the generators that drew them are in tools/icon_generators/ and
+# the candidates themselves are in git history. The prune stays as a guard
+# against the folder being regenerated in place and shipped by accident.
 # ---------------------------------------------------------------------------
 prune spacr/resources/icons/backup_icons
 prune spacr/resources/home
@@ -68,10 +90,30 @@ exclude spacr/resources/icons/loading_spinner_logo.gif
 exclude spacr/resources/icons/loading_spinner_logo (1).gif
 exclude spacr/resources/icons/loading_spinner_logo
 
-# The built docs are not a distribution artefact. `recursive-include docs *.png`
-# above pulls in the tutorial screenshots (~20 MB) and Sphinx's own
-# environment.pickle is 8.4 MB of build cache. Docs live at
-# https://einarolafsson.github.io/spacr/ and in the repository.
+# ---------------------------------------------------------------------------
+# The built docs are not a distribution artefact. Docs live at
+# https://einarolafsson.github.io/spacr/ and are rebuilt from docs/source by
+# .github/workflows/docs.yml; the copy committed under docs/ is history from
+# deploy_docs.sh.
+#
+# These prunes are defence in depth behind the docs/source-anchored include
+# above, and they now remove nothing: `python -m build` prints "no
+# previously-included directories found matching ..." for each of them. That
+# is expected. They exist to catch the built tree if the include is ever
+# widened back to `recursive-include docs ...` -- which is how 29 MB (13 MB of
+# _modules/*.html, 10 MB of _static, 0.35 MB of searchindex.js) shipped in
+# every sdist while the comment above already claimed it did not. The old list
+# named only docs/_build, a directory this layout has never had, so it warned
+# in exactly the same way while protecting nothing.
+#
+# `docs/_*` rather than four named directories: it covers _build, _modules,
+# _static, _sources and _images today and any future underscore-prefixed
+# Sphinx output directory (_downloads, _panels_static) without another edit.
+# It does not reach docs/source/_extra -- that is one level deeper.
+# ---------------------------------------------------------------------------
 prune docs/.doctrees
-prune docs/_build
-prune docs/resources/tutorial
+prune docs/_*
+prune docs/api
+prune docs/tutorial
+prune docs/resources
+exclude docs/*.html docs/*.js docs/*.inv docs/.buildinfo

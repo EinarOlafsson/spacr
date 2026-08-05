@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from PySide6.QtCore import QPoint, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QLabel, QWidget
 
 from spacr.qt.widgets.card import Card
@@ -87,10 +88,37 @@ def test_section_places_an_information_icon_beside_the_label(qtbot):
 
 
 def test_tile_emits_clicked(qtbot):
-    tile = Tile(text="Mask", caption="Mask")
-    qtbot.addWidget(tile)
-    with qtbot.waitSignal(tile.clicked, timeout=1000):
-        tile._button.click()
+    """Clicking a tile tells the caller which tile, and only that one.
+
+    ``Tile.clicked`` carries no payload, so a home screen identifies the
+    tile by the object it connected — which only works if the signal stays
+    per-instance. Two tiles here prove it is not a shared broadcast.
+    """
+    mask = Tile(text="Mask", caption="Segment cells")
+    measure = Tile(text="Measure", caption="Extract features")
+    qtbot.addWidget(mask)
+    qtbot.addWidget(measure)
+
+    fired = []
+    mask.clicked.connect(lambda: fired.append(mask.text))
+    measure.clicked.connect(lambda: fired.append(measure.text))
+
+    with qtbot.waitSignal(mask.clicked, timeout=1000):
+        mask._button.click()
+    assert fired == ["Mask"], "the wrong tile (or both) reported the click"
+
+    with qtbot.waitSignal(measure.clicked, timeout=1000):
+        measure._button.click()
+    assert fired == ["Mask", "Measure"]
+
+    # A tile is a momentary action, not a mode: the click leaves no state
+    # latched behind on the button.
+    assert mask._button.isCheckable() is False
+    assert mask._button.isChecked() is False
+    assert mask._button.isDown() is False
+    # It still identifies itself the same way after being clicked.
+    assert mask.text == "Mask"
+    assert mask._button.toolTip() == "Segment cells"
 
 
 def test_toggle_toggling(qtbot):
@@ -117,13 +145,13 @@ def test_toggle_knob_can_be_clicked_in_both_states(qtbot):
     t.resize(50, 24)
     t.show()
 
-    qtbot.mouseClick(
+    QTest.mouseClick(
         t, Qt.LeftButton,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, t.height() // 2),
     )
     assert t.isChecked()
 
-    qtbot.mouseClick(
+    QTest.mouseClick(
         t, Qt.LeftButton,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, t.height() // 2),
     )
@@ -137,29 +165,29 @@ def test_toggle_knob_can_be_dragged_between_states(qtbot):
     t.show()
     y = t.height() // 2
 
-    qtbot.mousePress(
+    QTest.mousePress(
         t, Qt.LeftButton,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseMove(
+    QTest.mouseMove(
         t,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseRelease(
+    QTest.mouseRelease(
         t, Qt.LeftButton,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, y),
     )
     assert t.isChecked()
 
-    qtbot.mousePress(
+    QTest.mousePress(
         t, Qt.LeftButton,
         pos=QPoint(t._maximum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseMove(
+    QTest.mouseMove(
         t,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, y),
     )
-    qtbot.mouseRelease(
+    QTest.mouseRelease(
         t, Qt.LeftButton,
         pos=QPoint(t._minimum_knob_x() + t._knob_d // 2, y),
     )

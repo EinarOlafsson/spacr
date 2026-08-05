@@ -4,47 +4,237 @@
   "voice": "af_nova",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.3,
+  "total_duration": 257.025,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.75,
-      "scene_end": 9.2,
-      "duration": 9.2,
-      "text": "This tutorial covers Regression. Estimate perturbation effects and identify features associated with guide or condition-level phenotypes."
+      "speech_end": 12.575,
+      "scene_end": 13.024999999999999,
+      "duration": 13.024999999999999,
+      "text": "Regression links per-object phenotypes to pooled-screen guide abundance. The console reports table alignment, filtering, model diagnostics, coefficient fitting, result paths, plots, and reproducibility records.",
+      "speech_text": "Regression links per-object phenotypes to pooled-screen guide abundance. The console reports table alignment, filtering, model diagnostics, coefficient fitting, result paths, plots, and reproducibility records.",
+      "phonemes": "ɹəɡɹˈɛʃən lˈɪŋks pɜɹˈɑbʤəkt fˈinətˌIps tə pˌuldskɹˈin ɡˈId əbˈʌndᵊns. ðə kˈɑnsˌOl ɹəpˈɔɹts tˈAbᵊl əlˈInmənt, fˈɪltəɹɪŋ, mˈɑdᵊl dˌIəɡnˈɑstɪks, kˌOəfˈɪʃənt fˈɪTɪŋ, ɹəzˈʌlt pˈæðz, plˈɑts, ænd ɹˌipɹədˌusəbˈɪləTi ɹˈɛkəɹdz."
     },
     {
       "scene": 2,
-      "speech_start": 9.2,
-      "speech_end": 17.6,
-      "scene_end": 18.05,
-      "duration": 8.850000000000001,
-      "text": "Open Regression from the Core section. Select mapped measurements, response variables, controls, grouping columns, and candidate predictors."
+      "speech_start": 13.024999999999999,
+      "speech_end": 22.625,
+      "scene_end": 23.075,
+      "duration": 10.05,
+      "text": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+      "speech_text": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+      "phonemes": "ðə ʧˈæt fˈild əksˈɛpts kwˈɛsʧᵊnz əbˈWt ðə kˈɜɹənt wˈɜɹkflˌO. ɪnˈAbᵊl ˈAˌI tə ɹˈut θɹu ɐ səlˈɛktᵻd pɹəvˈIdəɹ, ænd jˈuz ði əʤˈAsᵊnt ˈɛɹO tʊ ˈOpᵊn ðə pɹəvˈIdəɹ mˈɛnju."
     },
     {
       "scene": 3,
-      "speech_start": 18.05,
-      "speech_end": 27.0,
-      "scene_end": 27.45,
-      "duration": 9.399999999999999,
-      "text": "In the main configuration area, choose transformations, covariates, model family, random effects, multiple-testing correction, and quality filters."
+      "speech_start": 23.075,
+      "speech_end": 33.875,
+      "scene_end": 34.325,
+      "duration": 11.250000000000004,
+      "text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and provides their install and login commands. Credentials stay with each vendor.",
+      "speech_text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and provides their install and login commands. Credentials stay with each vendor.",
+      "phonemes": "pɹəvˈIdəɹz ɹəpˈɔɹts wˈɛðəɹ ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ɑɹ ɪnstˈɔld ænd pɹəvˈIdz ðɛɹ ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz. kɹədˈɛnʧᵊlz stˈA wɪð ˈiʧ vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 27.45,
-      "speech_end": 38.6,
-      "scene_end": 39.050000000000004,
-      "duration": 11.600000000000005,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect model diagnostics and control behavior before interpreting coefficients."
+      "speech_start": 34.325,
+      "speech_end": 43.300000000000004,
+      "scene_end": 43.75000000000001,
+      "duration": 9.425000000000004,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system prompt.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm pɹˈɑmpt."
     },
     {
       "scene": 5,
-      "speech_start": 39.050000000000004,
-      "speech_end": 46.650000000000006,
-      "scene_end": 47.300000000000004,
-      "duration": 8.25,
-      "text": "When the workflow finishes, spaCR writes effect sizes, uncertainty, adjusted significance, diagnostics, and figures."
+      "speech_start": 43.75000000000001,
+      "speech_end": 56.95,
+      "scene_end": 57.400000000000006,
+      "duration": 13.649999999999999,
+      "text": "The synthetic experiment supplies 384 cell-score rows and 384 guide-count rows from 32 wells, 12 guides, and four genes. Matching plate, row, and column identifiers join the tables.",
+      "speech_text": "The synthetic experiment supplies 384 cell-score rows and 384 guide-count rows from 32 wells, 12 guides, and four genes. Matching plate, row, and column identifiers join the tables.",
+      "phonemes": "ðə sɪnθˈɛTɪk ɪkspˈɛɹəmənt səplˈIz θɹˈi hˈʌndɹəd ˈATi fˈɔɹ sˌɛlskˈɔɹ ɹˈOz ænd θɹˈi hˈʌndɹəd ˈATi fˈɔɹ ɡˌIdkˈWnt ɹˈOz fɹʌm θˈɜɹTi tˈu wˈɛlz, twˈɛlv ɡˈIdz, ænd fˈɔɹ ʤˈinz. mˈæʧɪŋ plˈAt, ɹˈO, ænd kˈɑləm IdˈɛntəfˌIəɹz ʤˈYn ðə tˈAbᵊlz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 57.400000000000006,
+      "speech_end": 66.45,
+      "scene_end": 66.9,
+      "duration": 9.5,
+      "text": "Essentials shows the input tables, plate controls, regression family, response variable, minimum evidence, and plot choices required for a first run.",
+      "speech_text": "Essentials shows the input tables, plate controls, regression family, response variable, minimum evidence, and plot choices required for a first run.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ði ˈɪnpˌʊt tˈAbᵊlz, plˈAt kəntɹˈOlz, ɹəɡɹˈɛʃən fˈæmᵊli, ɹəspˈɑns vˈɛɹiəbᵊl, mˈɪnəməm ˈɛvədᵊns, ænd plˈɑt ʧˈYsᵻz ɹəkwˈIəɹd fɔɹ ɐ fˈɜɹst ɹˈʌn."
+    },
+    {
+      "scene": 7,
+      "speech_start": 66.9,
+      "speech_end": 76.35000000000001,
+      "scene_end": 76.80000000000001,
+      "duration": 9.900000000000006,
+      "text": "Modified limits the panel to values that differ from the defaults, making control identities, fixed thresholds, and intentional model choices easy to audit.",
+      "speech_text": "Modified limits the panel to values that differ from the defaults, making control identities, fixed thresholds, and intentional model choices easy to audit.",
+      "phonemes": "mˈɑdəfˌId lˈɪməts ðə pˈænᵊl tə vˈæljuz ðæt dˈɪfəɹ fɹʌm ðə dəfˈɔlts, mˈAkɪŋ kəntɹˈOl IdˈɛntəTiz, fˈɪkst θɹˈɛʃhˌOldz, ænd ɪntˈɛnʧᵊnəl mˈɑdᵊl ʧˈYsᵻz ˈizi tʊ ˈɔdət."
+    },
+    {
+      "scene": 8,
+      "speech_start": 76.80000000000001,
+      "speech_end": 87.45000000000002,
+      "scene_end": 87.90000000000002,
+      "duration": 11.100000000000009,
+      "text": "All settings reveals every category without changing values. The eight categories separate input, design, correction, modeling, hit calling, plots, and runtime behavior.",
+      "speech_text": "All settings reveals every category without changing values. The eight categories separate input, design, correction, modeling, hit calling, plots, and runtime behavior.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɹəvˈilz ˈɛvəɹi kˈæTəɡˌɔɹi wɪðˈWt ʧˈAnʤɪŋ vˈæljuz. ði ˈAt kˈæTəɡˌɔɹiz sˈɛpəɹˌAt ˈɪnpˌʊt, dəzˈIn, kəɹˈɛkʃən, mˈɑdᵊlɪŋ, hˈɪt kˈɔlɪŋ, plˈɑts, ænd ɹˈʌntIm bəhˈAvjəɹ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 87.90000000000002,
+      "speech_end": 96.57500000000002,
+      "scene_end": 97.02500000000002,
+      "duration": 9.125,
+      "text": "Recipes saves the complete regression configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete regression configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðə kəmplˈit ɹəɡɹˈɛʃən kənfˌɪɡjəɹˈAʃən ˈʌndəɹ ɐ nˈAm, ɹˌiəplˈIz ɪt lˈATəɹ, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ ɹijˈuzəbᵊl sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 97.02500000000002,
+      "speech_end": 104.00000000000001,
+      "scene_end": 104.45000000000002,
+      "duration": 7.424999999999997,
+      "text": "Submit remote snapshots the resolved Regression settings and sends the job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved Regression settings and sends the job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd ɹəɡɹˈɛʃən sˈɛTɪŋz ænd sˈɛndz ðə ʤˈɑb tə ðə dəstɹˈɪbjuTᵻd ʤˈɑbz wˈɜɹkspˌAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 104.45000000000002,
+      "speech_end": 114.97500000000002,
+      "scene_end": 115.42500000000003,
+      "duration": 10.975000000000009,
+      "text": "Distributed Jobs maps input paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same model run.",
+      "speech_text": "Distributed Jobs maps input paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same model run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps ˈɪnpˌʊt pˈæðz ænd kəmpjˈut ɹˈisˌɔɹsᵻz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm mˈɑdᵊl ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 115.42500000000003,
+      "speech_end": 127.85000000000002,
+      "scene_end": 128.3,
+      "duration": 12.874999999999986,
+      "text": "Input Tables selects optional gene metadata, per-object or per-well phenotype scores, and sequencing count tables. Multiple plates must remain aligned by list position or explicit plate identifiers.",
+      "speech_text": "Input Tables selects optional gene metadata, per-object or per-well phenotype scores, and sequencing count tables. Multiple plates must remain aligned by list position or explicit plate identifiers.",
+      "phonemes": "ˈɪnpˌʊt tˈAbᵊlz səlˈɛkts ˈɑpʃənᵊl ʤˈin mˈɛTədˌATə, pɜɹˈɑbʤəkt ɔɹ pɜɹwˈɛl fˈinətˌIp skˈɔɹz, ænd sˈikwənsɪŋ kˈWnt tˈAbᵊlz. mˈʌltəpᵊl plˈAts mˈʌst ɹəmˈAn əlˈInd bI lˈɪst pəzˈɪʃən ɔɹ ɪksplˈɪsət plˈAt IdˈɛntəfˌIəɹz."
+    },
+    {
+      "scene": 13,
+      "speech_start": 128.3,
+      "speech_end": 137.525,
+      "scene_end": 137.975,
+      "duration": 9.674999999999983,
+      "text": "Controls and Plate Design defines the plate, positive and negative genes, neutral guide controls, control wells, and any rows excluded before fitting.",
+      "speech_text": "Controls and Plate Design defines the plate, positive and negative genes, neutral guide controls, control wells, and any rows excluded before fitting.",
+      "phonemes": "kəntɹˈOlz ænd plˈAt dəzˈIn dəfˈInz ðə plˈAt, pˈɑzəTɪv ænd nˈɛɡəTɪv ʤˈinz, nˈutɹᵊl ɡˈId kəntɹˈOlz, kəntɹˈOl wˈɛlz, ænd ˈɛni ɹˈOz ɪksklˈudᵻd bəfˈɔɹ fˈɪTɪŋ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 137.975,
+      "speech_end": 147.625,
+      "scene_end": 148.075,
+      "duration": 10.099999999999994,
+      "text": "Plate and Batch Correction can remove plate offsets with centering, robust scaling, reference controls, or ComBat. This one-plate tutorial leaves correction off.",
+      "speech_text": "Plate and Batch Correction can remove plate offsets with centering, robust scaling, reference controls, or ComBat. This one-plate tutorial leaves correction off.",
+      "phonemes": "plˈAt ænd bˈæʧ kəɹˈɛkʃən kæn ɹəmˈuv plˈAt ˈɔfsˌɛts wɪð sˈɛntəɹɪŋ, ɹObˈʌst skˈAlɪŋ, ɹˈɛfəɹəns kəntɹˈOlz, ɔɹ kˌɑmbˈæt. ðˌɪs wˌʌnplˈAt tutˈɔɹiəl lˈivz kəɹˈɛkʃən ˈɔf."
+    },
+    {
+      "scene": 15,
+      "speech_start": 148.075,
+      "speech_end": 158.125,
+      "scene_end": 158.575,
+      "duration": 10.5,
+      "text": "Model and Covariates selects the regression family, response column, aggregation and transform, regularization, covariance estimate, and optional row or column effects.",
+      "speech_text": "Model and Covariates selects the regression family, response column, aggregation and transform, regularization, covariance estimate, and optional row or column effects.",
+      "phonemes": "mˈɑdᵊl ænd kˌOvˈɛɹiəts səlˈɛkts ðə ɹəɡɹˈɛʃən fˈæmᵊli, ɹəspˈɑns kˈɑləm, ˌæɡɹəɡˈAʃən ænd tɹˈænsfˌɔɹm, ɹˌɛɡjələɹəzˈAʃən, kˌOvˈɛɹiəns ˈɛstəmət, ænd ˈɑpʃənᵊl ɹˈO ɔɹ kˈɑləm əfˈɛkts."
+    },
+    {
+      "scene": 16,
+      "speech_start": 158.575,
+      "speech_end": 169.325,
+      "scene_end": 169.77499999999998,
+      "duration": 11.199999999999989,
+      "text": "Estimator Tuning holds parameters used by elastic net, quantile, Huber, hinge, and bootstrap-selection models. Only controls belonging to the chosen family affect a run.",
+      "speech_text": "Estimator Tuning holds parameters used by elastic net, quantile, Huber, hinge, and bootstrap-selection models. Only controls belonging to the chosen family affect a run.",
+      "phonemes": "ˈɛstəmˌATəɹ tˈunɪŋ hˈOldz pəɹˈæməTəɹz jˈuzd bI əlˈæstɪk nˈɛt, kwˈɑntIl, hjˈubəɹ, hˈɪnʤ, ænd bˈutstɹˌæpsəlˌɛkʃən mˈɑdᵊlz. ˈOnli kəntɹˈOlz bəlˈɔŋɪŋ tə ðə ʧˈOzᵊn fˈæmᵊli əfˈɛkt ɐ ɹˈʌn."
+    },
+    {
+      "scene": 17,
+      "speech_start": 169.77499999999998,
+      "speech_end": 179.17499999999998,
+      "scene_end": 179.62499999999997,
+      "duration": 9.849999999999994,
+      "text": "Hit Calling and Outliers sets minimum cell and well evidence, guide-fraction filtering, optional outlier removal, and the control-derived coefficient threshold.",
+      "speech_text": "Hit Calling and Outliers sets minimum cell and well evidence, guide-fraction filtering, optional outlier removal, and the control-derived coefficient threshold.",
+      "phonemes": "hˈɪt kˈɔlɪŋ ænd ˈWtlˌIəɹz sˈɛts mˈɪnəməm sˈɛl ænd wˈɛl ˈɛvədᵊns, ɡˌIdfɹˈækʃən fˈɪltəɹɪŋ, ˈɑpʃənᵊl ˈWtlˌIəɹ ɹəmˈuvᵊl, ænd ðə kəntɹˈOldəɹˌIvd kˌOəfˈɪʃənt θɹˈɛʃhˌOld."
+    },
+    {
+      "scene": 18,
+      "speech_start": 179.62499999999997,
+      "speech_end": 189.24999999999997,
+      "scene_end": 189.69999999999996,
+      "duration": 10.074999999999989,
+      "text": "Regression Plots controls the volcano target, logarithmic axes, and optional axis limits. These display choices do not change fitted coefficients.",
+      "speech_text": "Regression Plots controls the volcano target, logarithmic axes, and optional axis limits. These display choices do not change fitted coefficients.",
+      "phonemes": "ɹəɡɹˈɛʃən plˈɑts kəntɹˈOlz ðə vɑlkˈAnO tˈɑɹɡət, lˌɔɡəɹˈɪðmɪk ˈæksˌiz, ænd ˈɑpʃənᵊl ˈæksɪs lˈɪməts. ðˌiz dəsplˈA ʧˈYsᵻz dˈu nˌɑt ʧˈAnʤ fˈɪTᵻd kˌOəfˈɪʃənts."
+    },
+    {
+      "scene": 19,
+      "speech_start": 189.69999999999996,
+      "speech_end": 200.14999999999995,
+      "scene_end": 200.59999999999994,
+      "duration": 10.899999999999977,
+      "text": "Runtime and Reliability controls strict errors, tolerated failure rate, retry policy, random seed, and verbose reporting. A fixed seed supports reproducibility.",
+      "speech_text": "Runtime and Reliability controls strict errors, tolerated failure rate, retry policy, random seed, and verbose reporting. A fixed seed supports reproducibility.",
+      "phonemes": "ɹˈʌntIm ænd ɹəlˌIəbˈɪləTi kəntɹˈOlz stɹˈɪkt ˈɛɹəɹz, tˈɑləɹˌATᵻd fˈAljəɹ ɹˈAt, ɹitɹˈI pˈɑləsi, ɹˈændəm sˈid, ænd vəɹbˈOs ɹᵻpˈɔɹTɪŋ. ɐ fˈɪkst sˈid səpˈɔɹts ɹˌipɹədˌusəbˈɪləTi."
+    },
+    {
+      "scene": 20,
+      "speech_start": 200.59999999999994,
+      "speech_end": 216.89999999999995,
+      "scene_end": 217.34999999999994,
+      "duration": 16.75,
+      "text": "In this design, gene 239740 is the positive control, 233460 is the negative control, and three 000000 guides define neutral behavior. Columns c1 through c3 are excluded from the fitted treatment set.",
+      "speech_text": "In this design, gene 239740 is the positive control, 233460 is the negative control, and three 000000 guides define neutral behavior. Columns c1 through c3 are excluded from the fitted treatment set.",
+      "phonemes": "ɪn ðɪs dəzˈIn, ʤˈin tˈu hˈʌndɹəd θˈɜɹTi nˈIn θˈWzᵊnd sˈɛvən hˈʌndɹəd fˈɔɹTi ɪz ðə pˈɑzəTɪv kəntɹˈOl, tˈu hˈʌndɹəd θˈɜɹTi θɹˈi θˈWzᵊnd fˈɔɹ hˈʌndɹəd sˈɪksti ɪz ðə nˈɛɡəTɪv kəntɹˈOl, ænd θɹˈi zˈɪɹO ɡˈIdz dəfˈIn nˈutɹᵊl bəhˈAvjəɹ. kˈɑləmz sˈi wˈʌn θɹu sˈi θɹˈi ɑɹ ɪksklˈudᵻd fɹʌm ðə fˈɪTᵻd tɹˈitmənt sˈɛt."
+    },
+    {
+      "scene": 21,
+      "speech_start": 217.34999999999994,
+      "speech_end": 231.29999999999993,
+      "scene_end": 231.74999999999991,
+      "duration": 14.399999999999977,
+      "text": "Run validates table schemas and well keys, removes excluded controls, aggregates cell scores, converts guide counts to fractions, fits OLS coefficients, evaluates evidence, and writes results. Stop requests a safe interruption.",
+      "speech_text": "Run validates table schemas and well keys, removes excluded controls, aggregates cell scores, converts guide counts to fractions, fits OLS coefficients, evaluates evidence, and writes results. Stop requests a safe interruption.",
+      "phonemes": "ɹˈʌn vˈælɪdˌAts tˈAbᵊl skˈiməz ænd wˈɛl kˈiz, ɹəmˈuvz ɪksklˈudᵻd kəntɹˈOlz, ˈæɡɹəɡˌAts sˈɛl skˈɔɹz, kˈɑnvˌɜɹts ɡˈId kˈWnts tə fɹˈækʃənz, fˈɪts ˌOˌɛlˈɛs kˌOəfˈɪʃənts, əvˈæljʊˌAts ˈɛvədᵊns, ænd ɹˈIts ɹəzˈʌlts. stˈɑp ɹəkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃən."
+    },
+    {
+      "scene": 22,
+      "speech_start": 231.74999999999991,
+      "speech_end": 242.92499999999993,
+      "scene_end": 243.37499999999991,
+      "duration": 11.625,
+      "text": "During the run, the console reports 384 score rows, 384 count rows, plate alignment, retained observations, and model progress while figures appear in the gallery.",
+      "speech_text": "During the run, the console reports 384 score rows, 384 count rows, plate alignment, retained observations, and model progress while figures appear in the gallery.",
+      "phonemes": "dˈʊɹɪŋ ðə ɹˈʌn, ðə kˈɑnsˌOl ɹəpˈɔɹts θɹˈi hˈʌndɹəd ˈATi fˈɔɹ skˈɔɹ ɹˈOz, θɹˈi hˈʌndɹəd ˈATi fˈɔɹ kˈWnt ɹˈOz, plˈAt əlˈInmənt, ɹətˈAnd ˌɑbzəɹvˈAʃənz, ænd mˈɑdᵊl pɹˈɑɡɹəs wˌIl fˈɪɡjəɹz əpˈɪɹ ɪn ðə ɡˈæləɹi."
+    },
+    {
+      "scene": 23,
+      "speech_start": 243.37499999999991,
+      "speech_end": 256.3749999999999,
+      "scene_end": 257.02499999999986,
+      "duration": 13.649999999999949,
+      "text": "The completed run provides plate summaries, score and guide-fraction histograms, diagnostic plots, regression_data, coefficient tables by guide and gene, significance tables, saved settings, a manifest, and a rerunnable macro.",
+      "speech_text": "The completed run provides plate summaries, score and guide-fraction histograms, diagnostic plots, regression_data, coefficient tables by guide and gene, significance tables, saved settings, a manifest, and a rerunnable macro.",
+      "phonemes": "ðə kəmplˈiTᵻd ɹˈʌn pɹəvˈIdz plˈAt sˈʌməɹiz, skˈɔɹ ænd ɡˌIdfɹˈækʃən hˈɪstəɡɹˌæmz, dˌIəɡnˈɑstɪk plˈɑts, ɹəɡɹˈɛʃəndˌATə, kˌOəfˈɪʃənt tˈAbᵊlz bI ɡˈId ænd ʤˈin, səɡnˈɪfəkᵊns tˈAbᵊlz, sˈAvd sˈɛTɪŋz, ɐ mˈænəfˌɛst, ænd ɐ ɹᵻɹˈʌnəbᵊl mˈækɹO."
     }
   ]
 }

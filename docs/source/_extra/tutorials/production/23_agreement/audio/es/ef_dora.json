@@ -4,47 +4,107 @@
   "voice": "ef_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 57.0,
+  "total_duration": 156.05,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.7,
-      "scene_end": 9.149999999999999,
-      "duration": 9.149999999999999,
-      "text": "Este tutorial abarca el Acuerdo de Anotador. Medir el acuerdo entre las columnas de anotación y revisar los objetos responsables del desacuerdo."
+      "speech_end": 16.9,
+      "scene_end": 17.45,
+      "duration": 17.45,
+      "text": "El acuerdo de anotador compara dos o más columnas categoricas sin cambiar la base de datos. Utilice para dos revisores, pasajes de anotación repetidos, o una verificación revisor-versus-modelo, luego inspeccione tanto las estadísticas resumidas como los cultivos exactos que no coinciden.",
+      "speech_text": "El acuerdo de anotador compara dos o más columnas categoricas sin cambiar la base de datos. Utilice para dos revisores, pasajes de anotación repetidos, o una verificación revisor-versus-modelo, luego inspeccione tanto las estadísticas resumidas como los cultivos exactos que no coinciden.",
+      "phonemes": "el akwˈeɾðo ðe ˌanotaðˈoɾ kompˈaɾa ðˈos o mˈas kolˈumnas kˌateɣoɾˈikas sin kambjˈaɾ la βˈase ðe ðˈatos. ˌutilˈiθe pˌaɾa ðˈos rˌeβisˈoɾes, pasˈaxes ðe ˌanotaθjˈon rˌepetˈiðos, o ˈuna βˌeɾifˌikaθjˈon rˌeβisˈoɾβˈeɾsusmoðˈelo, luˈeɣo ˌinspekθjˈone tˈanto las ˌestaðˈistikas rˌesumˈiðas kˌomo los kultˈiβos eksˈaktos ke nˈo koɪnθˈiðen."
     },
     {
       "scene": 2,
-      "speech_start": 9.149999999999999,
-      "speech_end": 23.224999999999998,
-      "scene_end": 23.674999999999997,
-      "duration": 14.524999999999999,
-      "text": "Abra Annotator Agreement en la sección Results and quality control. Abre el Acuerdo de anotador en la sección Resultados y control de calidad. Elige una base de datos de proyectos y dos o más columnas de anotación que cubran los mismos objetos."
+      "speech_start": 17.45,
+      "speech_end": 29.9,
+      "scene_end": 30.4,
+      "duration": 12.95,
+      "text": "Seleccione una base de datos de mediciones, o su carpeta de ejecución. spaCR descubre columnas de anotaciones y predicciones adecuadas de la tabla de lista PNG y deja las etiquetas de origen solo para lectura.",
+      "speech_text": "Seleccione una base de datos de mediciones, o su carpeta de ejecución. espáquer descubre columnas de anotaciones y predicciones adecuadas de la tabla de lista PNG y deja las etiquetas de origen solo para lectura.",
+      "phonemes": "sˌelekθjˈone ˈuna βˈase ðe ðˈatos ðe mˌeðiθjˈones, o su kaɾpˈeta ðe ˌexekuθjˈon. espˈakeɾ ðeskˈuβɾe kolˈumnas ðe ˌanotaθjˈones i pɾˌeðikθjˈones ˌaðekwˈaðas ðe la tˈaβla ðe lˈista pˌeˌenexˈe i ðˈexa las ˌetikˈetas ðe oɾˈixen sˈolo pˌaɾa lektˈuɾa."
     },
     {
       "scene": 3,
-      "speech_start": 23.674999999999997,
-      "speech_end": 32.75,
-      "scene_end": 33.2,
-      "duration": 9.525000000000006,
-      "text": "En el área de configuración principal, seleccione el manejo de clases, la política de etiquetas faltantes, el agrupamiento, la muestreo y la estadística de acuerdo."
+      "speech_start": 30.4,
+      "speech_end": 44.599999999999994,
+      "scene_end": 45.14999999999999,
+      "duration": 14.749999999999993,
+      "text": "Seleccione al menos dos columnas. Aquí ER_Bulbs se compara con predicciones_1 en los mismos cultivos celulares. Las columnas seleccionadas adicionales permiten todas las comparaciones en pares y un resumen de Fleiss kappa multi-rater.",
+      "speech_text": "Seleccione al menos dos columnas. Aquí ER_Bulbs se compara con predicciones_1 en los mismos cultivos celulares. Las columnas seleccionadas adicionales permiten todas las comparaciones en pares y un resumen de Fleiss kappa multi-rater.",
+      "phonemes": "sˌelekθjˈone al mˈenos ðˈos kolˈumnas. akˈi ˌeˈɛre βˈulbs se kompˈaɾa kom pɾˌeðikθjˈones ˈuno en los mˈismos kultˈiβos θˌelulˈaɾes. las kolˈumnas sˌelekθjonˈaðas ˌaðiθjonˈales peɾmˈiten tˈoðas las kˌompaɾaθjˈones em pˈaɾes i ˈun resˈumen de flˈAss kˈappa mˈultiratˈeɾ."
     },
     {
       "scene": 4,
-      "speech_start": 33.2,
-      "speech_end": 47.2,
-      "scene_end": 47.650000000000006,
-      "duration": 14.450000000000003,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. inspeccione Cohen o Fleiss kappa junto con ejemplos de confusión y desacuerdo específicos de la clase."
+      "speech_start": 45.14999999999999,
+      "speech_end": 57.349999999999994,
+      "scene_end": 57.849999999999994,
+      "duration": 12.700000000000003,
+      "text": "Haga clic en Acuerdo de computación. Las etiquetas faltantes se tratan como abstenciones, no como desacuerdos; cada par solo se evalúa en filas donde ambas columnas seleccionadas contienen una categoría.",
+      "speech_text": "Haga clic en Acuerdo de computación. Las etiquetas faltantes se tratan como abstenciones, no como desacuerdos; cada par solo se evalúa en filas donde ambas columnas seleccionadas contienen una categoría.",
+      "phonemes": "ˈaɣa klˈik en akwˈeɾðo ðe kˌomputaθjˈon. las ˌetikˈetas faltˈantes se tɾˈatan kˌomo ˌaβstenθjˈones, nˈo kˌomo ðˌesakwˈeɾðos; kˈaða pˈaɾ sˈolo se ˌeβalˈua en fˈilas ðˌonde ˈambas kolˈumnas sˌelekθjonˈaðas kontjˈenen ˈuna kˌateɣoɾˈia."
     },
     {
       "scene": 5,
-      "speech_start": 47.650000000000006,
-      "speech_end": 56.35000000000001,
-      "scene_end": 57.00000000000001,
-      "duration": 9.350000000000001,
-      "text": "Cuando el flujo de trabajo termina, las tablas de acuerdo y una revisión enfocada establecen la compatibilidad de las etiquetas y la mejora del protocolo."
+      "speech_start": 57.849999999999994,
+      "speech_end": 68.875,
+      "scene_end": 69.325,
+      "duration": 11.475000000000009,
+      "text": "El cálculo alinea las etiquetas por cultivo, cuenta filas completas y abstenidas, construye cada matriz de confusión y encuentra desacuerdos que se pueden rastrear a sus imágenes de origen.",
+      "speech_text": "El cálculo alinea las etiquetas por cultivo, cuenta filas completas y abstenidas, construye cada matriz de confusión y encuentra desacuerdos que se pueden rastrear a sus imágenes de origen.",
+      "phonemes": "el kˈalkulo ˌalinˈea las ˌetikˈetas poɾ kultˈiβo, kwˈɛnta fˈilas komplˈetas i ˌaβstenˈiðas, konstɾˈuʝe kˈaða matɾˈiθ ðe kˌonfusjˈon i enkwˈɛntɾa ðˌesakwˈeɾðos ke se pwˈeðen rˌastɾeˈaɾ a sus imˈaxenes ðe oɾˈixen."
+    },
+    {
+      "scene": 6,
+      "speech_start": 69.325,
+      "speech_end": 89.375,
+      "scene_end": 90.225,
+      "duration": 20.89999999999999,
+      "text": "Este par real tiene mil trescientos cincuenta y nueve filas completas, ochenta mil seiscientos diez abstenciones, ocho desacuerdos y noventa y nueve puntos cuatro por ciento de acuerdo crudo. La kappa de Cohen no está definida aquí no cero porque ER_Bulbs utiliza sólo una clase en cada fila completa, haciendo que el denominador de acuerdo de azar degenere.",
+      "speech_text": "Este par real tiene mil trescientos cincuenta y nueve filas completas, ochenta mil seiscientos diez abstenciones, ocho desacuerdos y noventa y nueve puntos cuatro por ciento de acuerdo crudo. La kappa de Cohen no está definida aquí no cero porque ER_Bulbs utiliza sólo una clase en cada fila completa, haciendo que el denominador de acuerdo de azar degenere.",
+      "phonemes": "ˈeste pˈaɾ reˈal tjˈene mˈil tɾesθjˈɛntos θinkwˈɛnta i nwˈeβe fˈilas komplˈetas, oʧˈɛnta mˈil sAsθjˈɛntos ðjˈeθ ˌaβstenθjˈones, ˈoʧo ðˌesakwˈeɾðos i noβˈɛnta i nwˈeβe pˈuntos kwˈatɾo poɾ θjˈɛnto ðe akwˈeɾðo kɾˈuðo. la kˈappa ðe kˈoen nˈo estˈa ðˌefinˈiða akˈi nˈo θˈeɾo pˌoɾke ˌeˈɛre βˈulbs ˌutilˈiθa sˈolo ˈuna klˈase en kˈaða fˈila komplˈeta, aθjˈɛndo ke el ðˌenomˌinaðˈoɾ ðe akwˈeɾðo ðe aθˈaɾ ðˌexenˈeɾe."
+    },
+    {
+      "scene": 7,
+      "speech_start": 90.225,
+      "speech_end": 106.5,
+      "scene_end": 107.2,
+      "duration": 16.97500000000001,
+      "text": "La matriz de confusión expone directamente ese desequilibrio de clase: mil trescientos cincuenta y una filas son clase uno en ambas columnas, mientras que ocho filas son clase uno en ER_Bulbs y clase dos en predicciones_1. ER_Bulbs no aporta filas completas de clase dos.",
+      "speech_text": "La matriz de confusión expone directamente ese desequilibrio de clase: mil trescientos cincuenta y una filas son clase uno en ambas columnas, mientras que ocho filas son clase uno en ER_Bulbs y clase dos en predicciones_1. ER_Bulbs no aporta filas completas de clase dos.",
+      "phonemes": "la matɾˈiθ ðe kˌonfusjˈon ekspˈone ðiɾˈektamˈente ˈese ðˌesekilˈiβɾio ðe klˈase: mˈil tɾesθjˈɛntos θinkwˈɛnta i ˈuna fˈilas sˈon klˈase ˈuno en ˈambas kolˈumnas, mjˌentɾas ke ˈoʧo fˈilas sˈon klˈase ˈuno en ˌeˈɛre βˈulbs i klˈase ðˈos em pɾˌeðikθjˈones ˈuno. ˌeˈɛre βˈulbs nˈo apˈoɾta fˈilas komplˈetas ðe klˈase ðˈos."
+    },
+    {
+      "scene": 8,
+      "speech_start": 107.2,
+      "speech_end": 121.75,
+      "scene_end": 122.35,
+      "duration": 15.149999999999991,
+      "text": "La tabla de desacuerdos enumera esos ocho cultivos reales y ambas etiquetas. Cambia el límite de revisión para comparaciones más grandes, seleccione cualquier fila y use la vista previa en lugar de decidir solo a partir de una puntuación agregada.",
+      "speech_text": "La tabla de desacuerdos enumera esos ocho cultivos reales y ambas etiquetas. Cambia el límite de revisión para comparaciones más grandes, seleccione cualquier fila y use la vista previa en lugar de decidir solo a partir de una puntuación agregada.",
+      "phonemes": "la tˈaβla ðe ðˌesakwˈeɾðos ˌenumˈeɾa ˈesos ˈoʧo kultˈiβos reˈales i ˈambas ˌetikˈetas. kˈambja el lˈimite ðe rˌeβisjˈom pˌaɾa kˌompaɾaθjˈones mˈas ɣɾˈandes, sˌelekθjˈone kwalkjˈeɾ fˈila i ˈuse la βˈista pɾˈeβja en luɣˈaɾ ðe ðˌeθiðˈiɾ sˈolo a paɾtˈiɾ ðe ˈuna pˌuntwaθjˈon ˌaɣɾeɣˈaða."
+    },
+    {
+      "scene": 9,
+      "speech_start": 122.35,
+      "speech_end": 138.5,
+      "scene_end": 139.15,
+      "duration": 16.80000000000001,
+      "text": "La selección de un desacuerdo resuelve la trayectoria de cultivo almacenada y muestra la imagen microscópica junto a sus dos valores categóricos. Revise la morfología y el contexto de la señal antes de elegir si una etiqueta, umbral o definición de clase necesita corrección.",
+      "speech_text": "La selección de un desacuerdo resuelve la trayectoria de cultivo almacenada y muestra la imagen microscópica junto a sus dos valores categóricos. Revise la morfología y el contexto de la señal antes de elegir si una etiqueta, umbral o definición de clase necesita corrección.",
+      "phonemes": "la sˌelekθjˈon de ˈun dˌesakwˈeɾðo reswˈelβe la tɾˌaʝektˈoɾja ðe kultˈiβo ˌalmaθenˈaða i mwˈestɾa la imˈaxen mˌikɾoskˈopika xˈunto a sus ðˈos βalˈoɾes kˌateɣˈoɾikos. reβˈise la mˌoɾfoloxˈia i el kontˈeksto ðe la seɲˈal ˈantes ðe ˌelexˈiɾ si ˈuna ˌetikˈeta, umbɾˈal o ðˌefiniθjˈon de klˈase nˌeθesˈita kˌorekθjˈon."
+    },
+    {
+      "scene": 10,
+      "speech_start": 139.15,
+      "speech_end": 155.3,
+      "scene_end": 156.05,
+      "duration": 16.900000000000006,
+      "text": "Pasa por las filas de desacuerdos para decidir sistemáticamente. Informar el acuerdo bruto, el equilibrio de clases, las abstenciones, la matriz de confusión y la kappa juntos; aquí la kappa indefinida es una advertencia útil sobre la prevalencia, no un fracaso de la comparación.",
+      "speech_text": "Pasa por las filas de desacuerdos para decidir sistemáticamente. Informar el acuerdo bruto, el equilibrio de clases, las abstenciones, la matriz de confusión y la kappa juntos; aquí la kappa indefinida es una advertencia útil sobre la prevalencia, no un fracaso de la comparación.",
+      "phonemes": "pˈasa poɾ las fˈilas ðe ðˌesakwˈeɾðos pˌaɾa ðˌeθiðˈiɾ sˌistemˈatikamˈente. ˌinfoɾmˈaɾ el akwˈeɾðo βɾˈuto, el ˌekilˈiβɾio ðe klˈases, las ˌaβstenθjˈones, la matɾˈiθ ðe kˌonfusjˈon i la kˈappa xˈuntos; akˈi la kˈappa ˌindefinˈiða ˈes ˈuna ˌaðβeɾtˈɛnθja ˈutil sˌoβɾe la pɾˌeβalˈɛnθja, nˈo ˈum fɾakˈaso ðe la kˌompaɾaθjˈon."
     }
   ]
 }

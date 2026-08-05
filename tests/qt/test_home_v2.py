@@ -17,10 +17,12 @@ Three separate contracts live here, in this order:
 """
 from __future__ import annotations
 
+
+
 import hashlib
+import json
 import os
 import threading
-import time
 
 import pytest
 
@@ -31,10 +33,49 @@ from PySide6.QtWidgets import QLabel, QPushButton
 from spacr.qt import bridge, iconset
 from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
                           make_home_page, section_members)
-from spacr.qt.widgets.drawer import EdgeDrawer
 from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
 
-BACKUP_DIR = os.path.join(iconset.RESOURCE_DIR, "backup_icons")
+@pytest.fixture(autouse=True)
+def _pinned_zoom():
+    """Measure geometry at 1.0, whatever the user's zoom default is.
+
+    These tests build widgets at EXPLICIT pixel sizes — `name_px=12`,
+    `icon_px=32`, `width=192` from a recorded table — and then ask whether the
+    text fits. The zoom preference scales the stylesheet's fonts on top of
+    that, so at the 150% default the label renders half again larger inside a
+    box the test pinned at its unscaled size, and "elides" for a reason that
+    has nothing to do with the geometry under test.
+
+    Verified that the product is fine: a real HomePage at 150% has zero elided
+    labels, because its tile widths go through `scaled_px` and move with the
+    font. The doubling is an artefact of the harness, not a layout bug.
+    """
+    from spacr.qt import preferences as prefs
+
+    original = prefs.get_font_scale()
+    prefs.set_font_scale(1.0)
+    try:
+        yield
+    finally:
+        prefs.set_font_scale(original)
+
+
+#: `backup_icons/` held every candidate that was drawn and is gone: 931 PNGs,
+#: 55 MB, and `MANIFEST.in`'s `recursive-include spacr/resources/icons *` put
+#: all of it in the sdist. Every candidate is still in git history.
+#:
+#: What the folder made checkable was "the installed icon is still the one
+#: that was chosen", and that property is worth keeping, so it moved into
+#: `chosen_icons.json`: one row per installed icon, its sha256, and the
+#: candidate it came from. The digest catches the drift the old comparison
+#: caught -- artwork replaced or regenerated without anyone deciding to --
+#: without shipping the originals to every user to do it.
+ICON_MANIFEST = os.path.join(iconset.RESOURCE_DIR, "chosen_icons.json")
+
+
+def _manifest():
+    with open(ICON_MANIFEST, encoding="utf-8") as fh:
+        return json.load(fh)
 
 #: The seventeen the user picked, canonical name -> chosen candidate.
 CHOSEN = {
@@ -121,7 +162,6 @@ def _empty_journal(tmp_path, monkeypatch):
 
 @pytest.fixture
 def home(qtbot, qt_theme_applied, _empty_journal):
-    from spacr.qt.app import _icon_for_app
     page = make_home_page()  # the page MainWindow ships
     qtbot.addWidget(page)
     page.resize(1200, 860)
@@ -136,12 +176,35 @@ def home(qtbot, qt_theme_applied, _empty_journal):
 
 @pytest.mark.parametrize("name,candidate", sorted(CHOSEN.items()))
 def test_the_chosen_icon_is_the_one_installed(name, candidate):
+    """The installed artwork is still the byte-for-byte chosen candidate.
+
+    Compared against the digest recorded when it was installed rather than
+    against the candidate file, which no longer ships. A regenerated
+    generator that quietly changes a shipped icon fails here, which is what
+    this test was always for.
+    """
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
-    source = os.path.join(BACKUP_DIR, name, candidate)
     assert os.path.isfile(installed), f"{name}.png is missing"
-    assert os.path.isfile(source), f"{candidate} vanished from backup_icons"
-    assert _digest(installed) == _digest(source), (
-        f"{name}.png is not {candidate} — the chosen artwork was replaced")
+    row = _manifest().get(name)
+    assert row, f"{name} has no row in chosen_icons.json"
+    assert row["candidate"] == f"{name}/{candidate}", (
+        f"chosen_icons.json says {name} came from {row['candidate']}, "
+        f"this test says {name}/{candidate} — one of them is out of date")
+    assert _digest(installed) == row["sha256"], (
+        f"{name}.png is no longer {candidate} — the chosen artwork changed")
+
+
+def test_every_installed_icon_is_in_the_manifest():
+    """No icon ships without its provenance recorded.
+
+    The manifest is the only remaining record of which candidate a shipped
+    icon came from, so an icon added without a row silently loses that.
+    """
+    installed = {p[:-4] for p in os.listdir(iconset.RESOURCE_DIR)
+                 if p.endswith(".png")}
+    missing = sorted(installed - set(_manifest()))
+    assert not missing, (
+        f"installed with no row in chosen_icons.json: {missing}")
 
 
 @pytest.mark.parametrize("name,family,candidate",
@@ -157,11 +220,14 @@ def test_a_cross_family_pick_is_installed_under_its_own_name(
     explaining that ``convert.png`` belonged to somebody else. An app
     with its own picture should have its own file."""
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
-    source = os.path.join(BACKUP_DIR, family, candidate)
-    assert os.path.isfile(source), f"{family}/{candidate} vanished"
     assert os.path.isfile(installed), f"{name}.png is missing"
-    assert _digest(installed) == _digest(source), (
-        f"{name}.png is not {family}/{candidate}")
+    row = _manifest().get(name)
+    assert row, f"{name} has no row in chosen_icons.json"
+    assert row["candidate"] == f"{family}/{candidate}", (
+        f"chosen_icons.json says {name} came from {row['candidate']}, "
+        f"this test says {family}/{candidate}")
+    assert _digest(installed) == row["sha256"], (
+        f"{name}.png is no longer {family}/{candidate}")
 
     from spacr.qt.app import _FORCE_GLYPH, _ICON_OVERRIDES
     assert name not in _ICON_OVERRIDES, (
@@ -180,6 +246,40 @@ def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
     assert _FORCE_GLYPH == set()
 
 
+#: The four apps that draw another app's artwork on purpose, each with a
+#: reason written next to its ``_ICON_OVERRIDES`` entry.
+DELIBERATE_SHARED_ARTWORK = {
+    frozenset({"Mask", "Model Compare"}),
+    frozenset({"Annotate", "Annotator Agreement"}),
+    frozenset({"Map Barcodes", "Plate Viewer"}),
+    frozenset({"Cellpose Masks", "Train Cellpose"}),
+}
+
+def apps_without_artwork():
+    """Display names of every app with no icon file and no override.
+
+    Derived from the resource directory rather than typed out. These
+    apps fall back to a generated placeholder, so ANY subset of them can
+    come out pixel-identical — which subset depends on what has re-inked
+    the icon cache before this test runs, so a pinned grouping here
+    would be a pinned test order.
+
+    It is an allowance, not an approval: drawing an icon is part of
+    signing an app off, and an app that gains one leaves this set on its
+    own. External Masks sat in it alone since it shipped, invisible to
+    this test until three more apps landed beside it — which is exactly
+    what a "no two apps by ACCIDENT" test is for.
+    """
+    import os
+    from spacr.qt import iconset
+    from spacr.qt.app import _ICON_OVERRIDES
+
+    return {name for key, name, *_rest in APPS
+            if key not in _ICON_OVERRIDES
+            and not os.path.isfile(
+                os.path.join(iconset.RESOURCE_DIR, f"{key}.png"))}
+
+
 def test_no_two_apps_render_the_same_picture_by_accident(qapp):
     """Every duplicate is a deliberate, documented borrowing.
 
@@ -196,35 +296,44 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
         blob = bytes(icon.pixmap(48, 48).toImage().constBits())
         by_pixels.setdefault(blob, []).append(name)
     shared = {frozenset(v) for v in by_pixels.values() if len(v) > 1}
-    assert shared == {
-        frozenset({"Mask", "Model Compare"}),
-        frozenset({"Annotate", "Annotator Agreement"}),
-        frozenset({"Map Barcodes", "Plate Viewer"}),
-        frozenset({"Cellpose Masks", "Train Cellpose"}),
-    }, f"unexpected identical artwork: {shared}"
+    assert DELIBERATE_SHARED_ARTWORK <= shared, (
+        f"a documented borrowing stopped happening: "
+        f"{DELIBERATE_SHARED_ARTWORK - shared}")
+    # Every app now has its own artwork, so the allowance below covers
+    # nothing: `placeholders` is empty and any undocumented sharing fails.
+    # Kept rather than deleted because a new app registered before its icon
+    # is drawn lands on the placeholder again, and that should not fail this
+    # test the day it is added.
+    placeholders = apps_without_artwork()
+    for group in shared - DELIBERATE_SHARED_ARTWORK:
+        assert group <= placeholders, (
+            f"{sorted(group)} draw the same picture and nothing says why. "
+            f"Either give one of them its own icon, or record the "
+            f"borrowing in _ICON_OVERRIDES and here.")
 
 
 @pytest.mark.parametrize("name", KEPT)
 def test_an_icon_nobody_asked_to_change_was_not_changed(name):
     """"If a module icon is not mentioned, I like its current icon."
 
-    Asserted as: the shipped file is none of the candidates that were
-    drawn for it. That is a stronger claim than a hash of the current
-    bytes, and it does not have to be updated when the artwork is
-    legitimately revised later.
+    This used to assert the shipped file was none of the candidates drawn
+    for it, which survived a legitimate revision without needing an edit.
+    The candidates are gone, so it is now asserted as: the row carries no
+    provenance, meaning no candidate was ever adopted, and the bytes still
+    match. That is the weaker form -- a deliberate redraw of one of these
+    six has to update `chosen_icons.json` -- but it still catches the thing
+    that actually goes wrong, which is one of them being replaced by a
+    candidate meant for a different module.
     """
     installed = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
     assert os.path.isfile(installed)
-    folder = os.path.join(BACKUP_DIR, name)
-    if not os.path.isdir(folder):
-        pytest.skip(f"no candidate set was generated for {name}")
-    shipped = _digest(installed)
-    matches = [f for f in sorted(os.listdir(folder))
-               if f.lower().endswith(".png") and not f.startswith("_")
-               and _digest(os.path.join(folder, f)) == shipped]
-    assert not matches, (
-        f"{name}.png was swapped for {matches} — it was left off the "
-        "list on purpose")
+    row = _manifest().get(name)
+    assert row, f"{name} has no row in chosen_icons.json"
+    assert row["candidate"] is None, (
+        f"{name}.png was swapped for {row['candidate']} — it was left off "
+        "the list on purpose")
+    assert _digest(installed) == row["sha256"], (
+        f"{name}.png changed — it was left off the list on purpose")
 
 
 def test_cellpose_all_and_cellpose_masks_are_no_longer_the_same_file():
@@ -418,9 +527,7 @@ def test_invasion_and_replication_are_not_the_same_picture(qapp):
 # ---------------------------------------------------------------------------
 
 def test_the_replication_assay_is_a_first_class_module():
-    """``spacr.submodules.analyze_endodyogeny`` existed with no way to
-    reach it: no APPS row, no title, no intro, no dispatch, no settings.
-    Every one of those is asserted here.
+    """The parasites-per-vacuole assay has complete GUI wiring.
 
     It briefly asserted ``row[3] == SECTION_BETA`` while #16i had staging
     as a section. #16j put every app back under what it is *about* and
@@ -442,10 +549,11 @@ def test_the_replication_assay_is_a_first_class_module():
     entry = bridge.resolve_pipeline_entry("replication")
     assert entry is not None
     inner = getattr(entry, "__wrapped__", entry)
-    assert getattr(inner, "__name__", "") == "analyze_endodyogeny"
+    assert getattr(inner, "__name__", "") == "analyze_replication"
 
     settings = resolve_default_settings("replication")
     assert isinstance(settings, dict) and "src" in settings
+    assert settings["vacuole_key"] == "auto"
 
 
 def test_the_replication_screen_opens(qtbot, qt_theme_applied,
@@ -467,7 +575,11 @@ def test_the_replication_screen_opens(qtbot, qt_theme_applied,
 def test_the_categories_are_the_ones_that_were_asked_for():
     """The section vocabulary, recorded so a rename is deliberate.
 
-    Five names and six tabs counting Home.
+    Six names and seven tabs counting Home. Explore is the sixth: it was
+    declared in ``SECTION_ORDER`` and empty — no tab, nothing drawn —
+    until Layer Viewer and Graph Builder registered into it from their
+    own modules, which is exactly what a declared-and-empty section is
+    for. Design is still declared and still empty.
 
     It briefly asserted seven and eight. #16i added "Alpha modules" and
     "Beta modules" as CATEGORIES, which took every app out of Data,
@@ -481,16 +593,23 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert app_mod.SECTION_DATA == "Data"
     assert app_mod.SECTION_MODELS == "Segmentation models"
     assert app_mod.SECTION_RESULTS == "Results & QC"
+    assert app_mod.SECTION_EXPLORE == "Explore"
     assert app_mod.SECTION_TOXO == "Toxoplasma"
+    assert app_mod.SECTION_DESIGN == "Design"
     assert app_mod.SECTIONS == (
-        "Core", "Data", "Segmentation models", "Results & QC", "Toxoplasma")
+        "Core", "Data", "Segmentation models", "Results & QC", "Explore",
+        "Toxoplasma", "Design")
+    # Design draws a tab now: Power / Design claimed it, which is the last
+    # of the seven declared sections to be claimed. It was the example of
+    # a declared-but-empty section for as long as it was empty.
+    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
     # The staging categories are gone as *places*. Named here so that
     # re-adding one has to argue with this line first.
     assert not hasattr(app_mod, "SECTION_ALPHA")
     assert not hasattr(app_mod, "SECTION_BETA")
     assert not hasattr(app_mod, "MATURITY_SECTIONS")
     assert not hasattr(app_mod, "STAGED_FROM")
-    assert len(app_mod.SECTIONS) + 1 == 6
+    assert len(app_mod.SECTIONS) == 7
 
 
 def test_every_app_has_a_stage_and_it_is_written_down_once():
@@ -528,13 +647,16 @@ def test_home_is_the_first_tab_and_holds_everything(home):
 
 
 def test_the_category_tabs_follow_the_workflow_order(home):
-    """Six tabs, and the count in each label is the tab's own size.
+    """One tab per live section, and each label counts its own tab.
 
-    Was seven while Alpha and Beta had tabs of their own. ``section_members``
-    is what the tab draws, so it is what the label has to count.
+    Seven now that Design has an app in it; it was six when Explore
+    filled, five before that, and seven for a different reason while
+    Alpha and Beta had tabs of their own — every section declared has
+    now been claimed. ``section_members`` is what the tab draws, so it
+    is what the label has to count.
     """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS) == 5
+    assert len(labels) == len(SECTIONS) == 7
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
@@ -633,9 +755,39 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
 ALPHA_MODULES = {
-    "align", "model_zoo", "convert", "foreign", "model_compare", "queue",
-    "batch", "invasion", "db_browser", "plate_view", "agreement",
-    "train_compare", "report",
+    "align", "model_zoo", "convert", "foreign", "external_masks",
+    "model_compare", "queue", "batch", "invasion", "db_browser",
+    "distributed_jobs",
+    "plate_view", "agreement", "train_compare", "classifier_evaluation",
+    "run_history", "report",
+    # The four features that spent weeks finished, tested and unreachable
+    # because a registry row was not enough to make an app. They arrive
+    # alpha: built and reachable, not yet trusted end to end.
+    "illumination", "barcode_qc", "layer_viewer", "graph_builder",
+    "data_manager",
+    # And the three that landed just after the seam that would have made
+    # them reachable, and waited the same way for the same reason.
+    "power", "anndata_export", "run_compare",
+    # The five built on the provenance and run-record work: the DAG of
+    # what produced what, the ranked hit list, the profiler that sweeps a
+    # fitted model, the methods-and-results exporter, and the scatter that
+    # shows you the object under the cursor. Same posture as the rest —
+    # built, tested and reachable, not yet trusted end to end.
+    "pipeline_graph", "hit_list", "profiler", "methods_export",
+    "image_scatter",
+    # And the two that read the links the database has always held rather
+    # than adding anything to it: the cell → nucleus → pathogen tree, and
+    # correcting a mask and its tracks by hand with every edit journalled.
+    # Same posture again — reachable, tested, not yet trusted end to end.
+    "lineage", "curate",
+    # And the two that claim the ends of the run nothing owned: the plate
+    # layout and controls decided before an image exists, and the five QC
+    # verdicts read back off a finished one.
+    "experiment_design", "qc_dashboard",
+    # And the two that were written, tested and left unregistered: the
+    # component view and the pivot-table builder. Registering them is what
+    # made them alpha; they were not reachable at all before.
+    "pca", "tabulate",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -644,7 +796,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """13 alpha, 9 beta, named one at a time.
+    """36 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot."""
@@ -654,7 +806,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 13 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 36 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
@@ -721,7 +873,12 @@ def test_every_tab_uses_the_same_large_tile(home):
     from spacr.qt.preferences import scaled_px
     assert home._tabs.tabText(1).startswith("Core")
     core = home._tabs.widget(1).findChildren(AppTile)
-    assert len(core) == len(section_members("Core")) == 9
+    # Ten since Curate joined the pipeline; it was nine for as long as Core
+    # was exactly the run. The number is spelled out rather than derived
+    # twice so that an app arriving in Core is a line changed here, but the
+    # property being tested is the equality on its left: the tab draws its
+    # members and nothing else.
+    assert len(core) == len(section_members("Core")) == 10
     for index in range(home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
@@ -761,15 +918,16 @@ def test_no_tile_name_is_clipped_on_any_tab(home, qtbot, qapp):
 def test_the_aside_carries_recent_runs_system_and_news(home):
     headers = {lbl.text() for lbl in home.findChildren(QLabel)
                if lbl.objectName() == "HomePanelHeader"}
-    assert "RECENT RUNS (beta)" in headers
+    assert "RECENT RUNS" in headers
     assert "SYSTEM" in headers
     assert any(h.startswith("NEWS") for h in headers)
 
 
 def test_the_unfinished_aside_panels_say_so(home):
-    """Recent runs, News and Totals are marked ``(beta)``; the two that
-    read live state (Queued, System) are not — a mark on everything is a
-    mark on nothing.
+    """Only provisional News is marked ``(beta)``.
+
+    Recent Runs and Totals became complete when every GUI and CLI pipeline
+    began writing an automatic manifest.
 
     Lower case on purpose: the header is upper-cased and letter-spaced,
     so "(BETA)" would read as another word in the heading."""
@@ -783,11 +941,13 @@ def test_the_unfinished_aside_panels_say_so(home):
     assert BETA_SUFFIX == " (beta)" and BETA_SUFFIX.islower()
 
     assert {h.replace(BETA_SUFFIX, "").split(" ·")[0] for h in marked} == {
-        "RECENT RUNS", "NEWS", "TOTALS"}
+        "NEWS"}
     # MODULE STATE joined the unmarked set with #16j. It is not a panel
     # of numbers at all — it is the legend for the tile hover colours —
     # so there is nothing about it that could be provisional.
-    assert set(plain) == {"QUEUED", "SYSTEM", "MODULE STATE"}
+    assert set(plain) == {
+        "QUEUED", "SYSTEM", "RECENT RUNS", "TOTALS", "MODULE STATE",
+    }
     # The mark explains itself rather than just labelling.
     for panel in marked.values():
         assert panel.header.toolTip() == BETA_PANEL_TOOLTIP

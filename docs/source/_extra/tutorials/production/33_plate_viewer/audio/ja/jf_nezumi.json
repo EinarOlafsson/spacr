@@ -4,47 +4,147 @@
   "voice": "jf_nezumi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 69.675,
+  "total_duration": 375.08,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 14.0,
-      "scene_end": 14.45,
-      "duration": 14.45,
-      "text": "このチュートリアルではプレートビューアをカバーします.プレート熱地図としてあらゆる測定を調査し,空間的な文物やエッジ効果を特定します."
+      "speech_end": 26.075,
+      "scene_end": 26.794999999999998,
+      "duration": 26.794999999999998,
+      "text": "プレートビューアーはあらゆる物体の測定を 井戸熱地図に変換し 端効果診断を その隣に置きます. 結果と品質管理から開きます. ワークフローは構造的に読み込みのみです:spaCRは測定データベースをクエリのみモードで開き,オプションの出口された CSVのみを書き込みます.",
+      "speech_text": "プレートビューアーはあらゆる物体の測定を 井戸熱地図に変換し 端効果診断を その隣に置きます. 結果と品質管理から開きます. ワークフローは構造的に読み込みのみです:スペーカーは測定データベースをクエリのみモードで開き,オプションの出口された CSVのみを書き込みます.",
+      "phonemes": "pɯɾeːto bʲɨːaː βa aɾajɯɾɯ bɯʔtai no sokɯteː o ido neʦɨ ʨizɨ ɲi heŋkaɴ ɕi taɴ koːka ɕindaɴ o sono tonaɾʲi ɲi okʲimasɨ. keʔka to çiɴɕiʦɨ kanɾʲi kaɾa çiɾakʲimasɨ. βaːkɯ ɸɯɾoː βa koːʣoː tekʲi ɲi jomʲikomʲi nomʲi desɨ: sɨpe kaː βa sokɯteː deːtabeːsɨ o kɯeɾʲi nomʲi moːdo de çiɾakʲi, opɯɕoɴ no deɡɯʨi saɾeta CSV nomʲi o kakʲikomʲimasɨ."
     },
     {
       "scene": 2,
-      "speech_start": 14.45,
-      "speech_end": 27.575,
-      "scene_end": 28.025,
-      "duration": 13.575,
-      "text": "Results and quality control セクションから Plate Viewer を開きます。 プレート,井戸,状態識別子を含む測定データベースを開きます."
+      "speech_start": 26.794999999999998,
+      "speech_end": 55.42,
+      "scene_end": 56.160000000000004,
+      "duration": 29.365000000000006,
+      "text": "測定データベースまたは実行フォルダを落とすか,ここからどちらかを選択します. これは196の井戸に 81,969個の 測定された細胞を含んでいる 転送された実験の実際のデータベースです Plate Viewer は,選択した表示のために必要な表名と識別子と測定列のみを読み取ります.",
+      "speech_text": "測定データベースまたは実行フォルダを落とすか,ここからどちらかを選択します. これは196の井戸に 81,969個の 測定された細胞を含んでいる 転送された実験の実際のデータベースです Plate Viewer は,選択した表示のために必要な表名と識別子と測定列のみを読み取ります.",
+      "phonemes": "sokɯteː deːtabeːsɨ mata βa ʥiʔkoː ɸoɾɯda o otosɨ ka, koko kaɾa doʨiɾa ka o sentakɯ ɕi masɨ. koɾe βa çakɯ kʲɨːʥɨː ɾokɯ no ido ɲi haʨiʥɨː iʨi, kʲɨːçakɯ ɾokɯʥɨː kʲɨː ko no sokɯteː saɾeta saiboː o ɸɯkɯnde iɾɯ teɴsoː saɾeta ʥiʔkeɴ no ʥiʔsai no deːtabeːsɨ desɨ Plate Viewer βa, sentakɯ ɕita çoːʥi no tame ɲi çiʦɨjoː na omotena to ɕikʲibeʦɨ ɕi to sokɯteː ɾeʦɨ nomʲi o jomʲitoɾʲi masɨ."
     },
     {
       "scene": 3,
-      "speech_start": 28.025,
-      "speech_end": 39.125,
-      "scene_end": 39.575,
-      "duration": 11.550000000000004,
-      "text": "主な構成領域では,測定,集積,正常化,色スケール,制御,プレートレイアウトを選択します."
+      "speech_start": 56.160000000000004,
+      "speech_end": 81.91,
+      "scene_end": 82.57,
+      "duration": 26.40999999999999,
+      "text": "セル表と数値特性を選択してください. 経路1の平均強さを選択します 経路1の平均強さを選択します 経路1の平均強さを選択します 最初のレンダリング後,プレートセレクターはデータから埋め込まれ,このデータベースにはプレート1が含まれます.",
+      "speech_text": "セル表と数値特性を選択してください. 経路1の平均強さを選択します 経路1の平均強さを選択します 経路1の平均強さを選択します 最初のレンダリング後,プレートセレクターはデータから埋め込まれ,このデータベースにはプレート1が含まれます.",
+      "phonemes": "seɾɯ çoː to sɨːʨi tokɯseː o sentakɯ ɕite kɯdasai. keːɾo iʨi no heːkʲiɴ ʦɨjo sao sentakɯ ɕi masɨ keːɾo iʨi no heːkʲiɴ ʦɨjo sao sentakɯ ɕi masɨ keːɾo iʨi no heːkʲiɴ ʦɨjo sao sentakɯ ɕi masɨ saiɕo no ɾendaɾʲiŋɡɯ ɡo, pɯɾeːto seɾekɯtaː βa deːta kaɾa ɯmekoma ɾe, kono deːtabeːsɨ ɲi βa pɯɾeːto iʨi ɡa ɸɯkɯma ɾe masɨ."
     },
     {
       "scene": 4,
-      "speech_start": 39.575,
-      "speech_end": 59.1,
-      "scene_end": 59.550000000000004,
-      "duration": 19.975,
-      "text": "完全実行前に,可視設定をレビューし,可用である場合のプレビューまたはテストモードを使用します. 原料と正常化されたビューを比較し,疑わしい井戸または体系的な辺パターンを検査します."
+      "speech_start": 82.57,
+      "speech_end": 110.99499999999999,
+      "scene_end": 111.73499999999999,
+      "duration": 29.164999999999992,
+      "text": "1つの値に物体が崩壊する方法を制御する. 平均と中値は選択した特性を概要する一方,カウントはオブジェクト番号をグラフします. 濃厚な2~98%のカラースケールは 極端の井戸が他の井戸を平ら化するのを防ぐし,井戸あたり最小のオブジェクトは ゼロではなく空っぽの井戸をマークする.",
+      "speech_text": "1つの値に物体が崩壊する方法を制御する. 平均と中値は選択した特性を概要する一方,カウントはオブジェクト番号をグラフします. 濃厚な2~98%のカラースケールは 極端の井戸が他の井戸を平ら化するのを防ぐし,井戸あたり最小のオブジェクトは ゼロではなく空っぽの井戸をマークする.",
+      "phonemes": "i ʨiʦɨ no atai ɲi bɯʔtai ɡa hoːkai sɨɾɯ hoːhoː o seːɡʲo sɨɾɯ. heːkʲiɴ to nakane βa sentakɯ ɕita tokɯseː o ɡaijoː sɨɾɯ iʔpoː, kaɯnto βa obɯʥekɯto baŋɡoː o ɡɯɾaɸɯ ɕi masɨ. noːkoː na ɲi ~ kʲɨːʥɨː haʨi % no kaɾaː sɨkeːɾɯ βa kʲokɯtaɴ no ido ɡa ta no ido o taiɾa ka sɨɾɯ no o ɸɯseɡɯ ɕi, ido ataɾʲi saiɕoː no obɯʥekɯto βa ʣeɾo de βa nakɯ kaɾaʔpo no ido o maːkɯ sɨɾɯ."
     },
     {
       "scene": 5,
-      "speech_start": 59.550000000000004,
-      "speech_end": 69.025,
-      "scene_end": 69.67500000000001,
-      "duration": 10.125000000000007,
-      "text": "作業流が完了すると,熱地図,選択された井戸表,エッジ効果診断が輸出される."
+      "speech_start": 111.73499999999999,
+      "speech_end": 136.05999999999997,
+      "scene_end": 136.71999999999997,
+      "duration": 24.984999999999985,
+      "text": "\"Render with Mean\"をクリックすると, 安定したスケールで,少なくとも 100 個のセルが表示されます. データベースクエリはキャッシュされますので,後で agregation, color scale, plate, or minimum countに変更すると,全機能表を再読みせずに表示を再計算します.",
+      "speech_text": "\"Render with Mean\"をクリックすると, 安定したスケールで,少なくとも 100 個のセルが表示されます. データベースクエリはキャッシュされますので,後で agregation, color scale, plate, or minimum countに変更すると,全機能表を再読みせずに表示を再計算します.",
+      "phonemes": "\" Render with Mean \" o kɯɾʲiʔkɯ sɨɾɯ to, anteː ɕita sɨkeːɾɯ de, sɨkɯnakɯtomo çakɯ ko no seɾɯ ɡa çoːʥi saɾemasɨ. deːtabeːsɨ kɯeɾʲi βa kʲaʔɕɨ saɾemasɨ no de, ato de agregation, color scale, plate, or minimum count ɲi heŋkoː sɨɾɯ to, ʣeɴ kʲinoː çoː o saidokɯ mʲisezɨ ɲi çoːʥi o sai keːsaɴ ɕi masɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 136.71999999999997,
+      "speech_end": 166.81999999999996,
+      "scene_end": 167.61999999999998,
+      "duration": 30.900000000000006,
+      "text": "計測された196つの井戸は全て生き残った. 平均 ER 強度は外環効果を示さないが,実際の報告ではスペアマン rho 0.454 の単調な行梯度が検出されています. リングプロフィールと行列と柱の診断は この空間的傾向を 生物学として仮装する代わりに 熱地図の横に 見えるようにしています",
+      "speech_text": "計測された196つの井戸は全て生き残った. 平均 ER 強度は外環効果を示さないが,実際の報告ではスペアマン rho 0.454 の単調な行梯度が検出されています. リングプロフィールと行列と柱の診断は この空間的傾向を 生物学として仮装する代わりに 熱地図の横に 見えるようにしています",
+      "phonemes": "keːsokɯ saɾeta çakɯ kʲɨːʥɨː ɾokɯ ʦɨ no ido βa sɨbete ikʲinokoʔta. heːkʲiɴ ER kʲoːdo βa ɡaikaɴ koːka o ɕimesanai ɡa, ʥiʔsai no hoːkokɯ de βa sɨpea maɴ rho ʣeɾo. joɴçakɯ ɡoʥɨː joɴ no taɲʨoː naɡʲoː teː do ɡa keɴɕɨʦɨ saɾete imasɨ. ɾʲiŋɡɯ pɯɾoɸʲiːɾɯ to ɡʲoːɾeʦɨ to haɕiɾa no ɕindaɴ βa kono kɯːkaɴ tekʲi keːkoː o seːbɯʦɨɡakɯ toɕi te kasoː sɨɾɯ kaβaɾʲi ɲi neʦɨ ʨizɨ no joko ɲi mʲieɾɯ joː ɲi ɕite imasɨ"
+    },
+    {
+      "scene": 7,
+      "speech_start": 167.61999999999998,
+      "speech_end": 193.94499999999996,
+      "scene_end": 194.62499999999997,
+      "duration": 27.004999999999995,
+      "text": "その正確な識別子,オブジェクト数,総値,リング位置を確認するには,任意の井戸をクリックしてください. G07はインテリアの井戸です この直接マッピングは,他の場所での畑や作物を開く前に,明らかなヒットが空間パターンに属するかどうかを決定するのに有用です.",
+      "speech_text": "その正確な識別子,オブジェクト数,総値,リング位置を確認するには,任意の井戸をクリックしてください. G07はインテリアの井戸です この直接マッピングは,他の場所での畑や作物を開く前に,明らかなヒットが空間パターンに属するかどうかを決定するのに有用です.",
+      "phonemes": "sono seːkakɯ na ɕikʲibeʦɨ ɕi, obɯʥekɯto sɨː, soː ʨi, ɾʲiŋɡɯ iʨi o kakɯɲiɴ sɨɾɯ ɲi βa, ɲiɴi no ido o kɯɾʲiʔkɯ ɕite kɯdasai. G nana βa inteɾʲia no ido desɨ kono ʨokɯseʦɨ maʔpʲiŋɡɯ βa, ta no baɕo de no hatake ja sakɯmoʦɨ o çiɾakɯ mae ɲi, akʲiɾaka na çiʔto ɡa kɯːkaɴ pataːɴ ɲi ʣokɯsɨɾɯ ka doː ka o keʔteː sɨɾɯ no ɲi jɯːjoː desɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 194.62499999999997,
+      "speech_end": 216.37499999999997,
+      "scene_end": 217.01499999999996,
+      "duration": 22.389999999999986,
+      "text": "Per Well を Count に切り替える カウントは,保持された細胞数によって選択された強度値と色を無視し,毒性,分割損失,不均質な種植,または端に依存する成長に関する品質管理の最も速い見方である.",
+      "speech_text": "Per Well を Count に切り替える カウントは,保持された細胞数によって選択された強度値と色を無視し,毒性,分割損失,不均質な種植,または端に依存する成長に関する品質管理の最も速い見方である.",
+      "phonemes": "Per Well o Count ɲi kʲiɾʲikaeɾɯ kaɯnto βa, hoʥi saɾeta saiboː sɨː ɲi joʔte sentakɯ saɾeta kʲoːdo ʨi to iɾo o mɯɕi ɕi, dokɯseː, bɯŋkaʦɨ soɴɕiʦɨ, ɸɯ kʲiɴɕiʦɨ na ɕɨɕokɯ, mata βa haɕi ɲi iʣoɴ sɨɾɯ seːʨoː ɲi kaɴsɨɾɯ çiɴɕiʦɨ kanɾʲi no moʔtomo hajai mʲikata de aɾɯ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 217.01499999999996,
+      "speech_end": 243.41499999999996,
+      "scene_end": 244.23499999999996,
+      "duration": 27.22,
+      "text": "実際のカウントビューは外環効果を暴露します:端井は内側より14.3%多く細胞を含んでいます クリフのデルタは0.571,pは0.0003817です. 効果の方向と大きさを報告する代わりに 色のみから推測するように要求します",
+      "speech_text": "実際のカウントビューは外環効果を暴露します:端井は内側より14.3%多く細胞を含んでいます クリフのデルタは0.571,pは0.0003817です. 効果の方向と大きさを報告する代わりに 色のみから推測するように要求します",
+      "phonemes": "ʥiʔsai no kaɯnto bʲɨː βa ɡaikaɴ koːka o bakɯɾo ɕi masɨ: haɕi i βa ɯʨiɡaβa joɾʲi ʥɨːjoɴ. saɴ % oːkɯ saiboː o ɸɯkɯnde imasɨ kɯɾʲiɸɯ no deɾɯta βa ʣeɾo. ɡoçakɯ nanaʥɨː iʨi, p βa ʣeɾo. saɴʣeɴ haʔpʲakɯ ʥɨːnana desɨ. koːka no hoːkoː to oːkʲi sao hoːkokɯ sɨɾɯ kaβaɾʲi ɲi iɾo nomʲi kaɾa sɨisokɯ sɨɾɯ joː ɲi joːkʲɨː ɕi masɨ"
+    },
+    {
+      "scene": 10,
+      "speech_start": 244.23499999999996,
+      "speech_end": 265.73499999999996,
+      "scene_end": 266.35499999999996,
+      "duration": 22.120000000000005,
+      "text": "比較に必要な最小の証拠である場合,井戸あたり最小のオブジェクトを350に上げます. フィルタは質の限界であり,計算のルールではありません. フィルタの下にある井戸は数値分析から離れ,空白になります.",
+      "speech_text": "比較に必要な最小の証拠である場合,井戸あたり最小のオブジェクトを350に上げます. フィルタは質の限界であり,計算のルールではありません. フィルタの下にある井戸は数値分析から離れ,空白になります.",
+      "phonemes": "çikakɯ ɲi çiʦɨjoː na saiɕoː no ɕoːko de aɾɯ baai, ido ataɾʲi saiɕoː no obɯʥekɯto o sambʲakɯ ɡoʥɨː ɲi aɡemasɨ. ɸʲiɾɯta βa ɕiʦɨ no ɡeŋkai de aɾʲi, keːsaɴ no ɾɯːɾɯ de βa aɾʲimaseɴ. ɸʲiɾɯta no ɕita ɲi aɾɯ ido βa sɨːʨi bɯɴsekʲi kaɾa hanaɾe, kɯːhakɯ ɲi naɾʲimasɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 266.35499999999996,
+      "speech_end": 292.53,
+      "scene_end": 293.30999999999995,
+      "duration": 26.954999999999984,
+      "text": "計測された196井戸のうち28井戸が 落下され 168井戸が 縁試験のために残されている. 外環効果は 10.5%以上で検出できます フィルタリング後,熱地図上のクロスされた細胞は失われます. 値がゼロであるかのように,決して色付けされません.",
+      "speech_text": "計測された196井戸のうち28井戸が 落下され 168井戸が 縁試験のために残されている. 外環効果は 10.5%以上で検出できます フィルタリング後,熱地図上のクロスされた細胞は失われます. 値がゼロであるかのように,決して色付けされません.",
+      "phonemes": "keːsokɯ saɾeta çakɯ kʲɨːʥɨː ɾokɯ ido no ɯʨi ɲiʥɨːhaʨi ido ɡa ɾaʔka saɾe çakɯ ɾokɯʥɨː haʨi ido ɡa eɴ ɕikeɴ no tame ɲi nokosa ɾe te iɾɯ. ɡaikaɴ koːka βa ʥɨː. ɡo % iʥoː de keɴɕɨʦɨ dekʲimasɨ ɸʲiɾɯtaɾʲiŋɡɯ ɡo, neʔʨi zɨʥoː no kɯɾosɨ saɾeta saiboː βa ɯɕinaβa ɾe masɨ. atai ɡa ʣeɾo deaɾɯka no joː ɲi, keʔɕite iɾozɨke saɾe maseɴ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 293.30999999999995,
+      "speech_end": 319.55999999999995,
+      "scene_end": 320.23999999999995,
+      "duration": 26.930000000000007,
+      "text": "なぜ空いているのか確認するために,横切った井戸をクリックしてください. C14には233個の測定細胞があり,必要とする350よりも少ないので,読み出しは空白を報告し,しきい値を指定します. これは,実質的なゼロカウントから低いサポートを区別できます.",
+      "speech_text": "なぜ空いているのか確認するために,横切った井戸をクリックしてください. C14には233個の測定細胞があり,必要とする350よりも少ないので,読み出しは空白を報告し,しきい値を指定します. これは,実質的なゼロカウントから低いサポートを区別できます.",
+      "phonemes": "naʣe aite iɾɯ noka kakɯɲiɴ sɨɾɯ tame ɲi, jokoɡʲiʔta ido o kɯɾʲiʔkɯ ɕite kɯdasai. C ʥɨːjoɴ ɲi βa ɲiçakɯ saɲʥɨːsaɴ ko no sokɯteː saiboː ɡa aɾʲi, çiʦɨjoː to sɨɾɯ sambʲakɯ ɡoʥɨː joɾʲi mo sɨkɯnai no de, jomʲidaɕi βa kɯːhakɯ o hoːkokɯ ɕi, ɕikʲii ʨi o ɕiteː ɕi masɨ. koɾe βa, ʥiʔɕiʦɨ tekʲi na ʣeɾo kaɯnto kaɾa çikɯi sapoːto o kɯbeʦɨ dekʲimasɨ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 320.23999999999995,
+      "speech_end": 347.34,
+      "scene_end": 348.02,
+      "duration": 27.78000000000003,
+      "text": "現在のきれいなビューを保存するには,Export well grid CSVをクリックしてください. 各行は,井戸アイデンティティ,オブジェクト数,表示値,リングインデックス,エッジフラッグを保持しているため,オブジェクトレベルの特徴表を輸出することなく,プレートレベルの結果をspaCRの外で監査または再設計することができます.",
+      "speech_text": "現在のきれいなビューを保存するには,Export well grid CSVをクリックしてください. 各行は,井戸アイデンティティ,オブジェクト数,表示値,リングインデックス,エッジフラッグを保持しているため,オブジェクトレベルの特徴表を輸出することなく,プレートレベルの結果をスペーカーの外で監査または再設計することができます.",
+      "phonemes": "ɡeɴʣai no kʲiɾeː na bʲɨː o hoʣoɴ sɨɾɯ ɲi βa, Export well grid CSV o kɯɾʲiʔkɯ ɕite kɯdasai. kakɯɡʲoː βa, ido aidentʲitʲi, obɯʥekɯto sɨː, çoːʥi ʨi, ɾʲiŋɡɯ indeʔkɯsɨ, eʔʥi ɸɯɾaʔɡɯ o hoʥi ɕite iɾɯ tame, obɯʥekɯto ɾebeɾɯ no tokɯʨoː çoː o jɯɕɨʦɨ sɨɾɯ koto nakɯ, pɯɾeːto ɾebeɾɯ no keʔka o sɨpeːkaː no soto de kaɴsa mata βa saiseʔkeː sɨɾɯ koto ɡa dekʲimasɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 348.02,
+      "speech_end": 374.21999999999997,
+      "scene_end": 375.08,
+      "duration": 27.060000000000002,
+      "text": "検証された輸出には168つの井戸があり,フィルタリングされた熱地図に正確に一致している. SHA-256 の前後のチェックは,ソース測定データベースがバイトで同一であることを確認し,追跡可能な衍生式表で読みのみのプレート品質制御パスを完了します.",
+      "speech_text": "検証された輸出には168つの井戸があり,フィルタリングされた熱地図に正確に一致している. SHA-256 の前後のチェックは,ソース測定データベースがバイトで同一であることを確認し,追跡可能な衍生式表で読みのみのプレート品質制御パスを完了します.",
+      "phonemes": "keɴɕoː saɾeta jɯɕɨʦɨ ɲi βa çakɯ ɾokɯʥɨː haʨi ʦɨ no ido ɡa aɾʲi, ɸʲiɾɯtaɾʲiŋɡɯ saɾeta neʦɨ ʨizɨ ɲi seːkakɯ ɲi iʔʨi ɕite iɾɯ. SHA - ɲiçakɯ ɡoʥɨː ɾokɯ no ʣeŋɡo no ʨeʔkɯ βa, soːsɨ sokɯteː deːtabeːsɨ ɡa baito de doːiʦɨ de aɾɯ koto o kakɯɲiɴ ɕi, ʦɨisekʲi kanoː na ɕikʲi çoː de jomʲi nomʲi no pɯɾeːto çiɴɕiʦɨ seːɡʲo pasɨ o kanɾʲoː ɕi masɨ."
     }
   ]
 }

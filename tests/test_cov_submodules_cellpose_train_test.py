@@ -25,6 +25,16 @@ import pytest
 
 import spacr.submodules as SUB
 
+from tests.cellpose_api_contract import (
+    DEPRECATED_EVAL_ARGUMENTS,
+    MISSING_CHANNEL_AXIS,
+    configured_eval_arguments,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 _NET_SENTINEL = object()
 
 
@@ -51,21 +61,46 @@ def cp_stub(monkeypatch):
     rec = {
         "models": [],
         "eval_calls": [],
+        "eval_configured": [],
         "train_calls": [],
         "preds": [],
         "n_predicted": 0,
     }
 
     class _FakeCellposeModel:
-        def __init__(self, gpu=False, pretrained_model=None, **kwargs):
+        """``CellposeModel`` double declaring the installed 4.0.7 signatures.
+
+        No ``**kwargs``: ``test_cellpose_model`` is a real call site, so an
+        argument cellpose 4 removed must raise ``TypeError`` here rather than
+        be absorbed. ``eval`` returns the three values 4.0.7 returns, matching
+        the ``masks_pred, flows, _ =`` unpack in submodules.py.
+        """
+
+        def __init__(self, gpu=False, pretrained_model="cpsam",
+                     model_type=None, diam_mean=None, device=None, nchan=None,
+                     use_bfloat16=True):
             self.gpu = gpu
             self.pretrained_model = pretrained_model
-            self.extra_kwargs = kwargs
+            self.extra_kwargs = init_arguments(locals())
+            self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                         model_type)
             self.net = _NET_SENTINEL
             rec["models"].append(self)
 
-        def eval(self, x, **kwargs):
-            rec["eval_calls"].append({"x": list(x), **kwargs})
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # Plain 2-D planes; the axis is cellpose's to detect here.
+            check_cellpose_eval_call(x, channel_axis,
+                                     require_channel_axis=False)
+            bound = locals()
+            rec["eval_configured"].append(configured_eval_arguments(bound))
+            rec["eval_calls"].append({"x": list(x), **eval_arguments(bound)})
             masks = []
             for _ in x:
                 pred = np.asarray(rec["preds"][rec["n_predicted"]], dtype=np.uint16)
@@ -86,6 +121,7 @@ def cp_stub(monkeypatch):
 
     monkeypatch.setattr(SUB.cp_models, "CellposeModel", _FakeCellposeModel)
     monkeypatch.setattr(SUB.train_cp, "train_seg", _fake_train_seg)
+    monkeypatch.setattr(SUB, "_cellpose_use_gpu", lambda: True)
     return rec
 
 
@@ -198,9 +234,14 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     assert call["save_path"] == os.path.join(str(tmp_path), "models", "cellpose_model")
     assert os.path.isdir(call["save_path"])
 
-    # -- batch_size caps the number of base images pulled from the dataset
-    assert len(call["train_data"]) == 2
-    assert len(call["train_labels"]) == 2
+    # -- EVERY annotated image is training data; batch_size is only the
+    #    optimizer minibatch (asserted above as call["batch_size"] == 2).
+    #    This used to assert ``len(call["train_data"]) == 2`` under the
+    #    comment "batch_size caps the number of base images pulled from the
+    #    dataset" -- i.e. it pinned the defect, discarding the third of the
+    #    three annotated images written by _write_pairs above.
+    assert len(call["train_data"]) == 3
+    assert len(call["train_labels"]) == 3
     for img in call["train_data"]:
         assert img.shape == (16, 16)
         assert img.dtype == np.float32
@@ -219,8 +260,14 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     assert dict(zip(saved_df["Key"], saved_df["Value"]))["model_type"] == "cpsam"
 
 
-def test_train_cellpose_augment_expands_one_base_image_to_eight(tmp_path, cp_stub):
-    """augment=True turns each selected base image into its 8 dihedral variants."""
+def test_train_cellpose_augment_expands_every_base_image_to_eight(tmp_path, cp_stub):
+    """augment=True turns EVERY base image into its 8 dihedral variants.
+
+    Formerly ``..._expands_one_base_image_to_eight``: with batch_size=1 it
+    asserted 8 patches, because ``min(batch_size, ...)`` threw away the
+    second of the two annotated images. Both images are kept now, so the
+    fan-out is 2 x 8 = 16.
+    """
     from spacr.submodules import train_cellpose
 
     # Deliberately asymmetric so the 8 variants are genuinely different.
@@ -236,7 +283,7 @@ def test_train_cellpose_augment_expands_one_base_image_to_eight(tmp_path, cp_stu
         "n_epochs": 5,          # -> save_every = max(1, 0) = 1
         "target_size": 32,
         "augment": True,
-        "batch_size": 1,        # only one base image survives the min()
+        "batch_size": 1,        # minibatch of 1; must NOT shrink the dataset
         "learning_rate": 0.1,
         "weight_decay": 1e-5,
     }
@@ -244,8 +291,9 @@ def test_train_cellpose_augment_expands_one_base_image_to_eight(tmp_path, cp_stu
 
     call = cp_stub["train_calls"][0]
     assert call["save_every"] == 1
-    assert len(call["train_data"]) == 8
-    assert len(call["train_labels"]) == 8
+    assert call["batch_size"] == 1          # still the optimizer minibatch
+    assert len(call["train_data"]) == 16    # 2 base images x 8 variants
+    assert len(call["train_labels"]) == 16
 
     distinct = {lbl.tobytes() for lbl in call["train_labels"]}
     assert len(distinct) >= 4, "augmentation produced near-identical labels"
@@ -273,7 +321,7 @@ def test_train_cellpose_uses_only_filenames_present_in_both_folders(tmp_path, cp
         "n_epochs": 10,
         "target_size": 16,
         "augment": False,
-        "batch_size": 50,       # larger than the dataset -> min() clamps
+        "batch_size": 50,       # minibatch larger than the dataset: harmless
         "learning_rate": 0.2,
         "weight_decay": 1e-5,
     }
@@ -316,7 +364,7 @@ def test_train_cellpose_survives_a_failing_batch_plot(tmp_path, cp_stub, monkeyp
 
 
 def test_train_cellpose_plots_the_batch_it_trains_on(tmp_path, cp_stub, monkeypatch):
-    """plot_cellpose_batch is handed exactly the images/labels sent to train_seg."""
+    """plot_cellpose_batch previews the training data (up to the preview cap)."""
     from spacr.submodules import train_cellpose
 
     seen = {}
@@ -457,6 +505,40 @@ def test_test_cellpose_model_forwards_eval_parameters(tmp_path, cp_stub, monkeyp
     assert call["x"][0].dtype == np.float32
 
 
+@pytest.mark.xfail(strict=True, reason=(
+    "spacr/submodules.py:421 passes channels=[0, 0] to CellposeModel.eval. "
+    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
+    "more than 3 channels, only the first 3 channels will be used' and never "
+    "reads the value, so the pair configures nothing. This is the same "
+    "Cellpose 3 leftover as spacr/submodules.py:621, and "
+    "spacr.model_compare.IGNORED_ARGUMENTS already documents 'channels' as "
+    "this exact no-op. Fix: delete the channels=[0, 0] argument."))
+def test_test_cellpose_model_does_not_pass_a_dead_channels_pair(
+        tmp_path, cp_stub, monkeypatch):
+    """The scoring run must not configure cellpose with a discarded argument.
+
+    ``test_cellpose_model`` exists to report how well a checkpoint segments.
+    An argument that reads as configuration but reaches nothing makes its
+    numbers unattributable — two runs differing only in ``channels`` are the
+    same run.
+    """
+    from spacr.submodules import test_cellpose_model
+
+    labels = [_label_image(32, [(1, (2, 10, 2, 10))])]
+    written = _write_pairs(tmp_path, "test", labels)
+    cp_stub["preds"] = _dataset_labels(written["images"], written["masks"], 32)
+    monkeypatch.setattr(SUB, "display", lambda df: None)
+
+    test_cellpose_model(_test_settings(tmp_path, save=False))
+
+    configured = cp_stub["eval_configured"][0]
+    dead = sorted(set(configured) & set(DEPRECATED_EVAL_ARGUMENTS))
+    assert not dead, (
+        "cellpose 4 accepts and then discards: "
+        + ", ".join(f"{name}={configured[name]!r}" for name in dead)
+    )
+
+
 def test_test_cellpose_model_handles_empty_masks(tmp_path, cp_stub, monkeypatch):
     """Empty predictions / empty ground truth take every zero-division branch."""
     from spacr.submodules import test_cellpose_model
@@ -465,7 +547,7 @@ def test_test_cellpose_model_handles_empty_masks(tmp_path, cp_stub, monkeypatch)
         _label_image(32, [(1, (2, 10, 2, 10)), (2, (18, 28, 18, 28))]),
         _label_image(32, []),        # nothing at all in the ground truth
     ]
-    written = _write_pairs(tmp_path, "test", labels)
+    _write_pairs(tmp_path, "test", labels)
     cp_stub["preds"] = [np.zeros((32, 32), dtype=np.uint16) for _ in labels]
 
     shown = {}
@@ -507,7 +589,15 @@ def test_test_cellpose_model_saves_csv_and_diagnostic_pngs(tmp_path, cp_stub,
                                                            monkeypatch):
     """save=True writes one PNG per image plus test_results.csv."""
     import matplotlib.pyplot as plt
+    import spacr.plot as P
     from spacr.submodules import test_cellpose_model
+
+    # The diagnostic goes through ``spacr.plot.save_figure``, which writes the
+    # user's preferred figure format and rewrites the extension to match. With
+    # no preference store (the case under pytest) that default is PDF, so a
+    # test asserting an exact ``.png`` name and the PNG magic bytes has to
+    # state the preference it is asserting.
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
 
     labels = [
         _label_image(32, [(1, (2, 10, 2, 10))]),
@@ -604,9 +694,21 @@ def test_test_cellpose_model_renders_each_diagnostic_once(tmp_path, cp_stub,
                                                           monkeypatch):
     from spacr.submodules import test_cellpose_model
 
+    # The seam moved; the assertion did not. 63dbcc94 routed every kept figure
+    # through ``spacr.plot.save_figure``, which writes with ``fig.savefig``
+    # on the figure object -- so the module-level ``plt.savefig`` this used to
+    # watch is never called any more, at any format, and ``saved`` stayed
+    # empty. Watching ``SUB.save_figure`` counts the same event where the
+    # product now writes it, and records the path it actually wrote.
     saved = []
-    monkeypatch.setattr(SUB.plt, "savefig",
-                        lambda path, **kw: saved.append(str(path)))
+    real_save_figure = SUB.save_figure
+
+    def _record(fig, path, **kwargs):
+        written = real_save_figure(fig, path, **kwargs)
+        saved.append(str(written))
+        return written
+
+    monkeypatch.setattr(SUB, "save_figure", _record)
 
     labels = [_label_image(32, [(1, (2, 10, 2, 10))])]
     written = _write_pairs(tmp_path, "test", labels)
@@ -616,6 +718,7 @@ def test_test_cellpose_model_renders_each_diagnostic_once(tmp_path, cp_stub,
     test_cellpose_model(_test_settings(tmp_path, save=True))
 
     assert len(saved) == 1
+    assert os.path.isfile(saved[0])
 
 
 def test_test_cellpose_model_only_scores_matched_filenames(tmp_path, cp_stub,

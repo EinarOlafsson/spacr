@@ -1,3 +1,5 @@
+"""Legacy launcher that opens the Image UMAP module."""
+
 from .gui import MainApp
 
 def start_umap_app():

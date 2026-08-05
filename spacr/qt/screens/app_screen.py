@@ -11,15 +11,17 @@ Structure (horizontal splitter):
 """
 from __future__ import annotations
 
+import sys
+from functools import partial
+from html import escape
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer, QThread, Signal
-from PySide6.QtGui import QFontDatabase, QIcon, QPixmap
+from PySide6.QtCore import QEvent, Qt, QTimer, QThread, Signal
+from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
-    QPlainTextEdit,
     QProgressBar,
     QPushButton,
     QScrollArea,
@@ -30,9 +32,197 @@ from PySide6.QtWidgets import (
 )
 
 from ..bridge import make_thread, resolve_pipeline_entry
-from ..theme import SPACING, active_palette
+from ..i18n import tr
+from ..job_runner import JobRunner
+from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
 from ..widgets import Card, Divider, InfoLink, Section, UsageBar
-from .settings_model import SettingsWidgets
+from .settings_model import (
+    CATEGORY_TOOLTIPS,
+    SettingsWidgets,
+    category_tooltip,
+)
+
+
+#: Object name the settings column carries, and what the block below keys
+#: off. It is the column itself, and — see `_settings_panel_qss` — the
+#: rule that names it is a rule saying *paint nothing*.
+SETTINGS_PANEL_NAME = "SettingsBox"
+
+#: The "Point <module> at some data" banner at the top of that column.
+EMPTY_STATE_NAME = "EmptyStateBanner"
+
+
+def _settings_panel_qss(palette: dict, opacity=None) -> str:
+    """The settings column paints nothing. The categories are the panels.
+
+    Three positions were tried on this column, and the third is the one
+    that was asked for:
+
+    1. **An opaque slab.** A ``QScrollArea``'s viewport auto-fills with the
+       palette's **Window** brush — not a surface — so no page-opacity
+       setting could reach it and the column sat as a black rectangle over
+       the animated backdrop.
+    2. **A panel of its own.** Turning the auto-fill off left the column
+       with nothing, so it was given the console box's treatment: a
+       dark-grey rounded surface at the page opacity. That put a box round
+       a column of boxes, and every category then composited two
+       translucent greys — 0.51 at a requested 30 %, a shade no position of
+       the slider can produce.
+    3. **Nothing at all**, which is this. The categories float directly on
+       the theme as separate rounded panels with the backdrop visible in
+       the gaps between them. Most module screens are a list of categories
+       and a list needs no box round it; a container would be a box around
+       a box.
+
+    So the rules here are all subtractive, and the surface the user sees is
+    ``QFrame#SectionCard`` in the shared stylesheet, which already goes
+    through the page-opacity roles. Removing the column's fill is what lets
+    the slider reach the categories: they were never broken, they were
+    composited onto things that were.
+
+    An ID selector on the column anyway, rather than leaving it unstyled —
+    an unstyled ``QScrollArea`` inherits the blanket
+    ``QWidget {{ background-color: bg }}``, the WINDOW colour, which is
+    exactly position 1. Saying it explicitly also keeps the decision
+    findable, and the viewport keeps the container sweep's transparent tag.
+
+    The banner is the same story one layer in. "Point <module> at some
+    data" is an :class:`~spacr.qt.widgets.EmptyState` — a ``QWidget``
+    subclass, so the sweep's ``type(w) is QWidget`` test skips it — renamed
+    to ``EmptyStateBanner``, which also takes it out of the ``QFrame#Card``
+    rule it would otherwise have matched. Between the two it had no rule at
+    all and painted the window colour: a black box at the top of the
+    column. It is a line of type on the page, so it paints nothing.
+    """
+    return f"""
+QScrollArea#{SETTINGS_PANEL_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QWidget#{EMPTY_STATE_NAME} {{
+    background: transparent;
+    border: none;
+}}
+"""
+
+
+# ``replace=True``: this module owns the name, and a reimport must
+# re-register rather than raise and leave every module screen unstyled.
+register_widget_qss(SETTINGS_PANEL_NAME, _settings_panel_qss, replace=True)
+
+
+#: What a module screen tells the user to do when it has nothing more
+#: specific to say. Every ``AppScreen`` is the same gesture — fill the form
+#: in, press Run — so the instruction is the same sentence.
+DEFAULT_INSTRUCTION = "Configure settings, then press Run."
+
+
+class ModuleHeader(QWidget):
+    """The masthead every module page wears: name, description, instruction.
+
+    Three pieces of text in a fixed relationship, and the relationship is
+    the point:
+
+    * the **module name**, large — ``DisplayHeading``, which is 30 px
+      against a 13 px body;
+    * the **description** beside it, one muted line saying what the module
+      is for, with the API documentation link after it;
+    * the **instruction** under the name, one muted line saying what to do
+      on this page.
+
+    Trailing controls — a source label, a table picker, a Load button —
+    go on the same row through :meth:`add_trailing`, right-aligned past
+    the stretch, so a screen that had its own header row keeps it.
+
+    This was written inline inside :class:`AppScreen` and stayed there,
+    which is the whole of the defect it now fixes. Roughly twenty-five
+    screens arrived in two days, none of them an ``AppScreen``, and each
+    rolled its own header: a ``QLabel`` tagged ``ScreenTitle`` — an object
+    name with **no rule anywhere in the stylesheet**, so it rendered at
+    body size — or, on four of them, a bare paragraph with no title at
+    all. Copying the styling into each of them would have set the same
+    trap for the twenty-sixth; a shared component cannot drift.
+
+    Transparent by construction. A header is a page region, not a card,
+    and an untagged ``QWidget`` inherits the blanket
+    ``QWidget {{ background-color: bg }}`` — the WINDOW colour, which no
+    page-opacity setting can reach — so it would sit as an opaque band
+    across the backdrop. ``AppScreen`` used to tag its header by hand in
+    ``_clear_page_surfaces``; every screen gets it here instead.
+
+    :param title: the module name, shown large.
+    :param description: one line to the right of the name. Never wrapped —
+      it may shrink below its ideal width rather than force the window
+      wider — and repeated as a tooltip so a truncated one is readable.
+    :param instruction: one line under the name. Omitted if empty.
+    :param app_key: registry key. Given one, the description gets the
+      module's API documentation link beside it.
+    """
+
+    def __init__(self, title: str, description: str = "",
+                 instruction: str = "", *, app_key: Optional[str] = None,
+                 parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.setObjectName("ModuleHeader")
+        from ..theme import make_transparent
+        make_transparent(self)
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["lg"])
+
+        title_col = QVBoxLayout()
+        title_col.setContentsMargins(0, 0, 0, 0)
+        title_col.setSpacing(2)
+        self.title_label = QLabel(str(title))
+        self.title_label.setObjectName("DisplayHeading")
+        title_col.addWidget(self.title_label)
+        self.instruction_label = QLabel(str(instruction or ""))
+        self.instruction_label.setObjectName("Muted")
+        self.instruction_label.setWordWrap(True)
+        self.instruction_label.setVisible(bool(instruction))
+        title_col.addWidget(self.instruction_label)
+        row.addLayout(title_col)
+
+        self.description_label: Optional[QLabel] = None
+        self.info_link = None
+        if description:
+            intro_row = QHBoxLayout()
+            intro_row.setContentsMargins(0, 0, 0, 0)
+            intro_row.setSpacing(SPACING["sm"])
+            blurb = QLabel(str(description))
+            blurb.setObjectName("Muted")
+            # One line, flush left. The label may shrink below its ideal
+            # width so a long blurb never forces the window wider.
+            blurb.setWordWrap(False)
+            blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+            blurb.setMinimumWidth(0)
+            blurb.setToolTip(str(description))
+            intro_row.addWidget(blurb)
+            self.description_label = blurb
+            if app_key:
+                from .settings_model import api_docs_url
+                info = InfoLink(api_docs_url(app_key),
+                                tooltip=str(description), parent=self)
+                info.setObjectName("ModuleInfoLink")
+                intro_row.addWidget(info)
+                self.info_link = info
+            row.addLayout(intro_row)
+
+        row.addStretch(1)
+        self._row = row
+
+    def add_trailing(self, widget: QWidget, stretch: int = 0) -> QWidget:
+        """Put ``widget`` on the header row, right of the stretch.
+
+        For the screens whose header row also carries controls — Control
+        Chart's table picker and Load button, Graph Builder's source
+        label. They keep their row; they stop having to build the title
+        part of it themselves.
+        """
+        self._row.addWidget(widget, stretch)
+        return widget
 
 
 # The hover description must never reflow the runtime controls. Four lines
@@ -40,115 +230,23 @@ from .settings_model import SettingsWidgets
 # tooltip remains available beside the field.
 HINT_STRIP_LINES = 4
 
+# The category strip sits above it and holds a shorter blurb, so three lines
+# is enough. Fixed, for the same reason: the runtime controls above must not
+# jump when the pointer crosses a category header.
+CATEGORY_STRIP_LINES = 3
 
-# Hover-tooltip text for each settings section. Keys match the
-# uppercased section title (e.g. "PATHS", "CELL"). Sections that
-# don't have an entry fall back to a generic "Settings that
-# control <title>."
-SECTION_HINTS = {
-    "REPLICATION ASSAY": "How endodyogeny is scored: which column carries the class, how vacuoles are binned by area, and the pixel size used to convert those bins to micrometres.",
-    "PATHS":            "Source folder + destination folder + which "
-                        "sub-folders spaCR should read images from.",
-    "GENERAL":          "High-level knobs: metadata source (Yokogawa "
-                        "vs Cellvoyager vs custom regex), channel "
-                        "layout, magnification, image normalisation, "
-                        "plotting toggles.",
-    "CELL":             "Cellpose settings for the *cell* mask: "
-                        "channel, model, diameter, cellprob threshold, "
-                        "background floor.",
-    "NUCLEUS":          "Cellpose settings for the *nucleus* mask: "
-                        "channel, model, diameter, cellprob threshold, "
-                        "background floor.",
-    "PATHOGEN":         "Cellpose settings for the *pathogen* mask: "
-                        "channel, model, diameter, cellprob threshold, "
-                        "background floor.",
-    "ORGANELLE":        "Everything for the organelle mask, in the order you "
-                        "set it up: shape family and detection method, the "
-                        "background/contrast correction applied first, the "
-                        "knobs belonging to the method you chose (adaptive, "
-                        "spot, ridge/hysteresis, ring, irregular, Cellpose or "
-                        "U-Net), the size/intensity/border filters applied to "
-                        "the objects found, and which parent compartments the "
-                        "organelles are summarised into.",
-    "CELLPOSE":         "How Cellpose runs on the training and mask-finetune "
-                        "tools: diameter, cellprob and flow thresholds, "
-                        "resize, rescale and inversion. Which model it runs "
-                        "is under Model Training.",
-    "SEGMENTATION QC":  "Automatic pass/fail checks on the finished masks — "
-                        "object counts, size and split ratios, border and "
-                        "foreground fractions, per-plate failure tolerance.",
-    "MEASUREMENTS":     "Which objects are measured — the per-compartment "
-                        "size and intensity filters, and whether the nucleus "
-                        "and pathogen tables are joined on — then which "
-                        "features are computed (intensity, morphology, "
-                        "texture, radial distribution, colocalisation) and "
-                        "which of them survive into the analysis table.",
-    "FILTER SETTINGS":  "Which segmented objects survive measurement: "
-                        "minimum size per compartment, whether uninfected "
-                        "cells remain, and whether edge-spanning pathogen "
-                        "objects merge their parent cells.",
-    "OBJECT CROPS":     "Per-object crop dimensions, which mask each crop is "
-                        "centred on, and which channels get baked into each "
-                        "saved PNG or array.",
-    "PLATE LAYOUT & CONTROLS":
-                        "The plate map: which wells hold which cell line, "
-                        "pathogen strain and treatment, which wells or gRNAs "
-                        "are the positive and negative controls, the labels "
-                        "they are given, and how wells are grouped for "
-                        "reporting.",
-    "TRAINING DATASET": "How the labelled training set is assembled from the "
-                        "database — annotation column vs well metadata, which "
-                        "metadata column the classes are keyed on, which crop "
-                        "type, how many objects to sample, and how much of it "
-                        "is held back for testing.",
-    "MODEL TRAINING":   "Which model, and how it is fitted: backbone or "
-                        "Cellpose model name, custom weights, classes, input "
-                        "channels and size, epochs, optimizer, learning-rate "
-                        "schedule, loss, augmentation, and the "
-                        "train/validation split.",
-    "ML CLASSIFIER":    "The classical (non-image) screen classifier fitted "
-                        "on measured features — algorithm, tree count, "
-                        "regularisation, feature pruning, and permutation "
-                        "importance.",
-    "EMBEDDING & CLUSTERING":
-                        "UMAP/t-SNE reduction of the feature table and the "
-                        "clustering run on top of it — neighbourhood size, "
-                        "metric, DBSCAN/KMeans parameters, noise handling.",
-    "ACTIVATION MAPS":  "Grad-CAM / saliency settings — attribution method, "
-                        "which layer to hook, overlay rendering, and the "
-                        "input normalisation used at inference.",
-    "PLOT":             "What spaCR plots inline during a run — channel "
-                        "arrays, mask overlays, per-object diagnostic "
-                        "figures — plus the styling of the embedding "
-                        "scatter and the plate heatmaps.",
-    "TIMELAPSE":        "Enable + tune temporal linking of masks "
-                        "across frames when your data has a T axis.",
-    "ADVANCED":         "Rarely-touched knobs — batch sizes, worker "
-                        "counts, memory tuning, experimental options.",
-    "3D SETTINGS (BETA)":
-                        "Experimental volumetric segmentation controls: "
-                        "z-axis layout, projection or plane stitching, "
-                        "anisotropy and voxel calibration.",
-    "4D SETTINGS (BETA)":
-                        "Experimental time-plus-volume controls: time-axis "
-                        "layout, frame interval, tracking backend and "
-                        "inter-frame linking limits.",
-    "MOTILITY (BETA)":  "Beta motility-assay analysis toggle + "
-                        "per-object tracking parameters.",
-    "MOTILITY ADVANCED (BETA)":
-                        "Fine-grained control over the beta motility "
-                        "pipeline — feature selection, filter windows.",
-    "REGRESSION":       "Regression model + covariates for mapping "
-                        "screen scores to gRNA effect sizes, plus the "
-                        "control-based threshold used to call hits.",
-    "INVASION ASSAY":   "The two-colour invasion assay: which channels hold the "
-                        "outside and total stains, how the outside signal is "
-                        "measured, how its threshold is chosen and checked, and "
-                        "which objects count as parasites at all. The table the "
-                        "parasites are read from is under Measurements.",
-    "SEQUENCING":       "FASTQ inputs, barcode reference, mapping "
-                        "chunk size, and QC thresholds.",
-}
+
+# One blurb per settings CATEGORY, keyed by the uppercased category title.
+# The table itself lives beside the category map in `settings_model`, because
+# that is what decides which categories exist; this module only renders them.
+# Re-exported under the historical name so integrations and tests that read
+# `app_screen.SECTION_HINTS` keep working.
+#
+# The blurbs are shown in the strip UNDER the Run / Stop actions row (see
+# `_build_runtime_panel` and `_wire_category_hints`), not as a popup over the
+# form: a category description is three lines long and a floating tooltip
+# covers the very settings it is describing.
+SECTION_HINTS = CATEGORY_TOOLTIPS
 
 
 # Settings whose VALUE is the name of a database column. Each gets a "SQL"
@@ -223,10 +321,14 @@ APP_TITLES = {
     "align":           "Align & Stitch",
     "convert":         "Format Converter",
     "foreign":         "Import Project",
+    "external_masks":  "External Masks",
     "batch":           "Batch Runner",
     "model_zoo":       "Model Zoo",
     "report":          "Report",
     "train_compare":   "Training Runs",
+    "classifier_evaluation": "Classifier Evaluation",
+    "run_history":     "Run History",
+    "distributed_jobs": "Distributed Jobs",
 }
 
 
@@ -253,22 +355,112 @@ APP_INTROS = {
     "model_compare":   "Segment the same three fields with two Cellpose models and see what changed: masks side by side, object counts, the background-excluded ARI, and whether the extra objects are new cells or fragments of old ones.",
     "report":          "Turn a finished run folder into one self-contained HTML or PDF file — the QC verdict, the key figures, the statistics, the exact settings and the package versions — that a collaborator can open without spaCR.",
     "foreign":         "Take a third party's images, label masks and measurement table and produce a working spaCR project: Yokogawa-named TIFFs, merged arrays, and a measurements.db carrying their columns next to spaCR's plateID/rowID/columnID/fieldID/object_label — with the column mapping shown, editable and unit-checked before anything is written.",
+    "external_masks":  "Drop intensity images and label masks made outside spaCR, review the detected cell, nucleus, pathogen and organelle assignments, then build merged arrays, measurements and single-object crops ready for Annotate.",
     "align":           "Stitch an arbitrary number of tiles into one canvas. Offsets are solved globally rather than accumulated, so error does not walk down a row; tiles that failed to register are shown and recorded rather than quietly placed by stage position; and the canvas is written band by band, so its size is never a memory limit.",
     "convert":         "Turn ND2, CZI, LIF or OME-TIFF acquisitions into Yokogawa-named TIFFs spaCR can read, after showing you exactly which source file becomes which target — and write a map file so the original metadata can be joined back onto the measurements afterwards.",
     "batch":           "Stack any combination of modules, plates and settings into a queue and run it unattended — each job is validated when you add it, runs in its own process, and reports what failed, what was skipped because an upstream job failed, and what finished only partly.",
     "model_zoo":       "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its bytes check out against a published checksum, and what it does to three of your fields.",
     "train_compare":   "Overlay the loss and accuracy curves of several training runs on one axis and see, beside them, exactly which settings differed — with environment drift bucketed away from the knobs you actually turned.",
+    "classifier_evaluation": "Inspect held-out predictions from grouped or nested cross-validation, calibration, confusion matrices, per-plate performance and explicit train/test leakage checks.",
+    "run_history":     "Search every recorded job and inspect its exact settings, hashed inputs and outputs, warnings, failure traceback, software versions, seeds and performance.",
+    "distributed_jobs": "Submit resolved spaCR settings to SSH workstations, Slurm clusters or cloud/HPC command profiles and monitor them locally.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
     "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
     "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
 }
 
+try:
+    from spacr.plugins import plugin_apps as _plugin_apps
+    for _plugin_app in _plugin_apps():
+        APP_TITLES.setdefault(_plugin_app.key, _plugin_app.name)
+        APP_INTROS.setdefault(_plugin_app.key, _plugin_app.description)
+except Exception:
+    # Discovery records individual failures. Metadata lookup must not prevent
+    # the built-in AppScreen class from importing.
+    pass
+
+
+def _absorb_registered_app_metadata() -> None:
+    """Take the header and blurb of every registered app into the tables above.
+
+    The PULL half of the app-registration seam.
+    :func:`spacr.qt.app.register_app` PUSHES a new app's title and intro
+    into these two dicts when this module is already imported; this picks
+    up the apps that registered before it was. Between them, which module
+    is imported first stops mattering — and it used to matter a great
+    deal: a screen that registers itself could not be given a header
+    without a hand-edit in this file, so four finished features shipped
+    unreachable.
+
+    Read out of :data:`sys.modules` rather than imported, because
+    ``spacr.qt.app`` builds this screen and importing it from here would
+    be a cycle. ``setdefault``, so the hand-written entries above — where
+    the header deliberately differs from the sidebar name ("Mask
+    Generation" over the "Mask" tile) — stay the more specific answer.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    # `getattr(..., None)`: `spacr.qt.app` may be half-built when this
+    # runs (it imports the widget package before `register_app` exists),
+    # in which case there is nothing to pull and the push half of the
+    # seam delivers every row later.
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    for key, title in pull("title").items():
+        APP_TITLES.setdefault(key, title)
+    for key, intro in pull("intro").items():
+        APP_INTROS.setdefault(key, intro)
+
+
+_absorb_registered_app_metadata()
+
 
 #: Apps that get a live DNA-rain backdrop. Sequencing only — every
 #: other app key misses this set and the hook below does nothing, so no
 #: other screen changes in any way.
 DNA_RAIN_APPS = frozenset({"map_barcodes"})
+
+
+def uses_ambient_background(app_key: str) -> bool:
+    """Whether ``app_key``'s screen gets the generic ambient backdrop.
+
+    Every module screen **except** the ones that already animate
+    something of their own — which today is exactly
+    :data:`DNA_RAIN_APPS`. Sequencing's rain is *about* sequencing:
+    bases falling behind the screen that maps reads to barcodes. Putting
+    a second, unrelated animation behind it would fight it — two
+    independent motions competing for the same pixels, neither readable,
+    and two animation timers running on the one screen that already had
+    one. So a screen gets one animated background or none, never both.
+
+    Written as a rule with a name rather than as an ``else`` on the
+    rain's ``if``: the two backdrops are chosen by *one* decision, and
+    the day a second module earns a themed animation of its own, adding
+    its key to :data:`DNA_RAIN_APPS`-style membership is all that is
+    needed for the ambient one to step aside.
+
+    :param app_key: id of the app (see ``APPS`` in ``spacr.qt.app``).
+    :returns: True when the ambient backdrop belongs on that screen.
+    """
+    return app_key not in DNA_RAIN_APPS
+
+
+def _discard_widget(widget) -> None:
+    """Unparent and delete ``widget``, tolerating any state it is in.
+
+    Used on the failure paths below. A half-installed backdrop that is
+    still a child of the screen would keep painting and keep its timer;
+    dropping the Python reference alone does not remove it, because Qt
+    owns it through its parent.
+    """
+    if widget is None:
+        return
+    try:
+        widget.setParent(None)
+        widget.deleteLater()
+    except Exception:
+        pass
 
 
 def _theme_wallpaper():
@@ -308,6 +500,19 @@ class AppScreen(QWidget):
     # captured traceback + the app key so MainWindow can route to the
     # AI Console.
     error_explain_requested = Signal(str, str)
+    # Hand an immutable settings snapshot to the Distributed Jobs screen.
+    # MainWindow owns navigation, so the reusable screen does not reach into
+    # the application stack itself.
+    remote_submit_requested = Signal(str, dict)
+
+    # Backdrop state, declared on the class so a Qt event that arrives
+    # mid-construction (showEvent is delivered from inside a nested
+    # layout activation on some styles) finds an answer rather than an
+    # AttributeError.
+    _ambient = None
+    _ambient_applied = None
+    _backdrop_applied = None
+    _dna_rain = None
 
     def __init__(self, app_key: str, parent=None):
         super().__init__(parent)
@@ -316,57 +521,28 @@ class AppScreen(QWidget):
         self._hint_map: dict = {}       # widget → plain-text hint
         self._html_tip_map: dict = {}   # widget → HTML tooltip (sticky popup)
 
+        # This module is imported lazily by `app.py`, long after the launch
+        # stylesheet was generated, so the block registered above is not in
+        # it. Without this the settings column opens unpanelled — see
+        # `ensure_widget_qss_applied`.
+        ensure_widget_qss_applied(SETTINGS_PANEL_NAME)
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
         # ─── Header ───────────────────────────────────────────────────
-        # Title + subtitle on the left, followed on the same row by a short
-        # single-line "what this does" blurb and an information link. Everything is
-        # left-aligned; the trailing stretch takes up the slack.
-        header = QWidget()
+        # The shared masthead — see `ModuleHeader`. This screen was where it
+        # was written and for a long time where it stayed, which is how
+        # twenty-odd screens ended up with a title at body size.
+        header = ModuleHeader(
+            APP_TITLES.get(app_key, app_key.title()),
+            description=APP_INTROS.get(app_key) or "",
+            instruction=DEFAULT_INSTRUCTION,
+            app_key=app_key,
+        )
         self._header = header
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(SPACING["lg"])
-
-        title_col = QVBoxLayout()
-        title_col.setContentsMargins(0, 0, 0, 0)
-        title_col.setSpacing(2)
-        title = QLabel(APP_TITLES.get(app_key, app_key.title()))
-        title.setObjectName("DisplayHeading")
-        title_col.addWidget(title)
-        subtitle = QLabel("Configure settings, then press Run.")
-        subtitle.setObjectName("Muted")
-        title_col.addWidget(subtitle)
-        header_layout.addLayout(title_col)
-
-        intro_text = APP_INTROS.get(app_key)
-        if intro_text:
-            from ..screens.settings_model import api_docs_url
-            intro_row = QHBoxLayout()
-            intro_row.setContentsMargins(0, 0, 0, 0)
-            intro_row.setSpacing(SPACING["sm"])
-            blurb = QLabel(intro_text)
-            blurb.setObjectName("Muted")
-            # One line, flush left. The label may shrink below its ideal
-            # width so a long blurb never forces the window wider.
-            blurb.setWordWrap(False)
-            blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
-            blurb.setMinimumWidth(0)
-            blurb.setToolTip(intro_text)
-            intro_row.addWidget(blurb)
-            info = InfoLink(
-                api_docs_url(app_key),
-                tooltip=intro_text,
-                parent=header,
-            )
-            info.setObjectName("ModuleInfoLink")
-            intro_row.addWidget(info)
-            header_layout.addLayout(intro_row)
-        header_layout.addStretch(1)
         outer.addWidget(header)
 
         outer.addWidget(Divider())
@@ -393,6 +569,24 @@ class AppScreen(QWidget):
         # ``self._live_preview`` does not exist yet — so it never fired.
         self._wire_live_preview_autoload()
 
+        # Same ordering constraint: the sections are built by the settings
+        # panel, the strip they describe themselves into belongs to the
+        # runtime panel, so the two can only be connected once both exist.
+        self._wire_category_hints()
+
+        # Two runners, not one, and the split is deliberate. Both of these are
+        # background work — the usage poll shells out to nvidia-smi, filing an
+        # issue shells out to `gh` and then talks to api.github.com — but they
+        # run on wildly different clocks. `_refresh_usage` skips a tick while
+        # its own sample is still out, so that a machine slow enough to still
+        # be inside nvidia-smi 2 s later does not accumulate a backlog. Share
+        # a runner with the issue report and that guard also swallows every
+        # poll for the up-to-28 s an issue report can take, freezing the usage
+        # bars for the whole of it.
+        self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage",
+                                    user_visible=False)
+        self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
+
         # Timer to poll RAM/GPU/CPU periodically
         self._usage_timer = QTimer(self)
         self._usage_timer.setInterval(2000)
@@ -416,8 +610,11 @@ class AppScreen(QWidget):
         # DNA rain backdrop (sequencing only). Sits behind every other
         # child, takes no focus and no mouse events, and stops its timer
         # whenever this screen is not visible, so it costs nothing while
-        # the pipeline runs on another tab. Its colour / speed / font
-        # controls are appended to the bottom of `outer`.
+        # the pipeline runs on another tab. Its colour / speed /
+        # visibility / font controls live in a popover behind a DNA
+        # button beside the AI toggle — they used to be a permanent bar
+        # across the bottom of the page, which is more chrome than a
+        # backdrop is worth.
         self._dna_rain = None
         if self.app_key in DNA_RAIN_APPS:
             try:
@@ -429,10 +626,213 @@ class AppScreen(QWidget):
                 # its frames, and reached the eye only through the few
                 # pixels of layout spacing between widgets.
                 self._clear_page_surfaces()
+                # The page colour follows whether a backdrop got installed, so
+                # it is resolved wherever that is decided -- and it has to reach
+                # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
+                # still uses `bg` and flashes black. See _sync_page_palette.
+                self._sync_page_palette()
                 self._dna_rain = install_dna_rain(
                     self, outer, backdrop=_theme_wallpaper())
             except Exception:
                 self._dna_rain = None
+
+        # Ambient backdrop — the drifting blobs (or whichever theme the
+        # user picked) behind every screen that does NOT already animate
+        # something of its own. See `uses_ambient_background` for why
+        # that is one rule and not an `else` on the branch above; the
+        # two are mutually exclusive by construction, so no screen ever
+        # carries both.
+        #
+        # Same hard-won contract as the rain: lowered behind every
+        # sibling, no focus, no mouse events, and its timer stops
+        # whenever this screen is not visible — these screens stay open
+        # while the pipeline runs on another tab, so an animation that
+        # kept ticking off-screen would cost a core for nobody.
+        self._ambient = None
+        #: (theme, palette) last pushed at — or attempted on — the
+        #: widget, so a tab switch that changed nothing neither restarts
+        #: the animation nor retries an install that already failed.
+        self._ambient_applied = None
+        if uses_ambient_background(self.app_key):
+            self._install_ambient()
+
+        # And unconditionally, whatever happened above. This used to run ONLY
+        # as a side effect of installing an animation — the DNA rain calls it
+        # before, `_install_ambient` after — on the reasoning that a screen
+        # with nothing behind it should be left opaque rather than transparent
+        # over emptiness.
+        #
+        # That reasoning was wrong, and it is what made the settings half of
+        # every module screen a solid black rectangle for anybody who had
+        # turned the ambient backdrop off in Preferences: `_install_ambient`
+        # returns early when the preference is off, so the sweep never ran, so
+        # every layout container on the page kept the blanket
+        # `QWidget { background-color: bg }` — the WINDOW colour, which no
+        # page-opacity setting can reach. Measured over a probe backdrop with
+        # the preference off, the settings column, the categories, the gaps
+        # between them and the console box all read 0.000: the whole page was
+        # one opaque slab and only the cards on top of it looked deliberate.
+        #
+        # There is never "nothing behind it". With no animation the thing
+        # behind is the window's own `bg`, which is the theme — exactly what
+        # the page is supposed to show between the floating category panels.
+        # `clear_container_surfaces` is idempotent, so the calls inside the
+        # two install paths stay where they are for their own ordering
+        # reasons and this one costs a second pass over the tree.
+        self._clear_page_surfaces()
+        # The page colour follows whether a backdrop got installed, so
+        # it is resolved wherever that is decided -- and it has to reach
+        # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
+        # still uses `bg` and flashes black. See _sync_page_palette.
+        self._sync_page_palette()
+
+    # ------------------------------------------------------------------
+    # Ambient backdrop
+    # ------------------------------------------------------------------
+    def _install_ambient(self) -> None:
+        """Build the ambient backdrop for this screen, if it is wanted.
+
+        Never raises. A decorative background must never be able to stop
+        a module screen from opening: a missing widget module, a bad
+        persisted theme name, a driver that cannot make the pixmap — any
+        of those leaves ``self._ambient`` at ``None`` and the screen
+        exactly as it would have been without the feature.
+
+        Two deliberate orderings:
+
+        * the preference is read **before** anything is constructed. Off
+          means *not built*, not built-and-hidden — the construction is
+          itself the cost the toggle exists to avoid on a machine that
+          is running Cellpose on the GPU and a 40-plate pipeline.
+        * :meth:`_clear_page_surfaces` runs **after** a successful
+          install, where the DNA rain runs it before. It is needed for
+          the same reason (under every theme the containers are an
+          opaque ``bg``, and one of them is enough to bury the animation
+          completely — it would run, cost its frames and reach the eye
+          through a few pixels of layout spacing), but doing it second
+          means a screen whose install failed is left opaque and normal
+          rather than transparent with nothing behind it.
+
+        A failure is remembered, not retried. ``_ambient_applied`` holds
+        the (theme, palette) pair that was last *attempted*, and the
+        same pair is never attempted twice — otherwise a machine with no
+        working ambient module would re-import it and re-fail on every
+        palette event, which a stylesheet re-apply raises. A preference
+        change moves the pair and the attempt happens again.
+        """
+        if self._ambient is not None:
+            return
+        widget = None
+        try:
+            from ..preferences import (get_ambient_enabled,
+                                       get_ambient_palette,
+                                       get_ambient_theme)
+            if not get_ambient_enabled():
+                return
+            wanted = (get_ambient_theme(), get_ambient_palette())
+            if wanted == self._ambient_applied:
+                return
+            self._ambient_applied = wanted
+            from ..widgets.ambient import install_ambient
+            widget = install_ambient(self, None, theme=wanted[0],
+                                     palette=wanted[1],
+                                     backdrop=_theme_wallpaper())
+            self._clear_page_surfaces()
+            # The page colour follows whether a backdrop got installed, so
+            # it is resolved wherever that is decided -- and it has to reach
+            # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
+            # still uses `bg` and flashes black. See _sync_page_palette.
+            self._sync_page_palette()
+            self._ambient = widget
+        except Exception:
+            self._ambient = None
+            _discard_widget(widget)
+            self._discard_orphan_ambient()
+
+    def _discard_orphan_ambient(self) -> None:
+        """Remove an ambient widget an aborted install left parented here.
+
+        ``install_ambient`` makes the widget a child of this screen
+        before it finishes wiring it up, so an installer that raises
+        half way through does not hand anything back to unparent — and
+        an invisible leftover would still be a child with a timer. The
+        screen owns its children, so it is the one that can find it.
+        """
+        try:
+            from ..widgets.ambient import AmbientWidget
+        except Exception:
+            # No class, no way to recognise one — and if the import is
+            # what failed, nothing was constructed to leave behind.
+            return
+        for child in list(self.children()):
+            if isinstance(child, AmbientWidget):
+                try:
+                    child.set_animating(False)
+                except Exception:
+                    pass
+                _discard_widget(child)
+
+    def _remove_ambient(self) -> None:
+        """Tear the ambient backdrop down. Safe when there is none."""
+        widget, self._ambient = self._ambient, None
+        self._ambient_applied = None
+        if widget is None:
+            return
+        try:
+            widget.set_animating(False)
+        except Exception:
+            pass
+        _discard_widget(widget)
+        # `page_fill` returns a colour only while there is no backdrop, so
+        # taking the animation away is exactly the moment this screen
+        # becomes responsible for its own page. Without the repaint the
+        # Preferences toggle leaves the hole it used to leave for good.
+        self._sync_page_palette()
+        self.update()
+
+    def refresh_ambient_background(self) -> None:
+        """Re-read the ambient preferences and apply them to this screen.
+
+        The restart-free path for the Preferences toggle: turning it off
+        deletes the widget outright rather than hiding it, turning it on
+        builds one on a screen that has been open all along, and a new
+        theme/palette is pushed at the existing one without rebuilding
+        it. Idempotent, and cheap enough to call on every show.
+
+        Never raises, for the same reason the install does not.
+        """
+        if not uses_ambient_background(self.app_key):
+            # Belt and braces: sequencing must not acquire one through
+            # this path either.
+            self._remove_ambient()
+            return
+        try:
+            from ..preferences import (get_ambient_enabled,
+                                       get_ambient_palette,
+                                       get_ambient_theme)
+            enabled = bool(get_ambient_enabled())
+        except Exception:
+            return
+        if not enabled:
+            self._remove_ambient()
+            return
+        if self._ambient is None:
+            self._install_ambient()
+            return
+        try:
+            wanted = (get_ambient_theme(), get_ambient_palette())
+        except Exception:
+            return
+        if wanted == self._ambient_applied:
+            # Nothing changed. Re-applying would restart the animation
+            # every time the user switches back to this tab.
+            return
+        try:
+            self._ambient.set_theme(wanted[0])
+            self._ambient.set_palette(wanted[1])
+            self._ambient_applied = wanted
+        except Exception:
+            pass
 
     def changeEvent(self, event) -> None:
         """Follow a live theme switch.
@@ -440,31 +840,231 @@ class AppScreen(QWidget):
         Only Home is rebuilt when the theme changes; every other screen
         is re-styled in place by re-applying the QSS. That is enough for
         anything whose colours come from the stylesheet, and not enough
-        for the DNA rain, which paints itself: its flat fill colour and
-        its wallpaper were both captured at construction. Switching from
-        dark to light left a black rain rectangle on a white page, and
-        switching into Cell left the rain painting flat black over the
-        micrograph the theme had just loaded.
+        for a backdrop that paints itself — the DNA rain and the ambient
+        background both capture their flat fill colour and their
+        wallpaper at construction. Switching from dark to light left a
+        black rain rectangle on a white page, and switching into Cell
+        left it painting flat black over the micrograph the theme had
+        just loaded. The ambient backdrop has exactly the same two
+        captured values and therefore exactly the same two bugs.
 
-        The trail colour is deliberately *not* re-applied: it is a
-        user-facing control with a swatch in the settings bar, and
-        silently resetting a colour the user picked is worse than a
-        slightly off-theme one.
+        Both palette events count, and that is the whole reason this
+        works. ``QApplication.setPalette`` — which is what
+        :func:`spacr.qt.theme.apply_qpalette` ends in — delivers
+        ``ApplicationPaletteChange`` **only to top-level widgets** (Qt
+        6.11, verified); every child, including every AppScreen inside
+        MainWindow's stack, gets ``PaletteChange`` instead. Listening
+        for the application event alone meant this handler fired in the
+        tests that synthesised it and never once in the running app.
+
+        Saving Preferences goes through the same call, so this is also
+        where an ambient *preference* change lands on a screen that is
+        already open — including the toggle switching back **on**, which
+        has to build a widget that does not exist yet and so cannot be
+        done by anything walking the live widget tree.
+
+        What is deliberately *not* re-applied is anything the user
+        picked: the rain's trail colour (it has a swatch in its settings
+        bar) and the ambient theme + palette (they are Preferences
+        entries). Silently resetting a choice the user made is worse
+        than a slightly off-theme one.
         """
         super().changeEvent(event)
-        if event.type() != QEvent.ApplicationPaletteChange:
+        if event.type() not in (QEvent.ApplicationPaletteChange,
+                                QEvent.PaletteChange):
             return
-        rain = getattr(self, "_dna_rain", None)
-        if rain is None:
+        self.refresh_ambient_background()
+        self._retheme_backdrops()
+        # The page colour is resolved at paint time from the live theme,
+        # so a theme switch has to ask for a repaint — nothing else on
+        # this screen invalidates it. The palette moves with it, or Qt
+        # keeps erasing to the OLD theme's page between the two.
+        self._sync_page_palette()
+        self.update()
+
+    def _retheme_backdrops(self) -> None:
+        """Re-apply the current theme's fill + wallpaper to both backdrops.
+
+        Resolved once and compared against what was last pushed, because
+        ``PaletteChange`` is a far chattier event than the application
+        one: re-applying a stylesheet raises it too, and every
+        ``set_background_color`` costs the rain its whole pre-rendered
+        strip cache and a full repaint. Nothing changed means nothing is
+        touched.
+
+        ``set_backdrop`` is optional. The DNA rain has one; the ambient
+        widget's published API is ``set_background_color`` /
+        ``set_theme`` / ``set_palette`` / ``set_animating``. A backdrop
+        without the method keeps whatever wallpaper it was built with,
+        which is a cosmetic miss on the image themes only — not a reason
+        to skip the flat fill, which is what fixes the black-rectangle
+        case on dark -> light.
+
+        The fill is ``page``, not ``bg``. It used to be ``bg``, which
+        meant that on the dark theme every palette event — and re-applying
+        the stylesheet raises one — pushed ``#000000`` back into a
+        backdrop that had been built with the page colour. A backdrop
+        that is correct only until the next theme refresh is not correct.
+        """
+        backdrops = [w for w in (getattr(self, "_dna_rain", None),
+                                 getattr(self, "_ambient", None))
+                     if w is not None]
+        if not backdrops:
             return
         try:
-            from ..theme import palette_for
+            from ..theme import page_colour
             from ..preferences import resolve_effective_theme
-            rain.set_background_color(palette_for(
-                resolve_effective_theme())["bg"])
-            rain.set_backdrop(_theme_wallpaper())
+            theme = resolve_effective_theme()
+            fill = page_colour(theme)
+            wallpaper = _theme_wallpaper()
         except Exception:
-            pass
+            return
+        if (fill, wallpaper) == self._backdrop_applied:
+            return
+        self._backdrop_applied = (fill, wallpaper)
+        for widget in backdrops:
+            try:
+                widget.set_background_color(fill)
+            except Exception:
+                pass
+            try:
+                set_backdrop = getattr(widget, "set_backdrop", None)
+                if callable(set_backdrop):
+                    set_backdrop(wallpaper)
+            except Exception:
+                pass
+
+    # ------------------------------------------------------------------
+    # The page itself
+    # ------------------------------------------------------------------
+    def page_fill(self):
+        """The flat colour this screen paints itself, or ``None``.
+
+        ``_clear_page_surfaces`` makes every layout container transparent
+        so that whatever is behind them shows through. That is right, and
+        it is only half a page: something still has to *be* behind them.
+        With an animation installed that something is the animation. With
+        the ambient preference off, or the Animation preference set to
+        ``none``, nothing was — so the containers showed the blanket
+        ``QWidget {{ background-color: bg }}``, which on the dark theme is
+        ``#000000``. That is the black box behind the settings categories,
+        reported three times: not a container the sweep missed, a page
+        with no colour of its own.
+
+        ``None`` — meaning "let the stylesheet paint what it always did" —
+        in exactly two cases:
+
+        * a backdrop is installed. It covers the screen and paints its own
+          fill, so a second full-rect fill under it is wasted work.
+        * an image theme. There the window paints the wallpaper (or, with
+          no cached image, a gradient in the theme's own hues) and
+          ``QWidget`` is transparent precisely so it shows through; a flat
+          fill here would paint over the picture the theme exists for.
+
+        Never raises: a page that cannot resolve its colour falls back to
+        the rendering it had before this existed.
+        """
+        if self._ambient is not None or self._dna_rain is not None:
+            return None
+        try:
+            from ..preferences import resolve_effective_theme
+            from ..theme import IMAGE_THEMES, page_colour
+            theme = resolve_effective_theme()
+            if theme in IMAGE_THEMES:
+                return None
+            return QColor(page_colour(theme))
+        except Exception:
+            return None
+
+    def _sync_page_palette(self) -> None:
+        """Put the page colour in ``QPalette.Window``, not only in the paint.
+
+        ``paintEvent`` alone is not enough, and the difference is visible.
+        Qt erases a damaged region to the widget's background *before*
+        calling ``paintEvent``, and this widget's background role is
+        ``bg`` — ``#000000`` on the dark theme. In a settled frame the fill
+        lands on top and nothing shows. Between the erase and the paint —
+        during the repaint storms that come with a resize, an expose, a
+        theme switch, or the Preferences ambient toggle — the erase is what
+        is on screen: a black box that appears and disappears on its own.
+
+        That is also why rendering the screen offscreen could not
+        reproduce it. ``QWidget.render`` forces one full synchronous paint,
+        so the erase never gets a chance to be seen, and the measurement
+        came back clean for a screen the user was watching flash.
+
+        Setting the role makes Qt's own erase the page colour, so there is
+        no ordering in which black can appear. The ``paintEvent`` fill
+        stays: it is what covers the stylesheet's ``bg`` slab, which the
+        palette does not reach.
+        """
+        # Re-entrancy guard, and it is not theoretical: `setPalette` posts a
+        # `PaletteChange`, `changeEvent` handles `PaletteChange` by calling
+        # this method, and the second call sets the palette again. That
+        # recursed until the stack ran out -- a core dump on startup, not a
+        # flicker. The flag makes the nested call a no-op; the outer one
+        # finishes the work.
+        if getattr(self, "_syncing_page", False):
+            return
+        colour = self.page_fill()
+        # Idempotent, so the re-polish a stylesheet change triggers cannot
+        # turn into a repaint loop of its own on a screen that is already
+        # showing the right colour.
+        applied = getattr(self, "_page_applied", "unset")
+        wanted = None if colour is None else colour.name()
+        if applied == wanted:
+            return
+
+        self._syncing_page = True
+        try:
+            if colour is None:
+                # Back to whatever the stylesheet and the app palette say.
+                self.setAutoFillBackground(False)
+                self.setPalette(QPalette())
+                self.setStyleSheet("")
+            else:
+                palette = QPalette(self.palette())
+                palette.setColor(QPalette.Window, colour)
+                self.setPalette(palette)
+                self.setAutoFillBackground(True)
+                # And in the screen's OWN stylesheet, which is what makes
+                # this stick. `autoFillBackground` is not ours to hold: the
+                # surface sweep and the theme passes both walk this tree
+                # setting it, screens are built and re-themed in an order
+                # that is not fixed, and more than one AppScreen is alive
+                # during startup. Whoever runs last wins, and when the loser
+                # was this method the erase went back to `bg` -- black at
+                # launch, cured by any Preferences change that re-ran the
+                # sync, black again on the next launch. Exactly the report.
+                #
+                # A type selector, so it applies to this screen and not to
+                # the children it would otherwise cascade to: the cards and
+                # panels carry their own surface colour at the page opacity,
+                # and painting the page colour onto them would flatten the
+                # layering the scheme is built on.
+                self.setStyleSheet(
+                    f"AppScreen {{ background-color: {colour.name()}; }}")
+            self._page_applied = wanted
+        finally:
+            self._syncing_page = False
+
+    def paintEvent(self, event) -> None:
+        """Paint the page under everything this screen lays out.
+
+        Deliberately does **not** chain to ``super()`` when it fills. The
+        base implementation is what draws the stylesheet background, and
+        the stylesheet background is the ``bg`` slab being replaced —
+        calling it afterwards would paint black straight back over this.
+        """
+        colour = self.page_fill()
+        if colour is None:
+            super().paintEvent(event)
+            return
+        painter = QPainter(self)
+        try:
+            painter.fillRect(self.rect(), colour)
+        finally:
+            painter.end()
 
     def _clear_page_surfaces(self) -> None:
         """Stop this screen's layout containers painting over the backdrop.
@@ -474,11 +1074,28 @@ class AppScreen(QWidget):
         and the two runtime wrappers are *pages*: they position things
         and should show whatever is behind them. The cards inside them —
         ``Section``, ``Card``, the console — are not tagged and stay the
-        opaque, readable surface the settings form sits on, which is
-        exactly the "grey categories on top of the animated black"
-        layering this screen is supposed to have.
+        readable surface the settings form sits on, at the page opacity,
+        which is exactly the "grey categories over the animated
+        background" layering this screen is supposed to have.
+
+        Every plain ``QWidget`` used as a container has to be listed. An
+        untagged one inherits the blanket ``QWidget {{ background-color: bg }}``
+        rule and paints the WINDOW colour — not a surface — so no opacity
+        setting can reach it. That is what left a black slab spanning the
+        console and the chat box, and black boxes behind the live-view images,
+        after the boxes on top of them were thinned.
         """
-        from ..theme import make_transparent
+        from ..theme import clear_container_surfaces, make_transparent
+
+        # The same generic sweep every other screen uses. This used to be a
+        # hand-written list plus scroll areas and splitters, which is the
+        # shape that kept missing things on Home too: an ANONYMOUS QWidget
+        # used as a container has no QSS rule of its own, so it paints the
+        # window colour and no opacity setting can reach it. That is what left
+        # a black box under the AI chat box and a dead black rectangle between
+        # the chat and the System panel.
+        clear_container_surfaces(self)
+
         make_transparent(
             getattr(self, "_header", None),
             getattr(self, "_body_splitter", None),
@@ -486,6 +1103,14 @@ class AppScreen(QWidget):
             getattr(self, "_settings_content", None),
             getattr(self, "_runtime_wrap", None),
             getattr(self, "_console_wrap", None),
+            # The Run / Stop / Import / Clear strip. It has no object name of
+            # its own, so without this it takes the blanket window fill and
+            # sits as an opaque band across the backdrop.
+            getattr(self, "_actions_row", None),
+            # The category blurb under it. Named (so a stylesheet can reach
+            # it), which is exactly why the generic anonymous-container sweep
+            # above leaves it alone.
+            getattr(self, "_category_hint", None),
         )
 
     # ------------------------------------------------------------------
@@ -494,12 +1119,28 @@ class AppScreen(QWidget):
     def _build_settings_panel(self) -> QWidget:
         scroll = QScrollArea()
         self._settings_scroll = scroll
+        # The column paints nothing — see `_settings_panel_qss`. The name is
+        # what that block keys off; without it the scroll area falls through
+        # to the blanket window fill, which is where this started.
+        scroll.setObjectName(SETTINGS_PANEL_NAME)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
+        # A QScrollArea's viewport auto-fills by default, and what it fills
+        # with is the WINDOW colour -- not a surface -- so no opacity setting
+        # can reach it and the settings column reads as an opaque slab over
+        # the animated backdrop. The sidebar (app.py) and Home
+        # (widgets/home.py) already say this for their own scroll areas; this
+        # one was the odd one out. The column still scrolls; it just does not
+        # paint.
+        scroll.viewport().setAutoFillBackground(False)
 
         content = QWidget()
         self._settings_content = content
         layout = QVBoxLayout(content)
+        # No box round the categories, so the only inset is the gutter that
+        # keeps them clear of the scrollbar. The spacing below is what makes
+        # them read as separate floating panels: it is where the theme shows
+        # between one category and the next.
         layout.setContentsMargins(0, 0, SPACING["sm"], 0)
         layout.setSpacing(SPACING["sm"])
 
@@ -541,14 +1182,13 @@ class AppScreen(QWidget):
                 settings_section_maturity(self.app_key, title)
             )
             self._settings_sections.append(section)
-            # Attach a per-section tooltip so hovering the header tells
-            # users what the settings inside actually control. Falls
-            # back to a generic "settings for <TITLE>" if the section
-            # is one we don't have a curated blurb for.
-            section.set_hint(SECTION_HINTS.get(
-                title.upper().strip(),
-                f"Settings that control {title.lower().strip()}.",
-            ))
+            # The category blurb. Its primary home is the strip under the
+            # actions row (see `_wire_category_hints`); `set_hint` keeps the
+            # same text on the header for screen readers and for the
+            # beta/alpha caution note it appends. `category_tooltip` resolves
+            # the module's own override first, then the shared table, then a
+            # generic sentence, so a section is never left without text.
+            section.set_hint(category_tooltip(self.app_key, title))
             for label, widget in rows:
                 lbl_widget = QLabel(label)
                 # Give the label a subtle affordance so users know
@@ -561,6 +1201,17 @@ class AppScreen(QWidget):
                         field_key = key
                         html = widget.toolTip()
                         hint = self._settings_model.plain_tooltip_for(key)
+                        body_source = widget.property(
+                            "apiTooltipDescriptionSource") or ""
+                        lbl_widget.setProperty("settingsAppKey", self.app_key)
+                        lbl_widget.setProperty("settingKey", key)
+                        lbl_widget.setProperty(
+                            "apiTooltipDescriptionSource", body_source)
+                        lbl_widget.setProperty(
+                            "apiTooltipDescription", body_source)
+                        lbl_widget.setProperty("apiTooltipHtml", html)
+                        lbl_widget.setProperty(
+                            "apiTooltipDisplayRole", "tooltip")
                         # Tooltips live on the LABEL only — hovering
                         # the input field itself is left alone so
                         # focus / edit interactions aren't disturbed.
@@ -569,16 +1220,27 @@ class AppScreen(QWidget):
                         self._html_tip_map[lbl_widget] = html
                         lbl_widget.installEventFilter(self)
                         break
-                info = None
-                if field_key is not None:
-                    from .settings_model import api_docs_url
-                    info = InfoLink(
-                        api_docs_url(self.app_key),
-                        tooltip=self._settings_model.tooltip_for(field_key),
-                        parent=section,
-                    )
-                    info.setObjectName("SettingInfoLink")
-                section.add_row(lbl_widget, widget, info_widget=info)
+                # No API link dot on the settings form. It sat between the
+                # label and the field and carried a tooltip of its own, so
+                # the help popped when the pointer was over the row's
+                # right-hand side -- which reads as "the field has a
+                # tooltip", because from the user's side of the screen that
+                # is exactly what it looks like. 191 of them on the Mask
+                # form alone.
+                #
+                # Nothing is lost but the mark: the API link is still in the
+                # label's tooltip HTML (the `href=` several tests assert on),
+                # so the reference is one hover and one click away, and the
+                # help itself is unchanged and still on the label.
+                #
+                # The host stays, though, and is built here rather than by
+                # `Section.add_row` (which only makes one when there is an
+                # info widget to put in it). It is what right-aligns the
+                # label against the field: dropping it left the label
+                # left-aligned and half the row's width was suddenly the
+                # page showing through rather than the category surface.
+                section.add_row(lbl_widget, widget, info_widget=None,
+                                wrap_label=True)
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
 
@@ -630,10 +1292,28 @@ class AppScreen(QWidget):
 
         Read on demand rather than captured, so the picker follows the source
         folder the user has typed rather than whatever it was at build time.
+        Classify's source is list-valued; its SQL picker uses the first plate,
+        which is the same database the single-source picker historically
+        opened.
         """
         from PySide6.QtWidgets import QLineEdit
         src = getattr(self._settings_model, "_widgets", {}).get("src")
-        return src.text().strip() if isinstance(src, QLineEdit) else ""
+        if isinstance(src, QLineEdit):
+            return src.text().strip()
+        getter = getattr(src, "get_value", None)
+        if callable(getter):
+            try:
+                value = getter()
+            except Exception:
+                return ""
+            if isinstance(value, (list, tuple)):
+                return next(
+                    (str(item).strip() for item in value
+                     if str(item).strip()),
+                    "",
+                )
+            return "" if value is None else str(value).strip()
+        return ""
 
     def _build_empty_state_banner(self):
         """Return a compact "Drop or pick a demo" card, or None.
@@ -642,7 +1322,7 @@ class AppScreen(QWidget):
         hides once the ``src`` widget contains anything so users
         who've already pointed the app at data see the normal form.
         """
-        from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton
+        from PySide6.QtWidgets import QLineEdit
         from ..widgets import EmptyState
 
         src_widget = None
@@ -665,10 +1345,23 @@ class AppScreen(QWidget):
 
         # Human-friendly title varies per app; the body is the same.
         title = f"Point {APP_TITLES.get(self.app_key, self.app_key).lower()} at some data"
+        # ...and so does the demo. This named "Demos → Mask demo…" on
+        # every screen, so Measure, Timelapse, Classify and Sequencing all
+        # offered a dataset that opens a DIFFERENT module: following the
+        # hint on the Measure screen generates raw images, navigates away
+        # to Mask, and leaves the empty screen the user was trying to fill
+        # exactly as empty. Ask which demo lands HERE, and say nothing
+        # specific when none does.
+        try:
+            from ..app import demo_label_for_app
+            demo = demo_label_for_app(self.app_key)
+        except Exception:
+            demo = None
+        offer = (f"use Demos → {demo} for a synthetic dataset"
+                 if demo else "pick a dataset from the Demos menu")
         subtitle = (
-            "Drop a folder of images anywhere on this window, or use "
-            "Demos → Mask demo… for a synthetic dataset. You can also "
-            "type a path into the src field below."
+            f"Drop a folder of images anywhere on this window, or {offer}. "
+            "You can also type a path into the src field below."
         )
         card = EmptyState(
             title=title, subtitle=subtitle,
@@ -678,7 +1371,7 @@ class AppScreen(QWidget):
         # Auto-hide once the user sets src
         if isinstance(src_widget, QLineEdit):
             src_widget.textChanged.connect(self._maybe_hide_empty_state)
-        card.setObjectName("EmptyStateBanner")
+        card.setObjectName(EMPTY_STATE_NAME)
         return card
 
     def _wire_live_preview_autoload(self) -> None:
@@ -717,9 +1410,11 @@ class AppScreen(QWidget):
             card.hide()
 
     def _autoload_live_preview(self, src: str) -> None:
-        """Load the first supported image found under ``src`` into the
-        live-preview panel. Silent if ``src`` is empty, a placeholder,
-        or contains no images — the panel already handles that.
+        """Ask the preview panel to discover/decode ``src`` asynchronously.
+
+        Silent if ``src`` is empty or a placeholder. Directory traversal and
+        image decoding both happen in the panel's worker so a large plate or
+        slow NAS mount cannot freeze Qt.
         """
         panel = getattr(self, "_live_preview", None)
         if panel is None:
@@ -727,20 +1422,7 @@ class AppScreen(QWidget):
         s = (src or "").strip()
         if not s or s in {"path", "/path/to/src", "/path"}:
             return
-        from pathlib import Path
-        root = Path(s)
-        if not root.is_dir():
-            if root.is_file() and root.suffix.lower() in {".tif", ".tiff",
-                                                            ".png", ".jpg",
-                                                            ".jpeg"}:
-                panel.load_image(root)
-            return
-        # Pick the first image at any depth (breadth-limited)
-        for pattern in ("*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"):
-            hits = sorted(root.rglob(pattern))
-            if hits:
-                panel.load_image(hits[0])
-                return
+        panel.load_source_async(s)
 
     def _open_demos_menu(self) -> None:
         try:
@@ -761,11 +1443,30 @@ class AppScreen(QWidget):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
         from PySide6.QtCore import QEvent
         from ..widgets.hover_tooltip import HoverTooltip
+        # A settings CATEGORY header writes its own strip and nothing else:
+        # it has no setting key, so falling through would blank the
+        # per-setting strip every time the pointer crossed a header.
+        category = obj.property("settingsCategory")
+        if category:
+            if event.type() == QEvent.Enter:
+                self.show_category_hint(str(category))
+            elif event.type() == QEvent.Leave:
+                self.clear_category_hint()
+            return super().eventFilter(obj, event)
         if event.type() == QEvent.Enter:
-            hint = self._hint_map.get(obj)
+            key = obj.property("settingKey")
+            if key:
+                from .settings_model import refresh_api_tooltips
+                refresh_api_tooltips(obj)
+                hint = self._settings_model.plain_tooltip_for(str(key))
+                html = obj.property("apiTooltipHtml")
+                self._hint_map[obj] = hint
+                self._html_tip_map[obj] = html
+            else:
+                hint = self._hint_map.get(obj)
+                html = self._html_tip_map.get(obj)
             if hint and hasattr(self, "_hint_strip"):
                 self._hint_strip.setText(hint)
-            html = self._html_tip_map.get(obj)
             if html:
                 HoverTooltip.instance().show_for(obj, html)
         elif event.type() == QEvent.Leave:
@@ -824,7 +1525,11 @@ class AppScreen(QWidget):
         console_header = QLabel("Console")
         console_header.setObjectName("CardTitle")
         console_col.addWidget(console_header)
-        self._console = ConsolePanel(active_app_label=app_title)
+        # `persist_key` is what lets the console remember where the user put
+        # the divider between its output box and the AI chat box, per screen:
+        # a tall chat box on Mask does not force one on Sequencing.
+        self._console = ConsolePanel(active_app_label=app_title,
+                                     persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_col.addWidget(self._console, 1)
 
@@ -913,6 +1618,8 @@ class AppScreen(QWidget):
             splitter.setChildrenCollapsible(False)
             self._hyperparam, self._hyperparam_card = build_hyperparam_card(self)
             self._hyperparam.set_apply_callback(self._propagate_live_settings)
+            self._hyperparam.set_settings_provider(
+                lambda model=self._settings_model: model.collect())
             splitter.addWidget(self._hyperparam_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
@@ -976,6 +1683,11 @@ class AppScreen(QWidget):
         # Clear / Explain line up with the console, chat and System panel,
         # which all share the runtime panel's small left inset.
         actions = QWidget()
+        # Kept so `_clear_page_surfaces` can tag it. Untagged it inherits the
+        # blanket `QWidget { background-color: bg }` rule and paints an opaque
+        # strip behind Run / Stop — a black box no opacity setting could reach,
+        # because it is the window colour rather than a surface.
+        self._actions_row = actions
         row = QHBoxLayout(actions)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -997,6 +1709,17 @@ class AppScreen(QWidget):
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         row.addWidget(self._btn_import)
+
+        self._btn_remote = QPushButton("Submit remote…")
+        self._btn_remote.setObjectName("PrimaryButton")
+        self._btn_remote.setCursor(Qt.PointingHandCursor)
+        self._btn_remote.setToolTip(
+            "Send the current resolved settings to the Distributed Jobs "
+            "screen for an SSH workstation, Slurm cluster, or configured "
+            "cloud/HPC command."
+        )
+        self._btn_remote.clicked.connect(self._on_remote_submit)
+        row.addWidget(self._btn_remote)
 
         self._btn_clear = QPushButton("Clear console")
         self._btn_clear.setObjectName("GhostButton")
@@ -1119,20 +1842,142 @@ class AppScreen(QWidget):
 
         layout.addWidget(actions)
 
+        # Category strip — the settings CATEGORY blurb, immediately under the
+        # Run / Stop row. A category groups tens of settings (Organelle
+        # Segmentation groups fifty-three), so its description is a paragraph,
+        # and a paragraph-sized popup hovering over the settings panel covers
+        # the very controls it is describing. It gets a fixed region here
+        # instead: hovering a category header fills it, expanding one pins it,
+        # and it holds the pinned category while the pointer wanders back into
+        # the form. The per-setting strip below shows the setting under the
+        # cursor, so the two read as "where you are" then "what this does".
+        self._category_hint_pinned = ""
+        self._category_hint = QLabel(self._default_category_hint())
+        self._category_hint.setObjectName("CategoryHintStrip")
+        # Named widgets keep their fill under the blanket
+        # `QWidget { background-color: bg }` rule, and this one is a caption
+        # over the backdrop, not a surface — the same reason `cpu_wrap` above
+        # carries the declaration.
+        self._category_hint.setStyleSheet("background: transparent;")
+        self._category_hint.setWordWrap(True)
+        self._category_hint.setTextFormat(Qt.RichText)
+        self._category_hint.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self._sync_category_hint_height()
+        layout.addWidget(self._category_hint)
+
         # Hint strip — hover-follows caption that shows the current
         # settings tooltip regardless of Qt HTML-tooltip rendering.
         self._hint_strip = QLabel(self._default_hint())
         self._hint_strip.setObjectName("SubtitleSmall")
         self._hint_strip.setWordWrap(True)
-        hint_height = (
-            self._hint_strip.fontMetrics().lineSpacing() * HINT_STRIP_LINES
-        )
-        self._hint_strip.setFixedHeight(hint_height)
+        self._sync_hint_strip_height()
         self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
         layout.addWidget(self._hint_strip)
 
         return wrap
+
+    def _sync_hint_strip_height(self) -> None:
+        """Reserve four lines using the font Qt is actually painting."""
+        hint = getattr(self, "_hint_strip", None)
+        if hint is None:
+            return
+        hint.ensurePolished()
+        hint.setFixedHeight(
+            hint.fontMetrics().lineSpacing() * HINT_STRIP_LINES)
+
+    # ------------------------------------------------------------------
+    # Category help — the strip under the actions row
+    # ------------------------------------------------------------------
+    def _sync_category_hint_height(self) -> None:
+        """Reserve three lines for the category strip, in the painted font."""
+        strip = getattr(self, "_category_hint", None)
+        if strip is None:
+            return
+        strip.ensurePolished()
+        strip.setFixedHeight(
+            strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES)
+
+    def _default_category_hint(self) -> str:
+        return ("Hover a settings category for what the group decides, "
+                "or open one to keep it here.")
+
+    def _wire_category_hints(self) -> None:
+        """Route every category header at the strip under the actions row.
+
+        Called once both panels exist — the settings panel builds the
+        sections, the runtime panel owns the strip they write into.
+
+        Idempotent on purpose, and by the same two mechanisms the per-setting
+        decoration learned the hard way: a marker property so a second pass
+        does not connect ``toggled`` twice, and ``removeEventFilter`` before
+        ``installEventFilter``, because Qt keeps a LIST of filters and calls
+        each installation separately — two installs on one header means one
+        hover writing the strip twice.
+        """
+        for section in getattr(self, "_settings_sections", []):
+            header = section.header()
+            if header is None or header.property("categoryHintWired"):
+                continue
+            title = section.title()
+            header.setProperty("settingsCategory", title)
+            header.setProperty("categoryHintWired", True)
+            header.removeEventFilter(self)
+            header.installEventFilter(self)
+            section.toggled.connect(
+                partial(self._on_category_toggled, title))
+
+    def _on_category_toggled(self, title: str, expanded: bool) -> None:
+        """Pin an expanded category's blurb; unpin it when it collapses."""
+        if expanded:
+            self._category_hint_pinned = str(title)
+            self.show_category_hint(title)
+        elif self._category_hint_pinned == str(title):
+            self._category_hint_pinned = ""
+            self.clear_category_hint()
+
+    def show_category_hint(self, title: str) -> None:
+        """Show one category's blurb in the strip under the actions row."""
+        strip = getattr(self, "_category_hint", None)
+        if strip is None:
+            return
+        text = category_tooltip(self.app_key, title)
+        heading = str(title or "").upper().strip()
+        strip.setText(
+            f"<b>{escape(heading)}</b> — {escape(text)}"
+            if heading else escape(text)
+        )
+        strip.setAccessibleDescription(f"{heading}. {text}".strip())
+
+    def clear_category_hint(self) -> None:
+        """Fall back to the pinned (expanded) category, or to the prompt."""
+        strip = getattr(self, "_category_hint", None)
+        if strip is None:
+            return
+        pinned = getattr(self, "_category_hint_pinned", "")
+        if pinned:
+            self.show_category_hint(pinned)
+            return
+        strip.setText(self._default_category_hint())
+        strip.setAccessibleDescription(self._default_category_hint())
+
+    def showEvent(self, event) -> None:  # noqa: N802 - Qt override
+        """Re-measure the hover-help strip after stylesheet/font polishing.
+
+        Also a second, independent chance to pick up an ambient-
+        background preference that changed while this screen sat in the
+        background. The first is :meth:`changeEvent`, which fires on
+        every Preferences save; this one covers a preference written
+        without ``apply_preferences_to_app`` behind it. Module screens
+        are built once and kept, so without either of them a toggle
+        would need a restart. It costs a settings read and returns
+        without touching anything when nothing changed — see
+        :meth:`refresh_ambient_background`.
+        """
+        super().showEvent(event)
+        self._sync_hint_strip_height()
+        self._sync_category_hint_height()
+        self.refresh_ambient_background()
 
     # ------------------------------------------------------------------
     # Actions
@@ -1195,9 +2040,14 @@ class AppScreen(QWidget):
             self._console.set_run_context(self.app_key, entry_name)
         except Exception:
             pass
-        self._console.append_stdout(
-            f"→ Starting {self.app_key} ({entry_name}) with "
-            f"src={settings.get('src')!r} + {len(settings)} settings…\n")
+        self._console.append_notice(
+            "→ Starting {module} ({function}) with src={src} + "
+            "{count} settings…\n",
+            module=self.app_key,
+            function=entry_name,
+            src=repr(settings.get("src")),
+            count=len(settings),
+        )
         self._btn_run.setEnabled(False)
         self._btn_stop.setEnabled(True)
         self._progress.setVisible(True)
@@ -1227,6 +2077,15 @@ class AppScreen(QWidget):
         # ("QThread: Destroyed while thread is still running" → abort).
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
+
+    def _on_remote_submit(self) -> None:
+        """Validate current settings and hand a snapshot to MainWindow."""
+        try:
+            settings = dict(self._settings_model.collect())
+        except Exception as exc:
+            QMessageBox.warning(self, "Bad settings", str(exc))
+            return
+        self.remote_submit_requested.emit(self.app_key, settings)
 
     def _on_pipeline_error(self, tb: str):
         """Capture the traceback and either show it raw or route it through AI."""
@@ -1263,11 +2122,15 @@ class AppScreen(QWidget):
         # it — previously this only revealed the button, so nothing was ever
         # sent unless the user also clicked. Open the pre-filled report now.
         if enabled:
+            # `_on_file_issue` dispatches and returns; a failure inside the
+            # report itself comes back through `_on_issue_filed`, which prints
+            # the same "[issue] auto-file failed" line. This `except` still
+            # covers the part that stayed synchronous -- reading the widgets.
             try:
                 self._on_file_issue()
             except Exception as e:
-                self._console.append_stdout(
-                    f"[issue] auto-file failed: {e}\n")
+                self._console.append_notice(
+                    "[issue] auto-file failed: {detail}\n", detail=e)
 
     # ------------------------------------------------------------------
     # AI toggle + provider menu — sits in the actions row (bottom right)
@@ -1330,7 +2193,7 @@ class AppScreen(QWidget):
                     self._console.set_ai_provider(configured[0].name)
                     self._refresh_ai_menu()
                 else:
-                    self._console.append_stdout(
+                    self._console.append_notice(
                         "[AI] No vendor CLI installed. Click ▾ next "
                         "to the AI switch → Providers…\n"
                     )
@@ -1352,11 +2215,14 @@ class AppScreen(QWidget):
                 )
             self._ai_menu.addSeparator()
         else:
-            self._ai_menu.addAction(
-                "(no vendor CLI installed)"
-            ).setEnabled(False)
+            source = "(no vendor CLI installed)"
+            unavailable = self._ai_menu.addAction(tr(source))
+            unavailable.setProperty("_spacr_i18n_text", source)
+            unavailable.setEnabled(False)
             self._ai_menu.addSeparator()
-        act_providers = self._ai_menu.addAction("Providers…")
+        source = "Providers…"
+        act_providers = self._ai_menu.addAction(tr(source))
+        act_providers.setProperty("_spacr_i18n_text", source)
         act_providers.triggered.connect(self._on_open_providers_dialog)
 
     def _on_pick_provider(self, name: str) -> None:
@@ -1380,7 +2246,22 @@ class AppScreen(QWidget):
         self.error_explain_requested.emit(self._last_error_text, self.app_key)
 
     def _on_file_issue(self) -> None:
-        """Open a pre-filled GitHub issue for the last captured traceback."""
+        """Open a pre-filled GitHub issue for the last captured traceback.
+
+        The reporting itself runs on a worker thread, and the reason is a
+        number: :func:`spacr.qt.ai.issue_report.file_issue` resolves a GitHub
+        token -- which falls through to ``subprocess.run(["gh", "auth",
+        "token"], timeout=8)`` -- and then POSTs to ``api.github.com`` with
+        ``urlopen(timeout=20)``. Run inline, as this was, the worst case is
+        **28 seconds of a frozen window** with no cursor, no repaint and no
+        way to cancel, in response to a single click. Measured with the
+        event-loop watchdog at 2420 ms against 1.2 s stand-ins for both
+        halves; the timeouts above are what it becomes on a bad network.
+
+        Only the settings snapshot stays here, because reading a widget's
+        value is the one part that *must* happen on the GUI thread. The
+        console line is written when the worker returns.
+        """
         if not self._last_error_text:
             return
         # Best-effort settings snapshot from the current settings model
@@ -1411,12 +2292,36 @@ class AppScreen(QWidget):
         except Exception:
             settings_snapshot = {}
         from ..ai.issue_report import file_issue
-        url = file_issue(self._last_error_text,
-                          active_app=self.app_key,
-                          settings=settings_snapshot)
-        self._console.append_stdout(
-            f"[issue] opened pre-filled report in your browser — "
-            f"review + submit to complete filing.\n{url[:100]}...\n"
+        traceback_text = self._last_error_text
+        app_key = self.app_key
+
+        def _file():
+            # The failure is carried back as data rather than raised. The
+            # auto-file path used to wrap this call in `try/except` to print
+            # "[issue] auto-file failed"; once the call is asynchronous that
+            # `except` can no longer see it, and a report that silently fails
+            # to send is worse than one that fails loudly.
+            try:
+                return {"url": file_issue(traceback_text, active_app=app_key,
+                                          settings=settings_snapshot)}
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                return {"error": exc}
+
+        self._console.append_notice(
+            "[issue] building the report and reaching GitHub…\n")
+        self._jobs.submit(_file, self._on_issue_filed)
+
+    def _on_issue_filed(self, outcome: dict) -> None:
+        """Say where the report went, or why it did not. GUI thread only."""
+        error = (outcome or {}).get("error")
+        if error is not None:
+            self._console.append_notice(
+                "[issue] auto-file failed: {detail}\n", detail=error)
+            return
+        self._console.append_notice(
+            "[issue] opened pre-filled report in your browser — review + "
+            "submit to complete filing.\n{url}...\n",
+            url=str((outcome or {}).get("url") or "")[:100],
         )
 
     def _propagate_live_settings(self, settings: dict) -> None:
@@ -1463,23 +2368,58 @@ class AppScreen(QWidget):
         self._figures_card.show()
 
     def closeEvent(self, event):
-        """Stop any running pipeline thread before the widget is torn
-        down. Destroying a QWidget while a child QThread is still
-        running aborts the process (this also protects the test suite,
-        where screens are created + destroyed rapidly)."""
+        """Cancel and join this screen's worker before destroying widgets.
+
+        A worker that has not reached a safe boundary keeps the screen alive;
+        dropping its references or force-terminating it could corrupt an
+        output and triggers Qt's fatal "QThread destroyed while running".
+        """
         th = getattr(self, "_thread", None)
         if th is not None:
             try:
+                worker = getattr(self, "_worker", None)
+                if worker is not None:
+                    worker.request_cancel("screen closed")
                 th.requestInterruption()
-                th.quit()
-                # Bounded wait so we don't destroy the widget mid-run,
-                # but only from closeEvent (main thread, not triggered
-                # by the thread's own finished signal — safe here).
                 th.wait(3000)
             except Exception:
                 pass
+            try:
+                still_running = bool(th.isRunning())
+            except (AttributeError, RuntimeError):
+                still_running = False
+            if still_running:
+                self._console.append_notice(
+                    "\nClose deferred: the current field is still finishing. "
+                    "The window will remain open so its worker is not "
+                    "destroyed mid-write; close it again after Stop completes.\n"
+                )
+                event.ignore()
+                return
             self._thread = None
             self._worker = None
+        # Stop polling before shutting the runner down, or the 2 s timer can
+        # start one more job while `shutdown` is draining the last.
+        try:
+            self._usage_timer.stop()
+        except (AttributeError, RuntimeError):
+            pass
+        # The usage poll and the issue report are abandoned rather than waited
+        # for: neither writes anything a half-finished copy of would damage,
+        # and `shutdown` parks any that outlast its budget instead of
+        # terminating them mid-call.
+        for name in ("_usage_jobs", "_jobs"):
+            jobs = getattr(self, name, None)
+            if jobs is not None:
+                try:
+                    jobs.shutdown()
+                except RuntimeError:
+                    pass
+        # The settings panel's own background work goes with the screen. The
+        # exclusion editor reads distinct values off a worker, and it is a
+        # child widget, so navigation destroying the panel never gives it a
+        # close event of its own to shut that down from.
+        self._shutdown_settings_widgets()
         # Clean up the figure queue's temp dir if present.
         fq = getattr(self, "_figure_queue", None)
         if fq is not None:
@@ -1495,12 +2435,45 @@ class AppScreen(QWidget):
                 pass
         super().closeEvent(event)
 
+    def _shutdown_settings_widgets(self) -> None:
+        """Stop any background work a settings widget owns.
+
+        Only the exclusion editor has any today -- it reads a column's
+        distinct values off a worker thread -- but the rule is stated by
+        capability rather than by class name, so a settings widget that
+        acquires a worker later is covered without this having to be
+        remembered.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) if model is not None else None
+        try:
+            values = list(widgets.values()) if widgets else []
+        except Exception:
+            return
+        for widget in values:
+            shutdown = getattr(widget, "shutdown", None)
+            if callable(shutdown):
+                try:
+                    shutdown()
+                except (RuntimeError, TypeError):
+                    pass
+
     def _on_finished(self, ok: bool):
+        from ..button_roles import set_button_busy
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
+        set_button_busy(self._btn_run, False)
+        set_button_busy(self._btn_stop, False)
         self._progress.setVisible(False)
-        self._console.append_stdout(
-            "✓ Finished\n" if ok else "✗ Failed — see traceback above\n")
+        cancelled = bool(
+            getattr(getattr(self, "_worker", None), "was_cancelled", False))
+        if cancelled:
+            self._console.append_notice(
+                "■ Stopped safely at a field, trial, or job boundary\n")
+        else:
+            self._console.append_notice(
+                "✓ Finished\n" if ok else
+                "✗ Failed — see traceback above\n")
         # NOTE: do NOT drop self._thread / self._worker here. This slot runs
         # on worker.finished, i.e. before thread.quit() has actually stopped
         # the QThread's event loop; releasing the last reference now can
@@ -1516,7 +2489,9 @@ class AppScreen(QWidget):
                                                 _time.time())
             from ..notify import announce_pipeline_finished
             announce_pipeline_finished(
-                self.app_key, "success" if ok else "failed", elapsed
+                self.app_key,
+                "cancelled" if cancelled else ("success" if ok else "failed"),
+                elapsed,
             )
         except Exception:
             pass
@@ -1534,11 +2509,18 @@ class AppScreen(QWidget):
     def _on_stop(self):
         if self._thread is None:
             return
-        # QThread.terminate is unsafe but the pipelines have no cooperative
-        # cancellation; document the caveat in the console.
-        self._console.append_stdout(
-            "\nRequesting stop (worker cancellation isn't cooperative — "
-            "the current task may finish before it exits).\n")
+        from ..button_roles import set_button_busy
+        self._console.append_notice(
+            "\nRequesting stop. The current field/trial/job will finish, then "
+            "the resumable run will stop at its next safe boundary.\n")
+        set_button_busy(self._btn_stop, True)
+        self._btn_stop.setEnabled(False)
+        worker = getattr(self, "_worker", None)
+        if worker is not None:
+            try:
+                worker.request_cancel("stopped by the user")
+            except Exception:
+                pass
         try:
             self._thread.requestInterruption()
         except Exception:
@@ -1555,8 +2537,9 @@ class AppScreen(QWidget):
         try:
             loaded = self._load_settings_csv(path)
             applied = self.apply_settings_dict(loaded)
-            self._console.append_stdout(
-                f"Loaded {applied} settings from {path}\n"
+            self._console.append_notice(
+                "Loaded {count} settings from {path}\n",
+                count=applied, path=path,
             )
             self._warn_about_moved_settings(loaded)
         except Exception as e:
@@ -1631,7 +2614,8 @@ class AppScreen(QWidget):
                 "motility_analysis=True was ignored — the assay now lives in "
                 "the Motility Assay module (sidebar > Core > Motility Assay).")
         for note in notes:
-            self._console.append_stdout(f"[settings] {note}\n")
+            self._console.append_notice(
+                "[settings] {note}\n", note=note)
 
     def apply_settings_dict(self, settings: dict) -> int:
         """Push key/value pairs from `settings` into whichever settings
@@ -1699,35 +2683,102 @@ class AppScreen(QWidget):
         self._per_core_wrap.setVisible(checked)
 
     def _refresh_usage(self):
-        # RAM
-        try:
-            import psutil
-            self._usage_ram.set_value(psutil.virtual_memory().percent)
-            self._usage_cpu.set_value(psutil.cpu_percent(interval=None))
-            if self._btn_cpu_toggle.isChecked() and self._per_core_bars:
-                per_core = psutil.cpu_percent(interval=None, percpu=True)
-                for bar, pct in zip(self._per_core_bars, per_core):
-                    bar.set_value(pct)
-        except Exception:
-            pass
-        # GPU / VRAM
-        try:
-            import GPUtil
-            gpus = GPUtil.getGPUs()
-            if gpus:
-                gpu = gpus[0]
-                self._usage_gpu.set_value(gpu.load * 100)
-                self._usage_vram.set_value(gpu.memoryUtil * 100)
-            else:
-                self._usage_gpu.set_value(0)
-                self._usage_vram.set_value(0)
-        except Exception:
-            pass
+        """Sample RAM/CPU/GPU on a worker; paint the bars when it returns.
+
+        ``GPUtil.getGPUs()`` spawns ``nvidia-smi`` and waits for it: **25 ms**,
+        measured, every single call. This runs on a 2 s timer and once more
+        during every screen build, so inline it was a guaranteed 25 ms hitch
+        twice a minute per open module and a 25 ms tax on opening one. psutil
+        is 0.13 ms and could have stayed, but sampling everything in one place
+        means one job rather than a split rule about which half is cheap.
+
+        Nothing here touches a widget except the two ``set_value`` calls in
+        :meth:`_apply_usage`, which run on the GUI thread. Overlapping polls
+        are skipped rather than queued -- a machine slow enough to still be
+        inside nvidia-smi 2 s later must not accumulate a backlog of them.
+        """
+        if self._usage_jobs.is_busy():
+            return
+        # Read the toggle here: it is a widget, and the worker may not look
+        # at one.
+        per_core = bool(self._btn_cpu_toggle.isChecked()
+                        and self._per_core_bars)
+        self._usage_jobs.submit(lambda: _sample_usage(per_core),
+                                self._apply_usage)
+
+    def _apply_usage(self, sample: dict) -> None:
+        """Paint one worker-taken usage sample. GUI thread only."""
+        if not sample:
+            return
+        ram = sample.get("ram")
+        if ram is not None:
+            self._usage_ram.set_value(ram)
+        cpu = sample.get("cpu")
+        if cpu is not None:
+            self._usage_cpu.set_value(cpu)
+        for bar, pct in zip(self._per_core_bars, sample.get("per_core") or ()):
+            bar.set_value(pct)
+        gpu = sample.get("gpu")
+        if gpu is not None:
+            self._usage_gpu.set_value(gpu)
+        vram = sample.get("vram")
+        if vram is not None:
+            self._usage_vram.set_value(vram)
+
+    def active_jobs(self) -> int:
+        """How many of this screen's background jobs are still winding down.
+
+        The pipeline run is deliberately not counted: it has its own Stop
+        button, its own console and its own refusal-to-close in
+        :meth:`closeEvent`. This is the housekeeping work -- the usage poll
+        and the issue report -- that a test drives to quiescence.
+        """
+        return self._jobs.active_jobs() + self._usage_jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a background job has not yet delivered its result."""
+        return self._jobs.is_busy() or self._usage_jobs.is_busy()
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _sample_usage(per_core: bool) -> dict:
+    """Read RAM/CPU/GPU utilisation. Runs on a worker thread.
+
+    Module-level and widget-free on purpose: this is the whole of what
+    :meth:`AppScreen._refresh_usage` sends off the GUI thread, so it must be
+    impossible for it to reach a widget. A missing psutil or GPUtil, or a
+    machine with no GPU, leaves that key out rather than failing the sample --
+    the bars keep their last value, which is a truer picture than zero.
+
+    :param per_core: whether the per-core panel is open and wants its own
+        reading. Decided by the caller, on the GUI thread, from the toggle.
+    :returns: a plain dict; every key optional.
+    """
+    sample: dict = {}
+    try:
+        import psutil
+        sample["ram"] = psutil.virtual_memory().percent
+        sample["cpu"] = psutil.cpu_percent(interval=None)
+        if per_core:
+            sample["per_core"] = psutil.cpu_percent(interval=None, percpu=True)
+    except Exception:
+        pass
+    try:
+        import GPUtil
+        gpus = GPUtil.getGPUs()
+        if gpus:
+            sample["gpu"] = gpus[0].load * 100
+            sample["vram"] = gpus[0].memoryUtil * 100
+        else:
+            sample["gpu"] = 0
+            sample["vram"] = 0
+    except Exception:
+        pass
+    return sample
+
 
 def QtGui_QListWidgetItem_helper(fig, idx: int):
     """Build a :class:`QListWidgetItem` with a low-DPI thumbnail render

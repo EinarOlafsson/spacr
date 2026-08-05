@@ -1,3 +1,5 @@
+"""Legacy launcher that opens the Classify module."""
+
 from .gui import MainApp
 
 def start_classify_app():

@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import threading
 import time
 from pathlib import Path
 
@@ -123,3 +125,160 @@ def test_current_run_tracks_open_scope(tmp_path):
     except RuntimeError:
         pass
     assert current_run() is None
+
+
+def test_manifest_hashes_inputs_outputs_settings_seeds_and_packages(
+        tmp_path, monkeypatch):
+    """A normal run contains every provenance field needed to replay it."""
+    from spacr import run_journal as rj
+
+    runs = tmp_path / "journal"
+    runs.mkdir()
+    monkeypatch.setattr(rj, "runs_root", lambda: runs)
+    project = tmp_path / "plate"
+    project.mkdir()
+    source = project / "input.txt"
+    source.write_bytes(b"raw microscopy bytes")
+    output = project / "results" / "scores.csv"
+    settings = {
+        "src": str(project),
+        "output_path": str(output),
+        "random_seed": 1234,
+    }
+
+    with rj.open_run("measure", settings) as run:
+        # The crash-safe manifest exists before computation completes.
+        running = json.loads((run.dir / "manifest.json").read_text())
+        assert running["status"] == "running"
+        output.parent.mkdir()
+        output.write_text("score\n0.9\n")
+
+    manifest = json.loads((run.dir / "manifest.json").read_text())
+    source_record = manifest["input_hashes"][str(source)]
+    output_record = manifest["output_hashes"][str(output)]
+    assert source_record["sha256"] == hashlib.sha256(
+        source.read_bytes()
+    ).hexdigest()
+    assert output_record["sha256"] == hashlib.sha256(
+        output.read_bytes()
+    ).hexdigest()
+    assert len(manifest["settings_sha256"]) == 64
+    assert manifest["seeds"]["declared"]["random_seed"] == 1234
+    assert manifest["env"]["packages"]
+    assert manifest["schema_version"] >= 2
+    assert manifest["input_tree_sha256"]
+    assert manifest["output_tree_sha256"]
+
+
+def test_modified_existing_file_is_recorded_as_output(tmp_path, monkeypatch):
+    """In-place database/CSV updates are outputs, not only new files."""
+    from spacr import run_journal as rj
+
+    runs = tmp_path / "journal"
+    runs.mkdir()
+    monkeypatch.setattr(rj, "runs_root", lambda: runs)
+    project = tmp_path / "plate"
+    project.mkdir()
+    database = project / "measurements.db"
+    database.write_bytes(b"before")
+
+    with rj.open_run("measure", {"src": str(project)}) as run:
+        database.write_bytes(b"after, and a different size")
+
+    manifest = json.loads((run.dir / "manifest.json").read_text())
+    assert str(database) in manifest["input_hashes"]
+    assert str(database) in manifest["output_hashes"]
+
+
+def test_current_run_is_thread_local(tmp_path, monkeypatch):
+    """Concurrent workers must never record a model/output on another run."""
+    from spacr import run_journal as rj
+
+    runs = tmp_path / "journal"
+    runs.mkdir()
+    monkeypatch.setattr(rj, "runs_root", lambda: runs)
+    barrier = threading.Barrier(2)
+    seen = {}
+
+    def worker(name):
+        with rj.open_run(name, {}) as run:
+            barrier.wait(timeout=5)
+            seen[name] = rj.current_run() is run
+
+    threads = [
+        threading.Thread(target=worker, args=("mask",)),
+        threading.Thread(target=worker, args=("measure",)),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=10)
+
+    assert seen == {"mask": True, "measure": True}
+    assert rj.current_run() is None
+
+
+def test_full_hash_keeps_legacy_short_hash_default(tmp_path):
+    from spacr.run_journal import hash_file
+
+    path = tmp_path / "data.bin"
+    path.write_bytes(b"abc")
+    assert len(hash_file(path)) == 16
+    assert hash_file(path, full=True) == hashlib.sha256(b"abc").hexdigest()
+
+
+def test_search_runs_filters_settings_outputs_warnings_and_failures(
+        tmp_path, monkeypatch):
+    from spacr import run_journal as rj
+
+    runs = tmp_path / "journal"
+    runs.mkdir()
+    monkeypatch.setattr(rj, "runs_root", lambda: runs)
+    source = tmp_path / "plate_alpha"
+    source.mkdir()
+    (source / "raw.tif").write_bytes(b"raw")
+    output = source / "scores.csv"
+
+    with rj.open_run(
+        "classify", {"src": str(source), "output_path": str(output),
+                     "optimizer": "adamw"},
+    ) as run:
+        run.record_warning("class imbalance detected")
+        output.write_text("class,score\nA,0.8\n")
+
+    with pytest.raises(RuntimeError):
+        with rj.open_run("measure", {"src": str(source)}):
+            raise RuntimeError("database locked")
+
+    adam = rj.search_runs("adamw scores.csv", app_key="classify",
+                          status="success")
+    assert len(adam) == 1
+    assert adam[0]["warnings"] == ["class imbalance detected"]
+    assert str(output) in adam[0]["outputs"]
+    assert adam[0]["performance"]["output_files"] >= 1
+    assert adam[0]["performance"]["process_cpu_s"] >= 0
+
+    failed = rj.search_runs("database locked", status="failed")
+    assert len(failed) == 1
+    assert "RuntimeError" in failed[0]["failure"]
+    assert rj.search_runs("not-present") == []
+    assert len(rj.search_runs(limit=1)) == 1
+
+
+def test_search_runs_keeps_corrupt_and_inflight_folders_visible(
+        tmp_path, monkeypatch):
+    from spacr import run_journal as rj
+
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    inflight = tmp_path / "inflight"
+    inflight.mkdir()
+    (inflight / "settings.json").write_text('{"src": "/plate"}')
+    corrupt = tmp_path / "corrupt"
+    corrupt.mkdir()
+    (corrupt / "manifest.json").write_text("{bad json")
+
+    records = {record["run_id"]: record for record in rj.search_runs()}
+    assert records["inflight"]["status"] == "running"
+    assert records["corrupt"]["status"] == "corrupt"
+    assert records["inflight"]["warnings"]
+    assert records["corrupt"]["warnings"]

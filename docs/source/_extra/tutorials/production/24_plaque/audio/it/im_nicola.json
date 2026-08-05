@@ -4,47 +4,217 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 63.725,
+  "total_duration": 373.78,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.05,
-      "scene_end": 10.5,
-      "duration": 10.5,
-      "text": "Questo tutorial copre l'analisi della placche. Misurare la formazione della placche e le variazioni dipendenti dalla condizione dalle immagini della placche."
+      "speech_end": 22.65,
+      "scene_end": 23.299999999999997,
+      "duration": 23.299999999999997,
+      "text": "Plaque Assay rileva e quantifica le regioni delle cellule ospitanti liberate. Le impostazioni sono a sinistra; la console registra le impostazioni risolte, il progresso, i percorsi di uscita, gli avvertimenti e gli errori. La casella di chat sotto la console può discutere quel contesto quando l'IA è abilitata, ma non cambia le impostazioni a meno che non si applichi una modifica suggerita.",
+      "speech_text": "Plaque Assay rileva e quantifica le regioni delle cellule ospitanti liberate. Le impostazioni sono a sinistra; la console registra le impostazioni risolte, il progresso, i percorsi di uscita, gli avvertimenti e gli errori. La casella di chat sotto la console può discutere quel contesto quando l'IA è abilitata, ma non cambia le impostazioni a meno che non si applichi una modifica suggerita.",
+      "phonemes": "plˈakwe aSˈai rilˈɛva e kwantˈifika le reʤˈonɪ dˌelle ʧˈɛllʊle ospitˈantɪ liberˈate. le impostaʦiˈonɪ sˌono a sinˈistra; la kˈɔnsole reʤˈistra le impostaʦiˈonɪ rizˈɔlte, il proɡrˈɛSo, i perkˈorsɪ dɪ ʊʃˈita, ʎɪ avvertimˈentɪ e ʎɪ erɾˈorɪ. la kazˈɛlla dɪ ʧˈat sˈotːo la kˈɔnsole pʊˈɔ diskˈutere kwel kontˈɛsto kwˈando lˈia e abilitˈata, ma non kˈambia le impostaʦiˈonɪ a mˈeno ke non sɪ ˈapːlikɪ ˌʊna modˈifika sʊʤːerˈita."
     },
     {
       "scene": 2,
-      "speech_start": 10.5,
-      "speech_end": 24.35,
-      "scene_end": 24.8,
-      "duration": 14.3,
-      "text": "Apri Plaque assay dalla sezione Toxoplasma assays. Apri la piastra di test dalla sezione Assess Toxoplasma. Fornisci immagini della piastra, layout della piastra, calibrazione dei pixel, condizioni e controlli."
+      "speech_start": 23.299999999999997,
+      "speech_end": 39.224999999999994,
+      "scene_end": 39.77499999999999,
+      "duration": 16.474999999999994,
+      "text": "Il pulsante AI toglie l'invio di chat. Il suo menu adiacente sceglie un provider configurato e apre le impostazioni del provider. Tieni fuori quando non è necessario alcun assistente; la pipeline di analisi stessa è locale e non richiede l'IA.",
+      "speech_text": "Il pulsante AI toglie l'invio di chat. Il suo menu adiacente sceglie un provider configurato e apre le impostazioni del provider. Tieni fuori quando non è necessario alcun assistente; la pipeline di analisi stessa è locale e non richiede l'IA.",
+      "phonemes": "il pʊlsˈante ˌaːˈiː tˈoʎe linvˈio dɪ ʧˈat. il sˌʊo menˈu adjaʧˈɛnte ʃˈeʎe ʊn provˈaider konfiɡʊrˈato e ˈapre le impostaʦiˈonɪ del provˈaider. tjˈɛnɪ fʊˈorɪ kwˈando non e neʧeSˈario alkˌʊn aSistˈɛnte; la pipelˈine dɪ anˈalizɪ stˈeSa e lokˈale e non rikjˈede lˈia."
     },
     {
       "scene": 3,
-      "speech_start": 24.8,
-      "speech_end": 36.275,
-      "scene_end": 36.725,
-      "duration": 11.925,
-      "text": "Nella zona di configurazione principale, configurare la correzione di sfondo, la soglia, la pulizia degli oggetti, i filtri di dimensioni della targa e il raggruppamento dei pozzi."
+      "speech_start": 39.77499999999999,
+      "speech_end": 56.17499999999999,
+      "scene_end": 56.72499999999999,
+      "duration": 16.949999999999996,
+      "text": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta l'informativa sulla privacy prima di inviare il contesto della console o dell'immagine a un fornitore remoto.",
+      "speech_text": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta l'informativa sulla privacy prima di inviare il contesto della console o dell'immagine a un fornitore remoto.",
+      "phonemes": "la konfiɡʊraʦiˈone del provˈaider sepˈaɾa ʎɪ aSistˈɛntɪ lokˈalɪ e ospitˈatɪ. konfiɡˈura sˈolo i servˈiʦɪ ke intˈɛndɪ ʊtiliʣːˈare e konsˈulta linformatˈiva sˌʊlla prˈaivazɪ prˈima dɪ inviˈare il kontˈɛsto dˌella kˈɔnsole o dellimmˈaʤine a ʊn fornitˈore remˈɔto."
     },
     {
       "scene": 4,
-      "speech_start": 36.725,
-      "speech_end": 53.425,
-      "scene_end": 53.875,
-      "duration": 17.15,
-      "text": "Prima di eseguire l'intero ciclo, controllare le impostazioni visibili e utilizzare una modalità di preview o di prova quando disponibile. verificare le sovrapposizioni di segmentazione tra i pozzi di controllo e di trattamento prima dell'analisi di lotto."
+      "speech_start": 56.72499999999999,
+      "speech_end": 73.57499999999999,
+      "scene_end": 74.07499999999999,
+      "duration": 17.35,
+      "text": "Le impostazioni AI controllano il comportamento come la condivisione di contesti, la segnalazione di errori e le credenziali specifiche del fornitore. Queste preferenze influenzano l'assistente di chat, non la segmentazione delle placche o la quantificazione.",
+      "speech_text": "Le impostazioni AI controllano il comportamento come la condivisione di contesti, la segnalazione di errori e le credenziali specifiche del fornitore. Queste preferenze influenzano l'assistente di chat, non la segmentazione delle placche o la quantificazione.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano il komportamˈento kˌome la kondiviziˈone dɪ kontˈɛstɪ, la seɲalaʦiˈone dɪ erɾˈorɪ e le kredenʦjˈalɪ speʧˈifike del fornitˈore. kwˌeste preferˈɛnʦe inflʊˈɛnʦano laSistˈɛnte dɪ ʧˈat, non la seɡmentaʦiˈone dˌelle plˈakːe o la kwantifikaʦiˈone."
     },
     {
       "scene": 5,
-      "speech_start": 53.875,
-      "speech_end": 63.075,
-      "scene_end": 63.725,
-      "duration": 9.850000000000001,
-      "text": "Quando il flusso di lavoro è terminato, spaCR segnala i numeri di placche, le aree, le riassume, le statistiche e i dati del controllo della qualità."
+      "speech_start": 74.07499999999999,
+      "speech_end": 94.82499999999999,
+      "scene_end": 95.57499999999999,
+      "duration": 21.5,
+      "text": "Selezionare o eliminare la cartella contenente campi di placca TIFF. Questo tutorial utilizza quattro pozzi sintetici esplicitamente e spegne le maschere per riutilizzare le loro maschere precomputate etichettate. Con le maschere accese, spaCR invece segmenta le immagini sorgenti con il modello di placca bundled prima di misurarle.",
+      "speech_text": "Selezionare o eliminare la cartella contenente campi di placca TIFF. Questo tutorial utilizza quattro pozzi sintetici esplicitamente e spegne le maschere per riutilizzare le loro maschere precomputate etichettate. Con le maschere accese, spàker invece segmenta le immagini sorgenti con il modello di placca bundled prima di misurarle.",
+      "phonemes": "seleʦjonˈare o eliminˈare la kartˈɛlla kontenˈɛnte kˈampɪ dɪ plˈakːa tˈiff. kwˌesto tʊtˈɔrial ʊtilˈiʣːa kwˈatːro pˈoʦːɪ sintˈɛtiʧɪ espliʧitamˈente e spˈeɲɲe le mˈaːskˌɛre per riʊtiliʣːˈare le lˌɔro mˈaːskˌɛre prekompʊtˈate etiketːˈate. kon le mˈaːskˌɛre aʧːˈeze, spˈaker invˈeʧe seɡmˈenta le immˈaʤinɪ sorʤˈɛntɪ kon il modˈɛllo dɪ plˈakːa bˈundled prˈima dɪ mizʊrˈarle."
+    },
+    {
+      "scene": 6,
+      "speech_start": 95.57499999999999,
+      "speech_end": 112.14999999999999,
+      "scene_end": 112.64999999999999,
+      "duration": 17.075000000000003,
+      "text": "Gli elementi essenziali mostrano il piccolo set normalmente necessario per una prima corsa. Inizia qui per verificare la fonte, il comportamento della maschera, il diametro previsto, le soglie e la scelta di uscita senza scansionare ogni controllo avanzato.",
+      "speech_text": "Gli elementi essenziali mostrano il piccolo set normalmente necessario per una prima corsa. Inizia qui per verificare la fonte, il comportamento della maschera, il diametro previsto, le soglie e la scelta di uscita senza scansionare ogni controllo avanzato.",
+      "phonemes": "ʎɪ elemˈentɪ eSenʦjˈalɪ mˈɔstrano il pˈikːolo sˈɛt normalmˈente neʧeSˈario per ˌʊna prˈima kˈorsa. inˈiʦia kwˈi per verifikˈare la fˈonte, il komportamˈento dˌella mˈaːskˌɛra, il djˈametro prevˈisto, le sˈoʎe e la ʃˈelta dɪ ʊʃˈita sˌɛnʦa skansjonˈare ˌoɲɲɪ kontrˈɔllo avanʦˈato."
+    },
+    {
+      "scene": 7,
+      "speech_start": 112.64999999999999,
+      "speech_end": 131.17499999999998,
+      "scene_end": 131.725,
+      "duration": 19.075000000000003,
+      "text": "Modificato filtra il pannello a valori che differiscono dalle impostazioni predefinite. Si tratta di un audit compatto prima della presentazione: qui la fonte, il riutilizzo della maschera, il diametro della placca, la dimensione del lotto e il comportamento di fondo sono cambiamenti intenzionali.",
+      "speech_text": "Modificato filtra il pannello a valori che differiscono dalle impostazioni predefinite. Si tratta di un audit compatto prima della presentazione: qui la fonte, il riutilizzo della maschera, il diametro della placca, la dimensione del lotto e il comportamento di fondo sono cambiamenti intenzionali.",
+      "phonemes": "modifikˈato fˈiltra il pannˈɛllo a valˈorɪ ke differˈiskono dˌalle impostaʦiˈonɪ predefinˈite. sɪ trˈatːa dɪ ʊn ˈaʊdit kompˈatːo prˈima dˌella prezentaʦiˈone: kwˈi la fˈonte, il riʊtilˈiʣːo dˌella mˈaːskˌɛra, il djˈametro dˌella plˈakːa, la dimensjˈone del lˈɔtːo e il komportamˈento dɪ fˈondo sˌono kambjamˈentɪ intenʦionˈalɪ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 131.725,
+      "speech_end": 149.95,
+      "scene_end": 150.45,
+      "duration": 18.724999999999994,
+      "text": "Tutte le impostazioni rivelano ogni controllo disponibile. Utilizzare quando si risolve i problemi o si riproduce un esecuzione precedente; altrimenti la visualizzazione Essentials riduce le modifiche accidentali ai parametri che hanno già le impostazioni predefinite appropriate.",
+      "speech_text": "Tutte le impostazioni rivelano ogni controllo disponibile. Utilizzare quando si risolve i problemi o si riproduce un esecuzione precedente; altrimenti la visualizzazione Essentials riduce le modifiche accidentali ai parametri che hanno già le impostazioni predefinite appropriate.",
+      "phonemes": "tˈutːe le impostaʦiˈonɪ rivˈelano ˌoɲɲɪ kontrˈɔllo disponˈibile. ʊtiliʣːˈare kwˈando sɪ rizˈolve i problˈɛmɪ o sɪ riprodˈuʧe ʊn ezekʊʦiˈone preʧedˈɛnte; altrimˈentɪ la vizwaliʣːaʦiˈone eSˈentjals ridˈuʧe le modˈifike aʧːidentˈalɪ aj paɾˈametrɪ ke ˌanno ʤˈa le impostaʦiˈonɪ predefinˈite apːropriˈate."
+    },
+    {
+      "scene": 9,
+      "speech_start": 150.45,
+      "speech_end": 165.825,
+      "scene_end": 166.375,
+      "duration": 15.925000000000011,
+      "text": "Le ricette salvano le impostazioni del modulo corrente con un nome riutilizzabile. Una configurazione di piastra convalidata può essere salvata, importata, condivisa e applicata successivamente invece di essere ricostruita a mano.",
+      "speech_text": "Le ricette salvano le impostazioni del modulo corrente con un nome riutilizzabile. Una configurazione di piastra convalidata può essere salvata, importata, condivisa e applicata successivamente invece di essere ricostruita a mano.",
+      "phonemes": "le riʧˈɛtːe sˈalvano le impostaʦiˈonɪ del mˈɔdʊlo korɾˈɛnte kon ʊn nˈome riʊtiliʣːˈabile. ˌʊna konfiɡʊraʦiˈone dɪ pjˈastra konvalidˈata pʊˈɔ ˈɛSere salvˈata, importˈata, kondivˈiza e apːlikˈata sʊʧːeSivamˈente invˈeʧe dɪ ˈɛSere rikostrʊˈita a mˈano."
+    },
+    {
+      "scene": 10,
+      "speech_start": 166.375,
+      "speech_end": 181.875,
+      "scene_end": 182.375,
+      "duration": 16.0,
+      "text": "Invio remoto passa le impostazioni risolute a lavori distribuiti piuttosto che iniziare localmente. Utilizzare quando la cartella sorgente e il modello richiesto sono accessibili da una stazione di lavoro o da un cluster SSH.",
+      "speech_text": "Invio remoto passa le impostazioni risolute a lavori distribuiti piuttosto che iniziare localmente. Utilizzare quando la cartella sorgente e il modello richiesto sono accessibili da una stazione di lavoro o da un cluster SSH.",
+      "phonemes": "invˈio remˈɔto pˈaSa le impostaʦiˈonɪ rizolˈute a lavˈorɪ distribʊˈitɪ pjʊtːˈɔsto ke iniʦjˈare lokalmˈente. ʊtiliʣːˈare kwˈando la kartˈɛlla sorʤˈɛnte e il modˈɛllo rikjˈɛsto sˌono aʧːeSˈibilɪ da ˌʊna staʦiˈone dɪ lavˈɔro o da ʊn klʊstˈɛr ˌɛSeˌɛSeˈakːa."
+    },
+    {
+      "scene": 11,
+      "speech_start": 182.375,
+      "speech_end": 199.6,
+      "scene_end": 200.25,
+      "duration": 17.875,
+      "text": "Lo schermo remoto riceve questo modulo e le sue impostazioni come progetto di lavoro. Confirmare la mappatura del percorso, le risorse di calcolo, l'attivazione dell'ambiente, la sincronizzazione e il comando generato prima di inviare un piccolo lavoro di convalida.",
+      "speech_text": "Lo schermo remoto riceve questo modulo e le sue impostazioni come progetto di lavoro. Confirmare la mappatura del percorso, le risorse di calcolo, l'attivazione dell'ambiente, la sincronizzazione e il comando generato prima di inviare un piccolo lavoro di convalida.",
+      "phonemes": "lo skˈermo remˈɔto riʧˈɛve kwˌesto mˈɔdʊlo e le sˌʊe impostaʦiˈonɪ kˌome proʤˈɛtːo dɪ lavˈɔro. konfirmˈare la mapːatˈura del perkˈorso, le rizˈorse dɪ kˈalkolo, latːivaʦiˈone dellambiˈɛnte, la sinkroniʣːaʦiˈone e il komˈando ʤenerˈato prˈima dɪ inviˈare ʊn pˈikːolo lavˈɔro dɪ konvˈalida."
+    },
+    {
+      "scene": 12,
+      "speech_start": 200.25,
+      "speech_end": 215.65,
+      "scene_end": 216.17000000000002,
+      "duration": 15.920000000000016,
+      "text": "Input and Channels contiene la cartella sorgente e la scelta delle maschere. Accendere le maschere per segmentare i campi originali o disattivare solo quando la sottovoce delle maschere contiene già immagini etichettate correttamente.",
+      "speech_text": "Input and Channels contiene la cartella sorgente e la scelta delle maschere. Accendere le maschere per segmentare i campi originali o disattivare solo quando la sottovoce delle maschere contiene già immagini etichettate correttamente.",
+      "phonemes": "ˈinpʊt ˈand ʧˈanels kontjˈɛne la kartˈɛlla sorʤˈɛnte e la ʃˈelta dˌelle mˈaːskˌɛre. aʧːˈɛndere le mˈaːskˌɛre per seɡmentˈare i kˈampɪ oriʤinˈalɪ o dizatːivˈare sˈolo kwˈando la sotːovˈoʧe dˌelle mˈaːskˌɛre kontjˈɛne ʤˈa immˈaʤinɪ etiketːˈate korɾetːamˈente."
+    },
+    {
+      "scene": 13,
+      "speech_start": 216.17000000000002,
+      "speech_end": 231.37,
+      "scene_end": 231.89000000000001,
+      "duration": 15.719999999999999,
+      "text": "Il modello contiene il diametro previsto della placca. Compare questa scala con le placche rappresentative e la geometria di formazione del modello; un valore di dimensione cellulare è generalmente inappropriato per i campi di placche.",
+      "speech_text": "Il modello contiene il diametro previsto della placca. Compare questa scala con le placche rappresentative e la geometria di formazione del modello; un valore di dimensione cellulare è generalmente inappropriato per i campi di placche.",
+      "phonemes": "il modˈɛllo kontjˈɛne il djˈametro prevˈisto dˌella plˈakːa. kompˈare kwˌesta skˈala kon le plˈakːe rapːrezentatˈive e la ʤeometrˈia dɪ formaʦiˈone del modˈɛllo; ʊn valˈore dɪ dimensjˈone ʧellʊlˈare e ʤeneralmˈente inapːropriˈato per i kˈampɪ dɪ plˈakːe."
+    },
+    {
+      "scene": 14,
+      "speech_start": 231.89000000000001,
+      "speech_end": 249.44000000000003,
+      "scene_end": 250.02000000000004,
+      "duration": 18.130000000000024,
+      "text": "Le soglie di rilevamento raggruppano probabilità candidata, coerenza di flusso, ridimensionamento, campionamento e riempimento di buchi. Queste impostazioni influenzano la nuova segmentazione; non alterano le maschere precomputate riutilizzate in questa dimostrazione.",
+      "speech_text": "Le soglie di rilevamento raggruppano probabilità candidata, coerenza di flusso, ridimensionamento, campionamento e riempimento di buchi. Queste impostazioni influenzano la nuova segmentazione; non alterano le maschere precomputate riutilizzate in questa dimostrazione.",
+      "phonemes": "le sˈoʎe dɪ rilevamˈento raɡːrˈupːano probabilitˈa kandidˈata, koerˈɛnʦa dɪ flˈuSo, ridimensjonamˈento, kampjonamˈento e riempimˈento dɪ bˈukɪ. kwˌeste impostaʦiˈonɪ inflʊˈɛnʦano la nʊˈɔva seɡmentaʦiˈone; non ˈalterano le mˈaːskˌɛre prekompʊtˈate riʊtiliʣːˈate in kwˌesta dimostraʦiˈone."
+    },
+    {
+      "scene": 15,
+      "speech_start": 250.02000000000004,
+      "speech_end": 265.82000000000005,
+      "scene_end": 266.40000000000003,
+      "duration": 16.379999999999995,
+      "text": "I controlli di geometria delle immagini si ridimensionano alle dimensioni attese dal modello di placca bundled. La maschera viene ridimensionata al campo originale prima che l'area sia segnalata, in modo che la misura rimanga in pixel originali.",
+      "speech_text": "I controlli di geometria delle immagini si ridimensionano alle dimensioni attese dal modello di placca bundled. La maschera viene ridimensionata al campo originale prima che l'area sia segnalata, in modo che la misura rimanga in pixel originali.",
+      "phonemes": "i kontrˈɔllɪ dɪ ʤeometrˈia dˌelle immˈaʤinɪ sɪ ridimensjˈɔnano ˌalle dimensjˈonɪ atːˈeze dal modˈɛllo dɪ plˈakːa bˈundled. la mˈaːskˌɛra vjˈɛne ridimensjonˈata al kˈampo oriʤinˈale prˈima ke lˈarea sˌia seɲalˈata, in mˈɔdo ke la mizˈura rimˈaŋɡa in pˈiksel oriʤinˈalɪ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 266.40000000000003,
+      "speech_end": 282.62500000000006,
+      "scene_end": 283.17500000000007,
+      "duration": 16.775000000000034,
+      "text": "Il background e Denoising controllano la rimozione di sfondo e l'ancorazione segnale-ruido utilizzata durante la normalizzazione. Aggiungerlo su pozzi di controllo e trattamento rappresentativi prima di un'intera esecuzione di segmentazione.",
+      "speech_text": "Il background e Denoising controllano la rimozione di sfondo e l'ancorazione segnale-ruido utilizzata durante la normalizzazione. Aggiungerlo su pozzi di controllo e trattamento rappresentativi prima di un'intera esecuzione di segmentazione.",
+      "phonemes": "il bakːɡrˈoʊnd e denˈɔiziŋɡ kontrˈɔllano la rimoʦiˈone dɪ sfˈondo e lankoraʦiˈone seɲˈalerˈuido ʊtiliʣːˈata dʊrˈante la normaliʣːaʦiˈone. aʤːˈunʤerlo sʊ pˈoʦːɪ dɪ kontrˈɔllo e tratːamˈento rapːrezentatˈivɪ prˈima dɪ ʊnintˈɛra ezekʊʦiˈone dɪ seɡmentaʦiˈone."
+    },
+    {
+      "scene": 17,
+      "speech_start": 283.17500000000007,
+      "speech_end": 300.2250000000001,
+      "scene_end": 300.7750000000001,
+      "duration": 17.600000000000023,
+      "text": "Controlli di output e runtime risparmio, GPU batch size e verbosity. Ridurre le dimensioni del lotto se la segmentazione supera la memoria disponibile; mantenere il registro verbo per la prima targa in modo da registrare percorsi e comportamenti risolti.",
+      "speech_text": "Controlli di output e runtime risparmio, GPU batch size e verbosity. Ridurre le dimensioni del lotto se la segmentazione supera la memoria disponibile; mantenere il registro verbo per la prima targa in modo da registrare percorsi e comportamenti risolti.",
+      "phonemes": "kontrˈɔllɪ dɪ oˈutpʊt e rˈuntime rispˈarmio, ʤˌipˌiˈuː bˈatʧ sˈiʦe e verbozˈitɪ. ridˈurɾe le dimensjˈonɪ del lˈɔtːo se la seɡmentaʦiˈone sˈupera la memˈɔria disponˈibile; mantenˈɛre il reʤˈistro vˈɛrbo per la prˈima tˈarɡa in mˈɔdo da reʤistrˈare perkˈorsɪ e komportamˈentɪ rizˈɔltɪ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 300.7750000000001,
+      "speech_end": 317.8500000000001,
+      "scene_end": 318.43000000000006,
+      "duration": 17.654999999999973,
+      "text": "Durante la segmentazione, la probabilità controlla il pavimento candidato, la soglia di flusso controlla la coerenza della forma e il riempimento chiude i fori interni. Ispezionare più pozzi perché un valore che pulita una targa può fondersi o cancellare un'altra.",
+      "speech_text": "Durante la segmentazione, la probabilità controlla il pavimento candidato, la soglia di flusso controlla la coerenza della forma e il riempimento chiude i fori interni. Ispezionare più pozzi perché un valore che pulita una targa può fondersi o cancellare un'altra.",
+      "phonemes": "dʊrˈante la seɡmentaʦiˈone, la probabilitˈa kontrˈɔlla il pavimˈento kandidˈato, la sˈɔʎa dɪ flˈuSo kontrˈɔlla la koerˈɛnʦa dˌella fˈorma e il riempimˈento kjˈude i fˈorɪ intˈɛrnɪ. ispeʦjonˈare pjʊ pˈoʦːɪ perkˌe ʊn valˈore ke pʊlˈita ˌʊna tˈarɡa pʊˈɔ fˈondersɪ o kanʧellˈare ʊnˈaltra."
+    },
+    {
+      "scene": 19,
+      "speech_start": 318.43000000000006,
+      "speech_end": 336.38000000000005,
+      "scene_end": 336.9800000000001,
+      "duration": 18.55000000000001,
+      "text": "Fai clic su eseguire dopo aver rivisto le impostazioni modificate. Questa dimostrazione misura quattro maschere sintetiche etichettate attraverso il backend reale di analisi delle placche; non presenta i campi sintetici come validazione biologica del modello di segmentazione.",
+      "speech_text": "Fai clic su eseguire dopo aver rivisto le impostazioni modificate. Questa dimostrazione misura quattro maschere sintetiche etichettate attraverso il backend reale di analisi delle placche; non presenta i campi sintetici come validazione biologica del modello di segmentazione.",
+      "phonemes": "fˈaːi klˈik sʊ ezeɡwˈire dˈopo avˈɛr rivˈisto le impostaʦiˈonɪ modifikˈate. kwˌesta dimostraʦiˈone mizˈura kwˈatːro mˈaːskˌɛre sintˈɛtike etiketːˈate atːravˈɛrso il bˈakːend reˈale dɪ anˈalizɪ dˌelle plˈakːe; non prezˈɛnta i kˈampɪ sintˈɛtiʧɪ kˌome validaʦiˈone bjolˈɔʤika del modˈɛllo dɪ seɡmentaʦiˈone."
+    },
+    {
+      "scene": 20,
+      "speech_start": 336.9800000000001,
+      "speech_end": 352.05500000000006,
+      "scene_end": 352.6050000000001,
+      "duration": 15.625,
+      "text": "Durante l'esecuzione la console stampa il record di riproducibilità, la sorgente e la destinazione risolte e ogni maschera che viene analizzata. Fermare le richieste di cancellazione; aspettare Finito prima di aprire le uscite.",
+      "speech_text": "Durante l'esecuzione la console stampa il record di riproducibilità, la sorgente e la destinazione risolte e ogni maschera che viene analizzata. Fermare le richieste di cancellazione; aspettare Finito prima di aprire le uscite.",
+      "phonemes": "dʊrˈante lezekʊʦiˈone la kˈɔnsole stˈampa il rˈɛkord dɪ riprodʊʧibilitˈa, la sorʤˈɛnte e la destinaʦiˈone rizˈɔlte e ˌoɲɲɪ mˈaːskˌɛra ke vjˈɛne analiʣːˈata. fermˈare le rikjˈɛste dɪ kanʧellaʦiˈone; aspetːˈare finˈito prˈima dɪ aprˈire le ʊʃˈite."
+    },
+    {
+      "scene": 21,
+      "speech_start": 352.6050000000001,
+      "speech_end": 372.9800000000001,
+      "scene_end": 373.7800000000001,
+      "duration": 21.17500000000001,
+      "text": "La corsa scrive plaques_analysis.db nella cartella maschere con riassunto, statistiche e tabelle di dettagli. Questi quattro campi contengono rispettivamente quattro, tre, due e una placche; utilizzare i numeri per immagine e le aree con i metadati della placca per le statistiche a livello di condizione a valle e il controllo della qualità.",
+      "speech_text": "La corsa scrive plaques_analysis.db nella cartella maschere con riassunto, statistiche e tabelle di dettagli. Questi quattro campi contengono rispettivamente quattro, tre, due e una placche; utilizzare i numeri per immagine e le aree con i metadati della placca per le statistiche a livello di condizione a valle e il controllo della qualità.",
+      "phonemes": "la kˈorsa skrˈive plˈakwes analˈizis.d̪ˌiːbˈi nˈella kartˈɛlla mˈaːskˌɛre kon riaSˈunto, statˈistike e tabˈɛlle dɪ detːˈaʎɪ. kwˌestɪ kwˈatːro kˈampɪ kontˈeŋɡono rispetːivamˈente kwˈatːro, trˈe, dˈue e ˌʊna plˈakːe; ʊtiliʣːˈare i nˈumerɪ per immˈaʤine e le ˈaːree kon i metadˈatɪ dˌella plˈakːa per le statˈistike a livˈɛllo dɪ kondiʦiˈone a vˈalle e il kontrˈɔllo dˌella kwalitˈa."
     }
   ]
 }

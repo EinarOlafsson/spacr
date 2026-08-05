@@ -161,11 +161,16 @@ jobs:
         run: |
           pkg=$(find dist/online -name '*macOS*Online.pkg' -print -quit)
           sudo installer -verboseR -pkg "$pkg" -target /
-          test -s "/Library/Application Support/SpaCR/install.log"
           test -s "/Applications/SpaCR.app/Contents/Resources/SpaCR.icns"
           test -L /usr/local/bin/spacr
-          "/Library/Application Support/SpaCR/venv/bin/python" -I -c \
-            "import spacr, PySide6, torch; assert torch.version.cuda is None"
+          SPACR_NO_RELAUNCH=1 \
+            "/Library/Application Support/SpaCR/install-for-user.sh"
+          runtime="$HOME/Library/Application Support/SpaCR"
+          test -s "$runtime/install.log"
+          "$runtime/venv/bin/python" -I -c \
+            "import numpy as np, spacr, PySide6, torch; \
+             assert torch.version.cuda is None; \
+             assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1"
       - uses: actions/upload-artifact@v7
         with:
           name: spacr-online-macos

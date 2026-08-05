@@ -4,47 +4,127 @@
   "voice": "bf_lily",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.325,
+  "total_duration": 225.505,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.35,
-      "scene_end": 8.799999999999999,
-      "duration": 8.799999999999999,
-      "text": "This tutorial covers Import Project. Bring another laboratory's images, masks, and measurement table into a spaCR project."
+      "speech_end": 19.125,
+      "scene_end": 19.945,
+      "duration": 19.945,
+      "text": "Import Project brings another laboratory's images, label masks, and measurements into a spaCR project without treating an inferred mapping as truth. Open it from Data and batch runs. The upper controls describe their inputs, the middle is an editable review, and the lower controls save that decision or start the separate import.",
+      "speech_text": "Import Project brings another laboratory's images, label masks, and measurements into a spacer project without treating an inferred mapping as truth. Open it from Data and batch runs. The upper controls describe their inputs, the middle is an editable review, and the lower controls save that decision or start the separate import.",
+      "phonemes": "ˈɪmpɔːt pɹˈɒʤɛkt bɹˈɪŋz ənˈʌðə ləbˈɒɹətəɹiz ˈɪmɪʤɪz, lˈAbᵊl mˈɑːsks, and mˈɛʒəmᵊnts ˈɪntuː ɐ spˈAsə pɹˈɒʤɛkt wɪðˈWt tɹˈiːtɪŋ ɐn ɪnfˈɜːd mˈapɪŋ az tɹˈuːθ. ˈQpᵊn ɪt fɹɒm dˈAtə and bˈaʧ ɹˈʌnz. ði ˈʌpə kəntɹˈQlz dɪskɹˈIb ðɛː ˈɪnpʊts, ðə mˈɪdᵊl ɪz ɐn ˈɛdɪtəbᵊl ɹɪvjˈuː, and ðə lˈQə kəntɹˈQlz sˈAv ðˈat dɪsˈɪʒᵊn ɔː stˈɑːt ðə sˈɛpəɹət ˈɪmpɔːt."
     },
     {
       "scene": 2,
-      "speech_start": 8.799999999999999,
-      "speech_end": 18.1,
-      "scene_end": 18.55,
-      "duration": 9.750000000000002,
-      "text": "Open Import Project from the Data and batch runs section. Provide images, optional masks, a measurement table, and stable external identifiers."
+      "speech_start": 19.945,
+      "speech_end": 38.97,
+      "scene_end": 39.769999999999996,
+      "duration": 19.824999999999996,
+      "text": "Choose or drop the external image folder and select a new destination. This lesson uses two real 2000-by-2000 fields, each with four fluorescence channels. The source spaCR arrays were decoded into neutral TIFF inputs only for the cross-tool import demonstration; no synthetic pixels were created.",
+      "speech_text": "Choose or drop the external image folder and select a new destination. This lesson uses two real 2000-by-2000 fields, each with four fluorescence channels. The source spacer arrays were decoded into neutral TIFF inputs only for the cross-tool import demonstration; no synthetic pixels were created.",
+      "phonemes": "ʧˈuːz ɔː dɹˈɒp ði ɪkstˈɜːnᵊl ˈɪmɪʤ fˈQldə and sɪlˈɛkt ɐ njˈuː dˌɛstɪnˈAʃᵊn. ðˌɪs lˈɛsᵊn jˈuːzɪz tˈuː ɹˈɪəl tˈuː θˈWzᵊnd bI tˈuː θˈWzᵊnd fˈiːldz, ˈiːʧ wɪð fˈɔː flʊəɹˈɛsns ʧˈanᵊlz. ðə sˈɔːs spˈAsə əɹˈAz wɜː diːkˈQdɪd ˈɪntuː njˈuːtɹᵊl tˈɪf ˈɪnpʊts ˈQnli fɔː ðə kɹˌɒstˈuːl ˈɪmpɔːt dˌɛmənstɹˈAʃᵊn; nˈQ sɪnθˈɛtɪk pˈɪksᵊlz wɜː kɹɪˈAtɪd."
     },
     {
       "scene": 3,
-      "speech_start": 18.55,
-      "speech_end": 27.775,
-      "scene_end": 28.224999999999998,
-      "duration": 9.674999999999997,
-      "text": "In the main configuration area, map foreign columns onto spaCR identifiers, channels, object types, plate metadata, and provenance fields."
+      "speech_start": 39.769999999999996,
+      "speech_end": 56.845,
+      "scene_end": 57.585,
+      "duration": 17.815000000000005,
+      "text": "A merged spaCR field can carry one label plane for each object class. Select a class, choose its folder, and click Add. Repeat for cell, nucleus, pathogen, and organelle masks. Every field must have every declared class; unmatched image or mask files are listed rather than guessed.",
+      "speech_text": "A merged spacer field can carry one label plane for each object class. Select a class, choose its folder, and click Add. Repeat for cell, nucleus, pathogen, and organelle masks. Every field must have every declared class; unmatched image or mask files are listed rather than guessed.",
+      "phonemes": "ɐ mˈɜːʤd spˈAsə fˈiːld kan kˈaɹi wˈʌn lˈAbᵊl plˈAn fɔː ˈiːʧ ˈɒbʤɛkt klˈɑːs. sɪlˈɛkt ɐ klˈɑːs, ʧˈuːz ɪts fˈQldə, and klˈɪk ˈad. ɹɪpˈiːt fɔː sˈɛl, njˈuːklɪəs, pˈaθəʤᵊn, and ˌɔːɡənˈɛl mˈɑːsks. ˈɛvəɹi fˈiːld mˈʌst hav ˈɛvəɹi dɪklˈɛːd klˈɑːs; ʌnmˈaʧt ˈɪmɪʤ ɔː mˈɑːsk fˈIlz ɑː lˈɪstɪd ɹˈɑːðə ðən ɡˈɛst."
     },
     {
       "scene": 4,
-      "speech_start": 28.224999999999998,
-      "speech_end": 40.4,
-      "scene_end": 40.85,
-      "duration": 12.625000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate joins, missing values, image-mask alignment, and duplicate identifiers before import."
+      "speech_start": 57.585,
+      "speech_end": 79.56,
+      "scene_end": 80.42,
+      "duration": 22.835,
+      "text": "Add the real measurement CSV and declare 0.65 micrometres per pixel so square-micrometre areas can be converted correctly. The table intentionally contains a column named cell_area. Rename to the foreign prefix preserves that external value without silently replacing a spaCR feature. The original files remain read-only, and output goes to the new destination.",
+      "speech_text": "Add the real measurement CSV and declare 0.65 micrometres per pixel so square-micrometre areas can be converted correctly. The table intentionally contains a column named cell_area. Rename to the foreign prefix preserves that external value without silently replacing a spacer feature. The original files remain read-only, and output goes to the new destination.",
+      "phonemes": "ˈad ðə ɹˈɪəl mˈɛʒəmᵊnt sˌiːˌɛsvˈiː and dɪklˈɛː zˈɪəɹQ pYnt sˈɪks fˈIv mˈIkɹQmˌiːtəz pɜː pˈɪksᵊl sˌQ skwˌɛːmˈIkɹQmˌiːtə ˈɛːɹɪəz kan biː kənvˈɜːtɪd kəɹˈɛktli. ðə tˈAbᵊl ɪntˈɛnʃənəli kəntˈAnz ɐ kˈɒləm nˈAmd sˌɛlˈɛːɹɪə. ɹiːnˈAm tə ðə fˈɒɹɪn pɹˈiːfɪks pɹɪzˈɜːvz ðat ɪkstˈɜːnᵊl vˈaljuː wɪðˈWt sˈIləntli ɹɪplˈAsɪŋ ɐ spˈAsə fˈiːʧə. ði əɹˈɪʤənᵊl fˈIlz ɹɪmˈAn ɹˌɛdˈQnli, and ˈWtpʊt ɡˈQz tə ðə njˈuː dˌɛstɪnˈAʃᵊn."
     },
     {
       "scene": 5,
-      "speech_start": 40.85,
-      "speech_end": 47.675000000000004,
-      "scene_end": 48.325,
-      "duration": 7.475000000000001,
-      "text": "When the workflow finishes, the standardized project preserves links back to every original file and identifier."
+      "speech_start": 80.42,
+      "speech_end": 93.44500000000001,
+      "scene_end": 94.12500000000001,
+      "duration": 13.705000000000013,
+      "text": "Click Preview before importing. Preview scans the image headers, pairs every mask by field, reads the measurement table, checks object labels, proposes column mappings, resolves units and name conflicts, and writes nothing.",
+      "speech_text": "Click Preview before importing. Preview scans the image headers, pairs every mask by field, reads the measurement table, checks object labels, proposes column mappings, resolves units and name conflicts, and writes nothing.",
+      "phonemes": "klˈɪk pɹˈiːvjuː bɪfˈɔː ɪmpˈɔːtɪŋ. pɹˈiːvjuː skˈanz ði ˈɪmɪʤ hˈɛdəz, pˈɛːz ˈɛvəɹi mˈɑːsk bI fˈiːld, ɹˈiːdz ðə mˈɛʒəmᵊnt tˈAbᵊl, ʧˈɛks ˈɒbʤɛkt lˈAbᵊlz, pɹəpˈQzɪz kˈɒləm mˈapɪŋz, ɹɪzˈɒlvz jˈuːnɪts and nˈAm kˈɒnflɪkts, and ɹˈIts nˈʌθɪŋ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 94.12500000000001,
+      "speech_end": 115.95000000000002,
+      "scene_end": 116.83000000000001,
+      "duration": 22.705,
+      "text": "The two fields are ready. The editable table shows each external column, proposed spaCR target, transform, input and output units, and a review note. The report confirms that 206 of 207 measurement rows match real cell labels. One absent label and 1,198 mask objects without table rows are disclosed, never silently discarded or invented.",
+      "speech_text": "The two fields are ready. The editable table shows each external column, proposed spacer target, transform, input and output units, and a review note. The report confirms that 206 of 207 measurement rows match real cell labels. One absent label and 1,198 mask objects without table rows are disclosed, never silently discarded or invented.",
+      "phonemes": "ðə tˈuː fˈiːldz ɑː ɹˈɛdi. ði ˈɛdɪtəbᵊl tˈAbᵊl ʃˈQz ˈiːʧ ɪkstˈɜːnᵊl kˈɒləm, pɹəpˈQzd spˈAsə tˈɑːɡɪt, tɹˈɑːnsfɔːm, ˈɪnpʊt and ˈWtpʊt jˈuːnɪts, and ɐ ɹɪvjˈuː nˈQt. ðə ɹɪpˈɔːt kənfˈɜːmz ðat tˈuː hˈʌndɹəd sˈɪks ɒv tˈuː hˈʌndɹəd sˈɛvᵊn mˈɛʒəmᵊnt ɹˈQz mˈaʧ ɹˈɪəl sˈɛl lˈAbᵊlz. wˈʌn ˈabsᵊnt lˈAbᵊl and wˈʌn θˈWzᵊnd wˈʌn hˈʌndɹəd nˈInti ˈAt mˈɑːsk ˈɒbʤɛkts wɪðˈWt tˈAbᵊl ɹˈQz ɑː dɪsklˈQzd, nˈɛvə sˈIləntli dɪskˈɑːdɪd ɔː ɪnvˈɛntɪd."
+    },
+    {
+      "scene": 7,
+      "speech_start": 116.83000000000001,
+      "speech_end": 134.93,
+      "scene_end": 135.67000000000002,
+      "duration": 18.840000000000003,
+      "text": "The proposal is deliberately editable. Select the spaCR-column cell for AreaShape_Area_um2 and replace the target with a reviewed, meaningful name. Transform and unit columns may also be corrected here; every edit immediately re-runs collision and calibration checks without rescanning the folders.",
+      "speech_text": "The proposal is deliberately editable. Select the spacer-column cell for AreaShape_Area_um2 and replace the target with a reviewed, meaningful name. Transform and unit columns may also be corrected here; every edit immediately re-runs collision and calibration checks without rescanning the folders.",
+      "phonemes": "ðə pɹəpˈQzᵊl ɪz dɪlˈɪbəɹətli ˈɛdɪtəbᵊl. sɪlˈɛkt ðə spˈAsəkˌɒləm sˈɛl fɔː ˈɛːɹɪə ʃˈAp ˈɛːɹɪə ˈʌm tˈuː and ɹɪplˈAs ðə tˈɑːɡɪt wɪð ɐ ɹɪvjˈuːd, mˈiːnɪŋfʊl nˈAm. tɹˈɑːnsfɔːm and jˈuːnɪt kˈɒləmz mˈA ˈɔːlsQ biː kəɹˈɛktɪd hˈɪə; ˈɛvəɹi ˈɛdɪt ɪmˈiːdɪətli ɹˌiːɹˈʌnz kəlˈɪʒᵊn and kˌalɪbɹˈAʃᵊn ʧˈɛks wɪðˈWt ɹˌiːskˈanɪŋ ðə fˈQldəz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 135.67000000000002,
+      "speech_end": 151.79500000000002,
+      "scene_end": 152.53500000000003,
+      "duration": 16.86500000000001,
+      "text": "The area target is now foreign_reviewed_cell_area. Its area transform remains calibrated from square micrometres to square pixels, while the conflicting external cell_area is separately renamed with the foreign prefix. The status still says nothing has been written.",
+      "speech_text": "The area target is now foreign_reviewed_cell_area. Its area transform remains calibrated from square micrometres to square pixels, while the conflicting external cell_area is separately renamed with the foreign prefix. The status still says nothing has been written.",
+      "phonemes": "ði ˈɛːɹɪə tˈɑːɡɪt ɪz nˈW fˌɒɹɪnɹɪvjˈuːdsˌɛlˈɛːɹɪə. ˌɪts ˈɛːɹɪə tɹˈɑːnsfɔːm ɹɪmˈAnz kˈalɪbɹAtɪd fɹɒm skwˈɛː mˈIkɹQmˌiːtəz tə skwˈɛː pˈɪksᵊlz, wˌIl ðə kənflˈɪktɪŋ ɪkstˈɜːnᵊl sˌɛlˈɛːɹɪə ɪz sˈɛpəɹətli ɹiːnˈAmd wɪð ðə fˈɒɹɪn pɹˈiːfɪks. ðə stˈAtəs stˈɪl sˈɛz nˈʌθɪŋ haz biːn ɹˈɪtᵊn."
+    },
+    {
+      "scene": 9,
+      "speech_start": 152.53500000000003,
+      "speech_end": 166.21000000000004,
+      "scene_end": 166.91000000000003,
+      "duration": 14.375,
+      "text": "Click Save mapping to write the complete review as CSV. The file can be inspected, versioned, shared with a collaborator, edited outside the application, and loaded again. Import will apply exactly the mapping shown on screen.",
+      "speech_text": "Click Save mapping to write the complete review as CSV. The file can be inspected, versioned, shared with a collaborator, edited outside the application, and loaded again. Import will apply exactly the mapping shown on screen.",
+      "phonemes": "klˈɪk sˈAv mˈapɪŋ tə ɹˈIt ðə kəmplˈiːt ɹɪvjˈuː az sˌiːˌɛsvˈiː. ðə fˈIl kan biː ɪnspˈɛktɪd, vˈɜːʃᵊnd, ʃˈɛːd wɪð ɐ kəlˈabəɹAtə, ˈɛdɪtɪd ˌWtsˈId ði ˌaplɪkˈAʃᵊn, and lˈQdɪd əɡˈɛn. ˈɪmpɔːt wɪl əplˈI ɪɡzˈaktli ðə mˈapɪŋ ʃˈQn ˌɒn skɹˈiːn."
+    },
+    {
+      "scene": 10,
+      "speech_start": 166.91000000000003,
+      "speech_end": 184.235,
+      "scene_end": 184.97500000000002,
+      "duration": 18.064999999999998,
+      "text": "The reviewed mapping is saved beside the isolated tutorial output. Load mapping restores the same decisions later. The destination must be new or belong to the same experiment; Import Project refuses a destination containing measurements from different fields before writing a file.",
+      "speech_text": "The reviewed mapping is saved beside the isolated tutorial output. Load mapping restores the same decisions later. The destination must be new or belong to the same experiment; Import Project refuses a destination containing measurements from different fields before writing a file.",
+      "phonemes": "ðə ɹɪvjˈuːd mˈapɪŋ ɪz sˈAvd bɪsˈId ði ˈIsəlAtɪd tjuːtˈɔːɹɪəl ˈWtpʊt. lˈQd mˈapɪŋ ɹɪstˈɔːz ðə sˈAm dɪsˈɪʒᵊnz lˈAtə. ðə dˌɛstɪnˈAʃᵊn mˈʌst biː njˈuː ɔː bɪlˈɒŋ tə ðə sˈAm ɪkspˈɛɹɪmᵊnt; ˈɪmpɔːt pɹˈɒʤɛkt ɹɪfjˈuːzɪz ɐ dˌɛstɪnˈAʃᵊn kəntˈAnɪŋ mˈɛʒəmᵊnts fɹɒm dˈɪfəɹənt fˈiːldz bɪfˈɔː ɹˈItɪŋ ɐ fˈIl."
+    },
+    {
+      "scene": 11,
+      "speech_start": 184.97500000000002,
+      "speech_end": 201.95000000000002,
+      "scene_end": 202.73000000000002,
+      "duration": 17.754999999999995,
+      "text": "After reviewing the images, four mask classes, join report, units, conflicts, and destination, click Import. This separate action converts image names, writes intensity and mask stacks, builds merged arrays with spaCR's native plane order, and creates the database and provenance records.",
+      "speech_text": "After reviewing the images, four mask classes, join report, units, conflicts, and destination, click Import. This separate action converts image names, writes intensity and mask stacks, builds merged arrays with spacer's native plane order, and creates the database and provenance records.",
+      "phonemes": "ˈɑːftə ɹɪvjˈuːɪŋ ði ˈɪmɪʤɪz, fˈɔː mˈɑːsk klˈɑːsɪz, ʤˈYn ɹɪpˈɔːt, jˈuːnɪts, kˈɒnflɪkts, and dˌɛstɪnˈAʃᵊn, klˈɪk ˈɪmpɔːt. ðˌɪs sˈɛpəɹət ˈakʃᵊn kˈɒnvəːts ˈɪmɪʤ nˈAmz, ɹˈIts ɪntˈɛnsɪti and mˈɑːsk stˈaks, bˈɪldz mˈɜːʤd əɹˈAz wɪð spˈAsəz nˈAtɪv plˈAn ˈɔːdə, and kɹɪˈAts ðə dˈAtəbAs and pɹˈɒvɪnəns ɹˈɛkɔːdz."
+    },
+    {
+      "scene": 12,
+      "speech_start": 202.73000000000002,
+      "speech_end": 224.60500000000002,
+      "scene_end": 225.50500000000002,
+      "duration": 22.775000000000006,
+      "text": "The import completes with two fields, eight converted channel TIFFs, eight mask arrays, and two merged arrays containing four intensity planes followed by cell, nucleus, pathogen, and organelle labels. All 207 external rows are preserved in foreign_cell and a canonical convenience copy, while measurements.db and the applied mapping record which columns came from outside spaCR.",
+      "speech_text": "The import completes with two fields, eight converted channel TIFFs, eight mask arrays, and two merged arrays containing four intensity planes followed by cell, nucleus, pathogen, and organelle labels. All 207 external rows are preserved in foreign_cell and a canonical convenience copy, while measurements dot db and the applied mapping record which columns came from outside spacer.",
+      "phonemes": "ði ˈɪmpɔːt kəmplˈiːts wɪð tˈuː fˈiːldz, ˈAt kənvˈɜːtɪd ʧˈanᵊl tˈɪfs, ˈAt mˈɑːsk əɹˈAz, and tˈuː mˈɜːʤd əɹˈAz kəntˈAnɪŋ fˈɔː ɪntˈɛnsɪti plˈAnz fˈɒlQd bI sˈɛl, njˈuːklɪəs, pˈaθəʤᵊn, and ˌɔːɡənˈɛl lˈAbᵊlz. ˈɔːl tˈuː hˈʌndɹəd sˈɛvᵊn ɪkstˈɜːnᵊl ɹˈQz ɑː pɹɪzˈɜːvd ɪn fˈɒɹɪnsˌɛl and ɐ kənˈɒnɪkᵊl kənvˈiːnɪəns kˈɒpi, wˌIl mˈɛʒəmᵊnts dˈɒt dˌiːbˈiː and ði əplˈId mˈapɪŋ ɹˈɛkɔːd wˌɪʧ kˈɒləmz kˈAm fɹɒm ˌWtsˈId spˈAsə."
     }
   ]
 }
