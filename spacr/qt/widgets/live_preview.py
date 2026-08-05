@@ -216,6 +216,20 @@ def load_preview_mip(paths) -> np.ndarray:
     return projected
 
 
+def _widget_text(widget) -> str:
+    """Best-effort current value of a settings widget, or ``""``."""
+    if widget is None:
+        return ""
+    for attr in ("currentText", "text"):
+        getter = getattr(widget, attr, None)
+        if callable(getter):
+            try:
+                return (getter() or "").strip()
+            except Exception:
+                return ""
+    return ""
+
+
 def _full_range_max(img: np.ndarray) -> float:
     """Return the value that maps to white for a *raw* (un-normalised) view.
 
@@ -1245,12 +1259,11 @@ class LivePreviewPanel(QWidget):
         populate_channel_combo(self._channel_box, 0)
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
-        # The set table is what the count field counts. The dropdown stays,
-        # hidden, because it is still the thing apply_sample_to_combo fills
-        # and the thing the saved view state names a field of view by --
-        # driving it from the table keeps both without showing two controls
-        # that pick the same thing.
-        self._fov_box.setVisible(False)
+        # The dropdown stays VISIBLE. It was hidden once on the assumption
+        # the table would always be populated; when enumeration finds no sets
+        # -- which is every folder whose names the configured regex does not
+        # match -- that left an empty table and no way at all to choose an
+        # image. A redundant control is a far smaller problem than no control.
         self._set_table = QTableWidget(0, 0, self)
         self._set_table.setObjectName("PreviewSetTable")
         self._set_table.setSelectionBehavior(QTableWidget.SelectItems)
@@ -1501,8 +1514,10 @@ class LivePreviewPanel(QWidget):
         every single image load — re-scans nothing once the folder is known.
         """
         if self._image_path is not None:
+            meta, custom = self._regex_config()
             self._sampler.enumerate(
-                Path(self._image_path).parent, SUPPORTED_SUFFIXES)
+                Path(self._image_path).parent, SUPPORTED_SUFFIXES,
+                metadata_type=meta, custom_regex=custom)
         self._sample_note = apply_sample_to_combo(
             self._fov_box, self._max_sets_box, self._sampler,
             self._image_path, tooltip="Field of view")
@@ -1514,6 +1529,37 @@ class LivePreviewPanel(QWidget):
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""
         return getattr(self, "_sample_note", "")
+
+    def _regex_config(self) -> tuple:
+        """The naming dialect the user configured, for grouping their files.
+
+        The preview used to enumerate with the default dialect no matter what
+        the module was set to, so a folder whose names only the user's own
+        regex understands produced one set per file with no channel at all --
+        which is an empty channel list, no field grouping, no z detection, and
+        a MIP switch that could never enable. Confirming a regex on import
+        then had no effect on the thing standing next to it.
+
+        Read by walking up to the screen that owns the settings widgets, so a
+        panel used on its own (or in a test) still works and simply gets the
+        defaults.
+
+        :returns: ``(metadata_type, custom_regex or None)``.
+        """
+        meta, custom = DEFAULT_METADATA_TYPE, None
+        widget = self
+        for _ in range(12):                    # bounded; parents are shallow
+            widget = widget.parent() if hasattr(widget, "parent") else None
+            if widget is None:
+                break
+            model = getattr(widget, "_settings_model", None)
+            widgets = getattr(model, "_widgets", None) if model else None
+            if not widgets:
+                continue
+            meta = _widget_text(widgets.get("metadata_type")) or meta
+            custom = _widget_text(widgets.get("custom_regex")) or None
+            break
+        return meta, custom
 
     def _populate_set_table(self) -> None:
         """Fill the table with the sampled sets: a row each, a column per channel.
