@@ -340,7 +340,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
-            "all_to_mip", "upscale", "upscale_factor", "consolidate",
+            "upscale", "upscale_factor", "consolidate",
             "denoise",
         )),
         ("Cell Segmentation", ("@Cell",)),
@@ -416,7 +416,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
-            "all_to_mip", "upscale", "upscale_factor", "consolidate",
+            "upscale", "upscale_factor", "consolidate",
             "denoise",
         )),
         ("Cell Segmentation", ("@Cell",)),

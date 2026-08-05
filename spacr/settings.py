@@ -403,7 +403,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_objects', ['cell'])
 
     # Misc settings
-    settings.setdefault('all_to_mip', False)
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
@@ -646,7 +645,6 @@ def set_default_settings_preprocess_img_data(settings):
     settings.setdefault('timelapse', False)
     settings.setdefault('lower_percentile', 2)
     settings.setdefault('randomize', True)
-    settings.setdefault('all_to_mip', False)
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
@@ -2468,6 +2466,7 @@ DEAD_SETTINGS = {
     'signal_direction': 'single_direction',
     'class_1_threshold': 'score_threshold',
     'pick_slice': 'z_projection',
+    'all_to_mip': 'z_projection',
     'metadata_types': 'metadata_type',
     # Cellpose 4 segments everything with cpsam; the object's model is named
     # by its own <object>_model_name.
@@ -2586,7 +2585,7 @@ tooltips = {
     "adjust_cells": "(bool) - After segmentation, rewrite the cell masks so labels split across a single pathogen or nucleus are merged, and cell fragments with no nucleus are absorbed into the neighbour they share most perimeter with. Needs cell, nucleus and pathogen channels and is skipped for timelapse runs. Enable when large infected cells come back fragmented. Default False.",
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
     "alpha": "(float) - Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
-    "all_to_mip": "(bool) - Append an extra channel to every .npy in stack/ holding the pixel-wise maximum across that file's existing channels; the original channels are kept, not replaced. The new channel's index equals the previous channel count, so reference it through the channel/mask dim settings if you want to segment on it. Default False.",
+    "all_to_mip": "(bool) - Retired: nothing in spaCR reads settings['all_to_mip'], so turning it on changes nothing. It was written to max-project z-stacks, but the ingest came to project z per field and channel in _rename_and_organize_image_files before anything reaches stack/, which left axis 2 of those arrays holding channels -- so the setting had quietly become a pixel-wise maximum ACROSS CHANNELS, appended as an extra channel. z-projection now always happens and needs no setting; z_projection chooses how, once z_stack is on. Rejected by the pre-flight check and by spacr-run --set.",
     # --- 3D (Beta) -------------------------------------------------------
     # These describe what the z plumbing does, and say plainly where it stops.
     # A user must not read these and believe spaCR measures volumes today.
@@ -3334,7 +3333,7 @@ categories = {
     # nuclei_limit / pathogen_limit for "Measurements": all three change what
     # the run produces rather than how it is tuned, and hiding them here is
     # what put them at the bottom of the Classify (CV) dataset settings.
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "all_to_mip", "upscale", "upscale_factor", "consolidate", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "crop_source", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "compression", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "upscale", "upscale_factor", "consolidate", "use_sam_pathogen", "use_sam_nucleus", "use_sam_cell", "denoise"],
 
     # Experimental volumetric controls are deliberately split by dimensional
     # contract. `z_axis` lives with 3D because 4D builds on the same z plan;
