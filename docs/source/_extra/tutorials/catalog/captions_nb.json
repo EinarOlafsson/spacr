@@ -900,19 +900,88 @@
       "id": "17_timelapse",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Timelapse. Segmentere, knytte sammen og måle celler eller patogener over rammene i en tidsserie."
+          "narration": "Timelapse segmenterer hvert ramme og kobler de valgte objektene til stabile spor. Konsolen registrerer forhåndsbehandling, masker, sporingsforsøk, kvalitetskontroll, filmer, sammensatte matriser og reproduserbare filer."
         },
         {
-          "narration": "Åpne Timelapse fra kjernen. Velg et tidsoppløselig bildesett som filenavnene bevarer felt, tid, dybde og kanalindekser."
+          "narration": "Chatfeltet aksepterer lokale kommandoer eller arbeidsflytspørsmål. Aktiver AI for en konfigurert leverandør, og bruk den tilstøtende pilen for å velge en leverandør eller åpne kontroller."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet konfigurere segmentering, sporede objekttyper, koblingsmodus, maksimal forflytelse, gaphåndtering og forhåndsbilder."
+          "narration": "Leverandører sjekker Claude, ChatGPT og Gemini kommando-linje-klienter og viser installasjons- og login-kommandoer mens autentisering forblir hos hver leverandør."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. validere spor på representativ bevegelse før behandlingen av hele tidsserien."
+          "narration": "AI-innstillinger styrer responsdyp, automatisk feilforklaring, valgfri GitHub-problemrapportering, logging inn og spaCR-bevisste systeminstruksjoner."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, lagres tidsindekserte masker, spor, målinger og bane oppsummeringer med stabile objektidentiteter."
+          "narration": "Denne deterministiske syntetiske kilden inneholder ett felt over åtte tidspunkter. Kanal null inneholder kjerner, kanal en inneholder celle og ER-signal, og CellVoyager-stil filnavn bevarer plate, vel, tid, felt, dybde og kanalindekser."
+        },
+        {
+          "narration": "Essentials viser kilden, kanalroller, navngivingskonvensjon, normalisering, segmenteringsmodeller, objekter å spore, rammeområde, sporer, plots og utgangsvalg som trengs for en første run."
+        },
+        {
+          "narration": "Modifisert begrenser panelen til hensiktsmessige endringer, inkludert kanaler null og en, åtte-ramme rekkevidde, celle sporing, den innebygde intersection-over-union linker, en ramme per sekund, og konservative kjøretid valg."
+        },
+        {
+          "narration": "Alle innstillinger avslører tretten kategorier uten å endre verdier: inngang, oppkjøpsaksler, forhåndsbehandling, fire segmenteringsgrupper, kvalitetskontroll, sporing av innstilling og bakgrunner, diagnostikk, utgang og kjøretid."
+        },
+        {
+          "narration": "Recipes lagrer den komplette Timelapse-konfigurasjonen under et navn, bruker den på nytt til et annet eksperiment, eller importerer og eksporterer en gjenbrukbar innstillingsfil."
+        },
+        {
+          "narration": "Sende fjernbilder av de løste innstillingene og sender segmentering og sporing jobb til Distributed Jobs arbeidsrommet."
+        },
+        {
+          "narration": "Distributed Jobs kartlegger kilde- og utgangsveier til en fjernarbeidsstasjon, Slurm-kluster eller konfigurert kommando, og sender og overvåker deretter samme Timelapse-løpet."
+        },
+        {
+          "narration": "Input and Metadata velger billedmappen, tildeler hver innhentet kanal til en objekttype, og definerer hvordan spaCR analyserer eksperimentelle identifikatorer fra filnavn."
+        },
+        {
+          "narration": "Acquisition and Axes beskriver forstørrelse og valgfrie volumetriske eller tidsaksiske layouter. Vanlige billedfiler per ramme holder de avanserte stack kontroller deaktivert."
+        },
+        {
+          "narration": "Bildets forhåndsbehandling kontrollerer persentil normalisering, bakgrunnshåndtering, denosering, omstørring og mellomliggende matriser. Bruk en konsekvent transformasjon over hvert ramme for å unngå kunstige tidsendringer."
+        },
+        {
+          "narration": "Cell Segmentation velger cellemodellen, forventet diameter, sannsynlighet og strømningsgrenser, og valgfrie størrelser, intensitet, grense, fusjon og splitter."
+        },
+        {
+          "narration": "Nucleus Segmentation gir tilsvarende kontroller for kanal null. Kjernemasker kan eksporteres selv når bare celler er koblet over rammer."
+        },
+        {
+          "narration": "Patogensegmentering er tilgjengelig når en patogenkanal er tildelt. Denne to-kanal demonstrasjonen etterlater den usett, så ingen patogenmasker eller spor blir bedt om."
+        },
+        {
+          "narration": "Organelle Segmentering støtter spot, nettverk, ring, uregelmessig, Cellpose og U-Net arbeidsflyt når en organelle kanal er tildelt. Det er inaktivt for dette eksemplet."
+        },
+        {
+          "narration": "Kvalitetskontroll sammenligner objekttall, størrelse, grensekontakt, foregående dekning, splittet atferd og feilfrekvenser på platenivå. Rapportmodus registrerer advarsler uten stille å avvise tidsserien."
+        },
+        {
+          "narration": "Tracking Setup velger hvilke segmenterte objekter som er knyttet sammen, rammeslippet, om kortvarige spor fjernes, og avspillingshastigheten til eksporterte filmer."
+        },
+        {
+          "narration": "Tracking Backends tilbyr Trackastra, Ultrack, Trackpy, intersection-over-union, og btrack med backend-specifikk kobling, forflytelse, minne, divisjon og arbeidstakere kontroller. Denne demonstrasjonen bruker krysset-over-union."
+        },
+        {
+          "narration": "Visualization and Diagnostics kontrollerer fargemapper, eksempelplot, plotsnormalization, og figuren kanvas brukt til å inspisere segmentering og sporing oppførsel."
+        },
+        {
+          "narration": "Utgang og lagring kontrollerer sammensatte matriser, masker, per-kanal filmer, sporet-masker animasjoner, kompresjon og lagring av mellomliggende eller originale filer."
+        },
+        {
+          "narration": "Løpetid og pålitelighet kontrollerer testmodus, batching, arbeidere, reproduserbar rekkefølge, gjenopptak, tørr løp, verbositet og feilpolitikk. Begynn med et representativt felt før du skalerer."
+        },
+        {
+          "narration": "Dette eksemplet sporer celler over rammeindekser null til syv, holder overgangsspore for inspeksjon, eksporterer filmer på ett ramme per sekund, og forlater kjernen masker uforbundet."
+        },
+        {
+          "narration": "Run validerer filenavn og kanaler, grupperer rammer, normaliserer sekvensen, segmenterer hvert forespurt objekt, kobler cellemasker, beregner kvalitetskontroll, skriver filmer og sammensatte matriser, og registrerer reproduserbarhet. Stopp anmoder om en sikker avbrudd."
+        },
+        {
+          "narration": "Under prosessering rapporterer konsollen Cellpose oppstart, løst innstillinger, framgang per ramme, sporing av søken oppførsel, objektfiltre, tid igjen, og utgangsveier."
+        },
+        {
+          "narration": "Den fullførte løpet koblet 16 celler over alle åtte rammer, fjernet ingen overgangsobjekter, passerte celle- og kjernekvalitetskontroll uten advarsler eller feil, skrev sporede filmer og åtte sammensatte matriser, og sparte en vellykket 26-sekunders løprekord."
         }
       ]
     },

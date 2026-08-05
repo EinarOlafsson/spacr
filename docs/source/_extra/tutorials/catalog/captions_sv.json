@@ -900,19 +900,88 @@
       "id": "17_timelapse",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Timelapse. Segmentera, länka och mäta celler eller patogener över tidsserien."
+          "narration": "Timelapse segmenterar varje ram och länkar de utvalda objekten till stabila spår. Konsolen registrerar förädling, masker, spårningsförsök, kvalitetskontroll, filmer, sammansatta matriser och återspelbara filer."
         },
         {
-          "narration": "Öppna Timelapse från kärndelen. Välj ett tidslösat bildssätt vars filnamn bevarar fält-, tid-, djup- och kanalindex."
+          "narration": "Chatfältet accepterar lokala kommandon eller arbetsflödesfrågor. Aktivera AI för en konfigurerad leverantör och använd den närliggande pilen för att välja en leverantör eller öppna dess kontroller."
         },
         {
-          "narration": "I huvudkonfigurationsområdet konfigurera segmentering, spårade objekttyper, länkläge, maximal förflyttning, gaphantering och förhandsramar."
+          "narration": "Leverantörerna kontrollerar Claude, ChatGPT och Gemini-kommandolinja-klienter och visar installations- och inloggningskommandon medan autentisering kvarstår hos varje leverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Validerar spår på representativ rörelse innan hela tidsserien behandlas."
+          "narration": "AI-inställningar styr responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medvetna systeminstruktioner."
         },
         {
-          "narration": "När arbetsflödet är färdigt lagras tidsindexerade masker, spår, mätningar och spår sammanfattningar med stabila objektidentiteter."
+          "narration": "Denna deterministiska syntetiska källa innehåller ett fält över åtta tidspunkter. Kanal noll innehåller kärnor, kanal ett innehåller cell och ER signal, och CellVoyager-stil filnamn bevara platt, bra, tid, fält, djup och kanal index."
+        },
+        {
+          "narration": "Essentials visar källan, kanalroller, namngivningskonvention, normalisering, segmenteringsmodeller, objekt att spåra, ramområde, spårare, plott och utgångsval som behövs för en första körning."
+        },
+        {
+          "narration": "Ändrade begränsningar av panelen till avsiktliga ändringar, inklusive kanaler noll och en, åtta-ram-intervall, cellspårning, den inbyggda intersection-over-union-länkaren, en ram per sekund, och konservativa körtid val."
+        },
+        {
+          "narration": "Alla inställningar avslöjar tretton kategorier utan att ändra värden: input, förvärv axes, förbehandling, fyra segmentering grupper, kvalitetskontroll, spårning inställning och backends, diagnostik, output och körtid."
+        },
+        {
+          "narration": "Recipes sparar den fullständiga Timelapse-konfigurationen under ett namn, tillämpar den på nytt på ett annat experiment eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder av de lösade inställningarna och skickar segmentering och spårning till arbetsplatsen Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger käll- och utgångsvägar till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma Timelapse-körning."
+        },
+        {
+          "narration": "Input and Metadata väljer bildmappen, tilldelar varje förvärvad kanal till en objekttyp och definierar hur spaCR analyserar experimentella identifieringar från filnamn."
+        },
+        {
+          "narration": "Förvärv och axlar beskriver förstoring och valfria volymmetriska eller tidsaktslayouter. Vanliga bildfiler per ram håller de avancerade stackkontrollerna inaktiverade."
+        },
+        {
+          "narration": "Bilder förbehandling kontrollerar persentil normalisering, bakgrundshantering, avskrivning, omgränsning och mellanliggande matriser. Använd en konsekvent transformation över varje ram för att undvika konstgjorda tidsförändringar."
+        },
+        {
+          "narration": "Cell Segmentation väljer cellmodellen, förväntad diameter, sannolikhet och flödesgränser samt valbara storlek, intensitet, gräns, fusion och splittringsfilter."
+        },
+        {
+          "narration": "Kärnsegmentering ger motsvarande kontroller för kanal noll. Kärnmasker får exporteras även om endast celler är kopplade över ramar."
+        },
+        {
+          "narration": "Patogensegmentering är tillgänglig när en patogenkanal tilldelas. Denna tvåkanal demonstration lämnar den osett, så inga patogenmasker eller spår begärs."
+        },
+        {
+          "narration": "Organelle Segmentation stöder plats-, nätverks-, ring-, oregelbundna, Cellpose- och U-Net-arbetsflöden när en organellkanal tilldelas. Det är inaktivt för detta exempel."
+        },
+        {
+          "narration": "Kvalitetskontroll jämför objektantal, storlek, gränskontakt, främre täckning, splittrat beteende och felfrekvenser på plattenivå. Rapporteringsläget registrerar varningar utan att tysta avvisa tidsserien."
+        },
+        {
+          "narration": "Tracking Setup väljer vilka segmenterade objekt som är kopplade, ramdelen, huruvida kortlivade spår tas bort och spåningsfrekvensen för exporterade filmer."
+        },
+        {
+          "narration": "Tracking Backends erbjuder Trackastra, Ultrack, Trackpy, intersection-over-union och btrack med backend-specifik länk, förflyttning, minne, delning och arbetstagarkontroller. Denna demonstration använder korsning över union."
+        },
+        {
+          "narration": "Visualization and Diagnostics kontrollerar färgkartor, exempelplåtar, plåts normalisering och figurkanvasen som används för att inspektera segmentering och spårning beteende."
+        },
+        {
+          "narration": "Output och Storage kontrollerar sammansatta matriser, masker, filmer per kanal, spårade mask animationer, komprimering och lagring av mellanliggande eller ursprungliga filer."
+        },
+        {
+          "narration": "Runttid och tillförlitlighet kontrollerar testläge, batchning, arbetstagare, reprodukterbar ordning, återupptäckt, torra körningar, verbositet och misslyckande policy. Börja med ett representativt fält innan du skalar upp."
+        },
+        {
+          "narration": "Detta exempel spårar celler över ramindex från noll till sju, håller övergående spår för inspektion, exporterar filmer vid en ram per sekund och lämnar kärnmaskerna kopplade."
+        },
+        {
+          "narration": "Run validerar filnamn och kanaler, grupperar ramar, normaliserar sekvensen, segmenterar varje begärd objekt, länkar cellmasker, beräknar kvalitetskontroll, skriver filmer och sammansatta matriser och registrerar reproduktibilitet. Sluta begär en säker avbrott."
+        },
+        {
+          "narration": "Under bearbetningen rapporterar konsolen Cellpose start, lösta inställningar, framsteg per ram, spårning av sökbeteende, objektfilter, återstående tid och utgångsvägar."
+        },
+        {
+          "narration": "Den färdiga körningen länkade 16 celler över alla åtta ramar, tog bort inga övergående objekt, passerade cell- och kärnkvalitetskontroll utan varningar eller misslyckanden, skrev spårade filmer och åtta fusionerade matriser och sparade en framgångsrik 26-sekunders körrekord."
         }
       ]
     },
