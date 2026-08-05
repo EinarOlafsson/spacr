@@ -1682,19 +1682,46 @@
       "id": "30_plate_queue",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Plate Queue. Kjede flere plater gjennom den samme validerte rørledningen."
+          "narration": "Plate queue starter med en konfigurert modul. Her peker Mask på det overførte virkelige eksperimentet, bruker de lagre segmenteringsinnstillingene, og begrenser dette øyeblikksbildet til fem testbilder. Kjøring kopierer disse aktuelle verdiene; senere redigeringer i Mask ikke stille endre køjobb."
         },
         {
-          "narration": "Åpne tallrutin fra avsnittet Data og batch runs. Legg til plate kilder og velg den delte modul sekvensen og innstillingene som er forhåndsinnstilt."
+          "narration": "Åpne plate queue fra Data og batch runs. Det tomme instrumentpanelet inneholder kontroller for nåværende plate, komma-separerte plate lister, rengjøring, sekvensell utførelse, og et trygt stopp mellom jobb."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet, sjekk plate rekkefølge, per-plate overrides, arbeidstakers grenser, feil politikk, gjenoppta atferd, og utgang roder."
+          "narration": "Klikk på Legg til nåværende plate. Fordi Mask var den mest nylig besøkte kjørbare modulen, snapshots spaCR sin modul nøkkel, ekte kildevei, og komplett innstillinger ordbok."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Begynn med en liten plate eller et testfelt, og la deretter køen behandle plate i rekkefølge med synlig status."
+          "narration": "Den nye raden får en kort, vedvarende identifikator. App registrerer hvilken pipeline vil kjøre, Label bevarer kilden, Status begynner som kø, Elapsed forblir tomt til utførelsen, og Remove er tilgjengelig når raden ikke kjører."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, mottar hver plate et isolert prosjekt og kjører rekord mens køen bevarer den generelle utviklingen."
+          "narration": "Du kan også dra en plakk mappe som inneholder spaCR innstillinger snapshots på denne skjermen. Den virkelige opplæringsmappen bidrar med sine lagre Mask og måle snapshots, og filnavnet identifiserer den kjørebare modulen. En plate-list CSV med en src-kolonne er alternativet for mange separate plater."
+        },
+        {
+          "narration": "Hver mutasjon blir skrevet umiddelbart til den lokale køfilen. Å lukke spaCR avviser ikke planen: Å åpne Plate Queue igjen gjenoppretter rekkefølgen, kopierte innstillinger, status, timing og eventuelle registrerte feil. Se på radene og fjerne uønskede snapshots før du kjører."
+        },
+        {
+          "narration": "Klikk på Run queue for å behandle den første køen. Produksjonsløperen løser hver App-verdi til sin normale spaCR-pipeline og utfører en jobb på en gang, noe som forhindrer to plater i konkurranse om samme GPU eller utgangsressurser."
+        },
+        {
+          "narration": "Statusendringer fra kø til kjøring og Elapsed oppdateringer hvert sekund. Denne opplæringsopptaket bruker kildekvalifisering i stedet for dyre analyse rørledninger, så det viser den virkelige kø tråd og tilstand overgangen uten å skrive inn i det fullførte eksperimentet."
+        },
+        {
+          "narration": "Klikk Stop mens en rad kjører når du ikke vil at en annen plate skal starte. Stopp er kooperativ: den nåværende rørledningen er ferdig, mens senere rader forblir i kø og beholder sine innstillinger."
+        },
+        {
+          "narration": "Etter at den nåværende posisjonen er fullført, er statusen hans suksessfull og den siste tiden bevares. De resterende radene er fortsatt i kø, så dette er en sikker grense for å lukke applikasjonen, endre ressurstilgjengelighet, eller sjekke utgangene."
+        },
+        {
+          "narration": "Klikk på Run queue igjen for å gjenoppta. Ferdige rader oversprettes, og utførelsen fortsetter fra det første gjenværende køelementet; en mislyktede rad registreres som mislyktes, mens senere rader kan fortsette."
+        },
+        {
+          "narration": "Den fullførte tabellen bevarer én terminalstatus og forløpet tid per post. I en produksjonsrun har hver rad påkalt den valgte mask- eller måleledningen med sin egen kopiert kilde og innstillinger, som om den hadde blitt sendt fra dette modulen."
+        },
+        {
+          "narration": "Klikk Klar ferdig etter å ha gjennomgått resultatene. Den fjerner suksess, mislykkede og hoppet rader fra køfilen, men aldri sletter plate data eller pipeline utgang."
+        },
+        {
+          "narration": "Dashbordet er klar for neste parti. Konfigurere og validere hvert modul først, beholde plate-specifikke verdier i snapshot eller CSV-rulle, og la deretter Plate Queue gi reproduserbar sekvensell utførelse og tilbakestillingssikker fremgang."
         }
       ]
     },

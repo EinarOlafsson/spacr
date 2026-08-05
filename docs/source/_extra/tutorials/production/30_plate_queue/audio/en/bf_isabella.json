@@ -4,47 +4,147 @@
   "voice": "bf_isabella",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 45.525,
+  "total_duration": 203.455,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.0,
-      "scene_end": 6.45,
-      "duration": 6.45,
-      "text": "This tutorial covers Plate Queue. Chain multiple plates through the same validated pipeline."
+      "speech_end": 16.8,
+      "scene_end": 17.52,
+      "duration": 17.52,
+      "text": "Plate Queue starts with a configured module. Here Mask points to the transferred real experiment, uses its saved segmentation settings, and limits this snapshot to five test images. Queueing copies these current values; later edits in Mask do not silently change the queued job.",
+      "speech_text": "Plate Queue starts with a configured module. Here Mask points to the transferred real experiment, uses its saved segmentation settings, and limits this snapshot to five test images. Queueing copies these current values; later edits in Mask do not silently change the queued job.",
+      "phonemes": "plˈAt kjˈuː stˈɑːts wɪð ɐ kənfˈɪɡəd mˈɒdjuːl. hˈɪə mˈɑːsk pˈYnts tə ðə tɹɑːnsfˈɜːd ɹˈɪəl ɪkspˈɛɹɪmᵊnt, jˈuːzɪz ɪts sˈAvd sˌɛɡmᵊntˈAʃᵊn sˈɛtɪŋz, and lˈɪmɪts ðɪs snˈapʃɒt tə fˈIv tˈɛst ˈɪmɪʤɪz. kjˈuːɪŋ kˈɒpiz ðiːz kˈʌɹənt vˈaljuːz; lˈAtə ˈɛdɪts ɪn mˈɑːsk dˈuː nˌɒt sˈIləntli ʧˈAnʤ ðə kjˈuːd ʤˈɒb."
     },
     {
       "scene": 2,
-      "speech_start": 6.45,
-      "speech_end": 14.600000000000001,
-      "scene_end": 15.05,
-      "duration": 8.600000000000001,
-      "text": "Open Plate Queue from the Data and batch runs section. Add plate sources and choose the shared module sequence and settings preset."
+      "speech_start": 17.52,
+      "speech_end": 29.445,
+      "scene_end": 30.065,
+      "duration": 12.545000000000002,
+      "text": "Open Plate Queue from Data and batch runs. The empty dashboard contains controls for the current plate, comma-separated plate lists, cleanup, sequential execution, and a safe stop between jobs.",
+      "speech_text": "Open Plate Queue from Data and batch runs. The empty dashboard contains controls for the current plate, comma-separated plate lists, cleanup, sequential execution, and a safe stop between jobs.",
+      "phonemes": "ˈQpᵊn plˈAt kjˈuː fɹɒm dˈAtə and bˈaʧ ɹˈʌnz. ði ˈɛmpti dˈaʃbɔːd kəntˈAnz kəntɹˈQlz fɔː ðə kˈʌɹənt plˈAt, kˌɒməsˈɛpəɹAtɪd plˈAt lˈɪsts, klˈiːnʌp, sɪkwˈɛnʃl ˌɛksɪkjˈuːʃᵊn, and ɐ sˈAf stˈɒp bɪtwˈiːn ʤˈɒbz."
     },
     {
       "scene": 3,
-      "speech_start": 15.05,
-      "speech_end": 23.85,
-      "scene_end": 24.3,
-      "duration": 9.25,
-      "text": "In the main configuration area, review plate order, per-plate overrides, worker limits, failure policy, resume behavior, and output roots."
+      "speech_start": 30.065,
+      "speech_end": 40.515,
+      "scene_end": 41.095,
+      "duration": 11.029999999999998,
+      "text": "Click Add current plate. Because Mask was the most recently visited runnable module, spaCR snapshots its module key, real source path, and complete settings dictionary.",
+      "speech_text": "Click Add current plate. Because Mask was the most recently visited runnable module, spacer snapshots its module key, real source path, and complete settings dictionary.",
+      "phonemes": "klˈɪk ˈad kˈʌɹənt plˈAt. bɪkˈɒz mˈɑːsk wɒz ðə mˈQst ɹˈiːsᵊntli vˈɪzɪtɪd ɹˈʌnəbᵊl mˈɒdjuːl, spˈAsə snˈapʃɒts ɪts mˈɒdjuːl kˈiː, ɹˈɪəl sˈɔːs pˈɑːθ, and kəmplˈiːt sˈɛtɪŋz dˈɪkʃənəɹi."
     },
     {
       "scene": 4,
-      "speech_start": 24.3,
-      "speech_end": 36.55,
-      "scene_end": 37.0,
-      "duration": 12.7,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. start with a small plate or test field, then let the queue process plates sequentially with visible status."
+      "speech_start": 41.095,
+      "speech_end": 55.595,
+      "scene_end": 56.254999999999995,
+      "duration": 15.159999999999997,
+      "text": "The new row receives a short persistent identifier. App records which pipeline will run, Label preserves the source, Status begins as queued, Elapsed stays blank until execution, and Remove is available whenever the row is not running.",
+      "speech_text": "The new row receives a short persistent identifier. App records which pipeline will run, Label preserves the source, Status begins as queued, Elapsed stays blank until execution, and Remove is available whenever the row is not running.",
+      "phonemes": "ðə njˈuː ɹˈQ ɹɪsˈiːvz ɐ ʃˈɔːt pəsˈɪstᵊnt IdˈɛntɪfIə. ˈap ɹˈɛkɔːdz wˌɪʧ pˈIplIn wɪl ɹˈʌn, lˈAbᵊl pɹɪzˈɜːvz ðə sˈɔːs, stˈAtəs bɪɡˈɪnz az kjˈuːd, ɪlˈapst stˈAz blˈaŋk əntˈɪl ˌɛksɪkjˈuːʃᵊn, and ɹɪmˈuːv ɪz əvˈAləbᵊl wənˈɛvə ðə ɹˈQ ɪz nˌɒt ɹˈʌnɪŋ."
     },
     {
       "scene": 5,
-      "speech_start": 37.0,
-      "speech_end": 44.875,
-      "scene_end": 45.525,
-      "duration": 8.524999999999999,
-      "text": "When the workflow finishes, each plate receives an isolated project and run record while the queue preserves overall progress."
+      "speech_start": 56.254999999999995,
+      "speech_end": 73.92999999999999,
+      "scene_end": 74.71,
+      "duration": 18.455,
+      "text": "You can also drag a plate folder containing spaCR settings snapshots onto this screen. The real tutorial folder contributes its saved Mask and Measure snapshots, and the filename identifies the runnable module. A plate-list CSV with an src column is the alternative for many separate plates.",
+      "speech_text": "You can also drag a plate folder containing spacer settings snapshots onto this screen. The real tutorial folder contributes its saved Mask and Measure snapshots, and the filename identifies the runnable module. A plate-list CSV with an src column is the alternative for many separate plates.",
+      "phonemes": "jˌuː kan ˈɔːlsQ dɹˈaɡ ɐ plˈAt fˈQldə kəntˈAnɪŋ spˈAsə sˈɛtɪŋz snˈapʃɒts ˈɒntuː ðɪs skɹˈiːn. ðə ɹˈɪəl tjuːtˈɔːɹɪəl fˈQldə kəntɹˈɪbjuːts ɪts sˈAvd mˈɑːsk and mˈɛʒə snˈapʃɒts, and ðə fˈIlnAm IdˈɛntɪfIz ðə ɹˈʌnəbᵊl mˈɒdjuːl. ɐ plˈAtlˌɪst sˌiːˌɛsvˈiː wɪð ɐn ˌɛsˌɑːsˈiː kˈɒləm ɪz ði ɔːltˈɜːnətɪv fɔː mˈɛni sˈɛpəɹət plˈAts."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.71,
+      "speech_end": 90.63499999999999,
+      "scene_end": 91.35499999999999,
+      "duration": 16.644999999999996,
+      "text": "Every mutation is written immediately to the local queue file. Closing spaCR does not discard the plan: reopening Plate Queue restores the order, copied settings, statuses, timing, and any recorded error. Review the rows and remove unwanted snapshots before running.",
+      "speech_text": "Every mutation is written immediately to the local queue file. Closing spacer does not discard the plan: reopening Plate Queue restores the order, copied settings, statuses, timing, and any recorded error. Review the rows and remove unwanted snapshots before running.",
+      "phonemes": "ˈɛvəɹi mjuːtˈAʃᵊn ɪz ɹˈɪtᵊn ɪmˈiːdɪətli tə ðə lˈQkᵊl kjˈuː fˈIl. klˈQzɪŋ spˈAsə dˈʌz nˌɒt dɪskˈɑːd ðə plˈan: ɹɪˈQpənɪŋ plˈAt kjˈuː ɹɪstˈɔːz ði ˈɔːdə, kˈɒpɪd sˈɛtɪŋz, stˈAtəsɪz, tˈImɪŋ, and ˈɛni ɹɪkˈɔːdɪd ˈɛɹə. ɹɪvjˈuː ðə ɹˈQz and ɹɪmˈuːv ʌnwˈɒntɪd snˈapʃɒts bɪfˈɔː ɹˈʌnɪŋ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 91.35499999999999,
+      "speech_end": 105.52999999999999,
+      "scene_end": 106.16999999999999,
+      "duration": 14.814999999999998,
+      "text": "Click Run queue to process the first queued row. The production runner resolves each App value to its normal spaCR pipeline and executes one job at a time, which avoids two plates competing for the same GPU or output resources.",
+      "speech_text": "Click Run queue to process the first queued row. The production runner resolves each App value to its normal spacer pipeline and executes one job at a time, which avoids two plates competing for the same GPU or output resources.",
+      "phonemes": "klˈɪk ɹˈʌn kjˈuː tə pɹˈQsɛs ðə fˈɜːst kjˈuːd ɹˈQ. ðə pɹədˈʌkʃᵊn ɹˈʌnə ɹɪzˈɒlvz ˈiːʧ ˈap vˈaljuː tʊ ɪts nˈɔːmᵊl spˈAsə pˈIplIn and ˈɛksɪkjuːts wˈʌn ʤˈɒb at ɐ tˈIm, wˌɪʧ əvˈYdz tˈuː plˈAts kəmpˈiːtɪŋ fɔː ðə sˈAm ʤˌiːpˌiːjˈuː ɔː ˈWtpʊt ɹɪzˈɔːsɪz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 106.16999999999999,
+      "speech_end": 122.89499999999998,
+      "scene_end": 123.67499999999998,
+      "duration": 17.504999999999995,
+      "text": "Status changes from queued to running and Elapsed updates every second. This tutorial capture uses source validation in place of the expensive analysis pipelines, so it demonstrates the real queue thread and state transitions without writing into the completed experiment.",
+      "speech_text": "Status changes from queued to running and Elapsed updates every second. This tutorial capture uses source validation in place of the expensive analysis pipelines, so it demonstrates the real queue thread and state transitions without writing into the completed experiment.",
+      "phonemes": "stˈAtəs ʧˈAnʤɪz fɹɒm kjˈuːd tə ɹˈʌnɪŋ and ɪlˈapst ˌʌpdˈAts ˈɛvəɹi sˈɛkᵊnd. ðˌɪs tjuːtˈɔːɹɪəl kˈapʧə jˈuːzɪz sˈɔːs vˌalɪdˈAʃᵊn ɪn plˈAs ɒv ði ɪkspˈɛnsɪv ənˈalɪsɪs pˈIplInz, sˌQ ɪt dˈɛmənstɹAts ðə ɹˈɪəl kjˈuː θɹˈɛd and stˈAt tɹanzˈɪʃᵊnz wɪðˈWt ɹˈItɪŋ ˈɪntuː ðə kəmplˈiːtɪd ɪkspˈɛɹɪmᵊnt."
+    },
+    {
+      "scene": 9,
+      "speech_start": 123.67499999999998,
+      "speech_end": 134.87499999999997,
+      "scene_end": 135.49499999999998,
+      "duration": 11.819999999999993,
+      "text": "Click Stop while a row is running when you do not want another plate to begin. Stop is cooperative: the current pipeline reaches completion, while later rows remain queued and retain their settings.",
+      "speech_text": "Click Stop while a row is running when you do not want another plate to begin. Stop is cooperative: the current pipeline reaches completion, while later rows remain queued and retain their settings.",
+      "phonemes": "klˈɪk stˈɒp wˌIl ɐ ɹˈQ ɪz ɹˈʌnɪŋ wˌɛn juː dˈuː nˌɒt wˈɒnt ənˈʌðə plˈAt tə bɪɡˈɪn. stˈɒp ɪz kQˈɒpəɹətɪv: ðə kˈʌɹənt pˈIplIn ɹˈiːʧɪz kəmplˈiːʃᵊn, wˌIl lˈAtə ɹˈQz ɹɪmˈAn kjˈuːd and ɹɪtˈAn ðɛː sˈɛtɪŋz."
+    },
+    {
+      "scene": 10,
+      "speech_start": 135.49499999999998,
+      "speech_end": 149.56999999999996,
+      "scene_end": 150.22999999999996,
+      "duration": 14.734999999999985,
+      "text": "After the current item finishes, its status is success and its elapsed time is preserved. The remaining rows are still queued, so this is a safe boundary for closing the application, changing resource availability, or checking outputs.",
+      "speech_text": "After the current item finishes, its status is success and its elapsed time is preserved. The remaining rows are still queued, so this is a safe boundary for closing the application, changing resource availability, or checking outputs.",
+      "phonemes": "ˈɑːftə ðə kˈʌɹənt ˈItɪm fˈɪnɪʃɪz, ɪts stˈAtəs ɪz səksˈɛs and ɪts ɪlˈapst tˈIm ɪz pɹɪzˈɜːvd. ðə ɹɪmˈAnɪŋ ɹˈQz ɑː stˈɪl kjˈuːd, sˌQ ðɪs ɪz ɐ sˈAf bˈWndəɹi fɔː klˈQzɪŋ ði ˌaplɪkˈAʃᵊn, ʧˈAnʤɪŋ ɹɪzˈɔːs əvˌAləbˈɪlɪti, ɔː ʧˈɛkɪŋ ˈWtpʊts."
+    },
+    {
+      "scene": 11,
+      "speech_start": 150.22999999999996,
+      "speech_end": 161.85499999999996,
+      "scene_end": 162.47499999999997,
+      "duration": 12.245000000000005,
+      "text": "Click Run queue again to resume. Finished rows are skipped and execution continues from the first remaining queued item; a failed row is recorded as failed while later rows can continue.",
+      "speech_text": "Click Run queue again to resume. Finished rows are skipped and execution continues from the first remaining queued item; a failed row is recorded as failed while later rows can continue.",
+      "phonemes": "klˈɪk ɹˈʌn kjˈuː əɡˈɛn tə ɹɪzjˈuːm. fˈɪnɪʃt ɹˈQz ɑː skˈɪpt and ˌɛksɪkjˈuːʃᵊn kəntˈɪnjuːz fɹɒm ðə fˈɜːst ɹɪmˈAnɪŋ kjˈuːd ˈItɪm; ɐ fˈAld ɹˈQ ɪz ɹɪkˈɔːdɪd az fˈAld wˌIl lˈAtə ɹˈQz kan kəntˈɪnjuː."
+    },
+    {
+      "scene": 12,
+      "speech_start": 162.47499999999997,
+      "speech_end": 177.22499999999997,
+      "scene_end": 177.92499999999995,
+      "duration": 15.449999999999989,
+      "text": "The completed table preserves one terminal status and elapsed time per item. In a production run, each row has invoked the selected Mask or Measure pipeline with its own copied source and settings, just as if it had been submitted from that module.",
+      "speech_text": "The completed table preserves one terminal status and elapsed time per item. In a production run, each row has invoked the selected Mask or Measure pipeline with its own copied source and settings, just as if it had been submitted from that module.",
+      "phonemes": "ðə kəmplˈiːtɪd tˈAbᵊl pɹɪzˈɜːvz wˈʌn tˈɜːmɪnᵊl stˈAtəs and ɪlˈapst tˈIm pɜː ˈItɪm. ɪn ɐ pɹədˈʌkʃᵊn ɹˈʌn, ˈiːʧ ɹˈQ haz ɪnvˈQkt ðə sɪlˈɛktɪd mˈɑːsk ɔː mˈɛʒə pˈIplIn wɪð ɪts ˈQn kˈɒpɪd sˈɔːs and sˈɛtɪŋz, ʤˈʌst az ɪf ɪt had biːn səbmˈɪtɪd fɹɒm ðˈat mˈɒdjuːl."
+    },
+    {
+      "scene": 13,
+      "speech_start": 177.92499999999995,
+      "speech_end": 187.72499999999997,
+      "scene_end": 188.28499999999997,
+      "duration": 10.360000000000014,
+      "text": "Click Clear finished after reviewing the results. It removes success, failed, and skipped rows from the queue file but never deletes plate data or pipeline outputs.",
+      "speech_text": "Click Clear finished after reviewing the results. It removes success, failed, and skipped rows from the queue file but never deletes plate data or pipeline outputs.",
+      "phonemes": "klˈɪk klˈɪə fˈɪnɪʃt ˈɑːftə ɹɪvjˈuːɪŋ ðə ɹɪzˈʌlts. ˌɪt ɹɪmˈuːvz səksˈɛs, fˈAld, and skˈɪpt ɹˈQz fɹɒm ðə kjˈuː fˈIl bˌʌt nˈɛvə dɪlˈiːts plˈAt dˈAtə ɔː pˈIplIn ˈWtpʊts."
+    },
+    {
+      "scene": 14,
+      "speech_start": 188.28499999999997,
+      "speech_end": 202.63499999999996,
+      "scene_end": 203.45499999999996,
+      "duration": 15.169999999999987,
+      "text": "The dashboard is ready for the next batch. Configure and validate each module first, keep plate-specific values in its snapshot or CSV row, then let Plate Queue provide reproducible sequential execution and restart-safe progress.",
+      "speech_text": "The dashboard is ready for the next batch. Configure and validate each module first, keep plate-specific values in its snapshot or CSV row, then let Plate Queue provide reproducible sequential execution and restart-safe progress.",
+      "phonemes": "ðə dˈaʃbɔːd ɪz ɹˈɛdi fɔː ðə nˈɛkst bˈaʧ. kənfˈɪɡə and vˈalɪdAt ˈiːʧ mˈɒdjuːl fˈɜːst, kˈiːp plˌAtspɪsˈɪfɪk vˈaljuːz ɪn ɪts snˈapʃɒt ɔː sˌiːˌɛsvˈiː ɹˈQ, ðˈɛn lˈɛt plˈAt kjˈuː pɹəvˈId ɹˌiːpɹədjˈuːsɪbᵊl sɪkwˈɛnʃl ˌɛksɪkjˈuːʃᵊn and ɹˈiːstɑːtsˌAf pɹˈQɡɹɛs."
     }
   ]
 }
