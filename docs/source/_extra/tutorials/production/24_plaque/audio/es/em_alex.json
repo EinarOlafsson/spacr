@@ -4,47 +4,217 @@
   "voice": "em_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.65,
+  "total_duration": 341.155,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.875,
-      "scene_end": 8.325,
-      "duration": 8.325,
-      "text": "Este tutorial abarca el ensayo de placa. Medir la formación de placa y los cambios dependientes de la condición de las imágenes de placa."
+      "speech_end": 23.825,
+      "scene_end": 24.474999999999998,
+      "duration": 24.474999999999998,
+      "text": "Plaque Assay detecta y cuantifica las regiones de células huéspedes despejadas. Las configuraciones están a la izquierda; la consola registra las configuraciones resueltas, el progreso, los caminos de salida, las advertencias y los errores. La caja de chat debajo de la consola puede discutir ese contexto cuando la IA está habilitada, pero no cambia la configuración a menos que aplique un cambio sugerido.",
+      "speech_text": "Plaque Assay detecta y cuantifica las regiones de células huéspedes despejadas. Las configuraciones están a la izquierda; la consola registra las configuraciones resueltas, el progreso, los caminos de salida, las advertencias y los errores. La caja de chat debajo de la consola puede discutir ese contexto cuando la IA está habilitada, pero no cambia la configuración a menos que aplique un cambio sugerido.",
+      "phonemes": "plˈake assˈI ðetˈekta i kwˌantifˈika las rexjˈones ðe θˈelulas wˈespeðes ðˌespexˈaðas. las kˌonfiɣˌuɾaθjˈones estˈan a la iθkjˈeɾða; la konsˈola rexˈistɾa las kˌonfiɣˌuɾaθjˈones reswˈeltas, el pɾoɣɾˈeso, los kamˈinos ðe salˈiða, las ˌaðβeɾtˈɛnθjas i los erˈoɾes. la kˈaxa ðe ʧˈat ðeβˈaxo ðe la konsˈola pwˈeðe ðˌiskutˈiɾ ˈese kontˈeksto kwˌando la ˌiˈa estˈa ˌaβilitˈaða, pˌeɾo nˈo kˈambja la kˌonfiɣˌuɾaθjˈon a mˈenos ke aplˈike ˈun kˈambjo sˌuxeɾˈiðo."
     },
     {
       "scene": 2,
-      "speech_start": 8.325,
-      "speech_end": 20.7,
-      "scene_end": 21.15,
-      "duration": 12.825,
-      "text": "Abra Plaque assay en la sección Toxoplasma assays. Abre el ensayo de placa en la sección de ensayos de Toxoplasma. Proporcione imágenes de placa, diseño de placa, calibración de píxeles, condiciones y controles."
+      "speech_start": 24.474999999999998,
+      "speech_end": 38.974999999999994,
+      "scene_end": 39.52499999999999,
+      "duration": 15.049999999999994,
+      "text": "El botón de IA cambia el enrutamiento de chat. Su menú adyacente elige un proveedor configurado y abre las configuraciones del proveedor. Manténgalo fuera cuando no se necesita un asistente; la tubería de análisis en sí es local y no requiere IA.",
+      "speech_text": "El botón de IA cambia el enrutamiento de chat. Su menú adyacente elige un proveedor configurado y abre las configuraciones del proveedor. Manténgalo fuera cuando no se necesita un asistente; la tubería de análisis en sí es local y no requiere IA.",
+      "phonemes": "el βotˈon de ˌiˈa kˈambja el ˌenrutamjˈɛnto ðe ʧˈat. su menˈu ˌaðʝaθˈɛnte elˈixe ˈum pɾˌoβeeðˈoɾ kˌonfiɣuɾˈaðo i ˈaβɾe las kˌonfiɣˌuɾaθjˈones ðel pɾˌoβeeðˈoɾ. mantˈeŋɡalo fwˈeɾa kwˌando nˈo se nˌeθesˈita ˈun ˌasistˈɛnte; la tˌuβeɾˈia ðe anˈalisis en sˈi ˈes lokˈal i nˈo rekjˈeɾe ˌiˈa."
     },
     {
       "scene": 3,
-      "speech_start": 21.15,
-      "speech_end": 30.5,
-      "scene_end": 30.95,
-      "duration": 9.8,
-      "text": "En el área de configuración principal, configure la corrección de fondo, el umbral, la limpieza de objetos, los filtros de tamaño de placa y el agrupamiento de pozos."
+      "speech_start": 39.52499999999999,
+      "speech_end": 53.99999999999999,
+      "scene_end": 54.54999999999999,
+      "duration": 15.024999999999999,
+      "text": "La configuración del proveedor separa a los asistentes locales y alojados. Configure únicamente los servicios que desea utilizar y revise el aviso de privacidad antes de enviar el contexto de la consola o la imagen a un proveedor remoto.",
+      "speech_text": "La configuración del proveedor separa a los asistentes locales y alojados. Configure únicamente los servicios que desea utilizar y revise el aviso de privacidad antes de enviar el contexto de la consola o la imagen a un proveedor remoto.",
+      "phonemes": "la kˌonfiɣˌuɾaθjˈon del pɾˌoβeeðˈoɾ sepˈaɾa a los ˌasistˈɛntes lokˈales i ˌaloxˈaðos. kˌonfiɣˈuɾe ˈunikamˈente los seɾβˈiθjos ke ðesˈea ˌutiliθˈaɾ i reβˈise el aβˈiso ðe pɾˌiβaθiðˈað ˈantes ðe embjˈaɾ el kontˈeksto ðe la konsˈola o la imˈaxen a ˈum pɾˌoβeeðˈoɾ remˈoto."
     },
     {
       "scene": 4,
-      "speech_start": 30.95,
-      "speech_end": 38.95,
-      "scene_end": 39.400000000000006,
-      "duration": 8.450000000000006,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+      "speech_start": 54.54999999999999,
+      "speech_end": 69.12499999999999,
+      "scene_end": 69.62499999999999,
+      "duration": 15.074999999999996,
+      "text": "Configuraciones de IA controla el comportamiento como el intercambio de contexto, el reporte de errores y las credenciales específicas del proveedor. Estas preferencias afectan al asistente de chat, no a la segmentación o cuantificación de la placa.",
+      "speech_text": "Configuraciones de IA controla el comportamiento como el intercambio de contexto, el reporte de errores y las credenciales específicas del proveedor. Estas preferencias afectan al asistente de chat, no a la segmentación o cuantificación de la placa.",
+      "phonemes": "kˌonfiɣˌuɾaθjˈones ðe ˌiˈa kontɾˈola el kˌompoɾtamjˈɛnto kˌomo el ˌinteɾkˈambjo ðe kontˈeksto, el repˈoɾte ðe erˈoɾes i las kɾˌeðenθjˈales ˌespeθˈifikas ðel pɾˌoβeeðˈoɾ. ˈestas pɾˌefeɾˈɛnθjas afˈektan al ˌasistˈɛnte ðe ʧˈat, nˈo a la sˌeɡmentaθjˈon o kwˌantifˌikaθjˈon de la plˈaka."
     },
     {
       "scene": 5,
-      "speech_start": 39.400000000000006,
-      "speech_end": 48.00000000000001,
-      "scene_end": 48.650000000000006,
-      "duration": 9.25,
-      "text": "Cuando el flujo de trabajo termina, spaCR informa el recuento de placas, las áreas, los resúmenes, las estadísticas y las cifras de control de calidad."
+      "speech_start": 69.62499999999999,
+      "speech_end": 89.67499999999998,
+      "scene_end": 90.42499999999998,
+      "duration": 20.799999999999997,
+      "text": "Seleccione o deje caer la carpeta que contiene campos de placa TIFF. Este tutorial utiliza cuatro pozos sintéticos explícitamente y desactiva las máscaras para reutilizar sus máscaras precomputadas etiquetadas. Con las máscaras encendidas, spaCR en su lugar segmenta las imágenes de origen con el modelo de placa agrupada antes de medirlas.",
+      "speech_text": "Seleccione o deje caer la carpeta que contiene campos de placa TIFF. Este tutorial utiliza cuatro pozos sintéticos explícitamente y desactiva las máscaras para reutilizar sus máscaras precomputadas etiquetadas. Con las máscaras encendidas, espáquer en su lugar segmenta las imágenes de origen con el modelo de placa agrupada antes de medirlas.",
+      "phonemes": "sˌelekθjˈone o ðˈexe kaˈeɾ la kaɾpˈeta ke kontjˈene kˈampos ðe plˈaka tˈiff. ˈeste tˌutoɾjˈal ˌutilˈiθa kwˈatɾo pˈoθos sintˈetikos eksplˈiθitamˈente i ðˌesaktˈiβa las mˈaskaɾas pˌaɾa rˌeʊtiliθˈaɾ sus mˈaskaɾas pɾˌekomputˈaðas ˌetiketˈaðas. kon las mˈaskaɾas ˌenθendˈiðas, espˈakeɾ en su luɣˈaɾ seɡmˈɛnta las imˈaxenes ðe oɾˈixen kon el moðˈelo ðe plˈaka ˌaɣɾupˈaða ˈantes ðe meðˈiɾlas."
+    },
+    {
+      "scene": 6,
+      "speech_start": 90.42499999999998,
+      "speech_end": 106.29999999999998,
+      "scene_end": 106.79999999999998,
+      "duration": 16.375,
+      "text": "Los elementos esenciales muestran el conjunto pequeño normalmente necesario para una primera carrera. Comience aquí para verificar la fuente, el comportamiento de la máscara, el diámetro esperado, los umbrales y la elección de salida sin escanear todos los controles avanzados.",
+      "speech_text": "Los elementos esenciales muestran el conjunto pequeño normalmente necesario para una primera carrera. Comience aquí para verificar la fuente, el comportamiento de la máscara, el diámetro esperado, los umbrales y la elección de salida sin escanear todos los controles avanzados.",
+      "phonemes": "los ˌelemˈɛntos ˌesenθjˈales mwˈestɾan el koŋxˈunto pekˈeɲo noɾmˈalmˈente nˌeθesˈaɾjo pˌaɾa ˈuna pɾimˈeɾa karˈeɾa. komjˈɛnθe akˈi pˌaɾa βˌeɾifikˈaɾ la fwˈɛnte, el kˌompoɾtamjˈɛnto ðe la mˈaskaɾa, el ðjˈametɾo ˌespeɾˈaðo, los umbɾˈales i la ˌelekθjˈon de salˈiða sin ˌeskaneˈaɾ tˈoðos los kontɾˈoles ˌaβanθˈaðos."
+    },
+    {
+      "scene": 7,
+      "speech_start": 106.79999999999998,
+      "speech_end": 123.27499999999998,
+      "scene_end": 123.82499999999997,
+      "duration": 17.02499999999999,
+      "text": "Modificado filtra el panel a valores que difieren de los valores predeterminados. Se trata de una auditoría compacta antes de la presentación: aquí la fuente, la reutilización de la máscara, el diámetro de la placa, el tamaño del lote y el comportamiento de fondo son cambios intencionales.",
+      "speech_text": "Modificado filtra el panel a valores que difieren de los valores predeterminados. Se trata de una auditoría compacta antes de la presentación: aquí la fuente, la reutilización de la máscara, el diámetro de la placa, el tamaño del lote y el comportamiento de fondo son cambios intencionales.",
+      "phonemes": "mˌoðifikˈaðo fˈiltɾa el panˈel a βalˈoɾes ke ðifjˈeɾen de los βalˈoɾes pɾˌeðetˌeɾminˈaðos. se tɾˈata ðe ˈuna ˌWðitoɾˈia kompˈakta ˈantes ðe la pɾˌesentaθjˈon: akˈi la fwˈɛnte, la rˌeʊtilˌiθaθjˈon de la mˈaskaɾa, el ðjˈametɾo ðe la plˈaka, el tamˈaɲo ðel lˈote i el kˌompoɾtamjˈɛnto ðe fˈondo sˈon kˈambjos ˌintenθjonˈales."
+    },
+    {
+      "scene": 8,
+      "speech_start": 123.82499999999997,
+      "speech_end": 139.54999999999998,
+      "scene_end": 140.04999999999998,
+      "duration": 16.22500000000001,
+      "text": "Todas las configuraciones revelan todos los controles disponibles. Utilice al solucionar problemas o reproducir una ejecución anterior; de lo contrario, la vista Essentials reduce los cambios accidentales a los parámetros que ya tienen los valores predeterminados adecuados.",
+      "speech_text": "Todas las configuraciones revelan todos los controles disponibles. Utilice al solucionar problemas o reproducir una ejecución anterior; de lo contrario, la vista Essentials reduce los cambios accidentales a los parámetros que ya tienen los valores predeterminados adecuados.",
+      "phonemes": "tˈoðas las kˌonfiɣˌuɾaθjˈones reβˈelan tˈoðos los kontɾˈoles ðˌisponˈiβles. ˌutilˈiθe al sˌoluθjonˈaɾ pɾoβlˈemas o rˌepɾoðuθˈiɾ ˈuna ˌexekuθjˈon ˌanteɾjˈoɾ; de lo kontɾˈaɾjo, la βˈista ˌessentjˈals reðˈuθe los kˈambjos ˌakθiðentˈales a los paɾˈametɾos ke ʝˈa tjˈenen los βalˈoɾes pɾˌeðetˌeɾminˈaðos ˌaðekwˈaðos."
+    },
+    {
+      "scene": 9,
+      "speech_start": 140.04999999999998,
+      "speech_end": 152.89999999999998,
+      "scene_end": 153.45,
+      "duration": 13.400000000000006,
+      "text": "Las recetas guardan las configuraciones actuales del módulo bajo un nombre reutilizable. Una configuración de placa validada se puede guardar, importar, compartir y aplicar más tarde en lugar de ser reconstruida a mano.",
+      "speech_text": "Las recetas guardan las configuraciones actuales del módulo bajo un nombre reutilizable. Una configuración de placa validada se puede guardar, importar, compartir y aplicar más tarde en lugar de ser reconstruida a mano.",
+      "phonemes": "las reθˈetas ɣwˈaɾðan las kˌonfiɣˌuɾaθjˈones aktwˈales ðel mˈoðulo βˌaxo ˈun nˈombɾe rˌeʊtiliθˈaβle. ˈuna kˌonfiɣˌuɾaθjˈon de plˈaka βˌaliðˈaða se pwˈeðe ɣwaɾðˈaɾ, ˌimpoɾtˈaɾ, kˌompaɾtˈiɾ i ˌaplikˈaɾ mˈas tˈaɾðe en luɣˈaɾ ðe sˈer rˌekonstɾuˈiða a mˈano."
+    },
+    {
+      "scene": 10,
+      "speech_start": 153.45,
+      "speech_end": 167.17499999999998,
+      "scene_end": 167.67499999999998,
+      "duration": 14.224999999999994,
+      "text": "Enviar remoto pasa las configuraciones resueltas a Trabajos Distribuidos en lugar de comenzar localmente. Utilice cuando la carpeta fuente y el modelo requerido sean accesibles desde una estación de trabajo o un grupo SSH.",
+      "speech_text": "Enviar remoto pasa las configuraciones resueltas a Trabajos Distribuidos en lugar de comenzar localmente. Utilice cuando la carpeta fuente y el modelo requerido sean accesibles desde una estación de trabajo o un grupo SSH.",
+      "phonemes": "embjˈaɾ remˈoto pˈasa las kˌonfiɣˌuɾaθjˈones reswˈeltas a tɾaβˈaxos ðˌistɾiβwˈiðos en luɣˈaɾ ðe kˌomenθˈaɾ lokˈalmˈente. ˌutilˈiθe kwˌando la kaɾpˈeta fwˈɛnte i el moðˈelo rˌekeɾˈiðo sˈean ˌakθesˈiβles ðˌesðe ˈuna ˌestaθjˈon de tɾaβˈaxo o ˈuŋ ɡɾˈupo ˌeseˌeseˈaʧe."
+    },
+    {
+      "scene": 11,
+      "speech_start": 167.67499999999998,
+      "speech_end": 182.92499999999998,
+      "scene_end": 183.575,
+      "duration": 15.900000000000006,
+      "text": "La pantalla remota recibe este módulo y sus configuraciones como un borrador de trabajo. Confirme el mapeo de ruta, los recursos informáticos, la activación del entorno, la sincronización y el comando generado antes de enviar un pequeño trabajo de validación.",
+      "speech_text": "La pantalla remota recibe este módulo y sus configuraciones como un borrador de trabajo. Confirme el mapeo de ruta, los recursos informáticos, la activación del entorno, la sincronización y el comando generado antes de enviar un pequeño trabajo de validación.",
+      "phonemes": "la pantˈaʎa remˈota reθˈiβe ˈeste mˈoðulo i sus kˌonfiɣˌuɾaθjˈones kˌomo ˈum bˌoraðˈoɾ ðe tɾaβˈaxo. konfˈiɾme el mapˈeo ðe rˈuta, los rekˈuɾsos ˌinfoɾmˈatikos, la ˌaktiβaθjˈon del entˈoɾno, la sˌinkɾonˌiθaθjˈon i el komˈando xˌeneɾˈaðo ˈantes ðe embjˈaɾ ˈum pekˈeɲo tɾaβˈaxo ðe βˌaliðaθjˈon."
+    },
+    {
+      "scene": 12,
+      "speech_start": 183.575,
+      "speech_end": 197.54999999999998,
+      "scene_end": 198.07,
+      "duration": 14.495000000000005,
+      "text": "La entrada y los canales contienen la carpeta fuente y la opción Máscaras. Encienda las máscaras para segmentar los campos originales, o desactiva sólo cuando la subcarpeta de las máscaras ya contiene imágenes etiquetadas correctamente.",
+      "speech_text": "La entrada y los canales contienen la carpeta fuente y la opción Máscaras. Encienda las máscaras para segmentar los campos originales, o desactiva sólo cuando la subcarpeta de las máscaras ya contiene imágenes etiquetadas correctamente.",
+      "phonemes": "la entɾˈaða i los kanˈales kontjˈenen la kaɾpˈeta fwˈɛnte i la opθjˈon mˈaskaɾas. enθjˈɛnda las mˈaskaɾas pˌaɾa sˌeɡmentˈaɾ los kˈampos ˌoɾixinˈales, o ðˌesaktˈiβa sˈolo kwˌando la sˌubkaɾpˈeta ðe las mˈaskaɾas ʝˈa kontjˈene imˈaxenes ˌetiketˈaðas korˈektamˈente."
+    },
+    {
+      "scene": 13,
+      "speech_start": 198.07,
+      "speech_end": 211.545,
+      "scene_end": 212.065,
+      "duration": 13.995000000000005,
+      "text": "El modelo contiene el diámetro esperado de la placa. Compare esta escala con las placas representativas y la geometría de entrenamiento del modelo; un valor del tamaño de la célula generalmente es inapropiado para los campos de placas.",
+      "speech_text": "El modelo contiene el diámetro esperado de la placa. Compare esta escala con las placas representativas y la geometría de entrenamiento del modelo; un valor del tamaño de la célula generalmente es inapropiado para los campos de placas.",
+      "phonemes": "el moðˈelo kontjˈene el ðjˈametɾo ˌespeɾˈaðo ðe la plˈaka. kompˈaɾe ˈesta eskˈala kon las plˈakas rˌepɾesˌentatˈiβas i la xˌeometɾˈia ðe ˌentɾenamjˈɛnto ðel moðˈelo; ˈum balˈoɾ ðel tamˈaɲo ðe la θˈelula xˌeneɾˈalmˈente ˈes ˌinapɾopjˈaðo pˌaɾa los kˈampos ðe plˈakas."
+    },
+    {
+      "scene": 14,
+      "speech_start": 212.065,
+      "speech_end": 228.79,
+      "scene_end": 229.37,
+      "duration": 17.305000000000007,
+      "text": "Los umbrales de detección agrupan la probabilidad de candidato, la consistencia del flujo, la recalculación, la recolección de muestras y el llenado de agujeros. Estas configuraciones afectan a la nueva segmentación; no alteran las máscaras precomputadas reutilizadas en esta demostración.",
+      "speech_text": "Los umbrales de detección agrupan la probabilidad de candidato, la consistencia del flujo, la recalculación, la recolección de muestras y el llenado de agujeros. Estas configuraciones afectan a la nueva segmentación; no alteran las máscaras precomputadas reutilizadas en esta demostración.",
+      "phonemes": "los umbɾˈales ðe ðˌetekθjˈon aɣɾˈupan la pɾˌoβaβˌiliðˈad ðe kˌandiðˈato, la kˌonsistˈɛnθja ðel flˈuxo, la rˌekalkˌulaθjˈon, la rˌekolekθjˈon de mwˈestɾas i el ʎenˈaðo ðe ˌaɣuxˈeɾos. ˈestas kˌonfiɣˌuɾaθjˈones afˈektan a la nwˈeβa sˌeɡmentaθjˈon; nˈo altˈeɾan las mˈaskaɾas pɾˌekomputˈaðas rˌeʊtiliθˈaðas en ˈesta ðˌemostɾaθjˈon."
+    },
+    {
+      "scene": 15,
+      "speech_start": 229.37,
+      "speech_end": 243.145,
+      "scene_end": 243.72500000000002,
+      "duration": 14.355000000000018,
+      "text": "Los controles de geometría de imagen se redimensionan a las dimensiones esperadas por el modelo de placa agrupada. La máscara se reduce al campo original antes de que se informe el área, por lo que la medición permanece en píxeles originales.",
+      "speech_text": "Los controles de geometría de imagen se redimensionan a las dimensiones esperadas por el modelo de placa agrupada. La máscara se reduce al campo original antes de que se informe el área, por lo que la medición permanece en píxeles originales.",
+      "phonemes": "los kontɾˈoles ðe xˌeometɾˈia ðe imˈaxen se rˌeðimensjˈonan a las ðˌimensjˈones ˌespeɾˈaðas poɾ el moðˈelo ðe plˈaka ˌaɣɾupˈaða. la mˈaskaɾa se reðˈuθe al kˈampo ˌoɾixinˈal ˈantes ðe ke se infˈoɾme el ˈaɾea, poɾ lo ke la mˌeðiθjˈom pˌeɾmanˈeθe em pˈikseles ˌoɾixinˈales."
+    },
+    {
+      "scene": 16,
+      "speech_start": 243.72500000000002,
+      "speech_end": 257.5,
+      "scene_end": 258.05,
+      "duration": 14.324999999999989,
+      "text": "Background y Denoising controlan la eliminación de fondo y el anclaje de señal a ruido utilizado durante la normalización. Se ajusta a los pozos de control y tratamiento representativos antes de una operación de segmentación completa.",
+      "speech_text": "Background y Denoising controlan la eliminación de fondo y el anclaje de señal a ruido utilizado durante la normalización. Se ajusta a los pozos de control y tratamiento representativos antes de una operación de segmentación completa.",
+      "phonemes": "bakɣɾˈownd i ðenˈoɪsiŋ kontɾˈolan la ˌelimˌinaθjˈon de fˈondo i el anklˈaxe ðe seɲˈal a ruˈiðo ˌutiliθˈaðo ðuɾˈante la nˌoɾmalˌiθaθjˈon. se axˈusta a los pˈoθos ðe kontɾˈol i tɾˌatamjˈɛnto rˌepɾesˌentatˈiβos ˈantes ðe ˈuna ˌopeɾaθjˈon de sˌeɡmentaθjˈon komplˈeta."
+    },
+    {
+      "scene": 17,
+      "speech_start": 258.05,
+      "speech_end": 274.575,
+      "scene_end": 275.125,
+      "duration": 17.07499999999999,
+      "text": "La salida y el tiempo de ejecución controlan el ahorro, el tamaño del lote de la GPU y la verbosidad. Reducir el tamaño del lote si la segmentación excede la memoria disponible; mantener el registro verbal para la primera placa para que se registren los caminos resueltos y el comportamiento.",
+      "speech_text": "La salida y el tiempo de ejecución controlan el ahorro, el tamaño del lote de la GPU y la verbosidad. Reducir el tamaño del lote si la segmentación excede la memoria disponible; mantener el registro verbal para la primera placa para que se registren los caminos resueltos y el comportamiento.",
+      "phonemes": "la salˈiða i el tjˈempo ðe ˌexekuθjˈon kontɾˈolan el aˈoro, el tamˈaɲo ðel lˈote ðe la xˌepˌeˈu i la βˌeɾβosiðˈad. rˌeðuθˈiɾ el tamˈaɲo ðel lˈote si la sˌeɡmentaθjˈon eksθˈeðe la memˈoɾja ðˌisponˈiβle; mˌantenˈeɾ el rexˈistɾo βeɾβˈal pˌaɾa la pɾimˈeɾa plˈaka pˌaɾa ke se rexˈistɾen los kamˈinos reswˈeltos i el kˌompoɾtamjˈɛnto."
+    },
+    {
+      "scene": 18,
+      "speech_start": 275.125,
+      "speech_end": 290.25,
+      "scene_end": 290.83,
+      "duration": 15.704999999999984,
+      "text": "Cuando se segmenta, la probabilidad controla el piso candidato, el umbral de flujo controla la consistencia de la forma y el relleno cierra los agujeros interiores. Inspeccione varios pozos porque un valor que limpie una placa puede fusionarse o borrar otra.",
+      "speech_text": "Cuando se segmenta, la probabilidad controla el piso candidato, el umbral de flujo controla la consistencia de la forma y el relleno cierra los agujeros interiores. Inspeccione varios pozos porque un valor que limpie una placa puede fusionarse o borrar otra.",
+      "phonemes": "kwˌando se seɡmˈɛnta, la pɾˌoβaβˌiliðˈad kontɾˈola el pˈiso kˌandiðˈato, el umbɾˈal ðe flˈuxo kontɾˈola la kˌonsistˈɛnθja ðe la fˈoɾma i el reʎˈeno θjˈera los ˌaɣuxˈeɾos ˌinteɾjˈoɾes. ˌinspekθjˈone βˈaɾjos pˈoθos pˌoɾke ˈum balˈoɾ ke lˈimpje ˈuna plˈaka pwˈeðe fˌusjonˈaɾse o βorˈaɾ ˈotɾa."
+    },
+    {
+      "scene": 19,
+      "speech_start": 290.83,
+      "speech_end": 307.055,
+      "scene_end": 307.65500000000003,
+      "duration": 16.825000000000045,
+      "text": "Haga clic en Ejecutar después de revisar las configuraciones modificadas. Esta demostración mide cuatro máscaras etiquetadas sintéticas a través del fondo real de análisis de placa; no presenta los campos sintéticos como validación biológica del modelo de segmentación.",
+      "speech_text": "Haga clic en Ejecutar después de revisar las configuraciones modificadas. Esta demostración mide cuatro máscaras etiquetadas sintéticas a través del fondo real de análisis de placa; no presenta los campos sintéticos como validación biológica del modelo de segmentación.",
+      "phonemes": "ˈaɣa klˈik en ˌexekutˈaɾ ðespwˈes ðe rˌeβisˈaɾ las kˌonfiɣˌuɾaθjˈones mˌoðifikˈaðas. ˈesta ðˌemostɾaθjˈon mˈiðe kwˈatɾo mˈaskaɾas ˌetiketˈaðas sintˈetikas a tɾaβˈes ðel fˈondo reˈal ðe anˈalisis ðe plˈaka; nˈo pɾesˈɛnta los kˈampos sintˈetikos kˌomo βˌaliðaθjˈom bjolˈoxika ðel moðˈelo ðe sˌeɡmentaθjˈon."
+    },
+    {
+      "scene": 20,
+      "speech_start": 307.65500000000003,
+      "speech_end": 320.855,
+      "scene_end": 321.40500000000003,
+      "duration": 13.75,
+      "text": "Durante la ejecución, la consola imprime el registro de reproducibilidad, la fuente resuelta y el destino, y cada máscara que se analiza. Detener las solicitudes de cancelación; esperar a terminar antes de abrir las salidas.",
+      "speech_text": "Durante la ejecución, la consola imprime el registro de reproducibilidad, la fuente resuelta y el destino, y cada máscara que se analiza. Detener las solicitudes de cancelación; esperar a terminar antes de abrir las salidas.",
+      "phonemes": "duɾˈante la ˌexekuθjˈon, la konsˈola impɾˈime el rexˈistɾo ðe rˌepɾoðˌuθiβˌiliðˈad, la fwˈɛnte reswˈelta i el ðestˈino, i kˈaða mˈaskaɾa ke se ˌanalˈiθa. dˌetenˈeɾ las sˌoliθitˈuðes ðe kˌanθelaθjˈon; ˌespeɾˈaɾ a tˌeɾminˈaɾ ˈantes ðe aβɾˈiɾ las salˈiðas."
+    },
+    {
+      "scene": 21,
+      "speech_start": 321.40500000000003,
+      "speech_end": 340.355,
+      "scene_end": 341.15500000000003,
+      "duration": 19.75,
+      "text": "La ejecución escribe plaques_analysis.db en la carpeta de máscaras con resumen, estadísticas y tablas de detalles. Estos cuatro campos contienen cuatro, tres, dos y una placas respectivamente; utilice los recuentos por imagen y las áreas con los metadatos de su placa para estadísticas de nivel de condición y control de calidad.",
+      "speech_text": "La ejecución escribe plaques_analysis.db en la carpeta de máscaras con resumen, estadísticas y tablas de detalles. Estos cuatro campos contienen cuatro, tres, dos y una placas respectivamente; utilice los recuentos por imagen y las áreas con los metadatos de su placa para estadísticas de nivel de condición y control de calidad.",
+      "phonemes": "la ˌexekuθjˈon eskɾˈiβe plˈakes ˌanalˈisis.dˌeβˈe en la kaɾpˈeta ðe mˈaskaɾas kon resˈumen, ˌestaðˈistikas i tˈaβlas ðe ðetˈaʎes. ˈestos kwˈatɾo kˈampos kontjˈenen kwˈatɾo, tɾˈes, dˈos i ˈuna plˈakas rˌespektˈiβamˈente; ˌutilˈiθe los rekwˈɛntos poɾ imˈaxen i las ˈaɾeas kon los mˌetaðˈatos ðe su plˈaka pˌaɾa ˌestaðˈistikas ðe niβˈel ðe kˌondiθjˈon i kontɾˈol ðe kˌaliðˈad."
     }
   ]
 }

@@ -1304,19 +1304,67 @@
       "id": "24_plaque",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt Plaque-Assay ab. Messung der Plattenbildung und bedingungsabhängigen Veränderungen aus Plattenbildern."
+          "narration": "Plaque Assay erkennt und quantifiziert abgeräumte Gastzellregionen. Die Einstellungen befinden sich links; die Konsole erfasst gelöste Einstellungen, Fortschritte, Ausgangswege, Warnungen und Fehler. Das Chatbox unter der Konsole kann diesen Kontext diskutieren, wenn KI aktiviert ist, aber es ändert keine Einstellungen, es sei denn, Sie wenden eine vorgeschlagene Änderung an."
         },
         {
-          "narration": "Offene Plaque-Analyse aus dem Abschnitt Toxoplasma-Analysen. Bereitstellung von Bildplatten, Plattenlayout, Pixelkalibrierung, Bedingungen und Steuerungen."
+          "narration": "Die KI-Taste schaltet die Chat-Routing aus. Sein angrenzendes Menü wählt einen konfigurierten Provider aus und öffnet die Provider-Einstellungen. Halten Sie es aus, wenn kein Assistent benötigt wird; die Analyse-Pipeline selbst ist lokal und erfordert keine KI."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Hintergrundkorrektur, Schwellenwerte, Objektreinigung, Plattengrößenfilter und Brunnengruppen."
+          "narration": "Die Provider-Einstellung trennt lokale und gehostete Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzerklärung, bevor Sie den Konzoll- oder Bildkontext an einen Remote-Anbieter senden."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. die Überlagerung von Segmentierungen über Kontroll- und Behandlungsbrunnen vor der Chargenanalyse zu überprüfen."
+          "narration": "AI-Einstellungen steuern Verhalten wie Kontextteilung, Fehlerberichterstattung und anbieterspezifische Anmeldeinformationen. Diese Präferenzen beeinflussen den Chat-Assistenten, nicht die Plattensegmentierung oder Quantifizierung."
         },
         {
-          "narration": "Nach Abschluss des Workflows meldet spaCR Plackzahlen, Flächen, Zusammenfassungen, Statistiken und Qualitätskontrollen."
+          "narration": "Wählen Sie den Ordner mit TIFF-Plattfeldern aus oder lassen Sie ihn fallen. Dieses Tutorial verwendet vier explizit synthetische Brunnen und schaltet Masken aus, um ihre vorbereiteten, gekennzeichneten Masken wiederzuverwenden. Mit Masken an, segmentiert spaCR stattdessen die Quellbilder mit dem gebündelten Plackmodell, bevor sie gemessen werden."
+        },
+        {
+          "narration": "Wesentliche zeigen den kleinen Satz, der normalerweise für einen ersten Lauf benötigt wird. Beginnen Sie hier, um die Quelle, das Maskenverhalten, den erwarteten Durchmesser, die Schwellenwerte und die Ausgangswahl zu überprüfen, ohne jede fortschrittliche Steuerung zu scannen."
+        },
+        {
+          "narration": "Modifizierte Filter des Panels auf Werte, die sich von den Standardwerten unterscheiden. Es handelt sich um einen kompakten Audit vor der Einreichung: Hier sind die Quelle, die Wiederverwendung der Maske, der Plattendiameter, die Batchgröße und das Hintergrundverhalten vorsätzliche Änderungen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen jede verfügbare Steuerung. Verwenden Sie es bei der Fehlerbehebung oder Wiedergabe eines älteren Laufs; ansonsten reduziert die Essentials-Ansicht zufällige Änderungen an Parametern, die bereits geeignete Standardfunktionen haben."
+        },
+        {
+          "narration": "Rezepte speichern die aktuellen Modul-Einstellungen unter einem wiederverwendbaren Namen. Eine validierte Plattenkonfiguration kann gespeichert, importiert, geteilt und später angewendet werden, anstatt manuell rekonstruiert zu werden."
+        },
+        {
+          "narration": "Führen Sie die gelösten Einstellungen aus der Ferne an Distribute Jobs weiter, anstatt lokal zu starten. Verwenden Sie sie, wenn der Quellordner und das erforderliche Modell von einer SSH-Arbeitsstation oder einem SSH-Cluster aus erreichbar sind."
+        },
+        {
+          "narration": "Der Fernbildschirm empfängt dieses Modul und seine Einstellungen als Jobentwurf. Bestätigen Sie die Pfadkartierung, Rechenressourcen, Umgebungsaktivierung, Synchronisierung und den erzeugten Befehl, bevor Sie einen kleinen Validierungsjob einreichen."
+        },
+        {
+          "narration": "Die Eingabe und Kanäle enthalten den Quellordner und die Wahl der Masken. Schalten Sie Masken ein, um ursprüngliche Felder zu segmentieren, oder ausschalten Sie sie nur, wenn der Masken-Unterordner bereits korrekt benannte gekennzeichnete Bilder enthält."
+        },
+        {
+          "narration": "Das Modell enthält den erwarteten Plattendiameter. Diese Skala wird mit repräsentativen Platten und der Trainingsgeometrie des Modells verglichen; ein Zellgrößenwert ist für Plattenfelder im Allgemeinen ungeeignet."
+        },
+        {
+          "narration": "Die Nachweisschwellen gruppieren Kandidatenwahrscheinlichkeit, Flusskonsistenz, Umskalierung, Umprobung und Löcherfüllung. Diese Einstellungen beeinflussen die neue Segmentierung; sie verändern die im Vorfeld berechneten Masken nicht, die in dieser Demonstration wiederverwendet werden."
+        },
+        {
+          "narration": "Bildgeometrie-Steuerungen, die auf die durch das gebündelte Plackmodell erwarteten Abmessungen umgestaltet werden. Die Maske wird vor der Berichterstattung über die Fläche auf das ursprüngliche Feld zurückgeschossen, sodass die Messung in ursprünglichen Pixeln verbleibt."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung steuern die Hintergrundentfernung und den während der Normalisierung verwendeten Signal-to-Noise-Anker. Sie werden vor einem vollständigen Segmentierungslauf auf repräsentative Kontroll- und Behandlungsbrunnen abgestimmt."
+        },
+        {
+          "narration": "Output und Runtime steuern Einsparungen, GPU-Batchgröße und Verbosität. Reduzieren Sie die Batchgröße, wenn die Segmentierung das verfügbare Speicher übersteigt; halten Sie die verbose Logging für die erste Platte so, dass gelöste Wege und Verhaltensweisen aufgezeichnet werden."
+        },
+        {
+          "narration": "Bei der Segmentierung steuert die Wahrscheinlichkeit den Kandidatenboden, die Durchflussschwelle die Formkonsistenz und die Füllung schließt innere Löcher. Überprüfen Sie mehrere Brunnen, weil ein Wert, der eine Platte reinigt, eine andere Platte verschmelzen oder löschen kann."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie die veränderten Einstellungen überprüft haben. Diese Demonstration misst vier synthetische gekennzeichnete Masken durch das reale Plaque-Analyse-Backend; sie präsentiert die synthetischen Felder nicht als biologische Validierung des Segmentierungsmodells."
+        },
+        {
+          "narration": "Während der Ausführung druckt die Konsole die Reproduzierbarkeitsakte, die gelöste Quelle und Bestimmung und jede Maske, die analysiert wird. Haltet die Stornierungsanfragen ein; wartet auf Fertigstellung, bevor die Ausgänge eröffnet werden."
+        },
+        {
+          "narration": "Der Run schreibt Plaques_analysis.db in den Maskenordner mit Zusammenfassung, Statistik und Detailstabellen. Diese vier Felder enthalten jeweils vier, drei, zwei und eine Plaque; verwenden Sie die Bereiche pro Bild und die Bereiche mit Ihren Plattenmetadaten für nachgelagerte Zustandsniveau-Statistiken und Qualitätskontrolle."
         }
       ]
     },

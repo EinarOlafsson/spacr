@@ -1304,19 +1304,67 @@
       "id": "24_plaque",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Plaque test. Måle pladedannelse og tilstandsafhængige ændringer fra pladebilleder."
+          "narration": "Plaque Assay opdager og kvantificerer de ryddede værtscelleregioner. Indstillingerne er til venstre; konsolen registrerer løst indstillinger, fremskridt, udgangsveje, advarsler og fejl. Chatkassen under konsolen kan diskutere den sammenhæng, når AI er aktiveret, men den ændrer ikke indstillingerne, medmindre du anvender en foreslået ændring."
         },
         {
-          "narration": "Open Plaque test fra Toxoplasma test sektionen. Giv billeder af plader, plader, pixelkalibrering, betingelser og kontroller."
+          "narration": "AI-knappen ændrer chat-routing. Den tilstødende menu vælger en konfigureret udbyder og åbner udbyderindstillinger. Hold det væk, når der ikke er brug for en assistent; selve analysen er lokal og kræver ikke AI."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal der konfigureres baggrundskorrigering, tærskelværdi, objektrensning, plackstørrelsesfiltre og brønnegruppering."
+          "narration": "Provider-indstillingen adskiller lokale og hostede assistenter. Konfigurere kun de tjenester, du har til hensigt at bruge, og gennemgå fortrolighedserklæringen, før du sender konsol- eller billedkontext til en fjernudbyder."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. at kontrollere segmenteringsoverlappninger på tværs af kontrol- og behandlingsbrønner før partianalysen."
+          "narration": "AI-indstillinger styrer adfærd som kontekstdeling, fejlrapportering og leverandør-specifikke legitimationsoplysninger. Disse præferencer påvirker chatassistenten, ikke plakesegmentering eller kvantificering."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, indberetter spaCR tal på plader, arealer, sammenfatninger, statistikker og kvalitetsstyringsdata."
+          "narration": "Vælg eller drop den mappe, der indeholder TIFF-plakefelter. Denne vejledning bruger fire udtrykkeligt syntetiske brønde og slukker Masker for at genbruge deres forudberegnede mærkede masker. Med Masker på, segmenterer spaCR i stedet kildematerialet med det bundlede plakemodel, før man måler dem."
+        },
+        {
+          "narration": "Essentials viser det lille sæt, der normalt er nødvendigt for et første løb. Start her for at verificere kilden, maskens adfærd, forventede diameter, tærskler og udgangsvalg uden at scanne alle avancerede kontroller."
+        },
+        {
+          "narration": "Ændret filtrerer panelen til værdier, der adskiller sig fra standard. Det er en kompakt revision før indgivelse: her er kilden, maskers genbrug, plaksdiameter, partiets størrelse og baggrundsadfærd forsætlige ændringer."
+        },
+        {
+          "narration": "Alle indstillinger afslører alle tilgængelige kontroller. Brug det, når du afhjælper eller reproducerer en ældre run; ellers reducerer Essentials-visningen tilfældige ændringer af parametre, der allerede har passende standarder."
+        },
+        {
+          "narration": "Opskrifter gemmer de aktuelle modulindstillinger under et genbrugeligt navn. En valideret pladekonfiguration kan gemmes, importeres, deles og anvendes senere i stedet for at rekonstrueres manuelt."
+        },
+        {
+          "narration": "Indsend fjernpasser de afviklede indstillinger til Distributed Jobs i stedet for at starte lokalt. Brug den, når kildemappen og den krævede model er tilgængelige fra en SSH-arbejdstation eller en SSH-cluster."
+        },
+        {
+          "narration": "Fjernskærmen modtager dette modul og dets indstillinger som et jobudkast. Bekræft vejkartlægning, beregningsressourcer, miljøaktivering, synkronisering og den genererede kommando, før du indsender et lille valideringsjob."
+        },
+        {
+          "narration": "Input and Channels indeholder kildemappen og valg af Masker. Tænd Masker til at segmentere oprindelige felter, eller sluk kun, når undermappen for masker allerede indeholder korrekt navngivne mærkede billeder."
+        },
+        {
+          "narration": "Modellen indeholder den forventede plade diameter. Sammenlign denne skala med repræsentative plader og modelens træningsgeometri; en cellestørrelse er generelt upassende for pladefelter."
+        },
+        {
+          "narration": "Detektionsgrænser grupperer kandidatprobabilitet, strømningskonsistens, omskalering, omprøvning og hulfyldning. Disse indstillinger påvirker ny segmentering; de ændrer ikke de forudberegnede masker, der genbruges i denne demonstration."
+        },
+        {
+          "narration": "Billedgeometri styrer omstørrelse til de dimensioner, der forventes af den bundlede plademodel. Masken skaleres tilbage til det oprindelige felt, før området rapporteres, så målingen forbliver i de oprindelige pixels."
+        },
+        {
+          "narration": "Baggrunden og Denoising kontrollerer fjernelse af baggrunden og den signal-lyd-ankre, der anvendes under normaliseringen. Tone den på repræsentative kontrol- og behandlingsbrønner før en fuld segmentering."
+        },
+        {
+          "narration": "Output og Runtime kontrollerer opsparing, GPU batch størrelse og verbosity. Sænk batchstørrelsen, hvis segmenteringen overstiger det tilgængelige hukommelse; hold verbose logging for den første plade, så de opklarede stier og adfærd registreres."
+        },
+        {
+          "narration": "Ved segmentering kontrollerer sandsynligheden kandidatgulvet, strømningsgrænsen formkonsistensen, og Fyll ind lukker indre huller. Undersøg flere brønde, fordi en værdi, der renser en plade, kan fusionere eller slette en anden."
+        },
+        {
+          "narration": "Klik på Løb efter at have gennemgået de ændrede indstillinger. Denne demonstration måler fire syntetiske mærkede masker gennem den reelle backend for plakeanalyse; den præsenterer ikke de syntetiske felter som biologisk validering af segmenteringsmodellen."
+        },
+        {
+          "narration": "Under udførelsen printer konsolen reproducerbarhedsoptegnelsen, løsnet kilde og destination, og hver mask bliver analyseret. Stop anmodninger om afbestilling; vent på afsluttet, før du åbner udgangene."
+        },
+        {
+          "narration": "Runden skriver plaques_analysis.db i mappen masker med sammendrag, statistik og detaljer tabeller. Disse fire felter indeholder henholdsvis fire, tre, to og én plader; brug talene pr. billede og områder med din plade metadata til nedstrøms tilstand niveau statistik og kvalitetskontrol."
         }
       ]
     },
