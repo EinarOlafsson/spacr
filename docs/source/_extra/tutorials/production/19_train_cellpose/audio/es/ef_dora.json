@@ -4,47 +4,207 @@
   "voice": "ef_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 54.15,
+  "total_duration": 273.425,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 11.0,
-      "scene_end": 11.45,
-      "duration": 11.45,
-      "text": "Este tutorial abarca Train Cellpose. Entrenar un modelo de segmentación personalizado de Cellpose o compatible con CPSAM a partir de pares de máscaras de imágenes seleccionadas."
+      "speech_end": 16.775,
+      "scene_end": 17.224999999999998,
+      "duration": 17.224999999999998,
+      "text": "Train Cellpose ha perfeccionado un modelo de segmentación CPSAM a partir de imágenes de microscopía emparejadas y máscaras de etiqueta de instancia. La consola informa los datos seleccionados, el progreso del entrenamiento, el camino del punto de control y el registro de reproducibilidad.",
+      "speech_text": "Train Cellpose ha perfeccionado un modelo de segmentación CPSAM a partir de imágenes de microscopía emparejadas y máscaras de etiqueta de instancia. La consola informa los datos seleccionados, el progreso del entrenamiento, el camino del punto de control y el registro de reproducibilidad.",
+      "phonemes": "tɾˈIn θeʎpˈose ˈa pˌeɾfekθjonˈaðo ˈun moðˈelo ðe sˌeɡmentaθjˈon θˌepˈesˈam a paɾtˈiɾ ðe imˈaxenes ðe mˌikɾoskopˈia ˌempaɾexˈaðas i mˈaskaɾas ðe ˌetikˈeta ðe instˈanθja. la konsˈola infˈoɾma los ðˈatos sˌelekθjonˈaðos, el pɾoɣɾˈeso ðel ˌentɾenamjˈɛnto, el kamˈino ðel pˈunto ðe kontɾˈol i el rexˈistɾo ðe rˌepɾoðˌuθiβˌiliðˈad."
     },
     {
       "scene": 2,
-      "speech_start": 11.45,
-      "speech_end": 25.15,
-      "scene_end": 25.599999999999998,
-      "duration": 14.149999999999999,
-      "text": "Abra Train Cellpose en la sección Segmentation models. Abre el tren Cellpose desde la sección Modelos de segmentación. Proporcione diversas imágenes de capacitación y validación con máscaras de etiqueta cuidadosamente corregidas."
+      "speech_start": 17.224999999999998,
+      "speech_end": 28.324999999999996,
+      "scene_end": 28.774999999999995,
+      "duration": 11.549999999999997,
+      "text": "El campo de chat acepta preguntas de flujo de trabajo locales. Habilitar la IA para un proveedor configurado, y usar la flecha adyacente para seleccionar un proveedor o abrir sus controles.",
+      "speech_text": "El campo de chat acepta preguntas de flujo de trabajo locales. Habilitar la IA para un proveedor configurado, y usar la flecha adyacente para seleccionar un proveedor o abrir sus controles.",
+      "phonemes": "el kˈampo ðe ʧˈat aθˈepːta pɾeɣˈuntas ðe flˈuxo ðe tɾaβˈaxo lokˈales. ˌaβilitˈaɾ la ˌiˈa pˌaɾa ˈum pɾˌoβeeðˈoɾ kˌonfiɣuɾˈaðo, i usˈaɾ la flˈeʧa ˌaðʝaθˈɛnte pˌaɾa sˌelekθjonˈaɾ ˈum pɾˌoβeeðˈoɾ o aβɾˈiɾ sus kontɾˈoles."
     },
     {
       "scene": 3,
-      "speech_start": 25.599999999999998,
-      "speech_end": 34.824999999999996,
-      "scene_end": 35.275,
-      "duration": 9.675,
-      "text": "En el área de configuración principal, elija canales, modelo base, diámetro, aumento, tasa de aprendizaje, épocas, tamaño de lote y división de validación."
+      "speech_start": 28.774999999999995,
+      "speech_end": 40.64999999999999,
+      "scene_end": 41.099999999999994,
+      "duration": 12.325,
+      "text": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran sus comandos de instalación y inicio de sesión. La autenticación permanece en manos de cada proveedor.",
+      "speech_text": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran sus comandos de instalación y inicio de sesión. La autenticación permanece en manos de cada proveedor.",
+      "phonemes": "los pɾˌoβeeðˈoɾes kˌompɾuˈeβan los kliˈɛntes ðe lˈinea ðe komˈandos klˈWðe, ʧˈat xˌepˌetˈe i xemˈini i mwˈestɾan sus komˈandos ðe ˌinstalaθjˈon i inˈiθjo ðe sesjˈon. la ˌWtentˌikaθjˈom pˌeɾmanˈeθe en mˈanos ðe kˈaða pɾˌoβeeðˈoɾ."
     },
     {
       "scene": 4,
-      "speech_start": 35.275,
-      "speech_end": 43.199999999999996,
-      "scene_end": 43.65,
-      "duration": 8.375,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+      "speech_start": 41.099999999999994,
+      "speech_end": 53.824999999999996,
+      "scene_end": 54.275,
+      "duration": 13.175000000000004,
+      "text": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de spaCR.",
+      "speech_text": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de espáquer.",
+      "phonemes": "kˌonfiɣˌuɾaθjˈones ðe ˌiˈa kontɾˈola la pɾˌofundiðˈad ðe la respwˈesta, las ˌeksplikaθjˈones ˌWtomˈatikas ðe erˈoɾes, el repˈoɾte ˌopθjonˈal ðe pɾoβlˈemas xˈit ˈub, el inˈiθjo ðe sesjˈon i las ˌinstɾukθjˈones ðel sistˈema konsθjˈɛnte ðe espˈakeɾ."
     },
     {
       "scene": 5,
-      "speech_start": 43.65,
-      "speech_end": 53.5,
-      "scene_end": 54.15,
-      "duration": 10.5,
-      "text": "Cuando el flujo de trabajo termina, el punto de control seleccionado, el historial de entrenamiento, las predicciones de validación y las configuraciones se almacenan juntos."
+      "speech_start": 54.275,
+      "speech_end": 72.7,
+      "scene_end": 73.2,
+      "duration": 18.925000000000004,
+      "text": "Deja la raíz del conjunto de datos que contiene tren, imágenes y tren, máscaras. Los nombres de archivos TIFF correspondientes forman cada par. Esta demostración deriva seis campos de células de quinientos doce píxeles del experimento tutorial real; las etiquetas de producción deben ser revisadas de forma independiente.",
+      "speech_text": "Deja la raíz del conjunto de datos que contiene tren, imágenes y tren, máscaras. Los nombres de archivos TIFF correspondientes forman cada par. Esta demostración deriva seis campos de células de quinientos doce píxeles del experimento tutorial real; las etiquetas de producción deben ser revisadas de forma independiente.",
+      "phonemes": "dˈexa la raˈiθ ðel koŋxˈunto ðe ðˈatos ke kontjˈene tɾˈen, imˈaxenes i tɾˈen, mˈaskaɾas. los nˈombɾes ðe aɾʧˈiβos tˈiff kˌorespondjˈɛntes fˈoɾman kˈaða pˈaɾ. ˈesta ðˌemostɾaθjˈon deɾˈiβa sˈAs kˈampos ðe θˈelulas ðe kinjˈɛntos ðˈoθe pˈikseles ðel ˌekspeɾimˈɛnto tˌutoɾjˈal reˈal; las ˌetikˈetas ðe pɾˌoðukθjˈon dˈeβen sˈer rˌeβisˈaðas ðe fˈoɾma ˌindependjˈɛnte."
+    },
+    {
+      "scene": 6,
+      "speech_start": 73.2,
+      "speech_end": 85.325,
+      "scene_end": 85.775,
+      "duration": 12.575000000000003,
+      "text": "Essentials mantiene los pesos iniciales, el nombre del modelo, el recuento de épocas, la tasa de aprendizaje, el tamaño objetivo de la imagen y la salida verbal visibles para una primera carrera de calibración.",
+      "speech_text": "Essentials mantiene los pesos iniciales, el nombre del modelo, el recuento de épocas, la tasa de aprendizaje, el tamaño objetivo de la imagen y la salida verbal visibles para una primera carrera de calibración.",
+      "phonemes": "ˌessentjˈals mantjˈene los pˈesos ˌiniθjˈales, el nˈombɾe ðel moðˈelo, el rekwˈɛnto ðe ˈepokas, la tˈasa ðe ˌapɾendiθˈaxe, el tamˈaɲo ˌoβxetˈiβo ðe la imˈaxen i la salˈiða βeɾβˈal βisˈiβles pˌaɾa ˈuna pɾimˈeɾa karˈeɾa ðe kˌaliβɾaθjˈon."
+    },
+    {
+      "scene": 7,
+      "speech_start": 85.775,
+      "speech_end": 100.525,
+      "scene_end": 100.97500000000001,
+      "duration": 15.200000000000003,
+      "text": "Modificado limita el panel a cambios intencionales. Aquí, una época, una tasa de aprendizaje de punto cero-uno, tamaño de lote dos, redimensionamiento, y un objetivo de doscientos cincuenta y seis píxeles mantienen el tutorial rápido y reproducible.",
+      "speech_text": "Modificado limita el panel a cambios intencionales. Aquí, una época, una tasa de aprendizaje de punto cero-uno, tamaño de lote dos, redimensionamiento, y un objetivo de doscientos cincuenta y seis píxeles mantienen el tutorial rápido y reproducible.",
+      "phonemes": "mˌoðifikˈaðo limˈita el panˈel a kˈambjos ˌintenθjonˈales. akˈi, ˈuna ˈepoka, ˈuna tˈasa ðe ˌapɾendiθˈaxe ðe pˈunto θˈeɾoˈuno, tamˈaɲo ðe lˈote ðˈos, rˌeðimˌensjonamjˈɛnto, i ˈun ˌoβxetˈiβo ðe ðosθjˈɛntos θinkwˈɛnta i sˈAs pˈikseles mantjˈenen el tˌutoɾjˈal rˈapiðo i rˌepɾoðuθˈiβle."
+    },
+    {
+      "scene": 8,
+      "speech_start": 100.97500000000001,
+      "speech_end": 110.7,
+      "scene_end": 111.15,
+      "duration": 10.174999999999997,
+      "text": "Todas las configuraciones revelan cinco categorías: punto de inicio, horario de capacitación, geometría de imagen, fondo y negación y salida y tiempo de ejecución.",
+      "speech_text": "Todas las configuraciones revelan cinco categorías: punto de inicio, horario de capacitación, geometría de imagen, fondo y negación y salida y tiempo de ejecución.",
+      "phonemes": "tˈoðas las kˌonfiɣˌuɾaθjˈones reβˈelan θˈinko kˌateɣoɾˈias: pˈunto ðe inˈiθjo, oɾˈaɾjo ðe kˌapaθˌitaθjˈon, xˌeometɾˈia ðe imˈaxen, fˈondo i nˌeɣaθjˈon i salˈiða i tjˈempo ðe ˌexekuθjˈon."
+    },
+    {
+      "scene": 9,
+      "speech_start": 111.15,
+      "speech_end": 121.92500000000001,
+      "scene_end": 122.37500000000001,
+      "duration": 11.225000000000009,
+      "text": "Recetas guarda la configuración completa de entrenamiento bajo un nombre, la reaplica a otro conjunto de datos anotado o importa y exporta un archivo de configuración reutilizable.",
+      "speech_text": "Recetas guarda la configuración completa de entrenamiento bajo un nombre, la reaplica a otro conjunto de datos anotado o importa y exporta un archivo de configuración reutilizable.",
+      "phonemes": "reθˈetas ɣwˈaɾða la kˌonfiɣˌuɾaθjˈon komplˈeta ðe ˌentɾenamjˈɛnto βˌaxo ˈun nˈombɾe, la rˌeaplˈika a ˈotɾo koŋxˈunto ðe ðˈatos ˌanotˈaðo o impˈoɾta i ekspˈoɾta ˈun aɾʧˈiβo ðe kˌonfiɣˌuɾaθjˈon rˌeʊtiliθˈaβle."
+    },
+    {
+      "scene": 10,
+      "speech_start": 122.37500000000001,
+      "speech_end": 135.45000000000002,
+      "scene_end": 135.9,
+      "duration": 13.524999999999991,
+      "text": "Envía instantáneas remotas de las configuraciones de capacitación resueltas y envía el ajuste al espacio de trabajo de Trabajos Distribuidos, que es útil cuando la capacitación CPSAM pertenece a una GPU más grande.",
+      "speech_text": "Envía instantáneas remotas de las configuraciones de capacitación resueltas y envía el ajuste al espacio de trabajo de Trabajos Distribuidos, que es útil cuando la capacitación CPSAM pertenece a una GPU más grande.",
+      "phonemes": "embˈia ˌinstantˈaneas remˈotas ðe las kˌonfiɣˌuɾaθjˈones ðe kˌapaθˌitaθjˈon reswˈeltas i embˈia el axˈuste al espˈaθjo ðe tɾaβˈaxo ðe tɾaβˈaxos ðˌistɾiβwˈiðos, ke ˈes ˈutil kwˌando la kˌapaθˌitaθjˈon θˌepˈesˈam pˌeɾtenˈeθe a ˈuna xˌepˌeˈu mˈas ɣɾˈande."
+    },
+    {
+      "scene": 11,
+      "speech_start": 135.9,
+      "speech_end": 147.9,
+      "scene_end": 148.35,
+      "duration": 12.449999999999989,
+      "text": "Distributed Jobs mapea el conjunto de datos y las vías de salida a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envía y monitorea la misma ejecución de entrenamiento.",
+      "speech_text": "Distributed Jobs mapea el conjunto de datos y las vías de salida a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envía y monitorea la misma ejecución de entrenamiento.",
+      "phonemes": "dˌistɾiβutˈed xˈobs mapˈea el koŋxˈunto ðe ðˈatos i las βˈias ðe salˈiða a ˈuna ˌestaθjˈon de tɾaβˈaxo remˈota, ˈuŋ ɡɾˈupo slˈuɾm o ˈun komˈando kˌonfiɣuɾˈaðo, luˈeɣo embˈia i mˌonitoɾˈea la mˈisma ˌexekuθjˈon de ˌentɾenamjˈɛnto."
+    },
+    {
+      "scene": 12,
+      "speech_start": 148.35,
+      "speech_end": 161.79999999999998,
+      "scene_end": 162.24999999999997,
+      "duration": 13.899999999999977,
+      "text": "El punto de partida elige CPSAM, ajuste fino o entrenamiento desde cero, y el nombre del punto de control. El ajuste fino de pesas pre-entrenadas por lo general requiere mucho menos imágenes revisadas que un comienzo aleatorio.",
+      "speech_text": "El punto de partida elige CPSAM, ajuste fino o entrenamiento desde cero, y el nombre del punto de control. El ajuste fino de pesas pre-entrenadas por lo general requiere mucho menos imágenes revisadas que un comienzo aleatorio.",
+      "phonemes": "el pˈunto ðe paɾtˈiða elˈixe θˌepˈesˈam, axˈuste fˈino o ˌentɾenamjˈɛnto ðˌesðe θˈeɾo, i el nˈombɾe ðel pˈunto ðe kontɾˈol. el axˈuste fˈino ðe pˈesas pɾˈeˌentɾenˈaðas poɾ lo xˌeneɾˈal rekjˈeɾe mˈuʧo mˈenos imˈaxenes rˌeβisˈaðas ke ˈun komjˈɛnθo ˌaleatˈoɾjo."
+    },
+    {
+      "scene": 13,
+      "speech_start": 162.24999999999997,
+      "speech_end": 175.82499999999996,
+      "scene_end": 176.27499999999995,
+      "duration": 14.024999999999977,
+      "text": "El programa de entrenamiento establece épocas, tasa de aprendizaje, pérdida de peso, tamaño de minipartida y aumento. Aumentar la formación sólo después de que los pares de entradas y la estrategia de evaluación prolongada sean correctos.",
+      "speech_text": "El programa de entrenamiento establece épocas, tasa de aprendizaje, pérdida de peso, tamaño de minipartida y aumento. Aumentar la formación sólo después de que los pares de entradas y la estrategia de evaluación prolongada sean correctos.",
+      "phonemes": "el pɾoɣɾˈama ðe ˌentɾenamjˈɛnto ˌestaβlˈeθe ˈepokas, tˈasa ðe ˌapɾendiθˈaxe, pˈeɾðiða ðe pˈeso, tamˈaɲo ðe mˌinipaɾtˈiða i Wmˈɛnto. ˌWmentˈaɾ la fˌoɾmaθjˈon sˈolo ðespwˈes ðe ke los pˈaɾes ðe entɾˈaðas i la ˌestɾatˈexja ðe ˌeβaluaθjˈom pɾˌoloŋɡˈaða sˈean korˈektos."
+    },
+    {
+      "scene": 14,
+      "speech_start": 176.27499999999995,
+      "speech_end": 190.67499999999995,
+      "scene_end": 191.12499999999994,
+      "duration": 14.849999999999994,
+      "text": "La geometría de imágenes registra las dimensiones de la fuente, el tamaño del objetivo, el diámetro esperado del objeto y si los pares se redimensionan. Las imágenes y las máscaras se transforman juntas, conservando las identidades de las etiquetas.",
+      "speech_text": "La geometría de imágenes registra las dimensiones de la fuente, el tamaño del objetivo, el diámetro esperado del objeto y si los pares se redimensionan. Las imágenes y las máscaras se transforman juntas, conservando las identidades de las etiquetas.",
+      "phonemes": "la xˌeometɾˈia ðe imˈaxenes rexˈistɾa las ðˌimensjˈones ðe la fwˈɛnte, el tamˈaɲo ðel ˌoβxetˈiβo, el ðjˈametɾo ˌespeɾˈaðo ðel oβxˈeto i si los pˈaɾes se rˌeðimensjˈonan. las imˈaxenes i las mˈaskaɾas se tɾansfˈoɾman xˈuntas, kˌonseɾβˈando las ˌiðentiðˈaðes ðe las ˌetikˈetas."
+    },
+    {
+      "scene": 15,
+      "speech_start": 191.12499999999994,
+      "speech_end": 200.84999999999994,
+      "scene_end": 201.29999999999993,
+      "duration": 10.174999999999983,
+      "text": "Background y Denoising controlan la eliminación opcional de fondo, el piso de intensidad y la detección de señal a ruido aplicada antes de que las imágenes entrenen.",
+      "speech_text": "Background y Denoising controlan la eliminación opcional de fondo, el piso de intensidad y la detección de señal a ruido aplicada antes de que las imágenes entrenen.",
+      "phonemes": "bakɣɾˈownd i ðenˈoɪsiŋ kontɾˈolan la ˌelimˌinaθjˈon ˌopθjonˈal ðe fˈondo, el pˈiso ðe ˌintensiðˈað i la ðˌetekθjˈon de seɲˈal a ruˈiðo ˌaplikˈaða ˈantes ðe ke las imˈaxenes entɾˈenen."
+    },
+    {
+      "scene": 16,
+      "speech_start": 201.29999999999993,
+      "speech_end": 215.27499999999992,
+      "scene_end": 215.7249999999999,
+      "duration": 14.424999999999983,
+      "text": "Los controles de salida y tiempo de funcionamiento son la información de progreso verbal. El punto de control del modelo y sus configuraciones se guardan bajo modelos, modelo de colocación celular dentro de la raíz del conjunto de datos caído.",
+      "speech_text": "Los controles de salida y tiempo de funcionamiento son la información de progreso verbal. El punto de control del modelo y sus configuraciones se guardan bajo modelos, modelo de colocación celular dentro de la raíz del conjunto de datos caído.",
+      "phonemes": "los kontɾˈoles ðe salˈiða i tjˈempo ðe fˌunθjonamjˈɛnto sˈon la ˌinfoɾmaθjˈon de pɾoɣɾˈeso βeɾβˈal. el pˈunto ðe kontɾˈol ðel moðˈelo i sus kˌonfiɣˌuɾaθjˈones se ɣwˈaɾðam bˌaxo moðˈelos, moðˈelo ðe kˌolokaθjˈon θˌelulˈaɾ ðˈɛntɾo ðe la raˈiθ ðel koŋxˈunto ðe ðˈatos kaˈiðo."
+    },
+    {
+      "scene": 17,
+      "speech_start": 215.7249999999999,
+      "speech_end": 229.6999999999999,
+      "scene_end": 230.1499999999999,
+      "duration": 14.424999999999983,
+      "text": "Para esta calibración, una época y el tamaño de lote dos procesan los seis campos anotados sin aumento. Un ajuste real debe utilizar suficientes épocas y diversidad de imagen para converger sin memorizar el conjunto de entrenamiento.",
+      "speech_text": "Para esta calibración, una época y el tamaño de lote dos procesan los seis campos anotados sin aumento. Un ajuste real debe utilizar suficientes épocas y diversidad de imagen para converger sin memorizar el conjunto de entrenamiento.",
+      "phonemes": "pˌaɾa ˈesta kˌaliβɾaθjˈon, ˈuna ˈepoka i el tamˈaɲo ðe lˈote ðˈos pɾoθˈesan los sˈAs kˈampos ˌanotˈaðos sin Wmˈɛnto. ˈun axˈuste reˈal ðˈeβe ˌutiliθˈaɾ sˌufiθjˈɛntes ˈepokas i ðˌiβeɾsiðˈad ðe imˈaxem pˌaɾa kˌombeɾxˈeɾ sin mˌemoɾiθˈaɾ el koŋxˈunto ðe ˌentɾenamjˈɛnto."
+    },
+    {
+      "scene": 18,
+      "speech_start": 230.1499999999999,
+      "speech_end": 242.6749999999999,
+      "scene_end": 243.1249999999999,
+      "duration": 12.974999999999994,
+      "text": "Run valida los nombres de archivos correspondientes, carga cada imagen anotada, muestra previamente una muestra limitada y ajusta el modelo. La parada solicita una interrupción segura mientras el lote actual termina.",
+      "speech_text": "Run valida los nombres de archivos correspondientes, carga cada imagen anotada, muestra previamente una muestra limitada y ajusta el modelo. La parada solicita una interrupción segura mientras el lote actual termina.",
+      "phonemes": "rˈum balˈiða los nˈombɾes ðe aɾʧˈiβos kˌorespondjˈɛntes, kˈaɾɣa kˈaða imˈaxen ˌanotˈaða, mwˈestɾa pɾˈeβjamˈente ˈuna mwˈestɾa lˌimitˈaða i axˈusta el moðˈelo. la paɾˈaða sˌoliθˈita ˈuna ˌinterupθjˈon seɣˈuɾa mjˌentɾas el lˈote aktwˈal teɾmˈina."
+    },
+    {
+      "scene": 19,
+      "speech_start": 243.1249999999999,
+      "speech_end": 256.4749999999999,
+      "scene_end": 256.9249999999999,
+      "duration": 13.800000000000011,
+      "text": "Durante el procesamiento, el panel de figuras prevé cada campo de microscopía por encima de su máscara de instancia, mientras que la consola informa de seis parches, seis anotaciones de fuente, una época y un minibatch de tamaño dos.",
+      "speech_text": "Durante el procesamiento, el panel de figuras prevé cada campo de microscopía por encima de su máscara de instancia, mientras que la consola informa de seis parches, seis anotaciones de fuente, una época y un minibatch de tamaño dos.",
+      "phonemes": "duɾˈante el pɾˌoθesamjˈɛnto, el panˈel ðe fiɣˈuɾas pɾeβˈe kˈaða kˈampo ðe mˌikɾoskopˈia poɾ enθˈima ðe su mˈaskaɾa ðe instˈanθja, mjˌentɾas ke la konsˈola infˈoɾma ðe sˈAs pˈaɾʧes, sˈAs ˌanotaθjˈones ðe fwˈɛnte, ˈuna ˈepoka i ˈun mˌiniβˈatʧ ðe tamˈaɲo ðˈos."
+    },
+    {
+      "scene": 20,
+      "speech_start": 256.9249999999999,
+      "speech_end": 272.7249999999999,
+      "scene_end": 273.4249999999999,
+      "duration": 16.5,
+      "text": "La calibración se completó con éxito. spaCR guardó el punto de control CPSAM, la configuración CSV, el manifiesto de ejecución y el registro macro, y la vista previa de los campos emparejados confirma que los archivos de imagen y etiqueta se mantuvieron alineados.",
+      "speech_text": "La calibración se completó con éxito. espáquer guardó el punto de control CPSAM, la configuración CSV, el manifiesto de ejecución y el registro macro, y la vista previa de los campos emparejados confirma que los archivos de imagen y etiqueta se mantuvieron alineados.",
+      "phonemes": "la kˌaliβɾaθjˈon se kˌompletˈo kon ˈeksito. espˈakeɾ ɣwaɾðˈo el pˈunto ðe kontɾˈol θˌepˈesˈam, la kˌonfiɣˌuɾaθjˈon θˌeˌeseˈuβe, el mˌanifjˈesto ðe ˌexekuθjˈon i el rexˈistɾo mˈakɾo, i la βˈista pɾˈeβja ðe los kˈampos ˌempaɾexˈaðos konfˈiɾma ke los aɾʧˈiβos ðe imˈaxen i ˌetikˈeta se mˌantuβjˈeɾon ˌalineˈaðos."
     }
   ]
 }

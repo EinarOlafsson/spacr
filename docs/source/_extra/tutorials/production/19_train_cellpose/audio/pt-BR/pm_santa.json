@@ -4,47 +4,207 @@
   "voice": "pm_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.75,
+  "total_duration": 266.225,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.425,
-      "scene_end": 10.875,
-      "duration": 10.875,
-      "text": "Este tutorial abrange o Train Cellpose. Treinar um modelo de segmentação personalizado Cellpose ou CPSAM compatível a partir de pares de imagem-mascaras seleccionadas."
+      "speech_end": 15.1,
+      "scene_end": 15.549999999999999,
+      "duration": 15.549999999999999,
+      "text": "Train Cellpose sintoniza um modelo de segmentação CPSAM a partir de imagens emparelhadas de microscopia e máscaras de rótulo de instância. O console relata os dados selecionados, o progresso do treinamento, o caminho do checkpoint e o registro de reprodução.",
+      "speech_text": "Train Cellpose sintoniza um modelo de segmentação CPSAM a partir de imagens emparelhadas de microscopia e máscaras de rótulo de instância. O console relata os dados selecionados, o progresso do treinamento, o caminho do checkpoint e o registro de reprodução.",
+      "phonemes": "traˈin sˌɛlpˈɔzy sˌiŋtonˈizæ ũŋ mˌodˈelʊ ʤy sˌeɡmAŋtasˈɐ̃ʊ̃ kpsˈɐ̃ʊ̃ a paɾəʧˈir ʤj ˌimˈaʒAŋz ˌAmpaɾeljˈadæz ʤy mˌikroskopˈiæ i mˈaskæɾæz ʤy xˈɔtulʊ ʤj ˌiŋstˈɐ̃ŋsjæ. ʊ kˌoŋsˈoly xˌelˈatæ ʊz dˈadʊs sˌelesˌionˈadʊs, ʊ prˌoɡrˈɛsʊ dʊ trˌAnæmˈAŋtʊ, ʊ kˌæmˈiɲʊ dʊ ʃˌekpoˈiŋʧ i ʊ xˌeʒˈistrʊ ʤy xˌeprodusˈɐ̃ʊ̃."
     },
     {
       "scene": 2,
-      "speech_start": 10.875,
-      "speech_end": 18.65,
-      "scene_end": 19.099999999999998,
-      "duration": 8.224999999999998,
-      "text": "Abra Train Cellpose na seção Segmentation models. Abre a Secção de Celulares de Trens na secção Modelos de Segmentação."
+      "speech_start": 15.549999999999999,
+      "speech_end": 26.924999999999997,
+      "scene_end": 27.374999999999996,
+      "duration": 11.824999999999998,
+      "text": "O campo de bate-papo aceita perguntas do fluxo de trabalho local. Habilitar a IA para um provedor configurado e usar a seta adjacente para selecionar um provedor ou abrir seus controles.",
+      "speech_text": "O campo de bate-papo aceita perguntas do fluxo de trabalho local. Habilitar a IA para um provedor configurado e usar a seta adjacente para selecionar um provedor ou abrir seus controles.",
+      "phonemes": "ʊ kˈɐ̃mpʊ ʤy bˈaʧypˈapw ˌasˈAtæ pˌeɾəɡˈũŋtæz dʊ flˈuksʊ ʤy trˌabˈaljʊ lokˈW. ˌabilitˈaɾ a ˌiˈa pˌaɾæ ũŋ prˌovedˈor kˌoŋfiɡuɾˈadw i uzˈaɾ a sˈɛtæ ˌadʒasˈAŋʧy pˌaɾæ sˌelesˌionˈaɾ ũŋ prˌovedˈoɾ ow abrˈir seʊs kˌoŋtrˈolys."
     },
     {
       "scene": 3,
-      "speech_start": 19.099999999999998,
-      "speech_end": 28.125,
-      "scene_end": 28.575,
-      "duration": 9.475000000000001,
-      "text": "Na área de configuração principal, escolha os canais, modelo base, diâmetro, aumento, taxa de aprendizagem, épocas, tamanho do lote e divisão de validação."
+      "speech_start": 27.374999999999996,
+      "speech_end": 38.175,
+      "scene_end": 38.625,
+      "duration": 11.250000000000004,
+      "text": "Os provedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e exibem seus comandos de instalação e login. A autenticação permanece com cada fornecedor.",
+      "speech_text": "Os provedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e exibem seus comandos de instalação e login. A autenticação permanece com cada fornecedor.",
+      "phonemes": "ʊs prˌovedˈoɾyz vˌeɾifˈikɐ̃ʊ̃ ʊs klˌiˈAŋʧyz ʤy lˈiɲæ ʤy kˌomˈɐ̃ŋdʊ klˈWʤy, ʃˈaʧ ʒˌepˌetˈe i ʒˌeminˈi i ˌezˈibAŋ seʊs kˌomˈɐ̃ŋdʊz ʤj ˌiŋstalasˈɐ̃ʊ̃ i loɡˈiŋ. a ˌWtAŋʧˌikasˈɐ̃ʊ̃ pˌeɾəmænˈɛsy koŋ kˈadæ fˌoɾənesedˈor."
     },
     {
       "scene": 4,
-      "speech_start": 28.575,
-      "speech_end": 36.45,
-      "scene_end": 36.900000000000006,
-      "duration": 8.325000000000006,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível."
+      "speech_start": 38.625,
+      "speech_end": 49.825,
+      "scene_end": 50.275000000000006,
+      "duration": 11.650000000000006,
+      "text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do spaCR.",
+      "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do espáquer.",
+      "phonemes": "kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ a prˌofũŋʤidˈaʤy da xˌespˈɔstæ, ˌesplikasˈõjz ˌWtomˈaʧikæz ʤj ˈexʊs, xˌelatˈɔɾjʊz ˌopsionˈIz ʤy prˌoblˈemæz ʒˈiʧ ˈub, loɡˈiŋ i ˌiŋstrusˈõjz dʊ sˌistˈemæ kˌoŋsiˈAŋʧy dʊ ˌespˈakɛr."
     },
     {
       "scene": 5,
-      "speech_start": 36.900000000000006,
-      "speech_end": 47.10000000000001,
-      "scene_end": 47.75000000000001,
-      "duration": 10.850000000000001,
-      "text": "Quando o fluxo de trabalho termina, o ponto de verificação selecionado, o histórico de treinamento, as previsões de validação e as configurações são armazenados juntos."
+      "speech_start": 50.275000000000006,
+      "speech_end": 68.30000000000001,
+      "scene_end": 68.80000000000001,
+      "duration": 18.525000000000006,
+      "text": "Largue a raiz do conjunto de dados que contém trem, imagens e trem, máscaras. Os nomes de arquivos TIFF correspondentes formam cada par. Esta demonstração deriva seis campos de células de quinhentos e doze pixels do verdadeiro experimento tutorial; os rótulos de produção devem ser revisados de forma independente.",
+      "speech_text": "Largue a raiz do conjunto de dados que contém trem, imagens e trem, máscaras. Os nomes de arquivos TIFF correspondentes formam cada par. Esta demonstração deriva seis campos de células de quinhentos e doze pixels do verdadeiro experimento tutorial; os rótulos de produção devem ser revisados de forma independente.",
+      "phonemes": "lˈaɾəɡj a xaˈiz dʊ kˌoŋʒˈũŋtʊ ʤy dˈadʊs ky koŋtˈAŋ trˈAŋ, ˌimˈaʒAŋz i trˈAŋ, mˈaskæɾæs. ʊz nˈomyz ʤj ˌaɾəkˈivʊs ʧˈif kˌoxespoŋdˈAŋʧys fˈɔɾəmɐ̃ʊ̃ kˈadæ pˈar. ˌɛstæ dˌemoŋstrasˈɐ̃ʊ̃ dˌeɾˈivæ sˈAs kˈɐ̃mpʊz ʤy sˈɛlulæz ʤy kˌiɲˈAŋtʊz i dˈozy piʃˈɛʊz dʊ vˌeɾədadˈAɾw ˌespeɾimˈAŋtʊ tˌutoɾiˈW; ʊz xˈɔtulʊz ʤy prˌodusˈɐ̃ʊ̃ dˈɛvAŋ ser xˌevizˈadʊz ʤy fˈɔɾəmæ ˌiŋdepAŋdˈAŋʧy."
+    },
+    {
+      "scene": 6,
+      "speech_start": 68.80000000000001,
+      "speech_end": 80.30000000000001,
+      "scene_end": 80.75000000000001,
+      "duration": 11.950000000000003,
+      "text": "Essentials mantém os pesos iniciais, o nome do modelo, a contagem de épocas, a taxa de aprendizagem, o tamanho do alvo da imagem e a saída verbal visível para uma primeira execução de calibração.",
+      "speech_text": "Essentials mantém os pesos iniciais, o nome do modelo, a contagem de épocas, a taxa de aprendizagem, o tamanho do alvo da imagem e a saída verbal visível para uma primeira execução de calibração.",
+      "phonemes": "ˌesAŋʧiˈWz mɐ̃ŋtˈAŋ ʊs pˈezʊz ˌinisiˈIs, ʊ nˈomy dʊ mˌodˈelʊ, a kˌoŋtˈaʒAŋ ʤj ˈɛpokæs, a tˈaʃæ ʤj ˌaprAŋʤizˈaʒAŋ, ʊ tˌæmˈɐ̃ɲʊ dʊ ˈWvʊ da ˌimˈaʒAŋ i a sˌaˈidæ veɾəbˈW vˌizˈiveʊ pˌaɾæ ˌumæ prˌimˈAɾæ ˌezekusˈɐ̃ʊ̃ ʤy kˌalibrasˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 7,
+      "speech_start": 80.75000000000001,
+      "speech_end": 94.92500000000001,
+      "scene_end": 95.37500000000001,
+      "duration": 14.625,
+      "text": "Modificado limita o painel a alterações intencionais. Aqui, uma época, uma taxa de aprendizagem ponto zero-um, tamanho de lote dois, redimensionamento e um alvo de doiscentos e cinquenta e seis pixels mantêm o tutorial rápido e reprodutível.",
+      "speech_text": "Modificado limita o painel a alterações intencionais. Aqui, uma época, uma taxa de aprendizagem ponto zero-um, tamanho de lote dois, redimensionamento e um alvo de doiscentos e cinquenta e seis pixels mantêm o tutorial rápido e reprodutível.",
+      "phonemes": "mˌoʤifikˈadʊ lˌimˈitæ ʊ pInˈɛʊ a ˌWteɾasˈõjz ˌiŋtAŋsˌionˈIs. akˈi, ˌumæ ˈɛpokæ, ˌumæ tˈaʃæ ʤj ˌaprAŋʤizˈaʒAŋ pˈoŋtʊ zˈɛɾʊũŋ, tˌæmˈɐ̃ɲʊ ʤy lˈɔʧy dˈoɪs, xˌeʤimˌAŋsiˌonæmˈAŋtw i ũŋ ˈWvʊ ʤy dˌoɪsˈAŋtʊz i sˌiŋkwˈAŋtæ i sˈAs piʃˈɛʊz mɐ̃ŋtˈAŋ ʊ tˌutoɾiˈW xˈapidw i xˌeproduʧˈiveʊ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 95.37500000000001,
+      "speech_end": 104.90000000000002,
+      "scene_end": 105.35000000000002,
+      "duration": 9.975000000000009,
+      "text": "Todas as configurações revelam cinco categorias: ponto de partida, programa de treinamento, geometria de imagem, fundo e denúncia e saída e tempo de execução.",
+      "speech_text": "Todas as configurações revelam cinco categorias: ponto de partida, programa de treinamento, geometria de imagem, fundo e denúncia e saída e tempo de execução.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ sˈiŋkʊ kˌateɡoɾˈiæs: pˈoŋtʊ ʤy pˌaɾəʧˈidæ, prˌoɡrˈɐ̃mæ ʤy trˌAnæmˈAŋtʊ, ʒˌeometrˈiæ ʤj ˌimˈaʒAŋ, fˈũŋdw i dˌenˈũŋsjæ i sˌaˈidæ i tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 9,
+      "speech_start": 105.35000000000002,
+      "speech_end": 116.87500000000003,
+      "scene_end": 117.32500000000003,
+      "duration": 11.975000000000009,
+      "text": "As receitas guardam a configuração completa do treinamento sob um nome, reaplicam-na em outro conjunto de dados com anotações ou importam e exportam um arquivo de configurações reutilizável.",
+      "speech_text": "As receitas guardam a configuração completa do treinamento sob um nome, reaplicam-na em outro conjunto de dados com anotações ou importam e exportam um arquivo de configurações reutilizável.",
+      "phonemes": "az xˌesˈAtæz ɡwˈaɾədɐ̃ʊ̃ a kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ kˌomplˈɛtæ dʊ trˌAnæmˈAŋtʊ sˈob ũŋ nˈomy, xˌeaplˈikɐ̃ʊ̃na Aŋ ˈowtrʊ kˌoŋʒˈũŋtʊ ʤy dˈadʊs koŋ ˌænotasˈõjz ow ˌimpˈɔɾətɐ̃ʊ̃ i ˌespˈɔɾətɐ̃ʊ̃ ũŋ ˌaɾəkˈivʊ ʤy kˌoŋfiɡˌuɾasˈõjz xˌeʊʧilizˈaveʊ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 117.32500000000003,
+      "speech_end": 129.62500000000003,
+      "scene_end": 130.07500000000002,
+      "duration": 12.749999999999986,
+      "text": "Envie instantâneos remotos das configurações de treinamento resolvidas e envia o ajuste para o espaço de trabalho de trabalhos distribuídos, o que é útil quando o treinamento CPSAM pertence a uma GPU maior.",
+      "speech_text": "Envie instantâneos remotos das configurações de treinamento resolvidas e envia o ajuste para o espaço de trabalho de trabalhos distribuídos, o que é útil quando o treinamento CPSAM pertence a uma GPU maior.",
+      "phonemes": "ˌAŋvˈij ˌiŋstɐ̃ŋtˈɐ̃neʊz xˌemˈɔtʊz das kˌoŋfiɡˌuɾasˈõjz ʤy trˌAnæmˈAŋtʊ xˌezowvˈidæz i ˌAŋvˈiæ u ˌaʒˈusʧy pˌaɾæ u ˌespˈasʊ ʤy trˌabˈaljʊ ʤy trˌabˈaljʊz ʤˌistribuˈidʊs, ʊ ky ɛ ˈuʧiʊ kwˈɐ̃ŋdw ʊ trˌAnæmˈAŋtʊ kpsˈɐ̃ʊ̃ pˌeɾətˈAŋsj a ˌumæ ʒˌepˌeˈu mIˈɔr."
+    },
+    {
+      "scene": 11,
+      "speech_start": 130.07500000000002,
+      "speech_end": 142.50000000000003,
+      "scene_end": 142.95000000000002,
+      "duration": 12.875,
+      "text": "O Jobs Distribuído mapeia o conjunto de dados e os caminhos de saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução de treinamento.",
+      "speech_text": "O Jobs Distribuído mapeia o conjunto de dados e os caminhos de saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução de treinamento.",
+      "phonemes": "ʊ ʒˈobz ʤˌistribuˈidʊ mˌapˈAæ ʊ kˌoŋʒˈũŋtʊ ʤy dˈadʊz i ʊs kˌæmˈiɲʊz ʤy sˌaˈidæ pˌaɾæ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljʊ xˌemˈɔtæ, ũŋ klustˈer zlˈuɾəm ow ũŋ kˌomˈɐ̃ŋdʊ kˌoŋfiɡuɾˈadʊ, ˈAŋ sˌeɡˈidæ, ˌAŋvˈiæ i mˌonitˈoɾæ a mˈezmæ ˌezekusˈɐ̃ʊ̃ ʤy trˌAnæmˈAŋtʊ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 142.95000000000002,
+      "speech_end": 156.20000000000002,
+      "scene_end": 156.65,
+      "duration": 13.699999999999989,
+      "text": "O ponto de partida escolhe o CPSAM, o ajuste fino ou o treinamento a partir do zero, e o nome do ponto de controlo. O ajuste fino dos pesos pré-entrenados geralmente requer muito menos imagens revisadas do que um começo aleatório.",
+      "speech_text": "O ponto de partida escolhe o CPSAM, o ajuste fino ou o treinamento a partir do zero, e o nome do ponto de controlo. O ajuste fino dos pesos pré-entrenados geralmente requer muito menos imagens revisadas do que um começo aleatório.",
+      "phonemes": "ʊ pˈoŋtʊ ʤy pˌaɾəʧˈidæ ˌeskˈɔljj ʊ kpsˈɐ̃ʊ̃, u ˌaʒˈusʧy fˈinw ow ʊ trˌAnæmˈAŋtw a paɾəʧˈir dʊ zˈɛɾʊ, i ʊ nˈomy dʊ pˈoŋtʊ ʤy kˌoŋtrˈolʊ. u ˌaʒˈusʧy fˈinʊ dʊs pˈezʊs prˈɛˌAŋtrenˈadʊz ʒˌeɾWmˈAŋʧy xekˈɛr mwˈiŋtʊ mˈenʊz ˌimˈaʒAŋz xˌevizˈadæz dʊ ky ũŋ kˌomˈesw ˌaleatˈɔɾjʊ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 156.65,
+      "speech_end": 169.65,
+      "scene_end": 170.1,
+      "duration": 13.449999999999989,
+      "text": "O Programa de Treinamento define épocas, taxa de aprendizagem, declínio de peso, tamanho do minibatch e aumento. Aumentar a formação somente após a correcção dos pares de entradas e da estratégia de avaliação prolongada.",
+      "speech_text": "O Programa de Treinamento define épocas, taxa de aprendizagem, declínio de peso, tamanho do minibatch e aumento. Aumentar a formação somente após a correcção dos pares de entradas e da estratégia de avaliação prolongada.",
+      "phonemes": "ʊ prˌoɡrˈɐ̃mæ ʤy trˌAnæmˈAŋtʊ dˌefˈinj ˈɛpokæs, tˈaʃæ ʤj ˌaprAŋʤizˈaʒAŋ, dˌeklˈinjʊ ʤy pˈezʊ, tˌæmˈɐ̃ɲʊ dʊ mˌinibˈatʃ i ˌWmˈAŋtʊ. ˌWmAŋtˈaɾ a fˌoɾəmasˈɐ̃ʊ̃ sˌomˈAŋʧj apˈɔz a kˌoxeksˈɐ̃ʊ̃ dʊs pˈaɾyz ʤj ˌAŋtrˈadæz i da ˌestratˈɛʒjæ ʤj ˌavalˌiasˈɐ̃ʊ̃ prˌoloŋɡˈadæ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 170.1,
+      "speech_end": 184.025,
+      "scene_end": 184.475,
+      "duration": 14.375,
+      "text": "A Geometria de Imagem registra as dimensões da fonte, o tamanho do alvo, o diâmetro esperado do objeto e se os pares são redimensionados. As imagens e as máscaras são transformadas juntas, com as identidades de rótulos preservadas.",
+      "speech_text": "A Geometria de Imagem registra as dimensões da fonte, o tamanho do alvo, o diâmetro esperado do objeto e se os pares são redimensionados. As imagens e as máscaras são transformadas juntas, com as identidades de rótulos preservadas.",
+      "phonemes": "a ʒˌeometrˈiæ ʤj ˌimˈaʒAŋ xˌeʒˈistræ az ʤˌimAŋsˈõjz da fˈoŋʧy, ʊ tˌæmˈɐ̃ɲʊ dʊ ˈWvʊ, ʊ ʤjˈɐ̃metrw ˌespeɾˈadʊ dʊ ˌobʒˈɛtw i sj ʊs pˈaɾys sɐ̃ʊ̃ xˌeʤimˌAŋsionˈadʊs. az ˌimˈaʒAŋz i az mˈaskæɾæs sɐ̃ʊ̃ trˌɐ̃ŋsfoɾəmˈadæz ʒˈũŋtæs, koŋ az ˌidAŋʧidˈaʤyz ʤy xˈɔtulʊs prˌezeɾəvˈadæs."
+    },
+    {
+      "scene": 15,
+      "speech_start": 184.475,
+      "speech_end": 194.575,
+      "scene_end": 195.02499999999998,
+      "duration": 10.549999999999983,
+      "text": "O background e o Denoising controlam a remoção opcional de fundo, o piso de intensidade e a triagem de sinal-ruído aplicada antes de as imagens entrarem no treinamento.",
+      "speech_text": "O background e o Denoising controlam a remoção opcional de fundo, o piso de intensidade e a triagem de sinal-ruído aplicada antes de as imagens entrarem no treinamento.",
+      "phonemes": "ʊ bakɡrˈownd i ʊ dˌenoɪzˈiŋɡ kˌoŋtrˈɔlɐ̃ʊ̃ a xˌemosˈɐ̃ʊ̃ ˌopsionˈW ʤy fˈũŋdʊ, ʊ pˈizʊ ʤj ˌiŋtAŋsidˈaʤj i a trˌiˈaʒAŋ ʤy sinˈWxˌuˈidw ˌaplikˈadæ ˈɐ̃ŋʧyz ʤj az ˌimˈaʒAŋz ˌAŋtrˈaɾAŋ nʊ trˌAnæmˈAŋtʊ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 195.02499999999998,
+      "speech_end": 209.325,
+      "scene_end": 209.77499999999998,
+      "duration": 14.75,
+      "text": "Os controles de saída e tempo de execução incluem os relatórios de progresso. O ponto de verificação do modelo e suas configurações são guardados sob modelos, modelo de colocação celular dentro da raiz do conjunto de dados deixado cair.",
+      "speech_text": "Os controles de saída e tempo de execução incluem os relatórios de progresso. O ponto de verificação do modelo e suas configurações são guardados sob modelos, modelo de colocação celular dentro da raiz do conjunto de dados deixado cair.",
+      "phonemes": "ʊs kˌoŋtrˈolyz ʤy sˌaˈidæ i tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ ˌiŋklˈuAŋ ʊz xˌelatˈɔɾjʊz ʤy prˌoɡrˈɛsʊ. ʊ pˈoŋtʊ ʤy vˌeɾifˌikasˈɐ̃ʊ̃ dʊ mˌodˈelw i sˌuæs kˌoŋfiɡˌuɾasˈõjs sɐ̃ʊ̃ ɡwˌaɾədˈadʊs sˈob mˌodˈelʊs, mˌodˈelʊ ʤy kˌolokasˈɐ̃ʊ̃ sˌelulˈar dˈAŋtrʊ da xaˈiz dʊ kˌoŋʒˈũŋtʊ ʤy dˈadʊz dˌAʃˈadʊ kaˈir."
+    },
+    {
+      "scene": 17,
+      "speech_start": 209.77499999999998,
+      "speech_end": 223.89999999999998,
+      "scene_end": 224.34999999999997,
+      "duration": 14.574999999999989,
+      "text": "Para esta calibração, uma época e tamanho de lote dois processam todos os seis campos anotados sem aumento. Uma adaptação real deve utilizar épocas e diversidade de imagem suficientes para convergir sem memorizar o conjunto de treinamento.",
+      "speech_text": "Para esta calibração, uma época e tamanho de lote dois processam todos os seis campos anotados sem aumento. Uma adaptação real deve utilizar épocas e diversidade de imagem suficientes para convergir sem memorizar o conjunto de treinamento.",
+      "phonemes": "pˌaɾæ ˌɛstæ kˌalibrasˈɐ̃ʊ̃, ˌumæ ˈɛpokæ i tˌæmˈɐ̃ɲʊ ʤy lˈɔʧy dˈoɪs prˌosˈɛsɐ̃ʊ̃ tˈodʊz ʊs sˈAs kˈɐ̃mpʊz ˌænotˈadʊs sˈAŋ ˌWmˈAŋtʊ. ˌumæ ˌadaptasˈɐ̃ʊ̃ xeˈW dˈɛvj ˌuʧilizˈaɾ ˈɛpokæz i ʤˌiveɾəsidˈaʤy ʤj ˌimˈaʒAŋ sˌufisiˈAŋʧys pˌaɾæ kˌoŋveɾəʒˈir sˈAŋ mˌemoɾizˈaɾ ʊ kˌoŋʒˈũŋtʊ ʤy trˌAnæmˈAŋtʊ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 224.34999999999997,
+      "speech_end": 236.12499999999997,
+      "scene_end": 236.57499999999996,
+      "duration": 12.224999999999994,
+      "text": "Run valida nomes de arquivos correspondentes, carrega todas as imagens anotadas, exibi uma amostra limitada e ajusta o modelo. O stop solicita uma interrupção segura enquanto o lote atual termina.",
+      "speech_text": "Run valida nomes de arquivos correspondentes, carrega todas as imagens anotadas, exibi uma amostra limitada e ajusta o modelo. O stop solicita uma interrupção segura enquanto o lote atual termina.",
+      "phonemes": "xˈũŋ vˌalˈidæ nˈomyz ʤj ˌaɾəkˈivʊs kˌoxespoŋdˈAŋʧys, kˌaxˈɛɡæ tˈodæz az ˌimˈaʒAŋz ˌænotˈadæs, ˌezibˈi ˌumæ ˌæmˈɔstræ lˌimitˈadæ i ˌaʒˈustæ ʊ mˌodˈelʊ. ʊ stˈɔp sˌolisˈitæ ˌumæ ˌiŋtexupsˈɐ̃ʊ̃ sˌeɡˈuɾæ ˌAŋkwˈɐ̃ŋtw ʊ lˈɔʧj ˌatuˈW tˌeɾəmˈinæ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 236.57499999999996,
+      "speech_end": 249.22499999999997,
+      "scene_end": 249.67499999999995,
+      "duration": 13.099999999999994,
+      "text": "Durante o processamento, o painel de figuras preveja cada campo de microscopia acima de sua máscara de instância, enquanto o console relata seis parches, seis anotações de fonte, uma época e tamanho de minibatch dois.",
+      "speech_text": "Durante o processamento, o painel de figuras preveja cada campo de microscopia acima de sua máscara de instância, enquanto o console relata seis parches, seis anotações de fonte, uma época e tamanho de minibatch dois.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj ʊ prˌosesæmˈAŋtʊ, ʊ pInˈɛʊ ʤy fˌiɡˈuɾæs prˌevˈeʒæ kˈadæ kˈɐ̃mpʊ ʤy mˌikroskopˈiæ ˌasˈimæ ʤy sˌuæ mˈaskæɾæ ʤj ˌiŋstˈɐ̃ŋsjæ, ˌAŋkwˈɐ̃ŋtw ʊ kˌoŋsˈoly xˌelˈatæ sˈAs pˈaɾəʃys, sˈAz ˌænotasˈõjz ʤy fˈoŋʧy, ˌumæ ˈɛpokæ i tˌæmˈɐ̃ɲʊ ʤy mˌinibˈatʃ dˈoɪs."
+    },
+    {
+      "scene": 20,
+      "speech_start": 249.67499999999995,
+      "speech_end": 265.525,
+      "scene_end": 266.22499999999997,
+      "duration": 16.55000000000001,
+      "text": "A calibração foi concluída com êxito. O spaCR salvou o ponto de verificação CPSAM, as configurações CSV, o manifesto de execução e o registro macro, e a pré-visualização de campos emparelhados confirma que os arquivos de imagem e rótulo permaneceram alinhados.",
+      "speech_text": "A calibração foi concluída com êxito. O espáquer salvou o ponto de verificação CPSAM, as configurações CSV, o manifesto de execução e o registro macro, e a pré-visualização de campos emparelhados confirma que os arquivos de imagem e rótulo permaneceram alinhados.",
+      "phonemes": "a kˌalibrasˈɐ̃ʊ̃ foɪ kˌoŋkluˈidæ koŋ ˈezitʊ. u ˌespˈakɛr sWvˈow ʊ pˈoŋtʊ ʤy vˌeɾifˌikasˈɐ̃ʊ̃ kpsˈɐ̃ʊ̃, as kˌoŋfiɡˌuɾasˈõjs sˌeˌɛsyvˈe, ʊ mˌænifˈɛstʊ ʤj ˌezekusˈɐ̃ʊ̃ i ʊ xˌeʒˈistrʊ mˈakrʊ, i a prˈɛvˌizuˌalizasˈɐ̃ʊ̃ ʤy kˈɐ̃mpʊz ˌAmpaɾeljˈadʊs kˌoŋfˈiɾəmæ ky ʊz ˌaɾəkˈivʊz ʤj ˌimˈaʒAŋ i xˈɔtulʊ pˌeɾəmænesˈeɾɐ̃ʊ̃ ˌaliɲˈadʊs."
     }
   ]
 }
