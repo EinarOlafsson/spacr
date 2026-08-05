@@ -4641,43 +4641,87 @@
       "series": 4,
       "app_key": "align",
       "section": "Data and batch runs",
-      "description": "Register image tiles and build a stitched mosaic incrementally without holding the entire canvas in memory.",
+      "description": "Plan and inspect a tiled registration before incrementally writing its stitched stack and coordinate database.",
       "objectives": [
-        "Understand when to use Align and Stitch.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Load a tiled acquisition and describe its grid, overlap, order, and shared reference channel.",
+        "Run the read-only plan and inspect registration confidence, fallbacks, residuals, canvas size, and memory estimate.",
+        "Write the mosaic in bounded-memory bands and save the solved tile coordinates for downstream traceability."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "A folder of two-dimensional NPY or TIFF tiles whose filenames retain plate, well, and field identity.",
       "scenes": [
         {
-          "narration": "This tutorial covers Align and Stitch. Register image tiles and build a stitched mosaic incrementally without holding the entire canvas in memory.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Align and Stitch. Register image tiles and build a stitched mosaic incrementally without holding the entire canvas in memory."
+          "narration": "Align and Stitch registers microscopy tiles into one canvas without first allocating the entire mosaic. Open it from Data and batch runs. The plan-first layout is deliberate: registration confidence, fallback placement, output size, and memory use are visible before spaCR writes anything.",
+          "visual": "01_overview",
+          "focus_key": "nav",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Align and Stitch registers microscopy tiles into one canvas without first allocating the entire mosaic. Open it from Data and batch runs. The plan first layout is deliberate: registration confidence, fallback placement, output size, and memory use are visible before spacer writes anything."
         },
         {
-          "narration": "Open Align and Stitch from the Data and batch runs section. Choose tiled acquisitions, stage coordinates or overlap metadata, channels, and a destination.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Align and Stitch from the Data and batch runs section. Choose tiled acquisitions, stage coordinates or overlap metadata, channels, and a destination."
+          "narration": "Drop a folder of NPY or TIFF tiles, or choose it here. This lesson exports one real four-channel microscopy field as nine overlapping tiles solely to emulate a 3 by 3 acquisition. The source pixels remain real, while the known overlap gives us a reproducible registration example.",
+          "visual": "02_source",
+          "focus_key": "source_row",
+          "hold_after": 0.72,
+          "speech_text": "Drop a folder of N P Y or T I F F tiles, or choose it here. This lesson exports one real four channel microscopy field as nine overlapping tiles solely to emulate a three by three acquisition. The source pixels remain real, while the known overlap gives us a reproducible registration example."
         },
         {
-          "narration": "In the main configuration area, configure registration method, reference channel, overlap, blending, correction, chunk size, and output format.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure registration method, reference channel, overlap, blending, correction, chunk size, and output format."
+          "narration": "Describe the acquisition layout. The grid is 3 by 3 with 25 percent nominal overlap in row-major order. Reference channel 1 is the endoplasmic-reticulum channel; spaCR solves registration once on that plane and applies the same transform to all four channels, preventing channel-to-channel shear.",
+          "visual": "03_layout_settings",
+          "focus_key": "layout_settings",
+          "hold_after": 0.72,
+          "speech_text": "Describe the acquisition layout. The grid is three by three with twenty five percent nominal overlap in row major order. Reference channel one is the endoplasmic reticulum channel; spacer solves registration once on that plane and applies the same transform to all four channels, preventing channel to channel shear."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect pairwise alignment and seam previews before building the full mosaic.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect pairwise alignment and seam previews before building the full mosaic."
+          "narration": "Quality controls decide which pairwise matches enter the global solution. Minimum confidence rejects weak cross-correlation, neighbour radius adds redundant nearby comparisons, Feather blends overlap seams, and the 64-megabyte RAM budget limits each output band rather than the size of the finished canvas.",
+          "visual": "04_quality_settings",
+          "focus_key": "quality",
+          "hold_after": 0.7,
+          "speech_text": "Quality controls decide which pairwise matches enter the global solution. Minimum confidence rejects weak cross correlation, neighbour radius adds redundant nearby comparisons, Feather blends overlap seams, and the sixty four megabyte RAM budget limits each output band rather than the size of the finished canvas."
         },
         {
-          "narration": "When the workflow finishes, registered tiles, stitched images, transforms, and mapping metadata are saved.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, registered tiles, stitched images, transforms, and mapping metadata are saved."
+          "narration": "Click Plan before writing. Planning reads tile headers and overlap strips, estimates neighbour offsets, and solves all accepted constraints together. It creates neither a canvas nor output files, so this is the safe point to catch an incorrect grid, order, overlap, or reference channel.",
+          "visual": "05_plan_run",
+          "focus_key": "plan_controls",
+          "click_key": "plan",
+          "hold_after": 0.68,
+          "speech_text": "Click Plan before writing. Planning reads tile headers and overlap strips, estimates neighbour offsets, and solves all accepted constraints together. It creates neither a canvas nor output files, so this is the safe point to catch an incorrect grid, order, overlap, or reference channel."
+        },
+        {
+          "narration": "The real plan registers all nine tiles. The layout colors registered fields by confidence, while any stage-position fallback would be orange and hatched. The report lists accepted and refused pairs, the worst residuals, the final canvas dimensions, on-disk size, and the bounded-memory write estimate.",
+          "visual": "06_plan_result",
+          "focus_key": "plan_result",
+          "hold_after": 0.78,
+          "speech_text": "The real plan registers all nine tiles. The layout colors registered fields by confidence, while any stage position fallback would be orange and hatched. The report lists accepted and refused pairs, the worst residuals, the final canvas dimensions, on disk size, and the bounded memory write estimate."
+        },
+        {
+          "narration": "Click an individual tile to audit its solved Y and X position, method, confidence, residual, and number of supporting pairs. This field was placed by registration, not merely by its nominal grid position; use the same inspection to investigate weak or isolated tiles before committing a large mosaic.",
+          "visual": "07_tile_detail",
+          "focus_key": "inspection",
+          "click_key": "tile_click",
+          "hold_after": 0.72,
+          "speech_text": "Click an individual tile to audit its solved Y and X position, method, confidence, residual, and number of supporting pairs. This field was placed by registration, not merely by its nominal grid position; use the same inspection to investigate weak or isolated tiles before committing a large mosaic."
+        },
+        {
+          "narration": "Choose a new destination for the stitched NPY stack. The optional measurements database records the solved tile coordinates and output path. Keep Overwrite off on the first run so an existing mosaic is refused rather than silently replaced.",
+          "visual": "08_output_settings",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "Choose a new destination for the stitched N P Y stack. The optional measurements database records the solved tile coordinates and output path. Keep Overwrite off on the first run so an existing mosaic is refused rather than silently replaced."
+        },
+        {
+          "narration": "Click Write stack only after the plan is acceptable. spaCR composites the tiles one horizontal band at a time, applies feather blending in overlaps, and writes coordinates after the image succeeds. The output can therefore exceed available RAM while memory stays within the declared budget.",
+          "visual": "09_write_run",
+          "focus_key": "output",
+          "click_key": "write",
+          "hold_after": 0.7,
+          "speech_text": "Click Write stack only after the plan is acceptable. spacer composites the tiles one horizontal band at a time, applies feather blending in overlaps, and writes coordinates after the image succeeds. The output can therefore exceed available RAM while memory stays within the declared budget."
+        },
+        {
+          "narration": "The verified run writes all nine tiles with none skipped, produces a four-channel stitched stack matching the source field, and adds nine rows to the align-coordinates table. The report preserves both the registration evidence and bounded-memory write summary, making the mosaic auditable before downstream analysis.",
+          "visual": "10_finished",
+          "focus_key": "report",
+          "hold_after": 0.86,
+          "speech_text": "The verified run writes all nine tiles with none skipped, produces a four channel stitched stack matching the source field, and adds nine rows to the align coordinates table. The report preserves both the registration evidence and bounded memory write summary, making the mosaic auditable before downstream analysis."
         }
       ]
     },

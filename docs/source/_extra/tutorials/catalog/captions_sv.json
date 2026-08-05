@@ -1788,19 +1788,34 @@
       "id": "32_align_stitch",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Align och Stitch. Registrera bildskivorna och bygga en sagd mosaik steg för steg utan att hålla hela vävnaden i minnet."
+          "narration": "Align och Stitch registrerar mikroskopplattor på en duk utan att först tilldela hela mosaiken. Öppna den från Data och batch. Planets första layout är avsiktlig: registreringsförtroende, fallback placering, utgångsstorlek och minnesanvändning är synliga innan spaCR skriver någonting."
         },
         {
-          "narration": "Öppna Align och Stitch från avsnittet Data och batch runs. Välj förvärv, koordinater eller överlappar metadata, kanaler och destination."
+          "narration": "Släpp en mapp med NPY- eller TIFF-plattor, eller välj den här. Denna lektion exporterar ett verkligt fyra-kanalsmikroskopfält som nio överlappande plattor för att bara efterlikna en 3x3 förvärv. Källapixlarna förblir verkliga, medan den kända överlappen ger oss ett reproducerbart registreringstill exempel."
         },
         {
-          "narration": "I huvudkonfigurationsområdet konfigurera registreringsmetod, referenskanal, överlappning, blandning, korrigering, bitstorlek och outputformat."
+          "narration": "Beskriv förvärvsplanen. Rätten är 3x3 med 25 procent nominell överlapning i rad-stor ordning. Referenskanal 1 är endoplasmisk-reticulumskanalen; spaCR löser registreringen en gång på det planet och tillämpar samma transformation på alla fyra kanaler, vilket förhindrar skärning från kanal till kanal."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. inspektera parvis anpassning och sömprevis innan hela mosaiken byggs."
+          "narration": "Kvalitetskontrollen avgör vilka parvis matcher som kommer in i den globala lösningen. Minimal förtroende avvisar svag korrelation, grannradius lägger till överflödiga närliggande jämförelser, Fjäder blandar överlappade sömmar, och 64-megabyte RAM-budgeten begränsar varje utgångsband snarare än storleken på den färdiga listan."
         },
         {
-          "narration": "När arbetsflödet är färdigt sparas registrerade plattor, staket bilder, omvandlingar och kartläggning metadata."
+          "narration": "Klicka på Plan innan du skriver. Planeringen läser fläckhuvuden och överlappningsbanden, uppskattar grannkompensationer och löser alla accepterade begränsningar tillsammans. Den skapar varken en kanvas eller utgångsfiler, så detta är den säkra punkten för att fånga ett felaktigt nät, ordning, överlappning eller referenskanal."
+        },
+        {
+          "narration": "Den riktiga planen registrerar alla nio flisar. Layoutfärgerna registrerade fält efter förtroende, medan eventuella fallback i scenposition skulle vara orange och klädda. Rapporten listar accepterade och avvisade par, de värsta rester, slutliga kanvasdimensionerna, diskstorleken och uppskattningen av skrivet med begränsad minne."
+        },
+        {
+          "narration": "Klicka på en enskild fläck för att granska dess lösta Y- och X-position, metod, förtroende, rest och antal stödpar. Detta fält placerades genom registrering, inte bara genom dess nominella nätposition. Använd samma inspektion för att undersöka svaga eller isolerade plattor innan du gör en stor mosaik."
+        },
+        {
+          "narration": "Välj en ny destination för den sutta NPY-stacken. Den valfria mätdatabasen registrerar de lösta fläckkoordinaterna och utgångsvägen. Håll överskriften borta vid första körningen så att en befintlig mosaik vägras istället för att tystt ersättas."
+        },
+        {
+          "narration": "Klicka på Skriv stack först efter att planen är acceptabel. spaCR sammanställer plattorna ett horisontellt band i taget, tillämpar fjäderblandning i överlappningar och skriver koordinater efter att bilden lyckats. Utgången kan därför överstiga tillgänglig RAM medan minnet förblir inom den deklarerade budgeten."
+        },
+        {
+          "narration": "Den verifierade körningen skriver alla nio flisar utan att någon hoppar över, producerar en fyra-kanal stitched stack som matchar källfältet och lägger till nio rader i linj-koordinattabellen. Rapporten bevarar både registreringsbeviset och sammanfattningen av det begränsade minnet, vilket gör att mosaiken kan granskas före nedströmsanalys."
         }
       ]
     },

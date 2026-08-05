@@ -1788,19 +1788,34 @@
       "id": "32_align_stitch",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Align und Stitch. Registrieren Sie Bildfliesen und bauen Sie ein gestricktes Mosaik schrittweise auf, ohne die gesamte Leinwand im Gedächtnis zu behalten."
+          "narration": "Align und Stitch registrieren Mikroskopiefliesen auf einer Leinwand, ohne zuerst das gesamte Mosaik zuzuordnen. Öffnen Sie es von Data und Batchläufen. Das Plan-First-Layout ist bewusst: Registrierungssicherheit, Rückschlagplatzierung, Ausgangsgröße und Speicherverwendung sind sichtbar, bevor spaCR etwas schreibt."
         },
         {
-          "narration": "Öffnen Sie Align und Stitch aus dem Abschnitt Daten und Batchläufe. Wählen Sie flischierte Akquisitionen, Stufenkoordinaten oder überlappende Metadaten, Kanäle und ein Ziel."
+          "narration": "Lassen Sie einen Ordner mit NPY- oder TIFF-Fliesen fallen oder wählen Sie ihn hier aus. Diese Lektion exportiert ein echtes Vier-Kanal-Mikroskopiefeld als neun überlappende Fliesen, um nur eine 3 durch 3 Akquisition nachzuahmen. Die Quellpixel bleiben real, während die bekannte Überschneidung uns ein reproduzierbares Registrierungsbeispiel gibt."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie die Registrierungsmethode, den Referenzkanal, die Überlagerung, das Mischen, die Korrektur, die Stückgröße und das Ausgangsformat."
+          "narration": "Beschreiben Sie das Layout der Akquisition. Das Raster ist 3 x 3 mit einer nominellen Überschneidung von 25 Prozent in Reihenfolge von großen Zeilen. Referenzkanal 1 ist der endoplasmisch-reticulum-Kanal; spaCR löst die Registrierung einmal auf dieser Ebene und wendet die gleiche Transformation auf alle vier Kanäle an, um Kanal-zu-Kanal-Schnitt zu verhindern."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Bevor das gesamte Mosaik gebaut wird, prüfen Sie die Ausrichtung und die Nähe."
+          "narration": "Die Qualitätskontrolle entscheidet, welche Paare in die globale Lösung eingehen. Das Mindestvertrauen lehnt eine schwache Kreuzkorrelation ab, der Nachbarradius fügt redundante nahegelegene Vergleiche hinzu, Feather-Mixes überlappende Nähte und das 64-Megabyte-RAM-Budget begrenzt jedes Ausgangsband und nicht die Größe der fertigen Leinwand."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden registrierte Fliesen, gestrickte Bilder, Transformationen und Kartenmetadaten gespeichert."
+          "narration": "Klicken Sie auf Plan, bevor Sie schreiben. Die Planung liest Fliesenheader und Überlappungsstreifen, schätzt Nachbarkompensationen und löst alle akzeptierten Einschränkungen zusammen. Es erzeugt weder eine Leinwand noch Ausgangsdateien, also ist dies der sichere Punkt, um ein falsches Raster, eine ordnung, eine Überschneidung oder einen Referenzkanal zu fangen."
+        },
+        {
+          "narration": "Der eigentliche Plan registriert alle neun Fliesen. Die Layoutfarben registrierten die Felder vertrauensvoll, während jeder Fallback in der Bühnenposition orange und geschlüpft wäre. Der Bericht enthält die akzeptierten und abgelehnten Paare, die schlimmsten Restwerte, die endgültigen Leinwanddimensionen, die Größe der Festplatte und die Schätzung des Schreibens mit begrenztem Speicher."
+        },
+        {
+          "narration": "Klicken Sie auf eine einzelne Fliese, um ihre gelöste Y- und X-Position, Methode, Zuverlässigkeit, Rest und Anzahl der unterstützenden Paare zu überprüfen. Dieses Feld wurde durch die Registrierung und nicht nur durch seine nominelle Gitterposition platziert; verwenden Sie die gleiche Inspektion, um schwache oder isolierte Fliesen zu untersuchen, bevor Sie ein großes Mosaik machen."
+        },
+        {
+          "narration": "Wählen Sie ein neues Ziel für den gesähteten NPY-Stack. Die Datenbank der optionalen Messungen erfasst die gelösten Fliesenkoordinaten und den Ausgangspfad. Halten Sie die Überschrift beim ersten Lauf aus, so dass ein bestehendes Mosaik abgelehnt wird, anstatt schweigend ersetzt zu werden."
+        },
+        {
+          "narration": "Klicken Sie nur auf Schreiben Stapel, nachdem der Plan akzeptabel ist. spaCR komponiert die Fliesen jeweils in einem horizontalen Band, setzt Federvermischung in Überlappungen ein und schreibt Koordinaten, nachdem das Bild erfolgreich ist. Die Ausgabe kann daher die verfügbare RAM übersteigen, während das Speicher innerhalb des angegebenen Budgets bleibt."
+        },
+        {
+          "narration": "Der verifizierte Lauf schreibt alle neun Fliesen ohne zu überspringen, erzeugt einen vierkanalen, gestrickten Stapel, der dem Quellfeld entspricht, und fügt neun Zeilen in die Ausrichtungskordinatentabelle hinzu. Der Bericht bewahrt sowohl die Registrierungsnachweise als auch die Schreibsumme mit begrenztem Speicher, so dass das Mosaik vor der nachgelagerten Analyse überprüfbar ist."
         }
       ]
     },

@@ -4622,47 +4622,91 @@
       "id": "32_align_stitch",
       "number": 32,
       "slug": "align_stitch",
-      "title": "Align and Stitch",
+      "title": "Align e Stitch",
       "series": 4,
       "app_key": "align",
       "section": "Data and batch runs",
-      "description": "Registrare le piastrelle di immagini e costruire un mosaico costo a graduale senza tenere in memoria l'intera tela.",
+      "description": "Pianificare e ispezionare una registrazione con piastrelle prima di scrivere progressivamente il suo database di stack e coordinate.",
       "objectives": [
-        "Capire quando usare Align e Stitch.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Caricare un acquisto di piastrelle e descrivere la sua griglia, sovrapposizione, ordine e canale di riferimento condiviso.",
+        "Eseguire il piano solo per lettura e controllare la sicurezza della registrazione, i fallback, i residui, la dimensione della tela e la stima della memoria.",
+        "Scrivi il mosaico in bande di memoria limitata e salva le coordinate delle piastrelle risolute per la tracciabilità a valle."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Una cartella di piastrelle NPY o TIFF bidimensionali i cui nomi di file conservano l'identità della piastra, del pozzo e del campo.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre Align e Stitch. Registrare le piastrelle di immagine e costruire un mosaico cucito in graduazione senza tenere l'intera tela in memoria.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre Align e Stitch. Registrare le piastrelle di immagine e costruire un mosaico cucito in graduazione senza tenere l'intera tela in memoria."
+          "narration": "Align e Stitch registrano le piastrelle microscopiche in una tela senza prima assegnare l'intero mosaico. Aprilo da Data e esegue batch. Il piano-primo layout è deliberato: la sicurezza della registrazione, il posizionamento di fallback, la dimensione di uscita e l'uso della memoria sono visibili prima che spaCR scriva qualcosa.",
+          "visual": "01_overview",
+          "focus_key": "nav",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Align e Stitch registrano le piastrelle microscopiche in una tela senza prima assegnare l'intero mosaico. Aprilo da Data e esegue batch. Il piano-primo layout è deliberato: la sicurezza della registrazione, il posizionamento di fallback, la dimensione di uscita e l'uso della memoria sono visibili prima che spàker scriva qualcosa."
         },
         {
-          "narration": "Apri Align and Stitch dalla sezione Data and batch runs. Apri Align e Stitch dalla sezione Data and batch runs. Scegli acquisizioni a piastrelle, coordinate di fase o metadati sovrapposti, canali e destinazione.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Align and Stitch dalla sezione Data and batch runs. Apri Align e Stitch dalla sezione Data and batch runs. Scegli acquisizioni a piastrelle, coordinate di fase o metadati sovrapposti, canali e destinazione."
+          "narration": "Scarica una cartella di piastrelle NPY o TIFF o scegliela qui. Questa lezione esporta un vero campo di microscopia a quattro canali come nove piastrelle che si sovrappongono esclusivamente per emulare un acquisto 3 per 3. I pixel sorgenti rimangono reali, mentre la sovrapposizione nota ci dà un esempio di registrazione riproducibile.",
+          "visual": "02_source",
+          "focus_key": "source_row",
+          "hold_after": 0.72,
+          "speech_text": "Scarica una cartella di piastrelle NPY o TIFF o scegliela qui. Questa lezione esporta un vero campo di microscopia a quattro canali come nove piastrelle che si sovrappongono esclusivamente per emulare un acquisto 3 per 3. I pixel sorgenti rimangono reali, mentre la sovrapposizione nota ci dà un esempio di registrazione riproducibile."
         },
         {
-          "narration": "Nella zona di configurazione principale, configurare il metodo di registrazione, il canale di riferimento, la sovrapposizione, la miscelazione, la correzione, la dimensione del pezzo e il formato di uscita.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, configurare il metodo di registrazione, il canale di riferimento, la sovrapposizione, la miscelazione, la correzione, la dimensione del pezzo e il formato di uscita."
+          "narration": "Descrivere il layout dell'acquisizione. La griglia è di 3 per 3 con sovrapposizione nominale del 25% in ordine di riga maggiore. Il canale di riferimento 1 è il canale endoplasmico-reticolo; spaCR risolve la registrazione una volta sul piano e applica la stessa trasformazione a tutti e quattro i canali, impedendo il taglio canale-canale.",
+          "visual": "03_layout_settings",
+          "focus_key": "layout_settings",
+          "hold_after": 0.72,
+          "speech_text": "Descrivere il layout dell'acquisizione. La griglia è di 3 per 3 con sovrapposizione nominale del 25% in ordine di riga maggiore. Il canale di riferimento 1 è il canale endoplasmico-reticolo; spàker risolve la registrazione una volta sul piano e applica la stessa trasformazione a tutti e quattro i canali, impedendo il taglio canale-canale."
         },
         {
-          "narration": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+          "narration": "I controlli di qualità decidono quali abbinamenti in coppia entrano nella soluzione globale. La fiducia minima respinge la debole correlazione incrociata, il raggio vicino aggiunge paragoni vicini ridondanti, Feather combina cuciture sovrapposte e il budget di 64 megabytes di RAM limita ogni banda di uscita piuttosto che la dimensione della tela finita.",
+          "visual": "04_quality_settings",
+          "focus_key": "quality",
+          "hold_after": 0.7,
+          "speech_text": "I controlli di qualità decidono quali abbinamenti in coppia entrano nella soluzione globale. La fiducia minima respinge la debole correlazione incrociata, il raggio vicino aggiunge paragoni vicini ridondanti, Feather combina cuciture sovrapposte e il budget di 64 megabytes di RAM limita ogni banda di uscita piuttosto che la dimensione della tela finita."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, vengono salvati i tessuti registrati, le immagini cucite, le trasformazioni e i metadati di mappatura.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, vengono salvati i tessuti registrati, le immagini cucite, le trasformazioni e i metadati di mappatura."
+          "narration": "Fai clic su Pianificare prima di scrivere. La pianificazione legge i titoli delle piastrelle e le strisce che si sovrappongono, stima le compensazioni dei vicini e risolve tutti i vincoli accettati insieme. Non crea né una tela né file di uscita, quindi questo è il punto sicuro per catturare una griglia, un ordine, una sovrapposizione o un canale di riferimento scorretti.",
+          "visual": "05_plan_run",
+          "focus_key": "quality",
+          "click_key": "plan",
+          "hold_after": 0.68,
+          "speech_text": "Fai clic su Pianificare prima di scrivere. La pianificazione legge i titoli delle piastrelle e le strisce che si sovrappongono, stima le compensazioni dei vicini e risolve tutti i vincoli accettati insieme. Non crea né una tela né file di uscita, quindi questo è il punto sicuro per catturare una griglia, un ordine, una sovrapposizione o un canale di riferimento scorretti."
+        },
+        {
+          "narration": "Il vero piano registra tutte e nove le piastrelle. I colori del layout registravano campi di fiducia, mentre qualsiasi fallback in posizione di scena sarebbe arancione ed eclosi. Il rapporto elenca le coppie accettate e rifiutate, i peggiori residui, le dimensioni finali della tela, la dimensione del disco e la stima di scrittura di memoria limitata.",
+          "visual": "06_plan_result",
+          "focus_key": "plan_result",
+          "hold_after": 0.78,
+          "speech_text": "Il vero piano registra tutte e nove le piastrelle. I colori del layout registravano campi di fiducia, mentre qualsiasi fallback in posizione di scena sarebbe arancione ed eclosi. Il rapporto elenca le coppie accettate e rifiutate, i peggiori residui, le dimensioni finali della tela, la dimensione del disco e la stima di scrittura di memoria limitata."
+        },
+        {
+          "narration": "Clicca su una singola piastrella per controllare la posizione, il metodo, la fiducia, il residuo e il numero di coppie di supporto risolto. Questo campo è stato posizionato per registrazione, non solo per la sua posizione nominale della griglia; utilizzare la stessa ispezione per indagare piastrelle deboli o isolate prima di commettere un grande mosaico.",
+          "visual": "07_tile_detail",
+          "focus_key": "inspection",
+          "click_key": "tile_click",
+          "hold_after": 0.72,
+          "speech_text": "Clicca su una singola piastrella per controllare la posizione, il metodo, la fiducia, il residuo e il numero di coppie di supporto risolto. Questo campo è stato posizionato per registrazione, non solo per la sua posizione nominale della griglia; utilizzare la stessa ispezione per indagare piastrelle deboli o isolate prima di commettere un grande mosaico."
+        },
+        {
+          "narration": "Scegli una nuova destinazione per la pila NPY cucitura. Il database di misurazioni opzionali registra le coordinate delle piastrelle risolte e il percorso di uscita. Mantenere Overwrite off nella prima corsa in modo che un mosaico esistente viene rifiutato piuttosto che silenziosamente sostituito.",
+          "visual": "08_output_settings",
+          "focus_key": "output",
+          "hold_after": 0.64,
+          "speech_text": "Scegli una nuova destinazione per la pila NPY cucitura. Il database di misurazioni opzionali registra le coordinate delle piastrelle risolte e il percorso di uscita. Mantenere Overwrite off nella prima corsa in modo che un mosaico esistente viene rifiutato piuttosto che silenziosamente sostituito."
+        },
+        {
+          "narration": "Fare clic su Scrivere stack solo dopo che il piano è accettabile. spaCR compone le piastrelle una banda orizzontale alla volta, applica una miscelazione di piume in sovrapposizioni e scrive le coordinate dopo il successo dell'immagine. La produzione può quindi superare la RAM disponibile mentre la memoria rimane all'interno del budget dichiarato.",
+          "visual": "09_write_run",
+          "focus_key": "output",
+          "click_key": "write",
+          "hold_after": 0.7,
+          "speech_text": "Fare clic su Scrivere stack solo dopo che il piano è accettabile. spàker compone le piastrelle una banda orizzontale alla volta, applica una miscelazione di piume in sovrapposizioni e scrive le coordinate dopo il successo dell'immagine. La produzione può quindi superare la RAM disponibile mentre la memoria rimane all'interno del budget dichiarato."
+        },
+        {
+          "narration": "La corsa verificata scrive tutte e nove le piastrelle senza saltare alcuna, produce una pila di cucitura a quattro canali che corrisponde al campo sorgente e aggiunge nove righe alla tabella delle coordinate di allineamento. La relazione conserva sia le prove di registrazione che il sommario di scrittura di memoria limitata, rendendo il mosaico verificabile prima dell'analisi a valle.",
+          "visual": "10_finished",
+          "focus_key": "report",
+          "hold_after": 0.86,
+          "speech_text": "La corsa verificata scrive tutte e nove le piastrelle senza saltare alcuna, produce una pila di cucitura a quattro canali che corrisponde al campo sorgente e aggiunge nove righe alla tabella delle coordinate di allineamento. La relazione conserva sia le prove di registrazione che il sommario di scrittura di memoria limitata, rendendo il mosaico verificabile prima dell'analisi a valle."
         }
       ]
     },
