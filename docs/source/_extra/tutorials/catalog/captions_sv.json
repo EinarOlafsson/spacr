@@ -1231,19 +1231,37 @@
       "id": "22_model_zoo",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Model Zoo. Bläddra, kontrollera, ladda ner och jämföra återanvändbara segmenterings- och klassificeringsmodeller."
+          "narration": "Cellpose och klassificeringskontrollpunkterna denna maskin kan nå. Den registrerar källan, versionen, storleken, checksum-tillståndet, utbildningsprovinencen och beteendet på ett litet fält innan en modell går in i ett större arbetsflöde."
         },
         {
-          "narration": "Öppna Model Zoo från avsnittet Segmentationsmodeller. Öppna katalogen och välj modeller som är kompatibla med den aktuella uppgiften och inmatningskanalerna."
+          "narration": "Välj eller släppa en checkpoint mapp och klicka på Scan. Listan kombinerar bundlade och deklarerade kataloginmatningar med lokala CP-modellfiler, samtidigt som du undviker duplicerade vägar."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet ska översyn av ursprung, licens, checksum, förväntad förbehandling, typ av uppgift och lokal tillgänglighet."
+          "narration": "Välj en rad för att undersöka dess exakta väg, storlek, publicerade hash, träningsdata, grödageometri, objektdiameter, epokantal och författare. Okänt ursprung är en varning, inte ett universellt kompatibilitetsanspråk."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. För att göra ett fullständigt experiment ska man först använda ett par representativa fält för att jämföra lovande modeller."
+          "narration": "Avlägsna kataloginmatningar kan laddas ner till en vald modellmappa. Verifierade nedladdningar kräver ett publicerat checksum; att acceptera en icke-verifierad modell är ett uttryckligt opt-in eftersom en felaktig kontrollpunkt fortfarande kan ladda och producera plausibla masker."
         },
         {
-          "narration": "När arbetsflödet är avslutat förblir verifierade modellfiler och referensresultat kopplade till deras metadata."
+          "narration": "Test på fält laddar ett begränsat riktmärkesett. Denna handledning använder tre riktiga ER-kanal cell grödor, så modellhastighet, objekt räkningar, kvalitetskontroll flaggor och förhandsvisningar hänvisar till samma representativa bilder som används i Model Compare."
+        },
+        {
+          "narration": "När exakt en lokal modell väljs klickar du på Test på tre fält. Referensvärdet segmenterar varje bild och tillämpar segmenteringskvalitetskontroll utan att låtsas att den har exakta etiketter."
+        },
+        {
+          "narration": "Under bearbetningen identifierar statuslinjen den valda kontrollpunkten och antalet fält. Benchmark arbetar utanför gränssnittet tråd så val och framsteg förblir responsiva."
+        },
+        {
+          "narration": "Den anpassade kontrollpunkten producerade hundra femtio ett celler över tre fält på sex punkter fem sekunder. Två fält passerade segmentering QC; den sparsamma första grödan markerades för låg objektantal och hög gränsfraktion."
+        },
+        {
+          "narration": "Genom att välja en referens rad uppdateras masken. Använd tabellen och bilden tillsammans: en kvalitetsflagg identifierar ett intrinsiskt maskmönster, medan förhandsgranskningen visar om det mönstret återspeglar biologi, skörd eller ett segmenteringsfel."
+        },
+        {
+          "narration": "Välj exakt två installerade modeller och klicka på Jämför de två valda modellerna. Modell Zoo ger båda checkpointvägarna, samma fält mapp och fält räkna in i den dedikerade A-B jämförelse skärmen."
+        },
+        {
+          "narration": "Den öppnar Modell jämförelse med båda lokala kontrollpunkter och alla tre fält förbelastade. Från och med här kan du köra den parade jämförelsen för att mäta förgrundsöverenskommelse, riktningsmässiga objektskillnader, splits, fusioner och QC per modell."
         }
       ]
     },
