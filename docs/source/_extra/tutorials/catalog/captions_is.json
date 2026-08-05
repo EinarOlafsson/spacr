@@ -252,28 +252,79 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Mælingin breytir raunverulegum skiptum HeLa sviðum í eftirsóknarlegar ein- og hlutartengd, morfologi, textúra, staðsetningu og rúmlega eiginleika. Þessi leið staðfestir fimm sviði áður en fullur disk hlaupi."
+          "narration": "Mælingin opnast með stillingunum til vinstri og rekstrartækið til hægri. Konsólinn skýrir upp úrlausn, staðfestingu, framfarir, viðvörun og mælingarútgang."
         },
         {
-          "narration": "Opnaðu mælingu frá kjarni og veldu samsett möppu sem Mask hefur framleitt. Flutningstillaga mæla myndasvæði núll í gegnum þrjú og lesa frumur, kjarn og sjúkdómsfrumur frá fléttum fjórum, fimmum og sjöttu."
+          "narration": "Fylkið undir konsólunni tekur við staðbundnum spurningum eða boðum. Leyfa AI til að leiða spurningu í gegnum valinn þjónustuaðila og nota tilheyrandi pílu til að opna þjónustuaðilinn."
         },
         {
-          "narration": "Hægt að skoða úrræðuna og hlaða inn eitt sameinuð röð. Gallerið flokkar fjörutíu raunveruleg frumur eftir kjarni og sjúkdómaefni, en valið staðfestir að prófspjaldið inniheldur fimm sviði."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og sýnir uppsetningu þeirra og innritun skipanir. Greiðslur veitenda eru áfram hjá söluaðila."
         },
         {
-          "narration": "Almennt skal staðfestast að mæluðu leiðum 0 til 3, frumuraskjuplötu 4 , kjarnplötu 5 , sjúkdómaplötu 6 og afleiða sitoplasma. Haldið prófunartilfarið virkt fyrir staðfestingarstarfið."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Framleidd rekstur skrifar frumur PNG á tvö hundruð tuttugu fjóra á tvö hundruð tuttugu fjóra pixlar með því að nota kanala núll, eitt og tvö. Reglugerð uppskeru heldur áfram í geymdum stillingum; þetta námskeið notar tímabundið einn til níutíu og níu prósentíll sýningu streka aðeins til að gera lifandi galleríu lesanlegt."
+          "narration": "Drag samanfangs möppuna sem Mask hefur framleitt í Measure. Þessar röður eru þegar með spaCR verkefni metadata, svo Measure leysa uppspretta beint og þarf ekki hrá mynd skránafn regex aftur."
         },
         {
-          "narration": "Filtarnir krefjast frumna með a.m.k. þremur þúsund og fimm hundruð pikslar, kjarna með a.m.k. þúsund og sjúkdómsfrumur með a.m.k. tvö hundruð og fimmtíu. Haldið óinfektum frumum frá sér og sameina frumum sem hafa sjúkdómafrumur á myndarbrún."
+          "narration": "Essentials sýnir þétt sett af mælingar stillingar sem þarf til að hlaupa, en talinn skýrir hversu margar stillingar eru nú sýnilegar."
         },
         {
-          "narration": "Veldu kanal einn í fyrirsýninu til að skoða endoplasmisk-reticulum merki sem er áhugaverður fyrir niðurrásargreiningar. Þessi útsýni breytir aðeins galleríunni; Measure stillur stillingar úr öllum fjórum uppfærðum leiðum."
+          "narration": "Breyttar takmörkunar á paneli til gildi sem eru öðruvísi en sjálfgefin mælingar, sem gerir innfluttar stillingar og tilvitað breytingar auðvelt að endurskoða."
         },
         {
-          "narration": "Fimm af fimm sviðum sem eru lokið í prófunarbærinni eru árangursríkir án mistaka. Mælingar dot db inniheldur fjögur hundruð og fimmtíu og fimm frumur og sítoplasmar, sex hundruð og fimm kjarna og eitt þúsund og þrjátíu og eitt sjúkdómsfrumur, auk fjögur hundruð og fimmtíu og fimm frumur sem eru tilbúnir til merkingar og flokkunar."
+          "narration": "Allar stillingar sýna alla mælikvarðaflokka, þ.m.t. háþróaðar áreiðanleika- og beta-kalibreringsstjórnir, án þess að breytingar á núverandi gildum verði gerðar."
+        },
+        {
+          "narration": "Recipes geymir núverandi mælikvarðainnskráningu undir nafni, beitir henni aftur síðar eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum af löndum mælingar stillingum og sendir þeim til dreifðar störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar staðbundnar leiðir til fjarstæðrar vinnustaðar, Slurm-hópa eða skipulagsskrá, sendir síðan inn og fylgist með sama Measure run."
+        },
+        {
+          "narration": "Input and Experiment skilgreinir uppsprettaverkefnið og tilraunaheitið sem skrifað er í útgöngur þess."
+        },
+        {
+          "narration": "Mask and Channel Mapping býður upp á myndastöðvar, frumur, kjarna, sjúkdómsfrumur og líffræðilega merkingarflaugar, afleiðandi sítoplasma og hvaða tíma röð sem er."
+        },
+        {
+          "narration": "Mælingar eiginleikar velur sparað mælingar, samræmi og Manders samantekningar, homogenity fjarlægðir, radial dreifingar og organelle samantekningar."
+        },
+        {
+          "narration": "Efnisfiltrun kveður á um lágmarksstærð fyrir hverja hólf, hvort ekki sýktar frumur eru varðveittir og hvernig meðhöndla eru sjúkdómsfrumur sem fara yfir kantin."
+        },
+        {
+          "narration": "Crop Output stjórnir geymdu PNGs og röður, crop hlut og stærð, leiðir, útbreiðslu, grenndarboxar, og normalisering."
+        },
+        {
+          "narration": "Forsýni og greiningar stjórna plötum og litlu prófunarmyndinni sem notuð er áður en fullkomið tilraun er gerð."
+        },
+        {
+          "narration": "3D útfærsla inniheldur beta anisotropy og voxel stærð stjórn sem umbreyta volumetric pixels mælingar í eðlisfræðilegar stærðir."
+        },
+        {
+          "narration": "Stjórnartíma og áreiðanleika hóparnir endurreisa hegðun, strangar mistök, mistök stefnu, endurtekjanleika, þurra rekstur, logging og starfsmanna tal."
+        },
+        {
+          "narration": "Hræða Live Preview og hlaða einn fullbúinn sameiningarskrá. Gallerið hertir 40 alvöru frumur eftir kjarni og sjúkdómaefni á fimm sviðum."
+        },
+        {
+          "narration": "Algengt staðfestir tilraunarsetningu, mælt kanal frá núll til þriggja, frumur á sviði fjóra, kjarna á sviði fimm, sjúklingasvæði á sviði sex, afleiðandi sítoplasma og prófunarleiða."
+        },
+        {
+          "narration": "Object Crops skrifar 224 með 224 piksel framboð PNGs með því að nota kanala núll, eitt og tvö. Sparað eðlileiki er ekki í gangi; einungis lifandi gallería notar tímabundið 1 til 99 prósentíll sýning."
+        },
+        {
+          "narration": "Filtrar krefjast frumna með a.m.k. 3500 pikslar, kjarna með a.m.k. 1000 og sjúkdómaefna með a.m.k. 250. Ósmittuð frumur halda áfram að vera fjarlægð og sjúkdómsfrumur sem fara yfir kantin eru sameinaðir."
+        },
+        {
+          "narration": "Veldu kanal 1 til að skoða ER-merkið sem notað er sem áhugaverður niðurstreymiskanal. Þetta breytir aðeins galleríunni; Measure stillur stillingar úr öllum fjórum stillingum."
+        },
+        {
+          "narration": "Í lokið prófskrá kemur fram að 5 af 5 sviðum hafi náð árangri. measurements.db inniheldur 455 frumur og sítoplasmar, 605 kjarna, 1031 sjúkdómafrum og 455 frumur sem eru tilbúnir til merkingar og flokkunar."
         }
       ]
     },
