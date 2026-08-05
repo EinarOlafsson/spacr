@@ -3179,48 +3179,98 @@
     {
       "id": "22_model_zoo",
       "number": 22,
-      "slug": "model_zoo",
-      "title": "Model Zoo",
+      "slug": "model-zoo",
+      "title": "El modelo zoológico",
       "series": 2,
       "app_key": "model_zoo",
       "section": "Segmentation models",
-      "description": "Explorar, verificar, descargar y comparar modelos de segmentación y clasificadores reutilizables.",
+      "description": "Descubra los puestos de control locales y catalogados, inspeccione la procedencia y las sumas de cheques, marque las máscaras de referencia en los campos representativos y entregue a dos candidatos para el Modelo Compare.",
       "objectives": [
-        "Comprender cuándo usar el modelo zoológico.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Escanear las carpetas de los puntos de control y distinguir entre las entradas locales, agrupadas y remotas.",
+        "Inspeccione la procedencia, la suma de comprobación, la descarga y la instalación segura de la información.",
+        "Comparar un modelo y entregar dos candidatos locales al Modelo Compare."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Preparar una carpeta de puntos de control y un pequeño conjunto de campos de microscopía representativos.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre el modelo de zoológico.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre el modelo de zoológico."
+          "narration": "Los modelos de inventarios del zoológico Cellpose y los puntos de control del clasificador que esta máquina puede alcanzar. Registra la fuente, la versión, el tamaño, el estado de la suma de comprobación, la procedencia de la formación y el comportamiento en un pequeño conjunto de campos antes de que un modelo entre en un flujo de trabajo más grande.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "Los modelos de inventarios del zoológico Cellpose y los puntos de control del clasificador que esta máquina puede alcanzar. Registra la fuente, la versión, el tamaño, el estado de la suma de comprobación, la procedencia de la formación y el comportamiento en un pequeño conjunto de campos antes de que un modelo entre en un flujo de trabajo más grande."
         },
         {
-          "narration": "Abra Model Zoo en la sección Segmentation models. Abre el catálogo y seleccione modelos compatibles con la tarea y los canales de entrada actuales.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Model Zoo en la sección Segmentation models. Abre el catálogo y seleccione modelos compatibles con la tarea y los canales de entrada actuales."
+          "narration": "Seleccione o deje caer una carpeta de punto de control y haga clic en Escanear. La lista combina entradas de catálogo agrupadas y declaradas con archivos de modelo CP locales, evitando al mismo tiempo caminos duplicados.",
+          "visual": "02_scanned",
+          "focus_key": "catalogue",
+          "click_key": "scan",
+          "hold_after": 0.5,
+          "speech_text": "Seleccione o deje caer una carpeta de punto de control y haga clic en Escanear. La lista combina entradas de catálogo agrupadas y declaradas con archivos de modelo CP locales, evitando al mismo tiempo caminos duplicados."
         },
         {
-          "narration": "En el área de configuración principal, revisar la procedencia, la licencia, la suma de comprobación, el preprocesamiento esperado, el tipo de tarea y la disponibilidad local.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, revisar la procedencia, la licencia, la suma de comprobación, el preprocesamiento esperado, el tipo de tarea y la disponibilidad local."
+          "narration": "Seleccione una fila para inspeccionar su trayectoria exacta, tamaño, hash publicado, datos de entrenamiento, geometría de cultivo, diámetro del objeto, recuento de épocas y autor. La procedencia desconocida es una advertencia, no una afirmación de compatibilidad universal.",
+          "visual": "03_provenance",
+          "focus_key": "detail",
+          "hold_after": 0.5,
+          "speech_text": "Seleccione una fila para inspeccionar su trayectoria exacta, tamaño, hash publicado, datos de entrenamiento, geometría de cultivo, diámetro del objeto, recuento de épocas y autor. La procedencia desconocida es una advertencia, no una afirmación de compatibilidad universal."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+          "narration": "Las entradas de catálogo remoto se pueden descargar en una carpeta de modelo elegida. Las descargas verificadas requieren una suma de comprobación publicada; aceptar un modelo no verificado es una opción explícita porque un punto de comprobación equivocado todavía puede cargar y producir máscaras plausibles.",
+          "visual": "03_provenance",
+          "focus_key": "download",
+          "hold_after": 0.5,
+          "speech_text": "Las entradas de catálogo remoto se pueden descargar en una carpeta de modelo elegida. Las descargas verificadas requieren una suma de comprobación publicada; aceptar un modelo no verificado es una opción explícita porque un punto de comprobación equivocado todavía puede cargar y producir máscaras plausibles."
         },
         {
-          "narration": "Cuando el flujo de trabajo termine, los archivos de modelos verificados y los resultados de los índices de referencia siguen asociados a sus metadatos.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termine, los archivos de modelos verificados y los resultados de los índices de referencia siguen asociados a sus metadatos."
+          "narration": "El ensayo en campos carga un conjunto de valores de referencia limitados. Este tutorial utiliza tres cultivos reales de células de canal ER, por lo que la velocidad del modelo, el conteo de objetos, las banderas de control de calidad y las vistas preliminares se refieren a las mismas imágenes representativas utilizadas en Model Compare.",
+          "visual": "04_fields",
+          "focus_key": "field_controls",
+          "hold_after": 0.5,
+          "speech_text": "El ensayo en campos carga un conjunto de valores de referencia limitados. Este tutorial utiliza tres cultivos reales de células de canal ER, por lo que la velocidad del modelo, el conteo de objetos, las banderas de control de calidad y las vistas preliminares se refieren a las mismas imágenes representativas utilizadas en Model Compare."
+        },
+        {
+          "narration": "Con exactamente un modelo local seleccionado, haga clic en Prueba en tres campos. El indicador de referencia segmenta cada imagen y aplica el control de calidad de segmentación sin pretender que tenga etiquetas de precisión de la verdad.",
+          "visual": "05_test",
+          "focus_key": "field_controls",
+          "click_key": "test",
+          "hold_after": 0.5,
+          "speech_text": "Con exactamente un modelo local seleccionado, haga clic en Prueba en tres campos. El indicador de referencia segmenta cada imagen y aplica el control de calidad de segmentación sin pretender que tenga etiquetas de precisión de la verdad."
+        },
+        {
+          "narration": "Durante el procesamiento, la línea de estado identifica el punto de control y el recuento de campos seleccionados. El trabajo de referencia se ejecuta fuera del hilo de interfaz para que la selección y el progreso permanezcan receptivos.",
+          "visual": "06_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Durante el procesamiento, la línea de estado identifica el punto de control y el recuento de campos seleccionados. El trabajo de referencia se ejecuta fuera del hilo de interfaz para que la selección y el progreso permanezcan receptivos."
+        },
+        {
+          "narration": "El puesto de control personalizado produjo ciento cincuenta y una celdas en tres campos en seis puntos y cinco segundos. Dos campos pasaron la segmentación QC; la primera cosecha escarpada fue marcada por un bajo recuento de objetos y una alta fracción de frontera.",
+          "visual": "07_benchmark",
+          "focus_key": "benchmark",
+          "hold_after": 0.6,
+          "speech_text": "El puesto de control personalizado produjo ciento cincuenta y una celdas en tres campos en seis puntos y cinco segundos. Dos campos pasaron la segmentación QC; la primera cosecha escarpada fue marcada por un bajo recuento de objetos y una alta fracción de frontera."
+        },
+        {
+          "narration": "La selección de una fila de referencia actualiza la superposición de la máscara. Use la tabla y la imagen juntos: una bandera de calidad identifica un patrón intrínseco de máscara, mientras que la vista previa muestra si ese patrón refleja la biología, la cosecha o un fallo de segmentación.",
+          "visual": "08_field_two",
+          "focus_key": "preview",
+          "hold_after": 0.55,
+          "speech_text": "La selección de una fila de referencia actualiza la superposición de la máscara. Use la tabla y la imagen juntos: una bandera de calidad identifica un patrón intrínseco de máscara, mientras que la vista previa muestra si ese patrón refleja la biología, la cosecha o un fallo de segmentación."
+        },
+        {
+          "narration": "Seleccione exactamente dos modelos instalados y haga clic en Compare los dos seleccionados. El modelo de Zoo entrega ambos caminos de checkpoint, la misma carpeta de campo y el recuento de campo en la pantalla de comparación A-B dedicada.",
+          "visual": "09_two_selected",
+          "focus_key": "catalogue",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "Seleccione exactamente dos modelos instalados y haga clic en Compare los dos seleccionados. El modelo de Zoo entrega ambos caminos de checkpoint, la misma carpeta de campo y el recuento de campo en la pantalla de comparación A-B dedicada."
+        },
+        {
+          "narration": "La entrega abre el Modelo Compare con ambos puestos de control locales y los tres campos precargados. A partir de aquí, ejecuta la comparación en pareja para medir el acuerdo de primer plano, las diferencias direccionales de los objetos, las divisiones, las fusiones y el QC por modelo.",
+          "visual": "10_compare_handoff",
+          "focus_key": "comparison",
+          "hold_after": 0.7,
+          "speech_text": "La entrega abre el Modelo Compare con ambos puestos de control locales y los tres campos precargados. A partir de aquí, ejecuta la comparación en pareja para medir el acuerdo de primer plano, las diferencias direccionales de los objetos, las divisiones, las fusiones y el QC por modelo."
         }
       ]
     },

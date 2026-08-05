@@ -1231,19 +1231,37 @@
       "id": "22_model_zoo",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um dýragarðsmyndarmyndina. Skoða, staðfesta, hlaða niður og mælikvarða endurtekjanlegar skipta- og flokkaraðgerðir."
+          "narration": "Dæmileg stofnun á garðdýragarði Cellpose og flokkara eftirlitsstöðvar sem þessi vél getur náð. Hún skráir uppspretta, útgáfu, stærð, staðsetningu aukagjalds, uppruna þjálfunar og hegðun á litlum sviði áður en líkan fer inn í stærri vinnuflóð."
         },
         {
-          "narration": "Opnuð dýragarðabúð fyrirmyndir frá flokkunni fyrirmyndir. Opnaðu katalóginn og veldu fyrirmyndir sem eru sambærilegar við núverandi verkefni og innleiðslukanalar."
+          "narration": "Veldu eða slepptu glöðunni á eftirlitsstöð og smelltu á Skann. Í uppsögninni eru bundið og lýst upp á skrá í katalóg með staðbundnum CP-myndasögnum og ekki duplicated leiðir."
         },
         {
-          "narration": "Á aðalmyndunar svæðinu, endurskoða uppruna, leyfi, endurskoðunarefni, væntanleg fyrirvinnslu, verkefnistegund og staðbundna tilgengni."
+          "narration": "Veldu eina röð til að skoða nákvæma leið, stærð, birt hash, þjálfunarupplýsingar, gróður geometri, hlutinn þvermál, tímabiltal og höfundur. Óþekkt uppruna er viðvörun, ekki almenn samræmisspáning."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. til að gera viðmiðun á loforðandi gerðum á nokkrum fulltrúlegum sviðum áður en farið er að samþykkja eina til að gera fullkomið tilraun."
+          "narration": "Það er hægt að hlaða niður færslur af fjarlægri skrá í valið tímaskrá. Staðfest niðurhal krefst birtrar skoðunarsamnings; að samþykkja óstaðfest model er augljós val á því að rangur skoðunarstaður getur samt hlaðið og framleitt trúverðugar grímur."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið, verða staðfestar fyrirmyndaskrár og niðurstöður viðmiðunarmerkja tengdar metaupplýsingum þeirra."
+          "narration": "Próf á völlum hlaða takmörkuðum viðmiðunarmörkum. Þessi námskeið notar þrjár alvöru ER-kanala frumur, svo líkan hraða, hlut telja, gæðastjórn flagg og fyrirsjá vísa til sömu fulltrúa myndir sem notaðar eru í Model samanburði."
+        },
+        {
+          "narration": "Með nákvæmlega einn staðbundinn líkan valinn, smelltu á Próf á þremur sviðum. Viðmiðunarmiðillinn skipar hverri mynd og notar skilyrði á skilyrðum á skilyrðum án þess að hann þykist hafa nákvæmni á staðreyndinni."
+        },
+        {
+          "narration": "Við vinnslu skilgreinir stöðulínan valinn eftirlitsstað og fjöldi völlanna. Viðmiðunarviðmiðunarstarfið gengur út af viðfangsefnisþráðinu þannig að val og framfarir eru áfram viðbrögð."
+        },
+        {
+          "narration": "Sérsniðna eftirlitsstöðvarnar gerðu hundrað og fimmtíu og eitt frumur á þremur völlum á sex og fimm sekúndum. Tveir völlum fóru í gegnum segmenteringar QC; skortur fyrsti uppskera var merkt fyrir lágan hlutartöl og mikla landamæri brot."
+        },
+        {
+          "narration": "Með því að velja viðmiðunarlínuna er yfirborðið uppfært. Notaðu töfluna og myndina saman: Gæðaflakur skilgreinir innvenjulegt mynstur á grímunni, en fyrirsýn sýnir hvort mynsturinn endurspeglar líffræði, uppskeru eða skiptavik."
+        },
+        {
+          "narration": "Veldu nákvæmlega tvær uppsettar gerðir og smelltu á Samanberðu þær tvær sem valdir eru. Dýragarðarmyndarmyndarmyndin gefur báða vegleiðslustöðum, sama foldaranum og foldartalinu inn í sérstaka A-B samanburðarskjárinn."
+        },
+        {
+          "narration": "Með afhendingu er opnað samræmi við bæði staðbundna eftirlitsstöðvar og öll þrjú fyrirlagðir sviðir. Hér frá, hlaða parið samanburði til að mæla fyrirgrunns samning, stefnu hlut munir, skiptingar, sameiningar, og fyrir fyrirmynd QC."
         }
       ]
     },
