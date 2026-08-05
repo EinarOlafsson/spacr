@@ -91,8 +91,8 @@ runnable and is not. Read the signature, then write the call.
 * Want more log detail? Preferences → Logging, or `SPACR_LOG_LEVEL=DEBUG`
   before starting Jupyter.
 
-The older `1_`–`5_` notebooks are the previous generation, kept because
-existing links point at them.
+The previous generation lives in `legacy/`, kept because existing links
+point at it.
 
 ## Elsewhere
 
