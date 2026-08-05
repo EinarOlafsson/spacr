@@ -4,47 +4,167 @@
   "voice": "am_adam",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.3,
+  "total_duration": 225.455,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.625,
-      "scene_end": 8.075,
-      "duration": 8.075,
-      "text": "This tutorial covers Training Runs. Compare several model-training runs by overlaying curves and diffing their settings."
+      "speech_end": 12.525,
+      "scene_end": 13.105,
+      "duration": 13.105,
+      "text": "Training Runs is a read-only quality-control screen. It overlays saved train and validation curves and places the settings diff beside them; it never retrains a model or changes a run on disk.",
+      "speech_text": "Training Runs is a read-only quality-control screen. It overlays saved train and validation curves and places the settings diff beside them; it never retrains a model or changes a run on disk.",
+      "phonemes": "tɹˈAnɪŋ ɹˈʌnz ɪz ɐ ɹˈidˌOnli kwˌɑləTikəntɹˈOl skɹˈin. ˌɪt ˌOvəɹlˈAz sˈAvd tɹˈAn ænd vˌælɪdˈAʃən kˈɜɹvz ænd plˈAsᵻz ðə sˈɛTɪŋz dˈɪf bəsˈId ðˌɛm; ɪt nˈɛvəɹ ɹitɹˈAnz ɐ mˈɑdᵊl ɔɹ ʧˈAnʤᵻz ɐ ɹˈʌn ˌɔn dˈɪsk."
     },
     {
       "scene": 2,
-      "speech_start": 8.075,
-      "speech_end": 16.799999999999997,
-      "scene_end": 17.249999999999996,
-      "duration": 9.174999999999997,
-      "text": "Open Training Runs from the Results and quality control section. Select run folders or registered training records that should be compared."
+      "speech_start": 13.105,
+      "speech_end": 30.080000000000002,
+      "scene_end": 30.78,
+      "duration": 17.675,
+      "text": "Choose the folder that contains model trees, or any parent above several projects, then click Scan. The transferred microscopy data has no saved training curves, so this tutorial clearly uses synthetic spaCR-format logs while exercising the real parser and interface.",
+      "speech_text": "Choose the folder that contains model trees, or any parent above several projects, then click Scan. The transferred microscopy data has no saved training curves, so this tutorial clearly uses synthetic spacer-format logs while exercising the real parser and interface.",
+      "phonemes": "ʧˈuz ðə fˈOldəɹ ðæt kəntˈAnz mˈɑdᵊl tɹˈiz, ɔɹ ˈɛni pˈɛɹᵊnt əbˈʌv sˈɛvəɹəl pɹˈɑʤˌɛkts, ðˈɛn klˈɪk skˈæn. ðə tɹˈænsfəɹd mIkɹˈɑskəpi dˈATə hæz nˈO sˈAvd tɹˈAnɪŋ kˈɜɹvz, sˌO ðɪs tutˈɔɹiəl klˈɪɹli jˈuzᵻz sɪnθˈɛTɪk spˌAsəɹfˈɔɹmˌæt lˈɔɡz wˌIl ˈɛksəɹsˌIzɪŋ ðə ɹˈiᵊl pˈɑɹsəɹ ænd ˈɪntəɹfˌAs."
     },
     {
       "scene": 3,
-      "speech_start": 17.249999999999996,
-      "speech_end": 24.874999999999996,
-      "scene_end": 25.324999999999996,
-      "duration": 8.075,
-      "text": "In the main configuration area, choose metrics, smoothing, grouping, checkpoint criteria, and the settings fields to display."
+      "speech_start": 30.78,
+      "speech_end": 47.13,
+      "scene_end": 47.85,
+      "duration": 17.07,
+      "text": "The scan finds a twenty-epoch baseline, a twenty-five-epoch tuned run, a three-fold cross-validated run, and an intentionally incomplete checkpoint. Missing settings and curves are reported in amber rather than silently discarded, while valid runs remain usable.",
+      "speech_text": "The scan finds a twenty-epoch baseline, a twenty-five-epoch tuned run, a three-fold cross-validated run, and an intentionally incomplete checkpoint. Missing settings and curves are reported in amber rather than silently discarded, while valid runs remain usable.",
+      "phonemes": "ðə skˈæn fˈIndz ɐ twˈɛntiˌɛpək bˈAslˌIn, ɐ twˈɛntifˌIvˈɛpək tˈund ɹˈʌn, ɐ θɹˌifˈOld kɹˌɔsvˈælɪdˌATᵻd ɹˈʌn, ænd ɐn ɪntˈɛnʧᵊnəli ˌɪnkəmplˈit ʧˈɛkpˌYnt. mˈɪsɪŋ sˈɛTɪŋz ænd kˈɜɹvz ɑɹ ɹəpˈɔɹTᵻd ɪn ˈæmbəɹ ɹˈæðəɹ ðən sˈIləntli dəskˈɑɹdᵻd, wˌIl vˈælɪd ɹˈʌnz ɹəmˈAn jˈuzəbᵊl."
     },
     {
       "scene": 4,
-      "speech_start": 25.324999999999996,
-      "speech_end": 38.52499999999999,
-      "scene_end": 38.974999999999994,
-      "duration": 13.649999999999999,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare convergence, overfitting, stability, and held-out performance rather than selecting by training loss alone."
+      "speech_start": 47.85,
+      "speech_end": 57.6,
+      "scene_end": 58.1,
+      "duration": 10.25,
+      "text": "Tick the twenty-epoch baseline. Each row names its model, channels, epoch count, folds, and important recovered settings so the selection remains traceable.",
+      "speech_text": "Tick the twenty-epoch baseline. Each row names its model, channels, epoch count, folds, and important recovered settings so the selection remains traceable.",
+      "phonemes": "tˈɪk ðə twˈɛntiˌɛpək bˈAslˌIn. ˈiʧ ɹˈO nˈAmz ɪts mˈɑdᵊl, ʧˈænᵊlz, ˈɛpək kˈWnt, fˈOldz, ænd ɪmpˈɔɹtᵊnt ɹəkˈʌvəɹd sˈɛTɪŋz sˌO ðə səlˈɛkʃən ɹəmˈAnz tɹˈAsəbᵊl."
     },
     {
       "scene": 5,
-      "speech_start": 38.974999999999994,
-      "speech_end": 46.64999999999999,
-      "scene_end": 47.29999999999999,
-      "duration": 8.324999999999996,
-      "text": "When the workflow finishes, comparison figures and settings-difference tables identify the strongest reproducible run."
+      "speech_start": 58.1,
+      "speech_end": 68.2,
+      "scene_end": 68.74000000000001,
+      "duration": 10.640000000000008,
+      "text": "Tick the twenty-five-epoch tuned run as the second comparison. Runs of different length are not truncated or padded; every curve retains its true epoch axis.",
+      "speech_text": "Tick the twenty-five-epoch tuned run as the second comparison. Runs of different length are not truncated or padded; every curve retains its true epoch axis.",
+      "phonemes": "tˈɪk ðə twˈɛntifˌIvˈɛpək tˈund ɹˈʌn æz ðə sˈɛkənd kəmpˈɛɹəsᵊn. ɹˈʌnz ʌv dˈɪfəɹənt lˈɛŋθ ɑɹ nˌɑt tɹˈʌŋkˌATᵻd ɔɹ pˈædᵻd; ˈɛvəɹi kˈɜɹv ɹətˈAnz ɪts tɹˈu ˈɛpək ˈæksɪs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 68.74000000000001,
+      "speech_end": 82.81500000000001,
+      "scene_end": 83.43500000000002,
+      "duration": 14.695000000000007,
+      "text": "Metric chooses a recorded column such as accuracy, loss, precision-recall area, or class accuracy. Folds controls whether cross-validation appears per fold, as mean plus or minus one standard deviation, or both.",
+      "speech_text": "Metric chooses a recorded column such as accuracy, loss, precision-recall area, or class accuracy. Folds controls whether cross-validation appears per fold, as mean plus or minus one standard deviation, or both.",
+      "phonemes": "mˈɛtɹɪk ʧˈuzᵻz ɐ ɹəkˈɔɹdᵻd kˈɑləm sˈʌʧ æz ˈækjəɹəsi, lˈɔs, pɹisˈɪʒᵊnɹˌikɔl ˈɛɹiə, ɔɹ klˈæs ˈækjəɹəsi. fˈOldz kəntɹˈOlz wˈɛðəɹ kɹˌɔsvˌælɪdˈAʃən əpˈɪɹz pɜɹ fˈOld, æz mˈin plˈʌs ɔɹ mˈInəs wˈʌn stˈændəɹd dˌiviˈAʃən, ɔɹ bˈOθ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 83.43500000000002,
+      "speech_end": 96.06000000000002,
+      "scene_end": 96.64000000000001,
+      "duration": 13.204999999999998,
+      "text": "Click Overlay selected. Dashed lines are training splits and solid lines are validation splits; a rising train curve above a declining validation curve indicates overfitting, not a better model.",
+      "speech_text": "Click Overlay selected. Dashed lines are training splits and solid lines are validation splits; a rising train curve above a declining validation curve indicates overfitting, not a better model.",
+      "phonemes": "klˈɪk ˈOvəɹlˌA səlˈɛktᵻd. dˈæʃt lˈInz ɑɹ tɹˈAnɪŋ splˈɪts ænd sˈɑləd lˈInz ɑɹ vˌælɪdˈAʃən splˈɪts; ɐ ɹˈIzɪŋ tɹˈAn kˈɜɹv əbˈʌv ɐ dəklˈInɪŋ vˌælɪdˈAʃən kˈɜɹv ˈɪndəkˌAts ˌOvəɹfˈɪTɪŋ, nˌɑt ɐ bˈɛTəɹ mˈɑdᵊl."
+    },
+    {
+      "scene": 8,
+      "speech_start": 96.64000000000001,
+      "speech_end": 116.61500000000001,
+      "scene_end": 117.435,
+      "duration": 20.794999999999987,
+      "text": "The tuned validation curve reaches about zero point eight five five before ending near zero point eight four five; the baseline peaks near zero point seven eight six and ends near zero point seven five. The table links that difference to batch size, epochs, learning rate, and source, while worker count is separated as environment drift.",
+      "speech_text": "The tuned validation curve reaches about zero point eight five five before ending near zero point eight four five; the baseline peaks near zero point seven eight six and ends near zero point seven five. The table links that difference to batch size, epochs, learning rate, and source, while worker count is separated as environment drift.",
+      "phonemes": "ðə tˈund vˌælɪdˈAʃən kˈɜɹv ɹˈiʧᵻz əbˈWt zˈɪɹO pˈYnt ˈAt fˈIv fˈIv bəfˈɔɹ ˈɛndɪŋ nˌɪɹ zˈɪɹO pˈYnt ˈAt fˈɔɹ fˈIv; ðə bˈAslˌIn pˈiks nˌɪɹ zˈɪɹO pˈYnt sˈɛvən ˈAt sˈɪks ænd ˈɛndz nˌɪɹ zˈɪɹO pˈYnt sˈɛvən fˈIv. ðə tˈAbᵊl lˈɪŋks ðˈæt dˈɪfəɹəns tə bˈæʧ sˈIz, ˈɛpəks, lˈɜɹnɪŋ ɹˈAt, ænd sˈɔɹs, wˌIl wˈɜɹkəɹ kˈWnt ɪz sˈɛpəɹˌATᵻd æz ənvˈIɹənmᵊnt dɹˈɪft."
+    },
+    {
+      "scene": 9,
+      "speech_start": 117.435,
+      "speech_end": 127.485,
+      "scene_end": 127.985,
+      "duration": 10.549999999999997,
+      "text": "Click a curve to identify its run and split instead of relying only on color. The selected series is resolved back to its folder and per-epoch measurements.",
+      "speech_text": "Click a curve to identify its run and split instead of relying only on color. The selected series is resolved back to its folder and per-epoch measurements.",
+      "phonemes": "klˈɪk ɐ kˈɜɹv tʊ IdˈɛntəfˌI ɪts ɹˈʌn ænd splˈɪt ɪnstˈɛd ʌv ɹᵻlˈIɪŋ ˈOnli ˌɔn kˈʌləɹ. ðə səlˈɛktᵻd sˈɪɹiz ɪz ɹəzˈɔlvd bˈæk tʊ ɪts fˈOldəɹ ænd pɜɹˈɛpək mˈɛʒəɹmᵊnts."
+    },
+    {
+      "scene": 10,
+      "speech_start": 127.985,
+      "speech_end": 145.835,
+      "scene_end": 146.57500000000002,
+      "duration": 18.590000000000018,
+      "text": "The detail line shows the baseline validation series, its epoch range, last accuracy zero point seven four nine six at epoch twenty, and best accuracy zero point seven eight six at epoch fifteen. The best value is labeled optimistic because the same curve selected that epoch.",
+      "speech_text": "The detail line shows the baseline validation series, its epoch range, last accuracy zero point seven four nine six at epoch twenty, and best accuracy zero point seven eight six at epoch fifteen. The best value is labeled optimistic because the same curve selected that epoch.",
+      "phonemes": "ðə dətˈAl lˈIn ʃˈOz ðə bˈAslˌIn vˌælɪdˈAʃən sˈɪɹiz, ɪts ˈɛpək ɹˈAnʤ, lˈæst ˈækjəɹəsi zˈɪɹO pˈYnt sˈɛvən fˈɔɹ nˈIn sˈɪks æt ˈɛpək twˈɛnti, ænd bˈɛst ˈækjəɹəsi zˈɪɹO pˈYnt sˈɛvən ˈAt sˈɪks æt ˈɛpək fˌɪftˈin. ðə bˈɛst vˈælju ɪz lˈAbəld ˌɑptəmˈɪstɪk bəkˈʌz ðə sˈAm kˈɜɹv səlˈɛktᵻd ðæt ˈɛpək."
+    },
+    {
+      "scene": 11,
+      "speech_start": 146.57500000000002,
+      "speech_end": 153.55,
+      "scene_end": 154.03,
+      "duration": 7.454999999999984,
+      "text": "Open Metric and choose loss. Comparing several metrics prevents a selection based on one flattering endpoint.",
+      "speech_text": "Open Metric and choose loss. Comparing several metrics prevents a selection based on one flattering endpoint.",
+      "phonemes": "ˈOpᵊn mˈɛtɹɪk ænd ʧˈuz lˈɔs. kəmpˈɛɹɪŋ sˈɛvəɹəl mˈɛtɹɪks pɹivˈɛnts ɐ səlˈɛkʃən bˈAst ˌɔn wˈʌn flˈæTəɹɪŋ ˈɛndpYnt."
+    },
+    {
+      "scene": 12,
+      "speech_start": 154.03,
+      "speech_end": 166.83,
+      "scene_end": 167.45000000000002,
+      "duration": 13.420000000000016,
+      "text": "Loss uses the same runs and settings diff. Here training loss continues downward while validation loss turns upward, making the late overfitting visible from a second measurement rather than accuracy alone.",
+      "speech_text": "Loss uses the same runs and settings diff. Here training loss continues downward while validation loss turns upward, making the late overfitting visible from a second measurement rather than accuracy alone.",
+      "phonemes": "lˈɔs jˈuzᵻz ðə sˈAm ɹˈʌnz ænd sˈɛTɪŋz dˈɪf. hˈɪɹ tɹˈAnɪŋ lˈɔs kəntˈɪnjuz dˈWnwəɹd wˌIl vˌælɪdˈAʃən lˈɔs tˈɜɹnz ˈʌpwəɹd, mˈAkɪŋ ðə lˈAt ˌOvəɹfˈɪTɪŋ vˈɪzəbᵊl fɹʌm ɐ sˈɛkənd mˈɛʒəɹmᵊnt ɹˈæðəɹ ðən ˈækjəɹəsi əlˈOn."
+    },
+    {
+      "scene": 13,
+      "speech_start": 167.45000000000002,
+      "speech_end": 179.87500000000003,
+      "scene_end": 180.45500000000004,
+      "duration": 13.005000000000024,
+      "text": "Now compare the tuned run with the three-fold run and choose mean plus or minus standard deviation. This summarizes cross-validation without pretending its mean is a single observed run.",
+      "speech_text": "Now compare the tuned run with the three-fold run and choose mean plus or minus standard deviation. This summarizes cross-validation without pretending its mean is a single observed run.",
+      "phonemes": "nˈW kəmpˈɛɹ ðə tˈund ɹˈʌn wɪð ðə θɹˌifˈOld ɹˈʌn ænd ʧˈuz mˈin plˈʌs ɔɹ mˈInəs stˈændəɹd dˌiviˈAʃən. ðˌɪs sˈʌməɹˌIzᵻz kɹˌɔsvˌælɪdˈAʃən wɪðˈWt pɹɪtˈɛndɪŋ ɪts mˈin ɪz ɐ sˈɪŋɡᵊl əbzˈɜɹvd ɹˈʌn."
+    },
+    {
+      "scene": 14,
+      "speech_start": 180.45500000000004,
+      "speech_end": 194.00500000000005,
+      "scene_end": 194.66500000000005,
+      "duration": 14.210000000000008,
+      "text": "The blue band is plus or minus one standard deviation across three folds. The mean validation curve ends near zero point eight three, while the band exposes fold-to-fold uncertainty that a single line would conceal.",
+      "speech_text": "The blue band is plus or minus one standard deviation across three folds. The mean validation curve ends near zero point eight three, while the band exposes fold-to-fold uncertainty that a single line would conceal.",
+      "phonemes": "ðə blˈu bˈænd ɪz plˈʌs ɔɹ mˈInəs wˈʌn stˈændəɹd dˌiviˈAʃən əkɹˈɔs θɹˈi fˈOldz. ðə mˈin vˌælɪdˈAʃən kˈɜɹv ˈɛndz nˌɪɹ zˈɪɹO pˈYnt ˈAt θɹˈi, wˌIl ðə bˈænd ɪkspˈOzᵻz fˈOldtəfˈOld ˌʌnsˈɜɹtᵊnti ðæt ɐ sˈɪŋɡᵊl lˈIn wʊd kənsˈil."
+    },
+    {
+      "scene": 15,
+      "speech_start": 194.66500000000005,
+      "speech_end": 205.69000000000005,
+      "scene_end": 206.21000000000006,
+      "duration": 11.545000000000016,
+      "text": "Choose per fold when individual fold behavior matters. This is especially useful for spotting one unstable split or a tail supported by fewer folds after early stopping.",
+      "speech_text": "Choose per fold when individual fold behavior matters. This is especially useful for spotting one unstable split or a tail supported by fewer folds after early stopping.",
+      "phonemes": "ʧˈuz pɜɹ fˈOld wˌɛn ˌɪndəvˈɪʤəwəl fˈOld bəhˈAvjəɹ mˈæTəɹz. ðˌɪs ɪz əspˈɛʃəli jˈusfᵊl fɔɹ spˈɑTɪŋ wˈʌn ˌʌnstˈAbᵊl splˈɪt ɔɹ ɐ tˈAl səpˈɔɹTᵻd bI fjˈuəɹ fˈOldz ˈæftəɹ ˈɜɹli stˈɑpɪŋ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 206.21000000000006,
+      "speech_end": 224.63500000000008,
+      "scene_end": 225.45500000000007,
+      "duration": 19.245000000000005,
+      "text": "Per-fold mode draws every train and validation series with run, split, and fold in the legend. Use validation behavior, fold stability, held-out evaluation, and the settings audit together; Training Runs compares evidence but does not declare a scientifically reproducible winner by itself.",
+      "speech_text": "Per-fold mode draws every train and validation series with run, split, and fold in the legend. Use validation behavior, fold stability, held-out evaluation, and the settings audit together; Training Runs compares evidence but does not declare a scientifically reproducible winner by itself.",
+      "phonemes": "pˌɜɹfˈOld mˈOd dɹˈɔz ˈɛvəɹi tɹˈAn ænd vˌælɪdˈAʃən sˈɪɹiz wɪð ɹˈʌn, splˈɪt, ænd fˈOld ɪn ðə lˈɛʤənd. jˈuz vˌælɪdˈAʃən bəhˈAvjəɹ, fˈOld stəbˈɪləTi, hˈɛldˌWt əvˌæljʊˈAʃən, ænd ðə sˈɛTɪŋz ˈɔdət təɡˈɛðəɹ; tɹˈAnɪŋ ɹˈʌnz kəmpˈɛɹz ˈɛvədᵊns bˌʌt dˈʌz nˌɑt dəklˈɛɹ ɐ sˌIəntˈɪfəkᵊli ɹˌipɹədˈusəbᵊl wˈɪnəɹ bI ɪtsˈɛlf."
     }
   ]
 }

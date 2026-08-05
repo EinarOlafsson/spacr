@@ -1582,19 +1582,52 @@
       "id": "28_training_runs",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker treningsrunder. Sammenlign flere modelltreninger ved å overlape kurver og variere innstillingene."
+          "narration": "Training Runs er en bare-les-kvalitetskontroll skjerm. Den overlaper sparte tog- og valideringskurver og plasserer innstillingene diff ved siden av dem; den overlaper aldri en modell eller endrer et løp på disk."
         },
         {
-          "narration": "Åpne opplæringsrunder fra avsnittet Resultater og kvalitetskontroll. Velg kjøre mapper eller registrerte opplæringsregister som bør sammenlignes."
+          "narration": "Velg mappen som inneholder modelltre, eller noen av foreldrene over flere prosjekter, og klikk deretter Scan. De overførte mikroskopiske dataene har ingen lagrede treningskurver, så denne opplæringen bruker tydeligvis syntetiske spaCR-format logger mens du utøver den virkelige analyseren og grensesnittet."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet skal du velge metris, glatning, gruppering, kontrollpunktkriterier og innstillingsfeltene som skal vises."
+          "narration": "Skanningen finner en 20-tiden baseline, en 25-tiden tuned run, en tre ganger kryss-validerte run, og et bevisst ufullstendig kontrollpunkt. Fraværende innstillinger og kurver rapporteres i amber snarere enn stille kastet, mens gyldige løp forblir brukbare."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Sammenligne konvergens, overpassning, stabilitet og utholden ytelse i stedet for å velge ved opplæring tap alene."
+          "narration": "Tikk på 20-tiden baseline. Hver rad navngir sin modell, kanaler, epokont, fold og viktige gjenopprettede innstillinger slik at valget forblir sporbar."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, identifiserer sammenligningstalene og settingsforskjelltabellene den sterkeste reproduserbare løpet."
+          "narration": "Merk den tjuefem-epoch tuned run som den andre sammenligningen. Runer av forskjellig lengde er ikke trunket eller paddet; hver kurve beholder sin sanne epokasse."
+        },
+        {
+          "narration": "Metrikk velger en registrert kolonne som nøyaktighet, tap, presisjons-återkalle-område eller klasse nøyaktighet. Fold kontrollerer om kryssvalidering vises per fold, som gjennomsnittlig pluss eller minus en standard avvik, eller begge deler."
+        },
+        {
+          "narration": "Klikk Overlay valgt. Dasierte linjer er treningsspliter og faste linjer er valideringsspliter; en økende togkurve over en fallende valideringskurve indikerer overpassning, ikke en bedre modell."
+        },
+        {
+          "narration": "Den tunede valideringskurven når omtrent nullpunkt åtte fem fem før den slutter nær nullpunkt åtte fire fem; baseline toppene nær nullpunkt syv åtte seks og slutter nær nullpunkt syv fem. Tabellen kobler denne forskjellen til partistørrelse, epoker, læringsrate og kilde, mens antall arbeidere blir skilt som miljø drift."
+        },
+        {
+          "narration": "Klikk på en kurve for å identifisere løp og splittelse i stedet for å stole bare på farge. Den valgte serien løses tilbake til sin mappe og per epok målinger."
+        },
+        {
+          "narration": "Den detaljerte linjen viser baseline valideringsserien, sin epokreise, siste nøyaktighet nullpunkt syv fire ni seks på epok tjue, og beste nøyaktighet nullpunkt syv åtte seks på epok femten. Den beste verdien er merket optimistisk fordi den samme kurven valgte den epoken."
+        },
+        {
+          "narration": "Åpne Metric og velg tap. Sammenligning av flere målinger forhindrer et valg basert på ett smigrende sluttpunkt."
+        },
+        {
+          "narration": "Loss bruker de samme løpene og innstillingene forskjellig. Her fortsetter opplæring tap nedover mens validering tap går oppover, noe som gjør den sene overpassingen synlig fra en annen måling i stedet for nøyaktighet alene."
+        },
+        {
+          "narration": "Sammenlign nå det tunede løpet med det tredobbede løpet og velg gjennomsnittlig pluss eller minus standard avvik. Dette oppsummerer kryssvalidering uten å foreta at gjennomsnittet er en enkelt observert run."
+        },
+        {
+          "narration": "Det blå båndet er pluss eller minus en standard avvik over tre fold. Den gjennomsnittlige valideringskurven slutter nær nullpunkt åtte tre, mens båndet avslører fold-to-fold usikkerhet som en enkelt linje ville skjule."
+        },
+        {
+          "narration": "Velg per fold når individuell fold oppførsel betyr noe. Dette er spesielt nyttig for å oppdage en ustabil splitting eller en hale støttet av færre fold etter tidlig stopp."
+        },
+        {
+          "narration": "Per-fold-modus trekker hvert tog og valideringsreiser med løp, splitting og fold i legenden. Bruk valideringsadferd, fold stabilitet, hold-out evaluering, og innstillingene audit sammen; Training Runs sammenligner bevis, men ikke erklærer en vitenskapelig reproduserbar vinner av seg selv."
         }
       ]
     },

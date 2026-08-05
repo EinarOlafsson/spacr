@@ -4091,47 +4091,137 @@
       "id": "28_training_runs",
       "number": 28,
       "slug": "training_runs",
-      "title": "Training Runs",
+      "title": "Las carreras de entrenamiento",
       "series": 4,
       "app_key": "train_compare",
       "section": "Results and quality control",
-      "description": "Compare varias carreras de entrenamiento de modelos superponiendo curvas y diferenciando sus configuraciones.",
+      "description": "Descubra las carreras de clasificadores guardadas, las curvas de recorrido y validación de superposición, inspeccione la variabilidad del pliegue y conecte las diferencias de rendimiento con la configuración y la deriva del entorno.",
       "objectives": [
-        "Comprender cuándo usar las carreras de entrenamiento.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Encuentra carreras de entrenamiento completas e incompletas sin ocultar curvas o configuraciones faltantes.",
+        "Comparar la precisión de validación y la pérdida manteniendo cada carrera en su propio eje de época.",
+        "Auditoría mejor en comparación con épocas anteriores, difusión de validación cruzada y diferencias de configuración en cubo."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Una o más carpetas de modelos spaCR que contengan los registros train.csv y validation.csv, con instantáneas de configuración cuando se requiera una comparación de configuración.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre las carreras de entrenamiento. Compara varias carreras de entrenamiento de modelos superponiendo curvas y diferenciando sus configuraciones.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre las carreras de entrenamiento. Compara varias carreras de entrenamiento de modelos superponiendo curvas y diferenciando sus configuraciones."
+          "narration": "Training Runs es una pantalla de control de calidad sólo para lectura. Superpone las curvas de tren y validación guardadas y coloca las configuraciones dif junto a ellas; nunca reestrena un modelo o cambia una carrera en disco.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.58,
+          "speech_text": "Training Runs es una pantalla de control de calidad sólo para lectura. Superpone las curvas de tren y validación guardadas y coloca las configuraciones dif junto a ellas; nunca reestrena un modelo o cambia una carrera en disco."
         },
         {
-          "narration": "Abra Training Runs en la sección Results and quality control. Abrir carreras de entrenamiento en la sección Resultados y control de calidad. Seleccione carpetas de carreras o registros de entrenamiento registrados que deben compararse.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Training Runs en la sección Results and quality control. Abrir carreras de entrenamiento en la sección Resultados y control de calidad. Seleccione carpetas de carreras o registros de entrenamiento registrados que deben compararse."
+          "narration": "Seleccione la carpeta que contiene árboles modelo, o cualquiera de los padres de varios proyectos, y haga clic en Escanear. Los datos de microscopía transferidos no tienen curvas de entrenamiento guardadas, por lo que este tutorial claramente utiliza registros de formato spaCR sintéticos mientras se ejerce el parser real y la interfaz.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.7,
+          "speech_text": "Seleccione la carpeta que contiene árboles modelo, o cualquiera de los padres de varios proyectos, y haga clic en Escanear. Los datos de microscopía transferidos no tienen curvas de entrenamiento guardadas, por lo que este tutorial claramente utiliza registros de formato espáquer sintéticos mientras se ejerce el parser real y la interfaz."
         },
         {
-          "narration": "En el área de configuración principal, seleccione las métricas, el suavización, el agrupamiento, los criterios de los puntos de control y los campos de configuración que se muestren.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, seleccione las métricas, el suavización, el agrupamiento, los criterios de los puntos de control y los campos de configuración que se muestren."
+          "narration": "El escaneo encuentra una línea de base de veinte épocas, una carrera sintonizada de veinticinco épocas, una carrera cruzada validada tres veces y un punto de control intencionalmente incompleto. Las configuraciones y curvas faltantes se informan en ámbar en lugar de descartarse silenciosamente, mientras que las carreras válidas siguen siendo utilizables.",
+          "visual": "03_discovered",
+          "focus_key": "runs",
+          "hold_after": 0.72,
+          "speech_text": "El escaneo encuentra una línea de base de veinte épocas, una carrera sintonizada de veinticinco épocas, una carrera cruzada validada tres veces y un punto de control intencionalmente incompleto. Las configuraciones y curvas faltantes se informan en ámbar en lugar de descartarse silenciosamente, mientras que las carreras válidas siguen siendo utilizables."
         },
         {
-          "narration": "Antes de la carrera completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Compara la convergencia, el sobreajuste, la estabilidad y el rendimiento prolongado en lugar de seleccionar solo por pérdida de entrenamiento.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la carrera completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. Compara la convergencia, el sobreajuste, la estabilidad y el rendimiento prolongado en lugar de seleccionar solo por pérdida de entrenamiento."
+          "narration": "Echa un toque en la línea de base de la época veinte. Cada fila nombra su modelo, canales, recuento de épocas, plegas y importantes ajustes recuperados para que la selección siga siendo rastreable.",
+          "visual": "04_select_baseline",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.5,
+          "speech_text": "Echa un toque en la línea de base de la época veinte. Cada fila nombra su modelo, canales, recuento de épocas, plegas y importantes ajustes recuperados para que la selección siga siendo rastreable."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, las cifras de comparación y las tablas de diferencia de configuración identifican la carrera reproducible más fuerte.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, las cifras de comparación y las tablas de diferencia de configuración identifican la carrera reproducible más fuerte."
+          "narration": "Seleccione la carrera sintonizada de la época de los 25 como la segunda comparación. Las carreras de diferentes longitudes no se truncan ni abalanzan; cada curva conserva su verdadero eje de época.",
+          "visual": "05_select_tuned",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.54,
+          "speech_text": "Seleccione la carrera sintonizada de la época de los 25 como la segunda comparación. Las carreras de diferentes longitudes no se truncan ni abalanzan; cada curva conserva su verdadero eje de época."
+        },
+        {
+          "narration": "La métrica elige una columna registrada como precisión, pérdida, área de recuperación de precisión o precisión de clase. Los pliegues controlan si la validación cruzada aparece por pliegue, como media más o menos una desviación estándar, o ambas.",
+          "visual": "06_controls",
+          "focus_key": "metrics",
+          "hold_after": 0.62,
+          "speech_text": "La métrica elige una columna registrada como precisión, pérdida, área de recuperación de precisión o precisión de clase. Los pliegues controlan si la validación cruzada aparece por pliegue, como media más o menos una desviación estándar, o ambas."
+        },
+        {
+          "narration": "Haga clic en Superposición seleccionada. Las líneas de diámetro son divisiones de entrenamiento y las líneas sólidas son divisiones de validación; una curva de tren ascendente por encima de una curva de validación decreciente indica un sobreajuste, no un modelo mejor.",
+          "visual": "07_overlay",
+          "focus_key": "overlay",
+          "click_key": "overlay",
+          "hold_after": 0.58,
+          "speech_text": "Haga clic en Superposición seleccionada. Las líneas de diámetro son divisiones de entrenamiento y las líneas sólidas son divisiones de validación; una curva de tren ascendente por encima de una curva de validación decreciente indica un sobreajuste, no un modelo mejor."
+        },
+        {
+          "narration": "La curva de validación sintonizada alcanza aproximadamente el punto cero ocho cinco cinco antes de terminar cerca del punto cero ocho cuatro cinco; la línea de base alcanza los picos cerca del punto cero siete ocho seis y termina cerca del punto cero siete cinco. La tabla vincula esa diferencia al tamaño del lote, las épocas, la tasa de aprendizaje y la fuente, mientras que el número de trabajadores se separa a medida que el entorno deriva.",
+          "visual": "08_accuracy",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "La curva de validación sintonizada alcanza aproximadamente el punto cero ocho cinco cinco antes de terminar cerca del punto cero ocho cuatro cinco; la línea de base alcanza los picos cerca del punto cero siete ocho seis y termina cerca del punto cero siete cinco. La tabla vincula esa diferencia al tamaño del lote, las épocas, la tasa de aprendizaje y la fuente, mientras que el número de trabajadores se separa a medida que el entorno deriva."
+        },
+        {
+          "narration": "Haga clic en una curva para identificar su recorrido y división en lugar de depender solo del color. La serie seleccionada se resuelve de nuevo a su carpeta y mediciones por época.",
+          "visual": "09_pick_curve",
+          "focus_key": "plot",
+          "click_key": "plot",
+          "hold_after": 0.5,
+          "speech_text": "Haga clic en una curva para identificar su recorrido y división en lugar de depender solo del color. La serie seleccionada se resuelve de nuevo a su carpeta y mediciones por época."
+        },
+        {
+          "narration": "La línea de detalle muestra la serie de validación de la línea de base, su rango de época, la última precisión punto cero siete cuatro nueve seis en la época veinte, y la mejor precisión punto cero siete ocho seis en la época quince. El mejor valor se etiqueta optimista porque la misma curva seleccionó esa época.",
+          "visual": "10_best_last",
+          "focus_key": "picked",
+          "hold_after": 0.74,
+          "speech_text": "La línea de detalle muestra la serie de validación de la línea de base, su rango de época, la última precisión punto cero siete cuatro nueve seis en la época veinte, y la mejor precisión punto cero siete ocho seis en la época quince. El mejor valor se etiqueta optimista porque la misma curva seleccionó esa época."
+        },
+        {
+          "narration": "Abre Metric y elige pérdida. Comparar varias métricas evita una selección basada en un endpoint halagador.",
+          "visual": "11_choose_loss",
+          "focus_key": "metric",
+          "click_key": "metric",
+          "hold_after": 0.48,
+          "speech_text": "Abre Metric y elige pérdida. Comparar varias métricas evita una selección basada en un endpoint halagador."
+        },
+        {
+          "narration": "La pérdida utiliza las mismas corrientes y configuraciones diferentes. Aquí la pérdida de entrenamiento continúa hacia abajo mientras que la pérdida de validación se vuelve hacia arriba, haciendo que el sobreajuste tardío sea visible a partir de una segunda medición en lugar de la precisión sola.",
+          "visual": "12_loss",
+          "focus_key": "plot",
+          "hold_after": 0.62,
+          "speech_text": "La pérdida utiliza las mismas corrientes y configuraciones diferentes. Aquí la pérdida de entrenamiento continúa hacia abajo mientras que la pérdida de validación se vuelve hacia arriba, haciendo que el sobreajuste tardío sea visible a partir de una segunda medición en lugar de la precisión sola."
+        },
+        {
+          "narration": "Ahora compara la carrera sintonizada con la carrera triple y elige la media más o menos desviación estándar. Esto resume la validación cruzada sin pretender que su media sea una sola carrera observada.",
+          "visual": "13_choose_fold_mean",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.58,
+          "speech_text": "Ahora compara la carrera sintonizada con la carrera triple y elige la media más o menos desviación estándar. Esto resume la validación cruzada sin pretender que su media sea una sola carrera observada."
+        },
+        {
+          "narration": "La banda azul es más o menos una desviación estándar en tres pliegues. La curva de validación media termina cerca del punto cero ocho tres, mientras que la banda expone la incertidumbre de plegado a plegado que una sola línea ocultaría.",
+          "visual": "14_fold_mean",
+          "focus_key": "plot",
+          "hold_after": 0.66,
+          "speech_text": "La banda azul es más o menos una desviación estándar en tres pliegues. La curva de validación media termina cerca del punto cero ocho tres, mientras que la banda expone la incertidumbre de plegado a plegado que una sola línea ocultaría."
+        },
+        {
+          "narration": "Elige por pliegue cuando el comportamiento individual de los pliegues importe. Esto es especialmente útil para detectar una división inestable o una cola sostenida por menos pliegues después de detenerse temprano.",
+          "visual": "15_choose_per_fold",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.52,
+          "speech_text": "Elige por pliegue cuando el comportamiento individual de los pliegues importe. Esto es especialmente útil para detectar una división inestable o una cola sostenida por menos pliegues después de detenerse temprano."
+        },
+        {
+          "narration": "El modo por plegado dibuja cada tren y serie de validación con correr, dividir y doblar en la leyenda. Utilice el comportamiento de validación, la estabilidad de doblaje, la evaluación prolongada y la auditoría de configuración juntos; Training Runs compara la evidencia pero no declara un ganador científicamente reproducible por sí mismo.",
+          "visual": "16_per_fold",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "El modo por plegado dibuja cada tren y serie de validación con correr, dividir y doblar en la leyenda. Utilice el comportamiento de validación, la estabilidad de doblaje, la evaluación prolongada y la auditoría de configuración juntos; Training Runs compara la evidencia pero no declara un ganador científicamente reproducible por sí mismo."
         }
       ]
     },
