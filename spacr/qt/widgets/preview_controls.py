@@ -401,8 +401,18 @@ class ImageSet:
     key: Tuple[str, str, str]
     #: Folder the files live in.
     directory: str
-    #: ``{channel ID: file name}``, sorted by channel ID.
+    #: ``{channel ID: file name}``, sorted by channel ID. One representative
+    #: file per channel — the first z-plane when the field is a stack.
     channels: Dict[str, str] = _field(default_factory=dict)
+    #: ``{channel ID: [file name, ...]}`` — **every** plane, in acquisition
+    #: order. For flat 2-D data each list holds exactly the one name that is
+    #: also in :attr:`channels`.
+    #:
+    #: This exists because :attr:`channels` maps a channel to a single file,
+    #: so a 21-plane stack used to arrive as one arbitrary plane chosen by
+    #: ``os.scandir`` order, with nothing saying so — the same failure the
+    #: ingest carries a comment about in ``io._rename_and_organize_image_files``.
+    planes: Dict[str, list] = _field(default_factory=dict)
 
     @property
     def label(self) -> str:
@@ -418,6 +428,30 @@ class ImageSet:
         if channel is not None and channel in self.channels:
             return Path(self.directory) / self.channels[channel]
         return Path(self.directory) / names[0]
+
+    def plane_paths(self, channel: Optional[str] = None) -> list:
+        """Every plane of one channel, in acquisition order.
+
+        Falls back to the single :meth:`path` for data that has no planes
+        recorded, so a caller can always iterate this and get something.
+        """
+        if channel is None:
+            channel = next(iter(self.channels), None)
+        names = self.planes.get(channel) if channel is not None else None
+        if not names:
+            return [self.path(channel)] if self.channels else []
+        return [Path(self.directory) / name for name in names]
+
+    @property
+    def z_count(self) -> int:
+        """Planes per channel — 1 for flat data, >1 for a z-stack.
+
+        Reported rather than assumed: the preview says what it found instead
+        of silently collapsing it.
+        """
+        if not self.planes:
+            return 1
+        return max((len(v) for v in self.planes.values()), default=1)
 
 
 @lru_cache(maxsize=1)
@@ -537,12 +571,18 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
                     continue
                 pattern = patterns.get(lowered.rpartition(".")[2])
                 match = pattern.match(name) if pattern is not None else None
+                slice_id = ""
                 if match:
                     groups = match.groupdict()
                     key = (str(groups.get("plateID") or ""),
                            str(groups.get("wellID") or ""),
                            str(groups.get("fieldID") or ""))
                     chan = str(groups.get("chanID") or "")
+                    # sliceID is what separates the planes of a stack. Under
+                    # cellvoyager/cq1 the regex has this group and every plane
+                    # is its own name; under metadata_type='auto' it does not,
+                    # and a field is one file per channel already.
+                    slice_id = str(groups.get("sliceID") or "")
                     channels.add(chan)
                 else:
                     # Not an acquisition name: one set per file, labelled with
@@ -551,14 +591,35 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
                     # ``a.tiff`` stay two entries rather than colliding.
                     key = ("", "", name)
                     chan = ""
-                grouped.setdefault(key, {}).setdefault(chan, name)
+                # Collect every plane rather than keeping the first and
+                # dropping the rest. `setdefault(chan, name)` silently threw
+                # away 20 planes of a 21-plane stack, and which one survived
+                # was decided by directory order.
+                grouped.setdefault(key, {}).setdefault(chan, []).append(
+                    (_plane_sort_key(slice_id), name))
     except (OSError, ValueError):
         return [], []
 
-    sets = [ImageSet(key=key, directory=str(directory),
-                     channels=dict(sorted(chan_map.items())))
-            for key, chan_map in sorted(grouped.items())]
+    sets = []
+    for key, chan_map in sorted(grouped.items()):
+        ordered = {}
+        for chan, entries in sorted(chan_map.items()):
+            # Acquisition order, by sliceID where the regex reports one and
+            # by name otherwise, so plane 2 does not sort between 19 and 20.
+            ordered[chan] = [name for _sort, name in sorted(entries)]
+        sets.append(ImageSet(
+            key=key, directory=str(directory),
+            channels={chan: names[0] for chan, names in ordered.items()},
+            planes=ordered))
     return sets, sorted(c for c in channels if c)
+
+
+def _plane_sort_key(slice_id: str):
+    """Order planes numerically when the slice ID is a number, else by text."""
+    text = (slice_id or "").strip()
+    if text.isdigit():
+        return (0, int(text), "")
+    return (1, 0, text)
 
 
 def sample_seed(directory, total: int, max_sets: int, nonce: int = 0) -> int:
