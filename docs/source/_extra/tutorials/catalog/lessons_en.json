@@ -2156,47 +2156,176 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation maps",
+      "title": "Activation Maps",
       "series": 1,
       "app_key": "activation",
-      "section": "Results and quality control",
-      "description": "Inspect the image regions that most influence a trained computer-vision classifier.",
+      "section": "Results and QC",
+      "description": "Generate attribution maps for a vision classifier and review the controls needed for responsible interpretation.",
       "objectives": [
-        "Understand when to use Activation maps.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Connect a classifier artifact and its matching crop dataset.",
+        "Review attribution, validation, display, quantification, and output categories.",
+        "Run a small interface demonstration and distinguish it from biological interpretation."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "For meaningful results, use a validated spaCR vision model and the same channel order, crop size, normalization, and object type used during training.",
       "scenes": [
         {
-          "narration": "This tutorial covers Activation maps. Inspect the image regions that most influence a trained computer-vision classifier.",
-          "visual": "overview",
+          "narration": "Activation Maps asks what image regions influence a trained vision model's prediction. The console records artifact loading, attribution batches, map grids, progress, output paths, and reproducibility records.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Activation maps. Inspect the image regions that most influence a trained computer-vision classifier."
+          "speech_text": "Activation Maps asks what image regions influence a trained vision model's prediction. The console records artifact loading, attribution batches, map grids, progress, output paths, and reproducibility records."
         },
         {
-          "narration": "Open Activation maps from the Results and quality control section. Select a trained vision model and representative object crops from classes of interest.",
-          "visual": "input",
+          "narration": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Activation maps from the Results and quality control section. Select a trained vision model and representative object crops from classes of interest."
+          "speech_text": "The chat field accepts local commands or workflow questions. Enable A I for a configured provider, and use the adjacent arrow to choose a provider or open its controls."
         },
         {
-          "narration": "In the main configuration area, choose the attribution method, target layer, target class, channels, normalization, and sampling.",
-          "visual": "settings",
+          "narration": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows install and login commands while keeping authentication with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose the attribution method, target layer, target class, channels, normalization, and sampling."
+          "speech_text": "Providers checks the Claude, Chat G P T, and Gemini command line clients and shows install and login commands while keeping authentication with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare maps across correct, incorrect, high-confidence, and low-confidence examples.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare maps across correct, incorrect, high-confidence, and low-confidence examples."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system instructions."
         },
         {
-          "narration": "When the workflow finishes, activation overlays and attribution measurements help assess whether the model learned biologically plausible cues.",
-          "visual": "output",
+          "narration": "This tutorial runs eight real cell crops through a deterministic but untrained ResNet demonstration artifact. It proves the interface and file flow only; its maps must not be interpreted as learned biology.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "This tutorial runs eight real cell crops through a deterministic but untrained Res Net demonstration artifact. It proves the interface and file flow only; its maps must not be interpreted as learned biology."
+        },
+        {
+          "narration": "Essentials shows the crop archive, model artifact, architecture, input size, attribution method, target layer, overlay, and saving choices required for a run.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the crop archive, model artifact, architecture, input size, attribution method, target layer, overlay, and saving choices required for a run."
+        },
+        {
+          "narration": "Modified limits the panel to intentional changes such as ResNet eighteen, image saliency, a four-image batch, deterministic ordering, plotting, and disabled database writes.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to intentional changes such as Res Net eighteen, image saliency, a four image batch, deterministic ordering, plotting, and disabled database writes."
+        },
+        {
+          "narration": "All settings reveals six categories: model and data, attribution method, validation, display, quantification, and output runtime.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals six categories: model and data, attribution method, validation, display, quantification, and output runtime."
+        },
+        {
+          "narration": "Recipes saves the complete Activation Maps configuration, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete Activation Maps configuration, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved settings and sends the attribution job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved settings and sends the attribution job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps model, dataset, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps model, dataset, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run."
+        },
+        {
+          "narration": "Model and Data selects the crop TAR archive, trained model artifact, matching architecture, input size, object type, and channel order. A mismatch here invalidates every map.",
+          "visual": "12_category_01_model_data",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Model and Data selects the crop tar archive, trained model artifact, matching architecture, input size, object type, and channel order. A mismatch here invalidates every map."
+        },
+        {
+          "narration": "Attribution Method chooses Grad-CAM, saliency, integrated gradients, occlusion, or another registered method, plus its target layer and method-specific sampling parameters.",
+          "visual": "12_category_02_attribution_method",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Attribution Method chooses Grad Cam, saliency, integrated gradients, occlusion, or another registered method, plus its target layer and method specific sampling parameters."
+        },
+        {
+          "narration": "Attribution Validation controls deletion and insertion steps, baseline construction, and model-randomization sanity checks. A map that survives randomized weights may only be an edge detector.",
+          "visual": "12_category_03_attribution_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Attribution Validation controls deletion and insertion steps, baseline construction, and model randomization sanity checks. A map that survives randomized weights may only be an edge detector."
+        },
+        {
+          "narration": "Map Display controls percentile contrast, training-matched input normalization, source-image overlays, and batch-grid plots. Display changes do not create evidence of model validity.",
+          "visual": "12_category_04_map_display",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Map Display controls percentile contrast, training matched input normalization, source image overlays, and batch grid plots. Display changes do not create evidence of model validity."
+        },
+        {
+          "narration": "Map Quantification can correlate each input channel with the attribution map using Pearson and Manders statistics. Enable saving when those values should be written to the project database.",
+          "visual": "12_category_05_map_quantification",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Map Quantification can correlate each input channel with the attribution map using Pearson and Manders statistics. Enable saving when those values should be written to the project database."
+        },
+        {
+          "narration": "Output and Runtime controls map saving, deterministic or shuffled order, batch size, and loader workers. Lower the batch size when accelerator memory is limited.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Runtime controls map saving, deterministic or shuffled order, batch size, and loader workers. Lower the batch size when accelerator memory is limited."
+        },
+        {
+          "narration": "This interface demonstration selects image saliency, which needs no target layer. Grad-CAM methods require a compatible convolutional layer; integrated gradients and occlusion use their own step, baseline, window, and stride controls.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "This interface demonstration selects image saliency, which needs no target layer. Grad Cam methods require a compatible convolutional layer; integrated gradients and occlusion use their own step, baseline, window, and stride controls."
+        },
+        {
+          "narration": "Run validates the dataset and model artifact, recreates training-compatible preprocessing, computes predictions and attribution maps in batches, renders requested grids, and records the run. Stop requests a safe interruption.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run validates the dataset and model artifact, recreates training compatible preprocessing, computes predictions and attribution maps in batches, renders requested grids, and records the run. Stop requests a safe interruption."
+        },
+        {
+          "narration": "During processing, the console reports batch-grid paths, images completed, time per batch, time per image, and estimated time remaining.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During processing, the console reports batch grid paths, images completed, time per batch, time per image, and estimated time remaining."
+        },
+        {
+          "narration": "The completed demonstration produced two real saliency-overlay grid PDFs and a successful reproducibility record. Replace the untrained artifact with a validated classifier before drawing any biological conclusion from these outputs.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, activation overlays and attribution measurements help assess whether the model learned biologically plausible cues."
+          "speech_text": "The completed demonstration produced two real saliency overlay grid P D F files and a successful reproducibility record. Replace the untrained artifact with a validated classifier before drawing any biological conclusion from these outputs."
         }
       ]
     },
