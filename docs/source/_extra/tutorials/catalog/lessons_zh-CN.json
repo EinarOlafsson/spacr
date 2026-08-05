@@ -2141,47 +2141,176 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation maps",
+      "title": "激活地图",
       "series": 1,
       "app_key": "activation",
-      "section": "Results and quality control",
-      "description": "检查最影响训练有素的计算机视觉分类器的图像区域.",
+      "section": "Results and QC",
+      "description": "为视觉分类器生成属性地图,并审查负责解释所需的控制.",
       "objectives": [
-        "了解何时使用激活地图.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "连接一个分类器文物及其相匹配的作物数据集.",
+        "审查属性,验证,显示,量化和输出类别.",
+        "运行一个小的界面演示,并将其与生物解释区分开来."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "为了获得有意义的结果,使用验证的spaCR视觉模型和训练中使用的相同的道顺序,作物大小,正常化和物体类型.",
       "scenes": [
         {
-          "narration": "检查最影响计算机视觉分类器的图像区域.",
-          "visual": "overview",
+          "narration": "激活地图询问了训练有素的视觉模型预测的影响的图像区域. 控制台记录文物加载,属性批量,地图网格,进步,输出路径和可复制性记录.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "检查最影响计算机视觉分类器的图像区域."
+          "speech_text": "激活地图询问了训练有素的视觉模型预测的影响的图像区域. 控制台记录文物加载,属性批量,地图网格,进步,输出路径和可复制性记录."
         },
         {
-          "narration": "从 Results and quality control 部分打开 Activation maps。 从有趣类中选择训练有素的视觉模型和代表对象作物.",
-          "visual": "input",
+          "narration": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Results and quality control 部分打开 Activation maps。 从有趣类中选择训练有素的视觉模型和代表对象作物."
+          "speech_text": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制."
         },
         {
-          "narration": "在主要配置区域中,选择归属方法,目标层,目标类,道,正常化和样本取.",
-          "visual": "settings",
+          "narration": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了安装和登录命令,同时与每个供应商保持身份验证.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择归属方法,目标层,目标类,道,正常化和样本取."
+          "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了安装和登录命令,同时与每个供应商保持身份验证."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用."
+          "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明."
         },
         {
-          "narration": "工作流程完成后,激活覆盖和归因测量有助于评估模型是否学到了可靠的生物线索.",
-          "visual": "output",
+          "narration": "这本教程通过一个决定性但未经训练的ResNet示范文物运行了八种真正的细胞作物. 它只证明了接口和文件流程; 它的地图不能被解释为学到的生物学.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "这本教程通过一个决定性但未经训练的ResNet示范文物运行了八种真正的细胞作物. 它只证明了接口和文件流程; 它的地图不能被解释为学到的生物学."
+        },
+        {
+          "narration": "基本文件显示作物档案,模型文物,架构,输入大小,归因方法,目标层,叠加和保存选项.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本文件显示作物档案,模型文物,架构,输入大小,归因方法,目标层,叠加和保存选项."
+        },
+        {
+          "narration": "修改限制了面板的故意变化,如ResNet十八,图像突出性,四个图像批量,确定性排序,绘图和禁用数据库写.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制了面板的故意变化,如ResNet十八,图像突出性,四个图像批量,确定性排序,绘图和禁用数据库写."
+        },
+        {
+          "narration": "所有设置都显示了六个类别:模型和数据,归因方法,验证,显示,量化和输出运行时间.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示了六个类别:模型和数据,归因方法,验证,显示,量化和输出运行时间."
+        },
+        {
+          "narration": "配方保存完整的激活地图配置,以后重新应用,或者进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方保存完整的激活地图配置,以后重新应用,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的设置的远程快照,并将属性工作发送到分布式工作工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的设置的远程快照,并将属性工作发送到分布式工作工作工作空间."
+        },
+        {
+          "narration": "分布式Jobs将模型,数据集和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式Jobs将模型,数据集和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行."
+        },
+        {
+          "narration": "模型和数据选择作物TAR档案,训练有素的模型文物,匹配的架构,输入大小,对象类型和频道顺序. 这里的不匹配使每个地图都无效.",
+          "visual": "12_category_01_model_data",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "模型和数据选择作物TAR档案,训练有素的模型文物,匹配的架构,输入大小,对象类型和频道顺序. 这里的不匹配使每个地图都无效."
+        },
+        {
+          "narration": "属性方法选择Grad-CAM,突出度,集成梯度,封闭或其他注册方法,加上其目标层和方法特定的样本采集参数.",
+          "visual": "12_category_02_attribution_method",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "属性方法选择Grad-CAM,突出度,集成梯度,封闭或其他注册方法,加上其目标层和方法特定的样本采集参数."
+        },
+        {
+          "narration": "属性验证控制删除和插入步骤,基线构建和模型随机化智力检查. 幸存于随机重量的地图可能只是一个边缘探测器.",
+          "visual": "12_category_03_attribution_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "属性验证控制删除和插入步骤,基线构建和模型随机化智力检查. 幸存于随机重量的地图可能只是一个边缘探测器."
+        },
+        {
+          "narration": "地图显示控制百分比对比,训练匹配的输入正常化,源图像叠加和批量电网图片. 显示器的变化不会产生模型有效性的证据.",
+          "visual": "12_category_04_map_display",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "地图显示控制百分比对比,训练匹配的输入正常化,源图像叠加和批量电网图片. 显示器的变化不会产生模型有效性的证据."
+        },
+        {
+          "narration": "使用皮尔森和曼德尔统计数据,地图量化可以将每个输入频道与属性地图相关联. 允许在项目数据库中写这些值时保存.",
+          "visual": "12_category_05_map_quantification",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "使用皮尔森和曼德尔统计数据,地图量化可以将每个输入频道与属性地图相关联. 允许在项目数据库中写这些值时保存."
+        },
+        {
+          "narration": "输出和运行时间控制地图存储,确定性或混的顺序,批量大小和载荷员工. 当加速器内存有限时,降低批量大小.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和运行时间控制地图存储,确定性或混的顺序,批量大小和载荷员工. 当加速器内存有限时,降低批量大小."
+        },
+        {
+          "narration": "这种界面演示选择图像突出性,它不需要目标层. Grad-CAM方法需要一个兼容的卷积层;集成的梯度和遮蔽使用自己的步骤,基线,窗口和步骤控制.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "这种界面演示选择图像突出性,它不需要目标层. Grad-CAM方法需要一个兼容的卷积层;集成的梯度和遮蔽使用自己的步骤,基线,窗口和步骤控制."
+        },
+        {
+          "narration": "运行验证数据集和模型文物,重建与训练兼容的预处理,按批量计算预测和归属地图,呈现请求的网格,记录运行. 停止请求安全的中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行验证数据集和模型文物,重建与训练兼容的预处理,按批量计算预测和归属地图,呈现请求的网格,记录运行. 停止请求安全的中断."
+        },
+        {
+          "narration": "在处理过程中,控制台报告了批量网路径,完成的图像,每批次时间,每次图像时间和预计剩余时间.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在处理过程中,控制台报告了批量网路径,完成的图像,每批次时间,每次图像时间和预计剩余时间."
+        },
+        {
+          "narration": "完成的示范产生了两个真正的突出层格式PDF文件和一个成功的可复制性记录. 在从这些输出中得出任何生物结论之前,用验证的分类器取代未经训练的文物.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,激活覆盖和归因测量有助于评估模型是否学到了可靠的生物线索."
+          "speech_text": "完成的示范产生了两个真正的突出层格式PDF文件和一个成功的可复制性记录. 在从这些输出中得出任何生物结论之前,用验证的分类器取代未经训练的文物."
         }
       ]
     },

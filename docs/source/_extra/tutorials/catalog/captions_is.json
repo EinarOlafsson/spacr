@@ -832,19 +832,67 @@
       "id": "16_activation",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um virkni kort. Skoðaðu myndasvæði sem hafa mest áhrif á þjálfaðan tölvuþjónustur."
+          "narration": "Virkjunarkortið spyr hvaða myndasvæði hafa áhrif á spá þjálfaðs sýnisherfis. Konsóllinn skráir upptökur um upptökur, tilnefningarflokka, kortagríður, framfarir, útgáfu leiðir og endurskráningar."
         },
         {
-          "narration": "Opnaðu virkjunarmið úr kafla Niðurstöður og gæðaeftirlit. Veldu þjálfaðan sjónmynd og fyrirmyndandi hlutföll úr áhugaflokkum."
+          "narration": "Spjall sviðið samþykkir staðbundnar skipanir eða vinnuflómsspurnir. Gæta AI fyrir stillta þjónustuaðila og nota nágrenna piltinn til að velja þjónustuaðila eða opna stjórnina."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skaltu velja tilheyrslumaðferð, markmiðsslag, markmiðflokkur, leiðir, normalisering og sýnatöku."
+          "narration": "Greiðsluaðila athuga Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir og sýnir uppsetningu og innritun skipunir en halda staðfestingu með hverjum birgjum."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður kort á milli réttra, rangra, mjög áreiðanlegra og lág áreiðanlegra dæmi."
+          "narration": "AI stillingar stjórnar svörun dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun og spaCR-vitandi kerfis leiðbeiningar."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið hjálpa virkjunarskipti og tilvísunarmælingar til að meta hvort líkan lærði líffræðilegar vísbendingar."
+          "narration": "Þessi námskeið keyrir átta alvöru frumur í gegnum ákveðna en óþjálfaða ResNet sýningarefni. Það sýnir aðeins tengsl og skrá flæði; kort hennar má ekki túlka sem lært líffræði."
+        },
+        {
+          "narration": "Essentials sýnir ávöxtunarskjalastöðina, myndefnið, arkitektúruna, inngangstærð, viðeigubrögð, markmiðsslag, yfirlag og spariskipti sem krafist er fyrir rekstri."
+        },
+        {
+          "narration": "Breytt takmarkar greininni til ásettu breytinga eins og ResNet tólf, myndatriði, fjögurra-mynd flokk, skilyrði röð, plotting og slökkt gagnagrunn skrifar."
+        },
+        {
+          "narration": "Öll stillingar sýna sex flokka: módel og gögn, tilvísunarhátt, staðfesting, sýning, kvantíf og útgáfu hlauptíma."
+        },
+        {
+          "narration": "Recipes geymir alla uppsetningu virkjunarkorta, beitir henni aftur síðar eða flytur inn og sendir út endurteknar stillingar skrá."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndir af losnuðu stillingum og sendir tilnefningarstarfið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Dreifð Jobs kortlagir fyrirmynd, gagnaset og útgáfu leiðir til fjarstæðrar vinnustaðar, Slurm-hópur, eða skipulagt skipun, og sendir síðan inn og fylgist með sama rekstri."
+        },
+        {
+          "narration": "Modell og gögn velur úrræði TAR skrá, þjálfað módel artefakt, samsvarandi arkitektúr, inngangur stærð, hlutartíp, og kanal röð. Misjöfnun hér gerir hvern kortinn ógildan."
+        },
+        {
+          "narration": "Tilheyrslumaðferð velur Grad-CAM, framúrskarandi, samþættum grádíentum, okklússun eða aðra skráða aðferð, auk markmiðsslagsins og aðferðafræðilegra sýnatöflunarviðmiðanna."
+        },
+        {
+          "narration": "Tilgjaldið Greiðslur stjórnar fjarlægingar- og innsetningarskrefum, uppbyggingu grunnlínunnar og hugmyndafræðilegum skoðunum í tilviljun. Kortið sem lifir eftir tilviljunar þyngd getur bara verið kantspennandi."
+        },
+        {
+          "narration": "Map Display stjórnar hlutfallskjöldi, æfingar samræmda innleiðingar eðlileggun, uppspretta-mynd yfirlagningar og batch-grid plots. Breytingar á sýningunni skapa ekki sönnunargögn um gildistöku fyrirmyndarinnar."
+        },
+        {
+          "narration": "Karta kvantífikun getur tengt hvern innleiðslukana með tilheyrslukartanum með því að nota tölfræði Pearson og Manders. Að leyfa að vista þegar þessi gildi ætti að vera skrifað í gagnagrunn verkefnisins."
+        },
+        {
+          "narration": "Útgangur og hlauptími stjórnar kortspara, skilyrðilega eða blandaða röð, flokksstærð og hlaðaraðgerðum. Lækka stækkunarstærð þegar hraðabúnaður er takmarkaður."
+        },
+        {
+          "narration": "Þessi sýning á viðfangsefnum velur framúrskarandi mynd, sem þarf ekki marklag. Grad-CAM aðferðir krefjast sambærilegs snúningslagsins; samþættir hækkanir og lokun nota sína eigin stiga, grundvöll, glugga og stiga stjórnun."
+        },
+        {
+          "narration": "Run staðfestir gagnaset og módel artefakt, endurskapa þjálfun sambærilegt fyrirvinnslu, reiknar spár og tilheyrslukort í hópum, renders krafist net, og skráir hlaupið. Hættu fyrirspurnum um öruggan truflun."
+        },
+        {
+          "narration": "Við vinnslu skilar konsólinn upplýsingum um braut-grid leiðir, myndir sem lokið eru, tíma fyrir hvern flokk, tíma fyrir hvern mynd og áætlaða tíma sem eftir er."
+        },
+        {
+          "narration": "Fullkominn sýning leiddi til tveggja raunverulegra PDF-mynd og árangursríka endurnýjanleika. Skiptaðu óþjálfaðri handverkinu út með staðfestri flokkunargerð áður en hægt er að draga einhverjar lífrænar niðurstöður úr þessum útgáfum."
         }
       ]
     },

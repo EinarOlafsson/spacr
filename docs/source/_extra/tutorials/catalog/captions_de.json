@@ -832,19 +832,67 @@
       "id": "16_activation",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Aktivierungskarten. Überprüfen Sie die Bildregionen, die einen ausgebildeten Computer-Vision-Klassifikator am meisten beeinflussen."
+          "narration": "Aktivationskarten fragen, welche Bildregionen die Vorhersage eines ausgebildeten Sehmodells beeinflussen. Die Konsole erfasst das Laden von Artefakten, Attributionspartien, Kartengitter, Fortschritt, Ausgangswege und Wiedergabearten."
         },
         {
-          "narration": "Öffnen Sie Aktivierungskarten aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ein ausgebildetes Vision-Modell und repräsentative Objektpflanzen aus Interessenklassen aus."
+          "narration": "Das Chatfeld akzeptiert lokale Befehle oder Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter zu wählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich die Attributionsmethode, die Ziel-Schicht, die Zielklasse, die Kanäle, die Normalisierung und die Probenahme aus."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen Installations- und Login-Befehlen an, während die Authentifizierung bei jedem Anbieter aufrechterhalten wird."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Karten mit richtigen, falschen, hoch vertrauenswürdigen und niedrig vertrauenswürdigen Beispielen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, helfen Aktivierungsüberlagerungen und Attributionsmessungen zu beurteilen, ob das Modell biologisch plausible Hinweise gelernt hat."
+          "narration": "Dieses Tutorial führt acht echte Zellpflanzen durch ein deterministisches, aber ungeschultes Demonstrationsartefakt von ResNet. Es beweist nur die Schnittstelle und den Dateifluss; seine Karten dürfen nicht als gelernte Biologie interpretiert werden."
+        },
+        {
+          "narration": "Essentials zeigt das Pflanzenarchiv, Modellartefakt, Architektur, Eingabegröße, Attributionsmethode, Zielschicht, Überlagerung und Speicheroptionen an, die für einen Lauf erforderlich sind."
+        },
+        {
+          "narration": "Modified begrenzt das Panel auf absichtliche Änderungen wie ResNet achtzehn, Bild-Ausstrahlung, eine Vier-Bild-Batch, deterministische Reihenfolge, Planung und deaktivierte Datenbank schreibt."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen sechs Kategorien: Modell und Daten, Attributionsmethode, Validierung, Anzeige, Quantifizierung und Ausgangslaufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Aktivierungskartenkonfiguration, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Einstellungen und senden Sie den Attributionsjob in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartiert Modell, Datensatz und Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Ausgang."
+        },
+        {
+          "narration": "Modell und Daten wählen das TAR-Archiv der Ernte, geschultes Modellartefakt, passende Architektur, Eingabegröße, Objekttyp und Kanalordnung aus. Ein Missverhältnis hier macht jede Karte ungültig."
+        },
+        {
+          "narration": "Die Attributionsmethode wählt Grad-CAM, Ausstrahlung, integrierte Gradienten, Occlusion oder eine andere registrierte Methode sowie die Ziel-Schicht und die methodenspezifischen Probenahmeparameter aus."
+        },
+        {
+          "narration": "Attribution Validation steuert Lösch- und Einfügungsschritte, Basiskonstruktion und Modell-Randomisierungsgesundheitskontrollen. Eine Karte, die randomisierte Gewichte überlebt, kann nur ein Randdetektor sein."
+        },
+        {
+          "narration": "Map Display steuert Perzentile-Kontrast, Training-matched-Input-Normalisierung, Quelle-Bild-Overlays und Batch-Grid-Plots. Änderungen an der Anzeige geben keinen Beweis für die Gültigkeit des Modells."
+        },
+        {
+          "narration": "Die Kartenquantifizierung kann jeden Eingangskanal mit der Attributionskarte mithilfe von Pearson- und Manders-Statistiken korrelieren. Ermöglicht die Speicherung, wenn diese Werte in die Projektdatenbank geschrieben werden sollten."
+        },
+        {
+          "narration": "Output und Runtime steuern die Kartenspeicherung, die deterministische oder gemischte Reihenfolge, die Batchgröße und die Laderarbeiter. Verringern Sie die Batchgröße, wenn der Beschleunigungsspeicher begrenzt ist."
+        },
+        {
+          "narration": "Diese Schnittstellen-Demonstration wählt die Bild-Ausstrahlung aus, die keine Zielschicht benötigt. Grad-CAM-Methoden erfordern eine kompatible Konvolutionsschicht; integrierte Gradienten und Okklusion verwenden ihre eigenen Schritt-, Basis-, Fenster- und Schrittsteuerungen."
+        },
+        {
+          "narration": "Run validiert den Datensatz und das Modell-Artefact, erstellt eine training-kompatible Vorverarbeitung, berechnet Vorhersagen und Attributionskarten in Chargen, rendert die angeforderten Grids und registriert den Lauf. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung berichtet die Konsole von Batch-Grid-Pfaden, abgeschlossenen Bildern, Zeit pro Batch, Zeit pro Bild und geschätzte Restzeit."
+        },
+        {
+          "narration": "Die abgeschlossene Demonstration erzeugte zwei wirkliche PDF-PDF-Dateien mit Schwerpunktüberlagerung und eine erfolgreiche Reproduzierbarkeit. Ersetzen Sie das nicht ausgebildete Artefakt durch einen validierten Klassifikator, bevor Sie aus diesen Ergebnissen biologische Schlussfolgerungen ziehen."
         }
       ]
     },

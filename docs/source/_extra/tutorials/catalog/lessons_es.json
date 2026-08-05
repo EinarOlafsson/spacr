@@ -2141,47 +2141,176 @@
       "id": "16_activation",
       "number": 16,
       "slug": "activation",
-      "title": "Activation maps",
+      "title": "Mapas de activación",
       "series": 1,
       "app_key": "activation",
-      "section": "Results and quality control",
-      "description": "Inspeccione las regiones de imagen que más influyen en un clasificador de visión por ordenador entrenado.",
+      "section": "Results and QC",
+      "description": "Generar mapas de atribución para un clasificador de visión y revisar los controles necesarios para una interpretación responsable.",
       "objectives": [
-        "Comprender cuándo utilizar los mapas de activación.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Conecte un artefacto clasificador y su conjunto de datos de cultivos correspondientes.",
+        "Revisar las categorías de atribución, validación, visualización, cuantificación y salida.",
+        "Realice una pequeña demostración de interfaz y distinguela de la interpretación biológica."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Para obtener resultados significativos, utilice un modelo de visión validado de spaCR y el mismo orden de canal, tamaño de cultivo, normalización y tipo de objeto utilizados durante el entrenamiento.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre mapas de activación. Inspeccione las regiones de imagen que más influyen en un clasificador de visión por ordenador entrenado.",
-          "visual": "overview",
+          "narration": "Activation Maps pregunta qué regiones de imagen influyen en la predicción de un modelo de visión entrenado. La consola registra la carga de artefactos, los lotes de atribución, las redes de mapas, el progreso, las vías de salida y los registros de reproducibilidad.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre mapas de activación. Inspeccione las regiones de imagen que más influyen en un clasificador de visión por ordenador entrenado."
+          "speech_text": "Activation Maps pregunta qué regiones de imagen influyen en la predicción de un modelo de visión entrenado. La consola registra la carga de artefactos, los lotes de atribución, las redes de mapas, el progreso, las vías de salida y los registros de reproducibilidad."
         },
         {
-          "narration": "Abra Activation maps en la sección Results and quality control. Abre mapas de activación en la sección Resultados y control de calidad. Seleccione un modelo de visión entrenado y cultivos de objetos representativos de las clases de interés.",
-          "visual": "input",
+          "narration": "El campo de chat acepta comandos locales o preguntas de flujo de trabajo. Habilitar la IA para un proveedor configurado, y usar la flecha adyacente para elegir un proveedor o abrir sus controles.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Activation maps en la sección Results and quality control. Abre mapas de activación en la sección Resultados y control de calidad. Seleccione un modelo de visión entrenado y cultivos de objetos representativos de las clases de interés."
+          "speech_text": "El campo de chat acepta comandos locales o preguntas de flujo de trabajo. Habilitar la IA para un proveedor configurado, y usar la flecha adyacente para elegir un proveedor o abrir sus controles."
         },
         {
-          "narration": "En el área de configuración principal, elija el método de atribución, capa objetivo, clase objetivo, canales, normalización y muestreo.",
-          "visual": "settings",
+          "narration": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran los comandos de instalación y inicio de sesión mientras mantienen la autenticación con cada proveedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, elija el método de atribución, capa objetivo, clase objetivo, canales, normalización y muestreo."
+          "speech_text": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran los comandos de instalación y inicio de sesión mientras mantienen la autenticación con cada proveedor."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible. Compara mapas entre ejemplos correctos, incorrectos, de alta confianza y de baja confianza.",
-          "visual": "run",
+          "narration": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o prueba cuando esté disponible. Compara mapas entre ejemplos correctos, incorrectos, de alta confianza y de baja confianza."
+          "speech_text": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de espáquer."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, las superposiciones de activación y las mediciones de atribución ayudan a evaluar si el modelo aprendió señales biológicamente plausibles.",
-          "visual": "output",
+          "narration": "Este tutorial ejecuta ocho cultivos de células reales a través de un determinista pero no entrenado artefacto de demostración ResNet. Solo demuestra la interfaz y el flujo de archivos; sus mapas no deben interpretarse como biología aprendida.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial ejecuta ocho cultivos de células reales a través de un determinista pero no entrenado artefacto de demostración ResNet. Solo demuestra la interfaz y el flujo de archivos; sus mapas no deben interpretarse como biología aprendida."
+        },
+        {
+          "narration": "Los elementos esenciales muestran el archivo de cultivos, el artefacto modelo, la arquitectura, el tamaño de entrada, el método de atribución, la capa objetivo, la superposición y las opciones de almacenamiento necesarias para una ejecución.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Los elementos esenciales muestran el archivo de cultivos, el artefacto modelo, la arquitectura, el tamaño de entrada, el método de atribución, la capa objetivo, la superposición y las opciones de almacenamiento necesarias para una ejecución."
+        },
+        {
+          "narration": "Modificado limita el panel a cambios intencionales como ResNet dieciocho, saliencia de imagen, un lote de cuatro imágenes, orden determinista, trazado y escritos de base de datos desactivados.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado limita el panel a cambios intencionales como ResNet dieciocho, saliencia de imagen, un lote de cuatro imágenes, orden determinista, trazado y escritos de base de datos desactivados."
+        },
+        {
+          "narration": "Todas las configuraciones revelan seis categorías: modelo y datos, método de atribución, validación, visualización, cuantificación y tiempo de ejecución de salida.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas las configuraciones revelan seis categorías: modelo y datos, método de atribución, validación, visualización, cuantificación y tiempo de ejecución de salida."
+        },
+        {
+          "narration": "Recetas guarda la configuración completa de Activation Maps, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recetas guarda la configuración completa de Activation Maps, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable."
+        },
+        {
+          "narration": "Envía instantáneas remotas de las configuraciones resueltas y envía el trabajo de atribución al espacio de trabajo de Trabajos Distribuidos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envía instantáneas remotas de las configuraciones resueltas y envía el trabajo de atribución al espacio de trabajo de Trabajos Distribuidos."
+        },
+        {
+          "narration": "Los trabajos distribuidos mapean el modelo, el conjunto de datos y las vías de salida a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envían y monitorean la misma ejecución.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Los trabajos distribuidos mapean el modelo, el conjunto de datos y las vías de salida a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envían y monitorean la misma ejecución."
+        },
+        {
+          "narration": "Modelo y Datos selecciona el archivo TAR de cultivo, el artefacto de modelo entrenado, la arquitectura correspondiente, el tamaño de entrada, el tipo de objeto y el orden del canal. Un desajuste aquí invalida todos los mapas.",
+          "visual": "12_category_01_model_data",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Modelo y Datos selecciona el archivo TAR de cultivo, el artefacto de modelo entrenado, la arquitectura correspondiente, el tamaño de entrada, el tipo de objeto y el orden del canal. Un desajuste aquí invalida todos los mapas."
+        },
+        {
+          "narration": "El método de atribución elige Grad-CAM, saliencia, gradientes integrados, oclusión u otro método registrado, más su capa objetivo y parámetros de muestreo específicos del método.",
+          "visual": "12_category_02_attribution_method",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "El método de atribución elige Grad-CAM, saliencia, gradientes integrados, oclusión u otro método registrado, más su capa objetivo y parámetros de muestreo específicos del método."
+        },
+        {
+          "narration": "La validación de atribución controla los pasos de eliminación e inserción, la construcción de la línea de base y los controles de cordura de la aleatorización del modelo. Un mapa que sobrevive a pesos aleatorios sólo puede ser un detector de borde.",
+          "visual": "12_category_03_attribution_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La validación de atribución controla los pasos de eliminación e inserción, la construcción de la línea de base y los controles de cordura de la aleatorización del modelo. Un mapa que sobrevive a pesos aleatorios sólo puede ser un detector de borde."
+        },
+        {
+          "narration": "Map Display controla el contraste percentil, la normalización de entradas combinadas con el entrenamiento, las superposiciones de la imagen fuente y las parcelaciones de la red de lote. Los cambios en la pantalla no crean evidencia de la validez del modelo.",
+          "visual": "12_category_04_map_display",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Map Display controla el contraste percentil, la normalización de entradas combinadas con el entrenamiento, las superposiciones de la imagen fuente y las parcelaciones de la red de lote. Los cambios en la pantalla no crean evidencia de la validez del modelo."
+        },
+        {
+          "narration": "La cuantificación de mapas puede correlacionar cada canal de entrada con el mapa de atribución utilizando estadísticas de Pearson y Manders. Habilitar el almacenamiento cuando dichos valores deben escribirse en la base de datos del proyecto.",
+          "visual": "12_category_05_map_quantification",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La cuantificación de mapas puede correlacionar cada canal de entrada con el mapa de atribución utilizando estadísticas de Pearson y Manders. Habilitar el almacenamiento cuando dichos valores deben escribirse en la base de datos del proyecto."
+        },
+        {
+          "narration": "La salida y el tiempo de ejecución controlan el ahorro de mapas, el orden determinista o mezclado, el tamaño del lote y los trabajadores del cargador. Reducir el tamaño del lote cuando la memoria del acelerador es limitada.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La salida y el tiempo de ejecución controlan el ahorro de mapas, el orden determinista o mezclado, el tamaño del lote y los trabajadores del cargador. Reducir el tamaño del lote cuando la memoria del acelerador es limitada."
+        },
+        {
+          "narration": "Esta demostración de interfaz selecciona la saliencia de la imagen, que no necesita capas objetivo. Los métodos Grad-CAM requieren una capa convolucional compatible; los gradientes integrados y la oclusión utilizan sus propios controles de paso, línea de base, ventana y paso.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Esta demostración de interfaz selecciona la saliencia de la imagen, que no necesita capas objetivo. Los métodos Grad-CAM requieren una capa convolucional compatible; los gradientes integrados y la oclusión utilizan sus propios controles de paso, línea de base, ventana y paso."
+        },
+        {
+          "narration": "Run valida el conjunto de datos y el artefacto del modelo, recrea el preprocesamiento compatible con el entrenamiento, calcula predicciones y mapas de atribución en lotes, renderiza las redes solicitadas y registra la ejecución. Pide una interrupción segura.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valida el conjunto de datos y el artefacto del modelo, recrea el preprocesamiento compatible con el entrenamiento, calcula predicciones y mapas de atribución en lotes, renderiza las redes solicitadas y registra la ejecución. Pide una interrupción segura."
+        },
+        {
+          "narration": "Durante el procesamiento, la consola informa las rutas de la red de lote, las imágenes completadas, el tiempo por lote, el tiempo por imagen y el tiempo estimado restante.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante el procesamiento, la consola informa las rutas de la red de lote, las imágenes completadas, el tiempo por lote, el tiempo por imagen y el tiempo estimado restante."
+        },
+        {
+          "narration": "La demostración completada produjo dos archivos PDF reales de red de superposición de saliencia y un registro de reproducibilidad exitoso. Reemplazar el artefacto no entrenado con un clasificador validado antes de sacar conclusiones biológicas de estas salidas.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, las superposiciones de activación y las mediciones de atribución ayudan a evaluar si el modelo aprendió señales biológicamente plausibles."
+          "speech_text": "La demostración completada produjo dos archivos PDF reales de red de superposición de saliencia y un registro de reproducibilidad exitoso. Reemplazar el artefacto no entrenado con un clasificador validado antes de sacar conclusiones biológicas de estas salidas."
         }
       ]
     },
