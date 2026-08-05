@@ -30,30 +30,30 @@ window.SPACR_YOUTUBE_LINKS = Object.freeze({
   "12_map_barcodes": "yEb2HrNIKEc",               // Map Barcodes
   "13_regression": "Emj9jQA0Tnc",                 // Regression
   "14_make_masks": "VZBgGTgPk0M",                 // Make Masks
-  "15_image_umap": "",                 // Image UMAP
-  "16_activation": "",                 // Activation Maps
-  "17_timelapse": "",                  // Timelapse
-  "18_motility": "",                   // Motility Assay
-  "19_train_cellpose": "",             // Train Cellpose
-  "20_cellpose_masks": "",             // Cellpose Masks
-  "21_model_compare": "",              // Model Compare
-  "22_model_zoo": "",                  // Model Zoo
-  "23_agreement": "",                  // Annotator Agreement
-  "24_plaque": "",                     // Plaque Assay
-  "25_recruitment": "",                // Recruitment
-  "26_invasion": "",                   // Invasion Assay
-  "27_replication": "",                // Replication Assay
-  "28_training_runs": "",              // Training Runs
-  "29_report": "",                     // Report
-  "30_plate_queue": "",                // Plate Queue
-  "31_external_masks": "",             // External Masks
-  "32_align_stitch": "",               // Align and Stitch
-  "33_plate_viewer": "",               // Plate Viewer
-  "34_database": "",                   // Database Browser
-  "35_converter": "",                  // Format Converter
-  "36_import": "",                     // Import Project
+  "15_image_umap": "h909hIIPass",                 // Image UMAP
+  "16_activation": "vDBqzRsUZvM",                 // Activation Maps
+  "17_timelapse": "Cw8S8-co3a0",                  // Timelapse
+  "18_motility": "L8giEuAj1mM",                   // Motility Assay
+  "19_train_cellpose": "psMRmQUk-0w",             // Train Cellpose
+  "20_cellpose_masks": "WLIfSPzgQXU",             // Cellpose Masks
+  "21_model_compare": "AD7zmlmPBcc",              // Model Compare
+  "22_model_zoo": "YWEqJBbcAlQ",                  // Model Zoo
+  "23_agreement": "-jRxAJ4CTWU",                  // Annotator Agreement
+  "24_plaque": "Rccu9sPEw_Q",                     // Plaque Assay
+  "25_recruitment": "FcqlhMWjZ04",                // Recruitment
+  "26_invasion": "ByOEWH1GHl8",                   // Invasion Assay
+  "27_replication": "wIGASmZ5Sgk",                // Replication Assay
+  "28_training_runs": "4bgQFqWtppA",              // Training Runs
+  "29_report": "fuKXbKLjprQ",                     // Report
+  "30_plate_queue": "QLQFfwEIQQU",                // Plate Queue
+  "31_external_masks": "i0q32gQ39cQ",             // External Masks
+  "32_align_stitch": "MMoW1w93uVI",               // Align and Stitch
+  "33_plate_viewer": "XzaHXNFPrOE",               // Plate Viewer
+  "34_database": "bkjMZRbWlnU",                   // Database Browser
+  "35_converter": "8gRXINFQQ7U",                  // Format Converter
+  "36_import": "rQilrniNbMg",                     // Import Project
   "37_batch": "",                      // Batch Runner
-  "38_distributed_jobs": "",           // Distributed Jobs
-  "39_classifier_evaluation": "",      // Classifier Evaluation
-  "40_run_history": "",                // Run History
+  "38_distributed_jobs": "aF63i0KHXxk",           // Distributed Jobs
+  "39_classifier_evaluation": "ZusbvugRNlA",      // Classifier Evaluation
+  "40_run_history": "jG2ERpPRhmc",                // Run History
 });
