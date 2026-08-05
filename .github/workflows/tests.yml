@@ -25,6 +25,16 @@ on:
 # must have a cell somewhere across these two workflows. If you add a
 # classifier, add the cell first.
 
+# One run per ref, newest wins. Without this a run of pushes to the same
+# branch queues a full suite for every commit and none of them get cancelled:
+# ten tutorial-rebuild pushes on 5 August left ~30 jobs queued for hours,
+# starved every runner, and blocked the docs deploy behind them -- the public
+# site sat on a four-day-old build while CI churned through commits nobody
+# was waiting on. Only the newest commit on a branch is worth testing.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   fast:
     name: Fast / Newest compatible (ubuntu-24.04, py${{ matrix.python-version }})
