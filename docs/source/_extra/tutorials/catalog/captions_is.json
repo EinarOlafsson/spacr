@@ -1582,19 +1582,52 @@
       "id": "28_training_runs",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um æfingar. Samanberðu nokkrar módelþjálfunarferðir með því að yfirlaða beygjur og breyta stillingum þeirra."
+          "narration": "Training Runs er bara lesandi gæðastjórnskjár. Það yfirborgar sparað lest og staðfestingarskurvur og setur stillingar diff við hliðina á þeim; það endurmenntir aldrei fyrirmynd eða breytir hlaupi á disk."
         },
         {
-          "narration": "Opið námskeið frá niðurstöðum og gæðaeftirlitum. Veldu hlaupa möppur eða skráðar æfingarupplýsingar sem ætti að bera saman."
+          "narration": "Veldu möppuna sem inniheldur módeltré, eða einhver foreldra fyrir ofan fleiri verkefni, og smelltu síðan á Skanna. Gönguðu mikroskópsupplýsingarnar hafa engin sparaðar þjálfunarkurfur, þannig að þetta námskeið notar greinilega syntetískar spaCR-skrá logar meðan á hreyfingu á raunverulegum parser og viðtölum."
         },
         {
-          "narration": "Í helstu skipulagssvæðinu skaltu velja mælikvarða, sléttingu, hópun, staðfestingarviðmið og stillingarkerfi til að sýna."
+          "narration": "Skanningin finnur 20 ára upphaf, 25 ára upphædd hlaup, 3 sinnum staðfest hlaup og tilvitað ófullnægjandi eftirlitsstað. Missandi stillingar og beygjur eru greind í björnu en ekki hljóðlega kastaðar, en gildandi körfur eru enn notaðar."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður um samræmi, ofhæfingu, stöðugleika og viðhaldandi árangur í stað þess að velja út af þjálfun tap einungis."
+          "narration": "Skildu út frá 20. tímabilinu. Hver röð nefnir módelinn, leiðir, tímabiltal, foldur og mikilvæg endurheimtu stillingar svo val remain traceable."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið eru samanburðartölur og stillingar-muntablaðir tilgreindar sterkasta endurnýjanlega rekstur."
+          "narration": "Settu 25 ára tímann sem annað samanburði. Göngur af mismunandi lengd eru ekki þrengdar eða búnar; hver kurva heldur sér sannar tímaás sína."
+        },
+        {
+          "narration": "Metrikur velur upptekin dálk eins og nákvæmni, tap, nákvæmni-upprenta svæði, eða flokkur nákvæmni. Foldar stjórnar því hvort krossviðmæli birtist á hvern flokk, sem meðal auk eða mínus einn staðalfrávik, eða bæði."
+        },
+        {
+          "narration": "Smelltu á Overlay valinn. Línur sem eru í skammti eru þjálfunarskreytingar og fastar línur eru staðfestingarskreytingar; hækkandi lestakreyting yfir lækkandi staðfestingarskreyting gefur til kynna yfirhæfingu en ekki betri lína."
+        },
+        {
+          "narration": "Hrædd staðfestingarskurvan náir um núll punkt átta fimm fimm áður en hún endar nálægt núll punkt átta fjórir fimm; grunnlínan toppar nálægt núll punkt sjö átta sex og endar nálægt núll punkt sjö fimm. Tafurinn tengir muninn við flokksstærð, tímabil, námshlutfall og uppspretta, en starfsmannafjöldi er skipt upp eftir því sem umhverfið drifur."
+        },
+        {
+          "narration": "Smelltu á kurvu til að greina run og split í stað þess að treysta aðeins á lit. Valinn röð er leystur aftur í möppuna og með mælingum á tímabili."
+        },
+        {
+          "narration": "Nánarlínan sýnir staðfestingaröðuna á grunnlínunni, tímabilsvið hennar, síðasta nákvæmni núllpunkt sjö fjórir níu sex á tímabilinu tuttugu og besta nákvæmni núllpunkt sjö átta sex á tímabilinu fimmtán. Besta gildið er merkt sem bjartsýnt vegna þess að sama beygja valdi þann tíma."
+        },
+        {
+          "narration": "Opnaðu Metric og veldu tap. Með því að bera saman ýmis mælikvarða er útilokað að velja eftir einni hleypandi niðurstöðu."
+        },
+        {
+          "narration": "Loss notar sömu rekstur og mismunandi stillingar. Hér heldur þjálfun tap áfram niður á meðan staðfestingar tap snýr upp, þannig að seint yfirfittan er sýnilegt frá öðru mælingu frekar en nákvæmni einn."
+        },
+        {
+          "narration": "Samanberðu nú við þriggja sinnum og veldu miðlungs auk eða mínus staðlafrávik. Þetta samantekt cross-greiðslur án þess að þykir að meðaltali þess sé einn skoðaður run."
+        },
+        {
+          "narration": "Bláa bandinu er auk eða mínus ein staðalfrávik í þremur foldum. Meðal staðfestingarskurvan endar nálægt núll punkt átta þrjú, en bandin útskýrir flokka-til-flokka óvissu sem ein lína myndi fela."
+        },
+        {
+          "narration": "Veldu fyrir hverja flokk þegar einstaklingslega flokk hegðun skiptir máli. Þetta er sérstaklega gagnlegt til þess að sjá óstöðug sundurbrot eða hala sem er stutt með færri falum eftir snemma stöðvun."
+        },
+        {
+          "narration": "Á hverri falda stíl er teiknað hvern lest og staðfestingaröð með hlaupi, skiptingu og faldi í sögunni. Notað staðfestingu hegðun, falda stöðugleika, haldin út mat, og stillingar athugun saman; Þjálfun Runs samanber sönnun en lýsir ekki vísindalega endurnýjanlegur sigurvegari af sjálfu sér."
         }
       ]
     },

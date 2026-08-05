@@ -4,47 +4,167 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 60.3,
+  "total_duration": 278.83,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 3.275,
-      "scene_end": 3.725,
-      "duration": 3.725,
-      "text": "Questo tutorial copre le Run di allenamento."
+      "speech_end": 15.625,
+      "scene_end": 16.205,
+      "duration": 16.205,
+      "text": "Training Runs è uno schermo di controllo di qualità solo per lettura. Esso sovrappone le curve di accettazione e di convalidazione salvate e colloca le impostazioni diff accanto a esse; non riforma mai un modello o cambia una corsa sul disco.",
+      "speech_text": "Training Runs è uno schermo di controllo di qualità solo per lettura. Esso sovrappone le curve di accettazione e di convalidazione salvate e colloca le impostazioni diff accanto a esse; non riforma mai un modello o cambia una corsa sul disco.",
+      "phonemes": "trˈIniŋɡ rˈuns e ˈuno skˈermo dɪ kontrˈɔllo dɪ kwalitˈa sˈolo per letːˈura. ˈeSo sovrapːˈone le kˈurve dɪ aʧːetːaʦiˈone e dɪ konvalidaʦiˈone salvˈate e kˈɔlloka le impostaʦiˈonɪ dˈiff akːˈanto a ˈɛSe; non rifˈorma maj ʊn modˈɛllo o kˈambia ˌʊna kˈorsa sʊl dˈisko."
     },
     {
       "scene": 2,
-      "speech_start": 3.725,
-      "speech_end": 20.0,
-      "scene_end": 20.45,
-      "duration": 16.724999999999998,
-      "text": "Apri Training Runs dalla sezione Results and quality control. Apri le attività di formazione dalla sezione Risultati e controllo qualità Selezionare le cartelle di attività di formazione o i registri di formazione che devono essere confrontati."
+      "speech_start": 16.205,
+      "speech_end": 36.98,
+      "scene_end": 37.68,
+      "duration": 21.475,
+      "text": "Selezionare la cartella che contiene alberi modello, o qualsiasi genitore sopra diversi progetti, quindi fare clic su Scansione. I dati di microscopia trasferiti non hanno curve di allenamento salvate, quindi questo tutorial utilizza chiaramente log di formato spaCR sintetici mentre esercita il parser reale e l'interfaccia.",
+      "speech_text": "Selezionare la cartella che contiene alberi modello, o qualsiasi genitore sopra diversi progetti, quindi fare clic su Scansione. I dati di microscopia trasferiti non hanno curve di allenamento salvate, quindi questo tutorial utilizza chiaramente log di formato spàker sintetici mentre esercita il parser reale e l'interfaccia.",
+      "phonemes": "seleʦjonˈare la kartˈɛlla ke kontjˈɛne ˈalberɪ modˈɛllo, o kwalsˈiazɪ ʤenitˈore sˈopra divˈɛrsɪ proʤˈɛtːɪ, kwˈindɪ fˈare klˈik sʊ skansjˈone. i dˈatɪ dɪ mikroskopˈia trasferˈitɪ non ˌanno kˈurve dɪ allenamˈento salvˈate, kwˈindɪ kwˌesto tʊtˈɔrial ʊtilˈiʣːa kjaɾamˈente lˈɔɡ dɪ formˈato spˈaker sintˈɛtiʧɪ mˌentre ezˈɛrʧita il parsˈɛr reˈale e linterfˈaʧːa."
     },
     {
       "scene": 3,
-      "speech_start": 20.45,
-      "speech_end": 30.7,
-      "scene_end": 31.15,
-      "duration": 10.7,
-      "text": "Nella zona di configurazione principale, scegliere le metriche, il liscio, il raggruppamento, i criteri dei checkpoint e i campi di impostazione da visualizzare."
+      "speech_start": 37.68,
+      "speech_end": 58.655,
+      "scene_end": 59.375,
+      "duration": 21.695,
+      "text": "La scansione trova una linea di base di vent'epoca, una corsa sintonizzata di vent'epoca, una corsa triplice con convalida incrociata e un checkpoint intenzionalmente incompleto. Le impostazioni e le curve mancanti sono segnalate in ambro piuttosto che discartate silenziosamente, mentre le corse valide rimangono utilizzabili.",
+      "speech_text": "La scansione trova una linea di base di vent'epoca, una corsa sintonizzata di vent'epoca, una corsa triplice con convalida incrociata e un checkpoint intenzionalmente incompleto. Le impostazioni e le curve mancanti sono segnalate in ambro piuttosto che discartate silenziosamente, mentre le corse valide rimangono utilizzabili.",
+      "phonemes": "la skansjˈone trˈɔva ˌʊna lˈinea dɪ bˈaze dɪ ventepˈɔka, ˌʊna kˈorsa sintoniʣːˈata dɪ ventepˈɔka, ˌʊna kˈorsa trˈipliʧe kon konvˈalida inkroʧˈata e ʊn kekːpˈɔint intenʦjonalmˈente inkomplˈɛto. le impostaʦiˈonɪ e le kˈurve mankˈantɪ sˌono seɲalˈate in ˈambro pjʊtːˈɔsto ke diskartˈate silenʦjozamˈente, mˌentre le kˈorse vˈalide rimˈaŋɡono ʊtiliʣːˈabilɪ."
     },
     {
       "scene": 4,
-      "speech_start": 31.15,
-      "speech_end": 48.8,
-      "scene_end": 49.25,
-      "duration": 18.1,
-      "text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando disponibile. confrontare convergenza, sovrapposizione, stabilità e prestazioni di durata piuttosto che selezionare solo per perdita di allenamento."
+      "speech_start": 59.375,
+      "speech_end": 73.4,
+      "scene_end": 73.9,
+      "duration": 14.525000000000006,
+      "text": "Fate il punto di partenza del vent'epoca. Ogni riga prende il nome del suo modello, dei canali, del numero di epoche, delle pieghe e delle importanti impostazioni recuperate in modo che la selezione rimanga tracciabile.",
+      "speech_text": "Fate il punto di partenza del vent'epoca. Ogni riga prende il nome del suo modello, dei canali, del numero di epoche, delle pieghe e delle importanti impostazioni recuperate in modo che la selezione rimanga tracciabile.",
+      "phonemes": "fˈate il pˈunto dɪ partˈɛnʦa del ventepˈɔka. ˌoɲɲɪ rˈiɡa prˈɛnde il nˈome del sˌʊo modˈɛllo, dˌA kanˈalɪ, del nˈumero dɪ ˈepoke, dˌelle pjˈeɡe e dˌelle importˈantɪ impostaʦiˈonɪ rekʊperˈate in mˈɔdo ke la seleʦiˈone rimˈaŋɡa traʧːˈabile."
     },
     {
       "scene": 5,
-      "speech_start": 49.25,
-      "speech_end": 59.65,
-      "scene_end": 60.3,
-      "duration": 11.049999999999997,
-      "text": "Quando il flusso di lavoro è terminato, le cifre di confronto e le tabelle di differenze impostazioni identificano la corsa riproducibile più forte."
+      "speech_start": 73.9,
+      "speech_end": 86.95,
+      "scene_end": 87.49000000000001,
+      "duration": 13.590000000000003,
+      "text": "Indicate la corsa suonizzata dell'epoca dei venticinque anni come secondo confronto. Le corse di lunghezza diversa non sono truncate o imbottite; ogni curva conserva il suo vero asse epocale.",
+      "speech_text": "Indicate la corsa suonizzata dell'epoca dei venticinque anni come secondo confronto. Le corse di lunghezza diversa non sono truncate o imbottite; ogni curva conserva il suo vero asse epocale.",
+      "phonemes": "indikˈate la kˈorsa sʊoniʣːˈata dellˈɛpoka dˌA ventiʧˈinkwe ˈannɪ kˌome sekˈondo konfrˈonto. le kˈorse dɪ lʊŋɡˈeʦːa divˈɛrsa non sˌono trʊnkˈate o imbotːˈite; ˌoɲɲɪ kˈurva konsˈɛrva il sˌʊo vˈero ˈaSe epokˈale."
+    },
+    {
+      "scene": 6,
+      "speech_start": 87.49000000000001,
+      "speech_end": 102.965,
+      "scene_end": 103.58500000000001,
+      "duration": 16.095,
+      "text": "Metric sceglie una colonna registrata come accuratezza, perdita, area di richiamo di precisione o accuratezza di classe. Fold controlla se la validazione incrociata appare per fold, come media più o meno una deviazione standard, o entrambe.",
+      "speech_text": "Metric sceglie una colonna registrata come accuratezza, perdita, area di richiamo di precisione o accuratezza di classe. Fold controlla se la validazione incrociata appare per fold, come media più o meno una deviazione standard, o entrambe.",
+      "phonemes": "mˈɛtrik ʃˈeʎe ˌʊna kolˈonna reʤistrˈata kˌome akːʊratˈeʦːa, pˈɛrdita, ˈarea dɪ rikjˈamo dɪ preʧiziˈone o akːʊratˈeʦːa dɪ klˈaSe. fˈɔld kontrˈɔlla se la validaʦiˈone inkroʧˈata apːˈare per fˈɔld, kˌome mˈɛdia pjʊ o mˈeno ˌʊna devjaʦiˈone stˈandard, o entrˈambe."
+    },
+    {
+      "scene": 7,
+      "speech_start": 103.58500000000001,
+      "speech_end": 120.46000000000001,
+      "scene_end": 121.04,
+      "duration": 17.455,
+      "text": "Fare clic su Overlay selezionato. Le linee scintillate sono divisioni di addestramento e le linee solide sono divisioni di convalida; una curva del treno in aumento sopra una curva di convalida in declino indica un sovraccarico, non un modello migliore.",
+      "speech_text": "Fare clic su Overlay selezionato. Le linee scintillate sono divisioni di addestramento e le linee solide sono divisioni di convalida; una curva del treno in aumento sopra una curva di convalida in declino indica un sovraccarico, non un modello migliore.",
+      "phonemes": "fˈare klˈik sʊ overlˈai seleʦjonˈato. le lˈinee ʃintillˈate sˌono diviziˈonɪ dɪ adːestramˈento e le lˈinee sˈɔlide sˌono diviziˈonɪ dɪ konvˈalida; ˌʊna kˈurva del trˈɛno in aʊmˈento sˈopra ˌʊna kˈurva dɪ konvˈalida in deklˈino ˈindika ʊn sovrakːˈariko, non ʊn modˈɛllo miʎˈore."
+    },
+    {
+      "scene": 8,
+      "speech_start": 121.04,
+      "speech_end": 150.41500000000002,
+      "scene_end": 151.235,
+      "duration": 30.195000000000007,
+      "text": "La curva di validazione sintonizzata raggiunge circa il punto zero otto cinque cinque prima di terminare vicino al punto zero otto quattro cinque; la linea di base raggiunge i picchi vicino al punto zero sette otto sei e termina vicino al punto zero sette cinque. La tabella collega la differenza alla dimensione del lotto, alle epoche, al tasso di apprendimento e alla fonte, mentre il numero dei lavoratori è separato in base alla deriva ambientale.",
+      "speech_text": "La curva di validazione sintonizzata raggiunge circa il punto zero otto cinque cinque prima di terminare vicino al punto zero otto quattro cinque; la linea di base raggiunge i picchi vicino al punto zero sette otto sei e termina vicino al punto zero sette cinque. La tabella collega la differenza alla dimensione del lotto, alle epoche, al tasso di apprendimento e alla fonte, mentre il numero dei lavoratori è separato in base alla deriva ambientale.",
+      "phonemes": "la kˈurva dɪ validaʦiˈone sintoniʣːˈata raʤːˈunʤe ʧˈirka il pˈunto ʣˈɛro ˈɔtːo ʧˈinkwe ʧˈinkwe prˈima dɪ terminˈare viʧˈino al pˈunto ʣˈɛro ˈɔtːo kwˈatːro ʧˈinkwe; la lˈinea dɪ bˈaze raʤːˈunʤe i pˈikːɪ viʧˈino al pˈunto ʣˈɛro sˈɛtːe ˈɔtːo sˌɛi e tˈɛrmina viʧˈino al pˈunto ʣˈɛro sˈɛtːe ʧˈinkwe. la tabˈɛlla kollˈɛɡa la differˈɛnʦa ˌalla dimensjˈone del lˈɔtːo, ˌalle ˈepoke, al tˈaSo dɪ apːrendimˈento e ˌalla fˈonte, mˌentre il nˈumero dˌA lavoratˈorɪ e sepaɾˈato in bˈaze ˌalla derˈiva ambjentˈale."
+    },
+    {
+      "scene": 9,
+      "speech_start": 151.235,
+      "speech_end": 164.56,
+      "scene_end": 165.06,
+      "duration": 13.824999999999989,
+      "text": "Clicca su una curva per identificare il suo corso e la sua divisione invece di fare affidamento solo sul colore. La serie selezionata viene risolta alla sua cartella e alle misurazioni per epoca.",
+      "speech_text": "Clicca su una curva per identificare il suo corso e la sua divisione invece di fare affidamento solo sul colore. La serie selezionata viene risolta alla sua cartella e alle misurazioni per epoca.",
+      "phonemes": "klˈikːa sʊ ˌʊna kˈurva per identifikˈare il sˌʊo kˈorso e la sˌʊa diviziˈone invˈeʧe dɪ fˈare affidamˈento sˈolo sʊl kolˈore. la sˈɛrie seleʦjonˈata vjˈɛne rizˈɔlta ˌalla sˌʊa kartˈɛlla e ˌalle mizʊraʦiˈonɪ per ˈɛpoka."
+    },
+    {
+      "scene": 10,
+      "speech_start": 165.06,
+      "speech_end": 184.785,
+      "scene_end": 185.525,
+      "duration": 20.465000000000003,
+      "text": "La linea dettagliata mostra la serie di convalida della linea di base, la sua gamma di epoche, l'ultima precisione zero punto sette quattro nove sei all'epoca venti, e la migliore precisione zero punto sette otto sei all'epoca quindici. Il miglior valore è etichettato ottimista perché la stessa curva ha selezionato quell'epoca.",
+      "speech_text": "La linea dettagliata mostra la serie di convalida della linea di base, la sua gamma di epoche, l'ultima precisione zero punto sette quattro nove sei all'epoca venti, e la migliore precisione zero punto sette otto sei all'epoca quindici. Il miglior valore è etichettato ottimista perché la stessa curva ha selezionato quell'epoca.",
+      "phonemes": "la lˈinea detːaʎˈata mˈostra la sˈɛrie dɪ konvˈalida dˌella lˈinea dɪ bˈaze, la sˌʊa ɡˈamma dɪ ˈepoke, lˈultima preʧiziˈone ʣˈɛro pˈunto sˈɛtːe kwˈatːro nˈɔve sˌɛi allˈɛpoka vˈɛntɪ, e la miʎˈore preʧiziˈone ʣˈɛro pˈunto sˈɛtːe ˈɔtːo sˌɛi allˈɛpoka kwˈindiʧɪ. il miʎˈor valˈore e etiketːˈato otːimˈista perkˌe la stˈeSa kˈurva a seleʦjonˈato kwellˈɛpoka."
+    },
+    {
+      "scene": 11,
+      "speech_start": 185.525,
+      "speech_end": 194.625,
+      "scene_end": 195.105,
+      "duration": 9.579999999999984,
+      "text": "Apri Metric e scegli la perdita. Il confronto di diverse metriche impedisce una selezione basata su un singolo endpoint lusinghiero.",
+      "speech_text": "Apri Metric e scegli la perdita. Il confronto di diverse metriche impedisce una selezione basata su un singolo endpoint lusinghiero.",
+      "phonemes": "ˈaprɪ mˈɛtrik e ʃˈeʎɪ la pˈɛrdita. il konfrˈonto dɪ divˈɛrse mˈɛtrike impedˈiʃe ˌʊna seleʦiˈone bazˈata sʊ ʊn sˈiŋɡolo endpˈɔint lʊziŋɡiˈɛro."
+    },
+    {
+      "scene": 12,
+      "speech_start": 195.105,
+      "speech_end": 212.67999999999998,
+      "scene_end": 213.29999999999998,
+      "duration": 18.194999999999993,
+      "text": "Loss utilizza le stesse corse e impostazioni diverse. Qui la perdita di allenamento continua verso il basso mentre la perdita di convalida va verso l'alto, rendendo visibile il ritardo di sovrapposizione da una seconda misurazione piuttosto che dalla sola precisione.",
+      "speech_text": "Loss utilizza le stesse corse e impostazioni diverse. Qui la perdita di allenamento continua verso il basso mentre la perdita di convalida va verso l'alto, rendendo visibile il ritardo di sovrapposizione da una seconda misurazione piuttosto che dalla sola precisione.",
+      "phonemes": "lˈɔS ʊtilˈiʣːa le stˈeSe kˈorse e impostaʦiˈonɪ divˈɛrse. kwˈi la pˈɛrdita dɪ allenamˈento kontˈinʊa vˌɛrso il bˈaSo mˌentre la pˈɛrdita dɪ konvˈalida vˈa vˌɛrso lˈalto, rendˈɛndo vizˈibile il ritˈardo dɪ sovrapːoziʦiˈone da ˌʊna sekˈonda mizʊraʦiˈone pjʊtːˈɔsto ke dˌalla sˈola preʧiziˈone."
+    },
+    {
+      "scene": 13,
+      "speech_start": 213.29999999999998,
+      "speech_end": 228.17499999999998,
+      "scene_end": 228.755,
+      "duration": 15.455000000000013,
+      "text": "Ora confrontate la corsa sintonizzata con la corsa triplice e scegliete la media più o meno deviazione standard. Questo riassume la convalida incrociata senza pretendere che la sua media sia una singola corsa osservata.",
+      "speech_text": "Ora confrontate la corsa sintonizzata con la corsa triplice e scegliete la media più o meno deviazione standard. Questo riassume la convalida incrociata senza pretendere che la sua media sia una singola corsa osservata.",
+      "phonemes": "ˈora konfrontˈate la kˈorsa sintoniʣːˈata kon la kˈorsa trˈipliʧe e ʃeʎˈete la mˈɛdia pjʊ o mˈeno devjaʦiˈone stˈandard. kwˌesto riaSˈume la konvˈalida inkroʧˈata sˌɛnʦa pretˈɛndere ke la sˌʊa mˈɛdia sˌia ˌʊna sˈiŋɡola kˈorsa oServˈata."
+    },
+    {
+      "scene": 14,
+      "speech_start": 228.755,
+      "speech_end": 242.28,
+      "scene_end": 242.94,
+      "duration": 14.185000000000002,
+      "text": "La banda blu è più o meno una deviazione standard su tre pieghe. La curva di convalida media termina vicino a zero punto otto tre, mentre la banda espone l'incertezza di piega a piega che una singola linea nasconde.",
+      "speech_text": "La banda blu è più o meno una deviazione standard su tre pieghe. La curva di convalida media termina vicino a zero punto otto tre, mentre la banda espone l'incertezza di piega a piega che una singola linea nasconde.",
+      "phonemes": "la bˈanda blˈu e pjʊ o mˈeno ˌʊna devjaʦiˈone stˈandard sʊ trˈe pjˈeɡe. la kˈurva dɪ konvˈalida mˈɛdia tˈɛrmina viʧˈino a ʣˈɛro pˈunto ˈɔtːo trˈe, mˌentre la bˈanda espˈone linʧertˈeʦːa dɪ pjˈɛɡa a pjˈɛɡa ke ˌʊna sˈiŋɡola lˈinea naskˈonde."
+    },
+    {
+      "scene": 15,
+      "speech_start": 242.94,
+      "speech_end": 256.515,
+      "scene_end": 257.03499999999997,
+      "duration": 14.09499999999997,
+      "text": "Scegliere per ripiego quando il comportamento individuale di ripiego è importante. Ciò è particolarmente utile per individuare una spaccatura instabile o una coda sostenuta da meno pieghe dopo l'arresto precoce.",
+      "speech_text": "Scegliere per ripiego quando il comportamento individuale di ripiego è importante. Ciò è particolarmente utile per individuare una spaccatura instabile o una coda sostenuta da meno pieghe dopo l'arresto precoce.",
+      "phonemes": "ʃˈeʎere per ripjˈeɡo kwˈando il komportamˈento individʊˈale dɪ ripjˈeɡo e importˈante. ʧˈɔ e partikolarmˈente ˈutile per individʊˈare ˌʊna spakːatˈura instˈabile o ˌʊna kˈoda sostenˈuta da mˈeno pjˈeɡe dˈopo larɾˈɛsto prekˈɔʧe."
+    },
+    {
+      "scene": 16,
+      "speech_start": 257.03499999999997,
+      "speech_end": 278.01,
+      "scene_end": 278.83,
+      "duration": 21.795000000000016,
+      "text": "La modalità per ripiego disegna ogni treno e serie di convalida con corsa, divisione e ripiego nella leggenda. Utilizzare insieme il comportamento di convalida, la stabilità di ripiegamento, la valutazione e l'audit delle impostazioni; Training Runs confronta le prove ma non dichiara un vincitore scientificamente riproducibile da solo.",
+      "speech_text": "La modalità per ripiego disegna ogni treno e serie di convalida con corsa, divisione e ripiego nella leggenda. Utilizzare insieme il comportamento di convalida, la stabilità di ripiegamento, la valutazione e l'audit delle impostazioni; Training Runs confronta le prove ma non dichiara un vincitore scientificamente riproducibile da solo.",
+      "phonemes": "la modalitˈa per ripjˈeɡo dizˈeɲɲa ˌoɲɲɪ trˈɛno e sˈɛrie dɪ konvˈalida kon kˈorsa, diviziˈone e ripjˈeɡo nˈella leʤːˈɛnda. ʊtiliʣːˈare insɪˈɛme il komportamˈento dɪ konvˈalida, la stabilitˈa dɪ ripjeɡamˈento, la valʊtaʦiˈone e lˈaʊdit dˌelle impostaʦiˈonɪ; trˈIniŋɡ rˈuns konfrˈonta le prˈɔve ma non dikjˈaɾa ʊn vinʧitˈore ʃentifikamˈente riprodʊʧˈibile da sˈolo."
     }
   ]
 }

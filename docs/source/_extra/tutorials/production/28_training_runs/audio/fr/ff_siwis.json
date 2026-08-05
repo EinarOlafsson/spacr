@@ -4,47 +4,167 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 56.075,
+  "total_duration": 244.08,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.475,
-      "scene_end": 9.924999999999999,
-      "duration": 9.924999999999999,
-      "text": "Ce tutoriel couvre les courses de formation. Comparer plusieurs courses de formation de modèle en superposant des courbes et en différenciant leurs paramètres."
+      "speech_end": 14.6,
+      "scene_end": 15.18,
+      "duration": 15.18,
+      "text": "Training Runs est un écran de contrôle de qualité pour lecture seulement. Il superpose les courbes de train et de validation enregistrées et place les paramètres diff à côté d'elles; il ne reprend jamais un modèle ou ne modifie jamais une course sur le disque.",
+      "speech_text": "Training Runs est un écran de contrôle de qualité pour lecture seulement. Il superpose les courbes de train et de validation enregistrées et place les paramètres diff à côté d'elles; il ne reprend jamais un modèle ou ne modifie jamais une course sur le disque.",
+      "phonemes": "tɹˈAnɪŋ ɹˈʌnz ɛt œ̃n ekʁˈɑ̃ də kɔ̃tʁˈoːl də kalitˈe puʁ lɛktˈyʁ sølmˈɑ̃. il sypɛʁpˈɔz le kˈuʁb də tʁˈɛ̃ e də validasjˈɔ̃ ɑ̃ʁʒistʁˈez e plˈas le paʁamˈɛtʁ dˈif a kotˈe dˈɛl; il nə ʁəpʁˈɑ̃ ʒamˌɛz œ̃ modˈɛl u nə modifˈi ʒamˌɛz yn kˈuʁs syʁ lə dˈisk."
     },
     {
       "scene": 2,
-      "speech_start": 9.924999999999999,
-      "speech_end": 19.2,
-      "scene_end": 19.65,
-      "duration": 9.725,
-      "text": "Ouvrez Training Runs dans la section Results and quality control. Ouvrez les cours de formation dans la section Résultats et contrôle de la qualité."
+      "speech_start": 15.18,
+      "speech_end": 33.58,
+      "scene_end": 34.28,
+      "duration": 19.1,
+      "text": "Choisissez le dossier qui contient des arbres modèles, ou n'importe quel parent au-dessus de plusieurs projets, puis cliquez sur Scan. Les données de microscopie transférées n'ont pas de courbes d'entraînement enregistrées, donc ce tutoriel utilise clairement des journaux de format spaCR synthétiques tout en exerçant le parseur et l'interface réels.",
+      "speech_text": "Choisissez le dossier qui contient des arbres modèles, ou n'importe quel parent au-dessus de plusieurs projets, puis cliquez sur Scan. Les données de microscopie transférées n'ont pas de courbes d'entraînement enregistrées, donc ce tutoriel utilise clairement des journaux de format spakeur synthétiques tout en exerçant le parseur et l'interface réels.",
+      "phonemes": "ʃwazisˈe lə dɔsjˈe ki kɔ̃tjˈɛ̃ dez ˈaʁbʁ modˈɛl, u nɛ̃pˈɔʁt kɛl paʁˈɑ̃ odəsˈy də plyzjˌœʁ pʁoʒˈɛ, pyˈi klikˈe syʁ skˈan. le dɔnˈe də mikʁɔskopˈi tʁɑ̃sfeʁˈe nɔ̃ pa də kˈuʁb dɑ̃tʁɛnmˈɑ̃ ɑ̃ʁʒistʁˈe, dˈɔ̃k sə tytoʁjˈɛl ytilˈiz klɛʁmˈɑ̃ de ʒuʁnˈo də fɔʁmˈa spakˈœʁ sɛ̃tetˈik tut ɑ̃n ɛɡzɛʁsˈɑ̃ lə paʁsˈœʁ e lɛ̃tɛʁfˈas ʁeˈɛl."
     },
     {
       "scene": 3,
-      "speech_start": 19.65,
-      "speech_end": 29.424999999999997,
-      "scene_end": 29.874999999999996,
-      "duration": 10.224999999999998,
-      "text": "Dans la zone de configuration principale, choisissez les mesures, l'allégement, le regroupement, les critères des points de contrôle et les champs de paramètres à afficher."
+      "speech_start": 34.28,
+      "speech_end": 51.505,
+      "scene_end": 52.225,
+      "duration": 17.945,
+      "text": "L'analyse trouve une ligne de base d'une vingtaine d'années, une piste de vingt-cinq ans, une piste de trois fois validée croisée et un point de contrôle intentionnellement incomplet. Les paramètres et les courbes manquants sont signalés en bambre plutôt que discrètement rejetés, tandis que les courbes valides restent utilisables.",
+      "speech_text": "L'analyse trouve une ligne de base d'une vingtaine d'années, une piste de vingt-cinq ans, une piste de trois fois validée croisée et un point de contrôle intentionnellement incomplet. Les paramètres et les courbes manquants sont signalés en bambre plutôt que discrètement rejetés, tandis que les courbes valides restent utilisables.",
+      "phonemes": "lanalˈiz tʁˈuv yn lˈiɲ də bˈaz dyn vɛ̃tˈɛn danˈe, yn pˈist də vˈɛ̃tsˈɛ̃k ˈɑ̃, yn pˈist də tʁwˈa fwˈa validˈe kʁwazˈe e œ̃ pwˈɛ̃ də kɔ̃tʁˈoːl ɛ̃tɑ̃sjɔnɛlmˈɑ̃ ɛ̃kɔ̃plˈɛ. le paʁamˈɛtʁz e le kˈuʁb mɑ̃kˈɑ̃ sˈɔ̃ sinjalˈez ɑ̃ bˈɑ̃bʁ plytˈoː kə diskʁɛtmˈɑ̃ ʁəʒtˈe, tɑ̃dˌi kə le kˈuʁb valˈid ʁˈɛstt ytilizˈabl."
     },
     {
       "scene": 4,
-      "speech_start": 29.874999999999996,
-      "speech_end": 45.199999999999996,
-      "scene_end": 45.65,
-      "duration": 15.775000000000002,
-      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez la convergence, le surmatch, la stabilité et les performances de la course plutôt que de choisir par défaut de formation seul."
+      "speech_start": 52.225,
+      "speech_end": 64.3,
+      "scene_end": 64.8,
+      "duration": 12.574999999999996,
+      "text": "Tapez la ligne de base de l'époque du XXe siècle. Chaque rangée nomme son modèle, ses canaux, son nombre d'époques, ses plis et ses paramètres récupérés importants afin que la sélection reste traçable.",
+      "speech_text": "Tapez la ligne de base de l'époque du XXe siècle. Chaque rangée nomme son modèle, ses canaux, son nombre d'époques, ses plis et ses paramètres récupérés importants afin que la sélection reste traçable.",
+      "phonemes": "tapˈe la lˈiɲ də bˈaz də lepˈok dy iksɡzə sjˈɛkl. ʃak ʁɑ̃ʒˈe nˈɔm sɔ̃ modˈɛl, se kanˈo, sɔ̃ nˈɔ̃bʁ depˈok, se plˈi e se paʁamˈɛtʁ ʁekypeʁˈez ɛ̃pɔʁtˈɑ̃ afˌɛ̃ kə la selɛksjˈɔ̃ ʁˈɛst tʁasˈabl."
     },
     {
       "scene": 5,
-      "speech_start": 45.65,
-      "speech_end": 55.425,
-      "scene_end": 56.074999999999996,
-      "duration": 10.424999999999997,
-      "text": "Lorsque le flux de travail est terminé, les chiffres de comparaison et les tableaux de différence de paramètres identifient la course reproduisable la plus forte."
+      "speech_start": 64.8,
+      "speech_end": 73.77499999999999,
+      "scene_end": 74.315,
+      "duration": 9.515,
+      "text": "C'est la deuxième comparaison. Les courbes de longueur différente ne sont ni tronquées ni rembourrées; chaque courbe conserve son axe d'époque véritable.",
+      "speech_text": "C'est la deuxième comparaison. Les courbes de longueur différente ne sont ni tronquées ni rembourrées; chaque courbe conserve son axe d'époque véritable.",
+      "phonemes": "sɛ la døzjˈɛm kɔ̃paʁɛzˈɔ̃. le kˈuʁb də lɔ̃ɡˈœʁ difeʁˈɑ̃t nə sɔ̃ ni tʁɔ̃kˈe ni ʁɑ̃buʁˈe; ʃak kˈuʁb kɔ̃sˈɛʁv sɔ̃n ˈaks depˈok veʁitˈabl."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.315,
+      "speech_end": 89.715,
+      "scene_end": 90.33500000000001,
+      "duration": 16.02000000000001,
+      "text": "La métrique choisit une colonne enregistrée telle que l'exactitude, la perte, la zone de rappel de précision ou l'exactitude de la classe. Les pliages contrôlent si la validation croisée apparaît par pliage, en moyenne plus ou moins un écart standard, ou les deux.",
+      "speech_text": "La métrique choisit une colonne enregistrée telle que l'exactitude, la perte, la zone de rappel de précision ou l'exactitude de la classe. Les pliages contrôlent si la validation croisée apparaît par pliage, en moyenne plus ou moins un écart standard, ou les deux.",
+      "phonemes": "la metʁˈik ʃwazˈi yn kolˈɔn ɑ̃ʁʒistʁˈe tɛl kə lɛɡzaktitˈyd, la pˈɛʁt, la zˈon də ʁapˈɛl də pʁesizjˈɔ̃ u lɛɡzaktitˈyd də la klˈas. le pliˈaʒ kɔ̃tʁˈoːl sˈi la validasjˈɔ̃ kʁwazˈe apaʁˈɛ paʁ pliˈaʒ, ɑ̃ mwajˈɛn ply u mwˈɛ̃z œ̃n ekˈaʁ stɑ̃dˈaʁ, u le dˈø."
+    },
+    {
+      "scene": 7,
+      "speech_start": 90.33500000000001,
+      "speech_end": 104.96000000000001,
+      "scene_end": 105.54,
+      "duration": 15.204999999999998,
+      "text": "Cliquez sur Surplacement sélectionné. Les lignes dérivées sont des fractions d'entraînement et les lignes solides sont des fractions de validation; une courbe de train en hausse au-dessus d'une courbe de validation en déclin indique un surpassage, pas un meilleur modèle.",
+      "speech_text": "Cliquez sur Surplacement sélectionné. Les lignes dérivées sont des fractions d'entraînement et les lignes solides sont des fractions de validation; une courbe de train en hausse au-dessus d'une courbe de validation en déclin indique un surpassage, pas un meilleur modèle.",
+      "phonemes": "klikˈe syʁ syʁplasmˈɑ̃ selɛksjɔnˈe. le lˈinj deʁivˈe sˈɔ̃ de fʁaksjˈɔ̃ dɑ̃tʁɛnmˈɑ̃ e le lˈinj solˈid sˈɔ̃ de fʁaksjˈɔ̃ də validasjˈɔ̃; yn kˈuʁb də tʁˈɛ̃ ɑ̃ ˈos odəsˈy dyn kˈuʁb də validasjˈɔ̃ ɑ̃ deklˈɛ̃ ɛ̃dˈik œ̃ syʁpasˈaʒ, paz œ̃ mɛjˈœʁ modˈɛl."
+    },
+    {
+      "scene": 8,
+      "speech_start": 105.54,
+      "speech_end": 130.565,
+      "scene_end": 131.385,
+      "duration": 25.844999999999985,
+      "text": "La courbe de validation réglée atteint environ le point zéro huit cinq cinq avant de se terminer près du point zéro huit quatre cinq; la ligne de base atteint son sommet près du point zéro sept huit six et se termine près du point zéro sept cinq. Le tableau relie cette différence à la taille du lot, aux époques, au taux d'apprentissage et à la source, tandis que le nombre de travailleurs est séparé en fonction de la dérive environnementale.",
+      "speech_text": "La courbe de validation réglée atteint environ le point zéro huit cinq cinq avant de se terminer près du point zéro huit quatre cinq; la ligne de base atteint son sommet près du point zéro sept huit six et se termine près du point zéro sept cinq. Le tableau relie cette différence à la taille du lot, aux époques, au taux d'apprentissage et à la source, tandis que le nombre de travailleurs est séparé en fonction de la dérive environnementale.",
+      "phonemes": "la kˈuʁb də validasjˈɔ̃ ʁeɡlˈe atˈɛ̃ ɑ̃viʁˈɔ̃ lə pwˈɛ̃ zeʁˈo yˈi sˈɛ̃k sˈɛ̃k avˌɑ̃ də sə tɛʁminˈe pʁɛ dy pwˈɛ̃ zeʁˈo yˈi kˈatʁ sˈɛ̃k; la lˈiɲ də bˈaz atˈɛ̃ sɔ̃ sɔmˈɛ pʁɛ dy pwˈɛ̃ zeʁˈo sˈɛt yˈi sˈiz e sə tɛʁmˈin pʁɛ dy pwˈɛ̃ zeʁˈo sˈɛt sˈɛ̃k. lə tablˈo ʁəlˈi sɛt difeʁˈɑ̃s a la tˈaj dy lˈo, oz epˈok, o tˈo dapʁɑ̃tisˈaʒ e a la sˈuʁs, tɑ̃dˌi kə lə nˈɔ̃bʁ də tʁavajˈœʁz ɛ sepaʁˈe ɑ̃ fɔ̃ksjˈɔ̃ də la deʁˈiv ɑ̃viʁɔnmɑ̃tˈal."
+    },
+    {
+      "scene": 9,
+      "speech_start": 131.385,
+      "speech_end": 142.33499999999998,
+      "scene_end": 142.83499999999998,
+      "duration": 11.449999999999989,
+      "text": "Cliquez sur une courbe pour identifier sa course et sa fraction au lieu de compter uniquement sur la couleur. La série sélectionnée est résolue à son dossier et à ses mesures par époque.",
+      "speech_text": "Cliquez sur une courbe pour identifier sa course et sa fraction au lieu de compter uniquement sur la couleur. La série sélectionnée est résolue à son dossier et à ses mesures par époque.",
+      "phonemes": "klikˈe syʁ yn kˈuʁb puʁ idɑ̃tifjˈe sa kˈuʁs e sa fʁaksjˈɔ̃ o ljˈø də kɔ̃tˈe ynikmˈɑ̃ syʁ la kulˈœʁ. la seʁˈi selɛksjɔnˈe ɛ ʁezolˈy a sɔ̃ dɔsjˈe e a se məzˈyʁ paʁ epˈok."
+    },
+    {
+      "scene": 10,
+      "speech_start": 142.83499999999998,
+      "speech_end": 159.70999999999998,
+      "scene_end": 160.45,
+      "duration": 17.61500000000001,
+      "text": "La ligne détaillée montre la série de validation de base, son intervalle d'époque, dernière précision point zéro sept quatre neuf six à l'époque vingt, et meilleure précision point zéro sept huit six à l'époque quinze. La meilleure valeur est étiquetée optimiste parce que la même courbe a sélectionné cette époque.",
+      "speech_text": "La ligne détaillée montre la série de validation de base, son intervalle d'époque, dernière précision point zéro sept quatre neuf six à l'époque vingt, et meilleure précision point zéro sept huit six à l'époque quinze. La meilleure valeur est étiquetée optimiste parce que la même courbe a sélectionné cette époque.",
+      "phonemes": "la lˈiɲ detajˈe mˈɔ̃tʁ la seʁˈi də validasjˈɔ̃ də bˈaz, sɔ̃n ɛ̃tɛʁvˈal depˈok, dɛʁnjˈɛʁ pʁesizjˈɔ̃ pwˌɛ̃ zeʁˈo sˈɛt kˈatʁ nˈœf sˈiz a lepˈok vˈɛ̃, e mɛjˈœʁ pʁesizjˈɔ̃ pwˌɛ̃ zeʁˈo sˈɛt yˈi sˈiz a lepˈok kˈɛ̃z. la mɛjˈœʁ valˈœʁ ɛt etiktˈe ɔptimˈist paʁskˌə la mˈɛm kˈuʁb a selɛksjɔnˈe sɛt epˈok."
+    },
+    {
+      "scene": 11,
+      "speech_start": 160.45,
+      "speech_end": 169.27499999999998,
+      "scene_end": 169.75499999999997,
+      "duration": 9.304999999999978,
+      "text": "Ouvrez Metric et choisissez la perte. La comparaison de plusieurs indicateurs empêche une sélection basée sur un seul point final flatteur.",
+      "speech_text": "Ouvrez Metric et choisissez la perte. La comparaison de plusieurs indicateurs empêche une sélection basée sur un seul point final flatteur.",
+      "phonemes": "uvʁˈe mətʁˈik e ʃwazisˈe la pˈɛʁt. la kɔ̃paʁɛzˈɔ̃ də plyzjˌœʁz ɛ̃dikatˈœʁz ɑ̃pˈɛʃ yn selɛksjˈɔ̃ bazˈe syʁ œ̃ sˈœl pwˌɛ̃ finˈal flatˈœʁ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 169.75499999999997,
+      "speech_end": 185.55499999999998,
+      "scene_end": 186.17499999999998,
+      "duration": 16.420000000000016,
+      "text": "La perte utilise les mêmes démarches et des paramètres différents. Ici, la perte d'entraînement se poursuit vers le bas tandis que la perte de validation se retourne vers le haut, ce qui rend le surpassage tardif visible à partir d'une deuxième mesure plutôt que de l'exactitude seule.",
+      "speech_text": "La perte utilise les mêmes démarches et des paramètres différents. Ici, la perte d'entraînement se poursuit vers le bas tandis que la perte de validation se retourne vers le haut, ce qui rend le surpassage tardif visible à partir d'une deuxième mesure plutôt que de l'exactitude seule.",
+      "phonemes": "la pˈɛʁt ytilˈiz le mˈɛm demˈaʁʃz e de paʁamˈɛtʁ difeʁˈɑ̃. isˈi, la pˈɛʁt dɑ̃tʁɛnmˈɑ̃ sə puʁsyˈi vɛʁ lə bˈa tɑ̃dˌi kə la pˈɛʁt də validasjˈɔ̃ sə ʁətˈuʁn vɛʁ lə ˈo, sə ki ʁˈɑ̃ lə syʁpasˈaʒ taʁdˈif vizˈibl a paʁtˈiʁ dyn døzjˈɛm məzˈyʁ plytˈoː kə də lɛɡzaktitˈyd sˈœl."
+    },
+    {
+      "scene": 13,
+      "speech_start": 186.17499999999998,
+      "speech_end": 198.225,
+      "scene_end": 198.805,
+      "duration": 12.630000000000024,
+      "text": "Maintenant, comparez la course réglée avec la course triple et choisissez la moyenne plus ou moins déviation standard. Cela résume la validation croisée sans prétendre que sa moyenne est une seule course observée.",
+      "speech_text": "Maintenant, comparez la course réglée avec la course triple et choisissez la moyenne plus ou moins déviation standard. Cela résume la validation croisée sans prétendre que sa moyenne est une seule course observée.",
+      "phonemes": "mɛ̃tnˈɑ̃, kɔ̃paʁˈe la kˈuʁs ʁeɡlˈe avˌɛk la kˈuʁs tʁˈipl e ʃwazisˈe la mwajˈɛn ply u mwˈɛ̃ devjasjˈɔ̃ stɑ̃dˈaʁ. səlˌa ʁezˈym la validasjˈɔ̃ kʁwazˈe sɑ̃ pʁetˈɑ̃dʁ kə sa mwajˈɛn ɛt yn sˈœl kˈuʁs ɔbsɛʁvˈe."
+    },
+    {
+      "scene": 14,
+      "speech_start": 198.805,
+      "speech_end": 212.005,
+      "scene_end": 212.665,
+      "duration": 13.859999999999985,
+      "text": "La bande bleue est plus ou moins un écart standard sur trois plis. La courbe de validation moyenne se termine près du point zéro huit trois, tandis que la bande expose l'incertitude de pliage à pliage qu'une seule ligne dissimulerait.",
+      "speech_text": "La bande bleue est plus ou moins un écart standard sur trois plis. La courbe de validation moyenne se termine près du point zéro huit trois, tandis que la bande expose l'incertitude de pliage à pliage qu'une seule ligne dissimulerait.",
+      "phonemes": "la bˈɑ̃d blˈø ɛ ply u mwˈɛ̃z œ̃n ekˈaʁ stɑ̃dˈaʁ syʁ tʁwˈa plˈi. la kˈuʁb də validasjˈɔ̃ mwajˈɛn sə tɛʁmˈin pʁɛ dy pwˈɛ̃ zeʁˈo yˈi tʁwˈa, tɑ̃dˌi kə la bˈɑ̃d ɛkspˈɔz lɛ̃sɛʁtitˈyd də pliˈaʒ a pliˈaʒ kyn sˈœl lˈiɲ disimylʁˈɛ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 212.665,
+      "speech_end": 224.19,
+      "scene_end": 224.71,
+      "duration": 12.045000000000016,
+      "text": "Choisissez par pli lorsque le comportement individuel du pli compte. Ceci est particulièrement utile pour repérer une fissure instable ou une queue soutenue par moins de plis après l'arrêt précoce.",
+      "speech_text": "Choisissez par pli lorsque le comportement individuel du pli compte. Ceci est particulièrement utile pour repérer une fissure instable ou une queue soutenue par moins de plis après l'arrêt précoce.",
+      "phonemes": "ʃwazisˈe paʁ plˈi lˌɔʁskə lə kɔ̃pɔʁtəmˈɑ̃ ɛ̃dividyˈɛl dy plˈi kˈɔ̃t. səsˌi ɛ paʁtikyljɛʁmˈɑ̃ ytˈil puʁ ʁəpeʁˈe yn fisˈyʁ ɛ̃stˈabl u yn kˈø sutnˈy paʁ mwˈɛ̃ də plˈi apʁˌɛ laʁˈɛ pʁekˈɔs."
+    },
+    {
+      "scene": 16,
+      "speech_start": 224.71,
+      "speech_end": 243.26000000000002,
+      "scene_end": 244.08,
+      "duration": 19.370000000000005,
+      "text": "Le mode par pliage dessine tous les trains et séries de validation avec course, fractionnement et pliage dans la légende. Utilisez le comportement de validation, la stabilité du pli, l'évaluation prolongée et l'audit des paramètres ensemble; Training Runs compare les preuves mais ne déclare pas un vainqueur scientifiquement reproductible par lui-même.",
+      "speech_text": "Le mode par pliage dessine tous les trains et séries de validation avec course, fractionnement et pliage dans la légende. Utilisez le comportement de validation, la stabilité du pli, l'évaluation prolongée et l'audit des paramètres ensemble; Training Runs compare les preuves mais ne déclare pas un vainqueur scientifiquement reproductible par lui-même.",
+      "phonemes": "lə mˈɔd paʁ pliˈaʒ dɛsˈin tu le tʁˈɛ̃z e seʁˈi də validasjˈɔ̃ avˌɛk kˈuʁs, fʁaksjɔnmˈɑ̃ e pliˈaʒ dɑ̃ la leʒˈɑ̃d. ytilizˈe lə kɔ̃pɔʁtəmˈɑ̃ də validasjˈɔ̃, la stabilitˈe dy plˈi, levalyasjˈɔ̃ pʁolɔ̃ʒˈe e lodˈi de paʁamˈɛtʁz ɑ̃sˈɑ̃bl; tɹˈAnɪŋ ɹˈʌnz kɔ̃pˈaʁ le pʁˈøv mɛ nə deklˈaʁ paz œ̃ vɛ̃kˈœʁ sjɑ̃tifikmˈɑ̃ ʁəpʁodyktˈibl paʁ lyˌimˈɛm."
     }
   ]
 }

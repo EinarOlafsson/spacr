@@ -4091,47 +4091,137 @@
       "id": "28_training_runs",
       "number": 28,
       "slug": "training_runs",
-      "title": "Training Runs",
+      "title": "Des séances d'entraînement",
       "series": 4,
       "app_key": "train_compare",
       "section": "Results and quality control",
-      "description": "Comparer plusieurs courses de formation de modèle en superposant des courbes et en différenciant leurs réglages.",
+      "description": "Découvrez les circuits de classement enregistrés, les courbes de train et de validation de superposition, inspectez la variabilité du pli et connectez les différences de performance aux paramètres et à la dérive environnementale.",
       "objectives": [
-        "Comprenez quand utiliser les courses d'entraînement.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Trouvez des séries d'entraînement complètes et incomplètes sans cacher des courbes ou des réglages manquants.",
+        "Comparer la précision de validation et la perte tout en gardant chaque course sur son axe d'époque.",
+        "L'audit est préférable par rapport aux époques précédentes, à la diffusion de la validation croisée et aux différences de paramètres."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Un ou plusieurs dossiers de modèles spaCR contenant les journaux train.csv et validation.csv, avec des instantanés de paramètres lorsque la comparaison de configuration est requise.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre les courses de formation. Comparer plusieurs courses de formation de modèle en superposant des courbes et en différenciant leurs paramètres.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre les courses de formation. Comparer plusieurs courses de formation de modèle en superposant des courbes et en différenciant leurs paramètres."
+          "narration": "Training Runs est un écran de contrôle de qualité pour lecture seulement. Il superpose les courbes de train et de validation enregistrées et place les paramètres diff à côté d'elles; il ne reprend jamais un modèle ou ne modifie jamais une course sur le disque.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.58,
+          "speech_text": "Training Runs est un écran de contrôle de qualité pour lecture seulement. Il superpose les courbes de train et de validation enregistrées et place les paramètres diff à côté d'elles; il ne reprend jamais un modèle ou ne modifie jamais une course sur le disque."
         },
         {
-          "narration": "Ouvrez Training Runs dans la section Results and quality control. Ouvrez les cours de formation dans la section Résultats et contrôle de la qualité.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Training Runs dans la section Results and quality control. Ouvrez les cours de formation dans la section Résultats et contrôle de la qualité."
+          "narration": "Choisissez le dossier qui contient des arbres modèles, ou n'importe quel parent au-dessus de plusieurs projets, puis cliquez sur Scan. Les données de microscopie transférées n'ont pas de courbes d'entraînement enregistrées, donc ce tutoriel utilise clairement des journaux de format spaCR synthétiques tout en exerçant le parseur et l'interface réels.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.7,
+          "speech_text": "Choisissez le dossier qui contient des arbres modèles, ou n'importe quel parent au-dessus de plusieurs projets, puis cliquez sur Scan. Les données de microscopie transférées n'ont pas de courbes d'entraînement enregistrées, donc ce tutoriel utilise clairement des journaux de format spakeur synthétiques tout en exerçant le parseur et l'interface réels."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez les mesures, l'allégement, le regroupement, les critères des points de contrôle et les champs de paramètres à afficher.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez les mesures, l'allégement, le regroupement, les critères des points de contrôle et les champs de paramètres à afficher."
+          "narration": "L'analyse trouve une ligne de base d'une vingtaine d'années, une piste de vingt-cinq ans, une piste de trois fois validée croisée et un point de contrôle intentionnellement incomplet. Les paramètres et les courbes manquants sont signalés en bambre plutôt que discrètement rejetés, tandis que les courbes valides restent utilisables.",
+          "visual": "03_discovered",
+          "focus_key": "runs",
+          "hold_after": 0.72,
+          "speech_text": "L'analyse trouve une ligne de base d'une vingtaine d'années, une piste de vingt-cinq ans, une piste de trois fois validée croisée et un point de contrôle intentionnellement incomplet. Les paramètres et les courbes manquants sont signalés en bambre plutôt que discrètement rejetés, tandis que les courbes valides restent utilisables."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez la convergence, le surmatch, la stabilité et les performances de la course plutôt que de choisir par défaut de formation seul.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez la convergence, le surmatch, la stabilité et les performances de la course plutôt que de choisir par défaut de formation seul."
+          "narration": "Tapez la ligne de base de l'époque du XXe siècle. Chaque rangée nomme son modèle, ses canaux, son nombre d'époques, ses plis et ses paramètres récupérés importants afin que la sélection reste traçable.",
+          "visual": "04_select_baseline",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.5,
+          "speech_text": "Tapez la ligne de base de l'époque du XXe siècle. Chaque rangée nomme son modèle, ses canaux, son nombre d'époques, ses plis et ses paramètres récupérés importants afin que la sélection reste traçable."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les chiffres de comparaison et les tableaux de différence de paramètres identifient la course reproduisable la plus forte.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les chiffres de comparaison et les tableaux de différence de paramètres identifient la course reproduisable la plus forte."
+          "narration": "C'est la deuxième comparaison. Les courbes de longueur différente ne sont ni tronquées ni rembourrées; chaque courbe conserve son axe d'époque véritable.",
+          "visual": "05_select_tuned",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.54,
+          "speech_text": "C'est la deuxième comparaison. Les courbes de longueur différente ne sont ni tronquées ni rembourrées; chaque courbe conserve son axe d'époque véritable."
+        },
+        {
+          "narration": "La métrique choisit une colonne enregistrée telle que l'exactitude, la perte, la zone de rappel de précision ou l'exactitude de la classe. Les pliages contrôlent si la validation croisée apparaît par pliage, en moyenne plus ou moins un écart standard, ou les deux.",
+          "visual": "06_controls",
+          "focus_key": "metrics",
+          "hold_after": 0.62,
+          "speech_text": "La métrique choisit une colonne enregistrée telle que l'exactitude, la perte, la zone de rappel de précision ou l'exactitude de la classe. Les pliages contrôlent si la validation croisée apparaît par pliage, en moyenne plus ou moins un écart standard, ou les deux."
+        },
+        {
+          "narration": "Cliquez sur Surplacement sélectionné. Les lignes dérivées sont des fractions d'entraînement et les lignes solides sont des fractions de validation; une courbe de train en hausse au-dessus d'une courbe de validation en déclin indique un surpassage, pas un meilleur modèle.",
+          "visual": "07_overlay",
+          "focus_key": "overlay",
+          "click_key": "overlay",
+          "hold_after": 0.58,
+          "speech_text": "Cliquez sur Surplacement sélectionné. Les lignes dérivées sont des fractions d'entraînement et les lignes solides sont des fractions de validation; une courbe de train en hausse au-dessus d'une courbe de validation en déclin indique un surpassage, pas un meilleur modèle."
+        },
+        {
+          "narration": "La courbe de validation réglée atteint environ le point zéro huit cinq cinq avant de se terminer près du point zéro huit quatre cinq; la ligne de base atteint son sommet près du point zéro sept huit six et se termine près du point zéro sept cinq. Le tableau relie cette différence à la taille du lot, aux époques, au taux d'apprentissage et à la source, tandis que le nombre de travailleurs est séparé en fonction de la dérive environnementale.",
+          "visual": "08_accuracy",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "La courbe de validation réglée atteint environ le point zéro huit cinq cinq avant de se terminer près du point zéro huit quatre cinq; la ligne de base atteint son sommet près du point zéro sept huit six et se termine près du point zéro sept cinq. Le tableau relie cette différence à la taille du lot, aux époques, au taux d'apprentissage et à la source, tandis que le nombre de travailleurs est séparé en fonction de la dérive environnementale."
+        },
+        {
+          "narration": "Cliquez sur une courbe pour identifier sa course et sa fraction au lieu de compter uniquement sur la couleur. La série sélectionnée est résolue à son dossier et à ses mesures par époque.",
+          "visual": "09_pick_curve",
+          "focus_key": "plot",
+          "click_key": "plot",
+          "hold_after": 0.5,
+          "speech_text": "Cliquez sur une courbe pour identifier sa course et sa fraction au lieu de compter uniquement sur la couleur. La série sélectionnée est résolue à son dossier et à ses mesures par époque."
+        },
+        {
+          "narration": "La ligne détaillée montre la série de validation de base, son intervalle d'époque, dernière précision point zéro sept quatre neuf six à l'époque vingt, et meilleure précision point zéro sept huit six à l'époque quinze. La meilleure valeur est étiquetée optimiste parce que la même courbe a sélectionné cette époque.",
+          "visual": "10_best_last",
+          "focus_key": "picked",
+          "hold_after": 0.74,
+          "speech_text": "La ligne détaillée montre la série de validation de base, son intervalle d'époque, dernière précision point zéro sept quatre neuf six à l'époque vingt, et meilleure précision point zéro sept huit six à l'époque quinze. La meilleure valeur est étiquetée optimiste parce que la même courbe a sélectionné cette époque."
+        },
+        {
+          "narration": "Ouvrez Metric et choisissez la perte. La comparaison de plusieurs indicateurs empêche une sélection basée sur un seul point final flatteur.",
+          "visual": "11_choose_loss",
+          "focus_key": "metric",
+          "click_key": "metric",
+          "hold_after": 0.48,
+          "speech_text": "Ouvrez Metric et choisissez la perte. La comparaison de plusieurs indicateurs empêche une sélection basée sur un seul point final flatteur."
+        },
+        {
+          "narration": "La perte utilise les mêmes démarches et des paramètres différents. Ici, la perte d'entraînement se poursuit vers le bas tandis que la perte de validation se retourne vers le haut, ce qui rend le surpassage tardif visible à partir d'une deuxième mesure plutôt que de l'exactitude seule.",
+          "visual": "12_loss",
+          "focus_key": "plot",
+          "hold_after": 0.62,
+          "speech_text": "La perte utilise les mêmes démarches et des paramètres différents. Ici, la perte d'entraînement se poursuit vers le bas tandis que la perte de validation se retourne vers le haut, ce qui rend le surpassage tardif visible à partir d'une deuxième mesure plutôt que de l'exactitude seule."
+        },
+        {
+          "narration": "Maintenant, comparez la course réglée avec la course triple et choisissez la moyenne plus ou moins déviation standard. Cela résume la validation croisée sans prétendre que sa moyenne est une seule course observée.",
+          "visual": "13_choose_fold_mean",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.58,
+          "speech_text": "Maintenant, comparez la course réglée avec la course triple et choisissez la moyenne plus ou moins déviation standard. Cela résume la validation croisée sans prétendre que sa moyenne est une seule course observée."
+        },
+        {
+          "narration": "La bande bleue est plus ou moins un écart standard sur trois plis. La courbe de validation moyenne se termine près du point zéro huit trois, tandis que la bande expose l'incertitude de pliage à pliage qu'une seule ligne dissimulerait.",
+          "visual": "14_fold_mean",
+          "focus_key": "plot",
+          "hold_after": 0.66,
+          "speech_text": "La bande bleue est plus ou moins un écart standard sur trois plis. La courbe de validation moyenne se termine près du point zéro huit trois, tandis que la bande expose l'incertitude de pliage à pliage qu'une seule ligne dissimulerait."
+        },
+        {
+          "narration": "Choisissez par pli lorsque le comportement individuel du pli compte. Ceci est particulièrement utile pour repérer une fissure instable ou une queue soutenue par moins de plis après l'arrêt précoce.",
+          "visual": "15_choose_per_fold",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.52,
+          "speech_text": "Choisissez par pli lorsque le comportement individuel du pli compte. Ceci est particulièrement utile pour repérer une fissure instable ou une queue soutenue par moins de plis après l'arrêt précoce."
+        },
+        {
+          "narration": "Le mode par pliage dessine tous les trains et séries de validation avec course, fractionnement et pliage dans la légende. Utilisez le comportement de validation, la stabilité du pli, l'évaluation prolongée et l'audit des paramètres ensemble; Training Runs compare les preuves mais ne déclare pas un vainqueur scientifiquement reproductible par lui-même.",
+          "visual": "16_per_fold",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "Le mode par pliage dessine tous les trains et séries de validation avec course, fractionnement et pliage dans la légende. Utilisez le comportement de validation, la stabilité du pli, l'évaluation prolongée et l'audit des paramètres ensemble; Training Runs compare les preuves mais ne déclare pas un vainqueur scientifiquement reproductible par lui-même."
         }
       ]
     },

@@ -1582,19 +1582,52 @@
       "id": "28_training_runs",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Trainingsrunden. Vergleichen Sie mehrere Modell-Training-Rennen durch Überlagerung von Kurven und Differenzierung ihrer Einstellungen."
+          "narration": "Training Runs ist ein Lese-Nur-Qualitätskontroll-Bildschirm. Es überlagert die gespeicherten Zug- und Validierungskurven und stellt die Einstellungen Differ neben ihnen; es schlägt nie ein Modell um oder ändert einen Lauf auf der Festplatte."
         },
         {
-          "narration": "Offene Schulungen aus dem Abschnitt Ergebnisse und Qualitätskontrolle. Wählen Sie ausgeführte Ordner oder registrierte Schulungsunterlagen aus, die verglichen werden sollten."
+          "narration": "Wählen Sie den Ordner aus, der Modellbäume enthält, oder einen Elternteil über mehreren Projekten, und klicken Sie dann auf Scan. Die übertragenen Mikroskopie-Daten haben keine gespeicherten Trainingskurven, so dass dieses Tutorial eindeutig synthetische spaCR-Format-Logs verwendet, während der Ausübung des echten Parser und der Schnittstelle."
         },
         {
-          "narration": "Wählen Sie in dem Hauptkonfigurationsbereich Metriken, Ausgleiten, Gruppieren, Checkpoint-Kriterien und die anzuzeigenden Einstellungsfelder aus."
+          "narration": "Der Scan findet eine 20-jährige Basislinie, eine 25-jährige abgestimmte Laufbahn, einen dreimal verifizierten Kreuzlauf und einen absichtlich unvollständigen Checkpoint. Fehlende Einstellungen und Kurven werden in Amber gemeldet, anstatt stillschweigend weggeworfen zu werden, während gültige Strecken nutzbar bleiben."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichen Sie Konvergenz, Überpassung, Stabilität und ausgehaltenen Leistungen, anstatt sich nur durch den Trainingsausfall auszuwählen."
+          "narration": "Tick die 20-Jahres-Basislinie. Jede Zeile benennt ihr Modell, Kanäle, Epochenzählung, Falten und wichtige wiederhergestellte Einstellungen, so dass die Auswahl nachvollziehbar bleibt."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Vergleichszahlen und Einstellungsdifferenztabellen den stärksten reproduzierbaren Run identifizieren."
+          "narration": "Tick die fünfundzwanziger Epoche tuned Run als zweite Vergleiche. Rennen unterschiedlicher Länge sind nicht gekrümmt oder gepolstert; jede Kurve behält ihre wahre Epochenas."
+        },
+        {
+          "narration": "Metrik wählt eine aufgezeichnete Spalte wie Genauigkeit, Verlust, Genauigkeit-Wiederrufbereich oder Klassengenauigkeit aus. Folds steuert, ob die Kreuzvalidierung pro Fold als Mittel plus oder minus eine Standardabweichung oder beides angezeigt wird."
+        },
+        {
+          "narration": "Klicken Sie auf Overlay ausgewählt. Die aufgegebenen Linien sind Trainingssplitts und die festen Linien sind Validierungssplitts; eine steigende Bahnkurve über einer abnehmenden Validierungskurve deutet auf Überpassungen hin, nicht auf ein besseres Modell."
+        },
+        {
+          "narration": "Die abgestimmte Validierungskurve erreicht etwa Nullpunkt acht fünf fünf, bevor sie in der Nähe von Nullpunkt acht vier fünf endet; die Baseline erreicht einen Gipfel in der Nähe von Nullpunkt sieben acht sechs und endet in der Nähe von Nullpunkt sieben fünf. Die Tabelle verknüpft diese Differenz mit Batchgröße, Epochen, Lernrate und Quelle, während die Zahl der Arbeiter im Umfeld getrennt wird."
+        },
+        {
+          "narration": "Klicken Sie auf eine Kurve, um ihre Länge und Spaltung zu erkennen, anstatt sich nur auf Farbe zu verlassen. Die ausgewählte Reihe wird auf ihren Ordner und die Messungen pro Epoche zurückgegriffen."
+        },
+        {
+          "narration": "Die Detaillinie zeigt die Basis-Validationsreihe, ihren Epochenbereich, die letzte Genauigkeit Nullpunkt sieben vier neun sechs in Epoche zwanzig und die beste Genauigkeit Nullpunkt sieben acht sechs in Epoche fünfzehn. Der beste Wert wird als optimistisch bezeichnet, weil die gleiche Kurve diese Epoche ausgewählt hat."
+        },
+        {
+          "narration": "Öffnen Sie Metric und wählen Sie Verlust. Der Vergleich mehrerer Metriken verhindert eine Auswahl auf der Grundlage eines schmeichelhaften Endpunkts."
+        },
+        {
+          "narration": "Verlust verwendet die gleichen Strecken und unterschiedliche Einstellungen. Hier geht der Ausbildungsverlust nach unten weiter, während der Validierungsverlust nach oben umkehrt, so dass die späte Überpassung von einer zweiten Messung anstatt von der Genauigkeit allein sichtbar ist."
+        },
+        {
+          "narration": "Vergleichen Sie nun den abgestimmten Lauf mit dem Dreifachlauf und wählen Sie die mittlere Plus- oder Minus-Standard-Abweichung. Dies fasst die Kreuzvalidation zusammen, ohne zu behaupten, dass der Mittelwert ein einziger beobachteter Lauf ist."
+        },
+        {
+          "narration": "Das blaue Band ist ein Plus- oder Minus-Standard-Abweichung über drei Falten. Die durchschnittliche Validierungskurve endet in der Nähe von Nullpunkt acht drei, während das Band die Fold-to-Fold-Unsicherheit aufdeckt, die eine einzelne Linie verbergen würde."
+        },
+        {
+          "narration": "Wählen Sie pro Fold, wenn das individuelle Foldverhalten wichtig ist. Dies ist besonders nützlich, wenn eine instabile Spaltung oder ein Schwanz nach einem frühen Stoppen durch weniger Falten unterstützt wird."
+        },
+        {
+          "narration": "Der Per-Fold-Modus zieht jede Zug- und Validierungsreihe mit Lauf, Spaltung und Falten in der Legende. Verwenden Sie Validierungsverhalten, Faltstabilität, ausgehaltene Bewertung und die Einstellungsprüfung zusammen; Training Runs vergleicht Beweise, erklärt jedoch nicht selbst einen wissenschaftlich reproduzierbaren Gewinner."
         }
       ]
     },

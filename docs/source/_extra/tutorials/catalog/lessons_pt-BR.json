@@ -4091,47 +4091,137 @@
       "id": "28_training_runs",
       "number": 28,
       "slug": "training_runs",
-      "title": "Training Runs",
+      "title": "Formas de treinamento",
       "series": 4,
       "app_key": "train_compare",
       "section": "Results and quality control",
-      "description": "Compare várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações.",
+      "description": "Descubra corridas de classificadores salvas, curvas de treinamento e validação de superposição, inspecione a variabilidade da dobra e conecte as diferenças de desempenho às configurações e à deriva do ambiente.",
       "objectives": [
-        "Entender quando usar a Formação.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Encontre corridas de treinamento completas e incompletas sem esconder curvas ou configurações faltantes.",
+        "Comparar a precisão da validação e a perda, mantendo cada corrida no seu próprio eixo de época.",
+        "Auditoria melhor versus épocas anteriores, difusão de validação cruzada e diferenças de configuração em balde."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Uma ou mais pastas de modelos spaCR contendo os registos train.csv e validation.csv, com instantâneos de configuração quando for necessária uma comparação de configuração.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange as corridas de treinamento. Comparar várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange as corridas de treinamento. Comparar várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações."
+          "narration": "O Training Runs é uma tela de controlo de qualidade apenas para leitura. Ele superpõe as curvas de treinamento e validação salvas e coloca as configurações dif ao lado delas; nunca reestrena um modelo ou muda uma corrida no disco.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.58,
+          "speech_text": "O Training Runs é uma tela de controlo de qualidade apenas para leitura. Ele superpõe as curvas de treinamento e validação salvas e coloca as configurações dif ao lado delas; nunca reestrena um modelo ou muda uma corrida no disco."
         },
         {
-          "narration": "Abra Training Runs na seção Results and quality control. Abrir a execução de treinamentos na secção Resultados e controlo de qualidade.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Training Runs na seção Results and quality control. Abrir a execução de treinamentos na secção Resultados e controlo de qualidade."
+          "narration": "Escolha a pasta que contém árvores modelo, ou qualquer dos pais acima de vários projetos, e clique em Escanar. Os dados da microscopia transferidos não têm curvas de treinamento salvas, por isso este tutorial usa claramente logs sintéticos em formato spaCR enquanto exercita o parser e interface reais.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.7,
+          "speech_text": "Escolha a pasta que contém árvores modelo, ou qualquer dos pais acima de vários projetos, e clique em Escanar. Os dados da microscopia transferidos não têm curvas de treinamento salvas, por isso este tutorial usa claramente logs sintéticos em formato espáquer enquanto exercita o parser e interface reais."
         },
         {
-          "narration": "Na área de configuração principal, escolha métricas, suavização, agrupamento, critérios de ponto de verificação e os campos de configuração a exibir.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, escolha métricas, suavização, agrupamento, critérios de ponto de verificação e os campos de configuração a exibir."
+          "narration": "A varredura encontra uma linha de base de vinte anos, uma corrida sintonizada de vinte e cinco anos, uma corrida cruzada validada três vezes e um ponto de controlo intencionalmente incompleto. As configurações e curvas faltantes são relatadas em ámbar em vez de descartadas silenciosamente, enquanto as corridas válidas permanecem utilizáveis.",
+          "visual": "03_discovered",
+          "focus_key": "runs",
+          "hold_after": 0.72,
+          "speech_text": "A varredura encontra uma linha de base de vinte anos, uma corrida sintonizada de vinte e cinco anos, uma corrida cruzada validada três vezes e um ponto de controlo intencionalmente incompleto. As configurações e curvas faltantes são relatadas em ámbar em vez de descartadas silenciosamente, enquanto as corridas válidas permanecem utilizáveis."
         },
         {
-          "narration": "Antes da corrida completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare convergência, sobre-ajustamento, estabilidade e desempenho prolongado em vez de selecionar apenas pela perda de treinamento.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da corrida completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare convergência, sobre-ajustamento, estabilidade e desempenho prolongado em vez de selecionar apenas pela perda de treinamento."
+          "narration": "Marque a linha de base da era do vigésimo. Cada linha nomeia seu modelo, canais, contagem de épocas, dobras e importantes configurações recuperadas para que a seleção permaneça rastreável.",
+          "visual": "04_select_baseline",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.5,
+          "speech_text": "Marque a linha de base da era do vigésimo. Cada linha nomeia seu modelo, canais, contagem de épocas, dobras e importantes configurações recuperadas para que a seleção permaneça rastreável."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, os números de comparação e as tabelas de diferença de configuração identificam a corrida mais forte reprodutível.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, os números de comparação e as tabelas de diferença de configuração identificam a corrida mais forte reprodutível."
+          "narration": "Marque a corrida sintonizada de 25 anos como a segunda comparação. As corridas de diferentes comprimentos não são truncadas ou empilhadas; cada curva mantém o seu verdadeiro eixo de época.",
+          "visual": "05_select_tuned",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.54,
+          "speech_text": "Marque a corrida sintonizada de 25 anos como a segunda comparação. As corridas de diferentes comprimentos não são truncadas ou empilhadas; cada curva mantém o seu verdadeiro eixo de época."
+        },
+        {
+          "narration": "A métrica escolhe uma coluna gravada, como precisão, perda, área de recuperação de precisão ou precisão de classe. As folhas controlam se a validação cruzada aparece por folha, como média mais ou menos um desvio padrão, ou ambos.",
+          "visual": "06_controls",
+          "focus_key": "metrics",
+          "hold_after": 0.62,
+          "speech_text": "A métrica escolhe uma coluna gravada, como precisão, perda, área de recuperação de precisão ou precisão de classe. As folhas controlam se a validação cruzada aparece por folha, como média mais ou menos um desvio padrão, ou ambos."
+        },
+        {
+          "narration": "Clique em Overlay selecionado. As linhas rasgadas são divisões de treinamento e as linhas sólidas são divisões de validação; uma curva de trem ascendente acima de uma curva de validação decrescente indica sobre-ajustamento, não um modelo melhor.",
+          "visual": "07_overlay",
+          "focus_key": "overlay",
+          "click_key": "overlay",
+          "hold_after": 0.58,
+          "speech_text": "Clique em Overlay selecionado. As linhas rasgadas são divisões de treinamento e as linhas sólidas são divisões de validação; uma curva de trem ascendente acima de uma curva de validação decrescente indica sobre-ajustamento, não um modelo melhor."
+        },
+        {
+          "narration": "A curva de validação sintonizada atinge cerca de zero ponto oito cinco cinco antes de terminar perto de zero ponto oito quatro cinco; a linha de base alcança picos perto de zero ponto sete oito seis e termina perto de zero ponto sete cinco. A tabela liga essa diferença ao tamanho do lote, épocas, taxa de aprendizagem e fonte, enquanto a contagem de trabalhadores é separada à medida que o ambiente deriva.",
+          "visual": "08_accuracy",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "A curva de validação sintonizada atinge cerca de zero ponto oito cinco cinco antes de terminar perto de zero ponto oito quatro cinco; a linha de base alcança picos perto de zero ponto sete oito seis e termina perto de zero ponto sete cinco. A tabela liga essa diferença ao tamanho do lote, épocas, taxa de aprendizagem e fonte, enquanto a contagem de trabalhadores é separada à medida que o ambiente deriva."
+        },
+        {
+          "narration": "Clique em uma curva para identificar sua corrida e divisão em vez de confiar apenas na cor. A série selecionada é resolvida de volta à sua pasta e medições por época.",
+          "visual": "09_pick_curve",
+          "focus_key": "plot",
+          "click_key": "plot",
+          "hold_after": 0.5,
+          "speech_text": "Clique em uma curva para identificar sua corrida e divisão em vez de confiar apenas na cor. A série selecionada é resolvida de volta à sua pasta e medições por época."
+        },
+        {
+          "narration": "A linha de detalhes mostra a série de validação da linha de base, seu intervalo de época, última precisão zero ponto sete quatro nove seis na época vinte, e melhor precisão zero ponto sete oito seis na época quinze. O melhor valor é rotulado como otimista porque a mesma curva selecionou essa época.",
+          "visual": "10_best_last",
+          "focus_key": "picked",
+          "hold_after": 0.74,
+          "speech_text": "A linha de detalhes mostra a série de validação da linha de base, seu intervalo de época, última precisão zero ponto sete quatro nove seis na época vinte, e melhor precisão zero ponto sete oito seis na época quinze. O melhor valor é rotulado como otimista porque a mesma curva selecionou essa época."
+        },
+        {
+          "narration": "Abre Metric e escolha a perda. A comparação de várias métricas impede uma seleção baseada em um ponto final lisonjeiro.",
+          "visual": "11_choose_loss",
+          "focus_key": "metric",
+          "click_key": "metric",
+          "hold_after": 0.48,
+          "speech_text": "Abre Metric e escolha a perda. A comparação de várias métricas impede uma seleção baseada em um ponto final lisonjeiro."
+        },
+        {
+          "narration": "A perda usa as mesmas corridas e configurações diferentes. Aqui, a perda de treinamento continua para baixo, enquanto a perda de validação vira para cima, tornando o atraso sobre-ajustamento visível a partir de uma segunda medição, em vez de precisão sozinha.",
+          "visual": "12_loss",
+          "focus_key": "plot",
+          "hold_after": 0.62,
+          "speech_text": "A perda usa as mesmas corridas e configurações diferentes. Aqui, a perda de treinamento continua para baixo, enquanto a perda de validação vira para cima, tornando o atraso sobre-ajustamento visível a partir de uma segunda medição, em vez de precisão sozinha."
+        },
+        {
+          "narration": "Agora compare a corrida sintonizada com a corrida de três vezes e escolha a média mais ou menos desvio padrão. Isto resume a validação cruzada sem fingir que a sua média é uma única corrida observada.",
+          "visual": "13_choose_fold_mean",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.58,
+          "speech_text": "Agora compare a corrida sintonizada com a corrida de três vezes e escolha a média mais ou menos desvio padrão. Isto resume a validação cruzada sem fingir que a sua média é uma única corrida observada."
+        },
+        {
+          "narration": "A faixa azul é mais ou menos um desvio padrão em três dobras. A curva de validação média termina perto do ponto zero oito três, enquanto a faixa expõe a incerteza de dobra a dobra que uma única linha ocultaria.",
+          "visual": "14_fold_mean",
+          "focus_key": "plot",
+          "hold_after": 0.66,
+          "speech_text": "A faixa azul é mais ou menos um desvio padrão em três dobras. A curva de validação média termina perto do ponto zero oito três, enquanto a faixa expõe a incerteza de dobra a dobra que uma única linha ocultaria."
+        },
+        {
+          "narration": "Escolha por dobra quando o comportamento individual da dobra é importante. Isto é especialmente útil para detectar uma divisão instável ou uma cauda apoiada por menos dobras após a parada precoce.",
+          "visual": "15_choose_per_fold",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.52,
+          "speech_text": "Escolha por dobra quando o comportamento individual da dobra é importante. Isto é especialmente útil para detectar uma divisão instável ou uma cauda apoiada por menos dobras após a parada precoce."
+        },
+        {
+          "narration": "O modo por dobra desenha todos os trens e séries de validação com corrida, divisão e dobra na lenda. Use o comportamento de validação, a estabilidade de dobra, a avaliação prolongada e a auditoria das configurações juntas; as corridas de treinamento comparam evidências, mas não declaram um vencedor científicamente reprodutível por si só.",
+          "visual": "16_per_fold",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "O modo por dobra desenha todos os trens e séries de validação com corrida, divisão e dobra na lenda. Use o comportamento de validação, a estabilidade de dobra, a avaliação prolongada e a auditoria das configurações juntas; as corridas de treinamento comparam evidências, mas não declaram um vencedor científicamente reprodutível por si só."
         }
       ]
     },

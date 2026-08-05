@@ -4,47 +4,167 @@
   "voice": "pm_alex",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 53.625,
+  "total_duration": 239.455,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.35,
-      "scene_end": 9.799999999999999,
-      "duration": 9.799999999999999,
-      "text": "Este tutorial abrange as corridas de treinamento. Comparar várias corridas de treinamento de modelo superpondo curvas e diferenciando suas configurações."
+      "speech_end": 13.275,
+      "scene_end": 13.855,
+      "duration": 13.855,
+      "text": "O Training Runs é uma tela de controlo de qualidade apenas para leitura. Ele superpõe as curvas de treinamento e validação salvas e coloca as configurações dif ao lado delas; nunca reestrena um modelo ou muda uma corrida no disco.",
+      "speech_text": "O Training Runs é uma tela de controlo de qualidade apenas para leitura. Ele superpõe as curvas de treinamento e validação salvas e coloca as configurações dif ao lado delas; nunca reestrena um modelo ou muda uma corrida no disco.",
+      "phonemes": "ʊ trInˈiŋɡ xˈũŋz ɛ ˌumæ tˈɛlæ ʤy kˌoŋtrˈolʊ ʤy kwˌalidˈaʤj ˌapˈenæs pˌaɾæ lˌAtˈuɾæ. ˌely sˌupeɾəpˈõj as kˈuɾəvæz ʤy trˌAnæmˈAŋtw i vˌalidasˈɐ̃ʊ̃ sˈWvæz i kˌolˈɔkæ as kˌoŋfiɡˌuɾasˈõjz ʤˈif W lˈadʊ dˈɛlæs; nˌũŋkæ xˌeestrˈenæ ũŋ mˌodˈelw ow mˈudæ ˌumæ kˌoxˈidæ nʊ ʤˈiskʊ."
     },
     {
       "scene": 2,
-      "speech_start": 9.799999999999999,
-      "speech_end": 18.075,
-      "scene_end": 18.525,
-      "duration": 8.725,
-      "text": "Abra Training Runs na seção Results and quality control. Abrir a execução de treinamentos na secção Resultados e controlo de qualidade."
+      "speech_start": 13.855,
+      "speech_end": 31.43,
+      "scene_end": 32.13,
+      "duration": 18.275000000000002,
+      "text": "Escolha a pasta que contém árvores modelo, ou qualquer dos pais acima de vários projetos, e clique em Escanar. Os dados da microscopia transferidos não têm curvas de treinamento salvas, por isso este tutorial usa claramente logs sintéticos em formato spaCR enquanto exercita o parser e interface reais.",
+      "speech_text": "Escolha a pasta que contém árvores modelo, ou qualquer dos pais acima de vários projetos, e clique em Escanar. Os dados da microscopia transferidos não têm curvas de treinamento salvas, por isso este tutorial usa claramente logs sintéticos em formato espáquer enquanto exercita o parser e interface reais.",
+      "phonemes": "ˌeskˈoljæ a pˈastæ ky koŋtˈAŋ ˈaɾəvoɾyz mˌodˈelʊ, ow kwWkˌɛr dʊs pˈIz ˌasˈimæ ʤy vˈaɾjʊs prˌoʒˈɛtʊs, i klˈikj ˈAŋ ˌeskænˈar. ʊz dˈadʊz da mˌikroskopˈiæ trˌɐ̃ŋsfeɾˈidʊz nˌɐ̃ʊ̃ tAŋ kˈuɾəvæz ʤy trˌAnæmˈAŋtʊ sˈWvæs, poɾ ˈisw ˌesʧy tˌutoɾiˈW ˈuzæ klˌaɾæmˈAŋʧy lˈɔɡs sˌiŋtˈɛʧikʊz ˈAŋ fˌoɾəmˈatw ˌespˈakɛɾ ˌAŋkwˈɐ̃ŋtw ˌezeɾəsˈitæ ʊ paɾəsˈɛɾ i ˌiŋteɾəfˈasy xeˈIs."
     },
     {
       "scene": 3,
-      "speech_start": 18.525,
-      "speech_end": 27.625,
-      "scene_end": 28.075,
-      "duration": 9.55,
-      "text": "Na área de configuração principal, escolha métricas, suavização, agrupamento, critérios de ponto de verificação e os campos de configuração a exibir."
+      "speech_start": 32.13,
+      "speech_end": 51.55500000000001,
+      "scene_end": 52.275000000000006,
+      "duration": 20.145000000000003,
+      "text": "A varredura encontra uma linha de base de vinte anos, uma corrida sintonizada de vinte e cinco anos, uma corrida cruzada validada três vezes e um ponto de controlo intencionalmente incompleto. As configurações e curvas faltantes são relatadas em ámbar em vez de descartadas silenciosamente, enquanto as corridas válidas permanecem utilizáveis.",
+      "speech_text": "A varredura encontra uma linha de base de vinte anos, uma corrida sintonizada de vinte e cinco anos, uma corrida cruzada validada três vezes e um ponto de controlo intencionalmente incompleto. As configurações e curvas faltantes são relatadas em ámbar em vez de descartadas silenciosamente, enquanto as corridas válidas permanecem utilizáveis.",
+      "phonemes": "a vˌaxedˈuɾæ ˌAŋkˈoŋtræ ˌumæ lˈiɲæ ʤy bˈazy ʤy vˈiŋʧj ˈɐ̃nʊs, ˌumæ kˌoxˈidæ sˌiŋtonizˈadæ ʤy vˈiŋʧj i sˈiŋkw ˈɐ̃nʊs, ˌumæ kˌoxˈidæ krˌuzˈadæ vˌalidˈadæ trˈez vˈezyz i ũŋ pˈoŋtʊ ʤy kˌoŋtrˈolw ˌiŋtAŋsˌionWmˈAŋʧj ˌiŋkomplˈɛtʊ. as kˌoŋfiɡˌuɾasˈõjz i kˈuɾəvæs fˌWtˈɐ̃ŋʧys sɐ̃ʊ̃ xˌelatˈadæz ˈAŋ ˈambaɾ ˈAŋ vˈez ʤy dˌeskaɾətˈadæs sˌilAŋsˌiozæmˈAŋʧy, ˌAŋkwˈɐ̃ŋtw as kˌoxˈidæz vˈalidæs pˌeɾəmænˈɛsAŋ ˌuʧilizˈavAs."
     },
     {
       "scene": 4,
-      "speech_start": 28.075,
-      "speech_end": 42.875,
-      "scene_end": 43.325,
-      "duration": 15.250000000000004,
-      "text": "Antes da corrida completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. Compare convergência, sobre-ajustamento, estabilidade e desempenho prolongado em vez de selecionar apenas pela perda de treinamento."
+      "speech_start": 52.275000000000006,
+      "speech_end": 63.50000000000001,
+      "scene_end": 64.0,
+      "duration": 11.724999999999994,
+      "text": "Marque a linha de base da era do vigésimo. Cada linha nomeia seu modelo, canais, contagem de épocas, dobras e importantes configurações recuperadas para que a seleção permaneça rastreável.",
+      "speech_text": "Marque a linha de base da era do vigésimo. Cada linha nomeia seu modelo, canais, contagem de épocas, dobras e importantes configurações recuperadas para que a seleção permaneça rastreável.",
+      "phonemes": "mˈaɾəkj a lˈiɲæ ʤy bˈazy da ˌɛɾæ dʊ vˌiʒˈɛzimʊ. kˈadæ lˈiɲæ nˌomˈAæ seʊ mˌodˈelʊ, kænˈIs, kˌoŋtˈaʒAŋ ʤj ˈɛpokæs, dˈɔbræz i ˌimpoɾətˈɐ̃ŋʧys kˌoŋfiɡˌuɾasˈõjz xˌekupeɾˈadæs pˌaɾækj a sˌelesˈɐ̃ʊ̃ pˌeɾəmænˈesæ xˌastreˈaveʊ."
     },
     {
       "scene": 5,
-      "speech_start": 43.325,
-      "speech_end": 52.975,
-      "scene_end": 53.625,
-      "duration": 10.299999999999997,
-      "text": "Quando o fluxo de trabalho estiver concluído, os números de comparação e as tabelas de diferença de configuração identificam a corrida mais forte reprodutível."
+      "speech_start": 64.0,
+      "speech_end": 75.6,
+      "scene_end": 76.14,
+      "duration": 12.14,
+      "text": "Marque a corrida sintonizada de 25 anos como a segunda comparação. As corridas de diferentes comprimentos não são truncadas ou empilhadas; cada curva mantém o seu verdadeiro eixo de época.",
+      "speech_text": "Marque a corrida sintonizada de 25 anos como a segunda comparação. As corridas de diferentes comprimentos não são truncadas ou empilhadas; cada curva mantém o seu verdadeiro eixo de época.",
+      "phonemes": "mˈaɾəkj a kˌoxˈidæ sˌiŋtonizˈadæ ʤy vˈiŋʧyisˈiŋkw ˈɐ̃nʊs kˌomʊ a sˌeɡˈũŋdæ kˌompaɾasˈɐ̃ʊ̃. as kˌoxˈidæz ʤy ʤˌifeɾˈAŋʧys kˌomprimˈAŋtʊz nˌɐ̃ʊ̃ sɐ̃ʊ̃ trˌũŋkˈadæz ow ˌAmpiljˈadæs; kˈadæ kˈuɾəvæ mɐ̃ŋtˈAŋ ʊ seʊ vˌeɾədadˈAɾw ˈAʃʊ ʤj ˈɛpokæ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 76.14,
+      "speech_end": 89.59,
+      "scene_end": 90.21000000000001,
+      "duration": 14.070000000000007,
+      "text": "A métrica escolhe uma coluna gravada, como precisão, perda, área de recuperação de precisão ou precisão de classe. As folhas controlam se a validação cruzada aparece por folha, como média mais ou menos um desvio padrão, ou ambos.",
+      "speech_text": "A métrica escolhe uma coluna gravada, como precisão, perda, área de recuperação de precisão ou precisão de classe. As folhas controlam se a validação cruzada aparece por folha, como média mais ou menos um desvio padrão, ou ambos.",
+      "phonemes": "a mˈɛtrikæ ˌeskˈɔljj ˌumæ kˌolˈunæ ɡrˌavˈadæ, kˌomʊ prˌesizˈɐ̃ʊ̃, pˈeɾədæ, ˈaɾeæ ʤy xˌekupˌeɾasˈɐ̃ʊ̃ ʤy prˌesizˈɐ̃ʊ̃ ow prˌesizˈɐ̃ʊ̃ ʤy klˈasy. as fˈoljæs kˌoŋtrˈɔlɐ̃ʊ̃ sj a vˌalidasˈɐ̃ʊ̃ krˌuzˈadæ ˌapaɾˈɛsy por fˈoljæ, kˌomʊ mˈɛʤjæ mˈIz ow mˈenʊz ũŋ dezvˈiʊ padrˈɐ̃ʊ̃, ow ˈɐ̃mbʊs."
+    },
+    {
+      "scene": 7,
+      "speech_start": 90.21000000000001,
+      "speech_end": 104.46000000000001,
+      "scene_end": 105.04,
+      "duration": 14.829999999999998,
+      "text": "Clique em Overlay selecionado. As linhas rasgadas são divisões de treinamento e as linhas sólidas são divisões de validação; uma curva de trem ascendente acima de uma curva de validação decrescente indica sobre-ajustamento, não um modelo melhor.",
+      "speech_text": "Clique em Overlay selecionado. As linhas rasgadas são divisões de treinamento e as linhas sólidas são divisões de validação; uma curva de trem ascendente acima de uma curva de validação decrescente indica sobre-ajustamento, não um modelo melhor.",
+      "phonemes": "klˈikj ˈAŋ ˌoveɾəlˈI sˌelesˌionˈadʊ. az lˈiɲæz xˌazɡˈadæs sɐ̃ʊ̃ ʤˌivizˈõjz ʤy trˌAnæmˈAŋtw i az lˈiɲæs sˈɔlidæs sɐ̃ʊ̃ ʤˌivizˈõjz ʤy vˌalidasˈɐ̃ʊ̃; ˌumæ kˈuɾəvæ ʤy trˈAŋ ˌasAŋdˈAŋʧj ˌasˈimæ ʤj ˌumæ kˈuɾəvæ ʤy vˌalidasˈɐ̃ʊ̃ dˌekresˈAŋʧj ˌiŋʤˈikæ sˈobriˌaʒustæmˈAŋtʊ, nˌɐ̃ʊ̃ ũŋ mˌodˈelʊ meljˈɔr."
+    },
+    {
+      "scene": 8,
+      "speech_start": 105.04,
+      "speech_end": 129.115,
+      "scene_end": 129.935,
+      "duration": 24.894999999999996,
+      "text": "A curva de validação sintonizada atinge cerca de zero ponto oito cinco cinco antes de terminar perto de zero ponto oito quatro cinco; a linha de base alcança picos perto de zero ponto sete oito seis e termina perto de zero ponto sete cinco. A tabela liga essa diferença ao tamanho do lote, épocas, taxa de aprendizagem e fonte, enquanto a contagem de trabalhadores é separada à medida que o ambiente deriva.",
+      "speech_text": "A curva de validação sintonizada atinge cerca de zero ponto oito cinco cinco antes de terminar perto de zero ponto oito quatro cinco; a linha de base alcança picos perto de zero ponto sete oito seis e termina perto de zero ponto sete cinco. A tabela liga essa diferença ao tamanho do lote, épocas, taxa de aprendizagem e fonte, enquanto a contagem de trabalhadores é separada à medida que o ambiente deriva.",
+      "phonemes": "a kˈuɾəvæ ʤy vˌalidasˈɐ̃ʊ̃ sˌiŋtonizˈadæ ˌaʧˈiŋʒy sˈeɾəkæ ʤy zˈɛɾʊ pˈoŋtw ˈoɪtʊ sˈiŋkʊ sˈiŋkw ˈɐ̃ŋʧyz ʤy tˌeɾəminˈar pˈɛɾətʊ ʤy zˈɛɾʊ pˈoŋtw ˈoɪtʊ kwˈatrʊ sˈiŋkʊ; a lˈiɲæ ʤy bˈazj ˌWkˈɐ̃ŋsæ pˈikʊs pˈɛɾətʊ ʤy zˈɛɾʊ pˈoŋtʊ sˈɛʧj ˈoɪtʊ sˈAz i tˌeɾəmˈinæ pˈɛɾətʊ ʤy zˈɛɾʊ pˈoŋtʊ sˈɛʧy sˈiŋkʊ. a tˌabˈɛlæ lˈiɡæ ˈɛsæ ʤˌifeɾˈAŋsæ W tˌæmˈɐ̃ɲʊ dʊ lˈɔʧy, ˈɛpokæs, tˈaʃæ ʤj ˌaprAŋʤizˈaʒAŋ i fˈoŋʧy, ˌAŋkwˈɐ̃ŋtw a kˌoŋtˈaʒAŋ ʤy trˌabaljadˈoɾyz ɛ sˌepaɾˈad ˌaː mˌeʤˈidæ ky u ˌɐ̃mbiˈAŋʧy dˌeɾˈivæ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 129.935,
+      "speech_end": 139.835,
+      "scene_end": 140.335,
+      "duration": 10.400000000000006,
+      "text": "Clique em uma curva para identificar sua corrida e divisão em vez de confiar apenas na cor. A série selecionada é resolvida de volta à sua pasta e medições por época.",
+      "speech_text": "Clique em uma curva para identificar sua corrida e divisão em vez de confiar apenas na cor. A série selecionada é resolvida de volta à sua pasta e medições por época.",
+      "phonemes": "klˈikj ˈAŋ ˌumæ kˈuɾəvæ pˌaɾæ ˌidAŋʧˌifikˈar sˌuæ kˌoxˈidæ i ʤˌivizˈɐ̃ʊ̃ ˈAŋ vˈez ʤy kˌoŋfiˈaɾ ˌapˈenæz na kˈor. a sˈɛɾjy sˌelesˌionˈadæ ɛ xˌezowvˈidæ ʤy vˈɔlt ˌaː sˌuæ pˈastæ i mˌeʤisˈõjs poɾ ˈɛpokæ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 140.335,
+      "speech_end": 157.685,
+      "scene_end": 158.425,
+      "duration": 18.090000000000003,
+      "text": "A linha de detalhes mostra a série de validação da linha de base, seu intervalo de época, última precisão zero ponto sete quatro nove seis na época vinte, e melhor precisão zero ponto sete oito seis na época quinze. O melhor valor é rotulado como otimista porque a mesma curva selecionou essa época.",
+      "speech_text": "A linha de detalhes mostra a série de validação da linha de base, seu intervalo de época, última precisão zero ponto sete quatro nove seis na época vinte, e melhor precisão zero ponto sete oito seis na época quinze. O melhor valor é rotulado como otimista porque a mesma curva selecionou essa época.",
+      "phonemes": "a lˈiɲæ ʤy dˌetˈaljyz mˈɔstræ a sˈɛɾjy ʤy vˌalidasˈɐ̃ʊ̃ da lˈiɲæ ʤy bˈazy, seʊ ˌiŋteɾəvˈalʊ ʤj ˈɛpokæ, ˈulʧimæ prˌesizˈɐ̃ʊ̃ zˈɛɾʊ pˈoŋtʊ sˈɛʧy kwˈatrʊ nˈɔvy sˈAz na ˈɛpokæ vˈiŋʧy, i meljˈɔr prˌesizˈɐ̃ʊ̃ zˈɛɾʊ pˈoŋtʊ sˈɛʧj ˈoɪtʊ sˈAz na ˈɛpokæ kˈiŋzy. ʊ meljˈɔr valˈoɾ ɛ xˌotulˈadʊ kˌomʊ ˌoʧimˈistæ pˈoɾəkj a mˈezmæ kˈuɾəvæ sˌelesˌionˈow ˈɛsæ ˈɛpokæ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 158.425,
+      "speech_end": 166.025,
+      "scene_end": 166.505,
+      "duration": 8.079999999999984,
+      "text": "Abre Metric e escolha a perda. A comparação de várias métricas impede uma seleção baseada em um ponto final lisonjeiro.",
+      "speech_text": "Abre Metric e escolha a perda. A comparação de várias métricas impede uma seleção baseada em um ponto final lisonjeiro.",
+      "phonemes": "ˈabry metrˈik i ˌeskˈoljæ a pˈeɾədæ. a kˌompaɾasˈɐ̃ʊ̃ ʤy vˈaɾjæz mˈɛtrikæz ˌimpˈɛʤj ˌumæ sˌelesˈɐ̃ʊ̃ bˌazeˈadæ ˈAŋ ũŋ pˈoŋtʊ finˈW lˌizoŋʒˈAɾʊ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 166.505,
+      "speech_end": 181.355,
+      "scene_end": 181.975,
+      "duration": 15.469999999999999,
+      "text": "A perda usa as mesmas corridas e configurações diferentes. Aqui, a perda de treinamento continua para baixo, enquanto a perda de validação vira para cima, tornando o atraso sobre-ajustamento visível a partir de uma segunda medição, em vez de precisão sozinha.",
+      "speech_text": "A perda usa as mesmas corridas e configurações diferentes. Aqui, a perda de treinamento continua para baixo, enquanto a perda de validação vira para cima, tornando o atraso sobre-ajustamento visível a partir de uma segunda medição, em vez de precisão sozinha.",
+      "phonemes": "a pˈeɾədæ ˈuzæ az mˈezmæs kˌoxˈidæz i kˌoŋfiɡˌuɾasˈõjz ʤˌifeɾˈAŋʧys. akˈi, a pˈeɾədæ ʤy trˌAnæmˈAŋtʊ kˌoŋʧinˈuæ pˌaɾæ bˈIʃʊ, ˌAŋkwˈɐ̃ŋtw a pˈeɾədæ ʤy vˌalidasˈɐ̃ʊ̃ vˈiɾæ pˌaɾæ sˈimæ, tˌoɾənˈɐ̃ŋdw u ˌatrˈazʊ sˈobriˌaʒustæmˈAŋtʊ vˌizˈiveʊ a paɾəʧˈir ʤj ˌumæ sˌeɡˈũŋdæ mˌeʤisˈɐ̃ʊ̃, ˈAŋ vˈez ʤy prˌesizˈɐ̃ʊ̃ sˌozˈiɲæ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 181.975,
+      "speech_end": 194.125,
+      "scene_end": 194.705,
+      "duration": 12.730000000000018,
+      "text": "Agora compare a corrida sintonizada com a corrida de três vezes e escolha a média mais ou menos desvio padrão. Isto resume a validação cruzada sem fingir que a sua média é uma única corrida observada.",
+      "speech_text": "Agora compare a corrida sintonizada com a corrida de três vezes e escolha a média mais ou menos desvio padrão. Isto resume a validação cruzada sem fingir que a sua média é uma única corrida observada.",
+      "phonemes": "ˌaɡˈɔɾæ kˌompˈaɾi a kˌoxˈidæ sˌiŋtonizˈadæ koŋ a kˌoxˈidæ ʤy trˈez vˈezyz i ˌeskˈoljæ a mˈɛʤjæ mˈIz ow mˈenʊz dezvˈiʊ padrˈɐ̃ʊ̃. ˈistʊ xˌezˈumj a vˌalidasˈɐ̃ʊ̃ krˌuzˈadæ sˈAŋ fiŋʒˈir ky a sˌuæ mˈɛʤjæ ɛ ˌumæ ˈunikæ kˌoxˈidæ ˌobseɾəvˈadæ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 194.705,
+      "speech_end": 206.85500000000002,
+      "scene_end": 207.51500000000001,
+      "duration": 12.810000000000002,
+      "text": "A faixa azul é mais ou menos um desvio padrão em três dobras. A curva de validação média termina perto do ponto zero oito três, enquanto a faixa expõe a incerteza de dobra a dobra que uma única linha ocultaria.",
+      "speech_text": "A faixa azul é mais ou menos um desvio padrão em três dobras. A curva de validação média termina perto do ponto zero oito três, enquanto a faixa expõe a incerteza de dobra a dobra que uma única linha ocultaria.",
+      "phonemes": "a fˈIʃæ azˈuw ɛ mˈIz ow mˈenʊz ũŋ dezvˈiʊ padrˈɐ̃ʊ̃ ˈAŋ trˈez dˈɔbræs. a kˈuɾəvæ ʤy vˌalidasˈɐ̃ʊ̃ mˈɛʤjæ tˌeɾəmˈinæ pˈɛɾətʊ dʊ pˈoŋtʊ zˈɛɾw ˈoɪtʊ trˈes, ˌAŋkwˈɐ̃ŋtw a fˈIʃæ espˈõj a ˌiŋseɾətˈezæ ʤy dˈɔbræ a dˈɔbræ ky ˌumæ ˈunikæ lˈiɲæ ˌokuwtaɾˈiæ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 207.51500000000001,
+      "speech_end": 219.01500000000001,
+      "scene_end": 219.53500000000003,
+      "duration": 12.02000000000001,
+      "text": "Escolha por dobra quando o comportamento individual da dobra é importante. Isto é especialmente útil para detectar uma divisão instável ou uma cauda apoiada por menos dobras após a parada precoce.",
+      "speech_text": "Escolha por dobra quando o comportamento individual da dobra é importante. Isto é especialmente útil para detectar uma divisão instável ou uma cauda apoiada por menos dobras após a parada precoce.",
+      "phonemes": "ˌeskˈoljæ por dˈɔbræ kwˈɐ̃ŋdw ʊ kˌompoɾətæmˈAŋtw ˌiŋʤivˌiduˈW da dˈɔbræ ɛ ˌimpoɾətˈɐ̃ŋʧy. ˈistw ɛ ˌespesˌiWmˈAŋʧj ˈuʧiʊ pˌaɾæ dˌetektˈaɾ ˌumæ ʤˌivizˈɐ̃ʊ̃ ˌiŋstˈaveʊ ow ˌumæ kˈWdæ ˌapoɪˈadæ por mˈenʊz dˈɔbræz apˈɔz a pˌaɾˈadæ prˌekˈɔsy."
+    },
+    {
+      "scene": 16,
+      "speech_start": 219.53500000000003,
+      "speech_end": 238.63500000000002,
+      "scene_end": 239.455,
+      "duration": 19.919999999999987,
+      "text": "O modo por dobra desenha todos os trens e séries de validação com corrida, divisão e dobra na lenda. Use o comportamento de validação, a estabilidade de dobra, a avaliação prolongada e a auditoria das configurações juntas; as corridas de treinamento comparam evidências, mas não declaram um vencedor científicamente reprodutível por si só.",
+      "speech_text": "O modo por dobra desenha todos os trens e séries de validação com corrida, divisão e dobra na lenda. Use o comportamento de validação, a estabilidade de dobra, a avaliação prolongada e a auditoria das configurações juntas; as corridas de treinamento comparam evidências, mas não declaram um vencedor científicamente reprodutível por si só.",
+      "phonemes": "ʊ mˈɔdʊ por dˈɔbræ dˌezˈeɲæ tˈodʊz ʊs trˈAŋz i sˈɛɾjyz ʤy vˌalidasˈɐ̃ʊ̃ koŋ kˌoxˈidæ, ʤˌivizˈɐ̃ʊ̃ i dˈɔbræ na lˈAŋdæ. ˈuzj ʊ kˌompoɾətæmˈAŋtʊ ʤy vˌalidasˈɐ̃ʊ̃, a ˌestabˌilidˈaʤy ʤy dˈɔbræ, a ˌavalˌiasˈɐ̃ʊ̃ prˌoloŋɡˈadæ i a ˌWʤitoɾˈiæ das kˌoŋfiɡˌuɾasˈõjz ʒˈũŋtæs; as kˌoxˈidæz ʤy trˌAnæmˈAŋtʊ kˌompˈaɾɐ̃ʊ̃ ˌevidˈAŋsjæs, maz nˌɐ̃ʊ̃ dˌeklˈaɾɐ̃ʊ̃ ũŋ vˌAŋsedˈor sˌiAŋʧˈifikˌæmAŋʧy xˌeproduʧˈiveʊ por sˈi sˈɔ."
     }
   ]
 }
