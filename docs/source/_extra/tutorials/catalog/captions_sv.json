@@ -1131,19 +1131,67 @@
       "id": "20_cellpose_masks",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Cellpose Masker. Generera och granska Cellpose-masker med ett fokuserat arbetsflöde mellan modell och applikation."
+          "narration": "Cellpose Masks tillämpar en lager CPSAM-modell eller en anpassad kontrollpunkt på mikroskopiska bilder och skriver en instans-etikettmask per fält. Konsolen registrerar modellens upplösning, normalisering, framsteg och utgångsvägar."
         },
         {
-          "narration": "Öppna Cellpose Masker från avsnittet Segmentationsmodeller. Välj mikroskopiska bilder, kanaler och en inbyggd eller anpassad Cellpose-modell."
+          "narration": "Chatfältet accepterar lokala arbetsflödesfrågor. Aktivera AI för en konfigurerad leverantör och använd den angränsande pilen för att välja en leverantör eller öppna dess kontroller."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet konfigurera diameter, flödes- och cellprobabilitetströskelvärden, normalisering, plattning och hårdvaraanvändning."
+          "narration": "Leverantörerna kontrollerar Claude, ChatGPT och Gemini-kommandolinja-klienter och visar deras installations- och inloggningskommandon medan autentisering förblir hos varje leverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Förhandsgranska flera representativa fält innan du tillämpar modellen på den fullständiga källan."
+          "narration": "AI-inställningar styr responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medvetna systeminstruktioner."
         },
         {
-          "narration": "När arbetsflödet är färdigt skrivs etikettmasker och visuella kvalitetskontrollbilder bredvid de kartlägga ingångarna."
+          "narration": "Släpp mappen som innehåller TIFF-fält. Den här källan innehåller sex riktiga ER-kanal cellkroppar, normaliserade mellan två procent och nio och fem procent. Kanal noll väljer det enskilda planet i varje TIFF."
+        },
+        {
+          "narration": "Essentials håller källan, kanalerna, normaliseringen, modellen, skräddarsydda kontrollpunkter, diameter, sannolikhet och flödesgränser, save switch, batchstorlek och verbose förhandsgranskning synlig."
+        },
+        {
+          "narration": "Modifierad isolerar denna körs anpassade kontrollpunkt, persentil normalisering, batch storlek två, sparande och verbose figurutgång från oförändrade standard."
+        },
+        {
+          "narration": "Alla inställningar avslöjar sex kategorier: Input och kanaler, modell, upptäcktröskelvärden, bildgeometri, bakgrund och förnekande och utgång och körtid."
+        },
+        {
+          "narration": "Recipes sparar den fullständiga inferenskonfigurationen, tillämpar den på en annan bildmappa eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder av den lösade modellen, källan och tröskeln och skicka segmenteringsjobb till arbetsplatsen Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger bilden, modellen och utgångsvägarna till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma körning."
+        },
+        {
+          "narration": "Input and Channels väljer bildmappen, plan, greyskalahantering, inversion, normalisering och percentiler. En felaktig kanalindex kan göra att en giltig modell verkar inte upptäcka något."
+        },
+        {
+          "narration": "Modellen väljer förpackade CPSAM-vikter eller en anpassad kontrollpunkt och levererar den förväntade objektdiameter. Den anpassade kontrollpunkten från föregående handledning har prioritet här."
+        },
+        {
+          "narration": "Detektionsgränserna kontrollerar cellprobabilitetsgolvet, flödesöverenskommelsen, omskalering, omprövning och hålfyllning. Anpassa dessa endast efter att ha kontrollerat den korrekta bilden och modellen."
+        },
+        {
+          "narration": "Bildegeometri omgrader alternativt fält innan man drar slutsats och återställer masker till de ursprungliga dimensionerna. Håll bildförhållandet och pixelskalan förenliga med träningen."
+        },
+        {
+          "narration": "Bakgrund och fördärv appliceras valfri bakgrundstörning, en intensitetsgolv och en signal-till-ljud-skärm före segmentering."
+        },
+        {
+          "narration": "Output och Runtime kontrollerar masksparande, inferenspartsstorlek och verbose siffror. Reducera batchstorleken när modellutledningen slutar GPU-minnen."
+        },
+        {
+          "narration": "Denna löpning behåller en sannolikhetströskel på noll, flödeströskel nollpunkt fyra, ingen omskalning eller omprövning och fyller inre hål i varje accepterat objekt."
+        },
+        {
+          "narration": "Run laddar kontrollpunkten, normaliserar varje parti, förutsäger masker och flöden, fyller hål, sparar varje mask och visar diagnostik. Sluta begär en säker avbrott."
+        },
+        {
+          "narration": "Under bearbetningen rapporterar konsolen den lösta skräddarsydda kontrollpunkten och batchens framsteg medan figurpanelen lägger till originalbilder, röda masker överlappningar och flödesfält."
+        },
+        {
+          "narration": "Läget avslutade sex av sex fält och räddade sex masker. Den slutliga panelen visar den ursprungliga ER-bilden, celllinjen och Cellpose-flöden, vilket gör segmenteringskvaliteten synlig före nedströmsmätningen."
         }
       ]
     },
