@@ -73,6 +73,21 @@ def test_resolve_n_jobs_defaults_to_the_real_cpu_count(monkeypatch):
 # what measure_crop actually hands to the pool
 # --------------------------------------------------------------------------
 
+class _NoResult:
+    """What a pool that runs nothing hands back for a submitted field.
+
+    ``apply_async`` used to return a bare ``None`` here, and the
+    ``AttributeError`` from ``None.get()`` was quietly absorbed by
+    measure_crop's per-field except. It is now the ``on_error`` boundary
+    that decides, so the failure is made explicit and ``_run`` asks for
+    ``on_error='skip'`` — these tests are about the worker count, not
+    about surviving a field.
+    """
+
+    def get(self, timeout=None):
+        raise RuntimeError('this pool runs nothing; there is no result')
+
+
 class _RecordingPool:
     """Stand-in for ``mp.Pool`` that records its worker count and runs nothing."""
 
@@ -88,7 +103,7 @@ class _RecordingPool:
         return False
 
     def apply_async(self, *args, **kwargs):
-        return None
+        return _NoResult()
 
     def close(self):
         pass
@@ -124,6 +139,10 @@ def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None):
         'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': None,
         'experiment': 'exp', 'normalize': False, 'normalize_by': 'png',
         'strict_errors': False,
+        # The stub pool returns no result for any field, so every field
+        # fails. on_error defaults to 'stop', which would abort before the
+        # pool size could be observed; these tests are about the size.
+        'on_error': 'skip',
     })
     # Set after the defaults so setdefault cannot overwrite a deliberate None.
     settings['n_jobs'] = n_jobs

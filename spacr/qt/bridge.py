@@ -20,10 +20,14 @@ Three things live here beyond "run a function on a thread":
   :attr:`PipelineWorker.supports_pause` is ``False`` for every entry in
   :func:`resolve_pipeline_entry` and a Pause control must render itself
   disabled. That is deliberate, and it is asserted by the test suite.
+* :class:`spacr.cancellation.CancellationToken` — cooperative Stop, installed
+  for every worker. Shipped long workflows poll it at safe field/trial/job
+  boundaries without importing Qt.
 """
 from __future__ import annotations
 
 import io
+import logging
 import os
 import re
 import sys
@@ -32,7 +36,16 @@ import time
 import traceback
 from typing import Any, Callable, Dict, List, Optional
 
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtCore import QObject, QThread, Qt, Signal
+
+from spacr.cancellation import (
+    CancellationToken,
+    PipelineCancelled,
+    checkpoint as cancellation_checkpoint,
+    installed_token,
+)
+
+LOG = logging.getLogger(__name__)
 
 
 class _StreamRedirector(io.TextIOBase):
@@ -274,11 +287,10 @@ class PauseGate:
 
     Only the second is honest, and it cannot be bolted on from outside:
     a gate can be *set* from the GUI thread, but if nothing ever *reads*
-    it the button does nothing. spaCR's pipelines currently read nothing
-    — ``isInterruptionRequested`` has no call sites in the package
-    either, which is why the existing Stop button is best-effort. So the
-    machinery is here, it is tested, and the UI is required to disable
-    the control until a pipeline opts in via :func:`pausable`.
+    it the button does nothing. Pause therefore remains disabled until an
+    entry point opts in via :func:`pausable`. Stop is a separate contract:
+    :mod:`spacr.cancellation` is polled by shipped workflows at durable
+    boundaries and never claims to suspend an in-progress write.
 
     Thread-safety: :meth:`pause` / :meth:`resume` are called from the GUI
     thread; :meth:`wait_if_paused` blocks the worker thread. That is the
@@ -331,7 +343,7 @@ def current_gate() -> Optional[PauseGate]:
 
 
 def checkpoint() -> None:
-    """Pipeline-side pause point. **Call only where stopping is safe.**
+    """Pipeline-side cancellation/pause point. Call only where stopping is safe.
 
     "Safe" means: no file is half-written, no multi-table insert is
     half-done, and no child process is still working. The top of a
@@ -342,6 +354,9 @@ def checkpoint() -> None:
     :class:`PipelineWorker`), so pipeline code can call it
     unconditionally and stay importable from a plain script.
     """
+    # Cancellation is checked before waiting on Pause. request_cancel() also
+    # releases the gate, so a paused worker cannot be stranded during shutdown.
+    cancellation_checkpoint()
     gate = current_gate()
     if gate is not None:
         gate.wait_if_paused()
@@ -456,6 +471,18 @@ class RunHandle(QObject):
         self.progress: Optional[tuple] = None
         #: Last non-blank line the job printed — what it is doing now.
         self.last_line = ""
+        #: Whether a still-running instance of this job is a reason to
+        #: refuse to close the application. Cached at construction because
+        #: :meth:`retire` drops ``self.worker``. See
+        #: :attr:`PipelineWorker.blocks_shutdown`.
+        self.blocks_shutdown = bool(
+            getattr(worker, "blocks_shutdown", True))
+        #: False for housekeeping the user did not start and cannot act on.
+        #: Home's run banner and anything else that reports "a run is in
+        #: progress" must skip these. The usage poller submits every two
+        #: seconds, so without this Home flashes "<module> usage - running"
+        #: on and off for as long as a module screen is open.
+        self.user_visible = bool(getattr(worker, "user_visible", True))
         worker.line_ready.connect(self._on_line)
 
     # -- state ---------------------------------------------------------
@@ -470,6 +497,28 @@ class RunHandle(QObject):
 
     def elapsed(self) -> float:
         return max(0.0, time.time() - self.started_at)
+
+    def is_running(self) -> bool:
+        """Whether this handle still owns a live QThread."""
+        thread = self.thread
+        if thread is None:
+            return False
+        try:
+            return bool(thread.isRunning())
+        except RuntimeError:
+            return False
+
+    def request_cancel(self, reason: str = "cancelled by the user") -> None:
+        """Cooperatively cancel this job and ask its thread to retire."""
+        worker = self.worker
+        thread = self.thread
+        if worker is not None:
+            worker.request_cancel(reason)
+        if thread is not None:
+            try:
+                thread.requestInterruption()
+            except RuntimeError:
+                pass
 
     def fraction(self) -> Optional[float]:
         """Completed fraction in ``0..1``, or ``None`` when unknown."""
@@ -542,6 +591,56 @@ class RunRegistry(QObject):
     def is_busy(self) -> bool:
         return bool(self._handles)
 
+    def cancel_all(
+        self,
+        timeout_ms: int = 5000,
+        reason: str = "application shutdown",
+    ) -> List[RunHandle]:
+        """Cancel every active job and wait up to one shared deadline.
+
+        The return value contains workers that are still live **and whose
+        survival is a reason not to close** — see
+        :attr:`RunHandle.blocks_shutdown`. They are kept registered and
+        strongly referenced; callers must refuse to destroy the GUI rather
+        than use ``QThread.terminate()`` mid-write.
+
+        Read-only UI housekeeping (``journal=False`` — a history refresh, a
+        model scan) is cancelled and waited for exactly like everything
+        else, but it never appears in the return value. It writes nothing,
+        so there is no half-written artefact to protect, and a caller that
+        treats it as a veto turns "the run-history list is still loading"
+        into "the application cannot be closed". ``MainWindow.closeEvent``
+        answers a non-empty return by refusing to close *and showing a
+        modal*: on a headless run — CI, a test shard — nothing can ever
+        dismiss that modal, and the process spins in its nested event loop
+        with no forward progress. A housekeeping job that outlived the
+        screen which started it used to be enough to trigger it.
+
+        :param timeout_ms: total wait budget across all active threads.
+        :param reason: cancellation reason recorded by each worker.
+        :returns: handles that block shutdown and did not stop in the budget.
+        """
+        handles = self.active()
+        for handle in handles:
+            handle.request_cancel(reason)
+        deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+        for handle in handles:
+            thread = handle.thread
+            if thread is None or not handle.is_running():
+                continue
+            remaining_ms = max(
+                0, int((deadline - time.monotonic()) * 1000))
+            if remaining_ms <= 0:
+                break
+            try:
+                thread.wait(remaining_ms)
+            except RuntimeError:
+                pass
+        return [
+            handle for handle in handles
+            if handle.is_running() and handle.blocks_shutdown
+        ]
+
     def clear(self) -> None:
         """Drop every handle. For tests — never call this on a live app."""
         if self._handles:
@@ -558,6 +657,150 @@ def registry() -> RunRegistry:
     if _REGISTRY is None:
         _REGISTRY = RunRegistry()
     return _REGISTRY
+
+
+# ---------------------------------------------------------------------------
+# Draining a QThread without ever terminating it
+# ---------------------------------------------------------------------------
+
+#: ``(thread, worker)`` pairs that outlived the widget which owned them.
+#: Parking a stubborn thread here is not a leak-with-a-nice-name: it is the
+#: only way to satisfy Qt's rule that a QThread must not be destroyed while
+#: it is running, once the owner has decided to go away anyway. Entries are
+#: released by :func:`prune_parked_threads`, which every :func:`drain_thread`
+#: call runs first.
+_PARKED_THREADS: List[tuple] = []
+_PARKED_LOCK = threading.Lock()
+
+
+def prune_parked_threads() -> int:
+    """Release parked ``(thread, worker)`` pairs whose thread has exited.
+
+    :returns: how many pairs are still parked afterwards.
+    """
+    with _PARKED_LOCK:
+        alive = []
+        for pair in _PARKED_THREADS:
+            try:
+                if pair[0].isRunning():
+                    alive.append(pair)
+            except RuntimeError:
+                # The C++ QThread is already gone, which can only happen
+                # after it finished — nothing left to hold on to.
+                pass
+        _PARKED_THREADS[:] = alive
+        return len(_PARKED_THREADS)
+
+
+def parked_thread_count() -> int:
+    """How many stubborn threads are currently parked. For diagnostics."""
+    with _PARKED_LOCK:
+        return len(_PARKED_THREADS)
+
+
+def thread_has_stopped(thread) -> bool:
+    """True when ``thread`` is finished, never started, or already deleted.
+
+    ``None`` counts as stopped, and so does a QThread whose C++ half PySide6
+    has already taken away: asking it anything raises ``RuntimeError``, and
+    an object that no longer exists is certainly not still running. That
+    case is not exotic — ``make_thread`` wires ``thread.finished ->
+    thread.deleteLater``, so any GUI pump that delivers a retirement slot
+    has usually flushed the deferred delete on the way.
+    """
+    if thread is None:
+        return True
+    try:
+        return not thread.isRunning()
+    except RuntimeError:
+        return True
+
+
+def prune_job_pairs(pairs, finished=None) -> List[tuple]:
+    """Return the ``(thread, worker)`` pairs a screen must still hold.
+
+    The idiom this replaces — ``[p for p in jobs if p[0].isRunning()]``
+    wired to ``thread.finished`` — is wrong twice over, and the two errors
+    hid each other:
+
+    * The slot is queued onto the GUI thread, so it runs *after* the OS
+      thread has gone. ``make_thread`` also wires ``thread.finished ->
+      thread.deleteLater``, and the same pump that delivers this call
+      flushes that deferred delete first — so ``isRunning()`` raises
+      ``RuntimeError: Internal C++ object already deleted`` from inside a Qt
+      slot. The list comprehension never completes and **every** pair is
+      retained, forever, along with its worker.
+    * ``self.sender()`` is not a way out: Qt nulls the sender of a queued
+      call whose emitter has since been destroyed, which is exactly what
+      ``deleteLater`` just did. A screen keyed on it silently retires
+      nothing.
+
+    So: a wrapper whose C++ half is gone is *proof* of retirement (
+    ``deleteLater`` is only ever posted from ``thread.finished``), and a
+    ``finished`` sender is used when Qt still offers one.
+
+    :param pairs: the screen's ``(thread, worker)`` ownership list.
+    :param finished: the QThread that just finished, when known.
+    :returns: the pairs still worth holding a reference to.
+    """
+    kept: List[tuple] = []
+    for pair in pairs:
+        thread = pair[0] if pair else None
+        if finished is not None and thread is finished:
+            continue
+        if not thread_has_stopped(thread):
+            kept.append(pair)
+    return kept
+
+
+def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
+    """Ask ``thread`` to stop, wait for it, and **never** terminate it.
+
+    ``QThread.terminate()`` is ``pthread_cancel`` under the covers, and
+    every thread in this application runs Python. A cancelled thread that
+    happened to hold the GIL never releases it and the whole process stops
+    making progress; one cancelled inside a Qt or PySide internal leaves a
+    corrupt heap and the process dies later, somewhere unrelated. Neither
+    failure names the line that caused it, which is why
+    :meth:`RunRegistry.cancel_all` documents "refuse to destroy the GUI
+    rather than use ``QThread.terminate()``" — this function is how a
+    caller does that.
+
+    A thread that will not stop is *parked* (see :data:`_PARKED_THREADS`)
+    so that nothing drops the last reference to a running QThread — which
+    is the abort this whole module is arranged around.
+
+    :param thread: the QThread to drain. ``None`` is accepted and is a no-op.
+    :param worker: object to keep alive alongside a parked thread.
+    :param timeout_ms: how long to wait for the thread to exit.
+    :returns: True when the thread has stopped (or was already gone).
+    """
+    prune_parked_threads()
+    if thread is None:
+        return True
+    try:
+        if not thread.isRunning():
+            return True
+    except RuntimeError:
+        # Internal C++ object already deleted — it cannot still be running.
+        return True
+    try:
+        # quit() is documented thread-safe and posts to the thread's OWN
+        # event loop, unlike a queued connection to this GUI-affine object.
+        thread.quit()
+        stopped = bool(thread.wait(max(0, int(timeout_ms))))
+    except RuntimeError:
+        return True
+    if stopped:
+        return True
+    with _PARKED_LOCK:
+        _PARKED_THREADS.append((thread, worker))
+    LOG.warning(
+        "A worker thread did not stop within %d ms; it is parked rather "
+        "than terminated so the process is not left with a corrupt heap.",
+        timeout_ms,
+    )
+    return False
 
 
 class PipelineWorker(QObject):
@@ -579,26 +822,48 @@ class PipelineWorker(QObject):
     error = Signal(str)
     figure_ready = Signal(object, str)   # (figure, prerendered_png_path or "")
 
-    def __init__(self, fn: Callable[..., Any], settings: Dict[str, Any],
-                 worker_count: int = 1):
+    def __init__(
+        self,
+        fn: Callable[..., Any],
+        settings: Dict[str, Any],
+        worker_count: int = 1,
+        app_key: str = "",
+        journal: bool = True,
+    ):
         """Prepare to run ``fn(settings)`` in a worker thread.
 
         :param fn: pipeline entry point (see :func:`resolve_pipeline_entry`).
         :param settings: keyword-style dict passed as the sole argument.
+        :param worker_count: worker allocation reserved in the run registry.
+        :param app_key: optional explicit module name for run-history records.
+        :param journal: create a reproducibility manifest. Set false only for
+            read-only background UI maintenance such as refreshing history.
         """
         super().__init__()
         self._fn = fn
         self._settings = settings
+        self._app_key_override = str(app_key or "")
+        self._journal_enabled = bool(journal)
         self.worker_count = max(1, int(worker_count))
+        self.cancel_token = CancellationToken()
+        self.was_cancelled = False
         #: Latch this worker waits on when the pipeline calls
         #: :func:`checkpoint`. Always present; only *effective* when
         #: :attr:`supports_pause` is True.
         self.gate = PauseGate()
 
+    def request_cancel(self, reason: str = "cancelled by the user") -> bool:
+        """Request a stop at the pipeline's next declared safe boundary."""
+        first = self.cancel_token.cancel(reason)
+        self.gate.resume()
+        return first
+
     @property
     def app_key(self) -> str:
         """App key this job belongs to, or ``""`` for an ad-hoc job."""
-        return str(getattr(self._fn, APP_KEY_ATTR, "") or "")
+        return self._app_key_override or str(
+            getattr(self._fn, APP_KEY_ATTR, "") or ""
+        )
 
     @property
     def supports_pause(self) -> bool:
@@ -610,10 +875,50 @@ class PipelineWorker(QObject):
         """
         return bool(getattr(self._fn, PAUSABLE_ATTR, False))
 
+    @property
+    def blocks_shutdown(self) -> bool:
+        """Whether this job still running is a reason not to close the app.
+
+        True for analysis runs. They write masks, measurements and model
+        files, so stopping one anywhere other than a declared safe boundary
+        risks the half-written artefact :mod:`spacr.resume` exists to clean
+        up, and the honest response to "close now" is to wait.
+
+        False for the read-only background jobs the UI runs on its own
+        behalf — refreshing run history, scanning a model folder, polling a
+        job queue. ``journal=False`` already means exactly that (see
+        :meth:`__init__`): nothing is produced, so nothing can be left
+        half-produced, and a caller that lets one veto shutdown converts a
+        list refresh into an application that will not quit.
+        """
+        return self._journal_enabled
+
     def run(self) -> None:
         """Invoked by QThread.started; runs the pipeline function to completion."""
+        # Stop can be clicked in the event-loop tick immediately after Run,
+        # before this slot begins. Do not import matplotlib, hash inputs, or
+        # open a journal for work that never started; acknowledge it and let
+        # the DirectConnection to QThread.quit retire the thread immediately.
+        if self.cancel_token.cancelled:
+            self.was_cancelled = True
+            self.line_ready.emit(
+                f"Cancelled before start: {self.cancel_token.reason}\n")
+            self.gate.resume()
+            self.finished.emit(False)
+            return
         _LOCAL.gate = self.gate
-        redirect = _StreamRedirector(self.line_ready.emit)
+        journal_holder = [None]
+
+        def _forward_output(text: str) -> None:
+            """Emit worker text and retain warning lines in its manifest."""
+            self.line_ready.emit(text)
+            run = journal_holder[0]
+            if run is not None and re.search(
+                r"\b(?:warning|warn)\b", text, flags=re.IGNORECASE,
+            ):
+                run.record_warning(text)
+
+        redirect = _StreamRedirector(_forward_output)
         stdout_router, stderr_router = _register_worker_streams(redirect)
 
         # NOTE: there used to be a background "idle-flush pump" daemon
@@ -673,16 +978,89 @@ class PipelineWorker(QObject):
         except Exception:
             plt = None
 
+        journal_context = None
+        journal_run = None
+        try:
+            from spacr.run_journal import open_run
+            if self._journal_enabled:
+                self.line_ready.emit(
+                    "Recording reproducibility input hashes…\n"
+                )
+                journal_context = open_run(
+                    self.app_key or getattr(self._fn, "__name__", "job"),
+                    self._settings,
+                )
+                journal_run = journal_context.__enter__()
+                journal_holder[0] = journal_run
+                self.line_ready.emit(
+                    f"Reproducibility manifest: {journal_run.dir}\n"
+                )
+        except Exception as exc:
+            journal_context = None
+            journal_run = None
+            message = (
+                "WARNING: could not open reproducibility manifest: "
+                f"{type(exc).__name__}: {exc}\n"
+            )
+            LOG.exception("Could not open run journal")
+            self.line_ready.emit(message)
+
         ok = False
         try:
-            self._fn(self._settings)
+            with installed_token(self.cancel_token):
+                self.cancel_token.checkpoint()
+                self._fn(self._settings)
             ok = True
-        except SystemExit:
-            ok = True
+        except PipelineCancelled as exc:
+            self.was_cancelled = True
+            message = f"Cancelled safely: {exc}\n"
+            LOG.info("Pipeline %s cancelled: %s", self.app_key or self._fn, exc)
+            if journal_run is not None:
+                journal_run.set_status("cancelled")
+                journal_run.record_warning(message.strip())
+            self.line_ready.emit(message)
+        except SystemExit as exc:
+            # ``sys.exit()`` and ``sys.exit(0)`` are successful early exits.
+            # Any other code is a failure and must reach the same error path as
+            # an exception; treating ``sys.exit(1)`` as success made CLI-style
+            # pipeline failures appear as a green, completed GUI run.
+            ok = exc.code in (None, 0)
+            if not ok:
+                tb = traceback.format_exc()
+                LOG.error("Pipeline exited with status %r", exc.code)
+                if journal_run is not None:
+                    journal_run.set_status("failed")
+                    journal_run.error_traceback = tb
+                self.error.emit(tb)
         except Exception:
             tb = traceback.format_exc()
+            LOG.exception("Pipeline worker failed")
+            if journal_run is not None:
+                journal_run.set_status("failed")
+                journal_run.error_traceback = tb
+            self.error.emit(tb)
+        except BaseException:
+            # KeyboardInterrupt and cancellation-style BaseExceptions must
+            # leave a failed, inspectable manifest instead of a forever
+            # "running" record.
+            tb = traceback.format_exc()
+            LOG.exception("Pipeline worker aborted")
+            if journal_run is not None:
+                journal_run.set_status("failed")
+                journal_run.error_traceback = tb
             self.error.emit(tb)
         finally:
+            if journal_run is not None and ok:
+                journal_run.set_status("success")
+            if journal_context is not None:
+                try:
+                    journal_context.__exit__(None, None, None)
+                except Exception as exc:
+                    LOG.exception("Could not close run journal")
+                    self.line_ready.emit(
+                        "WARNING: could not finalize reproducibility "
+                        f"manifest: {type(exc).__name__}: {exc}\n"
+                    )
             try:
                 redirect.flush()
             except Exception:
@@ -699,7 +1077,11 @@ class PipelineWorker(QObject):
             # left paused would otherwise strand anything that later
             # waits on it, and the job is over either way.
             self.gate.resume()
-            _LOCAL.gate = None
+            journal_holder[0] = None
+            try:
+                delattr(_LOCAL, "gate")
+            except AttributeError:
+                pass
             self.finished.emit(ok)
 
 
@@ -762,6 +1144,9 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "measure":
             from spacr.measure import measure_crop
             return _ret(log_call(measure_crop))
+        if app_key == "external_masks":
+            from spacr.external_masks import prepare_external_masks
+            return _ret(log_call(prepare_external_masks))
         if app_key == "classify":
             # deep_spacr, not train_test_model. The Classify screen builds its
             # panel from deep_spacr_defaults, so it SHOWS generate_training_
@@ -777,28 +1162,28 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             return _ret(log_call(generate_image_umap))
         if app_key == "train_cellpose":
             from spacr.submodules import train_cellpose
-            return _ret(train_cellpose)
+            return _ret(log_call(train_cellpose))
         if app_key == "cellpose_masks":
             from spacr.spacr_cellpose import identify_masks_finetune
-            return _ret(identify_masks_finetune)
+            return _ret(log_call(identify_masks_finetune))
         if app_key == "cellpose_all":
             from spacr.spacr_cellpose import check_cellpose_models
-            return _ret(check_cellpose_models)
+            return _ret(log_call(check_cellpose_models))
         if app_key == "map_barcodes":
             from spacr.sequencing import generate_barecode_mapping
-            return _ret(generate_barecode_mapping)
+            return _ret(log_call(generate_barecode_mapping))
         if app_key == "ml_analyze":
             from spacr.ml import generate_ml_scores
-            return _ret(generate_ml_scores)
+            return _ret(log_call(generate_ml_scores))
         if app_key == "regression":
             from spacr.ml import perform_regression
-            return _ret(perform_regression)
+            return _ret(log_call(perform_regression))
         if app_key == "recruitment":
             from spacr.submodules import analyze_recruitment
-            return _ret(analyze_recruitment)
+            return _ret(log_call(analyze_recruitment))
         if app_key == "activation":
             from spacr.deep_spacr import generate_activation_map
-            return _ret(generate_activation_map)
+            return _ret(log_call(generate_activation_map))
         if app_key == "foreign":
             from spacr.foreign import import_project
             return _ret(log_call(import_project))
@@ -812,15 +1197,32 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
             from spacr.submodules import analyze_invasion
             return _ret(log_call(analyze_invasion))
         if app_key == "replication":
-            # analyze_endodyogeny has been in spacr.submodules the whole
-            # time with no way to reach it from any GUI — no APPS entry,
-            # no dispatch, no settings category. This is that wiring.
-            from spacr.submodules import analyze_endodyogeny
-            return _ret(log_call(analyze_endodyogeny))
+            from spacr.submodules import analyze_replication
+            return _ret(log_call(analyze_replication))
         if app_key == "analyze_plaques":
             from spacr.submodules import analyze_plaques
-            return _ret(analyze_plaques)
+            return _ret(log_call(analyze_plaques))
+        # Apps that registered their own entry point. The chain above is
+        # the built-in table; this is the seam a module registered
+        # through `spacr.qt.app.register_app(..., entry="mod:func")`
+        # reaches, so a new pipeline app is one registration call rather
+        # than a branch here plus seven other files. Consulted before
+        # plugins because a built-in registration is not a contribution.
+        from .app import registered_entry
+        registered = registered_entry(app_key)
+        if registered is not None:
+            return _ret(log_call(registered))
+        from spacr.plugins import get_app, load_object
+        plugin_app = get_app(app_key)
+        if plugin_app is not None:
+            entry = load_object(plugin_app.entrypoint)
+            if not callable(entry):
+                raise TypeError(
+                    f"Plugin entry point {plugin_app.entrypoint!r} is not callable"
+                )
+            return _ret(log_call(entry))
     except Exception:
+        LOG.exception("Could not resolve pipeline entry for %s", app_key)
         return None
     return None
 
@@ -829,6 +1231,9 @@ def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
     app_key: str = "",
+    *,
+    journal: bool = True,
+    user_visible: bool = True,
 ) -> tuple["QThread", PipelineWorker]:
     """Return ``(thread, worker)`` — the caller connects the worker's signals
     and calls ``thread.start()``.
@@ -870,14 +1275,25 @@ def make_thread(
     :param app_key: overrides the key stamped on ``fn`` by
         :func:`resolve_pipeline_entry`. Only needed for ad-hoc jobs that
         want to show up on Home under a name of their own.
+    :param journal: create a reproducibility record. Disable only for
+        read-only UI housekeeping that is not an analysis run.
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     thread = QThread()
     allocation = apply_worker_budget(settings)
-    worker = PipelineWorker(fn, settings, worker_count=allocation)
+    worker = PipelineWorker(
+        fn, settings, worker_count=allocation, app_key=app_key,
+        journal=journal,
+    )
+    # Set on the worker rather than passed to its constructor, so a
+    # PipelineWorker built anywhere else keeps the visible default.
+    worker.user_visible = bool(user_visible)
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
-    worker.finished.connect(thread.quit)
+    # quit() is explicitly thread-safe. A DirectConnection matters during
+    # shutdown: if the GUI thread is blocked in QThread.wait(), a queued call
+    # to the GUI-affine QThread object can never run and the join deadlocks.
+    worker.finished.connect(thread.quit, Qt.DirectConnection)
     thread.finished.connect(thread.deleteLater)
 
     reg = registry()

@@ -52,11 +52,12 @@ Design notes:
 """
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, Callable, Dict, List, Optional, Sequence
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush, QColor, QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -77,8 +78,11 @@ from PySide6.QtWidgets import (
 
 from ... import train_compare as tc
 from ..bridge import make_thread
-from ..theme import SPACING, active_palette, palette_for
+from ..theme import (SPACING, active_palette, make_transparent,
+                     paint_panel, palette_for)
 from ..widgets import Divider
+
+LOG = logging.getLogger(__name__)
 
 __all__ = ["TrainCompareScreen", "APP_KEY", "APP_NAME", "APP_SECTION",
            "APP_INTRO", "FOLD_MODE_LABELS"]
@@ -116,6 +120,74 @@ def _cell(text: str) -> QTableWidgetItem:
     return item
 
 
+#: Built once, on first use — see :func:`panel_canvas_class`.
+_PANEL_CANVAS = None
+
+
+def panel_canvas_class():
+    """The ``FigureCanvasQTAgg`` subclass that sits ON the page.
+
+    ``FigureCanvasQT.__init__`` sets ``WA_OpaquePaintEvent`` and a white
+    palette, and the figure carries a solid ``facecolor``. Three opaque
+    things stacked: the area right of "Runs found" was a flat dark
+    rectangle whatever the page-opacity slider said, with square corners
+    where every other container on the page has rounded ones.
+
+    QSS cannot fix that — a ``WA_OpaquePaintEvent`` widget never lets the
+    sheet's background through, and a stylesheet cannot round a canvas
+    matplotlib draws edge to edge. So the panel is drawn in
+    ``paintEvent``, underneath the figure, and the figure's own patch is
+    made fully transparent so the panel is what shows.
+
+    Built lazily and cached: no screen in this package imports matplotlib
+    at module scope, and subclassing its Qt backend would do exactly that.
+    """
+    global _PANEL_CANVAS
+    if _PANEL_CANVAS is not None:
+        return _PANEL_CANVAS
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+
+    class PanelCanvas(FigureCanvasQTAgg):
+        """A matplotlib canvas drawn on a rounded translucent panel."""
+
+        def __init__(self, figure):
+            super().__init__(figure)
+            self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+            make_transparent(self)
+            # The panel below is the surface now. Leaving the patch
+            # opaque would paint the old rectangle straight back over it.
+            figure.patch.set_alpha(0.0)
+
+        def paintEvent(self, event):  # noqa: N802 (Qt naming)
+            """Draw the panel, then let matplotlib draw over it."""
+            painter = QPainter(self)
+            paint_panel(painter, self, role="surface", inset=0.5)
+            painter.end()
+            super().paintEvent(event)
+
+    _PANEL_CANVAS = PanelCanvas
+    return PanelCanvas
+
+
+def _page_alpha() -> float:
+    """The page-opacity preference as a plain float for matplotlib.
+
+    Matplotlib takes alpha as a number, not as a QSS colour, so the QSS
+    accessors are no help here. Degrades to the theme's designed scrim.
+    """
+    from ..theme import panel_alpha
+    theme = "dark"
+    opacity = None
+    try:
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        theme = resolve_effective_theme()
+        opacity = get_pane_opacity()
+    except Exception:
+        pass
+    return float(panel_alpha(theme, "surface_alt", opacity))
+
+
 def _active_palette() -> dict:
     """The palette the plot should be drawn in, defaulting to dark."""
     theme = "dark"
@@ -151,12 +223,17 @@ class TrainCompareScreen(QWidget):
         self._runs: List[tc.TrainingRun] = []
         self._comparison: Optional[tc.Comparison] = None
         self._busy = False
+        self._pending: Optional[tuple[Dict[str, Any],
+                                      Callable[[Any], None]]] = None
         # Ownership list for in-flight (QThread, worker) pairs — a QThread
         # collected while still running takes the process down with it.
         self._jobs: List[tuple] = []
         self.last_error: str = ""
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("train_compare"), self)
         self._set_status(
             "Choose the folder your models were trained into (a dataset's "
             "model/ folder, or anything above it), then Scan.")
@@ -251,9 +328,9 @@ class TrainCompareScreen(QWidget):
         # Matplotlib canvas — created here so the same figure is reused for
         # every overlay rather than leaking one per click.
         from matplotlib.figure import Figure
-        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-        self._figure = Figure(figsize=(7.0, 4.2), tight_layout=True)
-        self._canvas = FigureCanvasQTAgg(self._figure)
+        self._figure = Figure(
+            figsize=(7.0, 4.2), tight_layout=True)
+        self._canvas = panel_canvas_class()(self._figure)
         self._canvas.setMinimumHeight(240)
         self._canvas.mpl_connect("pick_event", self._on_pick)
         right.addWidget(self._canvas)
@@ -443,7 +520,14 @@ class TrainCompareScreen(QWidget):
         return [self._metric_combo.itemText(i)
                 for i in range(self._metric_combo.count())]
 
-    def metric(self) -> str:
+    def selected_metric(self) -> str:
+        """Return the metric selected for the comparison plot.
+
+        This deliberately must not be named ``metric``. ``QWidget`` inherits
+        ``QPaintDevice.metric(PaintDeviceMetric)``, which Qt calls while
+        laying out and painting the widget. A no-argument Python override here
+        used to raise during ``show()`` and could take the whole GUI down.
+        """
         return self._metric_combo.currentText()
 
     def set_metric(self, name: str) -> bool:
@@ -553,6 +637,10 @@ class TrainCompareScreen(QWidget):
 
     def _clear_plot(self) -> None:
         self._figure.clear()
+        # `clear()` restores the rc facecolor AND its alpha, so the
+        # transparency `PanelCanvas` set has to be re-asserted or the
+        # first redraw paints the opaque rectangle straight back.
+        self._figure.patch.set_alpha(0.0)
         self._figure.spacr_series_by_label = {}
         self._canvas.draw_idle()
         self._picked.setText("")
@@ -564,8 +652,9 @@ class TrainCompareScreen(QWidget):
         pal = _active_palette()
         self._figure.clear()
         ax = self._figure.add_subplot(111)
-        metric = self.metric() or (self._comparison.metrics[0]
-                                   if self._comparison.metrics else "accuracy")
+        metric = self.selected_metric() or (
+            self._comparison.metrics[0]
+            if self._comparison.metrics else "accuracy")
         tc.plot_curves(self._comparison, metric, ax=ax)
         self._style_axes(ax, pal)
         self._canvas.draw_idle()
@@ -575,8 +664,12 @@ class TrainCompareScreen(QWidget):
     def _style_axes(ax, pal: dict) -> None:
         """Match the plot to the app palette so it doesn't glare."""
         fig = ax.figure
-        fig.set_facecolor(pal["surface"])
-        ax.set_facecolor(pal["surface"])
+        fig.patch.set_alpha(0.0)
+        # The axes keep a fill — the plotting area is meant to read as a
+        # panel within the panel — but at the page opacity, so the slider
+        # reaches the plot too rather than stopping at its frame.
+        ax.patch.set_facecolor(pal["surface_alt"])
+        ax.patch.set_alpha(_page_alpha())
         for spine in ax.spines.values():
             spine.set_color(pal["border"])
         ax.tick_params(colors=pal["fg_muted"])
@@ -697,7 +790,7 @@ class TrainCompareScreen(QWidget):
             self._picked.setText("")
             return ""
         run = next((r for r in self._runs if r.run_id == series.run_id), None)
-        metric = self.metric()
+        metric = self.selected_metric()
         lo, hi = series.epoch_range()
         bits = [f"{series.label}",
                 f"epochs {lo}–{hi}" if lo != hi else f"epoch {hi}"]
@@ -743,25 +836,58 @@ class TrainCompareScreen(QWidget):
 
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
+        self._pending = (box, on_done)
         worker.error.connect(self._on_worker_error_text)
-
-        def _finished(ok: bool) -> None:
-            self._busy = False
-            if ok:
-                try:
-                    on_done(box.get("result"))
-                except Exception as e:
-                    self._on_job_error(e)
-                    ok = False
-            self._update_controls()
-            self.job_finished.emit(ok)
-
-        worker.finished.connect(_finished)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        # A bound QWidget receiver gives Qt enough thread affinity
+        # information to queue this callback onto the GUI thread. Connecting
+        # to a plain closure can execute it in the worker thread, where the
+        # calls below that mutate labels, tables and Matplotlib canvases are
+        # undefined behaviour.
+        worker.finished.connect(self._on_job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
         return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Apply the pending scan result on the GUI thread."""
+        pending, self._pending = self._pending, None
+        self._busy = False
+        if ok and pending is not None:
+            box, on_done = pending
+            try:
+                on_done(box.get("result"))
+            except Exception as exc:
+                LOG.exception("Could not apply the Training Runs result")
+                self._on_job_error(exc)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
@@ -773,10 +899,13 @@ class TrainCompareScreen(QWidget):
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
+        LOG.error("Training Runs worker failed:\n%s", tb)
         last = [ln for ln in str(tb).strip().splitlines() if ln.strip()]
         self._set_status(last[-1] if last else "Scan failed.", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        LOG.error("Training Runs operation failed: %s: %s",
+                  type(exc).__name__, exc)
         self._set_status(f"{type(exc).__name__}: {exc}", error=True)
 
     def _update_controls(self) -> None:
@@ -791,6 +920,7 @@ class TrainCompareScreen(QWidget):
                 thread.quit()
                 thread.wait(2000)
             except Exception:
-                pass
+                LOG.debug("Could not wait for a Training Runs worker",
+                          exc_info=True)
         self._jobs.clear()
         super().closeEvent(event)

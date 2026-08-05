@@ -4,47 +4,97 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.075,
+  "total_duration": 142.15,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.05,
-      "scene_end": 9.5,
-      "duration": 9.5,
-      "text": "Ce tutoriel couvre le modèle Comparer. Exécutez deux modèles Cellpose sur les mêmes champs et comparez les masques, les nombres et les mesures d'accord."
+      "speech_end": 17.125,
+      "scene_end": 17.625,
+      "duration": 17.625,
+      "text": "Le modèle Compare exécute deux configurations Cellpose sur le même petit ensemble de champs. Il rapporte ce qui a changé sans traiter l'un ou l'autre modèle comme une vérité fondamentale, combinant le nombre d'objets, l'accord de premier plan, la correspondance, la fragmentation et les superpositions visuelles.",
+      "speech_text": "Le modèle Compare exécute deux configurations Cellpose sur le même petit ensemble de champs. Il rapporte ce qui a changé sans traiter l'un ou l'autre modèle comme une vérité fondamentale, combinant le nombre d'objets, l'accord de premier plan, la correspondance, la fragmentation et les superpositions visuelles.",
+      "phonemes": "lə modˈɛl kɔ̃pˈaʁ ɛɡzekˈyt dˈø kɔ̃fiɡyʁasjˈɔ̃ sɛlpˈɔz syʁ lə mˈɛm pətˈit ɑ̃sˈɑ̃bl də ʃˈɑ̃. il ʁapˈɔʁt sə ki a ʃɑ̃ʒˈe sɑ̃ tʁɛtˈe lœ̃ u lotʁ modˈɛl kɔm yn veʁitˈe fɔ̃damɑ̃tˈal, kɔ̃binˈɑ̃ lə nˈɔ̃bʁ dɔbʒˈɛ, lakˈɔʁ də pʁəmjˈe plˈɑ̃, la koʁɛspɔ̃dˈɑ̃s, la fʁaɡmɑ̃tasjˈɔ̃ e le sypɛʁpozisjˈɔ̃ vizyˈɛl."
     },
     {
       "scene": 2,
-      "speech_start": 9.5,
-      "speech_end": 18.65,
-      "scene_end": 19.099999999999998,
-      "duration": 9.599999999999998,
-      "text": "Ouvrez Model Compare dans la section Segmentation models. Choisissez deux modèles candidats et un ensemble représentatif de champs de microscopie."
+      "speech_start": 17.625,
+      "speech_end": 31.9,
+      "scene_end": 32.4,
+      "duration": 14.774999999999999,
+      "text": "Laissez tomber un dossier de champs TIFF, PNG, NPY ou NPZ, ou choisissez-le avec les commandes source. La valeur Fields limite une comparaison interactive; ce tutoriel charge trois réelles cultures de cellules ER-channel.",
+      "speech_text": "Laissez tomber un dossier de champs TIFF, PNG, NPY ou NPZ, ou choisissez-le avec les commandes source. La valeur Fields limite une comparaison interactive; ce tutoriel charge trois réelles cultures de cellules ER-channel.",
+      "phonemes": "lɛsˈe tɔ̃bˈe œ̃ dɔsjˈe də ʃˈɑ̃ tˈif, pˌeˌɛnʒˈe, ˌɛnpˌiːwˈI u ˌɛnpˌezˈɛd, u ʃwazisˈelə avˌɛk le kɔmˈɑ̃d sˈuʁs. la valˈœʁ fˈiːldz limˈit yn kɔ̃paʁɛzˈɔ̃ ɛ̃tɛʁaktˈiv; sə tytoʁjˈɛl ʃˈaʁʒ tʁwˈa ʁeˈɛl kyltˈyʁ də sɛlˈylz ˌəˈɛʁʃanˈɛl."
     },
     {
       "scene": 3,
-      "speech_start": 19.099999999999998,
-      "speech_end": 28.65,
-      "scene_end": 29.099999999999998,
-      "duration": 10.0,
-      "text": "Dans la zone de configuration principale, les canaux et le prétraitement correspondent, puis les seuils et les critères de correspondance des objets sont configurés."
+      "speech_start": 32.4,
+      "speech_end": 51.125,
+      "scene_end": 51.675,
+      "duration": 19.275,
+      "text": "Le modèle A utilise le CPSAM de stock. Le modèle B utilise le point de contrôle d'étalonnage personnalisé du train Cellpose. Les deux conservent un diamètre de trente, un seuil de débit de zéro point quatre, une probabilité de zéro, une taille minimale de quinze, une normalisation et une dynamique de résolution complète.",
+      "speech_text": "Le modèle A utilise le CPSAM de stock. Le modèle B utilise le point de contrôle d'étalonnage personnalisé du train Cellpose. Les deux conservent un diamètre de trente, un seuil de débit de zéro point quatre, une probabilité de zéro, une taille minimale de quinze, une normalisation et une dynamique de résolution complète.",
+      "phonemes": "lə modˈɛl a ytilˈiz lə kpsˈam də stˈɔk. lə modˈɛl bˈe ytilˈiz lə pwˈɛ̃ də kɔ̃tʁˈoːl detalɔnˈaʒ pɛʁsɔnalizˈe dy tʁˈɛ̃ sɛlpˈɔz. le dˈø kɔ̃sˈɛʁvt œ̃ djamˈɛtʁ də tʁˈɑ̃t, œ̃ sˈœj də debˈi də zeʁˈo pwˌɛ̃ kˈatʁ, yn pʁobabilitˈe də zeʁˈo, yn tˈaj minimˈal də kˈɛ̃z, yn nɔʁmalizasjˈɔ̃ e yn dinamˈik də ʁezolysjˈɔ̃ kɔ̃plˈɛt."
     },
     {
       "scene": 4,
-      "speech_start": 29.099999999999998,
-      "speech_end": 36.8,
-      "scene_end": 37.25,
-      "duration": 8.150000000000002,
-      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+      "speech_start": 51.675,
+      "speech_end": 66.77499999999999,
+      "scene_end": 67.27499999999999,
+      "duration": 15.599999999999994,
+      "text": "Comparez les segments de chaque champ chargé avec les deux configurations. La ligne supplémentaire accepte les arguments avancés de valeur de clé, et le rapport marque les paramètres que Cellpose 4 ignore plutôt que d'impliquer silencieusement qu'ils ont changé le modèle.",
+      "speech_text": "Comparez les segments de chaque champ chargé avec les deux configurations. La ligne supplémentaire accepte les arguments avancés de valeur de clé, et le rapport marque les paramètres que Cellpose 4 ignore plutôt que d'impliquer silencieusement qu'ils ont changé le modèle.",
+      "phonemes": "kɔ̃paʁˈe le sɛɡmˈɑ̃ də ʃak ʃˈɑ̃ ʃaʁʒˈe avˌɛk le dˈø kɔ̃fiɡyʁasjˈɔ̃. la lˈiɲ syplemɑ̃tˈɛʁ aksˈɛpt lez aʁɡymˈɑ̃z avɑ̃sˈe də valˈœʁ də klˈe, e lə ʁapˈɔʁ mˈaʁk le paʁamˈɛtʁ kə sɛlpˈɔz kˈatʁ injˈɔʁ plytˈoː kə dɛ̃plikˈe silɑ̃sjøzmˈɑ̃ kilz ɔ̃ ʃɑ̃ʒˈe lə modˈɛl."
     },
     {
       "scene": 5,
-      "speech_start": 37.25,
-      "speech_end": 45.425,
-      "scene_end": 46.074999999999996,
-      "duration": 8.824999999999996,
-      "text": "Lorsque le flux de travail est terminé, le rapport de comparaison identifie où chaque modèle gagne, perd, divise ou fusionne des objets."
+      "speech_start": 67.27499999999999,
+      "speech_end": 80.3,
+      "scene_end": 80.75,
+      "duration": 13.475000000000009,
+      "text": "Lors du traitement, le statut en ligne identifie à la fois les candidats et le nombre de champs. Le modèle Compare reste concentré sur un échantillon interactif délimité plutôt que d'exécuter une plaque complète deux fois.",
+      "speech_text": "Lors du traitement, le statut en ligne identifie à la fois les candidats et le nombre de champs. Le modèle Compare reste concentré sur un échantillon interactif délimité plutôt que d'exécuter une plaque complète deux fois.",
+      "phonemes": "lɔʁ dy tʁɛtmˈɑ̃, lə statˈy ɑ̃ lˈiɲ idɑ̃tifˈi a la fwˈa le kɑ̃didˈaz e lə nˈɔ̃bʁ də ʃˈɑ̃. lə modˈɛl kɔ̃pˈaʁ ʁˈɛst kɔ̃sɑ̃tʁˈe syʁ œ̃n eʃɑ̃tijˈɔ̃ ɛ̃tɛʁaktˈif delimitˈe plytˈoː kə dɛɡzekytˈe yn plˈak kɔ̃plˈɛt dˈø fwˈa."
+    },
+    {
+      "scene": 6,
+      "speech_start": 80.75,
+      "speech_end": 92.925,
+      "scene_end": 93.425,
+      "duration": 12.674999999999997,
+      "text": "Les paramètres qui ont atteint chaque modèle séparent les valeurs honorées des arguments dépassés ou ignorés. Cela empêche les comparaisons qui ont une apparence différente mais résolvent le même comportement Cellpose.",
+      "speech_text": "Les paramètres qui ont atteint chaque modèle séparent les valeurs honorées des arguments dépassés ou ignorés. Cela empêche les comparaisons qui ont une apparence différente mais résolvent le même comportement Cellpose.",
+      "phonemes": "le paʁamˈɛtʁ ki ɔ̃t atˈɛ̃ ʃak modˈɛl sepˈaʁ le valˈœʁ onoʁˈe dez aʁɡymˈɑ̃ depasˈe u injoʁˈe. səlˌa ɑ̃pˈɛʃ le kɔ̃paʁɛzˈɔ̃ ki ɔ̃t yn apaʁˈɑ̃s difeʁˈɑ̃t mɛ ʁezˈɔlv lə mˈɛm kɔ̃pɔʁtəmˈɑ̃ sɛlpˈɔz."
+    },
+    {
+      "scene": 7,
+      "speech_start": 93.425,
+      "speech_end": 109.525,
+      "scene_end": 110.075,
+      "duration": 16.650000000000006,
+      "text": "La table par champ rapporte le nombre d'objets, le delta directionnel, l'indice Rand ajusté exclusif de fond, la fraction correspondante, l'intersection moyenne sur l'union, les fractions, les fusions, les objets inégalés et les contrôles indépendants de la qualité du masque.",
+      "speech_text": "La table par champ rapporte le nombre d'objets, le delta directionnel, l'indice Rand ajusté exclusif de fond, la fraction correspondante, l'intersection moyenne sur l'union, les fractions, les fusions, les objets inégalés et les contrôles indépendants de la qualité du masque.",
+      "phonemes": "la tˈabl paʁ ʃˈɑ̃ ʁapˈɔʁt lə nˈɔ̃bʁ dɔbʒˈɛ, lə dɛltˈa diʁɛksjɔnˈɛl, lɛ̃dˈis ʁˈɑ̃ aʒystˈe ɛksklyzˈif də fˈɔ̃, la fʁaksjˈɔ̃ koʁɛspɔ̃dˈɑ̃t, lɛ̃tɛʁsɛksjˈɔ̃ mwajˈɛn syʁ lynjˈɔ̃, le fʁaksjˈɔ̃, le fyzjˈɔ̃, lez ɔbʒˈɛz ineɡalˈez e le kɔ̃tʁˈoːlz ɛ̃depɑ̃dˈɑ̃ də la kalitˈe dy mˈask."
+    },
+    {
+      "scene": 8,
+      "speech_start": 110.075,
+      "speech_end": 124.45,
+      "scene_end": 125.0,
+      "duration": 14.924999999999997,
+      "text": "La sélection d'une rangée met à jour les deux prévisualisations. Les objets correspondants sont affichés de manière cohérente, tandis que les régions inégalées exposent de nouvelles détections, manques, fractions ou fusions qu'un seul score agrégé peut cacher.",
+      "speech_text": "La sélection d'une rangée met à jour les deux prévisualisations. Les objets correspondants sont affichés de manière cohérente, tandis que les régions inégalées exposent de nouvelles détections, manques, fractions ou fusions qu'un seul score agrégé peut cacher.",
+      "phonemes": "la selɛksjˈɔ̃ dyn ʁɑ̃ʒˈe mˈɛt a ʒˈuʁ le dˈø pʁevizyalizasjˈɔ̃. lez ɔbʒˈɛ koʁɛspɔ̃dˈɑ̃ sˈɔ̃t afiʃˈe də manjˈɛʁ koeʁˈɑ̃t, tɑ̃dˌi kə le ʁeʒjˈɔ̃z ineɡalˈez ɛkspˈoz də nuvˈɛl detɛksjˈɔ̃, mˈɑ̃k, fʁaksjˈɔ̃ u fyzjˈɔ̃ kœ̃ sˈœl skˈɔʁ aɡʁeʒˈe pˈø kaʃˈe."
+    },
+    {
+      "scene": 9,
+      "speech_start": 125.0,
+      "speech_end": 141.45,
+      "scene_end": 142.14999999999998,
+      "duration": 17.149999999999977,
+      "text": "Dans ces trois domaines, les deux candidats ont produit cent cinquante-un objets, ARI premier plan un, et cent pour cent de correspondance. Cela signifie que le point de contrôle d'étalonnage d'une époque se comporte comme son modèle de départ ici; c'est un résultat valable, pas une preuve d'amélioration.",
+      "speech_text": "Dans ces trois domaines, les deux candidats ont produit cent cinquante-un objets, ARI premier plan un, et cent pour cent de correspondance. Cela signifie que le point de contrôle d'étalonnage d'une époque se comporte comme son modèle de départ ici; c'est un résultat valable, pas une preuve d'amélioration.",
+      "phonemes": "dɑ̃ se tʁwˈa domˈɛn, le dˈø kɑ̃didˈaz ˈɔ̃ pʁodyˈi sˈɑ̃ sɛ̃kˈɑ̃tœ̃n ɔbʒˈɛ, ˌaˌɛʁˈi pʁəmjˈe plˈɑ̃ ˈœ̃, e sˈɑ̃ puʁ sˈɑ̃ də koʁɛspɔ̃dˈɑ̃s. səlˌa siɲifˈi kə lə pwˈɛ̃ də kɔ̃tʁˈoːl detalɔnˈaʒ dyn epˈok sə kɔ̃pˈɔʁt kɔm sɔ̃ modˈɛl də depˈaʁ isˈi; sɛt œ̃ ʁezyltˈa valˈabl, paz yn pʁˈøv dameljoʁasjˈɔ̃."
     }
   ]
 }

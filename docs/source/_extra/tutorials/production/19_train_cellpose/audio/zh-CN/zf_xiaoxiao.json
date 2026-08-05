@@ -4,47 +4,207 @@
   "voice": "zf_xiaoxiao",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.825,
+  "total_duration": 213.475,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.15,
-      "scene_end": 10.6,
-      "duration": 10.6,
-      "text": "这本教程涵盖了\"火车细胞用\" (Train Cellpose).从精选的图像-掩膜对进行自定义的\"火车用\" (Cellpose) 或\"CPSAM\"兼容的分类模型."
+      "speech_end": 11.65,
+      "scene_end": 12.1,
+      "duration": 12.1,
+      "text": "培训Cellpose从配显微镜图像和实例标签面具中调整了CPSAM细分模型. 控制台报告选定的数据,训练进展,检查点路径和可复制性记录.",
+      "speech_text": "培训Cellpose从配显微镜图像和实例标签面具中调整了CPSAM细分模型. 控制台报告选定的数据,训练进展,检查点路径和可复制性记录.",
+      "phonemes": "pʰei↗ɕy↘nCellposeʦʰʊ↗ŋpʰei↘ ɕjɛ↓nwei→ʨi↘ŋ tʰu↗ɕja↘ŋ xɤ↗ ʂɨ↗li↘ pjau→ʨʰjɛ→n mjɛ↘nʨy↘ ꭧʊ→ŋ tʰjau↗ꭧə↓ŋ lɤCPSAMɕi↘fə→n mwo↗ɕi↗ŋ. kʰʊ↘ŋꭧɨ↘tʰai↗ pau↘kau↘ ɕɥɛ↓nti↘ŋ tɤ ʂu↘ʨy↘,ɕy↘nljɛ↘n ʨi↘nꭧa↓n,ʨjɛ↓nꭧʰa↗tjɛ↓n lu↘ʨi↘ŋ xɤ↗ kʰɤ↓ fu↘ꭧɨ↘ ɕi↘ŋ ʨi↘lu↘."
     },
     {
       "scene": 2,
-      "speech_start": 10.6,
-      "speech_end": 19.0,
-      "scene_end": 19.45,
-      "duration": 8.85,
-      "text": "从 Segmentation models 部分打开 Train Cellpose。 提供各种训练和验证图像,并使用精心修改的标签掩膜."
+      "speech_start": 12.1,
+      "speech_end": 21.5,
+      "scene_end": 21.95,
+      "duration": 9.85,
+      "text": "聊天场接受本地工作流程问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+      "speech_text": "聊天场接受本地工作流程问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+      "phonemes": "ljau↗tʰjɛ→n ꭧʰa↓ŋ ʨje→ʂou↘ pə↓nti↘ kʊ→ŋʦwo↘ ljou↗ꭧʰə↗ŋ wə↘ntʰi↗. ʨʰi↓jʊ↘ŋ pʰei↘ꭧɨ↘ kʊ→ŋi↘ŋʂa→ŋ tɤAI,pi↘ŋ ʂɨ↓jʊ↘ŋ ɕja→ŋli↗n tɤ ʨjɛ↘ntʰou↗ lai↗ ɕɥɛ↓nʦɤ↗ kʊ→ŋi↘ŋʂa→ŋ xwo↘ ta↓kʰai→ ʨʰi↗ kʰʊ↘ŋꭧɨ↘."
     },
     {
       "scene": 3,
-      "speech_start": 19.45,
-      "speech_end": 27.15,
-      "scene_end": 27.599999999999998,
-      "duration": 8.149999999999999,
-      "text": "在主要配置区域中,选择道,基模型,直径,增强,学习速度,时代,批量大小和验证分区."
+      "speech_start": 21.95,
+      "speech_end": 31.4,
+      "scene_end": 31.849999999999998,
+      "duration": 9.899999999999999,
+      "text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令. 每个提供商都必须进行验证.",
+      "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令. 每个提供商都必须进行验证.",
+      "phonemes": "tʰi↗kʊ→ŋʂa→ŋ ʨjɛ↓nꭧʰa↗ lɤClaude,ChatGPTxɤ↗Geminimi↘ŋli↘ŋɕi↗ŋ kʰɤ↘xu↘twa→n,pi↘ŋ ɕjɛ↓nʂɨ↘ lɤ tʰa→mən tɤ a→nꭧwa→ŋ xɤ↗ tə→ŋlu↘ mi↘ŋli↘ŋ. mei↓kɤ↘ tʰi↗kʊ→ŋʂa→ŋ tou→ pi↘ɕy→ ʨi↘nɕi↗ŋ jɛ↘nꭧə↘ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 27.599999999999998,
-      "speech_end": 38.425,
-      "scene_end": 38.875,
-      "duration": 11.275000000000002,
-      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.监测训练和验证损失,以及未用于训练的场地检查点."
+      "speech_start": 31.849999999999998,
+      "speech_end": 40.824999999999996,
+      "scene_end": 41.275,
+      "duration": 9.425,
+      "text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+      "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʂɤ↘ꭧɨ↘ kʰʊ↘ŋꭧɨ↘ ɕja↓ŋi↘ŋ ʂə→ntu↘,ʦɨ↘tʊ↘ŋ ʦʰwo↘u↘ ʨje↓ʂɨ↘,kʰɤ↓ɕɥɛ↓n tɤGitHubwə↘ntʰi↗ pau↘kau↘,tə→ŋlu↘ xɤ↗sɨ→ pʰei↘kʰɤ↘ ɚ↓ ꭧɨ→ʨʰi↗ŋ ɕi↘tʰʊ↓ŋ ʂwo→mi↗ŋ."
     },
     {
       "scene": 5,
-      "speech_start": 38.875,
-      "speech_end": 46.175,
-      "scene_end": 46.824999999999996,
-      "duration": 7.949999999999996,
-      "text": "工作流程完成后,选定的检查点,训练历史,验证预测和设置将被保存在一起."
+      "speech_start": 41.275,
+      "speech_end": 55.125,
+      "scene_end": 55.625,
+      "duration": 14.350000000000001,
+      "text": "放弃包含火车,图像和火车,面具的数据集根. 每个对的TIFF文件名称都匹配. 这项示范从实际的教程实验中提取了6个512像素的细胞场;生产标签必须独立审查.",
+      "speech_text": "放弃包含火车,图像和火车,面具的数据集根. 每个对的TIFF文件名称都匹配. 这项示范从实际的教程实验中提取了6个512像素的细胞场;生产标签必须独立审查.",
+      "phonemes": "fa↘ŋʨʰi↘ pau→xa↗n xwo↓ꭧʰɤ→,tʰu↗ɕja↘ŋ xɤ↗ xwo↓ꭧʰɤ→,mjɛ↘nʨy↘ tɤ ʂu↘ʨy↘ ʨi↗kə→n. mei↓kɤ↘ twei↘ tɤTIFFwə↗nʨjɛ↘nmi↗ŋꭧʰə→ŋ tou→ pʰi↓pʰei↘. ꭧɤ↘ɕja↘ŋ ʂɨ↘fa↘n ʦʰʊ↗ŋ ʂɨ↗ʨi↘ tɤ ʨjau↘ꭧʰə↗ŋ ʂɨ↗jɛ↘n ꭧʊ→ŋ tʰi↗ʨʰy↓ lɤ ljou↘kɤ↘ u↓pai↓ i→ʂɨ↗ɚ↘ ɕja↘ŋsu↘ tɤ ɕi↘pau→ ꭧʰa↓ŋ;ʂə→ŋꭧʰa↓n pjau→ʨʰjɛ→n pi↘ɕy→ tu↗li↘ ʂə↓nꭧʰa↗."
+    },
+    {
+      "scene": 6,
+      "speech_start": 55.625,
+      "speech_end": 65.05,
+      "scene_end": 65.5,
+      "duration": 9.875,
+      "text": "基本保持起始重量,模型名称,时代数量,学习速度,图像目标尺寸和语音输出可见于第一次校准运行.",
+      "speech_text": "基本保持起始重量,模型名称,时代数量,学习速度,图像目标尺寸和语音输出可见于第一次校准运行.",
+      "phonemes": "ʨi→pə↓n pau↓ꭧʰɨ↗ ʨʰi↓ʂɨ↓ ꭧʊ↘ŋlja↘ŋ,mwo↗ɕi↗ŋ mi↗ŋꭧʰə→ŋ,ʂɨ↗tai↘ ʂu↘lja↘ŋ,ɕɥe↗ɕi↗ su↘tu↘,tʰu↗ɕja↘ŋ mu↘pjau→ ꭧʰɨ↓ʦʰwə↘n xɤ↗ y↓i→n ʂu→ꭧʰu→ kʰɤ↓ʨjɛ↘n y↗ ti↘i→ʦʰɨ↘ ʨjau↘ꭧwə↓n y↘nɕi↗ŋ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 65.5,
+      "speech_end": 77.5,
+      "scene_end": 77.95,
+      "duration": 12.450000000000003,
+      "text": "修改限制了面板的故意变化. 在这里,一个时代,一个零零一点的学习速度, 批量二,重新尺寸, 和两百五十六像素的目标使教程快速和可复制.",
+      "speech_text": "修改限制了面板的故意变化. 在这里,一个时代,一个零零一点的学习速度, 批量二,重新尺寸, 和两百五十六像素的目标使教程快速和可复制.",
+      "phonemes": "ɕjou→kai↓ ɕjɛ↘nꭧɨ↘ lɤ mjɛ↘npa↓n tɤ ku↘i↘ pjɛ↘nxwa↘. ʦai↘ ꭧɤ↘li↓,i↗kɤ↘ ʂɨ↗tai↘,i↗kɤ↘ li↗ŋli↗ŋ i↘tjɛ↓n tɤ ɕɥe↗ɕi↗ su↘tu↘, pʰi→lja↘ŋ ɚ↘,ꭧʰʊ↗ŋɕi→n ꭧʰɨ↓ʦʰwə↘n, xɤ↗ lja↓ŋpai↓u↓ʂɨ↗ ljou↘ ɕja↘ŋsu↘ tɤ mu↘pjau→ ʂɨ↓ ʨjau↘ꭧʰə↗ŋ kʰwai↘su↘ xɤ↗ kʰɤ↓ fu↘ꭧɨ↘."
+    },
+    {
+      "scene": 8,
+      "speech_start": 77.95,
+      "speech_end": 87.10000000000001,
+      "scene_end": 87.55000000000001,
+      "duration": 9.600000000000009,
+      "text": "所有设置都显示了五个类别:启动点,培训时间表,图像几何学,背景和否认,以及输出和运行时间.",
+      "speech_text": "所有设置都显示了五个类别:启动点,培训时间表,图像几何学,背景和否认,以及输出和运行时间.",
+      "phonemes": "swo↓jou↓ ʂɤ↘ꭧɨ↘ tou→ ɕjɛ↓nʂɨ↘ lɤ u↓kɤ↘ lei↘pje↗:ʨʰi↓tʊ↘ŋ tjɛ↓n,pʰei↗ɕy↘n ʂɨ↗ʨjɛ→npjau↓,tʰu↗ɕja↘ŋ ʨi↓xɤ↗ɕɥe↗,pei↘ʨi↓ŋ xɤ↗ fou↓ɻə↘n,i↓ʨi↗ ʂu→ꭧʰu→ xɤ↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n."
+    },
+    {
+      "scene": 9,
+      "speech_start": 87.55000000000001,
+      "speech_end": 97.525,
+      "scene_end": 97.97500000000001,
+      "duration": 10.424999999999997,
+      "text": "配方将整个训练配置存储在一个名称下,重新应用到另一个注释数据集,或进口和出口可重复使用的设置文件.",
+      "speech_text": "配方将整个训练配置存储在一个名称下,重新应用到另一个注释数据集,或进口和出口可重复使用的设置文件.",
+      "phonemes": "pʰei↘fa→ŋ ʨja→ŋ ꭧə↓ŋkɤ↘ ɕy↘nljɛ↘n pʰei↘ꭧɨ↘ ʦʰwə↗nꭧʰu↓ ʦai↘ i↗kɤ↘ mi↗ŋꭧʰə→ŋ ɕja↘,ꭧʰʊ↗ŋɕi→n i↘ŋjʊ↘ŋ tau↘ li↘ŋ i↗kɤ↘ ꭧu↘ʂɨ↘ ʂu↘ʨy↘ ʨi↗,xwo↘ ʨi↘nkʰou↓ xɤ↗ ꭧʰu→kʰou↓ kʰɤ↓ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ tɤ ʂɤ↘ꭧɨ↘ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 10,
+      "speech_start": 97.97500000000001,
+      "speech_end": 108.025,
+      "scene_end": 108.47500000000001,
+      "duration": 10.5,
+      "text": "将解决训练设置的远程快照提交,并将适配件发送到分布式职位工作空间,这是有用的,当CPSAM训练属于更大的GPU时.",
+      "speech_text": "将解决训练设置的远程快照提交,并将适配件发送到分布式职位工作空间,这是有用的,当CPSAM训练属于更大的GPU时.",
+      "phonemes": "ʨja→ŋ ʨje↓ʨɥe↗ ɕy↘nljɛ↘n ʂɤ↘ꭧɨ↘ tɤ ɥɛ↓nꭧʰə↗ŋ kʰwai↘ꭧau↘ tʰi↗ʨjau→,pi↘ŋ ʨja→ŋ ʂɨ↘ pʰei↘ʨjɛ↘n fa→sʊ↘ŋtau↘ fə→npu↘ʂɨ↘ ꭧɨ↗wei↘ kʊ→ŋʦwo↘ kʰʊ→ŋʨjɛ→n,ꭧɤ↘ʂɨ↘ jou↓jʊ↘ŋ tɤ,ta→ŋCPSAMɕy↘nljɛ↘n ʂu↓y↗ kə↘ŋta↘ tɤGPUʂɨ↗."
+    },
+    {
+      "scene": 11,
+      "speech_start": 108.47500000000001,
+      "speech_end": 118.60000000000001,
+      "scene_end": 119.05000000000001,
+      "duration": 10.575000000000003,
+      "text": "分布式工作将数据集和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的训练运行.",
+      "speech_text": "分布式工作将数据集和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的训练运行.",
+      "phonemes": "fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ ʨja→ŋ ʂu↘ʨy↘ ʨi↗ xɤ↗ ʂu→ꭧʰu→ lu↘ʨi↘ŋ i↘ŋʂɤ↘ tau↘ ɥɛ↓nꭧʰə↗ŋ kʊ→ŋʦwo↘ꭧa↘n,Slurmʨi↗ʨʰy↗n xwo↘ pʰei↘ꭧɨ↘ mi↘ŋli↘ŋ,ɻa↗nxou↘ tʰi↗ʨjau→ pi↘ŋ ʨjɛ→nʦʰɤ↘ ɕja→ŋtʰʊ↗ŋ tɤ ɕy↘nljɛ↘n y↘nɕi↗ŋ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 119.05000000000001,
+      "speech_end": 129.775,
+      "scene_end": 130.225,
+      "duration": 11.174999999999983,
+      "text": "开始点选择CPSAM,微调或从零开始训练,以及检查点名称. 精细调节预训练的重量通常需要比随机开始更少的复习图像.",
+      "speech_text": "开始点选择CPSAM,微调或从零开始训练,以及检查点名称. 精细调节预训练的重量通常需要比随机开始更少的复习图像.",
+      "phonemes": "kʰai→ʂɨ↓ tjɛ↓n ɕɥɛ↓nʦɤ↗CPSAM,wei→tjau↘ xwo↘ ʦʰʊ↗ŋli↗ŋkʰai→ʂɨ↓ ɕy↘nljɛ↘n,i↓ʨi↗ ʨjɛ↓nꭧʰa↗tjɛ↓n mi↗ŋꭧʰə→ŋ. ʨi→ŋɕi↘ tʰjau↗ʨje↗ y↘ ɕy↘nljɛ↘n tɤ ꭧʊ↘ŋlja↘ŋ tʰʊ→ŋꭧʰa↗ŋ ɕy→jau↘ pi↓ swei↗ʨi→ kʰai→ʂɨ↓ kə↘ŋʂau↓ tɤ fu↘ɕi↗ tʰu↗ɕja↘ŋ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 130.225,
+      "speech_end": 140.5,
+      "scene_end": 140.95,
+      "duration": 10.724999999999994,
+      "text": "训练计划设定时代,学习率,体重下降,小批量大小和增长. 只有输入对和持续评估策略正确后才能增加培训.",
+      "speech_text": "训练计划设定时代,学习率,体重下降,小批量大小和增长. 只有输入对和持续评估策略正确后才能增加培训.",
+      "phonemes": "ɕy↘nljɛ↘n ʨi↘xwa↘ ʂɤ↘ti↘ŋ ʂɨ↗tai↘,ɕɥe↗ɕi↗ ly↘,tʰi↓ꭧʊ↘ŋ ɕja↘ʨja↘ŋ,ɕjau↓pʰi→lja↘ŋ ta↘ɕjau↓ xɤ↗ ʦə→ŋꭧa↓ŋ. ꭧɨ↓jou↓ ʂu→ɻu↘ twei↘ xɤ↗ ꭧʰɨ↗ɕy↘ pʰi↗ŋku→ ʦʰɤ↘lɥe↘ ꭧə↘ŋʨʰɥe↘ xou↘ ʦʰai↗nə↗ŋ ʦə→ŋʨja→ pʰei↗ɕy↘n."
+    },
+    {
+      "scene": 14,
+      "speech_start": 140.95,
+      "speech_end": 151.2,
+      "scene_end": 151.64999999999998,
+      "duration": 10.699999999999989,
+      "text": "图像几何学记录了源尺寸,目标尺寸,预期对象直径,以及对是否被改大小. 图像和面具一起变化,标签身份保存.",
+      "speech_text": "图像几何学记录了源尺寸,目标尺寸,预期对象直径,以及对是否被改大小. 图像和面具一起变化,标签身份保存.",
+      "phonemes": "tʰu↗ɕja↘ŋ ʨi↓xɤ↗ɕɥe↗ ʨi↘lu↘ lɤ ɥɛ↗n ꭧʰɨ↓ʦʰwə↘n,mu↘pjau→ ꭧʰɨ↓ʦʰwə↘n,y↘ʨʰi→ twei↘ɕja↘ŋ ꭧɨ↗ʨi↘ŋ,i↓ʨi↗ twei↘ ʂɨ↘fou↓ pei↘ kai↓ ta↘ɕjau↓. tʰu↗ɕja↘ŋ xɤ↗ mjɛ↘nʨy↘ i↘ʨʰi↓ pjɛ↘nxwa↘,pjau→ʨʰjɛ→n ʂə→nfə↘n pau↓ʦʰwə↗n."
+    },
+    {
+      "scene": 15,
+      "speech_start": 151.64999999999998,
+      "speech_end": 158.67499999999998,
+      "scene_end": 159.12499999999997,
+      "duration": 7.474999999999994,
+      "text": "在图像进入训练之前,可选择地删除背景,强度地板和信号到噪音选.",
+      "speech_text": "在图像进入训练之前,可选择地删除背景,强度地板和信号到噪音选.",
+      "phonemes": "ʦai↘ tʰu↗ɕja↘ŋ ʨi↘nɻu↘ ɕy↘nljɛ↘n ꭧɨ→ʨʰjɛ↗n,kʰɤ↓ ɕɥɛ↓nʦɤ↗ti↘ ʂa→nꭧʰu↗ pei↘ʨi↓ŋ,ʨʰja↗ŋtu↘ ti↘pa↓n xɤ↗ ɕi↘nxau↘ tau↘ ʦau↘i→n ɕɥɛ↓n."
+    },
+    {
+      "scene": 16,
+      "speech_start": 159.12499999999997,
+      "speech_end": 169.59999999999997,
+      "scene_end": 170.04999999999995,
+      "duration": 10.924999999999983,
+      "text": "输出和运行时间控制是表态进展报告. 模型检查点及其设置存储在丢弃的数据集根内部的模型,细胞位置模型下.",
+      "speech_text": "输出和运行时间控制是表态进展报告. 模型检查点及其设置存储在丢弃的数据集根内部的模型,细胞位置模型下.",
+      "phonemes": "ʂu→ꭧʰu→ xɤ↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n kʰʊ↘ŋꭧɨ↘ ʂɨ↘ pjau↓tʰai↘ ʨi↘nꭧa↓n pau↘kau↘. mwo↗ɕi↗ŋ ʨjɛ↓nꭧʰa↗tjɛ↓n ʨi↗ʨʰi↗ ʂɤ↘ꭧɨ↘ ʦʰwə↗nꭧʰu↓ ʦai↘ tjou→ʨʰi↘ tɤ ʂu↘ʨy↘ ʨi↗kə→n nei↘pu↘ tɤ mwo↗ɕi↗ŋ,ɕi↘pau→ wei↘ꭧɨ↘ mwo↗ɕi↗ŋ ɕja↘."
+    },
+    {
+      "scene": 17,
+      "speech_start": 170.04999999999995,
+      "speech_end": 180.17499999999995,
+      "scene_end": 180.62499999999994,
+      "duration": 10.574999999999989,
+      "text": "为此校准,一个时代和批量二处理所有六个注释字段,而不增加. 一个真正的适应应应使用足够的时代和图像多样性,",
+      "speech_text": "为此校准,一个时代和批量二处理所有六个注释字段,而不增加. 一个真正的适应应应使用足够的时代和图像多样性,",
+      "phonemes": "wei↘ʦʰɨ↓ ʨjau↘ꭧwə↓n,i↗kɤ↘ ʂɨ↗tai↘ xɤ↗ pʰi→lja↘ŋ ɚ↘ ꭧʰu↓li↓ swo↓jou↓ ljou↘kɤ↘ ꭧu↘ʂɨ↘ ʦɨ↘ twa↘n,ɚ↗ pu↘ ʦə→ŋʨja→. i↗kɤ↘ ꭧə→nꭧə↘ŋ tɤ ʂɨ↘i↘ŋ i→ŋi→ŋ ʂɨ↓jʊ↘ŋ ʦu↗kou↘ tɤ ʂɨ↗tai↘ xɤ↗ tʰu↗ɕja↘ŋ two→ja↘ŋɕi↘ŋ,"
+    },
+    {
+      "scene": 18,
+      "speech_start": 180.62499999999994,
+      "speech_end": 191.39999999999995,
+      "scene_end": 191.84999999999994,
+      "duration": 11.224999999999994,
+      "text": "运行验证匹配的文件名,加载每个注释的图像,预览一个有限的样本,并调整模型. 在当前批量完成时,停止要求安全中断.",
+      "speech_text": "运行验证匹配的文件名,加载每个注释的图像,预览一个有限的样本,并调整模型. 在当前批量完成时,停止要求安全中断.",
+      "phonemes": "y↘nɕi↗ŋ jɛ↘nꭧə↘ŋ pʰi↓pʰei↘ tɤ wə↗nʨjɛ↘nmi↗ŋ,ʨja→ʦai↘ mei↓kɤ↘ ꭧu↘ʂɨ↘ tɤ tʰu↗ɕja↘ŋ,y↘la↓n i↗kɤ↘ jou↓ɕjɛ↘n tɤ ja↘ŋpə↓n,pi↘ŋ tʰjau↗ꭧə↓ŋ mwo↗ɕi↗ŋ. ʦai↘ ta→ŋʨʰjɛ↗n pʰi→lja↘ŋ wa↗nꭧʰə↗ŋ ʂɨ↗,tʰi↗ŋꭧɨ↓ jau→ʨʰjou↗ a→nʨʰɥɛ↗n ꭧʊ→ŋtwa↘n."
+    },
+    {
+      "scene": 19,
+      "speech_start": 191.84999999999994,
+      "speech_end": 201.64999999999995,
+      "scene_end": 202.09999999999994,
+      "duration": 10.25,
+      "text": "在处理过程中,数字面板在其实例面具上预览每个显微镜领域,而控制台则报告六个补丁,六个源注释,一个时代,",
+      "speech_text": "在处理过程中,数字面板在其实例面具上预览每个显微镜领域,而控制台则报告六个补丁,六个源注释,一个时代,",
+      "phonemes": "ʦai↘ ꭧʰu↓li↓kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,ʂu↘ʦɨ↘ mjɛ↘npa↓n ʦai↘ ʨʰi↗ʂɨ↗ li↘ mjɛ↘nʨy↘ ʂa↘ŋ y↘la↓n mei↓kɤ↘ ɕjɛ↓nwei→ʨi↘ŋ li↓ŋy↘,ɚ↗ kʰʊ↘ŋꭧɨ↘tʰai↗ ʦɤ↗ pau↘kau↘ ljou↘kɤ↘ pu↓ti→ŋ,ljou↘kɤ↘ ɥɛ↗n ꭧu↘ʂɨ↘,i↗kɤ↘ ʂɨ↗tai↘,"
+    },
+    {
+      "scene": 20,
+      "speech_start": 202.09999999999994,
+      "speech_end": 212.77499999999995,
+      "scene_end": 213.47499999999994,
+      "duration": 11.375,
+      "text": "校准成功完成. spaCR保存了CPSAM检查点,设置CSV,运行表格和宏记录,并且对称字段预览确认图像和标签文件保持一致.",
+      "speech_text": "校准成功完成. 斯佩克尔保存了CPSAM检查点,设置CSV,运行表格和宏记录,并且对称字段预览确认图像和标签文件保持一致.",
+      "phonemes": "ʨjau↘ꭧwə↓n ꭧʰə↗ŋkʊ→ŋ wa↗nꭧʰə↗ŋ. sɨ→ pʰei↘kʰɤ↘ ɚ↓ pau↓ʦʰwə↗n lɤCPSAMʨjɛ↓nꭧʰa↗tjɛ↓n,ʂɤ↘ꭧɨ↘CSV,y↘nɕi↗ŋ pjau↓kɤ↗ xɤ↗ xʊ↗ŋ ʨi↘lu↘,pi↘ŋʨʰje↓ twei↘ꭧʰə↘n ʦɨ↘ twa↘n y↘la↓n ʨʰɥe↘ɻə↘n tʰu↗ɕja↘ŋ xɤ↗ pjau→ʨʰjɛ→n wə↗nʨjɛ↘n pau↓ꭧʰɨ↗i↗ꭧɨ↘."
     }
   ]
 }

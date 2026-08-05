@@ -135,7 +135,7 @@ DEFAULT_TOUR: List[TourStep] = [
         body="Load a synthetic demo dataset for any module in one "
              "click — no data of your own required. Perfect for "
              "trying spaCR out.",
-        highlight=lambda w: _find_menu(w, "Demos"),
+        highlight=lambda w: find_menu(w, "Demos"),
     ),
     TourStep(
         title="Drag & drop",
@@ -155,13 +155,41 @@ DEFAULT_TOUR: List[TourStep] = [
 ]
 
 
-def _find_menu(window: QMainWindow, title: str) -> Optional[QWidget]:
-    for act in window.menuBar().actions():
-        if act.text().replace("&", "") == title:
-            m = act.menu()
-            if m is not None:
-                return m
+def find_menu(window: QMainWindow, title: str) -> Optional[QWidget]:
+    """The window's menu-bar menu titled ``title``, ignoring ``&``.
+
+    Found through ``findChildren`` rather than by walking the menu bar's
+    actions and calling ``QAction.menu()``. That reading is the obvious one
+    and it does not survive on PySide6 6.11: the QMenu wrapper it returns is
+    only valid while the QAction wrapper it came off is alive, so the menu
+    went stale the moment this function returned — "Internal C++ object
+    (PySide6.QtWidgets.QMenu) already deleted" on the very next line — and
+    keeping the owners alive as attributes segfaulted during the next event
+    dispatch instead. ``findChildren`` hands back children the menu bar owns
+    in C++, which stay valid for as long as the window does.
+
+    :param window: the live main window.
+    :param title: menu title without its mnemonic ampersand.
+    """
+    from PySide6.QtWidgets import QMenu
+    try:
+        bar = window.menuBar()
+        if bar is None:
+            return None
+        menus = bar.findChildren(QMenu)
+    except Exception:
+        return None
+    for menu in menus:
+        try:
+            if menu.title().replace("&", "") == title:
+                return menu
+        except RuntimeError:
+            continue
     return None
+
+
+#: Retained under the old private name for anything that imported it.
+_find_menu = find_menu
 
 
 # ---------------------------------------------------------------------------
@@ -171,11 +199,23 @@ def _find_menu(window: QMainWindow, title: str) -> Optional[QWidget]:
 class _TourOverlay(QWidget):
     """Translucent overlay + step card. Owns the tour lifecycle."""
 
-    def __init__(self, window: QMainWindow, steps: List[TourStep]):
+    def __init__(self, window: QMainWindow, steps: List[TourStep],
+                 on_finish: Optional[Callable[[], None]] = None):
+        """
+        :param window: the main window the overlay covers.
+        :param steps: the narrated coach-marks, in order.
+        :param on_finish: called once when the tour is finished or skipped,
+            instead of marking the app-wide first-run flag. This is what
+            lets :mod:`spacr.qt.walkthrough` reuse the overlay for a
+            per-module tour without its own copy of the rendering — a second
+            dimmed card would be a second thing to keep looking like this
+            one.
+        """
         super().__init__(window)
         self._window = window
         self._steps = steps
         self._idx = 0
+        self._on_finish = on_finish
 
         # Full-window frameless overlay
         self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
@@ -200,10 +240,11 @@ class _TourOverlay(QWidget):
         col.setContentsMargins(20, 20, 20, 20)
         col.setSpacing(8)
 
+        from .theme import font_px
         self._step_lbl = QLabel("Step 1 / 5")
         self._step_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 600; font-size: 10px;"
+            f"font-weight: 600; font-size: {font_px(10)}px;"
             "letter-spacing: 2px; color: #4A9EFF;"
         )
         col.addWidget(self._step_lbl)
@@ -211,7 +252,7 @@ class _TourOverlay(QWidget):
         self._title_lbl = QLabel(steps[0].title)
         self._title_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 400; font-size: 20px; color: #e5e5e5;"
+            f"font-weight: 400; font-size: {font_px(20)}px; color: #e5e5e5;"
         )
         col.addWidget(self._title_lbl)
 
@@ -219,7 +260,7 @@ class _TourOverlay(QWidget):
         self._body_lbl.setWordWrap(True)
         self._body_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
-            "font-weight: 300; font-size: 13px;"
+            f"font-weight: 300; font-size: {font_px(13)}px;"
             "color: #a1a6ad;"
         )
         col.addWidget(self._body_lbl)
@@ -325,7 +366,13 @@ class _TourOverlay(QWidget):
         self._finish()
 
     def _finish(self) -> None:
-        mark_tour_seen()
+        if self._on_finish is not None:
+            try:
+                self._on_finish()
+            except Exception:
+                LOG.debug("tour finish callback failed", exc_info=True)
+        else:
+            mark_tour_seen()
         self._window.removeEventFilter(self)
         self.close()
         self.deleteLater()

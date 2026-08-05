@@ -469,9 +469,6 @@ def test_prefilter_measurement_branch_quantile_threshold(annot_env, monkeypatch)
         ref[ref["cell_area"] >= cut]["png_path"].tolist()
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "BUG: prefilter_paths_annotations hard-codes df['cell_area'] in a debug "
-    "print, so any measurement DB without a cell table raises KeyError"))
 def test_prefilter_does_not_require_a_cell_area_column(annot_env, monkeypatch):
     import spacr.io as sio
     paths = annot_env["png_paths"]
@@ -916,7 +913,6 @@ def test_update_html_pushes_script_through_ipython_display(monkeypatch):
 
 def test_update_database_worker_survives_pragma_failure(tmp_path, monkeypatch):
     """A driver that rejects PRAGMA must not kill the writer thread."""
-    from spacr.gui_elements import AnnotateApp
     import sqlite3 as _sqlite3
 
     class _Cur:
@@ -961,7 +957,6 @@ def test_update_database_worker_survives_pragma_failure(tmp_path, monkeypatch):
 def test_update_database_worker_exits_on_terminate_flag(annot_env):
     """Empty queue + terminate -> the worker writes its batch then breaks out."""
     import threading
-    from spacr.gui_elements import AnnotateApp
 
     target = annot_env["png_paths"][0]
     with sqlite3.connect(annot_env["db_path"]) as con:

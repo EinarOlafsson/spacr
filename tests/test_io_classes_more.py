@@ -226,11 +226,12 @@ def test_save_mask_timelapse_as_gif(tmp_path):
         m[2 + t:6 + t, 2:6] = 1
         masks.append(m)
     out = tmp_path / "tl.gif"
-    try:
-        _save_mask_timelapse_as_gif(
-            masks, None, str(out), cmap="viridis",
-            norm=mcolors.Normalize(vmin=0, vmax=2),
-            filenames=[f"f{t}.npy" for t in range(3)])
-    except Exception as e:
-        pytest.skip(f"gif writer unavailable: {e}")
+    # Unguarded: matplotlib's Agg writer ships with the package, so "gif
+    # writer unavailable" was never an environment fact -- it was any bug in
+    # _save_mask_timelapse_as_gif wearing an environmental excuse.
+    _save_mask_timelapse_as_gif(
+        masks, None, str(out), cmap="viridis",
+        norm=mcolors.Normalize(vmin=0, vmax=2),
+        filenames=[f"f{t}.npy" for t in range(3)])
     assert out.exists()
+    assert out.stat().st_size > 0, "wrote an empty GIF"

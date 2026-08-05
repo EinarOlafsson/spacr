@@ -226,6 +226,45 @@ def test_normalize_stack_first_frame_all_zero(tmp_path):
     assert res[1, ..., 0].max() == pytest.approx(1.0)
 
 
+def test_normalize_stack_all_zero_channel_is_preserved(tmp_path):
+    """A channel with no signal has no percentiles and must not crash."""
+    from spacr.io import _normalize_stack
+
+    src = tmp_path / "stack"
+    src.mkdir()
+    frames = np.zeros((2, 8, 8, 1), dtype=np.float32)
+    _write_stack_npz(src / "allzero.npz", frames)
+
+    _normalize_stack(
+        str(src),
+        backgrounds=[0],
+        remove_backgrounds=[False],
+        signal_to_noise=[5],
+        signal_thresholds=[1.0],
+    )
+
+    with np.load(str(tmp_path / "masks" / "allzero_norm_stack.npz")) as data:
+        assert np.count_nonzero(data["data"]) == 0
+
+
+def test_normalize_stack_rejects_incomplete_per_channel_settings(tmp_path):
+    from spacr.io import _normalize_stack
+
+    src = tmp_path / "stack"
+    src.mkdir()
+    frames = np.zeros((1, 8, 8, 2), dtype=np.float32)
+    _write_stack_npz(src / "two.npz", frames)
+
+    with pytest.raises(ValueError, match="2 channels.*incomplete"):
+        _normalize_stack(
+            str(src),
+            backgrounds=[0],
+            remove_backgrounds=[False],
+            signal_to_noise=[5],
+            signal_thresholds=[1.0],
+        )
+
+
 # ---------------------------------------------------------------------------
 # _normalize_timelapse
 # ---------------------------------------------------------------------------
@@ -278,6 +317,24 @@ def test_normalize_timelapse_handles_two_channels(tmp_path):
     assert res.shape == (2, 4, 4, 2)
     for c in range(2):
         assert res[..., c].max() == pytest.approx(65535.0)
+
+
+def test_normalize_timelapse_blank_and_flat_frames_are_preserved(tmp_path):
+    """Blank/constant frames have no usable percentile interval."""
+    from spacr.io import _normalize_timelapse
+
+    src = tmp_path / "stack"
+    src.mkdir()
+    data = np.zeros((2, 4, 4, 1), dtype=np.uint16)
+    data[1, ..., 0] = 500
+    _write_stack_npz(src / "blank.npz", data)
+
+    _normalize_timelapse(str(src))
+
+    with np.load(str(tmp_path / "masks" / "blank_norm_timelapse.npz")) as saved:
+        result = saved["data"]
+    assert np.count_nonzero(result[0]) == 0
+    assert np.all(result[1, ..., 0] == 500)
 
 
 # ---------------------------------------------------------------------------

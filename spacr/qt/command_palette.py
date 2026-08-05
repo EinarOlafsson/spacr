@@ -27,10 +27,10 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QIcon, QKeyEvent
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QDialog, QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
     QVBoxLayout,
@@ -63,9 +63,10 @@ class CommandPalette(QDialog):
     """
 
     def __init__(self, window: QMainWindow):
+        from .i18n import tr
         super().__init__(window)
         self._window = window
-        self.setWindowTitle("spaCR — Command palette")
+        self.setWindowTitle(tr("spaCR — Command palette"))
         self.setModal(True)
         # Frameless-ish look — big centred dialog on top of the app.
         self.setMinimumWidth(560)
@@ -76,16 +77,16 @@ class CommandPalette(QDialog):
         outer.setSpacing(0)
 
         self._input = QLineEdit()
-        self._input.setPlaceholderText(
-            "Type to filter — Enter to run, Esc to cancel"
-        )
+        self._input.setPlaceholderText(tr(
+            "Type to filter — Enter to run, Esc to cancel"))
         self._input.setObjectName("CommandInput")
+        from .theme import font_px
         self._input.setStyleSheet(
             "QLineEdit#CommandInput {"
             "  border: none;"
             "  padding: 14px 18px;"
             "  font-family: 'Open Sans', sans-serif;"
-            "  font-size: 15px;"
+            f"  font-size: {font_px(15)}px;"
             "}"
         )
         outer.addWidget(self._input)
@@ -107,14 +108,15 @@ class CommandPalette(QDialog):
 
     # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
+        from .i18n import tr
         try:
             from .app import app_is_visible, app_stage, visible_apps
             apps = visible_apps()
         except Exception:
+            # `apps` is empty on this path, so the Apps loop below never runs
+            # and `app_stage` is never reached — only `app_is_visible` is,
+            # from the recent-runs loop, so only it needs a stand-in.
             apps = []
-
-            def app_stage(_key):
-                return "stable"
 
             def app_is_visible(_key):
                 return True
@@ -126,26 +128,31 @@ class CommandPalette(QDialog):
             # rather than a second set of sections. How finished an app
             # is is a KEYWORD instead: "alpha" is a useful thing to be
             # able to type, and a useless thing to sort a list by.
-            words = [key, desc, section, name.lower(), app_stage(key)]
+            localized_name = tr(name)
+            localized_section = tr(section)
+            words = [
+                key, desc, section, name.lower(), localized_name.lower(),
+                localized_section.lower(), app_stage(key),
+            ]
             self._commands.append(Command(
-                label=f"Go to  {name}",
-                section=f"Apps · {section}",
+                label=tr("Go to  {name}", name=localized_name),
+                section=tr("Apps · {section}", section=localized_section),
                 action=lambda k=key: self._nav(k),
                 keywords=words,
             ))
 
         # Home
         self._commands.append(Command(
-            label="Go to  Home",
-            section="Navigation",
+            label=tr("Go to  {name}", name=tr("Home")),
+            section=tr("Navigation"),
             action=lambda: self._nav("__home__"),
             keywords=["home", "start", "landing"],
         ))
 
         # Preferences
         self._commands.append(Command(
-            label="Open Preferences…",
-            section="Actions",
+            label=tr("Open Preferences…"),
+            section=tr("Actions"),
             action=self._open_preferences,
             keywords=["preferences", "settings", "theme", "font",
                       "colour", "color", "accessibility"],
@@ -153,8 +160,8 @@ class CommandPalette(QDialog):
 
         # Providers dialog
         self._commands.append(Command(
-            label="Open AI Providers…",
-            section="Actions",
+            label=tr("Open AI Providers…"),
+            section=tr("Actions"),
             action=self._open_providers,
             keywords=["providers", "ai", "claude", "chatgpt",
                       "gemini", "llm"],
@@ -162,8 +169,8 @@ class CommandPalette(QDialog):
 
         # Cheat sheet
         self._commands.append(Command(
-            label="Keyboard shortcuts…",
-            section="Help",
+            label=tr("Keyboard shortcuts…"),
+            section=tr("Help"),
             action=self._open_shortcuts,
             keywords=["shortcuts", "keyboard", "help", "cheat",
                       "hotkeys"],
@@ -188,16 +195,29 @@ class CommandPalette(QDialog):
         except Exception as e:
             LOG.debug("recent_runs unavailable: %s", e)
 
-        # Menu bar actions
+        # Settings of the module on screen. Without these the palette
+        # answered "which app?" and nothing else, while the thing a user is
+        # most often hunting for is one setting among a hundred and ninety.
+        self._collect_settings_commands()
+
+        # Menu bar actions.
+        #
+        # Menus are reached through `bar.findChildren(QMenu)`, not by
+        # walking `menuBar().actions()` and calling `QAction.menu()`: on
+        # PySide6 6.11 the QMenu wrapper the latter returns is only valid
+        # while the QAction wrapper it came off is alive, so it went stale
+        # as soon as this loop moved on — and every menu command in the
+        # palette raised "Internal C++ object already deleted" when
+        # triggered. `findChildren` hands back children the bar owns in C++.
         try:
-            mb = self._window.menuBar()
-            for m_act in mb.actions():
-                menu = m_act.menu()
-                if menu is None:
+            from PySide6.QtWidgets import QMenu
+            bar = self._window.menuBar()
+            for menu in (bar.findChildren(QMenu) if bar is not None else []):
+                menu_title = menu.title().replace("&", "")
+                if not menu_title:
                     continue
-                menu_title = m_act.text().replace("&", "")
                 for act in menu.actions():
-                    if act.isSeparator():
+                    if act.isSeparator() or act.menu() is not None:
                         continue
                     label = act.text().replace("&", "")
                     if not label:
@@ -208,6 +228,83 @@ class CommandPalette(QDialog):
                         action=lambda a=act: a.trigger(),
                         keywords=[label.lower(), menu_title.lower()],
                     ))
+        except Exception:
+            LOG.debug("menu actions unavailable for the palette",
+                      exc_info=True)
+
+    def _collect_settings_commands(self, limit: int = 400) -> None:
+        """One command per setting of the module currently on screen.
+
+        Activating it opens that setting: the module's search strip is
+        filtered to the key and the section holding it is expanded, so the
+        palette lands the user *on* the control rather than merely naming
+        it.
+
+        Scoped to the current module on purpose. Every setting of every
+        module is 1,022 rows, and a palette in which "diameter" returns
+        eleven identically-named entries from six modules is a worse answer
+        than no entry at all.
+
+        :param limit: safety cap, so an unusually large module cannot make
+            opening the palette feel slow.
+        """
+        try:
+            screen = self._window._stack.currentWidget()
+        except Exception:
+            return
+        model = getattr(screen, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) if model is not None else None
+        if not widgets:
+            return
+        app_key = str(getattr(screen, "app_key", "") or "")
+        section = f"Settings · {app_key}" if app_key else "Settings"
+        for key in list(widgets)[:limit]:
+            try:
+                label = model._label_for(key)
+                hint = model.plain_tooltip_for(key)
+            except Exception:
+                label, hint = key, ""
+            self._commands.append(Command(
+                label=f"{label}  ({key})",
+                section=section,
+                action=lambda k=key: self._reveal_setting(k),
+                keywords=[key.lower(), label.lower(), hint.lower(),
+                          "setting", app_key.lower()],
+            ))
+
+    def _reveal_setting(self, key: str) -> None:
+        """Filter the current module's settings strip down to ``key``.
+
+        Falls back to expanding the section and focusing the widget when the
+        strip is not installed, so the command still lands somewhere useful
+        on a screen the search bar could not reach.
+        """
+        try:
+            screen = self._window._stack.currentWidget()
+        except Exception:
+            return
+        bar = getattr(screen, "_settings_search", None)
+        if bar is not None:
+            try:
+                bar.set_modified_only(False)
+                bar.set_level("all")
+                bar.set_query(key)
+            except Exception:
+                LOG.debug("could not reveal %r through the strip", key,
+                          exc_info=True)
+        widget = (getattr(screen, "_settings_model", None)
+                  and screen._settings_model._widgets.get(key))
+        if widget is None:
+            return
+        for section in getattr(screen, "_settings_sections", []) or []:
+            try:
+                if section.isAncestorOf(widget):
+                    section.set_expanded(True)
+                    break
+            except (AttributeError, RuntimeError):
+                continue
+        try:
+            widget.setFocus()
         except Exception:
             pass
 

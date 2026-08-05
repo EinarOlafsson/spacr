@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 import pandas as pd
 import pytest
 
@@ -86,8 +88,81 @@ def test_declared_object_feature_must_be_numeric():
 
     with pytest.raises(
             schema.ModelFeatureSchemaError,
-            match=r"cell_area.*must be numeric"):
+            match=r"cell_area \(object\)"):
         schema.model_feature_columns(frame)
+
+
+def test_every_unusable_feature_is_named_in_one_error():
+    """One run, one error, every offending column and its dtype in it.
+
+    Naming one column and stopping made the user pay for a whole read/merge
+    per column they had to discover.
+    """
+    frame = pd.DataFrame({
+        "cell_area": ["large", "small"],
+        "cell_channel_0_mode_intensity": [None, None],
+        "nucleus_perimeter": ["n/a", "n/a"],
+        "cell_channel_1_mean_intensity": [1.0, 2.0],
+    })
+
+    with pytest.raises(schema.ModelFeatureSchemaError) as excinfo:
+        schema.model_feature_columns(frame)
+
+    message = str(excinfo.value)
+    assert "3 declared model features" in message
+    for name in ("cell_area", "cell_channel_0_mode_intensity",
+                 "nucleus_perimeter"):
+        assert f"{name} (object)" in message
+    # The one usable column is not blamed.
+    assert "cell_channel_1_mean_intensity" not in message
+    # The user is told which control fixes it, and that it takes several.
+    assert "Exclude" in message
+    assert "any number of columns" in message
+    # The all-missing column is diagnosed differently from the text one.
+    assert "every value is missing" in message
+    assert "'n/a'" in message
+
+
+def test_a_measurement_that_is_null_everywhere_is_a_number_not_an_error():
+    """The reported crash, at its smallest.
+
+    ``pandas.read_sql`` types an all-NULL result column ``object`` whatever
+    SQLite declared, and spaCR writes NULL for an honest NaN -- so an
+    entirely-NaN measurement came back as a column of ``None`` and was
+    refused as "non-numeric" on data that has nothing wrong with it.
+    """
+    frame = pd.DataFrame({
+        "cell_channel_0_mode_intensity": [None, None, None],
+        "cell_area": [1.0, 2.0, 3.0],
+    })
+
+    converted = schema.coerce_model_feature_types(frame)
+
+    assert converted["cell_channel_0_mode_intensity"].dtype == "float64"
+    assert converted["cell_channel_0_mode_intensity"].isna().all()
+    assert schema.model_feature_columns(converted) == [
+        "cell_channel_0_mode_intensity", "cell_area"]
+
+
+def test_repairing_an_all_null_measurement_warns_about_nothing():
+    """Nothing was lost, so nothing is announced. Only text coercion is loud."""
+    frame = pd.DataFrame({"cell_channel_0_mode_intensity": [None, None]})
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        converted = schema.coerce_model_feature_types(frame)
+
+    assert [str(w.message) for w in caught] == []
+    # Silence is only meaningful if the repair actually happened: the column
+    # of None really did become float64 NaN, not "left alone, quietly".
+    assert converted["cell_channel_0_mode_intensity"].dtype == "float64"
+    assert converted["cell_channel_0_mode_intensity"].isna().all()
+    # ...and the same call IS loud when a repair says something about the
+    # database, so the silence above is about this column and not about a
+    # code path that can never warn at all.
+    with pytest.warns(UserWarning, match="stored as text"):
+        schema.coerce_model_feature_types(
+            pd.DataFrame({"cell_channel_0_mode_intensity": ["1.5", "2.5"]}))
 
 
 def test_numeric_text_measurements_are_losslessly_coerced():
@@ -96,7 +171,8 @@ def test_numeric_text_measurements_are_losslessly_coerced():
         "object_label": [1, 2, 3, 4],
     })
 
-    converted = schema.coerce_model_feature_types(frame)
+    with pytest.warns(UserWarning, match="stored as text"):
+        converted = schema.coerce_model_feature_types(frame)
 
     assert converted is not frame
     assert converted["cell_channel_0_mode_intensity"].tolist()[:2] == [
@@ -118,6 +194,26 @@ def test_numeric_coercion_reports_genuinely_invalid_measurements():
             schema.ModelFeatureSchemaError,
             match=r"cell_channel_0_mode_intensity.*saturated"):
         schema.coerce_model_feature_types(frame)
+
+
+def test_coercion_reports_every_unrecoverable_column_at_once():
+    """'12.0' is recoverable and is recovered; 'n/a' is not and never becomes
+    NaN behind the user's back. Both verdicts, all columns, one error."""
+    frame = pd.DataFrame({
+        "cell_channel_0_mode_intensity": ["12.0", "n/a"],
+        "nucleus_area": ["3", "not measured"],
+        "cell_perimeter": ["1.5", "2.5"],
+    })
+
+    with pytest.raises(schema.ModelFeatureSchemaError) as excinfo:
+        schema.coerce_model_feature_types(frame)
+
+    message = str(excinfo.value)
+    assert "2 declared model features" in message
+    assert "cell_channel_0_mode_intensity (object)" in message
+    assert "nucleus_area (object)" in message
+    assert "cell_perimeter" not in message
+    assert "'n/a'" in message and "'not measured'" in message
 
 
 def test_excluded_invalid_measurement_does_not_block_model_boundary():

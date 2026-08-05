@@ -1,5 +1,6 @@
+"""Shared image, model, database, statistics, and pipeline utilities."""
 
-import os, re, sqlite3, torch, torchvision, random, string, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback
+import os, re, sqlite3, torch, torchvision, random, shutil, cv2, tarfile, glob, psutil, platform, gzip, subprocess, time, requests, ast, traceback, logging
 
 import numpy as np
 
@@ -62,7 +63,7 @@ from skimage.measure import find_contours
 from skimage.segmentation import clear_border, find_boundaries
 from scipy.stats import pearsonr
 
-from skimage.filters import (threshold_otsu, threshold_local, gaussian,frangi, sato, meijering, difference_of_gaussians,apply_hysteresis_threshold,)
+from skimage.filters import (gaussian, frangi, sato, meijering, difference_of_gaussians, apply_hysteresis_threshold)
 from skimage.morphology import white_tophat, disk
 from skimage.feature import blob_log, blob_dog
 
@@ -120,6 +121,8 @@ from scipy.ndimage import binary_dilation, binary_fill_holes
 
 from skimage.exposure import rescale_intensity
 
+LOG = logging.getLogger(__name__)
+
 
 @contextmanager
 def _preserve_batchnorm_running_stats(module: nn.Module):
@@ -161,6 +164,21 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 
 from huggingface_hub import list_repo_files
+
+
+def _run_random_state(default=None):
+    """Return the active run's seed, for an estimator's ``random_state=``.
+
+    Imported inside the call rather than at module scope: :mod:`spacr.runctx`
+    reaches :mod:`spacr.settings`, which reaches back here, and a top-level
+    import would be a cycle. Outside a run this is whatever ``default`` was,
+    which is the literal these call sites used to hard-code.
+
+    :param default: the value to use when no run is open.
+    :returns: the run seed, or ``default``.
+    """
+    from .runctx import random_state
+    return random_state(default)
 
 #from spacr import __file__ as spacr_path
 spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
@@ -373,13 +391,9 @@ umap = _LazyModule(
     ),
 )
 
-import logging
 from functools import wraps
 
-import os
-import numpy as np
-from scipy import ndimage
-from skimage.segmentation import find_boundaries, watershed
+from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from joblib import Parallel, delayed
 import tifffile
@@ -1803,13 +1817,15 @@ def close_multiprocessing_processes():
     # Close file descriptors
     close_file_descriptors()
 
-def check_mask_folder(src,mask_fldr):
+def check_mask_folder(src, mask_fldr, resume=False):
     """Return ``True`` if masks in ``src/masks/mask_fldr`` still need generating.
 
     :param src: experiment root containing ``masks/`` and ``stack/`` subfolders.
     :param mask_fldr: subfolder name under ``masks/``.
-    :returns: ``True`` when the mask folder is missing or has fewer ``.npy`` files
-        than the stack folder.
+    :param resume: when True, count only structurally complete mask arrays.
+        Empty/truncated arrays left by an interrupted older run are re-queued.
+    :returns: ``True`` when the mask folder is missing or has fewer valid
+        ``.npy`` files than the stack folder.
     """
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
@@ -1817,7 +1833,16 @@ def check_mask_folder(src,mask_fldr):
     if not os.path.exists(mask_folder):
         return True
     
-    mask_count = sum(1 for file in os.listdir(mask_folder) if file.endswith('.npy'))
+    mask_paths = [
+        os.path.join(mask_folder, file)
+        for file in os.listdir(mask_folder) if file.endswith('.npy')
+    ]
+    if resume:
+        from .resume import validate_merged_field
+        mask_count = sum(
+            1 for path in mask_paths if validate_merged_field(path)[0])
+    else:
+        mask_count = len(mask_paths)
     stack_count = sum(1 for file in os.listdir(stack_folder) if file.endswith('.npy'))
     
     if mask_count == stack_count:
@@ -1938,7 +1963,11 @@ def _get_cellpose_batch_size():
             batch_size = 96
         print(f"Device {0}: {device_properties.name}, VRAM: {vram_gb:.2f} GB, cellpose batch size: {batch_size}")
         return batch_size
-    except Exception as e:
+    except Exception:
+        LOG.warning(
+            "Could not inspect CUDA memory; using Cellpose batch size 8",
+            exc_info=True,
+        )
         return 8
 
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
@@ -2334,7 +2363,9 @@ def _existing_measurement_identity(db_path, table):
     """
     if not os.path.isfile(db_path):
         return set()
-    conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+    from .database_concurrency import connect
+
+    conn = connect(db_path, readonly=True, timeout=DB_WRITE_TIMEOUT)
     try:
         exists = conn.execute(
             "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
@@ -2384,6 +2415,282 @@ def _assert_measurement_units_compatible(db_path, table, stamp):
         f"without the numbers becoming uncomparable in a way no reader could "
         f"detect. Measure the 3-D and 2-D fields into separate output folders, "
         f"or re-measure the whole plate one way.")
+
+
+class ImportedCopyNotReleased(ValueError):
+    """The table being appended to holds an import's copy of the same field.
+
+    ``foreign.run_import`` copies the imported frame into the canonical
+    ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty,
+    so a project built purely by import is readable by every spaCR tool. That
+    copy is a convenience and it stops being one the moment spaCR measures the
+    same field: :func:`_merge_and_save_to_database` *appends*, so its rows land
+    beside theirs, in different columns, with nothing in the row marking the
+    seam -- and every ``count_cell`` downstream becomes the sum of two
+    populations. That is F34.
+
+    A resume supersedes the copy before measuring (see
+    :func:`spacr.resume.supersede_imported_copies`) or refuses and says so,
+    which covers every path *through* a resume. This covers the path around
+    one: a direct ``measure_crop`` with ``resume`` off.
+
+    Raised only when the copy cannot be handed back **provably losslessly** --
+    no ``foreign_<object>`` to check the rows against, a row in the copy with
+    no twin in it, a timelapse whose frames the importer never keyed, or a
+    delete that did not act on the rows the count cleared. In every one of
+    those cases the field's rows are not written, because a refused write can
+    be re-run and a mixed table cannot be un-mixed.
+    """
+
+
+def _field_key_predicate(frame, key_columns, alias):
+    """A WHERE fragment matching exactly the field identities ``frame`` carries.
+
+    One parenthesised ``OR`` of ``AND`` groups over the four key columns, plus
+    its parameters, so that the count and the delete below can be handed *one*
+    predicate rather than two statements that could drift apart.
+
+    Naming ``rowID`` here is safe, and is worth saying out loud given what that
+    identifier has cost this project twice: it is used as one of four *key*
+    columns, always together, quoted and alias-qualified, and it means the
+    plate row -- which is exactly what it is. The destructive spelling was
+    ``rowid``, the implicit row identity, which a declared ``rowID`` shadows.
+
+    :param frame: the rows about to be appended.
+    :param key_columns: :data:`spacr.schema.FIELD_KEY_COLUMNS`.
+    :param alias: table alias every column reference is qualified by.
+    :returns: ``(predicate, params)``.
+    :raises ImportedCopyNotReleased: when ``frame`` lacks a key column, so the
+        identity of what is being written cannot be established.
+    """
+    missing = [c for c in key_columns if c not in frame.columns]
+    if missing:
+        raise ImportedCopyNotReleased(
+            f"cannot establish which field these rows belong to: the frame "
+            f"has no {missing} column(s), and a delete keyed on fewer columns "
+            f"than the writer used would take other fields with it.")
+    keys = list(dict.fromkeys(
+        tuple(row) for row in frame[list(key_columns)].astype(str).itertuples(
+            index=False, name=None)))
+    if not keys:
+        # An empty frame identifies no field, so it must match no row. The
+        # alternative -- ``()``, an empty OR -- is not valid SQL, and a
+        # predicate that fails to parse in a delete is a worse answer than one
+        # that selects nothing.
+        return '0', []
+    group = '(' + ' AND '.join(
+        f'{alias}."{c}" = ?' for c in key_columns) + ')'
+    predicate = '(' + ' OR '.join([group] * len(keys)) + ')'
+    params = [value for key in keys for value in key]
+    return predicate, params
+
+
+def _verified_delete(conn, table, alias, predicate, params, what):
+    """Count with a predicate, delete with the *same* predicate, verify.
+
+    The shape of :func:`spacr.data_manager._verified_write`, which exists for
+    the same reason: this project has been destroyed twice by a delete written
+    against a row identity that was not one. ``DELETE ... WHERE rowid IN (...)``
+    removed a whole table because every spaCR object table declares a column
+    called ``rowID`` and SQLite identifiers are case-insensitive; the obvious
+    repair -- delete by the declared key -- was equally destructive, because an
+    import's row and a measurement's row for one object share all five key
+    columns.
+
+    So no row identity is named. The caller supplies one predicate string; it
+    is interpolated once, into both statements, so a later edit cannot change
+    one without the other, and any difference between the two numbers is a
+    failure rather than a result.
+
+    :param conn: open connection, inside a transaction.
+    :param table: table to delete from.
+    :param alias: alias bound to ``table`` in both statements -- the predicate
+        qualifies its column references by it.
+    :param predicate: the WHERE clause, without ``WHERE``.
+    :param params: its parameters, bound to both statements.
+    :param what: what this delete is, for the error message.
+    :returns: rows removed, which equals the rows counted.
+    :raises ImportedCopyNotReleased: on any difference. The caller's
+        transaction rolls back and nothing is written -- not the delete, and
+        not the measurements that were to follow it.
+    """
+    counted = int(conn.execute(
+        f'SELECT COUNT(*) FROM "{table}" AS {alias} WHERE {predicate}',
+        tuple(params)).fetchone()[0])
+    removed = int(conn.execute(
+        f'DELETE FROM "{table}" AS {alias} WHERE {predicate}',
+        tuple(params)).rowcount or 0)
+    if removed != counted:
+        raise ImportedCopyNotReleased(
+            f"refusing to {what}: the delete removed {removed} row(s) from "
+            f"'{table}' where the count that gated it said {counted}. The "
+            f"statement did not act on the rows that were checked, so nothing "
+            f"about the result can be trusted. The transaction was rolled "
+            f"back, and this field's measurements were not written.")
+    return removed
+
+
+def _release_imported_rows_for_field(db_path, table, frame, timelapse=False):
+    """Hand back an import's copy of the field about to be measured into ``table``.
+
+    Called immediately before the append, and only for the canonical object
+    tables an import can have copied into. It asks
+    :func:`spacr.resume.importer_rows_clause` whether this table holds rows a
+    foreign import wrote, narrows that to the field ``frame`` is for, and
+    removes exactly those -- verified against ``foreign_<table>`` row by row
+    first, and gated on a count taken with the same predicate as the delete.
+
+    Scoping to the field is what makes this safe to do at the writer, where a
+    whole-table release is not. ``resume.supersede_imported_copies`` refuses to
+    release a table when some field it covers is neither measured nor queued,
+    because a half-released table leaves that field with no rows at all. Here
+    the released field's replacement rows are the very next statement, so the
+    field is never left empty; the import's other fields keep their rows and
+    their provenance, and are released the same way when their turn comes.
+
+    Nothing here can lose a measurement. What is removed is a duplicate of
+    ``foreign_<table>``, which nothing in spaCR may delete from, and the
+    importer's own numbers stay exactly where they were.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: destination table, one of
+        :data:`spacr.schema.CANONICAL_OBJECT_TABLES`.
+    :param frame: the rows about to be appended, carrying the field key.
+    :param timelapse: True for a timelapse run.
+    A locked database is retried on the same schedule as the append that
+    follows it, and for the same reason: ``measure_crop`` writes one field per
+    worker into a single SQLite file, contention is normal and transient, and a
+    check that turned a busy database into a lost field would re-introduce the
+    bug ``_append_to_measurements_db`` exists to prevent. The reads are taken
+    on a read-only connection so this can never be the thing holding the lock.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: destination table, one of
+        :data:`spacr.schema.CANONICAL_OBJECT_TABLES`.
+    :param frame: the rows about to be appended, carrying the field key.
+    :param timelapse: True for a timelapse run.
+    :returns: number of imported rows released, ``0`` when the table holds none
+        for this field -- which is the ordinary case, and costs three reads of
+        ``sqlite_master`` on a project that has never seen an import.
+    :raises ImportedCopyNotReleased: when the copy is there and cannot be
+        released provably losslessly. Refusing costs one field's measurements,
+        which a re-run replaces; mixing costs every count in the project, which
+        nothing detects.
+    :raises sqlite3.OperationalError: when the database stays locked for every
+        attempt, exactly as the append would.
+    """
+    if not os.path.isfile(db_path):
+        return 0
+    delay = 0.2
+    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+        try:
+            return _release_imported_rows_once(db_path, table, frame, timelapse)
+        except sqlite3.OperationalError as e:
+            if 'locked' not in str(e).lower() or attempt == DB_WRITE_ATTEMPTS:
+                raise
+            print(f"measurements.db busy checking {table} for an imported copy "
+                  f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
+            time.sleep(delay)
+            delay *= 2
+
+
+def _release_imported_rows_once(db_path, table, frame, timelapse=False):
+    """One attempt of :func:`_release_imported_rows_for_field`.
+
+    Split out so the retry above wraps the whole question -- read the
+    provenance, verify the twins, delete -- rather than any one statement of
+    it. Retrying a statement inside a transaction could duplicate an earlier
+    write; retrying the whole thing cannot, because it re-reads the state it
+    decides on and the delete is gated on a count taken beside it.
+    """
+    from . import resume as _resume
+    from .database_concurrency import connect, transaction
+
+    alias = 's'
+    conn = connect(db_path, readonly=True, timeout=DB_WRITE_TIMEOUT)
+    try:
+        if not conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                (table,)).fetchone():
+            return 0
+        importer_clause = _resume.importer_rows_clause(conn, table)
+        if importer_clause is None:
+            return 0                      # no import ever wrote into this table
+        total = int(conn.execute(
+            f'SELECT COUNT(*) FROM "{table}" AS {alias} '
+            f'WHERE {importer_clause}').fetchone()[0])
+        if not total:
+            return 0                      # claimed once, already handed back
+        have = {row[1] for row in conn.execute(f'PRAGMA table_info("{table}")')}
+        absent = [c for c in schema.FIELD_KEY_COLUMNS if c not in have]
+        if absent:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {total} row(s) a foreign import "
+                f"copied there, and it has no {absent} column, so which field "
+                f"they belong to cannot be established. spaCR is about to "
+                f"measure into the same table and the two populations would be "
+                f"indistinguishable. Nothing was written. Measure into a "
+                f"different output folder, or re-run the import.")
+        key_predicate, params = _field_key_predicate(
+            frame, schema.FIELD_KEY_COLUMNS, alias)
+        held = int(conn.execute(
+            f'SELECT COUNT(*) FROM "{table}" AS {alias} '
+            f'WHERE {importer_clause} AND {key_predicate}',
+            tuple(params)).fetchone()[0])
+        if not held:
+            return 0                      # their rows are for other fields
+        field = str(frame['prcf'].iloc[0]) if 'prcf' in frame.columns else '?'
+        if timelapse:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {held} row(s) a foreign import "
+                f"copied there for field {field}, and this is a timelapse run. "
+                f"The importer writes no timeID, so which frame a copied row "
+                f"belongs to cannot be established from the database, and "
+                f"releasing it on the four field columns alone would be a "
+                f"delete keyed on fewer columns than the writer used. Nothing "
+                f"was written. Measure this plate into a different output "
+                f"folder.")
+        from .foreign import FOREIGN_PREFIX, _twin_condition
+
+        twin = _twin_condition(conn, table)
+        if twin is None:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {held} row(s) a foreign import "
+                f"copied there for field {field}, and "
+                f"'{FOREIGN_PREFIX}{table}' -- the importer's own copy of "
+                f"exactly those rows -- is not in this database, so removing "
+                f"them would destroy the only copy. spaCR will not append "
+                f"beside them either: the table would then hold two "
+                f"populations no reader could tell apart. Nothing was written. "
+                f"Re-run the import to restore it, or measure into a different "
+                f"output folder.")
+        orphans = int(conn.execute(
+            f'SELECT COUNT(*) FROM "{table}" AS {alias} '
+            f'WHERE {importer_clause} AND {key_predicate} AND NOT {twin}',
+            tuple(params)).fetchone()[0])
+        if orphans:
+            raise ImportedCopyNotReleased(
+                f"'{table}' in {db_path} holds {held} imported row(s) for "
+                f"field {field} and {orphans} of them have no matching row in "
+                f"'{FOREIGN_PREFIX}{table}', so they exist nowhere else and "
+                f"removing them would lose them. Nothing was written. Re-run "
+                f"the import into this destination, which rewrites both tables "
+                f"from the source, and measure again.")
+    finally:
+        conn.close()
+
+    # Only now, and only for a table that really holds their copy of this
+    # field, is a write connection opened at all.
+    writer = connect(db_path, timeout=DB_WRITE_TIMEOUT)
+    try:
+        with transaction(writer, mode='IMMEDIATE', attempts=6,
+                         busy_timeout=DB_WRITE_TIMEOUT):
+            return _verified_delete(
+                writer, table, alias,
+                f'{importer_clause} AND {twin} AND {key_predicate}', params,
+                f"release the import's copy of field {field} from '{table}'")
+    finally:
+        writer.close()
 
 
 def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folder, file_name, experiment, timelapse=False, stamp=None):
@@ -2472,6 +2779,14 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
                 )
             db_path = f'{source_folder}/measurements/measurements.db'
             _assert_measurement_units_compatible(db_path, table_type, stamp)
+            if table_type in schema.CANONICAL_OBJECT_TABLES:
+                # F34. A foreign import copies its rows into the canonical
+                # table when the destination is empty; appending beside them
+                # makes every downstream count the sum of two populations. The
+                # copy for this field is handed back first, or nothing is
+                # written -- both before the insert, never after.
+                _release_imported_rows_for_field(
+                    db_path, table_type, merged_df, timelapse=timelapse)
             _append_to_measurements_db(db_path, table_type, merged_df)
 
 
@@ -2617,7 +2932,9 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
     for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
         conn = None
         try:
-            conn = sqlite3.connect(db_path, timeout=DB_WRITE_TIMEOUT)
+            from .database_concurrency import connect
+
+            conn = connect(db_path, timeout=DB_WRITE_TIMEOUT)
             from .database_schema import migrate_connection
             migrate_connection(conn, path=os.path.abspath(db_path))
             _append_frame(conn, table, frame)
@@ -4276,7 +4593,7 @@ def suggest_training_changes(
     :returns: dict with ``summary`` (key scalars), ``flags`` (short codes),
         and ``suggestions`` (ordered suggestion strings).
     """
-    import os, glob, math
+    import os, glob
     import numpy as np
     import pandas as pd
     
@@ -4782,8 +5099,8 @@ def augment_classes(dst, nc, pc, generate=True,move=True):
         aug_nc_list = [os.path.join(aug_nc, file) for file in os.listdir(aug_nc)]
         aug_pc_list = [os.path.join(aug_pc, file) for file in os.listdir(aug_pc)]
 
-        nc_train_data, nc_test_data = train_test_split(aug_nc_list, test_size=0.1, shuffle=True, random_state=42)
-        pc_train_data, pc_test_data = train_test_split(aug_pc_list, test_size=0.1, shuffle=True, random_state=42)
+        nc_train_data, nc_test_data = train_test_split(aug_nc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
+        pc_train_data, pc_test_data = train_test_split(aug_pc_list, test_size=0.1, shuffle=True, random_state=_run_random_state(42))
 
         i=0
         for path in nc_train_data:
@@ -4946,11 +5263,8 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
         adjusted_pvalues = multipletests(pvalues, method='fdr_bh')[1]
         # Add adjusted p-values back to the dataframe
         filtered_results_df.loc[:, 'AdjustedPValue'] = adjusted_pvalues
-        # Filter significant results
-        significant_mutants = filtered_results_df[filtered_results_df['AdjustedPValue'] < 0.05]
     else:
         print("No p-values to adjust. Check your data filtering steps.")
-        significant_mutants = pd.DataFrame()  # return empty DataFrame in this case
     
     return filtered_results_df
 
@@ -5023,19 +5337,21 @@ def lasso_reg(merged_df, alpha_value=0.01, reg_type='lasso'):
     X_encoded = encoder.fit_transform(X).toarray()
     feature_names = encoder.get_feature_names_out(input_features=X.columns)
     
+    reg_type = str(reg_type).strip().lower()
     if reg_type == 'ridge':
         # Fit ridge regression
         ridge = Ridge(alpha=alpha_value)
         ridge.fit(X_encoded, y)
-        coefficients = ridge.coef_
         coeff_dict = dict(zip(feature_names, ridge.coef_))
-        
-    if reg_type == 'lasso':
+    elif reg_type == 'lasso':
         # Fit Lasso regression
         lasso = Lasso(alpha=alpha_value)
         lasso.fit(X_encoded, y)
-        coefficients = lasso.coef_
         coeff_dict = dict(zip(feature_names, lasso.coef_))
+    else:
+        raise ValueError(
+            f"Unsupported reg_type {reg_type!r}; expected 'lasso' or 'ridge'."
+        )
     coeff_df = pd.DataFrame(list(coeff_dict.items()), columns=['Feature', 'Coefficient'])
     return coeff_df
 
@@ -6617,14 +6933,14 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
                                 transform_queue_size=4.0,
                                 a=None,
                                 b=None,
-                                random_state=42,
+                                random_state=_run_random_state(42),
                                 metric_kwds=None,
                                 angular_rp_forest=False,
                                 target_n_neighbors=-1,
                                 target_metric='categorical',
                                 target_metric_kwds=None,
                                 target_weight=0.5,
-                                transform_seed=42,
+                                transform_seed=_run_random_state(42),
                                 n_jobs=n_jobs,
                                 verbose=verbose)
 
@@ -6641,7 +6957,7 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
                         metric=metric,
                         init='random',
                         verbose=v,
-                        random_state=42,
+                        random_state=_run_random_state(42),
                         method='barnes_hut',
                         angle=0.5,
                         n_jobs=n_jobs)
@@ -6669,7 +6985,7 @@ def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, m
     if clustering == 'dbscan':
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
     elif clustering == 'kmeans':
-        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+        clustering_model = KMeans(n_clusters=min_samples, random_state=_run_random_state(42))
     else:
         # Without this the name stays unbound and the next line dies with a
         # bare UnboundLocalError. search_reduction_and_clustering already
@@ -6829,7 +7145,11 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
                         ax.plot(
                             x_smooth, y_smooth, color=color, linewidth=width)
                 except Exception:
-                    pass
+                    LOG.debug(
+                        "Could not draw a smoothed hull for cluster %r",
+                        cluster_label,
+                        exc_info=True,
+                    )
         else:
             if cluster_data.shape[0] > 2:
                 try:
@@ -6842,11 +7162,15 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
                                 color=color, linewidth=width,
                             )
                 except Exception:
-                    pass
+                    LOG.debug(
+                        "Could not draw a convex hull for cluster %r",
+                        cluster_label,
+                        exc_info=True,
+                    )
         if plot_points:
-            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=alpha, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+            ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=alpha, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         else:
-            scatter = ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
+            ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
         ax.text(
             center[0], center[1], str(cluster_label), fontsize=12,
             ha='center', va='center',
@@ -7049,6 +7373,18 @@ def generate_path_list_from_db(db_path, file_metadata):
 def correct_paths(df, base_path, folder='data'):
     """Rewrite PNG paths (in a DataFrame or list) so they live under ``base_path/folder``.
 
+    A non-string entry is passed through untouched. ``png_list`` is LEFT-joined
+    onto the object tables, so any object whose crop was never written arrives
+    here with ``png_path`` = NaN -- a state
+    :func:`spacr.io._read_and_join_tables` documents as healthy
+    (``len(merged) == len(cell) > len(png_list)``: ``save_png`` off for a field,
+    a crop that failed to write, an interrupted run, or a ``cell_id`` that could
+    not be migrated). Testing ``base_path not in path`` on that NaN raised
+    ``TypeError: argument of type 'float' is not iterable`` and took the whole
+    embedding down over one missing thumbnail. There is no path to re-anchor for
+    such a row, and it has to keep its position so the rewritten column still
+    aligns with ``df``.
+
     :param df: DataFrame with a ``png_path`` column, or a list of paths.
     :param base_path: destination root to prepend.
     :param folder: intermediate folder name that anchors the rewrite.
@@ -7064,10 +7400,12 @@ def correct_paths(df, base_path, folder='data'):
 
     elif isinstance(df, list):
         image_paths = df
-    
+
     adjusted_image_paths = []
     for path in image_paths:
-        if base_path not in path:
+        if not isinstance(path, str):
+            adjusted_image_paths.append(path)
+        elif base_path not in path:
             parts = path.split(f'/{folder}/')
             if len(parts) > 1:
                 new_path = os.path.join(base_path, f'{folder}', parts[1])
@@ -7206,7 +7544,23 @@ def _feature_filter_matches(columns, filter_by):
     ]
 
 
-def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, column_list=False):
+def preprocess_data(
+    df,
+    filter_by,
+    remove_highly_correlated,
+    log_data,
+    exclude,
+    column_list=False,
+    *,
+    batch_correction="none",
+    batch_column="plateID",
+    batch_control_column=None,
+    batch_control_values=None,
+    batch_covariate_column=None,
+    batch_combat_mean_only=False,
+    batch_min_samples=3,
+    batch_missing_control="error",
+):
     """Prepare a feature matrix by filtering, decorrelating, log-transforming, and scaling ``df``.
 
     :param df: input DataFrame.
@@ -7217,9 +7571,24 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     :param log_data: apply ``log(x + 1e-6)`` to numeric columns.
     :param exclude: features to exclude from filtering.
     :param column_list: optional explicit column subset applied before selecting numeric columns.
+    :param batch_correction: ``none``, ``center``, ``zscore``,
+        ``robust_zscore``, ``control_center`` or ``combat``.
+    :param batch_column: metadata column identifying acquisition batches.
+    :param batch_control_column: metadata column selecting reference controls.
+    :param batch_control_values: reference value(s) for ``control_center``.
+    :param batch_covariate_column: metadata column(s) naming the biology
+        ``combat`` must preserve. Required by ``combat``, ignored by every
+        other method — and left blank, ``combat`` refuses to run rather than
+        removing the contrast along with the plate effect.
+    :param batch_combat_mean_only: correct only ``combat``'s additive shift
+        and leave each batch's scale alone.
+    :param batch_min_samples: minimum rows/reference controls per batch.
+    :param batch_missing_control: ``error`` or ``skip`` when a batch lacks
+        enough controls.
     :returns: standard-scaled ``ndarray`` of numeric features.
     :raises ValueError: if no numeric columns remain after filtering.
     """
+    metadata_df = df
     filter_by = normalize_feature_filter(filter_by)
     explicit_features = column_list or ()
     excluded_features = (
@@ -7292,6 +7661,32 @@ def preprocess_data(df, filter_by, remove_highly_correlated, log_data, exclude, 
     # Apply log transformation
     if log_data:
         numeric_data = np.log(numeric_data + 1e-6)
+
+    if str(batch_correction or "none").strip().lower() not in {
+        "none", "off", "false",
+    }:
+        from .batch_correction import correct_from_metadata
+        numeric_data, correction_report = correct_from_metadata(
+            numeric_data,
+            metadata_df.loc[numeric_data.index],
+            batch_correction=batch_correction,
+            batch_column=batch_column,
+            batch_control_column=batch_control_column,
+            batch_control_values=batch_control_values,
+            batch_covariate_column=batch_covariate_column,
+            batch_combat_mean_only=batch_combat_mean_only,
+            batch_min_samples=batch_min_samples,
+            batch_missing_control=batch_missing_control,
+        )
+        print(
+            "Batch correction "
+            f"{correction_report.method}: {len(correction_report.batches)} "
+            f"batch(es), centroid spread "
+            f"{correction_report.centroid_spread_before} -> "
+            f"{correction_report.centroid_spread_after}."
+        )
+        for note in correction_report.warnings:
+            print(f"Warning: batch correction: {note}")
     
     # Fill NaN values with the column mean
     numeric_data = numeric_data.fillna(numeric_data.mean())
@@ -7350,7 +7745,8 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
 
     :param df: input DataFrame.
     :param channel_of_interest: int, str, list, or ``'morphology'`` to select feature groups.
-    :param exclude: features to drop from the final list.
+    :param exclude: feature(s) to drop from the final list. A single name or
+        any number of them; the Qt 'Exclude' field collects a list.
     :param remove_low_variance_features: apply :func:`remove_low_variance_columns`.
     :param remove_highly_correlated_features: apply :func:`remove_highly_correlated_columns`.
     :param verbose: print filter details.
@@ -7360,6 +7756,24 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
     excluded_features = (
         [exclude] if isinstance(exclude, str) else (exclude or ())
     )
+    missing_exclusions = [
+        feature for feature in excluded_features if feature not in df.columns
+    ]
+    if missing_exclusions:
+        raise ValueError(
+            "Requested feature exclusions are not present in the input "
+            f"table: {missing_exclusions}. Available columns: "
+            f"{sorted(map(str, df.columns))}.")
+    # Repair before the strict boundary judges. A measurement that is NULL in
+    # every row of the database -- mode_intensity in anything measured before
+    # the SciPy shim, skew/kurtosis wherever every object is uniform -- reaches
+    # here as an OBJECT column of None, because pandas types an all-NULL result
+    # set from its rows and never asks SQLite what it declared. model_feature_
+    # columns then refused it, naming one column, and the run stopped on data
+    # that has nothing wrong with it. See schema.coerce_model_feature_types:
+    # numeric text is recovered loudly, unreadable text still refuses, and it
+    # refuses with every offending column named at once.
+    df = schema.coerce_model_feature_types(df, exclude=excluded_features)
     declared_features = schema.model_feature_columns(
         df, exclude=excluded_features)
     legacy_non_features = {
@@ -7507,7 +7921,7 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric)
     elif clustering == 'kmeans':
         from sklearn.cluster import KMeans
-        clustering_model = KMeans(n_clusters=min_samples, random_state=42)
+        clustering_model = KMeans(n_clusters=min_samples, random_state=_run_random_state(42))
     else:
         raise ValueError(f"Unsupported clustering method: {clustering}. Supported methods are 'dbscan' and 'kmeans'")
     clustering_model.fit(embedding)
@@ -7564,7 +7978,7 @@ def random_forest_feature_importance(all_df, cluster_col='cluster'):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(n_estimators=100, random_state=_run_random_state(42))
     model.fit(X_scaled, y)
 
     feature_importances = model.feature_importances_
@@ -7603,9 +8017,20 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
     return anova_df, kruskal_df
 
 def combine_results(rf_df, anova_df, kruskal_df):
-    """Combine the results into a single DataFrame."""
-    combined_df = rf_df.merge(anova_df, on='Feature', how='left')
-    combined_df = combined_df.merge(kruskal_df, on='Feature', how='left')
+    """Combine the results into a single DataFrame.
+
+    All three frames are keyed on ``Feature`` and carry exactly one row per
+    feature: ``rf_df`` is built from the feature list, and
+    :func:`perform_statistical_tests` sends each feature to *either* ANOVA or
+    Kruskal-Wallis, never both. Hence ``one_to_one``. A repeated ``Feature``
+    -- the signature of a frame with duplicated column names, or of two runs'
+    results concatenated by mistake -- would multiply the importance rows and
+    report the same feature several times as if independently ranked.
+    """
+    combined_df = rf_df.merge(anova_df, on='Feature', how='left',
+                              validate='one_to_one')
+    combined_df = combined_df.merge(kruskal_df, on='Feature', how='left',
+                                    validate='one_to_one')
     return combined_df
 
 def cluster_feature_analysis(all_df, cluster_col='cluster'):
@@ -7694,15 +8119,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
     labeled_parasites = label(parasite_mask)
     labeled_nuclei = label(nuclei_mask)
     num_parasites = np.max(labeled_parasites)
-    num_cells = np.max(labeled_cells)
     num_nuclei = np.max(labeled_nuclei)
-
-    if organelle_mask is not None:
-        labeled_organelles = label(organelle_mask)
-        num_organelles = np.max(labeled_organelles)
-    else:
-        labeled_organelles = None
-        num_organelles = 0
 
     # Merge cells based on parasite overlap
     for parasite_id in range(1, num_parasites + 1):
@@ -8007,12 +8424,37 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     # Drop rows where gene extraction failed
     #df_results = df_results.dropna(subset=['gene'])
     
-    # Merge the two dataframes on the gene column. Metadata rows whose ID had
-    # no parsable gene must not act as a join key: pandas treats NaN keys as
-    # equal, so every unparsable result row (e.g. 'Intercept') would otherwise
-    # fan out against every unparsable metadata row.
-    merged_df = pd.merge(df_results, df_metadata.dropna(subset=['gene']),
-                         on='gene', how='left')
+    # Metadata rows whose ID had no parsable gene must not act as a join key:
+    # pandas treats NaN keys as equal, so every unparsable result row (e.g.
+    # 'Intercept') would otherwise fan out against every unparsable metadata
+    # row.
+    df_metadata = df_metadata.dropna(subset=['gene'])
+
+    # One annotation row per gene, enforced rather than assumed. Curated
+    # exports list a gene once per transcript/isoform -- the bundled
+    # 'toxoplasma_metadata.csv' repeats 30 Gene IDs two to four times, each
+    # copy carrying a different protein length and GO term set. Joined as-is
+    # those genes came back two to four times in the regression results, and
+    # every downstream consumer (volcano plots, the significant-hit tables,
+    # toxo.py) counted each copy as an independent hit. The result must stay
+    # one row per regression feature, so the metadata is collapsed to the
+    # first row per gene and the collapse is reported rather than hidden.
+    duplicated_genes = df_metadata['gene'].duplicated(keep=False)
+    if duplicated_genes.any():
+        collapsed = sorted(df_metadata.loc[duplicated_genes, 'gene'].unique())
+        print(
+            f"{metadata_file}: {int(duplicated_genes.sum())} rows share "
+            f"{len(collapsed)} gene id(s), e.g. {collapsed[:5]}; usually one "
+            f"row per transcript of the same gene. Keeping the first row of "
+            f"each so the merge cannot duplicate regression results -- the "
+            f"annotations of the dropped rows are not carried over."
+        )
+        df_metadata = df_metadata.drop_duplicates(subset=['gene'], keep='first')
+
+    # many_to_one: many regression terms can name one gene (one row per gRNA in
+    # the per-gRNA results), but each gene gets one annotation row.
+    merged_df = pd.merge(df_results, df_metadata, on='gene', how='left',
+                         validate='many_to_one')
     
     # Generate the new file name
     base, ext = os.path.splitext(results_file)
@@ -8553,9 +8995,10 @@ def control_filelist(folder, mode='columnID', values=None):
 # them.
 from .database_schema import (
     DB_COLUMN_RENAMES,
-    DB_COLUMN_RENAME_PATTERNS,
+    DB_COLUMN_RENAME_PATTERNS as _DB_COLUMN_RENAME_PATTERNS,
     canonical_column_name,
 )
+DB_COLUMN_RENAME_PATTERNS = _DB_COLUMN_RENAME_PATTERNS
 
 
 def canonicalize_measurement_columns(df):
@@ -8685,23 +9128,12 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
         else:
             return None
         
-    from .plot import spacrGraph
-
     df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
     
     if name == 'channel':
         # See add_column_to_database: chained inplace is a no-op under
         # pandas copy-on-write.
         df['channel'] = df['channel'].fillna('morphology')
-    
-    # Create new DataFrame with summed importance for each compartment and channel
-    importance_sum = df.groupby(name)['importance'].sum().reset_index(name=f'{name}_importance_sum')
-    total_compartment_importance = importance_sum[f'{name}_importance_sum'].sum()
-    importance_sum = pd.concat(
-        [importance_sum,
-         pd.DataFrame(
-             [{name: 'all', '{name}_importance_sum': total_compartment_importance}])]
-        , ignore_index=True)
     
     return df
 

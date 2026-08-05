@@ -79,7 +79,7 @@ from PySide6.QtWidgets import (
 from ... import convert as cvt
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
-from ..widgets import Divider
+from ..widgets import Divider, Toggle
 
 __all__ = [
     "ConvertScreen",
@@ -204,6 +204,7 @@ class ConvertScreen(QWidget):
     _job_settled = Signal(bool)
     #: ``(done, total, item)`` — emitted from the worker thread.
     _progress = Signal(int, int, str)
+    app_key = "convert"
 
     def __init__(self, parent=None, threaded: bool = True):
         super().__init__(parent)
@@ -220,6 +221,9 @@ class ConvertScreen(QWidget):
         self._job_settled.connect(self._on_job_settled)
         self._progress.connect(self._on_progress)
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("convert"), self)
         self._set_status(
             "Choose a folder of microscope files, then Preview. Nothing is "
             "written until you press Convert.")
@@ -276,6 +280,12 @@ class ConvertScreen(QWidget):
         self._plate_box = QComboBox(self)
         for label, value in PLATE_NAME_CHOICES:
             self._plate_box.addItem(label, value)
+        self._resume = Toggle("Resume", self)
+        self._resume.setToolTip(
+            "Continue from the atomic field checkpoint in the destination. "
+            "Every TIFF in a completed field is validated before it is "
+            "skipped; missing or corrupt fields are converted again. API: "
+            "spacr.convert.convert(..., resume=True).")
         for box in (self._layout_box, self._z_box, self._plate_box):
             box.currentIndexChanged.connect(self._on_option_changed)
         opt_row.addWidget(QLabel("Layout"))
@@ -284,6 +294,7 @@ class ConvertScreen(QWidget):
         opt_row.addWidget(self._z_box, 1)
         opt_row.addWidget(QLabel("Plate names"))
         opt_row.addWidget(self._plate_box, 1)
+        opt_row.addWidget(self._resume)
         outer.addLayout(opt_row)
 
         # ── Destination row ───────────────────────────────────────────
@@ -415,6 +426,14 @@ class ConvertScreen(QWidget):
     def plate_naming(self) -> str:
         """The selected plate naming scheme."""
         return str(self._plate_box.currentData())
+
+    def set_resume(self, enabled: bool) -> None:
+        """Enable or disable field-checkpoint resume."""
+        self._resume.setChecked(bool(enabled))
+
+    def resume_enabled(self) -> bool:
+        """Whether the next conversion will resume complete fields."""
+        return self._resume.isChecked()
 
     def _on_option_changed(self, *_args) -> None:
         """Any option change invalidates the plan on screen.
@@ -551,9 +570,10 @@ class ConvertScreen(QWidget):
 
         plan = self._plan
         emit = self._progress.emit
+        resume = self.resume_enabled()
 
         def _job():
-            return cvt.convert(plan, dst, progress=emit)
+            return cvt.convert(plan, dst, progress=emit, resume=resume)
 
         self._progress_bar.setVisible(True)
         self._progress_bar.setRange(0, max(plan.n_sources, 1))
@@ -594,7 +614,8 @@ class ConvertScreen(QWidget):
         has_plan = self._plan is not None and self._plan.ok and len(self._plan) > 0
         for widget in (self._btn_pick_src, self._btn_pick_dst,
                        self._btn_preview, self._src_edit, self._dst_edit,
-                       self._layout_box, self._z_box, self._plate_box):
+                       self._layout_box, self._z_box, self._plate_box,
+                       self._resume):
             widget.setEnabled(idle)
         self._btn_convert.setEnabled(idle and has_plan)
 
@@ -642,7 +663,7 @@ class ConvertScreen(QWidget):
         self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -672,6 +693,30 @@ class ConvertScreen(QWidget):
                 ok = False
         self._update_controls()
         self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
         """Release *this* job's refs once its own event loop has exited."""

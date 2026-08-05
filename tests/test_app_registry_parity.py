@@ -52,6 +52,8 @@ HEADLESS_ONLY = {
                   "folder; the Classify button runs the whole pipeline",
     "cellpose_all": "benchmarks every Cellpose model on one folder; Model Zoo "
                     "is the interactive version of the same question",
+    "endodyogeny": "the legacy area-derived size proxy remains headless; the "
+                   "Replication button runs the parasite-count assay",
     "simulation": "the pooled-screen simulator, which has no GUI screen at all",
 }
 
@@ -119,9 +121,25 @@ def test_gui_only_and_runnable_are_disjoint():
     assert not (set(cli.INTERACTIVE_ONLY) & set(cli.MODULES))
 
 
+def live_app_keys():
+    """Every app key, including screens that register themselves on import.
+
+    :data:`APP_KEYS` above is the table inside ``app.py``, snapshotted when
+    this module is imported. Since the registration seam landed, a screen may
+    own its row instead — ``register_app`` at import time — and those rows
+    only exist once ``spacr.qt.screens`` has been imported, which importing
+    ``spacr.qt.app`` does not do. A question about whether a key names a
+    *real* app therefore has to ask the live registry; asked of the snapshot,
+    every seam-registered app looks like a ghost.
+    """
+    import spacr.qt.screens                # noqa: F401 - the import registers
+    from spacr.qt.app import APPS as LIVE
+    return {row[0] for row in LIVE}
+
+
 def test_the_gui_only_list_holds_no_apps_that_no_longer_exist():
     """A stale entry hides a genuinely unknown module behind a helpful lie."""
-    ghosts = sorted(set(cli.INTERACTIVE_ONLY) - set(APP_KEYS))
+    ghosts = sorted(set(cli.INTERACTIVE_ONLY) - live_app_keys())
     assert not ghosts, (
         f"cli.INTERACTIVE_ONLY names apps that are not in spacr.qt.app.APPS: "
         f"{ghosts}")
@@ -148,23 +166,10 @@ def test_every_validate_entry_is_an_app_or_a_headless_only_module():
 # and the entries have to name the same function
 # ---------------------------------------------------------------------------
 
-# `convert` is the one place the three registries disagree, and it is a real
-# divergence rather than an oversight in this test: the Qt Format Converter
-# runs spacr.convert.convert_folder (settings dict, preview, map file back to
-# the originals) while spacr-run and validate still name the older
-# spacr.io.process_non_tif_non_2D_images, which takes a bare folder. Moving the
-# CLI onto convert_folder also changes its call_style, which two tests in
-# tests/test_cli.py pin; it is reported rather than done here.
-KNOWN_DIVERGENCES = {
-    "convert": "Qt runs spacr.convert.convert_folder; cli/validate still name "
-               "spacr.io.process_non_tif_non_2D_images",
-}
-
-
 @pytest.mark.parametrize("app_key", APP_KEYS)
 def test_the_registries_name_the_same_function(app_key):
     """Validating against one function and running another is not validation."""
-    if app_key in cli.INTERACTIVE_ONLY or app_key in KNOWN_DIVERGENCES:
+    if app_key in cli.INTERACTIVE_ONLY:
         return
     names = {}
     qt_name = _qt_entry_name(app_key)
@@ -209,7 +214,9 @@ def _real_plate(root):
     for index, stem in enumerate(("plate1_A01_1", "plate1_A01_2")):
         pathogen_morph = pd.DataFrame(
             {"label": [1, 2],
-             "cell_id": [f"{stem}_1", f"{stem}_2"],
+             # Object-table parent ids are labels within this field; the
+             # writer adds the field/plate identity separately as ``prcf``.
+             "cell_id": [1, 2],
              "pathogen_area": [500.0 + index, 1100.0 + index]})
         pathogen_intensity = pd.DataFrame(
             {"label": [1, 2],
@@ -271,8 +278,9 @@ def test_the_new_modules_are_listed(capsys):
     ("analyze_invasion", "invasion"),
     ("Invasion-Assay", "invasion"),
     ("replication", "replication"),
-    ("analyze_endodyogeny", "replication"),
-    ("endodyogeny", "replication"),
+    ("analyze_replication", "replication"),
+    ("analyze_endodyogeny", "endodyogeny"),
+    ("endodyogeny", "endodyogeny"),
     ("import_project", "foreign"),
 ])
 def test_the_new_names_resolve_the_way_a_pasted_script_spells_them(spelling,
@@ -403,12 +411,37 @@ def test_the_missing_column_map_warning_only_fires_on_a_real_run(tmp_path):
 
 
 def test_a_defaults_helper_that_cannot_be_imported_does_not_break_describe():
-    """--describe has to answer even against a half-installed environment."""
+    """--describe has to answer even against a half-installed environment.
+
+    The two halves are deliberately different, and this test used to assert
+    only the first and never call describe at all. ``module_defaults`` is the
+    **run** path: it once returned ``{}`` here, which made every module with
+    its own helper -- convert, illumination, foreign, external_masks,
+    barcode_qc, anndata_export, every plugin app -- run on a settings dict
+    with no defaults in it, so ``--set z_handling=max`` came back as "names a
+    setting that does not exist for module 'convert'". It now raises and names
+    the dependency. ``--describe`` keeps its own guard around that call, so it
+    still prints the contract it can work out without the helper.
+    """
     broken = cli.Module(key="_broken", summary="", entry="spacr.foreign:import_project",
                         defaults=None, validate_key="",
                         defaults_entry="spacr_no_such_module:default_settings")
-    assert cli.module_defaults(broken) == {}
+
+    # The run path fails loudly, pointing at the dependency and not at the
+    # user's command line.
+    with pytest.raises(cli.SettingsError) as excinfo:
+        cli.module_defaults(broken)
+    message = str(excinfo.value)
+    assert "_broken" in message and "spacr_no_such_module" in message
+    assert "will not import" in message
+
+    # The describe path still answers, and answers usefully.
+    described = cli.render_module_description(broken)
     assert broken.defaults_label == "spacr_no_such_module.default_settings()"
+    assert "spacr_no_such_module.default_settings()" in described
+    assert "spacr.foreign.import_project(settings)" in described
+    # ...without inventing a settings count it could not compute.
+    assert "keys, all optional" not in described
 
 
 def test_describe_names_whichever_defaults_helper_a_module_has():
@@ -432,11 +465,26 @@ def test_foreign_preflight_says_what_is_missing(tmp_path):
     assert "src" not in named
 
 
-def test_replication_is_not_wired_to_analyze_replication():
-    """``analyze_replication`` counts parasites per vacuole; the Replication
-    Assay app is the size-proxy ``analyze_endodyogeny``. Aliasing one to the
-    other would swap the assay without changing a single number's name."""
-    import spacr.submodules as submodules
-    assert hasattr(submodules, "analyze_replication")
-    assert cli.MODULES["replication"].func_name == "analyze_endodyogeny"
-    assert cli.resolve_module("analyze_replication") is None
+def test_replication_uses_counts_and_keeps_the_size_proxy_explicit():
+    """The visible assay counts parasites; the legacy proxy stays named."""
+    assert cli.MODULES["replication"].func_name == "analyze_replication"
+    assert cli.MODULES["endodyogeny"].func_name == "analyze_endodyogeny"
+    assert cli.resolve_module("analyze_replication").key == "replication"
+    assert cli.resolve_module("analyze_endodyogeny").key == "endodyogeny"
+
+
+@pytest.mark.parametrize(("key", "value"), [
+    ("max_parasites_per_vacuole", 12),
+    ("vacuole_link_factor", 0),
+    ("vacuole_link_distance", -1),
+    ("non_power_of_two_warn", 1.2),
+])
+def test_replication_preflight_rejects_invalid_scoring_settings(key, value):
+    """Scientifically invalid knobs fail before database loading."""
+    from spacr.settings import set_analyze_replication_defaults
+    from spacr.validate import validate_settings
+
+    settings = set_analyze_replication_defaults({})
+    settings[key] = value
+    problems = validate_settings(settings, "replication")
+    assert any(p.setting == key and p.is_error for p in problems)

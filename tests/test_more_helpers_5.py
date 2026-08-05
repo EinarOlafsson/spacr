@@ -215,33 +215,75 @@ def test_timelapse_summarise_child_features_no_numeric_cols_returns_counts_only(
 # ===========================================================================
 
 def test_toxo_plot_gene_phenotypes_smoke(tmp_path):
+    """Bare gene names (no ``TGGT1_`` prefix) still rank and highlight.
+
+    The broad ``except Exception: pytest.skip`` this test used to carry is
+    gone — the call succeeds with nothing but numpy/pandas/matplotlib, so a
+    skip could only ever have hidden a regression.
+    """
     from spacr.toxo import plot_gene_phenotypes
+    values = np.linspace(-2, 2, 10)
     df = pd.DataFrame({
         "Gene ID": [f"g{i}" for i in range(10)],
-        "T.gondii GT1 CRISPR Phenotype - Mean Phenotype": np.linspace(-2, 2, 10),
+        "T.gondii GT1 CRISPR Phenotype - Mean Phenotype": values,
         "T.gondii GT1 CRISPR Phenotype - Standard Error": np.full(10, 0.2),
     })
-    try:
-        plot_gene_phenotypes(df, gene_list=["g3", "g7"],
-                             save_path=str(tmp_path / "phen.pdf"))
-    except Exception as e:
-        pytest.skip(f"plot_gene_phenotypes needs additional deps: {e}")
+    out = tmp_path / "phen.pdf"
+    plt.close("all")
+    plot_gene_phenotypes(df, gene_list=["g3", "g7"], save_path=str(out))
+
+    assert out.is_file() and out.stat().st_size > 0
+
+    fig = plt.gcf()
+    assert len(fig.axes) == 1
+    ax = fig.axes[0]
+    # One ranked curve over all ten genes, already sorted so rank == position.
+    assert len(ax.lines) == 1
+    assert list(np.asarray(ax.lines[0].get_xdata())) == list(range(1, 11))
+    assert np.asarray(ax.lines[0].get_ydata()) == pytest.approx(values)
+
+    # g3 and g7 are highlighted at their own rank/value — deliberately
+    # different points, so one scatter drawn twice would not pass.
+    scatters = {c.get_label(): np.asarray(c.get_offsets())
+                for c in ax.collections
+                if c.get_label().startswith("Highlighted Gene: ")}
+    assert set(scatters) == {"Highlighted Gene: g3", "Highlighted Gene: g7"}
+    assert scatters["Highlighted Gene: g3"][0] == pytest.approx([4, values[3]])
+    assert scatters["Highlighted Gene: g7"][0] == pytest.approx([8, values[7]])
+    assert sorted(t.get_text() for t in ax.texts) == ["g3", "g7"]
     plt.close("all")
 
 
 def test_toxo_plot_gene_heatmaps_smoke(tmp_path):
+    """The heatmap holds the selected genes' values, not a blank grid.
+
+    ``value_a`` and ``value_b`` run in opposite directions, so every cell of
+    the 2x2 mesh is a different number: a mesh of zeros/NaNs cannot pass.
+    """
     from spacr.toxo import plot_gene_heatmaps
     df = pd.DataFrame({
         "Gene ID": [f"g{i}" for i in range(6)],
         "value_a": np.linspace(0, 1, 6),
         "value_b": np.linspace(1, 0, 6),
     })
-    try:
-        plot_gene_heatmaps(df, gene_list=["g0", "g3"],
-                           columns=["value_a", "value_b"],
-                           save_path=str(tmp_path / "heat.pdf"))
-    except Exception as e:
-        pytest.skip(f"plot_gene_heatmaps needs additional deps: {e}")
+    out = tmp_path / "heat.pdf"
+    plt.close("all")
+    plot_gene_heatmaps(df, gene_list=["g0", "g3"],
+                       columns=["value_a", "value_b"], save_path=str(out))
+
+    assert out.is_file() and out.stat().st_size > 0
+
+    fig = plt.gcf()
+    assert fig.axes                              # heatmap + colourbar
+    ax = fig.axes[0]
+    assert len(ax.collections) == 1
+    drawn = np.asarray(ax.collections[0].get_array()).reshape(2, 2)
+    expected = df.set_index("Gene ID").loc[["g0", "g3"],
+                                           ["value_a", "value_b"]].to_numpy()
+    assert drawn == pytest.approx(expected)
+    assert len(set(np.round(drawn.ravel(), 6))) == 4     # four distinct cells
+    assert [t.get_text() for t in ax.get_yticklabels()] == ["g0", "g3"]
+    assert [t.get_text() for t in ax.get_xticklabels()] == ["value_a", "value_b"]
     plt.close("all")
 
 

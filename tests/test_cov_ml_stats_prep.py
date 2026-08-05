@@ -36,18 +36,35 @@ def _close_figs():
 # ---------------------------------------------------------------------------
 
 def _well_frame(n=40, seed=0):
-    """A minimal screen-style frame with everything check_and_clean_data wants."""
+    """A minimal screen-style frame with everything check_and_clean_data wants.
+
+    ONE row per (well, gRNA), which is the shape ``perform_regression``'s own
+    merge produces: ``process_reads`` emits one ``fraction`` per (well, gRNA)
+    and the score table contributes one response per well. The earlier version
+    of this fixture drew ``grna`` at random from two names across 40 rows, so
+    the same gRNA appeared in the same well a dozen times carrying a dozen
+    different fractions - a frame the pipeline cannot produce, and one in
+    which "the gene's share of this well" has no defined value.
+    """
     rng = np.random.default_rng(seed)
-    return pd.DataFrame({
-        "fraction": rng.uniform(0.05, 0.9, n),
-        "prediction": rng.uniform(0.05, 0.9, n),
-        "grna": rng.choice(["g1", "g2"], n),
-        "gene": rng.choice(["geneA", "geneB"], n),
-        "plateID": ["plate1"] * n,
-        "rowID": rng.choice(["r1", "r2"], n),
-        "columnID": rng.choice(["c1", "c2"], n),
-        "prc": rng.choice(["plate1_r1_c1", "plate1_r2_c2"], n),
-    })
+    wells = ("plate1_r1_c1", "plate1_r2_c2")
+    genes = ("geneA", "geneB")
+    rows = []
+    for i in range(n):
+        well = wells[i % len(wells)]
+        gene = genes[(i // len(wells)) % len(genes)]
+        _, row_id, column_id = well.split("_")
+        rows.append({
+            "fraction": float(rng.uniform(0.05, 0.9)),
+            "prediction": float(rng.uniform(0.05, 0.9)),
+            "grna": f"{gene}_g{i}",
+            "gene": gene,
+            "plateID": "plate1",
+            "rowID": row_id,
+            "columnID": column_id,
+            "prc": well,
+        })
+    return pd.DataFrame(rows)
 
 
 def _mixed_model_frame(n_plates=4, seed=0):
@@ -242,9 +259,22 @@ def test_perform_mixed_model_low_vif_fits_plain_mixedlm(capsys):
     assert abs(float(result.fe_params["b"])) < 0.25
 
 
-def test_perform_mixed_model_high_vif_applies_ridge(capsys):
-    """Near-duplicate columns trip the VIF>10 guard and the fixed-effects
-    design is rescaled by the ridge coefficients before fitting."""
+def test_perform_mixed_model_high_vif_reports_and_fits_the_given_design(capsys):
+    """Near-duplicate columns are REPORTED; the design is fitted unaltered.
+
+    This test used to assert the opposite - that the fixed effects come back
+    somewhere other than the simulated 1.5 / 0.0 - and called that "the
+    ridge-rescaled design is a different model". It was: `X_ridge =
+    ridge.coef_ * X` multiplies every column by that column's ridge
+    coefficient, which is not ridge regression, and the coefficients it
+    produces are effects on rescaled columns while everything downstream
+    reads them as effects on the response. On a screen-scale one-hot design
+    it also zeroes any column whose ridge coefficient is 0, which is where
+    `regression_type='mixed'` died with a bare LinAlgError.
+
+    The sum a + b is what the simulation moves, so with a and b near-identical
+    the split between them is arbitrary - hence the assertion on the sum.
+    """
     from spacr.ml import perform_mixed_model
 
     rng = np.random.default_rng(2)
@@ -254,17 +284,48 @@ def test_perform_mixed_model_high_vif_applies_ridge(capsys):
     groups = np.repeat(np.arange(6), 10)
     y = 1.5 * X["a"] + rng.normal(0, 0.3, n)
 
-    result = perform_mixed_model(y, X, groups, alpha=1.0)
+    result = perform_mixed_model(y, X, groups)
 
     out = capsys.readouterr().out
-    assert "Multicollinearity detected" in out
-    assert "Applying Ridge regression to the fixed effects" in out
+    assert "Multicollinearity detected with VIF > 10 for: ['a', 'b']" in out
+    assert "fitted on the design as given" in out
 
     assert list(result.params.index) == ["a", "b", "Group Var"]
     assert np.all(np.isfinite(result.fe_params.values))
-    # The ridge-rescaled design is a different model from the plain one:
-    # its fixed effects no longer sit near the simulated 1.5 / 0.0.
-    assert not np.allclose(result.fe_params.values, [1.5, 0.0], atol=0.25)
+    assert abs(float(result.fe_params.sum()) - 1.5) < 0.25
+
+
+def test_perform_mixed_model_refuses_a_penalty(capsys):
+    """alpha named a "ridge fallback" that was not ridge; it is refused by name."""
+    from spacr.ml import perform_mixed_model
+
+    X = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0], "b": [0.5, 0.1, 0.9, 0.2]})
+    y = pd.Series([1.0, 2.0, 3.0, 4.0])
+    with pytest.raises(ValueError, match="takes no penalty"):
+        perform_mixed_model(y, X, np.array([0, 0, 1, 1]), alpha=1.0)
+
+
+def test_perform_mixed_model_refuses_misaligned_groups():
+    """A groups vector shorter than the design would relabel every later row."""
+    from spacr.ml import perform_mixed_model
+
+    X = pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0], "b": [0.5, 0.1, 0.9, 0.2]})
+    y = pd.Series([1.0, 2.0, 3.0, 4.0])
+    with pytest.raises(ValueError, match="groups has 3 entries but the design"):
+        perform_mixed_model(y, X, np.array([0, 0, 1]))
+
+
+def test_perform_mixed_model_refuses_a_rank_deficient_design():
+    """An aliased column is named, instead of LinAlgError from inside statsmodels."""
+    from spacr.ml import perform_mixed_model
+
+    rng = np.random.default_rng(5)
+    n = 40
+    a = rng.normal(0, 1, n)
+    X = pd.DataFrame({"a": a, "b": 2.0 * a})      # exactly aliased
+    y = pd.Series(a + rng.normal(0, 0.1, n))
+    with pytest.raises(ValueError, match="rank 1 with 2 columns"):
+        perform_mixed_model(y, X, np.repeat(np.arange(4), 10))
 
 
 # ---------------------------------------------------------------------------

@@ -197,13 +197,19 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     Without this the browser would read (and the preference tests would
     write) the developer's real spaCR settings — and "editing is off by
     default" would pass or fail depending on whose machine it ran on.
+
+    NativeFormat has to be redirected as well: ``QSettings("spacr", "qt")``
+    ignores ``setDefaultFormat`` and ``setPath(IniFormat, ...)``, so the
+    Ini-only redirect this used to do left the ``.clear()`` below aimed at the
+    developer's real ``~/.config/spacr/qt.conf``.
     """
     from PySide6.QtCore import QCoreApplication, QSettings
     QCoreApplication.setOrganizationName("spacr-test")
     QCoreApplication.setApplicationName("qt-db-browser-test")
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope,
-                      str(tmp_path / "qsettings"))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope,
+                          str(tmp_path / "qsettings"))
     QSettings("spacr", "qt").clear()
     try:
         from spacr.qt.first_run import mark_tour_seen
@@ -211,6 +217,48 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
     except Exception:
         pass
     yield
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _matplotlib_is_warm():
+    """Import matplotlib before any worker thread has to.
+
+    ``PipelineWorker.run`` (``spacr/qt/bridge.py``, ~line 747) imports
+    ``matplotlib.pyplot`` lazily, **on the worker thread**, before it runs
+    the job body. On a cold page cache that import was measured at
+    10.4-11.3 s, and the ``active_jobs() == 0`` waits below allow 10 s —
+    so the first threaded test in a fresh process can time out with
+    nothing wrong with the browser. ``matplotlib.pyplot`` is not already
+    in ``sys.modules`` when these tests start; checked, not assumed.
+
+    Not a sleep and not a retry: the condition and the budget are
+    unchanged, this only stops the tests timing an import they are not
+    about. The full diagnosis, including a second and unrelated cause,
+    is written up in ``tests/qt/test_model_compare_screen.py`` above its
+    "threading" section.
+    """
+    import matplotlib
+    matplotlib.use("Agg", force=False)
+    import matplotlib.pyplot  # noqa: F401
+
+
+@pytest.fixture(autouse=True)
+def _isolated_run_journal(monkeypatch, tmp_path):
+    """Keep the browser's manifests out of the user's real run history.
+
+    Every threaded job here goes through :func:`spacr.qt.bridge.make_thread`,
+    which journals by default — so browsing a table writes a reproducibility
+    record into ``~/.spacr/runs``. One suite run leaves several hundred of
+    them behind, which buries the records of actual analyses (measured: 1100
+    of 1173 folders in the developer's history were test debris). Same
+    isolation as ``test_threading_cancellation_audit``.
+    """
+    from spacr import run_journal
+
+    root = tmp_path / "runs"
+    root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: root)
+    return root
 
 
 @pytest.fixture(autouse=True)
@@ -2130,15 +2178,51 @@ def test_threaded_query_retires_its_thread(qtbot, qt_theme_applied, measdb):
 def test_thread_startup_has_no_signal_disconnect_warning(
         qtbot, qt_theme_applied, measdb):
     """The shared worker no longer self-deletes, so DB Browser must not try
-    to disconnect a nonexistent deleteLater slot for every queued query."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("error", RuntimeWarning)
+    to disconnect a nonexistent deleteLater slot for every queued query.
+
+    ``simplefilter("error")`` cannot express this: libpyside raises the
+    warning from inside a Qt slot, where an exception is printed and
+    swallowed rather than failing the test. The warnings are *recorded*
+    instead and read afterwards.
+    """
+    # The measurement first: libpyside really does route a failed
+    # disconnect through Python's warnings machinery, and this recorder
+    # really does catch it. Without this, "no warnings" below could just
+    # mean the recorder was blind.
+    from PySide6.QtCore import QObject, Signal
+
+    class _Probe(QObject):
+        went = Signal(bool)
+
+    probe = _Probe()
+    with warnings.catch_warnings(record=True) as probe_log:
+        warnings.simplefilter("always")
+        probe.went.disconnect(lambda ok: None)      # never connected
+    assert [rec for rec in probe_log
+            if issubclass(rec.category, RuntimeWarning)
+            and "disconnect" in str(rec.message)], (
+        "the recorder cannot see a failed disconnect at all")
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
         w = DbBrowserScreen(threaded=True)
         qtbot.addWidget(w)
         w.set_database(measdb.path)
         qtbot.waitUntil(lambda: not w.is_busy(), timeout=10000)
         qtbot.waitUntil(lambda: w.active_jobs() == 0, timeout=10000)
+        jobs_run = w._next_job_id
         w.close()
+
+    # The flow really did put work through _start_job — otherwise there
+    # was nothing for a stray disconnect to happen in.
+    assert jobs_run > 0, "no threaded job ever started"
+    assert w.current_table() == "cell" and w.loaded_rows() > 0
+    offenders = [str(rec.message) for rec in caught
+                 if issubclass(rec.category, RuntimeWarning)
+                 and "disconnect" in str(rec.message)]
+    assert offenders == [], (
+        f"{len(offenders)} failed disconnect(s) over {jobs_run} job(s): "
+        + "; ".join(sorted(set(offenders))))
 
 
 def test_overlapping_threaded_jobs_do_not_drop_a_live_thread(

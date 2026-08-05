@@ -4,47 +4,147 @@
   "voice": "bm_fable",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.725,
+  "total_duration": 189.28,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.725,
-      "scene_end": 10.174999999999999,
-      "duration": 10.174999999999999,
-      "text": "This tutorial covers Report. Create a shareable HTML or PDF summary containing quality control, figures, statistics, settings, and versions."
+      "speech_end": 11.925,
+      "scene_end": 12.525,
+      "duration": 12.525,
+      "text": "Report is a read-only document builder. It turns the evidence already present in a run folder into a shareable HTML, PDF, or both; it does not recompute results or write into the source folder.",
+      "speech_text": "Report is a read-only document builder. It turns the evidence already present in a run folder into a shareable HTML, PDF, or both; it does not recompute results or write into the source folder.",
+      "phonemes": "ɹɪpˈɔːt ɪz ɐ ɹˌiːdˈQnli dˈɒkjʊmᵊnt bˈɪldə. ˌɪt tˈɜːnz ði ˈɛvɪdᵊns ɔːlɹˈɛdi pɹˈɛzᵊnt ɪn ɐ ɹˈʌn fˈQldə ˈɪntuː ɐ ʃˈɛːɹəbᵊl ˌAʧtˌiːˌɛmˈɛl, pˌiːdˌiːˈɛf, ɔː bˈQθ; ɪt dˈʌz nˌɒt ɹˌiːkəmpjˈuːt ɹɪzˈʌlts ɔː ɹˈIt ˈɪntuː ðə sˈɔːs fˈQldə."
     },
     {
       "scene": 2,
-      "speech_start": 10.174999999999999,
-      "speech_end": 19.475,
-      "scene_end": 19.925,
-      "duration": 9.750000000000002,
-      "text": "Open Report from the Results and quality control section. Choose a completed spaCR project and the runs, tables, figures, and sections to include."
+      "speech_start": 12.525,
+      "speech_end": 24.575000000000003,
+      "scene_end": 25.195000000000004,
+      "duration": 12.670000000000003,
+      "text": "Choose or drop the plate or run folder that holds measurements, quality-control artifacts, results, and settings, then click Scan. This tutorial uses the transferred real experiment's completed test run.",
+      "speech_text": "Choose or drop the plate or run folder that holds measurements, quality-control artifacts, results, and settings, then click Scan. This tutorial uses the transferred real experiment's completed test run.",
+      "phonemes": "ʧˈuːz ɔː dɹˈɒp ðə plˈAt ɔː ɹˈʌn fˈQldə ðat hˈQldz mˈɛʒəmᵊnts, kwˌɒlɪtikəntɹˈQl ˈɑːtɪfakts, ɹɪzˈʌlts, and sˈɛtɪŋz, ðˈɛn klˈɪk skˈan. ðˌɪs tjuːtˈɔːɹɪəl jˈuːzɪz ðə tɹɑːnsfˈɜːd ɹˈɪəl ɪkspˈɛɹɪmᵊnts kəmplˈiːtɪd tˈɛst ɹˈʌn."
     },
     {
       "scene": 3,
-      "speech_start": 19.925,
-      "speech_end": 28.700000000000003,
-      "scene_end": 29.150000000000002,
-      "duration": 9.225000000000001,
-      "text": "In the main configuration area, configure title, authorship, condition labels, quality thresholds, output format, and privacy-sensitive fields."
+      "speech_start": 25.195000000000004,
+      "speech_end": 38.220000000000006,
+      "scene_end": 38.940000000000005,
+      "duration": 13.745000000000001,
+      "text": "The green verdict comes from an actual run-status stamp: all five attempted measurement items succeeded. Six report sections are available and two are not; seventeen figures were found, but none is an embeddable raster image.",
+      "speech_text": "The green verdict comes from an actual run-status stamp: all five attempted measurement items succeeded. Six report sections are available and two are not; seventeen figures were found, but none is an embeddable raster image.",
+      "phonemes": "ðə ɡɹˈiːn vˈɜːdɪkt kˈʌmz fɹɒm ɐn ˈakʧʊəl ɹˌʌnstˈAtəs stˈamp: ˈɔːl fˈIv ətˈɛmptɪd mˈɛʒəmᵊnt ˈItɪmz səksˈiːdɪd. sˈɪks ɹɪpˈɔːt sˈɛkʃᵊnz ɑː əvˈAləbᵊl and tˈuː ɑː nˌɒt; sˌɛvntˈiːn fˈɪɡəz wɜː fˈWnd, bˌʌt nˈʌn ɪz ɐn ɪmbˈɛdəbᵊl ɹˈastə ˈɪmɪʤ."
     },
     {
       "scene": 4,
-      "speech_start": 29.150000000000002,
-      "speech_end": 40.2,
-      "scene_end": 40.650000000000006,
-      "duration": 11.500000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview the report and resolve missing files or failed quality checks before export."
+      "speech_start": 38.940000000000005,
+      "speech_end": 54.265,
+      "scene_end": 54.985,
+      "duration": 16.044999999999995,
+      "text": "The section preflight shows exactly what a collaborator will receive. This run includes status, provenance, key-figure inventory, statistics, settings, and appendix data; segmentation QC and plate QC remain visibly marked not available instead of disappearing.",
+      "speech_text": "The section preflight shows exactly what a collaborator will receive. This run includes status, provenance, key-figure inventory, statistics, settings, and appendix data; segmentation QC and plate QC remain visibly marked not available instead of disappearing.",
+      "phonemes": "ðə sˈɛkʃᵊn pɹˌiːflˈIt ʃˈQz ɪɡzˈaktli wˌɒt ɐ kəlˈabəɹAtə wɪl ɹɪsˈiːv. ðˌɪs ɹˈʌn ɪnklˈuːdz stˈAtəs, pɹˈɒvɪnəns, kˌiːfˈɪɡə ˈɪnvᵊntəɹi, stətˈɪstɪks, sˈɛtɪŋz, and əpˈɛndɪks dˈAtə; sˌɛɡmᵊntˈAʃᵊn kjˌuːsˈiː and plˈAt kjˌuːsˈiː ɹɪmˈAn vˈɪzɪbli mˈɑːkt nˌɒt əvˈAləbᵊl ɪnstˈɛd ɒv dˌɪsəpˈɪəɹɪŋ."
     },
     {
       "scene": 5,
-      "speech_start": 40.650000000000006,
-      "speech_end": 49.075,
-      "scene_end": 49.725,
-      "duration": 9.074999999999996,
-      "text": "When the workflow finishes, a portable report records conclusions together with the settings and software versions needed to reproduce them."
+      "speech_start": 54.985,
+      "speech_end": 68.585,
+      "scene_end": 69.24499999999999,
+      "duration": 14.259999999999991,
+      "text": "Format offers one self-contained HTML file, a PDF transcription, or both. Embed at most limits raster figures so a report cannot grow without bound; zero embeds no images, while the upper limit is two hundred.",
+      "speech_text": "Format offers one self-contained HTML file, a PDF transcription, or both. Embed at most limits raster figures so a report cannot grow without bound; zero embeds no images, while the upper limit is two hundred.",
+      "phonemes": "fˈɔːmat ˈɒfəz wˈʌn sˌɛlfkəntˈAnd ˌAʧtˌiːˌɛmˈɛl fˈIl, ɐ pˌiːdˌiːˈɛf tɹanskɹˈɪpʃᵊn, ɔː bˈQθ. ɪmbˈɛd at mˈQst lˈɪmɪts ɹˈastə fˈɪɡəz sˌQ ɐ ɹɪpˈɔːt kˈanɒt ɡɹˈQ wɪðˈWt bˈWnd; zˈɪəɹQ ɪmbˈɛdz nˈQ ˈɪmɪʤɪz, wˌIl ði ˈʌpə lˈɪmɪt ɪz tˈuː hˈʌndɹəd."
+    },
+    {
+      "scene": 6,
+      "speech_start": 69.24499999999999,
+      "speech_end": 82.79499999999999,
+      "scene_end": 83.43499999999999,
+      "duration": 14.189999999999998,
+      "text": "Choose the destination explicitly. The suggested path is outside the run folder so generating a report cannot quietly modify an experiment that should remain immutable; here the HTML is written into the tutorial workspace.",
+      "speech_text": "Choose the destination explicitly. The suggested path is outside the run folder so generating a report cannot quietly modify an experiment that should remain immutable; here the HTML is written into the tutorial workspace.",
+      "phonemes": "ʧˈuːz ðə dˌɛstɪnˈAʃᵊn ɛksplˈɪsɪtli. ðə səʤˈɛstɪd pˈɑːθ ɪz ˌWtsˈId ðə ɹˈʌn fˈQldə sˌQ ʤˈɛnəɹˌAtɪŋ ɐ ɹɪpˈɔːt kˈanɒt kwˈIətli mˈɒdɪfI ɐn ɪkspˈɛɹɪmᵊnt ðat ʃˌʊd ɹɪmˈAn ɪmjˈuːtəbᵊl; hˈɪə ði ˌAʧtˌiːˌɛmˈɛl ɪz ɹˈɪtᵊn ˈɪntuː ðə tjuːtˈɔːɹɪəl wˈɜːkspAs."
+    },
+    {
+      "scene": 7,
+      "speech_start": 83.43499999999999,
+      "speech_end": 95.50999999999999,
+      "scene_end": 96.14999999999999,
+      "duration": 12.715000000000003,
+      "text": "Click Generate report. spaCR scans the folder again so the document reflects its current state, embeds eligible raster figures up to the cap, and writes a standalone file with no network dependencies.",
+      "speech_text": "Click Generate report. spacer scans the folder again so the document reflects its current state, embeds eligible raster figures up to the cap, and writes a standalone file with no network dependencies.",
+      "phonemes": "klˈɪk ʤˈɛnəɹAt ɹɪpˈɔːt. spˈAsə skˈanz ðə fˈQldə əɡˈɛn sˌQ ðə dˈɒkjʊmᵊnt ɹɪflˈɛkts ɪts kˈʌɹənt stˈAt, ɪmbˈɛdz ˈɛlɪʤɪbᵊl ɹˈastə fˈɪɡəz ˌʌp tə ðə kˈap, and ɹˈIts ɐ stˈandəlˌQn fˈIl wɪð nˈQ nˈɛtwəːk dɪpˈɛndᵊnsiz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 96.14999999999999,
+      "speech_end": 106.82499999999999,
+      "scene_end": 107.40499999999999,
+      "duration": 11.254999999999995,
+      "text": "The inline result names the file and destination, and Open becomes available only after a successful write. Failures are reported here rather than hidden behind a modal dialog.",
+      "speech_text": "The inline result names the file and destination, and Open becomes available only after a successful write. Failures are reported here rather than hidden behind a modal dialog.",
+      "phonemes": "ði ˈɪnlIn ɹɪzˈʌlt nˈAmz ðə fˈIl and dˌɛstɪnˈAʃᵊn, and ˈQpᵊn bɪkˈʌmz əvˈAləbᵊl ˈQnli ˈɑːftə ɐ səksˈɛsfʊl ɹˈIt. fˈAljəz ɑː ɹɪpˈɔːtɪd hˈɪə ɹˈɑːðə ðən hˈɪdᵊn bɪhˈInd ɐ mˈQdᵊl dˈIəlɒɡ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 107.40499999999999,
+      "speech_end": 113.32999999999998,
+      "scene_end": 113.80999999999999,
+      "duration": 6.405000000000001,
+      "text": "Click Open to hand the newest generated document to the system browser or PDF viewer.",
+      "speech_text": "Click Open to hand the newest generated document to the system browser or PDF viewer.",
+      "phonemes": "klˈɪk ˈQpᵊn tə hˈand ðə njˈuːɪst ʤˈɛnəɹAtɪd dˈɒkjʊmᵊnt tə ðə sˈɪstɪm bɹˈWzə ɔː pˌiːdˌiːˈɛf vjˈuːə."
+    },
+    {
+      "scene": 10,
+      "speech_start": 113.80999999999999,
+      "speech_end": 122.28499999999998,
+      "scene_end": 122.80499999999998,
+      "duration": 8.99499999999999,
+      "text": "The status confirms which output was opened. The next views show the real HTML generated by this run rather than a mock report.",
+      "speech_text": "The status confirms which output was opened. The next views show the real HTML generated by this run rather than a mock report.",
+      "phonemes": "ðə stˈAtəs kənfˈɜːmz wˌɪʧ ˈWtpʊt wɒz ˈQpᵊnd. ðə nˈɛkst vjˈuːz ʃˈQ ðə ɹˈɪəl ˌAʧtˌiːˌɛmˈɛl ʤˈɛnəɹAtɪd bI ðɪs ɹˈʌn ɹˈɑːðə ðən ɐ mˈɒk ɹɪpˈɔːt."
+    },
+    {
+      "scene": 11,
+      "speech_start": 122.80499999999998,
+      "speech_end": 139.77999999999997,
+      "scene_end": 140.59999999999997,
+      "duration": 17.794999999999987,
+      "text": "The document opens with the complete verdict, an honest summary of missing QC and unembedded figures, and a linked contents list. Run status records five of five successful measurement items, while provenance preserves the source, spaCR version, Git revision, Python environment, and package versions.",
+      "speech_text": "The document opens with the complete verdict, an honest summary of missing QC and unembedded figures, and a linked contents list. Run status records five of five successful measurement items, while provenance preserves the source, spacer version, Git revision, Python environment, and package versions.",
+      "phonemes": "ðə dˈɒkjʊmᵊnt ˈQpᵊnz wɪð ðə kəmplˈiːt vˈɜːdɪkt, ɐn ˈɒnɪst sˈʌməɹi ɒv mˈɪsɪŋ kjˌuːsˈiː and ʌnɛmbˈɛdɪd fˈɪɡəz, and ɐ lˈɪŋkt kˈɒntɛnts lˈɪst. ɹˈʌn stˈAtəs ɹɪkˈɔːdz fˈIv ɒv fˈIv səksˈɛsfʊl mˈɛʒəmᵊnt ˈItɪmz, wˌIl pɹˈɒvɪnəns pɹɪzˈɜːvz ðə sˈɔːs, spˈAsə vˈɜːʃᵊn, ɡˈɪt ɹɪvˈɪʒᵊn, pˈIθn ɪnvˈIɹənmᵊnt, and pˈakɪʤ vˈɜːʃᵊnz."
+    },
+    {
+      "scene": 12,
+      "speech_start": 140.59999999999997,
+      "speech_end": 154.87499999999997,
+      "scene_end": 155.59499999999997,
+      "duration": 14.995000000000005,
+      "text": "Key Figures names all seventeen omitted plots and explains why each is absent. They are vector PDFs, and spaCR deliberately has no PDF rasterizer dependency; raising the raster-figure cap would not convert them or pretend they were embedded.",
+      "speech_text": "Key Figures names all seventeen omitted plots and explains why each is absent. They are vector PDFs, and spacer deliberately has no PDF rasterizer dependency; raising the raster-figure cap would not convert them or pretend they were embedded.",
+      "phonemes": "kˈiː fˈɪɡəz nˈAmz ˈɔːl sˌɛvntˈiːn Qmˈɪtɪd plˈɒts and ɪksplˈAnz wˌI ˈiːʧ ɪz ˈabsᵊnt. ðˌA ɑː vˈɛktə pˌiːdˌiːˈɛfs, and spˈAsə dɪlˈɪbəɹətli haz nˈQ pˌiːdˌiːˈɛf ɹˈastəɹˌIzə dɪpˈɛndᵊnsi; ɹˈAzɪŋ ðə ɹˈastəfˌɪɡə kˈap wʊd nˌɒt kənvˈɜːt ðˌɛm ɔː pɹɪtˈɛnd ðA wɜː ɪmbˈɛdɪd."
+    },
+    {
+      "scene": 13,
+      "speech_start": 155.59499999999997,
+      "speech_end": 170.21999999999997,
+      "scene_end": 170.89999999999998,
+      "duration": 15.305000000000007,
+      "text": "Statistics reproduces recorded database table sizes and saved result-table rows. The report states that nothing on this page was recomputed, aggregated, or retested, preserving the difference between documenting evidence and reanalyzing it.",
+      "speech_text": "Statistics reproduces recorded database table sizes and saved result-table rows. The report states that nothing on this page was recomputed, aggregated, or retested, preserving the difference between documenting evidence and reanalyzing it.",
+      "phonemes": "stətˈɪstɪks ɹˌiːpɹədjˈuːsɪz ɹɪkˈɔːdɪd dˈAtəbAs tˈAbᵊl sˈIzɪz and sˈAvd ɹɪzˌʌlttˈAbᵊl ɹˈQz. ðə ɹɪpˈɔːt stˈAts ðat nˈʌθɪŋ ˌɒn ðɪs pˈAʤ wɒz ɹˌiːkəmpjˈuːtɪd, ˈaɡɹɪɡAtɪd, ɔː ɹiːtˈɛstɪd, pɹɪzˈɜːvɪŋ ðə dˈɪfəɹəns bɪtwˈiːn dˈɒkjʊmɛntɪŋ ˈɛvɪdᵊns and ɹˈiːənˌalIzɪŋ ɪt."
+    },
+    {
+      "scene": 14,
+      "speech_start": 170.89999999999998,
+      "speech_end": 188.39999999999998,
+      "scene_end": 189.27999999999997,
+      "duration": 18.379999999999995,
+      "text": "Settings preserves both the saved CSV files and the run-journal snapshot, including channels, clustering, batch controls, plotting, and runtime values. Together with the appendix's measured-feature dictionary and file inventory, this makes the report useful for review while keeping every missing section explicit.",
+      "speech_text": "Settings preserves both the saved CSV files and the run-journal snapshot, including channels, clustering, batch controls, plotting, and runtime values. Together with the appendix's measured-feature dictionary and file inventory, this makes the report useful for review while keeping every missing section explicit.",
+      "phonemes": "sˈɛtɪŋz pɹɪzˈɜːvz bˈQθ ðə sˈAvd sˌiːˌɛsvˈiː fˈIlz and ðə ɹˌʌnʤˈɜːnᵊl snˈapʃɒt, ɪnklˈuːdɪŋ ʧˈanᵊlz, klˈʌstəɹɪŋ, bˈaʧ kəntɹˈQlz, plˈɒtɪŋ, and ɹˈʌntIm vˈaljuːz. təɡˈɛðə wɪð ði əpˈɛndɪksɪz mˌɛʒədfˈiːʧə dˈɪkʃənəɹi and fˈIl ˈɪnvᵊntəɹi, ðɪs mˌAks ðə ɹɪpˈɔːt jˈuːsfʊl fɔː ɹɪvjˈuː wˌIl kˈiːpɪŋ ˈɛvəɹi mˈɪsɪŋ sˈɛkʃᵊn ɪksplˈɪsɪt."
     }
   ]
 }

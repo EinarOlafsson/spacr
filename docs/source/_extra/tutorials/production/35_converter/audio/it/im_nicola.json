@@ -4,47 +4,107 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 62.05,
+  "total_duration": 207.455,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.675,
-      "scene_end": 11.125,
-      "duration": 11.125,
-      "text": "Questo tutorial copre Format Converter. Convertire ND2, CZI, LIF, OME-TIFF e i relativi formati di microscopia in file TIFF in stile Yokogawa mappati."
+      "speech_end": 17.25,
+      "scene_end": 17.95,
+      "duration": 17.95,
+      "text": "Il format converter trasforma le immagini del venditore o della microscopia generale nei nomi TIFF in stile Yokogawa che spaCR Mask and Measure leggono direttamente. Aprilo da Data e esegue batch. La regola centrale di sicurezza e' \"preview first\" e \"convert second\".",
+      "speech_text": "Il format converter trasforma le immagini del venditore o della microscopia generale nei nomi TIFF in stile Yokogawa che spàker Mask and Measure leggono direttamente. Aprilo da Data e esegue batch. La regola centrale di sicurezza e' \"preview first\" e \"convert second\".",
+      "phonemes": "il fˈɔrmat konvˈɛrter trasfˈorma le immˈaʤinɪ del venditˈore o dˌella mikroskopˈia ʤenerˈale nˈei nˈɔmɪ tˈiff in stˈile jokoɡˈawa ke spˈaker mˈask ˈand meazˈure lˈeɡːono diretːamˈente. ˈaprilo da dˈata e ezˈeɡwe bˈatʧ. la rˈɛɡola ʧentrˈale dɪ sikʊrˈeʦːa ˈeː \"prˈevjew fˈəːrst̪\" ˈeː \"kˈonvert sˈekond\"."
     },
     {
       "scene": 2,
-      "speech_start": 11.125,
-      "speech_end": 26.525,
-      "scene_end": 26.974999999999998,
-      "duration": 15.849999999999998,
-      "text": "Apri Format Converter dalla sezione Data and batch runs. Apri il format converter dalla sezione \"Data and batch runs\". Scegli i file sorgenti, le serie o le scene, i nomi dei canali, il tempo e la gestione della profondità e una cartella di uscita."
+      "speech_start": 17.95,
+      "speech_end": 39.3,
+      "scene_end": 40.059999999999995,
+      "duration": 22.109999999999996,
+      "text": "Scarica una cartella sorgente o scegliela qui, quindi seleziona una nuova destinazione. Questa dimostrazione utilizza due veri campi a quattro canali dell'esperimento trasferito. I loro pixel sono stati copiati byte-for-byte; solo la struttura della cartella tutorial e i nomi dei file sorgenti sono stati preparati per questo esempio di conversione.",
+      "speech_text": "Scarica una cartella sorgente o scegliela qui, quindi seleziona una nuova destinazione. Questa dimostrazione utilizza due veri campi a quattro canali dell'esperimento trasferito. I loro pixel sono stati copiati byte-for-byte; solo la struttura della cartella tutorial e i nomi dei file sorgenti sono stati preparati per questo esempio di conversione.",
+      "phonemes": "skˈarika ˌʊna kartˈɛlla sorʤˈɛnte o ʃeʎˈɛla kwˈi, kwˈindɪ seleʦiˈona ˌʊna nʊˈɔva destinaʦiˈone. kwˌesta dimostraʦiˈone ʊtilˈiʣːa dˈue vˈerɪ kˈampɪ a kwˈatːro kanˈalɪ dellesperimˈento trasferˈito. i lˌɔro pˈiksel sˌono stˈatɪ kopjˈatɪ bˈItfˈorbˈIt; sˈolo la strʊtːˈura dˌella kartˈɛlla tʊtˈɔrial e i nˈɔmɪ dˌA fˈile sorʤˈɛntɪ sˌono stˈatɪ prepaɾˈatɪ per kwˌesto ezˈɛmpio dɪ konversjˈone."
     },
     {
       "scene": 3,
-      "speech_start": 26.974999999999998,
-      "speech_end": 37.25,
-      "scene_end": 37.7,
-      "duration": 10.725000000000005,
-      "text": "Nell'area di configurazione principale, visualizza come le dimensioni della fonte vengono mappate a piatto, pozzo, campo, tempo, profondità e indici di canale."
+      "speech_start": 40.059999999999995,
+      "speech_end": 70.46,
+      "scene_end": 71.27999999999999,
+      "duration": 31.21999999999999,
+      "text": "Layout descrive se le immagini si trovano direttamente nella fonte, sotto le cartelle dei pozzi o sotto le cartelle delle piastre e dei pozzi; la rilevazione automatica è normalmente appropriata. Mantenere ogni piano Z è il default senza perdite. La proiezione massima e la modalità di primo piano escludono esplicitamente gli aerei. I nomi delle schede possono essere sequenziali o conservare le cartelle sorgenti, e Resume convalida i checkpoint di campo prima di saltarli.",
+      "speech_text": "Layout descrive se le immagini si trovano direttamente nella fonte, sotto le cartelle dei pozzi o sotto le cartelle delle piastre e dei pozzi; la rilevazione automatica è normalmente appropriata. Mantenere ogni piano Z è il default senza perdite. La proiezione massima e la modalità di primo piano escludono esplicitamente gli aerei. I nomi delle schede possono essere sequenziali o conservare le cartelle sorgenti, e Resume convalida i checkpoint di campo prima di saltarli.",
+      "phonemes": "lˈAWt deskrˈive se le immˈaʤinɪ sɪ trˈovano diretːamˈente nˈella fˈonte, sˈotːo le kartˈɛlle dˌA pˈoʦːɪ o sˈotːo le kartˈɛlle dˌelle pjˈastre e dˌA pˈoʦːɪ; la rilevaʦiˈone aʊtomˈatika e normalmˈente apːropriˈata. mantenˈɛre ˌoɲɲɪ pjˈano ʣˈɛta e il dɪfˈɒlt sˌɛnʦa pˈɛrdite. la proieʦiˈone mˈaSima e la modalitˈa dɪ prˈimo pjˈano esklˈudono espliʧitamˈente ʎɪ aˈɛːɾA. i nˈɔmɪ dˌelle skˈɛde pˈɔSono ˈɛSere sekwenʦjˈalɪ o konservˈare le kartˈɛlle sorʤˈɛntɪ, e rezˈume konvˈalida i kekːpˈɔint dɪ kˈampo prˈima dɪ saltˈarlɪ."
     },
     {
       "scene": 4,
-      "speech_start": 37.7,
-      "speech_end": 52.7,
-      "scene_end": 53.150000000000006,
-      "duration": 15.450000000000003,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. convalidare la mappatura su un piccolo campione prima di convertire ogni file."
+      "speech_start": 71.27999999999999,
+      "speech_end": 89.05499999999998,
+      "scene_end": 89.73499999999999,
+      "duration": 18.455,
+      "text": "Con la rilevazione automatica del layout, la gestione Z senza perdite, i nomi sequenziali delle targhe e la nuova destinazione selezionata, fare clic su Preview. Preview scansione di intestazioni e costruisce la mappatura, ma non crea la destinazione o scrivere un'immagine.",
+      "speech_text": "Con la rilevazione automatica del layout, la gestione Z senza perdite, i nomi sequenziali delle targhe e la nuova destinazione selezionata, fare clic su Preview. Preview scansione di intestazioni e costruisce la mappatura, ma non crea la destinazione o scrivere un'immagine.",
+      "phonemes": "kon la rilevaʦiˈone aʊtomˈatika del lˈAWt, la ʤestjˈone ʣˈɛta sˌɛnʦa pˈɛrdite, i nˈɔmɪ sekwenʦjˈalɪ dˌelle tˈarɡe e la nʊˈɔva destinaʦiˈone seleʦjonˈata, fˈare klˈik sʊ prˈevjew. prˈevjew skansjˈone dɪ intestaʦiˈonɪ e kostrʊˈiʃe la mapːatˈura, ma non krˈɛa la destinaʦiˈone o skrˈivere ʊnimmˈaʤine."
     },
     {
       "scene": 5,
-      "speech_start": 53.150000000000006,
-      "speech_end": 61.400000000000006,
-      "scene_end": 62.050000000000004,
-      "duration": 8.899999999999999,
-      "text": "Quando il flusso di lavoro è finito, spaCR scrive TIFF standardizzati e una mappa indietro ai file e ai metadati originali."
+      "speech_start": 89.73499999999999,
+      "speech_end": 111.23499999999999,
+      "scene_end": 112.07499999999999,
+      "duration": 22.340000000000003,
+      "text": "Il piano completo di otto file appare prima della conversione. Ogni riga colloca la sua fonte riconoscibile accanto all'esatto bersaglio, piastra, pozzo, campo, canale, Z, tempo, identificatori originali e stato. La prima uscita è plate1, A01, campo 1, canale 1; l'ultima è campo 2, canale 4. Lo status conferma che nulla è stato scritto.",
+      "speech_text": "Il piano completo di otto file appare prima della conversione. Ogni riga colloca la sua fonte riconoscibile accanto all'esatto bersaglio, piastra, pozzo, campo, canale, Z, tempo, identificatori originali e stato. La prima uscita è plate1, A01, campo 1, canale 1; l'ultima è campo 2, canale 4. Lo status conferma che nulla è stato scritto.",
+      "phonemes": "il pjˈano komplˈɛto dɪ ˈɔtːo fˈile apːˈare prˈima dˌella konversjˈone. ˌoɲɲɪ rˈiɡa kˈɔlloka la sˌʊa fˈonte rikonoʃˈibile akːˈanto allezˈatːo bersˈaʎo, pjˈastra, pˈoʦːo, kˈampo, kanˈale, ʣˈɛta, tˈɛmpo, identifikatˈorɪ oriʤinˈalɪ e stˈato. la prˈima ʊʃˈita e plˈate ˈuno, a ʣˈɛɾo ˈuno, kˈampo ˈuno, kanˈale ˈuno; lˈultima e kˈampo dˈue, kanˈale kwˈatːro. lo stˈatʊs konfˈerma ke nˈulla e stˈato skrˈitːo."
+    },
+    {
+      "scene": 6,
+      "speech_start": 112.07499999999999,
+      "speech_end": 132.225,
+      "scene_end": 132.945,
+      "duration": 20.870000000000005,
+      "text": "Rivedi la sintesi e fai clic su Convert solo quando la mappatura è corretta. Una collisione disabilita questo pulsante piuttosto che sovrascrivere un bersaglio. I file validi vengono scritti in modo atomico alla destinazione separata, quindi le immagini originali di microscopia non vengono mai rinominate o sostituite.",
+      "speech_text": "Rivedi la sintesi e fai clic su Convert solo quando la mappatura è corretta. Una collisione disabilita questo pulsante piuttosto che sovrascrivere un bersaglio. I file validi vengono scritti in modo atomico alla destinazione separata, quindi le immagini originali di microscopia non vengono mai rinominate o sostituite.",
+      "phonemes": "rivˈedɪ la sˈintezɪ e fˈaːi klˈik sʊ kˈonvert sˈolo kwˈando la mapːatˈura e korɾˈɛtːa. ˌʊna kolliziˈone dizabˈilita kwˌesto pʊlsˈante pjʊtːˈɔsto ke sovraskrˈivere ʊn bersˈaʎo. i fˈile vˈalidɪ vˈeŋɡono skrˈitːɪ in mˈɔdo atˈɔmiko ˌalla destinaʦiˈone sepaɾˈata, kwˈindɪ le immˈaʤinɪ oriʤinˈalɪ dɪ mikroskopˈia non vˈeŋɡono maj rinominˈate o sostitʊˈite."
+    },
+    {
+      "scene": 7,
+      "speech_start": 132.945,
+      "speech_end": 153.345,
+      "scene_end": 154.145,
+      "duration": 21.200000000000017,
+      "text": "Tutti e otto i TIFF sono stati scritti con successo. conversion_map.csv registra ogni obiettivo accanto al suo percorso assoluto e relativo originale, identificatori di sorgente, identificatori di unione spaCR, dimensioni, politica Z e metadati. I hash TIFF di fonte preparati rimangono identici in byte dopo la conversione.",
+      "speech_text": "Tutti e otto i TIFF sono stati scritti con successo. conversion_map.csv registra ogni obiettivo accanto al suo percorso assoluto e relativo originale, identificatori di sorgente, identificatori di unione spàker, dimensioni, politica Z e metadati. I hash TIFF di fonte preparati rimangono identici in byte dopo la conversione.",
+      "phonemes": "tˈutːɪ e ˈɔtːo i tˈiff sˌono stˈatɪ skrˈitːɪ kon sʊʧːˈɛSo. konvˈɛrsjon mˈap.ʧˌiˌɛSevˈu reʤˈistra ˌoɲɲɪ objetːˈivo akːˈanto al sˌʊo perkˈorso aSolˈuto e relatˈivo oriʤinˈale, identifikatˈorɪ dɪ sorʤˈɛnte, identifikatˈorɪ dɪ ʊnjˈone spˈaker, dimensjˈonɪ, polˈitika ʣˈɛta e metadˈatɪ. i hˈaʃ tˈiff dɪ fˈonte prepaɾˈatɪ rimˈaŋɡono idˈɛntiʧɪ in bˈIt dˈopo la konversjˈone."
+    },
+    {
+      "scene": 8,
+      "speech_start": 154.145,
+      "speech_end": 171.37,
+      "scene_end": 172.07,
+      "duration": 17.924999999999983,
+      "text": "Abilitare il ripristino per una conversione interrotta o ripetuta. Resume non si affida solo ai nomi di file: consulta un punto di controllo del campo atomico e convalida ogni TIFF appartenente a un campo completato prima di decidere che il campo può essere saltato.",
+      "speech_text": "Abilitare il ripristino per una conversione interrotta o ripetuta. Resume non si affida solo ai nomi di file: consulta un punto di controllo del campo atomico e convalida ogni TIFF appartenente a un campo completato prima di decidere che il campo può essere saltato.",
+      "phonemes": "abilitˈare il riprˈistino per ˌʊna konversjˈone interɾˈotːa o ripetˈuta. rezˈume non sɪ affˈida sˈolo aj nˈɔmɪ dɪ fˈile: konsˈulta ʊn pˈunto dɪ kontrˈɔllo del kˈampo atˈɔmiko e konvˈalida ˌoɲɲɪ tˈiff apːartenˈɛnte a ʊn kˈampo kompletˈato prˈima dɪ deʧˈidere ke il kˈampo pʊˈɔ ˈɛSere saltˈato."
+    },
+    {
+      "scene": 9,
+      "speech_start": 172.07,
+      "speech_end": 186.87,
+      "scene_end": 187.51,
+      "duration": 15.439999999999998,
+      "text": "Fare clic su Convert nuovamente con lo stesso piano verificato e Resume abilitato. Se un file mancasse o fosse corrotto, tutto il suo campo sarebbe ricostruito; campi completi possono essere riutilizzati in modo sicuro.",
+      "speech_text": "Fare clic su Convert nuovamente con lo stesso piano verificato e Resume abilitato. Se un file mancasse o fosse corrotto, tutto il suo campo sarebbe ricostruito; campi completi possono essere riutilizzati in modo sicuro.",
+      "phonemes": "fˈare klˈik sʊ kˈonvert nʊovamˈente kon lo stˈeSo pjˈano verifikˈato e rezˈume abilitˈato. se ʊn fˈile mankˈaSe o fˈosse korɾˈotːo, tˈutːo il sˌʊo kˈampo sarˌɛbːe rikostrʊˈito; kˈampɪ komplˈɛtɪ pˈɔSono ˈɛSere riʊtiliʣːˈatɪ in mˈɔdo sikˈuro."
+    },
+    {
+      "scene": 10,
+      "speech_start": 187.51,
+      "speech_end": 206.635,
+      "scene_end": 207.45499999999998,
+      "duration": 19.944999999999993,
+      "text": "Entrambi i campi a quattro canali passano la convalida, quindi Resume scrive zero file e segnala due campi ripristinati. La mappa di provenienza di otto righe e otto TIFF convertiti rimangono completi, completando un'importazione reversibile, senza perdite e sicura di riavvio nella denominazione spaCR.",
+      "speech_text": "Entrambi i campi a quattro canali passano la convalida, quindi Resume scrive zero file e segnala due campi ripristinati. La mappa di provenienza di otto righe e otto TIFF convertiti rimangono completi, completando un'importazione reversibile, senza perdite e sicura di riavvio nella denominazione spàker.",
+      "phonemes": "entrˈambɪ i kˈampɪ a kwˈatːro kanˈalɪ pˈaSano la konvˈalida, kwˈindɪ rezˈume skrˈive ʣˈɛro fˈile e seɲˈala dˈue kˈampɪ ripristinˈatɪ. la mˈapːa dɪ provenjˈɛnʦa dɪ ˈɔtːo rˈiɡe e ˈɔtːo tˈiff konvertˈitɪ rimˈaŋɡono komplˈɛtɪ, kompletˈando ʊnimportaʦiˈone reversˈibile, sˌɛnʦa pˈɛrdite e sikˈura dɪ riavvˈio nˈella denominaʦiˈone spˈaker."
     }
   ]
 }

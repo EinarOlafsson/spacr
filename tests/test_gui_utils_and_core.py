@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import pytest
 
-try:
-    import spacr.gui_utils as GU
-except Exception as e:  # pragma: no cover
-    pytest.skip(f"spacr.gui_utils unavailable in this env: {e}",
-                allow_module_level=True)
+# Unguarded on purpose: tests/conftest.py stubs mouseinfo, pyautogui and
+# screeninfo before any test module loads, so the display-less import failure
+# this guard was written for cannot happen. An ImportError here is a bug in
+# spacr.gui_utils, and skipping the whole file on it is exactly how such a bug
+# survives a release.
+import spacr.gui_utils as GU
 
 
 # ---------------------------------------------------------------------------
@@ -201,3 +202,23 @@ def test_legacy_console_uses_open_sans_and_text_spacing():
     assert 'family="Open Sans"' in source
     assert "spacing1=" in source
     assert "spacing3=" in source
+
+
+def test_legacy_keepalive_does_not_discard_console_messages():
+    """Only the console callback may consume worker output and errors."""
+    from queue import Queue
+    import spacr.gui_core as GC
+
+    queued = Queue()
+    queued.put("Error: worker failed")
+    scheduled = []
+
+    class Root:
+        def after(self, interval, callback):
+            scheduled.append((interval, callback))
+
+    GC.uppdate_frequency = 250
+    GC.main_thread_update_function(Root(), queued, object(), object())
+
+    assert queued.get_nowait() == "Error: worker failed"
+    assert scheduled and scheduled[0][0] == 250

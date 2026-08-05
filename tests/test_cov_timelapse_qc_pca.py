@@ -35,6 +35,26 @@ def _close_figs():
     plt.close("all")
 
 
+@pytest.fixture
+def png_figure_preference(monkeypatch):
+    """Say which figure format the embedding-QC tests are asserting.
+
+    Every figure a pipeline keeps now goes through ``spacr.plot.save_figure``,
+    which follows the user's figure-format preference and rewrites the file
+    extension to match. Under pytest there is no preference store, so the
+    preference falls back to ``spacr.plot.DEFAULT_FIGURE_FORMAT`` -- PDF. The
+    ``_infection_qc_pca_clustering`` tests assert an exact
+    ``infection_<method>_qc_embedding.png``, so they state the preference
+    rather than inherit the shipped default.
+
+    Deliberately NOT autouse: the ``_debug_plot_merged_planes`` tests in this
+    same file assert ``.pdf`` names, and they are meant to keep following the
+    shipped default.
+    """
+    import spacr.plot as P
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
+
+
 def _tl():
     import spacr.timelapse as tl
     return tl
@@ -492,7 +512,7 @@ def test_qc_ground_truth_too_small(n_inf, n_uninf, expect, capsys):
 # _infection_qc_pca_clustering - PCA happy path
 # ===========================================================================
 
-def test_qc_pca_relabel_happy_path(tmp_path, capsys):
+def test_qc_pca_relabel_happy_path(tmp_path, capsys, png_figure_preference):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=3)
@@ -699,7 +719,8 @@ def test_qc_remove_mode_with_no_disagreement_keeps_everything(capsys):
 # _infection_qc_pca_clustering - degenerate clustering (failure injection)
 # ===========================================================================
 
-def test_qc_single_cluster_zero_gives_empty_uninfected_cluster(tmp_path, capsys):
+def test_qc_single_cluster_zero_gives_empty_uninfected_cluster(
+        tmp_path, capsys, png_figure_preference):
     """KMeans collapsing to one cluster: empty-cluster centroid + 0.5 GT frac."""
     from spacr.timelapse import _infection_qc_pca_clustering
     mp = pytest.MonkeyPatch()
@@ -751,7 +772,7 @@ def test_qc_single_cluster_one_gives_empty_infected_cluster():
     assert not bool(out["adjusted_infected"].any())
 
 
-def test_qc_silhouette_failure_is_swallowed(tmp_path):
+def test_qc_silhouette_failure_is_swallowed(tmp_path, png_figure_preference):
     """A raising silhouette_score leaves silhouette_score=None in the payload."""
     from spacr.timelapse import _infection_qc_pca_clustering
     import sklearn.metrics
@@ -811,7 +832,8 @@ def test_qc_umap_unavailable_falls_back_to_pca(monkeypatch, capsys):
     assert "not available; falling back to PCA" in capsys.readouterr().out
 
 
-def test_qc_umap_no_search_uses_configured_params(monkeypatch, tmp_path):
+def test_qc_umap_no_search_uses_configured_params(monkeypatch, tmp_path,
+                                                  png_figure_preference):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     calls = _install_fake_umap(monkeypatch)
@@ -888,7 +910,8 @@ def test_qc_tsne_unavailable_falls_back_to_pca(monkeypatch, capsys):
     assert "not available; falling back to PCA" in capsys.readouterr().out
 
 
-def test_qc_tsne_no_search_single_run(monkeypatch, tmp_path):
+def test_qc_tsne_no_search_single_run(monkeypatch, tmp_path,
+                                      png_figure_preference):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     calls = _install_fake_tsne(monkeypatch)

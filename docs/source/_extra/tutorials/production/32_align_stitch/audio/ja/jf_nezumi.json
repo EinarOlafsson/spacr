@@ -4,47 +4,107 @@
   "voice": "jf_nezumi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 72.35,
+  "total_duration": 272.265,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 15.0,
-      "scene_end": 15.45,
-      "duration": 15.45,
-      "text": "このチュートリアルでは Align と Stitch をカバーします. イメージタイルを登録し,メモリで全キャンバスを保持せずに,縫い合わせたモザイクを段階的に構築します."
+      "speech_end": 22.25,
+      "scene_end": 22.97,
+      "duration": 22.97,
+      "text": "Align と Stitch は 顕微鏡のタイルを 一枚のキャンバス に 登録し,まず モザイク全体を 割り当てない. データから開いて バッチを運ぶ spaCRが何かを書き出す前に 登録信頼性,バックバック配置,出力サイズ,メモリ使用が目に見える.",
+      "speech_text": "Align と Stitch は 顕微鏡のタイルを 一枚のキャンバス に 登録し,まず モザイク全体を 割り当てない. データから開いて バッチを運ぶ スペーカーが何かを書き出す前に 登録信頼性,バックバック配置,出力サイズ,メモリ使用が目に見える.",
+      "phonemes": "Align to Stitch βa kembʲikʲoː no taiɾɯ o iʔmai no kʲambasɨ ɲi toːɾokɯ ɕi, mazɨ moʣaikɯ ʣentai o βaɾʲiatenai. deːta kaɾa çiɾaite baʔʨi o hakobɯ sɨpeːkaː ɡa naŋka o kakʲidasɨ mae ɲi toːɾokɯ ɕinɾai seː, baʔkɯ baʔkɯ haiʨi, ɕɨʦɨɾʲokɯ saizɨ, memoɾʲi ɕijoː ɡa me ɲi mʲieɾɯ."
     },
     {
       "scene": 2,
-      "speech_start": 15.45,
-      "speech_end": 29.799999999999997,
-      "scene_end": 30.249999999999996,
-      "duration": 14.799999999999997,
-      "text": "Data and batch runs セクションから Align and Stitch を開きます。 ティール付きの取得,ステージ座標または重複メタデータ,チャンネル,目的地を選択します."
+      "speech_start": 22.97,
+      "speech_end": 47.995,
+      "scene_end": 48.714999999999996,
+      "duration": 25.744999999999997,
+      "text": "NPYやTIFFのフォルダを落とすか,ここで選択してください. このレッスンでは 3×3の取得を 模倣するために 9つの重複したタイルとして 4チャンネル顕微鏡の実際のフィールドを 輸出します ソースピクセルはリアルでありながら 既知の重複は 再現可能な登録例を示します",
+      "speech_text": "NPYやTIFFのフォルダを落とすか,ここで選択してください. このレッスンでは 3×3の取得を 模倣するために 9つの重複したタイルとして 4チャンネル顕微鏡の実際のフィールドを 輸出します ソースピクセルはリアルでありながら 既知の重複は 再現可能な登録例を示します",
+      "phonemes": "NPY ja TIFF no ɸoɾɯda o otosɨ ka, koko de sentakɯ ɕite kɯdasai. kono ɾeʔsɨɴ de βa saɴ saɴ no ɕɨtokɯ o mohoː sɨɾɯ tame ɲi kʲɨː ʦɨ no ʨoːɸɯkɯ ɕita taiɾɯ toɕi te joɴ ʨanneɾɯ kembʲikʲoː no ʥiʔsai no ɸʲiːɾɯdo o jɯɕɨʦɨ ɕi masɨ soːsɨ pʲikɯseɾɯ βa ɾʲiaɾɯ de aɾʲi naɡaɾa kʲiʨi no ʨoːɸɯkɯ βa saiɡeɴ kanoː na toːɾokɯ ɾeː o ɕimeɕimasɨ"
     },
     {
       "scene": 3,
-      "speech_start": 30.249999999999996,
-      "speech_end": 43.9,
-      "scene_end": 44.35,
-      "duration": 14.100000000000005,
-      "text": "主な構成領域では,登録方法,参照チャンネル,重複,混合,修正,部品サイズ,および出力フォーマットを設定します."
+      "speech_start": 48.714999999999996,
+      "speech_end": 75.69,
+      "scene_end": 76.41,
+      "duration": 27.695,
+      "text": "買収の仕様を説明する. 格列は3×3で, 25%の名前の重複が行長順にあります. 参照チャンネル1はエンドプラズミック・レチキュラムチャンネルである.spaCRは,その平面に登録を一度解決し,同じ変換を4つのチャンネルに適用し,チャンネルからチャンネルに切断を防ぐ.",
+      "speech_text": "買収の仕様を説明する. 格列は3×3で, 25%の名前の重複が行長順にあります. 参照チャンネル1はエンドプラズミック・レチキュラムチャンネルである.スペーカーは,その平面に登録を一度解決し,同じ変換を4つのチャンネルに適用し,チャンネルからチャンネルに切断を防ぐ.",
+      "phonemes": "baiɕɨː no ɕijoː o seʦɨmeː sɨɾɯ. kakɯ ɾeʦɨ βa saɴ saɴ de, ɲiʥɨːɡo % no namae no ʨoːɸɯkɯ ɡa jɯkʲinaɡa ʥɨɴ ɲi aɾʲimasɨ. saɴɕoː ʨanneɾɯ iʨi βa endopɯɾazɨmʲiʔkɯ ɾeʨikʲɨɾamɯʨanneɾɯ de aɾɯ. sɨpe kaː βa, sono heːmeɴ ɲi toːɾokɯ o iʨido kaikeʦɨ ɕi, onaʥi heŋkaɴ o joɴ ʦɨ no ʨanneɾɯ ɲi tekʲijoː ɕi, ʨanneɾɯ kaɾa ʨanneɾɯ ɲi seʦɨdaɴ o ɸɯseɡɯ."
     },
     {
       "scene": 4,
-      "speech_start": 44.35,
-      "speech_end": 61.525000000000006,
-      "scene_end": 61.97500000000001,
-      "duration": 17.625000000000007,
-      "text": "完全な実行前に,可視設定をレビューし,プリビューまたはテストモードを使用してください.完全なモザイクを構築する前に,ペア並行および縫合プリビューをチェックします."
+      "speech_start": 76.41,
+      "speech_end": 105.61,
+      "scene_end": 106.31,
+      "duration": 29.900000000000006,
+      "text": "品質管理は,どのペア配合がグローバルソリューションに入れるかを決定します. 最小の信頼は弱い交差関係を否定し,近隣半径は冗長な近隣の比較を追加し,Featherミックスが重なる縫合を組み合わせて,64メガバイトのRAM予算は,完成したキャンバスのサイズではなく,各出力帯を制限します.",
+      "speech_text": "品質管理は,どのペア配合がグローバルソリューションに入れるかを決定します. 最小の信頼は弱い交差関係を否定し,近隣半径は冗長な近隣の比較を追加し,Featherミックスが重なる縫合を組み合わせて,64メガバイトのRAM予算は,完成したキャンバスのサイズではなく,各出力帯を制限します.",
+      "phonemes": "çiɴɕiʦɨ kanɾʲi βa, dono pea haiɡoː ɡa ɡɯɾoːbaɾɯ soɾʲɨːɕoɴ ɲi iɾeɾɯ ka o keʔteː ɕi masɨ. saiɕoː no ɕinɾai βa joβai koːsa kaŋkeː o çiteː ɕi, kʲinɾʲiɴ haŋkeː βa ʥoːʨoː na kʲinɾʲiɴ no çikakɯ o ʦɨika ɕi, Feather mʲiʔkɯsɨ ɡa kasanaɾɯ hoːɡoː o kɯmʲiaβasete, ɾokɯʥɨː joɴ meɡa baito no RAM josaɴ βa, kaɴseː ɕita kʲambasɨ no saizɨ de βa nakɯ, kakɯ ɕɨʦɨɾʲokɯ tai o seːɡeɴ ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 61.97500000000001,
-      "speech_end": 71.7,
-      "scene_end": 72.35000000000001,
-      "duration": 10.375,
-      "text": "作業が完了すると 登録されたタイル,縫い目画像,変換,マッピングメタデータが保存されます."
+      "speech_start": 106.31,
+      "speech_end": 132.485,
+      "scene_end": 133.16500000000002,
+      "duration": 26.855000000000018,
+      "text": "書く前にプランをクリックします. 計画では,タイルヘッダーと重複したストライプを読み,近隣のオフセットを推定し,受け入れられたすべての制約を一緒に解決します. キャンバスも アウトプットファイルも作らないので 間違ったグリッド,順序,重複,参照チャンネルを捕まえられる安全な場所です",
+      "speech_text": "書く前にプランをクリックします. 計画では,タイルヘッダーと重複したストライプを読み,近隣のオフセットを推定し,受け入れられたすべての制約を一緒に解決します. キャンバスも アウトプットファイルも作らないので 間違ったグリッド,順序,重複,参照チャンネルを捕まえられる安全な場所です",
+      "phonemes": "kakɯ mae ɲi pɯɾaɴ o kɯɾʲiʔkɯ ɕi masɨ. keːkakɯ de βa, taiɾɯ heʔdaː to ʨoːɸɯkɯ ɕita sɨtoɾaipɯ o jomʲi, kʲinɾʲiɴ no oɸɯseʔto o sɨiteː ɕi, ɯkeiɾe ɾaɾeta sɨbete no seːjakɯ o iʔɕoɲi kaikeʦɨ ɕi masɨ. kʲambasɨ mo aɯtopɯʔto ɸaiɾɯ mo ʦɨkɯɾanai no de maʨiɡaʔta ɡɯɾʲiʔdo, ʥɨɲʥo, ʨoːɸɯkɯ, saɴɕoː ʨanneɾɯ o ʦɨkamaeɾaɾeɾɯ aɴʣeɴ na baɕo desɨ"
+    },
+    {
+      "scene": 6,
+      "speech_start": 133.16500000000002,
+      "speech_end": 161.89000000000001,
+      "scene_end": 162.67000000000002,
+      "duration": 29.504999999999995,
+      "text": "本物のプランは9つのタイルを全て記録している レイアウトの色は信頼によってフィールドを登録し,ステージ位置の落後はオレンジ色で発芽します. 報告書には受け入れられたペアと拒否されたペア,最悪の残留物,最終的なキャンバス寸法,ディスクサイズ,およびメモリ制限の書き込み推定が記載されています.",
+      "speech_text": "本物のプランは9つのタイルを全て記録している レイアウトの色は信頼によってフィールドを登録し,ステージ位置の落後はオレンジ色で発芽します. 報告書には受け入れられたペアと拒否されたペア,最悪の残留物,最終的なキャンバス寸法,ディスクサイズ,およびメモリ制限の書き込み推定が記載されています.",
+      "phonemes": "hommono no pɯɾaɴ βakʲɨː ʦɨ no taiɾɯ o sɨbete kʲiɾokɯ ɕite iɾɯ ɾeːaɯto no iɾo βa ɕinɾai ɲi joʔte ɸʲiːɾɯdo o toːɾokɯ ɕi, sɨteːʥi iʨi no ɾakɯɡo βa oɾeɲʥi iɾo de haʦɨɡa ɕi masɨ. hoːkokɯɕo ɲi βa ɯkeiɾe ɾaɾeta pea to kʲoçi saɾeta pea, saiakɯ no ʣanɾʲɨː bɯʦɨ, saiɕɨː tekʲi na kʲambasɨ sɨmpoː, dʲisɨkɯ saizɨ, ojobʲi memoɾʲi seːɡeɴ no kakʲikomʲi sɨiteː ɡa kʲisai saɾete imasɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 162.67000000000002,
+      "speech_end": 190.87,
+      "scene_end": 191.59,
+      "duration": 28.919999999999987,
+      "text": "個々のタイルをクリックして解ったYとXの位置,方法,信頼性,残留量,およびサポートペアの数を監査します. このフィールドは,その名前のグリッド位置からではなく,登録によって配置されました. 大きなモザイックを行う前に弱いまたは孤立したタイルを調査するために同じ検査を使用します.",
+      "speech_text": "個々のタイルをクリックして解ったYとXの位置,方法,信頼性,残留量,およびサポートペアの数を監査します. このフィールドは,その名前のグリッド位置からではなく,登録によって配置されました. 大きなモザイックを行う前に弱いまたは孤立したタイルを調査するために同じ検査を使用します.",
+      "phonemes": "koko no taiɾɯ o kɯɾʲiʔkɯ ɕite βakaʔta Y to X no iʨi, hoːhoː, ɕinɾai seː, ʣanɾʲɨː ɾʲoː, ojobʲi sapoːto pea no kazɨ o kaɴsa ɕi masɨ. kono ɸʲiːɾɯdo βa, sono namae no ɡɯɾʲiʔdo iʨi kaɾa de βa nakɯ, toːɾokɯ ɲi joʔte haiʨi saɾe maɕita. oːkʲina moʣaiʔkɯ o okonaɯ mae ɲi joβai mata βa koɾʲiʦɨ ɕita taiɾɯ o ʨoːsa sɨɾɯ tame ɲi onaʥi keɴsa o ɕijoː ɕi masɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 191.59,
+      "speech_end": 216.26500000000001,
+      "scene_end": 216.905,
+      "duration": 25.314999999999998,
+      "text": "縫製されたNPYスタックのための新しい目的地を選択してください. 選択式測定データベースは,解決したタイル座標と出力経路を記録する. 最初の回でオーバーライティングをオフにして,既存のモザイクが黙って置き換えられるのではなく,拒否されます.",
+      "speech_text": "縫製されたNPYスタックのための新しい目的地を選択してください. 選択式測定データベースは,解決したタイル座標と出力経路を記録する. 最初の回でオーバーライティングをオフにして,既存のモザイクが黙って置き換えられるのではなく,拒否されます.",
+      "phonemes": "hoːseː saɾeta NPY sɨtaʔkɯ no tame no ataɾaɕiː mokɯtekʲiʨi o sentakɯ ɕite kɯdasai. sentakɯ ɕikʲi sokɯteː deːtabeːsɨ βa, kaikeʦɨ ɕita taiɾɯ ʣaçoː to ɕɨʦɨɾʲokɯ keːɾo o kʲiɾokɯ sɨɾɯ. saiɕo no kai de oːbaː ɾaitʲiŋɡɯ o oɸɯ ɲi ɕite, kʲisoɴ no moʣaikɯ ɡa damaʔte okʲikae ɾaɾeɾɯ no de βa nakɯ, kʲoçi saɾemasɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 216.905,
+      "speech_end": 243.73,
+      "scene_end": 244.42999999999998,
+      "duration": 27.524999999999977,
+      "text": "プランが受け入れられる後のみ\"書き込みスタック\"をクリックします. spaCR は  を 一度に 横幅 帯 で 編成 し,羽 を 混ぜ て 覆い合わし,画像 が 成功した 後 に 座標 を 書い て い ます. したがって,メモリは宣言された予算内に留まる限り,出力は利用可能なRAMを上回る可能性があります.",
+      "speech_text": "プランが受け入れられる後のみ\"書き込みスタック\"をクリックします. スペーカー は  を 一度に 横幅 帯 で 編成 し,羽 を 混ぜ て 覆い合わし,画像 が 成功した 後 に 座標 を 書い て い ます. したがって,メモリは宣言された予算内に留まる限り,出力は利用可能なRAMを上回る可能性があります.",
+      "phonemes": "pɯɾaɴ ɡa ɯkeiɾeɾaɾeɾɯ ato nomʲi \" kakʲikomʲi sɨtaʔkɯ \" o kɯɾʲiʔkɯ ɕi masɨ. sɨpe kaː βa o iʨido ɲi jokohaba tai de heɴseː ɕi, hane o maʣete oːi aβaɕi, ɡaʣoː ɡa seːkoː ɕita ato ɲi ʣaçoː o kaite imasɨ. ɕitaɡaʔte, memoɾʲi βa seŋɡeɴ saɾeta josaɴ nai ɲi tomaɾɯ kaɡʲiɾʲi, ɕɨʦɨɾʲokɯ βa ɾʲijoː kanoː na RAM o ɯβamaβaɾɯ kanoːseː ɡa aɾʲimasɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 244.42999999999998,
+      "speech_end": 271.405,
+      "scene_end": 272.265,
+      "duration": 27.835000000000008,
+      "text": "検証されたランは,すべての9つのタイルを書き出し,4チャネルで縫い付けられたスタックを生成し,ソースフィールドに一致し,並行座標表に9行を追加します. 報告書は登録証拠とメモリ制限の書き込み概要の両方を保存し,下流分析の前にモザイクを監査することができます.",
+      "speech_text": "検証されたランは,すべての9つのタイルを書き出し,4チャネルで縫い付けられたスタックを生成し,ソースフィールドに一致し,並行座標表に9行を追加します. 報告書は登録証拠とメモリ制限の書き込み概要の両方を保存し,下流分析の前にモザイクを監査することができます.",
+      "phonemes": "keɴɕoː saɾeta ɾaɴ βa, sɨbete no kʲɨː ʦɨ no taiɾɯ o kakʲidaɕi, joɴ ʨaneɾɯ de nɯiʦɨke ɾaɾeta sɨtaʔkɯ o seːseː ɕi, soːsɨ ɸʲiːɾɯdo ɲi iʔʨi ɕi, heːkoː ʣaçoː çoː ɲi kʲɨː ɡʲoː o ʦɨika ɕi masɨ. hoːkokɯɕo βa toːɾokɯ ɕoːko to memoɾʲi seːɡeɴ no kakʲikomʲi ɡaijoː no ɾʲoːhoː o hoʣoɴ ɕi, kaɾʲɨː bɯɴsekʲi no mae ɲi moʣaikɯ o kaɴsa sɨɾɯ koto ɡa dekʲimasɨ."
     }
   ]
 }

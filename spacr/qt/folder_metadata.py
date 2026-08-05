@@ -24,9 +24,15 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.qt.folder_metadata")
+
+#: Extensions :func:`iter_image_files` treats as images. Deliberately the
+#: plain-raster set: this is the walk that feeds folder-structure detection
+#: and the extraction plan, and a container (``.nd2``/``.czi``/``.lif``) is
+#: handled by :mod:`spacr.qt.multi_format` instead.
+IMAGE_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
 
 #: How many synthetic wells :func:`_well_from_index` puts in a row before
 #: starting the next one. Only the *width* is a convention — the rows are
@@ -90,22 +96,30 @@ def _classify(token: str) -> Optional[str]:
     return None
 
 
-def detect_folder_metadata(root: Path, max_probe: int = 30
+def detect_folder_metadata(root: Path, max_probe: int = 30,
+                             files: Optional[Iterable[Path]] = None
                              ) -> Optional[FolderTemplate]:
     """Walk ``root``, try to recognise a folder-structured layout.
 
     :param root: dropped folder.
     :param max_probe: cap on files inspected — the layout should
         repeat, so no need to walk millions.
+    :param files: image paths already collected from ``root``, used
+        instead of walking. This is how a caller that needs both a
+        template *and* a full file list gets them out of ONE traversal:
+        it pulls a probe off :func:`iter_image_files`, hands it here, and
+        keeps draining the same generator afterwards. Dropping a 100 000
+        file plate folder used to walk the tree three times.
     :returns: a :class:`FolderTemplate` describing the detected
         layout, or None if we can't infer one.
     """
     root = Path(root)
-    if not root.is_dir():
+    if files is None and not root.is_dir():
         return None
 
+    probe = iter_image_files(root, cap=max_probe) if files is None else files
     matches: List[Tuple[Path, List[str]]] = []
-    for p in _iter_image_files(root, cap=max_probe):
+    for p in probe:
         rel = p.relative_to(root)
         parts = list(rel.parts[:-1])   # drop filename
         labels = [_classify(part) for part in parts]
@@ -135,15 +149,32 @@ def detect_folder_metadata(root: Path, max_probe: int = 30
     )
 
 
-def _iter_image_files(root: Path, cap: int = 30):
-    exts = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+def iter_image_files(root: Path, cap: Optional[int] = None):
+    """Yield the image files under ``root``, from a single recursive walk.
+
+    **Lazy, and that is the whole point.** The drop handlers need two things
+    from a dropped folder — a small probe to guess the layout from, and (only
+    if the guess succeeds) the full file list to plan an extraction. Pulling
+    both off one generator means the tree is traversed once; abandoning the
+    generator after the probe means a folder with no layout to detect is
+    never fully walked at all. The previous shape returned lists, and the
+    same tree was walked three times per drop.
+
+    :param root: folder to walk.
+    :param cap: stop after this many image files. ``None`` for no cap.
+    """
+    root = Path(root)
     seen = 0
     for p in root.rglob("*"):
-        if p.is_file() and p.suffix.lower() in exts:
+        # Suffix before ``is_file()``, deliberately: the suffix test is a
+        # string compare, ``is_file()`` is a stat syscall. On a plate folder
+        # with 100 000 entries the stats are most of the cost of the walk,
+        # and directories almost never carry an image extension.
+        if p.suffix.lower() in IMAGE_EXTS and p.is_file():
             yield p
             seen += 1
-            if seen >= cap:
-                break
+            if cap is not None and seen >= cap:
+                return
 
 
 # ---------------------------------------------------------------------------

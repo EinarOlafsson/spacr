@@ -88,6 +88,11 @@ from .cli import (
     resolve_module,
 )
 from .errors import DB_SUFFIXES, RUN_STATUS_SUFFIX, RunLedger, SpacrError, read_run_status
+from .cancellation import (
+    PipelineCancelled,
+    checkpoint as cancellation_checkpoint,
+    current_token,
+)
 from .validate import ERROR, WARNING, validate_settings
 
 __all__ = [
@@ -1284,10 +1289,32 @@ def subprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
         handle.write(f'# started {_now_iso()}\n')
         handle.write(f'# {" ".join(cmd)}\n\n')
         handle.flush()
+        process = None
         try:
-            completed = subprocess.run(cmd, stdout=handle, stderr=subprocess.STDOUT,
-                                       check=False)
-            code = int(completed.returncode)
+            process = subprocess.Popen(
+                cmd, stdout=handle, stderr=subprocess.STDOUT)
+            token = current_token()
+            if token is None:
+                code = int(process.wait())
+            else:
+                while process.poll() is None:
+                    try:
+                        process.wait(timeout=0.1)
+                    except subprocess.TimeoutExpired:
+                        cancellation_checkpoint()
+                code = int(process.returncode)
+        except PipelineCancelled:
+            if process is not None and process.poll() is None:
+                process.terminate()
+                try:
+                    process.wait(timeout=5.0)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+            handle.write(
+                f'\n# cancelled safely {_now_iso()}; child process stopped\n')
+            handle.flush()
+            raise
         except OSError as exc:
             handle.write(f'\n# could not start the job process: {exc}\n')
             return EXIT_USAGE
@@ -1369,18 +1396,30 @@ def _collect_run_status(settings: Mapping[str, Any],
     :param settings: the job's resolved settings, for locating its artifacts.
     :param before: :func:`_status_snapshot` taken before the job ran.
     :returns: ``{'status', 'n_attempted', 'n_succeeded', 'n_failed',
-        'artifacts', 'records'}``, or None when the job stamped nothing (which
-        means "no information", not "clean" — see
+        'artifacts', 'records', 'unreadable'}``, or None when the job stamped
+        nothing (which means "no information", not "clean" — see
         :func:`spacr.errors.run_is_complete`).
+
+    An artifact whose stamp cannot be read is recorded in ``unreadable`` and
+    downgrades the verdict to ``'partial'``. It used to be skipped outright,
+    which left the verdict resting on the artifacts that *did* open: a job
+    over two plates where one database was locked or truncated reported
+    'complete' off the other plate's clean stamp, and 'complete' is the word
+    the queue uses to decide there is nothing to re-run.
     """
     attempted = succeeded = failed = 0
     artifacts: List[str] = []
+    unreadable: List[str] = []
     records = 0
     for artifact in _status_artifacts(settings):
         key = str(artifact)
         try:
             stamps = read_run_status(artifact)
-        except Exception:
+        except Exception as exc:
+            LOG.warning(
+                "could not read the run status of %s (%s); this job cannot "
+                "be reported complete.", key, exc)
+            unreadable.append(key)
             continue
         fresh = stamps[int(before.get(key, 0)):]
         if not fresh:
@@ -1393,7 +1432,7 @@ def _collect_run_status(settings: Mapping[str, Any],
             failed += int(stamp.get('n_failed', 0) or 0)
     if not records:
         return None
-    if failed:
+    if failed or unreadable:
         status = 'partial'
     elif attempted:
         status = 'complete'
@@ -1406,6 +1445,7 @@ def _collect_run_status(settings: Mapping[str, Any],
         'n_failed': failed,
         'records': records,
         'artifacts': artifacts,
+        'unreadable': unreadable,
     }
 
 
@@ -1598,6 +1638,7 @@ def run_queue(queue: Queue,
     persist()
 
     for i, job in enumerate(queue.jobs, start=1):
+        cancellation_checkpoint()
         if stopped:
             if job.status in RESUMABLE_STATUSES:
                 job.status = STATUS_NOT_RUN
@@ -1656,6 +1697,18 @@ def run_queue(queue: Queue,
         interrupted = False
         try:
             code = int(runner(job, settings_path, log_path))
+        except PipelineCancelled:
+            job.status = STATUS_NOT_RUN
+            job.finished = _now_iso()
+            job.exit_code = None
+            job.error = "cancelled safely; run this job again to resume"
+            persist()
+            _safe(
+                on_progress,
+                Progress(
+                    'queue_stopped', job.id, i, total, job.status, job.error),
+            )
+            raise
         except KeyboardInterrupt:
             code = 1
             interrupted = True
@@ -1693,6 +1746,7 @@ def run_queue(queue: Queue,
         persist()
         _safe(on_progress, Progress('job_finished', job.id, i, total, job.status,
                                     job.error or f'{job.label} finished'))
+        cancellation_checkpoint()
 
         if interrupted:
             stopped = 'interrupted by the user (Ctrl-C) — the remaining jobs were not run.'
@@ -1775,9 +1829,10 @@ def resume_queue(path: Union[str, os.PathLike],
     Jobs that already succeeded are left alone. Jobs that were ``not_run``
     (the queue halted before reaching them) or still ``pending`` are run. A
     job that was ``running`` when the machine went down is reset and run
-    again: its artifacts are half-written, and half a mask run is not a
-    result. Failed and skipped jobs stay as they are unless ``retry_failed``
-    is set.
+    again. For Mask, Measure, and Format Converter jobs the rerun receives
+    ``resume=True`` automatically, so their verified field checkpoints are
+    reused instead of repeating the whole plate. Failed and skipped jobs stay
+    as they are unless ``retry_failed`` is set.
 
     :param path: the queue file :func:`run_queue` was persisting to.
     :param retry_failed: also re-run jobs that failed, and un-skip the jobs
@@ -1789,11 +1844,38 @@ def resume_queue(path: Union[str, os.PathLike],
     for job in queue.jobs:
         if job.status == STATUS_RUNNING:
             LOG.warning('batch: %s was still running when the queue stopped; its '
-                        'output is half-written, so it will run again', job.id)
+                        'output will be checked at the last safe boundary and '
+                        'then resumed', job.id)
+            _enable_field_resume(job)
             job.reset()
         elif job.status == STATUS_NOT_RUN:
             job.status = STATUS_PENDING
         elif retry_failed and job.status in (STATUS_FAILED, STATUS_SKIPPED):
+            _enable_field_resume(job)
             job.reset()
     kwargs.setdefault('path', path)
     return run_queue(queue, **kwargs)
+
+
+def _enable_field_resume(job: Job) -> None:
+    """Add ``resume=True`` to workflows with verified field checkpoints.
+
+    An override works for both inline dictionaries and external settings files,
+    and keeps the archived source settings untouched. Existing ``resume=...``
+    overrides are replaced rather than duplicated.
+    """
+    module = str(job.module).strip().lower().replace('-', '_')
+    if module not in {
+            'mask', 'measure', 'convert', 'format_convert',
+            'format_converter'}:
+        return
+    if isinstance(job.overrides, dict):
+        job.overrides = dict(job.overrides)
+        job.overrides['resume'] = True
+        return
+    overrides = [
+        value for value in job.override_args
+        if value.split('=', 1)[0].strip() != 'resume'
+    ]
+    overrides.append('resume=True')
+    job.overrides = overrides

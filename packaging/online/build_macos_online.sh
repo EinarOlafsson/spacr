@@ -40,7 +40,24 @@ chmod 755 "$SUPPORT/install-online.sh"
 
 cat > "$APP/Contents/MacOS/SpaCR" <<'EOF'
 #!/bin/sh
-exec "/Library/Application Support/SpaCR/venv/bin/python" -m spacr.qt "$@"
+RUNTIME_ROOT="$HOME/Library/Application Support/SpaCR"
+PYTHON="$RUNTIME_ROOT/venv/bin/python"
+FIRST_RUN="/Library/Application Support/SpaCR/install-for-user.sh"
+
+if [ ! -x "$PYTHON" ]; then
+    osascript - "$FIRST_RUN" <<'APPLESCRIPT'
+on run argv
+    set helperPath to item 1 of argv
+    tell application "Terminal"
+        activate
+        do script quoted form of helperPath
+    end tell
+end run
+APPLESCRIPT
+    exit 0
+fi
+
+exec "$PYTHON" -m spacr.qt "$@"
 EOF
 chmod 755 "$APP/Contents/MacOS/SpaCR"
 
@@ -74,13 +91,41 @@ echo "spaCR was removed. User-created data and preferences were left in place."
 EOF
 chmod 755 "$SUPPORT/uninstall-spacr.sh"
 
+cat > "$SUPPORT/install-for-user.sh" <<'EOF'
+#!/bin/sh
+set -eu
+
+RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/SpaCR}"
+INSTALLER="/Library/Application Support/SpaCR/install-online.sh"
+LOCK_DIR="$RUNTIME_ROOT/.installing"
+
+mkdir -p "$RUNTIME_ROOT"
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+    echo "A spaCR installation is already running for this user."
+    exit 0
+fi
+cleanup() {
+    rmdir "$LOCK_DIR" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+"$INSTALLER" \
+  --platform macos \
+  --install-root "$RUNTIME_ROOT" \
+  --no-command-launcher \
+  --no-launch
+
+echo
+echo "spaCR is ready. Opening the application..."
+if [ "${SPACR_NO_RELAUNCH:-0}" != "1" ]; then
+    open -a "/Applications/SpaCR.app"
+fi
+EOF
+chmod 755 "$SUPPORT/install-for-user.sh"
+
 cat > "$SCRIPTS/postinstall" <<EOF
 #!/bin/sh
 set -eu
-"/Library/Application Support/SpaCR/install-online.sh" \
-  --platform macos \
-  --install-root "/Library/Application Support/SpaCR" \
-  --no-launch
 mkdir -p /usr/local/bin
 ln -sfn "/Applications/SpaCR.app/Contents/MacOS/SpaCR" /usr/local/bin/spacr
 exit 0

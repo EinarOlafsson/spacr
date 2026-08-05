@@ -35,7 +35,7 @@ PKG_ROOT = REPO_ROOT / "spacr"
 
 
 @pytest.fixture(autouse=True)
-def _clean_cli_state():
+def _clean_cli_state(monkeypatch, tmp_path):
     """Drop the CLI's log handlers and restore the env vars it sets.
 
     ``setup_logging`` binds a handler to whatever ``sys.stdout`` is at the
@@ -44,6 +44,11 @@ def _clean_cli_state():
     monkeypatch cannot undo for us.
     """
     import os
+    from spacr import run_journal
+
+    journal_root = tmp_path / "runs"
+    journal_root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: journal_root)
 
     watched = ("TQDM_DISABLE", "SPACR_NO_PROGRESS", "MPLBACKEND")
     before = {k: os.environ.get(k) for k in watched}
@@ -197,13 +202,24 @@ def test_registered_entry_point_exists_on_disk(key):
     Checked with ast rather than an import so the whole registry is verified
     without loading torch — and so a renamed pipeline function fails here
     instead of at 3am on a compute node.
+
+    A dotted name may be a module OR a package, and until ``anndata_export``
+    every entry here was a flat ``.py``: the check built one path, so a
+    perfectly real ``spacr/anndata_export/__init__.py`` failed as "no such
+    file spacr/anndata_export.py". Both spellings are tried now, which is
+    what ``import`` itself does.
     """
     module = cli.MODULES[key]
     assert module.module_name.startswith("spacr."), module.module_name
-    path = PKG_ROOT / (module.module_name.split(".", 1)[1].replace(".", "/") + ".py")
-    assert path.is_file(), f"{key}: no such file {path}"
+    relative = module.module_name.split(".", 1)[1].replace(".", "/")
+    candidates = [PKG_ROOT / f"{relative}.py",
+                  PKG_ROOT / relative / "__init__.py"]
+    path = next((p for p in candidates if p.is_file()), None)
+    assert path is not None, (
+        f"{key}: no such module — tried "
+        f"{', '.join(str(p) for p in candidates)}")
     assert module.func_name in _top_level_defs(path), \
-        f"{key}: {path.name} does not define {module.func_name}"
+        f"{key}: {path} does not define {module.func_name}"
 
 
 @pytest.mark.parametrize("key", sorted(cli.MODULES))
@@ -727,7 +743,7 @@ def test_run_neutralises_plt_show(fake_pipeline, fake_settings, monkeypatch):
     seen = {}
 
     def _show_a_figure(settings):
-        fig = plt.figure()
+        plt.figure()
         seen["before"] = len(plt.get_fignums())
         plt.show()
         seen["after"] = len(plt.get_fignums())
@@ -772,18 +788,20 @@ def test_import_entry_failure_exits_2(capsys, monkeypatch, fake_settings):
     assert "could not import" in capsys.readouterr().err
 
 
-def test_folder_call_style_passes_src_positionally(monkeypatch, tmp_path):
-    """`convert` takes a bare folder, not a settings dict."""
+def test_convert_call_style_passes_the_complete_settings_dict():
+    """CLI and Qt must run the same mapped, collision-safe converter."""
     got = []
     module = cli.MODULES["convert"]
-    cli._call_entry(module, lambda folder: got.append(folder), {"src": "/data"})
-    assert got == ["/data"]
+    settings = {"src": "/data", "z_handling": "keep"}
+    cli._call_entry(module, lambda value: got.append(value), settings)
+    assert got == [settings]
 
 
-def test_folder_call_style_rejects_a_list_src():
+def test_convert_module_resolves_its_own_defaults():
     module = cli.MODULES["convert"]
-    with pytest.raises(cli.SettingsError, match="single folder"):
-        cli._call_entry(module, lambda folder: None, {"src": ["/a", "/b"]})
+    assert module.call_style == "settings"
+    assert module.defaults_entry == "spacr.convert:default_settings"
+    assert cli.module_defaults(module)["z_handling"] == "keep"
 
 
 def test_run_that_calls_sys_exit_propagates_the_code(fake_pipeline, fake_settings,
@@ -1067,15 +1085,35 @@ def test_noshow_is_inert_without_matplotlib(monkeypatch):
 
 
 def test_noshow_survives_a_matplotlib_that_raises(monkeypatch):
-    """Restoring plt.show must never be the thing that fails a completed run."""
+    """Restoring plt.show must never be the thing that fails a completed run.
+
+    The restore is what the docstring promises and what nothing was checking:
+    ``__exit__`` calls ``plt.close("all")``, which explodes here too, and if
+    that took the restore down with it every later ``plt.show()`` in the
+    process would stay shimmed and silently close figures instead of drawing
+    them.
+    """
     plt = pytest.importorskip("matplotlib.pyplot")
+    original_show, original_close = plt.show, plt.close
 
     def _boom(*args, **kwargs):
         raise RuntimeError("backend gone")
 
     with cli._NoShow():
+        assert plt.show is not original_show, "show was never shimmed"
         monkeypatch.setattr(plt, "close", _boom)
-        plt.show()  # the shim swallows the failure
+        assert plt.show() is None       # the shim swallows the failure
+    assert plt.show is original_show, "a raising close left plt.show shimmed"
+
+    # ...and the shim is a real close, not a no-op: with a working backend it
+    # disposes of the current figure, which is the leak it exists to stop.
+    monkeypatch.setattr(plt, "close", original_close)
+    fig = plt.figure()
+    assert plt.fignum_exists(fig.number)
+    with cli._NoShow():
+        plt.show()
+        assert not plt.fignum_exists(fig.number), "the shim closed nothing"
+    assert plt.show is original_show
 
 
 def test_setup_logging_replaces_its_handler():

@@ -1,3 +1,5 @@
+"""Legacy stdout logger compatibility helpers."""
+
 from __future__ import annotations
 
 import functools

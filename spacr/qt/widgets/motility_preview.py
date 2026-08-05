@@ -45,7 +45,13 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSpinBox, QVBoxLayout,
     QWidget,
 )
+from .preview_controls import (
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSet, ImageSetSampler, configure_max_sets_box,
+    populate_channel_combo, selected_channel,
+)
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 from .live_preview import numpy_to_qpixmap
 
@@ -575,6 +581,28 @@ class _MotilityWorker(QThread):
 # Panel
 # ---------------------------------------------------------------------------
 
+def scan_plate_payload(path) -> Dict[str, Any]:
+    """Resolve a plate's ``merged`` folder and group it. No Qt: worker-safe.
+
+    The expensive half of opening a plate: ``resolve_merged_dir`` lists the
+    candidate folder and ``group_merged_files`` reads every name in
+    ``merged/`` and parses it -- thousands of entries on a 384-well plate.
+
+    :returns: ``{path, merged, groups, error}``.
+    """
+    out: Dict[str, Any] = {"path": str(path), "merged": None,
+                           "groups": None, "error": ""}
+    try:
+        merged = resolve_merged_dir(path)
+        groups = group_merged_files(merged)
+    except Exception as exc:
+        out["error"] = f"Load failed: {exc}"
+        return out
+    out["merged"] = merged
+    out["groups"] = groups
+    return out
+
+
 class MotilityPreviewPanel(QWidget):
     """Interactive motility preview — Motility Assay module.
 
@@ -586,8 +614,17 @@ class MotilityPreviewPanel(QWidget):
 
     preview_ready = Signal(object)   # MotilitySummary, or None on failure
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
+        # Scanning a plate lists every file in `merged/` and parses each name:
+        # thousands of entries on a 384-well plate, and not GUI-thread work.
+        # `threaded=False` runs each job inline, emitting the same signals in
+        # the same order, so a test can drive this panel synchronously without
+        # the behaviour diverging.
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="motility preview")
+        #: Bumped whenever a newer scan supersedes the one in flight.
+        self._load_token = 0
         self._points = None          # cached — the expensive half
         self._tracks = None
         self._summary: Optional[MotilitySummary] = None
@@ -595,6 +632,9 @@ class MotilityPreviewPanel(QWidget):
         self._merged_dir: str = ""
         self._worker: Optional[_MotilityWorker] = None
         self._propagate_cb = None
+        # Bounded, reproducible sample of the plate's time series — the
+        # dropdown never lists them all. See ImageSetSampler.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_ui()
         self.setAcceptDrops(True)
 
@@ -605,22 +645,41 @@ class MotilityPreviewPanel(QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
+        # FOV and channel dropdowns sit immediately LEFT of the Choose
+        # control; all three wear the flat "Live toggle" look.
         pick = QHBoxLayout()
+        self._pick_row = pick
         self._path_label = QLabel(
             "No plate loaded — drop a folder holding merged/*.npy here, "
             "or choose one")
         self._path_label.setSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose plate folder…")
-        pick_btn.clicked.connect(self._pick_folder)
-        self._group_box = QComboBox()
-        self._group_box.setToolTip(
-            "(plate, well, field) group previewed. Each group is one time "
-            "series.")
-        self._group_box.currentIndexChanged.connect(self._on_group_changed)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view — the (plate, well, field) group "
+                     "previewed. Each group is one time series. Lists a "
+                     "random sample of the plate, not all of it."))
+        self._fov_box.currentIndexChanged.connect(self._on_group_changed)
+        # Kept under its historical name for the integrations and tests that
+        # already drive it.
+        self._group_box = self._fov_box
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Plane of the merged array the preview reads its objects "
+                     "from. Bound to 'Tracked mask plane'; changing it drops "
+                     "the cached point table, so run the preview to see it."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        self._pick_btn = FlatButton("Choose plate folder…", self)
+        self._pick_btn.clicked.connect(self._pick_folder)
         pick.addWidget(self._path_label, 1)
-        pick.addWidget(self._group_box)
-        pick.addWidget(pick_btn)
+        pick.addWidget(self._max_sets_box)
+        pick.addWidget(self._fov_box)
+        pick.addWidget(self._channel_box)
+        pick.addWidget(self._pick_btn)
         root.addLayout(pick)
 
         # -- array layout (changing one re-reads the merged arrays) ----------
@@ -733,6 +792,10 @@ class MotilityPreviewPanel(QWidget):
         self._straightness_filter.toggled.connect(self._on_metric_changed)
         self._tracked_object.currentTextChanged.connect(
             self._on_tracked_object_changed)
+        # One plane, two surfaces: the settings spinner and the flat dropdown
+        # in the pick row stay in step.
+        self._tracked_plane.valueChanged.connect(
+            self._sync_plane_combo_from_spin)
 
         act = QHBoxLayout()
         self._run_btn = QPushButton("Run preview", self)
@@ -793,40 +856,147 @@ class MotilityPreviewPanel(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        self.load_folder(p)
+        self.load_folder_async(p)
 
     # -- public API --------------------------------------------------------
 
-    def load_folder(self, path) -> bool:
-        """Open a plate (or ``merged``) folder. Errors land inline."""
-        try:
-            merged = resolve_merged_dir(path)
-            groups = group_merged_files(merged)
-        except Exception as e:
-            self._status.setText(f"Load failed: {e}")
+    @property
+    def _loads_in_flight(self) -> List[int]:
+        """Outstanding scans, as a list so ``not ...`` reads naturally."""
+        runner = getattr(self, "_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_folder_async(self, path) -> bool:
+        """Scan a plate on a worker, then install it on the GUI thread.
+
+        Both GUI entry points -- the drop handler and the Choose-plate dialog
+        -- come through here.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
             return False
+        self._load_token += 1
+        token = self._load_token
+        self._status.setText(f"Scanning {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: scan_plate_payload(text),
+            lambda payload, _t=token: self._on_plate_scanned(_t, payload))
+        return True
+
+    def _on_plate_scanned(self, token: int, payload) -> None:
+        """Install a scanned plate. Always on the GUI thread."""
+        if token != self._load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._status.setText(payload["error"])
+            return
+        groups = payload.get("groups")
+        if not groups:
+            self._status.setText(
+                "No (plate, well, field) group has two or more time points — "
+                "a motility preview needs a time series.")
+            return
+        self._install_plate(payload["merged"], groups)
+
+    def shutdown(self) -> None:
+        """Abandon anything in flight and leave no QThread behind."""
+        runner = getattr(self, "_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def load_folder(self, path) -> bool:
+        """Synchronously open a plate (or ``merged``) folder.
+
+        For programmatic callers and tests, mirroring
+        ``LivePreviewPanel.load_image``. The GUI uses :meth:`load_folder_async`.
+        """
+        payload = scan_plate_payload(path)
+        if payload["error"]:
+            self._status.setText(payload["error"])
+            return False
+        groups = payload["groups"]
         if not groups:
             self._status.setText(
                 "No (plate, well, field) group has two or more time points — "
                 "a motility preview needs a time series.")
             return False
+        self._install_plate(payload["merged"], groups)
+        return True
+
+    def _install_plate(self, merged: str, groups) -> bool:
+        """Adopt an already-scanned plate and refresh the selectors."""
         self._merged_dir = merged
         self._groups = groups
         self._points = None
         self._tracks = None
-        self._group_box.blockSignals(True)
-        self._group_box.clear()
-        for key, metas in groups.items():
-            self._group_box.addItem(
-                f"{key[0]} {key[1]} f{key[2]} ({len(metas)} frames)", key)
-        self._group_box.blockSignals(False)
+        self._sampler.invalidate()
+        self._populate_group_box()
         self._autodetect_planes()
+        self._refresh_source_selectors()
         self._path_label.setText(
             f"{os.path.basename(os.path.dirname(merged.rstrip(os.sep)) or merged)}"
             f"  ·  {len(groups)} group(s)")
         self._status.setText(
-            f"{len(groups)} time series found — run the preview.")
+            f"{len(groups)} time series found — {self.sample_note()}. "
+            "Run the preview.")
         return True
+
+    def _populate_group_box(self) -> None:
+        """Fill the groups dropdown with a bounded random sample of the plate.
+
+        A 384-well plate produces thousands of time series and listing them
+        all made the dropdown, and every refresh of it, cost more than the
+        preview itself. The sample is drawn across the whole plate and is
+        reproducible — see
+        :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`.
+
+        The dropdown stores each group's ``(plate, well, field)`` **key** as
+        item data, not a path, so it populates itself rather than going
+        through :func:`apply_sample_to_combo`.
+        """
+        if self._sampler.directory != self._merged_dir:
+            self._sampler.adopt(
+                self._merged_dir,
+                [ImageSet(key=key, directory=self._merged_dir,
+                          channels={"": metas[0]["filename"]})
+                 for key, metas in self._groups.items()],
+                [])
+        self._sampler.set_max(
+            configure_max_sets_box(self._max_sets_box, self._sampler.total))
+        current = self._group_box.currentData()
+        keep = next((s for s in self._sampler.sets if s.key == current), None)
+        shown = self._sampler.sample(keep=keep)
+        self._sample_note = self._sampler.describe(len(shown))
+        blocked = self._group_box.blockSignals(True)
+        try:
+            self._group_box.clear()
+            for item in shown:
+                metas = self._groups.get(item.key) or []
+                self._group_box.addItem(
+                    f"{item.key[0]} {item.key[1]} f{item.key[2]} "
+                    f"({len(metas)} frames)", item.key)
+            index = self._group_box.findData(current)
+            if index >= 0:
+                self._group_box.setCurrentIndex(index)
+        finally:
+            self._group_box.blockSignals(blocked)
+        self._group_box.setToolTip(
+            f"Field of view — {self._sample_note}.\n\n{MAX_SETS_TOOLTIP}")
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-grouping."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._populate_group_box()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
 
     def set_propagate_callback(self, cb) -> None:
         """Register a ``callback(dict)`` used to push tuned settings back."""
@@ -908,6 +1078,8 @@ class MotilityPreviewPanel(QWidget):
             "unit": cal.unit,
             "calibrated": cal.known,
             "n_tracks": 0 if self._tracks is None else int(len(self._tracks)),
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
         }
 
     # -- running -----------------------------------------------------------
@@ -1039,10 +1211,73 @@ class MotilityPreviewPanel(QWidget):
         except Exception:
             LOG.debug("plane autodetect failed", exc_info=True)
 
+    # -- FOV / channel selectors -------------------------------------------
+
+    def _plane_count(self) -> int:
+        """Planes held by the first merged array of the selected group."""
+        try:
+            key = self._fov_box.currentData() or next(iter(self._groups))
+            first = self._groups[key][0]["filename"]
+            arr = np.load(os.path.join(self._merged_dir, first), mmap_mode="r")
+            return int(min(np.asarray(arr).shape))
+        except Exception:
+            LOG.debug("plane count unavailable", exc_info=True)
+            return 0
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the channel dropdown for the selected field of view."""
+        populate_channel_combo(
+            self._channel_box, self._plane_count(), include_all=False,
+            keep=f"Ch {int(self._tracked_plane.value())}")
+
+    def _sync_plane_spin_from_combo(self) -> None:
+        """Push the dropdown's plane into the tracked-mask-plane spinner."""
+        index = selected_channel(self._channel_box)
+        if index is None or int(self._tracked_plane.value()) == int(index):
+            return
+        self._tracked_plane.setValue(int(index))
+
+    def _sync_plane_combo_from_spin(self, *_args) -> None:
+        """Reflect a spinner-side plane change in the dropdown."""
+        box = getattr(self, "_channel_box", None)
+        if box is None:
+            return
+        index = box.findText(f"Ch {int(self._tracked_plane.value())}")
+        if index < 0 or index == box.currentIndex():
+            return
+        blocked = box.blockSignals(True)
+        try:
+            box.setCurrentIndex(index)
+        finally:
+            box.blockSignals(blocked)
+
+    def display_channel(self) -> Optional[int]:
+        """Merged-array plane the preview reads objects from."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Adopt the newly selected plane and drop the stale point table."""
+        if not hasattr(self, "_tracked_plane"):
+            return
+        self._sync_plane_spin_from_combo()
+        self._points = None
+        self._tracks = None
+        self._invite_rerun()
+
+    def _invite_rerun(self) -> None:
+        """Say the cache was dropped. Reading merged arrays is the expensive
+        half of this panel, so it stays an explicit ``Run preview`` — never a
+        side effect of touching a dropdown."""
+        if self._groups:
+            self._status.setText(
+                "Field / plane changed — run the preview to read it.")
+
     def _on_group_changed(self, *_):
         self._points = None
         self._tracks = None
         self._autodetect_planes()
+        self._refresh_source_selectors()
+        self._invite_rerun()
 
     def _on_tracked_object_changed(self, name: str) -> None:
         """Move the tracked mask plane to the chosen object's slot."""
@@ -1058,7 +1293,7 @@ class MotilityPreviewPanel(QWidget):
         path = QFileDialog.getExistingDirectory(
             self, "Choose a plate folder holding merged/*.npy")
         if path:
-            self.load_folder(path)
+            self.load_folder_async(path)
 
     def closeEvent(self, event):
         """Let a running read finish before the widget is torn down.
@@ -1066,6 +1301,9 @@ class MotilityPreviewPanel(QWidget):
         A ``QThread`` collected while running aborts the process; the worker
         outlives the emit that produced its result by a few instructions.
         """
+        # Cancel the scan before waiting on the motility worker: leaving the
+        # screen mid-scan must not leave a QThread behind either.
+        self.shutdown()
         worker = self._worker
         if worker is not None:
             try:

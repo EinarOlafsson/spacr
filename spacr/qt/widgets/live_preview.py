@@ -19,7 +19,8 @@ their first run through the panel:
   ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that
   killed that belief.
 * **Outline colour + thickness.** Chosen from the toolbar; effect is
-  live once a mask exists.
+  live once a mask exists. ``color (random)`` assigns a stable categorical
+  colour to every object label so touching masks remain distinguishable.
 * **Multi-object segmentation.** An "object type" combo picks between
   ``cell``, ``nucleus``, and ``cell + nucleus``. In cell+nucleus mode
   the panel runs two Cellpose passes and overlays both masks in
@@ -37,23 +38,30 @@ call is lazy-imported inside the worker thread.
 """
 from __future__ import annotations
 
+import colorsys
 import logging
+import os
+import random
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QEvent, QPointF, QRectF, Qt, QThread, Signal
-from PySide6.QtGui import (
-    QBrush, QColor, QImage, QPainter, QPen, QPixmap,
-)
+from PySide6.QtCore import QRectF, Qt, QThread, Signal
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QSpinBox, QToolButton, QVBoxLayout, QWidget,
+    QSizePolicy, QSpinBox, QVBoxLayout, QWidget,
+)
+from .preview_controls import (
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSetSampler, apply_sample_to_combo, channel_view, enumerate_image_sets,
+    populate_channel_combo, sample_image_sets, sample_seed, selected_channel,
 )
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 LOG = logging.getLogger("spacr.qt.live_preview")
 
@@ -107,6 +115,15 @@ OBJECT_COLORS: Dict[str, Tuple[int, int, int]] = {
     "nucleus":   (222, 82, 200),
     "pathogen":  (32, 200, 220),
     "organelle": (255, 220, 32),
+}
+
+# Stable offsets keep the random categorical outline map distinct between
+# compartments without making colours flicker whenever the preview refreshes.
+RANDOM_OUTLINE_SEEDS: Dict[str, int] = {
+    "cell": 11,
+    "nucleus": 37,
+    "pathogen": 61,
+    "organelle": 89,
 }
 
 # Per-compartment tuning settings, shown (greyed unless the compartment is the
@@ -236,13 +253,112 @@ def _boundary_mask(mask: np.ndarray) -> np.ndarray:
     return boundary
 
 
+def _labelled_boundary(mask: np.ndarray, thickness: int = 1) -> np.ndarray:
+    """Return each outline pixel's positive object label.
+
+    Unlike :func:`_boundary_mask`, the result retains object identity so a
+    categorical colour map can draw every segmented object differently. The
+    label is also propagated onto the exterior half of an outline and through
+    any requested dilation. Where two dilated outlines meet, the larger label
+    wins deterministically.
+
+    :param mask: two-dimensional integer label image; zero is background.
+    :param thickness: outline thickness in pixels, clamped to ``1..5``.
+    :returns: int64 array containing object labels only on outline pixels.
+    """
+    labels = np.asarray(mask, dtype=np.int64)
+    if labels.ndim != 2 or not np.any(labels > 0):
+        return np.zeros(labels.shape, dtype=np.int64)
+
+    thickness = max(1, min(5, int(thickness)))
+    boundary = _boundary_mask(labels)
+    owners = np.where(boundary & (labels > 0), labels, 0)
+
+    # Give exterior boundary pixels the label of an adjacent object. This
+    # preserves the two-sided outline produced by the pre-existing renderer.
+    neighbours = np.zeros_like(labels)
+    neighbours[1:, :] = np.maximum(neighbours[1:, :], labels[:-1, :])
+    neighbours[:-1, :] = np.maximum(neighbours[:-1, :], labels[1:, :])
+    neighbours[:, 1:] = np.maximum(neighbours[:, 1:], labels[:, :-1])
+    neighbours[:, :-1] = np.maximum(neighbours[:, :-1], labels[:, 1:])
+    exterior = boundary & (owners == 0)
+    owners[exterior] = neighbours[exterior]
+
+    for _ in range(thickness - 1):
+        expanded = np.zeros_like(owners)
+        expanded[1:, :] = np.maximum(expanded[1:, :], owners[:-1, :])
+        expanded[:-1, :] = np.maximum(expanded[:-1, :], owners[1:, :])
+        expanded[:, 1:] = np.maximum(expanded[:, 1:], owners[:, :-1])
+        expanded[:, :-1] = np.maximum(expanded[:, :-1], owners[:, 1:])
+        owners = np.where(owners > 0, owners, expanded)
+    return owners
+
+
+def _random_outline_palette(
+    labels: np.ndarray,
+    seed: int = 0,
+) -> np.ndarray:
+    """Return vivid, deterministic random-looking RGB colours for labels.
+
+    Golden-ratio hue spacing keeps adjacent integer labels separated while
+    deterministic saturation/value jitter makes the result look like a
+    random categorical colormap. Stability is intentional: changing zoom,
+    normalisation, or thickness must not recolour every object.
+
+    :param labels: one-dimensional array of positive object labels.
+    :param seed: stable compartment-specific colour offset.
+    :returns: ``(N, 3)`` uint8 RGB array in the same order as ``labels``.
+    """
+    values = np.asarray(labels, dtype=np.int64).reshape(-1)
+    if values.size == 0:
+        return np.empty((0, 3), dtype=np.uint8)
+    phase = (int(seed) % 997) / 997.0
+    hues = np.mod(values * 0.618033988749895 + phase, 1.0)
+    saturations = 0.72 + 0.25 * np.mod(values * 37 + seed, 101) / 100.0
+    brightness = 0.86 + 0.13 * np.mod(values * 53 + seed, 97) / 96.0
+    colours = [
+        colorsys.hsv_to_rgb(float(hue), float(saturation), float(value))
+        for hue, saturation, value in zip(hues, saturations, brightness)
+    ]
+    return np.rint(np.asarray(colours) * 255.0).astype(np.uint8)
+
+
+#: Random-colour generator for the ``auto`` outline mode. Module level so a
+#: test can seed it; unseeded it draws from the OS entropy pool, which is what
+#: makes two preview runs come out in two different colours.
+_AUTO_COLOUR_RNG = random.Random()
+
+
+def random_outline_colour(rng: Optional[random.Random] = None
+                          ) -> Tuple[int, int, int]:
+    """Return one vivid random RGB triple for the ``auto`` outline mode.
+
+    Hue is uniform over the full circle while saturation and value stay high,
+    so the colour is always legible on top of a micrograph — a uniform draw in
+    RGB would regularly produce muddy near-grey outlines nobody can see.
+
+    :param rng: optional generator, for reproducible tests.
+    :returns: ``(r, g, b)`` in 0..255.
+    """
+    source = rng if rng is not None else _AUTO_COLOUR_RNG
+    hue = source.random()
+    saturation = 0.70 + 0.30 * source.random()
+    value = 0.85 + 0.15 * source.random()
+    red, green, blue = colorsys.hsv_to_rgb(hue, saturation, value)
+    return (int(round(red * 255)), int(round(green * 255)),
+            int(round(blue * 255)))
+
+
 def overlay_masks(image: np.ndarray,
                     masks: Dict[str, np.ndarray],
                     outline_rgb: Optional[Tuple[int, int, int]] = None,
                     outline_thickness: int = 1,
                     normalise: bool = True,
                     lo_pct: float = 2.0,
-                    hi_pct: float = 98.0) -> np.ndarray:
+                    hi_pct: float = 98.0,
+                    random_outline: bool = False,
+                    outline_colors: Optional[
+                        Dict[str, Tuple[int, int, int]]] = None) -> np.ndarray:
     """Return an RGB uint8 view of ``image`` with every mask's boundary
     drawn in the object's colour (or ``outline_rgb`` when supplied).
 
@@ -254,6 +370,14 @@ def overlay_masks(image: np.ndarray,
     :param outline_thickness: number of pixels the boundary is dilated
         by (1 = crisp, 3 = highlighter). Tops out at 5.
     :param normalise: forwarded to :func:`_to_uint8`.
+    :param random_outline: assign every positive object label a vivid,
+        stable categorical colour. This takes precedence over
+        ``outline_rgb`` and corresponds to ``color (random)`` in Mask Live.
+    :param outline_colors: per-compartment colour overrides used when no
+        global ``outline_rgb`` is given. This is how the panel's ``auto``
+        mode reaches the renderer: it holds one random colour per
+        compartment for the current run. Falls back to
+        :data:`OBJECT_COLORS` for anything it does not name.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -275,6 +399,21 @@ def overlay_masks(image: np.ndarray,
             continue
         if not mask.any():
             continue
+        if random_outline:
+            labelled_boundary = _labelled_boundary(mask, outline_thickness)
+            pixels = labelled_boundary > 0
+            if not pixels.any():
+                continue
+            object_labels = np.unique(labelled_boundary[pixels])
+            palette = _random_outline_palette(
+                object_labels,
+                RANDOM_OUTLINE_SEEDS.get(obj_type, 0),
+            )
+            palette_indices = np.searchsorted(
+                object_labels, labelled_boundary[pixels],
+            )
+            rgb[pixels] = palette[palette_indices]
+            continue
         boundary = _boundary_mask(mask.astype(np.int32))
         for _ in range(outline_thickness - 1):
             # Dilate by one pixel: OR-shift in each cardinal direction
@@ -284,8 +423,11 @@ def overlay_masks(image: np.ndarray,
             b2[:, 1:]  |= boundary[:, :-1]
             b2[:, :-1] |= boundary[:, 1:]
             boundary = b2
-        colour = outline_rgb if outline_rgb is not None else \
-            OBJECT_COLORS.get(obj_type, (32, 220, 32))
+        colour = outline_rgb
+        if colour is None and outline_colors:
+            colour = outline_colors.get(obj_type)
+        if colour is None:
+            colour = OBJECT_COLORS.get(obj_type, (32, 220, 32))
         rgb[boundary] = np.array(colour, dtype=np.uint8)
     return rgb
 
@@ -321,8 +463,100 @@ def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
 
 
 # ---------------------------------------------------------------------------
-# Segmentation worker
+# Image discovery/loading + segmentation workers
 # ---------------------------------------------------------------------------
+
+def first_supported_image(source: Path) -> Optional[Path]:
+    """Return the first supported image at or below ``source``.
+
+    Direct image files are returned unchanged. Directory traversal stops as
+    soon as the first sorted match is found instead of materialising and
+    sorting every image in a potentially enormous plate.
+
+    :param source: image path or directory to inspect.
+    :returns: the first supported image, or ``None``.
+    """
+    source = Path(source)
+    if source.is_file():
+        return source if source.suffix.lower() in SUPPORTED_SUFFIXES else None
+    if not source.is_dir():
+        return None
+
+    walk_errors: List[OSError] = []
+    for folder, dirs, files in os.walk(
+            source, topdown=True, onerror=walk_errors.append,
+            followlinks=False):
+        dirs.sort(key=str.casefold)
+        for name in sorted(files, key=str.casefold):
+            if Path(name).suffix.lower() in SUPPORTED_SUFFIXES:
+                return Path(folder) / name
+    if walk_errors:
+        raise OSError(
+            f"Could not inspect {source}: {walk_errors[0]}")
+    return None
+
+
+def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
+                        enumerate_sets: bool = True) -> Dict[str, Any]:
+    """Discover, enumerate and decode one preview source. Data in, data out.
+
+    This is the whole of a preview load, written so it touches **no widget and
+    no Qt object** and can therefore be handed straight to
+    :class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of
+    a hand-rolled ``QThread`` that emitted two signals, which kept the panel's
+    sampler warm by ordering ``enumerated`` before ``loaded``; returning both
+    halves in one dict gets the same ordering for free, because the caller
+    adopts the enumeration and installs the image in a single GUI-thread call.
+
+    The enumeration reads **file names only** — it never opens an image — so
+    the single decode here stays the only file read for a folder of any size.
+
+    :param source: image file or directory to load a preview from.
+    :param max_sets: cap for the sample drawn when ``source`` is a directory.
+    :param enumerate_sets: ``False`` skips the folder scan entirely. The FOV
+        dropdown hands out a path from a set the sampler already produced, so
+        re-scanning for it would burn a full pass over a 98 000-file plate to
+        rediscover what is already cached.
+    :returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is
+        ``None`` when no enumeration was done or it failed, which the caller
+        reads as "leave the sampler alone".
+    """
+    out: Dict[str, Any] = {
+        "path": None, "array": None, "directory": None,
+        "sets": None, "channels": None, "error": "",
+    }
+    try:
+        source = Path(source)
+        path = first_supported_image(source)
+        if path is not None and enumerate_sets:
+            try:
+                sets, channels = enumerate_image_sets(
+                    path.parent, SUPPORTED_SUFFIXES)
+                out["directory"] = str(path.parent)
+                out["sets"] = sets
+                out["channels"] = channels
+                if sets and source.is_dir():
+                    # Open on one of the sampled sets. Whichever file sorts
+                    # first is A01 field 1, which on a plate-ordered folder is
+                    # exactly the corner the sample exists to stop the preview
+                    # from standing in for.
+                    picked = sample_image_sets(
+                        sets, max_sets,
+                        sample_seed(path.parent, len(sets), max_sets))
+                    if picked:
+                        path = picked[0].path()
+            except Exception:
+                # A folder we cannot group is still a folder we can show one
+                # image from; the panel falls back to per-file sets.
+                LOG.exception("Could not enumerate image sets under %s",
+                              path.parent)
+        out["path"] = path
+        out["array"] = load_preview_image(path) if path is not None else None
+    except Exception as exc:
+        LOG.exception("Could not load live-preview source %s", source)
+        out["error"] = str(exc) or exc.__class__.__name__
+    return out
+
 
 @dataclass
 class PreviewRequest:
@@ -407,11 +641,32 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         ch_idx = req.channels.get(obj, 0)
         image_2d = _select_channel(req.image, ch_idx)
 
-        # Preprocess — background subtraction if the user opted in.
+        # Preprocess — remove background if the user opted in, doing exactly
+        # what a real run does. `spacr.io._normalize_img_batch` runs
+        #
+        #     single_channel[single_channel < background] = 0
+        #
+        # per channel, reading `{obj}_background`. This used to subtract the
+        # background and clip at zero instead, which is a different image:
+        # thresholding leaves everything above the background where it is,
+        # subtraction shifts all of it down. And it read a plain `background`
+        # key that nothing writes -- the panel emits `{obj}_background` -- so
+        # the value was always the 100.0 default and turning the toggle on
+        # did nothing visible on any image whose real background was not
+        # near 100.
+        #
+        # Both keys are per-object on purpose: with "cell + nucleus"
+        # selected, the two channels get their own background and their own
+        # on/off, the same way the pipeline treats them.
         if req.preprocess_settings.get(f"remove_background_{obj}"):
-            bg = float(req.preprocess_settings.get("background", 100.0))
-            image_2d = np.clip(image_2d.astype(np.float32) - bg,
-                                0, None).astype(image_2d.dtype)
+            bg = float(req.preprocess_settings.get(
+                f"{obj}_background",
+                req.preprocess_settings.get("background", 100.0)))
+            # `_select_channel` hands back a view into `req.image`. Writing
+            # through it would zero the source for every object type after
+            # this one, and for the raw pane the panel shows beside the mask.
+            image_2d = image_2d.copy()
+            image_2d[image_2d < bg] = 0
 
         result = model.eval(
             image_2d,
@@ -538,6 +793,13 @@ class _ZoomView(QGraphicsView):
         self.setMouseTracking(True)
         self.viewport().setMouseTracking(True)
         self.setFrameShape(QGraphicsView.NoFrame)
+        # Panning has to be mirrored the same way zoom is. `ScrollHandDrag`
+        # moves the scroll bars rather than the transform, so `_apply_zoom`
+        # never sees a drag and the twin canvases stayed locked in scale
+        # while drifting apart in position -- zoom in, drag one, and the
+        # mask no longer sits over the cell it was drawn from.
+        self.horizontalScrollBar().valueChanged.connect(self._mirror_pan)
+        self.verticalScrollBar().valueChanged.connect(self._mirror_pan)
 
     def set_pixmap(self, pixmap: QPixmap) -> None:
         self._scene.clear()
@@ -600,6 +862,32 @@ class _ZoomView(QGraphicsView):
             finally:
                 self._syncing = False
 
+    def _mirror_pan(self, _value: int = 0) -> None:
+        """Put the peer at the same scroll offset as this view.
+
+        Guarded on THIS view for the same reason ``_apply_zoom`` is: setting
+        the flag on the peer would make the peer's own handler a no-op, and
+        since assigning to its scroll bars fires that handler, the guard has
+        to be on the sender or the two views ping-pong.
+
+        Raw scroll-bar values rather than a mapped scene point: the two
+        canvases show the same image at the same scale and the same viewport
+        size, so their scroll ranges are identical, and copying the value
+        keeps them aligned to the pixel without a round trip through scene
+        coordinates.
+        """
+        peer = self._peer
+        if peer is None or self._syncing:
+            return
+        self._syncing = True
+        try:
+            peer.horizontalScrollBar().setValue(
+                self.horizontalScrollBar().value())
+            peer.verticalScrollBar().setValue(
+                self.verticalScrollBar().value())
+        finally:
+            self._syncing = False
+
     def mouseMoveEvent(self, event):
         if self._pixmap_item is not None:
             scene_pt = self.mapToScene(event.position().toPoint())
@@ -613,12 +901,39 @@ class _ZoomView(QGraphicsView):
 # Widget
 # ---------------------------------------------------------------------------
 
+#: Last resort if `spacr.settings` cannot be reached at all — a stub in
+#: sys.modules, a partially-installed tree. A dropdown with nothing in it
+#: is a dead end, so there is always something here.
+_FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
+
+
+def _model_menu():
+    """What the Cellpose model combo offers, read from the Cellpose API.
+
+    Delegates to :func:`spacr.settings.cellpose_model_menu`, which asks
+    ``cellpose.models`` for its stock list plus any checkpoint the user
+    registered, then appends the accepted-but-mapped legacy spellings so a
+    saved preview setting still loads.
+
+    Wrapped because this is a *widget*: it must build even when
+    ``spacr.settings`` is a stand-in (a test that stubs the descriptions
+    table does exactly that). It degrades to the shipped list rather than
+    to an empty combo.
+    """
+    try:
+        from ...settings import cellpose_model_menu
+        menu = tuple(cellpose_model_menu())
+    except Exception:
+        return _FALLBACK_MODELS
+    return menu or _FALLBACK_MODELS
+
+
 class LivePreviewPanel(QWidget):
     """Interactive segmentation preview — Mask app only."""
 
     preview_ready = Signal(object)   # {object_type: mask}
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
         self._image: Optional[np.ndarray] = None
         self._image_path: Optional[Path] = None
@@ -627,12 +942,33 @@ class LivePreviewPanel(QWidget):
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
+        # Every preview load goes through here rather than through a QThread
+        # this file owns. That is not tidiness: `JobRunner` submits via
+        # `bridge.make_thread`, which is what puts the job in the process-wide
+        # run registry, and the registry is the *only* thing the activity
+        # spinner watches. The hand-rolled loader this replaced ran off the GUI
+        # thread perfectly well and still left the user staring at a frozen-
+        # looking window with no spinner, because nothing ever told the
+        # registry it existed.
+        self._load_jobs = JobRunner(self, threaded=threaded,
+                                    app_key="preview image")
+        self._image_load_token: int = 0
         # Bumped whenever the run in flight is superseded (a new image, an
         # explicit cancel). A worker's result is only accepted when the token
         # it carries still matches.
         self._run_token: int = 0
         # Callback(dict) that pushes tuned live settings into the main panel.
         self._propagate_cb = None
+        # One random colour per compartment for the 'auto' outline mode,
+        # re-rolled on every preview run (see _roll_auto_outline_colours).
+        self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
+        # Guards the FOV dropdown against re-entering itself while the image
+        # it just asked for is being installed.
+        self._loading_fov = False
+        # Groups the source folder into image sets from file names alone and
+        # hands out a bounded, reproducible random sample of them. Caches the
+        # enumeration per folder, so stepping through fields costs nothing.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_ui()
         self._build_compartment_widgets()
         # Accept image files dropped anywhere on the panel. QGraphicsView
@@ -683,7 +1019,11 @@ class LivePreviewPanel(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        self.load_image(path)
+        # Asynchronously — the drop handler must return to the event loop
+        # immediately. The decode is the small half; the expensive half is
+        # enumerating the folder the dropped file came out of, which is what
+        # froze the window for 643 ms on a 98 304-file plate.
+        self.load_source_async(path)
 
     # -- construction ------------------------------------------------------
 
@@ -698,13 +1038,16 @@ class LivePreviewPanel(QWidget):
         # them back on close so their values persist across opens.
         # All widgets are children of `self` so they're never
         # garbage-collected while re-parented.
-        # cyto3/cyto2/nuclei are kept here only as accepted-but-mapped
-        # aliases, so a saved preview setting still loads. They are NOT four
+        # Read from the Cellpose API, not from a literal — see
+        # `spacr.settings.cellpose_model_menu`. It returns whatever
+        # `cellpose.models` reports plus any checkpoint the user has
+        # registered, then the accepted-but-mapped aliases cyto3/cyto2/
+        # nuclei so a saved preview setting still loads. Those are NOT four
         # choices: Cellpose 4 drops model_type= with a "not used in v4.0.1+"
-        # log line, so all four entries run the same cpsam weights. The
-        # pipeline maps them forward in settings.normalize_cellpose_model_name.
+        # log line, so all four run the same cpsam weights. The pipeline maps
+        # them forward in settings.normalize_cellpose_model_name.
         self._model_box = QComboBox(self)
-        self._model_box.addItems(["cpsam", "cyto3", "cyto2", "nuclei"])
+        self._model_box.addItems(list(_model_menu()))
         self._model_box.currentIndexChanged.connect(
             self._on_model_or_object_changed)
 
@@ -716,6 +1059,15 @@ class LivePreviewPanel(QWidget):
         self._cell_channel = QSpinBox(self); self._cell_channel.setRange(0, 8)
         self._nucleus_channel = QSpinBox(self); self._nucleus_channel.setRange(0, 8)
         self._nucleus_channel.setValue(1)
+        # Pathogen and organelle are in OBJECT_TYPES and each has its own
+        # settings panel in the dialog, but neither had a channel control.
+        # `_build_request` built its channel map from cell and nucleus only,
+        # so `channels.get(obj, 0)` fell back to 0 and picking "pathogen"
+        # segmented the cell channel while appearing to work.
+        self._pathogen_channel = QSpinBox(self)
+        self._pathogen_channel.setRange(0, 8); self._pathogen_channel.setValue(2)
+        self._organelle_channel = QSpinBox(self)
+        self._organelle_channel.setRange(0, 8); self._organelle_channel.setValue(3)
 
         self._diameter = QDoubleSpinBox(self)
         self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
@@ -743,11 +1095,24 @@ class LivePreviewPanel(QWidget):
 
         # Outline appearance
         self._outline_colour = QComboBox(self)
-        for name in ("auto", "green", "magenta", "yellow", "cyan",
-                       "white", "red"):
+        # These entries are looked up by text in _outline_rgb; the language
+        # pass must not rewrite them, or every choice would miss the mapping
+        # and silently fall back to the per-compartment default (green for
+        # cells) — an outline colour that can never be changed.
+        self._outline_colour.setProperty("i18nSkipItems", True)
+        for name in ("auto", "color (random)", "green", "magenta",
+                     "yellow", "cyan", "white", "red"):
             self._outline_colour.addItem(name)
+        # Random is the default. A fixed colour is a coin flip against the
+        # image -- green outlines on a green channel are invisible exactly
+        # when you most need to see whether the mask landed -- and `auto`
+        # picks per compartment, so two touching objects of the same type
+        # share an outline and read as one. Set before the signal is
+        # connected so choosing it here does not fire a render on a panel
+        # that has no image yet.
+        self._outline_colour.setCurrentText("color (random)")
         self._outline_colour.currentIndexChanged.connect(
-            self._refresh_canvases)
+            self._on_outline_colour_changed)
         self._outline_thickness = QSpinBox(self)
         self._outline_thickness.setRange(1, 5)
         self._outline_thickness.setValue(1)
@@ -770,6 +1135,10 @@ class LivePreviewPanel(QWidget):
             "(int) Image channel index used for cell segmentation.")
         self._nucleus_channel.setToolTip(
             "(int) Image channel index used for nucleus segmentation.")
+        self._pathogen_channel.setToolTip(
+            "(int) Image channel index used for pathogen segmentation.")
+        self._organelle_channel.setToolTip(
+            "(int) Image channel index used for organelle segmentation.")
         self._diameter.setToolTip(DIAMETER_TOOLTIP)
         self._flow.setToolTip(
             "(float) Cellpose flow threshold — higher keeps more masks.")
@@ -783,7 +1152,9 @@ class LivePreviewPanel(QWidget):
         self._hi_pct.setToolTip(
             "(float, %) Upper percentile for normalisation.")
         self._outline_colour.setToolTip(
-            "(str) Overlay outline colour ('auto' = per-object colour).")
+            "(str) Overlay outline colour. 'auto' uses one colour per "
+            "compartment; 'color (random)' gives every segmented object a "
+            "different stable categorical colour.")
         self._outline_thickness.setToolTip(
             "(int, px) Overlay outline thickness.")
 
@@ -798,17 +1169,39 @@ class LivePreviewPanel(QWidget):
 
         # -- VISIBLE compact layout --------------------------------------
 
-        # File picker row
+        # File picker row — FOV and channel dropdowns sit immediately LEFT of
+        # the Choose control, all three wearing the flat "Live toggle" look.
         pick_row = QHBoxLayout()
+        self._pick_row = pick_row
         self._path_label = QLabel(
             "No preview image loaded — drag & drop an image here to load it",
             self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
-        pick_btn = QPushButton("Choose image…", self)
-        pick_btn.clicked.connect(self._pick_file)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view. Lists a random sample of the image sets "
+                     "in this folder — set the sample size on its left."))
+        self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Displayed channel. 'All channels' shows the image as "
+                     "stored; picking one shows that plane alone. This is a "
+                     "view control — the segmentation channels live in Live "
+                     "settings."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        populate_channel_combo(self._channel_box, 0)
+        self._pick_btn = FlatButton("Choose image…", self)
+        self._pick_btn.clicked.connect(self._pick_file)
         pick_row.addWidget(self._path_label, 1)
-        pick_row.addWidget(pick_btn)
+        pick_row.addWidget(self._max_sets_box)
+        pick_row.addWidget(self._fov_box)
+        pick_row.addWidget(self._channel_box)
+        pick_row.addWidget(self._pick_btn)
         root.addLayout(pick_row)
 
         # Action row — Run + Live settings + status
@@ -820,6 +1213,8 @@ class LivePreviewPanel(QWidget):
         # What the right-hand canvas shows: outline overlay, the raw label
         # mask, or the Cellpose flow field.
         self._view_mode = QComboBox(self)
+        # Read back by text in _refresh_canvases — never translate.
+        self._view_mode.setProperty("i18nSkipItems", True)
         self._view_mode.addItems(["Overlay", "Masks", "Flows"])
         self._view_mode.setToolTip(
             "Right canvas: outline overlay · label masks · Cellpose flows")
@@ -882,11 +1277,101 @@ class LivePreviewPanel(QWidget):
     # -- public API --------------------------------------------------------
 
     def load_image(self, path):
+        """Synchronously load one image.
+
+        Intended for explicit programmatic calls and tests, and for those only.
+        **Every** GUI path — the drop handler, the FOV dropdown and the
+        Choose-image dialog — goes through :meth:`load_source_async`, so that
+        neither the decode nor the folder enumeration behind
+        ``_refresh_source_selectors`` can block the application thread. Three of
+        them used to call this instead, which is what the docstring already
+        claimed was not happening.
+        """
         try:
             arr = load_preview_image(Path(path))
         except Exception as e:
             self._status.setText(f"Load failed: {e}")
             return False
+        self._install_loaded_image(Path(path), arr)
+        return True
+
+    @property
+    def _image_loaders(self) -> List[int]:
+        """The loads still in flight, as a list so ``not ...`` reads naturally.
+
+        Kept under its historical name because callers and tests wait on it
+        going empty. It is now derived from the runner rather than stored, so
+        a cancelled load empties it too — a stored list would have to be
+        pruned by hand on every exit path and would strand the panel as
+        permanently "loading" the one time that was missed.
+        """
+        runner = getattr(self, "_load_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_source_async(self, source, *, enumerate_sets: bool = True) -> bool:
+        """Discover and decode a file/folder source on a worker thread.
+
+        New requests supersede older ones by token. An old decoder is allowed
+        to finish safely, but its result is ignored.
+
+        :param source: direct supported image or directory containing images.
+        :param enumerate_sets: ``False`` reuses the sampler's cached listing
+            instead of re-scanning. See :func:`load_source_payload`.
+        :returns: ``True`` when a worker was started.
+        """
+        text = os.fspath(source).strip() if source is not None else ""
+        if not text:
+            return False
+        self._image_load_token += 1
+        token = self._image_load_token
+        max_sets = int(self._sampler.max_sets)
+        self._status.setText(f"Loading preview from {text}…")
+        self._load_jobs.submit(
+            lambda: load_source_payload(text, max_sets, enumerate_sets),
+            lambda payload, _t=token: self._on_source_payload(_t, payload))
+        return True
+
+    def _on_source_payload(self, token: int, payload) -> None:
+        """Apply the newest asynchronous load result. Always on the GUI thread.
+
+        Adopting the enumeration *before* installing the image is what keeps
+        the folder scan off this thread: ``_refresh_source_selectors`` asks the
+        sampler to enumerate on every single load, and that call is a cache hit
+        only because the worker's listing has already landed here.
+        """
+        if token != self._image_load_token or not isinstance(payload, dict):
+            return
+        error = payload.get("error") or ""
+        if error:
+            self._status.setText(f"Load failed: {error}")
+            return
+        sets = payload.get("sets")
+        if sets is not None:
+            self._sampler.adopt(payload.get("directory"), sets,
+                                payload.get("channels") or [])
+        path, arr = payload.get("path"), payload.get("array")
+        if path is None or arr is None:
+            self._status.setText("No supported preview image found.")
+            return
+        self._install_loaded_image(Path(path), arr)
+
+    def shutdown(self) -> None:
+        """Abandon any load in flight and leave no QThread behind.
+
+        Called from :meth:`closeEvent`, and safe to call directly when a
+        screen is torn down without one.
+        """
+        runner = getattr(self, "_load_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def closeEvent(self, event):    # noqa: N802 (Qt naming)
+        """Cancel a load in progress rather than let it outlive the panel."""
+        self.shutdown()
+        super().closeEvent(event)
+
+    def _install_loaded_image(self, path: Path, arr: np.ndarray) -> None:
+        """Replace preview state with an already-decoded image."""
         # A new image invalidates everything derived from the old one,
         # including the run in flight. The raw masks and the flow images used
         # to survive this, so the next filter change — or an in-flight preview
@@ -899,9 +1384,154 @@ class LivePreviewPanel(QWidget):
         self._raw_masks = {}
         self._flows = {}
         self._path_label.setText(str(path))
-        self._status.setText(f"Loaded {arr.shape} {arr.dtype}")
+        self._refresh_source_selectors()
+        note = self.sample_note()
+        self._status.setText(f"Loaded {arr.shape} {arr.dtype}"
+                             + (f" — {note}" if note else ""))
         self._refresh_canvases()
-        return True
+
+    # -- FOV / channel selectors ------------------------------------------
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the sets and channel dropdowns for the loaded image.
+
+        The sets dropdown lists a **sample**, not the folder: see
+        :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`. The
+        enumeration behind it is cached per folder, so this — which runs on
+        every single image load — re-scans nothing once the folder is known.
+        """
+        if self._image_path is not None:
+            self._sampler.enumerate(
+                Path(self._image_path).parent, SUPPORTED_SUFFIXES)
+        self._sample_note = apply_sample_to_combo(
+            self._fov_box, self._max_sets_box, self._sampler,
+            self._image_path, tooltip="Field of view")
+        channels = (int(self._image.shape[2])
+                    if self._image is not None and self._image.ndim == 3
+                    else 0)
+        populate_channel_combo(self._channel_box, channels)
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-enumerating."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._refresh_source_selectors()
+        self._announce_sample()
+
+    def _announce_sample(self) -> None:
+        """Restate the sample on the status line, where the user is looking."""
+        note = self.sample_note()
+        if note:
+            self._status.setText(note[:1].upper() + note[1:])
+
+    def _on_fov_changed(self, *_args) -> None:
+        """Load the field of view the user picked from the dropdown."""
+        if self._loading_fov:
+            return
+        path = self._fov_box.currentData()
+        if not path:
+            return
+        # The loaded file may be a different channel of the very set the combo
+        # points at; comparing raw paths would reload it for no reason.
+        picked = self._sampler.set_for_path(path)
+        if picked is not None and picked == self._sampler.set_for_path(
+                self._image_path):
+            return
+        if picked is None and self._image_path is not None \
+                and str(self._image_path) == str(path):
+            return
+        self._loading_fov = True
+        try:
+            # enumerate_sets=False: this path came *out* of the sampler, so the
+            # folder is already enumerated. Re-scanning would spend a full pass
+            # over the plate to rediscover the listing we are holding, which is
+            # the cost the sampling work in 5d5c5c92 removed.
+            self.load_source_async(path, enumerate_sets=False)
+        finally:
+            self._loading_fov = False
+
+    def display_channel(self) -> Optional[int]:
+        """Channel index the canvases show, or ``None`` for all channels."""
+        return selected_channel(self._channel_box)
+
+    def _background_for_channel(self, channel: Optional[int]) -> Optional[float]:
+        """The background threshold that applies to one displayed channel.
+
+        ``None`` when nothing should be removed from it. The channel is
+        matched to an object type the same way the pipeline does it in
+        :func:`spacr.io._normalize_img_batch`: a channel is the cell channel
+        or the nucleus channel, and it takes that object's background. A
+        channel belonging to neither -- a stain the user is only looking at
+        -- is left alone, because no background was ever chosen for it.
+        """
+        if channel is None or not hasattr(self, "_common_widgets"):
+            return None
+        if not self._widget_value(self._common_widgets["remove_background"]):
+            return None
+        channels = {"cell": int(self._cell_channel.value()),
+                    "nucleus": int(self._nucleus_channel.value()),
+                    "pathogen": int(self._pathogen_channel.value()),
+                    "organelle": int(self._organelle_channel.value())}
+        for obj in self._selected_object_types():
+            if channels.get(obj) == int(channel):
+                return float(self._widget_value(
+                    self._common_widgets["background"]))
+        return None
+
+    def _apply_display_background(self, shown):
+        """Show the intensity image the segmentation actually ran on.
+
+        Background removal used to happen only inside the worker, so the
+        masks moved when it was switched on and the image they were drawn
+        over did not -- the one pane that could show you *why* the objects
+        changed was the pane still displaying the original pixels.
+
+        The threshold is the same one the worker applies, so this is not a
+        second implementation of the rule: both zero everything below
+        ``{obj}_background``, and both leave what is above it untouched.
+        """
+        if shown is None:
+            return shown
+        channel = self.display_channel()
+        if channel is not None:
+            background = self._background_for_channel(channel)
+            if background is None:
+                return shown
+            # `channel_view` returns a VIEW into `self._image`. Writing
+            # zeros through it would destroy the loaded image, so the next
+            # render -- and the segmentation worker, which reads the same
+            # array -- would see an image already thresholded once, again.
+            out = shown.copy()
+            out[out < background] = 0
+            return out
+
+        # "All channels": each one takes its own object's background, so a
+        # composite cannot show a cleaned cell channel beside a raw nucleus.
+        if getattr(shown, "ndim", 0) != 3:
+            return shown
+        out = None
+        for index in range(shown.shape[2]):
+            background = self._background_for_channel(index)
+            if background is None:
+                continue
+            if out is None:
+                out = shown.copy()
+            plane = out[..., index]
+            plane[plane < background] = 0
+        return shown if out is None else out
+
+    def _display_image(self) -> Optional[np.ndarray]:
+        """The loaded image reduced to the selected display channel."""
+        return self._apply_display_background(
+            channel_view(self._image, self.display_channel()))
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Re-render both canvases for the newly selected channel."""
+        self._refresh_canvases()
 
     def set_propagate_callback(self, cb) -> None:
         """Register a callback(dict) used to push tuned live settings back to
@@ -915,6 +1545,11 @@ class LivePreviewPanel(QWidget):
             "model_name": model,
             "cell_channel": int(self._cell_channel.value()),
             "nucleus_channel": int(self._nucleus_channel.value()),
+            # Propagated like the other two, so tuning a pathogen or
+            # organelle channel here reaches the main settings panel
+            # instead of being lost when the dialog closes.
+            "pathogen_channel": int(self._pathogen_channel.value()),
+            "organelle_channel": int(self._organelle_channel.value()),
             "cell_diameter": float(self._diameter.value()),
             "cell_FT": float(self._flow.value()),
             "cell_CP_prob": float(self._prob.value()),
@@ -974,6 +1609,8 @@ class LivePreviewPanel(QWidget):
             "hi_pct": float(self._hi_pct.value()),
             "outline_thickness": self._outline_thickness.value(),
             "outline_colour": self._outline_colour.currentText(),
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
         }
 
     def cancel_preview(self) -> bool:
@@ -1097,15 +1734,35 @@ class LivePreviewPanel(QWidget):
             "remove_background": _spin("bool", None),
             "background": _spin("int", (0, 100_000, 100)),
         }
+        # Both reach the displayed intensity image, not only the worker, so
+        # both have to repaint. Without this the toggle looked inert until
+        # the next Run: the pixels it removes were already gone from the
+        # segmentation and still on screen.
+        self._common_widgets["remove_background"].toggled.connect(
+            self._refresh_canvases)
+        self._common_widgets["background"].valueChanged.connect(
+            self._refresh_canvases)
+        # Which channel gets thresholded depends on the cell/nucleus channel
+        # indices and on which object is selected, so moving any of those has
+        # to repaint too -- otherwise pointing "cell" at a different channel
+        # leaves the cleaned pixels on the old one.
+        self._cell_channel.valueChanged.connect(self._refresh_canvases)
+        self._nucleus_channel.valueChanged.connect(self._refresh_canvases)
+        self._pathogen_channel.valueChanged.connect(self._refresh_canvases)
+        self._organelle_channel.valueChanged.connect(self._refresh_canvases)
+        self._object_box.currentIndexChanged.connect(self._refresh_canvases)
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
         self._common_widgets["remove_background"].setToolTip(
-            "(bool) Subtract the background intensity from the chosen object's "
-            "channel before segmentation.")
+            "(bool) Zero every pixel below the background intensity in the "
+            "chosen object's channel before segmentation. Applies to the "
+            "object selected above — with 'cell + nucleus' chosen, each "
+            "channel uses its own background.")
         self._common_widgets["background"].setToolTip(
-            "(int) Background intensity subtracted from the chosen object's "
-            "channel when 'Remove background' is on.")
+            "(int) Pixels below this intensity are set to 0 in the chosen "
+            "object's channel when 'Remove background' is on. Everything "
+            "above it is left where it is.")
         # Cell-only extra.
         self._adjust_cells = _spin("bool", None)
         self._adjust_cells.setToolTip(
@@ -1158,13 +1815,20 @@ class LivePreviewPanel(QWidget):
         for comp, group in self._compartment_widgets.items():
             for suffix, w in group.items():
                 out[f"{comp}_{suffix}"] = self._widget_value(w)
-        obj = self._primary_object()
-        out[f"{obj}_Signal_to_noise"] = self._widget_value(
-            self._common_widgets["signal_to_noise"])
-        out[f"remove_background_{obj}"] = self._widget_value(
-            self._common_widgets["remove_background"])
-        out[f"{obj}_background"] = self._widget_value(
-            self._common_widgets["background"])
+        # The common controls are one widget each, retargeted to whatever is
+        # selected. Written for EVERY selected object type, not just the
+        # primary: with "cell + nucleus" chosen, keying them off
+        # `_primary_object()` alone wrote `remove_background_cell` and left
+        # the nucleus channel with no key at all, so the segmentation worker
+        # -- which looks up `remove_background_{obj}` per object in its loop
+        # -- silently skipped it and the toggle appeared to do half a job.
+        for obj in self._selected_object_types():
+            out[f"{obj}_Signal_to_noise"] = self._widget_value(
+                self._common_widgets["signal_to_noise"])
+            out[f"remove_background_{obj}"] = self._widget_value(
+                self._common_widgets["remove_background"])
+            out[f"{obj}_background"] = self._widget_value(
+                self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
         return out
 
@@ -1177,8 +1841,10 @@ class LivePreviewPanel(QWidget):
     def _build_request(self) -> PreviewRequest:
         obj_types = self._selected_object_types()
         channels = {
-            "cell":    self._cell_channel.value(),
-            "nucleus": self._nucleus_channel.value(),
+            "cell":      self._cell_channel.value(),
+            "nucleus":   self._nucleus_channel.value(),
+            "pathogen":  self._pathogen_channel.value(),
+            "organelle": self._organelle_channel.value(),
         }
         # One unified settings dict drives both background subtraction
         # (pre) and filtering (post): the common "remove background" +
@@ -1201,19 +1867,55 @@ class LivePreviewPanel(QWidget):
             postprocess_settings=post,
         )
 
+    #: Fixed colours the outline-colour combo offers by name.
+    OUTLINE_COLOURS: Dict[str, Tuple[int, int, int]] = {
+        "green":   (32, 220, 32),
+        "magenta": (222, 82, 200),
+        "yellow":  (255, 220, 32),
+        "cyan":    (32, 200, 220),
+        "white":   (240, 240, 240),
+        "red":     (240, 60, 60),
+    }
+
     def _outline_rgb(self) -> Optional[Tuple[int, int, int]]:
         """Translate the outline-colour combo choice into an RGB tuple,
-        or ``None`` when the user picked 'auto' (per-object colour)."""
-        choice = self._outline_colour.currentText()
-        mapping = {
-            "green":   (32, 220, 32),
-            "magenta": (222, 82, 200),
-            "yellow":  (255, 220, 32),
-            "cyan":    (32, 200, 220),
-            "white":   (240, 240, 240),
-            "red":     (240, 60, 60),
-        }
-        return mapping.get(choice)   # None on "auto"
+        or ``None`` for ``auto`` and ``color (random)``. ``auto`` is drawn
+        from :meth:`_auto_outline_colour` and ``color (random)`` is handled
+        per object label by :func:`overlay_masks`."""
+        return self.OUTLINE_COLOURS.get(self._outline_colour.currentText())
+
+    def _roll_auto_outline_colours(self) -> None:
+        """Draw a fresh random colour per compartment for ``auto`` mode.
+
+        ``auto`` used to mean "the compartment's fixed colour", which made
+        every cell preview green no matter what — the setting looked stuck.
+        It now means a random colour, re-rolled once per preview run so the
+        outline stays put while the user tunes thickness or normalisation.
+        """
+        self._auto_outline_colours = {
+            comp: random_outline_colour() for comp in COMPARTMENTS}
+
+    def _auto_outline_colour(self, obj_type: str) -> Tuple[int, int, int]:
+        """The current random ``auto`` colour for one compartment."""
+        colour = self._auto_outline_colours.get(obj_type)
+        if colour is None:
+            colour = random_outline_colour()
+            self._auto_outline_colours[obj_type] = colour
+        return colour
+
+    def _auto_outline_map(self) -> Dict[str, Tuple[int, int, int]]:
+        """Per-compartment ``auto`` colours covering everything on screen."""
+        if not self._auto_outline_colours:
+            self._roll_auto_outline_colours()
+        for obj_type in self._masks:
+            self._auto_outline_colour(obj_type)
+        return dict(self._auto_outline_colours)
+
+    def _on_outline_colour_changed(self, *_args) -> None:
+        """Re-render, re-rolling the random colours when ``auto`` is chosen."""
+        if self._outline_colour.currentText() == "auto":
+            self._roll_auto_outline_colours()
+        self._refresh_canvases()
 
     def _refresh_canvases(self):
         """Re-render both views from the current image + masks."""
@@ -1222,8 +1924,9 @@ class LivePreviewPanel(QWidget):
         norm = self._normalise_check.isChecked()
         lo = float(self._lo_pct.value())
         hi = float(self._hi_pct.value())
+        shown = self._display_image()
         src_pix = numpy_to_qpixmap(
-            _to_uint8(self._image, normalise=norm, lo_pct=lo, hi_pct=hi))
+            _to_uint8(shown, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
 
         mode = self._view_mode.currentText() if hasattr(self, "_view_mode") else "Overlay"
@@ -1235,10 +1938,14 @@ class LivePreviewPanel(QWidget):
                 self._label_rgb()))
         elif self._masks:   # Overlay (default)
             overlay = overlay_masks(
-                self._image, self._masks,
+                shown, self._masks,
                 outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
-                normalise=norm, lo_pct=lo, hi_pct=hi)
+                normalise=norm, lo_pct=lo, hi_pct=hi,
+                random_outline=(
+                    self._outline_colour.currentText() == "color (random)"
+                ),
+                outline_colors=self._auto_outline_map())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)
@@ -1252,18 +1959,40 @@ class LivePreviewPanel(QWidget):
             self._refresh_canvases()
 
     def _label_rgb(self) -> np.ndarray:
-        """Render the current label masks as a distinct-colour image (0 = black)."""
+        """Render the current label masks as a distinct-colour image (0 = black).
+
+        The chosen outline colour tints this view too. It used to be painted
+        straight from :data:`OBJECT_COLORS`, so the ``Masks`` view stayed
+        green for cells no matter which colour the user picked — the colour
+        control simply did not reach this renderer.
+        """
         h, w = self._image.shape[:2]
         out = np.zeros((h, w, 3), dtype=np.uint8)
+        chosen = self._outline_rgb()
+        random_mode = self._outline_colour.currentText() == "color (random)"
+        auto_colours = self._auto_outline_map()
         for obj, mask in self._masks.items():
             if mask is None or mask.shape[:2] != (h, w):
                 continue
-            base = np.array(OBJECT_COLORS.get(obj, (200, 200, 200)), dtype=np.uint8)
-            # Vary brightness a little per label so neighbours are separable.
             labels = mask.astype(np.int64)
             present = labels > 0
             if not present.any():
                 continue
+            if random_mode:
+                # Same categorical map the overlay uses, so 'color (random)'
+                # means one thing in both views.
+                ids = np.unique(labels[present])
+                palette = _random_outline_palette(
+                    ids, RANDOM_OUTLINE_SEEDS.get(obj, 0))
+                out[present] = palette[np.searchsorted(ids, labels[present])]
+                continue
+            if chosen is not None:
+                base_rgb = chosen
+            else:
+                base_rgb = auto_colours.get(
+                    obj, OBJECT_COLORS.get(obj, (200, 200, 200)))
+            base = np.array(base_rgb, dtype=np.uint8)
+            # Vary brightness a little per label so neighbours are separable.
             shade = (0.5 + 0.5 * ((labels % 7) / 6.0)).astype(np.float32)
             for c in range(3):
                 out[..., c] = np.where(
@@ -1329,7 +2058,9 @@ class LivePreviewPanel(QWidget):
             "Images (*.tif *.tiff *.png *.jpg *.jpeg)",
         )
         if path:
-            self.load_image(path)
+            # The chosen file may live in a folder the sampler has never seen,
+            # so this one does enumerate — off the GUI thread.
+            self.load_source_async(path)
 
     def _on_hover(self, x: int, y: int):
         """Render the pinned hover-info line for the pixel under the cursor."""
@@ -1400,6 +2131,11 @@ class LivePreviewPanel(QWidget):
         raw = getattr(self, "_raw_masks", None)
         if not raw or self._image is None:
             return
+        if snapshot:
+            # A new run gets a new 'auto' colour. Re-rolling here rather than
+            # on every repaint keeps the outline steady while the user drags
+            # thickness or percentile sliders.
+            self._roll_auto_outline_colours()
         post = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
             post.update(self._compartment_settings())
@@ -1451,22 +2187,57 @@ class LivePreviewPanel(QWidget):
         if not (0 <= idx < len(self._history)):
             return
         snap = self._history[idx]
-        img = snap["image"]
+        img = channel_view(snap["image"], self.display_channel())
         norm, lo, hi = snap["norm"], snap["lo"], snap["hi"]
         src_pix = numpy_to_qpixmap(
             _to_uint8(img, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
         if snap["masks"]:
+            # The random and auto modes have to be forwarded here too. They
+            # were not, so scrubbing back through history repainted every
+            # outline in the per-compartment default — green for cells —
+            # whatever the user had chosen.
             overlay = overlay_masks(
                 img, snap["masks"], outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
-                normalise=norm, lo_pct=lo, hi_pct=hi)
+                normalise=norm, lo_pct=lo, hi_pct=hi,
+                random_outline=(
+                    self._outline_colour.currentText() == "color (random)"
+                ),
+                outline_colors=self._auto_outline_map())
             self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
         else:
             self._mask_view.set_pixmap(src_pix)
         self._compare_label.setText(
             f"{idx + 1}/{len(self._history)}  "
             f"{snap['model']}/{snap['object']}  {snap['summary']}")
+
+    # -- the model list is live ------------------------------------------
+    def refresh_model_choices(self) -> None:
+        """Re-read the Cellpose model list and add anything new.
+
+        `spacr.settings.cellpose_model_choices` only reads the API when
+        Cellpose is already imported, because importing it costs ~2.5 s and
+        this panel is built while a page is being laid out. That means the
+        first build usually gets the shipped fallback — so ask again every
+        time the panel is shown. After the first segmentation Cellpose is
+        loaded and a checkpoint the user registered appears here.
+
+        Additive on purpose: the current selection is never disturbed, and
+        an entry is never removed, so a value the user picked cannot vanish
+        under them because a probe came back thinner.
+        """
+        wanted = _model_menu()
+        have = {self._model_box.itemText(i)
+                for i in range(self._model_box.count())}
+        for index, name in enumerate(wanted):
+            if name not in have:
+                self._model_box.insertItem(index, name)
+
+    def showEvent(self, event):  # noqa: N802 (Qt naming)
+        """Refresh the model list whenever the panel comes back on screen."""
+        super().showEvent(event)
+        self.refresh_model_choices()
 
 
 # ---------------------------------------------------------------------------
@@ -1520,6 +2291,8 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Primary object", panel._object_box)
         form.addRow("Cell channel", panel._cell_channel)
         form.addRow("Nucleus channel", panel._nucleus_channel)
+        form.addRow("Pathogen channel", panel._pathogen_channel)
+        form.addRow("Organelle channel", panel._organelle_channel)
         form.addRow("Diameter", panel._diameter)
         form.addRow("Flow threshold", panel._flow)
         form.addRow("Cell probability", panel._prob)
@@ -1636,6 +2409,41 @@ class LiveSettingsDialog(QDialog):
                 p._outline_colour, p._outline_thickness,
                 ] + p._all_compartment_widgets()
 
+    def _install_api_tooltips(self) -> None:
+        """Attach linked Mask API help to every setting in this popup."""
+        from ..screens.settings_model import install_api_tooltips
+
+        p = self._panel
+        widget_keys = {
+            p._model_box: "model_name",
+            p._object_box: "object_type",
+            p._cell_channel: "cell_channel",
+            p._nucleus_channel: "nucleus_channel",
+            p._pathogen_channel: "pathogen_channel",
+            p._organelle_channel: "organelle_channel",
+            p._diameter: "cell_diameter",
+            p._flow: "cell_FT",
+            p._prob: "cell_CP_prob",
+            p._normalise_check: "normalize",
+            p._lo_pct: "lower_percentile",
+            p._hi_pct: "upper_percentile",
+            p._outline_colour: "outline_color",
+            p._outline_thickness: "outline_thickness",
+            p._common_widgets["signal_to_noise"]: "cell_Signal_to_noise",
+            p._common_widgets["remove_background"]: "remove_background_cell",
+            p._common_widgets["background"]: "cell_background",
+            p._adjust_cells: "adjust_cells",
+        }
+        for compartment, fields in p._compartment_widgets.items():
+            for suffix, widget in fields.items():
+                widget_keys[widget] = f"{compartment}_{suffix}"
+        # No link dots here. This dialog has a setting on nearly every row --
+        # 68 dots were being drawn, one after each label and one after the
+        # combined controls -- so they stopped reading as "click for the API
+        # page" and started reading as texture down the form. The hover help
+        # is unaffected; it is still on every label.
+        install_api_tooltips(self, "mask", widget_keys, api_dots=False)
+
     def refresh_visibility(self):
         """Grey out settings that don't apply to the current selection.
 
@@ -1702,6 +2510,7 @@ class LiveSettingsDialog(QDialog):
         # view), so they stay enabled.
         for w in (p._outline_colour, p._outline_thickness):
             w.setEnabled(True)
+        self._install_api_tooltips()
 
     def closeEvent(self, event):
         """Re-hide the state widgets so the compact layout stays clean."""

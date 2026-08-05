@@ -58,7 +58,13 @@ from PySide6.QtWidgets import (
     QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QSpinBox,
     QVBoxLayout, QWidget,
 )
+from .preview_controls import (
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
+    selected_channel, sibling_sources,
+)
 from .toggle import Toggle
+from ..job_runner import JobRunner
 
 # Reuse the Mask live preview's rendering + canvas primitives wholesale so
 # the two panels behave identically from the user's side: the same zoom/pan
@@ -404,10 +410,15 @@ def backend_available(mode: str) -> Tuple[bool, str]:
 
 def _tracks_from_features(tracks_df, features):
     """Attach centroids to a track table that only carries labels."""
-    import pandas as pd  # noqa: F401  (pandas is already a hard dependency)
     cols = ["frame", "original_label", "x", "y"]
+    # many_to_one: ``features`` comes from regionprops, so it holds exactly one
+    # row per (frame, label); the track table may name one label twice in a
+    # frame when two tracks claim it at a merge/split event, which is why the
+    # left side is not constrained. A duplicated label on the features side
+    # would invent extra track rows with fabricated centroids. Same contract as
+    # the identical join in timelapse._track_by_iou's caller.
     return tracks_df.merge(features[cols], on=["frame", "original_label"],
-                           how="left")
+                           how="left", validate="many_to_one")
 
 
 def _link_iou(masks: np.ndarray, iou_threshold: float):
@@ -821,6 +832,68 @@ class _TimelapseWorker(QThread):
 # Panel
 # ---------------------------------------------------------------------------
 
+#: Last resort if `spacr.settings` cannot be reached at all — a stub in
+#: sys.modules, a partially-installed tree. A dropdown with nothing in it
+#: is a dead end, so there is always something here.
+_FALLBACK_MODELS = ("cpsam", "cyto3", "cyto2", "nuclei")
+
+
+def _model_menu():
+    """What the Cellpose model combo offers, read from the Cellpose API.
+
+    Delegates to :func:`spacr.settings.cellpose_model_menu`, which asks
+    ``cellpose.models`` for its stock list plus any checkpoint the user
+    registered, then appends the accepted-but-mapped legacy spellings so a
+    saved preview setting still loads.
+
+    Wrapped because this is a *widget*: it must build even when
+    ``spacr.settings`` is a stand-in (a test that stubs the descriptions
+    table does exactly that). It degrades to the shipped list rather than
+    to an empty combo.
+    """
+    try:
+        from ...settings import cellpose_model_menu
+        menu = tuple(cellpose_model_menu())
+    except Exception:
+        return _FALLBACK_MODELS
+    return menu or _FALLBACK_MODELS
+
+
+def open_sequence_payload(path, max_frames: int = 12,
+                          list_siblings: bool = True) -> Dict[str, Any]:
+    """Open a sequence and list its neighbours. No Qt, so it runs on a worker.
+
+    Warms the sequence's own frame cache with frame 0, because
+    ``_frame_channel_count`` decodes exactly that frame on the GUI thread to
+    fill the channel dropdown -- doing it here turns that read into a cache
+    hit rather than a second trip to disk.
+
+    :param list_siblings: ``False`` reuses the sampler's cached listing; the
+        FOV dropdown hands out a path it has already enumerated.
+    :returns: ``{path, sequence, siblings, error}``.
+    """
+    out: Dict[str, Any] = {"path": str(path), "sequence": None,
+                           "siblings": None, "error": ""}
+    try:
+        seq = FrameSequence.open(path, max_frames=max_frames)
+    except Exception as exc:
+        out["error"] = f"Load failed: {exc}"
+        return out
+    try:
+        seq.frame(0)
+    except Exception:
+        LOG.debug("could not warm the first frame of %s", path, exc_info=True)
+    out["sequence"] = seq
+    if list_siblings:
+        try:
+            target = Path(os.fspath(path))
+            out["siblings"] = sibling_sources(
+                target, FRAME_SUFFIXES, directories=target.is_dir())
+        except Exception:
+            LOG.exception("Could not list sequences beside %s", path)
+    return out
+
+
 class TimelapsePreviewPanel(QWidget):
     """Interactive tracking preview — Timelapse module.
 
@@ -832,8 +905,17 @@ class TimelapsePreviewPanel(QWidget):
 
     preview_ready = Signal(object)   # TrackStats, or None on failure
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, *, threaded: bool = True):
         super().__init__(parent)
+        # Opening a sequence reads a TIFF header or memory-maps a stack, and
+        # then lists every sibling field of view. On a plate that is not GUI
+        # -thread work. `threaded=False` runs each job inline, emitting the
+        # same signals in the same order, so a test can drive this panel
+        # synchronously without the behaviour diverging.
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="timelapse preview")
+        #: Bumped whenever a newer open supersedes the one in flight.
+        self._load_token = 0
         self._sequence: Optional[FrameSequence] = None
         self._mask_sequence: Optional[FrameSequence] = None
         self._masks: Optional[np.ndarray] = None
@@ -846,6 +928,13 @@ class TimelapsePreviewPanel(QWidget):
         self._pending_signature: Optional[tuple] = None
         self._propagate_cb = None
         self._settings: Dict[str, Any] = {}
+        self._sequence_path: Optional[Path] = None
+        # Guards the FOV dropdown against re-entering itself while the
+        # sequence it just asked for is being opened.
+        self._loading_fov = False
+        # Bounded, reproducible sample of the folder's sequences — the
+        # dropdown never lists a whole plate. See ImageSetSampler.
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
@@ -860,27 +949,50 @@ class TimelapsePreviewPanel(QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
+        # FOV and channel dropdowns sit immediately LEFT of the Choose
+        # control; all of them wear the flat "Live toggle" look.
         pick = QHBoxLayout()
+        self._pick_row = pick
         self._path_label = QLabel(
             "No sequence loaded — drop a folder of frames, a multi-page TIFF, "
             "or a (T, H, W) .npy stack here")
         self._path_label.setSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Preferred)
-        seq_btn = QPushButton("Choose sequence…")
-        seq_btn.clicked.connect(self._pick_sequence)
-        mask_btn = QPushButton("Masks…")
-        mask_btn.setToolTip(
-            "Optional: point at a folder or stack of ready-made label images "
-            "to skip segmentation entirely.")
-        mask_btn.clicked.connect(self._pick_masks)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view. Lists a random sample of the sequences "
+                     "sitting beside the loaded one; picking one loads it."))
+        self._fov_box.currentIndexChanged.connect(self._on_fov_changed)
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Channel shown and segmented. Bound to the segmentation "
+                     "channel, so the frame you look at is the frame Cellpose "
+                     "sees."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        self._seq_btn = FlatButton("Choose sequence…", self)
+        self._seq_btn.clicked.connect(self._pick_sequence)
+        self._mask_btn = FlatButton(
+            "Masks…", self,
+            tooltip=("Optional: point at a folder or stack of ready-made "
+                     "label images to skip segmentation entirely."))
+        self._mask_btn.clicked.connect(self._pick_masks)
         pick.addWidget(self._path_label, 1)
-        pick.addWidget(seq_btn)
-        pick.addWidget(mask_btn)
+        pick.addWidget(self._max_sets_box)
+        pick.addWidget(self._fov_box)
+        pick.addWidget(self._channel_box)
+        pick.addWidget(self._seq_btn)
+        pick.addWidget(self._mask_btn)
         root.addLayout(pick)
 
         # -- segmentation settings (changing one invalidates the mask cache) --
+        # Read from the Cellpose API — see
+        # `spacr.settings.cellpose_model_menu`.
         self._model_box = QComboBox(self)
-        self._model_box.addItems(["cpsam", "cyto3", "cyto2", "nuclei"])
+        self._model_box.addItems(list(_model_menu()))
         self._model_box.setToolTip(
             "(str) Cellpose model used to segment every frame. Changing this "
             "re-segments — it is the expensive half of the preview.")
@@ -1001,6 +1113,10 @@ class TimelapsePreviewPanel(QWidget):
         # Pure display knobs never touch masks or tracks.
         self._tail.valueChanged.connect(lambda *_: self._refresh_canvases())
         self._normalise.toggled.connect(lambda *_: self._refresh_canvases())
+        # One channel, two surfaces: the settings spinner and the flat
+        # dropdown in the pick row are kept in step so the frame the user
+        # looks at is always the frame Cellpose is handed.
+        self._channel.valueChanged.connect(self._sync_channel_combo_from_spin)
 
         act = QHBoxLayout()
         self._run_btn = QPushButton("Run preview", self)
@@ -1098,31 +1214,204 @@ class TimelapsePreviewPanel(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        self.load_sequence(p)
+        self.load_sequence_async(p)
 
     # -- public API --------------------------------------------------------
 
-    def load_sequence(self, path) -> bool:
-        """Open ``path`` as the preview sequence. Errors land inline."""
-        self._stop_playback()
-        try:
-            seq = FrameSequence.open(path, max_frames=self._max_frames.value())
-        except Exception as e:
-            self._status.setText(f"Load failed: {e}")
+    @property
+    def _loads_in_flight(self) -> List[int]:
+        """Outstanding opens, as a list so ``not ...`` reads naturally."""
+        runner = getattr(self, "_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_sequence_async(self, path, *, list_siblings: bool = True) -> bool:
+        """Open ``path`` on a worker, then install it on the GUI thread.
+
+        Every GUI entry point -- the drop handler, the Choose-sequence dialog
+        and the FOV dropdown -- comes through here.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
             return False
+        self._stop_playback()
+        self._load_token += 1
+        token = self._load_token
+        cap = int(self._max_frames.value())
+        self._status.setText(f"Opening {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: open_sequence_payload(text, cap, list_siblings),
+            lambda payload, _t=token: self._on_sequence_loaded(_t, payload))
+        return True
+
+    def _on_sequence_loaded(self, token: int, payload) -> None:
+        """Install an opened sequence. Always on the GUI thread."""
+        if token != self._load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._status.setText(payload["error"])
+            return
+        seq = payload.get("sequence")
+        if seq is None:
+            return
+        siblings = payload.get("siblings")
+        if siblings is not None:
+            # Adopt before installing, so `_refresh_source_selectors` finds
+            # the listing cached rather than walking the plate again.
+            self._sampler.enumerate_paths(
+                Path(payload["path"]).parent, lambda: siblings, force=True)
+        self._install_sequence(payload["path"], seq)
+
+    def shutdown(self) -> None:
+        """Abandon anything in flight and leave no QThread behind."""
+        runner = getattr(self, "_jobs", None)
+        if runner is not None:
+            runner.shutdown()
+
+    def load_sequence(self, path) -> bool:
+        """Synchronously open ``path`` as the preview sequence.
+
+        For programmatic callers and tests, mirroring
+        ``LivePreviewPanel.load_image``. The GUI uses
+        :meth:`load_sequence_async`.
+        """
+        self._stop_playback()
+        payload = open_sequence_payload(
+            path, int(self._max_frames.value()), list_siblings=False)
+        if payload["error"]:
+            self._status.setText(payload["error"])
+            return False
+        self._install_sequence(path, payload["sequence"])
+        return True
+
+    def _install_sequence(self, path, seq) -> bool:
+        """Adopt an already-opened sequence and redraw."""
         self._sequence = seq
         self._masks = None
         self._tracked = None
         self._tracks = None
         self._mask_cache.clear()
         self._path_label.setText(seq.describe())
-        self._status.setText(
-            f"Loaded {seq.describe()} — run the preview to segment + link.")
         self._frame_slider.setMaximum(max(0, len(seq) - 1))
         self._frame_slider.setValue(0)
         self._play_btn.setEnabled(len(seq) > 1)
+        self._sequence_path = Path(os.fspath(path))
+        self._refresh_source_selectors()
+        note = self.sample_note()
+        self._status.setText(
+            f"Loaded {seq.describe()} — run the preview to segment + link."
+            + (f" ({note})" if note else ""))
         self._refresh_canvases()
         return True
+
+    # -- FOV / channel selectors -------------------------------------------
+
+    def _frame_channel_count(self) -> int:
+        """How many channels one frame of the loaded sequence holds."""
+        seq = self._sequence
+        if seq is None or not len(seq):
+            return 0
+        try:
+            frame = np.asarray(seq.frame(0))
+        except Exception:
+            return 0
+        if frame.ndim != 3:
+            # A plain 2-D frame still has one channel; reporting zero would
+            # leave the dropdown empty and looking broken.
+            return 1
+        # Same channel-axis heuristic ``frame_channel`` applies.
+        if frame.shape[-1] <= 8 and frame.shape[0] > 8:
+            return int(frame.shape[-1])
+        if frame.shape[0] <= 8 and frame.shape[-1] > 8:
+            return int(frame.shape[0])
+        return int(frame.shape[-1])
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the sets and channel dropdowns for the loaded sequence.
+
+        A timelapse field of view is a whole folder of frames (or one stack),
+        so there is nothing to group — but a plate still holds thousands of
+        them, and the dropdown lists a bounded random sample rather than all
+        of them. The listing is cached per folder, so stepping through fields
+        re-lists nothing.
+        """
+        source = getattr(self, "_sequence_path", None)
+        if source is not None:
+            directories = source.is_dir()
+            self._sampler.enumerate_paths(
+                source.parent,
+                lambda: sibling_sources(source, FRAME_SUFFIXES,
+                                        directories=directories))
+            self._sample_note = apply_sample_to_combo(
+                self._fov_box, self._max_sets_box, self._sampler, source,
+                tooltip="Field of view")
+        populate_channel_combo(
+            self._channel_box, self._frame_channel_count(), include_all=False,
+            keep=f"Ch {int(self._channel.value())}")
+        self._sync_channel_spin_from_combo()
+
+    def _sync_channel_spin_from_combo(self) -> None:
+        """Push the dropdown's channel into the segmentation spinner."""
+        index = selected_channel(self._channel_box)
+        if index is None or int(self._channel.value()) == int(index):
+            return
+        self._channel.setValue(int(index))
+
+    def _sync_channel_combo_from_spin(self, *_args) -> None:
+        """Reflect a spinner-side channel change in the dropdown."""
+        box = getattr(self, "_channel_box", None)
+        if box is None:
+            return
+        wanted = f"Ch {int(self._channel.value())}"
+        index = box.findText(wanted)
+        if index < 0 or index == box.currentIndex():
+            return
+        blocked = box.blockSignals(True)
+        try:
+            box.setCurrentIndex(index)
+        finally:
+            box.blockSignals(blocked)
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-listing."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._refresh_source_selectors()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
+
+    def _on_fov_changed(self, *_args) -> None:
+        """Load the field of view the user picked from the dropdown."""
+        if self._loading_fov:
+            return
+        path = self._fov_box.currentData()
+        current = getattr(self, "_sequence_path", None)
+        if not path or (current is not None and str(current) == str(path)):
+            return
+        self._loading_fov = True
+        try:
+            # The path came out of the sampler, so the folder is already
+            # listed; re-listing would rediscover what is in hand.
+            self.load_sequence_async(path, list_siblings=False)
+        finally:
+            self._loading_fov = False
+
+    def display_channel(self) -> Optional[int]:
+        """Channel index the canvases show, or ``None`` when unset."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Show (and segment) the newly selected channel."""
+        if not hasattr(self, "_channel"):
+            return
+        self._sync_channel_spin_from_combo()
+        self._refresh_canvases()
 
     def load_masks(self, path) -> bool:
         """Use ready-made label images instead of segmenting."""
@@ -1215,6 +1504,8 @@ class TimelapsePreviewPanel(QWidget):
             "min_length": int(self._min_len.value()),
             "max_frames": int(self._max_frames.value()),
             "n_frames": len(self._sequence) if self._sequence else 0,
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
         }
 
     # -- cache key ---------------------------------------------------------
@@ -1462,7 +1753,7 @@ class TimelapsePreviewPanel(QWidget):
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of frames")
         if path:
-            self.load_sequence(path)
+            self.load_sequence_async(path)
 
     def _pick_masks(self):
         path = QFileDialog.getExistingDirectory(
@@ -1478,6 +1769,9 @@ class TimelapsePreviewPanel(QWidget):
         result by a few instructions.
         """
         self._stop_playback()
+        # Cancel the load before waiting on the segmentation worker: leaving
+        # the screen mid-open must not leave a QThread behind either.
+        self.shutdown()
         worker = self._worker
         if worker is not None:
             try:
@@ -1485,6 +1779,33 @@ class TimelapsePreviewPanel(QWidget):
             except RuntimeError:
                 LOG.debug("worker already deleted", exc_info=True)
         super().closeEvent(event)
+
+    # -- the model list is live ------------------------------------------
+    def refresh_model_choices(self) -> None:
+        """Re-read the Cellpose model list and add anything new.
+
+        `spacr.settings.cellpose_model_choices` only reads the API when
+        Cellpose is already imported, because importing it costs ~2.5 s and
+        this panel is built while a page is being laid out. That means the
+        first build usually gets the shipped fallback — so ask again every
+        time the panel is shown. After the first segmentation Cellpose is
+        loaded and a checkpoint the user registered appears here.
+
+        Additive on purpose: the current selection is never disturbed, and
+        an entry is never removed, so a value the user picked cannot vanish
+        under them because a probe came back thinner.
+        """
+        wanted = _model_menu()
+        have = {self._model_box.itemText(i)
+                for i in range(self._model_box.count())}
+        for index, name in enumerate(wanted):
+            if name not in have:
+                self._model_box.insertItem(index, name)
+
+    def showEvent(self, event):  # noqa: N802 (Qt naming)
+        """Refresh the model list whenever the panel comes back on screen."""
+        super().showEvent(event)
+        self.refresh_model_choices()
 
 
 def build_timelapse_preview_card(host):

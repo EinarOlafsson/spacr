@@ -4,47 +4,117 @@
   "voice": "zf_xiaoni",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 38.3,
+  "total_duration": 145.375,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.0,
-      "scene_end": 6.45,
-      "duration": 6.45,
-      "text": "浏览,验证,下载,并参数可重复使用的细分和分类器模型."
+      "speech_end": 14.225,
+      "scene_end": 14.725,
+      "duration": 14.725,
+      "text": "机器可以到达Cellpose和分类器检查站的模型动物园库存. 它在模型进入更大的工作流程之前记录源,版本,大小,检查总数状态,训练来源和行为在一个小的场地集合上.",
+      "speech_text": "机器可以到达Cellpose和分类器检查站的模型动物园库存. 它在模型进入更大的工作流程之前记录源,版本,大小,检查总数状态,训练来源和行为在一个小的场地集合上.",
+      "phonemes": "ʨi→ʨʰi↘ kʰɤ↓i↓ tau↘ta↗Cellposexɤ↗ fə→nlei↘ʨʰi↘ ʨjɛ↓nꭧʰa↗ꭧa↘n tɤ mwo↗ɕi↗ŋ tʊ↘ŋu↘ɥɛ↗n kʰu↘ʦʰwə↗n. tʰa→ ʦai↘ mwo↗ɕi↗ŋ ʨi↘nɻu↘ kə↘ŋta↘ tɤ kʊ→ŋʦwo↘ ljou↗ꭧʰə↗ŋ ꭧɨ→ʨʰjɛ↗n ʨi↘lu↘ ɥɛ↗n,pa↓npə↓n,ta↘ɕjau↓,ʨjɛ↓nꭧʰa↗ ʦʊ↓ŋʂu↘ ꭧwa↘ŋtʰai↘,ɕy↘nljɛ↘n lai↗ɥɛ↗n xɤ↗ ɕi↗ŋwei↗ ʦai↘ i↗kɤ↘ ɕjau↓ tɤ ꭧʰa↓ŋti↘ ʨi↗xɤ↗ ʂa↘ŋ."
     },
     {
       "scene": 2,
-      "speech_start": 6.45,
-      "speech_end": 14.175,
-      "scene_end": 14.625,
-      "duration": 8.175,
-      "text": "从 Segmentation models 部分打开 Model Zoo。 打开目录,选择与当前任务和输入道兼容的模型."
+      "speech_start": 14.725,
+      "speech_end": 25.975,
+      "scene_end": 26.475,
+      "duration": 11.750000000000002,
+      "text": "选择或放下一个检查点文件,然后单击扫描. 列表将捆绑和声明的目录条目与本地CP模型文件结合起来,同时避免重复路径.",
+      "speech_text": "选择或放下一个检查点文件,然后单击扫描. 列表将捆绑和声明的目录条目与本地CP模型文件结合起来,同时避免重复路径.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ xwo↘ fa↘ŋɕja↘ i↗kɤ↘ ʨjɛ↓nꭧʰa↗tjɛ↓n wə↗nʨjɛ↘n,ɻa↗nxou↘ ta→nʨi→ sau↓mjau↗. lje↘pjau↓ ʨja→ŋ kʰwə↓npa↓ŋ xɤ↗ ʂə→ŋmi↗ŋ tɤ mu↘lu↘ tʰjau↗mu↘ y↓ pə↓nti↘CPmwo↗ɕi↗ŋ wə↗nʨjɛ↘n ʨje↗xɤ↗ ʨʰi↓lai↗,tʰʊ↗ŋʂɨ↗ pi↘mjɛ↓n ꭧʰʊ↗ŋfu↘ lu↘ʨi↘ŋ."
     },
     {
       "scene": 3,
-      "speech_start": 14.625,
-      "speech_end": 22.375,
-      "scene_end": 22.825,
-      "duration": 8.2,
-      "text": "在主要配置区域,审查来源,许可证,检查额,预期预处理,任务类型和本地可用性."
+      "speech_start": 26.475,
+      "speech_end": 38.975,
+      "scene_end": 39.475,
+      "duration": 13.0,
+      "text": "选择一行,检查其确切的路径,大小,发布的哈希,训练数据,作物几何,对象直径,时代计数和作者. 不知来源是一个警告,而不是普遍的兼容性声明.",
+      "speech_text": "选择一行,检查其确切的路径,大小,发布的哈希,训练数据,作物几何,对象直径,时代计数和作者. 不知来源是一个警告,而不是普遍的兼容性声明.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ i→ɕi↗ŋ,ʨjɛ↓nꭧʰa↗ ʨʰi↗ ʨʰɥe↘ʨʰje↘ tɤ lu↘ʨi↘ŋ,ta↘ɕjau↓,fa→pu↘ tɤ xa→ɕi→,ɕy↘nljɛ↘n ʂu↘ʨy↘,ʦwo↘u↘ ʨi↓xɤ↗,twei↘ɕja↘ŋ ꭧɨ↗ʨi↘ŋ,ʂɨ↗tai↘ ʨi↘ʂu↘ xɤ↗ ʦwo↘ꭧɤ↓. pu↘ꭧɨ→ lai↗ɥɛ↗n ʂɨ↘ i↗kɤ↘ ʨi↓ŋkau↘,ɚ↗ pu↗ʂɨ↘ pʰu↓pjɛ↘n tɤ ʨjɛ→nɻʊ↗ŋɕi↘ŋ ʂə→ŋmi↗ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 22.825,
-      "speech_end": 30.15,
-      "scene_end": 30.599999999999998,
-      "duration": 7.774999999999999,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+      "speech_start": 39.475,
+      "speech_end": 53.425,
+      "scene_end": 53.925,
+      "duration": 14.449999999999996,
+      "text": "可以将远程目录输入下载到选择的模型文件中. 验证下载需要公布的检查数量;接受未验证的模型是明确的选择,因为错误的检查点仍然可以加载并产生可信的面具.",
+      "speech_text": "可以将远程目录输入下载到选择的模型文件中. 验证下载需要公布的检查数量;接受未验证的模型是明确的选择,因为错误的检查点仍然可以加载并产生可信的面具.",
+      "phonemes": "kʰɤ↓i↓ ʨja→ŋ ɥɛ↓nꭧʰə↗ŋ mu↘lu↘ ʂu→ɻu↘ ɕja↘ʦai↘ tau↘ ɕɥɛ↓nʦɤ↗ tɤ mwo↗ɕi↗ŋ wə↗nʨjɛ↘n ꭧʊ→ŋ. jɛ↘nꭧə↘ŋ ɕja↘ʦai↘ ɕy→jau↘ kʊ→ŋpu↘ tɤ ʨjɛ↓nꭧʰa↗ ʂu↘lja↘ŋ;ʨje→ʂou↘ wei↘ jɛ↘nꭧə↘ŋ tɤ mwo↗ɕi↗ŋ ʂɨ↘ mi↗ŋʨʰɥe↘ tɤ ɕɥɛ↓nʦɤ↗,i→nwei↘ ʦʰwo↘u↘ tɤ ʨjɛ↓nꭧʰa↗tjɛ↓n ɻə↗ŋɻa↗n kʰɤ↓i↓ ʨja→ʦai↘ pi↘ŋ ꭧʰa↓nʂə→ŋ kʰɤ↓ɕi↘n tɤ mjɛ↘nʨy↘."
     },
     {
       "scene": 5,
-      "speech_start": 30.599999999999998,
-      "speech_end": 37.65,
-      "scene_end": 38.3,
-      "duration": 7.699999999999999,
-      "text": "工作流程完成后,验证的模型文件和基准结果仍然与其元数据相关."
+      "speech_start": 53.925,
+      "speech_end": 68.5,
+      "scene_end": 69.0,
+      "duration": 15.075000000000003,
+      "text": "测试在字段上加载了有限的基准指标集合. 这本教程使用了三个真正的ER通道细胞作物,所以模型速度,对象数量,质量控制旗和预览指的是模型比较中使用的相同的代表性图像.",
+      "speech_text": "测试在字段上加载了有限的基准指标集合. 这本教程使用了三个真正的ER通道细胞作物,所以模型速度,对象数量,质量控制旗和预览指的是模型比较中使用的相同的代表性图像.",
+      "phonemes": "ʦʰɤ↘ʂɨ↘ ʦai↘ ʦɨ↘ twa↘n ʂa↘ŋ ʨja→ʦai↘ lɤ jou↓ɕjɛ↘n tɤ ʨi→ꭧwə↓n ꭧɨ↓pjau→ ʨi↗xɤ↗. ꭧɤ↘pə↓n ʨjau↘ꭧʰə↗ŋ ʂɨ↓jʊ↘ŋ lɤ sa→nkɤ↘ ꭧə→nꭧə↘ŋ tɤERtʰʊ→ŋtau↘ ɕi↘pau→ ʦwo↘u↘,swo↓i↓ mwo↗ɕi↗ŋ su↘tu↘,twei↘ɕja↘ŋ ʂu↘lja↘ŋ,ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ ʨʰi↗ xɤ↗ y↘la↓n ꭧɨ↓ tɤ ʂɨ↘ mwo↗ɕi↗ŋ pi↓ʨjau↘ ꭧʊ→ŋ ʂɨ↓jʊ↘ŋ tɤ ɕja→ŋtʰʊ↗ŋ tɤ tai↘pjau↓ɕi↘ŋ tʰu↗ɕja↘ŋ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 69.0,
+      "speech_end": 81.05,
+      "scene_end": 81.55,
+      "duration": 12.549999999999997,
+      "text": "如果选择了一个本地模型,请点击测试3个字段. 基准指标将每个图像进行细分,并采用细分质量控制,而不假装它具有真实的准确标签.",
+      "speech_text": "如果选择了一个本地模型,请点击测试3个字段. 基准指标将每个图像进行细分,并采用细分质量控制,而不假装它具有真实的准确标签.",
+      "phonemes": "ɻu↗kwo↓ ɕɥɛ↓nʦɤ↗ lɤ i↗kɤ↘ pə↓nti↘ mwo↗ɕi↗ŋ,ʨʰi↓ŋ tjɛ↓nʨi→ ʦʰɤ↘ʂɨ↘ sa→nkɤ↘ ʦɨ↘ twa↘n. ʨi→ꭧwə↓n ꭧɨ↓pjau→ ʨja→ŋ mei↓kɤ↘ tʰu↗ɕja↘ŋ ʨi↘nɕi↗ŋ ɕi↘fə→n,pi↘ŋ ʦʰai↓jʊ↘ŋ ɕi↘fə→n ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘,ɚ↗ pu↘ ʨja↓ꭧwa→ŋ tʰa→ ʨy↘jou↓ ꭧə→nʂɨ↗ tɤ ꭧwə↓nʨʰɥe↘ pjau→ʨʰjɛ→n."
+    },
+    {
+      "scene": 7,
+      "speech_start": 81.55,
+      "speech_end": 92.225,
+      "scene_end": 92.675,
+      "duration": 11.125,
+      "text": "在处理过程中,状态行确定选定的检查点和场数. 基准工作从界面线程中运行,因此选择和进展仍然响应性.",
+      "speech_text": "在处理过程中,状态行确定选定的检查点和场数. 基准工作从界面线程中运行,因此选择和进展仍然响应性.",
+      "phonemes": "ʦai↘ ꭧʰu↓li↓kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,ꭧwa↘ŋtʰai↘ ɕi↗ŋ ʨʰɥe↘ti↘ŋ ɕɥɛ↓nti↘ŋ tɤ ʨjɛ↓nꭧʰa↗tjɛ↓n xɤ↗ ꭧʰa↓ŋʂu↘. ʨi→ꭧwə↓n kʊ→ŋʦwo↘ ʦʰʊ↗ŋ ʨje↘mjɛ↘n ɕjɛ↘nꭧʰə↗ŋ ꭧʊ→ŋ y↘nɕi↗ŋ,i→nʦʰɨ↓ ɕɥɛ↓nʦɤ↗ xɤ↗ ʨi↘nꭧa↓n ɻə↗ŋɻa↗n ɕja↓ŋi↘ŋ ɕi↘ŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 92.675,
+      "speech_end": 106.3,
+      "scene_end": 106.89999999999999,
+      "duration": 14.224999999999994,
+      "text": "在六分五秒钟的时间里, 定制检查站在三个领域中产生了百五十一个细胞. 两个领域通过了细分化QC;稀少的第一种作物被标记为物体数量低和边界分数高.",
+      "speech_text": "在六分五秒钟的时间里, 定制检查站在三个领域中产生了百五十一个细胞. 两个领域通过了细分化QC;稀少的第一种作物被标记为物体数量低和边界分数高.",
+      "phonemes": "ʦai↘ ljou↘fə→n u↓ mjau↓ꭧʊ→ŋ tɤ ʂɨ↗ʨjɛ→n li↓, ti↘ŋꭧɨ↘ ʨjɛ↓nꭧʰa↗ꭧa↘n ʦai↘ sa→nkɤ↘ li↓ŋy↘ ꭧʊ→ŋ ꭧʰa↓nʂə→ŋ lɤ pai↓u↓ʂɨ↗ i↗kɤ↘ ɕi↘pau→. lja↓ŋkɤ↘ li↓ŋy↘ tʰʊ→ŋkwo↘ lɤ ɕi↘fə→nxwa↘QC;ɕi→ʂau↓ tɤ ti↘i→ꭧʊ↓ŋ ʦwo↘u↘ pei↘ pjau→ʨi↘ wei↘ u↘tʰi↓ ʂu↘lja↘ŋ ti→ xɤ↗ pjɛ→nʨje↘ fə→nʂu↘ kau→."
+    },
+    {
+      "scene": 9,
+      "speech_start": 106.89999999999999,
+      "speech_end": 119.225,
+      "scene_end": 119.77499999999999,
+      "duration": 12.875,
+      "text": "选择基准行更新了面具覆盖. 使用表格和图像一起:一个质量标志标识了内在面具模式,而预览显示该模式是否反映了生物学,作物或细分失败.",
+      "speech_text": "选择基准行更新了面具覆盖. 使用表格和图像一起:一个质量标志标识了内在面具模式,而预览显示该模式是否反映了生物学,作物或细分失败.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ ʨi→ꭧwə↓n ɕi↗ŋ kə→ŋɕi→n lɤ mjɛ↘nʨy↘ fu↘kai↘. ʂɨ↓jʊ↘ŋ pjau↓kɤ↗ xɤ↗ tʰu↗ɕja↘ŋ i↘ʨʰi↓:i↗kɤ↘ ꭧɨ↘lja↘ŋ pjau→ꭧɨ↘ pjau→ʂɨ↗ lɤ nei↘ʦai↘ mjɛ↘nʨy↘ mwo↗ʂɨ↘,ɚ↗ y↘la↓n ɕjɛ↓nʂɨ↘ kai→ mwo↗ʂɨ↘ ʂɨ↘fou↓ fa↓ni↘ŋ lɤ ʂə→ŋu↘ɕɥe↗,ʦwo↘u↘ xwo↘ ɕi↘fə→n ʂɨ→pai↘."
+    },
+    {
+      "scene": 10,
+      "speech_start": 119.77499999999999,
+      "speech_end": 132.325,
+      "scene_end": 132.825,
+      "duration": 13.049999999999997,
+      "text": "选择确切的两个安装模型,然后单击对照选定的两个模型. 模型动物园将两个检查点路径,相同的场地文件和场地数量交给了专门的A-B比较屏幕.",
+      "speech_text": "选择确切的两个安装模型,然后单击对照选定的两个模型. 模型动物园将两个检查点路径,相同的场地文件和场地数量交给了专门的A-B比较屏幕.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ ʨʰɥe↘ʨʰje↘ tɤ lja↓ŋkɤ↘ a→nꭧwa→ŋ mwo↗ɕi↗ŋ,ɻa↗nxou↘ ta→nʨi→ twei↘ꭧau↘ ɕɥɛ↓nti↘ŋ tɤ lja↓ŋkɤ↘ mwo↗ɕi↗ŋ. mwo↗ɕi↗ŋ tʊ↘ŋu↘ɥɛ↗n ʨja→ŋ lja↓ŋkɤ↘ ʨjɛ↓nꭧʰa↗tjɛ↓n lu↘ʨi↘ŋ,ɕja→ŋtʰʊ↗ŋ tɤ ꭧʰa↓ŋti↘ wə↗nʨjɛ↘n xɤ↗ ꭧʰa↓ŋti↘ ʂu↘lja↘ŋ ʨjau→kei↓ lɤ ꭧwa→nmə↗n tɤA-Bpi↓ʨjau↘ pʰi↗ŋmu↘."
+    },
+    {
+      "scene": 11,
+      "speech_start": 132.825,
+      "speech_end": 144.67499999999998,
+      "scene_end": 145.37499999999997,
+      "duration": 12.549999999999983,
+      "text": "交付将打开模型与本地检查站和预装的三个字段进行比较. 从这里,运行对比,以测量前景协议,方向对象差异,分割,合并和每个模型的QC.",
+      "speech_text": "交付将打开模型与本地检查站和预装的三个字段进行比较. 从这里,运行对比,以测量前景协议,方向对象差异,分割,合并和每个模型的QC.",
+      "phonemes": "ʨjau→fu↘ ʨja→ŋ ta↓kʰai→ mwo↗ɕi↗ŋ y↓ pə↓nti↘ ʨjɛ↓nꭧʰa↗ꭧa↘n xɤ↗ y↘ꭧwa→ŋ tɤ sa→nkɤ↘ ʦɨ↘ twa↘n ʨi↘nɕi↗ŋ pi↓ʨjau↘. ʦʰʊ↗ŋ ꭧɤ↘li↓,y↘nɕi↗ŋ twei↘pi↓,i↓ ʦʰɤ↘lja↗ŋ ʨʰjɛ↗nʨi↓ŋ ɕje↗i↘,fa→ŋɕja↘ŋ twei↘ɕja↘ŋ ꭧʰa→i↘,fə→nkɤ→,xɤ↗pi↘ŋ xɤ↗ mei↓kɤ↘ mwo↗ɕi↗ŋ tɤQC."
     }
   ]
 }

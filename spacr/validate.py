@@ -101,6 +101,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "classify": "spacr.deep_spacr.deep_spacr",
     "activation": "spacr.deep_spacr.generate_activation_map",
     "foreign": "spacr.foreign.import_project",
+    "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
@@ -111,10 +112,19 @@ APP_FUNCTIONS: Dict[str, str] = {
     "regression": "spacr.ml.perform_regression",
     "recruitment": "spacr.submodules.analyze_recruitment",
     "invasion": "spacr.submodules.analyze_invasion",
-    "replication": "spacr.submodules.analyze_endodyogeny",
+    "replication": "spacr.submodules.analyze_replication",
+    "endodyogeny": "spacr.submodules.analyze_endodyogeny",
     "analyze_plaques": "spacr.submodules.analyze_plaques",
-    "convert": "spacr.io.process_non_tif_non_2D_images",
+    "convert": "spacr.convert.convert_folder",
     "simulation": "spacr.sim.run_multiple_simulations",
+    "illumination": "spacr.illumination.prepare_illumination_correction",
+    "barcode_qc": "spacr.sequencing_qc.barcode_qc",
+    # Reads a finished measurements.db and writes one file. It has no rules
+    # of its own in _check_app_specific yet, but being named here is what
+    # stops pre-flight answering "unknown app 'anndata_export'; only the
+    # generic checks were run" -- and for an exporter the generic checks
+    # (src exists, holds a project, types are right) are the ones that matter.
+    "anndata_export": "spacr.anndata_export.run_anndata_export",
 }
 
 # Friendly spellings a caller (or a notebook) might reasonably use.
@@ -129,7 +139,24 @@ APP_ALIASES: Dict[str, str] = {
     "train": "classify",
     "generate_image_umap": "umap",
     "embedding": "umap",
+    "analyze_replication": "replication",
+    "analyze_endodyogeny": "endodyogeny",
 }
+
+try:
+    from .plugins import plugin_apps as _plugin_apps
+    for _plugin_app in _plugin_apps():
+        APP_FUNCTIONS.setdefault(
+            _plugin_app.key, _plugin_app.entrypoint.replace(":", ".")
+        )
+        for _alias in _plugin_app.aliases:
+            APP_ALIASES.setdefault(
+                _alias.strip().lower().replace("-", "_"), _plugin_app.key
+            )
+except Exception:
+    # Plugin discovery records its own diagnostics; built-in validation remains
+    # useful even when third-party metadata cannot be loaded.
+    pass
 
 # Apps whose ``src`` is a plate folder that must already contain
 # measurements/measurements.db — see spacr.ml.perform_regression
@@ -138,8 +165,9 @@ APP_ALIASES: Dict[str, str] = {
 # open it the same way: analyze_invasion via spacr.io._read_db and
 # analyze_endodyogeny via spacr.io._read_and_merge_data, both on
 # ``os.path.join(src, 'measurements/measurements.db')``.
-DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment", "activation",
-                     "classify", "invasion", "replication"})
+DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
+                     "activation", "classify", "invasion", "replication",
+                     "endodyogeny"})
 
 # Apps that read the merged/*.npy stacks produced by the mask pipeline.
 MERGED_APPS = frozenset({"measure"})
@@ -154,7 +182,10 @@ MASK_APPS = frozenset({"mask", "timelapse"})
 # takes ``images`` / ``masks`` / ``measurements`` — someone else's project —
 # and writes a spaCR one to ``dst``; there is no ``src`` to check, and
 # reporting "src is missing" for it was simply wrong.
-ALT_SRC_KEYS: Dict[str, str] = {"foreign": "images"}
+ALT_SRC_KEYS: Dict[str, str] = {
+    "foreign": "images",
+    "external_masks": "inputs",
+}
 
 CHANNEL_KEYS: Tuple[str, ...] = (
     "cell_channel",
@@ -473,6 +504,23 @@ def _source_key(app: str) -> str:
 def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
     """The app's source folder(s), mirroring spacr.utils.normalize_src_path."""
     src = settings.get(_source_key(app))
+    if app == "external_masks":
+        values = src if isinstance(src, (list, tuple)) else [src]
+        roots: List[Any] = []
+        for value in values:
+            if isinstance(value, dict):
+                root = value.get("root")
+                if root:
+                    roots.append(root)
+                    continue
+                paths = value.get("paths") or []
+                roots.extend(
+                    os.path.dirname(path) if os.path.isfile(path) else path
+                    for path in paths if isinstance(path, str))
+            elif isinstance(value, str):
+                roots.append(
+                    os.path.dirname(value) if os.path.isfile(value) else value)
+        return list(dict.fromkeys(roots))
     if isinstance(src, (list, tuple)):
         return list(src)
     if isinstance(src, str):
@@ -499,9 +547,16 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
     """``src`` exists, is the right kind of thing, and holds what the app needs."""
     problems: List[Problem] = []
     key = _source_key(app)
-    fix = ("Set images to the folder holding their images."
-           if key != "src" else
-           "Set src to the folder holding the images (or, for measure, the merged folder).")
+    if key == "images":
+        fix = "Set images to the folder holding their images."
+    elif key == "inputs":
+        fix = (
+            "Drop intensity images and label masks onto External Masks, "
+            "then review their assignments.")
+    else:
+        fix = (
+            "Set src to the folder holding the images (or, for measure, "
+            "the merged folder).")
     if key not in settings:
         # spacr.core.preprocess_generate_masks raises ValueError('src is a
         # required parameter').
@@ -793,6 +848,10 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
         "label_key", "column_map", "um_per_px", "on_conflict",
         "allow_spacr_targets", "measure", "crops", "overwrite", "preview_only",
     }),
+    "external_masks": frozenset({
+        "inputs", "dst", "recursive", "layout", "z_handling",
+        "plate_naming", "overwrite", "preview_only",
+    }),
 }
 
 
@@ -814,6 +873,43 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
                 WARNING, key,
                 f"'{key}' is not a spaCR setting; did you mean '{close[0]}'?",
                 f"Rename '{key}' to '{close[0]}' — as it stands the value is ignored and the default is used."))
+    return problems
+
+
+def _check_dead_settings(settings: Dict[str, Any]) -> List[Problem]:
+    """Reject keys that spaCR declares but no code reads.
+
+    A misspelled key at least gets a "did you mean" out of
+    :func:`_check_unknown_keys`. A key that spaCR itself declares — typed,
+    tooltipped, offered by a GUI category — but that nothing reads gets
+    nothing: it is accepted, ignored, saved into ``settings/<app>.csv`` beside
+    the results, and the run finishes and produces a plausible wrong answer.
+    ``spacr-run mask --set remove_border_pathogens=True`` did exactly that. So
+    these are errors, not warnings: refusing to start costs a minute, and a
+    silent no-op on a 40-plate job costs a GPU-week.
+
+    None of these keys is produced by any defaults factory (that is part of
+    what qualifies a key for ``DEAD_SETTINGS``), so a stock settings dict from
+    :func:`spacr.cli.module_defaults` can never trip this check.
+    """
+    from .settings import DEAD_SETTINGS
+
+    problems: List[Problem] = []
+    for key, replacement in sorted(DEAD_SETTINGS.items()):
+        if key not in settings:
+            continue
+        if replacement:
+            fix = (f"Delete {key} and set {replacement} instead — that is the "
+                   f"key the pipeline reads.")
+        else:
+            fix = (f"Delete {key}; spaCR has no setting that does what it "
+                   f"claims to do, so leaving it in only hides that.")
+        problems.append(Problem(
+            ERROR, key,
+            f"'{key}' is declared by spaCR but read by nothing, so setting it "
+            f"is a silent no-op — the run would finish and the value would "
+            f"have changed nothing.",
+            fix))
     return problems
 
 
@@ -978,6 +1074,42 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 "Run once with preview_only=True, save the column map, read it, "
                 "then point column_map at it."))
 
+    if app == "external_masks":
+        inputs = settings.get("inputs")
+        if not inputs:
+            problems.append(Problem(
+                ERROR, "inputs",
+                "No external images or masks have been selected.",
+                "Drop intensity images and label masks onto the module, then "
+                "review their assignments."))
+        else:
+            values = inputs if isinstance(inputs, (list, tuple)) else [inputs]
+            roles = {
+                value.get("role")
+                for value in values if isinstance(value, dict)
+            }
+            if roles and "image" not in roles:
+                problems.append(Problem(
+                    ERROR, "inputs", "No input group is assigned as images.",
+                    "Set at least one detected group to Image."))
+            if roles and "mask" not in roles:
+                problems.append(Problem(
+                    ERROR, "inputs", "No input group is assigned as masks.",
+                    "Set at least one detected group to Mask and choose its "
+                    "object type."))
+            unassigned = [
+                value for value in values
+                if isinstance(value, dict)
+                and value.get("role") == "mask"
+                and value.get("object_type") not in OBJECT_NAMES
+            ]
+            if unassigned:
+                problems.append(Problem(
+                    ERROR, "inputs",
+                    f"{len(unassigned)} mask group(s) have no object type.",
+                    "Choose Cell, Nucleus, Pathogen or Organelle for every "
+                    "mask group."))
+
     if app == "classify":
         train = settings.get("train", settings.get("generate_training_dataset", False))
         needs_model = bool(settings.get("apply_model_to_dataset", False)) or bool(settings.get("test", False))
@@ -1094,6 +1226,48 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                         f"crop_mode asks for {mode} crops but {key} is None, so no {mode} mask is read.",
                         f"Set {key} to the plane holding the {mode} mask, or drop '{mode}' from crop_mode."))
 
+    if app == "replication":
+        maximum = _as_int(settings.get("max_parasites_per_vacuole"))
+        if maximum is not None and (
+                maximum < 1 or maximum & (maximum - 1)):
+            problems.append(Problem(
+                ERROR, "max_parasites_per_vacuole",
+                f"max_parasites_per_vacuole={maximum} is not a positive "
+                "power of two.",
+                "Use 1, 2, 4, 8, 16, ... so every named bucket follows the "
+                "endodyogeny doubling ladder."))
+        factor = _numeric(settings.get("vacuole_link_factor"))
+        if factor is not None and factor <= 0:
+            problems.append(Problem(
+                ERROR, "vacuole_link_factor",
+                f"vacuole_link_factor={factor:g} cannot derive a positive "
+                "spatial linking distance.",
+                "Use a positive multiplier such as 1.5, or set "
+                "vacuole_link_distance explicitly."))
+        distance = _numeric(settings.get("vacuole_link_distance"))
+        if distance is not None and distance <= 0:
+            problems.append(Problem(
+                ERROR, "vacuole_link_distance",
+                f"vacuole_link_distance={distance:g} must be positive.",
+                "Give the maximum within-vacuole centroid distance in pixels, "
+                "or leave it blank to derive it from parasite diameter."))
+        fraction = _numeric(settings.get("non_power_of_two_warn"))
+        if fraction is not None and not 0 <= fraction <= 1:
+            problems.append(Problem(
+                ERROR, "non_power_of_two_warn",
+                f"non_power_of_two_warn={fraction:g} is not a fraction.",
+                "Use a value between 0 and 1; 0.2 flags wells above 20%."))
+        minimum_area = _numeric(settings.get("min_parasite_area"))
+        maximum_area = _numeric(settings.get("max_parasite_area"))
+        if (minimum_area is not None and maximum_area is not None
+                and maximum_area < minimum_area):
+            problems.append(Problem(
+                ERROR, "max_parasite_area",
+                f"max_parasite_area={maximum_area:g} is below "
+                f"min_parasite_area={minimum_area:g}.",
+                "Raise the maximum or lower the minimum so at least one "
+                "parasite size can pass the filter."))
+
     return problems
 
 
@@ -1121,7 +1295,12 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
 
     app = _normalize_app(app_key)
     problems: List[Problem] = []
-    if app and app not in APP_FUNCTIONS:
+    try:
+        from .plugins import get_app as _get_plugin_app
+        known_plugin_app = _get_plugin_app(app) is not None
+    except Exception:
+        known_plugin_app = False
+    if app and app not in APP_FUNCTIONS and not known_plugin_app:
         problems.append(Problem(
             WARNING, "", f"unknown app '{app_key}'; only the generic checks were run.",
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
@@ -1132,9 +1311,40 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_channels(settings, app, inventories))
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))
+    problems.extend(_check_dead_settings(settings))
     problems.extend(_check_numeric_sanity(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
+    try:
+        from .plugins import get_app, load_object
+        plugin_app = get_app(app)
+        if plugin_app is not None and plugin_app.validator:
+            validator = load_object(plugin_app.validator)
+            if not callable(validator):
+                raise TypeError(
+                    f"Plugin validator {plugin_app.validator!r} is not callable"
+                )
+            additions = validator(dict(settings))
+            if additions is None:
+                additions = ()
+            if isinstance(additions, Problem):
+                additions = (additions,)
+            for item in additions:
+                if isinstance(item, Problem):
+                    problems.append(item)
+                elif isinstance(item, dict):
+                    problems.append(Problem(**item))
+                else:
+                    raise TypeError(
+                        "plugin validator results must be Problem objects or mappings"
+                    )
+    except Exception as exc:
+        problems.append(Problem(
+            ERROR,
+            "",
+            f"Plugin validation for '{app or app_key}' failed: {exc}",
+            "Fix or disable the plugin before running; the pipeline was not started.",
+        ))
     return problems
 
 

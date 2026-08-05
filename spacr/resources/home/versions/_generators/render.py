@@ -178,7 +178,7 @@ def load_audit() -> Dict[Tuple[int, str], Dict[str, list]]:
 def build_sheet(specs: Sequence[dict], theme: str = "dark",
                 cols: int = 5, thumb_w: int = 440) -> str:
     """Compose all thirty renders into one numbered grid. Returns the path."""
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
 
     thumb_h = int(round(thumb_w * common.CANVAS_H / common.CANVAS_W))
     pad, label_h = 16, 26
@@ -229,8 +229,8 @@ Candidates for review. **Nothing here is installed** — no file under
 
 Every screen below is built out of the **real Qt widgets** (`HTile`,
 `Card`, `Section`, `Divider`, `UsageBar`, `ElidingLabel`, and the real
-`Sidebar`/`StartupPage` in variant 01) and the **real app registry**
-(`spacr.qt.app.APPS`, all 29 apps, unmodified names and blurbs), then
+`Sidebar`/`HomePage` in variant 01) and the **real app registry**
+(`spacr.qt.app.APPS`, all {n_apps} apps, unmodified names and blurbs), then
 grabbed with `QWidget.grab()` under `QT_QPA_PLATFORM=offscreen`. Where a
 variant needs something spaCR does not have yet — a recent-runs strip, a
 resume banner, a guided quick-start, a project status bar, a what's-new
@@ -270,29 +270,27 @@ widgets they are assembled from live in `_generators/parts.py`.
 
 ## Findings that apply to every variant
 
-1. **The sidebar does not fit at 1440x900.** `Sidebar` stacks 29 app
-   rows plus five headings plus the title in a plain `QVBoxLayout` with
-   no scroll area; it asks for roughly {sidebar_h} px of height and gets
-   {sidebar_avail}. Variants 01 and 25 render it, and the last few apps
-   are simply unreachable on a laptop. A fix is proposed at the bottom
-   of this file.
+1. **The sidebar still does not fit at 1440x900 — but it scrolls now.**
+   Its {n_apps} app rows plus five headings ask for roughly {sidebar_h} px
+   against the {sidebar_avail} a laptop gives. The `QScrollArea` described
+   at the bottom of this file **has since landed** in `spacr/qt/app.py`,
+   so the rows scroll and nothing is unreachable; the vertical scrollbar
+   variants 01 and 25 show is that fix working, not the old defect.
 2. **The shipped home page needs a vertical scrollbar** before the
-   third section is fully on screen, plus a horizontal scrollbar inside
-   each section row (variant 01). Twenty-eight of the thirty variants
-   below fit 1440x900 with no scrollbar at all — the two that do not are
-   the shipped baseline (01) and the deliberately maximal control (30) —
-   so scrolling the Home screen is a choice, not a constraint.
+   last band is fully on screen (variant 01).
+   {scroll_finding}
 3. **The hint bar exists because descriptions are hidden.** Any variant
    that shows the one-line description on the row itself (04, 07, 08,
    09, 10, 13, 19, 22, 24, 29) does not need it.
 4. **`HTile` cannot do more than five columns on this screen.** Its name
-   is drawn at the 17 px "subtitle" size, so the longest app name
-   ("Annotator Agreement") needs 255 px of tile — 5 x 265 px fits 1440,
-   6 does not, and at six columns the name silently elides. Variants
-   02, 05, 17, 20 and 30 restyle that one label to 12-13 px to get six
-   columns; 03, 07, 08, 23 and 28 keep the shipped size and use five or
+   is drawn at the 17 px "subtitle" size, so the longest app name needs
+   about 255 px of tile — 5 x 265 px fits 1440, 6 does not, and at six
+   columns the name silently elides. Variants 05, 17, 20 and 30 restyle
+   that one label to 12-13 px to get six columns and 02 goes to 11 px to
+   get seven; 03, 07, 08, 23 and 28 keep the shipped size and use five or
    fewer. Both are legitimate, but it is a real constraint on any
-   tile-grid answer.
+   tile-grid answer — and it tightens every time a longer app name is
+   registered, which "Classifier Evaluation" duly did.
 
 ---
 
@@ -317,46 +315,21 @@ window, with these exceptions:
 * **30 kitchen-sink** does not fit at any realistic size — that is its
   point.
 
-## The product change these renders argue for
+## The product change these renders argued for — and it landed
 
-`spacr/qt/app.py` belongs to another effort right now, so this is
-written down rather than applied. It is independent of which variant
-wins — variants 01 and 25 both show the symptom, and any future variant
-that keeps the sidebar inherits it.
+This section used to carry a proposed diff, because `spacr/qt/app.py`
+belonged to another effort at the time. That effort has since made the
+change: `Sidebar` now puts its rows in a `QScrollArea` with the title
+pinned above it. The measurement is re-taken on every render, and it
+still says the same thing about *why* the scroll area has to be there —
+the {n_apps} app rows plus five headings ask for ~{sidebar_h} px against
+the ~{sidebar_avail} a 1440x900 laptop gives, so without it the last
+three apps ({last_three}) could not be reached at all.
 
-```diff
---- a/spacr/qt/app.py
-+++ b/spacr/qt/app.py
-@@
--from PySide6.QtWidgets import (
--    QApplication,
--    QLabel,
-+from PySide6.QtWidgets import (
-+    QApplication,
-+    QLabel,
-+    QScrollArea,
-@@ class Sidebar(QWidget):
--        layout = QVBoxLayout(self)
--        layout.setContentsMargins(0, 0, 0, 0)
--        layout.setSpacing(0)
-+        # 29 app rows + 5 headings + the title ask for ~1356 px. On a
-+        # 1440x900 laptop the column gets ~850, and because a plain
-+        # QVBoxLayout does not scroll the last three apps (Plaque
-+        # Assay, Recruitment, Invasion Assay) cannot be reached at all.
-+        outer = QVBoxLayout(self)
-+        outer.setContentsMargins(0, 0, 0, 0)
-+        outer.setSpacing(0)
-+        scroll = QScrollArea()
-+        scroll.setWidgetResizable(True)
-+        scroll.setFrameShape(QScrollArea.NoFrame)
-+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-+        inner = QWidget()
-+        layout = QVBoxLayout(inner)
-+        layout.setContentsMargins(0, 0, 0, 0)
-+        layout.setSpacing(0)
-+        scroll.setWidget(inner)
-+        outer.addWidget(scroll, 1)
-```
+What that means for these renders: the vertical scrollbar variants 01
+and 25 report in their layout audit is the **fix working**. It is not
+the defect this file was raised to record, and any future variant that
+keeps the sidebar inherits the scroll area rather than the problem.
 
 ## One trap for whoever implements the winner
 
@@ -375,6 +348,84 @@ because it overrides both.)
 
 _CLEAN = ("clean — no elided or clipped text, no scrollbar, "
           "fits 1440x900.")
+
+
+def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
+    """``_OUTRO`` with the registry-derived numbers substituted in.
+
+    ``str.replace`` rather than ``str.format``: the outro quotes a QSS
+    rule (``QPushButton { min-height: 22px }``) and a ``format`` call
+    would read those braces as a field and raise. The placeholders are
+    still filled from the live registry, because the version of this
+    text that hardcoded "29 app rows ... the last three apps (Plaque
+    Assay, Recruitment, Invasion Assay)" named the wrong three the
+    moment Replication Assay was registered.
+    """
+    last_three = ", ".join(common.name_of(k) for k in common.all_keys()[-3:])
+    return (_OUTRO
+            .replace("{n_apps}", str(common.n_apps()))
+            .replace("{sidebar_h}", str(sidebar_h))
+            .replace("{sidebar_avail}", str(sidebar_avail))
+            .replace("{last_three}", last_three))
+
+
+def _scroll_finding(specs: Sequence[dict],
+                    reports: Dict[Tuple[int, str], Dict[str, list]]) -> str:
+    """Finding 2's second sentence, **counted from the audit**.
+
+    This paragraph was rewritten to stop hardcoding the app count and
+    promptly typed a different one — "Twenty-seven of the thirty
+    variants below fit 1440x900 with no scrollbar at all" — into the
+    same breath. The audit is the only thing that knows: a variant
+    starts needing a scrollbar the moment a longer name or one more app
+    pushes it over 900 px, and nobody edits prose when that happens.
+
+    When the audit does not cover every variant it says so, instead of
+    dividing by a total it never looked at. (``--only 7`` normally still
+    has the full picture — :func:`render_all` seeds ``reports`` from the
+    cached ``_audit.json`` and overwrites only the pairs it re-rendered
+    — so that branch is really for a missing or truncated cache.)
+    Quietly reporting "29 of 30 fit" off one rendered variant is exactly
+    the plausible-wrong-number failure this file exists to avoid.
+    """
+    import textwrap
+
+    numbers = [spec["n"] for spec in specs]
+    titles = {spec["n"]: spec["title"] for spec in specs}
+    measured = {n for (n, _theme) in reports}
+    scrolling = sorted({n for (n, _theme), flags in reports.items()
+                        if flags.get("scrollbars")})
+
+    def _listed(ns):
+        return ", ".join(f"{n:02d} ({titles.get(n, '?')})" for n in ns)
+
+    def _wrapped(sentence: str) -> str:
+        # Re-wrapped to the width the surrounding hand-written findings
+        # use, continuation lines under the list item's hanging indent.
+        # Substituting one very long line into a numbered list turns the
+        # whole findings block into something nobody re-reads.
+        return textwrap.fill(sentence, width=72,
+                             subsequent_indent="   ").lstrip()
+
+    unmeasured = [n for n in numbers if n not in measured]
+    if unmeasured:
+        return _wrapped(
+            f"This pass only audited {len(measured)} of the "
+            f"{len(numbers)} variants, so the usual "
+            "how-many-fit-without-a-scrollbar count is not stated here "
+            "— re-render without `--only` to restore it. Of the ones it "
+            "did audit, " + (f"{_listed(scrolling)} need a scrollbar."
+                             if scrolling else "none need a scrollbar."))
+    if not scrolling:
+        return _wrapped(
+            f"All {len(numbers)} variants below fit 1440x900 with no "
+            "scrollbar at all, so scrolling the Home screen is a "
+            "choice, not a constraint.")
+    return _wrapped(
+        f"{len(numbers) - len(scrolling)} of the {len(numbers)} "
+        "variants below fit 1440x900 with no scrollbar at all — the "
+        f"{len(scrolling)} that do not are {_listed(scrolling)} — so "
+        "scrolling the Home screen is a choice, not a constraint.")
 
 
 def _audit_sentence(spec: dict, themes: Sequence[str],
@@ -405,8 +456,14 @@ def write_markdown(specs: Sequence[dict], themes: Sequence[str],
     space_note = (", plus `space.png`" if "space" in themes
                   else " (the `space` palette was not available when these "
                        "were rendered)")
+    # n_apps is read, never typed: this document said "29 apps" for long
+    # enough that five more were registered without anyone noticing. The
+    # scrollbar tally is read too, for the same reason and out of the
+    # `reports` this function was already handed.
     lines = [_INTRO.format(space_note=space_note, sidebar_h=sidebar_h,
-                           sidebar_avail=sidebar_avail)]
+                           sidebar_avail=sidebar_avail,
+                           n_apps=common.n_apps(),
+                           scroll_finding=_scroll_finding(specs, reports))]
     for spec in specs:
         folder = os.path.basename(variant_dir(spec))
         lines.append(f"### {spec['n']:02d} · {spec['title']}\n")
@@ -424,7 +481,7 @@ def write_markdown(specs: Sequence[dict], themes: Sequence[str],
             lines.append(f"*Note.* {spec['notes']}\n")
         lines.append(f"*Layout audit: {_audit_sentence(spec, themes, reports)}*\n")
         lines.append("")
-    lines.append(_OUTRO)
+    lines.append(_fill_outro(sidebar_h, sidebar_avail))
     out = os.path.join(common.versions_dir(), "VARIANTS.md")
     with open(out, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines))
@@ -470,7 +527,15 @@ def self_check(specs: Sequence[dict], themes: Sequence[str]) -> dict:
 
 
 def measure_sidebar(app) -> Tuple[int, int]:
-    """``(height the real Sidebar asks for, height a 1440x900 window gives)``."""
+    """``(height the Sidebar's rows need, height a 1440x900 window gives)``.
+
+    Measures the *scrolled content*, not the widget. The QScrollArea
+    these renders argued for has since landed in ``spacr.qt.app``, so
+    ``Sidebar.layout().minimumSize()`` is now about 85 px — the height
+    of a title over a collapsible viewport — and says nothing at all
+    about whether the navigation fits. The number that still means
+    something is how tall the rows inside the viewport are.
+    """
     ctx = common.Ctx(app, "dark")
     ctx.apply_theme()
     from spacr.qt.app import Sidebar
@@ -478,7 +543,13 @@ def measure_sidebar(app) -> Tuple[int, int]:
     bar.resize(bar.width(), 850)
     bar.show()
     app.processEvents()
-    need = bar.layout().minimumSize().height()
+    # Private attribute on purpose: there is no public accessor for the
+    # scrolled widget, and falling back to the outer layout keeps this
+    # working (with a smaller number) if the scroll area is ever removed.
+    scroll = getattr(bar, "_scroll", None)
+    inner = scroll.widget() if scroll is not None else None
+    layout = inner.layout() if inner is not None else bar.layout()
+    need = layout.minimumSize().height()
     bar.hide()
     bar.setParent(None)
     bar.deleteLater()

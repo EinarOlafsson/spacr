@@ -4,47 +4,107 @@
   "voice": "pm_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.45,
+  "total_duration": 195.015,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.075,
-      "scene_end": 9.524999999999999,
-      "duration": 9.524999999999999,
-      "text": "Este tutorial abrange Align e Stitch. Registre azulejos de imagem e construa um mosaico costurado gradualmente sem manter toda a tela em memória."
+      "speech_end": 17.95,
+      "scene_end": 18.669999999999998,
+      "duration": 18.669999999999998,
+      "text": "Align e Stitch registram azulejos microscópicos em uma tela sem primeiro alocar todo o mosaico. Abre-o a partir do Data e corre em lote. O primeiro layout do plano é deliberado: a confiança do registro, a colocação de fallback, o tamanho da saída e o uso da memória são visíveis antes que o spaCR escreva qualquer coisa.",
+      "speech_text": "Align e Stitch registram azulejos microscópicos em uma tela sem primeiro alocar todo o mosaico. Abre-o a partir do Data e corre em lote. O primeiro layout do plano é deliberado: a confiança do registro, a colocação de fallback, o tamanho da saída e o uso da memória são visíveis antes que o espáquer escreva qualquer coisa.",
+      "phonemes": "alˈiɡn i sʧˈitʃ xˌeʒˈistrɐ̃ʊ̃ ˌazulˈeʒʊz mˌikroskˈɔpikʊz ˈAŋ ˌumæ tˈɛlæ sˈAŋ prˌimˈAɾw ˌalokˈar tˈodw ʊ mˌozˈIkʊ. ˈabriu a paɾəʧˈir dʊ dˈatæ i kˈɔxi ˈAŋ lˈɔʧy. ʊ prˌimˈAɾʊ lˈAˌWt dʊ plˈɐ̃nw ɛ dˌelibeɾˈadʊ: a kˌoŋfiˈɐ̃ŋsæ dʊ xˌeʒˈistrʊ, a kˌolokasˈɐ̃ʊ̃ ʤy falbˈak, ʊ tˌæmˈɐ̃ɲʊ da sˌaˈidæ i u ˈuzʊ da mˌemˈɔɾjæ sɐ̃ʊ̃ vˌizˈivAz ˈɐ̃ŋʧiskj u ˌespˈakɛɾ ˌeskrˈevæ kwWkˌɛr kˈoɪzæ."
     },
     {
       "scene": 2,
-      "speech_start": 9.524999999999999,
-      "speech_end": 20.65,
-      "scene_end": 21.099999999999998,
-      "duration": 11.575,
-      "text": "Abra Align and Stitch na seção Data and batch runs. Abra Align e Stitch na seção Dados e batches. Escolha aquisições de telas, coordenadas de estágio ou metadados, canais e destino."
+      "speech_start": 18.669999999999998,
+      "speech_end": 37.81999999999999,
+      "scene_end": 38.53999999999999,
+      "duration": 19.869999999999994,
+      "text": "Deixe cair uma pasta de azulejos NPY ou TIFF, ou escolha aqui. Esta lição exporta um verdadeiro campo de microscopia de quatro canais como nove telhas sobrepostas apenas para emular uma aquisição de 3 por 3. Os pixels de origem permanecem reais, enquanto a sobreposição conhecida nos dá um exemplo de registo reprodutível.",
+      "speech_text": "Deixe cair uma pasta de azulejos NPY ou TIFF, ou escolha aqui. Esta lição exporta um verdadeiro campo de microscopia de quatro canais como nove telhas sobrepostas apenas para emular uma aquisição de 3 por 3. Os pixels de origem permanecem reais, enquanto a sobreposição conhecida nos dá um exemplo de registo reprodutível.",
+      "phonemes": "dˈAʃy kaˈiɾ ˌumæ pˈastæ ʤj ˌazulˈeʒʊz ˌenepˌeˈipsiloŋ ow ʧˈif, ow ˌeskˈoljæ akˈi. ˌɛstæ lisˈɐ̃ʊ̃ ˌespˈɔɾətæ ũŋ vˌeɾədadˈAɾʊ kˈɐ̃mpʊ ʤy mˌikroskopˈiæ ʤy kwˈatrʊ kænˈIs kˌomʊ nˈɔvy tˈeljæs sobɾepˈɔstæz ˌapˈenæs pˌaɾæ ˌemulˈaɾ ˌumæ ˌakizisˈɐ̃ʊ̃ ʤy trˈes por trˈes. ʊs piʃˈɛʊz ʤj ˌoɾˈiʒAŋ pˌeɾəmænˈɛsAŋ xeˈIs, ˌAŋkwˈɐ̃ŋtw a sobɾepˌozisˈɐ̃ʊ̃ kˌoɲesˈidæ nʊz dˈa ũŋ ˌezˈAmplʊ ʤy xˌeʒˈistʊ xˌeproduʧˈiveʊ."
     },
     {
       "scene": 3,
-      "speech_start": 21.099999999999998,
-      "speech_end": 31.0,
-      "scene_end": 31.45,
-      "duration": 10.350000000000001,
-      "text": "Na área de configuração principal, configure o método de registro, o canal de referência, a sobreposição, a mistura, a correção, o tamanho da peça e o formato de saída."
+      "speech_start": 38.53999999999999,
+      "speech_end": 56.864999999999995,
+      "scene_end": 57.584999999999994,
+      "duration": 19.045,
+      "text": "Descreva o layout da aquisição. A grade é 3 por 3 com 25% de sobreposição nominal em ordem de fila maior. O canal de referência 1 é o canal endoplasmico-retículo; o spaCR resolve o registo uma vez nesse plano e aplica a mesma transformação a todos os quatro canais, evitando o corte de canal para canal.",
+      "speech_text": "Descreva o layout da aquisição. A grade é 3 por 3 com 25% de sobreposição nominal em ordem de fila maior. O canal de referência 1 é o canal endoplasmico-retículo; o espáquer resolve o registo uma vez nesse plano e aplica a mesma transformação a todos os quatro canais, evitando o corte de canal para canal.",
+      "phonemes": "dˌeskrˈevæ ʊ lˈAˌWt da ˌakizisˈɐ̃ʊ̃. a ɡrˈaʤj ɛ trˈes por trˈes koŋ vˈiŋʧyisˈiŋkʊ pˌorsˈAŋtʊ ʤy sobɾepˌozisˈɐ̃ʊ̃ nˌominˈW ˈAŋ ˈɔɾədAŋ ʤy fˈilæ mIˈɔr. ʊ kɐ̃nˈW ʤy xˌefeɾˈAŋsjæ ˈũŋ ɛ ʊ kɐ̃nˈW ˌAŋdoplazmˈikʊxˌeʧˈikulʊ; u ˌespˈakɛr xˌezˈɔlvj ʊ xˌeʒˈistw ˌumæ vˈez nˌesy plˈɐ̃nw i ˌaplˈikæ a mˈezmæ trˌɐ̃ŋsfoɾəmasˈɐ̃ʊ̃ a tˈodʊz ʊs kwˈatrʊ kænˈIs, ˌevitˈɐ̃ŋdw ʊ kˈɔɾəʧy ʤy kɐ̃nˈW pˌaɾæ kɐ̃nˈW."
     },
     {
       "scene": 4,
-      "speech_start": 31.45,
-      "speech_end": 39.2,
-      "scene_end": 39.650000000000006,
-      "duration": 8.200000000000006,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+      "speech_start": 57.584999999999994,
+      "speech_end": 77.835,
+      "scene_end": 78.535,
+      "duration": 20.950000000000003,
+      "text": "Os controlos de qualidade determinam quais coincidências em pares entram na solução global. A confiança mínima rejeita a correlação cruzada fraca, o raio vizinho adiciona comparações próximas redundantes, as misturas Feather se sobrepõem e o orçamento de 64 megabyte de RAM limita cada faixa de saída em vez do tamanho da tela final.",
+      "speech_text": "Os controlos de qualidade determinam quais coincidências em pares entram na solução global. A confiança mínima rejeita a correlação cruzada fraca, o raio vizinho adiciona comparações próximas redundantes, as misturas Feather se sobrepõem e o orçamento de 64 megabyte de RAM limita cada faixa de saída em vez do tamanho da tela final.",
+      "phonemes": "ʊs kˌoŋtrˈolʊz ʤy kwˌalidˈaʤy dˌeteɾəmˈinɐ̃ʊ̃ kwˈIs kˌoiŋsidˈAŋsjæz ˈAŋ pˈaɾyz ˈAŋtrɐ̃ʊ̃ na sˌolusˈɐ̃ʊ̃ ɡlobˈW. a kˌoŋfiˈɐ̃ŋsæ mˈinimæ xˌeʒˈAtæ a kˌoxelasˈɐ̃ʊ̃ krˌuzˈadæ frˈakæ, ʊ xˈIʊ vˌizˈiɲw ˌaʤisiˈonæ kˌompaɾasˈõjs prˈɔsimæz xˌedũŋdˈɐ̃ŋʧys, az mˌistˈuɾæs fˌeatˈer sy sobɾepˈõjm i u ˌoɾəsæmˈAŋtʊ ʤy sˌesˈAŋtæikwˈatrʊ mˌeɡabˈiʧy ʤy ˌɛxeˌaˈeme lˌimˈitæ kˈadæ fˈIʃæ ʤy sˌaˈidæ ˈAŋ vˈez dʊ tˌæmˈɐ̃ɲʊ da tˈɛlæ finˈW."
     },
     {
       "scene": 5,
-      "speech_start": 39.650000000000006,
-      "speech_end": 47.800000000000004,
-      "scene_end": 48.45,
-      "duration": 8.799999999999997,
-      "text": "Quando o fluxo de trabalho termina, são salvos os dados registrados, imagens costuradas, transformações e metadados de mapeamento."
+      "speech_start": 78.535,
+      "speech_end": 96.985,
+      "scene_end": 97.665,
+      "duration": 19.13000000000001,
+      "text": "Clique no Plano antes de escrever. O planejamento lê cabeçalhos de azulejos e tiras de sobreposição, estima compensações de vizinhos e resolve todas as restrições aceitas juntas. Não cria nem uma tela nem arquivos de saída, por isso este é o ponto seguro para pegar uma grade incorreta, ordem, sobreposição ou canal de referência.",
+      "speech_text": "Clique no Plano antes de escrever. O planejamento lê cabeçalhos de azulejos e tiras de sobreposição, estima compensações de vizinhos e resolve todas as restrições aceitas juntas. Não cria nem uma tela nem arquivos de saída, por isso este é o ponto seguro para pegar uma grade incorreta, ordem, sobreposição ou canal de referência.",
+      "phonemes": "klˈiky nʊ plˈɐ̃nw ˈɐ̃ŋʧyz ʤj ˌeskrevˈer. ʊ plˌæneʒæmˈAŋtʊ lˈe kˌabesˈaljʊz ʤj ˌazulˈeʒʊz i ʧˈiɾæz ʤy sobɾepˌozisˈɐ̃ʊ̃, ˌesʧˈimæ kˌompAŋsasˈõjz ʤy vˌizˈiɲʊz i xˌezˈɔlvy tˈodæz az xˌestrisˈõjz ˌasˈAtæz ʒˈũŋtæs. nˌɐ̃ʊ̃ krˈiæ nˈAŋ ˌumæ tˈɛlæ nˈAŋ ˌaɾəkˈivʊz ʤy sˌaˈidæ, poɾ ˈisw ˌesʧy ɛ ʊ pˈoŋtʊ sˌeɡˈuɾʊ pˌaɾæ peɡˈaɾ ˌumæ ɡrˈaʤj ˌiŋkoxˈɛtæ, ˈɔɾədAŋ, sobɾepˌozisˈɐ̃ʊ̃ ow kɐ̃nˈW ʤy xˌefeɾˈAŋsjæ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 97.665,
+      "speech_end": 116.29,
+      "scene_end": 117.07000000000001,
+      "duration": 19.405,
+      "text": "O plano real registra os nove azulejos. As cores do layout registaram campos por confiança, enquanto qualquer retorno na posição do palco seria laranja e eclodido. O relatório lista os pares aceitos e recusados, os piores resíduos, as dimensões finais da tela, o tamanho do disco e a estimativa de escrita de memória limitada.",
+      "speech_text": "O plano real registra os nove azulejos. As cores do layout registaram campos por confiança, enquanto qualquer retorno na posição do palco seria laranja e eclodido. O relatório lista os pares aceitos e recusados, os piores resíduos, as dimensões finais da tela, o tamanho do disco e a estimativa de escrita de memória limitada.",
+      "phonemes": "ʊ plˈɐ̃nʊ xeˈW xˌeʒˈistræ ʊz nˈɔvj ˌazulˈeʒʊs. as kˈoɾyz dʊ lˈAˌWt xˌeʒistˈaɾɐ̃ʊ̃ kˈɐ̃mpʊs por kˌoŋfiˈɐ̃ŋsæ, ˌAŋkwˈɐ̃ŋtʊ kwWkˌɛr xˌetˈoɾənʊ na pˌozisˈɐ̃ʊ̃ dʊ pˈWkʊ seɾˌiæ lˌaɾˈɐ̃ŋʒæ i ˌekloʤˈidʊ. ʊ xˌelatˈɔɾjʊ lˈistæ ʊs pˈaɾyz ˌasˈAtʊz i xˌekuzˈadʊs, ʊs pˌiˈɔɾyz xˌezˈiduʊs, az ʤˌimAŋsˈõjs finˈIz da tˈɛlæ, ʊ tˌæmˈɐ̃ɲʊ dʊ ʤˈiskw i a ˌesʧimaʧˈivæ ʤj ˌeskrˈitæ ʤy mˌemˈɔɾjæ lˌimitˈadæ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 117.07000000000001,
+      "speech_end": 135.47,
+      "scene_end": 136.19,
+      "duration": 19.11999999999999,
+      "text": "Clique em uma telha individual para auditar sua posição resolvida Y e X, método, confiança, resíduo e número de pares de suporte. Este campo foi colocado por registo, não apenas pela sua posição nominal da grade; use a mesma inspecção para investigar azulejos fracos ou isolados antes de cometer um grande mosaico.",
+      "speech_text": "Clique em uma telha individual para auditar sua posição resolvida Y e X, método, confiança, resíduo e número de pares de suporte. Este campo foi colocado por registo, não apenas pela sua posição nominal da grade; use a mesma inspecção para investigar azulejos fracos ou isolados antes de cometer um grande mosaico.",
+      "phonemes": "klˈikj ˈAŋ ˌumæ tˈeljæ ˌiŋʤivˌiduˈW pˌaɾæ ˌWʤitˈar sˌuæ pˌozisˈɐ̃ʊ̃ xˌezowvˈidæ ˈipsiloŋ i ʃˈis, mˈɛtodʊ, kˌoŋfiˈɐ̃ŋsæ, xˌezˈiduw i nˈũmeɾʊ ʤy pˈaɾyz ʤy sˌupˈɔɾəʧy. ˌesʧy kˈɐ̃mpʊ foɪ kˌolokˈadʊ por xˌeʒˈistʊ, nˌɐ̃ʊ̃ ˌapˈenæs pˈelæ sˌuæ pˌozisˈɐ̃ʊ̃ nˌominˈW da ɡrˈaʤy; ˈuzj a mˈezmæ ˌiŋspeksˈɐ̃ʊ̃ pˌaɾæ ˌiŋvesʧiɡˈaɾ ˌazulˈeʒʊs frˈakʊz ow ˌizolˈadʊz ˈɐ̃ŋʧyz ʤy kˌometˈeɾ ũŋ ɡrˈɐ̃ŋʤy mˌozˈIkʊ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 136.19,
+      "speech_end": 153.565,
+      "scene_end": 154.20499999999998,
+      "duration": 18.014999999999986,
+      "text": "Escolha um novo destino para a pilha NPY costurada. A base de dados de medições opcionais registra as coordenadas das telhas resolvidas e o caminho de saída. Mantenha o Overwrite desligado na primeira corrida para que um mosaico existente seja rejeitado em vez de silenciosamente substituído.",
+      "speech_text": "Escolha um novo destino para a pilha NPY costurada. A base de dados de medições opcionais registra as coordenadas das telhas resolvidas e o caminho de saída. Mantenha o Overwrite desligado na primeira corrida para que um mosaico existente seja rejeitado em vez de silenciosamente substituído.",
+      "phonemes": "ˌeskˈoljæ ũŋ nˈovʊ dˌesʧˈinʊ pˌaɾæ a pˈiljæ ˌenepˌeˈipsiloŋ kˌostuɾˈadæ. a bˈazy ʤy dˈadʊz ʤy mˌeʤisˈõjz ˌopsionˈIz xˌeʒˈistræ as kˌooɾədenˈadæz das tˈeljæz xˌezowvˈidæz i ʊ kˌæmˈiɲʊ ʤy sˌaˈidæ. mˌɐ̃ŋtˈeɲæ u ˌoveɾəwrˈiʧy dˌezliɡˈadʊ na prˌimˈAɾæ kˌoxˈidæ pˌaɾækj ũŋ mˌozˈIkw ˌezistˈAŋʧy sˈeʒæ xˌeʒAtˈadw ˈAŋ vˈez ʤy sˌilAŋsˌiozæmˈAŋʧy sˌubsʧituˈidʊ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 154.20499999999998,
+      "speech_end": 173.23,
+      "scene_end": 173.92999999999998,
+      "duration": 19.724999999999994,
+      "text": "Clique em Escrever pilha apenas após o plano ser aceitável. O spaCR compõe os azulejos uma faixa horizontal por vez, aplica mistura de penas em sobreposições e escreve coordenadas depois que a imagem é bem sucedida. A saída pode, portanto, exceder a RAM disponível enquanto a memória permanecer dentro do orçamento declarado.",
+      "speech_text": "Clique em Escrever pilha apenas após o plano ser aceitável. O espáquer compõe os azulejos uma faixa horizontal por vez, aplica mistura de penas em sobreposições e escreve coordenadas depois que a imagem é bem sucedida. A saída pode, portanto, exceder a RAM disponível enquanto a memória permanecer dentro do orçamento declarado.",
+      "phonemes": "klˈikj ˈAŋ ˌeskrevˈer pˈiljæ ˌapˈenæz apˈɔz ʊ plˈɐ̃nʊ seɾ ˌasAtˈaveʊ. u ˌespˈakɛr kompˈõj ʊz ˌazulˈeʒʊz ˌumæ fˈIʃæ ˌoɾizoŋtˈW por vˈes, ˌaplˈikæ mˌistˈuɾæ ʤy pˈenæz ˈAŋ sobɾepˌozisˈõjz i ˌeskrˈɛvy kˌooɾədenˈadæz dˌepˈoɪskj a ˌimˈaʒAŋ ɛ bˈAŋ sˌuseʤˈidæ. a sˌaˈidæ pˈɔʤy, pˌoɾətˈɐ̃ŋtʊ, ˌesedˈeɾ a ˌɛxeˌaˈeme ʤˌisponˈiveʊ ˌAŋkwˈɐ̃ŋtw a mˌemˈɔɾjæ pˌeɾəmænesˈer dˈAŋtrʊ dʊ ˌoɾəsæmˈAŋtʊ dˌeklaɾˈadʊ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 173.92999999999998,
+      "speech_end": 194.15499999999997,
+      "scene_end": 195.015,
+      "duration": 21.085000000000008,
+      "text": "A corrida verificada escreve todas as nove telhas sem nenhuma saltada, produz uma pilha de quatro canais com costura que corresponde ao campo de origem e adiciona nove linhas à tabela de coordenadas de alinhamento. O relatório preserva tanto a evidência de registo quanto o resumo de escrita de memória limitada, tornando o mosaico auditável antes da análise a jusante.",
+      "speech_text": "A corrida verificada escreve todas as nove telhas sem nenhuma saltada, produz uma pilha de quatro canais com costura que corresponde ao campo de origem e adiciona nove linhas à tabela de coordenadas de alinhamento. O relatório preserva tanto a evidência de registo quanto o resumo de escrita de memória limitada, tornando o mosaico auditável antes da análise a jusante.",
+      "phonemes": "a kˌoxˈidæ vˌeɾifikˈadæ ˌeskrˈɛvy tˈodæz az nˈɔvy tˈeljæs sˈAŋ nˌeɲˈumæ sˌWtˈadæ, prodˈuz ˌumæ pˈiljæ ʤy kwˈatrʊ kænˈIs koŋ kˌostˈuɾæ ky kˌoxespˈoŋʤj W kˈɐ̃mpʊ ʤj ˌoɾˈiʒAŋ i ˌaʤisiˈonæ nˈɔvy lˈiɲæz ˌaː tˌabˈɛlæ ʤy kˌooɾədenˈadæz ʤj ˌaliɲæmˈAŋtʊ. ʊ xˌelatˈɔɾjʊ prˌezˈɛɾəvæ tˈɐ̃ŋtw a ˌevidˈAŋsjæ ʤy xˌeʒˈistʊ kwˈɐ̃ŋtw ʊ xˌezˈumʊ ʤj ˌeskrˈitæ ʤy mˌemˈɔɾjæ lˌimitˈadæ, tˌoɾənˈɐ̃ŋdw ʊ mˌozˈIkw ˌWʤitˈaveʊ ˈɐ̃ŋʧyz da ˌænˈalizj a ʒˌuzˈɐ̃ŋʧy."
     }
   ]
 }

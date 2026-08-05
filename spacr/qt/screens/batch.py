@@ -22,11 +22,9 @@ Three decisions are visible to the user:
   and in :attr:`BatchScreen.last_error`. A ``QMessageBox`` hangs a headless
   run (it did, in ``MakeMasksScreen``), and this screen is exercised headlessly.
 * **The run happens off the GUI thread, and its completion handler comes back
-  onto it.** ``PipelineWorker.finished`` is emitted *in the worker thread* and
-  PySide6 invokes a plain closure connected to it directly, on that thread —
-  so it is chained through :attr:`BatchScreen._queue_settled` into a bound
-  method of this widget, which has GUI-thread affinity. Same idiom as
-  :class:`spacr.qt.screens.plate_view.PlateViewScreen`.
+  onto it.** ``PipelineWorker.finished`` is emitted *in the worker thread*;
+  every widget-mutating receiver therefore uses an explicit queued connection
+  to a bound method of this GUI-thread widget.
 
 Jobs run one at a time — they compete for one GPU — and each one is its own
 ``spacr-run`` process, so a segfault in cellpose kills that job rather than
@@ -119,10 +117,6 @@ class BatchScreen(QWidget):
     #: private. Re-emitted from the worker thread purely to hop onto the GUI
     #: thread — see :meth:`_on_progress`.
     _progress_relayed = Signal(object)
-    #: private. Re-emitted from ``PipelineWorker.finished`` for the same
-    #: reason — see :meth:`_on_queue_settled`.
-    _queue_settled = Signal(bool)
-
     def __init__(self, parent=None, threaded: bool = True,
                  runner: Optional[Callable[[Any, str, str], int]] = None):
         super().__init__(parent)
@@ -141,10 +135,17 @@ class BatchScreen(QWidget):
         self.last_error: str = ""
         self.settled_thread: Optional[QThread] = None
 
-        self._progress_relayed.connect(self._on_progress)
-        self._queue_settled.connect(self._on_queue_settled)
+        # This signal is emitted by ``run_queue`` on its worker thread. Auto
+        # connections between two signals owned by the same QWidget can be
+        # treated as direct by PySide6 even when ``emit`` occurs elsewhere, so
+        # spell out the GUI-thread hop.
+        self._progress_relayed.connect(
+            self._on_progress, Qt.QueuedConnection)
 
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("batch"), self)
         self._refresh_table()
         self._update_controls()
         self._set_status("Add a job: pick a module and the settings file you "
@@ -577,9 +578,11 @@ class BatchScreen(QWidget):
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append(box)
-        worker.error.connect(self._on_worker_error_text)
-        worker.finished.connect(self._queue_settled)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        worker.error.connect(
+            self._on_worker_error_text, Qt.QueuedConnection)
+        worker.finished.connect(
+            self._on_queue_settled, Qt.QueuedConnection)
+        thread.finished.connect(self._retire_finished_jobs)
         thread.start()
         return True
 
@@ -600,12 +603,17 @@ class BatchScreen(QWidget):
     # -- progress, on the worker thread ---------------------------------
 
     def _relay_progress(self, progress: "bt.Progress") -> None:
-        """Called ON THE WORKER THREAD by :func:`spacr.batch.run_queue`.
+        """Relay a queue progress event onto the widget's owning thread.
 
-        Touches no widget: it only emits a signal, which Qt queues onto the
-        GUI thread where :meth:`_on_progress` does the widget work.
+        Production runs call this on the worker thread, where emitting the
+        explicitly queued signal is the only safe option. The deterministic
+        synchronous mode calls it on the GUI thread and can update directly,
+        ensuring :meth:`run` returns with its table/log state fully settled.
         """
-        self._progress_relayed.emit(progress)
+        if QThread.currentThread() is self.thread():
+            self._on_progress(progress)
+        else:
+            self._progress_relayed.emit(progress)
 
     def _on_progress(self, progress: "bt.Progress") -> None:
         """Handle one progress report. Always on the GUI thread."""
@@ -657,6 +665,30 @@ class BatchScreen(QWidget):
         self._progress.setValue(self._progress.maximum())
         self._update_controls()
         self.queue_finished.emit(bool(ok))
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
         """Release this job's refs once its own event loop has exited."""

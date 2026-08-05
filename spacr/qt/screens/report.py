@@ -53,6 +53,21 @@ from ..widgets import Divider
 __all__ = ["ReportScreen", "FORMATS", "FIGURE_CAP_RANGE"]
 
 
+def _has_stopped(thread) -> bool:
+    """True when ``thread`` is finished, never started, or already deleted.
+
+    ``None`` counts as stopped. So does a QThread whose C++ half PySide6 has
+    already taken away: asking it anything raises ``RuntimeError``, and an
+    object that no longer exists is certainly not still running.
+    """
+    if thread is None:
+        return True
+    try:
+        return not thread.isRunning()
+    except RuntimeError:
+        return True
+
+
 #: Output formats offered, mapping the label to ``build_report``'s ``fmt``.
 FORMATS: Tuple[Tuple[str, str], ...] = (
     ("HTML — one self-contained file", "html"),
@@ -112,6 +127,9 @@ class ReportScreen(QWidget):
 
         self._job_settled.connect(self._on_job_settled)
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("report"), self)
         self._set_status(
             "Choose a run folder — the plate folder holding measurements/, "
             "qc/ and results/ — then Scan.")
@@ -463,7 +481,20 @@ class ReportScreen(QWidget):
         self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        # A BOUND METHOD, not a closure — the rule `make_thread` states and
+        # then relies on for its own `handle.retire`. `thread.finished` is
+        # emitted in the worker thread, so PySide6 queues the call to the
+        # RECEIVER's thread; with a closure the receiver is the QThread
+        # itself, and `make_thread` connects `thread.finished ->
+        # thread.deleteLater` FIRST. Slots run in connection order, so the
+        # DeferredDelete for the QThread is posted ahead of the closure's
+        # metacall — and Qt discards queued events for a destroyed receiver.
+        # The job was then never retired, `active_jobs()` never returned to
+        # zero, and every `waitUntil(active_jobs() == 0)` sat there until it
+        # timed out with the QThread's C++ half already gone. Binding to the
+        # widget makes the widget the receiver, so the call survives the
+        # thread it is reporting on.
+        thread.finished.connect(self._on_thread_finished)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -483,10 +514,20 @@ class ReportScreen(QWidget):
         self._update_controls()
         self.job_finished.emit(ok)
 
-    def _retire_job(self, thread) -> None:
-        """Release *this* job's refs once its own event loop has exited."""
-        self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
-        if self._thread is thread:
+    def _on_thread_finished(self) -> None:
+        """Release the refs of every job whose event loop has exited.
+
+        A sweep rather than "retire the thread that sent this", because the
+        sender is exactly what may already be gone: ``make_thread`` queues
+        ``thread.deleteLater`` off the same signal, and by the time this runs
+        on the GUI thread the QThread's C++ half can be destroyed. Asking a
+        destroyed wrapper anything raises ``RuntimeError``, so a pair that
+        raises is treated as finished — its C++ object is gone, which is the
+        strongest possible evidence that holding a reference to it is no
+        longer keeping anything alive.
+        """
+        self._jobs = [(t, w) for (t, w) in self._jobs if not _has_stopped(t)]
+        if _has_stopped(self._thread):
             self._thread = None
             self._worker = None
 

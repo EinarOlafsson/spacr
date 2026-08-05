@@ -175,14 +175,40 @@ def test_utils_generate_image_path_map_indexes_by_key(tmp_path):
 
 
 def test_utils_copy_images_to_consolidated_no_op_on_empty_map(tmp_path):
+    """An empty map copies nothing — and the same call with a real map does
+    copy, which is what makes the no-op assertion mean anything."""
     from spacr.utils import copy_images_to_consolidated
-    dst = tmp_path / "consolidated"
-    # Empty map + non-existent dst → shouldn't raise.
-    try:
-        copy_images_to_consolidated({}, str(tmp_path))
-    except Exception:
-        # Some contract mismatches are acceptable; verify no unexpected raise.
-        pass
+
+    # --- no-op half: empty map ------------------------------------------
+    empty_root = tmp_path / "empty_root"
+    empty_root.mkdir()
+    copy_images_to_consolidated({}, str(empty_root))
+
+    dst = empty_root / "consolidated"
+    # The destination folder is created unconditionally, but nothing lands
+    # in it and nothing else appears beside it.
+    assert dst.is_dir()
+    assert list(dst.iterdir()) == []
+    assert [p.name for p in empty_root.iterdir()] == ["consolidated"]
+
+    # --- contrast half: a populated map ---------------------------------
+    src_dir = tmp_path / "src" / "well_A01"
+    src_dir.mkdir(parents=True)
+    original = src_dir / "img.tif"
+    original.write_bytes(b"pixels")
+
+    root = tmp_path / "root"
+    root.mkdir()
+    copy_images_to_consolidated(
+        {str(original): str(root / "well_A01_img.tif")}, str(root))
+
+    copied = root / "consolidated" / "well_A01_img.tif"
+    assert copied.is_file(), "a non-empty map must actually copy files"
+    assert copied.read_bytes() == b"pixels"
+    assert [p.name for p in (root / "consolidated").iterdir()] == \
+        ["well_A01_img.tif"]
+    # The original is copied, not moved.
+    assert original.exists()
 
 
 def test_utils_correct_paths_leaves_absolute_paths_alone():

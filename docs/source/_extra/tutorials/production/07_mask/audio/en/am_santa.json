@@ -4,47 +4,317 @@
   "voice": "am_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 59.525,
+  "total_duration": 302.5,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.95,
-      "scene_end": 10.399999999999999,
-      "duration": 10.399999999999999,
-      "text": "This tutorial covers Mask. Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks."
+      "speech_end": 11.2,
+      "scene_end": 11.649999999999999,
+      "duration": 11.649999999999999,
+      "text": "Mask opens with the settings panel on the left and the runtime console on the right. The console reports folder scans, validation, progress, warnings, and pipeline output.",
+      "speech_text": "Mask opens with the settings panel on the left and the runtime console on the right. The console reports folder scans, validation, progress, warnings, and pipeline output.",
+      "phonemes": "mˈæsk ˈOpᵊnz wɪð ðə sˈɛTɪŋz pˈænᵊl ˌɔn ðə lˈɛft ænd ðə ɹˈʌntIm kˈɑnsˌOl ˌɔn ðə ɹˈIt. ðə kˈɑnsˌOl ɹəpˈɔɹts fˈOldəɹ skˈænz, vˌælɪdˈAʃən, pɹˈɑɡɹəs, wˈɔɹnɪŋz, ænd pˈIplˌIn ˈWtpˌʊt."
     },
     {
       "scene": 2,
-      "speech_start": 10.399999999999999,
-      "speech_end": 24.049999999999997,
-      "scene_end": 24.499999999999996,
-      "duration": 14.099999999999998,
-      "text": "Open Mask from the Core section. Use the supplied thirteen-field dataset. Channel zero is nuclei, channel one is endoplasmic reticulum, channel two is lipid droplets, and channel three is parasites."
+      "speech_start": 11.649999999999999,
+      "speech_end": 24.075,
+      "scene_end": 24.525,
+      "duration": 12.875,
+      "text": "The field below the console accepts local questions or commands. The AI switch routes a message through a selected subscription-backed provider, and the adjacent arrow opens the provider menu.",
+      "speech_text": "The field below the console accepts local questions or commands. The AI switch routes a message through a selected subscription-backed provider, and the adjacent arrow opens the provider menu.",
+      "phonemes": "ðə fˈild bəlˈO ðə kˈɑnsˌOl əksˈɛpts lˈOkəl kwˈɛsʧᵊnz ɔɹ kəmˈændz. ði ˈAˌI swˈɪʧ ɹˈuts ɐ mˈɛsɪʤ θɹu ɐ səlˈɛktᵻd səbskɹˈɪpʃənbˌækt pɹəvˈIdəɹ, ænd ði əʤˈAsᵊnt ˈɛɹO ˈOpᵊnz ðə pɹəvˈIdəɹ mˈɛnju."
     },
     {
       "scene": 3,
-      "speech_start": 24.499999999999996,
-      "speech_end": 36.925,
-      "scene_end": 37.375,
-      "duration": 12.875000000000004,
-      "text": "In the main configuration area, detect nuclei from channel zero, cells from the endoplasmic-reticulum channel, lipid droplets with the organelle spots workflow, and parasites from channel three."
+      "speech_start": 24.525,
+      "speech_end": 36.325,
+      "scene_end": 36.775000000000006,
+      "duration": 12.250000000000007,
+      "text": "The Providers tab shows whether the Claude, ChatGPT, and Gemini command-line clients are installed, plus their install and login commands. Credentials remain with the vendor.",
+      "speech_text": "The Providers tab shows whether the Claude, ChatGPT, and Gemini command-line clients are installed, plus their install and login commands. Credentials remain with the vendor.",
+      "phonemes": "ðə pɹəvˈIdəɹz tˈæb ʃˈOz wˈɛðəɹ ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ɑɹ ɪnstˈɔld, plˈʌs ðɛɹ ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz. kɹədˈɛnʧᵊlz ɹəmˈAn wɪð ðə vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 37.375,
-      "speech_end": 50.125,
-      "scene_end": 50.575,
-      "duration": 13.200000000000003,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Check a representative field, then run the four segmentation passes across the dataset."
+      "speech_start": 36.775000000000006,
+      "speech_end": 47.00000000000001,
+      "scene_end": 47.45000000000001,
+      "duration": 10.675000000000004,
+      "text": "The Settings tab controls response depth, AI-assisted error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+      "speech_text": "The Settings tab controls response depth, AI-assisted error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system prompt.",
+      "phonemes": "ðə sˈɛTɪŋz tˈæb kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌAIəsˈɪstᵻd ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm pɹˈɑmpt."
     },
     {
       "scene": 5,
-      "speech_start": 50.575,
-      "speech_end": 58.875,
-      "scene_end": 59.525,
-      "duration": 8.949999999999996,
-      "text": "When the workflow finishes, the masks folder contains aligned object labels and merged image-plus-mask arrays ready for measurement."
+      "speech_start": 47.45000000000001,
+      "speech_end": 61.125000000000014,
+      "scene_end": 61.57500000000002,
+      "duration": 14.125000000000007,
+      "text": "Drag the orig folder into Mask. spaCR detects the CQ1 filename pattern, previews well, field, time, depth, and channel metadata, notes that plate ID will default to plate1, then saves the regex.",
+      "speech_text": "Drag the orig folder into Mask. spacer detects the C Q one filename pattern, previews well, field, time, depth, and channel metadata, notes that plate ID will default to plate1, then saves the regex.",
+      "phonemes": "dɹˈæɡ ði ˈɔɹɪɡ fˈOldəɹ ˈɪntu mˈæsk. spˈAsəɹ dətˈɛkts ðə sˈi kjˈu wˈʌn fˈIlnˌAm pˈæTəɹn, pɹˈivjˌuz wˈɛl, fˈild, tˈIm, dˈɛpθ, ænd ʧˈænᵊl mˈɛTədˌATə, nˈOts ðæt plˈAt ˌIdˈi wɪl dəfˈɔlt tə plˈAt wˈʌn, ðˈɛn sˈAvz ðə ɹˈɛɡɛks."
+    },
+    {
+      "scene": 6,
+      "speech_start": 61.57500000000002,
+      "speech_end": 71.75000000000001,
+      "scene_end": 72.20000000000002,
+      "duration": 10.625,
+      "text": "Essentials shows the small set of settings required to run Mask. The count below the controls reports how many of the complete settings are currently visible.",
+      "speech_text": "Essentials shows the small set of settings required to run Mask. The count below the controls reports how many of the complete settings are currently visible.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ðə smˈɔl sˈɛt ʌv sˈɛTɪŋz ɹəkwˈIəɹd tə ɹˈʌn mˈæsk. ðə kˈWnt bəlˈO ðə kəntɹˈOlz ɹəpˈɔɹts hˌW mˈɛni ʌv ðə kəmplˈit sˈɛTɪŋz ɑɹ kˈɜɹəntli vˈɪzəbᵊl."
+    },
+    {
+      "scene": 7,
+      "speech_start": 72.20000000000002,
+      "speech_end": 80.25000000000001,
+      "scene_end": 80.70000000000002,
+      "duration": 8.5,
+      "text": "Modified limits the form to values that differ from Mask defaults, making imported or edited settings easy to review.",
+      "speech_text": "Modified limits the form to values that differ from Mask defaults, making imported or edited settings easy to review.",
+      "phonemes": "mˈɑdəfˌId lˈɪməts ðə fˈɔɹm tə vˈæljuz ðæt dˈɪfəɹ fɹʌm mˈæsk dəfˈɔlts, mˈAkɪŋ ɪmpˈɔɹTᵻd ɔɹ ˈɛdəTᵻd sˈɛTɪŋz ˈizi tə ɹəvjˈu."
+    },
+    {
+      "scene": 8,
+      "speech_start": 80.70000000000002,
+      "speech_end": 90.20000000000002,
+      "scene_end": 90.65000000000002,
+      "duration": 9.950000000000003,
+      "text": "Switch between Essentials and All settings without losing values. All settings exposes every category, including advanced and beta controls.",
+      "speech_text": "Switch between Essentials and All settings without losing values. All settings exposes every category, including advanced and beta controls.",
+      "phonemes": "swˈɪʧ bətwˈin əsˈɛnʧᵊlz ænd ˈɔl sˈɛTɪŋz wɪðˈWt lˈuzɪŋ vˈæljuz. ˈɔl sˈɛTɪŋz ɪkspˈOzᵻz ˈɛvəɹi kˈæTəɡˌɔɹi, ɪnklˈudɪŋ ədvˈænst ænd bˈATə kəntɹˈOlz."
+    },
+    {
+      "scene": 9,
+      "speech_start": 90.65000000000002,
+      "speech_end": 99.80000000000003,
+      "scene_end": 100.25000000000003,
+      "duration": 9.600000000000009,
+      "text": "Recipes saves the current settings under a name, reapplies a saved configuration, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the current settings under a name, reapplies a saved configuration, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðə kˈɜɹənt sˈɛTɪŋz ˈʌndəɹ ɐ nˈAm, ɹˌiəplˈIz ɐ sˈAvd kənfˌɪɡjəɹˈAʃən, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ ɹijˈuzəbᵊl sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 100.25000000000003,
+      "speech_end": 106.67500000000003,
+      "scene_end": 107.12500000000003,
+      "duration": 6.875,
+      "text": "Submit remote snapshots the resolved Mask settings and sends them to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved Mask settings and sends them to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd mˈæsk sˈɛTɪŋz ænd sˈɛndz ðˌɛm tə ðə dəstɹˈɪbjuTᵻd ʤˈɑbz wˈɜɹkspˌAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 107.12500000000003,
+      "speech_end": 117.35000000000002,
+      "scene_end": 117.80000000000003,
+      "duration": 10.674999999999997,
+      "text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Mask run.",
+      "speech_text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Mask run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps lˈOkəl pˈæðz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm mˈæsk ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 117.80000000000003,
+      "speech_end": 126.62500000000003,
+      "scene_end": 127.07500000000003,
+      "duration": 9.275000000000006,
+      "text": "Input and Metadata defines the source folder, channel assignments, magnification, metadata type, and any custom filename regex.",
+      "speech_text": "Input and Metadata defines the source folder, channel assignments, magnification, metadata type, and any custom filename regex.",
+      "phonemes": "ˈɪnpˌʊt ænd mˈɛTədˌATə dəfˈInz ðə sˈɔɹs fˈOldəɹ, ʧˈænᵊl əsˈInmənts, mˌæɡnəfəkˈAʃən, mˈɛTədˌATə tˈIp, ænd ˈɛni kˈʌstəm fˈIlnˌAm ɹˈɛɡɛks."
+    },
+    {
+      "scene": 13,
+      "speech_start": 127.07500000000003,
+      "speech_end": 135.70000000000005,
+      "scene_end": 136.15000000000003,
+      "duration": 9.075000000000003,
+      "text": "Workflow and Test Run controls preprocessing, mask generation, dry runs, resume behavior, and small test-mode samples.",
+      "speech_text": "Workflow and Test Run controls preprocessing, mask generation, dry runs, resume behavior, and small test-mode samples.",
+      "phonemes": "wˈɜɹkflˌO ænd tˈɛst ɹˈʌn kəntɹˈOlz pɹɪpɹˈɑsɛsɪŋ, mˈæsk ʤˌɛnəɹˈAʃən, dɹˈI ɹˈʌnz, ɹəzˈum bəhˈAvjəɹ, ænd smˈɔl tˌɛstmˈOd sˈæmpᵊlz."
+    },
+    {
+      "scene": 14,
+      "speech_start": 136.15000000000003,
+      "speech_end": 145.10000000000002,
+      "scene_end": 145.55,
+      "duration": 9.399999999999977,
+      "text": "Image Preprocessing groups normalization, projection, upscaling, consolidation, and denoising choices applied before segmentation.",
+      "speech_text": "Image Preprocessing groups normalization, projection, upscaling, consolidation, and denoising choices applied before segmentation.",
+      "phonemes": "ˈɪmɪʤ pɹɪpɹˈɑsɛsɪŋ ɡɹˈups nˌɔɹmələzˈAʃən, pɹəʤˈɛkʃən, ˌʌpskˈAlɪŋ, kənsˌɑlədˈAʃən, ænd dᵻnˈYsɪŋ ʧˈYsᵻz əplˈId bəfˈɔɹ sˌɛɡməntˈAʃən."
+    },
+    {
+      "scene": 15,
+      "speech_start": 145.55,
+      "speech_end": 153.07500000000002,
+      "scene_end": 153.525,
+      "duration": 7.974999999999994,
+      "text": "Cell Segmentation contains the cell model, diameter, thresholds, background handling, and cell-object filters.",
+      "speech_text": "Cell Segmentation contains the cell model, diameter, thresholds, background handling, and cell-object filters.",
+      "phonemes": "sˈɛl sˌɛɡməntˈAʃən kəntˈAnz ðə sˈɛl mˈɑdᵊl, dIˈæməTəɹ, θɹˈɛʃhˌOldz, bˈækɡɹˌWnd hˈændᵊlɪŋ, ænd sˌɛlˈɑbʤəkt fˈɪltəɹz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 153.525,
+      "speech_end": 161.70000000000002,
+      "scene_end": 162.15,
+      "duration": 8.625,
+      "text": "Nucleus Segmentation provides the corresponding model, thresholds, background correction, and object filters for nuclei.",
+      "speech_text": "Nucleus Segmentation provides the corresponding model, thresholds, background correction, and object filters for nuclei.",
+      "phonemes": "nˈukliəs sˌɛɡməntˈAʃən pɹəvˈIdz ðə kˌɔɹəspˈɑndɪŋ mˈɑdᵊl, θɹˈɛʃhˌOldz, bˈækɡɹˌWnd kəɹˈɛkʃən, ænd ˈɑbʤəkt fˈɪltəɹz fɔɹ nˈukliˌI."
+    },
+    {
+      "scene": 17,
+      "speech_start": 162.15,
+      "speech_end": 169.175,
+      "scene_end": 169.625,
+      "duration": 7.474999999999994,
+      "text": "Pathogen Segmentation groups the model and cleanup rules used to detect and filter parasite objects.",
+      "speech_text": "Pathogen Segmentation groups the model and cleanup rules used to detect and filter parasite objects.",
+      "phonemes": "pˈæθəʤˌɛn sˌɛɡməntˈAʃən ɡɹˈups ðə mˈɑdᵊl ænd klˈinˌʌp ɹˈulz jˈuzd tə dətˈɛkt ænd fˈɪltəɹ pˈɛɹəsˌIt ˈɑbʤəkts."
+    },
+    {
+      "scene": 18,
+      "speech_start": 169.625,
+      "speech_end": 180.075,
+      "scene_end": 180.52499999999998,
+      "duration": 10.899999999999977,
+      "text": "Organelle Segmentation selects the organelle morphology and detector, image cleanup, method-specific controls, object filters, and parent-compartment summary.",
+      "speech_text": "Organelle Segmentation selects the organelle morphology and detector, image cleanup, method-specific controls, object filters, and parent-compartment summary.",
+      "phonemes": "ˌɔɹɡənˈɛl sˌɛɡməntˈAʃən səlˈɛkts ði ˌɔɹɡənˈɛl mɔɹfˈɑləʤi ænd dətˈɛktəɹ, ˈɪmɪʤ klˈinˌʌp, mˌɛθədspəsˈɪfɪk kəntɹˈOlz, ˈɑbʤəkt fˈɪltəɹz, ænd pˌɛɹᵊntkəmpˈɑɹtmənt sˈʌməɹi."
+    },
+    {
+      "scene": 19,
+      "speech_start": 180.52499999999998,
+      "speech_end": 190.325,
+      "scene_end": 190.77499999999998,
+      "duration": 10.25,
+      "text": "Quality Control sets automatic checks for object counts, size ratios, borders, foreground coverage, split behavior, and acceptable field failures.",
+      "speech_text": "Quality Control sets automatic checks for object counts, size ratios, borders, foreground coverage, split behavior, and acceptable field failures.",
+      "phonemes": "kwˈɑləTi kəntɹˈOl sˈɛts ˌɔTəmˈæTɪk ʧˈɛks fɔɹ ˈɑbʤəkt kˈWnts, sˈIz ɹˈAʃiOz, bˈɔɹdəɹz, fˈɔɹɡɹˌWnd kˈʌvəɹɪʤ, splˈɪt bəhˈAvjəɹ, ænd əksˈɛptəbᵊl fˈild fˈAljəɹz."
+    },
+    {
+      "scene": 20,
+      "speech_start": 190.77499999999998,
+      "speech_end": 199.89999999999998,
+      "scene_end": 200.34999999999997,
+      "duration": 9.574999999999989,
+      "text": "Volumetric Processing contains beta controls for z stacks, projection, anisotropy, voxel calibration, and three-dimensional stitching.",
+      "speech_text": "Volumetric Processing contains beta controls for z stacks, projection, anisotropy, voxel calibration, and three-dimensional stitching.",
+      "phonemes": "vˌɑljəmˈɛtɹɪk pɹˈɑsɛsɪŋ kəntˈAnz bˈATə kəntɹˈOlz fɔɹ zˈi stˈæks, pɹəʤˈɛkʃən, ˌænˌIsˈɑtɹəpi, vˈɑksəl kˌæləbɹˈAʃən, ænd θɹˌidəmˈɛnʃᵊnᵊl stˈɪʧɪŋ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 200.34999999999997,
+      "speech_end": 209.32499999999996,
+      "scene_end": 209.77499999999995,
+      "duration": 9.424999999999983,
+      "text": "Time Axes and Tracking contains beta controls for four-dimensional data, frame intervals, tracking backends, and displacement limits.",
+      "speech_text": "Time Axes and Tracking contains beta controls for four-dimensional data, frame intervals, tracking backends, and displacement limits.",
+      "phonemes": "tˈIm ˈæksˌiz ænd tɹˈækɪŋ kəntˈAnz bˈATə kəntɹˈOlz fɔɹ fˌɔɹdəmˈɛnʃənᵊl dˈATə, fɹˈAm ˈɪntəɹvᵊlz, tɹˈækɪŋ bækˈɛndz, ænd dɪsplˈAsmᵊnt lˈɪməts."
+    },
+    {
+      "scene": 22,
+      "speech_start": 209.77499999999995,
+      "speech_end": 218.19999999999996,
+      "scene_end": 218.64999999999995,
+      "duration": 8.875,
+      "text": "Visualization and Diagnostics controls preview plots, color maps, figure size, plot normalization, and example fields.",
+      "speech_text": "Visualization and Diagnostics controls preview plots, color maps, figure size, plot normalization, and example fields.",
+      "phonemes": "vˌɪʒələzˈAʃən ænd dˌIəɡnˈɑstɪks kəntɹˈOlz pɹˈivjˌu plˈɑts, kˈʌləɹ mˈæps, fˈɪɡjəɹ sˈIz, plˈɑt nˌɔɹmələzˈAʃən, ænd ɪɡzˈæmpəl fˈildz."
+    },
+    {
+      "scene": 23,
+      "speech_start": 218.64999999999995,
+      "speech_end": 225.67499999999995,
+      "scene_end": 226.12499999999994,
+      "duration": 7.474999999999994,
+      "text": "Output and Storage decides which images, masks, intermediate arrays, and compressed results are retained.",
+      "speech_text": "Output and Storage decides which images, masks, intermediate arrays, and compressed results are retained.",
+      "phonemes": "ˈWtpˌʊt ænd stˈɔɹɪʤ dəsˈIdz wˌɪʧ ˈɪmɪʤᵻz, mˈæsks, ˌɪntəɹmˈidiət əɹˈAz, ænd kəmpɹˈɛst ɹəzˈʌlts ɑɹ ɹətˈAnd."
+    },
+    {
+      "scene": 24,
+      "speech_start": 226.12499999999994,
+      "speech_end": 235.49999999999994,
+      "scene_end": 235.94999999999993,
+      "duration": 9.824999999999989,
+      "text": "Runtime and Reliability contains failure handling, reproducibility, logging, worker counts, batches, and pipeline execution choices.",
+      "speech_text": "Runtime and Reliability contains failure handling, reproducibility, logging, worker counts, batches, and pipeline execution choices.",
+      "phonemes": "ɹˈʌntIm ænd ɹəlˌIəbˈɪləTi kəntˈAnz fˈAljəɹ hˈændᵊlɪŋ, ɹˌipɹədˌusəbˈɪləTi, lˈɔɡɪŋ, wˈɜɹkəɹ kˈWnts, bˈæʧᵻz, ænd pˈIplˌIn ˌɛksəkjˈuʃən ʧˈYsᵻz."
+    },
+    {
+      "scene": 25,
+      "speech_start": 235.94999999999993,
+      "speech_end": 245.17499999999993,
+      "scene_end": 245.62499999999991,
+      "duration": 9.674999999999983,
+      "text": "Enable Live Preview and load the channel-two ER image. This field contains only the cell signal used for the segmentation example.",
+      "speech_text": "Enable Live Preview and load the channel-two ER image. This field contains only the cell signal used for the segmentation example.",
+      "phonemes": "ɪnˈAbᵊl lˈɪv pɹˈivjˌu ænd lˈOd ðə ʧˈænᵊltˌu ˌiˈɑɹ ˈɪmɪʤ. ðˌɪs fˈild kəntˈAnz ˈOnli ðə sˈɛl sˈɪɡnᵊl jˈuzd fɔɹ ðə sˌɛɡməntˈAʃən ɪɡzˈæmpəl."
+    },
+    {
+      "scene": 26,
+      "speech_start": 245.62499999999991,
+      "speech_end": 255.02499999999992,
+      "scene_end": 255.4749999999999,
+      "duration": 9.849999999999994,
+      "text": "In Live Settings, select cell, enable normalization, and set the lower percentile to 2 and the upper percentile to 99.5.",
+      "speech_text": "In Live Settings, select cell, enable normalization, and set the lower percentile to 2 and the upper percentile to 99.5.",
+      "phonemes": "ɪn lˈIv sˈɛTɪŋz, səlˈɛkt sˈɛl, ɪnˈAbᵊl nˌɔɹmələzˈAʃən, ænd sˈɛt ðə lˈOəɹ pəɹsˈɛntˌIl tə tˈu ænd ði ˈʌpəɹ pəɹsˈɛntˌIl tə nˈIndi nˈIn pYnt fˈIv."
+    },
+    {
+      "scene": 27,
+      "speech_start": 255.4749999999999,
+      "speech_end": 264.32499999999993,
+      "scene_end": 264.7749999999999,
+      "duration": 9.300000000000011,
+      "text": "Run the preview and zoom into the synchronized source and result panes. Overlay outlines should follow ER-defined cell boundaries.",
+      "speech_text": "Run the preview and zoom into the synchronized source and result panes. Overlay outlines should follow ER-defined cell boundaries.",
+      "phonemes": "ɹˈʌn ðə pɹˈivjˌu ænd zˈum ˈɪntu ðə sˈɪŋkɹənˌIzd sˈɔɹs ænd ɹəzˈʌlt pˈAnz. ˈOvəɹlˌA ˈWtlˌInz ʃˌʊd fˈɑlO iˌɑɹdəfˈInd sˈɛl bˈWndəɹiz."
+    },
+    {
+      "scene": 28,
+      "speech_start": 264.7749999999999,
+      "speech_end": 270.99999999999994,
+      "scene_end": 271.44999999999993,
+      "duration": 6.675000000000011,
+      "text": "Switch the result pane to Flows to inspect the Cellpose flow field used to form objects.",
+      "speech_text": "Switch the result pane to Flows to inspect the Cellpose flow field used to form objects.",
+      "phonemes": "swˈɪʧ ðə ɹəzˈʌlt pˈAn tə flˈOz tʊ ɪnspˈɛkt ðə sˈɛlpOz flˈO fˈild jˈuzd tə fˈɔɹm ˈɑbʤəkts."
+    },
+    {
+      "scene": 29,
+      "speech_start": 271.44999999999993,
+      "speech_end": 280.07499999999993,
+      "scene_end": 280.5249999999999,
+      "duration": 9.074999999999989,
+      "text": "Switch to Masks to view the integer cell objects directly. Each color is one object and black remains background label zero.",
+      "speech_text": "Switch to Masks to view the integer cell objects directly. Each color is one object and black remains background label zero.",
+      "phonemes": "swˈɪʧ tə mˈæsks tə vjˈu ði ˈɪntəʤəɹ sˈɛl əbʤˈɛkts dəɹˈɛktli. ˈiʧ kˈʌləɹ ɪz wˈʌn ˈɑbʤəkt ænd blˈæk ɹəmˈAnz bˈækɡɹˌWnd lˈAbəl zˈɪɹO."
+    },
+    {
+      "scene": 30,
+      "speech_start": 280.5249999999999,
+      "speech_end": 290.9249999999999,
+      "scene_end": 291.3749999999999,
+      "duration": 10.849999999999966,
+      "text": "Return to Live Settings and set only the cell minimum area to 10000 pixels. The cached raw masks are filtered immediately without rerunning Cellpose.",
+      "speech_text": "Return to Live Settings and set only the cell minimum area to 10000 pixels. The cached raw masks are filtered immediately without rerunning Cellpose.",
+      "phonemes": "ɹətˈɜɹn tə lˈIv sˈɛTɪŋz ænd sˈɛt ˈOnli ðə sˈɛl mˈɪnəməm ˈɛɹiə tə tˈɛn θˈWzᵊnd pˈɪksᵊlz. ðə kˈæʃt ɹˈɔ mˈæsks ɑɹ fˈɪltəɹd ɪmˈidiətli wɪðˈWt ɹiɹˈʌnɪŋ sˈɛlpOz."
+    },
+    {
+      "scene": 31,
+      "speech_start": 291.3749999999999,
+      "speech_end": 301.8499999999999,
+      "scene_end": 302.4999999999999,
+      "duration": 11.125,
+      "text": "After the size filter, small cell objects lose their outlines and only objects at least 10000 pixels remain. Compare this with the unfiltered overlay.",
+      "speech_text": "After the size filter, small cell objects lose their outlines and only objects at least 10000 pixels remain. Compare this with the unfiltered overlay.",
+      "phonemes": "ˈæftəɹ ðə sˈIz fˈɪltəɹ, smˈɔl sˈɛl ˈɑbʤəkts lˈuz ðɛɹ ˈWtlˌInz ænd ˈOnli ˈɑbʤəkts æt lˈist tˈɛn θˈWzᵊnd pˈɪksᵊlz ɹəmˈAn. kəmpˈɛɹ ðɪs wɪð ði ˌʌnfˈɪltəɹd ˈOvəɹlˌA."
     }
   ]
 }

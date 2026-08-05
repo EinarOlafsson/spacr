@@ -47,6 +47,14 @@ import pytest
 
 from spacr.qt.widgets import live_preview as LP
 
+from tests.cellpose_api_contract import (
+    MISSING_CHANNEL_AXIS,
+    emulate_pretrained_model,
+    eval_arguments,
+    init_arguments,
+)
+from tests.conftest import check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # Fake Cellpose — shaped like the installed cellpose 4 API, nothing else
@@ -55,23 +63,46 @@ from spacr.qt.widgets import live_preview as LP
 class _RecordingCellposeModel:
     """Records construction kwargs and every ``eval`` call.
 
+    Both signatures are the installed cellpose 4.0.7 ones, written out with
+    the real defaults and no ``**kwargs``, so an argument Cellpose 4 dropped
+    (``interp``, ``tile``, ``net_avg``, ``model_loaded``) raises ``TypeError``
+    here rather than being absorbed.
+
     ``eval`` mirrors cellpose 4's real return shape ``(masks, flows,
     styles)`` and, unlike a pure spy, actually *honours* ``diameter`` the
     way cellpose does — it rescales by ``30 / diameter`` and emits a
     number of objects that depends on that scale. A mock that ignored the
     argument would have agreed with the bug.
+
+    ``__init__`` reproduces cellpose 4's *behaviour* as well as its parameter
+    list: ``model_type=`` is warned about and thrown away, so
+    :attr:`loaded_model` follows ``pretrained_model`` alone. That is how a
+    caller still selecting weights through ``model_type=`` silently gets
+    ``cpsam``.
     """
 
     instances: list = []
 
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
+    def __init__(self, gpu=False, pretrained_model="cpsam", model_type=None,
+                 diam_mean=None, device=None, nchan=None, use_bfloat16=True):
+        self.kwargs = init_arguments(locals())
+        self.loaded_model = emulate_pretrained_model(pretrained_model,
+                                                     model_type)
         self.calls: list = []
         type(self).instances.append(self)
 
-    def eval(self, image, **kwargs):
-        self.calls.append(dict(kwargs))
-        diameter = kwargs.get("diameter")
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        # The panel hands over one 2-D plane and lets cellpose detect the
+        # axis, so the value is checked but not required to be present.
+        check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
+        self.calls.append(eval_arguments(locals()))
+        image = x
         scaling = 1.0 if diameter is None else 30.0 / diameter
         mask = np.zeros(image.shape[:2], dtype=np.uint16)
         # More objects when the image is upscaled, fewer when it shrinks —
@@ -216,7 +247,13 @@ def test_the_dialog_leaves_the_diameter_usable_on_cpsam(qtbot):
     panel.open_live_settings()
     try:
         assert panel._diameter.isEnabled()
-        assert panel._diameter.toolTip() == LP.DIAMETER_TOOLTIP
+        assert panel._diameter.toolTip() == ""
+        label = panel._diameter._spacr_setting_label
+        assert "30/diameter" in label.toolTip()
+        assert "href=" in label.toolTip()
+        # No `_spacr_api_dot`: the live-preview dialog passes
+        # `api_dots=False`. The link is still in the label's tooltip, which
+        # is what the assertion above checks and what this test is about.
         panel._diameter.setValue(60.0)
     finally:
         panel._live_settings_dialog.close()

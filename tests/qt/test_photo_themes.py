@@ -22,6 +22,7 @@ the user's home directory is redirected through ``SPACR_SPACE_CACHE``.
 """
 from __future__ import annotations
 
+import math
 import resource
 
 import numpy as np
@@ -80,10 +81,42 @@ class TestPalettes:
                     f"{name}.{role} = {value!r} is not #rrggbb"
 
     def test_no_role_lookup_raises_for_any_theme(self):
+        """Every role a contrast rule names resolves, in every theme.
+
+        "It did not raise" is not the claim. A ``palette_for`` that
+        started handing back one default colour for anything it did not
+        know would never raise either — and every rule would then
+        measure the identity ratio, exactly 1.0, because both ends of
+        each pair would be that same colour. So the floor is asserted
+        against a deliberate identity measurement, and ``fg`` on ``bg``
+        (18.5:1 to 21:1 across the shipped themes) has to sit far above
+        it.
+        """
+        roles = {role for rule in theme.CONTRAST_RULES for role in rule[:2]}
+        assert len(theme.CONTRAST_RULES) >= 10 and len(roles) >= 10
         for name in list(theme.THEMES) + ["system", "", "no-such-theme"]:
             palette = theme.palette_for(name)
-            for fg, surface, _ in theme.CONTRAST_RULES:
-                theme.contrast_ratio(palette[fg], palette[surface])
+            assert roles.issubset(palette), \
+                f"{name} cannot resolve {sorted(roles - set(palette))}"
+            measured = []
+            for fg, surface, required in theme.CONTRAST_RULES:
+                ratio = theme.contrast_ratio(palette[fg], palette[surface])
+                assert isinstance(ratio, float) and math.isfinite(ratio), \
+                    f"{name}: {fg} on {surface} measured {ratio!r}"
+                assert 1.0 <= ratio <= 21.0, \
+                    f"{name}: {fg} on {surface} measured {ratio}"
+                measured.append((fg, surface, required, ratio))
+            # The identity floor, and the distance the real roles keep
+            # from it.
+            assert theme.contrast_ratio(palette["fg"], palette["fg"]) == \
+                pytest.approx(1.0)
+            assert theme.contrast_ratio(palette["fg"], palette["bg"]) >= 4.5, \
+                f"{name}: body text does not clear AA on its own background"
+            assert len({round(ratio, 2) for *_r, ratio in measured}) > 1, \
+                f"{name}: every rule measured the same ratio"
+            assert any(ratio >= required
+                       for *_r, required, ratio in measured), \
+                f"{name}: not one contrast rule is met"
 
     def test_cell_clears_aa_against_the_worst_case_it_can_actually_meet(self):
         """Renamed, and it now means something different.
@@ -682,9 +715,17 @@ class TestMasterLookup:
         assert imagery.title_for("no-such-image") == "no-such-image"
 
     def test_titles_are_human_readable(self):
+        # A master's theme names the palette its colours are judged
+        # against, which is not the same as a theme a user can pick.
+        # `3e11c796` retired Space as a selectable theme and left
+        # `SPACE_PALETTE` in place -- deliberately, because a settings file
+        # written by an older spaCR can still say "space" and resolving it
+        # beats raising. `deep_field` is still offered as a wallpaper
+        # variant and is still judged against that palette, so the set to
+        # check against is every palette, not the selectable image themes.
         for key in imagery.MASTERS:
             assert imagery.title_for(key) != key
-            assert imagery.theme_for(key) in theme.IMAGE_THEMES
+            assert imagery.theme_for(key) in theme._PALETTES
 
     def test_the_user_directory_wins_over_the_bundled_asset(self, qapp,
                                                             tmp_path,
@@ -835,7 +876,12 @@ class TestPreferences:
         assert preferences.resolve_effective_theme() in theme.THEMES
 
     def test_an_existing_saved_theme_keeps_working(self, monkeypatch, qapp):
-        for saved in ("dark", "light", "space", "cell"):
+        # "space" is not in this list any more: it was retired as a
+        # selectable theme, so a settings file naming it resolves to the
+        # default rather than round-tripping. That it resolves at all
+        # rather than raising is the property that matters, and
+        # `test_a_retired_theme_name_still_resolves` below states it.
+        for saved in ("dark", "light", "cell"):
             class Saved:
                 def value(self, key, default=None, _s=saved):
                     return _s if key.endswith("theme") else default
@@ -843,6 +889,21 @@ class TestPreferences:
             monkeypatch.setattr(preferences, "_settings", Saved)
             assert preferences.get_theme() == saved
             assert preferences.resolve_effective_theme() == saved
+
+    def test_a_retired_theme_name_still_resolves(self, monkeypatch, qapp):
+        """An older settings file saying "space" must not break the app.
+
+        `_PALETTES` keeps the entry for exactly this reason. What it
+        resolves TO is not important -- that it resolves is.
+        """
+        class Saved:
+            def value(self, key, default=None):
+                return "space" if key.endswith("theme") else default
+
+        monkeypatch.setattr(preferences, "_settings", Saved)
+        resolved = preferences.resolve_effective_theme()
+        assert resolved in theme.THEMES or resolved == "system"
+        assert theme.palette_for(resolved)
 
     def test_theme_background_path_routes_by_theme(self, qapp, cache_dir,
                                                    monkeypatch):
@@ -873,7 +934,13 @@ class TestPreferences:
         for combo in dialog.findChildren(QComboBox):
             for i in range(combo.count()):
                 values.add(combo.itemData(i))
-        assert "space:deep_field" in values
+        # No `space:*` entry: Space was retired as a selectable theme in
+        # `3e11c796`, so the dialog must not offer it even though the
+        # palette and the wallpaper are both still on disk for the sake of
+        # older settings files.
+        assert not any(str(v).startswith("space:") for v in values), (
+            f"the dialog still offers a retired theme: "
+            f"{sorted(v for v in values if str(v).startswith('space:'))}")
         assert {"cell:microtubules", "cell:filopodia"} <= values
         assert "deep_field" not in values
         assert "microtubules" not in values
@@ -894,10 +961,14 @@ class TestPreferences:
             "_settings",
             lambda: QSettings(str(settings_path), QSettings.IniFormat),
         )
-        preferences.set_theme_choice("space:stars")
-        assert preferences.get_theme() == "space"
-        assert preferences.get_space_variant() == "stars"
-        assert preferences.get_theme_choice() == "space:stars"
+        # Was `space:stars`, which `set_theme_choice` now rejects outright:
+        # Space is not a theme any more, and a retired name is not a valid
+        # choice to write. The round trip is what this test is about, so it
+        # is made with the two image themes that remain.
+        preferences.set_theme_choice("cell:microtubules")
+        assert preferences.get_theme() == "cell"
+        assert preferences.get_cell_variant() == "microtubules"
+        assert preferences.get_theme_choice() == "cell:microtubules"
 
         preferences.set_theme_choice("cell:filopodia")
         assert preferences.get_theme() == "cell"
@@ -934,7 +1005,9 @@ class TestStylesheet:
         fills with — and those are translucent in *every* theme on
         purpose: a tint that is a solid colour is not a tint. Section
         maturity now uses the same hues for its border and header tint,
-        so those two documented alphas belong to the same allow-list.
+        so those documented alphas belong to the same allow-list. The
+        semantic Run/Propagate and Stop/Close buttons likewise use an
+        explicitly requested 18% blue/red hover tint.
         The assertion names them and demands they are the only ones,
         which is the same guarantee stated precisely rather than a
         blanket ban that a rule about something else happened to trip.
@@ -942,7 +1015,12 @@ class TestStylesheet:
         import re
         for name in ("dark", "light"):
             qss = theme.stylesheet(name)
-            allowed = {theme.css_color(theme.rim_colour(name), 0.35)}
+            palette = theme.palette_for(name)
+            allowed = {
+                theme.css_color(theme.rim_colour(name), 0.35),
+                theme.css_color(palette["button_accent"], 0.18),
+                theme.css_color(palette["error"], 0.18),
+            }
             for hue in theme.STAGE_HOVER.values():
                 allowed.add(theme.css_color(hue, 0.22))
                 allowed.add(theme.css_color(hue, 0.40))
@@ -956,6 +1034,86 @@ class TestStylesheet:
             for role in ("surface", "surface_alt", "surface_hi"):
                 assert theme.palette_for(name)[role] in qss, (
                     f"{name}.{role} came out as anything but plain hex")
+
+    def test_the_sheet_does_not_read_the_live_page_opacity(self, monkeypatch):
+        """`stylesheet(theme)` is a function of its arguments. Only.
+
+        It was not, and the test above is how that surfaced: it passed or
+        failed on which modules pytest had imported first. The cause is a
+        near-miss between two accessors. `pane_surface(role, theme, None)`
+        means "nobody told me, go and look" and reads the page-opacity
+        preference, which is right for the inline and paint-time callers it
+        was written for. Twenty-one registered QSS blocks were passing it the
+        `opacity` argument `stylesheet` hands them, where `None` already
+        means something else and specific -- the theme's DESIGNED scrim -- so
+        `stylesheet("dark")` emitted `rgba(22, 23, 25, 0.600)` from a
+        QSettings value the caller never mentioned. `theme.block_surface` is
+        the accessor whose `None` is the scrim, and the blocks use it.
+
+        Asserted as invariance under the preference rather than as an absence
+        of `rgba(`, because that is the actual property: a block is free to
+        emit translucency, it is not free to source it from the environment.
+        The modules are imported here on purpose -- a block that is not
+        registered cannot be checked, which is the same import-order
+        sensitivity in a different coat.
+        """
+        import spacr.qt.screens.control_chart  # noqa: F401
+        import spacr.qt.screens.hit_list  # noqa: F401
+        import spacr.qt.screens.model_compare  # noqa: F401
+        import spacr.qt.screens.model_zoo  # noqa: F401
+        import spacr.qt.screens.profiler  # noqa: F401
+        import spacr.qt.widgets.pca_view  # noqa: F401
+        import spacr.qt.widgets.pivot_builder  # noqa: F401
+
+        registered = theme.widget_qss_names()
+        assert len(registered) >= 7, (
+            f"only {len(registered)} blocks registered; this test cannot "
+            "see the fault it exists for")
+
+        sheets = {}
+        for pref in (0.15, 0.60, 1.0):
+            monkeypatch.setattr(preferences, "get_pane_opacity",
+                                lambda p=pref: p)
+            for name in theme.THEMES:
+                sheets.setdefault(name, []).append(theme.stylesheet(name))
+        for name, variants in sheets.items():
+            first = variants[0]
+            for pref, other in zip((0.15, 0.60, 1.0), variants):
+                assert other == first, (
+                    f"stylesheet({name!r}) changed when the page-opacity "
+                    f"preference was {pref} -- something in it is reading "
+                    "the preference instead of taking the argument")
+
+    def test_an_explicit_opacity_still_reaches_every_block(self):
+        """The other half: `None` being the scrim must not deafen the sheet.
+
+        A fix that made `stylesheet` ignore opacity everywhere would pass the
+        test above and break the slider. The live path passes a number, and
+        that number has to come out the other side.
+        """
+        import spacr.qt.screens.hit_list  # noqa: F401
+
+        thin = theme.stylesheet("dark", surface_opacity=0.30)
+        thick = theme.stylesheet("dark", surface_opacity=1.0)
+        assert thin != thick
+        assert theme.pane_surface("surface_alt", "dark", 0.30) in thin
+        assert theme.block_surface("surface_alt", "dark", 0.30) in thin
+
+    def test_the_two_surface_accessors_agree_whenever_asked(self):
+        """`block_surface` differs from `pane_surface` at `None` and nowhere
+        else, which is what makes the migration a no-op for users."""
+        for name in theme.THEMES:
+            for role in ("surface", "surface_alt", "surface_hi", "tile"):
+                for opacity in (0.0, 0.15, 0.30, 0.60, 1.0):
+                    assert (theme.block_surface(role, name, opacity)
+                            == theme.pane_surface(role, name, opacity)), (
+                        f"{name}/{role} at {opacity} differs between the two "
+                        "accessors; they must part company only at None")
+            assert theme.block_surface(role, name, None) == theme.css_color(
+                theme.palette_for(name)[theme.SCRIM_ROLES.get(role, role)],
+                theme.scrim_alpha(name, role)), (
+                    f"block_surface({role!r}, {name!r}, None) is not the "
+                    "theme's designed scrim")
 
     def test_image_themes_keep_their_popups_opaque(self):
         for name in theme.IMAGE_THEMES:

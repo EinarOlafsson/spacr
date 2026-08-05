@@ -4,47 +4,207 @@
   "voice": "jf_tebukuro",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 71.85,
+  "total_duration": 344.2,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 13.5,
-      "scene_end": 13.95,
-      "duration": 13.95,
-      "text": "このチュートリアルでは,Cellposeを訓練します. キュレーティングされた画像マスクペアからカスタムなCellposeまたはCPSAM対応のセグメントモデルを訓練します."
+      "speech_end": 19.925,
+      "scene_end": 20.375,
+      "duration": 20.375,
+      "text": "訓練Cellposeは,ペアされた顕微鏡画像とインスタンスのラベルマスクからCPSAMセグメントモデルを細かく調節します. コンソールは選択されたデータ,トレーニング進捗,チェックポイント経路,再生可能な記録を報告します.",
+      "speech_text": "訓練Cellposeは,ペアされた顕微鏡画像とインスタンスのラベルマスクからCPSAMセグメントモデルを細かく調節します. コンソールは選択されたデータ,トレーニング進捗,チェックポイント経路,再生可能な記録を報告します.",
+      "phonemes": "kɯnɾeɴ Cellpose βa, pea saɾeta kembʲikʲoː ɡaʣoː to iɴsɨtaɴsɨ no ɾabeɾɯ masɨkɯ kaɾa CPS AM seɡɯmento modeɾɯ o komakakɯ ʨoːseʦɨ ɕi masɨ. koɴsoːɾɯ βa sentakɯ saɾeta deːta, toɾeːɲiŋɡɯ ɕiɲʨokɯ, ʨeʔkɯpointo keːɾo, saiseː kanoː na kʲiɾokɯ o hoːkokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 13.95,
-      "speech_end": 27.6,
-      "scene_end": 28.05,
-      "duration": 14.100000000000001,
-      "text": "Segmentation models セクションから Train Cellpose を開きます。 慎重に修正されたラベルマスクで多様なトレーニングおよび検証画像を提供してください."
+      "speech_start": 20.375,
+      "speech_end": 37.45,
+      "scene_end": 37.900000000000006,
+      "duration": 17.525000000000006,
+      "text": "チャットフィールドは,ローカルワークフローの質問を受け入れます. 設定されたプロバイダーのためのAIを有効にし,隣接する矢印を使用してプロバイダーを選択するか,そのコントロールを開く.",
+      "speech_text": "チャットフィールドは,ローカルワークフローの質問を受け入れます. 設定されたプロバイダーのためのAIを有効にし,隣接する矢印を使用してプロバイダーを選択するか,そのコントロールを開く.",
+      "phonemes": "ʨaʔto ɸʲiːɾɯdo βa, ɾoːkaɾɯ βaːkɯ ɸɯɾoː no ɕiʦɨmoɴ o ɯkeiɾemasɨ. seʔteː saɾeta pɯɾobaidaː no tame no AI o jɯːkoː ɲi ɕi, ɾʲiɴseʦɨ sɨɾɯ jaʥiɾɯɕi o ɕijoː ɕite pɯɾobaidaː o sentakɯ sɨɾɯ ka, sono kontoɾoːɾɯ o çiɾakɯ."
     },
     {
       "scene": 3,
-      "speech_start": 28.05,
-      "speech_end": 40.725,
-      "scene_end": 41.175000000000004,
-      "duration": 13.125000000000004,
-      "text": "主な構成領域では,チャンネル,ベースモデル,直径,拡張,学習速率,時代,バッチサイズ,検証分割を選択します."
+      "speech_start": 37.900000000000006,
+      "speech_end": 52.12500000000001,
+      "scene_end": 52.57500000000001,
+      "duration": 14.675000000000004,
+      "text": "プロバイダーは Claude, ChatGPT, Gemini コマンドラインクライアントをチェックし,インストールとログインのコマンドを表示します. 認証は各プロバイダーに任せられます",
+      "speech_text": "プロバイダーは Claude, ChatGPT, Gemini コマンドラインクライアントをチェックし,インストールとログインのコマンドを表示します. 認証は各プロバイダーに任せられます",
+      "phonemes": "pɯɾobaidaː βa Claude, Chat GPT, Gemini komando ɾaiɴ kɯɾaianto o ʨeʔkɯ ɕi, iɴsɨtoːɾɯ to ɾoɡɯiɴ no komando o çoːʥi ɕi masɨ. ɲiɴɕoː βa kakɯ pɯɾobaidaː ɲi makase ɾaɾemasɨ"
     },
     {
       "scene": 4,
-      "speech_start": 41.175000000000004,
-      "speech_end": 60.0,
-      "scene_end": 60.45,
-      "duration": 19.275,
-      "text": "完全実行前に,可視設定をチェックし,利用可能な場合,前見またはテストモードを使用します.訓練および検証損失を監視し,訓練に使用されていないフィールドでのテストチェックポイントをチェックします."
+      "speech_start": 52.57500000000001,
+      "speech_end": 65.00000000000001,
+      "scene_end": 65.45000000000002,
+      "duration": 12.875000000000007,
+      "text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびspaCR 認識システム指示を制御します.",
+      "speech_text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびスペーカー 認識システム指示を制御します.",
+      "phonemes": "AI seʔteː βa oːtoː ɸɯka sa, ʥidoː eɾaː seʦɨmeː, opɯɕoɴ no GitHub mondai hoːkokɯ, saiɴ iɴ, ojobʲi sɨpeːkaː ɲiɴɕikʲi ɕisɨtemɯ ɕiʥi o seːɡʲo ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 60.45,
-      "speech_end": 71.2,
-      "scene_end": 71.85000000000001,
-      "duration": 11.400000000000006,
-      "text": "作業流が完了すると,選択されたチェックポイント,トレーニング履歴,検証予測,設定が一緒に保存されます."
+      "speech_start": 65.45000000000002,
+      "speech_end": 87.85000000000002,
+      "scene_end": 88.35000000000002,
+      "duration": 22.900000000000006,
+      "text": "電車,画像,電車,マスクを含むデータセットのルーツを落とす. 各ペアに一致するTIFFファイル名がある. この示範は実際のチュートリアル実験から512ピクセルの6つのフィールドを導き出します 生産ラベルは独立したレビューが必要です",
+      "speech_text": "電車,画像,電車,マスクを含むデータセットのルーツを落とす. 各ペアに一致するTIFFファイル名がある. この示範は実際のチュートリアル実験から512ピクセルの6つのフィールドを導き出します 生産ラベルは独立したレビューが必要です",
+      "phonemes": "deɴɕa, ɡaʣoː, deɴɕa, masɨkɯ o ɸɯkɯmɯ deːta seʔto no ɾɯːʦɨ o otosɨ. kakɯ pea ɲi iʔʨi sɨɾɯ TIFF ɸaiɾɯ meː ɡa aɾɯ. kono ɕihaɴ βa ʥiʔsai no ʨɨːtoɾʲiaɾɯ ʥiʔkeɴ kaɾa ɡoçakɯ ʥɨːɲi pʲikɯseɾɯ no ɾokɯ ʦɨ no ɸʲiːɾɯdo o mʲiʨibʲikʲidaɕi masɨ seːsaɴ ɾabeɾɯ βa dokɯɾʲiʦɨ ɕita ɾebʲɨː ɡa çiʦɨjoː desɨ"
+    },
+    {
+      "scene": 6,
+      "speech_start": 88.35000000000002,
+      "speech_end": 102.10000000000002,
+      "scene_end": 102.55000000000003,
+      "duration": 14.200000000000003,
+      "text": "エッセンシャルは,最初の校正実行のために,開始重量,モデル名,時代数,学習速率,画像ターゲットサイズ,語音輸出を可視に保つ.",
+      "speech_text": "エッセンシャルは,最初の校正実行のために,開始重量,モデル名,時代数,学習速率,画像ターゲットサイズ,語音輸出を可視に保つ.",
+      "phonemes": "eʔseɴɕaɾɯ βa, saiɕo no koːseː ʥiʔkoː no tame ɲi, kaiɕi ʥɨːɾʲoː, modeɾɯ meː, ʥidai sɨː, ɡakɯɕɨː sokɯɾʲiʦɨ, ɡaʣoː taːɡeʔto saizɨ, ɡo oɴ jɯɕɨʦɨ o kaɕi ɲi tamoʦɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 102.55000000000003,
+      "speech_end": 122.32500000000002,
+      "scene_end": 122.77500000000002,
+      "duration": 20.224999999999994,
+      "text": "変更されたパネルは意図的な変更に制限されます 1つの時代 学習速度は1点0点2 バッチサイズ サイズ変更 そして2506ピクセルのターゲットで チュートリアルが速くて再生可能になります",
+      "speech_text": "変更されたパネルは意図的な変更に制限されます 1つの時代 学習速度は1点0点2 バッチサイズ サイズ変更 そして2506ピクセルのターゲットで チュートリアルが速くて再生可能になります",
+      "phonemes": "heŋkoː saɾeta paneɾɯ βa itotekʲi na heŋkoː ɲi seːɡeɴ saɾemasɨ i ʨiʦɨ no ʥidai ɡakɯɕɨː sokɯdo βa iʨi teɴ ʣeɾo teɴ ɲi baʔʨi saizɨ saizɨ heŋkoː soɕite ɲi seŋɡo çakɯ ɾokɯ pʲikɯseɾɯ no taːɡeʔto de ʨɨːtoɾʲiaɾɯ ɡa hajakɯ te saiseː kanoː ɲi naɾʲimasɨ"
+    },
+    {
+      "scene": 8,
+      "speech_start": 122.77500000000002,
+      "speech_end": 136.50000000000003,
+      "scene_end": 136.95000000000002,
+      "duration": 14.174999999999997,
+      "text": "すべての設定は5つのカテゴリを明らかにします:スタートポイント,トレーニングスケジュール,画像ジオメトリ,背景と否定,および出力と実行時間.",
+      "speech_text": "すべての設定は5つのカテゴリを明らかにします:スタートポイント,トレーニングスケジュール,画像ジオメトリ,背景と否定,および出力と実行時間.",
+      "phonemes": "sɨbete no seʔteː βa ɡoʦɨ no kateɡoɾʲi o akʲiɾaka ɲi ɕi masɨ: sɨtaːto pointo, toɾeːɲiŋɡɯ sɨkeʥɨːɾɯ, ɡaʣoː ʥiometoɾʲi, haikeː to çiteː, ojobʲi ɕɨʦɨɾʲokɯ to ʥiʔkoː ʥikaɴ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 136.95000000000002,
+      "speech_end": 152.15,
+      "scene_end": 152.6,
+      "duration": 15.649999999999977,
+      "text": "レシピは,完全なトレーニングコンフィギュレーションを名前で保存し,別の注釈されたデータセットに再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "speech_text": "レシピは,完全なトレーニングコンフィギュレーションを名前で保存し,別の注釈されたデータセットに再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "phonemes": "ɾeɕipʲi βa, kaɴʣeɴ na toɾeːɲiŋɡɯ koɴɸʲiɡʲɨɾeːɕoɴ o namae de hoʣoɴ ɕi, beʦɨ no ʨɨːɕakɯ saɾeta deːta seʔto ɲi sai tekʲijoː sɨɾɯ ka, sai ɾʲijoː kanoː na seʔteː ɸaiɾɯ o jɯɲɨː jɯɕɨʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 152.6,
+      "speech_end": 168.225,
+      "scene_end": 168.67499999999998,
+      "duration": 16.07499999999999,
+      "text": "リモート・スナップショットを送信し,解決したトレーニング設定を Distributed Jobs ワークスペースに送信します. CPSAM トレーニングがより大きな GPU に属している場合に有用です.",
+      "speech_text": "リモート・スナップショットを送信し,解決したトレーニング設定を Distributed Jobs ワークスペースに送信します. CPSAM トレーニングがより大きな GPU に属している場合に有用です.",
+      "phonemes": "ɾʲimoːto sɨnaʔpɯɕoʔto o soːɕiɴ ɕi, kaikeʦɨ ɕita toɾeːɲiŋɡɯ seʔteː o Distributed Jobs βaːkɯsɨ peːsɨ ɲi soːɕiɴ ɕi masɨ. CPS AM toɾeːɲiŋɡɯ ɡa joɾʲi oːkʲina GPU ɲi ʣokɯɕite iɾɯ baai ɲi jɯːjoː desɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 168.67499999999998,
+      "speech_end": 184.77499999999998,
+      "scene_end": 185.22499999999997,
+      "duration": 16.549999999999983,
+      "text": "Distributed Jobsは,データセットとリモートワークステーション,Slurmクラスター,または設定されたコマンドへの出力経路をマッピングし,同じトレーニング実行を送信して監視します.",
+      "speech_text": "Distributed Jobsは,データセットとリモートワークステーション,Slurmクラスター,または設定されたコマンドへの出力経路をマッピングし,同じトレーニング実行を送信して監視します.",
+      "phonemes": "Distributed Jobs βa, deːta seʔto to ɾʲimoːto βaːkɯsɨteːɕoɴ, Slurm kɯɾasɨtaː, mata βa seʔteː saɾeta komando e no ɕɨʦɨɾʲokɯ keːɾo o maʔpʲiŋɡɯ ɕi, onaʥi toɾeːɲiŋɡɯ ʥiʔkoː o soːɕiɴ ɕite kaɴɕi ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 185.22499999999997,
+      "speech_end": 201.99999999999997,
+      "scene_end": 202.44999999999996,
+      "duration": 17.224999999999994,
+      "text": "スタートポイントはCPSAM,微調整またはゼロからトレーニング,およびチェックポイントの名前を選択します. 精巧な調整は 通常 ランダムな開始よりも レビューされた画像が 少なくなります",
+      "speech_text": "スタートポイントはCPSAM,微調整またはゼロからトレーニング,およびチェックポイントの名前を選択します. 精巧な調整は 通常 ランダムな開始よりも レビューされた画像が 少なくなります",
+      "phonemes": "sɨtaːto pointo βa CPS AM, bʲiʨoːseː mata βa ʣeɾo kaɾa toɾeːɲiŋɡɯ, ojobʲi ʨeʔkɯpointo no namae o sentakɯ ɕi masɨ. seːkoː na ʨoːseː βa ʦɨːʥoː ɾandamɯ na kaiɕi joɾʲi mo ɾebʲɨː saɾeta ɡaʣoː ɡa sɨkɯnakɯ naɾʲimasɨ"
+    },
+    {
+      "scene": 13,
+      "speech_start": 202.44999999999996,
+      "speech_end": 217.92499999999995,
+      "scene_end": 218.37499999999994,
+      "duration": 15.924999999999983,
+      "text": "訓練スケジュールは時代,学習率,体重減少,ミニバッチサイズ,拡張を設定します 入力ペアと継続した評価戦略が正しい場合にのみ訓練を増やす.",
+      "speech_text": "訓練スケジュールは時代,学習率,体重減少,ミニバッチサイズ,拡張を設定します 入力ペアと継続した評価戦略が正しい場合にのみ訓練を増やす.",
+      "phonemes": "kɯnɾeɴ sɨkeʥɨːɾɯ βa ʥidai, ɡakɯɕɨː ɾʲiʦɨ, taiʥɨː ɡeɴɕoː, mʲiɲi baʔʨi saizɨ, kakɯʨoː o seʔteː ɕi masɨ ɲɨːɾʲokɯ pea to keːʣokɯ ɕita çoːka senɾʲakɯ ɡa tadaɕiː baai ɲi nomʲi kɯnɾeɴ o ɸɯjasɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 218.37499999999994,
+      "speech_end": 236.59999999999994,
+      "scene_end": 237.04999999999993,
+      "duration": 18.674999999999983,
+      "text": "イメージジオメトリは,ソース寸法,ターゲットサイズ,予想されるオブジェクト直径,ペアがサイズ変更されているかどうかを記録します. 画像とマスクは一緒に変形され,ラベルのアイデンティティが保存されます.",
+      "speech_text": "イメージジオメトリは,ソース寸法,ターゲットサイズ,予想されるオブジェクト直径,ペアがサイズ変更されているかどうかを記録します. 画像とマスクは一緒に変形され,ラベルのアイデンティティが保存されます.",
+      "phonemes": "imeːʥi ʥiometoɾʲi βa, soːsɨ sɨmpoː, taːɡeʔto saizɨ, josoː saɾeɾɯ obɯʥekɯto ʨoʔkeː, pea ɡa saizɨ heŋkoː saɾete iɾɯka doː ka o kʲiɾokɯ ɕi masɨ. ɡaʣoː to masɨkɯ βa iʔɕoɲi heŋkeː saɾe, ɾabeɾɯ no aidentʲitʲi ɡa hoʣoɴ saɾemasɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 237.04999999999993,
+      "speech_end": 250.92499999999993,
+      "scene_end": 251.37499999999991,
+      "duration": 14.324999999999989,
+      "text": "バックグラウンドとディネージングは,画像がトレーニングに入る前に選択的にバックグラウンド除去,強度フロア,シグナル-ノイズスクリーニングを制御します.",
+      "speech_text": "バックグラウンドとディネージングは,画像がトレーニングに入る前に選択的にバックグラウンド除去,強度フロア,シグナル-ノイズスクリーニングを制御します.",
+      "phonemes": "baʔkɯɡɯɾaɯndo to dʲineːʥiŋɡɯ βa, ɡaʣoː ɡa toɾeːɲiŋɡɯ ɲi haiɾɯ mae ɲi sentakɯ tekʲi ɲi baʔkɯɡɯɾaɯndo ʥokʲo, kʲoːdo ɸɯɾoa, ɕiɡɯnaɾɯ - noizɨ sɨkɯɾʲiːɲiŋɡɯ o seːɡʲo ɕi masɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 251.37499999999991,
+      "speech_end": 267.7999999999999,
+      "scene_end": 268.2499999999999,
+      "duration": 16.87499999999997,
+      "text": "アウトプットとランタイムの制御は,進捗報告を表すものです. モデルのチェックポイントとその設定は,下落したデータセットのルーツ内のモデル,セルポーズモデルで保存されます.",
+      "speech_text": "アウトプットとランタイムの制御は,進捗報告を表すものです. モデルのチェックポイントとその設定は,下落したデータセットのルーツ内のモデル,セルポーズモデルで保存されます.",
+      "phonemes": "aɯtopɯʔto to ɾantaimɯ no seːɡʲo βa, ɕiɲʨokɯ hoːkokɯ o aɾaβasɨ mono desɨ. modeɾɯ no ʨeʔkɯpointo to sono seʔteː βa, ɡeɾakɯ ɕita deːta seʔto no ɾɯːʦɨ nai no modeɾɯ, seɾɯ poːzɨ modeɾɯ de hoʣoɴ saɾemasɨ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 268.2499999999999,
+      "speech_end": 286.3249999999999,
+      "scene_end": 286.77499999999986,
+      "duration": 18.524999999999977,
+      "text": "この校正のために,一期とバッチサイズ2は,拡張なしで6つの注釈されたフィールドをすべて処理します. 訓練セットを覚えずに収束させるのに十分な時代やイメージ多様性を使うべきです",
+      "speech_text": "この校正のために,一期とバッチサイズ2は,拡張なしで6つの注釈されたフィールドをすべて処理します. 訓練セットを覚えずに収束させるのに十分な時代やイメージ多様性を使うべきです",
+      "phonemes": "kono koːseː no tame ɲi, iʨi kʲi to baʔʨi saizɨ ɲi βa, kakɯʨoː naɕi de ɾokɯ ʦɨ no ʨɨːɕakɯ saɾeta ɸʲiːɾɯdo o sɨbete ɕoɾʲi ɕi masɨ. kɯnɾeɴ seʔto o oboezɨ ɲi ɕɨːsokɯ saseɾɯ no ɲi ʥɨːbɯɴ na ʥidai ja imeːʥi tajoːseː o ʦɨkaɯ bekʲi desɨ"
+    },
+    {
+      "scene": 18,
+      "speech_start": 286.77499999999986,
+      "speech_end": 307.84999999999985,
+      "scene_end": 308.29999999999984,
+      "duration": 21.524999999999977,
+      "text": "実行は一致するファイル名を検証し,注釈されたすべての画像をロードし,制限されたサンプルを前向きに表示し,モデルを細かく調節します. ストップは,現在のパッチが終了する間に安全な中断を要求します.",
+      "speech_text": "実行は一致するファイル名を検証し,注釈されたすべての画像をロードし,制限されたサンプルを前向きに表示し,モデルを細かく調節します. ストップは,現在のパッチが終了する間に安全な中断を要求します.",
+      "phonemes": "ʥiʔkoː βa iʔʨi sɨɾɯ ɸaiɾɯ meː o keɴɕoː ɕi, ʨɨːɕakɯ saɾeta sɨbete no ɡaʣoː o ɾoːdo ɕi, seːɡeɴ saɾeta sampɯɾɯ o maemɯkʲi ɲi çoːʥi ɕi, modeɾɯ o komakakɯ ʨoːseʦɨ ɕi masɨ. sɨtoʔpɯ βa, ɡeɴʣai no paʔʨi ɡa ɕɨːɾʲoː sɨɾɯ aida ɲi aɴʣeɴ na ʨɨːdaɴ o joːkʲɨː ɕi masɨ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 308.29999999999984,
+      "speech_end": 325.24999999999983,
+      "scene_end": 325.6999999999998,
+      "duration": 17.399999999999977,
+      "text": "処理中に,フィギュアパネルはインスタンスマスク上の各顕微鏡フィールドを予見し,コンソールは6つのパッチ,6つのソース注釈,1つの時代,およびミニバッチサイズ2を報告します.",
+      "speech_text": "処理中に,フィギュアパネルはインスタンスマスク上の各顕微鏡フィールドを予見し,コンソールは6つのパッチ,6つのソース注釈,1つの時代,およびミニバッチサイズ2を報告します.",
+      "phonemes": "ɕoɾʲi ʨɨː ɲi, ɸʲiɡʲɨa paneɾɯ βa iɴsɨtaɴsɨ masɨkɯ ʥoː no kakɯ kembʲikʲoː ɸʲiːɾɯdo o jokeɴ ɕi, koɴsoːɾɯ βa ɾokɯ ʦɨ no paʔʨi, ɾokɯ ʦɨ no soːsɨ ʨɨːɕakɯ, iʨi ʦɨ no ʥidai, ojobʲi mʲiɲi baʔʨi saizɨ ɲi o hoːkokɯ ɕi masɨ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 325.6999999999998,
+      "speech_end": 343.49999999999983,
+      "scene_end": 344.1999999999998,
+      "duration": 18.5,
+      "text": "校正は成功しました spaCR は CPSAM チェックポイント,設定 CSV,実行マニフェスト,マクロレコードを保存し,ペアフィールドのプレビューは画像とラベルファイルが並列のままであることを確認します.",
+      "speech_text": "校正は成功しました スペーカー は CPSAM チェックポイント,設定 CSV,実行マニフェスト,マクロレコードを保存し,ペアフィールドのプレビューは画像とラベルファイルが並列のままであることを確認します.",
+      "phonemes": "koːseː βa seːkoː ɕi maɕita sɨpeːkaː βa CPS AM ʨeʔkɯpointo, seʔteː CSV, ʥiʔkoː maɲiɸesɨto, makɯɾo ɾekoːdo o hoʣoɴ ɕi, pea ɸʲiːɾɯdo no pɯɾebʲɨː βa ɡaʣoː to ɾabeɾɯ ɸaiɾɯ ɡa heːɾeʦɨ no mama de aɾɯ koto o kakɯɲiɴ ɕi masɨ."
     }
   ]
 }

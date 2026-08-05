@@ -119,12 +119,47 @@ def test_matplotlib_backend_is_agg():
 
 
 def test_generate_plate_heatmap_output_is_plottable():
-    """Sanity: the heatmap DataFrame renders without raising on Agg."""
+    """The heatmap DataFrame carries the per-well means, and imshow draws them.
+
+    The grid is read off the wells present, so its shape, its labels and every
+    occupied cell are checked against a groupby done here — a blank or all-NaN
+    plate map fails all three.
+    """
     df = _fake_heatmap_df()
     plate_map, (vmin, vmax) = P.generate_plate_heatmap(
         df, "p1", "value", "mean", "all", 0,
     )
+
+    # Expected grid: exactly the rows/columns present, in numeric order.
+    wells = df["prc"].str.split("_", expand=True)
+    wells.columns = ["plate", "rowID", "columnID"]
+    rows = sorted(wells["rowID"].unique(), key=lambda r: int(r[1:]))
+    cols = sorted(wells["columnID"].unique(), key=lambda c: int(c[1:]))
+    assert list(plate_map.index) == rows
+    assert list(plate_map.columns) == cols
+    assert plate_map.shape == (len(rows), len(cols))
+    assert plate_map.index.name == "rowID"
+    assert plate_map.columns.name == "columnID"
+
+    # Every occupied well holds that well's mean; the rest are the pivot's 0s.
+    means = df.assign(rowID=wells["rowID"], columnID=wells["columnID"]) \
+              .groupby(["rowID", "columnID"])["value"].mean()
+    assert len(means) < plate_map.size          # the grid really is sparse
+    for (row, col), expected in means.items():
+        assert plate_map.loc[row, col] == pytest.approx(expected)
+    assert int((plate_map.values != 0).sum()) == len(means)
+    assert not np.isnan(plate_map.values).any()
+
+    # The colour limits bracket the data they are drawn against.
+    assert vmin == pytest.approx(float(plate_map.values.min()))
+    assert vmax == pytest.approx(float(plate_map.values.max()))
+    assert vmax == pytest.approx(float(means.max()))
+    assert vmin < vmax
+
     fig, ax = plt.subplots()
     im = ax.imshow(plate_map.values, vmin=vmin, vmax=vmax)
     fig.canvas.draw()
+    # What was drawn is the plate map, at the requested limits.
+    assert np.array_equal(np.asarray(im.get_array()), plate_map.values)
+    assert im.get_clim() == pytest.approx((vmin, vmax))
     plt.close(fig)

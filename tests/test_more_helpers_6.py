@@ -80,10 +80,9 @@ def test_object_preprocess_batch_rolling_ball_only(rng):
     batch = rng.uniform(0, 1, size=(2, 32, 32)).astype(np.float32)
     settings = {"organelle_rolling_ball": True,
                 "organelle_rolling_ball_radius": 5}
-    try:
-        out = _preprocess_batch(batch, settings)
-    except Exception as e:  # pragma: no cover - skimage version differences
-        pytest.skip(f"rolling_ball unavailable: {e}")
+    # Unguarded: skimage.restoration.rolling_ball is a hard dependency of
+    # spacr.object, so a failure here is spaCR's, not the environment's.
+    out = _preprocess_batch(batch, settings)
     # Shape preserved; values non-negative after background subtraction.
     assert out.shape == batch.shape
     assert (out >= 0).all()
@@ -193,13 +192,23 @@ def test_sequencing_extract_sequence_and_quality_empty_slice():
 
 @pytest.mark.parametrize("elements", [3, 4, 5])
 def test_utils_check_index_various_element_counts(elements):
-    """check_index accepts DataFrames whose index has exactly `elements`
-    parts."""
+    """check_index accepts exactly `elements` parts and refuses every other
+    count.
+
+    Accepting the right count proves nothing on its own -- a guard that never
+    raises accepts it too. The discriminator is that both neighbouring counts
+    are refused, so the function is genuinely comparing.
+    """
     from spacr.utils import check_index
     idx = ["_".join([f"x{i}" for i in range(elements)])] * 3
     df = pd.DataFrame({"val": [1, 2, 3]}, index=idx)
-    # No exception expected.
-    check_index(df, elements=elements, split_char="_")
+    assert check_index(df, elements=elements, split_char="_") is None
+
+    for wrong in (elements - 1, elements + 1):
+        with pytest.raises(ValueError) as excinfo:
+            check_index(df, elements=wrong, split_char="_")
+        assert f"{wrong} parts" in str(excinfo.value)
+        assert "3 problematic indices" in str(excinfo.value)
 
 
 # ===========================================================================

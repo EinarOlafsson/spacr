@@ -48,6 +48,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SETUP_PY = REPO_ROOT / "setup.py"
 PYPROJECT = REPO_ROOT / "pyproject.toml"
 REQUIREMENTS_TXT = REPO_ROOT / "requirements.txt"
+ENVIRONMENT_YAML = REPO_ROOT / "environment.yaml"
 WORKFLOWS = REPO_ROOT / ".github" / "workflows"
 
 
@@ -520,6 +521,82 @@ def test_requirements_txt_does_not_contradict_setup_py():
     )
 
 
+def test_environment_yaml_does_not_contradict_setup_py():
+    """``environment.yaml`` must not hand-copy the dependency list either.
+
+    Same failure as ``requirements.txt``, found separately and later: the file
+    was a ``conda env export`` dump taken before the Cellpose 4 migration —
+    170 lines, 140 exact ``==`` pins — and it pinned ``cellpose==3.0.11``
+    against setup.py's ``cellpose>=4.0,<5.0``. spaCR's segmentation code is
+    written entirely against the Cellpose 4 / SAM API, so ``conda env create
+    -f environment.yaml`` produced a spaCR that could not segment, which is
+    the most central thing it does. It also pinned ``python=3.9.19`` and
+    ``torch==2.4.0`` (unusable by current spaCR), and ``huggingface-hub``
+    and ``umap-learn`` below their declared floors.
+
+    An exported environment is one machine's resolved state on one day, not a
+    specification, so re-synchronising the pins by hand would only have reset
+    the clock on the same rot. The file now delegates with ``-e .[qt,dev]``.
+
+    The interpreter line is the one deliberate exception: conda needs to be
+    told which Python to create, and a bare range is a specification rather
+    than a snapshot. It must stay inside ``requires-python``, which this test
+    also checks — a conda floor *below* the package's floor would hand someone
+    an environment pip then refuses to install into.
+    """
+    if not ENVIRONMENT_YAML.exists():
+        pytest.skip("no environment.yaml")
+
+    lines = [
+        ln.strip() for ln in ENVIRONMENT_YAML.read_text(encoding="utf-8").splitlines()
+        if ln.strip() and not ln.strip().startswith("#")
+    ]
+    assert lines, "environment.yaml declares nothing at all"
+
+    # Everything that looks like a dependency: list entries, minus the YAML
+    # scalars (`name:`, `channels:`, ...) that carry no version.
+    # Slice rather than `lstrip("- ")`: lstrip takes a character SET, so the
+    # pip block's `- -e .[qt,dev]` would lose its `-e` flag too and read as
+    # `e .[qt,dev]`, making the delegation check fail against a correct file.
+    entries = [ln[2:].strip() for ln in lines if ln.startswith("- ")]
+
+    exact = [e for e in entries if re.search(r"(?<![<>!~])==\s*\d", e)]
+    assert not exact, (
+        "environment.yaml pins exact versions again: "
+        f"{exact[:10]}\nsetup.py's `dependencies` list is the single source "
+        "of truth. The last hand-written copy drifted to `cellpose==3.0.11` "
+        "against setup.py's `cellpose>=4.0`, which builds a spaCR that "
+        "cannot segment. Delegate with `-e .[qt,dev]` instead."
+    )
+    assert any(e.startswith("-e") or e == "." for e in entries), (
+        "environment.yaml no longer delegates to setup.py. Its `pip:` block "
+        "should contain `-e .[qt,dev]` so the two files cannot disagree."
+    )
+
+    # The one permitted version bound, and it must not undercut the package.
+    python_lines = [e for e in entries if re.match(r"python\s*[<>=]", e)]
+    assert len(python_lines) == 1, (
+        f"expected exactly one `python` bound in environment.yaml, got "
+        f"{python_lines}"
+    )
+    floor = re.search(r">=\s*(\d+)\.(\d+)", python_lines[0])
+    assert floor, f"environment.yaml's python bound has no floor: {python_lines[0]}"
+    conda_floor = (int(floor.group(1)), int(floor.group(2)))
+
+    requires_python = PYPROJECT.read_text(encoding="utf-8")
+    pkg = re.search(r'requires-python\s*=\s*"([^"]+)"', requires_python)
+    assert pkg, "pyproject.toml no longer declares requires-python"
+    pkg_floor_match = re.search(r">=\s*(\d+)\.(\d+)", pkg.group(1))
+    assert pkg_floor_match, f"requires-python has no floor: {pkg.group(1)}"
+    pkg_floor = (int(pkg_floor_match.group(1)), int(pkg_floor_match.group(2)))
+
+    assert conda_floor >= pkg_floor, (
+        f"environment.yaml offers Python {conda_floor[0]}.{conda_floor[1]}, "
+        f"below the package's own floor of {pkg_floor[0]}.{pkg_floor[1]}. "
+        "conda would create an interpreter pip then refuses to install into."
+    )
+
+
 def test_attribution_extra_is_not_in_all():
     """``spacr[all]`` must stay installable on every supported Python.
 
@@ -693,6 +770,12 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     ``elif`` that selects them, in spacr/ml.py and spacr/hyperparam.py, and
     neither was declared anywhere).
 
+    ``anndata`` joined it when ``spacr/anndata_export/`` landed. It is a
+    pure-Python wheel on every platform spaCR supports and its heaviest
+    dependency, h5py, publishes wheels for all of them, so unlike
+    ``attribution`` it constrains nothing — the extra exists to keep h5py out
+    of a plain ``pip install spacr``, not because ``all`` cannot have it.
+
     ``attribution`` is deliberately NOT aggregated, and that is the
     interesting entry. torchcam declares ``numpy<2.0.0``; no numpy satisfying
     that has a cp313 wheel; so putting it in ``all`` would make
@@ -704,7 +787,7 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
     aggregated = ("qt", "tutorial", "trackastra", "ultrack", "boosting",
-                  "czi", "nd2", "lif", "zernike", "btrack")
+                  "czi", "nd2", "lif", "zernike", "btrack", "anndata")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"

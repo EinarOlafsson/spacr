@@ -39,9 +39,10 @@ Design notes:
   difference", which reads as "the models are equivalent" rather than "you
   changed nothing". So the screen shows what actually reached each model,
   marks what was dropped, and says so in a banner above the numbers.
-* **Off the GUI thread.** Segmentation is minutes, not milliseconds, so the run
-  goes through :func:`spacr.qt.bridge.make_thread` like every other spaCR job.
-  Tests pass ``threaded=False``, which runs the same code inline.
+* **Off the GUI thread.** Loading fields and segmentation can both be slow on
+  a plate or NAS path, so they go through :func:`spacr.qt.bridge.make_thread`
+  like every other spaCR job. Tests pass ``threaded=False``, which runs the
+  same code inline.
 * **No modal dialogs on any error path.** A folder with no images, a model that
   will not load, a field of the wrong shape — all of it lands in the inline
   status label. A QMessageBox hangs a headless run.
@@ -85,7 +86,9 @@ from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
 from ..bridge import make_thread
-from ..theme import SPACING, active_palette
+from ..theme import (RADIUS, SPACING, active_palette,
+                     block_surface, ensure_widget_qss_applied,
+                     register_widget_qss)
 from ..widgets import Divider
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
@@ -160,6 +163,77 @@ def _coerce(raw: str) -> Any:
         return raw
 
 
+#: Object name the two comparison panels carry, so the block below can
+#: reach them without restyling every group box in the application.
+MODEL_PANEL_NAME = "ModelComparePanel"
+
+
+#: The two result tables and the two mask canvases. Named so the block
+#: below can reach them; the canvases used to carry an inline stylesheet
+#: instead, which is what made them black.
+RESULT_TABLE_NAME = "ModelCompareTable"
+PREVIEW_NAME = "ModelComparePreview"
+
+
+def _model_panel_qss(palette: dict, opacity) -> str:
+    """Give every container on this page a real panel, at the page opacity.
+
+    The shipped ``QGroupBox`` rule is ``background: transparent`` — right
+    for a group box nested inside a card that already has a surface, wrong
+    here, where these two are the *only* containers on the page. With no
+    fill they read as bare dark areas: a border drawn around a hole. This
+    gives them the same rounded translucent surface every other panel in
+    the application has, so the page-opacity slider moves them too.
+
+    Two more regions on the same page were black for two more reasons.
+
+    The **mask canvases** carried ``setStyleSheet("background: " +
+    active_palette()["bg"])`` — raw hex, and the WINDOW colour rather than
+    a surface, so they were opaque by construction and no slider position
+    could touch them. They measured 0.23 of the backdrop against a panel's
+    0.70. They are a rule here now, through :func:`block_surface`. A
+    rendered comparison still paints an opaque ``QPixmap`` on top: the
+    preference reaches the container, never the picture.
+
+    The **result tables** had no fill at all — they measured 1.000, the
+    backdrop arriving untouched. The shipped ``QTableWidget`` rule does
+    give them ``surface_alt``, but ``clear_container_surfaces`` tags every
+    ``QAbstractScrollArea`` transparent by type, and a ``QTableWidget`` is
+    one. That is right for a table sitting ON a panel — Control Chart's
+    ``ControlChartLevels`` is one, and it shows the column through — and
+    wrong for a table that IS the container, which is what these two are.
+    An ID selector outranks the ``*[spacrTransparent="true"]`` attribute
+    rule, so naming them is enough to give them their surface back.
+    """
+    surface = block_surface("surface_alt", palette["theme"], opacity)
+    return f"""
+QGroupBox#{MODEL_PANEL_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: 12px;
+}}
+QGroupBox#{MODEL_PANEL_NAME}::title {{
+    background: transparent;
+    color: {palette["fg_muted"]};
+}}
+QTableWidget#{RESULT_TABLE_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+}}
+QLabel#{PREVIEW_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+}}
+"""
+
+
+# ``replace=True``: this module owns the name, and a reimport must
+# re-register rather than raise and leave the panels unstyled.
+register_widget_qss(MODEL_PANEL_NAME, _model_panel_qss, replace=True)
+
+
 class _ModelPanel(QGroupBox):
     """The settings for one side of the comparison.
 
@@ -171,6 +245,7 @@ class _ModelPanel(QGroupBox):
     def __init__(self, title: str, parent: Optional[QWidget] = None,
                  diameter: float = 30.0):
         super().__init__(title, parent)
+        self.setObjectName(MODEL_PANEL_NAME)
         form = QFormLayout(self)
         form.setContentsMargins(SPACING["sm"], SPACING["md"],
                                 SPACING["sm"], SPACING["sm"])
@@ -289,9 +364,20 @@ class ModelCompareScreen(QWidget):
         # collected while still running takes the process down with it. Same
         # idiom as AgreementScreen._jobs.
         self._jobs: List[tuple] = []
+        self._pending: List[tuple] = []
         self.last_error: str = ""
 
+        # `app.py` imports this module inside the branch that builds the
+        # screen, which is long after the launch stylesheet was generated —
+        # so the block registered above is not in the sheet that is live and
+        # the panels open bare. That is why the fix measured correct in a
+        # test and was still black in the running app.
+        ensure_widget_qss_applied(MODEL_PANEL_NAME)
+
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("model_compare"), self)
         self._set_status(
             "Choose a folder of fields, configure both models, then Compare. "
             "Neither model is treated as ground truth.")
@@ -420,7 +506,11 @@ class ModelCompareScreen(QWidget):
         canvas.setAlignment(Qt.AlignCenter)
         canvas.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        canvas.setStyleSheet(f"background: {active_palette()['bg']};")
+        # No inline stylesheet: it used to be
+        # `background: {active_palette()["bg"]}`, raw hex and the window
+        # colour, which is opaque by construction. The panel is a rule now
+        # (see `_model_panel_qss`), reached by this name.
+        canvas.setObjectName(PREVIEW_NAME)
         layout.addWidget(canvas, 1)
         parent.addWidget(holder)
         return canvas, caption
@@ -428,6 +518,12 @@ class ModelCompareScreen(QWidget):
     @staticmethod
     def _prepare_table(table: QTableWidget) -> None:
         """Common read-only look for every result table."""
+        # These two tables ARE the containers on this half of the page —
+        # nothing else is under them — so they keep a surface where a table
+        # sitting on a panel would show it through. The name is what the
+        # registered block reaches, and what outranks the transparent tag
+        # `clear_container_surfaces` puts on every scroll area.
+        table.setObjectName(RESULT_TABLE_NAME)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setAlternatingRowColors(True)
         table.verticalHeader().setVisible(False)
@@ -502,7 +598,7 @@ class ModelCompareScreen(QWidget):
         return True
 
     def set_source(self, folder: str) -> bool:
-        """Load the first N fields out of ``folder``.
+        """Load the first N fields out of ``folder`` without blocking Qt.
 
         Every failure here is a normal state — a mistyped path, a folder of
         CSVs, an empty plate — so it lands in the status label and returns
@@ -510,21 +606,31 @@ class ModelCompareScreen(QWidget):
 
         :param folder: a directory of ``.tif`` / ``.png`` / ``.npy`` / ``.npz``
             fields.
-        :returns: True when at least one field loaded.
+        :returns: with ``threaded=False``, True when at least one field loaded;
+            otherwise True once the load job starts.
         """
+        if self._busy:
+            self._set_status("Another Model Compare job is already running.",
+                             error=True)
+            return False
         self._clear_results()
         self._folder = ""
         self._field_names = []
         self._images = []
-        try:
-            names, images = mc.load_fields(folder,
-                                           n_fields=int(self._fields_box.value()))
-        except Exception as e:
-            self._set_status(str(e) or e.__class__.__name__, error=True)
-            self._update_controls()
-            return False
+        source = os.fspath(folder)
+        n_fields = int(self._fields_box.value())
 
-        self._folder = os.fspath(folder)
+        def _job():
+            names, images = mc.load_fields(source, n_fields=n_fields)
+            return source, names, images
+
+        self._set_status(f"Loading up to {n_fields} field(s) from {source}…")
+        return self._run_job(_job, self._apply_loaded_fields, operation="load")
+
+    def _apply_loaded_fields(self, result) -> None:
+        """Install a field-loading result on the GUI thread."""
+        source, names, images = result
+        self._folder = source
         self._field_names = names
         self._images = images
         self._path_edit.setText(self._folder)
@@ -533,7 +639,6 @@ class ModelCompareScreen(QWidget):
             f"Loaded {len(images)} field(s) from {self._folder}: "
             f"{', '.join(names)}. Configure both models and press Compare.")
         self._update_controls()
-        return True
 
     def _reload(self) -> None:
         """Re-read the folder after the field count changed."""
@@ -597,7 +702,8 @@ class ModelCompareScreen(QWidget):
         self._set_status(
             f"Segmenting {len(images)} field(s) with {config_a.name} and "
             f"{config_b.name}…")
-        return self._run_job(_job, self._apply_result)
+        return self._run_job(
+            _job, self._apply_result, operation="comparison")
 
     def _apply_result(self, report: mc.ComparisonReport) -> None:
         self._report = report
@@ -787,7 +893,8 @@ class ModelCompareScreen(QWidget):
     # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
-                 on_done: Callable[[Any], None]) -> bool:
+                 on_done: Callable[[Any], None],
+                 operation: str = "job") -> bool:
         """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
 
         Mirrors ``AgreementScreen._run_job``: one threading idiom for the whole
@@ -799,7 +906,7 @@ class ModelCompareScreen(QWidget):
             try:
                 on_done(fn())
             except Exception as e:
-                self._on_job_error(e)
+                self._on_job_error(e, operation)
                 ok = False
             self._update_controls()
             self.job_finished.emit(ok)
@@ -812,25 +919,56 @@ class ModelCompareScreen(QWidget):
 
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
+        self._pending.append((box, on_done, operation))
         worker.error.connect(self._on_worker_error_text)
-
-        def _finished(ok: bool) -> None:
-            self._busy = False
-            if ok:
-                try:
-                    on_done(box.get("result"))
-                except Exception as e:
-                    self._on_job_error(e)
-                    ok = False
-            self._update_controls()
-            self.job_finished.emit(ok)
-
-        worker.finished.connect(_finished)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        # Bound QWidget method: Qt queues this back onto the GUI thread.
+        # A closure is invoked directly on PipelineWorker's thread and must
+        # never update labels/tables.
+        worker.finished.connect(self._on_job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
         return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Apply the oldest worker result on the GUI thread."""
+        self._busy = False
+        box, on_done, operation = (
+            self._pending.pop(0) if self._pending else ({}, None, "job"))
+        ok = bool(ok)
+        if ok and on_done is not None:
+            try:
+                on_done(box.get("result"))
+            except Exception as exc:
+                self._on_job_error(exc, operation)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
         """Release *this* job's refs once its own event loop has exited."""
@@ -851,11 +989,16 @@ class ModelCompareScreen(QWidget):
                 line = candidate.strip()
                 break
         self._clear_results()
-        self._set_status(f"Comparison failed: {line}", error=True)
+        operation = self._pending[0][2] if self._pending else "job"
+        self._set_status(
+            f"{operation.capitalize()} failed: {line or 'unknown error'}",
+            error=True)
 
-    def _on_job_error(self, exc: Exception) -> None:
+    def _on_job_error(self, exc: Exception, operation: str = "job") -> None:
         self._clear_results()
-        self._set_status(f"Comparison failed: {exc}", error=True)
+        message = str(exc) or exc.__class__.__name__
+        self._set_status(
+            f"{operation.capitalize()} failed: {message}", error=True)
 
     # -- enablement --------------------------------------------------------
 

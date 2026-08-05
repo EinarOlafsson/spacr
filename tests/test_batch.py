@@ -769,7 +769,32 @@ def test_resume_reruns_the_job_that_was_running_when_the_machine_died(tmp_path, 
     resume_queue(path, runner=runner, echo=False)
 
     assert runner.ran == ["b"]
-    assert load_queue(path).find("b").status == batch.STATUS_SUCCESS
+    resumed = load_queue(path).find("b")
+    assert resumed.status == batch.STATUS_SUCCESS
+    assert "resume=True" in resumed.override_args
+
+
+def test_resume_adds_field_resume_to_an_external_conversion_settings_file(
+        tmp_path, plate):
+    settings = _settings_csv(
+        tmp_path, "convert.csv", src=plate, dst=tmp_path / "converted")
+    path = tmp_path / "q.json"
+    queue = Queue()
+    queue.add(Job(module="convert", settings=settings, id="convert-1",
+                  status=batch.STATUS_RUNNING))
+    save_queue(queue, path)
+    seen = {}
+
+    def runner(job, settings_path, log_path):
+        seen["settings"] = batch.resolve_job_settings(job)
+        Path(log_path).write_text("ok\n", encoding="utf-8")
+        return 0
+
+    resume_queue(path, runner=runner, echo=False)
+
+    assert seen["settings"]["resume"] is True
+    persisted = load_queue(path).find("convert-1")
+    assert "resume=True" in persisted.override_args
 
 
 def test_resume_can_retry_failures(tmp_path, plate):

@@ -28,8 +28,41 @@ def test_measure_has_no_broken_build_import():
     )
 
 
-def test_measure_module_imports():
-    import spacr.measure  # noqa: F401
+def test_measure_exposes_the_entry_points_its_dispatchers_name_by_string():
+    """``import spacr.measure`` alone is already covered by
+    tests/test_smoke.py::test_module_imports[measure]. What that does NOT
+    cover is the failure mode where the module imports fine but a public
+    name has moved: both dispatch tables below name ``measure_crop`` as a
+    *string*, so a rename breaks ``spacr-run measure`` and every dry_run at
+    call time, not at import time.
+    """
+    import importlib
+    import spacr.measure as m
+    from spacr.validate import APP_FUNCTIONS
+
+    # 1. spacr.validate's app -> function map.
+    dotted = APP_FUNCTIONS["measure"]
+    assert dotted == "spacr.measure.measure_crop"
+    mod_name, _, attr = dotted.rpartition(".")
+    assert callable(getattr(importlib.import_module(mod_name), attr))
+
+    # 2. The CLI module registry's "module:function" entry point.
+    from spacr.cli import MODULES
+    entry = MODULES["measure"].entry
+    assert entry == "spacr.measure:measure_crop"
+    mod_name, _, attr = entry.partition(":")
+    assert callable(getattr(importlib.import_module(mod_name), attr))
+
+    # 3. The rest of the public surface other spacr modules import by name.
+    for name in ("measure_crop", "_measure_crop_core", "get_components",
+                 "resolve_n_jobs", "resolve_measurement_spacing",
+                 "crop_objects_from_array"):
+        assert callable(getattr(m, name)), f"spacr.measure.{name} is missing"
+
+    # Contrast: the same lookup for a name that is NOT part of the surface
+    # fails — so the loop above is checking presence, not just truthiness.
+    with pytest.raises(AttributeError):
+        getattr(m, "measure_crop_v1")
 
 
 def test_measure_exposes_settings_binding():

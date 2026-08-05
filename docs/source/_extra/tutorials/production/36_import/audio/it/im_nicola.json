@@ -4,47 +4,127 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 65.125,
+  "total_duration": 277.505,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.225,
-      "scene_end": 9.674999999999999,
-      "duration": 9.674999999999999,
-      "text": "Questo tutorial copre il progetto Import. Porta le immagini, le maschere e la tavola di misura di un altro laboratorio in un progetto spaCR."
+      "speech_end": 21.75,
+      "scene_end": 22.57,
+      "duration": 22.57,
+      "text": "Import Project porta le immagini di un altro laboratorio, le maschere di etichetta e le misure in un progetto spaCR senza trattare una mappatura dedotta come verità. Aprilo da Data e esegue batch. I controlli superiori descrivono i loro input, il medio è una revisione modificabile e i controlli inferiori salvano la decisione o iniziano l'importazione separata.",
+      "speech_text": "Import Project porta le immagini di un altro laboratorio, le maschere di etichetta e le misure in un progetto spàker senza trattare una mappatura dedotta come verità. Aprilo da Data e esegue batch. I controlli superiori descrivono i loro input, il medio è una revisione modificabile e i controlli inferiori salvano la decisione o iniziano l'importazione separata.",
+      "phonemes": "ˈimport prˈoʤet pˈɔrta le immˈaʤinɪ dɪ ʊn ˈaltro laboratˈɔrio, le mˈaːskˌɛre dɪ etikˈetːa e le mizˈure in ʊn proʤˈɛtːo spˈaker sˌɛnʦa tratːˈare ˌʊna mapːatˈura dedˈɔtːa kˌome veritˈa. ˈaprilo da dˈata e ezˈeɡwe bˈatʧ. i kontrˈɔllɪ sʊperiˈorɪ deskrˈivono i lˌɔro ˈinpʊt, il mˈɛdio e ˌʊna reviziˈone modifikˈabile e i kontrˈɔllɪ inferiˈorɪ sˈalvano la deʧiziˈone o inˈiʦjano limportaʦiˈone sepaɾˈata."
     },
     {
       "scene": 2,
-      "speech_start": 9.674999999999999,
-      "speech_end": 23.799999999999997,
-      "scene_end": 24.249999999999996,
-      "duration": 14.574999999999998,
-      "text": "Apri Import Project dalla sezione Data and batch runs. Aprire il progetto di importazione dalla sezione \"Data and batch runs\". Fornire immagini, maschere opzionali, una tabella di misura e identificatori esterni stabili."
+      "speech_start": 22.57,
+      "speech_end": 44.769999999999996,
+      "scene_end": 45.56999999999999,
+      "duration": 22.999999999999993,
+      "text": "Scegliere o lasciare la cartella di immagini esterne e selezionare una nuova destinazione. Questa lezione utilizza due campi reali 2000x2000, ciascuno con quattro canali di fluorescenza. Le matrici sorgenti spaCR sono state decodificate in input TIFF neutri solo per la dimostrazione di importazione trasversale; non sono stati creati pixel sintetici.",
+      "speech_text": "Scegliere o lasciare la cartella di immagini esterne e selezionare una nuova destinazione. Questa lezione utilizza due campi reali 2000x2000, ciascuno con quattro canali di fluorescenza. Le matrici sorgenti spàker sono state decodificate in input TIFF neutri solo per la dimostrazione di importazione trasversale; non sono stati creati pixel sintetici.",
+      "phonemes": "ʃˈeʎere o laʃˈare la kartˈɛlla dɪ immˈaʤinɪ estˈɛrne e seleʦjonˈare ˌʊna nʊˈɔva destinaʦiˈone. kwˌesta leʦiˈone ʊtilˈiʣːa dˈue kˈampɪ reˈalɪ dˈue mˈiːla ˈiks dˈue mˈiːla, ʧaskˈuno kon kwˈatːro kanˈalɪ dɪ flʊoreʃˈɛnʦa. le matrˈiʧɪ sorʤˈɛntɪ spˈaker sˌono stˈate dekodifikˈate in ˈinpʊt tˈiff nˈɛʊtrɪ sˈolo per la dimostraʦiˈone dɪ importaʦiˈone trazversˈale; non sˌono stˈatɪ kreˈatɪ pˈiksel sintˈɛtiʧɪ."
     },
     {
       "scene": 3,
-      "speech_start": 24.249999999999996,
-      "speech_end": 35.724999999999994,
-      "scene_end": 36.175,
-      "duration": 11.925,
-      "text": "Nell'area di configurazione principale, mappare le colonne straniere sugli identificatori spaCR, i canali, i tipi di oggetti, i metadati della targa e i campi di provenienza."
+      "speech_start": 45.56999999999999,
+      "speech_end": 66.695,
+      "scene_end": 67.43499999999999,
+      "duration": 21.864999999999995,
+      "text": "Un campo spaCR fuso può contenere un piano di etichetta per ogni classe di oggetti. Selezionare una classe, scegliere la cartella e fare clic su Aggiungere. Ripeti per le maschere cellulari, nucleali, patogeni e organelle. Ogni campo deve avere tutte le classi dichiarate; file di immagini o maschere senza pari sono elencati piuttosto che indovinati.",
+      "speech_text": "Un campo spàker fuso può contenere un piano di etichetta per ogni classe di oggetti. Selezionare una classe, scegliere la cartella e fare clic su Aggiungere. Ripeti per le maschere cellulari, nucleali, patogeni e organelle. Ogni campo deve avere tutte le classi dichiarate; file di immagini o maschere senza pari sono elencati piuttosto che indovinati.",
+      "phonemes": "ʊn kˈampo spˈaker fˈuzo pʊˈɔ kontenˈere ʊn pjˈano dɪ etikˈetːa per ˌoɲɲɪ klˈaSe dɪ oʤːˈɛtːɪ. seleʦjonˈare ˌʊna klˈaSe, ʃˈeʎere la kartˈɛlla e fˈare klˈik sʊ aʤːˈunʤere. ripˈɛtɪ per le mˈaːskˌɛre ʧellʊlˈarɪ, nʊkleˈalɪ, patˈɔʤenɪ e orɡanˈɛlle. ˌoɲɲɪ kˈampo dˈɛve avˈere tˈutːe le klˈaSɪ dikjaɾˈate; fˈile dɪ immˈaʤinɪ o mˈaːskˌɛre sˌɛnʦa pˈarɪ sˌono elenkˈatɪ pjʊtːˈɔsto ke indovinˈatɪ."
     },
     {
       "scene": 4,
-      "speech_start": 36.175,
-      "speech_end": 54.275,
-      "scene_end": 54.725,
-      "duration": 18.550000000000004,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. convalidare le unioni, i valori mancanti, l'allineamento della maschera dell'immagine e gli identificatori duplicati prima di importare."
+      "speech_start": 67.43499999999999,
+      "speech_end": 95.45999999999998,
+      "scene_end": 96.31999999999998,
+      "duration": 28.88499999999999,
+      "text": "Aggiungere il CSV di misura reale e dichiarare 0,65 micrometri per pixel in modo che le aree di micrometri quadrati possano essere convertite correttamente. La tabella contiene intenzionalmente una colonna chiamata cell_area. Renominare il prefisso estero conserva quel valore esterno senza sostituire silenziosamente una funzione spaCR. I file originali rimangono solo leggibili e l'uscita va alla nuova destinazione.",
+      "speech_text": "Aggiungere il CSV di misura reale e dichiarare 0,65 micrometri per pixel in modo che le aree di micrometri quadrati possano essere convertite correttamente. La tabella contiene intenzionalmente una colonna chiamata cell_area. Renominare il prefisso estero conserva quel valore esterno senza sostituire silenziosamente una funzione spàker. I file originali rimangono solo leggibili e l'uscita va alla nuova destinazione.",
+      "phonemes": "aʤːˈunʤere il ʧˌiˌɛSevˈu dɪ mizˈura reˈale e dikjaɾˈare ʣˈɛɾo,seSˈantaʧˈinkwe mikrˈɔmetrɪ per pˈiksel in mˈɔdo ke le ˈaːree dɪ mikrˈɔmetrɪ kwadrˈatɪ pˈɔSano ˈɛSere konvertˈite korɾetːamˈente. la tabˈɛlla kontjˈɛne intenʦjonalmˈente ˌʊna kolˈonna kjamˈata ʧˈɛl ˈarea. renominˈare il prefˈiSo ˈɛstero konsˈɛrva kwel valˈore estˈɛrno sˌɛnʦa sostitʊˈire silenʦjozamˈente ˌʊna fʊnʦiˈone spˈaker. i fˈile oriʤinˈalɪ rimˈaŋɡono sˈolo leʤːˈibilɪ e lʊʃˈita vˈa ˌalla nʊˈɔva destinaʦiˈone."
     },
     {
       "scene": 5,
-      "speech_start": 54.725,
-      "speech_end": 64.475,
-      "scene_end": 65.125,
-      "duration": 10.399999999999999,
-      "text": "Quando il flusso di lavoro è finito, il progetto standardizzato conserva i collegamenti di ritorno a ogni file e identificatore originale."
+      "speech_start": 96.31999999999998,
+      "speech_end": 112.96999999999997,
+      "scene_end": 113.64999999999998,
+      "duration": 17.33,
+      "text": "Fare clic su Preview prima di importare. Preview scansiona le intestazioni dell'immagine, coppia ogni maschera per campo, legge la tabella di misura, verifica le etichette degli oggetti, propone mappature di colonne, risolve le unità e i conflitti di nome e non scrive nulla.",
+      "speech_text": "Fare clic su Preview prima di importare. Preview scansiona le intestazioni dell'immagine, coppia ogni maschera per campo, legge la tabella di misura, verifica le etichette degli oggetti, propone mappature di colonne, risolve le unità e i conflitti di nome e non scrive nulla.",
+      "phonemes": "fˈare klˈik sʊ prˈevjew prˈima dɪ importˈare. prˈevjew skansjˈɔna le intestaʦiˈonɪ dellimmˈaʤine, kˈɔpːia ˌoɲɲɪ mˈaːskˌɛra per kˈampo, lˈeʤːe la tabˈɛlla dɪ mizˈura, verˈifika le etikˈetːe dˌeʎɪ oʤːˈɛtːɪ, propˈone mapːatˈure dɪ kolˈonne, rizˈolve le ʊnitˈa e i konflˈitːɪ dɪ nˈome e non skrˈive nˈulla."
+    },
+    {
+      "scene": 6,
+      "speech_start": 113.64999999999998,
+      "speech_end": 142.075,
+      "scene_end": 142.95499999999998,
+      "duration": 29.305000000000007,
+      "text": "I due campi sono pronti. La tabella modificabile mostra ogni colonna esterna, l'obiettivo spaCR proposto, le unità di trasformazione, di ingresso e di uscita e una nota di revisione. La relazione conferma che 206 delle 207 righe di misura corrispondono alle etichette delle cellule reali. Un'etichetta assente e 1.198 oggetti di maschera senza file di tavola vengono rivelati, mai scartati in silenzio o inventati.",
+      "speech_text": "I due campi sono pronti. La tabella modificabile mostra ogni colonna esterna, l'obiettivo spàker proposto, le unità di trasformazione, di ingresso e di uscita e una nota di revisione. La relazione conferma che 206 delle 207 righe di misura corrispondono alle etichette delle cellule reali. Un'etichetta assente e 1.198 oggetti di maschera senza file di tavola vengono rivelati, mai scartati in silenzio o inventati.",
+      "phonemes": "i dˈue kˈampɪ sˌono prˈontɪ. la tabˈɛlla modifikˈabile mˈostra ˌoɲɲɪ kolˈonna estˈɛrna, lobjetːˈivo spˈaker propˈosto, le ʊnitˈa dɪ trasformaʦiˈone, dɪ iŋɡrˈɛSo e dɪ ʊʃˈita e ˌʊna nˈɔta dɪ reviziˈone. la relaʦiˈone konfˈerma ke dʊeʧˈɛnto sˈɛj dˌelle dʊeʧˈɛnto sˈɛtːe rˈiɡe dɪ mizˈura korɾispˈondono ˌalle etikˈetːe dˌelle ʧˈɛllʊle reˈalɪ. ʊnetikˈetːa aSˈɛnte e ˈuno. ʧˈɛnto novˈantˈɔtːo oʤːˈɛtːɪ dɪ mˈaːskˌɛra sˌɛnʦa fˈile dɪ tˈavola vˈeŋɡono rivelˈatɪ, maj skartˈatɪ in silˈɛnʦio o inventˈatɪ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 142.95499999999998,
+      "speech_end": 165.30499999999998,
+      "scene_end": 166.045,
+      "duration": 23.090000000000003,
+      "text": "La proposta è deliberatamente modificabile. Selezionare la cella di colonna spaCR per AreaShape_Area_um2 e sostituire l'obiettivo con un nome rivisto e significativo. Le colonne di trasformazione e unità possono anche essere corrette qui; ogni modifica esegue immediatamente nuovamente i controlli di collisione e di calibrazione senza scansionare nuovamente le cartelle.",
+      "speech_text": "La proposta è deliberatamente modificabile. Selezionare la cella di colonna spàker per AreaShape_Area_um2 e sostituire l'obiettivo con un nome rivisto e significativo. Le colonne di trasformazione e unità possono anche essere corrette qui; ogni modifica esegue immediatamente nuovamente i controlli di collisione e di calibrazione senza scansionare nuovamente le cartelle.",
+      "phonemes": "la propˈosta e deliberatamˈente modifikˈabile. seleʦjonˈare la ʧˈɛlla dɪ kolˈonna spˈaker per ˈarea ʃˈape ˈarea ˈum dˈue e sostitʊˈire lobjetːˈivo kon ʊn nˈome rivˈisto e siɲifikatˈivo. le kolˈonne dɪ trasformaʦiˈone e ʊnitˈa pˈɔSono ˌanke ˈɛSere korɾˈɛtːe kwˈi; ˌoɲɲɪ modˈifika ezˈeɡwe immedjatamˈente nʊovamˈente i kontrˈɔllɪ dɪ kolliziˈone e dɪ kalibraʦiˈone sˌɛnʦa skansjonˈare nʊovamˈente le kartˈɛlle."
+    },
+    {
+      "scene": 8,
+      "speech_start": 166.045,
+      "speech_end": 184.32,
+      "scene_end": 185.06,
+      "duration": 19.015000000000015,
+      "text": "L'area target è ora foreign_reviewed_cell_area. La sua area di trasformazione rimane calibrata da micrometri quadrati a pixel quadrati, mentre la zona di cellula esterna in conflitto viene rinominata separatamente con il prefisso estero. Lo stato dice ancora che non è stato scritto nulla.",
+      "speech_text": "L'area target è ora foreign_reviewed_cell_area. La sua area di trasformazione rimane calibrata da micrometri quadrati a pixel quadrati, mentre la zona di cellula esterna in conflitto viene rinominata separatamente con il prefisso estero. Lo stato dice ancora che non è stato scritto nulla.",
+      "phonemes": "lˈarea tˈarʤet e ˈora forˈɛiɲ revjˈewed ʧˈɛl ˈarea. la sˌʊa ˈarea dɪ trasformaʦiˈone rimˈane kalibrˈata da mikrˈɔmetrɪ kwadrˈatɪ a pˈiksel kwadrˈatɪ, mˌentre la ʣˈɔna dɪ ʧˈɛllʊla estˈɛrna in konflˈitːo vjˈɛne rinominˈata sepaɾatamˈente kon il prefˈiSo ˈɛstero. lo stˈato dˈiʧe ankˈora ke non e stˈato skrˈitːo nˈulla."
+    },
+    {
+      "scene": 9,
+      "speech_start": 185.06,
+      "speech_end": 203.71,
+      "scene_end": 204.41,
+      "duration": 19.349999999999994,
+      "text": "Fare clic su Salva mappatura per scrivere la revisione completa come CSV. Il file può essere ispezionato, modificato, condiviso con un collaboratore, modificato al di fuori dell'applicazione e caricato di nuovo. L'importazione applicherà esattamente la mappatura mostrata sullo schermo.",
+      "speech_text": "Fare clic su Salva mappatura per scrivere la revisione completa come CSV. Il file può essere ispezionato, modificato, condiviso con un collaboratore, modificato al di fuori dell'applicazione e caricato di nuovo. L'importazione applicherà esattamente la mappatura mostrata sullo schermo.",
+      "phonemes": "fˈare klˈik sʊ sˈalva mapːatˈura per skrˈivere la reviziˈone komplˈɛta kˌome ʧˌiˌɛSevˈu. il fˈile pʊˈɔ ˈɛSere ispeʦjonˈato, modifikˈato, kondivˈizo kon ʊn kollaboratˈore, modifikˈato al dɪ fʊˈorɪ dellapːlikaʦiˈone e karikˈato dɪ nʊˈɔvo. limportaʦiˈone apːlikeɾˈa ezatːamˈente la mapːatˈura mostrˈata sˌʊllo skˈermo."
+    },
+    {
+      "scene": 10,
+      "speech_start": 204.41,
+      "speech_end": 225.585,
+      "scene_end": 226.32500000000002,
+      "duration": 21.91500000000002,
+      "text": "La mappatura rivista viene salvata accanto all'output del tutorial isolato. La mappatura del carico ripristina le stesse decisioni in seguito. La destinazione deve essere nuova o appartenere allo stesso esperimento; il progetto di importazione rifiuta una destinazione contenente misure provenienti da campi diversi prima di scrivere un fascicolo.",
+      "speech_text": "La mappatura rivista viene salvata accanto all'output del tutorial isolato. La mappatura del carico ripristina le stesse decisioni in seguito. La destinazione deve essere nuova o appartenere allo stesso esperimento; il progetto di importazione rifiuta una destinazione contenente misure provenienti da campi diversi prima di scrivere un fascicolo.",
+      "phonemes": "la mapːatˈura rivˈista vjˈɛne salvˈata akːˈanto alloˈutpʊt del tʊtˈɔrial izolˈato. la mapːatˈura del kˈariko riprˈistina le stˈeSe deʧiziˈonɪ in sˈeːɡwito. la destinaʦiˈone dˈɛve ˈɛSere nʊˈɔva o apːartenˈɛre ˌallo stˈeSo esperimˈento; il proʤˈɛtːo dɪ importaʦiˈone rifjˈuta ˌʊna destinaʦiˈone kontenˈɛnte mizˈure provenjˈɛntɪ da kˈampɪ divˈɛrsɪ prˈima dɪ skrˈivere ʊn faʃˈikolo."
+    },
+    {
+      "scene": 11,
+      "speech_start": 226.32500000000002,
+      "speech_end": 246.82500000000002,
+      "scene_end": 247.60500000000002,
+      "duration": 21.28,
+      "text": "Dopo aver esaminato le immagini, quattro classi di maschera, unire rapporto, unità, conflitti e destinazione, fare clic su Importazione. Questa azione separata converte i nomi delle immagini, scrive stacks di intensità e maschera, costruisce array fuse con l'ordine di piano nativo di spaCR e crea il database e i registri di provenienza.",
+      "speech_text": "Dopo aver esaminato le immagini, quattro classi di maschera, unire rapporto, unità, conflitti e destinazione, fare clic su Importazione. Questa azione separata converte i nomi delle immagini, scrive stacks di intensità e maschera, costruisce array fuse con l'ordine di piano nativo di spàker e crea il database e i registri di provenienza.",
+      "phonemes": "dˈopo avˈɛr ezaminˈato le immˈaʤinɪ, kwˈatːro klˈaSɪ dɪ mˈaːskˌɛra, ʊnˈire rapːˈɔrto, ʊnitˈa, konflˈitːɪ e destinaʦiˈone, fˈare klˈik sʊ importaʦiˈone. kwˌesta aʦiˈone sepaɾˈata konvˈɛrte i nˈɔmɪ dˌelle immˈaʤinɪ, skrˈive stˈakːs dɪ intensitˈa e mˈaːskˌɛra, kostrʊˈiʃe arɾˈai fˈuze kon lˈɔrdine dɪ pjˈano natˈivo dɪ spˈaker e krˈɛa il databˈɛiz e i reʤˈistrɪ dɪ provenjˈɛnʦa."
+    },
+    {
+      "scene": 12,
+      "speech_start": 247.60500000000002,
+      "speech_end": 276.605,
+      "scene_end": 277.505,
+      "duration": 29.899999999999977,
+      "text": "L'importazione si conclude con due campi, otto TIFF di canale convertiti, otto array di maschere e due array fusi contenenti quattro piani di intensità seguiti da etichette di cellula, nucleo, patogeno e organole. Tutte le 207 righe esterne sono conservate in foreign_cell e una copia di convenienza canonica, mentre measurements.db e il record di mappatura applicato che le colonne provenivano da fuori di spaCR.",
+      "speech_text": "L'importazione si conclude con due campi, otto TIFF di canale convertiti, otto array di maschere e due array fusi contenenti quattro piani di intensità seguiti da etichette di cellula, nucleo, patogeno e organole. Tutte le 207 righe esterne sono conservate in foreign_cell e una copia di convenienza canonica, mentre measurements dot db e il record di mappatura applicato che le colonne provenivano da fuori di spàker.",
+      "phonemes": "limportaʦiˈone sɪ konklˈude kon dˈue kˈampɪ, ˈɔtːo tˈiff dɪ kanˈale konvertˈitɪ, ˈɔtːo arɾˈai dɪ mˈaːskˌɛre e dˈue arɾˈai fˈuzɪ kontenˈɛntɪ kwˈatːro pjˈanɪ dɪ intensitˈa seɡwˈitɪ da etikˈetːe dɪ ʧˈɛllʊla, nˈukleo, patˈɔʤeno e orɡanˈɔle. tˈutːe le dʊeʧˈɛnto sˈɛtːe rˈiɡe estˈɛrne sˌono konservˈate in forˈɛiɲ ʧˈɛl e ˌʊna kˈɔpia dɪ konvenjˈɛnʦa kanˈɔnika, mˌentre meazʊrˈɛments dˈot d̪ˌiːbˈi e il rˈɛkord dɪ mapːatˈura apːlikˈato ke le kolˈonne provenˈivano da fʊˈorɪ dɪ spˈaker."
     }
   ]
 }

@@ -47,13 +47,12 @@ from PySide6.QtCore import (
     Qt,
     QEvent,
     QRectF,
-    QSize,
     QThread,
     QTimer,
     Signal,
     Slot,
 )
-from PySide6.QtGui import (QAction, QColor, QImage, QKeySequence, QPainter,
+from PySide6.QtGui import (QColor, QFont, QImage, QKeySequence, QPainter,
                            QPainterPath, QPen, QPixmap, QShortcut)
 from PySide6.QtWidgets import (
     QComboBox,
@@ -62,13 +61,13 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
-    QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QMenu,
     QMessageBox,
+    QPlainTextEdit,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -80,6 +79,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from ..widgets.toggle import Toggle
+from ..i18n import tr
+from ..bridge import drain_thread
+from ..job_runner import JobRunner
 
 from ..annotate_engine import (
     AnnotateSettings,
@@ -97,6 +99,8 @@ from ..annotate_engine import (
     normalize_pil,
     outline_image,
 )
+from ..linked_selection import (register_object_opener,
+                                unregister_object_opener)
 from .. import iconset, prefs
 from ..theme import SPACING, palette_for
 from ..widgets.column_picker import attach_column_picker
@@ -130,6 +134,14 @@ IMAGE_RADIUS = max(1, TILE_RADIUS - TILE_INSET)
 # How many keyboard assignments can be walked back with `u`. Bounded so a
 # long session can't grow the stack without limit.
 UNDO_LIMIT = 128
+
+#: How long `closeEvent` waits for a native worker before parking it, in ms.
+#: Generous, because a Cellpose/PyTorch page decode or an sklearn fit really
+#: can take this long, and interrupting one mid-write is the SIGSEGV this
+#: screen's teardown is arranged to avoid. Bounded, because the alternative --
+#: `QThread.wait()` with no argument -- is ULONG_MAX milliseconds, and a
+#: wedged worker then hangs the close forever with the window still on screen.
+CLOSE_DRAIN_MS = 15000
 
 
 def tile_palette() -> Dict[str, str]:
@@ -292,6 +304,72 @@ class _PageLoadWorker(QThread):
             loaded = []
         if not self.isInterruptionRequested():
             self.done.emit(self._gen, loaded)
+
+
+class _RetrainWorker(QThread):
+    """Fit one active-learning round off the GUI thread.
+
+    ``spacr.active_learning.retrain_round`` reads the whole feature matrix,
+    fits an estimator and writes scores back — seconds to a minute on a real
+    plate. Run inline it would freeze the grid mid-annotation, which is the
+    one thing this screen cannot afford, so it lives here and reports back
+    through signals.
+
+    ``done``/``failed`` are ordinary signals connected to bound methods of
+    the screen, so Qt queues them onto the GUI thread. Nothing here touches a
+    widget.
+    """
+
+    done = Signal(object)      # RoundResult
+    failed = Signal(str)
+
+    def __init__(self, db_path: str, annotation_column: str,
+                 options: Dict[str, object], parent=None):
+        super().__init__(parent)
+        self._db_path = db_path
+        self._column = annotation_column
+        self._options = dict(options)
+
+    def run(self):
+        try:
+            from ... import active_learning as al
+            result = al.retrain_round(self._db_path, self._column,
+                                      **self._options)
+        except Exception as exc:                      # surfaced, never eaten
+            self.failed.emit(f"{type(exc).__name__}: {exc}")
+            return
+        if self.isInterruptionRequested():
+            return
+        self.done.emit(result)
+
+
+class _TextReportDialog(QDialog):
+    """A monospaced, scrollable, copyable text report.
+
+    The coverage table and the learning curve are wide, aligned text that a
+    ``QMessageBox`` reflows into unreadable soup, and both are things a user
+    wants to paste into a lab notebook.
+    """
+
+    def __init__(self, title: str, body: str, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.resize(920, 620)
+        layout = QVBoxLayout(self)
+        view = QPlainTextEdit(self)
+        view.setReadOnly(True)
+        view.setLineWrapMode(QPlainTextEdit.NoWrap)
+        font = QFont("monospace")
+        font.setStyleHint(QFont.Monospace)
+        view.setFont(font)
+        view.setPlainText(body)
+        view.setProperty("i18nSkipText", True)
+        layout.addWidget(view, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        layout.addWidget(buttons)
+        self._view = view
 
 
 class _Thumbnail(QLabel):
@@ -573,6 +651,69 @@ def _load_thumb_image_worker(row, src, settings):
     return img.resize(s.image_size), annotation
 
 
+def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
+    """How many objects the grid is paging through, and which ones.
+
+    Runs on a worker thread, and is module-level rather than a method so that
+    it *cannot* reach a widget: everything it needs arrives in ``s``, and
+    everything it produces goes back as a plain dict for
+    :meth:`AnnotateScreen._apply_total` to paint.
+
+    The expensive branch is the last one. ``fetch_filtered_paths`` joins every
+    measurement table in the database into a single pandas frame through
+    :func:`spacr.io._read_and_join_tables` before it can apply a threshold --
+    2.6 s on a 60 000-object database, measured, and it used to run inline on
+    every settings apply.
+
+    :param s: a frozen copy of the screen's settings.
+    :param filter_active: whether a measurement/threshold filter is set,
+        decided by the screen because it is a question about its own controls.
+    :returns: ``filtered_rows``, ``total``, ``queue_summary`` and an optional
+        ``note`` for the page label.
+    """
+    if s.queue_by_uncertainty:
+        # Order the unlabelled crops by how unsure the model is about them,
+        # so the annotator spends their time on the decision boundary. The
+        # queue is a snapshot, rebuilt on every settings apply, so crops
+        # labelled since the last rebuild drop out then rather than now.
+        from ... import active_learning as al
+        try:
+            queue = al.build_queue(
+                s.db_path, s.annotation_column,
+                measure=s.queue_measure,
+                diversity=(s.queue_diversity or "none"),
+                limit=(s.queue_limit or None),
+                image_type=s.image_type, seed=0)
+        except (FileNotFoundError, ValueError) as exc:
+            # No model scores yet is the ordinary case before a classifier
+            # has run, so fall back to page order and say why rather than
+            # showing an empty grid.
+            return {"filtered_rows": None,
+                    "total": count_rows(s.db_path, s.image_type),
+                    "queue_summary": "",
+                    "note": f"Uncertainty queue unavailable: {exc}"}
+        rows = al.queue_rows(queue)
+        return {"filtered_rows": rows, "total": len(rows),
+                "queue_summary": al.format_queue_summary(queue), "note": ""}
+    if filter_active:
+        # Cache the filtered set once so pagination + total agree
+        rows = fetch_filtered_paths(
+            s.db_path,
+            s.annotation_column,
+            s.measurement if isinstance(s.measurement, list)
+            else [s.measurement],
+            s.threshold if isinstance(s.threshold, list) else [s.threshold],
+            s.threshold_direction if isinstance(s.threshold_direction, list)
+            else [s.threshold_direction],
+            s.image_type,
+        )
+        return {"filtered_rows": rows, "total": len(rows),
+                "queue_summary": "", "note": ""}
+    return {"filtered_rows": None,
+            "total": count_rows(s.db_path, s.image_type),
+            "queue_summary": "", "note": ""}
+
+
 class _SettingsDialog(QDialog):
     """Modal dialog that edits an :class:`AnnotateSettings` in place."""
 
@@ -772,6 +913,35 @@ class _SettingsDialog(QDialog):
         buttons.rejected.connect(self.reject)
         self.layout().addWidget(buttons)
 
+        from .settings_model import install_api_tooltips
+        install_api_tooltips(self, "annotate", {
+            self._src_edit: "src",
+            self._ann_col: "annotation_column",
+            self._img_size: "image_size",
+            self._image_type: "image_type",
+            self._channels: "channels",
+            self._stored_channel_order: "stored_channel_order",
+            self._norm_channels: "normalize_channels",
+            self._pct_lo: "lower_percentile",
+            self._pct_hi: "upper_percentile",
+            self._outline: "outline",
+            self._outline_method: "outline_method",
+            self._out_factor: "outline_threshold_factor",
+            self._out_sigma: "outline_sigma",
+            self._edge_thick: "edge_thickness",
+            self._edge_transp: "edge_transparency",
+            self._edge_image: "edge_image",
+            self._obj_min: "object_min_size",
+            self._obj_max: "object_max_size",
+            self._measurement: "measurement",
+            self._threshold: "threshold",
+            self._threshold_dir: "threshold_direction",
+            self._queue_on: "queue_by_uncertainty",
+            self._queue_measure: "queue_measure",
+            self._queue_diversity: "queue_diversity",
+            self._queue_limit: "queue_limit",
+        })
+
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
 
@@ -854,6 +1024,28 @@ class AnnotateScreen(QWidget):
         self._filtered_rows: Optional[List[Tuple[str, Optional[int]]]] = None
         #: rendered spread/class-balance summary when the uncertainty queue is on
         self._queue_summary: str = ""
+        # ── Active learning: the loop's state on this screen ───────────────
+        # The round the next batch of labels belongs to. 0 until a source is
+        # opened; bumped by every retrain, so a label always records which
+        # model's ranking put it in front of the annotator.
+        self._round_index = 0
+        self._retrain_worker: Optional[_RetrainWorker] = None
+        self._last_round = None            # spacr.active_learning.RoundResult
+        self._stop_verdict = None          # spacr.active_learning.StoppingVerdict
+        # A routed ObjectRequest currently pinning the grid to a subset, and
+        # the rows it resolved to. Held separately from `_filtered_rows`
+        # because a filter/queue rebuild must not silently wipe a subset the
+        # user was sent here to look at.
+        self._object_request = None
+        self._object_rows: Optional[List[Tuple[str, Optional[int]]]] = None
+        #: the routed request's reason, kept on the header through page loads
+        self._request_note = ""
+        # ONE bound method, kept, so register/unregister pass the *same*
+        # object. `self.open_object_request` builds a fresh bound method on
+        # every attribute access, and LinkedSelection.unregister_object_opener
+        # is identity-checked — passing a freshly-built one withdraws nothing
+        # and the process-wide registry keeps a reference to a closed screen.
+        self._object_opener = self.open_object_request
         self._pending_updates: Dict[str, Optional[int]] = {}
         self._worker: Optional[SaveWorker] = None
         self._thumbs: List[_Thumbnail] = []
@@ -863,6 +1055,11 @@ class AnnotateScreen(QWidget):
         self._pending_page_load = None
         self._page_gen = 0
         self._closing = False
+        # Counting the population is database work, not widget work — see
+        # `_refresh_total`. Its own runner, separate from the page loader,
+        # because a settings apply cancels the count without disturbing the
+        # crops already on screen.
+        self._total_jobs = JobRunner(self, app_key="annotate count")
         # A drag-resize used to launch one QThread (and one inner thread pool)
         # per geometry event.  Debounce it and keep only the newest page
         # request so native image/model code never overlaps with itself.
@@ -910,6 +1107,14 @@ class AnnotateScreen(QWidget):
         self._status_timer.timeout.connect(self._refresh_status_label)
         self._status_timer.start()
 
+        # Half of the object-routing contract in
+        # `spacr.qt.linked_selection`: a scatter point and a confusion-matrix
+        # cell both want "show me exactly these crops", and neither should
+        # have to know this class exists. Withdrawn in closeEvent, passing
+        # the bound method so a second Annotate opened later keeps the
+        # registration when this one closes.
+        register_object_opener("annotate", self._object_opener)
+
         if self._suggested_source and os.path.isdir(self._suggested_source):
             self._src_label.setText(
                 f"Suggested (last used): {self._suggested_source}"
@@ -936,6 +1141,8 @@ class AnnotateScreen(QWidget):
         hbox.addWidget(title)
         self._src_label = QLabel("No source selected — click Open source…")
         self._src_label.setObjectName("SubtitleSmall")
+        # This label becomes a live filesystem path after a source is opened.
+        self._src_label.setProperty("i18nSkipText", True)
         hbox.addWidget(self._src_label)
         outer.addWidget(header)
         outer.addWidget(Divider())
@@ -983,6 +1190,40 @@ class AnnotateScreen(QWidget):
         self._btn_count.clicked.connect(self._on_class_counts)
         row.addWidget(self._btn_count)
 
+        self._btn_coverage = QPushButton("Coverage")
+        self._btn_coverage.setIcon(iconset.icon("chart"))
+        self._btn_coverage.setCursor(Qt.PointingHandCursor)
+        self._btn_coverage.setToolTip(
+            "Where the annotations actually came from: how many per class, "
+            "per well, per plate, and per active-learning round. '200 cells "
+            "labelled' means nothing until you know that 190 of them were "
+            "one well."
+        )
+        self._btn_coverage.clicked.connect(self._on_coverage)
+        row.addWidget(self._btn_coverage)
+
+        self._btn_retrain = QPushButton("Retrain")
+        self._btn_retrain.setIcon(iconset.icon("classify"))
+        self._btn_retrain.setCursor(Qt.PointingHandCursor)
+        self._btn_retrain.setToolTip(
+            "Fit a model on the labels made so far, score every crop with "
+            "it, and re-rank the uncertainty queue — without leaving this "
+            "screen. Held out by well, so the accuracy is not an artefact of "
+            "labelling one field of view. Each round writes a model card."
+        )
+        self._btn_retrain.clicked.connect(self._on_retrain)
+        row.addWidget(self._btn_retrain)
+
+        self._btn_curve = QPushButton("Rounds")
+        self._btn_curve.setIcon(iconset.icon("chart"))
+        self._btn_curve.setCursor(Qt.PointingHandCursor)
+        self._btn_curve.setToolTip(
+            "Held-out accuracy per round, and whether the last stretch of "
+            "labelling moved it. This is how you find out you can stop."
+        )
+        self._btn_curve.clicked.connect(self._on_learning_curve)
+        row.addWidget(self._btn_curve)
+
         self._btn_train_cv = QPushButton("Train CV")
         self._btn_train_cv.setIcon(iconset.icon("classify"))
         self._btn_train_cv.setCursor(Qt.PointingHandCursor)
@@ -1017,8 +1258,22 @@ class AnnotateScreen(QWidget):
         row.addStretch(1)
         self._page_label = QLabel("")
         self._page_label.setObjectName("SubtitleSmall")
+        self._page_label.setProperty("i18nSkipText", True)
         row.addWidget(self._page_label)
         outer.addWidget(toolbar)
+
+        # The loop's one-line state, always visible: which round, how many
+        # labels, held-out accuracy, the weakest class, and whether the last
+        # stretch of labelling bought anything. A learning curve buried
+        # behind a button gets looked at once; this is what stops someone
+        # labelling a thousand crops after the curve flattened at two
+        # hundred.
+        self._al_label = QLabel("")
+        self._al_label.setObjectName("SubtitleSmall")
+        self._al_label.setProperty("i18nSkipText", True)
+        self._al_label.setWordWrap(True)
+        self._al_label.hide()
+        outer.addWidget(self._al_label)
 
         outer.addWidget(self._build_key_legend())
 
@@ -1049,8 +1304,13 @@ class AnnotateScreen(QWidget):
             f"background: {PALETTE['surface_alt']};")
         self._grid_holder = QWidget()
         self._grid_holder.setObjectName("AnnotateGrid")
+        # The space BETWEEN the images. Same raw-hex problem as the legend:
+        # this is the surface the thumbnails sit on, so it takes the page
+        # opacity — the images themselves are pixmaps and are untouched by it.
+        from ..theme import pane_surface
         self._grid_holder.setStyleSheet(
-            f"QWidget#AnnotateGrid {{ background: {PALETTE['surface_alt']}; }}")
+            f"QWidget#AnnotateGrid {{ background: "
+            f"{pane_surface('surface_alt')}; }}")
         self._grid_layout = QGridLayout(self._grid_holder)
         self._grid_layout.setSpacing(SPACING["sm"])
         self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
@@ -1097,14 +1357,17 @@ class AnnotateScreen(QWidget):
         bottom_row.setSpacing(SPACING["sm"])
         self._status_label = QLabel("Ready.")
         self._status_label.setObjectName("SubtitleSmall")
+        self._status_label.setProperty("i18nSkipText", True)
         bottom_row.addWidget(self._status_label, 1)
 
         self._console_switch = QToolButton(self)
-        self._console_switch.setText("Console ▾")
+        self._set_console_switch_text(False)
         self._console_switch.setCheckable(True)
         self._console_switch.setCursor(Qt.PointingHandCursor)
         self._console_switch.setFocusPolicy(Qt.NoFocus)
-        self._console_switch.setToolTip("Show or hide the Console + AI pane.")
+        console_tip = "Show or hide the Console + AI pane."
+        self._console_switch.setProperty("_spacr_i18n_tooltip", console_tip)
+        self._console_switch.setToolTip(tr(console_tip))
         self._console_switch.toggled.connect(self._on_console_switch)
         bottom_row.addWidget(self._console_switch)
 
@@ -1130,11 +1393,17 @@ class AnnotateScreen(QWidget):
     def _on_console_switch(self, on: bool) -> None:
         """Expand or collapse Annotate's merged Console + AI pane."""
         self._console_wrap.setVisible(on)
-        self._console_switch.setText("Console ▴" if on else "Console ▾")
+        self._set_console_switch_text(on)
         if on:
             height = max(480, self._runtime_splitter.height())
             self._runtime_splitter.setSizes(
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
+
+    def _set_console_switch_text(self, expanded: bool) -> None:
+        """Render the localized caption without losing the arrow state."""
+        source = "Console ▴" if expanded else "Console ▾"
+        self._console_switch.setProperty("_spacr_i18n_text", source)
+        self._console_switch.setText(tr(source))
 
     def _on_ai_switch(self, on: bool) -> None:
         """Enable chat routing and reveal the console when AI is selected."""
@@ -1150,9 +1419,9 @@ class AnnotateScreen(QWidget):
                 self._console.set_ai_provider(configured[0].name)
                 self._refresh_ai_menu()
             else:
-                self._console.append_stdout(
-                    "[AI] No vendor CLI installed. Click ▾ next to AI → "
-                    "Providers…\n")
+                self._console.append_notice(
+                    "[AI] No vendor CLI installed. Click ▾ next to the AI "
+                    "switch → Providers…\n")
                 self._ai_switch.setChecked(False)
 
     def _refresh_ai_menu(self) -> None:
@@ -1171,10 +1440,14 @@ class AnnotateScreen(QWidget):
                     self._on_pick_provider(name))
             self._ai_menu.addSeparator()
         else:
-            self._ai_menu.addAction(
-                "(no vendor CLI installed)").setEnabled(False)
+            source = "(no vendor CLI installed)"
+            unavailable = self._ai_menu.addAction(tr(source))
+            unavailable.setProperty("_spacr_i18n_text", source)
+            unavailable.setEnabled(False)
             self._ai_menu.addSeparator()
-        action = self._ai_menu.addAction("Providers…")
+        source = "Providers…"
+        action = self._ai_menu.addAction(tr(source))
+        action.setProperty("_spacr_i18n_text", source)
         action.triggered.connect(self._on_open_providers_dialog)
 
     def _on_pick_provider(self, name: str) -> None:
@@ -1217,8 +1490,12 @@ class AnnotateScreen(QWidget):
         legend = QWidget()
         legend.setObjectName("AnnotateKeyLegend")
         legend.setFocusPolicy(Qt.NoFocus)
+        # `pane_surface`, not `PALETTE['surface']`. `tile_palette()` returns
+        # raw hex, so the 1-9 key legend stayed fully opaque whatever the page
+        # opacity said — the one strip on the annotate screen that ignored it.
+        from ..theme import pane_surface
         legend.setStyleSheet(
-            f"QWidget#AnnotateKeyLegend {{ background: {PALETTE['surface']};"
+            f"QWidget#AnnotateKeyLegend {{ background: {pane_surface('surface')};"
             f" border: 1px solid {PALETTE['border_soft']};"
             f" border-radius: 6px; }}"
         )
@@ -1350,8 +1627,7 @@ class AnnotateScreen(QWidget):
             return
         self._flush_pending()
         self._rebuild_grid()
-        self._refresh_total()
-        self._load_page()
+        self._refresh_total(then=self._load_page)
 
     # ------------------------------------------------------------------
     # Actions
@@ -1387,8 +1663,7 @@ class AnnotateScreen(QWidget):
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
-        self._console.append_stdout(
-            f"[Annotate] Opened {db_path}\n")
+        self._console.append_notice("Opened {name}\n", name=db_path)
         prefs.push_recent_source("annotate", src)
         # Show the grid page FIRST so its viewport is realized, then defer the
         # grid build + first load to the next event-loop tick. Otherwise
@@ -1399,8 +1674,16 @@ class AnnotateScreen(QWidget):
         # Take keyboard focus so the user can start keying classes straight
         # away without first clicking into the grid.
         self.setFocus(Qt.OtherFocusReason)
-        self._refresh_total()
-        QTimer.singleShot(0, self._rebuild_and_load)
+        # A new source is a new loop: the round counter, the routed subset
+        # and the last verdict all belonged to the previous database.
+        self._object_request = None
+        self._object_rows = None
+        self._last_round = None
+        self._refresh_round_state()
+        # `_rebuild_and_load` used to be deferred a turn so the viewport was
+        # realized before the grid was sized. The count is now asynchronous,
+        # so its delivery is already a later turn and does the same job.
+        self._refresh_total(then=self._rebuild_and_load)
 
     def _rebuild_and_load(self):
         """Rebuild the grid against the (now realized) viewport, then load."""
@@ -1419,8 +1702,7 @@ class AnnotateScreen(QWidget):
         if self._settings.src != old_src or self._settings.annotation_column != old_col:
             self._open_source(self._settings.src)
         else:
-            self._refresh_total()
-            self._load_page()
+            self._refresh_total(then=self._load_page)
 
     def _on_next(self):
         self._flush_pending()
@@ -1458,6 +1740,259 @@ class AnnotateScreen(QWidget):
         for cls, cnt in rows:
             lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls) or ''}")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
+
+    # ------------------------------------------------------------------
+    # Active learning: retrain here, re-rank, watch the curve, know when to
+    # stop. The queue was already wired; this is the half that closes it.
+    # ------------------------------------------------------------------
+    def _label_source(self) -> str:
+        """How the crops on screen reached the annotator, for provenance."""
+        if self._object_request is not None:
+            return "object_request"
+        return "queue" if self._settings.queue_by_uncertainty else "manual"
+
+    def _refresh_round_state(self) -> None:
+        """Re-read the round counter and the curve, and repaint the strip."""
+        curve = None
+        if not self._settings.db_path or not os.path.isfile(
+                self._settings.db_path):
+            self._round_index = 0
+            self._stop_verdict = None
+            self._al_label.hide()
+            return
+        try:
+            from ... import active_learning as al
+            self._round_index = al.next_round(
+                self._settings.db_path, self._settings.annotation_column)
+            curve = al.learning_curve(self._settings.db_path,
+                                      self._settings.annotation_column)
+            self._stop_verdict = al.should_stop(curve) if len(curve) else None
+        except Exception:
+            # Never let a bookkeeping read stop somebody annotating.
+            self._round_index = 0
+            self._stop_verdict = None
+            curve = None
+        self._refresh_al_label(curve)
+
+    def _refresh_al_label(self, curve=None) -> None:
+        """Repaint the one-line active-learning strip."""
+        parts = [f"Round {self._round_index}"]
+        result = self._last_round
+        if result is not None:
+            parts.append(f"{result.n_labels} labels")
+            parts.append(f"held-out {result.accuracy:.3f}")
+            per_class = result.per_class
+            if per_class:
+                worst = min(per_class, key=per_class.get)
+                parts.append(f"worst class {worst} {per_class[worst]:.3f}")
+        elif curve is not None and len(curve):
+            last = curve.iloc[-1]
+            parts.append(f"{int(last['n_labels'])} labels")
+            accuracy = last["holdout_accuracy"]
+            if accuracy is not None:
+                parts.append(f"held-out {float(accuracy):.3f}")
+        verdict = self._stop_verdict
+        if verdict is not None:
+            parts.append(("STOP — " if verdict.stop else "keep going — ")
+                         + verdict.reason)
+        elif result is None:
+            parts.append("no model fitted from here yet — press Retrain to "
+                         "start the curve")
+        self._al_label.setText(" · ".join(parts))
+        self._al_label.setVisible(bool(self._settings.db_path))
+
+    def _on_coverage(self):
+        """Show where the annotations actually came from."""
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source to see annotation coverage.")
+            return
+        self._flush_pending()
+        try:
+            from ... import active_learning as al
+            coverage = al.annotation_coverage(
+                self._settings.db_path, self._settings.annotation_column)
+            body = al.format_coverage_summary(coverage)
+        except Exception as exc:
+            QMessageBox.warning(self, "Coverage unavailable",
+                                f"{type(exc).__name__}: {exc}")
+            return
+        _TextReportDialog("Annotation coverage", body, self).exec()
+
+    def _on_learning_curve(self):
+        """Show held-out accuracy per round and the stopping verdict."""
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source to see the learning curve.")
+            return
+        try:
+            from ... import active_learning as al
+            curve = al.learning_curve(self._settings.db_path,
+                                      self._settings.annotation_column)
+            verdict = al.should_stop(curve)
+            body = al.format_learning_curve(curve, verdict)
+        except Exception as exc:
+            QMessageBox.warning(self, "Learning curve unavailable",
+                                f"{type(exc).__name__}: {exc}")
+            return
+        _TextReportDialog("Active-learning rounds", body, self).exec()
+
+    def _on_retrain(self):
+        """Fit a round on the labels so far, then re-rank without leaving."""
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before retraining.")
+            return
+        if self._retrain_worker is not None:
+            self._status_label.setText("A retrain is already running.")
+            return
+        # The labels the annotator just made are the whole point of the
+        # round; a retrain that raced the save worker would fit on the state
+        # before them.
+        self._flush_pending()
+        if self._worker is not None:
+            self._worker.stop(wait=True)
+            self._worker = SaveWorker(self._settings.db_path,
+                                      self._settings.annotation_column)
+            self._worker.start()
+
+        self._btn_retrain.setEnabled(False)
+        self._status_label.setText("Retraining on the labels so far…")
+        self._console.append_notice(
+            "Retraining round {round} on the labels so far…\n",
+            round=str(self._round_index))
+        worker = _RetrainWorker(
+            self._settings.db_path, self._settings.annotation_column,
+            {"round_index": self._round_index,
+             "measure": self._settings.queue_measure,
+             "diversity": self._settings.queue_diversity,
+             "image_type": self._settings.image_type},
+            parent=self)
+        worker.done.connect(self._on_retrain_done)
+        worker.failed.connect(self._on_retrain_failed)
+        worker.finished.connect(self._on_retrain_finished)
+        self._retrain_worker = worker
+        worker.start()
+
+    @Slot(object)
+    def _on_retrain_done(self, result) -> None:
+        """A round finished: record it, re-rank, and say what it means."""
+        self._last_round = result
+        self._stop_verdict = result.verdict
+        self._round_index = int(result.round_index) + 1
+        # Not `text=` — ConsolePanel.append_notice forwards the mapping to
+        # `tr(core, **mapping)`, and `text` is tr's own first parameter.
+        self._console.append_notice("{report}\n", report=result.summary())
+        self._refresh_al_label()
+        self._status_label.setText(
+            f"Round {result.round_index}: held-out "
+            f"{result.accuracy:.3f} on {result.report.get('n', 0)} objects.")
+        # Re-rank. The round wrote fresh per-class probabilities into
+        # png_list, and build_queue prefers them, so this is where round 2
+        # starts showing genuinely different crops.
+        if self._object_request is None:
+            self._offset = 0
+            self._refresh_total(then=self._load_page)
+
+    @Slot(str)
+    def _on_retrain_failed(self, message: str) -> None:
+        """A round could not be fitted — say why rather than going quiet."""
+        self._console.append_notice("Retrain failed: {msg}\n", msg=message)
+        self._status_label.setText(f"Retrain failed — {message}")
+        QMessageBox.warning(
+            self, "Retrain failed",
+            f"{message}\n\nThe annotations are untouched. The usual causes "
+            f"are too few labels, only one class annotated so far, or no "
+            f"measurement tables to build features from.")
+
+    @Slot()
+    def _on_retrain_finished(self) -> None:
+        """Retire the retrain thread on the GUI thread."""
+        worker = self._retrain_worker
+        self._retrain_worker = None
+        self._btn_retrain.setEnabled(True)
+        if worker is None:
+            return
+        try:
+            worker.done.disconnect(self._on_retrain_done)
+            worker.failed.disconnect(self._on_retrain_failed)
+            worker.finished.disconnect(self._on_retrain_finished)
+        except (RuntimeError, TypeError):
+            pass
+        worker.deleteLater()
+
+    # ------------------------------------------------------------------
+    # Object routing (spacr.qt.linked_selection)
+    # ------------------------------------------------------------------
+    def open_object_request(self, request):
+        """Show exactly the crops ``request`` names, in its order.
+
+        The one method this screen grows for the whole routing contract. A
+        UMAP point, a confusion-matrix cell and anything added later all
+        arrive here as an :class:`~spacr.selection.ObjectRequest`; none of
+        them imports this module and this module grows no method per caller.
+
+        The subset *pins* the grid: pagination, the uncertainty queue and
+        the threshold filter all defer to it until it is cleared, because a
+        request that quietly got replaced by the next queue rebuild would
+        show the user a different population under the same heading. Opening
+        a source, or :meth:`clear_object_request`, clears it.
+
+        :param request: the routed request. ``request.reason`` becomes the
+            line above the grid — a grid of twelve crops that does not say
+            why reads as the whole screen.
+        :returns: this screen, so the caller can raise or focus it.
+        """
+        self._object_request = request
+        keys = list(request.keys)
+        if not self._settings.db_path:
+            self._object_rows = []
+            self._request_note = request.describe()
+            self._set_page_label(
+                "no source is open, so none of them can be shown. Open the "
+                "experiment first.")
+            return self
+        try:
+            from ... import active_learning as al
+            rows = al.crops_for_object_keys(
+                self._settings.db_path, keys,
+                annotation_column=self._settings.annotation_column,
+                timelapse=bool(request.timelapse),
+                image_type=self._settings.image_type)
+        except Exception as exc:
+            self._object_request = None
+            self._object_rows = None
+            self._request_note = ""
+            self._set_page_label(
+                f"Could not open {len(keys)} objects: "
+                f"{type(exc).__name__}: {exc}")
+            return self
+
+        self._flush_pending()
+        self._object_rows = rows
+        self._filtered_rows = rows
+        self._total = len(rows)
+        self._offset = 0
+        self._content_stack.setCurrentWidget(self._grid_scroll)
+        missing = len(keys) - len(rows)
+        suffix = (f" · {missing} of them are not in this database"
+                  if missing > 0 else "")
+        self._request_note = request.describe() + suffix
+        self._load_page()
+        return self
+
+    def clear_object_request(self) -> None:
+        """Unpin a routed subset and go back to the ordinary population."""
+        if self._object_request is None:
+            return
+        self._object_request = None
+        self._object_rows = None
+        self._request_note = ""
+        self._offset = 0
+        self._refresh_total(then=self._load_page)
 
     def _on_train_cv(self):
         """Save any pending annotations, then hand off to Classify."""
@@ -1512,8 +2047,7 @@ class AnnotateScreen(QWidget):
             return
         self._pending_updates.clear()
         clear_column(self._settings.db_path, col)
-        self._refresh_total()
-        self._load_page()
+        self._refresh_total(then=self._load_page)
 
     def _on_thumb_left(self, slot: int):
         self._toggle_annotation(slot, 1)
@@ -1528,53 +2062,73 @@ class AnnotateScreen(QWidget):
         s = self._settings
         return bool(s.measurement and s.threshold and s.threshold_direction)
 
-    def _refresh_total(self):
-        s = self._settings
-        if s.queue_by_uncertainty:
-            # Order the unlabelled crops by how unsure the model is about them,
-            # so the annotator spends their time on the decision boundary. The
-            # queue is a snapshot, rebuilt on every settings apply, so crops
-            # labelled since the last rebuild drop out then rather than now.
-            from ... import active_learning as al
-            try:
-                queue = al.build_queue(
-                    s.db_path, s.annotation_column,
-                    measure=s.queue_measure,
-                    diversity=(s.queue_diversity or "none"),
-                    limit=(s.queue_limit or None),
-                    image_type=s.image_type, seed=0)
-            except (FileNotFoundError, ValueError) as exc:
-                # No model scores yet is the ordinary case before a classifier
-                # has run, so fall back to page order and say why rather than
-                # showing an empty grid.
-                self._filtered_rows = None
-                self._total = count_rows(s.db_path, s.image_type)
-                self._queue_summary = ""
-                self._page_label.setText(f"Uncertainty queue unavailable: {exc}")
-                return
-            self._queue_summary = al.format_queue_summary(queue)
-            self._filtered_rows = al.queue_rows(queue)
-            self._total = len(self._filtered_rows)
+    def active_jobs(self) -> int:
+        """How many population counts are still winding down."""
+        return self._total_jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a population count has not delivered its result."""
+        return self._total_jobs.is_busy()
+
+    def _refresh_total(self, then=None):
+        """Recount the population, off the GUI thread, then run ``then``.
+
+        This was the heaviest single GUI-thread call in the application. With
+        a threshold filter set it reaches ``fetch_filtered_paths``, which
+        calls :func:`spacr.io._read_and_join_tables` -- every measurement
+        table in the database joined into one pandas frame -- and it ran on
+        every source open, every settings apply, every retrain and every
+        clear. Measured with the event-loop watchdog on a 60 000-object
+        database: **2.6 s of frozen window**, and a real screen's database is
+        larger than that.
+
+        The counting now happens in :func:`_compute_total`, which is a
+        module-level function precisely so it cannot reach a widget. What is
+        left here is the part that must be on the GUI thread: reading the
+        settings, and painting the result.
+
+        :param then: called on the GUI thread once the new totals are in
+            place. Every caller previously followed ``_refresh_total()`` with
+            ``_load_page()`` on the next line; that is what this is for, and
+            passing it is how the ordering survives becoming asynchronous.
+        """
+        if self._object_rows is not None:
+            # A routed request pins the population. Rebuilding the queue or
+            # the threshold filter underneath it would replace the twelve
+            # crops somebody was sent here to look at with ninety thousand,
+            # under the same "12 objects · predicted infected" heading.
+            # No I/O, so no thread: this stays synchronous.
+            self._filtered_rows = self._object_rows
+            self._total = len(self._object_rows)
+            self._queue_summary = ""
+            if then is not None:
+                then()
             return
-        self._queue_summary = ""
-        if self._filter_active():
-            # Cache the filtered set once so pagination + total agree
-            self._filtered_rows = fetch_filtered_paths(
-                self._settings.db_path,
-                self._settings.annotation_column,
-                self._settings.measurement if isinstance(self._settings.measurement, list)
-                else [self._settings.measurement],
-                self._settings.threshold if isinstance(self._settings.threshold, list)
-                else [self._settings.threshold],
-                self._settings.threshold_direction if isinstance(
-                    self._settings.threshold_direction, list
-                ) else [self._settings.threshold_direction],
-                self._settings.image_type,
-            )
-            self._total = len(self._filtered_rows)
-        else:
-            self._filtered_rows = None
-            self._total = count_rows(self._settings.db_path, self._settings.image_type)
+        # Freeze the settings now. They are a mutable dataclass with mutable
+        # lists inside it, and the dialog can be reopened while the count is
+        # still running.
+        settings = deepcopy(self._settings)
+        filter_active = self._filter_active()
+        # A newer count supersedes an older one, exactly as a newer page load
+        # supersedes an older one -- otherwise two settings applies in quick
+        # succession leave whichever count happened to finish last on screen.
+        self._total_jobs.cancel()
+        self._total_jobs.submit(
+            lambda: _compute_total(settings, filter_active),
+            lambda outcome, _then=then: self._apply_total(outcome, _then))
+
+    def _apply_total(self, outcome: dict, then=None) -> None:
+        """Install a worker-computed population count. GUI thread only."""
+        if self._closing:
+            return
+        self._filtered_rows = outcome.get("filtered_rows")
+        self._total = int(outcome.get("total") or 0)
+        self._queue_summary = outcome.get("queue_summary") or ""
+        note = outcome.get("note")
+        if note:
+            self._page_label.setText(note)
+        if then is not None:
+            then()
 
     def _load_page(self):
         if self._closing:
@@ -1615,7 +2169,7 @@ class AnnotateScreen(QWidget):
         # discards results from a page/settings change the user has since
         # superseded.
         self._page_gen += 1
-        self._page_label.setText(f"Loading {len(self._page_paths)} images…")
+        self._set_page_label(f"Loading {len(self._page_paths)} images…")
         crop_src = self._crop_source()
         # Lists inside AnnotateSettings are mutable. Freeze the complete view
         # configuration now so a Settings change cannot race the decoder.
@@ -1678,9 +2232,22 @@ class AnnotateScreen(QWidget):
             # snapshotted: the user may have keyed labels in while the page
             # was still decoding, and those are the fresher truth.
             self._repaint_slot(i)
-        self._page_label.setText(
+        self._set_page_label(
             f"Page rows {self._offset}–{min(self._offset + page, self._total)} / {self._total}"
         )
+
+    def _set_page_label(self, text: str) -> None:
+        """Write the line above the grid, keeping any routed request's reason.
+
+        The page counter is rewritten twice per page load, and it used to be
+        the only writer — so a routed subset's "12 objects · predicted
+        infected, annotated uninfected" was replaced by "Page rows 0–12 / 12"
+        before the crops had finished decoding, and twelve crops with a page
+        counter over them read as the whole screen. The reason is the part
+        that must not be lost.
+        """
+        note = getattr(self, "_request_note", "")
+        self._page_label.setText(f"{note} — {text}" if note else text)
 
     def _crop_source(self):
         """Resolve the crop source once per settings change, then cache it.
@@ -2107,8 +2674,35 @@ class AnnotateScreen(QWidget):
     def _flush_pending(self):
         if not self._pending_updates or self._worker is None:
             return
+        batch = dict(self._pending_updates)
         self._worker.submit(self._pending_updates)
         self._pending_updates.clear()
+        self._record_round_provenance(batch)
+
+    def _record_round_provenance(self, batch: Dict[str, Optional[int]]) -> None:
+        """Stamp a saved batch with the round it was made in.
+
+        Without this, "which labels came from before the model had seen
+        anything" is unanswerable, and an early-round bias — the first
+        hundred labels drawn from raw page order, all from plate 1 — stays
+        invisible for the life of the dataset.
+
+        Never fatal: a provenance write that fails must not cost the labels
+        themselves, which are on their way to the database on another
+        thread regardless.
+        """
+        if not batch or not self._settings.db_path:
+            return
+        try:
+            from ... import active_learning as al
+            al.record_labels(self._settings.db_path,
+                             self._settings.annotation_column, batch,
+                             round_index=self._round_index,
+                             source=self._label_source())
+        except Exception as exc:
+            self._console.append_notice(
+                "Round provenance not recorded for {n} label(s): {err}\n",
+                n=str(len(batch)), err=f"{type(exc).__name__}: {exc}")
 
     def _refresh_status_label(self):
         w = self._worker
@@ -2116,6 +2710,9 @@ class AnnotateScreen(QWidget):
             self._status_label.setText("Ready.")
             return
         parts = []
+        if w.last_error:
+            self._status_label.setText(f"Save failed — {w.last_error}")
+            return
         if self._pending_updates:
             parts.append(f"{len(self._pending_updates)} unsaved change(s)")
         if w.busy:
@@ -2130,27 +2727,70 @@ class AnnotateScreen(QWidget):
     def closeEvent(self, event):
         """Drain every native/Python worker before Qt destroys this screen."""
         self._closing = True
+        # Withdraw the routing registration first, so a request arriving
+        # during teardown cannot reach a half-destroyed screen. The bound
+        # method is passed on purpose: with two Annotate screens opened in a
+        # session, this one's closeEvent runs after the other registered,
+        # and an unconditional withdrawal would leave the live screen
+        # unreachable.
+        unregister_object_opener("annotate", self._object_opener)
         self._resize_timer.stop()
         self._pending_page_load = None
         self._flush_pending()
+        # The population count is a read-only query. Abandon it: nothing it
+        # could half-finish is worth waiting for.
+        self._total_jobs.shutdown()
+        retrain = self._retrain_worker
+        if retrain is not None:
+            # sklearn fits and the score write-back are native/SQLite work;
+            # tearing the widget down under them is the same class of crash
+            # as the page worker below, so this waits rather than dropping the
+            # reference. It waits with a BUDGET, though, and that is the
+            # change: `wait()` with no argument is ULONG_MAX milliseconds, so
+            # a fit that wedged -- a BLAS thread spinning, an SQLite writer
+            # blocked on a lock another process holds -- hung the close
+            # *permanently*, window still on screen, nothing to click, no way
+            # out but SIGKILL. `drain_thread` waits the budget and then PARKS
+            # the thread rather than terminating it: nothing mid-write is
+            # interrupted and the last reference to a running QThread is never
+            # dropped, which is the abort this is all arranged around. The
+            # close completes either way.
+            retrain.requestInterruption()
+            stopped = drain_thread(retrain, timeout_ms=CLOSE_DRAIN_MS)
+            self._retrain_worker = None
+            try:
+                retrain.done.disconnect(self._on_retrain_done)
+                retrain.failed.disconnect(self._on_retrain_failed)
+                retrain.finished.disconnect(self._on_retrain_finished)
+            except (RuntimeError, TypeError):
+                pass
+            if stopped:
+                # Only when it really stopped. `deleteLater` on a parked,
+                # still-running QThread is the abort being avoided; the park
+                # list owns it from here.
+                retrain.deleteLater()
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
         self._page_gen += 1   # invalidate any in-flight results
         worker = self._page_worker
         if worker is not None:
-            # Do not use a timeout here. Cellpose/PyTorch can remain in native
-            # inference longer than four seconds; letting QWidget destruction
-            # continue in that window is the intermittent SIGSEGV/abort.
+            # Cellpose/PyTorch can stay in native inference for a long time,
+            # and letting QWidget destruction continue in that window is the
+            # intermittent SIGSEGV/abort — so this waits too, and for the same
+            # reason as the retrain worker it waits a bounded time and parks
+            # what will not stop. A page that is still decoding must not be
+            # able to hold the window open forever.
             worker.requestInterruption()
-            worker.wait()
+            stopped = drain_thread(worker, timeout_ms=CLOSE_DRAIN_MS)
             self._page_worker = None
             try:
                 worker.done.disconnect(self._on_page_loaded)
                 worker.finished.disconnect(self._on_page_worker_finished)
             except (RuntimeError, TypeError):
                 pass
-            worker.deleteLater()
+            if stopped:
+                worker.deleteLater()
         try:
             self._console.shutdown()
         except Exception:

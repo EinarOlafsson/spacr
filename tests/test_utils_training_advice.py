@@ -97,10 +97,10 @@ def test_suggest_training_changes_too_few_epochs(tmp_path):
 
 def test_suggest_training_changes_missing_csvs(tmp_path):
     from spacr.utils import suggest_training_changes
-    try:
-        out = suggest_training_changes(str(tmp_path))
-    except Exception as e:
-        pytest.skip(f"advisor requires progress CSVs: {e}")
+    # Unguarded, and this is the whole point of the test: an advisor pointed at
+    # a directory with no progress CSVs must SAY so, not raise. The skip made
+    # "handled the empty case" and "blew up on the empty case" the same result.
+    out = suggest_training_changes(str(tmp_path))
     assert out is None or isinstance(out, dict)
 
 

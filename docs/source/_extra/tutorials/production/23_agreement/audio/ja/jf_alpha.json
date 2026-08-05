@@ -4,47 +4,107 @@
   "voice": "jf_alpha",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 59.475,
+  "total_duration": 178.025,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.35,
-      "scene_end": 12.799999999999999,
-      "duration": 12.799999999999999,
-      "text": "このチュートリアルでは,アノテーションの合意について説明します. アノテーションの列間の合意を測定し,意見の不一致の原因となるオブジェクトをレビューします."
+      "speech_end": 18.725,
+      "scene_end": 19.275000000000002,
+      "duration": 19.275000000000002,
+      "text": "Annotator Agreementは,データベースを変更することなく,2つ以上のカテゴリー列を比較します. 2人のレビュー者,繰り返し注釈パス,またはレビュー者対モデルのチェックで 概要の統計と一致しない正確な作物の両方を確認します",
+      "speech_text": "Annotator Agreementは,データベースを変更することなく,2つ以上のカテゴリー列を比較します. 2人のレビュー者,繰り返し注釈パス,またはレビュー者対モデルのチェックで 概要の統計と一致しない正確な作物の両方を確認します",
+      "phonemes": "Annotator Agreement βa, deːtabeːsɨ o heŋkoː sɨɾɯ koto nakɯ, ɲiʔiʥoː no kateɡoɾʲiː ɾeʦɨ o çikakɯ ɕi masɨ. ɲi çito no ɾebʲɨː ɕa, kɯɾʲikaeɕi ʨɨːɕakɯ pasɨ, mata βa ɾebʲɨː ɕa tai modeɾɯ no ʨeʔkɯ de ɡaijoː no toːkeː to iʔʨi ɕinai seːkakɯ na sakɯmoʦɨ no ɾʲoːhoː o kakɯɲiɴ ɕi masɨ"
     },
     {
       "scene": 2,
-      "speech_start": 12.799999999999999,
-      "speech_end": 24.475,
-      "scene_end": 24.925,
-      "duration": 12.125000000000002,
-      "text": "Results and quality control セクションから Annotator Agreement を開きます。 プロジェクトデータベースと同じオブジェクトをカバーする2つ以上の注記列を選択します."
+      "speech_start": 19.275000000000002,
+      "speech_end": 32.1,
+      "scene_end": 32.6,
+      "duration": 13.325,
+      "text": "測定データベースまたはその実行フォルダを選択してください. spaCR は PNG リスト表から適切な注釈と予測列を発見し,ソースラベルを読み書きのみにする.",
+      "speech_text": "測定データベースまたはその実行フォルダを選択してください. スペーカー は PNG リスト表から適切な注釈と予測列を発見し,ソースラベルを読み書きのみにする.",
+      "phonemes": "sokɯteː deːtabeːsɨ mata βa sono ʥiʔkoː ɸoɾɯda o sentakɯ ɕite kɯdasai. sɨpe kaː βa PNG ɾʲisɨto çoː kaɾa tekʲiseʦɨ na ʨɨːɕakɯ to josokɯ ɾeʦɨ o haʔkeɴ ɕi, soːsɨ ɾabeɾɯ o jomʲikakʲi nomʲi ɲi sɨɾɯ."
     },
     {
       "scene": 3,
-      "speech_start": 24.925,
-      "speech_end": 33.8,
-      "scene_end": 34.25,
-      "duration": 9.325,
-      "text": "主な構成領域では,クラス処理,欠損ラベルポリシー,グループ化,サンプリング,合意統計を選択します."
+      "speech_start": 32.6,
+      "speech_end": 49.075,
+      "scene_end": 49.625,
+      "duration": 17.025,
+      "text": "少なくとも2つの列を選択してください. ここで ER_Bulbs は同じ細胞作物における予測_1 と比較されます. 選択された追加の列は,すべてのペア式比較および多レーターフライス・カッパ概要を可能にします.",
+      "speech_text": "少なくとも2つの列を選択してください. ここで ER_Bulbs は同じ細胞作物における予測_1 と比較されます. 選択された追加の列は,すべてのペア式比較および多レーターフライス・カッパ概要を可能にします.",
+      "phonemes": "sɨkɯnakɯtomo ɲiʔno ɾeʦɨ o sentakɯ ɕite kɯdasai. koko de ER _ Bulbs βa onaʥi saiboː sakɯmoʦɨ ɲi okeɾɯ josokɯ _ iʨi to çikakɯ saɾemasɨ. sentakɯ saɾeta ʦɨika no ɾeʦɨ βa, sɨbete no pea ɕikʲi çikakɯ ojobʲi ta ɾeːtaːɸɯɾaisɨ kaʔpa ɡaijoː o kanoː ɲi ɕi masɨ."
     },
     {
       "scene": 4,
-      "speech_start": 34.25,
-      "speech_end": 49.35,
-      "scene_end": 49.800000000000004,
-      "duration": 15.550000000000004,
-      "text": "完全な実行前に,可視設定をレビューし,可用である場合のプレビューまたはテストモードを使用します.クラス別混乱と意見の不一致の例とともにコーエンまたはフリース・カッパを検査します."
+      "speech_start": 49.625,
+      "speech_end": 64.575,
+      "scene_end": 65.075,
+      "duration": 15.450000000000003,
+      "text": "計算契約をクリックします. 欠落したラベルは,意見の不一致ではなく,棄権として扱われ,それぞれのペアが選択された列の両列にカテゴリーが含まれている列のみで評価されます.",
+      "speech_text": "計算契約をクリックします. 欠落したラベルは,意見の不一致ではなく,棄権として扱われ,それぞれのペアが選択された列の両列にカテゴリーが含まれている列のみで評価されます.",
+      "phonemes": "keːsaɴ keːjakɯ o kɯɾʲiʔkɯ ɕi masɨ. keʦɨɾakɯ ɕita ɾabeɾɯ βa, ikeɴ no ɸɯ iʔʨi de βa nakɯ, kʲikeɴ toɕi te aʦɨkaβa ɾe, soɾeʣoɾe no pea ɡa sentakɯ saɾeta ɾeʦɨ no ɾʲoː ɾeʦɨ ɲi kateɡoɾʲiː ɡa ɸɯkɯma ɾe te iɾɯ ɾeʦɨ nomʲi de çoːka saɾemasɨ."
     },
     {
       "scene": 5,
-      "speech_start": 49.800000000000004,
-      "speech_end": 58.825,
-      "scene_end": 59.475,
-      "duration": 9.674999999999997,
-      "text": "作業流が完了すると,合意表と集中的なレビューは,ラベルの和解とプロトコル改善をサポートします."
+      "speech_start": 65.075,
+      "speech_end": 78.575,
+      "scene_end": 79.025,
+      "duration": 13.950000000000003,
+      "text": "計算はレッテルを作物によって並べ,完全な行と棄権された行を数え,各混乱マトリックスを構築し,ソース画像から追溯できる意見の不一致を検出します.",
+      "speech_text": "計算はレッテルを作物によって並べ,完全な行と棄権された行を数え,各混乱マトリックスを構築し,ソース画像から追溯できる意見の不一致を検出します.",
+      "phonemes": "keːsaɴ βa ɾeʔteɾɯ o sakɯmoʦɨ ɲi joʔte naɾabe, kaɴʣeɴ naɡʲoː to kʲikeɴ saɾeta ɡʲoː o kaʣoe, kakɯ konɾaɴ matoɾʲiʔkɯsɨ o koːʨikɯ ɕi, soːsɨ ɡaʣoː kaɾa ʦɨi dekʲiɾɯ ikeɴ no ɸɯ iʔʨi o keɴɕɨʦɨ ɕi masɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 79.025,
+      "speech_end": 102.47500000000001,
+      "scene_end": 103.325,
+      "duration": 24.299999999999997,
+      "text": "この実際のペアには\"千三百五十九の完全な行,8万六百十の棄権,8つの意見の不一致,99.4%の原発合意がある. コヘンのカッパはここで定義されていません ゼロではありません ER_Bulbsはすべての完全な行に 1 つのクラスしか使わないため 偶然の合意の名詞は退化します",
+      "speech_text": "この実際のペアには\"千三百五十九の完全な行,8万六百十の棄権,8つの意見の不一致,99.4%の原発合意がある. コヘンのカッパはここで定義されていません ゼロではありません ER_Bulbsはすべての完全な行に 1 つのクラスしか使わないため 偶然の合意の名詞は退化します",
+      "phonemes": "kono ʥiʔsai no pea ɲi βa \" seɴ sambʲakɯ ɡoʥɨː kʲɨː no kaɴʣeɴ naɡʲoː, haʨi maɴ ɾoʔpʲakɯ ʥɨː no kʲikeɴ, haʨi ʦɨ no ikeɴ no ɸɯ iʔʨi, kʲɨːʥɨː kʲɨː. joɴ % no ɡempaʦɨ ɡoːi ɡa aɾɯ. ko heɴ no kaʔpa βa koko de teːɡʲi saɾete i maseɴ ʣeɾo de βa aɾʲimaseɴ ER _ Bulbs βa sɨbete no kaɴʣeɴ naɡʲoː ɲi iʨi ʦɨ no kɯɾasɨ ɕika ʦɨkaβanai tame ɡɯːʣeɴ no ɡoːi no meːɕi βa taika ɕi masɨ"
+    },
+    {
+      "scene": 7,
+      "speech_start": 103.325,
+      "speech_end": 121.825,
+      "scene_end": 122.525,
+      "duration": 19.200000000000003,
+      "text": "混同マトリックスでは,クラス不均衡を直接暴露します. 一千三百五十一列は両方の列でクラス1であり,ER_Bulbsでは8列がクラス1であり,予測_1ではクラス2である. ER_Bulbs は,完全なクラス2行に貢献しません.",
+      "speech_text": "混同マトリックスでは,クラス不均衡を直接暴露します. 一千三百五十一列は両方の列でクラス1であり,ER_Bulbsでは8列がクラス1であり,予測_1ではクラス2である. ER_Bulbs は,完全なクラス2行に貢献しません.",
+      "phonemes": "kondoː matoɾʲiʔkɯsɨ de βa, kɯɾasɨ ɸɯ kʲiŋkoː o ʨokɯseʦɨ bakɯɾo ɕi masɨ. iʔseɴ sambʲakɯ ɡoʥɨː iʨi ɾeʦɨ βa ɾʲoːhoː no ɾeʦɨ de kɯɾasɨ iʨi de aɾʲi, ER _ Bulbs de βa haʨi ɾeʦɨ ɡa kɯɾasɨ iʨi de aɾʲi, josokɯ _ iʨi de βa kɯɾasɨ ɲi de aɾɯ. ER _ Bulbs βa, kaɴʣeɴ na kɯɾasɨ ɲi ɡʲoː ɲi koːkeɴ ɕi maseɴ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 122.525,
+      "speech_end": 138.3,
+      "scene_end": 138.9,
+      "duration": 16.375,
+      "text": "意見の不一致表には 8つの実作物と 2つのラベルが記載されています 大規模な比較のためにレビュー制限を変更し,任意の行を選択し,総スコアだけで判断する代わりにプレビューを使用します.",
+      "speech_text": "意見の不一致表には 8つの実作物と 2つのラベルが記載されています 大規模な比較のためにレビュー制限を変更し,任意の行を選択し,総スコアだけで判断する代わりにプレビューを使用します.",
+      "phonemes": "ikeɴ no ɸɯ iʔʨi çoː ɲi βa βa ʨiʦɨ no ʥiʔsakɯmoʦɨ to ɲiʔno ɾabeɾɯ ɡa kʲisai saɾete imasɨ dai kʲibo na çikakɯ no tame ɲi ɾebʲɨː seːɡeɴ o heŋkoː ɕi, ɲiɴi no ɡʲoː o sentakɯ ɕi, soː sɨkoa dake de handaɴ sɨɾɯ kaβaɾʲi ɲi pɯɾebʲɨː o ɕijoː ɕi masɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 138.9,
+      "speech_end": 158.70000000000002,
+      "scene_end": 159.35000000000002,
+      "duration": 20.450000000000017,
+      "text": "異議を選択することで,保存された作物経路を解決し,その2つのカテゴリー値の横に顕微鏡画像が表示されます. ラベル,しきい値,またはクラス定義の修正が必要かどうかを選択する前に,形態学および信号文脈をレビューする.",
+      "speech_text": "異議を選択することで,保存された作物経路を解決し,その2つのカテゴリー値の横に顕微鏡画像が表示されます. ラベル,しきい値,またはクラス定義の修正が必要かどうかを選択する前に,形態学および信号文脈をレビューする.",
+      "phonemes": "iɡʲi o sentakɯ sɨɾɯ koto de, hoʣoɴ saɾeta sakɯmoʦɨ keːɾo o kaikeʦɨ ɕi, sono ɲiʔno kateɡoɾʲiː ʨi no joko ɲi kembʲikʲoː ɡaʣoː ɡa çoːʥi saɾemasɨ. ɾabeɾɯ, ɕikʲii ʨi, mata βa kɯɾasɨ teːɡʲi no ɕɨːseː ɡa çiʦɨjoː ka doː ka o sentakɯ sɨɾɯ mae ɲi, keːtai ɡakɯ ojobʲi ɕiŋɡoː bɯmmʲakɯ o ɾebʲɨː sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 159.35000000000002,
+      "speech_end": 177.27500000000003,
+      "scene_end": 178.02500000000003,
+      "duration": 18.67500000000001,
+      "text": "意見の不一致の列を移動して 体系的に判断する. 生意合意,クラスバランス,棄権,混乱マトリックス,カッパをまとめて報告する. ここで定義されていないカッパは,比較の失敗ではなく,流行に関する有用な警告です.",
+      "speech_text": "意見の不一致の列を移動して 体系的に判断する. 生意合意,クラスバランス,棄権,混乱マトリックス,カッパをまとめて報告する. ここで定義されていないカッパは,比較の失敗ではなく,流行に関する有用な警告です.",
+      "phonemes": "ikeɴ no ɸɯ iʔʨi no ɾeʦɨ o idoː ɕite taikeːtekʲi ɲi handaɴ sɨɾɯ. seː i ɡoːi, kɯɾasɨ baɾaɴsɨ, kʲikeɴ, konɾaɴ matoɾʲiʔkɯsɨ, kaʔpa o matomete hoːkokɯ sɨɾɯ. koko de teːɡʲi saɾete inai kaʔpa βa, çikakɯ no ɕiʔpai de βa nakɯ, ɾʲɨːkoː ɲi kaɴsɨɾɯ jɯːjoː na keːkokɯ desɨ."
     }
   ]
 }

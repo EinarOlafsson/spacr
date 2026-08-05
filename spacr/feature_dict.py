@@ -50,16 +50,37 @@ import pandas as pd
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 
 __all__ = [
+    "CHANNEL_NONE",
+    "CHANNEL_PAIR",
+    "CHANNEL_SCOPES",
+    "CHANNEL_SINGLE",
+    "CONCEPTS",
+    "Concept",
     "ConditionalUnit",
+    "Coverage",
+    "FeatureDoc",
     "FeatureEntry",
+    "FeatureScope",
     "PropertyInfo",
+    "SearchHit",
     "FEATURE_FAMILIES",
+    "FEATURE_SCOPE",
     "KNOWN_PROPERTIES",
+    "KIND_FEATURE",
+    "KIND_LINK",
+    "KIND_METADATA",
     "MEASUREMENT_UNITS",
     "MEASUREMENT_STAMP_COLUMNS",
     "META_COLUMNS",
     "OBJECT_TYPES",
+    "concept_of",
+    "concepts_for",
+    "coverage",
+    "doc_for",
+    "feature_docs",
     "parse_column",
+    "scope_for",
+    "search_features",
     "describe_columns",
     "describe_database",
     "export_dictionary",
@@ -81,6 +102,16 @@ OBJECT_TYPES: tuple[str, ...] = (
     "organelle",
     "cytoplasm",
 )
+
+#: A feature no channel enters — measured from the label mask alone.
+CHANNEL_NONE = "none"
+#: One column per channel; the name carries one ``channel_<i>`` infix.
+CHANNEL_SINGLE = "single"
+#: One column per unordered channel PAIR (i < j); two ``channel_<i>`` infixes.
+CHANNEL_PAIR = "pair"
+
+#: How a feature relates to the image channels, in the order the panel lists.
+CHANNEL_SCOPES: tuple[str, ...] = (CHANNEL_NONE, CHANNEL_SINGLE, CHANNEL_PAIR)
 
 #: Feature families used by :attr:`FeatureEntry.family`, with a one-line gloss.
 FEATURE_FAMILIES: dict[str, str] = {
@@ -163,6 +194,20 @@ class FeatureEntry:
         resolved under — ``px``, ``px_xy``, ``um``, or ``None`` when it was not
         known and ``unit`` therefore states its own condition. Always ``None``
         for columns whose unit does not depend on it.
+    :ivar key: The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` key
+        this column resolved through — the *feature*, as opposed to this one
+        instantiation of it. ``None`` for an unrecognised column.
+    :ivar object_types: Every object type this feature is written for, which
+        is not the same thing as ``object_type`` (the one this column came
+        from): ``nucleus_periphery_mean`` exists and ``cell_periphery_mean``
+        does not. Empty when the feature is not per-object.
+    :ivar channel_scope: :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE` or
+        :data:`CHANNEL_PAIR` — how channels enter this feature at all, as
+        opposed to which channel this column happens to be.
+    :ivar module: The spaCR module that produces the value.
+    :ivar written_when: What has to be true for the column to exist, or
+        ``None`` when every run writes it.
+    :ivar concepts: The :data:`CONCEPTS` this feature answers to.
     """
 
     column: str
@@ -176,6 +221,12 @@ class FeatureEntry:
     channel_2: int | None = None
     object_type_2: str | None = None
     measurement_units: str | None = None
+    key: str | None = None
+    object_types: tuple[str, ...] = ()
+    channel_scope: str = CHANNEL_NONE
+    module: str = "unknown"
+    written_when: str | None = None
+    concepts: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         """Return the entry as a plain dict, ready for a DataFrame row or JSON."""
@@ -800,6 +851,25 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "histogram, NOT spatial texture; pixel positions are irrelevant to it. "
         "Returns 0.0 for objects of 1 pixel.",
     ),
+    "shannon_entropy": PropertyInfo(
+        "intensity",
+        "Shannon entropy (base 2) of the WHOLE FIELD in this channel — not of "
+        "the object. The retired predecessor of entropy_intensity.",
+        "bits",
+        "skimage.measure.shannon_entropy(channel, base=2) in "
+        "spacr.measure._intensity_measurements (removed; the line is "
+        "commented out in current spaCR)",
+        "NOT AN OBJECT MEASUREMENT, whatever the object prefix on the column "
+        "says. The call passed the entire channel image with no mask, and the "
+        "resulting scalar was broadcast down the column, so every object in a "
+        "field carries the identical value — verified on shipped databases, "
+        "where SELECT COUNT(DISTINCT ...) GROUP BY file_name returns 1 for "
+        "every field. It is a per-field, per-channel image statistic stored "
+        "once per object; as a model feature it leaks the field identity and "
+        "as a phenotype it is constant within a field. Current spaCR writes "
+        "entropy_intensity instead, which is masked to the object and is the "
+        "column this one is often mistaken for.",
+    ),
     "percentile_<p>": PropertyInfo(
         "intensity",
         "The {p}th percentile of this channel's pixel values inside the "
@@ -984,16 +1054,21 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         _INTENSITY,
         "spacr.measure._calculate_radial_distribution + "
         "spacr.measure._create_dataframe",
-        "bin_0 IS NOT AN INNER SHELL: the distance map is multiplied by the "
-        "parent-cell mask, so every pixel outside the cell is 0 and falls into "
-        "bin 0 together with the object boundary. bin_0 is therefore dominated "
-        "by the whole field's background. Bins 1-5 lie inside the cell. Shell "
-        "width is (max distance inside that cell)/6, so it differs per object "
-        "and the bins are not comparable between objects of different size. "
-        "Emitted for nucleus, pathogen and organelle when the radial_dist "
-        "setting is on. In 3-D the distance map is sampled with the voxel "
-        "spacing, so the shells are physical shells rather than voxel counts; "
-        "the bin values themselves stay in intensity units either way.",
+        "bin_0 is the shell nearest the object's boundary and bin_5 the "
+        "farthest, both inside the parent cell. (This is worth stating "
+        "because it USED NOT TO BE: the distance map was multiplied by the "
+        "parent-cell mask, which zeroed every pixel outside the cell and "
+        "swept the whole field's background into bin_0. The cell is now "
+        "applied as a mask when binning instead — measure.py's "
+        "'NOT multiplied by cell_region' comment — so bin_0 in a database "
+        "written by an older spaCR is background and bin_0 here is not.) "
+        "Shell width is (max distance inside that cell)/6, so it differs per "
+        "object and the bins are not comparable between objects of different "
+        "size. A bin containing no pixels is NaN, not 0. Emitted for nucleus, "
+        "pathogen and organelle when the radial_dist setting is on. In 3-D "
+        "the distance map is sampled with the voxel spacing, so the shells "
+        "are physical shells rather than voxel counts; the bin values "
+        "themselves stay in intensity units either way.",
     ),
     # ---------------- intensity-weighted distances (measure.py:733-796)
     "distance_to_nucleus": PropertyInfo(
@@ -1187,6 +1262,50 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "_analyze_cytoskeleton is not called by measure_crop in this version, "
         "so this column is not produced by a standard run.",
     ),
+    # ---------------- pivoted_counts (mask stage, one row per FIELD)
+    # spacr.io._save_object_counts_to_database writes one object_counts row per
+    # (file, count_type) with count_type = f'{object_type}{added_string}';
+    # spacr.utils._pivot_counts_table then pivots count_type into columns, so
+    # each suffix below becomes '<object><suffix>' in pivoted_counts.
+    "before_filtration": PropertyInfo(
+        "meta",
+        "How many objects of this type Cellpose found in the field BEFORE "
+        "spaCR's size / intensity / border filters ran. One row per field, "
+        "not per object.",
+        "count",
+        "spacr.io._save_object_counts_to_database(added_string="
+        "'_before_filtration') at spacr.object:1015 and :1321, pivoted into a "
+        "column by spacr.utils._pivot_counts_table",
+        "pivoted_counts table only — a FIELD-level count that happens to be "
+        "spelled like an object feature. It is not joinable to an object "
+        "table on object_label, and it is written by the mask stage, so it "
+        "exists even for a project that has never been measured. Compare with "
+        "<object>_after_filtration to see what the filters removed; a missing "
+        "_after_filtration column means no filter ran for that object type.",
+    ),
+    "after_filtration": PropertyInfo(
+        "meta",
+        "How many objects of this type survived spaCR's size / intensity / "
+        "border filters in the field. One row per field, not per object.",
+        "count",
+        "spacr.io._save_object_counts_to_database(added_string="
+        "'_after_filtration') at spacr.object:1364, pivoted into a column by "
+        "spacr.utils._pivot_counts_table",
+        "pivoted_counts table only; see <object>_before_filtration. Written "
+        "only on the branch that actually filters, so its absence means the "
+        "filters were off rather than that they removed nothing.",
+    ),
+    "timelapse": PropertyInfo(
+        "meta",
+        "Object count for this field written by the timelapse branch of the "
+        "mask stage, after tracking has relabelled the stack. One row per "
+        "field, not per object.",
+        "count",
+        "spacr.io._save_object_counts_to_database(added_string='_timelapse') "
+        "at spacr.object:925 and :1271, pivoted into a column by "
+        "spacr.utils._pivot_counts_table",
+        "pivoted_counts table only. Present only for a timelapse run.",
+    ),
 }
 
 
@@ -1316,6 +1435,32 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         None,
         _META_WELLS,
         "Renamed from the legacy columns 'column' / 'col'.",
+    ),
+    "row_name": PropertyInfo(
+        "meta",
+        "Well row of a database written before the key columns were "
+        "canonicalised — the same quantity as rowID, under the spelling "
+        "spaCR used at the time.",
+        None,
+        _META_WELLS_PNG,
+        "Legacy. spacr.schema.canonical_column_name maps 'row_name' onto "
+        "'rowID' and spacr.utils.rename_columns_in_db migrates the database "
+        "in place the first time it is read, so this spelling should only be "
+        "seen on a file that has not been opened since. Both spellings in one "
+        "database means one table was migrated and another was not: join on "
+        "the canonical name after a read, never on this one.",
+    ),
+    "column_name": PropertyInfo(
+        "meta",
+        "Well column of a database written before the key columns were "
+        "canonicalised — the same quantity as columnID.",
+        None,
+        _META_WELLS_PNG,
+        "Legacy, exactly as row_name above. Note that spacr.toxo used to "
+        "filter and merge on this name after the rename had happened, which "
+        "raised KeyError('column_name') on every canonical input — so a "
+        "database still carrying it is old enough that other columns may not "
+        "mean what the current code assumes either.",
     ),
     "fieldID": PropertyInfo(
         "meta",
@@ -1447,6 +1592,34 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "spacr.io._save_settings_to_db",
         "settings table only. Everything is stored as text, including lists "
         "and None.",
+    ),
+    "run_id": PropertyInfo(
+        "meta",
+        "Identifier of the pipeline run a settings_history / run_status row "
+        "belongs to.",
+        None,
+        "spacr.io._save_settings_to_db / spacr.errors.RunLedger",
+        "settings_history and run_status tables. The settings table itself is "
+        "written with if_exists='replace', so only the LAST run's settings "
+        "survive there — settings_history is the append-only record and this "
+        "column is how a row is attributed to a run.",
+    ),
+    "stage": PropertyInfo(
+        "meta",
+        "Which pipeline stage (mask, measure, …) wrote the row.",
+        None,
+        "spacr.io._save_settings_to_db / spacr.errors.RunLedger",
+        "settings_history and run_status tables. Settings snapshotted from a "
+        "database that predates the history table carry stage="
+        "'before-history'.",
+    ),
+    "stamped_utc": PropertyInfo(
+        "meta",
+        "UTC timestamp at which the settings_history / run_status row was "
+        "written.",
+        None,
+        "spacr.io._save_settings_to_db / spacr.errors.RunLedger",
+        "settings_history and run_status tables.",
     ),
     "nucleus_prcfo_count": PropertyInfo(
         "meta",
@@ -1680,6 +1853,396 @@ _LINK_COLUMNS: dict[str, PropertyInfo] = {
 
 
 # --------------------------------------------------------------------------
+# scope — which objects a feature exists for, and how channels enter it
+# --------------------------------------------------------------------------
+#
+# A column name says which object it came from; it does not say which objects
+# the feature is written for AT ALL. `nucleus_periphery_mean` exists and
+# `cell_periphery_mean` does not, because `_intensity_measurements` guards the
+# periphery block with `if ls[j] in ('nucleus', 'pathogen', 'organelle')`
+# (measure.py:1207) — a fact nobody can read off the name, and the reason a
+# user searching for "the periphery of a cell" finds nothing and assumes the
+# dictionary is broken. Every entry below was read off the emitter.
+
+#: Every object type a per-object feature can be written for.
+_ALL_OBJECTS = OBJECT_TYPES
+#: The three the periphery / outside / radial blocks are guarded to.
+#: measure.py:1207, :1213 (`if ls[j] in (...)`) and the radial block at
+#: measure.py:1240-1256, which appends to dfs[1], dfs[2] and dfs[3] only.
+_RING_OBJECTS = ("nucleus", "pathogen", "organelle")
+#: Zernike is computed for the four masks `_morphological_measurements`
+#: calls `_calculate_zernike` on — cytoplasm is measured but never gets it.
+_ZERNIKE_OBJECTS = ("cell", "nucleus", "pathogen", "organelle")
+#: `_measure_intensity_distance`'s frame is appended to `cell_dfs` alone.
+_CELL_ONLY = ("cell",)
+#: `_summarize_organelles_per_parent` is called once per parent, and the
+#: result lands in its own ``<parent>_organelle_summary`` table.
+_SUMMARY_PARENTS = ("cell", "nucleus", "pathogen", "cytoplasm")
+
+
+@dataclass(frozen=True)
+class FeatureScope:
+    """Where a curated feature exists, and what has to be on for it to.
+
+    :ivar objects: object types the feature is written for. Empty for a
+        feature that is not per-object at all (a settings row, a field count).
+    :ivar channels: one of :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE`,
+        :data:`CHANNEL_PAIR`.
+    :ivar module: the spaCR module that produces it — what a user should read
+        (or re-run) to change it.
+    :ivar written_when: the condition under which the column exists at all,
+        in prose. ``None`` means "every run writes it".
+    """
+
+    objects: tuple[str, ...]
+    channels: str
+    module: str
+    written_when: str | None = None
+
+
+def _scope(objects: tuple[str, ...], channels: str, module: str = "spacr.measure",
+           when: str | None = None) -> FeatureScope:
+    return FeatureScope(objects=tuple(objects), channels=channels,
+                        module=module, written_when=when)
+
+
+_ALWAYS_MORPH = _scope(_ALL_OBJECTS, CHANNEL_NONE)
+_ALWAYS_INTENSITY = _scope(_ALL_OBJECTS, CHANNEL_SINGLE)
+_RING_INTENSITY = _scope(
+    _RING_OBJECTS, CHANNEL_SINGLE,
+    when="periphery=True / outside=True (the default). Never written for "
+         "cell or cytoplasm — measure.py:1207 and :1213 guard the block with "
+         "`if ls[j] in ('nucleus', 'pathogen', 'organelle')`.")
+
+#: Scope for every key of :data:`KNOWN_PROPERTIES`, keyed identically —
+#: parameterised keys use the same ``<placeholder>`` template.
+FEATURE_SCOPE: dict[str, FeatureScope] = {}
+
+
+def _set_scope(keys: Iterable[str], scope: FeatureScope) -> None:
+    for key in keys:
+        FEATURE_SCOPE[key] = scope
+
+
+_set_scope(
+    ("area", "area_filled", "area_bbox", "convex_area", "major_axis_length",
+     "minor_axis_length", "solidity", "extent", "euler_number",
+     "equivalent_diameter_area", "feret_diameter_max"),
+    _ALWAYS_MORPH)
+_set_scope(
+    ("eccentricity", "perimeter"),
+    _scope(_ALL_OBJECTS, CHANNEL_NONE,
+           when="2-D runs only — spacr.measure.PROPS_2D_ONLY drops both from "
+                "the property list when the mask is 3-D, because asking "
+                "skimage for either on a label volume raises "
+                "NotImplementedError for the whole regionprops_table call."))
+_set_scope(
+    ("volume_voxels", "volume_um3"),
+    _scope(_ALL_OBJECTS, CHANNEL_NONE,
+           when="3-D runs only (spacr.measure._voxel_volume_columns); a 2-D "
+                "run writes neither."))
+_set_scope(
+    ("zernike_<i>",),
+    _scope(_ZERNIKE_OBJECTS, CHANNEL_NONE,
+           when="2-D runs with mahotas importable (_calculate_zernike returns "
+                "the frame unchanged for a 3-D mask). NOT written for "
+                "cytoplasm: _morphological_measurements calls "
+                "_calculate_zernike on the cell, nucleus, pathogen and "
+                "organelle masks only. The pipeline always uses degree=8, "
+                "which is zernike_0..zernike_24."))
+_set_scope(
+    ("mean_intensity", "max_intensity", "min_intensity", "integrated_intensity",
+     "std_intensity", "median_intensity", "skew_intensity", "kurtosis_intensity",
+     "mode_intensity", "range_intensity", "iqr_intensity", "cv_intensity",
+     "gini_intensity", "frac_high90", "frac_low10", "entropy_intensity",
+     "percentile_<p>"),
+    _ALWAYS_INTENSITY)
+_set_scope(
+    ("shannon_entropy",),
+    _scope(_ALL_OBJECTS, CHANNEL_SINGLE,
+           when="RETIRED — the line that wrote it is commented out in current "
+                "spaCR, so only a database written by an older release has "
+                "this column."))
+_set_scope(
+    ("centroid_weighted-0", "centroid_weighted-1", "centroid_weighted_local-0",
+     "centroid_weighted_local-1"),
+    _scope(_ALL_OBJECTS, CHANNEL_SINGLE,
+           when="2-D runs only — a 3-D run renames these to the _z/_y/_x "
+                "spelling (spacr.measure._rename_3d_centroids)."))
+_set_scope(
+    ("centroid_weighted_z", "centroid_weighted_y", "centroid_weighted_x",
+     "centroid_weighted_local_z", "centroid_weighted_local_y",
+     "centroid_weighted_local_x"),
+    _scope(_ALL_OBJECTS, CHANNEL_SINGLE,
+           when="3-D runs only (spacr.measure._rename_3d_centroids)."))
+_set_scope(
+    ("homogeneity_distance_<d>",),
+    _scope(_ALL_OBJECTS, CHANNEL_SINGLE,
+           when="homogeneity=True AND a 2-D mask. A 3-D run skips the whole "
+                "block and prints why: skimage's graycomatrix is defined for "
+                "2-D images only."))
+_set_scope(("blur",), _ALWAYS_INTENSITY)
+_set_scope(
+    ("periphery_mean", "periphery_percentile_<p>", "periphery_<p>_percentile",
+     "outside_mean", "outside_percentile_<p>", "outside_<p>_percentile"),
+    _RING_INTENSITY)
+_set_scope(
+    ("rad_dist_channel_<c>_bin_<b>",),
+    _scope(_RING_OBJECTS, CHANNEL_SINGLE,
+           when="radial_dist=True. Written for the nucleus, pathogen and "
+                "organelle tables only — the radial profile is measured "
+                "relative to the parent CELL, so the cell has no such "
+                "profile of its own."))
+_set_scope(
+    ("Pearson_correlation", "M1_correlation_<t>", "M2_correlation_<t>"),
+    _scope(_ALL_OBJECTS, CHANNEL_PAIR,
+           when="calculate_correlation=True and at least two channels; one "
+                "column per unordered channel pair (i < j)."))
+_set_scope(
+    ("distance_to_nucleus", "distance_to_pathogen"),
+    _scope(_CELL_ONLY, CHANNEL_SINGLE,
+           when="distance_gaussian_sigma is a non-zero int, a cell mask "
+                "exists and at least one of the nucleus/pathogen masks does. "
+                "Cell table only: _measure_intensity_distance's frame is "
+                "appended to cell_dfs and to nothing else."))
+_set_scope(
+    (key for key in KNOWN_PROPERTIES if key.startswith("organelle_summary_")),
+    _scope(("organelle",), CHANNEL_NONE,
+           when="an organelle mask exists. These live in the separate "
+                "<parent>_organelle_summary tables, one per parent object "
+                "type, NOT in the organelle table."))
+_set_scope(
+    ("organelle_summary_organelle_channel_<c>_mean_intensity_per_<parent>",
+     "organelle_summary_organelle_channel_<c>_std_intensity_per_<parent>",
+     "organelle_summary_organelle_ch<c>_mean_intensity_per_<parent>",
+     "organelle_summary_organelle_ch<c>_std_intensity_per_<parent>"),
+    _scope(("organelle",), CHANNEL_SINGLE,
+           when="an organelle mask exists; written into the "
+                "<parent>_organelle_summary tables."))
+_set_scope(
+    ("organelle_summary_organelle_mean_eccentricity",
+     "organelle_summary_organelle_std_eccentricity"),
+    _scope(("organelle",), CHANNEL_NONE,
+           when="an organelle mask exists AND the run is 2-D — the summary "
+                "only writes these when 'eccentricity' is in the organelle "
+                "morphology frame, and PROPS_2D_ONLY removes it in 3-D."))
+_set_scope(
+    ("skeleton_length", "skeleton_branch_points"),
+    _scope((), CHANNEL_SINGLE,
+           when="NEVER by a standard run — _analyze_cytoskeleton is defined "
+                "in measure.py but nothing calls it."))
+_set_scope(
+    ("before_filtration", "after_filtration", "timelapse"),
+    _scope(_ALL_OBJECTS, CHANNEL_NONE, module="spacr.object",
+           when="the mask stage, not the measure stage; one row per FIELD in "
+                "the pivoted_counts table."))
+
+
+def scope_for(key: str) -> FeatureScope | None:
+    """The :class:`FeatureScope` of a curated key, or ``None`` if untabulated."""
+    return FEATURE_SCOPE.get(key)
+
+
+_MODULE_HINTS: tuple[tuple[str, str], ...] = (
+    ("spacr.measure", "spacr.measure"),
+    ("spacr.utils", "spacr.utils"),
+    ("spacr.io", "spacr.io"),
+    ("spacr.object", "spacr.object"),
+    ("spacr.gui_utils", "spacr.gui_utils"),
+    ("spacr.annotate", "spacr.annotate"),
+)
+
+
+def _module_from_provenance(computed_by: str) -> str:
+    """Best-effort producing module, read out of a ``computed_by`` string.
+
+    :data:`FEATURE_SCOPE` is the authority; this is the fallback for the
+    metadata and link columns, whose provenance strings already name the
+    function that writes them.
+    """
+    text = str(computed_by or "")
+    for needle, module in _MODULE_HINTS:
+        if needle in text:
+            return module
+    return "unknown"
+
+
+# --------------------------------------------------------------------------
+# concepts — the words a user actually searches with
+# --------------------------------------------------------------------------
+#
+# Nobody types "equivalent_diameter_area". They type "size", or "how big",
+# or "shape". A dictionary that only matches the naming scheme is a
+# dictionary for people who already know the naming scheme.
+
+
+@dataclass(frozen=True)
+class Concept:
+    """One searchable idea, and the curated keys that answer to it."""
+
+    name: str
+    gloss: str
+    synonyms: tuple[str, ...]
+    keys: tuple[str, ...]
+
+
+_SIZE_KEYS = ("area", "area_filled", "area_bbox", "convex_area",
+              "equivalent_diameter_area", "volume_voxels", "volume_um3",
+              "major_axis_length", "minor_axis_length", "feret_diameter_max",
+              "perimeter", "organelle_summary_organelle_total_area",
+              "organelle_summary_organelle_mean_area",
+              "organelle_summary_organelle_std_area",
+              "organelle_summary_organelle_fraction",
+              "organelle_summary_organelle_mean_major_axis",
+              "organelle_summary_organelle_mean_minor_axis")
+_SHAPE_KEYS = ("eccentricity", "solidity", "extent", "euler_number",
+               "zernike_<i>", "feret_diameter_max", "major_axis_length",
+               "minor_axis_length", "perimeter", "equivalent_diameter_area",
+               "convex_area", "area_bbox", "skeleton_length",
+               "skeleton_branch_points",
+               "organelle_summary_organelle_mean_eccentricity",
+               "organelle_summary_organelle_std_eccentricity",
+               "organelle_summary_organelle_mean_solidity",
+               "organelle_summary_organelle_std_solidity")
+_INTENSITY_KEYS = ("mean_intensity", "max_intensity", "min_intensity",
+                   "integrated_intensity", "median_intensity", "mode_intensity",
+                   "percentile_<p>", "periphery_mean", "outside_mean",
+                   "periphery_percentile_<p>", "outside_percentile_<p>",
+                   "periphery_<p>_percentile", "outside_<p>_percentile",
+                   "frac_high90", "frac_low10", "shannon_entropy",
+                   "organelle_summary_organelle_channel_<c>_mean_intensity_per_<parent>",
+                   "organelle_summary_organelle_channel_<c>_std_intensity_per_<parent>")
+_SPREAD_KEYS = ("std_intensity", "skew_intensity", "kurtosis_intensity",
+                "range_intensity", "iqr_intensity", "cv_intensity",
+                "gini_intensity", "entropy_intensity", "percentile_<p>",
+                "frac_high90", "frac_low10")
+_TEXTURE_KEYS = ("homogeneity_distance_<d>", "blur", "entropy_intensity",
+                 "gini_intensity", "cv_intensity", "std_intensity",
+                 "skeleton_length", "skeleton_branch_points")
+_DISTANCE_KEYS = ("distance_to_nucleus", "distance_to_pathogen",
+                  "rad_dist_channel_<c>_bin_<b>", "periphery_mean",
+                  "periphery_percentile_<p>", "periphery_<p>_percentile",
+                  "outside_mean", "outside_percentile_<p>",
+                  "outside_<p>_percentile")
+_POSITION_KEYS = ("centroid_weighted-0", "centroid_weighted-1",
+                  "centroid_weighted_local-0", "centroid_weighted_local-1",
+                  "centroid_weighted_z", "centroid_weighted_y",
+                  "centroid_weighted_x", "centroid_weighted_local_z",
+                  "centroid_weighted_local_y", "centroid_weighted_local_x",
+                  "distance_to_nucleus", "distance_to_pathogen",
+                  "rad_dist_channel_<c>_bin_<b>")
+_COLOC_KEYS = ("Pearson_correlation", "M1_correlation_<t>",
+               "M2_correlation_<t>")
+_COUNT_KEYS = ("organelle_summary_organelle_count", "before_filtration",
+               "after_filtration", "timelapse", "skeleton_branch_points")
+
+#: The concept vocabulary. Order is the order the panel lists them in.
+CONCEPTS: dict[str, Concept] = {
+    "intensity": Concept(
+        "intensity",
+        "How bright the object is in one channel.",
+        ("intensity", "brightness", "bright", "signal", "expression",
+         "fluorescence", "mean", "sum", "level", "amount", "dim"),
+        _INTENSITY_KEYS),
+    "texture": Concept(
+        "texture",
+        "How the signal is arranged inside the object — grainy, smooth, "
+        "punctate, in or out of focus — rather than how much of it there is.",
+        ("texture", "grain", "grainy", "smooth", "granular", "punctate",
+         "focus", "blur", "blurry", "sharp", "roughness", "pattern",
+         "homogeneity", "glcm", "haralick"),
+        _TEXTURE_KEYS),
+    "shape": Concept(
+        "shape",
+        "The form of the object's mask: round or elongated, smooth or "
+        "ragged, solid or holed.",
+        ("shape", "form", "morphology", "round", "roundness", "circularity",
+         "elongation", "elongated", "eccentric", "convex", "concave",
+         "irregular", "aspect ratio", "outline", "contour"),
+        _SHAPE_KEYS),
+    "size": Concept(
+        "size",
+        "How big the object is — area in 2-D, volume in 3-D.",
+        ("size", "big", "small", "large", "area", "volume", "diameter",
+         "length", "width", "extent", "how big", "bigger", "smaller"),
+        _SIZE_KEYS),
+    "distance": Concept(
+        "distance",
+        "How far something is from something else: from the object's rim, "
+        "from its parent cell's centre, or from another object type.",
+        ("distance", "far", "near", "proximity", "close", "radial", "rim",
+         "edge", "border", "boundary", "periphery", "peripheral", "outside",
+         "surrounding", "ring", "recruitment", "localisation", "localization"),
+        _DISTANCE_KEYS),
+    "position": Concept(
+        "position",
+        "Where the object (or its brightest mass) sits, in image or "
+        "bounding-box coordinates.",
+        ("position", "location", "where", "centroid", "centre", "center",
+         "coordinate", "coordinates", "x", "y", "z"),
+        _POSITION_KEYS),
+    "colocalisation": Concept(
+        "colocalisation",
+        "How two channels overlap over the same object's pixels.",
+        ("colocalisation", "colocalization", "coloc", "overlap", "correlation",
+         "pearson", "manders", "m1", "m2", "two channel", "together"),
+        _COLOC_KEYS),
+    "distribution": Concept(
+        "distribution",
+        "The spread of one channel's pixel values inside the object — "
+        "variability, skew, inequality — rather than its average.",
+        ("distribution", "spread", "variability", "variation", "variance",
+         "heterogeneity", "heterogeneous", "uniform", "uniformity", "skew",
+         "kurtosis", "gini", "entropy", "percentile", "quantile", "iqr",
+         "std", "standard deviation", "cv", "coefficient of variation"),
+        _SPREAD_KEYS),
+    "count": Concept(
+        "count",
+        "How many of something there are.",
+        ("count", "number", "how many", "n", "burden", "load"),
+        _COUNT_KEYS),
+    "identity": Concept(
+        "identity",
+        "Which plate, well, field, object or file a row belongs to. Never "
+        "feed these to a model as features.",
+        ("identity", "id", "identifier", "key", "label", "plate", "well",
+         "row", "column", "field", "metadata", "annotation", "path",
+         "filename", "file"),
+        tuple(META_COLUMNS) + tuple(_LINK_COLUMNS)),
+}
+
+#: concept name -> the concept, plus every synonym pointing at it.
+_CONCEPT_LOOKUP: dict[str, str] = {}
+for _name, _concept in CONCEPTS.items():
+    _CONCEPT_LOOKUP[_name] = _name
+    for _syn in _concept.synonyms:
+        _CONCEPT_LOOKUP.setdefault(_syn, _name)
+del _name, _concept, _syn
+
+#: curated key -> the concepts it belongs to, in CONCEPTS order.
+_KEY_CONCEPTS: dict[str, tuple[str, ...]] = {}
+for _cname, _c in CONCEPTS.items():
+    for _key in _c.keys:
+        _KEY_CONCEPTS.setdefault(_key, ())
+        if _cname not in _KEY_CONCEPTS[_key]:
+            _KEY_CONCEPTS[_key] = _KEY_CONCEPTS[_key] + (_cname,)
+del _cname, _c, _key
+
+
+def concepts_for(key: str) -> tuple[str, ...]:
+    """Which :data:`CONCEPTS` a curated key answers to."""
+    return _KEY_CONCEPTS.get(key, ())
+
+
+def concept_of(word: str) -> str | None:
+    """Resolve a user's word to a concept name, or ``None``.
+
+    Matches a concept name or any of its synonyms, case-insensitively.
+    """
+    return _CONCEPT_LOOKUP.get(str(word).strip().lower())
+
+
+# --------------------------------------------------------------------------
 # parsing
 # --------------------------------------------------------------------------
 
@@ -1739,6 +2302,7 @@ def _entry(
     column: str,
     info: PropertyInfo,
     *,
+    key: str | None = None,
     object_type: str | None = None,
     channel: int | None = None,
     channel_2: int | None = None,
@@ -1759,6 +2323,21 @@ def _entry(
         # unit is fixed never claims to have been resolved against one.
         basis = measurement_units
         unit = unit.resolve(measurement_units)
+    scope = FEATURE_SCOPE.get(key) if key else None
+    if scope is None:
+        # Metadata and link columns are not per-object features and have no
+        # scope row; their provenance string already names the writer.
+        objects: tuple[str, ...] = ()
+        channel_scope = (CHANNEL_PAIR if channel_2 is not None
+                         else CHANNEL_SINGLE if channel is not None
+                         else CHANNEL_NONE)
+        module = _module_from_provenance(info.computed_by)
+        written_when = None
+    else:
+        objects = scope.objects
+        channel_scope = scope.channels
+        module = scope.module
+        written_when = scope.written_when
     return FeatureEntry(
         column=column,
         object_type=object_type,
@@ -1771,6 +2350,12 @@ def _entry(
         channel_2=channel_2,
         object_type_2=object_type_2,
         measurement_units=basis,
+        key=key,
+        object_types=objects,
+        channel_scope=channel_scope,
+        module=module,
+        written_when=written_when,
+        concepts=concepts_for(key) if key else (),
     )
 
 
@@ -1795,15 +2380,22 @@ def _unknown(column: str, object_type: str | None, channel: int | None,
     )
 
 
-def _lookup_stat(stat: str) -> tuple[PropertyInfo, dict[str, str]] | None:
-    """Resolve a stat suffix to a curated definition plus its placeholders."""
+def _lookup_stat(stat: str
+                 ) -> tuple[str, PropertyInfo, dict[str, str]] | None:
+    """Resolve a stat suffix to its curated key, definition and placeholders.
+
+    The key is returned as well as the definition because it is the identity
+    of the *feature* — what :data:`FEATURE_SCOPE` and :data:`CONCEPTS` are
+    keyed on, and what a search result points at. Two columns that resolve to
+    the same key are two instances of one feature.
+    """
     info = KNOWN_PROPERTIES.get(stat)
     if info is not None:
-        return info, {}
+        return stat, info, {}
     for pattern, key in _PARAMETERIZED:
         m = pattern.match(stat)
         if m:
-            return KNOWN_PROPERTIES[key], dict(m.groupdict())
+            return key, KNOWN_PROPERTIES[key], dict(m.groupdict())
     return None
 
 
@@ -1829,6 +2421,7 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
         return _entry(
             name,
             KNOWN_PROPERTIES[key],
+            key=key,
             object_type="organelle",
             channel=int(m.group("c")),
             object_type_2=m.group("parent"),
@@ -1837,7 +2430,7 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
         )
     info = KNOWN_PROPERTIES.get(name)
     if info is not None:
-        return _entry(name, info, object_type="organelle",
+        return _entry(name, info, key=name, object_type="organelle",
                       measurement_units=measurement_units)
     return _unknown(
         name,
@@ -1888,7 +2481,7 @@ def parse_column(name: str, measurement_units: str | None = None
     #    e.g. cell_id is an identifier and not a 'cell' feature named 'id'.
     info = META_COLUMNS.get(name)
     if info is not None:
-        return _entry(name, info, measurement_units=measurement_units)
+        return _entry(name, info, key=name, measurement_units=measurement_units)
 
     # 2. per-parent organelle summaries, before the object prefix is stripped
     #    (the prefix 'organelle_' would otherwise swallow the family name).
@@ -1911,7 +2504,7 @@ def parse_column(name: str, measurement_units: str | None = None
     # 4. parent/child link columns, e.g. nucleus_cell_id, organelle_cell
     link = _LINK_COLUMNS.get(rest)
     if link is not None:
-        return _entry(name, link, object_type=object_type,
+        return _entry(name, link, key=rest, object_type=object_type,
                       measurement_units=measurement_units)
 
     # 5. radial distribution: the channel index sits AFTER the family token
@@ -1921,6 +2514,7 @@ def parse_column(name: str, measurement_units: str | None = None
         return _entry(
             name,
             KNOWN_PROPERTIES["rad_dist_channel_<c>_bin_<b>"],
+            key="rad_dist_channel_<c>_bin_<b>",
             object_type=object_type,
             channel=int(m.group("c")),
             params=dict(m.groupdict()),
@@ -1953,6 +2547,7 @@ def parse_column(name: str, measurement_units: str | None = None
         return _entry(
             name,
             KNOWN_PROPERTIES["blur"],
+            key="blur",
             object_type=object_type,
             channel=channel if channel is not None else inner_ch,
             extra_note=(
@@ -1965,19 +2560,21 @@ def parse_column(name: str, measurement_units: str | None = None
         )
 
     if channel is not None and _PLAIN_BLUR_RE.match(rest):
-        return _entry(name, KNOWN_PROPERTIES["blur"], object_type=object_type,
-                      channel=channel, measurement_units=measurement_units)
+        return _entry(name, KNOWN_PROPERTIES["blur"], key="blur",
+                      object_type=object_type, channel=channel,
+                      measurement_units=measurement_units)
 
     link = _LINK_COLUMNS.get(rest)
     if link is not None:
-        return _entry(name, link, object_type=object_type, channel=channel,
-                      channel_2=channel_2, measurement_units=measurement_units)
+        return _entry(name, link, key=rest, object_type=object_type,
+                      channel=channel, channel_2=channel_2,
+                      measurement_units=measurement_units)
 
     resolved = _lookup_stat(rest)
     if resolved is not None:
-        info, params = resolved
-        return _entry(name, info, object_type=object_type, channel=channel,
-                      channel_2=channel_2, params=params,
+        key, info, params = resolved
+        return _entry(name, info, key=key, object_type=object_type,
+                      channel=channel, channel_2=channel_2, params=params,
                       measurement_units=measurement_units)
 
     # 8. a pandas merge suffix appended when object tables are joined
@@ -1987,9 +2584,10 @@ def parse_column(name: str, measurement_units: str | None = None
             trimmed = rest[: -(len(obj) + 1)]
             resolved = _lookup_stat(trimmed)
             if resolved is not None:
-                info, params = resolved
+                key, info, params = resolved
                 return _entry(
-                    name, info, object_type=object_type, channel=channel,
+                    name, info, key=key,
+                    object_type=object_type, channel=channel,
                     channel_2=channel_2, object_type_2=obj, params=params,
                     extra_note=(
                         f"The trailing '_{obj}' is a pandas merge suffix added "
@@ -2006,9 +2604,9 @@ def parse_column(name: str, measurement_units: str | None = None
     if m:
         resolved = _lookup_stat(m.group("base"))
         if resolved is not None:
-            info, params = resolved
+            key, info, params = resolved
             return _entry(
-                name, info, object_type=object_type, channel=channel,
+                name, info, key=key, object_type=object_type, channel=channel,
                 channel_2=channel_2, params=params,
                 extra_note=(
                     f"Occurrence {m.group('idx')} of a duplicated column name: "
@@ -2024,9 +2622,9 @@ def parse_column(name: str, measurement_units: str | None = None
     if m:
         resolved = _lookup_stat(m.group("base"))
         if resolved is not None:
-            info, params = resolved
+            key, info, params = resolved
             return _entry(
-                name, info, object_type=object_type, channel=channel,
+                name, info, key=key, object_type=object_type, channel=channel,
                 channel_2=channel_2, params=params,
                 extra_note=(
                     f"The trailing '_{m.group('idx')}' is most likely the "
@@ -2053,6 +2651,409 @@ def describe_columns(columns: Iterable[str],
     return [parse_column(c, measurement_units) for c in columns]
 
 
+@dataclass(frozen=True)
+class Coverage:
+    """How much of a set of column names the dictionary can explain."""
+
+    total: int
+    explained: int
+    unknown: tuple[str, ...]
+
+    @property
+    def fraction(self) -> float:
+        """Explained share, in ``[0, 1]``. An empty input is 1.0."""
+        return 1.0 if not self.total else self.explained / self.total
+
+
+def coverage(columns: Iterable[str],
+             measurement_units: str | None = None) -> Coverage:
+    """Measure what share of ``columns`` this dictionary explains.
+
+    The number a user should be able to check for themselves, and the number
+    the test suite pins: a lookup panel that answers "no entry" for a third of
+    a real table is not a lookup panel.
+
+    :param columns: Iterable of column names.
+    :param measurement_units: passed through to :func:`parse_column`.
+    :returns: A :class:`Coverage`, whose ``unknown`` lists the names that were
+        not explained — in input order, without duplicates.
+    """
+    total = 0
+    explained = 0
+    unknown: list[str] = []
+    seen: set[str] = set()
+    for column in columns:
+        total += 1
+        if parse_column(column, measurement_units).family == "unknown":
+            if column not in seen:
+                seen.add(column)
+                unknown.append(column)
+        else:
+            explained += 1
+    return Coverage(total=total, explained=explained, unknown=tuple(unknown))
+
+
+# --------------------------------------------------------------------------
+# search
+# --------------------------------------------------------------------------
+
+#: Placeholder values used to render an example column name for a
+#: parameterised key. Real values, taken from what measure.py actually emits,
+#: so the examples are names a user can paste into a query.
+_EXAMPLE_PARAMS: dict[str, str] = {
+    "p": "75", "i": "12", "d": "16", "t": "85", "c": "1", "b": "3",
+    "parent": "cell",
+}
+
+#: Example column for each link key. These are per-object-table join keys with
+#: no :data:`FEATURE_SCOPE` row, and each has its own shape — the nucleus and
+#: pathogen tables carry ``<obj>_cell_id`` while the organelle table carries
+#: ``organelle_cell``, and the ``*_region_label`` names sit behind a channel.
+_LINK_EXAMPLES: dict[str, str] = {
+    "cell_id": "nucleus_cell_id",
+    "nucleus": "nucleus_nucleus",
+    "pathogen": "pathogen_pathogen",
+    "organelle": "organelle_organelle",
+    "cell": "organelle_cell",
+    "region_label": "nucleus_channel_0_region_label",
+    "periphery_region_label": "nucleus_channel_0_periphery_region_label",
+    "outside_region_label": "nucleus_channel_0_outside_region_label",
+    "label_correlation": "nucleus_channel_0_channel_1_label_correlation",
+}
+
+#: What a :class:`FeatureDoc` is: a measured feature, a metadata/identifier
+#: column, or a parent/child join key.
+KIND_FEATURE = "feature"
+KIND_METADATA = "metadata"
+KIND_LINK = "link"
+
+
+@dataclass(frozen=True)
+class FeatureDoc:
+    """One *feature*, as opposed to one column.
+
+    ``cell_channel_0_percentile_75`` and ``nucleus_channel_2_percentile_5``
+    are two columns and one feature. The panel lists features and resolves
+    columns onto them, because a user reading a results table wants "what is a
+    percentile here" answered once, not four hundred times.
+
+    :ivar key: the curated key — the feature's identity.
+    :ivar title: a human title for the key.
+    :ivar unit: the unit, with a conditional unit spelled out in full.
+    :ivar object_types: object types the feature is written for. Empty means
+        "not per-object" (metadata) or "never written" (dead code).
+    :ivar channel_scope: :data:`CHANNEL_NONE` / :data:`CHANNEL_SINGLE` /
+        :data:`CHANNEL_PAIR`.
+    :ivar examples: concrete column names that resolve back to this key.
+    """
+
+    key: str
+    title: str
+    kind: str
+    family: str
+    concepts: tuple[str, ...]
+    description: str | None
+    unit: str | None
+    computed_by: str
+    module: str
+    object_types: tuple[str, ...]
+    channel_scope: str
+    written_when: str | None
+    notes: str | None
+    examples: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return the doc as a plain dict."""
+        return asdict(self)
+
+
+def _title_for(key: str) -> str:
+    """Humanise a curated key into a title, keeping its placeholders."""
+    text = key.replace("_", " ").strip()
+    if not text:
+        return key
+    return text[0].upper() + text[1:]
+
+
+def _unit_text(unit: str | ConditionalUnit | None) -> str | None:
+    """Render a unit for display, spelling out a conditional one in full."""
+    if isinstance(unit, ConditionalUnit):
+        return unit.conditional_text()
+    return unit
+
+
+def _example_columns(key: str, kind: str) -> tuple[str, ...]:
+    """Concrete column names that resolve back to ``key``.
+
+    Built rather than written down, and verified by the suite: every example
+    is round-tripped through :func:`parse_column` and must come back with the
+    same key, which is what stops the scope table and the parser drifting
+    apart.
+    """
+    if kind == KIND_METADATA:
+        return (key,)
+    if kind == KIND_LINK:
+        example = _LINK_EXAMPLES.get(key)
+        return (example,) if example else ()
+
+    stat = key
+    for placeholder, value in _EXAMPLE_PARAMS.items():
+        stat = stat.replace(f"<{placeholder}>", value)
+
+    # The organelle summaries are written under their own prefix into their
+    # own tables and take no object prefix at all.
+    if key.startswith("organelle_summary_"):
+        return (stat,)
+
+    scope = FEATURE_SCOPE.get(key)
+    if scope is None or not scope.objects:
+        return ()
+    obj = scope.objects[0]
+    # rad_dist carries its own channel token after the family name, which is
+    # exactly why it needs its own parsing rule.
+    if key.startswith("rad_dist_"):
+        infix = ""
+    elif scope.channels == CHANNEL_SINGLE:
+        infix = "channel_0_"
+    elif scope.channels == CHANNEL_PAIR:
+        infix = "channel_0_channel_1_"
+    else:
+        infix = ""
+    return (f"{obj}_{infix}{stat}",)
+
+
+def _build_docs() -> tuple[FeatureDoc, ...]:
+    """Assemble one :class:`FeatureDoc` per curated key."""
+    docs: list[FeatureDoc] = []
+    sources = (
+        (KNOWN_PROPERTIES, KIND_FEATURE),
+        (META_COLUMNS, KIND_METADATA),
+        (_LINK_COLUMNS, KIND_LINK),
+    )
+    for table, kind in sources:
+        for key, info in table.items():
+            scope = FEATURE_SCOPE.get(key)
+            docs.append(FeatureDoc(
+                key=key,
+                title=_title_for(key),
+                kind=kind,
+                family=info.family,
+                concepts=concepts_for(key),
+                description=info.description,
+                unit=_unit_text(info.unit),
+                computed_by=info.computed_by,
+                module=(scope.module if scope
+                        else _module_from_provenance(info.computed_by)),
+                object_types=(scope.objects if scope else ()),
+                channel_scope=(scope.channels if scope else CHANNEL_NONE),
+                written_when=(scope.written_when if scope else None),
+                notes=info.notes,
+                examples=_example_columns(key, kind),
+            ))
+    return tuple(docs)
+
+
+_DOCS: tuple[FeatureDoc, ...] | None = None
+
+
+def feature_docs() -> tuple[FeatureDoc, ...]:
+    """Every documented feature, metadata column and link column.
+
+    Built once and cached. Order is :data:`KNOWN_PROPERTIES` order, then
+    :data:`META_COLUMNS`, then the link columns.
+    """
+    global _DOCS
+    if _DOCS is None:
+        _DOCS = _build_docs()
+    return _DOCS
+
+
+def doc_for(key: str) -> FeatureDoc | None:
+    """The :class:`FeatureDoc` for a curated key, or ``None``."""
+    for doc in feature_docs():
+        if doc.key == key:
+            return doc
+    return None
+
+
+@dataclass(frozen=True)
+class SearchHit:
+    """One search result: a feature, how well it matched, and why."""
+
+    doc: FeatureDoc
+    score: float
+    reason: str
+
+
+_TOKEN_RE = re.compile(r"[a-z0-9<>%.]+")
+
+#: Query words too short to narrow anything. Dropped from free-text matching
+#: (they are still matched as concept synonyms, where "m1" and "m2" mean
+#: something) so that "how big" is not decided by "how".
+_STOPWORDS = frozenset({"a", "an", "and", "as", "at", "by", "for", "from",
+                        "in", "is", "of", "on", "or", "the", "to", "what",
+                        "with"})
+
+
+def _tokens(text: str) -> list[str]:
+    """Lower-cased search terms of a query or a document."""
+    return _TOKEN_RE.findall(str(text).lower())
+
+
+def _query_terms(text: str) -> list[str]:
+    """The terms of a query that are worth matching free text against."""
+    return [t for t in _tokens(text) if t not in _STOPWORDS]
+
+
+def _concept_rank(concept_name: str, key: str) -> float:
+    """How characteristic ``key`` is of ``concept_name``, in ``[0, 5]``.
+
+    Read off the position of the key in the concept's own list, which is
+    written most-characteristic-first.
+    """
+    keys = CONCEPTS[concept_name].keys
+    try:
+        index = keys.index(key)
+    except ValueError:
+        return 0.0
+    return 5.0 * (len(keys) - index) / len(keys)
+
+
+def _haystack(doc: FeatureDoc) -> str:
+    """Everything about a doc that free text is matched against."""
+    return " ".join(str(part).lower() for part in (
+        doc.key, doc.title, doc.family, " ".join(doc.concepts),
+        doc.description or "", doc.notes or "", doc.computed_by,
+        " ".join(doc.examples), doc.module,
+    ))
+
+
+def search_features(query: str,
+                    *,
+                    object_type: str | None = None,
+                    concept: str | None = None,
+                    family: str | None = None,
+                    limit: int | None = None) -> list[SearchHit]:
+    """Find features by name, by substring, or by concept.
+
+    Four ways in, because a user who does not know spaCR's naming scheme has
+    to be able to find things anyway:
+
+    * **a column name** — ``cell_channel_1_percentile_75`` resolves through
+      :func:`parse_column` and its feature is the first hit, even though no
+      such literal string appears anywhere in this module;
+    * **a curated key or part of one** — ``percentile``, ``zernike``;
+    * **a concept** — ``intensity``, ``texture``, ``shape``, ``distance``,
+      and every synonym in :data:`CONCEPTS` (``how big``, ``roundness``,
+      ``colocalisation``, ``blurry``…);
+    * **free text** — matched against the definitions and the notes.
+
+    :param query: the search text. Empty returns everything, filtered.
+    :param object_type: restrict to features written for this object type.
+        Filters on :attr:`FeatureDoc.object_types`, so asking for ``cell``
+        correctly excludes ``periphery_mean``.
+    :param concept: restrict to one :data:`CONCEPTS` name (or synonym).
+    :param family: restrict to one :data:`FEATURE_FAMILIES` name.
+    :param limit: keep only the best ``limit`` hits.
+    :returns: :class:`SearchHit` list, best first; ties keep dictionary order.
+    """
+    docs = feature_docs()
+    raw = str(query or "").strip()
+    text = raw.lower()
+
+    wanted_concept = concept_of(concept) if concept else None
+    if concept and wanted_concept is None:
+        # An unknown concept filter must not silently widen to everything.
+        return []
+
+    # A whole column name beats every text match: the user pasted the thing
+    # they are looking at.
+    exact_key: str | None = None
+    if raw:
+        # The RAW query, not the lower-cased one: the emitted names are
+        # case-sensitive (`M1_correlation_85`, `Pearson_correlation`) and
+        # lower-casing here made every colocalisation column unresolvable.
+        entry = parse_column(raw)
+        if entry.family != "unknown" and entry.key:
+            exact_key = entry.key
+
+    query_concepts: set[str] = set()
+    #: Set when the WHOLE query is a concept word. "size" is then a request
+    #: for the size features, and must outrank every key that merely contains
+    #: the letters (voxel_size_z_um) — which a substring match alone does not
+    #: achieve.
+    whole_query_concept = concept_of(text) if text else None
+    if text:
+        for candidate in (text,) + tuple(_tokens(text)):
+            name = concept_of(candidate)
+            if name:
+                query_concepts.add(name)
+
+    terms = _query_terms(text)
+    hits: list[SearchHit] = []
+    for doc in docs:
+        if object_type and object_type not in doc.object_types:
+            continue
+        if wanted_concept and wanted_concept not in doc.concepts:
+            continue
+        if family and doc.family != family:
+            continue
+
+        if not text:
+            hits.append(SearchHit(doc, 1.0, "listed"))
+            continue
+
+        score = 0.0
+        reasons: list[str] = []
+        if exact_key is not None and doc.key == exact_key:
+            score += 100.0
+            reasons.append("that column is this feature")
+        if doc.key.lower() == text:
+            score += 90.0
+            reasons.append("exact feature name")
+        if text in doc.key.lower():
+            score += 40.0
+            reasons.append("name contains the query")
+        elif text in doc.title.lower():
+            score += 30.0
+            reasons.append("title contains the query")
+        matched_concepts = query_concepts & set(doc.concepts)
+        if matched_concepts:
+            score += 25.0 + len(matched_concepts)
+            # Within a concept, rank by that concept's own key order: each
+            # CONCEPTS entry lists its most characteristic feature first, so
+            # a search for "texture" leads with the GLCM homogeneity columns
+            # rather than with whichever intensity statistic happens to come
+            # first in KNOWN_PROPERTIES.
+            score += max(_concept_rank(name, doc.key)
+                         for name in matched_concepts)
+            if whole_query_concept in matched_concepts:
+                score += 20.0
+            reasons.append("concept: " + ", ".join(sorted(matched_concepts)))
+        # Only when the key itself did NOT match: a metadata doc's example
+        # column IS its key, so awarding both would score "voxel_size_z_um"
+        # twice for the word "size" and float it above the size features.
+        if (text not in doc.key.lower()
+                and any(text in example.lower() for example in doc.examples)):
+            score += 20.0
+            reasons.append("example column matches")
+        # ALL the meaningful terms, not any of them. With "any", the query
+        # "zzzzz-not-a-feature" scored every entry in the dictionary, because
+        # `a` and `not` appear in all of them — a nonsense search came back
+        # with 137 confident results.
+        if terms:
+            hay = _haystack(doc)
+            if all(term in hay for term in terms):
+                score += 2.0 * len(terms)
+                if not reasons:
+                    reasons.append("mentioned in the definition")
+        if score > 0:
+            hits.append(SearchHit(doc, score, "; ".join(reasons)))
+
+    hits.sort(key=lambda h: -h.score)
+    return hits[:limit] if limit else hits
+
+
 # --------------------------------------------------------------------------
 # database
 # --------------------------------------------------------------------------
@@ -2070,7 +3071,19 @@ _FRAME_COLUMNS = [
     "measurement_units",
     "computed_by",
     "notes",
+    # Appended, never inserted: the exported CSV is a file people diff, and
+    # `measurement_units` is pinned to the slot right after `unit`.
+    "key",
+    "object_types",
+    "channel_scope",
+    "module",
+    "written_when",
+    "concepts",
 ]
+
+#: Frame columns holding a tuple, which is rendered as a comma-joined string
+#: so the CSV/JSON exports carry ``cell, nucleus`` rather than a Python repr.
+_TUPLE_FRAME_COLUMNS = ("object_types", "concepts")
 
 
 def _quoted(name: str) -> str:
@@ -2203,6 +3216,9 @@ def describe_database(db_path: str | Path, table: str | None = None,
             rows.append(row)
 
     df = pd.DataFrame(rows, columns=_FRAME_COLUMNS)
+    for col in _TUPLE_FRAME_COLUMNS:
+        df[col] = [", ".join(v) if isinstance(v, (list, tuple)) else v
+                   for v in df[col]]
     # Keep channel indices as integers-or-missing rather than letting pandas
     # promote them to float and print "channel 0.0" in the exports.
     for col in ("channel", "channel_2"):

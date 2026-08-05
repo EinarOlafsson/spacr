@@ -4,47 +4,287 @@
   "voice": "af_nicole",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 74.7,
+  "total_duration": 535.8,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 11.5,
-      "scene_end": 11.95,
-      "duration": 11.95,
-      "text": "This tutorial covers Timelapse. Segment, link, and measure cells or pathogens across the frames of a time series."
+      "speech_end": 22.0,
+      "scene_end": 22.45,
+      "duration": 22.45,
+      "text": "Timelapse segments every frame and links the selected objects into stable tracks. The console records preprocessing, masks, tracking attempts, quality control, movies, merged arrays, and reproducibility files.",
+      "speech_text": "Timelapse segments every frame and links the selected objects into stable tracks. The console records preprocessing, masks, tracking attempts, quality control, movies, merged arrays, and reproducibility files.",
+      "phonemes": "tˈImlæps sˈɛɡmᵊnts ˈɛvəɹi fɹˈAm ænd lˈɪŋks ðə səlˈɛktᵻd ˈɑbʤəkts ˈɪntu stˈAbᵊl tɹˈæks. ðə kˈɑnsˌOl ɹˈɛkəɹdz pɹɪpɹˈɑsɛsɪŋ, mˈæsks, tɹˈækɪŋ ətˈɛmpts, kwˈɑləTi kəntɹˈOl, mˈuviz, mˈɜɹʤd əɹˈAz, ænd ɹˌipɹədˌusəbˈɪləTi fˈIlz."
     },
     {
       "scene": 2,
-      "speech_start": 11.95,
-      "speech_end": 25.75,
-      "scene_end": 26.2,
-      "duration": 14.25,
-      "text": "Open Timelapse from the Core section. Select a time-resolved image set whose filenames preserve field, time, depth, and channel indices."
+      "speech_start": 22.45,
+      "speech_end": 40.05,
+      "scene_end": 40.5,
+      "duration": 18.05,
+      "text": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+      "speech_text": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+      "phonemes": "ðə ʧˈæt fˈild əksˈɛpts lˈOkəl kəmˈændz ɔɹ wˈɜɹkflˌO kwˈɛsʧᵊnz. ɪnˈAbᵊl ˈAˌI fɔɹ ɐ kənfˈɪɡjəɹd pɹəvˈIdəɹ, ænd jˈuz ði əʤˈAsᵊnt ˈɛɹO tə ʧˈuz ɐ pɹəvˈIdəɹ ɔɹ ˈOpᵊn ɪts kəntɹˈOlz."
     },
     {
       "scene": 3,
-      "speech_start": 26.2,
-      "speech_end": 41.9,
-      "scene_end": 42.35,
-      "duration": 16.150000000000002,
-      "text": "In the main configuration area, configure segmentation, tracked object types, linking mode, maximum displacement, gap handling, and preview frames."
+      "speech_start": 40.5,
+      "speech_end": 55.65,
+      "scene_end": 56.1,
+      "duration": 15.600000000000001,
+      "text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows install and login commands while authentication remains with each vendor.",
+      "speech_text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows install and login commands while authentication remains with each vendor.",
+      "phonemes": "pɹəvˈIdəɹz ʧˈɛks ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ænd ʃˈOz ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz wˌIl əθˌɛntəkˈAʃən ɹəmˈAnz wɪð ˈiʧ vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 42.35,
-      "speech_end": 60.650000000000006,
-      "scene_end": 61.10000000000001,
-      "duration": 18.750000000000007,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate tracks on representative motion before processing the entire time series."
+      "speech_start": 56.1,
+      "speech_end": 71.475,
+      "scene_end": 71.925,
+      "duration": 15.824999999999996,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system instructions.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm ɪnstɹˈʌkʃənz."
     },
     {
       "scene": 5,
-      "speech_start": 61.10000000000001,
-      "speech_end": 74.05000000000001,
-      "scene_end": 74.70000000000002,
-      "duration": 13.600000000000009,
-      "text": "When the workflow finishes, time-indexed masks, tracks, measurements, and trajectory summaries are stored with stable object identities."
+      "speech_start": 71.925,
+      "speech_end": 97.57499999999999,
+      "scene_end": 98.02499999999999,
+      "duration": 26.099999999999994,
+      "text": "This deterministic synthetic source contains one field over eight timepoints. Channel zero contains nuclei, channel one contains cell and ER signal, and CellVoyager-style filenames preserve the plate, well, time, field, depth, and channel indices.",
+      "speech_text": "This deterministic synthetic source contains one field over eight timepoints. Channel zero contains nuclei, channel one contains cell and ER signal, and CellVoyager-style filenames preserve the plate, well, time, field, depth, and channel indices.",
+      "phonemes": "ðˌɪs dətˌɜɹmənˈɪstɪk sɪnθˈɛTɪk sˈɔɹs kəntˈAnz wˈʌn fˈild ˈOvəɹ ˈAt tˈImpYnts. ʧˈænᵊl zˈɪɹO kəntˈAnz nˈukliˌI, ʧˈænᵊl wˈʌn kəntˈAnz sˈɛl ænd ˌiˈɑɹ sˈɪɡnᵊl, ænd sˌɛlvˈYɪʤəɹstˈIl fˈIlnˌAmz pɹəzˈɜɹv ðə plˈAt, wˈɛl, tˈIm, fˈild, dˈɛpθ, ænd ʧˈænᵊl ˈɪndəsˌiz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 98.02499999999999,
+      "speech_end": 117.25,
+      "scene_end": 117.7,
+      "duration": 19.67500000000001,
+      "text": "Essentials shows the source, channel roles, naming convention, normalization, segmentation models, objects to track, frame range, tracker, plots, and output choices needed for a first run.",
+      "speech_text": "Essentials shows the source, channel roles, naming convention, normalization, segmentation models, objects to track, frame range, tracker, plots, and output choices needed for a first run.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ðə sˈɔɹs, ʧˈænᵊl ɹˈOlz, nˈAmɪŋ kənvˈɛnʧən, nˌɔɹmələzˈAʃən, sˌɛɡməntˈAʃən mˈɑdᵊlz, əbʤˈɛkts tə tɹˈæk, fɹˈAm ɹˈAnʤ, tɹˈækəɹ, plˈɑts, ænd ˈWtpˌʊt ʧˈYsᵻz nˈidᵻd fɔɹ ɐ fˈɜɹst ɹˈʌn."
+    },
+    {
+      "scene": 7,
+      "speech_start": 117.7,
+      "speech_end": 139.1,
+      "scene_end": 139.54999999999998,
+      "duration": 21.84999999999998,
+      "text": "Modified limits the panel to intentional changes, including channels zero and one, the eight-frame range, cell tracking, the built-in intersection-over-union linker, one frame per second, and conservative runtime choices.",
+      "speech_text": "Modified limits the panel to intentional changes, including channels zero and one, the eight-frame range, cell tracking, the built-in intersection-over-union linker, one frame per second, and conservative runtime choices.",
+      "phonemes": "mˈɑdəfˌId lˈɪməts ðə pˈænᵊl tʊ ɪntˈɛnʧᵊnəl ʧˈAnʤᵻz, ɪnklˈudɪŋ ʧˈænᵊlz zˈɪɹO ænd wˈʌn, ði ˌAtfɹˈAm ɹˈAnʤ, sˈɛl tɹˈækɪŋ, ðə bˌɪltˈɪn ˌɪntəɹsˈɛkʃənˌOvəɹjˈunjən lˈɪŋkəɹ, wˈʌn fɹˈAm pɜɹ sˈɛkənd, ænd kənsˈɜɹvəTɪv ɹˈʌntIm ʧˈYsᵻz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 139.54999999999998,
+      "speech_end": 161.825,
+      "scene_end": 162.27499999999998,
+      "duration": 22.724999999999994,
+      "text": "All settings reveals thirteen categories without changing values: inputs, acquisition axes, preprocessing, four segmentation groups, quality control, tracking setup and backends, diagnostics, output, and runtime.",
+      "speech_text": "All settings reveals thirteen categories without changing values: inputs, acquisition axes, preprocessing, four segmentation groups, quality control, tracking setup and backends, diagnostics, output, and runtime.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɹəvˈilz θˌɜɹtˈin kˈæTəɡˌɔɹiz wɪðˈWt ʧˈAnʤɪŋ vˈæljuz: ˈɪnpˌʊts, ˌækwəzˈɪʃən ˈæksˌiz, pɹɪpɹˈɑsɛsɪŋ, fˈɔɹ sˌɛɡməntˈAʃən ɡɹˈups, kwˈɑləTi kəntɹˈOl, tɹˈækɪŋ sˈɛTˌʌp ænd bækˈɛndz, dˌIəɡnˈɑstɪks, ˈWtpˌʊt, ænd ɹˈʌntIm."
+    },
+    {
+      "scene": 9,
+      "speech_start": 162.27499999999998,
+      "speech_end": 177.42499999999998,
+      "scene_end": 177.87499999999997,
+      "duration": 15.599999999999994,
+      "text": "Recipes saves the complete Timelapse configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete Timelapse configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðə kəmplˈit tˈImlæps kənfˌɪɡjəɹˈAʃən ˈʌndəɹ ɐ nˈAm, ɹˌiəplˈIz ɪt tʊ ənˈʌðəɹ ɪkspˈɛɹəmənt, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ ɹijˈuzəbᵊl sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 177.87499999999997,
+      "speech_end": 189.72499999999997,
+      "scene_end": 190.17499999999995,
+      "duration": 12.299999999999983,
+      "text": "Submit remote snapshots the resolved settings and sends the segmentation and tracking job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved settings and sends the segmentation and tracking job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd sˈɛTɪŋz ænd sˈɛndz ðə sˌɛɡməntˈAʃən ænd tɹˈækɪŋ ʤˈɑb tə ðə dəstɹˈɪbjuTᵻd ʤˈɑbz wˈɜɹkspˌAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 190.17499999999995,
+      "speech_end": 207.04999999999995,
+      "scene_end": 207.49999999999994,
+      "duration": 17.32499999999999,
+      "text": "Distributed Jobs maps source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Timelapse run.",
+      "speech_text": "Distributed Jobs maps source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Timelapse run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps sˈɔɹs ænd ˈWtpˌʊt pˈæðz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm tˈImlæps ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 207.49999999999994,
+      "speech_end": 224.79999999999995,
+      "scene_end": 225.24999999999994,
+      "duration": 17.75,
+      "text": "Input and Metadata selects the image folder, assigns each acquired channel to an object type, and defines how spaCR parses experimental identifiers from filenames.",
+      "speech_text": "Input and Metadata selects the image folder, assigns each acquired channel to an object type, and defines how spacer parses experimental identifiers from filenames.",
+      "phonemes": "ˈɪnpˌʊt ænd mˈɛTədˌATə səlˈɛkts ði ˈɪmɪʤ fˈOldəɹ, əsˈInz ˈiʧ əkwˈIəɹd ʧˈænᵊl tə ɐn ˈɑbʤəkt tˈIp, ænd dəfˈInz hˌW spˈAsəɹ pˈɑɹsᵻz ɪkspˌɛɹəmˈɛntᵊl IdˈɛntəfˌIəɹz fɹʌm fˈIlnˌAmz."
+    },
+    {
+      "scene": 13,
+      "speech_start": 225.24999999999994,
+      "speech_end": 242.87499999999994,
+      "scene_end": 243.32499999999993,
+      "duration": 18.07499999999999,
+      "text": "Acquisition and Axes describes magnification and optional volumetric or time-axis layouts. Ordinary per-frame image files keep the advanced stack controls disabled.",
+      "speech_text": "Acquisition and Axes describes magnification and optional volumetric or time-axis layouts. Ordinary per-frame image files keep the advanced stack controls disabled.",
+      "phonemes": "ˌækwəzˈɪʃən ænd ˈæksˌiz dəskɹˈIbz mˌæɡnəfəkˈAʃən ænd ˈɑpʃənᵊl vˌɑljəmˈɛtɹɪk ɔɹ tˌImˈæksɪs lˈAˌWts. ˈɔɹdᵊnˌɛɹi pɜɹfɹˈAm ˈɪmɪʤ fˈIlz kˈip ði ədvˈænst stˈæk kəntɹˈOlz dəsˈAbəld."
+    },
+    {
+      "scene": 14,
+      "speech_start": 243.32499999999993,
+      "speech_end": 265.17499999999995,
+      "scene_end": 265.62499999999994,
+      "duration": 22.30000000000001,
+      "text": "Image Preprocessing controls percentile normalization, background handling, denoising, resizing, and intermediate arrays. Apply one consistent transform across every frame to avoid artificial temporal changes.",
+      "speech_text": "Image Preprocessing controls percentile normalization, background handling, denoising, resizing, and intermediate arrays. Apply one consistent transform across every frame to avoid artificial temporal changes.",
+      "phonemes": "ˈɪmɪʤ pɹɪpɹˈɑsɛsɪŋ kəntɹˈOlz pəɹsˈɛntˌIl nˌɔɹmələzˈAʃən, bˈækɡɹˌWnd hˈændᵊlɪŋ, dᵻnˈYsɪŋ, ɹᵻsˈIzɪŋ, ænd ˌɪntəɹmˈidiət əɹˈAz. əplˈI wˈʌn kənsˈɪstᵊnt tɹˈænsfˌɔɹm əkɹˈɔs ˈɛvəɹi fɹˈAm tʊ əvˈYd ˌɑɹTəfˈɪʃᵊl tˈɛmpəɹəl ʧˈAnʤᵻz."
+    },
+    {
+      "scene": 15,
+      "speech_start": 265.62499999999994,
+      "speech_end": 281.57499999999993,
+      "scene_end": 282.0249999999999,
+      "duration": 16.399999999999977,
+      "text": "Cell Segmentation selects the cell model, expected diameter, probability and flow thresholds, and optional size, intensity, border, merge, and split filters.",
+      "speech_text": "Cell Segmentation selects the cell model, expected diameter, probability and flow thresholds, and optional size, intensity, border, merge, and split filters.",
+      "phonemes": "sˈɛl sˌɛɡməntˈAʃən səlˈɛkts ðə sˈɛl mˈɑdᵊl, ɪkspˈɛktᵻd dIˈæməTəɹ, pɹˌɑbəbˈɪləTi ænd flˈO θɹˈɛʃhˌOldz, ænd ˈɑpʃənᵊl sˈIz, ɪntˈɛnsəTi, bˈɔɹdəɹ, mˈɜɹʤ, ænd splˈɪt fˈɪltəɹz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 282.0249999999999,
+      "speech_end": 297.94999999999993,
+      "scene_end": 298.3999999999999,
+      "duration": 16.375,
+      "text": "Nucleus Segmentation provides the equivalent controls for channel zero. Nucleus masks may be exported even when only cells are linked across frames.",
+      "speech_text": "Nucleus Segmentation provides the equivalent controls for channel zero. Nucleus masks may be exported even when only cells are linked across frames.",
+      "phonemes": "nˈukliəs sˌɛɡməntˈAʃən pɹəvˈIdz ði əkwˈɪvᵊlənt kəntɹˈOlz fɔɹ ʧˈænᵊl zˈɪɹO. nˈukliəs mˈæsks mˈA bi ˈɛkspˌɔɹTᵻd ˈivən wˌɛn ˈOnli sˈɛlz ɑɹ lˈɪŋkt əkɹˈɔs fɹˈAmz."
+    },
+    {
+      "scene": 17,
+      "speech_start": 298.3999999999999,
+      "speech_end": 315.94999999999993,
+      "scene_end": 316.3999999999999,
+      "duration": 18.0,
+      "text": "Pathogen Segmentation is available when a pathogen channel is assigned. This two-channel demonstration leaves it unset, so no pathogen masks or tracks are requested.",
+      "speech_text": "Pathogen Segmentation is available when a pathogen channel is assigned. This two-channel demonstration leaves it unset, so no pathogen masks or tracks are requested.",
+      "phonemes": "pˈæθəʤˌɛn sˌɛɡməntˈAʃən ɪz əvˈAləbᵊl wˌɛn ɐ pˈæθəʤˌɛn ʧˈænᵊl ɪz əsˈInd. ðˌɪs tˌuʧˈænᵊl dˌɛmənstɹˈAʃən lˈivz ɪt ˌʌnsˈɛt, sˌO nˈO pˈæθəʤˌɛn mˈæsks ɔɹ tɹˈæks ɑɹ ɹəkwˈɛstᵻd."
+    },
+    {
+      "scene": 18,
+      "speech_start": 316.3999999999999,
+      "speech_end": 332.24999999999994,
+      "scene_end": 332.69999999999993,
+      "duration": 16.30000000000001,
+      "text": "Organelle Segmentation supports spot, network, ring, irregular, Cellpose, and U-Net workflows when an organelle channel is assigned. It is inactive for this example.",
+      "speech_text": "Organelle Segmentation supports spot, network, ring, irregular, Cellpose, and U-Net workflows when an organelle channel is assigned. It is inactive for this example.",
+      "phonemes": "ˌɔɹɡənˈɛl sˌɛɡməntˈAʃən səpˈɔɹts spˈɑt, nˈɛtwˌɜɹk, ɹˈɪŋ, ɪɹɹˈɛɡjələɹ, sˈɛlpOz, ænd jˈunˌɛt wˈɜɹkflˌOz wˌɛn ɐn ˌɔɹɡənˈɛl ʧˈænᵊl ɪz əsˈInd. ˌɪt ɪz ɪnˈæktɪv fɔɹ ðɪs ɪɡzˈæmpəl."
+    },
+    {
+      "scene": 19,
+      "speech_start": 332.69999999999993,
+      "speech_end": 353.0999999999999,
+      "scene_end": 353.5499999999999,
+      "duration": 20.849999999999966,
+      "text": "Quality Control compares object count, size, border contact, foreground coverage, split behavior, and plate-level failure rates. Report mode records warnings without silently discarding the time series.",
+      "speech_text": "Quality Control compares object count, size, border contact, foreground coverage, split behavior, and plate-level failure rates. Report mode records warnings without silently discarding the time series.",
+      "phonemes": "kwˈɑləTi kəntɹˈOl kəmpˈɛɹz ˈɑbʤəkt kˈWnt, sˈIz, bˈɔɹdəɹ kˈɑntækt, fˈɔɹɡɹˌWnd kˈʌvəɹɪʤ, splˈɪt bəhˈAvjəɹ, ænd plˌAtlˈɛvᵊl fˈAljəɹ ɹˈAts. ɹəpˈɔɹt mˈOd ɹəkˈɔɹdz wˈɔɹnɪŋz wɪðˈWt sˈIləntli dəskˈɑɹdɪŋ ðə tˈIm sˈɪɹiz."
+    },
+    {
+      "scene": 20,
+      "speech_start": 353.5499999999999,
+      "speech_end": 368.1999999999999,
+      "scene_end": 368.64999999999986,
+      "duration": 15.099999999999966,
+      "text": "Tracking Setup chooses which segmented objects are linked, the frame slice, whether short-lived tracks are removed, and the playback rate of exported movies.",
+      "speech_text": "Tracking Setup chooses which segmented objects are linked, the frame slice, whether short-lived tracks are removed, and the playback rate of exported movies.",
+      "phonemes": "tɹˈækɪŋ sˈɛTˌʌp ʧˈuzᵻz wˌɪʧ sˈɛɡmˌɛntᵻd ˈɑbʤəkts ɑɹ lˈɪŋkt, ðə fɹˈAm slˈIs, wˈɛðəɹ ʃˌɔɹtlˈɪvd tɹˈæks ɑɹ ɹəmˈuvd, ænd ðə plˈAbˌæk ɹˈAt ʌv ˈɛkspˌɔɹTᵻd mˈuviz."
+    },
+    {
+      "scene": 21,
+      "speech_start": 368.64999999999986,
+      "speech_end": 390.9499999999999,
+      "scene_end": 391.39999999999986,
+      "duration": 22.75,
+      "text": "Tracking Backends offers Trackastra, Ultrack, Trackpy, intersection-over-union, and btrack with backend-specific link, displacement, memory, division, and worker controls. This demonstration uses intersection-over-union.",
+      "speech_text": "Tracking Backends offers Trackastra, Ultrack, Trackpy, intersection-over-union, and btrack with backend-specific link, displacement, memory, division, and worker controls. This demonstration uses intersection-over-union.",
+      "phonemes": "tɹˈækɪŋ bækˈɛndz ˈɔfəɹz tɹˈækæstɹə, ˈʌltɹæk, tɹˈækpi, ˌɪntəɹsˈɛkʃənˌOvəɹjˈunjən, ænd bˈitɹˈæk wɪð bˌækəndspəsˈɪfɪk lˈɪŋk, dɪsplˈAsmᵊnt, mˈɛməɹi, dəvˈɪʒən, ænd wˈɜɹkəɹ kəntɹˈOlz. ðˌɪs dˌɛmənstɹˈAʃən jˈuzᵻz ˌɪntəɹsˈɛkʃənˌOvəɹjˈunjən."
+    },
+    {
+      "scene": 22,
+      "speech_start": 391.39999999999986,
+      "speech_end": 408.17499999999984,
+      "scene_end": 408.62499999999983,
+      "duration": 17.224999999999966,
+      "text": "Visualization and Diagnostics controls colormaps, example plots, plot normalization, and the figure canvas used to inspect segmentation and tracking behavior.",
+      "speech_text": "Visualization and Diagnostics controls colormaps, example plots, plot normalization, and the figure canvas used to inspect segmentation and tracking behavior.",
+      "phonemes": "vˌɪʒələzˈAʃən ænd dˌIəɡnˈɑstɪks kəntɹˈOlz kˈʌləɹmˌæps, ɪɡzˈæmpəl plˈɑts, plˈɑt nˌɔɹmələzˈAʃən, ænd ðə fˈɪɡjəɹ kˈænvəs jˈust tʊ ɪnspˈɛkt sˌɛɡməntˈAʃən ænd tɹˈækɪŋ bəhˈAvjəɹ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 408.62499999999983,
+      "speech_end": 424.99999999999983,
+      "scene_end": 425.4499999999998,
+      "duration": 16.82499999999999,
+      "text": "Output and Storage controls merged arrays, masks, per-channel movies, tracked-mask animations, compression, and retention of intermediate or original files.",
+      "speech_text": "Output and Storage controls merged arrays, masks, per-channel movies, tracked-mask animations, compression, and retention of intermediate or original files.",
+      "phonemes": "ˈWtpˌʊt ænd stˈɔɹɪʤ kəntɹˈOlz mˈɜɹʤd əɹˈAz, mˈæsks, pɜɹʧˈænᵊl mˈuviz, tɹˈæktmˌæsk ˌænəmˈAʃənz, kəmpɹˈɛʃən, ænd ɹətˈɛnʃən ʌv ˌɪntəɹmˈidiət ɔɹ əɹˈɪʤənᵊl fˈIlz."
+    },
+    {
+      "scene": 24,
+      "speech_start": 425.4499999999998,
+      "speech_end": 445.6499999999998,
+      "scene_end": 446.0999999999998,
+      "duration": 20.649999999999977,
+      "text": "Runtime and Reliability controls test mode, batching, workers, reproducible order, resuming, dry runs, verbosity, and failure policy. Start with one representative field before scaling up.",
+      "speech_text": "Runtime and Reliability controls test mode, batching, workers, reproducible order, resuming, dry runs, verbosity, and failure policy. Start with one representative field before scaling up.",
+      "phonemes": "ɹˈʌntIm ænd ɹəlˌIəbˈɪləTi kəntɹˈOlz tˈɛst mˈOd, bˈæʧɪŋ, wˈɜɹkəɹz, ɹˌipɹədˈusəbᵊl ˈɔɹdəɹ, ɹᵻzˈumɪŋ, dɹˈI ɹˈʌnz, vəɹbˈɑsəTi, ænd fˈAljəɹ pˈɑləsi. stˈɑɹt wɪð wˈʌn ɹˌɛpɹəzˈɛntəTɪv fˈild bəfˈɔɹ skˈAlɪŋ ˌʌp."
+    },
+    {
+      "scene": 25,
+      "speech_start": 446.0999999999998,
+      "speech_end": 464.3999999999998,
+      "scene_end": 464.8499999999998,
+      "duration": 18.75,
+      "text": "This example tracks cells over frame indices zero through seven, keeps transient tracks for inspection, exports movies at one frame per second, and leaves the nucleus masks unlinked.",
+      "speech_text": "This example tracks cells over frame indices zero through seven, keeps transient tracks for inspection, exports movies at one frame per second, and leaves the nucleus masks unlinked.",
+      "phonemes": "ðˌɪs ɪɡzˈæmpəl tɹˈæks sˈɛlz ˈOvəɹ fɹˈAm ˈɪndəsˌiz zˈɪɹO θɹu sˈɛvən, kˈips tɹˈænʧənt tɹˈæks fɔɹ ɪnspˈɛkʃən, ˈɛkspˌɔɹts mˈuviz æt wˈʌn fɹˈAm pɜɹ sˈɛkənd, ænd lˈivz ðə nˈukliəs mˈæsks ˌʌnlˈɪŋkt."
+    },
+    {
+      "scene": 26,
+      "speech_start": 464.8499999999998,
+      "speech_end": 490.5249999999998,
+      "scene_end": 490.9749999999998,
+      "duration": 26.125,
+      "text": "Run validates filenames and channels, groups frames, normalizes the sequence, segments each requested object, links cell masks, calculates quality control, writes movies and merged arrays, and records reproducibility. Stop requests a safe interruption.",
+      "speech_text": "Run validates filenames and channels, groups frames, normalizes the sequence, segments each requested object, links cell masks, calculates quality control, writes movies and merged arrays, and records reproducibility. Stop requests a safe interruption.",
+      "phonemes": "ɹˈʌn vˈælɪdˌAts fˈIlnˌAmz ænd ʧˈænᵊlz, ɡɹˈups fɹˈAmz, nˈɔɹməlˌIzᵻz ðə sˈikwəns, sˈɛɡmᵊnts ˈiʧ ɹəkwˈɛstᵻd ˈɑbʤəkt, lˈɪŋks sˈɛl mˈæsks, kˈælkjəlˌAts kwˈɑləTi kəntɹˈOl, ɹˈIts mˈuviz ænd mˈɜɹʤd əɹˈAz, ænd ɹˈɛkəɹdz ɹˌipɹədˌusəbˈɪləTi. stˈɑp ɹəkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃən."
+    },
+    {
+      "scene": 27,
+      "speech_start": 490.9749999999998,
+      "speech_end": 508.1999999999998,
+      "scene_end": 508.6499999999998,
+      "duration": 17.67500000000001,
+      "text": "During processing, the console reports Cellpose startup, resolved settings, per-frame progress, tracking search behavior, object filters, time remaining, and output paths.",
+      "speech_text": "During processing, the console reports Cellpose startup, resolved settings, per-frame progress, tracking search behavior, object filters, time remaining, and output paths.",
+      "phonemes": "dˈʊɹɪŋ pɹˈɑsɛsɪŋ, ðə kˈɑnsˌOl ɹəpˈɔɹts sˈɛlpOz stˈɑɹTʌp, ɹəzˈɔlvd sˈɛTɪŋz, pɜɹfɹˈAm pɹˈɑɡɹəs, tɹˈækɪŋ sˈɜɹʧ bəhˈAvjəɹ, ˈɑbʤəkt fˈɪltəɹz, tˈIm ɹəmˈAnɪŋ, ænd ˈWtpˌʊt pˈæðz."
+    },
+    {
+      "scene": 28,
+      "speech_start": 508.6499999999998,
+      "speech_end": 535.1499999999999,
+      "scene_end": 535.7999999999998,
+      "duration": 27.150000000000034,
+      "text": "The completed run linked 16 cells across all eight frames, removed no transient objects, passed cell and nucleus quality control with no warnings or failures, wrote tracked movies and eight merged arrays, and saved a successful 26-second run record.",
+      "speech_text": "The completed run linked 16 cells across all eight frames, removed no transient objects, passed cell and nucleus quality control with no warnings or failures, wrote tracked movies and eight merged arrays, and saved a successful 26-second run record.",
+      "phonemes": "ðə kəmplˈiTᵻd ɹˈʌn lˈɪŋkt sˌɪkstˈin sˈɛlz əkɹˈɔs ˈɔl ˈAt fɹˈAmz, ɹəmˈuvd nˈO tɹˈænʧənt ˈɑbʤəkts, pˈæst sˈɛl ænd nˈukliəs kwˈɑləTi kəntɹˈOl wɪð nˈO wˈɔɹnɪŋz ɔɹ fˈAljəɹz, ɹˈOt tɹˈækt mˈuviz ænd ˈAt mˈɜɹʤd əɹˈAz, ænd sˈAvd ɐ səksˈɛsfᵊl twˈɛnti sˈɪks sˈɛkənd ɹˈʌn ɹˈɛkəɹd."
     }
   ]
 }

@@ -479,7 +479,7 @@ setup(
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg'],},
+    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/setting_animations/gifs/*.gif'],},
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
@@ -502,6 +502,21 @@ setup(
             # clusters: no Qt, no Tk, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
             'spacr-run=spacr.cli:main',
+            # Persistent SSH / Slurm / cloud job submission and monitoring.
+            'spacr-remote=spacr.cli_remote:main',
+            # Installed plugin registry and failure diagnostics.
+            'spacr-plugins=spacr.cli_plugins:main',
+            # Standalone classifier train/test leakage audit.
+            'spacr-leakage=spacr.cli_leakage:main',
+            # SQLite health, integrity, locking, and reader/writer probe.
+            'spacr-db-audit=spacr.cli_database:main',
+            # Whole-installation diagnosis: which spacr is actually running
+            # (the stale-editable-install trap), which optional extras are
+            # missing, whether the GPU is usable, whether Cellpose matches the
+            # API the code calls, and whether a project database or settings
+            # file is sound. One line per check, a copyable fix on every line
+            # that is not PASS, and a non-zero exit so CI can gate on it.
+            'spacr-doctor=spacr.doctor:main',
             # Classic Tk GUI remains available under new names
             'spacr-tk=spacr.gui:gui_app',
             'spacr-legacy=spacr.gui:gui_app',
@@ -518,6 +533,13 @@ setup(
             'pytest>=8.0,<9',
             'pytest-qt>=4.4,<5',
             'tomli>=2.0; python_version < "3.11"',
+            # tests/test_key_parsing_properties.py states the plate / row /
+            # column / field / object key contract as properties rather than
+            # examples -- round-trip, arity, injectivity, idempotence, and
+            # agreement between the parsers that have not been collapsed yet.
+            # It registers a `derandomize=True` profile, so it is reproducible
+            # in CI rather than a source of intermittent red.
+            'hypothesis>=6.100,<7',
             # Quality-gate tooling. These are kept out of core dependencies:
             # users running microscopy pipelines do not need static-analysis
             # packages, while contributors get the same versions CI runs.
@@ -602,6 +624,44 @@ setup(
         # so this extra is a no-op for anyone who has spaCR installed at all —
         # it exists to stop a printed instruction being a lie.
         'umap': ['umap-learn>=0.5.11,<1.0'],
+        # `pip install spacr[anndata]` — `spacr.anndata_export`, which writes
+        # the measurement tables out as a .h5ad so scanpy, scvi-tools and
+        # squidpy can read a spaCR run directly. Optional rather than core
+        # for one reason: anndata pulls h5py, and h5py is the one wheel in
+        # this neighbourhood that still needs a HDF5 toolchain on a platform
+        # without a prebuilt binary. Every import of it in
+        # spacr/anndata_export/ is function-local behind
+        # `require_anndata()`, which raises ANNDATA_MISSING_MESSAGE naming
+        # this extra rather than an ImportError from inside anndata's own
+        # import machinery.
+        #
+        # The `<0.13` cap is not defensive: anndata 0.12 requires Python
+        # >=3.11, and spaCR still supports 3.10, so pip needs the room to
+        # resolve back to the 0.11 line there. scanpy is deliberately NOT
+        # declared — writing the file needs anndata alone, reading it is the
+        # user's own environment, and pinning scanpy would drag in a second
+        # copy of the leiden/igraph stack for a file spaCR only writes.
+        'anndata': ['anndata>=0.10,<0.13'],
+        # `pip install spacr[napari]` — `spacr.napari_bridge`, which hands a
+        # field's image and mask to napari, lets the user correct the mask
+        # there, and writes the corrected labels back the way spaCR writes
+        # masks with an entry in the curation ledger.
+        #
+        # Optional rather than core, and it is not a close call: napari is a
+        # whole second application, it brings its own Qt stack next to the
+        # PySide6 spaCR's GUI already runs on, and nobody needs it to correct
+        # a mask — the Curate screen has a brush, a label picker and track
+        # curation, and records the same ledger. This extra exists for people
+        # who would rather work in the viewer they already know.
+        #
+        # Every import of it is function-local, behind
+        # `spacr.napari_bridge.require_napari()`, which raises
+        # NAPARI_MISSING_MESSAGE naming this extra rather than an ImportError
+        # from inside napari's own import machinery. Deliberately NOT in
+        # `all`: aggregating it would put a second GUI framework, and a
+        # second binding for the one spaCR already pins, into the extra
+        # someone types when they just want every feature.
+        'napari': ['napari>=0.5,<1.0'],
         'full': ['opencv-python'],
         'qt': [
             'PySide6>=6.6,<7',
@@ -657,8 +717,73 @@ setup(
         # versions while upstream wheels catch up.
         'btrack': ['btrack>=0.7.0,<1.0'],
 
+        # `pip install spacr[numpyro]` / `spacr[pymc]` — the two exact-NUTS
+        # backends of `spacr.power_model`, which fits the horseshoe Poisson
+        # hit model. Both are already imported inside the branch that selects
+        # them (`_fit_numpyro_nuts`, `_fit_pymc_nuts`) and `resolve_backend`
+        # already refuses to substitute one for another, naming the missing
+        # package — so an extra is what that guard was always describing, the
+        # same reasoning as `boosting`.
+        #
+        # Two extras rather than one because they are ALTERNATIVES, not a
+        # pair: the model needs one exact sampler, and `backend="auto"` takes
+        # numpyro if it is there, else pymc, else the torch ADVI that is
+        # always available. Making one extra install both would force a second
+        # multi-hundred-megabyte inference stack on a user who has already
+        # chosen the other. jax is named alongside numpyro because
+        # `_fit_numpyro_nuts` imports `jax` and `jax.numpy` directly rather
+        # than only through numpyro, and the dependency census — correctly —
+        # counts an import it can see.
+        #
+        # Neither is in `all`, for the reason the exclusions below give: jax
+        # resolves to a platform-specific build (CPU/CUDA/ROCm/Metal) and pymc
+        # brings PyTensor and a C compiler path. Someone typing `all` wants
+        # every feature, not a second numerical-computing runtime chosen for
+        # them.
+        'numpyro': ['numpyro>=0.13,<1.0', 'jax>=0.4,<1.0'],
+        'pymc': ['pymc>=5.10,<6.0'],
+
+        # `pip install spacr[zarr]` — `spacr.ome_zarr`, the OME-NGFF
+        # (OME-Zarr) reader/writer. The emerging standard for large
+        # bioimaging data: chunked, so a 100 GB plate is readable a tile at a
+        # time instead of all at once, and multiscale, so a plate overview
+        # does not decode full resolution to draw 200 px.
+        #
+        # It is an extra rather than a core dependency, and the reason is
+        # narrow: spaCR parses and writes the OME-NGFF *metadata* itself
+        # (`multiscales`, `axes`, `coordinateTransformations`) in pure Python,
+        # because that layout is the thing worth getting right and a library
+        # would only hide it. What zarr/numcodecs are needed for is the chunk
+        # CODEC — blosc, zstd, lz4 — which is where the compiled code lives.
+        # `spacr.ome_zarr` reads and writes stored/zlib chunks with the
+        # standard library alone, so a spaCR-written OME-Zarr round-trips on a
+        # plain `pip install spacr`; anything compressed with a third-party
+        # codec raises a message naming this extra rather than a traceback.
+        #
+        # `zarr>=2.16,<4` deliberately spans the v2/v3 rewrite: v2 reads
+        # zarr-format 2 (which is what OME-NGFF 0.4 is), v3 reads both, and
+        # `spacr.ome_zarr` supports either at runtime. numcodecs is named
+        # explicitly rather than relied on through zarr, because the codec is
+        # what is actually imported.
+        'zarr': ['zarr>=2.16,<4', 'numcodecs>=0.12,<1'],
+        # `pip install spacr[omero]` — `spacr.omero`, importing a dataset or
+        # plate by id from an OMERO server and exporting spaCR results back as
+        # annotations.
+        #
+        # Deliberately NOT in `all`, and this is the one exclusion that is not
+        # about wheels being missing: omero-py depends on zeroc-ice, a
+        # compiled C++ Ice runtime whose wheels lag Python releases by a long
+        # way and which otherwise needs a C++ toolchain plus the Ice
+        # development headers. Putting it in the extra most likely to be typed
+        # by someone who just wants everything would turn `pip install
+        # spacr[all]` into a source build of a C++ middleware stack, which is
+        # the same class of failure `attribution` is excluded for. Anyone who
+        # has an OMERO server has an installed Ice already, or knows they need
+        # one; nobody else should pay for it.
+        'omero': ['omero-py>=5.17,<6'],
+
         # `pip install spacr[all]` — every optional feature at once, minus
-        # four, each for a stated reason:
+        # eight, each for a stated reason:
         #   * `dev`   — test tooling, not a feature.
         #   * `full`  — the GUI-capable opencv build, which would shadow the
         #               headless one already in the core deps.
@@ -676,6 +801,23 @@ setup(
         #               the extra most likely to be typed by someone who just
         #               wants everything. `spacr[all,attribution]` remains
         #               available on 3.9-3.12 for anyone who wants both.
+        #   * `omero` — same class of exclusion as `attribution`, for the
+        #               reason spelled out at its own entry: omero-py pulls
+        #               zeroc-ice, a compiled C++ Ice runtime, and `all` must
+        #               not turn into a middleware source build.
+        #   * `numpyro`, `pymc` — the two exact-NUTS backends are alternatives
+        #               to each other and to a torch path that is always
+        #               present, so `all` would install two inference stacks
+        #               to use at most one. jax also resolves to a
+        #               platform-specific build and pymc brings PyTensor's
+        #               compiler path; neither belongs in the extra someone
+        #               types when they just want every feature.
+        #   * `zarr`  — kept out because it buys nothing for a user who did
+        #               not ask for it: `spacr.ome_zarr` reads and writes
+        #               stored/zlib OME-Zarr with the standard library alone,
+        #               and numcodecs (the part that is actually compiled)
+        #               only matters for third-party chunk codecs. Anyone who
+        #               has blosc-compressed NGFF data knows they do.
         #
         # Spelled out as concrete requirements rather than a recursive
         # `spacr[qt,tutorial,...]` self-reference so it resolves identically
@@ -725,6 +867,7 @@ setup(
             'readlif',
             'mahotas>=1.4.13,<2.0',
             'btrack>=0.7.0,<1.0',
+            'anndata>=0.10,<0.13',
         ],
     },
 )

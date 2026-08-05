@@ -4,47 +4,207 @@
   "voice": "bf_isabella",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.7,
+  "total_duration": 237.75,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.575,
-      "scene_end": 10.024999999999999,
-      "duration": 10.024999999999999,
-      "text": "This tutorial covers Train Cellpose. Train a custom Cellpose or CPSAM-compatible segmentation model from curated image-mask pairs."
+      "speech_end": 14.1,
+      "scene_end": 14.549999999999999,
+      "duration": 14.549999999999999,
+      "text": "Train Cellpose fine-tunes a CPSAM segmentation model from paired microscopy images and instance-label masks. The console reports the selected data, training progress, checkpoint path, and reproducibility record.",
+      "speech_text": "Train Cellpose fine-tunes a CPSAM segmentation model from paired microscopy images and instance-label masks. The console reports the selected data, training progress, checkpoint path, and reproducibility record.",
+      "phonemes": "tɹˈAn sˈɛlpQz fIntjˈuːnz ɐ sˌiːpˌiːˌɛsˌAˈɛm sˌɛɡmᵊntˈAʃᵊn mˈɒdᵊl fɹɒm pˈɛːd mIkɹˈɒskəpi ˈɪmɪʤɪz and ˈɪnstᵊnslˌAbᵊl mˈɑːsks. ðə kˈɒnsQl ɹɪpˈɔːts ðə sɪlˈɛktɪd dˈAtə, tɹˈAnɪŋ pɹˈQɡɹɛs, ʧˈɛkpYnt pˈɑːθ, and ɹˌiːpɹədjˌuːsɪbˈɪlɪti ɹˈɛkɔːd."
     },
     {
       "scene": 2,
-      "speech_start": 10.024999999999999,
-      "speech_end": 19.049999999999997,
-      "scene_end": 19.499999999999996,
-      "duration": 9.474999999999998,
-      "text": "Open Train Cellpose from the Segmentation models section. Provide diverse training and validation images with carefully corrected label masks."
+      "speech_start": 14.549999999999999,
+      "speech_end": 24.674999999999997,
+      "scene_end": 25.124999999999996,
+      "duration": 10.574999999999998,
+      "text": "The chat field accepts local workflow questions. Enable AI for a configured provider, and use the adjacent arrow to select a provider or open its controls.",
+      "speech_text": "The chat field accepts local workflow questions. Enable AI for a configured provider, and use the adjacent arrow to select a provider or open its controls.",
+      "phonemes": "ðə ʧˈat fˈiːld əksˈɛpts lˈQkᵊl wˈɜːkflQ kwˈɛsʧᵊnz. ɪnˈAbᵊl ˈAˌI fɔː ɐ kənfˈɪɡəd pɹəvˈIdə, and jˈuːz ði əʤˈAsᵊnt ˈaɹQ tə sɪlˈɛkt ɐ pɹəvˈIdə ɔː ˈQpᵊn ɪts kəntɹˈQlz."
     },
     {
       "scene": 3,
-      "speech_start": 19.499999999999996,
-      "speech_end": 28.849999999999994,
-      "scene_end": 29.299999999999994,
-      "duration": 9.799999999999997,
-      "text": "In the main configuration area, choose channels, base model, diameter, augmentation, learning rate, epochs, batch size, and validation split."
+      "speech_start": 25.124999999999996,
+      "speech_end": 35.5,
+      "scene_end": 35.95,
+      "duration": 10.825000000000006,
+      "text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and displays their install and login commands. Authentication remains with each provider.",
+      "speech_text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and displays their install and login commands. Authentication remains with each provider.",
+      "phonemes": "pɹəvˈIdəz ʧˈɛks ðə klˈɔːd, ʧˌatʤˌiːpˌiːtˈiː, and ʤˈɛmɪniː kəmˈɑːndlˌIn klˈIənts and dɪsplˈAz ðɛː ɪnstˈɔːl and lˈɒɡɪn kəmˈɑːndz. ɔːθˌɛntɪkˈAʃᵊn ɹɪmˈAnz wɪð ˈiːʧ pɹəvˈIdə."
     },
     {
       "scene": 4,
-      "speech_start": 29.299999999999994,
-      "speech_end": 41.224999999999994,
-      "scene_end": 41.675,
-      "duration": 12.375000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. monitor training and validation losses and test checkpoints on fields that were not used for training."
+      "speech_start": 35.95,
+      "speech_end": 45.925000000000004,
+      "scene_end": 46.37500000000001,
+      "duration": 10.425000000000004,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system instructions.",
+      "phonemes": "ˈAˌI sˈɛtɪŋz kəntɹˈQlz ɹɪspˈɒns dˈɛpθ, ˌɔːtəmˈatɪk ˈɛɹə ˌɛksplənˈAʃᵊnz, ˈɒpʃənᵊl ɡˌɪthˈʌb ˈɪʃjuː ɹɪpˈɔːtɪŋ, sˈInˌɪn, and ðə spˈAsəəwˌɛː sˈɪstɪm ɪnstɹˈʌkʃᵊnz."
     },
     {
       "scene": 5,
-      "speech_start": 41.675,
-      "speech_end": 49.05,
-      "scene_end": 49.699999999999996,
-      "duration": 8.024999999999999,
-      "text": "When the workflow finishes, the selected checkpoint, training history, validation predictions, and settings are stored together."
+      "speech_start": 46.37500000000001,
+      "speech_end": 62.35000000000001,
+      "scene_end": 62.85000000000001,
+      "duration": 16.475,
+      "text": "Drop the dataset root containing train, images and train, masks. Matching TIFF filenames form each pair. This demonstration derives six five-hundred-twelve-pixel cell fields from the real tutorial experiment; production labels must be independently reviewed.",
+      "speech_text": "Drop the dataset root containing train, images and train, masks. Matching TIFF filenames form each pair. This demonstration derives six five-hundred-twelve-pixel cell fields from the real tutorial experiment; production labels must be independently reviewed.",
+      "phonemes": "dɹˈɒp ðə dˈAtəsɛt ɹˈuːt kəntˈAnɪŋ tɹˈAn, ˈɪmɪʤɪz and tɹˈAn, mˈɑːsks. mˈaʧɪŋ tˈɪf fˈIlnAmz fˈɔːm ˈiːʧ pˈɛː. ðˌɪs dˌɛmənstɹˈAʃᵊn dɪɹˈIvz sˈɪks fˌIvhˈʌndɹədtwˌɛlvpˈɪksᵊl sˈɛl fˈiːldz fɹɒm ðə ɹˈɪəl tjuːtˈɔːɹɪəl ɪkspˈɛɹɪmᵊnt; pɹədˈʌkʃᵊn lˈAbᵊlz mˈʌst biː ˌɪndɪpˈɛndᵊntli ɹɪvjˈuːd."
+    },
+    {
+      "scene": 6,
+      "speech_start": 62.85000000000001,
+      "speech_end": 72.575,
+      "scene_end": 73.025,
+      "duration": 10.174999999999997,
+      "text": "Essentials keeps the starting weights, model name, epoch count, learning rate, image target size, and verbose output visible for a first calibration run.",
+      "speech_text": "Essentials keeps the starting weights, model name, epoch count, learning rate, image target size, and verbose output visible for a first calibration run.",
+      "phonemes": "ɪsˈɛnʃlz kˈiːps ðə stˈɑːtɪŋ wˈAts, mˈɒdᵊl nˈAm, ˈiːpɒk kˈWnt, lˈɜːnɪŋ ɹˈAt, ˈɪmɪʤ tˈɑːɡɪt sˈIz, and vəːbˈQs ˈWtpʊt vˈɪzɪbᵊl fɔː ɐ fˈɜːst kˌalɪbɹˈAʃᵊn ɹˈʌn."
+    },
+    {
+      "scene": 7,
+      "speech_start": 73.025,
+      "speech_end": 86.30000000000001,
+      "scene_end": 86.75000000000001,
+      "duration": 13.725000000000009,
+      "text": "Modified limits the panel to intentional changes. Here, one epoch, a point-zero-one learning rate, batch size two, resizing, and a two-hundred-fifty-six-pixel target keep the tutorial fast and reproducible.",
+      "speech_text": "Modified limits the panel to intentional changes. Here, one epoch, a point-zero-one learning rate, batch size two, resizing, and a two-hundred-fifty-six-pixel target keep the tutorial fast and reproducible.",
+      "phonemes": "mˈɒdɪfId lˈɪmɪts ðə pˈanᵊl tʊ ɪntˈɛnʃənᵊl ʧˈAnʤɪz. hˈɪə, wˈʌn ˈiːpɒk, ɐ pˈYntzˈɪəɹQwˌʌn lˈɜːnɪŋ ɹˈAt, bˈaʧ sˈIz tˈuː, ɹɪsˈIzɪŋ, and ɐ tˌuːhˈʌndɹədfˈɪftisˌɪkspˈɪksᵊl tˈɑːɡɪt kˈiːp ðə tjuːtˈɔːɹɪəl fˈɑːst and ɹˌiːpɹədjˈuːsɪbᵊl."
+    },
+    {
+      "scene": 8,
+      "speech_start": 86.75000000000001,
+      "speech_end": 95.67500000000001,
+      "scene_end": 96.12500000000001,
+      "duration": 9.375,
+      "text": "All settings reveals five categories: Starting Point, Training Schedule, Image Geometry, Background and Denoising, and Output and Runtime.",
+      "speech_text": "All settings reveals five categories: Starting Point, Training Schedule, Image Geometry, Background and Denoising, and Output and Runtime.",
+      "phonemes": "ˈɔːl sˈɛtɪŋz ɹɪvˈiːlz fˈIv kˈatɪɡəɹiz: stˈɑːtɪŋ pˈYnt, tɹˈAnɪŋ ʃˈɛdjuːl, ˈɪmɪʤ ʤɪˈɒmɪtɹi, bˈakɡɹWnd and dɪnˈYsɪŋ, and ˈWtpʊt and ɹˈʌntIm."
+    },
+    {
+      "scene": 9,
+      "speech_start": 96.12500000000001,
+      "speech_end": 106.42500000000001,
+      "scene_end": 106.87500000000001,
+      "duration": 10.75,
+      "text": "Recipes saves the complete training configuration under a name, reapplies it to another annotated dataset, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete training configuration under a name, reapplies it to another annotated dataset, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsɪpiz sˈAvz ðə kəmplˈiːt tɹˈAnɪŋ kənfˌɪɡəɹˈAʃᵊn ˈʌndə ɐ nˈAm, ɹˌiːəplˈIz ɪt tʊ ənˈʌðə ˈanQtAtɪd dˈAtəsɛt, ɔː ˈɪmpɔːts and ˈɛkspɔːts ɐ ɹˌiːjˈuːzəbᵊl sˈɛtɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 106.87500000000001,
+      "speech_end": 118.10000000000001,
+      "scene_end": 118.55000000000001,
+      "duration": 11.674999999999997,
+      "text": "Submit remote snapshots the resolved training settings and sends the fit to the Distributed Jobs workspace, which is useful when CPSAM training belongs on a larger GPU.",
+      "speech_text": "Submit remote snapshots the resolved training settings and sends the fit to the Distributed Jobs workspace, which is useful when CPSAM training belongs on a larger GPU.",
+      "phonemes": "səbmˈɪt ɹɪmˈQt snˈapʃɒts ðə ɹɪzˈɒlvd tɹˈAnɪŋ sˈɛtɪŋz and sˈɛndz ðə fˈɪt tə ðə dɪstɹˈɪbjuːtɪd ʤˈɒbz wˈɜːkspAs, wˌɪʧ ɪz jˈuːsfʊl wˌɛn sˌiːpˌiːˌɛsˌAˈɛm tɹˈAnɪŋ bɪlˈɒŋz ˌɒn ɐ lˈɑːʤə ʤˌiːpˌiːjˈuː."
+    },
+    {
+      "scene": 11,
+      "speech_start": 118.55000000000001,
+      "speech_end": 128.925,
+      "scene_end": 129.375,
+      "duration": 10.824999999999989,
+      "text": "Distributed Jobs maps the dataset and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same training run.",
+      "speech_text": "Distributed Jobs maps the dataset and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same training run.",
+      "phonemes": "dɪstɹˈɪbjuːtɪd ʤˈɒbz mˈaps ðə dˈAtəsɛt and ˈWtpʊt pˈɑːðz tə ɐ ɹɪmˈQt wˈɜːkstˌAʃᵊn, slˈɜːm klˈʌstə, ɔː kənfˈɪɡəd kəmˈɑːnd, ðˈɛn səbmˈɪts and mˈɒnɪtəz ðə sˈAm tɹˈAnɪŋ ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 129.375,
+      "speech_end": 140.575,
+      "scene_end": 141.02499999999998,
+      "duration": 11.649999999999977,
+      "text": "Starting Point chooses CPSAM, fine-tuning or training from scratch, and the checkpoint name. Fine-tuning pretrained weights usually needs far fewer reviewed images than a random start.",
+      "speech_text": "Starting Point chooses CPSAM, fine-tuning or training from scratch, and the checkpoint name. Fine-tuning pretrained weights usually needs far fewer reviewed images than a random start.",
+      "phonemes": "stˈɑːtɪŋ pˈYnt ʧˈuːzɪz sˌiːpˌiːˌɛsˌAˈɛm, fIntjˈuːnɪŋ ɔː tɹˈAnɪŋ fɹɒm skɹˈaʧ, and ðə ʧˈɛkpYnt nˈAm. fIntjˈuːnɪŋ pɹɪtɹˈAnd wˈAts jˈuːʒʊəli nˈiːdz fˈɑː fjˈuːə ɹɪvjˈuːd ˈɪmɪʤɪz ðən ɐ ɹˈandəm stˈɑːt."
+    },
+    {
+      "scene": 13,
+      "speech_start": 141.02499999999998,
+      "speech_end": 152.24999999999997,
+      "scene_end": 152.69999999999996,
+      "duration": 11.674999999999983,
+      "text": "Training Schedule sets epochs, learning rate, weight decay, minibatch size, and augmentation. Increase training only after the input pairs and held-out evaluation strategy are correct.",
+      "speech_text": "Training Schedule sets epochs, learning rate, weight decay, minibatch size, and augmentation. Increase training only after the input pairs and held-out evaluation strategy are correct.",
+      "phonemes": "tɹˈAnɪŋ ʃˈɛdjuːl sˈɛts ˈiːpɒks, lˈɜːnɪŋ ɹˈAt, wˈAt dɪkˈA, mˈɪnɪbˌaʧ sˈIz, and ˌɔːɡmɛntˈAʃᵊn. ɪnkɹˈiːs tɹˈAnɪŋ ˈQnli ˈɑːftə ði ˈɪnpʊt pˈɛːz and hˈɛldˌWt ɪvˌaljʊˈAʃᵊn stɹˈatɪʤi ɑː kəɹˈɛkt."
+    },
+    {
+      "scene": 14,
+      "speech_start": 152.69999999999996,
+      "speech_end": 165.37499999999997,
+      "scene_end": 165.82499999999996,
+      "duration": 13.125,
+      "text": "Image Geometry records the source dimensions, target size, expected object diameter, and whether pairs are resized. Images and masks are transformed together, with label identities preserved.",
+      "speech_text": "Image Geometry records the source dimensions, target size, expected object diameter, and whether pairs are resized. Images and masks are transformed together, with label identities preserved.",
+      "phonemes": "ˈɪmɪʤ ʤɪˈɒmɪtɹi ɹɪkˈɔːdz ðə sˈɔːs dImˈɛnʃᵊnz, tˈɑːɡɪt sˈIz, ɪkspˈɛktɪd ˈɒbʤɛkt dIˈamɪtə, and wˈɛðə pˈɛːz ɑː ɹˌiːsˈIzd. ˈɪmɪʤɪz and mˈɑːsks ɑː tɹɑːnsfˈɔːmd təɡˈɛðə, wɪð lˈAbᵊl Idˈɛntɪtiz pɹɪzˈɜːvd."
+    },
+    {
+      "scene": 15,
+      "speech_start": 165.82499999999996,
+      "speech_end": 175.27499999999995,
+      "scene_end": 175.72499999999994,
+      "duration": 9.899999999999977,
+      "text": "Background and Denoising controls optional background removal, the intensity floor, and signal-to-noise screening applied before the images enter training.",
+      "speech_text": "Background and Denoising controls optional background removal, the intensity floor, and signal-to-noise screening applied before the images enter training.",
+      "phonemes": "bˈakɡɹWnd and dɪnˈYsɪŋ kəntɹˈQlz ˈɒpʃənᵊl bˈakɡɹWnd ɹɪmˈuːvᵊl, ði ɪntˈɛnsɪti flˈɔː, and sˈɪɡnᵊltənˈYz skɹˈiːnɪŋ əplˈId bɪfˈɔː ði ˈɪmɪʤɪz ˈɛntə tɹˈAnɪŋ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 175.72499999999994,
+      "speech_end": 185.84999999999994,
+      "scene_end": 186.29999999999993,
+      "duration": 10.574999999999989,
+      "text": "Output and Runtime controls verbose progress reporting. The model checkpoint and its settings are saved under models, cellpose model inside the dropped dataset root.",
+      "speech_text": "Output and Runtime controls verbose progress reporting. The model checkpoint and its settings are saved under models, Cellpose model inside the dropped dataset root.",
+      "phonemes": "ˈWtpʊt and ɹˈʌntIm kəntɹˈQlz vəːbˈQs pɹˈQɡɹɛs ɹɪpˈɔːtɪŋ. ðə mˈɒdᵊl ʧˈɛkpYnt and ɪts sˈɛtɪŋz ɑː sˈAvd ˈʌndə mˈɒdᵊlz, sˈɛlpQz mˈɒdᵊl ˌɪnsˈId ðə dɹˈɒpt dˈAtəsɛt ɹˈuːt."
+    },
+    {
+      "scene": 17,
+      "speech_start": 186.29999999999993,
+      "speech_end": 199.29999999999993,
+      "scene_end": 199.74999999999991,
+      "duration": 13.449999999999989,
+      "text": "For this calibration, one epoch and batch size two process all six annotated fields without augmentation. A real fit should use enough epochs and image diversity to converge without memorizing the training set.",
+      "speech_text": "For this calibration, one epoch and batch size two process all six annotated fields without augmentation. A real fit should use enough epochs and image diversity to converge without memorizing the training set.",
+      "phonemes": "fˌɔː ðɪs kˌalɪbɹˈAʃᵊn, wˈʌn ˈiːpɒk and bˈaʧ sˈIz tˈuː pɹˈQsɛs ˈɔːl sˈɪks ˈanQtAtɪd fˈiːldz wɪðˈWt ˌɔːɡmɛntˈAʃᵊn. ɐ ɹˈɪəl fˈɪt ʃˌʊd jˈuːz ɪnˈʌf ˈiːpɒks and ˈɪmɪʤ dIvˈɜːsɪti tə kənvˈɜːʤ wɪðˈWt mˈɛməɹˌIzɪŋ ðə tɹˈAnɪŋ sˈɛt."
+    },
+    {
+      "scene": 18,
+      "speech_start": 199.74999999999991,
+      "speech_end": 210.99999999999991,
+      "scene_end": 211.4499999999999,
+      "duration": 11.699999999999989,
+      "text": "Run validates matching filenames, loads every annotated image, previews a bounded sample, and fine-tunes the model. Stop requests a safe interruption while the current batch finishes.",
+      "speech_text": "Run validates matching filenames, loads every annotated image, previews a bounded sample, and fine-tunes the model. Stop requests a safe interruption while the current batch finishes.",
+      "phonemes": "ɹˈʌn vˈalɪdAts mˈaʧɪŋ fˈIlnAmz, lˈQdz ˈɛvəɹi ˈanQtAtɪd ˈɪmɪʤ, pɹˈiːvjuːz ɐ bˈWndɪd sˈɑːmpᵊl, and fIntjˈuːnz ðə mˈɒdᵊl. stˈɒp ɹɪkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃᵊn wˌIl ðə kˈʌɹənt bˈaʧ fˈɪnɪʃɪz."
+    },
+    {
+      "scene": 19,
+      "speech_start": 211.4499999999999,
+      "speech_end": 223.2249999999999,
+      "scene_end": 223.6749999999999,
+      "duration": 12.224999999999994,
+      "text": "During processing, the figures panel previews each microscopy field above its instance mask, while the console reports six patches, six source annotations, one epoch, and minibatch size two.",
+      "speech_text": "During processing, the figures panel previews each microscopy field above its instance mask, while the console reports six patches, six source annotations, one epoch, and minibatch size two.",
+      "phonemes": "djˈʊəɹɪŋ pɹˈQsɛsɪŋ, ðə fˈɪɡəz pˈanᵊl pɹˈiːvjuːz ˈiːʧ mIkɹˈɒskəpi fˈiːld əbˈʌv ɪts ˈɪnstᵊns mˈɑːsk, wˌIl ðə kˈɒnsQl ɹɪpˈɔːts sˈɪks pˈaʧɪz, sˈɪks sˈɔːs ˌanQtˈAʃᵊnz, wˈʌn ˈiːpɒk, and mˈɪnɪbˌaʧ sˈIz tˈuː."
+    },
+    {
+      "scene": 20,
+      "speech_start": 223.6749999999999,
+      "speech_end": 237.0499999999999,
+      "scene_end": 237.7499999999999,
+      "duration": 14.074999999999989,
+      "text": "The calibration completed successfully. spaCR saved the CPSAM checkpoint, settings CSV, run manifest, and macro record, and the paired-field preview confirms that image and label files remained aligned.",
+      "speech_text": "The calibration completed successfully. spacer saved the CPSAM checkpoint, settings CSV, run manifest, and macro record, and the paired-field preview confirms that image and label files remained aligned.",
+      "phonemes": "ðə kˌalɪbɹˈAʃᵊn kəmplˈiːtɪd səksˈɛsfʊli. spˈAsə sˈAvd ðə sˌiːpˌiːˌɛsˌAˈɛm ʧˈɛkpYnt, sˈɛtɪŋz sˌiːˌɛsvˈiː, ɹˈʌn mˈanɪfɛst, and mˈakɹQ ɹˈɛkɔːd, and ðə pˌɛːdfˈiːld pɹˈiːvjuː kənfˈɜːmz ðat ˈɪmɪʤ and lˈAbᵊl fˈIlz ɹɪmˈAnd əlˈInd."
     }
   ]
 }

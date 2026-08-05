@@ -4,47 +4,237 @@
   "voice": "ef_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 59.65,
+  "total_duration": 306.325,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.125,
-      "scene_end": 9.575,
-      "duration": 9.575,
-      "text": "Este tutorial cubre la imagen UMAP. Explora los vecindarios de fenotipos incorporando objetos medidos y mostrando sus cultivos de imagen como glifos."
+      "speech_end": 16.275,
+      "scene_end": 16.724999999999998,
+      "duration": 16.724999999999998,
+      "text": "Imagen UMAP reduce las mediciones de alta dimensión por objeto a dos coordenadas y coloca cultivos reales de microscopía en el mapa. La consola registra las uniones de datos, el procesamiento previo, el progreso de incorporación, el agrupamiento, las parámetros y las vías de salida.",
+      "speech_text": "Imagen UMAP reduce las mediciones de alta dimensión por objeto a dos coordenadas y coloca cultivos reales de microscopía en el mapa. La consola registra las uniones de datos, el procesamiento previo, el progreso de incorporación, el agrupamiento, las parámetros y las vías de salida.",
+      "phonemes": "imˈaxen umˈap reðˈuθe las mˌeðiθjˈones ðe ˈalta ðˌimensjˈom poɾ oβxˈeto a ðˈos kˌooɾðenˈaðas i kolˈoka kultˈiβos reˈales ðe mˌikɾoskopˈia en el mˈapa. la konsˈola rexˈistɾa las unjˈones ðe ðˈatos, el pɾˌoθesamjˈɛnto pɾˈeβjo, el pɾoɣɾˈeso ðe ˌinkoɾpˌoɾaθjˈon, el ˌaɣɾupamjˈɛnto, las paɾˈametɾos i las βˈias ðe salˈiða."
     },
     {
       "scene": 2,
-      "speech_start": 9.575,
-      "speech_end": 23.475,
-      "scene_end": 23.925,
-      "duration": 14.350000000000001,
-      "text": "Abra Image UMAP en la sección Results and quality control. Abra UMAP de imagen en la sección Resultados y control de calidad. Elige una base de datos de mediciones, cultivos de imagen, conjunto de características y metadatos de agrupación."
+      "speech_start": 16.724999999999998,
+      "speech_end": 29.375,
+      "scene_end": 29.825,
+      "duration": 13.100000000000001,
+      "text": "El campo de chat acepta comandos locales y preguntas de flujo de trabajo. Habilitar a la IA para encaminar a través de un proveedor configurado, y usar la flecha a su lado para elegir el proveedor o abrir sus controles.",
+      "speech_text": "El campo de chat acepta comandos locales y preguntas de flujo de trabajo. Habilitar a la IA para encaminar a través de un proveedor configurado, y usar la flecha a su lado para elegir el proveedor o abrir sus controles.",
+      "phonemes": "el kˈampo ðe ʧˈat aθˈepːta komˈandos lokˈales i pɾeɣˈuntas ðe flˈuxo ðe tɾaβˈaxo. ˌaβilitˈaɾ a la ˌiˈa pˌaɾa ˌenkaminˈaɾ a tɾaβˈes ðe ˈum pɾˌoβeeðˈoɾ kˌonfiɣuɾˈaðo, i usˈaɾ la flˈeʧa a su lˈaðo pˌaɾa ˌelexˈiɾ el pɾˌoβeeðˈoɾ o aβɾˈiɾ sus kontɾˈoles."
     },
     {
       "scene": 3,
-      "speech_start": 23.925,
-      "speech_end": 33.7,
-      "scene_end": 34.150000000000006,
-      "duration": 10.225000000000005,
-      "text": "En el área de configuración principal, configure los canales de filtración, escalación, vecinos, distancia mínima, agrupación, muestreo y visualización de imágenes."
+      "speech_start": 29.825,
+      "speech_end": 41.7,
+      "scene_end": 42.150000000000006,
+      "duration": 12.325000000000006,
+      "text": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran sus comandos de instalación y inicio de sesión. La autenticación permanece en manos de cada proveedor.",
+      "speech_text": "Los proveedores comprueban los clientes de línea de comandos Claude, ChatGPT y Gemini y muestran sus comandos de instalación y inicio de sesión. La autenticación permanece en manos de cada proveedor.",
+      "phonemes": "los pɾˌoβeeðˈoɾes kˌompɾuˈeβan los kliˈɛntes ðe lˈinea ðe komˈandos klˈWðe, ʧˈat xˌepˌetˈe i xemˈini i mwˈestɾan sus komˈandos ðe ˌinstalaθjˈon i inˈiθjo ðe sesjˈon. la ˌWtentˌikaθjˈom pˌeɾmanˈeθe en mˈanos ðe kˈaða pɾˌoβeeðˈoɾ."
     },
     {
       "scene": 4,
-      "speech_start": 34.150000000000006,
-      "speech_end": 49.575,
-      "scene_end": 50.025000000000006,
-      "duration": 15.875,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de visualización o prueba cuando esté disponible. Compara varias incorporaciones reproducibles y verifique si los racimos no son impulsados por placas o artefactos de imagen."
+      "speech_start": 42.150000000000006,
+      "speech_end": 54.87500000000001,
+      "scene_end": 55.32500000000001,
+      "duration": 13.175000000000004,
+      "text": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de spaCR.",
+      "speech_text": "Configuraciones de IA controla la profundidad de la respuesta, las explicaciones automáticas de errores, el reporte opcional de problemas GitHub, el inicio de sesión y las instrucciones del sistema consciente de espáquer.",
+      "phonemes": "kˌonfiɣˌuɾaθjˈones ðe ˌiˈa kontɾˈola la pɾˌofundiðˈad ðe la respwˈesta, las ˌeksplikaθjˈones ˌWtomˈatikas ðe erˈoɾes, el repˈoɾte ˌopθjonˈal ðe pɾoβlˈemas xˈit ˈub, el inˈiθjo ðe sesjˈon i las ˌinstɾukθjˈones ðel sistˈema konsθjˈɛnte ðe espˈakeɾ."
     },
     {
       "scene": 5,
-      "speech_start": 50.025000000000006,
-      "speech_end": 59.00000000000001,
-      "scene_end": 59.650000000000006,
-      "duration": 9.625,
-      "text": "Cuando el flujo de trabajo termina, spaCR almacena coordenadas, etiquetas de grupo, mapas de imagen y figuras de incorporación listas para publicación."
+      "speech_start": 55.32500000000001,
+      "speech_end": 71.10000000000001,
+      "scene_end": 71.55000000000001,
+      "duration": 16.225,
+      "text": "La fuente es un proyecto de tutoriales medidos que contiene 455 cultivos celulares vinculados a la base de datos. Esta prueba muestra 250 objetos y se une a las tablas de características de células, citoplasma, núcleo y patógeno.",
+      "speech_text": "La fuente es un proyecto de tutoriales medidos que contiene 455 cultivos celulares vinculados a la base de datos. Esta prueba muestra 250 objetos y se une a las tablas de características de células, citoplasma, núcleo y patógeno.",
+      "phonemes": "la fwˈɛnte ˈes ˈum pɾoʝˈekto ðe tˌutoɾjˈales meðˈiðos ke kontjˈene kwˌatɾoθjˈentos θinkwˌɛntaiθˈinko kultˈiβos θˌelulˈaɾes βˌinkulˈaðos a la βˈase ðe ðˈatos. ˈesta pɾuˈeβa mwˈestɾa ðosθjˈentos θinkwˈɛnta oβxˈetos i se ˈune a las tˈaβlas ðe kˌaɾakteɾˈistikas ðe θˈelulas, θˌitoplˈasma, nˈukleo i patˈoxeno."
+    },
+    {
+      "scene": 6,
+      "speech_start": 71.55000000000001,
+      "speech_end": 81.47500000000001,
+      "scene_end": 81.92500000000001,
+      "duration": 10.375,
+      "text": "Los elementos esenciales muestran la fuente, las tablas de medición, el método de reducción, la tapa de fila y la elección primaria de color necesaria para un primer mapa.",
+      "speech_text": "Los elementos esenciales muestran la fuente, las tablas de medición, el método de reducción, la tapa de fila y la elección primaria de color necesaria para un primer mapa.",
+      "phonemes": "los ˌelemˈɛntos ˌesenθjˈales mwˈestɾan la fwˈɛnte, las tˈaβlas ðe mˌeðiθjˈon, el mˈetoðo ðe rˌeðukθjˈon, la tˈapa ðe fˈila i la ˌelekθjˈom pɾimˈaɾja ðe kolˈoɾ nˌeθesˈaɾja pˌaɾa ˈum pɾimˈeɾ mˈapa."
+    },
+    {
+      "scene": 7,
+      "speech_start": 81.92500000000001,
+      "speech_end": 95.07500000000002,
+      "scene_end": 95.52500000000002,
+      "duration": 13.600000000000009,
+      "text": "Los filtros modificados filtran el panel a desviaciones intencionales de los valores predeterminados, como el vecindario más pequeño, la tapa de fila práctica, el recuento de glifos, la opacidad de la pantalla y las cifras guardadas.",
+      "speech_text": "Los filtros modificados filtran el panel a desviaciones intencionales de los valores predeterminados, como el vecindario más pequeño, la tapa de fila práctica, el recuento de glifos, la opacidad de la pantalla y las cifras guardadas.",
+      "phonemes": "los fˈiltɾos mˌoðifikˈaðos fˈiltɾan el panˈel a ðˌesβjaθjˈones ˌintenθjonˈales ðe los βalˈoɾes pɾˌeðetˌeɾminˈaðos, kˌomo el βˌeθindˈaɾjo mˈas pekˈeɲo, la tˈapa ðe fˈila pɾˈaktika, el rekwˈɛnto ðe ɣlˈifos, la ˌopaθiðˈad ðe la pantˈaʎa i las θˈifɾas ɣwaɾðˈaðas."
+    },
+    {
+      "scene": 8,
+      "speech_start": 95.52500000000002,
+      "speech_end": 107.87500000000001,
+      "scene_end": 108.32500000000002,
+      "duration": 12.799999999999997,
+      "text": "Todas las configuraciones revelan ocho categorías sin cambios de valores: caminos, mediciones, exclusiones de placas, incorporación, selección de gráficos, tiempo de ejecución, corrección de lote y pantalla UMAP.",
+      "speech_text": "Todas las configuraciones revelan ocho categorías sin cambios de valores: caminos, mediciones, exclusiones de placas, incorporación, selección de gráficos, tiempo de ejecución, corrección de lote y pantalla UMAP.",
+      "phonemes": "tˈoðas las kˌonfiɣˌuɾaθjˈones reβˈelan ˈoʧo kˌateɣoɾˈias sin kˈambjos ðe βalˈoɾes: kamˈinos, mˌeðiθjˈones, ˌeksklusjˈones ðe plˈakas, ˌinkoɾpˌoɾaθjˈon, sˌelekθjˈon de ɣɾˈafikos, tjˈempo ðe ˌexekuθjˈon, kˌorekθjˈon de lˈote i pantˈaʎa umˈap."
+    },
+    {
+      "scene": 9,
+      "speech_start": 108.32500000000002,
+      "speech_end": 117.27500000000002,
+      "scene_end": 117.72500000000002,
+      "duration": 9.400000000000006,
+      "text": "Recipes guarda la configuración completa de la imagen UMAP bajo un nombre, la reaplica a otro proyecto o importa y exporta un archivo de configuración.",
+      "speech_text": "Recipes guarda la configuración completa de la imagen UMAP bajo un nombre, la reaplica a otro proyecto o importa y exporta un archivo de configuración.",
+      "phonemes": "reθˈipes ɣwˈaɾða la kˌonfiɣˌuɾaθjˈon komplˈeta ðe la imˈaxen umˈap βˌaxo ˈun nˈombɾe, la rˌeaplˈika a ˈotɾo pɾoʝˈekto o impˈoɾta i ekspˈoɾta ˈun aɾʧˈiβo ðe kˌonfiɣˌuɾaθjˈon."
+    },
+    {
+      "scene": 10,
+      "speech_start": 117.72500000000002,
+      "speech_end": 126.30000000000003,
+      "scene_end": 126.75000000000003,
+      "duration": 9.025000000000006,
+      "text": "Envía instantáneas remotas de las configuraciones resueltas y transfiere el trabajo de Imagen UMAP al espacio de trabajo de Trabajos Distribuidos.",
+      "speech_text": "Envía instantáneas remotas de las configuraciones resueltas y transfiere el trabajo de Imagen UMAP al espacio de trabajo de Trabajos Distribuidos.",
+      "phonemes": "embˈia ˌinstantˈaneas remˈotas ðe las kˌonfiɣˌuɾaθjˈones reswˈeltas i tɾansfjˈeɾe el tɾaβˈaxo ðe imˈaxen umˈap al espˈaθjo ðe tɾaβˈaxo ðe tɾaβˈaxos ðˌistɾiβwˈiðos."
+    },
+    {
+      "scene": 11,
+      "speech_start": 126.75000000000003,
+      "speech_end": 139.42500000000004,
+      "scene_end": 139.87500000000003,
+      "duration": 13.125,
+      "text": "Distributed Jobs mapea los caminos del proyecto y los recursos de cálculo a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envía y monitorea la misma ejecución de incorporación.",
+      "speech_text": "Distributed Jobs mapea los caminos del proyecto y los recursos de cálculo a una estación de trabajo remota, un grupo Slurm o un comando configurado, luego envía y monitorea la misma ejecución de incorporación.",
+      "phonemes": "dˌistɾiβutˈed xˈobs mapˈea los kamˈinos ðel pɾoʝˈekto i los rekˈuɾsos ðe kˈalkulo a ˈuna ˌestaθjˈon de tɾaβˈaxo remˈota, ˈuŋ ɡɾˈupo slˈuɾm o ˈun komˈando kˌonfiɣuɾˈaðo, luˈeɣo embˈia i mˌonitoɾˈea la mˈisma ˌexekuθjˈon de ˌinkoɾpˌoɾaθjˈon."
+    },
+    {
+      "scene": 12,
+      "speech_start": 139.87500000000003,
+      "speech_end": 150.15000000000003,
+      "scene_end": 150.60000000000002,
+      "duration": 10.724999999999994,
+      "text": "Paths selecciona el proyecto medido. Image UMAP localiza measurements.db y las imágenes de cultivos existentes o las matrices fusionadas debajo de esa fuente.",
+      "speech_text": "Paths selecciona el proyecto medido. Image UMAP localiza measurements dot db y las imágenes de cultivos existentes o las matrices fusionadas debajo de esa fuente.",
+      "phonemes": "pˈats sˌelekθjˈona el pɾoʝˈekto meðˈiðo. imˈaxe umˈap lˌokalˈiθa mˌeasˌuɾemˈɛnts ðˈot ðˌeβˈe i las imˈaxenes ðe kultˈiβos ˌeksistˈɛntes o las matɾˈiθes fˌusjonˈaðas ðeβˈaxo ðe ˈesa fwˈɛnte."
+    },
+    {
+      "scene": 13,
+      "speech_start": 150.60000000000002,
+      "speech_end": 164.60000000000002,
+      "scene_end": 165.05,
+      "duration": 14.449999999999989,
+      "text": "Las mediciones eligen tablas de objetos unidas, un filtro de características basado en el canal, exclusiones explícitas y eliminación de características correlacionadas. Estas opciones determinan la geometría representada por el mapa.",
+      "speech_text": "Las mediciones eligen tablas de objetos unidas, un filtro de características basado en el canal, exclusiones explícitas y eliminación de características correlacionadas. Estas opciones determinan la geometría representada por el mapa.",
+      "phonemes": "las mˌeðiθjˈones elˈixen tˈaβlas ðe oβxˈetos unˈiðas, ˈun fˈiltɾo ðe kˌaɾakteɾˈistikas βasˈaðo en el kanˈal, ˌeksklusjˈones eksplˈiθitas i ˌelimˌinaθjˈon de kˌaɾakteɾˈistikas kˌorelˌaθjonˈaðas. ˈestas opθjˈones ðˌeteɾmˈinan la xˌeometɾˈia rˌepɾesentˈaða poɾ el mˈapa."
+    },
+    {
+      "scene": 14,
+      "speech_start": 165.05,
+      "speech_end": 175.82500000000002,
+      "scene_end": 176.275,
+      "duration": 11.224999999999994,
+      "text": "Plate Layout and Controls proporciona reglas de exclusión de filas para pozos fallidos, controles no deseados u otros valores de metadatos que no deben entrar en esta incorporación.",
+      "speech_text": "Plate Layout and Controls proporciona reglas de exclusión de filas para pozos fallidos, controles no deseados u otros valores de metadatos que no deben entrar en esta incorporación.",
+      "phonemes": "plˈate laʝˈowt ˈand kontɾˈols pɾˌopoɾθjˈona rˈeɣlas ðe ˌeksklusjˈon de fˈilas pˌaɾa pˈoθos faʎˈiðos, kontɾˈoles nˈo ðˌeseˈaðos u ˈotɾos βalˈoɾes ðe mˌetaðˈatos ke nˈo ðˈeβen entɾˈaɾ en ˈesta ˌinkoɾpˌoɾaθjˈon."
+    },
+    {
+      "scene": 15,
+      "speech_start": 176.275,
+      "speech_end": 188.8,
+      "scene_end": 189.25,
+      "duration": 12.974999999999994,
+      "text": "Embedding and Clustering selecciona UMAP o t-SNE, comportamiento de vecindario y distancia, transformación de registro opcional, compartimiento mostrado, método de agrupación, manejo de ruido y análisis de agrupación.",
+      "speech_text": "Embedding and Clustering selecciona UMAP o t-SNE, comportamiento de vecindario y distancia, transformación de registro opcional, compartimiento mostrado, método de agrupación, manejo de ruido y análisis de agrupación.",
+      "phonemes": "embˈedðiŋ ˈand klustˈeɾiŋ sˌelekθjˈona umˈap o tˈeˌeseˌeneˈe, kˌompoɾtamjˈɛnto ðe βˌeθindˈaɾjo i ðistˈanθja, tɾˌansfoɾmaθjˈon de rexˈistɾo ˌopθjonˈal, kˌompaɾtimjˈɛnto mostɾˈaðo, mˈetoðo ðe ˌaɣɾupaθjˈon, manˈexo ðe ruˈiðo i anˈalisis ðe ˌaɣɾupaθjˈon."
+    },
+    {
+      "scene": 16,
+      "speech_start": 189.25,
+      "speech_end": 201.825,
+      "scene_end": 202.27499999999998,
+      "duration": 13.024999999999977,
+      "text": "El gráfico establece las filas máximas de muestras y una columna de metadatos opcional utilizada para colorear los puntos. Un límite de fila es un límite, por lo que los conjuntos de datos más pequeños permanecen válidos.",
+      "speech_text": "El gráfico establece las filas máximas de muestras y una columna de metadatos opcional utilizada para colorear los puntos. Un límite de fila es un límite, por lo que los conjuntos de datos más pequeños permanecen válidos.",
+      "phonemes": "el ɣɾˈafiko ˌestaβlˈeθe las fˈilas mˈaksimas ðe mwˈestɾas i ˈuna kolˈumna ðe mˌetaðˈatos ˌopθjonˈal ˌutiliθˈaða pˌaɾa kˌoloɾeˈaɾ los pˈuntos. ˈun lˈimite ðe fˈila ˈes ˈun lˈimite, poɾ lo ke los koŋxˈuntos ðe ðˈatos mˈas pekˈeɲos pˌeɾmanˈeθem bˈaliðos."
+    },
+    {
+      "scene": 17,
+      "speech_start": 202.27499999999998,
+      "speech_end": 214.62499999999997,
+      "scene_end": 215.07499999999996,
+      "duration": 12.799999999999983,
+      "text": "Advanced elige cultivos PNG o cultivos bajo demanda de matrices fusionadas, más recuento de trabajadores y informes verbales. Auto selecciona una fuente de cultivo disponible para la mayoría de los proyectos.",
+      "speech_text": "Advanced elige cultivos PNG o cultivos bajo demanda de matrices fusionadas, más recuento de trabajadores y informes verbales. Auto selecciona una fuente de cultivo disponible para la mayoría de los proyectos.",
+      "phonemes": "ˌaðβanθˈeð elˈixe kultˈiβos pˌeˌenexˈe o kultˈiβos βˌaxo ðemˈanda ðe matɾˈiθes fˌusjonˈaðas, mˈas rekwˈɛnto ðe tɾˌaβaxaðˈoɾes i infˈoɾmes βeɾβˈales. ˈWto sˌelekθjˈona ˈuna fwˈɛnte ðe kultˈiβo ðˌisponˈiβle pˌaɾa la mˌaʝoɾˈia ðe los pɾoʝˈektos."
+    },
+    {
+      "scene": 18,
+      "speech_start": 215.07499999999996,
+      "speech_end": 228.79999999999995,
+      "scene_end": 229.24999999999994,
+      "duration": 14.174999999999983,
+      "text": "La corrección de placas y lotes puede centrar o escalar los efectos de las placas, utilizar controles de referencia o aplicar ComBat cuando se define su covariado biológico. Este tutorial de una sola placa deja la corrección fuera.",
+      "speech_text": "La corrección de placas y lotes puede centrar o escalar los efectos de las placas, utilizar controles de referencia o aplicar ComBat cuando se define su covariado biológico. Este tutorial de una sola placa deja la corrección fuera.",
+      "phonemes": "la kˌorekθjˈon de plˈakas i lˈotes pwˈeðe θentɾˈaɾ o ˌeskalˈaɾ los efˈektos ðe las plˈakas, ˌutiliθˈaɾ kontɾˈoles ðe rˌefeɾˈɛnθja o ˌaplikˈaɾ kˈom bˈat kwˌando se ðefˈine su kˌoβaɾjˈaðo βjolˈoxiko. ˈeste tˌutoɾjˈal ðe ˈuna sˈola plˈaka ðˈexa la kˌorekθjˈon fwˈeɾa."
+    },
+    {
+      "scene": 19,
+      "speech_start": 229.24999999999994,
+      "speech_end": 241.62499999999994,
+      "scene_end": 242.07499999999993,
+      "duration": 12.824999999999989,
+      "text": "UMAP Display controla el estilo de punto y contorno, las proporciones del lienzo, el zoom de cultivo, el recuento de glifos, las redes de grupos, el fondo y el ahorro de figuras sin cambiar las coordenadas instaladas.",
+      "speech_text": "UMAP Display controla el estilo de punto y contorno, las proporciones del lienzo, el zoom de cultivo, el recuento de glifos, las redes de grupos, el fondo y el ahorro de figuras sin cambiar las coordenadas instaladas.",
+      "phonemes": "umˈap ðisplˈI kontɾˈola el estˈilo ðe pˈunto i kontˈoɾno, las pɾˌopoɾθjˈones ðel liˈɛnθo, el θˈoom de kultˈiβo, el rekwˈɛnto ðe ɣlˈifos, las rˈeðes ðe ɣɾˈupos, el fˈondo i el aˈoro ðe fiɣˈuɾas sin kambjˈaɾ las kˌooɾðenˈaðas ˌinstalˈaðas."
+    },
+    {
+      "scene": 20,
+      "speech_start": 242.07499999999993,
+      "speech_end": 257.3999999999999,
+      "scene_end": 257.8499999999999,
+      "duration": 15.774999999999977,
+      "text": "Este ejemplo utiliza UMAP con 15 vecinos, distancia mínima 0.1, distancia euclidiana, y DBSCAN con epsilon 0.85 y cinco muestras mínimas. Las estadísticas de grupos permanecen fuera porque el pequeño subconjunto forma un grupo.",
+      "speech_text": "Este ejemplo utiliza UMAP con 15 vecinos, distancia mínima 0.1, distancia euclidiana, y DBSCAN con epsilon 0.85 y cinco muestras mínimas. Las estadísticas de grupos permanecen fuera porque el pequeño subconjunto forma un grupo.",
+      "phonemes": "ˈeste exˈemplo ˌutilˈiθa umˈap kon kˈinθe βeθˈinos, distˈanθja mˈinima θˈeɾo.ˈuno, distˈanθja ˌeʊkliðjˈana, i ðˌeβˈeskˈan kon epsˈilon θˈeɾo.oʧˌɛntaiθˈinko i θˈinko mwˈestɾas mˈinimas. las ˌestaðˈistikas ðe ɣɾˈupos pˌeɾmanˈeθen fwˈeɾa pˌoɾke el pekˈeɲo sˌubkoŋxˈunto fˈoɾma ˈuŋ ɡɾˈupo."
+    },
+    {
+      "scene": 21,
+      "speech_start": 257.8499999999999,
+      "speech_end": 273.3499999999999,
+      "scene_end": 273.7999999999999,
+      "duration": 15.949999999999989,
+      "text": "Run valida la base de datos del proyecto y los cultivos, se une a las tablas de medición, filtra características numéricas, muestra filas, se ajusta al reducidor y a los grupos, representa cifras y escribe registros de resultados alineados. Pide una interrupción segura.",
+      "speech_text": "Run valida la base de datos del proyecto y los cultivos, se une a las tablas de medición, filtra características numéricas, muestra filas, se ajusta al reducidor y a los grupos, representa cifras y escribe registros de resultados alineados. Pide una interrupción segura.",
+      "phonemes": "rˈum balˈiða la βˈase ðe ðˈatos ðel pɾoʝˈekto i los kultˈiβos, se ˈune a las tˈaβlas ðe mˌeðiθjˈon, fˈiltɾa kˌaɾakteɾˈistikas numˈeɾikas, mwˈestɾa fˈilas, se axˈusta al rˌeðuθiðˈoɾ i a los ɣɾˈupos, rˌepɾesˈɛnta θˈifɾas i eskɾˈiβe rexˈistɾos ðe rˌesultˈaðos ˌalineˈaðos. pˈiðe ˈuna ˌinterupθjˈon seɣˈuɾa."
+    },
+    {
+      "scene": 22,
+      "speech_start": 273.7999999999999,
+      "speech_end": 288.7999999999999,
+      "scene_end": 289.2499999999999,
+      "duration": 15.449999999999989,
+      "text": "Durante el montaje, la consola informa sobre la selección de la fuente de cultivo, la eliminación de columnas inutilizables, la construcción del vecino más cercano, 500 épocas de optimización y la forma final de incorporación de 250 por dos.",
+      "speech_text": "Durante el montaje, la consola informa sobre la selección de la fuente de cultivo, la eliminación de columnas inutilizables, la construcción del vecino más cercano, 500 épocas de optimización y la forma final de incorporación de 250 por dos.",
+      "phonemes": "duɾˈante el montˈaxe, la konsˈola infˈoɾma sˌoβɾe la sˌelekθjˈon de la fwˈɛnte ðe kultˈiβo, la ˌelimˌinaθjˈon de kolˈumnas ˌinutˌiliθˈaβles, la kˌonstɾukθjˈon del βeθˈino mˈas θeɾkˈano, kinjˈɛntos ˈepokas ðe ˌopːtimˌiθaθjˈon i la fˈoɾma finˈal ðe ˌinkoɾpˌoɾaθjˈon de ðosθjˈentos θinkwˈɛnta poɾ ðˈos."
+    },
+    {
+      "scene": 23,
+      "speech_start": 289.2499999999999,
+      "speech_end": 305.6749999999999,
+      "scene_end": 306.3249999999999,
+      "duration": 17.07499999999999,
+      "text": "La galería completa muestra el mapa de glifos microscópicos y la cuadrícula de cultivos de racimos. El proyecto también recibe embedding_results.csv, PDFs de embedding y red, configuraciones guardadas, un manifiesto de reproducibilidad y una macro que se puede volver a ejecutar.",
+      "speech_text": "La galería completa muestra el mapa de glifos microscópicos y la cuadrícula de cultivos de racimos. El proyecto también recibe embedding_results.csv, PDFs de embedding y red, configuraciones guardadas, un manifiesto de reproducibilidad y una macro que se puede volver a ejecutar.",
+      "phonemes": "la ɣˌaleɾˈia komplˈeta mwˈestɾa el mˈapa ðe ɣlˈifos mˌikɾoskˈopikos i la kwaðɾˈikula ðe kultˈiβos ðe raθˈimos. el pɾoʝˈekto tambjˈen reθˈiβe embˈedðiŋ resˈults.θˌeˌeseˈuβe, pˌeðˌeˌefeˈɛse ðe embˈedðiŋ i rˈed, kˌonfiɣˌuɾaθjˈones ɣwaɾðˈaðas, ˈun mˌanifjˈesto ðe rˌepɾoðˌuθiβˌiliðˈað i ˈuna mˈakɾo ke se pwˈeðe βolβˈeɾ a ˌexekutˈaɾ."
     }
   ]
 }

@@ -4,47 +4,247 @@
   "voice": "zf_xiaoyi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 45.575,
+  "total_duration": 270.7,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.825,
-      "scene_end": 9.274999999999999,
-      "duration": 9.274999999999999,
-      "text": "这本教程涵盖了动力测试. 从时间解析图像中量化速度,移动,持久性和感染质量控制的指标."
+      "speech_end": 12.575,
+      "scene_end": 13.024999999999999,
+      "duration": 13.024999999999999,
+      "text": "动力测试从跟踪的合并阵列中重建测量,计算移动,速度,路径长度和直径,并根据感染状态比较轨迹. 控制台记录了每一个衍生的表格和数字.",
+      "speech_text": "动力测试从跟踪的合并阵列中重建测量,计算移动,速度,路径长度和直径,并根据感染状态比较轨迹. 控制台记录了每一个衍生的表格和数字.",
+      "phonemes": "tʊ↘ŋli↘ ʦʰɤ↘ʂɨ↘ ʦʰʊ↗ŋ kə→nʦʊ→ŋ tɤ xɤ↗pi↘ŋ ꭧə↘nlje↘ ꭧʊ→ŋ ꭧʰʊ↗ŋʨjɛ↘n ʦʰɤ↘lja↗ŋ,ʨi↘swa↘n i↗tʊ↘ŋ,su↘tu↘,lu↘ʨi↘ŋ ꭧʰa↗ŋtu↘ xɤ↗ ꭧɨ↗ʨi↘ŋ,pi↘ŋ kə→nʨy↘ ka↓nɻa↓n ꭧwa↘ŋtʰai↘ pi↓ʨjau↘ kwei↓ʨi↘. kʰʊ↘ŋꭧɨ↘tʰai↗ ʨi↘lu↘ lɤ mei↓ i↗kɤ↘ jɛ↓nʂə→ŋ tɤ pjau↓kɤ↗ xɤ↗ ʂu↘ʦɨ↘."
     },
     {
       "scene": 2,
-      "speech_start": 9.274999999999999,
-      "speech_end": 17.025,
-      "scene_end": 17.474999999999998,
-      "duration": 8.2,
-      "text": "从 Core 部分打开 Motility assay。 开放可靠的时间间隔和空间校准的追踪时间延误数据."
+      "speech_start": 13.024999999999999,
+      "speech_end": 22.75,
+      "scene_end": 23.2,
+      "duration": 10.175,
+      "text": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+      "speech_text": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+      "phonemes": "ljau↗tʰjɛ→n ꭧʰa↓ŋ ʨje→ʂou↘ pə↓nti↘ mi↘ŋli↘ŋ xwo↘ kʊ→ŋʦwo↘ ljou↗ wə↘ntʰi↗. ʨʰi↓jʊ↘ŋ pʰei↘ꭧɨ↘ kʊ→ŋi↘ŋʂa→ŋ tɤAI,pi↘ŋ ʂɨ↓jʊ↘ŋ ɕja→ŋli↗n tɤ ʨjɛ↘ntʰou↗ lai↗ ɕɥɛ↓nʦɤ↗ kʊ→ŋi↘ŋʂa→ŋ xwo↘ ta↓kʰai→ ʨʰi↗ kʰʊ↘ŋꭧɨ↘."
     },
     {
       "scene": 3,
-      "speech_start": 17.474999999999998,
-      "speech_end": 25.349999999999998,
-      "scene_end": 25.799999999999997,
-      "duration": 8.325,
-      "text": "在主要配置区域中,选择轨道过器,最低持续时间,滑滑,动力指标,感染定义和井层组."
+      "speech_start": 23.2,
+      "speech_end": 33.25,
+      "scene_end": 33.7,
+      "duration": 10.500000000000004,
+      "text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令,同时每个供应商仍然拥有身份验证.",
+      "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令,同时每个供应商仍然拥有身份验证.",
+      "phonemes": "tʰi↗kʊ→ŋʂa→ŋ ʨjɛ↓nꭧʰa↗ lɤClaude,ChatGPTxɤ↗Geminimi↘ŋli↘ŋɕi↗ŋ kʰɤ↘xu↘twa→n,pi↘ŋ ɕjɛ↓nʂɨ↘ lɤ tʰa→mən tɤ a→nꭧwa→ŋ xɤ↗ tə→ŋlu↘ mi↘ŋli↘ŋ,tʰʊ↗ŋʂɨ↗ mei↓kɤ↘ kʊ→ŋi↘ŋʂa→ŋ ɻə↗ŋɻa↗n jʊ→ŋjou↓ ʂə→nfə↘njɛ↘nꭧə↘ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 25.799999999999997,
-      "speech_end": 36.574999999999996,
-      "scene_end": 37.025,
-      "duration": 11.225000000000001,
-      "text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查轨迹预览,排除破损,静止的文物或不可思议的轨道."
+      "speech_start": 33.7,
+      "speech_end": 42.575,
+      "scene_end": 43.025000000000006,
+      "duration": 9.325000000000003,
+      "text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+      "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʂɤ↘ꭧɨ↘ kʰʊ↘ŋꭧɨ↘ ɕja↓ŋi↘ŋ ʂə→ntu↘,ʦɨ↘tʊ↘ŋ ʦʰwo↘u↘ ʨje↓ʂɨ↘,kʰɤ↓ɕɥɛ↓n tɤGitHubwə↘ntʰi↗ pau↘kau↘,tə→ŋlu↘ xɤ↗sɨ→ pʰei↘kʰɤ↘ ɚ↓ ꭧɨ→ʨʰi↗ŋ ɕi↘tʰʊ↓ŋ ʂwo→mi↗ŋ."
     },
     {
       "scene": 5,
-      "speech_start": 37.025,
-      "speech_end": 44.925,
-      "scene_end": 45.574999999999996,
-      "duration": 8.549999999999997,
-      "text": "当工作流程完成时, spaCR 写出每条轨道和每条条件的动力表,质量指标和数字."
+      "speech_start": 43.025000000000006,
+      "speech_end": 56.175000000000004,
+      "scene_end": 56.62500000000001,
+      "duration": 13.600000000000001,
+      "text": "这种合成源包含八个跟踪框架, 中核在零频道,细胞在一频道和病原体在二频道. 每个框架的16个细胞轨迹和20个病原体面具提供了一个完整的测试例子.",
+      "speech_text": "这种合成源包含八个跟踪框架, 中核在零频道,细胞在一频道和病原体在二频道. 每个框架的16个细胞轨迹和20个病原体面具提供了一个完整的测试例子.",
+      "phonemes": "ꭧɤ↘ꭧʊ↓ŋ xɤ↗ꭧʰə↗ŋ ɥɛ↗n pau→xa↗n pa→kɤ↘ kə→nʦʊ→ŋ kʰwa→ŋʨja↘, ꭧʊ→ŋxɤ↗ ʦai↘ li↗ŋ pʰi↗ntau↘,ɕi↘pau→ ʦai↘ i→ pʰi↗ntau↘ xɤ↗ pi↘ŋɥɛ↗ntʰi↓ ʦai↘ ɚ↘ pʰi↗ntau↘. mei↓kɤ↘ kʰwa→ŋʨja↘ tɤ ʂɨ↗ljou↘kɤ↘ ɕi↘pau→ kwei↓ʨi↘ xɤ↗ ɚ↘ʂɨ↗kɤ↘ pi↘ŋɥɛ↗ntʰi↓ mjɛ↘nʨy↘ tʰi↗kʊ→ŋ lɤ i↗kɤ↘ wa↗nꭧə↓ŋ tɤ ʦʰɤ↘ʂɨ↘ li↘ʦɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 56.62500000000001,
+      "speech_end": 68.22500000000001,
+      "scene_end": 68.67500000000001,
+      "duration": 12.050000000000004,
+      "text": "基本数据显示了被追踪的对象,道映射,每框的秒钟,每微米的像素,移动过器,感染策略,图片限制,数据库表和第一个分析所需的员工数量.",
+      "speech_text": "基本数据显示了被追踪的对象,道映射,每框的秒钟,每微米的像素,移动过器,感染策略,图片限制,数据库表和第一个分析所需的员工数量.",
+      "phonemes": "ʨi→pə↓n ʂu↘ʨy↘ ɕjɛ↓nʂɨ↘ lɤ pei↘ ꭧwei→ʦʊ→ŋ tɤ twei↘ɕja↘ŋ,tau↘ i↘ŋʂɤ↘,mei↓kʰwa→ŋ tɤ mjau↓ꭧʊ→ŋ,mei↓ wei→mi↓ tɤ ɕja↘ŋsu↘,i↗tʊ↘ŋ kwo↘ʨʰi↘,ka↓nɻa↓n ʦʰɤ↘lɥe↘,tʰu↗pʰjɛ↘n ɕjɛ↘nꭧɨ↘,ʂu↘ʨy↘kʰu↘ pjau↓ xɤ↗ ti↘i↗kɤ↘ fə→nɕi→ swo↓ ɕy→ tɤ ɥɛ↗nkʊ→ŋ ʂu↘lja↘ŋ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 68.67500000000001,
+      "speech_end": 79.47500000000001,
+      "scene_end": 79.92500000000001,
+      "duration": 11.25,
+      "text": "修改的面板限制了故意的变化,包括三通道布局,一秒的框架,每微米的一个像素,基于面具的感染标签,对称地图的限制和一个工人.",
+      "speech_text": "修改的面板限制了故意的变化,包括三通道布局,一秒的框架,每微米的一个像素,基于面具的感染标签,对称地图的限制和一个工人.",
+      "phonemes": "ɕjou→kai↓ tɤ mjɛ↘npa↓n ɕjɛ↘nꭧɨ↘ lɤ ku↘i↘ tɤ pjɛ↘nxwa↘,pau→kʰwo↘ sa→n tʰʊ→ŋtau↘ pu↘ʨy↗,i→mjau↓ tɤ kʰwa→ŋʨja↘,mei↓ wei→mi↓ tɤ i↗kɤ↘ ɕja↘ŋsu↘,ʨi→y↗ mjɛ↘nʨy↘ tɤ ka↓nɻa↓n pjau→ʨʰjɛ→n,twei↘ꭧʰə↘n ti↘tʰu↗ tɤ ɕjɛ↘nꭧɨ↘ xɤ↗ i↗kɤ↘ kʊ→ŋɻə↗n."
+    },
+    {
+      "scene": 8,
+      "speech_start": 79.92500000000001,
+      "speech_end": 90.20000000000002,
+      "scene_end": 90.65000000000002,
+      "duration": 10.725000000000009,
+      "text": "所有设置都显示了九个类别:对象和道,校准,运动过,感染分类,XGBoost,集群,嵌入搜索,图片和质量控制以及运行时间.",
+      "speech_text": "所有设置都显示了九个类别:对象和道,校准,运动过,感染分类,XGBoost,集群,嵌入搜索,图片和质量控制以及运行时间.",
+      "phonemes": "swo↓jou↓ ʂɤ↘ꭧɨ↘ tou→ ɕjɛ↓nʂɨ↘ lɤ ʨjou↓kɤ↘ lei↘pje↗:twei↘ɕja↘ŋ xɤ↗ tau↘,ʨjau↘ꭧwə↓n,y↘ntʊ↘ŋ kwo↘,ka↓nɻa↓n fə→nlei↘,XGBoost,ʨi↗ʨʰy↗n,ʨʰjɛ↘nɻu↘ sou→swo↓,tʰu↗pʰjɛ↘n xɤ↗ ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ i↓ʨi↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n."
+    },
+    {
+      "scene": 9,
+      "speech_start": 90.65000000000002,
+      "speech_end": 100.70000000000002,
+      "scene_end": 101.15000000000002,
+      "duration": 10.5,
+      "text": "配方将在一个名称下保存完整的 Motility Assay 配置,重新应用到另一个实验中,或者进口和出口可重复使用的设置文件.",
+      "speech_text": "配方将在一个名称下保存完整的 Motility Assay 配置,重新应用到另一个实验中,或者进口和出口可重复使用的设置文件.",
+      "phonemes": "pʰei↘fa→ŋ ʨja→ŋ ʦai↘ i↗kɤ↘ mi↗ŋꭧʰə→ŋ ɕja↘ pau↓ʦʰwə↗n wa↗nꭧə↓ŋ tɤ Motility Assay pʰei↘ꭧɨ↘,ꭧʰʊ↗ŋɕi→n i↘ŋjʊ↘ŋ tau↘ li↘ŋ i↗kɤ↘ ʂɨ↗jɛ↘n ꭧʊ→ŋ,xwo↘ꭧɤ↓ ʨi↘nkʰou↓ xɤ↗ ꭧʰu→kʰou↓ kʰɤ↓ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ tɤ ʂɤ↘ꭧɨ↘ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 10,
+      "speech_start": 101.15000000000002,
+      "speech_end": 109.05000000000003,
+      "scene_end": 109.50000000000003,
+      "duration": 8.350000000000009,
+      "text": "提交已解决的设置的远程快照,并将测量和轨迹工作发送到分布式工作工作空间.",
+      "speech_text": "提交已解决的设置的远程快照,并将测量和轨迹工作发送到分布式工作工作空间.",
+      "phonemes": "tʰi↗ʨjau→ i↓ ʨje↓ʨɥe↗ tɤ ʂɤ↘ꭧɨ↘ tɤ ɥɛ↓nꭧʰə↗ŋ kʰwai↘ꭧau↘,pi↘ŋ ʨja→ŋ ʦʰɤ↘lja↗ŋ xɤ↗ kwei↓ʨi↘ kʊ→ŋʦwo↘ fa→sʊ↘ŋtau↘ fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ kʊ→ŋʦwo↘ kʰʊ→ŋʨjɛ→n."
+    },
+    {
+      "scene": 11,
+      "speech_start": 109.50000000000003,
+      "speech_end": 119.35000000000002,
+      "scene_end": 119.80000000000003,
+      "duration": 10.299999999999997,
+      "text": "分布式工作将追踪的源和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的测试.",
+      "speech_text": "分布式工作将追踪的源和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的测试.",
+      "phonemes": "fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ ʨja→ŋ ꭧwei→ʦʊ→ŋ tɤ ɥɛ↗n xɤ↗ ʂu→ꭧʰu→ lu↘ʨi↘ŋ i↘ŋʂɤ↘ tau↘ ɥɛ↓nꭧʰə↗ŋ kʊ→ŋʦwo↘ꭧa↘n,Slurmʨi↗ʨʰy↗n xwo↘ pʰei↘ꭧɨ↘ mi↘ŋli↘ŋ,ɻa↗nxou↘ tʰi↗ʨjau→ pi↘ŋ ʨjɛ→nʦʰɤ↘ ɕja→ŋtʰʊ↗ŋ tɤ ʦʰɤ↘ʂɨ↘."
+    },
+    {
+      "scene": 12,
+      "speech_start": 119.80000000000003,
+      "speech_end": 131.47500000000002,
+      "scene_end": 131.925,
+      "duration": 12.124999999999986,
+      "text": "物体和通道选择被追踪的来源,测量运动的物体以及携带细胞,核和病原体信号的收购通道. 错误的映射使感染的强度和结果无效.",
+      "speech_text": "物体和通道选择被追踪的来源,测量运动的物体以及携带细胞,核和病原体信号的收购通道. 错误的映射使感染的强度和结果无效.",
+      "phonemes": "u↘tʰi↓ xɤ↗ tʰʊ→ŋtau↘ ɕɥɛ↓nʦɤ↗ pei↘ ꭧwei→ʦʊ→ŋ tɤ lai↗ɥɛ↗n,ʦʰɤ↘lja↗ŋ y↘ntʊ↘ŋ tɤ u↘tʰi↓ i↓ʨi↗ ɕje↗tai↘ ɕi↘pau→,xɤ↗ xɤ↗ pi↘ŋɥɛ↗ntʰi↓ ɕi↘nxau↘ tɤ ʂou→kou↘ tʰʊ→ŋtau↘. ʦʰwo↘u↘ tɤ i↘ŋʂɤ↘ ʂɨ↓ ka↓nɻa↓n tɤ ʨʰja↗ŋtu↘ xɤ↗ ʨje↗kwo↓ u↗ɕjau↘."
+    },
+    {
+      "scene": 13,
+      "speech_start": 131.925,
+      "speech_end": 144.9,
+      "scene_end": 145.35,
+      "duration": 13.424999999999983,
+      "text": "空间和时间校准为每一个框架提供秒钟,每一个微米提供像素. 这两个值将像素移动转化为物理速度,所以一个恒定的错误在这里衡量了每一个报告的速度.",
+      "speech_text": "空间和时间校准为每一个框架提供秒钟,每一个微米提供像素. 这两个值将像素移动转化为物理速度,所以一个恒定的错误在这里衡量了每一个报告的速度.",
+      "phonemes": "kʰʊ→ŋʨjɛ→n xɤ↗ ʂɨ↗ʨjɛ→n ʨjau↘ꭧwə↓n wei↘ mei↓ i↗kɤ↘ kʰwa→ŋʨja↘ tʰi↗kʊ→ŋ mjau↓ꭧʊ→ŋ,mei↓ i↗kɤ↘ wei→mi↓ tʰi↗kʊ→ŋ ɕja↘ŋsu↘. ꭧɤ↘ lja↓ŋkɤ↘ ꭧɨ↗ ʨja→ŋ ɕja↘ŋsu↘ i↗tʊ↘ŋ ꭧwa↓nxwa↘ wei↘ u↘li↓ su↘tu↘,swo↓i↓ i↗kɤ↘ xə↗ŋti↘ŋ tɤ ʦʰwo↘u↘ ʦai↘ ꭧɤ↘li↓ xə↗ŋlja↗ŋ lɤ mei↓ i↗kɤ↘ pau↘kau↘ tɤ su↘tu↘."
+    },
+    {
+      "scene": 14,
+      "speech_start": 145.35,
+      "speech_end": 154.775,
+      "scene_end": 155.225,
+      "duration": 9.875,
+      "text": "运动过不包括不可思议的框架到框架跳跃,可选的高度直观的文物以及通过z分数门识别的特征或速度异差.",
+      "speech_text": "运动过不包括不可思议的框架到框架跳跃,可选的高度直观的文物以及通过z分数门识别的特征或速度异差.",
+      "phonemes": "y↘ntʊ↘ŋ kwo↘ pu↘ pau→kʰwo↘ pu↘kʰɤ↓sɨ→i↘ tɤ kʰwa→ŋʨja↘ tau↘ kʰwa→ŋʨja↘ tʰjau↘ɥe↘,kʰɤ↓ɕɥɛ↓n tɤ kau→tu↘ ꭧɨ↗kwa→n tɤ wə↗nu↘ i↓ʨi↗ tʰʊ→ŋkwo↘zfə→nʂu↘ mə↗n ʂɨ↗pje↗ tɤ tʰɤ↘ꭧə→ŋ xwo↘ su↘tu↘ i↘ꭧʰa↘."
+    },
+    {
+      "scene": 15,
+      "speech_start": 155.225,
+      "speech_end": 166.375,
+      "scene_end": 166.825,
+      "duration": 11.599999999999994,
+      "text": "感染分类从病原体-面具重叠开始,可选择使用基于强度的质量控制重新标记或删除痕迹. 在教程中保留了直接面具标签.",
+      "speech_text": "感染分类从病原体-面具重叠开始,可选择使用基于强度的质量控制重新标记或删除痕迹. 在教程中保留了直接面具标签.",
+      "phonemes": "ka↓nɻa↓n fə→nlei↘ ʦʰʊ↗ŋ pi↘ŋɥɛ↗ntʰi↓-mjɛ↘nʨy↘ ꭧʰʊ↗ŋtje↗ kʰai→ʂɨ↓,kʰɤ↓ ɕɥɛ↓nʦɤ↗ ʂɨ↓jʊ↘ŋ ʨi→y↗ ʨʰja↗ŋtu↘ tɤ ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ ꭧʰʊ↗ŋɕi→n pjau→ʨi↘ xwo↘ ʂa→nꭧʰu↗ xə↗nʨi↘. ʦai↘ ʨjau↘ꭧʰə↗ŋ ꭧʊ→ŋ pau↓ljou↗ lɤ ꭧɨ↗ʨje→ mjɛ↘nʨy↘ pjau→ʨʰjɛ→n."
+    },
+    {
+      "scene": 16,
+      "speech_start": 166.825,
+      "speech_end": 176.625,
+      "scene_end": 177.075,
+      "duration": 10.25,
+      "text": "XGBoost感染模型设置监督强度分类器,树深度和学习率,概率门值,模糊性带,类型大小要求和特征重要性报告.",
+      "speech_text": "XGBoost感染模型设置监督强度分类器,树深度和学习率,概率门值,模糊性带,类型大小要求和特征重要性报告.",
+      "phonemes": "XGBoostka↓nɻa↓n mwo↗ɕi↗ŋ ʂɤ↘ꭧɨ↘ ʨjɛ→ntu→ ʨʰja↗ŋtu↘ fə→nlei↘ʨʰi↘,ʂu↘ ʂə→ntu↘ xɤ↗ ɕɥe↗ɕi↗ ly↘,kai↘ly↘ mə↗nꭧɨ↗,mwo↗xu↗ɕi↘ŋ tai↘,lei↘ɕi↗ŋ ta↘ɕjau↓ jau→ʨʰjou↗ xɤ↗ tʰɤ↘ꭧə→ŋ ꭧʊ↘ŋjau↘ɕi↘ŋ pau↘kau↘."
+    },
+    {
+      "scene": 17,
+      "speech_start": 177.075,
+      "speech_end": 187.54999999999998,
+      "scene_end": 187.99999999999997,
+      "duration": 10.924999999999983,
+      "text": "感染集群控制未经监督的强度分离,病原体-道权重,集群数量,随机种子,样品盖,以及最小的轮和基础真相分离检查.",
+      "speech_text": "感染集群控制未经监督的强度分离,病原体-道权重,集群数量,随机种子,样品盖,以及最小的轮和基础真相分离检查.",
+      "phonemes": "ka↓nɻa↓n ʨi↗ʨʰy↗n kʰʊ↘ŋꭧɨ↘ wei↘ʨi→ŋ ʨjɛ→ntu→ tɤ ʨʰja↗ŋtu↘ fə→nli↗,pi↘ŋɥɛ↗ntʰi↓-tau↘ ʨʰɥɛ↗nꭧʊ↘ŋ,ʨi↗ʨʰy↗n ʂu↘lja↘ŋ,swei↗ʨi→ ꭧʊ↓ŋʦɨ,ja↘ŋpʰi↓n kai↘,i↓ʨi↗ ʦwei↘ɕjau↓ tɤ lwə↗n xɤ↗ ʨi→ꭧʰu↓ ꭧə→nɕja↘ŋ fə→nli↗ ʨjɛ↓nꭧʰa↗."
+    },
+    {
+      "scene": 18,
+      "speech_start": 187.99999999999997,
+      "speech_end": 196.07499999999996,
+      "scene_end": 196.52499999999995,
+      "duration": 8.524999999999977,
+      "text": "在低维嵌入中分离感染强度时,嵌入搜索调整了UMAP或t-SNE邻居,距离,困惑和学习率的网格.",
+      "speech_text": "在低维嵌入中分离感染强度时,嵌入搜索调整了UMAP或t-SNE邻居,距离,困惑和学习率的网格.",
+      "phonemes": "ʦai↘ ti→wei↗ ʨʰjɛ↘nɻu↘ ꭧʊ→ŋ fə→nli↗ ka↓nɻa↓n ʨʰja↗ŋtu↘ ʂɨ↗,ʨʰjɛ↘nɻu↘ sou→swo↓ tʰjau↗ꭧə↓ŋ lɤUMAPxwo↘t-SNEli↗nʨy→,ʨy↘li↗,kʰwə↘nxwo↘ xɤ↗ ɕɥe↗ɕi↗ ly↘ tɤ wa↓ŋkɤ↗."
+    },
+    {
+      "scene": 19,
+      "speech_start": 196.52499999999995,
+      "speech_end": 205.54999999999995,
+      "scene_end": 205.99999999999994,
+      "duration": 9.474999999999994,
+      "text": "动力图和QC设定了轨道轴界限,并允许组合强度,位置,速度和感染诊断面板,而不会改变底层测量.",
+      "speech_text": "动力图和QC设定了轨道轴界限,并允许组合强度,位置,速度和感染诊断面板,而不会改变底层测量.",
+      "phonemes": "tʊ↘ŋli↘ tʰu↗ xɤ↗QCʂɤ↘ti↘ŋ lɤ kwei↓tau↘ ꭧou↗ ʨje↘ɕjɛ↘n,pi↘ŋ y↓nɕy↓ ʦu↓xɤ↗ ʨʰja↗ŋtu↘,wei↘ꭧɨ↘,su↘tu↘ xɤ↗ ka↓nɻa↓n ꭧə↓ntwa↘n mjɛ↘npa↓n,ɚ↗ pu↗xwei↘ kai↓pjɛ↘n ti↓ʦʰə↗ŋ ʦʰɤ↘lja↗ŋ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 205.99999999999994,
+      "speech_end": 216.87499999999994,
+      "scene_end": 217.32499999999993,
+      "duration": 11.324999999999989,
+      "text": "运行时间和可靠性控制平行工人. 使用一个工人进行一个小的验证源,然后仅在确认道映射,校准和轨道质量后进行扩展.",
+      "speech_text": "运行时间和可靠性控制平行工人. 使用一个工人进行一个小的验证源,然后仅在确认道映射,校准和轨道质量后进行扩展.",
+      "phonemes": "y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n xɤ↗ kʰɤ↓kʰau↘ɕi↘ŋ kʰʊ↘ŋꭧɨ↘ pʰi↗ŋɕi↗ŋ kʊ→ŋɻə↗n. ʂɨ↓jʊ↘ŋ i↗kɤ↘ kʊ→ŋɻə↗n ʨi↘nɕi↗ŋ i↗kɤ↘ ɕjau↓ tɤ jɛ↘nꭧə↘ŋ ɥɛ↗n,ɻa↗nxou↘ ʨi↓n ʦai↘ ʨʰɥe↘ɻə↘n tau↘ i↘ŋʂɤ↘,ʨjau↘ꭧwə↓n xɤ↗ kwei↓tau↘ ꭧɨ↘lja↘ŋ xou↘ ʨi↘nɕi↗ŋ kʰwo↘ꭧa↓n."
+    },
+    {
+      "scene": 21,
+      "speech_start": 217.32499999999993,
+      "speech_end": 228.62499999999994,
+      "scene_end": 229.07499999999993,
+      "duration": 11.75,
+      "text": "该示范使用每一个图片的秒钟和每一个微米的像素. 两个值均等于一个, 每个每框测量的像素在报告表达每分钟速度之前直接转换.",
+      "speech_text": "该示范使用每一个图片的秒钟和每一个微米的像素. 两个值均等于一个, 每个每框测量的像素在报告表达每分钟速度之前直接转换.",
+      "phonemes": "kai→ ʂɨ↘fa↘n ʂɨ↓jʊ↘ŋ mei↓ i↗kɤ↘ tʰu↗pʰjɛ↘n tɤ mjau↓ꭧʊ→ŋ xɤ↗ mei↓ i↗kɤ↘ wei→mi↓ tɤ ɕja↘ŋsu↘. lja↓ŋkɤ↘ ꭧɨ↗ʨy→n tə↓ŋy↗ i↗kɤ↘, mei↓kɤ↘ mei↓kʰwa→ŋ ʦʰɤ↘lja↗ŋ tɤ ɕja↘ŋsu↘ ʦai↘ pau↘kau↘ pjau↓ta↗ mei↓fə→nꭧʊ→ŋ su↘tu↘ ꭧɨ→ʨʰjɛ↗n ꭧɨ↗ʨje→ ꭧwa↓nxwa↘n."
+    },
+    {
+      "scene": 22,
+      "speech_start": 229.07499999999993,
+      "speech_end": 243.32499999999993,
+      "scene_end": 243.77499999999992,
+      "duration": 14.699999999999989,
+      "text": "运行读取每个合并的框架,测量细胞,核,细胞细胞,病原体和通道强度,平滑轨迹,分配感染状态,计算速度总结和相关性,并保存数据库表和数字. 停止请求安全的中断.",
+      "speech_text": "运行读取每个合并的框架,测量细胞,核,细胞细胞,病原体和通道强度,平滑轨迹,分配感染状态,计算速度总结和相关性,并保存数据库表和数字. 停止请求安全的中断.",
+      "phonemes": "y↘nɕi↗ŋ tu↗ʨʰy↓ mei↓kɤ↘ xɤ↗pi↘ŋ tɤ kʰwa→ŋʨja↘,ʦʰɤ↘lja↗ŋ ɕi↘pau→,xɤ↗,ɕi↘pau→ ɕi↘pau→,pi↘ŋɥɛ↗ntʰi↓ xɤ↗ tʰʊ→ŋtau↘ ʨʰja↗ŋtu↘,pʰi↗ŋxwa↗ kwei↓ʨi↘,fə→npʰei↘ ka↓nɻa↓n ꭧwa↘ŋtʰai↘,ʨi↘swa↘nsu↘tu↘ ʦʊ↓ŋʨje↗ xɤ↗ ɕja→ŋkwa→nɕi↘ŋ,pi↘ŋ pau↓ʦʰwə↗n ʂu↘ʨy↘kʰu↘ pjau↓ xɤ↗ ʂu↘ʦɨ↘. tʰi↗ŋꭧɨ↓ ʨʰi↓ŋʨʰjou↗ a→nʨʰɥɛ↗n tɤ ꭧʊ→ŋtwa↘n."
+    },
+    {
+      "scene": 23,
+      "speech_start": 243.77499999999992,
+      "speech_end": 254.99999999999991,
+      "scene_end": 255.4499999999999,
+      "duration": 11.674999999999983,
+      "text": "在处理过程中,控制台报告合并阵列形状,测量的对象和框架,平滑结果,感染和未感染的轨道数量,速度单位和每个输出路径.",
+      "speech_text": "在处理过程中,控制台报告合并阵列形状,测量的对象和框架,平滑结果,感染和未感染的轨道数量,速度单位和每个输出路径.",
+      "phonemes": "ʦai↘ ꭧʰu↓li↓kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,kʰʊ↘ŋꭧɨ↘tʰai↗ pau↘kau↘ xɤ↗pi↘ŋ ꭧə↘nlje↘ ɕi↗ŋꭧwa↘ŋ,ʦʰɤ↘lja↗ŋ tɤ twei↘ɕja↘ŋ xɤ↗ kʰwa→ŋʨja↘,pʰi↗ŋxwa↗ ʨje↗kwo↓,ka↓nɻa↓n xɤ↗ wei↘ka↓nɻa↓n tɤ kwei↓tau↘ ʂu↘lja↘ŋ,su↘tu↘ ta→nwei↘ xɤ↗ mei↓kɤ↘ ʂu→ꭧʰu→ lu↘ʨi↘ŋ."
+    },
+    {
+      "scene": 24,
+      "speech_start": 255.4499999999999,
+      "speech_end": 270.0499999999999,
+      "scene_end": 270.6999999999999,
+      "duration": 15.249999999999972,
+      "text": "完成的测试从16个轨道中产生了128个框架级观测,将12个轨道归类为感染和4个轨道归类为无感染,计算速度在每分钟微米,并保存了测量表,相关性和每井动性板.",
+      "speech_text": "完成的测试从16个轨道中产生了128个框架级观测,将12个轨道归类为感染和4个轨道归类为无感染,计算速度在每分钟微米,并保存了测量表,相关性和每井动性板.",
+      "phonemes": "wa↗nꭧʰə↗ŋ tɤ ʦʰɤ↘ʂɨ↘ ʦʰʊ↗ŋ ʂɨ↗ljou↘kɤ↘ kwei↓tau↘ ꭧʊ→ŋ ꭧʰa↓nʂə→ŋ lɤ i↘pai↓ɚ↘ʂɨ↗pa→ kɤ↘ kʰwa→ŋʨja↘ ʨi↗ kwa→nʦʰɤ↘,ʨja→ŋ ʂɨ↗ɚ↘kɤ↘ kwei↓tau↘ kwei→lei↘ wei↘ ka↓nɻa↓n xɤ↗ sɨ↘kɤ↘ kwei↓tau↘ kwei→lei↘ wei↘ u↗ ka↓nɻa↓n,ʨi↘swa↘nsu↘tu↘ ʦai↘ mei↓fə→nꭧʊ→ŋ wei→mi↓,pi↘ŋ pau↓ʦʰwə↗n lɤ ʦʰɤ↘lja↗ŋ pjau↓,ɕja→ŋkwa→nɕi↘ŋ xɤ↗ mei↓ʨi↓ŋtʊ↘ŋ ɕi↘ŋpa↓n."
     }
   ]
 }

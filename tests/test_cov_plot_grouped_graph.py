@@ -208,7 +208,8 @@ def test_create_grouped_plot_saves_plot_and_stats(tmp_path):
         df, grouping_column="grp", data_column="v1", graph_type="bar",
         output_dir=str(tmp_path), save=True)
 
-    assert (tmp_path / "grouped_plot.png").is_file()
+    # The extension follows the figure-format preference now.
+    assert len(list(tmp_path.glob("grouped_plot.*"))) == 1
     csv = tmp_path / "test_results.csv"
     assert csv.is_file()
     on_disk = pd.read_csv(csv)
@@ -983,3 +984,13 @@ def test_save_results_without_summary_df(tmp_path):
     assert (out / f"{stem}.pdf").is_file()
     assert (out / f"{stem}_stats.csv").is_file()
     assert not (out / f"{stem}_summary.csv").exists()
+
+
+def test_significance_marker_boundaries():
+    """All conventional p-value bands, including the strongest, are stable."""
+    from spacr.plot import _significance_marker
+
+    assert _significance_marker(0.001) == "***"
+    assert _significance_marker(0.01) == "**"
+    assert _significance_marker(0.05) == "*"
+    assert _significance_marker(0.051) == "ns"

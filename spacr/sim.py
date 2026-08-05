@@ -1,3 +1,4 @@
+"""Pooled-screen simulation, evaluation, and visualisation utilities."""
 
 import os, random, warnings, traceback, sqlite3, math, gc
 from time import time, sleep
@@ -720,13 +721,10 @@ def visualize_all(output):
     cell_pr_dict_df = output[2]
     cell_cm = output[3]
     well_score = output[4]
-    gene_fraction_map = output[5]
-    metadata = output[6]
     results_df = output[7]
     reg_roc_dict_df = output[8]
     reg_pr_dict_df = output[9]
     reg_cm =output[10]
-    sim_stats = output[11]
     genes_per_well_df = output[12]
     wells_per_gene_df = output[13]
 
@@ -1255,7 +1253,6 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
         ax.fill_between(grouped.index, grouped['mean'] - grouped['std'], grouped['mean'] + grouped['std'], color='gray', alpha=0.5, label='Std Dev')
 
         # Setting plot labels and title
-        title_details = ', '.join([f"{var}={row[var]}" for var in grouping_vars])
         ax.set_xlabel(variable)
         ax.set_ylabel('Precision-Recall AUC (PRAUC)')
         #ax.set_title(f'PRAUC vs. {variable} | {title_details}')
@@ -1479,7 +1476,9 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
     
     for i, feature in enumerate(features):
         ax = axs[i]
-        disp = PartialDependenceDisplay.from_estimator(model, X, features=[feature], ax=ax)
+        PartialDependenceDisplay.from_estimator(
+            model, X, features=[feature], ax=ax
+        )
         ax.set_title(feature)  # Set title to the name of the feature
 
     # Hide unused axes if any

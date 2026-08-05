@@ -46,9 +46,22 @@ def test_modify_figure_properties_remove_axes():
     assert ax.xaxis.get_visible() is False
 
 
-def test_modify_figure_properties_none():
-    # None figure → prints error, no raise
-    GE.modify_figure_properties(None)
+def test_modify_figure_properties_none(capsys):
+    """A missing figure is reported, not silently accepted.
+
+    The early return is only half the contract: the user gets no styled plot
+    and has to be told why. "Did not raise" would also be satisfied by a
+    function that returned without a word.
+    """
+    assert GE.modify_figure_properties(None) is None
+    assert "figure provided is None" in capsys.readouterr().out
+
+    # ...and a real figure takes the same call quietly, so the message above
+    # belongs to the None branch and is not printed for everything.
+    fig = _fig_with_line()
+    GE.modify_figure_properties(fig, title="kept")
+    assert capsys.readouterr().out == ""
+    assert fig.get_axes()[0].get_title() == "kept"
 
 
 # ---------------------------------------------------------------------------
@@ -63,8 +76,25 @@ def test_save_figure_as_format(tmp_path, monkeypatch):
     assert out.exists()
 
 
-def test_save_figure_as_format_cancelled(monkeypatch):
-    # user cancels the dialog → returns "" → no save, no raise
+def test_save_figure_as_format_cancelled(tmp_path, monkeypatch, capsys):
+    """Cancelling writes NOTHING -- assert the empty directory, not the
+    absence of an exception.
+
+    ``savefig`` on an empty path raises, so "no crash" already implies the
+    branch was taken; what nobody was checking is that no stray file appears
+    and that the success message is not printed for a save that never
+    happened.
+    """
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(GE.filedialog, "asksaveasfilename", lambda **kw: "")
+    assert GE.save_figure_as_format(_fig_with_line(), "pdf") is None
+    assert list(tmp_path.iterdir()) == []
+    assert capsys.readouterr().out == ""
+
+    # Contrast: the same call with a path really does write, and says so.
+    out = tmp_path / "fig.pdf"
     monkeypatch.setattr(GE.filedialog, "asksaveasfilename",
-                        lambda **kw: "")
+                        lambda **kw: str(out))
     GE.save_figure_as_format(_fig_with_line(), "pdf")
+    assert out.exists() and out.stat().st_size > 0
+    assert "Figure saved as PDF" in capsys.readouterr().out

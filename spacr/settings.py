@@ -1,4 +1,11 @@
+"""Defaults, types, categories, descriptions, and validation for settings."""
+
+import inspect
+import logging
+import sys
 import os, ast
+
+LOG = logging.getLogger(__name__)
 
 #from wsgiref import types
 
@@ -46,6 +53,190 @@ def bundled_barcode_path(kind):
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "resources", "data", filename)
     )
+
+
+# ---------------------------------------------------------------------------
+# The defaults seam — how a module ships settings without editing this file
+# ---------------------------------------------------------------------------
+# Everything below this block is the settings of the modules that existed
+# when this file was one file: ~3800 lines of defaults factories, types,
+# tooltips and categories, all of which a new module used to have to
+# append to. Six workstreams appending to the same file is six merge
+# conflicts, and the file is nobody's to own.
+#
+# A module registers instead, at import time, from its own file:
+#
+#     from spacr.settings import register_defaults
+#
+#     def _defaults(settings=None):
+#         settings = dict(settings or {})
+#         settings.setdefault("src", "")
+#         settings.setdefault("bins", 32)
+#         return settings
+#
+#     register_defaults(
+#         "graph_builder", _defaults,
+#         expected_types={"bins": int},
+#         tooltips={"bins": "(int) - Histogram bins. Default 32."},
+#         categories={"General": ["bins"]})
+#
+# The existing `set_default_*` / `get_*_settings` functions are NOT
+# touched and NOT auto-registered: they are reached through the dispatch
+# in `gui_core.setup_settings_panel` and
+# `qt.screens.settings_model.resolve_default_settings`, and mirroring
+# them here would create a second answer to "what are Mask's defaults?".
+# This registry holds only what registers itself.
+
+#: app key → defaults factory. Written by :func:`register_defaults`.
+_DEFAULTS_REGISTRY = {}
+
+
+def register_defaults(app_key, fn, *, replace=False, expected_types=None,
+                      tooltips=None, categories=None, description=None):
+    """Register the defaults factory for ``app_key``.
+
+    :param app_key: the app key the factory belongs to — the same key the
+        module registered with :func:`spacr.qt.app.register_app`.
+    :param fn: callable returning the module's settings dict. Called as
+        ``fn(settings)`` when it takes an argument and ``fn()`` when it
+        does not, so both existing shapes in this file work unchanged.
+    :param replace: allow overwriting an existing registration. Off by
+        default: two modules quietly claiming one key is the failure this
+        registry exists to make loud.
+    :param expected_types: optional ``{key: type-or-tuple}`` merged into
+        :data:`expected_types`. Without it a new key is untyped and
+        :func:`check_settings` cannot validate it.
+    :param tooltips: optional ``{key: text}`` merged into
+        :data:`tooltips`. Without it the settings panel has no help for
+        the key, which the GUI suite fails on.
+    :param categories: optional ``{category: [key, ...]}`` merged into
+        :data:`categories`; unknown category names are created. A key
+        already in that category is not added twice.
+    :param description: optional module blurb for :data:`descriptions`.
+    :raises ValueError: on a re-registration without ``replace``, or when
+        a merged type/tooltip/description would change one that already
+        exists — a module may add to the shared tables, never rewrite
+        another module's entry.
+    :raises TypeError: if ``fn`` is not callable.
+    """
+    app_key = str(app_key)
+    if not app_key:
+        raise ValueError("defaults need an app key")
+    if not callable(fn):
+        raise TypeError(f"defaults for {app_key!r} are not callable: {fn!r}")
+    if app_key in _DEFAULTS_REGISTRY and not replace:
+        raise ValueError(
+            f"defaults for {app_key!r} are already registered; pass "
+            "replace=True if that is really what you mean")
+
+    _merge_declarations(app_key, expected_types, tooltips, categories,
+                        description)
+    _DEFAULTS_REGISTRY[app_key] = fn
+    return fn
+
+
+def _merge_declarations(app_key, types_, tips, cats, description):
+    """Fold a module's type/tooltip/category/description contributions in.
+
+    Done before the factory is stored so a rejected contribution leaves
+    the registry untouched — a half-registered module whose keys are
+    typed but whose defaults are missing is harder to diagnose than one
+    that failed at import.
+    """
+    for key, type_ in dict(types_ or {}).items():
+        existing = expected_types.get(key, type_)
+        if existing != type_:
+            raise ValueError(
+                f"{app_key!r} declares {key!r} as {type_!r}, but it is "
+                f"already declared as {existing!r}")
+        expected_types[key] = type_
+    for key, text in dict(tips or {}).items():
+        existing = tooltips.get(key, text)
+        if existing != text:
+            raise ValueError(
+                f"{app_key!r} redefines the tooltip for {key!r}; extend the "
+                "existing text instead of replacing another module's help")
+        tooltips[key] = text
+    for name, keys in dict(cats or {}).items():
+        bucket = categories.setdefault(name, [])
+        for key in keys:
+            if key not in bucket:
+                bucket.append(key)
+    if description is not None:
+        existing = descriptions.get(app_key, description)
+        if existing != description:
+            raise ValueError(
+                f"{app_key!r} already has a description; edit that one "
+                "rather than registering a second")
+        descriptions[app_key] = description
+
+
+def unregister_defaults(app_key):
+    """Drop a registered defaults factory. ``True`` if there was one.
+
+    Only the factory: the types, tooltips and categories it merged stay,
+    because another module may already have added keys to the same
+    category and unpicking a merge is guesswork.
+    """
+    return _DEFAULTS_REGISTRY.pop(str(app_key), None) is not None
+
+
+def has_registered_defaults(app_key):
+    """Whether a module registered a defaults factory for ``app_key``."""
+    return str(app_key) in _DEFAULTS_REGISTRY
+
+
+def registered_default_apps():
+    """Every app key with registered defaults, in registration order."""
+    return tuple(_DEFAULTS_REGISTRY)
+
+
+def defaults_for(app_key, settings=None):
+    """The registered defaults dict for ``app_key``.
+
+    The read side of :func:`register_defaults`, and what a settings panel
+    calls. Returns a fresh dict every time: the caller edits what it gets
+    back, and a factory that hands out one shared dict would let one
+    module's screen edit another's defaults.
+
+    :param settings: values to seed the factory with, exactly like the
+        ``settings`` argument of every ``set_default_*`` in this file.
+    :raises KeyError: when nothing is registered for ``app_key``.
+    :raises TypeError: when the factory does not return a dict.
+    """
+    app_key = str(app_key)
+    try:
+        fn = _DEFAULTS_REGISTRY[app_key]
+    except KeyError:
+        raise KeyError(
+            f"no defaults registered for {app_key!r}; known: "
+            f"{', '.join(_DEFAULTS_REGISTRY) or '(none)'}") from None
+    result = fn(dict(settings or {})) if _takes_an_argument(fn) else fn()
+    if not isinstance(result, dict):
+        raise TypeError(
+            f"defaults for {app_key!r} returned {type(result).__name__}, "
+            "expected dict")
+    return dict(result)
+
+
+def _takes_an_argument(fn):
+    """Whether ``fn`` accepts a positional settings dict.
+
+    Signature inspection rather than "call it and retry on TypeError":
+    a retry cannot tell a wrong call from a TypeError raised *inside* a
+    factory that was called correctly, and would run half of it twice.
+    """
+    try:
+        params = inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return True  # not introspectable — assume the common shape
+    for param in params.values():
+        if param.kind in (inspect.Parameter.POSITIONAL_ONLY,
+                          inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                          inspect.Parameter.VAR_POSITIONAL):
+            return True
+    return False
+
 
 def set_default_plot_merge_settings():
     """Return the default settings dict for plotting merged mask overlays.
@@ -471,10 +662,112 @@ def set_default_settings_preprocess_img_data(settings):
     return settings
 
 
-#: What a Cellpose model setting may be, now that Cellpose 4 exists: the one
-#: stock model, or a path to a checkpoint the user trained themselves. There
-#: is no third option, so no dropdown in spaCR offers one.
+#: The fallback, and only the fallback: what a Cellpose model setting may be
+#: if Cellpose itself cannot be asked. Cellpose 4 ships one stock model, so a
+#: dropdown that degrades to this is still correct rather than merely
+#: non-empty. The live answer comes from :func:`cellpose_model_choices`.
 CELLPOSE_MODEL_CHOICES = ('cpsam',)
+
+#: Accepted-but-mapped spellings, appended to a model dropdown so a settings
+#: CSV written against Cellpose 3 still round-trips through the GUI. They all
+#: resolve to ``cpsam`` — see :func:`normalize_cellpose_model_name`.
+_CELLPOSE_ALIASES = ('cyto3', 'cyto2', 'nuclei')
+
+#: Resolved at most once per process. ``None`` = not read yet.
+_CELLPOSE_MODELS_CACHE = None
+
+
+def _read_cellpose_models():
+    """Ask Cellpose which models exist. ``()`` if it cannot be asked.
+
+    ``cellpose.models.MODEL_NAMES`` is the stock list and
+    ``cellpose.models.get_user_models()`` is the registry
+    ``cellpose.io.add_model`` writes — a user who trains a checkpoint and
+    registers it should see it in the dropdown without spaCR shipping a
+    new release.
+    """
+    try:
+        from cellpose import models as cp_models
+    except Exception:
+        LOG.debug("Cellpose could not be imported; using the shipped "
+                  "model list", exc_info=True)
+        return ()
+
+    names = list(getattr(cp_models, "MODEL_NAMES", ()) or ())
+    try:
+        names += list(cp_models.get_user_models() or ())
+    except Exception:
+        # A malformed ~/.cellpose/models/gui_models.txt must not cost the
+        # user the stock models as well.
+        LOG.debug("Could not read the Cellpose user-model registry",
+                  exc_info=True)
+
+    out, seen = [], set()
+    for name in names:
+        name = str(name).strip()
+        if name and name not in seen:
+            seen.add(name)
+            out.append(name)
+    return tuple(out)
+
+
+def cellpose_model_choices(block=False, refresh=False):
+    """Every Cellpose model on this machine, read from the Cellpose API.
+
+    The list used to be a literal, which meant spaCR could be wrong in
+    both directions: it offered models Cellpose 4 had removed, and it
+    could not offer a checkpoint the user had registered.
+
+    Importing ``cellpose.models`` costs ~2.5 s — it pulls in torch — and
+    this is called while a settings page is being built, so by default it
+    reads the API only when Cellpose is **already imported**. This is the
+    same bargain :func:`spacr.settings_spec._torchvision_model_names`
+    strikes for the torchvision zoo, and for the same measured reason. By
+    the time anything has segmented, Cellpose is loaded and the next
+    dropdown built is live.
+
+    :param block: import Cellpose if it is not loaded. For a caller that
+        can afford the wait and wants the definitive answer.
+    :param refresh: ignore the cache and ask again — for a caller that
+        has just registered a model.
+    :returns: a non-empty tuple, ``cpsam`` first. Never empty: a dropdown
+        with nothing in it is worse than one that is out of date.
+    """
+    global _CELLPOSE_MODELS_CACHE
+    if refresh:
+        _CELLPOSE_MODELS_CACHE = None
+    if _CELLPOSE_MODELS_CACHE is not None:
+        return _CELLPOSE_MODELS_CACHE
+
+    if block or sys.modules.get("cellpose.models") is not None:
+        names = _read_cellpose_models()
+        if names:
+            # Cache only a real answer. A miss because Cellpose is not
+            # loaded yet must not pin the fallback for the process.
+            _CELLPOSE_MODELS_CACHE = _cpsam_first(names)
+            return _CELLPOSE_MODELS_CACHE
+    return tuple(CELLPOSE_MODEL_CHOICES)
+
+
+def _cpsam_first(names):
+    """``names`` with the default model first, order otherwise preserved."""
+    default = CELLPOSE_MODEL_CHOICES[0]
+    if default in names:
+        return (default,) + tuple(n for n in names if n != default)
+    return tuple(names)
+
+
+def cellpose_model_menu(block=False, refresh=False):
+    """:func:`cellpose_model_choices` plus the legacy spellings.
+
+    What a *dropdown* offers, as opposed to what Cellpose has. The three
+    pre-SAM names are not four choices — Cellpose resolves all of them to
+    cpsam — but a user whose saved settings say ``cyto2`` has to be able
+    to see their own value in the combo rather than have it silently
+    replaced the first time they open the panel.
+    """
+    live = cellpose_model_choices(block=block, refresh=refresh)
+    return live + tuple(n for n in _CELLPOSE_ALIASES if n not in live)
 
 
 def normalize_cellpose_model_name(value, object_type=None, key=None):
@@ -645,6 +938,14 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('color_by', None)
     settings.setdefault('exclude_conditions', None)
     settings.setdefault('exclude_rows', None)
+    settings.setdefault('batch_correction', 'none')
+    settings.setdefault('batch_column', 'plateID')
+    settings.setdefault('batch_control_column', None)
+    settings.setdefault('batch_control_values', None)
+    settings.setdefault('batch_covariate_column', None)
+    settings.setdefault('batch_combat_mean_only', False)
+    settings.setdefault('batch_min_samples', 3)
+    settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('analyze_clusters', False)
     settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
@@ -760,6 +1061,21 @@ def get_measure_crop_settings(settings=None):
     # spacr.resume validates what is already on disk rather than trusting it,
     # and clears a field's existing rows before re-measuring it.
     settings.setdefault('resume', False)
+    # Which parent compartments organelle measurements roll up into. Its
+    # absence here silenced an entire output: measure.py gates all four
+    # organelle writes on `is not None`, so a measure run wrote no organelle
+    # table at all -- even though every merged stack carries real organelle
+    # labels in `organelle_mask_dim`, and the demo ships 64 of them per field.
+    # The key was only ever defaulted in
+    # `set_default_settings_preprocess_generate_masks` (the MASK pipeline),
+    # which never reaches the measure settings, so nothing downstream could
+    # tell "the user asked for no organelle summary" from "nobody asked".
+    #
+    # 'cell' is the documented default and is what the mask pipeline already
+    # sets. It writes `cell_organelle_summary` only: the expensive
+    # per-organelle table needs 'organelle' in the value, and "organelle" is
+    # not a substring of "cell", so the raw table stays opt-in.
+    settings.setdefault('summarize_organelles_by', 'cell')
     return settings
 
 def set_default_analyze_screen(settings):
@@ -793,11 +1109,35 @@ def set_default_analyze_screen(settings):
     settings.setdefault('top_features',30)
     settings.setdefault('remove_low_variance_features',True)
     settings.setdefault('remove_highly_correlated_features',True)
+    settings.setdefault('batch_correction', 'none')
+    settings.setdefault('batch_column', 'plateID')
+    settings.setdefault('batch_control_column', None)
+    # Keep this blank so control_center follows the module's current
+    # negative_control value instead of silently retaining a stale 'c1' when
+    # the user changes the plate layout.
+    settings.setdefault('batch_control_values', None)
+    settings.setdefault('batch_covariate_column', None)
+    settings.setdefault('batch_combat_mean_only', False)
+    settings.setdefault('batch_min_samples', 3)
+    settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('n_jobs',-1)
     settings.setdefault('prune_features',False)
     settings.setdefault('cross_validation',True)
     settings.setdefault('verbose',True)
     return settings
+
+def _set_classifier_evaluation_defaults(settings):
+    """Populate shared Classify evaluation and nested-CV defaults."""
+    settings.setdefault('classifier_evaluation', True)
+    settings.setdefault('nested_cv_inner_folds', 0)
+    settings.setdefault('evaluation_calibration', 'temperature')
+    settings.setdefault('evaluation_bins', 10)
+    settings.setdefault('evaluation_fail_on_leakage', True)
+    settings.setdefault('leakage_audit_train_test', True)
+    settings.setdefault('leakage_hash_content', True)
+    settings.setdefault('leakage_require_identity', True)
+    return settings
+
 
 def set_default_train_test_model(settings):
     """Populate default settings for the train/test classifier training pipeline.
@@ -840,7 +1180,9 @@ def set_default_train_test_model(settings):
     settings.setdefault('verbose',False)
     settings.setdefault('class_balance','none')
     settings.setdefault('cross_validation_folds',0)
+    settings.setdefault('cross_validation_enabled',False)
     settings.setdefault('cv_group_by','well')
+    _set_classifier_evaluation_defaults(settings)
     # Fail-loud policy. None means "not set here" and defers to the
     # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
     # it on for a whole batch without editing every settings file. True/False
@@ -877,6 +1219,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('metadata_item_2_value',None) #e.g. [['r1','r2'],['r3','r4']]
     settings.setdefault('size',224)
     settings.setdefault('test_split',0.1)
+    settings.setdefault('cv_group_by','well')
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('metadata_type_by','columnID')
     settings.setdefault('channel_of_interest',3)
@@ -884,6 +1227,7 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',True)
     settings.setdefault('png_type','cell_png')
+    settings.setdefault('random_seed',42)
     
     return settings
 
@@ -934,6 +1278,11 @@ def deep_spacr_defaults(settings):
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
+    settings.setdefault('label_smoothing',0.1)
+    settings.setdefault('focal_gamma',2.0)
+    settings.setdefault('focal_alpha',None)
+    settings.setdefault('logit_adjust_tau',1.0)
+    settings.setdefault('early_stopping_patience',0)
     settings.setdefault('intermedeate_save',True)
     settings.setdefault('resume_checkpoint','')
     settings.setdefault('pin_memory',False)
@@ -950,9 +1299,20 @@ def deep_spacr_defaults(settings):
     settings.setdefault('model_path','')
     settings.setdefault('file_type','cell_png')
     settings.setdefault('generate_training_dataset', True)
+    settings.setdefault('balance_to_smallest', True)
+    settings.setdefault('write_random_annotation_column', False)
+    settings.setdefault('generate_full_dataset', False)
+    settings.setdefault('tar_path','')
+    settings.setdefault('n_top_examples',20)
+    settings.setdefault('random_seed',42)
+    settings.setdefault('crop_source','auto')
+    settings.setdefault('strict_errors',None)
+    settings.setdefault('max_failure_rate',None)
     settings.setdefault('class_balance','none')
     settings.setdefault('cross_validation_folds',0)
+    settings.setdefault('cross_validation_enabled',False)
     settings.setdefault('cv_group_by','well')
+    _set_classifier_evaluation_defaults(settings)
     return settings
 
 def get_train_test_model_settings(settings):
@@ -1000,7 +1360,9 @@ def get_train_test_model_settings(settings):
      settings.setdefault('early_stopping_patience', 0)
      settings.setdefault('class_balance', 'none')
      settings.setdefault('cross_validation_folds', 0)
+     settings.setdefault('cross_validation_enabled', False)
      settings.setdefault('cv_group_by', 'well')
+     _set_classifier_evaluation_defaults(settings)
      return settings
 
 
@@ -1176,6 +1538,16 @@ def get_perform_regression_default_settings(settings):
     Switches ``agg_type`` to None automatically when quantile regression is
     selected, so ``alpha`` is treated as the quantile.
 
+    Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]``
+    is filled here. Six were not, and because all three dispatchers (the Tk
+    panel via ``gui_core.setup_settings_panel``, the Qt panel via
+    ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run
+    regression`` via ``cli.module_defaults``) build the dict from this one
+    function, regression could not be started from any entry point: it died on
+    ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read
+    and ``settings/regression.csv`` had been written, so the failure looked
+    like a run that had started cleanly.
+
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
@@ -1202,20 +1574,97 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('split_axis_lims','')
     settings.setdefault('cov_type',None)
     settings.setdefault('alpha',1)
+    # Every knob below is read by spacr.ml.regression_model for at least one
+    # regression_type, and each one is INDEXED (settings[...]) by
+    # perform_regression, not .get()-ed: a model that reads a setting must have
+    # a default here or the module is unstartable from every entry point, which
+    # is exactly how six other keys took regression down.
+    #
+    # The defaults match regression_model's own signature defaults, because
+    # _reject_unused_settings compares against them to tell "the user asked for
+    # this" from "the panel posted its default".
+    settings.setdefault('l1_ratio', 0.5)
+    settings.setdefault('quantile', 0.5)
+    settings.setdefault('hinge_threshold', None)
+    settings.setdefault('hinge_n_boot', 200)
+    settings.setdefault('huber_t', 1.345)
+    settings.setdefault('lasso_n_boot', 200)
+    settings.setdefault('lasso_selection_threshold', 0.6)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
+    # sequencing.graph_sequencing_stats iterates settings['control_wells'] and
+    # drops those wells from the count table before it sweeps for the fraction
+    # threshold, exactly as ml.clean_controls drops filter_value from the score
+    # table. The two must name the same wells or the threshold is fitted on
+    # wells the regression never sees, so this follows filter_value. It is
+    # indexed, not .get(), and it is iterated, so None -- which is what the
+    # invasion assay defaults the same key name to -- is not a legal value here.
+    settings.setdefault(
+        'control_wells',
+        list(settings['filter_value'])
+        if isinstance(settings['filter_value'], (list, tuple)) else [])
+    settings.setdefault('batch_correction', 'none')
+    settings.setdefault('batch_column', 'plateID')
+    settings.setdefault('batch_control_column', 'columnID')
+    settings.setdefault('batch_control_values', None)
+    settings.setdefault('batch_covariate_column', None)
+    settings.setdefault('batch_combat_mean_only', False)
+    settings.setdefault('batch_min_samples', 3)
+    settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('plateID','plate1')
     # Acquisition-specific annotations cannot have a meaningful machine-wide
     # default. An empty list makes the optional input explicit and portable.
     settings.setdefault('metadata_files', [])
     settings.setdefault('volcano','gene')
     settings.setdefault('toxo', True)
+    # perform_regression prints a per-stage row count and display()s the whole
+    # per-object score table under verbose, which is millions of rows on a real
+    # screen, so this pipeline is one of the False ones.
+    settings.setdefault('verbose', False)
+    # minimum_cell_simulation reads settings['tolerance'] and accepts an int
+    # (percent) or a float (fraction); anything else raises ValueError. 0.02 is
+    # the 2% the function's own worked example uses.
+    settings.setdefault('tolerance', 0.02)
+    # minimum_cell_simulation resamples settings['score_column'] out of the
+    # score CSV to find how many cells a well needs before its mean is stable.
+    # That has to be the column being regressed, or the simulated minimum
+    # describes a different measurement than the one the model fits, so it
+    # follows dependent_variable rather than hard-coding 'pred'.
+    settings.setdefault('score_column', settings['dependent_variable'])
+    # process_scores: False/0 = as measured, True/1 = 1 - x, -1 = 1 / x.
+    settings.setdefault('invert_dependent_variable', False)
+    # toxo.custom_volcano_plot's y limits: None auto-scales, [lo, hi] fixes the
+    # axis, [[lo1, hi1], [lo2, hi2]] draws a broken axis.
+    settings.setdefault('y_lims', None)
 
     if settings['regression_type'] == 'quantile':
-        print(f"Using alpha as quantile for quantile regression, alpha: {settings['alpha']}")
+        # alpha USED to double as the quantile here, which was a silent
+        # overload of a key whose tooltip, GUI label and every other regression
+        # type call a penalty weight: a settings CSV reading alpha=0.9 meant
+        # "the 90th percentile" under one regression_type and "shrink hard"
+        # under the next. The quantile now has its own key, and an alpha left
+        # over from the old spelling is refused rather than ignored - silently
+        # dropping it would fit the median and label the output 0.9.
+        if settings['alpha'] != 1:
+            raise ValueError(
+                f"regression_type='quantile' does not use alpha "
+                f"(alpha={settings['alpha']!r} was set). The quantile being "
+                f"fitted is the 'quantile' setting; alpha is the penalty "
+                f"weight of the penalised models and does nothing here. Set "
+                f"quantile={settings['alpha']!r} instead if that is the "
+                f"percentile you meant, and leave alpha at 1.")
+        q = settings['quantile']
+        if not isinstance(q, (int, float)) or isinstance(q, bool) \
+                or not 0.0 < float(q) < 1.0:
+            raise ValueError(
+                f"quantile must be a number strictly inside (0, 1); got "
+                f"{q!r}. 0.5 fits the median, 0.9 the upper tail.")
+        print(f"Fitting the {float(q):g} quantile of {settings['dependent_variable']}")
+        # Quantile regression on per-well MEANS would be the quantile of an
+        # average, which is not the quantile of the response.
         settings['agg_type'] = None
         print(f'agg_type set to None for quantile regression')
-        
+
     # Fail-loud policy. None means "not set here" and defers to the
     # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
     # it on for a whole batch without editing every settings file. True/False
@@ -1384,8 +1833,21 @@ expected_types = {
     "measurement": str,
     "nr_imgs": int,
     "um_per_pixel": (int, float),
-    "pathogen_limit": int,
-    "nuclei_limit": int,
+    # Their own tooltip says "(int, bool, or None)" and four factories ship
+    # True (analyze_screen, deep_spacr, generate_training_dataset,
+    # analyze_recruitment's siblings), but they were declared plain int -- so
+    # check_settings answered those modules' OWN defaults with "Expected type
+    # int for 'nuclei_limit', but got 'True'" and gui_core's `if len(errors) >
+    # 0: return` refused to start the run.
+    #
+    # (bool, int) rather than (bool, int, type(None)): the three-way tuple has
+    # no branch of its own and would fall into the generic loop, where bool()
+    # is tried first and bool('10') is True -- turning "keep cells with 10 or
+    # fewer nuclei" into "keep single-nucleus cells only". The (bool, int)
+    # branch already handles None, the true/false spellings and an integer,
+    # which is exactly the documented set of values.
+    "pathogen_limit": (bool, int),
+    "nuclei_limit": (bool, int),
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
@@ -1414,6 +1876,16 @@ expected_types = {
     "metric": str,
     "eps": float,
     "min_samples": int,
+    "batch_correction": str,
+    "batch_column": str,
+    "batch_control_column": (str, type(None)),
+    "batch_control_values": (
+        str, int, float, list, tuple, type(None),
+    ),
+    "batch_covariate_column": (str, list, tuple, type(None)),
+    "batch_combat_mean_only": bool,
+    "batch_min_samples": int,
+    "batch_missing_control": str,
     "filter_by": (str, type(None)),
     "img_zoom": float,
     "plot_by_cluster": bool,
@@ -1509,6 +1981,37 @@ expected_types = {
     "nc": str,
     "nc_loc": str,
     "dependent_variable": str,
+    # The four regression keys perform_regression indexes directly. They had no
+    # entry here at all, so the GUIs could not render them, check_settings could
+    # not coerce them out of a settings CSV and validate could not type-check
+    # them -- see get_perform_regression_default_settings.
+    "score_column": str,
+    "tolerance": (int, float),
+    "invert_dependent_variable": (bool, int),
+    "y_lims": (list, type(None)),
+    # The model-choice keys. The first three -- regression_type, alpha and
+    # random_row_column_effects -- were categorised, tooltipped and defaulted
+    # but had NO entry here, and check_settings DROPS any key it cannot type
+    # ("Warning: Key 'regression_type' not found in expected types"), so the
+    # Tk panel discarded whichever model the user picked and
+    # get_perform_regression_default_settings then restored 'ols'. A run
+    # configured as 'mixed' fitted OLS, wrote it to results/<...>/ols/ and said
+    # nothing anywhere. The rest are the per-model knobs spacr.ml's backends
+    # read; see spacr.ml.REGRESSION_SETTINGS_USED for which type reads which.
+    #
+    # regression_type is (str, NoneType) because None is the documented
+    # "choose from the response distribution" value; alpha is (int, float, str,
+    # NoneType) because 'auto'/None select it by cross-validation.
+    "regression_type": (str, type(None)),
+    "alpha": (int, float, str, type(None)),
+    "random_row_column_effects": bool,
+    "l1_ratio": float,
+    "quantile": float,
+    "hinge_threshold": (float, type(None)),
+    "hinge_n_boot": int,
+    "huber_t": float,
+    "lasso_n_boot": int,
+    "lasso_selection_threshold": float,
     "transform": (str, type(None)),
     "agg_type": str,
     "min_cell_count": int,
@@ -1522,6 +2025,18 @@ expected_types = {
     "learning_rate": float,
     "weight_decay": float,
     "batch_size": int,
+    # The three v1/v2 pipeline keys. They were defaulted by
+    # set_default_settings_preprocess_generate_masks and listed under the
+    # "Advanced" category -- so both GUIs built a widget for them -- but were
+    # declared nowhere, and an undeclared key is not merely untyped: Tk's
+    # check_settings reports "not found in expected types" and `continue`s,
+    # dropping the key from the dict it returns, and Qt's
+    # _coerce_to_expected_type hands the raw widget string through. Switching
+    # the pipeline to v2 in the panel therefore did nothing at all, and
+    # batch_fields reached the streaming loop as the string '8'.
+    "pipeline_style": str,
+    "batch_fields": int,
+    "keep_npz": bool,
     "n_epochs": int,
     "from_scratch": bool,
     "width_height": list,
@@ -1584,6 +2099,13 @@ expected_types = {
     'object_type':str,
     "parasite_table": str,
     "compartment": str,
+    "vacuole_key": str,
+    "vacuole_link_distance": (int, float, type(None)),
+    "vacuole_link_factor": (int, float),
+    "parasite_count_column": (str, type(None)),
+    "max_parasites_per_vacuole": int,
+    "require_host_cell": bool,
+    "non_power_of_two_warn": float,
     "outside_channel": int,
     "total_channel": (int, type(None)),
     "intensity_statistic": str,
@@ -1610,6 +2132,8 @@ expected_types = {
     "change_plate": bool,
     "qc_plot_max_panels": int,
     "resume":bool,
+    "resume_search":bool,
+    "checkpoint_path":(str, type(None)),
     "test_images":int,
     "remove_background_cell":bool,
     "remove_background_nucleus":bool,
@@ -1777,6 +2301,21 @@ expected_types = {
     'queue_diversity':str,
     'queue_limit':int,
     'cross_validation_folds':int,
+    'cross_validation_enabled':bool,
+    'classifier_evaluation':bool,
+    'nested_cv_inner_folds':int,
+    'evaluation_calibration':str,
+    'evaluation_bins':int,
+    'evaluation_fail_on_leakage':bool,
+    'leakage_audit_train_test':bool,
+    'leakage_hash_content':bool,
+    'leakage_require_identity':bool,
+    'generate_full_dataset':bool,
+    'tar_path':str,
+    'n_top_examples':int,
+    'random_seed':int,
+    'balance_to_smallest':bool,
+    'write_random_annotation_column':bool,
     'cv_group_by':str,
     'logit_adjust_tau':float,
     'focal_alpha':( float, type(None)),
@@ -1843,9 +2382,121 @@ expected_types = {
     'nucleus_max_intensity_percentile':(int, type(None)),
     'pathogen_max_intensity_percentile':(int, type(None)),
     'organelle_max_intensity_percentile':(int, type(None)),
+
+    # ------------------------------------------------------------------
+    # Keys their module ships AND puts a widget on, but that nothing ever
+    # declared. Undeclared is not "untyped and otherwise fine": the settings
+    # panel builds its widget map from the module's own defaults factory, so
+    # each of these became a field, and check_settings answers a field it
+    # cannot type with
+    #     errors.append("Warning: Key '<k>' not found in expected types")
+    # and `continue`. gui_core.import_settings then does
+    #     if len(errors) > 0: return
+    # -- so pressing Run did nothing at all, with the reason only in the log
+    # queue. Map Barcodes was unstartable from the Tk GUI for eleven of these
+    # at once; Training Dataset, Activation Maps, Endodyogeny, Class
+    # Proportion and Check Cellpose Models each had their own.
+    #
+    # Every type below is the type of the value that module already ships,
+    # and tests/test_settings_full_coverage.py round-trips each factory's
+    # defaults through check_settings to prove it: a wrong type here would
+    # show up as a value that does not survive its own default.
+    'regex': str,
+    'target_sequence': str,
+    'expected_end': int,
+    'column_csv': str,
+    'grna_csv': str,
+    'row_csv': str,
+    'save_h5': bool,
+    'comp_type': str,
+    'comp_level': int,
+    'mode': str,
+    'fill_na': bool,
+    'class_metadata': list,
+    'metadata_item_1_name': (str, type(None)),
+    'metadata_item_1_value': (str, type(None)),
+    'metadata_item_2_name': (str, type(None)),
+    'metadata_item_2_value': (str, type(None)),
+    'size': int,
+    'test_split': float,
+    'cam_type': str,
+    'correlation': bool,
+    'shuffle': bool,
+    'class_column': str,
+    'group_by_class': bool,
+    'max_area': int,
+    'max_bins': (int, type(None)),
+    'min_area_bin': int,
+    'um_per_px': float,
+    'grayscale': bool,
+    'invert': bool,
+    'percentiles': (list, type(None)),
+    'plateID': str,
+    'random_test': bool,
+    'target_size': int,
+    'CP_probability': int,
+    'FT': int,
+    'circularize': bool,
+    'nr': int,
+    'save_dtype': str,
+}
+
+#: Settings that are declared -- typed here, tooltipped, offered by a GUI
+#: category -- but that NOTHING in spaCR reads. Setting one is a silent no-op,
+#: which is the worst failure mode there is: the run starts, finishes, and
+#: produces a plausible wrong answer, and on a 40-plate cluster job that costs
+#: a GPU-week to discover. ``spacr.validate`` turns each of these into a
+#: pre-flight ERROR and ``spacr.cli.apply_overrides`` refuses a ``--set`` that
+#: names one, both quoting the working spelling below.
+#:
+#: A key belongs here when its name appears NOWHERE in ``spacr/*.py`` outside
+#: the ``expected_types`` / ``tooltips`` / ``descriptions`` / ``categories``
+#: literals in this file -- no reader, and no ``setdefault`` either, so no
+#: pipeline's own defaults can trip the check.
+#: ``tests/test_dead_settings.py`` re-derives the set from the source on every
+#: run, so the registry cannot rot in either direction: a key that gains a
+#: reader must leave it, and a key that loses its last reader must join it.
+#:
+#: They stay declared rather than being deleted so that an old settings CSV
+#: still loads far enough to be told, by name, what to use instead.
+DEAD_SETTINGS = {
+    'remove_border_cells': 'cell_remove_border_objects',
+    'remove_border_nuclei': 'nucleus_remove_border_objects',
+    'remove_border_pathogens': 'pathogen_remove_border_objects',
+    'remove_border_organelles': 'organelle_remove_border_objects',
+    'redunction_method': 'reduction_method',
+    'signal_direction': 'single_direction',
+    'class_1_threshold': 'score_threshold',
+    'pick_slice': 'z_projection',
+    'metadata_types': 'metadata_type',
+    # Cellpose 4 segments everything with cpsam; the object's model is named
+    # by its own <object>_model_name.
+    'use_sam_cell': 'cell_model_name',
+    'use_sam_nucleus': 'nucleus_model_name',
+    'use_sam_pathogen': 'pathogen_model_name',
+    # Mask post-processing is per-object and is driven by the
+    # <object>_intensity_merge / _intensity_split / _area_multiplier group
+    # that object.merge_split_filter_masks actually reads.
+    'postprocess_cell_masks': 'cell_intensity_merge',
+    'postprocess_nucleus_masks': 'nucleus_intensity_merge',
+    'postprocess_pathogen_masks': 'pathogen_intensity_merge',
+    'postprocess_organelle_masks': 'organelle_intensity_merge',
+    # No working spelling: the behaviour these were meant to name does not
+    # exist anywhere in spaCR.
+    'gene_weights_csv': None,
+    'nucleus_loc': None,
+    'skip_mode': None,
 }
 
 tooltips = {
+    "batch_correction": "(str) - Optional plate/batch correction applied before Image UMAP, ML screen classification, or phenotype regression. 'none' leaves measurements unchanged; 'center' removes each plate's mean shift; 'zscore' aligns plate means and variances; 'robust_zscore' uses median/MAD and tolerates outliers; 'control_center' estimates only a location shift from reference controls and best preserves treatment dispersion; 'combat' is empirical-Bayes ComBat and needs batch_covariate_column naming the biology to protect, or it refuses to run. Do not correct when plate is confounded with biology. Default 'none'. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_column": "(str) - Metadata column that identifies independent acquisition batches, normally 'plateID'. Every analyzed row must have a value and at least batch_min_samples rows must occur in each batch. Use an acquisition date or instrument ID only if that is the nuisance source you intend to remove. Default 'plateID'. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_control_column": "(str or None) - Metadata column containing reference-control labels for control_center, normally 'columnID' for plate controls. It is ignored by center, zscore, robust_zscore, and none. Blank follows col_to_compare in Image UMAP or location_column in Classify (ML); regression defaults to 'columnID'. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_control_values": "(str, number, list or None) - Reference/negative-control value(s) in batch_control_column used by control_center. Each plate needs at least batch_min_samples matching rows. Image UMAP falls back to neg and Classify (ML) to negative_control when this field is blank; regression requires an explicit value. Default varies by module. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_covariate_column": "(str, list or None) - Metadata column(s) naming the biology that combat must protect, e.g. 'condition' or 'condition,timepoint'. combat estimates the batch effect from the residuals after these terms, so anything NOT listed here is treated as noise and removed with the plate effect -- leave your treatment out and combat deletes the contrast you are measuring. Required by combat and ignored by every other method; blank makes combat refuse to run rather than silently destroy the signal. Write 'none' to state deliberately that there is no covariate to protect. Default None. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_combat_mean_only": "(bool) - True corrects only the additive batch shift and leaves each batch's scale alone. Use it when the plates differ in level but not in spread, or when a batch has too few rows for a stable variance estimate. False (the default) corrects both location and scale, which is standard ComBat. Ignored by every method other than combat. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_min_samples": "(int) - Minimum number of rows required in every batch, and minimum matching reference controls per batch for control_center. Correction stops with an actionable error below this threshold because a one- or two-object plate estimate is unstable. Default 3. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_missing_control": "(str) - Policy when control_center cannot find enough reference controls on a plate: 'error' stops rather than silently mixing corrected and raw plates; 'skip' leaves that plate unchanged and records a warning. Default 'error'. API: spacr.batch_correction.correct_batch_effects.",
     "threshold_direction": "(list, list-of-lists, int or None) - Which side of 'threshold' to keep when prefiltering objects for annotation: 'higher' keeps rows whose measurement is >= the threshold, 'lower' keeps rows <= it. Give one value, or one per entry in 'measurement' (a single string is broadcast to the whole list). Default 'higher'.",
     "threshold": "(list, list-of-lists, int or None) - Cut-off applied to 'measurement' before the annotation grid loads, so you only label the objects you care about. Accepts a number or a quantile code 'q1'-'q9' (q3 = the 30th percentile of that column), or one entry per measurement when measurement is a list. Empty or None loads every object unfiltered.",
     "cell_model_name": "(str) - Which weights segment cells. Cellpose 4 ships exactly one stock model, 'cpsam', so the only other value that means anything is a path to a checkpoint you trained yourself in Train Cellpose - that path is loaded as pretrained_model and honoured. The pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') are still accepted so old settings files load, but they are mapped to 'cpsam' on the way in and reported once: Cellpose 4 would have resolved them to cpsam silently anyway. Note what Cellpose 4 does and does not still read: diameter IS honoured (eval rescales the image by 30/diameter), while model_type and diam_mean are accepted-and-ignored with a 'not used in v4.0.1+' log line. Default 'cpsam'.",
@@ -1877,6 +2528,30 @@ tooltips = {
     "pathogen_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_Signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
     "nucleus_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.",
     "batch_size": "(int) - How many images are held and processed together in one pass: field stacks during normalization and Cellpose segmentation, crops per step during classifier training and activation maps. Raising it speeds runs up but increases RAM/VRAM roughly linearly; lower it on out-of-memory errors. Defaults: 50 for mask generation, 64 for training.",
+    "pipeline_style": "(str) - Which mask pipeline runs. 'v1' is the disk-based chain (rename, per-channel folders, npy, npz, mask npy, merged/) that measure, annotate and every downstream tool expect, and is the fully tested path. 'v2' streams from the originals and writes one npy per field with masks appended in place, using roughly 60-80% less disk but producing no .npz. Default 'v1'.",
+    "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
+    "keep_npz": "(bool) - Streaming pipeline only (pipeline_style='v2'): write each in-memory NPZ batch out under merged/_scratch/ instead of discarding it, so the intermediate a failing run was working on can be inspected. Costs the disk the streaming pipeline exists to save, so turn it on only while diagnosing. Default False.",
+    "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_CP_prob used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
+    "FT": "(int) - Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_FT. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Default 100, which effectively accepts every candidate.",
+    "circularize": "(bool) - Replace each detected mask with a circle of equivalent area centred on its centroid before measuring. Useful when the object really is round and the segmentation outline is noisy, because it removes boundary jitter from area and intensity statistics; wrong whenever shape itself is the phenotype, since it erases exactly the elongation being measured. Default False.",
+    "class_column": "(str) - Column holding the per-object class label that the class-proportion analysis counts. Rows where it is missing are filled with 0 rather than dropped, so a column naming the wrong field silently reports every object as class zero instead of failing. It is also pasted onto the condition when group_by_class is on. Default 'test'.",
+    "class_metadata": "(list of lists) - One inner list per training class, holding the metadata values that select that class's objects, for example [['c1'],['c2']] for a two-class run keyed on column. Order fixes the class indices the model learns, so reordering the inner lists relabels the whole training set. Values that occur in no row make the generator select nothing and stop. Default [['c1'], ['c2']].",
+    "fill_na": "(bool) - When a barcode does not match any entry in its reference CSV, count it under its raw sequence instead of dropping it. Off, the groupby silently discards every unmatched read, so a reference with the wrong orientation produces a small clean table rather than an obviously empty one. Turn it on to see how much of the run failed to map. Default False.",
+    "group_by_class": "(bool) - Whether the endodyogeny condition labels are split by class before proportions are computed: on, the condition string has the class_column value appended, so each condition-class combination becomes its own group; off, classes are pooled within a condition. It changes what the bars count, not how the statistics are weighted. Default False.",
+    "max_area": "(int) - Upper area cutoff applied before the endodyogeny bins are built; objects larger than it are dropped entirely. Applied AFTER um_per_px scaling, so it is expressed in whatever unit that leaves - square microns when a scale is set, square pixels when it is None. The default is large enough to keep everything, so it only matters once you lower it. Default 1000000000.",
+    "max_bins": "(int or None) - Cap on the number of area bins the endodyogeny histogram is divided into. None lets the bin count follow the data range and min_area_bin, which is usually what you want; an integer truncates the range so the largest objects are pooled into the final bin. Set it when plates with different size ranges must share one axis. Default None.",
+    "metadata_item_1_name": "(str or None) - Name given to the first extra metadata grouping written alongside each generated training crop, for example 'nc' and 'pc' for negative and positive controls. It only labels the group; the values that select the rows are metadata_item_1_value. None writes no extra grouping at all. Default None.",
+    "metadata_item_1_value": "(str or None) - The metadata values selecting the rows that belong to metadata_item_1_name, for example [['c19','c2'],['c3','c4']]. Values that occur in no row contribute no crops, and because the generator reports only the final count a typo here looks like a class that is simply rare. None disables the grouping. Default None.",
+    "metadata_item_2_name": "(str or None) - Name of the second extra metadata grouping for generated training crops, used when one grouping is not enough to describe the design, for example a treatment axis crossed with the control axis of item 1. Purely a label; metadata_item_2_value selects the rows. None writes no second grouping. Default None.",
+    "metadata_item_2_value": "(str or None) - The metadata values selecting rows for metadata_item_2_name, in the same nested form as metadata_item_1_value. It is matched independently of item 1, so a row can belong to both groupings at once and will then be written under each. None disables the second grouping. Default None.",
+    "min_area_bin": "(int) - Width of the smallest area bin in the endodyogeny histogram, and therefore the resolution at which small parasites are distinguished from one another. Expressed in the same unit as max_area, so it follows um_per_px when a scale is set. Too small a value produces sparse noisy bins; too large merges real division states. Default 500.",
+    "nr": "(int) - How many example fields are drawn when a preprocessing step plots what it produced. It affects only the diagnostic figure, never the arrays written to disk, so raising it costs plotting time and nothing else. Lower it to one on large plates where the preview is only a sanity check. Default 1.",
+    "plateID": "(str) - Plate name stamped onto count and score rows that carry no plate of their own, and used as the first field of the plate_row_column key that joins the two tables. It is ignored with a warning when the input already contains more than one distinct plate, so it matters only for single-plate inputs. Default 'plate1'.",
+    "save_dtype": "(str) - NumPy dtype the preprocessed image arrays are written as. 'uint16' preserves the full range of a typical microscope camera; narrowing it to 'uint8' quarters the disk cost and permanently discards intensity resolution that every downstream measurement depends on. Widening it to a float type costs disk and buys nothing on integer input. Default 'uint16'.",
+    "size": "(int) - Edge length in pixels of each square crop written into the generated training dataset. It has to match what the classifier expects at training time, and enlarging it later cannot recover detail that was thrown away here, so pick it for the smallest object you need the model to see rather than for the current model. Default 224.",
+    "target_size": "(int) - Edge length the training images and masks are resized to before Cellpose fine-tuning, applied to both axes so the input becomes square. Larger keeps fine boundary detail and costs VRAM and time roughly quadratically; smaller trains faster and blurs exactly the outlines the model is being taught. Default 1000.",
+    "test_split": "(float) - Fraction of the generated crops held out as the test set, between 0 and 1. The split respects the grouping level chosen elsewhere, so crops from one well do not straddle it and the score is not inflated by the model recognising the well. Raising it buys a steadier estimate and costs training data. Default 0.1.",
+    "um_per_px": "(float or None) - Physical size of one pixel, used to convert the endodyogeny area column into square microns before binning. Set it and max_area, min_area_bin and every reported area are in microns; leave it None and they stay in pixels, which makes numbers from objectives of different magnification incomparable. Default 0.1.",
     "cell_FT": "(float) - Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3 (GUI allows -1 to 3). Default 1.0.",
     "cell_CP_prob": "(float) - Cellpose cellprob_threshold: only pixels whose predicted cell probability exceeds it are assigned to a mask. Raise it to shrink outlines and drop faint or spurious cells; lower it to grow outlines and recover dim ones. Valid range roughly -6 to 6, default 0. Lower it first when whole cells are missing.",
     "channels": "(list of int) - Zero-indexed image channels kept in merged/*.npy and measured by measure_crop; each entry produces its own <object>_channel_<n>_* intensity columns. The list length fixes where masks land, so cell/nucleus/pathogen_mask_dim must shift if you change it. Preprocessing silently resets it to range(n) when it does not match the number of channel folders found. Default [0,1,2,3].",
@@ -1895,7 +2570,6 @@ tooltips = {
     "delete_intermediate": "(bool) - Legacy force-cleanup switch: when True it overrides keep_intermediate and keep_original_images so stack/, masks/, the numeric per-channel folders and the orig/ raw backup are all removed once merged/ is built. Cleanup is already the default, so this is only needed to beat those keep flags. Deletion is skipped unless every field of view reached merged/. Default False.",
     "save": "(bool or list of bool) - Whether to save masks to disk. Can be a list of three booleans for [cell, nucleus, pathogen] independently.",
     "reduction_method": "(str) - Dimensionality reduction run before clustering and plotting: 'umap' preserves more global structure and can be fitted on controls then applied to all data, 'tsne' emphasises local neighbourhoods and cannot reuse a fitted model. With 'tsne', min_dist is ignored and n_neighbors is used as perplexity. Anything else raises ValueError. Default 'umap'.",
-    "schedule": "(str) - Learning-rate scheduler for classifier training. 'cosine' anneals the LR smoothly from its start value down to 1e-7 across all epochs; 'step_lr' multiplies it by 0.75 every epochs/5 steps; 'reduce_lr_on_plateau' cuts it only when validation loss stops improving. Use cosine for a fixed epoch budget, plateau when the epoch count is uncertain. Default 'cosine'.",
     "test_size": "(float) - Fraction of the labelled single-object rows held out as the test split in the tabular ML classifier; the remainder trains the model. Raise it for a more trustworthy accuracy estimate, lower it when labelled data is scarce and you need the rows for training. Valid 0-1, default 0.2 (20% test).",
     "merge_pathogens": "(bool) - Legacy option that merged two touching pathogen labels into one when their shared boundary exceeded 66% of the smaller object's perimeter, so a single PV split by Cellpose counted once. The current Cellpose-SAM path ignores it - use pathogen_perimeter_fraction instead. Default False.",
     "resize": "(bool or float) - Resize every image to target_height x target_width before running Cellpose, then scale the returned mask back to the original dimensions with nearest-neighbour interpolation so measurements stay in original pixels. Turn it on to bring oversized fields to the scale a model was trained at, or to cut GPU memory. Requires target_height and target_width. Default False (True for plaque analysis).",
@@ -1905,13 +2579,13 @@ tooltips = {
     "shuffle": "(bool) - Shuffle the tar dataset in the DataLoader when generating activation maps, so each batch-grid PDF shows a mixed sample rather than consecutive files from one plate or class. Set False for a deterministic, file-order pass you can line up against the dataset listing. Default True.",
     "correlation": "(bool) - Correlate every input channel against every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, 75 by default). Use it to quantify which stain the model attends to instead of eyeballing heatmaps; it needs save=True to reach the database. Default True.",
     "mode": "(str) - Read-pairing strategy for barcode extraction: 'paired' locates target_sequence in R1 and in the reverse complement of R2 and merges them base-by-base into a quality-weighted consensus; 'single' scans one mate alone, chosen by single_direction. Paired calls barcodes more accurately but discards any read whose anchor is missing from either mate. Default 'paired'.",
-    "signal_direction": "(str) - Fastq read direction: 'R1' or 'R2'. Only relevant when mode is 'single'.",
+    "signal_direction": "(str) - Intended to pick the FASTQ mate ('R1' or 'R2') scanned when mode is 'single', but nothing reads settings['signal_direction']; the barcode mapper reads single_direction instead, so setting this one leaves the run on whatever single_direction says. Use single_direction. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     "offset": "(int) - Offset from target_sequence to the first barcode, e.g. -8 if the barcode starts 8 bases upstream.",
     "expected_end": "(int) - Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",
     "infection_intensity_qc_scope": "(str) - Whether infection QC is fitted once or per group: 'combined'/'global'/'all' fits one model on everything, 'plate'/'per_plate' one per plateID, 'well'/'per_well' one per plate-well, and 'none'/'off' skips QC; an unrecognised string falls back to combined behaviour with a warning. Per-well fitting absorbs staining and exposure differences but needs enough cells per well; every group still writes its own QC plot, only the QC payload embedded in the summary panel is taken from the first processed group. Default 'per_well'.",
     "adjust_cells": "(bool) - After segmentation, rewrite the cell masks so labels split across a single pathogen or nucleus are merged, and cell fragments with no nucleus are absorbed into the neighbour they share most perimeter with. Needs cell, nucleus and pathogen channels and is skipped for timelapse runs. Enable when large infected cells come back fragmented. Default False.",
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
-    "alpha": "(float) - Regularisation strength for the penalised models: the L1 penalty for 'lasso', the L2 penalty for 'ridge', and the ridge fallback 'mixed' applies under high collinearity. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation. With regression_type 'quantile' it is read as the quantile instead. Default 1.",
+    "alpha": "(float) - Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
     "all_to_mip": "(bool) - Append an extra channel to every .npy in stack/ holding the pixel-wise maximum across that file's existing channels; the original channels are kept, not replaced. The new channel's index equals the previous channel count, so reference it through the channel/mask dim settings if you want to segment on it. Default False.",
     # --- 3D (Beta) -------------------------------------------------------
     # These describe what the z plumbing does, and say plainly where it stops.
@@ -1966,7 +2640,7 @@ tooltips = {
     "channel_of_interest": "(int) - Index of the fluorescence channel the downstream analysis focuses on. It decides which channel's features survive filtering (other channels' features are dropped), defines recruitment = pathogen_channel_N_mean_intensity / cytoplasm_channel_N_mean_intensity, and is written into the ML result paths. Set it to the channel carrying your phenotype readout. Valid 0-3; default 3 in the ML/recruitment steps, 1-2 elsewhere.",
     "chunk_size": "(int) - Number of FASTQ reads read into memory and handed to each worker batch. Larger chunks cut per-batch overhead and make the progress bar coarser but raise peak RAM per job; smaller chunks stream more gently on low-memory machines. Also sets how many reads are processed when test is True. Default 100000.",
     "classes": "(list) - Ordered class names. Each must exactly match a subfolder under src/train and src/test; a name's position in this list becomes its integer label, and the list length sets the width of the classifier head. Training raises a FileNotFoundError listing missing vs available folders if a name has no folder. Generate Training Dataset overwrites this with the class names it actually wrote to disk. Default ['nc','pc'].",
-    "class_1_threshold": "(float) - Threshold for class 1 classification.",
+    "class_1_threshold": "(float) - Intended as the probability cut-off above which an object is called class 1, but nothing reads settings['class_1_threshold'] and no defaults function sets it, so the hard call is unaffected by it. score_threshold is the key the classifier actually applies when it turns the model's probability into cv_predictions. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     "clustering": "(str) - Algorithm run on the 2D embedding. 'dbscan' grows density-based clusters from eps and min_samples and labels sparse points as noise (-1), discovering the cluster count itself; 'kmeans' (that exact spelling) instead forces exactly min_samples clusters and assigns every point. Choose dbscan for a few distinct phenotypes over a diffuse background, kmeans when you want a fixed number of groups. Default 'dbscan'.",
     "col_to_compare": "(str) - Metadata column that identifies the control wells when embedding_by_controls is True: rows whose value equals pos or neg are used to train the reducer, and the column is then dropped before fitting. Typically 'columnID' or 'rowID' depending on where controls sit on the plate. Ignored otherwise. Default 'columnID'.",
     "color_by": "(str) - Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None.",
@@ -1977,6 +2651,10 @@ tooltips = {
     "cytoplasm_min_size": "(int) - (Depreceated) Pixel-area floor for the cytoplasm mask, which is the cell mask with nucleus, pathogen and organelle pixels removed. Cytoplasm regions below this are erased before measurement, so their host cell yields no cytoplasm features and any recruitment ratio built on them is lost. 0 or None disables. Default 0.",
     "nucleus_min_size": "(int) - (Depreceated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer nucleus_min_area, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
+    "score_column": "(str) - Which column of the per-object score CSV minimum_cell_simulation resamples when it works out how many objects a well needs before its mean stops moving. It must name the same measurement as dependent_variable, or the simulated min_cell_count describes a different quantity than the one the regression fits and wells are kept or dropped on the wrong evidence; the regression defaults therefore follow dependent_variable. In the interpret-vision-model helper the same key names the CNN score column instead, default 'cv_predictions'.",
+    "tolerance": "(int or float) - How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
+    "invert_dependent_variable": "(bool or int) - Flip the response before it is aggregated per well, for scores whose useful direction is downward. False or 0 leaves it as measured, True or 1 uses 1 - x (right for a probability, so a low infection score becomes a high phenotype), and -1 uses 1 / x (right for a distance or a count). Any other value raises ValueError in process_scores. It changes the sign of every coefficient and therefore which side of the volcano your hits land on. Default False.",
+    "y_lims": "(list or None) - Limits of the -log10(p) axis of the Toxoplasma volcano plot. None auto-scales to the data; [low, high] fixes the axis so several plates can be compared at the same scale; [[low1, high1], [low2, high2]] draws a broken axis with the gap between the two ranges removed, which keeps a handful of extremely significant genes on the plot without flattening everything else. Any other shape raises ValueError. Default None.",
     "dialate_png_ratios": "(list of float) - Dilation amount as a fraction of object size: the mask is grown by ratio * sqrt(object area) pixels of binary dilation, so 0.2 expands a cell by roughly 20% of its diameter and pulls in surrounding background. Only used when dialate_pngs is True. A single value applies to every crop_mode entry; pass a list only when the modes need different ratios. Default [0.2].",
     "dialate_pngs": "(bool) - Grow each object mask before cropping so the PNG keeps a rim of surrounding pixels instead of a hard mask edge; the amount comes from dialate_png_ratios. May be a list with one value per crop_mode entry (a single value applies to all of them), and is forced off for crop_mode 'cytoplasm'. Enable when context around the object helps the classifier. Default False.",
     "dot_size": "(int) - Matplotlib marker area, in points squared, for each object plotted in the UMAP/tSNE embedding. Increase it when a few hundred points make the scatter look empty; drop it to roughly 5-10 when tens of thousands of points overplot and hide cluster structure. Default 50.",
@@ -2066,7 +2744,7 @@ tooltips = {
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
     "randomize": "(bool) - Shuffle the order of the per-field arrays before they are grouped into normalization batches, so each batch spans plates and wells instead of one acquisition block - this matters because normalization percentiles are computed per batch. Forced to False for timelapse runs to keep frames in sequence. Default True.",
-    "regression_type": "(str) - Model fitted to the per-well response: 'ols' for continuous data, 'logit'/'probit' for fractions (GLM-binomial weighted by cell count), 'glm' with an auto-selected family, 'lasso'/'ridge' for penalised fits tuned by alpha, 'mixed' for random plate/row/column effects. Set to None to let spaCR choose from the response distribution. Default 'ols'.",
+    "regression_type": "(str) - Model fitted to the per-well response: 'ols' for a continuous score, 'wls' to weight each well by its cell count, 'rlm'/'huber' for a robust fit that outlier wells cannot drag, 'logit'/'probit'/'quasi_binomial' for fractions (GLM-binomial weighted by cell count, the last with free dispersion), 'beta' for a fraction strictly inside 0 and 1, 'poisson' for per-well counts, 'glm' with an auto-selected family, 'quantile' to fit a percentile instead of the mean, 'mixed' for random plate/row/column effects, 'lasso'/'ridge'/'elasticnet' for penalised fits tuned by alpha, 'hinge' for a linear SVM on a binarised response, and 'horseshoe' for the sparse Poisson power-analysis model. Set to None to let spaCR choose from the response distribution. Default 'ols'.",
     "remove_background": "(bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False.",
     "remove_background_cell": "(bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False.",
     "remove_background_nucleus": "(bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first.",
@@ -2076,6 +2754,13 @@ tooltips = {
     "remove_highly_correlated_features": "(bool) - In the machine-learning feature table, drop any feature whose absolute Pearson correlation with an already-kept feature exceeds 0.95, applied after the channel_of_interest filter. Leave it on so redundant measurements do not split importance scores and slow fitting; turn it off only when you need every original column. Default True. Note the UMAP path uses remove_highly_correlated instead.",
     "remove_image_canvas": "(bool) - When object thumbnails are overlaid on the embedding plot, make zero-valued background pixels fully transparent so only the segmented object shows instead of a black square. Turn it on for a cleaner montage, especially with black_background. Only L, I and RGB crops are supported; other PIL modes raise an error. Default False.",
     "remove_low_variance_features": "(bool) - Drop numeric features whose variance across objects falls below 0.01 before model fitting -- near-constant columns that carry no discriminative signal but still cost time and dilute importance rankings. Turn it off only when your features live on a very small numeric scale, where genuine signal can fall under that fixed cut-off. Default True.",
+    "l1_ratio": "(float) - How the elastic-net penalty is split between L1 and L2: 1.0 is a pure lasso (sparse, picks one gRNA out of a correlated group), 0.0 is a pure ridge (dense, shares the effect across the group), and values between keep some of both. Use 0.5 when correlated gRNAs of the same gene should be selected together rather than arbitrarily. Read only by regression_type 'elasticnet'. Default 0.5.",
+    "quantile": "(float) - Which quantile of the response quantile regression fits, strictly inside 0 and 1: 0.5 is the median (robust to outlier wells), 0.9 asks which gRNAs move the top of the distribution rather than its centre. Aggregation is turned off automatically so the quantile is taken over cells, not over well means. Read only by regression_type 'quantile'; it replaced the old overload of alpha. Default 0.5.",
+    "hinge_threshold": "(float) - Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
+    "hinge_n_boot": "(int) - Number of bootstrap resamples behind the hinge p-values. A support vector machine has no likelihood and so no Wald test; spaCR refits it on this many resamples of the wells and compares each coefficient to its bootstrap standard deviation. Treat the result as a stability statistic, not a hypothesis test. Higher is steadier and linearly slower; below about 50 the standard deviations are too noisy to rank on. Default 200.",
+    "huber_t": "(float) - Where Huber's loss switches from squared to linear, in units of the estimated residual scale, for the robust fits. Smaller values downweight more wells and resist heavier contamination; larger values approach ordinary least squares. The default 1.345 gives 95 percent of the efficiency of OLS when the residuals really are normal. Read only by regression_type 'rlm' and 'huber'. Default 1.345.",
+    "lasso_n_boot": "(int) - Number of bootstrap resamples used to rank lasso and elastic-net hits by how often each gRNA survives the penalty. These models have no valid p-values, so selection frequency replaces the significance test entirely. Higher is steadier and linearly slower; the cost is one full penalised fit per resample, doubled when alpha is 'auto' because each resample cross-validates. Default 200.",
+    "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
     "resample": "(bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
     "rescale": "(float) - Rescaling factor for the images.",
@@ -2086,7 +2771,7 @@ tooltips = {
     "save_measurements": "(bool) - Master switch for the measurement half of measure_crop: compute morphology and intensity features for every cell, nucleus, pathogen, organelle and cytoplasm object and write them to the plate's SQLite database. Set it False when you only want cropped PNGs or filtered masks -- segmentation and cropping still run, but no measurement tables are written. Default True.",
     "save_png": "(bool) - Write one PNG crop per segmented object into <crop_mode>_png/ and register each path in the png_list table of measurements.db. Required for training or applying a classifier, for the Annotate app and for the UMAP image plots. Turn off to only compute measurements and save time and disk. Default True.",
     "Signal_to_noise": "(int) - Multiplier on background that sets the signal threshold (background * Signal_to_noise) used by the Cellpose tools when normalizing images: for each channel of each image spaCR takes the first of the 98th, 99th, 99.9th, 99.99th and 99.999th percentiles whose value exceeds that threshold, averages the picks over the batch, and rescales the channel between its average 2nd percentile and that upper bound. Raise it to force a higher percentile - less clipping, dimmer output; lower it to stretch faint objects harder at the cost of saturating bright ones. If no percentile clears the threshold for a channel, its upper bound falls back to that channel's average 2nd percentile, collapsing the range - a sign the value is far too high. Ignored when percentiles is set. Default 10 (5 in check_cellpose_models).",
-    "skip_mode": "(str) - The mode to use for skipping images. This will determine how to handle images that cannot be processed.",
+    "skip_mode": "(str) - Intended to choose what happens to an image that cannot be processed, but nothing reads settings['skip_mode'] and no defaults function sets it, so it has never selected anything. spaCR's actual policy for a failing field is the fail-loud pair strict_errors and max_failure_rate: raise on the first failure, or tolerate up to a fraction of them and report. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     "smooth_lines": "(bool) - Draw cluster outlines as a smoothed spline through the convex hull (2 pt wide) rather than the raw straight hull segments (4 pt). Purely cosmetic - it does not change clustering; switch it off if smoothing distorts the true cluster boundary. No effect unless plot_outlines is on, and forced off when color_by is set. Default True.",
     "src": "(str, path) - Folder the current step reads from and writes into: raw images for mask generation, the merged/ folder of .npy stacks for measure, the plate root for dataset/regression steps, or the folder of .fastq.gz reads for sequencing. Outputs (stack/, masks/, measurements/measurements.db, datasets/, results/) are created inside it. A list of paths, or a \"['a','b']\" string, processes several plates in one run.",
     "target": "(str) - Free-text label for the protein or marker imaged in channel_of_interest, e.g. 'GRA1'. The recruitment run prints it in its banner ('channel:3 = protein') to record what the recruitment ratio is measuring; it feeds no computation, so changing it alters nothing but that log line. Default 'protein'.",
@@ -2109,7 +2794,7 @@ tooltips = {
     "upstream": "(str) - Inert: nothing reads settings['upstream'], and sequencing.py never mentions it. The default is the forward primer sequence this was meant to anchor on; the barcode reader actually locates the window with target_sequence plus offset_start. Kept only so old settings CSVs still load.",
     "val_split": "(float) - Fraction of src/train randomly held out as a validation set each run (0.1 = 10 percent). The validation score drives checkpoint selection, early stopping and the live training curves; at 0 there is no validation loader, so checkpointing falls back to training accuracy, which rewards memorisation. Raise it on small datasets for a less noisy estimate. Default 0.1.",
     "visualize": "(bool) - Whether to visualize the embeddings.",
-    "verbose": "(bool) - Print extra run detail instead of the minimal log: the resolved settings table at the start of mask generation, the channel and Cellpose-model choices per object type, per-table row counts and how many objects survive the nuclei/pathogen-per-cell filters when measurement tables are merged, and extra loader/diagnostic output in the training and UMAP paths. It only adds console output, so turn it on when object counts come out unexpected and you need to see which stage removed them. Defaults are per-pipeline: True for mask generation, UMAP, screen analysis, barcode mapping, Cellpose training and plaque analysis; False for measure-and-crop, plot-from-db and plot-from-CSV, the endodyogeny and class-proportion helpers, and the Cellpose check/finetune tools.",
+    "verbose": "(bool) - Print extra run detail instead of the minimal log: the resolved settings table at the start of mask generation, the channel and Cellpose-model choices per object type, per-table row counts and how many objects survive the nuclei/pathogen-per-cell filters when measurement tables are merged, and extra loader/diagnostic output in the training and UMAP paths. It only adds console output, so turn it on when object counts come out unexpected and you need to see which stage removed them. Defaults are per-pipeline: True for mask generation, UMAP, screen analysis, barcode mapping, Cellpose training and plaque analysis; False for measure-and-crop, plot-from-db and plot-from-CSV, the endodyogeny and class-proportion helpers, the Cellpose check/finetune tools, and the screen regression, whose verbose branch display()s the whole per-object score table.",
     "weight_decay": "(float) - L2 penalty applied to the weights on every optimizer step (AdamW applies it decoupled from the gradient). Raise it, toward 1e-3 to 1e-2, when validation loss climbs while training loss keeps falling; lower it toward 0 when the model cannot fit the training set at all. Every supported optimizer honours it. Default 0.00001.",
     "width_height": "(tuple) - Width and height of the input images.",
     "barcode_coordinates": "(list) - Intended to give the start/stop offsets of each barcode inside the read, but nothing reads settings['barcode_coordinates']. The pipeline slices the read from target_sequence, offset_start and the per-barcode lengths instead. Kept only so old settings CSVs still load.",
@@ -2123,6 +2808,12 @@ tooltips = {
     "sample": "(int, list or None) - Randomly draw this many PNG crops from the database when building the dataset tar instead of using all of them; a list uses its first element, and values above the total are clamped. Use it to build a quick trial dataset or to cap a huge screen. None uses every crop, shuffled. Default None.",
     "file_metadata": "(str, list or None) - Substring filter applied to png_path when pulling crops from the database: only paths containing it are included, and a list matches any one of its entries (OR, not AND). Use it to restrict a dataset to one plate, well or object type, e.g. 'plate1_' or 'cell_png'. None takes every crop. Default None.",
     "apply_model_to_dataset": "(bool) - After training (or straight away when reusing a saved model_path), pack the object PNGs into a tar, run inference over it, copy the n_top_examples most confident images per class into top_examples/, and merge the per-object scores back into measurements.db. Turn it off to only train and evaluate a model without scoring the screen. Default True.",
+    "generate_full_dataset": "(bool) - Build the full unlabelled inference dataset tar from every selected plate independently of training or model application. Apply model to dataset also creates it automatically when needed. API: spacr.io.generate_dataset. Default False.",
+    "tar_path": "(str) - Existing full-dataset tar to reuse for inference. Leave blank to generate one beneath the first plate's datasets folder. Multiple selected plates are combined into one tar. API: spacr.deep_spacr.apply_model_to_tar.",
+    "n_top_examples": "(int) - Number of highest-confidence images saved per predicted class after full-dataset inference. This gives a quick visual check of class meaning and common errors. Default 20.",
+    "random_seed": "(int) - Reproducibility seed shared by labelled train/test splitting, train/validation splitting, and grouped cross-validation folds. Keep it fixed to reproduce a run; change it to test sensitivity to one lucky split. Default 42.",
+    "balance_to_smallest": "(bool) - Downsample every generated training class to the size of the smallest class before writing train/test folders. This removes the dataset prior but discards majority examples; disable it and use class_balance during training to retain all images. Default True.",
+    "write_random_annotation_column": "(bool) - In annotation mode, persist an automatically selected unannotated comparison group into png_list as <column>_random. This makes an automatically generated control class reproducible and auditable. Default False.",
     "train_channels": "(list) - Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
     "dataset_mode": "(str) - How training classes are defined: 'metadata' splits crops by well metadata (class_metadata or metadata_rules), 'annotation' by the values in one or more annotation columns of png_list, 'measurement' by threshold rules on measured features (measurement_rules). Any other value aborts and returns no dataset. Default 'metadata'.",
     "annotated_classes": "(list) - Currently inert: the Tk 'Generate Dataset' form collects it and the defaults set [1,2], but no code reads settings['annotated_classes']. The two io.py helpers with a same-named parameter (training_dataset_from_annotation and training_dataset_from_annotation_metadata, default (1,2)) have no callers anywhere in the package. The live dataset builder selects classes from dataset_mode instead - annotation_columns/annotation_values under 'annotation', class_metadata or the rule lists under 'metadata'/'measurement'. Default [1,2], with no effect.",
@@ -2328,14 +3019,20 @@ tooltips = {
     'controls': "(list) - gRNA identifiers treated as non-targeting controls in the regression. Their coefficients are tagged 'control', and their spread sets reg_threshold = mean + threshold_multiplier x (std or var, per threshold_method) - the effect-size cut-off drawn on the volcano plot. A noisier or wider control set raises that bar. None skips the threshold.",
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder.",
-    'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the OLS fit: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols' only. Default None.",
-    "resume": "(bool) - Continue an interrupted run instead of starting over. Mask generation skips fields whose merged/ stack is already present AND verifies complete; measure-and-crop skips fields already present in every table of measurements.db. Fields that are present but unusable - a .npy truncated by a crash mid-write, or a field with rows in some tables and not others - are redone rather than trusted, and the count of each is reported. Every field about to be redone has its existing rows deleted first, so resuming cannot duplicate objects or inflate the per-well counts every downstream analysis is computed from. Refuses to resume at all if the recorded settings differ materially from the current ones, because half a dataset made one way and half another is not a dataset. Default False.",
+    'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols', 'wls', 'glm', 'poisson', 'quasi_binomial', 'logit' and 'probit'; the penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None.",
+    "resume": "(bool) - Continue an interrupted run at its last verified safe boundary instead of starting over. Mask validates existing per-field mask and merged arrays; Measure accepts only fields complete in every owned measurements table and transactionally clears partial rows before retrying; Format Converter reopens every TIFF in a checkpointed field; UMAP reloads completed trial scores and embedding artifacts, including an incomplete adaptive round; Batch preserves settled plate/jobs and automatically enables field resume for an interrupted Mask, Measure, or conversion job. A checkpoint whose inputs or material settings differ is refused rather than mixing incompatible output. Default False.",
+    "resume_search": "(bool) - Continue the compatible Image UMAP hyperparameter checkpoint stored under the project results folder. Completed trial scores and embedding arrays are loaded without refitting. If an adaptive 2x2 round was interrupted, only its missing corners are evaluated before the direction is chosen. The feature data, labels, search space, criterion, seed, increments and stopping threshold must match. Default False.",
+    "checkpoint_path": "(str or None) - Optional explicit path for an atomic resume checkpoint. Format Converter defaults to .spacr_conversion.checkpoint.json in its destination; Image UMAP defaults to results/.spacr_checkpoints/umap_search.json under the project. Keep checkpoints with their outputs. Default None.",
+    "umap_stability_repeats": "(int) - Number of independently seeded embeddings fitted for each configuration in multi-objective UMAP search. Stability is the mean fraction of k nearest neighbours shared between every pair of repeats, so it is unaffected by rotation or reflection. Runtime scales linearly; minimum 2, default 3. API: spacr.hyperparam.embedding_stability.",
+    "umap_neighborhood_weight": "(float) - Relative multi-objective weight for neighborhood preservation, defined as the geometric mean of trustworthiness and continuity so both invented and lost neighbours are penalized. Weights are normalized to sum to one. Default 0.4. API: spacr.hyperparam.umap_objective_scores.",
+    "umap_stability_weight": "(float) - Relative multi-objective weight for repeat-to-repeat nearest-neighbour stability. Weights are normalized to sum to one. Default 0.3. API: spacr.hyperparam.umap_objective_scores.",
+    "umap_cluster_structure_weight": "(float) - Relative multi-objective weight for positive silhouette structure. spaCR uses supplied labels when available; otherwise it reports the best reproducible K-means silhouette across 2-8 clusters. This can reveal candidate structure but cannot prove biological meaning. Default 0.3. API: spacr.hyperparam.umap_objective_scores.",
     'background_correction': "(str) - Per-object local background subtracted from the outside-stain statistic before thresholding. 'auto' uses the median of the five-pixel ring outside the parasite mask, which removes a per-field offset without a flat-field image; 'none' subtracts nothing. Switching it on can backfire: a brightly stained attached parasite carries an antibody halo that reaches into that same ring, so subtracting it suppresses exactly the objects the threshold must keep above it. Default 'none'.",
     'bimodality_cutoff': '(float) - Value of the bimodality coefficient above which a distribution counts as two populations rather than one, below which the field and well are flagged and their efficiency should not be quoted. A perfect two-population mixture scores 1.0 at any mixing ratio and a single normal population about 0.33, so 5/9 sits between them. Raise it to demand cleaner separation before a number is reported unflagged. Default 0.5555555555555556.',
     'change_plate': "(bool) - Relabel each source directory as plate1, plate2, ... instead of trusting the plate ID stored in its database. Use it when several plates were written under the same name, which would otherwise let two plates' fields pool into one threshold and one well. Default False.",
     'compartment': "(str) - Prefix the per-object measurement columns carry, so 'pathogen' selects pathogen_area and pathogen_channel_1_percentile_95. It must match the object type the table actually holds, or the area filters and the intensity statistic resolve to columns that do not exist and the run aborts naming them. Default 'pathogen'.",
     'control_quantile': "(float) - Quantile of the control wells' outside-stain distribution taken as the threshold. 0.99 means one in a hundred genuinely unstained parasites is misread as attached. Lowering it toward 0.95 buys safety against this assay's dangerous error - an outside parasite scored invaded - at the cost of a few false attached calls; raising it does the reverse. Default 0.99.",
-    'control_wells': "(list or None) - Wells whose parasites are known to carry no pre-permeabilisation stain (no primary antibody, or no permeabilisation). They give the honest negative distribution the cut should sit above, which is better evidence than any automatic method. Entries may name a column ('c12'), a row ('r1'), a well ('r1_c12') or a full plate-row-column key, and those wells are dropped from every efficiency because a staining control is not an experimental condition. None runs the automatic per-field method instead. Default None.",
+    'control_wells': "(list or None) - Wells whose parasites are known to carry no pre-permeabilisation stain (no primary antibody, or no permeabilisation). They give the honest negative distribution the cut should sit above, which is better evidence than any automatic method. Entries may name a column ('c12'), a row ('r1'), a well ('r1_c12') or a full plate-row-column key, and those wells are dropped from every efficiency because a staining control is not an experimental condition. None runs the automatic per-field method instead. Default None. The screen regression reads the same key for a different job: graph_sequencing_stats drops these wells from the count table before it sweeps for fraction_threshold, so there it must match filter_value and must be a list -- it is iterated, and None would raise. Default there is a copy of filter_value.",
     'extracellular_class': "(str) - How parasites overlapping no host cell are scored. 'attached' calls them attached whatever the stain says, since something outside every cell cannot have invaded one; 'classify' leaves the decision to the stain, which is what you want when the cell mask is the unreliable part; 'exclude' drops them before anything is counted. The count is reported as n_no_host_cell either way, so the choice stays visible. Default 'attached'.",
     'group_column': "(str) - Column whose values become the experimental conditions compared against each other; 'condition' is the combined host-cell / pathogen / treatment label built from the plate-metadata maps. Point it at 'pathogen' or 'treatment' to compare on one factor alone. Rows with no value here are dropped before anything is counted. Default 'condition'.",
     'inflation_warn': '(float) - Extra invasion efficiency, in proportion units, that raising the threshold by threshold_sensitivity may add to a well before the well is flagged. Only the upward move is watched, because lowering a threshold can only turn invaded back into attached and never invents a result. 0.05 flags a well whose efficiency would gain more than five percentage points. Default 0.05.',
@@ -2352,6 +3049,13 @@ tooltips = {
     'outside_threshold': '(float or None) - Fixed cut on the outside-stain statistic, applied to every field and overriding both the automatic method and the control wells. Set it only when you have calibrated it yourself: raising it above the true cut moves attached parasites into the invaded class and inflates invasion efficiency, and nothing moves them back. Control wells, if given, stay on as the reference the QC judges the fixed value against. None derives the cut per field. Default None.',
     'outside_threshold_method': "(str) - How the outside-stain cut is derived from each field's own objects when no fixed value and no control wells are given: 'otsu', 'triangle', 'li', 'yen' or 'mean'. All of them find a split; none of them can tell you a split exists, which is what the bimodality check is for. 'triangle' suits a heavily skewed distribution with a small stained minority, 'otsu' a more balanced one. Default 'otsu'.",
     'parasite_table': "(str) - Table in measurements/measurements.db holding one row per segmented parasite. It is read directly rather than through the usual merge, because that merge collapses pathogen rows onto their host cell and would sum several parasites' stain intensities into a single row. Change it only if measure_crop wrote the parasite objects under a non-standard name. Default 'pathogen'.",
+    'vacuole_key': "(str) - Rule used to group individually segmented parasites into vacuoles. 'auto' prefers an explicit vacuole-ID column, otherwise spatially clusters centroids, then falls back to host cell or one parasite per vacuole with a warning. Set 'spatial', 'cell_id', 'object', or an explicit column name to make that biological assumption reproducible. Default 'auto'.",
+    'vacuole_link_distance': "(float or None) - Maximum centroid-to-centroid distance in pixels for spatially linking parasites into the same vacuole. None derives the distance from median parasite diameter times vacuole_link_factor; set a calibrated value when magnification or segmentation scale varies between plates. Too large merges separate vacuoles and too small splits one rosette. Default None.",
+    'vacuole_link_factor': "(float) - Multiplier applied to the median segmented-parasite diameter when vacuole_link_distance is derived automatically. Increasing it joins wider rosettes but also raises the risk of merging nearby vacuoles; decreasing it does the reverse. It is ignored when an explicit link distance or vacuole-ID column is used. Default 1.5.",
+    'parasite_count_column': "(str or None) - Optional column that already stores the number of parasites represented by each segmented row. When set, the assay sums that column per vacuole instead of counting rows, which is required if one row can represent several parasites. None treats every retained row as one parasite. Default None.",
+    'max_parasites_per_vacuole': "(int) - Largest power-of-two parasite count given its own replication bucket. Counts above it remain visible in a '>N' bucket and non-powers stay in the separate QC bucket; they are never clipped or rounded. Use a power of two large enough for the experiment's duration. Default 16.",
+    'require_host_cell': "(bool) - Drop parasite rows with no valid host-cell link before constructing vacuoles. This prevents extracellular debris and attached parasites from entering a replication readout, but it will also remove real infected cells when cell segmentation or parent assignment failed. The number removed is reported. Default True.",
+    'non_power_of_two_warn': "(float) - Fraction of a well's vacuoles allowed in the non-power-of-two bucket before the well is flagged as unreliable. Three-, five-, or seven-parasite rosettes usually indicate segmentation or vacuole-linking errors, so lowering the threshold makes QC stricter without deleting any observations. Default 0.2.",
     'qc_plot_max_panels': '(int) - Largest number of wells drawn in the threshold-diagnostic figure, taken in sorted well order. It exists so a 384-well plate does not produce a 384-panel figure; the CSVs always carry every well regardless. Default 12.',
     'seed_wells_from_cells': '(bool) - Read the cell table as well, so a well holding host cells but no parasites appears in the results with a zero denominator instead of vanishing from the plate entirely. Switch it off only when the database has no cell table. Default True.',
     'threshold_agreement_tolerance': "(float) - Relative distance a threshold may sit from its reference before the field and well are flagged; the reference is the control-derived cut when controls exist, otherwise the field's own automatic cut. 0.5 means a factor of two. Lower it to catch smaller drifts between a fixed threshold and what the data would have chosen. Default 0.5.",
@@ -2377,7 +3081,16 @@ tooltips = {
     'class_balance': "(str) - How skew between the training classes is corrected. 'none' (the default) changes nothing but still prints the per-class counts, the majority-over-minority ratio and a recommendation, so the skew is never invisible. 'weighted_sampler' attaches a WeightedRandomSampler with 1/n weights, drawing every class about equally often; 'sqrt_weighted_sampler' uses 1/sqrt(n) for a gentler pull that avoids showing a tiny class so often the model memorises it; 'weighted_loss' leaves sampling alone and switches loss_type to 'ce_weighted' instead. Resampling is applied to the train loader only - validation and test keep the real prior so their scores stay comparable to the screen.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits the vision classifier is trained with in place of the single val_split hold-out. 0 (the default) or 1 keeps today's one random split; 2 or more trains a fresh model per fold, scores each on the fold it never saw, and reports the mean together with the fold-to-fold standard deviation and range - which is the only way to see whether one lucky split was flattering the model. Costs roughly k times the training time. Distinct from 'cross_validation', which is the regression pipeline's own toggle.",
-    'cv_group_by': "(str) - Which metadata level is kept intact inside a single fold when cross_validation_folds is active: 'well' (the default and the right choice for object crops), 'field', 'plate', or 'none' for a plain stratified split. Crops from one well share focus, illumination, seeding density and edge effects, so letting them straddle a fold lets the model recognise the well instead of the phenotype and inflates every score. The level is parsed from the crop filename, which spaCR writes as plate_well_field_object.png.",
+    'cross_validation_enabled': "(bool) - Enable k-fold validation for Classify. If cross_validation_folds is 0 or 1, enabling this uses 5 folds. Use cv_group_by='plate' to hold out whole plates, or 'well'/'field' for within-plate validation without leaking related crops between training and validation.",
+    'cv_group_by': "(str) - Which metadata level is kept intact across generated train/test data, the ordinary validation holdout and every CV fold: 'well' (the default and the right choice for object crops), 'field', 'plate', or 'none' for legacy per-object splitting. Crops from one well share focus, illumination, seeding density and edge effects, so letting them straddle a boundary lets the model recognise the well instead of the phenotype and inflates every score. The level is parsed from the crop filename, which spaCR writes as plate_well_field_object.png.",
+    'classifier_evaluation': "(bool) - Build the Classifier Evaluation workbench bundle from out-of-fold predictions after Classify (CV): sample-level predictions, confusion matrices, reliability curves, calibrated probabilities, per-plate metrics, leakage reports and a manifest. It requires cross_validation_folds >= 2; a single train/validation split cannot produce unbiased out-of-fold diagnostics. Default True. API: spacr.classifier_evaluation.evaluate_predictions.",
+    'nested_cv_inner_folds': "(int) - Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
+    'evaluation_calibration': "(str) - Probability calibration written to the evaluation bundle. 'temperature' cross-fits one scalar temperature per held-out fold using all other out-of-fold predictions, so a sample never fits its own calibrator; 'none' retains raw softmax probabilities. Calibration changes reported probabilities, not the saved model weights. Default 'temperature'. API: spacr.classifier_evaluation.cross_calibrate_probabilities.",
+    'evaluation_bins': "(int) - Number of equal-width probability bins in reliability curves and expected calibration error. Values around 10 balance resolution against noise; use fewer bins for small validation sets and more only when every class has many hundreds of out-of-fold samples. Minimum 2, default 10. API: spacr.classifier_evaluation.calibration_table.",
+    'evaluation_fail_on_leakage': "(bool) - Stop Classify (CV) before fitting a fold when the same object, augmentation family, or protected cv_group_by identity appears in both train and validation. False records the problem and continues, which is useful only for diagnosing a legacy dataset because its performance estimate remains invalid. Default True. API: spacr.classifier_evaluation.audit_split_leakage.",
+    'leakage_audit_train_test': "(bool) - Audit the permanent train/ and test/ boundary before any classifier fit. Checks plate/well/field/object lineage, exported augmentation families and (when enabled) byte-identical renamed copies. Default True. API: spacr.classifier_evaluation.audit_dataset_splits.",
+    'leakage_hash_content': "(bool) - SHA-256 hash classifier images during leakage audits so an identical crop copied or renamed across train/test or CV boundaries is still detected. Reads files in 1 MiB chunks and never decodes pixels. Default True. API: spacr.classifier_evaluation.audit_cv_folds.",
+    'leakage_require_identity': "(bool) - Treat filenames that do not encode the protected cv_group_by identity, and files that cannot be hashed, as a failed audit rather than an advisory warning. Default True because independence cannot be claimed when lineage is unknown. API: spacr.classifier_evaluation.audit_split_leakage.",
     'custom_measurement': "(str) - Optional measurement-column name intended for class assignment; the Tk dataset dialog collects it but no pipeline code reads the key, so it currently has no effect. To select classes by a measured feature use dataset_mode 'measurement' with measurement_rules instead. Default None.",
     'denoise': "(bool) - Legacy denoising toggle for the mask pipeline: no code reads this key, so it has no effect. To actually denoise, set the per-object restore settings (cell_restore_type / nucleus_restore_type / pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
     'early_stopping_patience': "(int) - Stop training after this many consecutive epochs in which validation accuracy fails to beat the best value so far; the best checkpoint is still kept. 0 (default) disables it and always runs the full 'epochs' budget. Set 10-20 on long runs to cut wasted epochs once the model plateaus.",
@@ -2402,16 +3115,18 @@ tooltips = {
     'nucleus_intensity_range': "(list) - Two-element [min, max] bound on mean nucleus-channel intensity used by the recruitment analysis to drop rows from the measurement table - it filters measured objects, not masks or normalization. Rows are kept only if min < mean intensity < max (raw units), and each bound is ignored unless it is an int. Default [0, 100000].",
     'nucleus_size_range': "(list) - Two-element [min, max] bound in pixels^2 on nucleus_area, used by the recruitment analysis to drop rows from the measurement table; masks are left untouched. Rows are kept only if min < area < max, and each bound is ignored unless it is an int. Default [0, 100000]; None widens it to [0, 1e100].",
     'offset_start': "(int) - Bases to shift from the start of the target_sequence match to the start of the extracted window; negative values move upstream to capture a barcode preceding the anchor. The start is clamped at position 0, so an over-negative value silently shifts the reading frame and the regex stops matching. Default -8.",
-    'optimizer_type': "(str) - Optimizer that turns gradients into weight updates: 'adamw', 'adam', 'sgd', 'rmsprop', 'nadam', 'radam' or 'adagrad'. 'adamw' decouples weight_decay and is the right default for fine-tuning these backbones; 'sgd' (momentum 0.9, Nesterov) often generalises slightly better but needs a larger learning_rate and more epochs. amsgrad is honoured only by 'adam' and 'adamw'. Default 'adamw'.",
+    'optimizer_type': "(str) - PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+    'schedule': "(str) - Learning-rate scheduler used by spacr.deep_spacr.train_model: 'cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', or 'none'. Plateau reacts to validation loss; cosine and linear use the epoch budget; warm restarts periodically raise the rate to escape a narrow minimum. API: train_model(schedule=...). Default 'cosine'.",
     'outlier_detection': "(bool) - After building the regression table, drop gRNAs whose well count falls outside 1.5x the 5th-95th percentile spread, then recompute the per-gRNA tables. This removes gRNAs present in implausibly few or many wells that would otherwise dominate coefficients; disable it if your library is deliberately uneven. Default True.",
-    'outline_color': "(str) - Three-letter code choosing which RGB colours the cell, nucleus and pathogen outlines get, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. Default 'gbr' draws cells green, nuclei blue and pathogens red; any unrecognised string silently falls back to 'rbg'. Change it when an outline colour clashes with a channel.",
+    'outline_color': "(str) - Three-letter code choosing which RGB colours the cell, nucleus and pathogen outlines get, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. Default 'gbr' draws cells green, nuclei blue and pathogens red; any unrecognised string silently falls back to 'rbg'. Change it when an outline colour clashes with a channel. In the Mask Live settings popup, the preview-only Outline colour control also offers 'auto', fixed named colours, and 'color (random)'; the random option gives every segmented label a vivid, stable categorical colour so neighbouring objects are easy to distinguish without flickering during refreshes. API: spacr.qt.widgets.live_preview.overlay_masks(random_outline=True).",
     'outline_thickness': "(int) - Width in pixels of the mask outlines on the merged overlay; the contour is drawn at this thickness and then dilated by a square of the same size, so the visible line is roughly twice the value. Raise it for large fields where a 1-2 px outline disappears. Default 3.",
     'overlay_chans': "(list) - Exactly three channel indices from the stack, mapped in order onto the red, green and blue planes of the merged overlay. Default [1, 2, 3] puts channel 1 in red, 2 in green and 3 in blue; reorder or repeat indices to change which stain reads as which colour. Indices past the stack's channel count are ignored.",
     'pathogen_chann_dim': "(int) - Recruitment analysis only (analyze_recruitment): the image-channel index paired with the pathogen mask when drawing outline overlays, and the switch that enables pathogen_size_range / pathogen_intensity_range filtering. Set it to None to skip pathogen filtering. It plays no part in segmentation - use pathogen_channel for that. Default 2.",
     'pathogen_intensity_range': "(list) - Two-element [min, max] mean-intensity filter applied to the pathogen table in analyze_recruitment; pathogens whose mean intensity in the paired mask channel falls outside the open interval are dropped before recruitment ratios are computed. Bounds must be ints - floats are silently ignored. Default [0, 100000]. Use it to exclude dead or saturated parasites.",
+    'nucleus_loc': "(list of lists) - Intended as the well locations of each nucleus condition, matching cell_loc and pathogen_loc, but there is no nucleus condition axis: annotate_filter_vision reads cell_loc, pathogen_loc and treatment_loc and never looks at settings['nucleus_loc'], and no defaults function sets it. Setting it annotates nothing. Kept declared only so old settings CSVs still load, and rejected by the pre-flight check and by spacr-run --set.",
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row.",
-    'pick_slice': "(bool) - When images are z-stacks, keep a single z-slice (see all_to_mip) instead of a maximum-intensity projection.",
+    'pick_slice': "(bool) - Intended to keep one z-slice instead of a maximum-intensity projection, but nothing in spaCR reads settings['pick_slice'] and no defaults function sets it, so turning it on changes nothing and the stack is projected anyway. The z controls that do work are z_stack, z_segmentation_mode and z_projection, whose 'best_focus' value is the one that picks a single plane. Rejected by the pre-flight check and by spacr-run --set.",
     'png_type': "(str) - Which object crop type is pulled from the png_list table when building the training dataset - a row is kept only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode that measure_crop actually saved. Default 'cell_png'.",
     'prune_features': "(bool) - Before training, keep only the top_features columns with the highest ANOVA F-score against the control labels (sklearn SelectKBest with f_classif). Speeds up fitting and can curb overfitting on small control sets, but discards features the model might have used and scores each feature in isolation, ignoring interactions. Default False.",
     "redunction_method": "(str) - Misspelled duplicate of reduction_method ('redunction'), and nothing reads it. Set reduction_method instead, which reduction_and_clustering actually consumes and which accepts 'umap' or 'tsne' (not 'pca', despite this legacy text). Kept only so old settings CSVs still load.",
@@ -2420,7 +3135,7 @@ tooltips = {
     'remove_border_cells': "(bool) - Legacy duplicate of cell_remove_border_objects, intended to drop cells touching the image border. No code path in spaCR reads this key and it is never given a default, so setting it has no effect. Use cell_remove_border_objects, which the mask pipeline and the live preview actually apply.",
     'remove_border_nuclei': "(bool) - Intended to remove nucleus objects touching the image border, but no code in spaCR reads this key, so setting it has nothing to act on. It also has no default: no set_default_* function ever calls setdefault for it, and it appears only in the expected-types map, the tooltip dict and the GUI category list. The segmentation pipeline applies that filter via nucleus_remove_border_objects (default False, read at object.py:58) - set that one instead.",
     'remove_border_organelles': "(bool) - Legacy duplicate of the border filter for organelles. No code path in spacr reads this key and it has no default, so setting it has no effect; use organelle_remove_border for batch mask generation or organelle_remove_border_objects for the shared post-segmentation filter. Left in place only for backwards compatibility with old settings files.",
-    'remove_border_pathogens': "(bool) - Remove pathogen objects that touch the image border to avoid measuring partial pathogens.",
+    'remove_border_pathogens': "(bool) - Legacy duplicate of pathogen_remove_border_objects, intended to drop pathogens touching the image border. No code path in spaCR reads this key and it is never given a default, so setting it has no effect; its three siblings say so and this one used to claim it worked. Use pathogen_remove_border_objects, which the mask pipeline and the live preview actually apply. Rejected by the pre-flight check and by spacr-run --set.",
     'reverse_complement': "(bool) - Whether to reverse-complement the read before matching barcodes. Set according to which strand the barcodes were sequenced on.",
     'save_to_db': "(bool) - After ML screen analysis, write the per-object model scores back into measurements.db as a 'predictions' column on the png_list table, matched on prcfo. Enable when you want to sort, filter or plot objects by score in the GUI; the CSV result files are written either way. Default False.",
     'score_data': "(str or list) - CSV(s) of per-object or per-well phenotype scores (typically the output of generate_ml_scores) supplying the regression's dependent variable; the column named by dependent_variable must be present or the run raises ValueError. Pass one path per plate, position-aligned with plates_score; the first file's name becomes the results subfolder.",
@@ -2473,13 +3188,13 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
 #      organelle_channel / organelle_mask_dim sit in General and not in
 #      "Organelle".
 categories = {
-    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
+    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
 
     # 'normalize' moved here from "Advanced". It is a top-level toggle for how
     # every image in the run is scaled, set by seven different modules, and
     # burying it under "rarely-touched knobs" was wrong in all of them - not
     # least Classify, where it shapes the training set.
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "delete_intermediate", "uninfected"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
     # How Cellpose RUNS. Which model it runs (model_name / custom_model) moved
     # to "Model Training": they are the same question the torch classifier's
@@ -2556,7 +3271,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types"],
+    "Plate Layout & Controls": ["plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "nucleus_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "controls", "pc", "nc", "pc_loc", "nc_loc", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "metadata_types", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->
@@ -2564,11 +3279,11 @@ categories = {
     # generate_training_dataset is what consumes it, writing the train/ and
     # test/ folders before any model exists. The four metadata_item_* keys had
     # no category at all and printed under "Other".
-    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split"],
+    "Training Dataset": ["dataset_mode", "annotation_column", "annotated_classes", "class_metadata", "metadata_type_by", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "file_metadata", "custom_measurement", "png_type", "file_type", "sample", "size", "test_split", "balance_to_smallest", "write_random_annotation_column"],
 
     # Which model, and how it is fitted. 'model_name' and 'custom_model' moved
     # here from "Cellpose" -- they answer the same question 'model_type' does.
-    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "pin_memory", "cross_validation_folds", "cv_group_by", "score_threshold", "intermedeate_save", "tensorboard"],
+    "Model Training": ["model_type", "model_name", "custom_model", "classes", "train_channels", "image_size", "init_weights", "train", "test", "val_split", "epochs", "optimizer_type", "learning_rate", "schedule", "weight_decay", "dropout_rate", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "cross_validation_enabled", "cross_validation_folds", "cv_group_by", "classifier_evaluation", "nested_cv_inner_folds", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "random_seed", "intermedeate_save", "tensorboard"],
 
     # The classical (non-image) screen classifier fitted on measured features -
     # spacr's "Classify (ML)" module. These knobs used to be split three ways
@@ -2577,18 +3292,27 @@ categories = {
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
-    "Regression": ["regression_type", "dependent_variable", "agg_type", "transform", "alpha", "cov_type", "random_row_column_effects", "min_cell_count", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
+    # The per-model knobs (l1_ratio ... lasso_selection_threshold) sit here
+    # beside regression_type because that is the setting that decides whether
+    # each of them does anything at all: spacr.ml.REGRESSION_SETTINGS_USED says
+    # which type reads which, and a type refuses the ones it cannot read.
+    "Regression": ["regression_type", "dependent_variable", "score_column", "invert_dependent_variable", "agg_type", "transform", "alpha", "l1_ratio", "quantile", "hinge_threshold", "hinge_n_boot", "huber_t", "lasso_n_boot", "lasso_selection_threshold", "cov_type", "random_row_column_effects", "min_cell_count", "tolerance", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 
     "Sequencing": ["mode", "single_direction", "signal_direction", "target_sequence", "regex", "offset", "offset_start", "expected_end", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
-    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
-    # One heading for the whole invasion assay, ordered the way it is set up:
-    # which channels hold the two stains -> how the outside signal is measured
-    # -> how its threshold is chosen -> what makes that threshold trustworthy
-    # -> which objects count at all -> how wells are grouped and reported.
+    "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "highlight"],
+    # Replication-specific vacuole assignment and scoring. The shared parasite
+    # area filters and empty-well seeding control remain listed once under
+    # "Invasion Assay"; the Qt app-specific category map presents those shared
+    # keys under Replication's Object Filtering/Scoring sections.
     "Replication Assay": [
+        "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
+        "parasite_count_column", "max_parasites_per_vacuole",
+        "require_host_cell", "non_power_of_two_warn",
+    ],
+    "Endodyogeny Size Proxy (Legacy)": [
         "class_column", "group_by_class", "um_per_px",
         "min_area_bin", "max_area", "max_bins",
     ],
@@ -2699,12 +3423,28 @@ def check_settings(vars_dict, expected_types, q=None):
         try:
             if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
                 if value is None:
-                    parsed_value = None
-                else:
-                    try:
-                        parsed_value = ast.literal_eval(value)
-                    except (ValueError, SyntaxError):
-                        raise ValueError(f"Expected a list or list of lists but got an invalid format: {value}")
+                    # Blank means "not set", and for these keys that is a
+                    # legal, shipped value: cell_/pathogen_/treatment_plate_
+                    # metadata default to None in eight factories (recruitment,
+                    # invasion, replication, endodyogeny, class proportion,
+                    # plot_data_from_db) and timelapse_frame_limits is declared
+                    # (list, NoneType) outright.
+                    #
+                    # This used to assign `parsed_value = None` and fall
+                    # straight into the `else` two lines below, which raised
+                    # "Expected a list ... but got NoneType" -- so every one of
+                    # those modules reported errors and dropped its own default
+                    # the moment it was run from the Tk panel untouched. The
+                    # assignment was evidence of the intent and nothing else:
+                    # no value of `value` could reach the list branch through
+                    # it.
+                    settings[key] = None
+                    continue
+
+                try:
+                    parsed_value = ast.literal_eval(value)
+                except (ValueError, SyntaxError):
+                    raise ValueError(f"Expected a list or list of lists but got an invalid format: {value}")
 
                 if isinstance(parsed_value, list):
                     if all(isinstance(i, list) for i in parsed_value) or all(not isinstance(i, list) for i in parsed_value):
@@ -2742,12 +3482,58 @@ def check_settings(vars_dict, expected_types, q=None):
                 except ValueError:
                     raise ValueError(f"Expected an integer or float for '{key}', but got '{value}'.")
 
+            elif expected_type == (bool, int):
+                # invert_dependent_variable: False/0 = as measured, True/1 =
+                # 1 - x, -1 = 1 / x. The generic tuple branch at the bottom
+                # would reach bool('False') first, which is True, and silently
+                # invert every score in the screen.
+                if value is None:
+                    settings[key] = None
+                else:
+                    text = str(value).strip().lower()
+                    if text in ('true', 't', 'y', 'yes'):
+                        settings[key] = True
+                    elif text in ('false', 'f', 'n', 'no'):
+                        settings[key] = False
+                    else:
+                        try:
+                            settings[key] = int(text)
+                        except ValueError:
+                            raise ValueError(
+                                f"Expected True, False or an integer for '{key}', but got '{value}'.")
+
+            elif expected_type == (list, type(None)):
+                # y_lims / x_lim / control_wells / filter_min_max. The generic
+                # tuple branch would reach list('[0, 5]') first and hand the
+                # pipeline ['[', '0', ',', ' ', '5', ']']. literal_eval also
+                # keeps the nested form y_lims uses for a broken axis, which
+                # parse_list rejects as "mixed types".
+                if value is None:
+                    settings[key] = None
+                else:
+                    try:
+                        parsed_value = ast.literal_eval(value) if isinstance(value, str) else value
+                    except (ValueError, SyntaxError):
+                        raise ValueError(f"Expected a list or None for '{key}', but got: {value}")
+                    if isinstance(parsed_value, tuple):
+                        parsed_value = list(parsed_value)
+                    if not isinstance(parsed_value, list):
+                        raise ValueError(
+                            f"Expected a list or None for '{key}', but got "
+                            f"{type(parsed_value).__name__}.")
+                    settings[key] = parsed_value
+
             elif expected_type == (str, type(None)):
                 settings[key] = str(value) if value is not None else None
 
             elif expected_type == (str, type(None), list):
                 if isinstance(value, list):
-                    settings[key] = parse_list(value) if value else None
+                    # Already a list: keep it. This used to call parse_list,
+                    # which ast.literal_eval()s its argument and so raises on
+                    # anything that is not a string -- the one branch reached
+                    # by a value that is already the declared type was the one
+                    # that threw the value away and logged a format error.
+                    settings[key] = list(value) if value else None
                 elif isinstance(value, str):
                     settings[key] = str(value)
                 else:
@@ -2875,7 +3661,7 @@ def generate_fields(variables, scrollable_frame, tick_callback=None):
     for key, (var_type, options, default_value) in variables.items():
         try:
             label, widget, var, frame = create_input_field(scrollable_frame.scrollable_frame, key, row, var_type, options, default_value)
-        except Exception as e:
+        except Exception:
             print(f"Warning: Invalid value for {key}, reverting to {default_value}, var_type: {var_type}({default_value}).")
             type_defaults = {
                 'check': False,
@@ -3147,6 +3933,39 @@ def set_analyze_invasion_defaults(settings):
     settings.setdefault('cmap','viridis')
     settings.setdefault('save',True)
     settings.setdefault('verbose',False)
+    return settings
+
+def set_analyze_replication_defaults(settings):
+    """Populate defaults for the parasites-per-vacuole replication assay.
+
+    :param settings: dict to fill in place.
+    :returns: the settings dict with defaults applied.
+    """
+    settings.setdefault('src', 'path')
+    settings.setdefault('parasite_table', 'pathogen')
+    settings.setdefault('compartment', 'pathogen')
+    settings.setdefault('vacuole_key', 'auto')
+    settings.setdefault('vacuole_link_distance', None)
+    settings.setdefault('vacuole_link_factor', 1.5)
+    settings.setdefault('parasite_count_column', None)
+    settings.setdefault('min_parasite_area', 0)
+    settings.setdefault('max_parasite_area', None)
+    settings.setdefault('max_parasites_per_vacuole', 16)
+    settings.setdefault('require_host_cell', True)
+    settings.setdefault('seed_wells_from_cells', True)
+    settings.setdefault('non_power_of_two_warn', 0.2)
+    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_plate_metadata', None)
+    settings.setdefault('pathogen_types', ['nc', 'pc'])
+    settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])
+    settings.setdefault('treatments', None)
+    settings.setdefault('treatment_plate_metadata', None)
+    settings.setdefault('group_column', 'condition')
+    settings.setdefault('level', 'object')
+    settings.setdefault('change_plate', False)
+    settings.setdefault('cmap', 'viridis')
+    settings.setdefault('save', True)
+    settings.setdefault('verbose', False)
     return settings
 
 def set_analyze_endodyogeny_defaults(settings):

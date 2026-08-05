@@ -27,7 +27,7 @@ from PySide6.QtCore import (
     Qt,
     Signal,
 )
-from PySide6.QtGui import QFont, QFontMetrics, QIcon
+from PySide6.QtGui import QFontMetrics, QIcon
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,

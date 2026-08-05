@@ -16,6 +16,7 @@ runs for real.
 """
 from __future__ import annotations
 
+import json
 import os
 
 import numpy as np
@@ -170,16 +171,35 @@ def screen(tmp_path):
 
 
 def base_settings(screen, **over):
-    """Minimal settings dict that makes perform_regression runnable."""
+    """Settings dict exactly as a dispatcher builds it, plus this suite's choices.
+
+    The dict is finished by the SAME defaults builder all three entry points
+    use -- ``gui_core.setup_settings_panel`` (Tk),
+    ``qt.screens.settings_model.resolve_default_settings`` (Qt) and
+    ``cli.module_defaults`` (``spacr-run regression``) -- so anything the
+    builder fails to supply is missing here too, and the tests below fail the
+    way a user's run fails.
+
+    This fixture used to hand-write ``score_column``, ``tolerance``,
+    ``verbose``, ``invert_dependent_variable`` and ``y_lims`` on top of a
+    literal dict. ``get_perform_regression_default_settings`` supplied none of
+    them while ``perform_regression`` indexed all of them, so every test in
+    this file passed against a dict no entry point could produce, and the real
+    pipeline died on ``KeyError: 'verbose'`` at ml.py:1409 -- after both input
+    CSVs had been read and ``settings/regression.csv`` had been written.
+
+    Only keys that are a deliberate *test* choice belong in the literal below:
+    the tiny synthetic wells (``min_cell_count``), a fixed threshold instead of
+    the sweep (``fraction_threshold``), the toxo reports off by default. Adding
+    a key here that the builder is supposed to supply hides the next such bug.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
     settings = {
         "score_data": [screen["score"]],
         "count_data": [screen["count"]],
         "dependent_variable": "pred",
         "regression_type": "ols",
-        "score_column": "pred",
-        "tolerance": 0.02,
-        "verbose": False,
-        "invert_dependent_variable": False,
         "min_cell_count": 3,
         "fraction_threshold": 0.005,
         "metadata_files": [screen["meta"], screen["meta"]],
@@ -187,10 +207,11 @@ def base_settings(screen, **over):
         "controls": list(CONTROLS),
         "outlier_detection": False,
         "alpha": 1.0,
-        "y_lims": None,
     }
     settings.update(over)
-    return settings
+    # Last, so a test that picks its own dependent_variable also gets the
+    # score_column that follows it.
+    return get_perform_regression_default_settings(settings)
 
 
 @pytest.fixture
@@ -601,6 +622,28 @@ def test_qc_block_writes_the_three_well_level_tables(screen, stubs):
     assert stubs["plates"][0]["kwargs"]["dst"] == res
 
 
+def test_batch_correction_runs_before_regression_and_writes_report(
+        screen, stubs):
+    """Regression consumes corrected scores and persists its diagnostics."""
+    from spacr.ml import perform_regression
+
+    perform_regression(base_settings(
+        screen,
+        batch_correction="center",
+        batch_column="plateID",
+    ))
+
+    path = os.path.join(screen["res"], "batch_correction.json")
+    with open(path, encoding="utf-8") as stream:
+        report = json.load(stream)
+    assert report["method"] == "center"
+    assert report["batch_column"] == "plateID"
+    assert report["rows"] > 0
+    assert report["warnings"] == [
+        "Only 1 batch was present; correction was a no-op.",
+    ]
+
+
 def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):
     """outlier_detection removes gRNAs whose well coverage is an IQR outlier."""
     from spacr.ml import perform_regression
@@ -811,13 +854,43 @@ def test_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys
     assert len(out["results"]) > 0
 
 
-def test_regression_type_quantile_is_rejected_by_the_backend(screen, stubs):
-    """'quantile' passes the entry-point whitelist but has no backend."""
+def test_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
+    """'quantile' fits end to end instead of dying at the last statement.
+
+    It used to pass the entry-point whitelist, get its own agg_type handling
+    in get_perform_regression_default_settings and its own volcano-filename
+    rule, and then raise "Unsupported regression type quantile" from
+    regression_model - after both input CSVs had been read, the QC plots drawn
+    and regression_data.csv written.
+    """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type="quantile")
-    with pytest.raises(ValueError, match="Unsupported regression type quantile"):
-        perform_regression(settings)
+    settings = base_settings(screen, regression_type="quantile", quantile=0.75)
+    out = perform_regression(settings)
+
+    # agg_type is forced to None for quantile, so the fit is on objects.
+    assert settings["agg_type"] is None
+    res = str(screen["root"] / "counts" / "results" / "xgb_scores" / "quantile"
+              / "list")
+    assert os.path.isfile(os.path.join(res, "results.csv"))
+    assert out["results"]["coefficient"].notna().all()
+    assert out["results"]["p_value"].notna().all()
+    assert (out["results"]["feature"].str.contains("grna\\[").sum()
+            == len(GENES) * N_GRNA_PER_GENE)
+
+
+def test_quantile_regression_refuses_the_old_alpha_spelling(screen, stubs):
+    """alpha used to double as the quantile; the overload is refused, not ignored.
+
+    A settings CSV written before the split says alpha=0.75 and means "the
+    75th percentile". Silently dropping it would fit the median and label the
+    output folder as a quantile run.
+    """
+    from spacr.ml import perform_regression
+
+    with pytest.raises(ValueError, match=r"does not use alpha"):
+        perform_regression(base_settings(screen, regression_type="quantile",
+                                         alpha=0.75))
 
 
 def test_lasso_uses_bootstrap_selection_frequencies(screen, stubs):

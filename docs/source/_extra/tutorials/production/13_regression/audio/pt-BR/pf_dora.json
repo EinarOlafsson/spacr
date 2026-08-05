@@ -4,47 +4,237 @@
   "voice": "pf_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.625,
+  "total_duration": 292.675,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.075,
-      "scene_end": 9.524999999999999,
-      "duration": 9.524999999999999,
-      "text": "Este tutorial abrange a Regressão. Estima os efeitos de perturbação e identifique características associadas a fenótipos de nível de guia ou condição."
+      "speech_end": 14.7,
+      "scene_end": 15.149999999999999,
+      "duration": 15.149999999999999,
+      "text": "A regressão liga fenótipos por objeto à abundância de guias de tela em conjunto. O console relata o alinhamento da tabela, a filtragem, o diagnóstico do modelo, o ajuste do coeficiente, os caminhos de resultados, as gráficas e os registros de reprodução.",
+      "speech_text": "A regressão liga fenótipos por objeto à abundância de guias de tela em conjunto. O console relata o alinhamento da tabela, a filtragem, o diagnóstico do modelo, o ajuste do coeficiente, os caminhos de resultados, as gráficas e os registros de reprodução.",
+      "phonemes": "a xˌeɡresˈɐ̃ʊ̃ lˈiɡæ fˌenˈɔʧipʊs poɾ ˌobʒˈɛtw ˌaː ˌabũŋdˈɐ̃ŋsjæ ʤy ɡˈiæz ʤy tˈɛlæ ˈAŋ kˌoŋʒˈũŋtʊ. ʊ kˌoŋsˈoly xˌelˈatæ u ˌaliɲæmˈAŋtʊ da tˌabˈɛlæ, a fˌiʊtrˈaʒAŋ, ʊ ʤˌiaɡnˈɔsʧikʊ dʊ mˌodˈelʊ, u ˌaʒˈusʧy dʊ kˌoefˌisiˈAŋʧy, ʊs kˌæmˈiɲʊz ʤy xˌezuwtˈadʊs, az ɡrˈafikæz i ʊz xˌeʒˈistrʊz ʤy xˌeprodusˈɐ̃ʊ̃."
     },
     {
       "scene": 2,
-      "speech_start": 9.524999999999999,
-      "speech_end": 20.125,
-      "scene_end": 20.575,
-      "duration": 11.05,
-      "text": "Abra Regression na seção Core. Abra Regressão da seção Core. Selecione medidas mapeadas, variáveis de resposta, controles, colunas de agrupamento e preditores candidatos."
+      "speech_start": 15.149999999999999,
+      "speech_end": 26.174999999999997,
+      "scene_end": 26.624999999999996,
+      "duration": 11.474999999999998,
+      "text": "O campo de bate-papo aceita perguntas sobre o fluxo de trabalho atual. Permitir que a IA encaminhe através de um provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+      "speech_text": "O campo de bate-papo aceita perguntas sobre o fluxo de trabalho atual. Permitir que a IA encaminhe através de um provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+      "phonemes": "ʊ kˈɐ̃mpʊ ʤy bˈaʧypˈapw ˌasˈAtæ pˌeɾəɡˈũŋtæs sˈobri ʊ flˈuksʊ ʤy trˌabˈaljw ˌatuˈW. pˌeɾəmiʧˈir ky a ˌiˈa ˌAŋkæmˈiɲj ˌatravˈɛz ʤj ũŋ prˌovedˈor sˌelesˌionˈadw i ˈuzj a sˈɛtæ ˌadʒasˈAŋʧy pˌaɾæ abrˈiɾ ʊ menˈu dʊ prˌovedˈor."
     },
     {
       "scene": 3,
-      "speech_start": 20.575,
-      "speech_end": 30.45,
-      "scene_end": 30.9,
-      "duration": 10.325,
-      "text": "Na área de configuração principal, escolha transformações, covariados, família de modelos, efeitos aleatórios, correção de testes múltiplos e filtros de qualidade."
+      "speech_start": 26.624999999999996,
+      "speech_end": 38.175,
+      "scene_end": 38.625,
+      "duration": 12.000000000000004,
+      "text": "Os fornecedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem seus comandos de instalação e login. As credenciais ficam com cada vendedor.",
+      "speech_text": "Os fornecedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem seus comandos de instalação e login. As credenciais ficam com cada vendedor.",
+      "phonemes": "ʊs fˌoɾənesedˈoɾyz xˌelˈatɐ̃ʊ̃ sj ʊs klˌiˈAŋʧyz ʤy lˈiɲæ ʤy kˌomˈɐ̃ŋdʊ klˈWʤy, ʃˈaʧ ʒˌepˌetˈe i ʒˌeminˈi estˌɐ̃ʊ̃ ˌiŋstalˈadʊz i fˌoɾənˈɛsAŋ seʊs kˌomˈɐ̃ŋdʊz ʤj ˌiŋstalasˈɐ̃ʊ̃ i loɡˈiŋ. as krˌedAŋsiˈIs fˈikɐ̃ʊ̃ koŋ kˈadæ vˌAŋdedˈor."
     },
     {
       "scene": 4,
-      "speech_start": 30.9,
-      "speech_end": 38.4,
-      "scene_end": 38.85,
-      "duration": 7.950000000000003,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+      "speech_start": 38.625,
+      "speech_end": 49.65,
+      "scene_end": 50.1,
+      "duration": 11.475000000000001,
+      "text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+      "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer.",
+      "phonemes": "kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ a prˌofũŋʤidˈaʤy da xˌespˈɔstæ, ˌesplikasˈõjz ˌWtomˈaʧikæz ʤj ˈexʊs, xˌelatˈɔɾjʊz ˌopsionˈIz ʤy prˌoblˈemæz ʒˈiʧ ˈub, loɡˈiŋ i ʊ prˈompʧ dʊ sˌistˈemæ kˌoŋsiˈAŋʧy dʊ ˌespˈakɛr."
     },
     {
       "scene": 5,
-      "speech_start": 38.85,
-      "speech_end": 46.975,
-      "scene_end": 47.625,
-      "duration": 8.774999999999999,
-      "text": "Quando o fluxo de trabalho termina, o spaCR escreve os tamanhos dos efeitos, incerteza, significância ajustada, diagnósticos e números."
+      "speech_start": 50.1,
+      "speech_end": 65.825,
+      "scene_end": 66.275,
+      "duration": 16.175000000000004,
+      "text": "O experimento sintético fornece 384 linhas de pontos celulares e 384 linhas de contagem de guias de 32 poços, 12 guias e quatro genes. Os identificadores de placa, linha e coluna correspondentes juntam-se às tabelas.",
+      "speech_text": "O experimento sintético fornece 384 linhas de pontos celulares e 384 linhas de contagem de guias de 32 poços, 12 guias e quatro genes. Os identificadores de placa, linha e coluna correspondentes juntam-se às tabelas.",
+      "phonemes": "u ˌespeɾimˈAŋtʊ sˌiŋtˈɛʧikʊ fˌoɾənˈɛsy trˌezˈAŋtʊzˌi oɪtˈAŋtæikwˈatrʊ lˈiɲæz ʤy pˈoŋtʊs sˌelulˈaɾyz i trˌezˈAŋtʊzˌi oɪtˈAŋtæikwˈatrʊ lˈiɲæz ʤy kˌoŋtˈaʒAŋ ʤy ɡˈiæz ʤy trˈiŋtæidˈoɪs pˈɔsʊs, dˈozy ɡˈiæz i kwˈatrʊ ʒˈenys. ʊz ˌidAŋʧˌifikadˈoɾyz ʤy plˈakæ, lˈiɲæ i kˌolˈunæ kˌoxespoŋdˈAŋʧyz ʒˈũŋtɐ̃ʊ̃sj aːs tˌabˈɛlæs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 66.275,
+      "speech_end": 77.775,
+      "scene_end": 78.22500000000001,
+      "duration": 11.950000000000003,
+      "text": "Os elementos essenciais mostram as tabelas de entrada, controles de placa, família de regressão, variável de resposta, evidências mínimas e opções de gráfico necessárias para uma primeira execução.",
+      "speech_text": "Os elementos essenciais mostram as tabelas de entrada, controles de placa, família de regressão, variável de resposta, evidências mínimas e opções de gráfico necessárias para uma primeira execução.",
+      "phonemes": "ʊz ˌelemˈAŋtʊz ˌesAŋsiˈIz mˈɔstrɐ̃ʊ̃ as tˌabˈɛlæz ʤj ˌAŋtrˈadæ, kˌoŋtrˈolyz ʤy plˈakæ, fˌæmˈiljæ ʤy xˌeɡresˈɐ̃ʊ̃, vˌaɾiˈaveʊ ʤy xˌespˈɔstæ, ˌevidˈAŋsjæz mˈinimæz i opsˈõjz ʤy ɡrˈafikʊ nˌesesˈaɾjæs pˌaɾæ ˌumæ prˌimˈAɾæ ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 7,
+      "speech_start": 78.22500000000001,
+      "speech_end": 89.22500000000001,
+      "scene_end": 89.67500000000001,
+      "duration": 11.450000000000003,
+      "text": "Os limites modificados limitam o painel a valores que diferem dos padrões, tornando as identidades de controle, os limites fixos e as escolhas de modelo intencionais fáceis de auditar.",
+      "speech_text": "Os limites modificados limitam o painel a valores que diferem dos padrões, tornando as identidades de controle, os limites fixos e as escolhas de modelo intencionais fáceis de auditar.",
+      "phonemes": "ʊz lˌimˈiʧyz mˌoʤifikˈadʊz lˌimˈitɐ̃ʊ̃ ʊ pInˈɛʊ a vˌalˈoɾys ky ʤˌifˈɛɾAŋ dʊs padrˈõjs, tˌoɾənˈɐ̃ŋdw az ˌidAŋʧidˈaʤyz ʤy kˌoŋtrˈoly, ʊz lˌimˈiʧys fˈiksʊz i az ˌeskˈoljæz ʤy mˌodˈelw ˌiŋtAŋsˌionˈIs fˈasAz ʤj ˌWʤitˈar."
+    },
+    {
+      "scene": 8,
+      "speech_start": 89.67500000000001,
+      "speech_end": 102.15,
+      "scene_end": 102.60000000000001,
+      "duration": 12.924999999999997,
+      "text": "Todas as configurações revelam cada categoria sem alterações de valores. As oito categorias separam entrada, design, correção, modelagem, chamadas de impacto, gráficos e comportamento de tempo de execução.",
+      "speech_text": "Todas as configurações revelam cada categoria sem alterações de valores. As oito categorias separam entrada, design, correção, modelagem, chamadas de impacto, gráficos e comportamento de tempo de execução.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ kˈadæ kˌateɡoɾˈiæ sˈAŋ ˌWteɾasˈõjz ʤy vˌalˈoɾys. az ˈoɪtʊ kˌateɡoɾˈiæs sˌepˈaɾɐ̃ʊ̃ ˌAŋtrˈadæ, dezˈIn, kˌoxesˈɐ̃ʊ̃, mˌodelˈaʒAŋ, ʃˌæmˈadæz ʤj ˌimpˈaktʊ, ɡrˈafikʊz i kˌompoɾətæmˈAŋtʊ ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 9,
+      "speech_start": 102.60000000000001,
+      "speech_end": 112.05000000000001,
+      "scene_end": 112.50000000000001,
+      "duration": 9.900000000000006,
+      "text": "As receitas guardam a configuração completa de regressão sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+      "speech_text": "As receitas guardam a configuração completa de regressão sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+      "phonemes": "az xˌesˈAtæz ɡwˈaɾədɐ̃ʊ̃ a kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ kˌomplˈɛtæ ʤy xˌeɡresˈɐ̃ʊ̃ sˈob ũŋ nˈomy, xˌeaplˈikɐ̃ʊ̃na mˈIs tˈaɾəʤj ow ˌimpˈɔɾətɐ̃ʊ̃ i ˌespˈɔɾətɐ̃ʊ̃ ũŋ ˌaɾəkˈivʊ ʤy kˌoŋfiɡˌuɾasˈõjz xˌeʊʧilizˈaveʊ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 112.50000000000001,
+      "speech_end": 120.82500000000002,
+      "scene_end": 121.27500000000002,
+      "duration": 8.775000000000006,
+      "text": "Envie instantâneos remotos das configurações de Regressão resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+      "speech_text": "Envie instantâneos remotos das configurações de Regressão resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+      "phonemes": "ˌAŋvˈij ˌiŋstɐ̃ŋtˈɐ̃neʊz xˌemˈɔtʊz das kˌoŋfiɡˌuɾasˈõjz ʤy xˌeɡresˈɐ̃ʊ̃ xˌezowvˈidæz i ˌAŋvˈiæ ʊ trˌabˈaljʊ pˌaɾæ u ˌespˈasʊ ʤy trˌabˈaljʊ ʤy trˌabˈaljʊz ʤˌistribuˈidʊs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 121.27500000000002,
+      "speech_end": 133.62500000000003,
+      "scene_end": 134.07500000000002,
+      "duration": 12.799999999999997,
+      "text": "O Jobs Distribuído mapeia os caminhos de entrada e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do modelo.",
+      "speech_text": "O Jobs Distribuído mapeia os caminhos de entrada e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do modelo.",
+      "phonemes": "ʊ ʒˈobz ʤˌistribuˈidʊ mˌapˈAæ ʊs kˌæmˈiɲʊz ʤj ˌAŋtrˈadæ i ʊz xˌekˈuɾəsʊz ʤy kˌomputasˈɐ̃ʊ̃ pˌaɾæ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljʊ xˌemˈɔtæ, ũŋ klustˈer zlˈuɾəm ow ũŋ kˌomˈɐ̃ŋdʊ kˌoŋfiɡuɾˈadʊ, ˈAŋ sˌeɡˈidæ, ˌAŋvˈiæ i mˌonitˈoɾæ a mˈezmæ ˌezekusˈɐ̃ʊ̃ dʊ mˌodˈelʊ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 134.07500000000002,
+      "speech_end": 150.00000000000003,
+      "scene_end": 150.45000000000002,
+      "duration": 16.375,
+      "text": "As tabelas de entrada selecionam metadados genéticos opcionais, pontuações de fenótipos por objeto ou poço e tabelas de contagem de sequência. As placas múltiplas devem permanecer alinhadas pela posição da lista ou pelos identificadores explícitos das placas.",
+      "speech_text": "As tabelas de entrada selecionam metadados genéticos opcionais, pontuações de fenótipos por objeto ou poço e tabelas de contagem de sequência. As placas múltiplas devem permanecer alinhadas pela posição da lista ou pelos identificadores explícitos das placas.",
+      "phonemes": "as tˌabˈɛlæz ʤj ˌAŋtrˈadæ sˌelesiˈonɐ̃ʊ̃ mˌetadˈadʊz ʒˌenˈɛʧikʊz ˌopsionˈIs, pˌoŋtuasˈõjz ʤy fˌenˈɔʧipʊs poɾ ˌobʒˈɛtw ow pˈosw i tˌabˈɛlæz ʤy kˌoŋtˈaʒAŋ ʤy sˌekwˈAŋsjæ. as plˈakæz mˈulʧiplæz dˈɛvAŋ pˌeɾəmænesˈeɾ ˌaliɲˈadæs pˈelæ pˌozisˈɐ̃ʊ̃ da lˈistæ ow pˈelʊz ˌidAŋʧˌifikadˈoɾyz ˌesplˈisitʊz das plˈakæs."
+    },
+    {
+      "scene": 13,
+      "speech_start": 150.45000000000002,
+      "speech_end": 160.15,
+      "scene_end": 160.6,
+      "duration": 10.149999999999977,
+      "text": "Controls and Plate Design define a placa, genes positivos e negativos, controles de guia neutros, poços de controle e quaisquer linhas excluídas antes da montagem.",
+      "speech_text": "Controls and Plate Design define a placa, genes positivos e negativos, controles de guia neutros, poços de controle e quaisquer linhas excluídas antes da montagem.",
+      "phonemes": "koŋtrˈowz ˈɐ̃ŋd plˈaʧy dezˈIn dˌefˈinj a plˈakæ, ʒˈenys pˌoziʧˈivʊz i nˌeɡaʧˈivʊs, kˌoŋtrˈolyz ʤy ɡˈiæ nˈeʊtrʊs, pˈɔsʊz ʤy kˌoŋtrˈoli i kwIskˌɛr lˈiɲæz ˌeskluˈidæz ˈɐ̃ŋʧyz da mˌoŋtˈaʒAŋ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 160.6,
+      "speech_end": 171.9,
+      "scene_end": 172.35,
+      "duration": 11.75,
+      "text": "A Correção de Placas e Batches pode remover compensações de placas com centralização, escalação robusta, controles de referência ou ComBat. Este tutorial de uma placa deixa correção fora.",
+      "speech_text": "A Correção de Placas e Batches pode remover compensações de placas com centralização, escalação robusta, controles de referência ou ComBat. Este tutorial de uma placa deixa correção fora.",
+      "phonemes": "a kˌoxesˈɐ̃ʊ̃ ʤy plˈakæz i bˈatʃys pˌɔʤy xˌemovˈer kˌompAŋsasˈõjz ʤy plˈakæs koŋ sˌAŋtralˌizasˈɐ̃ʊ̃, ˌeskalasˈɐ̃ʊ̃ xˌobˈustæ, kˌoŋtrˈolyz ʤy xˌefeɾˈAŋsjæ ow koŋ bˈaʧ. ˌesʧy tˌutoɾiˈW ʤj ˌumæ plˈakæ dˈAʃæ kˌoxesˈɐ̃ʊ̃ fˈɔɾæ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 172.35,
+      "speech_end": 183.1,
+      "scene_end": 183.54999999999998,
+      "duration": 11.199999999999989,
+      "text": "Modelo e Covariados seleciona a família de regressão, coluna de resposta, agregação e transformação, regularização, estimativa de covariância e efeitos opcionais de linha ou coluna.",
+      "speech_text": "Modelo e Covariados seleciona a família de regressão, coluna de resposta, agregação e transformação, regularização, estimativa de covariância e efeitos opcionais de linha ou coluna.",
+      "phonemes": "mˌodˈelw i kˌovaɾiˈadʊs sˌelesiˈonæ a fˌæmˈiljæ ʤy xˌeɡresˈɐ̃ʊ̃, kˌolˈunæ ʤy xˌespˈɔstæ, ˌaɡreɡasˈɐ̃ʊ̃ i trˌɐ̃ŋsfoɾəmasˈɐ̃ʊ̃, xˌeɡulˌaɾizasˈɐ̃ʊ̃, ˌesʧimaʧˈivæ ʤy kˌovaɾjˈɐ̃ŋsjæ i ˌefˈAtʊz ˌopsionˈIz ʤy lˈiɲæ ow kˌolˈunæ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 183.54999999999998,
+      "speech_end": 195.1,
+      "scene_end": 195.54999999999998,
+      "duration": 12.0,
+      "text": "O Estimator Tuning contém parâmetros usados por modelos de rede elástica, quantile, Huber, hinge e bootstrap seleção. Apenas os controles pertencentes à família escolhida afetam uma corrida.",
+      "speech_text": "O Estimator Tuning contém parâmetros usados por modelos de rede elástica, quantile, Huber, hinge e bootstrap seleção. Apenas os controles pertencentes à família escolhida afetam uma corrida.",
+      "phonemes": "u ˌesʧimatˈor tunˈiŋɡ koŋtˈAŋ pˌaɾˈɐ̃metrʊz ˌuzˈadʊs por mˌodˈelʊz ʤy xˈeʤj ˌelˈasʧikæ, kwˌɐ̃ŋʧˈily, ubˈer, ˈiŋʒj i bˌootstrˈap sˌelesˈɐ̃ʊ̃. ˌapˈenæz ʊs kˌoŋtrˈolys pˌeɾətAŋsˈAŋʧyz ˌaː fˌæmˈiljæ ˌeskoljˈidæ ˌafˈɛtɐ̃ʊ̃ ˌumæ kˌoxˈidæ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 195.54999999999998,
+      "speech_end": 205.575,
+      "scene_end": 206.02499999999998,
+      "duration": 10.474999999999994,
+      "text": "Hit Calling and Outliers define a prova mínima de célula e poço, a filtragem de fracção-guia, a remoção opcional de outlier e o limiar do coeficiente derivado do controlo.",
+      "speech_text": "Hit Calling and Outliers define a prova mínima de célula e poço, a filtragem de fracção-guia, a remoção opcional de outlier e o limiar do coeficiente derivado do controlo.",
+      "phonemes": "ˈiʧ kalˈiŋɡ ˈɐ̃ŋd ˌowtliˈeɾəz dˌefˈinj a prˈɔvæ mˈinimæ ʤy sˈɛlulæ i pˈosʊ, a fˌiʊtrˈaʒAŋ ʤy fraksˈɐ̃ʊ̃ɡˈiæ, a xˌemosˈɐ̃ʊ̃ ˌopsionˈW ʤj ˌowtliˈɛɾ i ʊ lˌimiˈar dʊ kˌoefˌisiˈAŋʧy dˌeɾivˈadʊ dʊ kˌoŋtrˈolʊ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 206.02499999999998,
+      "speech_end": 215.74999999999997,
+      "scene_end": 216.19999999999996,
+      "duration": 10.174999999999983,
+      "text": "Plots de Regressão controla o alvo vulcânico, eixos logaritmicos e limites opcionais de eixo. Estas opções de exibição não alteram os coeficientes instalados.",
+      "speech_text": "Plots de Regressão controla o alvo vulcânico, eixos logaritmicos e limites opcionais de eixo. Estas opções de exibição não alteram os coeficientes instalados.",
+      "phonemes": "plˈotz ʤy xˌeɡresˈɐ̃ʊ̃ kˌoŋtrˈɔlæ u ˈWvʊ vˌuwkˈɐ̃nikʊ, ˈAʃʊz lˌoɡaɾitmˈikʊz i lˌimˈiʧyz ˌopsionˈIz ʤj ˈAʃʊ. ˌɛstæz opsˈõjz ʤj ˌezibisˈɐ̃ʊ̃ nˌɐ̃ʊ̃ ˌWtˈɛɾɐ̃ʊ̃ ʊs kˌoefˌisiˈAŋʧyz ˌiŋstalˈadʊs."
+    },
+    {
+      "scene": 19,
+      "speech_start": 216.19999999999996,
+      "speech_end": 227.69999999999996,
+      "scene_end": 228.14999999999995,
+      "duration": 11.949999999999989,
+      "text": "O tempo de execução e a confiabilidade controlam erros rigorosos, taxa de falha tolerada, política de retest, semente aleatória e relatórios verbais. Uma semente fixa suporta a reprodução.",
+      "speech_text": "O tempo de execução e a confiabilidade controlam erros rigorosos, taxa de falha tolerada, política de retest, semente aleatória e relatórios verbais. Uma semente fixa suporta a reprodução.",
+      "phonemes": "ʊ tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ i a kˌoŋfiˌabilidˈaʤy kˌoŋtrˈɔlɐ̃ʊ̃ ˈexʊz xˌiɡoɾˈɔzʊs, tˈaʃæ ʤy fˈaljæ tˌoleɾˈadæ, pˌolˈiʧikæ ʤy xetˈesʧ, sˌemˈAŋʧj ˌaleatˈɔɾjæ i xˌelatˈɔɾjʊz veɾəbˈIs. ˌumæ sˌemˈAŋʧy fˈiksæ sˌupˈɔɾətæ a xˌeprodusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 20,
+      "speech_start": 228.14999999999995,
+      "speech_end": 246.04999999999995,
+      "scene_end": 246.49999999999994,
+      "duration": 18.349999999999994,
+      "text": "Neste projeto, o gene 239740 é o controle positivo, 233460 é o controle negativo e três guias 000000 definem o comportamento neutro. As colunas c1 a c3 são excluídas do conjunto de tratamento montado.",
+      "speech_text": "Neste projeto, o gene 239740 é o controle positivo, 233460 é o controle negativo e três guias 000000 definem o comportamento neutro. As colunas c1 a c3 são excluídas do conjunto de tratamento montado.",
+      "phonemes": "nˌesʧi prˌoʒˈɛtʊ, ʊ ʒˈeny dˌuzˈAŋtʊzi trˈiŋtæinˈɔvy mˈiʊ sˈɛʧysˈAŋtʊzˌi kwaɾˈAŋtæ ɛ ʊ kˌoŋtrˈoly pˌoziʧˈivʊ, dˌuzˈAŋtʊzi trˈiŋtæitrˈez mˈiʊ kwˈatrʊsˈAŋtʊzˌi sesˈAŋtæ ɛ ʊ kˌoŋtrˈoly nˌeɡaʧˈivw i trˈez ɡˈiæs zˈɛɾʊzˈɛɾʊzˈɛɾʊpˈoŋtʊ zˈɛɾʊzˈɛɾʊzˈɛɾʊ dˌefˈinAŋ ʊ kˌompoɾətæmˈAŋtʊ nˈeʊtrʊ. as kˌolˈunæs sˈe ˈũŋ a sˈe trˈes sɐ̃ʊ̃ ˌeskluˈidæz dʊ kˌoŋʒˈũŋtʊ ʤy trˌatæmˈAŋtʊ mˌoŋtˈadʊ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 246.49999999999994,
+      "speech_end": 262.0249999999999,
+      "scene_end": 262.4749999999999,
+      "duration": 15.974999999999966,
+      "text": "O Run valida esquemas de tabela e chaves de poço, remove controles excluídos, agrega pontuações de células, converte conteúdos de guia em frações, combina coeficientes OLS, avalia evidências e escreve resultados. Petições de parada para uma interrupção segura.",
+      "speech_text": "O Run valida esquemas de tabela e chaves de poço, remove controles excluídos, agrega pontuações de células, converte conteúdos de guia em frações, combina coeficientes OLS, avalia evidências e escreve resultados. Petições de parada para uma interrupção segura.",
+      "phonemes": "ʊ xˈũŋ vˌalˈidæ ˌeskˈemæz ʤy tˌabˈɛlæ i ʃˈavyz ʤy pˈosʊ, xˌemˈɔvy kˌoŋtrˈolyz ˌeskluˈidʊs, ˌaɡrˈɛɡæ pˌoŋtuasˈõjz ʤy sˈɛlulæs, kˌoŋvˈɛɾəʧy kˌoŋteˈudʊz ʤy ɡˈiæ ˈAŋ frasˈõjs, kˌombˈinæ kˌoefˌisiˈAŋʧyz ˌɔˌɛlyˈɛsy, ˌavalˈiæ ˌevidˈAŋsjæz i ˌeskrˈɛvy xˌezuwtˈadʊs. pˌeʧisˈõjz ʤy pˌaɾˈadæ pˌaɾæ ˌumæ ˌiŋtexupsˈɐ̃ʊ̃ sˌeɡˈuɾæ."
+    },
+    {
+      "scene": 22,
+      "speech_start": 262.4749999999999,
+      "speech_end": 276.19999999999993,
+      "scene_end": 276.6499999999999,
+      "duration": 14.175000000000011,
+      "text": "Durante a corrida, o console relata 384 linhas de pontuação, 384 linhas de contagem, alinhamento de placas, observações mantidas e progresso do modelo enquanto os números aparecem na galeria.",
+      "speech_text": "Durante a corrida, o console relata 384 linhas de pontuação, 384 linhas de contagem, alinhamento de placas, observações mantidas e progresso do modelo enquanto os números aparecem na galeria.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj a kˌoxˈidæ, ʊ kˌoŋsˈoly xˌelˈatæ trˌezˈAŋtʊzˌi oɪtˈAŋtæikwˈatrʊ lˈiɲæz ʤy pˌoŋtuasˈɐ̃ʊ̃, trˌezˈAŋtʊzˌi oɪtˈAŋtæikwˈatrʊ lˈiɲæz ʤy kˌoŋtˈaʒAŋ, ˌaliɲæmˈAŋtʊ ʤy plˈakæs, ˌobseɾəvasˈõjz mˌɐ̃ŋʧˈidæz i prˌoɡrˈɛsʊ dʊ mˌodˈelw ˌAŋkwˈɐ̃ŋtw ʊz nˈũmeɾʊz ˌapaɾˈɛsAŋ na ɡˌaleɾˈiæ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 276.6499999999999,
+      "speech_end": 292.0249999999999,
+      "scene_end": 292.6749999999999,
+      "duration": 16.024999999999977,
+      "text": "A execução concluída fornece resumos de placas, pontuações e histogramas de fração de guia, gráficos de diagnóstico, dados de regressão, tabelas de coeficientes por guia e gene, tabelas de significância, configurações salvas, um manifesto e uma macro reiniciável.",
+      "speech_text": "A execução concluída fornece resumos de placas, pontuações e histogramas de fração de guia, gráficos de diagnóstico, dados de regressão, tabelas de coeficientes por guia e gene, tabelas de significância, configurações salvas, um manifesto e uma macro reiniciável.",
+      "phonemes": "a ˌezekusˈɐ̃ʊ̃ kˌoŋkluˈidæ fˌoɾənˈɛsy xˌezˈumʊz ʤy plˈakæs, pˌoŋtuasˈõjz i ˌistoɡrˈɐ̃mæz ʤy frasˈɐ̃ʊ̃ ʤy ɡˈiæ, ɡrˈafikʊz ʤy ʤˌiaɡnˈɔsʧikʊ, dˈadʊz ʤy xˌeɡresˈɐ̃ʊ̃, tˌabˈɛlæz ʤy kˌoefˌisiˈAŋʧys por ɡˈiæ i ʒˈeny, tˌabˈɛlæz ʤy sˌiɡnifikˈɐ̃ŋsjæ, kˌoŋfiɡˌuɾasˈõjs sˈWvæs, ũŋ mˌænifˈɛstw i ˌumæ mˈakrʊ xˌAnisiˈaveʊ."
     }
   ]
 }

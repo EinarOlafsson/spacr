@@ -43,6 +43,8 @@ from spacr.qt.app import (
     MAX_APPS_PER_SECTION,
     SECTION_CORE,
     SECTION_DATA,
+    SECTION_DESIGN,
+    SECTION_EXPLORE,
     SECTION_MODELS,
     SECTION_RESULTS,
     SECTION_TOXO,
@@ -89,6 +91,8 @@ class _ModalRecorder:
         self.questions: list = []
         self.answers: list = []
         self.threads: list = []
+        #: (objectName, windowTitle, every label's text) per `QDialog.exec`.
+        self.dialogs: list = []
 
     def titles(self, kind: str) -> list:
         return [t for t, _text in getattr(self, kind)]
@@ -124,6 +128,30 @@ def modals(monkeypatch):
     monkeypatch.setattr(QMessageBox, "warning", _warning)
     monkeypatch.setattr(QMessageBox, "information", _information)
     monkeypatch.setattr(QMessageBox, "about", _about)
+
+    # `QDialog.exec` too, and this one is not optional. b530f70a replaced
+    # `QMessageBox.about(...)` with a hand-built About panel that ends in
+    # `dialog.exec()`, so `_show_about()` stopped going through the seam above
+    # and started a NESTED MODAL EVENT LOOP instead. Offscreen there is nobody
+    # to close it: the test did not fail, it hung, and a hung test takes the
+    # whole 60-minute Qt job down with it rather than one assertion.
+    #
+    # Recording the dialog's own title and the text of every label it built
+    # keeps the assertions saying what they said about the QMessageBox --
+    # "About spaCR" was shown, and the version was in it -- against the widget
+    # that is actually shown now.
+    from PySide6.QtWidgets import QDialog, QLabel
+
+    def _exec(dialog, *a, **kw):
+        labels = [w.text() for w in dialog.findChildren(QLabel)]
+        rec.dialogs.append((dialog.objectName(), dialog.windowTitle(),
+                            "\n".join(labels)))
+        if dialog.objectName() == "AboutDialog":
+            rec.about.append((dialog.windowTitle(), "\n".join(labels)))
+        return QDialog.Accepted
+
+    monkeypatch.setattr(QDialog, "exec", _exec)
+    monkeypatch.setattr(QDialog, "exec_", _exec, raising=False)
     return rec
 
 
@@ -171,12 +199,18 @@ def _tiles(page: HomePage) -> dict:
 #: a mirror of the code: moving an app between sections is a product
 #: decision, and this table is where it gets recorded.
 #:
-#: #16i rewrote 22 of these 30 rows into two maturity sections, which
+#: #16i rewrote 22 of the original rows into two maturity sections, which
 #: emptied Data, Segmentation models and Results & QC completely. #16j
 #: put every one of them back: an app is filed under what it DOES, and
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
+    # Both were finished and tested but deliberately unregistered while
+    # Explore sat at the old cap; `baa704fc` switched them on once it did
+    # not, and this ledger was the last thing still describing them as
+    # absent.
+    "pca":             SECTION_EXPLORE,
+    "tabulate":        SECTION_EXPLORE,
     "mask":            SECTION_CORE,
     "timelapse":       SECTION_CORE,
     "motility":        SECTION_CORE,
@@ -186,38 +220,113 @@ EXPECTED_SECTIONS = {
     "ml_analyze":      SECTION_CORE,
     "map_barcodes":    SECTION_CORE,
     "regression":      SECTION_CORE,
+    # Correcting a mask and its tracks by hand is part of getting the data,
+    # not a reading of what came out — so Core, beside Mask and Timelapse.
+    "curate":          SECTION_CORE,
     "align":           SECTION_DATA,
     "convert":         SECTION_DATA,
     "foreign":         SECTION_DATA,
+    "external_masks":  SECTION_DATA,
     "queue":           SECTION_DATA,
     "batch":           SECTION_DATA,
+    "distributed_jobs": SECTION_DATA,
     "db_browser":      SECTION_DATA,
     "make_masks":      SECTION_MODELS,
     "train_cellpose":  SECTION_MODELS,
     "cellpose_masks":  SECTION_MODELS,
     "model_compare":   SECTION_MODELS,
     "model_zoo":       SECTION_MODELS,
+    # Illumination correction is done TO the images on the way in, like
+    # stitching and conversion -- not a reading of what came out.
+    "illumination":    SECTION_DATA,
+    "data_manager":    SECTION_DATA,
     "plate_view":      SECTION_RESULTS,
     "agreement":       SECTION_RESULTS,
     "umap":            SECTION_RESULTS,
     "activation":      SECTION_RESULTS,
     "train_compare":   SECTION_RESULTS,
+    "classifier_evaluation": SECTION_RESULTS,
+    "run_history":     SECTION_RESULTS,
     "report":          SECTION_RESULTS,
+    "barcode_qc":      SECTION_RESULTS,
+    # Two runs of the same project read against each other is a reading of
+    # what a finished run produced, which is what this section is.
+    "run_compare":     SECTION_RESULTS,
+    # The "hand it on" pair, and Results & QC rather than Explore because
+    # neither asks the data anything new: the Hit List is the ranked table
+    # a screen produced, and Methods & Results is that run written up. Both
+    # read a finished run rather than interrogating it.
+    "hit_list":        SECTION_RESULTS,
+    "methods_export":  SECTION_RESULTS,
+    # Explore's first two. The section was declared and empty until they
+    # registered -- "page through image layers" is the example in its own
+    # definition, and the Graph Builder family is what it was named for.
+    "layer_viewer":    SECTION_EXPLORE,
+    "graph_builder":   SECTION_EXPLORE,
+    # Explore's third, and it is Explore rather than Results & QC for the
+    # same reason as the other two: handing measurements.db to scanpy or
+    # scvi-tools is asking the numbers something spaCR did not plan for.
+    "anndata_export":  SECTION_EXPLORE,
+    # Explore's fourth: a scatter you can hover to see the cell a point
+    # stands for. Asking the measurements a question, not reading a run.
+    "image_scatter":   SECTION_EXPLORE,
+    # Explore's fifth: what is inside what. The cell_id links have been in
+    # the database since the first Measure run and had no view.
+    "lineage":         SECTION_EXPLORE,
+    # Explore's sixth and seventh, and both are Explore for the section's
+    # own reason -- they ask a question of what a run left behind rather
+    # than reporting it. Pipeline Graph asks "does this output still follow
+    # from its inputs"; the Prediction Profiler moves one input of a fitted
+    # model and watches the prediction move. Neither has a report to show
+    # you if you do not ask.
+    "pipeline_graph":  SECTION_EXPLORE,
+    "profiler":        SECTION_EXPLORE,
+    # Explore's eighth. Five verdicts on one screen, none of them
+    # recomputed -- it reads what the QC steps already decided and asks
+    # whether they agree, which is a question about a run rather than a
+    # report of one.
+    "qc_dashboard":    SECTION_EXPLORE,
     "analyze_plaques": SECTION_TOXO,
     "recruitment":     SECTION_TOXO,
     "invasion":        SECTION_TOXO,
     "replication":     SECTION_TOXO,
+    # Design's first app. The section had been declared and empty since the
+    # sections were named; its note ("Plan the experiment before it runs:
+    # power, sample size, plate layout, controls and replicates") was
+    # written for this.
+    "power":           SECTION_DESIGN,
+    # And its second, which claims the rest of that same note: the plate
+    # layout, the controls and the replicates, decided before an image
+    # exists.
+    "experiment_design": SECTION_DESIGN,
 }
 
-#: How finished every app is, as a second ledger on the same 30 keys.
+#: How finished every app is, as a second ledger on the same app keys.
 #: Absent from ``APP_STAGE`` means stable, so the two are checked
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
     "align": "alpha", "model_zoo": "alpha", "convert": "alpha",
-    "foreign": "alpha", "model_compare": "alpha", "queue": "alpha",
-    "batch": "alpha", "invasion": "alpha", "db_browser": "alpha",
+    "foreign": "alpha", "external_masks": "alpha",
+    "model_compare": "alpha", "queue": "alpha",
+    "batch": "alpha", "distributed_jobs": "alpha",
+    "invasion": "alpha", "db_browser": "alpha",
     "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
-    "report": "alpha",
+    "classifier_evaluation": "alpha",
+    "run_history": "alpha", "report": "alpha",
+    "illumination": "alpha", "barcode_qc": "alpha",
+    "layer_viewer": "alpha", "graph_builder": "alpha",
+    "data_manager": "alpha",
+    "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
+    "image_scatter": "alpha", "lineage": "alpha", "curate": "alpha",
+    "hit_list": "alpha", "methods_export": "alpha",
+    "pipeline_graph": "alpha", "profiler": "alpha",
+    "experiment_design": "alpha", "qc_dashboard": "alpha",
+    # PCA and Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS
+    # started calling their register(); both arrive alpha, like every screen
+    # that is built and reachable but not yet trusted end to end. Absent from
+    # this table they read as "stable", which is the one claim nobody has
+    # earned yet.
+    "pca": "alpha", "tabulate": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -236,9 +345,19 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Thirteen alpha, nine beta, eight stable. Signing an app off is
-    deleting a line from ``APP_STAGE`` and from here; nothing else
-    moves, which is the whole point of maturity not being a section."""
+    Thirty-four alpha, nine beta, eight stable. The alpha column is the
+    one that keeps growing and the beta and stable columns have not
+    moved in a long time, which is the true shape of this project: an
+    app arrives "built and reachable, not yet trusted end to end", and
+    only use promotes it. Illumination, Barcode QC, Layer Viewer and
+    Graph Builder arrived that way; so did Power / Design, AnnData
+    Export and Run Compare; and so did Hit List, Methods & Results,
+    Pipeline Graph and the Prediction Profiler; and so do Experiment
+    Design and the QC Dashboard.
+
+    Signing an app off is deleting a line from ``APP_STAGE`` and from
+    here; nothing else moves, which is the whole point of maturity not
+    being a section."""
     actual = {key: app_stage(key) for key, *_r in APPS}
     expected = {key: EXPECTED_STAGES.get(key, "stable")
                 for key, *_r in APPS}
@@ -247,7 +366,10 @@ def test_every_app_carries_the_maturity_it_was_given():
         "EXPECTED_STAGES in the same commit.")
     counts = {s: sum(1 for v in actual.values() if v == s)
               for s in ("alpha", "beta", "stable")}
-    assert counts == {"alpha": 13, "beta": 9, "stable": 8}
+    # 36 alpha since PCA and Tabulate started registering. The beta and stable
+    # columns have still not moved, which is the shape the docstring above
+    # describes: alpha is the column that grows, and only use empties it.
+    assert counts == {"alpha": 36, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -275,11 +397,16 @@ def test_no_section_holds_more_than_the_cap():
     Nine was the width of the Core pipeline and nothing more, so it
     would have fired on the next Core app rather than when a row stopped
     being readable. #16i raised it to thirteen for a staging section
-    that no longer exists; the number stays, because thirteen is still
-    about where a row stops being scannable and nine was never about
-    anything but a coincidence."""
+    that no longer exists.
+
+    Twenty was set on request once the registry passed fifty apps. The
+    argument for thirteen was that a longer row stops being scannable,
+    and that is still true -- but the sections that actually fill up are
+    the ones doing real work, and splitting Explore into two half-named
+    tabs to satisfy a number would have been worse than the long row it
+    avoided."""
     counts = _counts()
-    assert MAX_APPS_PER_SECTION == 13
+    assert MAX_APPS_PER_SECTION == 20
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
     assert not over, (
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "
@@ -667,9 +794,12 @@ def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
         "convert":       "ConvertScreen",
         "foreign":       "ForeignScreen",
         "batch":         "BatchScreen",
+        "distributed_jobs": "DistributedJobsScreen",
         "model_zoo":     "ModelZooScreen",
         "report":        "ReportScreen",
         "train_compare": "TrainCompareScreen",
+        "classifier_evaluation": "ClassifierEvaluationScreen",
+        "run_history":   "RunHistoryScreen",
     }
     for key, cls_name in expected.items():
         screen = win._build_screen(key)
@@ -678,17 +808,46 @@ def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
 
 
 def test_every_other_key_builds_a_generic_app_screen(win):
+    """Which keys get a screen of their own, asserted in both directions.
+
+    ``curate`` grew a ``CurateScreen`` and this test walked into it one key at
+    a time, stopping at the first surprise with a bare ``assert False`` — so
+    it reported "curate is not an AppScreen" and could not say whether
+    anything else had moved as well. Every key is built and the two sets are
+    compared, which also catches the opposite drift: a dedicated screen
+    quietly falling back to the generic one is a screen the user stops
+    seeing, and the old shape could not fail on that at all.
+    """
     from spacr.qt.screens.app_screen import AppScreen
     dedicated = {"annotate", "make_masks", "queue", "db_browser", "agreement",
                  "plate_view", "model_compare", "align", "convert", "foreign",
-                 "batch", "model_zoo", "report", "train_compare"}
-    generic = [k for k, *_r in APPS if k not in dedicated]
-    assert generic, "expected some generic AppScreen apps"
-    for key in generic:
+                 "batch", "distributed_jobs", "model_zoo", "report", "train_compare",
+                 "classifier_evaluation", "run_history",
+                 # Sixteen more since this set was last written, and the old
+                 # one-key-at-a-time shape could only ever name the first of
+                 # them. Every one of these is a screen built for its own job
+                 # rather than a settings form over a pipeline entry point.
+                 "curate", "data_manager", "experiment_design",
+                 "graph_builder", "hit_list", "image_scatter", "layer_viewer",
+                 "lineage", "methods_export", "pca", "pipeline_graph",
+                 "power", "profiler", "qc_dashboard", "run_compare",
+                 "tabulate"}
+
+    built_generic, built_dedicated = set(), set()
+    for key, *_r in APPS:
         screen = win._build_screen(key)
-        assert isinstance(screen, AppScreen)
-        assert screen.app_key == key
+        if isinstance(screen, AppScreen):
+            built_generic.add(key)
+            assert screen.app_key == key
+        else:
+            built_dedicated.add(key)
         screen.deleteLater()
+
+    assert built_generic, "expected some generic AppScreen apps"
+    assert built_dedicated == dedicated & {k for k, *_r in APPS}, (
+        "the set of apps with a screen of their own moved. Newly dedicated: "
+        f"{sorted(built_dedicated - dedicated)}; no longer dedicated: "
+        f"{sorted((dedicated & {k for k, *_r in APPS}) - built_dedicated)}")
 
 
 def test_clicking_a_home_tile_navigates(win, qtbot):
@@ -793,10 +952,21 @@ def test_about_shows_the_installed_version(win, modals):
 
 def test_about_says_unknown_when_the_version_cannot_be_read(
         win, modals, monkeypatch):
+    """The word, not the markup.
+
+    b530f70a rebuilt the About panel as a laid-out dialog instead of a
+    QMessageBox, so the version is its own label reading "Version unknown"
+    rather than a "<b>Version:</b> unknown" fragment inside one rich-text
+    blob. The claim is unchanged — an unreadable version says so out loud
+    instead of showing an empty space — so it is asserted on the text the
+    panel renders rather than on the HTML it no longer emits.
+    """
     import spacr
     monkeypatch.delattr(spacr, "__version__")
     win._show_about()
-    assert "<b>Version:</b> unknown" in modals.about[0][1]
+    body = modals.about[0][1]
+    assert "Version unknown" in body, body
+    assert "Version:" not in body     # the old QMessageBox spelling is gone
 
 
 def test_resolve_version_reports_the_package_version(win):
@@ -823,10 +993,17 @@ def test_help_menu_urls_open_in_a_browser(win, monkeypatch):
             if act.text().endswith("(web)"):
                 act.trigger()
         break
-    assert opened == [
-        "https://einarolafsson.github.io/spacr/tutorial/",
-        "https://einarolafsson.github.io/spacr/index.html",
-    ]
+    # Asserted against the module's own constants rather than literals. This
+    # used to hard-code the singular `/spacr/tutorial/`, which is a 404 that no
+    # page has ever been served from -- so the test pinned the broken link in
+    # place and went red when the link was finally fixed. The published library
+    # is at `/tutorials/` (plural), because `docs/source/conf.py` copies
+    # `_extra/tutorials/` into the site root via `html_extra_path`.
+    from spacr.qt.app import DOCS_URL, TUTORIALS_URL
+
+    assert opened == [TUTORIALS_URL, DOCS_URL]
+    # Keep the plural pinned: it is the whole point of the fix.
+    assert TUTORIALS_URL.endswith("/tutorials/")
 
 
 def test_a_failing_browser_open_reports_in_the_status_bar(win, monkeypatch):
@@ -1087,9 +1264,42 @@ def test_apply_demo_with_an_unreadable_csv_falls_through(win, tmp_path,
 
 
 def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
-        win, tmp_path):
+        win, tmp_path, monkeypatch):
+    """None of the three hooks -> nothing happens, and in particular the
+    demo's settings CSV is never even read.
+
+    The second half is the control: the identical call against a screen
+    that *does* take settings reads the CSV and receives it, so "the CSV
+    was never read" is a measurement that can come out either way."""
+    import spacr.utils as sutils
     layout = win._run_demo_generator("mask", str(tmp_path))
-    win._apply_demo_to_screen(object(), layout)     # must not raise
+    read: list = []
+    real_load = sutils.load_settings
+
+    def _spy(*a, **k):
+        read.append(a[0] if a else None)
+        return real_load(*a, **k)
+    monkeypatch.setattr(sutils, "load_settings", _spy)
+
+    class _Bare:
+        """No apply_settings_dict, no _open_source, no _open_folder."""
+
+    bare = _Bare()
+    win._apply_demo_to_screen(bare, layout)
+    assert read == [], (
+        f"the demo CSV was read for a screen that cannot take it: {read}")
+    assert vars(bare) == {}, "something was pushed onto the screen anyway"
+
+    # Control — same layout, same call, a screen that can take settings.
+    got: list = []
+
+    class _Settings:
+        def apply_settings_dict(self, settings):
+            got.append(settings)
+
+    win._apply_demo_to_screen(_Settings(), layout)
+    assert read == [str(layout.settings_csv)]
+    assert got and isinstance(got[0], dict) and got[0]
 
 
 # ===========================================================================
@@ -1479,8 +1689,34 @@ def test_a_zoo_request_with_missing_keys_leaves_the_screen_alone(win):
 
 
 def test_a_zoo_request_is_dropped_if_compare_cannot_be_configured(win):
-    win._screens["model_compare"] = QWidget()      # no .configure
-    win._on_zoo_compare_requested({"model_a": "cyto3"})   # must not raise
+    """A ``model_compare`` entry without ``configure`` swallows the request.
+
+    Measured on the real screen, which is held aside and checked before
+    and after: it must be untouched. The control at the end puts it back
+    and fires the identical request, so "untouched" is a measurement that
+    demonstrably comes out differently when the hand-off does land.
+    """
+    win._on_nav_selected("model_compare")
+    real = win._screens["model_compare"]
+    before = real._panel_a.model_edit.text()
+    probe = "zoo-drop-probe"
+    assert before != probe, "the control below could not tell the two apart"
+
+    placeholder = QWidget()                        # no .configure
+    assert not hasattr(placeholder, "configure")
+    win._screens["model_compare"] = placeholder
+    win._on_zoo_compare_requested({"model_a": probe})
+
+    # Navigation still happened — the user is looking at Model Compare,
+    # only the preload was dropped.
+    assert win._visit_order[-1] == "model_compare"
+    assert real._panel_a.model_edit.text() == before, (
+        "the request reached the real screen anyway")
+
+    # Control — same request, a screen that can take it.
+    win._screens["model_compare"] = real
+    win._on_zoo_compare_requested({"model_a": probe})
+    assert real._panel_a.model_edit.text() == probe
 
 
 def test_snapshot_returns_the_settings_of_the_visible_app_screen(win):
@@ -1708,12 +1944,45 @@ def test_bundled_open_sans_is_registered(qapp):
 
 
 def test_missing_font_directory_is_not_an_error(monkeypatch):
+    """No fonts directory -> nothing is registered, quietly.
+
+    ``QFontDatabase.families()`` cannot show this: a font already loaded
+    by another test stays loaded, so the family list is unchanged either
+    way. The registration call itself is what is counted — and the
+    control at the end (same call, directory present) proves the counter
+    is wired to something that really does fire.
+    """
+    import PySide6.QtGui as qtgui
+
+    added: list = []
+
+    class _SpyDatabase:
+        @staticmethod
+        def addApplicationFont(path):
+            added.append(path)
+            return len(added)
+    monkeypatch.setattr(qtgui, "QFontDatabase", _SpyDatabase)
+
+    hidden = {"on": True}
     real_isdir = os.path.isdir
     monkeypatch.setattr(
         os.path, "isdir",
-        lambda p: False if str(p).endswith(os.path.join("resources", "fonts"))
+        lambda p: False if (hidden["on"]
+                            and str(p).endswith(
+                                os.path.join("resources", "fonts")))
         else real_isdir(p))
-    _load_bundled_fonts()          # must not raise
+
+    assert _load_bundled_fonts() is None
+    assert added == [], f"fonts were registered from nowhere: {added}"
+
+    # Control — the same call with the directory visible does register the
+    # bundled TTFs, so the empty list above is a real observation.
+    hidden["on"] = False
+    _load_bundled_fonts()
+    assert added, "the bundled fonts directory registered nothing at all"
+    assert all(p.lower().endswith((".ttf", ".otf")) for p in added)
+    assert any("OpenSans" in os.path.basename(p).replace(" ", "")
+               for p in added), added
 
 
 # ===========================================================================

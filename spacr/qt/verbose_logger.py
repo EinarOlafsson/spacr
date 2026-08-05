@@ -50,13 +50,16 @@ from __future__ import annotations
 import functools
 import logging
 import os
+import threading
 import weakref
+from contextlib import contextmanager
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Callable, Optional
 
 from PySide6.QtCore import QCoreApplication, QObject, Signal
+from shiboken6 import isValid
 
 
 # ---------------------------------------------------------------------------
@@ -70,6 +73,80 @@ _file_handler: "Optional[RotatingFileHandler]" = None
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
                         "spacr.updater", "spacr.trace")
+
+
+#: Per-thread re-entrancy latch for the console sink.
+#:
+#: Writing a line into the console runs Python inside a QWidget, and any log
+#: record produced by *that* code comes straight back here. The loop is short
+#: and it is fatal: ``_StdoutBlock.append`` calls ``setPlainText``, which
+#: begins by destroying the QTextDocument's frames, so a re-entrant call
+#: destroys them a second time while the outer one is still inside
+#: ``QTextDocumentPrivate::clear()``. gdb:
+#: ``QTextFrame::~QTextFrame -> QTextDocumentPrivate::clear ->
+#: QTextDocument::setPlainText``, with ``#0`` in freed memory.
+#:
+#: Reproduced deterministically as ``pytest tests/qt/test_all_module_smoke.py
+#: tests/qt/test_batch_f_diagnostics.py`` (SIGSEGV, exit 139): the smoke test
+#: leaves a console registered, and the first test that switches verbose
+#: logging on drives ``spacr.logging_util``'s profile hook, which logs on
+#: entry to every spaCR function — including ``_StdoutBlock.append`` itself.
+#:
+#: ``logging_util._trace_profile`` has a latch of its own, but it only stops
+#: the *hook* from re-entering the hook. It cannot stop a record emitted by
+#: anything else — a ``log_call`` wrapper, a widget's own ``LOG.debug`` — from
+#: arriving while the console is mid-write. The sink is where the loop has to
+#: be cut, because the sink is the part that re-enters.
+#:
+#: The latch is per-thread on purpose. A worker thread logging while the GUI
+#: thread happens to be drawing the console is not re-entrancy and its record
+#: must still arrive.
+#:
+#: There is more than one sink: this module's :class:`_ConsoleForwarder` and
+#: :class:`spacr.qt.logging_util.QtLogHandler` both end up in
+#: ``ConsolePanel.append_stdout``, and every ConsolePanel in the process
+#: subscribes to the latter. Guarding one sink is not enough — measured: a
+#: 30-file shard still dumped core in the same place after only this module's
+#: sink was guarded. So the latch is raised by the panel itself, around every
+#: widget write, and every sink consults it.
+#:
+#: Exactly one layer raises it — :meth:`ConsolePanel.append_stdout` and
+#: :meth:`ConsolePanel.append_error`, the innermost writers. A sink that
+#: raised it around its own delivery would make the panel refuse the very
+#: line it was handed.
+_DELIVERY_STATE = threading.local()
+
+
+def console_write_in_progress() -> bool:
+    """Whether this thread is currently writing into the console panel.
+
+    Log sinks that feed the console must return without delivering while
+    this is true — see :data:`_DELIVERY_STATE`.
+    """
+    return int(getattr(_DELIVERY_STATE, "depth", 0)) > 0
+
+
+@contextmanager
+def console_write():
+    """Mark the calling thread as being inside a console write.
+
+    Re-entrant by design: ``append_error`` may be reached from inside
+    ``append_stdout``'s own bookkeeping, and unwinding must restore the
+    previous depth rather than clear the latch outright.
+    """
+    depth = int(getattr(_DELIVERY_STATE, "depth", 0))
+    _DELIVERY_STATE.depth = depth + 1
+    try:
+        yield
+    finally:
+        _DELIVERY_STATE.depth = depth
+
+
+def _drop_console_target(ref=None) -> None:
+    """Forget a destroyed console without disturbing a newer target."""
+    global _console_ref
+    if ref is None or _console_ref is ref:
+        _console_ref = None
 
 
 # ---------------------------------------------------------------------------
@@ -171,12 +248,28 @@ class _ConsoleRelay(QObject):
 
     def _deliver(self, text: str) -> None:
         """Append ``text`` to the registered console. GUI thread only."""
+        # Records produced *by* a console write are dropped, not queued: see
+        # :data:`_DELIVERY_STATE`. Re-entering the widget mid-``setPlainText``
+        # destroys its QTextDocument's frames twice and takes the process
+        # down. Dropping them loses nothing a user could act on — they are
+        # the trace of the console drawing the previous line.
+        if console_write_in_progress():
+            return
         target = _console_ref() if _console_ref is not None else None
         if target is None:
+            return
+        # A weak reference only detects Python collection. PySide can keep the
+        # wrapper alive after Qt has deleted the underlying C++ QWidget; calling
+        # a method on that zombie can segfault rather than raise RuntimeError.
+        if not isValid(target):
+            _drop_console_target(_console_ref)
             return
         append = getattr(target, "append_stdout", None)
         if append is None:
             return
+        # The latch is raised by the *innermost* writer — ConsolePanel's own
+        # append methods — and only checked here. Raising it around this call
+        # instead would make the panel refuse the very delivery it was handed.
         try:
             append(text)
         except Exception:
@@ -204,6 +297,12 @@ class _ConsoleForwarder(logging.Handler):
     """
 
     def emit(self, record: logging.LogRecord) -> None:
+        # Cut the feedback loop as early as possible: a record emitted while
+        # this thread is inside a console write is a record *about* that
+        # write. Formatting and emitting it would run more spaCR code, which
+        # under the function-trace profile hook produces more records still.
+        if console_write_in_progress():
+            return
         if _console_ref is None or _console_ref() is None:
             return
         try:
@@ -243,7 +342,12 @@ def register_console_target(panel: Any) -> None:
     global _console_ref
     _ensure_handler()
     _ensure_relay()
-    _console_ref = weakref.ref(panel)
+    target_ref = weakref.ref(panel)
+    _console_ref = target_ref
+    destroyed = getattr(panel, "destroyed", None)
+    if destroyed is not None:
+        destroyed.connect(
+            lambda *_args, ref=target_ref: _drop_console_target(ref))
 
 
 def apply_verbose_logging(on: bool) -> None:
@@ -262,6 +366,17 @@ def apply_verbose_logging(on: bool) -> None:
         file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
+    # Cover internal helpers and class methods too.  Entry-point decorators
+    # alone miss most of a pipeline; the package-level profiler filters to
+    # spacr source files and is completely removed when verbose mode is off.
+    from ..logging_util import (
+        disable_function_trace,
+        enable_function_trace,
+    )
+    if on:
+        enable_function_trace()
+    else:
+        disable_function_trace()
     if on:
         # Nudge cellpose's own logger to INFO so its "loaded model X"
         # breadcrumbs come through. We deliberately DO NOT touch

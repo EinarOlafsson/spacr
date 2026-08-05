@@ -9,6 +9,7 @@ from __future__ import annotations
 import ast
 import importlib
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -41,22 +42,40 @@ EXPECTED_LAZY = {
 
 @pytest.mark.parametrize("mod_name", ALL_MODULES)
 def test_source_parses(mod_name):
-    """Every spacr/*.py must parse without SyntaxError."""
+    """Every spacr/*.py must parse without SyntaxError into a real module."""
     src = (PKG_ROOT / f"{mod_name}.py").read_text(encoding="utf-8")
-    ast.parse(src)
+    tree = ast.parse(src)
+
+    assert isinstance(tree, ast.Module)
+    # Non-empty body: a file truncated to nothing also parses cleanly, so
+    # "ast.parse did not raise" would let an emptied module through.
+    assert tree.body, f"spacr/{mod_name}.py parsed to an empty module"
+    # Contrast proving the assertion above discriminates — an empty source
+    # really does produce a Module with no body.
+    assert ast.parse("").body == []
 
 
 @pytest.mark.parametrize("mod_name", ALL_MODULES)
 def test_module_imports(mod_name):
     """Every submodule imports cleanly under `import spacr.<mod>`."""
     try:
-        importlib.import_module(f"spacr.{mod_name}")
+        mod = importlib.import_module(f"spacr.{mod_name}")
     except Exception as e:
         # Same skip logic as test_module_dir_is_iterable — gui modules
         # need an accessible X display at import time.
         if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
             pytest.skip(f"spacr.{mod_name} needs a display: {e}")
         raise
+
+    expected = f"spacr.{mod_name}"
+    # The import produced THIS module, registered in sys.modules under THIS
+    # name — not a same-named module shadowed in from somewhere else...
+    assert mod.__name__ == expected
+    assert sys.modules[expected] is mod
+    # ...and it was loaded from the checkout under test, not another copy of
+    # spacr that happens to be installed in the environment.
+    assert os.path.realpath(mod.__file__) == \
+        os.path.realpath(str(PKG_ROOT / f"{mod_name}.py"))
 
 
 # ---------------------------------------------------------------------------

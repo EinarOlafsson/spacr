@@ -140,15 +140,43 @@ def test_toxo_normalize_y_lims_none_all_zero():
 # gui.py: MainApp construction (headless Tk)
 # ============================================================================
 
+#: What the two MainApp tests below found the moment their
+#: ``except Exception: pytest.skip("MainApp needs display")`` came off.
+#:
+#: ``spacrButton.load_icon`` (spacr/gui_elements.py:1751, and again at 1905)
+#: builds its icon with ``ImageTk.PhotoImage(image)`` and no ``master=``, so
+#: PIL registers the image against ``tkinter._default_root`` -- the FIRST Tk
+#: root created in the process. Put a spacrButton on any other root and
+#: ``canvas.create_image(image=...)`` raises
+#: ``_tkinter.TclError: image "pyimageN" doesn't exist``.
+#:
+#: That is not a test artefact. spaCR opens a second root in production:
+#: ``spacr/gui_utils.py:418`` builds ``tk.Tk()`` for the annotation app, and
+#: ``spacr/gui_utils.py:548`` builds another when the first has been
+#: destroyed. Every spacrButton on those windows hits this.
+#:
+#: Fixing it is one keyword -- ``ImageTk.PhotoImage(image, master=self.canvas)``
+#: -- but it is a product change, so it is pinned here instead. When it lands,
+#: strict=True makes these two tests fail until the marker is deleted.
+SECOND_TK_ROOT_ICON_BUG = (
+    "spacr/gui_elements.py:1751 spacrButton.load_icon builds ImageTk."
+    "PhotoImage without master=, so the icon binds to tkinter._default_root "
+    "and every spacrButton on a second Tk root (spacr/gui_utils.py:418, :548) "
+    "raises TclError: image \"pyimageN\" doesn't exist"
+)
+
+
 @pytest.mark.gui
+@pytest.mark.xfail(strict=True, reason=SECOND_TK_ROOT_ICON_BUG)
 def test_gui_main_app_constructs(tk_root):
     """MainApp is a tk.Tk subclass — verify its default construction
     initializes the app dicts."""
     from spacr.gui import MainApp
-    try:
-        app = MainApp()
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"MainApp needs display / monitor info: {e}")
+    # Unguarded: the `gui` marker and the tk_root fixture already state (and
+    # enforce) "this needs a display", and conftest stubs screeninfo, so
+    # "MainApp needs display / monitor info" was an excuse covering every other
+    # way MainApp.__init__ can fail -- including the one it was covering.
+    app = MainApp()
     try:
         assert hasattr(app, "main_gui_apps")
         assert isinstance(app.main_gui_apps, dict)
@@ -165,12 +193,12 @@ def test_gui_main_app_constructs(tk_root):
 
 
 @pytest.mark.gui
+@pytest.mark.xfail(strict=True, reason=SECOND_TK_ROOT_ICON_BUG)
 def test_gui_main_app_carries_color_settings(tk_root):
     from spacr.gui import MainApp
-    try:
-        app = MainApp()
-    except Exception as e:  # pragma: no cover
-        pytest.skip(f"MainApp needs display: {e}")
+    # Unguarded, for the same reason: the display precondition is the marker's
+    # and the fixture's job, not a blanket except's.
+    app = MainApp()
     try:
         assert hasattr(app, "color_settings")
         assert isinstance(app.color_settings, dict)
@@ -225,10 +253,10 @@ def test_gui_utils_convert_settings_dict_gui_input_output_types():
 
 def test_gui_elements_set_element_size_returns_dict(tk_root):
     from spacr.gui_elements import set_element_size
-    try:
-        size_dict = set_element_size()
-    except Exception as e:  # screeninfo requires an X display in some setups
-        pytest.skip(f"set_element_size needs monitor info: {e}")
+    # Unguarded: conftest stubs screeninfo.get_monitors when the real one
+    # cannot reach a display, so set_element_size always has monitor info to
+    # work from and any failure here belongs to spacr.gui_elements.
+    size_dict = set_element_size()
     assert isinstance(size_dict, dict)
     assert "settings_width" in size_dict
 

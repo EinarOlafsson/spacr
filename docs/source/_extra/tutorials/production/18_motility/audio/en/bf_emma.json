@@ -4,47 +4,247 @@
   "voice": "bf_emma",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.275,
+  "total_duration": 300.15,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.875,
-      "scene_end": 10.325,
-      "duration": 10.325,
-      "text": "This tutorial covers Motility assay. Quantify velocity, displacement, persistence, and infection quality-control metrics from time-resolved images."
+      "speech_end": 13.925,
+      "scene_end": 14.375,
+      "duration": 14.375,
+      "text": "Motility Assay rebuilds measurements from tracked merged arrays, calculates displacement, velocity, path length, and straightness, and compares trajectories by infection state. The console records every derived table and figure.",
+      "speech_text": "Motility Assay rebuilds measurements from tracked merged arrays, calculates displacement, velocity, path length, and straightness, and compares trajectories by infection state. The console records every derived table and figure.",
+      "phonemes": "mQtˈɪlɪti əsˈA ɹiːbˈɪldz mˈɛʒəmᵊnts fɹɒm tɹˈakt mˈɜːʤd əɹˈAz, kˈalkjʊlAts dɪsplˈAsmᵊnt, vɪlˈɒsɪti, pˈɑːθ lˈɛŋθ, and stɹˈAtnɪs, and kəmpˈɛːz tɹəʤˈɛktəɹiz bI ɪnfˈɛkʃᵊn stˈAt. ðə kˈɒnsQl ɹɪkˈɔːdz ˈɛvəɹi dɪɹˈIvd tˈAbᵊl and fˈɪɡə."
     },
     {
       "scene": 2,
-      "speech_start": 10.325,
-      "speech_end": 18.5,
-      "scene_end": 18.95,
-      "duration": 8.625,
-      "text": "Open Motility assay from the Core section. Open tracked timelapse data with reliable time intervals and spatial calibration."
+      "speech_start": 14.375,
+      "speech_end": 24.9,
+      "scene_end": 25.349999999999998,
+      "duration": 10.974999999999998,
+      "text": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+      "speech_text": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+      "phonemes": "ðə ʧˈat fˈiːld əksˈɛpts lˈQkᵊl kəmˈɑːndz ɔː wˈɜːkflQ kwˈɛsʧᵊnz. ɪnˈAbᵊl ˈAˌI fɔː ɐ kənfˈɪɡəd pɹəvˈIdə, and jˈuːz ði əʤˈAsᵊnt ˈaɹQ tə ʧˈuːz ɐ pɹəvˈIdə ɔː ˈQpᵊn ɪts kəntɹˈQlz."
     },
     {
       "scene": 3,
-      "speech_start": 18.95,
-      "speech_end": 28.325,
-      "scene_end": 28.775,
-      "duration": 9.825,
-      "text": "In the main configuration area, choose track filters, minimum duration, smoothing, motility metrics, infection definitions, and well-level groups."
+      "speech_start": 25.349999999999998,
+      "speech_end": 35.675,
+      "scene_end": 36.125,
+      "duration": 10.775000000000002,
+      "text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows their install and login commands while authentication remains with each vendor.",
+      "speech_text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows their install and login commands while authentication remains with each vendor.",
+      "phonemes": "pɹəvˈIdəz ʧˈɛks ðə klˈɔːd, ʧˌatʤˌiːpˌiːtˈiː, and ʤˈɛmɪniː kəmˈɑːndlˌIn klˈIənts and ʃˈQz ðɛː ɪnstˈɔːl and lˈɒɡɪn kəmˈɑːndz wˌIl ɔːθˌɛntɪkˈAʃᵊn ɹɪmˈAnz wɪð ˈiːʧ vˈɛndɔː."
     },
     {
       "scene": 4,
-      "speech_start": 28.775,
-      "speech_end": 40.825,
-      "scene_end": 41.275000000000006,
-      "duration": 12.500000000000007,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect trajectory previews and exclude broken, stationary-artifact, or implausible tracks."
+      "speech_start": 36.125,
+      "speech_end": 45.875,
+      "scene_end": 46.325,
+      "duration": 10.200000000000003,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system instructions.",
+      "phonemes": "ˈAˌI sˈɛtɪŋz kəntɹˈQlz ɹɪspˈɒns dˈɛpθ, ˌɔːtəmˈatɪk ˈɛɹə ˌɛksplənˈAʃᵊnz, ˈɒpʃənᵊl ɡˌɪthˈʌb ˈɪʃjuː ɹɪpˈɔːtɪŋ, sˈInˌɪn, and ðə spˈAsəəwˌɛː sˈɪstɪm ɪnstɹˈʌkʃᵊnz."
     },
     {
       "scene": 5,
-      "speech_start": 41.275000000000006,
-      "speech_end": 48.62500000000001,
-      "scene_end": 49.275000000000006,
-      "duration": 8.0,
-      "text": "When the workflow finishes, spaCR writes per-track and per-condition motility tables, quality metrics, and figures."
+      "speech_start": 46.325,
+      "speech_end": 60.1,
+      "scene_end": 60.550000000000004,
+      "duration": 14.225000000000001,
+      "text": "This synthetic source contains eight tracked frames with nuclei in channel zero, cells in channel one, and pathogens in channel two. Sixteen cell tracks and twenty pathogen masks per frame provide a complete assay example.",
+      "speech_text": "This synthetic source contains eight tracked frames with nuclei in channel zero, cells in channel one, and pathogens in channel two. Sixteen cell tracks and twenty pathogen masks per frame provide a complete assay example.",
+      "phonemes": "ðˌɪs sɪnθˈɛtɪk sˈɔːs kəntˈAnz ˈAt tɹˈakt fɹˈAmz wɪð njˈuːklɪI ɪn ʧˈanᵊl zˈɪəɹQ, sˈɛlz ɪn ʧˈanᵊl wˈʌn, and pˈaθəʤᵊnz ɪn ʧˈanᵊl tˈuː. sˌɪkstˈiːn sˈɛl tɹˈaks and twˈɛnti pˈaθəʤᵊn mˈɑːsks pɜː fɹˈAm pɹəvˈId ɐ kəmplˈiːt əsˈA ɪɡzˈɑːmpᵊl."
+    },
+    {
+      "scene": 6,
+      "speech_start": 60.550000000000004,
+      "speech_end": 73.47500000000001,
+      "scene_end": 73.92500000000001,
+      "duration": 13.375000000000007,
+      "text": "Essentials shows the tracked object, channel mapping, seconds per frame, pixels per micrometer, displacement filter, infection strategy, plot limits, database table, and worker count needed for a first analysis.",
+      "speech_text": "Essentials shows the tracked object, channel mapping, seconds per frame, pixels per micrometer, displacement filter, infection strategy, plot limits, database table, and worker count needed for a first analysis.",
+      "phonemes": "ɪsˈɛnʃlz ʃˈQz ðə tɹˈakt ˈɒbʤɛkt, ʧˈanᵊl mˈapɪŋ, sˈɛkᵊndz pɜː fɹˈAm, pˈɪksᵊlz pɜː mˈIkɹQmˌiːtə, dɪsplˈAsmᵊnt fˈɪltə, ɪnfˈɛkʃᵊn stɹˈatɪʤi, plˈɒt lˈɪmɪts, dˈAtəbAs tˈAbᵊl, and wˈɜːkə kˈWnt nˈiːdɪd fɔː ɐ fˈɜːst ənˈalɪsɪs."
+    },
+    {
+      "scene": 7,
+      "speech_start": 73.92500000000001,
+      "speech_end": 86.22500000000001,
+      "scene_end": 86.67500000000001,
+      "duration": 12.75,
+      "text": "Modified limits the panel to intentional changes, including the three-channel layout, one-second frames, one pixel per micrometer, mask-based infection labels, symmetric plot limits, and one worker.",
+      "speech_text": "Modified limits the panel to intentional changes, including the three-channel layout, one-second frames, one pixel per micrometer, mask-based infection labels, symmetric plot limits, and one worker.",
+      "phonemes": "mˈɒdɪfId lˈɪmɪts ðə pˈanᵊl tʊ ɪntˈɛnʃənᵊl ʧˈAnʤɪz, ɪnklˈuːdɪŋ ðə θɹˌiːʧˈanᵊl lˈAWt, wˌʌnsˈɛkᵊnd fɹˈAmz, wˈʌn pˈɪksᵊl pɜː mˈIkɹQmˌiːtə, mˌɑːskbˈAst ɪnfˈɛkʃᵊn lˈAbᵊlz, sɪmˈɛtɹɪk plˈɒt lˈɪmɪts, and wˈʌn wˈɜːkə."
+    },
+    {
+      "scene": 8,
+      "speech_start": 86.67500000000001,
+      "speech_end": 98.85000000000001,
+      "scene_end": 99.30000000000001,
+      "duration": 12.625,
+      "text": "All settings reveals nine categories: objects and channels, calibration, motion filtering, infection classification, XGBoost, clustering, embedding search, plots and quality control, and runtime.",
+      "speech_text": "All settings reveals nine categories: objects and channels, calibration, motion filtering, infection classification, XGBoost, clustering, embedding search, plots and quality control, and runtime.",
+      "phonemes": "ˈɔːl sˈɛtɪŋz ɹɪvˈiːlz nˈIn kˈatɪɡəɹiz: ˈɒbʤɛkts and ʧˈanᵊlz, kˌalɪbɹˈAʃᵊn, mˈQʃᵊn fˈɪltəɹɪŋ, ɪnfˈɛkʃᵊn klˌasɪfɪkˈAʃᵊn, ˌɛksʤˈiː bˈuːst, klˈʌstəɹɪŋ, ɛmbˈɛdɪŋ sˈɜːʧ, plˈɒts and kwˈɒlɪti kəntɹˈQl, and ɹˈʌntIm."
+    },
+    {
+      "scene": 9,
+      "speech_start": 99.30000000000001,
+      "speech_end": 109.57500000000002,
+      "scene_end": 110.02500000000002,
+      "duration": 10.725000000000009,
+      "text": "Recipes saves the complete Motility Assay configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete Motility Assay configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsɪpiz sˈAvz ðə kəmplˈiːt mQtˈɪlɪti əsˈA kənfˌɪɡəɹˈAʃᵊn ˈʌndə ɐ nˈAm, ɹˌiːəplˈIz ɪt tʊ ənˈʌðə ɪkspˈɛɹɪmᵊnt, ɔː ˈɪmpɔːts and ˈɛkspɔːts ɐ ɹˌiːjˈuːzəbᵊl sˈɛtɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 110.02500000000002,
+      "speech_end": 117.65000000000002,
+      "scene_end": 118.10000000000002,
+      "duration": 8.075000000000003,
+      "text": "Submit remote snapshots the resolved settings and sends the measurement and trajectory job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved settings and sends the measurement and trajectory job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹɪmˈQt snˈapʃɒts ðə ɹɪzˈɒlvd sˈɛtɪŋz and sˈɛndz ðə mˈɛʒəmᵊnt and tɹəʤˈɛktəɹi ʤˈɒb tə ðə dɪstɹˈɪbjuːtɪd ʤˈɒbz wˈɜːkspAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 118.10000000000002,
+      "speech_end": 128.15000000000003,
+      "scene_end": 128.60000000000002,
+      "duration": 10.5,
+      "text": "Distributed Jobs maps the tracked source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same assay.",
+      "speech_text": "Distributed Jobs maps the tracked source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same assay.",
+      "phonemes": "dɪstɹˈɪbjuːtɪd ʤˈɒbz mˈaps ðə tɹˈakt sˈɔːs and ˈWtpʊt pˈɑːðz tə ɐ ɹɪmˈQt wˈɜːkstˌAʃᵊn, slˈɜːm klˈʌstə, ɔː kənfˈɪɡəd kəmˈɑːnd, ðˈɛn səbmˈɪts and mˈɒnɪtəz ðə sˈAm əsˈA."
+    },
+    {
+      "scene": 12,
+      "speech_start": 128.60000000000002,
+      "speech_end": 142.22500000000002,
+      "scene_end": 142.675,
+      "duration": 14.074999999999989,
+      "text": "Objects and Channels selects the tracked source, the object whose motion is measured, and the acquisition channels carrying cell, nucleus, and pathogen signal. Incorrect mapping invalidates both intensity and infection results.",
+      "speech_text": "Objects and Channels selects the tracked source, the object whose motion is measured, and the acquisition channels carrying cell, nucleus, and pathogen signal. Incorrect mapping invalidates both intensity and infection results.",
+      "phonemes": "ˈɒbʤɛkts and ʧˈanᵊlz sɪlˈɛkts ðə tɹˈakt sˈɔːs, ði ˈɒbʤɛkt hˌuːz mˈQʃᵊn ɪz mˈɛʒəd, and ði ˌakwɪzˈɪʃᵊn ʧˈanᵊlz kˈaɹiɪŋ sˈɛl, njˈuːklɪəs, and pˈaθəʤᵊn sˈɪɡnᵊl. ˌɪnkəɹˈɛkt mˈapɪŋ ɪnvˈalɪdAts bˈQθ ɪntˈɛnsɪti and ɪnfˈɛkʃᵊn ɹɪzˈʌlts."
+    },
+    {
+      "scene": 13,
+      "speech_start": 142.675,
+      "speech_end": 156.025,
+      "scene_end": 156.475,
+      "duration": 13.799999999999983,
+      "text": "Spatial and Temporal Calibration supplies seconds per frame and pixels per micrometer. These two values convert pixel displacement into physical speed, so a constant error here scales every reported velocity.",
+      "speech_text": "Spatial and Temporal Calibration supplies seconds per frame and pixels per micrometer. These two values convert pixel displacement into physical speed, so a constant error here scales every reported velocity.",
+      "phonemes": "spˈAʃl and tˈɛmpəɹəl kˌalɪbɹˈAʃᵊn səplˈIz sˈɛkᵊndz pɜː fɹˈAm and pˈɪksᵊlz pɜː mˈIkɹQmˌiːtə. ðˌiːz tˈuː vˈaljuːz kənvˈɜːt pˈɪksᵊl dɪsplˈAsmᵊnt ˈɪntuː fˈɪzɪkᵊl spˈiːd, sˌQ ɐ kˈɒnstᵊnt ˈɛɹə hˈɪə skˈAlz ˈɛvəɹi ɹɪpˈɔːtɪd vɪlˈɒsɪti."
+    },
+    {
+      "scene": 14,
+      "speech_start": 156.475,
+      "speech_end": 166.79999999999998,
+      "scene_end": 167.24999999999997,
+      "duration": 10.774999999999977,
+      "text": "Motion Filtering excludes implausible frame-to-frame jumps, optional highly straight artifacts, and feature or velocity outliers identified by a z-score threshold.",
+      "speech_text": "Motion Filtering excludes implausible frame-to-frame jumps, optional highly straight artifacts, and feature or velocity outliers identified by a z-score threshold.",
+      "phonemes": "mˈQʃᵊn fˈɪltəɹɪŋ ɪksklˈuːdz ɪmplˈɔːzɪbᵊl fɹˈAmtəfɹˈAm ʤˈʌmps, ˈɒpʃənᵊl hˈIli stɹˈAt ˈɑːtɪfakts, and fˈiːʧə ɔː vɪlˈɒsɪti ˈWtlˌIəz IdˈɛntɪfId bI ɐ zˈiːskˌɔː θɹˈɛʃhQld."
+    },
+    {
+      "scene": 15,
+      "speech_start": 167.24999999999997,
+      "speech_end": 179.52499999999998,
+      "scene_end": 179.97499999999997,
+      "duration": 12.724999999999994,
+      "text": "Infection Classification starts from pathogen-mask overlap and can optionally relabel or remove tracks using intensity-based quality control. The tutorial retains the direct mask labels.",
+      "speech_text": "Infection Classification starts from pathogen-mask overlap and can optionally relabel or remove tracks using intensity-based quality control. The tutorial retains the direct mask labels.",
+      "phonemes": "ɪnfˈɛkʃᵊn klˌasɪfɪkˈAʃᵊn stˈɑːts fɹɒm pˈaθəʤᵊnmˌɑːsk ˈQvəlap and kan ˈɒpʃənəli ɹiːlˈAbᵊl ɔː ɹɪmˈuːv tɹˈaks jˈuːzɪŋ ɪntˈɛnsɪtibˌAst kwˈɒlɪti kəntɹˈQl. ðə tjuːtˈɔːɹɪəl ɹɪtˈAnz ðə dɪɹˈɛkt mˈɑːsk lˈAbᵊlz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 179.97499999999997,
+      "speech_end": 192.72499999999997,
+      "scene_end": 193.17499999999995,
+      "duration": 13.199999999999989,
+      "text": "XGBoost Infection Model configures a supervised intensity classifier, its tree depth and learning rate, probability threshold, ambiguity band, class-size requirement, and feature-importance report.",
+      "speech_text": "XGBoost Infection Model configures a supervised intensity classifier, its tree depth and learning rate, probability threshold, ambiguity band, class-size requirement, and feature-importance report.",
+      "phonemes": "ˌɛksʤˈiː bˈuːst ɪnfˈɛkʃᵊn mˈɒdᵊl kənfˈɪɡəz ɐ sˈuːpəvIzd ɪntˈɛnsɪti klˈasɪfIə, ɪts tɹˈiː dˈɛpθ and lˈɜːnɪŋ ɹˈAt, pɹˌɒbəbˈɪlɪti θɹˈɛʃhQld, ˌambɪɡjˈuːɪti bˈand, klˈɑːssˌIz ɹɪkwˈIəmᵊnt, and fˌiːʧəɪmpˈɔːtᵊns ɹɪpˈɔːt."
+    },
+    {
+      "scene": 17,
+      "speech_start": 193.17499999999995,
+      "speech_end": 204.99999999999994,
+      "scene_end": 205.44999999999993,
+      "duration": 12.274999999999977,
+      "text": "Infection Clustering controls unsupervised intensity separation, pathogen-channel weighting, cluster count, random seed, sample cap, and minimum silhouette and ground-truth separation checks.",
+      "speech_text": "Infection Clustering controls unsupervised intensity separation, pathogen-channel weighting, cluster count, random seed, sample cap, and minimum silhouette and ground-truth separation checks.",
+      "phonemes": "ɪnfˈɛkʃᵊn klˈʌstəɹɪŋ kəntɹˈQlz ʌnsˈuːpəvIzd ɪntˈɛnsɪti sˌɛpəɹˈAʃᵊn, pˈaθəʤᵊnʧˌanᵊl wˈAtɪŋ, klˈʌstə kˈWnt, ɹˈandəm sˈiːd, sˈɑːmpᵊl kˈap, and mˈɪnɪməm sˌɪlʊˈɛt and ɡɹˈWndtɹˌuːθ sˌɛpəɹˈAʃᵊn ʧˈɛks."
+    },
+    {
+      "scene": 18,
+      "speech_start": 205.44999999999993,
+      "speech_end": 216.32499999999993,
+      "scene_end": 216.77499999999992,
+      "duration": 11.324999999999989,
+      "text": "Embedding Search tunes UMAP or t-SNE neighborhood, distance, perplexity, and learning-rate grids when infection intensity is separated in a lower-dimensional embedding.",
+      "speech_text": "Embedding Search tunes UMAP or t-SNE neighborhood, distance, perplexity, and learning-rate grids when infection intensity is separated in a lower-dimensional embedding.",
+      "phonemes": "ɛmbˈɛdɪŋ sˈɜːʧ tjˈuːnz jˌuːˌɛmˌApˈiː ɔː tˈiːɛsɛnˌiː nˈAbəhʊd, dˈɪstᵊns, pəplˈɛksɪti, and lˈɜːnɪŋɹˌAt ɡɹˈɪdz wˌɛn ɪnfˈɛkʃᵊn ɪntˈɛnsɪti ɪz sˈɛpəɹAtɪd ɪn ɐ lˌQədImˈɛnʃənᵊl ɛmbˈɛdɪŋ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 216.77499999999992,
+      "speech_end": 229.0999999999999,
+      "scene_end": 229.5499999999999,
+      "duration": 12.774999999999977,
+      "text": "Motility Plots and QC sets trajectory-axis limits and enables combined intensity, position, velocity, and infection diagnostic panels without changing the underlying measurements.",
+      "speech_text": "Motility Plots and QC sets trajectory-axis limits and enables combined intensity, position, velocity, and infection diagnostic panels without changing the underlying measurements.",
+      "phonemes": "mQtˈɪlɪti plˈɒts and kjˌuːsˈiː sˈɛts tɹəʤˈɛktəɹiˌaksɪs lˈɪmɪts and ɪnˈAbᵊlz kəmbˈInd ɪntˈɛnsɪti, pəzˈɪʃᵊn, vɪlˈɒsɪti, and ɪnfˈɛkʃᵊn dˌIəɡnˈɒstɪk pˈanᵊlz wɪðˈWt ʧˈAnʤɪŋ ði ˌʌndəlˈIɪŋ mˈɛʒəmᵊnts."
+    },
+    {
+      "scene": 20,
+      "speech_start": 229.5499999999999,
+      "speech_end": 240.9249999999999,
+      "scene_end": 241.3749999999999,
+      "duration": 11.824999999999989,
+      "text": "Runtime and Reliability controls parallel workers. Use one worker for a small validation source, then scale only after confirming channel mapping, calibration, and track quality.",
+      "speech_text": "Runtime and Reliability controls parallel workers. Use one worker for a small validation source, then scale only after confirming channel mapping, calibration, and track quality.",
+      "phonemes": "ɹˈʌntIm and ɹɪlˌIəbˈɪlɪti kəntɹˈQlz pˈaɹəlɛl wˈɜːkəz. jˈuːz wˈʌn wˈɜːkə fɔː ɐ smˈɔːl vˌalɪdˈAʃᵊn sˈɔːs, ðˈɛn skˈAl ˈQnli ˈɑːftə kənfˈɜːmɪŋ ʧˈanᵊl mˈapɪŋ, kˌalɪbɹˈAʃᵊn, and tɹˈak kwˈɒlɪti."
+    },
+    {
+      "scene": 21,
+      "speech_start": 241.3749999999999,
+      "speech_end": 254.2749999999999,
+      "scene_end": 254.72499999999988,
+      "duration": 13.349999999999994,
+      "text": "The demonstration uses one second per frame and one pixel per micrometer. With both values equal to one, each measured pixel per frame converts directly before the report expresses velocity per minute.",
+      "speech_text": "The demonstration uses one second per frame and one pixel per micrometer. With both values equal to one, each measured pixel per frame converts directly before the report expresses velocity per minute.",
+      "phonemes": "ðə dˌɛmənstɹˈAʃᵊn jˈuːzɪz wˈʌn sˈɛkᵊnd pɜː fɹˈAm and wˈʌn pˈɪksᵊl pɜː mˈIkɹQmˌiːtə. wˌɪð bˈQθ vˈaljuːz ˈiːkwᵊl tə wˈʌn, ˈiːʧ mˈɛʒəd pˈɪksᵊl pɜː fɹˈAm kˈɒnvəːts dɪɹˈɛktli bɪfˈɔː ðə ɹɪpˈɔːt ɪkspɹˈɛsɪz vɪlˈɒsɪti pɜː mˈɪnɪt."
+    },
+    {
+      "scene": 22,
+      "speech_start": 254.72499999999988,
+      "speech_end": 270.64999999999986,
+      "scene_end": 271.09999999999985,
+      "duration": 16.37499999999997,
+      "text": "Run reads each merged frame, measures cell, nucleus, cytoplasm, pathogen, and channel intensities, smooths tracks, assigns infection status, computes velocity summaries and correlations, and saves database tables and figures. Stop requests a safe interruption.",
+      "speech_text": "Run reads each merged frame, measures cell, nucleus, cytoplasm, pathogen, and channel intensities, smooths tracks, assigns infection status, computes velocity summaries and correlations, and saves database tables and figures. Stop requests a safe interruption.",
+      "phonemes": "ɹˈʌn ɹˈiːdz ˈiːʧ mˈɜːʤd fɹˈAm, mˈɛʒəz sˈɛl, njˈuːklɪəs, sˈItQplazəm, pˈaθəʤᵊn, and ʧˈanᵊl ɪntˈɛnsɪtiz, smˈuːðs tɹˈaks, əsˈInz ɪnfˈɛkʃᵊn stˈAtəs, kəmpjˈuːts vɪlˈɒsɪti sˈʌməɹiz and kˌɒɹɪlˈAʃᵊnz, and sˈAvz dˈAtəbAs tˈAbᵊlz and fˈɪɡəz. stˈɒp ɹɪkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃᵊn."
+    },
+    {
+      "scene": 23,
+      "speech_start": 271.09999999999985,
+      "speech_end": 281.87499999999983,
+      "scene_end": 282.3249999999998,
+      "duration": 11.224999999999966,
+      "text": "During processing, the console reports merged-array shapes, objects and frames measured, smoothing results, infected and uninfected track counts, velocity units, and every output path.",
+      "speech_text": "During processing, the console reports merged-array shapes, objects and frames measured, smoothing results, infected and uninfected track counts, velocity units, and every output path.",
+      "phonemes": "djˈʊəɹɪŋ pɹˈQsɛsɪŋ, ðə kˈɒnsQl ɹɪpˈɔːts mˈɜːʤdəɹˌA ʃˈAps, ˈɒbʤɛkts and fɹˈAmz mˈɛʒəd, smˈuːðɪŋ ɹɪzˈʌlts, ɪnfˈɛktɪd and ˌʌnɪnfˈɛktɪd tɹˈak kˈWnts, vɪlˈɒsɪti jˈuːnɪts, and ˈɛvəɹi ˈWtpʊt pˈɑːθ."
+    },
+    {
+      "scene": 24,
+      "speech_start": 282.3249999999998,
+      "speech_end": 299.49999999999983,
+      "scene_end": 300.1499999999998,
+      "duration": 17.82499999999999,
+      "text": "The completed assay produced 128 frame-level observations from 16 tracks, classified 12 tracks as infected and four as uninfected, computed velocities in micrometers per minute, and saved measurement tables, correlations, and a per-well motility panel.",
+      "speech_text": "The completed assay produced 128 frame-level observations from 16 tracks, classified 12 tracks as infected and four as uninfected, computed velocities in micrometers per minute, and saved measurement tables, correlations, and a per-well motility panel.",
+      "phonemes": "ðə kəmplˈiːtɪd əsˈA pɹədjˈuːst wˈʌn hˈʌndɹəd twˈɛnti ˈAt fɹˌAmlˈɛvᵊl ˌɒbzəvˈAʃᵊnz fɹɒm sˌɪkstˈiːn tɹˈaks, klˈasɪfId twˈɛlv tɹˈaks az ɪnfˈɛktɪd and fˈɔː az ˌʌnɪnfˈɛktɪd, kəmpjˈuːtɪd vɪlˈɒsɪtiz ɪn mˈIkɹQmˌiːtəz pɜː mˈɪnɪt, and sˈAvd mˈɛʒəmᵊnt tˈAbᵊlz, kˌɒɹɪlˈAʃᵊnz, and ɐ pɜːwˈɛl mQtˈɪlɪti pˈanᵊl."
     }
   ]
 }

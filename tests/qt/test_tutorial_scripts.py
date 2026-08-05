@@ -138,6 +138,8 @@ def test_every_script_is_well_formed(app_key, main_window, home_in_tmp):
     for s in steps:
         assert isinstance(s.hold_ms, int) and 0 <= s.hold_ms <= 5000
         assert s.action is None or callable(s.action)
+        assert isinstance(s.dim_background, bool)
+        assert isinstance(s.live_capture, bool)
         if s.target is not None:
             widget = (s.target[0] if isinstance(s.target, tuple)
                         else s.target)
@@ -149,9 +151,10 @@ def test_every_script_is_well_formed(app_key, main_window, home_in_tmp):
         if s.highlight is not None:
             assert callable(s.highlight) or hasattr(s.highlight, "rect")
 
-    # Every script has to move the cursor somewhere, or the recording is
-    # a static screenshot with a voiceover.
-    assert any(s.target is not None for s in steps)
+    # Every script contains at least one real click. Passive target and
+    # highlight steps must not display the click point.
+    assert any(s.target is not None and s.show_pointer for s in steps)
+    assert all(s.target is not None for s in steps if s.show_pointer)
 
 
 @pytest.mark.parametrize("app_key", AVAILABLE_TUTORIALS)
@@ -291,9 +294,10 @@ def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
     assert _find_button(screen, "Run").text().strip() == "Run"
     assert _find_button(screen, "Run preview").text().strip() == "Run preview"
 
-    run_steps = [s for s in steps if s.highlight is not None]
-    assert run_steps, "the mask script should highlight the Run button"
+    run_steps = [s for s in steps if "When you hit Run" in s.narration]
+    assert len(run_steps) == 1, "the mask script should have one Run step"
     for s in run_steps:
+        assert s.highlight is not None
         assert probe.d._deref(s.highlight).text().strip() == "Run"
     probe.close()
 
@@ -485,22 +489,24 @@ def test_open_demos_menu_returns_the_menu_and_never_pops_it_up(main_window,
     """It must resolve the menu (so a rename is detectable) without
     actually popping it up — a live popup would grab input for the rest
     of the render."""
-    from PySide6.QtGui import QAction
+    from PySide6.QtWidgets import QMenu
     from spacr.qt.tutorial.scripts import _open_demos_menu
-    act = _open_demos_menu(main_window)
-    assert isinstance(act, QAction)
-    assert act.text().replace("&", "") == "Demos"
-    assert act in main_window.menuBar().actions()
+    menu = _open_demos_menu(main_window)
+    # The QMenu itself, reached as a C++ child of the menu bar — which is
+    # what the test has always been named for. It used to hand back the
+    # bar's QAction instead, because the QMenu that `QAction.menu()`
+    # returns is only valid while that action wrapper is alive and so could
+    # not be returned at all. `findChildren` has no such lifetime.
+    assert isinstance(menu, QMenu)
+    assert menu.title().replace("&", "") == "Demos"
+    assert menu in main_window.menuBar().findChildren(QMenu)
     # Resolving must not have opened anything.
     from PySide6.QtWidgets import QApplication
     assert QApplication.activePopupWidget() is None
 
     class NoMenus:
         def menuBar(self):
-            class MB:
-                def actions(self):
-                    return []
-            return MB()
+            return None
 
     with caplog.at_level("WARNING", logger="spacr.qt.tutorial"):
         assert _open_demos_menu(NoMenus()) is None

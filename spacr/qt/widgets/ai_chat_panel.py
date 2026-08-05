@@ -26,11 +26,9 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QDialogButtonBox,
-    QFormLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QPushButton,
     QScrollArea,
     QStackedWidget,
@@ -42,10 +40,10 @@ from PySide6.QtWidgets import (
 
 from .. import ai as ai_module
 from .. import iconset
-from ..ai import keys as ai_keys
 from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
+from ..i18n import retranslate_widget_tree, set_translatable_text, tr
 
 
 def _current_system_prompt() -> str:
@@ -70,6 +68,9 @@ class _MessageBubble(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])
         self._text = QLabel(text)
+        # User and provider output must never be translated by a later
+        # whole-window language refresh.
+        self._text.setProperty("i18nSkipText", True)
         self._text.setWordWrap(True)
         self._text.setTextInteractionFlags(
             Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
@@ -120,6 +121,15 @@ class _ProvidersDialog(QDialog):
         refresh_btn.clicked.connect(self.accept)
         close_btn.clicked.connect(self.reject)
         outer.addWidget(buttons)
+        from ..screens.settings_model import install_api_tooltips
+        install_api_tooltips(self, "ai", {
+            self._speed_combo: "response_speed",
+            self._auto_issue_chk: "auto_file_issues",
+            self._route_errors_chk: "route_errors_through_ai",
+            self._gh_token: "github_token",
+            self._prompt_edit: "system_prompt",
+        })
+        retranslate_widget_tree(self)
 
     # -- Providers tab -------------------------------------------------
     def _build_providers_tab(self) -> QWidget:
@@ -232,6 +242,7 @@ class _ProvidersDialog(QDialog):
         col.addWidget(gh_label)
 
         self._gh_status = QLabel()
+        self._gh_status.setProperty("i18nSkipText", True)
         col.addWidget(self._gh_status)
 
         gh_row = QHBoxLayout()
@@ -269,6 +280,7 @@ class _ProvidersDialog(QDialog):
 
         self._prompt_status = QLabel(self._prompt_status_text())
         self._prompt_status.setObjectName("SubtitleSmall")
+        self._prompt_status.setProperty("i18nSkipText", True)
         col.addWidget(self._prompt_status)
 
         prompt_buttons = QHBoxLayout()
@@ -299,14 +311,20 @@ class _ProvidersDialog(QDialog):
         labels = {"token": "a saved token", "env": "the GITHUB_TOKEN env var",
                   "gh": "the GitHub CLI"}
         if src:
+            source = "✓ Signed in via {source} — issues send directly."
             self._gh_status.setText(
-                f"<span style='color:#3fb950;'>✓ Signed in via "
-                f"{labels.get(src, src)} — issues send directly.</span>")
+                "<span style='color:#3fb950;'>"
+                + tr(source, source=tr(labels.get(src, src))) + "</span>")
         else:
+            source = (
+                "Not signed in — issues open in your browser. Add a token "
+                "or run gh auth login."
+            )
             self._gh_status.setText(
-                "<span style='color:#d29922;'>Not signed in — issues open in "
-                "your browser. Add a token or run <code>gh auth login</code>."
-                "</span>")
+                "<span style='color:#d29922;'>"
+                + tr(source).replace(
+                    "gh auth login", "<code>gh auth login</code>"
+                ) + "</span>")
         self._gh_status.setTextFormat(Qt.RichText)
 
     def _on_save_github_token(self) -> None:
@@ -332,8 +350,8 @@ class _ProvidersDialog(QDialog):
 
     def _prompt_status_text(self) -> str:
         if ai_settings.is_system_prompt_overridden():
-            return "Using your custom prompt (overrides default)."
-        return "Using the default spaCR-aware prompt."
+            return tr("Using your custom prompt (overrides default).")
+        return tr("Using the default spaCR-aware prompt.")
 
     def _make_provider_row(self, provider: ChatProvider) -> QWidget:
         card = QWidget()
@@ -345,15 +363,17 @@ class _ProvidersDialog(QDialog):
         # Header line with status
         header = QHBoxLayout()
         title = QLabel(f"<b>{provider.label}</b>")
+        title.setProperty("i18nSkipText", True)
         title.setTextFormat(Qt.RichText)
         header.addWidget(title)
         header.addStretch(1)
         installed = provider.is_installed()
         status_label = QLabel(
-            f"<span style='color:#3fb950;'>● installed</span>"
+            f"<span style='color:#3fb950;'>● {tr('installed')}</span>"
             if installed
-            else "<span style='color:#f85149;'>● missing</span>"
+            else f"<span style='color:#f85149;'>● {tr('missing')}</span>"
         )
+        status_label.setProperty("i18nSkipText", True)
         status_label.setTextFormat(Qt.RichText)
         header.addWidget(status_label)
         header_wrap = QWidget(); header_wrap.setLayout(header)
@@ -460,6 +480,7 @@ class AIChatPanel(QWidget):
         toolbar.setSpacing(SPACING["sm"])
         toolbar.addWidget(QLabel("Provider"))
         self._provider_combo = QComboBox()
+        self._provider_combo.setProperty("i18nSkipItems", True)
         self._provider_combo.setMinimumWidth(160)
         toolbar.addWidget(self._provider_combo)
         self._btn_keys = QPushButton("Providers")
@@ -531,6 +552,7 @@ class AIChatPanel(QWidget):
         self._status = QLabel("")
         self._status.setObjectName("SubtitleSmall")
         outer.addWidget(self._status)
+        retranslate_widget_tree(self)
 
     # ------------------------------------------------------------------
     # Provider
@@ -570,8 +592,9 @@ class AIChatPanel(QWidget):
     # Send / cancel
     # ------------------------------------------------------------------
     def _set_send_mode(self, mode: str):
+        source = "Cancel" if mode == "cancel" else "Send"
+        set_translatable_text(self._btn_send, source)
         if mode == "cancel":
-            self._btn_send.setText("Cancel")
             self._btn_send.setObjectName("DangerButton")
             try:
                 self._btn_send.clicked.disconnect()
@@ -579,7 +602,6 @@ class AIChatPanel(QWidget):
                 pass
             self._btn_send.clicked.connect(self._cancel_stream)
         else:
-            self._btn_send.setText("Send")
             self._btn_send.setObjectName("PrimaryButton")
             try:
                 self._btn_send.clicked.disconnect()
@@ -595,8 +617,10 @@ class AIChatPanel(QWidget):
         if not text:
             return
         if self._thread is not None:
-            self._status.setText("A response is already streaming — hit "
-                                  "Cancel to interrupt.")
+            set_translatable_text(
+                self._status,
+                "A response is already streaming — hit Cancel to interrupt.",
+            )
             return
         self._input.clear()
         self._append_user(text)
@@ -605,7 +629,7 @@ class AIChatPanel(QWidget):
     def _cancel_stream(self):
         if self._worker is not None:
             self._worker.cancel()
-            self._status.setText("Cancelling…")
+            set_translatable_text(self._status, "Cancelling…")
 
     def _append_user(self, text: str):
         self._messages.append({"role": "user", "content": text})
@@ -616,7 +640,7 @@ class AIChatPanel(QWidget):
     def _start_stream(self, system: str):
         provider = self._current_provider()
         if provider is None:
-            self._status.setText("No provider configured.")
+            set_translatable_text(self._status, "No provider configured.")
             return
         self._pending_buf = []
         self._pending_bubble = _MessageBubble("assistant", "…")
@@ -638,16 +662,21 @@ class AIChatPanel(QWidget):
         self._thread = thread
         self._worker = worker
         self._set_send_mode("cancel")
-        self._status.setText(f"Connecting to {provider.label}…")
+        set_translatable_text(
+            self._status, "Connecting to {provider}…",
+            provider=provider.label,
+        )
         thread.start()
 
     def _on_stage_changed(self, stage: str):
         provider = self._current_provider()
         label = provider.label if provider else ""
         if stage == "connecting":
-            self._status.setText(f"Connecting to {label}…")
+            set_translatable_text(
+                self._status, "Connecting to {provider}…", provider=label)
         elif stage == "streaming":
-            self._status.setText(f"Streaming from {label}…")
+            set_translatable_text(
+                self._status, "Streaming from {provider}…", provider=label)
 
     def _on_chunk(self, text: str):
         self._pending_buf.append(text)
@@ -671,14 +700,14 @@ class AIChatPanel(QWidget):
             self._messages.append({"role": "assistant", "content": final_text})
             if self._pending_bubble is not None and not self._pending_buf:
                 # Provider returned no chunks — surface an obvious message
-                self._pending_bubble.set_text(
-                    "(empty response — try again or switch provider)"
-                )
-            self._status.setText("Ready.")
+                self._pending_bubble.set_text(tr(
+                    "(empty response — try again or switch provider)"))
+            set_translatable_text(self._status, "Ready.")
         else:
             if self._pending_bubble is not None:
                 self._pending_bubble.set_text(f"[error] {final_text}")
-            self._status.setText(f"Failed: {final_text}")
+            set_translatable_text(
+                self._status, "Failed: {detail}", detail=final_text)
         self._pending_bubble = None
         self._pending_buf = []
 
@@ -707,7 +736,15 @@ class AIChatPanel(QWidget):
         Must run before the panel is destroyed — otherwise Python drops
         the last reference to a running QThread and Qt aborts with
         ``QThread: Destroyed while thread '' is still running``.
+
+        Never terminates a thread: see
+        :func:`spacr.qt.bridge.drain_thread` and the note in
+        :meth:`spacr.qt.widgets.console_panel.ConsolePanel.shutdown` for
+        why ``QThread.terminate()`` on a Python thread trades one crash
+        for a worse, unattributable one.
         """
+        from ..bridge import drain_thread
+
         worker, thread = self._worker, self._thread
         try:
             for p in ai_module.list_providers():
@@ -719,18 +756,9 @@ class AIChatPanel(QWidget):
                 worker.cancel()
             except Exception:
                 pass
-        for t in [thread] + [pair[0] for pair in list(self._retired)]:
-            if t is None:
-                continue
-            try:
-                if t.isRunning():
-                    t.quit()
-                    t.wait(3000)
-                    if t.isRunning():
-                        t.terminate()
-                        t.wait(1000)
-            except RuntimeError:
-                pass
+        drain_thread(thread, worker, timeout_ms=3000)
+        for pair in list(self._retired):
+            drain_thread(pair[0], pair[1], timeout_ms=1000)
         self._thread = None
         self._worker = None
         self._retired.clear()
@@ -772,7 +800,8 @@ class AIChatPanel(QWidget):
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         provider = self._current_provider()
         if provider is None:
-            self._status.setText("Install a vendor CLI first (Providers…).")
+            set_translatable_text(
+                self._status, "Install a vendor CLI first (Providers…).")
             return
         prompt = wrap_error_for_prompt(traceback_text, active_app)
         self._append_user(prompt)

@@ -177,8 +177,16 @@ def test_plot_clusters_grid_skips_the_noise_label(tmp_path, monkeypatch):
     # plot_grid does the drawing; stub it so we only exercise the loop.
     captured = {}
 
-    def _fake_plot_grid(cluster_images, colors, figuresize, black_background, verbose):
+    def _fake_plot_grid(
+        cluster_images,
+        colors,
+        figuresize,
+        black_background,
+        verbose,
+        theme_colors=None,
+    ):
         captured["labels"] = sorted(cluster_images)
+        captured["theme_colors"] = theme_colors
         return plt.figure()
 
     monkeypatch.setattr(su, "plot_grid", _fake_plot_grid)
@@ -199,6 +207,7 @@ def test_plot_clusters_grid_skips_the_noise_label(tmp_path, monkeypatch):
 
     # -1 never becomes a cluster key
     assert captured["labels"] == [0, 1]
+    assert captured["theme_colors"] is None
     assert fig is not None
 
 

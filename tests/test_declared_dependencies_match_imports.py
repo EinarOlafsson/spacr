@@ -29,12 +29,30 @@ hand-waved:
      ``GPUtil`` and ``umap`` wrong, which is six of the most important entries.
 
 **The census has one blind spot, and it is load-bearing.** A module imported
-through a *string literal* is invisible to it. spaCR has exactly one such
-case: ``umap = _LazyModule('umap.umap_', block_roots=_TF_BACKED_ROOTS)`` at
-``spacr/utils.py:197``. ``umap-learn`` therefore shows zero imports and is
-nonetheless a real core dependency used at three call sites. There is a test
-below that pins that specific fact in place, so the next person to run a
-census and see "umap-learn: unused" finds the answer instead of deleting it.
+through a *string literal* is invisible to it. spaCR has two such cases, and
+both are listed in :data:`STRING_LITERAL_ONLY` so that a distribution showing
+zero imports can be told apart from one that is genuinely unused:
+
+  * ``umap = _LazyModule('umap.umap_', block_roots=_TF_BACKED_ROOTS)`` at
+    ``spacr/utils.py:197``. ``umap-learn`` therefore shows zero imports and is
+    nonetheless a real core dependency used at three call sites. There is a
+    test below that pins that specific fact in place, so the next person to
+    run a census and see "umap-learn: unused" finds the answer instead of
+    deleting it.
+  * ``importlib.import_module(OMERO_GATEWAY_MODULE)`` in ``spacr/omero.py``,
+    where ``OMERO_GATEWAY_MODULE = "omero.gateway"``. That file is *itself*
+    called ``omero.py``, so a bare ``import omero.gateway`` inside it reads
+    like a self-import to everyone who meets it (it is not — absolute imports
+    are the default — but "it is not what it looks like" is a poor thing to
+    rely on). Holding the name in one constant next to the guard that checks
+    what came back is worth the blind spot. Pinned from the other side by
+    ``tests/test_omero.py::
+    test_omero_py_is_reached_through_a_string_literal_and_must_not_be_removed``.
+
+Both are in :data:`IMPORT_TO_DIST` even though nothing imports them by
+statement, so that if either ever becomes a literal the name resolves to the
+right distribution (``umap-learn``, ``omero-py``) rather than to one that does
+not exist on PyPI.
 
 Nothing here imports :mod:`spacr` or any scientific package — it is AST and
 text only, so it runs in the metadata CI job that deliberately has no stack
@@ -67,8 +85,14 @@ IMPORT_TO_DIST = {
     "PySide6": "PySide6",
     "cv2": "opencv-python-headless",
     "huggingface_hub": "huggingface-hub",
+    # No import statement anywhere -- see STRING_LITERAL_ONLY. Here so that the
+    # day one is written, `omero` resolves to `omero-py` (which the `omero`
+    # extra declares) rather than to a distribution of that name, which is a
+    # different, unrelated package.
+    "omero": "omero-py",
     "pynvml": "nvidia-ml-py",
     "scikit_posthocs": "scikit-posthocs",
+    "shiboken6": "PySide6",
     "skimage": "scikit-image",
     "sklearn": "scikit-learn",
     "umap": "umap-learn",
@@ -100,8 +124,11 @@ EXTRA_GATED_SUBPACKAGES = {"spacr/qt/": "qt"}
 
 #: Distributions spaCR reaches only through a string literal, so no import
 #: statement exists for the table below to be checked against. See
-#: `test_umap_is_reached_through_a_string_literal_and_must_not_be_removed`.
-STRING_LITERAL_ONLY = {"umap"}
+#: `test_umap_is_reached_through_a_string_literal_and_must_not_be_removed`,
+#: and `tests/test_omero.py` for the matching pin on the other one. The module
+#: docstring says why each is written that way; the list is short on purpose,
+#: because every entry is a hole in this file's guarantee.
+STRING_LITERAL_ONLY = {"umap", "omero"}
 
 
 def _is_censused(rel_path: str) -> bool:

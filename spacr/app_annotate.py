@@ -1,7 +1,6 @@
-import tkinter as tk
-from tkinter import ttk
+"""Legacy annotation application and database update helpers."""
+
 from .gui import MainApp
-from .gui_elements import set_dark_style, spacrButton
 
 def convert_to_number(value):
     """Return ``value`` coerced to ``int`` when possible, else ``float``.

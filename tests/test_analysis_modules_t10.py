@@ -8,17 +8,21 @@ reusable pieces:
     / treatment / condition using plate metadata.
   * ``spacr.ml.ml_analysis`` — the xgboost feature-importance analysis.
 
-Those two are tested here with fully-synthetic but correctly-shaped
-inputs. The four top-level analyze_* entry points are then smoke-run
-against a synthetic measurements.db; each skips cleanly if its deeper
-data-shape contract isn't met (they need multi-table merges + plate
-metadata richer than is worth hand-building), so this file is honest
-about what it actually exercises.
+Those two are tested here with fully-synthetic but correctly-shaped inputs.
+
+This file used to end with a parametrised ``test_analyze_entrypoint_smoke``
+that ran three analyze_* entry points against a hand-built measurements.db
+and swallowed any failure into ``pytest.skip``. It skipped for its entire
+life -- the synthetic schema had no ``prcf`` column, so not one line of
+``analyze_recruitment`` / ``analyze_endodyogeny`` /
+``analyze_class_proportion`` was ever executed by it -- while
+``test_cov_submodules_recruitment_plaques.py`` (14 tests),
+``test_cov_submodules_endodyogeny.py`` and
+``test_cov_submodules_class_proportion.py`` drive all three for real and
+assert on the tables and files they write. It was deleted rather than
+repaired: repairing it would have reproduced those three modules.
 """
 from __future__ import annotations
-
-import sqlite3
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -124,83 +128,3 @@ def test_ml_analysis_runs_on_synthetic_features():
     assert not permutation_df.empty
     assert len(figs) == 2
 
-
-# ---------------------------------------------------------------------------
-# Synthetic measurements.db for the analyze_* entry points
-# ---------------------------------------------------------------------------
-
-def _make_measurements_db(db_path: Path, n_per_table: int = 80):
-    """Build a measurements.db with cell/nucleus/pathogen/cytoplasm +
-    png_list tables carrying the columns the merge layer reads."""
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    rng = np.random.default_rng(2)
-    import pandas as pd
-    with sqlite3.connect(str(db_path)) as conn:
-        for table in ("cell", "nucleus", "pathogen", "cytoplasm"):
-            rows = []
-            for i in range(n_per_table):
-                r = rng.integers(1, 4)
-                c = rng.integers(1, 5)
-                rows.append({
-                    "plateID": "plate1",
-                    "rowID": f"r{r}",
-                    "columnID": f"c{c}",
-                    "fieldID": f"f{rng.integers(1,3)}",
-                    "object_label": i + 1,
-                    "prcfo": f"plate1_r{r}_c{c}_f1_o{i+1}",
-                    "prc": f"plate1_r{r}_c{c}",
-                    f"{table}_area": float(rng.integers(200, 5000)),
-                    f"{table}_mean_intensity": float(rng.normal(1000, 200)),
-                    "cell_id": rng.integers(1, 20),
-                })
-            pd.DataFrame(rows).to_sql(table, conn, if_exists="replace",
-                                        index=False)
-        # png_list for class-proportion style analyses
-        png = []
-        for i in range(n_per_table):
-            r = rng.integers(1, 4); c = rng.integers(1, 5)
-            png.append({
-                "png_path": f"/x/plate1_r{r}_c{c}_{i}.png",
-                "plateID": "plate1", "rowID": f"r{r}", "columnID": f"c{c}",
-                "prcfo": f"plate1_r{r}_c{c}_f1_o{i+1}",
-                "prc": f"plate1_r{r}_c{c}",
-                "test": rng.integers(0, 3),
-            })
-        pd.DataFrame(png).to_sql("png_list", conn, if_exists="replace",
-                                   index=False)
-
-
-@pytest.mark.parametrize("fn_name", [
-    "analyze_recruitment", "analyze_endodyogeny",
-    "analyze_class_proportion",
-])
-def test_analyze_entrypoint_smoke(fn_name, tmp_path, monkeypatch):
-    """Best-effort smoke: run each analyze_* entry point against a
-    synthetic measurements.db. Skips (not fails) when the deeper
-    multi-table-merge contract isn't satisfied by the synthetic
-    schema — the point is to exercise the wiring, not replicate a full
-    real screen."""
-    from spacr import submodules as SUB
-    monkeypatch.setattr(SUB, "display", lambda *a, **k: None,
-                          raising=False)
-    plate = tmp_path / "plate1"
-    _make_measurements_db(plate / "measurements" / "measurements.db")
-    settings = {
-        "src": str(plate),
-        "tables": ["cell", "nucleus", "pathogen", "cytoplasm"],
-        "cell_types": ["HeLa"], "cell_plate_metadata": None,
-        "pathogen_types": ["nc", "pc"],
-        "pathogen_plate_metadata": [["c1"], ["c2"]],
-        "treatments": None, "treatment_plate_metadata": None,
-        "channel_of_interest": 1, "compartment": "pathogen",
-        "group_column": "condition", "class_column": "test",
-        "nuclei_limit": 10, "pathogen_limit": 1,
-        "verbose": False, "save": False, "plot": False,
-        "level": "object", "um_per_px": 0.1,
-        "min_area_bin": 500, "max_area": 10_000_000,
-    }
-    fn = getattr(SUB, fn_name)
-    try:
-        fn(settings)
-    except Exception as e:
-        pytest.skip(f"{fn_name} needs a richer real-screen db: {e}")

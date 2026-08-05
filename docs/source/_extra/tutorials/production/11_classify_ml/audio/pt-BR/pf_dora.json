@@ -4,47 +4,237 @@
   "voice": "pf_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 52.85,
+  "total_duration": 285.525,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.875,
-      "scene_end": 11.325,
-      "duration": 11.325,
-      "text": "Este tutorial abrange Classify, machine learning. Treinar classificadores baseados em recursos como XGBoost ou floresta aleatória a partir de dados de um único objeto medidos."
+      "speech_end": 15.75,
+      "scene_end": 16.2,
+      "duration": 16.2,
+      "text": "Classify ML treina um modelo clássico de aprendizagem automática em medições por objeto. O console relata carregamento de banco de dados, filtragem, correção de placa, ajuste de modelo, métricas de validação, importância de recursos, previsões salvas e erros.",
+      "speech_text": "Classify ML treina um modelo clássico de aprendizagem automática em medições por objeto. O console relata carregamento de banco de dados, filtragem, correção de placa, ajuste de modelo, métricas de validação, importância de recursos, previsões salvas e erros.",
+      "phonemes": "klˌasˈifi mˈiʊ i siŋkwˈAŋtæ trˈAnæ ũŋ mˌodˈelʊ klˈasikʊ ʤj ˌaprAŋʤizˈaʒAŋ ˌWtomˈaʧikæ ˈAŋ mˌeʤisˈõjs poɾ ˌobʒˈɛtʊ. ʊ kˌoŋsˈoly xˌelˈatæ kˌaxeɡæmˈAŋtʊ ʤy bˈɐ̃ŋkʊ ʤy dˈadʊs, fˌiʊtrˈaʒAŋ, kˌoxesˈɐ̃ʊ̃ ʤy plˈakæ, ˌaʒˈusʧy ʤy mˌodˈelʊ, mˈɛtrikæz ʤy vˌalidasˈɐ̃ʊ̃, ˌimpoɾətˈɐ̃ŋsjæ ʤy xˌekˈuɾəsʊs, prˌevizˈõjs sˈWvæz i ˈexʊs."
     },
     {
       "scene": 2,
-      "speech_start": 11.325,
-      "speech_end": 24.475,
-      "scene_end": 24.925,
-      "duration": 13.600000000000001,
-      "text": "Abra Classify, machine learning na seção Core. Abra Classificar, aprendizado de máquina da seção Core. Escolha um banco de dados de medições, coluna de rótulo, famílias de recursos e colunas de agrupamento experimental."
+      "speech_start": 16.2,
+      "speech_end": 27.625,
+      "scene_end": 28.075,
+      "duration": 11.875,
+      "text": "O campo de bate-papo aceita perguntas sobre este fluxo de trabalho. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+      "speech_text": "O campo de bate-papo aceita perguntas sobre este fluxo de trabalho. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+      "phonemes": "ʊ kˈɐ̃mpʊ ʤy bˈaʧypˈapw ˌasˈAtæ pˌeɾəɡˈũŋtæs sˈobri ˌesʧy flˈuksʊ ʤy trˌabˈaljʊ. pˌeɾəmiʧˈir ky a ˌiˈa ˌAŋkæmˈiɲj ˌumæ pˌeɾəɡˈũŋtæ ˌatravˈɛz dʊ prˌovedˈor sˌelesˌionˈadw i ˈuzj a sˈɛtæ ˌadʒasˈAŋʧy pˌaɾæ abrˈiɾ ʊ menˈu dʊ prˌovedˈor."
     },
     {
       "scene": 3,
-      "speech_start": 24.925,
-      "speech_end": 35.65,
-      "scene_end": 36.1,
-      "duration": 11.175,
-      "text": "Na área de configuração principal, configure filtragem, escalagem, seleção de características, equilíbrio de classes, família de modelos e divisões de segurança contra vazamentos."
+      "speech_start": 28.075,
+      "speech_end": 39.475,
+      "scene_end": 39.925000000000004,
+      "duration": 11.850000000000005,
+      "text": "Os fornecedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+      "speech_text": "Os fornecedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+      "phonemes": "ʊs fˌoɾənesedˈoɾyz xˌelˈatɐ̃ʊ̃ sj ʊs klˌiˈAŋʧyz ʤy lˈiɲæ ʤy kˌomˈɐ̃ŋdʊ klˈWʤy, ʃˈaʧ ʒˌepˌetˈe i ʒˌeminˈi estˌɐ̃ʊ̃ ˌiŋstalˈadʊz i fˌoɾənˈɛsAŋ ʊs kˌomˈɐ̃ŋdʊz ʤj ˌiŋstalasˈɐ̃ʊ̃ i loɡˈiŋ. as krˌedAŋsiˈIs fˈikɐ̃ʊ̃ koŋ kˈadæ vˌAŋdedˈor."
     },
     {
       "scene": 4,
-      "speech_start": 36.1,
-      "speech_end": 43.75,
-      "scene_end": 44.2,
-      "duration": 8.100000000000001,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de teste quando disponível."
+      "speech_start": 39.925000000000004,
+      "speech_end": 50.95,
+      "scene_end": 51.400000000000006,
+      "duration": 11.475000000000001,
+      "text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+      "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer.",
+      "phonemes": "kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ a prˌofũŋʤidˈaʤy da xˌespˈɔstæ, ˌesplikasˈõjz ˌWtomˈaʧikæz ʤj ˈexʊs, xˌelatˈɔɾjʊz ˌopsionˈIz ʤy prˌoblˈemæz ʒˈiʧ ˈub, loɡˈiŋ i ʊ prˈompʧ dʊ sˌistˈemæ kˌoŋsiˈAŋʧy dʊ ˌespˈakɛr."
     },
     {
       "scene": 5,
-      "speech_start": 44.2,
-      "speech_end": 52.2,
-      "scene_end": 52.85,
-      "duration": 8.649999999999999,
-      "text": "Quando o fluxo de trabalho termina, o projeto recebe previsões, importância de recursos, tabelas de desempenho e modelos serializados."
+      "speech_start": 51.400000000000006,
+      "speech_end": 69.325,
+      "scene_end": 69.775,
+      "duration": 18.375,
+      "text": "Arraste o projeto do tutorial medido para Classificar ML. O manipulador de queda resolve medidas/measurements.db, que descreve 81.969 culturas reais de células; 6.598 estão na coluna c1 e 6.487 estão na coluna c2.",
+      "speech_text": "Arraste o projeto do tutorial medido para Classificar ML. O manipulador de queda resolve medidas/measurements dot db, que descreve 81.969 culturas reais de células; 6.598 estão na coluna c1 e 6.487 estão na coluna c2.",
+      "phonemes": "ˌaxˈasʧj ʊ prˌoʒˈɛtʊ dʊ tˌutoɾiˈW mˌeʤˈidʊ pˌaɾæ klˌasifikˈar mˈiʊ i siŋkwˈAŋtæ. ʊ mˌænipˌuladˈor ʤy kˈɛdæ xˌezˈɔlvy mˌeʤˈidæs mˌeazˌuɾemˈAŋtz dˈoʧ dˌebˈe, ky dˌeskrˈɛvy ˌoɪtˈAŋtæiˈũŋ.nˈɔvysˈAŋtʊzˌi sesˈAŋtæinˈɔvy kˌuwtˈuɾæz xeˈIz ʤy sˈɛlulæs; sˈAs.kˌiɲˈAŋtʊzˌi novˈAŋtæiˈoɪtw estˌɐ̃ʊ̃ na kˌolˈunæ sˈe ˈũŋ i sˈAs.kwˈatrʊsˈAŋtʊzˌi oɪtˈAŋtæisˈɛʧy estˌɐ̃ʊ̃ na kˌolˈunæ sˈe dˈoɪs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 69.775,
+      "speech_end": 81.30000000000001,
+      "scene_end": 81.75000000000001,
+      "duration": 11.975000000000009,
+      "text": "Os elementos essenciais mostram o banco de dados, o mapeamento de controle, o canal ER e a família de modelos necessários para uma primeira execução de classificação baseada em características.",
+      "speech_text": "Os elementos essenciais mostram o banco de dados, o mapeamento de controle, o canal ER e a família de modelos necessários para uma primeira execução de classificação baseada em características.",
+      "phonemes": "ʊz ˌelemˈAŋtʊz ˌesAŋsiˈIz mˈɔstrɐ̃ʊ̃ ʊ bˈɐ̃ŋkʊ ʤy dˈadʊs, ʊ mˌapeæmˈAŋtʊ ʤy kˌoŋtrˈoly, ʊ kɐ̃nˈW ˌɛˈɛxe i a fˌæmˈiljæ ʤy mˌodˈelʊz nˌesesˈaɾjʊs pˌaɾæ ˌumæ prˌimˈAɾæ ˌezekusˈɐ̃ʊ̃ ʤy klˌasifˌikasˈɐ̃ʊ̃ bˌazeˈadæ ˈAŋ kˌaɾakteɾˈisʧikæs."
+    },
+    {
+      "scene": 7,
+      "speech_start": 81.75000000000001,
+      "speech_end": 93.35000000000001,
+      "scene_end": 93.80000000000001,
+      "duration": 12.049999999999997,
+      "text": "Modificado limita o painel a valores que diferem dos padrões do spaCR, tornando escolhas deliberadas como centralização de controle, poda de recursos e saída de banco de dados fáceis de auditar.",
+      "speech_text": "Modificado limita o painel a valores que diferem dos padrões do espáquer, tornando escolhas deliberadas como centralização de controle, poda de recursos e saída de banco de dados fáceis de auditar.",
+      "phonemes": "mˌoʤifikˈadʊ lˌimˈitæ ʊ pInˈɛʊ a vˌalˈoɾys ky ʤˌifˈɛɾAŋ dʊs padrˈõjz dʊ ˌespˈakɛr, tˌoɾənˈɐ̃ŋdw ˌeskˈoljæz dˌelibeɾˈadæs kˌomʊ sˌAŋtralˌizasˈɐ̃ʊ̃ ʤy kˌoŋtrˈoly, pˈɔdæ ʤy xˌekˈuɾəsʊz i sˌaˈidæ ʤy bˈɐ̃ŋkʊ ʤy dˈadʊs fˈasAz ʤj ˌWʤitˈar."
+    },
+    {
+      "scene": 8,
+      "speech_start": 93.80000000000001,
+      "speech_end": 102.60000000000001,
+      "scene_end": 103.05000000000001,
+      "duration": 9.25,
+      "text": "Todas as configurações revelam cada categoria sem alterações de valores. As categorias organizam os controlos segundo o seu papel na análise.",
+      "speech_text": "Todas as configurações revelam cada categoria sem alterações de valores. As categorias organizam os controlos segundo o seu papel na análise.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ kˈadæ kˌateɡoɾˈiæ sˈAŋ ˌWteɾasˈõjz ʤy vˌalˈoɾys. as kˌateɡoɾˈiæz ˌoɾəɡænˈizɐ̃ʊ̃ ʊs kˌoŋtrˈolʊs sˌeɡˈũŋdw ʊ seʊ papˈɛʊ na ˌænˈalizy."
+    },
+    {
+      "scene": 9,
+      "speech_start": 103.05000000000001,
+      "speech_end": 112.10000000000001,
+      "scene_end": 112.55000000000001,
+      "duration": 9.5,
+      "text": "As receitas guardam esta configuração completa sob um nome, a reaplicam mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+      "speech_text": "As receitas guardam esta configuração completa sob um nome, a reaplicam mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+      "phonemes": "az xˌesˈAtæz ɡwˈaɾədɐ̃ʊ̃ ˌɛstæ kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ kˌomplˈɛtæ sˈob ũŋ nˈomy, a xˌeaplˈikɐ̃ʊ̃ mˈIs tˈaɾəʤj ow ˌimpˈɔɾətɐ̃ʊ̃ i ˌespˈɔɾətɐ̃ʊ̃ ũŋ ˌaɾəkˈivʊ ʤy kˌoŋfiɡˌuɾasˈõjz xˌeʊʧilizˈaveʊ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 112.55000000000001,
+      "speech_end": 121.55000000000001,
+      "scene_end": 122.00000000000001,
+      "duration": 9.450000000000003,
+      "text": "Envie instantâneos remotos das configurações Classify ML resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+      "speech_text": "Envie instantâneos remotos das configurações Classify ML resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+      "phonemes": "ˌAŋvˈij ˌiŋstɐ̃ŋtˈɐ̃neʊz xˌemˈɔtʊz das kˌoŋfiɡˌuɾasˈõjs klˌasˈifi mˈiʊ i siŋkwˈAŋtæ xˌezowvˈidæz i ˌAŋvˈiæ ʊ trˌabˈaljʊ pˌaɾæ u ˌespˈasʊ ʤy trˌabˈaljʊ ʤy trˌabˈaljʊz ʤˌistribuˈidʊs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 122.00000000000001,
+      "speech_end": 133.82500000000002,
+      "scene_end": 134.275,
+      "duration": 12.274999999999991,
+      "text": "O Jobs Distribuído mapeia os caminhos do projeto e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução.",
+      "speech_text": "O Jobs Distribuído mapeia os caminhos do projeto e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução.",
+      "phonemes": "ʊ ʒˈobz ʤˌistribuˈidʊ mˌapˈAæ ʊs kˌæmˈiɲʊz dʊ prˌoʒˈɛtw i ʊz xˌekˈuɾəsʊz ʤy kˌomputasˈɐ̃ʊ̃ pˌaɾæ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljʊ xˌemˈɔtæ, ũŋ klustˈer zlˈuɾəm ow ũŋ kˌomˈɐ̃ŋdʊ kˌoŋfiɡuɾˈadʊ, ˈAŋ sˌeɡˈidæ, ˌAŋvˈiæ i mˌonitˈoɾæ a mˈezmæ ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 12,
+      "speech_start": 134.275,
+      "speech_end": 146.07500000000002,
+      "scene_end": 146.525,
+      "duration": 12.25,
+      "text": "Data and Controls seleciona o projeto de medição e identifica a coluna de metadados e os valores que definem exemplos positivos e negativos. Verifique estes rótulos antes de montar qualquer coisa.",
+      "speech_text": "Data and Controls seleciona o projeto de medição e identifica a coluna de metadados e os valores que definem exemplos positivos e negativos. Verifique estes rótulos antes de montar qualquer coisa.",
+      "phonemes": "dˈatæ ˈɐ̃ŋd koŋtrˈows sˌelesiˈonæ ʊ prˌoʒˈɛtʊ ʤy mˌeʤisˈɐ̃ʊ̃ i ˌidAŋʧifˈikæ a kˌolˈunæ ʤy mˌetadˈadʊz i ʊz vˌalˈoɾys ky dˌefˈinAŋ ˌezˈAmplʊs pˌoziʧˈivʊz i nˌeɡaʧˈivʊs. vˌeɾifˈikj ˌesʧyz xˈɔtulʊz ˈɐ̃ŋʧyz ʤy moŋtˈar kwWkˌɛr kˈoɪzæ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 146.525,
+      "speech_end": 158.57500000000002,
+      "scene_end": 159.025,
+      "duration": 12.5,
+      "text": "Características A preparação escolhe o canal de interesse e elimina as medições excluídas, de baixa variação, altamente correlacionadas, de baixo número ou biologicamente inválidas antes do treinamento.",
+      "speech_text": "Características A preparação escolhe o canal de interesse e elimina as medições excluídas, de baixa variação, altamente correlacionadas, de baixo número ou biologicamente inválidas antes do treinamento.",
+      "phonemes": "kˌaɾakteɾˈisʧikæz a prˌepaɾasˈɐ̃ʊ̃ ˌeskˈɔljj ʊ kɐ̃nˈW ʤj ˌiŋteɾˈesj i ˌelimˈinæ az mˌeʤisˈõjz ˌeskluˈidæs, ʤy bˈIʃæ vˌaɾiasˈɐ̃ʊ̃, ˌWtæmˈAŋʧy kˌoxelˌasionˈadæs, ʤy bˈIʃʊ nˈũmeɾw ow bˌiolˌoʒikæmˈAŋʧj ˌiŋvˈalidæz ˈɐ̃ŋʧyz dʊ trˌAnæmˈAŋtʊ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 159.025,
+      "speech_end": 169.9,
+      "scene_end": 170.35,
+      "duration": 11.324999999999989,
+      "text": "Controlos de correcção de placa e lote de normalização por placa. Aqui, cada placa é centrada em suas células de controle negativo c1, mantendo o contraste biológico com c2.",
+      "speech_text": "Controlos de correcção de placa e lote de normalização por placa. Aqui, cada placa é centrada em suas células de controle negativo c1, mantendo o contraste biológico com c2.",
+      "phonemes": "kˌoŋtrˈɔlʊz ʤy kˌoxeksˈɐ̃ʊ̃ ʤy plˈakæ i lˈɔʧy ʤy nˌoɾəmalˌizasˈɐ̃ʊ̃ por plˈakæ. akˈi, kˈadæ plˈakæ ɛ sˌAŋtrˈadæ ˈAŋ sˌuæs sˈɛlulæz ʤy kˌoŋtrˈoly nˌeɡaʧˈivʊ sˈe ˈũŋ, mˌɐ̃ŋtˈAŋdw ʊ kˌoŋtrˈasʧy bˌiolˈɔʒikʊ koŋ sˈe dˈoɪs."
+    },
+    {
+      "scene": 15,
+      "speech_start": 170.35,
+      "speech_end": 180.35,
+      "scene_end": 180.79999999999998,
+      "duration": 10.449999999999989,
+      "text": "Classificador e Validação seleciona XGBoost ou outro estimador, sua complexidade e regularização, a fração mantida e o comportamento de validação cruzada.",
+      "speech_text": "Classificador e Validação seleciona XGBoost ou outro estimador, sua complexidade e regularização, a fração mantida e o comportamento de validação cruzada.",
+      "phonemes": "klˌasifˌikadˈoɾ i vˌalidasˈɐ̃ʊ̃ sˌelesiˈonæ ʃˌizʒˈe boˈosʧ ow ˈowtrw ˌesʧimadˈor, sˌuæ kˌompleksidˈaʤj i xˌeɡulˌaɾizasˈɐ̃ʊ̃, a frasˈɐ̃ʊ̃ mˌɐ̃ŋʧˈidæ i ʊ kˌompoɾətæmˈAŋtʊ ʤy vˌalidasˈɐ̃ʊ̃ krˌuzˈadæ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 180.79999999999998,
+      "speech_end": 192.17499999999998,
+      "scene_end": 192.62499999999997,
+      "duration": 11.824999999999989,
+      "text": "Seleção de características e importância controla a poda final, o número de características mantidas e os testes de permutação repetidos que revelam quais medições suportam o classificador.",
+      "speech_text": "Seleção de características e importância controla a poda final, o número de características mantidas e os testes de permutação repetidos que revelam quais medições suportam o classificador.",
+      "phonemes": "sˌelesˈɐ̃ʊ̃ ʤy kˌaɾakteɾˈisʧikæz i ˌimpoɾətˈɐ̃ŋsjæ kˌoŋtrˈɔlæ a pˈɔdæ finˈW, ʊ nˈũmeɾʊ ʤy kˌaɾakteɾˈisʧikæz mˌɐ̃ŋʧˈidæz i ʊs tˈɛsʧyz ʤy pˌeɾəmutasˈɐ̃ʊ̃ xˌepeʧˈidʊs ky xˌevˈɛlɐ̃ʊ̃ kwˈIz mˌeʤisˈõjs sˌupˈɔɾətɐ̃ʊ̃ ʊ klˌasifˌikadˈor."
+    },
+    {
+      "scene": 17,
+      "speech_start": 192.62499999999997,
+      "speech_end": 202.59999999999997,
+      "scene_end": 203.04999999999995,
+      "duration": 10.424999999999983,
+      "text": "Output and Database determina se as previsões e as pontuações do modelo são escritas de volta para o banco de dados de medição para os módulos spaCR posteriores.",
+      "speech_text": "Output and Database determina se as previsões e as pontuações do modelo são escritas de volta para o banco de dados de medição para os módulos espáquer posteriores.",
+      "phonemes": "owtpˈuʧ ˈɐ̃ŋd dˌatabˈazy dˌeteɾəmˈinæ sj as prˌevizˈõjz i as pˌoŋtuasˈõjz dʊ mˌodˈelʊ sɐ̃ʊ̃ ˌeskrˈitæz ʤy vˈɔltæ pˌaɾæ ʊ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈɐ̃ʊ̃ pˌaɾæ ʊz mˈɔdulʊz ˌespˈakɛr pˌosteɾiˈoɾys."
+    },
+    {
+      "scene": 18,
+      "speech_start": 203.04999999999995,
+      "speech_end": 215.87499999999994,
+      "scene_end": 216.32499999999993,
+      "duration": 13.274999999999977,
+      "text": "Plots and Heatmaps escolhe a característica resumida, regra de agrupamento, mapa de cores e intervalo de valores utilizados para visualizar os resultados de nível de placa. Estes controles não alteram o modelo montado.",
+      "speech_text": "Plots and Heatmaps escolhe a característica resumida, regra de agrupamento, mapa de cores e intervalo de valores utilizados para visualizar os resultados de nível de placa. Estes controles não alteram o modelo montado.",
+      "phonemes": "plˈotz ˈɐ̃ŋd ˌeatmˈapz ˌeskˈɔljj a kˌaɾakteɾˈisʧikæ xˌezumˈidæ, xˈɛɡræ ʤj ˌaɡrupæmˈAŋtʊ, mˈapæ ʤy kˈoɾyz i ˌiŋteɾəvˈalʊ ʤy vˌalˈoɾyz ˌuʧilizˈadʊs pˌaɾæ vˌizuˌalizˈaɾ ʊz xˌezuwtˈadʊz ʤy nˈiveʊ ʤy plˈakæ. ˌesʧys kˌoŋtrˈolyz nˌɐ̃ʊ̃ ˌWtˈɛɾɐ̃ʊ̃ ʊ mˌodˈelʊ mˌoŋtˈadʊ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 216.32499999999993,
+      "speech_end": 230.14999999999992,
+      "scene_end": 230.5999999999999,
+      "duration": 14.274999999999977,
+      "text": "O tempo de execução e a confiabilidade controlam a exploração florestal e a contagem de trabalhadores. Use menos trabalhadores ao compartilhar uma estação de trabalho e mantenha a saída verbal ao validar um novo fluxo de trabalho.",
+      "speech_text": "O tempo de execução e a confiabilidade controlam a exploração florestal e a contagem de trabalhadores. Use menos trabalhadores ao compartilhar uma estação de trabalho e mantenha a saída verbal ao validar um novo fluxo de trabalho.",
+      "phonemes": "ʊ tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ i a kˌoŋfiˌabilidˈaʤy kˌoŋtrˈɔlɐ̃ʊ̃ a ˌesploɾasˈɐ̃ʊ̃ flˌoɾestˈW i a kˌoŋtˈaʒAŋ ʤy trˌabaljadˈoɾys. ˈuzy mˈenʊs trˌabaljadˈoɾyz W kˌompaɾəʧiljˈaɾ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljw i mˌɐ̃ŋtˈeɲæ a sˌaˈidæ veɾəbˈW W vˌalidˈaɾ ũŋ nˈovʊ flˈuksʊ ʤy trˌabˈaljʊ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 230.5999999999999,
+      "speech_end": 242.2249999999999,
+      "scene_end": 242.6749999999999,
+      "duration": 12.074999999999989,
+      "text": "Para este tutorial, columnID é a fonte do rótulo: c1 é o controle negativo e c2 é o controle positivo. O mapeamento usa as duas primeiras colunas de placa exatamente como solicitado.",
+      "speech_text": "Para este tutorial, columnID é a fonte do rótulo: c1 é o controle negativo e c2 é o controle positivo. O mapeamento usa as duas primeiras colunas de placa exatamente como solicitado.",
+      "phonemes": "pˌaɾæ ˌesʧy tˌutoɾiˈW, kolˈũmn ˌidˈe ɛ a fˈoŋʧy dʊ xˈɔtulʊ: sˈe ˈũŋ ɛ ʊ kˌoŋtrˈoly nˌeɡaʧˈivw i sˈe dˈoɪz ɛ ʊ kˌoŋtrˈoly pˌoziʧˈivʊ. ʊ mˌapeæmˈAŋtw ˈuzæ az dˈuæs prˌimˈAɾæs kˌolˈunæz ʤy plˈakæ ˌezatæmˈAŋʧy kˌomʊ sˌolisitˈadʊ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 242.6749999999999,
+      "speech_end": 257.9999999999999,
+      "scene_end": 258.4499999999999,
+      "duration": 15.774999999999977,
+      "text": "O Hyperparameter Search compara as taxas de aprendizagem dos candidatos, as contagens dos estimadores e os valores de regularização com validação de cinco vezes. A tabela de resultados classifica os ensaios concluídos utilizando o critério selecionado.",
+      "speech_text": "O Hyperparameter Search compara as taxas de aprendizagem dos candidatos, as contagens dos estimadores e os valores de regularização com validação de cinco vezes. A tabela de resultados classifica os ensaios concluídos utilizando o critério selecionado.",
+      "phonemes": "ʊ ˌipeɾəpˌaɾæmetˈer seˈaɾəʃ kˌompˈaɾæ as tˈaʃæz ʤj ˌaprAŋʤizˈaʒAŋ dʊs kˌɐ̃ŋʤidˈatʊs, as kˌoŋtˈaʒAŋz dʊz ˌesʧimadˈoɾyz i ʊz vˌalˈoɾyz ʤy xˌeɡulˌaɾizasˈɐ̃ʊ̃ koŋ vˌalidasˈɐ̃ʊ̃ ʤy sˈiŋkʊ vˈezys. a tˌabˈɛlæ ʤy xˌezuwtˈadʊs klˌasifˈikæ ʊz ˌAŋsˈIʊs kˌoŋkluˈidʊz ˌuʧilizˈɐ̃ŋdw ʊ krˌitˈɛɾjʊ sˌelesˌionˈadʊ."
+    },
+    {
+      "scene": 22,
+      "speech_start": 258.4499999999999,
+      "speech_end": 270.59999999999985,
+      "scene_end": 271.04999999999984,
+      "duration": 12.599999999999966,
+      "text": "As configurações de pesquisa definem o espaço exato do candidato, o modo de pesquisa, o número de testes, as dobras, a semente aleatória e o critério de otimização. Fecha depois de revisar os limites.",
+      "speech_text": "As configurações de pesquisa definem o espaço exato do candidato, o modo de pesquisa, o número de testes, as dobras, a semente aleatória e o critério de otimização. Fecha depois de revisar os limites.",
+      "phonemes": "as kˌoŋfiɡˌuɾasˈõjz ʤy pˌeskˈizæ dˌefˈinAŋ u ˌespˈasw ˌezˈatʊ dʊ kˌɐ̃ŋʤidˈatʊ, ʊ mˈɔdʊ ʤy pˌeskˈizæ, ʊ nˈũmeɾʊ ʤy tˈɛsʧys, az dˈɔbræs, a sˌemˈAŋʧj ˌaleatˈɔɾjæ i ʊ krˌitˈɛɾjʊ ʤj ˌoʧimˌizasˈɐ̃ʊ̃. fˈɛʃæ depˈoɪz ʤy xˌevizˈaɾ ʊz lˌimˈiʧys."
+    },
+    {
+      "scene": 23,
+      "speech_start": 271.04999999999984,
+      "speech_end": 284.87499999999983,
+      "scene_end": 285.5249999999998,
+      "duration": 14.474999999999966,
+      "text": "Run valida o projeto e controla o mapeamento, prepara características, aplica correção de placa, avalia o classificador, calcula a importância, desenha resumos e escreve as saídas habilitadas. Petições de parada para uma interrupção segura.",
+      "speech_text": "Run valida o projeto e controla o mapeamento, prepara características, aplica correção de placa, avalia o classificador, calcula a importância, desenha resumos e escreve as saídas habilitadas. Petições de parada para uma interrupção segura.",
+      "phonemes": "xˈũŋ vˌalˈidæ ʊ prˌoʒˈɛtw i kˌoŋtrˈɔlæ ʊ mˌapeæmˈAŋtʊ, prˌepˈaɾæ kˌaɾakteɾˈisʧikæs, ˌaplˈikæ kˌoxesˈɐ̃ʊ̃ ʤy plˈakæ, ˌavalˈiæ ʊ klˌasifˌikadˈor, kˌWkˈulæ a ˌimpoɾətˈɐ̃ŋsjæ, dˌezˈeɲæ xˌezˈumʊz i ˌeskrˈɛvj as sˌaˈidæs ˌabilitˈadæs. pˌeʧisˈõjz ʤy pˌaɾˈadæ pˌaɾæ ˌumæ ˌiŋtexupsˈɐ̃ʊ̃ sˌeɡˈuɾæ."
     }
   ]
 }

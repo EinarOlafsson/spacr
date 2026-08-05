@@ -237,6 +237,24 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "to see what a column_map would have to fix."),
     ),
     Module(
+        key="external_masks",
+        summary="Measure images using label masks generated outside spaCR.",
+        entry="spacr.external_masks:prepare_external_masks",
+        defaults=None,
+        defaults_entry="spacr.external_masks:default_settings",
+        validate_key="external_masks",
+        requires=(
+            "inputs — image/mask paths or reviewed input-group mappings",
+            "each mask group assigned to cell, nucleus, pathogen or organelle",
+            "dst — a new output project folder",
+        ),
+        writes=(
+            "<dst>/merged/*.npy and masks/*_mask_stack/*.npy",
+            "<dst>/measurements/measurements.db",
+            "<dst>/data/**/<object>_png/ for annotation",
+        ),
+    ),
+    Module(
         key="classify",
         summary="Full DL pipeline: build dataset, train, apply the model, merge predictions.",
         entry="spacr.deep_spacr:deep_spacr",
@@ -353,26 +371,36 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="replication",
-        summary="Endodyogeny: bin pathogen size by log2 doublings and test the bins per group.",
-        entry="spacr.submodules:analyze_endodyogeny",
-        defaults="set_analyze_endodyogeny_defaults",
+        summary="Count parasites per vacuole and compare replication distributions.",
+        entry="spacr.submodules:analyze_replication",
+        defaults="set_analyze_replication_defaults",
         validate_key="replication",
         requires=("src — plate folder holding measurements/measurements.db",
+                  "one row per segmented parasite with centroids or a "
+                  "vacuole-ID column",
                   "cell_types / pathogen_types / treatments and their "
-                  "*_plate_metadata well maps, which define group_column",
-                  "um_per_px — the pixel size the bins are computed in"),
-        writes=("<src>/results/analyze_endodyogeny/data.csv, "
-                "chi_squared_results.csv, chi_squared_pairwise_results.csv",
-                "<src>/results/analyze_endodyogeny/chi_squared_results.pdf",
-                "<src>/settings/analyze_endodyogeny.csv"),
-        note=("save defaults to False, and headless there is nobody to look at "
-              "the figure — pass --set save=True or a batch run writes nothing. "
-              "This is the SIZE-PROXY readout: rows come from "
-              "spacr.io._read_and_merge_data collapsed onto the host cell, so a "
-              "bin is a doubling of area**1.5 summed over every parasite in that "
-              "cell, not a parasite count. Use spacr.submodules"
-              ".analyze_replication when the parasites are individually "
-              "resolvable."),
+                  "*_plate_metadata well maps, which define group_column"),
+        writes=("<src>/results/analyze_replication/vacuole_counts.csv, "
+                "well_distribution.csv, condition_summary.csv and tests",
+                "<src>/results/analyze_replication/"
+                "parasites_per_vacuole_*.pdf",
+                "<src>/settings/analyze_replication.csv"),
+        note=("The counting unit is a vacuole, not a host cell. Check the "
+              "reported vacuole_key and non-power-of-two QC fraction before "
+              "quoting the result."),
+    ),
+    Module(
+        key="endodyogeny",
+        summary="Legacy size proxy: bin pathogen area-derived volume by doublings.",
+        entry="spacr.submodules:analyze_endodyogeny",
+        defaults="set_analyze_endodyogeny_defaults",
+        validate_key="endodyogeny",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "um_per_px — pixel calibration used by the size bins"),
+        writes=("<src>/results/analyze_endodyogeny/ — proxy tables and plots",),
+        note=("This is not a parasite count: pathogen areas are collapsed onto "
+              "host cells. Use `spacr-run replication` when individual "
+              "parasites are resolvable."),
     ),
     Module(
         key="analyze_plaques",
@@ -413,16 +441,49 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     Module(
         key="convert",
-        summary="Split non-TIFF / multi-dimensional images into per-channel 2-D TIFFs.",
-        entry="spacr.io:process_non_tif_non_2D_images",
+        summary="Convert vendor images into mapped, collision-safe Yokogawa TIFFs.",
+        entry="spacr.convert:convert_folder",
         defaults=None,
+        defaults_entry="spacr.convert:default_settings",
         validate_key="convert",
         requires=("src — folder of images to convert",),
-        writes=("one grayscale .tif per (channel, Z, T) beside each input image",),
-        call_style="folder",
-        note=("This entry point takes a bare folder, not a settings dict — the CLI "
-              "passes settings['src']. Both GUIs call it as fn(settings=...), which "
-              "raises TypeError, so 'convert' has never actually worked from a GUI."),
+        writes=("<dst>/ — Yokogawa TIFFs, conversion_map.csv, and a run ledger",),
+        note=("The default keeps every Z plane. Set z_handling='max' or "
+              "'first' only when lossy projection is intentional."),
+    ),
+    Module(
+        key="illumination",
+        summary=("Estimate the plate's illumination field and install the "
+                 "correction every measure worker applies."),
+        entry="spacr.illumination:prepare_illumination_correction",
+        defaults=None,
+        defaults_entry="spacr.illumination:illumination_settings",
+        validate_key="illumination",
+        requires=("src — the merged field folder measure_crop reads",
+                  "channels — merged-stack channel indices to estimate",
+                  "illumination_correction=True, or the call does nothing"),
+        writes=("<plate>/illumination/illumination_model.npz",
+                "<plate>/illumination/ — the QC figures and report"),
+        note=("measure_crop calls this itself when illumination_correction "
+              "is on, so running it separately is for estimating and "
+              "inspecting the field before committing to it. The model it "
+              "writes can then be reused with illumination_model=<path>."),
+    ),
+    Module(
+        key="barcode_qc",
+        summary=("QC a barcode-mapping run and derive its abundance "
+                 "threshold from a gRNAs-per-well target."),
+        entry="spacr.sequencing_qc:barcode_qc",
+        defaults=None,
+        defaults_entry="spacr.sequencing_qc:barcode_qc_defaults",
+        validate_key="barcode_qc",
+        requires=("count_data — unique_combinations.csv from a mapping run",
+                  "target_grnas_per_well — how many gRNAs the design intends"),
+        writes=("<dst>/ — the sweep, the per-well tables, the QC figures "
+                "and the written recommendation",),
+        note=("Run it after map_barcodes and before regression: the "
+              "threshold it recommends is what ml.process_reads takes as "
+              "fraction_threshold."),
     ),
     Module(
         key="simulation",
@@ -435,6 +496,29 @@ _MODULE_LIST: Tuple[Module, ...] = (
         writes=("one results CSV per simulation under the configured output folder",),
         note=("No set_default_* helper exists for the simulator, so every key must "
               "come from the settings file."),
+    ),
+    # Hand-written, and it has to be: the seam that publishes an app's other
+    # strings cannot derive `requires`, `writes` or `note`, which are the
+    # three things `--describe` exists to print. The app row itself comes
+    # from spacr.anndata_export.register_anndata_app.
+    Module(
+        key="anndata_export",
+        summary="Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.",
+        entry="spacr.anndata_export:run_anndata_export",
+        defaults=None,
+        defaults_entry="spacr.anndata_export:anndata_export_settings",
+        validate_key="anndata_export",
+        requires=("src — a spaCR project whose measurements/measurements.db "
+                  "the measure module has written",),
+        writes=("<src>/results/<project>.h5ad — objects x features, with obs, "
+                "var, obsm and the run's provenance in uns",
+                "a row in artifacts.db downstream of measurements.db, so "
+                "re-running Measure marks the export stale"),
+        note=("Needs the optional extra: pip install \"spacr[anndata]\". Set "
+              "anndata_single_table to export one object table at its own "
+              "granularity — the default join averages nuclei and pathogens "
+              "onto their parent cell, and no downstream analysis can undo "
+              "that."),
     ),
 )
 
@@ -463,21 +547,58 @@ ALIASES: Dict[str, str] = {
     "analyze_recruitment": "recruitment",
     "analyze_invasion": "invasion",
     "invasion_assay": "invasion",
-    # NOT 'analyze_replication': that is a different function in
-    # spacr.submodules, which counts parasites per vacuole. The Replication
-    # Assay app runs analyze_endodyogeny, the size-proxy readout, and pointing
-    # one name at the other would silently swap the assay.
-    "analyze_endodyogeny": "replication",
-    "endodyogeny": "replication",
+    "analyze_replication": "replication",
+    "analyze_endodyogeny": "endodyogeny",
     "replication_assay": "replication",
     "import_project": "foreign",
     "foreign_import": "foreign",
+    "prepare_external_masks": "external_masks",
+    "import_external_masks": "external_masks",
     "plaques": "analyze_plaques",
     "plaque": "analyze_plaques",
     "motility_assay": "motility",
     "sim": "simulation",
     "activation_map": "activation",
+    "anndata": "anndata_export",
+    "h5ad": "anndata_export",
+    "run_anndata_export": "anndata_export",
 }
+
+
+def _register_plugin_modules() -> None:
+    """Add valid plugin apps without letting collisions replace core modules."""
+    try:
+        from .plugins import plugin_apps, record_diagnostic
+    except Exception:
+        LOG.exception("Could not initialise the spaCR plugin SDK")
+        return
+    for app in plugin_apps():
+        if app.key in MODULES:
+            record_diagnostic(
+                app.key,
+                f"Plugin app key {app.key!r} collides with a built-in module; "
+                "the built-in module was kept.",
+            )
+            continue
+        MODULES[app.key] = Module(
+            key=app.key,
+            summary=app.description,
+            entry=app.entrypoint,
+            defaults=None,
+            defaults_entry=app.defaults,
+            validate_key=app.key,
+            requires=tuple(app.requires),
+            writes=tuple(app.writes),
+            call_style=app.call_style,
+            note=f"Provided by a spaCR plugin ({app.kind}).",
+        )
+        for alias in app.aliases:
+            normalized = alias.strip().lower().replace("-", "_")
+            if normalized and normalized not in ALIASES and normalized not in MODULES:
+                ALIASES[normalized] = app.key
+
+
+_register_plugin_modules()
 
 # Apps the GUI offers that have NO headless-runnable callable. Naming them in
 # the error message is kinder than "unknown module": the user did not typo, the
@@ -502,6 +623,9 @@ INTERACTIVE_ONLY: Dict[str, str] = {
              "queue itself: from spacr.batch import load_queue, run_queue; "
              "run_queue(load_queue('night.queue.json'), path='night.queue.json') "
              "-- each job in it is a spacr-run invocation.",
+    "distributed_jobs": "Distributed Jobs is the interactive monitor. Headless, "
+                        "use the spacr-remote CLI to manage profiles, submit "
+                        "settings, poll logs and cancel jobs instead.",
     "model_zoo": "Model Zoo is an interactive browser; headless, call "
                  "spacr.model_zoo.discover_local + format_zoo, and "
                  "benchmark(entry, source=...) to test one on three fields.",
@@ -510,7 +634,54 @@ INTERACTIVE_ONLY: Dict[str, str] = {
     "train_compare": "Training Runs is an interactive curve/settings comparison; "
                      "headless, use spacr.train_compare.find_runs + "
                      "format_comparison from Python.",
+    "classifier_evaluation": "Classifier Evaluation is an interactive results "
+                             "workbench; headless, call "
+                             "spacr.classifier_evaluation.evaluate_predictions "
+                             "or load_evaluation_bundle from Python instead.",
+    "run_history": "Run History is an interactive searchable dashboard; headless, "
+                   "call spacr.run_journal.search_runs() instead.",
+    "data_manager": "Data Manager shows what a project costs in disk and makes "
+                    "you read the deletion before it happens, which is the "
+                    "whole point of it -- so there is deliberately no one-shot "
+                    "headless delete. From Python: "
+                    "spacr.data_manager.scan_project(src) for the per-kind "
+                    "sizes, plan_prune(src) for exactly what is regenerable "
+                    "and what is being kept, then prune(plan, "
+                    "confirm=plan.token) once you have read the plan.",
 }
+
+
+def _absorb_registered_gui_only() -> None:
+    """Take the "no headless run" sentence of every registered GUI-only app.
+
+    The PULL half of the app-registration seam: a screen that registers
+    itself through :func:`spacr.qt.app.register_app` gives that sentence
+    once, as ``cli_note=``, and ``register_app`` PUSHES it into the table
+    above when this module is already imported. This picks up the apps
+    that registered before it was, so which of the two modules is
+    imported first stops mattering — and it did matter: the order pytest
+    happened to collect in decided whether
+    ``test_every_app_has_a_cli_module_or_is_declared_gui_only`` passed.
+
+    Read out of :data:`sys.modules`, never imported. This module answers
+    ``--list`` and ``--describe`` on a cluster with no display and often
+    no PySide6 installed at all; importing ``spacr.qt.app`` to find out
+    what a GUI-only module is called would be exactly the wrong trade. A
+    process that never loaded the Qt registry keeps the built-in table
+    above, which is what it had before this existed.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    # `getattr(..., None)`: the Qt registry may be half-built when this
+    # runs, in which case nothing has registered yet and the push half of
+    # the seam delivers every row later.
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    for key, note in pull("cli_note").items():
+        INTERACTIVE_ONLY.setdefault(key, note)
+
+
+_absorb_registered_gui_only()
 
 
 def resolve_module(name: Any) -> Optional[Module]:
@@ -556,16 +727,29 @@ def module_defaults(module: Module) -> Dict[str, Any]:
 
     :param module: the module whose defaults are wanted.
     :returns: dict of defaults; empty when the pipeline has no helper.
+    :raises SettingsError: when the defaults module will not import. This used
+        to return ``{}`` so that ``--describe`` survived a missing optional
+        dependency, but :func:`resolve_settings` is the **run** path, not just
+        the describe path: convert, illumination, foreign, external_masks,
+        barcode_qc, anndata_export and every plugin app then ran on a settings
+        dict with no defaults in it, and ``spacr-run convert --set
+        z_handling=max`` was rejected with "names a setting that does not exist
+        for module 'convert'" — pointing the user at their own command line
+        instead of at the dependency that is actually missing. ``--describe``
+        is unaffected: it has its own guard around this call.
     """
     fn = None
     if module.defaults_entry:
         target, _, name = module.defaults_entry.partition(":")
         try:
             fn = getattr(importlib.import_module(target), name, None)
-        except Exception:
-            # A missing optional dependency must not break --describe; the run
-            # itself will fail loudly in import_entry with a real message.
-            return {}
+        except Exception as exc:
+            raise SettingsError(
+                f"module {module.key!r} keeps its defaults in {target!r}, "
+                f"which will not import: {exc}. Install what it needs (or "
+                f"fix the import) — until then spaCR cannot tell which "
+                f"settings this module has, so it cannot check yours."
+            ) from exc
     elif module.defaults:
         from . import settings as _settings
 
@@ -910,19 +1094,45 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     typo'd override that quietly does nothing costs a whole run to discover,
     and the run looks like it succeeded.
 
+    So is an override naming a key spaCR *does* know but nothing reads. Those
+    are worse, because they pass every "is this a real setting?" test there is:
+    ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen
+    category, and ``spacr-run mask --set remove_border_pathogens=True`` was
+    accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names
+    every such key and the spelling that works instead.
+
     :param settings: settings resolved from defaults plus file; mutated in place.
     :param overrides: raw ``key=value`` strings from the command line.
     :param module: the module being run, used only for the error message.
     :returns: ``settings``.
-    :raises SettingsError: on an unknown key or an uncoercible value.
+    :raises SettingsError: on an unknown key, a key nothing reads, or an
+        uncoercible value.
     """
     if not overrides:
         return settings
-    from .settings import expected_types
+    from .settings import DEAD_SETTINGS, expected_types
 
     known = set(settings) | set(expected_types)
     for item in overrides:
         key, text = _split_override(item)
+        if key in DEAD_SETTINGS:
+            replacement = DEAD_SETTINGS[key]
+            if replacement:
+                # The value is deliberately not carried over: a dead key and
+                # its working counterpart rarely take the same value (pick_slice
+                # is a bool, z_projection is 'max'/'mean'/'sum'/'best_focus'),
+                # and suggesting `--set z_projection=True` would trade a silent
+                # no-op for a confident wrong answer.
+                hint = (f"  Set {replacement} instead — that is the key the "
+                        f"pipeline reads; see 'spacr-run --describe "
+                        f"{module.key if module is not None else '<module>'}'.")
+            else:
+                hint = (f"  Drop it: spaCR has no setting that does what "
+                        f"'{key}' claims to do.")
+            raise SettingsError(
+                f"--set {key}={text} names a setting that spaCR declares but "
+                f"reads nowhere, so it would change nothing and the run would "
+                f"still look like it worked.\n{hint}")
         if key not in known:
             close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.6)
             hint = f" Did you mean '{close[0]}'?" if close else ""
@@ -1100,9 +1310,10 @@ def render_module_list() -> str:
 
     :returns: the table as one string, no trailing newline.
     """
-    width = max(len(m.key) for m in _MODULE_LIST)
+    modules = tuple(MODULES.values())
+    width = max(len(m.key) for m in modules)
     lines = ["spaCR modules that can run headless:", ""]
-    for module in _MODULE_LIST:
+    for module in modules:
         lines.append(f"  {module.key.ljust(width)}  {module.summary}")
         lines.append(f"  {' ' * width}  -> {module.module_name}.{module.func_name}()")
     lines.append("")
@@ -1349,8 +1560,12 @@ def cmd_run(args: argparse.Namespace) -> int:
     started = time.time()
     log.info("starting %s", module.key)
     try:
+        from .run_journal import open_run
         with _NoShow():
-            _call_entry(module, func, settings)
+            log.info("recording reproducibility input hashes")
+            with open_run(module.key, settings) as run:
+                log.info("reproducibility manifest %s", run.dir)
+                _call_entry(module, func, settings)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

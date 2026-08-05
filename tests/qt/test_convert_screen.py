@@ -118,6 +118,8 @@ def test_it_builds_offscreen_with_nothing_selected(screen):
     assert not screen.can_convert()
     assert "Preview" in screen.status_text()
     assert screen.last_error == ""
+    assert not screen.resume_enabled()
+    assert "field" in screen._resume.toolTip().lower()
 
 
 def test_the_option_choices_are_the_ones_the_converter_understands(screen):
@@ -160,7 +162,16 @@ def test_it_is_registered_under_data_as_alpha():
     assert entry[1] == "Format Converter"
     from spacr.qt.app import SECTION_DATA, app_stage
     assert entry[3] == SECTION_DATA
-    assert app_stage(entry[0]) == "alpha"
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(entry[0]) == "stable"
     assert entry[2].strip()
 
 
@@ -345,6 +356,24 @@ def test_converting_writes_the_files_the_preview_promised(screen, run1, tmp_path
         sorted(promised)
     assert "Converted 8 file(s)" in screen.status_text()
     assert "conversion_map.csv" in screen.status_text()
+
+
+def test_resume_switch_reuses_the_converter_field_checkpoint(
+        screen, run1, tmp_path):
+    dst = str(tmp_path / "out")
+    screen.set_source(run1)
+    screen.set_destination(dst)
+    screen.preview()
+    screen.run_convert()
+
+    screen.set_resume(True)
+    screen.preview()
+    assert screen.run_convert()
+
+    assert screen.resume_enabled()
+    assert screen.result().n_written == 0
+    assert len(screen.result().resumed_fields) == 4
+    assert "Resumed 4 completed field" in screen.summary_text()
 
 
 def test_the_summary_names_what_was_skipped_and_where_the_map_went(

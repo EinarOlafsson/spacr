@@ -150,6 +150,7 @@ Public API
 """
 from __future__ import annotations
 
+import logging
 import math
 import os
 import time
@@ -159,6 +160,8 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 
 from .seg_qc import FieldQC, _as_labels
+
+LOG = logging.getLogger("spacr.model_compare")
 
 __all__ = [
     "ComparisonReport",
@@ -1118,7 +1121,14 @@ def load_fields(source: Any, n_fields: int = DEFAULT_N_FIELDS,
             # re-reported as "this folder has no images in it".
             read = list(_read_field_file(path, filename,
                                          n_fields - len(images)))
-        except Exception:
+        except Exception as exc:
+            # Say which one. The comparison is then computed and drawn over
+            # fewer fields than the user asked for, and neither the figure
+            # nor the report carries "2 of 3" anywhere — so without this the
+            # only evidence that a field was dropped is that the caller
+            # counts the images and notices.
+            LOG.warning("model comparison is skipping %s: it could not be "
+                        "read (%s)", filename, exc)
             continue
         for name, array in read:
             names.append(name)

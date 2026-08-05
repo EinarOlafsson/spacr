@@ -251,7 +251,18 @@ def test_regression_model_mixed_without_groups_raises():
 # regression — full pipeline
 # ---------------------------------------------------------------------------
 
-def test_regression_ols_scales_and_returns_coefficients(tmp_path, capsys):
+def test_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
+    """OLS is fitted on the raw design, intercept intact.
+
+    This test used to assert the opposite -- "OLS goes through MinMax
+    scaling" -- and that scaling did two things nothing downstream could see.
+    MinMaxScaler maps a zero-range column to all zeros, so patsy's Intercept
+    became a column of zeros and statsmodels fitted through the origin while
+    still printing an Intercept row of 0.000; and it divided each
+    `fraction:grna` column by that gRNA's own maximum, so the coefficients the
+    volcano plot ranks against each other had each been rescaled by a
+    different constant.
+    """
     from spacr.ml import regression
 
     df = _wells_df(seed=0)
@@ -284,7 +295,13 @@ def test_regression_ols_scales_and_returns_coefficients(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "Using regression type: ols" in out
     assert "Performing ols regression" in out
-    assert "Data will not be scaled" not in out      # OLS goes through MinMax scaling
+    assert "Data will not be scaled" in out
+    # The proof that matters: the intercept column reached the fit as ones.
+    intercept = model.model.exog[:, list(model.model.exog_names).index("Intercept")]
+    assert np.allclose(intercept, 1.0)
+    # ... and the response was not squeezed into [0, 1] on the way in.
+    assert np.allclose(np.sort(np.asarray(model.model.endog).ravel()),
+                       np.sort(df["predictions"].to_numpy()))
 
     # Both histograms were written; no volcano plot because plot=False.
     assert (tmp_path / "predictions_histogram.pdf").stat().st_size > 0

@@ -95,11 +95,12 @@ def test_timelapse_disables_save_png(tmp_path, rng):
 
 
 def test_src_must_be_str_or_list(tmp_path, rng):
-    """A non-str/list src returns without raising."""
+    """A non-str/list source is rejected instead of failing silently."""
     from spacr.measure import measure_crop
     s = _settings(_merged(tmp_path, rng))
     s["src"] = 12345
-    assert measure_crop(s) is None
+    with pytest.raises(ValueError, match="src must be a string or a list"):
+        measure_crop(s)
 
 
 # ---------------------------------------------------------------------------

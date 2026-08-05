@@ -20,12 +20,15 @@ import pytest
 # The whole file needs a display, exactly like tests/test_gui_elements.py.
 pytestmark = pytest.mark.gui
 
-try:
-    import tkinter as tk
-    import spacr.gui_elements as ge
-except Exception as e:  # pragma: no cover - env without a usable Tk/X
-    pytest.skip(f"spacr.gui_elements unavailable in this env: {e}",
-                allow_module_level=True)
+# Unguarded on purpose. tests/conftest.py stubs mouseinfo, pyautogui and
+# screeninfo -- the three transitive imports that used to open an X display at
+# IMPORT time -- before any test module is loaded, so this import no longer has
+# an environmental way to fail. What is left is spaCR's own code, and a whole
+# file reporting "skipped" because gui_elements will not import is the loudest
+# bug in the package announcing itself as an excuse. Needing a live display to
+# RUN is a separate claim, and the `gui` marker above is the one that makes it.
+import tkinter as tk
+import spacr.gui_elements as ge
 
 
 @pytest.fixture(autouse=True)
@@ -240,12 +243,6 @@ def test_card_without_font_loader_uses_a_family_tuple(tk_root, monkeypatch):
     assert card.style_out["font_loader"] is None
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: spacrCard's fallback spacing dict is {'sm','md','lg'} but the "
-           "title branch reads spacing['xs'] -> KeyError for any style dict "
-           "without a 'spacing' key",
-)
 def test_card_fallback_spacing_dict_supports_a_title(tk_root, monkeypatch):
     """A style dict with no 'spacing' key must still build a titled card.
 

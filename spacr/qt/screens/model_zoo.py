@@ -94,7 +94,9 @@ from ..widgets.toggle import Toggle
 
 from ... import model_zoo as zoo
 from ..bridge import make_thread
-from ..theme import SPACING, active_palette
+from ..theme import (RADIUS, SPACING, active_palette,
+                     block_surface, ensure_widget_qss_applied,
+                     register_widget_qss)
 from ..widgets import Divider
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
@@ -121,6 +123,77 @@ _ZOO_HEADERS = ("model", "kind", "source", "v", "size", "checksum",
                 "trained on", "trained by")
 
 _BENCH_HEADERS = ("field", "objects", "seg_qc", "flags")
+
+
+#: The registered block's name, and the object names it reaches. Every
+#: container on this page needed one; none of them had any.
+ZOO_QSS_NAME = "ModelZoo"
+GROUP_NAME = "ModelZooGroup"
+TABLE_NAME = "ModelZooTable"
+DETAIL_NAME = "ModelZooDetail"
+PREVIEW_NAME = "ModelZooPreview"
+
+
+def _model_zoo_qss(palette: dict, opacity=None) -> str:
+    """Every container on this page is a panel, at the page opacity.
+
+    Five regions, three causes, and the page had all three of them.
+
+    ``a QSS rule with no page opacity in it``
+        The mask preview carried ``setStyleSheet("background: " +
+        active_palette()["bg"])`` — raw hex, and the WINDOW colour rather
+        than a surface, so it was opaque by construction and no slider
+        position could reach it. Measured 0.31 of the backdrop where a
+        panel passes 0.70.
+    ``a border drawn around a hole``
+        ``Download`` and ``Test on fields`` are ``QGroupBox``es, and the
+        shipped rule for those is ``background: transparent`` — right for
+        a group box nested in a card that has a surface already, wrong
+        where the group box IS the container. They measured 1.000 and
+        0.918: the backdrop arriving all but untouched inside a drawn
+        outline, which over a dark page reads as a black box.
+    ``a container tagged transparent by type``
+        ``clear_container_surfaces`` tags every ``QAbstractScrollArea``
+        transparent, and the model listing and the provenance box are
+        two. Correct for a table sitting ON a panel; wrong for these,
+        which sit straight on the page. An ID selector outranks the
+        ``*[spacrTransparent="true"]`` attribute rule, so a name is all
+        it takes to give them their surface back.
+
+    The benchmark table and the mask preview are *inside* ``Test on
+    fields``, which is a panel now, so both are left showing it through.
+    Giving the preview a fill of its own was tried and measured: two
+    surfaces stacked read 0.56 where one reads 0.70, a shade no position
+    of the slider can produce. A rendered mask still paints an opaque
+    ``QPixmap`` on top — the preference reaches the container, never the
+    picture — so the name stays, for the tests and for anything that
+    later needs to reach it.
+    """
+    surface = block_surface("surface_alt", palette.get("theme"), opacity)
+    return f"""
+QGroupBox#{GROUP_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+}}
+QGroupBox#{GROUP_NAME}::title {{
+    background: transparent;
+    color: {palette["fg_muted"]};
+}}
+QTableWidget#{TABLE_NAME}, QPlainTextEdit#{DETAIL_NAME} {{
+    background: {surface};
+    border: 1px solid {palette["border_soft"]};
+    border-radius: {RADIUS["md"]}px;
+}}
+QLabel#{PREVIEW_NAME} {{
+    background: transparent;
+}}
+"""
+
+
+# `replace=True`: reachable through the screens package and by direct
+# import, and a second import must refresh the block rather than raise.
+register_widget_qss(ZOO_QSS_NAME, _model_zoo_qss, replace=True)
 
 
 def _cell(text: str) -> QTableWidgetItem:
@@ -216,7 +289,16 @@ class ModelZooScreen(QWidget):
         self._error_handler: Optional[Callable[[str], None]] = None
         self.last_error: str = ""
 
+        # `app.py` imports this module inside the branch that builds the
+        # screen, long after the launch stylesheet was generated, so the
+        # block registered above is not in the sheet that is live and every
+        # container opens bare. See `ensure_widget_qss_applied`.
+        ensure_widget_qss_applied(ZOO_QSS_NAME)
+
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("model_zoo"), self)
         self._job_settled.connect(self._on_job_settled)
         self._progress_ticked.connect(self._on_progress)
         self._progress_said.connect(self._on_progress_text)
@@ -266,6 +348,9 @@ class ModelZooScreen(QWidget):
 
         # ── the listing ───────────────────────────────────────────────
         self._table = QTableWidget(0, len(_ZOO_HEADERS), self)
+        # The listing IS the container here — nothing is under it — so it
+        # keeps a surface rather than showing the page through.
+        self._table.setObjectName(TABLE_NAME)
         self._table.setHorizontalHeaderLabels(list(_ZOO_HEADERS))
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setAlternatingRowColors(True)
@@ -280,6 +365,7 @@ class ModelZooScreen(QWidget):
 
         # ── provenance card ───────────────────────────────────────────
         self._detail = QPlainTextEdit(self)
+        self._detail.setObjectName(DETAIL_NAME)
         self._detail.setReadOnly(True)
         self._detail.setMaximumHeight(150)
         self._detail.setPlaceholderText(
@@ -289,6 +375,7 @@ class ModelZooScreen(QWidget):
 
         # ── download ──────────────────────────────────────────────────
         download = QGroupBox("Download", self)
+        download.setObjectName(GROUP_NAME)
         dl = QVBoxLayout(download)
         dl.setSpacing(SPACING["xs"])
         row = QHBoxLayout()
@@ -329,6 +416,7 @@ class ModelZooScreen(QWidget):
 
         # ── benchmark ─────────────────────────────────────────────────
         test = QGroupBox("Test on fields", self)
+        test.setObjectName(GROUP_NAME)
         tl = QVBoxLayout(test)
         tl.setSpacing(SPACING["xs"])
         row = QHBoxLayout()
@@ -374,8 +462,11 @@ class ModelZooScreen(QWidget):
         self._preview.setAlignment(Qt.AlignCenter)
         self._preview.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         self._preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._preview.setStyleSheet(
-            f"background: {active_palette()['bg']};")
+        # No inline stylesheet: it used to be
+        # `background: {active_palette()["bg"]}`, raw hex and the window
+        # colour, opaque by construction. The panel is a rule now, reached
+        # by this name.
+        self._preview.setObjectName(PREVIEW_NAME)
         split.addWidget(self._preview)
         split.setSizes([700, 400])
         tl.addWidget(split, 1)
@@ -686,25 +777,38 @@ class ModelZooScreen(QWidget):
         self._segment_fn = fn
 
     def set_fields_source(self, folder: str) -> bool:
-        """Load the fields the benchmark will run on.
+        """Load benchmark fields without blocking the GUI thread.
 
         :param folder: a folder of ``.tif`` / ``.png`` / ``.npy`` / ``.npz``.
-        :returns: True when at least one field loaded; on failure the reason is
-            in the status label and this returns False.
+        :returns: with ``threaded=False``, True when at least one field loaded;
+            otherwise True once the load starts. On failure the reason is in
+            the status label.
         """
         from ... import model_compare as mc
 
+        if self._busy:
+            self._set_status("Another Model Zoo job is already running.",
+                             error=True)
+            return False
         self._images = []
         self._field_names = []
         self._fields_folder = ""
-        try:
-            names, images = mc.load_fields(
-                folder, n_fields=int(self._fields_box.value()))
-        except Exception as e:
-            self._set_status(str(e) or e.__class__.__name__, error=True)
-            self._update_controls()
-            return False
-        self._fields_folder = os.fspath(folder)
+        source = os.fspath(folder)
+        n_fields = int(self._fields_box.value())
+
+        def _job():
+            names, images = mc.load_fields(source, n_fields=n_fields)
+            return source, names, images
+
+        self._set_status(f"Loading up to {n_fields} field(s) from {source}…")
+        return self._run_job(
+            _job, self._apply_loaded_fields,
+            on_error=self._on_fields_failed)
+
+    def _apply_loaded_fields(self, result) -> None:
+        """Install loaded benchmark fields on the GUI thread."""
+        source, names, images = result
+        self._fields_folder = source
         self._field_names = names
         self._images = images
         self._fields_edit.setText(self._fields_folder)
@@ -712,7 +816,12 @@ class ModelZooScreen(QWidget):
             f"Loaded {len(images)} field(s) from {self._fields_folder}: "
             f"{', '.join(names)}.")
         self._update_controls()
-        return True
+
+    def _on_fields_failed(self, message: str) -> None:
+        """Report a field-loading failure inline."""
+        self._set_status(
+            f"Could not load benchmark fields: {message}", error=True)
+        self._update_controls()
 
     def fields_folder(self) -> str:
         """The loaded field folder, or ``''``."""
@@ -963,7 +1072,7 @@ class ModelZooScreen(QWidget):
         self._pending.append((box, on_done, on_error))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -984,6 +1093,30 @@ class ModelZooScreen(QWidget):
                 ok = False
         self._update_controls()
         self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
         """Release *this* job's refs once its own event loop has exited."""

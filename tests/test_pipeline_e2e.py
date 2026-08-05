@@ -260,10 +260,9 @@ def test_generate_dataset_creates_datasets_folder(spacr_measure_run):
         "file_metadata": None,
         "sample": None,
     }
-    try:
-        generate_dataset(settings)
-    except Exception as e:  # pragma: no cover - pipeline path
-        pytest.skip(f"generate_dataset failed on synthetic output: {e}")
+    # Unguarded: the src here is the pipeline fixture's own output, so
+    # "failed on synthetic output" is the pipeline failing on its own output.
+    generate_dataset(settings)
 
     dst = Path(src) / "datasets"
     assert dst.exists() and dst.is_dir(), (
@@ -311,28 +310,22 @@ def test_apply_model_runs_on_generated_pngs(spacr_measure_run, tmp_path):
     # spacr.deep_spacr.apply_model uses torch.load(model_path) which in
     # PyTorch 2.6+ requires weights_only=False for full-model checkpoints
     # (or explicit safe_globals). Register the classes we saved so the
-    # test succeeds on modern torch without patching spacr itself — the
-    # skip reason then documents the bug rather than hiding it.
-    try:
-        from torch.serialization import add_safe_globals
-        from torchvision.models.resnet import ResNet, BasicBlock
-        add_safe_globals([ResNet, BasicBlock, nn.Linear, nn.Conv2d,
-                          nn.BatchNorm2d, nn.ReLU, nn.MaxPool2d,
-                          nn.AdaptiveAvgPool2d, nn.Sequential])
-    except Exception:
-        pass
+    # test succeeds on modern torch without patching spacr itself.
+    from torch.serialization import add_safe_globals
+    from torchvision.models.resnet import ResNet, BasicBlock
+    add_safe_globals([ResNet, BasicBlock, nn.Linear, nn.Conv2d,
+                      nn.BatchNorm2d, nn.ReLU, nn.MaxPool2d,
+                      nn.AdaptiveAvgPool2d, nn.Sequential])
 
-    try:
-        df = apply_model(
-            src=str(img_dir),
-            model_path=str(model_path),
-            image_size=64, batch_size=2, normalize=True, n_jobs=0,
-        )
-    except Exception as e:  # pragma: no cover - documents remaining friction
-        pytest.skip(
-            f"apply_model failed on synthetic input (likely torch.load "
-            f"weights_only default): {e}"
-        )
+    # Unguarded. The old handler said it "documents remaining friction", but a
+    # skip documents nothing anyone reads: if apply_model cannot load a
+    # checkpoint spaCR itself would write, that is the bug, and it belongs in
+    # the failure column.
+    df = apply_model(
+        src=str(img_dir),
+        model_path=str(model_path),
+        image_size=64, batch_size=2, normalize=True, n_jobs=0,
+    )
 
     import pandas as pd
     assert isinstance(df, pd.DataFrame)

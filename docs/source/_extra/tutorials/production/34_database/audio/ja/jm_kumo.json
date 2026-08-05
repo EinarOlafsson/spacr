@@ -4,47 +4,137 @@
   "voice": "jm_kumo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 67.425,
+  "total_duration": 293.11,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.725,
-      "scene_end": 13.174999999999999,
-      "duration": 13.174999999999999,
-      "text": "このチュートリアルでは,データベースブラウザをカバーします. sqlite コマンドラインを使用せずに,ブラウザ,フィルター,クエリ,およびdb点の測定を輸出します."
+      "speech_end": 21.95,
+      "scene_end": 22.669999999999998,
+      "duration": 22.669999999999998,
+      "text": "データベースブラウザは,コマンドラインなしで大きな spaCR 結果データベースを検査します. 結果と品質管理から開きます. インタフェースはセルエディタを提供せず,他の場所で意図的に編集が有効でない限り,SQLiteは読み込みのみとクエリのみモードを使用します.",
+      "speech_text": "データベースブラウザは,コマンドラインなしで大きな スペーカー 結果データベースを検査します. 結果と品質管理から開きます. インタフェースはセルエディタを提供せず,他の場所で意図的に編集が有効でない限り,SQLiteは読み込みのみとクエリのみモードを使用します.",
+      "phonemes": "deːtabeːsɨ bɯɾaɯʣa βa, komando ɾaiɴ naɕi de oːkʲina sɨpeːkaː keʔka deːtabeːsɨ o keɴsa ɕi masɨ. keʔka to çiɴɕiʦɨ kanɾʲi kaɾa çiɾakʲimasɨ. intaɸeːsɨ βa seɾɯ edʲita o teːkʲoː sezɨ, ta no baɕo de itotekʲi ɲi heɴɕɨː ɡa jɯːkoː denai kaɡʲiɾʲi, SQLite βa jomʲikomʲi nomʲi to kɯeɾʲi nomʲi moːdo o ɕijoː ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 13.174999999999999,
-      "speech_end": 25.325,
-      "scene_end": 25.775,
-      "duration": 12.6,
-      "text": "Data and batch runs セクションから Database Browser を開きます。 spaCR SQLite データベースを開いて,テーブルまたは保存されたクエリを選択します."
+      "speech_start": 22.669999999999998,
+      "speech_end": 42.17,
+      "scene_end": 42.81,
+      "duration": 20.140000000000004,
+      "text": "測定.db パースを入力し,開くをクリックします. その代わりにデータベースを選択し,実行フォルダを選択するか,この画面上の任意の場所でも削除できます. 移動したチュートリアル実験の実際の測定データベースを開きます",
+      "speech_text": "測定.db パースを入力し,開くをクリックします. その代わりにデータベースを選択し,実行フォルダを選択するか,この画面上の任意の場所でも削除できます. 移動したチュートリアル実験の実際の測定データベースを開きます",
+      "phonemes": "sokɯteː. db paːsɨ o ɲɨːɾʲokɯ ɕi, çiɾakɯ o kɯɾʲiʔkɯ ɕi masɨ. sono kaβaɾʲi ɲi deːtabeːsɨ o sentakɯ ɕi, ʥiʔkoː ɸoɾɯda o sentakɯ sɨɾɯ ka, kono ɡameɴ ʥoː no ɲiɴi no baɕo de mo sakɯʥo dekʲimasɨ. idoː ɕita ʨɨːtoɾʲiaɾɯ ʥiʔkeɴ no ʥiʔsai no sokɯteː deːtabeːsɨ o çiɾakʲimasɨ"
     },
     {
       "scene": 3,
-      "speech_start": 25.775,
-      "speech_end": 37.825,
-      "scene_end": 38.275000000000006,
-      "duration": 12.500000000000007,
-      "text": "主な構成領域では,列,フィルター,分類,行制限,結合,そして安全な読み込みのみまたは編集可能な行動を設定します."
+      "speech_start": 42.81,
+      "speech_end": 64.66,
+      "scene_end": 65.38,
+      "duration": 22.569999999999993,
+      "text": "spaCR は 路線 を 解決 し,読み込み の 唯一の 路線 を 開け,十 個 の 表 を 列挙 し て い ます. これはオブジェクトの測定,画像記録,設定,カウント,注釈履歴を含む. 編集モードはオフになります このチュートリアルでは決して有効化されず ソースに書き留まりません",
+      "speech_text": "スペーカー は 路線 を 解決 し,読み込み の 唯一の 路線 を 開け,十 個 の 表 を 列挙 し て い ます. これはオブジェクトの測定,画像記録,設定,カウント,注釈履歴を含む. 編集モードはオフになります このチュートリアルでは決して有効化されず ソースに書き留まりません",
+      "phonemes": "sɨpeːkaː βa ɾoseɴ o kaikeʦɨ ɕi, jomʲikomʲi no jɯiiʦɨ no ɾoseɴ o ake, ʥiʔko no omote o ɾeʔkʲo ɕite imasɨ. koɾe βa obɯʥekɯto no sokɯteː, ɡaʣoː kʲiɾokɯ, seʔteː, kaɯnto, ʨɨːɕakɯ ɾʲiɾekʲi o ɸɯkɯmɯ. heɴɕɨː moːdo βa oɸɯ ɲi naɾʲimasɨ kono ʨɨːtoɾʲiaɾɯ de βa keʔɕite jɯːkoː ka saɾezɨ soːsɨ ɲi kakʲi tomaɾʲi maseɴ"
     },
     {
       "scene": 4,
-      "speech_start": 38.275000000000006,
-      "speech_end": 54.7,
-      "scene_end": 55.150000000000006,
-      "duration": 16.875,
-      "text": "実行完了前に,可視設定をチェックし,可用である場合の先見またはテストモードを使用します. 対象識別子を輸出または許可された編集を行うときに先見查询および保存します."
+      "speech_start": 65.38,
+      "speech_end": 88.67999999999999,
+      "scene_end": 89.46,
+      "duration": 24.08,
+      "text": "セルテーブルをクリックしてください. 81,969 の測定細胞と 218 の識別子,形態学,強度,質感,距離,およびコロカライゼーション列が含まれています. プレビューは最初の制限された部分のみを集めるが,完全な行数は別々に報告されます.",
+      "speech_text": "セルテーブルをクリックしてください. 81,969 の測定細胞と 218 の識別子,形態学,強度,質感,距離,およびコロカライゼーション列が含まれています. プレビューは最初の制限された部分のみを集めるが,完全な行数は別々に報告されます.",
+      "phonemes": "seɾɯ teːbɯɾɯ o kɯɾʲiʔkɯ ɕite kɯdasai. haʨiʥɨː iʨi, kʲɨːçakɯ ɾokɯʥɨː kʲɨː no sokɯteː saiboː to ɲiçakɯ ʥɨːhaʨi no ɕikʲibeʦɨ ɕi, keːtai ɡakɯ, kʲoːdo, ɕiʦɨkaɴ, kʲoɾʲi, ojobʲi koɾokaɾaiʣeːɕoɴ ɾeʦɨ ɡa ɸɯkɯma ɾe te imasɨ. pɯɾebʲɨː βa saiɕo no seːɡeɴ saɾeta bɯbɯɴ nomʲi o aʦɨmeɾɯ ɡa, kaɴʣeɴ na ɡʲoːsɨː βa beʦɨbeʦɨ ɲi hoːkokɯ saɾemasɨ."
     },
     {
       "scene": 5,
-      "speech_start": 55.150000000000006,
-      "speech_end": 66.775,
-      "scene_end": 67.42500000000001,
-      "duration": 12.275000000000006,
-      "text": "ワークフローが完了すると,フィルタ化された表は元のデータベースが追跡可能である間にコピーまたは輸出することができます."
+      "speech_start": 89.46,
+      "speech_end": 111.85999999999999,
+      "scene_end": 112.55999999999999,
+      "duration": 23.099999999999994,
+      "text": "広い機能表を読みやすくするために,列を検索します. 查询 cell_channel_1_mean は,表示された 218 つの列を,単一のチャンネル-1 の平均強度機能に即座に絞ります. これはビューのみを変更し,データベースクエリを再起動したり,行を削除したりしません.",
+      "speech_text": "広い機能表を読みやすくするために,列を検索します. 查询 cell_channel_1_mean は,表示された 218 つの列を,単一のチャンネル-1 の平均強度機能に即座に絞ります. これはビューのみを変更し,データベースクエリを再起動したり,行を削除したりしません.",
+      "phonemes": "çiɾoi kʲinoː çoː o jomʲi jasɨkɯ sɨɾɯ tame ɲi, ɾeʦɨ o keɴsakɯ ɕi masɨ. cell _ channel _ iʨi _ mean βa, çoːʥi saɾeta ɲiçakɯ ʥɨːhaʨi ʦɨ no ɾeʦɨ o, taɴiʦɨ no ʨanneɾɯ - iʨi no heːkʲiɴ kʲoːdo kʲinoː ɲi sokɯʣa ɲi ɕiboɾʲimasɨ. koɾe βa bʲɨː nomʲi o heŋkoː ɕi, deːtabeːsɨ kɯeɾʲi o saikʲidoː ɕitaɾʲi, ɡʲoː o sakɯʥo ɕitaɾʲi ɕi maseɴ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 112.55999999999999,
+      "speech_end": 136.45999999999998,
+      "scene_end": 137.2,
+      "duration": 24.64,
+      "text": "コラム検索をクリアし,列を 250 に設定します. プレビューは,深いオフセットではなく,キーセットページを使用しているので,テーブルが成長するにつれて,それぞれの要求が制限されます. 81,969行をメモリに載せずに次の部分を追加するには,追加をクリックしてください.",
+      "speech_text": "コラム検索をクリアし,列を 250 に設定します. プレビューは,深いオフセットではなく,キーセットページを使用しているので,テーブルが成長するにつれて,それぞれの要求が制限されます. 81,969行をメモリに載せずに次の部分を追加するには,追加をクリックしてください.",
+      "phonemes": "koɾamɯ keɴsakɯ o kɯɾʲia ɕi, ɾeʦɨ o ɲiçakɯ ɡoʥɨː ɲi seʔteː ɕi masɨ. pɯɾebʲɨː βa, ɸɯkai oɸɯseʔto de βa nakɯ, kʲiː seʔto peːʥi o ɕijoː ɕite iɾɯ no de, teːbɯɾɯ ɡa seːʨoː sɨɾɯ ɲi ʦɨɾete, soɾeʣoɾe no joːkʲɨː ɡa seːɡeɴ saɾemasɨ. haʨiʥɨː iʨi, kʲɨːçakɯ ɾokɯʥɨː kʲɨː ɡʲoː o memoɾʲi ɲi nosezɨ ɲi ʦɨɡʲi no bɯbɯɴ o ʦɨika sɨɾɯ ɲi βa, ʦɨika o kɯɾʲiʔkɯ ɕite kɯdasai."
+    },
+    {
+      "scene": 7,
+      "speech_start": 137.2,
+      "speech_end": 161.75,
+      "scene_end": 162.45,
+      "duration": 25.25,
+      "text": "プレビューでは 81,969行のうち 500行が表示されます. 部分的なページを分類すると,データセット全体が誤った形で表示されるので,表の一部のみが読み込まれている間に,分類は終了します. しかし,データベースのフィルターは常に完全な表に対して実行されます.",
+      "speech_text": "プレビューでは 81,969行のうち 500行が表示されます. 部分的なページを分類すると,データセット全体が誤った形で表示されるので,表の一部のみが読み込まれている間に,分類は終了します. しかし,データベースのフィルターは常に完全な表に対して実行されます.",
+      "phonemes": "pɯɾebʲɨː de βa haʨiʥɨː iʨi, kʲɨːçakɯ ɾokɯʥɨː kʲɨː ɡʲoː no ɯʨi ɡoçakɯ ɡʲoː ɡa çoːʥi saɾemasɨ. bɯbɯntekʲi na peːʥi o bɯnɾɯi sɨɾɯ to, deːta seʔto ʣentai ɡa ajamaʔta kataʨi de çoːʥi saɾeɾɯ no de, çoː no iʨibɯ nomʲi ɡa jomʲikoma ɾe te iɾɯ aida ɲi, bɯnɾɯi βa ɕɨːɾʲoː ɕi masɨ. ɕikaɕi, deːtabeːsɨ no ɸʲiɾɯtaː βa ʦɨne ɲi kaɴʣeɴ na çoː ɲi taiɕite ʥiʔkoː saɾemasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 162.45,
+      "speech_end": 183.75,
+      "scene_end": 184.47,
+      "duration": 22.02000000000001,
+      "text": "cell_area を選択して構造化されたフィルタを作成します. cell_area を選択して, cell_area を選択します. spaCRは,列とオペレータを検証し,値をパラメータとして結合します. Raw SQLは高度なプロディケートで利用できますが,ここでは不要です.",
+      "speech_text": "cell_area を選択して構造化されたフィルタを作成します. cell_area を選択して, cell_area を選択します. スペーカーは,列とオペレータを検証し,値をパラメータとして結合します. Raw SQLは高度なプロディケートで利用できますが,ここでは不要です.",
+      "phonemes": "cell _ area o sentakɯ ɕite koːʣoː ka saɾeta ɸʲiɾɯta o sakɯseː ɕi masɨ. cell _ area o sentakɯ ɕite, cell _ area o sentakɯ ɕi masɨ. sɨpe kaː βa, ɾeʦɨ to opeɾeːta o keɴɕoː ɕi, atai o paɾameːta toɕi te keʦɨɡoː ɕi masɨ. Raw SQL βa koːdo na pɯɾodʲikeːto de ɾʲijoː dekʲimasɨ ɡa, koko de βa ɸɯjoː desɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 184.47,
+      "speech_end": 205.445,
+      "scene_end": 206.165,
+      "duration": 21.694999999999993,
+      "text": "フィルター全体には 12,907 細胞が含まれています 最初の250枚だけ塗られていますが フィルタされた正確な数値とアクティブプレディケードは 見えるままです この区別により,プレビューページのサイズが人口サイズと間違えるのを防ぐ.",
+      "speech_text": "フィルター全体には 12,907 細胞が含まれています 最初の250枚だけ塗られていますが フィルタされた正確な数値とアクティブプレディケードは 見えるままです この区別により,プレビューページのサイズが人口サイズと間違えるのを防ぐ.",
+      "phonemes": "ɸʲiɾɯtaː ʣentai ɲi βa ʥɨːɲi, kʲɨːçakɯ nana saiboː ɡa ɸɯkɯma ɾe te imasɨ saiɕo no ɲiçakɯ ɡoʥɨː mai dake nɯɾa ɾe te imasɨ ɡa ɸʲiɾɯta saɾeta seːkakɯ na sɨːʨi to akɯtʲibɯ pɯɾe dʲikeːdo βa mʲieɾɯ mama desɨ kono kɯbeʦɨ ɲi joɾʲi, pɯɾebʲɨː peːʥi no saizɨ ɡa ʥiŋkoː saizɨ to maʨiɡaeɾɯ no o ɸɯseɡɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 206.165,
+      "speech_end": 228.515,
+      "scene_end": 229.21499999999997,
+      "duration": 23.049999999999983,
+      "text": "フィルタ化された CSVを輸出する をクリックします. エクスポートは,読み込みされたプレビューのみではなく,全現在の表とフィルタをストリームし,もしアクティブであれば,可視列検索を尊重します. 検索は完了したので,この輸出は218本の列をすべて保持している.",
+      "speech_text": "フィルタ化された CSVを輸出する をクリックします. エクスポートは,読み込みされたプレビューのみではなく,全現在の表とフィルタをストリームし,もしアクティブであれば,可視列検索を尊重します. 検索は完了したので,この輸出は218本の列をすべて保持している.",
+      "phonemes": "ɸʲiɾɯta ka saɾeta CSV o jɯɕɨʦɨ sɨɾɯ o kɯɾʲiʔkɯ ɕi masɨ. ekɯsɨpoːto βa, jomʲikomʲi saɾeta pɯɾebʲɨː nomʲi de βa nakɯ, ʣeɴ ɡeɴʣai no çoː to ɸʲiɾɯta o sɨtoɾʲiːmɯ ɕi, moɕi akɯtʲibɯ de aɾeba, kaɕi ɾeʦɨ keɴsakɯ o soɲʨoː ɕi masɨ. keɴsakɯ βa kanɾʲoː ɕita no de, kono jɯɕɨʦɨ βa ɲiçakɯ ʥɨːhaʨi poɴ no ɾeʦɨ o sɨbete hoʥi ɕite iɾɯ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 229.21499999999997,
+      "speech_end": 252.265,
+      "scene_end": 253.08499999999998,
+      "duration": 23.870000000000005,
+      "text": "ステータスは12907行218列の輸出を確認している. CSVが作成された唯一の新しいファイルです. SHA-256 の前後のチェックは,measurements.db がバイトと同一であることを確認し,その付近には日記や書き込み日記ファイルはありません.",
+      "speech_text": "ステータスは12907行218列の輸出を確認している. CSVが作成された唯一の新しいファイルです. SHA-256 の前後のチェックは,measurements dot db がバイトと同一であることを確認し,その付近には日記や書き込み日記ファイルはありません.",
+      "phonemes": "sɨteːtasɨ βa iʨi maɴ ɲi seɴ kʲɨːçakɯ nana ɡʲoː ɲiçakɯ ʥɨːhaʨi ɾeʦɨ no jɯɕɨʦɨ o kakɯɲiɴ ɕite iɾɯ. CSV ɡa sakɯseː saɾeta jɯiiʦɨ no ataɾaɕiː ɸaiɾɯ desɨ. SHA - ɲiçakɯ ɡoʥɨː ɾokɯ no ʣeŋɡo no ʨeʔkɯ βa, measurements dot db ɡa baito to doːiʦɨ de aɾɯ koto o kakɯɲiɴ ɕi, sono ɸɯkʲiɴ ɲi βa ɲiʔkʲi ja kakʲikomʲi ɲiʔkʲi ɸaiɾɯ βa aɾʲimaseɴ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 253.08499999999998,
+      "speech_end": 269.21,
+      "scene_end": 269.83,
+      "duration": 16.745000000000005,
+      "text": "プレディケートを削除し,最初の制限された部分を再充填します. フィルターは可逆のビュー状態です: クリアリングはデータベースまたは以前に輸出されたファイル内の行を変更しません.",
+      "speech_text": "プレディケートを削除し,最初の制限された部分を再充填します. フィルターは可逆のビュー状態です: クリアリングはデータベースまたは以前に輸出されたファイル内の行を変更しません.",
+      "phonemes": "pɯɾedʲikeːto o sakɯʥo ɕi, saiɕo no seːɡeɴ saɾeta bɯbɯɴ o sai ʥɨːteɴ ɕi masɨ. ɸʲiɾɯtaː βa kaɡʲakɯ no bʲɨː ʥoːtai desɨ: kɯɾʲiaɾʲiŋɡɯ βa deːtabeːsɨ mata βa iʣeɴ ɲi jɯɕɨʦɨ saɾeta ɸaiɾɯ nai no ɡʲoː o heŋkoː ɕi maseɴ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 269.83,
+      "speech_end": 292.33,
+      "scene_end": 293.10999999999996,
+      "duration": 23.279999999999973,
+      "text": "81,969個のセルが再びブラウザに表示され 最初の250個のセルのみが読み込まれています これは,大きなspaCR測定表を探索し,正確に定義されたサブセットを輸出するための追跡可能な読み込みのみのワークフローを完了します.",
+      "speech_text": "81,969個のセルが再びブラウザに表示され 最初の250個のセルのみが読み込まれています これは,大きなスペーカー測定表を探索し,正確に定義されたサブセットを輸出するための追跡可能な読み込みのみのワークフローを完了します.",
+      "phonemes": "haʨiʥɨː iʨi, kʲɨːçakɯ ɾokɯʥɨː kʲɨː ko no seɾɯ ɡa ɸɯtatabʲi bɯɾaɯʣa ɲi çoːʥi saɾe saiɕo no ɲiçakɯ ɡoʥɨː ko no seɾɯ nomʲi ɡa jomʲikoma ɾe te imasɨ koɾe βa, oːkʲina sɨpe kaː sokɯteː çoː o taɴsakɯ ɕi, seːkakɯ ɲi teːɡʲi saɾeta sabɯseʔto o jɯɕɨʦɨ sɨɾɯ tame no ʦɨisekʲi kanoː na jomʲikomʲi nomʲi no βaːkɯ ɸɯɾoː o kanɾʲoː ɕi masɨ."
     }
   ]
 }

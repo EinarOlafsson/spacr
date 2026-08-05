@@ -43,7 +43,6 @@ from spacr.qt.screens.app_screen import (
     APP_TITLES,
     COLUMN_TABLES,
     HINT_STRIP_LINES,
-    SECTION_HINTS,
     AppScreen,
     QtGui_QListWidgetItem_helper,
     _hyperparam_searchable,
@@ -80,6 +79,23 @@ def _section_titles(screen) -> list:
 def _make_screen(qtbot, app_key: str) -> AppScreen:
     scr = AppScreen(app_key)
     qtbot.addWidget(scr)
+    return scr
+
+
+def _settle(qtbot, scr, timeout: int = 20000) -> AppScreen:
+    """Wait for the screen's background jobs to deliver.
+
+    The usage poll and the issue report run on worker threads -- ``GPUtil``
+    shells out to ``nvidia-smi`` (25 ms, every 2 s) and filing an issue shells
+    out to ``gh`` and then talks to api.github.com, which together froze the
+    window for up to 28 seconds when they ran inline. The consequence for a
+    test is that the effect of ``_refresh_usage()`` or ``_on_file_issue()`` is
+    not visible when the call returns; it is visible once the event loop has
+    run. This is that wait, kept an explicit call rather than hidden inside
+    ``_make_screen`` so each test says which of its steps is asynchronous.
+    """
+    qtbot.waitUntil(lambda: not scr.is_busy() and scr.active_jobs() == 0,
+                    timeout=timeout)
     return scr
 
 
@@ -226,19 +242,29 @@ class TestWidgetConstruction:
         for lbl, hint in scr._hint_map.items():
             assert isinstance(lbl, QLabel)
             assert hint, "empty plain hint"
-            assert "<a href=" not in scr._html_tip_map[lbl]
-            assert "ⓘ" not in scr._html_tip_map[lbl]
-            assert "Docs" not in scr._html_tip_map[lbl]
+            assert "<a href=" in scr._html_tip_map[lbl]
+            assert "Open spaCR API documentation" in scr._html_tip_map[lbl]
+            assert "https://" in hint
 
+        # And no API link dot beside the field. There was one per setting
+        # -- 191 on this form -- each carrying a tooltip of its own, sitting
+        # between the label and the field. Hovering the right-hand side of a
+        # row popped help, which from the user's side of the screen is
+        # indistinguishable from "the field has a tooltip", and was reported
+        # as exactly that.
+        #
+        # The API link is not lost: it is in the label's tooltip HTML, which
+        # the `<a href=` and `/api/` assertions above and below cover.
         from spacr.qt.widgets.info_link import InfoLink
         setting_links = [
             link for link in scr.findChildren(InfoLink)
             if link.objectName() == "SettingInfoLink"
         ]
-        assert len(setting_links) == len(scr._settings_model._widgets)
-        for link in setting_links:
-            assert link.toolTip()
-            assert "/api/" in link.url()
+        assert not setting_links, (
+            f"{len(setting_links)} API link dots are still on the settings "
+            f"form; the help belongs to the label alone")
+        for html in scr._html_tip_map.values():
+            assert "/api/" in html
 
     def test_a_row_widget_the_model_does_not_own_keeps_its_own_tooltip(
             self, qtbot, monkeypatch):
@@ -300,7 +326,8 @@ class TestCategoryGrouping:
         """Tracking and the motility assay are separate modules now."""
         scr = _make_screen(qtbot, "mask")
         titles = _section_titles(scr)
-        assert "PATHS" in titles and "CELL" in titles
+        assert "INPUT & METADATA" in titles
+        assert "CELL SEGMENTATION" in titles
         for gone in ("TIMELAPSE", "MOTILITY (BETA)",
                      "MOTILITY ADVANCED (BETA)"):
             assert gone not in titles
@@ -310,9 +337,10 @@ class TestCategoryGrouping:
         assert "motility_analysis" not in keys
 
     def test_measure_still_shows_timelapse_category(self, qtbot):
-        """The suppression is per-app, not global."""
+        """Measure keeps its timelapse controls in the channel-mapping group."""
         scr = _make_screen(qtbot, "measure")
-        assert "TIMELAPSE" in _section_titles(scr)
+        assert "MASK & CHANNEL MAPPING" in _section_titles(scr)
+        assert "timelapse" in scr._settings_model._widgets
 
     def test_classify_hides_cellpose_and_needs_no_other_bucket(self, qtbot):
         """It used to assert ``titles[-1] == "OTHER"``.
@@ -321,8 +349,8 @@ class TestCategoryGrouping:
         trailing bucket ``build_sections`` emits for keys in no category at
         all. Classify rendered one holding exactly ``custom_model``, because
         that key was filed under "Cellpose" and Classify hides Cellpose. The
-        key now lives in "Model Training" beside ``model_type``, which is the
-        question it answers, so there is nothing left to bucket.
+        key now lives in "Model Architecture" beside ``model_type``, which is
+        the question it answers, so there is nothing left to bucket.
 
         The escape hatch itself still works and is covered by
         ``test_uncategorised_keys_still_land_in_other`` below.
@@ -332,14 +360,21 @@ class TestCategoryGrouping:
         assert "CELLPOSE" not in titles
         assert "OTHER" not in titles
         assert "custom_model" in scr._settings_model._widgets
-        assert "MODEL TRAINING" in titles
+        assert "MODEL ARCHITECTURE" in titles
+        assert "OPTIMIZATION & LOSS" in titles
 
     def test_uncategorised_keys_still_land_in_other(self, qtbot, monkeypatch):
         """The bucket is a safety net, not a section anyone should see."""
-        import spacr.settings as S
-        trimmed = {name: [k for k in keys if k != "epochs"]
-                   for name, keys in S.categories.items()}
-        monkeypatch.setattr(S, "categories", trimmed)
+        from spacr.qt.screens import settings_model as sm
+        real = sm.categories_for_app
+
+        def without_epochs(app_key, categories):
+            return {
+                name: [key for key in keys if key != "epochs"]
+                for name, keys in real(app_key, categories).items()
+            }
+
+        monkeypatch.setattr(sm, "categories_for_app", without_epochs)
         scr = _make_screen(qtbot, "classify")
         titles = _section_titles(scr)
         assert titles[-1] == "OTHER"
@@ -351,18 +386,32 @@ class TestCategoryGrouping:
         assert len(titles) == len(set(titles)), "a category was emitted twice"
 
     def test_curated_and_fallback_section_hints(self, qtbot):
-        """Curated blurbs are used verbatim; anything else gets the generic."""
+        """Curated blurbs are used verbatim; anything else gets the generic.
+
+        Classify's "Plate Sources & Workflow" used to be asserted as the
+        FALLBACK here -- it was one of nine Classify categories that had no
+        curated entry. Every rendered category has one now (see
+        tests/qt/test_category_tooltips.py), so it is the curated arm, and
+        the fallback is exercised on a title that is not a category at all.
+        """
+        from spacr.qt.screens.app_screen import SECTION_HINTS as HINTS
+        from spacr.qt.screens.settings_model import category_tooltip
+        from spacr.qt.widgets.section import Section
+
         scr = _make_screen(qtbot, "classify")
         by_title = {s.title(): s for s in _sections(scr)}
-        assert by_title["PATHS"]._header.toolTip() == SECTION_HINTS["PATHS"]
-        # It used to read the generic sentence off Classify's "OTHER"
-        # section; Classify no longer has one (see
+        curated = HINTS["PLATE SOURCES & WORKFLOW"]
+        assert by_title["PLATE SOURCES & WORKFLOW"]._header.toolTip() == curated
+        assert "Settings that control" not in curated
+
+        # "Other" is the trailing bucket for keys in no category -- not a
+        # heading anyone chose, so it deliberately has no blurb. Classify no
+        # longer renders one (see
         # test_classify_hides_cellpose_and_needs_no_other_bucket), so the
         # fallback is exercised on a section built directly instead.
-        from spacr.qt.widgets.section import Section
-        from spacr.qt.screens.app_screen import SECTION_HINTS as HINTS
+        assert "OTHER" not in HINTS
         stray = Section("Other")
-        stray.set_hint(HINTS.get("OTHER", "Settings that control other."))
+        stray.set_hint(category_tooltip("classify", "Other"))
         assert stray._header.toolTip() == "Settings that control other."
 
     def test_no_settings_defined_banner(self, qtbot, monkeypatch):
@@ -737,7 +786,7 @@ class TestEmptyStateAndSrc:
         assert len(buttons) == 1
         btn = buttons[0]
         assert btn.table == COLUMN_TABLES["annotation_column"] == "png_list"
-        scr._settings_model._widgets["src"].setText("/data/plate9")
+        scr._settings_model.set_value_for_key("src", ["/data/plate9"])
         assert btn.db_path() == "/data/plate9"
 
     def test_non_column_fields_get_no_picker(self, qtbot):
@@ -783,7 +832,7 @@ class TestHoverHints:
         assert (scr._btn_run.pos(), scr._btn_stop.pos()) == before
 
     def test_enter_and_leave_drive_the_hint_strip_and_the_popup(self, qtbot):
-        from spacr.qt.widgets.hover_tooltip import HoverTooltip
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip, split_api_link
         scr = _make_screen(qtbot, "mask")
         label, hint = next(iter(scr._hint_map.items()))
         html = scr._html_tip_map[label]
@@ -793,7 +842,13 @@ class TestHoverHints:
         scr.eventFilter(label, QEvent(QEvent.Enter))
         assert scr._hint_strip.text() == hint
         assert tip._anchor is label
-        assert tip._label.text() == html
+        # The popup renders the body's trailing documentation link as its own
+        # blue "API" word, so the prose it shows is that body without the
+        # anchor. The URL is not lost — it moves to the word.
+        body, url = split_api_link(html)
+        assert tip._label.text() == body
+        assert tip.api_url() == url
+        assert url.startswith("https://")
 
         scr.eventFilter(label, QEvent(QEvent.Leave))
         assert scr._hint_strip.text() == scr._default_hint()
@@ -1145,8 +1200,10 @@ class TestErrorRouting:
         scr._settings_model._widgets["batch_size"].setValue(11)
         scr._settings_model._widgets["denoise"].setChecked(True)
         scr._on_pipeline_error("BOOM-TB")
-
+        # The button is revealed synchronously; the report is filed on a
+        # worker, so everything below it waits for the job.
         assert scr._btn_file_issue.isEnabled()
+        _settle(qtbot, scr)
         assert seen["tb"] == "BOOM-TB"
         assert seen["app"] == "mask"
         # The snapshot carries the user's actual settings, typed.
@@ -1173,6 +1230,11 @@ class TestErrorRouting:
         monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue", _boom)
         scr = _make_screen(qtbot, "mask")
         scr._on_pipeline_error("TB")
+        # The failure now happens on the worker, so it comes back through the
+        # completion handler rather than out of the `except` around the call.
+        # It must still reach the console: an auto-filed report that silently
+        # fails to send is worse than one that fails loudly.
+        _settle(qtbot, scr)
         assert "[issue] auto-file failed: github down" in _console_text(
             scr._console)
 
@@ -1202,6 +1264,7 @@ class TestErrorRouting:
 
         scr._settings_model._widgets = _HostileWidgets()
         scr._on_file_issue()
+        _settle(qtbot, scr)
         assert seen["settings"] == {}
         assert "[issue] opened pre-filled report" in _console_text(
             scr._console)
@@ -1217,6 +1280,7 @@ class TestErrorRouting:
         box.setChecked(True)
         scr._settings_model._widgets = {"a_flag": box, "a_label": QLabel("x")}
         scr._on_file_issue()
+        _settle(qtbot, scr)
         assert seen["settings"] == {"a_flag": True}
 
     def test_file_issue_button_is_inert_without_a_traceback(self, qtbot,
@@ -1236,6 +1300,7 @@ class TestErrorRouting:
         scr._last_error_text = "TB"
         scr._settings_model = None
         scr._on_file_issue()
+        _settle(qtbot, scr)
         assert seen["settings"] == {}
 
     def test_explain_error_opens_the_flow_and_emits_for_mainwindow(
@@ -1468,6 +1533,27 @@ class TestRuntimePanels:
         assert scr._hyperparam._settings["src"] == \
             scr._settings_model.collect()["src"]
 
+    def test_umap_search_reads_src_changed_while_panel_is_already_open(
+            self, qtbot):
+        """Typing or dropping a path after opening Search must not go stale."""
+        from spacr.hyperparam import SearchResult
+
+        scr = _make_screen(qtbot, "umap")
+        scr._hp_switch.setChecked(True)
+        captured = {}
+
+        def _search(request, _on_trial, _should_stop):
+            captured["src"] = request.settings.get("src")
+            return SearchResult(
+                space=request.space, metric=request.criterion)
+
+        scr._hyperparam.set_search_fn(_search)
+        scr._settings_model.set_value_for_key(
+            "src", "/data/dropped-after-search-opened")
+        with qtbot.waitSignal(scr._hyperparam.search_finished, timeout=5000):
+            assert scr._hyperparam.run_search()
+        assert captured["src"] == "/data/dropped-after-search-opened"
+
     def test_hyperparam_switch_without_a_settings_model(self, qtbot):
         scr = _make_screen(qtbot, "umap")
         scr._settings_model = None
@@ -1571,6 +1657,8 @@ class TestLivePreviewAutoload:
         tif = self._tiff(tmp_path)
         scr = _make_screen(qtbot, "mask")
         scr._autoload_live_preview(str(tif))
+        qtbot.waitUntil(
+            lambda: scr._live_preview._image_path is not None, timeout=5000)
         assert scr._live_preview._image_path == tif
 
     def test_autoload_ignores_placeholders_and_missing_folders(
@@ -1579,12 +1667,18 @@ class TestLivePreviewAutoload:
         for value in ("", "   ", "path", "/path/to/src", "/path",
                       str(tmp_path / "nope"), __file__):
             scr._autoload_live_preview(value)
+        qtbot.waitUntil(
+            lambda: not scr._live_preview._image_loaders, timeout=5000)
+        for value in ("", "   ", "path", "/path/to/src", "/path",
+                      str(tmp_path / "nope"), __file__):
             assert scr._live_preview._image_path is None, value
 
     def test_autoload_ignores_a_folder_with_no_images(self, qtbot, tmp_path):
         (tmp_path / "empty").mkdir()
         scr = _make_screen(qtbot, "mask")
         scr._autoload_live_preview(str(tmp_path / "empty"))
+        qtbot.waitUntil(
+            lambda: not scr._live_preview._image_loaders, timeout=5000)
         assert scr._live_preview._image_path is None
 
     def test_autoload_is_a_noop_on_screens_without_a_preview(self, qtbot,
@@ -1709,7 +1803,9 @@ class TestUsage:
 
     def test_refresh_usage_writes_real_percentages(self, qtbot):
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)               # the poll the constructor started
         scr._refresh_usage()
+        _settle(qtbot, scr)
         import psutil                      # already a spaCR dependency
         assert _pct(scr._usage_ram) == pytest.approx(
             psutil.virtual_memory().percent, abs=5.0)
@@ -1722,9 +1818,11 @@ class TestUsage:
         fake.getGPUs = lambda: []
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)
         scr._usage_gpu.set_value(55)
         scr._usage_vram.set_value(55)
         scr._refresh_usage()
+        _settle(qtbot, scr)
         assert _pct(scr._usage_gpu) == 0
         assert _pct(scr._usage_vram) == 0
 
@@ -1739,7 +1837,9 @@ class TestUsage:
         fake.getGPUs = lambda: [_Gpu()]
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)
         scr._refresh_usage()
+        _settle(qtbot, scr)
         assert _pct(scr._usage_gpu) == 25
         assert _pct(scr._usage_vram) == 50
 
@@ -1755,9 +1855,11 @@ class TestUsage:
         fake.cpu_percent = _boom
         fake.cpu_count = _boom
         scr = _make_screen(qtbot, "mask")
+        _settle(qtbot, scr)
         scr._usage_ram.set_value(42)
         monkeypatch.setitem(sys.modules, "psutil", fake)
         scr._refresh_usage()
+        _settle(qtbot, scr)
         assert _pct(scr._usage_ram) == 42
 
     def test_per_core_toggle_creates_one_bar_per_core_and_fills_them(

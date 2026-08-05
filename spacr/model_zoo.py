@@ -131,6 +131,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import re
 import time
@@ -142,6 +143,8 @@ from typing import (
 )
 
 import numpy as np
+
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     "BUNDLED_REMOTE_MODELS",
@@ -1151,7 +1154,8 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
 
 
 def catalogue(include_bundled: bool = True, remote: bool = True,
-              catalogue_path: Any = None) -> List[ModelEntry]:
+              catalogue_path: Any = None,
+              include_plugins: bool = True) -> List[ModelEntry]:
     """Everything the zoo knows about without scanning the user's disks.
 
     That is: the models bundled with the installed package (whatever
@@ -1167,6 +1171,9 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     :param remote: list declared remote entries.
     :param catalogue_path: a JSON catalogue to add; defaults to
         ``$SPACR_MODEL_CATALOGUE`` when that names a file.
+    :param include_plugins: include entries returned by installed spaCR model
+        providers. Provider failures are recorded in plugin diagnostics and do
+        not hide built-in entries.
     :returns: bundled entries first, then remote ones already present locally
         are dropped (a downloaded model is listed once, as the local file).
     """
@@ -1177,16 +1184,51 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
             entries.extend(discover_local(root, max_depth=2))
 
     if remote:
-        have = {e.name for e in entries}
+        have = {(e.key, e.name) for e in entries}
         for record in BUNDLED_REMOTE_MODELS:
             entry = _entry_from_mapping(record)
-            if entry.name not in have:
+            if (entry.key, entry.name) not in have:
                 entries.append(entry)
+                have.add((entry.key, entry.name))
         path = catalogue_path or os.environ.get(CATALOGUE_ENV_VAR, "")
         if path and os.path.isfile(str(path)):
             for entry in load_catalogue_file(path):
-                if entry.name not in have:
+                if (entry.key, entry.name) not in have:
                     entries.append(entry)
+                    have.add((entry.key, entry.name))
+    if include_plugins:
+        try:
+            from .plugins import (
+                load_object, model_providers, record_diagnostic,
+            )
+            have = {(entry.key, entry.name) for entry in entries}
+            for plugin_name, contribution in model_providers():
+                try:
+                    provider = load_object(contribution.provider)
+                    if not callable(provider):
+                        raise TypeError(
+                            f"{contribution.provider!r} is not callable"
+                        )
+                    produced = provider()
+                    if isinstance(produced, (ModelEntry, Mapping)):
+                        produced = (produced,)
+                    for item in produced or ():
+                        entry = (
+                            item if isinstance(item, ModelEntry)
+                            else _entry_from_mapping(item)
+                        )
+                        identity = (entry.key, entry.name)
+                        if identity not in have:
+                            entries.append(entry)
+                            have.add(identity)
+                except Exception as exc:
+                    record_diagnostic(
+                        plugin_name,
+                        f"Model provider {contribution.key!r} failed",
+                        exc,
+                    )
+        except Exception:
+            LOG.exception("Could not initialise plugin model providers")
     return entries
 
 

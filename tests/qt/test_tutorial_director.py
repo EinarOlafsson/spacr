@@ -62,6 +62,9 @@ class SpyRecorder:
         self._inner = inner
         self.positions: list[tuple[float, float]] = []
         self.highlights: list = []
+        self.dim_backgrounds: list[bool] = []
+        self.refresh_bases: list[bool] = []
+        self.pointer_states: list[bool] = []
 
     def __getattr__(self, name):
         return getattr(self._inner, name)
@@ -74,11 +77,18 @@ class SpyRecorder:
     def cursor_pos(self, value):
         self._inner.cursor_pos = value
 
-    def snap(self, cursor_pos=None, highlight_rect=None):
+    def snap(self, cursor_pos=None, highlight_rect=None,
+             dim_background=True, refresh_base=False, show_pointer=False):
         path = self._inner.snap(cursor_pos=cursor_pos,
-                                  highlight_rect=highlight_rect)
+                                  highlight_rect=highlight_rect,
+                                  dim_background=dim_background,
+                                  refresh_base=refresh_base,
+                                  show_pointer=show_pointer)
         self.positions.append(self._inner.cursor_pos)
         self.highlights.append(highlight_rect)
+        self.dim_backgrounds.append(dim_background)
+        self.refresh_bases.append(refresh_base)
+        self.pointer_states.append(show_pointer)
         return path
 
 
@@ -546,6 +556,26 @@ def test_animate_cursor_starts_from_wherever_the_cursor_rests(geo_window,
     shutil.rmtree(d._workdir, ignore_errors=True)
 
 
+def test_animate_cursor_propagates_the_step_dimming_choice(
+        geo_window, tmp_path):
+    from spacr.qt.tutorial.engine import Recorder
+    win, _ = geo_window
+    d = make_director(win, [], tmp_path / "out")
+    inner = Recorder(win, d._workdir / "frames", size=(400, 300))
+    spy = SpyRecorder(inner)
+    d._recorder = spy
+
+    d._animate_cursor(
+        (100.0, 200.0),
+        frames=3,
+        highlight_rect=(1, 2, 3, 4),
+        dim_background=False,
+    )
+
+    assert spy.dim_backgrounds == [False, False, False]
+    shutil.rmtree(d._workdir, ignore_errors=True)
+
+
 def test_animate_cursor_with_zero_frames_is_a_no_op(geo_window, tmp_path):
     """A step whose whole budget is under 3 frames gets frames=0 from
     budget//3; that must not divide by zero or emit frames."""
@@ -577,7 +607,7 @@ def test_run_capture_spends_exactly_the_frame_budget_per_step(
 
     steps = [
         engine.Step("targeted step", action=action, target=(btn, None),
-                     highlight=btn, hold_ms=0),
+                     highlight=btn, hold_ms=0, show_pointer=True),
         engine.Step("untargeted step", hold_ms=0),
     ]
     d = make_director(win, steps, tmp_path / "out",
@@ -600,6 +630,68 @@ def test_run_capture_spends_exactly_the_frame_budget_per_step(
     assert len(frames) == budget * 2
     assert frames[0].name == "frame_000000.png"
     assert frames[-1].name == f"frame_{budget * 2 - 1:06d}.png"
+    shutil.rmtree(d._workdir, ignore_errors=True)
+
+
+def test_run_capture_uses_keyframes_instead_of_regrabbing_static_ui(
+        geo_window, tmp_path, monkeypatch):
+    """One initial screenshot plus one after each UI action is enough;
+    pointer-only frames must reuse those keyframes."""
+    from spacr.qt.tutorial import engine
+    win, _ = geo_window
+    monkeypatch.setattr(engine, "VIDEO_SIZE", (320, 240))
+
+    refreshes = []
+    real_refresh = engine.Recorder.refresh_base
+
+    def counted_refresh(recorder):
+        refreshes.append(recorder.frame_idx)
+        return real_refresh(recorder)
+
+    monkeypatch.setattr(engine.Recorder, "refresh_base", counted_refresh)
+    steps = [
+        engine.Step("static", hold_ms=0),
+        engine.Step("changes", action=lambda: None, hold_ms=0),
+        engine.Step("static again", hold_ms=0),
+    ]
+    d = make_director(
+        win, steps, tmp_path / "out",
+        narrator=FakeNarrator(seconds=0.5), fps=6,
+    )
+    d._prerender_audio()
+    d._run_capture()
+
+    # Initial UI + one post-action keyframe, despite nine output frames.
+    assert d._recorder.frame_idx == 9
+    assert len(refreshes) == 2
+    shutil.rmtree(d._workdir, ignore_errors=True)
+
+
+def test_live_capture_step_regrabs_genuinely_animated_content(
+        geo_window, tmp_path, monkeypatch):
+    from spacr.qt.tutorial import engine
+    win, _ = geo_window
+    monkeypatch.setattr(engine, "VIDEO_SIZE", (320, 240))
+
+    refreshes = []
+    real_refresh = engine.Recorder.refresh_base
+
+    def counted_refresh(recorder):
+        refreshes.append(recorder.frame_idx)
+        return real_refresh(recorder)
+
+    monkeypatch.setattr(engine.Recorder, "refresh_base", counted_refresh)
+    step = engine.Step("animation", hold_ms=0, live_capture=True)
+    d = make_director(
+        win, [step], tmp_path / "out",
+        narrator=FakeNarrator(seconds=0.5), fps=6,
+    )
+    d._prerender_audio()
+    d._run_capture()
+
+    assert d._recorder.frame_idx == 3
+    # Initial keyframe, then a fresh app grab for each output frame.
+    assert len(refreshes) == 1 + d._recorder.frame_idx
     shutil.rmtree(d._workdir, ignore_errors=True)
 
 
@@ -841,9 +933,10 @@ def test_step_defaults_and_module_constants():
     assert (s.narration, s.action, s.target, s.highlight) == (
         "hello world", None, None, None)
     assert s.hold_ms == engine.DEFAULT_HOLD_MS == 500
+    assert s.show_pointer is False
     assert engine.FRAME_RATE == 30
     assert engine.VIDEO_SIZE == (1920, 1080)
-    assert engine.CURSOR_MOVE_FRAMES == 12
+    assert engine.CURSOR_MOVE_FRAMES == 60
     assert engine.DEFAULT_VOICE.name.endswith(".onnx")
 
 

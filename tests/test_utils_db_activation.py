@@ -180,10 +180,10 @@ def test_organelle_diagnostic_modes(morphology, method):
         "organelle_clahe": False, "organelle_clahe_clip_limit": 0.01,
         "organelle_network_threshold": "otsu",
     }
-    try:
-        out = _organelle_diagnostic(_blob_img(), morphology, method, settings)
-    except Exception as e:
-        pytest.skip(f"{morphology}/{method} diagnostic unavailable: {e}")
+    # Unguarded: every (morphology, method) pair below is one this function
+    # advertises, and "diagnostic unavailable" was the skip that let an
+    # unimplemented pair look the same as a working one.
+    out = _organelle_diagnostic(_blob_img(), morphology, method, settings)
     assert out is not None
     img, title = out[0], out[1]
     assert isinstance(title, str) and title

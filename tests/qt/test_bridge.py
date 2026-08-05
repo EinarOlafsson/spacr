@@ -1,12 +1,9 @@
 """PipelineWorker + stream redirector tests."""
 from __future__ import annotations
 
-import io
-import sys
-
 import pytest
 
-from PySide6.QtCore import QThread, QCoreApplication
+from PySide6.QtCore import QThread
 
 from spacr.qt.bridge import (
     PipelineWorker,
@@ -16,6 +13,17 @@ from spacr.qt.bridge import (
     make_thread,
     registry,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolated_worker_journal(monkeypatch, tmp_path):
+    """GUI workers must not write test runs into the user's real journal."""
+    from spacr import run_journal
+
+    root = tmp_path / "runs"
+    root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: root)
+    return root
 
 
 def test_stream_redirector_emits_line_by_line():
@@ -52,6 +60,45 @@ def test_pipeline_worker_success(qtbot, qt_theme_applied):
     assert any("running" in l for l in lines)
 
 
+def test_pipeline_worker_automatically_writes_manifest(
+        qtbot, qt_theme_applied, _isolated_worker_journal):
+    import json
+
+    worker = PipelineWorker(lambda settings: None, {"random_seed": 17},
+                            app_key="mask")
+    worker.run()
+
+    manifests = list(_isolated_worker_journal.glob("*/manifest.json"))
+    assert len(manifests) == 1
+    manifest = json.loads(manifests[0].read_text())
+    assert manifest["app_key"] == "mask"
+    assert manifest["status"] == "success"
+    assert manifest["seeds"]["declared"]["random_seed"] == 17
+
+
+def test_read_only_worker_can_explicitly_skip_journal(
+        qtbot, qt_theme_applied, _isolated_worker_journal):
+    worker = PipelineWorker(
+        lambda settings: None, {}, app_key="history_refresh", journal=False,
+    )
+    worker.run()
+    assert list(_isolated_worker_journal.iterdir()) == []
+
+
+def test_pipeline_worker_records_console_warnings(
+        qtbot, qt_theme_applied, _isolated_worker_journal):
+    import json
+
+    def warns(_settings):
+        print("WARNING: low object count")
+
+    PipelineWorker(warns, {}, app_key="measure").run()
+    manifest_path = next(_isolated_worker_journal.glob("*/manifest.json"))
+    manifest = json.loads(manifest_path.read_text())
+    assert manifest["warnings"] == ["WARNING: low object count"]
+    assert "process_cpu_s" in manifest["performance"]
+
+
 def test_pipeline_worker_captures_exception(qtbot, qt_theme_applied):
     def _fn(settings):
         raise RuntimeError("boom")
@@ -65,6 +112,30 @@ def test_pipeline_worker_captures_exception(qtbot, qt_theme_applied):
     assert finished == [False]
     assert len(errors) == 1
     assert "boom" in errors[0]
+
+
+@pytest.mark.parametrize(
+    ("code", "expected_ok", "expects_error"),
+    [(None, True, False), (0, True, False), (1, False, True), ("failed", False, True)],
+)
+def test_pipeline_worker_preserves_system_exit_status(
+        qtbot, qt_theme_applied, code, expected_ok, expects_error):
+    """A non-zero CLI-style exit must not become a successful GUI run."""
+    def _fn(settings):
+        raise SystemExit(code)
+
+    worker = PipelineWorker(_fn, {})
+    errors = []
+    finished = []
+    worker.error.connect(errors.append)
+    worker.finished.connect(finished.append)
+
+    worker.run()
+
+    assert finished == [expected_ok]
+    assert bool(errors) is expects_error
+    if expects_error:
+        assert "SystemExit" in errors[0]
 
 
 def test_make_thread_returns_thread_and_worker():

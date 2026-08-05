@@ -178,7 +178,9 @@ def test_set_screen_setting_sets_metadata_type(qtbot):
 
 
 def test_report_folder_structure_logs_detected_labels(qtbot, tmp_path):
+    from spacr.qt import dnd_handlers as dh
     from spacr.qt.dnd_handlers import _report_folder_structure
+
     # plate/well/field folder layout with an image at the leaf
     leaf = tmp_path / "plate1" / "A01" / "f01"
     leaf.mkdir(parents=True)
@@ -192,8 +194,19 @@ def test_report_folder_structure_logs_detected_labels(qtbot, tmp_path):
     class _Screen:
         _console = _Console()
 
+    screen = _Screen()
     # Should not raise; if folder_metadata detects a layout, it logs it.
-    _report_folder_structure(tmp_path, _Screen())
+    # The walk runs on a worker thread, so nothing is logged yet — waiting
+    # for the scanner is part of the contract now, and draining it is not
+    # optional: a QThread destroyed while running aborts the process.
+    _report_folder_structure(tmp_path, screen)
+    try:
+        qtbot.waitUntil(lambda: not dh.scan_is_busy(screen)
+                        and dh.active_scan_jobs(screen) == 0, timeout=20000)
+    finally:
+        scanner = getattr(screen, "_dnd_scanner", None)
+        if scanner is not None:
+            scanner.shutdown()
     # (Detection may or may not fire on this tiny synthetic tree; the contract
     # we assert is that it never crashes and only ever logs folder-structure
     # info when a template is found.)

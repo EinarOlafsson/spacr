@@ -204,7 +204,10 @@ def test_train_model_invalid_model_type_bails_out(tmp_path, monkeypatch, capsys)
 @pytest.mark.parametrize("opt_name,module,attr", [
     ("adamw", "spacr.deep_spacr", "AdamW"),
     ("Adam", "torch.optim", "Adam"),          # mixed case -> exercises .lower()
+    ("adamax", "torch.optim", "Adamax"),
     ("adagrad", "spacr.deep_spacr", "Adagrad"),
+    ("adadelta", "torch.optim", "Adadelta"),
+    ("asgd", "torch.optim", "ASGD"),
     ("sgd", "torch.optim", "SGD"),
     ("rmsprop", "torch.optim", "RMSprop"),
     ("nadam", "torch.optim", "NAdam"),

@@ -7,6 +7,16 @@ messages, separated by dark-gray "topic" bars ("Mask", "Measure",
 can type at any time; a switch on the left decides whether the
 message goes to the AI or is ignored.
 
+Resizing
+--------
+The scrolling console box and the AI chat box below it are the two halves
+of a vertical ``QSplitter``, so the handle between them can be dragged to
+trade height: a taller chat box is a shorter console, pixel for pixel. The
+default seats the handle exactly where the old fixed-height layout drew it,
+so nothing moves for a user who never drags. When the panel is built with a
+``persist_key`` the position is saved per screen (``QSplitter.saveState``,
+under ``console/split/<key>``) and restored the next time that screen opens.
+
 Public API
 ----------
 * begin_topic(label)          — insert a dark-gray divider bar
@@ -41,7 +51,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import QRect, QSize, Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QByteArray, QSize, Qt, QThread, Signal
 from PySide6.QtGui import (
     QFont,
     QFontDatabase,
@@ -57,17 +67,19 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSpinBox,
+    QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
 )
 
 from .. import ai as ai_module
-from .. import iconset
 from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
+from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, SPACING, active_palette
+from ..verbose_logger import console_write, console_write_in_progress
 
 
 # ---------------------------------------------------------------------------
@@ -143,6 +155,95 @@ def ai_color_for_provider(provider_name: Optional[str]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Console / AI-chat split
+#
+# The console box and the AI chat box sit in a vertical QSplitter so dragging
+# the handle trades height between them — a bigger chat box is a smaller
+# console and vice versa, the same gesture the live-preview card above already
+# uses against the console.
+#
+# The default deliberately reproduces what the panel looked like BEFORE the
+# splitter existed: the chat input was capped at 120px and the console took
+# everything else. A user who never touches the handle therefore sees no
+# change at all. The console is the busier panel during a run, which is the
+# state the app spends its long minutes in, so it keeps the lion's share by
+# default; the user who mostly talks to the AI between runs drags once and the
+# position is remembered.
+# ---------------------------------------------------------------------------
+
+#: Default height, in pixels, of the AI chat box — the height the old
+#: hard-coded ``setMaximumHeight(120)`` pinned it at.
+DEFAULT_CHAT_HEIGHT = 120
+
+#: Floor for the chat box. Also the splitter's stop, since
+#: ``setChildrenCollapsible(False)`` honours a child's minimum.
+CHAT_MIN_HEIGHT = 48
+
+#: Floor for the console box. Without one, a QScrollArea's minimum size hint
+#: is a couple of pixels and "not collapsible" would still let the console be
+#: dragged down to a sliver.
+CONSOLE_MIN_HEIGHT = 80
+
+#: QSettings key prefix for the persisted splitter state, one entry per
+#: screen (``console/split/mask``, ``console/split/measure``, …). Screens are
+#: used for different things and a user who wants a tall chat box on one does
+#: not necessarily want it on all of them.
+_SPLIT_KEY_PREFIX = "console/split"
+
+
+def _settings():
+    """The app's ``QSettings``, borrowed from :mod:`spacr.qt.preferences`.
+
+    Going through preferences rather than constructing ``QSettings`` here
+    keeps the org/app pair single-sourced — and, just as important, keeps this
+    module inside the sandbox the test suite installs, which redirects by
+    *path* and so only catches settings opened the same way everything else
+    opens them.
+    """
+    from ..preferences import _settings as _prefs_settings
+    return _prefs_settings()
+
+
+def get_split_state(screen_key: str):
+    """Return the saved ``QSplitter.saveState()`` blob for ``screen_key``.
+
+    :param screen_key: the screen's app key, e.g. ``"mask"``.
+    :returns: the stored ``QByteArray``, or ``None`` when the user has never
+        dragged this screen's handle (or the stored value is unusable).
+    """
+    key = str(screen_key or "").strip()
+    if not key:
+        return None
+    try:
+        raw = _settings().value(f"{_SPLIT_KEY_PREFIX}/{key}")
+    except Exception:
+        return None
+    # A settings backend can hand back a str (INI round-trip) or None. Only a
+    # real byte blob is restorable; anything else means "no preference", which
+    # leaves the caller on the default split rather than on a broken one.
+    if isinstance(raw, (bytes, bytearray, QByteArray)) and len(raw):
+        return QByteArray(raw)
+    return None
+
+
+def set_split_state(screen_key: str, state) -> None:
+    """Persist a ``QSplitter.saveState()`` blob against ``screen_key``.
+
+    Stored as the splitter's own state rather than as a pixel pair on
+    purpose: a saved ``[572, 120]`` means something different on a laptop
+    panel than on the 4K display the same user docks into, whereas
+    ``restoreState`` is the mechanism Qt itself defines for this.
+    """
+    key = str(screen_key or "").strip()
+    if not key:
+        return
+    try:
+        _settings().setValue(f"{_SPLIT_KEY_PREFIX}/{key}", QByteArray(state))
+    except Exception:
+        pass
+
+
+# ---------------------------------------------------------------------------
 # Divider bar with a topic label
 # ---------------------------------------------------------------------------
 
@@ -163,6 +264,10 @@ class _TopicBar(QFrame):
                                 SPACING["md"], SPACING["xs"])
         self._label = QLabel(label)
         self._label.setObjectName("ConsoleTopicLabel")
+        # Topic history is presentation generated in the language active when
+        # it was appended. Do not reinterpret composite module/function text
+        # during a later whole-window language switch.
+        self._label.setProperty("i18nSkipText", True)
         if accent:
             self._label.setStyleSheet(
                 f"QLabel#ConsoleTopicLabel {{ color: {accent}; "
@@ -183,6 +288,7 @@ class _WorkingDots(QLabel):
     def __init__(self, color: str = AI_COLOR_DEFAULT, parent=None):
         super().__init__(parent)
         self.setObjectName("ConsoleWorkingDots")
+        self.setProperty("i18nSkipText", True)
         self._color = color
         self._n = 0
         self.setStyleSheet(
@@ -239,6 +345,9 @@ class _StdoutBlock(QPlainTextEdit):
 
     LINE_HEIGHT_PERCENT = 145
 
+    #: Characters kept in one block. Older text is dropped from the head.
+    MAX_CHARS = 200_000
+
     def __init__(self, text: str = "", error: bool = False, parent=None,
                  text_color: Optional[str] = None):
         super().__init__(parent)
@@ -265,7 +374,12 @@ class _StdoutBlock(QPlainTextEdit):
             text_color = color_error() if error else color_output()
         self._text_color = text_color
         self._refresh_style()
-        self._buf: List[str] = []
+        #: Characters currently in the document. Tracked rather than derived
+        #: from ``toPlainText()``, which copies the whole document.
+        self._chars = 0
+        #: ``sizeHint`` cache — see :meth:`sizeHint`.
+        self._size_key: tuple = ()
+        self._size_value = 32
         self._user_height: Optional[int] = None
         self._height_handle = _BlockHeightHandle(self)
         self._height_handle.show()
@@ -283,16 +397,25 @@ class _StdoutBlock(QPlainTextEdit):
                 self.objectName(), self._text_color, self._font_pt,
                 SPACING["sm"], SPACING["md"]))
 
-    def _apply_line_spacing(self) -> None:
-        """Apply 145% leading to every paragraph in the plain-text document."""
-        cursor = QTextCursor(self.document())
-        cursor.select(QTextCursor.Document)
+    def _block_format(self) -> QTextBlockFormat:
+        """The 145% leading every paragraph in this block carries."""
         block_format = QTextBlockFormat()
         block_format.setLineHeight(
             float(self.LINE_HEIGHT_PERCENT),
             QTextBlockFormat.ProportionalHeight.value,
         )
-        cursor.mergeBlockFormat(block_format)
+        return block_format
+
+    def _apply_line_spacing(self) -> None:
+        """Apply the leading to every paragraph in the document.
+
+        Whole-document, therefore O(document): only for the rare events that
+        genuinely change every paragraph, such as a font-size change.
+        :meth:`append` formats the paragraphs it creates and nothing else.
+        """
+        cursor = QTextCursor(self.document())
+        cursor.select(QTextCursor.Document)
+        cursor.mergeBlockFormat(self._block_format())
 
     def set_console_font_pt(self, pt: int) -> None:
         """Apply the console size while retaining Open Sans Light."""
@@ -311,31 +434,80 @@ class _StdoutBlock(QPlainTextEdit):
         return self.toPlainText()
 
     def append(self, text: str) -> None:
-        """Append ``text`` to the block, capping the buffer at 200k chars."""
-        self._buf.append(text)
-        # Cap the buffer to keep the UI snappy for very long runs.
-        joined = "".join(self._buf)
-        if len(joined) > 200_000:
-            joined = joined[-200_000:]
-            self._buf = [joined]
-        self.setPlainText(joined)
-        self._apply_line_spacing()
+        """Append ``text`` in place, trimming the head past :attr:`MAX_CHARS`.
+
+        Costs what the new text costs, not what the console already holds.
+        This used to rebuild the entire document on every line —
+        ``setPlainText("".join(buf))`` plus a document-wide
+        ``mergeBlockFormat`` — which made a run's own output quadratic in
+        its length. Measured on this tree: 0.56 ms per line for the first
+        500, 6.64 ms per line by line 3000, and level there only because
+        the 200k cap had been reached.
+
+        That is not merely slow. With Verbose logging on,
+        ``spacr.logging_util``'s profile hook emits a record on entry to
+        every spaCR function — including the ones inside Qt event delivery
+        — and each record lands here. At 7 ms a line the GUI thread cannot
+        drain its own queue: the process sits at 100% CPU making no forward
+        progress, which is exactly how the Qt shard "live-lock" presented.
+        """
+        if not text:
+            return
+        doc = self.document()
+        cursor = QTextCursor(doc)
+        cursor.movePosition(QTextCursor.End)
+        first_touched = cursor.blockNumber()
+        cursor.insertText(text)
+        self._chars += len(text)
+        # Format only the paragraphs this insert created or extended. Qt does
+        # copy the previous block's format into a new one, but not on every
+        # insertion path, so it is set rather than assumed — over the new
+        # range only.
+        fmt_cursor = QTextCursor(doc.findBlockByNumber(first_touched))
+        fmt_cursor.setPosition(cursor.position(), QTextCursor.KeepAnchor)
+        fmt_cursor.mergeBlockFormat(self._block_format())
+        self._trim_to_cap()
         self.updateGeometry()
 
+    def _trim_to_cap(self) -> None:
+        """Drop whole paragraphs off the head until back under the cap.
+
+        Removing from the front costs what is removed. Re-setting the
+        document to its own tail — the previous approach — costs what is
+        kept, on every single line once the cap is reached.
+        """
+        doc = self.document()
+        while self._chars > self.MAX_CHARS and doc.blockCount() > 1:
+            block = doc.begin()
+            removed = block.length()      # paragraph text + its separator
+            cursor = QTextCursor(block)
+            cursor.movePosition(
+                QTextCursor.NextBlock, QTextCursor.KeepAnchor)
+            cursor.removeSelectedText()
+            self._chars = max(0, self._chars - removed)
+
     def sizeHint(self) -> QSize:
-        """Report the full document height; the outer console owns scrolling."""
+        """Report the full document height; the outer console owns scrolling.
+
+        Cached: Qt asks for a size hint several times per layout pass, and
+        the answer can only change when the text, the width or the font
+        does. Without the cache each of those calls walks every paragraph.
+        """
         if self._user_height is not None:
             return QSize(
                 max(120, super().sizeHint().width()), self._user_height)
-        layout = self.document().documentLayout()
-        height = 0.0
-        block = self.document().begin()
-        while block.isValid():
-            height += layout.blockBoundingRect(block).height()
-            block = block.next()
-        chrome = (2 * SPACING["sm"]) + 2
-        return QSize(max(120, super().sizeHint().width()),
-                     max(32, int(round(height)) + chrome))
+        key = (self._chars, self.viewport().width(), self._font_pt)
+        if key != self._size_key:
+            layout = self.document().documentLayout()
+            height = 0.0
+            block = self.document().begin()
+            while block.isValid():
+                height += layout.blockBoundingRect(block).height()
+                block = block.next()
+            chrome = (2 * SPACING["sm"]) + 2
+            self._size_key = key
+            self._size_value = max(32, int(round(height)) + chrome)
+        return QSize(max(120, super().sizeHint().width()), self._size_value)
 
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
@@ -375,9 +547,11 @@ class _BlockHeightHandle(QFrame):
         self.setObjectName("ConsoleSectionResizeHandle")
         self.setCursor(Qt.SizeVerCursor)
         self.setFixedHeight(self.HEIGHT)
-        self.setToolTip(
+        source = (
             "Drag to resize this console section. Double-click for auto height."
         )
+        self.setProperty("_spacr_i18n_tooltip", source)
+        self.setToolTip(tr(source))
 
     def sizeHint(self) -> QSize:
         return QSize(80, self.HEIGHT)
@@ -436,6 +610,7 @@ class _Bubble(QFrame):
         self._recalc_guard = False
         self._label = QLabel(self)
         self._label.setObjectName("ConsoleBubbleText")
+        self._label.setProperty("i18nSkipText", True)
         self._label.setTextFormat(Qt.RichText)
         self._label.setTextInteractionFlags(
             Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
@@ -457,7 +632,7 @@ class _Bubble(QFrame):
         lay.setSpacing(0)
         lay.addWidget(self._label)
         self._raw_text = ""
-        self._prefix = "spaCR user: " if role == "user" else "spaCR AI: "
+        self._prefix_source = "spaCR user" if role == "user" else "spaCR AI"
         if text:
             self.set_text(text)
 
@@ -466,7 +641,8 @@ class _Bubble(QFrame):
         self._raw_text = text or ""
         safe = self._raw_text.replace("<", "&lt;").replace(">", "&gt;")
         safe = safe.replace("\n", "<br>")
-        html = f'<span style="opacity:0.7;">{self._prefix}</span>{safe}'
+        prefix = tr(self._prefix_source)
+        html = f'<span style="opacity:0.7;">{prefix}: </span>{safe}'
         self._label.setText(html)
         self._recalc()
 
@@ -514,8 +690,16 @@ class _ChatInput(QTextEdit):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumHeight(48)
-        self.setMaximumHeight(120)
+        # The floor stays: one line of text plus the field's own padding. It
+        # doubles as the stop the splitter honours when the user drags the
+        # divider down onto the chat box.
+        self.setMinimumHeight(CHAT_MIN_HEIGHT)
+        # No ceiling. `setMaximumHeight(120)` used to live here, and it is
+        # exactly what made the chat box unresizable — the row was pinned at
+        # 120px no matter what the layout offered it. The 120 is now the
+        # splitter's DEFAULT size (:data:`DEFAULT_CHAT_HEIGHT`), so an
+        # untouched panel looks the same as it always did while the handle
+        # can still drag the box taller.
         self.setAcceptRichText(False)
 
     def keyPressEvent(self, event: QKeyEvent):
@@ -554,6 +738,11 @@ class ConsolePanel(QWidget):
     do not orphan a running subprocess. See the module docstring for
     the full public surface.
 
+    The console box and the AI chat box are the two halves of a vertical
+    :class:`~PySide6.QtWidgets.QSplitter`, so the user can drag the handle
+    between them to trade height — a taller chat box is a shorter console.
+    Pass ``persist_key`` and the position is remembered per screen.
+
     :ivar ai_stream_finished: emitted when an AI stream ends (ok or
         error) so the parent screen can flip its Cancel button back.
     """
@@ -570,10 +759,20 @@ class ConsolePanel(QWidget):
     #: on the GUI thread and falls through to the real body.
     _relay_stdout = Signal(str)
     _relay_error = Signal(str)
+    _relay_notice = Signal(str, object)
 
-    def __init__(self, active_app_label: str = "", parent=None):
+    def __init__(self, active_app_label: str = "", parent=None,
+                 persist_key: str = ""):
+        """
+        :param active_app_label: the app name shown in the output banner.
+        :param parent: parent widget.
+        :param persist_key: screen key the console/chat split is remembered
+            against (usually the screen's ``app_key``). Empty means the split
+            is not persisted, which is what a bare panel in a test wants.
+        """
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
+        self._persist_key = str(persist_key or "").strip()
         # QWidget (unlike QFrame) doesn't paint a QSS background/border/radius
         # unless told to — without this the ConsolePanel's rounded surface box
         # never draws and the console area shows straight through to the black
@@ -602,6 +801,7 @@ class ConsolePanel(QWidget):
         # instant this panel is registered as the console target.
         self._relay_stdout.connect(self.append_stdout)
         self._relay_error.connect(self.append_error)
+        self._relay_notice.connect(self._append_notice_on_gui_thread)
 
         self._build_ui()
         # Pipe records from the global logger into this console. Every
@@ -612,6 +812,7 @@ class ConsolePanel(QWidget):
             get_signal_handler().record_ready.connect(self._on_log_record)
         except Exception:
             pass
+        retranslate_widget_tree(self)
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -622,10 +823,37 @@ class ConsolePanel(QWidget):
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
 
+        # The console box and the chat row are the two halves of a vertical
+        # splitter, so the handle between them trades height: drag it up and
+        # the chat box grows while the console shrinks by the same amount.
+        # This is the same gesture — and deliberately the same idiom — as the
+        # live-preview / console splitter one level up in AppScreen.
+        self._split = QSplitter(Qt.Vertical)
+        self._split.setObjectName("ConsoleSplit")
+        self._split.setChildrenCollapsible(False)
+        # The handle IS the gap that used to be `outer.setSpacing(SPACING.sm)`
+        # between the console box and the chat row. Matching it keeps the
+        # panel pixel-identical to the pre-splitter layout — Qt's 4px default
+        # would have quietly given the console 4 extra pixels — and 8px is a
+        # far easier target for the pointer than 4.
+        self._split.setHandleWidth(SPACING["sm"])
+        # The splitter is scaffolding, not a surface. AppScreen's
+        # `_clear_page_surfaces` sweep tags every QSplitter by type, but a
+        # ConsolePanel used on its own (or in a test) never gets that sweep,
+        # and an untagged QWidget takes the blanket window fill — an opaque
+        # slab straight across the panel, immune to the page-opacity setting.
+        try:
+            from ..theme import make_transparent
+            make_transparent(self._split)
+        except Exception:
+            pass
+        outer.addWidget(self._split, 1)
+
         # Console box — a rounded surface frame that wraps ONLY the scrolling
         # output. QFrame paints its QSS background/border/radius natively.
         self._console_box = QFrame()
         self._console_box.setObjectName("ConsoleBox")
+        self._console_box.setMinimumHeight(CONSOLE_MIN_HEIGHT)
         box_lay = QVBoxLayout(self._console_box)
         inset = SPACING["sm"]
         box_lay.setContentsMargins(inset, inset, inset, inset)
@@ -653,13 +881,14 @@ class ConsolePanel(QWidget):
         self._entries.addStretch(1)
         self._scroll.setWidget(self._holder)
         box_lay.addWidget(self._scroll, 1)
-        outer.addWidget(self._console_box, 1)
+        self._split.addWidget(self._console_box)
 
         # AI chat input — a separate row UNDER the console box (not inside it),
         # borderless wrapper so only the text field's own box shows, edges
         # flush with the console + system boxes. AI on/off toggle + provider
         # selector live in the AppScreen actions row.
         input_row = QWidget()
+        self._chat_row = input_row
         row = QHBoxLayout(input_row)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
@@ -672,28 +901,33 @@ class ConsolePanel(QWidget):
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
-        outer.addWidget(input_row)
+        self._split.addWidget(input_row)
+
+        # Only the console stretches when the WINDOW resizes. Giving both
+        # halves a stretch factor (as the live-preview splitter does, where
+        # both halves are content) would grow the chat box every time the
+        # window got taller — a visible change for a user who never touched
+        # the handle, which is precisely what this must not do. Stretch 0 on
+        # the chat box reproduces today's behaviour exactly: the chat box
+        # keeps whatever height it has, the console absorbs the rest.
+        self._split.setStretchFactor(0, 1)
+        self._split.setStretchFactor(1, 0)
+        self._apply_default_split()
+        self._restore_split()
+        # Written on release AND during the drag; QSettings coalesces in
+        # memory, and saving as it moves means a split survives even if the
+        # app is killed rather than closed.
+        self._split.splitterMoved.connect(self._on_split_moved)
 
         # Console font-size control — its own right-aligned row below the input
         # so the text box stays full width, flush with the console + system
         # boxes. Adjusts every stdout/AI entry live.
-        self._font_pt = int(QFontDatabase.systemFont(
-            QFontDatabase.FixedFont).pointSize()) or 10
-        font_row = QWidget()
-        frow = QHBoxLayout(font_row)
-        frow.setContentsMargins(0, 0, 0, 0)
-        frow.addStretch(1)
-        font_lbl = QLabel("Font size")
-        font_lbl.setObjectName("Muted")
-        frow.addWidget(font_lbl)
-        self._font_spin = QSpinBox()
-        self._font_spin.setRange(7, 22)
-        self._font_spin.setValue(self._font_pt)
-        self._font_spin.setToolTip("Console font size")
-        self._font_spin.setFixedWidth(56)
-        self._font_spin.valueChanged.connect(self.set_console_font_pt)
-        frow.addWidget(self._font_spin)
-        outer.addWidget(font_row)
+        # No per-module font-size spinner any more. The console and the AI
+        # chat now follow the global Zoom preference like every other piece of
+        # text in the app: a second, module-local control for the same thing
+        # meant the console could disagree with the interface around it, and
+        # meant setting it once did not carry to the next module.
+        self._font_pt = self._zoomed_font_pt()
 
         # AppScreen creates + owns the AI toggle/provider menu and calls
         # our setters when they change. Panel-internal state stays here
@@ -702,8 +936,88 @@ class ConsolePanel(QWidget):
         self._current_provider_name: Optional[str] = None
 
     # ------------------------------------------------------------------
+    # Console / chat split
+    # ------------------------------------------------------------------
+    def _apply_default_split(self) -> None:
+        """Seat the handle where the panel used to draw it with no splitter.
+
+        ``setSizes`` totals are advisory — Qt rescales them to the height the
+        splitter actually has, distributing the difference by stretch factor.
+        With the chat box on stretch 0 the whole difference lands on the
+        console, so the chat box comes out at exactly
+        :data:`DEFAULT_CHAT_HEIGHT` at any window size, which is what the old
+        ``setMaximumHeight(120)`` produced.
+        """
+        self._split.setSizes([max(CONSOLE_MIN_HEIGHT, 400), DEFAULT_CHAT_HEIGHT])
+
+    def _restore_split(self) -> None:
+        """Re-seat the handle where this screen's user last dragged it."""
+        if not self._persist_key:
+            return
+        state = get_split_state(self._persist_key)
+        if state is None:
+            return
+        try:
+            self._split.restoreState(state)
+        except Exception:
+            self._apply_default_split()
+        # `restoreState` also restores whatever collapsible flag was saved
+        # with the blob. Re-assert ours so a stale entry — written by an older
+        # build, or by hand — cannot bring back a console that vanishes when
+        # the handle is dragged to the top.
+        self._split.setChildrenCollapsible(False)
+
+    def _on_split_moved(self, _pos: int = 0, _index: int = 0) -> None:
+        """Persist the split as the user drags the handle."""
+        if not self._persist_key:
+            return
+        set_split_state(self._persist_key, self._split.saveState())
+
+    def split_sizes(self) -> List[int]:
+        """Current ``[console_height, chat_height]`` in pixels.
+
+        Public because it is the honest thing for a test — or a caller
+        arranging the screen — to read, rather than reaching into ``_split``.
+        """
+        return list(self._split.sizes())
+
+    def set_split_sizes(self, console_px: int, chat_px: int) -> None:
+        """Move the handle programmatically and persist the result.
+
+        Same end state as a user drag, so a caller restoring a layout and a
+        user dragging leave the panel in the same place.
+
+        :param console_px: height for the console box.
+        :param chat_px: height for the AI chat box.
+        """
+        self._split.setSizes([int(console_px), int(chat_px)])
+        self._on_split_moved()
+
+    # ------------------------------------------------------------------
     # Font size
     # ------------------------------------------------------------------
+    @staticmethod
+    def _zoomed_font_pt() -> int:
+        """The console point size, from the platform's fixed font x Zoom.
+
+        The base is the system's monospace size so the console still looks
+        native, and the Zoom preference multiplies it so the console tracks
+        the rest of the interface. Falls back to the unscaled base if
+        preferences cannot be read at all, which is what a first run
+        mid-generation gets.
+        """
+        base = int(QFontDatabase.systemFont(
+            QFontDatabase.FixedFont).pointSize()) or 10
+        try:
+            from ..preferences import get_font_scale
+            return max(6, int(round(base * get_font_scale())))
+        except Exception:
+            return base
+
+    def apply_zoom(self) -> None:
+        """Re-read Zoom and restyle every entry. Called on a preferences save."""
+        self.set_console_font_pt(self._zoomed_font_pt())
+
     def set_console_font_pt(self, pt: int) -> None:
         """Set the console font size and apply it to every existing entry."""
         self._font_pt = int(pt)
@@ -771,7 +1085,7 @@ class ConsolePanel(QWidget):
 
     def _output_banner(self, head: str) -> str:
         """Build a banner like 'spaCR output — mask — preprocess_generate_masks'."""
-        parts = [head]
+        parts = [tr(head)]
         mod = self._run_module or self._active_app_label
         if mod:
             parts.append(str(mod))
@@ -792,23 +1106,68 @@ class ConsolePanel(QWidget):
         Safe to call from any thread: an off-thread call is re-posted to
         the GUI thread through :attr:`_relay_stdout` and returns without
         touching a widget. See :meth:`_on_gui_thread`.
+
+        Re-entrant calls on the same thread are refused. Drawing a line
+        runs Python inside a QWidget, and with verbose logging on the
+        function-trace profile hook logs on entry to every spaCR function
+        it passes through — including this one. Both console log sinks feed
+        that record straight back here, and ``_StdoutBlock.append`` answers
+        it with a nested ``setPlainText`` whose first act is to destroy the
+        QTextDocument's frames — the ones the outer call is still inside.
+        gdb: ``QTextFrame::~QTextFrame -> QTextDocumentPrivate::clear``,
+        ``#0`` in freed memory. Reproduced as ``pytest
+        tests/qt/test_all_module_smoke.py
+        tests/qt/test_batch_f_diagnostics.py`` (exit 139).
         """
         if not text:
             return
         if not self._on_gui_thread():
             self._relay_stdout.emit(text)
             return
-        if self._current_stdout is None:
-            # Open a "spaCR output — <module> — <function>" banner + a fresh
-            # blue-text block. Reused until a different entry type breaks it.
-            accent = color_output()
-            self.begin_topic(self._output_banner("spaCR output"),
-                             accent=accent)
-            self._current_stdout = _StdoutBlock(text_color=accent)
-            self._insert_entry(self._current_stdout)
-            self._last_entry_kind = "stdout"
-        self._current_stdout.append(text)
-        self._scroll_to_bottom()
+        if console_write_in_progress():
+            return
+        with console_write():
+            if self._current_stdout is None:
+                # Open a "spaCR output — <module> — <function>" banner + a
+                # fresh blue-text block. Reused until a different entry type
+                # breaks it.
+                accent = color_output()
+                self.begin_topic(self._output_banner("spaCR output"),
+                                 accent=accent)
+                self._current_stdout = _StdoutBlock(text_color=accent)
+                self._insert_entry(self._current_stdout)
+                self._last_entry_kind = "stdout"
+            self._current_stdout.append(text)
+            self._scroll_to_bottom()
+
+    def append_notice(self, source: str, **values: object) -> None:
+        """Append one localized spaCR-authored UI notice.
+
+        This is intentionally separate from :meth:`append_stdout`: arbitrary
+        worker stdout, logs, tracebacks, paths and AI responses must remain
+        byte-for-byte English/canonical. Off-thread notices carry their stable
+        English template to the GUI thread and are translated only there.
+        """
+        if not source:
+            return
+        if not self._on_gui_thread():
+            self._relay_notice.emit(str(source), dict(values))
+            return
+        self._append_notice_on_gui_thread(str(source), dict(values))
+
+    def _append_notice_on_gui_thread(
+        self, source: str, values: object = None,
+    ) -> None:
+        mapping = values if isinstance(values, dict) else {}
+        # Call sites may add line breaks for console layout. Translation keys
+        # deliberately omit incidental leading/trailing whitespace, so retain
+        # that framing around the translated semantic template.
+        core = source.strip()
+        if not core:
+            return
+        leading = source[:len(source) - len(source.lstrip())]
+        trailing = source[len(source.rstrip()):]
+        self.append_stdout(leading + tr(core, **mapping) + trailing)
 
     def _on_log_record(self, text: str, level: int) -> None:
         """Slot for QtLogHandler.record_ready. WARNING/ERROR/CRITICAL
@@ -832,11 +1191,16 @@ class ConsolePanel(QWidget):
         if not self._on_gui_thread():
             self._relay_error.emit(tb)
             return
-        red = color_error()
-        self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
-        block = _StdoutBlock(tb, error=True, text_color=red)
-        self._insert_entry(block)
-        self._last_entry_kind = "stdout"
+        # Same re-entrancy refusal as append_stdout, and for the same
+        # reason: this path also builds a _StdoutBlock and fills it.
+        if console_write_in_progress():
+            return
+        with console_write():
+            red = color_error()
+            self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
+            block = _StdoutBlock(tb, error=True, text_color=red)
+            self._insert_entry(block)
+            self._last_entry_kind = "stdout"
 
     def clear(self) -> None:
         """Wipe every entry (topic bars, stdout blocks, chat bubbles)."""
@@ -884,7 +1248,7 @@ class ConsolePanel(QWidget):
     def _append_user(self, text: str) -> None:
         """Insert a 'spaCR user' banner + green user text."""
         green = color_user()
-        self.begin_topic("spaCR user", accent=green)
+        self.begin_topic(tr("spaCR user"), accent=green)
         block = _StdoutBlock(text, text_color=green)
         self._insert_entry(block)
         self._current_stdout = None
@@ -893,7 +1257,7 @@ class ConsolePanel(QWidget):
     def _send_to_ai(self, text: str) -> None:
         provider = self._current_provider()
         if provider is None:
-            self.append_stdout(
+            self.append_notice(
                 "[AI] No provider configured. Open Providers…\n"
             )
             return
@@ -909,7 +1273,7 @@ class ConsolePanel(QWidget):
         # followed by the reply text in the same provider colour.
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
-        self.begin_topic("spaCR AI", accent=ai_color,
+        self.begin_topic(tr("spaCR AI"), accent=ai_color,
                          trailing=self._working_dots)
         self._working_dots.start()
         self._current_stdout = _StdoutBlock(text_color=ai_color)
@@ -978,7 +1342,23 @@ class ConsolePanel(QWidget):
         The cancel path kills the CLI subprocess directly so the
         stream reader unblocks immediately; we then wait for the
         worker's run() to return and the QThread to quit normally.
+
+        There is deliberately no ``QThread.terminate()`` fallback. It used
+        to be here, described as a last resort, and it was reached far more
+        often than "last resort" suggests: `spacr.qt.ai.worker` queued
+        `worker.finished -> thread.quit` to the GUI-affine QThread object,
+        so the event that stops the thread sat behind this method's own
+        `wait()` and the wait timed out on streams that had already
+        finished. Terminating a thread that is running Python is
+        `pthread_cancel`: if it dies holding the GIL the process stops
+        making progress with every thread still alive, and if it dies
+        inside Qt or PySide the heap is corrupt and the crash lands
+        somewhere unrelated later. `bridge.drain_thread` parks a thread
+        that will not stop instead, which keeps the "never destroy a
+        running QThread" rule without buying it with undefined behaviour.
         """
+        from ..bridge import drain_thread
+
         worker = self._ai_worker
         thread = self._ai_thread
         # Defensively belt-and-suspender: also try every provider's
@@ -993,30 +1373,13 @@ class ConsolePanel(QWidget):
                 worker.cancel()
             except Exception:
                 pass
-        if thread is not None and thread.isRunning():
-            try:
-                thread.quit()
-                thread.wait(3000)
-                if thread.isRunning():
-                    # Last resort — Qt itself asks the thread to stop.
-                    thread.terminate()
-                    thread.wait(1000)
-            except Exception:
-                pass
+        drain_thread(thread, worker, timeout_ms=3000)
         self._ai_thread = None
         self._ai_worker = None
         # Also drain any retired (post-finished) threads that haven't
         # been fully cleaned up yet.
-        for t, _w in list(self._retired):
-            try:
-                if t.isRunning():
-                    t.quit()
-                    t.wait(1000)
-                    if t.isRunning():
-                        t.terminate()
-                        t.wait(500)
-            except Exception:
-                pass
+        for pair in list(self._retired):
+            drain_thread(pair[0], pair[1], timeout_ms=1000)
         self._retired.clear()
 
     def closeEvent(self, event) -> None:
@@ -1061,11 +1424,12 @@ class ConsolePanel(QWidget):
                 {"role": "assistant", "content": final_text}
             )
             if not self._ai_buf:
-                self.append_stdout(
+                self.append_notice(
                     "(empty response — try again or switch provider)\n"
                 )
         else:
-            self.append_stdout(f"[AI error] {final_text}\n")
+            self.append_notice(
+                "[AI error] {detail}\n", detail=final_text)
         # Terminate the AI reply block with a newline so pipeline
         # stdout that arrives next visually separates from the reply.
         if self._current_stdout is not None:
@@ -1089,7 +1453,7 @@ class ConsolePanel(QWidget):
         """
         from ..ai.prompts import wrap_error_for_prompt, error_explainer_prompt
         if self._current_provider() is None:
-            self.append_stdout(
+            self.append_notice(
                 "[AI] Enable AI in the actions row + pick a provider first.\n"
             )
             return
@@ -1101,12 +1465,14 @@ class ConsolePanel(QWidget):
         self._ai_messages.append({"role": "user", "content": prompt})
         self._append_user(
             prompt if show_raw
-            else "An error occurred — asking spaCR AI to explain it. "
-                 "(Ask the AI to \"show the raw error\" to see the traceback.)")
+            else tr(
+                "An error occurred — asking spaCR AI to explain it. "
+                "(Ask the AI to \"show the raw error\" to see the traceback.)"
+            ))
         # AI reply with provider colour + cycling working dots.
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
-        self.begin_topic("spaCR AI", accent=ai_color,
+        self.begin_topic(tr("spaCR AI"), accent=ai_color,
                          trailing=self._working_dots)
         self._working_dots.start()
         self._current_stdout = _StdoutBlock(text_color=ai_color)

@@ -15,12 +15,40 @@ class UsageBar(QWidget):
 
     def __init__(self, label: str, parent=None):
         super().__init__(parent)
-        # The global `QWidget { background: bg }` rule would otherwise paint
-        # this row solid black inside the System card. Make the row itself
-        # transparent so the card's dark-gray surface shows around the bar.
         self.setObjectName("UsageBarRow")
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setStyleSheet("QWidget#UsageBarRow { background: transparent; }")
+        # Two rules, and the second is the load-bearing one.
+        #
+        # The ROW must paint nothing, or the blanket
+        # `QWidget { background-color: bg }` fills it with the WINDOW colour
+        # inside the System card.
+        #
+        # So must the bar's TRACK, and that was the part missing. The
+        # application sheet gives `QProgressBar#UsageBar` a `surface_alt` fill
+        # *at page opacity*, and the card it sits in is already `surface_alt`
+        # at page opacity — so the track laid a second copy of the same
+        # translucent grey over the first and read as a band the slider could
+        # not thin: measured, at a requested 30 % the card passed 0.70 of the
+        # backdrop and the track only 0.49.
+        #
+        # One of the four bars escaped that, and only by accident: the CPU bar
+        # sits in a wrapper carrying an unqualified `background: transparent`,
+        # and in Qt a sheet set on an ANCESTOR beats the application sheet
+        # irrespective of selector specificity, so the wrapper's rule reached
+        # the bar and cancelled the fill. RAM, GPU and VRAM go straight into
+        # the card body, whose sheet is qualified (`QWidget#CardBody`) and
+        # never reached theirs. Saying it here is what makes all four behave
+        # the same wherever they are put.
+        #
+        # The selector is name-agnostic on purpose: `set_value` renames the bar
+        # to UsageBarWarn / UsageBarError past 75 / 90 %, and the only
+        # QProgressBar under this row is that one bar. `::chunk` is a separate
+        # sub-control, so the filled part keeps its accent / warning / error
+        # colour — only the empty track goes away.
+        self.setStyleSheet(
+            "QWidget#UsageBarRow { background: transparent; }"
+            "QProgressBar { background: transparent; }"
+        )
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])

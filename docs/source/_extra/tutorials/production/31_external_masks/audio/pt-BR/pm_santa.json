@@ -4,47 +4,187 @@
   "voice": "pm_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.45,
+  "total_duration": 308.375,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.975,
-      "scene_end": 10.424999999999999,
-      "duration": 10.424999999999999,
-      "text": "Este tutorial abrange máscaras externas. Transforme as máscaras de rótulos de terceiros e as imagens de origem em um projeto de spaCR medido e rastreável."
+      "speech_end": 18.425,
+      "scene_end": 19.145,
+      "duration": 19.145,
+      "text": "As máscaras externas transformam a segmentação produzida fora da spaCR no mesmo contrato de projeto medido utilizado pela Measure e Annotate. Abra-o a partir de dados e batches; Preview é somente de leitura, enquanto Run pode criar imagens canônicas, pilhas, máscaras, matrizes combinadas, medições e culturas de objetos.",
+      "speech_text": "As máscaras externas transformam a segmentação produzida fora da espáquer no mesmo contrato de projeto medido utilizado pela Measure e Annotate. Abra-o a partir de dados e batches; Preview é somente de leitura, enquanto Run pode criar imagens canônicas, pilhas, máscaras, matrizes combinadas, medições e culturas de objetos.",
+      "phonemes": "az mˈaskæɾæz ˌestˈɛɾənæs trˌɐ̃ŋsfˈɔɾəmɐ̃ʊ̃ a sˌeɡmAŋtasˈɐ̃ʊ̃ prˌoduzˈidæ fˈɔɾæ da ˌespˈakɛr nʊ mˈezmʊ kˌoŋtrˈatʊ ʤy prˌoʒˈɛtʊ mˌeʤˈidw ˌuʧilizˈadʊ pˈelæ mˌeazˈuɾi i ˌɐ̃ŋnotˈaʧy. ˈabræu a paɾəʧˈir ʤy dˈadʊz i bˈatʃys; prˌeviˈew ɛ sˌomˈAŋʧy ʤy lˌAtˈuɾæ, ˌAŋkwˈɐ̃ŋtʊ xˈũŋ pˌɔʤy kriˈaɾ ˌimˈaʒAŋs kˌænˈonikæs, pˈiljæs, mˈaskæɾæs, mˌatrˈizys kˌombinˈadæs, mˌeʤisˈõjz i kˌuwtˈuɾæz ʤj ˌobʒˈɛtʊs."
     },
     {
       "scene": 2,
-      "speech_start": 10.424999999999999,
-      "speech_end": 23.75,
-      "scene_end": 24.2,
-      "duration": 13.775,
-      "text": "Abra External Masks na seção Data and batch runs. Abra as máscaras externas na seção Dados e batches. forneça imagens de origem, máscaras externas, regras de nomeação, tipos de objetos e tabelas de medição opcionais."
+      "speech_start": 19.145,
+      "speech_end": 38.945,
+      "scene_end": 39.725,
+      "duration": 20.580000000000002,
+      "text": "Soltar imagens e arquivos de máscara ou um contendo pasta. Esta lição utiliza três culturas reais de 768 pixels do experimento transferido: doze TIFFs de intensidade e três máscaras para cada um dos quatro tipos de objetos, exportados a partir de matrizes spaCR existentes apenas para emular uma transferência externa.",
+      "speech_text": "Soltar imagens e arquivos de máscara ou um contendo pasta. Esta lição utiliza três culturas reais de 768 pixels do experimento transferido: doze TIFFs de intensidade e três máscaras para cada um dos quatro tipos de objetos, exportados a partir de matrizes espáquer existentes apenas para emular uma transferência externa.",
+      "phonemes": "sowtˈaɾ ˌimˈaʒAŋz i ˌaɾəkˈivʊz ʤy mˈaskæɾæ ow ũŋ kˌoŋtˈAŋdʊ pˈastæ. ˌɛstæ lisˈɐ̃ʊ̃ ˌuʧilˈizæ trˈes kˌuwtˈuɾæz xeˈIz ʤy sˈɛʧysˈAŋtʊzˌi sesˈAŋtæiˈoɪtʊ piʃˈɛʊz dʊ ˌespeɾimˈAŋtʊ trˌɐ̃ŋsfeɾˈidʊ: dˈozy ʧˈifz ʤj ˌiŋtAŋsidˈaʤj i trˈez mˈaskæɾæs pˌaɾæ kˈadæ ũŋ dʊs kwˈatrʊ ʧˈipʊz ʤj ˌobʒˈɛtʊs, ˌespoɾətˈadʊz a paɾəʧˈir ʤy mˌatrˈizyz ˌespˈakɛɾ ˌezistˈAŋʧyz ˌapˈenæs pˌaɾæ ˌemulˈaɾ ˌumæ trˌɐ̃ŋsfeɾˈAŋsjæ ˌestˈɛɾənæ."
     },
     {
       "scene": 3,
-      "speech_start": 24.2,
-      "speech_end": 33.4,
-      "scene_end": 33.85,
-      "duration": 9.650000000000002,
-      "text": "Na área de configuração principal, mapear imagens para máscaras, validar convenções de forma e rótulo, escolher rótulo e definir opções de medição."
+      "speech_start": 39.725,
+      "speech_end": 60.375,
+      "scene_end": 61.115,
+      "duration": 21.39,
+      "text": "A tabela de atribuições agrupa os arquivos por prova. As imagens de intensidade são detectadas a partir de seus pixels, enquanto as palavras de máscara e objeto identificam as etiquetas de célula, núcleo, patógeno e órgãos. O uso como e o tipo de Máscara permanecem propostas editáveis; revise cada linha e ignore qualquer coisa que não deva entrar no projeto.",
+      "speech_text": "A tabela de atribuições agrupa os arquivos por prova. As imagens de intensidade são detectadas a partir de seus pixels, enquanto as palavras de máscara e objeto identificam as etiquetas de célula, núcleo, patógeno e órgãos. O uso como e o tipo de Máscara permanecem propostas editáveis; revise cada linha e ignore qualquer coisa que não deva entrar no projeto.",
+      "phonemes": "a tˌabˈɛlæ ʤj ˌatribuɪsˈõjz ˌaɡrˈupæ ʊz ˌaɾəkˈivʊs por prˈɔvæ. az ˌimˈaʒAŋz ʤj ˌiŋtAŋsidˈaʤy sɐ̃ʊ̃ dˌetektˈadæz a paɾəʧˈir ʤy seʊs piʃˈɛʊs, ˌAŋkwˈɐ̃ŋtw as pˌalˈavræz ʤy mˈaskæɾæ i ˌobʒˈɛtw ˌidAŋʧifˈikɐ̃ʊ̃ az ˌeʧikˈetæz ʤy sˈɛlulæ, nˈukleʊ, pˌatˈɔʒenw i ˈɔɾəɡɐ̃ʊ̃s. u ˈuzʊ kˌomʊ i ʊ ʧˈipʊ ʤy mˈaskæɾæ pˌeɾəmænˈɛsAŋ prˌopˈɔstæz ˌeʤitˈavAs; xˌevˈizy kˈadæ lˈiɲæ i ˌiɡnˈɔɾy kwWkˌɛr kˈoɪzæ ky nˌɐ̃ʊ̃ dˈevæ Aŋtrˈar nʊ prˌoʒˈɛtʊ."
     },
     {
       "scene": 4,
-      "speech_start": 33.85,
-      "speech_end": 41.425000000000004,
-      "scene_end": 41.87500000000001,
-      "duration": 8.025000000000006,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+      "speech_start": 61.115,
+      "speech_end": 78.34,
+      "scene_end": 78.98,
+      "duration": 17.865000000000002,
+      "text": "O Mapeamento de entrada contém a tabela de atribuição revisada, um novo destino, descoberta recursiva, layout de nome de arquivo, manipulação de Z, nomeação de placa, proteção de sobreescritura e exibição exclusiva. Estes controles decidem quais arquivos se emparelham antes de qualquer coisa ser escrita.",
+      "speech_text": "O Mapeamento de entrada contém a tabela de atribuição revisada, um novo destino, descoberta recursiva, layout de nome de arquivo, manipulação de Z, nomeação de placa, proteção de sobreescritura e exibição exclusiva. Estes controles decidem quais arquivos se emparelham antes de qualquer coisa ser escrita.",
+      "phonemes": "ʊ mˌapeæmˈAŋtʊ ʤj ˌAŋtrˈadæ koŋtˈAŋ a tˌabˈɛlæ ʤj ˌatribuɪsˈɐ̃ʊ̃ xˌevizˈadæ, ũŋ nˈovʊ dˌesʧˈinʊ, dˌeskobˈɛɾətæ xˌekuɾəsˈivæ, lˈAˌWt ʤy nˈomy ʤj ˌaɾəkˈivʊ, mˌænipˌulasˈɐ̃ʊ̃ ʤy zˈe, nˌomeasˈɐ̃ʊ̃ ʤy plˈakæ, prˌotesˈɐ̃ʊ̃ ʤy sobɾeˌeskritˈuɾæ i ˌezibisˈɐ̃ʊ̃ ˌeskluzˈivæ. ˌesʧys kˌoŋtrˈolyz dˌesˈidAŋ kwˈIz ˌaɾəkˈivʊs sj ˌAmpaɾˈeljɐ̃ʊ̃ ˈɐ̃ŋʧyz ʤy kwWkˌɛr kˈoɪzæ seɾ ˌeskrˈitæ."
     },
     {
       "scene": 5,
-      "speech_start": 41.87500000000001,
-      "speech_end": 50.80000000000001,
-      "scene_end": 51.45000000000001,
-      "duration": 9.575000000000003,
-      "text": "Quando o fluxo de trabalho termina, o spaCR armazena máscaras normalizadas, imagens mapeadas, medições e proveniência prontas para anotação."
+      "speech_start": 78.98,
+      "speech_end": 92.455,
+      "scene_end": 93.035,
+      "duration": 14.054999999999993,
+      "text": "O General define a lista de canais de intensidade importados, o nome do experimento, a política de normalização e se um compartimento de citoplasma é derivado. Aqui os canais zero a três correspondem aos quatro planos reais da imagem.",
+      "speech_text": "O General define a lista de canais de intensidade importados, o nome do experimento, a política de normalização e se um compartimento de citoplasma é derivado. Aqui os canais zero a três correspondem aos quatro planos reais da imagem.",
+      "phonemes": "ʊ ʒˌeneɾˈW dˌefˈinj a lˈistæ ʤy kænˈIz ʤj ˌiŋtAŋsidˈaʤj ˌimpoɾətˈadʊs, ʊ nˈomy dʊ ˌespeɾimˈAŋtʊ, a pˌolˈiʧikæ ʤy nˌoɾəmalˌizasˈɐ̃ʊ̃ i sj ũŋ kˌompaɾəʧimˈAŋtʊ ʤy sˌitoplˈazmæ ɛ dˌeɾivˈadʊ. akˈi ʊs kænˈIz zˈɛɾw a trˈes kˌoxespˈoŋdAŋ Ws kwˈatrʊ plˈɐ̃nʊz xeˈIz da ˌimˈaʒAŋ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 93.035,
+      "speech_end": 104.835,
+      "scene_end": 105.395,
+      "duration": 12.36,
+      "text": "A Organelle controla a forma como os rótulos dos órgãos importados são resumidos em relação aos seus objetos-mãe. Não segmenta novamente os TIFF; define apenas as relações de medição a jusante.",
+      "speech_text": "A Organelle controla a forma como os rótulos dos órgãos importados são resumidos em relação aos seus objetos-mãe. Não segmenta novamente os TIFF; define apenas as relações de medição a jusante.",
+      "phonemes": "a ˌoɾəɡænˈɛly kˌoŋtrˈɔlæ a fˈɔɾəmæ kˌomʊ ʊz xˈɔtulʊz dʊz ˈɔɾəɡɐ̃ʊ̃z ˌimpoɾətˈadʊs sɐ̃ʊ̃ xˌezumˈidʊz ˈAŋ xˌelasˈɐ̃ʊ̃ Ws seʊz ˌobʒˈɛtʊzmˈɐ̃y. nˌɐ̃ʊ̃ sˌeɡmˈAŋtæ nˌovæmˈAŋʧj ʊs ʧˈif; dˌefˈinj ˌapˈenæz az xˌelasˈõjz ʤy mˌeʤisˈɐ̃ʊ̃ a ʒˌuzˈɐ̃ŋʧy."
+    },
+    {
+      "scene": 7,
+      "speech_start": 105.395,
+      "speech_end": 119.74499999999999,
+      "scene_end": 120.32499999999999,
+      "duration": 14.929999999999993,
+      "text": "O Timelapse contém opções de rastreamento para séries temporais fornecidas externamente. Deixe-o desativado para este exemplo de ponto de tempo único; ativá-lo apenas quando os nomes de campos e quadros representam uma sequência temporal real.",
+      "speech_text": "O Timelapse contém opções de rastreamento para séries temporais fornecidas externamente. Deixe-o desativado para este exemplo de ponto de tempo único; ativá-lo apenas quando os nomes de campos e quadros representam uma sequência temporal real.",
+      "phonemes": "ʊ ʧˌimelˈapsy koŋtˈAŋ opsˈõjz ʤy xˌastreæmˈAŋtʊ pˌaɾæ sˈɛɾjys tˌAmpoɾˈIs fˌoɾənesˈidæz ˌesteɾənæmˈAŋʧy. dˈAʃjʊ dˌezaʧivˈadʊ pˌaɾæ ˌesʧy ˌezˈAmplʊ ʤy pˈoŋtʊ ʤy tˈAmpw ˈunikʊ; ˌaʧivˈalw ˌapˈenæs kwˈɐ̃ŋdw ʊz nˈomyz ʤy kˈɐ̃mpʊz i kwˈadrʊz xˌeprezˈAŋtɐ̃ʊ̃ ˌumæ sˌekwˈAŋsjæ tˌAmpoɾˈW xeˈW."
+    },
+    {
+      "scene": 8,
+      "speech_start": 120.32499999999999,
+      "speech_end": 137.5,
+      "scene_end": 138.12,
+      "duration": 17.795000000000016,
+      "text": "As medições escolhem as famílias de características calculadas a partir dos rótulos importados, incluindo intensidade, correlação, textura, distribuição radial e colocalização. Comece com as características que a sua análise precisa porque as famílias mais ricas custam mais tempo e armazenamento.",
+      "speech_text": "As medições escolhem as famílias de características calculadas a partir dos rótulos importados, incluindo intensidade, correlação, textura, distribuição radial e colocalização. Comece com as características que a sua análise precisa porque as famílias mais ricas custam mais tempo e armazenamento.",
+      "phonemes": "az mˌeʤisˈõjz ˌeskˈɔljAŋ as fˌæmˈiljæz ʤy kˌaɾakteɾˈisʧikæs kˌWkulˈadæz a paɾəʧˈir dʊz xˈɔtulʊz ˌimpoɾətˈadʊs, ˌiŋkluˈiŋdw ˌiŋtAŋsidˈaʤy, kˌoxelasˈɐ̃ʊ̃, tˌestˈuɾæ, ʤˌistribuɪsˈɐ̃ʊ̃ xˌaʤiˈW i kˌolokˌalizasˈɐ̃ʊ̃. kˌomˈɛsy koŋ as kˌaɾakteɾˈisʧikæs ky a sˌuæ ˌænˈalizy prˌesˈizæ pˈoɾəkj as fˌæmˈiljæz mˈIz xˈikæs kˈustɐ̃ʊ̃ mˈIs tˈAmpw i ˌaɾəmazˌenæmˈAŋtʊ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 138.12,
+      "speech_end": 154.37,
+      "scene_end": 154.95000000000002,
+      "duration": 16.830000000000013,
+      "text": "As configurações de filtro aplicam-se aos portões de tamanho mínimo e de infecção após a importação. As máscaras externas preservam a geometria do rótulo fornecido; esses filtros decidem quais objetos rotulados entram em medições em vez de reparar uma segmentação pobre.",
+      "speech_text": "As configurações de filtro aplicam-se aos portões de tamanho mínimo e de infecção após a importação. As máscaras externas preservam a geometria do rótulo fornecido; esses filtros decidem quais objetos rotulados entram em medições em vez de reparar uma segmentação pobre.",
+      "phonemes": "as kˌoŋfiɡˌuɾasˈõjz ʤy fˈiʊtrw ˌaplˈikɐ̃ʊ̃sj Ws poɾətˈõjz ʤy tˌæmˈɐ̃ɲʊ mˈinimw i ʤj ˌiŋfeksˈɐ̃ʊ̃ apˈɔz a ˌimpoɾətasˈɐ̃ʊ̃. az mˈaskæɾæz ˌestˈɛɾənæs prˌezˈɛɾəvɐ̃ʊ̃ a ʒˌeometrˈiæ dʊ xˈɔtulʊ fˌoɾənesˈidʊ; ˌesis fˈiʊtrʊz dˌesˈidAŋ kwˈIz ˌobʒˈɛtʊz xˌotulˈadʊz ˈAŋtrɐ̃ʊ̃ ˈAŋ mˌeʤisˈõjz ˈAŋ vˈez ʤy xˌepaɾˈaɾ ˌumæ sˌeɡmAŋtasˈɐ̃ʊ̃ pˈɔbry."
+    },
+    {
+      "scene": 10,
+      "speech_start": 154.95000000000002,
+      "speech_end": 170.675,
+      "scene_end": 171.275,
+      "duration": 16.32499999999999,
+      "text": "Object Crops seleciona quais compartimentos se tornam conjuntos de dados PNG de um único objeto, seus canais, tamanho, normalização e política de fronteira. Este exemplo salva culturas celulares para que o projeto acabado possa ser aberto diretamente no Annotate.",
+      "speech_text": "Object Crops seleciona quais compartimentos se tornam conjuntos de dados PNG de um único objeto, seus canais, tamanho, normalização e política de fronteira. Este exemplo salva culturas celulares para que o projeto acabado possa ser aberto diretamente no Annotate.",
+      "phonemes": "obʒˈekʧ krˈops sˌelesiˈonæ kwˈIs kˌompaɾəʧimˈAŋtʊs sy tˈɔɾənɐ̃ʊ̃ kˌoŋʒˈũŋtʊz ʤy dˈadʊs pˌeˌeneʒˈe ʤj ũŋ ˈunikw ˌobʒˈɛtʊ, seʊs kænˈIs, tˌæmˈɐ̃ɲʊ, nˌoɾəmalˌizasˈɐ̃ʊ̃ i pˌolˈiʧikæ ʤy frˌoŋtˈAɾæ. ˌesʧy ˌezˈAmplʊ sˈWvæ kˌuwtˈuɾæs sˌelulˈaɾys pˌaɾækj ʊ prˌoʒˈɛtw ˌakabˈadʊ pˈɔsæ seɾ ˌabˈɛɾətʊ ʤˌiɾetæmˈAŋʧy nʊ ˌɐ̃ŋnotˈaʧy."
+    },
+    {
+      "scene": 11,
+      "speech_start": 171.275,
+      "speech_end": 186.75,
+      "scene_end": 187.33,
+      "duration": 16.055000000000007,
+      "text": "Avançado contém currículo, operação seca, falha, trabalhador e controle de registro. Os erros rigorosos e um trabalhador tornam fácil a auditoria desta pequena primeira importação; os projetos maiores revisados podem empregar mais trabalhadores mais tarde.",
+      "speech_text": "Avançado contém currículo, operação seca, falha, trabalhador e controle de registro. Os erros rigorosos e um trabalhador tornam fácil a auditoria desta pequena primeira importação; os projetos maiores revisados podem empregar mais trabalhadores mais tarde.",
+      "phonemes": "ˌavɐ̃ŋsˈadʊ koŋtˈAŋ kˌuxˈikulʊ, ˌopeɾasˈɐ̃ʊ̃ sˈɛkæ, fˈaljæ, trˌabaljadˈoɾ i kˌoŋtrˈɔly ʤy xˌeʒˈistrʊ. ʊz ˈexʊz xˌiɡoɾˈɔzʊz i ũŋ trˌabaljadˈor tˈɔɾənɐ̃ʊ̃ fˈasiʊ a ˌWʤitoɾˈiæ dˈɛstæ pˌekˈenæ prˌimˈAɾæ ˌimpoɾətasˈɐ̃ʊ̃; ʊs prˌoʒˈɛtʊz mˌIˈɔɾyz xˌevizˈadʊs pˌɔdAŋ ˌAmpreɡˈar mˈIs trˌabaljadˈoɾyz mˈIs tˈaɾəʤy."
+    },
+    {
+      "scene": 12,
+      "speech_start": 187.33,
+      "speech_end": 203.93,
+      "scene_end": 204.55,
+      "duration": 17.22,
+      "text": "3D Settings é uma categoria de fase alfa para medições e projeções volumétricas. As atuais entradas são planos de rótulos bidimensionais, por isso esses controles permanecem desligados e o manuseio Z permanece na projeção máxima para qualquer fonte de intensidade multiframe.",
+      "speech_text": "3D Settings é uma categoria de fase alfa para medições e projeções volumétricas. As atuais entradas são planos de rótulos bidimensionais, por isso esses controles permanecem desligados e o manuseio Z permanece na projeção máxima para qualquer fonte de intensidade multiframe.",
+      "phonemes": "trˈez dˈe seʧˈiŋɡz ɛ ˌumæ kˌateɡoɾˈiæ ʤy fˈazj ˈWfæ pˌaɾæ mˌeʤisˈõjz i prˌoʒesˈõjz vˌolumˈɛtrikæs. az ˌatuˈIz ˌAŋtrˈadæs sɐ̃ʊ̃ plˈɐ̃nʊz ʤy xˈɔtulʊz bˌiʤimˌAŋsionˈIs, poɾ ˈisw ˌesis kˌoŋtrˈolys pˌeɾəmænˈɛsAŋ dˌezliɡˈadʊz i ʊ mˌænuzˈAʊ zˈe pˌeɾəmænˈɛsy na prˌoʒesˈɐ̃ʊ̃ mˈasimæ pˌaɾæ kwWkˌɛr fˈoŋʧy ʤj ˌiŋtAŋsidˈaʤy mˌuwʧifrˈɐ̃my."
+    },
+    {
+      "scene": 13,
+      "speech_start": 204.55,
+      "speech_end": 220.0,
+      "scene_end": 220.62,
+      "duration": 16.069999999999993,
+      "text": "Antes de importar, mantenha apenas a Preview habilitada e confirme que o destino é uma nova pasta de projeto. A sobreescritura permanece desativada, de modo que um banco de dados de medições existente é um problema de bloqueio em vez de ser silenciosamente substituído.",
+      "speech_text": "Antes de importar, mantenha apenas a Preview habilitada e confirme que o destino é uma nova pasta de projeto. A sobreescritura permanece desativada, de modo que um banco de dados de medições existente é um problema de bloqueio em vez de ser silenciosamente substituído.",
+      "phonemes": "ˈɐ̃ŋʧyz ʤj ˌimpoɾətˈar, mˌɐ̃ŋtˈeɲæ ˌapˈenæz a prˌeviˈew ˌabilitˈadæ i kˌoŋfˈiɾəmy ky ʊ dˌesʧˈinw ɛ ˌumæ nˈɔvæ pˈastæ ʤy prˌoʒˈɛtʊ. a sobɾeˌeskritˈuɾæ pˌeɾəmænˈɛsy dˌezaʧivˈadæ, ʤy mˈɔdʊ ky ũŋ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈõjz ˌezistˈAŋʧj ɛ ũŋ prˌoblˈemæ ʤy blˌokˈAw ˈAŋ vˈez ʤy ser sˌilAŋsˌiozæmˈAŋʧy sˌubsʧituˈidʊ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 220.62,
+      "speech_end": 236.945,
+      "scene_end": 237.58499999999998,
+      "duration": 16.964999999999975,
+      "text": "Clique em Correr para o pré-voo só para leitura. Ele escaneia metadados reais de imagem, combina máscaras com identidades normalizadas de campo, verifica duplicados e máscaras faltantes, atribui planos de máscara após os canais de intensidade e não escreve saída de experimento.",
+      "speech_text": "Clique em Correr para o pré-voo só para leitura. Ele escaneia metadados reais de imagem, combina máscaras com identidades normalizadas de campo, verifica duplicados e máscaras faltantes, atribui planos de máscara após os canais de intensidade e não escreve saída de experimento.",
+      "phonemes": "klˈikj ˈAŋ koxˈer pˌaɾæ ʊ prˈɛvˈoʊ sˈɔ pˌaɾæ lˌAtˈuɾæ. ˌely ˌeskænˈAæ mˌetadˈadʊz xeˈIz ʤj ˌimˈaʒAŋ, kˌombˈinæ mˈaskæɾæs koŋ ˌidAŋʧidˈaʤyz nˌoɾəmalizˈadæz ʤy kˈɐ̃mpʊ, vˌeɾifˈikæ dˌuplikˈadʊz i mˈaskæɾæs fˌWtˈɐ̃ŋʧys, ˌatribˈuɪ plˈɐ̃nʊz ʤy mˈaskæɾæ apˈɔz ʊs kænˈIz ʤj ˌiŋtAŋsidˈaʤj i nˌɐ̃ʊ̃ ˌeskrˈɛvy sˌaˈidæ ʤj ˌespeɾimˈAŋtʊ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 237.58499999999998,
+      "speech_end": 253.58499999999998,
+      "scene_end": 254.34499999999997,
+      "duration": 16.75999999999999,
+      "text": "A prévia real relata doze mapas de intensidade, três campos completos, quatro canais de intensidade, e máscaras de célula, núcleo, patógeno e órgãos emparelhados para cada campo. Os aviões de máscaras serão quatro, cinco, seis e sete, sem advertências ou erros de bloqueio.",
+      "speech_text": "A prévia real relata doze mapas de intensidade, três campos completos, quatro canais de intensidade, e máscaras de célula, núcleo, patógeno e órgãos emparelhados para cada campo. Os aviões de máscaras serão quatro, cinco, seis e sete, sem advertências ou erros de bloqueio.",
+      "phonemes": "a prˈɛvjæ xeˈW xˌelˈatæ dˈozy mˈapæz ʤj ˌiŋtAŋsidˈaʤy, trˈes kˈɐ̃mpʊs kˌomplˈɛtʊs, kwˈatrʊ kænˈIz ʤj ˌiŋtAŋsidˈaʤy, i mˈaskæɾæz ʤy sˈɛlulæ, nˈukleʊ, pˌatˈɔʒenw i ˈɔɾəɡɐ̃ʊ̃z ˌAmpaɾeljˈadʊs pˌaɾæ kˈadæ kˈɐ̃mpʊ. ʊz ˌaviˈõjz ʤy mˈaskæɾæs seɾˌɐ̃ʊ̃ kwˈatrʊ, sˈiŋkʊ, sˈAz i sˈɛʧy, sˈAŋ ˌadveɾətˈAŋsjæz ow ˈexʊz ʤy blˌokˈAʊ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 254.34499999999997,
+      "speech_end": 269.84499999999997,
+      "scene_end": 270.465,
+      "duration": 16.120000000000005,
+      "text": "Desativar apenas Previsão e clique em Execute novamente para importar. Masks External agora usa o plano revisto para escrever imagens e matrizes canônicas, em seguida, entrega os campos fundidos para o gasoduto Medida normal com as dimensões da máscara derivadas.",
+      "speech_text": "Desativar apenas Previsão e clique em Execute novamente para importar. Masks External agora usa o plano revisto para escrever imagens e matrizes canônicas, em seguida, entrega os campos fundidos para o gasoduto Medida normal com as dimensões da máscara derivadas.",
+      "phonemes": "dˌezaʧivˈaɾ ˌapˈenæs prˌevizˈɐ̃ʊ̃ i klˈikj ˈAŋ ˌezekˈuʧy nˌovæmˈAŋʧy pˌaɾæ ˌimpoɾətˈar. mˈaskz ˌesteɾənˈW ˌaɡˈɔɾæ ˈuzæ ʊ plˈɐ̃nʊ xˌevˈistʊ pˌaɾæ ˌeskrevˈeɾ ˌimˈaʒAŋz i mˌatrˈizys kˌænˈonikæs, ˈAŋ sˌeɡˈidæ, ˌAŋtrˈɛɡæ ʊs kˈɐ̃mpʊs fˌũŋʤˈidʊs pˌaɾæ ʊ ɡˌazodˈutʊ mˌeʤˈidæ noɾəmˈW koŋ az ʤˌimAŋsˈõjz da mˈaskæɾæ dˌeɾivˈadæs."
+    },
+    {
+      "scene": 17,
+      "speech_start": 270.465,
+      "speech_end": 285.59,
+      "scene_end": 286.27,
+      "duration": 15.805000000000007,
+      "text": "Durante a conversão, 12 dos 12 itens de intensidade conseguem antes do início da medição. O console repete o acoplamento validado e registra um manifesto de reprodução e executa o diário; a parada permanece disponível nos limites seguros declarados.",
+      "speech_text": "Durante a conversão, 12 dos 12 itens de intensidade conseguem antes do início da medição. O console repete o acoplamento validado e registra um manifesto de reprodução e executa o diário; a parada permanece disponível nos limites seguros declarados.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj a kˌoŋveɾəsˈɐ̃ʊ̃, dˈozy dʊs dˈozy ˈitAŋz ʤj ˌiŋtAŋsidˈaʤy kˌoŋsˈɛɡAŋ ˈɐ̃ŋʧyz dʊ ˌinˈisjʊ da mˌeʤisˈɐ̃ʊ̃. ʊ kˌoŋsˈoly xˌepˈɛʧj u ˌakoplæmˈAŋtʊ vˌalidˈadw i xˌeʒˈistræ ũŋ mˌænifˈɛstʊ ʤy xˌeprodusˈɐ̃ʊ̃ i ˌezekˈutæ ʊ ʤˌiˈaɾjʊ; a pˌaɾˈadæ pˌeɾəmænˈɛsy ʤˌisponˈiveʊ nʊz lˌimˈiʧys sˌeɡˈuɾʊz dˌeklaɾˈadʊs."
+    },
+    {
+      "scene": 18,
+      "speech_start": 286.27,
+      "speech_end": 307.495,
+      "scene_end": 308.375,
+      "duration": 22.105000000000018,
+      "text": "A importância real termina com três matrizes combinadas de oito planos e um banco de dados de medições contendo células, citoplasma, núcleo, patógeno, organel, lista PNG, configurações, configurações-história e tabelas de estado de execução. As colheitas celulares estão sob dados, por isso este novo projeto é rastreável e pronto para Annotate sem segmentação repetida.",
+      "speech_text": "A importância real termina com três matrizes combinadas de oito planos e um banco de dados de medições contendo células, citoplasma, núcleo, patógeno, organel, lista PNG, configurações, configurações-história e tabelas de estado de execução. As colheitas celulares estão sob dados, por isso este novo projeto é rastreável e pronto para Annotate sem segmentação repetida.",
+      "phonemes": "a ˌimpoɾətˈɐ̃ŋsjæ xeˈW tˌeɾəmˈinæ koŋ trˈez mˌatrˈizys kˌombinˈadæz ʤj ˈoɪtʊ plˈɐ̃nʊz i ũŋ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈõjs kˌoŋtˈAŋdʊ sˈɛlulæs, sˌitoplˈazmæ, nˈukleʊ, pˌatˈɔʒenʊ, ˌoɾəɡɐ̃nˈɛʊ, lˈistæ pˌeˌeneʒˈe, kˌoŋfiɡˌuɾasˈõjs, kˌoŋfiɡˌuɾasˈõjsˌistˈɔɾjæ i tˌabˈɛlæz ʤj ˌestˈadʊ ʤj ˌezekusˈɐ̃ʊ̃. as kˌoljˈAtæs sˌelulˈaɾyz estˌɐ̃ʊ̃ sˈob dˈadʊs, poɾ ˈisw ˌesʧy nˈovʊ prˌoʒˈɛtw ɛ xˌastreˈaveʊ i prˈoŋtʊ pˌaɾæ ˌɐ̃ŋnotˈaʧy sˈAŋ sˌeɡmAŋtasˈɐ̃ʊ̃ xˌepeʧˈidæ."
     }
   ]
 }

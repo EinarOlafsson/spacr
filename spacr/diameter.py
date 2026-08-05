@@ -81,6 +81,19 @@ Public API
     Human-readable block, ready to print.
 ``channels_from_settings(settings)``
     Pull ``cell_channel`` / ``nucleus_channel`` / ... out of a settings dict.
+
+Where a user meets this
+-----------------------
+:class:`spacr.qt.prerun.DiameterPanel` sits above the Run row on the Mask
+screen: it reads the channels off the settings form with
+:func:`channels_from_settings`, calls :func:`estimate_diameters` on a worker
+thread, and shows one row per object type carrying the proposal *and its
+evidence* — the 10th-90th percentile range, how many objects it was pooled
+from, how many fields contributed, the method and the confidence. A proposal
+without those is just a different guess. Nothing is written into
+``<object>_diameter`` until the user presses **Use**, and
+:attr:`DiameterEstimate.usable` is checked first, so the NaN an unmeasurable
+channel returns cannot reach a settings field.
 """
 from __future__ import annotations
 

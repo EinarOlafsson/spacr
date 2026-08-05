@@ -4,47 +4,167 @@
   "voice": "zf_xiaoni",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 43.475,
+  "total_duration": 203.68,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.15,
-      "scene_end": 6.6000000000000005,
-      "duration": 6.6000000000000005,
-      "text": "通过覆盖曲线并调整它们的设置来比较几个模型训练运行."
+      "speech_end": 13.125,
+      "scene_end": 13.705,
+      "duration": 13.705,
+      "text": "训练运行是一个只能阅读的质量控制屏幕. 它覆盖保存的列车和验证曲线,并将不同设置放在它们旁边;它从来没有重新训练模型或改变磁盘上的运行.",
+      "speech_text": "训练运行是一个只能阅读的质量控制屏幕. 它覆盖保存的列车和验证曲线,并将不同设置放在它们旁边;它从来没有重新训练模型或改变磁盘上的运行.",
+      "phonemes": "ɕy↘nljɛ↘n y↘nɕi↗ŋ ʂɨ↘ i↗kɤ↘ ꭧɨ↓nə↗ŋ ɥe↘tu↗ tɤ ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ pʰi↗ŋmu↘. tʰa→ fu↘kai↘ pau↓ʦʰwə↗n tɤ lje↘ꭧʰɤ→ xɤ↗ jɛ↘nꭧə↘ŋ ʨʰy→ɕjɛ↘n,pi↘ŋ ʨja→ŋ pu↘tʰʊ↗ŋ ʂɤ↘ꭧɨ↘ fa↘ŋʦai↘ tʰa→mən pʰa↗ŋpjɛ→n;tʰa→ ʦʰʊ↗ŋlai↗ mei↗jou↓ ꭧʰʊ↗ŋɕi→n ɕy↘nljɛ↘n mwo↗ɕi↗ŋ xwo↘ kai↓pjɛ↘n ʦʰɨ↗pʰa↗n ʂa↘ŋ tɤ y↘nɕi↗ŋ."
     },
     {
       "scene": 2,
-      "speech_start": 6.6000000000000005,
-      "speech_end": 14.45,
-      "scene_end": 14.899999999999999,
-      "duration": 8.299999999999997,
-      "text": "从 Results and quality control 部分打开 Training Runs。 在\"结果与质量控制\"部分中开启训练运行."
+      "speech_start": 13.705,
+      "speech_end": 26.855,
+      "scene_end": 27.555,
+      "duration": 13.85,
+      "text": "选择包含模型树的文件,或者多个项目以上的任何 parent,然后单击扫描. 转移的显微镜数据没有保存的训练曲线,所以本教程明确使用合成的spaCR格式日志,",
+      "speech_text": "选择包含模型树的文件,或者多个项目以上的任何 parent,然后单击扫描. 转移的显微镜数据没有保存的训练曲线,所以本教程明确使用合成的斯佩克尔格式日志,",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ pau→xa↗n mwo↗ɕi↗ŋ ʂu↘ tɤ wə↗nʨjɛ↘n,xwo↘ꭧɤ↓ two→kɤ↘ ɕja↘ŋmu↘ i↓ʂa↘ŋ tɤ ɻə↘nxɤ↗ parent,ɻa↗nxou↘ ta→nʨi→ sau↓mjau↗. ꭧwa↓ni↗ tɤ ɕjɛ↓nwei→ʨi↘ŋ ʂu↘ʨy↘ mei↗jou↓ pau↓ʦʰwə↗n tɤ ɕy↘nljɛ↘n ʨʰy→ɕjɛ↘n,swo↓i↓ pə↓n ʨjau↘ꭧʰə↗ŋ mi↗ŋʨʰɥe↘ ʂɨ↓jʊ↘ŋ xɤ↗ꭧʰə↗ŋ tɤ sɨ→ pʰei↘kʰɤ↘ ɚ↓ kɤ↗ʂɨ↘ ɻɨ↘ꭧɨ↘,"
     },
     {
       "scene": 3,
-      "speech_start": 14.899999999999999,
-      "speech_end": 22.2,
-      "scene_end": 22.65,
-      "duration": 7.75,
-      "text": "在主要配置区域中,选择显示的指标,平滑,组分,检查点标准和设置字段."
+      "speech_start": 27.555,
+      "speech_end": 41.43,
+      "scene_end": 42.15,
+      "duration": 14.594999999999999,
+      "text": "扫描发现一个二十年代的基线,一个二十五年代的调整运行,一个三次交叉验证运行, 缺失设置和曲线的报道是珀色的,而不是沉默地丢弃的,而有效的运行仍然可使用.",
+      "speech_text": "扫描发现一个二十年代的基线,一个二十五年代的调整运行,一个三次交叉验证运行, 缺失设置和曲线的报道是珀色的,而不是沉默地丢弃的,而有效的运行仍然可使用.",
+      "phonemes": "sau↓mjau↗ fa→ɕjɛ↘n i↗kɤ↘ ɚ↘ʂɨ↗njɛ↗ntai↘ tɤ ʨi→ɕjɛ↘n,i↗kɤ↘ ɚ↘ʂɨ↗u↓ njɛ↗ntai↘ tɤ tʰjau↗ꭧə↓ŋ y↘nɕi↗ŋ,i↗kɤ↘ sa→nʦʰɨ↘ ʨjau→ꭧʰa→ jɛ↘nꭧə↘ŋ y↘nɕi↗ŋ, ʨʰɥe→ʂɨ→ ʂɤ↘ꭧɨ↘ xɤ↗ ʨʰy→ɕjɛ↘n tɤ pau↘tau↘ ʂɨ↘ pʰwo↘sɤ↘ tɤ,ɚ↗ pu↗ʂɨ↘ ꭧʰə↗nmwo↘ ti↘ tjou→ʨʰi↘ tɤ,ɚ↗ jou↓ɕjau↘ tɤ y↘nɕi↗ŋ ɻə↗ŋɻa↗n kʰɤ↓ ʂɨ↓jʊ↘ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 22.65,
-      "speech_end": 35.55,
-      "scene_end": 36.0,
-      "duration": 13.350000000000001,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.比较缩,过度适应,稳定性和持续性能,而不是仅仅通过训练损失进行选择."
+      "speech_start": 42.15,
+      "speech_end": 52.625,
+      "scene_end": 53.125,
+      "duration": 10.975000000000001,
+      "text": "标记二十世纪的基准. 每一行都给出了其模型,道,时代计数,折叠和重要的恢复设置的名字,因此选择仍然可以追踪.",
+      "speech_text": "标记二十世纪的基准. 每一行都给出了其模型,道,时代计数,折叠和重要的恢复设置的名字,因此选择仍然可以追踪.",
+      "phonemes": "pjau→ʨi↘ ɚ↘ʂɨ↗ʂɨ↘ʨi↘ tɤ ʨi→ꭧwə↓n. mei↓ i→ɕi↗ŋ tou→ kei↓ꭧʰu→ lɤ ʨʰi↗ mwo↗ɕi↗ŋ,tau↘,ʂɨ↗tai↘ ʨi↘ʂu↘,ꭧɤ↗tje↗ xɤ↗ ꭧʊ↘ŋjau↘ tɤ xwei→fu↘ ʂɤ↘ꭧɨ↘ tɤ mi↗ŋʦɨ↘,i→nʦʰɨ↓ ɕɥɛ↓nʦɤ↗ ɻə↗ŋɻa↗n kʰɤ↓i↓ ꭧwei→ʦʊ→ŋ."
     },
     {
       "scene": 5,
-      "speech_start": 36.0,
-      "speech_end": 42.825,
-      "scene_end": 43.475,
-      "duration": 7.475000000000001,
-      "text": "工作流程完成后,比较数据和设置差异表确定最强的可复制的运行."
+      "speech_start": 53.125,
+      "speech_end": 63.2,
+      "scene_end": 63.74,
+      "duration": 10.615000000000002,
+      "text": "作为第二次比较,请点击25年代的调节运行. 不同长度的运行不会被切断或;每个曲线保持其真正的时代轴.",
+      "speech_text": "作为第二次比较,请点击25年代的调节运行. 不同长度的运行不会被切断或;每个曲线保持其真正的时代轴.",
+      "phonemes": "ʦwo↘wei↗ ti↘ɚ↘ʦʰɨ↘ pi↓ʨjau↘,ʨʰi↓ŋ tjɛ↓nʨi→ ɚ↘u↓ njɛ↗ntai↘ tɤ tʰjau↗ʨje↗ y↘nɕi↗ŋ. pu↘tʰʊ↗ŋ ꭧʰa↗ŋtu↘ tɤ y↘nɕi↗ŋ pu↗xwei↘ pei↘ ʨʰje→twa↘n xwo↘;mei↓kɤ↘ ʨʰy→ɕjɛ↘n pau↓ꭧʰɨ↗ ʨʰi↗ ꭧə→nꭧə↘ŋ tɤ ʂɨ↗tai↘ ꭧou↗."
+    },
+    {
+      "scene": 6,
+      "speech_start": 63.74,
+      "speech_end": 76.04,
+      "scene_end": 76.66000000000001,
+      "duration": 12.920000000000009,
+      "text": "测量选择记录列,例如准确性,损失,精确回忆区域或类准确性. 折叠控制跨验证是否出现在每折叠中,为平均加或减一个标准偏差,或两者.",
+      "speech_text": "测量选择记录列,例如准确性,损失,精确回忆区域或类准确性. 折叠控制跨验证是否出现在每折叠中,为平均加或减一个标准偏差,或两者.",
+      "phonemes": "ʦʰɤ↘lja↗ŋ ɕɥɛ↓nʦɤ↗ ʨi↘lu↘ lje↘,li↘ɻu↗ ꭧwə↓nʨʰɥe↘ɕi↘ŋ,swə↓nʂɨ→,ʨi→ŋʨʰɥe↘ xwei↗i↘ ʨʰy→y↘ xwo↘lei↘ ꭧwə↓nʨʰɥe↘ɕi↘ŋ. ꭧɤ↗tje↗ kʰʊ↘ŋꭧɨ↘ kʰwa↘ jɛ↘nꭧə↘ŋ ʂɨ↘fou↓ ꭧʰu→ɕjɛ↘n ʦai↘ mei↓ ꭧɤ↗tje↗ ꭧʊ→ŋ,wei↘ pʰi↗ŋʨy→n ʨja→ xwo↘ ʨjɛ↓n i↗kɤ↘ pjau→ꭧwə↓npʰjɛ→nꭧʰa→,xwo↘ lja↓ŋꭧɤ↓."
+    },
+    {
+      "scene": 7,
+      "speech_start": 76.66000000000001,
+      "speech_end": 88.21000000000001,
+      "scene_end": 88.79,
+      "duration": 12.129999999999995,
+      "text": "单击过叠选择. 斜线是训练分区和固体线是验证分区;在降低验证曲线上升的列车曲线表明过度适应,而不是更好的模型.",
+      "speech_text": "单击过叠选择. 斜线是训练分区和固体线是验证分区;在降低验证曲线上升的列车曲线表明过度适应,而不是更好的模型.",
+      "phonemes": "ta→nʨi→ kwo↘tje↗ ɕɥɛ↓nʦɤ↗. ɕje↗ɕjɛ↘n ʂɨ↘ ɕy↘nljɛ↘n fə→nʨʰy→ xɤ↗ ku↘tʰi↓ ɕjɛ↘n ʂɨ↘ jɛ↘nꭧə↘ŋ fə→nʨʰy→;ʦai↘ ʨja↘ŋti→ jɛ↘nꭧə↘ŋ ʨʰy→ɕjɛ↘n ʂa↘ŋʂə→ŋ tɤ lje↘ꭧʰɤ→ ʨʰy→ɕjɛ↘n pjau↓mi↗ŋ kwo↘tu↘ ʂɨ↘i↘ŋ,ɚ↗ pu↗ʂɨ↘ kə↘ŋxau↓ tɤ mwo↗ɕi↗ŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 88.79,
+      "speech_end": 105.565,
+      "scene_end": 106.38499999999999,
+      "duration": 17.594999999999985,
+      "text": "调整的验证曲线在接近零点八五之前达到约零点八五五;基线峰值在零点七八六附近,结束在零点七五附近. 这个表将这些差异与批量大小,时代,学习率和来源联系起来,而工人数量随着环境漂移而分开.",
+      "speech_text": "调整的验证曲线在接近零点八五之前达到约零点八五五;基线峰值在零点七八六附近,结束在零点七五附近. 这个表将这些差异与批量大小,时代,学习率和来源联系起来,而工人数量随着环境漂移而分开.",
+      "phonemes": "tʰjau↗ꭧə↓ŋ tɤ jɛ↘nꭧə↘ŋ ʨʰy→ɕjɛ↘n ʦai↘ ʨje→ʨi↘n li↗ŋtjɛ↓n pa→u↓ ꭧɨ→ʨʰjɛ↗n ta↗tau↘ ɥe→ li↗ŋtjɛ↓n pa→u↓ u↓;ʨi→ɕjɛ↘n fə→ŋꭧɨ↗ ʦai↘ li↗ŋtjɛ↓n ʨʰi→pa→ ljou↘ fu↘ʨi↘n,ʨje↗ʂu↘ ʦai↘ li↗ŋtjɛ↓n ʨʰi→u↓ fu↘ʨi↘n. ꭧɤ↘kɤ pjau↓ʨja→ŋ ꭧɤ↘ɕje→ ꭧʰa→i↘ y↓ pʰi→lja↘ŋ ta↘ɕjau↓,ʂɨ↗tai↘,ɕɥe↗ɕi↗ ly↘ xɤ↗ lai↗ɥɛ↗n ljɛ↗nɕi↘ ʨʰi↓lai↗,ɚ↗ kʊ→ŋɻə↗n ʂu↘lja↘ŋ swei↗ꭧɤ xwa↗nʨi↘ŋ pʰjau→i↗ ɚ↗ fə→nkʰai→."
+    },
+    {
+      "scene": 9,
+      "speech_start": 106.38499999999999,
+      "speech_end": 116.71,
+      "scene_end": 117.21,
+      "duration": 10.825000000000003,
+      "text": "按一下一个曲线来识别其运行和分裂,而不是只依赖于颜色. 选择的系列将返回其文件和以时代为单位的测量.",
+      "speech_text": "按一下一个曲线来识别其运行和分裂,而不是只依赖于颜色. 选择的系列将返回其文件和以时代为单位的测量.",
+      "phonemes": "a↘n i→ɕja↘ i↗kɤ↘ ʨʰy→ɕjɛ↘n lai↗ ʂɨ↗pje↗ ʨʰi↗ y↘nɕi↗ŋ xɤ↗ fə→nlje↘,ɚ↗ pu↗ʂɨ↘ ꭧɨ↓ i→lai↘y↗ jɛ↗nsɤ↘. ɕɥɛ↓nʦɤ↗ tɤ ɕi↘lje↘ ʨja→ŋ fa↓nxwei↗ ʨʰi↗ wə↗nʨjɛ↘n xɤ↗ i↓ ʂɨ↗tai↘ wei↘ ta→nwei↘ tɤ ʦʰɤ↘lja↗ŋ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 117.21,
+      "speech_end": 132.60999999999999,
+      "scene_end": 133.35,
+      "duration": 16.14,
+      "text": "细节线显示了基线验证系列,它的时代范围,在时代20时的最后精度为零点7四九六,在时代20时的最佳精度为零点7八六. 最好的值被标记为乐观,因为同一个曲线选择了那个时代.",
+      "speech_text": "细节线显示了基线验证系列,它的时代范围,在时代20时的最后精度为零点7四九六,在时代20时的最佳精度为零点7八六. 最好的值被标记为乐观,因为同一个曲线选择了那个时代.",
+      "phonemes": "ɕi↘ʨje↗ ɕjɛ↘n ɕjɛ↓nʂɨ↘ lɤ ʨi→ɕjɛ↘n jɛ↘nꭧə↘ŋ ɕi↘lje↘,tʰa→ tɤ ʂɨ↗tai↘ fa↘nwei↗,ʦai↘ ʂɨ↗tai↘ ɚ↘ʂɨ↗ʂɨ↗ tɤ ʦwei↘xou↘ ʨi→ŋtu↘ wei↘ li↗ŋtjɛ↓n ʨʰi→ sɨ↘ʨjou↓ ljou↘,ʦai↘ ʂɨ↗tai↘ ɚ↘ʂɨ↗ʂɨ↗ tɤ ʦwei↘ʨja→ ʨi→ŋtu↘ wei↘ li↗ŋtjɛ↓n ʨʰi→pa→ ljou↘. ʦwei↘xau↓ tɤ ꭧɨ↗ pei↘ pjau→ʨi↘ wei↘ lɤ↘kwa→n,i→nwei↘ tʰʊ↗ŋi→kɤ↘ ʨʰy→ɕjɛ↘n ɕɥɛ↓nʦɤ↗ lɤ na↘kɤ ʂɨ↗tai↘."
+    },
+    {
+      "scene": 11,
+      "speech_start": 133.35,
+      "speech_end": 141.92499999999998,
+      "scene_end": 142.40499999999997,
+      "duration": 9.054999999999978,
+      "text": "打开Metric,然后选择损失. 进行多个指标的比较,就能防止基于一个漂亮的终点进行选择.",
+      "speech_text": "打开Metric,然后选择损失. 进行多个指标的比较,就能防止基于一个漂亮的终点进行选择.",
+      "phonemes": "ta↓kʰai→Metric,ɻa↗nxou↘ ɕɥɛ↓nʦɤ↗ swə↓nʂɨ→. ʨi↘nɕi↗ŋ two→kɤ↘ ꭧɨ↓pjau→ tɤ pi↓ʨjau↘,ʨjou↘ nə↗ŋ fa↗ŋꭧɨ↓ ʨi→y↗ i↗kɤ↘ pʰjau↘lja↘ŋ tɤ ꭧʊ→ŋtjɛ↓n ʨi↘nɕi↗ŋ ɕɥɛ↓nʦɤ↗."
+    },
+    {
+      "scene": 12,
+      "speech_start": 142.40499999999997,
+      "speech_end": 150.10499999999996,
+      "scene_end": 150.72499999999997,
+      "duration": 8.319999999999993,
+      "text": "损失使用相同的运行和设置不同. 在此,训练损失继续下降,而验证损失上升,",
+      "speech_text": "损失使用相同的运行和设置不同. 在此,训练损失继续下降,而验证损失上升,",
+      "phonemes": "swə↓nʂɨ→ ʂɨ↓jʊ↘ŋ ɕja→ŋtʰʊ↗ŋ tɤ y↘nɕi↗ŋ xɤ↗ ʂɤ↘ꭧɨ↘ pu↘tʰʊ↗ŋ. ʦai↘ ʦʰɨ↓,ɕy↘nljɛ↘n swə↓nʂɨ→ ʨi↘ɕy↘ ɕja↘ʨja↘ŋ,ɚ↗ jɛ↘nꭧə↘ŋ swə↓nʂɨ→ ʂa↘ŋʂə→ŋ,"
+    },
+    {
+      "scene": 13,
+      "speech_start": 150.72499999999997,
+      "speech_end": 162.37499999999997,
+      "scene_end": 162.95499999999998,
+      "duration": 12.230000000000018,
+      "text": "现在比较调整的运行与三倍运行,然后选择平均加或减标准偏差. 这总结了交叉验证,而不假装其平均值是单个观察的运行.",
+      "speech_text": "现在比较调整的运行与三倍运行,然后选择平均加或减标准偏差. 这总结了交叉验证,而不假装其平均值是单个观察的运行.",
+      "phonemes": "ɕjɛ↘nʦai↘ pi↓ʨjau↘ tʰjau↗ꭧə↓ŋ tɤ y↘nɕi↗ŋ y↓ sa→npei↘ y↘nɕi↗ŋ,ɻa↗nxou↘ ɕɥɛ↓nʦɤ↗ pʰi↗ŋʨy→n ʨja→ xwo↘ ʨjɛ↓n pjau→ꭧwə↓npʰjɛ→nꭧʰa→. ꭧɤ↘ ʦʊ↓ŋʨje↗ lɤ ʨjau→ꭧʰa→ jɛ↘nꭧə↘ŋ,ɚ↗ pu↘ ʨja↓ꭧwa→ŋ ʨʰi↗ pʰi↗ŋʨy→nꭧɨ↗ ʂɨ↘ ta→nkɤ↘ kwa→nꭧʰa↗ tɤ y↘nɕi↗ŋ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 162.95499999999998,
+      "speech_end": 174.98,
+      "scene_end": 175.64,
+      "duration": 12.685000000000002,
+      "text": "蓝色带是加或减一个标准偏差在三个折叠. 平均验证曲线在零点八三附近结束,而频段则暴露出单一线隐藏的折叠到折叠不确定性.",
+      "speech_text": "蓝色带是加或减一个标准偏差在三个折叠. 平均验证曲线在零点八三附近结束,而频段则暴露出单一线隐藏的折叠到折叠不确定性.",
+      "phonemes": "la↗nsɤ↘ tai↘ ʂɨ↘ ʨja→ xwo↘ ʨjɛ↓n i↗kɤ↘ pjau→ꭧwə↓npʰjɛ→nꭧʰa→ ʦai↘ sa→nkɤ↘ ꭧɤ↗tje↗. pʰi↗ŋʨy→n jɛ↘nꭧə↘ŋ ʨʰy→ɕjɛ↘n ʦai↘ li↗ŋtjɛ↓n pa→sa→n fu↘ʨi↘n ʨje↗ʂu↘,ɚ↗ pʰi↗ntwa↘n ʦɤ↗ pau↘lu↘ꭧʰu→ ta→n i→ɕjɛ↘n i↓nʦʰa↗ŋ tɤ ꭧɤ↗tje↗ tau↘ ꭧɤ↗tje↗ pu↘ʨʰɥe↘ti↘ŋɕi↘ŋ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 175.64,
+      "speech_end": 186.515,
+      "scene_end": 187.035,
+      "duration": 11.39500000000001,
+      "text": "当个人的行为有意义时,选择每次折叠. 在早期停止后,特别有用的方法是发现一个不稳定的裂或一个由较少的折叠支的尾巴.",
+      "speech_text": "当个人的行为有意义时,选择每次折叠. 在早期停止后,特别有用的方法是发现一个不稳定的裂或一个由较少的折叠支的尾巴.",
+      "phonemes": "ta→ŋ kɤ↘ɻə↗n tɤ ɕi↗ŋwei↗ jou↓ i↘i↘ ʂɨ↗,ɕɥɛ↓nʦɤ↗ mei↓ʦʰɨ↘ ꭧɤ↗tje↗. ʦai↘ ʦau↓ʨʰi→ tʰi↗ŋꭧɨ↓ xou↘,tʰɤ↘pje↗ jou↓jʊ↘ŋ tɤ fa→ŋfa↓ ʂɨ↘ fa→ɕjɛ↘n i↗kɤ↘ pu↘ wə↓nti↘ŋ tɤ lje↘ xwo↘ i↗kɤ↘ jou↗ ʨjau↘ ʂau↓ tɤ ꭧɤ↗tje↗ ꭧɨ→ tɤ wei↓pa."
+    },
+    {
+      "scene": 16,
+      "speech_start": 187.035,
+      "speech_end": 202.85999999999999,
+      "scene_end": 203.67999999999998,
+      "duration": 16.644999999999982,
+      "text": "每次折叠模式将每个列车和验证系列绘制在传说中运行,分开和折叠. 使用验证行为,折叠稳定性,持续评估和设置审计;训练运行将证据进行比较,但本身并不能宣布科学复制的获胜者.",
+      "speech_text": "每次折叠模式将每个列车和验证系列绘制在传说中运行,分开和折叠. 使用验证行为,折叠稳定性,持续评估和设置审计;训练运行将证据进行比较,但本身并不能宣布科学复制的获胜者.",
+      "phonemes": "mei↓ʦʰɨ↘ ꭧɤ↗tje↗ mwo↗ʂɨ↘ ʨja→ŋ mei↓kɤ↘ lje↘ꭧʰɤ→ xɤ↗ jɛ↘nꭧə↘ŋ ɕi↘lje↘ xwei↘ꭧɨ↘ ʦai↘ ꭧʰwa↗nʂwo→ ꭧʊ→ŋ y↘nɕi↗ŋ,fə→nkʰai→ xɤ↗ ꭧɤ↗tje↗. ʂɨ↓jʊ↘ŋ jɛ↘nꭧə↘ŋ ɕi↗ŋwei↗,ꭧɤ↗tje↗ wə↓nti↘ŋɕi↘ŋ,ꭧʰɨ↗ɕy↘ pʰi↗ŋku→ xɤ↗ ʂɤ↘ꭧɨ↘ ʂə↓nʨi↘;ɕy↘nljɛ↘n y↘nɕi↗ŋ ʨja→ŋ ꭧə↘ŋʨy↘ ʨi↘nɕi↗ŋ pi↓ʨjau↘,ta↘n pə↓nʂə→n pi↘ŋ pu↘nə↗ŋ ɕɥɛ→npu↘ kʰɤ→ɕɥe↗ fu↘ꭧɨ↘ tɤ xwo↘ʂə↘ŋꭧɤ↓."
     }
   ]
 }

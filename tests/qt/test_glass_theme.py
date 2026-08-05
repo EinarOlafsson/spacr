@@ -6,11 +6,17 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_qsettings(qt_theme_applied, tmp_path):
+    """Redirect QSettings into ``tmp_path`` before clearing it.
+
+    NativeFormat, not just Ini: ``QSettings("spacr", "qt")`` is a NativeFormat
+    object no matter what ``setDefaultFormat`` says, so an Ini-only redirect
+    left the ``.clear()`` calls below deleting the real user preferences.
+    """
     from PySide6.QtCore import QSettings
 
     QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(
-        QSettings.IniFormat, QSettings.UserScope, str(tmp_path))
+    for fmt in (QSettings.NativeFormat, QSettings.IniFormat):
+        QSettings.setPath(fmt, QSettings.UserScope, str(tmp_path))
     QSettings("spacr", "qt").clear()
     yield
     QSettings("spacr", "qt").clear()
@@ -120,19 +126,31 @@ def test_glass_adds_neutral_light_field_specular_rims_and_rounding():
     assert "border-radius: 14px" in material
 
 
-def test_glass_home_pane_uses_the_same_material():
+def test_glass_home_pane_paints_no_box_behind_the_tiles():
+    """The container behind the tiles is gone, not dialled.
+
+    This settled after three passes: a surface at the effective alpha, then
+    transparent, then briefly painted at the preference again on the reading
+    that opacity should "apply to the containers the tiles are in". The final
+    instruction is the clearest — remove the black boxes behind the tiles and
+    make the TILES subject to opacity instead — so the container paints
+    nothing and the dialling lives on the tile fill, where it can be seen.
+
+    The rim stays: it is what the selected tab joins onto, and without it the
+    tab strip floats with nothing under it.
+    """
     from spacr.qt import theme
     from spacr.qt.widgets.home import _tab_qss
 
-    qss = _tab_qss(
-        theme.palette_for("glass"),
-        theme.pane_alpha("glass", 1.0),
-        glass=True,
-    )
-    pane = _rule(qss, "QTabWidget#HomeTabs::pane {")
-    assert "qlineargradient" in pane
-    assert "rgba(255, 255, 255, 0.270)" in pane
-    assert "border-radius: 14px" in pane
+    palette = theme.palette_for("glass")
+    for alpha in (0.0, theme.pane_alpha("glass", 1.0), 1.0):
+        pane = _rule(_tab_qss(palette, alpha, glass=True),
+                     "QTabWidget#HomeTabs::pane {")
+        assert "background: transparent" in pane, \
+            "the pane painted a fill at alpha %r" % (alpha,)
+        assert "qlineargradient" not in pane
+        assert "rgba(255, 255, 255, 0.270)" in pane
+        assert "border-radius: 14px" in pane
 
 
 def test_glass_preference_explains_material_strength(qtbot):

@@ -1,9 +1,10 @@
-"""Space theme: palettes, contrast, procedural sky, cache, icons.
+"""Theme tests: palettes, scrims, dock, glass and icon visibility.
 
-Everything here runs offscreen, CPU-only and offline. The only function
-in :mod:`spacr.qt.space` that can reach the network is
-``download_nasa_background``, and it is never called without an injected
-fake opener.
+The Space theme was retired — its generated skies were a lot of machinery for
+a backdrop nobody chose, and the Cell wallpapers (now "Tubules" and
+"Cytoskeleton") do the same job with the lab's own images. The eight tests
+that were specifically about Space went with it; the rest of this file is
+about the theme system generally and still applies.
 """
 from __future__ import annotations
 
@@ -34,11 +35,6 @@ def cache_dir(tmp_path, monkeypatch):
 # ---------------------------------------------------------------------------
 
 class TestPalettes:
-    def test_space_is_a_theme(self):
-        assert "space" in theme.THEMES
-        from spacr.qt.preferences import VALID_THEMES
-        assert "space" in VALID_THEMES
-
     @pytest.mark.parametrize("name", ("dark", "light", "space", "system"))
     def test_every_theme_resolves_to_a_complete_palette(self, name):
         """No theme may be missing a key the stylesheet reaches for."""
@@ -64,32 +60,6 @@ class TestPalettes:
 
     def test_unknown_theme_falls_back_to_dark(self):
         assert theme.palette_for("chartreuse") == theme.palette_for("dark")
-
-    def test_space_uses_translucent_surfaces_and_others_do_not(self):
-        """The SURFACE roles, specifically.
-
-        This used to say "no rgba() anywhere in the dark stylesheet",
-        which stopped being the same claim once #16j gave every module
-        tile a translucent rim and three translucent hover tints. Those
-        are translucent in every theme by design, so the assertion moved
-        onto the thing it was actually about: an opaque theme paints its
-        surfaces as plain hex.
-        """
-        assert theme.scrim_alpha("space", "surface_alt") < 1.0
-        assert theme.scrim_alpha("dark", "surface_alt") == 1.0
-        assert theme.scrim_alpha("light", "surface_alt") == 1.0
-        assert "rgba(" in theme.stylesheet("space")
-        for name in ("dark", "light"):
-            qss = theme.stylesheet(name)
-            for role in ("surface", "surface_alt", "surface_hi"):
-                colour = theme.palette_for(name)[role]
-                assert colour in qss
-                assert theme.css_color(colour, 1.0) == colour
-
-
-# ---------------------------------------------------------------------------
-# Contrast — asserted numerically, not eyeballed
-# ---------------------------------------------------------------------------
 
 class TestContrast:
     def test_relative_luminance_endpoints(self):
@@ -121,15 +91,6 @@ class TestContrast:
                     palette[fg], theme.effective_surface(name, surface))
                 assert ratio >= 4.5, \
                     f"{name}: {fg} on {surface} is {ratio:.2f}:1"
-
-    def test_space_scrims_are_judged_against_a_white_star(self):
-        """The worst case behind a Space panel is a saturated star core."""
-        assert theme.WORST_CASE_UNDER == "#ffffff"
-        composited = theme.effective_surface("space", "surface_alt")
-        raw = theme.palette_for("space")["surface_alt"]
-        assert theme.relative_luminance(composited) > \
-            theme.relative_luminance(raw), "compositing must lighten"
-        assert theme.contrast_ratio("#ffffff", composited) >= 4.5
 
     def test_primary_button_ink_is_readable(self):
         """White on #4A9EFF measures 2.75:1 — the reason the ink is dark."""
@@ -375,21 +336,6 @@ class TestCache:
 # ---------------------------------------------------------------------------
 
 class TestOffline:
-    def test_space_renders_with_no_background_at_all(self):
-        """The download failed, the cache is unwritable, nothing exists."""
-        qss = theme.stylesheet("space", background=None)
-        assert "url(" not in qss
-        assert "qlineargradient" in qss
-        assert theme.SPACE_PALETTE["bg"] in qss
-
-    def test_background_path_is_quoted_for_qss(self):
-        qss = theme.stylesheet("space", background="/home/a b/sky.png")
-        assert 'url("/home/a b/sky.png")' in qss
-
-    def test_windows_path_separators_are_normalised(self):
-        qss = theme.stylesheet("space", background=r"C:\Users\x\sky.png")
-        assert 'url("C:/Users/x/sky.png")' in qss
-
     def test_download_returns_none_when_offline(self, cache_dir):
         from spacr.qt import space
 
@@ -468,16 +414,6 @@ class TestOffline:
 # ---------------------------------------------------------------------------
 
 class TestPreferencesWiring:
-    def test_existing_theme_values_keep_working(self, qapp):
-        from spacr.qt.preferences import (get_theme, set_theme,
-                                          resolve_effective_theme)
-        for value in ("dark", "light", "system"):
-            set_theme(value)
-            assert get_theme() == value
-        set_theme("space")
-        assert resolve_effective_theme() == "space"
-        set_theme("dark")
-
     def test_unknown_persisted_theme_falls_back(self, monkeypatch, qapp):
         from spacr.qt import preferences
 
@@ -531,22 +467,23 @@ class TestPreferencesWiring:
         monkeypatch.setattr(preferences, "_settings", FakeSettings)
         assert preferences.get_space_variant() == DEFAULT_VARIANT
 
-    def test_background_path_prefers_a_download(self, cache_dir, qapp,
-                                                monkeypatch):
+    def test_background_path_uses_generated_fallback(self, cache_dir, qapp,
+                                                     monkeypatch):
         from spacr.qt import preferences, space
-        fake = cache_dir / "nasa.jpg"
+        fake = cache_dir / "generated.png"
         cache_dir.mkdir(parents=True, exist_ok=True)
         fake.write_bytes(b"pretend")
-        monkeypatch.setattr(space, "downloaded_background", lambda: fake)
+        monkeypatch.setattr(
+            space, "background_path", lambda *args, **kwargs: fake)
         assert preferences.space_background_path() == fake
 
     def test_background_path_never_raises(self, monkeypatch, qapp):
         from spacr.qt import preferences, space
 
-        def boom():
+        def boom(*args, **kwargs):
             raise RuntimeError("disk on fire")
 
-        monkeypatch.setattr(space, "downloaded_background", boom)
+        monkeypatch.setattr(space, "background_path", boom)
         assert preferences.space_background_path() is None
 
     def test_space_gets_dark_figure_colours(self, qapp, monkeypatch):
@@ -671,19 +608,46 @@ class TestRuntimeSwitch:
         assert calls == [1], "the owning window was not asked to rebuild"
 
     def test_refreshing_a_broken_window_is_swallowed(self, qapp, qtbot):
+        """A window that explodes mid-rebuild costs nothing but its own
+        repaint: the Save still lands, and the next window still rebuilds."""
         from PySide6.QtWidgets import QWidget
         from spacr.qt.preferences import _refresh_owner_window
 
+        calls = []
+
         class Rude(QWidget):
             def refresh_theme(self):
+                calls.append("rude")
                 raise RuntimeError("mid-teardown")
 
+        class Polite(QWidget):
+            def refresh_theme(self):
+                calls.append("polite")
+
         rude = Rude()
+        polite = Polite()
         qtbot.addWidget(rude)
+        qtbot.addWidget(polite)
+
         _refresh_owner_window(rude)          # must not raise
+        assert calls == ["rude"], "the broken window was never asked at all"
+
+        # Contrast: the failure did not latch anything off. A well-behaved
+        # window handed over straight afterwards still rebuilds.
+        _refresh_owner_window(polite)
+        assert calls == ["rude", "polite"]
+
+        # The degenerate parents are silent no-ops — they reach nobody
+        # rather than falling back to "refresh whatever is around".
         _refresh_owner_window(None)
         _refresh_owner_window(object())      # no .window() at all
         _refresh_owner_window(QWidget())     # no .refresh_theme at all
+        assert calls == ["rude", "polite"]
+
+        # And the rude window survived its own exception: it is still a
+        # live widget that gets asked again next time.
+        _refresh_owner_window(rude)
+        assert calls == ["rude", "polite", "rude"]
 
     def test_main_window_refresh_theme_is_wired_and_safe(self, qapp, qtbot):
         from spacr.qt.app import MainWindow
@@ -749,8 +713,9 @@ class TestIconVisibility:
                       for p in iconset.bundled_icon_paths()
                       if iconset.carries_tonal_structure(iconset._load_rgba(p))]
         # Only these genuinely put shading in RGB; everything else is a mask.
-        assert set(structured) <= {"activation.png", "umap.png",
-                                   "flow_chart_v3.png"}
+        assert set(structured) <= {
+            "activation.png", "app_icon.png", "flow_chart_v3.png", "umap.png",
+        }
         assert len(structured) < len(iconset.bundled_icon_paths()) / 2
 
     @pytest.mark.parametrize("name", ("dark", "light", "space"))
@@ -802,29 +767,6 @@ class TestIconVisibility:
         return [line.strip() for line in block.splitlines()
                 if line.strip().startswith("background")]
 
-    def test_space_icons_never_sit_on_bare_imagery(self):
-        """Icons are flat ink, so they rely on their container being
-        scrimmed. Every container that holds one must be.
-
-        ``#Sidebar`` used to be on this list and is now on the one
-        below: the user asked for the dock never to be transparent, in
-        any theme, so it is opaque rather than scrimmed. Opaque still
-        satisfies what this test is defending — an icon on it never
-        meets raw sky — it just satisfies it more strongly, which is why
-        the two cases are asserted separately instead of loosening this
-        one to accept both.
-        """
-        qss = theme.stylesheet("space")
-        for selector in ("QPushButton#HTile", "QPushButton#AppTile",
-                         "QPushButton#Tile", "QFrame#Card",
-                         "QFrame#ConsoleBox"):
-            fills = self._fills(qss, selector)
-            assert fills, f"{selector} has no background"
-            assert not any("transparent" in f for f in fills), \
-                f"{selector} is transparent — icons would meet raw sky"
-            assert any("rgba(" in f or "qlineargradient" in f for f in fills), \
-                f"{selector} is not scrimmed: {fills}"
-
     def test_the_dock_is_opaque_in_every_theme(self):
         """"the dock to the left should never have a transparent
         background, either dark gray or white" — the user, #16j.
@@ -835,7 +777,7 @@ class TestIconVisibility:
         re-render through ``scrim_alpha`` — so on Space the app list was
         a ghost with a galaxy behind every row.
         """
-        for name in theme.THEMES:
+        for name in theme.IMAGE_THEMES:
             qss = theme.stylesheet(name)
             expected = theme.dock_colour(name)
             assert expected.startswith("#"), (
@@ -850,6 +792,20 @@ class TestIconVisibility:
                         f"{name}: {selector} paints {fill!r}, not the "
                         f"opaque dock colour {expected}")
                     assert "rgba(" not in fill and "transparent" not in fill
+        # On the FLAT themes the dock follows page opacity instead. Two
+        # instructions meet here: #16j asked that the dock never be
+        # transparent, and a later one asked that page opacity reach it.
+        # Over a wallpaper #16j wins, because that is the case it was about —
+        # a ghost dock with a galaxy behind every row — and the legibility
+        # floor does not rescue it (Cell floors at 0.047). On dark and light
+        # there is no picture behind the dock, only the ambient animation, so
+        # thinning it is what was asked for and harms nothing.
+        for name in ("dark", "light"):
+            qss = theme.stylesheet(name, surface_opacity=0.5)
+            fills = self._fills(qss, "#EdgeDrawer, #Sidebar, #SidebarScroll")
+            assert any("rgba(" in f for f in fills), (
+                f"{name}: the dock ignored page opacity: {fills}")
+
         # White under the light theme, a dark grey everywhere else —
         # both taken from the palette, never written down as a hex.
         assert theme.dock_colour("light") == theme.LIGHT_PALETTE["surface"]

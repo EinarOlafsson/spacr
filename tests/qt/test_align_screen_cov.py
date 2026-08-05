@@ -31,10 +31,11 @@ import pytest
 
 from PySide6.QtCore import QObject, QPoint, Qt, Signal
 from PySide6.QtGui import QColor, QPixmap
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QFileDialog
 
 from spacr import align as align_mod
-from spacr.qt.screens.align import AlignScreen, TileLayoutWidget
+from spacr.qt.screens.align import _PAD, AlignScreen, TileLayoutWidget
 from spacr.qt.theme import DARK_PALETTE
 
 
@@ -95,11 +96,45 @@ def _configure(screen, src, dst=None, overlap=1 - 100 / 128, grid=(2, 2)):
     return screen
 
 
+#: What the layout canvas is rendered over in this file. The canvas paints
+#: a *translucent* panel now (``Z9``), so a render onto an uninitialised
+#: pixmap has nothing defined behind it. Compositing over a stated colour
+#: is what makes "the void is the surface" a fact rather than an accident.
+BACKDROP = QColor("#000000")
+
+
 def _painted(view):
-    """Render the widget and return its QImage — forces ``paintEvent``."""
-    pixmap = QPixmap(view.size())
-    view.render(pixmap)
-    return pixmap.toImage()
+    """Render the widget over :data:`BACKDROP` and return its QImage."""
+    from PySide6.QtGui import QImage, QPainter
+    image = QImage(view.size(), QImage.Format_ARGB32)
+    image.fill(BACKDROP)
+    painter = QPainter(image)
+    view.render(painter, QPoint(0, 0))
+    painter.end()
+    return image
+
+
+def _panel_colour():
+    """The canvas panel as it lands on :data:`BACKDROP`.
+
+    The panel carries the page-opacity preference, so the expected colour
+    is the composite — not the raw ``surface`` hex, which is what the
+    canvas used to paint before it took the preference into account.
+    """
+    from spacr.qt.theme import panel_qcolor
+    panel = panel_qcolor("surface")
+    a = panel.alphaF()
+    return QColor(
+        round(panel.red() * a + BACKDROP.red() * (1 - a)),
+        round(panel.green() * a + BACKDROP.green() * (1 - a)),
+        round(panel.blue() * a + BACKDROP.blue() * (1 - a)))
+
+
+def _near(left, right, tol=2):
+    """True when two colours agree to within ``tol`` per channel."""
+    return (abs(left.red() - right.red()) <= tol
+            and abs(left.green() - right.green()) <= tol
+            and abs(left.blue() - right.blue()) <= tol)
 
 
 def _colour_at(image, point):
@@ -132,9 +167,11 @@ def test_the_layout_paints_a_registered_tile_in_the_accent_colour(
     image = _painted(view)
     assert image.width() == 420 and image.height() == 420
 
-    background = _colour_at(image, QPoint(1, 1))
-    assert background == QColor(DARK_PALETTE["surface"]), \
-        "the void around the layout is the surface colour"
+    # Well inside the panel's rounded corner, and outside every tile.
+    background = _colour_at(image, QPoint(int(_PAD / 2), int(_PAD / 2)))
+    assert _near(background, _panel_colour()), (
+        "the void around the layout is the page panel, not "
+        f"{background.name()}")
 
     rects = dict(view.tile_rects())
     assert len(rects) == 4
@@ -190,12 +227,15 @@ def test_the_empty_state_hint_is_painted_when_there_is_no_plan(
     assert view.tile_rects() == []
 
     image = _painted(view)
-    surface = QColor(DARK_PALETTE["surface"])
-    assert _colour_at(image, QPoint(2, 2)) == surface
+    surface = _panel_colour()
+    assert _near(_colour_at(image, QPoint(6, 6)), surface)
+    # The corner is OUTSIDE the panel's radius, so the backdrop is still
+    # there — that is what makes the panel rounded rather than a slab.
+    assert _near(_colour_at(image, QPoint(0, 0)), BACKDROP)
     # The hint text is drawn centred, so *something* in the middle band is
     # not the background colour.
     middle = [image.pixelColor(x, 120) for x in range(0, 320, 2)]
-    assert any(colour != surface for colour in middle), \
+    assert any(not _near(colour, surface) for colour in middle), \
         "the 'press Plan' hint was not drawn"
 
 
@@ -217,7 +257,7 @@ def test_a_canvas_with_no_area_draws_nothing_instead_of_dividing_by_zero(
     assert view.tile_rects() == []
 
     image = _painted(view)
-    assert _colour_at(image, QPoint(1, 1)) == QColor(DARK_PALETTE["surface"])
+    assert _near(_colour_at(image, QPoint(6, 6)), _panel_colour())
 
 
 def test_tiny_tiles_are_drawn_without_a_label(qtbot, qt_theme_applied):
@@ -268,7 +308,7 @@ def test_clicking_between_the_tiles_reports_the_void(screen, tile_folder,
     assert not any(r.contains(corner) for r in rects.values())
 
     with qtbot.waitSignal(view.tile_clicked, timeout=5000) as blocker:
-        qtbot.mouseClick(view, Qt.LeftButton, pos=corner)
+        QTest.mouseClick(view, Qt.LeftButton, pos=corner)
     assert blocker.args[0] == -1
     assert screen.tile_info_text() == ""
 

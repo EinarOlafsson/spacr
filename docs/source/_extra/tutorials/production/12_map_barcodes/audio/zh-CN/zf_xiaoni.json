@@ -4,47 +4,227 @@
   "voice": "zf_xiaoni",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 41.925,
+  "total_duration": 225.925,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.575,
-      "scene_end": 9.024999999999999,
-      "duration": 9.024999999999999,
-      "text": "这本教程涵盖地图条码. 连接测序条码和指导身份到显微镜图像中测量的现象型."
+      "speech_end": 10.7,
+      "scene_end": 11.149999999999999,
+      "duration": 11.149999999999999,
+      "text": "地图条码解码序列读取了板块位置和指导身份. 控制台报告样本发现,解析器设置,读数,批量进展,输出路径和故障.",
+      "speech_text": "地图条码解码序列读取了板块位置和指导身份. 控制台报告样本发现,解析器设置,读数,批量进展,输出路径和故障.",
+      "phonemes": "ti↘tʰu↗ tʰjau↗ma↓ ʨje↓ma↓ ɕy↘lje↘ tu↗ʨʰy↓ lɤ pa↓nkʰwai↘ wei↘ꭧɨ↘ xɤ↗ ꭧɨ↓tau↓ ʂə→nfə↘n. kʰʊ↘ŋꭧɨ↘tʰai↗ pau↘kau↘ ja↘ŋpə↓n fa→ɕjɛ↘n,ʨje↓ɕi→ʨʰi↘ ʂɤ↘ꭧɨ↘,tu↗ʂu↘,pʰi→lja↘ŋ ʨi↘nꭧa↓n,ʂu→ꭧʰu→ lu↘ʨi↘ŋ xɤ↗ ku↘ꭧa↘ŋ."
     },
     {
       "scene": 2,
-      "speech_start": 9.024999999999999,
-      "speech_end": 17.025,
-      "scene_end": 17.474999999999998,
-      "duration": 8.45,
-      "text": "从 Core 部分打开 Map Barcodes。 提供FASTQ文件,条码定义,板块元数据和相匹配的显微镜项目."
+      "speech_start": 11.149999999999999,
+      "speech_end": 22.875,
+      "scene_end": 23.325,
+      "duration": 12.175,
+      "text": "通过DNA按打开现场测序后台控制器. 在本教程中,可见性设置为10%,以便移动的底部保持可见,而不需要与设置或控制台文本竞争.",
+      "speech_text": "通过DNA按打开现场测序后台控制器. 在本教程中,可见性设置为10%,以便移动的底部保持可见,而不需要与设置或控制台文本竞争.",
+      "phonemes": "tʰʊ→ŋkwo↘DNAa↘n ta↓kʰai→ ɕjɛ↘nꭧʰa↓ŋ ʦʰɤ↘ɕy↘ xou↘tʰai↗ kʰʊ↘ŋꭧɨ↘ʨʰi↘. ʦai↘ pə↓n ʨjau↘ꭧʰə↗ŋ ꭧʊ→ŋ,kʰɤ↓ʨjɛ↘n ɕi↘ŋ ʂɤ↘ꭧɨ↘ wei↘ pai↓fə→nꭧɨ→ʂɨ↗,i↓pjɛ↘n i↗tʊ↘ŋ tɤ ti↓pu↘ pau↓ꭧʰɨ↗ kʰɤ↓ʨjɛ↘n,ɚ↗ pu↘ ɕy→jau↘ y↓ ʂɤ↘ꭧɨ↘ xwo↘ kʰʊ↘ŋꭧɨ↘tʰai↗ wə↗npə↓n ʨi↘ŋꭧə→ŋ."
     },
     {
       "scene": 3,
-      "speech_start": 17.474999999999998,
-      "speech_end": 24.799999999999997,
-      "scene_end": 25.249999999999996,
-      "duration": 7.774999999999999,
-      "text": "在主配置区域中,定义行,列和指导条码布局,并设置质量门和不匹配规则."
+      "speech_start": 23.325,
+      "speech_end": 34.2,
+      "scene_end": 34.650000000000006,
+      "duration": 11.325000000000006,
+      "text": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单.",
+      "speech_text": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单.",
+      "phonemes": "ljau↗tʰjɛ→n ꭧʰa↓ŋ ʨje→ʂou↘ jou↓kwa→n ta→ŋʨʰjɛ↗nkʊ→ŋʦwo↘ ljou↗ꭧʰə↗ŋ tɤ wə↘ntʰi↗. ɻa↘ŋ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ tʰʊ→ŋkwo↘ ɕɥɛ↓nʦɤ↗ tɤ tʰi↗kʊ→ŋʂa→ŋ ʨi↘nɕi↗ŋ lu↘jou↗,pi↘ŋ ʂɨ↓jʊ↘ŋ ɕja→ŋli↗n tɤ ʨjɛ↘ntʰou↗ ta↓kʰai→ tʰi↗kʊ→ŋʂa→ŋ ʦʰai↘ta→n."
     },
     {
       "scene": 4,
-      "speech_start": 25.249999999999996,
-      "speech_end": 32.949999999999996,
-      "scene_end": 33.4,
-      "duration": 8.150000000000002,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的情况下使用预览或测试模式."
+      "speech_start": 34.650000000000006,
+      "speech_end": 44.925000000000004,
+      "scene_end": 45.37500000000001,
+      "duration": 10.725000000000001,
+      "text": "提供商报告是否安装了Claude,ChatGPT和Gemini命令行客户端,并提供其安装和登录命令. 证书留在每个供应商身上.",
+      "speech_text": "提供商报告是否安装了Claude,ChatGPT和Gemini命令行客户端,并提供其安装和登录命令. 证书留在每个供应商身上.",
+      "phonemes": "tʰi↗kʊ→ŋʂa→ŋ pau↘kau↘ ʂɨ↘fou↓ a→nꭧwa→ŋ lɤClaude,ChatGPTxɤ↗Geminimi↘ŋli↘ŋɕi↗ŋ kʰɤ↘xu↘twa→n,pi↘ŋ tʰi↗kʊ→ŋ ʨʰi↗ a→nꭧwa→ŋ xɤ↗ tə→ŋlu↘ mi↘ŋli↘ŋ. ꭧə↘ŋʂu→ ljou↗ʦai↘ mei↓kɤ↘ kʊ→ŋi↘ŋʂa→ŋ ʂə→nʂa↘ŋ."
     },
     {
       "scene": 5,
-      "speech_start": 33.4,
-      "speech_end": 41.275,
-      "scene_end": 41.925,
-      "duration": 8.524999999999999,
-      "text": "工作流程完成后,指导身份将与可追踪表中的井和单个对象现象类型联系起来."
+      "speech_start": 45.37500000000001,
+      "speech_end": 54.30000000000001,
+      "scene_end": 54.750000000000014,
+      "duration": 9.375000000000007,
+      "text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+      "speech_text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和斯佩克尔知情系统提示.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʂɤ↘ꭧɨ↘ kʰʊ↘ŋꭧɨ↘ ɕja↓ŋi↘ŋ ʂə→ntu↘,ʦɨ↘tʊ↘ŋ ʨje↓ʂɨ↘ ʦʰwo↘u↘,kʰɤ↓ɕɥɛ↓n tɤGitHubwə↘ntʰi↗ pau↘kau↘,tə→ŋlu↘ xɤ↗sɨ→ pʰei↘kʰɤ↘ ɚ↓ ꭧɨ→ʨʰi↗ŋ ɕi↘tʰʊ↓ŋ tʰi↗ʂɨ↘."
+    },
+    {
+      "scene": 6,
+      "speech_start": 54.750000000000014,
+      "speech_end": 64.75000000000001,
+      "scene_end": 65.20000000000002,
+      "duration": 10.450000000000003,
+      "text": "拖动合成测序文件到地图条码中. 在顶级层面,spaCR会找到配对的R1和R2 FASTQ文件,并自动设置源文件.",
+      "speech_text": "拖动合成测序文件到地图条码中. 在顶级层面,斯佩克尔会找到配对的R1和R2 FASTQ文件,并自动设置源文件.",
+      "phonemes": "tʰwo→tʊ↘ŋ xɤ↗ꭧʰə↗ŋ ʦʰɤ↘ɕy↘ wə↗nʨjɛ↘n tau↘ ti↘tʰu↗ tʰjau↗ma↓ ꭧʊ→ŋ. ʦai↘ ti↓ŋʨi↗ ʦʰə↗ŋmjɛ↘n,sɨ→ pʰei↘kʰɤ↘ ɚ↓xwei↘ ꭧau↓tau↘ pʰei↘twei↘ tɤRi→ xɤ↗Rɚ↘ FASTQwə↗nʨjɛ↘n,pi↘ŋ ʦɨ↘tʊ↘ŋ ʂɤ↘ꭧɨ↘ ɥɛ↗nwə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 7,
+      "speech_start": 65.20000000000002,
+      "speech_end": 74.02500000000002,
+      "scene_end": 74.47500000000002,
+      "duration": 9.275000000000006,
+      "text": "基本文件显示源源,配对或单读模式,条码引用,解析模式和首次地图运行所需的部分控制.",
+      "speech_text": "基本文件显示源源,配对或单读模式,条码引用,解析模式和首次地图运行所需的部分控制.",
+      "phonemes": "ʨi→pə↓n wə↗nʨjɛ↘n ɕjɛ↓nʂɨ↘ ɥɛ↗nɥɛ↗n,pʰei↘twei↘ xwo↘ ta→ntu↗ mwo↗ʂɨ↘,tʰjau↗ma↓ i↓njʊ↘ŋ,ʨje↓ɕi→ mwo↗ʂɨ↘ xɤ↗ ʂou↓ʦʰɨ↘ ti↘tʰu↗ y↘nɕi↗ŋ swo↓ ɕy→ tɤ pu↘fə↘n kʰʊ↘ŋꭧɨ↘."
+    },
+    {
+      "scene": 8,
+      "speech_start": 74.47500000000002,
+      "speech_end": 83.20000000000002,
+      "scene_end": 83.65000000000002,
+      "duration": 9.174999999999997,
+      "text": "修改限制面板的值与默认值不同,这是用于审计图书馆特定的阅读布局或计算选择时有用的.",
+      "speech_text": "修改限制面板的值与默认值不同,这是用于审计图书馆特定的阅读布局或计算选择时有用的.",
+      "phonemes": "ɕjou→kai↓ ɕjɛ↘nꭧɨ↘ mjɛ↘npa↓n tɤ ꭧɨ↗ y↓ mwo↘ɻə↘nꭧɨ↗ pu↘tʰʊ↗ŋ,ꭧɤ↘ʂɨ↘ jʊ↘ŋy↗ ʂə↓nʨi↘ tʰu↗ʂu→kwa↓n tʰɤ↘ti↘ŋ tɤ ɥe↘tu↗ pu↘ʨy↗ xwo↘ ʨi↘swa↘n ɕɥɛ↓nʦɤ↗ ʂɨ↗ jou↓jʊ↘ŋ tɤ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 83.65000000000002,
+      "speech_end": 92.52500000000002,
+      "scene_end": 92.97500000000002,
+      "duration": 9.325000000000003,
+      "text": "所有设置都显示每个类别,没有改变值. 五个类别分开输入,参考,分析,输出和运行时间可靠性.",
+      "speech_text": "所有设置都显示每个类别,没有改变值. 五个类别分开输入,参考,分析,输出和运行时间可靠性.",
+      "phonemes": "swo↓jou↓ ʂɤ↘ꭧɨ↘ tou→ ɕjɛ↓nʂɨ↘ mei↓kɤ↘ lei↘pje↗,mei↗jou↓ kai↓pjɛ↘n ꭧɨ↗. u↓kɤ↘ lei↘pje↗ fə→nkʰai→ ʂu→ɻu↘,ʦʰa→nkʰau↓,fə→nɕi→,ʂu→ꭧʰu→ xɤ↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n kʰɤ↓kʰau↘ɕi↘ŋ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 92.97500000000002,
+      "speech_end": 101.92500000000003,
+      "scene_end": 102.37500000000003,
+      "duration": 9.400000000000006,
+      "text": "配方在名称下保存完整的测序配置,以后重新应用,或者进口和出口可重复使用的设置文件.",
+      "speech_text": "配方在名称下保存完整的测序配置,以后重新应用,或者进口和出口可重复使用的设置文件.",
+      "phonemes": "pʰei↘fa→ŋ ʦai↘ mi↗ŋꭧʰə→ŋ ɕja↘ pau↓ʦʰwə↗n wa↗nꭧə↓ŋ tɤ ʦʰɤ↘ɕy↘ pʰei↘ꭧɨ↘,i↓xou↘ ꭧʰʊ↗ŋɕi→n i↘ŋjʊ↘ŋ,xwo↘ꭧɤ↓ ʨi↘nkʰou↓ xɤ↗ ꭧʰu→kʰou↓ kʰɤ↓ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ tɤ ʂɤ↘ꭧɨ↘ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 11,
+      "speech_start": 102.37500000000003,
+      "speech_end": 109.90000000000003,
+      "scene_end": 110.35000000000004,
+      "duration": 7.9750000000000085,
+      "text": "提交已解决的地图条码设置的远程快照,并将任务发送到分布式工作工作空间.",
+      "speech_text": "提交已解决的地图条码设置的远程快照,并将任务发送到分布式工作工作空间.",
+      "phonemes": "tʰi↗ʨjau→ i↓ ʨje↓ʨɥe↗ tɤ ti↘tʰu↗ tʰjau↗ma↓ ʂɤ↘ꭧɨ↘ tɤ ɥɛ↓nꭧʰə↗ŋ kʰwai↘ꭧau↘,pi↘ŋ ʨja→ŋ ɻə↘nu↘ fa→sʊ↘ŋtau↘ fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ kʊ→ŋʦwo↘ kʰʊ→ŋʨjɛ→n."
+    },
+    {
+      "scene": 12,
+      "speech_start": 110.35000000000004,
+      "speech_end": 120.57500000000003,
+      "scene_end": 121.02500000000003,
+      "duration": 10.674999999999997,
+      "text": "分布式工作将测序路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+      "speech_text": "分布式工作将测序路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+      "phonemes": "fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ ʨja→ŋ ʦʰɤ↘ɕy↘ lu↘ʨi↘ŋ xɤ↗ ʨi↘swa↘nʦɨ→ɥɛ↗n i↘ŋʂɤ↘ tau↘ ɥɛ↓nꭧʰə↗ŋ kʊ→ŋʦwo↘ꭧa↘n,Slurmʨi↗ʨʰy↗n xwo↘ pʰei↘ꭧɨ↘ mi↘ŋli↘ŋ,ɻa↗nxou↘ tʰi↗ʨjau→ pi↘ŋ ʨjɛ→nʦʰɤ↘ ɕja→ŋtʰʊ↗ŋ tɤ y↘nɕi↗ŋ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 121.02500000000003,
+      "speech_end": 128.85000000000002,
+      "scene_end": 129.3,
+      "duration": 8.274999999999977,
+      "text": "序列输入选择FASTQ文件,确定R1和R2是否结合成一对或单独处理一个读取方向.",
+      "speech_text": "序列输入选择FASTQ文件,确定R1和R2是否结合成一对或单独处理一个读取方向.",
+      "phonemes": "ɕy↘lje↘ ʂu→ɻu↘ ɕɥɛ↓nʦɤ↗FASTQwə↗nʨjɛ↘n,ʨʰɥe↘ti↘ŋRi→ xɤ↗Rɚ↘ ʂɨ↘fou↓ ʨje↗xɤ↗ ꭧʰə↗ŋ i→twei↘ xwo↘ ta→ntu↗ ꭧʰu↓li↓ i↗kɤ↘ tu↗ʨʰy↓ fa→ŋɕja↘ŋ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 129.3,
+      "speech_end": 138.875,
+      "scene_end": 139.325,
+      "duration": 10.024999999999977,
+      "text": "条码引用指向三个CSV查找表:一个用于gRNA条码,一个用于盘列,一个用于盘列列. 每个表需要名称和序列列.",
+      "speech_text": "条码引用指向三个CSV查找表:一个用于gRNA条码,一个用于盘列,一个用于盘列列. 每个表需要名称和序列列.",
+      "phonemes": "tʰjau↗ma↓ i↓njʊ↘ŋ ꭧɨ↓ɕja↘ŋ sa→nkɤ↘CSVꭧʰa↗ꭧau↓ pjau↓:i↗kɤ↘ jʊ↘ŋy↗gRNAtʰjau↗ma↓,i↗kɤ↘ jʊ↘ŋy↗ pʰa↗nlje↘,i↗kɤ↘ jʊ↘ŋy↗ pʰa↗nlje↘lje↘. mei↓kɤ↘ pjau↓ ɕy→jau↘ mi↗ŋꭧʰə→ŋ xɤ↗ ɕy↘lje↘ lje↘."
+    },
+    {
+      "scene": 15,
+      "speech_start": 139.325,
+      "speech_end": 147.7,
+      "scene_end": 148.14999999999998,
+      "duration": 8.824999999999989,
+      "text": "在已知目标序列上阅读解析,提取一个固定窗口,并使用命名的列ID,gRNA和rowID组的常规表达式.",
+      "speech_text": "在已知目标序列上阅读解析,提取一个固定窗口,并使用命名的列ID,gRNA和rowID组的常规表达式.",
+      "phonemes": "ʦai↘ i↓ꭧɨ→ mu↘pjau→ ɕy↘lje↘ ʂa↘ŋ ɥe↘tu↗ ʨje↓ɕi→,tʰi↗ʨʰy↓ i↗kɤ↘ ku↘ti↘ŋ ꭧʰwa→ŋkʰou↓,pi↘ŋ ʂɨ↓jʊ↘ŋ mi↘ŋmi↗ŋ tɤ lje↘ID,gRNAxɤ↗rowIDʦu↓ tɤ ꭧʰa↗ŋkwei→ pjau↓ta↗ʂɨ↘."
+    },
+    {
+      "scene": 16,
+      "speech_start": 148.14999999999998,
+      "speech_end": 158.27499999999998,
+      "scene_end": 158.72499999999997,
+      "duration": 10.574999999999989,
+      "text": "输出和存储控制可选的HDF5读取存储,压缩,以及是否保留未匹配的条码名称作为缺失值. 总结的CSV输出总是写的.",
+      "speech_text": "输出和存储控制可选的HDF5读取存储,压缩,以及是否保留未匹配的条码名称作为缺失值. 总结的CSV输出总是写的.",
+      "phonemes": "ʂu→ꭧʰu→ xɤ↗ ʦʰwə↗nꭧʰu↓ kʰʊ↘ŋꭧɨ↘ kʰɤ↓ɕɥɛ↓n tɤHDFu↓ tu↗ʨʰy↓ ʦʰwə↗nꭧʰu↓,ja→swo→,i↓ʨi↗ ʂɨ↘fou↓ pau↓ljou↗ wei↘ pʰi↓pʰei↘ tɤ tʰjau↗ma↓ mi↗ŋꭧʰə→ŋ ʦwo↘wei↗ ʨʰɥe→ʂɨ→ ꭧɨ↗. ʦʊ↓ŋʨje↗ tɤCSVʂu→ꭧʰu→ ʦʊ↓ŋʂɨ↘ ɕje↓ tɤ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 158.72499999999997,
+      "speech_end": 171.39999999999998,
+      "scene_end": 171.84999999999997,
+      "duration": 13.125,
+      "text": "运行时间和可靠性设置按零件,工人数量和测试模式进行读取. 较小的块使用较少的内存;测试模式在大型测序运行之前验证了第一个块.",
+      "speech_text": "运行时间和可靠性设置按零件,工人数量和测试模式进行读取. 较小的块使用较少的内存;测试模式在大型测序运行之前验证了第一个块.",
+      "phonemes": "y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n xɤ↗ kʰɤ↓kʰau↘ɕi↘ŋ ʂɤ↘ꭧɨ↘ a↘n li↗ŋʨjɛ↘n,kʊ→ŋɻə↗n ʂu↘lja↘ŋ xɤ↗ ʦʰɤ↘ʂɨ↘ mwo↗ʂɨ↘ ʨi↘nɕi↗ŋ tu↗ʨʰy↓. ʨjau↘ ɕjau↓ tɤ kʰwai↘ ʂɨ↓jʊ↘ŋ ʨjau↘ʂau↓ tɤ nei↘ʦʰwə↗n;ʦʰɤ↘ʂɨ↘ mwo↗ʂɨ↘ ʦai↘ ta↘ɕi↗ŋ ʦʰɤ↘ɕy↘ y↘nɕi↗ŋ ꭧɨ→ʨʰjɛ↗n jɛ↘nꭧə↘ŋ lɤ ti↘i↗kɤ↘ kʰwai↘."
+    },
+    {
+      "scene": 18,
+      "speech_start": 171.84999999999997,
+      "speech_end": 182.34999999999997,
+      "scene_end": 182.79999999999995,
+      "duration": 10.949999999999989,
+      "text": "这座合成图书馆使用26基的目标,在之前启动8基,并提取89基. 然后regex将捕获的列,指南和行序列命名.",
+      "speech_text": "这座合成图书馆使用26基的目标,在之前启动8基,并提取89基. 然后regex将捕获的列,指南和行序列命名.",
+      "phonemes": "ꭧɤ↘ʦwo↘ xɤ↗ꭧʰə↗ŋ tʰu↗ʂu→kwa↓n ʂɨ↓jʊ↘ŋ ɚ↘ʂɨ↗ljou↘ ʨi→tɤ mu↘pjau→,ʦai↘ ꭧɨ→ʨʰjɛ↗n ʨʰi↓tʊ↘ŋ pa→ʨi→,pi↘ŋ tʰi↗ʨʰy↓ pa→ʂɨ↗ʨjou↓ ʨi→. ɻa↗nxou↘regexʨja→ŋ pu↓xwo↘ tɤ lje↘,ꭧɨ↓na↗n xɤ↗ɕi↗ŋ ɕy↘lje↘ mi↘ŋmi↗ŋ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 182.79999999999995,
+      "speech_end": 194.59999999999997,
+      "scene_end": 195.04999999999995,
+      "duration": 12.25,
+      "text": "这封教程文件包含4,800个对式阅读,分布在24个合成井口和12个指南条码上. 配对模式将R1与反向补充的R2共识进行比较.",
+      "speech_text": "这封教程文件包含4,800个对式阅读,分布在24个合成井口和12个指南条码上. 配对模式将R1与反向补充的R2共识进行比较.",
+      "phonemes": "ꭧɤ↘fə→ŋ ʨjau↘ꭧʰə↗ŋ wə↗nʨjɛ↘n pau→xa↗n sɨ↘,pa→pai↓kɤ↘ twei↘ʂɨ↘ ɥe↘tu↗,fə→npu↘ ʦai↘ ɚ↘ʂɨ↗sɨ↘kɤ↘ xɤ↗ꭧʰə↗ŋ ʨi↓ŋkʰou↓ xɤ↗ ʂɨ↗ɚ↘kɤ↘ ꭧɨ↓na↗n tʰjau↗ma↓ ʂa↘ŋ. pʰei↘twei↘ mwo↗ʂɨ↘ ʨja→ŋRi→ y↓ fa↓nɕja↘ŋ pu↓ꭧʰʊ→ŋ tɤRɚ↘ kʊ↘ŋʂɨ↗ ʨi↘nɕi↗ŋ pi↓ʨjau↘."
+    },
+    {
+      "scene": 20,
+      "speech_start": 195.04999999999995,
+      "speech_end": 204.27499999999995,
+      "scene_end": 204.72499999999994,
+      "duration": 9.674999999999983,
+      "text": "运行验证路径和引用,发现对对样本,计算读数,并启动碎片条码映射. 停止请求一个有序的中断.",
+      "speech_text": "运行验证路径和引用,发现对对样本,计算读数,并启动碎片条码映射. 停止请求一个有序的中断.",
+      "phonemes": "y↘nɕi↗ŋ jɛ↘nꭧə↘ŋ lu↘ʨi↘ŋ xɤ↗ i↓njʊ↘ŋ,fa→ɕjɛ↘n twei↘ twei↘ ja↘ŋpə↓n,ʨi↘swa↘n tu↗ʂu↘,pi↘ŋ ʨʰi↓tʊ↘ŋ swei↘pʰjɛ↘n tʰjau↗ma↓ i↘ŋʂɤ↘. tʰi↗ŋꭧɨ↓ ʨʰi↓ŋʨʰjou↗ i↗kɤ↘ jou↓ɕy↘ tɤ ꭧʊ→ŋtwa↘n."
+    },
+    {
+      "scene": 21,
+      "speech_start": 204.72499999999994,
+      "speech_end": 213.37499999999994,
+      "scene_end": 213.82499999999993,
+      "duration": 9.099999999999994,
+      "text": "进展指标和控制台显示活性样本和批量数量. 这项示范处理了五批1000本或更少的阅读.",
+      "speech_text": "进展指标和控制台显示活性样本和批量数量. 这项示范处理了五批1000本或更少的阅读.",
+      "phonemes": "ʨi↘nꭧa↓n ꭧɨ↓pjau→ xɤ↗ kʰʊ↘ŋꭧɨ↘tʰai↗ ɕjɛ↓nʂɨ↘ xwo↗ɕi↘ŋ ja↘ŋpə↓n xɤ↗ pʰi→lja↘ŋ ʂu↘lja↘ŋ. ꭧɤ↘ɕja↘ŋ ʂɨ↘fa↘n ꭧʰu↓li↓ lɤ u↓pʰi→ i→ʨʰjɛ→npə↓n xwo↘ kə↘ŋ ʂau↓ tɤ ɥe↘tu↗."
+    },
+    {
+      "scene": 22,
+      "speech_start": 213.82499999999993,
+      "speech_end": 225.27499999999992,
+      "scene_end": 225.92499999999993,
+      "duration": 12.099999999999994,
+      "text": "成功运行将 unique_combinations.csv 写成行,列,指南和计数,加上qc.csv 写成映射质量统计. 它还保存可复制的设置,表格和可重启的宏.",
+      "speech_text": "成功运行将 unique_combinations.csv 写成行,列,指南和计数,加上qc.csv 写成映射质量统计. 它还保存可复制的设置,表格和可重启的宏.",
+      "phonemes": "ꭧʰə↗ŋkʊ→ŋ y↘nɕi↗ŋ ʨja→ŋ unique_combinations.csv ɕje↓ꭧʰə↗ŋ ɕi↗ŋ,lje↘,ꭧɨ↓na↗n xɤ↗ ʨi↘ʂu↘,ʨja→ʂa↘ŋqc.csv ɕje↓ꭧʰə↗ŋ i↘ŋʂɤ↘ ꭧɨ↘lja↘ŋ tʰʊ↓ŋʨi↘. tʰa→ xai↗ pau↓ʦʰwə↗n kʰɤ↓ fu↘ꭧɨ↘ tɤ ʂɤ↘ꭧɨ↘,pjau↓kɤ↗ xɤ↗ kʰɤ↓ ꭧʰʊ↗ŋʨʰi↓ tɤ xʊ↗ŋ."
     }
   ]
 }

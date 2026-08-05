@@ -137,17 +137,27 @@ def test_stable_mask_module_keeps_only_experimental_section_beta(
     qtbot.addWidget(screen)
     by_title = {section.title(): section for section in screen.findChildren(Section)}
 
-    assert by_title["3D SETTINGS (BETA)"].maturity() == "beta"
-    assert by_title["4D SETTINGS (BETA)"].maturity() == "beta"
+    volumetric = by_title["VOLUMETRIC PROCESSING (BETA)"]
+    tracking = by_title["TIME AXES & TRACKING (BETA)"]
+    assert volumetric.maturity() == "beta"
+    assert tracking.maturity() == "beta"
     three_d_labels = {
         label.text() for label, _widget
-        in by_title["3D SETTINGS (BETA)"]._row_widgets
+        in volumetric._row_widgets
     }
     four_d_labels = {
         label.text() for label, _widget
-        in by_title["4D SETTINGS (BETA)"]._row_widgets
+        in tracking._row_widgets
     }
     assert "Z stack" in three_d_labels
     assert "T stack" in four_d_labels
-    assert by_title["PATHS"].maturity() == "stable"
-    assert by_title["GENERAL"].maturity() == "stable"
+    beta_titles = {
+        title for title, section in by_title.items()
+        if section.maturity() == "beta"
+    }
+    assert beta_titles == {
+        "VOLUMETRIC PROCESSING (BETA)",
+        "TIME AXES & TRACKING (BETA)",
+    }
+    assert by_title["INPUT & METADATA"].maturity() == "stable"
+    assert by_title["WORKFLOW & TEST RUN"].maturity() == "stable"

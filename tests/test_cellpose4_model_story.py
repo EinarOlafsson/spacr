@@ -39,6 +39,8 @@ matplotlib.use("Agg")
 import spacr.utils as U
 import spacr.settings as S
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -262,8 +264,14 @@ def sam_pipeline(monkeypatch):
             self.pretrained_model = pretrained_model
             holder["model"] = self
 
-        def eval(self, x=None, **kwargs):
-            holder.setdefault("eval_kwargs", []).append(kwargs)
+        def eval(self, x=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            # channel_axis is named, not swallowed by **kwargs -- see the
+            # Cellpose mock contract in tests/conftest.py.
+            check_cellpose_eval_call(x, channel_axis,
+                                     z_axis=kwargs.get("z_axis"),
+                                     do_3D=kwargs.get("do_3D", False))
+            holder.setdefault("eval_kwargs", []).append(
+                {"channel_axis": channel_axis, **kwargs})
             imgs = [np.asarray(im) for im in x]
             masks, flows = [], []
             for im in imgs:
@@ -473,8 +481,13 @@ def test_identify_masks_finetune_loads_the_custom_model_without_diam_mean(
             built.update(kw)
             self.pretrained_model = kw.get("pretrained_model")
 
-        def eval(self, x=None, **kwargs):
-            built.setdefault("eval_kwargs", []).append(kwargs)
+        def eval(self, x=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            # spacr_cellpose picks the axis per image via
+            # cellpose_channel_axis(); this is where that choice is checked
+            # against the real cellpose.transforms.convert_image.
+            check_cellpose_eval_call(x, channel_axis)
+            built.setdefault("eval_kwargs", []).append(
+                {"channel_axis": channel_axis, **kwargs})
             arr = np.asarray(x)
             h, w = arr.shape[:2]
             mask = np.zeros((h, w), dtype=np.uint16)
@@ -527,7 +540,8 @@ def test_identify_masks_finetune_maps_a_legacy_stock_name(tmp_path,
             built.update(kw)
             self.pretrained_model = kw.get("pretrained_model")
 
-        def eval(self, x=None, **kwargs):
+        def eval(self, x=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(x, channel_axis)
             arr = np.asarray(x)
             h, w = arr.shape[:2]
             mask = np.zeros((h, w), dtype=np.uint16)

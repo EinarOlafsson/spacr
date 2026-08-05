@@ -11,6 +11,9 @@ matplotlib.use("Agg")
 from spacr import measure as M
 from spacr import object as OBJ
 
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
+from tests.conftest import check_cellpose_eval_call
+
 
 def _two_object_mask(size=32):
     m = np.zeros((size, size), dtype=np.int32)
@@ -59,6 +62,10 @@ def test_get_components():
 # ---------------------------------------------------------------------------
 
 def test_calculate_zernike():
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     m = _two_object_mask()
     base = pd.DataFrame({"label": [1, 2]})
     out = M._calculate_zernike(m, base, degree=8)
@@ -98,7 +105,7 @@ def test_morphological_measurements():
     }
     out = M._morphological_measurements(
         cell, nucleus, pathogen, organelle, cytoplasm,
-        settings, zernike=True, degree=8)
+        settings, zernike=False, degree=8)
     assert isinstance(out, tuple) and len(out) == 5
 
 
@@ -348,7 +355,16 @@ def _obj_settings(**over):
 
 
 def test_validate_organelle_settings_ok():
-    OBJ._validate_organelle_settings("spots", "otsu")   # no raise
+    """A legal pair validates to ``None`` -- and the acceptance is per-pair.
+
+    On its own "did not raise" is satisfied by a guard whose body is
+    ``return``. ``ridge`` is the discriminator: legal for ``network``,
+    refused for ``spots``, and the message says which morphology refused it.
+    """
+    assert OBJ._validate_organelle_settings("spots", "otsu") is None
+    assert OBJ._validate_organelle_settings("network", "ridge") is None
+    with pytest.raises(ValueError, match="morphology='spots'"):
+        OBJ._validate_organelle_settings("spots", "ridge")
 
 
 def test_validate_organelle_settings_bad_morphology():
@@ -684,8 +700,23 @@ def test_segment_unet_skeletonize_and_flat():
 # ---------------------------------------------------------------------------
 
 class _FakeCP:
-    """Minimal stand-in for CellposeModel — returns cellpose4-shaped output."""
-    def eval(self, x, **kw):
+    """Minimal stand-in for CellposeModel — installed cellpose 4.0.7 shapes.
+
+    ``eval`` declares the real parameter list with the real defaults and no
+    ``**kwargs``, so an argument cellpose 4 removed raises ``TypeError`` at the
+    ``spacr.object._segment_cellpose`` call site instead of being swallowed,
+    and it returns the THREE values 4.0.7 returns. It used to return four —
+    the cellpose 3 shape — which would have kept a four-value unpack green.
+    """
+
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             invert=False, rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=256, compute_masks=True, progress=None):
+        check_cellpose_eval_call(x, channel_axis)
         n = len(x)
         h, w = x[0].shape[:2]
         masks = []
@@ -697,7 +728,7 @@ class _FakeCP:
         flow1 = np.zeros((3, n, h, w), dtype=np.float32)
         flow2 = np.zeros((n, h, w), dtype=np.float32)
         flow3 = np.zeros((n, h, w), dtype=np.float32)
-        return masks, [flow0, flow1, flow2, flow3], None, None
+        return masks, [flow0, flow1, flow2, flow3], None
 
 
 def test_segment_cellpose_ndim4(tmp_path):

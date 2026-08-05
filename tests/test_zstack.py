@@ -36,6 +36,8 @@ import spacr.object as O
 import spacr.settings as S
 import spacr.zstack as Z
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 # ===========================================================================
 # Helpers
@@ -710,8 +712,18 @@ def fake_model(monkeypatch):
             out[12:18, 12:18] = 2
             return out
 
-        def eval(self, x=None, **kwargs):
-            self.eval_kwargs.append(kwargs)
+        def eval(self, x=None, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            # channel_axis is named, not swallowed by **kwargs: a mock that
+            # accepts any axis cannot tell the volumetric call (-1 on a
+            # (Z, Y, X, C) volume) from an axis Cellpose would reject.
+            check_cellpose_eval_call(
+                x, channel_axis,
+                z_axis=kwargs.get("z_axis"),
+                do_3D=kwargs.get("do_3D", False),
+                stitch_threshold=kwargs.get("stitch_threshold", 0.0))
+            # Recorded back into the kwargs dict so the "the 3D settings must
+            # not leak into the 2-D call" comparison still sees every argument.
+            self.eval_kwargs.append({"channel_axis": channel_axis, **kwargs})
             if isinstance(x, list):
                 self.eval_shapes.append([np.asarray(i).shape for i in x])
                 masks = [self._label(np.asarray(i)) for i in x]

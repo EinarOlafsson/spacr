@@ -4,47 +4,107 @@
   "voice": "zf_xiaobei",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 53.15,
+  "total_duration": 173.68,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.6,
-      "scene_end": 10.049999999999999,
-      "duration": 10.049999999999999,
-      "text": "本教程涵盖格式转换器. 将 ND2, CZI, LIF, OME-TIFF 和相关显微镜格式转换为映射的横川式TIFF文件."
+      "speech_end": 16.45,
+      "scene_end": 17.15,
+      "duration": 17.15,
+      "text": "格式转换器将供应商或一般显微镜图像转化为Yokogawa风格的TIFF名称,spaCR Mask和Measure直接读取. 打开它,从数据和批量运行. 基本的安全规则是先查看,然后再转换.",
+      "speech_text": "格式转换器将供应商或一般显微镜图像转化为Yokogawa风格的TIFF名称,斯佩克尔 Mask和Measure直接读取. 打开它,从数据和批量运行. 基本的安全规则是先查看,然后再转换.",
+      "phonemes": "kɤ↗ʂɨ↘ ꭧwa↓nxwa↘nʨʰi↘ ʨja→ŋ kʊ→ŋi↘ŋʂa→ŋ xwo↘ i↘pa→n ɕjɛ↓nwei→ʨi↘ŋ tʰu↗ɕja↘ŋ ꭧwa↓nxwa↘ wei↘Yokogawafə→ŋkɤ↗ tɤTIFFmi↗ŋꭧʰə→ŋ,sɨ→ pʰei↘kʰɤ↘ ɚ↓ Maskxɤ↗Measureꭧɨ↗ʨje→ tu↗ʨʰy↓. ta↓kʰai→ tʰa→,ʦʰʊ↗ŋ ʂu↘ʨy↘ xɤ↗ pʰi→lja↘ŋ y↘nɕi↗ŋ. ʨi→pə↓n tɤ a→nʨʰɥɛ↗n kwei→ʦɤ↗ ʂɨ↘ ɕjɛ→n ꭧʰa↗kʰa↘n,ɻa↗nxou↘ ʦai↘ ꭧwa↓nxwa↘n."
     },
     {
       "scene": 2,
-      "speech_start": 10.049999999999999,
-      "speech_end": 21.35,
-      "scene_end": 21.8,
-      "duration": 11.750000000000002,
-      "text": "从 Data and batch runs 部分打开 Format Converter。 选择源文件,系列或场景,频道名称,时间和深度处理以及输出文件."
+      "speech_start": 17.15,
+      "speech_end": 35.45,
+      "scene_end": 36.21,
+      "duration": 19.060000000000002,
+      "text": "放下一个源文件或选择这里,然后选择一个新的目的地. 这项演示使用了转移实验的两个真正的四通道场. 它们的像素是字节对字节复制的;只有教程文件结构和源文件名为此转换例子准备.",
+      "speech_text": "放下一个源文件或选择这里,然后选择一个新的目的地. 这项演示使用了转移实验的两个真正的四通道场. 它们的像素是字节对字节复制的;只有教程文件结构和源文件名为此转换例子准备.",
+      "phonemes": "fa↘ŋɕja↘ i↗kɤ↘ ɥɛ↗nwə↗nʨjɛ↘n xwo↘ ɕɥɛ↓nʦɤ↗ ꭧɤ↘li↓,ɻa↗nxou↘ ɕɥɛ↓nʦɤ↗ i↗kɤ↘ ɕi→n tɤ mu↘ti↘ti↘. ꭧɤ↘ɕja↘ŋ jɛ↓nʂɨ↘ ʂɨ↓jʊ↘ŋ lɤ ꭧwa↓ni↗ ʂɨ↗jɛ↘n tɤ lja↓ŋkɤ↘ ꭧə→nꭧə↘ŋ tɤ sɨ↘tʰʊ→ŋ tau↘ꭧʰa↓ŋ. tʰa→mən tɤ ɕja↘ŋsu↘ ʂɨ↘ ʦɨ↘ʨje↗ twei↘ ʦɨ↘ʨje↗ fu↘ꭧɨ↘ tɤ;ꭧɨ↓jou↓ ʨjau↘ꭧʰə↗ŋ wə↗nʨjɛ↘n ʨje↗kou↘ xɤ↗ ɥɛ↗nwə↗nʨjɛ↘n mi↗ŋwei↘ ʦʰɨ↓ ꭧwa↓nxwa↘n li↘ʦɨ ꭧwə↓npei↘."
     },
     {
       "scene": 3,
-      "speech_start": 21.8,
-      "speech_end": 30.525,
-      "scene_end": 30.974999999999998,
-      "duration": 9.174999999999997,
-      "text": "在主要配置区域中,先查看源尺寸如何映射到板块,井,场,时间,深度和道指数."
+      "speech_start": 36.21,
+      "speech_end": 58.81,
+      "scene_end": 59.63,
+      "duration": 23.42,
+      "text": "布局描述图像是否直接位于源头,井文件以下,或板块和井文件以下;自动检测通常是合适的. 保持每一个Z平面是没有损失的默认. 极速投射和第一平面模式显而易见地抛弃飞机. 磁盘名称可能是连续的或保存源文件,并且Resume在跳过之前验证现场检查点.",
+      "speech_text": "布局描述图像是否直接位于源头,井文件以下,或板块和井文件以下;自动检测通常是合适的. 保持每一个Z平面是没有损失的默认. 极速投射和第一平面模式显而易见地抛弃飞机. 磁盘名称可能是连续的或保存源文件,并且Resume在跳过之前验证现场检查点.",
+      "phonemes": "pu↘ʨy↗ mjau↗ʂu↘ tʰu↗ɕja↘ŋ ʂɨ↘fou↓ ꭧɨ↗ʨje→ wei↘y↗ ɥɛ↗ntʰou↗,ʨi↓ŋ wə↗nʨjɛ↘n i↓ɕja↘,xwo↘ pa↓nkʰwai↘ xɤ↗ ʨi↓ŋ wə↗nʨjɛ↘n i↓ɕja↘;ʦɨ↘tʊ↘ŋʨjɛ↓nʦʰɤ↘ tʰʊ→ŋꭧʰa↗ŋ ʂɨ↘ xɤ↗ʂɨ↘ tɤ. pau↓ꭧʰɨ↗ mei↓ i↗kɤ↘Zpʰi↗ŋmjɛ↘n ʂɨ↘ mei↗jou↓ swə↓nʂɨ→ tɤ mwo↘ɻə↘n. ʨi↗su↘ tʰou↗ʂɤ↘ xɤ↗ ti↘i→ pʰi↗ŋmjɛ↘n mwo↗ʂɨ↘ ɕjɛ↓nɚ↗i↘ʨjɛ↘n ti↘ pʰau→ʨʰi↘ fei→ʨi→. ʦʰɨ↗pʰa↗n mi↗ŋꭧʰə→ŋ kʰɤ↓nə↗ŋ ʂɨ↘ ljɛ↗nɕy↘ tɤ xwo↘ pau↓ʦʰwə↗n ɥɛ↗nwə↗nʨjɛ↘n,pi↘ŋʨʰje↓Resumeʦai↘ tʰjau↘ kwo↘ ꭧɨ→ʨʰjɛ↗n jɛ↘nꭧə↘ŋ ɕjɛ↘nꭧʰa↓ŋ ʨjɛ↓nꭧʰa↗tjɛ↓n."
     },
     {
       "scene": 4,
-      "speech_start": 30.974999999999998,
-      "speech_end": 43.675,
-      "scene_end": 44.125,
-      "duration": 13.150000000000002,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 在转换每个文件之前,验证在小样本上映射."
+      "speech_start": 59.63,
+      "speech_end": 73.355,
+      "scene_end": 74.03500000000001,
+      "duration": 14.405000000000008,
+      "text": "随着自动的布局检测,无损的Z处理,连续的板名和选择的新目的地,点击预览. 预览扫描标题并构建地图,但不会创建目的地或写成图像.",
+      "speech_text": "随着自动的布局检测,无损的Z处理,连续的板名和选择的新目的地,点击预览. 预览扫描标题并构建地图,但不会创建目的地或写成图像.",
+      "phonemes": "swei↗ꭧɤ ʦɨ↘tʊ↘ŋ tɤ pu↘ʨy↗ ʨjɛ↓nʦʰɤ↘,u↗swə↓n tɤZꭧʰu↓li↓,ljɛ↗nɕy↘ tɤ pa↓nmi↗ŋ xɤ↗ ɕɥɛ↓nʦɤ↗ tɤ ɕi→n mu↘ti↘ti↘,tjɛ↓nʨi→ y↘la↓n. y↘la↓n sau↓mjau↗ pjau→tʰi↗ pi↘ŋ kou↘ʨjɛ↘n ti↘tʰu↗,ta↘n pu↗xwei↘ ꭧʰwa↘ŋʨjɛ↘n mu↘ti↘ti↘ xwo↘ ɕje↓ꭧʰə↗ŋ tʰu↗ɕja↘ŋ."
     },
     {
       "scene": 5,
-      "speech_start": 44.125,
-      "speech_end": 52.5,
-      "scene_end": 53.15,
-      "duration": 9.024999999999999,
-      "text": "当工作流程完成时, spaCR 将标准化的TIFF和地图写回原始文件和元数据."
+      "speech_start": 74.03500000000001,
+      "speech_end": 94.03500000000001,
+      "scene_end": 94.87500000000001,
+      "duration": 20.840000000000003,
+      "text": "在转换之前显示完整的八档计划. 每一行都将其可识别的来源放在确切目标,盘子,井,场地,频道,Z,时间,原始标识符和状态旁边. 第一个输出是板1,A01,场1,频道 1;最后一个是场2,频道4. 状态证实没有写任何东西.",
+      "speech_text": "在转换之前显示完整的八档计划. 每一行都将其可识别的来源放在确切目标,盘子,井,场地,频道,Z,时间,原始标识符和状态旁边. 第一个输出是板1,A01,场1,频道 1;最后一个是场2,频道4. 状态证实没有写任何东西.",
+      "phonemes": "ʦai↘ ꭧwa↓nxwa↘n ꭧɨ→ʨʰjɛ↗n ɕjɛ↓nʂɨ↘ wa↗nꭧə↓ŋ tɤ pa→ta↘ŋ ʨi↘xwa↘. mei↓ i→ɕi↗ŋ tou→ ʨja→ŋ ʨʰi↗ kʰɤ↓ ʂɨ↗pje↗ tɤ lai↗ɥɛ↗n fa↘ŋʦai↘ ʨʰɥe↘ʨʰje↘ mu↘pjau→,pʰa↗nʦɨ,ʨi↓ŋ,ꭧʰa↓ŋti↘,pʰi↗ntau↘,Z,ʂɨ↗ʨjɛ→n,ɥɛ↗nʂɨ↓ pjau→ʂɨ↗fu↗ xɤ↗ ꭧwa↘ŋtʰai↘ pʰa↗ŋpjɛ→n. ti↘i↗kɤ↘ ʂu→ꭧʰu→ ʂɨ↘ pa↓n i→,Ai→,ꭧʰa↓ŋ i→,pʰi↗ntau↘ i→;ʦwei↘xou↘ i↗kɤ↘ ʂɨ↘ ꭧʰa↓ŋ ɚ↘,pʰi↗ntau↘ sɨ↘. ꭧwa↘ŋtʰai↘ ꭧə↘ŋʂɨ↗ mei↗jou↓ ɕje↓ ɻə↘nxɤ↗ tʊ→ŋɕi→."
+    },
+    {
+      "scene": 6,
+      "speech_start": 94.87500000000001,
+      "speech_end": 111.50000000000001,
+      "scene_end": 112.22000000000001,
+      "duration": 17.345,
+      "text": "查看总结,然后单击转换,只有当映射正确时. 碰撞使这个按失效,而不是覆盖目标. 正确的文件是原子写到不同的目的地,所以原始的显微镜图像从来没有被更名或取代.",
+      "speech_text": "查看总结,然后单击转换,只有当映射正确时. 碰撞使这个按失效,而不是覆盖目标. 正确的文件是原子写到不同的目的地,所以原始的显微镜图像从来没有被更名或取代.",
+      "phonemes": "ꭧʰa↗kʰa↘n ʦʊ↓ŋʨje↗,ɻa↗nxou↘ ta→nʨi→ ꭧwa↓nxwa↘n,ꭧɨ↓jou↓ ta→ŋ i↘ŋʂɤ↘ ꭧə↘ŋʨʰɥe↘ ʂɨ↗. pʰə↘ŋꭧwa↘ŋ ʂɨ↓ ꭧɤ↘kɤ a↘n ʂɨ→ɕjau↘,ɚ↗ pu↗ʂɨ↘ fu↘kai↘ mu↘pjau→. ꭧə↘ŋʨʰɥe↘ tɤ wə↗nʨjɛ↘n ʂɨ↘ ɥɛ↗nʦɨ ɕje↓ tau↘ pu↘tʰʊ↗ŋ tɤ mu↘ti↘ti↘,swo↓i↓ ɥɛ↗nʂɨ↓ tɤ ɕjɛ↓nwei→ʨi↘ŋ tʰu↗ɕja↘ŋ ʦʰʊ↗ŋlai↗ mei↗jou↓ pei↘ kə→ŋmi↗ŋ xwo↘ ʨʰy↓tai↘."
+    },
+    {
+      "scene": 7,
+      "speech_start": 112.22000000000001,
+      "speech_end": 129.62,
+      "scene_end": 130.42000000000002,
+      "duration": 18.200000000000003,
+      "text": "所有八个TIFF都成功编写. conversion_map.csv记录了其原始绝对和相对路径,源标识符,spaCR连接标识符,维度,Z政策和元数据之外的每个目标. 在转换后,准备的源TIFF哈希仍然是字节相同的.",
+      "speech_text": "所有八个TIFF都成功编写. conversion_map.csv记录了其原始绝对和相对路径,源标识符,斯佩克尔连接标识符,维度,Z政策和元数据之外的每个目标. 在转换后,准备的源TIFF哈希仍然是字节相同的.",
+      "phonemes": "swo↓jou↓ pa→kɤ↘TIFFtou→ ꭧʰə↗ŋkʊ→ŋ pjɛ→nɕje↓. conversion_map.csvʨi↘lu↘ lɤ ʨʰi↗ ɥɛ↗nʂɨ↓ ʨɥe↗twei↘ xɤ↗ ɕja→ŋtwei↘lu↘ʨi↘ŋ,ɥɛ↗n pjau→ʂɨ↗fu↗,sɨ→ pʰei↘kʰɤ↘ ɚ↓ ljɛ↗nʨje→ pjau→ʂɨ↗fu↗,wei↗tu↘,Zꭧə↘ŋʦʰɤ↘ xɤ↗ ɥɛ↗n ʂu↘ʨy↘ ꭧɨ→wai↘ tɤ mei↓kɤ↘ mu↘pjau→. ʦai↘ ꭧwa↓nxwa↘n xou↘,ꭧwə↓npei↘ tɤ ɥɛ↗nTIFFxa→ɕi→ ɻə↗ŋɻa↗n ʂɨ↘ ʦɨ↘ʨje↗ ɕja→ŋtʰʊ↗ŋ tɤ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 130.42000000000002,
+      "speech_end": 144.745,
+      "scene_end": 145.445,
+      "duration": 15.024999999999977,
+      "text": "启用恢复,以进行中断或重复转换. 简历不仅仅靠文件名:它会查询原子场检查点,并在决定可以跳过该场之前验证所有属于已完成的字段的TIFF.",
+      "speech_text": "启用恢复,以进行中断或重复转换. 简历不仅仅靠文件名:它会查询原子场检查点,并在决定可以跳过该场之前验证所有属于已完成的字段的TIFF.",
+      "phonemes": "ʨʰi↓jʊ↘ŋ xwei→fu↘,i↓ ʨi↘nɕi↗ŋ ꭧʊ→ŋtwa↘n xwo↘ ꭧʰʊ↗ŋfu↘ ꭧwa↓nxwa↘n. ʨjɛ↓nli↘ pu↘ʨi↓nʨi↓n kʰau↘ wə↗nʨjɛ↘nmi↗ŋ:tʰa→xwei↘ ꭧʰa↗ɕy↗n ɥɛ↗nʦɨ ꭧʰa↓ŋ ʨjɛ↓nꭧʰa↗tjɛ↓n,pi↘ŋ ʦai↘ ʨɥe↗ti↘ŋ kʰɤ↓i↓ tʰjau↘kwo↘ kai→ꭧʰa↓ŋ ꭧɨ→ʨʰjɛ↗n jɛ↘nꭧə↘ŋ swo↓jou↓ ʂu↓y↗ i↓ wa↗nꭧʰə↗ŋ tɤ ʦɨ↘ twa↘n tɤTIFF."
+    },
+    {
+      "scene": 9,
+      "speech_start": 145.445,
+      "speech_end": 156.26999999999998,
+      "scene_end": 156.90999999999997,
+      "duration": 11.464999999999975,
+      "text": "再次点击转换,使用相同的验证计划和恢复启用. 如果一个文件缺失或腐败,则将其整个字段重建;",
+      "speech_text": "再次点击转换,使用相同的验证计划和恢复启用. 如果一个文件缺失或腐败,则将其整个字段重建;",
+      "phonemes": "ʦai↘ʦʰɨ↘ tjɛ↓nʨi→ ꭧwa↓nxwa↘n,ʂɨ↓jʊ↘ŋ ɕja→ŋtʰʊ↗ŋ tɤ jɛ↘nꭧə↘ŋ ʨi↘xwa↘ xɤ↗ xwei→fu↘ ʨʰi↓jʊ↘ŋ. ɻu↗kwo↓ i↗kɤ↘ wə↗nʨjɛ↘n ʨʰɥe→ʂɨ→ xwo↘ fu↓pai↘,ʦɤ↗ ʨja→ŋ ʨʰi↗ ꭧə↓ŋkɤ↘ ʦɨ↘ twa↘n ꭧʰʊ↗ŋʨjɛ↘n;"
+    },
+    {
+      "scene": 10,
+      "speech_start": 156.90999999999997,
+      "speech_end": 172.85999999999996,
+      "scene_end": 173.67999999999995,
+      "duration": 16.769999999999982,
+      "text": "两个四通道字段都通过验证,所以恢复写出零文件,并报告两个恢复字段. 八行原产地图和八条转换的TIFF仍然完整,完成了可逆,无损,安全的进口到spaCR命名中.",
+      "speech_text": "两个四通道字段都通过验证,所以恢复写出零文件,并报告两个恢复字段. 八行原产地图和八条转换的TIFF仍然完整,完成了可逆,无损,安全的进口到斯佩克尔命名中.",
+      "phonemes": "lja↓ŋkɤ↘ sɨ↘ tʰʊ→ŋtau↘ ʦɨ↘twa↘n tou→ tʰʊ→ŋkwo↘ jɛ↘nꭧə↘ŋ,swo↓i↓ xwei→fu↘ ɕje↓ꭧʰu→ li↗ŋ wə↗nʨjɛ↘n,pi↘ŋ pau↘kau↘ lja↓ŋkɤ↘ xwei→fu↘ ʦɨ↘ twa↘n. pa→ɕi↗ŋ ɥɛ↗nꭧʰa↓nti↘ tʰu↗ xɤ↗ pa→tʰjau↗ ꭧwa↓nxwa↘n tɤTIFFɻə↗ŋɻa↗n wa↗nꭧə↓ŋ,wa↗nꭧʰə↗ŋ lɤ kʰɤ↓ni↘,u↗swə↓n,a→nʨʰɥɛ↗n tɤ ʨi↘nkʰou↓ tau↘sɨ→ pʰei↘kʰɤ↘ ɚ↓ mi↘ŋmi↗ŋ ꭧʊ→ŋ."
     }
   ]
 }

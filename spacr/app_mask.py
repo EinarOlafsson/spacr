@@ -1,3 +1,5 @@
+"""Legacy launcher that opens the Mask module."""
+
 from .gui import MainApp
 
 def start_mask_app():

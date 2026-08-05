@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import pytest
 from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QDialog, QLabel, QLineEdit
 
 
@@ -201,7 +202,7 @@ def test_plain_enter_submits_without_inserting_a_newline(qtbot,
     qtbot.addWidget(inp)
     inp.setPlainText("send me")
     with qtbot.waitSignal(inp.submitted, timeout=1000):
-        qtbot.keyClick(inp, Qt.Key_Return)
+        QTest.keyClick(inp, Qt.Key_Return)
     assert inp.toPlainText() == "send me"      # unchanged
 
 
@@ -212,7 +213,7 @@ def test_keypad_enter_also_submits(qtbot, qt_theme_applied):
     qtbot.addWidget(inp)
     inp.setPlainText("typed on the numpad")
     with qtbot.waitSignal(inp.submitted, timeout=1000):
-        qtbot.keyClick(inp, Qt.Key_Enter)
+        QTest.keyClick(inp, Qt.Key_Enter)
     assert inp.toPlainText() == "typed on the numpad"
 
 
@@ -227,8 +228,8 @@ def test_shift_enter_inserts_a_newline_and_does_not_submit(qtbot,
     inp.setPlainText("line1")
     from PySide6.QtGui import QTextCursor
     inp.moveCursor(QTextCursor.MoveOperation.End)
-    qtbot.keyClick(inp, Qt.Key_Return, Qt.ShiftModifier)
-    qtbot.keyClicks(inp, "line2")
+    QTest.keyClick(inp, Qt.Key_Return, Qt.ShiftModifier)
+    QTest.keyClicks(inp, "line2")
     assert inp.toPlainText() == "line1\nline2"
     assert fired == []
 
@@ -240,7 +241,7 @@ def test_ordinary_keys_type_normally(qtbot, qt_theme_applied):
     qtbot.addWidget(inp)
     fired = []
     inp.submitted.connect(lambda: fired.append(1))
-    qtbot.keyClicks(inp, "abc")
+    QTest.keyClicks(inp, "abc")
     assert inp.toPlainText() == "abc"
     assert fired == []
 
@@ -1128,28 +1129,49 @@ def test_shutdown_completes_even_if_the_registry_and_worker_misbehave(
     assert panel._worker is None
 
 
-def test_shutdown_terminates_a_thread_that_ignores_quit(panel):
-    """Escalation policy: quit() -> wait() -> terminate() -> wait().
+def test_shutdown_parks_a_thread_that_ignores_quit_rather_than_killing_it(
+        panel):
+    """Escalation policy: quit() -> wait() -> park. Never ``terminate()``.
+
+    This test asserted the opposite until the Qt-shard investigation, and
+    the old escalation was reached far more often than "last resort"
+    suggests: ``spacr.qt.ai.worker`` queued ``worker.finished ->
+    thread.quit`` to the GUI-affine QThread object, so the event that stops
+    the thread sat behind this very ``wait()`` and the wait timed out on
+    streams that had already finished.
+
+    ``QThread.terminate()`` is ``pthread_cancel``, and every thread here
+    runs Python: killed holding the GIL, the process stops making progress
+    with every thread still alive; killed inside Qt or PySide, the heap is
+    corrupt and the crash lands somewhere unrelated later. Both were live
+    symptoms. :func:`spacr.qt.bridge.drain_thread` parks a thread that will
+    not stop, so nothing drops the last reference to a running QThread —
+    which is the abort this retention list exists to prevent.
 
     Driven with a scripted QThread stand-in because a real QThread that
-    genuinely ignores quit() would cost the full 3 s wait budget.
+    genuinely ignores quit() would cost the full wait budget.
     """
+    from spacr.qt.bridge import parked_thread_count, prune_parked_threads
+
     class _StubbornThread:
         def __init__(self):
             self.calls = []
+            self.running = True
 
         def isRunning(self):
             self.calls.append("isRunning")
-            return True                      # never stops, whatever we do
+            return self.running
 
         def quit(self):
             self.calls.append("quit")
 
         def wait(self, ms):
             self.calls.append(("wait", ms))
+            return False                     # never stops, whatever we do
 
-        def terminate(self):
-            self.calls.append("terminate")
+        def terminate(self):                 # pragma: no cover - must not run
+            raise AssertionError(
+                "shutdown() must never terminate a thread running Python")
 
     class _AlreadyDone:
         def __init__(self):
@@ -1159,14 +1181,20 @@ def test_shutdown_terminates_a_thread_that_ignores_quit(panel):
             self.calls.append("isRunning")
             return False
 
+    prune_parked_threads()
+    before = parked_thread_count()
     t = _StubbornThread()
     done = _AlreadyDone()
     panel._retired = [(done, object()), (t, object())]
     panel.shutdown()
     assert done.calls == ["isRunning"]      # nothing to do, moves on
-    assert t.calls == ["isRunning", "quit", ("wait", 3000),
-                       "isRunning", "terminate", ("wait", 1000)]
+    assert t.calls == ["isRunning", "quit", ("wait", 1000)]
     assert panel._retired == []
+    # Retained at process level rather than dropped: releasing the last
+    # reference to a running QThread is itself the abort.
+    assert parked_thread_count() == before + 1
+    t.running = False                        # let the pruner reclaim it
+    assert prune_parked_threads() == before
 
 
 def test_shutdown_ignores_a_retired_thread_qt_already_deleted(panel):

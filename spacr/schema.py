@@ -85,11 +85,14 @@ __all__ = [
     'ObjectTableSchemaError',
     # key names
     'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'TIME_KEY',
-    'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY',
+    'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY', 'OBJECT_TYPE_KEY',
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
-    'LEGACY_COLUMN_NAMES', 'TIME_COLUMN_ALIASES', 'canonical_column_name',
+    'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
+    'is_object_type',
+    'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
+    'canonical_column_name',
     # scalars
     'parse_int_token', 'row_index_from_letters', 'letters_from_row_index',
     'row_id', 'column_id', 'field_id', 'time_id', 'object_id',
@@ -97,6 +100,7 @@ __all__ = [
     'strip_prefix',
     # wells
     'parse_well', 'well_id', 'is_positional_well', 'is_positional_pair',
+    'is_row_column_pair',
     # identities
     'FieldID', 'ObjectID',
     'compose_prc', 'compose_prcf', 'compose_prcfo',
@@ -196,8 +200,43 @@ KEY_PREFIXES: Dict[str, str] = {
 }
 
 #: Objects are prefixed too, but ``object_label`` is stored bare and only
-#: gains its ``o`` when composed into ``prcfo``. See :func:`compose_prcfo`.
+#: gains its prefix when composed into ``prcfo``. See :func:`compose_prcfo`.
+#:
+#: ``'o'`` is the prefix for an object whose **type is not stated** — the only
+#: form spaCR has ever written to disk. An object whose type *is* known is
+#: prefixed with the type instead (``'nucleus7'``); see :data:`OBJECT_TYPES`.
 OBJECT_PREFIX = 'o'
+
+#: The column naming which object table a row came from.
+#:
+#: Object tables are one-type-per-table (``cell``, ``nucleus``, …), so the
+#: type is normally carried by *which table you read* rather than by a column.
+#: This is the name it takes when a frame has to carry it — a union of two
+#: tables, a lineage, an AnnData ``obs`` — and the name
+#: :func:`spacr.selection.object_keys` looks for.
+OBJECT_TYPE_KEY = 'object_type'
+
+#: The object types that may be written into an object key.
+#:
+#: The same set as :data:`OBJECT_TABLES` (pinned by a test), declared here
+#: because :func:`object_id` needs the vocabulary and the table tuples are
+#: defined much further down.
+#:
+#: **Why a type belongs in the key at all.** The object key was the field plus
+#: the object label, with no table in it, so a nucleus labelled 1 and a
+#: pathogen labelled 1 in the same field were *the same key*. A cell's own
+#: children are exactly the objects most likely to collide, which is where
+#: object linking is most useful, so four objects opened as three and which
+#: one you got depended on the row order of ``png_list``.
+OBJECT_TYPES: Tuple[str, ...] = (
+    'cell', 'cytoplasm', 'nucleus', 'pathogen', 'organelle')
+
+#: :data:`OBJECT_TYPES`, longest first. The match must be longest-first
+#: because ``'organelle'`` starts with ``'o'``, which is the untyped prefix:
+#: shortest-first would read ``'organelle7'`` as an untyped object labelled
+#: ``'rganelle7'``.
+_OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
+    sorted(OBJECT_TYPES, key=len, reverse=True))
 
 #: What ``prc`` / ``prcf`` / ``prcfo`` are joined on. A plate name containing
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
@@ -206,11 +245,16 @@ KEY_SEPARATOR = '_'
 
 #: Every legacy spelling spaCR has written, and the canonical name it means.
 #:
-#: This is the superset of ``utils.DB_COLUMN_RENAMES`` (applied to databases
-#: by ``utils.rename_columns_in_db`` on first read) and
+#: This is the superset of ``database_schema.DB_COLUMN_RENAMES`` (applied to
+#: databases by the version-1 migration and by
+#: ``utils.rename_columns_in_db`` on read) and
 #: ``utils.correct_metadata_column_names`` (applied to CSVs). They were two
 #: lists that had drifted apart, so a database carrying ``row_name`` was only
-#: half repaired. Going forward both should read this one.
+#: half repaired. Both now read this one: ``DB_COLUMN_RENAMES`` *is* this
+#: object, and there is exactly one :func:`canonical_column_name`.
+#:
+#: Keys are lower case because the lookup folds case first; see
+#: :func:`canonical_column_name`.
 LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'row':          ROW_KEY,
     'row_name':     ROW_KEY,
@@ -242,11 +286,77 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
 TIME_COLUMN_ALIASES: Tuple[str, ...] = (TIME_KEY, 'time_id')
 
 
-def canonical_column_name(name: Any) -> str:
-    """Return the canonical spelling of a metadata column name.
+#: The two *feature* families spaCR spelled inconsistently, as rewrite rules.
+#:
+#: Unlike :data:`LEGACY_COLUMN_NAMES` these are not a fixed vocabulary — the
+#: names are generated per object type, per channel and per percentile, so
+#: there are several hundred of them in a four-channel run and they can only
+#: be matched by shape. They live here, next to the metadata aliases, because
+#: they were previously the half of the rename map that only the database
+#: path knew about: canonicalising a *frame* through ``spacr.schema`` left
+#: ``cell_periphery_25_percentile`` alone while canonicalising the same frame
+#: through ``spacr.utils`` renamed it. One name, two spellings, depending on
+#: which import the caller reached for.
+#:
+#: Deliberately case-sensitive. Every feature column spaCR has ever written is
+#: lower case, and folding case here would let a user column such as
+#: ``Outside_5_Percentile`` be rewritten out from under them.
+LEGACY_COLUMN_PATTERNS: Tuple[Tuple[Any, str], ...] = (
+    # ``..._periphery_25_percentile`` -> ``..._periphery_percentile_25``.
+    # ``head`` is non-greedy and ``ring`` therefore binds to the *last*
+    # periphery/outside token, so a feature whose prefix happens to contain
+    # 'outside' does not capture the rewrite.
+    (
+        re.compile(
+            r'^(?P<head>.*?)(?P<ring>periphery|outside)_'
+            r'(?P<p>\d+)_percentile$'
+        ),
+        r'\g<head>\g<ring>_percentile_\g<p>',
+    ),
+    # ``organelle_summary_organelle_ch0_...`` -> ``..._channel_0_...``. The
+    # anchor is the full ``organelle_summary_organelle_ch`` prefix so a user
+    # feature that merely contains ``ch`` followed by a digit is untouched.
+    (
+        re.compile(
+            r'^organelle_summary_organelle_ch'
+            r'(?P<c>\d+)_(?P<rest>.+)$'
+        ),
+        r'organelle_summary_organelle_channel_\g<c>_\g<rest>',
+    ),
+)
 
-    Case-insensitive, so ``'RowID'``, ``'rowid'`` and ``'row_name'`` all
-    resolve to ``'rowID'``. A name with no known alias is returned unchanged.
+
+def canonical_column_name(name: Any) -> str:
+    """Return the canonical spelling of a metadata or feature column name.
+
+    Metadata lookup is **case-insensitive**, so ``'RowID'``, ``'rowid'`` and
+    ``'row_name'`` all resolve to ``'rowID'``. Feature rewrites
+    (:data:`LEGACY_COLUMN_PATTERNS`) are case-sensitive. A name matching
+    neither is returned unchanged.
+
+    This is the *only* implementation. ``spacr.database_schema`` and
+    ``spacr.utils`` re-export this function rather than defining their own.
+
+    .. note:: Migration note (one function, was two)
+
+       ``database_schema.canonical_column_name`` used to be a second,
+       narrower implementation: 11 aliases, matched case-sensitively. Which
+       one a caller got depended on whether it had imported
+       ``spacr.schema`` or ``spacr.utils``, and the two disagreed. Adopting
+       this one widens what a database migration renames:
+
+       * ``plate_id``, ``row_id``, ``column_id``, ``col_name``, ``field_id``,
+         ``rowid``, ``time``, ``timepoint``, ``channel_name``, ``chan_id``
+         and ``slice_id`` are now renamed to their canonical spellings;
+       * any case variant is now renamed too, so a database column spelled
+         ``Row`` or ``RowID`` is repaired instead of being left for a reader
+         to trip over. SQLite compares identifiers case-insensitively, so
+         ``RowID`` -> ``rowID`` is a pure respelling of one column, but
+         pandas reports whatever spelling is stored — which is how a frame
+         ends up with no ``rowID`` column on a database that has one.
+
+       The non-destructive rule is unchanged: a table already carrying the
+       canonical name keeps both columns.
 
     :param name: column name as it appears in a table or CSV.
     :returns: the canonical name, or ``name`` unchanged.
@@ -256,6 +366,8 @@ def canonical_column_name(name: Any) -> str:
 
             >>> canonical_column_name('column_name')
             'columnID'
+            >>> canonical_column_name('cell_periphery_25_percentile')
+            'cell_periphery_percentile_25'
             >>> canonical_column_name('cell_area')
             'cell_area'
     """
@@ -265,7 +377,19 @@ def canonical_column_name(name: Any) -> str:
                       CHANNEL_KEY, SLICE_KEY):
         if lowered == canonical.lower():
             return canonical
-    return LEGACY_COLUMN_NAMES.get(lowered, text)
+    # Metadata before features: the alias table is a closed vocabulary of
+    # short names, none of which can also match a feature pattern (both
+    # patterns are anchored and require a trailing '_<digits>_percentile' or
+    # a leading 'organelle_summary_'), so the order is a cost decision, not a
+    # precedence one — a metadata column is answered without touching a regex.
+    alias = LEGACY_COLUMN_NAMES.get(lowered)
+    if alias is not None:
+        return alias
+    for pattern, replacement in LEGACY_COLUMN_PATTERNS:
+        rewritten, substitutions = pattern.subn(replacement, text)
+        if substitutions:
+            return rewritten
+    return text
 
 
 # ---------------------------------------------------------------------------
@@ -505,25 +629,178 @@ def time_id(time: Any, *, strict: bool = False) -> str:
     return _prefixed_id(TIME_KEY, time, strict=strict)
 
 
-def object_id(label: Any, *, strict: bool = False) -> str:
-    """Return the canonical ``'o<N>'`` object id used in ``prcfo``.
+def object_type_prefix(object_type: Any) -> str:
+    """Return the canonical prefix an object of ``object_type`` is keyed with.
 
-    :param label: object label, bare or already ``'o<N>'``.
-    :param strict: raise instead of preserving an unparseable token.
-    :returns: ``'o<N>'``.
-    :raises KeyParseError: on an empty token, or any bad token when ``strict``.
+    ``None`` — the type is not stated — gives :data:`OBJECT_PREFIX`. Anything
+    else is folded to lower case and checked, because the prefix has to be
+    separable from the label that follows it with no separator in between:
+
+    * it may not be empty, or every typed key would be an untyped one;
+    * it may not contain :data:`KEY_SEPARATOR`, for the reason
+      :func:`_check_plate` gives — the key is separator-joined;
+    * it may not contain a **digit**, or the split is ambiguous. Type
+      ``'cell1'`` with label ``7`` and type ``'cell'`` with label ``17`` both
+      write ``'cell17'``, which is the "two identities, one key" failure this
+      whole module exists to end.
+
+    The vocabulary is **closed**: :data:`OBJECT_TYPES` and nothing else. An
+    open one would mean every unrecognised token in the object slot became a
+    type, and ``'plate1_r1_c1_f2_x7'`` — which is not an object key — would
+    parse as object 7 of type ``'x'``. Widening what counts as a key is how a
+    malformed key becomes a plausible wrong answer instead of an error, and a
+    closed vocabulary is the same choice :data:`KEY_PREFIXES` already makes
+    for rows, columns, fields and timepoints.
+
+    A caller holding a table name it is not sure about asks
+    :func:`is_object_type` first and leaves the frame untyped otherwise — an
+    untyped key is exactly what spaCR wrote before, so that is a no-change,
+    not a failure.
+
+    :param object_type: one of :data:`OBJECT_TYPES`, or ``None``.
+    :returns: the prefix, lower case.
+    :raises KeyParseError: for a type that cannot be written into a key.
     """
-    value = parse_int_token(label)
-    if value is not None:
-        return f'{OBJECT_PREFIX}{value}'
-    text = '' if label is None else str(label).strip()
+    if object_type is None:
+        return OBJECT_PREFIX
+    text = str(object_type).strip()
     if not text:
         raise KeyParseError(
-            f'cannot build an object id from {label!r}: it is empty.')
-    if strict:
+            'cannot key an object on an empty object type. Pass None for '
+            '"the type is not stated" — that is a different fact from "the '
+            'type is the empty string", and only one of them is an identity.')
+    lowered = text.lower()
+    if lowered not in OBJECT_TYPES:
         raise KeyParseError(
-            f'cannot build an object id from {label!r}: it holds no integer.')
-    return f'{OBJECT_PREFIX}{_sanitise_token(text)}'
+            f'{object_type!r} is not an object type spaCR keys objects by; '
+            f'expected one of {list(OBJECT_TYPES)}. The vocabulary is closed '
+            f'on purpose: if any token could be a type, every malformed key '
+            f'would parse as an object of some invented type instead of '
+            f'raising. Ask is_object_type() and leave the frame untyped when '
+            f'the answer is no.')
+    return lowered
+
+
+def is_object_type(object_type: Any) -> bool:
+    """Whether ``object_type`` can be written into an object key.
+
+    The question a reader asks about the table it just loaded before stamping
+    :data:`OBJECT_TYPE_KEY` on the frame. ``png_list``, a summary table or a
+    user's own table answer False, and the frame stays untyped — which is the
+    key spaCR has always written, so nothing regresses.
+    """
+    if object_type is None:
+        return False
+    return str(object_type).strip().lower() in OBJECT_TYPES
+
+
+def split_object_id(token: Any, *, require_prefix: bool = True
+                    ) -> Tuple[Optional[str], str]:
+    """Split an object id into ``(object type, label)``.
+
+    The inverse of :func:`object_id`::
+
+        split_object_id('nucleus7')  -> ('nucleus', '7')
+        split_object_id('o7')        -> (None, '7')
+        split_object_id('omulti')    -> (None, 'multi')
+        split_object_id('7')         -> (None, '')        # not an object id
+
+    A type of ``None`` means *not stated*, which is what ``'o'`` has always
+    meant and is exactly what every key written before object types existed
+    carries. It is not "unknown and therefore probably a cell".
+
+    :param token: the last component of a ``prcfo``.
+    :param require_prefix: when False a bare label (``'7'``) is accepted and
+        read as an untyped id. That is the shape
+        :func:`spacr.selection.object_keys` writes, where the label is joined
+        bare rather than through :data:`OBJECT_PREFIX`.
+    :returns: ``(type or None, label)``. An **empty label** means ``token`` is
+        not an object id at all; callers must check it rather than assuming
+        the split succeeded.
+    """
+    text = '' if token is None else str(token).strip()
+    if not text:
+        return (None, '')
+    lowered = text.lower()
+    for kind in _OBJECT_TYPE_MATCH:
+        if lowered.startswith(kind) and len(text) > len(kind):
+            return (kind, text[len(kind):])
+    if lowered.startswith(OBJECT_PREFIX) and len(text) > len(OBJECT_PREFIX):
+        return (None, text[len(OBJECT_PREFIX):])
+    if not require_prefix and text[:1].isdigit():
+        # A bare label: '7'. Untyped, and the only reading that does not
+        # invent a type it was never given. Guarded on a leading digit so an
+        # unrecognised token ('x7') is still not an object id — see
+        # :func:`object_type_prefix` on why the vocabulary is closed.
+        return (None, text)
+    return (None, '')
+
+
+def object_id(label: Any, *, object_type: Any = None,
+              strict: bool = False) -> str:
+    """Return the canonical object id used in ``prcfo``.
+
+    ``'o<N>'`` when the object's type is not stated, and ``'<type><N>'`` when
+    it is — ``object_id(7, object_type='nucleus')`` is ``'nucleus7'``. The
+    type goes into the *key*, not beside it, because the key is the only thing
+    that travels: a lasso publishes strings, and a string that cannot say
+    which of a cell's four children it means is a string that opens the wrong
+    crop.
+
+    An already-composed id round-trips, with or without a type
+    (``object_id('nucleus7') == 'nucleus7'``), so this is idempotent and safe
+    to apply to a value that has already been through it.
+
+    :param label: object label — bare, ``'o<N>'``, or ``'<type><N>'``.
+    :param object_type: the object table this object came from, or ``None``
+        for "not stated". A type on ``label`` that disagrees with this is an
+        error rather than a silent overwrite.
+    :param strict: raise instead of preserving an unparseable token.
+    :returns: the object id.
+    :raises KeyParseError: on an empty token, a conflicting type, any bad
+        token when ``strict``, or a composition that would not read back.
+    """
+    text = '' if label is None else str(label).strip()
+    carried, remainder = split_object_id(text)
+    if remainder:
+        if object_type is None:
+            object_type = carried
+        elif carried is not None and carried != object_type_prefix(object_type):
+            raise KeyParseError(
+                f'object id {label!r} already says it is a {carried!r} but '
+                f'was handed object_type={object_type!r}. One object has one '
+                f'type; guessing which of the two is right is how a nucleus '
+                f'ends up keyed as a pathogen.')
+        label = remainder
+    prefix = object_type_prefix(object_type)
+
+    value = parse_int_token(label)
+    if value is not None:
+        body = str(value)
+    else:
+        body = '' if label is None else str(label).strip()
+        if not body:
+            raise KeyParseError(
+                f'cannot build an object id from {label!r}: it is empty.')
+        if strict:
+            raise KeyParseError(
+                f'cannot build an object id from {label!r}: it holds no '
+                f'integer.')
+        body = _sanitise_token(body)
+    composed = f'{prefix}{body}'
+    # Prove the round trip rather than trusting the vocabulary. The one case
+    # this catches in practice: an untyped id whose preserved label starts
+    # with a declared type's remainder, e.g. label 'rganelle7' composing to
+    # 'organelle7', which reads back as an organelle.
+    read_type, read_label = split_object_id(composed)
+    if read_label != body or (read_type or None) != (
+            None if prefix == OBJECT_PREFIX else prefix):
+        raise KeyParseError(
+            f'object id {composed!r} (type {object_type!r}, label {body!r}) '
+            f'would read back as type {read_type!r} label {read_label!r}. '
+            f'Two identities cannot share one key; rename the object type or '
+            f'give the object a numeric label.')
+    return composed
 
 
 def strip_prefix(value: Any, prefix: str) -> str:
@@ -570,8 +847,15 @@ def time_index(value: Any) -> Optional[int]:
 
 
 def object_index(value: Any) -> Optional[int]:
-    """``'o41'`` → ``41``; an unparseable id → ``None``."""
-    return _index_of(value, OBJECT_PREFIX)
+    """``'o41'`` and ``'nucleus41'`` → ``41``; an unparseable id → ``None``.
+
+    Split through :func:`split_object_id` rather than by stripping ``'o'``, so
+    a typed id reads back as the number it is instead of as ``None``.
+    """
+    _kind, label = split_object_id(value, require_prefix=False)
+    if not label:
+        return None
+    return parse_int_token(label, allow_prefix=False)
 
 
 # ---------------------------------------------------------------------------
@@ -622,6 +906,43 @@ def is_positional_pair(row: Any, column: Any) -> bool:
         return False
     return (row_text[:1].lower() != KEY_PREFIXES[ROW_KEY]
             and column_text[:1].lower() != KEY_PREFIXES[COLUMN_KEY])
+
+
+def is_row_column_pair(row: Any, column: Any) -> bool:
+    """True when ``(row, column)`` is recognisably a well's row and column.
+
+    Deliberately narrow. It is the guard that stops a right-to-left key parse
+    from absorbing a *deeper* key into an underscored plate id, so it must
+    reject a ``(columnID, fieldID)`` pair and a ``(fieldID, objectID)`` pair:
+    a ``columnID`` is never ``'f1'`` and a ``rowID`` is never ``'c1'``.
+
+    :func:`parse_prcf` and ``ml._split_prc`` are both right-to-left parses of
+    a separator-joined key whose leftmost component may itself contain the
+    separator, and both need exactly this test to tell "the plate is called
+    ``exp1_plate1``" from "you handed me a key one level too deep". It lives
+    here so there is one answer to "is this a row and a column?".
+
+    :param row: candidate ``rowID`` token.
+    :param column: candidate ``columnID`` token.
+    :returns: whether the pair can be a row and a column.
+    """
+    row_text, column_text = str(row).strip(), str(column).strip()
+    if not row_text or not column_text:
+        return False
+    if is_positional_pair(row_text, column_text):
+        # parse_well puts an unrecognisable well into both slots verbatim, so
+        # an equal unprefixed pair is that passthrough and not a deeper key's
+        # tail (a field never equals the column it sits in).
+        return True
+    if row_text[:1].lower() == KEY_PREFIXES[ROW_KEY]:
+        row_ok = row_index(row_text) is not None
+    else:
+        row_ok = row_index_from_letters(row_text) is not None
+    if not row_ok:
+        return False
+    if column_text[:1].lower() == KEY_PREFIXES[COLUMN_KEY]:
+        return column_index(column_text) is not None
+    return column_text.isdigit()
 
 
 def parse_well(well: Any, *, strict: bool = False) -> Tuple[str, str]:
@@ -819,7 +1140,7 @@ def compose_prcf(plate: Any, row: Any, column: Any, field: Any,
 
 
 def compose_prcfo(plate: Any, row: Any, column: Any, field: Any,
-                  obj: Any, time: Any = None) -> str:
+                  obj: Any, time: Any = None, object_type: Any = None) -> str:
     """Return the ``prcfo`` object key: ``'plate1_r1_c1_f2_o7'``.
 
     With a timepoint the object still goes last:
@@ -827,16 +1148,25 @@ def compose_prcfo(plate: Any, row: Any, column: Any, field: Any,
     ``utils._map_wells_png(timelapse=True)`` and the ``prcf + '_' + 'o' +
     object_label`` composition in ``io._read_and_join_tables``.
 
+    With an ``object_type`` the object component carries it:
+    ``'plate1_r1_c1_f2_nucleus7'``. **The untyped form is unchanged**, which
+    is why every ``prcfo`` already on disk still composes and parses byte for
+    byte as it did — the type is a refinement of the key, not a new spelling
+    of it.
+
     :param plate: plate id.
     :param row: row index or ``'r<N>'``.
     :param column: column index or ``'c<N>'``.
     :param field: field token.
-    :param obj: object label, bare or ``'o<N>'``.
+    :param obj: object label, bare, ``'o<N>'`` or ``'<type><N>'``.
     :param time: timepoint token, or ``None``.
+    :param object_type: the object table this object came from, or ``None``
+        for "not stated".
     :returns: the composed key.
     """
     return KEY_SEPARATOR.join(
-        [compose_prcf(plate, row, column, field, time), object_id(obj)])
+        [compose_prcf(plate, row, column, field, time),
+         object_id(obj, object_type=object_type)])
 
 
 @dataclass(frozen=True)
@@ -882,11 +1212,18 @@ class FieldID:
         except (KeyParseError, WellParseError):
             return None
 
-    def with_object(self, obj: Any) -> 'ObjectID':
-        """Return the :class:`ObjectID` for one object in this field."""
+    def with_object(self, obj: Any, object_type: Any = None) -> 'ObjectID':
+        """Return the :class:`ObjectID` for one object in this field.
+
+        :param obj: object label, bare or already prefixed.
+        :param object_type: which object table it came from, or ``None`` for
+            "not stated". A nucleus and a pathogen with the same label in the
+            same field are two objects, and without this they are one key.
+        """
         return ObjectID(plateID=self.plateID, rowID=self.rowID,
                         columnID=self.columnID, fieldID=self.fieldID,
-                        timeID=self.timeID, objectID=object_id(obj))
+                        timeID=self.timeID,
+                        objectID=object_id(obj, object_type=object_type))
 
     def to_dict(self, *, include_prcf: bool = False) -> Dict[str, str]:
         """Return the identity as the dict the tables carry.
@@ -941,7 +1278,12 @@ class FieldID:
 class ObjectID:
     """One segmented object's identity — the ``prcfo`` a merged row is keyed on.
 
-    :ivar objectID: ``'o<N>'``.
+    :ivar objectID: ``'o<N>'`` when the object's type is not stated, or
+        ``'<type><N>'`` when it is. The type lives *inside* this field rather
+        than beside it so that two :class:`ObjectID` values compare equal
+        exactly when they name the same object — a separate ``objectType``
+        field would let ``('o7', 'nucleus')`` and ``('nucleus7', None)``
+        describe one object and compare unequal.
     """
 
     plateID: str
@@ -950,6 +1292,20 @@ class ObjectID:
     fieldID: str
     objectID: str
     timeID: Optional[str] = None
+
+    @property
+    def objectType(self) -> Optional[str]:
+        """Which object table this object came from, or ``None``.
+
+        ``None`` is "not stated", which is what every key written before
+        object types existed carries. It is emphatically not "a cell".
+        """
+        return split_object_id(self.objectID)[0]
+
+    @property
+    def objectLabel(self) -> str:
+        """The label with the type (or ``'o'``) taken back off: ``'7'``."""
+        return split_object_id(self.objectID)[1]
 
     @property
     def field(self) -> FieldID:
@@ -969,8 +1325,16 @@ class ObjectID:
         return KEY_SEPARATOR.join([self.prcf, self.objectID])
 
     def to_dict(self, *, include_prcf: bool = False) -> Dict[str, str]:
-        """Return the identity as a dict, including ``prcfo``."""
+        """Return the identity as a dict, including ``prcfo``.
+
+        ``object_type`` appears only when the object has one. An untyped id
+        emits the same dict it always did, so a reader that never learned
+        about types sees no new column on data that has no type to report.
+        """
         out = self.field.to_dict(include_prcf=include_prcf)
+        object_type = self.objectType
+        if object_type is not None:
+            out[OBJECT_TYPE_KEY] = object_type
         out[PRCFO_KEY] = self.prcfo
         return out
 
@@ -982,6 +1346,24 @@ def parse_prcf(text: Any) -> FieldID:
     are optional in the middle (``timeID`` may or may not be there), and
     ``ml.py`` splits ``prcfo`` left to right into a fixed five columns, so a
     timelapse key with six parts silently misaligns every column.
+
+    **Extra components are not automatically an underscored plate.** A key
+    with more components than ``plate_row_column_field[_time]`` is one of two
+    things, and they mean opposite things:
+
+    * ``'exp1_plate1_r2_c12_f1'`` — a plate id containing the separator. The
+      right-to-left rule handles it, and that is the case the absorption
+      exists for.
+    * ``'plate1_r1_c1_f1_f2'`` — a key one level too deep, or a key whose
+      components are not what they claim. Absorbing it would return
+      ``plateID='plate1_r1'``, ``rowID='c1'``, ``columnID='f1'`` — half the
+      well inside the plate and a field id in the column slot — and every
+      per-well figure grouped on that is a plausible wrong number with
+      nothing anywhere saying so.
+
+    The two are told apart with :func:`is_row_column_pair`, which is the same
+    guard ``ml._split_prc`` applies for the same reason. Anything else with
+    extra components is refused rather than guessed at.
 
     :param text: e.g. ``'plate1_r1_c1_f2'`` or ``'plate1_r1_c1_f2_t3'``.
     :returns: the :class:`FieldID`.
@@ -998,19 +1380,52 @@ def parse_prcf(text: Any) -> FieldID:
     field_key = parts.pop()
     column_key = parts.pop()
     row_key = parts.pop()
-    if not parts:
+    plate_key = KEY_SEPARATOR.join(parts)
+    if not parts or not plate_key.strip():
         raise KeyParseError(f'{text!r} is not a prcf: it has no plate.')
     if field_key[:1].lower() != 'f':
         raise KeyParseError(
             f'{text!r} is not a prcf: {field_key!r} is not a field id.')
-    return FieldID(plateID=KEY_SEPARATOR.join(parts), rowID=row_key,
+    if not row_key.strip() or not column_key.strip():
+        # An empty component is not a missing token, it is a token every
+        # field of the plate shares: join on it and they all merge. This is
+        # the same refusal ``ml._split_prc`` makes, for the same reason.
+        raise KeyParseError(
+            f'{text!r} is not a prcf: its row is {row_key!r} and its column '
+            f'is {column_key!r}, and an empty one identifies no well — every '
+            f'field of {plate_key!r} would be keyed the same.')
+    if len(parts) > 1 and not is_row_column_pair(row_key, column_key):
+        raise KeyParseError(
+            f'{text!r} is not a prcf: the plate would have to absorb '
+            f'{len(parts)} components, and its row and column would then be '
+            f'{row_key!r} and {column_key!r}, which are not a row and a '
+            f'column. If this really is a plate id containing '
+            f'{KEY_SEPARATOR!r}, its row and column must be written the way '
+            f'spaCR writes them (r<N>/letters and c<N>/digits) for the plate '
+            f'to be separable from them.')
+    return FieldID(plateID=plate_key, rowID=row_key,
                    columnID=column_key, fieldID=field_key, timeID=time_key)
 
 
 def parse_prcfo(text: Any) -> ObjectID:
     """Parse a ``prcfo`` string back into an :class:`ObjectID`.
 
-    :param text: e.g. ``'plate1_r1_c1_f2_o7'`` or ``'plate1_r1_c1_f2_t3_o7'``.
+    The object prefix is stripped before the label is re-canonicalised, which
+    is what makes this the inverse of :func:`compose_prcfo` for **every**
+    label rather than only the numeric ones. :func:`object_id` reads an
+    already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` →
+    ``'o7'``), but it cannot do that for a preserved non-numeric token, so
+    handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'``
+    parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``.
+    A key that grows every time it passes through the parser joins to nothing.
+
+    A **typed** object component is read back with its type:
+    ``'plate1_r1_c1_f2_nucleus7'`` gives ``objectType == 'nucleus'``. An
+    untyped one gives ``None``, which is what every key written before object
+    types existed means and is not the same fact as "cell".
+
+    :param text: e.g. ``'plate1_r1_c1_f2_o7'``, ``'plate1_r1_c1_f2_t3_o7'`` or
+        ``'plate1_r1_c1_f2_nucleus7'``.
     :returns: the :class:`ObjectID`.
     :raises KeyParseError: when the string is not a ``prcfo``.
     """
@@ -1020,11 +1435,15 @@ def parse_prcfo(text: Any) -> ObjectID:
             f'{text!r} is not a prcfo: expected at least '
             f'plate_row_column_field_object, got {len(parts)} part(s).')
     object_key = parts.pop()
-    if object_key[:1].lower() != OBJECT_PREFIX:
+    object_type, object_label = split_object_id(object_key)
+    if not object_label:
         raise KeyParseError(
-            f'{text!r} is not a prcfo: {object_key!r} is not an object id.')
+            f'{text!r} is not a prcfo: {object_key!r} is not an object id. '
+            f'An object component is a label behind a prefix — '
+            f'{OBJECT_PREFIX!r} when the type is not stated, or the object '
+            f'type itself ({", ".join(OBJECT_TYPES)}).')
     field = parse_prcf(KEY_SEPARATOR.join(parts))
-    return field.with_object(object_key)
+    return field.with_object(object_label, object_type=object_type)
 
 
 # ---------------------------------------------------------------------------
@@ -1132,7 +1551,10 @@ PARENT_OBJECT_TABLES: Tuple[str, ...] = ('cell', 'cytoplasm')
 #: Object tables whose rows carry a ``cell_id`` link to their parent cell.
 CHILD_OBJECT_TABLES: Tuple[str, ...] = ('nucleus', 'pathogen', 'organelle')
 
-#: Every per-object measurement table.
+#: Every per-object measurement table. The same set as :data:`OBJECT_TYPES`,
+#: which is declared further up because :func:`object_id` needs the vocabulary
+#: before this point; ``tests/test_schema.py`` pins the two together so a new
+#: object table cannot gain a table without gaining a key prefix.
 OBJECT_TABLES: Tuple[str, ...] = PARENT_OBJECT_TABLES + CHILD_OBJECT_TABLES
 
 #: Per-parent rollups of the organelles inside them. One row per parent.
@@ -1151,9 +1573,37 @@ CROP_TABLES: Tuple[str, ...] = ('png_list',)
 MEASUREMENT_TABLES: Tuple[str, ...] = (
     OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + CROP_TABLES)
 
-#: Tables spaCR owns that are *not* keyed on a field: the settings snapshot
-#: and the per-file object tallies, both keyed on ``file_name``.
-BOOKKEEPING_TABLES: Tuple[str, ...] = ('settings', 'object_counts')
+#: Tables spaCR owns that are *not* keyed on a field: the settings snapshot,
+#: the per-file object tallies, and the two append-only run journals.
+#:
+#: ``settings_history`` (:data:`spacr.io.SETTINGS_HISTORY_TABLE`) and
+#: ``run_status`` (:data:`spacr.errors.RUN_STATUS_TABLE`) were missing here
+#: until the database-contract tests measured what spaCR actually writes.
+#: Two things were wrong while they were absent, both observed rather than
+#: theorised:
+#:
+#: * :func:`table_key_columns` raised ``KeyParseError`` for a table spaCR
+#:   itself creates.
+#: * ``spacr doctor`` intersects the tables it finds against
+#:   :data:`OWNED_TABLES`, so a database holding only ``run_status`` -- which
+#:   is precisely what a run that died before measuring leaves behind --
+#:   was reported as "contains none of spaCR's tables ... probably not a
+#:   measurements database", and the user was told to point ``--db``
+#:   somewhere else. Meanwhile :func:`spacr.errors.read_run_status` reads
+#:   that same file happily and can name the stage that failed. The one case
+#:   where the diagnosis mattered most was the one case it refused to make.
+BOOKKEEPING_TABLES: Tuple[str, ...] = (
+    'settings', 'object_counts', 'settings_history', 'run_status')
+
+#: Key columns for the bookkeeping tables, which do not carry a field
+#: identity. Both journals are append-only, so their keys are what makes one
+#: recorded run distinct rather than what makes one object distinct.
+BOOKKEEPING_KEY_COLUMNS = {
+    'settings': (),
+    'object_counts': ('file_name',),
+    'settings_history': ('run_id', 'stage', 'setting_key'),
+    'run_status': ('run_id', 'name'),
+}
 
 #: Every table spaCR creates in a measurements database. A table not in here
 #: was put there by someone else and must be left alone by any migration.
@@ -1347,6 +1797,39 @@ def _model_feature_role(
     return declared, ignore_non_numeric
 
 
+#: What to tell a user whose feature table will not fit. Written once so the
+#: strict selector and the coercion step give the same advice, and so the
+#: advice matches the control that actually exists: Exclude takes any number
+#: of columns (type one and press Enter, or pick several at once with SQL).
+_EXCLUDE_ADVICE = (
+    "What to do: put these names in the 'Exclude' setting -- it takes any "
+    "number of columns, typed one at a time or picked several at once with "
+    "the SQL button -- or re-measure so they are written as numbers."
+)
+
+
+def _non_numeric_feature_error(problems) -> 'ModelFeatureSchemaError':
+    """Build the one error that names *every* unusable feature.
+
+    ``problems`` is a list of ``(name, dtype, reason)``. Reporting the first
+    offender and stopping made the user fix them one run at a time -- and a
+    run that has already read and merged a 400k-row measurements database
+    before it fails is not a cheap thing to repeat.
+    """
+    lines = [f'  - {name} ({dtype}): {reason}' for name, dtype, reason in problems]
+    count = len(problems)
+    head = (f'{count} declared model feature{"s" if count != 1 else ""} '
+            f'{"are" if count != 1 else "is"} not numeric, so '
+            f'{"they cannot" if count != 1 else "it cannot"} be fitted:')
+    return ModelFeatureSchemaError(
+        head + '\n' + '\n'.join(lines) + '\n' + _EXCLUDE_ADVICE)
+
+
+def _all_missing(series) -> bool:
+    """True when a column carries no value at all, only nulls."""
+    return bool(len(series)) and bool(series.isna().all())
+
+
 def coerce_model_feature_types(
         frame,
         *,
@@ -1354,14 +1837,28 @@ def coerce_model_feature_types(
         exclude=(),
         allow_unknown: bool = False,
 ):
-    """Convert numeric strings in declared model features to numeric dtypes.
+    """Repair the two representations of a numeric measurement pandas fumbles.
 
-    SQLite can return a measurement column as ``object`` when values were
-    inserted as text, even if every non-empty value is a valid number. Model
-    boundaries call this helper before strict schema validation so those
-    lossless representations remain usable. A genuinely non-numeric token is
-    never silently changed to missing data: it raises
-    :class:`ModelFeatureSchemaError` with representative values.
+    **A column with no values at all comes back as ``object``.** This is the
+    common one and it is not a data problem: ``pandas.read_sql`` builds the
+    frame from the rows it gets, so a column that is ``NULL`` in every row
+    arrives as a column of ``None`` and pandas types that ``object`` -- even
+    though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest
+    NaN, and whole measurements are legitimately NaN for a whole database:
+    ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform
+    object, and ``mode_intensity`` was NaN for every object in every database
+    written before the SciPy shim in ``measure._extended_regionprops_table``.
+    Such a column is converted to ``float64`` NaN, which is what it always
+    meant. Nothing is lost, so nothing is warned about -- and the caller's
+    own all-NaN filter then drops it and says so.
+
+    **Numeric text is coerced, loudly.** Values inserted as text make pandas
+    use ``object`` for the whole column even when every one of them is a
+    valid number; ``'12.0'`` is recoverable and is recovered, with a
+    :class:`UserWarning` naming the columns, because a measurement stored as
+    text is a database that wants looking at. ``'n/a'`` is not recoverable
+    and is never quietly turned into NaN and fitted on: it raises
+    :class:`ModelFeatureSchemaError` naming *every* offending column at once.
 
     The input frame is returned unchanged when no conversion is needed. A
     shallow copy is made on the first conversion, so callers do not have their
@@ -1379,6 +1876,8 @@ def coerce_model_feature_types(
     blocked = {str(column) for column in exclude}
     converted_frame = frame
     copied = False
+    problems: list[tuple[str, Any, str]] = []
+    coerced_text: list[str] = []
 
     for column in frame.columns:
         name = str(column)
@@ -1395,23 +1894,47 @@ def coerce_model_feature_types(
         if ignore_non_numeric:
             continue
 
-        # Empty strings in SQLite measurement tables represent the same
-        # missing value as NULL. Preserve that distinction before conversion.
-        normalized = series.replace(r'^\s*$', pd.NA, regex=True)
-        numeric = pd.to_numeric(normalized, errors='coerce')
-        invalid = normalized.notna() & numeric.isna()
-        if invalid.any():
-            examples = list(dict.fromkeys(
-                str(value) for value in normalized[invalid].head(3)))
-            raise ModelFeatureSchemaError(
-                f'Declared model feature {name!r} must be numeric, got '
-                f'{series.dtype} with non-numeric value(s) '
-                f'{examples!r}. Convert or exclude it before fitting.')
+        if _all_missing(series):
+            # No value was read, so no value can be misread. float64 NaN is
+            # the same fact in a dtype the model boundary accepts.
+            numeric = series.astype('float64')
+        else:
+            # Empty strings in SQLite measurement tables represent the same
+            # missing value as NULL. Preserve that distinction before
+            # conversion.
+            normalized = series.replace(r'^\s*$', pd.NA, regex=True)
+            numeric = pd.to_numeric(normalized, errors='coerce')
+            invalid = normalized.notna() & numeric.isna()
+            if invalid.any():
+                examples = list(dict.fromkeys(
+                    str(value) for value in normalized[invalid].head(3)))
+                problems.append((
+                    name, series.dtype,
+                    f'{int(invalid.sum())} value(s) are not numbers, '
+                    f'e.g. {", ".join(repr(v) for v in examples)}'))
+                continue
+            coerced_text.append(name)
 
         if not copied:
             converted_frame = frame.copy(deep=False)
             copied = True
         converted_frame[column] = numeric
+
+    if problems:
+        raise _non_numeric_feature_error(problems)
+
+    if coerced_text:
+        import warnings
+        shown = ', '.join(coerced_text[:8])
+        more = ('' if len(coerced_text) <= 8
+                else f' (and {len(coerced_text) - 8} more)')
+        warnings.warn(
+            f'{len(coerced_text)} measurement column(s) were stored as text '
+            f'and have been read as numbers for this run: {shown}{more}. '
+            f'Every value converted exactly -- nothing became missing -- but '
+            f'the database holds text where numbers belong, so re-measure or '
+            f'repair it rather than relying on this each time.',
+            UserWarning, stacklevel=2)
 
     return converted_frame
 
@@ -1432,6 +1955,10 @@ def model_feature_columns(
     ``allow_unknown`` is for generic statistics over user-created frames;
     database-backed model paths should retain the strict default.
 
+    Every unusable column is reported in one error, with its dtype and why it
+    is unusable. Refusing the first one and stopping made a user fix them one
+    whole run at a time.
+
     :raises ModelFeatureSchemaError: if a declared feature is non-numeric.
     """
     import pandas as pd
@@ -1445,6 +1972,7 @@ def model_feature_columns(
     explicit = {str(column) for column in extra_features}
     blocked = {str(column) for column in exclude}
     selected: list[str] = []
+    problems: list[tuple[str, Any, str]] = []
     for column in frame.columns:
         name = str(column)
         if name in blocked or is_provenance_column(name):
@@ -1462,15 +1990,33 @@ def model_feature_columns(
         if not is_numeric_dtype(series.dtype):
             if ignore_non_numeric:
                 continue
-            raise ModelFeatureSchemaError(
-                f'Declared model feature {name!r} must be numeric, got '
-                f'{series.dtype}. Convert or exclude it before fitting.')
+            if _all_missing(series):
+                reason = ('every value is missing -- pandas types an '
+                          'all-NULL column object however SQLite declares '
+                          'it. coerce_model_feature_types repairs this; '
+                          'this frame did not pass through it')
+            else:
+                sample = list(dict.fromkeys(
+                    str(value) for value in series.dropna().head(3)))
+                reason = ('holds values that are not numbers, e.g. '
+                          + ', '.join(repr(v) for v in sample))
+            problems.append((name, series.dtype, reason))
+            continue
         selected.append(column)
+    if problems:
+        raise _non_numeric_feature_error(problems)
     return selected
 
 
 def model_feature_frame(frame, **kwargs):
-    """Return ``frame`` restricted to :func:`model_feature_columns`."""
+    """Return ``frame`` restricted to :func:`model_feature_columns`.
+
+    Unlike :func:`model_feature_columns` this owns the data it hands back, so
+    it repairs what is losslessly repairable first
+    (:func:`coerce_model_feature_types`) instead of refusing a frame whose
+    only fault is that pandas typed an all-NULL measurement ``object``.
+    """
+    frame = coerce_model_feature_types(frame, **kwargs)
     return frame.loc[:, model_feature_columns(frame, **kwargs)].copy()
 
 
@@ -1493,7 +2039,7 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
             f'{table!r} is not a table spaCR owns; known tables are '
             f'{sorted(OWNED_TABLES)}.')
     if table in BOOKKEEPING_TABLES:
-        return ('file_name',) if table == 'object_counts' else ()
+        return BOOKKEEPING_KEY_COLUMNS[table]
     base = TIMEPOINT_KEY_COLUMNS if timelapse else FIELD_KEY_COLUMNS
     if table in CROP_TABLES:
         return base + (PRCFO_KEY,)
@@ -1505,7 +2051,14 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
 # ---------------------------------------------------------------------------
 
 def canonicalise_columns(df):
-    """Return ``df`` with every legacy metadata column renamed canonically.
+    """Return ``df`` with every legacy column name renamed canonically.
+
+    Metadata aliases (:data:`LEGACY_COLUMN_NAMES`) *and* the legacy feature
+    spellings (:data:`LEGACY_COLUMN_PATTERNS`) — this used to fix only the
+    former while ``utils.canonicalize_measurement_columns``, the other
+    frame-level canonicaliser, fixed both. Both now call one
+    :func:`canonical_column_name`, so a frame gets the same columns whichever
+    of the two a caller reached for.
 
     A rename is **skipped when the canonical name is already present**, which
     is the same rule ``utils.rename_columns_in_db`` follows: a frame carrying

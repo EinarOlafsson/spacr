@@ -4,47 +4,207 @@
   "voice": "am_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.625,
+  "total_duration": 320.485,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.8,
-      "scene_end": 9.25,
-      "duration": 9.25,
-      "text": "This tutorial covers Recruitment. Quantify recruitment of a channel-of-interest signal to parasites or pathogen-associated regions."
+      "speech_end": 18.0,
+      "scene_end": 18.62,
+      "duration": 18.62,
+      "text": "Recruitment measures enrichment of a marker at parasite-associated regions relative to the surrounding host-cell cytoplasm. The console records resolved settings, filtering counts, output paths, figures, warnings, and errors; the chat box can discuss that context when AI is enabled.",
+      "speech_text": "Recruitment measures enrichment of a marker at parasite-associated regions relative to the surrounding host-cell cytoplasm. The console records resolved settings, filtering counts, output paths, figures, warnings, and errors; the chat box can discuss that context when AI is enabled.",
+      "phonemes": "ɹəkɹˈutmᵊnt mˈɛʒəɹz ɪnɹˈɪʧmənt ʌv ɐ mˈɑɹkəɹ æt pˌɛɹəsItəsˈOsiˌATᵻd ɹˈiʤᵊnz ɹˈɛləTɪv tə ðə səɹˈWndɪŋ hˈOstsˌɛl sˈITəplˌæzəm. ðə kˈɑnsˌOl ɹəkˈɔɹdz ɹəzˈɔlvd sˈɛTɪŋz, fˈɪltəɹɪŋ kˈWnts, ˈWtpˌʊt pˈæðz, fˈɪɡjəɹz, wˈɔɹnɪŋz, ænd ˈɛɹəɹz; ðə ʧˈæt bˈɑks kæn dəskˈʌs ðˈæt kˈɑntɛkst wˌɛn ˈAˌI ɪz ɪnˈAbᵊld."
     },
     {
       "scene": 2,
-      "speech_start": 9.25,
-      "speech_end": 20.8,
-      "scene_end": 21.25,
-      "duration": 12.0,
-      "text": "Open Recruitment from the Toxoplasma assays section. Use measured cell, parasite, and organelle masks with channel one, endoplasmic reticulum, as the channel of interest."
+      "speech_start": 18.62,
+      "speech_end": 32.145,
+      "scene_end": 32.665000000000006,
+      "duration": 14.045000000000005,
+      "text": "Use the AI toggle only when you want chat assistance. The adjacent menu selects a configured provider and opens provider settings; recruitment itself runs locally and does not depend on an AI service.",
+      "speech_text": "Use the AI toggle only when you want chat assistance. The adjacent menu selects a configured provider and opens provider settings; recruitment itself runs locally and does not depend on an AI service.",
+      "phonemes": "jˈuz ði ˈAˌI tˈɑɡᵊl ˈOnli wˌɛn ju wˈɑnt ʧˈæt əsˈɪstᵊns. ði əʤˈAsᵊnt mˈɛnju səlˈɛkts ɐ kənfˈɪɡjəɹd pɹəvˈIdəɹ ænd ˈOpᵊnz pɹəvˈIdəɹ sˈɛTɪŋz; ɹəkɹˈutmᵊnt ɪtsˈɛlf ɹˈʌnz lˈOkəli ænd dˈʌz nˌɑt dəpˈɛnd ˌɔn ɐn ˈAˌI sˈɜɹvəs."
     },
     {
       "scene": 3,
-      "speech_start": 21.25,
-      "speech_end": 30.125,
-      "scene_end": 30.575,
-      "duration": 9.325,
-      "text": "In the main configuration area, define the recruitment region, background reference, object filters, grouping, and normalization strategy."
+      "speech_start": 32.665000000000006,
+      "speech_end": 45.89000000000001,
+      "scene_end": 46.41000000000001,
+      "duration": 13.745000000000005,
+      "text": "Provider setup distinguishes local from hosted assistants. Configure only services you intend to use and review the privacy notice before sending console or image context to a remote provider.",
+      "speech_text": "Provider setup distinguishes local from hosted assistants. Configure only services you intend to use and review the privacy notice before sending console or image context to a remote provider.",
+      "phonemes": "pɹəvˈIdəɹ sˈɛTˌʌp dəstˈɪŋɡwɪʃᵻz lˈOkəl fɹʌm hˈOstᵻd əsˈɪstᵊnts. kənfˈɪɡjəɹ ˈOnli sˈɜɹvəsᵻz ju ɪntˈɛnd tə jˈuz ænd ɹəvjˈu ðə pɹˈIvəsi nˈOTəs bəfˈɔɹ sˈɛndɪŋ kˈɑnsˌOl ɔɹ ˈɪmɪʤ kˈɑntɛkst tə ɐ ɹəmˈOt pɹəvˈIdəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 30.575,
-      "speech_end": 43.175,
-      "scene_end": 43.625,
-      "duration": 13.05,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect object-level overlays and control distributions before comparing conditions."
+      "speech_start": 46.41000000000001,
+      "speech_end": 58.63500000000001,
+      "scene_end": 59.11500000000001,
+      "duration": 12.704999999999998,
+      "text": "AI Settings controls assistant context, credentials, and optional error reporting. These preferences do not change the recruitment formula, object filters, or plate annotations.",
+      "speech_text": "AI Settings controls assistant context, credentials, and optional error reporting. These preferences do not change the recruitment formula, object filters, or plate annotations.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz əsˈɪstᵊnt kˈɑntɛkst, kɹədˈɛnʧᵊlz, ænd ˈɑpʃənᵊl ˈɛɹəɹ ɹᵻpˈɔɹTɪŋ. ðˌiz pɹˈɛfəɹənsᵻz dˈu nˌɑt ʧˈAnʤ ðə ɹəkɹˈutmᵊnt fˈɔɹmjələ, ˈɑbʤəkt fˈɪltəɹz, ɔɹ plˈAt ˌænətˈAʃənz."
     },
     {
       "scene": 5,
-      "speech_start": 43.625,
-      "speech_end": 50.975,
-      "scene_end": 51.625,
-      "duration": 8.0,
-      "text": "When the workflow finishes, per-object recruitment scores and condition summaries are stored with source identifiers."
+      "speech_start": 59.11500000000001,
+      "speech_end": 75.165,
+      "scene_end": 75.81500000000001,
+      "duration": 16.700000000000003,
+      "text": "Choose or drop the experiment root containing measurements/measurements.db and the merged folder. This tutorial uses the transferred HeLa siRNA experiment, not synthetic data, with channel one—the ER signal—as the channel of interest.",
+      "speech_text": "Choose or drop the experiment root containing measurements/measurements dot db and the merged folder. This tutorial uses the transferred HeLa siRNA experiment, not synthetic data, with channel one—the ER signal—as the channel of interest.",
+      "phonemes": "ʧˈuz ɔɹ dɹˈɑp ði ɪkspˈɛɹəmənt ɹˈut kəntˈAnɪŋ mˈɛʒəɹmᵊnts mˈɛʒəɹmᵊnts dˈɑt dˌibˈi ænd ðə mˈɜɹʤd fˈOldəɹ. ðˌɪs tutˈɔɹiəl jˈuzᵻz ðə tɹˈænsfəɹd hˌilˌɑ sˌiˌɑɹˌɛnˈA ɪkspˈɛɹəmənt, nˌɑt sɪnθˈɛTɪk dˈATə, wɪð ʧˈænᵊl wˈʌn—ði ˌiˈɑɹ sˈɪɡnᵊl—æz ðə ʧˈænᵊl ʌv ˈɪntɹəst."
+    },
+    {
+      "scene": 6,
+      "speech_start": 75.81500000000001,
+      "speech_end": 91.69000000000001,
+      "scene_end": 92.25000000000001,
+      "duration": 16.435000000000002,
+      "text": "Essentials presents the source, channel mapping, filters, plate layout, and diagnostic choices needed for a first run. Confirm the map before tuning thresholds because a valid but wrong channel index can produce plausible, incorrect ratios.",
+      "speech_text": "Essentials presents the source, channel mapping, filters, plate layout, and diagnostic choices needed for a first run. Confirm the map before tuning thresholds because a valid but wrong channel index can produce plausible, incorrect ratios.",
+      "phonemes": "əsˈɛnʧᵊlz pɹizˈɛnts ðə sˈɔɹs, ʧˈænᵊl mˈæpɪŋ, fˈɪltəɹz, plˈAt lˈAˌWt, ænd dˌIəɡnˈɑstɪk ʧˈYsᵻz nˈidᵻd fɔɹ ɐ fˈɜɹst ɹˈʌn. kənfˈɜɹm ðə mˈæp bəfˈɔɹ tˈunɪŋ θɹˈɛʃhˌOldz bəkˈʌz ɐ vˈælɪd bˌʌt ɹˈɔŋ ʧˈænᵊl ˈɪndˌɛks kæn pɹədˈus plˈɔzəbᵊl, ˌɪnkəɹˈɛkt ɹˈAʃiOz."
+    },
+    {
+      "scene": 7,
+      "speech_start": 92.25000000000001,
+      "speech_end": 106.65000000000002,
+      "scene_end": 107.20000000000002,
+      "duration": 14.950000000000003,
+      "text": "Modified shows only deliberate departures from defaults. Use it as a compact pre-run audit of the real experiment path, ER channel one, the three mask planes, area filters, control columns, and diagnostic choices.",
+      "speech_text": "Modified shows only deliberate departures from defaults. Use it as a compact pre-run audit of the real experiment path, ER channel one, the three mask planes, area filters, control columns, and diagnostic choices.",
+      "phonemes": "mˈɑdəfˌId ʃˈOz ˈOnli dəlˈɪbəɹət dəpˈɑɹʧəɹz fɹʌm dəfˈɔlts. jˈuz ɪt æz ɐ kˈɑmpˌækt pɹˌiɹˈʌn ˈɔdət ʌv ðə ɹˈiᵊl ɪkspˈɛɹəmənt pˈæθ, ˌiˈɑɹ ʧˈænᵊl wˈʌn, ðə θɹˈi mˈæsk plˈAnz, ˈɛɹiə fˈɪltəɹz, kəntɹˈOl kˈɑləmz, ænd dˌIəɡnˈɑstɪk ʧˈYsᵻz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 107.20000000000002,
+      "speech_end": 119.75000000000001,
+      "scene_end": 120.25000000000001,
+      "duration": 13.049999999999997,
+      "text": "All settings exposes every control when reproducing or troubleshooting a run. Return to Essentials when the additional controls are not needed, so advanced values are not changed accidentally.",
+      "speech_text": "All settings exposes every control when reproducing or troubleshooting a run. Return to Essentials when the additional controls are not needed, so advanced values are not changed accidentally.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɪkspˈOzᵻz ˈɛvəɹi kəntɹˈOl wˌɛn ɹᵻpɹədˈusɪŋ ɔɹ tɹˈʌbᵊlʃˌuTɪŋ ɐ ɹˈʌn. ɹətˈɜɹn tʊ əsˈɛnʧᵊlz wˌɛn ði ədˈɪʃənᵊl kəntɹˈOlz ɑɹ nˌɑt nˈidᵻd, sˌO ədvˈænst vˈæljuz ɑɹ nˌɑt ʧˈAnʤd ˌæksədˈɛntəli."
+    },
+    {
+      "scene": 9,
+      "speech_start": 120.25000000000001,
+      "speech_end": 133.9,
+      "scene_end": 134.44,
+      "duration": 14.189999999999984,
+      "text": "Recipes preserve a validated recruitment configuration for reuse or sharing. Save one only after channel mapping, control wells, and filters have been checked against representative images and distributions.",
+      "speech_text": "Recipes preserve a validated recruitment configuration for reuse or sharing. Save one only after channel mapping, control wells, and filters have been checked against representative images and distributions.",
+      "phonemes": "ɹˈɛsəpˌiz pɹəzˈɜɹv ɐ vˈælɪdˌATᵻd ɹəkɹˈutmᵊnt kənfˌɪɡjəɹˈAʃən fɔɹ ɹijˈus ɔɹ ʃˈɛɹɪŋ. sˈAv wˈʌn ˈOnli ˈæftəɹ ʧˈænᵊl mˈæpɪŋ, kəntɹˈOl wˈɛlz, ænd fˈɪltəɹz hæv bɪn ʧˈɛkt əɡˈɛnst ɹˌɛpɹəzˈɛntəTɪv ˈɪmɪʤᵻz ænd dˌɪstɹəbjˈuʃənz."
+    },
+    {
+      "scene": 10,
+      "speech_start": 134.44,
+      "speech_end": 150.265,
+      "scene_end": 150.815,
+      "duration": 16.375,
+      "text": "Submit remote sends the resolved settings to Distributed Jobs rather than starting locally. Use it for a large database only after the remote system can access both measurements.db and the merged arrays under correctly mapped paths.",
+      "speech_text": "Submit remote sends the resolved settings to Distributed Jobs rather than starting locally. Use it for a large database only after the remote system can access both measurements dot db and the merged arrays under correctly mapped paths.",
+      "phonemes": "səbmˈɪt ɹəmˈOt sˈɛndz ðə ɹəzˈɔlvd sˈɛTɪŋz tə dəstɹˈɪbjuTᵻd ʤˈɑbz ɹˈæðəɹ ðən stˈɑɹTɪŋ lˈOkəli. jˈuz ɪt fɔɹ ɐ lˈɑɹʤ dˈæTəbˌAs ˈOnli ˈæftəɹ ðə ɹəmˈOt sˈɪstəm kæn ˈæksˌɛs bˈOθ mˈɛʒəɹmᵊnts dˈɑt dˌibˈi ænd ðə mˈɜɹʤd əɹˈAz ˈʌndəɹ kəɹˈɛktli mˈæpt pˈæðz."
+    },
+    {
+      "scene": 11,
+      "speech_start": 150.815,
+      "speech_end": 163.89,
+      "scene_end": 164.47,
+      "duration": 13.655000000000001,
+      "text": "The remote screen receives a job draft. Verify environment activation, synchronization, resources, and the generated command, then submit a small validation job before scaling to a full plate.",
+      "speech_text": "The remote screen receives a job draft. Verify environment activation, synchronization, resources, and the generated command, then submit a small validation job before scaling to a full plate.",
+      "phonemes": "ðə ɹəmˈOt skɹˈin ɹəsˈivz ɐ ʤˈɑb dɹˈæft. vˈɛɹəfˌI ənvˈIɹənmᵊnt ˌæktəvˈAʃən, sˌɪŋkɹənəzˈAʃən, ɹˈisˌɔɹsᵻz, ænd ðə ʤˈɛnəɹˌATᵻd kəmˈænd, ðˈɛn səbmˈɪt ɐ smˈɔl vˌælɪdˈAʃən ʤˈɑb bəfˈɔɹ skˈAlɪŋ tə ɐ fˈʊl plˈAt."
+    },
+    {
+      "scene": 12,
+      "speech_start": 164.47,
+      "speech_end": 175.22,
+      "scene_end": 175.72,
+      "duration": 11.25,
+      "text": "Data Source contains the experiment root. Recruitment reads existing cell, nucleus, parasite, and cytoplasm measurements; it does not segment or remeasure images.",
+      "speech_text": "Data Source contains the experiment root. Recruitment reads existing cell, nucleus, parasite, and cytoplasm measurements; it does not segment or remeasure images.",
+      "phonemes": "dˈATə sˈɔɹs kəntˈAnz ði ɪkspˈɛɹəmənt ɹˈut. ɹəkɹˈutmᵊnt ɹˈidz ɪɡzˈɪstɪŋ sˈɛl, nˈukliəs, pˈɛɹəsˌIt, ænd sˈITəplˌæzəm mˈɛʒəɹmᵊnts; ɪt dˈʌz nˌɑt sˈɛɡmˌɛnt ɔɹ ɹimˈɛʒəɹ ˈɪmɪʤᵻz."
+    },
+    {
+      "scene": 13,
+      "speech_start": 175.72,
+      "speech_end": 192.845,
+      "scene_end": 193.495,
+      "duration": 17.775000000000006,
+      "text": "Mask and Channel Mapping identifies every intensity plane and mask plane. Here cells use ER channel one and mask four, nuclei use channel zero and mask five, parasites use channel three and mask six, while recruitment is calculated on ER channel one.",
+      "speech_text": "Mask and Channel Mapping identifies every intensity plane and mask plane. Here cells use ER channel one and mask four, nuclei use channel zero and mask five, parasites use channel three and mask six, while recruitment is calculated on ER channel one.",
+      "phonemes": "mˈæsk ænd ʧˈænᵊl mˈæpɪŋ IdˈɛntəfˌIz ˈɛvəɹi ɪntˈɛnsəTi plˈAn ænd mˈæsk plˈAn. hˈɪɹ sˈɛlz jˈuz ˌiˈɑɹ ʧˈænᵊl wˈʌn ænd mˈæsk fˈɔɹ, nˈukliˌI jˈuz ʧˈænᵊl zˈɪɹO ænd mˈæsk fˈIv, pˈɛɹəsˌIts jˈuz ʧˈænᵊl θɹˈi ænd mˈæsk sˈɪks, wˌIl ɹəkɹˈutmᵊnt ɪz kˈælkjəlˌATᵻd ˌɔn ˌiˈɑɹ ʧˈænᵊl wˈʌn."
+    },
+    {
+      "scene": 14,
+      "speech_start": 193.495,
+      "speech_end": 211.895,
+      "scene_end": 212.57500000000002,
+      "duration": 19.080000000000013,
+      "text": "Object Filtering gates cells, nuclei, and parasites by area and intensity, limits objects per cell, and requires enough cells per well. This run keeps cells above three thousand five hundred pixels, nuclei from seven hundred to four thousand, and parasites from one hundred to one thousand.",
+      "speech_text": "Object Filtering gates cells, nuclei, and parasites by area and intensity, limits objects per cell, and requires enough cells per well. This run keeps cells above three thousand five hundred pixels, nuclei from seven hundred to four thousand, and parasites from one hundred to one thousand.",
+      "phonemes": "ˈɑbʤəkt fˈɪltəɹɪŋ ɡˈAts sˈɛlz, nˈukliˌI, ænd pˈɛɹəsˌIts bI ˈɛɹiə ænd ɪntˈɛnsəTi, lˈɪməts ˈɑbʤəkts pɜɹ sˈɛl, ænd ɹəkwˈIəɹz ɪnˈʌf sˈɛlz pɜɹ wˈɛl. ðˌɪs ɹˈʌn kˈips sˈɛlz əbˈʌv θɹˈi θˈWzᵊnd fˈIv hˈʌndɹəd pˈɪksᵊlz, nˈukliˌI fɹʌm sˈɛvən hˈʌndɹəd tə fˈɔɹ θˈWzᵊnd, ænd pˈɛɹəsˌIts fɹʌm wˈʌn hˈʌndɹəd tə wˈʌn θˈWzᵊnd."
+    },
+    {
+      "scene": 15,
+      "speech_start": 212.57500000000002,
+      "speech_end": 227.82500000000002,
+      "scene_end": 228.425,
+      "duration": 15.849999999999994,
+      "text": "Plate Layout and Controls maps biological labels to row or column identifiers. Column one is the positive control, column two is the negative control, and columns three through fourteen are screen wells; all rows are HeLa cells.",
+      "speech_text": "Plate Layout and Controls maps biological labels to row or column identifiers. Column one is the positive control, column two is the negative control, and columns three through fourteen are screen wells; all rows are HeLa cells.",
+      "phonemes": "plˈAt lˈAˌWt ænd kəntɹˈOlz mˈæps bˌIəlˈɑʤəkᵊl lˈAbəlz tə ɹˈO ɔɹ kˈɑləm IdˈɛntəfˌIəɹz. kˈɑləm wˈʌn ɪz ðə pˈɑzəTɪv kəntɹˈOl, kˈɑləm tˈu ɪz ðə nˈɛɡəTɪv kəntɹˈOl, ænd kˈɑləmz θɹˈi θɹu fˌɔɹtˈin ɑɹ skɹˈin wˈɛlz; ˈɔl ɹˈOz ɑɹ hˌilˌɑ sˈɛlz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 228.425,
+      "speech_end": 244.05,
+      "scene_end": 244.63000000000002,
+      "duration": 16.205000000000013,
+      "text": "Plots and Diagnostics controls segmentation overlays, control-intensity panels, figure size, and how many merged fields are sampled. Inspect the overlays before trusting a ratio, and compare controls before interpreting screen wells.",
+      "speech_text": "Plots and Diagnostics controls segmentation overlays, control-intensity panels, figure size, and how many merged fields are sampled. Inspect the overlays before trusting a ratio, and compare controls before interpreting screen wells.",
+      "phonemes": "plˈɑts ænd dˌIəɡnˈɑstɪks kəntɹˈOlz sˌɛɡməntˈAʃən ˌOvəɹlˈAz, kəntɹˌOlɪntˈɛnsəTi pˈænᵊlz, fˈɪɡjəɹ sˈIz, ænd hˌW mˈɛni mˈɜɹʤd fˈildz ɑɹ sˈæmpᵊld. ɪnspˈɛkt ði ˈOvəɹlˌAz bəfˈɔɹ tɹˈʌstɪŋ ɐ ɹˈAʃiO, ænd kəmpˈɛɹ kəntɹˈOlz bəfˈɔɹ ɪntˈɜɹpɹəTɪŋ skɹˈin wˈɛlz."
+    },
+    {
+      "scene": 17,
+      "speech_start": 244.63000000000002,
+      "speech_end": 261.43,
+      "scene_end": 262.05,
+      "duration": 17.419999999999987,
+      "text": "The complete channel map is visible here. Channel dimensions zero through three are available for diagnostics, but the primary recruitment score is pathogen channel-one mean intensity divided by cytoplasm channel-one mean intensity within the matched host cell.",
+      "speech_text": "The complete channel map is visible here. Channel dimensions zero through three are available for diagnostics, but the primary recruitment score is pathogen channel-one mean intensity divided by cytoplasm channel-one mean intensity within the matched host cell.",
+      "phonemes": "ðə kəmplˈit ʧˈænᵊl mˈæp ɪz vˈɪzəbᵊl hˈɪɹ. ʧˈænᵊl dəmˈɛnʃənz zˈɪɹO θɹu θɹˈi ɑɹ əvˈAləbᵊl fɔɹ dˌIəɡnˈɑstɪks, bˌʌt ðə pɹˈImˌɛɹi ɹəkɹˈutmᵊnt skˈɔɹ ɪz pˈæθəʤˌɛn ʧˈænᵊlwˌʌn mˈin ɪntˈɛnsəTi dəvˈIdᵻd bI sˈITəplˌæzəm ʧˈænᵊlwˌʌn mˈin ɪntˈɛnsəTi wɪðˈɪn ðə mˈæʧt hˈOst sˈɛl."
+    },
+    {
+      "scene": 18,
+      "speech_start": 262.05,
+      "speech_end": 276.35,
+      "scene_end": 276.93,
+      "duration": 14.879999999999995,
+      "text": "Click Run after checking source, map, filters, and controls. The backend joins the four measurement tables, annotates conditions, applies each object gate, calculates recruitment, groups wells, and queues diagnostic figures.",
+      "speech_text": "Click Run after checking source, map, filters, and controls. The backend joins the four measurement tables, annotates conditions, applies each object gate, calculates recruitment, groups wells, and queues diagnostic figures.",
+      "phonemes": "klˈɪk ɹˈʌn ˈæftəɹ ʧˈɛkɪŋ sˈɔɹs, mˈæp, fˈɪltəɹz, ænd kəntɹˈOlz. ðə bˈækənd ʤˈYnz ðə fˈɔɹ mˈɛʒəɹmᵊnt tˈAbᵊlz, ˈænətˌAts kəndˈɪʃənz, əplˈIz ˈiʧ ˈɑbʤəkt ɡˈAt, kˈælkjəlˌAts ɹəkɹˈutmᵊnt, ɡɹˈups wˈɛlz, ænd kjˈuz dˌIəɡnˈɑstɪk fˈɪɡjəɹz."
+    },
+    {
+      "scene": 19,
+      "speech_start": 276.93,
+      "speech_end": 292.65500000000003,
+      "scene_end": 293.235,
+      "duration": 16.305000000000007,
+      "text": "During execution, filtering counts in the console show exactly where objects are removed. Do not treat a large reduction as automatically good or bad; reconcile it with the intended area limits, control distributions, and sampled overlays.",
+      "speech_text": "During execution, filtering counts in the console show exactly where objects are removed. Do not treat a large reduction as automatically good or bad; reconcile it with the intended area limits, control distributions, and sampled overlays.",
+      "phonemes": "dˈʊɹɪŋ ˌɛksəkjˈuʃən, fˈɪltəɹɪŋ kˈWnts ɪn ðə kˈɑnsˌOl ʃˈO ɪɡzˈæktli wˌɛɹ ˈɑbʤəkts ɑɹ ɹəmˈuvd. dˈu nˌɑt tɹˈit ɐ lˈɑɹʤ ɹədˈʌkʃən æz ˌɔTəmˈæTəkᵊli ɡˈʊd ɔɹ bˈæd; ɹˈɛkənsˌIl ɪt wɪð ði ɪntˈɛndᵻd ˈɛɹiə lˈɪməts, kəntɹˈOl dˌɪstɹəbjˈuʃənz, ænd sˈæmpᵊld ˈOvəɹlˌAz."
+    },
+    {
+      "scene": 20,
+      "speech_start": 293.235,
+      "speech_end": 319.58500000000004,
+      "scene_end": 320.485,
+      "duration": 27.25,
+      "text": "The real run retained thirty-nine thousand nine hundred thirty-seven PV-level rows across all one hundred ninety-six wells and produced five figures plus cells.csv and wells.csv. Mean well-level ER recruitment is one point three five four in the positive control, one point two eight one in the negative control, and one point three one eight in screen wells—a modest separation that should be judged with variability and image QC, not means alone.",
+      "speech_text": "The real run retained thirty-nine thousand nine hundred thirty-seven PV-level rows across all one hundred ninety-six wells and produced five figures plus cells.csv and wells.csv. Mean well-level ER recruitment is one point three five four in the positive control, one point two eight one in the negative control, and one point three one eight in screen wells—a modest separation that should be judged with variability and image QC, not means alone.",
+      "phonemes": "ðə ɹˈiᵊl ɹˈʌn ɹətˈAnd θˈɜɹTinˌIn θˈWzᵊnd nˈIn hˈʌndɹəd θˌɜɹTisˈɛvən pivˌilˈɛvᵊl ɹˈOz əkɹˈɔs ˈɔl wˈʌn hˈʌndɹəd nˈIndisˌɪks wˈɛlz ænd pɹədˈust fˈIv fˈɪɡjəɹz plˈʌs sˈɛlz.sˌiˌɛsvˈi ænd wˈɛlz.sˌiˌɛsvˈi. mˈin wˌɛllˈɛvᵊl ˌiˈɑɹ ɹəkɹˈutmᵊnt ɪz wˈʌn pˈYnt θɹˈi fˈIv fˈɔɹ ɪn ðə pˈɑzəTɪv kəntɹˈOl, wˈʌn pˈYnt tˈu ˈAt wˈʌn ɪn ðə nˈɛɡəTɪv kəntɹˈOl, ænd wˈʌn pˈYnt θɹˈi wˈʌn ˈAt ɪn skɹˈin wˈɛlz—ɐ mˈɑdəst sˌɛpəɹˈAʃən ðæt ʃˌʊd bi ʤˈʌʤd wɪð vˌɛɹiəbˈɪləTi ænd ˈɪmɪʤ kjˌusˈi, nˌɑt mˈinz əlˈOn."
     }
   ]
 }
