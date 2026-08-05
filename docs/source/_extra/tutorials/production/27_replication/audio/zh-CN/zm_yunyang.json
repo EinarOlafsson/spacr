@@ -4,47 +4,227 @@
   "voice": "zm_yunyang",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 41.8,
+  "total_duration": 254.02,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.175,
-      "scene_end": 7.625,
-      "duration": 7.625,
-      "text": "这本教程涵盖复制测试. 每个真空体分数寄生虫,并根据条件总结细胞内复制."
+      "speech_end": 12.725,
+      "scene_end": 13.344999999999999,
+      "duration": 13.344999999999999,
+      "text": "复制测试计算每个真空中的寄生虫,并总结一个,两个,四,八分阶梯. 控制台记录已解决的设置,分配QC,统计,输出,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+      "speech_text": "复制测试计算每个真空中的寄生虫,并总结一个,两个,四,八分阶梯. 控制台记录已解决的设置,分配QC,统计,输出,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+      "phonemes": "fu↘ꭧɨ↘ ʦʰɤ↘ʂɨ↘ ʨi↘swa↘n mei↓kɤ↘ ꭧə→nkʰʊ→ŋ ꭧʊ→ŋ tɤ ʨi↘ʂə→ŋꭧʰʊ↗ŋ,pi↘ŋ ʦʊ↓ŋʨje↗ i↗kɤ↘,lja↓ŋkɤ↘,sɨ↘,pa→fə→n ʨje→tʰi→. kʰʊ↘ŋꭧɨ↘tʰai↗ ʨi↘lu↘ i↓ ʨje↓ʨɥe↗ tɤ ʂɤ↘ꭧɨ↘,fə→npʰei↘QC,tʰʊ↓ŋʨi↘,ʂu→ꭧʰu→,ʨi↓ŋkau↘ xɤ↗ ʦʰwo↘u↘;ta→ŋ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʨʰi↓jʊ↘ŋ ʂɨ↗,ljau↗tʰjɛ→n kʰwa→ŋ kʰɤ↓i↓ tʰau↓lwə↘n kai→ pei↘ʨi↓ŋ."
     },
     {
       "scene": 2,
-      "speech_start": 7.625,
-      "speech_end": 15.725,
-      "scene_end": 16.175,
-      "duration": 8.55,
-      "text": "从 Toxoplasma assays 部分打开 Replication assay。 选择宿主细胞,真空体和寄生虫测量以及状态元数据."
+      "speech_start": 13.344999999999999,
+      "speech_end": 23.845,
+      "scene_end": 24.345,
+      "duration": 11.0,
+      "text": "人工智能只在要求时交谈. 它的邻近菜单选择了一个配置的提供商,并打开提供商设置;复制分析本身仍然是本地的,不需要人工智能.",
+      "speech_text": "人工智能只在要求时交谈. 它的邻近菜单选择了一个配置的提供商,并打开提供商设置;复制分析本身仍然是本地的,不需要人工智能.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ꭧɨ↓ ʦai↘ jau→ʨʰjou↗ ʂɨ↗ ʨjau→tʰa↗n. tʰa→ tɤ li↗nʨi↘n ʦʰai↘ta→n ɕɥɛ↓nʦɤ↗ lɤ i↗kɤ↘ pʰei↘ꭧɨ↘ tɤ tʰi↗kʊ→ŋʂa→ŋ,pi↘ŋ ta↓kʰai→ tʰi↗kʊ→ŋʂa→ŋ ʂɤ↘ꭧɨ↘;fu↘ꭧɨ↘ fə→nɕi→ pə↓nʂə→n ɻə↗ŋɻa↗n ʂɨ↘ pə↓nti↘ tɤ,pu↘ ɕy→jau↘ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ."
     },
     {
       "scene": 3,
-      "speech_start": 16.175,
-      "speech_end": 23.15,
-      "scene_end": 23.599999999999998,
-      "duration": 7.424999999999997,
-      "text": "在主要配置区域,配置空间分配,对象过器,寄生虫计数容器,控制和统计比较."
+      "speech_start": 24.345,
+      "speech_end": 34.894999999999996,
+      "scene_end": 35.394999999999996,
+      "duration": 11.049999999999997,
+      "text": "提供商设置将本地和托管的助理分开. 在与远程提供商共享控制台或测试文本之前,只配置您打算使用的服务并查看隐私信息.",
+      "speech_text": "提供商设置将本地和托管的助理分开. 在与远程提供商共享控制台或测试文本之前,只配置您打算使用的服务并查看隐私信息.",
+      "phonemes": "tʰi↗kʊ→ŋʂa→ŋ ʂɤ↘ꭧɨ↘ ʨja→ŋ pə↓nti↘ xɤ↗ tʰwo→kwa↓n tɤ ꭧu↘li↓ fə→nkʰai→. ʦai↘ y↓ ɥɛ↓nꭧʰə↗ŋ tʰi↗kʊ→ŋʂa→ŋ kʊ↘ŋɕja↓ŋ kʰʊ↘ŋꭧɨ↘tʰai↗ xwo↘ ʦʰɤ↘ʂɨ↘ wə↗npə↓n ꭧɨ→ʨʰjɛ↗n,ꭧɨ↓ pʰei↘ꭧɨ↘ ni↗n ta↓swa↘n ʂɨ↓jʊ↘ŋ tɤ fu↗u↘ pi↘ŋ ꭧʰa↗kʰa↘n i↓nsɨ→ ɕi↘nɕi→."
     },
     {
       "scene": 4,
-      "speech_start": 23.599999999999998,
-      "speech_end": 34.55,
-      "scene_end": 35.0,
-      "duration": 11.400000000000002,
-      "text": "在完整运行之前,检查可见的设置,并在可用时使用预览或测试模式.检查整个计数范围内的真空器,并检查是否排除合并或碎片化掩膜."
+      "speech_start": 35.394999999999996,
+      "speech_end": 44.62,
+      "scene_end": 45.099999999999994,
+      "duration": 9.704999999999998,
+      "text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变真空分类,寄生虫数量,过器或统计数据.",
+      "speech_text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变真空分类,寄生虫数量,过器或统计数据.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʂɤ↘ꭧɨ↘ kʰʊ↘ŋꭧɨ↘ ꭧu↘li↓ wə↗npə↓n,pʰi↗ŋꭧə↘ŋ xɤ↗ kʰɤ↓ɕɥɛ↓n ʦʰwo↘u↘pau↘kau↘. ꭧɤ↘ɕje→ pʰjɛ→nxau↓ pu↗xwei↘ kai↓pjɛ↘n ꭧə→nkʰʊ→ŋ fə→nlei↘,ʨi↘ʂə→ŋꭧʰʊ↗ŋ ʂu↘lja↘ŋ,kwo↘ʨʰi↘ xwo↘ tʰʊ↓ŋʨi↘ʂu↘ʨy↘."
     },
     {
       "scene": 5,
-      "speech_start": 35.0,
-      "speech_end": 41.15,
-      "scene_end": 41.8,
-      "duration": 6.799999999999997,
-      "text": "工作流程完成后,每真空细菌分布,复制率,统计和数字都会保存."
+      "speech_start": 45.099999999999994,
+      "speech_end": 57.74999999999999,
+      "scene_end": 58.46999999999999,
+      "duration": 13.369999999999997,
+      "text": "选择或放弃包含测量的实验根. 转移的实验缺乏独立验证的真空标识,所以本教程显然使用了具有明确的真空标识的合成测量数据库,同时运行真正的spaCR后端.",
+      "speech_text": "选择或放弃包含测量的实验根. 转移的实验缺乏独立验证的真空标识,所以本教程显然使用了具有明确的真空标识的合成测量数据库,同时运行真正的斯佩克尔后端.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ xwo↘ fa↘ŋʨʰi↘ pau→xa↗n ʦʰɤ↘lja↗ŋ tɤ ʂɨ↗jɛ↘n kə→n. ꭧwa↓ni↗ tɤ ʂɨ↗jɛ↘n ʨʰɥe→fa↗ tu↗li↘ jɛ↘nꭧə↘ŋ tɤ ꭧə→nkʰʊ→ŋ pjau→ʂɨ↗,swo↓i↓ pə↓n ʨjau↘ꭧʰə↗ŋ ɕjɛ↓nɻa↗n ʂɨ↓jʊ↘ŋ lɤ ʨy↘jou↓ mi↗ŋʨʰɥe↘ tɤ ꭧə→nkʰʊ→ŋ pjau→ʂɨ↗ tɤ xɤ↗ꭧʰə↗ŋ ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘,tʰʊ↗ŋʂɨ↗ y↘nɕi↗ŋ ꭧə→nꭧə↘ŋ tɤ sɨ→ pʰei↘kʰɤ↘ ɚ↓xou↘ twa→n."
+    },
+    {
+      "scene": 6,
+      "speech_start": 58.46999999999999,
+      "speech_end": 67.52,
+      "scene_end": 68.06,
+      "duration": 9.59000000000001,
+      "text": "基本信息揭示了测试源,真空分配,条件地图,对象过器,复制分数,输出和运行时间控制,需要进行第一次分析.",
+      "speech_text": "基本信息揭示了测试源,真空分配,条件地图,对象过器,复制分数,输出和运行时间控制,需要进行第一次分析.",
+      "phonemes": "ʨi→pə↓n ɕi↘nɕi→ ʨje→ʂɨ↘ lɤ ʦʰɤ↘ʂɨ↘ ɥɛ↗n,ꭧə→nkʰʊ→ŋ fə→npʰei↘,tʰjau↗ʨjɛ↘n ti↘tʰu↗,twei↘ɕja↘ŋ kwo↘ʨʰi↘,fu↘ꭧɨ↘ fə→nʂu↘,ʂu→ꭧʰu→ xɤ↗ y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n kʰʊ↘ŋꭧɨ↘,ɕy→jau↘ ʨi↘nɕi↗ŋ ti↘i→ʦʰɨ↘ fə→nɕi→."
+    },
+    {
+      "scene": 7,
+      "speech_start": 68.06,
+      "speech_end": 77.185,
+      "scene_end": 77.72500000000001,
+      "duration": 9.665000000000006,
+      "text": "修改过表格,以故意偏离默认. 使用它来审核数据库,空气键,计数列,区域限制,盘卡,条件组合,并在运行前保存.",
+      "speech_text": "修改过表格,以故意偏离默认. 使用它来审核数据库,空气键,计数列,区域限制,盘卡,条件组合,并在运行前保存.",
+      "phonemes": "ɕjou→kai↓ kwo↘ pjau↓kɤ↗,i↓ ku↘i↘ pʰjɛ→nli↗ mwo↘ɻə↘n. ʂɨ↓jʊ↘ŋ tʰa→ lai↗ ʂə↓nxɤ↗ ʂu↘ʨy↘kʰu↘,kʰʊ→ŋʨʰi↘ ʨjɛ↘n,ʨi↘ʂu↘ lje↘,ʨʰy→y↘ ɕjɛ↘nꭧɨ↘,pʰa↗nkʰa↓,tʰjau↗ʨjɛ↘n ʦu↓xɤ↗,pi↘ŋ ʦai↘ y↘nɕi↗ŋ ʨʰjɛ↗n pau↓ʦʰwə↗n."
+    },
+    {
+      "scene": 8,
+      "speech_start": 77.72500000000001,
+      "speech_end": 87.12500000000001,
+      "scene_end": 87.62500000000001,
+      "duration": 9.900000000000006,
+      "text": "所有设置都显示了所有可用于复制和故障解决的控制. 恢复至关重要,如果先进控制不必要,以减少意外参数变化.",
+      "speech_text": "所有设置都显示了所有可用于复制和故障解决的控制. 恢复至关重要,如果先进控制不必要,以减少意外参数变化.",
+      "phonemes": "swo↓jou↓ ʂɤ↘ꭧɨ↘ tou→ ɕjɛ↓nʂɨ↘ lɤ swo↓jou↓ kʰɤ↓ jʊ↘ŋy↗ fu↘ꭧɨ↘ xɤ↗ ku↘ꭧa↘ŋ ʨje↓ʨɥe↗ tɤ kʰʊ↘ŋꭧɨ↘. xwei→fu↘ ꭧɨ↘kwa→nꭧʊ↘ŋjau↘,ɻu↗kwo↓ ɕjɛ→nʨi↘n kʰʊ↘ŋꭧɨ↘ pu↘pi↘jau↘,i↓ ʨjɛ↓nʂau↓ i↘wai↘ ʦʰa→nʂu↘ pjɛ↘nxwa↘."
+    },
+    {
+      "scene": 9,
+      "speech_start": 87.62500000000001,
+      "speech_end": 97.22500000000001,
+      "scene_end": 97.76500000000001,
+      "duration": 10.14,
+      "text": "配方保留验证的测试配置,以便重复使用或共享. 保存一个只有在真空分配和代表数分布已与图像进行检查后.",
+      "speech_text": "配方保留验证的测试配置,以便重复使用或共享. 保存一个只有在真空分配和代表数分布已与图像进行检查后.",
+      "phonemes": "pʰei↘fa→ŋ pau↓ljou↗ jɛ↘nꭧə↘ŋ tɤ ʦʰɤ↘ʂɨ↘ pʰei↘ꭧɨ↘,i↓pjɛ↘n ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ xwo↘ kʊ↘ŋɕja↓ŋ. pau↓ʦʰwə↗n i↗kɤ↘ ꭧɨ↓jou↓ ʦai↘ ꭧə→nkʰʊ→ŋ fə→npʰei↘ xɤ↗ tai↘pjau↓ ʂu↘ fə→npu↘ i↓ y↓ tʰu↗ɕja↘ŋ ʨi↘nɕi↗ŋ ʨjɛ↓nꭧʰa↗ xou↘."
+    },
+    {
+      "scene": 10,
+      "speech_start": 97.76500000000001,
+      "speech_end": 107.39000000000001,
+      "scene_end": 107.91000000000001,
+      "duration": 10.144999999999996,
+      "text": "提交远程将解决设置传递到分布式工作. 在提交小型验证工作之前,确认测量数据库通过远程路径地图可访问.",
+      "speech_text": "提交远程将解决设置传递到分布式工作. 在提交小型验证工作之前,确认测量数据库通过远程路径地图可访问.",
+      "phonemes": "tʰi↗ʨjau→ ɥɛ↓nꭧʰə↗ŋ ʨja→ŋ ʨje↓ʨɥe↗ ʂɤ↘ꭧɨ↘ ꭧʰwa↗nti↘ tau↘ fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘. ʦai↘ tʰi↗ʨjau→ ɕjau↓ɕi↗ŋ jɛ↘nꭧə↘ŋ kʊ→ŋʦwo↘ ꭧɨ→ʨʰjɛ↗n,ʨʰɥe↘ɻə↘n ʦʰɤ↘lja↗ŋ ʂu↘ʨy↘kʰu↘ tʰʊ→ŋkwo↘ ɥɛ↓nꭧʰə↗ŋ lu↘ʨi↘ŋ ti↘tʰu↗ kʰɤ↓ fa↓ŋwə↘n."
+    },
+    {
+      "scene": 11,
+      "speech_start": 107.91000000000001,
+      "speech_end": 116.68500000000002,
+      "scene_end": 117.24500000000002,
+      "duration": 9.335000000000008,
+      "text": "远程屏幕收到一份工作稿. 检查同步,环境激活,资源和生成的命令,然后在扩展测试之前验证一个板块.",
+      "speech_text": "远程屏幕收到一份工作稿. 检查同步,环境激活,资源和生成的命令,然后在扩展测试之前验证一个板块.",
+      "phonemes": "ɥɛ↓nꭧʰə↗ŋ pʰi↗ŋmu↘ ʂou→tau↘ i→fə↘n kʊ→ŋʦwo↘ kau↓. ʨjɛ↓nꭧʰa↗ tʰʊ↗ŋpu↘,xwa↗nʨi↘ŋ ʨi→xwo↗,ʦɨ→ɥɛ↗n xɤ↗ ʂə→ŋꭧʰə↗ŋ tɤ mi↘ŋli↘ŋ,ɻa↗nxou↘ ʦai↘ kʰwo↘ꭧa↓n ʦʰɤ↘ʂɨ↘ ꭧɨ→ʨʰjɛ↗n jɛ↘nꭧə↘ŋ i↗kɤ↘ pa↓nkʰwai↘."
+    },
+    {
+      "scene": 12,
+      "speech_start": 117.24500000000002,
+      "speech_end": 125.72000000000001,
+      "scene_end": 126.24000000000001,
+      "duration": 8.99499999999999,
+      "text": "测试输入识别了实验根,每寄生虫的排列表, 复制标记了现有的寄生虫测量;它不会再分割显微镜图像.",
+      "speech_text": "测试输入识别了实验根,每寄生虫的排列表, 复制标记了现有的寄生虫测量;它不会再分割显微镜图像.",
+      "phonemes": "ʦʰɤ↘ʂɨ↘ ʂu→ɻu↘ ʂɨ↗pje↗ lɤ ʂɨ↗jɛ↘n kə→n,mei↓ ʨi↘ʂə→ŋꭧʰʊ↗ŋ tɤ pʰai↗lje↘ pjau↓, fu↘ꭧɨ↘ pjau→ʨi↘ lɤ ɕjɛ↘njou↓ tɤ ʨi↘ʂə→ŋꭧʰʊ↗ŋ ʦʰɤ↘lja↗ŋ;tʰa→ pu↗xwei↘ ʦai↘ fə→nkɤ→ ɕjɛ↓nwei→ʨi↘ŋ tʰu↗ɕja↘ŋ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 126.24000000000001,
+      "speech_end": 139.615,
+      "scene_end": 140.335,
+      "duration": 14.094999999999999,
+      "text": "如果存在,它首先使用一个明确的真空键,否则它可以在空间上将寄生虫中心体联系起来,然后才回归宿主细胞组合. 宿主细胞可能含有多个真空,所以反弹可以合并不同的生物单元.",
+      "speech_text": "如果存在,它首先使用一个明确的真空键,否则它可以在空间上将寄生虫中心体联系起来,然后才回归宿主细胞组合. 宿主细胞可能含有多个真空,所以反弹可以合并不同的生物单元.",
+      "phonemes": "ɻu↗kwo↓ ʦʰwə↗nʦai↘,tʰa→ ʂou↓ɕjɛ→n ʂɨ↓jʊ↘ŋ i↗kɤ↘ mi↗ŋʨʰɥe↘ tɤ ꭧə→nkʰʊ→ŋ ʨjɛ↘n,fou↓ʦɤ↗ tʰa→ kʰɤ↓i↓ ʦai↘ kʰʊ→ŋʨjɛ→n ʂa↘ŋʨja↘ŋ ʨi↘ʂə→ŋꭧʰʊ↗ŋ ꭧʊ→ŋɕi→n tʰi↓ ljɛ↗nɕi↘ ʨʰi↓lai↗,ɻa↗nxou↘ ʦʰai↗ xwei↗kwei→ su↘ꭧu↓ ɕi↘pau→ ʦu↓xɤ↗. su↘ꭧu↓ ɕi↘pau→ kʰɤ↓nə↗ŋ xa↗njou↓ two→kɤ↘ ꭧə→nkʰʊ→ŋ,swo↓i↓ fa↓ntʰa↗n kʰɤ↓i↓ xɤ↗pi↘ŋ pu↘tʰʊ↗ŋ tɤ ʂə→ŋu↘ ta→nɥɛ↗n."
+    },
+    {
+      "scene": 14,
+      "speech_start": 140.335,
+      "speech_end": 151.535,
+      "scene_end": 152.115,
+      "duration": 11.780000000000001,
+      "text": "条件 基数据将板井分为生物组,并选择比较列. 该合成板包含第一个列的六个车辆井和第二列的六个抑制器井,所有这些都含有HeLa宿主细胞.",
+      "speech_text": "条件 基数据将板井分为生物组,并选择比较列. 该合成板包含第一个列的六个车辆井和第二列的六个抑制器井,所有这些都含有HeLa宿主细胞.",
+      "phonemes": "tʰjau↗ʨjɛ↘n ʨi→ ʂu↘ʨy↘ ʨja→ŋ pa↓nʨi↓ŋ fə→nwei↗ ʂə→ŋu↘ ʦu↓,pi↘ŋ ɕɥɛ↓nʦɤ↗ pi↓ʨjau↘ lje↘. kai→ xɤ↗ꭧʰə↗ŋ pa↓n pau→xa↗n ti↘i↗kɤ↘ lje↘ tɤ ljou↘kɤ↘ ꭧʰɤ→lja↘ŋ ʨi↓ŋ xɤ↗ ti↘ɚ↘lje↘ tɤ ljou↘kɤ↘ i↘ꭧɨ↘ʨʰi↘ ʨi↓ŋ,swo↓jou↓ ꭧɤ↘ɕje→ tou→ xa↗njou↓HeLasu↘ꭧu↓ ɕi↘pau→."
+    },
+    {
+      "scene": 15,
+      "speech_start": 152.115,
+      "speech_end": 163.34,
+      "scene_end": 163.94,
+      "duration": 11.824999999999989,
+      "text": "对象过拒绝除了接受区域范围之外的病原体测量, 这些限制必须对细分寄生虫进行验证,因为碎片和合并的物体扭曲了反向的复制梯度.",
+      "speech_text": "对象过拒绝除了接受区域范围之外的病原体测量, 这些限制必须对细分寄生虫进行验证,因为碎片和合并的物体扭曲了反向的复制梯度.",
+      "phonemes": "twei↘ɕja↘ŋ kwo↘ ʨy↘ʨɥe↗ ꭧʰu↗lɤ ʨje→ʂou↘ ʨʰy→y↘ fa↘nwei↗ ꭧɨ→wai↘ tɤ pi↘ŋɥɛ↗ntʰi↓ ʦʰɤ↘lja↗ŋ, ꭧɤ↘ɕje→ ɕjɛ↘nꭧɨ↘ pi↘ɕy→ twei↘ ɕi↘fə→n ʨi↘ʂə→ŋꭧʰʊ↗ŋ ʨi↘nɕi↗ŋ jɛ↘nꭧə↘ŋ,i→nwei↘ swei↘pʰjɛ↘n xɤ↗ xɤ↗pi↘ŋ tɤ u↘tʰi↓ njou↓ʨʰy→ lɤ fa↓nɕja↘ŋ tɤ fu↘ꭧɨ↘ tʰi→tu↘."
+    },
+    {
+      "scene": 16,
+      "speech_start": 163.94,
+      "speech_end": 175.915,
+      "scene_end": 176.575,
+      "duration": 12.634999999999991,
+      "text": "复制分数定义了最大的命名计数桶和无功率两次真空器的警告门. 一,二,四,八和十六的数量遵循理想的翻倍;像三这样的数量被保留为QC类别而不是默默圆.",
+      "speech_text": "复制分数定义了最大的命名计数桶和无功率两次真空器的警告门. 一,二,四,八和十六的数量遵循理想的翻倍;像三这样的数量被保留为QC类别而不是默默圆.",
+      "phonemes": "fu↘ꭧɨ↘ fə→nʂu↘ ti↘ŋi↘ lɤ ʦwei↘ta↘ tɤ mi↘ŋmi↗ŋ ʨi↘ʂu↘ tʰʊ↓ŋ xɤ↗ u↗ kʊ→ŋly↘ lja↓ŋʦʰɨ↘ ꭧə→nkʰʊ→ŋ ʨʰi↘ tɤ ʨi↓ŋkau↘ mə↗n. i→,ɚ↘,sɨ↘,pa→ xɤ↗ ʂɨ↗ljou↘ tɤ ʂu↘lja↘ŋ ʦwə→nɕy↗n li↓ɕja↓ŋ tɤ fa→npei↘;ɕja↘ŋ sa→n ꭧɤ↘ja↘ŋ tɤ ʂu↘lja↘ŋ pei↘ pau↓ljou↗ wei↘QClei↘pje↗ ɚ↗ pu↗ʂɨ↘ mwo↘mwo↘ ɥɛ↗n."
+    },
+    {
+      "scene": 17,
+      "speech_start": 176.575,
+      "speech_end": 185.89999999999998,
+      "scene_end": 186.45999999999998,
+      "duration": 9.884999999999991,
+      "text": "测试输出控制了颜色地图和存储. 分析将每井和每条件分布,真空数,对数统计和数字写入复制结果文件中.",
+      "speech_text": "测试输出控制了颜色地图和存储. 分析将每井和每条件分布,真空数,对数统计和数字写入复制结果文件中.",
+      "phonemes": "ʦʰɤ↘ʂɨ↘ ʂu→ꭧʰu→ kʰʊ↘ŋꭧɨ↘ lɤ jɛ↗nsɤ↘ ti↘tʰu↗ xɤ↗ ʦʰwə↗nꭧʰu↓. fə→nɕi→ ʨja→ŋ mei↓ʨi↓ŋ xɤ↗ mei↓ tʰjau↗ʨjɛ↘n fə→npu↘,ꭧə→nkʰʊ→ŋ ʂu↘,twei↘ʂu↘ tʰʊ↓ŋʨi↘ xɤ↗ ʂu↘ʦɨ↘ ɕje↓ɻu↘ fu↘ꭧɨ↘ ʨje↗kwo↓ wə↗nʨjɛ↘n ꭧʊ→ŋ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 186.45999999999998,
+      "speech_end": 197.135,
+      "scene_end": 197.695,
+      "duration": 11.235000000000014,
+      "text": "运行时间和可靠性控制记录细节. 在建立测试时保持语音输出,以便组分源,排斥,非二分数,统计测试和输出路径仍然可审计.",
+      "speech_text": "运行时间和可靠性控制记录细节. 在建立测试时保持语音输出,以便组分源,排斥,非二分数,统计测试和输出路径仍然可审计.",
+      "phonemes": "y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n xɤ↗ kʰɤ↓kʰau↘ɕi↘ŋ kʰʊ↘ŋꭧɨ↘ ʨi↘lu↘ ɕi↘ʨje↗. ʦai↘ ʨjɛ↘nli↘ ʦʰɤ↘ʂɨ↘ ʂɨ↗ pau↓ꭧʰɨ↗ y↓i→n ʂu→ꭧʰu→,i↓pjɛ↘n ʦu↓fə↘n ɥɛ↗n,pʰai↗ꭧʰɨ↘,fei→ɚ↘ fə→nʂu↘,tʰʊ↓ŋʨi↘ ʦʰɤ↘ʂɨ↘ xɤ↗ ʂu→ꭧʰu→ lu↘ʨi↘ŋ ɻə↗ŋɻa↗n kʰɤ↓ ʂə↓nʨi↘."
+    },
+    {
+      "scene": 19,
+      "speech_start": 197.695,
+      "speech_end": 210.01999999999998,
+      "scene_end": 210.65999999999997,
+      "duration": 12.964999999999975,
+      "text": "这个分配细节使用了明确的 vacuole_id 列,需要一个主机细胞. 合成数据故意给出一些连续的真空分子相同的细胞ID,确认所选的真空键不是宿主细胞是被计数的单元.",
+      "speech_text": "这个分配细节使用了明确的 vacuole_id 列,需要一个主机细胞. 合成数据故意给出一些连续的真空分子相同的细胞ID,确认所选的真空键不是宿主细胞是被计数的单元.",
+      "phonemes": "ꭧɤ↘kɤ fə→npʰei↘ ɕi↘ʨje↗ ʂɨ↓jʊ↘ŋ lɤ mi↗ŋʨʰɥe↘ tɤ vacuole_id lje↘,ɕy→jau↘ i↗kɤ↘ ꭧu↓ʨi→ ɕi↘pau→. xɤ↗ꭧʰə↗ŋ ʂu↘ʨy↘ ku↘i↘ kei↓ꭧʰu→ i→ɕje→ ljɛ↗nɕy↘ tɤ ꭧə→nkʰʊ→ŋ fə↘nʦɨ↓ ɕja→ŋtʰʊ↗ŋ tɤ ɕi↘pau→ID,ʨʰɥe↘ɻə↘n swo↓ɕɥɛ↓n tɤ ꭧə→nkʰʊ→ŋ ʨjɛ↘n pu↗ʂɨ↘ su↘ꭧu↓ ɕi↘pau→ ʂɨ↘ pei↘ ʨi↘ʂu↘ tɤ ta→nɥɛ↗n."
+    },
+    {
+      "scene": 20,
+      "speech_start": 210.65999999999997,
+      "speech_end": 221.33499999999998,
+      "scene_end": 221.95499999999998,
+      "duration": 11.295000000000016,
+      "text": "在检查输入,分配,状态元数据,过器和分数后点击运行. 后端将寄生虫分为真空器,标签计算桶子,总结井和条件,进行双对测试,",
+      "speech_text": "在检查输入,分配,状态元数据,过器和分数后点击运行. 后端将寄生虫分为真空器,标签计算桶子,总结井和条件,进行双对测试,",
+      "phonemes": "ʦai↘ ʨjɛ↓nꭧʰa↗ ʂu→ɻu↘,fə→npʰei↘,ꭧwa↘ŋtʰai↘ ɥɛ↗n ʂu↘ʨy↘,kwo↘ʨʰi↘ xɤ↗ fə→nʂu↘ xou↘ tjɛ↓nʨi→ y↘nɕi↗ŋ. xou↘twa→n ʨja→ŋ ʨi↘ʂə→ŋꭧʰʊ↗ŋ fə→nwei↗ ꭧə→nkʰʊ→ŋ ʨʰi↘,pjau→ʨʰjɛ→n ʨi↘swa↘n tʰʊ↓ŋʦɨ,ʦʊ↓ŋʨje↗ ʨi↓ŋ xɤ↗ tʰjau↗ʨjɛ↘n,ʨi↘nɕi↗ŋ ʂwa→ŋtwei↘ ʦʰɤ↘ʂɨ↘,"
+    },
+    {
+      "scene": 21,
+      "speech_start": 221.95499999999998,
+      "speech_end": 234.42999999999998,
+      "scene_end": 235.06999999999996,
+      "duration": 13.11499999999998,
+      "text": "在执行过程中,控制台将选定的表格和比较方法暴露出来. 在将分布转移视为生物学而不是细分或分配错误之前,检查它们的源图像中低和高数量的真空体.",
+      "speech_text": "在执行过程中,控制台将选定的表格和比较方法暴露出来. 在将分布转移视为生物学而不是细分或分配错误之前,检查它们的源图像中低和高数量的真空体.",
+      "phonemes": "ʦai↘ ꭧɨ↗ɕi↗ŋ kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,kʰʊ↘ŋꭧɨ↘tʰai↗ ʨja→ŋ ɕɥɛ↓nti↘ŋ tɤ pjau↓kɤ↗ xɤ↗ pi↓ʨjau↘ fa→ŋfa↓ pau↘lu↘ ꭧʰu→lai↗. ʦai↘ ʨja→ŋ fə→npu↘ ꭧwa↓ni↗ ʂɨ↘wei↘ ʂə→ŋu↘ɕɥe↗ ɚ↗ pu↗ʂɨ↘ ɕi↘fə→n xwo↘ fə→npʰei↘ ʦʰwo↘u↘ ꭧɨ→ʨʰjɛ↗n,ʨjɛ↓nꭧʰa↗ tʰa→mən tɤ ɥɛ↗n tʰu↗ɕja↘ŋ ꭧʊ→ŋti→ xɤ↗ kau→ ʂu↘lja↘ŋ tɤ ꭧə→nkʰʊ→ŋ tʰi↓."
+    },
+    {
+      "scene": 22,
+      "speech_start": 235.06999999999996,
+      "speech_end": 253.01999999999995,
+      "scene_end": 254.01999999999995,
+      "duration": 18.94999999999999,
+      "text": "实际的后端在每个条件中得分240个真空. 车辆中位数为4个寄生虫,每吸尘器有2个双倍;抑制剂中位数为2个寄生虫,每次双倍. 两组都含有5%的非两功率真空器, 每组有六个井,显示的MannWhitney比较是强有力的分离,但生物结论仍然需要独立的实验.",
+      "speech_text": "实际的后端在每个条件中得分240个真空. 车辆中位数为4个寄生虫,每吸尘器有2个双倍;抑制剂中位数为2个寄生虫,每次双倍. 两组都含有5%的非两功率真空器, 每组有六个井,显示的MannWhitney比较是强有力的分离,但生物结论仍然需要独立的实验.",
+      "phonemes": "ʂɨ↗ʨi↘ tɤ xou↘ twa→n ʦai↘ mei↓kɤ↘ tʰjau↗ʨjɛ↘n ꭧʊ→ŋ tɤ↗fə→n ɚ↘pai↓sɨ↘ʂɨ↗kɤ↘ ꭧə→nkʰʊ→ŋ. ꭧʰɤ→lja↘ŋ ꭧʊ→ŋwei↘ʂu↘ wei↘ sɨ↘kɤ↘ ʨi↘ʂə→ŋꭧʰʊ↗ŋ,mei↓ ɕi→ꭧʰə↗nʨʰi↘ jou↓ ɚ↘kɤ↘ ʂwa→ŋpei↘;i↘ꭧɨ↘ʨi↘ ꭧʊ→ŋwei↘ʂu↘ wei↘ ɚ↘kɤ↘ ʨi↘ʂə→ŋꭧʰʊ↗ŋ,mei↓ʦʰɨ↘ ʂwa→ŋpei↘. lja↓ŋʦu↓ tou→ xa↗njou↓ pai↓fə→nꭧɨ→u↓ tɤ fei→ lja↓ŋ kʊ→ŋly↘ ꭧə→nkʰʊ→ŋ ʨʰi↘, mei↓ʦu↓ jou↓ ljou↘kɤ↘ ʨi↓ŋ,ɕjɛ↓nʂɨ↘ tɤMannWhitneypi↓ʨjau↘ ʂɨ↘ ʨʰja↗ŋjou↓li↘ tɤ fə→nli↗,ta↘n ʂə→ŋu↘ ʨje↗lwə↘n ɻə↗ŋɻa↗n ɕy→jau↘ tu↗li↘ tɤ ʂɨ↗jɛ↘n."
     }
   ]
 }

@@ -4,47 +4,227 @@
   "voice": "jf_tebukuro",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 67.825,
+  "total_duration": 458.27,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.425,
-      "scene_end": 12.875,
-      "duration": 12.875,
-      "text": "このチュートリアルでは 複製試験をカバーします 掃除体ごとに寄生虫をスコアし 条件によって細胞内複製を概要します"
+      "speech_end": 22.775,
+      "scene_end": 23.395,
+      "duration": 23.395,
+      "text": "複製試算は各真空の寄生虫を数え 1 2 4 8 分の梯子をまとめます コンソールは,解決した設定,割り当て QC,統計,出力,警告,エラーを記録します. AIが有効になったとき,チャットボックスはその文脈について議論することができます.",
+      "speech_text": "複製試算は各真空の寄生虫を数え 1 2 4 8 分の梯子をまとめます コンソールは,解決した設定,割り当て QC,統計,出力,警告,エラーを記録します. AIが有効になったとき,チャットボックスはその文脈について議論することができます.",
+      "phonemes": "ɸɯkɯseː ɕisaɴ βa kakɯ ɕiŋkɯː no kʲiseːmɯɕi o kaʣoe iʨi ɲi joɴ haʨi bɯɴ no haɕiɡo o matomemasɨ koɴsoːɾɯ βa, kaikeʦɨ ɕita seʔteː, βaɾʲiate QC, toːkeː, ɕɨʦɨɾʲokɯ, keːkokɯ, eɾaː o kʲiɾokɯ ɕi masɨ. AI ɡa jɯːkoː ɲinaʔta tokʲi, ʨaʔto boʔkɯsɨ βa sono bɯmmʲakɯ ɲi ʦɨite ɡʲiɾoɴ sɨɾɯ koto ɡa dekʲimasɨ."
     },
     {
       "scene": 2,
-      "speech_start": 12.875,
-      "speech_end": 26.5,
-      "scene_end": 26.95,
-      "duration": 14.075,
-      "text": "Toxoplasma assays セクションから Replication assay を開きます。 状態メタデータとともに宿主細胞,真空体,寄生虫測定を選択します."
+      "speech_start": 23.395,
+      "speech_end": 40.945,
+      "scene_end": 41.445,
+      "duration": 18.05,
+      "text": "AIは要求されたときにのみチャットします 隣接するメニューは設定されたプロバイダーを選択し,プロバイダー設定を開きます. 複製解析自体はローカルであり,AIを必要としません.",
+      "speech_text": "AIは要求されたときにのみチャットします 隣接するメニューは設定されたプロバイダーを選択し,プロバイダー設定を開きます. 複製解析自体はローカルであり,AIを必要としません.",
+      "phonemes": "AI βa joːkʲɨː saɾeta tokʲi ɲi nomʲi ʨaʔto ɕi masɨ ɾʲiɴseʦɨ sɨɾɯ meɲɨː βa seʔteː saɾeta pɯɾobaidaː o sentakɯ ɕi, pɯɾobaidaː seʔteː o çiɾakʲimasɨ. ɸɯkɯseː kaisekʲi ʥitai βa ɾoːkaɾɯ de aɾʲi, AI o çiʦɨjoː toɕi maseɴ."
     },
     {
       "scene": 3,
-      "speech_start": 26.95,
-      "speech_end": 38.1,
-      "scene_end": 38.550000000000004,
-      "duration": 11.600000000000005,
-      "text": "主な構成領域では,空間割り当て,オブジェクトフィルター,寄生虫数料箱,制御,統計比較を構成します."
+      "speech_start": 41.445,
+      "speech_end": 60.894999999999996,
+      "scene_end": 61.394999999999996,
+      "duration": 19.949999999999996,
+      "text": "プロバイダー設定は,ローカルアシスタントとホストアシスタントを分離します. コンソールまたはテストコンテキストを遠隔プロバイダーと共有する前に,使用する予定のサービスのみを設定し,プライバシー情報をレビューします.",
+      "speech_text": "プロバイダー設定は,ローカルアシスタントとホストアシスタントを分離します. コンソールまたはテストコンテキストを遠隔プロバイダーと共有する前に,使用する予定のサービスのみを設定し,プライバシー情報をレビューします.",
+      "phonemes": "pɯɾobaidaː seʔteː βa, ɾoːkaɾɯ aɕisɨtanto to hosɨto aɕisɨtanto o bɯnɾʲi ɕi masɨ. koɴsoːɾɯ mata βa tesɨto kontekʲisɨto o eŋkakɯ pɯɾobaidaː to kʲoːjɯː sɨɾɯ mae ɲi, ɕijoː sɨɾɯ joteː no saːbʲisɨ nomʲi o seʔteː ɕi, pɯɾaibaɕiː ʥoːhoː o ɾebʲɨː ɕi masɨ."
     },
     {
       "scene": 4,
-      "speech_start": 38.550000000000004,
-      "speech_end": 57.375,
-      "scene_end": 57.825,
-      "duration": 19.275,
-      "text": "完全な実行前に,可視設定をチェックし,可用である場合のプレビューまたはテストモードを使用します. 完全なカウント範囲の真空を検査し,合併または断片化マスクが除外されていることを確認します."
+      "speech_start": 61.394999999999996,
+      "speech_end": 77.82,
+      "scene_end": 78.3,
+      "duration": 16.905,
+      "text": "AI 設定はアシスタントコンテキスト,認証情報,オプションのエラー報告を制御します. これらの偏好は真空の割り当て,寄生虫数,フィルター,または統計を変更しません.",
+      "speech_text": "AI 設定はアシスタントコンテキスト,認証情報,オプションのエラー報告を制御します. これらの偏好は真空の割り当て,寄生虫数,フィルター,または統計を変更しません.",
+      "phonemes": "AI seʔteː βa aɕisɨtanto kontekʲisɨto, ɲiɴɕoː ʥoːhoː, opɯɕoɴ no eɾaː hoːkokɯ o seːɡʲo ɕi masɨ. koɾe ɾa no heɴ joɕimʲi βa ɕiŋkɯː no βaɾʲiate, kʲiseːmɯɕi sɨː, ɸʲiɾɯtaː, mata βa toːkeː o heŋkoː ɕi maseɴ."
     },
     {
       "scene": 5,
-      "speech_start": 57.825,
-      "speech_end": 67.175,
-      "scene_end": 67.825,
-      "duration": 10.0,
-      "text": "作業が完了すると 寄生虫のバキュールごとに 配分 複製率 統計 統計 統計が保存されます"
+      "speech_start": 78.3,
+      "speech_end": 102.35,
+      "scene_end": 103.07,
+      "duration": 24.769999999999996,
+      "text": "測定値を含む実験ルートを選択または落とす. 転送された実験には独立で検証された真空のアイデンティティがないので,このチュートリアルでは,実際の spaCR バックエンドを実行している間に,明示的な真空のIDを持つ合成測定データベースを使用しています.",
+      "speech_text": "測定値を含む実験ルートを選択または落とす. 転送された実験には独立で検証された真空のアイデンティティがないので,このチュートリアルでは,実際の スペーカー バックエンドを実行している間に,明示的な真空のIDを持つ合成測定データベースを使用しています.",
+      "phonemes": "sokɯteː ʨi o ɸɯkɯmɯ ʥiʔkeɴ ɾɯːto o sentakɯ mata βa otosɨ. teɴsoː saɾeta ʥiʔkeɴ ɲi βa dokɯɾʲiʦɨ de keɴɕoː saɾeta ɕiŋkɯː no aidentʲitʲi ɡa nai no de, kono ʨɨːtoɾʲiaɾɯ de βa, ʥiʔsai no sɨpe kaː baʔkɯ endo o ʥiʔkoː ɕite iɾɯ aida ɲi, meːʥi tekʲi na ɕiŋkɯː no ID o moʦɨ ɡoːseː sokɯteː deːtabeːsɨ o ɕijoː ɕite imasɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 103.07,
+      "speech_end": 118.095,
+      "scene_end": 118.635,
+      "duration": 15.565000000000012,
+      "text": "Essentials は,最初の分析に必要なテスト源,真空分配,状態マップ,オブジェクトフィルター,複製スコアリング,輸出,実行時間の制御を暴露します.",
+      "speech_text": "Essentials は,最初の分析に必要なテスト源,真空分配,状態マップ,オブジェクトフィルター,複製スコアリング,輸出,実行時間の制御を暴露します.",
+      "phonemes": "Essentials βa, saiɕo no bɯɴsekʲi ɲi çiʦɨjoː na tesɨto ɡeɴ, ɕiŋkɯː bɯmpai, ʥoːtai maʔpɯ, obɯʥekɯto ɸʲiɾɯtaː, ɸɯkɯseː sɨkoaɾʲiŋɡɯ, jɯɕɨʦɨ, ʥiʔkoː ʥikaɴ no seːɡʲo o bakɯɾo ɕi masɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 118.635,
+      "speech_end": 136.135,
+      "scene_end": 136.67499999999998,
+      "duration": 18.039999999999978,
+      "text": "変更されたフォームは,デフォルトから故意に偏差するフィルターです. データベース,真空鍵,カウントコラム,面積制限,プレートマップ,状態グループ化,実行前に保存するために使用します.",
+      "speech_text": "変更されたフォームは,デフォルトから故意に偏差するフィルターです. データベース,真空鍵,カウントコラム,面積制限,プレートマップ,状態グループ化,実行前に保存するために使用します.",
+      "phonemes": "heŋkoː saɾeta ɸoːmɯ βa, deɸoɾɯto kaɾa koi ɲi heɴsa sɨɾɯ ɸʲiɾɯtaː desɨ. deːtabeːsɨ, ɕiŋkɯː kaɡʲi, kaɯnto koɾamɯ, meɴsekʲi seːɡeɴ, pɯɾeːto maʔpɯ, ʥoːtai ɡɯɾɯːpɯ ka, ʥiʔkoː mae ɲi hoʣoɴ sɨɾɯ tame ɲi ɕijoː ɕi masɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 136.67499999999998,
+      "speech_end": 153.29999999999998,
+      "scene_end": 153.79999999999998,
+      "duration": 17.125,
+      "text": "すべての設定は,再生およびトラブルシューティングのためのすべての可用制御を明らかにします. 意外なパラメータ変更を減らすために,高度な制御が不要である場合,Essentials に戻る.",
+      "speech_text": "すべての設定は,再生およびトラブルシューティングのためのすべての可用制御を明らかにします. 意外なパラメータ変更を減らすために,高度な制御が不要である場合,Essentials に戻る.",
+      "phonemes": "sɨbete no seʔteː βa, saiseː ojobʲi toɾabɯɾɯɕɨːtʲiŋɡɯ no tame no sɨbete no kajoː seːɡʲo o akʲiɾaka ɲi ɕi masɨ. iɡai na paɾameːta heŋkoː o heɾasɨ tame ɲi, koːdo na seːɡʲo ɡa ɸɯjoː de aɾɯ baai, Essentials ɲi modoɾɯ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 153.79999999999998,
+      "speech_end": 169.37499999999997,
+      "scene_end": 169.91499999999996,
+      "duration": 16.11499999999998,
+      "text": "レシピは再利用または共有のために検証されたテスト設定を保存します. バキュール割り当てと代表的なカウント分布が画像と確認された後のみ保存します.",
+      "speech_text": "レシピは再利用または共有のために検証されたテスト設定を保存します. バキュール割り当てと代表的なカウント分布が画像と確認された後のみ保存します.",
+      "phonemes": "ɾeɕipʲi βa sai ɾʲijoː mata βa kʲoːjɯː no tame ɲi keɴɕoː saɾeta tesɨto seʔteː o hoʣoɴ ɕi masɨ. bakʲɨːɾɯ βaɾʲiate to daiçoː tekʲi na kaɯnto bɯmpɯ ɡa ɡaʣoː to kakɯɲiɴ saɾeta ato nomʲi hoʣoɴ ɕi masɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 169.91499999999996,
+      "speech_end": 187.46499999999997,
+      "scene_end": 187.98499999999999,
+      "duration": 18.07000000000002,
+      "text": "リモート送信で解決した設定を分散した仕事へ転送します. 小規模な検証作業を提出する前に,遠隔経路地図を通じて測定データベースにアクセス可能であることを確認します.",
+      "speech_text": "リモート送信で解決した設定を分散した仕事へ転送します. 小規模な検証作業を提出する前に,遠隔経路地図を通じて測定データベースにアクセス可能であることを確認します.",
+      "phonemes": "ɾʲimoːto soːɕiɴ de kaikeʦɨ ɕita seʔteː o bɯɴsaɴ ɕita ɕiɡoto e teɴsoː ɕi masɨ. ɕoː kʲibo na keɴɕoː saɡʲoː o teːɕɨʦɨ sɨɾɯ mae ɲi, eŋkakɯ keːɾo ʨizɨ o ʦɨːʥite sokɯteː deːtabeːsɨ ɲi akɯsesɨ kanoː de aɾɯ koto o kakɯɲiɴ ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 187.98499999999999,
+      "speech_end": 203.76,
+      "scene_end": 204.32,
+      "duration": 16.335000000000008,
+      "text": "遠隔画面に 職の書き込みが表示されます. 同期化,環境活性化,リソース,生成されたコマンドをチェックし,テストをスケールする前に1枚のプレートを検証します.",
+      "speech_text": "遠隔画面に 職の書き込みが表示されます. 同期化,環境活性化,リソース,生成されたコマンドをチェックし,テストをスケールする前に1枚のプレートを検証します.",
+      "phonemes": "eŋkakɯ ɡameɴ ɲi ɕokɯ no kakʲikomʲi ɡa çoːʥi saɾemasɨ. doːkʲi ka, kaŋkʲoː kaʔseː ka, ɾʲisoːsɨ, seːseː saɾeta komando o ʨeʔkɯ ɕi, tesɨto o sɨkeːɾɯ sɨɾɯ mae ɲi iʨi mai no pɯɾeːto o keɴɕoː ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 204.32,
+      "speech_end": 222.26999999999998,
+      "scene_end": 222.79,
+      "duration": 18.47,
+      "text": "アッセイインプットは実験根 寄生虫ごとに一列の表と病原体コンパクトメントを特定します 複製は現存する寄生虫の測定を評価し,顕微鏡画像を再び分割しません.",
+      "speech_text": "アッセイインプットは実験根 寄生虫ごとに一列の表と病原体コンパクトメントを特定します 複製は現存する寄生虫の測定を評価し,顕微鏡画像を再び分割しません.",
+      "phonemes": "aʔseː impɯʔto βa ʥiʔkeɴ koɴ kʲiseːmɯɕi ɡoto ɲi iʨi ɾeʦɨ no çoː to bʲoːɡentai kompakɯtomento o tokɯteː ɕi masɨ ɸɯkɯseː βa ɡeɴsoɴ sɨɾɯ kʲiseːmɯɕi no sokɯteː o çoːka ɕi, kembʲikʲoː ɡaʣoː o ɸɯtatabʲi bɯŋkaʦɨ ɕi maseɴ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 222.79,
+      "speech_end": 250.61499999999998,
+      "scene_end": 251.33499999999998,
+      "duration": 28.544999999999987,
+      "text": "Vacuole Assignment は,最初に,存在しているときに,明示的な vakuole キーを使用します.そうでなければ,寄生体センターロイドを空間的にリンクし,その後,宿主細胞グループに戻ります. ホスト細胞には複数のバキュールが含まれているため,バックバックは生物学的に異なる単位を統合することができます.",
+      "speech_text": "Vacuole Assignment は,最初に,存在しているときに,明示的な vakuole キーを使用します.そうでなければ,寄生体センターロイドを空間的にリンクし,その後,宿主細胞グループに戻ります. ホスト細胞には複数のバキュールが含まれているため,バックバックは生物学的に異なる単位を統合することができます.",
+      "phonemes": "Vacuole Assignment βa, saiɕo ɲi, soɴʣai ɕite iɾɯ tokʲi ɲi, meːʥi tekʲi na vakuole kʲiː o ɕijoː ɕi masɨ. soːde nakeɾe ba, kʲiseː tai sentaː ɾoido o kɯːkaɴ tekʲi ɲi ɾʲiŋkɯ ɕi, sonoɡo, ɕɨkɯɕɨ saiboː ɡɯɾɯːpɯ ɲi modoɾʲimasɨ. hosɨto saiboː ɲi βa ɸɯkɯsɨː no ba kʲɨːɾɯ ɡa ɸɯkɯma ɾe te iɾɯ tame, baʔkɯ baʔkɯ βa seːbɯʦɨɡakɯ tekʲi ɲi kotonaɾɯ taɴi o toːɡoː sɨɾɯ koto ɡa dekʲimasɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 251.33499999999998,
+      "speech_end": 272.21,
+      "scene_end": 272.78999999999996,
+      "duration": 21.454999999999984,
+      "text": "状態 メタデータは,プレート・ブールを生物グループに映し出し,比較列を選択します. この合成プレートは,第1列に車両の6つの井戸と第2列に6つの抑制器井戸を含み,すべてはHeLa ホスト細胞を含んでいます.",
+      "speech_text": "状態 メタデータは,プレート・ブールを生物グループに映し出し,比較列を選択します. この合成プレートは,第1列に車両の6つの井戸と第2列に6つの抑制器井戸を含み,すべてはHeLa ホスト細胞を含んでいます.",
+      "phonemes": "ʥoːtai meta deːta βa, pɯɾeːto bɯːɾɯ o seːbɯʦɨ ɡɯɾɯːpɯ ɲi ɯʦɨɕidaɕi, çikakɯ ɾeʦɨ o sentakɯ ɕi masɨ. kono ɡoːseː pɯɾeːto βa, dai iʨi ɾeʦɨ ɲi ɕaɾʲoː no ɾokɯ ʦɨ no ido to dai ɲi ɾeʦɨ ɲi ɾokɯ ʦɨ no jokɯseː kʲi ido o ɸɯkɯmʲi, sɨbete βa HeLa hosɨto saiboː o ɸɯkɯnde imasɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 272.78999999999996,
+      "speech_end": 297.48999999999995,
+      "scene_end": 298.09,
+      "duration": 25.30000000000001,
+      "text": "オブジェクトフィルタリングは,真空を数えられる前に,受け入れられた領域範囲の外で病原体測定を拒絶します. これらの制限は,分断された寄生虫に対して検証されなければならない. 廃棄物と合体された物体は,反逆方向で複製梯子を歪めるからです.",
+      "speech_text": "オブジェクトフィルタリングは,真空を数えられる前に,受け入れられた領域範囲の外で病原体測定を拒絶します. これらの制限は,分断された寄生虫に対して検証されなければならない. 廃棄物と合体された物体は,反逆方向で複製梯子を歪めるからです.",
+      "phonemes": "obɯʥekɯto ɸʲiɾɯtaɾʲiŋɡɯ βa, ɕiŋkɯː o kaʣoeɾaɾeɾɯ mae ɲi, ɯkeiɾe ɾaɾeta ɾʲoːikʲi haɴi no soto de bʲoːɡentai sokɯteː o kʲoʣeʦɨ ɕi masɨ. koɾe ɾa no seːɡeɴ βa, bɯndaɴ saɾeta kʲiseːmɯɕi ɲi taiɕite keɴɕoː saɾe nakeɾe ba naɾanai. haikʲibɯʦɨ to ɡaʔtai saɾeta bɯʔtai βa, haŋɡʲakɯ hoːkoː de ɸɯkɯseː haɕiɡo o jɯɡameɾɯ kaɾa desɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 298.09,
+      "speech_end": 321.16499999999996,
+      "scene_end": 321.825,
+      "duration": 23.735000000000014,
+      "text": "複製スコアリングは,最大で指定されたカウントバケットと,非パワー・オブ・ダブル・バキュールの警告値を定義する. 1, 2, 4, 8 と 16 の数字は理想的な倍化に従います. 3 のような数字は静かな丸化ではなくQCカテゴリーとして保持されます.",
+      "speech_text": "複製スコアリングは,最大で指定されたカウントバケットと,非パワー・オブ・ダブル・バキュールの警告値を定義する. 1, 2, 4, 8 と 16 の数字は理想的な倍化に従います. 3 のような数字は静かな丸化ではなくQCカテゴリーとして保持されます.",
+      "phonemes": "ɸɯkɯseː sɨkoaɾʲiŋɡɯ βa, saidai de ɕiteː saɾeta kaɯnto bakeʔto to, çi paβaː obɯ dabɯɾɯ bakʲɨːɾɯ no keːkokɯ ʨi o teːɡʲi sɨɾɯ. iʨi, ɲi, joɴ, haʨi to ʥɨːɾokɯ no sɨːʥi βa ɾʲisoːtekʲi na baika ɲi ɕitaɡaimasɨ. saɴ no joː na sɨːʥi βa ɕizɨka na maɾɯ ka de βa nakɯ QC kateɡoɾʲiː toɕi te hoʥi saɾemasɨ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 321.825,
+      "speech_end": 336.675,
+      "scene_end": 337.235,
+      "duration": 15.410000000000025,
+      "text": "Assay Outputはカラーマップと保存を制御します 解析は,wellとconditionの分布,真空数,ペア式統計,および数字を複製結果フォルダーに書き込む.",
+      "speech_text": "Assay Outputはカラーマップと保存を制御します 解析は,wellとconditionの分布,真空数,ペア式統計,および数字を複製結果フォルダーに書き込む.",
+      "phonemes": "Assay Out put βa kaɾaː maʔpɯ to hoʣoɴ o seːɡʲo ɕi masɨ kaisekʲi βa, well to condition no bɯmpɯ, ɕiŋkɯː sɨː, pea ɕikʲi toːkeː, ojobʲi sɨːʥi o ɸɯkɯseː keʔka ɸoɾɯdaː ɲi kakʲikomɯ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 337.235,
+      "speech_end": 355.16,
+      "scene_end": 355.72,
+      "duration": 18.485000000000014,
+      "text": "実行時間と信頼性 記録詳細を制御する テストを設定する際に,単語の出力を保持するので,グループ源,除外,非パワー・オブ・ツ・フラクション,統計テスト,出力経路は監査可能なままである.",
+      "speech_text": "実行時間と信頼性 記録詳細を制御する テストを設定する際に,単語の出力を保持するので,グループ源,除外,非パワー・オブ・ツ・フラクション,統計テスト,出力経路は監査可能なままである.",
+      "phonemes": "ʥiʔkoː ʥikaɴ to ɕinɾai seː kʲiɾokɯ ɕoːsai o seːɡʲo sɨɾɯ tesɨto o seʔteː sɨɾɯ sai ɲi, taŋɡo no ɕɨʦɨɾʲokɯ o hoʥi sɨɾɯ no de, ɡɯɾɯːpɯ ɡeɴ, ʥoɡai, çi paβaː obɯ ɸɯɾakɯɕoɴ, toːkeː tesɨto, ɕɨʦɨɾʲokɯ keːɾo βa kaɴsa kanoː na mama de aɾɯ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 355.72,
+      "speech_end": 379.69500000000005,
+      "scene_end": 380.33500000000004,
+      "duration": 24.61500000000001,
+      "text": "この割り当て詳細は,明示的な vacuole_id コラムを使用し,ホストセルが必要です. 合成データは意図的に連続したいくつかの真空分子に同じ細胞IDを与え,選択した真空分子キーをホスト細胞ではなくカウントされる単位であることを確認します.",
+      "speech_text": "この割り当て詳細は,明示的な vacuole_id コラムを使用し,ホストセルが必要です. 合成データは意図的に連続したいくつかの真空分子に同じ細胞IDを与え,選択した真空分子キーをホスト細胞ではなくカウントされる単位であることを確認します.",
+      "phonemes": "kono βaɾʲiate ɕoːsai βa, meːʥi tekʲi na vacuole _ id koɾamɯ o ɕijoː ɕi, hosɨto seɾɯ ɡa çiʦɨjoː desɨ. ɡoːseː deːta βa itotekʲi ɲi ɾeɴʣokɯ ɕita ikɯʦɨ kano ɕiŋkɯː bɯɴɕi ɲi onaʥi saiboː ID o atae, sentakɯ ɕita ɕiŋkɯː bɯɴɕi kʲiː o hosɨto saiboː de βa nakɯ kaɯnto saɾeɾɯ taɴi de aɾɯ koto o kakɯɲiɴ ɕi masɨ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 380.33500000000004,
+      "speech_end": 400.86,
+      "scene_end": 401.48,
+      "duration": 21.144999999999982,
+      "text": "入力,割り当て,状態メタデータ,フィルター,スコアをチェックした後,実行をクリックします. バックエンドは寄生虫をバキュールに分類し,ラベルはバケットを数え,井戸と条件をまとめ,ペアテストを行い,分布を表示します.",
+      "speech_text": "入力,割り当て,状態メタデータ,フィルター,スコアをチェックした後,実行をクリックします. バックエンドは寄生虫をバキュールに分類し,ラベルはバケットを数え,井戸と条件をまとめ,ペアテストを行い,分布を表示します.",
+      "phonemes": "ɲɨːɾʲokɯ, βaɾʲiate, ʥoːtai meta deːta, ɸʲiɾɯtaː, sɨkoa o ʨeʔkɯ ɕita ato, ʥiʔkoː o kɯɾʲiʔkɯ ɕi masɨ. baʔkɯ endo βa kʲiseːmɯɕi o ba kʲɨːɾɯ ɲi bɯnɾɯi ɕi, ɾabeɾɯ βa bakeʔto o kaʣoe, ido to ʥoːkeɴ o matome, pea tesɨto o okonai, bɯmpɯ o çoːʥi ɕi masɨ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 401.48,
+      "speech_end": 420.855,
+      "scene_end": 421.495,
+      "duration": 20.014999999999986,
+      "text": "実行中に,コンソールは選択された表と比較方法を明らかにします. 配分シフトをセグメントまたは割り当て誤りではなく生物学として扱う前に,ソース画像の低および高数の真空を検査する.",
+      "speech_text": "実行中に,コンソールは選択された表と比較方法を明らかにします. 配分シフトをセグメントまたは割り当て誤りではなく生物学として扱う前に,ソース画像の低および高数の真空を検査する.",
+      "phonemes": "ʥiʔkoː ʨɨː ɲi, koɴsoːɾɯ βa sentakɯ saɾeta çoː to çikakɯ hoːhoː o akʲiɾaka ɲi ɕi masɨ. haibɯɴ ɕiɸɯto o seɡɯmento mata βa βaɾʲiate ajamaɾʲi de βa nakɯ seːbɯʦɨɡakɯ toɕi te aʦɨkaɯ mae ɲi, soːsɨ ɡaʣoː no teː ojobʲi koː sɨː no ɕiŋkɯː o keɴsa sɨɾɯ."
+    },
+    {
+      "scene": 22,
+      "speech_start": 421.495,
+      "speech_end": 457.27,
+      "scene_end": 458.27,
+      "duration": 36.77499999999998,
+      "text": "実際のバックエンドは 条件ごとに240個のバキュールを記録します 車両は真空体ごとに4つの寄生虫と2つの倍増を平均し,抑制剤は2つの寄生虫と1つの倍増を平均する. 2つのグループには5パーセントの非パワー・オブ・2のバキュールがあり 20%の警告を下回っています グループごとに6つの井戸で,展示されたマン・ウィットニー比較は強く分離されていますが,生物学的結論は依然として独立した実験を必要とします.",
+      "speech_text": "実際のバックエンドは 条件ごとに240個のバキュールを記録します 車両は真空体ごとに4つの寄生虫と2つの倍増を平均し,抑制剤は2つの寄生虫と1つの倍増を平均する. 2つのグループには5パーセントの非パワー・オブ・2のバキュールがあり 20%の警告を下回っています グループごとに6つの井戸で,展示されたマン・ウィットニー比較は強く分離されていますが,生物学的結論は依然として独立した実験を必要とします.",
+      "phonemes": "ʥiʔsai no baʔkɯ endo βa ʥoːkeɴ ɡoto ɲi ɲiçakɯ joɲʥɨː ko no ba kʲɨːɾɯ o kʲiɾokɯ ɕi masɨ ɕaɾʲoː βa ɕiŋkɯː tai ɡoto ɲi joɴ ʦɨ no kʲiseːmɯɕi to ɲiʔno baiʣoː o heːkʲiɴ ɕi, jokɯseː ʣai βa ɲiʔno kʲiseːmɯɕi toi ʨiʦɨ no baiʣoː o heːkʲiɴ sɨɾɯ. ɲiʔno ɡɯɾɯːpɯ ɲi βa ɡo paːsento no çi paβaː obɯ ɲi no ba kʲɨːɾɯ ɡa aɾʲi ɲiʥɨː % no keːkokɯ o ɕitamaβaʔte imasɨ ɡɯɾɯːpɯ ɡoto ɲi ɾokɯ ʦɨ no ido de, teɲʥi saɾeta maɴ βiʔtoɲiː çikakɯ βa ʦɨjokɯ bɯnɾʲi saɾete imasɨ ɡa, seːbɯʦɨɡakɯ tekʲi keʦɨɾoɴ βa iʣentoɕite dokɯɾʲiʦɨ ɕita ʥiʔkeɴ o"
     }
   ]
 }

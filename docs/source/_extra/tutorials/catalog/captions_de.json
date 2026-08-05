@@ -1511,19 +1511,70 @@
       "id": "27_replication",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt den Replikations-Assay ab. Bezeichnen Sie Parasiten pro Vakuol und fassen Sie die intrazelluläre Replikation nach Bedingung zusammen."
+          "narration": "Replikations-Assay zählt Parasiten in jeder Vakuole und fasst die Eins-, Zwei-, Vier- und Achtteilungsleiter zusammen. Die Konsole erfasst gelöste Einstellungen, Zuweisung QC, Statistiken, Ausgänge, Warnungen und Fehler; die Chatbox kann diesen Kontext diskutieren, wenn KI aktiviert ist."
         },
         {
-          "narration": "Öffnete Replikationsuntersuchung aus dem Abschnitt Toxoplasmauntersuchungen. Wählen Sie die Messungen von Gastzellen, Vakuolen und Parasiten zusammen mit Metadaten des Zustands aus."
+          "narration": "Die KI wechselt nur auf Wunsch. Sein angrenzendes Menü wählt einen konfigurierten Anbieter aus und öffnet die Anbieter-Einstellungen; die Replikationsanalyse selbst bleibt lokal und erfordert keine KI."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie die räumliche Zuordnung, Objektfilter, Parasitenzählbehälter, Kontrollen und statistische Vergleiche."
+          "narration": "Die Provider-Einstellung trennt lokale und gehostete Assistenten. Konfigurieren Sie nur die Dienste, die Sie verwenden möchten, und überprüfen Sie die Datenschutzinformationen, bevor Sie den Konsolen- oder Testkontext mit einem Remote-Anbieter teilen."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Inspektieren Sie die Vakuolen im gesamten Zählbereich und überprüfen, ob verschmelzte oder fragmentierte Masken ausgeschlossen sind."
+          "narration": "AI-Einstellungen steuern den Assistenten-Kontext, die Anmeldeinformationen und die optionale Fehlermeldung. Diese Präferenzen ändern nicht die Assignation von Vakuolen, die Parasitenzahl, die Filter oder die Statistiken."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden die Verteilung der Parasiten pro Vakuol, die Replikationsraten, die Statistiken und die Zahlen gespeichert."
+          "narration": "Wählen Sie die Experimentwurzel mit Messungen aus oder lassen Sie sie fallen. Das übertragene Experiment fehlt unabhängig validierten Vakuolen-Identitäten, so dass dieses Tutorial eindeutig eine synthetische Messdatenbank mit expliziten Vakuolen-IDs verwendet, während das echte spaCR Backend ausgeführt wird."
+        },
+        {
+          "narration": "Essentials zeigt die Testquelle, die Vakuolenzuweisung, die Zustandskarte, die Objektfilter, die Replikationsbewertung, die Ausgabe und die für eine erste Analyse notwendigen Laufzeitsteuerungen."
+        },
+        {
+          "narration": "Modifizierte Filter des Formulars zur absichtlichen Abweichung von Standardfunktionen. Verwenden Sie es, um die Datenbank, den Vakuumschlüssel, die Zählspalte, die Flächengrenzen, die Plattenkarte, die Zustandsgruppe und die Speicherung vor einem Lauf zu überprüfen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen alle verfügbaren Kontrollen für die Wiedergabe und Fehlerbehebung. Zurück zu Essentials, wenn fortschrittliche Kontrollen nicht notwendig sind, um zufällige Parameteränderungen zu reduzieren."
+        },
+        {
+          "narration": "Rezepte bewahren eine validierte Testkonfiguration für Wiederverwendung oder Weitergabe. Eine Speicherung erfolgt erst, wenn die Vacuole-Zugebenungen und die repräsentative Zählverteilung gegen Bilder überprüft wurden."
+        },
+        {
+          "narration": "Führen Sie die gelösten Einstellungen fern an verteilte Jobs. Bestätigen Sie, dass die Messdatenbank über die Remote-Pfadkarte zugänglich ist, bevor Sie einen kleinen Validierungsbeschluss einreichen."
+        },
+        {
+          "narration": "Der Fernbildschirm erhält einen Jobentwurf. Überprüfen Sie die Synchronisierung, die Umgebungsaktivierung, die Ressourcen und den erzeugten Befehl und validieren Sie dann eine Platte, bevor Sie den Test skalieren."
+        },
+        {
+          "narration": "Assay Inputs identifiziert die experimentelle Wurzel, eine Reihe pro Parasiten-Tabelle und das Pathogen-Abteil. Die Replikation scores bestehende Parasitenmessungen; sie segmentiert keine Mikroskopiebilder mehr."
+        },
+        {
+          "narration": "Vacuole Assignment verwendet zunächst einen expliziten Vacuole-Schlüssel, wenn es vorhanden ist, sonst kann es Parasiten-Centroide räumlich verknüpfen, und erst dann zurück zur Gruppe der Gastzellen fallen. Eine Gastzelle kann mehrere Vakuole enthalten, so dass Fallback biologisch unterschiedliche Einheiten verschmelzen kann."
+        },
+        {
+          "narration": "Zustand Metadaten kartografieren Plattenbrunnen nach biologischen Gruppen und wählen die Vergleichspalte aus. Diese synthetische Platte enthält sechs Fahrzeugbrunnen in Spalte eins und sechs Hemmbrunnen in Spalte zwei, alle mit HeLa-Gastzellen."
+        },
+        {
+          "narration": "Object Filtering lehnt Krankheitserregermessungen außerhalb des akzeptierten Flächenbereichs ab, bevor Vakuolen gezählt werden. Diese Grenzen müssen gegen segmentierte Parasiten validiert werden, da Trümmer und verschmelzte Objekte die Replikationsleiter in entgegengesetzte Richtungen verzerren."
+        },
+        {
+          "narration": "Das Replikationsscoring definiert das größte benannte Count-Bucket und die Warnschwelle für nicht-Power-of-Two-Vakuoles. Die Zahlen eins, zwei, vier, acht und sechzehn folgen einer idealen Verdoppelung; Zahlen wie drei werden als QC-Kategorie aufbewahrt, anstatt schweigend abgerundet zu werden."
+        },
+        {
+          "narration": "Assay Output steuert die Farbkarte und die Speicherung. Die Analyse schreibt Pro-well- und Pro-condition-Verteilungen, Vakuole-Zählungen, Paare-Statistiken und Zahlen in den Replikationsergebnisse-Ordner."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit kontrollieren die Logging-Details. Bei der Erstellung eines Tests halten Sie verbose Ausgabe ein, so dass die Gruppenquelle, Ausschlüsse, Nicht-Power-of-Two-Fraktion, statistische Tests und Ausgabewege auditierbar bleiben."
+        },
+        {
+          "narration": "Diese Zuweisungsdetail verwendet die explizite vacuole_id Spalte und erfordert eine Hostzelle. Die synthetischen Daten geben einigen aufeinanderfolgenden Vakuolen absichtlich die gleiche Zell-ID, was bestätigt, dass der gewählte Vakuol-Schlüsselnicht die Gastzelledie gezählte Einheit ist."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen, nachdem Sie Eingabe, Zuordnung, Zustandsmetadaten, Filter und Scoring überprüft haben. Das Backend gruppiert Parasiten in Vakuolen, Etiketten zählen Eimer, fassen Brunnen und Bedingungen zusammen, führen Paare-Tests durch und vermitteln die Verteilungen."
+        },
+        {
+          "narration": "Während der Ausführung zeigt die Konsole die ausgewählten Tabellen und die Vergleichsmethode auf. Prüfen Sie Vakuole bei niedrigen und hohen Zählen in ihren Quellbildern, bevor Sie eine Verteilungsschicht als Biologie anstelle von Segmentierungs- oder Zuweisungsfehlern betrachten."
+        },
+        {
+          "narration": "Das echte Backend erzielt in jedem Zustand zweihundertvierzig Vakuolen. Das Fahrzeug hat eine Mediane von vier Parasiten und zwei Doppelungen pro Vakuol; ein Inhibitor hat eine Mediane von zwei Parasiten und eine Verdoppelung. Beide Gruppen enthalten fünf Prozent Nicht-Power-of-Two-Vakuoles und bleiben unter der zwanzigprozentigen Warnung. Mit sechs Brunnen pro Gruppe ist der angezeigte MannWhitney-Vergleich stark getrennt, aber biologische Schlussfolgerungen erfordern immer noch unabhängige Experimente."
         }
       ]
     },

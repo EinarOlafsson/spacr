@@ -3921,47 +3921,184 @@
       "id": "27_replication",
       "number": 27,
       "slug": "replication",
-      "title": "Replication assay",
+      "title": "Replication Assay",
       "series": 3,
       "app_key": "replication",
       "section": "Toxoplasma assays",
-      "description": "Score parasites per vacuole and summarize intracellular replication by condition.",
+      "description": "Assign parasites to vacuoles, inspect the one-two-four-eight replication ladder, and compare intracellular replication between conditions with vacuole- and well-level QC.",
       "objectives": [
-        "Understand when to use Replication assay.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Choose a defensible vacuole assignment method and avoid treating host-cell identity as vacuole identity.",
+        "Audit parasite and vacuole filters, replication buckets, condition metadata, and non-power-of-two QC.",
+        "Interpret parasites-per-vacuole distributions and condition comparisons without pseudoreplication."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Measure one row per segmented parasite with plate, well, field, host-cell, and—ideally—independently validated vacuole identifiers.",
       "scenes": [
         {
-          "narration": "This tutorial covers Replication assay. Score parasites per vacuole and summarize intracellular replication by condition.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Replication assay. Score parasites per vacuole and summarize intracellular replication by condition."
+          "narration": "Replication Assay counts parasites in each vacuole and summarizes the one, two, four, eight division ladder. The console records resolved settings, assignment QC, statistics, outputs, warnings, and errors; the chat box can discuss that context when AI is enabled.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Replication Assay counts parasites in each vacuole and summarizes the one, two, four, eight division ladder. The console records resolved settings, assignment quality control, statistics, outputs, warnings, and errors; the chat box can discuss that context when A I is enabled."
         },
         {
-          "narration": "Open Replication assay from the Toxoplasma assays section. Select host-cell, vacuole, and parasite measurements together with condition metadata.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Replication assay from the Toxoplasma assays section. Select host-cell, vacuole, and parasite measurements together with condition metadata."
+          "narration": "The AI toggle routes chat only when requested. Its adjacent menu selects a configured provider and opens provider settings; replication analysis itself remains local and does not require AI.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "The A I toggle routes chat only when requested. Its adjacent menu selects a configured provider and opens provider settings; replication analysis itself remains local and does not require A I."
         },
         {
-          "narration": "In the main configuration area, configure spatial assignment, object filters, parasite-count bins, controls, and statistical comparisons.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure spatial assignment, object filters, parasite-count bins, controls, and statistical comparisons."
+          "narration": "Provider setup separates local and hosted assistants. Configure only services you intend to use and review privacy information before sharing console or assay context with a remote provider.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "Provider setup separates local and hosted assistants. Configure only services you intend to use and review privacy information before sharing console or assay context with a remote provider."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect vacuoles across the full count range and verify that merged or fragmented masks are excluded.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect vacuoles across the full count range and verify that merged or fragmented masks are excluded."
+          "narration": "AI Settings controls assistant context, credentials, and optional error reporting. These preferences do not change vacuole assignment, parasite counts, filters, or statistics.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "A I Settings controls assistant context, credentials, and optional error reporting. These preferences do not change vacuole assignment, parasite counts, filters, or statistics."
         },
         {
-          "narration": "When the workflow finishes, parasites-per-vacuole distributions, replication rates, statistics, and figures are saved.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, parasites-per-vacuole distributions, replication rates, statistics, and figures are saved."
+          "narration": "Choose or drop the experiment root containing measurements slash measurements dot DB. The transferred experiment lacks independently validated vacuole identities, so this tutorial clearly uses a synthetic measurement database with explicit vacuole IDs while running the real spaCR backend.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.72,
+          "speech_text": "Choose or drop the experiment root containing measurements slash measurements dot D B. The transferred experiment lacks independently validated vacuole identities, so this tutorial clearly uses a synthetic measurement database with explicit vacuole I D's while running the real spacer backend."
+        },
+        {
+          "narration": "Essentials exposes the assay source, vacuole assignment, condition map, object filters, replication scoring, output, and runtime controls needed for a first analysis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "Essentials exposes the assay source, vacuole assignment, condition map, object filters, replication scoring, output, and runtime controls needed for a first analysis."
+        },
+        {
+          "narration": "Modified filters the form to deliberate deviations from defaults. Use it to audit the database, vacuole key, count column, area limits, plate map, condition grouping, and saving before a run.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "Modified filters the form to deliberate deviations from defaults. Use it to audit the database, vacuole key, count column, area limits, plate map, condition grouping, and saving before a run."
+        },
+        {
+          "narration": "All settings reveals every available control for reproduction and troubleshooting. Return to Essentials when advanced controls are unnecessary to reduce accidental parameter changes.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "All settings reveals every available control for reproduction and troubleshooting. Return to Essentials when advanced controls are unnecessary to reduce accidental parameter changes."
+        },
+        {
+          "narration": "Recipes preserve a validated assay configuration for reuse or sharing. Save one only after vacuole assignments and representative count distributions have been checked against images.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Recipes preserve a validated assay configuration for reuse or sharing. Save one only after vacuole assignments and representative count distributions have been checked against images."
+        },
+        {
+          "narration": "Submit remote passes the resolved settings to Distributed Jobs. Confirm that the measurement database is accessible through the remote path map before submitting a small validation job.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "Submit remote passes the resolved settings to Distributed Jobs. Confirm that the measurement database is accessible through the remote path map before submitting a small validation job."
+        },
+        {
+          "narration": "The remote screen receives a job draft. Check synchronization, environment activation, resources, and the generated command, then validate one plate before scaling the assay.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "The remote screen receives a job draft. Check synchronization, environment activation, resources, and the generated command, then validate one plate before scaling the assay."
+        },
+        {
+          "narration": "Assay Inputs identifies the experiment root, one-row-per-parasite table, and pathogen compartment. Replication scores existing parasite measurements; it does not segment microscopy images again.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Assay Inputs identifies the experiment root, one row per parasite table, and pathogen compartment. Replication scores existing parasite measurements; it does not segment microscopy images again."
+        },
+        {
+          "narration": "Vacuole Assignment first uses an explicit vacuole key when present, otherwise it can link parasite centroids spatially, and only then fall back to host-cell grouping. A host cell may contain multiple vacuoles, so that fallback can merge biologically distinct units.",
+          "visual": "12_category_02_vacuole_assignment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "Vacuole Assignment first uses an explicit vacuole key when present, otherwise it can link parasite centroids spatially, and only then fall back to host cell grouping. A host cell may contain multiple vacuoles, so that fallback can merge biologically distinct units."
+        },
+        {
+          "narration": "Condition Metadata maps plate wells to biological groups and chooses the comparison column. This synthetic plate contains six vehicle wells in column one and six inhibitor wells in column two, all with HeLa host cells.",
+          "visual": "12_category_03_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Condition Metadata maps plate wells to biological groups and chooses the comparison column. This synthetic plate contains six vehicle wells in column one and six inhibitor wells in column two, all with HeLa host cells."
+        },
+        {
+          "narration": "Object Filtering rejects pathogen measurements outside the accepted area range before vacuoles are counted. These limits must be validated against segmented parasites, because debris and merged objects distort the replication ladder in opposite directions.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Filtering rejects pathogen measurements outside the accepted area range before vacuoles are counted. These limits must be validated against segmented parasites, because debris and merged objects distort the replication ladder in opposite directions."
+        },
+        {
+          "narration": "Replication Scoring defines the largest named count bucket and the warning threshold for non-power-of-two vacuoles. Counts one, two, four, eight, and sixteen follow ideal doubling; counts such as three are retained as a QC category rather than silently rounded.",
+          "visual": "12_category_05_replication_scoring",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.66,
+          "speech_text": "Replication Scoring defines the largest named count bucket and the warning threshold for non power of two vacuoles. Counts one, two, four, eight, and sixteen follow ideal doubling; counts such as three are retained as a quality control category rather than silently rounded."
+        },
+        {
+          "narration": "Assay Output controls the color map and saving. The analysis writes per-well and per-condition distributions, vacuole counts, pairwise statistics, and figures into the replication results folder.",
+          "visual": "12_category_06_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Assay Output controls the color map and saving. The analysis writes per well and per condition distributions, vacuole counts, pairwise statistics, and figures into the replication results folder."
+        },
+        {
+          "narration": "Runtime and Reliability controls logging detail. Keep verbose output on while establishing an assay so the grouping source, exclusions, non-power-of-two fraction, statistical tests, and output paths remain auditable.",
+          "visual": "12_category_07_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Runtime and Reliability controls logging detail. Keep verbose output on while establishing an assay so the grouping source, exclusions, non power of two fraction, statistical tests, and output paths remain auditable."
+        },
+        {
+          "narration": "This assignment detail uses the explicit vacuole_id column and requires a host cell. The synthetic data intentionally gives some consecutive vacuoles the same cell ID, confirming that the chosen vacuole key—not the host cell—is the unit being counted.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.64,
+          "speech_text": "This assignment detail uses the explicit vacuole I D column and requires a host cell. The synthetic data intentionally gives some consecutive vacuoles the same cell I D, confirming that the chosen vacuole key, not the host cell, is the unit being counted."
+        },
+        {
+          "narration": "Click Run after checking inputs, assignment, condition metadata, filters, and scoring. The backend groups parasites into vacuoles, labels count buckets, summarizes wells and conditions, performs pairwise tests, and renders the distributions.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Click Run after checking inputs, assignment, condition metadata, filters, and scoring. The backend groups parasites into vacuoles, labels count buckets, summarizes wells and conditions, performs pairwise tests, and renders the distributions."
+        },
+        {
+          "narration": "During execution, the console exposes the selected tables and comparison method. Inspect vacuoles at low and high counts in their source images before treating a distribution shift as biology rather than segmentation or assignment error.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.64,
+          "speech_text": "During execution, the console exposes the selected tables and comparison method. Inspect vacuoles at low and high counts in their source images before treating a distribution shift as biology rather than segmentation or assignment error."
+        },
+        {
+          "narration": "The real backend scores two hundred forty vacuoles in each condition. Vehicle has median four parasites and two doublings per vacuole; inhibitor has median two parasites and one doubling. Both groups contain five percent non-power-of-two vacuoles and remain below the twenty-percent warning. With six wells per group, the displayed Mann–Whitney comparison is strongly separated, but biological conclusions still require independent experiments.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "The real backend scores two hundred forty vacuoles in each condition. Vehicle has median four parasites and two doublings per vacuole; inhibitor has median two parasites and one doubling. Both groups contain five percent non power of two vacuoles and remain below the twenty percent warning. With six wells per group, the displayed Mann Whitney comparison is strongly separated, but biological conclusions still require independent experiments."
         }
       ]
     },
