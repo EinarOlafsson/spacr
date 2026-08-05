@@ -937,7 +937,12 @@ class ConsolePanel(QWidget):
         # what made it heavy. The gap is now the handle's real width, so the
         # console and chat sit closer together; the grab area is Qt's, not
         # the painted width, so it stays draggable.
-        self._split.setHandleWidth(1)
+        # 8px of GAP, not 8px of divider. The handle is the spacing the
+        # layout had before the splitter existed, and that spacing is worth
+        # keeping — what was wrong was that the whole 8px lit up accent-blue
+        # on hover, so resizing showed a thick blue slab. The stylesheet
+        # below keeps the width and paints only a 1px line in it.
+        self._split.setHandleWidth(SPACING["sm"])
         # The splitter is scaffolding, not a surface. AppScreen's
         # `_clear_page_surfaces` sweep tags every QSplitter by type, but a
         # ConsolePanel used on its own (or in a test) never gets that sweep,
@@ -948,15 +953,27 @@ class ConsolePanel(QWidget):
             make_transparent(self._split)
         except Exception:
             pass
-        # setHandleWidth(1) sets the LAYOUT width; the handle still rendered
-        # 5px because the application stylesheet's 1px rule is matched on
-        # QSplitter::handle and make_transparent gives this splitter a
-        # stylesheet of its own, which wins. Restate the rule here so the
-        # divider under the console is the same hairline as the one beside
-        # the settings column, which the app stylesheet still reaches.
+        # The theme fills a hovered handle with the accent colour, which on
+        # an 8px handle is an 8px blue bar. Keep the 8px of space and draw
+        # the highlight as a 1px line inside it: transparent background, one
+        # accent border along the top edge. The grab area is unchanged, so
+        # the handle is no harder to hit than it ever was.
+        try:
+            accent = active_palette()["button_accent"]
+        except Exception:
+            accent = "#4A9EFF"
         self._split.setStyleSheet(
             self._split.styleSheet()
-            + "\nQSplitter#ConsoleSplit::handle:vertical { height: 1px; }")
+            + f"""
+QSplitter#ConsoleSplit::handle:vertical {{
+    background: transparent;
+    border: none;
+}}
+QSplitter#ConsoleSplit::handle:vertical:hover {{
+    background: transparent;
+    border-top: 1px solid {accent};
+}}
+""")
         outer.addWidget(self._split, 1)
 
         # Console box — a rounded surface frame that wraps ONLY the scrolling
