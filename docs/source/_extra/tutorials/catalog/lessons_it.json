@@ -4951,47 +4951,92 @@
       "id": "35_converter",
       "number": 35,
       "slug": "converter",
-      "title": "Format Converter",
+      "title": "Convertitore di formato",
       "series": 4,
       "app_key": "convert",
       "section": "Data and batch runs",
-      "description": "Convertire ND2, CZI, LIF, OME-TIFF e relativi formati di microscopia in file TIFF in stile Yokogawa mappati.",
+      "description": "Preview e convertire veri file di microscopia in nomi Yokogawa TIFF compatibili con spaCR con una mappa di provenienza reversibile.",
       "objectives": [
-        "Comprendere quando utilizzare Format Converter.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Scegli un albero sorgente, destinazione, layout, gestione Z e schema di denominazione della targa.",
+        "Verificare l'intera mappatura fonte-obiettivo prima di scrivere qualsiasi output.",
+        "Convertire in modo atomico, ispezionare la mappa di provenienza e riprendere senza riscrivere i campi completati."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Una cartella contenente immagini da microscopio ND2, CZI, LIF, OME-TIFF, TIFF, PNG, JPEG o BMP.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre Format Converter. Convertire ND2, CZI, LIF, OME-TIFF e i relativi formati di microscopia in file TIFF in stile Yokogawa mappati.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre Format Converter. Convertire ND2, CZI, LIF, OME-TIFF e i relativi formati di microscopia in file TIFF in stile Yokogawa mappati."
+          "narration": "Il format converter trasforma le immagini del venditore o della microscopia generale nei nomi TIFF in stile Yokogawa che spaCR Mask and Measure leggono direttamente. Aprilo da Data e esegue batch. La regola centrale di sicurezza e' \"preview first\" e \"convert second\".",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.7,
+          "speech_text": "Il format converter trasforma le immagini del venditore o della microscopia generale nei nomi TIFF in stile Yokogawa che spàker Mask and Measure leggono direttamente. Aprilo da Data e esegue batch. La regola centrale di sicurezza e' \"preview first\" e \"convert second\"."
         },
         {
-          "narration": "Apri Format Converter dalla sezione Data and batch runs. Apri il format converter dalla sezione \"Data and batch runs\". Scegli i file sorgenti, le serie o le scene, i nomi dei canali, il tempo e la gestione della profondità e una cartella di uscita.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Format Converter dalla sezione Data and batch runs. Apri il format converter dalla sezione \"Data and batch runs\". Scegli i file sorgenti, le serie o le scene, i nomi dei canali, il tempo e la gestione della profondità e una cartella di uscita."
+          "narration": "Scarica una cartella sorgente o scegliela qui, quindi seleziona una nuova destinazione. Questa dimostrazione utilizza due veri campi a quattro canali dell'esperimento trasferito. I loro pixel sono stati copiati byte-for-byte; solo la struttura della cartella tutorial e i nomi dei file sorgenti sono stati preparati per questo esempio di conversione.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "hold_after": 0.76,
+          "speech_text": "Scarica una cartella sorgente o scegliela qui, quindi seleziona una nuova destinazione. Questa dimostrazione utilizza due veri campi a quattro canali dell'esperimento trasferito. I loro pixel sono stati copiati byte-for-byte; solo la struttura della cartella tutorial e i nomi dei file sorgenti sono stati preparati per questo esempio di conversione."
         },
         {
-          "narration": "Nell'area di configurazione principale, visualizza come le dimensioni della fonte vengono mappate a piatto, pozzo, campo, tempo, profondità e indici di canale.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, visualizza come le dimensioni della fonte vengono mappate a piatto, pozzo, campo, tempo, profondità e indici di canale."
+          "narration": "Layout descrive se le immagini si trovano direttamente nella fonte, sotto le cartelle dei pozzi o sotto le cartelle delle piastre e dei pozzi; la rilevazione automatica è normalmente appropriata. Mantenere ogni piano Z è il default senza perdite. La proiezione massima e la modalità di primo piano escludono esplicitamente gli aerei. I nomi delle schede possono essere sequenziali o conservare le cartelle sorgenti, e Resume convalida i checkpoint di campo prima di saltarli.",
+          "visual": "03_options",
+          "focus_key": "options",
+          "hold_after": 0.82,
+          "speech_text": "Layout descrive se le immagini si trovano direttamente nella fonte, sotto le cartelle dei pozzi o sotto le cartelle delle piastre e dei pozzi; la rilevazione automatica è normalmente appropriata. Mantenere ogni piano Z è il default senza perdite. La proiezione massima e la modalità di primo piano escludono esplicitamente gli aerei. I nomi delle schede possono essere sequenziali o conservare le cartelle sorgenti, e Resume convalida i checkpoint di campo prima di saltarli."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. convalidare la mappatura su un piccolo campione prima di convertire ogni file.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. convalidare la mappatura su un piccolo campione prima di convertire ogni file."
+          "narration": "Con la rilevazione automatica del layout, la gestione Z senza perdite, i nomi sequenziali delle targhe e la nuova destinazione selezionata, fare clic su Preview. Preview scansione di intestazioni e costruisce la mappatura, ma non crea la destinazione o scrivere un'immagine.",
+          "visual": "04_preview",
+          "focus_key": "configuration",
+          "click_key": "preview",
+          "hold_after": 0.68,
+          "speech_text": "Con la rilevazione automatica del layout, la gestione Z senza perdite, i nomi sequenziali delle targhe e la nuova destinazione selezionata, fare clic su Preview. Preview scansione di intestazioni e costruisce la mappatura, ma non crea la destinazione o scrivere un'immagine."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, spaCR scrive TIFF standardizzati e una mappa indietro ai file e ai metadati originali.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, spàker scrive TIFF standardizzati e una mappa indietro ai file e ai metadati originali."
+          "narration": "Il piano completo di otto file appare prima della conversione. Ogni riga colloca la sua fonte riconoscibile accanto all'esatto bersaglio, piastra, pozzo, campo, canale, Z, tempo, identificatori originali e stato. La prima uscita è plate1, A01, campo 1, canale 1; l'ultima è campo 2, canale 4. Lo status conferma che nulla è stato scritto.",
+          "visual": "05_plan",
+          "focus_key": "mapping",
+          "hold_after": 0.84,
+          "speech_text": "Il piano completo di otto file appare prima della conversione. Ogni riga colloca la sua fonte riconoscibile accanto all'esatto bersaglio, piastra, pozzo, campo, canale, Z, tempo, identificatori originali e stato. La prima uscita è plate1, A01, campo 1, canale 1; l'ultima è campo 2, canale 4. Lo status conferma che nulla è stato scritto."
+        },
+        {
+          "narration": "Rivedi la sintesi e fai clic su Convert solo quando la mappatura è corretta. Una collisione disabilita questo pulsante piuttosto che sovrascrivere un bersaglio. I file validi vengono scritti in modo atomico alla destinazione separata, quindi le immagini originali di microscopia non vengono mai rinominate o sostituite.",
+          "visual": "06_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.72,
+          "speech_text": "Rivedi la sintesi e fai clic su Convert solo quando la mappatura è corretta. Una collisione disabilita questo pulsante piuttosto che sovrascrivere un bersaglio. I file validi vengono scritti in modo atomico alla destinazione separata, quindi le immagini originali di microscopia non vengono mai rinominate o sostituite."
+        },
+        {
+          "narration": "Tutti e otto i TIFF sono stati scritti con successo. conversion_map.csv registra ogni obiettivo accanto al suo percorso assoluto e relativo originale, identificatori di sorgente, identificatori di unione spaCR, dimensioni, politica Z e metadati. I hash TIFF di fonte preparati rimangono identici in byte dopo la conversione.",
+          "visual": "07_result",
+          "focus_key": "summary",
+          "hold_after": 0.8,
+          "speech_text": "Tutti e otto i TIFF sono stati scritti con successo. conversion_map.csv registra ogni obiettivo accanto al suo percorso assoluto e relativo originale, identificatori di sorgente, identificatori di unione spàker, dimensioni, politica Z e metadati. I hash TIFF di fonte preparati rimangono identici in byte dopo la conversione."
+        },
+        {
+          "narration": "Abilitare il ripristino per una conversione interrotta o ripetuta. Resume non si affida solo ai nomi di file: consulta un punto di controllo del campo atomico e convalida ogni TIFF appartenente a un campo completato prima di decidere che il campo può essere saltato.",
+          "visual": "08_resume",
+          "focus_key": "options",
+          "click_key": "resume",
+          "hold_after": 0.7,
+          "speech_text": "Abilitare il ripristino per una conversione interrotta o ripetuta. Resume non si affida solo ai nomi di file: consulta un punto di controllo del campo atomico e convalida ogni TIFF appartenente a un campo completato prima di decidere che il campo può essere saltato."
+        },
+        {
+          "narration": "Fare clic su Convert nuovamente con lo stesso piano verificato e Resume abilitato. Se un file mancasse o fosse corrotto, tutto il suo campo sarebbe ricostruito; campi completi possono essere riutilizzati in modo sicuro.",
+          "visual": "09_resume_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.64,
+          "speech_text": "Fare clic su Convert nuovamente con lo stesso piano verificato e Resume abilitato. Se un file mancasse o fosse corrotto, tutto il suo campo sarebbe ricostruito; campi completi possono essere riutilizzati in modo sicuro."
+        },
+        {
+          "narration": "Entrambi i campi a quattro canali passano la convalida, quindi Resume scrive zero file e segnala due campi ripristinati. La mappa di provenienza di otto righe e otto TIFF convertiti rimangono completi, completando un'importazione reversibile, senza perdite e sicura di riavvio nella denominazione spaCR.",
+          "visual": "10_resumed",
+          "focus_key": "summary",
+          "hold_after": 0.82,
+          "speech_text": "Entrambi i campi a quattro canali passano la convalida, quindi Resume scrive zero file e segnala due campi ripristinati. La mappa di provenienza di otto righe e otto TIFF convertiti rimangono completi, completando un'importazione reversibile, senza perdite e sicura di riavvio nella denominazione spàker."
         }
       ]
     },

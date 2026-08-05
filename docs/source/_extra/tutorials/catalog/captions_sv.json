@@ -1914,19 +1914,34 @@
       "id": "35_converter",
       "scenes": [
         {
-          "narration": "Denna handledning omfattar Format Converter. Konvertera ND2, CZI, LIF, OME-TIFF och relaterade mikroskopformat till kartläggade TIFF-filer i Yokogawa-stil."
+          "narration": "Format Converter omvandlar leverantörens eller generella mikroskopiska bilder till Yokogawa-stil TIFF-namn som spaCR Mask och Measure läser direkt. Öppna den från Data och batch. Den centrala säkerhetsregeln är förhandsgranskning först och konvertering andra."
         },
         {
-          "narration": "Öppna Format Converter från avsnittet Data och batch runs. Välj källfiler, serier eller scener, kanalnamn, tid och djuphantering och en output mapp."
+          "narration": "Släpp en källmappa eller välj den här, välj sedan en ny destination. Denna demonstration använder två verkliga fyra kanalsfält från det överförda experimentet. Deras pixlar kopierades byte-för-byte; endast handledning mappstrukturen och källfilnamn förbereds för detta konverterings exempel."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet ska du förhandsgranska hur källdimensionerna kartläggs till tallrik, brunn, fält, tid, djup och kanalindex."
+          "narration": "Layout beskriver huruvida bilderna sitter direkt i källan, under brunnmappar eller under platt- och brunnmappar; automatisk upptäckt är normalt lämpligt. Att behålla varje Z-plan är den förlorade standarden. Max-projektion och första planläge kastar uttryckligen flygplan. Plattnamn kan vara sekventiella eller bevara källmappar, och Resume validerar fältkontrollpunkter innan du hoppar över dem."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Validerar kartläggningen på ett litet prov innan varje fil konverteras."
+          "narration": "Med automatisk upptäckt av layout, förlustfri Z-hantering, sekventiella plattnamn och den nya destinationen väljs klicka på Förhandsgranskning. Preview skannar rubriker och bygger kartläggningen men skapar inte destinationen eller skriver en bild."
         },
         {
-          "narration": "När arbetsflödet är färdigt skriver spaCR standardiserade TIFF och en karta tillbaka till de ursprungliga filerna och metadata."
+          "narration": "Den fullständiga åttafilplanen visas innan konverteringen. Varje rad placerar sin igenkännbara källa bredvid det exakta målet, platten, brunnen, fältet, kanalen, Z, tiden, ursprungliga identifieringar och status. Den första utgången är platt 1, A01, fält 1, kanal 1; den sista är fält 2, kanal 4. Statusen bekräftar att inget har skrivits."
+        },
+        {
+          "narration": "Se över sammanfattningen och klicka på Konvertera endast när kartläggningen är korrekt. En kollision inaktiverar knappen istället för att överskriva målet. De giltiga filerna skrivs automatiskt till den separata destinationen, så de ursprungliga mikroskopbilderna ändras aldrig namn eller bytas ut."
+        },
+        {
+          "narration": "Alla åtta TIFF skrevs framgångsrikt. conversion_map.csv registrerar varje mål bredvid dess ursprungliga absoluta och relativa väg, källidentifierare, spaCR anslutningsidentifierare, dimensioner, Z-policy och metadata. De förberedda källan TIFF-hasherna förblir byteidentiella efter omvandlingen."
+        },
+        {
+          "narration": "Aktivera Resume för en avbruten eller upprepad konvertering. Resume litar inte bara på filnamn: den konsulterar en kontrollpunkt för atomfält och validerar alla TIFF som tillhör ett färdigt fält innan den beslutar att fältet kan hoppas över."
+        },
+        {
+          "narration": "Klicka på Konvertera igen med samma bekräftade plan och Resume aktiverad. Om en fil saknades eller var korrupt, skulle hela fältet återuppbyggas; hela fälten kan återanvändas säkert."
+        },
+        {
+          "narration": "Båda fyra kanalsfält godkänner validering, så Resume skriver noll filer och rapporterar två återupptäckta fält. Den åtta raders ursprungskarta och åtta konverterade TIFF fortsätter att vara färdig och avslutar en reversibel, förlustfri och startfri import till spaCR-namningen."
         }
       ]
     },
