@@ -1870,19 +1870,43 @@
       "id": "34_database",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Database Browser. Skoðaðu, sía, leita og flytja út mælingar dot db án þess að nota skipunarlínuna sqlite."
+          "narration": "Database Browser skoðar stórar spaCR niðurstöður gagnagrunna án skipunarlínunnar. Opnaðu hana í Niðurstöðum og gæðastjórnun. Það byrjar aðeins að lesa á báðum laugunum: viðfangsefnið býður ekki upp á frambúðaraðila og SQLite notar aðeins að lesa og aðeins fyrirspurn aðstæður nema ritun er meðvitað virkt annars staðar."
         },
         {
-          "narration": "Opnaðu gagnagrunnaþjónustuna í deildinni Upplýsingar og flokka. Opnaðu gagnagrunn spaCR SQLite og veldu töflu eða vistaðan fyrirspurn."
+          "narration": "Settu inn metingar.db leið og smelltu á Opna. Þú getur í staðinn valið gagnagrunnuna, valið hlaupplötu hennar eða sleppt annaðhvort á skjánum. Hér opnum við raunverulega mælingar gagnagrunn af flutningarkennslu tilraun."
         },
         {
-          "narration": "Í aðal uppsetningar svæði, stilltu stólur, sía, flokkun, röð mörk, sameiningar, og öruggt les-eins eða breyta hegðun."
+          "narration": "spaCR leysir leiðina, opnar hana bara til að lesa og listar tíu töflur. Þar má nefna hlutmæli, myndatökur, stillingar, tal og athugasemdir. Ritskipulag er slökkt; þetta námskeið gerir það aldrei kleift og skrifar aldrei til uppspretta."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. sjá fyrirsögn og varðveita hlutatilgreiningar þegar útflutningur er gerður eða leyfðar breytingar eru gerðar."
+          "narration": "Smelltu á síluborðið. Það inniheldur 81.969 mæluð frumur og 218 kennitölu, formfræði, þyngd, textur, fjarlægð og colocalization kolumnar. Fyrirsýningin fær aðeins fyrsta grenndarhlutann, en heildartölur röðanna er greint frá sér."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið er hægt að afrita eða flytja út síaðar töflur á meðan upprunalegu gagnagrunnan er eftirsjáanleg."
+          "narration": "Leitaðu í stöngum til að gera breiða einkenni töflu lesanlegt. Spurningssal_channel_1_mean þrengir strax 218 sýndar dálkur til einnar kanals-1 meðalþyngd eiginleika. Þetta breytir aðeins útsýni; það fer ekki aftur í gagnagrunna fyrirspurn eða fjarlægir línur."
+        },
+        {
+          "narration": "Fjarlægðu leitarstöðuna og settu röð fyrir hverja færslu á 250. Forsýningin notar lykilset síða frekar en djúp offset, svo hver beiðni verður takmörkuð þegar borðið vex. Smelltu á hlaða meira til að bæta við næsta hluta án þess að hlaða öllum 81.969 röðum í minni."
+        },
+        {
+          "narration": "Á forsýningunni er nú sýnt 500 af 81.969 röðum. Sorting verður ekki gert á meðan aðeins hluti af borðinu er hlaðinn, því að að sorta hluta síðu myndu valda öllu gagnasetinu rangt. Sniðgefur gagnagrunnanna renna hins vegar alltaf gegn heildarborðinu."
+        },
+        {
+          "narration": "Byggðu upp skipulagt sía með því að velja cell_area, stærra en eða jafngildir og 10.000 og smelltu síðan á Apply filter. spaCR staðfestir stönguna og rekstraraðila og bindir gildið sem mælikvarða. Raw SQL er í boði fyrir háþróaðar forsendur, en er óþarfi hér."
+        },
+        {
+          "narration": "Heildarfilturinn inniheldur 12.907 frumur. Aðeins fyrstu 250 eru máluð, en nákvæma filterinn tal og virk preikátin eru enn sýnileg. Þessi greiningin kemur í veg fyrir að stærð forsýningarblaðsins verði rangfærð með stærð fólksins."
+        },
+        {
+          "narration": "Smelltu á Útflutningur á síaðu CSV. Útflutningur streymir alla núverandi töflu og sía frekar en aðeins hlaðið forsjá, og þeir heiðra sýnilega stöng leit ef einn er virkur. Eftir að leitað hefur verið leyft varðveitir útflutningurinn alla 218 stöngina."
+        },
+        {
+          "narration": "Staðan staðfestir útflutning á 12.907 röðum með 218 stöðum. Afleiðsla CSV er eina nýja skrá sem skapað er. A fyrir og eftir SHA-256 athugun staðfestir að measurements.db er byte-einn og engin dagbók eða skrifa-fyrir-log skrá birtist við hliðina."
+        },
+        {
+          "narration": "Smelltu á Skildu til að fjarlægja predikat og hlaða upp á ný fyrsta takmörkuð bit. Filtrar eru endurskoðandi útsýni ástand: að hreinsa einn breytir ekki röðum í gagnagrunninum eða áður útflutin skrá."
+        },
+        {
+          "narration": "Allir 81.969 frumur eru sýnilegir fyrir vafra aftur, en aðeins fyrstu 250 eru hlaðin. Með þessu er lokið eftirsóknarhæfu aðeins lesandi vinnuflæði til að kanna stórar mælitöflur spaCR og flytja nákvæmlega skilgreindar undirsetur út."
         }
       ]
     },

@@ -1870,19 +1870,43 @@
       "id": "34_database",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Database Browser. Browse, filtrere, spørre og eksportere målinger dot db uten å bruke kommandoen sqlite."
+          "narration": "Database Browser inspiserer store spaCR resultatdatabaser uten en kommando linje. Åpne det fra resultat og kvalitetskontroll. Det starter bare-les på begge lag: grensesnittet tilbyr ikke celleredigører, og SQLite bruker bare-les- og bare-forspørsels-moduser med mindre redigering er bevisst aktivert andre steder."
         },
         {
-          "narration": "Åpne Database Browser fra avsnittet Data og batch runs. Åpne en spaCR SQLite-database og velg en tabell eller lagret forespørsel."
+          "narration": "Skriv inn en målinger.db-vei og klikk på Åpne. Du kan i stedet velge databasen, velge dens kjøre mappe, eller droppe enten hvor som helst på skjermen. Her åpner vi overført tutorial eksperimentets virkelige målinger database."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet konfigurere kolonner, filtre, sortering, radegrensninger, sammenkoblinger og sikker bare-les- eller redigerbar atferd."
+          "narration": "spaCR løser veien, åpner den bare-les- og lister ti tabeller. Disse inkluderer objektmålinger, billedregister, innstillinger, tall og annotasjonshistorie. Redigering stillingen forblir stengt; denne opplæringen gjør det aldri mulig og skriver aldri til kilden."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Forutsetning av forespørsler og bevaring av objektidentifikatorer når du eksporterer eller gjør autoriserte redigeringer."
+          "narration": "Klikk på Cell-bordet. Den inneholder 81.969 målede celler og 218 identifikatorer, morfologi, intensitet, tekstur, avstand og kolokalisering kolonne. Forutsetningen henter bare den første begrensede delen, mens den komplette radens tall rapporteres separat."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, kan filtrerte tabeller kopieres eller eksporteres mens den opprinnelige databasen forblir sporbar."
+          "narration": "Søk i kolonner for å gjøre en bred funksjonstabell lesbar. Spørsmålet cell_channel_1_mean reduserer øyeblikkelig 218 vises kolonner til den enkelt kanal-1 gjennomsnittlig intensitetsfunksjonen. Dette endrer bare visningen; det gjenkjører ikke databasen forespørsel eller fjerne rader."
+        },
+        {
+          "narration": "Rengjør søket i kolonnen og sett Råer per hentning til 250. Forutsetningen bruker nøkkelsett paging i stedet for en dyp offset, så hver forespørsel forblir begrenset etter hvert som tabellen vokser. Klikk på Last mer for å legge til neste bit uten å laste inn alle 81.969 rader i minnet."
+        },
+        {
+          "narration": "Forutsetningen viser nå 500 av 81.969 rader. Sorting forblir off mens bare en del av tabellen er lastet, fordi å sortere en delvis side ville feilaktig representere hele datasettet. Databasefiltre kjører imidlertid alltid mot hele tabellen."
+        },
+        {
+          "narration": "Bygg et strukturert filter ved å velge cell_area, større enn eller lik 10.000, og klikk deretter på Apply filter. spaCR validerer kolonnen og operatøren og binder verdien som et parameter. Raw SQL er tilgjengelig for avanserte predikater, men er unødvendig her."
+        },
+        {
+          "narration": "Filteret inneholder 12.907 celler. Bare de første 250 er malt, men den nøyaktige filtrerte tall og den aktive predikaten forblir synlig. Denne forskjellen forhindrer at en forhåndsvisningsside blir forvekslet med befolkningsstørrelsen."
+        },
+        {
+          "narration": "Klikk Eksport filtrert CSV. Eksporter strømmer hele den nåværende tabellen og filtreren i stedet for bare den lastede forhåndsvisningen, og de hyller den synlige kolonne søket hvis en er aktiv. Etter at søket er avsluttet, beholder denne eksporten alle 218 kolonner."
+        },
+        {
+          "narration": "Statusen bekrefter eksport av 12 907 rader med 218 kolonner. Den avledte CSV er den eneste nye filen som er opprettet. En sjekk før og etter SHA-256 bekrefter at measurements.db er byte-ident, og ingen journal eller write-ahead-log fil dukket opp ved siden av det."
+        },
+        {
+          "narration": "Klikk Clear for å fjerne predikaten og laste den første begrensede biten. Filtre er reversibel visningstilstand: clearing en endrer ikke rader i databasen eller den tidligere eksporterte filen."
+        },
+        {
+          "narration": "Alle 81.969 celler er synlige for nettleseren igjen, med bare de første 250 lastet. Dette fullfører en sporbar bare-les-arbeidsflyt for å utforske store spaCR-måttesteller og eksportere nøyaktig definerte undergrupper."
         }
       ]
     },

@@ -4,47 +4,137 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 44.2,
+  "total_duration": 242.01,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 3.85,
-      "scene_end": 4.3,
-      "duration": 4.3,
-      "text": "Ce tutoriel couvre le navigateur de base de données."
+      "speech_end": 24.0,
+      "scene_end": 24.72,
+      "duration": 24.72,
+      "text": "Le navigateur de base de données inspecte de grandes bases de données de résultats spaCR sans ligne de commande. Ouvrez-le à partir des résultats et du contrôle de la qualité. Il démarre uniquement en lecture sur les deux couches: l'interface n'offre pas d'éditeurs de cellules, et SQLite utilise des modes uniquement en lecture et uniquement en requête à moins que l'édition ne soit délibérément activée ailleurs.",
+      "speech_text": "Le navigateur de base de données inspecte de grandes bases de données de résultats spakeur sans ligne de commande. Ouvrez-le à partir des résultats et du contrôle de la qualité. Il démarre uniquement en lecture sur les deux couches: l'interface n'offre pas d'éditeurs de cellules, et SQLite utilise des modes uniquement en lecture et uniquement en requête à moins que l'édition ne soit délibérément activée ailleurs.",
+      "phonemes": "lə naviɡatˈœʁ də bˈaz də dɔnˈez ɛ̃spˈɛkt də ɡʁˈɑ̃d bˈaz də dɔnˈe də ʁezyltˈa spakˈœʁ sɑ̃ lˈiɲ də kɔmˈɑ̃d. uvʁˈelə a paʁtˈiʁ de ʁezyltˈaz e dy kɔ̃tʁˈoːl də la kalitˈe. il demˈaʁ ynikmˈɑ̃ ɑ̃ lɛktˈyʁ syʁ le dˈø kˈuʃ: lɛ̃tɛʁfˈas nˈɔfʁ pa deditˈœʁ də sɛlˈyl, e ˌɛskˈy lˈIt ytilˈiz de mˈodz ynikmˈɑ̃ ɑ̃ lɛktˈyʁ e ynikmˈɑ̃ ɑ̃ ʁəkˈɛt a mwˈɛ̃ kə ledisjˈɔ̃ nə swˌa delibeʁemˈɑ̃ aktivˈe ajˈœʁ."
     },
     {
       "scene": 2,
-      "speech_start": 4.3,
-      "speech_end": 14.225000000000001,
-      "scene_end": 14.675,
-      "duration": 10.375,
-      "text": "Ouvrez Database Browser dans la section Data and batch runs. Ouvrez une base de données SQLite spaCR et sélectionnez une table ou une requête enregistrée."
+      "speech_start": 24.72,
+      "speech_end": 40.545,
+      "scene_end": 41.185,
+      "duration": 16.465000000000003,
+      "text": "Entrez le chemin des mesures.db et cliquez sur Ouvrez. Au lieu de cela, vous pouvez choisir la base de données, choisir son dossier d'exécution, ou laisser tomber n'importe où sur cet écran. Ici, nous ouvrons la base de données de mesures réelles de l'expérience tutorielle transférée.",
+      "speech_text": "Entrez le chemin des mesures.db et cliquez sur Ouvrez. Au lieu de cela, vous pouvez choisir la base de données, choisir son dossier d'exécution, ou laisser tomber n'importe où sur cet écran. Ici, nous ouvrons la base de données de mesures réelles de l'expérience tutorielle transférée.",
+      "phonemes": "ɑ̃tʁˈe lə ʃəmˈɛ̃ de məzˈyʁ.dˌebˈe e klikˈe syʁ uvʁˈe. o ljˈø də səlˈa, vu puvˈe ʃwazˈiʁ la bˈaz də dɔnˈe, ʃwazˈiʁ sɔ̃ dɔsjˈe dɛɡzekysjˈɔ̃, u lɛsˈe tɔ̃bˈe nɛ̃pˈɔʁt u syʁ sɛt ekʁˈɑ̃. isˈi, nuz uvʁˈɔ̃ la bˈaz də dɔnˈe də məzˈyʁ ʁeˈɛl də lɛkspeʁjˈɑ̃s tytoʁjˈɛl tʁɑ̃sfeʁˈe."
     },
     {
       "scene": 3,
-      "speech_start": 14.675,
-      "speech_end": 25.4,
-      "scene_end": 25.849999999999998,
-      "duration": 11.174999999999997,
-      "text": "Dans la zone de configuration principale, configurez les colonnes, les filtres, le tri, les limites de rangées, les joints et le comportement sûr à lire uniquement ou à modifier."
+      "speech_start": 41.185,
+      "speech_end": 58.61,
+      "scene_end": 59.33,
+      "duration": 18.144999999999996,
+      "text": "spaCR résout le chemin, l'ouvre uniquement en lecture et répertorie dix tables. Il s'agit notamment des mesures d'objets, des enregistrements d'images, des paramètres, des comptes et de l'historique des annotations. Le mode d'édition reste désactivé; ce tutoriel ne le permet jamais et n'écrit jamais à la source.",
+      "speech_text": "spakeur résout le chemin, l'ouvre uniquement en lecture et répertorie dix tables. Il s'agit notamment des mesures d'objets, des enregistrements d'images, des paramètres, des comptes et de l'historique des annotations. Le mode d'édition reste désactivé; ce tutoriel ne le permet jamais et n'écrit jamais à la source.",
+      "phonemes": "spakˈœʁ ʁezˈu lə ʃəmˈɛ̃, lˈuvʁ ynikmˈɑ̃ ɑ̃ lɛktˈyʁ e ʁepɛʁtoʁˈi dˈi tˈabl. il saʒˈi notamˈɑ̃ de məzˈyʁ dɔbʒˈɛ, dez ɑ̃ʁʒistʁəmˈɑ̃ dimˈaʒ, de paʁamˈɛtʁ, de kˈɔ̃tz e də listoʁˈik dez anotasjˈɔ̃. lə mˈɔd dedisjˈɔ̃ ʁˈɛst dezaktivˈe; sə tytoʁjˈɛl nə lə pɛʁmˈɛ ʒamˌɛz e nekʁˈi ʒamˌɛz a la sˈuʁs."
     },
     {
       "scene": 4,
-      "speech_start": 25.849999999999998,
-      "speech_end": 34.125,
-      "scene_end": 34.575,
-      "duration": 8.725000000000005,
-      "text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+      "speech_start": 59.33,
+      "speech_end": 78.155,
+      "scene_end": 78.935,
+      "duration": 19.605000000000004,
+      "text": "Cliquez sur la table des cellules. Il contient 81 969 cellules mesurées et 218 colonnes d'identification, de morphologie, d'intensité, de texture, de distance et de colocalization. L'aperçu ne rapporte que sa première partie délimitée, tandis que le nombre complet de lignes est rapporté séparément.",
+      "speech_text": "Cliquez sur la table des cellules. Il contient 81 969 cellules mesurées et 218 colonnes d'identification, de morphologie, d'intensité, de texture, de distance et de colocalization. L'aperçu ne rapporte que sa première partie délimitée, tandis que le nombre complet de lignes est rapporté séparément.",
+      "phonemes": "klikˈe syʁ la tˈabl de sɛlˈyl. il kɔ̃tjˈɛ̃ katʁəvɛ̃œ̃ mˈil nœfsɑ̃ swasɑ̃tnˈœf sɛlˈyl məzyʁˈez e døsɑ̃ dizyˈi kolˈɔn didɑ̃tifikasjˈɔ̃, də mɔʁfoloʒˈi, dɛ̃tɑ̃sitˈe, də tɛkstˈyʁ, də distˈɑ̃s e də kolokalizasjˈɔ̃. lapɛʁsˈy nə ʁapˈɔʁt kə sa pʁəmjˈɛʁ paʁtˈi delimitˈe, tɑ̃dˌi kə lə nˈɔ̃bʁ kɔ̃plˈɛ də lˈinjz ɛ ʁapɔʁtˈe sepaʁemˈɑ̃."
     },
     {
       "scene": 5,
-      "speech_start": 34.575,
-      "speech_end": 43.550000000000004,
-      "scene_end": 44.2,
-      "duration": 9.625,
-      "text": "Lorsque le flux de travail est terminé, les tables filtrées peuvent être copiées ou exportées tandis que la base de données originale reste traçable."
+      "speech_start": 78.935,
+      "speech_end": 96.935,
+      "scene_end": 97.635,
+      "duration": 18.700000000000003,
+      "text": "Rechercher des colonnes pour rendre une large table de fonctionnalités lisible. La cellule_channel_1_mean de requête réduit instantanément 218 colonnes affichées à la fonction d'intensité moyenne de canal-1 unique. Cela ne modifie que la vue; il ne réexécute pas la requête de base de données ni ne supprime les lignes.",
+      "speech_text": "Rechercher des colonnes pour rendre une large table de fonctionnalités lisible. La cellule_channel_1_mean de requête réduit instantanément 218 colonnes affichées à la fonction d'intensité moyenne de canal-1 unique. Cela ne modifie que la vue; il ne réexécute pas la requête de base de données ni ne supprime les lignes.",
+      "phonemes": "ʁəʃɛʁʃˈe de kolˈɔn puʁ ʁˈɑ̃dʁ yn lˈaʁʒ tˈabl də fɔ̃ksjɔnalitˈe lizˈibl. la sɛlˈyl ʃanˈɛl ˈœ̃ mˈiːn də ʁəkˈɛt ʁedyˈi ɛ̃stɑ̃tanemˈɑ̃ døsɑ̃ dizyˈi kolˈɔnz afiʃˈez a la fɔ̃ksjˈɔ̃ dɛ̃tɑ̃sitˈe mwajˈɛn də kanˈal ˈœ̃ ynˈik. səlˌa nə modifˈi kə la vˈy; il nə ʁeɛɡzekˈyt pa la ʁəkˈɛt də bˈaz də dɔnˈe ni nə sypʁˈim le lˈinj."
+    },
+    {
+      "scene": 6,
+      "speech_start": 97.635,
+      "speech_end": 117.73500000000001,
+      "scene_end": 118.47500000000001,
+      "duration": 20.840000000000003,
+      "text": "Effacer la recherche de colonne et définir les rangées par tirage à 250. L'aperçu utilise la page de réglage des clés plutôt qu'un décalage profond, de sorte que chaque demande reste limitée à mesure que la table se développe. Cliquez sur Charger plus pour ajouter la pièce suivante sans charger toutes les 81.969 lignes dans la mémoire.",
+      "speech_text": "Effacer la recherche de colonne et définir les rangées par tirage à 250. L'aperçu utilise la page de réglage des clés plutôt qu'un décalage profond, de sorte que chaque demande reste limitée à mesure que la table se développe. Cliquez sur Charger plus pour ajouter la pièce suivante sans charger toutes les 81.969 lignes dans la mémoire.",
+      "phonemes": "efasˈe la ʁəʃˈɛʁʃ də kolˈɔn e definˈiʁ le ʁɑ̃ʒˈe paʁ tiʁˈaʒ a døsɑ̃ sɛ̃kˈɑ̃t. lapɛʁsˈy ytilˈiz la pˈaʒ də ʁeɡlˈaʒ de klˈe plytˈoː kœ̃ dekalˈaʒ pʁofˈɔ̃, də sˈɔʁt kə ʃak dəmˈɑ̃d ʁˈɛst limitˈe a məzˈyʁ kə la tˈabl sə devlˈɔp. klikˈe syʁ ʃaʁʒˈe ply puʁ aʒutˈe la pjˈɛs syivˈɑ̃t sɑ̃ ʃaʁʒˈe tut le katʁəvɛ̃ˈœ̃.nœfsɑ̃ swasɑ̃tnˈœf lˈinj dɑ̃ la memwˈaʁ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 118.47500000000001,
+      "speech_end": 135.47500000000002,
+      "scene_end": 136.175,
+      "duration": 17.700000000000003,
+      "text": "L'aperçu montre maintenant 500 de 81.969 lignes. Le tri reste désactivé pendant que seule une partie de la table est chargée, car le tri d'une page partielle déformerait l'ensemble des données. Les filtres de base de données, cependant, s'exécutent toujours contre la table complète.",
+      "speech_text": "L'aperçu montre maintenant 500 de 81.969 lignes. Le tri reste désactivé pendant que seule une partie de la table est chargée, car le tri d'une page partielle déformerait l'ensemble des données. Les filtres de base de données, cependant, s'exécutent toujours contre la table complète.",
+      "phonemes": "lapɛʁsˈy mˈɔ̃tʁ mɛ̃tnˈɑ̃ sɛ̃ksˈɑ̃ də katʁəvɛ̃ˈœ̃.nœfsɑ̃ swasɑ̃tnˈœf lˈinj. lə tʁˈi ʁˈɛst dezaktivˈe pɑ̃dˈɑ̃ kə sˈœl yn paʁtˈi də la tˈabl ɛ ʃaʁʒˈe, kaʁ lə tʁˈi dyn pˈaʒ paʁsjˈɛl defɔʁməʁˈɛ lɑ̃sˈɑ̃bl de dɔnˈe. le fˈiltʁ də bˈaz də dɔnˈe, səpɑ̃dˈɑ̃, sɛɡzekˈyt tuʒˌuʁ kɔ̃tʁ la tˈabl kɔ̃plˈɛt."
+    },
+    {
+      "scene": 8,
+      "speech_start": 136.175,
+      "speech_end": 154.20000000000002,
+      "scene_end": 154.92000000000002,
+      "duration": 18.745000000000005,
+      "text": "Construisez un filtre structuré en sélectionnant cell_area, supérieur ou égal à, et 10,000, puis cliquez sur Appliquer le filtre. spaCR valide la colonne et l'opérateur et lie la valeur en tant que paramètre. Le SQL brut est disponible pour les prédicates avancés, mais il n'est pas nécessaire ici.",
+      "speech_text": "Construisez un filtre structuré en sélectionnant cell_area, supérieur ou égal à, et 10,000, puis cliquez sur Appliquer le filtre. spakeur valide la colonne et l'opérateur et lie la valeur en tant que paramètre. Le SQL brut est disponible pour les prédicates avancés, mais il n'est pas nécessaire ici.",
+      "phonemes": "kɔ̃stʁyizˈez œ̃ fˈiltʁ stʁyktyʁˈe ɑ̃ selɛksjɔnˈɑ̃ sˈɛl ˈeəɹiə, sypeʁjˈœʁ u eɡˈal ˈa, e dˈis,zeʁozeʁo zeʁˈo, pyˈi klikˈe syʁ aplikˈe lə fˈiltʁ. spakˈœʁ valˈid la kolˈɔn e lopeʁatˈœʁ e lˈi la valˈœʁ ɑ̃ tɑ̃ kə paʁamˈɛtʁ. lə ˌɛskˌyˈɛl bʁˈyt ɛ disponˈibl puʁ le pʁedikˈatz avɑ̃sˈe, mɛz il nɛ pa nesɛsˈɛʁ isˈi."
+    },
+    {
+      "scene": 9,
+      "speech_start": 154.92000000000002,
+      "speech_end": 170.645,
+      "scene_end": 171.365,
+      "duration": 16.444999999999993,
+      "text": "Le filtre complet contient 12 907 cellules. Seuls les 250 premiers sont peints, mais le nombre exact filtré et le prédicat actif restent visibles. Cette distinction empêche une taille de page d'aperçu d'être confondue avec la taille de la population.",
+      "speech_text": "Le filtre complet contient 12 907 cellules. Seuls les 250 premiers sont peints, mais le nombre exact filtré et le prédicat actif restent visibles. Cette distinction empêche une taille de page d'aperçu d'être confondue avec la taille de la population.",
+      "phonemes": "lə fˈiltʁ kɔ̃plˈɛ kɔ̃tjˈɛ̃ duz mˈil nœfsɑ̃ sˈɛt sɛlˈyl. sˈœl le døsɑ̃ sɛ̃kˈɑ̃t pʁəmjˈe sˈɔ̃ pˈɛ̃, mɛ lə nˈɔ̃bʁ ɛɡzˈakt filtʁˈe e lə pʁedikˈa aktˈif ʁˈɛst vizˈibl. sɛt distɛ̃ksjˈɔ̃ ɑ̃pˈɛʃ yn tˈaj də pˈaʒ dapɛʁsˈy dˈɛtʁ kɔ̃fɔ̃dˈy avˌɛk la tˈaj də la popylasjˈɔ̃."
+    },
+    {
+      "scene": 10,
+      "speech_start": 171.365,
+      "speech_end": 189.29000000000002,
+      "scene_end": 189.99,
+      "duration": 18.625,
+      "text": "Cliquez sur Exporter le CSV filtré. Les exportations diffusent l'ensemble de la table actuelle et le filtre plutôt que seulement l'aperçu chargé, et elles honorent la recherche de colonnes visibles si l'on est actif. L'expérience de recherche ayant été approuvée, cette exportation conserve toutes les 218 colonnes.",
+      "speech_text": "Cliquez sur Exporter le CSV filtré. Les exportations diffusent l'ensemble de la table actuelle et le filtre plutôt que seulement l'aperçu chargé, et elles honorent la recherche de colonnes visibles si l'on est actif. L'expérience de recherche ayant été approuvée, cette exportation conserve toutes les 218 colonnes.",
+      "phonemes": "klikˈe syʁ ɛkspɔʁtˈe lə sˌeˌɛsvˈe filtʁˈe. lez ɛkspɔʁtasjˈɔ̃ difˈyz lɑ̃sˈɑ̃bl də la tˈabl aktyˈɛl e lə fˈiltʁ plytˈoː kə sølmˈɑ̃ lapɛʁsˈy ʃaʁʒˈe, e ɛl onˈoʁ la ʁəʃˈɛʁʃ də kolˈɔn vizˈibl sˈi lɔ̃n ɛt aktˈif. lɛkspeʁjˈɑ̃s də ʁəʃˈɛʁʃ ɛjˈɑ̃ etˈe apʁuvˈe, sɛt ɛkspɔʁtasjˈɔ̃ kɔ̃sˈɛʁv tut le døsɑ̃ dizyˈi kolˈɔn."
+    },
+    {
+      "scene": 11,
+      "speech_start": 189.99,
+      "speech_end": 208.94,
+      "scene_end": 209.76,
+      "duration": 19.769999999999982,
+      "text": "Le statut confirme une exportation de 12 907 lignes par 218 colonnes. Le CSV dérivé est le seul nouveau fichier créé. Une vérification avant et après SHA-256 confirme que measurements.db est identique en octets et qu'aucun journal ou fichier de journal d'écriture n'est apparu à côté de celui-ci.",
+      "speech_text": "Le statut confirme une exportation de 12 907 lignes par 218 colonnes. Le CSV dérivé est le seul nouveau fichier créé. Une vérification avant et après SHA-256 confirme que measurements dot db est identique en octets et qu'aucun journal ou fichier de journal d'écriture n'est apparu à côté de celui-ci.",
+      "phonemes": "lə statˈy kɔ̃fˈiʁm yn ɛkspɔʁtasjˈɔ̃ də duz mˈil nœfsɑ̃ sˈɛt lˈinj paʁ døsɑ̃ dizyˈi kolˈɔn. lə sˌeˌɛsvˈe deʁivˈe ɛ lə sˈœl nuvˈo fiʃjˈe kʁeˈe. yn veʁifikasjˈɔ̃ avˌɑ̃ e apʁˌɛz ˌɛsˌaʃˈa døsɑ̃ sɛ̃kɑ̃tsˈi kɔ̃fˈiʁm kə mˈɛʒəmənts dˈɔt dˌebˈe ɛt idɑ̃tˈik ɑ̃n ɔktˈɛz e kokˈœ̃ ʒuʁnˈal u fiʃjˈe də ʒuʁnˈal dekʁitˈyʁ nɛt apaʁˈy a kotˈe də səlyˈisˈi."
+    },
+    {
+      "scene": 12,
+      "speech_start": 209.76,
+      "speech_end": 223.26,
+      "scene_end": 223.88,
+      "duration": 14.120000000000005,
+      "text": "Cliquez sur Éliminer pour supprimer le prédicat et recharger le premier morceau délimité. Les filtres sont à l'état de vue réversible: la suppression ne modifie pas les lignes dans la base de données ou le fichier précédemment exporté.",
+      "speech_text": "Cliquez sur Éliminer pour supprimer le prédicat et recharger le premier morceau délimité. Les filtres sont à l'état de vue réversible: la suppression ne modifie pas les lignes dans la base de données ou le fichier précédemment exporté.",
+      "phonemes": "klikˈe syʁ eliminˈe puʁ sypʁimˈe lə pʁedikˈa e ʁəʃaʁʒˈe lə pʁəmjˈe mɔʁsˈo delimitˈe. le fˈiltʁ sˈɔ̃t a letˈa də vˈy ʁevɛʁsˈibl: la sypʁɛsjˈɔ̃ nə modifˈi pa le lˈinj dɑ̃ la bˈaz də dɔnˈe u lə fiʃjˈe pʁesedamˈɑ̃ ɛkspɔʁtˈe."
+    },
+    {
+      "scene": 13,
+      "speech_start": 223.88,
+      "speech_end": 241.23,
+      "scene_end": 242.01,
+      "duration": 18.129999999999995,
+      "text": "Toutes les 81.969 cellules sont à nouveau visibles par le navigateur, avec seulement les 250 premières chargées. Cela complète un flux de travail traçable en lecture seule pour explorer les grandes tables de mesure spaCR et exporter des sous-ensembles précisément définis.",
+      "speech_text": "Toutes les 81.969 cellules sont à nouveau visibles par le navigateur, avec seulement les 250 premières chargées. Cela complète un flux de travail traçable en lecture seule pour explorer les grandes tables de mesure spakeur et exporter des sous-ensembles précisément définis.",
+      "phonemes": "tut le katʁəvɛ̃ˈœ̃.nœfsɑ̃ swasɑ̃tnˈœf sɛlˈyl sˈɔ̃t a nuvˈo vizˈibl paʁ lə naviɡatˈœʁ, avˌɛk sølmˈɑ̃ le døsɑ̃ sɛ̃kˈɑ̃t pʁəmjˈɛʁ ʃaʁʒˈe. səlˌa kɔ̃plˈɛt œ̃ flˈy də tʁavˈaj tʁasˈabl ɑ̃ lɛktˈyʁ sˈœl puʁ ɛksploʁˈe le ɡʁˈɑ̃d tˈabl də məzˈyʁ spakˈœʁ e ɛkspɔʁtˈe de suzɑ̃sˈɑ̃bl pʁesizemˈɑ̃ definˈi."
     }
   ]
 }
