@@ -332,19 +332,76 @@
       "id": "09_annotate",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Annotation. Überprüfen Sie einzelne Pflanzen auf einem Raster und geben Sie zuverlässige Etiketten für Modellschulungen oder Qualitätskontrolle an."
+          "narration": "Annotation beginnt mit der Priorisierung der Ernte. Öffnen Sie die Console, wenn Sie Datenbanknachrichten benötigen, den Status, Warnungen oder das Chatfeld speichern; der gleiche Schaltfläche versteckt es erneut, um den Platz in Bilder zurückzugeben."
         },
         {
-          "narration": "Öffnen Sie die Anmerkung aus dem Kernbereich. Öffnen Sie ein Projekt mit Objektpflanzen und wählen Sie die Datenbanktabelle und die Anmerkungenspalte aus."
+          "narration": "Der KI-Schalter sendet eine Frage über den ausgewählten Anbieter. Verwenden Sie den angrenzenden Pfeil, um einen konfigurierten Anbieter oder das Open-Anbieter-Management zu wählen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Klassen, Anzeigekanäle, Sortierung, Probenahme und Filter aus, die den Überprüfungssatz definieren."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, und geben ihre Installations- und Login-Befehlen an. Die Anmeldeinformationen bleiben bei jedem Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vertretende Objekte zu markieren, häufig zu speichern und unsichere oder widersprüchliche Beispiele zu überprüfen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden Anmerkungen in die Projektdatenbank mit intakten Objektidentifikatoren zurückgeschrieben."
+          "narration": "Ziehen Sie den gemessenen Experimentordner in Annotation. spaCR löst measurements.db, verankert seine gespeicherten Erntewege an diesen Computer, erstellt die Spalte spaCR_Tutorial und lädt die echten Zellbilder."
+        },
+        {
+          "narration": "Einstellungen benennen die Quell- und Annotationsspalte, steuern die Erntegröße, den Bildtyp, sichtbare und normalisierte Kanäle, Perzentile, optional gestellte Umrisse, Objekt- oder Messfilter und eine Unsicherheitsschlange mit Vielfaltschutz."
+        },
+        {
+          "narration": "Auf dem Seitezähler sind 128 von 81.969 sichtbaren Pflanzen angezeigt. Ein weißer Ring markiert die fokussierte Ernte, während Klassenfarben-Ringe die in spaCR_Tutorial bereits zugewiesenen Etiketten zeigen."
+        },
+        {
+          "narration": "Öffnen Sie die Tastatur jederzeit. Die Zahlen 1 bis 9 markieren und vorantreiben, Null löscht eine Ernte, Pfeile oder HJ K L bewegen, Space skips, Backspace zurückkehrt, U annulliert und Enter speichert und vorantreibt."
+        },
+        {
+          "narration": "Drücken Sie auf 1 um die Klasse 1 für die fokussierte Ernte zu vergeben. Der Ring ändert sich in die Klassenfarbe und der Fokus geht auf das nächste nicht gekennzeichnete Bild voran."
+        },
+        {
+          "narration": "Drücken Sie 2 um Klasse 2 zu bestimmen. Die Klassen sind numerisch und experimentell definiert, also erfassen Sie, was jede Zahl bedeutet, bevor ein Team mit der Kennzeichnung beginnt."
+        },
+        {
+          "narration": "Die Pfeiltasten bewegen den Fokus, ohne ein Etikett zu ändern. Der Raum geht vorwärts und der Backspace zurück, was eine schnelle Überprüfung ermöglicht, ohne die Maus zu erreichen."
+        },
+        {
+          "narration": "Drücken Sie U, um das neueste Keyboard-Label zu löschen. Die Ernte kehrt zu ihrem vorherigen Zustand zurück, der Fokus bewegt sich zurück zu ihm, und der Statusstreifen bestätigt die Aufhebung."
+        },
+        {
+          "narration": "Die Maus-Anmerkung bleibt verfügbar. Mit einem linken Klick wird eine Klasse 1 einer Ernte durch den gleichen Hintergrund-Speicherweg zugeordnet, der von Tastaturetiketten verwendet wird."
+        },
+        {
+          "narration": "Mit einem rechten Klick wird Klasse 2 zugeordnet. Der Klick auf die gleiche Klasse auf dieser Pflanze macht sie wieder frei, während der Klick auf die andere Klasse sie direkt ändert."
+        },
+        {
+          "narration": "Die Klassenzählung bestätigt die gespeicherte Population und zeigt die für jeden Klassenring verwendete Farbe an. Dieses Tutorial enthält zwei Beispiele in Klasse 1 und zwei in Klasse 2."
+        },
+        {
+          "narration": "Die Abdeckung prüft die Etiketten nach Klasse, Platte, Quelle und Aktiv-Lernrunde. Diese vier Beispiele stammen aus einem Brunnen, der absichtlich zu konzentriert für die Ausbildung ist und zeigt, warum die Abdeckung überprüft werden muss."
+        },
+        {
+          "narration": "Next speichert noch ausstehende Arbeiten und lädt die nächste vollständige Seite. Enter führt die gleiche Rettungs- und Voraus-Aktion durch, ohne das Netz zu verlassen."
+        },
+        {
+          "narration": "Zurück gibt eine Seite zurück und bewahrt jede verpflichte Anmerkung. Page Up und Alt Left bieten Alternativen zur Tastatur."
+        },
+        {
+          "narration": "Überspringen Sie zu letzter Anmerkung auf die Seite, die das letzte gespeicherte Etikett enthält, sodass es einfach ist, eine lange Anmerkungssitzung wieder aufzunehmen."
+        },
+        {
+          "narration": "Runds zeigt nach jedem Aktiven-Learning-Retrain die ausgedehnte Genauigkeit an und bewertet, ob die jüngste Kennzeichnung das Modell verbessert hat. Keine Kurve erscheint, bis genügend repräsentative Etiketten eine erste Runde unterstützen."
+        },
+        {
+          "narration": "Retrain passt zu den gespeicherten Etiketten, erzielt die verbleibenden Ernten und ordnet die optionelle Unsicherheitsreihen neu an. Die Statuslinie erfasst die Runde, das ausgehaltenes Ergebnis, die schwächste Klasse und die Haltrichtlinie."
+        },
+        {
+          "narration": "Das Train CV überträgt dieses Projekt und die Anmerkungspalte an den Bildklassifikator. Zug XG überträgt die gleichen Etiketten an den Messmerkmalklassifizierer. Beide öffnen ein vorkonfiguriertes Modul; keiner beginnt sofort mit dem Training."
+        },
+        {
+          "narration": "Die klare Spalte wird absichtlich bewacht, da sie jedes Etikett in der gewählten Spalte entfernt. Bestätigen Sie den genauen Spaltenamen, bevor Sie weitermachen; in diesem Tutorial wird die Warnung aufgehoben und die Etiketten behalten."
+        },
+        {
+          "narration": "Die vier Beispieletiketten werden nun unter spaCR_Tutorial in measurements.db gespeichert, wobei ihre Objektwege und Herkunft intakt sind. Folgen Sie weiter über Brunnen und Platten, bevor Sie sie benutzen, um ein Modell zu trainieren."
         }
       ]
     },
