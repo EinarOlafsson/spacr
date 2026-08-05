@@ -1204,8 +1204,22 @@ def _merge_channels(src, plot=False):
     num_matching_folders = len(chan_dirs)
 
     print(f'List of folders in src: {chan_dirs}. Single channel folders.')
-    
-    # Assuming chan_dirs[0] is not empty and exists, adjust according to your logic
+
+    if not chan_dirs:
+        # No per-channel sub-folders, which is the NORMAL layout now:
+        # _rename_and_organize_image_files builds stack/ straight from an
+        # in-memory {fov: {channel: mip}} dict and never creates them. This
+        # function is the older two-step path, kept for folders that still
+        # have them.
+        #
+        # Returning lets preprocess_img_data fall through to the branch that
+        # builds stack/ directly. Indexing chan_dirs[0] instead raised
+        # IndexError from inside a stage whose message named the plate, so a
+        # perfectly ordinary folder read as a corrupt one.
+        print(f'No single-channel folders in {src}; stack/ will be built '
+              f'directly from the source images.')
+        return 0
+
     first_dir_path = os.path.join(src, chan_dirs[0])
     dir_files = os.listdir(first_dir_path)
 
