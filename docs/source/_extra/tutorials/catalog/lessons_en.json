@@ -4970,43 +4970,88 @@
       "series": 4,
       "app_key": "convert",
       "section": "Data and batch runs",
-      "description": "Convert ND2, CZI, LIF, OME-TIFF, and related microscopy formats into mapped Yokogawa-style TIFF files.",
+      "description": "Preview and convert real microscopy files into spaCR-compatible Yokogawa TIFF names with a reversible provenance map.",
       "objectives": [
-        "Understand when to use Format Converter.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Choose a microscope-image source tree, destination, layout, Z handling, and plate naming scheme.",
+        "Audit the complete source-to-target mapping before any output is written.",
+        "Convert atomically, inspect the provenance map, and resume without rewriting completed fields."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "A folder containing ND2, CZI, LIF, OME-TIFF, TIFF, PNG, JPEG, or BMP microscopy images.",
       "scenes": [
         {
-          "narration": "This tutorial covers Format Converter. Convert ND2, CZI, LIF, OME-TIFF, and related microscopy formats into mapped Yokogawa-style TIFF files.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Format Converter. Convert ND2, CZI, LIF, OME-TIFF, and related microscopy formats into mapped Yokogawa-style TIFF files."
+          "narration": "Format Converter turns vendor or general microscopy images into the Yokogawa-style TIFF names that spaCR Mask and Measure read directly. Open it from Data and batch runs. The central safety rule is preview first and convert second.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.7,
+          "speech_text": "Format Converter turns vendor or general microscopy images into the Yokogawa style TIFF names that spacer Mask and Measure read directly. Open it from Data and batch runs. The central safety rule is preview first and convert second."
         },
         {
-          "narration": "Open Format Converter from the Data and batch runs section. Choose source files, series or scenes, channel names, time and depth handling, and an output folder.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Format Converter from the Data and batch runs section. Choose source files, series or scenes, channel names, time and depth handling, and an output folder."
+          "narration": "Drop a source folder or choose it here, then select a new destination. This demonstration uses two real four-channel fields from the transferred experiment. Their pixels were copied byte-for-byte; only the tutorial folder structure and source filenames were prepared for this conversion example.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "hold_after": 0.76,
+          "speech_text": "Drop a source folder or choose it here, then select a new destination. This demonstration uses two real four channel fields from the transferred experiment. Their pixels were copied byte for byte; only the tutorial folder structure and source filenames were prepared for this conversion example."
         },
         {
-          "narration": "In the main configuration area, preview how source dimensions map to plate, well, field, time, depth, and channel indices.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, preview how source dimensions map to plate, well, field, time, depth, and channel indices."
+          "narration": "Layout describes whether images sit directly in the source, below well folders, or below plate and well folders; automatic detection is normally appropriate. Keep every Z plane is the lossless default. Max projection and first-plane mode explicitly discard planes. Plate names may be sequential or preserve source folders, and Resume validates field checkpoints before skipping them.",
+          "visual": "03_options",
+          "focus_key": "options",
+          "hold_after": 0.82,
+          "speech_text": "Layout describes whether images sit directly in the source, below well folders, or below plate and well folders; automatic detection is normally appropriate. Keep every Z plane is the lossless default. Max projection and first plane mode explicitly discard planes. Plate names may be sequential or preserve source folders, and Resume validates field checkpoints before skipping them."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate the mapping on a small sample before converting every file.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate the mapping on a small sample before converting every file."
+          "narration": "With automatic layout detection, lossless Z handling, sequential plate names, and the new destination selected, click Preview. Preview scans headers and builds the mapping but does not create the destination or write an image.",
+          "visual": "04_preview",
+          "focus_key": "configuration",
+          "click_key": "preview",
+          "hold_after": 0.68,
+          "speech_text": "With automatic layout detection, lossless Z handling, sequential plate names, and the new destination selected, click Preview. Preview scans headers and builds the mapping but does not create the destination or write an image."
         },
         {
-          "narration": "When the workflow finishes, spaCR writes standardized TIFFs and a map back to the original files and metadata.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer writes standardized TIFFs and a map back to the original files and metadata."
+          "narration": "The complete eight-file plan appears before conversion. Each row places its recognizable source beside the exact target, plate, well, field, channel, Z, time, original identifiers, and status. The first output is plate1, A01, field 1, channel 1; the last is field 2, channel 4. The status confirms that nothing has been written.",
+          "visual": "05_plan",
+          "focus_key": "mapping",
+          "hold_after": 0.84,
+          "speech_text": "The complete eight file plan appears before conversion. Each row places its recognizable source beside the exact target, plate, well, field, channel, Z, time, original identifiers, and status. The first output is plate one, A zero one, field one, channel one; the last is field two, channel four. The status confirms that nothing has been written."
+        },
+        {
+          "narration": "Review the summary and click Convert only when the mapping is correct. A collision disables this button rather than overwriting a target. Valid files are written atomically to the separate destination, so the original microscopy images are never renamed or replaced.",
+          "visual": "06_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.72,
+          "speech_text": "Review the summary and click Convert only when the mapping is correct. A collision disables this button rather than overwriting a target. Valid files are written atomically to the separate destination, so the original microscopy images are never renamed or replaced."
+        },
+        {
+          "narration": "All eight TIFFs were written successfully. conversion_map.csv records every target beside its original absolute and relative path, source identifiers, spaCR join identifiers, dimensions, Z policy, and metadata. The prepared source TIFF hashes remain byte-identical after conversion.",
+          "visual": "07_result",
+          "focus_key": "summary",
+          "hold_after": 0.8,
+          "speech_text": "All eight TIFFs were written successfully. conversion map C S V records every target beside its original absolute and relative path, source identifiers, spacer join identifiers, dimensions, Z policy, and metadata. The prepared source TIFF hashes remain byte identical after conversion."
+        },
+        {
+          "narration": "Enable Resume for an interrupted or repeated conversion. Resume does not trust filenames alone: it consults an atomic field checkpoint and validates every TIFF belonging to a completed field before deciding that the field can be skipped.",
+          "visual": "08_resume",
+          "focus_key": "options",
+          "click_key": "resume",
+          "hold_after": 0.7,
+          "speech_text": "Enable Resume for an interrupted or repeated conversion. Resume does not trust filenames alone: it consults an atomic field checkpoint and validates every TIFF belonging to a completed field before deciding that the field can be skipped."
+        },
+        {
+          "narration": "Click Convert again with the same verified plan and Resume enabled. If one file were missing or corrupt, its entire field would be rebuilt; complete fields can be reused safely.",
+          "visual": "09_resume_convert",
+          "focus_key": "destination",
+          "click_key": "convert",
+          "hold_after": 0.64,
+          "speech_text": "Click Convert again with the same verified plan and Resume enabled. If one file were missing or corrupt, its entire field would be rebuilt; complete fields can be reused safely."
+        },
+        {
+          "narration": "Both four-channel fields pass validation, so Resume writes zero files and reports two resumed fields. The eight-row provenance map and eight converted TIFFs remain complete, finishing a reversible, lossless, and restart-safe import into spaCR naming.",
+          "visual": "10_resumed",
+          "focus_key": "summary",
+          "hold_after": 0.82,
+          "speech_text": "Both four channel fields pass validation, so Resume writes zero files and reports two resumed fields. The eight row provenance map and eight converted TIFFs remain complete, finishing a reversible, lossless, and restart safe import into spacer naming."
         }
       ]
     },

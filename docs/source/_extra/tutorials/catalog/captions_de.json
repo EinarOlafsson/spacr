@@ -1914,19 +1914,34 @@
       "id": "35_converter",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Format Converter. Konvertieren Sie ND2, CZI, LIF, OME-TIFF und verwandte Mikroskopieformate in gemapste TIFF-Dateien im Yokogawa-Stil."
+          "narration": "Format Converter verwandelt Verkäufer- oder allgemeine Mikroskopiebilder in die TIFF-Namen im Yokogawa-Stil, die direkt von spaCR Mask und Measure gelesen werden. Öffnen Sie es von Data und Batchläufen. Die zentrale Sicherheitsregel ist Vorschau zuerst und Konvertierung zu zweit."
         },
         {
-          "narration": "Öffnen Sie den Formatkonverter aus dem Abschnitt Daten und Batchläufen. Wählen Sie Quelldateien, Serien oder Szenen, Kanalnamen, Zeit- und Tiefenverarbeitung und einen Ausgabeordner aus."
+          "narration": "Lassen Sie einen Quellordner fallen oder wählen Sie ihn hier aus, dann wählen Sie ein neues Ziel. Diese Demonstration verwendet zwei wirkliche Vierkanalfelder aus dem übertragenen Experiment. Ihre Pixel wurden byte-für-byte kopiert; nur die Tutorial-Ordnerstruktur und die Quelldateinamen wurden für dieses Konversionsbeispiel vorbereitet."
         },
         {
-          "narration": "In der Hauptkonfigurationsfläche sehen Sie vorab, wie die Quelldimensionen auf Plate, Brunnen, Feld, Zeit, Tiefe und Kanalindizes abgebildet werden."
+          "narration": "Das Layout beschreibt, ob die Bilder direkt in der Quelle, unter den Brunnenordnern oder unter den Platten- und Brunnenordnern liegen; die automatische Erkennung ist normalerweise angemessen. Jede Z-Fläche zu behalten, ist der Verlustlose Standard. Max-Projektion und First-Plane-Modus entfernen explizit Flugzeuge. Plattennamen können aufeinanderfolgende oder reservierende Quellenordner sein, und Resume validiert Feldkontrollpunkte, bevor sie übersprungen werden."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie die Kartierung auf einer kleinen Stichprobe, bevor Sie jede Datei konvertieren."
+          "narration": "Mit automatischer Layout-Detection, lossless Z-Handling, sequentiellen Platennamen und dem ausgewählten neuen Ziel klicken Sie auf Vorschau. Die Vorschau scannt Header und erstellt die Kartierung, erstellt jedoch nicht das Ziel oder schreibt ein Bild."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR standardisierte TIFFs und eine Karte zurück zu den ursprünglichen Dateien und Metadaten."
+          "narration": "Der vollständige 8-Datei-Plan erscheint vor der Umwandlung. Jede Zeile stellt ihre erkennbare Quelle neben dem genauen Ziel, der Platte, dem Brunnen, dem Feld, dem Kanal, dem Z, der Zeit, den ursprünglichen Identifikatoren und dem Status. Die erste Ausgabe ist Platte1, A01, Feld 1, Kanal 1; die letzte ist Feld 2, Kanal 4. Der Status bestätigt, dass nichts geschrieben wurde."
+        },
+        {
+          "narration": "Überprüfen Sie die Zusammenfassung und klicken Sie nur dann auf Konvertieren, wenn die Kartierung korrekt ist. Eine Kollision deaktiviert diesen Knopf, anstatt ein Ziel zu überschreiben. Die gültigen Dateien werden atomarisch an das getrennte Ziel geschrieben, sodass die ursprünglichen Mikroskopiebilder nie umbenannt oder ersetzt werden."
+        },
+        {
+          "narration": "Alle acht TIFF wurden erfolgreich geschrieben. conversion_map.csv erfasst jedes Ziel neben seinem ursprünglichen absoluten und relativen Pfad, Quellidentifikatoren, spaCR join Identifikatoren, Dimensionen, Z-Politik und Metadaten. Die vorbereiteten TIFF-Hashes bleiben nach der Umwandlung byteidentisch."
+        },
+        {
+          "narration": "Aktivieren Sie Resume für eine unterbrochene oder wiederholte Konvertierung. Resume vertraut nicht nur den Dateinamen: Er konsultiert einen Kontrollpunkt des Atomfeldes und validiert alle TIFF, die zu einem abgeschlossenen Feld gehören, bevor er entscheidet, dass das Feld übersprungen werden kann."
+        },
+        {
+          "narration": "Klicken Sie erneut auf Konvertieren, wobei der gleiche verifizierte Plan und die Weiterführung aktiviert sind. Wenn eine Datei fehlt oder beschädigt ist, wird das gesamte Feld wieder aufgebaut; komplette Felder können sicher wiederverwendet werden."
+        },
+        {
+          "narration": "Beide vierkanalen Felder passieren die Validierung, so dass Resume Null-Dateien schreibt und zwei resumierte Felder meldet. Die achtreifige Herkunftskarte und acht umgewandelte TIFFs bleiben vollständig, wodurch eine umkehrbare, verlustfreie und wiederstartsichere Einfuhr in die spaCR-Namenung abgeschlossen wird."
         }
       ]
     },
