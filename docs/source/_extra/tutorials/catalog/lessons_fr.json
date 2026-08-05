@@ -632,71 +632,203 @@
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Prévisualisez les réelles récoltes d'objets, mesurez les champs segmentés et écrivez des caractéristiques traçables d'un seul objet à SQLite.",
+      "description": "Configurer Mesure, inspecter ses catégories de paramètres, et prévisualiser les réelles cultures monocellulaires à partir des matrices Mask complétées.",
       "objectives": [
-        "Image de carte et masque d'avions d'un ensemble spaCR fusionné.",
-        "Prévisualiser les cultures de cellules et vérifier le comportement du filtre avant une course.",
-        "Valider les mesures et les récoltes à l'aide d'un essai sur cinq champs."
+        "Importez des matrices fusionnées et utilisez la console, l'IA, les recettes et le flux de travail à distance.",
+        "Revoir toutes les catégories de paramètres de mesure sans réciter chaque paramètre.",
+        "Inspectez les réelles cultures cellulaires, le canal d'urgence, les filtres et les résultats des essais complétés."
       ],
       "prerequisite": "Completez le masque d'abord afin que le projet contient des matrices d'image et d'étiquette fusionnées.",
       "scenes": [
         {
-          "narration": "La mesure convertit les champs HeLa segmentés réels en intensité, morphologie, texture, colocalisation et caractéristiques spatiales traçables. Ce défilé valide cinq champs avant une course complète.",
-          "visual": "01_module",
+          "narration": "La mesure s'ouvre avec ses réglages à gauche et la console d'exécution à droite. La console rapporte la résolution de la source, la validation, les progrès, les avertissements et la sortie de la mesure.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "La mesure convertit les champs HeLa segmentés réels en intensité, morphologie, texture, colocalisation et caractéristiques spatiales traçables. Ce défilé valide cinq champs avant une course complète."
+          "speech_text": "La mesure s'ouvre avec ses réglages à gauche et la console d'exécution à droite. La console rapporte la résolution de la source, la validation, les progrès, les avertissements et la sortie de la mesure."
         },
         {
-          "narration": "Ouvrez Mesure à partir de Core et sélectionnez le dossier fusionné produit par Mask. Les paramètres transférés mesurent les canaux d'image de zéro à trois et lisent les étiquettes de cellules, de noyaux et d'agents pathogènes des plans quatre, cinq et six.",
-          "visual": "01_module",
-          "focus_key": "nav",
-          "click_key": "nav",
+          "narration": "Le champ situé en dessous de la console accepte des questions ou des commandes locales. Permettez à l'IA d'orienter une question à travers le fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Mesure à partir de Core et sélectionnez le dossier fusionné produit par Mask. Les paramètres transférés mesurent les canaux d'image de zéro à trois et lisent les étiquettes de cellules, de noyaux et d'agents pathogènes des plans quatre, cinq et six."
+          "speech_text": "Le champ situé en dessous de la console accepte des questions ou des commandes locales. Permettez à l'IA d'orienter une question à travers le fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur."
         },
         {
-          "narration": "Activez l'aperçu des récoltes et chargez un tableau fusionné. Les galeries regroupent quarante cellules réelles par noyau et contenu des agents pathogènes, tandis que le sélecteur confirme que le dossier d'essai contient cinq champs.",
-          "visual": "02_cell_crops",
-          "focus_key": "grid",
+          "narration": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et affichent leurs commandes d'installation et de connexion. Les informations d'identification du fournisseur restent auprès du fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et affichent leurs commandes d'installation et de connexion. Les informations d'identification du fournisseur restent auprès du fournisseur."
+        },
+        {
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spakeur."
+        },
+        {
+          "narration": "Faites glisser le dossier fusionné produit par Mask dans Mesure. Ces matrices contiennent déjà les métadonnées du projet spaCR, de sorte que Measure résout directement la source et n'a plus besoin du nom de fichier de l'image brute regex.",
+          "visual": "05_folder",
+          "focus_key": "src",
+          "hold_after": 0.45,
+          "speech_text": "Faites glisser le dossier fusionné produit par Mask dans Mesure. Ces matrices contiennent déjà les métadonnées du projet spakeur, de sorte que Measure résout directement la source et n'a plus besoin du nom de fichier de l'image brute regex."
+        },
+        {
+          "narration": "Essentials montre l'ensemble compact des paramètres de mesure nécessaires à une course, tandis que le compte indique le nombre de paramètres actuellement visibles.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials montre l'ensemble compact des paramètres de mesure nécessaires à une course, tandis que le compte indique le nombre de paramètres actuellement visibles."
+        },
+        {
+          "narration": "Les paramètres modifiés limitent le panneau à des valeurs différentes des paramètres de mesure, ce qui facilite l'audit des paramètres importés et des modifications délibérées.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Les paramètres modifiés limitent le panneau à des valeurs différentes des paramètres de mesure, ce qui facilite l'audit des paramètres importés et des modifications délibérées."
+        },
+        {
+          "narration": "Tous les paramètres exposent toutes les catégories de mesures, y compris les contrôles de fiabilité avancés et d'étalonnage bêta, sans modifier les valeurs actuelles.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tous les paramètres exposent toutes les catégories de mesures, y compris les contrôles de fiabilité avancés et d'étalonnage bêta, sans modifier les valeurs actuelles."
+        },
+        {
+          "narration": "Les recettes enregistrent la configuration actuelle de la mesure sous un nom, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent la configuration actuelle de la mesure sous un nom, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyer des instantanés à distance des paramètres de mesure résolus et les envoyer aux emplois distribués.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyer des instantanés à distance des paramètres de mesure résolus et les envoyer aux emplois distribués."
+        },
+        {
+          "narration": "Distributed Jobs trace les chemins locaux vers une station de travail à distance, un cluster Slurm ou une commande configurée, puis soumet et surveille la même mise en œuvre de mesure.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs trace les chemins locaux vers une station de travail à distance, un cluster Slurm ou une commande configurée, puis soumet et surveille la même mise en œuvre de mesure."
+        },
+        {
+          "narration": "L'entrée et l'expérience identifient le projet source et le nom de l'expérience inscrit dans ses sorties.",
+          "visual": "12_category_01_input_experiment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'entrée et l'expérience identifient le projet source et le nom de l'expérience inscrit dans ses sorties."
+        },
+        {
+          "narration": "Mask and Channel Mapping attribue des canaux d'image, des cellules, du noyau, des pathogènes et des organelles, des plans d'étiquetage, du cytoplasme dérivé et de tous les objets de la série temporelle.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Mask and Channel Mapping attribue des canaux d'image, des cellules, du noyau, des pathogènes et des organelles, des plans d'étiquetage, du cytoplasme dérivé et de tous les objets de la série temporelle."
+        },
+        {
+          "narration": "Les caractéristiques de mesure choisissent les mesures enregistrées, les résumés de corrélation et de Manders, les distances d'homogénéité, les distributions radicales et les résumés d'organelles.",
+          "visual": "12_category_03_measurement_features",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les caractéristiques de mesure choisissent les mesures enregistrées, les résumés de corrélation et de Manders, les distances d'homogénéité, les distributions radicales et les résumés d'organelles."
+        },
+        {
+          "narration": "Le filtrage d'objets définit la taille minimale de chaque compartiment, la conservation des cellules non infectées et la manipulation des cellules pathogènes transversales.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le filtrage d'objets définit la taille minimale de chaque compartiment, la conservation des cellules non infectées et la manipulation des cellules pathogènes transversales."
+        },
+        {
+          "narration": "Les contrôles de sortie de culture ont enregistré des PNG et des matrices, des objets et des tailles de culture, des canaux, de la dilatation, des boîtes de délimitation et de la normalisation.",
+          "visual": "12_category_05_crop_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les contrôles de sortie de culture ont enregistré des PNG et des matrices, des objets et des tailles de culture, des canaux, de la dilatation, des boîtes de délimitation et de la normalisation."
+        },
+        {
+          "narration": "La prévisualisation et le diagnostic contrôlent les parcelles et le petit échantillon de mode d'essai utilisé avant de s'engager dans une expérience complète.",
+          "visual": "12_category_06_preview_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La prévisualisation et le diagnostic contrôlent les parcelles et le petit échantillon de mode d'essai utilisé avant de s'engager dans une expérience complète."
+        },
+        {
+          "narration": "L'étalonnage 3D contient des contrôles de la bêta anisotropie et de la taille de voxel qui convertissent les mesures de pixels volumétriques en dimensions physiques.",
+          "visual": "12_category_07_3d_calibration_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'étalonnage 3D contient des contrôles de la bêta anisotropie et de la taille de voxel qui convertissent les mesures de pixels volumétriques en dimensions physiques."
+        },
+        {
+          "narration": "Les groupes de temps d'exécution et de fiabilité reprennent le comportement, les erreurs strictes, la politique de défaillance, la reproductibilité, les courses sèches, l'exploitation forestière et le compte des travailleurs.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les groupes de temps d'exécution et de fiabilité reprennent le comportement, les erreurs strictes, la politique de défaillance, la reproductibilité, les courses sèches, l'exploitation forestière et le compte des travailleurs."
+        },
+        {
+          "narration": "Activez l'aperçu en direct et chargez un tableau fusionné complet. La galerie regroupe 40 réelles cultures cellulaires par noyau et contenu des agents pathogènes à travers le test de cinq champs.",
+          "visual": "20_cell_crops",
+          "focus_key": "live_and_grid",
           "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "Activez l'aperçu des récoltes et chargez un tableau fusionné. Les galeries regroupent quarante cellules réelles par noyau et contenu des agents pathogènes, tandis que le sélecteur confirme que le dossier d'essai contient cinq champs."
+          "speech_text": "Activez l'aperçu en direct et chargez un tableau fusionné complet. La galerie regroupe 40 réelles cultures cellulaires par noyau et contenu des agents pathogènes à travers le test de cinq champs."
         },
         {
-          "narration": "En général, vérifiez les canaux mesurés de zéro à trois, le plan de masque cellulaire quatre, le plan du noyau cinq, le plan pathogène six et le cytoplasme dérivé. Gardez le mode d'essai activé pendant la validation.",
-          "visual": "03_general",
+          "narration": "Général confirme l'identité de l'expérience, les canaux mesurés de zéro à trois, le plan de masque cellulaire quatre, le plan du noyau cinq, le plan pathogène six, le cytoplasme dérivé et le mode de test.",
+          "visual": "21_general",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "En général, vérifiez les canaux mesurés de zéro à trois, le plan de masque cellulaire quatre, le plan du noyau cinq, le plan pathogène six et le cytoplasme dérivé. Gardez le mode d'essai activé pendant la validation."
+          "speech_text": "Général confirme l'identité de l'expérience, les canaux mesurés de zéro à trois, le plan de masque cellulaire quatre, le plan du noyau cinq, le plan pathogène six, le cytoplasme dérivé et le mode de test."
         },
         {
-          "narration": "L'exécution fournie écrit les cultures PNG cellulaires à deux cent vingt-quatre par deux cent vingt-quatre pixels en utilisant les canaux zéro, un et deux. La normalisation des récoltes reste désactivée dans les paramètres enregistrés; ce tutoriel utilise un intervalle d'affichage temporaire d'un à quatre-vingt-dix-neuf centiles uniquement pour rendre la galerie en direct lisible.",
-          "visual": "04_object_crops",
+          "narration": "Object Crops écrit des PNG de cellules de 224 par 224 pixels en utilisant les canaux zéro, un et deux. La normalisation sauvegardée reste désactivée; seule la galerie en direct utilise un intervalle d'affichage temporaire de 1 à 99 percentiles.",
+          "visual": "22_object_crops",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "L'exécution fournie écrit les cultures PNG cellulaires à deux cent vingt-quatre par deux cent vingt-quatre pixels en utilisant les canaux zéro, un et deux. La normalisation des récoltes reste désactivée dans les paramètres enregistrés; ce tutoriel utilise un intervalle d'affichage temporaire d'un à quatre-vingt-dix-neuf centiles uniquement pour rendre la galerie en direct lisible."
+          "speech_text": "Object Crops écrit des PNG de cellules de 224 par 224 pixels en utilisant les canaux zéro, un et deux. La normalisation sauvegardée reste désactivée; seule la galerie en direct utilise un intervalle d'affichage temporaire de 1 à 99 percentiles."
         },
         {
-          "narration": "Les filtres nécessitent des cellules d'au moins trois mille cinq cents pixels, des noyaux d'au moins mille et des agents pathogènes d'au moins deux cent cinquante. Gardez à l'écart les cellules non infectées et fusionnez les cellules dont les agents pathogènes traversent un bord de l'image.",
-          "visual": "05_filters",
+          "narration": "Les filtres nécessitent des cellules d'au moins 3500 pixels, des noyaux d'au moins 1000 et des agents pathogènes d'au moins 250. Les cellules non infectées restent séparées et les cellules pathogènes transversales sont fusionnées.",
+          "visual": "23_filters",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "Les filtres nécessitent des cellules d'au moins trois mille cinq cents pixels, des noyaux d'au moins mille et des agents pathogènes d'au moins deux cent cinquante. Gardez à l'écart les cellules non infectées et fusionnez les cellules dont les agents pathogènes traversent un bord de l'image."
+          "speech_text": "Les filtres nécessitent des cellules d'au moins 3500 pixels, des noyaux d'au moins 1000 et des agents pathogènes d'au moins 250. Les cellules non infectées restent séparées et les cellules pathogènes transversales sont fusionnées."
         },
         {
-          "narration": "Sélectionnez le canal 1 dans l'aperçu pour inspecter le signal endoplasmico-réticulaire, qui est le canal d'intérêt pour les analyses en aval. Cette vue ne modifie que la galerie; Measure extrait toujours les fonctionnalités des quatre canaux configurés.",
-          "visual": "06_er_channel",
+          "narration": "Sélectionnez le canal 1 pour inspecter le signal d'urgence utilisé comme canal en aval d'intérêt. Cela ne change que la galerie; Mesure extrait toujours les fonctionnalités des quatre canaux configurés.",
+          "visual": "24_er_channel",
           "focus_key": "grid",
           "click_key": "channel",
           "hold_after": 0.45,
-          "speech_text": "Sélectionnez le canal 1 dans l'aperçu pour inspecter le signal endoplasmico-réticulaire, qui est le canal d'intérêt pour les analyses en aval. Cette vue ne modifie que la galerie; Measure extrait toujours les fonctionnalités des quatre canaux configurés."
+          "speech_text": "Sélectionnez le canal 1 pour inspecter le signal d'urgence utilisé comme canal en aval d'intérêt. Cela ne change que la galerie; Mesure extrait toujours les fonctionnalités des quatre canaux configurés."
         },
         {
-          "narration": "Le registre des tests complété rapporte cinq des cinq champs réussis sans échec. Les mesures dot db contient quatre cent cinquante-cinq cellules et cytoplasmes, six cent cinq noyaux et mille trente-un agents pathogènes, plus quatre cent cinquante-cinq cultures cellulaires prêtes à l'annotation et à la classification.",
-          "visual": "07_outputs",
+          "narration": "Le registre d'essai complété rapporte le succès de 5 des 5 champs. measurements.db contient 455 cellules et cytoplasmes, 605 noyaux, 1031 agents pathogènes et 455 cultures cellulaires prêtes à l'annotation et à la classification.",
+          "visual": "25_outputs",
           "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Le registre des tests complété rapporte cinq des cinq champs réussis sans échec. Les mesures dot db contient quatre cent cinquante-cinq cellules et cytoplasmes, six cent cinq noyaux et mille trente-un agents pathogènes, plus quatre cent cinquante-cinq cultures cellulaires prêtes à l'annotation et à la classification."
+          "speech_text": "Le registre d'essai complété rapporte le succès de 5 des 5 champs. measurements dot db contient 455 cellules et cytoplasmes, 605 noyaux, 1031 agents pathogènes et 455 cultures cellulaires prêtes à l'annotation et à la classification."
         }
       ]
     },

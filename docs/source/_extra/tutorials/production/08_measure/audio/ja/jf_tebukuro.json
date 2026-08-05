@@ -4,47 +4,257 @@
   "voice": "jf_tebukuro",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 73.35,
+  "total_duration": 386.425,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 15.15,
-      "scene_end": 15.6,
-      "duration": 15.6,
-      "text": "このチュートリアルでは,測定をカバーします. パーオブジェクトの強度,形質,質感,コロカライゼーション,および空間特性をセグメント化された画像から抽出します."
+      "speech_end": 14.65,
+      "scene_end": 15.1,
+      "duration": 15.1,
+      "text": "測定は左側の設定と右側の実行コンソールで開きます. コンソールはソース解像度,検証,進歩,警告,測定出力を報告します.",
+      "speech_text": "測定は左側の設定と右側の実行コンソールで開きます. コンソールはソース解像度,検証,進歩,警告,測定出力を報告します.",
+      "phonemes": "sokɯteː βa çidaɾʲiɡaβa no seʔteː to mʲiɡʲiɡaβa no ʥiʔkoː koɴsoːɾɯ de çiɾakʲimasɨ. koɴsoːɾɯ βa soːsɨ kaiʣoːdo, keɴɕoː, ɕimpo, keːkokɯ, sokɯteː ɕɨʦɨɾʲokɯ o hoːkokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 15.6,
-      "speech_end": 26.025,
-      "scene_end": 26.474999999999998,
-      "duration": 10.874999999999998,
-      "text": "Core セクションから Measure を開きます。 マスクが作成した画像スタックとマスクを含むプロジェクトを選択します."
+      "speech_start": 15.1,
+      "speech_end": 32.3,
+      "scene_end": 32.75,
+      "duration": 17.65,
+      "text": "コンソールの下のフィールドは,現地質問やコマンドを受け入れます. 選択したプロバイダーを通過する質問のルートを AI に有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+      "speech_text": "コンソールの下のフィールドは,現地質問やコマンドを受け入れます. 選択したプロバイダーを通過する質問のルートを AI に有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+      "phonemes": "koɴsoːɾɯ no ɕita no ɸʲiːɾɯdo βa, ɡeɲʨi ɕiʦɨmoɴ ja komando o ɯkeiɾemasɨ. sentakɯ ɕita pɯɾobaidaː o ʦɨːka sɨɾɯ ɕiʦɨmoɴ no ɾɯːto o AI ɲi jɯːkoː ɲi ɕi, ɾʲiɴseʦɨ sɨɾɯ jaʥiɾɯɕi o ɕijoː ɕite pɯɾobaidaː meɲɨː o çiɾakʲimasɨ."
     },
     {
       "scene": 3,
-      "speech_start": 26.474999999999998,
-      "speech_end": 40.699999999999996,
-      "scene_end": 41.15,
-      "duration": 14.675,
-      "text": "主な構成領域では,関数チャンネル1である小胞体を関数チャンネルとして使用し,測定するオブジェクトタイプと特徴ファミリーを選択します."
+      "speech_start": 32.75,
+      "speech_end": 50.35,
+      "scene_end": 50.800000000000004,
+      "duration": 18.050000000000004,
+      "text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを表示します. 提供者の認証は,売り手に留まります.",
+      "speech_text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを表示します. 提供者の認証は,売り手に留まります.",
+      "phonemes": "teːkʲoː ɕa βa, Claude, Chat GPT, ojobʲi Gemini komando ɾaiɴ kɯɾaianto ɡa iɴsɨtoːɾɯ saɾete iɾɯka doː ka o hoːkokɯ ɕi, iɴsɨtoːɾɯ ojobʲi ɾoɡɯiɴ no komando o çoːʥi ɕi masɨ. teːkʲoː ɕa no ɲiɴɕoː βa, ɯɾʲite ɲi tomaɾʲimasɨ."
     },
     {
       "scene": 4,
-      "speech_start": 41.15,
-      "speech_end": 59.575,
-      "scene_end": 60.025000000000006,
-      "duration": 18.875000000000007,
-      "text": "実行完了前に,可視設定をレビューし,利用可能な場合のプレビューまたはテストモードを使用します.必要に応じてプレビュー作物を処理し,選択したフィールドおよびオブジェクトタイプを処理します."
+      "speech_start": 50.800000000000004,
+      "speech_end": 63.60000000000001,
+      "scene_end": 64.05000000000001,
+      "duration": 13.250000000000007,
+      "text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびspaCR 認識システムプロンプトを制御します.",
+      "speech_text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびスペーカー 認識システムプロンプトを制御します.",
+      "phonemes": "AI seʔteː βa oːtoː ɸɯka sa, ʥidoː eɾaː seʦɨmeː, opɯɕoɴ no GitHub mondai hoːkokɯ, saiɴ iɴ, ojobʲi sɨpeːkaː ɲiɴɕikʲi ɕisɨtemɯ pɯɾompɯto o seːɡʲo ɕi masɨ."
     },
     {
       "scene": 5,
-      "speech_start": 60.025000000000006,
-      "speech_end": 72.7,
-      "scene_end": 73.35000000000001,
-      "duration": 13.325000000000003,
-      "text": "作業流が完了すると,測定点dbは,注釈または分類のための追跡可能な単体行列とオプションの画像作物を保存します."
+      "speech_start": 64.05000000000001,
+      "speech_end": 83.025,
+      "scene_end": 83.47500000000001,
+      "duration": 19.424999999999997,
+      "text": "Mask が生成した合併フォルダを Measure にドラッグします. これらの配列には既に spaCR プロジェクトメタデータが含まれているので,Measure は直接ソースを解決し,原始画像ファイル名 regex も必要ありません.",
+      "speech_text": "Mask が生成した合併フォルダを Measure にドラッグします. これらの配列には既に スペーカー プロジェクトメタデータが含まれているので,Measure は直接ソースを解決し,原始画像ファイル名 regex も必要ありません.",
+      "phonemes": "Mask ɡa seːseː ɕita ɡaʔpeː ɸoɾɯda o Measure ɲi doɾaʔɡɯ ɕi masɨ. koɾe ɾa no haiɾeʦɨ ɲi βa sɨdeɲi sɨpeːkaː pɯɾoʥekɯto meta deːta ɡa ɸɯkɯma ɾe te iɾɯ no de, Measure βa ʨokɯseʦɨ soːsɨ o kaikeʦɨ ɕi, ɡeɴɕi ɡaʣoː ɸaiɾɯ meː regex mo çiʦɨjoː aɾʲimaseɴ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 83.47500000000001,
+      "speech_end": 95.65,
+      "scene_end": 96.10000000000001,
+      "duration": 12.625,
+      "text": "Essentials は,実行に必要なメーザー設定のコンパクトセットを示し,カウントは,現在の設定がどれくらい見えるかを報告します.",
+      "speech_text": "Essentials は,実行に必要なメーザー設定のコンパクトセットを示し,カウントは,現在の設定がどれくらい見えるかを報告します.",
+      "phonemes": "Essentials βa, ʥiʔkoː ɲi çiʦɨjoː na meːʣaː seʔteː no kompakɯto seʔto o ɕimeɕi, kaɯnto βa, ɡeɴʣai no seʔteː ɡa doɾekɯɾai mʲieɾɯ ka o hoːkokɯ ɕi masɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 96.10000000000001,
+      "speech_end": 108.60000000000001,
+      "scene_end": 109.05000000000001,
+      "duration": 12.950000000000003,
+      "text": "変更されたパネルは,メーザーデフォルトから異なる値に制限され,輸入された設定と意図的な変更を監査することが容易になります.",
+      "speech_text": "変更されたパネルは,メーザーデフォルトから異なる値に制限され,輸入された設定と意図的な変更を監査することが容易になります.",
+      "phonemes": "heŋkoː saɾeta paneɾɯ βa, meːʣaː deɸoɾɯto kaɾa kotonaɾɯ atai ɲi seːɡeɴ saɾe, jɯɲɨː saɾeta seʔteː to itotekʲi na heŋkoː o kaɴsa sɨɾɯ koto ɡa joːi ɲi naɾʲimasɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 109.05000000000001,
+      "speech_end": 122.60000000000001,
+      "scene_end": 123.05000000000001,
+      "duration": 14.0,
+      "text": "すべての設定は,高度な信頼性およびベータカリブレーション制御を含むすべての測定カテゴリーを,現在の値を変更することなく暴露します.",
+      "speech_text": "すべての設定は,高度な信頼性およびベータカリブレーション制御を含むすべての測定カテゴリーを,現在の値を変更することなく暴露します.",
+      "phonemes": "sɨbete no seʔteː βa, koːdo na ɕinɾai seː ojobʲi beːtakaɾʲibɯɾeːɕoɴ seːɡʲo o ɸɯkɯmɯ sɨbete no sokɯteː kateɡoɾʲiː o, ɡeɴʣai no atai o heŋkoː sɨɾɯ koto nakɯ bakɯɾo ɕi masɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 123.05000000000001,
+      "speech_end": 134.775,
+      "scene_end": 135.225,
+      "duration": 12.174999999999983,
+      "text": "レシピは,現在のメーチャー設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "speech_text": "レシピは,現在のメーチャー設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+      "phonemes": "ɾeɕipʲi βa, ɡeɴʣai no meː ʨaː seʔteː o namae de hoʣoɴ ɕi, ato de sai tekʲijoː sɨɾɯ ka, sai ɾʲijoː kanoː na seʔteː ɸaiɾɯ o jɯɲɨː jɯɕɨʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 135.225,
+      "speech_end": 143.9,
+      "scene_end": 144.35,
+      "duration": 9.125,
+      "text": "解決された測定設定のリモートスナップショットを送信し,分散した仕事に送信します.",
+      "speech_text": "解決された測定設定のリモートスナップショットを送信し,分散した仕事に送信します.",
+      "phonemes": "kaikeʦɨ saɾeta sokɯteː seʔteː no ɾʲimoːto sɨnaʔpɯɕoʔto o soːɕiɴ ɕi, bɯɴsaɴ ɕita ɕiɡoto ɲi soːɕiɴ ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 144.35,
+      "speech_end": 159.025,
+      "scene_end": 159.475,
+      "duration": 15.125,
+      "text": "Distributed Jobsは,リモートワークステーション,Slurmクラスター,または設定されたコマンドへのローカルパスをマッピングし,同じ Measure run を送信してモニターします.",
+      "speech_text": "Distributed Jobsは,リモートワークステーション,Slurmクラスター,または設定されたコマンドへのローカルパスをマッピングし,同じ Measure run を送信してモニターします.",
+      "phonemes": "Distributed Jobs βa, ɾʲimoːto βaːkɯsɨteːɕoɴ, Slurm kɯɾasɨtaː, mata βa seʔteː saɾeta komando e no ɾoːkaɾɯ pasɨ o maʔpʲiŋɡɯ ɕi, onaʥi Measure run o soːɕiɴ ɕite moɲitaː ɕi masɨ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 159.475,
+      "speech_end": 168.35,
+      "scene_end": 168.79999999999998,
+      "duration": 9.324999999999989,
+      "text": "インプット・アンド・エクスペリメントは,ソースプロジェクトと,その輸出に書かれた実験名を識別する.",
+      "speech_text": "インプット・アンド・エクスペリメントは,ソースプロジェクトと,その輸出に書かれた実験名を識別する.",
+      "phonemes": "impɯʔto ando ekɯsɨpeɾʲimento βa, soːsɨ pɯɾoʥekɯto to, sono jɯɕɨʦɨ ɲi kaka ɾe ta ʥiʔkeɴ meː o ɕikʲibeʦɨ sɨɾɯ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 168.79999999999998,
+      "speech_end": 184.37499999999997,
+      "scene_end": 184.82499999999996,
+      "duration": 16.024999999999977,
+      "text": "マスク・アンド・チャネルマッピングは画像チャンネル,細胞,核,病原体,臓器標識の平面,衍生されたサイトプラズマ,および任意のタイムシリーズオブジェクトを割り当てます.",
+      "speech_text": "マスク・アンド・チャネルマッピングは画像チャンネル,細胞,核,病原体,臓器標識の平面,衍生されたサイトプラズマ,および任意のタイムシリーズオブジェクトを割り当てます.",
+      "phonemes": "masɨkɯ ando ʨaneɾɯ maʔpʲiŋɡɯ βa ɡaʣoː ʨanneɾɯ, saiboː, kakɯ, bʲoːɡentai, ʣoːkʲi çoːɕikʲi no heːmeɴ, saɾeta saito pɯɾazɨma, ojobʲi ɲiɴi no taimɯ ɕiɾʲiːzɨ obɯʥekɯto o βaɾʲiatemasɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 184.82499999999996,
+      "speech_end": 196.59999999999997,
+      "scene_end": 197.04999999999995,
+      "duration": 12.224999999999994,
+      "text": "測定機能は保存された測定,相関およびマンダー概要,均質距離,半径分布,および臓器概要を選択します.",
+      "speech_text": "測定機能は保存された測定,相関およびマンダー概要,均質距離,半径分布,および臓器概要を選択します.",
+      "phonemes": "sokɯteː kʲinoː βa hoʣoɴ saɾeta sokɯteː, soːkaɴ ojobʲi mandaː ɡaijoː, kʲiɴɕiʦɨ kʲoɾʲi, haŋkeː bɯmpɯ, ojobʲi ʣoːkʲi ɡaijoː o sentakɯ ɕi masɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 197.04999999999995,
+      "speech_end": 213.34999999999997,
+      "scene_end": 213.79999999999995,
+      "duration": 16.75,
+      "text": "オブジェクトフィルタリングは,各コンパクトメントの最小サイズ,感染していない細胞が保持されているか,そして,横断病原体細胞がどのように処理されているかを設定します.",
+      "speech_text": "オブジェクトフィルタリングは,各コンパクトメントの最小サイズ,感染していない細胞が保持されているか,そして,横断病原体細胞がどのように処理されているかを設定します.",
+      "phonemes": "obɯʥekɯto ɸʲiɾɯtaɾʲiŋɡɯ βa, kakɯ kompakɯtomento no saiɕoː saizɨ, kaɴseɴ ɕite inai saiboː ɡa hoʥi saɾete iɾɯka, soɕite, oːdaɴ bʲoːɡentai saiboː ɡa dono joː ɲi ɕoɾʲi saɾete iɾɯka o seʔteː ɕi masɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 213.79999999999995,
+      "speech_end": 224.84999999999997,
+      "scene_end": 225.29999999999995,
+      "duration": 11.5,
+      "text": "Crop Output コントロールは PNGsとアレイ,Cropオブジェクトとサイズ,チャンネル,拡張,境界ボックス,および正常化を保存します.",
+      "speech_text": "Crop Output コントロールは PNGsとアレイ,Cropオブジェクトとサイズ,チャンネル,拡張,境界ボックス,および正常化を保存します.",
+      "phonemes": "Crop Out put kontoɾoːɾɯ βa PNGs to aɾeː, Crop obɯʥekɯto to saizɨ, ʨanneɾɯ, kakɯʨoː, kʲoːkai boʔkɯsɨ, ojobʲi seːʥoːka o hoʣoɴ ɕi masɨ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 225.29999999999995,
+      "speech_end": 235.62499999999994,
+      "scene_end": 236.07499999999993,
+      "duration": 10.774999999999977,
+      "text": "プレビューと診断は,完全な実験を行う前に使用されたプロットと小さなテストモードサンプルを制御します.",
+      "speech_text": "プレビューと診断は,完全な実験を行う前に使用されたプロットと小さなテストモードサンプルを制御します.",
+      "phonemes": "pɯɾebʲɨː to ɕindaɴ βa, kaɴʣeɴ na ʥiʔkeɴ o okonaɯ mae ɲi ɕijoː saɾeta pɯɾoʔto to ʨiːsana tesɨto moːdo sampɯɾɯ o seːɡʲo ɕi masɨ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 236.07499999999993,
+      "speech_end": 247.22499999999994,
+      "scene_end": 247.67499999999993,
+      "duration": 11.599999999999994,
+      "text": "3D カリブレーションにはベータアニゾトロピーとボクセルサイズ制御があり,体積ピクセル測定を物理次元に変換します.",
+      "speech_text": "3D カリブレーションにはベータアニゾトロピーとボクセルサイズ制御があり,体積ピクセル測定を物理次元に変換します.",
+      "phonemes": "saɴ D kaɾʲibɯ ɾeːɕoɴ ɲi βa beːtaaɲiʣotoɾopʲiː to bokɯseɾɯ saizɨ seːɡʲo ɡa aɾʲi, taisekʲi pʲikɯseɾɯ sokɯteː o bɯʦɨɾʲi ʥiɡeɴ ɲi heŋkaɴ ɕi masɨ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 247.67499999999993,
+      "speech_end": 261.5249999999999,
+      "scene_end": 261.9749999999999,
+      "duration": 14.299999999999983,
+      "text": "実行時間と信頼性グループは行動,厳格なエラー,失敗ポリシー,再生可能性,乾燥走行,伐採,労働者のカウントを再開します.",
+      "speech_text": "実行時間と信頼性グループは行動,厳格なエラー,失敗ポリシー,再生可能性,乾燥走行,伐採,労働者のカウントを再開します.",
+      "phonemes": "ʥiʔkoː ʥikaɴ to ɕinɾai seː ɡɯɾɯːpɯ βa koːdoː, ɡeŋkakɯ na eɾaː, ɕiʔpai poɾʲiɕiː, saiseː kanoːseː, kaɴsoː soːkoː, baʔsai, ɾoːdoːɕa no kaɯnto o saikai ɕi masɨ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 261.9749999999999,
+      "speech_end": 279.3499999999999,
+      "scene_end": 279.7999999999999,
+      "duration": 17.82499999999999,
+      "text": "ライブプレビューを有効にして,完成した統合マレイをアップロードします. ギャラリーでは 5つのフィールドのテストで 核と病原体含量によって 40個の実細胞作物をグループ化しています",
+      "speech_text": "ライブプレビューを有効にして,完成した統合マレイをアップロードします. ギャラリーでは 5つのフィールドのテストで 核と病原体含量によって 40個の実細胞作物をグループ化しています",
+      "phonemes": "ɾaibɯ pɯɾebʲɨː o jɯːkoː ɲi ɕite, kaɴseː ɕita toːɡoː maɾeː o aʔpɯɾoːdo ɕi masɨ. ɡʲaɾaɾʲiː de βa ɡoʦɨ no ɸʲiːɾɯdo no tesɨto de kakɯ to bʲoːɡentai ɡanɾʲoː ɲi joʔte joɲʥɨː ko no ʥiʔsaiboː sakɯmoʦɨ o ɡɯɾɯːpɯ ka ɕite imasɨ"
+    },
+    {
+      "scene": 21,
+      "speech_start": 279.7999999999999,
+      "speech_end": 299.0249999999999,
+      "scene_end": 299.4749999999999,
+      "duration": 19.67500000000001,
+      "text": "一般は実験のアイデンティティを確認し, 0から3までのチャンネルを測定し,細胞マスク平面4号,核平面5号,病原体平面6号,誘導された細胞プラズマ,テストモードを確認します.",
+      "speech_text": "一般は実験のアイデンティティを確認し, 0から3までのチャンネルを測定し,細胞マスク平面4号,核平面5号,病原体平面6号,誘導された細胞プラズマ,テストモードを確認します.",
+      "phonemes": "iʔpaɴ βa ʥiʔkeɴ no aidentʲitʲi o kakɯɲiɴ ɕi, ʣeɾo kaɾa saɴ made no ʨanneɾɯ o sokɯteː ɕi, saiboː masɨkɯ heːmeɴ joɴ ɡoː, kakɯ heːmeɴ ɡo ɡoː, bʲoːɡentai heːmeɴ ɾokɯ ɡoː, jɯːdoː saɾeta saiboː pɯɾazɨma, tesɨto moːdo o kakɯɲiɴ ɕi masɨ."
+    },
+    {
+      "scene": 22,
+      "speech_start": 299.4749999999999,
+      "speech_end": 321.2749999999999,
+      "scene_end": 321.7249999999999,
+      "duration": 22.25,
+      "text": "Object Crops は 224×224ピクセル PNG を 0 チャンネル, 1 チャンネル, 2 チャンネルを使用して記述します. 保存された正常化は停止され,ライブギャラリーだけで一時的な 1~99パーセンチルのディスプレイストレッチを使用しています.",
+      "speech_text": "Object Crops は 224×224ピクセル PNG を 0 チャンネル, 1 チャンネル, 2 チャンネルを使用して記述します. 保存された正常化は停止され,ライブギャラリーだけで一時的な 1~99パーセンチルのディスプレイストレッチを使用しています.",
+      "phonemes": "Object Crops βa ɲiçakɯ ɲiʥɨːjoɴ ɲiçakɯ ɲiʥɨːjoɴ pʲikɯseɾɯ PNG o ʣeɾo ʨanneɾɯ, iʨi ʨanneɾɯ, ɲi ʨanneɾɯ o ɕijoː ɕite kʲiʥɨʦɨ ɕi masɨ. hoʣoɴ saɾeta seːʥoːka βa teːɕi saɾe, ɾaibɯ ɡʲaɾaɾʲiː dake de iʨiʥitekʲi na iʨi ~ kʲɨːʥɨː kʲɨː paː seɲʨi ɾɯ no dʲisɨpɯɾeː sɨtoɾeʔʨi o ɕijoː ɕite imasɨ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 321.7249999999999,
+      "speech_end": 341.5499999999999,
+      "scene_end": 341.9999999999999,
+      "duration": 20.274999999999977,
+      "text": "フィルターは少なくとも 3500 ピクセル,少なくとも 1000 個の核,少なくとも 250 個の病原体を持つ細胞を必要とします. 感染していない細胞は離れているし 横断病原体細胞は融合する.",
+      "speech_text": "フィルターは少なくとも 3500 ピクセル,少なくとも 1000 個の核,少なくとも 250 個の病原体を持つ細胞を必要とします. 感染していない細胞は離れているし 横断病原体細胞は融合する.",
+      "phonemes": "ɸʲiɾɯtaː βa sɨkɯnakɯtomo saɴ ʣeŋɡo çakɯ pʲikɯseɾɯ, sɨkɯnakɯtomo seɴ ko no kakɯ, sɨkɯnakɯtomo ɲiçakɯ ɡoʥɨː ko no bʲoːɡentai o moʦɨ saiboː o çiʦɨjoː toɕi masɨ. kaɴseɴ ɕite inai saiboː βa hanaɾete iɾɯ ɕi oːdaɴ bʲoːɡentai saiboː βa jɯːɡoː sɨɾɯ."
+    },
+    {
+      "scene": 24,
+      "speech_start": 341.9999999999999,
+      "speech_end": 359.3499999999999,
+      "scene_end": 359.7999999999999,
+      "duration": 17.80000000000001,
+      "text": "興味のある下流チャンネルとして使用されるER信号を検査するためにチャンネル1を選択します. これはギャラリーのみを変更します. Measureは4つの設定されたチャンネルから機能を抽出します.",
+      "speech_text": "興味のある下流チャンネルとして使用されるER信号を検査するためにチャンネル1を選択します. これはギャラリーのみを変更します. Measureは4つの設定されたチャンネルから機能を抽出します.",
+      "phonemes": "kʲoːmʲi no aɾɯ kaɾʲɨː ʨanneɾɯ toɕi te ɕijoː saɾeɾɯ ER ɕiŋɡoː o keɴsa sɨɾɯ tame ɲi ʨanneɾɯ iʨi o sentakɯ ɕi masɨ. koɾe βa ɡʲaɾaɾʲiː nomʲi o heŋkoː ɕi masɨ. Measure βa joɴ ʦɨ no seʔteː saɾeta ʨanneɾɯ kaɾa kʲinoː o ʨɨːɕɨʦɨ ɕi masɨ."
+    },
+    {
+      "scene": 25,
+      "speech_start": 359.7999999999999,
+      "speech_end": 385.7749999999999,
+      "scene_end": 386.4249999999999,
+      "duration": 26.625,
+      "text": "完成したテストレジャーでは,5つのフィールドのうち5つのフィールドが成功していることが報告されています. measurements.dbには455つの細胞と細胞細胞細胞,605つの核,1031つの病原体,455つの細胞作物が注釈および分類に準備されている.",
+      "speech_text": "完成したテストレジャーでは,5つのフィールドのうち5つのフィールドが成功していることが報告されています. measurements dot dbには455つの細胞と細胞細胞細胞,605つの核,1031つの病原体,455つの細胞作物が注釈および分類に準備されている.",
+      "phonemes": "kaɴseː ɕita tesɨto ɾeʥaː de βa, ɡoʦɨ no ɸʲiːɾɯdo no ɯʨi ɡoʦɨ no ɸʲiːɾɯdo ɡa seːkoː ɕite iɾɯ koto ɡa hoːkokɯ saɾete imasɨ. measurements dot db ɲi βa joɴçakɯ ɡoʥɨː ɡoʦɨ no saiboː to saiboː saiboː saiboː, ɾoʔpʲi kɯɡoʦɨno kakɯ, seɴ saɴ ʥɨːi ʨiʦɨ no bʲoːɡentai, joɴçakɯ ɡoʥɨː ɡoʦɨ no saiboː sakɯmoʦɨ ɡa ʨɨːɕakɯ ojobʲi bɯnɾɯi ɲi ʥɨmbʲi saɾete iɾɯ."
     }
   ]
 }

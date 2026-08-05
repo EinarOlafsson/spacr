@@ -632,71 +632,203 @@
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Visualizzare in anteprima le colture di oggetti reali, misurare campi segmentati e scrivere caratteristiche tracciabili di singoli oggetti in SQLite.",
+      "description": "Configura Measure, controlla le sue categorie di impostazioni e visualizza in anteprima le colture reali a singola cellula dalle matrici Mask completate.",
       "objectives": [
-        "Immagine di mappa e aerei di maschera da un array spaCR fuso.",
-        "Prevedere le colture delle cellule e verificare il comportamento del filtro prima di eseguire una corsa.",
-        "Convalidare le misurazioni e le colture con una prova a cinque campi."
+        "Importare array fusi e utilizzare la console, l'intelligenza artificiale, le ricette e il flusso di lavoro remoto.",
+        "Rivedi tutte le categorie di impostazioni di misura senza recitare ogni parametro.",
+        "Ispezionare le colture cellulari reali, il canale di emergenza, i filtri e i risultati dei test completati."
       ],
       "prerequisite": "Completa prima la maschera in modo che il progetto contenga array di immagini e etichette fuse.",
       "scenes": [
         {
-          "narration": "La misura converte i campi di HeLa segmentati reali in tracciabilità di intensità singola di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali. Questo passaggio convalida cinque campi prima di una corsa completa.",
-          "visual": "01_module",
+          "narration": "La misura si apre con le impostazioni a sinistra e la console runtime a destra. La console segnala la risoluzione della sorgente, la convalida, il progresso, gli avvertimenti e l'uscita della misura.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "La misura converte i campi di HeLa segmentati reali in tracciabilità di intensità singola di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali. Questo passaggio convalida cinque campi prima di una corsa completa."
+          "speech_text": "La misura si apre con le impostazioni a sinistra e la console runtime a destra. La console segnala la risoluzione della sorgente, la convalida, il progresso, gli avvertimenti e l'uscita della misura."
         },
         {
-          "narration": "Aprire Measure da Core e selezionare la cartella fusa prodotta da Mask. Le impostazioni trasferite misurano i canali di immagine da zero a tre e leggono le etichette delle cellule, del nucleo e degli agenti patogeni dai piani quattro, cinque e sei.",
-          "visual": "01_module",
-          "focus_key": "nav",
-          "click_key": "nav",
+          "narration": "Il campo sotto la console accetta domande o comandi locali. Abilitare l'IA a indirizzare una domanda attraverso il provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Aprire Measure da Core e selezionare la cartella fusa prodotta da Mask. Le impostazioni trasferite misurano i canali di immagine da zero a tre e leggono le etichette delle cellule, del nucleo e degli agenti patogeni dai piani quattro, cinque e sei."
+          "speech_text": "Il campo sotto la console accetta domande o comandi locali. Abilitare l'IA a indirizzare una domanda attraverso il provider selezionato e utilizzare la freccia adiacente per aprire il menu del provider."
         },
         {
-          "narration": "Abilitare l'anteprima delle colture e caricare una matrice fusa. Le gallerie raggruppano quaranta cellule reali per nucleo e contenuto di patogeni, mentre il selettore conferma che la cartella di prova contiene cinque campi.",
-          "visual": "02_cell_crops",
-          "focus_key": "grid",
+          "narration": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e mostrano i loro comandi di installazione e login. Le credenziali del fornitore rimangono presso il venditore.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "I fornitori segnalano se i client di linea di comando Claude, ChatGPT e Gemini sono installati e mostrano i loro comandi di installazione e login. Le credenziali del fornitore rimangono presso il venditore."
+        },
+        {
+          "narration": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker."
+        },
+        {
+          "narration": "Trascinare la cartella di fusione prodotta da Mask in Measure. Queste array contengono già metadati del progetto spaCR, quindi Measure risolve direttamente la fonte e non ha più bisogno del nome del file di immagine grezza regex.",
+          "visual": "05_folder",
+          "focus_key": "src",
+          "hold_after": 0.45,
+          "speech_text": "Trascinare la cartella di fusione prodotta da Mask in Measure. Queste array contengono già metadati del progetto spàker, quindi Measure risolve direttamente la fonte e non ha più bisogno del nome del file di immagine grezza regex."
+        },
+        {
+          "narration": "Essentials mostra l'insieme compatto delle impostazioni di misura necessarie per una corsa, mentre il conteggio riporta quante impostazioni sono attualmente visibili.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mostra l'insieme compatto delle impostazioni di misura necessarie per una corsa, mentre il conteggio riporta quante impostazioni sono attualmente visibili."
+        },
+        {
+          "narration": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite di misura, rendendo le impostazioni importate e le modifiche deliberate facili da controllare.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificato limita il pannello a valori che differiscono dalle impostazioni predefinite di misura, rendendo le impostazioni importate e le modifiche deliberate facili da controllare."
+        },
+        {
+          "narration": "Tutte le impostazioni espongono ogni categoria di misura, compresi i controlli avanzati di affidabilità e di calibrazione beta, senza modificare i valori correnti.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tutte le impostazioni espongono ogni categoria di misura, compresi i controlli avanzati di affidabilità e di calibrazione beta, senza modificare i valori correnti."
+        },
+        {
+          "narration": "Le ricette salvano la configurazione attuale della misura sotto un nome, la riapplicano successivamente o importano ed esportano un file di impostazioni riutilizzabile.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Le ricette salvano la configurazione attuale della misura sotto un nome, la riapplicano successivamente o importano ed esportano un file di impostazioni riutilizzabile."
+        },
+        {
+          "narration": "Invia istantanee remote delle impostazioni di misura risolte e le invia a lavori distribuiti.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Invia istantanee remote delle impostazioni di misura risolte e le invia a lavori distribuiti."
+        },
+        {
+          "narration": "Distributed Jobs mappa i percorsi locali verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano lo stesso Measure run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mappa i percorsi locali verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano lo stesso Measure run."
+        },
+        {
+          "narration": "Input and Experiment identifica il progetto sorgente e il nome dell'esperimento scritto nelle sue uscite.",
+          "visual": "12_category_01_input_experiment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Experiment identifica il progetto sorgente e il nome dell'esperimento scritto nelle sue uscite."
+        },
+        {
+          "narration": "Mask and Channel Mapping assegna i canali di immagine, cellule, nuclei, agenti patogeni e etichette degli organi, citoplasma derivato e qualsiasi oggetto di serie temporale.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Mask and Channel Mapping assegna i canali di immagine, cellule, nuclei, agenti patogeni e etichette degli organi, citoplasma derivato e qualsiasi oggetto di serie temporale."
+        },
+        {
+          "narration": "Le caratteristiche di misurazione scelgono le misure salvate, le correlazioni e i riassunti di Mander, le distanze di omogeneità, le distribuzioni radiali e i riassunti di organelle.",
+          "visual": "12_category_03_measurement_features",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le caratteristiche di misurazione scelgono le misure salvate, le correlazioni e i riassunti di Mander, le distanze di omogeneità, le distribuzioni radiali e i riassunti di organelle."
+        },
+        {
+          "narration": "Object Filtering impone la dimensione minima di ciascun compartimento, se le cellule non infette vengono conservate e come vengono gestite le cellule patogene che attraversano i bordi.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Object Filtering impone la dimensione minima di ciascun compartimento, se le cellule non infette vengono conservate e come vengono gestite le cellule patogene che attraversano i bordi."
+        },
+        {
+          "narration": "I controlli Crop Output hanno salvato PNG e array, oggetto e dimensione del raccolto, canali, dilatazione, caselle di confine e normalizzazione.",
+          "visual": "12_category_05_crop_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "I controlli Crop Output hanno salvato PNG e array, oggetto e dimensione del raccolto, canali, dilatazione, caselle di confine e normalizzazione."
+        },
+        {
+          "narration": "Preview and Diagnostics controlla le trame e il piccolo campione in modalità di prova utilizzato prima di impegnarsi in un esperimento completo.",
+          "visual": "12_category_06_preview_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Preview and Diagnostics controlla le trame e il piccolo campione in modalità di prova utilizzato prima di impegnarsi in un esperimento completo."
+        },
+        {
+          "narration": "La calibrazione 3D contiene controlli beta anisotropici e di dimensioni voxel che convertono le misurazioni dei pixel volumetrici in dimensioni fisiche.",
+          "visual": "12_category_07_3d_calibration_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La calibrazione 3D contiene controlli beta anisotropici e di dimensioni voxel che convertono le misurazioni dei pixel volumetrici in dimensioni fisiche."
+        },
+        {
+          "narration": "I gruppi Runtime e Reliability riprendono il comportamento, gli errori rigorosi, la politica di fallimento, la riproducibilità, le esecuzioni a secco, il taglio e il conteggio dei lavoratori.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "I gruppi Runtime e Reliability riprendono il comportamento, gli errori rigorosi, la politica di fallimento, la riproducibilità, le esecuzioni a secco, il taglio e il conteggio dei lavoratori."
+        },
+        {
+          "narration": "Abilita Live Preview e carica una matrice integrata completata. La galleria raggruppa 40 colture cellulari reali per nucleo e contenuto di agenti patogeni nel corso del test di cinque campi.",
+          "visual": "20_cell_crops",
+          "focus_key": "live_and_grid",
           "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "Abilitare l'anteprima delle colture e caricare una matrice fusa. Le gallerie raggruppano quaranta cellule reali per nucleo e contenuto di patogeni, mentre il selettore conferma che la cartella di prova contiene cinque campi."
+          "speech_text": "Abilita Live Preview e carica una matrice integrata completata. La galleria raggruppa 40 colture cellulari reali per nucleo e contenuto di agenti patogeni nel corso del test di cinque campi."
         },
         {
-          "narration": "In generale, verificare i canali misurati da zero a tre, piano maschera cellulare quattro, piano nucleo cinque, piano patogeno sei, e citoplasma derivato. Mantenere la modalità di prova attiva per la validazione.",
-          "visual": "03_general",
+          "narration": "General conferma l'identità dell'esperimento, i canali misurati da zero a tre, il piano maschera cellulare quattro, piano nucleo cinque, piano patogeno sei, citoplasma derivato e modalità di prova.",
+          "visual": "21_general",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "In generale, verificare i canali misurati da zero a tre, piano maschera cellulare quattro, piano nucleo cinque, piano patogeno sei, e citoplasma derivato. Mantenere la modalità di prova attiva per la validazione."
+          "speech_text": "General conferma l'identità dell'esperimento, i canali misurati da zero a tre, il piano maschera cellulare quattro, piano nucleo cinque, piano patogeno sei, citoplasma derivato e modalità di prova."
         },
         {
-          "narration": "La corsa fornita scrive le colture di cellule PNG a duecento ventiquattro per duecento ventiquattro pixel utilizzando i canali zero, uno e due. La normalizzazione delle colture rimane off nelle impostazioni salvate; questo tutorial utilizza un intervallo di visualizzazione temporaneo da uno a novanta nove percentili solo per rendere leggibile la galleria dal vivo.",
-          "visual": "04_object_crops",
+          "narration": "Object Crops scrive PNG di cellule 224 per 224 pixel utilizzando i canali zero, uno e due. La normalizzazione risparmiata rimane disattivata; solo la galleria dal vivo utilizza un intervallo temporaneo di visualizzazione da 1 a 99 percentili.",
+          "visual": "22_object_crops",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "La corsa fornita scrive le colture di cellule PNG a duecento ventiquattro per duecento ventiquattro pixel utilizzando i canali zero, uno e due. La normalizzazione delle colture rimane off nelle impostazioni salvate; questo tutorial utilizza un intervallo di visualizzazione temporaneo da uno a novanta nove percentili solo per rendere leggibile la galleria dal vivo."
+          "speech_text": "Object Crops scrive PNG di cellule 224 per 224 pixel utilizzando i canali zero, uno e due. La normalizzazione risparmiata rimane disattivata; solo la galleria dal vivo utilizza un intervallo temporaneo di visualizzazione da 1 a 99 percentili."
         },
         {
-          "narration": "I filtri richiedono cellule di almeno tre mila e cinquecento pixel, nuclei di almeno mille e agenti patogeni di almeno duecentocinquanta. Mantenete lontane le cellule non infette e unite le cellule i cui agenti patogeni attraversano un bordo dell'immagine.",
-          "visual": "05_filters",
+          "narration": "I filtri richiedono cellule di almeno 3500 pixel, nuclei di almeno 1000 e agenti patogeni di almeno 250. Le cellule non infette restano fuori e le cellule patogene che attraversano i bordi vengono fuse.",
+          "visual": "23_filters",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "I filtri richiedono cellule di almeno tre mila e cinquecento pixel, nuclei di almeno mille e agenti patogeni di almeno duecentocinquanta. Mantenete lontane le cellule non infette e unite le cellule i cui agenti patogeni attraversano un bordo dell'immagine."
+          "speech_text": "I filtri richiedono cellule di almeno 3500 pixel, nuclei di almeno 1000 e agenti patogeni di almeno 250. Le cellule non infette restano fuori e le cellule patogene che attraversano i bordi vengono fuse."
         },
         {
-          "narration": "Selezionare il canale uno nell'anteprima per ispezionare il segnale endoplasmico-reticolo, che è il canale di interesse per le analisi a valle. Questa visualizzazione modifica solo la galleria; Measure estrae ancora le caratteristiche da tutti e quattro i canali configurati.",
-          "visual": "06_er_channel",
+          "narration": "Selezionare il canale 1 per ispezionare il segnale di emergenza utilizzato come canale a valle di interesse. Questo cambia solo la galleria; Measure estrae ancora le caratteristiche da tutti e quattro i canali configurati.",
+          "visual": "24_er_channel",
           "focus_key": "grid",
           "click_key": "channel",
           "hold_after": 0.45,
-          "speech_text": "Selezionare il canale uno nell'anteprima per ispezionare il segnale endoplasmico-reticolo, che è il canale di interesse per le analisi a valle. Questa visualizzazione modifica solo la galleria; Measure estrae ancora le caratteristiche da tutti e quattro i canali configurati."
+          "speech_text": "Selezionare il canale 1 per ispezionare il segnale di emergenza utilizzato come canale a valle di interesse. Questo cambia solo la galleria; Measure estrae ancora le caratteristiche da tutti e quattro i canali configurati."
         },
         {
-          "narration": "Il libro dei test completato riporta cinque dei cinque campi con successo senza fallimenti. Le misurazioni dot db contengono quattrocentocinque cellule e citoplasmi, seicentocinque nuclei e mille trentauno agenti patogeni, oltre a quattrocentocinque colture cellulari pronte per l'annotazione e la classificazione.",
-          "visual": "07_outputs",
+          "narration": "Il libro maggiore di prova completato riporta il successo di 5 campi su 5. measurements.db contiene 455 cellule e citoplasmi, 605 nuclei, 1031 agenti patogeni e 455 colture cellulari pronte per l'annotazione e la classificazione.",
+          "visual": "25_outputs",
           "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Il libro dei test completato riporta cinque dei cinque campi con successo senza fallimenti. Le misurazioni dot db contengono quattrocentocinque cellule e citoplasmi, seicentocinque nuclei e mille trentauno agenti patogeni, oltre a quattrocentocinque colture cellulari pronte per l'annotazione e la classificazione."
+          "speech_text": "Il libro maggiore di prova completato riporta il successo di 5 campi su 5. measurements dot db contiene 455 cellule e citoplasmi, 605 nuclei, 1031 agenti patogeni e 455 colture cellulari pronte per l'annotazione e la classificazione."
         }
       ]
     },
