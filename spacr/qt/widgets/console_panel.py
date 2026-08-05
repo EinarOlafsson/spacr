@@ -854,6 +854,15 @@ class ConsolePanel(QWidget):
             make_transparent(self._split)
         except Exception:
             pass
+        # setHandleWidth(1) sets the LAYOUT width; the handle still rendered
+        # 5px because the application stylesheet's 1px rule is matched on
+        # QSplitter::handle and make_transparent gives this splitter a
+        # stylesheet of its own, which wins. Restate the rule here so the
+        # divider under the console is the same hairline as the one beside
+        # the settings column, which the app stylesheet still reaches.
+        self._split.setStyleSheet(
+            self._split.styleSheet()
+            + "\nQSplitter#ConsoleSplit::handle:vertical { height: 1px; }")
         outer.addWidget(self._split, 1)
 
         # Console box — a rounded surface frame that wraps ONLY the scrolling
