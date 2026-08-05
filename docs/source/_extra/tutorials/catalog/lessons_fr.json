@@ -2551,47 +2551,200 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "Motility assay",
+      "title": "Évaluation de la mobilité",
       "series": 2,
       "app_key": "motility",
       "section": "Core",
-      "description": "Quantifier les mesures de contrôle de la vitesse, du déplacement, de la persistance et de la qualité de l'infection à partir d'images résolues dans le temps.",
+      "description": "Mesurer le mouvement suivi, appliquer des calibrations physiques et des filtres de qualité, et comparer les trajectoires par état d'infection.",
       "objectives": [
-        "Comprendre quand utiliser l'analyse Motility.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Connectez les tableaux fusionnés suivis et vérifiez la cartographie de l'objet et du canal.",
+        "Révision de l'étalonnage, des filtres de mouvement, de la classification des infections, des plans et des catégories de temps d'exécution.",
+        "Générer des mesures au niveau du cadre, des résumés des pistes, des corrélations et des chiffres de mobilité."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Exécutez Timelapse d'abord afin que la source contient des matrices fusionnées avec des étiquettes d'objets stables sur les cadres.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre l'analyse de mobilité.",
-          "visual": "overview",
+          "narration": "Motility Assay reconstruit les mesures à partir de matrices fusionnées suivies, calcule le déplacement, la vitesse, la longueur du chemin et la droiture, et compare les trajectoires par état d'infection. La console enregistre toutes les tables dérivées et les chiffres.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre l'analyse de mobilité."
+          "speech_text": "Motility Assay reconstruit les mesures à partir de matrices fusionnées suivies, calcule le déplacement, la vitesse, la longueur du chemin et la droiture, et compare les trajectoires par état d'infection. La console enregistre toutes les tables dérivées et les chiffres."
         },
         {
-          "narration": "Ouvrez Motility assay dans la section Core. Ouvrez les données de timelapse suivie avec des intervalles de temps fiables et une calibration spatiale.",
-          "visual": "input",
+          "narration": "Le champ de discussion accepte des commandes locales ou des questions de flux de travail. Activer l'IA pour un fournisseur configuré et utiliser la flèche adjacente pour choisir un fournisseur ou ouvrir ses contrôles.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Motility assay dans la section Core. Ouvrez les données de timelapse suivie avec des intervalles de temps fiables et une calibration spatiale."
+          "speech_text": "Le champ de discussion accepte des commandes locales ou des questions de flux de travail. Activer l'IA pour un fournisseur configuré et utiliser la flèche adjacente pour choisir un fournisseur ou ouvrir ses contrôles."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez des filtres de piste, durée minimale, lissage, mesures de mobilité, définitions d'infection et groupes de niveau de puits.",
-          "visual": "settings",
+          "narration": "Les fournisseurs vérifient les clients de ligne de commande Claude, ChatGPT et Gemini et affichent leurs commandes d'installation et de connexion tandis que l'authentification reste auprès de chaque fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez des filtres de piste, durée minimale, lissage, mesures de mobilité, définitions d'infection et groupes de niveau de puits."
+          "speech_text": "Les fournisseurs vérifient les clients de ligne de commande Claude, ChatGPT et Gemini et affichent leurs commandes d'installation et de connexion tandis que l'authentification reste auprès de chaque fournisseur."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et les instructions du système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et les instructions du système conscient de spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, spaCR écrit des tables de mobilité par piste et par condition, des mesures de qualité et des chiffres.",
-          "visual": "output",
+          "narration": "Cette source synthétique contient huit cadres suivis avec des noyaux dans le canal zéro, des cellules dans le canal un, et des agents pathogènes dans le canal deux. Seize traces cellulaires et vingt masques pathogènes par cadre fournissent un exemple d'essai complet.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "Cette source synthétique contient huit cadres suivis avec des noyaux dans le canal zéro, des cellules dans le canal un, et des agents pathogènes dans le canal deux. Seize traces cellulaires et vingt masques pathogènes par cadre fournissent un exemple d'essai complet."
+        },
+        {
+          "narration": "Les éléments essentiels montrent l'objet suivi, la cartographie des canaux, les secondes par cadre, les pixels par micromètre, le filtre de déplacement, la stratégie d'infection, les limites du graphique, la table de base de données et le nombre de travailleurs nécessaires à une première analyse.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Les éléments essentiels montrent l'objet suivi, la cartographie des canaux, les secondes par cadre, les pixels par micromètre, le filtre de déplacement, la stratégie d'infection, les limites du graphique, la table de base de données et le nombre de travailleurs nécessaires à une première analyse."
+        },
+        {
+          "narration": "Les modifications limitent le panneau à des modifications intentionnelles, y compris la mise en page à trois canaux, des images d'une seconde, un pixel par micromètre, des étiquettes d'infection basées sur des masques, des limites symétriques et un travailleur.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Les modifications limitent le panneau à des modifications intentionnelles, y compris la mise en page à trois canaux, des images d'une seconde, un pixel par micromètre, des étiquettes d'infection basées sur des masques, des limites symétriques et un travailleur."
+        },
+        {
+          "narration": "Tous les paramètres révèlent neuf catégories: objets et canaux, calibration, filtrage de mouvement, classification des infections, XGBoost, regroupement, recherche intégrée, parcelles et contrôle de la qualité et temps d'exécution.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tous les paramètres révèlent neuf catégories: objets et canaux, calibration, filtrage de mouvement, classification des infections, XGBoost, regroupement, recherche intégrée, parcelles et contrôle de la qualité et temps d'exécution."
+        },
+        {
+          "narration": "Les recettes enregistrent la configuration complète de Motility Assay sous un nom, la réappliquent à une autre expérience ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent la configuration complète de Motility Assay sous un nom, la réappliquent à une autre expérience ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyez des instantanés à distance des paramètres résolus et envoyez le travail de mesure et de trajectoire à l'espace de travail des emplois distribués.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyez des instantanés à distance des paramètres résolus et envoyez le travail de mesure et de trajectoire à l'espace de travail des emplois distribués."
+        },
+        {
+          "narration": "Distributed Jobs trace les chemins de source et de sortie suivis vers un poste de travail distant, un cluster Slurm ou une commande configurée, puis soumet et surveille le même essai.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs trace les chemins de source et de sortie suivis vers un poste de travail distant, un cluster Slurm ou une commande configurée, puis soumet et surveille le même essai."
+        },
+        {
+          "narration": "Objects and Channels sélectionne la source suivie, l'objet dont le mouvement est mesuré et les canaux d'acquisition transportant le signal cellulaire, nucléaire et pathogène. Une mauvaise cartographie annule à la fois l'intensité et les résultats de l'infection.",
+          "visual": "12_category_01_objects_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Objects and Channels sélectionne la source suivie, l'objet dont le mouvement est mesuré et les canaux d'acquisition transportant le signal cellulaire, nucléaire et pathogène. Une mauvaise cartographie annule à la fois l'intensité et les résultats de l'infection."
+        },
+        {
+          "narration": "L'étalonnage spatial et temporel fournit des secondes par image et des pixels par micromètre. Ces deux valeurs convertissent le déplacement des pixels en vitesse physique, donc une erreur constante ici équivaut à chaque vitesse rapportée.",
+          "visual": "12_category_02_spatial_temporal_calibration",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'étalonnage spatial et temporel fournit des secondes par image et des pixels par micromètre. Ces deux valeurs convertissent le déplacement des pixels en vitesse physique, donc une erreur constante ici équivaut à chaque vitesse rapportée."
+        },
+        {
+          "narration": "Le filtrage de mouvement exclut les sauts improbables d'un cadre à un autre, les objets hautement droits optionnels et les anomalies de fonctionnalité ou de vitesse identifiées par un seuil de score z.",
+          "visual": "12_category_03_motion_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le filtrage de mouvement exclut les sauts improbables d'un cadre à un autre, les objets hautement droits optionnels et les anomalies de fonctionnalité ou de vitesse identifiées par un seuil de score z."
+        },
+        {
+          "narration": "La classification des infections commence par le chevauchement entre agent pathogène et masque et peut optionnellement réétiqueter ou supprimer les traces en utilisant un contrôle de qualité basé sur l'intensité. Le tutoriel conserve les étiquettes directes du masque.",
+          "visual": "12_category_04_infection_classification",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La classification des infections commence par le chevauchement entre agent pathogène et masque et peut optionnellement réétiqueter ou supprimer les traces en utilisant un contrôle de qualité basé sur l'intensité. Le tutoriel conserve les étiquettes directes du masque."
+        },
+        {
+          "narration": "Le modèle d'infection XGBoost configure un classificateur d'intensité supervisé, sa profondeur d'arbre et son taux d'apprentissage, son seuil de probabilité, sa bande d'ambiguïté, ses exigences de taille de classe et son rapport d'importance des caractéristiques.",
+          "visual": "12_category_05_xgboost_infection_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le modèle d'infection XGBoost configure un classificateur d'intensité supervisé, sa profondeur d'arbre et son taux d'apprentissage, son seuil de probabilité, sa bande d'ambiguïté, ses exigences de taille de classe et son rapport d'importance des caractéristiques."
+        },
+        {
+          "narration": "Le regroupement d'infections contrôle la séparation de l'intensité non surveillée, la pondération des canaux pathogènes, le nombre de groupes, les graines aléatoires, le plafond de l'échantillon et les contrôles minimaux de séparation de la silhouette et de la vérité fondamentale.",
+          "visual": "12_category_06_infection_clustering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le regroupement d'infections contrôle la séparation de l'intensité non surveillée, la pondération des canaux pathogènes, le nombre de groupes, les graines aléatoires, le plafond de l'échantillon et les contrôles minimaux de séparation de la silhouette et de la vérité fondamentale."
+        },
+        {
+          "narration": "L'intégration de la recherche harmonie UMAP ou t-SNE quartier, distance, perplexité, et le taux d'apprentissage des grilles lorsque l'intensité de l'infection est séparée dans une intégration plus basse dimension.",
+          "visual": "12_category_07_embedding_search",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'intégration de la recherche harmonie UMAP ou t-SNE quartier, distance, perplexité, et le taux d'apprentissage des grilles lorsque l'intensité de l'infection est séparée dans une intégration plus basse dimension."
+        },
+        {
+          "narration": "Motility Plots et QC définissent des limites de trajectorie-axe et permettent de combiner l'intensité, la position, la vitesse et les panneaux de diagnostic de l'infection sans changer les mesures sous-jacentes.",
+          "visual": "12_category_08_motility_plots_qc",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Motility Plots et QC définissent des limites de trajectorie-axe et permettent de combiner l'intensité, la position, la vitesse et les panneaux de diagnostic de l'infection sans changer les mesures sous-jacentes."
+        },
+        {
+          "narration": "Le temps d'exécution et la fiabilité contrôlent les travailleurs parallèles. Utilisez un travailleur pour une petite source de validation, puis étalonnez seulement après avoir confirmé la cartographie du canal, l'étalonnage et la qualité de la piste.",
+          "visual": "12_category_09_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le temps d'exécution et la fiabilité contrôlent les travailleurs parallèles. Utilisez un travailleur pour une petite source de validation, puis étalonnez seulement après avoir confirmé la cartographie du canal, l'étalonnage et la qualité de la piste."
+        },
+        {
+          "narration": "La démonstration utilise une seconde par image et un pixel par micromètre. Avec les deux valeurs égales à une, chaque pixel mesuré par image se convertit directement avant que le rapport exprime la vitesse par minute.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "La démonstration utilise une seconde par image et un pixel par micromètre. Avec les deux valeurs égales à une, chaque pixel mesuré par image se convertit directement avant que le rapport exprime la vitesse par minute."
+        },
+        {
+          "narration": "Run lit chaque cadre fusionné, mesure l'intensité de la cellule, du noyau, du cytoplasme, de l'agent pathogène et du canal, fluide les pistes, attribue l'état de l'infection, calcule les résumés de vitesse et les corrélations, et enregistre les tableaux et les chiffres de la base de données. Arrêtez de demander une interruption sécurisée.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run lit chaque cadre fusionné, mesure l'intensité de la cellule, du noyau, du cytoplasme, de l'agent pathogène et du canal, fluide les pistes, attribue l'état de l'infection, calcule les résumés de vitesse et les corrélations, et enregistre les tableaux et les chiffres de la base de données. Arrêtez de demander une interruption sécurisée."
+        },
+        {
+          "narration": "Pendant le traitement, la console rapporte des formes d'arrayes fusionnées, des objets et des cadres mesurés, des résultats de lissage, le nombre de pistes infectées et non infectées, les unités de vitesse et chaque chemin de sortie.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Pendant le traitement, la console rapporte des formes d'arrayes fusionnées, des objets et des cadres mesurés, des résultats de lissage, le nombre de pistes infectées et non infectées, les unités de vitesse et chaque chemin de sortie."
+        },
+        {
+          "narration": "L'analyse complète a produit 128 observations au niveau des cadres à partir de 16 pistes, classé 12 pistes comme infectées et quatre comme non infectées, des vitesses calculées en micromètres par minute, et enregistré des tables de mesure, des corrélations et un panneau de motilité par puits.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, spakeur écrit des tables de mobilité par piste et par condition, des mesures de qualité et des chiffres."
+          "speech_text": "L'analyse complète a produit 128 observations au niveau des cadres à partir de 16 pistes, classé 12 pistes comme infectées et quatre comme non infectées, des vitesses calculées en micromètres par minute, et enregistré des tables de mesure, des corrélations et un panneau de motilité par puits."
         }
       ]
     },

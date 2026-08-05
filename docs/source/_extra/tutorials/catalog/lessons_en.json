@@ -2566,47 +2566,200 @@
       "id": "18_motility",
       "number": 18,
       "slug": "motility",
-      "title": "Motility assay",
+      "title": "Motility Assay",
       "series": 2,
       "app_key": "motility",
       "section": "Core",
-      "description": "Quantify velocity, displacement, persistence, and infection quality-control metrics from time-resolved images.",
+      "description": "Measure tracked motion, apply physical calibration and quality filters, and compare trajectories by infection state.",
       "objectives": [
-        "Understand when to use Motility assay.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Connect tracked merged arrays and verify the object and channel mapping.",
+        "Review calibration, motion filters, infection classification, plots, and runtime categories.",
+        "Generate frame-level measurements, track summaries, correlations, and motility figures."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Run Timelapse first so the source contains merged arrays with stable object labels across frames.",
       "scenes": [
         {
-          "narration": "This tutorial covers Motility assay. Quantify velocity, displacement, persistence, and infection quality-control metrics from time-resolved images.",
-          "visual": "overview",
+          "narration": "Motility Assay rebuilds measurements from tracked merged arrays, calculates displacement, velocity, path length, and straightness, and compares trajectories by infection state. The console records every derived table and figure.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Motility assay. Quantify velocity, displacement, persistence, and infection quality-control metrics from time-resolved images."
+          "speech_text": "Motility Assay rebuilds measurements from tracked merged arrays, calculates displacement, velocity, path length, and straightness, and compares trajectories by infection state. The console records every derived table and figure."
         },
         {
-          "narration": "Open Motility assay from the Core section. Open tracked timelapse data with reliable time intervals and spatial calibration.",
-          "visual": "input",
+          "narration": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Motility assay from the Core section. Open tracked timelapse data with reliable time intervals and spatial calibration."
+          "speech_text": "The chat field accepts local commands or workflow questions. Enable A I for a configured provider, and use the adjacent arrow to choose a provider or open its controls."
         },
         {
-          "narration": "In the main configuration area, choose track filters, minimum duration, smoothing, motility metrics, infection definitions, and well-level groups.",
-          "visual": "settings",
+          "narration": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows their install and login commands while authentication remains with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose track filters, minimum duration, smoothing, motility metrics, infection definitions, and well-level groups."
+          "speech_text": "Providers checks the Claude, Chat G P T, and Gemini command line clients and shows their install and login commands while authentication remains with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect trajectory previews and exclude broken, stationary-artifact, or implausible tracks.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect trajectory previews and exclude broken, stationary-artifact, or implausible tracks."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system instructions."
         },
         {
-          "narration": "When the workflow finishes, spaCR writes per-track and per-condition motility tables, quality metrics, and figures.",
-          "visual": "output",
+          "narration": "This synthetic source contains eight tracked frames with nuclei in channel zero, cells in channel one, and pathogens in channel two. Sixteen cell tracks and twenty pathogen masks per frame provide a complete assay example.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "This synthetic source contains eight tracked frames with nuclei in channel zero, cells in channel one, and pathogens in channel two. Sixteen cell tracks and twenty pathogen masks per frame provide a complete assay example."
+        },
+        {
+          "narration": "Essentials shows the tracked object, channel mapping, seconds per frame, pixels per micrometer, displacement filter, infection strategy, plot limits, database table, and worker count needed for a first analysis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the tracked object, channel mapping, seconds per frame, pixels per micrometer, displacement filter, infection strategy, plot limits, database table, and worker count needed for a first analysis."
+        },
+        {
+          "narration": "Modified limits the panel to intentional changes, including the three-channel layout, one-second frames, one pixel per micrometer, mask-based infection labels, symmetric plot limits, and one worker.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to intentional changes, including the three channel layout, one second frames, one pixel per micrometer, mask based infection labels, symmetric plot limits, and one worker."
+        },
+        {
+          "narration": "All settings reveals nine categories: objects and channels, calibration, motion filtering, infection classification, XGBoost, clustering, embedding search, plots and quality control, and runtime.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals nine categories: objects and channels, calibration, motion filtering, infection classification, X G Boost, clustering, embedding search, plots and quality control, and runtime."
+        },
+        {
+          "narration": "Recipes saves the complete Motility Assay configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete Motility Assay configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved settings and sends the measurement and trajectory job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved settings and sends the measurement and trajectory job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps the tracked source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same assay.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps the tracked source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same assay."
+        },
+        {
+          "narration": "Objects and Channels selects the tracked source, the object whose motion is measured, and the acquisition channels carrying cell, nucleus, and pathogen signal. Incorrect mapping invalidates both intensity and infection results.",
+          "visual": "12_category_01_objects_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Objects and Channels selects the tracked source, the object whose motion is measured, and the acquisition channels carrying cell, nucleus, and pathogen signal. Incorrect mapping invalidates both intensity and infection results."
+        },
+        {
+          "narration": "Spatial and Temporal Calibration supplies seconds per frame and pixels per micrometer. These two values convert pixel displacement into physical speed, so a constant error here scales every reported velocity.",
+          "visual": "12_category_02_spatial_temporal_calibration",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Spatial and Temporal Calibration supplies seconds per frame and pixels per micrometer. These two values convert pixel displacement into physical speed, so a constant error here scales every reported velocity."
+        },
+        {
+          "narration": "Motion Filtering excludes implausible frame-to-frame jumps, optional highly straight artifacts, and feature or velocity outliers identified by a z-score threshold.",
+          "visual": "12_category_03_motion_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Motion Filtering excludes implausible frame to frame jumps, optional highly straight artifacts, and feature or velocity outliers identified by a Z score threshold."
+        },
+        {
+          "narration": "Infection Classification starts from pathogen-mask overlap and can optionally relabel or remove tracks using intensity-based quality control. The tutorial retains the direct mask labels.",
+          "visual": "12_category_04_infection_classification",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Infection Classification starts from pathogen mask overlap and can optionally relabel or remove tracks using intensity based quality control. The tutorial retains the direct mask labels."
+        },
+        {
+          "narration": "XGBoost Infection Model configures a supervised intensity classifier, its tree depth and learning rate, probability threshold, ambiguity band, class-size requirement, and feature-importance report.",
+          "visual": "12_category_05_xgboost_infection_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "X G Boost Infection Model configures a supervised intensity classifier, its tree depth and learning rate, probability threshold, ambiguity band, class size requirement, and feature importance report."
+        },
+        {
+          "narration": "Infection Clustering controls unsupervised intensity separation, pathogen-channel weighting, cluster count, random seed, sample cap, and minimum silhouette and ground-truth separation checks.",
+          "visual": "12_category_06_infection_clustering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Infection Clustering controls unsupervised intensity separation, pathogen channel weighting, cluster count, random seed, sample cap, and minimum silhouette and ground truth separation checks."
+        },
+        {
+          "narration": "Embedding Search tunes UMAP or t-SNE neighborhood, distance, perplexity, and learning-rate grids when infection intensity is separated in a lower-dimensional embedding.",
+          "visual": "12_category_07_embedding_search",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Embedding Search tunes U Map or T S N E neighborhood, distance, perplexity, and learning rate grids when infection intensity is separated in a lower dimensional embedding."
+        },
+        {
+          "narration": "Motility Plots and QC sets trajectory-axis limits and enables combined intensity, position, velocity, and infection diagnostic panels without changing the underlying measurements.",
+          "visual": "12_category_08_motility_plots_qc",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Motility Plots and Quality Control sets trajectory axis limits and enables combined intensity, position, velocity, and infection diagnostic panels without changing the underlying measurements."
+        },
+        {
+          "narration": "Runtime and Reliability controls parallel workers. Use one worker for a small validation source, then scale only after confirming channel mapping, calibration, and track quality.",
+          "visual": "12_category_09_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability controls parallel workers. Use one worker for a small validation source, then scale only after confirming channel mapping, calibration, and track quality."
+        },
+        {
+          "narration": "The demonstration uses one second per frame and one pixel per micrometer. With both values equal to one, each measured pixel per frame converts directly before the report expresses velocity per minute.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "The demonstration uses one second per frame and one pixel per micrometer. With both values equal to one, each measured pixel per frame converts directly before the report expresses velocity per minute."
+        },
+        {
+          "narration": "Run reads each merged frame, measures cell, nucleus, cytoplasm, pathogen, and channel intensities, smooths tracks, assigns infection status, computes velocity summaries and correlations, and saves database tables and figures. Stop requests a safe interruption.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run reads each merged frame, measures cell, nucleus, cytoplasm, pathogen, and channel intensities, smooths tracks, assigns infection status, computes velocity summaries and correlations, and saves database tables and figures. Stop requests a safe interruption."
+        },
+        {
+          "narration": "During processing, the console reports merged-array shapes, objects and frames measured, smoothing results, infected and uninfected track counts, velocity units, and every output path.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During processing, the console reports merged array shapes, objects and frames measured, smoothing results, infected and uninfected track counts, velocity units, and every output path."
+        },
+        {
+          "narration": "The completed assay produced 128 frame-level observations from 16 tracks, classified 12 tracks as infected and four as uninfected, computed velocities in micrometers per minute, and saved measurement tables, correlations, and a per-well motility panel.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer writes per-track and per-condition motility tables, quality metrics, and figures."
+          "speech_text": "The completed assay produced one hundred twenty eight frame level observations from sixteen tracks, classified twelve tracks as infected and four as uninfected, computed velocities in micrometers per minute, and saved measurement tables, correlations, and a per well motility panel."
         }
       ]
     },
