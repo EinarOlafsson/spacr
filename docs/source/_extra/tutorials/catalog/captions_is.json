@@ -1199,19 +1199,31 @@
       "id": "21_model_compare",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um samræmi við fyrirmyndir. Kynntu tveimur Cellpose- módelum á sömu sviðum og samanberðu grímur, tal og samning mælikvarða."
+          "narration": "Model Compare rekur tvær Cellpose stillingar á sama litla sviði sett. Hún segir frá því sem breyttist án þess að meðhöndla hvoru líkanum sem grundvallar sannleika, sameina hlutartölur, samning á undanfangi, samræmi, sundurlægð og sjónlegt yfirlag."
         },
         {
-          "narration": "Opið fyrirmynd Samanburður úr flokkunni fyrirmyndir. Veldu tvö tiltekna módel og fulltrúlegt sett af líffræðilegum sviðum."
+          "narration": "Fylgdu foldri af TIFF, PNG, NPY, eða NPZ sviðum, eða veldu það með uppruna stjórn. Fields gildi takmarkar gagnvirkan samanburð; þetta námskeið hlaðir þrjár alvöru ER-kanal frumur."
         },
         {
-          "narration": "Í aðalmyndunar svæðinu samræmaðu leiðir og fyrirvinnslu og settu síðan inn þröskulær og viðmið um samræmi við hlutir."
+          "narration": "Í módeli A er notuð stofn CPSAM. Módel B notar sérsniðna klúðunarstað frá Train Cellpose. Báðir halda þrítugsni, flæði þrösklin núll punkt fjór, líkindum núll, lágmarksstærð fimmtán, normalisering og full upplausn dynamics."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. endurskoða hlið við hlið yfirlagningu ásamt hlutalög, yfirlagningu og breyttu Rand-vísitölu munum."
+          "narration": "Samanberðu þættir á öllum hlaðnum sviðum með báðum uppfærslum. Viðbótarlínan samþykkir háþróaðar lykilvirðunargreinar og skýrslan merkir parametrar sem Cellpose 4 vanvirðir í stað þess að benda þögugt á að þeir hafi breytt módeli."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, er samanburðarskýrslan tilgreindur hvar hver fyrirmynd vinnur, tapar, deilir eða sameinar hlutir."
+          "narration": "Við vinnslu er staðan í línunni tilgreind bæði umsækjendur og fjölda sviða. Samtalsmyndin er einbeitt að takmörkuðu gagnvirku sýni í stað þess að reka fullt plötu tvisvar."
+        },
+        {
+          "narration": "Parametrar sem náðu til hverrar fyrirmyndar skilur heiðursverðmæti frá óþekktum eða óþekktum rökum. Þetta kemur í veg fyrir samanburði sem líta öðruvísi út í formi en endast á sama Cellpose hegðun."
+        },
+        {
+          "narration": "Borðtafélinn á hverri sviði skýrir frá hlutalögum, stefnudelta, Rand-vísitölu sem ekki er sett í bakgrunn, samræmdum brotum, meðalþrengingu yfir samband, skiptum, sameiningum, ósamræmdum hlutum og óháðum yfirlitsgæðum."
+        },
+        {
+          "narration": "Að velja röð uppfærir bæði forsýningar. Samræmdir hlutir eru sýndir stöðugt, en ósamræmdir svæði sýna upp nýjar uppgötvunir, missir, skiptingar eða sameiningar sem einn sameiginlegur stig getur fallið."
+        },
+        {
+          "narration": "Á þessum þremur sviðum framleiddu báðir frambjóðendur hundrað og fimmtíu og eitt hlut, ARI einn í forgrunni og hundrað prósent samræmi. Það þýðir að ein-tíma kalibreringareftirlitsstöðin hegðar sér eins og upphafshönnun hennar hér; það er gild niðurstaða, ekki sönnun fyrir bættingu."
         }
       ]
     },

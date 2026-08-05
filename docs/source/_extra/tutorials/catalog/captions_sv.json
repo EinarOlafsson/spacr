@@ -1199,19 +1199,31 @@
       "id": "21_model_compare",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Modelljämförelse. Kör två Cellpose-modeller på samma fält och jämföra mask, antal och överenskommelse."
+          "narration": "Model Compare kör två Cellpose-konfigurationer på samma lilla fältsett. Den rapporterar om vad som förändrats utan att behandla någon av modellerna som grund sanning, kombinerar objektantal, överenskommelse, matchning, fragmentering och visuella överlappningar."
         },
         {
-          "narration": "Öppna modell Jämför från avsnittet Segmentationsmodeller. Välj två kandidatmodeller och en representativ uppsättning mikroskopfält."
+          "narration": "Släpp en mapp med TIFF-, PNG-, NPY- eller NPZ-fält eller välj den med källkontrolarna. Fields-värdet begränsar en interaktiv jämförelse; i denna handledning laddas tre riktiga ER-kanal cellkroppar."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet matchar du kanaler och förbehandling, och konfigurerar sedan tröskelvärden och objektmatchningskriterierna."
+          "narration": "Modell A använder lager CPSAM. Modell B använder den anpassade kalibreringskontrollpunkten från Train Cellpose. Båda behåller diameter trettio, flödesgräns nollpunkt fyra, sannolikhet noll, minsta storlek femton, normalisering och full upplösning dynamik."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. översyn av överlappningar sida vid sida tillsammans med skillnader i objektantal, överlappning och justerad randindex."
+          "narration": "Jämför segment i varje laddat fält med båda konfigurationerna. Den extra linjen accepterar avancerade argument för nyckelvärde, och rapporten markerar parametrar Cellpose 4 ignorerar snarare än tyst indikerar att de ändrade modellen."
         },
         {
-          "narration": "När arbetsflödet är färdigt, identifierar jämförelserapporten var varje modell vinner, förlorar, delar eller förenar objekt."
+          "narration": "Under bearbetningen identifieras både kandidaterna och antalet fält i inline-status. Model Compare fokuserar på ett begränsat interaktivt prov snarare än att köra en full tallrik två gånger."
+        },
+        {
+          "narration": "Parametrar som nådde varje modell skiljer hedrade värden från föråldrade eller ignorerade argument. Detta förhindrar jämförelser som ser annorlunda ut i formen men löser sig till samma Cellpose beteende."
+        },
+        {
+          "narration": "Tabellen per fält rapporterar objektantal, riktningsdelta, bakgrundsexkluderad justerad Rand-index, matchad fraktion, genomsnittlig korsning över union, splittningar, fusioner, oöverträffade objekt och oberoende maskkvalitetskontroller."
+        },
+        {
+          "narration": "Att välja en rad uppdaterar båda förhandsgranskningarna. Sammanställda objekt visas konsekvent, medan oöverträffade regioner avslöjar nya upptäckter, missar, delar eller sammanslagningar som en enda aggregatpoäng kan dölja."
+        },
+        {
+          "narration": "Över dessa tre fält producerade båda kandidaterna hundra femtio ett objekt, främre ARI en, och hundra procent matchning. Det betyder att den enålderliga kalibreringskontrollpunkten här beter sig som sin utgångsmodell; det är ett giltigt resultat, inte ett bevis på förbättring."
         }
       ]
     },
