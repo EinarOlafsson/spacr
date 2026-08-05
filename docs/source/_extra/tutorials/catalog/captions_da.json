@@ -705,19 +705,52 @@
       "id": "14_make_masks",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Make Masks. Interaktivt konstruere, korrigere og kurere segmenteringsetiketter til Cellpose træningsdata."
+          "narration": "Make Masks er spaCR's interaktive redaktør til at korrigere segmenteringsetiketter og skabe Cellpose træningspar. Åbn en mappe med mikroskopiske billeder; matcherende mærker læses fra dens undermappe masker."
         },
         {
-          "narration": "Åbner Make Masks fra modeller sektionen Segmentation. Åbne repræsentative mikroskopiske billeder og eventuelle eksisterende masker, der skal raffineres."
+          "narration": "Denne isolerede tutorial kopi indeholder tre rigtige ER felter. De to første indlæser ER-deriverede cellemærker som farvede overlappninger; den tredje har bevidst ingen eksisterende mask."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du vælge kanaler, normalisering, børste- eller magisk-wandværktøjer, objektoperationer og etikettesparende adfærd."
+          "narration": "Værktøjskortet grupperer seks redigeringstilstande. Brush tilføjer foregående, Slette fjerner pixler, Slette objekt sletter en etikette, de to stænger følger billedintensiteten, og Zoom vælger en detaljeret region."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. at korrigere grænser og manglende objekter på tværs af et mangfoldigt træningsunder sæt snarere end blot lette felter."
+          "narration": "Vælg Pinsel og indsæt radius i skærmpixel. Et klik maler et punkt, og en gradvis drag forbinder en grænse korrigering; B-nøglen vælger det samme værktøj."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, er parerede billeder og kurerede etikettemasker klar til skræddersyet Cellpose træning."
+          "narration": "Slette bruger den samme justerbare radius til kun at fjerne den malingede del af et mærke. Dette er nyttigt for at adskille en falsk bro og samtidig bevare resten af hver celle."
+        },
+        {
+          "narration": "Slet objekt fjerner det fuldstændige mærkede objekt med ét klik. Brug det til en bestemt falsk positiv; Undo forbliver tilgængelig, hvis det valgte objekt var gyldigt."
+        },
+        {
+          "narration": "Wand plus tilføjer en intensitet forbundet region. Tolerancen kontrollerer, hvor meget intensiteten kan variere fra den klikkede ER-pixel, mens Max-pixeller forhindrer en tilfældig oversvømmelse over hele feltet."
+        },
+        {
+          "narration": "Wand minus følger samme intensitetsregel, men subtraherer det tilkoblede område. Tilpas toleransen konservativt og inspicér resultatet, før du går til et andet billede."
+        },
+        {
+          "narration": "Zoom tegner en rektangulær region og udvider den til lærredet, hvilket gør cellegrænser nemme at bedømme på 4K. Genindstil zoom, eller tryk på Escape, for at vende tilbage til det fulde felt."
+        },
+        {
+          "narration": "Normalisere kun den viste kontrast. Dette ER-felt bruger den anden og nittionde-punkts-fem-percentiler, så dæmpe grænser forbliver synlige uden at ændre billeddata eller etiketgeometri."
+        },
+        {
+          "narration": "Undo og Redo går gennem maskereediter uafhængigt af zoom og kontrast. Deres standard forkortelser er Control Z og Control Y, med Control Shift Z også tilgængelig til at lave igen."
+        },
+        {
+          "narration": "Objektoperationer kan udfylde interne huller, ommærke tilkoblet foregående, omvendt foregående og baggrunden eller fjerne masken. Clear beder om bekræftelse, fordi det fjerner alle aktuelle etiketter."
+        },
+        {
+          "narration": "Operationen med minimumsområde fjerner tilkoblede objekter, der er mindre end det valgte pixelantal. Her gør ti tusinde filtreringseffekten tydelig; vælg en biologisk passende tærskel for produktionsetiketter."
+        },
+        {
+          "narration": "Save mask ommærker de tilknyttede komponenter og skriver en uint16 TIFF til masker under kildestammen. Denne vejledning redigerer en isoleret kopi, så det oprindelige eksperiment forbliver uændret."
+        },
+        {
+          "narration": "Tidligere billede og Næste billede bevæger sig gennem mappen i filenavn rækkefølge. Statuslinjen viser altid den aktuelle fil og position, så hvert træningsfelt kan gennemgås systematisk."
+        },
+        {
+          "narration": "Et billede uden en ledsagermaske åbnes med nul etiketter. Begynd med Børste eller Wand plus, inspicere og rengør hvert objekt, så gem det nye par til brugsbestemt Cellpose træning."
         }
       ]
     },

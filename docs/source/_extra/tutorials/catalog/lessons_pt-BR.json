@@ -1807,47 +1807,140 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks",
+      "title": "Faça máscaras",
       "series": 1,
       "app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Construir, corrigir e curar de forma interativa os rótulos de segmentação para os dados de formação do Cellpose.",
+      "description": "Corrigir os rótulos de células derivadas do ER de forma interativa e criar novas máscaras de treinamento a partir de campos de microscopia reais.",
       "objectives": [
-        "Entender quando usar a Máxima de Mascaras.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Imagens microscópicas abertas com máscaras de rótulo opcionais.",
+        "Use pincel, borrar, objeto, barra mágica, zoom, histórico e ferramentas de limpeza.",
+        "Salvar os rótulos de TIFF seleccionados para o treino Cellpose."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Prepare uma pasta de imagens de microscopia bidimensional. Colocar imagens de rótulos correspondentes em uma subfolha de máscaras quando as segmentações existentes estiverem disponíveis.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange a criação de máscaras. Construir, corrigir e curar rotulagem de segmentação de forma interativa para dados de treinamento Cellpose.",
-          "visual": "overview",
+          "narration": "Make Masks é o editor interativo da spaCR para corrigir rótulos de segmentação e criar pares de treinamento Cellpose. Abre uma pasta de imagens microscópicas; os rótulos correspondentes são lidos a partir de sua subcarteira de máscaras.",
+          "visual": "01_empty",
+          "focus_key": "open",
+          "click_key": "open",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange a criação de máscaras. Construir, corrigir e curar rotulagem de segmentação de forma interativa para dados de treinamento Cellpose."
+          "speech_text": "Make Masks é o editor interativo da espáquer para corrigir rótulos de segmentação e criar pares de treinamento Cellpose. Abre uma pasta de imagens microscópicas; os rótulos correspondentes são lidos a partir de sua subcarteira de máscaras."
         },
         {
-          "narration": "Abra Make Masks na seção Segmentation models. Abra as máscaras de fabricação na seção Modelos de Segmentação. Abra imagens representativas de microscopia e quaisquer máscaras existentes que devem ser refinadas.",
-          "visual": "input",
+          "narration": "Esta cópia do tutorial isolada contém três campos reais de emergência. As duas primeiras carregam etiquetas de células derivadas do ER como revestimentos coloridos; a terceira deliberadamente não tem máscara existente.",
+          "visual": "02_loaded",
+          "focus_key": "canvas",
           "hold_after": 0.45,
-          "speech_text": "Abra Make Masks na seção Segmentation models. Abra as máscaras de fabricação na seção Modelos de Segmentação. Abra imagens representativas de microscopia e quaisquer máscaras existentes que devem ser refinadas."
+          "speech_text": "Esta cópia do tutorial isolada contém três campos reais de emergência. As duas primeiras carregam etiquetas de células derivadas do ER como revestimentos coloridos; a terceira deliberadamente não tem máscara existente."
         },
         {
-          "narration": "Na área de configuração principal, selecione canais, normalização, ferramentas de pincel ou barra mágica, operações de objetos e comportamento de armazenamento de rótulos.",
-          "visual": "settings",
+          "narration": "O cartão Ferramentas agrupa seis modos de edição. O pincel adiciona o primeiro plano, o Erase remove pixels, o objeto Erase elimina um rótulo, as duas varas seguem a intensidade da imagem e o Zoom seleciona uma região detalhada.",
+          "visual": "03_tools",
+          "focus_key": "tools",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, selecione canais, normalização, ferramentas de pincel ou barra mágica, operações de objetos e comportamento de armazenamento de rótulos."
+          "speech_text": "O cartão Ferramentas agrupa seis modos de edição. O pincel adiciona o primeiro plano, o Erase remove pixels, o objeto Erase elimina um rótulo, as duas varas seguem a intensidade da imagem e o Zoom seleciona uma região detalhada."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. corrigir os limites e objetos faltantes em um subconjunto de treinamento diversificado em vez de apenas campos fáceis.",
-          "visual": "run",
+          "narration": "Selecione Brush e defina seu raio em pixels de tela. Um clique pinta um ponto e um arrasto gradual conecta uma correção de limite; a tecla B seleciona a mesma ferramenta.",
+          "visual": "04_brush",
+          "focus_key": "button",
+          "click_key": "button",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. corrigir os limites e objetos faltantes em um subconjunto de treinamento diversificado em vez de apenas campos fáceis."
+          "speech_text": "Selecione Brush e defina seu raio em pixels de tela. Um clique pinta um ponto e um arrasto gradual conecta uma correção de limite; a tecla B seleciona a mesma ferramenta."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, as imagens emparelhadas e as máscaras de etiqueta seleccionadas estarão prontas para o treinamento personalizado do Cellpose.",
-          "visual": "output",
+          "narration": "O erase utiliza o mesmo raio ajustável para remover apenas a parte pintada de um rótulo. Isto é útil para separar uma ponte falsa, preservando o resto de cada célula.",
+          "visual": "05_erase",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "O erase utiliza o mesmo raio ajustável para remover apenas a parte pintada de um rótulo. Isto é útil para separar uma ponte falsa, preservando o resto de cada célula."
+        },
+        {
+          "narration": "Objeto de exclusão remove o objeto completo rotulado com um clique. Use-o para um falso positivo definitivo; O Undo permanece disponível se o objeto selecionado for válido.",
+          "visual": "06_erase_object",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Objeto de exclusão remove o objeto completo rotulado com um clique. Use-o para um falso positivo definitivo; O Undo permanece disponível se o objeto selecionado for válido."
+        },
+        {
+          "narration": "A vara mais adiciona uma região ligada à intensidade. A tolerância controla em que medida as intensidades podem diferir do píxel de emergência clicado, enquanto os píxeles Max impedem uma inundação acidental em todo o campo.",
+          "visual": "07_wand_add",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "A vara mais adiciona uma região ligada à intensidade. A tolerância controla em que medida as intensidades podem diferir do píxel de emergência clicado, enquanto os píxeles Max impedem uma inundação acidental em todo o campo."
+        },
+        {
+          "narration": "A vara menos segue a mesma regra de intensidade, mas subtrai a região conectada. Ajuste a tolerância de forma conservadora e inspecione o resultado antes de passar para outra imagem.",
+          "visual": "08_wand_erase",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "A vara menos segue a mesma regra de intensidade, mas subtrai a região conectada. Ajuste a tolerância de forma conservadora e inspecione o resultado antes de passar para outra imagem."
+        },
+        {
+          "narration": "O zoom desenha uma região retangular e a expande para a tela, tornando os limites das células fáceis de julgar em 4K. Reset zoom, ou pressione Escape, para voltar ao campo completo.",
+          "visual": "09_zoom",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "O zoom desenha uma região retangular e a expande para a tela, tornando os limites das células fáceis de julgar em 4K. Reset zoom, ou pressione Escape, para voltar ao campo completo."
+        },
+        {
+          "narration": "Normalize alterações apenas o contraste exibido. Este campo ER utiliza os percentilhas segundo e noventa e nove pontos-cinco para que os limites fracos permaneçam visíveis sem alterar os dados da imagem ou a geometria do rótulo.",
+          "visual": "10_normalize",
+          "focus_key": "normalize",
+          "hold_after": 0.45,
+          "speech_text": "Normalize alterações apenas o contraste exibido. Este campo ER utiliza os percentilhas segundo e noventa e nove pontos-cinco para que os limites fracos permaneçam visíveis sem alterar os dados da imagem ou a geometria do rótulo."
+        },
+        {
+          "narration": "O Undo e o Redo passam por edições de máscaras independentemente do zoom e do contraste. Seus atalhos padrão são o Control Z e o Control Y, com o Control Shift Z também disponível para redo.",
+          "visual": "11_history",
+          "focus_key": "history",
+          "hold_after": 0.45,
+          "speech_text": "O Undo e o Redo passam por edições de máscaras independentemente do zoom e do contraste. Seus atalhos padrão são o Control Z e o Control Y, com o Control Shift Z também disponível para redo."
+        },
+        {
+          "narration": "As operações de objetos podem preencher buracos internos, reetiquetar o primeiro plano conectado, inverter o primeiro plano e o segundo plano, ou limpar a máscara. O Clear pede confirmação porque remove todos os rótulos atuais.",
+          "visual": "12_object_operations",
+          "focus_key": "operations",
+          "hold_after": 0.45,
+          "speech_text": "As operações de objetos podem preencher buracos internos, reetiquetar o primeiro plano conectado, inverter o primeiro plano e o segundo plano, ou limpar a máscara. O Clear pede confirmação porque remove todos os rótulos atuais."
+        },
+        {
+          "narration": "A operação de área mínima remove objetos conectados menores do que a contagem de pixels selecionada. Aqui, dez mil torna óbvio o efeito de filtragem; escolha um limiar biologicamente adequado para os rótulos de produção.",
+          "visual": "13_remove_small",
+          "focus_key": "operations",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "A operação de área mínima remove objetos conectados menores do que a contagem de pixels selecionada. Aqui, dez mil torna óbvio o efeito de filtragem; escolha um limiar biologicamente adequado para os rótulos de produção."
+        },
+        {
+          "narration": "Save mask reetiqueta os componentes conectados e escreve um uint16 TIFF para as máscaras sob o tronco da imagem fonte. Este tutorial edita uma cópia isolada, deixando o experimento original inalterado.",
+          "visual": "14_save",
+          "focus_key": "save",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Save mask reetiqueta os componentes conectados e escreve um uint16 TIFF para as máscaras sob o tronco da imagem fonte. Este tutorial edita uma cópia isolada, deixando o experimento original inalterado."
+        },
+        {
+          "narration": "A imagem anterior e a imagem seguinte se movem pela pasta em ordem de nome de arquivo. A linha de status mostra sempre o arquivo e a posição atuais, de modo que cada campo de treinamento pode ser revisado sistematicamente.",
+          "visual": "15_next",
+          "focus_key": "navigation",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "A imagem anterior e a imagem seguinte se movem pela pasta em ordem de nome de arquivo. A linha de status mostra sempre o arquivo e a posição atuais, de modo que cada campo de treinamento pode ser revisado sistematicamente."
+        },
+        {
+          "narration": "Uma imagem sem máscara de acompanhamento abre-se com zero rótulos. Comece com Brush ou Wand plus, inspecione e limpe cada objeto, depois salve o novo par para treinamento Cellpose personalizado.",
+          "visual": "16_blank_mask",
+          "focus_key": "button",
+          "click_key": "button",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, as imagens emparelhadas e as máscaras de etiqueta seleccionadas estarão prontas para o treinamento personalizado do Cellpose."
+          "speech_text": "Uma imagem sem máscara de acompanhamento abre-se com zero rótulos. Comece com Brush ou Wand plus, inspecione e limpe cada objeto, depois salve o novo par para treinamento Cellpose personalizado."
         }
       ]
     },

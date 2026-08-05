@@ -4,47 +4,167 @@
   "voice": "zm_yunxi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 37.125,
+  "total_duration": 162.025,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 5.2,
-      "scene_end": 5.65,
-      "duration": 5.65,
-      "text": "互动构建,纠正和策划 Cellpose 训练数据的细分标签."
+      "speech_end": 11.65,
+      "scene_end": 12.1,
+      "duration": 12.1,
+      "text": "制造面具是spaCR的互动编辑器,用于纠正分类标签和创建Cellpose训练对. 打开一个显微镜图像文件;从其面具子文件中读取相匹配的标签.",
+      "speech_text": "制造面具是斯佩克尔的互动编辑器,用于纠正分类标签和创建Cellpose训练对. 打开一个显微镜图像文件;从其面具子文件中读取相匹配的标签.",
+      "phonemes": "ꭧɨ↘ʦau↘ mjɛ↘nʨy↘ ʂɨ↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ tɤ xu↘tʊ↘ŋ pjɛ→nʨi↗ʨʰi↘,jʊ↘ŋy↗ ʨjou→ꭧə↘ŋ fə→nlei↘ pjau→ʨʰjɛ→n xɤ↗ ꭧʰwa↘ŋʨjɛ↘nCellposeɕy↘nljɛ↘n twei↘. ta↓kʰai→ i↗kɤ↘ ɕjɛ↓nwei→ʨi↘ŋ tʰu↗ɕja↘ŋwə↗nʨjɛ↘n;ʦʰʊ↗ŋ ʨʰi↗ mjɛ↘nʨy↘ ʦɨ wə↗nʨjɛ↘n ꭧʊ→ŋ tu↗ʨʰy↓ ɕja→ŋpʰi↓pʰei↘ tɤ pjau→ʨʰjɛ→n."
     },
     {
       "scene": 2,
-      "speech_start": 5.65,
-      "speech_end": 13.675,
-      "scene_end": 14.125,
-      "duration": 8.475,
-      "text": "从 Segmentation models 部分打开 Make Masks。 开放代表性显微镜图像和任何现有掩膜,需要进行精炼."
+      "speech_start": 12.1,
+      "speech_end": 22.275,
+      "scene_end": 22.724999999999998,
+      "duration": 10.624999999999998,
+      "text": "这一单独的教程副本包含了3个真正的急诊领域. 首先的两种装载ER衍生细胞标签作为颜色覆盖;第三个故意没有现有的面具.",
+      "speech_text": "这一单独的教程副本包含了3个真正的急诊领域. 首先的两种装载ER衍生细胞标签作为颜色覆盖;第三个故意没有现有的面具.",
+      "phonemes": "ꭧɤ↘i→ ta→ntu↗ tɤ ʨjau↘ꭧʰə↗ŋ fu↘pə↓n pau→xa↗n lɤ sa→nkɤ↘ ꭧə→nꭧə↘ŋ tɤ ʨi↗ꭧə↓n li↓ŋy↘. ʂou↓ɕjɛ→n tɤ lja↓ŋꭧʊ↓ŋ ꭧwa→ŋʦai↘ERjɛ↓nʂə→ŋ ɕi↘pau→ pjau→ʨʰjɛ→n ʦwo↘wei↗ jɛ↗nsɤ↘ fu↘kai↘;ti↘sa→nkɤ↘ ku↘i↘ mei↗jou↓ ɕjɛ↘njou↓ tɤ mjɛ↘nʨy↘."
     },
     {
       "scene": 3,
-      "speech_start": 14.125,
-      "speech_end": 21.7,
-      "scene_end": 22.15,
-      "duration": 8.024999999999999,
-      "text": "在主要配置区域中,选择道,正常化,刷或魔术棒工具,对象操作和标签保存行为."
+      "speech_start": 22.724999999999998,
+      "speech_end": 33.349999999999994,
+      "scene_end": 33.8,
+      "duration": 11.075,
+      "text": "工具卡组分为六种编辑模式. 刷添加前景,删除删除像素,删除对象删除一个标签,两个棒跟踪图像强度,而Zoom选择一个详细的区域.",
+      "speech_text": "工具卡组分为六种编辑模式. 刷添加前景,删除删除像素,删除对象删除一个标签,两个棒跟踪图像强度,而Zoom选择一个详细的区域.",
+      "phonemes": "kʊ→ŋʨy↘ kʰa↓ ʦu↓fə↘n wei↘ ljou↘ꭧʊ↓ŋ pjɛ→nʨi↗ mwo↗ʂɨ↘. ʂwa→ tʰjɛ→nʨja→ ʨʰjɛ↗nʨi↓ŋ,ʂa→nꭧʰu↗ ʂa→nꭧʰu↗ ɕja↘ŋsu↘,ʂa→nꭧʰu↗ twei↘ɕja↘ŋ ʂa→nꭧʰu↗ i↗kɤ↘ pjau→ʨʰjɛ→n,lja↓ŋkɤ↘ pa↘ŋ kə→nʦʊ→ŋ tʰu↗ɕja↘ŋ ʨʰja↗ŋtu↘,ɚ↗Zoomɕɥɛ↓nʦɤ↗ i↗kɤ↘ ɕja↗ŋɕi↘ tɤ ʨʰy→y↘."
     },
     {
       "scene": 4,
-      "speech_start": 22.15,
-      "speech_end": 28.9,
-      "scene_end": 29.349999999999998,
-      "duration": 7.199999999999999,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+      "speech_start": 33.8,
+      "speech_end": 43.25,
+      "scene_end": 43.7,
+      "duration": 9.900000000000006,
+      "text": "选择Brush,并设置其半径为屏幕像素. 一个点击绘制一个斑点,一个逐步拖动连接一个边界纠正;B键选择相同的工具.",
+      "speech_text": "选择Brush,并设置其半径为屏幕像素. 一个点击绘制一个斑点,一个逐步拖动连接一个边界纠正;B键选择相同的工具.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗Brush,pi↘ŋ ʂɤ↘ꭧɨ↘ ʨʰi↗ pa↘nʨi↘ŋ wei↘ pʰi↗ŋmu↘ ɕja↘ŋsu↘. i↗kɤ↘ tjɛ↓nʨi→ xwei↘ꭧɨ↘ i↗kɤ↘ pa→ntjɛ↓n,i↗kɤ↘ ꭧu↗pu↘ tʰwo→tʊ↘ŋ ljɛ↗nʨje→ i↗kɤ↘ pjɛ→nʨje↘ ʨjou→ꭧə↘ŋ;Bʨjɛ↘n ɕɥɛ↓nʦɤ↗ ɕja→ŋtʰʊ↗ŋ tɤ kʊ→ŋʨy↘."
     },
     {
       "scene": 5,
-      "speech_start": 29.349999999999998,
-      "speech_end": 36.474999999999994,
-      "scene_end": 37.12499999999999,
-      "duration": 7.774999999999995,
-      "text": "工作流程完成后,对照图像和选定标签掩膜准备好进行定制的Cellpose训练."
+      "speech_start": 43.7,
+      "speech_end": 53.075,
+      "scene_end": 53.525000000000006,
+      "duration": 9.825000000000003,
+      "text": "删除使用相同的可调节半径,仅删除标签的油漆部分. 这可用于分离虚假桥梁,同时保留每个细胞的其余部分.",
+      "speech_text": "删除使用相同的可调节半径,仅删除标签的油漆部分. 这可用于分离虚假桥梁,同时保留每个细胞的其余部分.",
+      "phonemes": "ʂa→nꭧʰu↗ ʂɨ↓jʊ↘ŋ ɕja→ŋtʰʊ↗ŋ tɤ kʰɤ↓ tʰjau↗ʨje↗ pa↘nʨi↘ŋ,ʨi↓n ʂa→nꭧʰu↗ pjau→ʨʰjɛ→n tɤ jou↗ʨʰi→ pu↘fə↘n. ꭧɤ↘ kʰɤ↓ jʊ↘ŋy↗ fə→nli↗ ɕy→ʨja↓ ʨʰjau↗lja↗ŋ,tʰʊ↗ŋʂɨ↗ pau↓ljou↗ mei↓kɤ↘ ɕi↘pau→ tɤ ʨʰi↗y↗pu↘fə↘n."
+    },
+    {
+      "scene": 6,
+      "speech_start": 53.525000000000006,
+      "speech_end": 61.925000000000004,
+      "scene_end": 62.37500000000001,
+      "duration": 8.850000000000001,
+      "text": "删除对象在一个点击下删除了标记的完整对象. 如果选择的对象是有效的,则使用它来确定错误正值.",
+      "speech_text": "删除对象在一个点击下删除了标记的完整对象. 如果选择的对象是有效的,则使用它来确定错误正值.",
+      "phonemes": "ʂa→nꭧʰu↗ twei↘ɕja↘ŋ ʦai↘ i↗kɤ↘ tjɛ↓nʨi→ ɕja↘ ʂa→nꭧʰu↗ lɤ pjau→ʨi↘ tɤ wa↗nꭧə↓ŋ twei↘ɕja↘ŋ. ɻu↗kwo↓ ɕɥɛ↓nʦɤ↗ tɤ twei↘ɕja↘ŋ ʂɨ↘ jou↓ɕjau↘ tɤ,ʦɤ↗ ʂɨ↓jʊ↘ŋ tʰa→ lai↗ ʨʰɥe↘ti↘ŋ ʦʰwo↘u↘ ꭧə↘ŋꭧɨ↗."
+    },
+    {
+      "scene": 7,
+      "speech_start": 62.37500000000001,
+      "speech_end": 71.97500000000001,
+      "scene_end": 72.42500000000001,
+      "duration": 10.050000000000004,
+      "text": "加加上一个强度连接区域. 耐受性控制了强度与点击的ER像素有多大差异,而Max像素则防止在该领域发生意外洪水.",
+      "speech_text": "加加上一个强度连接区域. 耐受性控制了强度与点击的ER像素有多大差异,而Max像素则防止在该领域发生意外洪水.",
+      "phonemes": "ʨja→ ʨja→ʂa↘ŋ i↗kɤ↘ ʨʰja↗ŋtu↘ ljɛ↗nʨje→ ʨʰy→y↘. nai↘ʂou↘ɕi↘ŋ kʰʊ↘ŋꭧɨ↘ lɤ ʨʰja↗ŋtu↘ y↓ tjɛ↓nʨi→ tɤERɕja↘ŋsu↘ jou↓ two→ ta↘ ꭧʰa→i↘,ɚ↗Maxɕja↘ŋsu↘ ʦɤ↗ fa↗ŋꭧɨ↓ ʦai↘ kai→ li↓ŋy↘ fa→ʂə→ŋi↘wai↘ xʊ↗ŋʂwei↓."
+    },
+    {
+      "scene": 8,
+      "speech_start": 72.42500000000001,
+      "speech_end": 79.17500000000001,
+      "scene_end": 79.62500000000001,
+      "duration": 7.200000000000003,
+      "text": "减则遵循相同的强度规则,但减去连接区域. 在转移到另一个图像之前,",
+      "speech_text": "减则遵循相同的强度规则,但减去连接区域. 在转移到另一个图像之前,",
+      "phonemes": "ʨjɛ↓nʦɤ↗ ʦwə→nɕy↗n ɕja→ŋtʰʊ↗ŋ tɤ ʨʰja↗ŋtu↘ kwei→ʦɤ↗,ta↘n ʨjɛ↓nʨʰy↘ ljɛ↗nʨje→ ʨʰy→y↘. ʦai↘ ꭧwa↓ni↗ tau↘ li↘ŋ i↗kɤ↘ tʰu↗ɕja↘ŋ ꭧɨ→ʨʰjɛ↗n,"
+    },
+    {
+      "scene": 9,
+      "speech_start": 79.62500000000001,
+      "speech_end": 88.87500000000001,
+      "scene_end": 89.32500000000002,
+      "duration": 9.700000000000003,
+      "text": "放大图像画出一个矩形区域,并扩展到画布,使细胞边界在4K中很容易判断. 再设置缩放,或按 Escape,返回全场.",
+      "speech_text": "放大图像画出一个矩形区域,并扩展到画布,使细胞边界在4K中很容易判断. 再设置缩放,或按 Escape,返回全场.",
+      "phonemes": "fa↘ŋta↘ tʰu↗ɕja↘ŋ xwa↘ꭧʰu→ i↗kɤ↘ ʨy↓ɕi↗ŋ ʨʰy→y↘,pi↘ŋ kʰwo↘ꭧa↓n tau↘ xwa↘pu↘,ʂɨ↓ ɕi↘pau→ pjɛ→nʨje↘ ʦai↘ sɨ↘Kꭧʊ→ŋ xə↓n ɻʊ↗ŋi↘ pʰa↘ntwa↘n. ʦai↘ ʂɤ↘ꭧɨ↘ swo→fa↘ŋ,xwo↘ a↘n Escape,fa↓nxwei↗ ʨʰɥɛ↗nꭧʰa↓ŋ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 89.32500000000002,
+      "speech_end": 101.15000000000002,
+      "scene_end": 101.60000000000002,
+      "duration": 12.275000000000006,
+      "text": "只有显示的对比度才会正常化变化. 这种 ER 字段使用第二个和九十九个点五个百分比,以便在不改变图像数据或标签几何的情况下保持色边界的可见性.",
+      "speech_text": "只有显示的对比度才会正常化变化. 这种 ER 字段使用第二个和九十九个点五个百分比,以便在不改变图像数据或标签几何的情况下保持色边界的可见性.",
+      "phonemes": "ꭧɨ↓jou↓ ɕjɛ↓nʂɨ↘ tɤ twei↘pi↓tu↘ ʦʰai↗ xwei↘ ꭧə↘ŋꭧʰa↗ŋxwa↘ pjɛ↘nxwa↘. ꭧɤ↘ꭧʊ↓ŋ ER ʦɨ↘ twa↘n ʂɨ↓jʊ↘ŋ ti↘ɚ↘kɤ↘ xɤ↗ ʨjou↓ʂɨ↗ʨjou↓kɤ↘ tjɛ↓n u↓kɤ↘ pai↓fə→npi↓,i↓pjɛ↘n ʦai↘ pu↘ kai↓pjɛ↘n tʰu↗ɕja↘ŋ ʂu↘ʨy↘ xwo↘ pjau→ʨʰjɛ→n ʨi↓xɤ↗ tɤ ʨʰi↗ŋkʰwa↘ŋ ɕja↘ pau↓ꭧʰɨ↗ sɤ↘ pjɛ→nʨje↘ tɤ kʰɤ↓ʨjɛ↘n ɕi↘ŋ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 101.60000000000002,
+      "speech_end": 110.45000000000002,
+      "scene_end": 110.90000000000002,
+      "duration": 9.299999999999997,
+      "text": "除和雷多通过面具编辑,独立于放大和对比. 它们的标准快捷方式是控制Z和控制Y,控制转换Z也可重复.",
+      "speech_text": "除和雷多通过面具编辑,独立于放大和对比. 它们的标准快捷方式是控制Z和控制Y,控制转换Z也可重复.",
+      "phonemes": "ꭧʰu↗ xɤ↗ lei↗two→ tʰʊ→ŋkwo↘ mjɛ↘nʨy↘ pjɛ→nʨi↗,tu↗li↘ y↗ fa↘ŋta↘ xɤ↗ twei↘pi↓. tʰa→mən tɤ pjau→ꭧwə↓n kʰwai↘ʨje↗fa→ŋʂɨ↘ ʂɨ↘ kʰʊ↘ŋꭧɨ↘Zxɤ↗ kʰʊ↘ŋꭧɨ↘Y,kʰʊ↘ŋꭧɨ↘ ꭧwa↓nxwa↘nZje↓ kʰɤ↓ ꭧʰʊ↗ŋfu↘."
+    },
+    {
+      "scene": 12,
+      "speech_start": 110.90000000000002,
+      "speech_end": 120.85000000000002,
+      "scene_end": 121.30000000000003,
+      "duration": 10.400000000000006,
+      "text": "对象操作可以填满内部洞,重新标记连接前景,逆前景和背景,或清除面具. 清晰要求确认,因为它删除了所有当前的标签.",
+      "speech_text": "对象操作可以填满内部洞,重新标记连接前景,逆前景和背景,或清除面具. 清晰要求确认,因为它删除了所有当前的标签.",
+      "phonemes": "twei↘ɕja↘ŋ ʦʰau→ʦwo↘ kʰɤ↓i↓ tʰjɛ↗nma↓n nei↘pu↘ tʊ↘ŋ,ꭧʰʊ↗ŋɕi→n pjau→ʨi↘ ljɛ↗nʨje→ ʨʰjɛ↗nʨi↓ŋ,ni↘ ʨʰjɛ↗nʨi↓ŋ xɤ↗ pei↘ʨi↓ŋ,xwo↘ ʨʰi→ŋꭧʰu↗ mjɛ↘nʨy↘. ʨʰi→ŋɕi→ jau→ʨʰjou↗ ʨʰɥe↘ɻə↘n,i→nwei↘ tʰa→ ʂa→nꭧʰu↗ lɤ swo↓jou↓ ta→ŋʨʰjɛ↗n tɤ pjau→ʨʰjɛ→n."
+    },
+    {
+      "scene": 13,
+      "speech_start": 121.30000000000003,
+      "speech_end": 131.27500000000003,
+      "scene_end": 131.72500000000002,
+      "duration": 10.424999999999997,
+      "text": "最小区域操作将比选定的像素数小的连接对象移除. 在这里,十千使过效果显而易见; 选择生产标签的生物适当的门.",
+      "speech_text": "最小区域操作将比选定的像素数小的连接对象移除. 在这里,十千使过效果显而易见; 选择生产标签的生物适当的门.",
+      "phonemes": "ʦwei↘ɕjau↓ ʨʰy→y↘ ʦʰau→ʦwo↘ ʨja→ŋ pi↓ ɕɥɛ↓nti↘ŋ tɤ ɕja↘ŋsu↘ʂu↘ ɕjau↓ tɤ ljɛ↗nʨje→ twei↘ɕja↘ŋ i↗ꭧʰu↗. ʦai↘ ꭧɤ↘li↓,ʂɨ↗ʨʰjɛ→n ʂɨ↓kwo↘ ɕjau↘kwo↓ ɕjɛ↓nɚ↗i↘ʨjɛ↘n; ɕɥɛ↓nʦɤ↗ ʂə→ŋꭧʰa↓n pjau→ʨʰjɛ→n tɤ ʂə→ŋu↘ ʂɨ↘ta↘ŋ tɤ mə↗n."
+    },
+    {
+      "scene": 14,
+      "speech_start": 131.72500000000002,
+      "speech_end": 139.87500000000003,
+      "scene_end": 140.32500000000002,
+      "duration": 8.599999999999994,
+      "text": "保存面具将连接的组件重新标记,并在源图像干下写一个 uint16 TIFF. 这个教程编辑一个单独的副本,",
+      "speech_text": "保存面具将连接的组件重新标记,并在源图像干下写一个 uint16 TIFF. 这个教程编辑一个单独的副本,",
+      "phonemes": "pau↓ʦʰwə↗n mjɛ↘nʨy↘ ʨja→ŋ ljɛ↗nʨje→ tɤ ʦu↓ʨjɛ↘n ꭧʰʊ↗ŋɕi→n pjau→ʨi↘,pi↘ŋ ʦai↘ ɥɛ↗n tʰu↗ɕja↘ŋ ka↘nɕja↘ ɕje↓ i↗kɤ↘ uintʂɨ↗ljou↘ TIFF. ꭧɤ↘kɤ ʨjau↘ꭧʰə↗ŋ pjɛ→nʨi↗ i↗kɤ↘ ta→ntu↗ tɤ fu↘pə↓n,"
+    },
+    {
+      "scene": 15,
+      "speech_start": 140.32500000000002,
+      "speech_end": 150.82500000000002,
+      "scene_end": 151.275,
+      "duration": 10.949999999999989,
+      "text": "上一个图像和下一个图像按文件名顺序通过文件. 状态线总是显示当前的文件和位置,因此每一个培训领域都可以系统地审查.",
+      "speech_text": "上一个图像和下一个图像按文件名顺序通过文件. 状态线总是显示当前的文件和位置,因此每一个培训领域都可以系统地审查.",
+      "phonemes": "ʂa↘ŋ i↗kɤ↘ tʰu↗ɕja↘ŋ xɤ↗ ɕja↘ i↗kɤ↘ tʰu↗ɕja↘ŋ a↘n wə↗nʨjɛ↘nmi↗ŋ ʂwə↘nɕy↘ tʰʊ→ŋkwo↘ wə↗nʨjɛ↘n. ꭧwa↘ŋtʰai↘ ɕjɛ↘n ʦʊ↓ŋʂɨ↘ ɕjɛ↓nʂɨ↘ ta→ŋʨʰjɛ↗n tɤ wə↗nʨjɛ↘n xɤ↗ wei↘ꭧɨ↘,i→nʦʰɨ↓ mei↓ i↗kɤ↘ pʰei↗ɕy↘n li↓ŋy↘ tou→ kʰɤ↓i↓ ɕi↘tʰʊ↓ŋti↘ ʂə↓nꭧʰa↗."
+    },
+    {
+      "scene": 16,
+      "speech_start": 151.275,
+      "speech_end": 161.375,
+      "scene_end": 162.025,
+      "duration": 10.75,
+      "text": "没有伴侣面具的图像会出现零标签. 首先使用刷子或子加上,检查和清洁每个物体,然后为定制Cellpose训练保存新对.",
+      "speech_text": "没有伴侣面具的图像会出现零标签. 首先使用刷子或子加上,检查和清洁每个物体,然后为定制Cellpose训练保存新对.",
+      "phonemes": "mei↗jou↓ pa↘nly↓ mjɛ↘nʨy↘ tɤ tʰu↗ɕja↘ŋ xwei↘ ꭧʰu→ɕjɛ↘n li↗ŋ pjau→ʨʰjɛ→n. ʂou↓ɕjɛ→n ʂɨ↓jʊ↘ŋ ʂwa→ʦɨ xwo↘ʦɨ ʨja→ʂa↘ŋ,ʨjɛ↓nꭧʰa↗xɤ↗ ʨʰi→ŋʨje↗ mei↓kɤ↘ u↘tʰi↓,ɻa↗nxou↘ wei↘ ti↘ŋꭧɨ↘Cellposeɕy↘nljɛ↘n pau↓ʦʰwə↗n ɕi→n twei↘."
     }
   ]
 }

@@ -1807,47 +1807,140 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks",
+      "title": "制造面具",
       "series": 1,
       "app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "互动构建,纠正和策划 Cellpose 训练数据的细分标签.",
+      "description": "通过真实显微镜领域进行新的训练面具.",
       "objectives": [
-        "了解什么时候使用 Make Masks.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "开放显微镜图像,可选使用相匹配标签面具.",
+        "使用刷子,擦除,物体,魔术棒,缩小,历史和清洁工具.",
+        "保存为Cellpose训练的 Uint16 TIFF标签."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "准备一个二维显微镜图像的文件. 当现有细分可用时,将匹配的标签图像放入面具子文件中.",
       "scenes": [
         {
-          "narration": "互动构建,纠正和策划 Cellpose 训练数据的细分标签.",
-          "visual": "overview",
+          "narration": "制造面具是spaCR的互动编辑器,用于纠正分类标签和创建Cellpose训练对. 打开一个显微镜图像文件;从其面具子文件中读取相匹配的标签.",
+          "visual": "01_empty",
+          "focus_key": "open",
+          "click_key": "open",
           "hold_after": 0.45,
-          "speech_text": "互动构建,纠正和策划 Cellpose 训练数据的细分标签."
+          "speech_text": "制造面具是斯佩克尔的互动编辑器,用于纠正分类标签和创建Cellpose训练对. 打开一个显微镜图像文件;从其面具子文件中读取相匹配的标签."
         },
         {
-          "narration": "从 Segmentation models 部分打开 Make Masks。 开放代表性显微镜图像和任何现有掩膜,需要进行精炼.",
-          "visual": "input",
+          "narration": "这一单独的教程副本包含了3个真正的急诊领域. 首先的两种装载ER衍生细胞标签作为颜色覆盖;第三个故意没有现有的面具.",
+          "visual": "02_loaded",
+          "focus_key": "canvas",
           "hold_after": 0.45,
-          "speech_text": "从 Segmentation models 部分打开 Make Masks。 开放代表性显微镜图像和任何现有掩膜,需要进行精炼."
+          "speech_text": "这一单独的教程副本包含了3个真正的急诊领域. 首先的两种装载ER衍生细胞标签作为颜色覆盖;第三个故意没有现有的面具."
         },
         {
-          "narration": "在主要配置区域中,选择道,正常化,刷或魔术棒工具,对象操作和标签保存行为.",
-          "visual": "settings",
+          "narration": "工具卡组分为六种编辑模式. 刷添加前景,删除删除像素,删除对象删除一个标签,两个棒跟踪图像强度,而Zoom选择一个详细的区域.",
+          "visual": "03_tools",
+          "focus_key": "tools",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择道,正常化,刷或魔术棒工具,对象操作和标签保存行为."
+          "speech_text": "工具卡组分为六种编辑模式. 刷添加前景,删除删除像素,删除对象删除一个标签,两个棒跟踪图像强度,而Zoom选择一个详细的区域."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
-          "visual": "run",
+          "narration": "选择Brush,并设置其半径为屏幕像素. 一个点击绘制一个斑点,一个逐步拖动连接一个边界纠正;B键选择相同的工具.",
+          "visual": "04_brush",
+          "focus_key": "button",
+          "click_key": "button",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+          "speech_text": "选择Brush,并设置其半径为屏幕像素. 一个点击绘制一个斑点,一个逐步拖动连接一个边界纠正;B键选择相同的工具."
         },
         {
-          "narration": "工作流程完成后,对照图像和选定标签掩膜准备好进行定制的Cellpose训练.",
-          "visual": "output",
+          "narration": "删除使用相同的可调节半径,仅删除标签的油漆部分. 这可用于分离虚假桥梁,同时保留每个细胞的其余部分.",
+          "visual": "05_erase",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "删除使用相同的可调节半径,仅删除标签的油漆部分. 这可用于分离虚假桥梁,同时保留每个细胞的其余部分."
+        },
+        {
+          "narration": "删除对象在一个点击下删除了标记的完整对象. 如果选择的对象是有效的,则使用它来确定错误正值.",
+          "visual": "06_erase_object",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "删除对象在一个点击下删除了标记的完整对象. 如果选择的对象是有效的,则使用它来确定错误正值."
+        },
+        {
+          "narration": "加加上一个强度连接区域. 耐受性控制了强度与点击的ER像素有多大差异,而Max像素则防止在该领域发生意外洪水.",
+          "visual": "07_wand_add",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "加加上一个强度连接区域. 耐受性控制了强度与点击的ER像素有多大差异,而Max像素则防止在该领域发生意外洪水."
+        },
+        {
+          "narration": "减则遵循相同的强度规则,但减去连接区域. 在转移到另一个图像之前,",
+          "visual": "08_wand_erase",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "减则遵循相同的强度规则,但减去连接区域. 在转移到另一个图像之前,"
+        },
+        {
+          "narration": "放大图像画出一个矩形区域,并扩展到画布,使细胞边界在4K中很容易判断. 再设置缩放,或按 Escape,返回全场.",
+          "visual": "09_zoom",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "放大图像画出一个矩形区域,并扩展到画布,使细胞边界在4K中很容易判断. 再设置缩放,或按 Escape,返回全场."
+        },
+        {
+          "narration": "只有显示的对比度才会正常化变化. 这种 ER 字段使用第二个和九十九个点五个百分比,以便在不改变图像数据或标签几何的情况下保持色边界的可见性.",
+          "visual": "10_normalize",
+          "focus_key": "normalize",
+          "hold_after": 0.45,
+          "speech_text": "只有显示的对比度才会正常化变化. 这种 ER 字段使用第二个和九十九个点五个百分比,以便在不改变图像数据或标签几何的情况下保持色边界的可见性."
+        },
+        {
+          "narration": "除和雷多通过面具编辑,独立于放大和对比. 它们的标准快捷方式是控制Z和控制Y,控制转换Z也可重复.",
+          "visual": "11_history",
+          "focus_key": "history",
+          "hold_after": 0.45,
+          "speech_text": "除和雷多通过面具编辑,独立于放大和对比. 它们的标准快捷方式是控制Z和控制Y,控制转换Z也可重复."
+        },
+        {
+          "narration": "对象操作可以填满内部洞,重新标记连接前景,逆前景和背景,或清除面具. 清晰要求确认,因为它删除了所有当前的标签.",
+          "visual": "12_object_operations",
+          "focus_key": "operations",
+          "hold_after": 0.45,
+          "speech_text": "对象操作可以填满内部洞,重新标记连接前景,逆前景和背景,或清除面具. 清晰要求确认,因为它删除了所有当前的标签."
+        },
+        {
+          "narration": "最小区域操作将比选定的像素数小的连接对象移除. 在这里,十千使过效果显而易见; 选择生产标签的生物适当的门.",
+          "visual": "13_remove_small",
+          "focus_key": "operations",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "最小区域操作将比选定的像素数小的连接对象移除. 在这里,十千使过效果显而易见; 选择生产标签的生物适当的门."
+        },
+        {
+          "narration": "保存面具将连接的组件重新标记,并在源图像干下写一个 uint16 TIFF. 这个教程编辑一个单独的副本,",
+          "visual": "14_save",
+          "focus_key": "save",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "保存面具将连接的组件重新标记,并在源图像干下写一个 uint16 TIFF. 这个教程编辑一个单独的副本,"
+        },
+        {
+          "narration": "上一个图像和下一个图像按文件名顺序通过文件. 状态线总是显示当前的文件和位置,因此每一个培训领域都可以系统地审查.",
+          "visual": "15_next",
+          "focus_key": "navigation",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "上一个图像和下一个图像按文件名顺序通过文件. 状态线总是显示当前的文件和位置,因此每一个培训领域都可以系统地审查."
+        },
+        {
+          "narration": "没有伴侣面具的图像会出现零标签. 首先使用刷子或子加上,检查和清洁每个物体,然后为定制Cellpose训练保存新对.",
+          "visual": "16_blank_mask",
+          "focus_key": "button",
+          "click_key": "button",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,对照图像和选定标签掩膜准备好进行定制的Cellpose训练."
+          "speech_text": "没有伴侣面具的图像会出现零标签. 首先使用刷子或子加上,检查和清洁每个物体,然后为定制Cellpose训练保存新对."
         }
       ]
     },

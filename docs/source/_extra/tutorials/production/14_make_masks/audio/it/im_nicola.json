@@ -4,47 +4,167 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 66.725,
+  "total_duration": 238.975,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.25,
-      "scene_end": 10.7,
-      "duration": 10.7,
-      "text": "Questo tutorial copre Make Masks. Costruire, correggere e curare in modo interattivo le etichette di segmentazione per i dati di formazione Cellpose."
+      "speech_end": 16.85,
+      "scene_end": 17.3,
+      "duration": 17.3,
+      "text": "Make Masks è l'editore interattivo di spaCR per la correzione delle etichette di segmentazione e la creazione di coppie di allenamento Cellpose. Apri una cartella di immagini di microscopia; le etichette corrispondenti vengono lette dalla cartella delle maschere.",
+      "speech_text": "Make Masks è l'editore interattivo di spàker per la correzione delle etichette di segmentazione e la creazione di coppie di allenamento Cellpose. Apri una cartella di immagini di microscopia; le etichette corrispondenti vengono lette dalla cartella delle maschere.",
+      "phonemes": "mˈake mˈasks e leditˈore interatːˈivo dɪ spˈaker per la korɾeʦiˈone dˌelle etikˈetːe dɪ seɡmentaʦiˈone e la kreaʦiˈone dɪ kˈopːje dɪ allenamˈento ʧelpˈoze. ˈaprɪ ˌʊna kartˈɛlla dɪ immˈaʤinɪ dɪ mikroskopˈia; le etikˈetːe korɾispondˈɛntɪ vˈeŋɡono lˈɛtːe dˌalla kartˈɛlla dˌelle mˈaːskˌɛre."
     },
     {
       "scene": 2,
-      "speech_start": 10.7,
-      "speech_end": 26.225,
-      "scene_end": 26.675,
-      "duration": 15.975000000000001,
-      "text": "Apri Make Masks dalla sezione Segmentation models. Apri le maschere di creazione dalla sezione Modelli di segmentazione. Apri le immagini rappresentative di microscopia e le maschere esistenti che dovrebbero essere perfezionate."
+      "speech_start": 17.3,
+      "speech_end": 32.0,
+      "scene_end": 32.45,
+      "duration": 15.150000000000002,
+      "text": "Questa copia di tutorial isolata contiene tre veri campi di emergenza. I primi due caricano etichette di cellule derivate da ER come sovrapposizioni colorate; il terzo non ha deliberatamente una maschera esistente.",
+      "speech_text": "Questa copia di tutorial isolata contiene tre veri campi di emergenza. I primi due caricano etichette di cellule derivate da ER come sovrapposizioni colorate; il terzo non ha deliberatamente una maschera esistente.",
+      "phonemes": "kwˌesta kˈɔpia dɪ tʊtˈɔrial izolˈata kontjˈɛne trˈe vˈerɪ kˈampɪ dɪ emerʤˈɛnʦa. i prˈimɪ dˈue kˈarikano etikˈetːe dɪ ʧˈɛllʊle derivˈate da ˌeːˈɛrɾe kˌome sovrapːoziʦiˈonɪ kolorˈate; il tˈɛrʦo non a deliberatamˈente ˌʊna mˈaːskˌɛra ezistˈɛnte."
     },
     {
       "scene": 3,
-      "speech_start": 26.675,
-      "speech_end": 38.375,
-      "scene_end": 38.825,
-      "duration": 12.150000000000002,
-      "text": "Nell'area di configurazione principale, selezionare canali, normalizzazione, spazzola o strumenti di magia-wand, operazioni di oggetti e comportamento di risparmio di etichette."
+      "speech_start": 32.45,
+      "speech_end": 47.6,
+      "scene_end": 48.050000000000004,
+      "duration": 15.600000000000001,
+      "text": "La scheda Tools raggruppa sei modalità di modifica. Brush aggiunge il primo piano, Erase rimuove i pixel, l'oggetto Erase rimuove una etichetta, le due bacche seguono l'intensità dell'immagine e Zoom seleziona una regione dettagliata.",
+      "speech_text": "La scheda Tools raggruppa sei modalità di modifica. Brush aggiunge il primo piano, Erase rimuove i pixel, l'oggetto Erase rimuove una etichetta, le due bacche seguono l'intensità dell'immagine e Zoom seleziona una regione dettagliata.",
+      "phonemes": "la skˈɛda tˈɔols raɡːrˈupːa sˌɛi modalitˈa dɪ modˈifika. brˈuʃ aʤːˈunʤe il prˈimo pjˈano, erˈaze rimʊˈove i pˈiksel, loʤːˈɛtːo erˈaze rimʊˈove ˌʊna etikˈetːa, le dˈue bˈakːe sˈeɡwono lintensitˈa dellimmˈaʤine e ʣˈuːm seleʦiˈona ˌʊna reʤˈone detːaʎˈata."
     },
     {
       "scene": 4,
-      "speech_start": 38.825,
-      "speech_end": 55.45,
-      "scene_end": 55.900000000000006,
-      "duration": 17.075000000000003,
-      "text": "Prima della corsa completa, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando è disponibile. correggere i confini e gli oggetti mancanti su un sottoinsieme di allenamento diverso piuttosto che solo campi facili."
+      "speech_start": 48.050000000000004,
+      "speech_end": 61.10000000000001,
+      "scene_end": 61.55000000000001,
+      "duration": 13.500000000000007,
+      "text": "Selezionare Brush e impostare il suo raggio in pixel dello schermo. Un clic dipinge un punto e un trascinamento graduale collega una correzione di confine; la chiave B seleziona lo stesso strumento.",
+      "speech_text": "Selezionare Brush e impostare il suo raggio in pixel dello schermo. Un clic dipinge un punto e un trascinamento graduale collega una correzione di confine; la chiave B seleziona lo stesso strumento.",
+      "phonemes": "seleʦjonˈare brˈuʃ e impostˈare il sˌʊo rˈaʤːo in pˈiksel dˌello skˈermo. ʊn klˈik dipˈinʤe ʊn pˈunto e ʊn traʃinamˈento ɡradʊˈale kollˈɛɡa ˌʊna korɾeʦiˈone dɪ konfˈine; la kjˈave bˈi seleʦiˈona lo stˈeSo strʊmˈento."
     },
     {
       "scene": 5,
-      "speech_start": 55.900000000000006,
-      "speech_end": 66.075,
-      "scene_end": 66.72500000000001,
-      "duration": 10.825000000000003,
-      "text": "Quando il flusso di lavoro è terminato, le immagini abbinate e le maschere di etichetta curate sono pronte per la formazione personalizzata di Cellpose."
+      "speech_start": 61.55000000000001,
+      "speech_end": 73.57500000000002,
+      "scene_end": 74.02500000000002,
+      "duration": 12.475000000000009,
+      "text": "L'eliminazione utilizza lo stesso raggio regolabile per rimuovere solo la parte dipinta di un'etichetta. Questo è utile per separare un falso ponte preservando il resto di ogni cella.",
+      "speech_text": "L'eliminazione utilizza lo stesso raggio regolabile per rimuovere solo la parte dipinta di un'etichetta. Questo è utile per separare un falso ponte preservando il resto di ogni cella.",
+      "phonemes": "leliminaʦiˈone ʊtilˈiʣːa lo stˈeSo rˈaʤːo reɡolˈabile per rimʊˈɔvere sˈolo la pˈarte dipˈinta dɪ ʊnetikˈetːa. kwˈesto ˌɛ ˈutile per sepaɾˈare ʊn fˈalso pˈonte prezervˈando il rˈɛsto dɪ ˌoɲɲɪ ʧˈɛlla."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.02500000000002,
+      "speech_end": 87.37500000000001,
+      "scene_end": 87.82500000000002,
+      "duration": 13.799999999999997,
+      "text": "L'oggetto di cancellazione rimuove l'oggetto completo etichettato con un solo clic. Utilizzare per un falso positivo definito; l'annullamento rimane disponibile se l'oggetto selezionato era valido.",
+      "speech_text": "L'oggetto di cancellazione rimuove l'oggetto completo etichettato con un solo clic. Utilizzare per un falso positivo definito; l'annullamento rimane disponibile se l'oggetto selezionato era valido.",
+      "phonemes": "loʤːˈɛtːo dɪ kanʧellaʦiˈone rimʊˈove loʤːˈɛtːo komplˈɛto etiketːˈato kon ʊn sˈolo klˈik. ʊtiliʣːˈare per ʊn fˈalso pozitˈivo definˈito; lannʊllamˈento rimˈane disponˈibile se loʤːˈɛtːo seleʦjonˈato ˌɛra vˈalido."
+    },
+    {
+      "scene": 7,
+      "speech_start": 87.82500000000002,
+      "speech_end": 102.70000000000002,
+      "scene_end": 103.15000000000002,
+      "duration": 15.325000000000003,
+      "text": "Wand plus aggiunge una regione connessa all'intensità. La tolleranza controlla in che misura le intensità possono differire dal pixel ER cliccato, mentre i pixel Max impediscono un'alluvione accidentale attraverso il campo.",
+      "speech_text": "Wand plus aggiunge una regione connessa all'intensità. La tolleranza controlla in che misura le intensità possono differire dal pixel ER cliccato, mentre i pixel Max impediscono un'alluvione accidentale attraverso il campo.",
+      "phonemes": "wˈand plˈus aʤːˈunʤe ˌʊna reʤˈone konnˈeSa allintensitˈa. la tollerˈanʦa kontrˈɔlla in ke mizˈura le intensitˈa pˈɔSono differˈire dal pˈiksel ˌeːˈɛrɾe klikːˈato, mˌentre i pˈiksel mˈaks impedˈiskono ʊnallʊvjˈone aʧːidentˈale atːravˈɛrso il kˈampo."
+    },
+    {
+      "scene": 8,
+      "speech_start": 103.15000000000002,
+      "speech_end": 115.85000000000002,
+      "scene_end": 116.30000000000003,
+      "duration": 13.150000000000006,
+      "text": "Wand minus segue la stessa regola di intensità ma sottrae la regione connessa. Aggiusta la tolleranza in modo conservativo e controlla il risultato prima di passare ad un'altra immagine.",
+      "speech_text": "Wand minus segue la stessa regola di intensità ma sottrae la regione connessa. Aggiusta la tolleranza in modo conservativo e controlla il risultato prima di passare ad un'altra immagine.",
+      "phonemes": "wˈand mˈinʊs sˈeɡwe la stˈeSa rˈɛɡola dɪ intensitˈa ma sotːrˈae la reʤˈone konnˈeSa. aʤːˈusta la tollerˈanʦa in mˈɔdo konservatˈivo e kontrˈɔlla il rizʊltˈato prˈima dɪ paSˈare ad ʊnˈaltra immˈaʤine."
+    },
+    {
+      "scene": 9,
+      "speech_start": 116.30000000000003,
+      "speech_end": 128.70000000000002,
+      "scene_end": 129.15,
+      "duration": 12.84999999999998,
+      "text": "Lo zoom disegna una regione rettangolare e lo espande alla tela, rendendo facile giudicare i confini cellulari a 4K. Reset zoom, o premere Escape, per tornare al campo completo.",
+      "speech_text": "Lo zoom disegna una regione rettangolare e lo espande alla tela, rendendo facile giudicare i confini cellulari a 4K. Reset zoom, o premere Escape, per tornare al campo completo.",
+      "phonemes": "lo ʣˈuːm dizˈeɲɲa ˌʊna reʤˈone retːaŋɡolˈare e lo espˈande ˌalla tˈɛla, rendˈɛndo fˈaʧile ʤʊdikˈare i konfˈinɪ ʧellʊlˈarɪ a kwˈatːro kˈapːa. rˈɛzet ʣˈuːm, o prˈɛmere eskˈape, per tornˈare al kˈampo komplˈɛto."
+    },
+    {
+      "scene": 10,
+      "speech_start": 129.15,
+      "speech_end": 146.475,
+      "scene_end": 146.92499999999998,
+      "duration": 17.774999999999977,
+      "text": "Normalizzare i cambiamenti solo il contrasto visualizzato. Questo campo ER utilizza i percentili secondo e novantacinque-cinque punti in modo che i confini deboli rimangano visibili senza modificare i dati dell'immagine o la geometria dell'etichetta.",
+      "speech_text": "Normalizzare i cambiamenti solo il contrasto visualizzato. Questo campo ER utilizza i percentili secondo e novantacinque-cinque punti in modo che i confini deboli rimangano visibili senza modificare i dati dell'immagine o la geometria dell'etichetta.",
+      "phonemes": "normaliʣːˈare i kambjamˈentɪ sˈolo il kontrˈasto vizʊaliʣːˈato. kwˌesto kˈampo ˌeːˈɛrɾe ʊtilˈiʣːa i perʧentˈilɪ sekˈondo e novantaʧˈinkweʧˈinkwe pˈuntɪ in mˈɔdo ke i konfˈinɪ dˈebolɪ rimˈaŋɡano vizˈibilɪ sˌɛnʦa modifikˈare i dˈatɪ dellimmˈaʤine o la ʤeometrˈia delletikˈetːa."
+    },
+    {
+      "scene": 11,
+      "speech_start": 146.92499999999998,
+      "speech_end": 161.89999999999998,
+      "scene_end": 162.34999999999997,
+      "duration": 15.424999999999983,
+      "text": "Undo e Redo passano attraverso le modifiche della maschera indipendentemente dallo zoom e dal contrasto. Le loro scorciatoie standard sono Control Z e Control Y, con Control Shift Z disponibile anche per il redo.",
+      "speech_text": "Undo e Redo passano attraverso le modifiche della maschera indipendentemente dallo zoom e dal contrasto. Le loro scorciatoie standard sono Control Z e Control Y, con Control Shift Z disponibile anche per il redo.",
+      "phonemes": "ˈundo e rˈɛdo pˈaSano atːravˈɛrso le modˈifike dˌella mˈaːskˌɛra indipendentemˈente dˌallo ʣˈuːm e dal kontrˈasto. le lˌɔro skorʧatˈɔie stˈandard sˌono kˈontrol ʣˈɛta e kˈontrol ˈipsilon, kon kˈontrol ʃˈift ʣˈɛta disponˈibile ˌanke per il rˈɛdo."
+    },
+    {
+      "scene": 12,
+      "speech_start": 162.34999999999997,
+      "speech_end": 176.99999999999997,
+      "scene_end": 177.44999999999996,
+      "duration": 15.099999999999994,
+      "text": "Le operazioni degli oggetti possono riempire buchi interni, rietichettare il primo piano connesso, invertire il primo piano e lo sfondo o cancellare la maschera. Clear chiede conferma perché rimuove tutte le etichette attuali.",
+      "speech_text": "Le operazioni degli oggetti possono riempire buchi interni, rietichettare il primo piano connesso, invertire il primo piano e lo sfondo o cancellare la maschera. Clear chiede conferma perché rimuove tutte le etichette attuali.",
+      "phonemes": "le operaʦiˈonɪ dˌeʎɪ oʤːˈɛtːɪ pˈɔSono riempˈire bˈukɪ intˈɛrnɪ, rietiketːˈare il prˈimo pjˈano konnˈɛSo, invertˈire il prˈimo pjˈano e lo sfˈondo o kanʧellˈare la mˈaːskˌɛra. kleˈar kjˈede konfˈerma perkˌe rimʊˈove tˈutːe le etikˈetːe atːʊˈalɪ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 177.44999999999996,
+      "speech_end": 192.97499999999997,
+      "scene_end": 193.42499999999995,
+      "duration": 15.974999999999994,
+      "text": "L'operazione con superficie minima rimuove oggetti connessi inferiori al numero di pixel selezionato. Qui dieci mila rendono evidente l'effetto di filtraggio; scegliete una soglia biologicamente appropriata per le etichette di produzione.",
+      "speech_text": "L'operazione con superficie minima rimuove oggetti connessi inferiori al numero di pixel selezionato. Qui dieci mila rendono evidente l'effetto di filtraggio; scegliete una soglia biologicamente appropriata per le etichette di produzione.",
+      "phonemes": "loperaʦiˈone kon sʊperfˈiʧe mˈinima rimʊˈove oʤːˈɛtːɪ konnˈɛSɪ inferiˈorɪ al nˈumero dɪ pˈiksel seleʦjonˈato. kwˈi djˈɛʧɪ mˈila rˈɛndono evidˈɛnte leffˈɛtːo dɪ filtrˈaʤːo; ʃeʎˈete ˌʊna sˈɔʎa bjoloʤikamˈente apːropriˈata per le etikˈetːe dɪ prodʊʦiˈone."
+    },
+    {
+      "scene": 14,
+      "speech_start": 193.42499999999995,
+      "speech_end": 208.22499999999997,
+      "scene_end": 208.67499999999995,
+      "duration": 15.25,
+      "text": "Save mask relabella i componenti collegati e scrive un uint16 TIFF alle maschere sotto la stamella dell'immagine sorgente. Questo tutorial modifica una copia isolata, lasciando l'esperimento originale invariato.",
+      "speech_text": "Save mask relabella i componenti collegati e scrive un uint16 TIFF alle maschere sotto la stamella dell'immagine sorgente. Questo tutorial modifica una copia isolata, lasciando l'esperimento originale invariato.",
+      "phonemes": "sˈave mˈask relabˈɛlla i komponˈɛntɪ kolleɡˈatɪ e skrˈive ʊn wˈint sˈediʧɪ tˈiff ˌalle mˈaːskˌɛre sˈotːo la stamˈɛlla dellimmˈaʤine sorʤˈɛnte. kwˌesto tʊtˈɔrial modˈifika ˌʊna kˈɔpia izolˈata, laʃˈando lesperimˈento oriʤinˈale invariˈato."
+    },
+    {
+      "scene": 15,
+      "speech_start": 208.67499999999995,
+      "speech_end": 223.69999999999996,
+      "scene_end": 224.14999999999995,
+      "duration": 15.474999999999994,
+      "text": "L'immagine precedente e l'immagine successiva si muovono nella cartella in ordine di nome del file. La riga di stato mostra sempre il file e la posizione attuali, quindi ogni campo di formazione può essere rivisto sistematicamente.",
+      "speech_text": "L'immagine precedente e l'immagine successiva si muovono nella cartella in ordine di nome del file. La riga di stato mostra sempre il file e la posizione attuali, quindi ogni campo di formazione può essere rivisto sistematicamente.",
+      "phonemes": "limmˈaʤine preʧedˈɛnte e limmˈaʤine sʊʧːeSˈiva sɪ mʊˈɔvono nˈella kartˈɛlla in ˈɔrdine dɪ nˈome del fˈile. la rˈiɡa dɪ stˈato mˈostra sˈɛmpre il fˈile e la poziʦiˈone atːʊˈalɪ, kwˈindɪ ˌoɲɲɪ kˈampo dɪ formaʦiˈone pʊˈɔ ˈɛSere rivˈisto sistematikamˈente."
+    },
+    {
+      "scene": 16,
+      "speech_start": 224.14999999999995,
+      "speech_end": 238.32499999999996,
+      "scene_end": 238.97499999999997,
+      "duration": 14.825000000000017,
+      "text": "Un'immagine senza maschera di accompagnatore si apre con zero etichette. Inizia con Brush o Wand plus, ispezionare e pulire ogni oggetto, quindi salvare la nuova coppia per l'addestramento personalizzato di Cellpose.",
+      "speech_text": "Un'immagine senza maschera di accompagnatore si apre con zero etichette. Inizia con Brush o Wand plus, ispezionare e pulire ogni oggetto, quindi salvare la nuova coppia per l'addestramento personalizzato di Cellpose.",
+      "phonemes": "ʊnimmˈaʤine sˌɛnʦa mˈaːskˌɛra dɪ akːompaɲatˈore sɪ ˈapre kon ʣˈɛro etikˈetːe. inˈiʦia kon brˈuʃ o wˈand plˈus, ispeʦjonˈare e pʊlˈire ˌoɲɲɪ oʤːˈɛtːo, kwˈindɪ salvˈare la nʊˈɔva kˈɔpːia per ladːestramˈento personaliʣːˈato dɪ ʧelpˈoze."
     }
   ]
 }

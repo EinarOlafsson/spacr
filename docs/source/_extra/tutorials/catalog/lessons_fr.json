@@ -1807,47 +1807,140 @@
       "id": "14_make_masks",
       "number": 14,
       "slug": "make_masks",
-      "title": "Make Masks",
+      "title": "Faites des masques",
       "series": 1,
       "app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Construire, corriger et conserver de manière interactive les étiquettes de segmentation des données de formation de Cellpose.",
+      "description": "Corrigez les étiquettes des cellules dérivées de l'ER de manière interactive et créez de nouveaux masques d'entraînement à partir de champs de microscopie réels.",
       "objectives": [
-        "Comprendre quand utiliser le masque.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Des images microscopiques ouvertes avec des masques d'étiquette correspondants optionnels.",
+        "Utilisez des pinceaux, des effacements, des objets, des barres magiques, des zooms, des outils d'historique et de nettoyage.",
+        "Conservez les étiquettes Uint16 TIFF conservées pour l'entraînement Cellpose."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Préparez un dossier d'images microscopiques bidimensionnelles. Mettre des images d'étiquettes correspondantes dans un sous-dossier de masques lorsque des segmentations existantes sont disponibles.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Make Masks. Construire, corriger et conserver des étiquettes de segmentation interactives pour les données de formation Cellpose.",
-          "visual": "overview",
+          "narration": "Make Masks est l'éditeur interactif de spaCR pour corriger les étiquettes de segmentation et créer des paires de formation Cellpose. Ouvrez un dossier d'images microscopiques; les étiquettes correspondantes sont lues à partir de son sous-dossier de masques.",
+          "visual": "01_empty",
+          "focus_key": "open",
+          "click_key": "open",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Make Masks. Construire, corriger et conserver des étiquettes de segmentation interactives pour les données de formation Cellpose."
+          "speech_text": "Make Masks est l'éditeur interactif de spakeur pour corriger les étiquettes de segmentation et créer des paires de formation Cellpose. Ouvrez un dossier d'images microscopiques; les étiquettes correspondantes sont lues à partir de son sous-dossier de masques."
         },
         {
-          "narration": "Ouvrez Make Masks dans la section Segmentation models. Ouvrez les images représentatives de microscopie et les masques existants qui doivent être affinés.",
-          "visual": "input",
+          "narration": "Ce tutoriel isolé contient trois vrais champs d'urgence. Les deux premières sont chargées d'étiquettes de cellules dérivées de l'ER sous forme de revêtements colorés; la troisième n'a délibérément pas de masque existante.",
+          "visual": "02_loaded",
+          "focus_key": "canvas",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Make Masks dans la section Segmentation models. Ouvrez les images représentatives de microscopie et les masques existants qui doivent être affinés."
+          "speech_text": "Ce tutoriel isolé contient trois vrais champs d'urgence. Les deux premières sont chargées d'étiquettes de cellules dérivées de l'ER sous forme de revêtements colorés; la troisième n'a délibérément pas de masque existante."
         },
         {
-          "narration": "Dans la zone de configuration principale, sélectionnez les canaux, la normalisation, les outils de pinceau ou de bande magique, les opérations d'objets et le comportement d'étiquette.",
-          "visual": "settings",
+          "narration": "La carte Tools regroupe six modes de modification. La brosse ajoute le premier plan, l'effacement supprime les pixels, l'objet de suppression supprime une étiquette, les deux tiges suivent l'intensité de l'image et Zoom sélectionne une région détaillée.",
+          "visual": "03_tools",
+          "focus_key": "tools",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, sélectionnez les canaux, la normalisation, les outils de pinceau ou de bande magique, les opérations d'objets et le comportement d'étiquette."
+          "speech_text": "La carte Tools regroupe six modes de modification. La brosse ajoute le premier plan, l'effacement supprime les pixels, l'objet de suppression supprime une étiquette, les deux tiges suivent l'intensité de l'image et Zoom sélectionne une région détaillée."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
+          "narration": "Sélectionnez Brush et définissez son rayon en pixels d'écran. Un clic peint une tache et un arrêt progressif relie une correction de limite; la touche B sélectionne le même outil.",
+          "visual": "04_brush",
+          "focus_key": "button",
+          "click_key": "button",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "speech_text": "Sélectionnez Brush et définissez son rayon en pixels d'écran. Un clic peint une tache et un arrêt progressif relie une correction de limite; la touche B sélectionne le même outil."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les images couplées et les masques d'étiquettes sont prêts pour une formation personnalisée de Cellpose.",
-          "visual": "output",
+          "narration": "L'élimination utilise le même rayon réglable pour enlever seulement la partie peinte d'une étiquette. Ceci est utile pour séparer un faux pont tout en préservant le reste de chaque cellule.",
+          "visual": "05_erase",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "L'élimination utilise le même rayon réglable pour enlever seulement la partie peinte d'une étiquette. Ceci est utile pour séparer un faux pont tout en préservant le reste de chaque cellule."
+        },
+        {
+          "narration": "L'objet de suppression supprime l'objet complètement étiqueté en un seul clic. Utilisez-le pour un faux positif définitif; l'annulation reste disponible si l'objet sélectionné était valide.",
+          "visual": "06_erase_object",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "L'objet de suppression supprime l'objet complètement étiqueté en un seul clic. Utilisez-le pour un faux positif définitif; l'annulation reste disponible si l'objet sélectionné était valide."
+        },
+        {
+          "narration": "La baguette plus ajoute une région liée à l'intensité. La tolérance contrôle dans quelle mesure les intensités peuvent différer du pixel ER cliqué, tandis que les pixels Max empêchent une inondation accidentelle à travers le champ.",
+          "visual": "07_wand_add",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "La baguette plus ajoute une région liée à l'intensité. La tolérance contrôle dans quelle mesure les intensités peuvent différer du pixel ER cliqué, tandis que les pixels Max empêchent une inondation accidentelle à travers le champ."
+        },
+        {
+          "narration": "La baguette moins suit la même règle d'intensité, mais soustrait la région connectée. Ajustez la tolérance de manière conservatrice et inspectez le résultat avant de passer à une autre image.",
+          "visual": "08_wand_erase",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "La baguette moins suit la même règle d'intensité, mais soustrait la région connectée. Ajustez la tolérance de manière conservatrice et inspectez le résultat avant de passer à une autre image."
+        },
+        {
+          "narration": "Zoom dessine une région rectangulaire et l'étend à la toile, ce qui rend les limites cellulaires faciles à juger à 4K. Réinitialisez le zoom, ou appuyez sur Escape, pour revenir au champ complet.",
+          "visual": "09_zoom",
+          "focus_key": "button",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Zoom dessine une région rectangulaire et l'étend à la toile, ce qui rend les limites cellulaires faciles à juger à 4K. Réinitialisez le zoom, ou appuyez sur Escape, pour revenir au champ complet."
+        },
+        {
+          "narration": "La normalisation ne modifie que le contraste affiché. Ce champ ER utilise les deuxièmes et les 95e percentiles de point-cinq afin que les limites faibles restent visibles sans modifier les données d'image ou la géométrie de l'étiquette.",
+          "visual": "10_normalize",
+          "focus_key": "normalize",
+          "hold_after": 0.45,
+          "speech_text": "La normalisation ne modifie que le contraste affiché. Ce champ ER utilise les deuxièmes et les 95e percentiles de point-cinq afin que les limites faibles restent visibles sans modifier les données d'image ou la géométrie de l'étiquette."
+        },
+        {
+          "narration": "Undo et Redo passent par les modifications de masque indépendamment du zoom et du contraste. Leurs raccourcis standard sont Control Z et Control Y, avec Control Shift Z également disponible pour le redémarrage.",
+          "visual": "11_history",
+          "focus_key": "history",
+          "hold_after": 0.45,
+          "speech_text": "Undo et Redo passent par les modifications de masque indépendamment du zoom et du contraste. Leurs raccourcis standard sont Control Z et Control Y, avec Control Shift Z également disponible pour le redémarrage."
+        },
+        {
+          "narration": "Les opérations d'objets peuvent remplir des trous internes, réétiqueter le avant-plan connecté, inverser le avant-plan et l'arrière-plan, ou effacer le masque. Clear demande une confirmation parce qu'il enlève toutes les étiquettes actuelles.",
+          "visual": "12_object_operations",
+          "focus_key": "operations",
+          "hold_after": 0.45,
+          "speech_text": "Les opérations d'objets peuvent remplir des trous internes, réétiqueter le avant-plan connecté, inverser le avant-plan et l'arrière-plan, ou effacer le masque. Clear demande une confirmation parce qu'il enlève toutes les étiquettes actuelles."
+        },
+        {
+          "narration": "L'opération de zone minimale supprime les objets connectés plus petits que le nombre de pixels sélectionnés. Ici dix mille rend l'effet de filtration évident; choisissez un seuil biologiquement approprié pour les étiquettes de production.",
+          "visual": "13_remove_small",
+          "focus_key": "operations",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "L'opération de zone minimale supprime les objets connectés plus petits que le nombre de pixels sélectionnés. Ici dix mille rend l'effet de filtration évident; choisissez un seuil biologiquement approprié pour les étiquettes de production."
+        },
+        {
+          "narration": "Save mask réétiquette les composants connectés et écrit un TIFF uint16 sur les masques sous la tige d'image source. Ce tutoriel modifie une copie isolée, laissant l'expérience originale inchangée.",
+          "visual": "14_save",
+          "focus_key": "save",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Save mask réétiquette les composants connectés et écrit un TIFF uint16 sur les masques sous la tige d'image source. Ce tutoriel modifie une copie isolée, laissant l'expérience originale inchangée."
+        },
+        {
+          "narration": "L'image précédente et l'image suivante se déplacent dans le dossier par ordre de nom de fichier. La ligne d'état montre toujours le fichier et la position actuels, de sorte que chaque domaine de formation peut être examiné systématiquement.",
+          "visual": "15_next",
+          "focus_key": "navigation",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "L'image précédente et l'image suivante se déplacent dans le dossier par ordre de nom de fichier. La ligne d'état montre toujours le fichier et la position actuels, de sorte que chaque domaine de formation peut être examiné systématiquement."
+        },
+        {
+          "narration": "Une image sans masque d'accompagnement s'ouvre avec zéro étiquette. Commencez par Brush ou Wand plus, inspectez et nettoyez chaque objet, puis gardez la nouvelle paire pour l'entraînement personnalisé Cellpose.",
+          "visual": "16_blank_mask",
+          "focus_key": "button",
+          "click_key": "button",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les images couplées et les masques d'étiquettes sont prêts pour une formation personnalisée de Cellpose."
+          "speech_text": "Une image sans masque d'accompagnement s'ouvre avec zéro étiquette. Commencez par Brush ou Wand plus, inspectez et nettoyez chaque objet, puis gardez la nouvelle paire pour l'entraînement personnalisé Cellpose."
         }
       ]
     },
