@@ -1066,19 +1066,64 @@
       "id": "19_train_cellpose",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Train Cellpose. Þjálfaðu sérsniðinn Cellpose eða CPSAM-samhæfan segmenteringarmynd úr valiðum mynd-maskparum."
+          "narration": "Þjálfun Cellpose fíntónar CPSAM skiptingarmynd frá parið mikroskóp myndir og fyrirmynd merkingar grímur. Konsóllinn skýrir út valið gögn, framfar þjálfunarinnar, vegbraut á staðinn og endurskránni."
         },
         {
-          "narration": "Opnaðu Cellpose lestinn frá sviði fyrirmyndir. Gæta fjölbreyttar þjálfunar- og staðfestingarmyndir með vandlega leiðréttum merkisgrímum."
+          "narration": "Spjall sviðið tekur við staðbundnum spurningum um vinnuflæði. Gæta AI fyrir stillta þjónustuaðila og nota nágrenna piltinn til að velja þjónustuaðila eða opna stjórnina."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skaltu velja leiðir, grunnmynd, þvermál, aukning, námshlutfall, tímabil, flokksstærð og staðfestingarhlutfall."
+          "narration": "Greiðsluaðila kanna Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir og sýnir uppsetningu þeirra og innritun skipanir. Staðfesting er eftir hjá hverjum veitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. eftirlit með þjálfunar- og staðfestingartapum og prófstöðvum á sviðum sem ekki voru notuð til þjálfunar."
+          "narration": "AI stillingar stjórnar svörun dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun og spaCR-vitandi kerfis leiðbeiningar."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið er valið eftirlitsstað, menntunarskrá, staðfestingarspá og stillingar geymdar saman."
+          "narration": "Fylgdu niður gögnum sem innihalda lest, myndir og lest, grímur. Samþykkt TIFF skránafn mynda hvert pari. Þessi sýning leiðir sex fimm hundruð tólf piksla frumur úr raunverulegu kennslutilrauninni; framleiðslumerkjur verða að endurskoða sjálfstætt."
+        },
+        {
+          "narration": "Essentials heldur byrjunarþyngd, fyrirmynd nafni, tímabiltal, námshlutfall, mynd markmið stærð og verbose útgáfu sýnileg fyrir fyrstu klúðun hlaupa."
+        },
+        {
+          "narration": "Breyttar takmarkanir á skránni til ásettu breytinga. Hér, einn tímapunktur, nól-einn kennsluhraði, flokksstærð tvö, um stærð, og 2,56-pixel markmið halda kennslunni hraða og endurtekjanleg."
+        },
+        {
+          "narration": "Öll stillingar sýna fimm flokka: Byrjunarstaða, námsáætlun, myndatækni, bakgrunn og afneitun og útgáfa og hlauptíma."
+        },
+        {
+          "narration": "Recipes geymir alla þjálfunarsetningu undir nafni, beitir henni á ný í öðrum gagnasetnum með athugasemdum eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg skyndismyndir af losnum þjálfunarstillingum og sendir henta í dreifð störf vinnusvæði, sem er gagnlegt þegar CPSAM þjálfun tilheyrir stærri GPU."
+        },
+        {
+          "narration": "Distributed Jobs kortar gagnasetinn og útgáfuleiðina til fjarstæðrar vinnustaðar, Slurm hóp, eða skipulagt skipun, og sendir síðan inn og fylgist með sama þjálfun."
+        },
+        {
+          "narration": "Byrjunarstaðurinn velur CPSAM, fínt aðlögun eða þjálfun frá grunni og nafn eftirlitsstöðvarinnar. Fínt aðlaga fyrir þjálfun þyrfti oftast mun færri endurskoðaðar myndir en tilviljunarleg byrjun."
+        },
+        {
+          "narration": "Námskrá setur upp tímabil, námshlutfall, þyngdarfall, mini-parts stærð og aukningu. Stækkaðu þjálfunina aðeins eftir að innleiðingarparin og framhaldandi metingarstefna séu réttar."
+        },
+        {
+          "narration": "Myndfræði skráir uppruna stærð, markmið stærð, væntanlegt hlut þvermál, og hvort parið er breytt stærð. Myndir og grímur eru breytt saman og skilgreiningar á merkingum eru varðveittar."
+        },
+        {
+          "narration": "Bakgrun og Denoising stjórnar valfrjálsu bakgrunning, hávegisgrunning og signal-to-noise skönnun sem notuð er áður en myndirnar fara í þjálfun."
+        },
+        {
+          "narration": "Útgangs- og rekstrartímaeftirlit eru tilgreind í framkvæmdaskýrslunum. Skilstöðvar fyrirmynd og stillingar hennar eru geymdar undir fyrirmyndum, cellpose fyrirmyndinni inni í niðurfelldu gagnasettu rótinum."
+        },
+        {
+          "narration": "Til þessarar mælingar vinnur eitt tímabil og flokksstærð tvö með öllum sex merkjuðum sviðum án aukningar. Veruleikinn á að nýta nægilega tímabil og fjölbreytni í myndunum til að koma saman án þess að minnast þjálfunarsetinn."
+        },
+        {
+          "narration": "Run staðfestir samsvarandi skránafn, hlaðir inn hverja athugasemd mynd, sýnir fyrirsýn á takmörkuðum sýnishornum og snyrtilegast módelinn. Stopp óskar eftir öruggum stöðvunni á meðan núverandi flokkinn er búinn."
+        },
+        {
+          "narration": "Við vinnslu skoðar tölubúnaðurinn hvert mikroskópsvæði yfir myndaskrímsmunninum, en konsonan skýrir frá sex plötum, sex kjarnorðskjölum, einum tímabili og minibatch stærð tvö."
+        },
+        {
+          "narration": "Kalibringin lauk vel. spaCR geymdi CPSAM eftirlitsstað, stillingar CSV, hlaupa manifest, og makró skrá, og parið sviði forskoðun staðfestir að mynd og merki skrár voru áfram samræmdir."
         }
       ]
     },

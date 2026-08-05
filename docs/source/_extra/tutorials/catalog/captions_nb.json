@@ -1066,19 +1066,64 @@
       "id": "19_train_cellpose",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Train Cellpose. Trene en tilpasset Cellpose eller CPSAM-kompatibel segmenteringsmodell fra kurerte bilde-maskerpar."
+          "narration": "Train Cellpose fine tunes en CPSAM segmentering modell fra parret mikroskopisk bilder og instans-etikettmasker. Konsolen rapporterer de valgte dataene, treningsutviklingen, kontrollpunktsveien og reproduksjonsregistret."
         },
         {
-          "narration": "Åpne tog Cellpose fra segmentering modeller seksjon. Gi ulike opplærings- og valideringsbilder med nøye korrigerte etikettmasker."
+          "narration": "Chatfeltet aksepterer lokale arbeidsflytspørsmål. Aktiver AI for en konfigurert leverandør, og bruk den tilstøtende pilen for å velge en leverandør eller åpne kontroller."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet skal du velge kanaler, basemodell, diameter, utvidelse, læringsrate, epoker, partistørrelse og valideringsplitt."
+          "narration": "Leverandører sjekker Claude, ChatGPT, og Gemini kommando-linje klienter og viser deres installasjon og login kommandoer. Autentisering forblir hos hver leverandør."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. overvåke opplærings- og valideringstap og prøvekontrollpunkter på felter som ikke ble brukt til opplæring."
+          "narration": "AI-innstillinger styrer responsdyp, automatisk feilforklaring, valgfri GitHub-problemrapportering, logging inn og spaCR-bevisste systeminstruksjoner."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, lagres det valgte kontrollpunktet, opplæringshistorien, valideringspåsikter og innstillingene sammen."
+          "narration": "Slip roten av dataset som inneholder tog, bilder og tog, masker. TIFF-filenavn som samsvarer for hvert par. Denne demonstrasjonen utleder seks fem hundre tolv-pixel-cellefelt fra det virkelige tutorial-eksperimentet; produksjonsetiketter må undersøkes uavhengig."
+        },
+        {
+          "narration": "Essentials holder startvektene, modellnavnet, epokontingen, læringsfrekvensen, billedmålstørrelsen og verbose-utgangen synlig for en første kalibrering."
+        },
+        {
+          "narration": "Modifisert begrenser panelen til intensjonelle endringer. Her, en epoke, en null-en læringsfrekvens, batch størrelse to, resizing, og et 250-6-pixel mål holder tutorialen rask og reproduserbar."
+        },
+        {
+          "narration": "Alle innstillingene avslører fem kategorier: Startpunkt, opplæringsplan, billedgeometri, bakgrunn og avvisning, og utgang og kjøretid."
+        },
+        {
+          "narration": "Recipes lagrer den komplette opplæringskonfigurasjonen under et navn, bruker den på nytt på et annet annotert datasett, eller importerer og eksporterer en gjenbrukbar innstillingsfil."
+        },
+        {
+          "narration": "Sende fjernbilder av opplæringsinnstillingene som er løst og sender passformen til Distributed Jobs-arbeidsrommet, noe som er nyttig når CPSAM-trening tilhører en større GPU."
+        },
+        {
+          "narration": "Distributed Jobs kartlegger datasettet og utgangsveiene til en fjernarbeidsstasjon, Slurm-kluster eller konfigurert kommando, og sender og overvåker deretter samme opplæring."
+        },
+        {
+          "narration": "Startpunkt velger CPSAM, finjustering eller opplæring fra nytt, og kontrollpunktsnavnet. Finjustering forutøvede vekter trenger vanligvis langt færre reviderte bilder enn en tilfeldig start."
+        },
+        {
+          "narration": "Treningsplanen fastsetter epoker, læringsrate, vekttap, miniparts størrelse og utvidelse. Øke opplæringen først etter at inputparene og den gjennomførte evalueringsstrategien er korrekte."
+        },
+        {
+          "narration": "Bildgeometri registrerer kilde dimensjoner, mål størrelse, forventet objekt diameter, og om par er resized. Bilder og masker blir forvandlet sammen, med etikettidentiteter bevaret."
+        },
+        {
+          "narration": "Bakgrunn og Denoising kontrollerer valgfri bakgrunn fjernelse, intensitetsgulvet og signal-til-støy-skjerming som brukes før bildene går i trening."
+        },
+        {
+          "narration": "Utgangs- og kjøretidskontroller er en form for rapportering av fremskritt. Modellkontrollpunktet og dets innstillinger lagres under modeller, cellpose modell inne i den droppet dataset rot."
+        },
+        {
+          "narration": "For denne kalibreringen behandler en epoke og batch size to alle seks annoterte felt uten utvidelse. En ekte passform bør bruke nok epoker og billedforskjell til å konvergere uten å huske opplæringssetten."
+        },
+        {
+          "narration": "Run validerer matchende filenavn, laster hvert annotert bilde, forhåndsviser en begrenset prøve, og finjusterer modellen. Stopp anmoder om en sikker avbrudd mens det nåværende partiet er ferdig."
+        },
+        {
+          "narration": "Under prosessering ser tallpanelet hvert mikroskopfelt over sin instansmaske, mens konsollen rapporterer seks patcher, seks kildeannotasjoner, en epoke og minibatch størrelse to."
+        },
+        {
+          "narration": "Kalibreringen er fullført med suksess. spaCR lagret CPSAM-kontrollpunktet, innstillingene CSV, kjøre manifest og makroopptak, og forhåndsvisning med paret felt bekrefter at billed- og etikettfiler forble justert."
         }
       ]
     },

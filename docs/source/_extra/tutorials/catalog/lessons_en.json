@@ -2766,48 +2766,169 @@
     {
       "id": "19_train_cellpose",
       "number": 19,
-      "slug": "train_cellpose",
+      "slug": "train-cellpose",
       "title": "Train Cellpose",
       "series": 2,
       "app_key": "train_cellpose",
       "section": "Segmentation models",
-      "description": "Train a custom Cellpose or CPSAM-compatible segmentation model from curated image-mask pairs.",
+      "description": "Prepare matched microscopy images and reviewed object masks, configure CPSAM fine-tuning, and save a reproducible Cellpose checkpoint.",
       "objectives": [
-        "Understand when to use Train Cellpose.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Prepare matching TIFF image-mask pairs in the required training folders.",
+        "Review starting point, schedule, geometry, denoising, and runtime categories.",
+        "Run a short calibration fit and locate the saved checkpoint and settings."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Create accurate instance-label masks, review every annotation, and reserve independent fields for validation before production training.",
       "scenes": [
         {
-          "narration": "This tutorial covers Train Cellpose. Train a custom Cellpose or CPSAM-compatible segmentation model from curated image-mask pairs.",
-          "visual": "overview",
+          "narration": "Train Cellpose fine-tunes a CPSAM segmentation model from paired microscopy images and instance-label masks. The console reports the selected data, training progress, checkpoint path, and reproducibility record.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Train Cellpose. Train a custom Cellpose or CPSAM-compatible segmentation model from curated image-mask pairs."
+          "speech_text": "Train Cellpose fine tunes a C P Sam segmentation model from paired microscopy images and instance label masks. The console reports the selected data, training progress, checkpoint path, and reproducibility record."
         },
         {
-          "narration": "Open Train Cellpose from the Segmentation models section. Provide diverse training and validation images with carefully corrected label masks.",
-          "visual": "input",
+          "narration": "The chat field accepts local workflow questions. Enable AI for a configured provider, and use the adjacent arrow to select a provider or open its controls.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Train Cellpose from the Segmentation models section. Provide diverse training and validation images with carefully corrected label masks."
+          "speech_text": "The chat field accepts local workflow questions. Enable A I for a configured provider, and use the adjacent arrow to select a provider or open its controls."
         },
         {
-          "narration": "In the main configuration area, choose channels, base model, diameter, augmentation, learning rate, epochs, batch size, and validation split.",
-          "visual": "settings",
+          "narration": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and displays their install and login commands. Authentication remains with each provider.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose channels, base model, diameter, augmentation, learning rate, epochs, batch size, and validation split."
+          "speech_text": "Providers checks the Claude, Chat G P T, and Gemini command line clients and displays their install and login commands. Authentication remains with each provider."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. monitor training and validation losses and test checkpoints on fields that were not used for training.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. monitor training and validation losses and test checkpoints on fields that were not used for training."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system instructions."
         },
         {
-          "narration": "When the workflow finishes, the selected checkpoint, training history, validation predictions, and settings are stored together.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the selected checkpoint, training history, validation predictions, and settings are stored together."
+          "narration": "Drop the dataset root containing train, images and train, masks. Matching TIFF filenames form each pair. This demonstration derives six five-hundred-twelve-pixel cell fields from the real tutorial experiment; production labels must be independently reviewed.",
+          "visual": "05_inputs",
+          "focus_key": "console",
+          "hold_after": 0.5,
+          "speech_text": "Drop the dataset root containing train images and train masks. Matching Tiff filenames form each pair. This demonstration derives six five hundred twelve pixel cell fields from the real tutorial experiment; production labels must be independently reviewed."
+        },
+        {
+          "narration": "Essentials keeps the starting weights, model name, epoch count, learning rate, image target size, and verbose output visible for a first calibration run.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials keeps the starting weights, model name, epoch count, learning rate, image target size, and verbose output visible for a first calibration run."
+        },
+        {
+          "narration": "Modified limits the panel to intentional changes. Here, one epoch, a point-zero-one learning rate, batch size two, resizing, and a two-hundred-fifty-six-pixel target keep the tutorial fast and reproducible.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to intentional changes. Here, one epoch, a point zero one learning rate, batch size two, resizing, and a two hundred fifty six pixel target keep the tutorial fast and reproducible."
+        },
+        {
+          "narration": "All settings reveals five categories: Starting Point, Training Schedule, Image Geometry, Background and Denoising, and Output and Runtime.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals five categories: Starting Point, Training Schedule, Image Geometry, Background and Denoising, and Output and Runtime."
+        },
+        {
+          "narration": "Recipes saves the complete training configuration under a name, reapplies it to another annotated dataset, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete training configuration under a name, reapplies it to another annotated dataset, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved training settings and sends the fit to the Distributed Jobs workspace, which is useful when CPSAM training belongs on a larger GPU.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved training settings and sends the fit to the Distributed Jobs workspace, which is useful when C P Sam training belongs on a larger G P U."
+        },
+        {
+          "narration": "Distributed Jobs maps the dataset and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same training run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps the dataset and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same training run."
+        },
+        {
+          "narration": "Starting Point chooses CPSAM, fine-tuning or training from scratch, and the checkpoint name. Fine-tuning pretrained weights usually needs far fewer reviewed images than a random start.",
+          "visual": "12_category_01_starting_point",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Starting Point chooses C P Sam, fine tuning or training from scratch, and the checkpoint name. Fine tuning pretrained weights usually needs far fewer reviewed images than a random start."
+        },
+        {
+          "narration": "Training Schedule sets epochs, learning rate, weight decay, minibatch size, and augmentation. Increase training only after the input pairs and held-out evaluation strategy are correct.",
+          "visual": "12_category_02_training_schedule",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Training Schedule sets epochs, learning rate, weight decay, minibatch size, and augmentation. Increase training only after the input pairs and held out evaluation strategy are correct."
+        },
+        {
+          "narration": "Image Geometry records the source dimensions, target size, expected object diameter, and whether pairs are resized. Images and masks are transformed together, with label identities preserved.",
+          "visual": "12_category_03_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Image Geometry records the source dimensions, target size, expected object diameter, and whether pairs are resized. Images and masks are transformed together, with label identities preserved."
+        },
+        {
+          "narration": "Background and Denoising controls optional background removal, the intensity floor, and signal-to-noise screening applied before the images enter training.",
+          "visual": "12_category_04_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Background and Denoising controls optional background removal, the intensity floor, and signal to noise screening applied before the images enter training."
+        },
+        {
+          "narration": "Output and Runtime controls verbose progress reporting. The model checkpoint and its settings are saved under models, cellpose model inside the dropped dataset root.",
+          "visual": "12_category_05_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Runtime controls verbose progress reporting. The model checkpoint and its settings are saved under models, cellpose model inside the dropped dataset root."
+        },
+        {
+          "narration": "For this calibration, one epoch and batch size two process all six annotated fields without augmentation. A real fit should use enough epochs and image diversity to converge without memorizing the training set.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "For this calibration, one epoch and batch size two process all six annotated fields without augmentation. A real fit should use enough epochs and image diversity to converge without memorizing the training set."
+        },
+        {
+          "narration": "Run validates matching filenames, loads every annotated image, previews a bounded sample, and fine-tunes the model. Stop requests a safe interruption while the current batch finishes.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run validates matching filenames, loads every annotated image, previews a bounded sample, and fine tunes the model. Stop requests a safe interruption while the current batch finishes."
+        },
+        {
+          "narration": "During processing, the figures panel previews each microscopy field above its instance mask, while the console reports six patches, six source annotations, one epoch, and minibatch size two.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During processing, the figures panel previews each microscopy field above its instance mask, while the console reports six patches, six source annotations, one epoch, and minibatch size two."
+        },
+        {
+          "narration": "The calibration completed successfully. spaCR saved the CPSAM checkpoint, settings CSV, run manifest, and macro record, and the paired-field preview confirms that image and label files remained aligned.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "The calibration completed successfully. spacer saved the C P Sam checkpoint, settings C S V, run manifest, and macro record, and the paired field preview confirms that image and label files remained aligned."
         }
       ]
     },

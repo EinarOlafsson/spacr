@@ -1066,19 +1066,64 @@
       "id": "19_train_cellpose",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Train Cellpose. Trainieren Sie ein maßgeschneidertes Cellpose- oder CPSAM-kompatibles Segmentierungsmodell aus kuratierten Bildmaskenpaaren."
+          "narration": "Train Cellpose passt ein CPSAM-Segmentierungsmodell aus gekoppelten Mikroskopiebildern und Instanz-Label-Masken auf. Die Konsole berichtet über die ausgewählten Daten, den Trainingsfortschritt, den Checkpoint-Pfad und die Reproduzierbarkeit."
         },
         {
-          "narration": "Öffnen Sie Cellpose aus dem Abschnitt Modellsegmentierung. Bereitstellung vielfältiger Trainings- und Validierungsbilder mit sorgfältig korrigierten Etikettenmasken."
+          "narration": "Das Chatfeld akzeptiert lokale Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter auszuwählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Wählen Sie im Hauptkonfigurationsbereich Kanäle, Basismodell, Durchmesser, Vergrößerung, Lernrate, Epochen, Batchgröße und Validierungsspaltung aus."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilen und zeigen ihre Installations- und Login-Befehlszeiten an. Die Authentifizierung bleibt bei jedem Anbieter."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überwachung von Ausbildungs- und Validierungsverlusten sowie Prüfkontrollpunkte auf Feldern, die nicht für die Ausbildung verwendet wurden."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden der ausgewählte Checkpoint, die Trainingsgeschichte, die Validierungsvorhersagen und die Einstellungen zusammen gespeichert."
+          "narration": "Lassen Sie die Datensatzwurzel fallen, die Zug, Bilder und Zug, Masken enthält. Jede Paare besteht aus entsprechenden TIFF-Dateinamen. Diese Demonstration bezieht sechs fünfhundert zwölf Pixel-Zellfelder aus dem echten Tutorial-Experiment ab; Produktionsetiketten müssen unabhängig überprüft werden."
+        },
+        {
+          "narration": "Essentials hält die Startgewichte, den Modellnamen, die Epochenzahl, die Lernrate, die Bildzielgröße und die Verbose-Ausgabe für einen ersten Kalibrierungslauf sichtbar."
+        },
+        {
+          "narration": "Die Änderung beschränkt das Panel auf absichtliche Änderungen. Hier, eine Epoche, eine Punkt-Null-One-Lernrate, Batch-Größe zwei, Umgrößerung und ein zweihundertfünfzig-sechs-Pixel-Ziel halten das Tutorial schnell und reproduzierbar."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen fünf Kategorien an: Startpunkt, Trainingsplan, Bildgeometrie, Hintergrund und Verweigerung und Ausgabe und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Trainingskonfiguration unter einem Namen, wenden sie auf einen anderen annoterten Datensatz an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Trainingsinstellungen und senden Sie die Passform in den Distributed Jobs-Arbeitsraum, was nützlich ist, wenn CPSAM-Training auf einer größeren GPU gehört."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert den Datensatz und die Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Trainingslauf."
+        },
+        {
+          "narration": "Startpunkt wählt CPSAM, Fein-Tuning oder Training von Grund auf und den Checkpoint-Namen. Vorgeübte Gewichte benötigen in der Regel viel weniger überprüfte Bilder als ein zufälliger Start."
+        },
+        {
+          "narration": "Das Trainingsprogramm setzt Epochen, Lernrate, Gewichtsverlust, Minibatchgröße und Augmentation fest. Erweitern Sie die Ausbildung erst, wenn die Eingabepaare und die ausgehaltenen Evaluierungsstrategien korrekt sind."
+        },
+        {
+          "narration": "Die Bildgeometrie erfasst die Quelldimensionen, die Zielgröße, den erwarteten Objektdurchmesser und ob Paare vergrößert werden. Bilder und Masken werden zusammen verwandelt, wobei die Kennzeichen erhalten bleiben."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung kontrollieren die optionelle Hintergrundentfernung, den Intensitätsboden und das Signal-to-Noise-Screening, das vor dem Training der Bilder angewendet wird."
+        },
+        {
+          "narration": "Output- und Runtime-Kontrollen sind Verbot der Fortschrittsberichterstattung. Der Modell-Checkpoint und seine Einstellungen werden unter Modellen gespeichert, Cellpose-Modell innerhalb der gestürzten Datensatzwurzel."
+        },
+        {
+          "narration": "Für diese Kalibrierung verarbeiten eine Epoche und Batchgröße zwei alle sechs annoterten Felder ohne Erhöhung. Eine echte Anpassung sollte ausreichend Epochen und Bildvielfalt nutzen, um sich zu konvergieren, ohne das Trainingsprogramm auswendig zu lernen."
+        },
+        {
+          "narration": "Run validiert entsprechende Dateinamen, lädt jedes annoterte Bild auf, präsentiert eine begrenzte Stichprobe und feintunioniert das Modell. Stop verlangt eine sichere Unterbrechung, während die aktuelle Batch abgeschlossen ist."
+        },
+        {
+          "narration": "Während der Verarbeitung präsentiert das Figurenpaneel jedes Mikroskopiefeld über seiner Instanzmaske, während die Konsole sechs Patches, sechs Quellenanmerkungen, eine Epoche und Minibatch-Größe zwei berichtet."
+        },
+        {
+          "narration": "Die Kalibrierung ist erfolgreich abgeschlossen. spaCR hat den CPSAM-Checkpoint, die Einstellungen CSV, das Run-Manifest und den Makro-Register gespeichert, und die Paarungs-Feld-Vorsicht bestätigt, dass Bild- und Etikettdateien ausgerichtet blieben."
         }
       ]
     },

@@ -2751,48 +2751,169 @@
     {
       "id": "19_train_cellpose",
       "number": 19,
-      "slug": "train_cellpose",
-      "title": "Train Cellpose",
+      "slug": "train-cellpose",
+      "title": "列车Cellpose",
       "series": 2,
       "app_key": "train_cellpose",
       "section": "Segmentation models",
-      "description": "从精选的图像掩膜对进行训练,培训一个自定义的 Cellpose 或 CPSAM兼容的细分模型.",
+      "description": "准备匹配的显微镜图像和检查物体面具,配置CPSAM细调,并保存可复制的Cellpose检查点.",
       "objectives": [
-        "了解什么时候使用 Train Cellpose.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "在所需的训练文件中准备匹配的TIFF图像面具对.",
+        "审查出发点,时间表,几何,指标和运行时间类别.",
+        "运行一个简短的校准适配,并找到保存的检查点和设置."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "创建准确的实例标签面具,审查每一个注释,并在生产训练之前保留独立的字段进行验证.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了\"火车细胞用\" (Train Cellpose).从精选的图像-掩膜对进行自定义的\"火车用\" (Cellpose) 或\"CPSAM\"兼容的分类模型.",
-          "visual": "overview",
+          "narration": "培训Cellpose从配显微镜图像和实例标签面具中调整了CPSAM细分模型. 控制台报告选定的数据,训练进展,检查点路径和可复制性记录.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了\"火车细胞用\" (Train Cellpose).从精选的图像-掩膜对进行自定义的\"火车用\" (Cellpose) 或\"CPSAM\"兼容的分类模型."
+          "speech_text": "培训Cellpose从配显微镜图像和实例标签面具中调整了CPSAM细分模型. 控制台报告选定的数据,训练进展,检查点路径和可复制性记录."
         },
         {
-          "narration": "从 Segmentation models 部分打开 Train Cellpose。 提供各种训练和验证图像,并使用精心修改的标签掩膜.",
-          "visual": "input",
+          "narration": "聊天场接受本地工作流程问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Segmentation models 部分打开 Train Cellpose。 提供各种训练和验证图像,并使用精心修改的标签掩膜."
+          "speech_text": "聊天场接受本地工作流程问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制."
         },
         {
-          "narration": "在主要配置区域中,选择道,基模型,直径,增强,学习速度,时代,批量大小和验证分区.",
-          "visual": "settings",
+          "narration": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令. 每个提供商都必须进行验证.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择道,基模型,直径,增强,学习速度,时代,批量大小和验证分区."
+          "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了他们的安装和登录命令. 每个提供商都必须进行验证."
         },
         {
-          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.监测训练和验证损失,以及未用于训练的场地检查点.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.监测训练和验证损失,以及未用于训练的场地检查点."
+          "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明."
         },
         {
-          "narration": "工作流程完成后,选定的检查点,训练历史,验证预测和设置将被保存在一起.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "工作流程完成后,选定的检查点,训练历史,验证预测和设置将被保存在一起."
+          "narration": "放弃包含火车,图像和火车,面具的数据集根. 每个对的TIFF文件名称都匹配. 这项示范从实际的教程实验中提取了6个512像素的细胞场;生产标签必须独立审查.",
+          "visual": "05_inputs",
+          "focus_key": "console",
+          "hold_after": 0.5,
+          "speech_text": "放弃包含火车,图像和火车,面具的数据集根. 每个对的TIFF文件名称都匹配. 这项示范从实际的教程实验中提取了6个512像素的细胞场;生产标签必须独立审查."
+        },
+        {
+          "narration": "基本保持起始重量,模型名称,时代数量,学习速度,图像目标尺寸和语音输出可见于第一次校准运行.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本保持起始重量,模型名称,时代数量,学习速度,图像目标尺寸和语音输出可见于第一次校准运行."
+        },
+        {
+          "narration": "修改限制了面板的故意变化. 在这里,一个时代,一个零零一点的学习速度, 批量二,重新尺寸, 和两百五十六像素的目标使教程快速和可复制.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制了面板的故意变化. 在这里,一个时代,一个零零一点的学习速度, 批量二,重新尺寸, 和两百五十六像素的目标使教程快速和可复制."
+        },
+        {
+          "narration": "所有设置都显示了五个类别:启动点,培训时间表,图像几何学,背景和否认,以及输出和运行时间.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示了五个类别:启动点,培训时间表,图像几何学,背景和否认,以及输出和运行时间."
+        },
+        {
+          "narration": "配方将整个训练配置存储在一个名称下,重新应用到另一个注释数据集,或进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将整个训练配置存储在一个名称下,重新应用到另一个注释数据集,或进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "将解决训练设置的远程快照提交,并将适配件发送到分布式职位工作空间,这是有用的,当CPSAM训练属于更大的GPU时.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "将解决训练设置的远程快照提交,并将适配件发送到分布式职位工作空间,这是有用的,当CPSAM训练属于更大的GPU时."
+        },
+        {
+          "narration": "分布式工作将数据集和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的训练运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将数据集和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的训练运行."
+        },
+        {
+          "narration": "开始点选择CPSAM,微调或从零开始训练,以及检查点名称. 精细调节预训练的重量通常需要比随机开始更少的复习图像.",
+          "visual": "12_category_01_starting_point",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "开始点选择CPSAM,微调或从零开始训练,以及检查点名称. 精细调节预训练的重量通常需要比随机开始更少的复习图像."
+        },
+        {
+          "narration": "训练计划设定时代,学习率,体重下降,小批量大小和增长. 只有输入对和持续评估策略正确后才能增加培训.",
+          "visual": "12_category_02_training_schedule",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "训练计划设定时代,学习率,体重下降,小批量大小和增长. 只有输入对和持续评估策略正确后才能增加培训."
+        },
+        {
+          "narration": "图像几何学记录了源尺寸,目标尺寸,预期对象直径,以及对是否被改大小. 图像和面具一起变化,标签身份保存.",
+          "visual": "12_category_03_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "图像几何学记录了源尺寸,目标尺寸,预期对象直径,以及对是否被改大小. 图像和面具一起变化,标签身份保存."
+        },
+        {
+          "narration": "在图像进入训练之前,可选择地删除背景,强度地板和信号到噪音选.",
+          "visual": "12_category_04_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "在图像进入训练之前,可选择地删除背景,强度地板和信号到噪音选."
+        },
+        {
+          "narration": "输出和运行时间控制是表态进展报告. 模型检查点及其设置存储在丢弃的数据集根内部的模型,细胞位置模型下.",
+          "visual": "12_category_05_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和运行时间控制是表态进展报告. 模型检查点及其设置存储在丢弃的数据集根内部的模型,细胞位置模型下."
+        },
+        {
+          "narration": "为此校准,一个时代和批量二处理所有六个注释字段,而不增加. 一个真正的适应应应使用足够的时代和图像多样性,",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "为此校准,一个时代和批量二处理所有六个注释字段,而不增加. 一个真正的适应应应使用足够的时代和图像多样性,"
+        },
+        {
+          "narration": "运行验证匹配的文件名,加载每个注释的图像,预览一个有限的样本,并调整模型. 在当前批量完成时,停止要求安全中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行验证匹配的文件名,加载每个注释的图像,预览一个有限的样本,并调整模型. 在当前批量完成时,停止要求安全中断."
+        },
+        {
+          "narration": "在处理过程中,数字面板在其实例面具上预览每个显微镜领域,而控制台则报告六个补丁,六个源注释,一个时代,",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在处理过程中,数字面板在其实例面具上预览每个显微镜领域,而控制台则报告六个补丁,六个源注释,一个时代,"
+        },
+        {
+          "narration": "校准成功完成. spaCR保存了CPSAM检查点,设置CSV,运行表格和宏记录,并且对称字段预览确认图像和标签文件保持一致.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "校准成功完成. 斯佩克尔保存了CPSAM检查点,设置CSV,运行表格和宏记录,并且对称字段预览确认图像和标签文件保持一致."
         }
       ]
     },
