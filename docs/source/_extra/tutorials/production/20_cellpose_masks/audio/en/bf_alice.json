@@ -4,47 +4,217 @@
   "voice": "bf_alice",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.325,
+  "total_duration": 235.45,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.875,
-      "scene_end": 8.325,
-      "duration": 8.325,
-      "text": "This tutorial covers Cellpose Masks. Generate and review Cellpose masks with a focused model-application workflow."
+      "speech_end": 14.65,
+      "scene_end": 15.1,
+      "duration": 15.1,
+      "text": "Cellpose Masks applies a stock CPSAM model or a custom checkpoint to microscopy images and writes one instance-label mask per field. The console records model resolution, normalization, progress, and output paths.",
+      "speech_text": "Cellpose Masks applies a stock CPSAM model or a custom checkpoint to microscopy images and writes one instance-label mask per field. The console records model resolution, normalization, progress, and output paths.",
+      "phonemes": "sˈɛlpQz mˈɑːsks əplˈIz ɐ stˈɒk sˌiːpˌiːˌɛsˌAˈɛm mˈɒdᵊl ɔː ɐ kˈʌstəm ʧˈɛkpYnt tə mIkɹˈɒskəpi ˈɪmɪʤɪz and ɹˈIts wˈʌn ˈɪnstᵊnslˌAbᵊl mˈɑːsk pɜː fˈiːld. ðə kˈɒnsQl ɹɪkˈɔːdz mˈɒdᵊl ɹˌɛzəljˈuːʃᵊn, nˌɔːməlIzˈAʃᵊn, pɹˈQɡɹɛs, and ˈWtpʊt pˈɑːðz."
     },
     {
       "scene": 2,
-      "speech_start": 8.325,
-      "speech_end": 17.299999999999997,
-      "scene_end": 17.749999999999996,
-      "duration": 9.424999999999997,
-      "text": "Open Cellpose Masks from the Segmentation models section. Select microscopy images, channels, and a built-in or custom Cellpose model."
+      "speech_start": 15.1,
+      "speech_end": 25.475,
+      "scene_end": 25.925,
+      "duration": 10.825000000000001,
+      "text": "The chat field accepts local workflow questions. Enable AI for a configured provider, and use the adjacent arrow to select a provider or open its controls.",
+      "speech_text": "The chat field accepts local workflow questions. Enable AI for a configured provider, and use the adjacent arrow to select a provider or open its controls.",
+      "phonemes": "ðə ʧˈat fˈiːld əksˈɛpts lˈQkᵊl wˈɜːkflQ kwˈɛsʧᵊnz. ɪnˈAbᵊl ˈAˌI fɔː ɐ kənfˈɪɡəd pɹəvˈIdə, and jˈuːz ði əʤˈAsᵊnt ˈaɹQ tə sɪlˈɛkt ɐ pɹəvˈIdə ɔː ˈQpᵊn ɪts kəntɹˈQlz."
     },
     {
       "scene": 3,
-      "speech_start": 17.749999999999996,
-      "speech_end": 26.224999999999994,
-      "scene_end": 26.674999999999994,
-      "duration": 8.924999999999997,
-      "text": "In the main configuration area, configure diameter, flow and cell-probability thresholds, normalization, tiling, and hardware use."
+      "speech_start": 25.925,
+      "speech_end": 36.9,
+      "scene_end": 37.35,
+      "duration": 11.425,
+      "text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and displays their install and login commands while authentication remains with each provider.",
+      "speech_text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and displays their install and login commands while authentication remains with each provider.",
+      "phonemes": "pɹəvˈIdəz ʧˈɛks ðə klˈɔːd, ʧˌatʤˌiːpˌiːtˈiː, and ʤˈɛmɪniː kəmˈɑːndlˌIn klˈIənts and dɪsplˈAz ðɛː ɪnstˈɔːl and lˈɒɡɪn kəmˈɑːndz wˌIl ɔːθˌɛntɪkˈAʃᵊn ɹɪmˈAnz wɪð ˈiːʧ pɹəvˈIdə."
     },
     {
       "scene": 4,
-      "speech_start": 26.674999999999994,
-      "speech_end": 37.89999999999999,
-      "scene_end": 38.349999999999994,
-      "duration": 11.675,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview several representative fields before applying the model to the full source."
+      "speech_start": 37.35,
+      "speech_end": 47.400000000000006,
+      "scene_end": 47.85000000000001,
+      "duration": 10.500000000000007,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system instructions.",
+      "phonemes": "ˈAˌI sˈɛtɪŋz kəntɹˈQlz ɹɪspˈɒns dˈɛpθ, ˌɔːtəmˈatɪk ˈɛɹə ˌɛksplənˈAʃᵊnz, ˈɒpʃənᵊl ɡˌɪthˈʌb ˈɪʃjuː ɹɪpˈɔːtɪŋ, sˈInˌɪn, and ðə spˈAsəəwˌɛː sˈɪstɪm ɪnstɹˈʌkʃᵊnz."
     },
     {
       "scene": 5,
-      "speech_start": 38.349999999999994,
-      "speech_end": 45.675,
-      "scene_end": 46.324999999999996,
-      "duration": 7.975000000000001,
-      "text": "When the workflow finishes, label masks and visual quality-control images are written beside the mapped inputs."
+      "speech_start": 47.85000000000001,
+      "speech_end": 60.87500000000001,
+      "scene_end": 61.37500000000001,
+      "duration": 13.524999999999999,
+      "text": "Drop the folder containing TIFF fields. This source contains six real ER-channel cell crops, normalized between percentiles two and ninety-nine point five. Channel zero selects the single plane in each TIFF.",
+      "speech_text": "Drop the folder containing TIFF fields. This source contains six real ER-channel cell crops, normalized between percentiles two and ninety-nine point five. Channel zero selects the single plane in each TIFF.",
+      "phonemes": "dɹˈɒp ðə fˈQldə kəntˈAnɪŋ tˈɪf fˈiːldz. ðˌɪs sˈɔːs kəntˈAnz sˈɪks ɹˈɪəl iːˌɑːʧˈanᵊl sˈɛl kɹˈɒps, nˈɔːməlIzd bɪtwˈiːn pəsˈɛntIlz tˈuː and nˌIntɪnˈIn pˈYnt fˈIv. ʧˈanᵊl zˈɪəɹQ sɪlˈɛkts ðə sˈɪŋɡᵊl plˈAn ɪn ˈiːʧ tˈɪf."
+    },
+    {
+      "scene": 6,
+      "speech_start": 61.37500000000001,
+      "speech_end": 71.92500000000001,
+      "scene_end": 72.37500000000001,
+      "duration": 11.000000000000007,
+      "text": "Essentials keeps the source, channels, normalization, model, custom checkpoint, diameter, probability and flow thresholds, save switch, batch size, and verbose preview visible.",
+      "speech_text": "Essentials keeps the source, channels, normalization, model, custom checkpoint, diameter, probability and flow thresholds, save switch, batch size, and verbose preview visible.",
+      "phonemes": "ɪsˈɛnʃlz kˈiːps ðə sˈɔːs, ʧˈanᵊlz, nˌɔːməlIzˈAʃᵊn, mˈɒdᵊl, kˈʌstəm ʧˈɛkpYnt, dIˈamɪtə, pɹˌɒbəbˈɪlɪti and flˈQ θɹˈɛʃhQldz, sˈAv swˈɪʧ, bˈaʧ sˈIz, and vəːbˈQs pɹˈiːvjuː vˈɪzɪbᵊl."
+    },
+    {
+      "scene": 7,
+      "speech_start": 72.37500000000001,
+      "speech_end": 81.95000000000002,
+      "scene_end": 82.40000000000002,
+      "duration": 10.025000000000006,
+      "text": "Modified isolates this run's custom checkpoint, percentile normalization, batch size two, saving, and verbose figure output from unchanged defaults.",
+      "speech_text": "Modified isolates this run's custom checkpoint, percentile normalization, batch size two, saving, and verbose figure output from unchanged defaults.",
+      "phonemes": "mˈɒdɪfId ˈIsəlAts ðɪs ɹˈʌnz kˈʌstəm ʧˈɛkpYnt, pəsˈɛntIl nˌɔːməlIzˈAʃᵊn, bˈaʧ sˈIz tˈuː, sˈAvɪŋ, and vəːbˈQs fˈɪɡə ˈWtpʊt fɹɒm ʌnʧˈAnʤd dɪfˈɔːlts."
+    },
+    {
+      "scene": 8,
+      "speech_start": 82.40000000000002,
+      "speech_end": 92.05000000000003,
+      "scene_end": 92.50000000000003,
+      "duration": 10.100000000000009,
+      "text": "All settings reveals six categories: Input and Channels, Model, Detection Thresholds, Image Geometry, Background and Denoising, and Output and Runtime.",
+      "speech_text": "All settings reveals six categories: Input and Channels, Model, Detection Thresholds, Image Geometry, Background and Denoising, and Output and Runtime.",
+      "phonemes": "ˈɔːl sˈɛtɪŋz ɹɪvˈiːlz sˈɪks kˈatɪɡəɹiz: ˈɪnpʊt and ʧˈanᵊlz, mˈɒdᵊl, dɪtˈɛkʃᵊn θɹˈɛʃhQldz, ˈɪmɪʤ ʤɪˈɒmɪtɹi, bˈakɡɹWnd and dɪnˈYsɪŋ, and ˈWtpʊt and ɹˈʌntIm."
+    },
+    {
+      "scene": 9,
+      "speech_start": 92.50000000000003,
+      "speech_end": 101.95000000000003,
+      "scene_end": 102.40000000000003,
+      "duration": 9.900000000000006,
+      "text": "Recipes saves the complete inference configuration, reapplies it to another image folder, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete inference configuration, reapplies it to another image folder, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsɪpiz sˈAvz ðə kəmplˈiːt ˈɪnfəɹəns kənfˌɪɡəɹˈAʃᵊn, ɹˌiːəplˈIz ɪt tʊ ənˈʌðə ˈɪmɪʤ fˈQldə, ɔː ˈɪmpɔːts and ˈɛkspɔːts ɐ ɹˌiːjˈuːzəbᵊl sˈɛtɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 102.40000000000003,
+      "speech_end": 111.00000000000003,
+      "scene_end": 111.45000000000003,
+      "duration": 9.049999999999997,
+      "text": "Submit remote snapshots the resolved model, source, and thresholds and sends the segmentation job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved model, source, and thresholds and sends the segmentation job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹɪmˈQt snˈapʃɒts ðə ɹɪzˈɒlvd mˈɒdᵊl, sˈɔːs, and θɹˈɛʃhQldz and sˈɛndz ðə sˌɛɡmᵊntˈAʃᵊn ʤˈɒb tə ðə dɪstɹˈɪbjuːtɪd ʤˈɒbz wˈɜːkspAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 111.45000000000003,
+      "speech_end": 121.82500000000003,
+      "scene_end": 122.27500000000003,
+      "duration": 10.825000000000003,
+      "text": "Distributed Jobs maps the image, model, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "speech_text": "Distributed Jobs maps the image, model, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "phonemes": "dɪstɹˈɪbjuːtɪd ʤˈɒbz mˈaps ði ˈɪmɪʤ, mˈɒdᵊl, and ˈWtpʊt pˈɑːðz tə ɐ ɹɪmˈQt wˈɜːkstˌAʃᵊn, slˈɜːm klˈʌstə, ɔː kənfˈɪɡəd kəmˈɑːnd, ðˈɛn səbmˈɪts and mˈɒnɪtəz ðə sˈAm ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 122.27500000000003,
+      "speech_end": 133.80000000000004,
+      "scene_end": 134.25000000000003,
+      "duration": 11.974999999999994,
+      "text": "Input and Channels selects the image folder, planes, grayscale handling, inversion, normalization, and percentiles. A wrong channel index can make a valid model appear to detect nothing.",
+      "speech_text": "Input and Channels selects the image folder, planes, grayscale handling, inversion, normalization, and percentiles. A wrong channel index can make a valid model appear to detect nothing.",
+      "phonemes": "ˈɪnpʊt and ʧˈanᵊlz sɪlˈɛkts ði ˈɪmɪʤ fˈQldə, plˈAnz, ɡɹˈAskAl hˈandlɪŋ, ɪnvˈɜːʃᵊn, nˌɔːməlIzˈAʃᵊn, and pəsˈɛntIlz. ɐ ɹˈɒŋ ʧˈanᵊl ˈɪndɛks kan mˌAk ɐ vˈalɪd mˈɒdᵊl əpˈɪə tə dɪtˈɛkt nˈʌθɪŋ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 134.25000000000003,
+      "speech_end": 145.77500000000003,
+      "scene_end": 146.22500000000002,
+      "duration": 11.974999999999994,
+      "text": "Model chooses packaged CPSAM weights or a custom checkpoint and supplies the expected object diameter. The custom checkpoint from the preceding tutorial takes priority here.",
+      "speech_text": "Model chooses packaged CPSAM weights or a custom checkpoint and supplies the expected object diameter. The custom checkpoint from the preceding tutorial takes priority here.",
+      "phonemes": "mˈɒdᵊl ʧˈuːzɪz pˈakɪʤd sˌiːpˌiːˌɛsˌAˈɛm wˈAts ɔː ɐ kˈʌstəm ʧˈɛkpYnt and səplˈIz ði ɪkspˈɛktɪd ˈɒbʤɛkt dIˈamɪtə. ðə kˈʌstəm ʧˈɛkpYnt fɹɒm ðə pɹɪsˈiːdɪŋ tjuːtˈɔːɹɪəl tˈAks pɹIˈɒɹɪti hˈɪə."
+    },
+    {
+      "scene": 14,
+      "speech_start": 146.22500000000002,
+      "speech_end": 156.925,
+      "scene_end": 157.375,
+      "duration": 11.149999999999977,
+      "text": "Detection Thresholds controls the cell-probability floor, flow agreement, rescaling, resampling, and hole filling. Adjust these only after checking the correct image and model.",
+      "speech_text": "Detection Thresholds controls the cell-probability floor, flow agreement, rescaling, resampling, and hole filling. Adjust these only after checking the correct image and model.",
+      "phonemes": "dɪtˈɛkʃᵊn θɹˈɛʃhQldz kəntɹˈQlz ðə sˌɛlpɹˌɒbəbˈɪlɪti flˈɔː, flˈQ əɡɹˈiːmᵊnt, ɹɪskˈAlɪŋ, ɹɪsˈamplɪŋ, and hˈQl fˈɪlɪŋ. əʤˈʌst ðiːz ˈQnli ˈɑːftə ʧˈɛkɪŋ ðə kəɹˈɛkt ˈɪmɪʤ and mˈɒdᵊl."
+    },
+    {
+      "scene": 15,
+      "speech_start": 157.375,
+      "speech_end": 168.6,
+      "scene_end": 169.04999999999998,
+      "duration": 11.674999999999983,
+      "text": "Image Geometry optionally resizes fields before inference and restores masks to the original dimensions. Keep the aspect ratio and pixel scale consistent with training.",
+      "speech_text": "Image Geometry optionally resizes fields before inference and restores masks to the original dimensions. Keep the aspect ratio and pixel scale consistent with training.",
+      "phonemes": "ˈɪmɪʤ ʤɪˈɒmɪtɹi ˈɒpʃənəli ɹˌiːsˈIzɪz fˈiːldz bɪfˈɔː ˈɪnfəɹəns and ɹɪstˈɔːz mˈɑːsks tə ði əɹˈɪʤənᵊl dImˈɛnʃᵊnz. kˈiːp ði ˈaspɛkt ɹˈAʃɪQ and pˈɪksᵊl skˈAl kənsˈɪstᵊnt wɪð tɹˈAnɪŋ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 169.04999999999998,
+      "speech_end": 177.24999999999997,
+      "scene_end": 177.69999999999996,
+      "duration": 8.649999999999977,
+      "text": "Background and Denoising applies optional background removal, an intensity floor, and a signal-to-noise screen before segmentation.",
+      "speech_text": "Background and Denoising applies optional background removal, an intensity floor, and a signal-to-noise screen before segmentation.",
+      "phonemes": "bˈakɡɹWnd and dɪnˈYsɪŋ əplˈIz ˈɒpʃənᵊl bˈakɡɹWnd ɹɪmˈuːvᵊl, ɐn ɪntˈɛnsɪti flˈɔː, and ɐ sˈɪɡnᵊltənˈYz skɹˈiːn bɪfˈɔː sˌɛɡmᵊntˈAʃᵊn."
+    },
+    {
+      "scene": 17,
+      "speech_start": 177.69999999999996,
+      "speech_end": 187.67499999999995,
+      "scene_end": 188.12499999999994,
+      "duration": 10.424999999999983,
+      "text": "Output and Runtime controls mask saving, inference batch size, and verbose figures. Reduce the batch size when model inference exhausts GPU memory.",
+      "speech_text": "Output and Runtime controls mask saving, inference batch size, and verbose figures. Reduce the batch size when model inference exhausts GPU memory.",
+      "phonemes": "ˈWtpʊt and ɹˈʌntIm kəntɹˈQlz mˈɑːsk sˈAvɪŋ, ˈɪnfəɹəns bˈaʧ sˈIz, and vəːbˈQs fˈɪɡəz. ɹɪdjˈuːs ðə bˈaʧ sˈIz wˌɛn mˈɒdᵊl ˈɪnfəɹəns ɪɡzˈɔːsts ʤˌiːpˌiːjˈuː mˈɛməɹi."
+    },
+    {
+      "scene": 18,
+      "speech_start": 188.12499999999994,
+      "speech_end": 199.22499999999994,
+      "scene_end": 199.67499999999993,
+      "duration": 11.549999999999983,
+      "text": "This run retains a probability threshold of zero, flow threshold zero point four, no rescaling or resampling, and fills interior holes in each accepted object.",
+      "speech_text": "This run retains a probability threshold of zero, flow threshold zero point four, no rescaling or resampling, and fills interior holes in each accepted object.",
+      "phonemes": "ðˌɪs ɹˈʌn ɹɪtˈAnz ɐ pɹˌɒbəbˈɪlɪti θɹˈɛʃhQld ɒv zˈɪəɹQ, flˈQ θɹˈɛʃhQld zˈɪəɹQ pˈYnt fˈɔː, nˈQ ɹɪskˈAlɪŋ ɔː ɹɪsˈamplɪŋ, and fˈɪlz ɪntˈɪəɹɪə hˈQlz ɪn ˈiːʧ əksˈɛptɪd ˈɒbʤɛkt."
+    },
+    {
+      "scene": 19,
+      "speech_start": 199.67499999999993,
+      "speech_end": 210.34999999999994,
+      "scene_end": 210.79999999999993,
+      "duration": 11.125,
+      "text": "Run loads the checkpoint, normalizes each batch, predicts masks and flows, fills holes, saves each mask, and displays diagnostics. Stop requests a safe interruption.",
+      "speech_text": "Run loads the checkpoint, normalizes each batch, predicts masks and flows, fills holes, saves each mask, and displays diagnostics. Stop requests a safe interruption.",
+      "phonemes": "ɹˈʌn lˈQdz ðə ʧˈɛkpYnt, nˈɔːməlIzɪz ˈiːʧ bˈaʧ, pɹɪdˈɪkts mˈɑːsks and flˈQz, fˈɪlz hˈQlz, sˈAvz ˈiːʧ mˈɑːsk, and dɪsplˈAz dˌIəɡnˈɒstɪks. stˈɒp ɹɪkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃᵊn."
+    },
+    {
+      "scene": 20,
+      "speech_start": 210.79999999999993,
+      "speech_end": 221.32499999999993,
+      "scene_end": 221.77499999999992,
+      "duration": 10.974999999999994,
+      "text": "During processing, the console reports the resolved custom checkpoint and batch progress while the figure panel adds original images, red mask overlays, and flow fields.",
+      "speech_text": "During processing, the console reports the resolved custom checkpoint and batch progress while the figure panel adds original images, red mask overlays, and flow fields.",
+      "phonemes": "djˈʊəɹɪŋ pɹˈQsɛsɪŋ, ðə kˈɒnsQl ɹɪpˈɔːts ðə ɹɪzˈɒlvd kˈʌstəm ʧˈɛkpYnt and bˈaʧ pɹˈQɡɹɛs wˌIl ðə fˈɪɡə pˈanᵊl ˈadz əɹˈɪʤənᵊl ˈɪmɪʤɪz, ɹˈɛd mˈɑːsk ˌQvəlˈAz, and flˈQ fˈiːldz."
+    },
+    {
+      "scene": 21,
+      "speech_start": 221.77499999999992,
+      "speech_end": 234.74999999999991,
+      "scene_end": 235.4499999999999,
+      "duration": 13.674999999999983,
+      "text": "The run completed six of six fields and saved six masks. The final panel shows the original ER image, cell outlines, and Cellpose flows, making segmentation quality visible before downstream measurement.",
+      "speech_text": "The run completed six of six fields and saved six masks. The final panel shows the original ER image, cell outlines, and Cellpose flows, making segmentation quality visible before downstream measurement.",
+      "phonemes": "ðə ɹˈʌn kəmplˈiːtɪd sˈɪks ɒv sˈɪks fˈiːldz and sˈAvd sˈɪks mˈɑːsks. ðə fˈInᵊl pˈanᵊl ʃˈQz ði əɹˈɪʤənᵊl ˌiːˈɑː ˈɪmɪʤ, sˈɛl ˈWtlInz, and sˈɛlpQz flˈQz, mˈAkɪŋ sˌɛɡmᵊntˈAʃᵊn kwˈɒlɪti vˈɪzɪbᵊl bɪfˈɔː dˌWnstɹˈiːm mˈɛʒəmᵊnt."
     }
   ]
 }

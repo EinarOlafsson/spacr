@@ -2920,48 +2920,177 @@
     {
       "id": "20_cellpose_masks",
       "number": 20,
-      "slug": "cellpose_masks",
-      "title": "Cellpose Masks",
+      "slug": "cellpose-masks",
+      "title": "细胞塞托肯面具",
       "series": 2,
       "app_key": "cellpose_masks",
       "section": "Segmentation models",
-      "description": "通过专注的模型应用工作流程生成和审查 Cellpose 掩膜.",
+      "description": "应用库存或定制Cellpose权重到显微镜领域,检查叠加和流量,并保存实例面具.",
       "objectives": [
-        "了解什么时候使用 Cellpose 掩膜.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "连接显微镜TIFF文件,选择一个库存或定制检查点.",
+        "审查道,模型,门,几何学,指标和输出类别.",
+        "生成和检查保存的面具,覆盖和Cellpose流量."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "使用对收购和对象类型进行验证的模型;本课程继续在火车Cellpose中创建的校准检查点.",
       "scenes": [
         {
-          "narration": "通过一个专注的模型应用工作流程生成和审查Cellpose掩膜.",
-          "visual": "overview",
+          "narration": "Cellpose 面具对显微镜图像应用了库存CPSAM模型或定制检查点,并每个字段写出一个实例标签面具. 控制台记录模型分辨率,正常化,进步和输出路径.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "通过一个专注的模型应用工作流程生成和审查Cellpose掩膜."
+          "speech_text": "Cellpose 面具对显微镜图像应用了库存CPSAM模型或定制检查点,并每个字段写出一个实例标签面具. 控制台记录模型分辨率,正常化,进步和输出路径."
         },
         {
-          "narration": "从 Segmentation models 部分打开 Cellpose Masks。 选择显微镜图像,道以及内置或定制的 Cellpose 模型.",
-          "visual": "input",
+          "narration": "聊天场接受本地工作流程问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Segmentation models 部分打开 Cellpose Masks。 选择显微镜图像,道以及内置或定制的 Cellpose 模型."
+          "speech_text": "聊天场接受本地工作流程问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制."
         },
         {
-          "narration": "在主要配置区域,配置直径,流量和细胞概率门,正常化,板和硬件使用.",
-          "visual": "settings",
+          "narration": "提供商检查克劳德,ChatGPT和双胞胎命令行客户端,并显示其安装和登录命令,同时身份验证仍然在每个提供商身上.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域,配置直径,流量和细胞概率门,正常化,板和硬件使用."
+          "speech_text": "提供商检查克劳德,ChatGPT和双胞胎命令行客户端,并显示其安装和登录命令,同时身份验证仍然在每个提供商身上."
         },
         {
-          "narration": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见设置,并在可用时使用预览或测试模式."
+          "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明."
         },
         {
-          "narration": "在工作流程完成后,在映射输入旁边写出标签掩膜和视觉质量控制图像.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "在工作流程完成后,在映射输入旁边写出标签掩膜和视觉质量控制图像."
+          "narration": "放下包含TIFF字段的文件. 这个来源包含六种真正的ER道细胞作物,正常化在百分点二到九十九点五之间. 零频道选择每个TIFF中的单个平面.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.5,
+          "speech_text": "放下包含TIFF字段的文件. 这个来源包含六种真正的ER道细胞作物,正常化在百分点二到九十九点五之间. 零频道选择每个TIFF中的单个平面."
+        },
+        {
+          "narration": "基本保持源,道,正常化,模型,定制检查点,直径,概率和流量门,保存开关,批量大小和语句预览可见.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本保持源,道,正常化,模型,定制检查点,直径,概率和流量门,保存开关,批量大小和语句预览可见."
+        },
+        {
+          "narration": "修改分离了这个运行的定制检查点,百分比正常化,批量大小二,节省,并从未改变的默认数据输出.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改分离了这个运行的定制检查点,百分比正常化,批量大小二,节省,并从未改变的默认数据输出."
+        },
+        {
+          "narration": "所有设置都显示了六个类别:输入和道,模型,检测门,图像几何学,背景和否认以及输出和运行时间.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示了六个类别:输入和道,模型,检测门,图像几何学,背景和否认以及输出和运行时间."
+        },
+        {
+          "narration": "配方保存完整的推理配置,将其重新应用到另一个图像文件,或进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方保存完整的推理配置,将其重新应用到另一个图像文件,或进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交解决模型,源和门的远程快照,并将分类工作发送到分布式工作工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交解决模型,源和门的远程快照,并将分类工作发送到分布式工作工作空间."
+        },
+        {
+          "narration": "分布式工作将图像,模型和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将图像,模型和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行."
+        },
+        {
+          "narration": "输入和道选择图像文件,平面,灰度处理,逆转,正常化和百分比. 一个错误的频道索引可以使一个有效的模型似乎没有检测到任何东西.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输入和道选择图像文件,平面,灰度处理,逆转,正常化和百分比. 一个错误的频道索引可以使一个有效的模型似乎没有检测到任何东西."
+        },
+        {
+          "narration": "模型选择包装的CPSAM重量或定制检查点,并提供预期对象直径. 在此,先前教程的定制检查点优先考虑.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "模型选择包装的CPSAM重量或定制检查点,并提供预期对象直径. 在此,先前教程的定制检查点优先考虑."
+        },
+        {
+          "narration": "检测门控制细胞概率地板,流量协议,重新扩展,重新样本和孔填充. 只有检查正确的图像和模型后才能调整这些图像.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "检测门控制细胞概率地板,流量协议,重新扩展,重新样本和孔填充. 只有检查正确的图像和模型后才能调整这些图像."
+        },
+        {
+          "narration": "图像几何学在推断之前可选择地调整字段尺寸,并将面具恢复到原始尺寸. 保持视角比例和像素尺度与训练一致.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "图像几何学在推断之前可选择地调整字段尺寸,并将面具恢复到原始尺寸. 保持视角比例和像素尺度与训练一致."
+        },
+        {
+          "narration": "后台和拒绝应用可选的后台移除,强度地板,以及在分割之前的信号到噪音屏幕.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "后台和拒绝应用可选的后台移除,强度地板,以及在分割之前的信号到噪音屏幕."
+        },
+        {
+          "narration": "输出和运行时间控制面具节约,推断批量大小, 在模型推断耗尽GPU内存时,减少批量大小.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和运行时间控制面具节约,推断批量大小, 在模型推断耗尽GPU内存时,减少批量大小."
+        },
+        {
+          "narration": "这一运行保持了零的概率门,流量门是零点四,没有重新扩展或重新样本,并且填补了每个被接受的对象的内部洞.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "这一运行保持了零的概率门,流量门是零点四,没有重新扩展或重新样本,并且填补了每个被接受的对象的内部洞."
+        },
+        {
+          "narration": "运行加载检查点,正常化每批,预测面具和流量,填补漏洞,保存每面具,显示诊断. 停止请求安全的中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行加载检查点,正常化每批,预测面具和流量,填补漏洞,保存每面具,显示诊断. 停止请求安全的中断."
+        },
+        {
+          "narration": "在处理过程中,控制台报告已解决的定制检查点和批量进展,而图像面板添加原始图像,红色面膜覆盖和流量字段.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在处理过程中,控制台报告已解决的定制检查点和批量进展,而图像面板添加原始图像,红色面膜覆盖和流量字段."
+        },
+        {
+          "narration": "跑步完成了6个场地中的6个, 最后面板显示了原始的ER图像,细胞轮和Cellpose流量,在下游测量之前使细分质量可见.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "跑步完成了6个场地中的6个, 最后面板显示了原始的ER图像,细胞轮和Cellpose流量,在下游测量之前使细分质量可见."
         }
       ]
     },

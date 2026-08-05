@@ -1131,19 +1131,67 @@
       "id": "20_cellpose_masks",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Cellpose Masken. Generieren und überprüfen Sie Cellpose-Masken mit einem fokussierten Modell-Anwendungs-Workflow."
+          "narration": "Cellpose Masks wendet ein Bestands-CPSAM-Modell oder einen benutzerdefinierten Kontrollpunkt auf mikroskopische Bilder an und schreibt pro Feld eine Instanz-Labelmaske. Die Konsole erfasst die Modelllösung, Normalisierung, Fortschritt und Ausgangswege."
         },
         {
-          "narration": "Öffnen Sie Cellpose Masken aus dem Abschnitt Segmentierungsmodelle. Wählen Sie Mikroskopiebilder, Kanäle und ein eingebautes oder benutzerdefiniertes Cellpose-Modell aus."
+          "narration": "Das Chatfeld akzeptiert lokale Workflow-Fragen. Aktivieren Sie KI für einen konfigurierten Anbieter und verwenden Sie den angrenzenden Pfeil, um einen Anbieter auszuwählen oder seine Kontrollen zu öffnen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Durchmesser, Durchfluss- und Zellwahrscheinlichkeitsschwellen, Normalisierung, Fliesen und Hardwareverwendung."
+          "narration": "Anbieter überprüfen die Claude-, ChatGPT- und Gemini-Befehlszeilklienten und zeigen ihre Installations- und Login-Befehlszeilen an, während die Authentifizierung bei jedem Anbieter bleibt."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Viele repräsentative Felder sind vor der Anwendung des Modells auf die vollständige Quelle vorzulesen."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und die spaCR-bewussten Systemanweisungen."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, werden Etikettenmasken und visuelle Qualitätskontrollebilder neben den geplanten Eingaben geschrieben."
+          "narration": "Lassen Sie den Ordner mit TIFF-Feldern fallen. Diese Quelle enthält sechs echte ER-Kanal-Zellpflanzen, normalisiert zwischen Perzentilen zwei und neunundneunzig Punkt fünf. Kanal Null wählt die einzelne Ebene in jedem TIFF aus."
+        },
+        {
+          "narration": "Essentials hält die Quelle, Kanäle, Normalisierung, Modell, benutzerdefinierte Checkpoint, Durchmesser, Wahrscheinlichkeit und Fluss Schwellenwerte, Speicher Schalter, Batchgröße und verbose Vorschau sichtbar."
+        },
+        {
+          "narration": "Modified isoliert den benutzerdefinierten Checkpoint dieses Laufs, die Perzentilennormalisierung, die Batchgröße zwei, die Speicherung und die verbose Figur-Ausgabe von unveränderten Standardfunktionen."
+        },
+        {
+          "narration": "Alle Einstellungen zeigen sechs Kategorien: Eingabe und Kanäle, Modell, Erkennungsschwellen, Bildgeometrie, Hintergrund und Verweigerung und Ausgabe und Laufzeit."
+        },
+        {
+          "narration": "Rezepte speichern die komplette Schlussfolgerungskonfiguration, wenden sie in einen anderen Bildordner an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots des gelösten Modells, der Quelle und der Schwellenwerte und senden Sie den Segmentierungsjob in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert das Bild, das Modell und die Ausgangswege zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Ausgang."
+        },
+        {
+          "narration": "Input and Channels wählt den Bildordner, die Flächen, den Griff mit der Grauzkala, die Inversion, die Normalisierung und die Perzentile aus. Ein falscher Kanalindex lässt ein gültiges Modell scheinen, nichts zu erkennen."
+        },
+        {
+          "narration": "Das Modell wählt verpackte CPSAM-Gewichte oder einen benutzerdefinierten Kontrollpunkt aus und liefert den erwarteten Objektdurchmesser. Der benutzerdefinierte Checkpoint aus dem vorherigen Tutorial hat hier Priorität."
+        },
+        {
+          "narration": "Die Detektionsschwellen steuern den Zellwahrscheinlichkeitsgrund, die Strömungsvereinbarung, die Umskalierung, die Umprobung und die Löcherfüllung. Passen Sie diese nur nach Überprüfung des richtigen Bildes und Modells an."
+        },
+        {
+          "narration": "Die Bildgeometrie vergrößert die Felder vor der Schlussfolgerung optional und stellt die Masken in die ursprünglichen Abmessungen zurück. Halten Sie das Bildverhältnis und die Pixel-Skala im Einklang mit dem Training."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung gelten vor der Segmentierung optionale Hintergrundentfernung, ein Intensitätsboden und ein Signal-to-Noise-Bildschirm."
+        },
+        {
+          "narration": "Output und Runtime steuern die Masken-Sparung, die Ableitung von Batchgrößen und verborgene Zahlen. Reduzieren Sie die Batchgröße, wenn die Modell-Inferenz den GPU-Speicher erschöpft."
+        },
+        {
+          "narration": "Dieser Lauf behält eine Wahrscheinlichkeitsschwelle von Null, die Flussschwelle Null Punkt vier, kein Umschalten oder Umproben und füllt innere Löcher in jedem akzeptierten Objekt."
+        },
+        {
+          "narration": "Run lädt den Checkpoint, normalisiert jede Charge, prognostiziert Masken und Flüsse, füllt Löcher, speichert jede Maske und zeigt Diagnostik an. Stop-Anfragen für eine sichere Unterbrechung."
+        },
+        {
+          "narration": "Während der Verarbeitung berichtet die Konsole über den gelösten benutzerdefinierten Checkpoint und den Fortschritt der Charge, während das Bildpaneel Originalbilder, rote Maskenüberlagerungen und Flussfelder hinzufügt."
+        },
+        {
+          "narration": "Der Lauf beendete sechs von sechs Feldern und rettete sechs Masken. Das endgültige Panel zeigt das ursprüngliche ER-Bild, die Zellumrisse und die Cellpose-Flüsse, so dass die Segmentierungskvalität vor der nachgelagerten Messung sichtbar ist."
         }
       ]
     },

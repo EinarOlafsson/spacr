@@ -2920,48 +2920,177 @@
     {
       "id": "20_cellpose_masks",
       "number": 20,
-      "slug": "cellpose_masks",
-      "title": "Cellpose Masks",
+      "slug": "cellpose-masks",
+      "title": "Máscaras Cellpose",
       "series": 2,
       "app_key": "cellpose_masks",
       "section": "Segmentation models",
-      "description": "Gerar e rever as máscaras Cellpose com um fluxo de trabalho de aplicação de modelos focado.",
+      "description": "Aplicar pesos Cellpose em estoque ou personalizados em campos de microscopia, inspecionar superposições e fluxos e salvar máscaras de instância.",
       "objectives": [
-        "Entenda quando usar máscaras Cellpose.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Conectar arquivos TIFF microscópicos e selecionar um ponto de controlo de estoque ou personalizado.",
+        "Canais de revisão, modelo, limiares, geometria, denotação e categorias de saída.",
+        "Gerar e inspecionar as máscaras, as camadas e os fluxos de Cellpose salvos."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Utilize um modelo validado para o tipo de aquisição e objeto; esta lição continua com o ponto de controlo de calibração criado no Train Cellpose.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange as máscaras Cellpose. Gerar e revisar as máscaras Cellpose com um fluxo de trabalho de aplicativos de modelo focado.",
-          "visual": "overview",
+          "narration": "Cellpose Masks aplica um modelo CPSAM de estoque ou um ponto de controlo personalizado às imagens de microscopia e escreve uma máscara de marca de instância por campo. O console registra a resolução do modelo, a normalização, o progresso e os caminhos de saída.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange as máscaras Cellpose. Gerar e revisar as máscaras Cellpose com um fluxo de trabalho de aplicativos de modelo focado."
+          "speech_text": "Cellpose Masks aplica um modelo CPSAM de estoque ou um ponto de controlo personalizado às imagens de microscopia e escreve uma máscara de marca de instância por campo. O console registra a resolução do modelo, a normalização, o progresso e os caminhos de saída."
         },
         {
-          "narration": "Abra Cellpose Masks na seção Segmentation models. Abra as máscaras Cellpose na seção Modelos de Segmentação. Selecione imagens de microscopia, canais e um modelo Cellpose incorporado ou personalizado.",
-          "visual": "input",
+          "narration": "O campo de bate-papo aceita perguntas do fluxo de trabalho local. Habilitar a IA para um provedor configurado e usar a seta adjacente para selecionar um provedor ou abrir seus controles.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Cellpose Masks na seção Segmentation models. Abra as máscaras Cellpose na seção Modelos de Segmentação. Selecione imagens de microscopia, canais e um modelo Cellpose incorporado ou personalizado."
+          "speech_text": "O campo de bate-papo aceita perguntas do fluxo de trabalho local. Habilitar a IA para um provedor configurado e usar a seta adjacente para selecionar um provedor ou abrir seus controles."
         },
         {
-          "narration": "Na área de configuração principal, configure os limiares de diâmetro, fluxo e probabilidade celular, normalização, telas e uso de hardware.",
-          "visual": "settings",
+          "narration": "Os fornecedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e exibem seus comandos de instalação e login enquanto a autenticação permanece com cada fornecedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configure os limiares de diâmetro, fluxo e probabilidade celular, normalização, telas e uso de hardware."
+          "speech_text": "Os fornecedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e exibem seus comandos de instalação e login enquanto a autenticação permanece com cada fornecedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
-          "visual": "run",
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, as máscaras de rótulo e as imagens de controlo visual da qualidade são escritas ao lado das entradas mapeadas.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, as máscaras de rótulo e as imagens de controlo visual da qualidade são escritas ao lado das entradas mapeadas."
+          "narration": "Deixe cair a pasta que contém campos TIFF. Esta fonte contém seis culturas reais de células do canal ER, normalizadas entre os percentil dois e noventa e nove pontos cinco. O canal zero seleciona o plano único em cada TIFF.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.5,
+          "speech_text": "Deixe cair a pasta que contém campos TIFF. Esta fonte contém seis culturas reais de células do canal ER, normalizadas entre os percentil dois e noventa e nove pontos cinco. O canal zero seleciona o plano único em cada TIFF."
+        },
+        {
+          "narration": "Essentials mantém a fonte, os canais, a normalização, o modelo, o ponto de verificação personalizado, o diâmetro, a probabilidade e os limiares de fluxo, o interruptor de salvação, o tamanho do lote e a previsão verbal visíveis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mantém a fonte, os canais, a normalização, o modelo, o ponto de verificação personalizado, o diâmetro, a probabilidade e os limiares de fluxo, o interruptor de salvação, o tamanho do lote e a previsão verbal visíveis."
+        },
+        {
+          "narration": "Modificado isola o ponto de verificação personalizado desta corrida, normalização do percentil, tamanho do lote dois, poupança e saída de figura verbal de padrões inalterados.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado isola o ponto de verificação personalizado desta corrida, normalização do percentil, tamanho do lote dois, poupança e saída de figura verbal de padrões inalterados."
+        },
+        {
+          "narration": "Todas as configurações revelam seis categorias: entrada e canais, modelo, limiares de detecção, geometria de imagem, fundo e denúncia e saída e tempo de execução.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas as configurações revelam seis categorias: entrada e canais, modelo, limiares de detecção, geometria de imagem, fundo e denúncia e saída e tempo de execução."
+        },
+        {
+          "narration": "As receitas guardam a configuração completa de inferência, reaplicam-na em outra pasta de imagem ou importam e exportam um arquivo de configurações reutilizável.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "As receitas guardam a configuração completa de inferência, reaplicam-na em outra pasta de imagem ou importam e exportam um arquivo de configurações reutilizável."
+        },
+        {
+          "narration": "Envie instantâneos remotos do modelo resolvido, fonte e limiares e envia o trabalho de segmentação para o espaço de trabalho de Trabalhos Distribuídos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envie instantâneos remotos do modelo resolvido, fonte e limiares e envia o trabalho de segmentação para o espaço de trabalho de Trabalhos Distribuídos."
+        },
+        {
+          "narration": "O Jobs Distribuído mapeia a imagem, o modelo e os caminhos de saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "O Jobs Distribuído mapeia a imagem, o modelo e os caminhos de saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução."
+        },
+        {
+          "narration": "Input and Channels seleciona a pasta de imagem, planos, manipulação em escala de cinza, inversão, normalização e percentil. Um índice de canal errado pode fazer com que um modelo válido pareça não detectar nada.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Channels seleciona a pasta de imagem, planos, manipulação em escala de cinza, inversão, normalização e percentil. Um índice de canal errado pode fazer com que um modelo válido pareça não detectar nada."
+        },
+        {
+          "narration": "O modelo escolhe pesos CPSAM embalados ou um ponto de controlo personalizado e fornece o diâmetro esperado do objeto. O ponto de verificação personalizado do tutorial anterior tem prioridade aqui.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O modelo escolhe pesos CPSAM embalados ou um ponto de controlo personalizado e fornece o diâmetro esperado do objeto. O ponto de verificação personalizado do tutorial anterior tem prioridade aqui."
+        },
+        {
+          "narration": "Os limiares de detecção controlam o piso de probabilidade da célula, o acordo de fluxo, a reescalação, a repetição de amostras e o preenchimento de buracos. Ajustar estes apenas depois de verificar a imagem e o modelo corretos.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Os limiares de detecção controlam o piso de probabilidade da célula, o acordo de fluxo, a reescalação, a repetição de amostras e o preenchimento de buracos. Ajustar estes apenas depois de verificar a imagem e o modelo corretos."
+        },
+        {
+          "narration": "Geometria de imagem opcionalmente redimensionar campos antes da inferência e restaurar máscaras para as dimensões originais. Mantenha a proporção de aspecto e a escala de pixels consistentes com o treinamento.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Geometria de imagem opcionalmente redimensionar campos antes da inferência e restaurar máscaras para as dimensões originais. Mantenha a proporção de aspecto e a escala de pixels consistentes com o treinamento."
+        },
+        {
+          "narration": "Aplica-se a remoção opcional de fundo, um piso de intensidade e uma tela de sinal-ruído antes da segmentação.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Aplica-se a remoção opcional de fundo, um piso de intensidade e uma tela de sinal-ruído antes da segmentação."
+        },
+        {
+          "narration": "O Output e o Runtime controlam a economia de máscaras, a inferência do tamanho do lote e os números verbais. Reduzir o tamanho do lote quando a inferência do modelo esgotar a memória da GPU.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Output e o Runtime controlam a economia de máscaras, a inferência do tamanho do lote e os números verbais. Reduzir o tamanho do lote quando a inferência do modelo esgotar a memória da GPU."
+        },
+        {
+          "narration": "Esta corrida mantém um limiar de probabilidade de zero, um limiar de fluxo de zero ponto quatro, sem reescalação ou ressampagem, e preenche buracos interiores em cada objeto aceito.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Esta corrida mantém um limiar de probabilidade de zero, um limiar de fluxo de zero ponto quatro, sem reescalação ou ressampagem, e preenche buracos interiores em cada objeto aceito."
+        },
+        {
+          "narration": "O Run carga o posto de controle, normaliza cada lote, prevê máscaras e fluxos, preenche buracos, salva cada máscara e exibe diagnósticos. Petições de parada para uma interrupção segura.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "O Run carga o posto de controle, normaliza cada lote, prevê máscaras e fluxos, preenche buracos, salva cada máscara e exibe diagnósticos. Petições de parada para uma interrupção segura."
+        },
+        {
+          "narration": "Durante o processamento, o console relata o ponto de verificação personalizado resolvido e o progresso do lote enquanto o painel de imagens adiciona imagens originais, superposições de máscara vermelha e campos de fluxo.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante o processamento, o console relata o ponto de verificação personalizado resolvido e o progresso do lote enquanto o painel de imagens adiciona imagens originais, superposições de máscara vermelha e campos de fluxo."
+        },
+        {
+          "narration": "A corrida completou seis de seis campos e salvou seis máscaras. O painel final mostra a imagem original do ER, os contornos das células e os fluxos Cellpose, tornando visível a qualidade da segmentação antes da medição a jusante.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "A corrida completou seis de seis campos e salvou seis máscaras. O painel final mostra a imagem original do ER, os contornos das células e os fluxos Cellpose, tornando visível a qualidade da segmentação antes da medição a jusante."
         }
       ]
     },

@@ -2935,48 +2935,177 @@
     {
       "id": "20_cellpose_masks",
       "number": 20,
-      "slug": "cellpose_masks",
+      "slug": "cellpose-masks",
       "title": "Cellpose Masks",
       "series": 2,
       "app_key": "cellpose_masks",
       "section": "Segmentation models",
-      "description": "Generate and review Cellpose masks with a focused model-application workflow.",
+      "description": "Apply stock or custom Cellpose weights to microscopy fields, inspect overlays and flows, and save instance masks.",
       "objectives": [
-        "Understand when to use Cellpose Masks.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Connect microscopy TIFF files and select a stock or custom checkpoint.",
+        "Review channels, model, thresholds, geometry, denoising, and output categories.",
+        "Generate and inspect saved masks, overlays, and Cellpose flows."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Use a model validated for the acquisition and object type; this lesson continues with the calibration checkpoint created in Train Cellpose.",
       "scenes": [
         {
-          "narration": "This tutorial covers Cellpose Masks. Generate and review Cellpose masks with a focused model-application workflow.",
-          "visual": "overview",
+          "narration": "Cellpose Masks applies a stock CPSAM model or a custom checkpoint to microscopy images and writes one instance-label mask per field. The console records model resolution, normalization, progress, and output paths.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Cellpose Masks. Generate and review Cellpose masks with a focused model-application workflow."
+          "speech_text": "Cellpose Masks applies a stock C P Sam model or a custom checkpoint to microscopy images and writes one instance label mask per field. The console records model resolution, normalization, progress, and output paths."
         },
         {
-          "narration": "Open Cellpose Masks from the Segmentation models section. Select microscopy images, channels, and a built-in or custom Cellpose model.",
-          "visual": "input",
+          "narration": "The chat field accepts local workflow questions. Enable AI for a configured provider, and use the adjacent arrow to select a provider or open its controls.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Cellpose Masks from the Segmentation models section. Select microscopy images, channels, and a built-in or custom Cellpose model."
+          "speech_text": "The chat field accepts local workflow questions. Enable A I for a configured provider, and use the adjacent arrow to select a provider or open its controls."
         },
         {
-          "narration": "In the main configuration area, configure diameter, flow and cell-probability thresholds, normalization, tiling, and hardware use.",
-          "visual": "settings",
+          "narration": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and displays their install and login commands while authentication remains with each provider.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure diameter, flow and cell-probability thresholds, normalization, tiling, and hardware use."
+          "speech_text": "Providers checks the Claude, Chat G P T, and Gemini command line clients and displays their install and login commands while authentication remains with each provider."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview several representative fields before applying the model to the full source.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview several representative fields before applying the model to the full source."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system instructions."
         },
         {
-          "narration": "When the workflow finishes, label masks and visual quality-control images are written beside the mapped inputs.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, label masks and visual quality-control images are written beside the mapped inputs."
+          "narration": "Drop the folder containing TIFF fields. This source contains six real ER-channel cell crops, normalized between percentiles two and ninety-nine point five. Channel zero selects the single plane in each TIFF.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.5,
+          "speech_text": "Drop the folder containing Tiff fields. This source contains six real E R channel cell crops, normalized between percentiles two and ninety nine point five. Channel zero selects the single plane in each Tiff."
+        },
+        {
+          "narration": "Essentials keeps the source, channels, normalization, model, custom checkpoint, diameter, probability and flow thresholds, save switch, batch size, and verbose preview visible.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials keeps the source, channels, normalization, model, custom checkpoint, diameter, probability and flow thresholds, save switch, batch size, and verbose preview visible."
+        },
+        {
+          "narration": "Modified isolates this run's custom checkpoint, percentile normalization, batch size two, saving, and verbose figure output from unchanged defaults.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified isolates this run's custom checkpoint, percentile normalization, batch size two, saving, and verbose figure output from unchanged defaults."
+        },
+        {
+          "narration": "All settings reveals six categories: Input and Channels, Model, Detection Thresholds, Image Geometry, Background and Denoising, and Output and Runtime.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals six categories: Input and Channels, Model, Detection Thresholds, Image Geometry, Background and Denoising, and Output and Runtime."
+        },
+        {
+          "narration": "Recipes saves the complete inference configuration, reapplies it to another image folder, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete inference configuration, reapplies it to another image folder, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved model, source, and thresholds and sends the segmentation job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved model, source, and thresholds and sends the segmentation job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps the image, model, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps the image, model, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run."
+        },
+        {
+          "narration": "Input and Channels selects the image folder, planes, grayscale handling, inversion, normalization, and percentiles. A wrong channel index can make a valid model appear to detect nothing.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Channels selects the image folder, planes, grayscale handling, inversion, normalization, and percentiles. A wrong channel index can make a valid model appear to detect nothing."
+        },
+        {
+          "narration": "Model chooses packaged CPSAM weights or a custom checkpoint and supplies the expected object diameter. The custom checkpoint from the preceding tutorial takes priority here.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Model chooses packaged C P Sam weights or a custom checkpoint and supplies the expected object diameter. The custom checkpoint from the preceding tutorial takes priority here."
+        },
+        {
+          "narration": "Detection Thresholds controls the cell-probability floor, flow agreement, rescaling, resampling, and hole filling. Adjust these only after checking the correct image and model.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Detection Thresholds controls the cell probability floor, flow agreement, rescaling, resampling, and hole filling. Adjust these only after checking the correct image and model."
+        },
+        {
+          "narration": "Image Geometry optionally resizes fields before inference and restores masks to the original dimensions. Keep the aspect ratio and pixel scale consistent with training.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Image Geometry optionally resizes fields before inference and restores masks to the original dimensions. Keep the aspect ratio and pixel scale consistent with training."
+        },
+        {
+          "narration": "Background and Denoising applies optional background removal, an intensity floor, and a signal-to-noise screen before segmentation.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Background and Denoising applies optional background removal, an intensity floor, and a signal to noise screen before segmentation."
+        },
+        {
+          "narration": "Output and Runtime controls mask saving, inference batch size, and verbose figures. Reduce the batch size when model inference exhausts GPU memory.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Runtime controls mask saving, inference batch size, and verbose figures. Reduce the batch size when model inference exhausts G P U memory."
+        },
+        {
+          "narration": "This run retains a probability threshold of zero, flow threshold zero point four, no rescaling or resampling, and fills interior holes in each accepted object.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "This run retains a probability threshold of zero, flow threshold zero point four, no rescaling or resampling, and fills interior holes in each accepted object."
+        },
+        {
+          "narration": "Run loads the checkpoint, normalizes each batch, predicts masks and flows, fills holes, saves each mask, and displays diagnostics. Stop requests a safe interruption.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run loads the checkpoint, normalizes each batch, predicts masks and flows, fills holes, saves each mask, and displays diagnostics. Stop requests a safe interruption."
+        },
+        {
+          "narration": "During processing, the console reports the resolved custom checkpoint and batch progress while the figure panel adds original images, red mask overlays, and flow fields.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During processing, the console reports the resolved custom checkpoint and batch progress while the figure panel adds original images, red mask overlays, and flow fields."
+        },
+        {
+          "narration": "The run completed six of six fields and saved six masks. The final panel shows the original ER image, cell outlines, and Cellpose flows, making segmentation quality visible before downstream measurement.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.7,
+          "speech_text": "The run completed six of six fields and saved six masks. The final panel shows the original E R image, cell outlines, and Cellpose flows, making segmentation quality visible before downstream measurement."
         }
       ]
     },

@@ -1131,19 +1131,67 @@
       "id": "20_cellpose_masks",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Cellpose grímur. Gerðu og endurskoðuðu Cellpose grímur með markvissri vinnuflæði fyrirmyndir og forrit."
+          "narration": "Cellpose Masks notar CPSAM-snið eða sérsniðna eftirlitsstað til sýndarmyndanna og skrifar eina fyrirmynd-merkismasku fyrir hvert svið. Konsóllinn skráir upplausn módelsins, normalisering, framfarir og útgáfu leiðir."
         },
         {
-          "narration": "Opnaðu Cellpose grímur í flokknum fyrir fyrirmyndir. Veldu sýnishorn, leiðir og innbyggða eða sérsniðna Cellpose líkan."
+          "narration": "Spjall sviðið tekur við staðbundnum spurningum um vinnuflæði. Gæta AI fyrir stillta þjónustuaðila og nota nágrenna piltinn til að velja þjónustuaðila eða opna stjórnina."
         },
         {
-          "narration": "Í aðalmyndunar svæðinu, stilltu þvermál, flæði og líkindastigum frumur, normalisering, flísun og vélbúnaðarnotkun."
+          "narration": "Greiðsluaðila athuga Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir og sýnir uppsetningu þeirra og innritun skipunir meðan staðfesting stendur hjá hverjum veitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. að sjá fyrirsýn á nokkrum fulltrúlegum sviðum áður en módelinn er beitt fullri uppspretta."
+          "narration": "AI stillingar stjórnar svörun dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun og spaCR-vitandi kerfis leiðbeiningar."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið, eru merkingargrímur og myndir með sjónrænum gæðaeftirlit skrifuð við hliðina á kortlagðum inngöngum."
+          "narration": "Fylgdu foldunni sem inniheldur TIFF-svæði. Þessi uppspretta inniheldur sex alvöru ER-kanala frumur ræktun, eðlilegt á milli hlutfall tvö og níutíu og níutíu punktum fimm. Útvarpið núll velur einstaka flugvélina í hverjum TIFF."
+        },
+        {
+          "narration": "Essentials heldur uppruna, leiðir, eðli, líkan, sérsniðna eftirlitsstað, þvermál, líkur og flæði þröskuldar, spara svolítið, flokka stærð og verbose formynd sýnileg."
+        },
+        {
+          "narration": "Breyttir einangrar sérsniðna eftirlitsstöð þessa hlaup, hlutfall normalisering, flokka stærð tvö, sparing, og verbose tölur útkomu frá óbreyttum sjálfstæðum."
+        },
+        {
+          "narration": "Öll stillingar sýna sex flokka: Input og Channels, Model, Greiningarmörkur, Myndgeometri, bakgrunn og afneitun og Útgang og reksturstíma."
+        },
+        {
+          "narration": "Recipes geymir alla niðurstöðukönnunina, beitir henni aftur í annan myndaskrá eða flytur inn og sendir út endurteknar stillingar skrá."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndir af lausnum módeli, heimild og þröskulum og sendu skiptingarstarfið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar myndina, líkan og útgáfu leiðir til fjarstæðrar vinnustaðar, Slurm hóp, eða skipulagt skipun, síðan sendir og fylgir sama rekstur."
+        },
+        {
+          "narration": "Input and Channels velur myndar möppuna, flugvélar, gráa skalaskipulag meðhöndlun, snúning, normalisering og persentílar. Fálleg vísitölu getur gert til að gild model virðist ekki greina neitt."
+        },
+        {
+          "narration": "Ljósmyndin velur pakkað CPSAM þyngd eða sérsniðna eftirlitsstað og veitir væntanlega hlutinn þvermál. Sérsniðinn eftirlitsstað frá fyrri kennslunni hefur forgang hér."
+        },
+        {
+          "narration": "Greiningarhrögglar stjórna líkindastiginu á sílu, flæði samning, endurskoðun, nýsamplingu og lyfjafyllingu. Breyttu þeim aðeins eftir að hafa skoðað rétta myndina og líkan."
+        },
+        {
+          "narration": "Myndgeometri breytir valkostlega stærð sviða áður en niðurstaða er gerð og endurreisir grímur í upprunalegu stærð. Haltu hliðarhlutfallið og pikslaskalan í samræmi við þjálfun."
+        },
+        {
+          "narration": "Bakgrun og Denoising beitir valfrjáls bakgrununar fjarlægingu, mikilsgrunnsgrunni og ljóðskjá fyrir merki til hávaða áður en skipting er gerð."
+        },
+        {
+          "narration": "Útgangur og rekstrartímur stjórnar grímusparnaði, niðurstöðum um flokksstærð og orðalegum tölum. Færðu úr flokksstærðinni þegar módelgreining þreytir GPU minni."
+        },
+        {
+          "narration": "Þessi hlaup heldur líkindastigum núllum, flæðastigum núllum punktum fjórum, engin endurreikning eða endurmyndun og fyllir innri hull í hverju samþykktu hlut."
+        },
+        {
+          "narration": "Rennur hlaðar inn á eftirlitsstöðina, normaliserar hvern flokk, spáir grímur og flæði, fyllir holur, sparar hvern grímur og sýnir greiningar. Hættu fyrirspurnum um öruggan truflun."
+        },
+        {
+          "narration": "Á meðan vinnsla fer fram, tilkynnar konsonan löndu sérsniðna eftirlitsstað og batch framfarir á meðan myndaskállinn bætir við upprunalegu myndum, rauðum yfirborðum og streymisfelðum."
+        },
+        {
+          "narration": "Rennurinn kláraði sex af sex sviðum og bjargaði sex grímum. Síðasta pallinn sýnir upprunalega ER mynd, frumur línur og Cellpose streymir, sem gerir skipta gæði sýnilegt áður en niðurrás mælingar."
         }
       ]
     },
