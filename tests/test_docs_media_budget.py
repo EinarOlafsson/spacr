@@ -159,48 +159,71 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
 
 
 @requires_library
-def test_the_site_publishes_no_narration_at_all(real_plan):
-    """Narration lives on ``NARRATION_HOST``, so none of it belongs here.
+def test_every_language_keeps_one_offline_voice(real_plan):
+    """The fallback the player drops to when the narration host is down.
 
-    This replaces an older assertion that every language had to keep the
-    voice ``app_v2.js`` falls back to. That rule existed because the site
-    served the audio and a missing default meant silence on a first visit.
-    The audio is now fetched from the host, so the failure it guarded
-    against cannot happen — and a copy published here would be a second
-    2,662 MiB of budget nothing ever requests.
-    """
-    published, _dropped, _keep = real_plan
-    strays = [str(p.relative_to(_LIBRARY)) for p in published
-              if "audio" in p.relative_to(_LIBRARY).parts
-              and p.suffix.lower() in budget.VOICE_ASSET_SUFFIXES]
-    assert not strays, (
-        f"{len(strays)} narration file(s) published to a site that does not "
-        f"serve narration: {strays[:5]}")
-
-
-@requires_library
-def test_the_catalog_still_offers_every_voice(real_plan):
-    """``app_v2.js`` reads this catalog to build the picker.
-
-    While narration was rationed the catalog had to be trimmed to match, or
-    the picker offered voices whose audio 404'd. With the audio hosted, every
-    voice in the catalog is reachable, so trimming it would hide working
-    voices instead of preventing broken ones — the point of moving the audio
-    was to make all 54 offerable.
+    ``app_v2.js`` reacts to a failed narration load by switching to
+    ``language.voices[0]`` served from the site itself. That only degrades
+    gracefully if the voice is actually here, and it has to be *that* voice:
+    any other choice and the player asks for something the site never staged.
     """
     _published, _dropped, keep = real_plan
     catalog = budget.parse_voice_catalog(
         budget.voice_catalog_path(_LIBRARY).read_text())
 
     assert set(keep) == set(catalog)
-    assert not any(keep.values()), (
-        "narration is external, so no voice should be marked for publishing")
+    for language, voices in catalog.items():
+        assert keep[language], f"{language}: no offline voice published"
+        assert keep[language] == [voices[0]], (
+            f"{language}: publishes {keep[language]} but the player falls "
+            f"back to {voices[0]!r}, and only that")
+
+
+@requires_library
+def test_the_catalog_offers_every_voice_not_just_the_offline_one(real_plan):
+    """``app_v2.js`` reads this catalog to build the picker.
+
+    While the site served narration the catalog had to be trimmed to what was
+    staged, or the picker offered voices whose audio 404'd. The host serves
+    all 54 now, so trimming to the 8 staged as fallbacks would hide 46
+    working voices to prevent failures that only occur while the host is
+    down — which the player already handles by dropping to the staged voice.
+    """
+    _published, _dropped, keep = real_plan
+    catalog = budget.parse_voice_catalog(
+        budget.voice_catalog_path(_LIBRARY).read_text())
+
     assert budget.NARRATION_HOST, (
-        "VOICES_PER_LANGUAGE is NARRATION_EXTERNAL but no host is configured, "
-        "so the player has nowhere to fetch narration from")
-    assert sum(len(v) for v in catalog.values()) > 8, (
-        "the catalog should list far more than one voice per language now "
-        "that the site is not the thing carrying them")
+        "no host is configured, so the catalog would be offering voices "
+        "nothing serves")
+    offered = sum(len(v) for v in catalog.values())
+    staged = sum(len(v) for v in keep.values())
+    assert offered > staged, (
+        f"the catalog offers {offered} voices and {staged} are staged; if "
+        f"those are equal the host is buying nothing")
+
+
+@requires_library
+def test_the_offline_voices_ship_with_their_timings(real_plan):
+    """Every staged ``.m4a`` needs its ``.json`` beside it, in the real tree.
+
+    The synthetic check below proves the filter pairs them; this one proves
+    the library actually contains both. A voice rendered without its timing
+    sidecar would fall back to audio the player cannot caption or sync.
+    """
+    published, _dropped, _keep = real_plan
+    audio, timings = set(), set()
+    for path in published:
+        if "audio" not in path.relative_to(_LIBRARY).parts:
+            continue
+        if path.suffix == ".m4a":
+            audio.add(path.with_suffix(""))
+        elif path.suffix == ".json":
+            timings.add(path.with_suffix(""))
+    assert audio, "no offline narration published at all"
+    assert audio == timings, (
+        f"{len(audio ^ timings)} offline voice(s) missing their pair: "
+        f"{sorted(p.name for p in (audio ^ timings))[:5]}")
 
 
 def test_audio_and_its_timing_track_travel_together(tiny_library, tmp_path):
@@ -312,13 +335,18 @@ def test_staging_publishes_the_default_voice_and_nothing_else(tiny_library,
 
 
 def test_the_staged_catalog_offers_exactly_what_was_staged(tiny_library,
-                                                           tmp_path):
-    """The picker must not list a voice whose audio is not on the site.
+                                                           tmp_path,
+                                                           monkeypatch):
+    """With no host configured, the picker must not list what is not staged.
 
     Left unfiltered, the English dropdown offers 28 voices of which 27 are
     404s, and choosing one produces the player's "narration is unavailable"
     toast — a broken control is a worse answer than a control with one entry.
+
+    This is the ``NARRATION_HOST = ""`` configuration: the site is the only
+    thing serving narration, so what it stages is the whole offering.
     """
+    monkeypatch.setattr(budget, "NARRATION_HOST", "")
     dest = tmp_path / "staged"
     budget.stage(dest, tiny_library, per_language=1)
 
@@ -338,6 +366,29 @@ def test_the_staged_catalog_offers_exactly_what_was_staged(tiny_library,
     assert ",\n    ]" not in staged_js and ",\n]" not in staged_js
     assert staged_js.count("[") == staged_js.count("]")
     assert staged_js.count("{") == staged_js.count("}")
+
+
+def test_a_configured_host_leaves_the_catalog_alone(tiny_library, tmp_path,
+                                                    monkeypatch):
+    """The inverse: with a host set, trimming would hide working voices.
+
+    The staged audio is a fallback for an outage, not the offering. Filtering
+    the picker down to it would drop every voice the host serves — which is
+    the entire reason the audio was moved there.
+    """
+    monkeypatch.setattr(budget, "NARRATION_HOST", "https://example.invalid/x")
+    dest = tmp_path / "staged"
+    budget.stage(dest, tiny_library, per_language=1)
+
+    source = budget.parse_voice_catalog(
+        budget.voice_catalog_path(tiny_library).read_text())
+    offered = budget.parse_voice_catalog(
+        (dest / "tutorials" / "voice_catalog.js").read_text())
+    assert offered == source, (
+        "the catalog was trimmed even though a narration host is configured")
+    assert sum(len(v) for v in offered.values()) > 2, (
+        "this fixture should offer more voices than the one per language "
+        "staged, or the test proves nothing")
 
 
 def test_full_audio_publishes_every_voice(tiny_library, tmp_path):

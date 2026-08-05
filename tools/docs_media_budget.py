@@ -71,27 +71,34 @@ NARRATION_EXTERNAL = -1
 #: -- what a visitor hears without touching the picker; 0 keeps all of them;
 #: :data:`NARRATION_EXTERNAL` keeps none.
 #:
-#: It was 1 while narration had to fit on Pages, and that was the whole
-#: problem: all 54 voices are 2,662 MiB against a 1 GB site limit, so 27 of
-#: the 28 English voices could never be offered. Moving the audio to
-#: :data:`NARRATION_HOST` removes the constraint instead of rationing it --
-#: every voice is now reachable, and the site stops carrying any of them.
-VOICES_PER_LANGUAGE = NARRATION_EXTERNAL
+#: 1 is not a budget any more, it is a fallback. All 54 voices are served from
+#: :data:`NARRATION_HOST`, and the catalog offers every one of them; this copy
+#: exists so that a host outage degrades the tutorials instead of breaking
+#: them. ``app_v2.js`` drops to this voice, from this site, when narration
+#: fails to load -- the lesson keeps its audio and captions, at one voice per
+#: language and 1440p rather than 4K.
+#:
+#: The cost is 413 MiB of the site's ~950 MiB ceiling, spent deliberately.
+#: Raising this to 2 would add another ~413 MiB for a second fallback nobody
+#: would hear, and put the site back over the limit it silently fails at.
+VOICES_PER_LANGUAGE = 1
 
 #: Ceiling on the staged tutorial payload, in bytes. Not the Pages limit --
 #: this is the tutorial library alone, and the rest of the site (autoapi HTML,
 #: ``_modules``, ``_static``, ``resources``) is ~52 MiB on top.
 #:
-#: It was 160 MiB while the site carried one voice per language, went to
-#: 700 MiB when re-recording all 40 lessons quadrupled the narration, and came
-#: back down once the audio moved to :data:`NARRATION_HOST`. What is left is
-#: video and posters: 185 MiB, for a ~237 MiB site, a quarter of the limit.
+#: Today's payload is 603 MiB: 166 MiB of 1440p video, 14 MiB of posters, and
+#: 413 MiB of fallback narration -- one voice per language, kept so a
+#: :data:`NARRATION_HOST` outage degrades the tutorials rather than breaking
+#: them. The whole site is ~655 MiB, 69% of the 1 GB Pages limit.
 #:
-#: 300 MiB rather than something looser because a ceiling far above the real
-#: number stops being a guard. This one still trips on the things worth
-#: catching: narration coming back onto the site, or the video being committed
-#: at 4K again (681 MiB) instead of the published 1440p.
-PUBLISHED_MEDIA_CEILING = 300 * 1024 * 1024
+#: The headroom is thin, and that is a choice: the alternative was a site that
+#: goes silent whenever the host does. What is left still absorbs a lesson
+#: batch (~15 MiB each). What it will not absorb is a second fallback voice
+#: per language, which is another 413 MiB and would push the site past the
+#: limit it fails at silently -- which is exactly what this ceiling exists to
+#: catch, along with the video being committed at 4K (681 MiB) again.
+PUBLISHED_MEDIA_CEILING = 700 * 1024 * 1024
 
 #: Set to ``1`` to publish the entire library, ceiling and all.
 FULL_AUDIO_ENV = "SPACR_DOCS_FULL_AUDIO"
@@ -271,10 +278,12 @@ def stage(dest: Path, extra: Path | None = None,
         target = dest / path.relative_to(extra)
         target.parent.mkdir(parents=True, exist_ok=True)
         # The catalog is trimmed to what was staged only when the site is the
-        # thing serving narration. With the audio on NARRATION_HOST every
-        # voice is reachable, so trimming would hide 40 working voices behind
-        # a filter that exists to prevent 404s that can no longer happen.
-        if path == catalog_source and per_language >= 0:
+        # thing serving narration. With NARRATION_HOST set every voice is
+        # reachable from there, and the copy staged here is a fallback rather
+        # than the whole offering -- trimming to it would hide 46 working
+        # voices to prevent 404s that only happen while the host is down, and
+        # the player already handles that case by dropping to the staged voice.
+        if path == catalog_source and not NARRATION_HOST:
             target.write_text(filter_voice_catalog(path.read_text(), keep))
             continue
         try:
@@ -318,9 +327,12 @@ def report(extra: Path | None = None,
         f"ceiling:          {PUBLISHED_MEDIA_CEILING / mib:.0f} MiB"
         f"  ({'ok' if after <= PUBLISHED_MEDIA_CEILING else 'OVER'})",
     ]
-    if per_language < 0:
+    if NARRATION_HOST:
         lines.append(f"narration:        served from {NARRATION_HOST}")
-        lines.append("                  every voice offered, none published")
+        lines.append("                  every voice offered; the voices below "
+                     "are the offline fallback")
+    if per_language < 0:
+        lines.append("                  nothing published, no fallback")
     else:
         lines.append("voices published:")
         for language, voices in keep.items():
