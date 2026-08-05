@@ -1729,19 +1729,58 @@
       "id": "31_external_masks",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Externe Masken. Verwandeln Sie Etikettenmasken und Quellbilder von Drittanbietern in ein messbares, nachverfolgbares spaCR-Projekt."
+          "narration": "External Masks verwandelt die außerhalb von spaCR produzierte Segmentierung in den gleichen gemessenen Projektvertrag, der von Measure und Annotate verwendet wird. Öffnen Sie es von Data und Batch-Runs; Preview ist nur zu lesen, während Run kanonische Bilder, Stapel, Masken, verschmolzenen Arrays, Messungen und Objektpflanzen erstellen kann."
         },
         {
-          "narration": "Öffnen Sie externe Masken aus dem Abschnitt Daten und Batchläufe. Angeben Sie Quellebilder, externe Masken, Namensregeln, Objekttypen und optionale Messtabellen."
+          "narration": "Werfen Sie Bilder und Masken-Dateien oder einen Ordner mit. Diese Lektion verwendet drei wirkliche 768-Pixel-Kulturen aus dem übertragenen Experiment: zwölf TIFF-Intensität und drei Masken für jeden von vier Objekttypen, die aus bestehenden spaCR-Arrays exportiert werden, nur um eine externe Übergabe zu emulieren."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich werden Bilder auf Masken abgelegt, Form- und Kennzeichnungskonventionen validiert, die Umkennung ausgewählt und Messmöglichkeiten definiert."
+          "narration": "Die Aufgabentabelle gruppiert die Dateien nach Beweisen. Intensitätsbilder werden von ihren Pixel erkannt, während Masken- und Objektwörter die Zell-, Kern-, Krankheitserreger- und Organelletiketten identifizieren. Verwenden Sie als und Mask-Typ bleiben bearbeitbare Vorschläge; überprüfen Sie jede Zeile und ignorieren Sie alles, was nicht in das Projekt eintreten sollte."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vorsichtsausrichtung und Objektzählung auf mehreren Feldern, bevor der vollständige Datensatz importiert wird."
+          "narration": "Input Mapping enthält die überprüfte Zuweisungstabelle, ein neues Ziel, rekursive Entdeckung, Dateinamen-Layout, Z-Handling, Plattenbenennung, Überschreibschutz und nur Vorschau. Diese Steuerelemente entscheiden, welche Dateien ein Paar sind, bevor etwas geschrieben wird."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert spaCR normalisierte Masken, kartografierte Bilder, Messungen und Herkunft bereit für Anmerkungen."
+          "narration": "General definiert die eingeführte Intensitäts-Kanalliste, den Experimentnamen, die Normalisierungspolitik und ob ein Zytoplasma-Abteil abgeleitet wird. Hier passen die Kanäle von Null bis drei zu den vier echten Bild-Ebenen."
+        },
+        {
+          "narration": "Organelle kontrolliert, wie eingeführte Organelle-Etiketten gegen ihre Muttergegenstände zusammengefasst werden. Sie segmentiert die TIFF nicht erneut, sondern definiert nur nachgelagerte Messbeziehungen."
+        },
+        {
+          "narration": "Timelapse enthält Tracking-Optionen für extern bereitgestellte Zeitreihen. Lassen Sie es für dieses Einzeitpunktbeispiel deaktiviert; aktivieren Sie es nur, wenn die Feldnamen und Rahmen eine echte zeitliche Sequenz darstellen."
+        },
+        {
+          "narration": "Die Messungen wählen die von den importierten Etiketten berechneten Merkmalfamilien aus, einschließlich Intensität, Korrelation, Textur, Radialverteilung und Colocalization. Beginnen Sie mit den Funktionen, die Ihre Analyse benötigt, weil die reicheren Familien mehr Zeit und Speicher kosten."
+        },
+        {
+          "narration": "Filter-Einstellungen gelten für die Mindestgröße und die Infektionsgate nach der Einfuhr. Externe Masken bewahren die gelieferte Etikettgeometrie; diese Filter entscheiden, welche gekennzeichneten Objekte in Messungen eingehen, anstatt eine schlechte Segmentierung zu reparieren."
+        },
+        {
+          "narration": "Object Crops wählt aus, welche Abteilungen einzelne PNG-Datensätze, ihre Kanäle, Größe, Normalisierung und Grenzpolitik werden. Dieses Beispiel speichert Zellpflanzen, so dass das fertige Projekt direkt in Annotate geöffnet werden kann."
+        },
+        {
+          "narration": "Advanced enthält Lebenslauf, Trockenlauf, Ausfall, Arbeiter und Logging-Kontrollen. Stärke Fehler und ein Mitarbeiter machen diesen kleinen ersten Import leicht zu prüfen; größere überprüfte Projekte können später mehr Mitarbeiter benötigen."
+        },
+        {
+          "narration": "3D-Einstellungen sind eine Alpha-Phase-Kategorie für volumetrische Messungen und Projektionen. Die gegenwärtigen Eingabe sind zweidimensionale Kennzeichnungspläne, so dass diese Steuerelemente abgeschaltet bleiben und die Z-Handhabung bei maximaler Projektion für jede Multiframe-Intensitätsquelle bleibt."
+        },
+        {
+          "narration": "Bevor Sie importieren, halten Sie nur Vorschau aktiviert und bestätigen Sie, dass das Ziel ein neuer Projektordner ist. Das Überschreiben bleibt ausgeschlossen, so dass eine bestehende Messdatenbank ein Blockierungsproblem ist, anstatt still zu ersetzt zu werden."
+        },
+        {
+          "narration": "Klicken Sie auf Laufen für den Vorflug, der nur zu lesen ist. Es scannt tatsächliche Bildmetadaten, paart Masken mit normalisierten Feldidentitäten, überprüft Duplikate und fehlende Masken, zugeordnet Maskenplanen nach den Intensitätskanälen und schreibt keine Experimentleistung."
+        },
+        {
+          "narration": "Die echte Vorschau berichtet von zwölf Intensitätskarten, drei kompletten Feldern, vier Intensitätskanälen und Zell-, Kern-, Krankheitserreger- und Organellenmasken für jedes Feld. Die Maskenflugzeuge werden vier, fünf, sechs und sieben sein, ohne Warnungen oder Blockfehler."
+        },
+        {
+          "narration": "Deaktivieren Sie nur Vorschau und klicken Sie auf Laufen erneut, um zu importieren. External Masks verwendet nun den überarbeiteten Plan, um kanonische Bilder und Arrays zu schreiben, und überträgt dann die verschmelzten Felder der normalen Measure Pipeline mit den abgeleiteten Maskendimensionen."
+        },
+        {
+          "narration": "Während der Umwandlung gelingen zwölf von zwölf Intensitätspunkten, bevor die Messung beginnt. Die Konsole wiederholt die validierte Pairing und registriert ein Reproduzierbarkeitsmanifest und führt ein Tagebuch aus; Stop bleibt bei den angegebenen sicheren Grenzen verfügbar."
+        },
+        {
+          "narration": "Die eigentliche Importe beendet sich mit drei acht-Platten-fusierten Arrays und einer Messdatenbank mit Zelle, Zytoplasma, Kern, Krankheitserreger, Organelle, PNG-Liste, Einstellungen, Einstellungen-Geschichte und Run-Status-Tabellen. Die Zellpflanzen sind unter Daten, also ist dieses neue Projekt nachvollziehbar und bereit für Annotation ohne Wiederholung der Segmentierung."
         }
       ]
     },

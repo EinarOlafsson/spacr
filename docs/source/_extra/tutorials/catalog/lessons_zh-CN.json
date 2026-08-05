@@ -4466,47 +4466,155 @@
       "id": "31_external_masks",
       "number": 31,
       "slug": "external_masks",
-      "title": "External Masks",
+      "title": "外部面具",
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "转换第三方标签掩膜和源图像成为测量可追踪的 spaCR 项目.",
+      "description": "检查外部生成的图像和标签分配,在没有写的情况下预览对,然后创建一个测量的spaCR项目准备注释.",
       "objectives": [
-        "了解什么时候使用外面罩.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "检测强度图像和细胞,核,病原体和器官面具,同时保留可编辑的角色分配.",
+        "查看每个设置类别,只使用预览来验证频道,字段和面具平面对象.",
+        "通过实际转换和测量管道导入审查的字段,并验证其数据库和注释输出."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "强度图像和整数标签面具与相匹配的字段名称;每个对象类别应通过文件或文件名来区分.",
       "scenes": [
         {
-          "narration": "转换第三方标签掩膜和源图像成一个可测量,可追踪的 spaCR 项目.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "转换第三方标签掩膜和源图像成一个可测量,可追踪的 斯佩克尔 项目."
+          "narration": "外部面具将在spaCR以外生产的细分化转化为Measure和Annotate使用的相同的测量项目合同. 在数据和批量运行中打开它;预览仅可读,而运行可以构建正规图像,堆,面具,合并阵列,测量和对象作物.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "外部面具将在斯佩克尔以外生产的细分化转化为Measure和Annotate使用的相同的测量项目合同. 在数据和批量运行中打开它;预览仅可读,而运行可以构建正规图像,堆,面具,合并阵列,测量和对象作物."
         },
         {
-          "narration": "从 Data and batch runs 部分打开 External Masks。 提供源图像,外部掩膜,命名规则,对象类型和可选测量表.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Data and batch runs 部分打开 External Masks。 提供源图像,外部掩膜,命名规则,对象类型和可选测量表."
+          "narration": "放下图像和面具文件或包含文件的文件. 本课程使用了转移实验中的3个真实768像素的作物:为每个四种物体类型的12个强度TIFF和3个面具,",
+          "visual": "02_detected",
+          "focus_key": "inputs",
+          "hold_after": 0.78,
+          "speech_text": "放下图像和面具文件或包含文件的文件. 本课程使用了转移实验中的3个真实768像素的作物:为每个四种物体类型的12个强度TIFF和3个面具,"
         },
         {
-          "narration": "在主要配置区域,将图像映射到掩膜,验证形状和标签约,选择重新标签,并定义测量选项.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域,将图像映射到掩膜,验证形状和标签约,选择重新标签,并定义测量选项."
+          "narration": "任务表根据证据组分文件. 通过它们的像素检测到强度图像,而面具和对象词识别细胞,核,病原体和器官标签. 使用 as 和 Mask 类型仍然是可编辑的建议; 审查每一行, 忽略任何不应该进入项目的内容.",
+          "visual": "03_assignment",
+          "focus_key": "input_table",
+          "hold_after": 0.74,
+          "speech_text": "任务表根据证据组分文件. 通过它们的像素检测到强度图像,而面具和对象词识别细胞,核,病原体和器官标签. 使用 as 和 Mask 类型仍然是可编辑的建议; 审查每一行, 忽略任何不应该进入项目的内容."
         },
         {
-          "narration": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见设置,并在可用的时使用预览或测试模式."
+          "narration": "输入地图包含经过审查的分配表,一个新的目的地,递归发现,文件名布局,Z处理,板名,重写保护和仅预览. 在任何东西被编写之前,这些控制决定哪些文件结合.",
+          "visual": "04_category_input_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.64,
+          "speech_text": "输入地图包含经过审查的分配表,一个新的目的地,递归发现,文件名布局,Z处理,板名,重写保护和仅预览. 在任何东西被编写之前,这些控制决定哪些文件结合."
         },
         {
-          "narration": "当工作流程完成时, spaCR 存储正常化掩膜,映射的图像,测量和来源准备进行注释.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时, 斯佩克尔 存储正常化掩膜,映射的图像,测量和来源准备进行注释."
+          "narration": "一般定义了进口的强度道列表,实验名称,正常化政策,以及是否取出了细胞质分区. 在这里,从零到三的频道与四个真实图像平面相匹配.",
+          "visual": "05_category_general",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "一般定义了进口的强度道列表,实验名称,正常化政策,以及是否取出了细胞质分区. 在这里,从零到三的频道与四个真实图像平面相匹配."
+        },
+        {
+          "narration": "机器控制如何将进口机器标签与其母体进行总结. 它不会再次划分TIFF;它只定义下游测量关系.",
+          "visual": "06_category_organelle",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "机器控制如何将进口机器标签与其母体进行总结. 它不会再次划分TIFF;它只定义下游测量关系."
+        },
+        {
+          "narration": "时间周期包含对外部供应的时间序列的跟踪选择. 仅在字段名称和框架代表一个真正的时间序列时,才能启用它.",
+          "visual": "07_category_timelapse",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "时间周期包含对外部供应的时间序列的跟踪选择. 仅在字段名称和框架代表一个真正的时间序列时,才能启用它."
+        },
+        {
+          "narration": "测量选择从进口标签计算的特征家族,包括强度,相关性,纹理,辐射分布和定位化. 首先,你需要分析的功能,因为富裕家庭需要更多的时间和储存.",
+          "visual": "08_category_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "测量选择从进口标签计算的特征家族,包括强度,相关性,纹理,辐射分布和定位化. 首先,你需要分析的功能,因为富裕家庭需要更多的时间和储存."
+        },
+        {
+          "narration": "在进口后,适用于最小尺寸和感染门的过设置. 外部面具保留提供标签几何学;这些过器决定哪些标签对象进入测量,而不是修复差的细分.",
+          "visual": "09_category_filter_settings",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "在进口后,适用于最小尺寸和感染门的过设置. 外部面具保留提供标签几何学;这些过器决定哪些标签对象进入测量,而不是修复差的细分."
+        },
+        {
+          "narration": "对象作物选择哪些区块成为单个对象的PNG数据集,它们的道,大小,正常化和边境政策. 这个例子可以保存细胞作物,以便完成的项目可以直接在Annotate中打开.",
+          "visual": "10_category_object_crops",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "对象作物选择哪些区块成为单个对象的PNG数据集,它们的道,大小,正常化和边境政策. 这个例子可以保存细胞作物,以便完成的项目可以直接在Annotate中打开."
+        },
+        {
+          "narration": "高级包含简历,干运行,失败,工人和伐木控制. 严格的错误和一个工人使得这种小型的第一次进口容易进行审计;较大的审查项目可以以后使用更多的工人.",
+          "visual": "11_category_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "高级包含简历,干运行,失败,工人和伐木控制. 严格的错误和一个工人使得这种小型的第一次进口容易进行审计;较大的审查项目可以以后使用更多的工人."
+        },
+        {
+          "narration": "3D设置是对体积测量和投影的阿尔法阶段类别. 目前的输入是二维标签平面,因此这些控制保持关闭,而Z处理保持在任何多强度源的最大投影.",
+          "visual": "12_category_3d_settings_(beta)",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "3D设置是对体积测量和投影的阿尔法阶段类别. 目前的输入是二维标签平面,因此这些控制保持关闭,而Z处理保持在任何多强度源的最大投影."
+        },
+        {
+          "narration": "在进口之前,只启用预览,并确认目的地是新的项目文件. 所以一个现有的测量数据库是一个阻塞问题,而不是被默默地取代.",
+          "visual": "13_preview_settings",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "在进口之前,只启用预览,并确认目的地是新的项目文件. 所以一个现有的测量数据库是一个阻塞问题,而不是被默默地取代."
+        },
+        {
+          "narration": "单击\"运行\",只需阅读的预航. 它扫描实际的图像元数据,将面具与正常化领域身份进行对接,检查重复和缺失面具,在强度道之后分配面具平面,并没有写出实验输出.",
+          "visual": "14_preview_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "单击\"运行\",只需阅读的预航. 它扫描实际的图像元数据,将面具与正常化领域身份进行对接,检查重复和缺失面具,在强度道之后分配面具平面,并没有写出实验输出."
+        },
+        {
+          "narration": "实际预览报告了十二个强度映射,三个完整的场地,四个强度道, 面具飞机将是四,五,六,七,没有警告或阻止错误.",
+          "visual": "15_preview_result",
+          "focus_key": "console",
+          "hold_after": 0.76,
+          "speech_text": "实际预览报告了十二个强度映射,三个完整的场地,四个强度道, 面具飞机将是四,五,六,七,没有警告或阻止错误."
+        },
+        {
+          "narration": "禁用只预览,然后单击再运行才能导入. 外部面具现在使用复制的计划来编写可信的图像和阵列,然后将合并的字段交给正常的测量管道与衍生的面具尺寸.",
+          "visual": "16_import_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "禁用只预览,然后单击再运行才能导入. 外部面具现在使用复制的计划来编写可信的图像和阵列,然后将合并的字段交给正常的测量管道与衍生的面具尺寸."
+        },
+        {
+          "narration": "在转换过程中,在测量开始之前,12个强度项目中,有12个成功. 控制台重复验证的配对,记录可复制性表格,并运行日志;在声明的安全边界,停止仍然可用.",
+          "visual": "17_importing",
+          "focus_key": "console",
+          "hold_after": 0.68,
+          "speech_text": "在转换过程中,在测量开始之前,12个强度项目中,有12个成功. 控制台重复验证的配对,记录可复制性表格,并运行日志;在声明的安全边界,停止仍然可用."
+        },
+        {
+          "narration": "实际进口完成了三个八平面的合并阵列和含有细胞,细胞质,核,病原体,机器人,PNG列表,设置,设置-历史和运行状态表的测量数据库. 这项新项目可以追踪并准备好进行注释,而不需要重复分类.",
+          "visual": "18_finished",
+          "focus_key": "console",
+          "hold_after": 0.88,
+          "speech_text": "实际进口完成了三个八平面的合并阵列和含有细胞,细胞质,核,病原体,机器人,PNG列表,设置,设置-历史和运行状态表的测量数据库. 这项新项目可以追踪并准备好进行注释,而不需要重复分类."
         }
       ]
     },

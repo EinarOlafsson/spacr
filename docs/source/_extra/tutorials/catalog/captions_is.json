@@ -1729,19 +1729,58 @@
       "id": "31_external_masks",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um ytri grímur. Breyttu vörumerki frá þriðja aðila og kjarnmyndum í mælt, sporanlegt verkefni spaCR."
+          "narration": "Ytri grímur breytir skiptingu sem framleidd er utan spaCR í sama mælt verkefni samning sem Measure og Annotate nota. Opnaðu það frá gögnum og flokka hlaupum; Framsýn er aðeins lesið, en hlaup getur byggt upp kanónísk myndir, stafla, grímur, sameinuð röð, mælingar og hlut afurðir."
         },
         {
-          "narration": "Opnaðu ytri grímur í deildinni Upplýsingar og flokka. Gefðu upp upprunamyndir, ytri grímur, nöfnreglur, hluttegundir og valfrjálsir mælingatöflur."
+          "narration": "Fylgdu myndum og maski skrár eða einn sem innihalda möppu. Í þessari kennslu eru notuð þrjár alvöru 768-pixel uppskeru úr flutningsreynslu: tólf TIFFs og þrjár grímur fyrir hvert af fjórum hluttegundum, sem eru útfluttar úr núverandi spaCR röðum eingöngu til að eftirlíða ytri afhendingu."
         },
         {
-          "narration": "Í aðalmyndasvæðinu er hægt að kortleggja myndir í grímur, staðfesta lögun og merkingar samningar, velja ummerking og skilgreina mælingarmöguleikar."
+          "narration": "Skipulagsborðið flokkar skrár eftir sönnunargögnum. Myndir af mikilli þyngd eru greindar úr pixlum þeirra, en maski og hlut orð skilgreina frumur, kjarna, sjúkdómsfrumur og líffæra merkingar. Nota eins og og og Mask tegund eru áfram breyttar tillögur; endurskoða hverja röð og vanvirða allt sem ekki ætti að koma inn í verkefnið."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. fyrirsjáarsetning og hlut telja á nokkrum sviðum áður en innflutningur á heildar gagnasetinu er gerður."
+          "narration": "Input Mapping inniheldur endurskoðaðu verkefnisborðið, nýtt áfangastað, endurskoðun uppgötvun, skránafn skipulag, Z meðhöndlun, plötuheiti, yfirskrifavernd og aðeins fyrirsjá. Þessar stjórnir ákveða hvaða skrár eru í par áður en eitthvað er skrifað."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið, geymir spaCR eðlilegar grímur, kortlagðar myndir, mælingar og uppruna tilbúinn til athugasemda."
+          "narration": "Algengt skilgreinir innflutta orku-kanala lista, tilraun nafnið, normalisering stefnu, og hvort cytoplasma geymsla er leitt. Hér eru sendingar frá núll til þremur samsvarandi fjórum raunverulegum myndasvæðum."
+        },
+        {
+          "narration": "Organelle stjórnar því hvernig innfluttaðar merkingar á organellum eru samantektar við foreldraefni þeirra. Það skipar ekki TIFF aftur, heldur skilgreinir það aðeins niðurstreymisviðskipti."
+        },
+        {
+          "narration": "Timelapse felur í sér valmöguleika til að fylgjast með tímasetningum sem hafa borist utan. Láttu það slökkva fyrir þetta eitt-tíma-punkta dæmi; leyfa það aðeins þegar sviðnafn og ramma eru raunveruleg tíma röð."
+        },
+        {
+          "narration": "Mælingar velja einkennifjölskyldur sem reiknað er út úr innfluttuðum merkingum, þar á meðal mikill styrk, samræmi, textúra, radial dreifing og colocalization. Byrjaðu á þeim eiginleikum sem rannsóknin þín þarf vegna þess að ríkari fjölskyldur kosta meira tíma og geymslu."
+        },
+        {
+          "narration": "Stilla stillingar gilda um lágmarksstærð og sýkingarborð eftir innflutning. Ytri grímur varðveita geometrið á merkingum; þessar sía ákveða hvaða merkt hlutir koma inn í mælingar í stað þess að laga slæma skiptingu."
+        },
+        {
+          "narration": "Object Crops velur hvaða hólf verða ein-efnis PNG gagnasett, leiðir þeirra, stærð, eðlilegingu og landamæra stefnu. Þetta dæmi sparar frumur til að klára verkefnið geti opnað beint í Annotate."
+        },
+        {
+          "narration": "Advanced inniheldur umsóknarskrá, þurrkennslu, mistök, starfsmann og logging stjórn. Miklar mistök og einn starfsmaður gera þetta litla innflutning auðvelt að endurskoða; stærri endurskoðaðir verkefni geta notað fleiri starfsmenn síðar."
+        },
+        {
+          "narration": "3D Settings er alfa-staða flokkur fyrir magnmæli og spá. Núverandi inngöngur eru tvívívíddar merkingarplötur, þannig að þessi stjórnun heldur áfram að vera slökkt og Z meðhöndlun heldur áfram að hámarksframleiðslunni fyrir hvaða fjölmyndartengda uppspretta sem er."
+        },
+        {
+          "narration": "Áður en þú er að flytja inn skaltu hafa aðeins fyrirsjáandi virkt og staðfesta að áfangastaðurinn er nýr verkefni mappur. Overwriting er slökkt, þannig að núverandi mælingar gagnagrunn er blokk vandamál í stað þess að vera hljóðlega skipt út."
+        },
+        {
+          "narration": "Smelltu á Run fyrir aðeins lesandi fyrirflugi. Það skannar raunverulegar myndar metadata, parir grímur til eðlilegrar sviðs auðkenningar, athuga afrit og saknar grímur, tilskilar grímur flugvélar eftir þyngd kanala, og skrifar engin tilraunaútgangur."
+        },
+        {
+          "narration": "Í raunverulegu fyrirsýninu er greint frá tólf mikilli kortmyndum, þremur fullum sviðum, fjórum mikilli aðferðum og frumur, kjarni, sjúkdómsfrumur og líffæragrímum í par fyrir hvert svið. Maskarflugvélin verða fjögur, fimm, sex og sjö, án viðvörunar eða hindrunarskemmda."
+        },
+        {
+          "narration": "Slökktu á einungis fyrirsjá og smelltu á Að hlaupa aftur til að flytja inn. External Masks notar nú endurskoðaðu áætlunina til að skrifa kanónískar myndir og röður, og gefur síðan sameinaða sviði í venjulega Measure pipeline með afleiðu maskustærðunum."
+        },
+        {
+          "narration": "Á meðan umbreyting er gerð verða tólf af tólf mikilli atriði framkvæmd áður en mælingar hefjast. Konsóllinn endurtekur staðfestan pörun og skráir endurnýjanleikablað og rekur dagblaðið; Stop er enn í boði við lýst öruggar mörk."
+        },
+        {
+          "narration": "Alvöru innflutningurinn lýkur með þremur átta-flaugum sameinuðum röðum og mælingar gagnagrunni sem inniheldur frumur, sítoplasma, kjarna, sjúkling, organell, PNG-lista, stillingar, stillingar-fortíð og run-status töflur. Fjarfrumur eru undir gögnum, þannig að þetta nýja verkefni er sporlegt og tilbúið fyrir Annotate án þess að endurnýja skiptingu."
         }
       ]
     },

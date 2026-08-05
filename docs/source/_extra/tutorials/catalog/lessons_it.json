@@ -4466,47 +4466,155 @@
       "id": "31_external_masks",
       "number": 31,
       "slug": "external_masks",
-      "title": "External Masks",
+      "title": "Maschere esterne",
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Trasformare le maschere di etichette di terzi e le immagini di sorgente in un progetto spaCR misurabile e tracciabile.",
+      "description": "Rivedi le assegnazioni di immagini e etichette generate esternamente, visualizza l'accoppiamento senza scrivere, quindi crea un progetto spaCR misurato pronto per l'annotamento.",
       "objectives": [
-        "Comprendere quando usare le maschere esterne.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Rilevare le immagini di intensità e le maschere cellulari, nucleosi, patogeni e organici mantenendo le assegnazioni di ruolo modificabili.",
+        "Rivedi ogni categoria di impostazioni e usa Preview solo per convalidare l'appariamento canale, campo e maschera-piano.",
+        "Importare i campi esaminati attraverso il pipeline di conversione reale e di misura e verificare i dati di base e le output di annotamento."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Le immagini di intensità e le maschere di etichette di numeri interi con nomi di campi corrispondenti; ogni classe di oggetti deve essere distinguibile dal proprio cartellone o nome di file.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre le maschere esterne. Trasforma le maschere di etichette di terze parti e le immagini di sorgente in un progetto spaCR misurabile e tracciabile.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre le maschere esterne. Trasforma le maschere di etichette di terze parti e le immagini di sorgente in un progetto spàker misurabile e tracciabile."
+          "narration": "Le maschere esterne trasformano la segmentazione prodotta al di fuori di spaCR nello stesso contratto di progetto misurato utilizzato da Measure e Annotate. Aprirlo da Data e batch runs; Preview è solo per lettura, mentre Run può costruire immagini canoniche, pile, maschere, array fusi, misure e colture di oggetti.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Le maschere esterne trasformano la segmentazione prodotta al di fuori di spàker nello stesso contratto di progetto misurato utilizzato da Measure e Annotate. Aprirlo da Data e batch runs; Preview è solo per lettura, mentre Run può costruire immagini canoniche, pile, maschere, array fusi, misure e colture di oggetti."
         },
         {
-          "narration": "Apri External Masks dalla sezione Data and batch runs. Apri le maschere esterne dalla sezione Datos e batch runs. Fornire immagini sorgenti, maschere esterne, regole di denominazione, tipi di oggetti e tabelle di misura opzionali.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri External Masks dalla sezione Data and batch runs. Apri le maschere esterne dalla sezione Datos e batch runs. Fornire immagini sorgenti, maschere esterne, regole di denominazione, tipi di oggetti e tabelle di misura opzionali."
+          "narration": "Scarica i file di immagini e maschere o una cartella contenente. Questa lezione utilizza tre colture reali di 768 pixel provenienti dall'esperimento trasferito: dodici TIFF di intensità e tre maschere per ciascuno dei quattro tipi di oggetti, esportati dalle matrici spaCR esistenti esclusivamente per emulare una consegna esterna.",
+          "visual": "02_detected",
+          "focus_key": "inputs",
+          "hold_after": 0.78,
+          "speech_text": "Scarica i file di immagini e maschere o una cartella contenente. Questa lezione utilizza tre colture reali di 768 pixel provenienti dall'esperimento trasferito: dodici TIFF di intensità e tre maschere per ciascuno dei quattro tipi di oggetti, esportati dalle matrici spàker esistenti esclusivamente per emulare una consegna esterna."
         },
         {
-          "narration": "Nell'area di configurazione principale, mappare le immagini alle maschere, convalidare le convenzioni di forma e etichetta, scegliere la rietichettazione e definire le opzioni di misura.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, mappare le immagini alle maschere, convalidare le convenzioni di forma e etichetta, scegliere la rietichettazione e definire le opzioni di misura."
+          "narration": "La tabella di assegnazione raggruppa i file in base alle prove. Le immagini di intensità vengono rilevate dai loro pixel, mentre le parole maschera e oggetto identificano le etichette cellulare, nucleo, patogeno e organole. Utilizzare come e il tipo Mask rimangono proposte modificabili; esaminare ogni riga e ignorare tutto ciò che non dovrebbe entrare nel progetto.",
+          "visual": "03_assignment",
+          "focus_key": "input_table",
+          "hold_after": 0.74,
+          "speech_text": "La tabella di assegnazione raggruppa i file in base alle prove. Le immagini di intensità vengono rilevate dai loro pixel, mentre le parole maschera e oggetto identificano le etichette cellulare, nucleo, patogeno e organole. Utilizzare come e il tipo Mask rimangono proposte modificabili; esaminare ogni riga e ignorare tutto ciò che non dovrebbe entrare nel progetto."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+          "narration": "Input Mapping contiene la tabella di assegnazione rivista, una nuova destinazione, la scoperta ricorrente, il layout del nome del file, la gestione Z, il nome della targa, la protezione da sovrascrizione e solo Preview. Questi controlli decidono quali file si accoppiano prima di scrivere qualcosa.",
+          "visual": "04_category_input_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.64,
+          "speech_text": "Input Mapping contiene la tabella di assegnazione rivista, una nuova destinazione, la scoperta ricorrente, il layout del nome del file, la gestione Z, il nome della targa, la protezione da sovrascrizione e solo Preview. Questi controlli decidono quali file si accoppiano prima di scrivere qualcosa."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, spaCR memorizza maschere normalizzate, immagini mappate, misure e provenienza pronte per l'annotazione.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, spàker memorizza maschere normalizzate, immagini mappate, misure e provenienza pronte per l'annotazione."
+          "narration": "Generale definisce l'elenco dei canali di intensità importati, il nome dell'esperimento, la politica di normalizzazione e se viene derivato un compartimento di citoplasma. Qui i canali da zero a tre corrispondono ai quattro piani reali dell'immagine.",
+          "visual": "05_category_general",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Generale definisce l'elenco dei canali di intensità importati, il nome dell'esperimento, la politica di normalizzazione e se viene derivato un compartimento di citoplasma. Qui i canali da zero a tre corrispondono ai quattro piani reali dell'immagine."
+        },
+        {
+          "narration": "Organelle controlla il modo in cui le etichette di organelle importate sono riassunte rispetto ai loro oggetti genitori. Non segmenta nuovamente i TIFF; definisce solo le relazioni di misurazione a valle.",
+          "visual": "06_category_organelle",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Organelle controlla il modo in cui le etichette di organelle importate sono riassunte rispetto ai loro oggetti genitori. Non segmenta nuovamente i TIFF; definisce solo le relazioni di misurazione a valle."
+        },
+        {
+          "narration": "Timelapse contiene opzioni di tracciamento per le serie temporali fornite esternamente. Lascialo disattivato per questo esempio di punto temporale singolo; attivalo solo quando i nomi dei campi e le cornici rappresentano una sequenza temporale reale.",
+          "visual": "07_category_timelapse",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Timelapse contiene opzioni di tracciamento per le serie temporali fornite esternamente. Lascialo disattivato per questo esempio di punto temporale singolo; attivalo solo quando i nomi dei campi e le cornici rappresentano una sequenza temporale reale."
+        },
+        {
+          "narration": "Le misure scelgono le famiglie di caratteristiche calcolate dalle etichette importate, comprese l'intensità, la correlazione, la texture, la distribuzione radiale e la colocalizzazione. Inizia con le caratteristiche di cui ha bisogno l'analisi perché le famiglie più ricche costano più tempo e stoccaggio.",
+          "visual": "08_category_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "Le misure scelgono le famiglie di caratteristiche calcolate dalle etichette importate, comprese l'intensità, la correlazione, la texture, la distribuzione radiale e la colocalizzazione. Inizia con le caratteristiche di cui ha bisogno l'analisi perché le famiglie più ricche costano più tempo e stoccaggio."
+        },
+        {
+          "narration": "Le impostazioni di filtro applicano le porte di dimensioni minime e le porte di infezione dopo l'importazione. Le maschere esterne preservano la geometria delle etichette fornite; questi filtri decidono quali oggetti etichettati entrano nelle misurazioni piuttosto che riparare una segmentazione scadente.",
+          "visual": "09_category_filter_settings",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Le impostazioni di filtro applicano le porte di dimensioni minime e le porte di infezione dopo l'importazione. Le maschere esterne preservano la geometria delle etichette fornite; questi filtri decidono quali oggetti etichettati entrano nelle misurazioni piuttosto che riparare una segmentazione scadente."
+        },
+        {
+          "narration": "Object Crops seleziona quali compartimenti diventano set di dati PNG singoli, i loro canali, la dimensione, la normalizzazione e la politica di confine. Questo esempio salva le colture cellulari in modo che il progetto finito possa essere aperto direttamente in Annotate.",
+          "visual": "10_category_object_crops",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Crops seleziona quali compartimenti diventano set di dati PNG singoli, i loro canali, la dimensione, la normalizzazione e la politica di confine. Questo esempio salva le colture cellulari in modo che il progetto finito possa essere aperto direttamente in Annotate."
+        },
+        {
+          "narration": "Advanced contiene curriculum, esecuzione a secco, fallimento, lavoratore e controllo di taglio. Gli errori rigorosi e un solo lavoratore rendono facile l'audit di questa piccola prima importazione; i progetti più grandi rivisti possono utilizzare più lavoratori in seguito.",
+          "visual": "11_category_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Advanced contiene curriculum, esecuzione a secco, fallimento, lavoratore e controllo di taglio. Gli errori rigorosi e un solo lavoratore rendono facile l'audit di questa piccola prima importazione; i progetti più grandi rivisti possono utilizzare più lavoratori in seguito."
+        },
+        {
+          "narration": "3D Settings è una categoria di fase alfa per le misurazioni e le proiezioni volumetriche. Le attuali entrate sono piani di etichetta bidimensionali, quindi questi controlli rimangono spenti e la manipolazione Z rimane alla proiezione massima per qualsiasi fonte di intensità multiframe.",
+          "visual": "12_category_3d_settings_(beta)",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "3D Settings è una categoria di fase alfa per le misurazioni e le proiezioni volumetriche. Le attuali entrate sono piani di etichetta bidimensionali, quindi questi controlli rimangono spenti e la manipolazione Z rimane alla proiezione massima per qualsiasi fonte di intensità multiframe."
+        },
+        {
+          "narration": "Prima di importare, mantenere abilitato solo Preview e confermare che la destinazione è una nuova cartella di progetto. La sovrascrizione rimane disattivata, quindi un database di misurazioni esistente è un problema di blocco invece di essere silenziosamente sostituito.",
+          "visual": "13_preview_settings",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "Prima di importare, mantenere abilitato solo Preview e confermare che la destinazione è una nuova cartella di progetto. La sovrascrizione rimane disattivata, quindi un database di misurazioni esistente è un problema di blocco invece di essere silenziosamente sostituito."
+        },
+        {
+          "narration": "Clicca su \"Run\" per il previazione solo per lettura. Scanna i metadati effettivi dell'immagine, coppia le maschere con le identità di campo normalizzate, verifica le duplicate e le maschere mancanti, assegna i piani di maschera dopo i canali di intensità e non scrive alcuna uscita di esperimento.",
+          "visual": "14_preview_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Clicca su \"Run\" per il previazione solo per lettura. Scanna i metadati effettivi dell'immagine, coppia le maschere con le identità di campo normalizzate, verifica le duplicate e le maschere mancanti, assegna i piani di maschera dopo i canali di intensità e non scrive alcuna uscita di esperimento."
+        },
+        {
+          "narration": "La preview reale riporta dodici mappature di intensità, tre campi completi, quattro canali di intensità, e maschere cellulari, nuclei, patogeni e organelli accoppiate per ogni campo. Gli aerei delle maschere saranno quattro, cinque, sei e sette, senza avvertimenti o errori di blocco.",
+          "visual": "15_preview_result",
+          "focus_key": "console",
+          "hold_after": 0.76,
+          "speech_text": "La preview reale riporta dodici mappature di intensità, tre campi completi, quattro canali di intensità, e maschere cellulari, nuclei, patogeni e organelli accoppiate per ogni campo. Gli aerei delle maschere saranno quattro, cinque, sei e sette, senza avvertimenti o errori di blocco."
+        },
+        {
+          "narration": "Disattivare solo Preview e fare clic su eseguire di nuovo per importare. Le maschere esterne usano ora il piano rivisto per scrivere immagini e array canonici, poi consegnano i campi fusi al normale pipeline di misura con le dimensioni della maschera derivate.",
+          "visual": "16_import_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Disattivare solo Preview e fare clic su eseguire di nuovo per importare. Le maschere esterne usano ora il piano rivisto per scrivere immagini e array canonici, poi consegnano i campi fusi al normale pipeline di misura con le dimensioni della maschera derivate."
+        },
+        {
+          "narration": "Durante la conversione, dodici dei dodici elementi di intensità hanno successo prima dell'inizio della misurazione. La console ripete l'accoppiamento convalidato e registra un manifesto di riproducibilità e esegue il diario; Stop rimane disponibile ai confini sicuri dichiarati.",
+          "visual": "17_importing",
+          "focus_key": "console",
+          "hold_after": 0.68,
+          "speech_text": "Durante la conversione, dodici dei dodici elementi di intensità hanno successo prima dell'inizio della misurazione. La console ripete l'accoppiamento convalidato e registra un manifesto di riproducibilità e esegue il diario; Stop rimane disponibile ai confini sicuri dichiarati."
+        },
+        {
+          "narration": "L'importazione reale finisce con tre array fusi a otto piani e un database di misurazioni contenente cellule, citoplasma, nucleo, patogeno, organole, lista PNG, impostazioni, impostazioni-storia e tabelle di stato di esecuzione. Le colture cellulari sono sotto i dati, quindi questo nuovo progetto è rintracciabile e pronto per Annotate senza ripetere la segmentazione.",
+          "visual": "18_finished",
+          "focus_key": "console",
+          "hold_after": 0.88,
+          "speech_text": "L'importazione reale finisce con tre array fusi a otto piani e un database di misurazioni contenente cellule, citoplasma, nucleo, patogeno, organole, lista PNG, impostazioni, impostazioni-storia e tabelle di stato di esecuzione. Le colture cellulari sono sotto i dati, quindi questo nuovo progetto è rintracciabile e pronto per Annotate senza ripetere la segmentazione."
         }
       ]
     },

@@ -4466,47 +4466,155 @@
       "id": "31_external_masks",
       "number": 31,
       "slug": "external_masks",
-      "title": "External Masks",
+      "title": "Máscaras externas",
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Transformar as máscaras de rótulos de terceiros e as imagens de origem num projeto de spaCR medido e rastreável.",
+      "description": "Revisar as atribuições de imagem e rótulo geradas externamente, fazer par de antevisão sem escrever, e depois criar um projeto spaCR medido pronto para anotação.",
       "objectives": [
-        "Entender quando usar máscaras externas.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Detectar imagens de intensidade e máscaras de células, núcleos, patógenos e órgãos, mantendo atribuições de papel editáveis.",
+        "Reveja todas as categorias de configurações e use Preview apenas para validar o acoplamento de canal, campo e plano de máscara.",
+        "Importar os campos revisados através do pipeline de conversão real e de medição e verificar as saídas do banco de dados e das anotações."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "As imagens de intensidade e as máscaras de rótulos inteiros com nomes de campos correspondentes; cada classe de objeto deve ser distinguível pela sua pasta ou nome de arquivo.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange máscaras externas. Transforme as máscaras de rótulos de terceiros e as imagens de origem em um projeto de spaCR medido e rastreável.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange máscaras externas. Transforme as máscaras de rótulos de terceiros e as imagens de origem em um projeto de espáquer medido e rastreável."
+          "narration": "As máscaras externas transformam a segmentação produzida fora da spaCR no mesmo contrato de projeto medido utilizado pela Measure e Annotate. Abra-o a partir de dados e batches; Preview é somente de leitura, enquanto Run pode criar imagens canônicas, pilhas, máscaras, matrizes combinadas, medições e culturas de objetos.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "As máscaras externas transformam a segmentação produzida fora da espáquer no mesmo contrato de projeto medido utilizado pela Measure e Annotate. Abra-o a partir de dados e batches; Preview é somente de leitura, enquanto Run pode criar imagens canônicas, pilhas, máscaras, matrizes combinadas, medições e culturas de objetos."
         },
         {
-          "narration": "Abra External Masks na seção Data and batch runs. Abra as máscaras externas na seção Dados e batches. forneça imagens de origem, máscaras externas, regras de nomeação, tipos de objetos e tabelas de medição opcionais.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra External Masks na seção Data and batch runs. Abra as máscaras externas na seção Dados e batches. forneça imagens de origem, máscaras externas, regras de nomeação, tipos de objetos e tabelas de medição opcionais."
+          "narration": "Soltar imagens e arquivos de máscara ou um contendo pasta. Esta lição utiliza três culturas reais de 768 pixels do experimento transferido: doze TIFFs de intensidade e três máscaras para cada um dos quatro tipos de objetos, exportados a partir de matrizes spaCR existentes apenas para emular uma transferência externa.",
+          "visual": "02_detected",
+          "focus_key": "inputs",
+          "hold_after": 0.78,
+          "speech_text": "Soltar imagens e arquivos de máscara ou um contendo pasta. Esta lição utiliza três culturas reais de 768 pixels do experimento transferido: doze TIFFs de intensidade e três máscaras para cada um dos quatro tipos de objetos, exportados a partir de matrizes espáquer existentes apenas para emular uma transferência externa."
         },
         {
-          "narration": "Na área de configuração principal, mapear imagens para máscaras, validar convenções de forma e rótulo, escolher rótulo e definir opções de medição.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, mapear imagens para máscaras, validar convenções de forma e rótulo, escolher rótulo e definir opções de medição."
+          "narration": "A tabela de atribuições agrupa os arquivos por prova. As imagens de intensidade são detectadas a partir de seus pixels, enquanto as palavras de máscara e objeto identificam as etiquetas de célula, núcleo, patógeno e órgãos. O uso como e o tipo de Máscara permanecem propostas editáveis; revise cada linha e ignore qualquer coisa que não deva entrar no projeto.",
+          "visual": "03_assignment",
+          "focus_key": "input_table",
+          "hold_after": 0.74,
+          "speech_text": "A tabela de atribuições agrupa os arquivos por prova. As imagens de intensidade são detectadas a partir de seus pixels, enquanto as palavras de máscara e objeto identificam as etiquetas de célula, núcleo, patógeno e órgãos. O uso como e o tipo de Máscara permanecem propostas editáveis; revise cada linha e ignore qualquer coisa que não deva entrar no projeto."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de visualização ou teste quando disponível."
+          "narration": "O Mapeamento de entrada contém a tabela de atribuição revisada, um novo destino, descoberta recursiva, layout de nome de arquivo, manipulação de Z, nomeação de placa, proteção de sobreescritura e exibição exclusiva. Estes controles decidem quais arquivos se emparelham antes de qualquer coisa ser escrita.",
+          "visual": "04_category_input_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.64,
+          "speech_text": "O Mapeamento de entrada contém a tabela de atribuição revisada, um novo destino, descoberta recursiva, layout de nome de arquivo, manipulação de Z, nomeação de placa, proteção de sobreescritura e exibição exclusiva. Estes controles decidem quais arquivos se emparelham antes de qualquer coisa ser escrita."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, o spaCR armazena máscaras normalizadas, imagens mapeadas, medições e proveniência prontas para anotação.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, o espáquer armazena máscaras normalizadas, imagens mapeadas, medições e proveniência prontas para anotação."
+          "narration": "O General define a lista de canais de intensidade importados, o nome do experimento, a política de normalização e se um compartimento de citoplasma é derivado. Aqui os canais zero a três correspondem aos quatro planos reais da imagem.",
+          "visual": "05_category_general",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "O General define a lista de canais de intensidade importados, o nome do experimento, a política de normalização e se um compartimento de citoplasma é derivado. Aqui os canais zero a três correspondem aos quatro planos reais da imagem."
+        },
+        {
+          "narration": "A Organelle controla a forma como os rótulos dos órgãos importados são resumidos em relação aos seus objetos-mãe. Não segmenta novamente os TIFF; define apenas as relações de medição a jusante.",
+          "visual": "06_category_organelle",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "A Organelle controla a forma como os rótulos dos órgãos importados são resumidos em relação aos seus objetos-mãe. Não segmenta novamente os TIFF; define apenas as relações de medição a jusante."
+        },
+        {
+          "narration": "O Timelapse contém opções de rastreamento para séries temporais fornecidas externamente. Deixe-o desativado para este exemplo de ponto de tempo único; ativá-lo apenas quando os nomes de campos e quadros representam uma sequência temporal real.",
+          "visual": "07_category_timelapse",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "O Timelapse contém opções de rastreamento para séries temporais fornecidas externamente. Deixe-o desativado para este exemplo de ponto de tempo único; ativá-lo apenas quando os nomes de campos e quadros representam uma sequência temporal real."
+        },
+        {
+          "narration": "As medições escolhem as famílias de características calculadas a partir dos rótulos importados, incluindo intensidade, correlação, textura, distribuição radial e colocalização. Comece com as características que a sua análise precisa porque as famílias mais ricas custam mais tempo e armazenamento.",
+          "visual": "08_category_measurements",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "As medições escolhem as famílias de características calculadas a partir dos rótulos importados, incluindo intensidade, correlação, textura, distribuição radial e colocalização. Comece com as características que a sua análise precisa porque as famílias mais ricas custam mais tempo e armazenamento."
+        },
+        {
+          "narration": "As configurações de filtro aplicam-se aos portões de tamanho mínimo e de infecção após a importação. As máscaras externas preservam a geometria do rótulo fornecido; esses filtros decidem quais objetos rotulados entram em medições em vez de reparar uma segmentação pobre.",
+          "visual": "09_category_filter_settings",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "As configurações de filtro aplicam-se aos portões de tamanho mínimo e de infecção após a importação. As máscaras externas preservam a geometria do rótulo fornecido; esses filtros decidem quais objetos rotulados entram em medições em vez de reparar uma segmentação pobre."
+        },
+        {
+          "narration": "Object Crops seleciona quais compartimentos se tornam conjuntos de dados PNG de um único objeto, seus canais, tamanho, normalização e política de fronteira. Este exemplo salva culturas celulares para que o projeto acabado possa ser aberto diretamente no Annotate.",
+          "visual": "10_category_object_crops",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Object Crops seleciona quais compartimentos se tornam conjuntos de dados PNG de um único objeto, seus canais, tamanho, normalização e política de fronteira. Este exemplo salva culturas celulares para que o projeto acabado possa ser aberto diretamente no Annotate."
+        },
+        {
+          "narration": "Avançado contém currículo, operação seca, falha, trabalhador e controle de registro. Os erros rigorosos e um trabalhador tornam fácil a auditoria desta pequena primeira importação; os projetos maiores revisados podem empregar mais trabalhadores mais tarde.",
+          "visual": "11_category_advanced",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Avançado contém currículo, operação seca, falha, trabalhador e controle de registro. Os erros rigorosos e um trabalhador tornam fácil a auditoria desta pequena primeira importação; os projetos maiores revisados podem empregar mais trabalhadores mais tarde."
+        },
+        {
+          "narration": "3D Settings é uma categoria de fase alfa para medições e projeções volumétricas. As atuais entradas são planos de rótulos bidimensionais, por isso esses controles permanecem desligados e o manuseio Z permanece na projeção máxima para qualquer fonte de intensidade multiframe.",
+          "visual": "12_category_3d_settings_(beta)",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.62,
+          "speech_text": "3D Settings é uma categoria de fase alfa para medições e projeções volumétricas. As atuais entradas são planos de rótulos bidimensionais, por isso esses controles permanecem desligados e o manuseio Z permanece na projeção máxima para qualquer fonte de intensidade multiframe."
+        },
+        {
+          "narration": "Antes de importar, mantenha apenas a Preview habilitada e confirme que o destino é uma nova pasta de projeto. A sobreescritura permanece desativada, de modo que um banco de dados de medições existente é um problema de bloqueio em vez de ser silenciosamente substituído.",
+          "visual": "13_preview_settings",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "Antes de importar, mantenha apenas a Preview habilitada e confirme que o destino é uma nova pasta de projeto. A sobreescritura permanece desativada, de modo que um banco de dados de medições existente é um problema de bloqueio em vez de ser silenciosamente substituído."
+        },
+        {
+          "narration": "Clique em Correr para o pré-voo só para leitura. Ele escaneia metadados reais de imagem, combina máscaras com identidades normalizadas de campo, verifica duplicados e máscaras faltantes, atribui planos de máscara após os canais de intensidade e não escreve saída de experimento.",
+          "visual": "14_preview_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.64,
+          "speech_text": "Clique em Correr para o pré-voo só para leitura. Ele escaneia metadados reais de imagem, combina máscaras com identidades normalizadas de campo, verifica duplicados e máscaras faltantes, atribui planos de máscara após os canais de intensidade e não escreve saída de experimento."
+        },
+        {
+          "narration": "A prévia real relata doze mapas de intensidade, três campos completos, quatro canais de intensidade, e máscaras de célula, núcleo, patógeno e órgãos emparelhados para cada campo. Os aviões de máscaras serão quatro, cinco, seis e sete, sem advertências ou erros de bloqueio.",
+          "visual": "15_preview_result",
+          "focus_key": "console",
+          "hold_after": 0.76,
+          "speech_text": "A prévia real relata doze mapas de intensidade, três campos completos, quatro canais de intensidade, e máscaras de célula, núcleo, patógeno e órgãos emparelhados para cada campo. Os aviões de máscaras serão quatro, cinco, seis e sete, sem advertências ou erros de bloqueio."
+        },
+        {
+          "narration": "Desativar apenas Previsão e clique em Execute novamente para importar. Masks External agora usa o plano revisto para escrever imagens e matrizes canônicas, em seguida, entrega os campos fundidos para o gasoduto Medida normal com as dimensões da máscara derivadas.",
+          "visual": "16_import_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Desativar apenas Previsão e clique em Execute novamente para importar. Masks External agora usa o plano revisto para escrever imagens e matrizes canônicas, em seguida, entrega os campos fundidos para o gasoduto Medida normal com as dimensões da máscara derivadas."
+        },
+        {
+          "narration": "Durante a conversão, 12 dos 12 itens de intensidade conseguem antes do início da medição. O console repete o acoplamento validado e registra um manifesto de reprodução e executa o diário; a parada permanece disponível nos limites seguros declarados.",
+          "visual": "17_importing",
+          "focus_key": "console",
+          "hold_after": 0.68,
+          "speech_text": "Durante a conversão, 12 dos 12 itens de intensidade conseguem antes do início da medição. O console repete o acoplamento validado e registra um manifesto de reprodução e executa o diário; a parada permanece disponível nos limites seguros declarados."
+        },
+        {
+          "narration": "A importância real termina com três matrizes combinadas de oito planos e um banco de dados de medições contendo células, citoplasma, núcleo, patógeno, organel, lista PNG, configurações, configurações-história e tabelas de estado de execução. As colheitas celulares estão sob dados, por isso este novo projeto é rastreável e pronto para Annotate sem segmentação repetida.",
+          "visual": "18_finished",
+          "focus_key": "console",
+          "hold_after": 0.88,
+          "speech_text": "A importância real termina com três matrizes combinadas de oito planos e um banco de dados de medições contendo células, citoplasma, núcleo, patógeno, organel, lista PNG, configurações, configurações-história e tabelas de estado de execução. As colheitas celulares estão sob dados, por isso este novo projeto é rastreável e pronto para Annotate sem segmentação repetida."
         }
       ]
     },
