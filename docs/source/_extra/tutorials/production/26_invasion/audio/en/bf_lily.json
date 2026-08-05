@@ -4,47 +4,237 @@
   "voice": "bf_lily",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.425,
+  "total_duration": 347.835,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.45,
-      "scene_end": 8.899999999999999,
-      "duration": 8.899999999999999,
-      "text": "This tutorial covers Invasion assay. Use two-color outside-versus-inside staining to distinguish attached from invaded parasites."
+      "speech_end": 14.65,
+      "scene_end": 15.25,
+      "duration": 15.25,
+      "text": "Invasion Assay scores every parasite as attached or invaded from a two-color stain. The console records resolved settings, thresholds, QC, outputs, warnings, and errors; the chat box can discuss that context when AI is enabled.",
+      "speech_text": "Invasion Assay scores every parasite as attached or invaded from a two-color stain. The console records resolved settings, thresholds, QC, outputs, warnings, and errors; the chat box can discuss that context when AI is enabled.",
+      "phonemes": "ɪnvˈAʒᵊn əsˈA skˈɔːz ˈɛvəɹi pˈaɹəsIt az ətˈaʧt ɔː ɪnvˈAdɪd fɹɒm ɐ tˌuːkˈʌlə stˈAn. ðə kˈɒnsQl ɹɪkˈɔːdz ɹɪzˈɒlvd sˈɛtɪŋz, θɹˈɛʃhQldz, kjˌuːsˈiː, ˈWtpʊts, wˈɔːnɪŋz, and ˈɛɹəz; ðə ʧˈat bˈɒks kan dɪskˈʌs ðˈat kˈɒntɛkst wˌɛn ˈAˌI ɪz ɪnˈAbld."
     },
     {
       "scene": 2,
-      "speech_start": 8.899999999999999,
-      "speech_end": 19.474999999999998,
-      "scene_end": 19.924999999999997,
-      "duration": 11.024999999999999,
-      "text": "Open Invasion assay from the Toxoplasma assays section. Provide parasite and host-cell masks, inside and outside stain channels, plate metadata, and controls."
+      "speech_start": 15.25,
+      "speech_end": 28.15,
+      "scene_end": 28.65,
+      "duration": 13.399999999999999,
+      "text": "The AI toggle routes chat only when requested. Its adjacent menu selects a configured provider and opens provider settings; invasion analysis itself remains local and does not require AI.",
+      "speech_text": "The AI toggle routes chat only when requested. Its adjacent menu selects a configured provider and opens provider settings; invasion analysis itself remains local and does not require AI.",
+      "phonemes": "ði ˈAˌI tˈɒɡᵊl ɹˈuːts ʧˈat ˈQnli wˌɛn ɹɪkwˈɛstɪd. ˌɪts əʤˈAsᵊnt mˈɛnjuː sɪlˈɛkts ɐ kənfˈɪɡəd pɹəvˈIdə and ˈQpᵊnz pɹəvˈIdə sˈɛtɪŋz; ɪnvˈAʒᵊn ənˈalɪsɪs ɪtsˈɛlf ɹɪmˈAnz lˈQkᵊl and dˈʌz nˌɒt ɹɪkwˈIə ˈAˌI."
     },
     {
       "scene": 3,
-      "speech_start": 19.924999999999997,
-      "speech_end": 27.949999999999996,
-      "scene_end": 28.399999999999995,
-      "duration": 8.474999999999998,
-      "text": "In the main configuration area, configure intensity thresholds, object matching, ambiguity handling, and well-level grouping."
+      "speech_start": 28.65,
+      "speech_end": 41.15,
+      "scene_end": 41.65,
+      "duration": 13.0,
+      "text": "Provider setup separates local and hosted assistants. Configure only services you intend to use and review privacy information before sharing console or assay context with a remote provider.",
+      "speech_text": "Provider setup separates local and hosted assistants. Configure only services you intend to use and review privacy information before sharing console or assay context with a remote provider.",
+      "phonemes": "pɹəvˈIdə sˈɛtʌp sˈɛpəɹAts lˈQkᵊl and hˈQstɪd əsˈɪstᵊnts. kənfˈɪɡə ˈQnli sˈɜːvɪsɪz juː ɪntˈɛnd tə jˈuːz and ɹɪvjˈuː pɹˈɪvəsi ˌɪnfəmˈAʃᵊn bɪfˈɔː ʃˈɛːɹɪŋ kˈɒnsQl ɔː əsˈA kˈɒntɛkst wɪð ɐ ɹɪmˈQt pɹəvˈIdə."
     },
     {
       "scene": 4,
-      "speech_start": 28.399999999999995,
-      "speech_end": 40.199999999999996,
-      "scene_end": 40.65,
-      "duration": 12.250000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. review attached, invaded, and uncertain examples before accepting the classification rule."
+      "speech_start": 41.65,
+      "speech_end": 52.599999999999994,
+      "scene_end": 53.07999999999999,
+      "duration": 11.429999999999993,
+      "text": "AI Settings controls assistant context, credentials, and optional error reporting. These preferences do not change stain channels, thresholds, classification, or statistics.",
+      "speech_text": "AI Settings controls assistant context, credentials, and optional error reporting. These preferences do not change stain channels, thresholds, classification, or statistics.",
+      "phonemes": "ˈAˌI sˈɛtɪŋz kəntɹˈQlz əsˈɪstᵊnt kˈɒntɛkst, kɹɪdˈɛnʃlz, and ˈɒpʃənᵊl ˈɛɹə ɹɪpˈɔːtɪŋ. ðˌiːz pɹˈɛfəɹənsɪz dˈuː nˌɒt ʧˈAnʤ stˈAn ʧˈanᵊlz, θɹˈɛʃhQldz, klˌasɪfɪkˈAʃᵊn, ɔː stətˈɪstɪks."
     },
     {
       "scene": 5,
-      "speech_start": 40.65,
-      "speech_end": 48.775,
-      "scene_end": 49.425,
-      "duration": 8.774999999999999,
-      "text": "When the workflow finishes, spaCR reports counts and invasion efficiency per well and condition with quality-control images."
+      "speech_start": 53.07999999999999,
+      "speech_end": 69.42999999999999,
+      "scene_end": 70.13,
+      "duration": 17.050000000000004,
+      "text": "Choose or drop the experiment root containing measurements/measurements.db. The transferred microscopy experiment lacks the required invasion stains, so this tutorial clearly uses a synthetic two-color measurement database while running the real spaCR assay backend.",
+      "speech_text": "Choose or drop the experiment root containing measurements/measurements dot db. The transferred microscopy experiment lacks the required invasion stains, so this tutorial clearly uses a synthetic two-color measurement database while running the real spacer assay backend.",
+      "phonemes": "ʧˈuːz ɔː dɹˈɒp ði ɪkspˈɛɹɪmᵊnt ɹˈuːt kəntˈAnɪŋ mˈɛʒəmᵊnts mˈɛʒəmᵊnts dˈɒt dˌiːbˈiː. ðə tɹɑːnsfˈɜːd mIkɹˈɒskəpi ɪkspˈɛɹɪmᵊnt lˈaks ðə ɹɪkwˈIəd ɪnvˈAʒᵊn stˈAnz, sˌQ ðɪs tjuːtˈɔːɹɪəl klˈɪəli jˈuːzɪz ɐ sɪnθˈɛtɪk tˌuːkˈʌlə mˈɛʒəmᵊnt dˈAtəbAs wˌIl ɹˈʌnɪŋ ðə ɹˈɪəl spˈAsə əsˈA bˈakənd."
+    },
+    {
+      "scene": 6,
+      "speech_start": 70.13,
+      "speech_end": 82.455,
+      "scene_end": 82.995,
+      "duration": 12.865000000000009,
+      "text": "Essentials exposes the inputs, channels, thresholding, controls, filters, condition metadata, and outputs needed for a first analysis. Verify the stain order before interpreting any result.",
+      "speech_text": "Essentials exposes the inputs, channels, thresholding, controls, filters, condition metadata, and outputs needed for a first analysis. Verify the stain order before interpreting any result.",
+      "phonemes": "ɪsˈɛnʃlz ɪkspˈQzɪz ði ˈɪnpʊts, ʧˈanᵊlz, θɹˈɛʃhQldɪŋ, kəntɹˈQlz, fˈɪltəz, kəndˈɪʃᵊn mˈɛtədˌAtə, and ˈWtpʊts nˈiːdɪd fɔː ɐ fˈɜːst ənˈalɪsɪs. vˈɛɹɪfI ðə stˈAn ˈɔːdə bɪfˈɔː ɪntˈɜːpɹɪtɪŋ ˈɛni ɹɪzˈʌlt."
+    },
+    {
+      "scene": 7,
+      "speech_start": 82.995,
+      "speech_end": 95.22,
+      "scene_end": 95.76,
+      "duration": 12.765,
+      "text": "Modified filters the form to deliberate deviations from defaults. Use it to audit the source, stain channels, intensity gate, controls, area limits, plate mapping, and verbose output before running.",
+      "speech_text": "Modified filters the form to deliberate deviations from defaults. Use it to audit the source, stain channels, intensity gate, controls, area limits, plate mapping, and verbose output before running.",
+      "phonemes": "mˈɒdɪfId fˈɪltəz ðə fˈɔːm tə dɪlˈɪbəɹAt dˌiːvɪˈAʃᵊnz fɹɒm dɪfˈɔːlts. jˈuːz ɪt tʊ ˈɔːdɪt ðə sˈɔːs, stˈAn ʧˈanᵊlz, ɪntˈɛnsɪti ɡˈAt, kəntɹˈQlz, ˈɛːɹɪə lˈɪmɪts, plˈAt mˈapɪŋ, and vəːbˈQs ˈWtpʊt bɪfˈɔː ɹˈʌnɪŋ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 95.76,
+      "speech_end": 107.56,
+      "scene_end": 108.06,
+      "duration": 12.299999999999997,
+      "text": "All settings reveals every available control for reproduction and troubleshooting. Return to Essentials when those advanced controls are not needed to reduce accidental parameter changes.",
+      "speech_text": "All settings reveals every available control for reproduction and troubleshooting. Return to Essentials when those advanced controls are not needed to reduce accidental parameter changes.",
+      "phonemes": "ˈɔːl sˈɛtɪŋz ɹɪvˈiːlz ˈɛvəɹi əvˈAləbᵊl kəntɹˈQl fɔː ɹˌiːpɹədˈʌkʃᵊn and tɹˈʌbᵊlʃˌuːtɪŋ. ɹɪtˈɜːn tʊ ɪsˈɛnʃlz wˌɛn ðQz ədvˈɑːnst kəntɹˈQlz ɑː nˌɒt nˈiːdɪd tə ɹɪdjˈuːs ˌaksɪdˈɛntᵊl pəɹˈamɪtə ʧˈAnʤɪz."
+    },
+    {
+      "scene": 9,
+      "speech_start": 108.06,
+      "speech_end": 121.11,
+      "scene_end": 121.65,
+      "duration": 13.590000000000003,
+      "text": "Recipes preserve a validated assay configuration for reuse or sharing. Save one only after the stain mapping and control-derived threshold have been checked against representative images and distributions.",
+      "speech_text": "Recipes preserve a validated assay configuration for reuse or sharing. Save one only after the stain mapping and control-derived threshold have been checked against representative images and distributions.",
+      "phonemes": "ɹˈɛsɪpiz pɹɪzˈɜːv ɐ vˈalɪdAtɪd əsˈA kənfˌɪɡəɹˈAʃᵊn fɔː ɹˌiːjˈuːs ɔː ʃˈɛːɹɪŋ. sˈAv wˈʌn ˈQnli ˈɑːftə ðə stˈAn mˈapɪŋ and kəntɹˈQldɪɹˌIvd θɹˈɛʃhQld hav biːn ʧˈɛkt əɡˈɛnst ɹˌɛpɹɪzˈɛntətɪv ˈɪmɪʤɪz and dˌɪstɹɪbjˈuːʃᵊnz."
+    },
+    {
+      "scene": 10,
+      "speech_start": 121.65,
+      "speech_end": 133.225,
+      "scene_end": 133.745,
+      "duration": 12.094999999999999,
+      "text": "Submit remote passes the resolved settings to Distributed Jobs. Confirm that the measurement database is accessible through the remote path map before submitting a small validation job.",
+      "speech_text": "Submit remote passes the resolved settings to Distributed Jobs. Confirm that the measurement database is accessible through the remote path map before submitting a small validation job.",
+      "phonemes": "səbmˈɪt ɹɪmˈQt pˈɑːsɪz ðə ɹɪzˈɒlvd sˈɛtɪŋz tə dɪstɹˈɪbjuːtɪd ʤˈɒbz. kənfˈɜːm ðat ðə mˈɛʒəmᵊnt dˈAtəbAs ɪz əksˈɛsɪbᵊl θɹuː ðə ɹɪmˈQt pˈɑːθ mˈap bɪfˈɔː səbmˈɪtɪŋ ɐ smˈɔːl vˌalɪdˈAʃᵊn ʤˈɒb."
+    },
+    {
+      "scene": 11,
+      "speech_start": 133.745,
+      "speech_end": 144.595,
+      "scene_end": 145.155,
+      "duration": 11.409999999999997,
+      "text": "The remote screen receives a job draft. Check synchronization, environment activation, resources, and the generated command, then test one plate before scaling the assay.",
+      "speech_text": "The remote screen receives a job draft. Check synchronization, environment activation, resources, and the generated command, then test one plate before scaling the assay.",
+      "phonemes": "ðə ɹɪmˈQt skɹˈiːn ɹɪsˈiːvz ɐ ʤˈɒb dɹˈɑːft. ʧˈɛk sɪŋkɹənIzˈAʃᵊn, ɪnvˈIɹənmᵊnt ˌaktɪvˈAʃᵊn, ɹɪzˈɔːsɪz, and ðə ʤˈɛnəɹAtɪd kəmˈɑːnd, ðˈɛn tˈɛst wˈʌn plˈAt bɪfˈɔː skˈAlɪŋ ði əsˈA."
+    },
+    {
+      "scene": 12,
+      "speech_start": 145.155,
+      "speech_end": 156.63,
+      "scene_end": 157.13,
+      "duration": 11.974999999999994,
+      "text": "Assay Inputs identifies the experiment root, one-row-per-parasite table, and compartment prefix. Invasion scores existing pathogen measurements; it does not segment images again.",
+      "speech_text": "Assay Inputs identifies the experiment root, one-row-per-parasite table, and compartment prefix. Invasion scores existing pathogen measurements; it does not segment images again.",
+      "phonemes": "əsˈA ˈɪnpʊts IdˈɛntɪfIz ði ɪkspˈɛɹɪmᵊnt ɹˈuːt, wˌʌnɹˈQpɜːpˈaɹəsIt tˈAbᵊl, and kəmpˈɑːtmᵊnt pɹˈiːfɪks. ɪnvˈAʒᵊn skˈɔːz ɪɡzˈɪstɪŋ pˈaθəʤᵊn mˈɛʒəmᵊnts; ɪt dˈʌz nˌɒt sɛɡmˈɛnt ˈɪmɪʤɪz əɡˈɛn."
+    },
+    {
+      "scene": 13,
+      "speech_start": 157.13,
+      "speech_end": 176.20499999999998,
+      "scene_end": 176.92499999999998,
+      "duration": 19.794999999999987,
+      "text": "Channels and Intensity maps channel one to the pre-permeabilization outside stain and channel zero to the post-permeabilization total stain. Attached parasites retain outside signal; invaded parasites lack it. Swapping these channels reverses the biological interpretation without causing a software error.",
+      "speech_text": "Channels and Intensity maps channel one to the pre-permeabilization outside stain and channel zero to the post-permeabilization total stain. Attached parasites retain outside signal; invaded parasites lack it. Swapping these channels reverses the biological interpretation without causing a software error.",
+      "phonemes": "ʧˈanᵊlz and ɪntˈɛnsɪti mˈaps ʧˈanᵊl wˈʌn tə ðə pɹˌiːpəːmɪəbɪlˌIzˈAʃᵊn ˌWtsˈId stˈAn and ʧˈanᵊl zˈɪəɹQ tə ðə pˌQstpəːmɪəbɪlˌIzˈAʃᵊn tˈQtᵊl stˈAn. ətˈaʧt pˈaɹəsIts ɹɪtˈAn ˌWtsˈId sˈɪɡnᵊl; ɪnvˈAdɪd pˈaɹəsIts lˈak ɪt. swˈɒpɪŋ ðiːz ʧˈanᵊlz ɹɪvˈɜːsɪz ðə bˌIəlˈɒʤɪkᵊl ɪntˌɜːpɹɪtˈAʃᵊn wɪðˈWt kˈɔːzɪŋ ɐ sˈɒftwɛː ˈɛɹə."
+    },
+    {
+      "scene": 14,
+      "speech_start": 176.92499999999998,
+      "speech_end": 189.64999999999998,
+      "scene_end": 190.20999999999998,
+      "duration": 13.284999999999997,
+      "text": "Thresholding chooses the automatic fallback, optional fixed cut, bimodality QC, agreement tolerance, and sensitivity span. A fixed threshold should be used only after independent calibration.",
+      "speech_text": "Thresholding chooses the automatic fallback, optional fixed cut, bimodality QC, agreement tolerance, and sensitivity span. A fixed threshold should be used only after independent calibration.",
+      "phonemes": "θɹˈɛʃhQldɪŋ ʧˈuːzɪz ði ˌɔːtəmˈatɪk fˈɔːlbak, ˈɒpʃənᵊl fˈɪkst kˈʌt, bImədˈalɪti kjˌuːsˈiː, əɡɹˈiːmᵊnt tˈɒləɹəns, and sˌɛnsɪtˈɪvɪti spˈan. ɐ fˈɪkst θɹˈɛʃhQld ʃˌʊd biː jˈuːzd ˈQnli ˈɑːftə ˌɪndɪpˈɛndᵊnt kˌalɪbɹˈAʃᵊn."
+    },
+    {
+      "scene": 15,
+      "speech_start": 190.20999999999998,
+      "speech_end": 207.70999999999998,
+      "scene_end": 208.39,
+      "duration": 18.180000000000007,
+      "text": "Controls and Minimum Counts names the staining controls and defines the quantile, minimum control objects, minimum field and well denominators, and threshold-inflation warning. Here column one supplies the honest outside-stain-negative distribution and is excluded from assay conditions.",
+      "speech_text": "Controls and Minimum Counts names the staining controls and defines the quantile, minimum control objects, minimum field and well denominators, and threshold-inflation warning. Here column one supplies the honest outside-stain-negative distribution and is excluded from assay conditions.",
+      "phonemes": "kəntɹˈQlz and mˈɪnɪməm kˈWnts nˈAmz ðə stˈAnɪŋ kəntɹˈQlz and dɪfˈInz ðə kwˈɒntIl, mˈɪnɪməm kəntɹˈQl ˈɒbʤɛkts, mˈɪnɪməm fˈiːld and wˈɛl dɪnˈɒmɪnAtəz, and θɹˌɛʃhQldɪnflˈAʃᵊn wˈɔːnɪŋ. hˈɪə kˈɒləm wˈʌn səplˈIz ði ˈɒnɪst ˌWtsˈIdstˌAnnˈɛɡətɪv dˌɪstɹɪbjˈuːʃᵊn and ɪz ɪksklˈuːdɪd fɹɒm əsˈA kəndˈɪʃᵊnz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 208.39,
+      "speech_end": 221.69,
+      "scene_end": 222.23,
+      "duration": 13.840000000000003,
+      "text": "Object Filtering removes parasite measurements outside the acceptable area range. The total-stain minimum additionally excludes objects that may not be parasites at all before outside-stain classification begins.",
+      "speech_text": "Object Filtering removes parasite measurements outside the acceptable area range. The total-stain minimum additionally excludes objects that may not be parasites at all before outside-stain classification begins.",
+      "phonemes": "ˈɒbʤɛkt fˈɪltəɹɪŋ ɹɪmˈuːvz pˈaɹəsIt mˈɛʒəmᵊnts ˌWtsˈId ði əksˈɛptəbᵊl ˈɛːɹɪə ɹˈAnʤ. ðə tˈQtᵊlstˌAn mˈɪnɪməm ədˈɪʃənəli ɪksklˈuːdz ˈɒbʤɛkts ðat mˈA nˌɒt biː pˈaɹəsIts at ˈɔːl bɪfˈɔː ˌWtsˈIdstˌAn klˌasɪfɪkˈAʃᵊn bɪɡˈɪnz."
+    },
+    {
+      "scene": 17,
+      "speech_start": 222.23,
+      "speech_end": 235.45499999999998,
+      "scene_end": 236.015,
+      "duration": 13.784999999999997,
+      "text": "Condition Metadata maps wells to biological groups and selects the grouping column. The synthetic plate uses six vehicle wells in column two and six inhibitor wells in column three, all with HeLa host cells.",
+      "speech_text": "Condition Metadata maps wells to biological groups and selects the grouping column. The synthetic plate uses six vehicle wells in column two and six inhibitor wells in column three, all with HeLa host cells.",
+      "phonemes": "kəndˈɪʃᵊn mˈɛtədˌAtə mˈaps wˈɛlz tə bˌIəlˈɒʤɪkᵊl ɡɹˈuːps and sɪlˈɛkts ðə ɡɹˈuːpɪŋ kˈɒləm. ðə sɪnθˈɛtɪk plˈAt jˈuːzɪz sˈɪks vˈiːɪkᵊl wˈɛlz ɪn kˈɒləm tˈuː and sˈɪks ɪnhˈɪbɪtə wˈɛlz ɪn kˈɒləm θɹˈiː, ˈɔːl wɪð hˌiːlˌɑː hˈQst sˈɛlz."
+    },
+    {
+      "scene": 18,
+      "speech_start": 236.015,
+      "speech_end": 248.69,
+      "scene_end": 249.27,
+      "duration": 13.255000000000024,
+      "text": "Assay Output controls the color map, number of threshold-QC panels, empty-well seeding, and saving. Seeding preserves wells with measured host cells but no scored parasites instead of silently dropping them.",
+      "speech_text": "Assay Output controls the color map, number of threshold-QC panels, empty-well seeding, and saving. Seeding preserves wells with measured host cells but no scored parasites instead of silently dropping them.",
+      "phonemes": "əsˈA ˈWtpʊt kəntɹˈQlz ðə kˈʌlə mˈap, nˈʌmbə ɒv θɹˈɛʃhQldkjuːsˌiː pˈanᵊlz, ˈɛmptiwˌɛl sˈiːdɪŋ, and sˈAvɪŋ. sˈiːdɪŋ pɹɪzˈɜːvz wˈɛlz wɪð mˈɛʒəd hˈQst sˈɛlz bˌʌt nˈQ skˈɔːd pˈaɹəsIts ɪnstˈɛd ɒv sˈIləntli dɹˈɒpɪŋ ðˌɛm."
+    },
+    {
+      "scene": 19,
+      "speech_start": 249.27,
+      "speech_end": 262.27,
+      "scene_end": 262.82,
+      "duration": 13.549999999999983,
+      "text": "Runtime and Reliability controls logging detail. Keep verbose output on while establishing an assay so the intensity column, thresholds, sources, per-field QC, and flagged wells are visible in the console.",
+      "speech_text": "Runtime and Reliability controls logging detail. Keep verbose output on while establishing an assay so the intensity column, thresholds, sources, per-field QC, and flagged wells are visible in the console.",
+      "phonemes": "ɹˈʌntIm and ɹɪlˌIəbˈɪlɪti kəntɹˈQlz lˈɒɡɪŋ dˈiːtAl. kˈiːp vəːbˈQs ˈWtpʊt ˌɒn wˌIl ɪstˈablɪʃɪŋ ɐn əsˈA sˌQ ði ɪntˈɛnsɪti kˈɒləm, θɹˈɛʃhQldz, sˈɔːsɪz, pɜːfˈiːld kjˌuːsˈiː, and flˈaɡd wˈɛlz ɑː vˈɪzɪbᵊl ɪn ðə kˈɒnsQl."
+    },
+    {
+      "scene": 20,
+      "speech_start": 262.82,
+      "speech_end": 278.87,
+      "scene_end": 279.47,
+      "duration": 16.650000000000034,
+      "text": "This channel detail uses mean outside intensity with no background subtraction, requires total-channel intensity of at least one hundred, and keeps channel one and zero in their biological order. Review these values against the measurement schema before running.",
+      "speech_text": "This channel detail uses mean outside intensity with no background subtraction, requires total-channel intensity of at least one hundred, and keeps channel one and zero in their biological order. Review these values against the measurement schema before running.",
+      "phonemes": "ðˌɪs ʧˈanᵊl dˈiːtAl jˈuːzɪz mˈiːn ˌWtsˈId ɪntˈɛnsɪti wɪð nˈQ bˈakɡɹWnd səbtɹˈakʃᵊn, ɹɪkwˈIəz tˌQtᵊlʧˈanᵊl ɪntˈɛnsɪti ɒv at lˈiːst wˈʌn hˈʌndɹəd, and kˈiːps ʧˈanᵊl wˈʌn and zˈɪəɹQ ɪn ðɛː bˌIəlˈɒʤɪkᵊl ˈɔːdə. ɹɪvjˈuː ðiːz vˈaljuːz əɡˈɛnst ðə mˈɛʒəmᵊnt skˈiːmə bɪfˈɔː ɹˈʌnɪŋ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 279.47,
+      "speech_end": 295.595,
+      "scene_end": 296.21500000000003,
+      "duration": 16.745000000000005,
+      "text": "Click Run after checking inputs, stain mapping, controls, thresholds, filters, and condition metadata. The backend excludes control wells, derives per-plate control thresholds, classifies each parasite, summarizes fields and wells, and performs well-level statistics.",
+      "speech_text": "Click Run after checking inputs, stain mapping, controls, thresholds, filters, and condition metadata. The backend excludes control wells, derives per-plate control thresholds, classifies each parasite, summarizes fields and wells, and performs well-level statistics.",
+      "phonemes": "klˈɪk ɹˈʌn ˈɑːftə ʧˈɛkɪŋ ˈɪnpʊts, stˈAn mˈapɪŋ, kəntɹˈQlz, θɹˈɛʃhQldz, fˈɪltəz, and kəndˈɪʃᵊn mˈɛtədˌAtə. ðə bˈakənd ɪksklˈuːdz kəntɹˈQl wˈɛlz, dɪɹˈIvz pɜːplˈAt kəntɹˈQl θɹˈɛʃhQldz, klˈasɪfIz ˈiːʧ pˈaɹəsIt, sˈʌməɹIzɪz fˈiːldz and wˈɛlz, and pəfˈɔːmz wˌɛllˈɛvᵊl stətˈɪstɪks."
+    },
+    {
+      "scene": 22,
+      "speech_start": 296.21500000000003,
+      "speech_end": 313.09000000000003,
+      "scene_end": 313.71000000000004,
+      "duration": 17.495000000000005,
+      "text": "During execution, the console reports threshold source and QC rather than showing only a final percentage. Inside is defined by absence of outside signal, so staining failure can only inflate invasion; sensitivity bounds make that direction of error visible.",
+      "speech_text": "During execution, the console reports threshold source and QC rather than showing only a final percentage. Inside is defined by absence of outside signal, so staining failure can only inflate invasion; sensitivity bounds make that direction of error visible.",
+      "phonemes": "djˈʊəɹɪŋ ˌɛksɪkjˈuːʃᵊn, ðə kˈɒnsQl ɹɪpˈɔːts θɹˈɛʃhQld sˈɔːs and kjˌuːsˈiː ɹˈɑːðə ðən ʃˈQɪŋ ˈQnli ɐ fˈInᵊl pəsˈɛntɪʤ. ˌɪnsˈId ɪz dɪfˈInd bI ˈabsᵊns ɒv ˌWtsˈId sˈɪɡnᵊl, sˌQ stˈAnɪŋ fˈAljə kan ˈQnli ɪnflˈAt ɪnvˈAʒᵊn; sˌɛnsɪtˈɪvɪti bˈWndz mˌAk ðˈat dɪɹˈɛkʃᵊn ɒv ˈɛɹə vˈɪzɪbᵊl."
+    },
+    {
+      "scene": 23,
+      "speech_start": 313.71000000000004,
+      "speech_end": 346.83500000000004,
+      "scene_end": 347.83500000000004,
+      "duration": 34.125,
+      "text": "The real backend used three hundred sixty control parasites to set a threshold of twenty-two point eight, then scored one thousand four hundred forty experimental parasites across twelve wells and twenty-four fields. Vehicle wells average thirty-nine point seven percent invasion and inhibitor wells sixty-eight point nine percent; all wells pass QC. The Mann–Whitney test uses six wells per group and gives Holm-adjusted p zero point zero zero four zero six, while the much smaller pooled-parasite p-value is shown only to expose pseudoreplication inflation.",
+      "speech_text": "The real backend used three hundred sixty control parasites to set a threshold of twenty-two point eight, then scored one thousand four hundred forty experimental parasites across twelve wells and twenty-four fields. Vehicle wells average thirty-nine point seven percent invasion and inhibitor wells sixty-eight point nine percent; all wells pass QC. The Mann–Whitney test uses six wells per group and gives Holm-adjusted p zero point zero zero four zero six, while the much smaller pooled-parasite p-value is shown only to expose pseudoreplication inflation.",
+      "phonemes": "ðə ɹˈɪəl bˈakənd jˈuːzd θɹˈiː hˈʌndɹəd sˈɪksti kəntɹˈQl pˈaɹəsIts tə sˈɛt ɐ θɹˈɛʃhQld ɒv twˈɛntitˌuː pˈYnt ˈAt, ðˈɛn skˈɔːd wˈʌn θˈWzᵊnd fˈɔː hˈʌndɹəd fˈɔːti ɪkspˌɛɹɪmˈɛntᵊl pˈaɹəsIts əkɹˈɒs twˈɛlv wˈɛlz and twˈɛntifˌɔː fˈiːldz. vˈiːɪkᵊl wˈɛlz ˈavəɹɪʤ θˈɜːtinˌIn pˈYnt sˈɛvᵊn pəsˈɛnt ɪnvˈAʒᵊn and ɪnhˈɪbɪtə wˈɛlz sˈɪkstiˌAt pˈYnt nˈIn pəsˈɛnt; ˈɔːl wˈɛlz pˈɑːs kjˌuːsˈiː. ðə mˈan—wˈɪtni tˈɛst jˈuːzɪz sˈɪks wˈɛlz pɜː ɡɹˈuːp and ɡˈɪvz hˌQməʤˈʌstɪd pˈiː zˈɪəɹQ pˈYnt zˈɪəɹQ zˈɪəɹQ fˈɔː zˈɪəɹQ sˈɪks, wˌIl ðə mˈʌʧ smˈɔːlə pˌuːldpˈaɹəsIt pˈiːvˌaljuː ɪz ʃˈQn ˈQnli tʊ ɪkspˈQz sˌuːdQɹˌɛplɪkˈAʃən ɪnflˈAʃᵊn."
     }
   ]
 }

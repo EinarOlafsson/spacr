@@ -3712,48 +3712,193 @@
     {
       "id": "26_invasion",
       "number": 26,
-      "slug": "invasion",
-      "title": "Invasion assay",
+      "slug": "invasion-assay",
+      "title": "进攻试验",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "通过使用外对内部两色染料来区分附加物与入侵寄生虫.",
+      "description": "从透前和透后的斑点中分类附加与入侵寄生虫,从控制中取出现场门,并以敏感性和统计性QC报告每井效率.",
       "objectives": [
-        "了解什么时候使用入侵测试.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "没有扭转测试解释的外观和全部寄生虫斑点地图.",
+        "使用控制,二模性和敏感度限制来推出和审计外部污染门.",
+        "解释每个领域,每个井,和条件结果与井和复制单位."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "测量每个细分寄生虫的一行,在前透透的外部污染道和后透的总污染道中;包括污染控制井.",
       "scenes": [
         {
-          "narration": "通过使用两色外对内部染料来区分附加物与入侵寄生虫.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "通过使用两色外对内部染料来区分附加物与入侵寄生虫."
+          "narration": "进攻测试将每种寄生虫都从两色的斑点中分为附着或入侵的. 控制台记录已解决的设置,门,QC,输出,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.6,
+          "speech_text": "进攻测试将每种寄生虫都从两色的斑点中分为附着或入侵的. 控制台记录已解决的设置,门,QC,输出,警告和错误;当人工智能启用时,聊天框可以讨论该背景."
         },
         {
-          "narration": "从 Toxoplasma assays 部分打开 Invasion assay。 提供寄生虫和宿主细胞掩膜,内部和外部污染道,板块元数据和控制.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Toxoplasma assays 部分打开 Invasion assay。 提供寄生虫和宿主细胞掩膜,内部和外部污染道,板块元数据和控制."
+          "narration": "人工智能只在要求时交谈. 它的邻近菜单选择了一个配置的提供商,并打开提供商设置;入侵分析本身仍然是本地的,不需要人工智能.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "人工智能只在要求时交谈. 它的邻近菜单选择了一个配置的提供商,并打开提供商设置;入侵分析本身仍然是本地的,不需要人工智能."
         },
         {
-          "narration": "在主配置区域,配置强度门,对象匹配,模糊处理和级组合.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主配置区域,配置强度门,对象匹配,模糊处理和级组合."
+          "narration": "提供商设置将本地和托管的助理分开. 在与远程提供商共享控制台或测试文本之前,只配置您打算使用的服务并查看隐私信息.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "提供商设置将本地和托管的助理分开. 在与远程提供商共享控制台或测试文本之前,只配置您打算使用的服务并查看隐私信息."
         },
         {
-          "narration": "在完整运行之前,在接受分类规则之前,请检查可见设置,并在可用的情况下使用预览或测试模式.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,在接受分类规则之前,请检查可见设置,并在可用的情况下使用预览或测试模式."
+          "narration": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变污染道,门,分类或统计数据.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变污染道,门,分类或统计数据."
         },
         {
-          "narration": "工作流程完成后, spaCR 报告每井和条件的数量和入侵效率,并使用质量控制图像.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "工作流程完成后, 斯佩克尔 报告每井和条件的数量和入侵效率,并使用质量控制图像."
+          "narration": "选择或放弃包含测量/测量的实验根.db. 转移显微镜实验缺乏所需的入侵斑点,所以本教程显然使用了合成的两色测量数据库,同时运行真正的spaCR测试后端.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.7,
+          "speech_text": "选择或放弃包含测量/测量的实验根.db. 转移显微镜实验缺乏所需的入侵斑点,所以本教程显然使用了合成的两色测量数据库,同时运行真正的斯佩克尔测试后端."
+        },
+        {
+          "narration": "基本信息揭示了第一次分析所需的输入,道,门,控制,过器,状态元数据和输出. 在解释任何结果之前,请检查斑点顺序.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "基本信息揭示了第一次分析所需的输入,道,门,控制,过器,状态元数据和输出. 在解释任何结果之前,请检查斑点顺序."
+        },
+        {
+          "narration": "修改过表格,以故意偏离默认. 在运行前,使用它来检查源头,污染道,强度门,控制,区域限制,板块映射和语音输出.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "修改过表格,以故意偏离默认. 在运行前,使用它来检查源头,污染道,强度门,控制,区域限制,板块映射和语音输出."
+        },
+        {
+          "narration": "所有设置都显示了所有可用于复制和故障解决的控制. 当这些先进控制不需要以减少意外参数变化时,返回Essentials.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "所有设置都显示了所有可用于复制和故障解决的控制. 当这些先进控制不需要以减少意外参数变化时,返回Essentials."
+        },
+        {
+          "narration": "配方保留验证的测试配置,以便重复使用或共享. 只有在测绘斑点和控制衍生的门已与代表性图像和分布进行检查后保存一个.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "配方保留验证的测试配置,以便重复使用或共享. 只有在测绘斑点和控制衍生的门已与代表性图像和分布进行检查后保存一个."
+        },
+        {
+          "narration": "提交远程将解决设置传递到分布式工作. 在提交小型验证工作之前,确认测量数据库通过远程路径地图可访问.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "提交远程将解决设置传递到分布式工作. 在提交小型验证工作之前,确认测量数据库通过远程路径地图可访问."
+        },
+        {
+          "narration": "远程屏幕收到一份工作稿. 检查同步,环境激活,资源和生成的命令,然后在测试之前测试一个板块.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "远程屏幕收到一份工作稿. 检查同步,环境激活,资源和生成的命令,然后在测试之前测试一个板块."
+        },
+        {
+          "narration": "测试输入识别了实验根,一排对寄生虫的表格, 侵袭测量现有病原体; 它不会再分割图像.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "测试输入识别了实验根,一排对寄生虫的表格, 侵袭测量现有病原体; 它不会再分割图像."
+        },
+        {
+          "narration": "道和强度地图:道1向外透前,道0向后透总. 附加寄生虫保留外部信号;入侵寄生虫缺乏它. 交换这些道会扭转生物解释,而不会导致软件错误.",
+          "visual": "12_category_02_channels_intensity",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "道和强度地图:道1向外透前,道0向后透总. 附加寄生虫保留外部信号;入侵寄生虫缺乏它. 交换这些道会扭转生物解释,而不会导致软件错误."
+        },
+        {
+          "narration": "值选择自动倒车,可选固定切割,双动性QC,协议耐受性和敏感度跨度. 只有在独立校准后才应使用固定门.",
+          "visual": "12_category_03_thresholding",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "值选择自动倒车,可选固定切割,双动性QC,协议耐受性和敏感度跨度. 只有在独立校准后才应使用固定门."
+        },
+        {
+          "narration": "控制和最小计数指明了染色控制,并定义了量量,最小控制对象,最小场域和井位指标,以及门通胀警告. 这里第一个列提供了诚实的外部污染负分布,并排除了测试条件.",
+          "visual": "12_category_04_controls_minimum_counts",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "控制和最小计数指明了染色控制,并定义了量量,最小控制对象,最小场域和井位指标,以及门通胀警告. 这里第一个列提供了诚实的外部污染负分布,并排除了测试条件."
+        },
+        {
+          "narration": "对象过消除除了可接受区域范围之外的寄生虫测量. 总污染最小额额外排除在外污染分类开始之前可能根本不是寄生虫的物体.",
+          "visual": "12_category_05_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.54,
+          "speech_text": "对象过消除除了可接受区域范围之外的寄生虫测量. 总污染最小额额外排除在外污染分类开始之前可能根本不是寄生虫的物体."
+        },
+        {
+          "narration": "条件 基数据将井分为生物组,并选择组列. 合成板采用第2列的6个车辆井和第3列的6个抑制器井,所有这些都采用HeLa宿主细胞.",
+          "visual": "12_category_06_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "条件 基数据将井分为生物组,并选择组列. 合成板采用第2列的6个车辆井和第3列的6个抑制器井,所有这些都采用HeLa宿主细胞."
+        },
+        {
+          "narration": "测试输出控制了颜色地图,值-QC板数量,空井种植和储存. 种子可以保存有测量的宿主细胞的井,但没有分数的寄生虫,而不是默默地放下它们.",
+          "visual": "12_category_07_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "测试输出控制了颜色地图,值-QC板数量,空井种植和储存. 种子可以保存有测量的宿主细胞的井,但没有分数的寄生虫,而不是默默地放下它们."
+        },
+        {
+          "narration": "运行时间和可靠性控制记录细节. 在设置测试时保持语音输出,以便强度列,门值,来源,每个字段的QC和标记井在控制台中可见.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "运行时间和可靠性控制记录细节. 在设置测试时保持语音输出,以便强度列,门值,来源,每个字段的QC和标记井在控制台中可见."
+        },
+        {
+          "narration": "这种道细节使用了没有背景减去的平均外部强度,需要总道强度至少为100个,并保持道一和零的生物顺序. 在运行前,对这些值进行测量方案的检查.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.6,
+          "speech_text": "这种道细节使用了没有背景减去的平均外部强度,需要总道强度至少为100个,并保持道一和零的生物顺序. 在运行前,对这些值进行测量方案的检查."
+        },
+        {
+          "narration": "在检查输入,斑点映射,控制,门,过器和状态元数据后点击运行. 后端排除了控制井,从每盘控制门中导出,分类每个寄生虫,总结了领域和井,并执行了高水平的统计数据.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "在检查输入,斑点映射,控制,门,过器和状态元数据后点击运行. 后端排除了控制井,从每盘控制门中导出,分类每个寄生虫,总结了领域和井,并执行了高水平的统计数据."
+        },
+        {
+          "narration": "在执行过程中,控制台报告门源和QC,而不是仅显示最终百分比. 内部的定义是由于没有外部信号,所以染色故障只会膨胀入侵;敏感度界限使得错误的方向可见.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "在执行过程中,控制台报告门源和QC,而不是仅显示最终百分比. 内部的定义是由于没有外部信号,所以染色故障只会膨胀入侵;敏感度界限使得错误的方向可见."
+        },
+        {
+          "narration": "实际的后端使用了360个控制寄生虫,设定了228的门,然后在12个井口和24个田野中获得了1440个实验寄生虫. 车辆井平均39分7%入侵,抑制井68分9%;所有井都通过QC. 曼尼测试每组使用了六个井,并给出了荷尔姆调整的p零点零零四零六,而较小的聚合寄生虫p值只显示出伪复制通胀.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "实际的后端使用了360个控制寄生虫,设定了228的门,然后在12个井口和24个田野中获得了1440个实验寄生虫. 车辆井平均39分7%入侵,抑制井68分9%;所有井都通过QC. 曼尼测试每组使用了六个井,并给出了荷尔姆调整的p零点零零四零六,而较小的聚合寄生虫p值只显示出伪复制通胀."
         }
       ]
     },

@@ -1437,19 +1437,73 @@
       "id": "26_invasion",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um innrásarpróf. Notaðu tveggja litna utan- gegn innri litun til að greina tengda frá innrásuðum parazitum."
+          "narration": "Invasion Assay skorar hvern parazit sem festur eða innrásinn úr tveggja litra blettum. Konsóllinn skráir lausnar stillingar, mörk, QC, útgöngur, viðvörun og mistök; spjallboxin getur rætt um það samhengi þegar AI er virkt."
         },
         {
-          "narration": "Opið innrásarpróf frá Toxoplasma próf kafla. Gæta fyrir parazitum og gestgjafafrumur, innri og ytri flækkanálum, plötum metadata og stjórnum."
+          "narration": "Vísindaheimildin breytir leiðunum aðeins þegar beðið er um það. Hliðstæðisskrá hennar velur útbúnaðaraðila sem hefur verið skipulögð og opnar útbúnaðaraðstöðu; innrásargreiningin sjálfa heldur áfram að vera staðbundin og krefst ekki AI."
         },
         {
-          "narration": "Í aðalmyndunar svæðinu er hægt að setja áhersluþróunarstigir, að sameina hlutir, að takast á við óskiljanleika og að hópa á velum stigi."
+          "narration": "Tækiveitanda uppsetning skilur á milli staðbundinna og gestgjafa aðstoðarmanna. Sniðgefðu aðeins þjónustu sem þú ætlar að nota og skoðaðu persónuverndarupplýsingar áður en þú deilir konsólum eða próf samhengi við fjarskiptaveitanda."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. yfirlit um fylgdar, innrásar og óvissa dæmi áður en samþykkt er flokkunarreglan."
+          "narration": "AI Settings stjórnar aðstoðarheitanum, trúnaðarupplýsingum og valfrjálsu rangfærslu. Þessar forystu breytast ekki á blettum, þröskulum, flokkun eða tölfræði."
         },
         {
-          "narration": "Þegar vinnuflæði er lokið skýrir spaCR tölur og innrásarvirkni fyrir brunn og ástandi með myndum um gæðastjórnun."
+          "narration": "Veldu eða slepptu prófunarrótin sem inniheldur mælingar/mælingar.db. Tilrauninni með flutnuðu lífrænni skortir nauðsynlegar innrásarflekkur, þannig að þetta námskeið notar greinilega synthetískt tveggja litna mælingar gagnagrunn á meðan það rekur raunverulega spaCR próf bakhlið."
+        },
+        {
+          "narration": "Essentials útskýrir inngöngur, leiðir, þröskulíf, stjórnir, sía, ástand metadata og útgöngur sem þarf til fyrstu greiningu. Gakktu úr skugga um röð flotta áður en þú túlkar niðurstöður."
+        },
+        {
+          "narration": "Breyttar sía eyðublaðið til að koma til skoðunar afvikum frá sjálfgefnum. Notaðu það til að athuga uppspretta, blettkanala, styrkjastofnun, svæðismörk, kortlagningu plötu og orðaútgang áður en hlaupið er."
+        },
+        {
+          "narration": "Öll stillingar sýnir allar tiltækar stjórnir til að endurskapa og aflyktun. Endur á nauðsynlegt þegar ekki er þörf á þessum auknum stjórnmálum til að draga úr tilviljunarlegum breytingum á parametrum."
+        },
+        {
+          "narration": "Uppskriftir geyma staðfestan prófssetningu til endurtekningar eða sameiningar. Sláðu aðeins af einu eftir að staflamyndun og þröskulinn sem er leittur af stjórninni hefur verið skoðaður gegn fulltrúlegum myndum og dreifingum."
+        },
+        {
+          "narration": "Senda fjarlægð sendir losnar stillingar til dreifð störf. Staðfest að mælingaragrunnin sé aðgengileg í gegnum fjarlægjan leiðarkort áður en þú sendir inn smá staðfestingarstarf."
+        },
+        {
+          "narration": "Útvarpsskjáninn fær verkefni. Skoðaðu samræminguna, virkjun umhverfisins, auðlindir og framleitt skipun og prófaðu síðan eitt plötu áður en þú skalur prófið."
+        },
+        {
+          "narration": "Assay Inputs skilgreinir tilrauna rætur, einn röð fyrir parazitur borð, og þétting fyrirlið. Innrásin skorar fyrirliggjandi sjúkdómsmeðgerðir; hún skipar ekki myndum aftur."
+        },
+        {
+          "narration": "Kanal og hraðskort kort 1 til fyrir-permeabilization utan flokk og 0 til post-permeabilization heild flokk. Tilheyrandi paraþísar halda signalinu utan; innrásar paraþísar missa það. Með því að skipta um þessar leiðir er líffræðilega túlkunin snúin á milli án þess að valda hugbúnaðarvillunni."
+        },
+        {
+          "narration": "Þrummarki velur sjálfvirkan fallback, valfrjálsan fasta skera, bimodality QC, samning þolandi og viðkvæmni span. Fasta þröskulinn skal aðeins nota eftir sjálfstæða klúðun."
+        },
+        {
+          "narration": "Stjórn og lágmarksmetingar nefna litunarstjórnir og skilgreina kvantíllinn, lágmarksstjórnarefni, lágmarksvið og brunnarafnendur og þröskulöguverðmyndavörun. Hér kemur fram heiðarlegt utan-flekk-neikvæð dreifing og er útilokað frá prófunarskilyrðum."
+        },
+        {
+          "narration": "Efnisfiltrun fjarlægir mælingar á parazitum utan viðeigandi svæðis. Minimum um heildarflekki útilokar auk þess fyrirbæri sem ekki geta verið parazitar áður en flokkun utanflekks hefst."
+        },
+        {
+          "narration": "Staða Metadata kortar brunnar í lífrænu hópum og velur hópstefnuna. Snúðplötin notar sex ökutól í kolunni tvö og sex hæmdarhlutir í kolunni þrjú, öll með HeLa gestgjafafrumum."
+        },
+        {
+          "narration": "Assay Output stjórnar litakortinu, fjölda þröskulífs-QC plötur, tóm brunn sáð og spara. Með fræðslu er hægt að varðveita brunnar með mældum gististafrumum en ekki skorað parazitum í stað þess að falla þeim í hljóðleysi."
+        },
+        {
+          "narration": "Útgreiðslutíminn og áreiðanleika stjórnar skráningarþætti. Haldið útgáfu orðanna á meðan próf er settur upp þannig að styrktarlið, þröskulær, heimildir, QC á sviði og merktar brunnir eru sýnilegir í spiðjuvélinni."
+        },
+        {
+          "narration": "Þessi kanalgreiningur notar meðalstærð utan utan utan án bakgrunnsfrádráttar, krefst heildarkanalstærð sem er að minnsta kosti hundrað og heldur kanalinu eitt og núll í líffræðilegu röð sinni. Skoðaðu þessi gildi í samræmi við mælingarskema áður en farið er í gang."
+        },
+        {
+          "narration": "Smelltu á Renndu eftir að hafa skoðað innfærslur, staðkortið, stjórnsýslur, þröskulær, sía og ástand metadata. Bakhliðið útilokar stjórnsýslubrúnir, leiðir eftirlitsmörk fyrir hverja plötu, flokkar hvern paraþítu, samantektar veldi og brunn og gerir tölfræði á velum stigi."
+        },
+        {
+          "narration": "Við framkvæmd skýrir konsólinn um þröskulengslupróf og QC í stað þess að sýna aðeins endanlega hlutfall. Innri er skilgreind með fjarveru ytri merki, þannig að litunarskortur getur aðeins bólgað innrás; viðkvæmni mörk gera að stefna mistaka sýnileg."
+        },
+        {
+          "narration": "Rétt bakslag notaði þrjár hundruð og sjötíu stjórnsýslu parazitum til að setja þröskulinn á tuttugu og tvö stig átta, og skoraði síðan eitt þúsund fjögur hundruð og fjörutíu tilrauna parazitum á tólf brunnum og tuttugu og fjórum velðum. Ökutæki brunnur með meðaltali þrjátíu og níu stig sjö prósent innrás og hæmdarbrunnir sexíu og átta prósent níu stig; allir brunnir ganga yfir QC. MannWhitney prófið notar sex brunnur á hóp og gefur Holm-tillagað p núllpunkt núll núll núll fjórir núll sex, en mun minni sameiginlegt parazit p-verðmæti er sýnt aðeins til að afhjúpa pseudoreplication verðbólgu."
         }
       ]
     },

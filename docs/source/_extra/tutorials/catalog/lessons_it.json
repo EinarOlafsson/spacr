@@ -3712,48 +3712,193 @@
     {
       "id": "26_invasion",
       "number": 26,
-      "slug": "invasion",
-      "title": "Invasion assay",
+      "slug": "invasion-assay",
+      "title": "Assay dell'invasione",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Utilizzare una tintura a due colori per distinguere i parassiti attaccati dai parassiti invadenti.",
+      "description": "Classificare i parassiti attaccati contro gli invasori dalle macchie pre- e post-permeabilizzazione, derivare le soglie di campo dai controlli e riportare l'efficienza per pozzo con sensibilità e QC statistico.",
       "objectives": [
-        "Capire quando usare l'assay dell'invasione.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Mappa le macchie esterne e totali dei parassiti senza invertire l'interpretazione dell'analisi.",
+        "Derivare e controllare le soglie di macchie esterne utilizzando controlli, limiti di bimodalità e sensibilità.",
+        "Interpretare i risultati per campo, per pozzo e condizione con il pozzo e l'unità di replicazione."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Misurare una riga per parassita segmentata sia in un canale di pre-permeabilizzazione di macchie esterne che in un canale di macchie totali post-permeabilizzazione; includere pozzi di controllo delle macchie.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre l'analisi dell'invasione.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre l'analisi dell'invasione."
+          "narration": "Invasione Assay punteggia ogni parassita come attaccato o invaso da una macchia a due colori. La console registra le impostazioni risolte, le soglie, la QC, le uscite, gli avvertimenti e gli errori; la casella di chat può discutere di quel contesto quando l'IA è abilitata.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.6,
+          "speech_text": "Invasione Assay punteggia ogni parassita come attaccato o invaso da una macchia a due colori. La console registra le impostazioni risolte, le soglie, la QC, le uscite, gli avvertimenti e gli errori; la casella di chat può discutere di quel contesto quando l'IA è abilitata."
         },
         {
-          "narration": "Apri Invasion assay dalla sezione Toxoplasma assays. Test Open Invasion della sezione Test Toxoplasma. Fornire maschere di parassiti e cellule ospiti, canali di macchie interni ed esterni, metadati di piastre e controlli.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Invasion assay dalla sezione Toxoplasma assays. Test Open Invasion della sezione Test Toxoplasma. Fornire maschere di parassiti e cellule ospiti, canali di macchie interni ed esterni, metadati di piastre e controlli."
+          "narration": "L'intelligenza artificiale toggle le rotte di chat solo quando richiesto. Il suo menu adiacente seleziona un provider configurato e apre le impostazioni del provider; l'analisi dell'invasione stessa rimane locale e non richiede l'IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "L'intelligenza artificiale toggle le rotte di chat solo quando richiesto. Il suo menu adiacente seleziona un provider configurato e apre le impostazioni del provider; l'analisi dell'invasione stessa rimane locale e non richiede l'IA."
         },
         {
-          "narration": "Nell'area di configurazione principale, configurare le soglie di intensità, l'incontro degli oggetti, la gestione dell'ambiguità e il raggruppamento a livello di pozzo.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, configurare le soglie di intensità, l'incontro degli oggetti, la gestione dell'ambiguità e il raggruppamento a livello di pozzo."
+          "narration": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta le informazioni sulla privacy prima di condividere il contesto della console o del test con un fornitore remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "La configurazione del provider separa gli assistenti locali e ospitati. Configura solo i servizi che intendi utilizzare e consulta le informazioni sulla privacy prima di condividere il contesto della console o del test con un fornitore remoto."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, rivedere le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. rivedere gli esempi allegati, invasi e incerti prima di accettare la regola di classificazione.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, rivedere le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile. rivedere gli esempi allegati, invasi e incerti prima di accettare la regola di classificazione."
+          "narration": "Le impostazioni AI controllano il contesto assistente, le credenziali e la segnalazione di errori opzionali. Queste preferenze non modificano i canali di macchie, le soglie, la classificazione o le statistiche.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "Le impostazioni AI controllano il contesto assistente, le credenziali e la segnalazione di errori opzionali. Queste preferenze non modificano i canali di macchie, le soglie, la classificazione o le statistiche."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, spaCR riporta i numeri e l'efficienza di invasione per pozzo e condizione con immagini di controllo di qualità.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, spàker riporta i numeri e l'efficienza di invasione per pozzo e condizione con immagini di controllo di qualità."
+          "narration": "Scegliere o abbandonare la radice dell'esperimento contenente misure/misure.db. L'esperimento di microscopia trasferita non ha le macchie di invasione necessarie, quindi questo tutorial usa chiaramente un database di misurazione a due colori sintetici mentre esegue il vero backend di prova spaCR.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.7,
+          "speech_text": "Scegliere o abbandonare la radice dell'esperimento contenente misure/misure.db. L'esperimento di microscopia trasferita non ha le macchie di invasione necessarie, quindi questo tutorial usa chiaramente un database di misurazione a due colori sintetici mentre esegue il vero backend di prova spàker."
+        },
+        {
+          "narration": "Essentials espone le entrate, i canali, la soglia, i controlli, i filtri, i metadati di condizione e le uscite necessarie per una prima analisi. Verificare l'ordine delle macchie prima di interpretare qualsiasi risultato.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "Essentials espone le entrate, i canali, la soglia, i controlli, i filtri, i metadati di condizione e le uscite necessarie per una prima analisi. Verificare l'ordine delle macchie prima di interpretare qualsiasi risultato."
+        },
+        {
+          "narration": "Modificato filtro il modulo per le deviazioni deliberate dalle impostazioni predefinite. Utilizzare per controllare la fonte, i canali di macchia, la porta di intensità, i controlli, i limiti di area, la mappatura della targa e l'uscita verbo prima di eseguire.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "Modificato filtro il modulo per le deviazioni deliberate dalle impostazioni predefinite. Utilizzare per controllare la fonte, i canali di macchia, la porta di intensità, i controlli, i limiti di area, la mappatura della targa e l'uscita verbo prima di eseguire."
+        },
+        {
+          "narration": "Tutte le impostazioni rivelano ogni controllo disponibile per la riproduzione e la risoluzione dei problemi. Ritorno agli elementi essenziali quando tali controlli avanzati non sono necessari per ridurre i cambiamenti accidentali dei parametri.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Tutte le impostazioni rivelano ogni controllo disponibile per la riproduzione e la risoluzione dei problemi. Ritorno agli elementi essenziali quando tali controlli avanzati non sono necessari per ridurre i cambiamenti accidentali dei parametri."
+        },
+        {
+          "narration": "Le ricette conservano una configurazione di test convalidata per il riutilizzo o la condivisione. Salvare uno solo dopo che la mappatura delle macchie e la soglia derivata dal controllo sono state controllate con immagini e distribuzioni rappresentative.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Le ricette conservano una configurazione di test convalidata per il riutilizzo o la condivisione. Salvare uno solo dopo che la mappatura delle macchie e la soglia derivata dal controllo sono state controllate con immagini e distribuzioni rappresentative."
+        },
+        {
+          "narration": "Invio remoto passa le impostazioni risolute a lavori distribuiti. Confirmare che il database di misurazione sia accessibile tramite la mappa di percorso remota prima di presentare un piccolo lavoro di convalida.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "Invio remoto passa le impostazioni risolute a lavori distribuiti. Confirmare che il database di misurazione sia accessibile tramite la mappa di percorso remota prima di presentare un piccolo lavoro di convalida."
+        },
+        {
+          "narration": "Lo schermo remoto riceve un progetto di lavoro. Controllare la sincronizzazione, l'attivazione dell'ambiente, le risorse e il comando generato, quindi testare una piastra prima di scalare l'assay.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "Lo schermo remoto riceve un progetto di lavoro. Controllare la sincronizzazione, l'attivazione dell'ambiente, le risorse e il comando generato, quindi testare una piastra prima di scalare l'assay."
+        },
+        {
+          "narration": "Assay Inputs identifica la radice dell'esperimento, la tabella di una fila per parassita e il prefisso del compartimento. L'invasione valuta le misurazioni degli agenti patogeni esistenti; non segmenta di nuovo le immagini.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "Assay Inputs identifica la radice dell'esperimento, la tabella di una fila per parassita e il prefisso del compartimento. L'invasione valuta le misurazioni degli agenti patogeni esistenti; non segmenta di nuovo le immagini."
+        },
+        {
+          "narration": "Canali e mappe di intensità canale uno alla pre-permeabilizzazione all'esterno della macchia e canale zero alla macchia totale post-permeabilizzazione. I parassiti attaccati conservano il segnale esterno; i parassiti invasori non ne hanno. Lo scambio di questi canali inverte l'interpretazione biologica senza causare un errore software.",
+          "visual": "12_category_02_channels_intensity",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "Canali e mappe di intensità canale uno alla pre-permeabilizzazione all'esterno della macchia e canale zero alla macchia totale post-permeabilizzazione. I parassiti attaccati conservano il segnale esterno; i parassiti invasori non ne hanno. Lo scambio di questi canali inverte l'interpretazione biologica senza causare un errore software."
+        },
+        {
+          "narration": "La soglia sceglie il retrocesso automatico, il taglio fisso opzionale, il QC bimodalità, la tolleranza all'accordo e la durata di sensibilità. Una soglia fissa deve essere utilizzata solo dopo calibrazione indipendente.",
+          "visual": "12_category_03_thresholding",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "La soglia sceglie il retrocesso automatico, il taglio fisso opzionale, il QC bimodalità, la tolleranza all'accordo e la durata di sensibilità. Una soglia fissa deve essere utilizzata solo dopo calibrazione indipendente."
+        },
+        {
+          "narration": "I controlli e i conteggi minimi definiscono i controlli di colorazione e definiscono il quantile, gli oggetti di controllo minimi, i denominatori minimi di campo e pozzo e l'avvertimento dell'inflazione della soglia. Qui la colonna uno fornisce l'onesta distribuzione esterna-manche-negativa ed è esclusa dalle condizioni di analisi.",
+          "visual": "12_category_04_controls_minimum_counts",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "I controlli e i conteggi minimi definiscono i controlli di colorazione e definiscono il quantile, gli oggetti di controllo minimi, i denominatori minimi di campo e pozzo e l'avvertimento dell'inflazione della soglia. Qui la colonna uno fornisce l'onesta distribuzione esterna-manche-negativa ed è esclusa dalle condizioni di analisi."
+        },
+        {
+          "narration": "Il filtraggio di oggetti rimuove le misurazioni dei parassiti al di fuori della gamma di aree accettabili. Il minimo di macchie totali esclude inoltre gli oggetti che non possono essere affatto parassiti prima dell'inizio della classificazione delle macchie esterne.",
+          "visual": "12_category_05_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.54,
+          "speech_text": "Il filtraggio di oggetti rimuove le misurazioni dei parassiti al di fuori della gamma di aree accettabili. Il minimo di macchie totali esclude inoltre gli oggetti che non possono essere affatto parassiti prima dell'inizio della classificazione delle macchie esterne."
+        },
+        {
+          "narration": "Condizione I metadati mappano i pozzi a gruppi biologici e selezionano la colonna di raggruppamento. La piastra sintetica utilizza sei pozzi di veicolo nella colonna due e sei pozzi di inibitore nella colonna tre, tutti con cellule ospite HeLa.",
+          "visual": "12_category_06_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Condizione I metadati mappano i pozzi a gruppi biologici e selezionano la colonna di raggruppamento. La piastra sintetica utilizza sei pozzi di veicolo nella colonna due e sei pozzi di inibitore nella colonna tre, tutti con cellule ospite HeLa."
+        },
+        {
+          "narration": "Assay Output controlla la mappa dei colori, il numero di pannelli di QC, la seminazione del pozzo vuoto e il risparmio. La semina conserva pozzi con cellule ospitanti misurate ma senza parassiti segnati invece di lasciarli cadere silenziosamente.",
+          "visual": "12_category_07_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Assay Output controlla la mappa dei colori, il numero di pannelli di QC, la seminazione del pozzo vuoto e il risparmio. La semina conserva pozzi con cellule ospitanti misurate ma senza parassiti segnati invece di lasciarli cadere silenziosamente."
+        },
+        {
+          "narration": "Il tempo di esecuzione e l'affidabilità controllano i dettagli di registrazione. Tenere in funzione l'uscita verbale durante l'elaborazione di un assay in modo che la colonna di intensità, le soglie, le fonti, il QC per campo e i pozzi segnalati siano visibili nella console.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Il tempo di esecuzione e l'affidabilità controllano i dettagli di registrazione. Tenere in funzione l'uscita verbale durante l'elaborazione di un assay in modo che la colonna di intensità, le soglie, le fonti, il QC per campo e i pozzi segnalati siano visibili nella console."
+        },
+        {
+          "narration": "Questo dettaglio del canale utilizza l'intensità esterna media senza sottrazione di fondo, richiede un'intensità totale del canale di almeno cento e mantiene il canale uno e lo zero nell'ordine biologico. Rivedi questi valori rispetto allo schema di misurazione prima di eseguire.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.6,
+          "speech_text": "Questo dettaglio del canale utilizza l'intensità esterna media senza sottrazione di fondo, richiede un'intensità totale del canale di almeno cento e mantiene il canale uno e lo zero nell'ordine biologico. Rivedi questi valori rispetto allo schema di misurazione prima di eseguire."
+        },
+        {
+          "narration": "Fare clic su eseguire dopo aver controllato le entrate, la mappatura delle macchie, i controlli, le soglie, i filtri e i metadati di condizione. Il backend esclude i pozzi di controllo, deriva le soglie di controllo per piatto, classifica ogni parassita, riassume campi e pozzi e esegue statistiche a livello di pozzo.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Fare clic su eseguire dopo aver controllato le entrate, la mappatura delle macchie, i controlli, le soglie, i filtri e i metadati di condizione. Il backend esclude i pozzi di controllo, deriva le soglie di controllo per piatto, classifica ogni parassita, riassume campi e pozzi e esegue statistiche a livello di pozzo."
+        },
+        {
+          "narration": "Durante l'esecuzione, la console segnala la fonte soglia e la QC piuttosto che mostrare solo una percentuale finale. L'interno è definito dall'assenza di segnale esterno, quindi il fallimento della macchiazione può solo gonfiare l'invasione; i confini di sensibilità rendono visibile quella direzione di errore.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Durante l'esecuzione, la console segnala la fonte soglia e la QC piuttosto che mostrare solo una percentuale finale. L'interno è definito dall'assenza di segnale esterno, quindi il fallimento della macchiazione può solo gonfiare l'invasione; i confini di sensibilità rendono visibile quella direzione di errore."
+        },
+        {
+          "narration": "Il vero backend ha utilizzato trecento sessanta parassiti di controllo per impostare una soglia di ventidue punti otto, poi ha segnato millequattrocentoquaranta parassiti sperimentali attraverso dodici pozzi e ventiquattro campi. I pozzi del veicolo hanno una media di 39 punti per cento di invasione e i pozzi inibitori 68 punti per cento; tutti i pozzi superano il QC. Il test di MannWhitney utilizza sei pozzi per gruppo e dà un punto zero zero zero zero quattro zero sei, mentre il p-valore di parassita riunito molto più piccolo viene mostrato solo per esporre l'inflazione di pseudo-riplicazione.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "Il vero backend ha utilizzato trecento sessanta parassiti di controllo per impostare una soglia di ventidue punti otto, poi ha segnato millequattrocentoquaranta parassiti sperimentali attraverso dodici pozzi e ventiquattro campi. I pozzi del veicolo hanno una media di 39 punti per cento di invasione e i pozzi inibitori 68 punti per cento; tutti i pozzi superano il QC. Il test di MannWhitney utilizza sei pozzi per gruppo e dà un punto zero zero zero zero quattro zero sei, mentre il p-valore di parassita riunito molto più piccolo viene mostrato solo per esporre l'inflazione di pseudo-riplicazione."
         }
       ]
     },

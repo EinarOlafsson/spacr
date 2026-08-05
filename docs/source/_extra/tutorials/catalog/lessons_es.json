@@ -3712,48 +3712,193 @@
     {
       "id": "26_invasion",
       "number": 26,
-      "slug": "invasion",
-      "title": "Invasion assay",
+      "slug": "invasion-assay",
+      "title": "Assay de la invasión",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Utilice una coloración de dos colores exterior contra interior para distinguir los parásitos adheridos de los invasores.",
+      "description": "Clasificar los parásitos adheridos frente a los invasores de las manchas de pre- y post-permeabilización, derivar los umbrales de campo de los controles e informar la eficiencia por pozo con sensibilidad y QC estadístico.",
       "objectives": [
-        "Comprender cuándo usar el análisis de Invasión.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Mapa de las manchas exteriores y totales del parásito sin revertir la interpretación del ensayo.",
+        "Derivar y auditar los umbrales de manchas externas utilizando controles, límites de bimodalidad y sensibilidad.",
+        "Interpretar los resultados por campo, por pozo y condición con el pozo y la unidad de replicación."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Medir una fila por parásito segmentado tanto en un canal de manchas exteriores de pre-permeabilización como en un canal de manchas totales de post-permeabilización; incluir pozos de control de manchas.",
       "scenes": [
         {
-          "narration": "Este tutorial abarca el ensayo de invasión.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abarca el ensayo de invasión."
+          "narration": "Invasion Assay califica a cada parásito como adjunto o invadido desde una mancha de dos colores. La consola registra configuraciones resueltas, umbrales, QC, salidas, advertencias y errores; la caja de chat puede discutir ese contexto cuando la IA está habilitada.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.6,
+          "speech_text": "Invasion Assay califica a cada parásito como adjunto o invadido desde una mancha de dos colores. La consola registra configuraciones resueltas, umbrales, QC, salidas, advertencias y errores; la caja de chat puede discutir ese contexto cuando la IA está habilitada."
         },
         {
-          "narration": "Abra Invasion assay en la sección Toxoplasma assays. Prueba de invasión abierta de la sección de análisis de Toxoplasma. Proporcione máscaras para parásitos y células huéspedes, canales de manchas dentro y fuera, metadatos de placas y controles.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Invasion assay en la sección Toxoplasma assays. Prueba de invasión abierta de la sección de análisis de Toxoplasma. Proporcione máscaras para parásitos y células huéspedes, canales de manchas dentro y fuera, metadatos de placas y controles."
+          "narration": "Las rutas de intercambio de IA sólo hablan cuando se solicita. Su menú adyacente selecciona un proveedor configurado y abre las configuraciones del proveedor; el análisis de invasión en sí permanece local y no requiere IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "Las rutas de intercambio de IA sólo hablan cuando se solicita. Su menú adyacente selecciona un proveedor configurado y abre las configuraciones del proveedor; el análisis de invasión en sí permanece local y no requiere IA."
         },
         {
-          "narration": "En el área de configuración principal, configurar los umbrales de intensidad, la coincidencia de objetos, el manejo de la ambigüedad y el agrupamiento a nivel de pozo.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, configurar los umbrales de intensidad, la coincidencia de objetos, el manejo de la ambigüedad y el agrupamiento a nivel de pozo."
+          "narration": "La configuración del proveedor separa a los asistentes locales y alojados. Configure únicamente los servicios que tenga la intención de utilizar y revise la información de privacidad antes de compartir el contexto de consola o análisis con un proveedor remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "La configuración del proveedor separa a los asistentes locales y alojados. Configure únicamente los servicios que tenga la intención de utilizar y revise la información de privacidad antes de compartir el contexto de consola o análisis con un proveedor remoto."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. revise ejemplos adjuntos, invadidos e inciertos antes de aceptar la regla de clasificación.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. revise ejemplos adjuntos, invadidos e inciertos antes de aceptar la regla de clasificación."
+          "narration": "Configuraciones de IA controla el contexto del asistente, las credenciales y el reporte de errores opcionales. Estas preferencias no cambian los canales de manchas, los umbrales, la clasificación o las estadísticas.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "Configuraciones de IA controla el contexto del asistente, las credenciales y el reporte de errores opcionales. Estas preferencias no cambian los canales de manchas, los umbrales, la clasificación o las estadísticas."
         },
         {
-          "narration": "Cuando el flujo de trabajo termine, los informes spaCR cuentan y cuentan la eficiencia de invasión por pozo y estado con imágenes de control de calidad.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termine, los informes espáquer cuentan y cuentan la eficiencia de invasión por pozo y estado con imágenes de control de calidad."
+          "narration": "Seleccione o deje de utilizar la raíz del experimento que contiene medidas/medidas.db. El experimento de microscopía transferida carece de las manchas de invasión requeridas, por lo que este tutorial claramente utiliza una base de datos de medición sintética de dos colores mientras ejecuta el respaldo de ensayo real de spaCR.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.7,
+          "speech_text": "Seleccione o deje de utilizar la raíz del experimento que contiene medidas/medidas.db. El experimento de microscopía transferida carece de las manchas de invasión requeridas, por lo que este tutorial claramente utiliza una base de datos de medición sintética de dos colores mientras ejecuta el respaldo de ensayo real de espáquer."
+        },
+        {
+          "narration": "Essentials expone las entradas, canales, umbrales, controles, filtros, metadatos de condición y salidas necesarias para un primer análisis. Verifique el orden de las manchas antes de interpretar cualquier resultado.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "Essentials expone las entradas, canales, umbrales, controles, filtros, metadatos de condición y salidas necesarias para un primer análisis. Verifique el orden de las manchas antes de interpretar cualquier resultado."
+        },
+        {
+          "narration": "Filtros modificados del formulario para desviaciones deliberadas de los valores predeterminados. Utilice para auditar la fuente, los canales de manchas, la puerta de intensidad, los controles, los límites de área, el mapeo de placas y la salida de verbos antes de ejecutarse.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "Filtros modificados del formulario para desviaciones deliberadas de los valores predeterminados. Utilice para auditar la fuente, los canales de manchas, la puerta de intensidad, los controles, los límites de área, el mapeo de placas y la salida de verbos antes de ejecutarse."
+        },
+        {
+          "narration": "Todas las configuraciones revelan todos los controles disponibles para reproducción y resolución de problemas. Regresar a los elementos esenciales cuando esos controles avanzados no sean necesarios para reducir los cambios accidentales de parámetros.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Todas las configuraciones revelan todos los controles disponibles para reproducción y resolución de problemas. Regresar a los elementos esenciales cuando esos controles avanzados no sean necesarios para reducir los cambios accidentales de parámetros."
+        },
+        {
+          "narration": "Las recetas conservan una configuración de ensayo validada para su reutilización o uso compartido. Salvar uno sólo después de que el mapa de manchas y el umbral derivado del control se hayan comprobado con imágenes y distribuciones representativas.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Las recetas conservan una configuración de ensayo validada para su reutilización o uso compartido. Salvar uno sólo después de que el mapa de manchas y el umbral derivado del control se hayan comprobado con imágenes y distribuciones representativas."
+        },
+        {
+          "narration": "Enviar remoto pasa las configuraciones resueltas a Trabajos Distribuidos. Confirmar que la base de datos de medición es accesible a través del mapa de ruta remoto antes de enviar un pequeño trabajo de validación.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "Enviar remoto pasa las configuraciones resueltas a Trabajos Distribuidos. Confirmar que la base de datos de medición es accesible a través del mapa de ruta remoto antes de enviar un pequeño trabajo de validación."
+        },
+        {
+          "narration": "La pantalla remota recibe un borrador de trabajo. Compruebe la sincronización, la activación del entorno, los recursos y el comando generado, luego prueba una placa antes de escalar el ensayo.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "La pantalla remota recibe un borrador de trabajo. Compruebe la sincronización, la activación del entorno, los recursos y el comando generado, luego prueba una placa antes de escalar el ensayo."
+        },
+        {
+          "narration": "Assay Inputs identifica la raíz del experimento, la tabla de una fila por parásito y el prefijo de compartimiento. La invasión califica las mediciones de patógenos existentes; no segmenta las imágenes de nuevo.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "Assay Inputs identifica la raíz del experimento, la tabla de una fila por parásito y el prefijo de compartimiento. La invasión califica las mediciones de patógenos existentes; no segmenta las imágenes de nuevo."
+        },
+        {
+          "narration": "Canales y mapas de intensidad canales uno a la pre-permeabilización fuera de la mancha y canal cero a la mancha total posterior a la permeabilización. Los parásitos adjuntos retienen la señal externa; los parásitos invadidos no la tienen. El intercambio de estos canales invierte la interpretación biológica sin causar un error de software.",
+          "visual": "12_category_02_channels_intensity",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "Canales y mapas de intensidad canales uno a la pre-permeabilización fuera de la mancha y canal cero a la mancha total posterior a la permeabilización. Los parásitos adjuntos retienen la señal externa; los parásitos invadidos no la tienen. El intercambio de estos canales invierte la interpretación biológica sin causar un error de software."
+        },
+        {
+          "narration": "El umbral elige el retroceso automático, el corte fijo opcional, la CQ de bimodalidad, la tolerancia al acuerdo y el rango de sensibilidad. Un umbral fijo debe utilizarse sólo después de una calibración independiente.",
+          "visual": "12_category_03_thresholding",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "El umbral elige el retroceso automático, el corte fijo opcional, la CQ de bimodalidad, la tolerancia al acuerdo y el rango de sensibilidad. Un umbral fijo debe utilizarse sólo después de una calibración independiente."
+        },
+        {
+          "narration": "Los controles y los recuentos mínimos nombran los controles de coloración y definen el cuantilo, los objetos mínimos de control, los denominadores mínimos de campo y pozo y la advertencia sobre el umbral de inflación. Aquí, la columna uno proporciona la distribución honesta externa-mancha-negativa y está excluida de las condiciones de ensayo.",
+          "visual": "12_category_04_controls_minimum_counts",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "Los controles y los recuentos mínimos nombran los controles de coloración y definen el cuantilo, los objetos mínimos de control, los denominadores mínimos de campo y pozo y la advertencia sobre el umbral de inflación. Aquí, la columna uno proporciona la distribución honesta externa-mancha-negativa y está excluida de las condiciones de ensayo."
+        },
+        {
+          "narration": "El filtro de objetos elimina las mediciones de parásitos fuera del rango de área aceptable. El mínimo de manchas totales excluye además a los objetos que pueden no ser en absoluto parásitos antes de que comience la clasificación de manchas externas.",
+          "visual": "12_category_05_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.54,
+          "speech_text": "El filtro de objetos elimina las mediciones de parásitos fuera del rango de área aceptable. El mínimo de manchas totales excluye además a los objetos que pueden no ser en absoluto parásitos antes de que comience la clasificación de manchas externas."
+        },
+        {
+          "narration": "Condición Metadatos mapean los pozos a grupos biológicos y selecciona la columna de agrupación. La placa sintética utiliza seis pozos de vehículo en la columna dos y seis pozos inhibidores en la columna tres, todos con células huéspedes de HeLa.",
+          "visual": "12_category_06_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Condición Metadatos mapean los pozos a grupos biológicos y selecciona la columna de agrupación. La placa sintética utiliza seis pozos de vehículo en la columna dos y seis pozos inhibidores en la columna tres, todos con células huéspedes de HeLa."
+        },
+        {
+          "narration": "Assay Output controla el mapa de color, el número de paneles de QC de umbral, la siembra en pozos vacíos y el ahorro. La siembra conserva pozos con células anfitrionas medidas pero sin parásitos marcados en lugar de dejarlos caer en silencio.",
+          "visual": "12_category_07_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Assay Output controla el mapa de color, el número de paneles de QC de umbral, la siembra en pozos vacíos y el ahorro. La siembra conserva pozos con células anfitrionas medidas pero sin parásitos marcados en lugar de dejarlos caer en silencio."
+        },
+        {
+          "narration": "El tiempo de ejecución y la fiabilidad controlan los detalles de registro. Mantenga la salida verbal encendida mientras establece un ensayo para que la columna de intensidad, los umbrales, las fuentes, el QC por campo y los pozos marcados sean visibles en la consola.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "El tiempo de ejecución y la fiabilidad controlan los detalles de registro. Mantenga la salida verbal encendida mientras establece un ensayo para que la columna de intensidad, los umbrales, las fuentes, el QC por campo y los pozos marcados sean visibles en la consola."
+        },
+        {
+          "narration": "Este detalle del canal utiliza la intensidad externa media sin subtracción de fondo, requiere una intensidad total del canal de al menos cien, y mantiene el canal uno y cero en su orden biológico. Revise estos valores con respecto al esquema de medición antes de ejecutar.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.6,
+          "speech_text": "Este detalle del canal utiliza la intensidad externa media sin subtracción de fondo, requiere una intensidad total del canal de al menos cien, y mantiene el canal uno y cero en su orden biológico. Revise estos valores con respecto al esquema de medición antes de ejecutar."
+        },
+        {
+          "narration": "Haga clic en Ejecutar después de comprobar las entradas, el mapeo de manchas, los controles, los umbrales, los filtros y los metadatos de condición. El backend excluye los pozos de control, deriva los umbrales de control por placa, clasifica cada parásito, resume campos y pozos y realiza estadísticas de bien nivel.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Haga clic en Ejecutar después de comprobar las entradas, el mapeo de manchas, los controles, los umbrales, los filtros y los metadatos de condición. El backend excluye los pozos de control, deriva los umbrales de control por placa, clasifica cada parásito, resume campos y pozos y realiza estadísticas de bien nivel."
+        },
+        {
+          "narration": "Durante la ejecución, la consola informa el umbral de fuente y QC en lugar de mostrar solo un porcentaje final. El interior está definido por la ausencia de señal externa, por lo que el fracaso de coloración solo puede inflar la invasión; los límites de sensibilidad hacen visible esa dirección de error.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Durante la ejecución, la consola informa el umbral de fuente y QC en lugar de mostrar solo un porcentaje final. El interior está definido por la ausencia de señal externa, por lo que el fracaso de coloración solo puede inflar la invasión; los límites de sensibilidad hacen visible esa dirección de error."
+        },
+        {
+          "narration": "El fondo real utilizó trescientos sesenta parásitos de control para establecer un umbral de veintidós puntos ocho, luego anotó mil cuatrocientos cuarenta parásitos experimentales en doce pozos y veinticuatro campos. Los pozos de vehículos promedian treinta y nueve puntos siete por ciento de invasión y los pozos inhibidores sesenta y ocho puntos nueve por ciento; todos los pozos pasan QC. La prueba de MannWhitney utiliza seis pozos por grupo y da un punto cero cero cero cero cuatro cero seis ajustado por Holm, mientras que el p-valor de parásito agrupado mucho más pequeño se muestra solo para exponer la inflación de pseudo replicación.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "El fondo real utilizó trescientos sesenta parásitos de control para establecer un umbral de veintidós puntos ocho, luego anotó mil cuatrocientos cuarenta parásitos experimentales en doce pozos y veinticuatro campos. Los pozos de vehículos promedian treinta y nueve puntos siete por ciento de invasión y los pozos inhibidores sesenta y ocho puntos nueve por ciento; todos los pozos pasan QC. La prueba de MannWhitney utiliza seis pozos por grupo y da un punto cero cero cero cero cuatro cero seis ajustado por Holm, mientras que el p-valor de parásito agrupado mucho más pequeño se muestra solo para exponer la inflación de pseudo replicación."
         }
       ]
     },

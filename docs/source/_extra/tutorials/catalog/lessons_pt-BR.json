@@ -3712,48 +3712,193 @@
     {
       "id": "26_invasion",
       "number": 26,
-      "slug": "invasion",
-      "title": "Invasion assay",
+      "slug": "invasion-assay",
+      "title": "Invasão Assay",
       "series": 3,
       "app_key": "invasion",
       "section": "Toxoplasma assays",
-      "description": "Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos.",
+      "description": "Classificar parasitas anexados versus invadidos a partir de manchas de pré e pós-permeabilização, derivar limiares de campo dos controles e relatar a eficiência por poço com sensibilidade e QC estatístico.",
       "objectives": [
-        "Entender quando usar o teste de Invasão.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Mapear as manchas exteriores e totais dos parasitas sem reverter a interpretação do ensaio.",
+        "Derivar e auditar os limites de manchas externas utilizando controles, limites de bimodalidade e de sensibilidade.",
+        "Interpreta os resultados por campo, por poço e condição com o poço e a unidade de replicação."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Medir uma linha por parasita segmentado em um canal de manchas exteriores de pré-permeabilização e em um canal de manchas totais de pós-permeabilização; incluir poços de controlo de manchas.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o teste de invasão. Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o teste de invasão. Use uma coloração de duas cores exterior contra interior para distinguir os parásitos invadidos."
+          "narration": "O Assay da Invasão marca cada parasita como ligado ou invadido a partir de uma mancha de duas cores. O console registra configurações resolvidas, limiares, QC, saídas, avisos e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.6,
+          "speech_text": "O Assay da Invasão marca cada parasita como ligado ou invadido a partir de uma mancha de duas cores. O console registra configurações resolvidas, limiares, QC, saídas, avisos e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada."
         },
         {
-          "narration": "Abra Invasion assay na seção Toxoplasma assays. Avaliação de Invasão Aberta da secção de Análise de Toxoplasma.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Invasion assay na seção Toxoplasma assays. Avaliação de Invasão Aberta da secção de Análise de Toxoplasma."
+          "narration": "As rotas de troca da IA só conversam quando solicitadas. Seu menu adjacente seleciona um provedor configurado e abre as configurações do provedor; a análise de invasão permanece local e não requer IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.5,
+          "speech_text": "As rotas de troca da IA só conversam quando solicitadas. Seu menu adjacente seleciona um provedor configurado e abre as configurações do provedor; a análise de invasão permanece local e não requer IA."
         },
         {
-          "narration": "Na área de configuração principal, configurar limites de intensidade, correspondência de objetos, manipulação de ambigüidade e agrupamento de nível bem.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configurar limites de intensidade, correspondência de objetos, manipulação de ambigüidade e agrupamento de nível bem."
+          "narration": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise as informações de privacidade antes de compartilhar o contexto de console ou teste com um provedor remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise as informações de privacidade antes de compartilhar o contexto de console ou teste com um provedor remoto."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise os exemplos anexados, invadidos e incertos antes de aceitar a regra de classificação.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise os exemplos anexados, invadidos e incertos antes de aceitar a regra de classificação."
+          "narration": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram os canais de manchas, os limiares, a classificação ou as estatísticas.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram os canais de manchas, os limiares, a classificação ou as estatísticas."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, os relatórios spaCR contam e informam a eficiência de invasão por poço e condição com imagens de controlo de qualidade.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, os relatórios espáquer contam e informam a eficiência de invasão por poço e condição com imagens de controlo de qualidade."
+          "narration": "Escolher ou soltar a raiz do experimento contendo medidas/medidas.db. O experimento de microscopia transferida não tem as manchas de invasão necessárias, por isso este tutorial usa claramente um banco de dados de medição sintético de duas cores enquanto executa o verdadeiro backend de teste spaCR.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.7,
+          "speech_text": "Escolher ou soltar a raiz do experimento contendo medidas/medidas.db. O experimento de microscopia transferida não tem as manchas de invasão necessárias, por isso este tutorial usa claramente um banco de dados de medição sintético de duas cores enquanto executa o verdadeiro backend de teste espáquer."
+        },
+        {
+          "narration": "Essentials expõe as entradas, canais, limiares, controles, filtros, metadados de condição e saídas necessárias para uma primeira análise. Verifique a ordem das manchas antes de interpretar qualquer resultado.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.54,
+          "speech_text": "Essentials expõe as entradas, canais, limiares, controles, filtros, metadados de condição e saídas necessárias para uma primeira análise. Verifique a ordem das manchas antes de interpretar qualquer resultado."
+        },
+        {
+          "narration": "Filtro modificado do formulário para desvios deliberados dos padrões. Usá-lo para auditar a fonte, os canais de manchas, a porta de intensidade, os controles, os limites de área, o mapeamento de placas e a saída verbal antes da execução.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.54,
+          "speech_text": "Filtro modificado do formulário para desvios deliberados dos padrões. Usá-lo para auditar a fonte, os canais de manchas, a porta de intensidade, os controles, os limites de área, o mapeamento de placas e a saída verbal antes da execução."
+        },
+        {
+          "narration": "Todas as configurações revelam todos os controles disponíveis para reprodução e resolução de problemas. Regressar aos elementos essenciais quando esses controles avançados não são necessários para reduzir as alterações acidentais de parâmetros.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Todas as configurações revelam todos os controles disponíveis para reprodução e resolução de problemas. Regressar aos elementos essenciais quando esses controles avançados não são necessários para reduzir as alterações acidentais de parâmetros."
+        },
+        {
+          "narration": "As receitas conservam uma configuração de ensaio validada para reutilização ou partilha. Salvar um somente após o mapeamento de manchas e o limiar derivado do controlo terem sido verificados em relação a imagens e distribuições representativas.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "As receitas conservam uma configuração de ensaio validada para reutilização ou partilha. Salvar um somente após o mapeamento de manchas e o limiar derivado do controlo terem sido verificados em relação a imagens e distribuições representativas."
+        },
+        {
+          "narration": "Submit remoto passa as configurações resolvidas para Funções Distribuídas. Confirmar que o banco de dados de medição é acessível através do mapa de caminho remoto antes de enviar um pequeno trabalho de validação.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.52,
+          "speech_text": "Submit remoto passa as configurações resolvidas para Funções Distribuídas. Confirmar que o banco de dados de medição é acessível através do mapa de caminho remoto antes de enviar um pequeno trabalho de validação."
+        },
+        {
+          "narration": "A tela remota recebe um esboço de trabalho. Verifique a sincronização, a ativação do ambiente, os recursos e o comando gerado, depois teste uma placa antes de escalar o ensaio.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.56,
+          "speech_text": "A tela remota recebe um esboço de trabalho. Verifique a sincronização, a ativação do ambiente, os recursos e o comando gerado, depois teste uma placa antes de escalar o ensaio."
+        },
+        {
+          "narration": "Assay Inputs identifica a raiz do experimento, a tabela de uma fila por parasita e o prefixo do compartimento. A invasão marca as medições de patógenos existentes; não segmenta imagens novamente.",
+          "visual": "12_category_01_assay_inputs",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "Assay Inputs identifica a raiz do experimento, a tabela de uma fila por parasita e o prefixo do compartimento. A invasão marca as medições de patógenos existentes; não segmenta imagens novamente."
+        },
+        {
+          "narration": "Canais e mapas de intensidade canais um para a pre-permeabilização fora da mancha e canal zero para a mancha total pós-permeabilização. Os parasitas ligados retêm o sinal externo; os parasitas invadidos não o têm. A troca desses canais inverte a interpretação biológica sem causar um erro de software.",
+          "visual": "12_category_02_channels_intensity",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.72,
+          "speech_text": "Canais e mapas de intensidade canais um para a pre-permeabilização fora da mancha e canal zero para a mancha total pós-permeabilização. Os parasitas ligados retêm o sinal externo; os parasitas invadidos não o têm. A troca desses canais inverte a interpretação biológica sem causar um erro de software."
+        },
+        {
+          "narration": "O limiar escolhe o retrocesso automático, o corte fixo opcional, o CQ de bimodalidade, a tolerância ao acordo e o intervalo de sensibilidade. Um limiar fixo deve ser utilizado somente após calibração independente.",
+          "visual": "12_category_03_thresholding",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "O limiar escolhe o retrocesso automático, o corte fixo opcional, o CQ de bimodalidade, a tolerância ao acordo e o intervalo de sensibilidade. Um limiar fixo deve ser utilizado somente após calibração independente."
+        },
+        {
+          "narration": "Controlos e Contos Mínimos nomeam os controlos de coloração e definem o quantilo, os objetos mínimos de controlo, os denominadores mínimos de campo e poço e o alerta de inflação de limiar. Aqui, a coluna um fornece a distribuição honesta externa-mancha-negativa e está excluída das condições de ensaio.",
+          "visual": "12_category_04_controls_minimum_counts",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "Controlos e Contos Mínimos nomeam os controlos de coloração e definem o quantilo, os objetos mínimos de controlo, os denominadores mínimos de campo e poço e o alerta de inflação de limiar. Aqui, a coluna um fornece a distribuição honesta externa-mancha-negativa e está excluída das condições de ensaio."
+        },
+        {
+          "narration": "A filtragem de objetos elimina as medições de parasitas fora do intervalo de área aceitável. O mínimo de manchas totais exclui igualmente os objetos que podem não ser parasitas antes do início da classificação de manchas externas.",
+          "visual": "12_category_05_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.54,
+          "speech_text": "A filtragem de objetos elimina as medições de parasitas fora do intervalo de área aceitável. O mínimo de manchas totais exclui igualmente os objetos que podem não ser parasitas antes do início da classificação de manchas externas."
+        },
+        {
+          "narration": "Condição Metadados mapeia poços para grupos biológicos e seleciona a coluna de agrupamento. A placa sintética utiliza seis poços de veículo na coluna dois e seis poços de inibidor na coluna três, todos com células hospedeiras HeLa.",
+          "visual": "12_category_06_condition_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.56,
+          "speech_text": "Condição Metadados mapeia poços para grupos biológicos e seleciona a coluna de agrupamento. A placa sintética utiliza seis poços de veículo na coluna dois e seis poços de inibidor na coluna três, todos com células hospedeiras HeLa."
+        },
+        {
+          "narration": "Assay Output controla o mapa de cores, número de painéis de limiar-QC, semente de poço vazio e poupança. A semente preserva poços com células anfitriãs medidas, mas sem parasitas marcados, em vez de caí-los silenciosamente.",
+          "visual": "12_category_07_assay_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Assay Output controla o mapa de cores, número de painéis de limiar-QC, semente de poço vazio e poupança. A semente preserva poços com células anfitriãs medidas, mas sem parasitas marcados, em vez de caí-los silenciosamente."
+        },
+        {
+          "narration": "Controle de tempo de execução e fiabilidade detalhes de registro. Mantenha a saída verbal ativada ao estabelecer um ensaio para que a coluna de intensidade, os limiares, as fontes, o QC por campo e os poços marcados sejam visíveis no console.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Controle de tempo de execução e fiabilidade detalhes de registro. Mantenha a saída verbal ativada ao estabelecer um ensaio para que a coluna de intensidade, os limiares, as fontes, o QC por campo e os poços marcados sejam visíveis no console."
+        },
+        {
+          "narration": "Este detalhe do canal utiliza a intensidade externa média sem subtração de fundo, requer a intensidade total do canal de pelo menos cem, e mantém o canal um e zero em sua ordem biológica. Revisar estes valores em relação ao esquema de medição antes da execução.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.6,
+          "speech_text": "Este detalhe do canal utiliza a intensidade externa média sem subtração de fundo, requer a intensidade total do canal de pelo menos cem, e mantém o canal um e zero em sua ordem biológica. Revisar estes valores em relação ao esquema de medição antes da execução."
+        },
+        {
+          "narration": "Clique em Executa depois de verificar entradas, mapeamento de manchas, controles, limiares, filtros e metadados de condição. O backend exclui poços de controle, deriva limiares de controle por placa, classifica cada parasita, resume campos e poços e realiza estatísticas de nível bem.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.62,
+          "speech_text": "Clique em Executa depois de verificar entradas, mapeamento de manchas, controles, limiares, filtros e metadados de condição. O backend exclui poços de controle, deriva limiares de controle por placa, classifica cada parasita, resume campos e poços e realiza estatísticas de nível bem."
+        },
+        {
+          "narration": "Durante a execução, o console informa a fonte de limiar e o QC, em vez de mostrar apenas uma percentagem final. O interior é definido pela ausência de sinal externo, de modo que a falha de coloração só pode inflar a invasão; os limites de sensibilidade tornam visível essa direção de erro.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Durante a execução, o console informa a fonte de limiar e o QC, em vez de mostrar apenas uma percentagem final. O interior é definido pela ausência de sinal externo, de modo que a falha de coloração só pode inflar a invasão; os limites de sensibilidade tornam visível essa direção de erro."
+        },
+        {
+          "narration": "O verdadeiro backend usou 360 parasitas de controle para estabelecer um limiar de 22 pontos 8, depois marcou mil 400 40 parasitas experimentais em 12 poços e 24 campos. Os poços de veículos têm uma média de trinta e nove pontos sete por cento de invasão e os poços de inibidores sessenta e oito pontos nove por cento; todos os poços passam QC. O teste de MannWhitney usa seis poços por grupo e dá o p ajustado por Holm ponto zero zero zero quatro zero seis, enquanto o p-valor de parasita agrupado muito menor é mostrado apenas para expor a inflação de pseudo-replicação.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 1.0,
+          "speech_text": "O verdadeiro backend usou 360 parasitas de controle para estabelecer um limiar de 22 pontos 8, depois marcou mil 400 40 parasitas experimentais em 12 poços e 24 campos. Os poços de veículos têm uma média de trinta e nove pontos sete por cento de invasão e os poços de inibidores sessenta e oito pontos nove por cento; todos os poços passam QC. O teste de MannWhitney usa seis poços por grupo e dá o p ajustado por Holm ponto zero zero zero quatro zero seis, enquanto o p-valor de parasita agrupado muito menor é mostrado apenas para expor a inflação de pseudo-replicação."
         }
       ]
     },

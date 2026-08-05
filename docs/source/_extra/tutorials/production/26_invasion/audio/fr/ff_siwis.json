@@ -4,47 +4,237 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.45,
+  "total_duration": 382.185,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.975,
-      "scene_end": 10.424999999999999,
-      "duration": 10.424999999999999,
-      "text": "Ce tutoriel couvre l'analyse d'invasion. Utilisez une teinture à deux couleurs à l'extérieur contre l'intérieur pour distinguer les attachées des parasites envahis."
+      "speech_end": 16.45,
+      "scene_end": 17.05,
+      "duration": 17.05,
+      "text": "L'analyse d'invasion note chaque parasite comme attaché ou envahi à partir d'une tache à deux couleurs. La console enregistre les paramètres résolus, les seuils, le QC, les sorties, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée.",
+      "speech_text": "L'analyse d'invasion note chaque parasite comme attaché ou envahi à partir d'une tache à deux couleurs. La console enregistre les paramètres résolus, les seuils, le QC, les sorties, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée.",
+      "phonemes": "lanalˈiz dɛ̃vazjˈɔ̃ nˈɔt ʃak paʁazˈit kɔm ataʃˈe u ɑ̃vaˈi a paʁtˈiʁ dyn tˈaʃ a dˈø kulˈœʁ. la kɔ̃sˈɔl ɑ̃ʁʒˈistʁ le paʁamˈɛtʁ ʁezolˈy, le sˈœj, lə kˌysˈe, le sɔʁtˈi, lez avɛʁtismˈɑ̃z e lez ɛʁˈœʁ; la bwˈat də diskysjˈɔ̃ pˈø diskytˈe də sə kɔ̃tˈɛkst lˌɔʁskə ljˈa ɛt aktivˈe."
     },
     {
       "scene": 2,
-      "speech_start": 10.424999999999999,
-      "speech_end": 18.224999999999998,
-      "scene_end": 18.674999999999997,
-      "duration": 8.249999999999998,
-      "text": "Ouvrez Invasion assay dans la section Toxoplasma assays. Test d'invasion ouverte de la section des tests de toxoplasme."
+      "speech_start": 17.05,
+      "speech_end": 30.5,
+      "scene_end": 31.0,
+      "duration": 13.95,
+      "text": "Les routes de commutation de l'IA ne discutent que sur demande. Son menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; l'analyse d'invasion elle-même reste locale et ne nécessite pas d'IA.",
+      "speech_text": "Les routes de commutation de l'IA ne discutent que sur demande. Son menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; l'analyse d'invasion elle-même reste locale et ne nécessite pas d'IA.",
+      "phonemes": "le ʁˈut də kɔmytasjˈɔ̃ də ljˈa nə diskˈyt kə syʁ dəmˈɑ̃d. sɔ̃ mənˈy adʒasˈɑ̃ selɛksjˈɔn œ̃ fuʁnisˈœʁ kɔ̃fiɡyʁˈe e ˈuvʁ le paʁamˈɛtʁ dy fuʁnisˈœʁ; lanalˈiz dɛ̃vazjˈɔ̃ ɛlmˈɛm ʁˈɛst lokˈal e nə nesɛsˈit pa djˈa."
     },
     {
       "scene": 3,
-      "speech_start": 18.674999999999997,
-      "speech_end": 28.874999999999996,
-      "scene_end": 29.324999999999996,
-      "duration": 10.649999999999999,
-      "text": "Dans la zone de configuration principale, configurer des seuils d'intensité, des correspondances d'objets, une manipulation de l'ambiguïté et un regroupement de niveau de puits."
+      "speech_start": 31.0,
+      "speech_end": 47.675,
+      "scene_end": 48.175,
+      "duration": 17.174999999999997,
+      "text": "La configuration du fournisseur sépare les assistants locaux et les assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et vérifiez les informations sur la vie privée avant de partager le contexte de la console ou de l'analyse avec un fournisseur distant.",
+      "speech_text": "La configuration du fournisseur sépare les assistants locaux et les assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et vérifiez les informations sur la vie privée avant de partager le contexte de la console ou de l'analyse avec un fournisseur distant.",
+      "phonemes": "la kɔ̃fiɡyʁasjˈɔ̃ dy fuʁnisˈœʁ sepˈaʁ lez asistˈɑ̃ lokˈoz e lez asistˈɑ̃z ebɛʁʒˈe. kɔ̃fiɡyʁˈez ynikmˈɑ̃ le sɛʁvˈis kə vuz avˈe lɛ̃tɑ̃sjˈɔ̃ dytilizˈe e veʁifjˈe lez ɛ̃fɔʁmasjˈɔ̃ syʁ la vˈi pʁivˈe avˌɑ̃ də paʁtaʒˈe lə kɔ̃tˈɛkst də la kɔ̃sˈɔl u də lanalˈiz avˌɛk œ̃ fuʁnisˈœʁ distˈɑ̃."
     },
     {
       "scene": 4,
-      "speech_start": 29.324999999999996,
-      "speech_end": 37.025,
-      "scene_end": 37.475,
-      "duration": 8.150000000000006,
-      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+      "speech_start": 48.175,
+      "speech_end": 61.699999999999996,
+      "scene_end": 62.17999999999999,
+      "duration": 14.004999999999995,
+      "text": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas les canaux de taches, les seuils, la classification ou les statistiques.",
+      "speech_text": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas les canaux de taches, les seuils, la classification ou les statistiques.",
+      "phonemes": "le paʁamˈɛtʁ djˈa kɔ̃tʁˈoːl lə kɔ̃tˈɛkst də lasistˈɑ̃, lez ɛ̃fɔʁmasjˈɔ̃ didɑ̃tifikasjˈɔ̃ e lə sinjalmˈɑ̃ dɛʁˈœʁ ɔpsjɔnˈɛl. se pʁefeʁˈɑ̃s nə modifˈi pa le kanˈo də tˈaʃ, le sˈœj, la klasifikasjˈɔ̃ u le statistˈik."
     },
     {
       "scene": 5,
-      "speech_start": 37.475,
-      "speech_end": 47.8,
-      "scene_end": 48.449999999999996,
-      "duration": 10.974999999999994,
-      "text": "Lorsque le flux de travail est terminé, les rapports spaCR comptent et rapportent l'efficacité de l'invasion par puits et condition avec des images de contrôle de qualité."
+      "speech_start": 62.17999999999999,
+      "speech_end": 79.905,
+      "scene_end": 80.605,
+      "duration": 18.42500000000001,
+      "text": "Choisissez ou laissez tomber la racine de l'expérience contenant les mesures/mesures.db. L'expérience de microscopie transférée manque des taches d'invasion requises, donc ce tutoriel utilise clairement une base de données de mesure à deux couleurs synthétiques tout en exécutant le véritable backend d'essai spaCR.",
+      "speech_text": "Choisissez ou laissez tomber la racine de l'expérience contenant les mesures/mesures.db. L'expérience de microscopie transférée manque des taches d'invasion requises, donc ce tutoriel utilise clairement une base de données de mesure à deux couleurs synthétiques tout en exécutant le véritable backend d'essai spakeur.",
+      "phonemes": "ʃwazisˈe u lɛsˈe tɔ̃bˈe la ʁasˈin də lɛkspeʁjˈɑ̃s kɔ̃tnˈɑ̃ le məzˈyʁ məzˈyʁ.dˌebˈe. lɛkspeʁjˈɑ̃s də mikʁɔskopˈi tʁɑ̃sfeʁˈe mˈɑ̃k de tˈaʃ dɛ̃vazjˈɔ̃ ʁəkˈiz, dˈɔ̃k sə tytoʁjˈɛl ytilˈiz klɛʁmˈɑ̃ yn bˈaz də dɔnˈe də məzˈyʁ a dˈø kulˈœʁ sɛ̃tetˈik tut ɑ̃n ɛɡzekytˈɑ̃ lə veʁitˈabl bakˈɛnd desˈɛ spakˈœʁ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 80.605,
+      "speech_end": 92.555,
+      "scene_end": 93.09500000000001,
+      "duration": 12.490000000000009,
+      "text": "Essentials expose les entrées, canaux, seuils, contrôles, filtres, métadonnées de condition et sorties nécessaires à une première analyse. Vérifiez l'ordre des taches avant d'interpréter un résultat.",
+      "speech_text": "Essentials expose les entrées, canaux, seuils, contrôles, filtres, métadonnées de condition et sorties nécessaires à une première analyse. Vérifiez l'ordre des taches avant d'interpréter un résultat.",
+      "phonemes": "esɑ̃sjˈalz ɛkspˈɔz lez ɑ̃tʁˈe, kanˈo, sˈœj, kɔ̃tʁˈoːl, fˈiltʁ, metadɔnˈe də kɔ̃disjˈɔ̃ e sɔʁtˈi nesɛsˈɛʁz a yn pʁəmjˈɛʁ analˈiz. veʁifjˈe lˈɔʁdʁ de tˈaʃz avˌɑ̃ dɛ̃tɛʁpʁetˈe œ̃ ʁezyltˈa."
+    },
+    {
+      "scene": 7,
+      "speech_start": 93.09500000000001,
+      "speech_end": 107.62000000000002,
+      "scene_end": 108.16000000000003,
+      "duration": 15.065000000000012,
+      "text": "Filtre modifié le formulaire pour dévier délibérément des défauts. Utilisez-le pour vérifier la source, les canaux de taches, la porte d'intensité, les commandes, les limites de surface, la cartographie des plaques et la sortie verbale avant de courir.",
+      "speech_text": "Filtre modifié le formulaire pour dévier délibérément des défauts. Utilisez-le pour vérifier la source, les canaux de taches, la porte d'intensité, les commandes, les limites de surface, la cartographie des plaques et la sortie verbale avant de courir.",
+      "phonemes": "fˈiltʁ modifjˈe lə fɔʁmylˈɛʁ puʁ devjˈe delibeʁemˈɑ̃ de defˈo. ytilizˈelə puʁ veʁifjˈe la sˈuʁs, le kanˈo də tˈaʃ, la pˈɔʁt dɛ̃tɑ̃sitˈe, le kɔmˈɑ̃d, le limˈit də syʁfˈas, la kaʁtɔɡʁafˈi de plˈakz e la sɔʁtˈi vɛʁbˈal avˌɑ̃ də kuʁˈiʁ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 108.16000000000003,
+      "speech_end": 121.76000000000002,
+      "scene_end": 122.26000000000002,
+      "duration": 14.099999999999994,
+      "text": "Tous les paramètres révèlent tous les contrôles disponibles pour la reproduction et le dépannage. Retour aux éléments essentiels lorsque ces contrôles avancés ne sont pas nécessaires pour réduire les changements accidentels de paramètres.",
+      "speech_text": "Tous les paramètres révèlent tous les contrôles disponibles pour la reproduction et le dépannage. Retour aux éléments essentiels lorsque ces contrôles avancés ne sont pas nécessaires pour réduire les changements accidentels de paramètres.",
+      "phonemes": "tu le paʁamˈɛtʁ ʁevˈɛl tu le kɔ̃tʁˈoːl disponˈibl puʁ la ʁəpʁodyksjˈɔ̃ e lə depanˈaʒ. ʁətˈuʁ oz elemˈɑ̃z esɑ̃sjˈɛl lˌɔʁskə se kɔ̃tʁˈoːlz avɑ̃sˈe nə sɔ̃ pa nesɛsˈɛʁ puʁ ʁedyˈiʁ le ʃɑ̃ʒmˈɑ̃z aksidɑ̃tˈɛl də paʁamˈɛtʁ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 122.26000000000002,
+      "speech_end": 137.76000000000002,
+      "scene_end": 138.3,
+      "duration": 16.039999999999992,
+      "text": "Les recettes conservent une configuration d'essai validée pour la réutilisation ou le partage. Sauvegarder une seule seule fois que le cartographie des taches et le seuil dérivé du contrôle ont été vérifiés par rapport aux images et distributions représentatives.",
+      "speech_text": "Les recettes conservent une configuration d'essai validée pour la réutilisation ou le partage. Sauvegarder une seule seule fois que le cartographie des taches et le seuil dérivé du contrôle ont été vérifiés par rapport aux images et distributions représentatives.",
+      "phonemes": "le ʁəsˈɛt kɔ̃sˈɛʁvt yn kɔ̃fiɡyʁasjˈɔ̃ desˈɛ validˈe puʁ la ʁeytilizasjˈɔ̃ u lə paʁtˈaʒ. sovɡaʁdˈe yn sˈœl sˈœl fwˈa kə lə kaʁtɔɡʁafˈi de tˈaʃz e lə sˈœj deʁivˈe dy kɔ̃tʁˈoːl ˈɔ̃t etˈe veʁifjˈe paʁ ʁapˈɔʁ oz imˈaʒz e distʁibysjˈɔ̃ ʁəpʁezɑ̃tatˈiv."
+    },
+    {
+      "scene": 10,
+      "speech_start": 138.3,
+      "speech_end": 151.10000000000002,
+      "scene_end": 151.62000000000003,
+      "duration": 13.320000000000022,
+      "text": "Envoyer à distance passe les paramètres résolus aux emplois distribués. Confirmer que la base de données de mesure est accessible via la carte de parcours à distance avant de soumettre un petit travail de validation.",
+      "speech_text": "Envoyer à distance passe les paramètres résolus aux emplois distribués. Confirmer que la base de données de mesure est accessible via la carte de parcours à distance avant de soumettre un petit travail de validation.",
+      "phonemes": "ɑ̃vwajˈe a distˈɑ̃s pˈas le paʁamˈɛtʁ ʁezolˈy oz ɑ̃plwˈa distʁibyˈe. kɔ̃fiʁmˈe kə la bˈaz də dɔnˈe də məzˈyʁ ɛt aksɛsˈibl vjˈa la kˈaʁt də paʁkˈuʁz a distˈɑ̃s avˌɑ̃ də sumˈɛtʁ œ̃ pətˈi tʁavˈaj də validasjˈɔ̃."
+    },
+    {
+      "scene": 11,
+      "speech_start": 151.62000000000003,
+      "speech_end": 162.89500000000004,
+      "scene_end": 163.45500000000004,
+      "duration": 11.835000000000008,
+      "text": "L'écran à distance reçoit un projet d'emploi. Vérifiez la synchronisation, l'activation de l'environnement, les ressources et la commande générée, puis testez une plaque avant d'échelonner l'essai.",
+      "speech_text": "L'écran à distance reçoit un projet d'emploi. Vérifiez la synchronisation, l'activation de l'environnement, les ressources et la commande générée, puis testez une plaque avant d'échelonner l'essai.",
+      "phonemes": "lekʁˈɑ̃ a distˈɑ̃s ʁəswˈa œ̃ pʁoʒˈɛ dɑ̃plwˈa. veʁifjˈe la sɛ̃kʁonizasjˈɔ̃, laktivasjˈɔ̃ də lɑ̃viʁɔnmˈɑ̃, le ʁəsˈuʁsz e la kɔmˈɑ̃d ʒeneʁˈe, pyˈi tɛstˈez yn plˈak avˌɑ̃ deʃlɔnˈe lesˈɛ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 163.45500000000004,
+      "speech_end": 176.00500000000005,
+      "scene_end": 176.50500000000005,
+      "duration": 13.050000000000011,
+      "text": "Assay Inputs identifie la racine de l'expérience, la table d'une rangée par parasite et le préfixe du compartiment. L'invasion note les mesures des agents pathogènes existants; elle ne segmente plus les images.",
+      "speech_text": "Assay Inputs identifie la racine de l'expérience, la table d'une rangée par parasite et le préfixe du compartiment. L'invasion note les mesures des agents pathogènes existants; elle ne segmente plus les images.",
+      "phonemes": "asˈɛ ˈɪnpʊts idɑ̃tifˈi la ʁasˈin də lɛkspeʁjˈɑ̃s, la tˈabl dyn ʁɑ̃ʒˈe paʁ paʁazˈit e lə pʁefˈiks dy kɔ̃paʁtimˈɑ̃. lɛ̃vazjˈɔ̃ nˈɔt le məzˈyʁ dez aʒˈɑ̃ patoʒˈɛnz ɛɡzistˈɑ̃; ɛl nə sɛɡmˈɑ̃t ply lez imˈaʒ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 176.50500000000005,
+      "speech_end": 196.03000000000006,
+      "scene_end": 196.75000000000006,
+      "duration": 20.245000000000005,
+      "text": "Les canaux et les cartes d'intensité conduisent le canal 1 à la pré-perméabilisation à l'extérieur de la tache et le canal zéro à la tache totale post-perméabilisation. Les parasites attachés conservent le signal extérieur; les parasites envahis en manquent. L'échange de ces canaux inverse l'interprétation biologique sans causer une erreur logicielle.",
+      "speech_text": "Les canaux et les cartes d'intensité conduisent le canal 1 à la pré-perméabilisation à l'extérieur de la tache et le canal zéro à la tache totale post-perméabilisation. Les parasites attachés conservent le signal extérieur; les parasites envahis en manquent. L'échange de ces canaux inverse l'interprétation biologique sans causer une erreur logicielle.",
+      "phonemes": "le kanˈoz e le kˈaʁt dɛ̃tɑ̃sitˈe kɔ̃dyˈiz lə kanˈal ˈœ̃ a la pʁˈepɛʁmeabilizasjˈɔ̃ a lɛksteʁjˈœʁ də la tˈaʃ e lə kanˈal zeʁˈo a la tˈaʃ totˈal pˈɔstpɛʁmeabilizasjˈɔ̃. le paʁazˈitz ataʃˈe kɔ̃sˈɛʁv lə sinjˈal ɛksteʁjˈœʁ; le paʁazˈitz ɑ̃vaˈi ɑ̃ mˈɑ̃k. leʃˈɑ̃ʒ də se kanˈoz ɛ̃vˈɛʁs lɛ̃tɛʁpʁetasjˈɔ̃ bjoloʒˈik sɑ̃ kozˈe yn ɛʁˈœʁ loʒisjˈɛl."
+    },
+    {
+      "scene": 14,
+      "speech_start": 196.75000000000006,
+      "speech_end": 209.65000000000006,
+      "scene_end": 210.21000000000006,
+      "duration": 13.460000000000008,
+      "text": "Le seuil choisit le retrait automatique, la coupe fixe optionnelle, la QC bimodalité, la tolérance à l'accord et la durée de sensibilité. Un seuil fixe ne doit être utilisé qu'après calibration indépendante.",
+      "speech_text": "Le seuil choisit le retrait automatique, la coupe fixe optionnelle, la QC bimodalité, la tolérance à l'accord et la durée de sensibilité. Un seuil fixe ne doit être utilisé qu'après calibration indépendante.",
+      "phonemes": "lə sˈœj ʃwazˈi lə ʁətʁˈɛt otomatˈik, la kˈup fˈiks ɔpsjɔnˈɛl, la kˌysˈe bimodalitˈe, la toleʁˈɑ̃s a lakˈɔʁ e la dyʁˈe də sɑ̃sibilitˈe. œ̃ sˈœj fˈiks nə dwˈa ˈɛtʁ ytilizˈe kapʁˌɛ kalibʁasjˈɔ̃ ɛ̃depɑ̃dˈɑ̃t."
+    },
+    {
+      "scene": 15,
+      "speech_start": 210.21000000000006,
+      "speech_end": 229.16000000000005,
+      "scene_end": 229.84000000000006,
+      "duration": 19.629999999999995,
+      "text": "Les contrôles et les comptes minimaux nomment les contrôles de coloration et définissent le quantile, les objets minimaux de contrôle, les dénominateurs minimaux de champ et de puits et l'avertissement sur le seuil d'inflation. Ici, la première colonne fournit la répartition honnête de la tache négative extérieure et est exclue des conditions d'analyse.",
+      "speech_text": "Les contrôles et les comptes minimaux nomment les contrôles de coloration et définissent le quantile, les objets minimaux de contrôle, les dénominateurs minimaux de champ et de puits et l'avertissement sur le seuil d'inflation. Ici, la première colonne fournit la répartition honnête de la tache négative extérieure et est exclue des conditions d'analyse.",
+      "phonemes": "le kɔ̃tʁˈoːlz e le kˈɔ̃t minimˈo nɔmˈɑ̃ le kɔ̃tʁˈoːl də koloʁasjˈɔ̃ e definˈis lə kɑ̃tˈil, lez ɔbʒˈɛ minimˈo də kɔ̃tʁˈoːl, le denominatˈœʁ minimˈo də ʃˈɑ̃ e də pyˈiz e lavɛʁtismˈɑ̃ syʁ lə sˈœj dɛ̃flasjˈɔ̃. isˈi, la pʁəmjˈɛʁ kolˈɔn fuʁnˈi la ʁepaʁtisjˈɔ̃ ɔnˈɛt də la tˈaʃ neɡatˈiv ɛksteʁjˈœʁ e ɛt ɛksklˈy de kɔ̃disjˈɔ̃ danalˈiz."
+    },
+    {
+      "scene": 16,
+      "speech_start": 229.84000000000006,
+      "speech_end": 244.99000000000007,
+      "scene_end": 245.53000000000006,
+      "duration": 15.689999999999998,
+      "text": "Le filtrage d'objets élimine les mesures de parasites en dehors de la plage de surface acceptable. Le minimum de taches totales exclut également les objets qui peuvent ne pas être des parasites avant le début de la classification des taches extérieures.",
+      "speech_text": "Le filtrage d'objets élimine les mesures de parasites en dehors de la plage de surface acceptable. Le minimum de taches totales exclut également les objets qui peuvent ne pas être des parasites avant le début de la classification des taches extérieures.",
+      "phonemes": "lə filtʁˈaʒ dɔbʒˈɛz elimˈin le məzˈyʁ də paʁazˈitz ɑ̃ dəˈɔʁ də la plˈaʒ də syʁfˈas aksɛptˈabl. lə minimˈɔm də tˈaʃ totˈalz ɛksklˈy eɡalmˈɑ̃ lez ɔbʒˈɛ ki pˈøv nə paz ˈɛtʁ de paʁazˈitz avˌɑ̃ lə debˈy də la klasifikasjˈɔ̃ de tˈaʃz ɛksteʁjˈœʁ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 245.53000000000006,
+      "speech_end": 260.20500000000004,
+      "scene_end": 260.76500000000004,
+      "duration": 15.234999999999985,
+      "text": "Condition Les métadonnées cartographient les puits en groupes biologiques et sélectionnent la colonne de regroupement. La plaque synthétique utilise six puits de véhicule dans la colonne deux et six puits d'inhibiteur dans la colonne trois, tous avec des cellules hôtes HeLa.",
+      "speech_text": "Condition Les métadonnées cartographient les puits en groupes biologiques et sélectionnent la colonne de regroupement. La plaque synthétique utilise six puits de véhicule dans la colonne deux et six puits d'inhibiteur dans la colonne trois, tous avec des cellules hôtes HeLa.",
+      "phonemes": "kɔ̃disjˈɔ̃ le metadɔnˈe kaʁtɔɡʁafˈi le pyˈiz ɑ̃ ɡʁˈup bjoloʒˈikz e selɛksjˈɔn la kolˈɔn də ʁəɡʁupmˈɑ̃. la plˈak sɛ̃tetˈik ytilˈiz sˈi pyˈi də veikˈyl dɑ̃ la kolˈɔn dˈøz e sˈi pyˈi dinibitˈœʁ dɑ̃ la kolˈɔn tʁwˈa, tus avˌɛk de sɛlˈylz ˈoːt hiː lˈa."
+    },
+    {
+      "scene": 18,
+      "speech_start": 260.76500000000004,
+      "speech_end": 274.61500000000007,
+      "scene_end": 275.19500000000005,
+      "duration": 14.430000000000007,
+      "text": "Assay Output contrôle la carte des couleurs, le nombre de panneaux de QC, la semission des puits vides et l'épargne. La semission préserve les puits avec des cellules hôtes mesurées mais aucun parasite noté au lieu de les laisser tomber silencieusement.",
+      "speech_text": "Assay Output contrôle la carte des couleurs, le nombre de panneaux de QC, la semission des puits vides et l'épargne. La semission préserve les puits avec des cellules hôtes mesurées mais aucun parasite noté au lieu de les laisser tomber silencieusement.",
+      "phonemes": "asˈɛ ˈWtpʊt kɔ̃tʁˈoːl la kˈaʁt de kulˈœʁ, lə nˈɔ̃bʁ də panˈo də kˌysˈe, la səmisjˈɔ̃ de pyˈi vˈidz e lepˈaʁɲ. la səmisjˈɔ̃ pʁezˈɛʁv le pyˈi avˌɛk de sɛlˈylz ˈoːt məzyʁˈe mɛz okˈœ̃ paʁazˈit notˈe o ljˈø də le lɛsˈe tɔ̃bˈe silɑ̃sjøzmˈɑ̃."
+    },
+    {
+      "scene": 19,
+      "speech_start": 275.19500000000005,
+      "speech_end": 290.52000000000004,
+      "scene_end": 291.07000000000005,
+      "duration": 15.875,
+      "text": "Le temps d'exécution et la fiabilité contrôlent les détails d'enregistrement. Gardez la sortie verbale activée pendant l'établissement d'un test afin que la colonne d'intensité, les seuils, les sources, le QC par champ et les puits signalés soient visibles dans la console.",
+      "speech_text": "Le temps d'exécution et la fiabilité contrôlent les détails d'enregistrement. Gardez la sortie verbale activée pendant l'établissement d'un test afin que la colonne d'intensité, les seuils, les sources, le QC par champ et les puits signalés soient visibles dans la console.",
+      "phonemes": "lə tˈɑ̃ dɛɡzekysjˈɔ̃ e la fjabilitˈe kɔ̃tʁˈoːl le detˈaj dɑ̃ʁʒistʁəmˈɑ̃. ɡaʁdˈe la sɔʁtˈi vɛʁbˈal aktivˈe pɑ̃dˈɑ̃ letablismˈɑ̃ dœ̃ tˈɛst afˌɛ̃ kə la kolˈɔn dɛ̃tɑ̃sitˈe, le sˈœj, le sˈuʁs, lə kˌysˈe paʁ ʃˈɑ̃ e le pyˈi sinjalˈe swˈa vizˈibl dɑ̃ la kɔ̃sˈɔl."
+    },
+    {
+      "scene": 20,
+      "speech_start": 291.07000000000005,
+      "speech_end": 307.27000000000004,
+      "scene_end": 307.87000000000006,
+      "duration": 16.80000000000001,
+      "text": "Ce détail du canal utilise une intensité extérieure moyenne sans soustraction de fond, nécessite une intensité totale du canal d'au moins cent, et maintient le canal un et zéro dans leur ordre biologique. Examinez ces valeurs par rapport au schéma de mesure avant l'exécution.",
+      "speech_text": "Ce détail du canal utilise une intensité extérieure moyenne sans soustraction de fond, nécessite une intensité totale du canal d'au moins cent, et maintient le canal un et zéro dans leur ordre biologique. Examinez ces valeurs par rapport au schéma de mesure avant l'exécution.",
+      "phonemes": "sə detˈaj dy kanˈal ytilˈiz yn ɛ̃tɑ̃sitˈe ɛksteʁjˈœʁ mwajˈɛn sɑ̃ sustʁaksjˈɔ̃ də fˈɔ̃, nesɛsˈit yn ɛ̃tɑ̃sitˈe totˈal dy kanˈal do mwˈɛ̃ sˈɑ̃, e mɛ̃tjˈɛ̃ lə kanˈal œ̃n e zeʁˈo dɑ̃ lœʁ ˈɔʁdʁ bjoloʒˈik. ɛɡzaminˈe se valˈœʁ paʁ ʁapˈɔʁ o ʃemˈa də məzˈyʁ avˌɑ̃ lɛɡzekysjˈɔ̃."
+    },
+    {
+      "scene": 21,
+      "speech_start": 307.87000000000006,
+      "speech_end": 325.2200000000001,
+      "scene_end": 325.8400000000001,
+      "duration": 17.970000000000027,
+      "text": "Cliquez sur Exécuter après avoir vérifié les entrées, la cartographie des taches, les commandes, les seuils, les filtres et les métadonnées d'état. L'arrière-plan exclut les puits de contrôle, dérive les seuils de contrôle par plaque, classifie chaque parasite, résume les champs et les puits et effectue des statistiques de bon niveau.",
+      "speech_text": "Cliquez sur Exécuter après avoir vérifié les entrées, la cartographie des taches, les commandes, les seuils, les filtres et les métadonnées d'état. L'arrière-plan exclut les puits de contrôle, dérive les seuils de contrôle par plaque, classifie chaque parasite, résume les champs et les puits et effectue des statistiques de bon niveau.",
+      "phonemes": "klikˈe syʁ ɛɡzekytˈe apʁˌɛz avwˈaʁ veʁifjˈe lez ɑ̃tʁˈe, la kaʁtɔɡʁafˈi de tˈaʃ, le kɔmˈɑ̃d, le sˈœj, le fˈiltʁz e le metadɔnˈe detˈa. laʁjˈɛʁplˈɑ̃ ɛksklˈy le pyˈi də kɔ̃tʁˈoːl, deʁˈiv le sˈœj də kɔ̃tʁˈoːl paʁ plˈak, klasifˈi ʃak paʁazˈit, ʁezˈym le ʃˈɑ̃ e le pyˈiz e efɛktˈy de statistˈik də bˈɔ̃ nivˈo."
+    },
+    {
+      "scene": 22,
+      "speech_start": 325.8400000000001,
+      "speech_end": 343.3900000000001,
+      "scene_end": 344.0100000000001,
+      "duration": 18.170000000000016,
+      "text": "Au cours de l'exécution, la console rapporte le seuil source et QC plutôt que d'afficher seulement un pourcentage final. L'intérieur est défini par l'absence de signal extérieur, de sorte que l'échec de la teinture ne peut que gonfler l'invasion; les limites de sensibilité rendent visible cette direction d'erreur.",
+      "speech_text": "Au cours de l'exécution, la console rapporte le seuil source et QC plutôt que d'afficher seulement un pourcentage final. L'intérieur est défini par l'absence de signal extérieur, de sorte que l'échec de la teinture ne peut que gonfler l'invasion; les limites de sensibilité rendent visible cette direction d'erreur.",
+      "phonemes": "o kˈuʁ də lɛɡzekysjˈɔ̃, la kɔ̃sˈɔl ʁapˈɔʁt lə sˈœj sˈuʁs e kˌysˈe plytˈoː kə dafiʃˈe sølmˈɑ̃ œ̃ puʁsɑ̃tˈaʒ finˈal. lɛ̃teʁjˈœʁ ɛ definˈi paʁ labsˈɑ̃s də sinjˈal ɛksteʁjˈœʁ, də sˈɔʁt kə leʃˈɛk də la tɛ̃tˈyʁ nə pˈø kə ɡɔ̃flˈe lɛ̃vazjˈɔ̃; le limˈit də sɑ̃sibilitˈe ʁˈɑ̃d vizˈibl sɛt diʁɛksjˈɔ̃ dɛʁˈœʁ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 344.0100000000001,
+      "speech_end": 381.1850000000001,
+      "scene_end": 382.1850000000001,
+      "duration": 38.17500000000001,
+      "text": "Le véritable backend a utilisé trois cent soixante parasites de contrôle pour fixer un seuil de vingt-deux points huit, puis a marqué mille quatre cent quarante parasites expérimentaux sur douze puits et vingt-quatre champs. Les puits de véhicules ont une moyenne de trente-neuf points sept pour cent d'invasion et les puits d'inhibiteurs soixante-huit points neuf pour cent; tous les puits passent la QC. Le test MannWhitney utilise six puits par groupe et donne le point de p zéro zéro zéro zéro quatre zéro six ajusté par Holm, tandis que la valeur p-parasite pooled beaucoup plus petite n'est montrée que pour exposer l'inflation de pseudo-réplique.",
+      "speech_text": "Le véritable backend a utilisé trois cent soixante parasites de contrôle pour fixer un seuil de vingt-deux points huit, puis a marqué mille quatre cent quarante parasites expérimentaux sur douze puits et vingt-quatre champs. Les puits de véhicules ont une moyenne de trente-neuf points sept pour cent d'invasion et les puits d'inhibiteurs soixante-huit points neuf pour cent; tous les puits passent la QC. Le test MannWhitney utilise six puits par groupe et donne le point de p zéro zéro zéro zéro quatre zéro six ajusté par Holm, tandis que la valeur p-parasite pooled beaucoup plus petite n'est montrée que pour exposer l'inflation de pseudo-réplique.",
+      "phonemes": "lə veʁitˈabl bakˈɛnd a ytilizˈe tʁwˈa sˈɑ̃ swasˈɑ̃t paʁazˈit də kɔ̃tʁˈoːl puʁ fiksˈe œ̃ sˈœj də vˈɛ̃tdˈø pwˌɛ̃ yˈit, pyˈiz a maʁkˈe mˈil kˈatʁ sˈɑ̃ kaʁˈɑ̃t paʁazˈitz ɛkspeʁimɑ̃tˈo syʁ dˈuz pyˈiz e vˈɛ̃tkˈatʁ ʃˈɑ̃. le pyˈi də veikˈylz ˈɔ̃t yn mwajˈɛn də tʁˈɑ̃tnˈœf pwˌɛ̃ sˈɛt puʁ sˈɑ̃ dɛ̃vazjˈɔ̃ e le pyˈi dinibitˈœʁ swasˈɑ̃tyˈi pwˌɛ̃ nˈœf puʁ sˈɑ̃; tu le pyˈi pˈas la kˌysˈe. lə tˈɛst mˈan wˈɪtni ytilˈiz sˈi pyˈi paʁ ɡʁˈup e dˈɔn lə pwˈɛ̃ də pˈe zeʁˈo zeʁˈo zeʁˈo zeʁˈo kˈatʁ zeʁˈo sˈiz aʒystˈe paʁ ˈɔlm, tɑ̃dˌi kə la valˈœʁ pˈepaʁazˈit pˈuːld bokˌu ply pətˈit nɛ mɔ̃tʁˈe kə puʁ ɛkspozˈe lɛ̃flasjˈɔ̃ də psødˈoʁeplˈik."
     }
   ]
 }
