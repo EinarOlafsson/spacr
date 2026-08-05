@@ -4,47 +4,97 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 62.775,
+  "total_duration": 156.575,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.35,
-      "scene_end": 10.799999999999999,
-      "duration": 10.799999999999999,
-      "text": "Questo tutorial copre il modello di confronto. eseguire due modelli Cellpose sui medesimi campi e confrontare maschere, conteggi e metriche di accordo."
+      "speech_end": 18.125,
+      "scene_end": 18.625,
+      "duration": 18.625,
+      "text": "Model Compare esegue due configurazioni Cellpose sullo stesso piccolo set di campi. Riporta ciò che è cambiato senza trattare nessuno dei modelli come verità di fondo, combinando i numeri degli oggetti, l'accordo di primo piano, l'incontro, la frammentazione e le sovrapposizioni visive.",
+      "speech_text": "Model Compare esegue due configurazioni Cellpose sullo stesso piccolo set di campi. Riporta ciò che è cambiato senza trattare nessuno dei modelli come verità di fondo, combinando i numeri degli oggetti, l'accordo di primo piano, l'incontro, la frammentazione e le sovrapposizioni visive.",
+      "phonemes": "mˈodel kompˈare ezˈeɡwe dˈue konfiɡʊraʦiˈonɪ ʧelpˈoze sˌʊllo stˈeSo pˈikːolo sˈɛt dɪ kˈampɪ. ripˈɔrta ʧˈɔ ke e kambjˈato sˌɛnʦa tratːˈare neSˌʊno dˌA modˈɛllɪ kˌome veritˈa dɪ fˈondo, kombinˈando i nˈumerɪ dˌeʎɪ oʤːˈɛtːɪ, lakːˈɔrdo dɪ prˈimo pjˈano, linkˈontro, la frammentaʦiˈone e le sovrapːoziʦiˈonɪ vizˈive."
     },
     {
       "scene": 2,
-      "speech_start": 10.799999999999999,
-      "speech_end": 24.25,
-      "scene_end": 24.7,
-      "duration": 13.9,
-      "text": "Apri Model Compare dalla sezione Segmentation models. Apri modello Confronta dalla sezione Modelli di segmentazione. Scegli due modelli candidati e un insieme rappresentativo di campi di microscopia."
+      "speech_start": 18.625,
+      "speech_end": 33.2,
+      "scene_end": 33.7,
+      "duration": 15.075000000000003,
+      "text": "Scarica una cartella di campi TIFF, PNG, NPY o NPZ, o scegliela con i controlli sorgente. Il valore Fields limita un confronto interattivo; questo tutorial carica tre vere colture di cellule di canale ER.",
+      "speech_text": "Scarica una cartella di campi TIFF, PNG, NPY o NPZ, o scegliela con i controlli sorgente. Il valore Fields limita un confronto interattivo; questo tutorial carica tre vere colture di cellule di canale ER.",
+      "phonemes": "skˈarika ˌʊna kartˈɛlla dɪ kˈampɪ tˈiff, pˌiˌɛnneʤˈi, npˈi o ˌɛnnepˌiʣˈɛta, o ʃeʎˈɛla kon i kontrˈɔllɪ sorʤˈɛnte. il valˈore fjˈɛlds lˈimita ʊn konfrˈonto interatːˈivo; kwˌesto tʊtˈɔrial kˈarika trˈe vˈere koltˈure dɪ ʧˈɛllʊle dɪ kanˈale ˌeːˈɛrɾe."
     },
     {
       "scene": 3,
-      "speech_start": 24.7,
-      "speech_end": 35.125,
-      "scene_end": 35.575,
-      "duration": 10.875000000000004,
-      "text": "Nella zona di configurazione principale, corrispondere i canali e la pre-elaborazione, quindi configurare le soglie e i criteri di corrispondenza degli oggetti."
+      "speech_start": 33.7,
+      "speech_end": 52.975,
+      "scene_end": 53.525,
+      "duration": 19.824999999999996,
+      "text": "Il modello A utilizza il CPSAM di stoccaggio. Il modello B utilizza il checkpoint di calibrazione personalizzato di Train Cellpose. Entrambe mantengono diametro trenta, soglia di flusso zero punto quattro, probabilità zero, dimensione minima quindici, normalizzazione e dinamica a piena risoluzione.",
+      "speech_text": "Il modello A utilizza il CPSAM di stoccaggio. Il modello B utilizza il checkpoint di calibrazione personalizzato di Train Cellpose. Entrambe mantengono diametro trenta, soglia di flusso zero punto quattro, probabilità zero, dimensione minima quindici, normalizzazione e dinamica a piena risoluzione.",
+      "phonemes": "il modˈɛllo a ʊtilˈiʣːa il kpsˈam dɪ stokːˈaʤːo. il modˈɛllo bˈi ʊtilˈiʣːa il kekːpˈɔint dɪ kalibraʦiˈone personaliʣːˈato dɪ trˈIn ʧelpˈoze. entrˈambe mantˈeŋɡono djˈametro trˈenta, sˈɔʎa dɪ flˈuSo ʣˈɛro pˈunto kwˈatːro, probabilitˈa ʣˈɛro, dimensjˈone mˈinima kwˈindiʧɪ, normaliʣːaʦiˈone e dinˈamika a pjˈɛna rizolʊʦiˈone."
     },
     {
       "scene": 4,
-      "speech_start": 35.575,
-      "speech_end": 53.075,
-      "scene_end": 53.525000000000006,
-      "duration": 17.950000000000003,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. controllare le sovrapposizioni fianco a fianco insieme al numero di oggetti, sovrapposizioni e differenze di Rand-index regolate."
+      "speech_start": 53.525,
+      "speech_end": 70.425,
+      "scene_end": 70.925,
+      "duration": 17.4,
+      "text": "Confronta i segmenti di ogni campo caricato con entrambe le configurazioni. La linea aggiuntiva accetta argomenti avanzati di valore chiave, e il rapporto segna i parametri che Cellpose 4 ignora piuttosto che implicare silenziosamente che hanno cambiato il modello.",
+      "speech_text": "Confronta i segmenti di ogni campo caricato con entrambe le configurazioni. La linea aggiuntiva accetta argomenti avanzati di valore chiave, e il rapporto segna i parametri che Cellpose 4 ignora piuttosto che implicare silenziosamente che hanno cambiato il modello.",
+      "phonemes": "konfrˈonta i seɡmˈentɪ dɪ ˌoɲɲɪ kˈampo karikˈato kon entrˈambe le konfiɡʊraʦiˈonɪ. la lˈinea aʤːʊntˈiva aʧːˈetːa arɡomˈentɪ avanʦˈatɪ dɪ valˈore kjˈave, e il rapːˈɔrto sˈeɲɲa i paɾˈametrɪ ke ʧelpˈoze kwˈatːro iɲˈɔra pjʊtːˈɔsto ke implikˈare silenʦjozamˈente ke ˌanno kambjˈato il modˈɛllo."
     },
     {
       "scene": 5,
-      "speech_start": 53.525000000000006,
-      "speech_end": 62.12500000000001,
-      "scene_end": 62.775000000000006,
-      "duration": 9.25,
-      "text": "Quando il flusso di lavoro è finito, il rapporto di confronto identifica dove ogni modello guadagna, perde, divide o fonde oggetti."
+      "speech_start": 70.925,
+      "speech_end": 85.27499999999999,
+      "scene_end": 85.725,
+      "duration": 14.799999999999997,
+      "text": "Durante l'elaborazione, lo stato in linea identifica sia i candidati che il numero di campi. Modello Compare rimane concentrato su un campione interattivo limitato piuttosto che eseguire un piatto completo due volte.",
+      "speech_text": "Durante l'elaborazione, lo stato in linea identifica sia i candidati che il numero di campi. Modello Compare rimane concentrato su un campione interattivo limitato piuttosto che eseguire un piatto completo due volte.",
+      "phonemes": "dʊrˈante lelaboraʦiˈone, lo stˈato in lˈinea identˈifika sˌia i kandidˈatɪ ke il nˈumero dɪ kˈampɪ. modˈɛllo kompˈare rimˈane konʧentrˈato sʊ ʊn kampjˈone interatːˈivo limitˈato pjʊtːˈɔsto ke ezeɡwˈire ʊn pjˈatːo komplˈɛto dˈue vˈɔlte."
+    },
+    {
+      "scene": 6,
+      "speech_start": 85.725,
+      "speech_end": 100.225,
+      "scene_end": 100.725,
+      "duration": 15.0,
+      "text": "I parametri che hanno raggiunto ogni modello separano i valori onorati dagli argomenti obsoleti o ignorati. Ciò impedisce i confronti che sembrano diversi nella forma ma si risolvono allo stesso comportamento di Cellpose.",
+      "speech_text": "I parametri che hanno raggiunto ogni modello separano i valori onorati dagli argomenti obsoleti o ignorati. Ciò impedisce i confronti che sembrano diversi nella forma ma si risolvono allo stesso comportamento di Cellpose.",
+      "phonemes": "i paɾˈametrɪ ke ˌanno raʤːˈunto ˌoɲɲɪ modˈɛllo sepˈaɾano i valˈorɪ onorˈatɪ dˌaʎɪ arɡomˈentɪ obsolˈɛtɪ o iɲorˈatɪ. ʧˈɔ impedˈiʃe i konfrˈontɪ ke sˈembrano divˈɛrsɪ nˈella fˈorma ma sɪ rizˈolvono ˌallo stˈeSo komportamˈento dɪ ʧelpˈoze."
+    },
+    {
+      "scene": 7,
+      "speech_start": 100.725,
+      "speech_end": 119.19999999999999,
+      "scene_end": 119.74999999999999,
+      "duration": 19.02499999999999,
+      "text": "La tabella per campo riporta il conteggio degli oggetti, il delta direzionale, l'indice Rand regolato escluso dallo sfondo, la frazione corrispondente, l'intersezione media sull'unione, le divisioni, le fusioni, gli oggetti non corrispondenti e i controlli indipendenti della qualità della maschera.",
+      "speech_text": "La tabella per campo riporta il conteggio degli oggetti, il delta direzionale, l'indice Rand regolato escluso dallo sfondo, la frazione corrispondente, l'intersezione media sull'unione, le divisioni, le fusioni, gli oggetti non corrispondenti e i controlli indipendenti della qualità della maschera.",
+      "phonemes": "la tabˈɛlla per kˈampo ripˈɔrta il kontˈeʤːo dˌeʎɪ oʤːˈɛtːɪ, il dˈɛlta direʦionˈale, lˈindiʧe rˈand reɡolˈato esklˈuzo dˌallo sfˈondo, la fraʦiˈone korɾispondˈɛnte, linterseʦiˈone mˈɛdia sʊllʊnjˈone, le diviziˈonɪ, le fʊziˈonɪ, ʎɪ oʤːˈɛtːɪ non korɾispondˈɛntɪ e i kontrˈɔllɪ indipendˈɛntɪ dˌella kwalitˈa dˌella mˈaːskˌɛra."
+    },
+    {
+      "scene": 8,
+      "speech_start": 119.74999999999999,
+      "speech_end": 135.725,
+      "scene_end": 136.275,
+      "duration": 16.52500000000002,
+      "text": "Selezionare una riga aggiorna entrambe le anteprese. Gli oggetti abbinati vengono mostrati in modo coerente, mentre le regioni non abbinate espongono nuove rilevazioni, perdite, divisioni o fusioni che un singolo punteggio aggregato può nascondere.",
+      "speech_text": "Selezionare una riga aggiorna entrambe le anteprese. Gli oggetti abbinati vengono mostrati in modo coerente, mentre le regioni non abbinate espongono nuove rilevazioni, perdite, divisioni o fusioni che un singolo punteggio aggregato può nascondere.",
+      "phonemes": "seleʦjonˈare ˌʊna rˈiɡa aʤːˈɔrna entrˈambe le anteprˈeze. ʎɪ oʤːˈɛtːɪ abːinˈatɪ vˈeŋɡono mostrˈatɪ in mˈɔdo koerˈɛnte, mˌentre le reʤˈonɪ non abːinˈate espˈoŋɡono nʊˈɔve rilevaʦiˈonɪ, pˈɛrdite, diviziˈonɪ o fʊziˈonɪ ke ʊn sˈiŋɡolo pʊntˈeʤːo aɡːreɡˈato pʊˈɔ naskˈondere."
+    },
+    {
+      "scene": 9,
+      "speech_start": 136.275,
+      "speech_end": 155.875,
+      "scene_end": 156.575,
+      "duration": 20.299999999999983,
+      "text": "In questi tre campi, entrambi i candidati hanno prodotto centocinquanta e uno oggetti, ARI di primo piano uno, e un corrispondimento del cento per cento. Ciò significa che il checkpoint di calibrazione di un'epoca si comporta come il suo modello di partenza qui; è un risultato valido, non una prova di miglioramento.",
+      "speech_text": "In questi tre campi, entrambi i candidati hanno prodotto centocinquanta e uno oggetti, ARI di primo piano uno, e un corrispondimento del cento per cento. Ciò significa che il checkpoint di calibrazione di un'epoca si comporta come il suo modello di partenza qui; è un risultato valido, non una prova di miglioramento.",
+      "phonemes": "in kwˌestɪ trˈe kˈampɪ, entrˈambɪ i kandidˈatɪ ˌanno prodˈotːo ʧentoʧinkwˈanta e ˈuno oʤːˈɛtːɪ, ˌaːˌɛrɾeˈiː dɪ prˈimo pjˈano ˈuno, e ʊn korɾispondimˈento del ʧˈɛnto per ʧˈɛnto. ʧˈɔ siɲˈifika ke il kekːpˈɔint dɪ kalibraʦiˈone dɪ ʊnˈɛpoka sɪ kompˈɔrta kˌome il sˌʊo modˈɛllo dɪ partˈɛnʦa kwˈi; e ʊn rizʊltˈato vˈalido, non ˌʊna prˈɔva dɪ miʎoramˈento."
     }
   ]
 }
