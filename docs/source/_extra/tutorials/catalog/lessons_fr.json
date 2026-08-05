@@ -1614,47 +1614,192 @@
       "id": "13_regression",
       "number": 13,
       "slug": "regression",
-      "title": "Regression",
+      "title": "Régression",
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Évaluer les effets de perturbation et identifier les caractéristiques associées aux phénotypes de niveau guide ou conditionnel.",
+      "description": "Regressez les phénotypes synthétiques d'écran commun contre l'abondance des guides et des gènes, avec des contrôles explicites et des chiffres de résultats réels.",
       "objectives": [
-        "Comprenez quand utiliser la régression.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Connectez les données de scores par objet avec les données de calcul de guide par puits.",
+        "Révision des contrôles, des corrections, des modèles, des estimateurs, des appels à l'emploi, des plans et des catégories de fiabilité.",
+        "Exécuter un modèle OLS et localiser ses résultats de diagnostic et de coefficient."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Préparez et comptez les fichiers CSV avec des valeurs correspondantes plateID, rowID et columnID, et identifiez les contrôles positifs, négatifs et neutres biologiques.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre la régression. Évaluer les effets de perturbation et identifier les caractéristiques associées aux phénotypes de niveau guide ou condition.",
-          "visual": "overview",
+          "narration": "La régression relie les phénotypes par objet à l'abondance des guides à écran regroupé. La console rapporte l'alignement des tables, le filtrage, le diagnostic des modèles, l'ajustement des coefficients, les pistes de résultats, les graphiques et les enregistrements de reproductibilité.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre la régression. Évaluer les effets de perturbation et identifier les caractéristiques associées aux phénotypes de niveau guide ou condition."
+          "speech_text": "La régression relie les phénotypes par objet à l'abondance des guides à écran regroupé. La console rapporte l'alignement des tables, le filtrage, le diagnostic des modèles, l'ajustement des coefficients, les pistes de résultats, les graphiques et les enregistrements de reproductibilité."
         },
         {
-          "narration": "Ouvrez Regression dans la section Core. Sélectionnez les mesures cartographiées, les variables de réponse, les commandes, les colonnes de regroupement et les prédicteurs candidats.",
-          "visual": "input",
+          "narration": "Le champ de discussion accepte des questions sur le flux de travail actuel. Permettez à l'IA de parcourir un fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Regression dans la section Core. Sélectionnez les mesures cartographiées, les variables de réponse, les commandes, les colonnes de regroupement et les prédicteurs candidats."
+          "speech_text": "Le champ de discussion accepte des questions sur le flux de travail actuel. Permettez à l'IA de parcourir un fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez des transformations, des covariates, une famille de modèles, des effets aléatoires, une correction à test multiples et des filtres de qualité.",
-          "visual": "settings",
+          "narration": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et fournissent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez des transformations, des covariates, une famille de modèles, des effets aléatoires, une correction à test multiples et des filtres de qualité."
+          "speech_text": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et fournissent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, spaCR écrit les tailles d'effet, l'incertitude, la signification ajustée, les diagnostics et les chiffres.",
-          "visual": "output",
+          "narration": "L'expérience synthétique fournit 384 lignes de scores cellulaires et 384 lignes de compte de guide à partir de 32 puits, 12 guides et quatre gènes. Les identifiants de plaque, de rangée et de colonne correspondants rejoignent les tables.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "L'expérience synthétique fournit 384 lignes de scores cellulaires et 384 lignes de compte de guide à partir de 32 puits, 12 guides et quatre gènes. Les identifiants de plaque, de rangée et de colonne correspondants rejoignent les tables."
+        },
+        {
+          "narration": "Les éléments essentiels montrent les tables d'entrée, les contrôles de plaque, la famille de régression, la variable de réponse, les preuves minimales et les choix de graphique requis pour une première course.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Les éléments essentiels montrent les tables d'entrée, les contrôles de plaque, la famille de régression, la variable de réponse, les preuves minimales et les choix de graphique requis pour une première course."
+        },
+        {
+          "narration": "La modification limite le panneau à des valeurs qui diffèrent des paramètres par défaut, ce qui facilite l'audit des identités de contrôle, des seuils fixes et des choix de modèle intentionnels.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "La modification limite le panneau à des valeurs qui diffèrent des paramètres par défaut, ce qui facilite l'audit des identités de contrôle, des seuils fixes et des choix de modèle intentionnels."
+        },
+        {
+          "narration": "Tous les paramètres révèlent chaque catégorie sans changement de valeurs. Les huit catégories séparent les entrées, la conception, la correction, la modélisation, l'appel de frappe, les plans et le comportement en temps d'exécution.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tous les paramètres révèlent chaque catégorie sans changement de valeurs. Les huit catégories séparent les entrées, la conception, la correction, la modélisation, l'appel de frappe, les plans et le comportement en temps d'exécution."
+        },
+        {
+          "narration": "Les recettes enregistrent la configuration complète de régression sous un nom, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent la configuration complète de régression sous un nom, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyez des instantanés à distance des paramètres de régression résolus et envoyez le travail à l'espace de travail des emplois distribués.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyez des instantanés à distance des paramètres de régression résolus et envoyez le travail à l'espace de travail des emplois distribués."
+        },
+        {
+          "narration": "Distribué Jobs trace les chemins d'entrée et les ressources informatiques vers une station de travail distante, un cluster Slurm ou une commande configurée, puis soumet et surveille la même exécution de modèle.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distribué Jobs trace les chemins d'entrée et les ressources informatiques vers une station de travail distante, un cluster Slurm ou une commande configurée, puis soumet et surveille la même exécution de modèle."
+        },
+        {
+          "narration": "Les tables d'entrée sélectionnent les métadonnées génétiques facultatives, les scores de phénotype par objet ou puits, et les tables de compte de séquence. Les plaques multiples doivent rester alignées en fonction de la position de la liste ou des identifiants explicites des plaques.",
+          "visual": "12_category_01_input_tables",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les tables d'entrée sélectionnent les métadonnées génétiques facultatives, les scores de phénotype par objet ou puits, et les tables de compte de séquence. Les plaques multiples doivent rester alignées en fonction de la position de la liste ou des identifiants explicites des plaques."
+        },
+        {
+          "narration": "Les contrôles et la conception des plaques définissent la plaque, les gènes positifs et négatifs, les contrôles de guidage neutres, les puits de contrôle et toutes les rangées exclues avant l'installation.",
+          "visual": "12_category_02_controls_plate_design",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les contrôles et la conception des plaques définissent la plaque, les gènes positifs et négatifs, les contrôles de guidage neutres, les puits de contrôle et toutes les rangées exclues avant l'installation."
+        },
+        {
+          "narration": "La correction de plaque et de lot peut éliminer les compensations de plaque avec un centre, une mise à l'échelle robuste, des contrôles de référence ou ComBat. Ce tutoriel d'une seule plaque laisse de la correction.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La correction de plaque et de lot peut éliminer les compensations de plaque avec un centre, une mise à l'échelle robuste, des contrôles de référence ou ComBat. Ce tutoriel d'une seule plaque laisse de la correction."
+        },
+        {
+          "narration": "Le modèle et les covariates sélectionne la famille de régression, la colonne de réponse, l'agrégation et la transformation, la régularisation, l'estimation de la covariance et les effets optionnels de la rangée ou de la colonne.",
+          "visual": "12_category_04_model_covariates",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le modèle et les covariates sélectionne la famille de régression, la colonne de réponse, l'agrégation et la transformation, la régularisation, l'estimation de la covariance et les effets optionnels de la rangée ou de la colonne."
+        },
+        {
+          "narration": "Le réglage estimateur contient les paramètres utilisés par les modèles de sélection de filet élastique, quantile, Huber, charnière et bootstrap. Seuls les contrôles appartenant à la famille choisie affectent une course.",
+          "visual": "12_category_05_estimator_tuning",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le réglage estimateur contient les paramètres utilisés par les modèles de sélection de filet élastique, quantile, Huber, charnière et bootstrap. Seuls les contrôles appartenant à la famille choisie affectent une course."
+        },
+        {
+          "narration": "Le point d'appel et les coefficients de sortie définit la preuve minimale des cellules et des puits, le filtrage des fractions de guide, l'élimination optionnelle des coefficients de sortie et le seuil des coefficients dérivés du contrôle.",
+          "visual": "12_category_06_hit_calling_outliers",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le point d'appel et les coefficients de sortie définit la preuve minimale des cellules et des puits, le filtrage des fractions de guide, l'élimination optionnelle des coefficients de sortie et le seuil des coefficients dérivés du contrôle."
+        },
+        {
+          "narration": "Les plans de régression contrôlent la cible du volcan, les axes logarithmiques et les limites d'axe facultatives. Ces options d'affichage ne modifient pas les coefficients installés.",
+          "visual": "12_category_07_regression_plots",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les plans de régression contrôlent la cible du volcan, les axes logarithmiques et les limites d'axe facultatives. Ces options d'affichage ne modifient pas les coefficients installés."
+        },
+        {
+          "narration": "Le temps d'exécution et la fiabilité contrôlent les erreurs strictes, le taux d'échec toléré, la politique de réessayer, la semence aléatoire et les rapports verbaux. Une graine fixe supporte la reproductibilité.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le temps d'exécution et la fiabilité contrôlent les erreurs strictes, le taux d'échec toléré, la politique de réessayer, la semence aléatoire et les rapports verbaux. Une graine fixe supporte la reproductibilité."
+        },
+        {
+          "narration": "Dans cette conception, le gène 239740 est le contrôle positif, 233460 est le contrôle négatif et trois guides 000000 définissent un comportement neutre. Les colonnes c1 à c3 sont exclues de l'ensemble de traitement monté.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Dans cette conception, le gène 239740 est le contrôle positif, 233460 est le contrôle négatif et trois guides 000000 définissent un comportement neutre. Les colonnes c1 à c3 sont exclues de l'ensemble de traitement monté."
+        },
+        {
+          "narration": "Run valide les schémas de table et les clés de puits, supprime les contrôles exclus, agrégate les scores de cellules, convertit le compte guide en fractions, correspond aux coefficients OLS, évalue les preuves et écrit les résultats. Arrêtez de demander une interruption sécurisée.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valide les schémas de table et les clés de puits, supprime les contrôles exclus, agrégate les scores de cellules, convertit le compte guide en fractions, correspond aux coefficients OLS, évalue les preuves et écrit les résultats. Arrêtez de demander une interruption sécurisée."
+        },
+        {
+          "narration": "Pendant la course, la console rapporte 384 lignes de scores, 384 lignes de compte, alignement des plaques, observations conservées et progrès du modèle tandis que les chiffres apparaissent dans la galerie.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Pendant la course, la console rapporte 384 lignes de scores, 384 lignes de compte, alignement des plaques, observations conservées et progrès du modèle tandis que les chiffres apparaissent dans la galerie."
+        },
+        {
+          "narration": "L'exécution complète fournit des résumés de plaques, des histogrammes de pointage et de fraction de guide, des graphiques diagnostiques, des données de régression, des tables de coefficients par guide et génétique, des tables de signification, des paramètres enregistrés, un manifeste et une macro réécurrentielle.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, spakeur écrit les tailles d'effet, l'incertitude, la signification ajustée, les diagnostics et les chiffres."
+          "speech_text": "L'exécution complète fournit des résumés de plaques, des histogrammes de pointage et de fraction de guide, des graphiques diagnostiques, des données de régression, des tables de coefficients par guide et génétique, des tables de signification, des paramètres enregistrés, un manifeste et une macro réécurrentielle."
         }
       ]
     },

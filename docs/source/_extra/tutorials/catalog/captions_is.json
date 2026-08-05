@@ -631,19 +631,73 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Regression. Áætla truflunaráhrif og greina einkenni sem tengjast stefnubrögðum eða ástandsniviðum."
+          "narration": "Regressi tengir fyrirbæri fyrir fyrirbæri til sameinuðu skjá leiðsögn fjölda. Konsóllin skýrir frá borðréttingu, sía, módelgreiningu, hliðhæfingarinnréttingu, árangursleiðum, plötum og endurskránni."
         },
         {
-          "narration": "Opið afturflutningur frá kjarnaskiptinu. Veldu kortlagðar mælingar, viðbrögðbreytingar, stjórnir, flokkunarstöðvar og fyrirspurningar fyrir frambjóðendur."
+          "narration": "Spjallsvæðið tekur við spurningum um núverandi vinnuflæði. Leyfa AI að leiða í gegnum valinn þjónustuaðila og nota nágrenna piltinn til að opna þjónustuaðilinn."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skaltu velja umbreytingar, sambreytingar, módelfjölskyldu, tilviljunaráhrif, fleiri prófunar leiðréttingar og gæðafler."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og veitir uppsetningar og innritunarskipanir þeirra. Skilríki eru hjá hverjum söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu greiningu fyrirmyndanna og stjórna hegðun áður en túlkað er efnisgildi."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið skrifar spaCR áhrifstærðir, óvissu, breytt merkingu, greiningar og tölur."
+          "narration": "Tekið er framleiðsla á 384 frumur og 384 leiðbeiningar frá 32 brunnum, 12 leiðbeiningum og fjórum erfðum. Samhæfandi plötur, röð og stöng auðkenningar tengjast töflunum."
+        },
+        {
+          "narration": "Essentials sýnir inntökuborð, plötueftirlit, regressionsfjölskyldu, viðbrögðbreyttu, lágmarksgögn og plottval sem þarf til fyrstu rekstrar."
+        },
+        {
+          "narration": "Breyttar takmörkunar á paneli til gildi sem eru öðruvísi en sjálfgefin, sem gerir stjórnidentity, fastar þröskulær og tilætluð fyrirmynd val auðvelt að endurskoða."
+        },
+        {
+          "narration": "Öll stillingar sýna hverja flokk án þess að gildi breytist. Átta flokkarnir skilja innlegg, hönnun, leiðréttingu, módelgun, höggtal, plótur og rekstrartengingu."
+        },
+        {
+          "narration": "Recipes geymir heildarregressionsmyndunina undir nafni, beitir henni aftur síðar eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum af löndum Regression stillingum og sendir verkefnið í dreifð störf vinnusvæði."
+        },
+        {
+          "narration": "Distributed Jobs kortar innleiðslukerfi og reikninga auðlindir til fjarstæðrar vinnustaðar, Slurm-hópa eða skipulagsskýringu, sendir síðan inn og fylgist með sama gerð fyrirmyndarinnar."
+        },
+        {
+          "narration": "Input Tables velur valfrjálst gen metadata, fyrir hlut eða fyrir braut fenotype stig, og raðfylgjandi tal töflur. Fleiri plötur þurfa að vera í samræmi með stöðu lista eða skýrum skilgreiningum á plötu."
+        },
+        {
+          "narration": "Stjórn og plötuhönnun skilgreinir plötu, jákvæð og neikvæð erfða, hlutlausar leiðbeiningarstýringar, stjórnsýslustýringar og allar röður sem útilokaðar eru áður en settar eru."
+        },
+        {
+          "narration": "Plate and Batch Correction getur fjarlægð plötu afsetningar með miðlægingu, robust skáling, viðmiðunarstjórn eða ComBat. Þessi einn-tölva námskeið skilur úr leiðréttingu."
+        },
+        {
+          "narration": "Model og Covariates velur regressionsfjölskyldu, viðbrögð spjalli, samsetning og umbreyting, regluleggun, áætlun á viðbreytni og valfrjálsan röð eða spjalli áhrif."
+        },
+        {
+          "narration": "Tóning reiknisveitarinn heldur fyrirmæli sem notaðar eru af öflugt net, kvantíll, Huber, hinge og bootstrap valmyndum. Aðeins stjórnir sem tilheyra valdu fjölskyldunni hafa áhrif á hlaupið."
+        },
+        {
+          "narration": "Hit Calling and Outliers setur lágmarksfrásögn frá kjarnum og brunnum, leiðbeiningar-brotunarfiltrun, valfrjálsan fjarlægingu útbrotunar og þröskulinn af styrktarviðkvæmd."
+        },
+        {
+          "narration": "Regression Plots stjórnar eldgosmarkmiði, logarítmiskum axlum og valfrjálsmörkum. Þessar sýningarvalkostir breyta ekki innréttum samræmdum."
+        },
+        {
+          "narration": "Kynningartími og áreiðanleiki stjórnar ströngum mistökum, þolandi mistökartíðni, endurprófunarstefnu, tilviljunarfræðum og munnlegum skýrslum. Fasta fræið stuðlar að fjölbreytni."
+        },
+        {
+          "narration": "Í þessari hönnun er gen 239740 jákvæð stjórnun, 233460 neikvæð stjórnun og þrír 000000 leiðarar skilgreina hlutlaus hegðun. Kolumnar c1 til c3 eru útilokaðar af settum meðferðarsetti."
+        },
+        {
+          "narration": "Rennur staðfestir borðskema og brunn lykla, fjarlægir útilokað stjórnir, samlar frumur staðanir, breytir leiðsögn telur til brot, passar OLS samræmi, metir sönnunargögn og skrifar niðurstöður. Hættu fyrirspurnum um öruggan truflun."
+        },
+        {
+          "narration": "Á meðan reksturinn stendur skýrir konsólinn frá 384 stigaröðum, 384 taluröðum, plötuviðræðingu, varðveittum athugasemdum og þróun módelsins meðan tölur birtast í myndasafninu."
+        },
+        {
+          "narration": "Ferlið sem lokið er veitir plötu samantekningar, stig og leiðbeiningarbrot histograms, greiningar plötur, regression_data, hliðstæða töflur eftir leiðbeiningu og gen, merkingu töflur, sparað stillingar, manifest og endurtekjanlegur makro."
         }
       ]
     },
