@@ -332,19 +332,76 @@
       "id": "09_annotate",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Annotate. Undersøk enkeltobjekt avlinger på et nettverk og gi pålitelige etiketter for modellutdanning eller kvalitetskontroll."
+          "narration": "Annotering starter med prioritering av avlinger. Åpne Console når du trenger database meldinger, lagre status, advarsler, eller chat feltet; samme knapp skjuler det igjen for å returnere plassen til bilder."
         },
         {
-          "narration": "Åpne Notat fra Kjerne-seksjonen. Åpne et prosjekt med objekter og velg databasetabell og annotasjonskolonne."
+          "narration": "AI-switchen sender et spørsmål gjennom den valgte leverandøren. Bruk den tilstøtende pilen for å velge en konfigurert leverandør eller åpen leverandør administrasjon."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet, velg klasser, visning kanaler, sortering, prøver, og eventuelle filtre som definerer gjennomgangssettet."
+          "narration": "Leverandører rapporterer om Claude, ChatGPT og Gemini kommando-linje-klienter er installert og gir deres installasjons- og logg-kommandoer. Opplysningene holder hos hver leverandør."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Merk representative gjenstander, lagre ofte, og se tilbake på usikre eller motstridende eksempler."
+          "narration": "AI-innstillinger styrer responsdyp, automatisk feilforklaring, valgfri GitHub-problemrapportering, logging inn og spaCR-bevisst systemprosjekt."
         },
         {
-          "narration": "Når arbeidsflyten er ferdig, blir annotasjoner skrevet tilbake til prosjektdatabasen med objektidentifikatorer intakt."
+          "narration": "Trekk den målede eksperimenten mappe inn i Annotate. spaCR løser measurements.db, forankrer sine lagrede avgrødeveier til denne datamaskinen, oppretter kolonnen spaCR_Tutorial, og laster de virkelige cellebildene."
+        },
+        {
+          "narration": "Innstillinger benytter kildekolonne og annotasjonskolonne, styrer avlingerstørrelse, bildetype, synlige og normaliserte kanaler, persentiler, valgfrie linjer, objekt- eller målefiltre, og en usikkerhetskåre med mangfoldbeskyttelse."
+        },
+        {
+          "narration": "Siden telleren viser 128 synlige avlinger av 81.969. En hvit ring markerer den fokuserte avlingen, mens klassefargede ringer viser etiketter som allerede er tildelt i spaCR_Tutorial."
+        },
+        {
+          "narration": "Åpne tastaturreferansen når som helst. Nummerene 1 til 9 merker og avanserer, null renser en avling, piler eller HJ K L beveger seg, Space skipper, Backspace returnerer, U annullerer, og Enter sparer og avanserer."
+        },
+        {
+          "narration": "Trykk på 1 for å tildele klasse 1 til den fokuserte avlingen. Ringen endres til klassefargen, og fokuset går videre til det neste ikke-merket bildet."
+        },
+        {
+          "narration": "Trykk 2 for å tildele klasse 2. Klassene er numeriske og eksperimentelt definerte, så registrer hva hvert tall betyr før et lag begynner å merke."
+        },
+        {
+          "narration": "Arrow-knappene beveger fokus uten å endre etikett. Space går fremover og Backspace går bakover, noe som gjør rask gjennomgang mulig uten å nå musen."
+        },
+        {
+          "narration": "Trykk på U for å fjerne det nyeste tastaturetiketten. Oppgrødet vender tilbake til sin tidligere tilstand, fokuset beveger seg tilbake til det, og statusstripen bekrefter tilbaketrekking."
+        },
+        {
+          "narration": "Mus annotering er fortsatt tilgjengelig. Et venstre klikk tildeler klasse 1 til en avgrøde gjennom samme bakgrunnslagningsvei som brukes av tastaturetiketter."
+        },
+        {
+          "narration": "Et høyre klikk tildeler klasse 2. Hvis du klikker på den samme klassen på den avlingen, rydder den igjen, mens du klikker på den andre klassen endrer den direkte."
+        },
+        {
+          "narration": "Klass teller bekrefter den lagrede befolkningen og viser fargen som brukes for hver klasse ring. Denne opplæringen har to eksempler i klasse 1 og to i klasse 2."
+        },
+        {
+          "narration": "Dekkingsrevisioner etiketter etter klasse, plate, godt, kilde, og aktiv læring runde. Disse fire eksemplene kommer fra en brønn, som med vilje er for konsentrert for opplæring og viser hvorfor dekningen må kontrolleres."
+        },
+        {
+          "narration": "Next sparer ventende arbeid og laster den neste full side. Enter utfører den samme rednings- og avanseringsaksjonen uten å forlate nettet."
+        },
+        {
+          "narration": "Tilbake returnerer en side mens du bevarer hver forpliktet annotasjon. Side opp og Alt venstre gir alternativer til tastatur."
+        },
+        {
+          "narration": "Skip til siste annotert hopper til siden som inneholder den siste sparte etiketten, noe som gjør det enkelt å gjenoppta en lang annotering sesjon."
+        },
+        {
+          "narration": "Runds viser utgående nøyaktighet etter hver aktiv-læring retrain og vurderer om ny merking forbedret modellen. Ingen kurve vises før nok representative etiketter støtter en første runde."
+        },
+        {
+          "narration": "Retrain passer fra de lagre etikettene, scorer de resterende avgrøder, og rangerer den valgfrie usikkerhet kø. Statuslinjen registrerer runde, holdt ut resultat, svakeste klasse, og stopp guidance."
+        },
+        {
+          "narration": "Tren CV gir dette prosjektet og annotasjonskolumnen til bildeklassifikatoren. Train XG gir de samme etikettene til målefunksjonsklassifikatoren. Begge åpner en forhåndskonfigurert modul; ingen av dem starter opplæring umiddelbart."
+        },
+        {
+          "narration": "Klar kolonne er bevisst bevaret fordi den fjerner alle etiketter i den valgte kolonnen. Vurder nøyaktig kolonnenavnet før du fortsetter; denne opplæringen annullerer advarselen og beholder etikettene."
+        },
+        {
+          "narration": "De fire eksempeletikettene er nå lagret i measurements.db under spaCR_Tutorial med deres objektveier og opprinnelse intakt. Fortsett gjennom brønner og tallerkener før du bruker dem til å trene en modell."
         }
       ]
     },

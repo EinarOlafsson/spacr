@@ -855,43 +855,194 @@
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Review single-object crops on a grid and assign reliable labels for model training or quality control.",
+      "description": "Label real single-cell crops in a dedicated database column, audit coverage, and hand annotations to image or measurement classifiers.",
       "objectives": [
-        "Understand when to use Annotate.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Create and configure the spaCR_Tutorial annotation column on a real measured experiment.",
+        "Use mouse and keyboard annotation, navigation, undo, counts, coverage, and active-learning controls.",
+        "Save labels safely and understand the Classify CV and Classify ML handoffs."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Complete Measure first so the project contains measurements/measurements.db and cell PNG crops.",
       "scenes": [
         {
-          "narration": "This tutorial covers Annotate. Review single-object crops on a grid and assign reliable labels for model training or quality control.",
-          "visual": "overview",
+          "narration": "Annotate starts with the crop grid prioritized. Open Console when you need database messages, save status, warnings, or the chat field; the same button hides it again to return the space to images.",
+          "visual": "01_console",
+          "focus_key": "console_and_chat",
+          "click_key": "console_toggle",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Annotate. Review single-object crops on a grid and assign reliable labels for model training or quality control."
+          "speech_text": "Annotate starts with the crop grid prioritized. Open Console when you need database messages, save status, warnings, or the chat field; the same button hides it again to return the space to images."
         },
         {
-          "narration": "Open Annotate from the Core section. Open a project with object crops and select the database table and annotation column.",
-          "visual": "input",
+          "narration": "The AI switch sends a question through the selected provider. Use the adjacent arrow to choose a configured provider or open provider management.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Annotate from the Core section. Open a project with object crops and select the database table and annotation column."
+          "speech_text": "The A I switch sends a question through the selected provider. Use the adjacent arrow to choose a configured provider or open provider management."
         },
         {
-          "narration": "In the main configuration area, choose classes, display channels, sorting, sampling, and any filters that define the review set.",
-          "visual": "settings",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose classes, display channels, sorting, sampling, and any filters that define the review set."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. label representative objects, save frequently, and revisit uncertain or conflicting examples.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. label representative objects, save frequently, and revisit uncertain or conflicting examples."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, annotations are written back to the project database with object identifiers intact.",
-          "visual": "output",
+          "narration": "Drag the measured experiment folder into Annotate. spaCR resolves measurements.db, reanchors its stored crop paths to this computer, creates the spaCR_Tutorial column, and loads the real cell images.",
+          "visual": "05_folder",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Drag the measured experiment folder into Annotate. spacer resolves measurements dot db, reanchors its stored crop paths to this computer, creates the spacer tutorial column, and loads the real cell images."
+        },
+        {
+          "narration": "Settings names the source and annotation column, controls crop size, image type, visible and normalized channels, percentiles, optional outlines, object or measurement filters, and an uncertainty queue with diversity protection.",
+          "visual": "06_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Settings names the source and annotation column, controls crop size, image type, visible and normalized channels, percentiles, optional outlines, object or measurement filters, and an uncertainty queue with diversity protection."
+        },
+        {
+          "narration": "The page counter shows 128 visible crops out of 81,969. A white ring marks the focused crop, while class-colored rings show labels already assigned in spaCR_Tutorial.",
+          "visual": "07_grid",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "The page counter shows one hundred twenty-eight visible crops out of eighty-one thousand nine hundred sixty-nine. A white ring marks the focused crop, while class-colored rings show labels already assigned in spacer tutorial."
+        },
+        {
+          "narration": "Open the keyboard reference at any time. Numbers 1 through 9 label and advance, zero clears one crop, arrows or H J K L move, Space skips, Backspace returns, U undoes, and Enter saves and advances.",
+          "visual": "08_keyboard_reference",
+          "focus_key": "legend",
+          "click_key": "legend_button",
+          "hold_after": 0.45,
+          "speech_text": "Open the keyboard reference at any time. Numbers one through nine label and advance, zero clears one crop, arrows or H J K L move, Space skips, Backspace returns, U undoes, and Enter saves and advances."
+        },
+        {
+          "narration": "Press 1 to assign class 1 to the focused crop. Its ring changes to the class color, and focus advances to the next unlabeled image.",
+          "visual": "09_keyboard_class_one",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Press one to assign class one to the focused crop. Its ring changes to the class color, and focus advances to the next unlabeled image."
+        },
+        {
+          "narration": "Press 2 to assign class 2. Classes are numeric and experiment-defined, so record what each number means before a team begins labeling.",
+          "visual": "10_keyboard_class_two",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Press two to assign class two. Classes are numeric and experiment-defined, so record what each number means before a team begins labeling."
+        },
+        {
+          "narration": "Arrow keys move the focus without changing a label. Space steps forward and Backspace steps back, which makes rapid review possible without reaching for the mouse.",
+          "visual": "11_navigation",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Arrow keys move the focus without changing a label. Space steps forward and Backspace steps back, which makes rapid review possible without reaching for the mouse."
+        },
+        {
+          "narration": "Press U to undo the latest keyboard label. The crop returns to its previous state, the focus moves back to it, and the status strip confirms the undo.",
+          "visual": "12_undo",
+          "focus_key": "legend",
+          "hold_after": 0.45,
+          "speech_text": "Press U to undo the latest keyboard label. The crop returns to its previous state, the focus moves back to it, and the status strip confirms the undo."
+        },
+        {
+          "narration": "Mouse annotation remains available. A left click assigns class 1 to a crop through the same background-save path used by keyboard labels.",
+          "visual": "13_mouse_class_one",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "Mouse annotation remains available. A left click assigns class one to a crop through the same background-save path used by keyboard labels."
+        },
+        {
+          "narration": "A right click assigns class 2. Clicking the same class on that crop again clears it, while clicking the other class changes it directly.",
+          "visual": "14_mouse_class_two",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "A right click assigns class two. Clicking the same class on that crop again clears it, while clicking the other class changes it directly."
+        },
+        {
+          "narration": "Class counts confirms the saved population and displays the color used for each class ring. This tutorial has two examples in class 1 and two in class 2.",
+          "visual": "15_class_counts",
+          "focus_key": "dialog",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Class counts confirms the saved population and displays the color used for each class ring. This tutorial has two examples in class one and two in class two."
+        },
+        {
+          "narration": "Coverage audits labels by class, plate, well, source, and active-learning round. These four examples come from one well, which is intentionally too concentrated for training and demonstrates why coverage must be checked.",
+          "visual": "16_coverage",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Coverage audits labels by class, plate, well, source, and active learning round. These four examples come from one well, which is intentionally too concentrated for training and demonstrates why coverage must be checked."
+        },
+        {
+          "narration": "Next saves pending work and loads the next full page. Enter performs the same save-and-advance action without leaving the grid.",
+          "visual": "17_next_page",
+          "focus_key": "grid",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "Next saves pending work and loads the next full page. Enter performs the same save and advance action without leaving the grid."
+        },
+        {
+          "narration": "Back returns one page while preserving every committed annotation. Page Up and Alt Left provide keyboard alternatives.",
+          "visual": "18_previous_page",
+          "focus_key": "grid",
+          "click_key": "back",
+          "hold_after": 0.45,
+          "speech_text": "Back returns one page while preserving every committed annotation. Page Up and Alt Left provide keyboard alternatives."
+        },
+        {
+          "narration": "Skip to last annotated jumps to the page containing the final saved label, making it easy to resume a long annotation session.",
+          "visual": "19_skip_to_annotations",
+          "focus_key": "grid",
+          "click_key": "skip",
+          "hold_after": 0.45,
+          "speech_text": "Skip to last annotated jumps to the page containing the final saved label, making it easy to resume a long annotation session."
+        },
+        {
+          "narration": "Rounds displays held-out accuracy after each active-learning retrain and evaluates whether recent labeling improved the model. No curve appears until enough representative labels support a first round.",
+          "visual": "20_rounds",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Rounds displays held out accuracy after each active learning retrain and evaluates whether recent labeling improved the model. No curve appears until enough representative labels support a first round."
+        },
+        {
+          "narration": "Retrain fits from the saved labels, scores the remaining crops, and reranks the optional uncertainty queue. The status line records the round, held-out result, weakest class, and stopping guidance.",
+          "visual": "21_active_learning",
+          "focus_key": "active_controls",
+          "hold_after": 0.45,
+          "speech_text": "Retrain fits from the saved labels, scores the remaining crops, and reranks the optional uncertainty queue. The status line records the round, held out result, weakest class, and stopping guidance."
+        },
+        {
+          "narration": "Train CV hands this project and annotation column to the image classifier. Train XG hands the same labels to the measurement-feature classifier. Both open a preconfigured module; neither starts training immediately.",
+          "visual": "22_training_handoffs",
+          "focus_key": "training",
+          "hold_after": 0.45,
+          "speech_text": "Train C V hands this project and annotation column to the image classifier. Train X G hands the same labels to the measurement feature classifier. Both open a preconfigured module; neither starts training immediately."
+        },
+        {
+          "narration": "Clear column is intentionally guarded because it removes every label in the selected column. Confirm the exact column name before proceeding; this tutorial cancels the warning and keeps its labels.",
+          "visual": "23_clear_warning",
+          "focus_key": "dialog",
+          "click_key": "clear",
+          "hold_after": 0.45,
+          "speech_text": "Clear column is intentionally guarded because it removes every label in the selected column. Confirm the exact column name before proceeding; this tutorial cancels the warning and keeps its labels."
+        },
+        {
+          "narration": "The four example labels are now saved in measurements.db under spaCR_Tutorial with their object paths and provenance intact. Continue across wells and plates before using them to train a model.",
+          "visual": "24_saved_result",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, annotations are written back to the project database with object identifiers intact."
+          "speech_text": "The four example labels are now saved in measurements dot db under spacer tutorial with their object paths and provenance intact. Continue across wells and plates before using them to train a model."
         }
       ]
     },

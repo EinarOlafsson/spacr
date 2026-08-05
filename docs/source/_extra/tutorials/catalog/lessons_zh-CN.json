@@ -836,47 +836,198 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate",
+      "title": "备注",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "审查单个物体作物在网格上,并为模型培训或质量控制分配可靠标签.",
+      "description": "在专用数据库列中标记真正的单细胞作物,对图像或测量分类器进行审计覆盖和手动注释.",
       "objectives": [
-        "了解使用Annotate的时间.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "创建和配置spaCR_Tutorial注释列在实际测量实验上.",
+        "使用鼠标和键盘注释,导航,取消,计数,覆盖和活跃学习控制.",
+        "安全保存标签,并了解Classify CV和Classify ML交付."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "首先完成测量,以便项目包含测量/measurements.db和细胞PNG作物.",
       "scenes": [
         {
-          "narration": "通过\"单个物体作物\"进行对格格的审查,并为模型培训或质量控制分配可靠的标签.",
-          "visual": "overview",
+          "narration": "报表开始时,农作物格式是优先的. 当您需要数据库消息,保存状态,警告或聊天场时打开控制台;相同的按再次隐藏它,以返回空间的图像.",
+          "visual": "01_console",
+          "focus_key": "console_and_chat",
+          "click_key": "console_toggle",
           "hold_after": 0.45,
-          "speech_text": "通过\"单个物体作物\"进行对格格的审查,并为模型培训或质量控制分配可靠的标签."
+          "speech_text": "报表开始时,农作物格式是优先的. 当您需要数据库消息,保存状态,警告或聊天场时打开控制台;相同的按再次隐藏它,以返回空间的图像."
         },
         {
-          "narration": "从 Core 部分打开 Annotate。 打开一个项目,使用对象作物,然后选择数据库表和注释列.",
-          "visual": "input",
+          "narration": "人工智能交换器通过选择的提供商发送一个问题. 使用相邻的箭头来选择配置的供应商或开放的供应商管理.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Annotate。 打开一个项目,使用对象作物,然后选择数据库表和注释列."
+          "speech_text": "人工智能交换器通过选择的提供商发送一个问题. 使用相邻的箭头来选择配置的供应商或开放的供应商管理."
         },
         {
-          "narration": "在主配置区域中,选择类,显示道,排序,样本取,以及定义审查集的任何过器.",
-          "visual": "settings",
+          "narration": "提供商报告Claude,ChatGPT和Gemini命令行客户端是否安装,并提供其安装和登录命令. 证书留在每个供应商身上.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主配置区域中,选择类,显示道,排序,样本取,以及定义审查集的任何过器."
+          "speech_text": "提供商报告Claude,ChatGPT和Gemini命令行客户端是否安装,并提供其安装和登录命令. 证书留在每个供应商身上."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式."
+          "speech_text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和斯佩克尔知情系统提示."
         },
         {
-          "narration": "当工作流程完成时,注释将被保存完整的对象识别符写回项目数据库.",
-          "visual": "output",
+          "narration": "将测量实验文件拖入\"注释\"中. spaCR解决了 measurements.db,将其存储的作物路径重新连接到这个计算机,创建了spaCR_Tutorial列,并加载了实际的细胞图像.",
+          "visual": "05_folder",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "将测量实验文件拖入\"注释\"中. 斯佩克尔解决了 measurements dot db,将其存储的作物路径重新连接到这个计算机,创建了斯佩克尔_Tutorial列,并加载了实际的细胞图像."
+        },
+        {
+          "narration": "设置命名源和注释列,控制作物大小,图像类型,可见和正常化道,百分点,可选轮,对象或测量过器,以及具有多样性保护的不确定性队列.",
+          "visual": "06_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "设置命名源和注释列,控制作物大小,图像类型,可见和正常化道,百分点,可选轮,对象或测量过器,以及具有多样性保护的不确定性队列."
+        },
+        {
+          "narration": "在81,969种农作物中,页面计数显示128种可见的农作物. 一个白色戒指标记着聚焦的作物,而类颜色的戒指显示在spaCR_Tutorial中已经分配的标签.",
+          "visual": "07_grid",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "在81,969种农作物中,页面计数显示128种可见的农作物. 一个白色戒指标记着聚焦的作物,而类颜色的戒指显示在斯佩克尔_Tutorial中已经分配的标签."
+        },
+        {
+          "narration": "在任何时候打开键盘参考. 数字1到9标签和进步,零清除一个收获,箭头或HJKL移动,太空跳转,Backspace返回,U取消,和输入保存和进步.",
+          "visual": "08_keyboard_reference",
+          "focus_key": "legend",
+          "click_key": "legend_button",
+          "hold_after": 0.45,
+          "speech_text": "在任何时候打开键盘参考. 数字1到9标签和进步,零清除一个收获,箭头或HJKL移动,太空跳转,Backspace返回,U取消,和输入保存和进步."
+        },
+        {
+          "narration": "按一点,将类1分配给焦点作物. 它的环变为类颜色,焦点向下一个无标签的图像前进.",
+          "visual": "09_keyboard_class_one",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "按一点,将类1分配给焦点作物. 它的环变为类颜色,焦点向下一个无标签的图像前进."
+        },
+        {
+          "narration": "按2来分配第二类. 在团队开始标签之前,记录每个数字的含义.",
+          "visual": "10_keyboard_class_two",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "按2来分配第二类. 在团队开始标签之前,记录每个数字的含义."
+        },
+        {
+          "narration": "箭头键将焦点移动,而不改变标签. 空间向前迈进,后空间向后迈进,这使得在没有触及鼠标的情况下进行快速检查.",
+          "visual": "11_navigation",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "箭头键将焦点移动,而不改变标签. 空间向前迈进,后空间向后迈进,这使得在没有触及鼠标的情况下进行快速检查."
+        },
+        {
+          "narration": "按U,取消最新的键盘标签. 收获恢复到之前的状态,重点转向它,",
+          "visual": "12_undo",
+          "focus_key": "legend",
+          "hold_after": 0.45,
+          "speech_text": "按U,取消最新的键盘标签. 收获恢复到之前的状态,重点转向它,"
+        },
+        {
+          "narration": "鼠标注释仍然可用. 一个左键键将类1分配给一个作物,通过相同的背景保存路径使用键盘标签.",
+          "visual": "13_mouse_class_one",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "鼠标注释仍然可用. 一个左键键将类1分配给一个作物,通过相同的背景保存路径使用键盘标签."
+        },
+        {
+          "narration": "一个右键将分类2分配给. 单击同一个类别的作物再次清除它,而单击另一个类别直接改变它.",
+          "visual": "14_mouse_class_two",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "一个右键将分类2分配给. 单击同一个类别的作物再次清除它,而单击另一个类别直接改变它."
+        },
+        {
+          "narration": "类计数证实保存的人口,并显示每个类戒指使用的颜色. 在本教程中,有1类的两个例子和2类的两个例子.",
+          "visual": "15_class_counts",
+          "focus_key": "dialog",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "类计数证实保存的人口,并显示每个类戒指使用的颜色. 在本教程中,有1类的两个例子和2类的两个例子."
+        },
+        {
+          "narration": "覆盖范围根据类别,板块,井,来源和积极学习轮组进行了审计标签. 这四个例子来自一个井,这井是故意太集中于培训,证明了为什么要检查覆盖率.",
+          "visual": "16_coverage",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "覆盖范围根据类别,板块,井,来源和积极学习轮组进行了审计标签. 这四个例子来自一个井,这井是故意太集中于培训,证明了为什么要检查覆盖率."
+        },
+        {
+          "narration": "下一个节省未完成的工作,然后加载下一个完整页面. 输入执行相同的保存和提前操作,而不离开电网.",
+          "visual": "17_next_page",
+          "focus_key": "grid",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "下一个节省未完成的工作,然后加载下一个完整页面. 输入执行相同的保存和提前操作,而不离开电网."
+        },
+        {
+          "narration": "返回一个页面,同时保存每一个提交的注释. 页面上升和左转提供键盘替代方案.",
+          "visual": "18_previous_page",
+          "focus_key": "grid",
+          "click_key": "back",
+          "hold_after": 0.45,
+          "speech_text": "返回一个页面,同时保存每一个提交的注释. 页面上升和左转提供键盘替代方案."
+        },
+        {
+          "narration": "跳过最后注释跳转到包含最后保存标签的页面,使得恢复长时间的注释会很容易.",
+          "visual": "19_skip_to_annotations",
+          "focus_key": "grid",
+          "click_key": "skip",
+          "hold_after": 0.45,
+          "speech_text": "跳过最后注释跳转到包含最后保存标签的页面,使得恢复长时间的注释会很容易."
+        },
+        {
+          "narration": "每次积极学习重训后,Rounds显示了持续的准确性,并评估最近的标签是否改善了模型. 在足够的代表标签支持第一轮之前,没有曲线出现.",
+          "visual": "20_rounds",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "每次积极学习重训后,Rounds显示了持续的准确性,并评估最近的标签是否改善了模型. 在足够的代表标签支持第一轮之前,没有曲线出现."
+        },
+        {
+          "narration": "再训练是根据保存的标签进行的, 评分剩余的作物, 并重新排列可选的不确定性队列. 状态线记录了轮,延期结果,最弱的类,以及停止指导.",
+          "visual": "21_active_learning",
+          "focus_key": "active_controls",
+          "hold_after": 0.45,
+          "speech_text": "再训练是根据保存的标签进行的, 评分剩余的作物, 并重新排列可选的不确定性队列. 状态线记录了轮,延期结果,最弱的类,以及停止指导."
+        },
+        {
+          "narration": "列车简历将这个项目和注释列交给图像分类器. 列车XG向测量特征分类器提供相同的标签. 两者都打开预先配置的模块; 两者都不立即开始训练.",
+          "visual": "22_training_handoffs",
+          "focus_key": "training",
+          "hold_after": 0.45,
+          "speech_text": "列车简历将这个项目和注释列交给图像分类器. 列车XG向测量特征分类器提供相同的标签. 两者都打开预先配置的模块; 两者都不立即开始训练."
+        },
+        {
+          "narration": "清晰列是故意保护的,因为它删除了选定的列中的每个标签. 在继续之前,确认列的确切名称;本教程取消警告并保留标签.",
+          "visual": "23_clear_warning",
+          "focus_key": "dialog",
+          "click_key": "clear",
+          "hold_after": 0.45,
+          "speech_text": "清晰列是故意保护的,因为它删除了选定的列中的每个标签. 在继续之前,确认列的确切名称;本教程取消警告并保留标签."
+        },
+        {
+          "narration": "目前,四个示例标签已保存在spaCR_Tutorial下,它们的对象路径和来源是完整的. 在使用它们训练模型之前,继续穿过井和盘子.",
+          "visual": "24_saved_result",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,注释将被保存完整的对象识别符写回项目数据库."
+          "speech_text": "目前,四个示例标签已保存在斯佩克尔_Tutorial下,它们的对象路径和来源是完整的. 在使用它们训练模型之前,继续穿过井和盘子."
         }
       ]
     },

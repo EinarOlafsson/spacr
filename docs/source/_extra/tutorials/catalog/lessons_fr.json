@@ -836,47 +836,198 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate",
+      "title": "Annotation",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Examiner les cultures à objet unique sur une grille et attribuer des étiquettes fiables pour la formation des modèles ou le contrôle de la qualité.",
+      "description": "Étiquettez les réelles cultures à cellules uniques dans une colonne de base de données dédiée, la couverture de l'audit et les annotations manuelles aux classificateurs d'images ou de mesures.",
       "objectives": [
-        "Comprendre quand utiliser Annotate.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Créer et configurer la colonne d'annotation spaCR_Tutorial sur une expérience réelle mesurée.",
+        "Utilisez les annotations de la souris et du clavier, la navigation, l'annulation, le comptage, la couverture et les commandes d'apprentissage actif.",
+        "Gardez les étiquettes en toute sécurité et comprenez les instructions de Classify CV et de Classify ML."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Compléter la mesure d'abord afin que le projet contient des mesures/mesures.db et des cultures PNG cellulaires.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Annotate.Voir les cultures à objet unique sur une grille et attribuer des étiquettes fiables pour la formation des modèles ou le contrôle de la qualité.",
-          "visual": "overview",
+          "narration": "L'annotation commence par la grille de récolte prioritaire. Ouvrez la console lorsque vous avez besoin de messages de base de données, enregistrez l'état, les avertissements ou le champ de discussion; le même bouton le cache à nouveau pour renvoyer l'espace aux images.",
+          "visual": "01_console",
+          "focus_key": "console_and_chat",
+          "click_key": "console_toggle",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Annotate.Voir les cultures à objet unique sur une grille et attribuer des étiquettes fiables pour la formation des modèles ou le contrôle de la qualité."
+          "speech_text": "L'annotation commence par la grille de récolte prioritaire. Ouvrez la console lorsque vous avez besoin de messages de base de données, enregistrez l'état, les avertissements ou le champ de discussion; le même bouton le cache à nouveau pour renvoyer l'espace aux images."
         },
         {
-          "narration": "Ouvrez Annotate dans la section Core. Ouvrez un projet avec des cultures d'objets et sélectionnez la table de base de données et la colonne d'annotation.",
-          "visual": "input",
+          "narration": "L'interrupteur d'IA envoie une question par l'intermédiaire du fournisseur sélectionné. Utilisez la flèche adjacente pour choisir un fournisseur configuré ou la gestion du fournisseur ouvert.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Annotate dans la section Core. Ouvrez un projet avec des cultures d'objets et sélectionnez la table de base de données et la colonne d'annotation."
+          "speech_text": "L'interrupteur d'IA envoie une question par l'intermédiaire du fournisseur sélectionné. Utilisez la flèche adjacente pour choisir un fournisseur configuré ou la gestion du fournisseur ouvert."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez les classes, les canaux d'affichage, le tri, le prélèvement d'échantillons et tous les filtres qui définissent l'ensemble de révision.",
-          "visual": "settings",
+          "narration": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et donnent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez les classes, les canaux d'affichage, le tri, le prélèvement d'échantillons et tous les filtres qui définissent l'ensemble de révision."
+          "speech_text": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés et donnent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. étiquettez des objets représentatifs, économisez fréquemment et revuez des exemples incertains ou contradictoires.",
-          "visual": "run",
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. étiquettez des objets représentatifs, économisez fréquemment et revuez des exemples incertains ou contradictoires."
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les annotations sont réécrites dans la base de données du projet avec les identifiants d'objets intacts.",
-          "visual": "output",
+          "narration": "Tirez le dossier de l'expérience mesurée dans Annotation. spaCR résout measurements.db, relie ses chemins de culture stockés à cet ordinateur, crée la colonne spaCR_Tutorial et charge les images de cellules réelles.",
+          "visual": "05_folder",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Tirez le dossier de l'expérience mesurée dans Annotation. spakeur résout measurements dot db, relie ses chemins de culture stockés à cet ordinateur, crée la colonne spakeur_Tutorial et charge les images de cellules réelles."
+        },
+        {
+          "narration": "Les paramètres nomment la colonne source et les annotations, contrôlent la taille des cultures, le type d'image, les canaux visibles et normalisés, les percentiles, les contours optionnels, les filtres d'objets ou de mesures, et une file d'attente d'incertitude avec protection contre la diversité.",
+          "visual": "06_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Les paramètres nomment la colonne source et les annotations, contrôlent la taille des cultures, le type d'image, les canaux visibles et normalisés, les percentiles, les contours optionnels, les filtres d'objets ou de mesures, et une file d'attente d'incertitude avec protection contre la diversité."
+        },
+        {
+          "narration": "Le compteur de page montre 128 cultures visibles sur 81 969. Une bague blanche marque la récolte concentrée, tandis que les bagues de couleur classe montrent les étiquettes déjà attribuées dans spaCR_Tutorial.",
+          "visual": "07_grid",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Le compteur de page montre 128 cultures visibles sur 81 969. Une bague blanche marque la récolte concentrée, tandis que les bagues de couleur classe montrent les étiquettes déjà attribuées dans spakeur_Tutorial."
+        },
+        {
+          "narration": "Ouvrez la référence du clavier à tout moment. Numéros 1 à 9 étiquette et avance, zéro nettoie une récolte, flèches ou HJ K L mouvement, Space sauts, Backspace retourne, U annule, et entrer sauve et avance.",
+          "visual": "08_keyboard_reference",
+          "focus_key": "legend",
+          "click_key": "legend_button",
+          "hold_after": 0.45,
+          "speech_text": "Ouvrez la référence du clavier à tout moment. Numéros 1 à 9 étiquette et avance, zéro nettoie une récolte, flèches ou HJ K L mouvement, Space sauts, Backspace retourne, U annule, et entrer sauve et avance."
+        },
+        {
+          "narration": "Appuyez sur 1 pour attribuer la classe 1 à la culture concentrée. Son anneau change en couleur de classe, et le focus avance vers l'image non étiquetée suivante.",
+          "visual": "09_keyboard_class_one",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Appuyez sur 1 pour attribuer la classe 1 à la culture concentrée. Son anneau change en couleur de classe, et le focus avance vers l'image non étiquetée suivante."
+        },
+        {
+          "narration": "Appuyez sur 2 pour attribuer la classe 2. Les classes sont numériques et définies par expérience, alors enregistrez ce que chaque nombre signifie avant qu'une équipe ne commence à étiqueter.",
+          "visual": "10_keyboard_class_two",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Appuyez sur 2 pour attribuer la classe 2. Les classes sont numériques et définies par expérience, alors enregistrez ce que chaque nombre signifie avant qu'une équipe ne commence à étiqueter."
+        },
+        {
+          "narration": "Les touches de flèche déplacent le focus sans changer d'étiquette. L'espace fait des pas en avant et l'espace arrière fait des pas en arrière, ce qui rend possible un examen rapide sans toucher la souris.",
+          "visual": "11_navigation",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Les touches de flèche déplacent le focus sans changer d'étiquette. L'espace fait des pas en avant et l'espace arrière fait des pas en arrière, ce qui rend possible un examen rapide sans toucher la souris."
+        },
+        {
+          "narration": "Appuyez sur U pour annuler la dernière étiquette de clavier. La récolte revient à son état précédent, l'accent est mis sur elle, et la bande d'état confirme l'annulation.",
+          "visual": "12_undo",
+          "focus_key": "legend",
+          "hold_after": 0.45,
+          "speech_text": "Appuyez sur U pour annuler la dernière étiquette de clavier. La récolte revient à son état précédent, l'accent est mis sur elle, et la bande d'état confirme l'annulation."
+        },
+        {
+          "narration": "Les notes de souris restent disponibles. Un clic à gauche assigne la classe 1 à une culture à travers le même chemin d'arrière-plan utilisé par les étiquettes de clavier.",
+          "visual": "13_mouse_class_one",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "Les notes de souris restent disponibles. Un clic à gauche assigne la classe 1 à une culture à travers le même chemin d'arrière-plan utilisé par les étiquettes de clavier."
+        },
+        {
+          "narration": "Un clic droit assigne la classe 2. Cliquer sur la même classe sur cette culture la nettoie à nouveau, tandis que cliquer sur l'autre classe la change directement.",
+          "visual": "14_mouse_class_two",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "Un clic droit assigne la classe 2. Cliquer sur la même classe sur cette culture la nettoie à nouveau, tandis que cliquer sur l'autre classe la change directement."
+        },
+        {
+          "narration": "Le nombre de classes confirme la population enregistrée et affiche la couleur utilisée pour chaque anneau de classe. Ce tutoriel contient deux exemples dans la classe 1 et deux dans la classe 2.",
+          "visual": "15_class_counts",
+          "focus_key": "dialog",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Le nombre de classes confirme la population enregistrée et affiche la couleur utilisée pour chaque anneau de classe. Ce tutoriel contient deux exemples dans la classe 1 et deux dans la classe 2."
+        },
+        {
+          "narration": "La couverture effectue des audits d'étiquettes par classe, plaque, source et cycle d'apprentissage actif. Ces quatre exemples proviennent d'un seul puits, qui est intentionnellement trop concentré pour la formation et montre pourquoi la couverture doit être vérifiée.",
+          "visual": "16_coverage",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "La couverture effectue des audits d'étiquettes par classe, plaque, source et cycle d'apprentissage actif. Ces quatre exemples proviennent d'un seul puits, qui est intentionnellement trop concentré pour la formation et montre pourquoi la couverture doit être vérifiée."
+        },
+        {
+          "narration": "Next économise les travaux en attente et charge la page complète suivante. Enter effectue la même action de sauvegarde et d'avancement sans quitter la grille.",
+          "visual": "17_next_page",
+          "focus_key": "grid",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "Next économise les travaux en attente et charge la page complète suivante. Enter effectue la même action de sauvegarde et d'avancement sans quitter la grille."
+        },
+        {
+          "narration": "L'arrière renvoie une page tout en préservant chaque annotation engagée. Page Up et Alt Left fournissent des alternatives au clavier.",
+          "visual": "18_previous_page",
+          "focus_key": "grid",
+          "click_key": "back",
+          "hold_after": 0.45,
+          "speech_text": "L'arrière renvoie une page tout en préservant chaque annotation engagée. Page Up et Alt Left fournissent des alternatives au clavier."
+        },
+        {
+          "narration": "Saute à la dernière annotation saute à la page contenant la dernière étiquette enregistrée, ce qui facilite la reprise d'une longue session d'annotation.",
+          "visual": "19_skip_to_annotations",
+          "focus_key": "grid",
+          "click_key": "skip",
+          "hold_after": 0.45,
+          "speech_text": "Saute à la dernière annotation saute à la page contenant la dernière étiquette enregistrée, ce qui facilite la reprise d'une longue session d'annotation."
+        },
+        {
+          "narration": "Les rondes affichent la précision de l'étiquetage après chaque retrain d'apprentissage actif et évaluent si l'étiquetage récent a amélioré le modèle. Aucune courbe n'apparaît tant que suffisamment d'étiquettes représentatives ne soutiennent pas un premier tour.",
+          "visual": "20_rounds",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Les rondes affichent la précision de l'étiquetage après chaque retrain d'apprentissage actif et évaluent si l'étiquetage récent a amélioré le modèle. Aucune courbe n'apparaît tant que suffisamment d'étiquettes représentatives ne soutiennent pas un premier tour."
+        },
+        {
+          "narration": "Retrain s'inscrit sur les étiquettes enregistrées, marque les récoltes restantes et réaffiche la file d'attente d'incertitude optionnelle. La ligne de statut enregistre la ronde, le résultat retenu, la classe la plus faible et la direction d'arrêt.",
+          "visual": "21_active_learning",
+          "focus_key": "active_controls",
+          "hold_after": 0.45,
+          "speech_text": "Retrain s'inscrit sur les étiquettes enregistrées, marque les récoltes restantes et réaffiche la file d'attente d'incertitude optionnelle. La ligne de statut enregistre la ronde, le résultat retenu, la classe la plus faible et la direction d'arrêt."
+        },
+        {
+          "narration": "Le CV du train remet ce projet et la colonne d'annotation au classeur d'images. Le train XG remet les mêmes étiquettes au classeur des caractéristiques de mesure. Les deux ouvrent un module préconfiguré; aucun ne commence immédiatement l'entraînement.",
+          "visual": "22_training_handoffs",
+          "focus_key": "training",
+          "hold_after": 0.45,
+          "speech_text": "Le CV du train remet ce projet et la colonne d'annotation au classeur d'images. Le train XG remet les mêmes étiquettes au classeur des caractéristiques de mesure. Les deux ouvrent un module préconfiguré; aucun ne commence immédiatement l'entraînement."
+        },
+        {
+          "narration": "La colonne claire est délibérément protégée car elle supprime toutes les étiquettes de la colonne sélectionnée. Confirmez le nom exact de la colonne avant de procéder; ce tutoriel annule l'avertissement et conserve ses étiquettes.",
+          "visual": "23_clear_warning",
+          "focus_key": "dialog",
+          "click_key": "clear",
+          "hold_after": 0.45,
+          "speech_text": "La colonne claire est délibérément protégée car elle supprime toutes les étiquettes de la colonne sélectionnée. Confirmez le nom exact de la colonne avant de procéder; ce tutoriel annule l'avertissement et conserve ses étiquettes."
+        },
+        {
+          "narration": "Les quatre étiquettes d'exemple sont maintenant enregistrées dans measurements.db sous spaCR_Tutorial avec leurs chemins d'objet et leur provenance intacts. Continuez à traverser des puits et des plaques avant de les utiliser pour former un modèle.",
+          "visual": "24_saved_result",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les annotations sont réécrites dans la base de données du projet avec les identifiants d'objets intacts."
+          "speech_text": "Les quatre étiquettes d'exemple sont maintenant enregistrées dans measurements dot db sous spakeur_Tutorial avec leurs chemins d'objet et leur provenance intacts. Continuez à traverser des puits et des plaques avant de les utiliser pour former un modèle."
         }
       ]
     },

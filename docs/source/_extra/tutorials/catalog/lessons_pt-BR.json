@@ -836,47 +836,198 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate",
+      "title": "Anotado",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Revisão de culturas de um único objeto numa grade e atribuição de rótulos fiáveis para formação de modelos ou controlo da qualidade.",
+      "description": "Etiquetar culturas reais de célula única em uma coluna de banco de dados dedicada, cobertura de auditoria e anotações manuais para classificadores de imagem ou de medição.",
       "objectives": [
-        "Entenda quando utilizar o Annotate.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Criar e configurar a coluna de anotação spaCR_Tutorial em um experimento real medido.",
+        "Use anotações de mouse e teclado, navegação, cancelamento, contagem, cobertura e controles de aprendizado ativo.",
+        "Salvar de forma segura os rótulos e compreender as remessas de Classify CV e Classify ML."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Completar a medida em primeiro lugar para que o projeto contenha medidas/measurements.db e culturas PNG de células.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade.",
-          "visual": "overview",
+          "narration": "A anotação começa com a rede de culturas priorizada. Abra o Console quando precisar de mensagens de banco de dados, salvar status, avisos ou o campo de bate-papo; o mesmo botão o esconde novamente para devolver o espaço às imagens.",
+          "visual": "01_console",
+          "focus_key": "console_and_chat",
+          "click_key": "console_toggle",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Annotate. Revisar culturas de um único objeto numa grade e atribuir rótulos confiáveis para treinamento de modelos ou controle de qualidade."
+          "speech_text": "A anotação começa com a rede de culturas priorizada. Abra o Console quando precisar de mensagens de banco de dados, salvar status, avisos ou o campo de bate-papo; o mesmo botão o esconde novamente para devolver o espaço às imagens."
         },
         {
-          "narration": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações.",
-          "visual": "input",
+          "narration": "O interruptor de IA envia uma pergunta através do provedor selecionado. Use a seta adjacente para escolher um provedor configurado ou gerenciamento de provedor aberto.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Annotate na seção Core. Abra Anotado na seção Core. Abra um projeto com culturas de objetos e selecione a tabela de banco de dados e a coluna de anotações."
+          "speech_text": "O interruptor de IA envia uma pergunta através do provedor selecionado. Use a seta adjacente para escolher um provedor configurado ou gerenciamento de provedor aberto."
         },
         {
-          "narration": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão.",
-          "visual": "settings",
+          "narration": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, escolha classes, canais de exibição, classificação, amostragem e quaisquer filtros que definam o conjunto de revisão."
+          "speech_text": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes.",
-          "visual": "run",
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. etiquete objetos representativos, salve com frequência e revisite exemplos incertos ou conflitantes."
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos.",
-          "visual": "output",
+          "narration": "Arraste a pasta do experimento medido para Annotate. spaCR resolve measurements.db, ancora os seus caminhos de colheita armazenados neste computador, cria a coluna spaCR_Tutorial e carrega as imagens reais da célula.",
+          "visual": "05_folder",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Arraste a pasta do experimento medido para Annotate. espáquer resolve measurements dot db, ancora os seus caminhos de colheita armazenados neste computador, cria a coluna espáquer_Tutorial e carrega as imagens reais da célula."
+        },
+        {
+          "narration": "As configurações nomeiam a coluna de fonte e anotação, controlam o tamanho da coluna, o tipo de imagem, os canais visíveis e normalizados, os percentilhos, os contornos opcionais, os filtros de objetos ou de medição e uma fila de incerteza com proteção à diversidade.",
+          "visual": "06_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "As configurações nomeiam a coluna de fonte e anotação, controlam o tamanho da coluna, o tipo de imagem, os canais visíveis e normalizados, os percentilhos, os contornos opcionais, os filtros de objetos ou de medição e uma fila de incerteza com proteção à diversidade."
+        },
+        {
+          "narration": "O contador de páginas mostra 128 culturas visíveis de 81.969. Um anel branco marca a colheita focada, enquanto os anéis de cor de classe mostram os rótulos já atribuídos em spaCR_Tutorial.",
+          "visual": "07_grid",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "O contador de páginas mostra 128 culturas visíveis de 81.969. Um anel branco marca a colheita focada, enquanto os anéis de cor de classe mostram os rótulos já atribuídos em espáquer_Tutorial."
+        },
+        {
+          "narration": "Abra a referência do teclado a qualquer momento. Os números 1 a 9 etiquetar e avançar, zero limpar uma colheita, flechas ou HJ K L mover, Space skips, Backspace retorna, U desfaz, e Enter salva e avança.",
+          "visual": "08_keyboard_reference",
+          "focus_key": "legend",
+          "click_key": "legend_button",
+          "hold_after": 0.45,
+          "speech_text": "Abra a referência do teclado a qualquer momento. Os números 1 a 9 etiquetar e avançar, zero limpar uma colheita, flechas ou HJ K L mover, Space skips, Backspace retorna, U desfaz, e Enter salva e avança."
+        },
+        {
+          "narration": "Pressão 1 para atribuir classe 1 à colheita focada. Seu anel muda para a cor da classe, e o foco avança para a próxima imagem sem rótulo.",
+          "visual": "09_keyboard_class_one",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Pressão 1 para atribuir classe 1 à colheita focada. Seu anel muda para a cor da classe, e o foco avança para a próxima imagem sem rótulo."
+        },
+        {
+          "narration": "Pressão 2 para atribuir a classe 2. As aulas são numéricas e definidas por experimento, por isso, registem o que cada número significa antes que uma equipe comece a rotulagem.",
+          "visual": "10_keyboard_class_two",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "Pressão 2 para atribuir a classe 2. As aulas são numéricas e definidas por experimento, por isso, registem o que cada número significa antes que uma equipe comece a rotulagem."
+        },
+        {
+          "narration": "As teclas de flecha movem o foco sem alterar um rótulo. O espaço avança e o Backspace retrocede, o que torna possível uma revisão rápida sem atingir o mouse.",
+          "visual": "11_navigation",
+          "focus_key": "grid",
+          "hold_after": 0.45,
+          "speech_text": "As teclas de flecha movem o foco sem alterar um rótulo. O espaço avança e o Backspace retrocede, o que torna possível uma revisão rápida sem atingir o mouse."
+        },
+        {
+          "narration": "Pressione U para desfazer o último rótulo do teclado. A colheita retorna ao seu estado anterior, o foco muda de volta para ela, e a faixa de status confirma o anulado.",
+          "visual": "12_undo",
+          "focus_key": "legend",
+          "hold_after": 0.45,
+          "speech_text": "Pressione U para desfazer o último rótulo do teclado. A colheita retorna ao seu estado anterior, o foco muda de volta para ela, e a faixa de status confirma o anulado."
+        },
+        {
+          "narration": "A anotação do rato permanece disponível. Um clique esquerdo atribui classe 1 a uma colheita através do mesmo caminho de armazenamento de fundo usado pelos rótulos do teclado.",
+          "visual": "13_mouse_class_one",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "A anotação do rato permanece disponível. Um clique esquerdo atribui classe 1 a uma colheita através do mesmo caminho de armazenamento de fundo usado pelos rótulos do teclado."
+        },
+        {
+          "narration": "Um clique direito atribui classe 2. Clicar na mesma classe naquela colheita torna-a limpa, enquanto clicar na outra classe muda-a diretamente.",
+          "visual": "14_mouse_class_two",
+          "focus_key": "crop",
+          "click_key": "crop",
+          "hold_after": 0.45,
+          "speech_text": "Um clique direito atribui classe 2. Clicar na mesma classe naquela colheita torna-a limpa, enquanto clicar na outra classe muda-a diretamente."
+        },
+        {
+          "narration": "As contagens de classes confirmam a população salvada e exibem a cor usada para cada anel de classe. Este tutorial tem dois exemplos na classe 1 e dois na classe 2.",
+          "visual": "15_class_counts",
+          "focus_key": "dialog",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "As contagens de classes confirmam a população salvada e exibem a cor usada para cada anel de classe. Este tutorial tem dois exemplos na classe 1 e dois na classe 2."
+        },
+        {
+          "narration": "A cobertura verifica os rótulos por classe, placa, poço, fonte e rodada de aprendizagem ativa. Estes quatro exemplos provêm de um só poço, que é intencionalmente demasiado concentrado para a formação e demonstra por que a cobertura deve ser verificada.",
+          "visual": "16_coverage",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "A cobertura verifica os rótulos por classe, placa, poço, fonte e rodada de aprendizagem ativa. Estes quatro exemplos provêm de um só poço, que é intencionalmente demasiado concentrado para a formação e demonstra por que a cobertura deve ser verificada."
+        },
+        {
+          "narration": "O Next salva o trabalho pendente e carrega a página completa seguinte. Enter executa a mesma ação de salvamento e avanço sem sair da grade.",
+          "visual": "17_next_page",
+          "focus_key": "grid",
+          "click_key": "next",
+          "hold_after": 0.45,
+          "speech_text": "O Next salva o trabalho pendente e carrega a página completa seguinte. Enter executa a mesma ação de salvamento e avanço sem sair da grade."
+        },
+        {
+          "narration": "O Back retorna uma página enquanto preserva todas as anotações comprometidas. Page Up e Alt Left fornecem alternativas ao teclado.",
+          "visual": "18_previous_page",
+          "focus_key": "grid",
+          "click_key": "back",
+          "hold_after": 0.45,
+          "speech_text": "O Back retorna uma página enquanto preserva todas as anotações comprometidas. Page Up e Alt Left fornecem alternativas ao teclado."
+        },
+        {
+          "narration": "Salte para a última anotação salta para a página que contém o último rótulo guardado, tornando fácil retomar uma longa sessão de anotação.",
+          "visual": "19_skip_to_annotations",
+          "focus_key": "grid",
+          "click_key": "skip",
+          "hold_after": 0.45,
+          "speech_text": "Salte para a última anotação salta para a página que contém o último rótulo guardado, tornando fácil retomar uma longa sessão de anotação."
+        },
+        {
+          "narration": "Os rounds mostram a precisão de manuseio após cada reestruturação de aprendizagem ativa e avaliam se a rotulagem recente melhorou o modelo. Nenhuma curva aparece até que suficientes rótulos representativos sustentem uma primeira rodada.",
+          "visual": "20_rounds",
+          "focus_key": "report",
+          "click_key": "button",
+          "hold_after": 0.45,
+          "speech_text": "Os rounds mostram a precisão de manuseio após cada reestruturação de aprendizagem ativa e avaliam se a rotulagem recente melhorou o modelo. Nenhuma curva aparece até que suficientes rótulos representativos sustentem uma primeira rodada."
+        },
+        {
+          "narration": "Retrain se encaixa nos rótulos salvos, marca as colheitas remanescentes e reorganiza a fila de incerteza opcional. A linha de status registra a rodada, o resultado mantido, a classe mais fraca e a orientação de parada.",
+          "visual": "21_active_learning",
+          "focus_key": "active_controls",
+          "hold_after": 0.45,
+          "speech_text": "Retrain se encaixa nos rótulos salvos, marca as colheitas remanescentes e reorganiza a fila de incerteza opcional. A linha de status registra a rodada, o resultado mantido, a classe mais fraca e a orientação de parada."
+        },
+        {
+          "narration": "O currículo do treinamento entrega este projeto e a coluna de anotações ao classificador de imagens. O Train XG entrega os mesmos rótulos ao classificador das características de medição. Ambos abrem um módulo pré-configurado; nenhum começa o treinamento imediatamente.",
+          "visual": "22_training_handoffs",
+          "focus_key": "training",
+          "hold_after": 0.45,
+          "speech_text": "O currículo do treinamento entrega este projeto e a coluna de anotações ao classificador de imagens. O Train XG entrega os mesmos rótulos ao classificador das características de medição. Ambos abrem um módulo pré-configurado; nenhum começa o treinamento imediatamente."
+        },
+        {
+          "narration": "A coluna limpa é guardada intencionalmente porque remove todos os rótulos da coluna selecionada. Confirme o nome exato da coluna antes de prosseguir; este tutorial cancela o aviso e mantém os rótulos.",
+          "visual": "23_clear_warning",
+          "focus_key": "dialog",
+          "click_key": "clear",
+          "hold_after": 0.45,
+          "speech_text": "A coluna limpa é guardada intencionalmente porque remove todos os rótulos da coluna selecionada. Confirme o nome exato da coluna antes de prosseguir; este tutorial cancela o aviso e mantém os rótulos."
+        },
+        {
+          "narration": "Os quatro rótulos de exemplo são agora guardados em measurements.db em spaCR_Tutorial com os seus caminhos de objeto e proveniência intactos. Continue através de poços e pratos antes de usá-los para treinar um modelo.",
+          "visual": "24_saved_result",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, as anotações são escritas de volta para o banco de dados do projeto com identificadores de objetos intactos."
+          "speech_text": "Os quatro rótulos de exemplo são agora guardados em measurements dot db em espáquer_Tutorial com os seus caminhos de objeto e proveniência intactos. Continue através de poços e pratos antes de usá-los para treinar um modelo."
         }
       ]
     },
