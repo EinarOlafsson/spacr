@@ -705,19 +705,52 @@
       "id": "14_make_masks",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Make Masks. Interaktiv konstruieren, korrigieren und kuratieren Sie Segmentierungsetiketten für Cellpose-Ausbildungsdaten."
+          "narration": "Make Masks ist der interaktive Editor von spaCR für die Korrektur von Segmentierungsetiketten und die Erstellung von Cellpose-Trainingpaaren. Öffnen Sie einen Ordner mit mikroskopischen Bildern; aus dem Unterordner Masken werden entsprechende Etiketten gelesen."
         },
         {
-          "narration": "Öffnen Sie Masken aus dem Modellbereich Segmentierung. Offene repräsentative Mikroskopiebilder und bestehende Masken, die verfeinert werden sollten."
+          "narration": "Diese isolierte Tutorialkopie enthält drei echte Notfallfelder. Die ersten beiden Lade ER-abgeleiteten Zelletiketten als farbige Überlagerungen; die dritte hat absichtlich keine vorhandene Maske."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich wählen Sie Kanäle, Normalisierung, Pinsel- oder Magiewandwerkzeuge, Objektoperationen und Etiketten-Sparverhalten aus."
+          "narration": "Die Tools-Karte gruppiert sechs Bearbeitungsmodi. Pinsel fügt den Vordergrund hinzu, Löschen entfernt Pixel, Löschen Objekt löscht ein Etikett, die beiden Wangen folgen der Bildintensität, und Zoom wählt eine detaillierte Region aus."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Korrigieren Sie Grenzen und fehlende Objekte über einen vielfältigen Trainingsuntersatz und nicht nur einfache Felder."
+          "narration": "Wählen Sie Brush aus und setzen Sie den Radius in Bildschirmpixeln ein. Ein Klick malt einen Fleck und eine schrittweise Ziehung verbindet eine Grenzkorrektur; der Schlüssel B wählt das gleiche Werkzeug aus."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, sind Paarbilder und kuratierte Etikettenmasken bereit für maßgeschneiderte Cellpose-Ausbildung."
+          "narration": "Das Löschen verwendet denselben verstellbaren Radius, um nur den gemalten Teil eines Etiketts zu entfernen. Dies ist nützlich, um eine falsche Brücke zu trennen und den Rest jeder Zelle zu erhalten."
+        },
+        {
+          "narration": "Löschen Objekt entfernt das vollständige gekennzeichnete Objekt mit einem Klick. Verwenden Sie es für einen eindeutigen falschen Positiv; Undo bleibt verfügbar, wenn das ausgewählte Objekt gültig war."
+        },
+        {
+          "narration": "Wand plus ergänzt eine intensitätsverknüpfte Region. Die Toleranz kontrolliert, inwieweit sich die Intensität vom geklickten ER-Pixel unterscheiden kann, während Max-Pixel eine zufällige Überschwemmung über das Feld verhindern."
+        },
+        {
+          "narration": "Wand minus folgt der gleichen Intensitätsregel, subtrahiert aber die verbundene Region. Passen Sie die Toleranz konservativ an und überprüfen Sie das Ergebnis, bevor Sie zu einem anderen Bild wechseln."
+        },
+        {
+          "narration": "Zoom zeichnet eine rechteckige Region und erweitert sie auf die Leinwand, wodurch die Zellgrenzen bei 4K leicht zu beurteilen sind. Zurücksetzen Sie Zoom oder drücken Sie Escape, um auf das volle Feld zurückzukehren."
+        },
+        {
+          "narration": "Normalisieren Sie nur den angezeigten Kontrast. Dieses ER-Feld verwendet die zweiten und neunundneunzigsten Punkte-Fünf-Perzentile, so dass schwache Grenzen sichtbar bleiben, ohne Bilddaten oder Etikettgeometrie zu ändern."
+        },
+        {
+          "narration": "Undo und Redo gehen unabhängig von Zoom und Kontrast durch Maskenbearbeitungen. Ihre Standard-Abkürzungen sind Control Z und Control Y, wobei Control Shift Z auch zur Wiederherstellung zur Verfügung steht."
+        },
+        {
+          "narration": "Objektoperationen können interne Löcher füllen, das angeschlossene Vordergrund neu kennzeichnen, Vordergrund und Hintergrund umkehren oder die Maske löschen. Clear bittet um Bestätigung, weil es jedes aktuelle Etikett entfernt."
+        },
+        {
+          "narration": "Die Mindestflächenoperation entfernt verbundene Objekte, die kleiner sind als die gewählte Pixelzahl. Hier macht zehntausend die Filterwirkung offensichtlich; wählen Sie eine biologisch angemessene Schwelle für Produktionsetiketten."
+        },
+        {
+          "narration": "Speichermaske umschriftet verknüpfte Komponenten und schreibt unter dem Quellbildstamm eine Uint16 TIFF zu Masken. Dieses Tutorial bearbeitet eine einzelne Kopie und lässt das ursprüngliche Experiment unverändert."
+        },
+        {
+          "narration": "Das vorherige Bild und das nächste Bild bewegen sich durch den Ordner in Dateinamenfolge. Die Statuszeile zeigt immer die aktuelle Datei und Position an, sodass jedes Trainingsfeld systematisch überprüft werden kann."
+        },
+        {
+          "narration": "Ein Bild ohne Begleitermaske öffnet sich mit null Etiketten. Beginnen Sie mit Brush oder Wand plus, überprüfen und reinigen Sie jedes Objekt und speichern Sie das neue Paar für benutzerdefiniertes Cellpose-Training."
         }
       ]
     },
