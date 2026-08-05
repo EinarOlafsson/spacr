@@ -549,6 +549,23 @@ function voiceById(language, id) {
   return language?.voices.find(voice => voice.id === id);
 }
 
+// Set once the narration host has failed to answer. The site publishes one
+// voice per language precisely so this is survivable: the lesson keeps its
+// narration and its captions, just not the visitor's chosen voice. Sticky for
+// the session -- a host that is down for one request is down for the next, and
+// retrying it on every voice change would stall the picker each time.
+let narrationFallback = false;
+
+function narrationRoot() {
+  return narrationFallback ? PRODUCTION_ROOT : AUDIO_ROOT;
+}
+
+// The voice published to the site itself, which is the one the picker defaults
+// to for that language (`language.voices[0]`).
+function offlineVoiceFor(languageId) {
+  return languageById(languageId)?.voices?.[0]?.id || "";
+}
+
 function fourKAvailable() {
   return Boolean(VIDEO_4K_ROOT);
 }
@@ -619,18 +636,18 @@ function setupQualityControl() {
 
 function audioSource(lesson = activeLesson) {
   if (!lesson || elements.voice.value === "silent") return "";
-  return `${AUDIO_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.m4a`;
+  return `${narrationRoot()}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.m4a`;
 }
 
 function timingSource(lesson = activeLesson) {
   if (elements.voice.value === "silent") {
     return defaultTimingSource(lesson);
   }
-  return `${AUDIO_ROOT}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.json`;
+  return `${narrationRoot()}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.json`;
 }
 
 function defaultTimingSource(lesson = activeLesson) {
-  return `${AUDIO_ROOT}/${lesson.id}/audio/${DEFAULT_LANGUAGE}/${DEFAULT_VOICE}.json`;
+  return `${narrationRoot()}/${lesson.id}/audio/${DEFAULT_LANGUAGE}/${DEFAULT_VOICE}.json`;
 }
 
 function populateVoiceSelector(preferredVoice = "") {
@@ -883,6 +900,18 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
       narrationAudioAvailable = true;
     } catch (audioError) {
       if (!isCurrent()) return;
+      // The site carries one voice per language for exactly this moment. Drop
+      // to it and retry once: the lesson keeps narration and captions, just
+      // not the voice that was asked for. Retrying is safe from a loop because
+      // the second attempt is already on the offline root and the offline
+      // voice, so this branch cannot choose to fall back again.
+      const offline = offlineVoiceFor(elements.language.value);
+      if (offline && !(narrationFallback && elements.voice.value === offline)) {
+        narrationFallback = true;
+        elements.voice.value = offline;
+        showToast("Narration host unreachable — playing this language's offline voice.");
+        return loadNarration(resume, outerCurrent);
+      }
       elements.audio.removeAttribute("src");
       elements.audio.load();
       showToast("Narration audio is unavailable; video and captions remain available.");
