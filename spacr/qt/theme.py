@@ -2105,6 +2105,104 @@ QGroupBox {{
 _WIDGET_QSS: Dict[str, object] = {}
 
 
+#: Every module that registers a widget QSS block **at import time**.
+#:
+#: This list exists because a rule that is not registered when the
+#: stylesheet is built simply is not in it, and the widget it was meant for
+#: then falls through to the blanket ``QWidget {{ background-color: bg }}``.
+#: ``bg`` is the WINDOW colour -- ``#000000`` on the dark theme -- so an
+#: unstyled container is not "slightly off", it is a solid black rectangle.
+#:
+#: That is the black box behind the settings categories, reported over and
+#: over across Mask, Measure, Timelapse, Motility, both Classify screens,
+#: Map Barcodes, Regression, External Masks, Illumination, Train Cellpose,
+#: Cellpose Masks, Image UMAP, Activation, Barcode QC, Replication,
+#: Invasion, Recruitment and Plaque. ``settings_search`` owns
+#: ``SettingsSearchPane``, the wrapper around the search strip AND the
+#: settings scroll area -- i.e. the entire left column -- and it registers
+#: its rules when it is imported, which is when the first module screen is
+#: built. The application stylesheet is composed and applied before that.
+#: So the first screen of a session opened onto a black column, and any
+#: later rebuild of the stylesheet -- switching theme, switching animation,
+#: opening enough screens that something re-applied it -- silently fixed
+#: it. Every one of those is exactly what was reported.
+#:
+#: Ordering, not styling: the rules were right the whole time and were not
+#: in the sheet yet. Fixing it by styling one more container would have
+#: fixed one screen and left the next.
+WIDGET_QSS_MODULES: Tuple[str, ...] = (
+    "spacr.qt.settings_search",
+    "spacr.qt.screens.app_screen",
+    "spacr.qt.screens.settings_model",
+    "spacr.qt.shortcuts",
+    "spacr.qt.recipes",
+    "spacr.qt.comparison_grid",
+    "spacr.qt.counting_tool",
+    "spacr.qt.curation_tool",
+    "spacr.qt.layer_viewer",
+    "spacr.qt.ortho_view",
+    "spacr.qt.roi_tool",
+    "spacr.qt.screens.classifier_evaluation",
+    "spacr.qt.screens.control_chart",
+    "spacr.qt.screens.data_manager",
+    "spacr.qt.screens.experiment_design",
+    "spacr.qt.screens.hit_list",
+    "spacr.qt.screens.image_scatter",
+    "spacr.qt.screens.methods_export",
+    "spacr.qt.screens.model_compare",
+    "spacr.qt.screens.model_zoo",
+    "spacr.qt.screens.outliers",
+    "spacr.qt.screens.pipeline_graph",
+    "spacr.qt.screens.power",
+    "spacr.qt.screens.profiler",
+    "spacr.qt.screens.qc_dashboard",
+    "spacr.qt.screens.run_compare",
+    "spacr.qt.screens.run_history",
+    "spacr.qt.widgets.formula_editor",
+    "spacr.qt.widgets.graph_builder",
+    "spacr.qt.widgets.pca_view",
+    "spacr.qt.widgets.pivot_builder",
+)
+
+_QSS_REGISTRARS_LOADED = False
+
+
+def load_widget_qss_registrars() -> Tuple[str, ...]:
+    """Import :data:`WIDGET_QSS_MODULES` so their blocks are registered.
+
+    Called from :func:`stylesheet` before it composes anything, so the very
+    first sheet of a session carries every rule rather than acquiring them
+    as screens happen to be opened.
+
+    Idempotent, and the flag is set BEFORE the imports rather than after:
+    several of these modules call :func:`stylesheet` while being imported,
+    and without that ordering the first one would recurse.
+
+    One module's failure costs that module's rules and nothing else. A
+    widget QSS block is decoration; it must never be the thing that stops
+    the GUI from starting.
+
+    :returns: the module names that imported cleanly.
+    """
+    global _QSS_REGISTRARS_LOADED
+    if _QSS_REGISTRARS_LOADED:
+        return ()
+    _QSS_REGISTRARS_LOADED = True
+
+    import importlib
+
+    loaded = []
+    for name in WIDGET_QSS_MODULES:
+        try:
+            importlib.import_module(name)
+        except Exception:
+            LOG.debug("could not load the widget QSS in %s", name,
+                      exc_info=True)
+        else:
+            loaded.append(name)
+    return tuple(loaded)
+
+
 def register_widget_qss(name: str, fn, *, replace: bool = False):
     """Register a QSS block appended to every generated stylesheet.
 
@@ -2347,6 +2445,12 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
         module surfaces. ``None`` uses the theme's designed scrims.
     """
     base = palette_for(theme)
+    # Before anything is composed: a block that is not registered yet is
+    # not in the sheet, and its widget falls through to the blanket
+    # `QWidget { background-color: bg }` -- black on the dark theme. See
+    # `WIDGET_QSS_MODULES`.
+    load_widget_qss_registrars()
+
     S = SPACING
     R = RADIUS
     # Surface roles are re-rendered through the theme's scrim alpha.
