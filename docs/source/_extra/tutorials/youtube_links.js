@@ -11,25 +11,25 @@
 // an error, and a missing lesson key is not either. Paste the 11-character
 // video id, not the whole URL:
 //
-//     "07_mask": "dQw4w9WgXcQ",
+//     "07_mask": "AAAAAAAAAAA",
 //
 // Upload sources live outside the repo, in
 // /media/carruthers/mnt3/claude/tutorials/youtube_4k.
 window.SPACR_YOUTUBE_LINKS = Object.freeze({
-  "01_pypi_github": "",                // PyPI, GitHub, and conda-forge
+  "01_pypi_github": "Hkmghk8jwkI",                // PyPI, GitHub, and conda-forge
   "02_conda_install": "",              // Installation with Conda
-  "03_pip_install": "",                // Installation with pip
-  "04_platform_installers": "",        // Platform installers
-  "05_home": "",                       // Home screen and navigation
-  "06_api": "",                        // Python API and headless workflows
-  "07_mask": "",                       // Mask
-  "08_measure": "",                    // Measure
-  "09_annotate": "",                   // Annotate
-  "10_classify_cv": "",                // Classify (CV)
-  "11_classify_ml": "",                // Classify (ML)
-  "12_map_barcodes": "",               // Map Barcodes
-  "13_regression": "",                 // Regression
-  "14_make_masks": "",                 // Make Masks
+  "03_pip_install": "fP_E6ishElw",                // Installation with pip
+  "04_platform_installers": "X0CJaYhWg3I",        // Platform installers
+  "05_home": "hDCeEPHVA-Y",                       // Home screen and navigation
+  "06_api": "MCsjYtLfLZU",                        // Python API and headless workflows
+  "07_mask": "nlErufRyrtU",                       // Mask
+  "08_measure": "kXdRsQI60Vc",                    // Measure
+  "09_annotate": "4VoAwo9YVjA",                   // Annotate
+  "10_classify_cv": "u69A67fZuEs",                // Classify (CV)
+  "11_classify_ml": "qW4xNH-Q12E",                // Classify (ML)
+  "12_map_barcodes": "yEb2HrNIKEc",               // Map Barcodes
+  "13_regression": "Emj9jQA0Tnc",                 // Regression
+  "14_make_masks": "VZBgGTgPk0M",                 // Make Masks
   "15_image_umap": "",                 // Image UMAP
   "16_activation": "",                 // Activation Maps
   "17_timelapse": "",                  // Timelapse
