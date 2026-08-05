@@ -3366,48 +3366,177 @@
     {
       "id": "24_plaque",
       "number": 24,
-      "slug": "plaque",
-      "title": "Plaque assay",
+      "slug": "plaque-assay",
+      "title": "张牌检测",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "从板图像中测量板块形成和依赖条件的变化.",
+      "description": "细分或重复使用斑块面具,量化每图片的斑块数量和面积,并将总结,统计和对象细节表写入结果数据库.",
       "objectives": [
-        "了解什么时候使用平板测试.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "选择分区块化板块领域和重复使用现有标签面具.",
+        "检查六个设置类别,而不将模型门与下游测量混为一谈.",
+        "运行板块量化并验证结果的SQLite表和每个图像的数量."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "准备TIFF板测试图像;为了重复使用面具,在面具子文件中放置相同名称的标记TIFF面具.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了板块测试. 从板块图像中测量板块形成和依赖条件的变化.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了板块测试. 从板块图像中测量板块形成和依赖条件的变化."
-        },
-        {
-          "narration": "从 Toxoplasma assays 部分打开 Plaque assay。 提供片图像,片布局,像素校准,条件和控制.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Toxoplasma assays 部分打开 Plaque assay。 提供片图像,片布局,像素校准,条件和控制."
-        },
-        {
-          "narration": "在主配置区域,配置背景纠正,门,对象清洁,板块尺寸过器和井组.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主配置区域,配置背景纠正,门,对象清洁,板块尺寸过器和井组."
-        },
-        {
-          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式. 在批量分析之前,检查控制和处理井间的细分覆盖.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式. 在批量分析之前,检查控制和处理井间的细分覆盖."
-        },
-        {
-          "narration": "在工作流程完成后, spaCR 报告了牌数量,面积,总结,统计和质量控制数据.",
-          "visual": "output",
+          "narration": "片检测检测和量化清除的宿主细胞区域. 控制台记录已解决的设置,进展,输出路径,警告和错误. 在控制台下面的聊天框可以讨论人工智能启用时的环境,",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "在工作流程完成后, 斯佩克尔 报告了牌数量,面积,总结,统计和质量控制数据."
+          "speech_text": "片检测检测和量化清除的宿主细胞区域. 控制台记录已解决的设置,进展,输出路径,警告和错误. 在控制台下面的聊天框可以讨论人工智能启用时的环境,"
+        },
+        {
+          "narration": "人工智能按切换了聊天路由. 它的旁边菜单选择配置的提供商,并打开提供商设置. 如果不需要任何助理,请关闭它;分析管道本身是本地的,不需要人工智能.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.55,
+          "speech_text": "人工智能按切换了聊天路由. 它的旁边菜单选择配置的提供商,并打开提供商设置. 如果不需要任何助理,请关闭它;分析管道本身是本地的,不需要人工智能."
+        },
+        {
+          "narration": "提供商设置将本地和托管的助理分开. 在向远程提供商发送控制台或图像文本之前,只设置您打算使用的服务,并查看隐私通知.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.55,
+          "speech_text": "提供商设置将本地和托管的助理分开. 在向远程提供商发送控制台或图像文本之前,只设置您打算使用的服务,并查看隐私通知."
+        },
+        {
+          "narration": "人工智能设置控制了环境共享,错误报告和供应商特定凭证等行为. 这些偏好影响了聊天助理,而不是板块细分或量化.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "人工智能设置控制了环境共享,错误报告和供应商特定凭证等行为. 这些偏好影响了聊天助理,而不是板块细分或量化."
+        },
+        {
+          "narration": "选择或放下包含TIFF板块字段的文件. 这本教程使用了四个明确的合成井, 通过面具,spaCR在测量之前将源图像与捆绑的板块模型进行分割.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.75,
+          "speech_text": "选择或放下包含TIFF板块字段的文件. 这本教程使用了四个明确的合成井, 通过面具,斯佩克尔在测量之前将源图像与捆绑的板块模型进行分割."
+        },
+        {
+          "narration": "基本数据显示,通常用于第一次运行所需的小组. 在这里开始验证来源,面具行为,预期直径,门和输出选择,",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.5,
+          "speech_text": "基本数据显示,通常用于第一次运行所需的小组. 在这里开始验证来源,面具行为,预期直径,门和输出选择,"
+        },
+        {
+          "narration": "修改过器将面板过到不同于默认的值. 在提交之前,这是一个紧密的审计:这里来源,面具重复使用,板块直径,批量大小和背景行为是故意的变化.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "修改过器将面板过到不同于默认的值. 在提交之前,这是一个紧密的审计:这里来源,面具重复使用,板块直径,批量大小和背景行为是故意的变化."
+        },
+        {
+          "narration": "所有设置都显示了所有可用的控制. 使用它在解决故障或复制旧运行时;否则,Essentials视图将减少已经有合适默认的参数的意外变化.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "所有设置都显示了所有可用的控制. 使用它在解决故障或复制旧运行时;否则,Essentials视图将减少已经有合适默认的参数的意外变化."
+        },
+        {
+          "narration": "配方将当前模块设置存储在可重复使用的名称下. 验证的板块配置可以保存,进口,共享并后期应用,而不是手动重建.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.55,
+          "speech_text": "配方将当前模块设置存储在可重复使用的名称下. 验证的板块配置可以保存,进口,共享并后期应用,而不是手动重建."
+        },
+        {
+          "narration": "提交远程将解决设置传递到分布式工作,而不是在本地启动. 在 SSH 工作站或集群中可访问源文件和所需模型时使用.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.5,
+          "speech_text": "提交远程将解决设置传递到分布式工作,而不是在本地启动. 在 SSH 工作站或集群中可访问源文件和所需模型时使用."
+        },
+        {
+          "narration": "远程屏幕接收该模块及其设置作为工作草案. 在提交小型验证工作之前,确认路径映射,计算资源,环境激活,同步和生成命令.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.65,
+          "speech_text": "远程屏幕接收该模块及其设置作为工作草案. 在提交小型验证工作之前,确认路径映射,计算资源,环境激活,同步和生成命令."
+        },
+        {
+          "narration": "输入和道包含源文件和面具选项. 启动面具以分割原始字段,或仅在面具子文件已经包含正确命名的标记图像时关闭.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "输入和道包含源文件和面具选项. 启动面具以分割原始字段,或仅在面具子文件已经包含正确命名的标记图像时关闭."
+        },
+        {
+          "narration": "模型包含预期的板块直径. 匹配这个尺度与代表性板块和模型的训练几何;一个细胞尺寸值通常不适合板块领域.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "模型包含预期的板块直径. 匹配这个尺度与代表性板块和模型的训练几何;一个细胞尺寸值通常不适合板块领域."
+        },
+        {
+          "narration": "检测门组分为候选概率,流量一致性,重新扩展,重新采样和填孔. 这些设置影响了新的细分;它们不会改变在本演示中重复使用的预先计算面具.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "检测门组分为候选概率,流量一致性,重新扩展,重新采样和填孔. 这些设置影响了新的细分;它们不会改变在本演示中重复使用的预先计算面具."
+        },
+        {
+          "narration": "图像几何控制,将其尺寸调整到捆绑板模型预期的尺寸. 在报告区域之前,面具将重新扩展到原始领域,因此测量将保持在原始像素中.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "图像几何控制,将其尺寸调整到捆绑板模型预期的尺寸. 在报告区域之前,面具将重新扩展到原始领域,因此测量将保持在原始像素中."
+        },
+        {
+          "narration": "在正常化过程中使用的背景和声杆控制了背景移除. 在完整的细分运行之前,将其调整到代表控制和处理井上.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "在正常化过程中使用的背景和声杆控制了背景移除. 在完整的细分运行之前,将其调整到代表控制和处理井上."
+        },
+        {
+          "narration": "输出和运行时间控制储存,GPU批量大小和语音. 如果细分超过可用内存,则减少批量大小;保持对第一盘的语音记录,以便记录已解决的路径和行为.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "输出和运行时间控制储存,GPU批量大小和语音. 如果细分超过可用内存,则减少批量大小;保持对第一盘的语音记录,以便记录已解决的路径和行为."
+        },
+        {
+          "narration": "在细分时,概率控制候选地板,流量门控制形状一致性, 检查多个井,因为清洁一个板块的值可以合并或抹去另一个板块.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.58,
+          "speech_text": "在细分时,概率控制候选地板,流量门控制形状一致性, 检查多个井,因为清洁一个板块的值可以合并或抹去另一个板块."
+        },
+        {
+          "narration": "在检查修改设置后,单击运行. 这项示范通过真实板块分析后端测量了四种合成标记面具;它没有将合成场作为细分模型的生物验证.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.6,
+          "speech_text": "在检查修改设置后,单击运行. 这项示范通过真实板块分析后端测量了四种合成标记面具;它没有将合成场作为细分模型的生物验证."
+        },
+        {
+          "narration": "在执行过程中,控制台会打印可再生性记录,解决源和目的地,并分析每个面具. 停止取消请求;等待完成之前打开输出.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.55,
+          "speech_text": "在执行过程中,控制台会打印可再生性记录,解决源和目的地,并分析每个面具. 停止取消请求;等待完成之前打开输出."
+        },
+        {
+          "narration": "运行将在面具文件中写 plaques_analysis.db,包含总结,统计和详细表. 这些四个字段分别包含四个,三个,两个和一个牌子;使用每张图像的数量和带有牌子的元数据的区域进行下游状态水平统计和质量控制.",
+          "visual": "23_output",
+          "focus_key": "console",
+          "hold_after": 0.8,
+          "speech_text": "运行将在面具文件中写 plaques_analysis.db,包含总结,统计和详细表. 这些四个字段分别包含四个,三个,两个和一个牌子;使用每张图像的数量和带有牌子的元数据的区域进行下游状态水平统计和质量控制."
         }
       ]
     },

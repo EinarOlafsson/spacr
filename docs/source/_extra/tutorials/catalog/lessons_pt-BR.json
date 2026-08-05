@@ -3366,48 +3366,177 @@
     {
       "id": "24_plaque",
       "number": 24,
-      "slug": "plaque",
-      "title": "Plaque assay",
+      "slug": "plaque-assay",
+      "title": "Plaque Assay",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "Medir a formação de placa e as alterações dependentes da condição a partir de imagens de placa.",
+      "description": "Segmentar ou reutilizar máscaras de placa, quantificar a contagem de placa e área por imagem, e escrever resumo, estatísticas e tabelas de detalhes de objetos para um banco de dados de resultados.",
       "objectives": [
-        "Entender quando usar o ensaio de placa.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Escolha entre segmentar campos de placa e reutilizar máscaras etiquetadas existentes.",
+        "Revisar as seis categorias de configurações sem confundir os limiares do modelo com a medição a jusante.",
+        "Execute a quantificação de placa e verifique as tabelas SQLite resultantes e as contagens por imagem."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Preparar imagens de ensaio de placa TIFF; para reutilização de máscaras, colocar as máscaras TIFF com rótulos idênticos na subfolha de máscaras.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o ensaio de placas.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o ensaio de placas."
-        },
-        {
-          "narration": "Abra Plaque assay na seção Toxoplasma assays. Abre o ensaio de placa na seção de ensaio de Toxoplasma.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Plaque assay na seção Toxoplasma assays. Abre o ensaio de placa na seção de ensaio de Toxoplasma."
-        },
-        {
-          "narration": "Na área de configuração principal, configure a correção de fundo, o limiar, a limpeza de objetos, os filtros de tamanho de placa e o agrupamento de poços.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configure a correção de fundo, o limiar, a limpeza de objetos, os filtros de tamanho de placa e o agrupamento de poços."
-        },
-        {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível. Verifique as superposições de segmentação entre os poços de controlo e tratamento antes da análise de lote.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível. Verifique as superposições de segmentação entre os poços de controlo e tratamento antes da análise de lote."
-        },
-        {
-          "narration": "Quando o fluxo de trabalho estiver concluído, o spaCR informa os números de placas, áreas, resumos, estatísticas e dados de controlo de qualidade.",
-          "visual": "output",
+          "narration": "O Plaque Assay detecta e quantifica as regiões de células anfitriãs despejadas. As configurações estão à esquerda; o console registra configurações resolvidas, progresso, caminhos de saída, avisos e erros. A caixa de bate-papo abaixo do console pode discutir esse contexto quando a IA está habilitada, mas não muda as configurações a menos que você aplique uma mudança sugerida.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, o espáquer informa os números de placas, áreas, resumos, estatísticas e dados de controlo de qualidade."
+          "speech_text": "O Plaque Assay detecta e quantifica as regiões de células anfitriãs despejadas. As configurações estão à esquerda; o console registra configurações resolvidas, progresso, caminhos de saída, avisos e erros. A caixa de bate-papo abaixo do console pode discutir esse contexto quando a IA está habilitada, mas não muda as configurações a menos que você aplique uma mudança sugerida."
+        },
+        {
+          "narration": "O botão da IA altera o roteamento do chat. Seu menu adjacente escolhe um provedor configurado e abre as configurações do provedor. Mantenha-o desligado quando não for necessário nenhum assistente; o próprio pipeline de análise é local e não requer IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.55,
+          "speech_text": "O botão da IA altera o roteamento do chat. Seu menu adjacente escolhe um provedor configurado e abre as configurações do provedor. Mantenha-o desligado quando não for necessário nenhum assistente; o próprio pipeline de análise é local e não requer IA."
+        },
+        {
+          "narration": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise o aviso de privacidade antes de enviar conteúdo de console ou imagem para um provedor remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.55,
+          "speech_text": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise o aviso de privacidade antes de enviar conteúdo de console ou imagem para um provedor remoto."
+        },
+        {
+          "narration": "As configurações de IA controlam o comportamento, como compartilhamento de contexto, relatórios de erros e credenciais específicas do provedor. Estas preferências afetam o assistente de bate-papo, não a segmentação de placa ou a quantificação.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "As configurações de IA controlam o comportamento, como compartilhamento de contexto, relatórios de erros e credenciais específicas do provedor. Estas preferências afetam o assistente de bate-papo, não a segmentação de placa ou a quantificação."
+        },
+        {
+          "narration": "Escolher ou soltar a pasta que contém campos de placa TIFF. Este tutorial usa quatro poços sintéticos explícitos e desliga as máscaras para reutilizar as suas máscaras pré-computadas. Com as máscaras ligadas, o spaCR em vez disso segmenta as imagens de origem com o modelo de placa em conjunto antes de medi-las.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.75,
+          "speech_text": "Escolher ou soltar a pasta que contém campos de placa TIFF. Este tutorial usa quatro poços sintéticos explícitos e desliga as máscaras para reutilizar as suas máscaras pré-computadas. Com as máscaras ligadas, o espáquer em vez disso segmenta as imagens de origem com o modelo de placa em conjunto antes de medi-las."
+        },
+        {
+          "narration": "Os elementos essenciais mostram o pequeno conjunto normalmente necessário para uma primeira corrida. Comece aqui para verificar a fonte, o comportamento da máscara, o diâmetro esperado, os limiares e a escolha de saída sem escanear todos os controles avançados.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.5,
+          "speech_text": "Os elementos essenciais mostram o pequeno conjunto normalmente necessário para uma primeira corrida. Comece aqui para verificar a fonte, o comportamento da máscara, o diâmetro esperado, os limiares e a escolha de saída sem escanear todos os controles avançados."
+        },
+        {
+          "narration": "Modificado filtra o painel para valores que diferem dos padrões. É uma auditoria compacta antes da submissão: aqui a fonte, a reutilização da máscara, o diâmetro da placa, o tamanho do lote e o comportamento de fundo são alterações intencionais.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "Modificado filtra o painel para valores que diferem dos padrões. É uma auditoria compacta antes da submissão: aqui a fonte, a reutilização da máscara, o diâmetro da placa, o tamanho do lote e o comportamento de fundo são alterações intencionais."
+        },
+        {
+          "narration": "Todas as configurações revelam todos os controles disponíveis. Use-o ao resolver problemas ou reproduzir uma execução anterior; caso contrário, a visão Essentials reduz as alterações acidentais de parâmetros que já têm padrões adequados.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Todas as configurações revelam todos os controles disponíveis. Use-o ao resolver problemas ou reproduzir uma execução anterior; caso contrário, a visão Essentials reduz as alterações acidentais de parâmetros que já têm padrões adequados."
+        },
+        {
+          "narration": "As receitas guardam as configurações atuais do módulo sob um nome reutilizável. Uma configuração de placa validada pode ser guardada, importada, compartilhada e aplicada mais tarde em vez de ser reconstruída à mão.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.55,
+          "speech_text": "As receitas guardam as configurações atuais do módulo sob um nome reutilizável. Uma configuração de placa validada pode ser guardada, importada, compartilhada e aplicada mais tarde em vez de ser reconstruída à mão."
+        },
+        {
+          "narration": "Enviar remoto passa as configurações resolvidas para Funções Distribuídas em vez de começar localmente. Usá-lo quando a pasta fonte e o modelo requerido são acessíveis a partir de uma estação de trabalho ou de um cluster SSH.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.5,
+          "speech_text": "Enviar remoto passa as configurações resolvidas para Funções Distribuídas em vez de começar localmente. Usá-lo quando a pasta fonte e o modelo requerido são acessíveis a partir de uma estação de trabalho ou de um cluster SSH."
+        },
+        {
+          "narration": "A tela remota recebe este módulo e as suas configurações como um esboço de trabalho. Confirme o mapeamento do caminho, os recursos de computação, a ativação do ambiente, a sincronização e o comando gerado antes de enviar um pequeno trabalho de validação.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.65,
+          "speech_text": "A tela remota recebe este módulo e as suas configurações como um esboço de trabalho. Confirme o mapeamento do caminho, os recursos de computação, a ativação do ambiente, a sincronização e o comando gerado antes de enviar um pequeno trabalho de validação."
+        },
+        {
+          "narration": "A entrada e os canais contêm a pasta fonte e a opção Máscaras. Ligue as máscaras para segmentar os campos originais ou desligue apenas quando a subfolha de máscaras já contém imagens etiquetadas corretamente.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "A entrada e os canais contêm a pasta fonte e a opção Máscaras. Ligue as máscaras para segmentar os campos originais ou desligue apenas quando a subfolha de máscaras já contém imagens etiquetadas corretamente."
+        },
+        {
+          "narration": "O modelo contém o diâmetro esperado da placa. Compare esta escala com as placas representativas e a geometria de treinamento do modelo; um valor do tamanho de uma célula é geralmente inadequado para campos de placas.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "O modelo contém o diâmetro esperado da placa. Compare esta escala com as placas representativas e a geometria de treinamento do modelo; um valor do tamanho de uma célula é geralmente inadequado para campos de placas."
+        },
+        {
+          "narration": "Os limiares de detecção agrupam a probabilidade de candidato, a consistência do fluxo, a reescalação, a repetição de amostras e o preenchimento de buracos. Estas configurações afetam a nova segmentação; elas não alteram as máscaras pré-computadas reutilizadas nesta demonstração.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Os limiares de detecção agrupam a probabilidade de candidato, a consistência do fluxo, a reescalação, a repetição de amostras e o preenchimento de buracos. Estas configurações afetam a nova segmentação; elas não alteram as máscaras pré-computadas reutilizadas nesta demonstração."
+        },
+        {
+          "narration": "Controle de geometria de imagem redimensionando para as dimensões esperadas pelo modelo de placa em conjunto. A máscara é reduzida para o campo original antes da área ser relatada, de modo que a medição permanece em pixels originais.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Controle de geometria de imagem redimensionando para as dimensões esperadas pelo modelo de placa em conjunto. A máscara é reduzida para o campo original antes da área ser relatada, de modo que a medição permanece em pixels originais."
+        },
+        {
+          "narration": "O Background e o Denoising controlam a remoção de fundo e a âncora sinal-ruído utilizada durante a normalização. Tone-o em poços de controlo e tratamento representativos antes de uma corrida de segmentação completa.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "O Background e o Denoising controlam a remoção de fundo e a âncora sinal-ruído utilizada durante a normalização. Tone-o em poços de controlo e tratamento representativos antes de uma corrida de segmentação completa."
+        },
+        {
+          "narration": "A saída e o tempo de execução controlam a poupança, o tamanho do lote da GPU e a verbosidade. Reduzir o tamanho do lote se a segmentação exceder a memória disponível; manter o registro verbal para a primeira placa para que os caminhos resolvidos e o comportamento sejam gravados.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "A saída e o tempo de execução controlam a poupança, o tamanho do lote da GPU e a verbosidade. Reduzir o tamanho do lote se a segmentação exceder a memória disponível; manter o registro verbal para a primeira placa para que os caminhos resolvidos e o comportamento sejam gravados."
+        },
+        {
+          "narration": "Ao segmentar, a probabilidade controla o piso candidato, o limiar de fluxo controla a consistência da forma e o preenchimento fecha os buracos interiores. Inspecte vários poços porque um valor que limpa uma placa pode fundir ou apagar outra.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.58,
+          "speech_text": "Ao segmentar, a probabilidade controla o piso candidato, o limiar de fluxo controla a consistência da forma e o preenchimento fecha os buracos interiores. Inspecte vários poços porque um valor que limpa uma placa pode fundir ou apagar outra."
+        },
+        {
+          "narration": "Clique em Executa depois de revisar as configurações modificadas. Esta demonstração mede quatro máscaras sintéticas rotuladas através do fundo real da análise de placa; não apresenta os campos sintéticos como validação biológica do modelo de segmentação.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.6,
+          "speech_text": "Clique em Executa depois de revisar as configurações modificadas. Esta demonstração mede quatro máscaras sintéticas rotuladas através do fundo real da análise de placa; não apresenta os campos sintéticos como validação biológica do modelo de segmentação."
+        },
+        {
+          "narration": "Durante a execução, o console imprime o registro de reprodução, a fonte resolvida e o destino, e cada máscara sendo analisada. Parar as solicitações de cancelamento; esperar o Terminado antes de abrir as saídas.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.55,
+          "speech_text": "Durante a execução, o console imprime o registro de reprodução, a fonte resolvida e o destino, e cada máscara sendo analisada. Parar as solicitações de cancelamento; esperar o Terminado antes de abrir as saídas."
+        },
+        {
+          "narration": "A execução escreve plaques_analysis.db na pasta de máscaras com tabelas de resumo, estatísticas e detalhes. Estes quatro campos contêm quatro, três, dois e uma placas, respectivamente; use as contagens por imagem e as áreas com os seus metadados de placa para estatísticas de nível de condição e controle de qualidade.",
+          "visual": "23_output",
+          "focus_key": "console",
+          "hold_after": 0.8,
+          "speech_text": "A execução escreve plaques_analysis.db na pasta de máscaras com tabelas de resumo, estatísticas e detalhes. Estes quatro campos contêm quatro, três, dois e uma placas, respectivamente; use as contagens por imagem e as áreas com os seus metadados de placa para estatísticas de nível de condição e controle de qualidade."
         }
       ]
     },

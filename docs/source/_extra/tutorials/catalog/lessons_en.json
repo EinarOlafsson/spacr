@@ -3381,48 +3381,177 @@
     {
       "id": "24_plaque",
       "number": 24,
-      "slug": "plaque",
-      "title": "Plaque assay",
+      "slug": "plaque-assay",
+      "title": "Plaque Assay",
       "series": 3,
       "app_key": "analyze_plaques",
       "section": "Toxoplasma assays",
-      "description": "Measure plaque formation and condition-dependent changes from plate images.",
+      "description": "Segment or reuse plaque masks, quantify plaque count and area per image, and write summary, statistics, and object-detail tables to a results database.",
       "objectives": [
-        "Understand when to use Plaque assay.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Choose between segmenting plaque fields and reusing existing labeled masks.",
+        "Review the six settings categories without confusing model thresholds with downstream measurement.",
+        "Run plaque quantification and verify the resulting SQLite tables and per-image counts."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Prepare TIFF plaque-assay images; for mask reuse, place identically named labeled TIFF masks in the masks subfolder.",
       "scenes": [
         {
-          "narration": "This tutorial covers Plaque assay. Measure plaque formation and condition-dependent changes from plate images.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Plaque assay. Measure plaque formation and condition-dependent changes from plate images."
-        },
-        {
-          "narration": "Open Plaque assay from the Toxoplasma assays section. Provide plaque images, plate layout, pixel calibration, conditions, and controls.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Plaque assay from the Toxoplasma assays section. Provide plaque images, plate layout, pixel calibration, conditions, and controls."
-        },
-        {
-          "narration": "In the main configuration area, configure background correction, thresholding, object cleanup, plaque-size filters, and well grouping.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure background correction, thresholding, object cleanup, plaque-size filters, and well grouping."
-        },
-        {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. verify segmentation overlays across control and treatment wells before batch analysis.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. verify segmentation overlays across control and treatment wells before batch analysis."
-        },
-        {
-          "narration": "When the workflow finishes, spaCR reports plaque counts, areas, summaries, statistics, and quality-control figures.",
-          "visual": "output",
+          "narration": "Plaque Assay detects and quantifies cleared host-cell regions. The settings are on the left; the console records resolved settings, progress, output paths, warnings, and errors. The chat box below the console can discuss that context when AI is enabled, but it does not change settings unless you apply a suggested change.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer reports plaque counts, areas, summaries, statistics, and quality-control figures."
+          "speech_text": "Plaque Assay detects and quantifies cleared host cell regions. The settings are on the left; the console records resolved settings, progress, output paths, warnings, and errors. The chat box below the console can discuss that context when A I is enabled, but it does not change settings unless you apply a suggested change."
+        },
+        {
+          "narration": "The AI button toggles chat routing. Its adjacent menu chooses a configured provider and opens provider settings. Keep it off when no assistant is needed; the analysis pipeline itself is local and does not require AI.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.55,
+          "speech_text": "The A I button toggles chat routing. Its adjacent menu chooses a configured provider and opens provider settings. Keep it off when no assistant is needed; the analysis pipeline itself is local and does not require A I."
+        },
+        {
+          "narration": "Provider setup separates local and hosted assistants. Configure only services you intend to use, and review the privacy notice before sending console or image context to a remote provider.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.55,
+          "speech_text": "Provider setup separates local and hosted assistants. Configure only services you intend to use, and review the privacy notice before sending console or image context to a remote provider."
+        },
+        {
+          "narration": "AI Settings controls behavior such as context sharing, error reporting, and provider-specific credentials. These preferences affect the chat assistant, not plaque segmentation or quantification.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.5,
+          "speech_text": "A I Settings controls behavior such as context sharing, error reporting, and provider specific credentials. These preferences affect the chat assistant, not plaque segmentation or quantification."
+        },
+        {
+          "narration": "Choose or drop the folder containing TIFF plaque fields. This tutorial uses four explicitly synthetic wells and turns Masks off to reuse their precomputed labeled masks. With Masks on, spaCR instead segments the source images with the bundled plaque model before measuring them.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.75,
+          "speech_text": "Choose or drop the folder containing Tiff plaque fields. This tutorial uses four explicitly synthetic wells and turns Masks off to reuse their precomputed labeled masks. With Masks on, spacer instead segments the source images with the bundled plaque model before measuring them."
+        },
+        {
+          "narration": "Essentials shows the small set normally needed for a first run. Start here to verify the source, mask behavior, expected diameter, thresholds, and output choice without scanning every advanced control.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.5,
+          "speech_text": "Essentials shows the small set normally needed for a first run. Start here to verify the source, mask behavior, expected diameter, thresholds, and output choice without scanning every advanced control."
+        },
+        {
+          "narration": "Modified filters the panel to values that differ from defaults. It is a compact audit before submission: here the source, mask reuse, plaque diameter, batch size, and background behavior are intentional changes.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "Modified filters the panel to values that differ from defaults. It is a compact audit before submission: here the source, mask reuse, plaque diameter, batch size, and background behavior are intentional changes."
+        },
+        {
+          "narration": "All settings reveals every available control. Use it when troubleshooting or reproducing an older run; otherwise the Essentials view reduces accidental changes to parameters that already have suitable defaults.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "All settings reveals every available control. Use it when troubleshooting or reproducing an older run; otherwise the Essentials view reduces accidental changes to parameters that already have suitable defaults."
+        },
+        {
+          "narration": "Recipes save the current module settings under a reusable name. A validated plate configuration can be saved, imported, shared, and applied later instead of being reconstructed by hand.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.55,
+          "speech_text": "Recipes save the current module settings under a reusable name. A validated plate configuration can be saved, imported, shared, and applied later instead of being reconstructed by hand."
+        },
+        {
+          "narration": "Submit remote passes the resolved settings to Distributed Jobs rather than starting locally. Use it when the source folder and required model are reachable from an SSH workstation or cluster.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.5,
+          "speech_text": "Submit remote passes the resolved settings to Distributed Jobs rather than starting locally. Use it when the source folder and required model are reachable from an S S H workstation or cluster."
+        },
+        {
+          "narration": "The remote screen receives this module and its settings as a job draft. Confirm path mapping, compute resources, environment activation, synchronization, and the generated command before submitting a small validation job.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.65,
+          "speech_text": "The remote screen receives this module and its settings as a job draft. Confirm path mapping, compute resources, environment activation, synchronization, and the generated command before submitting a small validation job."
+        },
+        {
+          "narration": "Input and Channels contains the source folder and the Masks choice. Turn Masks on to segment original fields, or off only when the masks subfolder already contains correctly named labeled images.",
+          "visual": "12_category_01_input_channels",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Input and Channels contains the source folder and the Masks choice. Turn Masks on to segment original fields, or off only when the masks subfolder already contains correctly named labeled images."
+        },
+        {
+          "narration": "Model contains the expected plaque diameter. Match this scale to representative plaques and the model's training geometry; a cell-sized value is generally inappropriate for plaque fields.",
+          "visual": "12_category_02_model",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.52,
+          "speech_text": "Model contains the expected plaque diameter. Match this scale to representative plaques and the model's training geometry; a cell sized value is generally inappropriate for plaque fields."
+        },
+        {
+          "narration": "Detection Thresholds groups candidate probability, flow consistency, rescaling, resampling, and hole filling. These settings affect new segmentation; they do not alter the precomputed masks reused in this demonstration.",
+          "visual": "12_category_03_detection_thresholds",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Detection Thresholds groups candidate probability, flow consistency, rescaling, resampling, and hole filling. These settings affect new segmentation; they do not alter the precomputed masks reused in this demonstration."
+        },
+        {
+          "narration": "Image Geometry controls resizing to the dimensions expected by the bundled plaque model. The mask is scaled back to the original field before area is reported, so measurement remains in original pixels.",
+          "visual": "12_category_04_image_geometry",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Image Geometry controls resizing to the dimensions expected by the bundled plaque model. The mask is scaled back to the original field before area is reported, so measurement remains in original pixels."
+        },
+        {
+          "narration": "Background and Denoising controls background removal and the signal-to-noise anchor used during normalization. Tune it on representative control and treatment wells before a full segmentation run.",
+          "visual": "12_category_05_background_denoising",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Background and Denoising controls background removal and the signal to noise anchor used during normalization. Tune it on representative control and treatment wells before a full segmentation run."
+        },
+        {
+          "narration": "Output and Runtime controls saving, GPU batch size, and verbosity. Reduce batch size if segmentation exceeds available memory; keep verbose logging for the first plate so resolved paths and behavior are recorded.",
+          "visual": "12_category_06_output_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.55,
+          "speech_text": "Output and Runtime controls saving, G P U batch size, and verbosity. Reduce batch size if segmentation exceeds available memory; keep verbose logging for the first plate so resolved paths and behavior are recorded."
+        },
+        {
+          "narration": "When segmenting, probability controls the candidate floor, flow threshold controls shape consistency, and Fill in closes interior holes. Inspect multiple wells because a value that cleans one plaque can merge or erase another.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.58,
+          "speech_text": "When segmenting, probability controls the candidate floor, flow threshold controls shape consistency, and Fill in closes interior holes. Inspect multiple wells because a value that cleans one plaque can merge or erase another."
+        },
+        {
+          "narration": "Click Run after reviewing the modified settings. This demonstration measures four synthetic labeled masks through the real plaque-analysis backend; it does not present the synthetic fields as biological validation of the segmentation model.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.6,
+          "speech_text": "Click Run after reviewing the modified settings. This demonstration measures four synthetic labeled masks through the real plaque analysis backend; it does not present the synthetic fields as biological validation of the segmentation model."
+        },
+        {
+          "narration": "During execution the console prints the reproducibility record, resolved source and destination, and each mask being analyzed. Stop requests cancellation; wait for Finished before opening outputs.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.55,
+          "speech_text": "During execution the console prints the reproducibility record, resolved source and destination, and each mask being analyzed. Stop requests cancellation; wait for Finished before opening outputs."
+        },
+        {
+          "narration": "The run writes plaques_analysis.db in the masks folder with summary, stats, and details tables. These four fields contain four, three, two, and one plaques respectively; use the per-image counts and areas with your plate metadata for downstream condition-level statistics and quality control.",
+          "visual": "23_output",
+          "focus_key": "console",
+          "hold_after": 0.8,
+          "speech_text": "The run writes plaques analysis dot D B in the masks folder with summary, stats, and details tables. These four fields contain four, three, two, and one plaques respectively; use the per image counts and areas with your plate metadata for downstream condition level statistics and quality control."
         }
       ]
     },
