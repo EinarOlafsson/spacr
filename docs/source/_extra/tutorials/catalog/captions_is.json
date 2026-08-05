@@ -486,19 +486,73 @@
       "id": "11_classify_ml",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um flokkun, vélfræðslu. Hreyfingar sem byggjast á eiginleikum lestanna, svo sem XGBoost eða tilviljunarskógur úr mæluðum upplýsingum um eitt hlut."
+          "narration": "Klassify ML þjálfar klassískt vélfræðslusmíð á mælingum fyrir hlut. Konsóllin skýrir um innlaun gagnagrunna, sía, réttingu plötu, módelinn, staðfestingar mælikvarða, mikilvægi eiginleika, sparaðar spár og mistök."
         },
         {
-          "narration": "Opið flokkun, vélmenntun frá kjarnaöflunni. Veldu mælingar gagnagrunn, merkingar dálkur, eiginleika fjölskyldur og tilrauna flokkunar dálkur."
+          "narration": "Spjallsvæðið tekur við spurningum um þetta vinnuflæði. Leyfa AI til að leiða spurningu í gegnum valinn þjónustuaðila og nota tilheyrandi pílu til að opna þjónustuaðilinn."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu skaltu setja upp sía, skálun, val á eiginleikum, flokks jafnvægi, módelfjölskyldu og lækjaskynd."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og gefur uppsetningu þeirra og innritun skipanir. Skilríki eru hjá hverjum söluaðila."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. val á módelum sem gildir á milli og geyma sér eftirfarandi mat þegar mögulegt er."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið fær verkefnið spá, mikilvægi eiginleika, árangursborðs og rafrænum módelum."
+          "narration": "Drag mæluð leiðbeiningarverkefni í flokkun ML. Fylgingarstjóri leysir mælingar/measurements.db, sem lýsir 81.969 raunverulegum kjarnafræðum; 6.598 eru í stólfi c1 og 6.487 eru í stólfi c2."
+        },
+        {
+          "narration": "Essentials sýnir gagnagrunn, stjórnsýslukortun, ER-kanali og módelfjölskyldu sem þarf til fyrstu einkenni-undirstaða flokkunar."
+        },
+        {
+          "narration": "Breyttar takmarkanir paneli til gildi sem eru mismunandi frá sjálfstæðum spaCR, sem gerir tilvitað val eins og stjórnmiðstöð, pruning eiginleika og gagnagrunnaútgang auðvelt að endurskoða."
+        },
+        {
+          "narration": "Öll stillingar sýna hverja flokk án þess að gildi breytist. Flokkarnir skipuleggja stjórn eftir hlutverki þeirra í greiningunni."
+        },
+        {
+          "narration": "Recipes geymir þessa heildar uppsetningu undir nafni, beitir henni aftur síðar eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum úr úrlausnum Einstellingum klassaðu ML og sendu verkefnið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar verkefnisbraut og reiknar auðlindir til fjarstæðrar vinnustaðar, Slurm-hópa eða skipulögð skipan, sendir síðan inn og fylgist með sama rekstri."
+        },
+        {
+          "narration": "Data and Controls velur mælingarverkefnið og skilgreinar metadata dálífið og gildi sem skilgreina jákvæð og neikvæð dæmi. Gakktu úr merkingum áður en ūú setur eitthvađ."
+        },
+        {
+          "narration": "Tilbúnaður valur áhugaverða kanalinn og fjarlægir útilokaðar, lítil afbrigði, mjög tengd, lítil fjölda eða líffræðilega mælingar áður en þjálfun er gerð."
+        },
+        {
+          "narration": "Stjórnunarmeðferð fyrir plötu og flötu reglur regluleggjöf fyrir plötu. Hér er hver plötu miðað við neikvæð stjórnfrumur c1 en varðveitt er líffræðilegur á móti c2."
+        },
+        {
+          "narration": "Einstaklingur og staðfesting velur XGBoost eða annan metara, flókið og regluleggun þess, haldin brot og kross staðfesting hegðun."
+        },
+        {
+          "narration": "Tilteknavalið og mikilvægi stjórnar lokasprengingu, fjöldi varðveittra tiltekna og endurteknum breytingarprófum sem sýna hvaða mælingar styðja flokkunarinn."
+        },
+        {
+          "narration": "Útgangur og gagnagrunn ákvarðar hvort spá og einkunn fyrirmyndarinnar séu skrifuð aftur í mælingaragrunn fyrir síðarnefnda spaCR-múlur."
+        },
+        {
+          "narration": "Plots and Heatmaps velur samantekt eiginleika, flokkun reglu, lit kort, og gildi raði sem notaður er til að sjá niðurstöður á plötunni. Þessi stjórnun breytir ekki módelinu sem er settur."
+        },
+        {
+          "narration": "Rekstrartímur og áreiðanleiki stjórnar logging og starfsmanna tal. Notaðu færri starfsmenn þegar þú deilir vinnustað, og haldið útgáfu á orðum meðan þú staðfestir nýja vinnuflæði."
+        },
+        {
+          "narration": "Í þessari leiðbeining er columnID uppspretta merkingarinnar: c1 er neikvæð stjórnun og c2 er jákvæð stjórnun. Í kortinu eru fyrstu tvær plöturnir nákvæmlega eins og óskað var eftir."
+        },
+        {
+          "narration": "Hyperparameter Search samanber fræðslustig frambjóðenda, metingar áætlunar og reglunargildi með fimm sinnum staðfestingu. Niðurstöður töflunnar raða lokið rannsóknir með því að nota valið viðmið."
+        },
+        {
+          "narration": "Leitar stillingar skilgreinir nákvæm frambjóðanda pláss, leitarstíl, fjöldi prófa, falda, tilviljunarfræ og hagræðisviðmið. Lokađu ūessu eftir ađ hafa skoðað mörkin."
+        },
+        {
+          "narration": "Run staðfestir verkefnið og stjórnar kortlagningu, undirbúar eiginleika, beitir plötu leiðréttingu, metur flokkunaraðila, reiknar mikilvægi, teiknar samantekt og skrifar valinn útgáfur. Hættu fyrirspurnum um öruggan truflun."
         }
       ]
     },

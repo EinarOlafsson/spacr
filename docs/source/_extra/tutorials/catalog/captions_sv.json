@@ -486,19 +486,73 @@
       "id": "11_classify_ml",
       "scenes": [
         {
-          "narration": "Denna handledning omfattar Classify, maskininlärning. Träningsfunktionsbaserade klassifiserare som XGBoost eller slumpmässig skog från målade enskilda objektdata."
+          "narration": "Klassifiera ML utbildar en klassisk maskininlärningsmodell på mätningar per objekt. Konsolen rapporterar databas laddning, filtrering, platt korrigering, modellpassning, valideringsmetriker, funktionens betydelse, sparas förutsägelser och fel."
         },
         {
-          "narration": "Öppna klasseringen, maskininlärning från Core sektionen. Välj en mätdatabas, etikettkolumn, funktionsfamiljer och experimentella grupperingskolumner."
+          "narration": "Chatfältet tar emot frågor om arbetsflödet. Aktivera AI för att vägleda en fråga genom den valda leverantören, och använd den angränsande pilen för att öppna leverantörsmenyn."
         },
         {
-          "narration": "I huvudkonfigurationsområdet konfigurera filtrering, skalering, funktionsval, klassbalansering, modellfamilj och läckagesäkra splitter."
+          "narration": "Leverantörerna rapporterar om Claude, ChatGPT och Gemini-kommandolinja-klienter är installerade och ger deras installations- och inloggningskommandon. Uppgifterna stannar hos varje leverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Krossvaliderade modellval och reservera ett utövat utvärderingssätt när det är möjligt."
+          "narration": "AI-inställningar kontrollerar responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medveten systemprompt."
         },
         {
-          "narration": "När arbetsflödet är färdigt får projektet förutsägelser, funktionernas betydelse, prestationstabeller och serialiserade modeller."
+          "narration": "Dra det mättade handledningsprojektet in i Klassifiera ML. I fallhanteraren löses mätningar/mätningar.db, som beskriver 81.969 verkliga cellkulturer; 6.598 är i kolumn c1 och 6.487 är i kolumn c2."
+        },
+        {
+          "narration": "Essentials visar databasen, kontrollkartläggningen, ER-kanalen och modellfamiljen som behövs för en första funktionbaserad klassificering."
+        },
+        {
+          "narration": "Modifierad begränsar panelen till värden som skiljer sig från spaCR standard, vilket gör avsiktliga val som kontrollcentrering, skärning av funktioner och databasutgång lätt att granska."
+        },
+        {
+          "narration": "Alla inställningar visar varje kategori utan att ändra värden. Kategorierna organiserar kontroller efter sin roll i analysen."
+        },
+        {
+          "narration": "Recipes sparar denna kompletta konfiguration under ett namn, tillämpar den senare eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder av de lösta inställningarna för att klassificera ML och skicka jobbet till arbetsplatsen för distribuerade jobb."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger projektvägar och beräkningsresurser till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma körning."
+        },
+        {
+          "narration": "Data and Controls väljer mätprojektet och identifierar metadata kolumnen och värdena som definierar positiva och negativa exempel. Kontrollera etiketterna innan du installerar något."
+        },
+        {
+          "narration": "Funktion Förberedelse väljer intressen och tar bort uteslutna, låga varianter, starkt korrelerade, låga antal eller biologiskt ogiltiga mätningar innan träning."
+        },
+        {
+          "narration": "Plats- och batchkorrigering kontrollerar perplats normalisering. Här är varje tallrik centrerad på sina c1-negativa kontrollceller samtidigt som den biologiska kontrasten med c2 behålls."
+        },
+        {
+          "narration": "Klassiserare och validering väljer XGBoost eller en annan uppskattare, dess komplexitet och regulering, den hållade fraktionen och korsvalideringsbeteendet."
+        },
+        {
+          "narration": "Funktion Selection and Importance kontrollerar slutlig beskärning, antalet bevarade funktioner och upprepade permutationsprov som avslöjar vilka mätningar som stöder klassificeringen."
+        },
+        {
+          "narration": "Output and Database bestämmer om förutsägelser och modellpoäng skrivs tillbaka till mätdatabasen för senare spaCR-moduler."
+        },
+        {
+          "narration": "Plots and Heatmaps väljer den sammanfattade funktionen, grupperingsregeln, färgkartan och värden som används för att visualisera resultat på plattenivå. Dessa kontroller ändrar inte den monterade modellen."
+        },
+        {
+          "narration": "Arbetstid och tillförlitlighet kontrollerar loggning och antalet arbetare. Använd färre arbetstagare när du delar en arbetsstation, och behåll verbose output medan du validerar ett nytt arbetsflöde."
+        },
+        {
+          "narration": "För denna handledning är columnID källan på etiketten: c1 är den negativa kontrollen och c2 är den positiva kontrollen. Kartläggningen använder de två första tallrikkolumnerna exakt som begärts."
+        },
+        {
+          "narration": "Hyperparameter Search jämför kandidatlärningsfrekvenser, estimatorantal och reguleringsvärden med femfaldig validering. Resultattabellen rankar slutförda prövningar med hjälp av det valda kriteriet."
+        },
+        {
+          "narration": "Sökinställningar definierar exakt kandidatutrymme, sökläge, antal försök, foldningar, slumpmässigt utsäde och optimeringskriterium. Stäng den efter att ha granskat gränserna."
+        },
+        {
+          "narration": "Run validerar projektet och styr kartläggningen, förbereder funktioner, tillämpar plattkorrigering, utvärderar klassificeringen, beräknar vikten, drar sammanfattningar och skriver aktiverade utgångar. Sluta begär en säker avbrott."
         }
       ]
     },

@@ -1236,47 +1236,193 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify, machine learning",
+      "title": "Classificar (ML)",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
-      "description": "Classificadores baseados em características de trem, como XGBoost ou floresta aleatória, a partir de dados de um único objeto medidos.",
+      "description": "Treinar um classificador interpretável baseado em características em células medidas reais, com c1 como controlo negativo e c2 como controlo positivo.",
       "objectives": [
-        "Entender quando usar Classify, aprendizado de máquina.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Mapear as duas primeiras colunas de placa para os controles negativos e positivos.",
+        "Revisar a preparação das características, a correção de placas, a validação, a importância, a saída, o gráfico e as categorias de tempo de execução.",
+        "Configure a pesquisa de hiperparâmetros conscientes de vazamento e entenda o que o Run vai escrever."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Completar a medida para que o projeto contenha medidas/medidas.db e definir poços de controlo biológicamente válidos antes da instalação.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange Classify, machine learning. Treinar classificadores baseados em recursos como XGBoost ou floresta aleatória a partir de dados de um único objeto medidos.",
-          "visual": "overview",
+          "narration": "Classify ML treina um modelo clássico de aprendizagem automática em medições por objeto. O console relata carregamento de banco de dados, filtragem, correção de placa, ajuste de modelo, métricas de validação, importância de recursos, previsões salvas e erros.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange Classify, machine learning. Treinar classificadores baseados em recursos como XGBoost ou floresta aleatória a partir de dados de um único objeto medidos."
+          "speech_text": "Classify ML treina um modelo clássico de aprendizagem automática em medições por objeto. O console relata carregamento de banco de dados, filtragem, correção de placa, ajuste de modelo, métricas de validação, importância de recursos, previsões salvas e erros."
         },
         {
-          "narration": "Abra Classify, machine learning na seção Core. Abra Classificar, aprendizado de máquina da seção Core. Escolha um banco de dados de medições, coluna de rótulo, famílias de recursos e colunas de agrupamento experimental.",
-          "visual": "input",
+          "narration": "O campo de bate-papo aceita perguntas sobre este fluxo de trabalho. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Classify, machine learning na seção Core. Abra Classificar, aprendizado de máquina da seção Core. Escolha um banco de dados de medições, coluna de rótulo, famílias de recursos e colunas de agrupamento experimental."
+          "speech_text": "O campo de bate-papo aceita perguntas sobre este fluxo de trabalho. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor."
         },
         {
-          "narration": "Na área de configuração principal, configure filtragem, escalagem, seleção de características, equilíbrio de classes, família de modelos e divisões de segurança contra vazamentos.",
-          "visual": "settings",
+          "narration": "Os fornecedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configure filtragem, escalagem, seleção de características, equilíbrio de classes, família de modelos e divisões de segurança contra vazamentos."
+          "speech_text": "Os fornecedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e fornecem os comandos de instalação e login. As credenciais ficam com cada vendedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de teste quando disponível.",
-          "visual": "run",
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de teste quando disponível."
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, o projeto recebe previsões, importância de recursos, tabelas de desempenho e modelos serializados.",
-          "visual": "output",
+          "narration": "Arraste o projeto do tutorial medido para Classificar ML. O manipulador de queda resolve medidas/measurements.db, que descreve 81.969 culturas reais de células; 6.598 estão na coluna c1 e 6.487 estão na coluna c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Arraste o projeto do tutorial medido para Classificar ML. O manipulador de queda resolve medidas/measurements dot db, que descreve 81.969 culturas reais de células; 6.598 estão na coluna c1 e 6.487 estão na coluna c2."
+        },
+        {
+          "narration": "Os elementos essenciais mostram o banco de dados, o mapeamento de controle, o canal ER e a família de modelos necessários para uma primeira execução de classificação baseada em características.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Os elementos essenciais mostram o banco de dados, o mapeamento de controle, o canal ER e a família de modelos necessários para uma primeira execução de classificação baseada em características."
+        },
+        {
+          "narration": "Modificado limita o painel a valores que diferem dos padrões do spaCR, tornando escolhas deliberadas como centralização de controle, poda de recursos e saída de banco de dados fáceis de auditar.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado limita o painel a valores que diferem dos padrões do espáquer, tornando escolhas deliberadas como centralização de controle, poda de recursos e saída de banco de dados fáceis de auditar."
+        },
+        {
+          "narration": "Todas as configurações revelam cada categoria sem alterações de valores. As categorias organizam os controlos segundo o seu papel na análise.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas as configurações revelam cada categoria sem alterações de valores. As categorias organizam os controlos segundo o seu papel na análise."
+        },
+        {
+          "narration": "As receitas guardam esta configuração completa sob um nome, a reaplicam mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "As receitas guardam esta configuração completa sob um nome, a reaplicam mais tarde ou importam e exportam um arquivo de configurações reutilizável."
+        },
+        {
+          "narration": "Envie instantâneos remotos das configurações Classify ML resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envie instantâneos remotos das configurações Classify ML resolvidas e envia o trabalho para o espaço de trabalho de Trabalhos Distribuídos."
+        },
+        {
+          "narration": "O Jobs Distribuído mapeia os caminhos do projeto e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "O Jobs Distribuído mapeia os caminhos do projeto e os recursos de computação para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução."
+        },
+        {
+          "narration": "Data and Controls seleciona o projeto de medição e identifica a coluna de metadados e os valores que definem exemplos positivos e negativos. Verifique estes rótulos antes de montar qualquer coisa.",
+          "visual": "12_category_01_data_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Data and Controls seleciona o projeto de medição e identifica a coluna de metadados e os valores que definem exemplos positivos e negativos. Verifique estes rótulos antes de montar qualquer coisa."
+        },
+        {
+          "narration": "Características A preparação escolhe o canal de interesse e elimina as medições excluídas, de baixa variação, altamente correlacionadas, de baixo número ou biologicamente inválidas antes do treinamento.",
+          "visual": "12_category_02_feature_preparation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Características A preparação escolhe o canal de interesse e elimina as medições excluídas, de baixa variação, altamente correlacionadas, de baixo número ou biologicamente inválidas antes do treinamento."
+        },
+        {
+          "narration": "Controlos de correcção de placa e lote de normalização por placa. Aqui, cada placa é centrada em suas células de controle negativo c1, mantendo o contraste biológico com c2.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Controlos de correcção de placa e lote de normalização por placa. Aqui, cada placa é centrada em suas células de controle negativo c1, mantendo o contraste biológico com c2."
+        },
+        {
+          "narration": "Classificador e Validação seleciona XGBoost ou outro estimador, sua complexidade e regularização, a fração mantida e o comportamento de validação cruzada.",
+          "visual": "12_category_04_classifier_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Classificador e Validação seleciona XGBoost ou outro estimador, sua complexidade e regularização, a fração mantida e o comportamento de validação cruzada."
+        },
+        {
+          "narration": "Seleção de características e importância controla a poda final, o número de características mantidas e os testes de permutação repetidos que revelam quais medições suportam o classificador.",
+          "visual": "12_category_05_feature_selection_importance",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Seleção de características e importância controla a poda final, o número de características mantidas e os testes de permutação repetidos que revelam quais medições suportam o classificador."
+        },
+        {
+          "narration": "Output and Database determina se as previsões e as pontuações do modelo são escritas de volta para o banco de dados de medição para os módulos spaCR posteriores.",
+          "visual": "12_category_06_output_database",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Database determina se as previsões e as pontuações do modelo são escritas de volta para o banco de dados de medição para os módulos espáquer posteriores."
+        },
+        {
+          "narration": "Plots and Heatmaps escolhe a característica resumida, regra de agrupamento, mapa de cores e intervalo de valores utilizados para visualizar os resultados de nível de placa. Estes controles não alteram o modelo montado.",
+          "visual": "12_category_07_plots_heatmaps",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plots and Heatmaps escolhe a característica resumida, regra de agrupamento, mapa de cores e intervalo de valores utilizados para visualizar os resultados de nível de placa. Estes controles não alteram o modelo montado."
+        },
+        {
+          "narration": "O tempo de execução e a confiabilidade controlam a exploração florestal e a contagem de trabalhadores. Use menos trabalhadores ao compartilhar uma estação de trabalho e mantenha a saída verbal ao validar um novo fluxo de trabalho.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O tempo de execução e a confiabilidade controlam a exploração florestal e a contagem de trabalhadores. Use menos trabalhadores ao compartilhar uma estação de trabalho e mantenha a saída verbal ao validar um novo fluxo de trabalho."
+        },
+        {
+          "narration": "Para este tutorial, columnID é a fonte do rótulo: c1 é o controle negativo e c2 é o controle positivo. O mapeamento usa as duas primeiras colunas de placa exatamente como solicitado.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Para este tutorial, columnID é a fonte do rótulo: c1 é o controle negativo e c2 é o controle positivo. O mapeamento usa as duas primeiras colunas de placa exatamente como solicitado."
+        },
+        {
+          "narration": "O Hyperparameter Search compara as taxas de aprendizagem dos candidatos, as contagens dos estimadores e os valores de regularização com validação de cinco vezes. A tabela de resultados classifica os ensaios concluídos utilizando o critério selecionado.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "search",
+          "hold_after": 0.45,
+          "speech_text": "O Hyperparameter Search compara as taxas de aprendizagem dos candidatos, as contagens dos estimadores e os valores de regularização com validação de cinco vezes. A tabela de resultados classifica os ensaios concluídos utilizando o critério selecionado."
+        },
+        {
+          "narration": "As configurações de pesquisa definem o espaço exato do candidato, o modo de pesquisa, o número de testes, as dobras, a semente aleatória e o critério de otimização. Fecha depois de revisar os limites.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "As configurações de pesquisa definem o espaço exato do candidato, o modo de pesquisa, o número de testes, as dobras, a semente aleatória e o critério de otimização. Fecha depois de revisar os limites."
+        },
+        {
+          "narration": "Run valida o projeto e controla o mapeamento, prepara características, aplica correção de placa, avalia o classificador, calcula a importância, desenha resumos e escreve as saídas habilitadas. Petições de parada para uma interrupção segura.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
+          "click_key": "run",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, o projeto recebe previsões, importância de recursos, tabelas de desempenho e modelos serializados."
+          "speech_text": "Run valida o projeto e controla o mapeamento, prepara características, aplica correção de placa, avalia o classificador, calcula a importância, desenha resumos e escreve as saídas habilitadas. Petições de parada para uma interrupção segura."
         }
       ]
     },

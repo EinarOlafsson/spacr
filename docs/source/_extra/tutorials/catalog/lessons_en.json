@@ -1251,47 +1251,193 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify, machine learning",
+      "title": "Classify (ML)",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
-      "description": "Train feature-based classifiers such as XGBoost or random forest from measured single-object data.",
+      "description": "Train an interpretable feature-based classifier on real measured cells, with c1 as the negative control and c2 as the positive control.",
       "objectives": [
-        "Understand when to use Classify, machine learning.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Map the first two plate columns to negative and positive controls.",
+        "Review feature preparation, plate correction, validation, importance, output, plot, and runtime categories.",
+        "Configure leakage-aware hyperparameter search and understand what Run will write."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Complete Measure so the project contains measurements/measurements.db, and define biologically valid control wells before fitting.",
       "scenes": [
         {
-          "narration": "This tutorial covers Classify, machine learning. Train feature-based classifiers such as XGBoost or random forest from measured single-object data.",
-          "visual": "overview",
+          "narration": "Classify ML trains a classical machine-learning model on per-object measurements. The console reports database loading, filtering, plate correction, model fitting, validation metrics, feature importance, saved predictions, and errors.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Classify, machine learning. Train feature-based classifiers such as XGBoost or random forest from measured single-object data."
+          "speech_text": "Classify M L trains a classical machine learning model on per object measurements. The console reports database loading, filtering, plate correction, model fitting, validation metrics, feature importance, saved predictions, and errors."
         },
         {
-          "narration": "Open Classify, machine learning from the Core section. Choose a measurements database, label column, feature families, and experimental grouping columns.",
-          "visual": "input",
+          "narration": "The chat field accepts questions about this workflow. Enable AI to route a question through the selected provider, and use the adjacent arrow to open the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Classify, machine learning from the Core section. Choose a measurements database, label column, feature families, and experimental grouping columns."
+          "speech_text": "The chat field accepts questions about this workflow. Enable A I to route a question through the selected provider, and use the adjacent arrow to open the provider menu."
         },
         {
-          "narration": "In the main configuration area, configure filtering, scaling, feature selection, class balancing, model family, and leakage-safe splits.",
-          "visual": "settings",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed, and gives their install and login commands. Credentials stay with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure filtering, scaling, feature selection, class balancing, model family, and leakage-safe splits."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command line clients are installed, and gives their install and login commands. Credentials stay with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. cross-validate model choices and reserve a held-out evaluation set when possible.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. cross-validate model choices and reserve a held-out evaluation set when possible."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, the project receives predictions, feature importance, performance tables, and serialized models.",
-          "visual": "output",
+          "narration": "Drag the measured tutorial project into Classify ML. The drop handler resolves measurements/measurements.db, which describes 81,969 real cell crops; 6,598 are in column c1 and 6,487 are in column c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Drag the measured tutorial project into Classify M L. The drop handler resolves measurements slash measurements dot D B, which describes eighty one thousand nine hundred sixty nine real cell crops. Six thousand five hundred ninety eight are in column C one, and six thousand four hundred eighty seven are in column C two."
+        },
+        {
+          "narration": "Essentials shows the database, control mapping, ER channel, and model family needed for a first feature-based classification run.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the database, control mapping, E R channel, and model family needed for a first feature based classification run."
+        },
+        {
+          "narration": "Modified limits the panel to values that differ from spaCR defaults, making deliberate choices such as control-centering, feature pruning, and database output easy to audit.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to values that differ from spacer defaults, making deliberate choices such as control centering, feature pruning, and database output easy to audit."
+        },
+        {
+          "narration": "All settings reveals every category without changing values. The categories organize controls by their role in the analysis.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals every category without changing values. The categories organize controls by their role in the analysis."
+        },
+        {
+          "narration": "Recipes saves this complete configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves this complete configuration under a name, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Classify ML settings and sends the job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Classify M L settings and sends the job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run."
+        },
+        {
+          "narration": "Data and Controls selects the measurement project and identifies the metadata column and values that define positive and negative examples. Verify these labels before fitting anything.",
+          "visual": "12_category_01_data_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Data and Controls selects the measurement project and identifies the metadata column and values that define positive and negative examples. Verify these labels before fitting anything."
+        },
+        {
+          "narration": "Feature Preparation chooses the channel of interest and removes excluded, low-variance, highly correlated, low-count, or biologically invalid measurements before training.",
+          "visual": "12_category_02_feature_preparation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Feature Preparation chooses the channel of interest and removes excluded, low variance, highly correlated, low count, or biologically invalid measurements before training."
+        },
+        {
+          "narration": "Plate and Batch Correction controls per-plate normalization. Here each plate is centered on its c1 negative-control cells while retaining the biological contrast with c2.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate and Batch Correction controls per plate normalization. Here each plate is centered on its C one negative control cells while retaining the biological contrast with C two."
+        },
+        {
+          "narration": "Classifier and Validation selects XGBoost or another estimator, its complexity and regularization, the held-out fraction, and cross-validation behavior.",
+          "visual": "12_category_04_classifier_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Classifier and Validation selects X G Boost or another estimator, its complexity and regularization, the held out fraction, and cross validation behavior."
+        },
+        {
+          "narration": "Feature Selection and Importance controls final pruning, the number of retained features, and repeated permutation tests that reveal which measurements support the classifier.",
+          "visual": "12_category_05_feature_selection_importance",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Feature Selection and Importance controls final pruning, the number of retained features, and repeated permutation tests that reveal which measurements support the classifier."
+        },
+        {
+          "narration": "Output and Database determines whether predictions and model scores are written back to the measurement database for later spaCR modules.",
+          "visual": "12_category_06_output_database",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Database determines whether predictions and model scores are written back to the measurement database for later spacer modules."
+        },
+        {
+          "narration": "Plots and Heatmaps chooses the summarized feature, grouping rule, color map, and value range used to visualize plate-level results. These controls do not change the fitted model.",
+          "visual": "12_category_07_plots_heatmaps",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plots and Heatmaps chooses the summarized feature, grouping rule, color map, and value range used to visualize plate level results. These controls do not change the fitted model."
+        },
+        {
+          "narration": "Runtime and Reliability controls logging and worker count. Use fewer workers when sharing a workstation, and keep verbose output while validating a new workflow.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability controls logging and worker count. Use fewer workers when sharing a workstation, and keep verbose output while validating a new workflow."
+        },
+        {
+          "narration": "For this tutorial, columnID is the label source: c1 is the negative control and c2 is the positive control. The mapping uses the first two plate columns exactly as requested.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "For this tutorial, column I D is the label source. C one is the negative control, and C two is the positive control. The mapping uses the first two plate columns exactly as requested."
+        },
+        {
+          "narration": "Hyperparameter Search compares candidate learning rates, estimator counts, and regularization values with five-fold validation. The results table ranks completed trials using the selected criterion.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "search",
+          "hold_after": 0.45,
+          "speech_text": "Hyperparameter Search compares candidate learning rates, estimator counts, and regularization values with five fold validation. The results table ranks completed trials using the selected criterion."
+        },
+        {
+          "narration": "Search Settings defines the exact candidate space, search mode, number of trials, folds, random seed, and optimization criterion. Close it after reviewing the bounds.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Search Settings defines the exact candidate space, search mode, number of trials, folds, random seed, and optimization criterion. Close it after reviewing the bounds."
+        },
+        {
+          "narration": "Run validates the project and control mapping, prepares features, applies plate correction, evaluates the classifier, calculates importance, draws summaries, and writes enabled outputs. Stop requests a safe interruption.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
+          "click_key": "run",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the project receives predictions, feature importance, performance tables, and serialized models."
+          "speech_text": "Run validates the project and control mapping, prepares features, applies plate correction, evaluates the classifier, calculates importance, draws summaries, and writes enabled outputs. Stop requests a safe interruption."
         }
       ]
     },

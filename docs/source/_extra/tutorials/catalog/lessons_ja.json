@@ -1236,47 +1236,193 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify, machine learning",
+      "title": "分類 (ML)",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
-      "description": "測定された単体データからXGBoostまたはランダムフォレストなどの電車の特徴ベースの分類器.",
+      "description": "実際の測定された細胞に解釈可能な特徴ベースの分類器を訓練し,c1が負の制御とc2が正の制御である.",
       "objectives": [
-        "クラシフィック,機械学習を いつ使うか理解する",
-        "重要な入力と設定を設定する.",
-        "作業流を実行して,その出力を特定します."
+        "最初の2つのプレート列を負と正のコントロールに映し出します",
+        "機能の準備,プレート修正,検証,重要性,出力,グラフ,ランタイムカテゴリーをレビューする.",
+        "リーク認識のハイパーパラメータ検索を設定し,Runが何を書くか理解します."
       ],
-      "prerequisite": "このモジュールに上流の結果が必要である場合,以前のワークフローレッスンをフォローします.",
+      "prerequisite": "プロジェクトに測定/measurements.db を含めるように完了する 測定し,設置前に生物学的に有効な制御井戸を定義する.",
       "scenes": [
         {
-          "narration": "このチュートリアルでは,分類,機械学習をカバーします. 測定された単体データからXGBoostやランダムフォレストなどの機能ベースの分類者を訓練します.",
-          "visual": "overview",
+          "narration": "Classify MLは,物体単位での測定で古典的な機械学習モデルを訓練します. コンソールはデータベースのロード,フィルタリング,プレート修正,モデルフィッティング,検証メトリック,機能の重要性,保存された予測,エラーを報告します.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "このチュートリアルでは,分類,機械学習をカバーします. 測定された単体データからXGBoostやランダムフォレストなどの機能ベースの分類者を訓練します."
+          "speech_text": "Classify MLは,物体単位での測定で古典的な機械学習モデルを訓練します. コンソールはデータベースのロード,フィルタリング,プレート修正,モデルフィッティング,検証メトリック,機能の重要性,保存された予測,エラーを報告します."
         },
         {
-          "narration": "Core セクションから Classify, machine learning を開きます。 測定データベース,ラベル列,機能ファミリー,実験グループ列を選択します.",
-          "visual": "input",
+          "narration": "チャットフィールドは,このワークフローに関する質問を受け入れます. 選択したプロバイダーを通過する質問のルートを AI に有効にし,隣接する矢印を使用してプロバイダーメニューを開きます.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Core セクションから Classify, machine learning を開きます。 測定データベース,ラベル列,機能ファミリー,実験グループ列を選択します."
+          "speech_text": "チャットフィールドは,このワークフローに関する質問を受け入れます. 選択したプロバイダーを通過する質問のルートを AI に有効にし,隣接する矢印を使用してプロバイダーメニューを開きます."
         },
         {
-          "narration": "主な構成領域では,フィルタリング,スケーリング,機能選択,クラスバランス,モデルファミリー,リーク防止分割を設定します.",
-          "visual": "settings",
+          "narration": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを与えます. 認証は各業者に留まります",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "主な構成領域では,フィルタリング,スケーリング,機能選択,クラスバランス,モデルファミリー,リーク防止分割を設定します."
+          "speech_text": "提供者は,Claude,ChatGPT,および Gemini コマンドラインクライアントがインストールされているかどうかを報告し,インストールおよびログインのコマンドを与えます. 認証は各業者に留まります"
         },
         {
-          "narration": "完全な実行前に,可視設定をレビューし,可用である場合の先見またはテストモードを使用します.モデル選択を横断的に検証し,可能な限り,待たせられた評価セットを予約します.",
-          "visual": "run",
+          "narration": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびspaCR 認識システムプロンプトを制御します.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "完全な実行前に,可視設定をレビューし,可用である場合の先見またはテストモードを使用します.モデル選択を横断的に検証し,可能な限り,待たせられた評価セットを予約します."
+          "speech_text": "AI 設定は応答深さ,自動エラー説明,オプションのGitHub 問題報告,サインイン,およびスペーカー 認識システムプロンプトを制御します."
         },
         {
-          "narration": "作業流が完了すると,プロジェクトには予測,機能の重要性,パフォーマンス表,並行モデルが表示されます.",
-          "visual": "output",
+          "narration": "測定したチュートリアルプロジェクトを MLを分類する ドロップ・ハンドラーは 81,969 の実細胞作物を記述する\"measurements/measurements.db\"を解決します.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "測定したチュートリアルプロジェクトを MLを分類する ドロップ・ハンドラーは 81,969 の実細胞作物を記述する\"measurements/measurements dot db\"を解決します."
+        },
+        {
+          "narration": "エッセンシャルは,最初の機能ベースの分類実行に必要なデータベース,制御マッピング,ERチャンネル,モデルファミリーを示します.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "エッセンシャルは,最初の機能ベースの分類実行に必要なデータベース,制御マッピング,ERチャンネル,モデルファミリーを示します."
+        },
+        {
+          "narration": "変更されたパネルは,spaCRのデフォルトから異なる値に制限され,制御中心化,機能剪定,データベース出力などの意図的な選択を簡単に監査できます.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "変更されたパネルは,スペーカーのデフォルトから異なる値に制限され,制御中心化,機能剪定,データベース出力などの意図的な選択を簡単に監査できます."
+        },
+        {
+          "narration": "すべての設定は,すべてのカテゴリを値変更なしに表示します. カテゴリーは分析における役割によって制御を組織する.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "すべての設定は,すべてのカテゴリを値変更なしに表示します. カテゴリーは分析における役割によって制御を組織する."
+        },
+        {
+          "narration": "レシピはこの完全な設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "レシピはこの完全な設定を名前で保存し,後で再適用するか,再利用可能な設定ファイルを輸入・輸出する."
+        },
+        {
+          "narration": "リモートスナップショットを送信し,解決した Classify ML 設定を Classify ML に送信し,作業を Distributed Jobs 作業スペースに送信します.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "リモートスナップショットを送信し,解決した Classify ML 設定を Classify ML に送信し,作業を Distributed Jobs 作業スペースに送信します."
+        },
+        {
+          "narration": "Distributed Jobsは,リモートワークステーション,Slurmクラスタ,または設定されたコマンドへのプロジェクト経路と計算リソースをマッピングし,同じ実行を送信してモニタリングします.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobsは,リモートワークステーション,Slurmクラスタ,または設定されたコマンドへのプロジェクト経路と計算リソースをマッピングし,同じ実行を送信してモニタリングします."
+        },
+        {
+          "narration": "Data and Controlsは測定プロジェクトを選択し,ポジティブとネガティブな例を定義するメタデータ列と値を特定します. 何かを組み込む前に これらのラベルを確認してください.",
+          "visual": "12_category_01_data_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Data and Controlsは測定プロジェクトを選択し,ポジティブとネガティブな例を定義するメタデータ列と値を特定します. 何かを組み込む前に これらのラベルを確認してください."
+        },
+        {
+          "narration": "特徴 準備は興味のあるチャネルを選択し,訓練前に排除された,低変異性,高度に関連性,少ない数量,または生物学的に無効な測定を削除します.",
+          "visual": "12_category_02_feature_preparation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "特徴 準備は興味のあるチャネルを選択し,訓練前に排除された,低変異性,高度に関連性,少ない数量,または生物学的に無効な測定を削除します."
+        },
+        {
+          "narration": "プレート・アンド・バッチ・コレクション プレート・パー・プレート標準化 コントロール ここで各プレートはc1の負制御細胞に中心化されながら,c2との生物学的なコントラストを維持する.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "プレート・アンド・バッチ・コレクション プレート・パー・プレート標準化 コントロール ここで各プレートはc1の負制御細胞に中心化されながら,c2との生物学的なコントラストを維持する."
+        },
+        {
+          "narration": "Classifier and Validation は XGBoost または他の推定値,その複雑性と規則化,保持された分数,およびクロス検証行動を選択します.",
+          "visual": "12_category_04_classifier_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Classifier and Validation は XGBoost または他の推定値,その複雑性と規則化,保持された分数,およびクロス検証行動を選択します."
+        },
+        {
+          "narration": "特徴選択および重要性は,最終切断,保持された特徴の数,および分類者を支持する測定を明らかにする繰り返し変異テストを制御します.",
+          "visual": "12_category_05_feature_selection_importance",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "特徴選択および重要性は,最終切断,保持された特徴の数,および分類者を支持する測定を明らかにする繰り返し変異テストを制御します."
+        },
+        {
+          "narration": "アウトプットとデータベースは,後のspaCRモジュールの測定データベースに予測とモデルのスコアが書き戻されているかどうかを決定します.",
+          "visual": "12_category_06_output_database",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "アウトプットとデータベースは,後のスペーカーモジュールの測定データベースに予測とモデルのスコアが書き戻されているかどうかを決定します."
+        },
+        {
+          "narration": "グラフとヒートマップは,プレートレベルの結果を視覚化するために使用される概要機能,グループルール,カラーマップ,値範囲を選択します. これらの制御は設置されたモデルを変えることはありません.",
+          "visual": "12_category_07_plots_heatmaps",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "グラフとヒートマップは,プレートレベルの結果を視覚化するために使用される概要機能,グループルール,カラーマップ,値範囲を選択します. これらの制御は設置されたモデルを変えることはありません."
+        },
+        {
+          "narration": "運行時間と信頼性は 伐採と労働者の数量を制御する. ワークステーションを共有する際には,労働者を少なく使って,新しいワークフローを検証する際には,口コミを出力を保持してください.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "運行時間と信頼性は 伐採と労働者の数量を制御する. ワークステーションを共有する際には,労働者を少なく使って,新しいワークフローを検証する際には,口コミを出力を保持してください."
+        },
+        {
+          "narration": "このチュートリアルでは, columnID がラベルソースです. c1 は負のコントロールで c2 は正のコントロールです. マッピングでは最初の2つのプレート列が要求されたように使用されます.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "このチュートリアルでは, columnID がラベルソースです. c1 は負のコントロールで c2 は正のコントロールです. マッピングでは最初の2つのプレート列が要求されたように使用されます."
+        },
+        {
+          "narration": "ハイパーパラメーター検索は,候補者の学習率,推定者数値,規則化値を 5倍認証で比較します. 結果表は,選択された基準を用いて完了した試験をランクします.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "search",
+          "hold_after": 0.45,
+          "speech_text": "ハイパーパラメーター検索は,候補者の学習率,推定者数値,規則化値を 5倍認証で比較します. 結果表は,選択された基準を用いて完了した試験をランクします."
+        },
+        {
+          "narration": "検索設定は,正確な候補スペース,検索モード,試験数,折り畳み,ランダムシード,最適化基準を定義します. 境界線をチェックした後に閉めろ",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "検索設定は,正確な候補スペース,検索モード,試験数,折り畳み,ランダムシード,最適化基準を定義します. 境界線をチェックした後に閉めろ"
+        },
+        {
+          "narration": "実行はプロジェクトと制御マッピングを検証し,機能を準備し,プレート修正を適用し,分類者を評価し,重要性を計算し,概要を描き,有効な出力を書き出す. 停止要求は安全な中断です",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
+          "click_key": "run",
           "hold_after": 0.65,
-          "speech_text": "作業流が完了すると,プロジェクトには予測,機能の重要性,パフォーマンス表,並行モデルが表示されます."
+          "speech_text": "実行はプロジェクトと制御マッピングを検証し,機能を準備し,プレート修正を適用し,分類者を評価し,重要性を計算し,概要を描き,有効な出力を書き出す. 停止要求は安全な中断です"
         }
       ]
     },

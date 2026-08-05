@@ -1236,47 +1236,193 @@
       "id": "11_classify_ml",
       "number": 11,
       "slug": "classify_ml",
-      "title": "Classify, machine learning",
+      "title": "Classifier (ML)",
       "series": 1,
       "app_key": "ml_analyze",
       "section": "Core",
-      "description": "Classifiateurs basés sur les caractéristiques du train tels que XGBoost ou forêt aléatoire à partir de données mesurées sur un seul objet.",
+      "description": "Former un classificateur interprétable basé sur des caractéristiques sur des cellules mesurées réelles, avec c1 comme contrôle négatif et c2 comme contrôle positif.",
       "objectives": [
-        "Comprendre quand utiliser Classifier, apprentissage automatique.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Mettez les deux premières colonnes de plaque dans les contrôles négatifs et positifs.",
+        "Réviser la préparation des caractéristiques, la correction des plaques, la validation, l'importance, la sortie, le graphique et les catégories de temps d'exécution.",
+        "Configurez la recherche d'hyperparamètres sensibles à la fuite et comprenez ce que Run écrira."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Mesure complète afin que le projet contient des mesures/mesures.db, et définir des puits de contrôle biologiquement valides avant l'installation.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Classifier, l'apprentissage automatique.",
-          "visual": "overview",
+          "narration": "Classifier ML entraîne un modèle classique d'apprentissage automatique sur les mesures par objet. La console rapporte le chargement de la base de données, le filtrage, la correction de la plaque, l'ajustement du modèle, les mesures de validation, l'importance des fonctionnalités, les prédictions enregistrées et les erreurs.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Classifier, l'apprentissage automatique."
+          "speech_text": "Classifier ML entraîne un modèle classique d'apprentissage automatique sur les mesures par objet. La console rapporte le chargement de la base de données, le filtrage, la correction de la plaque, l'ajustement du modèle, les mesures de validation, l'importance des fonctionnalités, les prédictions enregistrées et les erreurs."
         },
         {
-          "narration": "Ouvrez Classify, machine learning dans la section Core. Choisissez une base de données de mesures, une colonne d'étiquette, des familles de fonctionnalités et des colonnes de regroupement expérimental.",
-          "visual": "input",
+          "narration": "Le champ de discussion accepte les questions sur ce flux de travail. Permettez à l'IA d'orienter une question à travers le fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Classify, machine learning dans la section Core. Choisissez une base de données de mesures, une colonne d'étiquette, des familles de fonctionnalités et des colonnes de regroupement expérimental."
+          "speech_text": "Le champ de discussion accepte les questions sur ce flux de travail. Permettez à l'IA d'orienter une question à travers le fournisseur sélectionné et utilisez la flèche adjacente pour ouvrir le menu du fournisseur."
         },
         {
-          "narration": "Dans la zone de configuration principale, configurer le filtrage, l'échelle, la sélection des caractéristiques, l'équilibrage des classes, la famille de modèles et les fractions à échec de fuites.",
-          "visual": "settings",
+          "narration": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés, et donnent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, configurer le filtrage, l'échelle, la sélection des caractéristiques, l'équilibrage des classes, la famille de modèles et les fractions à échec de fuites."
+          "speech_text": "Les fournisseurs signalent si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés, et donnent leurs commandes d'installation et de connexion. Les accréditations restent à chaque fournisseur."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Validez croisés les choix de modèle et réservez un ensemble d'évaluation prolongé lorsque cela est possible.",
-          "visual": "run",
+          "narration": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il y en a un. Validez croisés les choix de modèle et réservez un ensemble d'évaluation prolongé lorsque cela est possible."
+          "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et le prompt système conscient de spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, le projet reçoit des prédictions, l'importance des caractéristiques, des tableaux de performance et des modèles sérialisés.",
-          "visual": "output",
+          "narration": "Tirez le projet de tutoriel mesuré dans Classifier ML. Le manipulateur de dépôt résout les mesures/measurements.db, qui décrit 81 969 réelles cultures cellulaires; 6 598 sont dans la colonne c1 et 6 487 sont dans la colonne c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Tirez le projet de tutoriel mesuré dans Classifier ML. Le manipulateur de dépôt résout les mesures/measurements dot db, qui décrit 81 969 réelles cultures cellulaires; 6 598 sont dans la colonne c1 et 6 487 sont dans la colonne c2."
+        },
+        {
+          "narration": "Essentials montre la base de données, la cartographie de contrôle, le canal ER et la famille de modèles nécessaires à une première course de classification basée sur des fonctionnalités.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials montre la base de données, la cartographie de contrôle, le canal ER et la famille de modèles nécessaires à une première course de classification basée sur des fonctionnalités."
+        },
+        {
+          "narration": "La modification limite le panneau à des valeurs qui diffèrent des paramètres par défaut de spaCR, ce qui facilite l'audit de choix délibérés tels que le centre de contrôle, la taille des fonctionnalités et la sortie de base de données.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "La modification limite le panneau à des valeurs qui diffèrent des paramètres par défaut de spakeur, ce qui facilite l'audit de choix délibérés tels que le centre de contrôle, la taille des fonctionnalités et la sortie de base de données."
+        },
+        {
+          "narration": "Tous les paramètres révèlent chaque catégorie sans changement de valeurs. Les catégories organisent les contrôles par leur rôle dans l'analyse.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Tous les paramètres révèlent chaque catégorie sans changement de valeurs. Les catégories organisent les contrôles par leur rôle dans l'analyse."
+        },
+        {
+          "narration": "Les recettes enregistrent cette configuration complète sous un nom, la réappliquent plus tard, ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent cette configuration complète sous un nom, la réappliquent plus tard, ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyer des instantanés à distance des paramètres Classifier ML résolus et envoyer le travail à l'espace de travail des emplois distribués.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyer des instantanés à distance des paramètres Classifier ML résolus et envoyer le travail à l'espace de travail des emplois distribués."
+        },
+        {
+          "narration": "Les emplois distribués cartographient les chemins du projet et les ressources de calcul vers une station de travail distante, un cluster Slurm ou une commande configurée, puis soumettent et surveillent la même exécution.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Les emplois distribués cartographient les chemins du projet et les ressources de calcul vers une station de travail distante, un cluster Slurm ou une commande configurée, puis soumettent et surveillent la même exécution."
+        },
+        {
+          "narration": "Data and Controls sélectionne le projet de mesure et identifie la colonne et les valeurs de métadonnées qui définissent les exemples positifs et négatifs. Vérifiez ces étiquettes avant de monter quoi que ce soit.",
+          "visual": "12_category_01_data_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Data and Controls sélectionne le projet de mesure et identifie la colonne et les valeurs de métadonnées qui définissent les exemples positifs et négatifs. Vérifiez ces étiquettes avant de monter quoi que ce soit."
+        },
+        {
+          "narration": "Caractéristiques La préparation choisit le canal d'intérêt et supprime les mesures exclues, à faible variance, très corrélées, à faible nombre ou biologiquement invalides avant l'entraînement.",
+          "visual": "12_category_02_feature_preparation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Caractéristiques La préparation choisit le canal d'intérêt et supprime les mesures exclues, à faible variance, très corrélées, à faible nombre ou biologiquement invalides avant l'entraînement."
+        },
+        {
+          "narration": "Contrôles de correction des plaques et des lots de normalisation par plaque. Ici, chaque plaque est centrée sur ses cellules de contrôle négatif c1 tout en conservant le contraste biologique avec c2.",
+          "visual": "12_category_03_plate_batch_correction",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Contrôles de correction des plaques et des lots de normalisation par plaque. Ici, chaque plaque est centrée sur ses cellules de contrôle négatif c1 tout en conservant le contraste biologique avec c2."
+        },
+        {
+          "narration": "Classificateur et validation sélectionne XGBoost ou un autre estimateur, sa complexité et sa régularisation, la fraction retenue et le comportement de validation croisée.",
+          "visual": "12_category_04_classifier_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Classificateur et validation sélectionne XGBoost ou un autre estimateur, sa complexité et sa régularisation, la fraction retenue et le comportement de validation croisée."
+        },
+        {
+          "narration": "La sélection des caractéristiques et l'importance contrôlent la taille finale, le nombre de caractéristiques conservées et les tests de permutation répétés qui révèlent quelles mesures soutiennent le classifiateur.",
+          "visual": "12_category_05_feature_selection_importance",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La sélection des caractéristiques et l'importance contrôlent la taille finale, le nombre de caractéristiques conservées et les tests de permutation répétés qui révèlent quelles mesures soutiennent le classifiateur."
+        },
+        {
+          "narration": "Les résultats et la base de données déterminent si les prédictions et les scores du modèle sont rédigés dans la base de données de mesure pour les modules spaCR ultérieurs.",
+          "visual": "12_category_06_output_database",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les résultats et la base de données déterminent si les prédictions et les scores du modèle sont rédigés dans la base de données de mesure pour les modules spakeur ultérieurs."
+        },
+        {
+          "narration": "Plots and Heatmaps choisit la fonctionnalité résumée, la règle de regroupement, la carte des couleurs et la plage de valeurs utilisées pour visualiser les résultats au niveau de la plaque. Ces contrôles ne modifient pas le modèle monté.",
+          "visual": "12_category_07_plots_heatmaps",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plots and Heatmaps choisit la fonctionnalité résumée, la règle de regroupement, la carte des couleurs et la plage de valeurs utilisées pour visualiser les résultats au niveau de la plaque. Ces contrôles ne modifient pas le modèle monté."
+        },
+        {
+          "narration": "Le temps d'exécution et la fiabilité contrôlent l'exploitation forestière et le nombre de travailleurs. Utilisez moins de travailleurs lors du partage d'un poste de travail et gardez la sortie verbale tout en validant un nouveau flux de travail.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le temps d'exécution et la fiabilité contrôlent l'exploitation forestière et le nombre de travailleurs. Utilisez moins de travailleurs lors du partage d'un poste de travail et gardez la sortie verbale tout en validant un nouveau flux de travail."
+        },
+        {
+          "narration": "Pour ce tutoriel, columnID est la source de l'étiquette: c1 est le contrôle négatif et c2 est le contrôle positif. La cartographie utilise les deux premières colonnes de plaque exactement comme demandé.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Pour ce tutoriel, columnID est la source de l'étiquette: c1 est le contrôle négatif et c2 est le contrôle positif. La cartographie utilise les deux premières colonnes de plaque exactement comme demandé."
+        },
+        {
+          "narration": "L'hyperparamètre de recherche compare les taux d'apprentissage des candidats, le nombre des estimateurs et les valeurs de régularisation avec une validation à cinq fois. Le tableau des résultats classe les essais terminés selon le critère sélectionné.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "search",
+          "hold_after": 0.45,
+          "speech_text": "L'hyperparamètre de recherche compare les taux d'apprentissage des candidats, le nombre des estimateurs et les valeurs de régularisation avec une validation à cinq fois. Le tableau des résultats classe les essais terminés selon le critère sélectionné."
+        },
+        {
+          "narration": "Les paramètres de recherche définissent l'espace exact du candidat, le mode de recherche, le nombre d'essais, les plis, la semence aléatoire et le critère d'optimisation. Fermez après avoir examiné les limites.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Les paramètres de recherche définissent l'espace exact du candidat, le mode de recherche, le nombre d'essais, les plis, la semence aléatoire et le critère d'optimisation. Fermez après avoir examiné les limites."
+        },
+        {
+          "narration": "Run valide le projet et contrôle la cartographie, prépare les fonctionnalités, applique la correction de la plaque, évalue le classificateur, calcule l'importance, dessine des résumés et écrit les sorties activées. Arrêtez de demander une interruption sécurisée.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
+          "click_key": "run",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, le projet reçoit des prédictions, l'importance des caractéristiques, des tableaux de performance et des modèles sérialisés."
+          "speech_text": "Run valide le projet et contrôle la cartographie, prépare les fonctionnalités, applique la correction de la plaque, évalue le classificateur, calcule l'importance, dessine des résumés et écrit les sorties activées. Arrêtez de demander une interruption sécurisée."
         }
       ]
     },
