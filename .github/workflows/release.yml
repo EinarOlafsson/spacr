@@ -150,7 +150,15 @@ jobs:
       - name: Build wheel and source distribution
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build twine pytest packaging pyyaml "setuptools>=64"
+          # pillow is here for tests/test_online_installers.py, which opens the
+          # application icon to check its background and transparent corners.
+          # This job builds in a bare environment rather than installing spaCR,
+          # so the package's own `pillow>=10.2.0,<13` never arrives. The icon
+          # test landed in 66e150b2 an hour after the last green release, so it
+          # had never run here: the first release attempted after 30 July was
+          # always going to fail on `ModuleNotFoundError: No module named 'PIL'`
+          # with a wheel that had already built and passed `twine check`.
+          python -m pip install build twine pytest packaging pyyaml "setuptools>=64" pillow
           python -m build
           python -m twine check dist/*
           python -m pytest --noconftest \
