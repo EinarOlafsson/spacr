@@ -1170,7 +1170,7 @@ def test_a_finished_mask_run_registers_its_outputs(tmp_path, monkeypatch):
         "pathogen_channel": None, "organelle_channel": None,
         "preprocess": False, "masks": True, "plot": False, "verbose": False,
         "test_mode": False, "timelapse": False, "n_jobs": 1,
-        "adjust_cells": False, "consolidate": False, "all_to_mip": False,
+        "adjust_cells": False, "consolidate": False,
         "batch_size": 10, "save": True, "custom_regex": None,
         "randomize": True, "examples_to_plot": 2, "cell_diameter": 30,
     })

@@ -1,6 +1,6 @@
 """Coverage for spacr.io channel merge / MIP / concatenate helpers.
 
-Targets ``_merge_channels`` (plot branch), ``_mip_all`` and
+Targets ``_merge_channels`` (plot branch) and
 ``_concatenate_channel`` (timelapse branch, randomize branch and the
 ragged-shape padding branch) in spacr/io.py.
 
@@ -114,62 +114,6 @@ def test_merge_channels_non_empty_stack_dir_is_left_alone(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# _mip_all
-# ---------------------------------------------------------------------------
-
-def test_mip_all_appends_max_projection(tmp_path):
-    from spacr.io import _mip_all
-
-    arr = np.zeros((4, 5, 3), dtype=np.uint16)
-    arr[..., 0] = 7
-    arr[..., 1] = 11
-    arr[..., 2] = 3
-    np.save(tmp_path / "a.npy", arr)
-
-    _mip_all(str(tmp_path), include_first_chan=True)
-
-    out = np.load(tmp_path / "a.npy")
-    assert out.shape == (4, 5, 4)
-    assert np.array_equal(out[..., :3], arr)
-    assert np.all(out[..., 3] == 11)
-
-
-def test_mip_all_exclude_first_channel(tmp_path):
-    from spacr.io import _mip_all
-
-    arr = np.zeros((4, 5, 3), dtype=np.uint16)
-    arr[..., 0] = 99   # brightest, but must be excluded
-    arr[..., 1] = 11
-    arr[..., 2] = 3
-    np.save(tmp_path / "a.npy", arr)
-
-    _mip_all(str(tmp_path), include_first_chan=False)
-
-    out = np.load(tmp_path / "a.npy")
-    assert out.shape == (4, 5, 4)
-    assert np.all(out[..., 3] == 11)
-
-
-def test_mip_all_promotes_2d_array_and_pads_with_zeros(tmp_path):
-    """A 2-D array gets an axis then a zero plane concatenated onto it."""
-    from spacr.io import _mip_all
-
-    arr = np.full((3, 4), 5, dtype=np.uint16)
-    np.save(tmp_path / "flat.npy", arr)
-    # a non-npy file in the same folder must be ignored
-    (tmp_path / "note.txt").write_text("ignore me")
-
-    _mip_all(str(tmp_path))
-
-    out = np.load(tmp_path / "flat.npy")
-    assert out.shape == (3, 4, 2)
-    assert np.all(out[..., 0] == 5)
-    assert np.all(out[..., 1] == 0)
-    assert (tmp_path / "note.txt").read_text() == "ignore me"
-
-
-# ---------------------------------------------------------------------------
-# _concatenate_channel — randomize branch
 # ---------------------------------------------------------------------------
 
 def test_concatenate_channel_randomize_shuffles_and_keeps_pairing(tmp_path, monkeypatch):

@@ -791,7 +791,7 @@ def _mask_settings(roots, **over):
         "organelle_channel": None, "preprocess": False, "masks": True,
         "plot": False, "verbose": False, "test_mode": False,
         "timelapse": False, "n_jobs": 1, "adjust_cells": False,
-        "consolidate": False, "all_to_mip": False, "batch_size": 10,
+        "consolidate": False, "batch_size": 10,
         "save": True, "custom_regex": None, "randomize": True,
         "examples_to_plot": 2, "strict_errors": False,
     }
