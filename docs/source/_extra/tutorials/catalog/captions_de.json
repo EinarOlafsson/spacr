@@ -1949,19 +1949,40 @@
       "id": "36_import",
       "scenes": [
         {
-          "narration": "Dieses Tutorial umfasst Import-Projekt. Bringen Sie Bilder, Masken und Messtabellen eines anderen Laboratoriums in ein spaCR-Projekt."
+          "narration": "Import Project bringt die Bilder eines anderen Labors, Etikettenmasken und Messungen in ein spaCR-Projekt, ohne eine abgeleitete Kartierung als Wahrheit zu behandeln. Öffnen Sie es von Data und Batchläufen. Die oberen Kontrollen beschreiben ihre Eingabe, die mittlere ist eine bearbeitbare Überprüfung und die unteren Kontrollen speichern diese Entscheidung oder starten die getrennte Einfuhr."
         },
         {
-          "narration": "Öffnen Sie Importprojekte aus dem Abschnitt Daten und Batchläufe. Angabe von Bildern, optionalen Masken, einer Messtabelle und stabilen externen Identifikatoren."
+          "narration": "Wählen Sie den externen Bildordner aus oder lassen Sie ihn fallen und wählen Sie ein neues Ziel aus. In dieser Lektion werden zwei wirkliche 2000 bis 2000 Felder verwendet, jedes mit vier Fluoreszenzkanälen. Die Quell-spaCR-Arrays wurden ausschließlich für die Demonstration des Querschnitt-Imports in neutrale TIFF-Eingaben entschlüsselt; keine synthetischen Pixel wurden erstellt."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich werden ausländische Spalten auf spaCR-Identifikatoren, Kanäle, Objekttypen, Plattenmetadaten und Herkunftsfelder abgegrenzt."
+          "narration": "Ein zusammengesetztes spaCR-Feld kann für jede Objektklasse eine Kennzeichnungsebene tragen. Wählen Sie eine Klasse aus, wählen Sie den Ordner aus und klicken Sie auf Hinzufügen. Wiederholen Sie für Zell-, Kern-, Krankheitserreger- und Organellenmasken. Jedes Feld muss jede angegebene Klasse haben; unvergleichliche Bild- oder Maskendateien werden aufgelistet, anstatt zu erraten."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Validieren Sie Verbindungen, fehlende Werte, Bildmasken-Ausrichtung und duplizierte Identifikatoren vor der Einfuhr."
+          "narration": "Fügen Sie den realen Mess-CSV hinzu und erklären Sie 0,65 Mikrometer pro Pixel, damit Quadratmikrometerflächen korrekt umgewandelt werden können. Die Tabelle enthält absichtlich eine Spalte namens cell_area. Umbenannt auf das Fremdprefix bewahrt diesen externen Wert, ohne ein spaCR-Feature schweigend zu ersetzen. Die ursprünglichen Dateien bleiben nur zu lesen, und die Ausgabe geht an das neue Ziel."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, bewahrt das standardisierte Projekt Links zurück zu jeder ursprünglichen Datei und Identifikator."
+          "narration": "Klicken Sie auf Vorschau, bevor Sie importieren. Die Vorschau scannt die Bildüberschriften, paart jede Maske nach Feld, liest die Messtabelle, überprüft Objektetiketten, schlägt Spaltenkartierungen vor, löst Einheiten- und Namenskonflikte und schreibt nichts."
+        },
+        {
+          "narration": "Die beiden Felder sind bereit. Die bearbeitbare Tabelle zeigt jede externe Spalte, das vorgeschlagene spaCR-Ziel, die Transform-, Eingabe- und Ausgangseinheiten sowie eine Überprüfungsanmerkung an. Der Bericht bestätigt, dass 206 von 207 Messreihen mit echten Zelletiketten übereinstimmen. Ein fehlendes Etikett und 1.198 Maskenobjekte ohne Tischreihen werden enthüllt, niemals schweigend entsorgt oder erfunden."
+        },
+        {
+          "narration": "Der Vorschlag ist absichtlich bearbeitbar. Wählen Sie die spaCR-Säulenzelle für AreaShape_Area_um2 aus und ersetzen Sie das Ziel durch einen überarbeiteten, aussagekräftigen Namen. Hier können auch Transform- und Einheitsspalten korrigiert werden; jede Bearbeitung führt sofort Kollisions- und Kalibrierungskontrollen wieder aus, ohne die Ordner neu zu scannen."
+        },
+        {
+          "narration": "Das Zielgebiet ist jetzt foreign_reviewed_cell_area. Seine Flächenumwandlung bleibt von Quadratmikrometern bis zu Quadratpixeln kalibriert, während der widersprüchliche externe Cell_area separat mit dem Fremdpräfix umbenannt wird. Der Status sagt immer noch, dass nichts geschrieben wurde."
+        },
+        {
+          "narration": "Klicken Sie auf Speichern von Karten, um die komplette Überprüfung als CSV zu schreiben. Die Datei kann überprüft, verarbeitet, mit einem Mitarbeiter geteilt, außerhalb der Anwendung bearbeitet und erneut geladen werden. Import wird genau die auf dem Bildschirm gezeigte Kartierung anwenden."
+        },
+        {
+          "narration": "Die überprüfte Kartierung wird neben der isolierten Tutorial-Ausgabe gespeichert. Die Lade-Mapping stellt die gleichen Entscheidungen später wieder her. Die Bestimmung muss neu sein oder zu demselben Experiment gehören; das Import Project weigert sich, eine Bestimmung mit Messungen aus verschiedenen Feldern vor dem Schreiben einer Datei zu verwenden."
+        },
+        {
+          "narration": "Nach der Überprüfung der Bilder, vier Maskenklassen, verbinden Bericht, Einheiten, Konflikte und Ziel, klicken Sie auf Import. Diese getrennte Aktion konvertiert Bildernamen, schreibt Intensitäts- und Maskenstapels, baut zusammengesetzte Arrays mit spaCR's native Ebene-Reihenfolge und erstellt die Datenbank und Herkunftsregister."
+        },
+        {
+          "narration": "Die Einfuhr endet mit zwei Feldern, acht umgewandelten Kanal-TIFFs, acht Masken-Arrays und zwei fusionierten Arrays, die vier Intensitätsplanen enthalten, gefolgt von Zell-, Kern-, Krankheitserreger- und Organelletiketten. Alle 207 externen Zeilen sind in foreign_cell und einer kanonischen Convenience-Kopie gespeichert, während measurements.db und die angewandte Kartierungsaufzeichnung, welche Spalten von außerhalb von spaCR stammen."
         }
       ]
     },

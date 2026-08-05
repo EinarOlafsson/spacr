@@ -5044,47 +5044,107 @@
       "id": "36_import",
       "number": 36,
       "slug": "import",
-      "title": "Import Project",
+      "title": "Proyecto de importación",
       "series": 5,
       "app_key": "foreign",
       "section": "Data and batch runs",
-      "description": "Traiga las imágenes, máscaras y tablas de medición de otro laboratorio a un proyecto spaCR.",
+      "description": "Auditar e importar las imágenes, máscaras y mediciones microscópicas reales de otro laboratorio en un proyecto spaCR que preserve la procedencia.",
       "objectives": [
-        "Comprender cuándo usar Import Project.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Combine imágenes externas multicanal con máscaras de etiqueta de células, núcleos, patógenos y órganos.",
+        "Visualiza las uniones, unidades, conflictos y mapas de columnas editables sin escribir datos.",
+        "Guardar el mapa revisado y crear un proyecto spaCR rastreable en un nuevo destino."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Imágenes de microscopía externa, una carpeta de máscara de etiqueta por clase de objeto disponible y una tabla de medición CSV, TSV, Excel, Parquet o SQLite.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre el Proyecto Import. Trae las imágenes de otro laboratorio, máscaras y tabla de medición en un proyecto spaCR.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre el Proyecto Import. Trae las imágenes de otro laboratorio, máscaras y tabla de medición en un proyecto espáquer."
+          "narration": "Import Project trae las imágenes de otro laboratorio, las máscaras de etiqueta y las mediciones en un proyecto spaCR sin tratar un mapeo inferido como verdad. Abre desde Data y ejecuta los lotes. Los controles superiores describen sus entradas, el medio es una revisión editable, y los controles inferiores guardan esa decisión o inician la importación por separado.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.82,
+          "speech_text": "Import Project trae las imágenes de otro laboratorio, las máscaras de etiqueta y las mediciones en un proyecto espáquer sin tratar un mapeo inferido como verdad. Abre desde Data y ejecuta los lotes. Los controles superiores describen sus entradas, el medio es una revisión editable, y los controles inferiores guardan esa decisión o inician la importación por separado."
         },
         {
-          "narration": "Abra Import Project en la sección Data and batch runs. Abre Proyecto de importación desde la sección Datos y ejecuciones de lote. Proporcione imágenes, máscaras opcionales, una tabla de medición y identificadores externos estables.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Import Project en la sección Data and batch runs. Abre Proyecto de importación desde la sección Datos y ejecuciones de lote. Proporcione imágenes, máscaras opcionales, una tabla de medición y identificadores externos estables."
+          "narration": "Seleccione o deje caer la carpeta de imagen externa y seleccione un nuevo destino. Esta lección utiliza dos campos reales de 2000 por 2000, cada uno con cuatro canales de fluorescencia. Las matrices de origen spaCR fueron decodificadas en entradas TIFF neutras solo para la demostración de importación transversal de herramientas; no se crearon píxeles sintéticos.",
+          "visual": "02_images",
+          "focus_key": "images",
+          "hold_after": 0.8,
+          "speech_text": "Seleccione o deje caer la carpeta de imagen externa y seleccione un nuevo destino. Esta lección utiliza dos campos reales de 2000 por 2000, cada uno con cuatro canales de fluorescencia. Las matrices de origen espáquer fueron decodificadas en entradas TIFF neutras solo para la demostración de importación transversal de herramientas; no se crearon píxeles sintéticos."
         },
         {
-          "narration": "En el área de configuración principal, mapear las columnas extranjeras en identificadores spaCR, canales, tipos de objetos, metadatos de placa y campos de procedencia.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, mapear las columnas extranjeras en identificadores espáquer, canales, tipos de objetos, metadatos de placa y campos de procedencia."
+          "narration": "Un campo spaCR fusionado puede llevar un plano de etiqueta para cada clase de objetos. Seleccione una clase, elija su carpeta y haga clic en Agregar. Repita para las máscaras de células, núcleos, patógenos y órganos. Cada campo debe tener cada clase declarada; los archivos de imágenes o máscaras sin igual se enumeran en lugar de adivinar.",
+          "visual": "03_masks",
+          "focus_key": "mask_entry",
+          "click_key": "add",
+          "hold_after": 0.74,
+          "speech_text": "Un campo espáquer fusionado puede llevar un plano de etiqueta para cada clase de objetos. Seleccione una clase, elija su carpeta y haga clic en Agregar. Repita para las máscaras de células, núcleos, patógenos y órganos. Cada campo debe tener cada clase declarada; los archivos de imágenes o máscaras sin igual se enumeran en lugar de adivinar."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. valida las uniones, los valores faltantes, la alineación de la máscara de imagen y los identificadores duplicados antes de importar.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible. valida las uniones, los valores faltantes, la alineación de la máscara de imagen y los identificadores duplicados antes de importar."
+          "narration": "Añadir el CSV de medición real y declarar 0,65 micrómetros por píxel para que las áreas de micrómetros cuadrados puedan convertirse correctamente. La tabla contiene intencionalmente una columna llamada cell_area. Renombrar al prefijo extranjero preserva ese valor externo sin reemplazar silenciosamente una característica de spaCR. Los archivos originales permanecen solo para lectura, y la salida va al nuevo destino.",
+          "visual": "04_measurements",
+          "focus_key": "measurements",
+          "hold_after": 0.86,
+          "speech_text": "Añadir el CSV de medición real y declarar 0,65 micrómetros por píxel para que las áreas de micrómetros cuadrados puedan convertirse correctamente. La tabla contiene intencionalmente una columna llamada cell_area. Renombrar al prefijo extranjero preserva ese valor externo sin reemplazar silenciosamente una característica de espáquer. Los archivos originales permanecen solo para lectura, y la salida va al nuevo destino."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, el proyecto estandarizado conserva enlaces de regreso a cada archivo y identificador original.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, el proyecto estandarizado conserva enlaces de regreso a cada archivo y identificador original."
+          "narration": "Haga clic en Previsión antes de importar. La vista previa escanea los encabezados de la imagen, empareja cada máscara por campo, lee la tabla de medición, verifica las etiquetas de objetos, propone mapas de columnas, resuelve unidades y conflictos de nombres, y no escribe nada.",
+          "visual": "05_preview",
+          "focus_key": "configuration",
+          "click_key": "preview",
+          "hold_after": 0.68,
+          "speech_text": "Haga clic en Previsión antes de importar. La vista previa escanea los encabezados de la imagen, empareja cada máscara por campo, lee la tabla de medición, verifica las etiquetas de objetos, propone mapas de columnas, resuelve unidades y conflictos de nombres, y no escribe nada."
+        },
+        {
+          "narration": "Los dos campos están listos. La tabla editable muestra cada columna externa, el objetivo spaCR propuesto, las unidades de transformación, entrada y salida y una nota de revisión. El informe confirma que 206 de las 207 líneas de medición coinciden con las etiquetas reales de las células. Una etiqueta ausente y 1.198 objetos de máscara sin filas de mesas se revelan, nunca descartados o inventados en silencio.",
+          "visual": "06_plan",
+          "focus_key": "mapping",
+          "hold_after": 0.88,
+          "speech_text": "Los dos campos están listos. La tabla editable muestra cada columna externa, el objetivo espáquer propuesto, las unidades de transformación, entrada y salida y una nota de revisión. El informe confirma que 206 de las 207 líneas de medición coinciden con las etiquetas reales de las células. Una etiqueta ausente y 1.198 objetos de máscara sin filas de mesas se revelan, nunca descartados o inventados en silencio."
+        },
+        {
+          "narration": "La propuesta puede ser editada deliberadamente. Seleccione la célula de columna spaCR para AreaShape_Area_um2 y reemplace el objetivo con un nombre revisado y significativo. Las columnas de transformación y unidad también se pueden corregir aquí; cada edición vuelve a ejecutar inmediatamente las comprobaciones de colisión y calibración sin volver a escanear las carpetas.",
+          "visual": "07_edit_mapping",
+          "focus_key": "mapping",
+          "click_key": "target_cell",
+          "hold_after": 0.74,
+          "speech_text": "La propuesta puede ser editada deliberadamente. Seleccione la célula de columna espáquer para AreaShape_Area_um2 y reemplace el objetivo con un nombre revisado y significativo. Las columnas de transformación y unidad también se pueden corregir aquí; cada edición vuelve a ejecutar inmediatamente las comprobaciones de colisión y calibración sin volver a escanear las carpetas."
+        },
+        {
+          "narration": "El área objetivo es ahora foreign_reviewed_cell_area. Su área de transformación permanece calibrada de micrómetros cuadrados a píxeles cuadrados, mientras que la zona de celda externa en conflicto se renombre por separado con el prefijo extranjero. El estado todavía dice que no se ha escrito nada.",
+          "visual": "08_reviewed",
+          "focus_key": "mapping",
+          "hold_after": 0.74,
+          "speech_text": "El área objetivo es ahora foreign_reviewed_cell_area. Su área de transformación permanece calibrada de micrómetros cuadrados a píxeles cuadrados, mientras que la zona de celda externa en conflicto se renombre por separado con el prefijo extranjero. El estado todavía dice que no se ha escrito nada."
+        },
+        {
+          "narration": "Haga clic en Guardar mapas para escribir la revisión completa como CSV. El archivo puede ser inspeccionado, versionado, compartido con un colaborador, editado fuera de la aplicación y cargado de nuevo. La importación aplicará exactamente el mapeo que se muestra en la pantalla.",
+          "visual": "09_save_mapping",
+          "focus_key": "actions",
+          "click_key": "save",
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en Guardar mapas para escribir la revisión completa como CSV. El archivo puede ser inspeccionado, versionado, compartido con un colaborador, editado fuera de la aplicación y cargado de nuevo. La importación aplicará exactamente el mapeo que se muestra en la pantalla."
+        },
+        {
+          "narration": "El mapeo revisado se guarda junto a la salida del tutorial aislado. El mapeo de carga restablece las mismas decisiones más tarde. El destino debe ser nuevo o pertenecer al mismo experimento; Import Project rechaza un destino que contenga mediciones de diferentes campos antes de escribir un archivo.",
+          "visual": "10_saved",
+          "focus_key": "actions",
+          "hold_after": 0.74,
+          "speech_text": "El mapeo revisado se guarda junto a la salida del tutorial aislado. El mapeo de carga restablece las mismas decisiones más tarde. El destino debe ser nuevo o pertenecer al mismo experimento; Import Project rechaza un destino que contenga mediciones de diferentes campos antes de escribir un archivo."
+        },
+        {
+          "narration": "Después de revisar las imágenes, cuatro clases de máscaras, unirse informe, unidades, conflictos y destino, haga clic en Importar. Esta acción separada convierte nombres de imágenes, escribe intensidad y mascaras, construye matrices fusionadas con el orden de plano nativo de spaCR, y crea la base de datos y registros de procedencia.",
+          "visual": "11_import",
+          "focus_key": "actions",
+          "click_key": "import",
+          "hold_after": 0.78,
+          "speech_text": "Después de revisar las imágenes, cuatro clases de máscaras, unirse informe, unidades, conflictos y destino, haga clic en Importar. Esta acción separada convierte nombres de imágenes, escribe intensidad y mascaras, construye matrices fusionadas con el orden de plano nativo de espáquer, y crea la base de datos y registros de procedencia."
+        },
+        {
+          "narration": "La importación se completa con dos campos, ocho canales TIFF convertidos, ocho matrices de máscaras y dos matrices fusionadas que contienen cuatro planos de intensidad seguidos de las etiquetas de célula, núcleo, patógeno y orgánulos. Todas las 207 filas externas se conservan en foreign_cell y una copia de conveniencia canónica, mientras que measurements.db y el registro de mapeo aplicado de las columnas provienen de fuera de spaCR.",
+          "visual": "12_result",
+          "focus_key": "report",
+          "hold_after": 0.9,
+          "speech_text": "La importación se completa con dos campos, ocho canales TIFF convertidos, ocho matrices de máscaras y dos matrices fusionadas que contienen cuatro planos de intensidad seguidos de las etiquetas de célula, núcleo, patógeno y orgánulos. Todas las 207 filas externas se conservan en foreign_cell y una copia de conveniencia canónica, mientras que measurements dot db y el registro de mapeo aplicado de las columnas provienen de fuera de espáquer."
         }
       ]
     },
