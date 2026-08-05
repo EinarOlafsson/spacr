@@ -88,18 +88,72 @@ class TestUpdater:
         assert _lt("1.0", "1.0.1") is True
 
     def test_run_pip_upgrade_invokes_pip(self, monkeypatch):
-        # Lines 141-146 — build args + subprocess.call.
+        # Build args + subprocess.run, and return the output alongside the
+        # exit code: the desktop installers have no terminal to print it to.
         import subprocess
         from spacr import updater as U
         captured = {}
-        def _fake_call(args):
+
+        class _Completed:
+            returncode = 0
+            stdout = "Successfully installed spacr\n"
+            stderr = ""
+
+        def _fake_run(args, **kwargs):
             captured["args"] = args
-            return 0
-        monkeypatch.setattr(subprocess, "call", _fake_call)
-        rc = U.run_pip_upgrade(pre_release=True)
+            captured["kwargs"] = kwargs
+            return _Completed()
+
+        monkeypatch.setattr(U, "find_uv", lambda: None)
+        monkeypatch.setattr(subprocess, "run", _fake_run)
+        rc, output = U.run_pip_upgrade(pre_release=True)
         assert rc == 0
         assert "--pre" in captured["args"]
         assert "spacr" in captured["args"]
+        assert "-m" in captured["args"] and "pip" in captured["args"]
+        assert captured["kwargs"].get("capture_output") is True
+        assert "Successfully installed" in output
+
+    def test_run_pip_upgrade_uses_uv_when_pip_is_absent(self, monkeypatch):
+        # The native installers build the environment with `uv venv`, which
+        # never seeds pip, so `python -m pip` fails before it starts. The
+        # updater has to reach for the tool that built the environment.
+        import subprocess
+        from spacr import updater as U
+        captured = {}
+
+        class _Completed:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        def _fake_run(args, **kwargs):
+            captured["args"] = args
+            return _Completed()
+
+        monkeypatch.setattr(U, "find_uv", lambda: "/opt/spacr/bootstrap/uv")
+        monkeypatch.setattr(subprocess, "run", _fake_run)
+        rc, _output = U.run_pip_upgrade()
+        assert rc == 0
+        assert captured["args"][0] == "/opt/spacr/bootstrap/uv"
+        assert captured["args"][1:3] == ["pip", "install"]
+        assert "--python" in captured["args"]
+        assert "-m" not in captured["args"]
+
+    def test_a_missing_upgrade_tool_is_reported_not_raised(self, monkeypatch):
+        # FileNotFoundError here used to surface as a bare exit code with no
+        # explanation, on an install with no terminal to explain it in.
+        import subprocess
+        from spacr import updater as U
+
+        def _boom(args, **kwargs):
+            raise FileNotFoundError(args[0])
+
+        monkeypatch.setattr(U, "find_uv", lambda: None)
+        monkeypatch.setattr(subprocess, "run", _boom)
+        rc, output = U.run_pip_upgrade()
+        assert rc == 1
+        assert "Could not run" in output
 
     def test_check_for_updates_github_branch(self, monkeypatch):
         # Exercise the github nightly parse (lines 89-90) + error absorb.

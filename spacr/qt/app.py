@@ -2065,20 +2065,34 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "upgrade", run_pip_upgrade, self._on_upgrade_done)
 
-    def _on_upgrade_done(self, return_code) -> None:
-        """Report a completed package upgrade on the GUI thread."""
+    def _on_upgrade_done(self, result) -> None:
+        """Report a completed package upgrade on the GUI thread.
+
+        ``run_pip_upgrade`` returns ``(exit_code, output)``. A bare int is
+        still accepted so an older helper, or a test that patches this with a
+        plain return code, does not break.
+        """
         if self._closing:
             LOG.debug("Discarding an upgrade result during shutdown")
             return
+        if isinstance(result, tuple):
+            return_code, output = result
+        else:
+            return_code, output = result, ""
         if return_code == 0:
             QMessageBox.information(
                 self, "Updates",
                 "Upgrade finished. Restart spaCR to use it.")
-        else:
-            QMessageBox.warning(
-                self, "Updates",
-                f"pip returned exit code {return_code}. "
-                "Check the terminal for details.")
+            return
+        # These installs launch from a desktop entry with Terminal=false, so
+        # "check the terminal for details" named something the user could not
+        # open, and the reason was written to a stream nobody was reading.
+        # Put the tail of it in the dialog instead.
+        lines = [line for line in (output or "").splitlines() if line.strip()]
+        detail = "\n".join(lines[-6:]) if lines else "No output was captured."
+        QMessageBox.warning(
+            self, "Updates",
+            f"pip returned exit code {return_code}.\n\n{detail}")
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
         """Report an updater exception instead of losing it in a QThread."""
