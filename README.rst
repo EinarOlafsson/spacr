@@ -107,9 +107,9 @@ Installation details
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: download SpaCR 1.5.0.0 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.0/SpaCR-1.5.0.0-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.5.0.0 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.0/SpaCR-1.5.0.0-macOS-Universal-Online.pkg>`_
-* `64-bit Linux: download SpaCR 1.5.0.0 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.0/SpaCR-1.5.0.0-Linux-x86_64-Online.run>`_
+* `Windows 10/11: download SpaCR 1.5.0.1 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-Windows-Online-Setup.exe>`_
+* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.5.0.1 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-macOS-Universal-Online.pkg>`_
+* `64-bit Linux: download SpaCR 1.5.0.1 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.1/SpaCR-1.5.0.1-Linux-x86_64-Online.run>`_
 
 .. spacr-installer-links-end
 
