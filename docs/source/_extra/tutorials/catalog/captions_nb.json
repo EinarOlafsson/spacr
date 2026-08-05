@@ -154,19 +154,97 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Mask. Segmenter det leverte fire-kanal mikroskop eksperimentet i kjerner, celler, lipid dråper og parasittmasker."
+          "narration": "Masken åpner med innstillingspanelet til venstre og kjøretidskonsollen til høyre. Konsolen rapporterer mappskanning, validering, fremgang, advarsler og rørledningsutgang."
         },
         {
-          "narration": "Åpne Maske fra Kjerne sektionen. Bruk den leverte datasetet med 13 felt. Kanal null er kjerner, kanal en er endoplasmatisk retikulum, kanal to er lipiddråper, og kanal tre er parasitter."
+          "narration": "Feltet under konsollen aksepterer lokale spørsmål eller kommandoer. AI-skiftet ruter en melding gjennom en valgt abonnementsstøttet leverandør, og den tilstødende pilen åpner leverandørmenyen."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet, oppdage kjerner fra kanal null, celler fra endoplasmatisk-reticulum-kanalen, lipiddråper med organelle flekker arbeidsflyt, og parasitter fra kanal tre."
+          "narration": "Fliken Leverandører viser om Claude, ChatGPT, og Gemini kommando-linje-klienter er installert, pluss deres installasjon og login kommandoer. Kreditene forblir hos selgeren."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. Sjekk et representativt felt, og deretter kjøre de fire segmenteringspassene over datasettet."
+          "narration": "Settings fan kontrollerer respons dybde, AI-assistert feil forklaringer, valgfri GitHub problem rapportering, logging inn, og spaCR-bevisste system prompt."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, inneholder masker-mappen justerte objektetiketter og sammensatte bilde-plus-masker-arrayer klar til måling."
+          "narration": "Trekk orig- mappen inn i Mask. spaCR oppdager CQ1 filenavn mønsteret, forhåndsviser godt, felt, tid, dybde, og kanal metadata, noterer at plate ID vil være standard til plate1, så sparer regex."
+        },
+        {
+          "narration": "Essentials viser den lille settingen som kreves for å kjøre Mask. Tallingen under kontrollene rapporterer hvor mange av de komplette innstillingene som for tiden er synlige."
+        },
+        {
+          "narration": "Modifisert begrenser skjemaet til verdier som skiller seg fra Mask standard, noe som gjør importerte eller redigerte innstillinger lette å se på."
+        },
+        {
+          "narration": "Skifte mellom Essentials og Alle innstillinger uten å miste verdier. Alle innstillinger avslører alle kategorier, inkludert avanserte og beta kontroller."
+        },
+        {
+          "narration": "Recipes lagrer de nåværende innstillingene under et navn, bruker en lagret konfigurasjon på nytt, eller importerer og eksporterer en gjenbrukbar innstillingsfil."
+        },
+        {
+          "narration": "Send fjernbilder av de løste Mask-innstillingene og send dem til distribuert jobb-arbeidsrommet."
+        },
+        {
+          "narration": "Distributed Jobs kartlegger lokale veier til en fjernarbeidsstasjon, Slurm-kluster eller konfigurert kommando, og sender og overvåker deretter samme Mask-løp."
+        },
+        {
+          "narration": "Input and Metadata definerer kildenavnmappen, kanaltildelinger, forstørrelse, metadatatype, og eventuelle tilpassede filenavn regex."
+        },
+        {
+          "narration": "Workflow og Test Run kontrollerer forhåndsbehandling, maskenproduksjon, tørre kjører, gjenopptakende atferd og små testmodusprøver."
+        },
+        {
+          "narration": "Bildets forhåndsbehandling grupper normalisering, projeksjon, oppskalering, konsolidering, og å avvise valg som brukes før segmentering."
+        },
+        {
+          "narration": "Selsegmentering inneholder cellemodellen, diameter, tærskler, bakgrunnshåndtering og cellobjektfilter."
+        },
+        {
+          "narration": "Nucleus Segmentation gir den tilsvarende modellen, tærskler, bakgrunn korrigering og objektfilter for kjerner."
+        },
+        {
+          "narration": "Patogensegmentering grupperer modell og rengjøringsregler som brukes til å oppdage og filtrere parasittobjekter."
+        },
+        {
+          "narration": "Organelle Segmentasjon velger organelle morfologi og detektor, billedrengjøring, metode-specifikke kontroller, objektfiltre og parent-compartment oppsummering."
+        },
+        {
+          "narration": "Kvalitetskontroll setter automatisk kontroll for objekttall, størrelsesforhold, grenser, forgrundsdekning, delt atferd og akseptabelle feltfeil."
+        },
+        {
+          "narration": "Volumetric Processing inneholder beta-kontroller for z-stacks, projektering, anisotropy, voxel kalibrering og tredimensionell sying."
+        },
+        {
+          "narration": "Time Axes and Tracking inneholder beta-kontroller for firedimensionelle data, rammeintervaller, sporing av bakgrunner og utskiftingsgrenser."
+        },
+        {
+          "narration": "Visualization and Diagnostics kontrollerer forhåndsvisning plots, farge kart, figur størrelse, plots normalisering, og eksempel felt."
+        },
+        {
+          "narration": "Utgang og lagring bestemmer hvilke bilder, masker, mellomarrays og komprimerte resultater som bevares."
+        },
+        {
+          "narration": "Løpetid og pålitelighet inneholder feilhåndtering, reproduserbarhet, logging, antall arbeidstakere, partier og rørledningsutførelse valg."
+        },
+        {
+          "narration": "Aktiver Live Preview og laste kanal to ER-bilde. Dette feltet inneholder bare cellesignalet som brukes for segmenteringseksemplet."
+        },
+        {
+          "narration": "I Live Settings velger du celle, aktiverer normalisering, og setter den nedre prosenttil på 2 og den øvre prosenttil på 99,5."
+        },
+        {
+          "narration": "Kjør forhåndsvisning og zoom inn i synkroniserte kilde- og resultatpaneler. Overlagningslinjene bør følge cellegrensene som er definert i ER."
+        },
+        {
+          "narration": "Skift resultatpanelet til Flow for å sjekke Cellpose- flowfeltet som ble brukt til å danne objekter."
+        },
+        {
+          "narration": "Skip til Masker for å se hele celleobjektene direkte. Hver farge er et objekt og svart forblir bakgrunnskilt null."
+        },
+        {
+          "narration": "Gå tilbake til Live Settings og sett bare celleminimumområdet til 10000 pixeler. De lagrede råmaskene filtreres umiddelbart uten at Cellpose gjenbrukes."
+        },
+        {
+          "narration": "Etter størrelsesfilteret mister små celleobjekter sine konturer og bare gjenstander med minst 10000 piksler gjenstår. Sammenlign dette med det ufiltrerte overlaget."
         }
       ]
     },
@@ -174,19 +252,28 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker måling. Ekstrak per objekt intensitet, morfologi, tekstur, kolokalisering og rumslige egenskaper fra segmenterte bilder."
+          "narration": "Måling konverterer de virkelige segmenterte HeLa-feltene til sporbare enkeltobjektintensitet, morfologi, tekstur, kolokalisering og rumslige egenskaper. Denne gjennomgangen validerer fem felt før en full-plate run."
         },
         {
-          "narration": "Åpne tiltak fra kjernen. Velg prosjektet som inneholder bilder og masker produsert av Mask."
+          "narration": "Åpne Måling fra Kjerne og velg fusjonert mappe produsert av Mask. De overførte innstillingene måler bildekanale null til tre og leser celle-, kjernekjerne- og patogenetiketter fra planene fire, fem og seks."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet skal du bruke kanal én, endoplasmatisk retikulum, som interessekanal og velge objekttyper og funksjonsfamilier for måling."
+          "narration": "Aktiverer avlinger forhåndsvisning og laste en sammenslått matris. Galleriet grupperer førti reelle celler etter kjerne og patogeninnhold, mens selektoren bekrefter at testmappen inneholder fem felt."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. forutsetning av avlinger når det er nødvendig, og deretter prosessering av hvert valgt felt og objekttype."
+          "narration": "Generelt, verifisere målede kanaler null til tre, cellemaske plan fire, kjernekjerne plan fem, patogen plan seks, og avledet cytoplasma. Hold testmodus på for valideringsløpet."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, lagrer målinger dot db sporbare enkeltobjektlinjer og valgfrie bildekropper for annotering eller klassifisering."
+          "narration": "Den leverte kjøreturen skriver celle PNG avlinger på to hundre tjuefire ved to hundre tjuefire pixeler ved hjelp av kanaler null, en, og to. Oppdrett normalisering forblir ute i de lagre innstillingene; denne opplæringen bruker en midlertidig en til ni og ni prosental visning strekk bare for å gjøre live galleriet lesbart."
+        },
+        {
+          "narration": "Filtrene krever celler med minst tre tusen fem hundre pixel, kjerner med minst tusen og patogener med minst to hundre og femti. Hold ikke infiserte celler borte og slå sammen celler hvis patogener krysser en billedkant."
+        },
+        {
+          "narration": "Velg kanal én i forhåndsvisningen for å inspisere endoplasmisk-reticulumsignalet, som er kanal av interesse for nedstrømmende analyser. Denne visningen endrer bare galleriet; Måling stiller fortsatt funksjoner fra alle fire konfigurerte kanaler."
+        },
+        {
+          "narration": "Den fullførte testregisteren rapporterer fem av fem felt vellykket uten feil. Målinger dot db inneholder fire hundre og femti fem celler og cytoplasmer, seks hundre og fem kjerner, og tusen og tretti en patogene, pluss fire hundre og femti fem cellegrønner klar for annotering og klassifisering."
         }
       ]
     },

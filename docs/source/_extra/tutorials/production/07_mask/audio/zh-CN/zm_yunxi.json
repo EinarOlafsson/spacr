@@ -4,47 +4,317 @@
   "voice": "zm_yunxi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 46.05,
+  "total_duration": 248.525,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.125,
-      "scene_end": 6.575,
-      "duration": 6.575,
-      "text": "通过四通道显微镜实验,将其分成核,细胞,脂滴和寄生虫掩膜."
+      "speech_end": 9.05,
+      "scene_end": 9.5,
+      "duration": 9.5,
+      "text": "在左边设置面板和右边运行时间控制台,面具打开. 控制台报告文件扫描,验证,进展,警告和输出管道.",
+      "speech_text": "在左边设置面板和右边运行时间控制台,面具打开. 控制台报告文件扫描,验证,进展,警告和输出管道.",
+      "phonemes": "ʦai↘ ʦwo↓pjɛ→n ʂɤ↘ꭧɨ↘ mjɛ↘npa↓n xɤ↗ jou↘pjɛ→n y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n kʰʊ↘ŋꭧɨ↘tʰai↗,mjɛ↘nʨy↘ ta↓kʰai→. kʰʊ↘ŋꭧɨ↘tʰai↗ pau↘kau↘ wə↗nʨjɛ↘n sau↓mjau↗,jɛ↘nꭧə↘ŋ,ʨi↘nꭧa↓n,ʨi↓ŋkau↘ xɤ↗ ʂu→ꭧʰu→ kwa↓ntau↘."
     },
     {
       "scene": 2,
-      "speech_start": 6.575,
-      "speech_end": 14.7,
-      "scene_end": 15.149999999999999,
-      "duration": 8.575,
-      "text": "从 Core 部分打开 Mask。 通道零是核,通通道一是内质网,通通道二是脂质滴,通通道三是寄生虫."
+      "speech_start": 9.5,
+      "speech_end": 18.25,
+      "scene_end": 18.7,
+      "duration": 9.2,
+      "text": "控制台下面的字段接受本地问题或命令. 人工智能交换器通过选择的订阅支持供应商路由信息,",
+      "speech_text": "控制台下面的字段接受本地问题或命令. 人工智能交换器通过选择的订阅支持供应商路由信息,",
+      "phonemes": "kʰʊ↘ŋꭧɨ↘tʰai↗ ɕja↘mjɛ↘n tɤ ʦɨ↘ twa↘n ʨje→ʂou↘ pə↓nti↘ wə↘ntʰi↗ xwo↘ mi↘ŋli↘ŋ. ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʨjau→xwa↘nʨʰi↘ tʰʊ→ŋkwo↘ ɕɥɛ↓nʦɤ↗ tɤ ti↘ŋɥe↘ ꭧɨ→ꭧʰɨ↗ kʊ→ŋi↘ŋʂa→ŋ lu↘jou↗ ɕi↘nɕi→,"
     },
     {
       "scene": 3,
-      "speech_start": 15.149999999999999,
-      "speech_end": 24.724999999999998,
-      "scene_end": 25.174999999999997,
-      "duration": 10.024999999999999,
-      "text": "在主要配置区域中,检测到从零道的核,从子宫膜膜道的细胞,与器官斑点工作流动的脂质滴滴,和从三道的寄生虫."
+      "speech_start": 18.7,
+      "speech_end": 27.575,
+      "scene_end": 28.025,
+      "duration": 9.325,
+      "text": "提供者选项表显示Claude,ChatGPT和Gemini命令行客户端是否安装,以及其安装和登录命令. 证书仍然是卖家的.",
+      "speech_text": "提供者选项表显示Claude,ChatGPT和Gemini命令行客户端是否安装,以及其安装和登录命令. 证书仍然是卖家的.",
+      "phonemes": "tʰi↗kʊ→ŋꭧɤ↓ ɕɥɛ↓nɕja↘ŋ pjau↓ ɕjɛ↓nʂɨ↘Claude,ChatGPTxɤ↗Geminimi↘ŋli↘ŋɕi↗ŋ kʰɤ↘xu↘twa→n ʂɨ↘fou↓ a→nꭧwa→ŋ,i↓ʨi↗ ʨʰi↗ a→nꭧwa→ŋ xɤ↗ tə→ŋlu↘ mi↘ŋli↘ŋ. ꭧə↘ŋʂu→ ɻə↗ŋɻa↗n ʂɨ↘ mai↘ʨja→ tɤ."
     },
     {
       "scene": 4,
-      "speech_start": 25.174999999999997,
-      "speech_end": 36.574999999999996,
-      "scene_end": 37.025,
-      "duration": 11.850000000000001,
-      "text": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式. 检查一个代表性字段,然后在数据集中运行四个细分传递."
+      "speech_start": 28.025,
+      "speech_end": 37.099999999999994,
+      "scene_end": 37.55,
+      "duration": 9.524999999999999,
+      "text": "设置标签控制响应深度,人工智能辅助的错误解释,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+      "speech_text": "设置标签控制响应深度,人工智能辅助的错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统提示.",
+      "phonemes": "ʂɤ↘ꭧɨ↘ pjau→ʨʰjɛ→n kʰʊ↘ŋꭧɨ↘ ɕja↓ŋi↘ŋ ʂə→ntu↘,ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ fu↓ꭧu↘ tɤ ʦʰwo↘u↘ ʨje↓ʂɨ↘,kʰɤ↓ɕɥɛ↓n tɤGitHubwə↘ntʰi↗ pau↘kau↘,tə→ŋlu↘ xɤ↗sɨ→ pʰei↘kʰɤ↘ ɚ↓ ꭧɨ→ʨʰi↗ŋ ɕi↘tʰʊ↓ŋ tʰi↗ʂɨ↘."
     },
     {
       "scene": 5,
-      "speech_start": 37.025,
-      "speech_end": 45.4,
-      "scene_end": 46.05,
-      "duration": 9.024999999999999,
-      "text": "工作流程完成后,掩膜文件包含对齐的对象标签和合并的图像加掩膜阵列,准备进行测量."
+      "speech_start": 37.55,
+      "speech_end": 48.625,
+      "scene_end": 49.075,
+      "duration": 11.525000000000006,
+      "text": "拖动原始文件到面具中. spaCR检测到CQ1文件名格式,预览好,场地,时间,深度和频道的元数据,注意到板 ID将默认转换为板1,然后保存regex.",
+      "speech_text": "拖动原始文件到面具中. 斯佩克尔检测到C Q 1文件名格式,预览好,场地,时间,深度和频道的元数据,注意到板 ID将默认转换为板1,然后保存regex.",
+      "phonemes": "tʰwo→tʊ↘ŋ ɥɛ↗nʂɨ↓ wə↗nʨjɛ↘n tau↘ mjɛ↘nʨy↘ ꭧʊ→ŋ. sɨ→ pʰei↘kʰɤ↘ ɚ↓ ʨjɛ↓nʦʰɤ↘ tau↘C Q i→ wə↗nʨjɛ↘nmi↗ŋ kɤ↗ʂɨ↘,y↘la↓n xau↓,ꭧʰa↓ŋti↘,ʂɨ↗ʨjɛ→n,ʂə→ntu↘ xɤ↗ pʰi↗ntau↘ tɤ ɥɛ↗n ʂu↘ʨy↘,ꭧu↘i↘ tau↘ pa↓n IDʨja→ŋ mwo↘ɻə↘n ꭧwa↓nxwa↘n wei↘pa↓n i→,ɻa↗nxou↘ pau↓ʦʰwə↗nregex."
+    },
+    {
+      "scene": 6,
+      "speech_start": 49.075,
+      "speech_end": 56.925000000000004,
+      "scene_end": 57.37500000000001,
+      "duration": 8.300000000000004,
+      "text": "基本显示了运行Mask所需的小设置. 控制器下面的数量显示了目前可见的完整设置中的多少.",
+      "speech_text": "基本显示了运行Mask所需的小设置. 控制器下面的数量显示了目前可见的完整设置中的多少.",
+      "phonemes": "ʨi→pə↓n ɕjɛ↓nʂɨ↘ lɤ y↘nɕi↗ŋMaskswo↓ ɕy→ tɤ ɕjau↓ ʂɤ↘ꭧɨ↘. kʰʊ↘ŋꭧɨ↘ʨʰi↘ ɕja↘mjɛ↘n tɤ ʂu↘lja↘ŋ ɕjɛ↓nʂɨ↘ lɤ mu↘ʨʰjɛ↗n kʰɤ↓ʨjɛ↘n tɤ wa↗nꭧə↓ŋ ʂɤ↘ꭧɨ↘ ꭧʊ→ŋ tɤ two→ʂau↓."
+    },
+    {
+      "scene": 7,
+      "speech_start": 57.37500000000001,
+      "speech_end": 63.95000000000001,
+      "scene_end": 64.4,
+      "duration": 7.024999999999999,
+      "text": "修改限制表格的值不同于 Mask 默认设置,使导入或编辑的设置易于查看.",
+      "speech_text": "修改限制表格的值不同于 Mask 默认设置,使导入或编辑的设置易于查看.",
+      "phonemes": "ɕjou→kai↓ ɕjɛ↘nꭧɨ↘ pjau↓kɤ↗ tɤ ꭧɨ↗ pu↘tʰʊ↗ŋy↗ Mask mwo↘ɻə↘nʂɤ↘ꭧɨ↘,ʂɨ↓ tau↓ɻu↘ xwo↘ pjɛ→nʨi↗ tɤ ʂɤ↘ꭧɨ↘ i↘y↗ ꭧʰa↗kʰa↘n."
+    },
+    {
+      "scene": 8,
+      "speech_start": 64.4,
+      "speech_end": 72.35000000000001,
+      "scene_end": 72.80000000000001,
+      "duration": 8.400000000000006,
+      "text": "切换至关键和所有设置,而不会丢失值. 所有设置都暴露了每个类别,包括高级和beta控制.",
+      "speech_text": "切换至关键和所有设置,而不会丢失值. 所有设置都暴露了每个类别,包括高级和beta控制.",
+      "phonemes": "ʨʰje↘xwa↘n ꭧɨ↘ kwa→nʨjɛ↘n xɤ↗ swo↓jou↓ ʂɤ↘ꭧɨ↘,ɚ↗ pu↗xwei↘ tjou→ʂɨ→ ꭧɨ↗. swo↓jou↓ ʂɤ↘ꭧɨ↘ tou→ pau↘lu↘ lɤ mei↓kɤ↘ lei↘pje↗,pau→kʰwo↘ kau→ʨi↗ xɤ↗betakʰʊ↘ŋꭧɨ↘."
+    },
+    {
+      "scene": 9,
+      "speech_start": 72.80000000000001,
+      "speech_end": 81.25000000000001,
+      "scene_end": 81.70000000000002,
+      "duration": 8.900000000000006,
+      "text": "配方将当前设置存储在名称下,重新应用保存的配置,或进口和出口可重复使用的设置文件.",
+      "speech_text": "配方将当前设置存储在名称下,重新应用保存的配置,或进口和出口可重复使用的设置文件.",
+      "phonemes": "pʰei↘fa→ŋ ʨja→ŋ ta→ŋʨʰjɛ↗n ʂɤ↘ꭧɨ↘ ʦʰwə↗nꭧʰu↓ ʦai↘ mi↗ŋꭧʰə→ŋ ɕja↘,ꭧʰʊ↗ŋɕi→n i↘ŋjʊ↘ŋ pau↓ʦʰwə↗n tɤ pʰei↘ꭧɨ↘,xwo↘ ʨi↘nkʰou↓ xɤ↗ ꭧʰu→kʰou↓ kʰɤ↓ ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ tɤ ʂɤ↘ꭧɨ↘ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 10,
+      "speech_start": 81.70000000000002,
+      "speech_end": 87.97500000000002,
+      "scene_end": 88.42500000000003,
+      "duration": 6.7250000000000085,
+      "text": "提交已解决的 Mask 设置的远程快照,并将它们发送到分布式工作空间.",
+      "speech_text": "提交已解决的 Mask 设置的远程快照,并将它们发送到分布式工作空间.",
+      "phonemes": "tʰi↗ʨjau→ i↓ ʨje↓ʨɥe↗ tɤ Mask ʂɤ↘ꭧɨ↘ tɤ ɥɛ↓nꭧʰə↗ŋ kʰwai↘ꭧau↘,pi↘ŋ ʨja→ŋ tʰa→mən fa→sʊ↘ŋtau↘ fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ kʰʊ→ŋʨjɛ→n."
+    },
+    {
+      "scene": 11,
+      "speech_start": 88.42500000000003,
+      "speech_end": 97.07500000000003,
+      "scene_end": 97.52500000000003,
+      "duration": 9.100000000000009,
+      "text": "分布式工作将本地路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的Mask运行.",
+      "speech_text": "分布式工作将本地路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的Mask运行.",
+      "phonemes": "fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘ ʨja→ŋ pə↓nti↘ lu↘ʨi↘ŋ i↘ŋʂɤ↘ tau↘ ɥɛ↓nꭧʰə↗ŋ kʊ→ŋʦwo↘ꭧa↘n,Slurmʨi↗ʨʰy↗n xwo↘ pʰei↘ꭧɨ↘ mi↘ŋli↘ŋ,ɻa↗nxou↘ tʰi↗ʨjau→ pi↘ŋ ʨjɛ→nʦʰɤ↘ ɕja→ŋtʰʊ↗ŋ tɤMasky↘nɕi↗ŋ."
+    },
+    {
+      "scene": 12,
+      "speech_start": 97.52500000000003,
+      "speech_end": 104.35000000000004,
+      "scene_end": 104.80000000000004,
+      "duration": 7.275000000000006,
+      "text": "输入和元数据定义源文件,道分配,放大,元数据类型以及任何定制文件名regex.",
+      "speech_text": "输入和元数据定义源文件,道分配,放大,元数据类型以及任何定制文件名regex.",
+      "phonemes": "ʂu→ɻu↘ xɤ↗ ɥɛ↗n ʂu↘ʨy↘ ti↘ŋi↘ ɥɛ↗nwə↗nʨjɛ↘n,tau↘ fə→npʰei↘,fa↘ŋta↘,ɥɛ↗n ʂu↘ʨy↘lei↘ɕi↗ŋ i↓ʨi↗ ɻə↘nxɤ↗ ti↘ŋꭧɨ↘ wə↗nʨjɛ↘nmi↗ŋregex."
+    },
+    {
+      "scene": 13,
+      "speech_start": 104.80000000000004,
+      "speech_end": 112.47500000000004,
+      "scene_end": 112.92500000000004,
+      "duration": 8.125,
+      "text": "工作流程和测试运行控制预处理,面具生成,干运行,恢复行为和小型测试模式样本.",
+      "speech_text": "工作流程和测试运行控制预处理,面具生成,干运行,恢复行为和小型测试模式样本.",
+      "phonemes": "kʊ→ŋʦwo↘ ljou↗ꭧʰə↗ŋ xɤ↗ ʦʰɤ↘ʂɨ↘y↘nɕi↗ŋ kʰʊ↘ŋꭧɨ↘ y↘ꭧʰu↓li↓,mjɛ↘nʨy↘ ʂə→ŋꭧʰə↗ŋ,ka↘n y↘nɕi↗ŋ,xwei→fu↘ ɕi↗ŋwei↗ xɤ↗ ɕjau↓ɕi↗ŋ ʦʰɤ↘ʂɨ↘ mwo↗ʂɨ↘ ja↘ŋpə↓n."
+    },
+    {
+      "scene": 14,
+      "speech_start": 112.92500000000004,
+      "speech_end": 119.65000000000003,
+      "scene_end": 120.10000000000004,
+      "duration": 7.174999999999997,
+      "text": "图像预处理组在细分之前应用的规范化,投影,升级,整合和拒绝选择.",
+      "speech_text": "图像预处理组在细分之前应用的规范化,投影,升级,整合和拒绝选择.",
+      "phonemes": "tʰu↗ɕja↘ŋ y↘ꭧʰu↓li↓ ʦu↓ʦai↘ ɕi↘fə→n ꭧɨ→ʨʰjɛ↗n i↘ŋjʊ↘ŋ tɤ kwei→fa↘nxwa↘,tʰou↗i↓ŋ,ʂə→ŋʨi↗,ꭧə↓ŋxɤ↗ xɤ↗ ʨy↘ʨɥe↗ ɕɥɛ↓nʦɤ↗."
+    },
+    {
+      "scene": 15,
+      "speech_start": 120.10000000000004,
+      "speech_end": 125.97500000000004,
+      "scene_end": 126.42500000000004,
+      "duration": 6.325000000000003,
+      "text": "细胞细分包含细胞模型,直径,门,背景处理和细胞对象过器.",
+      "speech_text": "细胞细分包含细胞模型,直径,门,背景处理和细胞对象过器.",
+      "phonemes": "ɕi↘pau→ ɕi↘fə→n pau→xa↗n ɕi↘pau→ mwo↗ɕi↗ŋ,ꭧɨ↗ʨi↘ŋ,mə↗n,pei↘ʨi↓ŋ ꭧʰu↓li↓ xɤ↗ ɕi↘pau→ twei↘ɕja↘ŋ kwo↘ʨʰi↘."
+    },
+    {
+      "scene": 16,
+      "speech_start": 126.42500000000004,
+      "speech_end": 131.87500000000003,
+      "scene_end": 132.32500000000002,
+      "duration": 5.899999999999977,
+      "text": "核分类提供了对核的相应模型,门,背景纠正和对象过器.",
+      "speech_text": "核分类提供了对核的相应模型,门,背景纠正和对象过器.",
+      "phonemes": "xɤ↗ fə→nlei↘ tʰi↗kʊ→ŋ lɤ twei↘ xɤ↗ tɤ ɕja→ŋi↘ŋ mwo↗ɕi↗ŋ,mə↗n,pei↘ʨi↓ŋ ʨjou→ꭧə↘ŋ xɤ↗ twei↘ɕja↘ŋ kwo↘ʨʰi↘."
+    },
+    {
+      "scene": 17,
+      "speech_start": 132.32500000000002,
+      "speech_end": 138.8,
+      "scene_end": 139.25,
+      "duration": 6.924999999999983,
+      "text": "病原体细分组组合用于检测和过寄生虫物体的模型和清洁规则.",
+      "speech_text": "病原体细分组组合用于检测和过寄生虫物体的模型和清洁规则.",
+      "phonemes": "pi↘ŋɥɛ↗ntʰi↓ ɕi↘fə→n ʦu↓ ʦu↓xɤ↗ jʊ↘ŋy↗ ʨjɛ↓nʦʰɤ↘ xɤ↗ kwo↘ ʨi↘ʂə→ŋꭧʰʊ↗ŋ u↘tʰi↓ tɤ mwo↗ɕi↗ŋ xɤ↗ ʨʰi→ŋʨje↗ kwei→ʦɤ↗."
+    },
+    {
+      "scene": 18,
+      "speech_start": 139.25,
+      "speech_end": 147.225,
+      "scene_end": 147.67499999999998,
+      "duration": 8.424999999999983,
+      "text": "机器人分类选择机器人形态和探测器,图像清洁,方法特定控制,对象过器和母区总结.",
+      "speech_text": "机器人分类选择机器人形态和探测器,图像清洁,方法特定控制,对象过器和母区总结.",
+      "phonemes": "ʨi→ʨʰi↘ɻə↗n fə→nlei↘ ɕɥɛ↓nʦɤ↗ ʨi→ʨʰi↘ɻə↗n ɕi↗ŋtʰai↘ xɤ↗ tʰa↘nʦʰɤ↘ʨʰi↘,tʰu↗ɕja↘ŋ ʨʰi→ŋʨje↗,fa→ŋfa↓ tʰɤ↘ti↘ŋ kʰʊ↘ŋꭧɨ↘,twei↘ɕja↘ŋ kwo↘ʨʰi↘ xɤ↗ mu↓ʨʰy→ ʦʊ↓ŋʨje↗."
+    },
+    {
+      "scene": 19,
+      "speech_start": 147.67499999999998,
+      "speech_end": 156.37499999999997,
+      "scene_end": 156.82499999999996,
+      "duration": 9.149999999999977,
+      "text": "质量控制设置了对象数量,尺寸比率,边界,前景覆盖率,分开行为和可接受的领域故障的自动检查.",
+      "speech_text": "质量控制设置了对象数量,尺寸比率,边界,前景覆盖率,分开行为和可接受的领域故障的自动检查.",
+      "phonemes": "ꭧɨ↘lja↘ŋ kʰʊ↘ŋꭧɨ↘ ʂɤ↘ꭧɨ↘ lɤ twei↘ɕja↘ŋ ʂu↘lja↘ŋ,ꭧʰɨ↓ʦʰwə↘n pi↓ly↘,pjɛ→nʨje↘,ʨʰjɛ↗nʨi↓ŋ fu↘kai↘ly↘,fə→nkʰai→ ɕi↗ŋwei↗ xɤ↗ kʰɤ↓ ʨje→ʂou↘ tɤ li↓ŋy↘ ku↘ꭧa↘ŋ tɤ ʦɨ↘tʊ↘ŋ ʨjɛ↓nꭧʰa↗."
+    },
+    {
+      "scene": 20,
+      "speech_start": 156.82499999999996,
+      "speech_end": 162.77499999999995,
+      "scene_end": 163.22499999999994,
+      "duration": 6.399999999999977,
+      "text": "量度处理包含z堆,投影,异性化,语xel校准和三维接的beta控制.",
+      "speech_text": "量度处理包含z堆,投影,异性化,语xel校准和三维接的beta控制.",
+      "phonemes": "lja↗ŋtu↘ ꭧʰu↓li↓ pau→xa↗nztwei→,tʰou↗i↓ŋ,i↘ɕi↘ŋ xwa↘,y↓xelʨjau↘ꭧwə↓n xɤ↗ sa→nwei↗ ʨje→ tɤbetakʰʊ↘ŋꭧɨ↘."
+    },
+    {
+      "scene": 21,
+      "speech_start": 163.22499999999994,
+      "speech_end": 169.89999999999995,
+      "scene_end": 170.34999999999994,
+      "duration": 7.125,
+      "text": "时间轴和跟踪包含四维数据,框架间隔,跟踪后端和移动限制的beta控制.",
+      "speech_text": "时间轴和跟踪包含四维数据,框架间隔,跟踪后端和移动限制的beta控制.",
+      "phonemes": "ʂɨ↗ʨjɛ→nꭧou↗ xɤ↗ kə→nʦʊ→ŋ pau→xa↗n sɨ↘wei↗ ʂu↘ʨy↘,kʰwa→ŋʨja↘ ʨjɛ↘nkɤ↗,kə→nʦʊ→ŋ xou↘twa→n xɤ↗ i↗tʊ↘ŋ ɕjɛ↘nꭧɨ↘ tɤbetakʰʊ↘ŋꭧɨ↘."
+    },
+    {
+      "scene": 22,
+      "speech_start": 170.34999999999994,
+      "speech_end": 177.09999999999994,
+      "scene_end": 177.54999999999993,
+      "duration": 7.199999999999989,
+      "text": "视觉化和诊断控制预览图,颜色地图,图像大小,图片正常化和示例领域.",
+      "speech_text": "视觉化和诊断控制预览图,颜色地图,图像大小,图片正常化和示例领域.",
+      "phonemes": "ʂɨ↘ʨɥe↗ xwa↘ xɤ↗ ꭧə↓ntwa↘n kʰʊ↘ŋꭧɨ↘ y↘la↓n tʰu↗,jɛ↗nsɤ↘ ti↘tʰu↗,tʰu↗ɕja↘ŋ ta↘ɕjau↓,tʰu↗pʰjɛ↘n ꭧə↘ŋꭧʰa↗ŋxwa↘ xɤ↗ ʂɨ↘li↘ li↓ŋy↘."
+    },
+    {
+      "scene": 23,
+      "speech_start": 177.54999999999993,
+      "speech_end": 183.64999999999992,
+      "scene_end": 184.0999999999999,
+      "duration": 6.549999999999983,
+      "text": "输出和存储决定保留哪些图像,面具,中间阵列和压缩结果.",
+      "speech_text": "输出和存储决定保留哪些图像,面具,中间阵列和压缩结果.",
+      "phonemes": "ʂu→ꭧʰu→ xɤ↗ ʦʰwə↗nꭧʰu↓ ʨɥe↗ti↘ŋ pau↓ljou↗ na↓ɕje→ tʰu↗ɕja↘ŋ,mjɛ↘nʨy↘,ꭧʊ→ŋʨjɛ→n ꭧə↘nlje↘ xɤ↗ ja→swo→ ʨje↗kwo↓."
+    },
+    {
+      "scene": 24,
+      "speech_start": 184.0999999999999,
+      "speech_end": 191.5999999999999,
+      "scene_end": 192.0499999999999,
+      "duration": 7.949999999999989,
+      "text": "运行时间和可靠性包含故障处理,可复制性,记录,工人数量,批量和管道执行选择.",
+      "speech_text": "运行时间和可靠性包含故障处理,可复制性,记录,工人数量,批量和管道执行选择.",
+      "phonemes": "y↘nɕi↗ŋ ʂɨ↗ʨjɛ→n xɤ↗ kʰɤ↓kʰau↘ɕi↘ŋ pau→xa↗n ku↘ꭧa↘ŋ ꭧʰu↓li↓,kʰɤ↓ fu↘ꭧɨ↘ ɕi↘ŋ,ʨi↘lu↘,kʊ→ŋɻə↗n ʂu↘lja↘ŋ,pʰi→lja↘ŋ xɤ↗ kwa↓ntau↘ ꭧɨ↗ɕi↗ŋ ɕɥɛ↓nʦɤ↗."
+    },
+    {
+      "scene": 25,
+      "speech_start": 192.0499999999999,
+      "speech_end": 199.9749999999999,
+      "scene_end": 200.4249999999999,
+      "duration": 8.375,
+      "text": "启用现场预览,然后加载第二频道急诊图像. 这一字段仅包含用于分类示例的细胞信号.",
+      "speech_text": "启用现场预览,然后加载第二频道急诊图像. 这一字段仅包含用于分类示例的细胞信号.",
+      "phonemes": "ʨʰi↓jʊ↘ŋ ɕjɛ↘nꭧʰa↓ŋ y↘la↓n,ɻa↗nxou↘ ʨja→ʦai↘ ti↘ɚ↘ pʰi↗ntau↘ ʨi↗ꭧə↓n tʰu↗ɕja↘ŋ. ꭧɤ↘i→ʦɨ↘ twa↘n ʨi↓n pau→xa↗n jʊ↘ŋy↗ fə→nlei↘ ʂɨ↘li↘ tɤ ɕi↘pau→ɕi↘nxau↘."
+    },
+    {
+      "scene": 26,
+      "speech_start": 200.4249999999999,
+      "speech_end": 208.2749999999999,
+      "scene_end": 208.72499999999988,
+      "duration": 8.299999999999983,
+      "text": "在直播设置中,选择细胞,启用正常化,并设置下个百分比为 2,上个百分比为 99.5.",
+      "speech_text": "在直播设置中,选择细胞,启用正常化,并设置下个百分比为 2,上个百分比为 99.5.",
+      "phonemes": "ʦai↘ ꭧɨ↗pwo→ ʂɤ↘ꭧɨ↘ ꭧʊ→ŋ,ɕɥɛ↓nʦɤ↗ ɕi↘pau→,ʨʰi↓jʊ↘ŋ ꭧə↘ŋꭧʰa↗ŋxwa↘,pi↘ŋ ʂɤ↘ꭧɨ↘ ɕja↘kɤ↘ pai↓fə→npi↓ wei↘ ɚ↘,ʂa↘ŋ kɤ↘ pai↓fə→npi↓ wei↘ ʨjou↓ʂɨ↗ʨjou↓ tjɛ↓nu↓."
+    },
+    {
+      "scene": 27,
+      "speech_start": 208.72499999999988,
+      "speech_end": 216.04999999999987,
+      "scene_end": 216.49999999999986,
+      "duration": 7.774999999999977,
+      "text": "运行预览,并放大到同步的源和结果面板. 覆盖轮应遵循应急诊所定义的细胞边界.",
+      "speech_text": "运行预览,并放大到同步的源和结果面板. 覆盖轮应遵循应急诊所定义的细胞边界.",
+      "phonemes": "y↘nɕi↗ŋ y↘la↓n,pi↘ŋ fa↘ŋta↘ tau↘ tʰʊ↗ŋpu↘ tɤ ɥɛ↗n xɤ↗ ʨje↗kwo↓ mjɛ↘npa↓n. fu↘kai↘ lwə↗ni→ŋ ʦwə→nɕy↗n i↘ŋʨi↗ ꭧə↓nswo↓ ti↘ŋi↘ tɤ ɕi↘pau→ pjɛ→nʨje↘."
+    },
+    {
+      "scene": 28,
+      "speech_start": 216.49999999999986,
+      "speech_end": 222.27499999999986,
+      "scene_end": 222.72499999999985,
+      "duration": 6.224999999999994,
+      "text": "切换结果窗口为流量,以检查用于形成物体的Cellpose流量场.",
+      "speech_text": "切换结果窗口为流量,以检查用于形成物体的Cellpose流量场.",
+      "phonemes": "ʨʰje↘xwa↘n ʨje↗kwo↓ ꭧʰwa→ŋkʰou↓ wei↘ ljou↗lja↘ŋ,i↓ ʨjɛ↓nꭧʰa↗ jʊ↘ŋy↗ ɕi↗ŋꭧʰə↗ŋ u↘tʰi↓ tɤCellposeljou↗lja↘ŋ ꭧʰa↓ŋ."
+    },
+    {
+      "scene": 29,
+      "speech_start": 222.72499999999985,
+      "speech_end": 230.52499999999986,
+      "scene_end": 230.97499999999985,
+      "duration": 8.25,
+      "text": "切换到面具,直接查看整数细胞对象. 每个颜色都是一个对象,黑色仍然是背景标签零.",
+      "speech_text": "切换到面具,直接查看整数细胞对象. 每个颜色都是一个对象,黑色仍然是背景标签零.",
+      "phonemes": "ʨʰje↘xwa↘n tau↘ mjɛ↘nʨy↘,ꭧɨ↗ʨje→ ꭧʰa↗kʰa↘n ꭧə↓ŋʂu↘ ɕi↘pau→ twei↘ɕja↘ŋ. mei↓kɤ↘ jɛ↗nsɤ↘ tou→ ʂɨ↘ i↗kɤ↘ twei↘ɕja↘ŋ,xei→sɤ↘ ɻə↗ŋɻa↗n ʂɨ↘ pei↘ʨi↓ŋ pjau→ʨʰjɛ→n li↗ŋ."
+    },
+    {
+      "scene": 30,
+      "speech_start": 230.97499999999985,
+      "speech_end": 239.52499999999986,
+      "scene_end": 239.97499999999985,
+      "duration": 9.0,
+      "text": "返回直播设置,只设置细胞最小区域为 10000 像素. 缓存的原始面具即时过,而不需要重新运行Cellpose.",
+      "speech_text": "返回直播设置,只设置细胞最小区域为 10000 像素. 缓存的原始面具即时过,而不需要重新运行Cellpose.",
+      "phonemes": "fa↓nxwei↗ ꭧɨ↗pwo→ ʂɤ↘ꭧɨ↘,ꭧɨ↓ ʂɤ↘ꭧɨ↘ ɕi↘pau→ ʦwei↘ɕjau↓ ʨʰy→y↘ wei↘ i→wa↘n ɕja↘ŋsu↘. xwa↓nʦʰwə↗n tɤ ɥɛ↗nʂɨ↓ mjɛ↘nʨy↘ ʨi↗ʂɨ↗ kwo↘,ɚ↗ pu↘ ɕy→jau↘ ꭧʰʊ↗ŋɕi→n y↘nɕi↗ŋCellpose."
+    },
+    {
+      "scene": 31,
+      "speech_start": 239.97499999999985,
+      "speech_end": 247.87499999999986,
+      "scene_end": 248.52499999999986,
+      "duration": 8.550000000000011,
+      "text": "在尺寸过器之后,小细胞对象会失去轮,只剩下至少10000像素的对象. 与未过的覆盖相比.",
+      "speech_text": "在尺寸过器之后,小细胞对象会失去轮,只剩下至少10000像素的对象. 与未过的覆盖相比.",
+      "phonemes": "ʦai↘ ꭧʰɨ↓ʦʰwə↘n kwo↘ʨʰi↘ ꭧɨ→xou↘,ɕjau↓ ɕi↘pau→ twei↘ɕja↘ŋ xwei↘ ʂɨ→ʨʰy↘ lwə↗n,ꭧɨ↓ ʂə↘ŋɕja↘ ꭧɨ↘ʂau↓ i→wa↘n ɕja↘ŋsu↘ tɤ twei↘ɕja↘ŋ. y↓ wei↘ kwo↘ tɤ fu↘kai↘ ɕja→ŋpi↓."
     }
   ]
 }
