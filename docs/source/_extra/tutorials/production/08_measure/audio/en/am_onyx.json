@@ -4,47 +4,257 @@
   "voice": "am_onyx",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.075,
+  "total_duration": 258.65,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.325,
-      "scene_end": 9.774999999999999,
-      "duration": 9.774999999999999,
-      "text": "This tutorial covers Measure. Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images."
+      "speech_end": 10.3,
+      "scene_end": 10.75,
+      "duration": 10.75,
+      "text": "Measure opens with its settings on the left and the runtime console on the right. The console reports source resolution, validation, progress, warnings, and measurement output.",
+      "speech_text": "Measure opens with its settings on the left and the runtime console on the right. The console reports source resolution, validation, progress, warnings, and measurement output.",
+      "phonemes": "mˈɛʒəɹ ˈOpᵊnz wɪð ɪts sˈɛTɪŋz ˌɔn ðə lˈɛft ænd ðə ɹˈʌntIm kˈɑnsˌOl ˌɔn ðə ɹˈIt. ðə kˈɑnsˌOl ɹəpˈɔɹts sˈɔɹs ɹˌɛzəlˈuʃən, vˌælɪdˈAʃən, pɹˈɑɡɹəs, wˈɔɹnɪŋz, ænd mˈɛʒəɹmᵊnt ˈWtpˌʊt."
     },
     {
       "scene": 2,
-      "speech_start": 9.774999999999999,
-      "speech_end": 16.599999999999998,
-      "scene_end": 17.049999999999997,
-      "duration": 7.274999999999999,
-      "text": "Open Measure from the Core section. Select the project containing image stacks and masks produced by Mask."
+      "speech_start": 10.75,
+      "speech_end": 21.7,
+      "scene_end": 22.15,
+      "duration": 11.399999999999999,
+      "text": "The field below the console accepts local questions or commands. Enable AI to route a question through the selected provider, and use the adjacent arrow to open the provider menu.",
+      "speech_text": "The field below the console accepts local questions or commands. Enable AI to route a question through the selected provider, and use the adjacent arrow to open the provider menu.",
+      "phonemes": "ðə fˈild bəlˈO ðə kˈɑnsˌOl əksˈɛpts lˈOkəl kwˈɛsʧᵊnz ɔɹ kəmˈændz. ɪnˈAbᵊl ˈAˌI tə ɹˈut ɐ kwˈɛsʧᵊn θɹu ðə səlˈɛktᵻd pɹəvˈIdəɹ, ænd jˈuz ði əʤˈAsᵊnt ˈɛɹO tʊ ˈOpᵊn ðə pɹəvˈIdəɹ mˈɛnju."
     },
     {
       "scene": 3,
-      "speech_start": 17.049999999999997,
-      "speech_end": 26.724999999999998,
-      "scene_end": 27.174999999999997,
-      "duration": 10.125,
-      "text": "In the main configuration area, use channel one, endoplasmic reticulum, as the channel of interest and choose the object types and feature families to measure."
+      "speech_start": 22.15,
+      "speech_end": 33.625,
+      "scene_end": 34.075,
+      "duration": 11.925000000000004,
+      "text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and shows their install and login commands. Provider credentials remain with the vendor.",
+      "speech_text": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and shows their install and login commands. Provider credentials remain with the vendor.",
+      "phonemes": "pɹəvˈIdəɹz ɹəpˈɔɹts wˈɛðəɹ ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ɑɹ ɪnstˈɔld ænd ʃˈOz ðɛɹ ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz. pɹəvˈIdəɹ kɹədˈɛnʧᵊlz ɹəmˈAn wɪð ðə vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 27.174999999999997,
-      "speech_end": 37.949999999999996,
-      "scene_end": 38.4,
-      "duration": 11.225000000000001,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview crops when needed, then process every selected field and object type."
+      "speech_start": 34.075,
+      "speech_end": 43.2,
+      "scene_end": 43.650000000000006,
+      "duration": 9.575000000000003,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system prompt.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm pɹˈɑmpt."
     },
     {
       "scene": 5,
-      "speech_start": 38.4,
-      "speech_end": 47.425,
-      "scene_end": 48.074999999999996,
-      "duration": 9.674999999999997,
-      "text": "When the workflow finishes, measurements dot db stores traceable single-object rows and optional image crops for annotation or classification."
+      "speech_start": 43.650000000000006,
+      "speech_end": 55.925000000000004,
+      "scene_end": 56.37500000000001,
+      "duration": 12.725000000000001,
+      "text": "Drag the merged folder produced by Mask into Measure. These arrays already carry spaCR project metadata, so Measure resolves the source directly and does not need the raw-image filename regex again.",
+      "speech_text": "Drag the merged folder produced by Mask into Measure. These arrays already carry spacer project metadata, so Measure resolves the source directly and does not need the raw-image filename regex again.",
+      "phonemes": "dɹˈæɡ ðə mˈɜɹʤd fˈOldəɹ pɹədˈust bI mˈæsk ˈɪntu mˈɛʒəɹ. ðˌiz əɹˈAz ˌɔlɹˈɛdi kˈɛɹi spˈAsəɹ pɹˈɑʤˌɛkt mˈɛTədˌATə, sˌO mˈɛʒəɹ ɹəzˈɔlvz ðə sˈɔɹs dəɹˈɛktli ænd dˈʌz nˌɑt nˈid ðə ɹˌɔˈɪmɪʤ fˈIlnˌAm ɹˈɛɡɛks əɡˈɛn."
+    },
+    {
+      "scene": 6,
+      "speech_start": 56.37500000000001,
+      "speech_end": 64.325,
+      "scene_end": 64.775,
+      "duration": 8.399999999999999,
+      "text": "Essentials shows the compact set of Measure settings needed for a run, while the count reports how many settings are currently visible.",
+      "speech_text": "Essentials shows the compact set of Measure settings needed for a run, while the count reports how many settings are currently visible.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ðə kˈɑmpˌækt sˈɛt ʌv mˈɛʒəɹ sˈɛTɪŋz nˈidᵻd fɔɹ ɐ ɹˈʌn, wˌIl ðə kˈWnt ɹəpˈɔɹts hˌW mˈɛni sˈɛTɪŋz ɑɹ kˈɜɹəntli vˈɪzəbᵊl."
+    },
+    {
+      "scene": 7,
+      "speech_start": 64.775,
+      "speech_end": 73.025,
+      "scene_end": 73.47500000000001,
+      "duration": 8.700000000000003,
+      "text": "Modified limits the panel to values that differ from Measure defaults, making imported settings and deliberate changes easy to audit.",
+      "speech_text": "Modified limits the panel to values that differ from Measure defaults, making imported settings and deliberate changes easy to audit.",
+      "phonemes": "mˈɑdəfˌId lˈɪməts ðə pˈænᵊl tə vˈæljuz ðæt dˈɪfəɹ fɹʌm mˈɛʒəɹ dəfˈɔlts, mˈAkɪŋ ɪmpˈɔɹTᵻd sˈɛTɪŋz ænd dəlˈɪbəɹˌAt ʧˈAnʤᵻz ˈizi tʊ ˈɔdət."
+    },
+    {
+      "scene": 8,
+      "speech_start": 73.47500000000001,
+      "speech_end": 82.80000000000001,
+      "scene_end": 83.25000000000001,
+      "duration": 9.775000000000006,
+      "text": "All settings exposes every Measure category, including advanced reliability and beta calibration controls, without changing the current values.",
+      "speech_text": "All settings exposes every Measure category, including advanced reliability and beta calibration controls, without changing the current values.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɪkspˈOzᵻz ˈɛvəɹi mˈɛʒəɹ kˈæTəɡˌɔɹi, ɪnklˈudɪŋ ədvˈænst ɹəlˌIəbˈɪləTi ænd bˈATə kˌæləbɹˈAʃən kəntɹˈOlz, wɪðˈWt ʧˈAnʤɪŋ ðə kˈɜɹənt vˈæljuz."
+    },
+    {
+      "scene": 9,
+      "speech_start": 83.25000000000001,
+      "speech_end": 91.52500000000002,
+      "scene_end": 91.97500000000002,
+      "duration": 8.725000000000009,
+      "text": "Recipes saves the current Measure configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the current Measure configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðə kˈɜɹənt mˈɛʒəɹ kənfˌɪɡjəɹˈAʃən ˈʌndəɹ ɐ nˈAm, ɹˌiəplˈIz ɪt lˈATəɹ, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ ɹijˈuzəbᵊl sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 91.97500000000002,
+      "speech_end": 97.97500000000002,
+      "scene_end": 98.42500000000003,
+      "duration": 6.450000000000003,
+      "text": "Submit remote snapshots the resolved Measure settings and sends them to Distributed Jobs.",
+      "speech_text": "Submit remote snapshots the resolved Measure settings and sends them to Distributed Jobs.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd mˈɛʒəɹ sˈɛTɪŋz ænd sˈɛndz ðˌɛm tə dəstɹˈɪbjuTᵻd ʤˈɑbz."
+    },
+    {
+      "scene": 11,
+      "speech_start": 98.42500000000003,
+      "speech_end": 107.75000000000003,
+      "scene_end": 108.20000000000003,
+      "duration": 9.775000000000006,
+      "text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Measure run.",
+      "speech_text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Measure run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps lˈOkəl pˈæðz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm mˈɛʒəɹ ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 108.20000000000003,
+      "speech_end": 114.72500000000004,
+      "scene_end": 115.17500000000004,
+      "duration": 6.9750000000000085,
+      "text": "Input and Experiment identifies the source project and the experiment name written into its outputs.",
+      "speech_text": "Input and Experiment identifies the source project and the experiment name written into its outputs.",
+      "phonemes": "ˈɪnpˌʊt ænd ɪkspˈɛɹəmənt IdˈɛntəfˌIz ðə sˈɔɹs pɹˈɑʤˌɛkt ænd ði ɪkspˈɛɹəmənt nˈAm ɹˈɪtn ˈɪntu ɪts ˈWtpˌʊts."
+    },
+    {
+      "scene": 13,
+      "speech_start": 115.17500000000004,
+      "speech_end": 124.65000000000003,
+      "scene_end": 125.10000000000004,
+      "duration": 9.924999999999997,
+      "text": "Mask and Channel Mapping assigns image channels, cell, nucleus, pathogen, and organelle label planes, derived cytoplasm, and any time-series objects.",
+      "speech_text": "Mask and Channel Mapping assigns image channels, cell, nucleus, pathogen, and organelle label planes, derived cytoplasm, and any time-series objects.",
+      "phonemes": "mˈæsk ænd ʧˈænᵊl mˈæpɪŋ əsˈInz ˈɪmɪʤ ʧˈænᵊlz, sˈɛl, nˈukliəs, pˈæθəʤˌɛn, ænd ˌɔɹɡənˈɛl lˈAbəl plˈAnz, dəɹˈIvd sˈITəplˌæzəm, ænd ˈɛni tˌImsˈɪɹiz ˈɑbʤəkts."
+    },
+    {
+      "scene": 14,
+      "speech_start": 125.10000000000004,
+      "speech_end": 134.30000000000004,
+      "scene_end": 134.75000000000003,
+      "duration": 9.649999999999991,
+      "text": "Measurement Features chooses saved measurements, correlation and Manders summaries, homogeneity distances, radial distributions, and organelle summaries.",
+      "speech_text": "Measurement Features chooses saved measurements, correlation and Manders summaries, homogeneity distances, radial distributions, and organelle summaries.",
+      "phonemes": "mˈɛʒəɹmᵊnt fˈiʧəɹz ʧˈuzᵻz sˈAvd mˈɛʒəɹmᵊnts, kˌɔɹəlˈAʃən ænd mˈændəɹz sˈʌməɹiz, hˌOməʤənˈiəTi dˈɪstᵊnsᵻz, ɹˈAdiəl dˌɪstɹəbjˈuʃənz, ænd ˌɔɹɡənˈɛl sˈʌməɹiz."
+    },
+    {
+      "scene": 15,
+      "speech_start": 134.75000000000003,
+      "speech_end": 143.80000000000004,
+      "scene_end": 144.25000000000003,
+      "duration": 9.5,
+      "text": "Object Filtering sets the minimum size for each compartment, whether uninfected cells are retained, and how edge-crossing pathogen cells are handled.",
+      "speech_text": "Object Filtering sets the minimum size for each compartment, whether uninfected cells are retained, and how edge-crossing pathogen cells are handled.",
+      "phonemes": "ˈɑbʤəkt fˈɪltəɹɪŋ sˈɛts ðə mˈɪnəməm sˈIz fɔɹ ˈiʧ kəmpˈɑɹtmənt, wˈɛðəɹ ˌʌnənfˈɛktᵻd sˈɛlz ɑɹ ɹətˈAnd, ænd hˌW ˌɛʤkɹˈɔsɪŋ pˈæθəʤˌɛn sˈɛlz ɑɹ hˈændəld."
+    },
+    {
+      "scene": 16,
+      "speech_start": 144.25000000000003,
+      "speech_end": 152.55000000000004,
+      "scene_end": 153.00000000000003,
+      "duration": 8.75,
+      "text": "Crop Output controls saved PNGs and arrays, crop object and size, channels, dilation, bounding boxes, and normalization.",
+      "speech_text": "Crop Output controls saved PNGs and arrays, crop object and size, channels, dilation, bounding boxes, and normalization.",
+      "phonemes": "kɹˈɑp ˈWtpˌʊt kəntɹˈOlz sˈAvd pˌiˌɛnʤˈiz ænd əɹˈAz, kɹˈɑp ˈɑbʤəkt ænd sˈIz, ʧˈænᵊlz, dIlˈAʃən, bˈWndɪŋ bˈɑksᵻz, ænd nˌɔɹmələzˈAʃən."
+    },
+    {
+      "scene": 17,
+      "speech_start": 153.00000000000003,
+      "speech_end": 160.65000000000003,
+      "scene_end": 161.10000000000002,
+      "duration": 8.099999999999994,
+      "text": "Preview and Diagnostics controls plots and the small test-mode sample used before committing to a complete experiment.",
+      "speech_text": "Preview and Diagnostics controls plots and the small test-mode sample used before committing to a complete experiment.",
+      "phonemes": "pɹˈivjˌu ænd dˌIəɡnˈɑstɪks kəntɹˈOlz plˈɑts ænd ðə smˈɔl tˌɛstmˈOd sˈæmpᵊl jˈuzd bəfˈɔɹ kəmˈɪTɪŋ tə ɐ kəmplˈit ɪkspˈɛɹəmənt."
+    },
+    {
+      "scene": 18,
+      "speech_start": 161.10000000000002,
+      "speech_end": 170.35000000000002,
+      "scene_end": 170.8,
+      "duration": 9.699999999999989,
+      "text": "3D Calibration contains beta anisotropy and voxel-size controls that convert volumetric pixel measurements into physical dimensions.",
+      "speech_text": "3D Calibration contains beta anisotropy and voxel-size controls that convert volumetric pixel measurements into physical dimensions.",
+      "phonemes": "θɹˈi dˈi kˌæləbɹˈAʃən kəntˈAnz bˈATə ˌænˌIsˈɑtɹəpi ænd vˈɑksəlsˌIz kəntɹˈOlz ðæt kənvˈɜɹt vˌɑljəmˈɛtɹɪk pˈɪksᵊl mˈɛʒəɹmᵊnts ˈɪntu fˈɪzəkᵊl dəmˈɛnʃənz."
+    },
+    {
+      "scene": 19,
+      "speech_start": 170.8,
+      "speech_end": 179.425,
+      "scene_end": 179.875,
+      "duration": 9.074999999999989,
+      "text": "Runtime and Reliability groups resume behavior, strict errors, failure policy, reproducibility, dry runs, logging, and worker counts.",
+      "speech_text": "Runtime and Reliability groups resume behavior, strict errors, failure policy, reproducibility, dry runs, logging, and worker counts.",
+      "phonemes": "ɹˈʌntIm ænd ɹəlˌIəbˈɪləTi ɡɹˈups ɹəzˈum bəhˈAvjəɹ, stɹˈɪkt ˈɛɹəɹz, fˈAljəɹ pˈɑləsi, ɹˌipɹədˌusəbˈɪləTi, dɹˈI ɹˈʌnz, lˈɔɡɪŋ, ænd wˈɜɹkəɹ kˈWnts."
+    },
+    {
+      "scene": 20,
+      "speech_start": 179.875,
+      "speech_end": 190.05,
+      "scene_end": 190.5,
+      "duration": 10.625,
+      "text": "Enable Live Preview and load one completed merged array. The gallery groups 40 real cell crops by nucleus and pathogen content across the five-field test run.",
+      "speech_text": "Enable Live Preview and load one completed merged array. The gallery groups 40 real cell crops by nucleus and pathogen content across the five-field test run.",
+      "phonemes": "ɪnˈAbᵊl lˈɪv pɹˈivjˌu ænd lˈOd wˈʌn kəmplˈiTᵻd mˈɜɹʤd əɹˈA. ðə ɡˈæləɹi ɡɹˈups fˈɔɹTi ɹˈiᵊl sˈɛl kɹˈɑps bI nˈukliəs ænd pˈæθəʤˌɛn kˈɑntɛnt əkɹˈɔs ðə fˌIvfˈild tˈɛst ɹˈʌn."
+    },
+    {
+      "scene": 21,
+      "speech_start": 190.5,
+      "speech_end": 201.15,
+      "scene_end": 201.6,
+      "duration": 11.099999999999994,
+      "text": "General confirms experiment identity, measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, derived cytoplasm, and test mode.",
+      "speech_text": "General confirms experiment identity, measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, derived cytoplasm, and test mode.",
+      "phonemes": "ʤˈɛnəɹəl kənfˈɜɹmz ɪkspˈɛɹəmənt IdˈɛntəTi, mˈɛʒəɹd ʧˈænᵊlz zˈɪɹO θɹu θɹˈi, sˈɛl mˈæsk plˈAn fˈɔɹ, nˈukliəs plˈAn fˈIv, pˈæθəʤˌɛn plˈAn sˈɪks, dəɹˈIvd sˈITəplˌæzəm, ænd tˈɛst mˈOd."
+    },
+    {
+      "scene": 22,
+      "speech_start": 201.6,
+      "speech_end": 216.5,
+      "scene_end": 216.95,
+      "duration": 15.349999999999994,
+      "text": "Object Crops writes 224 by 224 pixel cell PNGs using channels zero, one, and two. Saved normalization remains off; the live gallery alone uses a temporary 1-to-99 percentile display stretch.",
+      "speech_text": "Object Crops writes 224 by 224 pixel cell PNGs using channels zero, one, and two. Saved normalization remains off; the live gallery alone uses a temporary 1-to-99 percentile display stretch.",
+      "phonemes": "ˈɑbʤəkt kɹˈɑps ɹˈIts tˈu hˈʌndɹəd twˈɛnti fˈɔɹ bI tˈu hˈʌndɹəd twˈɛnti fˈɔɹ pˈɪksᵊl sˈɛl pˌiˌɛnʤˈiz jˈuzɪŋ ʧˈænᵊlz zˈɪɹO, wˈʌn, ænd tˈu. sˈAvd nˌɔɹmələzˈAʃən ɹəmˈAnz ˈɔf; ðə lˈIv ɡˈæləɹi əlˈOn jˈuzᵻz ɐ tˈɛmpəɹˌɛɹi wˈʌn tə nˈIndi nˈIn pəɹsˈɛntˌIl dəsplˈA stɹˈɛʧ."
+    },
+    {
+      "scene": 23,
+      "speech_start": 216.95,
+      "speech_end": 229.52499999999998,
+      "scene_end": 229.97499999999997,
+      "duration": 13.024999999999977,
+      "text": "Filters require cells of at least 3500 pixels, nuclei of at least 1000, and pathogens of at least 250. Uninfected cells remain off and edge-crossing pathogen cells are merged.",
+      "speech_text": "Filters require cells of at least 3500 pixels, nuclei of at least 1000, and pathogens of at least 250. Uninfected cells remain off and edge-crossing pathogen cells are merged.",
+      "phonemes": "fˈɪltəɹz ɹəkwˈIəɹ sˈɛlz ʌv æt lˈist θˈɜɹTi fˈIv hˈʌndɹəd pˈɪksᵊlz, nˈukliˌI ʌv æt lˈist wˈʌn θˈWzᵊnd, ænd pˈæθəʤˌɛnz ʌv æt lˈist tˈu hˈʌndɹəd fˈɪfti. ˌʌnənfˈɛktᵻd sˈɛlz ɹəmˈAn ˈɔf ænd ˌɛʤkɹˈɔsɪŋ pˈæθəʤˌɛn sˈɛlz ɑɹ mˈɜɹʤd."
+    },
+    {
+      "scene": 24,
+      "speech_start": 229.97499999999997,
+      "speech_end": 241.32499999999996,
+      "scene_end": 241.77499999999995,
+      "duration": 11.799999999999983,
+      "text": "Select channel 1 to inspect the ER signal used as the downstream channel of interest. This changes only the gallery; Measure still extracts features from all four configured channels.",
+      "speech_text": "Select channel 1 to inspect the ER signal used as the downstream channel of interest. This changes only the gallery; Measure still extracts features from all four configured channels.",
+      "phonemes": "səlˈɛkt ʧˈænᵊl wˈʌn tʊ ɪnspˈɛkt ði ˌiˈɑɹ sˈɪɡnᵊl jˈuzd æz ðə dˌWnstɹˈim ʧˈænᵊl ʌv ˈɪntɹəst. ðˌɪs ʧˈAnʤᵻz ˈOnli ðə ɡˈæləɹi; mˈɛʒəɹ stˈɪl ɪkstɹˈækts fˈiʧəɹz fɹʌm ˈɔl fˈɔɹ kənfˈɪɡjəɹd ʧˈænᵊlz."
+    },
+    {
+      "scene": 25,
+      "speech_start": 241.77499999999995,
+      "speech_end": 257.99999999999994,
+      "scene_end": 258.6499999999999,
+      "duration": 16.87499999999997,
+      "text": "The completed test ledger reports 5 of 5 fields successful. measurements.db contains 455 cells and cytoplasms, 605 nuclei, 1031 pathogens, and 455 cell crops ready for annotation and classification.",
+      "speech_text": "The completed test ledger reports 5 of 5 fields successful. measurements dot db contains 455 cells and cytoplasms, 605 nuclei, 1031 pathogens, and 455 cell crops ready for annotation and classification.",
+      "phonemes": "ðə kəmplˈiTᵻd tˈɛst lˈɛʤəɹ ɹəpˈɔɹts fˈIv ʌv fˈIv fˈildz səksˈɛsfᵊl. mˈɛʒəɹmᵊnts dˈɑt dˌibˈi kəntˈAnz fˈɔɹ hˈʌndɹəd fˈɪfti fˈIv sˈɛlz ænd sˈITəplˌæzəmz, sˈɪks hˈʌndɹəd fˈIv nˈukliˌI, tˈɛn θˈɜɹTi wˈʌn pˈæθəʤˌɛnz, ænd fˈɔɹ hˈʌndɹəd fˈɪfti fˈIv sˈɛl kɹˈɑps ɹˈɛdi fɔɹ ˌænətˈAʃən ænd klˌæsəfəkˈAʃən."
     }
   ]
 }

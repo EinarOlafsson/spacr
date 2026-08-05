@@ -647,71 +647,203 @@
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Preview real object crops, measure segmented fields, and write traceable single-object features to SQLite.",
+      "description": "Configure Measure, inspect its settings categories, and preview real single-cell crops from completed Mask arrays.",
       "objectives": [
-        "Map image and mask planes from a merged spaCR array.",
-        "Preview cell crops and verify filter behavior before a run.",
-        "Validate measurements and crops with a five-field test run."
+        "Import merged arrays and use the console, AI, recipes, and remote workflow.",
+        "Review all Measure settings categories without reciting every parameter.",
+        "Inspect real cell crops, the ER channel, filters, and completed test outputs."
       ],
       "prerequisite": "Complete Mask first so the project contains merged image and label arrays.",
       "scenes": [
         {
-          "narration": "Measure converts the real segmented HeLa fields into traceable single-object intensity, morphology, texture, colocalization, and spatial features. This walkthrough validates five fields before a full-plate run.",
-          "visual": "01_module",
+          "narration": "Measure opens with its settings on the left and the runtime console on the right. The console reports source resolution, validation, progress, warnings, and measurement output.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Measure converts the real segmented HeLa fields into traceable single-object intensity, morphology, texture, colocalization, and spatial features. This walkthrough validates five fields before a full-plate run."
+          "speech_text": "Measure opens with its settings on the left and the runtime console on the right. The console reports source resolution, validation, progress, warnings, and measurement output."
         },
         {
-          "narration": "Open Measure from Core and select the merged folder produced by Mask. The transferred settings measure image channels zero through three and read cell, nucleus, and pathogen labels from planes four, five, and six.",
-          "visual": "01_module",
-          "focus_key": "nav",
-          "click_key": "nav",
+          "narration": "The field below the console accepts local questions or commands. Enable AI to route a question through the selected provider, and use the adjacent arrow to open the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Measure from Core and select the merged folder produced by Mask. The transferred settings measure image channels zero through three and read cell, nucleus, and pathogen labels from planes four, five, and six."
+          "speech_text": "The field below the console accepts local questions or commands. Enable A I to route a question through the selected provider, and use the adjacent arrow to open the provider menu."
         },
         {
-          "narration": "Enable the crop preview and load one merged array. The gallery groups forty real cells by nucleus and pathogen content, while the selector confirms that the test folder contains five fields.",
-          "visual": "02_cell_crops",
-          "focus_key": "grid",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and shows their install and login commands. Provider credentials remain with the vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command-line clients are installed and shows their install and login commands. Provider credentials remain with the vendor."
+        },
+        {
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
+        },
+        {
+          "narration": "Drag the merged folder produced by Mask into Measure. These arrays already carry spaCR project metadata, so Measure resolves the source directly and does not need the raw-image filename regex again.",
+          "visual": "05_folder",
+          "focus_key": "src",
+          "hold_after": 0.45,
+          "speech_text": "Drag the merged folder produced by Mask into Measure. These arrays already carry spacer project metadata, so Measure resolves the source directly and does not need the raw-image filename regular expression again."
+        },
+        {
+          "narration": "Essentials shows the compact set of Measure settings needed for a run, while the count reports how many settings are currently visible.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the compact set of Measure settings needed for a run, while the count reports how many settings are currently visible."
+        },
+        {
+          "narration": "Modified limits the panel to values that differ from Measure defaults, making imported settings and deliberate changes easy to audit.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to values that differ from Measure defaults, making imported settings and deliberate changes easy to audit."
+        },
+        {
+          "narration": "All settings exposes every Measure category, including advanced reliability and beta calibration controls, without changing the current values.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings exposes every Measure category, including advanced reliability and beta calibration controls, without changing the current values."
+        },
+        {
+          "narration": "Recipes saves the current Measure configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the current Measure configuration under a name, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Measure settings and sends them to Distributed Jobs.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Measure settings and sends them to Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Measure run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Measure run."
+        },
+        {
+          "narration": "Input and Experiment identifies the source project and the experiment name written into its outputs.",
+          "visual": "12_category_01_input_experiment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Experiment identifies the source project and the experiment name written into its outputs."
+        },
+        {
+          "narration": "Mask and Channel Mapping assigns image channels, cell, nucleus, pathogen, and organelle label planes, derived cytoplasm, and any time-series objects.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Mask and Channel Mapping assigns image channels, cell, nucleus, pathogen, and organelle label planes, derived cytoplasm, and any time-series objects."
+        },
+        {
+          "narration": "Measurement Features chooses saved measurements, correlation and Manders summaries, homogeneity distances, radial distributions, and organelle summaries.",
+          "visual": "12_category_03_measurement_features",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Measurement Features chooses saved measurements, correlation and Manders summaries, homogeneity distances, radial distributions, and organelle summaries."
+        },
+        {
+          "narration": "Object Filtering sets the minimum size for each compartment, whether uninfected cells are retained, and how edge-crossing pathogen cells are handled.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Object Filtering sets the minimum size for each compartment, whether uninfected cells are retained, and how edge-crossing pathogen cells are handled."
+        },
+        {
+          "narration": "Crop Output controls saved PNGs and arrays, crop object and size, channels, dilation, bounding boxes, and normalization.",
+          "visual": "12_category_05_crop_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Crop Output controls saved P N G images and arrays, crop object and size, channels, dilation, bounding boxes, and normalization."
+        },
+        {
+          "narration": "Preview and Diagnostics controls plots and the small test-mode sample used before committing to a complete experiment.",
+          "visual": "12_category_06_preview_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Preview and Diagnostics controls plots and the small test-mode sample used before committing to a complete experiment."
+        },
+        {
+          "narration": "3D Calibration contains beta anisotropy and voxel-size controls that convert volumetric pixel measurements into physical dimensions.",
+          "visual": "12_category_07_3d_calibration_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Three D Calibration contains beta anisotropy and voxel-size controls that convert volumetric pixel measurements into physical dimensions."
+        },
+        {
+          "narration": "Runtime and Reliability groups resume behavior, strict errors, failure policy, reproducibility, dry runs, logging, and worker counts.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability groups resume behavior, strict errors, failure policy, reproducibility, dry runs, logging, and worker counts."
+        },
+        {
+          "narration": "Enable Live Preview and load one completed merged array. The gallery groups 40 real cell crops by nucleus and pathogen content across the five-field test run.",
+          "visual": "20_cell_crops",
+          "focus_key": "live_and_grid",
           "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "Enable the crop preview and load one merged array. The gallery groups forty real cells by nucleus and pathogen content, while the selector confirms that the test folder contains five fields."
+          "speech_text": "Enable Live Preview and load one completed merged array. The gallery groups forty real cell crops by nucleus and pathogen content across the five-field test run."
         },
         {
-          "narration": "In General, verify measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, and derived cytoplasm. Keep test mode on for the validation run.",
-          "visual": "03_general",
+          "narration": "General confirms experiment identity, measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, derived cytoplasm, and test mode.",
+          "visual": "21_general",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "In General, verify measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, and derived cytoplasm. Keep test mode on for the validation run."
+          "speech_text": "General confirms experiment identity, measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, derived cytoplasm, and test mode."
         },
         {
-          "narration": "The supplied run writes cell PNG crops at two hundred twenty-four by two hundred twenty-four pixels using channels zero, one, and two. Crop normalization remains off in the saved settings; this tutorial uses a temporary one-to-ninety-nine percentile display stretch only to make the live gallery legible.",
-          "visual": "04_object_crops",
+          "narration": "Object Crops writes 224 by 224 pixel cell PNGs using channels zero, one, and two. Saved normalization remains off; the live gallery alone uses a temporary 1-to-99 percentile display stretch.",
+          "visual": "22_object_crops",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "The supplied run writes cell P N G crops at two hundred twenty-four by two hundred twenty-four pixels using channels zero, one, and two. Crop normalization remains off in the saved settings; this tutorial uses a temporary one-to-ninety-nine percentile display stretch only to make the live gallery legible."
+          "speech_text": "Object Crops writes two hundred twenty-four by two hundred twenty-four pixel cell P N G images using channels zero, one, and two. Saved normalization remains off; the live gallery alone uses a temporary one-to-ninety-nine percentile display stretch."
         },
         {
-          "narration": "The filters require cells of at least three thousand five hundred pixels, nuclei of at least one thousand, and pathogens of at least two hundred fifty. Keep uninfected cells off and merge cells whose pathogens cross an image edge.",
-          "visual": "05_filters",
+          "narration": "Filters require cells of at least 3500 pixels, nuclei of at least 1000, and pathogens of at least 250. Uninfected cells remain off and edge-crossing pathogen cells are merged.",
+          "visual": "23_filters",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "The filters require cells of at least three thousand five hundred pixels, nuclei of at least one thousand, and pathogens of at least two hundred fifty. Keep uninfected cells off and merge cells whose pathogens cross an image edge."
+          "speech_text": "Filters require cells of at least three thousand five hundred pixels, nuclei of at least one thousand, and pathogens of at least two hundred fifty. Uninfected cells remain off and edge-crossing pathogen cells are merged."
         },
         {
-          "narration": "Select channel one in the preview to inspect the endoplasmic-reticulum signal, which is the channel of interest for downstream analyses. This view changes only the gallery; Measure still extracts features from all four configured channels.",
-          "visual": "06_er_channel",
+          "narration": "Select channel 1 to inspect the ER signal used as the downstream channel of interest. This changes only the gallery; Measure still extracts features from all four configured channels.",
+          "visual": "24_er_channel",
           "focus_key": "grid",
           "click_key": "channel",
           "hold_after": 0.45,
-          "speech_text": "Select channel one in the preview to inspect the endoplasmic-reticulum signal, which is the channel of interest for downstream analyses. This view changes only the gallery; Measure still extracts features from all four configured channels."
+          "speech_text": "Select channel one to inspect the E R signal used as the downstream channel of interest. This changes only the gallery; Measure still extracts features from all four configured channels."
         },
         {
-          "narration": "The completed test ledger reports five of five fields successful with no failures. Measurements dot db contains four hundred fifty-five cells and cytoplasms, six hundred five nuclei, and one thousand thirty-one pathogens, plus four hundred fifty-five cell crops ready for annotation and classification.",
-          "visual": "07_outputs",
+          "narration": "The completed test ledger reports 5 of 5 fields successful. measurements.db contains 455 cells and cytoplasms, 605 nuclei, 1031 pathogens, and 455 cell crops ready for annotation and classification.",
+          "visual": "25_outputs",
           "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "The completed test ledger reports five of five fields successful with no failures. Measurements dot db contains four hundred fifty-five cells and cytoplasms, six hundred five nuclei, and one thousand thirty-one pathogens, plus four hundred fifty-five cell crops ready for annotation and classification."
+          "speech_text": "The completed test ledger reports five of five fields successful. measurements dot db contains four hundred fifty-five cells and cytoplasms, six hundred five nuclei, one thousand thirty-one pathogens, and four hundred fifty-five cell crops ready for annotation and classification."
         }
       ]
     },

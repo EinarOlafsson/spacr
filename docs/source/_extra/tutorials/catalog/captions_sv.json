@@ -252,28 +252,79 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Mätning omvandlar de verkliga segmenterade HeLa-fältena till spårbara enobjektintensitet, morfologi, textur, kolokalisering och rumsliga egenskaper. Denna genomgång validerar fem fält innan ett fullständigt löpning."
+          "narration": "Mätningen öppnas med dess inställningar till vänster och körkonsolen till höger. Konsolen rapporterar källresolution, validering, framsteg, varningar och mätresultater."
         },
         {
-          "narration": "Öppna åtgärd från kärnan och välj den sammanställda mappen som skapats av Mask. De överförda inställningarna mäter bildkanalerna från noll till tre och läser cell-, kärn- och patogenetiketter från plan fyra, fem och sex."
+          "narration": "Fältet under konsolen accepterar lokala frågor eller kommandon. Aktivera AI för att vägleda en fråga genom den valda leverantören, och använd den angränsande pilen för att öppna leverantörsmenyn."
         },
         {
-          "narration": "Aktivera förhandsgranskningen av grödorna och ladda en sammanslagen matris. Gallerin grupperar fyrtio reella celler efter kärna och patogeninnehåll, medan selektorn bekräftar att testmappen innehåller fem fält."
+          "narration": "Leverantörerna rapporterar om Claude-, ChatGPT- och Gemini-kommandolinjeklienter är installerade och visar deras installations- och inloggningskommandon. Leverantörens personuppgifter förblir hos leverantören."
         },
         {
-          "narration": "I allmänhet verifiera målade kanaler från noll till tre, cellmaskplan fyra, kärnplan fem, patogenplan sex och avledd cytoplasm. Håll testläget på för valideringsläget."
+          "narration": "AI-inställningar kontrollerar responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medveten systemprompt."
         },
         {
-          "narration": "Den levererade körningen skriver cell PNG grödor på tvåhundra tjugofyra med tvåhundra tjugofyra pixlar med hjälp av kanaler noll, en och två. Normaliseringen av grödorna förblir avstängd i de spara inställningarna. Denna handledning använder en tillfällig en-till-nitton-procentiel-skärmsträckning bara för att göra galleriet läsbart."
+          "narration": "Dra den sammanställda mappen som har producerats av Mask in i Mått. Dessa matriser bär redan spaCR projektmetadata, så Measure löser källan direkt och behöver inte raw-bild filnamnet regex igen."
         },
         {
-          "narration": "Filtrerna kräver celler med minst tre tusen fem hundra pixlar, kärnor med minst tusen och patogener med minst två hundra femtio. Håll inte infekterade celler borta och slå ihop celler vars patogener korsar en bildskärm."
+          "narration": "Essentials visar den kompakta uppsättningen av mätinställningar som behövs för en körning, medan räkningen rapporterar hur många inställningar som för närvarande är synliga."
         },
         {
-          "narration": "Välj kanal ett i förhandsgranskningen för att inspektera endoplasmisk-reticulumsignalen, som är den kanal som är av intresse för nedströmsanalyser. Den här visningen ändrar endast galleriet. Mätningen extraherar fortfarande funktioner från alla fyra konfigurerade kanaler."
+          "narration": "Ändrade begränsningar av panelen till värden som skiljer sig från standardåtgärder, vilket gör importerade inställningar och avsiktliga ändringar lätta att granska."
         },
         {
-          "narration": "Den slutförda testregistret rapporterar att fem av fem fält lyckats utan misslyckanden. Mätningar dot db innehåller fyra hundra femtio fem celler och cytoplasmer, sex hundra fem kärnor, och tusen trettiofem patogener, plus fyra hundra femtio fem cellkroppar redo för annotering och klassificering."
+          "narration": "Alla inställningar exponerar varje åtgärdskategori, inklusive avancerad tillförlitlighet och beta kalibreringskontroll, utan att de aktuella värdena ändras."
+        },
+        {
+          "narration": "Recipes sparar den nuvarande konfigurationen av åtgärden under ett namn, tillämpar den senare eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka avlägsna ögonblicksbilder av de lösade mätinställningarna och skicka dem till Distribuerade jobb."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger lokala vägar till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma åtgärd."
+        },
+        {
+          "narration": "Input and Experiment identifierar källprojektet och experimentnamnet skrivet i dess utgångar."
+        },
+        {
+          "narration": "Mask and Channel Mapping tilldelar bildkanaler, cell, kärna, patogen och organell märkningsplaner, avledd cytoplasma och alla tidsserierobjekt."
+        },
+        {
+          "narration": "Mätning Funktioner väljer sparas mätningar, korrelations- och Manders sammanfattningar, homogenitetsdistanser, radialfördelningar och organell sammanfattningar."
+        },
+        {
+          "narration": "Object Filtering anger den minsta storleken för varje utrymme, huruvida icke-infekterade celler behålls och hur kantöverskridande patogenceller hanteras."
+        },
+        {
+          "narration": "Crop Output-kontroller sparar PNG och matriser, gröda objekt och storlek, kanaler, utvidgning, gränslådor och normalisering."
+        },
+        {
+          "narration": "Förhandsgranskning och diagnostik kontrollerar plågor och det lilla provprov som används innan ett komplett experiment genomförs."
+        },
+        {
+          "narration": "3D kalibrering innehåller beta anisotropy och voxelstorlek kontroller som konverterar volumetriska pixelmätningar till fysiska dimensioner."
+        },
+        {
+          "narration": "Arbetstid och tillförlitlighet grupper återuppta beteende, strikta fel, misslyckande policy, reproduktibilitet, torra körningar, logging och arbetar räknas."
+        },
+        {
+          "narration": "Aktivera Live Preview och ladda ett färdigt sammanslutet array. Gallerin grupperar 40 reella cellkulturer efter kärn- och patogeninnehåll genom den femfältliga provningen."
+        },
+        {
+          "narration": "General bekräftar experimentets identitet, målade kanaler från noll till tre, cellmaskplan fyra, kärnplan fem, patogenplan sex, avledd cytoplasm och testläge."
+        },
+        {
+          "narration": "Object Crops skriver 224 by 224 pixels cell PNGs med hjälp av kanaler noll, en och två. Den spara normaliseringen är fortfarande avstängd. Bara gallerin använder en tillfällig 1-99-percentil-skärmsträckning."
+        },
+        {
+          "narration": "Filtrar kräver celler med minst 3500 pixlar, kärnor med minst 1000 och patogener med minst 250. De oskadade cellerna stannar borta och de patogenceller som överskrider kanten fusioneras."
+        },
+        {
+          "narration": "Välj kanal 1 för att inspektera den ER-signal som används som den efterströmskanal som är av intresse. Detta ändrar bara galleriet; Mätningen extraherar fortfarande funktioner från alla fyra konfigurerade kanaler."
+        },
+        {
+          "narration": "Den slutförda testregistret rapporterar att 5 av 5 fält lyckats. measurements.db innehåller 455 celler och cytoplasmer, 605 kärnor, 1031 patogener och 455 cellkulturer som är redo för annotering och klassificering."
         }
       ]
     },
