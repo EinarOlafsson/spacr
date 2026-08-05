@@ -4,47 +4,127 @@
   "voice": "zm_yunyang",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 40.775,
+  "total_duration": 182.805,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 5.5,
-      "scene_end": 5.95,
-      "duration": 5.95,
-      "text": "带其他实验室的图像,掩膜和测量表进入一个 spaCR 项目."
+      "speech_end": 13.775,
+      "scene_end": 14.595,
+      "duration": 14.595,
+      "text": "进口项目将其他实验室的图像,标签面具和测量带入spaCR项目, 打开它,从数据和批量运行. 上部控制描述其输入,中部是可编辑的审查,下部控制保存该决定或启动单独的进口.",
+      "speech_text": "进口项目将其他实验室的图像,标签面具和测量带入斯佩克尔项目, 打开它,从数据和批量运行. 上部控制描述其输入,中部是可编辑的审查,下部控制保存该决定或启动单独的进口.",
+      "phonemes": "ʨi↘nkʰou↓ ɕja↘ŋmu↘ ʨja→ŋ ʨʰi↗tʰa→ ʂɨ↗jɛ↘nʂɨ↘ tɤ tʰu↗ɕja↘ŋ,pjau→ʨʰjɛ→n mjɛ↘nʨy↘ xɤ↗ ʦʰɤ↘lja↗ŋ tai↘ɻu↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ ɕja↘ŋmu↘, ta↓kʰai→ tʰa→,ʦʰʊ↗ŋ ʂu↘ʨy↘ xɤ↗ pʰi→lja↘ŋ y↘nɕi↗ŋ. ʂa↘ŋpu↘ kʰʊ↘ŋꭧɨ↘ mjau↗ʂu↘ ʨʰi↗ ʂu→ɻu↘,ꭧʊ→ŋpu↘ ʂɨ↘ kʰɤ↓ pjɛ→nʨi↗ tɤ ʂə↓nꭧʰa↗,ɕja↘pu↘ kʰʊ↘ŋꭧɨ↘ pau↓ʦʰwə↗n kai→ ʨɥe↗ti↘ŋ xwo↘ ʨʰi↓tʊ↘ŋ ta→ntu↗ tɤ ʨi↘nkʰou↓."
     },
     {
       "scene": 2,
-      "speech_start": 5.95,
-      "speech_end": 13.15,
-      "scene_end": 13.6,
-      "duration": 7.6499999999999995,
-      "text": "从 Data and batch runs 部分打开 Import Project。 提供图像,可选掩膜,测量表和稳定的外部标识符."
+      "speech_start": 14.595,
+      "speech_end": 28.770000000000003,
+      "scene_end": 29.570000000000004,
+      "duration": 14.975000000000003,
+      "text": "选择或放下外部图像文件,然后选择新的目的地. 这个课程使用了两个真实的2000x2000场,每个有四个光道. 源 spaCR 阵列仅用于跨工具进口示范而被解码为中性TIFF输入;没有合成像素创建.",
+      "speech_text": "选择或放下外部图像文件,然后选择新的目的地. 这个课程使用了两个真实的2000x2000场,每个有四个光道. 源 斯佩克尔 阵列仅用于跨工具进口示范而被解码为中性TIFF输入;没有合成像素创建.",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ xwo↘ fa↘ŋɕja↘ wai↘pu↘ tʰu↗ɕja↘ŋwə↗nʨjɛ↘n,ɻa↗nxou↘ ɕɥɛ↓nʦɤ↗ ɕi→n tɤ mu↘ti↘ti↘. ꭧɤ↘kɤ kʰɤ↘ꭧʰə↗ŋ ʂɨ↓jʊ↘ŋ lɤ lja↓ŋkɤ↘ ꭧə→nʂɨ↗ tɤ ɚ↘ʨʰjɛ→nxɚ↘ʨʰjɛ→n ꭧʰa↓ŋ,mei↓kɤ↘ jou↓ sɨ↘kɤ↘ kwa→ŋ tau↘. ɥɛ↗n sɨ→ pʰei↘kʰɤ↘ ɚ↓ ꭧə↘nlje↘ ʨi↓n jʊ↘ŋy↗ kʰwa↘ kʊ→ŋʨy↘ ʨi↘nkʰou↓ ʂɨ↘fa↘n ɚ↗ pei↘ ʨje↓ma↓ wei↘ ꭧʊ→ŋɕi↘ŋTIFFʂu→ɻu↘;mei↗jou↓ xɤ↗ꭧʰə↗ŋ ɕja↘ŋsu↘ ꭧʰwa↘ŋʨjɛ↘n."
     },
     {
       "scene": 3,
-      "speech_start": 13.6,
-      "speech_end": 21.55,
-      "scene_end": 22.0,
-      "duration": 8.4,
-      "text": "在主要配置区域中,将外来列映射到 spaCR 标识符,道,对象类型,板块元数据和来源字段上."
+      "speech_start": 29.570000000000004,
+      "speech_end": 45.220000000000006,
+      "scene_end": 45.96000000000001,
+      "duration": 16.390000000000004,
+      "text": "一个合并的spaCR字段可以为每个对象类型携带一个标签平面. 选择一个类,选择其文件,然后单击添加. 复制细胞,核,病原体和机器人面具. 每个字段都必须有每个被声明的类;无匹配的图像或面具文件列出,而不是猜测.",
+      "speech_text": "一个合并的斯佩克尔字段可以为每个对象类型携带一个标签平面. 选择一个类,选择其文件,然后单击添加. 复制细胞,核,病原体和机器人面具. 每个字段都必须有每个被声明的类;无匹配的图像或面具文件列出,而不是猜测.",
+      "phonemes": "i↗kɤ↘ xɤ↗pi↘ŋ tɤ sɨ→ pʰei↘kʰɤ↘ ɚ↓ʦɨ↘twa↘n kʰɤ↓i↓ wei↘ mei↓kɤ↘ twei↘ɕja↘ŋ lei↘ɕi↗ŋ ɕje↗tai↘ i↗kɤ↘ pjau→ʨʰjɛ→n pʰi↗ŋmjɛ↘n. ɕɥɛ↓nʦɤ↗ i↗kɤ↘ lei↘,ɕɥɛ↓nʦɤ↗ ʨʰi↗ wə↗nʨjɛ↘n,ɻa↗nxou↘ ta→nʨi→ tʰjɛ→nʨja→. fu↘ꭧɨ↘ ɕi↘pau→,xɤ↗,pi↘ŋɥɛ↗ntʰi↓ xɤ↗ ʨi→ʨʰi↘ɻə↗n mjɛ↘nʨy↘. mei↓kɤ↘ ʦɨ↘twa↘n tou→ pi↘ɕy→ jou↓ mei↓kɤ↘ pei↘ ʂə→ŋmi↗ŋ tɤ lei↘;u↗ pʰi↓pʰei↘ tɤ tʰu↗ɕja↘ŋ xwo↘ mjɛ↘nʨy↘ wə↗nʨjɛ↘n lje↘ꭧʰu→,ɚ↗ pu↗ʂɨ↘ ʦʰai→ʦʰɤ↘."
     },
     {
       "scene": 4,
-      "speech_start": 22.0,
-      "speech_end": 32.925,
-      "scene_end": 33.375,
-      "duration": 11.375,
-      "text": "在完整运行之前,请检查可见的设置,并在可用的时使用预览或测试模式. 在进口之前验证结合,缺少值,图像掩膜对齐和重复识别符."
+      "speech_start": 45.96000000000001,
+      "speech_end": 61.31000000000001,
+      "scene_end": 62.17000000000001,
+      "duration": 16.21,
+      "text": "添加真实测量CSV并声明每像素0.65微米,以便正确转换平方微米面积. 这个表有意图包含一个叫做cell_area的列. 换名为外语前保留了外部值,而不会默默地取代spaCR功能. 原始文件只能读取,输出将转移到新目的地.",
+      "speech_text": "添加真实测量CSV并声明每像素0.65微米,以便正确转换平方微米面积. 这个表有意图包含一个叫做cell_area的列. 换名为外语前保留了外部值,而不会默默地取代斯佩克尔功能. 原始文件只能读取,输出将转移到新目的地.",
+      "phonemes": "tʰjɛ→nʨja→ ꭧə→nʂɨ↗ ʦʰɤ↘lja↗ŋCSVpi↘ŋ ʂə→ŋmi↗ŋ mei↓ ɕja↘ŋsu↘ li↗ŋtjɛ↓n ljou↘u↓ wei→mi↓,i↓pjɛ↘n ꭧə↘ŋʨʰɥe↘ ꭧwa↓nxwa↘n pʰi↗ŋfa→ŋ wei→mi↓ mjɛ↘nʨi→. ꭧɤ↘kɤ pjau↓jou↓ i↘tʰu↗ pau→xa↗n i↗kɤ↘ ʨjau↘ʦwo↘cell_areatɤ lje↘. xwa↘n mi↗ŋwei↘ wai↘y↓ ʨʰjɛ↗n pau↓ljou↗ lɤ wai↘pu↘ ꭧɨ↗,ɚ↗ pu↗xwei↘ mwo↘mwo↘ti↘ ʨʰy↓tai↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ kʊ→ŋnə↗ŋ. ɥɛ↗nʂɨ↓ wə↗nʨjɛ↘n ꭧɨ↓nə↗ŋ tu↗ʨʰy↓,ʂu→ꭧʰu→ ʨja→ŋ ꭧwa↓ni↗ tau↘ ɕi→n mu↘ti↘ti↘."
     },
     {
       "scene": 5,
-      "speech_start": 33.375,
-      "speech_end": 40.125,
-      "scene_end": 40.775,
-      "duration": 7.399999999999999,
-      "text": "当工作流程完成时,标准化的项目将保存返回每个原始文件和标识器的链接."
+      "speech_start": 62.17000000000001,
+      "speech_end": 73.87,
+      "scene_end": 74.55000000000001,
+      "duration": 12.380000000000003,
+      "text": "在进口之前点击预览. 预览扫描图像标题,按字段对每个面具进行对应,阅读测量表,检查对象标签,提出列图,解决单元和名称冲突,并没有写任何东西.",
+      "speech_text": "在进口之前点击预览. 预览扫描图像标题,按字段对每个面具进行对应,阅读测量表,检查对象标签,提出列图,解决单元和名称冲突,并没有写任何东西.",
+      "phonemes": "ʦai↘ ʨi↘nkʰou↓ ꭧɨ→ʨʰjɛ↗n tjɛ↓nʨi→ y↘la↓n. y↘la↓n sau↓mjau↗ tʰu↗ɕja↘ŋ pjau→tʰi↗,a↘nʦɨ↘ twa↘n twei↘ mei↓kɤ↘ mjɛ↘nʨy↘ ʨi↘nɕi↗ŋ twei↘i↘ŋ,ɥe↘tu↗ ʦʰɤ↘lja↗ŋ pjau↓,ʨjɛ↓nꭧʰa↗ twei↘ɕja↘ŋ pjau→ʨʰjɛ→n,tʰi↗ꭧʰu→ lje↘tʰu↗,ʨje↓ʨɥe↗ ta→nɥɛ↗n xɤ↗ mi↗ŋꭧʰə→ŋ ꭧʰʊ→ŋtʰu→,pi↘ŋ mei↗jou↓ ɕje↓ ɻə↘nxɤ↗ tʊ→ŋɕi→."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.55000000000001,
+      "speech_end": 92.4,
+      "scene_end": 93.28,
+      "duration": 18.72999999999999,
+      "text": "两个场都准备好了. 可编辑表显示每个外部列,拟议的spaCR目标,转换,输入和输出单元以及审查说明. 报告证实,207个测量行中的206个符合真实细胞标签. 一个没有标签和1,198个没有表排的面具物体被披露,从来没有被默默地丢弃或发明.",
+      "speech_text": "两个场都准备好了. 可编辑表显示每个外部列,拟议的斯佩克尔目标,转换,输入和输出单元以及审查说明. 报告证实,207个测量行中的206个符合真实细胞标签. 一个没有标签和1,198个没有表排的面具物体被披露,从来没有被默默地丢弃或发明.",
+      "phonemes": "lja↓ŋkɤ↘ ꭧʰa↓ŋ tou→ ꭧwə↓npei↘ xau↓ lɤ. kʰɤ↓ pjɛ→nʨi↗ pjau↓ ɕjɛ↓nʂɨ↘ mei↓kɤ↘ wai↘pu↘ lje↘,ni↓i↘ tɤ sɨ→ pʰei↘kʰɤ↘ ɚ↓ mu↘pjau→,ꭧwa↓nxwa↘n,ʂu→ɻu↘ xɤ↗ ʂu→ꭧʰu→ ta→nɥɛ↗n i↓ʨi↗ ʂə↓nꭧʰa↗ ʂwo→mi↗ŋ. pau↘kau↘ ꭧə↘ŋʂɨ↗,ɚ↘pai↓ li↗ŋʨʰi→kɤ↘ ʦʰɤ↘lja↗ŋ ɕi↗ŋꭧʊ→ŋ tɤ ɚ↘pai↓li↗ŋljou↘ kɤ↘ fu↗xɤ↗ ꭧə→nʂɨ↗ ɕi↘pau→ pjau→ʨʰjɛ→n. i↗kɤ↘ mei↗jou↓ pjau→ʨʰjɛ→n xɤ↗ i→,i↘pai↓ʨjou↓ʂɨ↗pa→ kɤ↘ mei↗jou↓ pjau↓pʰai↗ tɤ mjɛ↘nʨy↘ u↘tʰi↓ pei↘ pʰi→lu↘,ʦʰʊ↗ŋlai↗ mei↗jou↓ pei↘ mwo↘mwo↘ti↘ tjou→ʨʰi↘ xwo↘ fa→mi↗ŋ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 93.28,
+      "speech_end": 108.105,
+      "scene_end": 108.845,
+      "duration": 15.564999999999998,
+      "text": "这项提案是可故意编辑的. 选择 AreaShape_Area_um2 的 spaCR 列细胞,并用一个复制的,有意义的名称取代目标. 转换和单元列也可以在这里纠正;每次编辑都会立即重新执行碰撞和校准检查,而不需要重新扫描文件.",
+      "speech_text": "这项提案是可故意编辑的. 选择 AreaShape_Area_um2 的 斯佩克尔 列细胞,并用一个复制的,有意义的名称取代目标. 转换和单元列也可以在这里纠正;每次编辑都会立即重新执行碰撞和校准检查,而不需要重新扫描文件.",
+      "phonemes": "ꭧɤ↘ɕja↘ŋ tʰi↗a↘n ʂɨ↘ kʰɤ↓ ku↘i↘ pjɛ→nʨi↗ tɤ. ɕɥɛ↓nʦɤ↗ AreaShape_Area_umɚ↘ tɤ sɨ→ pʰei↘kʰɤ↘ ɚ↓ lje↘ ɕi↘pau→,pi↘ŋjʊ↘ŋ i↗kɤ↘ fu↘ꭧɨ↘ tɤ,jou↓ i↘i↘ tɤ mi↗ŋꭧʰə→ŋ ʨʰy↓tai↘ mu↘pjau→. ꭧwa↓nxwa↘n xɤ↗ ta→nɥɛ↗n lje↘ je↓ kʰɤ↓i↓ ʦai↘ ꭧɤ↘li↓ ʨjou→ꭧə↘ŋ;mei↓ʦʰɨ↘ pjɛ→nʨi↗ tou→ xwei↘ li↘ʨi↗ ꭧʰʊ↗ŋɕi→n ꭧɨ↗ɕi↗ŋ pʰə↘ŋꭧwa↘ŋ xɤ↗ ʨjau↘ꭧwə↓n ʨjɛ↓nꭧʰa↗,ɚ↗ pu↘ ɕy→jau↘ ꭧʰʊ↗ŋɕi→n sau↓mjau↗ wə↗nʨjɛ↘n."
+    },
+    {
+      "scene": 8,
+      "speech_start": 108.845,
+      "speech_end": 121.22,
+      "scene_end": 121.96,
+      "duration": 13.114999999999995,
+      "text": "现在的目标区域是外_reviewed_cell_area. 它的区域转换仍然从平方微米到平方像素进行校准,而冲突的外部cell_area则单独改名为外国前. 状态仍然说没有写过任何东西.",
+      "speech_text": "现在的目标区域是外_reviewed_cell_area. 它的区域转换仍然从平方微米到平方像素进行校准,而冲突的外部cell_area则单独改名为外国前. 状态仍然说没有写过任何东西.",
+      "phonemes": "ɕjɛ↘nʦai↘ tɤ mu↘pjau→ ʨʰy→y↘ ʂɨ↘ wai↘_reviewed_cell_area. tʰa→ tɤ ʨʰy→y↘ ꭧwa↓nxwa↘n ɻə↗ŋɻa↗n ʦʰʊ↗ŋ pʰi↗ŋfa→ŋ wei→mi↓ tau↘ pʰi↗ŋfa→ŋ ɕja↘ŋsu↘ ʨi↘nɕi↗ŋ ʨjau↘ꭧwə↓n,ɚ↗ ꭧʰʊ→ŋtʰu→ tɤ wai↘pu↘cell_areaʦɤ↗ ta→ntu↗ kai↓mi↗ŋ wei↘ wai↘kwo↗ ʨʰjɛ↗n. ꭧwa↘ŋtʰai↘ ɻə↗ŋɻa↗n ʂwo→ mei↗jou↓ ɕje↓kwo↘ ɻə↘nxɤ↗ tʊ→ŋɕi→."
+    },
+    {
+      "scene": 9,
+      "speech_start": 121.96,
+      "speech_end": 133.685,
+      "scene_end": 134.385,
+      "duration": 12.424999999999997,
+      "text": "点击保存映射,以将完整的评论写成CSV. 文件可以检查,编辑,与合作者共享,在应用程序之外编辑,然后重新加载. 进口将按照屏幕上显示的地图进行.",
+      "speech_text": "点击保存映射,以将完整的评论写成CSV. 文件可以检查,编辑,与合作者共享,在应用程序之外编辑,然后重新加载. 进口将按照屏幕上显示的地图进行.",
+      "phonemes": "tjɛ↓nʨi→ pau↓ʦʰwə↗n i↘ŋʂɤ↘,i↓ ʨja→ŋ wa↗nꭧə↓ŋ tɤ pʰi↗ŋlwə↘n ɕje↓ꭧʰə↗ŋCSV. wə↗nʨjɛ↘n kʰɤ↓i↓ ʨjɛ↓nꭧʰa↗,pjɛ→nʨi↗,y↓ xɤ↗ʦwo↘ꭧɤ↓ kʊ↘ŋɕja↓ŋ,ʦai↘ i↘ŋjʊ↘ŋꭧʰə↗ŋɕy↘ ꭧɨ→wai↘ pjɛ→nʨi↗,ɻa↗nxou↘ ꭧʰʊ↗ŋɕi→n ʨja→ʦai↘. ʨi↘nkʰou↓ ʨja→ŋ a↘nꭧau↘ pʰi↗ŋmu↘ ʂa↘ŋ ɕjɛ↓nʂɨ↘ tɤ ti↘tʰu↗ ʨi↘nɕi↗ŋ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 134.385,
+      "speech_end": 148.60999999999999,
+      "scene_end": 149.35,
+      "duration": 14.965000000000003,
+      "text": "在单独的教程输出旁边保存了重新审核的地图. 负载地图将以后恢复相同的决定. 目的地必须是新的或属于相同的实验;进口项目在撰写文件之前拒绝包含不同领域的测量目的地.",
+      "speech_text": "在单独的教程输出旁边保存了重新审核的地图. 负载地图将以后恢复相同的决定. 目的地必须是新的或属于相同的实验;进口项目在撰写文件之前拒绝包含不同领域的测量目的地.",
+      "phonemes": "ʦai↘ ta→ntu↗ tɤ ʨjau↘ꭧʰə↗ŋ ʂu→ꭧʰu→ pʰa↗ŋpjɛ→n pau↓ʦʰwə↗n lɤ ꭧʰʊ↗ŋɕi→n ʂə↓nxɤ↗ tɤ ti↘tʰu↗. fu↘ʦai↘ ti↘tʰu↗ ʨja→ŋ i↓xou↘ xwei→fu↘ ɕja→ŋtʰʊ↗ŋ tɤ ʨɥe↗ti↘ŋ. mu↘ti↘ti↘ pi↘ɕy→ ʂɨ↘ ɕi→n tɤ xwo↘ ʂu↓y↗ ɕja→ŋtʰʊ↗ŋ tɤ ʂɨ↗jɛ↘n;ʨi↘nkʰou↓ ɕja↘ŋmu↘ ʦai↘ ꭧwa↘nɕje↓ wə↗nʨjɛ↘n ꭧɨ→ʨʰjɛ↗n ʨy↘ʨɥe↗ pau→xa↗n pu↘tʰʊ↗ŋ li↓ŋy↘ tɤ ʦʰɤ↘lja↗ŋ mu↘ti↘ti↘."
+    },
+    {
+      "scene": 11,
+      "speech_start": 149.35,
+      "speech_end": 163.67499999999998,
+      "scene_end": 164.45499999999998,
+      "duration": 15.10499999999999,
+      "text": "在查看图像后,四个面具类, 加入报告,单元,冲突和目的地, 点击进口. 这种单独的操作将图像名称转换,编写强度和面具堆,与spaCR的原生平面顺序构建合并阵列,并创建数据库和来源记录.",
+      "speech_text": "在查看图像后,四个面具类, 加入报告,单元,冲突和目的地, 点击进口. 这种单独的操作将图像名称转换,编写强度和面具堆,与斯佩克尔的原生平面顺序构建合并阵列,并创建数据库和来源记录.",
+      "phonemes": "ʦai↘ ꭧʰa↗kʰa↘n tʰu↗ɕja↘ŋ xou↘,sɨ↘kɤ↘ mjɛ↘nʨy↘ lei↘, ʨja→ɻu↘ pau↘kau↘,ta→nɥɛ↗n,ꭧʰʊ→ŋtʰu→ xɤ↗ mu↘ti↘ti↘, tjɛ↓nʨi→ ʨi↘nkʰou↓. ꭧɤ↘ꭧʊ↓ŋ ta→ntu↗ tɤ ʦʰau→ʦwo↘ ʨja→ŋ tʰu↗ɕja↘ŋ mi↗ŋꭧʰə→ŋ ꭧwa↓nxwa↘n,pjɛ→nɕje↓ ʨʰja↗ŋtu↘ xɤ↗ mjɛ↘nʨy↘ twei→,y↓sɨ→ pʰei↘kʰɤ↘ ɚ↓ tɤ ɥɛ↗nʂə→ŋ pʰi↗ŋmjɛ↘n ʂwə↘nɕy↘ kou↘ʨjɛ↘n xɤ↗pi↘ŋ ꭧə↘nlje↘,pi↘ŋ ꭧʰwa↘ŋʨjɛ↘n ʂu↘ʨy↘kʰu↘ xɤ↗ lai↗ɥɛ↗n ʨi↘lu↘."
+    },
+    {
+      "scene": 12,
+      "speech_start": 164.45499999999998,
+      "speech_end": 181.90499999999997,
+      "scene_end": 182.80499999999998,
+      "duration": 18.349999999999994,
+      "text": "进口以两个字段,八个转换通道TIFF,八个面具阵列和两个包含四个强度平面的合并阵列完成,然后是细胞,核,病原体和机器人标签. 所有207个外部行都保存在foreign_cell和正规方便副本中,而 measurements.db和应用的地图记录是来自spaCR以外的列.",
+      "speech_text": "进口以两个字段,八个转换通道TIFF,八个面具阵列和两个包含四个强度平面的合并阵列完成,然后是细胞,核,病原体和机器人标签. 所有207个外部行都保存在foreign_cell和正规方便副本中,而 measurements dot db和应用的地图记录是来自斯佩克尔以外的列.",
+      "phonemes": "ʨi↘nkʰou↓ i↓ lja↓ŋkɤ↘ ʦɨ↘ twa↘n,pa→kɤ↘ ꭧwa↓nxwa↘n tʰʊ→ŋtau↘TIFF,pa→kɤ↘ mjɛ↘nʨy↘ ꭧə↘nlje↘ xɤ↗ lja↓ŋkɤ↘ pau→xa↗n sɨ↘kɤ↘ ʨʰja↗ŋtu↘ pʰi↗ŋmjɛ↘n tɤ xɤ↗pi↘ŋ ꭧə↘nlje↘ wa↗nꭧʰə↗ŋ,ɻa↗nxou↘ ʂɨ↘ ɕi↘pau→,xɤ↗,pi↘ŋɥɛ↗ntʰi↓ xɤ↗ ʨi→ʨʰi↘ɻə↗n pjau→ʨʰjɛ→n. swo↓jou↓ ɚ↘pai↓ li↗ŋʨʰi→kɤ↘ wai↘pu↘ ɕi↗ŋtu→ pau↓ʦʰwə↗n ʦai↘foreign_cellxɤ↗ ꭧə↘ŋkwei→ fa→ŋpjɛ↘n fu↘pə↓n ꭧʊ→ŋ,ɚ↗ measurements dot dbxɤ↗ i↘ŋjʊ↘ŋ tɤ ti↘tʰu↗ ʨi↘lu↘ ʂɨ↘ lai↗ʦɨ↘ sɨ→ pʰei↘kʰɤ↘ ɚ↓ i↓wai↘ tɤ lje↘."
     }
   ]
 }

@@ -1949,19 +1949,40 @@
       "id": "36_import",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Importprojektet. Bring billeder, masker og målebord fra et andet laboratorium til et spaCR-projekt."
+          "narration": "Import Project bringer billeder fra et andet laboratorium, etiketter og målinger ind i et spaCR-projekt uden at behandle en afledt kortlægning som sandhed. Åbn det fra Data og batch runs. De øverste kontroller beskriver deres input, midten er en redigerbar gennemgang, og de nederste kontroller gemmer beslutningen eller starter den separate import."
         },
         {
-          "narration": "Åbn importprojekt fra sektionen Data og batch runs. Angiv billeder, valgfrie masker, et målebord og stabile eksterne identifikatorer."
+          "narration": "Vælg eller drop den eksterne billedmappe og vælg en ny destination. Denne lektion bruger to reelle 2000-by-2000 felter, hver med fire fluoresceringskanaler. De kildekodede spaCR-arrayer blev kun decoderet til neutrale TIFF-indgange til demonstration af import med tværværktøj; ingen syntetiske pixels blev oprettet."
         },
         {
-          "narration": "I hovedkonfigurationsområdet kortes udenlandske kolonner på spaCR-identifikatorer, kanaler, objekttyper, platmetadata og oprindelsesfelter."
+          "narration": "Et fusioneret spaCR-felt kan bære et mærkningsplan for hver objektklasse. Vælg en klasse, vælg dens mappe og klik på Tilføj. Gentag for celle-, kjerne-, patogen- og organelmasker. Hvert felt skal have hver angivet klasse; uoverensstemmende billed- eller maskfiler er opført i stedet for at gætte."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. validerer tilslutninger, manglende værdier, billedmaskjustering og duplikerer identifikatorer før import."
+          "narration": "Tilføj den reelle målemængde CSV og erklær 0,65 mikrometer pr. pixel, så arealer i kvadratmikrometer kan konverteres korrekt. Tabellen indeholder med vilje en kolonne kaldet cell_area. Omdøbt til det udenlandske præfix bevarer den eksterne værdi uden at stille erstatte en spaCR-funktion. De oprindelige filer forbliver kun læsbare, og udgangen går til den nye destination."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, bevarer det standardiserede projekt links tilbage til hver original fil og identifikator."
+          "narration": "Klik på Forhåndsvisning, før du importerer. Preview scanner billedoverskrifterne, parrer hver mask efter felt, læser måletabellen, tjekker objektetiketter, foreslår kolonnekartografier, løser enheder og navnekonflikter og skriver ingenting."
+        },
+        {
+          "narration": "De to felter er klar. Den redigerbare tabel viser hver ekstern kolonne, det foreslåede mål for spaCR, transformations-, ind- og udgangsenheder samt en anmeldelsesnote. Rapporten bekræfter, at 206 af 207 målelinjer stemmer overens med reelle cellemærker. En fraværende etikette og 1.198 maskobjekter uden bordrækker afsløres, aldrig stillet kasseret eller opfundet."
+        },
+        {
+          "narration": "Forslaget kan redigeres med vilje. Vælg celle i spaCR-kolumnen for AreaShape_Area_um2 og erstatt målet med et gennemgået, meningsfuldt navn. Transform- og enhedspillerne kan også korrigeres her; hver redigering kører straks kollisions- og kalibrationskontrol igen uden at scanne mapperne igen."
+        },
+        {
+          "narration": "Målområdet er nu foreign_reviewed_cell_area. Dens areal omdannelse forbliver kalibreret fra kvadratmikrometer til kvadratiske pixels, mens det modstridende eksterne cell_area omdøbes separat med det udenlandske præfix. Statusen siger stadig, at der ikke er skrevet noget."
+        },
+        {
+          "narration": "Klik på Gem kortlægning for at skrive den fulde anmeldelse som CSV. Filen kan inspiceres, versioneres, deles med en samarbejdspartner, redigeres uden for applikationen og lastes igen. Import vil anvende præcis den kortlægning, der vises på skærmen."
+        },
+        {
+          "narration": "Den reviderede kortlægning gemmes ved siden af den isolerede tutorial output. Lastkartering genvinder de samme beslutninger senere. Destinationen skal være ny eller tilhøre det samme eksperiment; Import Project afviser en destination, der indeholder målinger fra forskellige felter, før der skrives en fil."
+        },
+        {
+          "narration": "Efter at have gennemgået billederne, fire maskeklasser, join rapport, enheder, konflikter og destination, klik på Import. Denne separate handling konverterer billednavne, skriver intensitets- og maskestakker, opbygger sammensatte arrays med spaCR's oprindelige planorden og opretter databasen og oprindelsesoptegnelser."
+        },
+        {
+          "narration": "Importen afsluttes med to felter, otte omdannede kanal-TIFF'er, otte maskemaskiner og to fusionerede maskiner, der indeholder fire intensitetsplaner efterfulgt af celle-, kjerne-, patogen- og organeletiketter. Alle 207 eksterne rækker er bevaret i foreign_cell og en kanonisk convenience-kopi, mens measurements.db og den anvendte kortlægningsoptegnelse, hvor kolonner kom fra uden for spaCR."
         }
       ]
     },
