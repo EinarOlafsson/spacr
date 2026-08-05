@@ -3097,48 +3097,82 @@
     {
       "id": "21_model_compare",
       "number": 21,
-      "slug": "model_compare",
-      "title": "Model Compare",
+      "slug": "model-compare",
+      "title": "模型比较",
       "series": 2,
       "app_key": "model_compare",
       "section": "Segmentation models",
-      "description": "在同一场地运行两个 Cellpose 模型,并比较掩膜,数量和协议指标.",
+      "description": "在同一场地运行两个Cellpose配置,并比较参数,对象数量,前景ARI,匹配,分割,合并和面具预览.",
       "objectives": [
-        "了解使用模型相比的时间.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "装载一个小的共享字段集,并配置两个模型候选人.",
+        "确认哪些要求参数实际上达到Cellpose 4.",
+        "解释方向对象差异,前景ARI,匹配,QC和叠加."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "准备代表性显微镜领域和至少两种有意义不同的模型或推理配置.",
       "scenes": [
         {
-          "narration": "运行两个 Cellpose 模型在相同的领域,并比较掩膜,数量和协议指标.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "运行两个 Cellpose 模型在相同的领域,并比较掩膜,数量和协议指标."
+          "narration": "模型比较在同一小场组上运行两个Cellpose配置. 它报告了发生了什么变化,而没有把任何模型都视为基本的真理, 结合对象数量,前景协议,匹配,碎片化和视觉叠加.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "模型比较在同一小场组上运行两个Cellpose配置. 它报告了发生了什么变化,而没有把任何模型都视为基本的真理, 结合对象数量,前景协议,匹配,碎片化和视觉叠加."
         },
         {
-          "narration": "从 Segmentation models 部分打开 Model Compare。 选择两个候选模型和代表性的显微镜场.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Segmentation models 部分打开 Model Compare。 选择两个候选模型和代表性的显微镜场."
+          "narration": "放下TIFF,PNG,NPY或NPZ字段的文件,或使用源控制选择它. 字段值限制了互动比较;本教程载载了三种真正的ER通道细胞作物.",
+          "visual": "02_fields_loaded",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "放下TIFF,PNG,NPY或NPZ字段的文件,或使用源控制选择它. 字段值限制了互动比较;本教程载载了三种真正的ER通道细胞作物."
         },
         {
-          "narration": "在主要配置区域,匹配道和预处理,然后配置门和对象匹配标准.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域,匹配道和预处理,然后配置门和对象匹配标准."
+          "narration": "模型A使用库存CPSAM. 车型B采用火车Cellpose的定制校准检查点. 两者均保持直径三十,流量门零点四,概率零,最小尺寸十五,正常化和全分辨率动态.",
+          "visual": "03_models",
+          "focus_key": "model_panels",
+          "hold_after": 0.55,
+          "speech_text": "模型A使用库存CPSAM. 车型B采用火车Cellpose的定制校准检查点. 两者均保持直径三十,流量门零点四,概率零,最小尺寸十五,正常化和全分辨率动态."
         },
         {
-          "narration": "在完整运行之前,请检查可见设置,并在可用的情况下使用预览或测试模式. 检查对方重叠,以及对象数量,重叠和调整的Rand指数差异.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见设置,并在可用的情况下使用预览或测试模式. 检查对方重叠,以及对象数量,重叠和调整的Rand指数差异."
+          "narration": "与两个配置的每个加载的字段进行比较. 额外的线接收了先进的关键值参数,报告标记了Cellpose 4忽略的参数,而不是默默暗示他们改变了模型.",
+          "visual": "04_compare",
+          "focus_key": "model_panels",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "与两个配置的每个加载的字段进行比较. 额外的线接收了先进的关键值参数,报告标记了Cellpose 4忽略的参数,而不是默默暗示他们改变了模型."
         },
         {
-          "narration": "工作流程完成后,比较报告确定每个模型在哪里获益,输失,分离或合并物体.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "工作流程完成后,比较报告确定每个模型在哪里获益,输失,分离或合并物体."
+          "narration": "在处理过程中,直线状态识别了候选人和字段数量. 模型比较将重点放在一个有限的互动样本上,而不是两次运行一个完整的盘子.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "在处理过程中,直线状态识别了候选人和字段数量. 模型比较将重点放在一个有限的互动样本上,而不是两次运行一个完整的盘子."
+        },
+        {
+          "narration": "达到每个模型的参数将被尊重的值与被忽视的参数分开. 这可以防止在形式上看起来不同,但以相同的Cellpose行为解决的比较.",
+          "visual": "06_parameters",
+          "focus_key": "parameters",
+          "hold_after": 0.5,
+          "speech_text": "达到每个模型的参数将被尊重的值与被忽视的参数分开. 这可以防止在形式上看起来不同,但以相同的Cellpose行为解决的比较."
+        },
+        {
+          "narration": "每个领域表报告对象数量,方向三角形,背景排斥的调整Rand指数,匹配的分数,连接的平均交叉,分割,合并,无匹配的对象和独立的面具质量检查.",
+          "visual": "07_metrics",
+          "focus_key": "metrics",
+          "hold_after": 0.55,
+          "speech_text": "每个领域表报告对象数量,方向三角形,背景排斥的调整Rand指数,匹配的分数,连接的平均交叉,分割,合并,无匹配的对象和独立的面具质量检查."
+        },
+        {
+          "narration": "选择一行更新了两个预览. 匹配的对象被一致显示,而不匹配的区域则会暴露出新的检测,错失,分裂或合并,而单个总分数可以隐藏.",
+          "visual": "08_field_one",
+          "focus_key": "previews",
+          "hold_after": 0.55,
+          "speech_text": "选择一行更新了两个预览. 匹配的对象被一致显示,而不匹配的区域则会暴露出新的检测,错失,分裂或合并,而单个总分数可以隐藏."
+        },
+        {
+          "narration": "在这三个领域,两位候选人都产生了百五十一个对象,前景 ARI 一个,和百分之百匹配. 这意味着这座曾经使用过的校准检查站在此处表现得像它的起始模型一样; 这是一个有效的结果,而不是改善的证据.",
+          "visual": "09_field_two",
+          "focus_key": "previews",
+          "hold_after": 0.7,
+          "speech_text": "在这三个领域,两位候选人都产生了百五十一个对象,前景 ARI 一个,和百分之百匹配. 这意味着这座曾经使用过的校准检查站在此处表现得像它的起始模型一样; 这是一个有效的结果,而不是改善的证据."
         }
       ]
     },

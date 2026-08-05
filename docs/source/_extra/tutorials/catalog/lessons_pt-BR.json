@@ -3097,48 +3097,82 @@
     {
       "id": "21_model_compare",
       "number": 21,
-      "slug": "model_compare",
-      "title": "Model Compare",
+      "slug": "model-compare",
+      "title": "Modelo Comparar",
       "series": 2,
       "app_key": "model_compare",
       "section": "Segmentation models",
-      "description": "Execute dois modelos Cellpose nos mesmos campos e compare as máscaras, contagens e métricas de acordo.",
+      "description": "Execute duas configurações Cellpose nos mesmos campos e compare parâmetros, contagens de objetos, ARI de primeiro plano, correspondência, divisões, fusões e visualizações de máscara.",
       "objectives": [
-        "Compreender quando utilizar o Modelo Comparar.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Carregar um pequeno conjunto de campos compartilhados e configurar dois modelos candidatos.",
+        "Confirmar quais os parâmetros solicitados realmente atingem o Cellpose 4.",
+        "Interpretar diferenças direcionais de objetos, ARI de primeiro plano, correspondência, QC e superposições."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Preparar campos representativos de microscopia e pelo menos dois modelos significativamente diferentes ou configurações de inferência.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Modelo Compare. Execute dois modelos Cellpose nos mesmos campos e compare máscaras, contagens e métricas de acordo.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Modelo Compare. Execute dois modelos Cellpose nos mesmos campos e compare máscaras, contagens e métricas de acordo."
+          "narration": "O Modelo Compare executa duas configurações Cellpose no mesmo conjunto de pequenos campos. Relata o que mudou sem tratar nenhum modelo como verdade básica, combinando contagens de objetos, acordo de primeiro plano, correspondência, fragmentação e superposições visuais.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "O Modelo Compare executa duas configurações Cellpose no mesmo conjunto de pequenos campos. Relata o que mudou sem tratar nenhum modelo como verdade básica, combinando contagens de objetos, acordo de primeiro plano, correspondência, fragmentação e superposições visuais."
         },
         {
-          "narration": "Abra Model Compare na seção Segmentation models. Abra o modelo Comparar na seção Modelos de Segmentação. Escolha dois modelos candidatos e um conjunto representativo de campos de microscopia.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Model Compare na seção Segmentation models. Abra o modelo Comparar na seção Modelos de Segmentação. Escolha dois modelos candidatos e um conjunto representativo de campos de microscopia."
+          "narration": "Deixe cair uma pasta de campos TIFF, PNG, NPY ou NPZ, ou escolha-a com os controles de fonte. O valor Fields limita uma comparação interativa; este tutorial carrega três culturas reais de células do canal ER.",
+          "visual": "02_fields_loaded",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Deixe cair uma pasta de campos TIFF, PNG, NPY ou NPZ, ou escolha-a com os controles de fonte. O valor Fields limita uma comparação interativa; este tutorial carrega três culturas reais de células do canal ER."
         },
         {
-          "narration": "Na área de configuração principal, canais de correspondência e pré-processamento, em seguida, configurar os limiares e os critérios de correspondência de objetos.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, canais de correspondência e pré-processamento, em seguida, configurar os limiares e os critérios de correspondência de objetos."
+          "narration": "O modelo A utiliza o CPSAM de estoque. O modelo B utiliza o ponto de controlo de calibração personalizado do Train Cellpose. Ambos mantêm diâmetro trinta, limiar de fluxo zero ponto quatro, probabilidade zero, tamanho mínimo quinze, normalização e dinâmica de resolução completa.",
+          "visual": "03_models",
+          "focus_key": "model_panels",
+          "hold_after": 0.55,
+          "speech_text": "O modelo A utiliza o CPSAM de estoque. O modelo B utiliza o ponto de controlo de calibração personalizado do Train Cellpose. Ambos mantêm diâmetro trinta, limiar de fluxo zero ponto quatro, probabilidade zero, tamanho mínimo quinze, normalização e dinâmica de resolução completa."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise as superposições lado a lado juntamente com as diferenças de número de objetos, sobreposição e índice de Rand ajustado.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise as superposições lado a lado juntamente com as diferenças de número de objetos, sobreposição e índice de Rand ajustado."
+          "narration": "Compare segmentos de cada campo carregado com ambas as configurações. A linha extra aceita argumentos avançados de valor de chave, e o relatório marca os parâmetros que o Cellpose 4 ignora em vez de implicar silenciosamente que eles mudaram o modelo.",
+          "visual": "04_compare",
+          "focus_key": "model_panels",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "Compare segmentos de cada campo carregado com ambas as configurações. A linha extra aceita argumentos avançados de valor de chave, e o relatório marca os parâmetros que o Cellpose 4 ignora em vez de implicar silenciosamente que eles mudaram o modelo."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, o relatório de comparação identifica onde cada modelo ganha, perde, divide ou combina objetos.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, o relatório de comparação identifica onde cada modelo ganha, perde, divide ou combina objetos."
+          "narration": "Durante o processamento, o status inline identifica os candidatos e o número de campos. O Modelo Compare permanece focado em uma amostra interativa limitada em vez de executar uma placa completa duas vezes.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Durante o processamento, o status inline identifica os candidatos e o número de campos. O Modelo Compare permanece focado em uma amostra interativa limitada em vez de executar uma placa completa duas vezes."
+        },
+        {
+          "narration": "Os parâmetros que alcançaram cada modelo separam os valores honrados dos argumentos obsoletos ou ignorados. Isto evita comparações que parecem diferentes na forma, mas resolvem-se para o mesmo comportamento Cellpose.",
+          "visual": "06_parameters",
+          "focus_key": "parameters",
+          "hold_after": 0.5,
+          "speech_text": "Os parâmetros que alcançaram cada modelo separam os valores honrados dos argumentos obsoletos ou ignorados. Isto evita comparações que parecem diferentes na forma, mas resolvem-se para o mesmo comportamento Cellpose."
+        },
+        {
+          "narration": "A tabela por campo relata contagens de objetos, delta direcional, índice Rand ajustado excluído de fundo, fração correspondente, intersecção média sobre união, divisões, fusões, objetos incomparáveis e verificações independentes de qualidade de máscara.",
+          "visual": "07_metrics",
+          "focus_key": "metrics",
+          "hold_after": 0.55,
+          "speech_text": "A tabela por campo relata contagens de objetos, delta direcional, índice Rand ajustado excluído de fundo, fração correspondente, intersecção média sobre união, divisões, fusões, objetos incomparáveis e verificações independentes de qualidade de máscara."
+        },
+        {
+          "narration": "A seleção de uma linha atualiza as duas visualizações. Objetos iguais são mostrados de forma consistente, enquanto regiões incomparáveis expõem novas detecções, perdas, divisões ou fusões que uma única pontuação agregada pode esconder.",
+          "visual": "08_field_one",
+          "focus_key": "previews",
+          "hold_after": 0.55,
+          "speech_text": "A seleção de uma linha atualiza as duas visualizações. Objetos iguais são mostrados de forma consistente, enquanto regiões incomparáveis expõem novas detecções, perdas, divisões ou fusões que uma única pontuação agregada pode esconder."
+        },
+        {
+          "narration": "Nestes três campos, ambos os candidatos produziram cem e cinquenta e um objetos, primeiro plano ARI um, e um acoplamento de cem por cento. Isto significa que o ponto de controlo de calibração de uma época se comporta como o seu modelo de partida aqui; é um resultado válido, não uma evidência de melhoria.",
+          "visual": "09_field_two",
+          "focus_key": "previews",
+          "hold_after": 0.7,
+          "speech_text": "Nestes três campos, ambos os candidatos produziram cem e cinquenta e um objetos, primeiro plano ARI um, e um acoplamento de cem por cento. Isto significa que o ponto de controlo de calibração de uma época se comporta como o seu modelo de partida aqui; é um resultado válido, não uma evidência de melhoria."
         }
       ]
     },

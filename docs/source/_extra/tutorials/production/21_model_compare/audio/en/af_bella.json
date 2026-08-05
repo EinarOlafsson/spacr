@@ -4,47 +4,97 @@
   "voice": "af_bella",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 52.05,
+  "total_duration": 140.475,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.25,
-      "scene_end": 9.7,
-      "duration": 9.7,
-      "text": "This tutorial covers Model Compare. Run two Cellpose models on the same fields and compare masks, counts, and agreement metrics."
+      "speech_end": 16.15,
+      "scene_end": 16.65,
+      "duration": 16.65,
+      "text": "Model Compare runs two Cellpose configurations on the same small field set. It reports what changed without treating either model as ground truth, combining object counts, foreground agreement, matching, fragmentation, and visual overlays.",
+      "speech_text": "Model Compare runs two Cellpose configurations on the same small field set. It reports what changed without treating either model as ground truth, combining object counts, foreground agreement, matching, fragmentation, and visual overlays.",
+      "phonemes": "mˈɑdᵊl kəmpˈɛɹ ɹˈʌnz tˈu sˈɛlpOz kənfˌɪɡjəɹˈAʃənz ˌɔn ðə sˈAm smˈɔl fˈild sˈɛt. ˌɪt ɹəpˈɔɹts wˌʌt ʧˈAnʤd wɪðˈWt tɹˈiTɪŋ ˈiðəɹ mˈɑdᵊl æz ɡɹˈWnd tɹˈuθ, kəmbˈInɪŋ ˈɑbʤəkt kˈWnts, fˈɔɹɡɹˌWnd əɡɹˈimᵊnt, mˈæʧɪŋ, fɹˌæɡməntˈAʃən, ænd vˈɪʒəwəl ˈOvəɹlˌAz."
     },
     {
       "scene": 2,
-      "speech_start": 9.7,
-      "speech_end": 18.799999999999997,
-      "scene_end": 19.249999999999996,
-      "duration": 9.549999999999997,
-      "text": "Open Model Compare from the Segmentation models section. Choose two candidate models and a representative set of microscopy fields."
+      "speech_start": 16.65,
+      "speech_end": 31.349999999999998,
+      "scene_end": 31.849999999999998,
+      "duration": 15.2,
+      "text": "Drop a folder of TIFF, PNG, NPY, or NPZ fields, or choose it with the source controls. The Fields value limits an interactive comparison; this tutorial loads three real ER-channel cell crops.",
+      "speech_text": "Drop a folder of TIFF, PNG, NPY, or NPZ fields, or choose it with the source controls. The Fields value limits an interactive comparison; this tutorial loads three real ER-channel cell crops.",
+      "phonemes": "dɹˈɑp ɐ fˈOldəɹ ʌv tˈɪf, pˌiˌɛnʤˈi, ˌɛnpˌiwˈI, ɔɹ ˌɛnpˌizˈi fˈildz, ɔɹ ʧˈuz ɪt wɪð ðə sˈɔɹs kəntɹˈOlz. ðə fˈildz vˈælju lˈɪməts ɐn ˌɪntəɹˈæktɪv kəmpˈɛɹəsᵊn; ðɪs tutˈɔɹiəl lˈOdz θɹˈi ɹˈiᵊl iˌɑɹʧˈænᵊl sˈɛl kɹˈɑps."
     },
     {
       "scene": 3,
-      "speech_start": 19.249999999999996,
-      "speech_end": 27.874999999999996,
-      "scene_end": 28.324999999999996,
-      "duration": 9.075,
-      "text": "In the main configuration area, match channels and preprocessing, then configure thresholds and the object-matching criteria."
+      "speech_start": 31.849999999999998,
+      "speech_end": 50.0,
+      "scene_end": 50.55,
+      "duration": 18.7,
+      "text": "Model A uses stock CPSAM. Model B uses the custom calibration checkpoint from Train Cellpose. Both retain diameter thirty, flow threshold zero point four, probability zero, minimum size fifteen, normalization, and full-resolution dynamics.",
+      "speech_text": "Model A uses stock CPSAM. Model B uses the custom calibration checkpoint from Train Cellpose. Both retain diameter thirty, flow threshold zero point four, probability zero, minimum size fifteen, normalization, and full-resolution dynamics.",
+      "phonemes": "mˈɑdᵊl ˈA jˈuzᵻz stˈɑk sˌipˌiˌɛsˌAˈɛm. mˈɑdᵊl bˈi jˈuzᵻz ðə kˈʌstəm kˌæləbɹˈAʃən ʧˈɛkpˌYnt fɹʌm tɹˈAn sˈɛlpOz. bˈOθ ɹətˈAn dIˈæməTəɹ θˈɜɹTi, flˈO θɹˈɛʃhˌOld zˈɪɹO pˈYnt fˈɔɹ, pɹˌɑbəbˈɪləTi zˈɪɹO, mˈɪnəməm sˈIz fˌɪftˈin, nˌɔɹmələzˈAʃən, ænd fˌʊlɹˌɛzəlˈuʃən dInˈæmɪks."
     },
     {
       "scene": 4,
-      "speech_start": 28.324999999999996,
-      "speech_end": 42.375,
-      "scene_end": 42.825,
-      "duration": 14.500000000000007,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. review side-by-side overlays together with object-count, overlap, and adjusted-Rand-index differences."
+      "speech_start": 50.55,
+      "speech_end": 65.325,
+      "scene_end": 65.825,
+      "duration": 15.275000000000006,
+      "text": "Compare segments every loaded field with both configurations. The extra line accepts advanced key-value arguments, and the report marks parameters Cellpose 4 ignores rather than silently implying they changed the model.",
+      "speech_text": "Compare segments every loaded field with both configurations. The extra line accepts advanced key-value arguments, and the report marks parameters Cellpose 4 ignores rather than silently implying they changed the model.",
+      "phonemes": "kəmpˈɛɹ sˈɛɡmᵊnts ˈɛvəɹi lˈOdᵻd fˈild wɪð bˈOθ kənfˌɪɡjəɹˈAʃənz. ði ˈɛkstɹə lˈIn əksˈɛpts ədvˈænst kˌivˈælju ˈɑɹɡjəmənts, ænd ðə ɹəpˈɔɹt mˈɑɹks pəɹˈæməTəɹz sˈɛlpOz fˈɔɹ ɪɡnˈɔɹz ɹˈæðəɹ ðən sˈIləntli ɪmplˈIɪŋ ðA ʧˈAnʤd ðə mˈɑdᵊl."
     },
     {
       "scene": 5,
-      "speech_start": 42.825,
-      "speech_end": 51.400000000000006,
-      "scene_end": 52.050000000000004,
-      "duration": 9.225000000000001,
-      "text": "When the workflow finishes, the comparison report identifies where each model gains, loses, splits, or merges objects."
+      "speech_start": 65.825,
+      "speech_end": 78.675,
+      "scene_end": 79.125,
+      "duration": 13.299999999999997,
+      "text": "During processing, the inline status identifies both candidates and the number of fields. Model Compare stays focused on a bounded interactive sample rather than running a full plate twice.",
+      "speech_text": "During processing, the inline status identifies both candidates and the number of fields. Model Compare stays focused on a bounded interactive sample rather than running a full plate twice.",
+      "phonemes": "dˈʊɹɪŋ pɹˈɑsɛsɪŋ, ði ˈɪnlIn stˈATəs IdˈɛntəfˌIz bˈOθ kˈændədˌAts ænd ðə nˈʌmbəɹ ʌv fˈildz. mˈɑdᵊl kəmpˈɛɹ stˈAz fˈOkəst ˌɔn ɐ bˈWndᵻd ˌɪntəɹˈæktɪv sˈæmpᵊl ɹˈæðəɹ ðən ɹˈʌnɪŋ ɐ fˈʊl plˈAt twˈIs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 79.125,
+      "speech_end": 91.925,
+      "scene_end": 92.425,
+      "duration": 13.299999999999997,
+      "text": "Parameters that reached each model separates honored values from deprecated or ignored arguments. This prevents comparisons that look different in the form but resolve to the same Cellpose behavior.",
+      "speech_text": "Parameters that reached each model separates honored values from deprecated or ignored arguments. This prevents comparisons that look different in the form but resolve to the same Cellpose behavior.",
+      "phonemes": "pəɹˈæməTəɹz ðæt ɹˈiʧt ˈiʧ mˈɑdᵊl sˈɛpəɹəts ˈɑnəɹd vˈæljuz fɹʌm dˈɛpɹəkˌATᵻd ɔɹ ɪɡnˈɔɹd ˈɑɹɡjəmənts. ðˌɪs pɹivˈɛnts kəmpˈɛɹəsᵊnz ðæt lˈʊk dˈɪfəɹənt ɪn ðə fˈɔɹm bˌʌt ɹəzˈɔlv tə ðə sˈAm sˈɛlpOz bəhˈAvjəɹ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 92.425,
+      "speech_end": 107.45,
+      "scene_end": 108.0,
+      "duration": 15.575000000000003,
+      "text": "The per-field table reports object counts, directional delta, background-excluded adjusted Rand index, matched fraction, mean intersection over union, splits, merges, unmatched objects, and independent mask-quality checks.",
+      "speech_text": "The per-field table reports object counts, directional delta, background-excluded adjusted Rand index, matched fraction, mean intersection over union, splits, merges, unmatched objects, and independent mask-quality checks.",
+      "phonemes": "ðə pɜɹfˈild tˈAbᵊl ɹəpˈɔɹts əbʤˈɛkt kˈWnts, dəɹˈɛkʃᵊnəl dˈɛltə, bˈækɡɹˌWndɪksklˌudᵻd əʤˈʌstᵻd ɹˈænd ˈɪndˌɛks, mˈæʧt fɹˈækʃən, mˈin ˌɪntəɹsˈɛkʃən ˈOvəɹ jˈunjən, splˈɪts, mˈɜɹʤᵻz, ˌʌnmˈæʧt ˈɑbʤəkts, ænd ˌɪndəpˈɛndənt mˌæskkwˈɑləTi ʧˈɛks."
+    },
+    {
+      "scene": 8,
+      "speech_start": 108.0,
+      "speech_end": 121.4,
+      "scene_end": 121.95,
+      "duration": 13.950000000000003,
+      "text": "Selecting a row updates both previews. Matched objects are shown consistently, while unmatched regions expose new detections, misses, splits, or merges that a single aggregate score can hide.",
+      "speech_text": "Selecting a row updates both previews. Matched objects are shown consistently, while unmatched regions expose new detections, misses, splits, or merges that a single aggregate score can hide.",
+      "phonemes": "sᵻlˈɛktɪŋ ɐ ɹˈO ˈʌpdˌAts bˈOθ pɹˈivjˌuz. mˈæʧt ˈɑbʤəkts ɑɹ ʃˈOn kənsˈɪstəntli, wˌIl ˌʌnmˈæʧt ɹˈiʤᵊnz ɪkspˈOz nˈu dətˈɛkʃənz, mˈɪsɪz, splˈɪts, ɔɹ mˈɜɹʤᵻz ðæt ɐ sˈɪŋɡᵊl ˈæɡɹəɡət skˈɔɹ kæn hˈId."
+    },
+    {
+      "scene": 9,
+      "speech_start": 121.95,
+      "speech_end": 139.775,
+      "scene_end": 140.475,
+      "duration": 18.52499999999999,
+      "text": "Across these three fields, both candidates produced one hundred fifty-one objects, foreground ARI one, and one hundred percent matching. That means the one-epoch calibration checkpoint behaves like its starting model here; it is a valid result, not evidence of improvement.",
+      "speech_text": "Across these three fields, both candidates produced one hundred fifty-one objects, foreground ARI one, and one hundred percent matching. That means the one-epoch calibration checkpoint behaves like its starting model here; it is a valid result, not evidence of improvement.",
+      "phonemes": "əkɹˈɔs ðiz θɹˈi fˈildz, bˈOθ kˈændədˌAts pɹədˈust wˈʌn hˈʌndɹəd fˈɪftiwˌʌn ˈɑbʤəkts, fˈɔɹɡɹˌWnd ˌAˌɑɹˈI wˈʌn, ænd wˈʌn hˈʌndɹəd pəɹsˈɛnt mˈæʧɪŋ. ðˈæt mˈinz ðə wˌʌnˈɛpək kˌæləbɹˈAʃən ʧˈɛkpˌYnt bəhˈAvz lˈIk ɪts stˈɑɹTɪŋ mˈɑdᵊl hˈɪɹ; ɪt ɪz ɐ vˈælɪd ɹəzˈʌlt, nˌɑt ˈɛvədᵊns ʌv ɪmpɹˈuvmənt."
     }
   ]
 }

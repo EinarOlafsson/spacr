@@ -3097,48 +3097,82 @@
     {
       "id": "21_model_compare",
       "number": 21,
-      "slug": "model_compare",
-      "title": "Model Compare",
+      "slug": "model-compare",
+      "title": "Modèle Comparer",
       "series": 2,
       "app_key": "model_compare",
       "section": "Segmentation models",
-      "description": "Exécutez deux modèles Cellpose sur les mêmes champs et comparez les masques, les chiffres et les mesures d'accord.",
+      "description": "Exécutez deux configurations Cellpose sur les mêmes champs et comparez les paramètres, le nombre d'objets, l'ARI en premier plan, le parallèle, les fractions, les fusions et les prévisualisations de masques.",
       "objectives": [
-        "Comprendre quand utiliser le modèle comparer.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Charger un petit ensemble de champs partagés et configurer deux modèles candidats.",
+        "Confirmez quels paramètres demandés atteignent effectivement Cellpose 4.",
+        "Interpréter les différences de direction des objets, ARI de premier plan, correspondance, QC et superpositions."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Préparer des champs de microscopie représentatifs et au moins deux modèles significativement différents ou des configurations d'inférence.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre le modèle Comparer. Exécutez deux modèles Cellpose sur les mêmes champs et comparez les masques, les nombres et les mesures d'accord.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre le modèle Comparer. Exécutez deux modèles Cellpose sur les mêmes champs et comparez les masques, les nombres et les mesures d'accord."
+          "narration": "Le modèle Compare exécute deux configurations Cellpose sur le même petit ensemble de champs. Il rapporte ce qui a changé sans traiter l'un ou l'autre modèle comme une vérité fondamentale, combinant le nombre d'objets, l'accord de premier plan, la correspondance, la fragmentation et les superpositions visuelles.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "Le modèle Compare exécute deux configurations Cellpose sur le même petit ensemble de champs. Il rapporte ce qui a changé sans traiter l'un ou l'autre modèle comme une vérité fondamentale, combinant le nombre d'objets, l'accord de premier plan, la correspondance, la fragmentation et les superpositions visuelles."
         },
         {
-          "narration": "Ouvrez Model Compare dans la section Segmentation models. Choisissez deux modèles candidats et un ensemble représentatif de champs de microscopie.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Model Compare dans la section Segmentation models. Choisissez deux modèles candidats et un ensemble représentatif de champs de microscopie."
+          "narration": "Laissez tomber un dossier de champs TIFF, PNG, NPY ou NPZ, ou choisissez-le avec les commandes source. La valeur Fields limite une comparaison interactive; ce tutoriel charge trois réelles cultures de cellules ER-channel.",
+          "visual": "02_fields_loaded",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Laissez tomber un dossier de champs TIFF, PNG, NPY ou NPZ, ou choisissez-le avec les commandes source. La valeur Fields limite une comparaison interactive; ce tutoriel charge trois réelles cultures de cellules ER-channel."
         },
         {
-          "narration": "Dans la zone de configuration principale, les canaux et le prétraitement correspondent, puis les seuils et les critères de correspondance des objets sont configurés.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, les canaux et le prétraitement correspondent, puis les seuils et les critères de correspondance des objets sont configurés."
+          "narration": "Le modèle A utilise le CPSAM de stock. Le modèle B utilise le point de contrôle d'étalonnage personnalisé du train Cellpose. Les deux conservent un diamètre de trente, un seuil de débit de zéro point quatre, une probabilité de zéro, une taille minimale de quinze, une normalisation et une dynamique de résolution complète.",
+          "visual": "03_models",
+          "focus_key": "model_panels",
+          "hold_after": 0.55,
+          "speech_text": "Le modèle A utilise le CPSAM de stock. Le modèle B utilise le point de contrôle d'étalonnage personnalisé du train Cellpose. Les deux conservent un diamètre de trente, un seuil de débit de zéro point quatre, une probabilité de zéro, une taille minimale de quinze, une normalisation et une dynamique de résolution complète."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "narration": "Comparez les segments de chaque champ chargé avec les deux configurations. La ligne supplémentaire accepte les arguments avancés de valeur de clé, et le rapport marque les paramètres que Cellpose 4 ignore plutôt que d'impliquer silencieusement qu'ils ont changé le modèle.",
+          "visual": "04_compare",
+          "focus_key": "model_panels",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "Comparez les segments de chaque champ chargé avec les deux configurations. La ligne supplémentaire accepte les arguments avancés de valeur de clé, et le rapport marque les paramètres que Cellpose 4 ignore plutôt que d'impliquer silencieusement qu'ils ont changé le modèle."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, le rapport de comparaison identifie où chaque modèle gagne, perd, divise ou fusionne des objets.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, le rapport de comparaison identifie où chaque modèle gagne, perd, divise ou fusionne des objets."
+          "narration": "Lors du traitement, le statut en ligne identifie à la fois les candidats et le nombre de champs. Le modèle Compare reste concentré sur un échantillon interactif délimité plutôt que d'exécuter une plaque complète deux fois.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Lors du traitement, le statut en ligne identifie à la fois les candidats et le nombre de champs. Le modèle Compare reste concentré sur un échantillon interactif délimité plutôt que d'exécuter une plaque complète deux fois."
+        },
+        {
+          "narration": "Les paramètres qui ont atteint chaque modèle séparent les valeurs honorées des arguments dépassés ou ignorés. Cela empêche les comparaisons qui ont une apparence différente mais résolvent le même comportement Cellpose.",
+          "visual": "06_parameters",
+          "focus_key": "parameters",
+          "hold_after": 0.5,
+          "speech_text": "Les paramètres qui ont atteint chaque modèle séparent les valeurs honorées des arguments dépassés ou ignorés. Cela empêche les comparaisons qui ont une apparence différente mais résolvent le même comportement Cellpose."
+        },
+        {
+          "narration": "La table par champ rapporte le nombre d'objets, le delta directionnel, l'indice Rand ajusté exclusif de fond, la fraction correspondante, l'intersection moyenne sur l'union, les fractions, les fusions, les objets inégalés et les contrôles indépendants de la qualité du masque.",
+          "visual": "07_metrics",
+          "focus_key": "metrics",
+          "hold_after": 0.55,
+          "speech_text": "La table par champ rapporte le nombre d'objets, le delta directionnel, l'indice Rand ajusté exclusif de fond, la fraction correspondante, l'intersection moyenne sur l'union, les fractions, les fusions, les objets inégalés et les contrôles indépendants de la qualité du masque."
+        },
+        {
+          "narration": "La sélection d'une rangée met à jour les deux prévisualisations. Les objets correspondants sont affichés de manière cohérente, tandis que les régions inégalées exposent de nouvelles détections, manques, fractions ou fusions qu'un seul score agrégé peut cacher.",
+          "visual": "08_field_one",
+          "focus_key": "previews",
+          "hold_after": 0.55,
+          "speech_text": "La sélection d'une rangée met à jour les deux prévisualisations. Les objets correspondants sont affichés de manière cohérente, tandis que les régions inégalées exposent de nouvelles détections, manques, fractions ou fusions qu'un seul score agrégé peut cacher."
+        },
+        {
+          "narration": "Dans ces trois domaines, les deux candidats ont produit cent cinquante-un objets, ARI premier plan un, et cent pour cent de correspondance. Cela signifie que le point de contrôle d'étalonnage d'une époque se comporte comme son modèle de départ ici; c'est un résultat valable, pas une preuve d'amélioration.",
+          "visual": "09_field_two",
+          "focus_key": "previews",
+          "hold_after": 0.7,
+          "speech_text": "Dans ces trois domaines, les deux candidats ont produit cent cinquante-un objets, ARI premier plan un, et cent pour cent de correspondance. Cela signifie que le point de contrôle d'étalonnage d'une époque se comporte comme son modèle de départ ici; c'est un résultat valable, pas une preuve d'amélioration."
         }
       ]
     },

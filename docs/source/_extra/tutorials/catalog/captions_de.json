@@ -1199,19 +1199,31 @@
       "id": "21_model_compare",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Modellvergleich. Führen Sie zwei Cellpose-Modelle auf den gleichen Feldern aus und vergleichen Sie Masken, Zahlen und Übereinstimmungsmetriken."
+          "narration": "Modell Vergleichen läuft zwei Cellpose-Konfigurationen auf demselben kleinen Feldsatz. Es berichtet, was sich verändert hat, ohne eines der Modelle als Grundwahrheit zu behandeln, indem es Objektszahlen, Vordergrundvereinbarung, Übereinstimmung, Fragmentierung und visuelle Überlagerungen kombiniert."
         },
         {
-          "narration": "Öffnen Sie das Modell Vergleichen aus dem Abschnitt Segmentierung Modelle. Wählen Sie zwei Kandidatenmodelle und eine repräsentative Reihe von Mikroskopiefeldern aus."
+          "narration": "Lassen Sie einen Ordner mit TIFF-, PNG-, NPY- oder NPZ-Feldern fallen oder wählen Sie ihn mit den Quellsteuerungen aus. Der Fields-Wert beschränkt einen interaktiven Vergleich; in diesem Tutorial werden drei echte ER-Kanal-Zellpflanzen geladen."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich passen die Kanäle und die Vorverarbeitung zusammen, dann konfigurieren Sie die Schwellenwerte und die Kriterien für die Übereinstimmung von Objekten."
+          "narration": "Das Modell A verwendet den Bestand CPSAM. Modell B verwendet den maßgeschneiderten Kalibrierungskontrollpunkt von Train Cellpose. Beide behalten einen Durchmesser von dreißig, eine Durchflussschwelle von null Punkt vier, eine Wahrscheinlichkeit von null, eine Mindestgröße von fünfzehn, eine Normalisierung und eine Dynamik mit voller Auflösung."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfung von Seite-zu-Seite-Überlagerungen zusammen mit Gegenstandszahl-, Überlagerungs- und angepassten Rand-Indexunterschieden."
+          "narration": "Vergleichen Sie Segmente jedes geladenen Feldes mit beiden Konfigurationen. Die zusätzliche Linie akzeptiert fortgeschrittene Schlüsselwertargumente, und der Bericht markiert Parameter, die Cellpose 4 ignoriert, anstatt schweigend darauf hinzuweisen, dass sie das Modell geändert haben."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, zeigt der Vergleichsbericht an, wo jedes Modell Objekte gewinnt, verliert, spaltet oder verschmelzt."
+          "narration": "Während der Verarbeitung wird der Inline-Status sowohl die Bewerber als auch die Anzahl der Felder identifizieren. Modellvergleich konzentriert sich auf eine begrenzte interaktive Probe, anstatt eine volle Platte zweimal zu laufen."
+        },
+        {
+          "narration": "Parameter, die jedes Modell erreichten, trennen ehrwürdige Werte von veralteten oder ignorierten Argumenten. Dies verhindert Vergleiche, die in Form unterschiedlich aussehen, aber sich auf das gleiche Cellpose-Verhalten beziehen."
+        },
+        {
+          "narration": "Die pro Feld-Tabelle berichtet von Objektzahlen, Richtdelta, Rand-Index aus dem Hintergrund ausgeschlossen, abgestimmter Bruchteil, Durchschnittskreuzung über die Union, Splits, Fusionen, unvergleichliche Objekte und unabhängige Maskenqualitätsprüfungen."
+        },
+        {
+          "narration": "Die Auswahl einer Zeile aktualisiert beide Vorschau. Vergleichbare Objekte werden konsequent gezeigt, während unvergleichliche Regionen neue Erkenntnisse, Verfehlungen, Splits oder Zusammenschlüsse aufdecken, die eine einzelne Aggregatscore verbergen kann."
+        },
+        {
+          "narration": "In diesen drei Feldern produzierten beide Kandidaten hundertfünfzig und eins Objekte, eine ARI im Vordergrund und hundertprozentige Übereinstimmung. Das bedeutet, daß sich der einjährige Kalibrierungskontrollpunkt hier wie sein Ausgangsmodell verhält; es ist ein gültiges Ergebnis, kein Hinweis auf Verbesserungen."
         }
       ]
     },

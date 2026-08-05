@@ -4,47 +4,97 @@
   "voice": "pm_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 55.525,
+  "total_duration": 136.875,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.575,
-      "scene_end": 9.024999999999999,
-      "duration": 9.024999999999999,
-      "text": "Este tutorial abrange o Modelo Compare. Execute dois modelos Cellpose nos mesmos campos e compare máscaras, contagens e métricas de acordo."
+      "speech_end": 15.875,
+      "scene_end": 16.375,
+      "duration": 16.375,
+      "text": "O Modelo Compare executa duas configurações Cellpose no mesmo conjunto de pequenos campos. Relata o que mudou sem tratar nenhum modelo como verdade básica, combinando contagens de objetos, acordo de primeiro plano, correspondência, fragmentação e superposições visuais.",
+      "speech_text": "O Modelo Compare executa duas configurações Cellpose no mesmo conjunto de pequenos campos. Relata o que mudou sem tratar nenhum modelo como verdade básica, combinando contagens de objetos, acordo de primeiro plano, correspondência, fragmentação e superposições visuais.",
+      "phonemes": "ʊ mˌodˈelʊ kˌompˈaɾi ˌezekˈutæ dˈuæs kˌoŋfiɡˌuɾasˈõjs sˌɛlpˈɔzy nʊ mˈezmʊ kˌoŋʒˈũŋtʊ ʤy pˌekˈenʊs kˈɐ̃mpʊs. xˌelˈatæ ʊ ky mudˈow sˈAŋ tratˈar neɲˈũŋ mˌodˈelʊ kˌomʊ vˌeɾədˈaʤy bˈazikæ, kˌombinˈɐ̃ŋdʊ kˌoŋtˈaʒAŋz ʤj ˌobʒˈɛtʊs, ˌakˈoɾədʊ ʤy prˌimˈAɾʊ plˈɐ̃nʊ, kˌoxespoŋdˈAŋsjæ, frˌaɡmAŋtasˈɐ̃ʊ̃ i sˌupeɾəpˌozisˈõjz vˌizuˈIs."
     },
     {
       "scene": 2,
-      "speech_start": 9.024999999999999,
-      "speech_end": 20.924999999999997,
-      "scene_end": 21.374999999999996,
-      "duration": 12.349999999999998,
-      "text": "Abra Model Compare na seção Segmentation models. Abra o modelo Comparar na seção Modelos de Segmentação. Escolha dois modelos candidatos e um conjunto representativo de campos de microscopia."
+      "speech_start": 16.375,
+      "speech_end": 29.15,
+      "scene_end": 29.65,
+      "duration": 13.274999999999999,
+      "text": "Deixe cair uma pasta de campos TIFF, PNG, NPY ou NPZ, ou escolha-a com os controles de fonte. O valor Fields limita uma comparação interativa; este tutorial carrega três culturas reais de células do canal ER.",
+      "speech_text": "Deixe cair uma pasta de campos TIFF, PNG, NPY ou NPZ, ou escolha-a com os controles de fonte. O valor Fields limita uma comparação interativa; este tutorial carrega três culturas reais de células do canal ER.",
+      "phonemes": "dˈAʃy kaˈiɾ ˌumæ pˈastæ ʤy kˈɐ̃mpʊs ʧˈif, pˌeˌeneʒˈe, npi ow ˌenepˌezˈe, ow ˌeskˈoljæa koŋ ʊs kˌoŋtrˈolyz ʤy fˈoŋʧy. ʊ valˈor fiˈɛʊdz lˌimˈitæ ˌumæ kˌompaɾasˈɐ̃ʊ̃ ˌiŋteɾaʧˈivæ; ˌesʧy tˌutoɾiˈW kˌaxˈɛɡæ trˈes kˌuwtˈuɾæz xeˈIz ʤy sˈɛlulæz dʊ kɐ̃nˈW ˌɛˈɛxe."
     },
     {
       "scene": 3,
-      "speech_start": 21.374999999999996,
-      "speech_end": 30.974999999999994,
-      "scene_end": 31.424999999999994,
-      "duration": 10.049999999999997,
-      "text": "Na área de configuração principal, canais de correspondência e pré-processamento, em seguida, configurar os limiares e os critérios de correspondência de objetos."
+      "speech_start": 29.65,
+      "speech_end": 45.849999999999994,
+      "scene_end": 46.39999999999999,
+      "duration": 16.749999999999993,
+      "text": "O modelo A utiliza o CPSAM de estoque. O modelo B utiliza o ponto de controlo de calibração personalizado do Train Cellpose. Ambos mantêm diâmetro trinta, limiar de fluxo zero ponto quatro, probabilidade zero, tamanho mínimo quinze, normalização e dinâmica de resolução completa.",
+      "speech_text": "O modelo A utiliza o CPSAM de estoque. O modelo B utiliza o ponto de controlo de calibração personalizado do Train Cellpose. Ambos mantêm diâmetro trinta, limiar de fluxo zero ponto quatro, probabilidade zero, tamanho mínimo quinze, normalização e dinâmica de resolução completa.",
+      "phonemes": "ʊ mˌodˈelw a ˌuʧilˈizæ ʊ kpsˈɐ̃ʊ̃ ʤj ˌestˈɔky. ʊ mˌodˈelʊ bˈe ˌuʧilˈizæ ʊ pˈoŋtʊ ʤy kˌoŋtrˈolʊ ʤy kˌalibrasˈɐ̃ʊ̃ pˌeɾəsonˌalizˈadʊ dʊ traˈin sˌɛlpˈɔzy. ˈɐ̃mbʊz mɐ̃ŋtˈAŋ ʤjˈɐ̃metrʊ trˈiŋtæ, lˌimiˈar ʤy flˈuksʊ zˈɛɾʊ pˈoŋtʊ kwˈatrʊ, prˌobabˌilidˈaʤy zˈɛɾʊ, tˌæmˈɐ̃ɲʊ mˈinimʊ kˈiŋzy, nˌoɾəmalˌizasˈɐ̃ʊ̃ i ʤˌinˈɐ̃mikæ ʤy xˌezolusˈɐ̃ʊ̃ kˌomplˈɛtæ."
     },
     {
       "scene": 4,
-      "speech_start": 31.424999999999994,
-      "speech_end": 46.55,
-      "scene_end": 47.0,
-      "duration": 15.575000000000006,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. revise as superposições lado a lado juntamente com as diferenças de número de objetos, sobreposição e índice de Rand ajustado."
+      "speech_start": 46.39999999999999,
+      "speech_end": 61.19999999999999,
+      "scene_end": 61.69999999999999,
+      "duration": 15.299999999999997,
+      "text": "Compare segmentos de cada campo carregado com ambas as configurações. A linha extra aceita argumentos avançados de valor de chave, e o relatório marca os parâmetros que o Cellpose 4 ignora em vez de implicar silenciosamente que eles mudaram o modelo.",
+      "speech_text": "Compare segmentos de cada campo carregado com ambas as configurações. A linha extra aceita argumentos avançados de valor de chave, e o relatório marca os parâmetros que o Cellpose 4 ignora em vez de implicar silenciosamente que eles mudaram o modelo.",
+      "phonemes": "kˌompˈaɾy sˌeɡmˈAŋtʊz ʤy kˈadæ kˈɐ̃mpʊ kˌaxeɡˈadʊ koŋ ˈɐ̃mbæz as kˌoŋfiɡˌuɾasˈõjs. a lˈiɲæ ˈestræ ˌasˈAtæ ˌaɾəɡumˈAŋtʊz ˌavɐ̃ŋsˈadʊz ʤy valˈor ʤy ʃˈavy, i ʊ xˌelatˈɔɾjʊ mˈaɾəkæ ʊs pˌaɾˈɐ̃metrʊs ky ʊ sˌɛlpˈɔzy kwˈatrw ˌiɡnˈɔɾæ ˈAŋ vˈez ʤj ˌimplikˈar sˌilAŋsˌiozæmˈAŋʧy ky ˌelyz mˌudˈaɾɐ̃ʊ̃ ʊ mˌodˈelʊ."
     },
     {
       "scene": 5,
-      "speech_start": 47.0,
-      "speech_end": 54.875,
-      "scene_end": 55.525,
-      "duration": 8.524999999999999,
-      "text": "Quando o fluxo de trabalho termina, o relatório de comparação identifica onde cada modelo ganha, perde, divide ou combina objetos."
+      "speech_start": 61.69999999999999,
+      "speech_end": 74.44999999999999,
+      "scene_end": 74.89999999999999,
+      "duration": 13.200000000000003,
+      "text": "Durante o processamento, o status inline identifica os candidatos e o número de campos. O Modelo Compare permanece focado em uma amostra interativa limitada em vez de executar uma placa completa duas vezes.",
+      "speech_text": "Durante o processamento, o status inline identifica os candidatos e o número de campos. O Modelo Compare permanece focado em uma amostra interativa limitada em vez de executar uma placa completa duas vezes.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj ʊ prˌosesæmˈAŋtʊ, ʊ stˈatʊz ˌiŋlˈinj ˌidAŋʧifˈikæ ʊs kˌɐ̃ŋʤidˈatʊz i ʊ nˈũmeɾʊ ʤy kˈɐ̃mpʊs. ʊ mˌodˈelʊ kˌompˈaɾy pˌeɾəmænˈɛsy fˌokˈadw ˈAŋ ˌumæ ˌæmˈɔstræ ˌiŋteɾaʧˈivæ lˌimitˈadæ ˈAŋ vˈez ʤj ˌezekutˈaɾ ˌumæ plˈakæ kˌomplˈɛtæ dˈuæz vˈezys."
+    },
+    {
+      "scene": 6,
+      "speech_start": 74.89999999999999,
+      "speech_end": 87.975,
+      "scene_end": 88.475,
+      "duration": 13.575000000000003,
+      "text": "Os parâmetros que alcançaram cada modelo separam os valores honrados dos argumentos obsoletos ou ignorados. Isto evita comparações que parecem diferentes na forma, mas resolvem-se para o mesmo comportamento Cellpose.",
+      "speech_text": "Os parâmetros que alcançaram cada modelo separam os valores honrados dos argumentos obsoletos ou ignorados. Isto evita comparações que parecem diferentes na forma, mas resolvem-se para o mesmo comportamento Cellpose.",
+      "phonemes": "ʊs pˌaɾˈɐ̃metrʊs ky ˌWkɐ̃ŋsˈaɾɐ̃ʊ̃ kˈadæ mˌodˈelʊ sˌepˈaɾɐ̃ʊ̃ ʊz vˌalˈoɾys ˌoŋxˈadʊz dʊz ˌaɾəɡumˈAŋtʊz ˌobsolˈetʊz ow ˌiɡnoɾˈadʊs. ˈistw ˌevˈitæ kˌompaɾasˈõjs ky pˌaɾˈɛsAŋ ʤˌifeɾˈAŋʧyz na fˈɔɾəmæ, maz xˌezˈɔlvAŋsy pˌaɾæ ʊ mˈezmʊ kˌompoɾətæmˈAŋtʊ sˌɛlpˈɔzy."
+    },
+    {
+      "scene": 7,
+      "speech_start": 88.475,
+      "speech_end": 103.77499999999999,
+      "scene_end": 104.32499999999999,
+      "duration": 15.849999999999994,
+      "text": "A tabela por campo relata contagens de objetos, delta direcional, índice Rand ajustado excluído de fundo, fração correspondente, intersecção média sobre união, divisões, fusões, objetos incomparáveis e verificações independentes de qualidade de máscara.",
+      "speech_text": "A tabela por campo relata contagens de objetos, delta direcional, índice Rand ajustado excluído de fundo, fração correspondente, intersecção média sobre união, divisões, fusões, objetos incomparáveis e verificações independentes de qualidade de máscara.",
+      "phonemes": "a tˌabˈɛlæ por kˈɐ̃mpʊ xˌelˈatæ kˌoŋtˈaʒAŋz ʤj ˌobʒˈɛtʊs, dˈɛʊtæ ʤˌiɾesˌionˈW, ˈiŋʤisy xˈɐ̃ŋd ˌaʒustˈadw ˌeskluˈidʊ ʤy fˈũŋdʊ, frasˈɐ̃ʊ̃ kˌoxespoŋdˈAŋʧy, ˌiŋteɾəseksˈɐ̃ʊ̃ mˈɛʤjæ sˈobri ˌuniˈɐ̃ʊ̃, ʤˌivizˈõjs, fuzˈõjs, ˌobʒˈɛtʊz ˌiŋkompaɾˈavAz i vˌeɾifˌikasˈõjz ˌiŋdepAŋdˈAŋʧyz ʤy kwˌalidˈaʤy ʤy mˈaskæɾæ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 104.32499999999999,
+      "speech_end": 118.57499999999999,
+      "scene_end": 119.12499999999999,
+      "duration": 14.799999999999997,
+      "text": "A seleção de uma linha atualiza as duas visualizações. Objetos iguais são mostrados de forma consistente, enquanto regiões incomparáveis expõem novas detecções, perdas, divisões ou fusões que uma única pontuação agregada pode esconder.",
+      "speech_text": "A seleção de uma linha atualiza as duas visualizações. Objetos iguais são mostrados de forma consistente, enquanto regiões incomparáveis expõem novas detecções, perdas, divisões ou fusões que uma única pontuação agregada pode esconder.",
+      "phonemes": "a sˌelesˈɐ̃ʊ̃ ʤj ˌumæ lˈiɲæ ˌatualˈizæ az dˈuæz vˌizuˌalizasˈõjs. ˌobʒˈɛtʊz iɡwˈIs sɐ̃ʊ̃ mˌostrˈadʊz ʤy fˈɔɾəmæ kˌoŋsistˈAŋʧy, ˌAŋkwˈɐ̃ŋtʊ xˌeʒiˈõjz ˌiŋkompaɾˈavAz espˈõjm nˈɔvæz dˌeteksˈõjs, pˈeɾədæs, ʤˌivizˈõjz ow fuzˈõjs ky ˌumæ ˈunikæ pˌoŋtuasˈɐ̃ʊ̃ ˌaɡreɡˈadæ pˌɔʤj ˌeskoŋdˈer."
+    },
+    {
+      "scene": 9,
+      "speech_start": 119.12499999999999,
+      "speech_end": 136.17499999999998,
+      "scene_end": 136.87499999999997,
+      "duration": 17.749999999999986,
+      "text": "Nestes três campos, ambos os candidatos produziram cem e cinquenta e um objetos, primeiro plano ARI um, e um acoplamento de cem por cento. Isto significa que o ponto de controlo de calibração de uma época se comporta como o seu modelo de partida aqui; é um resultado válido, não uma evidência de melhoria.",
+      "speech_text": "Nestes três campos, ambos os candidatos produziram cem e cinquenta e um objetos, primeiro plano ARI um, e um acoplamento de cem por cento. Isto significa que o ponto de controlo de calibração de uma época se comporta como o seu modelo de partida aqui; é um resultado válido, não uma evidência de melhoria.",
+      "phonemes": "nˌesʧis trˈes kˈɐ̃mpʊs, ˈɐ̃mbʊz ʊs kˌɐ̃ŋʤidˈatʊs prˌoduzˈiɾɐ̃ʊ̃ sˈAŋ i sˌiŋkwˈAŋtæ i ũŋ ˌobʒˈɛtʊs, prˌimˈAɾʊ plˈɐ̃nw ˌaˌɛxeˈi ũŋ, i ũŋ ˌakoplæmˈAŋtʊ ʤy sˈAŋ por sˈAŋtʊ. ˈistʊ sˌiɡnifˈikæ ky ʊ pˈoŋtʊ ʤy kˌoŋtrˈolʊ ʤy kˌalibrasˈɐ̃ʊ̃ ʤj ˌumæ ˈɛpokæ sy kˌompˈɔɾətæ kˌomʊ ʊ seʊ mˌodˈelʊ ʤy pˌaɾəʧˈidæ akˈi; ɛ ũŋ xˌezuwtˈadʊ vˈalidʊ, nˌɐ̃ʊ̃ ˌumæ ˌevidˈAŋsjæ ʤy mˌeljoɾˈiæ."
     }
   ]
 }

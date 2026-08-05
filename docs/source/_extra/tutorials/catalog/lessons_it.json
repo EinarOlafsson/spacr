@@ -3097,48 +3097,82 @@
     {
       "id": "21_model_compare",
       "number": 21,
-      "slug": "model_compare",
-      "title": "Model Compare",
+      "slug": "model-compare",
+      "title": "Modello di confronto",
       "series": 2,
       "app_key": "model_compare",
       "section": "Segmentation models",
-      "description": "Eseguire due modelli Cellpose sui medesimi campi e confrontare le maschere, i numeri e le metriche di accordo.",
+      "description": "Eseguire due configurazioni Cellpose sui medesimi campi e confrontare parametri, conteggi di oggetti, ARI di primo piano, abbinamento, divisioni, fusioni e preview di maschera.",
       "objectives": [
-        "Comprendere quando usare Model Compare.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Caricare un piccolo set di campi condivisi e configurare due candidati modello.",
+        "Conferma quali parametri richiesti raggiungono effettivamente Cellpose 4.",
+        "Interpretare le differenze di oggetti direzionali, ARI di primo piano, abbinamento, QC e sovrapposizioni."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Preparare campi di microscopia rappresentativa e almeno due modelli significativamente diversi o configurazioni di inferenza.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre il modello di confronto. eseguire due modelli Cellpose sui medesimi campi e confrontare maschere, conteggi e metriche di accordo.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre il modello di confronto. eseguire due modelli Cellpose sui medesimi campi e confrontare maschere, conteggi e metriche di accordo."
+          "narration": "Model Compare esegue due configurazioni Cellpose sullo stesso piccolo set di campi. Riporta ciò che è cambiato senza trattare nessuno dei modelli come verità di fondo, combinando i numeri degli oggetti, l'accordo di primo piano, l'incontro, la frammentazione e le sovrapposizioni visive.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "Model Compare esegue due configurazioni Cellpose sullo stesso piccolo set di campi. Riporta ciò che è cambiato senza trattare nessuno dei modelli come verità di fondo, combinando i numeri degli oggetti, l'accordo di primo piano, l'incontro, la frammentazione e le sovrapposizioni visive."
         },
         {
-          "narration": "Apri Model Compare dalla sezione Segmentation models. Apri modello Confronta dalla sezione Modelli di segmentazione. Scegli due modelli candidati e un insieme rappresentativo di campi di microscopia.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Model Compare dalla sezione Segmentation models. Apri modello Confronta dalla sezione Modelli di segmentazione. Scegli due modelli candidati e un insieme rappresentativo di campi di microscopia."
+          "narration": "Scarica una cartella di campi TIFF, PNG, NPY o NPZ, o scegliela con i controlli sorgente. Il valore Fields limita un confronto interattivo; questo tutorial carica tre vere colture di cellule di canale ER.",
+          "visual": "02_fields_loaded",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Scarica una cartella di campi TIFF, PNG, NPY o NPZ, o scegliela con i controlli sorgente. Il valore Fields limita un confronto interattivo; questo tutorial carica tre vere colture di cellule di canale ER."
         },
         {
-          "narration": "Nella zona di configurazione principale, corrispondere i canali e la pre-elaborazione, quindi configurare le soglie e i criteri di corrispondenza degli oggetti.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, corrispondere i canali e la pre-elaborazione, quindi configurare le soglie e i criteri di corrispondenza degli oggetti."
+          "narration": "Il modello A utilizza il CPSAM di stoccaggio. Il modello B utilizza il checkpoint di calibrazione personalizzato di Train Cellpose. Entrambe mantengono diametro trenta, soglia di flusso zero punto quattro, probabilità zero, dimensione minima quindici, normalizzazione e dinamica a piena risoluzione.",
+          "visual": "03_models",
+          "focus_key": "model_panels",
+          "hold_after": 0.55,
+          "speech_text": "Il modello A utilizza il CPSAM di stoccaggio. Il modello B utilizza il checkpoint di calibrazione personalizzato di Train Cellpose. Entrambe mantengono diametro trenta, soglia di flusso zero punto quattro, probabilità zero, dimensione minima quindici, normalizzazione e dinamica a piena risoluzione."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. controllare le sovrapposizioni fianco a fianco insieme al numero di oggetti, sovrapposizioni e differenze di Rand-index regolate.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. controllare le sovrapposizioni fianco a fianco insieme al numero di oggetti, sovrapposizioni e differenze di Rand-index regolate."
+          "narration": "Confronta i segmenti di ogni campo caricato con entrambe le configurazioni. La linea aggiuntiva accetta argomenti avanzati di valore chiave, e il rapporto segna i parametri che Cellpose 4 ignora piuttosto che implicare silenziosamente che hanno cambiato il modello.",
+          "visual": "04_compare",
+          "focus_key": "model_panels",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "Confronta i segmenti di ogni campo caricato con entrambe le configurazioni. La linea aggiuntiva accetta argomenti avanzati di valore chiave, e il rapporto segna i parametri che Cellpose 4 ignora piuttosto che implicare silenziosamente che hanno cambiato il modello."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, il rapporto di confronto identifica dove ogni modello guadagna, perde, divide o fonde oggetti.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, il rapporto di confronto identifica dove ogni modello guadagna, perde, divide o fonde oggetti."
+          "narration": "Durante l'elaborazione, lo stato in linea identifica sia i candidati che il numero di campi. Modello Compare rimane concentrato su un campione interattivo limitato piuttosto che eseguire un piatto completo due volte.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Durante l'elaborazione, lo stato in linea identifica sia i candidati che il numero di campi. Modello Compare rimane concentrato su un campione interattivo limitato piuttosto che eseguire un piatto completo due volte."
+        },
+        {
+          "narration": "I parametri che hanno raggiunto ogni modello separano i valori onorati dagli argomenti obsoleti o ignorati. Ciò impedisce i confronti che sembrano diversi nella forma ma si risolvono allo stesso comportamento di Cellpose.",
+          "visual": "06_parameters",
+          "focus_key": "parameters",
+          "hold_after": 0.5,
+          "speech_text": "I parametri che hanno raggiunto ogni modello separano i valori onorati dagli argomenti obsoleti o ignorati. Ciò impedisce i confronti che sembrano diversi nella forma ma si risolvono allo stesso comportamento di Cellpose."
+        },
+        {
+          "narration": "La tabella per campo riporta il conteggio degli oggetti, il delta direzionale, l'indice Rand regolato escluso dallo sfondo, la frazione corrispondente, l'intersezione media sull'unione, le divisioni, le fusioni, gli oggetti non corrispondenti e i controlli indipendenti della qualità della maschera.",
+          "visual": "07_metrics",
+          "focus_key": "metrics",
+          "hold_after": 0.55,
+          "speech_text": "La tabella per campo riporta il conteggio degli oggetti, il delta direzionale, l'indice Rand regolato escluso dallo sfondo, la frazione corrispondente, l'intersezione media sull'unione, le divisioni, le fusioni, gli oggetti non corrispondenti e i controlli indipendenti della qualità della maschera."
+        },
+        {
+          "narration": "Selezionare una riga aggiorna entrambe le anteprese. Gli oggetti abbinati vengono mostrati in modo coerente, mentre le regioni non abbinate espongono nuove rilevazioni, perdite, divisioni o fusioni che un singolo punteggio aggregato può nascondere.",
+          "visual": "08_field_one",
+          "focus_key": "previews",
+          "hold_after": 0.55,
+          "speech_text": "Selezionare una riga aggiorna entrambe le anteprese. Gli oggetti abbinati vengono mostrati in modo coerente, mentre le regioni non abbinate espongono nuove rilevazioni, perdite, divisioni o fusioni che un singolo punteggio aggregato può nascondere."
+        },
+        {
+          "narration": "In questi tre campi, entrambi i candidati hanno prodotto centocinquanta e uno oggetti, ARI di primo piano uno, e un corrispondimento del cento per cento. Ciò significa che il checkpoint di calibrazione di un'epoca si comporta come il suo modello di partenza qui; è un risultato valido, non una prova di miglioramento.",
+          "visual": "09_field_two",
+          "focus_key": "previews",
+          "hold_after": 0.7,
+          "speech_text": "In questi tre campi, entrambi i candidati hanno prodotto centocinquanta e uno oggetti, ARI di primo piano uno, e un corrispondimento del cento per cento. Ciò significa che il checkpoint di calibrazione di un'epoca si comporta come il suo modello di partenza qui; è un risultato valido, non una prova di miglioramento."
         }
       ]
     },
