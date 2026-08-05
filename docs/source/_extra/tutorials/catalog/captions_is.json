@@ -1823,19 +1823,46 @@
       "id": "33_plate_viewer",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Plate Viewer. Rannsókna hvaða mælingar sem eru sem hitamappur á plötum og skilgreina rýmið fyrirbæri eða hliðaráhrif."
+          "narration": "Plate Viewer breytir einhverjum hlutmælingum í hitaskrá og setur greiningu á hliðarbrúnum við hliðina. Opnaðu hana í Niðurstöðum og gæðastjórnun. Starfsgreiningin er byggð til að lesa einungis: spaCR opnar mælingaragrunnuna í einungis fyrirspurnartíma og skrifar aðeins valfrjálsan útflutinn CSV."
         },
         {
-          "narration": "Opnuð plötunarsýning frá niðurstöðum og gæðaeftirlitum. Opnaðu mælingar gagnagrunn með plötu, brunn og skilríki ástand."
+          "narration": "Fylgdu niður mælingar gagnagrunn eða run mappur hennar, eða veldu annað hvort hér. Þetta er raunveruleg gagnagrunn flutningsreynslu, sem inniheldur 81.969 mæluð frumur í 196 brunnum. Plate Viewer lesir töflunafn og aðeins skilríki og mælikólum sem nauðsynlegar eru fyrir valinn sýn."
         },
         {
-          "narration": "Í aðalmyndunarsvæðinu skaltu velja mælingu, samsetningu, normaliseringu, litaskálu, stjórnun og skipulag plötu."
+          "narration": "Veldu síluborðið og tölulíf. Hér veljum við miðlungsþyngd kanála 1, endoplasma-reticulum kanála. Eftir fyrstu sýninguna er valmyndin Plate fyllað úr gögnum. Þessi gagnagrunn inniheldur plötu 1."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. samanburður á grófum og eðlilegum skoðunum og skoðaðir grunsamlegar brunnur eða kerfisbundnar hliðarmöntur."
+          "narration": "Per brunn stjórnar því hvernig hlutirnir falla saman í eitt gildi. Mið og miðjan taka saman valinn eiginleiki, en Count plots hlutinn númer. Styrkur 2 til 98 prósent litaskálinn kemur í veg fyrir að einn öfga brunnur flatni hinni, og Minimum hlutir á brunn merkja undirmagnað brunn sem tóm en ekki núll."
         },
         {
-          "narration": "Þegar vinnufljósið er lokið er hægt að flytja út hitameppur, valda borðborð og greiningar á hliðaráhrifum."
+          "narration": "Smelltu á afhendingu með meðaltali, öflugu skalanum og lágmarki 100 frumur. Upplýsing gagnagrunnar er geymd í geymslu, þannig að síðar breytingar á samsetningu, litaskálu, plötu eða lágmarkstal endurreikna útsýninguna án þess að lesa alla einkenni töflu aftur."
+        },
+        {
+          "narration": "Allir 196 mæltir brunnir lifa af. Meðal ER-styrkur hefur enga flokkalega ytri hring áhrif, en raunverulegur skýrsla greinar einhlynni röð hækkun með Spearman rho 0,454. Hringprofíllinn og röð- og stöngdiagnóstið halda þessari rúmlega þróun sýnilega við hiti kortinu í stað þess að láta hana fara í líffræði."
+        },
+        {
+          "narration": "Smelltu á hvaða brunn til að fá nákvæma skilgreiningu, hlutartöl, samanlagða gildi og stöðu hringsins. G07 er innri brunnur hér. Þessi beina kortun er gagnleg til að ákveða hvort sýnilegur áfall tilheyrir rúmlegum mynstri áður en það opnar plöntur sínar eða uppskeru annars staðar."
+        },
+        {
+          "narration": "Skiptu á Per well til Count. Count vanrækir valdu styrktargildi og litum hvern vel með fjölda varðveittra frumna, sem er oft hraðasta gæðaeftirlit sjónarmið fyrir eiturleysi, skiptingu tap, ójöfnuð sáðun, eða kant-afhängig vaxti."
+        },
+        {
+          "narration": "Rétt talsmyndin sýnir ytri hringáhrif: Rand brunnur innihalda 14,3 prósent fleiri frumur en inni, með Cliff delta 0.571 og p jafngildir 0.0003817. Í skýrslunni kemur fram áhrifaöflun og stærð í stað þess að biðja þig um að draga það út af litnum einungis."
+        },
+        {
+          "narration": "Hækkaðu lágmarksvörur á brunn til 350 þegar þessi tal er lágmarksgögn sem þarf til samanburðar. Filturinn er gæðamörk, ekki ávísunarregla: brunnir fyrir neðan hann yfirgefa tölfræðilegan greiningu og verða yfirgreindar tóm."
+        },
+        {
+          "narration": "Tíu og átta af 196 mæluðum brunnum eru nú fallin og 168 eftir fyrir kantprófið. Efnið á ytri hringinn er enn álitlegt á auknum 10,5 prósentum. Krúsaðar frumur á hitamappinu hverfa eftir að þær eru síaðar; þær eru aldrei litnar eins og gildi þeirra væri núll."
+        },
+        {
+          "narration": "Smelltu á krossinn brunn til að staðfesta hvers vegna hann er tómur. C14 inniheldur 233 mæltar frumur, færri en þær 350 sem þarf, þannig að útlit skýrslur tóm og nefnir þröskulinn. Þetta gerir lágan stuðning aðgreinandi frá raunverulegri núlltal."
+        },
+        {
+          "narration": "Smelltu á Export well grid CSV til að vista núverandi snyrtilegt útsýni. Hver röð geymir sér auðkenni, hlutartöl, sýnt verðmæti, hringvísitölu og kantfánni, þannig að niðurstaðan á plötunni er hægt að endurskoða eða skipulaga utan spaCR án þess að útflutningur á hlutastölu einkennaborðið."
+        },
+        {
+          "narration": "Staðfestur útflutningur inniheldur 168 brunnur, sem samsvara nákvæmlega við síað hitalag. Eftirlit fyrir og eftir SHA-256 staðfestir að heimildasöfnun uppspretta mælinganna sé báta-eðnu og fylgir aðeins lestrargjöfnun um gæðastjórn á plötu með sporfærðri afleiðslaborði."
         }
       ]
     },

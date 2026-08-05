@@ -1823,19 +1823,46 @@
       "id": "33_plate_viewer",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Plate Viewer. Utforska alla mätningar som en värmekart och identifiera rumsliga artefakter eller kanteffekter."
+          "narration": "Plate Viewer förvandlar varje objektmätning till en brunnvärmkart och placerar kanteffektdiagnostik bredvid den. Öppna det från Resultater och kvalitetskontroll. Arbetsflödet är strukturellt endast läsbart: spaCR öppnar mätdatabasen i endast frågeställningsläge och skriver endast en valfri exporterad CSV."
         },
         {
-          "narration": "Öppna Plate Viewer från sektionen Resultater och kvalitetskontroll. Öppna en mätdatabas med skylt-, brunn- och konditionsidentifierare."
+          "narration": "Lägg ned en mätdatabas eller dess körmappa, eller välj antingen här. Detta är den verkliga databasen för det överförda experimentet, som innehåller 81.969 målade celler över 196 brunnar. Plate Viewer läser tabellnamn och endast identifierings- och mätkolumner som behövs för den valda visningen."
         },
         {
-          "narration": "I huvudkonfigurationsområdet väljer du mätning, aggregering, normalisering, färgskala, kontroller och plattans layout."
+          "narration": "Välj Cells tabell och en numerisk funktion. Här väljer vi den genomsnittliga intensiteten av kanal 1, den endoplasmisk-reticulumkanalen. Efter den första renderingen fyllas plåtselectorn ut ur uppgifterna. Den här databasen innehåller plåt 1."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. jämföra rå och normaliserade utsikter och undersöka misstänkta brunnar eller systematiska kantmönster."
+          "narration": "Per brunn kontrollerar hur objekt kollapsar till ett värde. Medel och median sammanfattar den valda egenskapen, medan Count plotsar objektnummer. Den robusta färgskalan 2 till 98 procent förhindrar att en extrema brunn plattar resten, och Minimumobjekt per brunn markerar underkraftiga brunnar som tomma snarare än noll."
         },
         {
-          "narration": "När arbetsflödet är klart kan värmekartor, utvalda brunntabeller och diagnostik för kanteffekter exporteras."
+          "narration": "Klicka på Render med medelvärde, den robusta skalan och minst 100 celler. Databasenfrågan är cacherad, så senare ändringar av aggregering, färgskala, plattor eller minsta räkning återberäknar visningen utan att läsa hela funktionstabellen."
+        },
+        {
+          "narration": "Alla 196 målade brunnar överlever. Den genomsnittliga ER-intensiteten har ingen kategorisk yttre ringeffekt, men den verkliga rapporten upptäcker en monoton radgradient med Spearman rho 0,454. Ringprofilen och rad- och kolumndiagnostiken håller denna rumsliga trend synlig bredvid värmekartan istället för att låta den maskeras som biologi."
+        },
+        {
+          "narration": "Klicka på vilken brunn som helst för att få den exakta identifikatorn, objektantal, aggregerat värde och ringposition. G07 är en inre brunn här. Denna direkta kartläggning är användbar för att avgöra om en uppenbar träff tillhör ett rumsligt mönster innan den öppnar sina fält eller grödor någon annanstans."
+        },
+        {
+          "narration": "Skicka Per Well till Count. Count ignorerar det valda intensitetsvärdet och färgerna varje bra av antalet kvarvarande celler, vilket ofta är den snabbaste kvalitetskontrollanvisningen för toxicitet, segmentationsförlust, ojämn utsäddning eller kantberoende tillväxt."
+        },
+        {
+          "narration": "Den verkliga räkningsvisningen avslöjar en yttre ringeffekt: kantbrunnar innehåller 14,3 procent fler celler än det inre, med Cliffs delta 0,571 och p lika med 0,0003817. Rapporten anger effektriktningen och storleken istället för att be dig dra slutsatsen bara från färgen."
+        },
+        {
+          "narration": "Höj Minimum föremål per brunn till 350 när detta antal är det minsta bevis som krävs för jämförelse. Filtret är en kvalitetsgräns, inte en imputationsregel: brunnar under det lämnar den numeriska analysen och blir korsade tommar."
+        },
+        {
+          "narration": "28 av de 196 målade brunnarna har nu släppts, vilket lämnar 168 för kanttestet. Den yttre ringeffekten är fortfarande upptäcklig på plus 10,5 procent. Krossade celler på värmekartan saknas efter filtrering; de är aldrig färgade som om deras värde var noll."
+        },
+        {
+          "narration": "Klicka på en korsad brunn för att bekräfta varför den är tom. C14 innehåller 233 målade celler, färre än de nödvändiga 350, så läsningen rapporterar tomt och anger tröskeln. Detta gör att låg stöd skiljer sig från ett faktiskt nolltal."
+        },
+        {
+          "narration": "Klicka på Export well grid CSV för att spara den nuvarande ordnade visningen. Varje rad behåller välidentitet, objektantal, visat värde, ringindex och kantflagga, så att resultatet på plattenivå kan revideras eller planeras om utanför spaCR utan att exportera objektenivåens funktionstabel."
+        },
+        {
+          "narration": "Den verifierade exporten innehåller 168 brunnar, vilket exakt motsvarar den filtrerade värmekartan. En kontroll före och efter SHA-256 bekräftar att databasen för mätningar från källan är byte-identisk och kompletterar ett endast läsbart kvalitetskontrollkort med en spårbar avledd tabell."
         }
       ]
     },

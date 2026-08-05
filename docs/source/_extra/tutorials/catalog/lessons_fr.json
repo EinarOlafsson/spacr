@@ -4714,47 +4714,120 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer",
+      "title": "Vue de plaque",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Explorez toute mesure en tant que carte thermique de plaque et identifiez les objets spatiaux ou les effets de bord.",
+      "description": "Transformer les mesures d'objets réels en une carte thermique de plaque, vérifier les puits individuels et tester les artefacts de bord et de gradient sans modifier la base de données.",
       "objectives": [
-        "Comprendre quand utiliser le Plate Viewer.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Ouvrez une base de données de mesures spaCR en lecture seule et choisissez un tableau, une mesure, une plaque, une aggregation et une gamme de couleurs robuste.",
+        "Interpréter la carte thermique de la plaque aux côtés des diagnostics de l'effet bord, du gradient de rang et du gradient de colonne.",
+        "Distinguer les puits vides à faible nombre des zéros véritables et exporter la grille de puits actuellement filtrée."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Une base de données de mesures avec des plaques, des rangées, des colonnes et des colonnes de mesure numériques.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Plate Viewer. Explorez toute mesure en tant que carte thermique de plaque et identifiez des artefacts spatiaux ou des effets de bord.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Plate Viewer. Explorez toute mesure en tant que carte thermique de plaque et identifiez des artefacts spatiaux ou des effets de bord."
+          "narration": "Plate Viewer transforme toute mesure d'objet en une carte thermique de puits et place le diagnostic de l'effet de bord à côté. Ouvrez-le à partir des résultats et du contrôle de la qualité. Le flux de travail est structurellement uniquement lisible: spaCR ouvre la base de données de mesures en mode requête uniquement et écrit uniquement un CSV exporté facultatif.",
+          "visual": "01_overview",
+          "focus_key": "nav",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Plate Viewer transforme toute mesure d'objet en une carte thermique de puits et place le diagnostic de l'effet de bord à côté. Ouvrez-le à partir des résultats et du contrôle de la qualité. Le flux de travail est structurellement uniquement lisible: spakeur ouvre la base de données de mesures en mode requête uniquement et écrit uniquement un CSV exporté facultatif."
         },
         {
-          "narration": "Ouvrez Plate Viewer dans la section Results and quality control. Ouvrez une base de données de mesures avec des identifiants de plaque, puits et conditions.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Plate Viewer dans la section Results and quality control. Ouvrez une base de données de mesures avec des identifiants de plaque, puits et conditions."
+          "narration": "Laissez tomber une base de données de mesures ou son dossier d'exécution, ou choisissez ici. C'est la vraie base de données de l'expérience transférée, contenant 81 969 cellules mesurées sur 196 puits. Plate Viewer lit les noms des tables et uniquement les colonnes d'identification et de mesure nécessaires à la vue sélectionnée.",
+          "visual": "02_database",
+          "focus_key": "source",
+          "hold_after": 0.74,
+          "speech_text": "Laissez tomber une base de données de mesures ou son dossier d'exécution, ou choisissez ici. C'est la vraie base de données de l'expérience transférée, contenant 81 969 cellules mesurées sur 196 puits. Plate Viewer lit les noms des tables et uniquement les colonnes d'identification et de mesure nécessaires à la vue sélectionnée."
         },
         {
-          "narration": "Dans la zone de configuration principale, choisissez la mesure, l'agrégation, la normalisation, l'échelle de couleur, les commandes et la disposition de la plaque.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, choisissez la mesure, l'agrégation, la normalisation, l'échelle de couleur, les commandes et la disposition de la plaque."
+          "narration": "Choisissez la table cellule et une fonction numérique. Ici, nous sélectionnons l'intensité moyenne du canal 1, le canal endoplasmique-réticulaire. Après le premier rendu, le sélecteur Plate est rempli à partir des données; cette base de données contient la plaque 1.",
+          "visual": "03_measurement",
+          "focus_key": "selection",
+          "hold_after": 0.66,
+          "speech_text": "Choisissez la table cellule et une fonction numérique. Ici, nous sélectionnons l'intensité moyenne du canal 1, le canal endoplasmique-réticulaire. Après le premier rendu, le sélecteur Plate est rempli à partir des données; cette base de données contient la plaque 1."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez les vues brutes et normalisées et inspectez les puits suspects ou les modèles de bord systématiques.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible. comparez les vues brutes et normalisées et inspectez les puits suspects ou les modèles de bord systématiques."
+          "narration": "Par puits contrôle comment les objets s'effondrent à une valeur. La moyenne et la médiane résument la caractéristique choisie, tandis que le comptage comporte le nombre d'objets. L'échelle de couleur robuste de 2 à 98 pour cent empêche un puits extrême d'aplatir le reste, et les objets minimaux par puits marquent les puits sous-alimentés comme vides plutôt que zéro.",
+          "visual": "04_options",
+          "focus_key": "options",
+          "hold_after": 0.74,
+          "speech_text": "Par puits contrôle comment les objets s'effondrent à une valeur. La moyenne et la médiane résument la caractéristique choisie, tandis que le comptage comporte le nombre d'objets. L'échelle de couleur robuste de 2 à 98 pour cent empêche un puits extrême d'aplatir le reste, et les objets minimaux par puits marquent les puits sous-alimentés comme vides plutôt que zéro."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, des cartes thermiques, des tableaux de puits sélectionnés et des diagnostics d'effets de bord peuvent être exportés.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, des cartes thermiques, des tableaux de puits sélectionnés et des diagnostics d'effets de bord peuvent être exportés."
+          "narration": "Cliquez sur Render avec moyen, l'échelle robuste, et un minimum de 100 cellules. La requête de base de données est mise en cache, de sorte que les modifications ultérieures à l'agrégation, à l'échelle des couleurs, à la plaque ou au nombre minimum recomputent la vue sans relire la table complète des fonctionnalités.",
+          "visual": "05_render",
+          "focus_key": "render_controls",
+          "click_key": "render",
+          "hold_after": 0.66,
+          "speech_text": "Cliquez sur Render avec moyen, l'échelle robuste, et un minimum de 100 cellules. La requête de base de données est mise en cache, de sorte que les modifications ultérieures à l'agrégation, à l'échelle des couleurs, à la plaque ou au nombre minimum recomputent la vue sans relire la table complète des fonctionnalités."
+        },
+        {
+          "narration": "Tous les 196 puits mesurés ont survécu. L'intensité moyenne de l'ER n'a pas d'effet catégorique sur l'anneau extérieur, mais le rapport réel détecte un gradient de rang monotone avec Spearman rho 0,454. Le profil d'anneau et les diagnostics de rangées et de colonnes maintiennent cette tendance spatiale visible à côté de la carte thermique au lieu de la laisser se masquer comme la biologie.",
+          "visual": "06_mean_result",
+          "focus_key": "result",
+          "hold_after": 0.8,
+          "speech_text": "Tous les 196 puits mesurés ont survécu. L'intensité moyenne de l'ER n'a pas d'effet catégorique sur l'anneau extérieur, mais le rapport réel détecte un gradient de rang monotone avec Spearman rho 0,454. Le profil d'anneau et les diagnostics de rangées et de colonnes maintiennent cette tendance spatiale visible à côté de la carte thermique au lieu de la laisser se masquer comme la biologie."
+        },
+        {
+          "narration": "Cliquez sur n'importe quel puits pour l'identifiant exact, le nombre d'objets, la valeur agrégée et la position de l'anneau. Le G07 est un puits intérieur ici. Cette cartographie directe est utile pour déterminer si une attaque apparente appartient à un schéma spatial avant d'ouvrir ses champs ou ses cultures ailleurs.",
+          "visual": "07_well_detail",
+          "focus_key": "inspection",
+          "click_key": "well_click",
+          "hold_after": 0.68,
+          "speech_text": "Cliquez sur n'importe quel puits pour l'identifiant exact, le nombre d'objets, la valeur agrégée et la position de l'anneau. Le G07 est un puits intérieur ici. Cette cartographie directe est utile pour déterminer si une attaque apparente appartient à un schéma spatial avant d'ouvrir ses champs ou ses cultures ailleurs."
+        },
+        {
+          "narration": "Passez à Per well à Count. Le compte ignore la valeur d'intensité et les couleurs sélectionnées par le nombre de cellules conservées, ce qui est souvent la vue de contrôle de la qualité la plus rapide pour la toxicité, la perte de segmentation, la semission inégale ou la croissance dépendante des bords.",
+          "visual": "08_count_setting",
+          "focus_key": "grouping",
+          "hold_after": 0.64,
+          "speech_text": "Passez à Per well à Count. Le compte ignore la valeur d'intensité et les couleurs sélectionnées par le nombre de cellules conservées, ce qui est souvent la vue de contrôle de la qualité la plus rapide pour la toxicité, la perte de segmentation, la semission inégale ou la croissance dépendante des bords."
+        },
+        {
+          "narration": "La vue de comptage réel expose un effet d'anneau extérieur: les puits de bord contiennent 14,3% de cellules en plus que l'intérieur, avec le delta de Cliff 0,571 et p égal à 0,0003817. Le rapport indique la direction et l'ampleur de l'effet au lieu de vous demander de le déduire uniquement à partir de la couleur.",
+          "visual": "09_count_result",
+          "focus_key": "result",
+          "hold_after": 0.82,
+          "speech_text": "La vue de comptage réel expose un effet d'anneau extérieur: les puits de bord contiennent 14,3% de cellules en plus que l'intérieur, avec le delta de Cliff 0,571 et p égal à 0,0003817. Le rapport indique la direction et l'ampleur de l'effet au lieu de vous demander de le déduire uniquement à partir de la couleur."
+        },
+        {
+          "narration": "Élever le nombre minimum d'objets par puits à 350 lorsque ce nombre est la preuve minimale requise pour la comparaison. Le filtre est un seuil de qualité, pas une règle d'imputation: les puits en dessous de lui quittent l'analyse numérique et deviennent des espaces vides croisés.",
+          "visual": "10_minimum_setting",
+          "focus_key": "minimum",
+          "hold_after": 0.62,
+          "speech_text": "Élever le nombre minimum d'objets par puits à 350 lorsque ce nombre est la preuve minimale requise pour la comparaison. Le filtre est un seuil de qualité, pas une règle d'imputation: les puits en dessous de lui quittent l'analyse numérique et deviennent des espaces vides croisés."
+        },
+        {
+          "narration": "Vingt-huit des 196 puits mesurés sont maintenant tombés, laissant 168 pour le test de bord. L'effet de l'anneau extérieur reste détectable à plus de 10,5%. Les cellules croisées sur la carte thermique manquent après filtration; elles ne sont jamais colorées comme si leur valeur était nulle.",
+          "visual": "11_filtered_result",
+          "focus_key": "result",
+          "hold_after": 0.78,
+          "speech_text": "Vingt-huit des 196 puits mesurés sont maintenant tombés, laissant 168 pour le test de bord. L'effet de l'anneau extérieur reste détectable à plus de 10,5%. Les cellules croisées sur la carte thermique manquent après filtration; elles ne sont jamais colorées comme si leur valeur était nulle."
+        },
+        {
+          "narration": "Cliquez sur un puits traversé pour confirmer pourquoi il est vide. C14 contient 233 cellules mesurées, moins que les 350 requises, de sorte que la lecture indique le vide et nomme le seuil. Cela rend le faible soutien distincte d'un chiffre de zéro réel.",
+          "visual": "12_blank_well",
+          "focus_key": "inspection",
+          "click_key": "well_click",
+          "hold_after": 0.68,
+          "speech_text": "Cliquez sur un puits traversé pour confirmer pourquoi il est vide. C14 contient 233 cellules mesurées, moins que les 350 requises, de sorte que la lecture indique le vide et nomme le seuil. Cela rend le faible soutien distincte d'un chiffre de zéro réel."
+        },
+        {
+          "narration": "Cliquez sur Exporter bien CSV de la grille pour enregistrer la vue ordonnée actuelle. Chaque ligne conserve l'identité du puits, le nombre d'objets, la valeur affichée, l'indice d'anneau et le drapeau de bord, de sorte que le résultat au niveau de la plaque peut être vérifié ou repensé en dehors de spaCR sans exporter la table des caractéristiques au niveau de l'objet.",
+          "visual": "13_export",
+          "focus_key": "footer",
+          "click_key": "export",
+          "hold_after": 0.68,
+          "speech_text": "Cliquez sur Exporter bien CSV de la grille pour enregistrer la vue ordonnée actuelle. Chaque ligne conserve l'identité du puits, le nombre d'objets, la valeur affichée, l'indice d'anneau et le drapeau de bord, de sorte que le résultat au niveau de la plaque peut être vérifié ou repensé en dehors de spakeur sans exporter la table des caractéristiques au niveau de l'objet."
+        },
+        {
+          "narration": "L'exportation vérifiée contient 168 puits, correspondant exactement à la carte thermique filtrée. Une vérification avant et après SHA-256 confirme que la base de données des mesures de source est identique en octets, complétant un passage de contrôle de la qualité des plaques en lecture seule avec une table dérivée traçable.",
+          "visual": "14_exported",
+          "focus_key": "status",
+          "hold_after": 0.86,
+          "speech_text": "L'exportation vérifiée contient 168 puits, correspondant exactement à la carte thermique filtrée. Une vérification avant et après SHA-256 confirme que la base de données des mesures de source est identique en octets, complétant un passage de contrôle de la qualité des plaques en lecture seule avec une table dérivée traçable."
         }
       ]
     },

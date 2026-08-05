@@ -1823,19 +1823,46 @@
       "id": "33_plate_viewer",
       "scenes": [
         {
-          "narration": "Denne opplæringen dekker Plate Viewer. Utforsk alle målinger som en platevarmekort og identifisere romlige artefakter eller kanteffekter."
+          "narration": "Plate Viewer forvandler enhver objektsmåling til et brønnvarmekort og plasserer kanteffektdiagnostikk ved siden av det. Åpne det fra resultat og kvalitetskontroll. Arbeidsstrømmen er strukturelt bare-les: spaCR åpner måledatabasen i bare-forspørselsmodus og skriver bare en valgfri eksportert CSV."
         },
         {
-          "narration": "Åpne platevisor fra avsnittet Resultater og kvalitetskontroll. Åpne en måledatabase med plate, brønn og tilstand identifikatorer."
+          "narration": "Slippe en målestatabase eller dens run-mappe, eller velg enten her. Dette er den virkelige databasen til det overførte eksperimentet, som inneholder 81.969 målede celler over 196 brønner. Plate Viewer leser bordnavn og bare identifikator og måle kolonne som trengs for den valgte visningen."
         },
         {
-          "narration": "I hovedkonfigurasjonsområdet velger du måling, aggregering, normalisering, fargeskala, kontroller og plate layout."
+          "narration": "Velg celletabellen og et numerisk trekk. Her velger vi gjennomsnittlig intensitet av kanal 1, den endoplasmiske-reticulum-kanalen. Etter den første renderingen fylles plåtselektoren ut fra dataene; denne databasen inneholder plåte 1."
         },
         {
-          "narration": "Før full kjøring skal du gjennomgå de synlige innstillingene og bruke en forhåndsvisning eller testmodus når en er tilgjengelig. sammenligne rå og normalisert utsikt og sjekk mistenkelige brønner eller systematiske kantmønstre."
+          "narration": "Per brønn kontrollerer hvordan gjenstander kollapser til en verdi. Median og median oppsummerer den valgte funksjonen, mens Count plots objekt nummer. Den robuste 2-til 98 prosent fargeskalaen forhindrer en ekstreme brønn fra å flate resten, og Minimum objekter per brønn markerer underpowered brønner som tomt i stedet for null."
         },
         {
-          "narration": "Når arbeidsflyten er fullført, kan varmebilder, utvalgte brunntabeller og diagnostikk av kanteffekter eksporteres."
+          "narration": "Klikk Render med middel, den robuste skalaen, og minst 100 celler. Databasen forespørselen er caché, så senere endringer i aggregering, fargeskala, plate eller minimumsantal gjenberegner visningen uten å lese hele funksjonstabellen på nytt."
+        },
+        {
+          "narration": "Alle 196 målede brønner overlevde. Gjennomsnittlig ER-intensitet har ingen kategorisk ytre ring effekt, men den virkelige rapporten oppdager en monoton rad gradient med Spearman rho 0,454. Ringprofilen og rad- og kolonnediagnostikken holder denne romslige trenden synlig ved siden av hitemappen i stedet for å la den gjemme seg som biologi."
+        },
+        {
+          "narration": "Klikk på et hvilket som helst brønn for den nøyaktige identifikatoren, objektantallet, den samlede verdien og ringposisjonen. G07 er et interiørbrønn her. Denne direkte kartlegging er nyttig for å avgjøre om et tilsynelatende slag tilhører et rumslig mønster før man åpner sine felt eller avlinger andre steder."
+        },
+        {
+          "narration": "Skift Per Well til Count. Count ignorerer den valgte intensitetsverdien og fargene hver vel av antall bevarte celler, som ofte er den raskeste kvalitetskontrolleringsvisningen for toksicitet, segmentering tap, ujevnt såing eller kant-avhengig vekst."
+        },
+        {
+          "narration": "Den virkelige tallvisningen avslører en ytre ringeffekt: kantbrønner inneholder 14,3 prosent flere celler enn innsiden, med Cliffs delta 0.571 og p lik 0.0003817. Rapporten viser effektretningen og størrelsen i stedet for å be deg om å konkludere med bare fargen."
+        },
+        {
+          "narration": "Raise Minimum objekter per brønn til 350 når dette tallet er det minste beviset som kreves for sammenligning. Filteret er en kvalitetsgrens, ikke en imputasjonsregel: brønner under det forlater den numeriske analysen og blir krysset tomme."
+        },
+        {
+          "narration": "28 av de 196 målede brøndene er nå droppet, og 168 blir igjen for kanttesteringen. Den ytre ringseffekten er fortsatt påvisbar på pluss 10,5 prosent. Kryssede celler på varmekortet mangler etter filtrering; de er aldri farget som om deres verdi var null."
+        },
+        {
+          "narration": "Klikk på en krysset brønn for å bekrefte hvorfor den er tom. C14 inneholder 233 målede celler, færre enn de nødvendige 350, så lesingen rapporterer tomt og benytter tærskelen. Dette gjør lav støtte skillebar fra en faktisk null telling."
+        },
+        {
+          "narration": "Klikk på Eksport brønn grid CSV for å lagre den nåværende ordenlige visningen. Hver rad beholder brunnidentitet, objektantal, vist verdi, ringindeks og kantflagg, slik at resultatet på platenivå kan revideres eller plottes på nytt utenfor spaCR uten å eksportere objektnivåfunksjonstabellen."
+        },
+        {
+          "narration": "Den verifiserte eksporten inneholder 168 brønner, som passer nøyaktig til det filtrerte varmekortet. En sjekk før og etter SHA-256 bekrefter at databasen for målinger fra kilden er byte-identisk, og fullfører en bare-les-plate-kvalitetskontrollpass med en sporbar avledet tabelje."
         }
       ]
     },

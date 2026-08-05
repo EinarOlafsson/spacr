@@ -4714,47 +4714,120 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer",
+      "title": "Visualizzatore di piastrelle",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Esplora qualsiasi misurazione come una heatmap delle piastre e identifica artefatti spaziali o effetti di bordo.",
+      "description": "Trasformare le misurazioni reali degli oggetti in una heatmap della piastra, verificare i singoli pozzi e testare gli artefatti di bordo e gradiente senza modificare il database.",
       "objectives": [
-        "Comprendere quando usare Plate Viewer.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Aprire un database di misurazioni spaCR a sola lettura e scegliere una tabella, una misura, una piastra, un'aggregazione e una robusta scala di colori.",
+        "Interpretare la mappa di calore della piastra insieme all'effetto di bordo, al gradiente di fila e alla diagnosi del gradiente di colonna.",
+        "Distinguere i pozzi vuoti di basso numero dai veri zero e esportare la rete dei pozzi attualmente filtrata."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Un database di misurazioni con piastre, righe, colonne e colonne numeriche di misurazione.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre Plate Viewer. Esplora qualsiasi misurazione come una heatmap della piastra e identifica artefatti spaziali o effetti di bordo.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre Plate Viewer. Esplora qualsiasi misurazione come una heatmap della piastra e identifica artefatti spaziali o effetti di bordo."
+          "narration": "Plate Viewer trasforma qualsiasi misurazione di oggetto in una mappa di calore del pozzo e mette al suo fianco la diagnostica dell'effetto di bordo. Apri da Risultati e controllo qualità. Il flusso di lavoro è strutturalmente solo per lettura: spaCR apre il database di misurazioni in modalità di query-only e scrive solo un CSV esportato facoltativo.",
+          "visual": "01_overview",
+          "focus_key": "nav",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "Plate Viewer trasforma qualsiasi misurazione di oggetto in una mappa di calore del pozzo e mette al suo fianco la diagnostica dell'effetto di bordo. Apri da Risultati e controllo qualità. Il flusso di lavoro è strutturalmente solo per lettura: spàker apre il database di misurazioni in modalità di query-only e scrive solo un CSV esportato facoltativo."
         },
         {
-          "narration": "Apri Plate Viewer dalla sezione Results and quality control. Apri il visore di piastre dalla sezione Risultati e controllo qualità. Apri un database di misurazioni con identificatori di piastre, pozzo e condizione.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Plate Viewer dalla sezione Results and quality control. Apri il visore di piastre dalla sezione Risultati e controllo qualità. Apri un database di misurazioni con identificatori di piastre, pozzo e condizione."
+          "narration": "Smettere un database di misurazioni o la sua cartella di esecuzione, o scegliere uno o l'altro qui. Questo è il vero database dell'esperimento trasferito, contenente 81.969 cellule misurate in 196 pozzi. Plate Viewer legge i nomi delle tabelle e solo l'identificatore e le colonne di misura necessarie per la visualizzazione selezionata.",
+          "visual": "02_database",
+          "focus_key": "source",
+          "hold_after": 0.74,
+          "speech_text": "Smettere un database di misurazioni o la sua cartella di esecuzione, o scegliere uno o l'altro qui. Questo è il vero database dell'esperimento trasferito, contenente 81.969 cellule misurate in 196 pozzi. Plate Viewer legge i nomi delle tabelle e solo l'identificatore e le colonne di misura necessarie per la visualizzazione selezionata."
         },
         {
-          "narration": "Nella zona di configurazione principale, scegli la misura, l'aggregazione, la normalizzazione, la scala dei colori, i controlli e la disposizione della piastra.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, scegli la misura, l'aggregazione, la normalizzazione, la scala dei colori, i controlli e la disposizione della piastra."
+          "narration": "Selezionare la tabella Cellulare e una caratteristica numerica. Qui selezioniamo l'intensità media del canale 1, il canale endoplasmico-reticolo. Dopo il primo rendering, il selettore Plate viene riempito dai dati; questo database contiene la piastra 1.",
+          "visual": "03_measurement",
+          "focus_key": "selection",
+          "hold_after": 0.66,
+          "speech_text": "Selezionare la tabella Cellulare e una caratteristica numerica. Qui selezioniamo l'intensità media del canale 1, il canale endoplasmico-reticolo. Dopo il primo rendering, il selettore Plate viene riempito dai dati; questo database contiene la piastra 1."
         },
         {
-          "narration": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare le viste grezze e normalizzate e controllare pozzi sospetti o schemi di bordo sistematici.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'intero esercizio, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare le viste grezze e normalizzate e controllare pozzi sospetti o schemi di bordo sistematici."
+          "narration": "Per pozzo controlla come gli oggetti crollano a un valore. La media e la media riassumono la caratteristica scelta, mentre il numero dell'oggetto è il numero del conto. La robusta scala di colori dal 2 al 98 per cento impedisce che un pozzo estremo appiatti il resto, e gli oggetti minimi per pozzo segnano pozzi a basso potenza come vuoti piuttosto che zero.",
+          "visual": "04_options",
+          "focus_key": "options",
+          "hold_after": 0.74,
+          "speech_text": "Per pozzo controlla come gli oggetti crollano a un valore. La media e la media riassumono la caratteristica scelta, mentre il numero dell'oggetto è il numero del conto. La robusta scala di colori dal 2 al 98 per cento impedisce che un pozzo estremo appiatti il resto, e gli oggetti minimi per pozzo segnano pozzi a basso potenza come vuoti piuttosto che zero."
         },
         {
-          "narration": "Quando il flusso di lavoro è finito, possono essere esportate heatmaps, tabelle di pozzi selezionati e diagnosi degli effetti di bordo.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è finito, possono essere esportate heatmaps, tabelle di pozzi selezionati e diagnosi degli effetti di bordo."
+          "narration": "Clicca su Render con Mean, la scala robusta e un minimo di 100 celle. La query del database viene memorizzata in cache, quindi le modifiche successive all'aggregazione, alla scala di colori, alla targa o al conteggio minimo ricompongono la visualizzazione senza rileggere l'intera tabella delle caratteristiche.",
+          "visual": "05_render",
+          "focus_key": "render_controls",
+          "click_key": "render",
+          "hold_after": 0.66,
+          "speech_text": "Clicca su Render con Mean, la scala robusta e un minimo di 100 celle. La query del database viene memorizzata in cache, quindi le modifiche successive all'aggregazione, alla scala di colori, alla targa o al conteggio minimo ricompongono la visualizzazione senza rileggere l'intera tabella delle caratteristiche."
+        },
+        {
+          "narration": "Tutti i 196 pozzi misurati sopravvivono. L'intensità media dell'ER non ha un effetto categorico dell'anello esterno, ma il rapporto reale rileva un gradiente di fila monotono con rho Spearman 0,454. Il profilo dell'anello e la diagnosi delle righe e delle colonne mantengono questa tendenza spaziale visibile accanto alla heatmap invece di lasciarla mascherare come biologia.",
+          "visual": "06_mean_result",
+          "focus_key": "result",
+          "hold_after": 0.8,
+          "speech_text": "Tutti i 196 pozzi misurati sopravvivono. L'intensità media dell'ER non ha un effetto categorico dell'anello esterno, ma il rapporto reale rileva un gradiente di fila monotono con rho Spearman 0,454. Il profilo dell'anello e la diagnosi delle righe e delle colonne mantengono questa tendenza spaziale visibile accanto alla heatmap invece di lasciarla mascherare come biologia."
+        },
+        {
+          "narration": "Clicca su qualsiasi pozzo per il suo identificatore esatto, il numero di oggetti, il valore aggregato e la posizione dell'anello. Il G07 è un pozzo interno qui. Questa mappatura diretta è utile per decidere se un colpo apparente appartiene a un modello spaziale prima di aprire i campi o le colture altrove.",
+          "visual": "07_well_detail",
+          "focus_key": "inspection",
+          "click_key": "well_click",
+          "hold_after": 0.68,
+          "speech_text": "Clicca su qualsiasi pozzo per il suo identificatore esatto, il numero di oggetti, il valore aggregato e la posizione dell'anello. Il G07 è un pozzo interno qui. Questa mappatura diretta è utile per decidere se un colpo apparente appartiene a un modello spaziale prima di aprire i campi o le colture altrove."
+        },
+        {
+          "narration": "Passare Per Well a Contare. Il conto ignora il valore di intensità selezionato e i colori di ciascun bene per il numero di cellule trattenute, che è spesso la visione di controllo qualità più veloce per tossicità, perdita di segmentazione, seme irregolare o crescita dipendente dai bordi.",
+          "visual": "08_count_setting",
+          "focus_key": "grouping",
+          "hold_after": 0.64,
+          "speech_text": "Passare Per Well a Contare. Il conto ignora il valore di intensità selezionato e i colori di ciascun bene per il numero di cellule trattenute, che è spesso la visione di controllo qualità più veloce per tossicità, perdita di segmentazione, seme irregolare o crescita dipendente dai bordi."
+        },
+        {
+          "narration": "La visione reale di conteggio espone un effetto anello esterno: i pozzi di bordo contengono il 14,3% di cellule in più rispetto all'interno, con il delta di Cliff 0,571 e p pari a 0,0003817. La relazione indica la direzione e la grandezza dell'effetto invece di chiederle di dedurre solo dal colore.",
+          "visual": "09_count_result",
+          "focus_key": "result",
+          "hold_after": 0.82,
+          "speech_text": "La visione reale di conteggio espone un effetto anello esterno: i pozzi di bordo contengono il 14,3% di cellule in più rispetto all'interno, con il delta di Cliff 0,571 e p pari a 0,0003817. La relazione indica la direzione e la grandezza dell'effetto invece di chiederle di dedurre solo dal colore."
+        },
+        {
+          "narration": "Alzare il numero minimo di oggetti per pozzo a 350 quando tale numero è la prova minima necessaria per il confronto. Il filtro è una soglia di qualità, non una regola di imputazione: i pozzi al di sotto lasciano l'analisi numerica e diventano spazi vuoti incrociati.",
+          "visual": "10_minimum_setting",
+          "focus_key": "minimum",
+          "hold_after": 0.62,
+          "speech_text": "Alzare il numero minimo di oggetti per pozzo a 350 quando tale numero è la prova minima necessaria per il confronto. Il filtro è una soglia di qualità, non una regola di imputazione: i pozzi al di sotto lasciano l'analisi numerica e diventano spazi vuoti incrociati."
+        },
+        {
+          "narration": "Venti otto dei 196 pozzi misurati sono ora caduti, lasciando 168 per il test di bordo. L'effetto dell'anello esterno rimane rilevabile a più del 10,5%. Le cellule incrociate sulla heatmap mancano dopo il filtraggio; non sono mai colorate come se il loro valore fosse zero.",
+          "visual": "11_filtered_result",
+          "focus_key": "result",
+          "hold_after": 0.78,
+          "speech_text": "Venti otto dei 196 pozzi misurati sono ora caduti, lasciando 168 per il test di bordo. L'effetto dell'anello esterno rimane rilevabile a più del 10,5%. Le cellule incrociate sulla heatmap mancano dopo il filtraggio; non sono mai colorate come se il loro valore fosse zero."
+        },
+        {
+          "narration": "Clicca su un pozzo incrociato per confermare il motivo per cui è vuoto. C14 contiene 233 celle misurate, meno delle 350 richieste, quindi la lettura riporta il vuoto e indica la soglia. Questo rende il basso supporto distinguibile da un numero reale di zero.",
+          "visual": "12_blank_well",
+          "focus_key": "inspection",
+          "click_key": "well_click",
+          "hold_after": 0.68,
+          "speech_text": "Clicca su un pozzo incrociato per confermare il motivo per cui è vuoto. C14 contiene 233 celle misurate, meno delle 350 richieste, quindi la lettura riporta il vuoto e indica la soglia. Questo rende il basso supporto distinguibile da un numero reale di zero."
+        },
+        {
+          "narration": "Clicca su Export well grid CSV per salvare la vista ordinata corrente. Ogni riga conserva l'identità del pozzo, il numero di oggetti, il valore visualizzato, l'indice di anello e la bandiera di bordo, in modo che il risultato a livello di piastra possa essere controllato o riprogettato al di fuori di spaCR senza esportare la tabella delle caratteristiche a livello di oggetto.",
+          "visual": "13_export",
+          "focus_key": "footer",
+          "click_key": "export",
+          "hold_after": 0.68,
+          "speech_text": "Clicca su Export well grid CSV per salvare la vista ordinata corrente. Ogni riga conserva l'identità del pozzo, il numero di oggetti, il valore visualizzato, l'indice di anello e la bandiera di bordo, in modo che il risultato a livello di piastra possa essere controllato o riprogettato al di fuori di spàker senza esportare la tabella delle caratteristiche a livello di oggetto."
+        },
+        {
+          "narration": "L'esportazione verificata contiene 168 pozzi, che corrispondono esattamente alla heatmap filtrata. Una verifica prima e dopo di SHA-256 conferma che il database delle misurazioni di origine è identico a byte, completando un passaggio di controllo della qualità delle lastre solo per lettura con una tabella derivata tracciabile.",
+          "visual": "14_exported",
+          "focus_key": "status",
+          "hold_after": 0.86,
+          "speech_text": "L'esportazione verificata contiene 168 pozzi, che corrispondono esattamente alla heatmap filtrata. Una verifica prima e dopo di SHA-256 conferma che il database delle misurazioni di origine è identico a byte, completando un passaggio di controllo della qualità delle lastre solo per lettura con una tabella derivata tracciabile."
         }
       ]
     },

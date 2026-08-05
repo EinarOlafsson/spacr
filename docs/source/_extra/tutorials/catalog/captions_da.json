@@ -1823,19 +1823,46 @@
       "id": "33_plate_viewer",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Plate Viewer. Undersøg alle målinger som et pladevarmekort og identificere rumlige artefakter eller kanteffekter."
+          "narration": "Plate Viewer forvandler enhver objektsmåling til et velvarmekort og placerer kant-effektdiagnostik ved siden af det. Åbn det fra Resultater og kvalitetskontrol. Arbejdstrømmen er strukturelt kun læsbart: spaCR åbner måledatabasen i kun forespørgselstilstand og skriver kun et valgfrit eksporteret CSV."
         },
         {
-          "narration": "Åben Plate Viewer fra afsnittet Resultater og kvalitetskontrol. Åbn en måledatabase med plade-, brønne- og tilstandsidentifikatorer."
+          "narration": "Drop en måledatabase eller dens køre mappe, eller vælg enten her. Dette er den virkelige database i det overførte eksperiment, der indeholder 81.969 målede celler på 196 brønde. Plate Viewer læser tabelnavne og kun de identifikator- og målekolonne, der er nødvendige for den valgte visning."
         },
         {
-          "narration": "I det vigtigste konfigurationsområde skal du vælge måling, aggregering, normalisering, farveskala, kontroller og pladelayout."
+          "narration": "Vælg celletabellen og en numerisk funktion. Her vælger vi den gennemsnitlige intensitet af kanal 1, den endoplasmisk-reticulum kanal. Efter den første rendering er Plate-sælgeren fyldt med data; denne database indeholder plade 1."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. sammenligne rå og normaliseret udsigt og inspicere mistænkelige brønde eller systematiske kantmønstre."
+          "narration": "Per brønd kontrollerer, hvordan objekter kollapser til en værdi. Midt- og median opsummerer den valgte funktion, mens Count tegner objektnummer. Den robuste 2- til 98 procent farveskala forhindrer, at den ene ekstreme brønd fladder resten, og minimumsobjekter pr. brønd markerer underkvalificerede brønde som tomme i stedet for nul."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, kan der eksporteres varmebilleder, udvalgte brønnetabeller og rand-effektdiagnostik."
+          "narration": "Klik på Render med middel, den robuste skala og mindst 100 celler. Databasen forespørgsel er caché, så senere ændringer til aggregering, farveskala, plade, eller minimum tal genberegne visningen uden at læse den fulde funktion tabellen igen."
+        },
+        {
+          "narration": "Alle 196 målede brønde overlevede. Den gennemsnitlige ER-intensitet har ingen kategorisk ydre ring effekt, men den virkelige rapport opdager en monoton rækkegradient med Spearman rho 0,454. Ringprofilen og række- og kolumndiagnostikken holder denne rumlige tendens synlig ved siden af varmekortet i stedet for at lade det skjule sig som biologi."
+        },
+        {
+          "narration": "Klik på et hvilket som helst brønd for at finde dens nøjagtige identifikator, objektantal, samlede værdi og ringposition. G07 er en indre brønd her. Dette direkte kartlægning er nyttigt for at afgøre, om et tilsyneladende slag tilhører et rumligt mønster, før man åbner sine marker eller afgrøder et andet sted."
+        },
+        {
+          "narration": "Skift Per Well til Count. Count ignorerer den valgte intensitetsværdi og farver hver gang med hensyn til antallet af tilbageholdte celler, hvilket ofte er det hurtigste kvalitetskontroludsyn for toksicitet, segmentationstab, ulige afgrøder eller kant-afhængig vækst."
+        },
+        {
+          "narration": "Den virkelige tællevisning afslører en ydre ring effekt: kantbrønner indeholder 14,3 procent flere celler end det indre, med Cliffs delta 0.571 og p lig med 0.0003817. Rapporten angiver effektens retning og omfang i stedet for at bede dig om at udlede det ud fra bare farven."
+        },
+        {
+          "narration": "Løft Mindste objekter pr. brønd til 350, når det tal er det mindste bevis, der kræves for sammenligning. Filteret er en kvalitetsgrænse, ikke en imputationsregel: brøndene under det forlader den numeriske analyse og bliver krydset tomme."
+        },
+        {
+          "narration": "28 af de 196 målede brønde er nu droppet, hvilket efterlader 168 til kanttesten. Den ydre ring-effekt forbliver opdaget på plus 10,5 procent. Krydsede celler på varmekortet mangler efter filtrering; de er aldrig farvede, som om deres værdi var nul."
+        },
+        {
+          "narration": "Klik på en krydset brønd for at bekræfte, hvorfor den er tom. C14 indeholder 233 målede celler, der er færre end de krævede 350, så læsningen rapporterer tomme og benæmer tærsklen. Dette gør den lave støtte skelnelig fra en faktisk nul-tælling."
+        },
+        {
+          "narration": "Klik på Eksport godt grid CSV for at gemme den aktuelle ordenlige visning. Hver række bevarer velidentitet, objektantal, vist værdi, ringindeks og kantflag, så resultaterne på pladeniveau kan revideres eller opregnes uden for spaCR uden at eksportere objektniveaufunktionstabellen."
+        },
+        {
+          "narration": "Den verificerede eksport indeholder 168 brønde, der svarer nøjagtigt til det filtrerede varmekort. En kontrol før og efter SHA-256 bekræfter, at databasen for kildemålinger er byte-identisk og udfylder en kun-læse-plade-kvalitetskontrolpass med en sporbar afledt tabel."
         }
       ]
     },
