@@ -52,7 +52,7 @@ window.SPACR_YOUTUBE_LINKS = Object.freeze({
   "34_database": "bkjMZRbWlnU",                   // Database Browser
   "35_converter": "8gRXINFQQ7U",                  // Format Converter
   "36_import": "rQilrniNbMg",                     // Import Project
-  "37_batch": "",                      // Batch Runner
+  "37_batch": "I-Lg1Rqi-UQ",                      // Batch Runner
   "38_distributed_jobs": "aF63i0KHXxk",           // Distributed Jobs
   "39_classifier_evaluation": "ZusbvugRNlA",      // Classifier Evaluation
   "40_run_history": "jG2ERpPRhmc",                // Run History
