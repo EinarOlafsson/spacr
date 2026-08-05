@@ -1231,19 +1231,37 @@
       "id": "22_model_zoo",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker Model Zoo. Browse, verificere, downloade og referere til genanvendelige segmenterings- og klassificeringsmodeller."
+          "narration": "Model Zoo inventar Cellpose og klassifikator kontrolpunkter denne maskine kan nå. Det registrerer kilde, version, størrelse, checksum tilstand, trænings oprindelse og adfærd på et lille felt sæt, før en model går ind i en større arbejdsproces."
         },
         {
-          "narration": "Åben model dyrehave fra segmentationsmodeller-sektionen. Åbn katalogen og vælg modeller, der er kompatible med den aktuelle opgave og indgangskanale."
+          "narration": "Vælg eller drop en checkpoint mappe og klik på Scan. Opførslen kombinerer bundlede og erklærede katalogindskrifter med lokale CP-modellfiler, samtidig med at man undgår duplikerede stier."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal der gennemgå oprindelse, licens, checksum, forventet forudbehandling, opgavetype og lokal tilgængelighed."
+          "narration": "Vælg en række for at undersøge dens nøjagtige vej, størrelse, offentliggjort hash, træningsdata, afgrødegeometri, objektdiameter, epokalkning og forfatter. Ukendt oprindelse er en advarsel, ikke en universel kompatibilitetsansag."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. For det første er det nødvendigt at analysere de lovende modeller på et par repræsentative områder, inden man vedtager en for et fuldt eksperiment."
+          "narration": "Indlæg i fjernkatalog kan downloades til en valgt modelmappe. Verificerede downloads kræver en offentliggjort checksum; at acceptere en ikke-verificeret model er en eksplicit opt-in, fordi et forkert checkpoint stadig kan indlæse og producere plausible masker."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, forbliver verificerede modelfiler og benchmarkresultater forbundet med deres metadata."
+          "narration": "Test på felter indlæser et begrænset sæt benchmarks. Denne vejledning bruger tre reelle ER-kanalcelle afgrøder, så model hastighed, objekt tæller, kvalitetskontrol flag og forhåndsvisning henviser til de samme repræsentative billeder, der anvendes i Model Compare."
+        },
+        {
+          "narration": "Hvis der er valgt præcis en lokal model, skal du klikke på Test på tre felter. Referenceværdien segmenterer hvert billede og anvender segmenteringskvalitetskontrol uden at foregive, at det har præcisionsmærker."
+        },
+        {
+          "narration": "Under behandlingen identificeres i statuslinjen det valgte kontrolpunkt og antallet af felt. Benchmark-arbejdet kører uden for grænsefladet, så udvælgelse og fremskridt forbliver responsive."
+        },
+        {
+          "narration": "Kontrolpunktet producerede 115 celler på tre felter på seks point fem sekunder. To felt passerede segmentering QC; den sparsomme første afgrøde blev markeret for lavt objektantal og høj grænsefraktion."
+        },
+        {
+          "narration": "Ved at vælge en referenceret linje opdateres maskenoverlaget. Brug tabellen og billedet sammen: et kvalitetsflag identificerer et intrinsisk maskemønster, mens forhåndsvisning viser, om det mønster afspejler biologi, høstning eller en segmenteringsfejl."
+        },
+        {
+          "narration": "Vælg præcis to installerede modeller og klik på Sammenlign de to valgte. Model Zoo giver begge checkpoint stier, den samme felt mappe, og felttællingen i den dedikerede A-B sammenligningskærm."
+        },
+        {
+          "narration": "Ved overførslen åbnes Modellen sammenlignes med begge lokale kontrolpunkter og alle tre felt, der er fyldt forud. Fra her udføres parret sammenligning for at måle foregående aftale, retningsmæssige objektforskelle, splits, fusioner og QC pr. model."
         }
       ]
     },

@@ -4,47 +4,117 @@
   "voice": "bf_lily",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.35,
+  "total_duration": 151.2,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.95,
-      "scene_end": 8.4,
-      "duration": 8.4,
-      "text": "This tutorial covers Model Zoo. Browse, verify, download, and benchmark reusable segmentation and classifier models."
+      "speech_end": 13.525,
+      "scene_end": 14.025,
+      "duration": 14.025,
+      "text": "Model Zoo inventories Cellpose and classifier checkpoints this machine can reach. It records source, version, size, checksum state, training provenance, and behavior on a small field set before a model enters a larger workflow.",
+      "speech_text": "Model Zoo inventories Cellpose and classifier checkpoints this machine can reach. It records source, version, size, checksum state, training provenance, and behavior on a small field set before a model enters a larger workflow.",
+      "phonemes": "mˈɒdᵊl zˈuː ˈɪnvᵊntəɹiz sˈɛlpQz and klˈasɪfIə ʧˈɛkpYnts ðɪs məʃˈiːn kan ɹˈiːʧ. ˌɪt ɹɪkˈɔːdz sˈɔːs, vˈɜːʃᵊn, sˈIz, ʧˈɛksʌm stˈAt, tɹˈAnɪŋ pɹˈɒvɪnəns, and bɪhˈAvjə ˌɒn ɐ smˈɔːl fˈiːld sˈɛt bɪfˈɔː ɐ mˈɒdᵊl ˈɛntəz ɐ lˈɑːʤə wˈɜːkflQ."
     },
     {
       "scene": 2,
-      "speech_start": 8.4,
-      "speech_end": 17.475,
-      "scene_end": 17.925,
-      "duration": 9.525,
-      "text": "Open Model Zoo from the Segmentation models section. Open the catalog and select models compatible with the current task and input channels."
+      "speech_start": 14.025,
+      "speech_end": 24.525,
+      "scene_end": 25.025,
+      "duration": 10.999999999999998,
+      "text": "Choose or drop a checkpoint folder and click Scan. The listing combines bundled and declared catalogue entries with local CP-model files, while avoiding duplicate paths.",
+      "speech_text": "Choose or drop a checkpoint folder and click Scan. The listing combines bundled and declared catalogue entries with local CP-model files, while avoiding duplicate paths.",
+      "phonemes": "ʧˈuːz ɔː dɹˈɒp ɐ ʧˈɛkpYnt fˈQldə and klˈɪk skˈan. ðə lˈɪstɪŋ kəmbˈInz bˈʌndᵊld and dɪklˈɛːd kˈatəlɒɡ ˈɛntɹiz wɪð lˈQkᵊl sˌiːpˈiːmˌɒdᵊl fˈIlz, wˌIl əvˈYdɪŋ djˈuːplɪkət pˈɑːðz."
     },
     {
       "scene": 3,
-      "speech_start": 17.925,
-      "speech_end": 26.175,
-      "scene_end": 26.625,
-      "duration": 8.7,
-      "text": "In the main configuration area, review provenance, license, checksum, expected preprocessing, task type, and local availability."
+      "speech_start": 25.025,
+      "speech_end": 38.525,
+      "scene_end": 39.025,
+      "duration": 14.0,
+      "text": "Select one row to inspect its exact path, size, published hash, training data, crop geometry, object diameter, epoch count, and author. Unknown provenance is a warning, not a universal compatibility claim.",
+      "speech_text": "Select one row to inspect its exact path, size, published hash, training data, crop geometry, object diameter, epoch count, and author. Unknown provenance is a warning, not a universal compatibility claim.",
+      "phonemes": "sɪlˈɛkt wˈʌn ɹˈQ tʊ ɪnspˈɛkt ɪts ɪɡzˈakt pˈɑːθ, sˈIz, pˈʌblɪʃt hˈaʃ, tɹˈAnɪŋ dˈAtə, kɹˈɒp ʤɪˈɒmɪtɹi, ˈɒbʤɛkt dIˈamɪtə, ˈiːpɒk kˈWnt, and ˈɔːθə. ʌnnˈQn pɹˈɒvɪnəns ɪz ɐ wˈɔːnɪŋ, nˌɒt ɐ jˌuːnɪvˈɜːsᵊl kəmpˌatɪbˈɪlɪti klˈAm."
     },
     {
       "scene": 4,
-      "speech_start": 26.625,
-      "speech_end": 39.225,
-      "scene_end": 39.675000000000004,
-      "duration": 13.050000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. benchmark promising models on a few representative fields before adopting one for a full experiment."
+      "speech_start": 39.025,
+      "speech_end": 54.349999999999994,
+      "scene_end": 54.849999999999994,
+      "duration": 15.824999999999996,
+      "text": "Remote catalogue entries can be downloaded to a chosen model folder. Verified downloads require a published checksum; accepting an unverified model is an explicit opt-in because a wrong checkpoint can still load and produce plausible masks.",
+      "speech_text": "Remote catalogue entries can be downloaded to a chosen model folder. Verified downloads require a published checksum; accepting an unverified model is an explicit opt-in because a wrong checkpoint can still load and produce plausible masks.",
+      "phonemes": "ɹɪmˈQt kˈatəlɒɡ ˈɛntɹiz kan biː dˌWnlˈQdɪd tə ɐ ʧˈQzᵊn mˈɒdᵊl fˈQldə. vˈɛɹɪfˌId dˈWnlQdz ɹɪkwˈIə ɐ pˈʌblɪʃt ʧˈɛksʌm; əksˈɛptɪŋ ɐn ʌnvˈɛɹɪfId mˈɒdᵊl ɪz ɐn ɪksplˈɪsɪt ˈɒptˌɪn bɪkˈɒz ɐ ɹˈɒŋ ʧˈɛkpYnt kan stˈɪl lˈQd and pɹədjˈuːs plˈɔːzɪbᵊl mˈɑːsks."
     },
     {
       "scene": 5,
-      "speech_start": 39.675000000000004,
-      "speech_end": 46.7,
-      "scene_end": 47.35,
-      "duration": 7.674999999999997,
-      "text": "When the workflow finishes, verified model files and benchmark results remain associated with their metadata."
+      "speech_start": 54.849999999999994,
+      "speech_end": 69.89999999999999,
+      "scene_end": 70.39999999999999,
+      "duration": 15.549999999999997,
+      "text": "Test on fields loads a bounded benchmark set. This tutorial uses three real ER-channel cell crops, so model speed, object counts, quality-control flags, and previews refer to the same representative images used in Model Compare.",
+      "speech_text": "Test on fields loads a bounded benchmark set. This tutorial uses three real ER-channel cell crops, so model speed, object counts, quality-control flags, and previews refer to the same representative images used in Model Compare.",
+      "phonemes": "tˈɛst ˌɒn fˈiːldz lˈQdz ɐ bˈWndɪd bˈɛnʧmɑːk sˈɛt. ðˌɪs tjuːtˈɔːɹɪəl jˈuːzɪz θɹˈiː ɹˈɪəl iːˌɑːʧˈanᵊl sˈɛl kɹˈɒps, sˌQ mˈɒdᵊl spˈiːd, ˈɒbʤɛkt kˈWnts, kwˌɒlɪtikəntɹˈQl flˈaɡz, and pɹˈiːvjuːz ɹɪfˈɜː tə ðə sˈAm ɹˌɛpɹɪzˈɛntətɪv ˈɪmɪʤɪz jˈuːzd ɪn mˈɒdᵊl kəmpˈɛː."
+    },
+    {
+      "scene": 6,
+      "speech_start": 70.39999999999999,
+      "speech_end": 82.8,
+      "scene_end": 83.3,
+      "duration": 12.900000000000006,
+      "text": "With exactly one local model selected, click Test on three fields. The benchmark segments each image and applies segmentation quality control without pretending it has ground-truth accuracy labels.",
+      "speech_text": "With exactly one local model selected, click Test on three fields. The benchmark segments each image and applies segmentation quality control without pretending it has ground-truth accuracy labels.",
+      "phonemes": "wˌɪð ɪɡzˈaktli wˈʌn lˈQkᵊl mˈɒdᵊl sɪlˈɛktɪd, klˈɪk tˈɛst ˌɒn θɹˈiː fˈiːldz. ðə bˈɛnʧmɑːk sˈɛɡmᵊnts ˈiːʧ ˈɪmɪʤ and əplˈIz sˌɛɡmᵊntˈAʃᵊn kwˈɒlɪti kəntɹˈQl wɪðˈWt pɹɪtˈɛndɪŋ ɪt haz ɡɹˈWndtɹˌuːθ ˈakjʊɹəsi lˈAbᵊlz."
+    },
+    {
+      "scene": 7,
+      "speech_start": 83.3,
+      "speech_end": 94.3,
+      "scene_end": 94.75,
+      "duration": 11.450000000000003,
+      "text": "During processing, the status line identifies the selected checkpoint and field count. Benchmark work runs off the interface thread so selection and progress remain responsive.",
+      "speech_text": "During processing, the status line identifies the selected checkpoint and field count. Benchmark work runs off the interface thread so selection and progress remain responsive.",
+      "phonemes": "djˈʊəɹɪŋ pɹˈQsɛsɪŋ, ðə stˈAtəs lˈIn IdˈɛntɪfIz ðə sɪlˈɛktɪd ʧˈɛkpYnt and fˈiːld kˈWnt. bˈɛnʧmɑːk wˈɜːk ɹˈʌnz ˈɒf ði ˈɪntəfAs θɹˈɛd sˌQ sɪlˈɛkʃᵊn and pɹˈQɡɹɛs ɹɪmˈAn ɹɪspˈɒnsɪv."
+    },
+    {
+      "scene": 8,
+      "speech_start": 94.75,
+      "speech_end": 108.25,
+      "scene_end": 108.85,
+      "duration": 14.099999999999994,
+      "text": "The custom checkpoint produced one hundred fifty-one cells over three fields in six point five seconds. Two fields passed segmentation QC; the sparse first crop was flagged for low object count and high border fraction.",
+      "speech_text": "The custom checkpoint produced one hundred fifty-one cells over three fields in six point five seconds. Two fields passed segmentation QC; the sparse first crop was flagged for low object count and high border fraction.",
+      "phonemes": "ðə kˈʌstəm ʧˈɛkpYnt pɹədjˈuːst wˈʌn hˈʌndɹəd fˈɪftiwˌʌn sˈɛlz ˈQvə θɹˈiː fˈiːldz ɪn sˈɪks pˈYnt fˈIv sˈɛkᵊndz. tˈuː fˈiːldz pˈɑːst sˌɛɡmᵊntˈAʃᵊn kjˌuːsˈiː; ðə spˈɑːs fˈɜːst kɹˈɒp wɒz flˈaɡd fɔː lˈQ ˈɒbʤɛkt kˈWnt and hˈI bˈɔːdə fɹˈakʃᵊn."
+    },
+    {
+      "scene": 9,
+      "speech_start": 108.85,
+      "speech_end": 123.425,
+      "scene_end": 123.975,
+      "duration": 15.125,
+      "text": "Selecting a benchmark row updates the mask overlay. Use the table and image together: a quality flag identifies an intrinsic mask pattern, while the preview shows whether that pattern reflects biology, cropping, or a segmentation failure.",
+      "speech_text": "Selecting a benchmark row updates the mask overlay. Use the table and image together: a quality flag identifies an intrinsic mask pattern, while the preview shows whether that pattern reflects biology, cropping, or a segmentation failure.",
+      "phonemes": "sɪlˈɛktɪŋ ɐ bˈɛnʧmɑːk ɹˈQ ˌʌpdˈAts ðə mˈɑːsk ˈQvəlA. jˈuːz ðə tˈAbᵊl and ˈɪmɪʤ təɡˈɛðə: ɐ kwˈɒlɪti flˈaɡ IdˈɛntɪfIz ɐn ɪntɹˈɪnsɪk mˈɑːsk pˈatᵊn, wˌIl ðə pɹˈiːvjuː ʃˈQz wˈɛðə ðˈat pˈatᵊn ɹɪflˈɛkts bIˈɒləʤi, kɹˈɒpɪŋ, ɔː ɐ sˌɛɡmᵊntˈAʃᵊn fˈAljə."
+    },
+    {
+      "scene": 10,
+      "speech_start": 123.975,
+      "speech_end": 136.325,
+      "scene_end": 136.825,
+      "duration": 12.849999999999994,
+      "text": "Select exactly two installed models and click Compare the two selected. Model Zoo hands both checkpoint paths, the same field folder, and the field count into the dedicated A-B comparison screen.",
+      "speech_text": "Select exactly two installed models and click Compare the two selected. Model Zoo hands both checkpoint paths, the same field folder, and the field count into the dedicated A-B comparison screen.",
+      "phonemes": "sɪlˈɛkt ɪɡzˈaktli tˈuː ɪnstˈɔːld mˈɒdᵊlz and klˈɪk kəmpˈɛː ðə tˈuː sɪlˈɛktɪd. mˈɒdᵊl zˈuː hˈandz bˈQθ ʧˈɛkpYnt pˈɑːðz, ðə sˈAm fˈiːld fˈQldə, and ðə fˈiːld kˈWnt ˈɪntuː ðə dˈɛdɪkAtɪd ˈAbˌiː kəmpˈaɹɪsᵊn skɹˈiːn."
+    },
+    {
+      "scene": 11,
+      "speech_start": 136.825,
+      "speech_end": 150.5,
+      "scene_end": 151.2,
+      "duration": 14.375,
+      "text": "The handoff opens Model Compare with both local checkpoints and all three fields preloaded. From here, run the paired comparison to measure foreground agreement, directional object differences, splits, merges, and per-model QC.",
+      "speech_text": "The handoff opens Model Compare with both local checkpoints and all three fields preloaded. From here, run the paired comparison to measure foreground agreement, directional object differences, splits, merges, and per-model QC.",
+      "phonemes": "ðə hˈandɒf ˈQpᵊnz mˈɒdᵊl kəmpˈɛː wɪð bˈQθ lˈQkᵊl ʧˈɛkpYnts and ˈɔːl θɹˈiː fˈiːldz pɹˌiːlˈQdɪd. fɹˌɒm hˈɪə, ɹˈʌn ðə pˈɛːd kəmpˈaɹɪsᵊn tə mˈɛʒə fˈɔːɡɹWnd əɡɹˈiːmᵊnt, dɪɹˈɛkʃənᵊl ˈɒbʤɛkt dˈɪfəɹənsɪz, splˈɪts, mˈɜːʤɪz, and pɜːmˈɒdᵊl kjˌuːsˈiː."
     }
   ]
 }

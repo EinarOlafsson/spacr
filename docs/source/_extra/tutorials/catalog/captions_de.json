@@ -1231,19 +1231,37 @@
       "id": "22_model_zoo",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt den Model Zoo. Durchsuchen, überprüfen, herunterladen und Benchmarken wiederverwendbarer Segmentierungs- und Klassifizierungsmodelle."
+          "narration": "Modell-Zoo-Inventare Cellpose und Klassifikator Checkpoints, die diese Maschine erreichen kann. Es erfasst Quelle, Version, Größe, Checksum-Zustand, Ausbildungsergebnis und Verhalten auf einem kleinen Feld, bevor ein Modell in einen größeren Workflow eintritt."
         },
         {
-          "narration": "Öffnen Sie den Zoo-Modell aus dem Abschnitt Segmentierung von Modellen. Öffnen Sie den Katalog und wählen Sie Modelle aus, die mit der aktuellen Aufgabe und den Eingabe-Kanälen kompatibel sind."
+          "narration": "Wählen Sie einen Checkpoint-Ordner aus oder lassen Sie ihn fallen und klicken Sie auf Scan. Die Auflistung kombiniert gebündelte und deklarierte Katalogbeiträge mit lokalen CP-Modelldateien und vermeidet gleichzeitig duplizierte Pfade."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie Herkunft, Lizenz, Prüfsumme, erwartete Vorverarbeitung, Aufgabenart und lokale Verfügbarkeit."
+          "narration": "Wählen Sie eine Zeile aus, um den genauen Weg, die Größe, das veröffentlichte Hash, die Trainingsdaten, die Geometrie der Ernte, den Objektdiameter, die Epochenzahl und den Autor zu überprüfen. Unbekannte Herkunft ist eine Warnung, nicht ein allgemeiner Kompatibilitätsanspruch."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Vergleichsmodelle für vielversprechende Modelle in einigen repräsentativen Bereichen vor der Einführung eines vollständigen Experiments."
+          "narration": "Entfernte Katalog-Einträge können in einen gewählten Modellordner heruntergeladen werden. Überprüfte Downloads erfordern eine veröffentlichte Checksumme; die Annahme eines unüberprüften Modells ist eine explizite Opt-in, da ein falscher Checkpoint immer noch plausible Masken laden und produzieren kann."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, bleiben die verifizierten Modelldateien und Benchmark-Ergebnisse mit ihren Metadaten verbunden."
+          "narration": "Test auf Feldern lädt einen begrenzten Benchmark-Set auf. Dieses Tutorial verwendet drei echte ER-Kanal-Zellpflanzen, so dass Modellgeschwindigkeit, Objektzählung, Qualitätskontrollflaggen und Vorschau auf die gleichen repräsentativen Bilder beziehen, die in Modellvergleichen verwendet werden."
+        },
+        {
+          "narration": "Wenn genau ein lokales Modell ausgewählt wurde, klicken Sie auf Test auf drei Feldern. Der Benchmark segmentiert jedes Bild und führt eine Segmentierungskvalitätskontrolle durch, ohne vorzugeben, dass es eine Genauigkeitskennzeichnung aufweist."
+        },
+        {
+          "narration": "Während der Verarbeitung wird in der Statuszeile der ausgewählte Kontrollpunkt und die Feldzahl identifiziert. Benchmark-Arbeit läuft aus dem Schnittstellen-Thread, so dass Auswahl und Fortschritt weiterhin reaktionsfähig bleiben."
+        },
+        {
+          "narration": "Der benutzerdefinierte Checkpoint produzierte in sechs Punkten fünf Sekunden einhundertfünfzig Zellen über drei Felder. Zwei Felder passierten die Segmentierung QC; die spärliche erste Ernte wurde für eine niedrige Objektzahl und eine hohe Grenzfraktion markiert."
+        },
+        {
+          "narration": "Die Auswahl einer Benchmark-Zeile aktualisiert die Maskenüberlagerung. Verwenden Sie die Tabelle und das Bild zusammen: Eine Qualitätsflagge identifiziert ein intrinsisches Maskenmuster, während die Vorschau zeigt, ob dieses Muster die Biologie, die Ernte oder ein Segmentierungsfehler widerspiegelt."
+        },
+        {
+          "narration": "Wählen Sie genau zwei installierte Modelle aus und klicken Sie auf Vergleichen der beiden ausgewählten Modelle. Das Modell Zoo gibt beide Checkpoint-Wege, den gleichen Feldordner und die Feldzählung in den speziellen A-B-Vergleichsschirm."
+        },
+        {
+          "narration": "Die Übergabe öffnet Modellvergleiche mit beiden lokalen Checkpoints und allen drei vorgeladenen Feldern. Von hier aus führen Sie den Paarvergleich aus, um die Vordergrundvereinbarung, die Richtungsunterschiede, Splits, Fusionen und die QC pro Modell zu messen."
         }
       ]
     },

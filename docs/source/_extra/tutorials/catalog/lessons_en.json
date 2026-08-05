@@ -3194,48 +3194,98 @@
     {
       "id": "22_model_zoo",
       "number": 22,
-      "slug": "model_zoo",
+      "slug": "model-zoo",
       "title": "Model Zoo",
       "series": 2,
       "app_key": "model_zoo",
       "section": "Segmentation models",
-      "description": "Browse, verify, download, and benchmark reusable segmentation and classifier models.",
+      "description": "Discover local and catalogued checkpoints, inspect provenance and checksums, benchmark masks on representative fields, and hand two candidates to Model Compare.",
       "objectives": [
-        "Understand when to use Model Zoo.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Scan checkpoint folders and distinguish local, bundled, and remote entries.",
+        "Inspect provenance, checksum, download, and safe-install information.",
+        "Benchmark one model and hand two local candidates to Model Compare."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Prepare a checkpoint folder and a small set of representative microscopy fields.",
       "scenes": [
         {
-          "narration": "This tutorial covers Model Zoo. Browse, verify, download, and benchmark reusable segmentation and classifier models.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Model Zoo. Browse, verify, download, and benchmark reusable segmentation and classifier models."
+          "narration": "Model Zoo inventories Cellpose and classifier checkpoints this machine can reach. It records source, version, size, checksum state, training provenance, and behavior on a small field set before a model enters a larger workflow.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "Model Zoo inventories Cellpose and classifier checkpoints this machine can reach. It records source, version, size, checksum state, training provenance, and behavior on a small field set before a model enters a larger workflow."
         },
         {
-          "narration": "Open Model Zoo from the Segmentation models section. Open the catalog and select models compatible with the current task and input channels.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Model Zoo from the Segmentation models section. Open the catalog and select models compatible with the current task and input channels."
+          "narration": "Choose or drop a checkpoint folder and click Scan. The listing combines bundled and declared catalogue entries with local CP-model files, while avoiding duplicate paths.",
+          "visual": "02_scanned",
+          "focus_key": "catalogue",
+          "click_key": "scan",
+          "hold_after": 0.5,
+          "speech_text": "Choose or drop a checkpoint folder and click Scan. The listing combines bundled and declared catalogue entries with local C P model files, while avoiding duplicate paths."
         },
         {
-          "narration": "In the main configuration area, review provenance, license, checksum, expected preprocessing, task type, and local availability.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, review provenance, license, checksum, expected preprocessing, task type, and local availability."
+          "narration": "Select one row to inspect its exact path, size, published hash, training data, crop geometry, object diameter, epoch count, and author. Unknown provenance is a warning, not a universal compatibility claim.",
+          "visual": "03_provenance",
+          "focus_key": "detail",
+          "hold_after": 0.5,
+          "speech_text": "Select one row to inspect its exact path, size, published hash, training data, crop geometry, object diameter, epoch count, and author. Unknown provenance is a warning, not a universal compatibility claim."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. benchmark promising models on a few representative fields before adopting one for a full experiment.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. benchmark promising models on a few representative fields before adopting one for a full experiment."
+          "narration": "Remote catalogue entries can be downloaded to a chosen model folder. Verified downloads require a published checksum; accepting an unverified model is an explicit opt-in because a wrong checkpoint can still load and produce plausible masks.",
+          "visual": "03_provenance",
+          "focus_key": "download",
+          "hold_after": 0.5,
+          "speech_text": "Remote catalogue entries can be downloaded to a chosen model folder. Verified downloads require a published checksum; accepting an unverified model is an explicit opt in because a wrong checkpoint can still load and produce plausible masks."
         },
         {
-          "narration": "When the workflow finishes, verified model files and benchmark results remain associated with their metadata.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, verified model files and benchmark results remain associated with their metadata."
+          "narration": "Test on fields loads a bounded benchmark set. This tutorial uses three real ER-channel cell crops, so model speed, object counts, quality-control flags, and previews refer to the same representative images used in Model Compare.",
+          "visual": "04_fields",
+          "focus_key": "field_controls",
+          "hold_after": 0.5,
+          "speech_text": "Test on fields loads a bounded benchmark set. This tutorial uses three real E R channel cell crops, so model speed, object counts, quality control flags, and previews refer to the same representative images used in Model Compare."
+        },
+        {
+          "narration": "With exactly one local model selected, click Test on three fields. The benchmark segments each image and applies segmentation quality control without pretending it has ground-truth accuracy labels.",
+          "visual": "05_test",
+          "focus_key": "field_controls",
+          "click_key": "test",
+          "hold_after": 0.5,
+          "speech_text": "With exactly one local model selected, click Test on three fields. The benchmark segments each image and applies segmentation quality control without pretending it has ground truth accuracy labels."
+        },
+        {
+          "narration": "During processing, the status line identifies the selected checkpoint and field count. Benchmark work runs off the interface thread so selection and progress remain responsive.",
+          "visual": "06_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "During processing, the status line identifies the selected checkpoint and field count. Benchmark work runs off the interface thread so selection and progress remain responsive."
+        },
+        {
+          "narration": "The custom checkpoint produced one hundred fifty-one cells over three fields in six point five seconds. Two fields passed segmentation QC; the sparse first crop was flagged for low object count and high border fraction.",
+          "visual": "07_benchmark",
+          "focus_key": "benchmark",
+          "hold_after": 0.6,
+          "speech_text": "The custom checkpoint produced one hundred fifty one cells over three fields in six point five seconds. Two fields passed segmentation quality control; the sparse first crop was flagged for low object count and high border fraction."
+        },
+        {
+          "narration": "Selecting a benchmark row updates the mask overlay. Use the table and image together: a quality flag identifies an intrinsic mask pattern, while the preview shows whether that pattern reflects biology, cropping, or a segmentation failure.",
+          "visual": "08_field_two",
+          "focus_key": "preview",
+          "hold_after": 0.55,
+          "speech_text": "Selecting a benchmark row updates the mask overlay. Use the table and image together: a quality flag identifies an intrinsic mask pattern, while the preview shows whether that pattern reflects biology, cropping, or a segmentation failure."
+        },
+        {
+          "narration": "Select exactly two installed models and click Compare the two selected. Model Zoo hands both checkpoint paths, the same field folder, and the field count into the dedicated A-B comparison screen.",
+          "visual": "09_two_selected",
+          "focus_key": "catalogue",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "Select exactly two installed models and click Compare the two selected. Model Zoo hands both checkpoint paths, the same field folder, and the field count into the dedicated A B comparison screen."
+        },
+        {
+          "narration": "The handoff opens Model Compare with both local checkpoints and all three fields preloaded. From here, run the paired comparison to measure foreground agreement, directional object differences, splits, merges, and per-model QC.",
+          "visual": "10_compare_handoff",
+          "focus_key": "comparison",
+          "hold_after": 0.7,
+          "speech_text": "The handoff opens Model Compare with both local checkpoints and all three fields preloaded. From here, run the paired comparison to measure foreground agreement, directional object differences, splits, merges, and per model quality control."
         }
       ]
     },

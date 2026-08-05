@@ -3179,48 +3179,98 @@
     {
       "id": "22_model_zoo",
       "number": 22,
-      "slug": "model_zoo",
-      "title": "Model Zoo",
+      "slug": "model-zoo",
+      "title": "Modello zoologico",
       "series": 2,
       "app_key": "model_zoo",
       "section": "Segmentation models",
-      "description": "Per la valutazione del rischio di rischio, la Commissione deve procedere a una valutazione del rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di rischio di",
+      "description": "Scopri i checkpoint locali e catalogati, controlla la provenienza e le somme di controllo, segnala le maschere di riferimento sui campi rappresentativi e consegna due candidati al Modello Compare.",
       "objectives": [
-        "Capire quando usare lo Zoo Modello.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Scanner le cartelle dei checkpoint e distinguere le voci locali, bundled e remote.",
+        "Controllare l'origine, la somma di controllo, il download e l'installazione sicura delle informazioni.",
+        "Benchmark un modello e consegnare due candidati locali al Modello Compare."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Preparare una cartella dei punti di controllo e una piccola serie di campi di microscopia rappresentativa.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre il Zoo Modello.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre il Zoo Modello."
+          "narration": "I modelli degli inventari zoologici Cellpose e i checkpoint di classificazione che questa macchina può raggiungere. Registra la fonte, la versione, la dimensione, lo stato della somma di controllo, la provenienza della formazione e il comportamento su un piccolo set di campi prima che un modello entri in un flusso di lavoro più grande.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.5,
+          "speech_text": "I modelli degli inventari zoologici Cellpose e i checkpoint di classificazione che questa macchina può raggiungere. Registra la fonte, la versione, la dimensione, lo stato della somma di controllo, la provenienza della formazione e il comportamento su un piccolo set di campi prima che un modello entri in un flusso di lavoro più grande."
         },
         {
-          "narration": "Apri Model Zoo dalla sezione Segmentation models. Apri il catalogo e seleziona i modelli compatibili con l'attuale attività e i canali di input.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Model Zoo dalla sezione Segmentation models. Apri il catalogo e seleziona i modelli compatibili con l'attuale attività e i canali di input."
+          "narration": "Scegliere o lasciare cadere una cartella di checkpoint e fare clic su Scansione. L'elenco combina le voci del catalogo bundled e dichiarate con i file del modello CP locali, evitando al contempo percorsi duplicati.",
+          "visual": "02_scanned",
+          "focus_key": "catalogue",
+          "click_key": "scan",
+          "hold_after": 0.5,
+          "speech_text": "Scegliere o lasciare cadere una cartella di checkpoint e fare clic su Scansione. L'elenco combina le voci del catalogo bundled e dichiarate con i file del modello CP locali, evitando al contempo percorsi duplicati."
         },
         {
-          "narration": "Nell'area di configurazione principale, verifica provenienza, licenza, somma di controllo, pre-elaborazione prevista, tipo di attività e disponibilità locale.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, verifica provenienza, licenza, somma di controllo, pre-elaborazione prevista, tipo di attività e disponibilità locale."
+          "narration": "Selezionare una riga per ispezionare il suo percorso esatto, dimensione, hash pubblicato, dati di formazione, geometria del raccolto, diametro dell'oggetto, conteggio di epoche e autore. La provenienza sconosciuta è un avvertimento, non un'affermazione di compatibilità universale.",
+          "visual": "03_provenance",
+          "focus_key": "detail",
+          "hold_after": 0.5,
+          "speech_text": "Selezionare una riga per ispezionare il suo percorso esatto, dimensione, hash pubblicato, dati di formazione, geometria del raccolto, diametro dell'oggetto, conteggio di epoche e autore. La provenienza sconosciuta è un avvertimento, non un'affermazione di compatibilità universale."
         },
         {
-          "narration": "Prima della completa esecuzione, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando una è disponibile.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima della completa esecuzione, rivedere le impostazioni visibili e utilizzare una modalità di anteprima o di test quando una è disponibile."
+          "narration": "Le voci del catalogo a distanza possono essere scaricate in una cartella del modello scelto. I download verificati richiedono una somma di controllo pubblicata; accettare un modello non verificato è un opt-in esplicito perché un checkpoint sbagliato può comunque caricare e produrre maschere plausibili.",
+          "visual": "03_provenance",
+          "focus_key": "download",
+          "hold_after": 0.5,
+          "speech_text": "Le voci del catalogo a distanza possono essere scaricate in una cartella del modello scelto. I download verificati richiedono una somma di controllo pubblicata; accettare un modello non verificato è un opt-in esplicito perché un checkpoint sbagliato può comunque caricare e produrre maschere plausibili."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, i file di modello verificati e i risultati dei benchmark rimangono associati ai loro metadati.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, i file di modello verificati e i risultati dei benchmark rimangono associati ai loro metadati."
+          "narration": "Il test sui campi carica un set di valori di riferimento limitati. Questo tutorial utilizza tre vere colture di cellule ER-channel, quindi la velocità del modello, il conteggio degli oggetti, le bandiere di controllo della qualità e le anteprima si riferiscono alle stesse immagini rappresentative utilizzate in Model Compare.",
+          "visual": "04_fields",
+          "focus_key": "field_controls",
+          "hold_after": 0.5,
+          "speech_text": "Il test sui campi carica un set di valori di riferimento limitati. Questo tutorial utilizza tre vere colture di cellule ER-channel, quindi la velocità del modello, il conteggio degli oggetti, le bandiere di controllo della qualità e le anteprima si riferiscono alle stesse immagini rappresentative utilizzate in Model Compare."
+        },
+        {
+          "narration": "Con esattamente un modello locale selezionato, fare clic su Test su tre campi. L'indice di riferimento segmenta ogni immagine e applica il controllo di qualità di segmentazione senza pretendere di avere etichette di precisione di base.",
+          "visual": "05_test",
+          "focus_key": "field_controls",
+          "click_key": "test",
+          "hold_after": 0.5,
+          "speech_text": "Con esattamente un modello locale selezionato, fare clic su Test su tre campi. L'indice di riferimento segmenta ogni immagine e applica il controllo di qualità di segmentazione senza pretendere di avere etichette di precisione di base."
+        },
+        {
+          "narration": "Durante l'elaborazione, la riga di stato identifica il punto di controllo selezionato e il numero di campi. Il lavoro di Benchmark viene eseguito fuori dal thread dell'interfaccia in modo che la selezione e il progresso rimangano responsive.",
+          "visual": "06_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Durante l'elaborazione, la riga di stato identifica il punto di controllo selezionato e il numero di campi. Il lavoro di Benchmark viene eseguito fuori dal thread dell'interfaccia in modo che la selezione e il progresso rimangano responsive."
+        },
+        {
+          "narration": "Il checkpoint personalizzato ha prodotto centocinquanta una cellule su tre campi in sei punti cinque secondi. Due campi hanno superato la segmentazione QC; la prima coltura scarsa è stata contrassegnata per un basso numero di oggetti e per una alta frazione di confine.",
+          "visual": "07_benchmark",
+          "focus_key": "benchmark",
+          "hold_after": 0.6,
+          "speech_text": "Il checkpoint personalizzato ha prodotto centocinquanta una cellule su tre campi in sei punti cinque secondi. Due campi hanno superato la segmentazione QC; la prima coltura scarsa è stata contrassegnata per un basso numero di oggetti e per una alta frazione di confine."
+        },
+        {
+          "narration": "Selezionare una riga di riferimento aggiorna la sovrapposizione della maschera. Utilizzare insieme la tabella e l'immagine: una bandiera di qualità identifica un modello intrinseco di maschera, mentre l'anteprima mostra se quel modello riflette la biologia, il raccolto o un fallimento di segmentazione.",
+          "visual": "08_field_two",
+          "focus_key": "preview",
+          "hold_after": 0.55,
+          "speech_text": "Selezionare una riga di riferimento aggiorna la sovrapposizione della maschera. Utilizzare insieme la tabella e l'immagine: una bandiera di qualità identifica un modello intrinseco di maschera, mentre l'anteprima mostra se quel modello riflette la biologia, il raccolto o un fallimento di segmentazione."
+        },
+        {
+          "narration": "Selezionare esattamente due modelli installati e fare clic su Confronta i due selezionati. Il modello Zoo consegna entrambi i percorsi dei checkpoint, la stessa cartella di campi e il numero di campi nello schermo di confronto dedicato A-B.",
+          "visual": "09_two_selected",
+          "focus_key": "catalogue",
+          "click_key": "compare",
+          "hold_after": 0.5,
+          "speech_text": "Selezionare esattamente due modelli installati e fare clic su Confronta i due selezionati. Il modello Zoo consegna entrambi i percorsi dei checkpoint, la stessa cartella di campi e il numero di campi nello schermo di confronto dedicato A-B."
+        },
+        {
+          "narration": "La consegna apre il modello di confronto con entrambi i checkpoint locali e tutti e tre i campi precaricati. Da qui, eseguire il confronto in coppia per misurare accordo di primo piano, differenze di oggetti direzionali, divisioni, fusioni e QC per modello.",
+          "visual": "10_compare_handoff",
+          "focus_key": "comparison",
+          "hold_after": 0.7,
+          "speech_text": "La consegna apre il modello di confronto con entrambi i checkpoint locali e tutti e tre i campi precaricati. Da qui, eseguire il confronto in coppia per misurare accordo di primo piano, differenze di oggetti direzionali, divisioni, fusioni e QC per modello."
         }
       ]
     },

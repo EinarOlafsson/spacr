@@ -4,47 +4,117 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 41.75,
+  "total_duration": 177.025,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 2.6,
-      "scene_end": 3.0500000000000003,
-      "duration": 3.0500000000000003,
-      "text": "Ce tutoriel couvre le modèle zoo."
+      "speech_end": 17.5,
+      "scene_end": 18.0,
+      "duration": 18.0,
+      "text": "Modèles d'inventaires zoologiques Cellpose et les points de contrôle de classement que cette machine peut atteindre. Il enregistre la source, la version, la taille, l'état de la somme de contrôle, la provenance de l'entraînement et le comportement sur un petit ensemble de champs avant qu'un modèle n'entre dans un flux de travail plus grand.",
+      "speech_text": "Modèles d'inventaires zoologiques Cellpose et les points de contrôle de classement que cette machine peut atteindre. Il enregistre la source, la version, la taille, l'état de la somme de contrôle, la provenance de l'entraînement et le comportement sur un petit ensemble de champs avant qu'un modèle n'entre dans un flux de travail plus grand.",
+      "phonemes": "modˈɛl dɛ̃vɑ̃tˈɛʁ zooloʒˈik sɛlpˈɔz e le pwˈɛ̃ də kɔ̃tʁˈoːl də klasmˈɑ̃ kə sɛt maʃˈin pˈøt atˈɛ̃dʁ. il ɑ̃ʁʒˈistʁ la sˈuʁs, la vɛʁsjˈɔ̃, la tˈaj, letˈa də la sˈɔm də kɔ̃tʁˈoːl, la pʁovnˈɑ̃s də lɑ̃tʁɛnmˈɑ̃ e lə kɔ̃pɔʁtəmˈɑ̃ syʁ œ̃ pətˈit ɑ̃sˈɑ̃bl də ʃˈɑ̃ avˌɑ̃ kœ̃ modˈɛl nˈɑ̃tʁ dɑ̃z œ̃ flˈy də tʁavˈaj ply ɡʁˈɑ̃."
     },
     {
       "scene": 2,
-      "speech_start": 3.0500000000000003,
-      "speech_end": 12.8,
-      "scene_end": 13.25,
-      "duration": 10.2,
-      "text": "Ouvrez Model Zoo dans la section Segmentation models. Ouvrez le catalogue et sélectionnez les modèles compatibles avec la tâche et les canaux d'entrée actuels."
+      "speech_start": 18.0,
+      "speech_end": 30.4,
+      "scene_end": 30.9,
+      "duration": 12.899999999999999,
+      "text": "Choisissez ou laissez tomber un dossier de checkpoint et cliquez sur Scan. La liste combine les entrées du catalogue regroupées et déclarées avec des fichiers de modèle CP locaux, tout en évitant les chemins dupliqués.",
+      "speech_text": "Choisissez ou laissez tomber un dossier de checkpoint et cliquez sur Scan. La liste combine les entrées du catalogue regroupées et déclarées avec des fichiers de modèle CP locaux, tout en évitant les chemins dupliqués.",
+      "phonemes": "ʃwazisˈe u lɛsˈe tɔ̃bˈe œ̃ dɔsjˈe də ʃɛkpwˈɛ̃ e klikˈe syʁ skˈan. la lˈist kɔ̃bˈin lez ɑ̃tʁˈe dy katalˈoɡ ʁəɡʁupˈez e deklaʁˈe avˌɛk de fiʃjˈe də modˈɛl sˌepˈe lokˈo, tut ɑ̃n evitˈɑ̃ le ʃəmˈɛ̃ dyplikˈe."
     },
     {
       "scene": 3,
-      "speech_start": 13.25,
-      "speech_end": 23.95,
-      "scene_end": 24.4,
-      "duration": 11.149999999999999,
-      "text": "Dans la zone de configuration principale, vérifier la provenance, la licence, la somme de contrôle, le prétraitement prévu, le type de tâche et la disponibilité locale."
+      "speech_start": 30.9,
+      "speech_end": 46.599999999999994,
+      "scene_end": 47.099999999999994,
+      "duration": 16.199999999999996,
+      "text": "Sélectionnez une ligne pour inspecter son parcours exact, sa taille, son hash publié, ses données d'entraînement, sa géométrie, son diamètre, son nombre d'époques et son auteur. L'origine inconnue est un avertissement et non une affirmation de compatibilité universelle.",
+      "speech_text": "Sélectionnez une ligne pour inspecter son parcours exact, sa taille, son hash publié, ses données d'entraînement, sa géométrie, son diamètre, son nombre d'époques et son auteur. L'origine inconnue est un avertissement et non une affirmation de compatibilité universelle.",
+      "phonemes": "selɛksjɔnˈez yn lˈiɲ puʁ ɛ̃spɛktˈe sɔ̃ paʁkˈuʁz ɛɡzˈakt, sa tˈaj, sɔ̃ hˈaʃ pybliˈe, se dɔnˈe dɑ̃tʁɛnmˈɑ̃, sa ʒeometʁˈi, sɔ̃ djamˈɛtʁ, sɔ̃ nˈɔ̃bʁ depˈokz e sɔ̃n otˈœʁ. loʁiʒˈin ɛ̃kɔnˈy ɛt œ̃n avɛʁtismˈɑ̃ e nɔ̃ yn afiʁmasjˈɔ̃ də kɔ̃patibilitˈe ynivɛʁsˈɛl."
     },
     {
       "scene": 4,
-      "speech_start": 24.4,
-      "speech_end": 31.775,
-      "scene_end": 32.225,
-      "duration": 7.825000000000003,
-      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il y en a un."
+      "speech_start": 47.099999999999994,
+      "speech_end": 64.19999999999999,
+      "scene_end": 64.69999999999999,
+      "duration": 17.599999999999994,
+      "text": "Les entrées de catalogue à distance peuvent être téléchargées dans un dossier de modèle choisi. Les téléchargements vérifiés nécessitent une somme de contrôle publiée; accepter un modèle non vérifié est une option explicite car un point de contrôle erroné peut toujours charger et produire des masques plausibles.",
+      "speech_text": "Les entrées de catalogue à distance peuvent être téléchargées dans un dossier de modèle choisi. Les téléchargements vérifiés nécessitent une somme de contrôle publiée; accepter un modèle non vérifié est une option explicite car un point de contrôle erroné peut toujours charger et produire des masques plausibles.",
+      "phonemes": "lez ɑ̃tʁˈe də katalˈoɡ a distˈɑ̃s pˈøvt ˈɛtʁ teleʃaʁʒˈe dɑ̃z œ̃ dɔsjˈe də modˈɛl ʃwazˈi. le teleʃaʁʒəmˈɑ̃ veʁifjˈe nesɛsˈitt yn sˈɔm də kɔ̃tʁˈoːl pybliˈe; aksɛptˈe œ̃ modˈɛl nɔ̃ veʁifjˈe ɛt yn ɔpsjˈɔ̃ ɛksplisˈit kaʁ œ̃ pwˈɛ̃ də kɔ̃tʁˈoːl ɛʁonˈe pˈø tuʒˌuʁ ʃaʁʒˈe e pʁodyˈiʁ de mˈask plozˈibl."
     },
     {
       "scene": 5,
-      "speech_start": 32.225,
-      "speech_end": 41.1,
-      "scene_end": 41.75,
-      "duration": 9.524999999999999,
-      "text": "Lorsque le flux de travail est terminé, les fichiers de modèle vérifiés et les résultats des indices de référence restent associés à leurs métadonnées."
+      "speech_start": 64.69999999999999,
+      "speech_end": 83.225,
+      "scene_end": 83.725,
+      "duration": 19.025000000000006,
+      "text": "Les tests sur les champs chargent un ensemble de référence délimité. Ce tutoriel utilise trois réelles cultures de cellules ER-channel, de sorte que la vitesse du modèle, le nombre d'objets, les drapeaux de contrôle de la qualité et les prévisualisations se réfèrent aux mêmes images représentatives utilisées dans Model Compare.",
+      "speech_text": "Les tests sur les champs chargent un ensemble de référence délimité. Ce tutoriel utilise trois réelles cultures de cellules ER-channel, de sorte que la vitesse du modèle, le nombre d'objets, les drapeaux de contrôle de la qualité et les prévisualisations se réfèrent aux mêmes images représentatives utilisées dans Model Compare.",
+      "phonemes": "le tˈɛst syʁ le ʃˈɑ̃ ʃˈaʁʒt œ̃n ɑ̃sˈɑ̃bl də ʁefeʁˈɑ̃s delimitˈe. sə tytoʁjˈɛl ytilˈiz tʁwˈa ʁeˈɛl kyltˈyʁ də sɛlˈylz ˌəˈɛʁʃanˈɛl, də sˈɔʁt kə la vitˈɛs dy modˈɛl, lə nˈɔ̃bʁ dɔbʒˈɛ, le dʁapˈo də kɔ̃tʁˈoːl də la kalitˈe e le pʁevizyalizasjˈɔ̃ sə ʁefˈɛʁt o mˈɛmz imˈaʒ ʁəpʁezɑ̃tatˈivz ytilizˈe dɑ̃ modˈɛl kɔ̃pˈaʁ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 83.725,
+      "speech_end": 98.89999999999999,
+      "scene_end": 99.39999999999999,
+      "duration": 15.674999999999997,
+      "text": "Lorsque vous avez sélectionné exactement un modèle local, cliquez sur Test sur trois champs. L'indicateur de référence segmente chaque image et applique un contrôle de qualité de segmentation sans prétendre avoir des étiquettes d'exactitude de base.",
+      "speech_text": "Lorsque vous avez sélectionné exactement un modèle local, cliquez sur Test sur trois champs. L'indicateur de référence segmente chaque image et applique un contrôle de qualité de segmentation sans prétendre avoir des étiquettes d'exactitude de base.",
+      "phonemes": "lˌɔʁskə vuz avˈe selɛksjɔnˈe ɛɡzaktəmˈɑ̃ œ̃ modˈɛl lokˈal, klikˈe syʁ tˈɛst syʁ tʁwˈa ʃˈɑ̃. lɛ̃dikatˈœʁ də ʁefeʁˈɑ̃s sɛɡmˈɑ̃t ʃak imˈaʒ e aplˈik œ̃ kɔ̃tʁˈoːl də kalitˈe də sɛɡmɑ̃tasjˈɔ̃ sɑ̃ pʁetˈɑ̃dʁ avwˈaʁ dez etikˈɛt dɛɡzaktitˈyd də bˈaz."
+    },
+    {
+      "scene": 7,
+      "speech_start": 99.39999999999999,
+      "speech_end": 112.57499999999999,
+      "scene_end": 113.02499999999999,
+      "duration": 13.625,
+      "text": "Au cours du traitement, la ligne d'état identifie le point de contrôle et le nombre de champs sélectionnés. Le travail de référence se déroule à l'extérieur du fil d'interface de sorte que la sélection et le progrès restent réactifs.",
+      "speech_text": "Au cours du traitement, la ligne d'état identifie le point de contrôle et le nombre de champs sélectionnés. Le travail de référence se déroule à l'extérieur du fil d'interface de sorte que la sélection et le progrès restent réactifs.",
+      "phonemes": "o kˈuʁ dy tʁɛtmˈɑ̃, la lˈiɲ detˈa idɑ̃tifˈi lə pwˈɛ̃ də kɔ̃tʁˈoːl e lə nˈɔ̃bʁ də ʃˈɑ̃ selɛksjɔnˈe. lə tʁavˈaj də ʁefeʁˈɑ̃s sə deʁˈul a lɛksteʁjˈœʁ dy fˈil dɛ̃tɛʁfˈas də sˈɔʁt kə la selɛksjˈɔ̃ e lə pʁɔɡʁˈɛ ʁˈɛst ʁeaktˈif."
+    },
+    {
+      "scene": 8,
+      "speech_start": 113.02499999999999,
+      "speech_end": 128.14999999999998,
+      "scene_end": 128.74999999999997,
+      "duration": 15.72499999999998,
+      "text": "Le poste de contrôle personnalisé a produit cent cinquante et une cellules sur trois champs en six points et cinq secondes. Deux champs ont passé la segmentation QC; la première récolte rare a été marquée pour un faible nombre d'objets et une fraction de limite élevée.",
+      "speech_text": "Le poste de contrôle personnalisé a produit cent cinquante et une cellules sur trois champs en six points et cinq secondes. Deux champs ont passé la segmentation QC; la première récolte rare a été marquée pour un faible nombre d'objets et une fraction de limite élevée.",
+      "phonemes": "lə pˈɔst də kɔ̃tʁˈoːl pɛʁsɔnalizˈe a pʁodyˈi sˈɑ̃ sɛ̃kˈɑ̃t e yn sɛlˈyl syʁ tʁwˈa ʃˈɑ̃ ɑ̃ sˈi pwˌɛ̃z e sˈɛ̃k səɡˈɔ̃d. dˈø ʃˈɑ̃ ˈɔ̃ pasˈe la sɛɡmɑ̃tasjˈɔ̃ kˌysˈe; la pʁəmjˈɛʁ ʁekˈɔlt ʁˈaʁ a etˈe maʁkˈe puʁ œ̃ fˈɛbl nˈɔ̃bʁ dɔbʒˈɛz e yn fʁaksjˈɔ̃ də limˈit elvˈe."
+    },
+    {
+      "scene": 9,
+      "speech_start": 128.74999999999997,
+      "speech_end": 145.52499999999998,
+      "scene_end": 146.075,
+      "duration": 17.325000000000017,
+      "text": "La sélection d'une ligne de référence met à jour la superposition du masque. Utilisez le tableau et l'image ensemble: un drapeau de qualité identifie un motif de masque intrinsèque, tandis que l'aperçu montre si ce motif reflète la biologie, la culture ou une défaillance de segmentation.",
+      "speech_text": "La sélection d'une ligne de référence met à jour la superposition du masque. Utilisez le tableau et l'image ensemble: un drapeau de qualité identifie un motif de masque intrinsèque, tandis que l'aperçu montre si ce motif reflète la biologie, la culture ou une défaillance de segmentation.",
+      "phonemes": "la selɛksjˈɔ̃ dyn lˈiɲ də ʁefeʁˈɑ̃s mˈɛt a ʒˈuʁ la sypɛʁpozisjˈɔ̃ dy mˈask. ytilizˈe lə tablˈo e limˈaʒ ɑ̃sˈɑ̃bl: œ̃ dʁapˈo də kalitˈe idɑ̃tifˈi œ̃ motˈif də mˈask ɛ̃tʁɛ̃sˈɛk, tɑ̃dˌi kə lapɛʁsˈy mˈɔ̃tʁ sˈi sə motˈif ʁəflˈɛt la bjoloʒˈi, la kyltˈyʁ u yn defajˈɑ̃s də sɛɡmɑ̃tasjˈɔ̃."
+    },
+    {
+      "scene": 10,
+      "speech_start": 146.075,
+      "speech_end": 160.075,
+      "scene_end": 160.575,
+      "duration": 14.5,
+      "text": "Sélectionnez exactement deux modèles installés et cliquez sur Comparer les deux modèles sélectionnés. Le modèle du zoo donne les deux chemins des points de contrôle, le même dossier de champ et le nombre de champs dans l'écran de comparaison A-B dédié.",
+      "speech_text": "Sélectionnez exactement deux modèles installés et cliquez sur Comparer les deux modèles sélectionnés. Le modèle du zoo donne les deux chemins des points de contrôle, le même dossier de champ et le nombre de champs dans l'écran de comparaison A-B dédié.",
+      "phonemes": "selɛksjɔnˈez ɛɡzaktəmˈɑ̃ dˈø modˈɛlz ɛ̃stalˈez e klikˈe syʁ kɔ̃paʁˈe le dˈø modˈɛl selɛksjɔnˈe. lə modˈɛl dy zˈo dˈɔn le dˈø ʃəmˈɛ̃ de pwˈɛ̃ də kɔ̃tʁˈoːl, lə mˈɛm dɔsjˈe də ʃˈɑ̃ e lə nˈɔ̃bʁ də ʃˈɑ̃ dɑ̃ lekʁˈɑ̃ də kɔ̃paʁɛzˈɔ̃ abˈe dedjˈe."
+    },
+    {
+      "scene": 11,
+      "speech_start": 160.575,
+      "speech_end": 176.325,
+      "scene_end": 177.02499999999998,
+      "duration": 16.44999999999999,
+      "text": "La remise ouvre le modèle Comparer avec les deux postes de contrôle locaux et les trois champs préchargés. A partir de là, effectuez la comparaison en paires pour mesurer l'accord de premier plan, les différences d'objets directionnels, les fractions, les fusions et la QC par modèle.",
+      "speech_text": "La remise ouvre le modèle Comparer avec les deux postes de contrôle locaux et les trois champs préchargés. A partir de là, effectuez la comparaison en paires pour mesurer l'accord de premier plan, les différences d'objets directionnels, les fractions, les fusions et la QC par modèle.",
+      "phonemes": "la ʁəmˈiz ˈuvʁ lə modˈɛl kɔ̃paʁˈe avˌɛk le dˈø pˈɔst də kɔ̃tʁˈoːl lokˈoz e le tʁwˈa ʃˈɑ̃ pʁeʃaʁʒˈe. a paʁtˈiʁ də lˈa, efɛktyˈe la kɔ̃paʁɛzˈɔ̃ ɑ̃ pˈɛʁ puʁ məzyʁˈe lakˈɔʁ də pʁəmjˈe plˈɑ̃, le difeʁˈɑ̃s dɔbʒˈɛ diʁɛksjɔnˈɛl, le fʁaksjˈɔ̃, le fyzjˈɔ̃z e la kˌysˈe paʁ modˈɛl."
     }
   ]
 }
