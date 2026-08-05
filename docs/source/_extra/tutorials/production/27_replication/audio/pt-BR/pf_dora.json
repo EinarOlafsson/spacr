@@ -4,47 +4,227 @@
   "voice": "pf_dora",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 44.6,
+  "total_duration": 347.52,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 2.975,
-      "scene_end": 3.4250000000000003,
-      "duration": 3.4250000000000003,
-      "text": "Este tutorial abrange o teste de replicação."
+      "speech_end": 16.425,
+      "scene_end": 17.045,
+      "duration": 17.045,
+      "text": "Replicação Assay conta parasitas em cada vácuo e resume a escada de divisão um, dois, quatro, oito. O console registra configurações resolvidas, QC de atribuição, estatísticas, saídas, avisos e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada.",
+      "speech_text": "Replicação Assay conta parasitas em cada vácuo e resume a escada de divisão um, dois, quatro, oito. O console registra configurações resolvidas, QC de atribuição, estatísticas, saídas, avisos e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada.",
+      "phonemes": "xˌeplikasˈɐ̃ʊ̃ asˈI kˈoŋtæ pˌaɾazˈitæz ˈAŋ kˈadæ vˈakuw i xˌezˈumj a ˌeskˈadæ ʤy ʤˌivizˈɐ̃ʊ̃ ũŋ, dˈoɪs, kwˈatrʊ, ˈoɪtʊ. ʊ kˌoŋsˈoly xˌeʒˈistræ kˌoŋfiɡˌuɾasˈõjz xˌezowvˈidæs, kˌesˈe ʤj ˌatribuɪsˈɐ̃ʊ̃, ˌestaʧˈisʧikæs, sˌaˈidæs, ˌavˈizʊz i ˈexʊs; a kˈIʃæ ʤy bˈaʧypˈapʊ pˌɔʤy ʤˌiskuʧˈiɾ ˌesi kˌoŋtˈestʊ kwˈɐ̃ŋdw a ˌiˈa ɛ ˌabilitˈadæ."
     },
     {
       "scene": 2,
-      "speech_start": 3.4250000000000003,
-      "speech_end": 17.325,
-      "scene_end": 17.775,
-      "duration": 14.349999999999998,
-      "text": "Abra Replication assay na seção Toxoplasma assays. Avaliação de análises de replicação da seção de análises de Toxoplasma Selecione as medições de células hospedeiras, vacuóis e parasitas juntamente com os metadados da condição."
+      "speech_start": 17.045,
+      "speech_end": 29.42,
+      "scene_end": 29.92,
+      "duration": 12.875,
+      "text": "As rotas de troca da IA só conversam quando solicitadas. Seu menu adjacente seleciona um provedor configurado e abre as configurações do provedor; a análise de replicação permanece local e não requer IA.",
+      "speech_text": "As rotas de troca da IA só conversam quando solicitadas. Seu menu adjacente seleciona um provedor configurado e abre as configurações do provedor; a análise de replicação permanece local e não requer IA.",
+      "phonemes": "az xˈɔtæz ʤy trˈɔkæ da ˌiˈa sˈɔ kˌoŋvˈɛɾəsɐ̃ʊ̃ kwˈɐ̃ŋdʊ sˌolisitˈadæs. seʊ menˈu ˌadʒasˈAŋʧy sˌelesiˈonæ ũŋ prˌovedˈor kˌoŋfiɡuɾˈadw i ˈabri as kˌoŋfiɡˌuɾasˈõjz dʊ prˌovedˈor; a ˌænˈalizy ʤy xˌeplikasˈɐ̃ʊ̃ pˌeɾəmænˈɛsy lokˈW i nˌɐ̃ʊ̃ xekˈɛɾ ˌiˈa."
     },
     {
       "scene": 3,
-      "speech_start": 17.775,
-      "speech_end": 27.125,
-      "scene_end": 27.575,
-      "duration": 9.8,
-      "text": "Na área de configuração principal, configure atribuição espacial, filtros de objetos, caixas de contagem de parasitas, controles e comparações estatísticas."
+      "speech_start": 29.92,
+      "speech_end": 43.97,
+      "scene_end": 44.47,
+      "duration": 14.549999999999997,
+      "text": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise as informações de privacidade antes de compartilhar o contexto de console ou teste com um provedor remoto.",
+      "speech_text": "A configuração do provedor separa os assistentes locais e hospedados. Configure apenas os serviços que pretende usar e revise as informações de privacidade antes de compartilhar o contexto de console ou teste com um provedor remoto.",
+      "phonemes": "a kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ dʊ prˌovedˈor sˌepˈaɾæ ʊz ˌasistˈAŋʧyz lokˈIz i ˌospedˈadʊs. kˌoŋfiɡˈuɾi ˌapˈenæz ʊs sˌeɾəvˈisʊs ky prˌetˈAŋʤj uzˈaɾ i xˌevˈizj az ˌiŋfoɾəmasˈõjz ʤy prˌivasidˈaʤj ˈɐ̃ŋʧyz ʤy kˌompaɾəʧiljˈaɾ ʊ kˌoŋtˈestʊ ʤy kˌoŋsˈoli ow tˈɛsʧy koŋ ũŋ prˌovedˈor xˌemˈɔtʊ."
     },
     {
       "scene": 4,
-      "speech_start": 27.575,
-      "speech_end": 35.275,
-      "scene_end": 35.725,
-      "duration": 8.150000000000002,
-      "text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou de ensaio quando disponível."
+      "speech_start": 44.47,
+      "speech_end": 56.67,
+      "scene_end": 57.15,
+      "duration": 12.68,
+      "text": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram a atribuição de vácuos, contagens de parasitas, filtros ou estatísticas.",
+      "speech_text": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram a atribuição de vácuos, contagens de parasitas, filtros ou estatísticas.",
+      "phonemes": "as kˌoŋfiɡˌuɾasˈõjz ʤj ˌiˈa kˌoŋtrˈɔlɐ̃ʊ̃ ʊ kˌoŋtˈestʊ dʊ ˌasistˈAŋʧy, krˌedAŋsiˈIz i xˌelatˈɔɾjʊz ʤj ˈexʊz ˌopsionˈIs. ˌɛstæs prˌefeɾˈAŋsjæz nˌɐ̃ʊ̃ ˌWtˈɛɾɐ̃ʊ̃ a ˌatribuɪsˈɐ̃ʊ̃ ʤy vˈakuʊs, kˌoŋtˈaʒAŋz ʤy pˌaɾazˈitæs, fˈiʊtrʊz ow ˌestaʧˈisʧikæs."
     },
     {
       "scene": 5,
-      "speech_start": 35.725,
-      "speech_end": 43.95,
-      "scene_end": 44.6,
-      "duration": 8.875,
-      "text": "Quando o fluxo de trabalho termina, são guardadas as distribuições de parasitas por vacuo, as taxas de replicação, estatísticas e números."
+      "speech_start": 57.15,
+      "speech_end": 75.6,
+      "scene_end": 76.32,
+      "duration": 19.169999999999995,
+      "text": "Escolher ou soltar a raiz do experimento contendo medições slash medições ponto DB. O experimento transferido não tem identidades de vácuo independentemente validadas, por isso este tutorial usa claramente um banco de dados de medição sintética com IDs de vácuo explícitos enquanto executa o backend real spaCR.",
+      "speech_text": "Escolher ou soltar a raiz do experimento contendo medições slash medições ponto DB. O experimento transferido não tem identidades de vácuo independentemente validadas, por isso este tutorial usa claramente um banco de dados de medição sintética com IDs de vácuo explícitos enquanto executa o backend real espáquer.",
+      "phonemes": "ˌeskoljˈeɾ ow sowtˈaɾ a xaˈiz dʊ ˌespeɾimˈAŋtʊ kˌoŋtˈAŋdʊ mˌeʤisˈõjs zlˈaʃ mˌeʤisˈõjs pˈoŋtʊ dˌebˈe. u ˌespeɾimˈAŋtʊ trˌɐ̃ŋsfeɾˈidʊ nˌɐ̃ʊ̃ tAŋ ˌidAŋʧidˈaʤyz ʤy vˈakuw ˌiŋdepˌAŋdAŋtemˈAŋʧy vˌalidˈadæs, poɾ ˈisw ˌesʧy tˌutoɾiˈW ˈuzæ klˌaɾæmˈAŋʧj ũŋ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈɐ̃ʊ̃ sˌiŋtˈɛʧikæ koŋ ˈidz ʤy vˈakuw ˌesplˈisitʊz ˌAŋkwˈɐ̃ŋtw ˌezekˈutæ ʊ bakˈAŋd xeˈW ˌespˈakɛr."
+    },
+    {
+      "scene": 6,
+      "speech_start": 76.32,
+      "speech_end": 87.895,
+      "scene_end": 88.435,
+      "duration": 12.115000000000009,
+      "text": "Essentials expõe a fonte de ensaio, atribuição de vácuo, mapa de condição, filtros de objetos, pontuação de replicação, saída e controles de tempo de execução necessários para uma primeira análise.",
+      "speech_text": "Essentials expõe a fonte de ensaio, atribuição de vácuo, mapa de condição, filtros de objetos, pontuação de replicação, saída e controles de tempo de execução necessários para uma primeira análise.",
+      "phonemes": "ˌesAŋʧiˈWz espˈõj a fˈoŋʧy ʤj ˌAŋsˈIʊ, ˌatribuɪsˈɐ̃ʊ̃ ʤy vˈakuʊ, mˈapæ ʤy kˌoŋʤisˈɐ̃ʊ̃, fˈiʊtrʊz ʤj ˌobʒˈɛtʊs, pˌoŋtuasˈɐ̃ʊ̃ ʤy xˌeplikasˈɐ̃ʊ̃, sˌaˈidæ i kˌoŋtrˈolyz ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ nˌesesˈaɾjʊs pˌaɾæ ˌumæ prˌimˈAɾæ ˌænˈalizy."
+    },
+    {
+      "scene": 7,
+      "speech_start": 88.435,
+      "speech_end": 102.36,
+      "scene_end": 102.9,
+      "duration": 14.465000000000003,
+      "text": "Filtro modificado do formulário para desvios deliberados dos padrões. Usá-lo para auditar o banco de dados, chave de vácuo, coluna de contagem, limites de área, mapa de placa, agrupamento de condições e armazenamento antes de uma execução.",
+      "speech_text": "Filtro modificado do formulário para desvios deliberados dos padrões. Usá-lo para auditar o banco de dados, chave de vácuo, coluna de contagem, limites de área, mapa de placa, agrupamento de condições e armazenamento antes de uma execução.",
+      "phonemes": "fˈiʊtrʊ mˌoʤifikˈadʊ dʊ fˌoɾəmulˈaɾjʊ pˌaɾæ dezvˈiʊz dˌelibeɾˈadʊz dʊs padrˈõjs. uzˈalʊ pˌaɾæ ˌWʤitˈaɾ ʊ bˈɐ̃ŋkʊ ʤy dˈadʊs, ʃˈavy ʤy vˈakuʊ, kˌolˈunæ ʤy kˌoŋtˈaʒAŋ, lˌimˈiʧyz ʤj ˈaɾeæ, mˈapæ ʤy plˈakæ, ˌaɡrupæmˈAŋtʊ ʤy kˌoŋʤisˈõjz i ˌaɾəmazˌenæmˈAŋtw ˈɐ̃ŋʧyz ʤj ˌumæ ˌezekusˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 8,
+      "speech_start": 102.9,
+      "speech_end": 117.275,
+      "scene_end": 117.775,
+      "duration": 14.875,
+      "text": "Todas as configurações revelam todos os controles disponíveis para reprodução e resolução de problemas. Regressar aos elementos essenciais quando os controles avançados não são necessários para reduzir as alterações acidentais dos parâmetros.",
+      "speech_text": "Todas as configurações revelam todos os controles disponíveis para reprodução e resolução de problemas. Regressar aos elementos essenciais quando os controles avançados não são necessários para reduzir as alterações acidentais dos parâmetros.",
+      "phonemes": "tˈodæz as kˌoŋfiɡˌuɾasˈõjz xˌevˈɛlɐ̃ʊ̃ tˈodʊz ʊs kˌoŋtrˈolyz ʤˌisponˈivAs pˌaɾæ xˌeprodusˈɐ̃ʊ̃ i xˌezolusˈɐ̃ʊ̃ ʤy prˌoblˈemæs. xˌeɡresˈaɾ Wz ˌelemˈAŋtʊz ˌesAŋsiˈIs kwˈɐ̃ŋdw ʊs kˌoŋtrˈolyz ˌavɐ̃ŋsˈadʊz nˌɐ̃ʊ̃ sɐ̃ʊ̃ nˌesesˈaɾjʊs pˌaɾæ xˌeduzˈiɾ az ˌWteɾasˈõjz ˌasidAŋtˈIz dʊs pˌaɾˈɐ̃metrʊs."
+    },
+    {
+      "scene": 9,
+      "speech_start": 117.775,
+      "speech_end": 131.425,
+      "scene_end": 131.965,
+      "duration": 14.189999999999998,
+      "text": "As receitas conservam uma configuração de ensaio validada para reutilização ou partilha. Salvar um somente depois que as atribuições de vácuo e as distribuições representativas de contagem tenham sido verificadas contra imagens.",
+      "speech_text": "As receitas conservam uma configuração de ensaio validada para reutilização ou partilha. Salvar um somente depois que as atribuições de vácuo e as distribuições representativas de contagem tenham sido verificadas contra imagens.",
+      "phonemes": "az xˌesˈAtæs kˌoŋsˈɛɾəvɐ̃ʊ̃ ˌumæ kˌoŋfiɡˌuɾasˈɐ̃ʊ̃ ʤj ˌAŋsˈIʊ vˌalidˈadæ pˌaɾæ xˌeʊʧilˌizasˈɐ̃ʊ̃ ow pˌaɾəʧˈiljæ. sWvˈaɾ ũŋ sˌomˈAŋʧy dˌepˈoɪskj az ˌatribuɪsˈõjz ʤy vˈakuw i az ʤˌistribuɪsˈõjz xˌeprezˌAŋtaʧˈivæz ʤy kˌoŋtˈaʒAŋ tˈeɲɐ̃ʊ̃ sˈidʊ vˌeɾifikˈadæs kˈoŋtræ ˌimˈaʒAŋs."
+    },
+    {
+      "scene": 10,
+      "speech_start": 131.965,
+      "speech_end": 144.51500000000001,
+      "scene_end": 145.03500000000003,
+      "duration": 13.070000000000022,
+      "text": "Submit remoto passa as configurações resolvidas para Funções Distribuídas. Confirmar que o banco de dados de medição é acessível através do mapa de caminho remoto antes de enviar um pequeno trabalho de validação.",
+      "speech_text": "Submit remoto passa as configurações resolvidas para Funções Distribuídas. Confirmar que o banco de dados de medição é acessível através do mapa de caminho remoto antes de enviar um pequeno trabalho de validação.",
+      "phonemes": "submˈiʧ xˌemˈɔtʊ pˈasæ as kˌoŋfiɡˌuɾasˈõjz xˌezowvˈidæs pˌaɾæ fũŋsˈõjz ʤˌistribuˈidæs. kˌoŋfiɾəmˈar ky ʊ bˈɐ̃ŋkʊ ʤy dˈadʊz ʤy mˌeʤisˈɐ̃ʊ̃ ɛ ˌasesˈiveʊ ˌatravˈɛz dʊ mˈapæ ʤy kˌæmˈiɲʊ xˌemˈɔtw ˈɐ̃ŋʧyz ʤj ˌAŋviˈaɾ ũŋ pˌekˈenʊ trˌabˈaljʊ ʤy vˌalidasˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 11,
+      "speech_start": 145.03500000000003,
+      "speech_end": 155.63500000000002,
+      "scene_end": 156.19500000000002,
+      "duration": 11.159999999999997,
+      "text": "A tela remota recebe um esboço de trabalho. Verifique a sincronização, a ativação do ambiente, os recursos e o comando gerado, depois valida uma placa antes de escalar o teste.",
+      "speech_text": "A tela remota recebe um esboço de trabalho. Verifique a sincronização, a ativação do ambiente, os recursos e o comando gerado, depois valida uma placa antes de escalar o teste.",
+      "phonemes": "a tˈɛlæ xˌemˈɔtæ xˌesˈɛbj ũŋ ˌezbˈosʊ ʤy trˌabˈaljʊ. vˌeɾifˈikj a sˌiŋkronˌizasˈɐ̃ʊ̃, a ˌaʧivasˈɐ̃ʊ̃ dʊ ˌɐ̃mbiˈAŋʧy, ʊz xˌekˈuɾəsʊz i ʊ kˌomˈɐ̃ŋdʊ ʒˌeɾˈadʊ, depˈoɪz vˌalˈidæ ˌumæ plˈakæ ˈɐ̃ŋʧyz ʤj ˌeskalˈaɾ ʊ tˈɛsʧy."
+    },
+    {
+      "scene": 12,
+      "speech_start": 156.19500000000002,
+      "speech_end": 169.34500000000003,
+      "scene_end": 169.86500000000004,
+      "duration": 13.670000000000016,
+      "text": "As Assay Inputs identifica a raiz do experimento, a tabela de uma fila por parasita e o compartimento de patógenos. A replicação marca as medições de parasitas existentes; não segmenta imagens de microscopia novamente.",
+      "speech_text": "As Assay Inputs identifica a raiz do experimento, a tabela de uma fila por parasita e o compartimento de patógenos. A replicação marca as medições de parasitas existentes; não segmenta imagens de microscopia novamente.",
+      "phonemes": "az asˈI iŋpˈutz ˌidAŋʧifˈikæ a xaˈiz dʊ ˌespeɾimˈAŋtʊ, a tˌabˈɛlæ ʤj ˌumæ fˈilæ por pˌaɾazˈitæ i ʊ kˌompaɾəʧimˈAŋtʊ ʤy pˌatˈɔʒenʊs. a xˌeplikasˈɐ̃ʊ̃ mˈaɾəkæ az mˌeʤisˈõjz ʤy pˌaɾazˈitæz ˌezistˈAŋʧys; nˌɐ̃ʊ̃ sˌeɡmˈAŋtæ ˌimˈaʒAŋz ʤy mˌikroskopˈiæ nˌovæmˈAŋʧy."
+    },
+    {
+      "scene": 13,
+      "speech_start": 169.86500000000004,
+      "speech_end": 189.09000000000003,
+      "scene_end": 189.81000000000003,
+      "duration": 19.944999999999993,
+      "text": "A Vacuole Assignment utiliza primeiro uma chave de vácuo explícita quando presente, caso contrário, pode ligar os centroides parasitas espacialmente, e só depois regressar ao agrupamento de células hospedeiras. Uma célula hospedeira pode conter múltiplos vacuóis, de modo que o fallback possa fundir unidades biologicamente distintas.",
+      "speech_text": "A Vacuole Assignment utiliza primeiro uma chave de vácuo explícita quando presente, caso contrário, pode ligar os centroides parasitas espacialmente, e só depois regressar ao agrupamento de células hospedeiras. Uma célula hospedeira pode conter múltiplos vacuóis, de modo que o fallback possa fundir unidades biologicamente distintas.",
+      "phonemes": "a vˌakwˈɔli ˌasiɡnmˈAŋʧ ˌuʧilˈizæ prˌimˈAɾw ˌumæ ʃˈavy ʤy vˈakuw ˌesplˈisitæ kwˈɐ̃ŋdʊ prˌezˈAŋʧy, kˈazʊ kˌoŋtrˈaɾjʊ, pˌɔʤy liɡˈaɾ ʊs sˌAŋtrˈYʤys pˌaɾazˈitæz ˌespasˌiWmˈAŋʧy, i sˈɔ depˈoɪz xˌeɡresˈaɾ W ˌaɡrupæmˈAŋtʊ ʤy sˈɛlulæs ˌospedˈAɾæs. ˌumæ sˈɛlulæ ˌospedˈAɾæ pˌɔʤy koŋtˈer mˈulʧiplʊz vakwˈYs, ʤy mˈɔdʊ ky ʊ falbˈak pˈɔsæ fũŋʤˈiɾ ˌunidˈaʤyz bˌiolˌoʒikæmˈAŋʧy ʤˌisʧˈiŋtæs."
+    },
+    {
+      "scene": 14,
+      "speech_start": 189.81000000000003,
+      "speech_end": 204.38500000000002,
+      "scene_end": 204.96500000000003,
+      "duration": 15.155000000000001,
+      "text": "Condição Metadados mapeia os poços de placa em grupos biológicos e escolhe a coluna de comparação. Esta placa sintética contém seis poços de veículo na coluna um e seis poços de inibidor na coluna dois, todos com células hospedeiras HeLa.",
+      "speech_text": "Condição Metadados mapeia os poços de placa em grupos biológicos e escolhe a coluna de comparação. Esta placa sintética contém seis poços de veículo na coluna um e seis poços de inibidor na coluna dois, todos com células hospedeiras HeLa.",
+      "phonemes": "kˌoŋʤisˈɐ̃ʊ̃ mˌetadˈadʊz mˌapˈAæ ʊs pˈɔsʊz ʤy plˈakæ ˈAŋ ɡrˈupʊz bˌiolˈɔʒikʊz i ˌeskˈɔljj a kˌolˈunæ ʤy kˌompaɾasˈɐ̃ʊ̃. ˌɛstæ plˈakæ sˌiŋtˈɛʧikæ koŋtˈAŋ sˈAs pˈɔsʊz ʤy vˌeˈikulʊ na kˌolˈunæ ũŋ i sˈAs pˈɔsʊz ʤj ˌinibidˈor na kˌolˈunæ dˈoɪs, tˈodʊs koŋ sˈɛlulæs ˌospedˈAɾæs ˈy læ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 204.96500000000003,
+      "speech_end": 221.16500000000002,
+      "scene_end": 221.76500000000001,
+      "duration": 16.799999999999983,
+      "text": "O Object Filtering rejeita as medições de patógenos fora da faixa de área aceita antes da contagem de vacuoles. Estes limites devem ser validados contra parasitas segmentados, porque detritos e objetos fundidos distorcem a escada de replicação em direções opostas.",
+      "speech_text": "O Object Filtering rejeita as medições de patógenos fora da faixa de área aceita antes da contagem de vacuoles. Estes limites devem ser validados contra parasitas segmentados, porque detritos e objetos fundidos distorcem a escada de replicação em direções opostas.",
+      "phonemes": "u obʒˈekʧ fˌiʊteɾˈiŋɡ xˌeʒˈAtæ az mˌeʤisˈõjz ʤy pˌatˈɔʒenʊs fˈɔɾæ da fˈIʃæ ʤj ˈaɾeæ ˌasˈAtæ ˈɐ̃ŋʧyz da kˌoŋtˈaʒAŋ ʤy vˌakwˈɔlys. ˌesʧyz lˌimˈiʧyz dˈɛvAŋ ser vˌalidˈadʊs kˈoŋtræ pˌaɾazˈitæs sˌeɡmAŋtˈadʊs, pˈoɾəky dˌetrˈitʊz i ˌobʒˈɛtʊs fˌũŋʤˈidʊz ʤˌistˈɔɾəsAŋ a ˌeskˈadæ ʤy xˌeplikasˈɐ̃ʊ̃ ˈAŋ ʤˌiɾesˈõjz ˌopˈɔstæs."
+    },
+    {
+      "scene": 16,
+      "speech_start": 221.76500000000001,
+      "speech_end": 239.09,
+      "scene_end": 239.75,
+      "duration": 17.984999999999985,
+      "text": "A pontuação de replicação define o maior balde de contagem nomeado e o limiar de alerta para vacuoles sem potência de dois. As contagens um, dois, quatro, oito e dezesseis seguem a duplicação ideal; contagens como três são mantidas como uma categoria de QC em vez de arredondadas silenciosamente.",
+      "speech_text": "A pontuação de replicação define o maior balde de contagem nomeado e o limiar de alerta para vacuoles sem potência de dois. As contagens um, dois, quatro, oito e dezesseis seguem a duplicação ideal; contagens como três são mantidas como uma categoria de QC em vez de arredondadas silenciosamente.",
+      "phonemes": "a pˌoŋtuasˈɐ̃ʊ̃ ʤy xˌeplikasˈɐ̃ʊ̃ dˌefˈinj ʊ mIˈɔr bˈWʤy ʤy kˌoŋtˈaʒAŋ nˌomeˈadw i ʊ lˌimiˈar ʤj ˌalˈɛɾətæ pˌaɾæ vˌakwˈɔlys sˈAŋ pˌotˈAŋsjæ ʤy dˈoɪs. as kˌoŋtˈaʒAŋz ũŋ, dˈoɪs, kwˈatrʊ, ˈoɪtw i dˌezesˈAs sˈɛɡAŋ a dˌuplikasˈɐ̃ʊ̃ ˌideˈW; kˌoŋtˈaʒAŋs kˌomʊ trˈes sɐ̃ʊ̃ mˌɐ̃ŋʧˈidæs kˌomʊ ˌumæ kˌateɡoɾˈiæ ʤy kˌesˈe Aŋ vˈez ʤj ˌaxedoŋdˈadæs sˌilAŋsˌiozæmˈAŋʧy."
+    },
+    {
+      "scene": 17,
+      "speech_start": 239.75,
+      "speech_end": 251.975,
+      "scene_end": 252.535,
+      "duration": 12.784999999999997,
+      "text": "Assay Output controla o mapa de cores e a armazenagem. A análise escreve distribuições por bem e por condição, contagens de vácuos, estatísticas em pares e figuras na pasta de resultados de replicação.",
+      "speech_text": "Assay Output controla o mapa de cores e a armazenagem. A análise escreve distribuições por bem e por condição, contagens de vácuos, estatísticas em pares e figuras na pasta de resultados de replicação.",
+      "phonemes": "asˈI owtpˈuʧ kˌoŋtrˈɔlæ ʊ mˈapæ ʤy kˈoɾyz i a ˌaɾəmazenˈaʒAŋ. a ˌænˈalizj ˌeskrˈɛvy ʤˌistribuɪsˈõjs por bˈAŋ i por kˌoŋʤisˈɐ̃ʊ̃, kˌoŋtˈaʒAŋz ʤy vˈakuʊs, ˌestaʧˈisʧikæz ˈAŋ pˈaɾyz i fˌiɡˈuɾæz na pˈastæ ʤy xˌezuwtˈadʊz ʤy xˌeplikasˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 18,
+      "speech_start": 252.535,
+      "speech_end": 268.335,
+      "scene_end": 268.895,
+      "duration": 16.359999999999985,
+      "text": "Controle de tempo de execução e fiabilidade detalhes de registro. Manter a saída verbal ativada ao estabelecer um ensaio para que a fonte de agrupamento, as exclusões, a fração de não-potência de dois, os testes estatísticos e os caminhos de saída permaneçam auditáveis.",
+      "speech_text": "Controle de tempo de execução e fiabilidade detalhes de registro. Manter a saída verbal ativada ao estabelecer um ensaio para que a fonte de agrupamento, as exclusões, a fração de não-potência de dois, os testes estatísticos e os caminhos de saída permaneçam auditáveis.",
+      "phonemes": "kˌoŋtrˈɔly ʤy tˈAmpʊ ʤj ˌezekusˈɐ̃ʊ̃ i fˌiabˌilidˈaʤy dˌetˈaljyz ʤy xˌeʒˈistrʊ. mɐ̃ŋtˈeɾ a sˌaˈidæ veɾəbˈW ˌaʧivˈadæ W ˌestabˌelesˈeɾ ũŋ ˌAŋsˈIʊ pˌaɾækj a fˈoŋʧy ʤj ˌaɡrupæmˈAŋtʊ, az ˌeskluzˈõjs, a frasˈɐ̃ʊ̃ ʤy nˌɐ̃ʊ̃pˌotˈAŋsjæ ʤy dˈoɪs, ʊs tˈɛsʧyz ˌestaʧˈisʧikʊz i ʊs kˌæmˈiɲʊz ʤy sˌaˈidæ pˌeɾəmænˈesɐ̃ʊ̃ ˌWʤitˈavAs."
+    },
+    {
+      "scene": 19,
+      "speech_start": 268.895,
+      "speech_end": 285.57,
+      "scene_end": 286.21,
+      "duration": 17.314999999999998,
+      "text": "Este detalhe de atribuição usa a coluna vacuole_id explícita e requer uma célula hospedeira. Os dados sintéticos dão intencionalmente a algumas vacuolas consecutivas o mesmo ID de célula, confirmando que a chave de vacuolas escolhidanão a célula hospedeiraé a unidade a ser contada.",
+      "speech_text": "Este detalhe de atribuição usa a coluna vacuole_id explícita e requer uma célula hospedeira. Os dados sintéticos dão intencionalmente a algumas vacuolas consecutivas o mesmo ID de célula, confirmando que a chave de vacuolas escolhidanão a célula hospedeiraé a unidade a ser contada.",
+      "phonemes": "ˌesʧy dˌetˈaljy ʤj ˌatribuɪsˈɐ̃ʊ̃ ˈuzæ a kˌolˈunæ vˌakwˈɔli ˈid ˌesplˈisitæ i xekˈɛɾ ˌumæ sˈɛlulæ ˌospedˈAɾæ. ʊz dˈadʊs sˌiŋtˈɛʧikʊz dˈɐ̃ʊ̃ ˌiŋtAŋsˌionWmˈAŋʧj a Wɡˌumæz vˌakwˈɔlæs kˌoŋsekuʧˈivæz ʊ mˈezmw ˌidˈe ʤy sˈɛlulæ, kˌoŋfiɾəmˈɐ̃ŋdʊ ky a ʃˈavy ʤy vˌakwˈɔlæz ˌeskoljˌidænˈɐ̃ʊ̃ a sˈɛlulæ ˌospedˌAɾaˈɛ a ˌunidˈaʤj a ser kˌoŋtˈadæ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 286.21,
+      "speech_end": 301.53499999999997,
+      "scene_end": 302.155,
+      "duration": 15.944999999999993,
+      "text": "Clique em Executa depois de verificar entradas, atribuição, metadados de condição, filtros e pontuação. O backend agrupa os parasitas em vacuoles, os rótulos contam baldes, resumem poços e condições, realizam testes em pares e renderizam as distribuições.",
+      "speech_text": "Clique em Executa depois de verificar entradas, atribuição, metadados de condição, filtros e pontuação. O backend agrupa os parasitas em vacuoles, os rótulos contam baldes, resumem poços e condições, realizam testes em pares e renderizam as distribuições.",
+      "phonemes": "klˈikj ˈAŋ ˌezekˈutæ depˈoɪz ʤy vˌeɾifikˈaɾ ˌAŋtrˈadæs, ˌatribuɪsˈɐ̃ʊ̃, mˌetadˈadʊz ʤy kˌoŋʤisˈɐ̃ʊ̃, fˈiʊtrʊz i pˌoŋtuasˈɐ̃ʊ̃. ʊ bakˈAŋd ˌaɡrˈupæ ʊs pˌaɾazˈitæz ˈAŋ vˌakwˈɔlys, ʊz xˈɔtulʊs kˈoŋtɐ̃ʊ̃ bˈWʤys, xˌezˈumAŋ pˈɔsʊz i kˌoŋʤisˈõjs, xˌealˈizɐ̃ʊ̃ tˈɛsʧyz ˈAŋ pˈaɾyz i xˌAŋdeɾˈizɐ̃ʊ̃ az ʤˌistribuɪsˈõjs."
+    },
+    {
+      "scene": 21,
+      "speech_start": 302.155,
+      "speech_end": 318.005,
+      "scene_end": 318.645,
+      "duration": 16.49000000000001,
+      "text": "Durante a execução, o console expõe as tabelas selecionadas e o método de comparação. Inspectar as vacuolas em baixas e altas contagens em suas imagens de origem antes de tratar uma mudança de distribuição como biologia em vez de segmentação ou erro de atribuição.",
+      "speech_text": "Durante a execução, o console expõe as tabelas selecionadas e o método de comparação. Inspectar as vacuolas em baixas e altas contagens em suas imagens de origem antes de tratar uma mudança de distribuição como biologia em vez de segmentação ou erro de atribuição.",
+      "phonemes": "dˌuɾˈɐ̃ŋʧj a ˌezekusˈɐ̃ʊ̃, ʊ kˌoŋsˈoli espˈõj as tˌabˈɛlæs sˌelesˌionˈadæz i ʊ mˈɛtodʊ ʤy kˌompaɾasˈɐ̃ʊ̃. ˌiŋspektˈaɾ az vˌakwˈɔlæz ˈAŋ bˈIʃæz i ˈWtæs kˌoŋtˈaʒAŋz ˈAŋ sˌuæz ˌimˈaʒAŋz ʤj ˌoɾˈiʒAŋ ˈɐ̃ŋʧyz ʤy tratˈaɾ ˌumæ mˌudˈɐ̃ŋsæ ʤy ʤˌistribuɪsˈɐ̃ʊ̃ kˌomʊ bˌioloʒˈiæ ˈAŋ vˈez ʤy sˌeɡmAŋtasˈɐ̃ʊ̃ ow ˈexʊ ʤj ˌatribuɪsˈɐ̃ʊ̃."
+    },
+    {
+      "scene": 22,
+      "speech_start": 318.645,
+      "speech_end": 346.52,
+      "scene_end": 347.52,
+      "duration": 28.875,
+      "text": "O verdadeiro backend marca duzentos e quarenta vacuoles em cada condição. O veículo tem uma média de quatro parasitas e duas duplicações por vácuo; o inibidor tem uma média de dois parasitas e uma duplicação. Ambos os grupos contêm cinco por cento de vacuoles sem potência de dois e permanecem abaixo do aviso de vinte por cento. Com seis poços por grupo, a comparação de MannWhitney exibida é fortemente separada, mas as conclusões biológicas ainda exigem experimentos independentes.",
+      "speech_text": "O verdadeiro backend marca duzentos e quarenta vacuoles em cada condição. O veículo tem uma média de quatro parasitas e duas duplicações por vácuo; o inibidor tem uma média de dois parasitas e uma duplicação. Ambos os grupos contêm cinco por cento de vacuoles sem potência de dois e permanecem abaixo do aviso de vinte por cento. Com seis poços por grupo, a comparação de MannWhitney exibida é fortemente separada, mas as conclusões biológicas ainda exigem experimentos independentes.",
+      "phonemes": "ʊ vˌeɾədadˈAɾʊ bakˈAŋd mˈaɾəkæ dˌuzˈAŋtʊz i kwˌaɾˈAŋtæ vˌakwˈɔlyz ˈAŋ kˈadæ kˌoŋʤisˈɐ̃ʊ̃. ʊ vˌeˈikulʊ tAŋ ˌumæ mˈɛʤjæ ʤy kwˈatrʊ pˌaɾazˈitæz i dˈuæz dˌuplikasˈõjs por vˈakuʊ; u ˌinibidˈor tAŋ ˌumæ mˈɛʤjæ ʤy dˈoɪs pˌaɾazˈitæz i ˌumæ dˌuplikasˈɐ̃ʊ̃. ˈɐ̃mbʊz ʊz ɡrˈupʊs koŋtˈAŋ sˈiŋkʊ por sˈAŋtʊ ʤy vˌakwˈɔlys sˈAŋ pˌotˈAŋsjæ ʤy dˈoɪz i pˌeɾəmænˈɛsAŋ ˌabˈIʃʊ dʊ ˌavˈizʊ ʤy vˈiŋʧy por sˈAŋtʊ. koŋ sˈAs pˈɔsʊs por ɡrˈupʊ, a kˌompaɾasˈɐ̃ʊ̃ ʤy mˈɐ̃ŋn witnˈA ˌezibˈidæ ɛ fˌoɾətemˈAŋʧy sˌepaɾˈadæ, maz as kˌoŋkluzˈõjz bˌiolˈɔʒikæz ˌaˈiŋdæ ˌezˈiʒAŋ ˌespeɾimˈAŋtʊz ˌiŋdepAŋdˈAŋʧys."
     }
   ]
 }
