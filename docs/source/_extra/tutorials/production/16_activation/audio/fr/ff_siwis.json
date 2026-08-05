@@ -4,47 +4,217 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.1,
+  "total_duration": 287.2,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 3.175,
-      "scene_end": 3.625,
-      "duration": 3.625,
-      "text": "Ce tutoriel couvre les cartes d'activation."
+      "speech_end": 15.675,
+      "scene_end": 16.125,
+      "duration": 16.125,
+      "text": "Activation Maps demande quelles régions d'image influencent la prédiction d'un modèle de vision formé. La console enregistre le chargement des artefacts, les lots d'attribution, les grilles de cartes, les progrès, les chemins de sortie et les enregistrements de reproductibilité.",
+      "speech_text": "Activation Maps demande quelles régions d'image influencent la prédiction d'un modèle de vision formé. La console enregistre le chargement des artefacts, les lots d'attribution, les grilles de cartes, les progrès, les chemins de sortie et les enregistrements de reproductibilité.",
+      "phonemes": "aktivasjˈɔ̃ mˈap dəmˈɑ̃d kɛl ʁeʒjˈɔ̃ dimˈaʒ ɛ̃flyˈɑ̃s la pʁediksjˈɔ̃ dœ̃ modˈɛl də vizjˈɔ̃ fɔʁmˈe. la kɔ̃sˈɔl ɑ̃ʁʒˈistʁ lə ʃaʁʒəmˈɑ̃ dez aʁtefˈakt, le lˈo datʁibysjˈɔ̃, le ɡʁˈij də kˈaʁt, le pʁɔɡʁˈɛ, le ʃəmˈɛ̃ də sɔʁtˈi e lez ɑ̃ʁʒistʁəmˈɑ̃ də ʁəpʁodyktibilitˈe."
     },
     {
       "scene": 2,
-      "speech_start": 3.625,
-      "speech_end": 14.5,
-      "scene_end": 14.95,
-      "duration": 11.325,
-      "text": "Ouvrez Activation maps dans la section Results and quality control. Sélectionnez un modèle de vision formé et des cultures d'objets représentatifs dans les classes d'intérêt."
+      "speech_start": 16.125,
+      "speech_end": 29.05,
+      "scene_end": 29.5,
+      "duration": 13.375,
+      "text": "Le champ de discussion accepte des commandes locales ou des questions de flux de travail. Activer l'IA pour un fournisseur configuré et utiliser la flèche adjacente pour choisir un fournisseur ou ouvrir ses contrôles.",
+      "speech_text": "Le champ de discussion accepte des commandes locales ou des questions de flux de travail. Activer l'IA pour un fournisseur configuré et utiliser la flèche adjacente pour choisir un fournisseur ou ouvrir ses contrôles.",
+      "phonemes": "lə ʃˈɑ̃ də diskysjˈɔ̃ aksˈɛpt de kɔmˈɑ̃d lokˈal u de kɛstjˈɔ̃ də flˈy də tʁavˈaj. aktivˈe ljˈa puʁ œ̃ fuʁnisˈœʁ kɔ̃fiɡyʁˈe e ytilizˈe la flˈɛʃ adʒasˈɑ̃t puʁ ʃwazˈiʁ œ̃ fuʁnisˈœʁ u uvʁˈiʁ se kɔ̃tʁˈoːl."
     },
     {
       "scene": 3,
-      "speech_start": 14.95,
-      "speech_end": 25.424999999999997,
-      "scene_end": 25.874999999999996,
-      "duration": 10.924999999999997,
-      "text": "Dans la zone de configuration principale, choisissez la méthode d'attribution, la couche cible, la classe cible, les canaux, la normalisation et le prélèvement d'échantillons."
+      "speech_start": 29.5,
+      "speech_end": 41.725,
+      "scene_end": 42.175000000000004,
+      "duration": 12.675000000000004,
+      "text": "Les fournisseurs vérifient les clients de ligne de commande Claude, ChatGPT et Gemini et affichent les commandes d'installation et de connexion tout en conservant l'authentification avec chaque fournisseur.",
+      "speech_text": "Les fournisseurs vérifient les clients de ligne de commande Claude, ChatGPT et Gemini et affichent les commandes d'installation et de connexion tout en conservant l'authentification avec chaque fournisseur.",
+      "phonemes": "le fuʁnisˈœʁ veʁifˈi le kliˈɑ̃ də lˈiɲ də kɔmˈɑ̃d klˈod, ʃˈa ʒˌepˌetˈe e ʒəminˈi e afˈiʃ le kɔmˈɑ̃d dɛ̃stalasjˈɔ̃ e də kɔnɛksjˈɔ̃ tut ɑ̃ kɔ̃sɛʁvˈɑ̃ ˈɛlɔːθˌɛntɪfɪkˈAʃən avˌɛk ʃak fuʁnisˈœʁ."
     },
     {
       "scene": 4,
-      "speech_start": 25.874999999999996,
-      "speech_end": 39.3,
-      "scene_end": 39.75,
-      "duration": 13.875000000000004,
-      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. comparez les cartes entre des exemples corrects, incorrects, de haute confiance et de faible confiance."
+      "speech_start": 42.175000000000004,
+      "speech_end": 54.60000000000001,
+      "scene_end": 55.05000000000001,
+      "duration": 12.875000000000007,
+      "text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et les instructions du système conscient de spaCR.",
+      "speech_text": "Les paramètres d'IA contrôlent la profondeur de réponse, les explications automatiques d'erreur, le signalement optionnel des problèmes GitHub, la connexion et les instructions du système conscient de spakeur.",
+      "phonemes": "le paʁamˈɛtʁ djˈa kɔ̃tʁˈoːl la pʁofɔ̃dˈœʁ də ʁepˈɔ̃s, lez ɛksplikasjˈɔ̃z otomatˈik dɛʁˈœʁ, lə sinjalmˈɑ̃ ɔpsjɔnˈɛl de pʁɔblˈɛm ʒˈi ˈœb, la kɔnɛksjˈɔ̃ e lez ɛ̃stʁyksjˈɔ̃ dy sistˈɛm kɔ̃sjˈɑ̃ də spakˈœʁ."
     },
     {
       "scene": 5,
-      "speech_start": 39.75,
-      "speech_end": 50.45,
-      "scene_end": 51.1,
-      "duration": 11.350000000000001,
-      "text": "Lorsque le flux de travail est terminé, les superpositions d'activation et les mesures d'attribution aident à évaluer si le modèle a appris des indices biologiquement plausibles."
+      "speech_start": 55.05000000000001,
+      "speech_end": 69.57500000000002,
+      "scene_end": 70.02500000000002,
+      "duration": 14.975000000000009,
+      "text": "Ce tutoriel traverse huit réelles cultures cellulaires à travers un artefact de démonstration déterministe mais non formé ResNet. Il ne prouve que l'interface et le flux de fichiers; ses cartes ne doivent pas être interprétées comme une biologie apprise.",
+      "speech_text": "Ce tutoriel traverse huit réelles cultures cellulaires à travers un artefact de démonstration déterministe mais non formé ResNet. Il ne prouve que l'interface et le flux de fichiers; ses cartes ne doivent pas être interprétées comme une biologie apprise.",
+      "phonemes": "sə tytoʁjˈɛl tʁavˈɛʁs yˈi ʁeˈɛl kyltˈyʁ sɛlylˈɛʁz a tʁavˈɛʁz œ̃n aʁtefˈakt də demɔ̃stʁasjˈɔ̃ detɛʁminˈist mɛ nɔ̃ fɔʁmˈe ʁ nˈɛt. il nə pʁˈuv kə lɛ̃tɛʁfˈas e lə flˈy də fiʃjˈe; se kˈaʁt nə dwˈav paz ˈɛtʁ ɛ̃tɛʁpʁetˈe kɔm yn bjoloʒˈi apʁˈiz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 70.02500000000002,
+      "speech_end": 83.75000000000001,
+      "scene_end": 84.20000000000002,
+      "duration": 14.174999999999997,
+      "text": "Les éléments essentiels montrent l'archivage des cultures, l'artefact modèle, l'architecture, la taille de l'entrée, la méthode d'attribution, la couche cible, la superposition et les choix de sauvegarde nécessaires à une exécution.",
+      "speech_text": "Les éléments essentiels montrent l'archivage des cultures, l'artefact modèle, l'architecture, la taille de l'entrée, la méthode d'attribution, la couche cible, la superposition et les choix de sauvegarde nécessaires à une exécution.",
+      "phonemes": "lez elemˈɑ̃z esɑ̃sjˈɛl mˈɔ̃tʁ laʁʃivˈaʒ de kyltˈyʁ, laʁtefˈakt modˈɛl, laʁʃitɛktˈyʁ, la tˈaj də lɑ̃tʁˈe, la metˈɔd datʁibysjˈɔ̃, la kˈuʃ sˈibl, la sypɛʁpozisjˈɔ̃ e le ʃwˈa də sovɡˈaʁd nesɛsˈɛʁz a yn ɛɡzekysjˈɔ̃."
+    },
+    {
+      "scene": 7,
+      "speech_start": 84.20000000000002,
+      "speech_end": 97.32500000000002,
+      "scene_end": 97.77500000000002,
+      "duration": 13.575000000000003,
+      "text": "Modifié limite le panneau à des modifications intentionnelles telles que ResNet dix-huit, la hauteur de l'image, un lot de quatre images, l'ordre déterministe, la traçage et désactivation de la base de données écrites.",
+      "speech_text": "Modifié limite le panneau à des modifications intentionnelles telles que ResNet dix-huit, la hauteur de l'image, un lot de quatre images, l'ordre déterministe, la traçage et désactivation de la base de données écrites.",
+      "phonemes": "modifjˈe limˈit lə panˈo a de modifikasjˈɔ̃z ɛ̃tɑ̃sjɔnˈɛl tɛl kə ʁ nˈɛt dˈizyˈit, la otˈœʁ də limˈaʒ, œ̃ lˈo də kˈatʁ imˈaʒ, lˈɔʁdʁ detɛʁminˈist, la tʁasˈaʒ e dezaktivasjˈɔ̃ də la bˈaz də dɔnˈez ekʁˈit."
+    },
+    {
+      "scene": 8,
+      "speech_start": 97.77500000000002,
+      "speech_end": 107.05000000000003,
+      "scene_end": 107.50000000000003,
+      "duration": 9.725000000000009,
+      "text": "Tous les paramètres révèlent six catégories: modèle et données, méthode d'attribution, validation, affichage, quantification et temps d'exécution de sortie.",
+      "speech_text": "Tous les paramètres révèlent six catégories: modèle et données, méthode d'attribution, validation, affichage, quantification et temps d'exécution de sortie.",
+      "phonemes": "tu le paʁamˈɛtʁ ʁevˈɛl sˈi kateɡoʁˈi: modˈɛl e dɔnˈe, metˈɔd datʁibysjˈɔ̃, validasjˈɔ̃, afiʃˈaʒ, kɑ̃tifikasjˈɔ̃ e tˈɑ̃ dɛɡzekysjˈɔ̃ də sɔʁtˈi."
+    },
+    {
+      "scene": 9,
+      "speech_start": 107.50000000000003,
+      "speech_end": 117.35000000000002,
+      "scene_end": 117.80000000000003,
+      "duration": 10.299999999999997,
+      "text": "Les recettes enregistrent la configuration complète des cartes d'activation, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable.",
+      "speech_text": "Les recettes enregistrent la configuration complète des cartes d'activation, la réappliquent plus tard ou importent et exportent un fichier de paramètres réutilisable.",
+      "phonemes": "le ʁəsˈɛtz ɑ̃ʁʒˈistʁ la kɔ̃fiɡyʁasjˈɔ̃ kɔ̃plˈɛt de kˈaʁt daktivasjˈɔ̃, la ʁeaplˈik ply tˈaʁ u ɛ̃pˈɔʁtt e ɛkspˈɔʁtt œ̃ fiʃjˈe də paʁamˈɛtʁ ʁeytilizˈabl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 117.80000000000003,
+      "speech_end": 126.47500000000002,
+      "scene_end": 126.92500000000003,
+      "duration": 9.125,
+      "text": "Envoyez des instantanés à distance des paramètres résolus et envoyez l'emploi d'attribution à l'espace de travail des emplois distribués.",
+      "speech_text": "Envoyez des instantanés à distance des paramètres résolus et envoyez l'emploi d'attribution à l'espace de travail des emplois distribués.",
+      "phonemes": "ɑ̃vwajˈe dez ɛ̃stɑ̃tanˈez a distˈɑ̃s de paʁamˈɛtʁ ʁezolˈy e ɑ̃vwajˈe lɑ̃plwˈa datʁibysjˈɔ̃ a lɛspˈas də tʁavˈaj dez ɑ̃plwˈa distʁibyˈe."
+    },
+    {
+      "scene": 11,
+      "speech_start": 126.92500000000003,
+      "speech_end": 139.925,
+      "scene_end": 140.375,
+      "duration": 13.449999999999974,
+      "text": "Les emplois distribués cartographient le modèle, l'ensemble de données et les chemins de sortie vers un poste de travail à distance, un cluster Slurm ou une commande configurée, puis soumettent et surveillent la même exécution.",
+      "speech_text": "Les emplois distribués cartographient le modèle, l'ensemble de données et les chemins de sortie vers un poste de travail à distance, un cluster Slurm ou une commande configurée, puis soumettent et surveillent la même exécution.",
+      "phonemes": "lez ɑ̃plwˈa distʁibyˈe kaʁtɔɡʁafˈi lə modˈɛl, lɑ̃sˈɑ̃bl də dɔnˈez e le ʃəmˈɛ̃ də sɔʁtˈi vɛʁ œ̃ pˈɔst də tʁavˈaj a distˈɑ̃s, œ̃ klystˈe slˈyʁm u yn kɔmˈɑ̃d kɔ̃fiɡyʁˈe, pyˈi sumˈɛtt e syʁvˈɛj la mˈɛm ɛɡzekysjˈɔ̃."
+    },
+    {
+      "scene": 12,
+      "speech_start": 140.375,
+      "speech_end": 154.15,
+      "scene_end": 154.6,
+      "duration": 14.224999999999994,
+      "text": "Le modèle et les données sélectionnent l'archive TAR des cultures, l'artefact du modèle formé, l'architecture correspondante, la taille de l'entrée, le type d'objet et l'ordre du canal. Un désaccord ici annule toutes les cartes.",
+      "speech_text": "Le modèle et les données sélectionnent l'archive TAR des cultures, l'artefact du modèle formé, l'architecture correspondante, la taille de l'entrée, le type d'objet et l'ordre du canal. Un désaccord ici annule toutes les cartes.",
+      "phonemes": "lə modˈɛl e le dɔnˈe selɛksjˈɔn laʁʃˈiv tˌeˌaˈɛʁ de kyltˈyʁ, laʁtefˈakt dy modˈɛl fɔʁmˈe, laʁʃitɛktˈyʁ koʁɛspɔ̃dˈɑ̃t, la tˈaj də lɑ̃tʁˈe, lə tˈip dɔbʒˈɛ e lˈɔʁdʁ dy kanˈal. œ̃ dezakˈɔʁ isˈi anˈyl tut le kˈaʁt."
+    },
+    {
+      "scene": 13,
+      "speech_start": 154.6,
+      "speech_end": 167.1,
+      "scene_end": 167.54999999999998,
+      "duration": 12.949999999999989,
+      "text": "La méthode d'attribution choisit Grad-CAM, la salience, les gradients intégrés, l'occlusion ou une autre méthode enregistrée, plus sa couche cible et ses paramètres d'échantillonnage spécifiques à la méthode.",
+      "speech_text": "La méthode d'attribution choisit Grad-CAM, la salience, les gradients intégrés, l'occlusion ou une autre méthode enregistrée, plus sa couche cible et ses paramètres d'échantillonnage spécifiques à la méthode.",
+      "phonemes": "la metˈɔd datʁibysjˈɔ̃ ʃwazˈi ɡʁˈadsˌeˌaˈɛm, la saljˈɑ̃s, le ɡʁadˈiz ɛ̃teɡʁˈe, lɔklyzjˈɔ̃ u yn otʁ metˈɔd ɑ̃ʁʒistʁˈe, ply sa kˈuʃ sˈibl e se paʁamˈɛtʁ deʃɑ̃tijɔnˈaʒ spesifˈikz a la metˈɔd."
+    },
+    {
+      "scene": 14,
+      "speech_start": 167.54999999999998,
+      "speech_end": 182.7,
+      "scene_end": 183.14999999999998,
+      "duration": 15.599999999999994,
+      "text": "La validation d'attribution contrôle les étapes de suppression et d'insertion, la construction de la ligne de base et les contrôles de santé mentale du modèle de randomisation. Une carte qui survit à des poids aléatoires ne peut être qu'un détecteur de bord.",
+      "speech_text": "La validation d'attribution contrôle les étapes de suppression et d'insertion, la construction de la ligne de base et les contrôles de santé mentale du modèle de randomisation. Une carte qui survit à des poids aléatoires ne peut être qu'un détecteur de bord.",
+      "phonemes": "la validasjˈɔ̃ datʁibysjˈɔ̃ kɔ̃tʁˈoːl lez etˈap də sypʁɛsjˈɔ̃ e dɛ̃sɛʁsjˈɔ̃, la kɔ̃stʁyksjˈɔ̃ də la lˈiɲ də bˈaz e le kɔ̃tʁˈoːl də sɑ̃tˈe mɑ̃tˈal dy modˈɛl də ʁɑ̃domizasjˈɔ̃. yn kˈaʁt ki syʁvˈit a de pwˈaz aleatwˈaʁ nə pˈøt ˈɛtʁ kœ̃ detɛktˈœʁ də bˈɔʁ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 183.14999999999998,
+      "speech_end": 199.14999999999998,
+      "scene_end": 199.59999999999997,
+      "duration": 16.44999999999999,
+      "text": "L'affichage de carte contrôle le contraste percentile, la normalisation des entrées correspondantes à l'entraînement, les superpositions d'image source et les parcelles de grille de lot. Les modifications apportées à l'affichage ne permettent pas de prouver la validité du modèle.",
+      "speech_text": "L'affichage de carte contrôle le contraste percentile, la normalisation des entrées correspondantes à l'entraînement, les superpositions d'image source et les parcelles de grille de lot. Les modifications apportées à l'affichage ne permettent pas de prouver la validité du modèle.",
+      "phonemes": "lafiʃˈaʒ də kˈaʁt kɔ̃tʁˈoːl lə kɔ̃tʁˈast pɛʁsɑ̃tˈil, la nɔʁmalizasjˈɔ̃ dez ɑ̃tʁˈe koʁɛspɔ̃dˈɑ̃tz a lɑ̃tʁɛnmˈɑ̃, le sypɛʁpozisjˈɔ̃ dimˈaʒ sˈuʁs e le paʁsˈɛl də ɡʁˈij də lˈo. le modifikasjˈɔ̃z apɔʁtˈez a lafiʃˈaʒ nə pɛʁmˈɛt pa də pʁuvˈe la validitˈe dy modˈɛl."
+    },
+    {
+      "scene": 16,
+      "speech_start": 199.59999999999997,
+      "speech_end": 212.92499999999995,
+      "scene_end": 213.37499999999994,
+      "duration": 13.774999999999977,
+      "text": "La quantification de la carte peut corréler chaque canal d'entrée à la carte d'attribution en utilisant les statistiques Pearson et Manders. Activer l'épargne lorsque ces valeurs doivent être écrites dans la base de données du projet.",
+      "speech_text": "La quantification de la carte peut corréler chaque canal d'entrée à la carte d'attribution en utilisant les statistiques Pearson et Manders. Activer l'épargne lorsque ces valeurs doivent être écrites dans la base de données du projet.",
+      "phonemes": "la kɑ̃tifikasjˈɔ̃ də la kˈaʁt pˈø koʁelˈe ʃak kanˈal dɑ̃tʁˈe a la kˈaʁt datʁibysjˈɔ̃ ɑ̃n ytilizˈɑ̃ le statistˈik pˈiəsən e mɑ̃dˈe. aktivˈe lepˈaʁɲ lˌɔʁskə se valˈœʁ dwˈavt ˈɛtʁ ekʁˈit dɑ̃ la bˈaz də dɔnˈe dy pʁoʒˈɛ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 213.37499999999994,
+      "speech_end": 226.17499999999995,
+      "scene_end": 226.62499999999994,
+      "duration": 13.25,
+      "text": "La sortie et le temps d'exécution contrôlent le stockage de cartes, l'ordre déterministe ou mélangé, la taille du lot et les travailleurs chargants. Réduire la taille du lot lorsque la mémoire de l'accélérateur est limitée.",
+      "speech_text": "La sortie et le temps d'exécution contrôlent le stockage de cartes, l'ordre déterministe ou mélangé, la taille du lot et les travailleurs chargants. Réduire la taille du lot lorsque la mémoire de l'accélérateur est limitée.",
+      "phonemes": "la sɔʁtˈi e lə tˈɑ̃ dɛɡzekysjˈɔ̃ kɔ̃tʁˈoːl lə stɔkˈaʒ də kˈaʁt, lˈɔʁdʁ detɛʁminˈist u melɑ̃ʒˈe, la tˈaj dy lˈo e le tʁavajˈœʁ ʃaʁɡˈɑ̃. ʁedyˈiʁ la tˈaj dy lˈo lˌɔʁskə la memwˈaʁ də lakseleʁatˈœʁ ɛ limitˈe."
+    },
+    {
+      "scene": 18,
+      "speech_start": 226.62499999999994,
+      "speech_end": 243.39999999999995,
+      "scene_end": 243.84999999999994,
+      "duration": 17.224999999999994,
+      "text": "Cette démonstration d'interface sélectionne la salience de l'image, qui n'a pas besoin de couche cible. Les méthodes Grad-CAM nécessitent une couche convolutionnelle compatible; les gradients intégrés et l'occlusion utilisent leurs propres commandes de marche, de ligne de base, de fenêtre et de marche.",
+      "speech_text": "Cette démonstration d'interface sélectionne la salience de l'image, qui n'a pas besoin de couche cible. Les méthodes Grad-CAM nécessitent une couche convolutionnelle compatible; les gradients intégrés et l'occlusion utilisent leurs propres commandes de marche, de ligne de base, de fenêtre et de marche.",
+      "phonemes": "sɛt demɔ̃stʁasjˈɔ̃ dɛ̃tɛʁfˈas selɛksjˈɔn la saljˈɑ̃s də limˈaʒ, ki na pa bəzwˈɛ̃ də kˈuʃ sˈibl. le metˈod ɡʁˈadsˌeˌaˈɛm nesɛsˈitt yn kˈuʃ kɔ̃volysjɔnˈɛl kɔ̃patˈibl; le ɡʁadˈiz ɛ̃teɡʁˈez e lɔklyzjˈɔ̃ ytilˈiz lœʁ pʁˈɔpʁ kɔmˈɑ̃d də mˈaʁʃ, də lˈiɲ də bˈaz, də fənˈɛtʁ e də mˈaʁʃ."
+    },
+    {
+      "scene": 19,
+      "speech_start": 243.84999999999994,
+      "speech_end": 259.62499999999994,
+      "scene_end": 260.07499999999993,
+      "duration": 16.224999999999994,
+      "text": "Run valide l'ensemble de données et l'artefact du modèle, recrée le prétraitement compatible avec l'entraînement, calcule les prédictions et les cartes d'attribution en lots, rend les grilles demandées et enregistre l'exécution. Arrêtez de demander une interruption sécurisée.",
+      "speech_text": "Run valide l'ensemble de données et l'artefact du modèle, recrée le prétraitement compatible avec l'entraînement, calcule les prédictions et les cartes d'attribution en lots, rend les grilles demandées et enregistre l'exécution. Arrêtez de demander une interruption sécurisée.",
+      "phonemes": "ɹˈʌn valˈid lɑ̃sˈɑ̃bl də dɔnˈez e laʁtefˈakt dy modˈɛl, ʁəkʁˈe lə pʁetʁɛtmˈɑ̃ kɔ̃patˈibl avˌɛk lɑ̃tʁɛnmˈɑ̃, kalkˈyl le pʁediksjˈɔ̃z e le kˈaʁt datʁibysjˈɔ̃ ɑ̃ lˈo, ʁˈɑ̃ le ɡʁˈij dəmɑ̃dˈez e ɑ̃ʁʒˈistʁ lɛɡzekysjˈɔ̃. aʁɛtˈe də dəmɑ̃dˈe yn ɛ̃tɛʁypsjˈɔ̃ sekyʁizˈe."
+    },
+    {
+      "scene": 20,
+      "speech_start": 260.07499999999993,
+      "speech_end": 269.04999999999995,
+      "scene_end": 269.49999999999994,
+      "duration": 9.425000000000011,
+      "text": "Pendant le traitement, la console rapporte les chemins du réseau de lot, les images terminées, le temps par lot, le temps par image et le temps estimé restant.",
+      "speech_text": "Pendant le traitement, la console rapporte les chemins du réseau de lot, les images terminées, le temps par lot, le temps par image et le temps estimé restant.",
+      "phonemes": "pɑ̃dˈɑ̃ lə tʁɛtmˈɑ̃, la kɔ̃sˈɔl ʁapˈɔʁt le ʃəmˈɛ̃ dy ʁezˈo də lˈo, lez imˈaʒ tɛʁminˈe, lə tˈɑ̃ paʁ lˈo, lə tˈɑ̃ paʁ imˈaʒ e lə tˈɑ̃ ɛstimˈe ʁɛstˈɑ̃."
+    },
+    {
+      "scene": 21,
+      "speech_start": 269.49999999999994,
+      "speech_end": 286.54999999999995,
+      "scene_end": 287.19999999999993,
+      "duration": 17.69999999999999,
+      "text": "La démonstration complète a produit deux véritables fichiers PDF de grille de superposition de la salience et un enregistrement de reproductibilité réussi. Remplacez l'artefact non formé par un classificateur validé avant de tirer des conclusions biologiques à partir de ces résultats.",
+      "speech_text": "La démonstration complète a produit deux véritables fichiers PDF de grille de superposition de la salience et un enregistrement de reproductibilité réussi. Remplacez l'artefact non formé par un classificateur validé avant de tirer des conclusions biologiques à partir de ces résultats.",
+      "phonemes": "la demɔ̃stʁasjˈɔ̃ kɔ̃plˈɛt a pʁodyˈi dˈø veʁitˈabl fiʃjˈe pˌedˌeˈɛf də ɡʁˈij də sypɛʁpozisjˈɔ̃ də la saljˈɑ̃s e œ̃n ɑ̃ʁʒistʁəmˈɑ̃ də ʁəpʁodyktibilitˈe ʁeysˈi. ʁɑ̃plasˈe laʁtefˈakt nɔ̃ fɔʁmˈe paʁ œ̃ klasifikatˈœʁ validˈe avˌɑ̃ də tiʁˈe de kɔ̃klyzjˈɔ̃ bjoloʒˈikz a paʁtˈiʁ də se ʁezyltˈa."
     }
   ]
 }

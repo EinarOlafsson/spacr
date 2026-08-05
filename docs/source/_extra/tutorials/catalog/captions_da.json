@@ -832,19 +832,67 @@
       "id": "16_activation",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker aktiveringskort. Undersøg de billedregioner, der har størst indflydelse på en uddannet computervisionsklassifikator."
+          "narration": "Activation Maps spørger hvilke billedregioner der påvirker en uddannet visionmodells forudsigelse. Konsolen registrerer artefaktlastning, attributionspartikler, kartengitter, fremskridt, udgangsbaner og reproducerbarhedsoptegnelser."
         },
         {
-          "narration": "Åbn aktiveringskort fra afsnittet Resultater og kvalitetskontrol. Vælg en uddannet synsmodel og repræsentative objekter fra interesseklasser."
+          "narration": "Chat-feltet accepterer lokale kommandoer eller workflow-spørgsmål. Aktiver AI for en konfigureret udbyder, og brug den tilstødende pil til at vælge en udbyder eller åbne dens kontroller."
         },
         {
-          "narration": "I hovedkonfigurationsområdet skal du vælge tilskrivningsmetoden, mållaget, målklassen, kanalerne, normaliseringen og prøveudtagningen."
+          "narration": "Udbydere tjekker Claude, ChatGPT og Gemini kommando-linjeklienter og viser installations- og login-kommandoer, samtidig med at autentisering holdes hos hver leverandør."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. sammenligne kort over korrekte, ukorrekte, højtillidte og lavtillidte eksempler."
+          "narration": "AI-indstillinger styrer responsdybden, automatiske fejlforklaringer, valgfri GitHub-problemrapportering, login og spaCR-bevidste systeminstruktioner."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, hjælper aktiveringsoverlays og tilskrivningsmålinger med at vurdere, om modellen har lært biologisk plausible signaler."
+          "narration": "Denne vejledning kører otte reelle cellegrøder gennem et deterministisk, men uuddannet ResNet demonstration artefakt. Det beviser kun grænsefladet og filstrømmen; dets kort må ikke tolkes som lært biologi."
+        },
+        {
+          "narration": "Essentials viser afgrødearkivet, model artefakt, arkitektur, inputstørrelse, tilskrivningsmetode, mållag, overlapning og opsparingsvalg, der kræves for et løb."
+        },
+        {
+          "narration": "Modificeret begrænser panelen til tilsigtede ændringer som ResNet atten, billed fremtrædende, en fire-billede parti, deterministisk ordenering, plotting, og deaktiveret database skriver."
+        },
+        {
+          "narration": "Alle indstillinger afslører seks kategorier: model og data, tilskrivningsmetode, validering, visning, kvantificering og output runtime."
+        },
+        {
+          "narration": "Recipes gemmer den fulde konfiguration af aktiveringskort, anvender den senere eller importerer og eksporterer en genbrugbar indstillingerfil."
+        },
+        {
+          "narration": "Indsend fjernbilleder af de afviklede indstillinger og sender tilmeldingsopgaven til distribueret job-arbejdsområde."
+        },
+        {
+          "narration": "Distributed Jobs kortlægger model, datasæt og udgangsveje til en fjerntliggende arbejdsstation, Slurm-cluster eller konfigureret kommando, og sender derefter og overvåger samme køre."
+        },
+        {
+          "narration": "Modell og Data udvælger afgrøde TAR-arkivet, uddannet model artefakt, matchende arkitektur, indgangsstørrelse, objekttype og kanalorden. En mismatch her annullerer hvert kort."
+        },
+        {
+          "narration": "Tilskrivningsmetoden vælger Grad-CAM, fremhævelse, integrerede gradienter, okklusion eller en anden registreret metode samt dets mållag og metode-specifikke prøveudtagningsparametre."
+        },
+        {
+          "narration": "Attribution Validation kontrollerer sletning og indsættelsestider, baseline konstruktion og model-randomiserings sanitetskontroller. Et kort, der overlever tilfældige vægte, kan kun være en kantdetektor."
+        },
+        {
+          "narration": "Map Display kontrollerer percentile kontrast, træning-matched input normalisering, kilde-billede overlays og batch-grid plots. Ændringer i skærmen skaber ikke beviser for modellens gyldighed."
+        },
+        {
+          "narration": "Map Quantification kan korrelere hver indgangskanale med attributkortet ved hjælp af Pearson og Manders statistik. Tillad at gemme, når disse værdier skal skrives i projektdatabasen."
+        },
+        {
+          "narration": "Output og Runtime kontrollerer mappeoplagring, deterministisk eller blandet rækkefølge, partistørrelse og loaderarbejdere. Sænk batchstørrelsen, når acceleratorens hukommelse er begrænset."
+        },
+        {
+          "narration": "Denne demonstration af grænseflade udvælger billedstørrelse, som ikke behøver et mållag. Grad-CAM-metoder kræver et kompatibelt konvolutionslag; integrerede gradienter og okklusion bruger deres egne trin-, basislinje-, vindue- og trinkontroller."
+        },
+        {
+          "narration": "Run validerer dataset og model artefakt, genindskår træningskompatibel forudbearbejdning, beregner forudsigelser og attributionskort i partier, renderer anmodede net og registrerer løbet. Stop anmoder om en sikker afbrydelse."
+        },
+        {
+          "narration": "Under behandlingen rapporterer konsolen batch-grid-veje, afsluttede billeder, tid pr. batch, tid pr. billede og anslået tilbageværende tid."
+        },
+        {
+          "narration": "Den afsluttede demonstration producerede to reelle PDF-filer og en vellykket reproducerbarhedsoptegnelse. Udskift det uuddannede artefakt med en valideret klassifikator, før der trækkes nogen biologiske konklusioner fra disse udgivelser."
         }
       ]
     },

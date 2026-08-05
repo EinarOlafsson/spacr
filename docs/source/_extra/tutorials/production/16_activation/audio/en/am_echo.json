@@ -4,47 +4,217 @@
   "voice": "am_echo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.7,
+  "total_duration": 238.3,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 7.85,
-      "scene_end": 8.299999999999999,
-      "duration": 8.299999999999999,
-      "text": "This tutorial covers Activation maps. Inspect the image regions that most influence a trained computer-vision classifier."
+      "speech_end": 12.925,
+      "scene_end": 13.375,
+      "duration": 13.375,
+      "text": "Activation Maps asks what image regions influence a trained vision model's prediction. The console records artifact loading, attribution batches, map grids, progress, output paths, and reproducibility records.",
+      "speech_text": "Activation Maps asks what image regions influence a trained vision model's prediction. The console records artifact loading, attribution batches, map grids, progress, output paths, and reproducibility records.",
+      "phonemes": "ˌæktəvˈAʃən mˈæps ˈæsks wˌʌt ˈɪmɪʤ ɹˈiʤᵊnz ˈɪnflʊəns ɐ tɹˈAnd vˈɪʒən mˈɑdᵊlz pɹidˈɪkʃən. ðə kˈɑnsˌOl ɹəkˈɔɹdz ˈɑɹTəfˌækt lˈOdɪŋ, ˌætɹəbjˈuʃən bˈæʧᵻz, mˈæp ɡɹˈɪdz, pɹˈɑɡɹəs, ˈWtpˌʊt pˈæðz, ænd ɹˌipɹədˌusəbˈɪləTi ɹˈɛkəɹdz."
     },
     {
       "scene": 2,
-      "speech_start": 8.299999999999999,
-      "speech_end": 17.85,
-      "scene_end": 18.3,
-      "duration": 10.000000000000002,
-      "text": "Open Activation maps from the Results and quality control section. Select a trained vision model and representative object crops from classes of interest."
+      "speech_start": 13.375,
+      "speech_end": 23.775,
+      "scene_end": 24.224999999999998,
+      "duration": 10.849999999999998,
+      "text": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+      "speech_text": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+      "phonemes": "ðə ʧˈæt fˈild əksˈɛpts lˈOkəl kəmˈændz ɔɹ wˈɜɹkflˌO kwˈɛsʧᵊnz. ɪnˈAbᵊl ˈAˌI fɔɹ ɐ kənfˈɪɡjəɹd pɹəvˈIdəɹ, ænd jˈuz ði əʤˈAsᵊnt ˈɛɹO tə ʧˈuz ɐ pɹəvˈIdəɹ ɔɹ ˈOpᵊn ɪts kəntɹˈOlz."
     },
     {
       "scene": 3,
-      "speech_start": 18.3,
-      "speech_end": 26.425,
-      "scene_end": 26.875,
-      "duration": 8.575,
-      "text": "In the main configuration area, choose the attribution method, target layer, target class, channels, normalization, and sampling."
+      "speech_start": 24.224999999999998,
+      "speech_end": 34.074999999999996,
+      "scene_end": 34.525,
+      "duration": 10.3,
+      "text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows install and login commands while keeping authentication with each vendor.",
+      "speech_text": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows install and login commands while keeping authentication with each vendor.",
+      "phonemes": "pɹəvˈIdəɹz ʧˈɛks ðə klˈɔd, ʧˌætʤˌipˌitˈi, ænd ʤˈɛmənˌI kəmˈændlˌIn klˈIənts ænd ʃˈOz ɪnstˈɔl ænd lˈɔɡˌɪn kəmˈændz wˌIl kˈipɪŋ əθˌɛntəkˈAʃən wɪð ˈiʧ vˈɛndəɹ."
     },
     {
       "scene": 4,
-      "speech_start": 26.875,
-      "speech_end": 37.975,
-      "scene_end": 38.425000000000004,
-      "duration": 11.550000000000004,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. compare maps across correct, incorrect, high-confidence, and low-confidence examples."
+      "speech_start": 34.525,
+      "speech_end": 44.099999999999994,
+      "scene_end": 44.55,
+      "duration": 10.024999999999999,
+      "text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+      "speech_text": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spacer-aware system instructions.",
+      "phonemes": "ˈAˌI sˈɛTɪŋz kəntɹˈOlz ɹəspˈɑns dˈɛpθ, ˌɔTəmˈæTɪk ˈɛɹəɹ ˌɛksplənˈAʃənz, ˈɑpʃənᵊl ɡˌɪthˈʌb ˈɪʃu ɹᵻpˈɔɹTɪŋ, sˈInˌɪn, ænd ðə spˈAsəɹəwˌɛɹ sˈɪstəm ɪnstɹˈʌkʃənz."
     },
     {
       "scene": 5,
-      "speech_start": 38.425000000000004,
-      "speech_end": 47.050000000000004,
-      "scene_end": 47.7,
-      "duration": 9.274999999999999,
-      "text": "When the workflow finishes, activation overlays and attribution measurements help assess whether the model learned biologically plausible cues."
+      "speech_start": 44.55,
+      "speech_end": 57.375,
+      "scene_end": 57.825,
+      "duration": 13.275000000000006,
+      "text": "This tutorial runs eight real cell crops through a deterministic but untrained ResNet demonstration artifact. It proves the interface and file flow only; its maps must not be interpreted as learned biology.",
+      "speech_text": "This tutorial runs eight real cell crops through a deterministic but untrained ResNet demonstration artifact. It proves the interface and file flow only; its maps must not be interpreted as learned biology.",
+      "phonemes": "ðˌɪs tutˈɔɹiəl ɹˈʌnz ˈAt ɹˈiᵊl sˈɛl kɹˈɑps θɹu ɐ dətˌɜɹmənˈɪstɪk bˌʌt ˌʌntɹˈAnd ɹˌAznˈɛt dˌɛmənstɹˈAʃən ˈɑɹTəfˌækt. ˌɪt pɹˈuvz ði ˈɪntəɹfˌAs ænd fˈIl flˈO ˈOnli; ɪts mˈæps mˈʌst nˌɑt bi ɪntˈɜɹpɹəTᵻd æz lˈɜɹnd bIˈɑləʤi."
+    },
+    {
+      "scene": 6,
+      "speech_start": 57.825,
+      "speech_end": 68.075,
+      "scene_end": 68.525,
+      "duration": 10.700000000000003,
+      "text": "Essentials shows the crop archive, model artifact, architecture, input size, attribution method, target layer, overlay, and saving choices required for a run.",
+      "speech_text": "Essentials shows the crop archive, model artifact, architecture, input size, attribution method, target layer, overlay, and saving choices required for a run.",
+      "phonemes": "əsˈɛnʧᵊlz ʃˈOz ðə kɹˈɑp ˈɑɹkˌIv, mˈɑdᵊl ˈɑɹTəfˌækt, ˈɑɹkətˌɛkʧəɹ, ˈɪnpˌʊt sˈIz, ˌætɹəbjˈuʃən mˈɛθəd, tˈɑɹɡət lˈAəɹ, ˈOvəɹlˌA, ænd sˈAvɪŋ ʧˈYsᵻz ɹəkwˈIəɹd fɔɹ ɐ ɹˈʌn."
+    },
+    {
+      "scene": 7,
+      "speech_start": 68.525,
+      "speech_end": 79.35000000000001,
+      "scene_end": 79.80000000000001,
+      "duration": 11.275000000000006,
+      "text": "Modified limits the panel to intentional changes such as ResNet eighteen, image saliency, a four-image batch, deterministic ordering, plotting, and disabled database writes.",
+      "speech_text": "Modified limits the panel to intentional changes such as ResNet eighteen, image saliency, a four-image batch, deterministic ordering, plotting, and disabled database writes.",
+      "phonemes": "mˈɑdəfˌId lˈɪməts ðə pˈænᵊl tʊ ɪntˈɛnʧᵊnəl ʧˈAnʤᵻz sˈʌʧ æz ɹˌAznˈɛt ˌAtˈin, ˈɪmɪʤ sˈAljənsi, ɐ fˌɔɹˈɪmɪʤ bˈæʧ, dətˌɜɹmənˈɪstɪk ˈɔɹdəɹɪŋ, plˈɑTɪŋ, ænd dəsˈAbəld dˈæTəbˌAs ɹˈIts."
+    },
+    {
+      "scene": 8,
+      "speech_start": 79.80000000000001,
+      "speech_end": 88.45000000000002,
+      "scene_end": 88.90000000000002,
+      "duration": 9.100000000000009,
+      "text": "All settings reveals six categories: model and data, attribution method, validation, display, quantification, and output runtime.",
+      "speech_text": "All settings reveals six categories: model and data, attribution method, validation, display, quantification, and output runtime.",
+      "phonemes": "ˈɔl sˈɛTɪŋz ɹəvˈilz sˈɪks kˈæTəɡˌɔɹiz: mˈɑdᵊl ænd dˈATə, ˌætɹəbjˈuʃən mˈɛθəd, vˌælɪdˈAʃən, dəsplˈA, kwˌɑntəfəkˈAʃən, ænd ˈWtpˌʊt ɹˈʌntIm."
+    },
+    {
+      "scene": 9,
+      "speech_start": 88.90000000000002,
+      "speech_end": 97.52500000000002,
+      "scene_end": 97.97500000000002,
+      "duration": 9.075000000000003,
+      "text": "Recipes saves the complete Activation Maps configuration, reapplies it later, or imports and exports a reusable settings file.",
+      "speech_text": "Recipes saves the complete Activation Maps configuration, reapplies it later, or imports and exports a reusable settings file.",
+      "phonemes": "ɹˈɛsəpˌiz sˈAvz ðə kəmplˈit ˌæktəvˈAʃən mˈæps kənfˌɪɡjəɹˈAʃən, ɹˌiəplˈIz ɪt lˈATəɹ, ɔɹ ˈɪmpˌɔɹts ænd ˈɛkspˌɔɹts ɐ ɹijˈuzəbᵊl sˈɛTɪŋz fˈIl."
+    },
+    {
+      "scene": 10,
+      "speech_start": 97.97500000000002,
+      "speech_end": 105.15000000000002,
+      "scene_end": 105.60000000000002,
+      "duration": 7.625,
+      "text": "Submit remote snapshots the resolved settings and sends the attribution job to the Distributed Jobs workspace.",
+      "speech_text": "Submit remote snapshots the resolved settings and sends the attribution job to the Distributed Jobs workspace.",
+      "phonemes": "səbmˈɪt ɹəmˈOt snˈæpʃˌɑts ðə ɹəzˈɔlvd sˈɛTɪŋz ænd sˈɛndz ði ˌætɹəbjˈuʃən ʤˈɑb tə ðə dəstɹˈɪbjuTᵻd ʤˈɑbz wˈɜɹkspˌAs."
+    },
+    {
+      "scene": 11,
+      "speech_start": 105.60000000000002,
+      "speech_end": 115.85000000000002,
+      "scene_end": 116.30000000000003,
+      "duration": 10.700000000000003,
+      "text": "Distributed Jobs maps model, dataset, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "speech_text": "Distributed Jobs maps model, dataset, and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+      "phonemes": "dəstɹˈɪbjuTᵻd ʤˈɑbz mˈæps mˈɑdᵊl, dˈATəsˌɛt, ænd ˈWtpˌʊt pˈæðz tə ɐ ɹəmˈOt wˈɜɹkstˌAʃən, slˈɜɹm klˈʌstəɹ, ɔɹ kənfˈɪɡjəɹd kəmˈænd, ðˈɛn səbmˈɪts ænd mˈɑnəTəɹz ðə sˈAm ɹˈʌn."
+    },
+    {
+      "scene": 12,
+      "speech_start": 116.30000000000003,
+      "speech_end": 127.25000000000003,
+      "scene_end": 127.70000000000003,
+      "duration": 11.400000000000006,
+      "text": "Model and Data selects the crop TAR archive, trained model artifact, matching architecture, input size, object type, and channel order. A mismatch here invalidates every map.",
+      "speech_text": "Model and Data selects the crop TAR archive, trained model artifact, matching architecture, input size, object type, and channel order. A mismatch here invalidates every map.",
+      "phonemes": "mˈɑdᵊl ænd dˈATə səlˈɛkts ðə kɹˈɑp tˈɑɹ ˈɑɹkˌIv, tɹˈAnd mˈɑdᵊl ˈɑɹTəfˌækt, mˈæʧɪŋ ˈɑɹkətˌɛkʧəɹ, ˈɪnpˌʊt sˈIz, ˈɑbʤəkt tˈIp, ænd ʧˈænᵊl ˈɔɹdəɹ. ɐ mˈɪsmˌæʧ hˈɪɹ ɪnvˈælɪdˌAts ˈɛvəɹi mˈæp."
+    },
+    {
+      "scene": 13,
+      "speech_start": 127.70000000000003,
+      "speech_end": 138.50000000000003,
+      "scene_end": 138.95000000000002,
+      "duration": 11.249999999999986,
+      "text": "Attribution Method chooses Grad-CAM, saliency, integrated gradients, occlusion, or another registered method, plus its target layer and method-specific sampling parameters.",
+      "speech_text": "Attribution Method chooses Grad-CAM, saliency, integrated gradients, occlusion, or another registered method, plus its target layer and method-specific sampling parameters.",
+      "phonemes": "ˌætɹəbjˈuʃən mˈɛθəd ʧˈuzᵻz ɡɹˈædkˌæm, sˈAljənsi, ˈɪntəɡɹˌATᵻd ɡɹˈAdiənts, əklˈuʒᵊn, ɔɹ ənˈʌðəɹ ɹˈɛʤəstəɹd mˈɛθəd, plˈʌs ɪts tˈɑɹɡət lˈAəɹ ænd mˌɛθədspəsˈɪfɪk sˈæmpᵊlɪŋ pəɹˈæməTəɹz."
+    },
+    {
+      "scene": 14,
+      "speech_start": 138.95000000000002,
+      "speech_end": 151.05,
+      "scene_end": 151.5,
+      "duration": 12.549999999999983,
+      "text": "Attribution Validation controls deletion and insertion steps, baseline construction, and model-randomization sanity checks. A map that survives randomized weights may only be an edge detector.",
+      "speech_text": "Attribution Validation controls deletion and insertion steps, baseline construction, and model-randomization sanity checks. A map that survives randomized weights may only be an edge detector.",
+      "phonemes": "ˌætɹəbjˈuʃən vˌælɪdˈAʃən kəntɹˈOlz dəlˈiʃən ænd ɪnsˈɜɹʃən stˈɛps, bˈAslˌIn kənstɹˈʌkʃən, ænd mˌɑdᵊlɹˌændəməzˈAʃən sˈænəTi ʧˈɛks. ɐ mˈæp ðæt səɹvˈIvz ɹˈændəmˌIzd wˈAts mˈA ˈOnli bi ɐn ˈɛʤ dətˈɛktəɹ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 151.5,
+      "speech_end": 162.95,
+      "scene_end": 163.39999999999998,
+      "duration": 11.899999999999977,
+      "text": "Map Display controls percentile contrast, training-matched input normalization, source-image overlays, and batch-grid plots. Display changes do not create evidence of model validity.",
+      "speech_text": "Map Display controls percentile contrast, training-matched input normalization, source-image overlays, and batch-grid plots. Display changes do not create evidence of model validity.",
+      "phonemes": "mˈæp dəsplˈA kəntɹˈOlz pəɹsˈɛntˌIl kˈɑntɹˌæst, tɹˈAnɪŋmˌæʧt ˈɪnpˌʊt nˌɔɹmələzˈAʃən, sˌɔɹsˈɪmɪʤ ˈOvəɹlˌAz, ænd bˌæʧɡɹˈɪd plˈɑts. dəsplˈA ʧˈAnʤᵻz dˈu nˌɑt kɹiˈAt ˈɛvədᵊns ʌv mˈɑdᵊl vəlˈɪdəTi."
+    },
+    {
+      "scene": 16,
+      "speech_start": 163.39999999999998,
+      "speech_end": 174.77499999999998,
+      "scene_end": 175.22499999999997,
+      "duration": 11.824999999999989,
+      "text": "Map Quantification can correlate each input channel with the attribution map using Pearson and Manders statistics. Enable saving when those values should be written to the project database.",
+      "speech_text": "Map Quantification can correlate each input channel with the attribution map using Pearson and Manders statistics. Enable saving when those values should be written to the project database.",
+      "phonemes": "mˈæp kwˌɑntəfəkˈAʃən kæn kˈɔɹəlˌAt ˈiʧ ˈɪnpˌʊt ʧˈænᵊl wɪð ði ˌætɹəbjˈuʃən mˈæp jˈuzɪŋ pˈɪɹsən ænd mˈændəɹz stətˈɪstɪks. ɪnˈAbᵊl sˈAvɪŋ wˌɛn ðOz vˈæljuz ʃˌʊd bi ɹˈɪtn tə ðə pɹˈɑʤˌɛkt dˈæTəbˌAs."
+    },
+    {
+      "scene": 17,
+      "speech_start": 175.22499999999997,
+      "speech_end": 185.44999999999996,
+      "scene_end": 185.89999999999995,
+      "duration": 10.674999999999983,
+      "text": "Output and Runtime controls map saving, deterministic or shuffled order, batch size, and loader workers. Lower the batch size when accelerator memory is limited.",
+      "speech_text": "Output and Runtime controls map saving, deterministic or shuffled order, batch size, and loader workers. Lower the batch size when accelerator memory is limited.",
+      "phonemes": "ˈWtpˌʊt ænd ɹˈʌntIm kəntɹˈOlz mˈæp sˈAvɪŋ, dətˌɜɹmənˈɪstɪk ɔɹ ʃˈʌfᵊld ˈɔɹdəɹ, bˈæʧ sˈIz, ænd lˈOdəɹ wˈɜɹkəɹz. lˈOəɹ ðə bˈæʧ sˈIz wˌɛn əksˈɛləɹˌATəɹ mˈɛməɹi ɪz lˈɪməTᵻd."
+    },
+    {
+      "scene": 18,
+      "speech_start": 185.89999999999995,
+      "speech_end": 199.79999999999995,
+      "scene_end": 200.24999999999994,
+      "duration": 14.349999999999994,
+      "text": "This interface demonstration selects image saliency, which needs no target layer. Grad-CAM methods require a compatible convolutional layer; integrated gradients and occlusion use their own step, baseline, window, and stride controls.",
+      "speech_text": "This interface demonstration selects image saliency, which needs no target layer. Grad-CAM methods require a compatible convolutional layer; integrated gradients and occlusion use their own step, baseline, window, and stride controls.",
+      "phonemes": "ðˌɪs ˈɪntəɹfˌAs dˌɛmənstɹˈAʃən səlˈɛkts ˈɪmɪʤ sˈAljənsi, wˌɪʧ nˈidz nˈO tˈɑɹɡət lˈAəɹ. ɡɹˈædkˌæm mˈɛθədz ɹəkwˈIəɹ ɐ kəmpˈæTəbᵊl kˌɑnvəlˈuʃənᵊl lˈAəɹ; ˈɪntəɡɹˌATᵻd ɡɹˈAdiənts ænd əklˈuʒᵊn jˈuz ðɛɹ ˈOn stˈɛp, bˈAslˌIn, wˈɪndO, ænd stɹˈId kəntɹˈOlz."
+    },
+    {
+      "scene": 19,
+      "speech_start": 200.24999999999994,
+      "speech_end": 213.92499999999995,
+      "scene_end": 214.37499999999994,
+      "duration": 14.125,
+      "text": "Run validates the dataset and model artifact, recreates training-compatible preprocessing, computes predictions and attribution maps in batches, renders requested grids, and records the run. Stop requests a safe interruption.",
+      "speech_text": "Run validates the dataset and model artifact, recreates training-compatible preprocessing, computes predictions and attribution maps in batches, renders requested grids, and records the run. Stop requests a safe interruption.",
+      "phonemes": "ɹˈʌn vˈælɪdˌAts ðə dˈATəsˌɛt ænd mˈɑdᵊl ˈɑɹTəfˌækt, ɹˌikɹiˈAts tɹˌAnɪŋkəmpˈæTəbᵊl pɹɪpɹˈɑsɛsɪŋ, kəmpjˈuts pɹidˈɪkʃənz ænd ˌætɹəbjˈuʃən mˈæps ɪn bˈæʧᵻz, ɹˈɛndəɹz ɹəkwˈɛstᵻd ɡɹˈɪdz, ænd ɹəkˈɔɹdz ðə ɹˈʌn. stˈɑp ɹəkwˈɛsts ɐ sˈAf ˌɪntəɹˈʌpʃən."
+    },
+    {
+      "scene": 20,
+      "speech_start": 214.37499999999994,
+      "speech_end": 223.04999999999995,
+      "scene_end": 223.49999999999994,
+      "duration": 9.125,
+      "text": "During processing, the console reports batch-grid paths, images completed, time per batch, time per image, and estimated time remaining.",
+      "speech_text": "During processing, the console reports batch-grid paths, images completed, time per batch, time per image, and estimated time remaining.",
+      "phonemes": "dˈʊɹɪŋ pɹˈɑsɛsɪŋ, ðə kˈɑnsˌOl ɹəpˈɔɹts bˌæʧɡɹˈɪd pˈæðz, ˈɪmɪʤᵻz kəmplˈiTᵻd, tˈIm pɜɹ bˈæʧ, tˈIm pɜɹ ˈɪmɪʤ, ænd ˈɛstəmˌATᵻd tˈIm ɹəmˈAnɪŋ."
+    },
+    {
+      "scene": 21,
+      "speech_start": 223.49999999999994,
+      "speech_end": 237.64999999999995,
+      "scene_end": 238.29999999999995,
+      "duration": 14.800000000000011,
+      "text": "The completed demonstration produced two real saliency-overlay grid PDFs and a successful reproducibility record. Replace the untrained artifact with a validated classifier before drawing any biological conclusion from these outputs.",
+      "speech_text": "The completed demonstration produced two real saliency-overlay grid PDFs and a successful reproducibility record. Replace the untrained artifact with a validated classifier before drawing any biological conclusion from these outputs.",
+      "phonemes": "ðə kəmplˈiTᵻd dˌɛmənstɹˈAʃən pɹədˈust tˈu ɹˈiᵊl sˌAljənsiˈOvəɹlˌA ɡɹˈɪd pˌidˌiˈɛfs ænd ɐ səksˈɛsfᵊl ɹˌipɹədˌusəbˈɪləTi ɹˈɛkəɹd. ɹəplˈAs ði ˌʌntɹˈAnd ˈɑɹTəfˌækt wɪð ɐ vˈælɪdˌATᵻd klˈæsəfˌIəɹ bəfˈɔɹ dɹˈYŋ ˈɛni bˌIəlˈɑʤəkᵊl kənklˈuʒən fɹʌm ðiz ˈWtpˌʊts."
     }
   ]
 }
