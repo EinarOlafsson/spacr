@@ -350,6 +350,49 @@ def register_console_target(panel: Any) -> None:
             lambda *_args, ref=target_ref: _drop_console_target(ref))
 
 
+def apply_console_levels(levels) -> None:
+    """Gate the in-app console to an explicit set of levels.
+
+    Called by :func:`spacr.logging_util.apply_level_policy`, which has
+    already clamped ``levels`` to a subset of what the log files record --
+    a line the user cannot find in the log they are about to attach to a
+    bug report should not appear in the console either.
+
+    The handler keeps passing everything and a filter decides, so the set
+    can change while another thread is mid-log without the handler being
+    swapped underneath it.
+    """
+    from ..logging_util import LevelSetFilter, normalise_levels
+    handler = _ensure_handler()
+    wanted = set(normalise_levels(levels))
+    for existing in handler.filters:
+        if isinstance(existing, LevelSetFilter):
+            existing.levels = wanted
+            break
+    else:
+        handler.addFilter(LevelSetFilter(wanted))
+    # The handler's own threshold would veto the filter before it ran.
+    handler.setLevel(logging.DEBUG)
+    # The loggers feeding it carry thresholds too; open them to the lowest
+    # level any sink wants. The file filters still decide what is written.
+    lowest = min(wanted) if wanted else logging.CRITICAL
+    for name in _ATTACHED_LOGGERS:
+        logger = logging.getLogger(name)
+        if logger.level == 0 or logger.level > lowest:
+            logger.setLevel(lowest)
+
+
+def console_levels() -> frozenset:
+    """The levels the console is currently showing."""
+    from ..logging_util import LevelSetFilter
+    if _handler is None:
+        return frozenset()
+    for existing in _handler.filters:
+        if isinstance(existing, LevelSetFilter):
+            return frozenset(existing.levels)
+    return frozenset()
+
+
 def apply_verbose_logging(on: bool) -> None:
     """Flip DEBUG ↔ INFO on every attached spaCR logger + handlers.
 

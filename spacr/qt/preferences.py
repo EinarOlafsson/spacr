@@ -158,6 +158,11 @@ _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
+# Stored as level names ("INFO,WARNING,ERROR") rather than numbers: QSettings
+# round-trips strings predictably across platforms, and a settings file a
+# human might open says what it means.
+_KEY_LOG_FILE_LEVELS = "prefs/log_file_levels"
+_KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
 _KEY_DOCK_MODE   = "prefs/dock_mode"
 _KEY_PANE_OPACITY = "prefs/pane_opacity"
@@ -1617,6 +1622,69 @@ def color_blind_categorical_palette() -> list:
             "#56B4E9", "#D55E00", "#CC79A7", "#000000"]
 
 
+def _level_names(levels) -> str:
+    return ",".join(logging.getLevelName(level) for level in sorted(levels))
+
+
+def _parse_levels(raw, fallback) -> frozenset:
+    """Read a stored ``"INFO,WARNING"`` string back into level numbers."""
+    from ..logging_util import normalise_levels
+    if raw is None or raw == "":
+        return frozenset(fallback)
+    if isinstance(raw, (list, tuple)):
+        text = ",".join(str(item) for item in raw)
+    else:
+        text = str(raw)
+    found = set()
+    for token in text.split(","):
+        token = token.strip().upper()
+        if not token:
+            continue
+        value = logging.getLevelName(token)
+        if isinstance(value, int):
+            found.add(value)
+    return normalise_levels(found) or frozenset(fallback)
+
+
+def get_log_file_levels() -> frozenset:
+    """Levels written to the log files. The master switch of the pair."""
+    from ..logging_util import DEFAULT_FILE_LEVELS
+    return _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
+                         DEFAULT_FILE_LEVELS)
+
+
+def get_log_console_levels() -> frozenset:
+    """Levels echoed to the in-app console, always a subset of the files.
+
+    Clamped on read as well as on write: the stored value can predate a
+    change to the file switches made by a different code path, and a
+    console line with no matching entry in the log file is exactly what
+    the subset rule exists to prevent.
+    """
+    from ..logging_util import DEFAULT_CONSOLE_LEVELS, clamp_console_to_file
+    stored = _parse_levels(_settings().value(_KEY_LOG_CONSOLE_LEVELS, None),
+                           DEFAULT_CONSOLE_LEVELS)
+    return clamp_console_to_file(stored, get_log_file_levels())
+
+
+def set_log_levels(file_levels, console_levels) -> tuple:
+    """Persist both switch sets, then apply them to the live handlers.
+
+    :returns: ``(file_levels, console_levels)`` as actually stored, which
+        is not necessarily what was asked for -- a console level whose file
+        level is off is dropped rather than saved and silently ignored.
+    """
+    from ..logging_util import (apply_level_policy, clamp_console_to_file,
+                                normalise_levels)
+    files = normalise_levels(file_levels)
+    console = clamp_console_to_file(console_levels, files)
+    settings = _settings()
+    settings.setValue(_KEY_LOG_FILE_LEVELS, _level_names(files))
+    settings.setValue(_KEY_LOG_CONSOLE_LEVELS, _level_names(console))
+    apply_level_policy(files, console)
+    return files, console
+
+
 def get_verbose_logging() -> bool:
     """Return True when the user has opted into the verbose diagnostic
     logger. Toggled via the Preferences dialog; consulted at startup
@@ -1838,6 +1906,11 @@ def apply_preferences_to_app(app=None) -> None:
         )
         _ensure_file_handler()
         apply_verbose_logging(get_verbose_logging())
+        # AFTER apply_verbose_logging, which still sets a blanket threshold
+        # on the attached loggers. The per-level switches are the finer
+        # statement and have to be the one that lands last.
+        from ..logging_util import apply_level_policy
+        apply_level_policy(get_log_file_levels(), get_log_console_levels())
     except Exception:
         # Logger module is optional at import time — never let its
         # absence prevent the app from theming itself.
@@ -1936,8 +2009,8 @@ class PreferencesDialog:
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
             QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame,
-            QLabel, QPushButton, QScrollArea, QSlider, QTabWidget,
-            QVBoxLayout, QWidget,
+            QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
+            QTabWidget, QVBoxLayout, QWidget,
         )
         from .i18n import language_choices, tr
         from .widgets.toggle import Toggle
@@ -1988,6 +2061,68 @@ class PreferencesDialog:
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
+        logging_form = _page("Logging", "PreferencesTabLogging")
+
+        # Two independent switches per level rather than one severity
+        # threshold. A threshold cannot express "record DEBUG but not INFO",
+        # which is the shape of most triage: one chatty subsystem is wanted
+        # and the routine progress chatter is not.
+        #
+        # The file column gates the console column. Both are fed by the same
+        # records, so a line shown in the console but absent from the log
+        # file would be a line the user can see and then cannot produce when
+        # asked for the log -- the console switch is disabled whenever its
+        # file switch is off, and unticking a file switch takes its console
+        # switch with it.
+        log_level_toggles = {}
+        _log_header = QLabel(tr(
+            "Each level is written to its own file, plus a master log "
+            "containing everything. The console can only show a level the "
+            "log file is keeping."))
+        _log_header.setWordWrap(True)
+        _log_header.setObjectName("LoggingTabHelp")
+        logging_form.addRow(_log_header)
+
+        _file_levels_now = set(get_log_file_levels())
+        _console_levels_now = set(get_log_console_levels())
+
+        def _sync_console_enabled(level_value) -> None:
+            """A console switch is only live while its file switch is."""
+            file_toggle, console_toggle = log_level_toggles[level_value]
+            allowed = file_toggle.isChecked()
+            console_toggle.setEnabled(allowed)
+            if not allowed and console_toggle.isChecked():
+                console_toggle.setChecked(False)
+
+        for _level in (logging.DEBUG, logging.INFO, logging.WARNING,
+                       logging.ERROR, logging.CRITICAL):
+            _name = logging.getLevelName(_level)
+            _row = QWidget()
+            _row_layout = QHBoxLayout(_row)
+            _row_layout.setContentsMargins(0, 0, 0, 0)
+            _row_layout.setSpacing(12)
+
+            _file_toggle = Toggle()
+            _file_toggle.setObjectName(f"LogFileLevel{_name.title()}")
+            _file_toggle.setChecked(_level in _file_levels_now)
+            _console_toggle = Toggle()
+            _console_toggle.setObjectName(f"LogConsoleLevel{_name.title()}")
+            _console_toggle.setChecked(_level in _console_levels_now)
+
+            _row_layout.addWidget(QLabel(tr("Log file")))
+            _row_layout.addWidget(_file_toggle)
+            _row_layout.addSpacing(16)
+            _row_layout.addWidget(QLabel(tr("Console")))
+            _row_layout.addWidget(_console_toggle)
+            _row_layout.addStretch(1)
+
+            log_level_toggles[_level] = (_file_toggle, _console_toggle)
+            _file_toggle.toggled.connect(
+                lambda _checked, value=_level: _sync_console_enabled(value))
+            logging_form.addRow(_name.title(), _row)
+
+        for _level in log_level_toggles:
+            _sync_console_enabled(_level)
 
         # Language is first so it remains discoverable even on a small screen.
         language_combo = QComboBox()
@@ -2693,6 +2828,15 @@ class PreferencesDialog:
             set_field_fade_enabled(field_fade_check.isChecked())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
+            # set_log_levels re-clamps rather than trusting the dialog: the
+            # console switch is disabled when its file switch is off, but a
+            # disabled QCheckBox still reports whatever it was last set to.
+            set_log_levels(
+                [level for level, (file_t, _c) in log_level_toggles.items()
+                 if file_t.isChecked()],
+                [level for level, (_f, console_t) in log_level_toggles.items()
+                 if console_t.isChecked()],
+            )
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
