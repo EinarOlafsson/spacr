@@ -3277,48 +3277,89 @@
     {
       "id": "23_agreement",
       "number": 23,
-      "slug": "agreement",
-      "title": "Annotator Agreement",
+      "slug": "annotator-agreement",
+      "title": "标记者协议",
       "series": 3,
       "app_key": "agreement",
-      "section": "Results and quality control",
-      "description": "测量注释列之间的协议,并审查导致分歧的对象.",
+      "section": "Assay workflows",
+      "description": "将两个或多个类别注释列进行比较,检查协议统计和类平衡,并检查标签不同时的精确作物.",
       "objectives": [
-        "了解使用\"注释器协议\"的时间.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "从测量数据库或运行文件中加载类别标签.",
+        "解释完整的行列,弃权,原始协议,科恩的卡帕,和混矩阵在一起.",
+        "开放真正不一致的作物进行裁决或注释质量审查."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "准备一个包含至少两个类别注释或预测列的spaCR测量数据库.",
       "scenes": [
         {
-          "narration": "测量注释列之间的协议,并审查导致分歧的对象.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "测量注释列之间的协议,并审查导致分歧的对象."
+          "narration": "标记者协议将两个或多个类型列进行比较,而不会改变数据库. 用它对两个评论员,重复注释通过,或者对评论员和模型进行检查,然后检查总结统计数据和不同产品的确切产品.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.55,
+          "speech_text": "标记者协议将两个或多个类型列进行比较,而不会改变数据库. 用它对两个评论员,重复注释通过,或者对评论员和模型进行检查,然后检查总结统计数据和不同产品的确切产品."
         },
         {
-          "narration": "从 Results and quality control 部分打开 Annotator Agreement。 选择一个项目数据库和两个或多个包含相同对象的注释列.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Results and quality control 部分打开 Annotator Agreement。 选择一个项目数据库和两个或多个包含相同对象的注释列."
+          "narration": "选择一个测量数据库,或其包含运行文件. 在 PNG 列表中,spaCR 发现了适合的注释和预测列表,并只留下读取的源标签.",
+          "visual": "02_database",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "选择一个测量数据库,或其包含运行文件. 在 PNG 列表中,斯佩克尔 发现了适合的注释和预测列表,并只留下读取的源标签."
         },
         {
-          "narration": "在主要配置区域中,选择类处理,缺标签政策,组分,样本取样和协议统计数据.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,选择类处理,缺标签政策,组分,样本取样和协议统计数据."
+          "narration": "选择至少两个列. 在这里,ER_Bulbs与相同的细胞作物中的预测_1进行了比较. 其他选定的列允许所有对式比较和多级Fleiss kappa总结.",
+          "visual": "03_columns",
+          "focus_key": "columns",
+          "hold_after": 0.55,
+          "speech_text": "选择至少两个列. 在这里,ER_Bulbs与相同的细胞作物中的预测_1进行了比较. 其他选定的列允许所有对式比较和多级Fleiss kappa总结."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 检查Cohen或Fleiss kappa以及类型特定的混和分歧示例.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用. 检查Cohen或Fleiss kappa以及类型特定的混和分歧示例."
+          "narration": "单击计算协议. 缺失标签被视为弃权,而不是异议;每个对只在两个选定的列中包含类别的行中进行评估.",
+          "visual": "04_compute",
+          "focus_key": "compute",
+          "click_key": "compute",
+          "hold_after": 0.5,
+          "speech_text": "单击计算协议. 缺失标签被视为弃权,而不是异议;每个对只在两个选定的列中包含类别的行中进行评估."
         },
         {
-          "narration": "工作流程完成后,协议表和集中审查设置支持标签调整和协议改进.",
-          "visual": "output",
+          "narration": "计算将标签按作物排列,计算完整和弃排行,构建每个混矩阵,并找到可以追溯到原始图像的分歧.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "计算将标签按作物排列,计算完整和弃排行,构建每个混矩阵,并找到可以追溯到原始图像的分歧."
+        },
+        {
+          "narration": "这个真正的对有一千三百五十九个完整的行,八十万六百十个弃权,八个分歧, 科恩的卡帕在这里未定义,而不是零,因为ER_Bulbs在每一个完整的行上只使用一个类,",
+          "visual": "06_pairwise",
+          "focus_key": "pairwise",
+          "hold_after": 0.85,
+          "speech_text": "这个真正的对有一千三百五十九个完整的行,八十万六百十个弃权,八个分歧, 科恩的卡帕在这里未定义,而不是零,因为ER_Bulbs在每一个完整的行上只使用一个类,"
+        },
+        {
+          "narration": "混矩阵直接揭示了这个类的不平衡:一千三百五十一行是两个列中的一行,而八行是ER_Bulbs中的一行和预测_1中的二行. ER_Bulbs没有提供完整的二类行.",
+          "visual": "07_confusion",
+          "focus_key": "confusion",
+          "hold_after": 0.7,
+          "speech_text": "混矩阵直接揭示了这个类的不平衡:一千三百五十一行是两个列中的一行,而八行是ER_Bulbs中的一行和预测_1中的二行. ER_Bulbs没有提供完整的二类行."
+        },
+        {
+          "narration": "在分歧表中列出了这八种真正的农作物, 改变更大的比较的审查限制,选择任何行,并使用预览,而不是仅仅从总分数决定.",
+          "visual": "08_disagreements",
+          "focus_key": "review",
+          "hold_after": 0.6,
+          "speech_text": "在分歧表中列出了这八种真正的农作物, 改变更大的比较的审查限制,选择任何行,并使用预览,而不是仅仅从总分数决定."
+        },
+        {
+          "narration": "选择分歧解决了存储的作物路径,并显示了显微镜图像及其两个分类值旁边. 在选择标签,门或类定义是否需要纠正之前,审查形态学和信号文本.",
+          "visual": "09_crop_one",
+          "focus_key": "crop",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,协议表和集中审查设置支持标签调整和协议改进."
+          "speech_text": "选择分歧解决了存储的作物路径,并显示了显微镜图像及其两个分类值旁边. 在选择标签,门或类定义是否需要纠正之前,审查形态学和信号文本."
+        },
+        {
+          "narration": "通过不同意见的行列进行系统的裁决. 报告原始协议,阶级平衡,弃权,混矩阵和卡帕;在这里,未定义的卡帕是一个有用的警告,",
+          "visual": "10_crop_two",
+          "focus_key": "caption",
+          "hold_after": 0.75,
+          "speech_text": "通过不同意见的行列进行系统的裁决. 报告原始协议,阶级平衡,弃权,混矩阵和卡帕;在这里,未定义的卡帕是一个有用的警告,"
         }
       ]
     },

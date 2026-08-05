@@ -3277,48 +3277,89 @@
     {
       "id": "23_agreement",
       "number": 23,
-      "slug": "agreement",
-      "title": "Annotator Agreement",
+      "slug": "annotator-agreement",
+      "title": "Accord avec l'annonceur",
       "series": 3,
       "app_key": "agreement",
-      "section": "Results and quality control",
-      "description": "Mesurer l'accord entre les colonnes d'annotation et examiner les objets responsables du désaccord.",
+      "section": "Assay workflows",
+      "description": "Comparer deux ou plusieurs colonnes d'annotation catégorique, inspecter les statistiques des accords et l'équilibre des classes, et examiner les cultures exactes où les étiquettes ne sont pas d'accord.",
       "objectives": [
-        "Comprendre quand utiliser l'accord d'annotation.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Charger des étiquettes catégoriques à partir d'une base de données de mesures ou d'un dossier d'exécution.",
+        "Interpréter les lignes complètes, les abstentions, l'accord brut, la kappa de Cohen, et la matrice de confusion ensemble.",
+        "Ouvrir des cultures réelles en désaccord à l'adjudication ou à l'examen de la qualité des annotations."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Préparer une base de données de mesure spaCR contenant au moins deux colonnes d'annotation catégorique ou de prédiction.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre l'accord des annotateurs. Mesurer l'accord entre les colonnes d'annotation et examiner les objets responsables du désaccord.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre l'accord des annotateurs. Mesurer l'accord entre les colonnes d'annotation et examiner les objets responsables du désaccord."
+          "narration": "L'accord d'annotateur compare deux colonnes catégoriques ou plus sans modifier la base de données. Utilisez-le pour deux réviseurs, des passes d'annotation répétées, ou une vérification réviseur-contre-modèle, puis inspectez à la fois les statistiques sommaires et les cultures exactes qui ne sont pas d'accord.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.55,
+          "speech_text": "L'accord d'annotateur compare deux colonnes catégoriques ou plus sans modifier la base de données. Utilisez-le pour deux réviseurs, des passes d'annotation répétées, ou une vérification réviseur-contre-modèle, puis inspectez à la fois les statistiques sommaires et les cultures exactes qui ne sont pas d'accord."
         },
         {
-          "narration": "Ouvrez Annotator Agreement dans la section Results and quality control. Ouvrez l'accord d'annotation dans la section Résultats et contrôle de la qualité.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Annotator Agreement dans la section Results and quality control. Ouvrez l'accord d'annotation dans la section Résultats et contrôle de la qualité."
+          "narration": "Choisissez une base de données de mesures ou son dossier d'exécution. spaCR détecte des colonnes d'annotation et de prédiction appropriées dans la table de liste PNG et laisse les étiquettes de source uniquement lisibles.",
+          "visual": "02_database",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Choisissez une base de données de mesures ou son dossier d'exécution. spakeur détecte des colonnes d'annotation et de prédiction appropriées dans la table de liste PNG et laisse les étiquettes de source uniquement lisibles."
         },
         {
-          "narration": "Dans la zone de configuration principale, sélectionnez la gestion des classes, la politique de mise en étiquette manquante, le regroupement, le prélèvement d'échantillons et la statistique de l'accord.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, sélectionnez la gestion des classes, la politique de mise en étiquette manquante, le regroupement, le prélèvement d'échantillons et la statistique de l'accord."
+          "narration": "Sélectionnez au moins deux colonnes. Ici ER_Bulbs est comparé à des prédictions_1 sur les mêmes cultures cellulaires. Des colonnes sélectionnées supplémentaires permettent toutes les comparaisons par paires et un résumé Fleiss kappa à plusieurs raters.",
+          "visual": "03_columns",
+          "focus_key": "columns",
+          "hold_after": 0.55,
+          "speech_text": "Sélectionnez au moins deux colonnes. Ici ER_Bulbs est comparé à des prédictions_1 sur les mêmes cultures cellulaires. Des colonnes sélectionnées supplémentaires permettent toutes les comparaisons par paires et un résumé Fleiss kappa à plusieurs raters."
         },
         {
-          "narration": "Avant la course complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, consultez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "narration": "Cliquez sur Accord de calcul. Les étiquettes manquantes sont traitées comme des abstentions et non comme des désaccords; chaque paire n'est évaluée que sur des lignes où les deux colonnes sélectionnées contiennent une catégorie.",
+          "visual": "04_compute",
+          "focus_key": "compute",
+          "click_key": "compute",
+          "hold_after": 0.5,
+          "speech_text": "Cliquez sur Accord de calcul. Les étiquettes manquantes sont traitées comme des abstentions et non comme des désaccords; chaque paire n'est évaluée que sur des lignes où les deux colonnes sélectionnées contiennent une catégorie."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les tableaux d'accord et une revue centrée établissent des étiquettes de soutien à la réconciliation et à l'amélioration du protocole.",
-          "visual": "output",
+          "narration": "Le calcul aligne les étiquettes par culture, compte les lignes complètes et abstenues, construit chaque matrice de confusion et trouve des désaccords qui peuvent être tracés à leurs images d'origine.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "Le calcul aligne les étiquettes par culture, compte les lignes complètes et abstenues, construit chaque matrice de confusion et trouve des désaccords qui peuvent être tracés à leurs images d'origine."
+        },
+        {
+          "narration": "Cette vraie paire a mille trois cent cinquante-neuf lignes complètes, quatre-vingt mille six cent dix abstentions, huit désaccords, et quatre-vingt-neuf points d'accord brut. La kappa de Cohen n'est pas définie ici  pas zéro  parce que ER_Bulbs n'utilise qu'une classe sur chaque ligne complète, ce qui rend le dénominateur de l'accord de chance dégénéré.",
+          "visual": "06_pairwise",
+          "focus_key": "pairwise",
+          "hold_after": 0.85,
+          "speech_text": "Cette vraie paire a mille trois cent cinquante-neuf lignes complètes, quatre-vingt mille six cent dix abstentions, huit désaccords, et quatre-vingt-neuf points d'accord brut. La kappa de Cohen n'est pas définie ici  pas zéro  parce que ER_Bulbs n'utilise qu'une classe sur chaque ligne complète, ce qui rend le dénominateur de l'accord de chance dégénéré."
+        },
+        {
+          "narration": "La matrice de confusion expose directement ce déséquilibre de classe: mille trois cent cinquante et une rangées sont de classe un dans les deux colonnes, tandis que huit rangées sont de classe une dans ER_Bulbs et de classe deux dans prédictions_1. ER_Bulbs ne contribue pas à des lignes complètes de classe deux.",
+          "visual": "07_confusion",
+          "focus_key": "confusion",
+          "hold_after": 0.7,
+          "speech_text": "La matrice de confusion expose directement ce déséquilibre de classe: mille trois cent cinquante et une rangées sont de classe un dans les deux colonnes, tandis que huit rangées sont de classe une dans ER_Bulbs et de classe deux dans prédictions_1. ER_Bulbs ne contribue pas à des lignes complètes de classe deux."
+        },
+        {
+          "narration": "Le tableau de désaccords énumère ces huit réelles cultures et les deux étiquettes. Modifiez la limite de révision pour des comparaisons plus grandes, sélectionnez n'importe quelle ligne et utilisez l'aperçu au lieu de décider uniquement d'un score agrégé.",
+          "visual": "08_disagreements",
+          "focus_key": "review",
+          "hold_after": 0.6,
+          "speech_text": "Le tableau de désaccords énumère ces huit réelles cultures et les deux étiquettes. Modifiez la limite de révision pour des comparaisons plus grandes, sélectionnez n'importe quelle ligne et utilisez l'aperçu au lieu de décider uniquement d'un score agrégé."
+        },
+        {
+          "narration": "La sélection d'un désaccord résout le chemin de culture stocké et affiche l'image microscopique à côté de ses deux valeurs catégoriques. Examiner la morphologie et le contexte du signal avant de choisir si une étiquette, un seuil ou une définition de classe doit être corrigée.",
+          "visual": "09_crop_one",
+          "focus_key": "crop",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les tableaux d'accord et une revue centrée établissent des étiquettes de soutien à la réconciliation et à l'amélioration du protocole."
+          "speech_text": "La sélection d'un désaccord résout le chemin de culture stocké et affiche l'image microscopique à côté de ses deux valeurs catégoriques. Examiner la morphologie et le contexte du signal avant de choisir si une étiquette, un seuil ou une définition de classe doit être corrigée."
+        },
+        {
+          "narration": "Passez à travers les rangées de désaccords pour juger systématiquement. Rapportez l'accord brut, l'équilibre des classes, les abstentions, la matrice de confusion et la kappa ensemble; ici la kappa non définie est un avertissement utile sur la prévalence, pas un échec de la comparaison.",
+          "visual": "10_crop_two",
+          "focus_key": "caption",
+          "hold_after": 0.75,
+          "speech_text": "Passez à travers les rangées de désaccords pour juger systématiquement. Rapportez l'accord brut, l'équilibre des classes, les abstentions, la matrice de confusion et la kappa ensemble; ici la kappa non définie est un avertissement utile sur la prévalence, pas un échec de la comparaison."
         }
       ]
     },

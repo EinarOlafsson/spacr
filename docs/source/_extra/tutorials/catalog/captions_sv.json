@@ -1269,19 +1269,34 @@
       "id": "23_agreement",
       "scenes": [
         {
-          "narration": "Denna handledning omfattar Annotator Agreement. Mät överenskommelse mellan anteckningskolumner och granska de föremål som är ansvariga för oenighet."
+          "narration": "Annotator Agreement jämför två eller flera kategoriska kolumner utan att ändra databasen. Använd den för två granskare, upprepade anteckningspass eller en granskare-mot-modell-kontroll, och kontrollera sedan både sammanfattande statistik och exakta grödor som inte håller med."
         },
         {
-          "narration": "Öppna notatörsavtal från avsnittet Resultater och kvalitetskontroll. Välj en projektdatabas och två eller flera anteckningskolumner som täcker samma objekt."
+          "narration": "Välj en mätdatabas, eller den som innehåller körmappen. spaCR upptäcker lämpliga annotations- och förutsägelsekolumner från PNG-listatabellen och lämnar källaetiketter endast läsbara."
         },
         {
-          "narration": "I huvudkonfigurationsområdet väljer du klasshantering, policy för saknade etiketter, gruppering, provtagning och överenskommelsestatistik."
+          "narration": "Välj minst två kolumner. Här jämförs ER_Bulbs med prognoser_1 över samma cellkulturer. Ytterligare valda kolumner möjliggör alla parvis jämförelser och en multi-rater Fleiss kappa sammanfattning."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Inspektera Cohen eller Fleiss kappa tillsammans med klassspecifika exempel på förvirring och meningsskiljaktigheter."
+          "narration": "Klicka på Beräkningsavtal. Missande etiketter behandlas som avhållanden, inte oenighet; varje par utvärderas endast på rader där båda utvalda kolumnerna innehåller en kategori."
         },
         {
-          "narration": "När arbetsflödet är avslutat sätter överenskommelsetabeller och en fokuserad översyn stöd för försoning av etiketter och förbättring av protokoll."
+          "narration": "Beräkningen justerar etiketter efter gröda, räknar fullständiga och avståna rader, bygger varje förvirringmatrix och hittar oenighet som kan spåras tillbaka till deras ursprungliga bilder."
+        },
+        {
+          "narration": "Detta verkliga par har tusen tre hundra femtio nio fullständiga rader, åttiotusen sex hundra tio avstånd, åtta meningsskiljaktigheter, och nio nio punkter fyra procent rå överenskommelse. Cohens kappa är obestämd här, inte noll, eftersom ER_Bulbs bara använder en klass på varje fullständig rad, vilket gör slump-överenskommelse nämnaren degenererat."
+        },
+        {
+          "narration": "Förvirringsmatrisen avslöjar den klassobalansen direkt: tusen tre hundra femtio en rader är klass ett i båda kolumnerna, medan åtta rader är klass ett i ER_Bulbs och klass två i prognoser_1. ER_Bulbs bidrar inte till kompletta rader i klass två."
+        },
+        {
+          "narration": "I tabellen med oenighet anges de åtta riktiga grödorna och båda etiketterna. Ändra granskningsgränsen för större jämförelser, välj vilken rad som helst och använd förhandsgranskningen istället för att bestämma från en samlad poäng ensam."
+        },
+        {
+          "narration": "Genom att välja en meningsskiljaktighet löses den lagrade skördesvägen och viseras mikroskopbilden bredvid sina två kategoriska värden. Granska morfologi och signalkontext innan du väljer om en etikett, tröskel eller klassdefinition behöver korrigeras."
+        },
+        {
+          "narration": "Gå igenom oenighetsrutinerna för att döma systematiskt. Rapportera rå överenskommelse, klassbalans, avhållanden, förvirringmatrisen och kappa tillsammans; här är den obestämda kappa en användbar varning om prevalens, inte ett misslyckande i jämförelsen."
         }
       ]
     },

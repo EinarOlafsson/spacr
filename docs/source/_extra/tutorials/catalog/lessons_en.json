@@ -3292,48 +3292,89 @@
     {
       "id": "23_agreement",
       "number": 23,
-      "slug": "agreement",
+      "slug": "annotator-agreement",
       "title": "Annotator Agreement",
       "series": 3,
       "app_key": "agreement",
-      "section": "Results and quality control",
-      "description": "Measure agreement between annotation columns and review the objects responsible for disagreement.",
+      "section": "Assay workflows",
+      "description": "Compare two or more categorical annotation columns, inspect agreement statistics and class balance, and review the exact crops where labels disagree.",
       "objectives": [
-        "Understand when to use Annotator Agreement.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Load categorical labels from a measurement database or run folder.",
+        "Interpret complete rows, abstentions, raw agreement, Cohen's kappa, and the confusion matrix together.",
+        "Open real disagreement crops for adjudication or annotation-quality review."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Prepare a spaCR measurement database containing at least two categorical annotation or prediction columns.",
       "scenes": [
         {
-          "narration": "This tutorial covers Annotator Agreement. Measure agreement between annotation columns and review the objects responsible for disagreement.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Annotator Agreement. Measure agreement between annotation columns and review the objects responsible for disagreement."
+          "narration": "Annotator Agreement compares two or more categorical columns without changing the database. Use it for two reviewers, repeated annotation passes, or a reviewer-versus-model check, then inspect both summary statistics and the exact crops that disagree.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.55,
+          "speech_text": "Annotator Agreement compares two or more categorical columns without changing the database. Use it for two reviewers, repeated annotation passes, or a reviewer versus model check, then inspect both summary statistics and the exact crops that disagree."
         },
         {
-          "narration": "Open Annotator Agreement from the Results and quality control section. Choose a project database and two or more annotation columns covering the same objects.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Open Annotator Agreement from the Results and quality control section. Choose a project database and two or more annotation columns covering the same objects."
+          "narration": "Choose a measurements database, or its containing run folder. spaCR discovers suitable annotation and prediction columns from the PNG list table and leaves source labels read-only.",
+          "visual": "02_database",
+          "focus_key": "source_controls",
+          "hold_after": 0.5,
+          "speech_text": "Choose a measurements database, or its containing run folder. spacer discovers suitable annotation and prediction columns from the P N G list table and leaves source labels read only."
         },
         {
-          "narration": "In the main configuration area, select class handling, missing-label policy, grouping, sampling, and the agreement statistic.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, select class handling, missing-label policy, grouping, sampling, and the agreement statistic."
+          "narration": "Select at least two columns. Here ER_Bulbs is compared with predictions_1 across the same cell crops. Additional selected columns enable all pairwise comparisons and a multi-rater Fleiss kappa summary.",
+          "visual": "03_columns",
+          "focus_key": "columns",
+          "hold_after": 0.55,
+          "speech_text": "Select at least two columns. Here E R Bulbs is compared with predictions one across the same cell crops. Additional selected columns enable all pairwise comparisons and a multi rater Fleiss kappa summary."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect Cohen or Fleiss kappa together with class-specific confusion and disagreement examples.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect Cohen or Fleiss kappa together with class-specific confusion and disagreement examples."
+          "narration": "Click Compute Agreement. Missing labels are treated as abstentions, not disagreements; each pair is evaluated only on rows where both selected columns contain a category.",
+          "visual": "04_compute",
+          "focus_key": "compute",
+          "click_key": "compute",
+          "hold_after": 0.5,
+          "speech_text": "Click Compute Agreement. Missing labels are treated as abstentions, not disagreements; each pair is evaluated only on rows where both selected columns contain a category."
         },
         {
-          "narration": "When the workflow finishes, agreement tables and a focused review set support label reconciliation and protocol improvement.",
-          "visual": "output",
+          "narration": "The computation aligns labels by crop, counts complete and abstained rows, builds each confusion matrix, and finds disagreements that can be traced back to their source images.",
+          "visual": "05_running",
+          "focus_key": "status",
+          "hold_after": 0.45,
+          "speech_text": "The computation aligns labels by crop, counts complete and abstained rows, builds each confusion matrix, and finds disagreements that can be traced back to their source images."
+        },
+        {
+          "narration": "This real pair has one thousand three hundred fifty-nine complete rows, eighty thousand six hundred ten abstentions, eight disagreements, and ninety-nine point four percent raw agreement. Cohen's kappa is undefined here—not zero—because ER_Bulbs uses only one class on every complete row, making the chance-agreement denominator degenerate.",
+          "visual": "06_pairwise",
+          "focus_key": "pairwise",
+          "hold_after": 0.85,
+          "speech_text": "This real pair has one thousand three hundred fifty nine complete rows, eighty thousand six hundred ten abstentions, eight disagreements, and ninety nine point four percent raw agreement. Cohen's kappa is undefined here, not zero, because E R Bulbs uses only one class on every complete row, making the chance agreement denominator degenerate."
+        },
+        {
+          "narration": "The confusion matrix exposes that class imbalance directly: one thousand three hundred fifty-one rows are class one in both columns, while eight rows are class one in ER_Bulbs and class two in predictions_1. ER_Bulbs contributes no complete class-two rows.",
+          "visual": "07_confusion",
+          "focus_key": "confusion",
+          "hold_after": 0.7,
+          "speech_text": "The confusion matrix exposes that class imbalance directly: one thousand three hundred fifty one rows are class one in both columns, while eight rows are class one in E R Bulbs and class two in predictions one. E R Bulbs contributes no complete class two rows."
+        },
+        {
+          "narration": "The disagreement table lists those eight real crops and both labels. Change the review limit for larger comparisons, select any row, and use the preview instead of deciding from an aggregate score alone.",
+          "visual": "08_disagreements",
+          "focus_key": "review",
+          "hold_after": 0.6,
+          "speech_text": "The disagreement table lists those eight real crops and both labels. Change the review limit for larger comparisons, select any row, and use the preview instead of deciding from an aggregate score alone."
+        },
+        {
+          "narration": "Selecting a disagreement resolves the stored crop path and displays the microscopy image beside its two categorical values. Review morphology and signal context before choosing whether a label, threshold, or class definition needs correction.",
+          "visual": "09_crop_one",
+          "focus_key": "crop",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, agreement tables and a focused review set support label reconciliation and protocol improvement."
+          "speech_text": "Selecting a disagreement resolves the stored crop path and displays the microscopy image beside its two categorical values. Review morphology and signal context before choosing whether a label, threshold, or class definition needs correction."
+        },
+        {
+          "narration": "Move through the disagreement rows to adjudicate systematically. Report raw agreement, class balance, abstentions, the confusion matrix, and kappa together; here the undefined kappa is a useful warning about prevalence, not a failure of the comparison.",
+          "visual": "10_crop_two",
+          "focus_key": "caption",
+          "hold_after": 0.75,
+          "speech_text": "Move through the disagreement rows to adjudicate systematically. Report raw agreement, class balance, abstentions, the confusion matrix, and kappa together; here the undefined kappa is a useful warning about prevalence, not a failure of the comparison."
         }
       ]
     },
