@@ -42,13 +42,14 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QFrame, QHBoxLayout, QLabel,
+    QComboBox, QDoubleSpinBox, QFrame, QHBoxLayout, QLabel,
     QPushButton, QScrollArea, QVBoxLayout, QWidget,
 )
 
 from ..linked_selection import linked_selection
 from ...selection import CategoryFilter, DataFilter, RangeFilter
 from ..theme import SPACING
+from .toggle import Toggle
 
 __all__ = ["DataFilterPanel", "MAX_CATEGORY_VALUES", "classify_columns"]
 
@@ -230,7 +231,7 @@ class _CategoryRow(_ClauseRow):
         col.setContentsMargins(SPACING["sm"], 0, 0, 0)
         col.setSpacing(0)
         for value in values:
-            box = QCheckBox(value)
+            box = Toggle(value)
             box.setChecked(True)
             box.stateChanged.connect(lambda _s: self.changed.emit())
             self._boxes.append(box)

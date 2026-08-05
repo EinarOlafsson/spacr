@@ -715,9 +715,17 @@ class TestMasterLookup:
         assert imagery.title_for("no-such-image") == "no-such-image"
 
     def test_titles_are_human_readable(self):
+        # A master's theme names the palette its colours are judged
+        # against, which is not the same as a theme a user can pick.
+        # `3e11c796` retired Space as a selectable theme and left
+        # `SPACE_PALETTE` in place -- deliberately, because a settings file
+        # written by an older spaCR can still say "space" and resolving it
+        # beats raising. `deep_field` is still offered as a wallpaper
+        # variant and is still judged against that palette, so the set to
+        # check against is every palette, not the selectable image themes.
         for key in imagery.MASTERS:
             assert imagery.title_for(key) != key
-            assert imagery.theme_for(key) in theme.IMAGE_THEMES
+            assert imagery.theme_for(key) in theme._PALETTES
 
     def test_the_user_directory_wins_over_the_bundled_asset(self, qapp,
                                                             tmp_path,
@@ -868,7 +876,12 @@ class TestPreferences:
         assert preferences.resolve_effective_theme() in theme.THEMES
 
     def test_an_existing_saved_theme_keeps_working(self, monkeypatch, qapp):
-        for saved in ("dark", "light", "space", "cell"):
+        # "space" is not in this list any more: it was retired as a
+        # selectable theme, so a settings file naming it resolves to the
+        # default rather than round-tripping. That it resolves at all
+        # rather than raising is the property that matters, and
+        # `test_a_retired_theme_name_still_resolves` below states it.
+        for saved in ("dark", "light", "cell"):
             class Saved:
                 def value(self, key, default=None, _s=saved):
                     return _s if key.endswith("theme") else default
@@ -876,6 +889,21 @@ class TestPreferences:
             monkeypatch.setattr(preferences, "_settings", Saved)
             assert preferences.get_theme() == saved
             assert preferences.resolve_effective_theme() == saved
+
+    def test_a_retired_theme_name_still_resolves(self, monkeypatch, qapp):
+        """An older settings file saying "space" must not break the app.
+
+        `_PALETTES` keeps the entry for exactly this reason. What it
+        resolves TO is not important -- that it resolves is.
+        """
+        class Saved:
+            def value(self, key, default=None):
+                return "space" if key.endswith("theme") else default
+
+        monkeypatch.setattr(preferences, "_settings", Saved)
+        resolved = preferences.resolve_effective_theme()
+        assert resolved in theme.THEMES or resolved == "system"
+        assert theme.palette_for(resolved)
 
     def test_theme_background_path_routes_by_theme(self, qapp, cache_dir,
                                                    monkeypatch):
@@ -906,7 +934,13 @@ class TestPreferences:
         for combo in dialog.findChildren(QComboBox):
             for i in range(combo.count()):
                 values.add(combo.itemData(i))
-        assert "space:deep_field" in values
+        # No `space:*` entry: Space was retired as a selectable theme in
+        # `3e11c796`, so the dialog must not offer it even though the
+        # palette and the wallpaper are both still on disk for the sake of
+        # older settings files.
+        assert not any(str(v).startswith("space:") for v in values), (
+            f"the dialog still offers a retired theme: "
+            f"{sorted(v for v in values if str(v).startswith('space:'))}")
         assert {"cell:microtubules", "cell:filopodia"} <= values
         assert "deep_field" not in values
         assert "microtubules" not in values
@@ -927,10 +961,14 @@ class TestPreferences:
             "_settings",
             lambda: QSettings(str(settings_path), QSettings.IniFormat),
         )
-        preferences.set_theme_choice("space:stars")
-        assert preferences.get_theme() == "space"
-        assert preferences.get_space_variant() == "stars"
-        assert preferences.get_theme_choice() == "space:stars"
+        # Was `space:stars`, which `set_theme_choice` now rejects outright:
+        # Space is not a theme any more, and a retired name is not a valid
+        # choice to write. The round trip is what this test is about, so it
+        # is made with the two image themes that remain.
+        preferences.set_theme_choice("cell:microtubules")
+        assert preferences.get_theme() == "cell"
+        assert preferences.get_cell_variant() == "microtubules"
+        assert preferences.get_theme_choice() == "cell:microtubules"
 
         preferences.set_theme_choice("cell:filopodia")
         assert preferences.get_theme() == "cell"

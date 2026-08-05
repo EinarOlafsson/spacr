@@ -93,14 +93,21 @@ def _setting_row_contract(screen: AppScreen, qapp) -> None:
             f"{screen.app_key}.{key}: help is missing from the label")
         assert "href=" in html, (
             f"{screen.app_key}.{key}: label help has no API link")
+        # No API dot, and therefore no `SettingLabelWithInfo` wrapper: that
+        # widget existed only to hold `[stretch][label][dot]` together. The
+        # dot sat between the label and the field carrying a tooltip of its
+        # own, so hovering the right-hand side of a row popped help, which
+        # is indistinguishable from the field having a tooltip and was
+        # reported as exactly that.
+        #
+        # The contract that survives is the one above -- the help is on the
+        # label and it contains the API link -- plus its absence here.
         wrapper = label.parentWidget()
         assert wrapper is not None
-        assert wrapper.objectName() == "SettingLabelWithInfo", (
-            f"{screen.app_key}.{key}: label/API wrapper is missing")
         links = wrapper.findChildren(InfoLink)
-        assert len(links) == 1, (
-            f"{screen.app_key}.{key}: expected one API dot, got {len(links)}")
-        assert links[0].url().startswith(("https://", "http://"))
+        assert not links, (
+            f"{screen.app_key}.{key}: {len(links)} API dot(s) beside the "
+            f"field; the help belongs to the label alone")
 
     # Render one representative row per module.  Structural QSS assertions
     # alone missed the original black rectangle: only the composed screenshot

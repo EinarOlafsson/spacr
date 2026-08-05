@@ -45,7 +45,7 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QLabel,
+    QAbstractItemView, QComboBox, QFileDialog, QHBoxLayout, QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QSplitter, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
@@ -99,6 +99,7 @@ TABLE_COLUMNS = (
     ("lack_of_fit_p", "Lack-of-fit p"),
     ("note", "Note"),
 )
+from ..widgets.toggle import Toggle
 
 #: Substrings that make a column the first guess for the dose axis. A
 #: convenience for the common column names, not a classifier — nothing is
@@ -226,7 +227,7 @@ class DoseResponseScreen(QWidget):
             "side, which is why it is the default.")
         controls.addWidget(self.ci_picker)
 
-        self.force_check = QCheckBox("Fit non-monotone data", self)
+        self.force_check = Toggle("Fit non-monotone data", self)
         self.force_check.setObjectName("DoseResponseForce")
         self.force_check.setToolTip(
             "A bell-shaped series is refused by default: it is not a 4PL, "

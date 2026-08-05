@@ -42,7 +42,6 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -112,6 +111,7 @@ APP_TRANSLATIONS = (
     "Niðurstöðulisti",
     "Liste des touches",
 )
+from ..widgets.toggle import Toggle
 
 #: The table's columns, so the drawing code and the tests cannot disagree.
 COLUMNS = ("#", "Gene", "Name", "Effect", "95% CI", "p", "q", "Guides",
@@ -288,7 +288,7 @@ class HitListScreen(QWidget):
         row.addWidget(QLabel("Direction"))
         row.addWidget(self._direction)
 
-        self._drop_controls = QCheckBox("Hide controls")
+        self._drop_controls = Toggle("Hide controls")
         self._drop_controls.setToolTip(
             "Controls are listed by default: a screen whose positive control "
             "is not near the top has a problem, and that is only visible if "

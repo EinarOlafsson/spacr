@@ -329,18 +329,35 @@ def test_every_packaged_animation_keeps_its_text_inside_the_square(
 
     prefs.set_setting_animations_enabled(True)   # measure them all, not one
     heights = []
+    #: Settings whose help is too long for the square even at TEXT_WIDTH.
+    oversized = []
     for key, text in get_tooltips().items():
         if animation_for_setting(key) is None:
             continue
         tooltip.show_for(_anchor(qtbot, key), format_tooltip(text, "mask", key))
         assert tooltip.animation_view().isVisible(), f"{key}: no animation"
         heights.append((_inner_height(tooltip), key))
-        assert tooltip.text_column().height() == HoverTooltip.ANIMATION_SIZE, (
-            f"{key}: text block {tooltip.text_column().height()} px")
+        column = tooltip.text_column().height()
+        if column != HoverTooltip.ANIMATION_SIZE:
+            # Growing past the square is allowed for exactly one reason:
+            # prose that does not fit even at the widest step. The
+            # alternative there is truncating the user's help text, and
+            # `_resize_text_column`'s `max()` exists to refuse that. So the
+            # escape hatch is checked rather than waved through -- this
+            # fails if a popup is tall for any other reason.
+            widest = tooltip._text_height_at(HoverTooltip.TEXT_WIDTH)
+            assert widest > HoverTooltip.ANIMATION_SIZE, (
+                f"{key}: text block {column} px, but its prose fits the "
+                f"square at the widest step ({widest} px) -- the width "
+                f"ladder should have found it")
+            assert column == widest, (
+                f"{key}: text block {column} px, prose needs {widest} px")
+            oversized.append(key)
     assert len(heights) > 100, "the animation registry did not load"
     square = _boxed(tooltip, HoverTooltip.ANIMATION_SIZE)
-    assert {height for height, _ in heights} == {square}, (
-        f"popups of mixed height: {sorted({h for h, _ in heights})}")
+    fitting = {height for height, key in heights if key not in oversized}
+    assert fitting == {square}, (
+        f"popups of mixed height among those that fit: {sorted(fitting)}")
 
 
 def test_the_column_only_widens_when_the_prose_needs_it(tooltip, qtbot):
@@ -353,7 +370,11 @@ def test_the_column_only_widens_when_the_prose_needs_it(tooltip, qtbot):
     tooltip.show_for(_anchor(qtbot), long_text)
     assert tooltip.text_column().width() > HoverTooltip.ANIMATION_SIZE
     assert tooltip.text_column().width() <= HoverTooltip.TEXT_WIDTH
-    assert tooltip.text_column().height() == HoverTooltip.ANIMATION_SIZE
+    # The square if the prose fits at the widest step, and the prose's own
+    # height if it does not -- never less, and never truncated.
+    widest = tooltip._text_height_at(HoverTooltip.TEXT_WIDTH)
+    assert tooltip.text_column().height() == max(
+        HoverTooltip.ANIMATION_SIZE, widest)
 
 
 # ---------------------------------------------------------------------------

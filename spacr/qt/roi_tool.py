@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 from PySide6.QtCore import QObject, Qt, Signal
-from PySide6.QtWidgets import (QCheckBox, QDoubleSpinBox, QFileDialog,
+from PySide6.QtWidgets import (QDoubleSpinBox, QFileDialog,
                                QHBoxLayout, QLabel, QLineEdit, QVBoxLayout,
                                QWidget)
 
@@ -47,6 +47,7 @@ from ..roi import (ANY_FIELD, MODES, RoiError, RoiSet, disable_roi_filter,
 from .layer_viewer import CanvasTool, LayerCanvas
 from .theme import register_widget_qss
 from .widgets.preview_controls import FlatButton, FlatComboBox
+from .widgets.toggle import Toggle
 
 LOG = logging.getLogger(__name__)
 
@@ -313,7 +314,7 @@ class RoiPanel(QWidget):
         self.overlap_spin.setValue(0.5)
         self.overlap_spin.setEnabled(False)
         rule.addWidget(self.overlap_spin)
-        self.invert_check = QCheckBox("Outside", self)
+        self.invert_check = Toggle("Outside", self)
         self.invert_check.setToolTip(
             "Measure the objects OUTSIDE the ROI instead — 'exclude this "
             "debris' rather than 'measure this colony'.")

@@ -55,7 +55,6 @@ from typing import Dict, Optional, Tuple
 from PySide6.QtCore import QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
-    QCheckBox,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -124,6 +123,7 @@ APP_TRANSLATIONS = (
     "Vinnsluferilsrit",
     "Graphe du pipeline",
 )
+from ..widgets.toggle import Toggle
 
 #: Box geometry, in device-independent pixels. Named because the layout
 #: function and the painter must agree and a literal in two places is a
@@ -476,7 +476,7 @@ class PipelineGraphScreen(QWidget):
 
         filters = QHBoxLayout()
         filters.setSpacing(SPACING["md"])
-        self._filters: Dict[str, QCheckBox] = {}
+        self._filters: Dict[str] = {}
         for state, label, tip in (
                 (STATE_CURRENT, "Current",
                  "Artifacts that still follow from everything they were "
@@ -486,7 +486,7 @@ class PipelineGraphScreen(QWidget):
                  "changed, after this was written."),
                 (STATE_MISSING, "Missing",
                  "The path this was registered at is no longer on disk.")):
-            box = QCheckBox(label)
+            box = Toggle(label)
             box.setChecked(True)
             box.setToolTip(tip)
             box.toggled.connect(self._on_filter_toggled)

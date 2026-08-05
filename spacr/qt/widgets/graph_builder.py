@@ -53,7 +53,7 @@ import pandas as pd
 from PySide6.QtCore import QMimeData, Qt, QTimer, Signal
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout,
+    QAbstractItemView, QComboBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
     QSpinBox, QSplitter, QVBoxLayout, QWidget,
 )
@@ -68,6 +68,7 @@ from .graph_spec import (
     GraphSpec, RenderData, brush_mask, facet_grid, plottable_columns,
     prepare_data, scales_for, value_axes,
 )
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.graph_builder")
 
@@ -1322,8 +1323,8 @@ class GraphBuilderPanel(QWidget):
         controls.addWidget(QLabel("Bins", shelf), 1, 0)
         controls.addWidget(self._bins, 1, 1)
 
-        self._shared_x = QCheckBox("Shared X", shelf)
-        self._shared_y = QCheckBox("Shared Y", shelf)
+        self._shared_x = Toggle("Shared X", shelf)
+        self._shared_y = Toggle("Shared Y", shelf)
         for box in (self._shared_x, self._shared_y):
             box.setChecked(True)
             box.setToolTip("Every panel on the same scale. Off makes panels "

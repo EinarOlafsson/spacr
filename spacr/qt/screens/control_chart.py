@@ -44,7 +44,7 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QComboBox, QFileDialog, QFormLayout,
+    QAbstractItemView, QComboBox, QFileDialog, QFormLayout,
     QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
     QPlainTextEdit, QPushButton, QSpinBox, QSplitter, QTableWidget,
     QTableWidgetItem, QVBoxLayout, QWidget,
@@ -130,6 +130,7 @@ RULE_SETS: Tuple[Tuple[str, Tuple[int, ...]], ...] = (
     ("Nelson (all eight) — most sensitive, most false alarms", RULES_ALL),
     ("Limits only (rule 1) — nothing but 3 sigma", RULES_LIMITS_ONLY),
 )
+from ..widgets.toggle import Toggle
 
 #: Column names worth guessing at, best first, when a table is first loaded.
 #: A guess the user can see and change beats an empty form.
@@ -489,7 +490,7 @@ class ControlChartScreen(QWidget):
         self._baseline.valueChanged.connect(self._on_control_changed)
         form.addRow("Baseline plates", self._baseline)
 
-        self._reestimate = QCheckBox("Re-estimate without flagged plates",
+        self._reestimate = Toggle("Re-estimate without flagged plates",
                                      panel)
         self._reestimate.setObjectName("ControlChartReestimate")
         self._reestimate.setToolTip(
@@ -498,7 +499,7 @@ class ControlChartScreen(QWidget):
         self._reestimate.toggled.connect(self._on_control_changed)
         form.addRow("", self._reestimate)
 
-        self._zprime = QCheckBox("Chart Z' instead", panel)
+        self._zprime = Toggle("Chart Z' instead", panel)
         self._zprime.setObjectName("ControlChartZPrime")
         self._zprime.setToolTip(
             "Needs a positive and a negative level selected below. Charts the "

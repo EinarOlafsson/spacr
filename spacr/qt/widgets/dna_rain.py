@@ -110,11 +110,12 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QRect, Qt, QTimer,
                             Signal)
 from PySide6.QtGui import (QColor, QFont, QFontDatabase, QFontMetricsF,
                            QImage, QPainter, QPen, QPixmap)
-from PySide6.QtWidgets import (QCheckBox, QColorDialog, QGridLayout,
+from PySide6.QtWidgets import (QColorDialog, QGridLayout,
                                QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                                QSlider, QWidget)
 
 from ..theme import RADIUS, SPACING, palette_for
+from .toggle import Toggle
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -1346,7 +1347,7 @@ class DnaRainSettingsBar(QWidget):
         self._swatch.clicked.connect(self.pick_color)
         self._paint_swatch()
 
-        self._random = QCheckBox("Random")
+        self._random = Toggle("Random")
         self._random.setToolTip(
             "Give every falling string its own colour. The picked colour "
             "still sets how vivid and how bright they are; only the hue is "

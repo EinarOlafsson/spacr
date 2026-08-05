@@ -44,7 +44,7 @@ from typing import List, Optional, Sequence
 import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
-    QCheckBox, QDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
+    QDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
     QListWidgetItem, QPushButton, QVBoxLayout, QWidget,
 )
 
@@ -53,6 +53,7 @@ from .formula import (
     FUNCTION_HELP, ColumnFormula, ColumnResult, FormulaError, FormulaSet,
     compute,
 )
+from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.formula_editor")
 
@@ -126,7 +127,7 @@ class FormulaPanel(QWidget):
         controls = QHBoxLayout()
         controls.setContentsMargins(0, 0, 0, 0)
         controls.setSpacing(SPACING["xs"])
-        self._replace = QCheckBox("replace an existing column", self)
+        self._replace = Toggle("replace an existing column", self)
         self._replace.setToolTip(
             "Off by default: shadowing a measured column silently would make "
             "every earlier chart of it unreproducible.")
