@@ -2318,47 +2318,232 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "Timelapse",
+      "title": "时间延误",
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
-      "description": "细分,链接,测量细胞或病原体在时间序列的框架中.",
+      "description": "划分时间解决的图像,将对象连接到框架中,并出口追踪的面具和电影.",
       "objectives": [
-        "了解什么时候使用 Timelapse.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "连接一个正确命名的时间序列,并分配其获得的频道.",
+        "审查细分,跟踪,诊断,输出和运行时间类别.",
+        "运行和验证一个完整的合成八追踪示例."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "使用可靠的框架排序,道身份和适合选定的细分模型的空间尺度的时间序列.",
       "scenes": [
         {
-          "narration": "通过时间序列的框架,分类,链接和测量细胞或病原体.",
-          "visual": "overview",
+          "narration": "时代转移将每一个框架划分,并将选定的物体连接到稳定的轨道中. 控制台记录预处理,面具,跟踪尝试,质量控制,电影,合并阵列和可复制文件.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "通过时间序列的框架,分类,链接和测量细胞或病原体."
+          "speech_text": "时代转移将每一个框架划分,并将选定的物体连接到稳定的轨道中. 控制台记录预处理,面具,跟踪尝试,质量控制,电影,合并阵列和可复制文件."
         },
         {
-          "narration": "从 Core 部分打开 Timelapse。 选择一个时间解析的图像集,其文件名保存字段,时间,深度和频道索引.",
-          "visual": "input",
+          "narration": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Timelapse。 选择一个时间解析的图像集,其文件名保存字段,时间,深度和频道索引."
+          "speech_text": "聊天场接受本地命令或工作流问题. 启用配置供应商的AI,并使用相邻的箭头来选择供应商或打开其控制."
         },
         {
-          "narration": "在主配置区域,配置分区,追踪物体类型,连接模式,最大移动,空隙处理和预览框架.",
-          "visual": "settings",
+          "narration": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了安装和登录命令,同时每个供应商仍在验证.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主配置区域,配置分区,追踪物体类型,连接模式,最大移动,空隙处理和预览框架."
+          "speech_text": "提供商检查了Claude,ChatGPT和Gemini命令行客户端,并显示了安装和登录命令,同时每个供应商仍在验证."
         },
         {
-          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.",
-          "visual": "run",
+          "narration": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和spaCR知情系统说明.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+          "speech_text": "人工智能设置控制响应深度,自动错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统说明."
         },
         {
-          "narration": "工作流程完成后,时间索引掩膜,轨道,测量和轨迹总结将存储稳定对象身份.",
-          "visual": "output",
+          "narration": "这种定性合成源包含8个时间点中的一个领域. 零频道包含核子,一频道包含细胞和ER信号,以及CellVoyager类型的文件名称保存了板块,井,时间,场,深度和频道指数.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "这种定性合成源包含8个时间点中的一个领域. 零频道包含核子,一频道包含细胞和ER信号,以及CellVoyager类型的文件名称保存了板块,井,时间,场,深度和频道指数."
+        },
+        {
+          "narration": "关键显示源,道角色,命名公约,正常化,细分模型,追踪的对象,框架范围,追踪器,图片和输出选择,需要进行第一次运行.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "关键显示源,道角色,命名公约,正常化,细分模型,追踪的对象,框架范围,追踪器,图片和输出选择,需要进行第一次运行."
+        },
+        {
+          "narration": "修改限制了面板的故意变化,包括零频道和一频道,八范围,细胞跟踪,内置的交叉-超联网链接器,每秒一,以及保守的运行时间选择.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制了面板的故意变化,包括零频道和一频道,八范围,细胞跟踪,内置的交叉-超联网链接器,每秒一,以及保守的运行时间选择."
+        },
+        {
+          "narration": "所有设置都显示了无变值的十三类别:输入,收购轴,预处理,四个细分组,质量控制,跟踪设置和后台,诊断,输出和运行时间.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示了无变值的十三类别:输入,收购轴,预处理,四个细分组,质量控制,跟踪设置和后台,诊断,输出和运行时间."
+        },
+        {
+          "narration": "配方将全 Timelapse 配置存储在一个名称下,重新应用到另一个实验中,或者进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将全 Timelapse 配置存储在一个名称下,重新应用到另一个实验中,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "将解决设置的远程快照提交,并将分类和跟踪工作发送到分布式职位工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "将解决设置的远程快照提交,并将分类和跟踪工作发送到分布式职位工作空间."
+        },
+        {
+          "narration": "分布式工作将源和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的Timelapse运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将源和输出路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的Timelapse运行."
+        },
+        {
+          "narration": "输入和元数据选择图像文件,将每个获取的频道分配给对象类型,并定义spaCR如何从文件名中解析实验识别符.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输入和元数据选择图像文件,将每个获取的频道分配给对象类型,并定义斯佩克尔如何从文件名中解析实验识别符."
+        },
+        {
+          "narration": "收购和轴描述放大和可选的体积或时间轴布局. 常见的每框图像文件将先进的堆控制功能禁用.",
+          "visual": "12_category_02_acquisition_axes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "收购和轴描述放大和可选的体积或时间轴布局. 常见的每框图像文件将先进的堆控制功能禁用."
+        },
+        {
+          "narration": "图像预处理控制百分比正常化,背景处理,变形,重新尺寸和中间阵列. 在每一个框架中应用一个一致的转换,以避免人工的时间变化.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "图像预处理控制百分比正常化,背景处理,变形,重新尺寸和中间阵列. 在每一个框架中应用一个一致的转换,以避免人工的时间变化."
+        },
+        {
+          "narration": "细胞细分选择细胞模型,预期直径,概率和流量门,以及可选的尺寸,强度,边界,合并和分类过器.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "细胞细分选择细胞模型,预期直径,概率和流量门,以及可选的尺寸,强度,边界,合并和分类过器."
+        },
+        {
+          "narration": "核分隔为零通道提供相当的控制. 核面具可以出口,即使只有细胞连接在框架上.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "核分隔为零通道提供相当的控制. 核面具可以出口,即使只有细胞连接在框架上."
+        },
+        {
+          "narration": "当分配病原体道时,可进行病原体分类. 这两个道的示范让它不设置,所以没有要求使用病原体面具或痕迹.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "当分配病原体道时,可进行病原体分类. 这两个道的示范让它不设置,所以没有要求使用病原体面具或痕迹."
+        },
+        {
+          "narration": "当分配一个机器频道时,机器人分类支持现场,网络,环,不规则,Cellpose和U-Net工作流程. 对于这个例子来说,它是不活跃的.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "当分配一个机器频道时,机器人分类支持现场,网络,环,不规则,Cellpose和U-Net工作流程. 对于这个例子来说,它是不活跃的."
+        },
+        {
+          "narration": "质量控制比较对象数量,尺寸,边界接触,前景覆盖率,分裂行为和盘级故障率. 报告模式记录警告,而不默默地丢弃时间序列.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "质量控制比较对象数量,尺寸,边界接触,前景覆盖率,分裂行为和盘级故障率. 报告模式记录警告,而不默默地丢弃时间序列."
+        },
+        {
+          "narration": "追踪设置选择哪些细分对象是链接的,框架片段,是否删除短暂的轨道,以及出口的电影播放率.",
+          "visual": "12_category_09_tracking_setup",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "追踪设置选择哪些细分对象是链接的,框架片段,是否删除短暂的轨道,以及出口的电影播放率."
+        },
+        {
+          "narration": "追踪后台提供Trackastra,Ultrack,Trackpy,交叉-over-union和btrack,具有后台特定的链接,移动,内存,分区和员工控制. 这项示范使用交叉跨工会.",
+          "visual": "12_category_10_tracking_backends",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "追踪后台提供Trackastra,Ultrack,Trackpy,交叉-over-union和btrack,具有后台特定的链接,移动,内存,分区和员工控制. 这项示范使用交叉跨工会."
+        },
+        {
+          "narration": "视觉化和诊断控制颜色地图,示例图片,图片正常化,以及用于检查细分和跟踪行为的图形帆布.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "视觉化和诊断控制颜色地图,示例图片,图片正常化,以及用于检查细分和跟踪行为的图形帆布."
+        },
+        {
+          "narration": "输出和存储控制合并阵列,面具,每道电影,跟踪面具动画,压缩和保留中间或原始文件.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和存储控制合并阵列,面具,每道电影,跟踪面具动画,压缩和保留中间或原始文件."
+        },
+        {
+          "narration": "运行时间和可靠性控制测试模式,批量,工人,可复制的顺序,恢复,干运行,动词性和故障政策. 在扩大之前,从一个代表性的字段开始.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运行时间和可靠性控制测试模式,批量,工人,可复制的顺序,恢复,干运行,动词性和故障政策. 在扩大之前,从一个代表性的字段开始."
+        },
+        {
+          "narration": "这个例子跟踪细胞在 0 到 7 个框架指数上,保持过渡轨迹进行检查,以每秒 1 个框架出口电影,并将核面具脱而出.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "这个例子跟踪细胞在 0 到 7 个框架指数上,保持过渡轨迹进行检查,以每秒 1 个框架出口电影,并将核面具脱而出."
+        },
+        {
+          "narration": "运行验证文件名和频道,组组框架,正常化序列,分段每个请求对象,链接细胞面具,计算质量控制,编写电影和合并阵列,记录可复制性. 停止请求安全的中断.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行验证文件名和频道,组组框架,正常化序列,分段每个请求对象,链接细胞面具,计算质量控制,编写电影和合并阵列,记录可复制性. 停止请求安全的中断."
+        },
+        {
+          "narration": "在处理过程中,控制台报告Cellpose启动,解决设置,每框进展,跟踪搜索行为,对象过器,剩余时间和输出路径.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "在处理过程中,控制台报告Cellpose启动,解决设置,每框进展,跟踪搜索行为,对象过器,剩余时间和输出路径."
+        },
+        {
+          "narration": "完成的运行将16个细胞连接到所有八个框架中,没有删除过渡物体,没有警告或故障通过细胞和核质量控制,写了跟踪的电影和八个合并的阵列,并保存了26秒的成功运行记录.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,时间索引掩膜,轨道,测量和轨迹总结将存储稳定对象身份."
+          "speech_text": "完成的运行将16个细胞连接到所有八个框架中,没有删除过渡物体,没有警告或故障通过细胞和核质量控制,写了跟踪的电影和八个合并的阵列,并保存了26秒的成功运行记录."
         }
       ]
     },
