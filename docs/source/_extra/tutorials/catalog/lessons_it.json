@@ -4091,47 +4091,137 @@
       "id": "28_training_runs",
       "number": 28,
       "slug": "training_runs",
-      "title": "Training Runs",
+      "title": "Corse di addestramento",
       "series": 4,
       "app_key": "train_compare",
       "section": "Results and quality control",
-      "description": "Confronta diverse corse di allenamento di modello sovrappondendo le curve e differenziando le loro impostazioni.",
+      "description": "Scoprire le corse di classificazione salvate, le curve di sovrapposizione e di convalidazione, ispezionare la variabilità delle pieghe e collegare le differenze di prestazioni alle impostazioni e alla deriva ambientale.",
       "objectives": [
-        "Capire quando usare le Run di allenamento.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Trova corsi di allenamento completi e incompleti senza nascondere le curve o le impostazioni mancanti.",
+        "Confronta l'accuratezza della convalida e la perdita mantenendo ciascuna corsa sul proprio asse epocale.",
+        "L'audit migliore rispetto alle epoche precedenti, la diffusione della validità incrociata e le differenze delle impostazioni."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Una o più cartelle di modelli spaCR contenenti i registri train.csv e validation.csv, con istantanee di impostazione quando è richiesto un confronto di configurazione.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre le Run di allenamento.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre le Run di allenamento."
+          "narration": "Training Runs è uno schermo di controllo di qualità solo per lettura. Esso sovrappone le curve di accettazione e di convalidazione salvate e colloca le impostazioni diff accanto a esse; non riforma mai un modello o cambia una corsa sul disco.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "hold_after": 0.58,
+          "speech_text": "Training Runs è uno schermo di controllo di qualità solo per lettura. Esso sovrappone le curve di accettazione e di convalidazione salvate e colloca le impostazioni diff accanto a esse; non riforma mai un modello o cambia una corsa sul disco."
         },
         {
-          "narration": "Apri Training Runs dalla sezione Results and quality control. Apri le attività di formazione dalla sezione Risultati e controllo qualità Selezionare le cartelle di attività di formazione o i registri di formazione che devono essere confrontati.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Training Runs dalla sezione Results and quality control. Apri le attività di formazione dalla sezione Risultati e controllo qualità Selezionare le cartelle di attività di formazione o i registri di formazione che devono essere confrontati."
+          "narration": "Selezionare la cartella che contiene alberi modello, o qualsiasi genitore sopra diversi progetti, quindi fare clic su Scansione. I dati di microscopia trasferiti non hanno curve di allenamento salvate, quindi questo tutorial utilizza chiaramente log di formato spaCR sintetici mentre esercita il parser reale e l'interfaccia.",
+          "visual": "02_source",
+          "focus_key": "source",
+          "click_key": "scan",
+          "hold_after": 0.7,
+          "speech_text": "Selezionare la cartella che contiene alberi modello, o qualsiasi genitore sopra diversi progetti, quindi fare clic su Scansione. I dati di microscopia trasferiti non hanno curve di allenamento salvate, quindi questo tutorial utilizza chiaramente log di formato spàker sintetici mentre esercita il parser reale e l'interfaccia."
         },
         {
-          "narration": "Nella zona di configurazione principale, scegliere le metriche, il liscio, il raggruppamento, i criteri dei checkpoint e i campi di impostazione da visualizzare.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, scegliere le metriche, il liscio, il raggruppamento, i criteri dei checkpoint e i campi di impostazione da visualizzare."
+          "narration": "La scansione trova una linea di base di vent'epoca, una corsa sintonizzata di vent'epoca, una corsa triplice con convalida incrociata e un checkpoint intenzionalmente incompleto. Le impostazioni e le curve mancanti sono segnalate in ambro piuttosto che discartate silenziosamente, mentre le corse valide rimangono utilizzabili.",
+          "visual": "03_discovered",
+          "focus_key": "runs",
+          "hold_after": 0.72,
+          "speech_text": "La scansione trova una linea di base di vent'epoca, una corsa sintonizzata di vent'epoca, una corsa triplice con convalida incrociata e un checkpoint intenzionalmente incompleto. Le impostazioni e le curve mancanti sono segnalate in ambro piuttosto che discartate silenziosamente, mentre le corse valide rimangono utilizzabili."
         },
         {
-          "narration": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando disponibile. confrontare convergenza, sovrapposizione, stabilità e prestazioni di durata piuttosto che selezionare solo per perdita di allenamento.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima della corsa completa, controllare le impostazioni visibili e utilizzare una modalità di anteprima o di prova quando disponibile. confrontare convergenza, sovrapposizione, stabilità e prestazioni di durata piuttosto che selezionare solo per perdita di allenamento."
+          "narration": "Fate il punto di partenza del vent'epoca. Ogni riga prende il nome del suo modello, dei canali, del numero di epoche, delle pieghe e delle importanti impostazioni recuperate in modo che la selezione rimanga tracciabile.",
+          "visual": "04_select_baseline",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.5,
+          "speech_text": "Fate il punto di partenza del vent'epoca. Ogni riga prende il nome del suo modello, dei canali, del numero di epoche, delle pieghe e delle importanti impostazioni recuperate in modo che la selezione rimanga tracciabile."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, le cifre di confronto e le tabelle di differenze impostazioni identificano la corsa riproducibile più forte.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, le cifre di confronto e le tabelle di differenze impostazioni identificano la corsa riproducibile più forte."
+          "narration": "Indicate la corsa suonizzata dell'epoca dei venticinque anni come secondo confronto. Le corse di lunghezza diversa non sono truncate o imbottite; ogni curva conserva il suo vero asse epocale.",
+          "visual": "05_select_tuned",
+          "focus_key": "runs",
+          "click_key": "run_row",
+          "hold_after": 0.54,
+          "speech_text": "Indicate la corsa suonizzata dell'epoca dei venticinque anni come secondo confronto. Le corse di lunghezza diversa non sono truncate o imbottite; ogni curva conserva il suo vero asse epocale."
+        },
+        {
+          "narration": "Metric sceglie una colonna registrata come accuratezza, perdita, area di richiamo di precisione o accuratezza di classe. Fold controlla se la validazione incrociata appare per fold, come media più o meno una deviazione standard, o entrambe.",
+          "visual": "06_controls",
+          "focus_key": "metrics",
+          "hold_after": 0.62,
+          "speech_text": "Metric sceglie una colonna registrata come accuratezza, perdita, area di richiamo di precisione o accuratezza di classe. Fold controlla se la validazione incrociata appare per fold, come media più o meno una deviazione standard, o entrambe."
+        },
+        {
+          "narration": "Fare clic su Overlay selezionato. Le linee scintillate sono divisioni di addestramento e le linee solide sono divisioni di convalida; una curva del treno in aumento sopra una curva di convalida in declino indica un sovraccarico, non un modello migliore.",
+          "visual": "07_overlay",
+          "focus_key": "overlay",
+          "click_key": "overlay",
+          "hold_after": 0.58,
+          "speech_text": "Fare clic su Overlay selezionato. Le linee scintillate sono divisioni di addestramento e le linee solide sono divisioni di convalida; una curva del treno in aumento sopra una curva di convalida in declino indica un sovraccarico, non un modello migliore."
+        },
+        {
+          "narration": "La curva di validazione sintonizzata raggiunge circa il punto zero otto cinque cinque prima di terminare vicino al punto zero otto quattro cinque; la linea di base raggiunge i picchi vicino al punto zero sette otto sei e termina vicino al punto zero sette cinque. La tabella collega la differenza alla dimensione del lotto, alle epoche, al tasso di apprendimento e alla fonte, mentre il numero dei lavoratori è separato in base alla deriva ambientale.",
+          "visual": "08_accuracy",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "La curva di validazione sintonizzata raggiunge circa il punto zero otto cinque cinque prima di terminare vicino al punto zero otto quattro cinque; la linea di base raggiunge i picchi vicino al punto zero sette otto sei e termina vicino al punto zero sette cinque. La tabella collega la differenza alla dimensione del lotto, alle epoche, al tasso di apprendimento e alla fonte, mentre il numero dei lavoratori è separato in base alla deriva ambientale."
+        },
+        {
+          "narration": "Clicca su una curva per identificare il suo corso e la sua divisione invece di fare affidamento solo sul colore. La serie selezionata viene risolta alla sua cartella e alle misurazioni per epoca.",
+          "visual": "09_pick_curve",
+          "focus_key": "plot",
+          "click_key": "plot",
+          "hold_after": 0.5,
+          "speech_text": "Clicca su una curva per identificare il suo corso e la sua divisione invece di fare affidamento solo sul colore. La serie selezionata viene risolta alla sua cartella e alle misurazioni per epoca."
+        },
+        {
+          "narration": "La linea dettagliata mostra la serie di convalida della linea di base, la sua gamma di epoche, l'ultima precisione zero punto sette quattro nove sei all'epoca venti, e la migliore precisione zero punto sette otto sei all'epoca quindici. Il miglior valore è etichettato ottimista perché la stessa curva ha selezionato quell'epoca.",
+          "visual": "10_best_last",
+          "focus_key": "picked",
+          "hold_after": 0.74,
+          "speech_text": "La linea dettagliata mostra la serie di convalida della linea di base, la sua gamma di epoche, l'ultima precisione zero punto sette quattro nove sei all'epoca venti, e la migliore precisione zero punto sette otto sei all'epoca quindici. Il miglior valore è etichettato ottimista perché la stessa curva ha selezionato quell'epoca."
+        },
+        {
+          "narration": "Apri Metric e scegli la perdita. Il confronto di diverse metriche impedisce una selezione basata su un singolo endpoint lusinghiero.",
+          "visual": "11_choose_loss",
+          "focus_key": "metric",
+          "click_key": "metric",
+          "hold_after": 0.48,
+          "speech_text": "Apri Metric e scegli la perdita. Il confronto di diverse metriche impedisce una selezione basata su un singolo endpoint lusinghiero."
+        },
+        {
+          "narration": "Loss utilizza le stesse corse e impostazioni diverse. Qui la perdita di allenamento continua verso il basso mentre la perdita di convalida va verso l'alto, rendendo visibile il ritardo di sovrapposizione da una seconda misurazione piuttosto che dalla sola precisione.",
+          "visual": "12_loss",
+          "focus_key": "plot",
+          "hold_after": 0.62,
+          "speech_text": "Loss utilizza le stesse corse e impostazioni diverse. Qui la perdita di allenamento continua verso il basso mentre la perdita di convalida va verso l'alto, rendendo visibile il ritardo di sovrapposizione da una seconda misurazione piuttosto che dalla sola precisione."
+        },
+        {
+          "narration": "Ora confrontate la corsa sintonizzata con la corsa triplice e scegliete la media più o meno deviazione standard. Questo riassume la convalida incrociata senza pretendere che la sua media sia una singola corsa osservata.",
+          "visual": "13_choose_fold_mean",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.58,
+          "speech_text": "Ora confrontate la corsa sintonizzata con la corsa triplice e scegliete la media più o meno deviazione standard. Questo riassume la convalida incrociata senza pretendere che la sua media sia una singola corsa osservata."
+        },
+        {
+          "narration": "La banda blu è più o meno una deviazione standard su tre pieghe. La curva di convalida media termina vicino a zero punto otto tre, mentre la banda espone l'incertezza di piega a piega che una singola linea nasconde.",
+          "visual": "14_fold_mean",
+          "focus_key": "plot",
+          "hold_after": 0.66,
+          "speech_text": "La banda blu è più o meno una deviazione standard su tre pieghe. La curva di convalida media termina vicino a zero punto otto tre, mentre la banda espone l'incertezza di piega a piega che una singola linea nasconde."
+        },
+        {
+          "narration": "Scegliere per ripiego quando il comportamento individuale di ripiego è importante. Ciò è particolarmente utile per individuare una spaccatura instabile o una coda sostenuta da meno pieghe dopo l'arresto precoce.",
+          "visual": "15_choose_per_fold",
+          "focus_key": "fold",
+          "click_key": "fold",
+          "hold_after": 0.52,
+          "speech_text": "Scegliere per ripiego quando il comportamento individuale di ripiego è importante. Ciò è particolarmente utile per individuare una spaccatura instabile o una coda sostenuta da meno pieghe dopo l'arresto precoce."
+        },
+        {
+          "narration": "La modalità per ripiego disegna ogni treno e serie di convalida con corsa, divisione e ripiego nella leggenda. Utilizzare insieme il comportamento di convalida, la stabilità di ripiegamento, la valutazione e l'audit delle impostazioni; Training Runs confronta le prove ma non dichiara un vincitore scientificamente riproducibile da solo.",
+          "visual": "16_per_fold",
+          "focus_key": "plot",
+          "hold_after": 0.82,
+          "speech_text": "La modalità per ripiego disegna ogni treno e serie di convalida con corsa, divisione e ripiego nella leggenda. Utilizzare insieme il comportamento di convalida, la stabilità di ripiegamento, la valutazione e l'audit delle impostazioni; Training Runs confronta le prove ma non dichiara un vincitore scientificamente riproducibile da solo."
         }
       ]
     },
