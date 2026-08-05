@@ -1430,47 +1430,183 @@
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes",
+      "title": "地图条码",
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
-      "description": "连接测序条码和指导身份到显微镜图像中测量的现象型.",
+      "description": "通过可复制的合成屏幕,解码对配列测序可以读到板列,列和gRNA身份.",
       "objectives": [
-        "了解什么时候使用地图条码.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "负载加对 FASTQ 读数和三个条码参考表.",
+        "了解目标序列,定期表达,偏移,输出和运行时间类别.",
+        "运行一个4800读音的合成屏幕, 找到其映射的组合和质量控制输出."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "了解用于编码行,列和gRNA条码的读取布局,并准备使用名称和序列列的参考CSV文件.",
       "scenes": [
         {
-          "narration": "这本教程涵盖地图条码. 连接测序条码和指导身份到显微镜图像中测量的现象型.",
-          "visual": "overview",
+          "narration": "地图条码解码序列读取了板块位置和指导身份. 控制台报告样本发现,解析器设置,读数,批量进展,输出路径和故障.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖地图条码. 连接测序条码和指导身份到显微镜图像中测量的现象型."
+          "speech_text": "地图条码解码序列读取了板块位置和指导身份. 控制台报告样本发现,解析器设置,读数,批量进展,输出路径和故障."
         },
         {
-          "narration": "从 Core 部分打开 Map Barcodes。 提供FASTQ文件,条码定义,板块元数据和相匹配的显微镜项目.",
-          "visual": "input",
+          "narration": "通过DNA按打开现场测序后台控制器. 在本教程中,可见性设置为10%,以便移动的底部保持可见,而不需要与设置或控制台文本竞争.",
+          "visual": "02_dna_visibility",
+          "focus_key": "dna_settings",
+          "click_key": "dna_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Map Barcodes。 提供FASTQ文件,条码定义,板块元数据和相匹配的显微镜项目."
+          "speech_text": "通过DNA按打开现场测序后台控制器. 在本教程中,可见性设置为10%,以便移动的底部保持可见,而不需要与设置或控制台文本竞争."
         },
         {
-          "narration": "在主配置区域中,定义行,列和指导条码布局,并设置质量门和不匹配规则.",
-          "visual": "settings",
+          "narration": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单.",
+          "visual": "03_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "在主配置区域中,定义行,列和指导条码布局,并设置质量门和不匹配规则."
+          "speech_text": "聊天场接受有关当前工作流程的问题. 让人工智能通过选择的提供商进行路由,并使用相邻的箭头打开提供商菜单."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的情况下使用预览或测试模式.",
-          "visual": "run",
+          "narration": "提供商报告是否安装了Claude,ChatGPT和Gemini命令行客户端,并提供其安装和登录命令. 证书留在每个供应商身上.",
+          "visual": "04_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的情况下使用预览或测试模式."
+          "speech_text": "提供商报告是否安装了Claude,ChatGPT和Gemini命令行客户端,并提供其安装和登录命令. 证书留在每个供应商身上."
         },
         {
-          "narration": "工作流程完成后,指导身份将与可追踪表中的井和单个对象现象类型联系起来.",
-          "visual": "output",
+          "narration": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+          "visual": "05_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "人工智能设置控制响应深度,自动解释错误,可选的GitHub问题报告,登录和斯佩克尔知情系统提示."
+        },
+        {
+          "narration": "拖动合成测序文件到地图条码中. 在顶级层面,spaCR会找到配对的R1和R2 FASTQ文件,并自动设置源文件.",
+          "visual": "06_fastq_drop",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "拖动合成测序文件到地图条码中. 在顶级层面,斯佩克尔会找到配对的R1和R2 FASTQ文件,并自动设置源文件."
+        },
+        {
+          "narration": "基本文件显示源源,配对或单读模式,条码引用,解析模式和首次地图运行所需的部分控制.",
+          "visual": "07_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本文件显示源源,配对或单读模式,条码引用,解析模式和首次地图运行所需的部分控制."
+        },
+        {
+          "narration": "修改限制面板的值与默认值不同,这是用于审计图书馆特定的阅读布局或计算选择时有用的.",
+          "visual": "08_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制面板的值与默认值不同,这是用于审计图书馆特定的阅读布局或计算选择时有用的."
+        },
+        {
+          "narration": "所有设置都显示每个类别,没有改变值. 五个类别分开输入,参考,分析,输出和运行时间可靠性.",
+          "visual": "09_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "所有设置都显示每个类别,没有改变值. 五个类别分开输入,参考,分析,输出和运行时间可靠性."
+        },
+        {
+          "narration": "配方在名称下保存完整的测序配置,以后重新应用,或者进口和出口可重复使用的设置文件.",
+          "visual": "10_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方在名称下保存完整的测序配置,以后重新应用,或者进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的地图条码设置的远程快照,并将任务发送到分布式工作工作空间.",
+          "visual": "11_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的地图条码设置的远程快照,并将任务发送到分布式工作工作空间."
+        },
+        {
+          "narration": "分布式工作将测序路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行.",
+          "visual": "12_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将测序路径和计算资源映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的运行."
+        },
+        {
+          "narration": "序列输入选择FASTQ文件,确定R1和R2是否结合成一对或单独处理一个读取方向.",
+          "visual": "13_category_01_sequencing_input",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "序列输入选择FASTQ文件,确定R1和R2是否结合成一对或单独处理一个读取方向."
+        },
+        {
+          "narration": "条码引用指向三个CSV查找表:一个用于gRNA条码,一个用于盘列,一个用于盘列列. 每个表需要名称和序列列.",
+          "visual": "13_category_02_barcode_references",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "条码引用指向三个CSV查找表:一个用于gRNA条码,一个用于盘列,一个用于盘列列. 每个表需要名称和序列列."
+        },
+        {
+          "narration": "在已知目标序列上阅读解析,提取一个固定窗口,并使用命名的列ID,gRNA和rowID组的常规表达式.",
+          "visual": "13_category_03_read_parsing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "在已知目标序列上阅读解析,提取一个固定窗口,并使用命名的列ID,gRNA和rowID组的常规表达式."
+        },
+        {
+          "narration": "输出和存储控制可选的HDF5读取存储,压缩,以及是否保留未匹配的条码名称作为缺失值. 总结的CSV输出总是写的.",
+          "visual": "13_category_04_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和存储控制可选的HDF5读取存储,压缩,以及是否保留未匹配的条码名称作为缺失值. 总结的CSV输出总是写的."
+        },
+        {
+          "narration": "运行时间和可靠性设置按零件,工人数量和测试模式进行读取. 较小的块使用较少的内存;测试模式在大型测序运行之前验证了第一个块.",
+          "visual": "13_category_05_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运行时间和可靠性设置按零件,工人数量和测试模式进行读取. 较小的块使用较少的内存;测试模式在大型测序运行之前验证了第一个块."
+        },
+        {
+          "narration": "这座合成图书馆使用26基的目标,在之前启动8基,并提取89基. 然后regex将捕获的列,指南和行序列命名.",
+          "visual": "18_regex_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "这座合成图书馆使用26基的目标,在之前启动8基,并提取89基. 然后regex将捕获的列,指南和行序列命名."
+        },
+        {
+          "narration": "这封教程文件包含4,800个对式阅读,分布在24个合成井口和12个指南条码上. 配对模式将R1与反向补充的R2共识进行比较.",
+          "visual": "19_paired_reads",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "这封教程文件包含4,800个对式阅读,分布在24个合成井口和12个指南条码上. 配对模式将R1与反向补充的R2共识进行比较."
+        },
+        {
+          "narration": "运行验证路径和引用,发现对对样本,计算读数,并启动碎片条码映射. 停止请求一个有序的中断.",
+          "visual": "20_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "运行验证路径和引用,发现对对样本,计算读数,并启动碎片条码映射. 停止请求一个有序的中断."
+        },
+        {
+          "narration": "进展指标和控制台显示活性样本和批量数量. 这项示范处理了五批1000本或更少的阅读.",
+          "visual": "21_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "进展指标和控制台显示活性样本和批量数量. 这项示范处理了五批1000本或更少的阅读."
+        },
+        {
+          "narration": "成功运行将 unique_combinations.csv 写成行,列,指南和计数,加上qc.csv 写成映射质量统计. 它还保存可复制的设置,表格和可重启的宏.",
+          "visual": "22_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,指导身份将与可追踪表中的井和单个对象现象类型联系起来."
+          "speech_text": "成功运行将 unique_combinations.csv 写成行,列,指南和计数,加上qc.csv 写成映射质量统计. 它还保存可复制的设置,表格和可重启的宏."
         }
       ]
     },
