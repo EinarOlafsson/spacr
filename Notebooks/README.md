@@ -74,9 +74,12 @@ already measured capture it.
 
 ## Two shapes of notebook
 
-Most workflows take a **settings dictionary**, and their notebooks print
-every default and let you override what differs. Those are runnable after
-changing one path.
+Most workflows take a **settings dictionary**. Those notebooks write out
+the dictionary in full — every key the function accepts, on its own line,
+with its real default and a comment saying what it controls. Edit values
+in place and delete nothing: a key left at its default behaves exactly as
+if it were absent. About 630 settings are documented this way across the
+fourteen of them.
 
 The rest take **plain arguments**. Their notebooks show the real signature
 and leave the call commented out, deliberately: filling in arguments that
