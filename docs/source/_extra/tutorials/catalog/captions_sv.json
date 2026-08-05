@@ -560,19 +560,70 @@
       "id": "12_map_barcodes",
       "scenes": [
         {
-          "narration": "Den här handledningen omfattar Map Barcodes. Koppla samman sekvenseringsbarkoder och guideidentiteter till de fenotyper som mäts i mikroskopiska bilder."
+          "narration": "Barskodar decoderar sekvensering läser till plattan positioner och vägledning identiteter. Konsolen rapporterar provtäckt, analyseringsinställningar, läsantal, batchprogress, utgångsvägar och misslyckanden."
         },
         {
-          "narration": "Öppna kartorkoder från kärndelen. Ge FASTQ-filer, streckkoddefinitioner, plattmetadata och motsvarande mikroskopprojekt."
+          "narration": "DNA-knappen öppnar bakgrundskontrollerna. För den här handledningen är synligheten inställd på 10 procent så att de rörliga baserna förblir synliga utan att konkurrera med inställningar eller konsoltext."
         },
         {
-          "narration": "I huvudkonfigurationsområdet ska man definiera rad-, kolumn- och vägledningskodlayouter tillsammans med kvalitetsgränser och missmatchregler."
+          "narration": "Chatfältet tar emot frågor om det aktuella arbetsflödet. Aktivera AI för att rutta genom en utvald leverantör och använd den angränsande pilen för att öppna leverantörsmenyn."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. kontrollera sekvenseringskvaliteten och kartläggningshastigheten innan man accepterar de samlade uppgifterna."
+          "narration": "Leverantörer rapporterar om Claude-, ChatGPT- och Gemini-kommandolinja-klienter är installerade och ger sina installations- och inloggningskommandon. Uppgifterna stannar hos varje leverantör."
         },
         {
-          "narration": "När arbetsflödet är färdigt kopplas ledningsidentiteterna till brunnar och enobjektfenotyper i spårbara tabeller."
+          "narration": "AI-inställningar kontrollerar responsdjup, automatiska felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medveten systemprompt."
+        },
+        {
+          "narration": "Dra den syntetiska sekvenseringsmappen in i Map Barcodes. spaCR hittar parade demo R1 och R2 FASTQ-filer på den övre nivån och ställer in källmappen automatiskt."
+        },
+        {
+          "narration": "Essentials visar källan, parade eller singelläsningsläge, streckkodreferenser, parseringsmönster och delar av kontroller som behövs för en första kartläggning."
+        },
+        {
+          "narration": "Modifierad begränsar panelen till värden som skiljer sig från standard, vilket är användbart vid revision av en bibliotek-specifik läslayout eller beräkningsval."
+        },
+        {
+          "narration": "Alla inställningar visar varje kategori utan att ändra värden. De fem kategorierna skiljer inmatningar, referenser, analys, utgångar och driftsäkerhet."
+        },
+        {
+          "narration": "Recipes sparar den fullständiga sekvenseringskonfigurationen under ett namn, tillämpar den senare eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka avlägsna ögonblicksbilder av de lösade Map Barcodes-inställningarna och skicka jobbet till arbetsplatsen Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger sekvenseringsvägar och beräkningsresurser till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma körning."
+        },
+        {
+          "narration": "Sequencing Input väljer FASTQ-mappen och bestämmer om R1 och R2 kombineras som ett par eller om en läsriktning behandlas ensam."
+        },
+        {
+          "narration": "Barcode References pekar på tre CSV-söktabeller: en för gRNA-barkoder, en för plattor och en för plattor. Varje tabell behöver namn och sekvens kolumner."
+        },
+        {
+          "narration": "Läs Parsing anklar på en känd mål sekvens, extraherar ett fast fönster, och tillämpar ett regelbundet uttryck med namngivna kolumnID, gRNA och rowID grupper."
+        },
+        {
+          "narration": "Output and Storage kontrollerar valfri HDF5-läsning, lagring, komprimering och huruvida oöverträffade streckkodnamn behålls som saknade värden. De sammanfattade CSV-utgångarna skrivs alltid."
+        },
+        {
+          "narration": "Runtime och Reliability-sätt läses per bit, antal arbetare och testläge. Mindre bitar använder mindre minne; testläget validerar den första delen innan en stor sekvensering körs."
+        },
+        {
+          "narration": "Detta syntetiska bibliotek använder ett mål med 26 baser, startar åtta baser före ankern och extraherar 89 baser. Regex benämner sedan den fångade kolumnen, guiden och radens sekvenser."
+        },
+        {
+          "narration": "Tutorialmappen innehåller 4800 parade läsningar spridda över 24 syntetiska brunnar och 12 gidsbarkoder. Paired mode jämför R1 med den omvända komplementerade R2-konsensus."
+        },
+        {
+          "narration": "Run validerar vägar och referenser, upptäcker parade mönster, räknar läser, och startar kartläggning av styckade streckkoder. Sluta begära en ordnad avbrott."
+        },
+        {
+          "narration": "Progressindikatorn och konsolen visar det aktiva provet och antalet batcher. Denna demonstration behandlar fem batcher av 1000 läsningar eller mindre."
+        },
+        {
+          "narration": "Den framgångsrika körningen skriver unique_combinations.csv med rad, kolumn, guide och räkning, plus qc.csv med kartläggningskvalitetsstatistik. Det sparar också reproducerbara inställningar, ett manifest och en omrundbar makro."
         }
       ]
     },

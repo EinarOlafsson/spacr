@@ -560,19 +560,70 @@
       "id": "12_map_barcodes",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um stígmerki kortsins. Tengdu stígkerfi og leiðsögn til kynslóða sem mældust í sýnishornmyndum."
+          "narration": "Kortið Barcodes dekóða sekúeningar lesast í plötur stöðum og leiðsögn persónuleika. Konsóllin skýrir frá sýnishornum, innstillingum parser, lesatölum, batch-framfarum, útgáfuleiðum og mistökum."
         },
         {
-          "narration": "Opnaðu stígmerki á kortinu í kjarnaöflunni. Gefðu FASTQ skrár, stígmerki skilgreiningar, plötu metadata og samsvarandi mikroskópsverkefni."
+          "narration": "DNA-knapurinn opnar baksýnishæfingarnar. Fyrir þetta námskeið er sýnileiki stillt á 10 prósent svo að hreyfanleg grundvöllin séu sýnileg án þess að keppa við stillingar eða texta konsólunnar."
         },
         {
-          "narration": "Í aðalmyndasvæðinu þarf að skilgreina röð, stöng og leiðsögn á stígkerfi ásamt gæðamörkum og reglum um ósamræmi."
+          "narration": "Spjallsvæðið tekur við spurningum um núverandi vinnuflæði. Leyfa AI að leiða í gegnum valinn þjónustuaðila og nota nágrenna piltinn til að opna þjónustuaðilinn."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. skoðaðu eftirfarandi gæði og kortlagningshlutfall áður en samþykkt er að sameina verkefnin."
+          "narration": "Greiðsluaðila tilkynna hvort Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir eru settir upp og veitir uppsetningar og innritunarskipanir þeirra. Skilríki eru hjá hverjum söluaðila."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið eru leiðsögn tengdar brunnum og einangruðum fyllmyndum í sporhæfum töflum."
+          "narration": "AI stillingar stjórnar viðbrögð dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun, og spaCR-vitandi kerfisspurn."
+        },
+        {
+          "narration": "Dragðu efnislega röðunarglöðuna inn í stígmerki kortsins. spaCR finnur parraðar demo R1 og R2 FASTQ skrár á efstu hæð og stillar upp uppruna möppuna sjálfkrafa."
+        },
+        {
+          "narration": "Essentials sýnir uppspretta, parið eða einn-lestur stíl, stígmerki vísbendingar, parsing mynstur, og hlutur stjórn sem nauðsynlegt er fyrir fyrstu kortunar hlaup."
+        },
+        {
+          "narration": "Breytt takmörkunar á paneli til gildi sem eru frábrugðin sjálfgefnum, sem er gagnlegt þegar úttekt á bókasafn-sérhæft lestur skipulag eða tölvun val."
+        },
+        {
+          "narration": "Öll stillingar sýna hverja flokk án þess að gildi breytist. Fimm flokkarnir skilja innlegg, vísbendingar, greiningu, útgöngur og áreiðanleika í rekstrartíma."
+        },
+        {
+          "narration": "Recipes geymir alla röðunarmyndun undir nafni, beitir henni aftur síðar eða flytur inn og sendir út endurtekjanlegt stillingarskjala."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndum á losnu setningum á stígkerfum kortsins og sendu verkefnið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar sekvensi leiða og reikna auðlindir til fjarstæðrar vinnustaðar, Slurm hóp, eða skipulagt skipun, og sendir síðan og fylgist með sama rekstri."
+        },
+        {
+          "narration": "Sequencing Input velur FASTQ möppuna og ákveður hvort R1 og R2 séu sameinuð sem pari eða einn lestrarsteinn vinnist einn."
+        },
+        {
+          "narration": "Barcode References vísar til þriggja CSV leitarborða: einn fyrir gRNA barkóða, einn fyrir plötu röður og einn fyrir plötu stólfur. Hver borð þarf nöfn og röðastefnur."
+        },
+        {
+          "narration": "Lestu Parsing ankra á þekktu markmið raðfylgjuna, tekur út fasta glugga og beitir reglulegum tjáningu með nöfnum columnID, gRNA og rowID hópa."
+        },
+        {
+          "narration": "Útgangur og geymsla stjórnar valfrjálsu HDF5 lestur geymsla, þéttingu og hvort óviðeigandi stígkerfis nöfn eru geymd sem saknir gildi. Samantekt CSV útgöngur eru alltaf skrifaðar."
+        },
+        {
+          "narration": "Renntími og áreiðanleika setir lesast fyrir stykki, starfsmanna tal og próf stíl. Smærri stykki nota minna minni; prófunarleiðsla staðfestir fyrsta stykki áður en stór raðfylgjingar eru gerðar."
+        },
+        {
+          "narration": "Þessi synthétískt bókasafn notar 26 grunnmarkmið, startar átta grunnur fyrir ankarinn og tekur út 89 grunnur. Regex nafnar síðan greindum kolunni, leiðsögn og röð."
+        },
+        {
+          "narration": "Námskeiðsskránni inniheldur 4.800 parið lestur dreifð yfir 24 smíða brunnum og 12 stígmerki. Hægt er að gera samræmi á milli R1 og R2 sem er fullnægt aftur á móti."
+        },
+        {
+          "narration": "Run staðfestir leiðir og vísbendingar, uppgötvar parið sýni, telur lesur og byrjar stukkinn stígmerki kortun. Hættu að biðja um skipulögð truflun."
+        },
+        {
+          "narration": "Á framkvæmdavísitölu og þjálfunarstöðvum er sýnt sýni á virkum sýni og fjöldi flokkanna. Þessi sýning vinnur fimm flokka af 1.000 lestrum eða minna."
+        },
+        {
+          "narration": "Á árangursríkum hlaupi er skrifað unique_combinations.csv með röð, stöng, leiðsögn og tal, auk qc.csv með kortlagningu gæðastatistika. Það geymir einnig uppsjáanlegar stillingar, manifest og aftur hlaupandi makro."
         }
       ]
     },

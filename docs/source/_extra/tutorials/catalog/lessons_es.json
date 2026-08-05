@@ -1430,47 +1430,183 @@
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Map Barcodes",
+      "title": "Códigos de barras del mapa",
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
-      "description": "Conectar los códigos de barras de secuenciación y las identidades de guía a los fenotipos medidos en imágenes microscópicas.",
+      "description": "La secuenciación en pareja de decodificación se lee en filas de placas, columnas e identidades de gRNA utilizando una pantalla sintética reproducible.",
       "objectives": [
-        "Comprender cuándo usar los códigos de barras de mapa.",
-        "Configurar las entradas y configuraciones importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus salidas."
+        "Load paired FASTQ lecturas y las tres tablas de referencia de código de barras.",
+        "Comprender la secuencia objetivo, la expresión regular, los offsets, la salida y las categorías de tiempo de ejecución.",
+        "Ejecutar una pantalla sintética de 4.800 lecturas y localizar sus combinaciones mapeadas y la salida de control de calidad."
       ],
-      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados en la línea ascendente.",
+      "prerequisite": "Conozca el diseño de lectura utilizado para codificar códigos de barras de filas, columnas y gRNA, y prepare archivos CSV de referencia con columnas de nombre y secuencia.",
       "scenes": [
         {
-          "narration": "Este tutorial cubre los códigos de barras de mapa. Conecte los códigos de barras de secuenciación e identidades de guía a los fenotipos medidos en imágenes microscópicas.",
-          "visual": "overview",
+          "narration": "Los códigos de barras del mapa decodan la secuenciación en las posiciones de las placas y las identidades de guía. La consola informa el descubrimiento de muestras, la configuración del parser, el recuento de lecturas, el progreso del lote, los caminos de salida y los fallos.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial cubre los códigos de barras de mapa. Conecte los códigos de barras de secuenciación e identidades de guía a los fenotipos medidos en imágenes microscópicas."
+          "speech_text": "Los códigos de barras del mapa decodan la secuenciación en las posiciones de las placas y las identidades de guía. La consola informa el descubrimiento de muestras, la configuración del parser, el recuento de lecturas, el progreso del lote, los caminos de salida y los fallos."
         },
         {
-          "narration": "Abra Map Barcodes en la sección Core. Abre los códigos de barras del mapa desde la sección Core. Proporcione archivos FASTQ, definiciones de códigos de barras, metadatos de placas y el proyecto de microscopía correspondiente.",
-          "visual": "input",
+          "narration": "El botón de ADN abre los controles de fondo de secuenciación en vivo. Para este tutorial, la visibilidad se establece en el 10 por ciento para que las bases móviles permanezcan visibles sin competir con la configuración o el texto de la consola.",
+          "visual": "02_dna_visibility",
+          "focus_key": "dna_settings",
+          "click_key": "dna_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Map Barcodes en la sección Core. Abre los códigos de barras del mapa desde la sección Core. Proporcione archivos FASTQ, definiciones de códigos de barras, metadatos de placas y el proyecto de microscopía correspondiente."
+          "speech_text": "El botón de ADN abre los controles de fondo de secuenciación en vivo. Para este tutorial, la visibilidad se establece en el 10 por ciento para que las bases móviles permanezcan visibles sin competir con la configuración o el texto de la consola."
         },
         {
-          "narration": "En el área de configuración principal, defina los diseños de filas, columnas y códigos de barras de guía junto con los umbrales de calidad y las reglas de incompatibilidad.",
-          "visual": "settings",
+          "narration": "El campo de chat acepta preguntas sobre el flujo de trabajo actual. Habilitar a la IA para encaminar a través de un proveedor seleccionado, y usar la flecha adyacente para abrir el menú del proveedor.",
+          "visual": "03_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "En el área de configuración principal, defina los diseños de filas, columnas y códigos de barras de guía junto con los umbrales de calidad y las reglas de incompatibilidad."
+          "speech_text": "El campo de chat acepta preguntas sobre el flujo de trabajo actual. Habilitar a la IA para encaminar a través de un proveedor seleccionado, y usar la flecha adyacente para abrir el menú del proveedor."
         },
         {
-          "narration": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible.",
-          "visual": "run",
+          "narration": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados y proporcionan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor.",
+          "visual": "04_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+          "speech_text": "Los proveedores informan si los clientes de línea de comandos Claude, ChatGPT y Gemini están instalados y proporcionan sus comandos de instalación y inicio de sesión. Las credenciales se quedan con cada vendedor."
         },
         {
-          "narration": "Cuando el flujo de trabajo termina, las identidades de la guía se vinculan a pozos y fenotipos de un solo objeto en tablas rastreables.",
-          "visual": "output",
+          "narration": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de spaCR.",
+          "visual": "05_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Configuraciones de IA controla la profundidad de respuesta, explicaciones automáticas de errores, informes opcionales de problemas de GitHub, inicio de sesión y el aviso del sistema consciente de espáquer."
+        },
+        {
+          "narration": "Arrastre la carpeta de secuenciación sintética a los códigos de barras del mapa. spaCR encuentra los archivos demo R1 y R2 FASTQ emparejados en el nivel superior y establece la carpeta fuente automáticamente.",
+          "visual": "06_fastq_drop",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Arrastre la carpeta de secuenciación sintética a los códigos de barras del mapa. espáquer encuentra los archivos demo R1 y R2 FASTQ emparejados en el nivel superior y establece la carpeta fuente automáticamente."
+        },
+        {
+          "narration": "Los elementos esenciales muestran la fuente, el modo emparejado o de lectura única, las referencias de códigos de barras, el patrón de análisis y los controles de fragmentos necesarios para una primera ejecución de mapas.",
+          "visual": "07_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Los elementos esenciales muestran la fuente, el modo emparejado o de lectura única, las referencias de códigos de barras, el patrón de análisis y los controles de fragmentos necesarios para una primera ejecución de mapas."
+        },
+        {
+          "narration": "Modificado limita el panel a valores que difieren de los valores predeterminados, lo que es útil cuando se audita un diseño de lectura específico de la biblioteca o la elección de cálculo.",
+          "visual": "08_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificado limita el panel a valores que difieren de los valores predeterminados, lo que es útil cuando se audita un diseño de lectura específico de la biblioteca o la elección de cálculo."
+        },
+        {
+          "narration": "Todas las configuraciones revelan cada categoría sin cambios de valores. Las cinco categorías separan las entradas, las referencias, el análisis, las salidas y la fiabilidad en el tiempo de ejecución.",
+          "visual": "09_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas las configuraciones revelan cada categoría sin cambios de valores. Las cinco categorías separan las entradas, las referencias, el análisis, las salidas y la fiabilidad en el tiempo de ejecución."
+        },
+        {
+          "narration": "Recetas guarda la configuración completa de secuenciación bajo un nombre, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable.",
+          "visual": "10_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recetas guarda la configuración completa de secuenciación bajo un nombre, la reaplica más tarde, o importa y exporta un archivo de configuración reutilizable."
+        },
+        {
+          "narration": "Envía instantáneas remotas de las configuraciones de códigos de barras de mapa resueltos y envía el trabajo al espacio de trabajo de trabajos distribuidos.",
+          "visual": "11_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envía instantáneas remotas de las configuraciones de códigos de barras de mapa resueltos y envía el trabajo al espacio de trabajo de trabajos distribuidos."
+        },
+        {
+          "narration": "Distribuido trabajos mapas de secuenciación de caminos y recursos de cálculo a una estación de trabajo remota, Slurm cluster, o el comando configurado, luego envía y monitorea la misma ejecución.",
+          "visual": "12_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distribuido trabajos mapas de secuenciación de caminos y recursos de cálculo a una estación de trabajo remota, Slurm cluster, o el comando configurado, luego envía y monitorea la misma ejecución."
+        },
+        {
+          "narration": "La secuenciación de entrada selecciona la carpeta FASTQ y determina si R1 y R2 se combinan como un par o se procesa una dirección de lectura sola.",
+          "visual": "13_category_01_sequencing_input",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La secuenciación de entrada selecciona la carpeta FASTQ y determina si R1 y R2 se combinan como un par o se procesa una dirección de lectura sola."
+        },
+        {
+          "narration": "Referencias de código de barras apunta a tres tablas de búsqueda de CSV: una para códigos de barras de gRNA, una para filas de placas y una para columnas de placas. Cada tabla necesita columnas de nombre y secuencia.",
+          "visual": "13_category_02_barcode_references",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Referencias de código de barras apunta a tres tablas de búsqueda de CSV: una para códigos de barras de gRNA, una para filas de placas y una para columnas de placas. Cada tabla necesita columnas de nombre y secuencia."
+        },
+        {
+          "narration": "Lea los anclajes de Parsing en una secuencia de objetivo conocida, extrae una ventana fija y aplica una expresión regular con grupos columnID, gRNA y rowID nombrados.",
+          "visual": "13_category_03_read_parsing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Lea los anclajes de Parsing en una secuencia de objetivo conocida, extrae una ventana fija y aplica una expresión regular con grupos columnID, gRNA y rowID nombrados."
+        },
+        {
+          "narration": "La salida y el almacenamiento controla el almacenamiento opcional de lectura HDF5, la compresión y si los nombres de códigos de barras no iguales se conservan como valores faltantes. Las salidas de CSV resumidas siempre se escriben.",
+          "visual": "13_category_04_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La salida y el almacenamiento controla el almacenamiento opcional de lectura HDF5, la compresión y si los nombres de códigos de barras no iguales se conservan como valores faltantes. Las salidas de CSV resumidas siempre se escriben."
+        },
+        {
+          "narration": "Los conjuntos de tiempo de ejecución y fiabilidad se leen por pieza, número de trabajadores y modo de prueba. Los trozos más pequeños utilizan menos memoria; el modo de prueba valida el primer trozo antes de una ejecución de secuenciación grande.",
+          "visual": "13_category_05_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Los conjuntos de tiempo de ejecución y fiabilidad se leen por pieza, número de trabajadores y modo de prueba. Los trozos más pequeños utilizan menos memoria; el modo de prueba valida el primer trozo antes de una ejecución de secuenciación grande."
+        },
+        {
+          "narration": "Esta biblioteca sintética utiliza un objetivo de 26 bases, inicia ocho bases antes de ese anclaje, y extrae 89 bases. El regex luego nombra las secuencias de columna, guía y fila capturadas.",
+          "visual": "18_regex_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Esta biblioteca sintética utiliza un objetivo de 26 bases, inicia ocho bases antes de ese anclaje, y extrae 89 bases. El regex luego nombra las secuencias de columna, guía y fila capturadas."
+        },
+        {
+          "narration": "La carpeta de tutoriales contiene 4.800 lecturas emparejadas repartidas en 24 pozos sintéticos y 12 códigos de barras de guía. El modo emparejado compara R1 con el consenso R2 complementado inverso.",
+          "visual": "19_paired_reads",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "La carpeta de tutoriales contiene 4.800 lecturas emparejadas repartidas en 24 pozos sintéticos y 12 códigos de barras de guía. El modo emparejado compara R1 con el consenso R2 complementado inverso."
+        },
+        {
+          "narration": "Run valida las rutas y referencias, descubre muestras emparejadas, cuenta las lecturas y inicia el mapeo de códigos de barras en pedazos. Detener las solicitudes de una interrupción ordenada.",
+          "visual": "20_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valida las rutas y referencias, descubre muestras emparejadas, cuenta las lecturas y inicia el mapeo de códigos de barras en pedazos. Detener las solicitudes de una interrupción ordenada."
+        },
+        {
+          "narration": "El indicador de progreso y la consola muestran la muestra activa y el número de lotes. Esta demostración procesa cinco lotes de 1.000 lecturas o menos.",
+          "visual": "21_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "El indicador de progreso y la consola muestran la muestra activa y el número de lotes. Esta demostración procesa cinco lotes de 1.000 lecturas o menos."
+        },
+        {
+          "narration": "La ejecución exitosa escribe unique_combinations.csv con fila, columna, guía y conteo, más qc.csv con estadísticas de calidad de mapeo. También guarda configuraciones reproducibles, un manifiesto y una macro reiniciable.",
+          "visual": "22_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Cuando el flujo de trabajo termina, las identidades de la guía se vinculan a pozos y fenotipos de un solo objeto en tablas rastreables."
+          "speech_text": "La ejecución exitosa escribe unique_combinations.csv con fila, columna, guía y conteo, más qc.csv con estadísticas de calidad de mapeo. También guarda configuraciones reproducibles, un manifiesto y una macro reiniciable."
         }
       ]
     },

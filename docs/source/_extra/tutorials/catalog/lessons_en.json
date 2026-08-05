@@ -1449,43 +1449,179 @@
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
-      "description": "Connect sequencing barcodes and guide identities to the phenotypes measured in microscopy images.",
+      "description": "Decode paired sequencing reads into plate rows, columns, and gRNA identities using a reproducible synthetic screen.",
       "objectives": [
-        "Understand when to use Map Barcodes.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Load paired FASTQ reads and the three barcode reference tables.",
+        "Understand the target sequence, regular expression, offsets, output, and runtime categories.",
+        "Run a 4,800-read synthetic screen and locate its mapped combinations and quality-control output."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Know the read layout used to encode row, column, and gRNA barcodes, and prepare reference CSV files with name and sequence columns.",
       "scenes": [
         {
-          "narration": "This tutorial covers Map Barcodes. Connect sequencing barcodes and guide identities to the phenotypes measured in microscopy images.",
-          "visual": "overview",
+          "narration": "Map Barcodes decodes sequencing reads into plate positions and guide identities. The console reports sample discovery, parser settings, read counts, batch progress, output paths, and failures.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Map Barcodes. Connect sequencing barcodes and guide identities to the phenotypes measured in microscopy images."
+          "speech_text": "Map Barcodes decodes sequencing reads into plate positions and guide identities. The console reports sample discovery, parser settings, read counts, batch progress, output paths, and failures."
         },
         {
-          "narration": "Open Map Barcodes from the Core section. Provide FASTQ files, barcode definitions, plate metadata, and the matching microscopy project.",
-          "visual": "input",
+          "narration": "The DNA button opens the live sequencing backdrop controls. For this tutorial, Visibility is set to 10 percent so the moving bases remain visible without competing with settings or console text.",
+          "visual": "02_dna_visibility",
+          "focus_key": "dna_settings",
+          "click_key": "dna_button",
           "hold_after": 0.45,
-          "speech_text": "Open Map Barcodes from the Core section. Provide FASTQ files, barcode definitions, plate metadata, and the matching microscopy project."
+          "speech_text": "The D N A button opens the live sequencing backdrop controls. For this tutorial, Visibility is set to ten percent so the moving bases remain visible without competing with settings or console text."
         },
         {
-          "narration": "In the main configuration area, define row, column, and guide barcode layouts together with quality thresholds and mismatch rules.",
-          "visual": "settings",
+          "narration": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+          "visual": "03_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, define row, column, and guide barcode layouts together with quality thresholds and mismatch rules."
+          "speech_text": "The chat field accepts questions about the current workflow. Enable A I to route through a selected provider, and use the adjacent arrow to open the provider menu."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect sequencing quality and mapping rates before accepting the merged assignments.",
-          "visual": "run",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and provides their install and login commands. Credentials stay with each vendor.",
+          "visual": "04_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect sequencing quality and mapping rates before accepting the merged assignments."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command line clients are installed and provides their install and login commands. Credentials stay with each vendor."
         },
         {
-          "narration": "When the workflow finishes, guide identities are linked to wells and single-object phenotypes in traceable tables.",
-          "visual": "output",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "05_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system prompt."
+        },
+        {
+          "narration": "Drag the synthetic sequencing folder into Map Barcodes. spaCR finds the paired demo R1 and R2 FASTQ files at the top level and sets the source folder automatically.",
+          "visual": "06_fastq_drop",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Drag the synthetic sequencing folder into Map Barcodes. spacer finds the paired demo R one and R two fast cue files at the top level and sets the source folder automatically."
+        },
+        {
+          "narration": "Essentials shows the source, paired or single-read mode, barcode references, parsing pattern, and chunk controls needed for a first mapping run.",
+          "visual": "07_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the source, paired or single read mode, barcode references, parsing pattern, and chunk controls needed for a first mapping run."
+        },
+        {
+          "narration": "Modified limits the panel to values that differ from the defaults, which is useful when auditing a library-specific read layout or compute choice.",
+          "visual": "08_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to values that differ from the defaults, which is useful when auditing a library specific read layout or compute choice."
+        },
+        {
+          "narration": "All settings reveals every category without changing values. The five categories separate inputs, references, parsing, outputs, and runtime reliability.",
+          "visual": "09_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals every category without changing values. The five categories separate inputs, references, parsing, outputs, and runtime reliability."
+        },
+        {
+          "narration": "Recipes saves the complete sequencing configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "10_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete sequencing configuration under a name, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Map Barcodes settings and sends the job to the Distributed Jobs workspace.",
+          "visual": "11_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Map Barcodes settings and sends the job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps sequencing paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+          "visual": "12_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps sequencing paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run."
+        },
+        {
+          "narration": "Sequencing Input selects the FASTQ folder and determines whether R1 and R2 are combined as a pair or one read direction is processed alone.",
+          "visual": "13_category_01_sequencing_input",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Sequencing Input selects the fast cue folder and determines whether R one and R two are combined as a pair or one read direction is processed alone."
+        },
+        {
+          "narration": "Barcode References points to three CSV lookup tables: one for gRNA barcodes, one for plate rows, and one for plate columns. Each table needs name and sequence columns.",
+          "visual": "13_category_02_barcode_references",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Barcode References points to three C S V lookup tables: one for G R N A barcodes, one for plate rows, and one for plate columns. Each table needs name and sequence columns."
+        },
+        {
+          "narration": "Read Parsing anchors on a known target sequence, extracts a fixed window, and applies a regular expression with named columnID, gRNA, and rowID groups.",
+          "visual": "13_category_03_read_parsing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Read Parsing anchors on a known target sequence, extracts a fixed window, and applies a regular expression with named column I D, G R N A, and row I D groups."
+        },
+        {
+          "narration": "Output and Storage controls optional HDF5 read storage, compression, and whether unmatched barcode names are retained as missing values. The summarized CSV outputs are always written.",
+          "visual": "13_category_04_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Storage controls optional H D F five read storage, compression, and whether unmatched barcode names are retained as missing values. The summarized C S V outputs are always written."
+        },
+        {
+          "narration": "Runtime and Reliability sets reads per chunk, worker count, and test mode. Smaller chunks use less memory; test mode validates the first chunk before a large sequencing run.",
+          "visual": "13_category_05_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability sets reads per chunk, worker count, and test mode. Smaller chunks use less memory. Test mode validates the first chunk before a large sequencing run."
+        },
+        {
+          "narration": "This synthetic library uses a 26-base target, starts eight bases before that anchor, and extracts 89 bases. The regex then names the captured column, guide, and row sequences.",
+          "visual": "18_regex_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "This synthetic library uses a twenty six base target, starts eight bases before that anchor, and extracts eighty nine bases. The regular expression then names the captured column, guide, and row sequences."
+        },
+        {
+          "narration": "The tutorial folder contains 4,800 paired reads spread across 24 synthetic wells and 12 guide barcodes. Paired mode compares R1 with the reverse-complemented R2 consensus.",
+          "visual": "19_paired_reads",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "The tutorial folder contains four thousand eight hundred paired reads spread across twenty four synthetic wells and twelve guide barcodes. Paired mode compares R one with the reverse complemented R two consensus."
+        },
+        {
+          "narration": "Run validates paths and references, discovers paired samples, counts reads, and starts chunked barcode mapping. Stop requests an orderly interruption.",
+          "visual": "20_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run validates paths and references, discovers paired samples, counts reads, and starts chunked barcode mapping. Stop requests an orderly interruption."
+        },
+        {
+          "narration": "The progress indicator and console show the active sample and batch count. This demonstration processes five batches of 1,000 reads or fewer.",
+          "visual": "21_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "The progress indicator and console show the active sample and batch count. This demonstration processes five batches of one thousand reads or fewer."
+        },
+        {
+          "narration": "The successful run writes unique_combinations.csv with row, column, guide, and count, plus qc.csv with mapping quality statistics. It also saves reproducible settings, a manifest, and a rerunnable macro.",
+          "visual": "22_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, guide identities are linked to wells and single-object phenotypes in traceable tables."
+          "speech_text": "The successful run writes unique combinations dot C S V with row, column, guide, and count, plus Q C dot C S V with mapping quality statistics. It also saves reproducible settings, a manifest, and a rerunnable macro."
         }
       ]
     },
