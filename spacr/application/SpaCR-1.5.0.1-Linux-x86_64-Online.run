@@ -10,7 +10,7 @@ set -Eeuo pipefail
 
 UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
-DEFAULT_SPACR_VERSION="1.4.9.9"
+DEFAULT_SPACR_VERSION="1.5.0.1"
 DEFAULT_EXTRAS="qt"
 TORCH_BACKEND="${SPACR_TORCH_BACKEND:-cpu}"
 LAUNCHER_DIR="${SPACR_LAUNCHER_DIR:-}"
@@ -25,6 +25,7 @@ INSTALL_ROOT=""
 PACKAGE_SPEC="${SPACR_PACKAGE_SPEC:-}"
 SKIP_SYSTEM_DEPS=0
 NO_LAUNCH=0
+NO_COMMAND_LAUNCHER=0
 DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
 
 usage() {
@@ -37,6 +38,7 @@ Options:
   --package-spec SPEC     Install SPEC instead of the release's spaCR build.
   --torch-backend NAME    PyTorch backend (default: cpu; use auto for NVIDIA).
   --launcher-dir PATH     Put the command launcher in PATH (mainly for CI).
+  --no-command-launcher   Do not install a command-line launcher.
   --skip-system-deps      Do not install Linux Qt runtime libraries.
   --no-launch             Do not launch spaCR after installation.
   --dry-run               Print the resolved plan without downloading.
@@ -68,6 +70,10 @@ while (($#)); do
             ;;
         --skip-system-deps)
             SKIP_SYSTEM_DEPS=1
+            shift
+            ;;
+        --no-command-launcher)
+            NO_COMMAND_LAUNCHER=1
             shift
             ;;
         --no-launch)
@@ -103,6 +109,20 @@ fi
 if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
     echo "Unsupported platform value: $PLATFORM" >&2
     exit 2
+fi
+
+# llvmlite 0.46+ no longer publishes Intel macOS wheels. Without this
+# architecture-specific ceiling uv selects the latest release, attempts a
+# source build, and the otherwise self-contained installer fails looking for
+# a Homebrew LLVMConfig.cmake. Numba 0.63+ requires that unavailable llvmlite
+# line, so keep the pair on the newest mutually compatible Intel wheels.
+if [[ "$PLATFORM" == "macos" && "$(uname -m)" == "x86_64" ]]; then
+    RESOLVER_GUARDS=(
+        "numpy>=1.26,<2.0"
+        "opencv-python-headless<4.12"
+        "numba>=0.60,<0.63"
+        "llvmlite>=0.43,<0.46"
+    )
 fi
 if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
     echo "Invalid PyTorch backend: $TORCH_BACKEND" >&2
@@ -161,7 +181,9 @@ echo "  resolver guards: ${RESOLVER_GUARDS[*]}"
 if [[ "$DRY_RUN" == "1" ]]; then
     echo "DRY RUN: would download $UV_INSTALL_URL"
     echo "DRY RUN: would create and validate $VENV_DIR"
-    echo "DRY RUN: would install launcher $LAUNCHER"
+    if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
+        echo "DRY RUN: would install launcher $LAUNCHER"
+    fi
     exit 0
 fi
 
@@ -281,7 +303,7 @@ echo "Downloading spaCR, Qt, PyTorch and scientific dependencies..."
 echo "Validating the installation before activating it..."
 "$UV_BIN" pip check --python "$stage_python"
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
-    "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+    "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
 
 old_venv="$INSTALL_ROOT/.venv-previous"
 rm -rf "$old_venv"
@@ -291,14 +313,16 @@ fi
 mv "$stage_venv" "$VENV_DIR"
 rm -rf "$old_venv"
 
-mkdir -p "$USER_BIN_DIR"
-launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
-cat > "$launcher_tmp" <<EOF
+if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
+    mkdir -p "$USER_BIN_DIR"
+    launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
+    cat > "$launcher_tmp" <<EOF
 #!/usr/bin/env sh
 exec "$VENV_DIR/bin/python" -m spacr.qt "\$@"
 EOF
-chmod 755 "$launcher_tmp"
-mv "$launcher_tmp" "$LAUNCHER"
+    chmod 755 "$launcher_tmp"
+    mv "$launcher_tmp" "$LAUNCHER"
+fi
 
 if [[ "$PLATFORM" == "linux" ]]; then
     mkdir -p "$DESKTOP_DIR"
@@ -333,7 +357,9 @@ fi
 
 echo
 echo "spaCR installed successfully."
-echo "Launcher: $LAUNCHER"
+if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
+    echo "Launcher: $LAUNCHER"
+fi
 if [[ "$PLATFORM" == "linux" && "$NO_LAUNCH" == "0" ]]; then
     nohup "$LAUNCHER" >/dev/null 2>&1 &
 fi
