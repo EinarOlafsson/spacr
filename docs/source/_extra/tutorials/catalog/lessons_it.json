@@ -370,47 +370,257 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask",
+      "title": "Maschera",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Segmentare l'esperimento di microscopia a quattro canali fornito in nuclei, cellule, goccioline di lipidi e maschere di parassiti.",
+      "description": "Configura Mask, ispeziona ogni categoria di impostazioni e convalida la segmentazione cellulare sull'esperimento di microscopia fornito.",
       "objectives": [
-        "Metti correttamente i quattro canali di acquisizione.",
-        "Configurazione cellulare, nucleo, organole e segmentazione dei parassiti.",
-        "Controlla la maschera e controlla le sue uscite."
+        "Utilizzare la console, i controlli di chat, le ricette e il flusso di lavoro di invio remoto.",
+        "Importare la cartella di immagini CQ1 e verificare i suoi metadati regex rilevati automaticamente.",
+        "Ispezionare i contorni delle cellule, i flussi di Cellpose, gli oggetti e un filtro live di superficie minima."
       ],
-      "prerequisite": "Utilizzare il set di dati tutorial a quattro canali fornito.",
+      "prerequisite": "Utilizzare l'esperimento tutorial spaCR e le impostazioni Mask fornite.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre Mask. Segmenta l'esperimento di microscopia a quattro canali fornito in nuclei, cellule, goccioline di lipidi e maschere di parassiti.",
-          "visual": "overview",
+          "narration": "La maschera si apre con il pannello di impostazione a sinistra e la console runtime a destra. La console segnala scansioni di cartelle, convalidazione, progresso, avvertimenti e uscita di pipeline.",
+          "visual": "01_console",
           "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre Mask. Segmenta l'esperimento di microscopia a quattro canali fornito in nuclei, cellule, goccioline di lipidi e maschere di parassiti."
+          "speech_text": "La maschera si apre con il pannello di impostazione a sinistra e la console runtime a destra. La console segnala scansioni di cartelle, convalidazione, progresso, avvertimenti e uscita di pipeline."
         },
         {
-          "narration": "Apri Mask dalla sezione Core. Approfitta del set di dati fornito con 13 campi. Il canale zero è il nucleo, il canale uno è il reticolo endoplasmico, il canale due è le goccioline di lipidi e il canale tre è il parassita.",
-          "visual": "input",
+          "narration": "Il campo sotto la console accetta domande o comandi locali. L'interruttore AI trasmette un messaggio attraverso un fornitore selezionato supportato dall'abbonamento, e la freccia adiacente apre il menu del fornitore.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Apri Mask dalla sezione Core. Approfitta del set di dati fornito con 13 campi. Il canale zero è il nucleo, il canale uno è il reticolo endoplasmico, il canale due è le goccioline di lipidi e il canale tre è il parassita."
+          "speech_text": "Il campo sotto la console accetta domande o comandi locali. L'interruttore AI trasmette un messaggio attraverso un fornitore selezionato supportato dall'abbonamento, e la freccia adiacente apre il menu del fornitore."
         },
         {
-          "narration": "Nell'area di configurazione principale, rilevare nuclei dal canale zero, cellule dal canale endoplasmico-reticolo, goccioline di lipidi con il flusso di lavoro delle macchie di organole e parassiti dal canale tre.",
-          "visual": "settings",
+          "narration": "La scheda Fornitori mostra se i client di linea di comando Claude, ChatGPT e Gemini sono installati, oltre ai loro comandi di installazione e login. Le credenziali restano con il venditore.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, rilevare nuclei dal canale zero, cellule dal canale endoplasmico-reticolo, goccioline di lipidi con il flusso di lavoro delle macchie di organole e parassiti dal canale tre."
+          "speech_text": "La scheda Fornitori mostra se i client di linea di comando Claude, ChatGPT e Gemini sono installati, oltre ai loro comandi di installazione e login. Le credenziali restano con il venditore."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. Controllare un campo rappresentativo, quindi eseguire i quattro passaggi di segmentazione attraverso il set di dati.",
-          "visual": "run",
+          "narration": "La scheda Impostazioni controlla la profondità della risposta, le spiegazioni di errori assistite da AI, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. Controllare un campo rappresentativo, quindi eseguire i quattro passaggi di segmentazione attraverso il set di dati."
+          "speech_text": "La scheda Impostazioni controlla la profondità della risposta, le spiegazioni di errori assistite da AI, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, la cartella maschere contiene etichette di oggetti allineate e array di immagini più maschere fuse pronte per la misura.",
-          "visual": "output",
+          "narration": "Trascinare la cartella orig in Mask. spaCR rileva il modello di nome del file CQ1, visualizza bene, campo, tempo, profondità e metadati del canale, nota che l'ID della scheda sarà predefinito per la scheda1, quindi salva il regex.",
+          "visual": "05_metadata",
+          "focus_key": "metadata_dialog",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Trascinare la cartella orig in Mask. spàker rileva il modello di nome del file C Q 1, visualizza bene, campo, tempo, profondità e metadati del canale, nota che l'ID della scheda sarà predefinito per la scheda1, quindi salva il regex."
+        },
+        {
+          "narration": "Essentials mostra il piccolo set di impostazioni richieste per eseguire Mask. Il conteggio sotto i controlli riporta quante delle impostazioni complete sono attualmente visibili.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mostra il piccolo set di impostazioni richieste per eseguire Mask. Il conteggio sotto i controlli riporta quante delle impostazioni complete sono attualmente visibili."
+        },
+        {
+          "narration": "Modificato limita il modulo a valori che differiscono dalle impostazioni predefinite di Mask, rendendo le impostazioni importate o modificate facili da rivedere.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modificato limita il modulo a valori che differiscono dalle impostazioni predefinite di Mask, rendendo le impostazioni importate o modificate facili da rivedere."
+        },
+        {
+          "narration": "Cambiare tra le impostazioni Essentials e All senza perdere valori. Tutte le impostazioni espongono ogni categoria, compresi i controlli avanzati e beta.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Cambiare tra le impostazioni Essentials e All senza perdere valori. Tutte le impostazioni espongono ogni categoria, compresi i controlli avanzati e beta."
+        },
+        {
+          "narration": "Recipes salva le impostazioni correnti sotto un nome, riaplica una configurazione salvata o importa ed esporta un file di impostazioni riutilizzabile.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes salva le impostazioni correnti sotto un nome, riaplica una configurazione salvata o importa ed esporta un file di impostazioni riutilizzabile."
+        },
+        {
+          "narration": "Invia istantanee remote delle impostazioni Mask risolute e le invia nello spazio di lavoro Jobs Distribuiti.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Invia istantanee remote delle impostazioni Mask risolute e le invia nello spazio di lavoro Jobs Distribuiti."
+        },
+        {
+          "narration": "Distributed Jobs mappa i percorsi locali verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di Mask.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs mappa i percorsi locali verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di Mask."
+        },
+        {
+          "narration": "Input and Metadata definisce la cartella sorgente, le assegnazioni di canali, l'ingrandimento, il tipo di metadati e qualsiasi nome di file personalizzato regex.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Metadata definisce la cartella sorgente, le assegnazioni di canali, l'ingrandimento, il tipo di metadati e qualsiasi nome di file personalizzato regex."
+        },
+        {
+          "narration": "Il flusso di lavoro e la prova di esecuzione controllano la pre-elaborazione, la generazione di maschere, le esecuzioni a secco, il comportamento di ripristino e i piccoli campioni in modalità di prova.",
+          "visual": "12_category_02_workflow_test_run",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Il flusso di lavoro e la prova di esecuzione controllano la pre-elaborazione, la generazione di maschere, le esecuzioni a secco, il comportamento di ripristino e i piccoli campioni in modalità di prova."
+        },
+        {
+          "narration": "I gruppi di pre-elaborazione delle immagini sono la normalizzazione, la proiezione, l'upscaling, il consolidamento e la denosione delle scelte applicate prima della segmentazione.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "I gruppi di pre-elaborazione delle immagini sono la normalizzazione, la proiezione, l'upscaling, il consolidamento e la denosione delle scelte applicate prima della segmentazione."
+        },
+        {
+          "narration": "La segmentazione cellulare contiene il modello cellulare, il diametro, le soglie, la gestione dello sfondo e i filtri dell'oggetto cellulare.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La segmentazione cellulare contiene il modello cellulare, il diametro, le soglie, la gestione dello sfondo e i filtri dell'oggetto cellulare."
+        },
+        {
+          "narration": "La segmentazione nucleare fornisce il modello corrispondente, le soglie, la correzione di sfondo e i filtri di oggetti per i nuclei.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La segmentazione nucleare fornisce il modello corrispondente, le soglie, la correzione di sfondo e i filtri di oggetti per i nuclei."
+        },
+        {
+          "narration": "La segmentazione dei patogeni raggruppa il modello e le regole di pulizia utilizzate per rilevare e filtrare gli oggetti parassiti.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La segmentazione dei patogeni raggruppa il modello e le regole di pulizia utilizzate per rilevare e filtrare gli oggetti parassiti."
+        },
+        {
+          "narration": "Organelle Segmentation seleziona la morfologia e il rilevatore dell'organello, la pulizia dell'immagine, i controlli specifici per il metodo, i filtri oggettivi e la sintesi del compartimento genitore.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Organelle Segmentation seleziona la morfologia e il rilevatore dell'organello, la pulizia dell'immagine, i controlli specifici per il metodo, i filtri oggettivi e la sintesi del compartimento genitore."
+        },
+        {
+          "narration": "Il Controllo di qualità imposta controlli automatici per il conteggio degli oggetti, i rapporti di dimensioni, i confini, la copertura di primo piano, il comportamento diviso e i fallimenti di campo accettabili.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Il Controllo di qualità imposta controlli automatici per il conteggio degli oggetti, i rapporti di dimensioni, i confini, la copertura di primo piano, il comportamento diviso e i fallimenti di campo accettabili."
+        },
+        {
+          "narration": "L'elaborazione volumetrica contiene controlli beta per stacks z, proiezione, anisotropia, calibrazione dei voxel e cucitura tridimensionale.",
+          "visual": "12_category_09_volumetric_processing_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'elaborazione volumetrica contiene controlli beta per stacks z, proiezione, anisotropia, calibrazione dei voxel e cucitura tridimensionale."
+        },
+        {
+          "narration": "Time Axes and Tracking contiene controlli beta per i dati quadridimensionali, gli intervalli di fotogrammi, i backend di tracciamento e i limiti di spostamento.",
+          "visual": "12_category_10_time_axes_tracking_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Time Axes and Tracking contiene controlli beta per i dati quadridimensionali, gli intervalli di fotogrammi, i backend di tracciamento e i limiti di spostamento."
+        },
+        {
+          "narration": "La visualizzazione e la diagnostica controlla le tratte di anteprima, le mappe a colori, le dimensioni delle figure, la normalizzazione delle tratte e i campi di esempio.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La visualizzazione e la diagnostica controlla le tratte di anteprima, le mappe a colori, le dimensioni delle figure, la normalizzazione delle tratte e i campi di esempio."
+        },
+        {
+          "narration": "L'output and Storage decide quali immagini, maschere, array intermedi e risultati compressi vengono conservati.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'output and Storage decide quali immagini, maschere, array intermedi e risultati compressi vengono conservati."
+        },
+        {
+          "narration": "Il tempo di esecuzione e l'affidabilità contengono la gestione dei guasti, la riproducibilità, la registrazione, il conteggio dei lavoratori, i lotti e le scelte di esecuzione del pipeline.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Il tempo di esecuzione e l'affidabilità contengono la gestione dei guasti, la riproducibilità, la registrazione, il conteggio dei lavoratori, i lotti e le scelte di esecuzione del pipeline."
+        },
+        {
+          "narration": "Abilita la visualizzazione in diretta e carica l'immagine di emergenza del canale due. Questo campo contiene solo il segnale cellulare utilizzato per l'esempio di segmentazione.",
+          "visual": "25_cell_ready",
+          "focus_key": "canvases",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Abilita la visualizzazione in diretta e carica l'immagine di emergenza del canale due. Questo campo contiene solo il segnale cellulare utilizzato per l'esempio di segmentazione."
+        },
+        {
+          "narration": "In Settings Live, selezionare cellula, abilitare la normalizzazione e impostare il percentil inferiore a 2 e il percentil superiore a 99.5.",
+          "visual": "26_live_normalization",
+          "focus_key": "normalization",
+          "hold_after": 0.45,
+          "speech_text": "In Settings Live, selezionare cellula, abilitare la normalizzazione e impostare il percentil inferiore a 2 e il percentil superiore a 99.5."
+        },
+        {
+          "narration": "Eseguire l'anteprima e fare zoom nei pannelli sorgente e risultati sincronizzati. Le linee di sovrapposizione devono seguire i confini delle cellule definiti dall'ER.",
+          "visual": "27_cell_outlines",
+          "focus_key": "action_and_canvases",
+          "click_key": "run_preview",
+          "hold_after": 0.45,
+          "speech_text": "Eseguire l'anteprima e fare zoom nei pannelli sorgente e risultati sincronizzati. Le linee di sovrapposizione devono seguire i confini delle cellule definiti dall'ER."
+        },
+        {
+          "narration": "Spostare il pannello dei risultati a Flussi per controllare il campo di flusso Cellpose utilizzato per formare oggetti.",
+          "visual": "28_cell_flows",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Spostare il pannello dei risultati a Flussi per controllare il campo di flusso Cellpose utilizzato per formare oggetti."
+        },
+        {
+          "narration": "Passare a Maschere per visualizzare direttamente gli oggetti della cella integrale. Ogni colore è un oggetto e il nero rimane l'etichetta di sfondo zero.",
+          "visual": "29_cell_objects",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Passare a Maschere per visualizzare direttamente gli oggetti della cella integrale. Ogni colore è un oggetto e il nero rimane l'etichetta di sfondo zero."
+        },
+        {
+          "narration": "Ritorna alle impostazioni Live e imposta solo l'area minima della cella a 10000 pixel. Le maschere crude memorizzate vengono immediatamente filtrate senza ricorrere a Cellpose.",
+          "visual": "30_cell_size_filter",
+          "focus_key": "cell_filters",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "Ritorna alle impostazioni Live e imposta solo l'area minima della cella a 10000 pixel. Le maschere crude memorizzate vengono immediatamente filtrate senza ricorrere a Cellpose."
+        },
+        {
+          "narration": "Dopo il filtro di dimensioni, gli oggetti di piccole cellule perdono i loro contorni e rimangono solo oggetti di almeno 10000 pixel. Confronta questo con la sovrapposizione non filtrata.",
+          "visual": "31_cell_filtered",
+          "focus_key": "canvases",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, la cartella maschere contiene etichette di oggetti allineate e array di immagini più maschere fuse pronte per la misura."
+          "speech_text": "Dopo il filtro di dimensioni, gli oggetti di piccole cellule perdono i loro contorni e rimangono solo oggetti di almeno 10000 pixel. Confronta questo con la sovrapposizione non filtrata."
         }
       ]
     },
@@ -418,47 +628,75 @@
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure",
+      "title": "Misurazione",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Estratti l'intensità, la morfologia, la texture, la colocalizzazione e le caratteristiche spaziali per oggetto dalle immagini segmentate.",
+      "description": "Visualizzare in anteprima le colture di oggetti reali, misurare campi segmentati e scrivere caratteristiche tracciabili di singoli oggetti in SQLite.",
       "objectives": [
-        "Comprendere quando usare Measure.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Immagine di mappa e aerei di maschera da un array spaCR fuso.",
+        "Prevedere le colture delle cellule e verificare il comportamento del filtro prima di eseguire una corsa.",
+        "Convalidare le misurazioni e le colture con una prova a cinque campi."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Completa prima la maschera in modo che il progetto contenga array di immagini e etichette fuse.",
       "scenes": [
         {
-          "narration": "Questo tutorial copre la misura. Estrazione per intensità di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali da immagini segmentate.",
-          "visual": "overview",
+          "narration": "La misura converte i campi di HeLa segmentati reali in tracciabilità di intensità singola di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali. Questo passaggio convalida cinque campi prima di una corsa completa.",
+          "visual": "01_module",
           "hold_after": 0.45,
-          "speech_text": "Questo tutorial copre la misura. Estrazione per intensità di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali da immagini segmentate."
+          "speech_text": "La misura converte i campi di HeLa segmentati reali in tracciabilità di intensità singola di oggetto, morfologia, texture, colocalizzazione e caratteristiche spaziali. Questo passaggio convalida cinque campi prima di una corsa completa."
         },
         {
-          "narration": "Apri Measure dalla sezione Core. Apri la sezione Misura dal Core. Seleziona il progetto contenente pile di immagini e maschere prodotte da Mask.",
-          "visual": "input",
+          "narration": "Aprire Measure da Core e selezionare la cartella fusa prodotta da Mask. Le impostazioni trasferite misurano i canali di immagine da zero a tre e leggono le etichette delle cellule, del nucleo e degli agenti patogeni dai piani quattro, cinque e sei.",
+          "visual": "01_module",
+          "focus_key": "nav",
+          "click_key": "nav",
           "hold_after": 0.45,
-          "speech_text": "Apri Measure dalla sezione Core. Apri la sezione Misura dal Core. Seleziona il progetto contenente pile di immagini e maschere prodotte da Mask."
+          "speech_text": "Aprire Measure da Core e selezionare la cartella fusa prodotta da Mask. Le impostazioni trasferite misurano i canali di immagine da zero a tre e leggono le etichette delle cellule, del nucleo e degli agenti patogeni dai piani quattro, cinque e sei."
         },
         {
-          "narration": "Nella zona di configurazione principale, utilizzare il canale uno, il reticolo endoplasmico, come canale di interesse e scegliere i tipi di oggetti e le famiglie di caratteristiche da misurare.",
-          "visual": "settings",
+          "narration": "Abilitare l'anteprima delle colture e caricare una matrice fusa. Le gallerie raggruppano quaranta cellule reali per nucleo e contenuto di patogeni, mentre il selettore conferma che la cartella di prova contiene cinque campi.",
+          "visual": "02_cell_crops",
+          "focus_key": "grid",
+          "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "Nella zona di configurazione principale, utilizzare il canale uno, il reticolo endoplasmico, come canale di interesse e scegliere i tipi di oggetti e le famiglie di caratteristiche da misurare."
+          "speech_text": "Abilitare l'anteprima delle colture e caricare una matrice fusa. Le gallerie raggruppano quaranta cellule reali per nucleo e contenuto di patogeni, mentre il selettore conferma che la cartella di prova contiene cinque campi."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile.",
-          "visual": "run",
+          "narration": "In generale, verificare i canali misurati da zero a tre, piano maschera cellulare quattro, piano nucleo cinque, piano patogeno sei, e citoplasma derivato. Mantenere la modalità di prova attiva per la validazione.",
+          "visual": "03_general",
+          "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+          "speech_text": "In generale, verificare i canali misurati da zero a tre, piano maschera cellulare quattro, piano nucleo cinque, piano patogeno sei, e citoplasma derivato. Mantenere la modalità di prova attiva per la validazione."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, i punti di misurazione db memorizzano le righe tracciabili di singoli oggetti e le colture di immagine opzionali per l'anotamento o la classificazione.",
-          "visual": "output",
+          "narration": "La corsa fornita scrive le colture di cellule PNG a duecento ventiquattro per duecento ventiquattro pixel utilizzando i canali zero, uno e due. La normalizzazione delle colture rimane off nelle impostazioni salvate; questo tutorial utilizza un intervallo di visualizzazione temporaneo da uno a novanta nove percentili solo per rendere leggibile la galleria dal vivo.",
+          "visual": "04_object_crops",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "La corsa fornita scrive le colture di cellule PNG a duecento ventiquattro per duecento ventiquattro pixel utilizzando i canali zero, uno e due. La normalizzazione delle colture rimane off nelle impostazioni salvate; questo tutorial utilizza un intervallo di visualizzazione temporaneo da uno a novanta nove percentili solo per rendere leggibile la galleria dal vivo."
+        },
+        {
+          "narration": "I filtri richiedono cellule di almeno tre mila e cinquecento pixel, nuclei di almeno mille e agenti patogeni di almeno duecentocinquanta. Mantenete lontane le cellule non infette e unite le cellule i cui agenti patogeni attraversano un bordo dell'immagine.",
+          "visual": "05_filters",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "I filtri richiedono cellule di almeno tre mila e cinquecento pixel, nuclei di almeno mille e agenti patogeni di almeno duecentocinquanta. Mantenete lontane le cellule non infette e unite le cellule i cui agenti patogeni attraversano un bordo dell'immagine."
+        },
+        {
+          "narration": "Selezionare il canale uno nell'anteprima per ispezionare il segnale endoplasmico-reticolo, che è il canale di interesse per le analisi a valle. Questa visualizzazione modifica solo la galleria; Measure estrae ancora le caratteristiche da tutti e quattro i canali configurati.",
+          "visual": "06_er_channel",
+          "focus_key": "grid",
+          "click_key": "channel",
+          "hold_after": 0.45,
+          "speech_text": "Selezionare il canale uno nell'anteprima per ispezionare il segnale endoplasmico-reticolo, che è il canale di interesse per le analisi a valle. Questa visualizzazione modifica solo la galleria; Measure estrae ancora le caratteristiche da tutti e quattro i canali configurati."
+        },
+        {
+          "narration": "Il libro dei test completato riporta cinque dei cinque campi con successo senza fallimenti. Le misurazioni dot db contengono quattrocentocinque cellule e citoplasmi, seicentocinque nuclei e mille trentauno agenti patogeni, oltre a quattrocentocinque colture cellulari pronte per l'annotazione e la classificazione.",
+          "visual": "07_outputs",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, i punti di misurazione db memorizzano le righe tracciabili di singoli oggetti e le colture di immagine opzionali per l'anotamento o la classificazione."
+          "speech_text": "Il libro dei test completato riporta cinque dei cinque campi con successo senza fallimenti. Le misurazioni dot db contengono quattrocentocinque cellule e citoplasmi, seicentocinque nuclei e mille trentauno agenti patogeni, oltre a quattrocentocinque colture cellulari pronte per l'annotazione e la classificazione."
         }
       ]
     },

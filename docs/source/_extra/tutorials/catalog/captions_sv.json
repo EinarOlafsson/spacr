@@ -154,19 +154,97 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Mask. Segmentera det levererade fyrkanalmikroskopiska experimentet i kärnor, celler, lipiddroppar och parasitmasker."
+          "narration": "Masken öppnas med inställningspanelen till vänster och körkonsolen till höger. Konsolen rapporterar mappskanningar, validering, framsteg, varningar och pipelineutgång."
         },
         {
-          "narration": "Öppna masken från kärnsektionen. Använd den levererade 13-fältdataset. Kanal noll är kärnor, kanal ett är endoplasmisk retikulum, kanal två är lipiddroppar och kanal tre är parasiter."
+          "narration": "Fältet under konsolen accepterar lokala frågor eller kommandon. AI-switchen vänder ett meddelande genom en utvald prenumerationsbakad leverantör, och den angränsande pilen öppnar leverantörsmenyn."
         },
         {
-          "narration": "I huvudkonfigurationsområdet upptäcker man kärnor från kanal noll, celler från kanal endoplasmisk-retikulum, lipiddroppar med organellfläckar och parasiter från kanal tre."
+          "narration": "I fliken Providers visas om Claude, ChatGPT och Gemini-kommandolinjeklienter är installerade, plus deras installations- och inloggningskommandon. Uppgifterna förblir hos säljaren."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Kontrollera ett representativt fält, och kör sedan de fyra segmenteringspassarna över dataset."
+          "narration": "I fliken Inställningar kontrolleras responsdjup, AI-assisterade felförklaringar, valfri GitHub-problemrapportering, inloggning och spaCR-medveten systemprompt."
         },
         {
-          "narration": "När arbetsflödet är färdigt innehåller mappen masker justerade objektetiketter och sammansatta bild-plus-mask-matriser redo för mätning."
+          "narration": "Dra orig- mappen in i Mask. spaCR upptäcker CQ1 filnamn mönster, förhandsvisar bra, fält, tid, djup och kanal metadata, noterar att platt ID kommer att standard till plate1, sedan sparar regex."
+        },
+        {
+          "narration": "Essentials visar den lilla uppsättningen av inställningar som krävs för att köra Mask. Antalet nedanför kontrollerna rapporterar hur många av de fullständiga inställningarna som för närvarande är synliga."
+        },
+        {
+          "narration": "Ändrade begränsningar av formuläret till värden som skiljer sig från Mask standard, vilket gör importerade eller redigerade inställningar lätt att granska."
+        },
+        {
+          "narration": "Skicka mellan Essentials och All inställningar utan att förlora värden. Alla inställningar avslöjar varje kategori, inklusive avancerade och beta kontroller."
+        },
+        {
+          "narration": "Recipes sparar de nuvarande inställningarna under ett namn, återanvänder en spärrad konfiguration eller importerar och exporterar en återanvändbar inställningsfil."
+        },
+        {
+          "narration": "Skicka fjärrbilder av de lösade Mask- inställningarna och skicka dem till arbetsplatsen Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartlägger lokala vägar till en fjärrarbetsstation, Slurm-cluster eller konfigurerat kommando, skickar sedan in och övervakar samma Mask- körning."
+        },
+        {
+          "narration": "Input and Metadata definierar källmappen, kanaltilldelningar, förstoring, metadata typ och alla anpassade filnamn regex."
+        },
+        {
+          "narration": "Workflow och Test Run kontrollerar förbehandling, maskgenerering, torra körningar, återupptäckt beteende och små provmodusprover."
+        },
+        {
+          "narration": "Bilder förbehandling grupper normalisering, projektion, upscaling, konsolidering, och denoising val som tillämpas före segmentering."
+        },
+        {
+          "narration": "Cellsegmentering innehåller cellmodellen, diameter, tröskelvärden, bakgrundshandling och cellobjektfilter."
+        },
+        {
+          "narration": "Kärnsegmentering tillhandahåller motsvarande modell, tröskelvärden, bakgrundskorrigering och objektfilter för kärnor."
+        },
+        {
+          "narration": "Patogensegmentering grupperar den modell och rengöringsregler som används för att upptäcka och filtrera parasitobjekt."
+        },
+        {
+          "narration": "Organelle Segmentation väljer organelle morfologi och detektor, bildrening, metod-specifika kontroller, objektfilter och parent-compartment sammanfattning."
+        },
+        {
+          "narration": "Kvalitetskontroll sätter automatiska kontroller för objektantal, storleksförhållanden, gränser, främre täckning, splittrat beteende och acceptabla fel på fält."
+        },
+        {
+          "narration": "Volumetrisk bearbetning innehåller beta-kontroller för z-stacks, projektion, anisotropy, voxelkalibrering och tredimensionell sutning."
+        },
+        {
+          "narration": "Time Axes and Tracking innehåller beta-kontroller för fyrdimensionella data, ramintervall, spårning av baklängder och förflyttningsgränser."
+        },
+        {
+          "narration": "Visualization and Diagnostics kontrollerar förhandsgranskningar, färgkartor, figurstorlek, plotsnormalisering och exempelfält."
+        },
+        {
+          "narration": "Output and Storage bestämmer vilka bilder, masker, mellanliggande matriser och komprimerade resultat som behålls."
+        },
+        {
+          "narration": "Runttid och tillförlitlighet innehåller felhantering, reproduktibilitet, loggning, antal arbetstagare, partier och utförande av pipelineval."
+        },
+        {
+          "narration": "Aktivera Live Preview och ladda kanal två ER-bilden. Detta fält innehåller endast den cellsignal som används för segmenteringsexemplet."
+        },
+        {
+          "narration": "I Live-inställningar väljer du cell, aktiverar normalisering och ställer in den nedre percentilen till 2 och den övre percentilen till 99,5."
+        },
+        {
+          "narration": "Kör förhandsgranskningen och zooma in i den synkroniserade källan och resultatpanelen. De överlappade linjerna bör följa de cellgränser som är definierade i ER."
+        },
+        {
+          "narration": "Skicka resultatfönstret till Flöden för att kontrollera det Cellpose- flödesfält som används för att bilda objekt."
+        },
+        {
+          "narration": "Skicka till Masker för att se hela cellobjekten direkt. Varje färg är ett objekt och svart förblir bakgrundsetikett noll."
+        },
+        {
+          "narration": "Återgå till Live-inställningar och ange endast cellminimumområdet till 10000 pixlar. De lagrade råmaskerna filtreras omedelbart utan att Cellpose återförs."
+        },
+        {
+          "narration": "Efter storlekfiltret förlorar småcellobjekt sina konturer och endast föremål med minst 10000 pixlar kvarstår. Jämför detta med den ofiltrerade överlagningen."
         }
       ]
     },
@@ -174,19 +252,28 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Den här handledningen omfattar mätning. Extrahera per objekt intensitet, morfologi, textur, kolokalization och rumsliga egenskaper från segmenterade bilder."
+          "narration": "Mätning omvandlar de verkliga segmenterade HeLa-fältena till spårbara enobjektintensitet, morfologi, textur, kolokalisering och rumsliga egenskaper. Denna genomgång validerar fem fält innan ett fullständigt löpning."
         },
         {
-          "narration": "Öppna åtgärden från kärndelen. Välj det projekt som innehåller bildstackar och masker som produceras av Mask."
+          "narration": "Öppna åtgärd från kärnan och välj den sammanställda mappen som skapats av Mask. De överförda inställningarna mäter bildkanalerna från noll till tre och läser cell-, kärn- och patogenetiketter från plan fyra, fem och sex."
         },
         {
-          "narration": "I det huvudsakliga konfigurationsområdet ska du använda kanal ett, endoplasmisk retikulum, som kanal av intresse och välja objekttyperna och egenskapsfamiljerna för mätning."
+          "narration": "Aktivera förhandsgranskningen av grödorna och ladda en sammanslagen matris. Gallerin grupperar fyrtio reella celler efter kärna och patogeninnehåll, medan selektorn bekräftar att testmappen innehåller fem fält."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. förhandsgranskning av grödor när det behövs, och sedan bearbetning av varje markerat fält och objekttyp."
+          "narration": "I allmänhet verifiera målade kanaler från noll till tre, cellmaskplan fyra, kärnplan fem, patogenplan sex och avledd cytoplasm. Håll testläget på för valideringsläget."
         },
         {
-          "narration": "När arbetsflödet är färdigt lagrar mätpunkten db spårbara rader med ett enskilt objekt och valbara bildskärmar för annotering eller klassificering."
+          "narration": "Den levererade körningen skriver cell PNG grödor på tvåhundra tjugofyra med tvåhundra tjugofyra pixlar med hjälp av kanaler noll, en och två. Normaliseringen av grödorna förblir avstängd i de spara inställningarna. Denna handledning använder en tillfällig en-till-nitton-procentiel-skärmsträckning bara för att göra galleriet läsbart."
+        },
+        {
+          "narration": "Filtrerna kräver celler med minst tre tusen fem hundra pixlar, kärnor med minst tusen och patogener med minst två hundra femtio. Håll inte infekterade celler borta och slå ihop celler vars patogener korsar en bildskärm."
+        },
+        {
+          "narration": "Välj kanal ett i förhandsgranskningen för att inspektera endoplasmisk-reticulumsignalen, som är den kanal som är av intresse för nedströmsanalyser. Den här visningen ändrar endast galleriet. Mätningen extraherar fortfarande funktioner från alla fyra konfigurerade kanaler."
+        },
+        {
+          "narration": "Den slutförda testregistret rapporterar att fem av fem fält lyckats utan misslyckanden. Mätningar dot db innehåller fyra hundra femtio fem celler och cytoplasmer, sex hundra fem kärnor, och tusen trettiofem patogener, plus fyra hundra femtio fem cellkroppar redo för annotering och klassificering."
         }
       ]
     },

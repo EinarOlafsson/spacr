@@ -370,47 +370,257 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask",
+      "title": "面具",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "细分提供的四通道显微镜实验,分为核,细胞,脂滴和寄生虫掩膜.",
+      "description": "设置Mask,检查每个设置类别,并验证提供的显微镜实验中的细胞细分.",
       "objectives": [
-        "准确地绘制所有4个收购道.",
-        "配置细胞,核,器官和寄生虫分区.",
-        "运行掩膜,检查掩膜的输出."
+        "使用控制台,聊天控制,食谱和远程提交工作流程.",
+        "进口CQ1图像文件并验证其自动检测的元数据regex.",
+        "检查细胞轮,Cellpose流量,物体,以及现场最小区域过器."
       ],
-      "prerequisite": "使用提供的四通道教程数据集.",
+      "prerequisite": "使用spaCR教程实验及其提供的Mask设置.",
       "scenes": [
         {
-          "narration": "通过四通道显微镜实验,将其分成核,细胞,脂滴和寄生虫掩膜.",
-          "visual": "overview",
+          "narration": "在左边设置面板和右边运行时间控制台,面具打开. 控制台报告文件扫描,验证,进展,警告和输出管道.",
+          "visual": "01_console",
           "hold_after": 0.45,
-          "speech_text": "通过四通道显微镜实验,将其分成核,细胞,脂滴和寄生虫掩膜."
+          "speech_text": "在左边设置面板和右边运行时间控制台,面具打开. 控制台报告文件扫描,验证,进展,警告和输出管道."
         },
         {
-          "narration": "从 Core 部分打开 Mask。 通道零是核,通通道一是内质网,通通道二是脂质滴,通通道三是寄生虫.",
-          "visual": "input",
+          "narration": "控制台下面的字段接受本地问题或命令. 人工智能交换器通过选择的订阅支持供应商路由信息,",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Mask。 通道零是核,通通道一是内质网,通通道二是脂质滴,通通道三是寄生虫."
+          "speech_text": "控制台下面的字段接受本地问题或命令. 人工智能交换器通过选择的订阅支持供应商路由信息,"
         },
         {
-          "narration": "在主要配置区域中,检测到从零道的核,从子宫膜膜道的细胞,与器官斑点工作流动的脂质滴滴,和从三道的寄生虫.",
-          "visual": "settings",
+          "narration": "提供者选项表显示Claude,ChatGPT和Gemini命令行客户端是否安装,以及其安装和登录命令. 证书仍然是卖家的.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,检测到从零道的核,从子宫膜膜道的细胞,与器官斑点工作流动的脂质滴滴,和从三道的寄生虫."
+          "speech_text": "提供者选项表显示Claude,ChatGPT和Gemini命令行客户端是否安装,以及其安装和登录命令. 证书仍然是卖家的."
         },
         {
-          "narration": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式. 检查一个代表性字段,然后在数据集中运行四个细分传递.",
-          "visual": "run",
+          "narration": "设置标签控制响应深度,人工智能辅助的错误解释,可选的GitHub问题报告,登录和spaCR知情系统提示.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请查看可见设置,并在可用的情况下使用预览或测试模式. 检查一个代表性字段,然后在数据集中运行四个细分传递."
+          "speech_text": "设置标签控制响应深度,人工智能辅助的错误解释,可选的GitHub问题报告,登录和斯佩克尔知情系统提示."
         },
         {
-          "narration": "工作流程完成后,掩膜文件包含对齐的对象标签和合并的图像加掩膜阵列,准备进行测量.",
-          "visual": "output",
+          "narration": "拖动原始文件到面具中. spaCR检测到CQ1文件名格式,预览好,场地,时间,深度和频道的元数据,注意到板 ID将默认转换为板1,然后保存regex.",
+          "visual": "05_metadata",
+          "focus_key": "metadata_dialog",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "拖动原始文件到面具中. 斯佩克尔检测到C Q 1文件名格式,预览好,场地,时间,深度和频道的元数据,注意到板 ID将默认转换为板1,然后保存regex."
+        },
+        {
+          "narration": "基本显示了运行Mask所需的小设置. 控制器下面的数量显示了目前可见的完整设置中的多少.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "基本显示了运行Mask所需的小设置. 控制器下面的数量显示了目前可见的完整设置中的多少."
+        },
+        {
+          "narration": "修改限制表格的值不同于 Mask 默认设置,使导入或编辑的设置易于查看.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "修改限制表格的值不同于 Mask 默认设置,使导入或编辑的设置易于查看."
+        },
+        {
+          "narration": "切换至关键和所有设置,而不会丢失值. 所有设置都暴露了每个类别,包括高级和beta控制.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "切换至关键和所有设置,而不会丢失值. 所有设置都暴露了每个类别,包括高级和beta控制."
+        },
+        {
+          "narration": "配方将当前设置存储在名称下,重新应用保存的配置,或进口和出口可重复使用的设置文件.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "配方将当前设置存储在名称下,重新应用保存的配置,或进口和出口可重复使用的设置文件."
+        },
+        {
+          "narration": "提交已解决的 Mask 设置的远程快照,并将它们发送到分布式工作空间.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "提交已解决的 Mask 设置的远程快照,并将它们发送到分布式工作空间."
+        },
+        {
+          "narration": "分布式工作将本地路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的Mask运行.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "分布式工作将本地路径映射到远程工作站,Slurm集群或配置命令,然后提交并监测相同的Mask运行."
+        },
+        {
+          "narration": "输入和元数据定义源文件,道分配,放大,元数据类型以及任何定制文件名regex.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输入和元数据定义源文件,道分配,放大,元数据类型以及任何定制文件名regex."
+        },
+        {
+          "narration": "工作流程和测试运行控制预处理,面具生成,干运行,恢复行为和小型测试模式样本.",
+          "visual": "12_category_02_workflow_test_run",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "工作流程和测试运行控制预处理,面具生成,干运行,恢复行为和小型测试模式样本."
+        },
+        {
+          "narration": "图像预处理组在细分之前应用的规范化,投影,升级,整合和拒绝选择.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "图像预处理组在细分之前应用的规范化,投影,升级,整合和拒绝选择."
+        },
+        {
+          "narration": "细胞细分包含细胞模型,直径,门,背景处理和细胞对象过器.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "细胞细分包含细胞模型,直径,门,背景处理和细胞对象过器."
+        },
+        {
+          "narration": "核分类提供了对核的相应模型,门,背景纠正和对象过器.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "核分类提供了对核的相应模型,门,背景纠正和对象过器."
+        },
+        {
+          "narration": "病原体细分组组合用于检测和过寄生虫物体的模型和清洁规则.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "病原体细分组组合用于检测和过寄生虫物体的模型和清洁规则."
+        },
+        {
+          "narration": "机器人分类选择机器人形态和探测器,图像清洁,方法特定控制,对象过器和母区总结.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "机器人分类选择机器人形态和探测器,图像清洁,方法特定控制,对象过器和母区总结."
+        },
+        {
+          "narration": "质量控制设置了对象数量,尺寸比率,边界,前景覆盖率,分开行为和可接受的领域故障的自动检查.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "质量控制设置了对象数量,尺寸比率,边界,前景覆盖率,分开行为和可接受的领域故障的自动检查."
+        },
+        {
+          "narration": "量度处理包含z堆,投影,异性化,语xel校准和三维接的beta控制.",
+          "visual": "12_category_09_volumetric_processing_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "量度处理包含z堆,投影,异性化,语xel校准和三维接的beta控制."
+        },
+        {
+          "narration": "时间轴和跟踪包含四维数据,框架间隔,跟踪后端和移动限制的beta控制.",
+          "visual": "12_category_10_time_axes_tracking_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "时间轴和跟踪包含四维数据,框架间隔,跟踪后端和移动限制的beta控制."
+        },
+        {
+          "narration": "视觉化和诊断控制预览图,颜色地图,图像大小,图片正常化和示例领域.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "视觉化和诊断控制预览图,颜色地图,图像大小,图片正常化和示例领域."
+        },
+        {
+          "narration": "输出和存储决定保留哪些图像,面具,中间阵列和压缩结果.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "输出和存储决定保留哪些图像,面具,中间阵列和压缩结果."
+        },
+        {
+          "narration": "运行时间和可靠性包含故障处理,可复制性,记录,工人数量,批量和管道执行选择.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "运行时间和可靠性包含故障处理,可复制性,记录,工人数量,批量和管道执行选择."
+        },
+        {
+          "narration": "启用现场预览,然后加载第二频道急诊图像. 这一字段仅包含用于分类示例的细胞信号.",
+          "visual": "25_cell_ready",
+          "focus_key": "canvases",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "启用现场预览,然后加载第二频道急诊图像. 这一字段仅包含用于分类示例的细胞信号."
+        },
+        {
+          "narration": "在直播设置中,选择细胞,启用正常化,并设置下个百分比为 2,上个百分比为 99.5.",
+          "visual": "26_live_normalization",
+          "focus_key": "normalization",
+          "hold_after": 0.45,
+          "speech_text": "在直播设置中,选择细胞,启用正常化,并设置下个百分比为 2,上个百分比为 99.5."
+        },
+        {
+          "narration": "运行预览,并放大到同步的源和结果面板. 覆盖轮应遵循应急诊所定义的细胞边界.",
+          "visual": "27_cell_outlines",
+          "focus_key": "action_and_canvases",
+          "click_key": "run_preview",
+          "hold_after": 0.45,
+          "speech_text": "运行预览,并放大到同步的源和结果面板. 覆盖轮应遵循应急诊所定义的细胞边界."
+        },
+        {
+          "narration": "切换结果窗口为流量,以检查用于形成物体的Cellpose流量场.",
+          "visual": "28_cell_flows",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "切换结果窗口为流量,以检查用于形成物体的Cellpose流量场."
+        },
+        {
+          "narration": "切换到面具,直接查看整数细胞对象. 每个颜色都是一个对象,黑色仍然是背景标签零.",
+          "visual": "29_cell_objects",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "切换到面具,直接查看整数细胞对象. 每个颜色都是一个对象,黑色仍然是背景标签零."
+        },
+        {
+          "narration": "返回直播设置,只设置细胞最小区域为 10000 像素. 缓存的原始面具即时过,而不需要重新运行Cellpose.",
+          "visual": "30_cell_size_filter",
+          "focus_key": "cell_filters",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "返回直播设置,只设置细胞最小区域为 10000 像素. 缓存的原始面具即时过,而不需要重新运行Cellpose."
+        },
+        {
+          "narration": "在尺寸过器之后,小细胞对象会失去轮,只剩下至少10000像素的对象. 与未过的覆盖相比.",
+          "visual": "31_cell_filtered",
+          "focus_key": "canvases",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,掩膜文件包含对齐的对象标签和合并的图像加掩膜阵列,准备进行测量."
+          "speech_text": "在尺寸过器之后,小细胞对象会失去轮,只剩下至少10000像素的对象. 与未过的覆盖相比."
         }
       ]
     },
@@ -418,47 +628,75 @@
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure",
+      "title": "测量",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "从分段图像中提取对象的强度,形态,纹理,定位和空间特征.",
+      "description": "预览真实对象作物,测量细分字段,并将可追踪的单个对象特性写入SQLite.",
       "objectives": [
-        "了解什么时候使用Measure.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "从一个合并的spaCR阵列的地图图和面具飞机.",
+        "在运行前预先查看细胞作物并验证过器行为.",
+        "通过五场测试验证测量和作物."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "首先完成面具,以便项目包含合并的图像和标签阵列.",
       "scenes": [
         {
-          "narration": "这本教程涵盖了测量. 从分段图像中提取对象的强度,形态,纹理,定位和空间特征.",
-          "visual": "overview",
+          "narration": "测量将真正的细分化HeLa字段转化为可追踪的单个物体强度,形态,纹理,定位化和空间特征. 在全盘运行之前,这个通行验证了五个场地.",
+          "visual": "01_module",
           "hold_after": 0.45,
-          "speech_text": "这本教程涵盖了测量. 从分段图像中提取对象的强度,形态,纹理,定位和空间特征."
+          "speech_text": "测量将真正的细分化HeLa字段转化为可追踪的单个物体强度,形态,纹理,定位化和空间特征. 在全盘运行之前,这个通行验证了五个场地."
         },
         {
-          "narration": "从 Core 部分打开 Measure。 选择包含由 Mask 制作的图像堆和掩膜的项目.",
-          "visual": "input",
+          "narration": "从核心打开测量,然后选择由 Mask 制作的合并文件. 转移设置测量图像频道从零到三,并从四,五和六层读取细胞,核和病原体标签.",
+          "visual": "01_module",
+          "focus_key": "nav",
+          "click_key": "nav",
           "hold_after": 0.45,
-          "speech_text": "从 Core 部分打开 Measure。 选择包含由 Mask 制作的图像堆和掩膜的项目."
+          "speech_text": "从核心打开测量,然后选择由 Mask 制作的合并文件. 转移设置测量图像频道从零到三,并从四,五和六层读取细胞,核和病原体标签."
         },
         {
-          "narration": "在主要配置区域中,使用第一个频道,Endoplasmic reticulum,作为关注频道,并选择测量的物体类型和特征家族.",
-          "visual": "settings",
+          "narration": "启用作物预览,然后加载一个合并的阵列. 图库按核和病原体含量组分四十个真实细胞,而选择器证实测试文件包含五个字段.",
+          "visual": "02_cell_crops",
+          "focus_key": "grid",
+          "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,使用第一个频道,Endoplasmic reticulum,作为关注频道,并选择测量的物体类型和特征家族."
+          "speech_text": "启用作物预览,然后加载一个合并的阵列. 图库按核和病原体含量组分四十个真实细胞,而选择器证实测试文件包含五个字段."
         },
         {
-          "narration": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用.",
-          "visual": "run",
+          "narration": "一般来说,检查测量频道从零到三,细胞面具平面四,核平面五,病原体平面六,以及衍生细胞质. 在验证运行期间保持试验模式.",
+          "visual": "03_general",
+          "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "在完整运行之前,请检查可见的设置,并在可用的前景或测试模式使用."
+          "speech_text": "一般来说,检查测量频道从零到三,细胞面具平面四,核平面五,病原体平面六,以及衍生细胞质. 在验证运行期间保持试验模式."
         },
         {
-          "narration": "测量点db在工作流程完成时存储可追踪的单个对象行和可选的图像作物,用于注释或分类.",
-          "visual": "output",
+          "narration": "提供的运行以0频道,1频道和2频道,以224×224像素写出细胞PNG作物. 在保存的设置中,作物正常化仍然不正常;本教程使用暂时的一到九十九个百分点显示延伸,仅为了使现场画廊可读.",
+          "visual": "04_object_crops",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "提供的运行以0频道,1频道和2频道,以224×224像素写出细胞PNG作物. 在保存的设置中,作物正常化仍然不正常;本教程使用暂时的一到九十九个百分点显示延伸,仅为了使现场画廊可读."
+        },
+        {
+          "narration": "过器需要至少三千五百像素的细胞,至少一千个核,至少两百五十个病原体. 保持未感染的细胞,并将其病原体穿越图像边缘的细胞合并.",
+          "visual": "05_filters",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "过器需要至少三千五百像素的细胞,至少一千个核,至少两百五十个病原体. 保持未感染的细胞,并将其病原体穿越图像边缘的细胞合并."
+        },
+        {
+          "narration": "在预览中选择第一个频道,检查结膜网膜信号,这是下游分析的兴趣频道. 这种视图只改变了图库; 测量仍然从所有四个配置道中提取功能.",
+          "visual": "06_er_channel",
+          "focus_key": "grid",
+          "click_key": "channel",
+          "hold_after": 0.45,
+          "speech_text": "在预览中选择第一个频道,检查结膜网膜信号,这是下游分析的兴趣频道. 这种视图只改变了图库; 测量仍然从所有四个配置道中提取功能."
+        },
+        {
+          "narration": "完成的测试账本报告了五个领域中五个领域成功,没有故障. 测量点db含有四百五十五个细胞和细胞质,六百五个核,和一千三十一种病原体,加上四百五十五种细胞作物准备注释和分类.",
+          "visual": "07_outputs",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "测量点db在工作流程完成时存储可追踪的单个对象行和可选的图像作物,用于注释或分类."
+          "speech_text": "完成的测试账本报告了五个领域中五个领域成功,没有故障. 测量点db含有四百五十五个细胞和细胞质,六百五个核,和一千三十一种病原体,加上四百五十五种细胞作物准备注释和分类."
         }
       ]
     },

@@ -370,47 +370,257 @@
       "id": "07_mask",
       "number": 7,
       "slug": "mask",
-      "title": "Mask",
+      "title": "Masque",
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Segmenter l'expérience fournie par microscopie à quatre canaux en noyaux, cellules, gouttes de lipides et masques parasites.",
+      "description": "Configurer Mask, inspecter chaque catégorie de paramètres, et valider la segmentation cellulaire sur l'expérience de microscopie fournie.",
       "objectives": [
-        "Mettez correctement en cartographie les quatre canaux d'acquisition.",
-        "Configurer la segmentation cellulaire, nucléaire, organelle et parasite.",
-        "Faites fonctionner le masque et inspectez ses sorties."
+        "Utilisez la console, les commandes de chat, les recettes et le flux de travail de soumission à distance.",
+        "Importer le dossier d'images CQ1 et vérifier son regex de métadonnées détectées automatiquement.",
+        "Inspectez les contours des cellules, les flux de Cellpose, les objets et un filtre de zone minimale en direct."
       ],
-      "prerequisite": "Utilisez le ensemble de données fournis sur quatre canaux.",
+      "prerequisite": "Utilisez l'expérience tutorielle spaCR et ses paramètres de masque fournis.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Mask. Segmentez l'expérience fournie de microscopie à quatre canaux en noyaux, cellules, gouttes de lipides et masques parasites.",
-          "visual": "overview",
+          "narration": "Le masque s'ouvre avec le panneau de réglage à gauche et la console d'exécution à droite. La console rapporte des analyses de dossiers, la validation, les progrès, les avertissements et la sortie du pipeline.",
+          "visual": "01_console",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Mask. Segmentez l'expérience fournie de microscopie à quatre canaux en noyaux, cellules, gouttes de lipides et masques parasites."
+          "speech_text": "Le masque s'ouvre avec le panneau de réglage à gauche et la console d'exécution à droite. La console rapporte des analyses de dossiers, la validation, les progrès, les avertissements et la sortie du pipeline."
         },
         {
-          "narration": "Ouvrez Mask dans la section Core. Le canal zéro est le noyau, le canal un est le réticulum endoplasmique, le canal deux est les gouttes de lipides et le canal trois est les parasites.",
-          "visual": "input",
+          "narration": "Le champ situé en dessous de la console accepte des questions ou des commandes locales. L'interrupteur d'IA envoie un message à travers un fournisseur sélectionné avec un support d'abonnement, et la flèche adjacente ouvre le menu du fournisseur.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Mask dans la section Core. Le canal zéro est le noyau, le canal un est le réticulum endoplasmique, le canal deux est les gouttes de lipides et le canal trois est les parasites."
+          "speech_text": "Le champ situé en dessous de la console accepte des questions ou des commandes locales. L'interrupteur d'IA envoie un message à travers un fournisseur sélectionné avec un support d'abonnement, et la flèche adjacente ouvre le menu du fournisseur."
         },
         {
-          "narration": "Dans la zone de configuration principale, détecter les noyaux du canal zéro, les cellules du canal endoplasmique-réticulum, les gouttes lipidiques avec les taches d'organeux flux de travail, et les parasites du canal trois.",
-          "visual": "settings",
+          "narration": "L'onglet Fournisseurs montre si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés, ainsi que leurs commandes d'installation et de connexion. Les accréditations restent auprès du vendeur.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, détecter les noyaux du canal zéro, les cellules du canal endoplasmique-réticulum, les gouttes lipidiques avec les taches d'organeux flux de travail, et les parasites du canal trois."
+          "speech_text": "L'onglet Fournisseurs montre si les clients de ligne de commande Claude, ChatGPT et Gemini sont installés, ainsi que leurs commandes d'installation et de connexion. Les accréditations restent auprès du vendeur."
         },
         {
-          "narration": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Vérifiez un champ représentatif, puis exécutez les quatre passes de segmentation sur l'ensemble de données.",
-          "visual": "run",
+          "narration": "L'onglet Paramètres contrôle la profondeur de réponse, les explications d'erreur assistées par l'IA, le signalement optionnel des problèmes GitHub, la connexion et la demande du système spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Avant la mise en marche complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible. Vérifiez un champ représentatif, puis exécutez les quatre passes de segmentation sur l'ensemble de données."
+          "speech_text": "L'onglet Paramètres contrôle la profondeur de réponse, les explications d'erreur assistées par l'IA, le signalement optionnel des problèmes GitHub, la connexion et la demande du système spakeur."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, le dossier des masques contient des étiquettes d'objets alignées et des matrices d'image-plus-masque fusionnées prêtes à la mesure.",
-          "visual": "output",
+          "narration": "Tirez le dossier d'origine dans Mask. spaCR détecte le modèle de nom de fichier CQ1, prévisualise bien, champ, temps, profondeur et métadonnées de canal, note que la plaque ID sera par défaut plaque1, puis sauvegarde le regex.",
+          "visual": "05_metadata",
+          "focus_key": "metadata_dialog",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Tirez le dossier d'origine dans Mask. spakeur détecte le modèle de nom de fichier C Q 1, prévisualise bien, champ, temps, profondeur et métadonnées de canal, note que la plaque ID sera par défaut plaque1, puis sauvegarde le regex."
+        },
+        {
+          "narration": "Les éléments essentiels indiquent le petit ensemble de paramètres requis pour exécuter Mask. Le décompte ci-dessous indique combien des paramètres complets sont actuellement visibles.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Les éléments essentiels indiquent le petit ensemble de paramètres requis pour exécuter Mask. Le décompte ci-dessous indique combien des paramètres complets sont actuellement visibles."
+        },
+        {
+          "narration": "Modifié limite le formulaire à des valeurs qui diffèrent des paramètres par défaut de Mask, ce qui facilite l'examen des paramètres importés ou modifiés.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modifié limite le formulaire à des valeurs qui diffèrent des paramètres par défaut de Mask, ce qui facilite l'examen des paramètres importés ou modifiés."
+        },
+        {
+          "narration": "Passez entre les paramètres essentiels et tous sans perdre de valeurs. Tous les paramètres exposent chaque catégorie, y compris les contrôles avancés et bêta.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Passez entre les paramètres essentiels et tous sans perdre de valeurs. Tous les paramètres exposent chaque catégorie, y compris les contrôles avancés et bêta."
+        },
+        {
+          "narration": "Les recettes enregistrent les paramètres actuels sous un nom, réappliquent une configuration enregistrée ou importent et exportent un fichier de paramètres réutilisable.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Les recettes enregistrent les paramètres actuels sous un nom, réappliquent une configuration enregistrée ou importent et exportent un fichier de paramètres réutilisable."
+        },
+        {
+          "narration": "Envoyez des instantanés à distance des paramètres de masque résolus et envoyez-les à l'espace de travail des emplois distribués.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envoyez des instantanés à distance des paramètres de masque résolus et envoyez-les à l'espace de travail des emplois distribués."
+        },
+        {
+          "narration": "Distributed Jobs carte les chemins locaux vers une station de travail à distance, Slurm cluster, ou commandes configurées, puis soumet et surveille la même Mask exécuté.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs carte les chemins locaux vers une station de travail à distance, Slurm cluster, ou commandes configurées, puis soumet et surveille la même Mask exécuté."
+        },
+        {
+          "narration": "L'entrée et les métadonnées définissent le dossier source, les affectations de canaux, l'agrandissement, le type de métadonnées et tout nom de fichier personnalisé regex.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "L'entrée et les métadonnées définissent le dossier source, les affectations de canaux, l'agrandissement, le type de métadonnées et tout nom de fichier personnalisé regex."
+        },
+        {
+          "narration": "Le flux de travail et l'exécution des essais contrôlent le prétraitement, la génération de masques, les essais à sec, le comportement de reprise et les petits échantillons en mode test.",
+          "visual": "12_category_02_workflow_test_run",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le flux de travail et l'exécution des essais contrôlent le prétraitement, la génération de masques, les essais à sec, le comportement de reprise et les petits échantillons en mode test."
+        },
+        {
+          "narration": "Les groupes de pré-traitement d'images normalisent, projetent, augmentent l'échelle, consolident et dénoncent les choix appliqués avant la segmentation.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Les groupes de pré-traitement d'images normalisent, projetent, augmentent l'échelle, consolident et dénoncent les choix appliqués avant la segmentation."
+        },
+        {
+          "narration": "La segmentation cellulaire contient le modèle cellulaire, le diamètre, les seuils, la manipulation des arrière-plans et les filtres des objets cellulaires.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La segmentation cellulaire contient le modèle cellulaire, le diamètre, les seuils, la manipulation des arrière-plans et les filtres des objets cellulaires."
+        },
+        {
+          "narration": "La segmentation nucléaire fournit le modèle correspondant, les seuils, la correction de fond et les filtres d'objets pour les noyaux.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La segmentation nucléaire fournit le modèle correspondant, les seuils, la correction de fond et les filtres d'objets pour les noyaux."
+        },
+        {
+          "narration": "La segmentation des agents pathogènes regroupe le modèle et les règles de nettoyage utilisées pour détecter et filtrer les objets parasites.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La segmentation des agents pathogènes regroupe le modèle et les règles de nettoyage utilisées pour détecter et filtrer les objets parasites."
+        },
+        {
+          "narration": "Organelle Segmentation sélectionne la morphologie et le détecteur de l'organelle, le nettoyage de l'image, les contrôles spécifiques à la méthode, les filtres d'objets et le résumé du compartiment parent.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Organelle Segmentation sélectionne la morphologie et le détecteur de l'organelle, le nettoyage de l'image, les contrôles spécifiques à la méthode, les filtres d'objets et le résumé du compartiment parent."
+        },
+        {
+          "narration": "Le contrôle de la qualité établit des contrôles automatiques pour le nombre d'objets, les ratios de taille, les frontières, la couverture au premier plan, le comportement partagé et les défaillances de champs acceptables.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le contrôle de la qualité établit des contrôles automatiques pour le nombre d'objets, les ratios de taille, les frontières, la couverture au premier plan, le comportement partagé et les défaillances de champs acceptables."
+        },
+        {
+          "narration": "Le traitement volumétrique contient des contrôles bêta pour les piles z, la projection, l'anisotropie, l'étalonnage voxel et la couture tridimensionnelle.",
+          "visual": "12_category_09_volumetric_processing_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le traitement volumétrique contient des contrôles bêta pour les piles z, la projection, l'anisotropie, l'étalonnage voxel et la couture tridimensionnelle."
+        },
+        {
+          "narration": "Time Axes and Tracking contient des contrôles bêta pour les données quatre dimensions, les intervalles de cadres, les arrière-plans de suivi et les limites de déplacement.",
+          "visual": "12_category_10_time_axes_tracking_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Time Axes and Tracking contient des contrôles bêta pour les données quatre dimensions, les intervalles de cadres, les arrière-plans de suivi et les limites de déplacement."
+        },
+        {
+          "narration": "La visualisation et le diagnostic contrôlent les plans d'aperçu, les cartes de couleur, la taille des figures, la normalisation des plans et les champs d'exemple.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La visualisation et le diagnostic contrôlent les plans d'aperçu, les cartes de couleur, la taille des figures, la normalisation des plans et les champs d'exemple."
+        },
+        {
+          "narration": "La sortie et le stockage décident quelles images, masques, matrices intermédiaires et résultats compressés sont conservés.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "La sortie et le stockage décident quelles images, masques, matrices intermédiaires et résultats compressés sont conservés."
+        },
+        {
+          "narration": "Le temps d'exécution et la fiabilité contiennent la manipulation des défaillances, la reproductibilité, l'enregistrement, le nombre de travailleurs, les lots et les options d'exécution du pipeline.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Le temps d'exécution et la fiabilité contiennent la manipulation des défaillances, la reproductibilité, l'enregistrement, le nombre de travailleurs, les lots et les options d'exécution du pipeline."
+        },
+        {
+          "narration": "Activez l'aperçu en direct et téléchargez l'image d'urgence du canal 2. Ce champ ne contient que le signal cellulaire utilisé pour l'exemple de segmentation.",
+          "visual": "25_cell_ready",
+          "focus_key": "canvases",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Activez l'aperçu en direct et téléchargez l'image d'urgence du canal 2. Ce champ ne contient que le signal cellulaire utilisé pour l'exemple de segmentation."
+        },
+        {
+          "narration": "Dans les paramètres en direct, sélectionnez la cellule, activez la normalisation et définissez le pourcentage inférieur à 2 et le pourcentage supérieur à 99,5.",
+          "visual": "26_live_normalization",
+          "focus_key": "normalization",
+          "hold_after": 0.45,
+          "speech_text": "Dans les paramètres en direct, sélectionnez la cellule, activez la normalisation et définissez le pourcentage inférieur à 2 et le pourcentage supérieur à 99,5."
+        },
+        {
+          "narration": "Exécutez l'aperçu et zoom dans les panneaux de source et de résultats synchronisés. Les contours de superposition doivent suivre les limites des cellules définies par ER.",
+          "visual": "27_cell_outlines",
+          "focus_key": "action_and_canvases",
+          "click_key": "run_preview",
+          "hold_after": 0.45,
+          "speech_text": "Exécutez l'aperçu et zoom dans les panneaux de source et de résultats synchronisés. Les contours de superposition doivent suivre les limites des cellules définies par ER."
+        },
+        {
+          "narration": "Changez le panneau de résultats en flux pour inspecter le champ de flux Cellpose utilisé pour former des objets.",
+          "visual": "28_cell_flows",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Changez le panneau de résultats en flux pour inspecter le champ de flux Cellpose utilisé pour former des objets."
+        },
+        {
+          "narration": "Passez à Masques pour voir directement les objets de cellule entière. Chaque couleur est un objet et le noir reste l'étiquette de fond zéro.",
+          "visual": "29_cell_objects",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Passez à Masques pour voir directement les objets de cellule entière. Chaque couleur est un objet et le noir reste l'étiquette de fond zéro."
+        },
+        {
+          "narration": "Retournez aux paramètres en direct et réglez uniquement la zone minimale de la cellule à 10000 pixels. Les masques bruts cachés sont filtrés immédiatement sans réinitialisation de Cellpose.",
+          "visual": "30_cell_size_filter",
+          "focus_key": "cell_filters",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "Retournez aux paramètres en direct et réglez uniquement la zone minimale de la cellule à 10000 pixels. Les masques bruts cachés sont filtrés immédiatement sans réinitialisation de Cellpose."
+        },
+        {
+          "narration": "Après le filtre de taille, les petits objets de cellules perdent leurs contours et seuls les objets d'au moins 10000 pixels restent. Comparez cela à la couche non filtrée.",
+          "visual": "31_cell_filtered",
+          "focus_key": "canvases",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, le dossier des masques contient des étiquettes d'objets alignées et des matrices d'image-plus-masque fusionnées prêtes à la mesure."
+          "speech_text": "Après le filtre de taille, les petits objets de cellules perdent leurs contours et seuls les objets d'au moins 10000 pixels restent. Comparez cela à la couche non filtrée."
         }
       ]
     },
@@ -418,47 +628,75 @@
       "id": "08_measure",
       "number": 8,
       "slug": "measure",
-      "title": "Measure",
+      "title": "Mesure",
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Extraire l'intensité par objet, la morphologie, la texture, la colocalization et les caractéristiques spatiales à partir d'images segmentées.",
+      "description": "Prévisualisez les réelles récoltes d'objets, mesurez les champs segmentés et écrivez des caractéristiques traçables d'un seul objet à SQLite.",
       "objectives": [
-        "Comprendre quand utiliser Measure.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Image de carte et masque d'avions d'un ensemble spaCR fusionné.",
+        "Prévisualiser les cultures de cellules et vérifier le comportement du filtre avant une course.",
+        "Valider les mesures et les récoltes à l'aide d'un essai sur cinq champs."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Completez le masque d'abord afin que le projet contient des matrices d'image et d'étiquette fusionnées.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre Mesure. Extraire l'intensité par objet, la morphologie, la texture, la colocalization et les caractéristiques spatiales à partir d'images segmentées.",
-          "visual": "overview",
+          "narration": "La mesure convertit les champs HeLa segmentés réels en intensité, morphologie, texture, colocalisation et caractéristiques spatiales traçables. Ce défilé valide cinq champs avant une course complète.",
+          "visual": "01_module",
           "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre Mesure. Extraire l'intensité par objet, la morphologie, la texture, la colocalization et les caractéristiques spatiales à partir d'images segmentées."
+          "speech_text": "La mesure convertit les champs HeLa segmentés réels en intensité, morphologie, texture, colocalisation et caractéristiques spatiales traçables. Ce défilé valide cinq champs avant une course complète."
         },
         {
-          "narration": "Ouvrez Measure dans la section Core. Sélectionnez le projet contenant des piles d'images et des masques produits par Mask.",
-          "visual": "input",
+          "narration": "Ouvrez Mesure à partir de Core et sélectionnez le dossier fusionné produit par Mask. Les paramètres transférés mesurent les canaux d'image de zéro à trois et lisent les étiquettes de cellules, de noyaux et d'agents pathogènes des plans quatre, cinq et six.",
+          "visual": "01_module",
+          "focus_key": "nav",
+          "click_key": "nav",
           "hold_after": 0.45,
-          "speech_text": "Ouvrez Measure dans la section Core. Sélectionnez le projet contenant des piles d'images et des masques produits par Mask."
+          "speech_text": "Ouvrez Mesure à partir de Core et sélectionnez le dossier fusionné produit par Mask. Les paramètres transférés mesurent les canaux d'image de zéro à trois et lisent les étiquettes de cellules, de noyaux et d'agents pathogènes des plans quatre, cinq et six."
         },
         {
-          "narration": "Dans la zone de configuration principale, utilisez le canal un, le réticulum endoplasmique, comme canal d'intérêt et choisissez les types d'objets et les familles de caractéristiques à mesurer.",
-          "visual": "settings",
+          "narration": "Activez l'aperçu des récoltes et chargez un tableau fusionné. Les galeries regroupent quarante cellules réelles par noyau et contenu des agents pathogènes, tandis que le sélecteur confirme que le dossier d'essai contient cinq champs.",
+          "visual": "02_cell_crops",
+          "focus_key": "grid",
+          "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, utilisez le canal un, le réticulum endoplasmique, comme canal d'intérêt et choisissez les types d'objets et les familles de caractéristiques à mesurer."
+          "speech_text": "Activez l'aperçu des récoltes et chargez un tableau fusionné. Les galeries regroupent quarante cellules réelles par noyau et contenu des agents pathogènes, tandis que le sélecteur confirme que le dossier d'essai contient cinq champs."
         },
         {
-          "narration": "Avant la pleine exécution, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible.",
-          "visual": "run",
+          "narration": "En général, vérifiez les canaux mesurés de zéro à trois, le plan de masque cellulaire quatre, le plan du noyau cinq, le plan pathogène six et le cytoplasme dérivé. Gardez le mode d'essai activé pendant la validation.",
+          "visual": "03_general",
+          "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "Avant la pleine exécution, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou de test lorsqu'il est disponible."
+          "speech_text": "En général, vérifiez les canaux mesurés de zéro à trois, le plan de masque cellulaire quatre, le plan du noyau cinq, le plan pathogène six et le cytoplasme dérivé. Gardez le mode d'essai activé pendant la validation."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les mesures dot db stockent des lignes traçables à un seul objet et des cultures d'image facultatives pour annotation ou classification.",
-          "visual": "output",
+          "narration": "L'exécution fournie écrit les cultures PNG cellulaires à deux cent vingt-quatre par deux cent vingt-quatre pixels en utilisant les canaux zéro, un et deux. La normalisation des récoltes reste désactivée dans les paramètres enregistrés; ce tutoriel utilise un intervalle d'affichage temporaire d'un à quatre-vingt-dix-neuf centiles uniquement pour rendre la galerie en direct lisible.",
+          "visual": "04_object_crops",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "L'exécution fournie écrit les cultures PNG cellulaires à deux cent vingt-quatre par deux cent vingt-quatre pixels en utilisant les canaux zéro, un et deux. La normalisation des récoltes reste désactivée dans les paramètres enregistrés; ce tutoriel utilise un intervalle d'affichage temporaire d'un à quatre-vingt-dix-neuf centiles uniquement pour rendre la galerie en direct lisible."
+        },
+        {
+          "narration": "Les filtres nécessitent des cellules d'au moins trois mille cinq cents pixels, des noyaux d'au moins mille et des agents pathogènes d'au moins deux cent cinquante. Gardez à l'écart les cellules non infectées et fusionnez les cellules dont les agents pathogènes traversent un bord de l'image.",
+          "visual": "05_filters",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "Les filtres nécessitent des cellules d'au moins trois mille cinq cents pixels, des noyaux d'au moins mille et des agents pathogènes d'au moins deux cent cinquante. Gardez à l'écart les cellules non infectées et fusionnez les cellules dont les agents pathogènes traversent un bord de l'image."
+        },
+        {
+          "narration": "Sélectionnez le canal 1 dans l'aperçu pour inspecter le signal endoplasmico-réticulaire, qui est le canal d'intérêt pour les analyses en aval. Cette vue ne modifie que la galerie; Measure extrait toujours les fonctionnalités des quatre canaux configurés.",
+          "visual": "06_er_channel",
+          "focus_key": "grid",
+          "click_key": "channel",
+          "hold_after": 0.45,
+          "speech_text": "Sélectionnez le canal 1 dans l'aperçu pour inspecter le signal endoplasmico-réticulaire, qui est le canal d'intérêt pour les analyses en aval. Cette vue ne modifie que la galerie; Measure extrait toujours les fonctionnalités des quatre canaux configurés."
+        },
+        {
+          "narration": "Le registre des tests complété rapporte cinq des cinq champs réussis sans échec. Les mesures dot db contient quatre cent cinquante-cinq cellules et cytoplasmes, six cent cinq noyaux et mille trente-un agents pathogènes, plus quatre cent cinquante-cinq cultures cellulaires prêtes à l'annotation et à la classification.",
+          "visual": "07_outputs",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les mesures dot db stockent des lignes traçables à un seul objet et des cultures d'image facultatives pour annotation ou classification."
+          "speech_text": "Le registre des tests complété rapporte cinq des cinq champs réussis sans échec. Les mesures dot db contient quatre cent cinquante-cinq cellules et cytoplasmes, six cent cinq noyaux et mille trente-un agents pathogènes, plus quatre cent cinquante-cinq cultures cellulaires prêtes à l'annotation et à la classification."
         }
       ]
     },

@@ -154,19 +154,97 @@
       "id": "07_mask",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Mask. Segmentieren Sie das zur Verfügung gestellte Vier-Kanal-Mikroskopie-Experiment in Kerne, Zellen, Lipidtropfen und Parasitenmasken."
+          "narration": "Die Maske öffnet sich mit dem Einstellungspaneel links und der Laufzeitkonsole rechts. Die Konsole berichtet über Ordner-Scans, Validierung, Fortschritt, Warnungen und Pipeline-Ausgabe."
         },
         {
-          "narration": "Öffnen Sie die Maske vom Kernbereich. Verwenden Sie den angebotenen Datensatz mit 13 Feldern. Kanal Null ist Kern, Kanal eins ist endoplasmisches Netzhaut, Kanal zwei ist Lipidtropfen und Kanal drei ist Parasiten."
+          "narration": "Das Feld unterhalb der Konsole akzeptiert lokale Fragen oder Befehle. Der KI-Schalter führt eine Nachricht über einen ausgewählten abonnementgestützten Anbieter, und der angrenzende Pfeil öffnet das Anbietermenü."
         },
         {
-          "narration": "Im Hauptkonfigurationsgebiet werden Kerne aus dem Kanal Null, Zellen aus dem Endoplasma-Retikulum-Kanal, Lipidtropfen mit Organelle-Workflow und Parasiten aus dem Kanal drei erkannt."
+          "narration": "Die Registerkarte Anbieter zeigt an, ob die Claude-, ChatGPT- und Gemini-Befehlszeilklienten installiert sind, sowie ihre Installations- und Login-Befehlszeilen. Die Anmeldeinformationen bleiben beim Verkäufer."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Überprüfen Sie ein repräsentatives Feld und führen Sie dann die vier Segmentierungspassagen über den Datensatz aus."
+          "narration": "Die Registerkarte Einstellungen steuert die Reaktionstiefe, KI-gestützte Fehlererklärungen, optionale GitHub-Erzeugungsberichterstattung, Anmeldung und den spaCR-bewussten Systemanruf."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, enthält der Maskenordner ausgerichtete Objektetiketten und zusammengefasste Bild-plus-Masken-Arrays, die zur Messung bereit sind."
+          "narration": "Ziehen Sie den Orig-Ordner in Mask. spaCR erkennt das CQ1-Dateiennamenmuster, präsentiert sich gut, Feld, Zeit, Tiefe und Kanalmetadaten, stellt fest, dass die Platten-ID standardmäßig auf Platte1 eingestellt wird, speichert dann die Regex."
+        },
+        {
+          "narration": "Das Essentials zeigt die kleinen Einstellungen an, die erforderlich sind, um Mask auszuführen. Die Anzahl unterhalb der Kontrollen berichtet, wie viele der vollständigen Einstellungen derzeit sichtbar sind."
+        },
+        {
+          "narration": "Modifizierte Begrenzungen beschränken das Formular auf Werte, die sich von Mask-Vorgaben unterscheiden, wodurch importierte oder bearbeitete Einstellungen leicht zu überprüfen sind."
+        },
+        {
+          "narration": "Wechseln Sie zwischen Essentials und All-Einstellungen, ohne Werte zu verlieren. Alle Einstellungen stellen jede Kategorie dar, einschließlich der fortgeschrittenen und der Beta-Steuerung."
+        },
+        {
+          "narration": "Rezepte speichern die aktuellen Einstellungen unter einem Namen, wenden eine gespeicherte Konfiguration neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Mask-Einstellungen und senden Sie sie in den Arbeitsbereich Distributed Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert die lokalen Pfade zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Mask-Run."
+        },
+        {
+          "narration": "Eingabe und Metadaten definieren den Quellordner, Kanalzuweisungen, Vergrößerung, Metadatentyp und alle benutzerdefinierten Dateinamen Regex."
+        },
+        {
+          "narration": "Workflow und Test Run steuern die Vorverarbeitung, Maskengenerierung, Trockenläufe, Wiederholungsverhalten und kleine Testmodusproben."
+        },
+        {
+          "narration": "Bildvorverarbeitung Gruppen Normalisierung, Projektion, Upscaling, Konsolidierung und Verweigerung der vor der Segmentierung angewandten Entscheidungen."
+        },
+        {
+          "narration": "Die Zellsegmentierung enthält das Zellmodell, den Durchmesser, die Schwellenwerte, die Hintergrundbehandlung und die Zellobjektfilter."
+        },
+        {
+          "narration": "Kernsegmentierung bietet das entsprechende Modell, Schwellenwerte, Hintergrundkorrektur und Objektfilter für Kerne."
+        },
+        {
+          "narration": "Pathogen Segmentation gruppiert das Modell und die Reinigungsregeln, die verwendet werden, um Parasitenobjekte zu erkennen und zu filtern."
+        },
+        {
+          "narration": "Organelle Segmentation wählt die Organellenmorphologie und Detektor, Bildreinigung, methodenspezifische Kontrollen, Objektfilter und parent-compartment Zusammenfassung aus."
+        },
+        {
+          "narration": "Qualitätskontrolle setzt automatische Kontrollen für Objektzahlen, Größenverhältnisse, Grenzen, Vordergrundbedeckung, Split-Verhalten und akzeptable Feldfehler ein."
+        },
+        {
+          "narration": "Volumetric Processing enthält Beta-Steuerungen für Z-Stacks, Projektion, Anisotropie, Voxelkalibrierung und dreidimensionale Nähte."
+        },
+        {
+          "narration": "Time Axes and Tracking enthält Beta-Steuerungen für vierdimensionelle Daten, Rahmenintervalle, Tracking-Backends und Verschiebungsgrenzen."
+        },
+        {
+          "narration": "Visualisierung und Diagnostik steuert Vorschauplätze, Farbkarten, Bildgröße, Plannormalisierung und Beispielfelder."
+        },
+        {
+          "narration": "Ausgabe und Speicherung entscheidet, welche Bilder, Masken, Zwischenarrays und komprimierten Ergebnisse aufbewahrt werden."
+        },
+        {
+          "narration": "Laufzeit und Zuverlässigkeit beinhalten Fehlerbewältigung, Reproduzierbarkeit, Logging, Arbeiterzahl, Chargen und Pipeline-Exekutionsmöglichkeiten."
+        },
+        {
+          "narration": "Aktivieren Sie die Live-Vorsicht und laden Sie das Kanal-Zwei-ER-Bild. Dieses Feld enthält nur das für das Segmentierungsbeispiel verwendete Zellsignal."
+        },
+        {
+          "narration": "Wählen Sie in Live-Einstellungen die Zelle aus, aktivieren Sie die Normalisierung und setzen Sie den unteren Perzentil auf 2 und den oberen Perzentil auf 99,5."
+        },
+        {
+          "narration": "Führen Sie die Vorschau aus und vergrößern Sie in die synchronisierten Quellen- und Ergebnisfelder. Die Überlagerungsschnitte sollten den im ER definierten Zellgrenzen folgen."
+        },
+        {
+          "narration": "Schalten Sie das Ergebnisfenster auf Flüsse um das Cellpose Flussfeld zu überprüfen, das zur Bildung von Objekten verwendet wird."
+        },
+        {
+          "narration": "Wechseln Sie zu Masken, um die ganzen Zellobjekte direkt anzusehen. Jede Farbe ist ein Objekt und schwarz bleibt Hintergrundlabel Null."
+        },
+        {
+          "narration": "Kehren Sie zu Live-Einstellungen zurück und setzen Sie nur die Mindestfläche der Zelle auf 10000 Pixel. Die gespeicherten Rohmasken werden sofort gefiltert, ohne Cellpose erneut auszuführen."
+        },
+        {
+          "narration": "Nach dem Größenfilter verlieren kleine Zellobjekte ihre Umrisse und bleiben nur Objekte mit mindestens 10000 Pixel. Vergleichen Sie das mit der unfilterten Überlagerung."
         }
       ]
     },
@@ -174,19 +252,28 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Dieses Tutorial behandelt Measure. Extrahieren Sie die Intensität, die Morphologie, die Textur, die Colocalization und die räumlichen Merkmale pro Objekt aus segmentierten Bildern."
+          "narration": "Die Messung konvertiert die realen segmentierten HeLa-Felder in nachvollziehbare Einobjektintensität, Morphologie, Textur, Colocalization und räumliche Merkmale. Dieser Durchgang validiert fünf Felder vor einem Vollplattenlauf."
         },
         {
-          "narration": "Öffnen Sie die Maßnahme vom Kernbereich. Wählen Sie das Projekt aus, das Bildstapels und Masken enthält, die von Mask produziert wurden."
+          "narration": "Öffnen Sie Maße von Kern und wählen Sie den von Mask erstellten zusammengestellten Ordner aus. Die übertragenen Einstellungen messen die Bildkanäle von Null bis drei und lesen Zell-, Kern- und Krankheitserreger-Labels von Ebene vier, fünf und sechs."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich verwenden Sie Kanal eins, das endoplasmische Retikulum, als Kanal des Interesses und wählen Sie die zu messen Objekttypen und Merkmalfamilien aus."
+          "narration": "Aktivieren Sie die Ernte-Vorsicht und laden Sie eine zusammengeschmolzenen Array. Die Galerie gruppiert vierzig echte Zellen nach Kern und Krankheitserregergehalt, während der Selektor bestätigt, dass der Testordner fünf Felder enthält."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. wenn nötig, die Pflanzen vorab sehen und dann jedes ausgewählte Feld und den Objekttyp verarbeiten."
+          "narration": "Im Allgemeinen überprüfen Sie die gemessenen Kanäle von Null bis drei, die Zellmaske Ebene vier, die Kernebene fünf, die Krankheitserreger Ebene sechs und das abgeleitete Zytoplasma. Halten Sie den Testmodus für den Validierungslauf aktiviert."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, speichert Messpunkte db nachvollziehbare Einzel-Objektreihen und optionale Bildpflanzen zur Anmerkung oder Klassifizierung."
+          "narration": "Der angebotene Lauf schreibt Zell-PNG-Kulturen bei zweihundertvierundzwanzig bis zweihundertvierundzwanzig Pixel mit Kanälen Null, eins und zwei. Die Normalisierung der Ernte bleibt in den gespeicherten Einstellungen aus; in diesem Tutorial wird nur eine temporäre Ein- bis neunundneunzig-Prozentile-Anzeige verwendet, um die Live-Galerie lesbar zu machen."
+        },
+        {
+          "narration": "Die Filter benötigen Zellen von mindestens dreitausendfünfhundert Pixeln, Kernen von mindestens tausend und Krankheitserregern von mindestens zweihundertfünfzig. Halten Sie uninfizierte Zellen weg und verschmelzen Sie Zellen, deren Krankheitserreger einen Bildrand überqueren."
+        },
+        {
+          "narration": "Wählen Sie Kanal 1 in der Vorschau aus, um das Endoplasma-Reticulum-Signal zu untersuchen, das für nachgelagerte Analysen von Interesse ist. Diese Ansicht ändert nur die Galerie; Messung extrahiert immer noch Features aus allen vier konfigurierten Kanälen."
+        },
+        {
+          "narration": "Das ausgefüllte Prüfbuch berichtet von fünf von fünf erfolgreichen Feldern ohne Ausfälle. Messungen dot db enthält vierhundertfünfzig Zellen und Zytoplasmen, sechshundertfünf Nukleen und tausendunddreißig Krankheitserreger, plus vierhundertfünfzigfünfzig Zellpflanzen, die für Annotation und Klassifizierung bereit sind."
         }
       ]
     },
