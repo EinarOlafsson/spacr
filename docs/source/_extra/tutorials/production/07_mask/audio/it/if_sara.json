@@ -4,47 +4,317 @@
   "voice": "if_sara",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 62.975,
+  "total_duration": 337.225,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.225,
-      "scene_end": 9.674999999999999,
-      "duration": 9.674999999999999,
-      "text": "Questo tutorial copre Mask. Segmenta l'esperimento di microscopia a quattro canali fornito in nuclei, cellule, goccioline di lipidi e maschere di parassiti."
+      "speech_end": 11.725,
+      "scene_end": 12.174999999999999,
+      "duration": 12.174999999999999,
+      "text": "La maschera si apre con il pannello di impostazione a sinistra e la console runtime a destra. La console segnala scansioni di cartelle, convalidazione, progresso, avvertimenti e uscita di pipeline.",
+      "speech_text": "La maschera si apre con il pannello di impostazione a sinistra e la console runtime a destra. La console segnala scansioni di cartelle, convalidazione, progresso, avvertimenti e uscita di pipeline.",
+      "phonemes": "la mˈaːskˌɛra sɪ ˈapre kon il pannˈɛllo dɪ impostaʦiˈone a sinˈistra e la kˈɔnsole rˈuntime a dˈɛstra. la kˈɔnsole seɲˈala skansjˈonɪ dɪ kartˈɛlle, konvalidaʦiˈone, proɡrˈɛSo, avvertimˈentɪ e ʊʃˈita dɪ pipelˈine."
     },
     {
       "scene": 2,
-      "speech_start": 9.674999999999999,
-      "speech_end": 23.299999999999997,
-      "scene_end": 23.749999999999996,
-      "duration": 14.074999999999998,
-      "text": "Apri Mask dalla sezione Core. Approfitta del set di dati fornito con 13 campi. Il canale zero è il nucleo, il canale uno è il reticolo endoplasmico, il canale due è le goccioline di lipidi e il canale tre è il parassita."
+      "speech_start": 12.174999999999999,
+      "speech_end": 25.075,
+      "scene_end": 25.525,
+      "duration": 13.35,
+      "text": "Il campo sotto la console accetta domande o comandi locali. L'interruttore AI trasmette un messaggio attraverso un fornitore selezionato supportato dall'abbonamento, e la freccia adiacente apre il menu del fornitore.",
+      "speech_text": "Il campo sotto la console accetta domande o comandi locali. L'interruttore AI trasmette un messaggio attraverso un fornitore selezionato supportato dall'abbonamento, e la freccia adiacente apre il menu del fornitore.",
+      "phonemes": "il kˈampo sˈotːo la kˈɔnsole aʧːˈetːa domˈande o komˈandɪ lokˈalɪ. linterɾʊtːˈore ˌaːˈiː trazmˈetːe ʊn meSˈaʤːo atːravˈɛrso ʊn fornitˈore seleʦjonˈato sʊpːortˈato dallabːonamˈento, e la frˈeʧːa adjaʧˈɛnte ˈapre il menˈu del fornitˈore."
     },
     {
       "scene": 3,
-      "speech_start": 23.749999999999996,
-      "speech_end": 36.199999999999996,
-      "scene_end": 36.65,
-      "duration": 12.900000000000002,
-      "text": "Nell'area di configurazione principale, rilevare nuclei dal canale zero, cellule dal canale endoplasmico-reticolo, goccioline di lipidi con il flusso di lavoro delle macchie di organole e parassiti dal canale tre."
+      "speech_start": 25.525,
+      "speech_end": 37.375,
+      "scene_end": 37.825,
+      "duration": 12.300000000000004,
+      "text": "La scheda Fornitori mostra se i client di linea di comando Claude, ChatGPT e Gemini sono installati, oltre ai loro comandi di installazione e login. Le credenziali restano con il venditore.",
+      "speech_text": "La scheda Fornitori mostra se i client di linea di comando Claude, ChatGPT e Gemini sono installati, oltre ai loro comandi di installazione e login. Le credenziali restano con il venditore.",
+      "phonemes": "la skˈɛda fornitˈorɪ mˈostra se i kliˈent dɪ lˈinea dɪ komˈando klˈaʊde, ʧˈat ʤˌipˌitˈɪ e ʤˈɛminɪ sˌono installˈatɪ, ˌoltre aj lˌɔro komˈandɪ dɪ installaʦiˈone e lˈɔɡ in. le kredenʦjˈalɪ rˈɛstano kon il venditˈore."
     },
     {
       "scene": 4,
-      "speech_start": 36.65,
-      "speech_end": 51.925,
-      "scene_end": 52.375,
-      "duration": 15.725000000000001,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando una è disponibile. Controllare un campo rappresentativo, quindi eseguire i quattro passaggi di segmentazione attraverso il set di dati."
+      "speech_start": 37.825,
+      "speech_end": 50.525000000000006,
+      "scene_end": 50.97500000000001,
+      "duration": 13.150000000000006,
+      "text": "La scheda Impostazioni controlla la profondità della risposta, le spiegazioni di errori assistite da AI, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spaCR.",
+      "speech_text": "La scheda Impostazioni controlla la profondità della risposta, le spiegazioni di errori assistite da AI, la segnalazione opzionale dei problemi GitHub, il login e il prompt del sistema consapevole di spàker.",
+      "phonemes": "la skˈɛda impostaʦiˈonɪ kontrˈɔlla la profonditˈa dˌella rispˈosta, le spjeɡaʦiˈonɪ dɪ erɾˈorɪ aSistˈite da ˌaːˈiː, la seɲalaʦiˈone opʦionˈale dˌA problˈɛmɪ ʤˈit ˈub, il lˈɔɡ in e il prˈompt del sistˈɛma konsapˈevole dɪ spˈaker."
     },
     {
       "scene": 5,
-      "speech_start": 52.375,
-      "speech_end": 62.325,
-      "scene_end": 62.975,
-      "duration": 10.600000000000001,
-      "text": "Quando il flusso di lavoro è terminato, la cartella maschere contiene etichette di oggetti allineate e array di immagini più maschere fuse pronte per la misura."
+      "speech_start": 50.97500000000001,
+      "speech_end": 65.17500000000001,
+      "scene_end": 65.62500000000001,
+      "duration": 14.650000000000006,
+      "text": "Trascinare la cartella orig in Mask. spaCR rileva il modello di nome del file CQ1, visualizza bene, campo, tempo, profondità e metadati del canale, nota che l'ID della scheda sarà predefinito per la scheda1, quindi salva il regex.",
+      "speech_text": "Trascinare la cartella orig in Mask. spàker rileva il modello di nome del file C Q 1, visualizza bene, campo, tempo, profondità e metadati del canale, nota che l'ID della scheda sarà predefinito per la scheda1, quindi salva il regex.",
+      "phonemes": "traʃinˈare la kartˈɛlla ˈɔriɡ in mˈask. spˈaker rilˈɛva il modˈɛllo dɪ nˈome del fˈile ʧˈi kˈu ˈuno, vizʊalˈiʣːa bˈɛne, kˈampo, tˈɛmpo, profonditˈa e metadˈatɪ del kanˈale, nˈɔta ke lˈid dˌella skˈɛda saɾˌa predefinˈito per la skˈɛda ˈuno, kwˈindɪ sˈalva il rˈɛʤeks."
+    },
+    {
+      "scene": 6,
+      "speech_start": 65.62500000000001,
+      "speech_end": 76.37500000000001,
+      "scene_end": 76.82500000000002,
+      "duration": 11.200000000000003,
+      "text": "Essentials mostra il piccolo set di impostazioni richieste per eseguire Mask. Il conteggio sotto i controlli riporta quante delle impostazioni complete sono attualmente visibili.",
+      "speech_text": "Essentials mostra il piccolo set di impostazioni richieste per eseguire Mask. Il conteggio sotto i controlli riporta quante delle impostazioni complete sono attualmente visibili.",
+      "phonemes": "eSˈentjals mˈostra il pˈikːolo sˈɛt dɪ impostaʦiˈonɪ rikjˈɛste per ezeɡwˈire mˈask. il kontˈeʤːo sˈotːo i kontrˈɔllɪ ripˈɔrta kwˈante dˌelle impostaʦiˈonɪ komplˈɛte sˌono atːʊalmˈente vizˈibilɪ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 76.82500000000002,
+      "speech_end": 86.95000000000002,
+      "scene_end": 87.40000000000002,
+      "duration": 10.575000000000003,
+      "text": "Modificato limita il modulo a valori che differiscono dalle impostazioni predefinite di Mask, rendendo le impostazioni importate o modificate facili da rivedere.",
+      "speech_text": "Modificato limita il modulo a valori che differiscono dalle impostazioni predefinite di Mask, rendendo le impostazioni importate o modificate facili da rivedere.",
+      "phonemes": "modifikˈato lˈimita il mˈɔdʊlo a valˈorɪ ke differˈiskono dˌalle impostaʦiˈonɪ predefinˈite dɪ mˈask, rendˈɛndo le impostaʦiˈonɪ importˈate o modifikˈate fˈaʧilɪ da rivedˈɛre."
+    },
+    {
+      "scene": 8,
+      "speech_start": 87.40000000000002,
+      "speech_end": 96.87500000000001,
+      "scene_end": 97.32500000000002,
+      "duration": 9.924999999999997,
+      "text": "Cambiare tra le impostazioni Essentials e All senza perdere valori. Tutte le impostazioni espongono ogni categoria, compresi i controlli avanzati e beta.",
+      "speech_text": "Cambiare tra le impostazioni Essentials e All senza perdere valori. Tutte le impostazioni espongono ogni categoria, compresi i controlli avanzati e beta.",
+      "phonemes": "kambjˈare tra le impostaʦiˈonɪ eSˈentjals e ˈal sˌɛnʦa pˈɛrdere valˈorɪ. tˈutːe le impostaʦiˈonɪ espˈoŋɡono ˌoɲɲɪ kateɡorˈia, komprˈezɪ i kontrˈɔllɪ avanʦˈatɪ e bˈɛta."
+    },
+    {
+      "scene": 9,
+      "speech_start": 97.32500000000002,
+      "speech_end": 106.87500000000001,
+      "scene_end": 107.32500000000002,
+      "duration": 10.0,
+      "text": "Recipes salva le impostazioni correnti sotto un nome, riaplica una configurazione salvata o importa ed esporta un file di impostazioni riutilizzabile.",
+      "speech_text": "Recipes salva le impostazioni correnti sotto un nome, riaplica una configurazione salvata o importa ed esporta un file di impostazioni riutilizzabile.",
+      "phonemes": "reʧˈipes sˈalva le impostaʦiˈonɪ korɾˈɛntɪ sˈotːo ʊn nˈome, riˈaplika ˌʊna konfiɡʊraʦiˈone salvˈata o impˈɔrta ed espˈɔrta ʊn fˈile dɪ impostaʦiˈonɪ riʊtiliʣːˈabile."
+    },
+    {
+      "scene": 10,
+      "speech_start": 107.32500000000002,
+      "speech_end": 114.50000000000001,
+      "scene_end": 114.95000000000002,
+      "duration": 7.625,
+      "text": "Invia istantanee remote delle impostazioni Mask risolute e le invia nello spazio di lavoro Jobs Distribuiti.",
+      "speech_text": "Invia istantanee remote delle impostazioni Mask risolute e le invia nello spazio di lavoro Jobs Distribuiti.",
+      "phonemes": "ɪnvˈɪa istantˈanee remˈɔte dˌelle impostaʦiˈonɪ mˈask rizolˈute e le ɪnvˈɪa nˈello spˈaʦio dɪ lavˈɔro ʤˈobs distribʊˈitɪ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 114.95000000000002,
+      "speech_end": 125.75000000000001,
+      "scene_end": 126.20000000000002,
+      "duration": 11.25,
+      "text": "Distributed Jobs mappa i percorsi locali verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di Mask.",
+      "speech_text": "Distributed Jobs mappa i percorsi locali verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di Mask.",
+      "phonemes": "distribˈuted ʤˈobs mˈapːa i perkˈorsɪ lokˈalɪ vˌɛrso ˌʊna workstˈatjon remˈɔta, ʊn klʊstˈɛr zlˈurm o ʊn komˈando konfiɡʊrˈato, kwˈindɪ invˈiano e mˈɔnitorano la stˈeSa ezekʊʦiˈone dɪ mˈask."
+    },
+    {
+      "scene": 12,
+      "speech_start": 126.20000000000002,
+      "speech_end": 136.32500000000002,
+      "scene_end": 136.775,
+      "duration": 10.574999999999989,
+      "text": "Input and Metadata definisce la cartella sorgente, le assegnazioni di canali, l'ingrandimento, il tipo di metadati e qualsiasi nome di file personalizzato regex.",
+      "speech_text": "Input and Metadata definisce la cartella sorgente, le assegnazioni di canali, l'ingrandimento, il tipo di metadati e qualsiasi nome di file personalizzato regex.",
+      "phonemes": "ˈinpʊt ˈand metadˈata definˈiʃe la kartˈɛlla sorʤˈɛnte, le aSeɲaʦiˈonɪ dɪ kanˈalɪ, liŋɡrandimˈento, il tˈipo dɪ metadˈatɪ e kwalsˈiazɪ nˈome dɪ fˈile personaliʣːˈato rˈɛʤeks."
+    },
+    {
+      "scene": 13,
+      "speech_start": 136.775,
+      "speech_end": 148.775,
+      "scene_end": 149.225,
+      "duration": 12.449999999999989,
+      "text": "Il flusso di lavoro e la prova di esecuzione controllano la pre-elaborazione, la generazione di maschere, le esecuzioni a secco, il comportamento di ripristino e i piccoli campioni in modalità di prova.",
+      "speech_text": "Il flusso di lavoro e la prova di esecuzione controllano la pre-elaborazione, la generazione di maschere, le esecuzioni a secco, il comportamento di ripristino e i piccoli campioni in modalità di prova.",
+      "phonemes": "il flˈuSo dɪ lavˈɔro e la prˈɔva dɪ ezekʊʦiˈone kontrˈɔllano la prˈeelaboraʦiˈone, la ʤeneraʦiˈone dɪ mˈaːskˌɛre, le ezekʊʦiˈonɪ a sˈekːo, il komportamˈento dɪ riprˈistino e i pˈikːolɪ kampjˈonɪ in modalitˈa dɪ prˈɔva."
+    },
+    {
+      "scene": 14,
+      "speech_start": 149.225,
+      "speech_end": 160.45,
+      "scene_end": 160.89999999999998,
+      "duration": 11.674999999999983,
+      "text": "I gruppi di pre-elaborazione delle immagini sono la normalizzazione, la proiezione, l'upscaling, il consolidamento e la denosione delle scelte applicate prima della segmentazione.",
+      "speech_text": "I gruppi di pre-elaborazione delle immagini sono la normalizzazione, la proiezione, l'upscaling, il consolidamento e la denosione delle scelte applicate prima della segmentazione.",
+      "phonemes": "i ɡrˈupːɪ dɪ prˈeelaboraʦiˈone dˌelle immˈaʤinɪ sˌono la normaliʣːaʦiˈone, la proieʦiˈone, lʊpskˈaliŋɡ, il konsolidamˈento e la denoziˈone dˌelle ʃˈelte apːlikˈate prˈima dˌella seɡmentaʦiˈone."
+    },
+    {
+      "scene": 15,
+      "speech_start": 160.89999999999998,
+      "speech_end": 169.64999999999998,
+      "scene_end": 170.09999999999997,
+      "duration": 9.199999999999989,
+      "text": "La segmentazione cellulare contiene il modello cellulare, il diametro, le soglie, la gestione dello sfondo e i filtri dell'oggetto cellulare.",
+      "speech_text": "La segmentazione cellulare contiene il modello cellulare, il diametro, le soglie, la gestione dello sfondo e i filtri dell'oggetto cellulare.",
+      "phonemes": "la seɡmentaʦiˈone ʧellʊlˈare kontjˈɛne il modˈɛllo ʧellʊlˈare, il djˈametro, le sˈoʎe, la ʤestjˈone dˌello sfˈondo e i fˈiltrɪ delloʤːˈɛtːo ʧellʊlˈare."
+    },
+    {
+      "scene": 16,
+      "speech_start": 170.09999999999997,
+      "speech_end": 178.34999999999997,
+      "scene_end": 178.79999999999995,
+      "duration": 8.699999999999989,
+      "text": "La segmentazione nucleare fornisce il modello corrispondente, le soglie, la correzione di sfondo e i filtri di oggetti per i nuclei.",
+      "speech_text": "La segmentazione nucleare fornisce il modello corrispondente, le soglie, la correzione di sfondo e i filtri di oggetti per i nuclei.",
+      "phonemes": "la seɡmentaʦiˈone nʊkleˈare fornˈiʃe il modˈɛllo korɾispondˈɛnte, le sˈoʎe, la korɾeʦiˈone dɪ sfˈondo e i fˈiltrɪ dɪ oʤːˈɛtːɪ per i nˈuklei."
+    },
+    {
+      "scene": 17,
+      "speech_start": 178.79999999999995,
+      "speech_end": 187.09999999999997,
+      "scene_end": 187.54999999999995,
+      "duration": 8.75,
+      "text": "La segmentazione dei patogeni raggruppa il modello e le regole di pulizia utilizzate per rilevare e filtrare gli oggetti parassiti.",
+      "speech_text": "La segmentazione dei patogeni raggruppa il modello e le regole di pulizia utilizzate per rilevare e filtrare gli oggetti parassiti.",
+      "phonemes": "la seɡmentaʦiˈone dˌA patˈɔʤenɪ raɡːrˈupːa il modˈɛllo e le rˈɛɡole dɪ pʊliʦˈia ʊtiliʣːˈate per rilevˈare e filtrˈare ʎɪ oʤːˈɛtːɪ paɾaSˈitɪ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 187.54999999999995,
+      "speech_end": 200.14999999999995,
+      "scene_end": 200.59999999999994,
+      "duration": 13.049999999999983,
+      "text": "Organelle Segmentation seleziona la morfologia e il rilevatore dell'organello, la pulizia dell'immagine, i controlli specifici per il metodo, i filtri oggettivi e la sintesi del compartimento genitore.",
+      "speech_text": "Organelle Segmentation seleziona la morfologia e il rilevatore dell'organello, la pulizia dell'immagine, i controlli specifici per il metodo, i filtri oggettivi e la sintesi del compartimento genitore.",
+      "phonemes": "orɡanˈɛlle seɡmentˈatjon seleʦiˈona la morfoloʤˈia e il rilevatˈore dellorɡanˈɛllo, la pʊliʦˈia dellimmˈaʤine, i kontrˈɔllɪ speʧˈifiʧɪ per il mˈɛtodo, i fˈiltrɪ oʤːetːˈivɪ e la sˈintezɪ del kompartimˈento ʤenitˈore."
+    },
+    {
+      "scene": 19,
+      "speech_start": 200.59999999999994,
+      "speech_end": 212.94999999999993,
+      "scene_end": 213.39999999999992,
+      "duration": 12.799999999999983,
+      "text": "Il Controllo di qualità imposta controlli automatici per il conteggio degli oggetti, i rapporti di dimensioni, i confini, la copertura di primo piano, il comportamento diviso e i fallimenti di campo accettabili.",
+      "speech_text": "Il Controllo di qualità imposta controlli automatici per il conteggio degli oggetti, i rapporti di dimensioni, i confini, la copertura di primo piano, il comportamento diviso e i fallimenti di campo accettabili.",
+      "phonemes": "il kontrˈɔllo dɪ kwalitˈa impˈɔsta kontrˈɔllɪ aʊtomˈatiʧɪ per il kontˈeʤːo dˌeʎɪ oʤːˈɛtːɪ, i rapːˈɔrtɪ dɪ dimensjˈonɪ, i konfˈinɪ, la kopertˈura dɪ prˈimo pjˈano, il komportamˈento divˈizo e i fallimˈentɪ dɪ kˈampo aʧːetːˈabilɪ."
+    },
+    {
+      "scene": 20,
+      "speech_start": 213.39999999999992,
+      "speech_end": 222.44999999999993,
+      "scene_end": 222.89999999999992,
+      "duration": 9.5,
+      "text": "L'elaborazione volumetrica contiene controlli beta per stacks z, proiezione, anisotropia, calibrazione dei voxel e cucitura tridimensionale.",
+      "speech_text": "L'elaborazione volumetrica contiene controlli beta per stacks z, proiezione, anisotropia, calibrazione dei voxel e cucitura tridimensionale.",
+      "phonemes": "lelaboraʦiˈone volʊmˈɛtrika kontjˈɛne kontrˈɔllɪ bˈɛta per stˈakːs ʣˈɛta, proieʦiˈone, anizotropˈia, kalibraʦiˈone dˌA vˈoksel e kʊʧitˈura tridimensjonˈale."
+    },
+    {
+      "scene": 21,
+      "speech_start": 222.89999999999992,
+      "speech_end": 232.52499999999992,
+      "scene_end": 232.9749999999999,
+      "duration": 10.074999999999989,
+      "text": "Time Axes and Tracking contiene controlli beta per i dati quadridimensionali, gli intervalli di fotogrammi, i backend di tracciamento e i limiti di spostamento.",
+      "speech_text": "Time Axes and Tracking contiene controlli beta per i dati quadridimensionali, gli intervalli di fotogrammi, i backend di tracciamento e i limiti di spostamento.",
+      "phonemes": "tˈIm ˈakses ˈand trˈakːiŋɡ kontjˈɛne kontrˈɔllɪ bˈɛta per i dˈatɪ kwadridimensjonˈalɪ, ʎɪ intervˈallɪ dɪ fotoɡrˈammɪ, i bˈakːend dɪ traʧːamˈento e i lˈimitɪ dɪ spostamˈento."
+    },
+    {
+      "scene": 22,
+      "speech_start": 232.9749999999999,
+      "speech_end": 243.0999999999999,
+      "scene_end": 243.5499999999999,
+      "duration": 10.574999999999989,
+      "text": "La visualizzazione e la diagnostica controlla le tratte di anteprima, le mappe a colori, le dimensioni delle figure, la normalizzazione delle tratte e i campi di esempio.",
+      "speech_text": "La visualizzazione e la diagnostica controlla le tratte di anteprima, le mappe a colori, le dimensioni delle figure, la normalizzazione delle tratte e i campi di esempio.",
+      "phonemes": "la vizwaliʣːaʦiˈone e la djaɲˈɔstika kontrˈɔlla le trˈatːe dɪ anteprˈima, le mˈapːe a kolˈorɪ, le dimensjˈonɪ dˌelle fiɡˈure, la normaliʣːaʦiˈone dˌelle trˈatːe e i kˈampɪ dɪ ezˈɛmpio."
+    },
+    {
+      "scene": 23,
+      "speech_start": 243.5499999999999,
+      "speech_end": 250.8249999999999,
+      "scene_end": 251.2749999999999,
+      "duration": 7.724999999999994,
+      "text": "L'output and Storage decide quali immagini, maschere, array intermedi e risultati compressi vengono conservati.",
+      "speech_text": "L'output and Storage decide quali immagini, maschere, array intermedi e risultati compressi vengono conservati.",
+      "phonemes": "loˈutpʊt ˈand storˈaʤe deʧˈide kwˈalɪ immˈaʤinɪ, mˈaːskˌɛre, arɾˈai intermˈɛdɪ e rizʊltˈatɪ komprˈɛSɪ vˈeŋɡono konservˈatɪ."
+    },
+    {
+      "scene": 24,
+      "speech_start": 251.2749999999999,
+      "speech_end": 262.8749999999999,
+      "scene_end": 263.3249999999999,
+      "duration": 12.049999999999983,
+      "text": "Il tempo di esecuzione e l'affidabilità contengono la gestione dei guasti, la riproducibilità, la registrazione, il conteggio dei lavoratori, i lotti e le scelte di esecuzione del pipeline.",
+      "speech_text": "Il tempo di esecuzione e l'affidabilità contengono la gestione dei guasti, la riproducibilità, la registrazione, il conteggio dei lavoratori, i lotti e le scelte di esecuzione del pipeline.",
+      "phonemes": "il tˈɛmpo dɪ ezekʊʦiˈone e laffidabilitˈa kontˈeŋɡono la ʤestjˈone dˌA ɡwˈastɪ, la riprodʊʧibilitˈa, la reʤistraʦiˈone, il kontˈeʤːo dˌA lavoratˈorɪ, i lˈɔtːɪ e le ʃˈelte dɪ ezekʊʦiˈone del pipelˈine."
+    },
+    {
+      "scene": 25,
+      "speech_start": 263.3249999999999,
+      "speech_end": 274.1999999999999,
+      "scene_end": 274.64999999999986,
+      "duration": 11.324999999999989,
+      "text": "Abilita la visualizzazione in diretta e carica l'immagine di emergenza del canale due. Questo campo contiene solo il segnale cellulare utilizzato per l'esempio di segmentazione.",
+      "speech_text": "Abilita la visualizzazione in diretta e carica l'immagine di emergenza del canale due. Questo campo contiene solo il segnale cellulare utilizzato per l'esempio di segmentazione.",
+      "phonemes": "abˈilita la vizwaliʣːaʦiˈone in dirˈɛtːa e kˈarika limmˈaʤine dɪ emerʤˈɛnʦa del kanˈale dˈue. kwˌesto kˈampo kontjˈɛne sˈolo il seɲˈale ʧellʊlˈare ʊtiliʣːˈato per lezˈɛmpio dɪ seɡmentaʦiˈone."
+    },
+    {
+      "scene": 26,
+      "speech_start": 274.64999999999986,
+      "speech_end": 284.3249999999999,
+      "scene_end": 284.77499999999986,
+      "duration": 10.125,
+      "text": "In Settings Live, selezionare cellula, abilitare la normalizzazione e impostare il percentil inferiore a 2 e il percentil superiore a 99.5.",
+      "speech_text": "In Settings Live, selezionare cellula, abilitare la normalizzazione e impostare il percentil inferiore a 2 e il percentil superiore a 99.5.",
+      "phonemes": "in sˈetːiŋɡs lˈaːɪv, seleʦjonˈare ʧˈɛllʊla, abilitˈare la normaliʣːaʦiˈone e impostˈare il perʧentˈil inferiˈore a dˈue e il perʧentˈil sʊperiˈore a novˈantanˈɔve.ʧˈinkwe."
+    },
+    {
+      "scene": 27,
+      "speech_start": 284.77499999999986,
+      "speech_end": 295.1999999999999,
+      "scene_end": 295.64999999999986,
+      "duration": 10.875,
+      "text": "Eseguire l'anteprima e fare zoom nei pannelli sorgente e risultati sincronizzati. Le linee di sovrapposizione devono seguire i confini delle cellule definiti dall'ER.",
+      "speech_text": "Eseguire l'anteprima e fare zoom nei pannelli sorgente e risultati sincronizzati. Le linee di sovrapposizione devono seguire i confini delle cellule definiti dall'ER.",
+      "phonemes": "ezeɡwˈire lanteprˈima e fˈare ʣˈuːm nˈei pannˈɛllɪ sorʤˈɛnte e rizʊltˈatɪ sinkroniʣːˈatɪ. le lˈinee dɪ sovrapːoziʦiˈone dˈevono seɡwˈire i konfˈinɪ dˌelle ʧˈɛllʊle definˈitɪ dallˈɛr."
+    },
+    {
+      "scene": 28,
+      "speech_start": 295.64999999999986,
+      "speech_end": 302.9499999999999,
+      "scene_end": 303.39999999999986,
+      "duration": 7.75,
+      "text": "Spostare il pannello dei risultati a Flussi per controllare il campo di flusso Cellpose utilizzato per formare oggetti.",
+      "speech_text": "Spostare il pannello dei risultati a Flussi per controllare il campo di flusso Cellpose utilizzato per formare oggetti.",
+      "phonemes": "spostˈare il pannˈɛllo dˌA rizʊltˈatɪ a flˈuSɪ per kontrollˈare il kˈampo dɪ flˈuSo ʧelpˈoze ʊtiliʣːˈato per formˈare oʤːˈɛtːɪ."
+    },
+    {
+      "scene": 29,
+      "speech_start": 303.39999999999986,
+      "speech_end": 312.64999999999986,
+      "scene_end": 313.09999999999985,
+      "duration": 9.699999999999989,
+      "text": "Passare a Maschere per visualizzare direttamente gli oggetti della cella integrale. Ogni colore è un oggetto e il nero rimane l'etichetta di sfondo zero.",
+      "speech_text": "Passare a Maschere per visualizzare direttamente gli oggetti della cella integrale. Ogni colore è un oggetto e il nero rimane l'etichetta di sfondo zero.",
+      "phonemes": "paSˈare a mˈaːskˌɛre per vizʊaliʣːˈare diretːamˈente ʎɪ oʤːˈɛtːɪ dˌella ʧˈɛlla inteɡrˈale. ˌoɲɲɪ kolˈore e ʊn oʤːˈɛtːo e il nˈero rimˈane letikˈetːa dɪ sfˈondo ʣˈɛro."
+    },
+    {
+      "scene": 30,
+      "speech_start": 313.09999999999985,
+      "speech_end": 324.42499999999984,
+      "scene_end": 324.87499999999983,
+      "duration": 11.774999999999977,
+      "text": "Ritorna alle impostazioni Live e imposta solo l'area minima della cella a 10000 pixel. Le maschere crude memorizzate vengono immediatamente filtrate senza ricorrere a Cellpose.",
+      "speech_text": "Ritorna alle impostazioni Live e imposta solo l'area minima della cella a 10000 pixel. Le maschere crude memorizzate vengono immediatamente filtrate senza ricorrere a Cellpose.",
+      "phonemes": "ritˈorna ˌalle impostaʦiˈonɪ lˈaːɪv e impˈɔsta sˈolo lˈarea mˈinima dˌella ʧˈɛlla a djˈɛʧɪ mˈiːla pˈiksel. le mˈaːskˌɛre krˈude memoriʣːˈate vˈeŋɡono immedjatamˈente filtrˈate sˌɛnʦa rikˈɔrɾere a ʧelpˈoze."
+    },
+    {
+      "scene": 31,
+      "speech_start": 324.87499999999983,
+      "speech_end": 336.5749999999998,
+      "scene_end": 337.2249999999998,
+      "duration": 12.349999999999966,
+      "text": "Dopo il filtro di dimensioni, gli oggetti di piccole cellule perdono i loro contorni e rimangono solo oggetti di almeno 10000 pixel. Confronta questo con la sovrapposizione non filtrata.",
+      "speech_text": "Dopo il filtro di dimensioni, gli oggetti di piccole cellule perdono i loro contorni e rimangono solo oggetti di almeno 10000 pixel. Confronta questo con la sovrapposizione non filtrata.",
+      "phonemes": "dˈopo il fˈiltro dɪ dimensjˈonɪ, ʎɪ oʤːˈɛtːɪ dɪ pˈikːole ʧˈɛllʊle perdˈono i lˌɔro kontˈornɪ e rimˈaŋɡono sˈolo oʤːˈɛtːɪ dɪ almˈeno djˈɛʧɪ mˈiːla pˈiksel. konfrˈonta kwˌesto kon la sovrapːoziʦiˈone non filtrˈata."
     }
   ]
 }

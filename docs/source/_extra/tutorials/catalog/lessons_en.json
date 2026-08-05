@@ -389,43 +389,253 @@
       "series": 1,
       "app_key": "mask",
       "section": "Core",
-      "description": "Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks.",
+      "description": "Configure Mask, inspect every settings category, and validate cell segmentation on the supplied microscopy experiment.",
       "objectives": [
-        "Map all four acquisition channels correctly.",
-        "Configure cell, nucleus, organelle, and parasite segmentation.",
-        "Run Mask and inspect its mask outputs."
+        "Use the console, chat controls, recipes, and remote submission workflow.",
+        "Import the CQ1 image folder and verify its automatically detected metadata regex.",
+        "Inspect cell outlines, Cellpose flows, objects, and a live minimum-area filter."
       ],
-      "prerequisite": "Use the supplied four-channel tutorial dataset.",
+      "prerequisite": "Use the spaCR tutorial experiment and its supplied Mask settings.",
       "scenes": [
         {
-          "narration": "This tutorial covers Mask. Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks.",
-          "visual": "overview",
+          "narration": "Mask opens with the settings panel on the left and the runtime console on the right. The console reports folder scans, validation, progress, warnings, and pipeline output.",
+          "visual": "01_console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Mask. Segment the supplied four-channel microscopy experiment into nuclei, cells, lipid droplets, and parasite masks."
+          "speech_text": "Mask opens with the settings panel on the left and the runtime console on the right. The console reports folder scans, validation, progress, warnings, and pipeline output."
         },
         {
-          "narration": "Open Mask from the Core section. Use the supplied thirteen-field dataset. Channel zero is nuclei, channel one is endoplasmic reticulum, channel two is lipid droplets, and channel three is parasites.",
-          "visual": "input",
+          "narration": "The field below the console accepts local questions or commands. The AI switch routes a message through a selected subscription-backed provider, and the adjacent arrow opens the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Mask from the Core section. Use the supplied thirteen-field dataset. Channel zero is nuclei, channel one is endoplasmic reticulum, channel two is lipid droplets, and channel three is parasites."
+          "speech_text": "The field below the console accepts local questions or commands. The A I switch routes a message through a selected subscription-backed provider, and the adjacent arrow opens the provider menu."
         },
         {
-          "narration": "In the main configuration area, detect nuclei from channel zero, cells from the endoplasmic-reticulum channel, lipid droplets with the organelle spots workflow, and parasites from channel three.",
-          "visual": "settings",
+          "narration": "The Providers tab shows whether the Claude, ChatGPT, and Gemini command-line clients are installed, plus their install and login commands. Credentials remain with the vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, detect nuclei from channel zero, cells from the endoplasmic-reticulum channel, lipid droplets with the organelle spots workflow, and parasites from channel three."
+          "speech_text": "The Providers tab shows whether the Claude, Chat G P T, and Gemini command-line clients are installed, plus their install and login commands. Credentials remain with the vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. Check a representative field, then run the four segmentation passes across the dataset.",
-          "visual": "run",
+          "narration": "The Settings tab controls response depth, AI-assisted error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Check a representative field, then run the four segmentation passes across the dataset."
+          "speech_text": "The Settings tab controls response depth, A I assisted error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, the masks folder contains aligned object labels and merged image-plus-mask arrays ready for measurement.",
-          "visual": "output",
+          "narration": "Drag the orig folder into Mask. spaCR detects the CQ1 filename pattern, previews well, field, time, depth, and channel metadata, notes that plate ID will default to plate1, then saves the regex.",
+          "visual": "05_metadata",
+          "focus_key": "metadata_dialog",
+          "click_key": "save",
+          "hold_after": 0.45,
+          "speech_text": "Drag the orig folder into Mask. spacer detects the C Q one filename pattern, previews well, field, time, depth, and channel metadata, notes that plate I D will default to plate one, then saves the regular expression."
+        },
+        {
+          "narration": "Essentials shows the small set of settings required to run Mask. The count below the controls reports how many of the complete settings are currently visible.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the small set of settings required to run Mask. The count below the controls reports how many of the complete settings are currently visible."
+        },
+        {
+          "narration": "Modified limits the form to values that differ from Mask defaults, making imported or edited settings easy to review.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the form to values that differ from Mask defaults, making imported or edited settings easy to review."
+        },
+        {
+          "narration": "Switch between Essentials and All settings without losing values. All settings exposes every category, including advanced and beta controls.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Switch between Essentials and All settings without losing values. All settings exposes every category, including advanced and beta controls."
+        },
+        {
+          "narration": "Recipes saves the current settings under a name, reapplies a saved configuration, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the current settings under a name, reapplies a saved configuration, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Mask settings and sends them to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Mask settings and sends them to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Mask run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps local paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Mask run."
+        },
+        {
+          "narration": "Input and Metadata defines the source folder, channel assignments, magnification, metadata type, and any custom filename regex.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Metadata defines the source folder, channel assignments, magnification, metadata type, and any custom filename regular expression."
+        },
+        {
+          "narration": "Workflow and Test Run controls preprocessing, mask generation, dry runs, resume behavior, and small test-mode samples.",
+          "visual": "12_category_02_workflow_test_run",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Workflow and Test Run controls preprocessing, mask generation, dry runs, resume behavior, and small test-mode samples."
+        },
+        {
+          "narration": "Image Preprocessing groups normalization, projection, upscaling, consolidation, and denoising choices applied before segmentation.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Image Preprocessing groups normalization, projection, upscaling, consolidation, and denoising choices applied before segmentation."
+        },
+        {
+          "narration": "Cell Segmentation contains the cell model, diameter, thresholds, background handling, and cell-object filters.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Cell Segmentation contains the cell model, diameter, thresholds, background handling, and cell-object filters."
+        },
+        {
+          "narration": "Nucleus Segmentation provides the corresponding model, thresholds, background correction, and object filters for nuclei.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Nucleus Segmentation provides the corresponding model, thresholds, background correction, and object filters for nuclei."
+        },
+        {
+          "narration": "Pathogen Segmentation groups the model and cleanup rules used to detect and filter parasite objects.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Pathogen Segmentation groups the model and cleanup rules used to detect and filter parasite objects."
+        },
+        {
+          "narration": "Organelle Segmentation selects the organelle morphology and detector, image cleanup, method-specific controls, object filters, and parent-compartment summary.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Organelle Segmentation selects the organelle morphology and detector, image cleanup, method-specific controls, object filters, and parent-compartment summary."
+        },
+        {
+          "narration": "Quality Control sets automatic checks for object counts, size ratios, borders, foreground coverage, split behavior, and acceptable field failures.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Quality Control sets automatic checks for object counts, size ratios, borders, foreground coverage, split behavior, and acceptable field failures."
+        },
+        {
+          "narration": "Volumetric Processing contains beta controls for z stacks, projection, anisotropy, voxel calibration, and three-dimensional stitching.",
+          "visual": "12_category_09_volumetric_processing_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Volumetric Processing contains beta controls for z stacks, projection, anisotropy, voxel calibration, and three-dimensional stitching."
+        },
+        {
+          "narration": "Time Axes and Tracking contains beta controls for four-dimensional data, frame intervals, tracking backends, and displacement limits.",
+          "visual": "12_category_10_time_axes_tracking_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Time Axes and Tracking contains beta controls for four-dimensional data, frame intervals, tracking backends, and displacement limits."
+        },
+        {
+          "narration": "Visualization and Diagnostics controls preview plots, color maps, figure size, plot normalization, and example fields.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Visualization and Diagnostics controls preview plots, color maps, figure size, plot normalization, and example fields."
+        },
+        {
+          "narration": "Output and Storage decides which images, masks, intermediate arrays, and compressed results are retained.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Storage decides which images, masks, intermediate arrays, and compressed results are retained."
+        },
+        {
+          "narration": "Runtime and Reliability contains failure handling, reproducibility, logging, worker counts, batches, and pipeline execution choices.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability contains failure handling, reproducibility, logging, worker counts, batches, and pipeline execution choices."
+        },
+        {
+          "narration": "Enable Live Preview and load the channel-two ER image. This field contains only the cell signal used for the segmentation example.",
+          "visual": "25_cell_ready",
+          "focus_key": "canvases",
+          "click_key": "live",
+          "hold_after": 0.45,
+          "speech_text": "Enable Live Preview and load the channel-two E R image. This field contains only the cell signal used for the segmentation example."
+        },
+        {
+          "narration": "In Live Settings, select cell, enable normalization, and set the lower percentile to 2 and the upper percentile to 99.5.",
+          "visual": "26_live_normalization",
+          "focus_key": "normalization",
+          "hold_after": 0.45,
+          "speech_text": "In Live Settings, select cell, enable normalization, and set the lower percentile to two and the upper percentile to ninety-nine point five."
+        },
+        {
+          "narration": "Run the preview and zoom into the synchronized source and result panes. Overlay outlines should follow ER-defined cell boundaries.",
+          "visual": "27_cell_outlines",
+          "focus_key": "action_and_canvases",
+          "click_key": "run_preview",
+          "hold_after": 0.45,
+          "speech_text": "Run the preview and zoom into the synchronized source and result panes. Overlay outlines should follow E R defined cell boundaries."
+        },
+        {
+          "narration": "Switch the result pane to Flows to inspect the Cellpose flow field used to form objects.",
+          "visual": "28_cell_flows",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Switch the result pane to Flows to inspect the Cellpose flow field used to form objects."
+        },
+        {
+          "narration": "Switch to Masks to view the integer cell objects directly. Each color is one object and black remains background label zero.",
+          "visual": "29_cell_objects",
+          "focus_key": "action_and_canvases",
+          "click_key": "view_mode",
+          "hold_after": 0.45,
+          "speech_text": "Switch to Masks to view the integer cell objects directly. Each color is one object and black remains background label zero."
+        },
+        {
+          "narration": "Return to Live Settings and set only the cell minimum area to 10000 pixels. The cached raw masks are filtered immediately without rerunning Cellpose.",
+          "visual": "30_cell_size_filter",
+          "focus_key": "cell_filters",
+          "click_key": "min_area",
+          "hold_after": 0.45,
+          "speech_text": "Return to Live Settings and set only the cell minimum area to ten thousand pixels. The cached raw masks are filtered immediately without rerunning Cellpose."
+        },
+        {
+          "narration": "After the size filter, small cell objects lose their outlines and only objects at least 10000 pixels remain. Compare this with the unfiltered overlay.",
+          "visual": "31_cell_filtered",
+          "focus_key": "canvases",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, the masks folder contains aligned object labels and merged image-plus-mask arrays ready for measurement."
+          "speech_text": "After the size filter, small cell objects lose their outlines and only objects at least ten thousand pixels remain. Compare this with the unfiltered overlay."
         }
       ]
     },
@@ -437,43 +647,71 @@
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images.",
+      "description": "Preview real object crops, measure segmented fields, and write traceable single-object features to SQLite.",
       "objectives": [
-        "Understand when to use Measure.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Map image and mask planes from a merged spaCR array.",
+        "Preview cell crops and verify filter behavior before a run.",
+        "Validate measurements and crops with a five-field test run."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Complete Mask first so the project contains merged image and label arrays.",
       "scenes": [
         {
-          "narration": "This tutorial covers Measure. Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images.",
-          "visual": "overview",
+          "narration": "Measure converts the real segmented HeLa fields into traceable single-object intensity, morphology, texture, colocalization, and spatial features. This walkthrough validates five fields before a full-plate run.",
+          "visual": "01_module",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Measure. Extract per-object intensity, morphology, texture, colocalization, and spatial features from segmented images."
+          "speech_text": "Measure converts the real segmented HeLa fields into traceable single-object intensity, morphology, texture, colocalization, and spatial features. This walkthrough validates five fields before a full-plate run."
         },
         {
-          "narration": "Open Measure from the Core section. Select the project containing image stacks and masks produced by Mask.",
-          "visual": "input",
+          "narration": "Open Measure from Core and select the merged folder produced by Mask. The transferred settings measure image channels zero through three and read cell, nucleus, and pathogen labels from planes four, five, and six.",
+          "visual": "01_module",
+          "focus_key": "nav",
+          "click_key": "nav",
           "hold_after": 0.45,
-          "speech_text": "Open Measure from the Core section. Select the project containing image stacks and masks produced by Mask."
+          "speech_text": "Open Measure from Core and select the merged folder produced by Mask. The transferred settings measure image channels zero through three and read cell, nucleus, and pathogen labels from planes four, five, and six."
         },
         {
-          "narration": "In the main configuration area, use channel one, endoplasmic reticulum, as the channel of interest and choose the object types and feature families to measure.",
-          "visual": "settings",
+          "narration": "Enable the crop preview and load one merged array. The gallery groups forty real cells by nucleus and pathogen content, while the selector confirms that the test folder contains five fields.",
+          "visual": "02_cell_crops",
+          "focus_key": "grid",
+          "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, use channel one, endoplasmic reticulum, as the channel of interest and choose the object types and feature families to measure."
+          "speech_text": "Enable the crop preview and load one merged array. The gallery groups forty real cells by nucleus and pathogen content, while the selector confirms that the test folder contains five fields."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview crops when needed, then process every selected field and object type.",
-          "visual": "run",
+          "narration": "In General, verify measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, and derived cytoplasm. Keep test mode on for the validation run.",
+          "visual": "03_general",
+          "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview crops when needed, then process every selected field and object type."
+          "speech_text": "In General, verify measured channels zero through three, cell mask plane four, nucleus plane five, pathogen plane six, and derived cytoplasm. Keep test mode on for the validation run."
         },
         {
-          "narration": "When the workflow finishes, measurements dot db stores traceable single-object rows and optional image crops for annotation or classification.",
-          "visual": "output",
+          "narration": "The supplied run writes cell PNG crops at two hundred twenty-four by two hundred twenty-four pixels using channels zero, one, and two. Crop normalization remains off in the saved settings; this tutorial uses a temporary one-to-ninety-nine percentile display stretch only to make the live gallery legible.",
+          "visual": "04_object_crops",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "The supplied run writes cell P N G crops at two hundred twenty-four by two hundred twenty-four pixels using channels zero, one, and two. Crop normalization remains off in the saved settings; this tutorial uses a temporary one-to-ninety-nine percentile display stretch only to make the live gallery legible."
+        },
+        {
+          "narration": "The filters require cells of at least three thousand five hundred pixels, nuclei of at least one thousand, and pathogens of at least two hundred fifty. Keep uninfected cells off and merge cells whose pathogens cross an image edge.",
+          "visual": "05_filters",
+          "focus_key": "tab",
+          "hold_after": 0.45,
+          "speech_text": "The filters require cells of at least three thousand five hundred pixels, nuclei of at least one thousand, and pathogens of at least two hundred fifty. Keep uninfected cells off and merge cells whose pathogens cross an image edge."
+        },
+        {
+          "narration": "Select channel one in the preview to inspect the endoplasmic-reticulum signal, which is the channel of interest for downstream analyses. This view changes only the gallery; Measure still extracts features from all four configured channels.",
+          "visual": "06_er_channel",
+          "focus_key": "grid",
+          "click_key": "channel",
+          "hold_after": 0.45,
+          "speech_text": "Select channel one in the preview to inspect the endoplasmic-reticulum signal, which is the channel of interest for downstream analyses. This view changes only the gallery; Measure still extracts features from all four configured channels."
+        },
+        {
+          "narration": "The completed test ledger reports five of five fields successful with no failures. Measurements dot db contains four hundred fifty-five cells and cytoplasms, six hundred five nuclei, and one thousand thirty-one pathogens, plus four hundred fifty-five cell crops ready for annotation and classification.",
+          "visual": "07_outputs",
+          "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, measurements dot db stores traceable single-object rows and optional image crops for annotation or classification."
+          "speech_text": "The completed test ledger reports five of five fields successful with no failures. Measurements dot db contains four hundred fifty-five cells and cytoplasms, six hundred five nuclei, and one thousand thirty-one pathogens, plus four hundred fifty-five cell crops ready for annotation and classification."
         }
       ]
     },
