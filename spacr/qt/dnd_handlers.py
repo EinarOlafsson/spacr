@@ -720,9 +720,14 @@ def _open_regex_editor(filenames: list, initial: str, screen,
             _push_regex_to_screen(fallback, screen)
         return
     try:
+        from PySide6.QtWidgets import QDialog
         dlg = RegexEditorDialog(filenames, initial_regex=initial,
                                  multichannel=True, parent=screen)
-        if dlg.exec() == dlg.Accepted and dlg.regex:
+        # QDialog.Accepted, not dlg.Accepted: PySide6 exposes the enum on the
+        # class, not on instances. This only ever ran when validation failed,
+        # so the AttributeError sat here until the editor started opening on
+        # every import to confirm a good match.
+        if dlg.exec() == QDialog.Accepted and dlg.regex:
             _push_regex_to_screen(dlg.regex, screen)
             _log(screen, f"[drop] saved custom regex: {dlg.regex}\n")
         elif confirming and fallback:
