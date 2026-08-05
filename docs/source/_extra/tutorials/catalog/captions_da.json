@@ -1372,19 +1372,64 @@
       "id": "25_recruitment",
       "scenes": [
         {
-          "narration": "Denne vejledning dækker rekruttering. Kvantificere rekruttering af et interessekanalsignal til parasitter eller patogenassocierede regioner."
+          "narration": "Rekrutteringsmåder beriger en markør i parasit-associerede regioner i forhold til den omkringliggende værtscellecytoplasme. Konsolen registrerer løste indstillinger, filtrering tæller, output stier, tal, advarsler og fejl; chat-boksen kan diskutere den sammenhæng, når AI er aktiveret."
         },
         {
-          "narration": "Open Recruitment fra Toxoplasma Tests- sektionen. Brug målede celle-, parasit- og organelmasker med kanal én, endoplasmatisk retikulum, som interessekanal."
+          "narration": "Brug kun AI-forbindelsen, når du vil have chat-hjælp. Den tilstødende menu vælger en konfigureret udbyder og åbner udbyderindstillinger; rekruttering selv kører lokalt og er ikke afhængig af en AI-tjeneste."
         },
         {
-          "narration": "I hovedkonfigurationsområdet defineres rekrutteringsregionen, baggrundsanvisning, objektfiltre, gruppering og normaliseringsstrategi."
+          "narration": "Udbyderens indstilling adskiller lokale fra værteassistenter. Konfigurere kun de tjenester, du har til hensigt at bruge, og gennemgå privatlivserklæringen, før du sender konsol- eller billedkontext til en fjernudbyder."
         },
         {
-          "narration": "Før fuld løbetid skal du gennemgå de synlige indstillinger og bruge en forhåndsvisning eller testtilstand, når en er tilgængelig. inspektere overlappelser på objektniveau og kontrollere fordelingerne, inden betingelserne sammenlignes."
+          "narration": "AI-indstillinger styrer assistent kontekst, legitimationsoplysninger og valgfri fejlrapportering. Disse præferencer ændrer ikke rekrutteringsformlen, objektfiltrerne eller pladenotationerne."
         },
         {
-          "narration": "Når arbejdsprocessen er afsluttet, opbevares rekrutteringsresultaterne og betingelserresuméerne pr. objekt med kildeidentifikatorer."
+          "narration": "Vælg eller drop eksperimenteret rod indeholdende målinger/målinger.db og den fusionerede mappe. I denne vejledning anvendes det overførte HeLa siRNA-eksperiment, ikke syntetiske data, med kanal 1 ER-signalet som interessekanal."
+        },
+        {
+          "narration": "Essentials præsenterer kilden, kanalkartering, filtre, pladelayout og diagnostiske valg, der er nødvendige for en første run. Kontroller kortet, før du justerer tærsklerne, fordi et gyldigt men forkert kanalindeks kan producere plausible, forkerte forhold."
+        },
+        {
+          "narration": "Ændret viser kun forsætlige afvigelser fra standarder. Brug det som en kompakt forhåndsrevision af den virkelige eksperimentvej, ER-kanal 1, de tre maskeplaner, arealfiltre, kontrolkolonne og diagnostiske valg."
+        },
+        {
+          "narration": "Alle indstillinger afslører alle kontroller, når man reproducerer eller afhjælper et løb. Tilbage til Essentials, når de ekstra kontroller ikke er nødvendige, så avancerede værdier ikke ændres tilfældigt."
+        },
+        {
+          "narration": "Opskrifter bevarer en valideret rekrutteringskonfiguration til genbrug eller deling. Spare en kun efter kanalkartlægning, kontrolbrønner og filtre er blevet kontrolleret mod repræsentative billeder og distributioner."
+        },
+        {
+          "narration": "Send fjerntilladelse sender de afviklede indstillinger til Distributed Jobs i stedet for at starte lokalt. Brug den til en stor database først, når det fjerntliggende system kan få adgang til både measurements.db og de fusionerede matrixer under korrekt kartograferede stier."
+        },
+        {
+          "narration": "Fjernskærmen modtager et jobudkast. Kontroller miljøaktivering, synkronisering, ressourcer og den genererede kommando, og indsend derefter et lille valideringsjob, før du skalerer til en fuld plade."
+        },
+        {
+          "narration": "Datakilden indeholder eksperimentets rod. Rekruttering læser eksisterende målinger af celler, kerne, parasitter og cytoplasmer; det segmenterer eller måler ikke billeder igen."
+        },
+        {
+          "narration": "Mask and Channel Map identificerer alle intensitetsplaner og maskplaner. Her bruger celler ER-kanal 1 og maskine 4, kerner kanal 0 og maskine 5, parasitter kanal 3 og maskine 6, mens rekruttering beregnes på ER-kanal 1."
+        },
+        {
+          "narration": "Objekt Filtering af celler, kerner og parasitter efter areal og intensitet, begrænser objekter pr. celle og kræver nok celler pr. brønd. Denne run holder celler over tre tusind fem hundrede pixels, kerner fra syv hundrede til fire tusind og parasitter fra hundrede til tusind."
+        },
+        {
+          "narration": "Plade Layout og Controls kortlægger biologiske mærker til række- eller kolonneidentifikatorer. Kolonne én er den positive kontrol, kolonne to er den negative kontrol, og kolonne tre til fjorten er skærmbrønner; alle rækker er HeLa celler."
+        },
+        {
+          "narration": "Plots and Diagnostics kontrollerer segmentationsoverlays, kontrolintensitetspaneler, figurstørrelse og hvor mange fusionerede felter der er prøvet. Undersøg overlappelserne, før du stoler på et forhold, og sammenlign kontrollerne, før du fortolker skærmbrønner."
+        },
+        {
+          "narration": "Det fulde kanalkort er synligt her. Kanaldimensioner fra nul til tre er tilgængelige til diagnostik, men den primære rekrutteringsscore er patogenkanal-en gennemsnitlig intensitet divideret med cytoplasmkanal-en gennemsnitlig intensitet inden for den matcherede værtscelle."
+        },
+        {
+          "narration": "Klik på Løb efter at have tjekket kilde, kort, filtre og kontroller. Bagsiden tilslutter sig de fire måletabler, annoterer betingelser, anvender hver objektgate, beregner rekruttering, grupperer brønde og køer diagnostiske tal."
+        },
+        {
+          "narration": "Under udførelsen viser filtreringstællinger i konsollen præcis, hvor genstande fjernes. Du skal ikke behandle en stor reduktion som automatisk god eller dårlig; sammenligne den med de planlagte arealgrænser, kontrolfordelinger og prøvet overflade."
+        },
+        {
+          "narration": "Den virkelige run bevarede 399 37 PV-niveauer i alle 96 brønde og producerede fem tal plus cells.csv og wells.csv. Gennemsnitlig rekruttering på godt niveau ER er et punkt tre fem fire i den positive kontrol, et punkt to otte en i den negative kontrol, og et punkt tre en otte i skærmbrønneen beskedne adskillelse, der skal bedømmes med variabilitet og billed QC, ikke betyder alene."
         }
       ]
     },

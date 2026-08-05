@@ -1372,19 +1372,64 @@
       "id": "25_recruitment",
       "scenes": [
         {
-          "narration": "Denna handledning omfattar rekrytering. Kvantifiera rekryteringen av en kanal av intresse signal till parasiter eller sjukdomsframkallande associerade regioner."
+          "narration": "Rekryteringsåtgärder berikar en markör i parasitrelaterade regioner i förhållande till den omgivande värdcellscytoplasmen. Konsolen registrerar lösta inställningar, filtreringsantal, utgångsvägar, siffror, varningar och fel. Chatlådan kan diskutera den kontexten när AI är aktiverad."
         },
         {
-          "narration": "Öppna rekryteringar från sektionen Toxoplasma analyser. Använd målade cell-, parasit- och organelmasker med kanal ett, endoplasmisk retikulum, som kanal av intresse."
+          "narration": "Använd AI-alternativet bara när du vill ha chat-hjälp. Den angränsande menyn väljer en konfigurerad leverantör och öppnar leverantörsinställningar; rekryteringen själv körs lokalt och beror inte på en AI-tjänst."
         },
         {
-          "narration": "I huvudkonfigurationsområdet definieras rekryteringsregionen, bakgrundsreferens, objektfilter, gruppering och normaliseringsstrategi."
+          "narration": "Provider-inställningen skiljer lokal från värdassistenter. Konfigurera endast de tjänster du avser att använda och se över integritetsmeddelandet innan du skickar konsol- eller bildkontext till en fjärrleverantör."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. inspektera överlappningar på objektnivå och kontrollera fördelningarna innan förhållandena jämförs."
+          "narration": "AI-inställningar kontrollerar assistentkontext, legitimation och valfri felrapportering. Dessa preferenser ändrar inte rekryteringsformeln, objektfiltreringar eller anteckningar på tallriken."
         },
         {
-          "narration": "När arbetsflödet är färdigt lagras rekryteringspoäng och sammanfattningar av villkor per objekt med källaidentifierare."
+          "narration": "Välj eller släppa experimentroten som innehåller mätningar/mätningar.db och den samlade mappen. I den här handledningen används det överförda HeLa siRNA-experimentet, inte syntetiska data, med kanal 1 ER-signalen  som kanal av intresse."
+        },
+        {
+          "narration": "Essentials presenterar källan, kanalkartläggningen, filtrerna, plattans layout och diagnostiska val som behövs för en första körning. Kontrollera kartan innan du ställer in tröskelvärden eftersom ett giltigt men felaktigt kanalindex kan ge plausibla, felaktiga förhållanden."
+        },
+        {
+          "narration": "Modifierade visar endast avsiktliga avvikelser från standard. Använd den som en kompakt förhandsgranskning av den verkliga experimentvägen, ER-kanalen ett, de tre maskplanen, områdesfiltrer, kontrollkolumner och diagnostiska val."
+        },
+        {
+          "narration": "Alla inställningar avslöjar alla kontroller när man reproducerar eller felsökar en körning. Återgå till Essentials när de ytterligare kontrollerna inte behövs, så att avancerade värden inte ändras oavsiktligt."
+        },
+        {
+          "narration": "Recepten behåller en validerad rekryteringskonfiguration för återanvändning eller delning. Spara en först efter att kanalkartläggning, kontrollbrunnar och filter har kontrollerats mot representativa bilder och distributioner."
+        },
+        {
+          "narration": "Submit remot skickar de lösade inställningarna till Distributed Jobs istället för att starta lokalt. Använd den för en stor databas först efter att fjärrsystemet har tillgång till både measurements.db och de samlade matriserna under korrekt kartlagda vägar."
+        },
+        {
+          "narration": "Den fjärrbildskärmen får ett jobbutkast. Verifiera miljöaktivering, synkronisering, resurser och det genererade kommandot, och skicka sedan ett litet valideringsarbete innan du skaffar en full plattform."
+        },
+        {
+          "narration": "Datakällan innehåller experimentets rot. Rekrytering läser befintliga cell-, kärn-, parasit- och cytoplasmmätningar; den segmenterar inte eller ommätar inte bilder."
+        },
+        {
+          "narration": "Mask och kanal kartläggning identifierar varje intensitetsplan och maskplan. Här använder celler ER-kanal ett och mask fyra, kärnor använder kanal noll och mask fem, parasiter använder kanal tre och mask sex, medan rekryteringen beräknas på ER-kanal ett."
+        },
+        {
+          "narration": "Objekt Filtrering av celler, kärnor och parasiter efter område och intensitet, begränsar objekt per cell och kräver tillräckligt med celler per brunn. Denna kör håller celler över tre tusen fem hundra pixlar, kärnor från sju hundra till fyra tusen och parasiter från hundra till tusen."
+        },
+        {
+          "narration": "Plattens layout och kontroller kartlägger biologiska etiketter till rad- eller kolumnidentifierare. Kolumn ett är den positiva kontrollen, kolumn två är den negativa kontrollen, och kolumnerna tre till fjorton är skärmbrunnar; alla rader är HeLa celler."
+        },
+        {
+          "narration": "Plots and Diagnostics kontrollerar segmentering överlappningar, kontrollintensitetspaneler, figurstorlek och hur många sammanslagna fält som tas i prov. Kontrollera överlappningarna innan du litar på ett förhållande, och jämföra kontrollerna innan du tolkar skärmbrunnar."
+        },
+        {
+          "narration": "Den fullständiga kanalkarten är synlig här. Kanaldimensioner från noll till tre är tillgängliga för diagnostik, men den primära rekryteringspoängen är patogenkanal - en genomsnittlig intensitet dividerad med cytoplasmkanal - en genomsnittlig intensitet inom den matchade värdcellen."
+        },
+        {
+          "narration": "Klicka på Kör efter att ha kontrollerat källa, karta, filter och kontroller. Backend ansluter sig till de fyra mättabellerna, antecknar förhållanden, tillämpar varje objektport, beräknar rekrytering, grupperar brunnar och köar diagnostiska siffror."
+        },
+        {
+          "narration": "Under utförandet visar filtreringsnumren i konsolen exakt var objekt tas bort. Behandla inte en stor minskning som automatiskt bra eller dålig; förena den med de avsedda arealgränserna, kontrollfördelningarna och provtagna överlappningar."
+        },
+        {
+          "narration": "Den verkliga körningen behöll 399 37 rader på PV-nivå över alla 96 brunnar och producerade fem siffror plus cells.csv och wells.csv. Den genomsnittliga rekryteringen av ER på god nivå är en punkt tre fem fyra i den positiva kontrollen, en punkt två åtta en i den negativa kontrollen och en punkt tre en åtta i skärmbrunnenen blygsam separation som bör bedömas med variation och bild QC, inte betyder ensam."
         }
       ]
     },

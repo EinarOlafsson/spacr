@@ -3544,47 +3544,168 @@
       "id": "25_recruitment",
       "number": 25,
       "slug": "recruitment",
-      "title": "Recruitment",
+      "title": "招聘",
       "series": 3,
       "app_key": "recruitment",
       "section": "Toxoplasma assays",
-      "description": "量化对寄生虫或与病原体相关区域的兴趣道信号招募.",
+      "description": "测量对寄生虫相关区域的光道与宿主细胞细胞细胞细胞相对的丰富化,使用对象过器,板块注释,每PV和每井总结.",
       "objectives": [
-        "了解什么时候使用招募.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "正确地绘制强度道和细胞,核和寄生虫面具平面.",
+        "在计算病原体到细胞瘤招募之前,应使用对象和板块级过器.",
+        "解释每个PV,每个井,控制,覆盖和诊断输出的真实结果."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "运行测量与细胞,核,寄生虫和细胞质表加上合并阵列;定义正和负控制井.",
       "scenes": [
         {
-          "narration": "量化对寄生虫或与病原体相关区域的兴趣信号的招募.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "量化对寄生虫或与病原体相关区域的兴趣信号的招募."
+          "narration": "招募措施与周围宿主细胞细胞细胞等相对于寄生虫相关区域的标记丰富. 控制台记录已解决的设置,过计数,输出路径,数字,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "招募措施与周围宿主细胞细胞细胞等相对于寄生虫相关区域的标记丰富. 控制台记录已解决的设置,过计数,输出路径,数字,警告和错误;当人工智能启用时,聊天框可以讨论该背景."
         },
         {
-          "narration": "从 Toxoplasma assays 部分打开 Recruitment。 使用测量细胞,寄生虫和机器人掩膜,以第一个通道,内膜网膜作为关注通道.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Toxoplasma assays 部分打开 Recruitment。 使用测量细胞,寄生虫和机器人掩膜,以第一个通道,内膜网膜作为关注通道."
+          "narration": "只有当你需要聊天帮助时,才使用人工智能交换器. 邻近的菜单选择了一个配置的提供商,并打开提供商设置;招聘本身在本地运行,并不依赖于人工智能服务.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.52,
+          "speech_text": "只有当你需要聊天帮助时,才使用人工智能交换器. 邻近的菜单选择了一个配置的提供商,并打开提供商设置;招聘本身在本地运行,并不依赖于人工智能服务."
         },
         {
-          "narration": "在主要配置区域中,定义招聘区域,背景参考,对象过器,组合和正常化策略.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主要配置区域中,定义招聘区域,背景参考,对象过器,组合和正常化策略."
+          "narration": "提供商设置区分了本地和托管的助理. 在向远程提供商发送控制台或图像文本之前,只配置您打算使用的服务,并查看隐私声明.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.52,
+          "speech_text": "提供商设置区分了本地和托管的助理. 在向远程提供商发送控制台或图像文本之前,只配置您打算使用的服务,并查看隐私声明."
         },
         {
-          "narration": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+          "narration": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变招聘公式,对象过器或表格注释.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变招聘公式,对象过器或表格注释."
         },
         {
-          "narration": "工作流程完成后,每个对象的招聘分数和条件总结将与源标识符存储.",
-          "visual": "output",
+          "narration": "选择或放弃包含测量/measurements.db和合并文件的实验根. 本教程使用转移的HeLa siRNA实验,而不是合成数据,",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
           "hold_after": 0.65,
-          "speech_text": "工作流程完成后,每个对象的招聘分数和条件总结将与源标识符存储."
+          "speech_text": "选择或放弃包含测量/measurements dot db和合并文件的实验根. 本教程使用转移的HeLa siRNA实验,而不是合成数据,"
+        },
+        {
+          "narration": "基本内容介绍了首次运行所需的来源,道映射,过器,板块布局和诊断选择. 在调整门之前确认地图,因为一个有效但错误的频道指数可以产生可行的,错误的比例.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.56,
+          "speech_text": "基本内容介绍了首次运行所需的来源,道映射,过器,板块布局和诊断选择. 在调整门之前确认地图,因为一个有效但错误的频道指数可以产生可行的,错误的比例."
+        },
+        {
+          "narration": "修改的显示仅是故意偏离默认的. 用它作为实验路径,急诊频道一,三个面具平面,面积过器,控制列和诊断选择的紧预测.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "修改的显示仅是故意偏离默认的. 用它作为实验路径,急诊频道一,三个面具平面,面积过器,控制列和诊断选择的紧预测."
+        },
+        {
+          "narration": "所有设置在复制或故障解决运行时暴露每个控制. 当不需要额外的控制时,返回Essentials,因此先进值不会意外改变.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "所有设置在复制或故障解决运行时暴露每个控制. 当不需要额外的控制时,返回Essentials,因此先进值不会意外改变."
+        },
+        {
+          "narration": "配方保留了验证的招聘配置,以便重复使用或共享. 保存一个只有在道映射,控制井和过器已与代表性图像和分布进行检查后.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "配方保留了验证的招聘配置,以便重复使用或共享. 保存一个只有在道映射,控制井和过器已与代表性图像和分布进行检查后."
+        },
+        {
+          "narration": "提交远程将已解决的设置发送到分布式工作,而不是在本地启动. 仅在远程系统能够在正确地映射的路径下访问 measurements.db 和合并阵列后使用它用于大型数据库.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.55,
+          "speech_text": "提交远程将已解决的设置发送到分布式工作,而不是在本地启动. 仅在远程系统能够在正确地映射的路径下访问 measurements dot db 和合并阵列后使用它用于大型数据库."
+        },
+        {
+          "narration": "远程屏幕收到一份工作稿. 验证环境激活,同步,资源和生成的命令,然后提交一个小的验证工作,",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.58,
+          "speech_text": "远程屏幕收到一份工作稿. 验证环境激活,同步,资源和生成的命令,然后提交一个小的验证工作,"
+        },
+        {
+          "narration": "数据源包含实验根. 招聘阅读现有细胞,核,寄生虫和细胞质量测量;它不分割或重新测量图像.",
+          "visual": "12_category_01_data_source",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "数据源包含实验根. 招聘阅读现有细胞,核,寄生虫和细胞质量测量;它不分割或重新测量图像."
+        },
+        {
+          "narration": "面具和频道地图识别每个强度平面和面具平面. 在这里,细胞使用ER频道一,面具四,核使用ER频道零,面具五,寄生虫使用ER频道三,面具六,而招募计算在ER频道一.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.65,
+          "speech_text": "面具和频道地图识别每个强度平面和面具平面. 在这里,细胞使用ER频道一,面具四,核使用ER频道零,面具五,寄生虫使用ER频道三,面具六,而招募计算在ER频道一."
+        },
+        {
+          "narration": "对象 通过面积和强度过细胞,核和寄生虫,限制每个细胞的物体,并且需要每个井口的足够的细胞. 这种运行使细胞超过3500像素,核从700到4000个,寄生虫从100到1000个.",
+          "visual": "12_category_03_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "对象 通过面积和强度过细胞,核和寄生虫,限制每个细胞的物体,并且需要每个井口的足够的细胞. 这种运行使细胞超过3500像素,核从700到4000个,寄生虫从100到1000个."
+        },
+        {
+          "narration": "板布局和控制将生物标签映射到排列或列标识符. 列一是正面控制,列二是负面控制,列三到十四是屏幕井;所有行都是HeLa细胞.",
+          "visual": "12_category_04_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "板布局和控制将生物标签映射到排列或列标识符. 列一是正面控制,列二是负面控制,列三到十四是屏幕井;所有行都是HeLa细胞."
+        },
+        {
+          "narration": "图片和诊断控制分区叠加,控制强度面板,图像大小,以及多少合并的字段被采样. 在信任比率之前检查叠加,并在解释屏幕井之前比较控制.",
+          "visual": "12_category_05_plots_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "图片和诊断控制分区叠加,控制强度面板,图像大小,以及多少合并的字段被采样. 在信任比率之前检查叠加,并在解释屏幕井之前比较控制."
+        },
+        {
+          "narration": "这里可以看到完整的道地图. 频道尺寸从零到三可用于诊断,但主要招募分数是病原体频道 - 一个平均强度分为细胞质频道 - 一个相匹配的宿主细胞内的平均强度.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "这里可以看到完整的道地图. 频道尺寸从零到三可用于诊断,但主要招募分数是病原体频道 - 一个平均强度分为细胞质频道 - 一个相匹配的宿主细胞内的平均强度."
+        },
+        {
+          "narration": "检查源,地图,过器和控制后点击运行. 后端加入四个测量表,注释条件,应用每个对象门,计算招聘,组组井,排队诊断数字.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.58,
+          "speech_text": "检查源,地图,过器和控制后点击运行. 后端加入四个测量表,注释条件,应用每个对象门,计算招聘,组组井,排队诊断数字."
+        },
+        {
+          "narration": "在执行过程中,控制台中的过数量显示了物体被移除的位置. 不要把大量的减小视为自动好或坏;与预期的面积限制,控制分布和样品覆盖相协调.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.58,
+          "speech_text": "在执行过程中,控制台中的过数量显示了物体被移除的位置. 不要把大量的减小视为自动好或坏;与预期的面积限制,控制分布和样品覆盖相协调."
+        },
+        {
+          "narration": "实际运行保留了399000937个光伏水平线在所有96个井口中,并产生了5个数字加上 cells.csv和 wells.csv. 在正面控制中,平均3分五分四分之一,在负面控制中1分二分八分之一,在屏幕井中1分三分一分八分之一. 这是一个适度的分离,应根据可变性和图像QC来判断,而不是单独的意义.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.9,
+          "speech_text": "实际运行保留了399000937个光伏水平线在所有96个井口中,并产生了5个数字加上 cells.csv和 wells.csv. 在正面控制中,平均3分五分四分之一,在负面控制中1分二分八分之一,在屏幕井中1分三分一分八分之一. 这是一个适度的分离,应根据可变性和图像QC来判断,而不是单独的意义."
         }
       ]
     },

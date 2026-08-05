@@ -3544,47 +3544,168 @@
       "id": "25_recruitment",
       "number": 25,
       "slug": "recruitment",
-      "title": "Recruitment",
+      "title": "Reclutamento",
       "series": 3,
       "app_key": "recruitment",
       "section": "Toxoplasma assays",
-      "description": "Quantificare il reclutamento di un segnale di canale di interesse verso le regioni associate ai parassiti o agli agenti patogeni.",
+      "description": "Misurare l'arricchimento di un canale di fluorescenza nelle regioni associate ai parassiti rispetto al citoplasma delle cellule ospitanti, con filtri di oggetti, annotamenti delle placche e riassunti per PV e per pozzo.",
       "objectives": [
-        "Capire quando usare il reclutamento.",
-        "Configurazione delle input e delle impostazioni importanti.",
-        "Eseguire il flusso di lavoro e individuare le sue uscite."
+        "Mappa i canali di intensità e i piani di maschera cellulare, nucleo e parassita correttamente.",
+        "Applicare filtri a livello di oggetto e di piastra prima di calcolare il reclutamento da agente patogeno al citoplasma.",
+        "Interpretare reali per PV, per pozzo, controllo, sovrapposizione e uscite diagnostiche."
       ],
-      "prerequisite": "Seguire le lezioni precedenti nel flusso di lavoro quando questo modulo ha bisogno di risultati a monte.",
+      "prerequisite": "Eseguire Misura con tabelle di cellule, nuclei, parassiti e citoplasmi più array fusi; definire pozzi e pozzi di controllo negativi.",
       "scenes": [
         {
-          "narration": "Questo tutorial riguarda il reclutamento.Quantificare il reclutamento di un canale di interesse di segnale ai parassiti o alle regioni associate a agenti patogeni.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Questo tutorial riguarda il reclutamento.Quantificare il reclutamento di un canale di interesse di segnale ai parassiti o alle regioni associate a agenti patogeni."
+          "narration": "Il reclutamento misura l'arricchimento di un marcatore nelle regioni associate ai parassiti rispetto al citoplasma delle cellule ospitanti circostanti. La console registra le impostazioni risolte, i conti di filtraggio, i percorsi di uscita, le cifre, gli avvertimenti e gli errori; la casella di chat può discutere di quel contesto quando l'IA è abilitata.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Il reclutamento misura l'arricchimento di un marcatore nelle regioni associate ai parassiti rispetto al citoplasma delle cellule ospitanti circostanti. La console registra le impostazioni risolte, i conti di filtraggio, i percorsi di uscita, le cifre, gli avvertimenti e gli errori; la casella di chat può discutere di quel contesto quando l'IA è abilitata."
         },
         {
-          "narration": "Apri Recruitment dalla sezione Toxoplasma assays. Applicare le maschere di cellule, parassiti e organi con canale uno, il reticolo endoplasmico, come canale di interesse.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Apri Recruitment dalla sezione Toxoplasma assays. Applicare le maschere di cellule, parassiti e organi con canale uno, il reticolo endoplasmico, come canale di interesse."
+          "narration": "Usa l'intelligenza artificiale solo quando vuoi l'assistenza di chat. Il menu adiacente seleziona un fornitore configurato e apre le impostazioni del fornitore; il reclutamento stesso è eseguito localmente e non dipende da un servizio di IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.52,
+          "speech_text": "Usa l'intelligenza artificiale solo quando vuoi l'assistenza di chat. Il menu adiacente seleziona un fornitore configurato e apre le impostazioni del fornitore; il reclutamento stesso è eseguito localmente e non dipende da un servizio di IA."
         },
         {
-          "narration": "Nell'area di configurazione principale, definire la regione di reclutamento, il riferimento di sfondo, i filtri di oggetti, il raggruppamento e la strategia di normalizzazione.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Nell'area di configurazione principale, definire la regione di reclutamento, il riferimento di sfondo, i filtri di oggetti, il raggruppamento e la strategia di normalizzazione."
+          "narration": "La configurazione del provider distingue gli assistenti locali dagli assistenti ospitati. Configura solo i servizi che intendi utilizzare e consulta l'informativa sulla privacy prima di inviare il contesto della console o dell'immagine a un fornitore remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.52,
+          "speech_text": "La configurazione del provider distingue gli assistenti locali dagli assistenti ospitati. Configura solo i servizi che intendi utilizzare e consulta l'informativa sulla privacy prima di inviare il contesto della console o dell'immagine a un fornitore remoto."
         },
         {
-          "narration": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile."
+          "narration": "Le impostazioni AI controllano il contesto assistente, le credenziali e la segnalazione di errori opzionali. Queste preferenze non modificano la formula di reclutamento, i filtri di oggetti o le annotative della targa.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "Le impostazioni AI controllano il contesto assistente, le credenziali e la segnalazione di errori opzionali. Queste preferenze non modificano la formula di reclutamento, i filtri di oggetti o le annotative della targa."
         },
         {
-          "narration": "Quando il flusso di lavoro è terminato, i punteggi di reclutamento per oggetto e i riassunti delle condizioni vengono memorizzati con identificatori di fonte.",
-          "visual": "output",
+          "narration": "Selezionare o eliminare la radice dell'esperimento contenente le misure/measurements.db e la cartella fusa. Questo tutorial utilizza l'esperimento HeLa siRNA trasferito, non dati sintetici, con il canale uno il segnale ER come canale di interesse.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
           "hold_after": 0.65,
-          "speech_text": "Quando il flusso di lavoro è terminato, i punteggi di reclutamento per oggetto e i riassunti delle condizioni vengono memorizzati con identificatori di fonte."
+          "speech_text": "Selezionare o eliminare la radice dell'esperimento contenente le misure/measurements dot db e la cartella fusa. Questo tutorial utilizza l'esperimento HeLa siRNA trasferito, non dati sintetici, con il canale uno il segnale ER come canale di interesse."
+        },
+        {
+          "narration": "Essentials presenta la fonte, la mappatura del canale, i filtri, la disposizione della piastra e le scelte diagnostiche necessarie per una prima esecuzione. Confirmare la mappa prima di regolare le soglie perché un indice di canale valido ma sbagliato può produrre rapporti plausibili e errati.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.56,
+          "speech_text": "Essentials presenta la fonte, la mappatura del canale, i filtri, la disposizione della piastra e le scelte diagnostiche necessarie per una prima esecuzione. Confirmare la mappa prima di regolare le soglie perché un indice di canale valido ma sbagliato può produrre rapporti plausibili e errati."
+        },
+        {
+          "narration": "Modificato mostra solo le deviazioni deliberate dalle impostazioni predefinite. Utilizzalo come un audit pre-esercizio compatto del percorso reale dell'esperimento, il canale ER uno, i tre piani di maschera, i filtri di area, le colonne di controllo e le scelte diagnostiche.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "Modificato mostra solo le deviazioni deliberate dalle impostazioni predefinite. Utilizzalo come un audit pre-esercizio compatto del percorso reale dell'esperimento, il canale ER uno, i tre piani di maschera, i filtri di area, le colonne di controllo e le scelte diagnostiche."
+        },
+        {
+          "narration": "Tutte le impostazioni espongono ogni controllo durante la riproduzione o la risoluzione dei problemi di una corsa. Ritorno agli elementi essenziali quando non sono necessari i controlli aggiuntivi, in modo che i valori avanzati non vengano modificati accidentalmente.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Tutte le impostazioni espongono ogni controllo durante la riproduzione o la risoluzione dei problemi di una corsa. Ritorno agli elementi essenziali quando non sono necessari i controlli aggiuntivi, in modo che i valori avanzati non vengano modificati accidentalmente."
+        },
+        {
+          "narration": "Le ricette conservano una configurazione di reclutamento convalidata per il riutilizzo o la condivisione. Salvare uno solo dopo che la mappatura del canale, i pozzi di controllo e i filtri sono stati controllati con immagini e distribuzioni rappresentative.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Le ricette conservano una configurazione di reclutamento convalidata per il riutilizzo o la condivisione. Salvare uno solo dopo che la mappatura del canale, i pozzi di controllo e i filtri sono stati controllati con immagini e distribuzioni rappresentative."
+        },
+        {
+          "narration": "Submit remotamente invia le impostazioni risolute a Jobs distribuiti piuttosto che iniziare localmente. Utilizzare per un grande database solo dopo che il sistema remoto può accedere sia a measurements.db che alle matrici fuse sotto percorsi correttamente mappati.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.55,
+          "speech_text": "Submit remotamente invia le impostazioni risolute a Jobs distribuiti piuttosto che iniziare localmente. Utilizzare per un grande database solo dopo che il sistema remoto può accedere sia a measurements dot db che alle matrici fuse sotto percorsi correttamente mappati."
+        },
+        {
+          "narration": "Lo schermo remoto riceve un progetto di lavoro. Verificare l'attivazione dell'ambiente, la sincronizzazione, le risorse e il comando generato, quindi inviare un piccolo lavoro di convalida prima di scalare a una piastra completa.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.58,
+          "speech_text": "Lo schermo remoto riceve un progetto di lavoro. Verificare l'attivazione dell'ambiente, la sincronizzazione, le risorse e il comando generato, quindi inviare un piccolo lavoro di convalida prima di scalare a una piastra completa."
+        },
+        {
+          "narration": "La fonte dei dati contiene la radice dell'esperimento. Il reclutamento legge le misurazioni esistenti di cellule, nuclei, parassiti e citoplasmi; non segmenta o misura nuovamente le immagini.",
+          "visual": "12_category_01_data_source",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "La fonte dei dati contiene la radice dell'esperimento. Il reclutamento legge le misurazioni esistenti di cellule, nuclei, parassiti e citoplasmi; non segmenta o misura nuovamente le immagini."
+        },
+        {
+          "narration": "La mappatura di maschera e canale identifica ogni piano di intensità e piano di maschera. Qui le cellule usano il canale ER uno e la maschera quattro, i nuclei usano il canale zero e la maschera cinque, i parassiti usano il canale tre e la maschera sei, mentre il reclutamento è calcolato sul canale ER uno.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.65,
+          "speech_text": "La mappatura di maschera e canale identifica ogni piano di intensità e piano di maschera. Qui le cellule usano il canale ER uno e la maschera quattro, i nuclei usano il canale zero e la maschera cinque, i parassiti usano il canale tre e la maschera sei, mentre il reclutamento è calcolato sul canale ER uno."
+        },
+        {
+          "narration": "Oggetto Filtrare le cellule, i nuclei e i parassiti per area e intensità, limitare gli oggetti per cellula e richiedere abbastanza cellule per pozzo. Questa corsa mantiene le cellule al di sopra di tre mila e cinquecento pixel, i nuclei da settecento a quattro mila e i parassiti da cento a mille.",
+          "visual": "12_category_03_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "Oggetto Filtrare le cellule, i nuclei e i parassiti per area e intensità, limitare gli oggetti per cellula e richiedere abbastanza cellule per pozzo. Questa corsa mantiene le cellule al di sopra di tre mila e cinquecento pixel, i nuclei da settecento a quattro mila e i parassiti da cento a mille."
+        },
+        {
+          "narration": "Layout e Controlli della scheda mappano le etichette biologiche per gli identificatori di righe o colonne. La prima colonna è il controllo positivo, la seconda colonna è il controllo negativo, e le colonne da tre a quattordici sono pozzi di schermo; tutte le righe sono celle HeLa.",
+          "visual": "12_category_04_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Layout e Controlli della scheda mappano le etichette biologiche per gli identificatori di righe o colonne. La prima colonna è il controllo positivo, la seconda colonna è il controllo negativo, e le colonne da tre a quattordici sono pozzi di schermo; tutte le righe sono celle HeLa."
+        },
+        {
+          "narration": "Plots and Diagnostics controlla le sovrapposizioni di segmentazione, i pannelli di intensità di controllo, la dimensione della figura e il numero di campi fusi che vengono campionati. Ispezionare le sovrapposizioni prima di fidarsi di un rapporto, e confrontare i controlli prima di interpretare i pozzi dello schermo.",
+          "visual": "12_category_05_plots_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Plots and Diagnostics controlla le sovrapposizioni di segmentazione, i pannelli di intensità di controllo, la dimensione della figura e il numero di campi fusi che vengono campionati. Ispezionare le sovrapposizioni prima di fidarsi di un rapporto, e confrontare i controlli prima di interpretare i pozzi dello schermo."
+        },
+        {
+          "narration": "La mappa completa del canale è visibile qui. Le dimensioni del canale da zero a tre sono disponibili per la diagnosi, ma il punteggio di reclutamento primario è il canale patogeno - una intensità media divisa dal canale citoplasma - una intensità media all'interno della cellula ospitante abbinata.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "La mappa completa del canale è visibile qui. Le dimensioni del canale da zero a tre sono disponibili per la diagnosi, ma il punteggio di reclutamento primario è il canale patogeno - una intensità media divisa dal canale citoplasma - una intensità media all'interno della cellula ospitante abbinata."
+        },
+        {
+          "narration": "Fare clic su eseguire dopo aver controllato fonte, mappa, filtri e controlli. Il backend si unisce alle quattro tabelle di misura, annota le condizioni, applica ogni cancello dell'oggetto, calcola il reclutamento, raggruppa pozzi e fa le code di dati diagnostici.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.58,
+          "speech_text": "Fare clic su eseguire dopo aver controllato fonte, mappa, filtri e controlli. Il backend si unisce alle quattro tabelle di misura, annota le condizioni, applica ogni cancello dell'oggetto, calcola il reclutamento, raggruppa pozzi e fa le code di dati diagnostici."
+        },
+        {
+          "narration": "Durante l'esecuzione, i numeri di filtraggio nella console mostrano esattamente dove vengono rimossi gli oggetti. Non trattare una grande riduzione automaticamente come buona o cattiva; conciliarla con i limiti di superficie previsti, le distribuzioni di controllo e le sovrapposizioni campionate.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.58,
+          "speech_text": "Durante l'esecuzione, i numeri di filtraggio nella console mostrano esattamente dove vengono rimossi gli oggetti. Non trattare una grande riduzione automaticamente come buona o cattiva; conciliarla con i limiti di superficie previsti, le distribuzioni di controllo e le sovrapposizioni campionate."
+        },
+        {
+          "narration": "La corsa reale ha conservato 399 37 righe di livello fotovoltaico in tutti i 96 pozzi e ha prodotto 5 cifre più cellule.csv e pozzi.csv. Il livello medio di reclutamento ER è un punto tre cinque quattro nel controllo positivo, un punto due otto uno nel controllo negativo, e un punto tre uno otto nei pozzi dello schermouna modesta separazione che dovrebbe essere giudicata con variabilità e QC dell'immagine, non significa da solo.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.9,
+          "speech_text": "La corsa reale ha conservato 399 37 righe di livello fotovoltaico in tutti i 96 pozzi e ha prodotto 5 cifre più cellule.csv e pozzi.csv. Il livello medio di reclutamento ER è un punto tre cinque quattro nel controllo positivo, un punto due otto uno nel controllo negativo, e un punto tre uno otto nei pozzi dello schermouna modesta separazione che dovrebbe essere giudicata con variabilità e QC dell'immagine, non significa da solo."
         }
       ]
     },

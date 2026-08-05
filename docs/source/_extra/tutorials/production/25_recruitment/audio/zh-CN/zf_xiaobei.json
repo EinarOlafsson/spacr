@@ -4,47 +4,207 @@
   "voice": "zf_xiaobei",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 45.6,
+  "total_duration": 299.41,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 6.85,
-      "scene_end": 7.3,
-      "duration": 7.3,
-      "text": "量化对寄生虫或与病原体相关区域的兴趣信号的招募."
+      "speech_end": 17.175,
+      "scene_end": 17.795,
+      "duration": 17.795,
+      "text": "招募措施与周围宿主细胞细胞细胞等相对于寄生虫相关区域的标记丰富. 控制台记录已解决的设置,过计数,输出路径,数字,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+      "speech_text": "招募措施与周围宿主细胞细胞细胞等相对于寄生虫相关区域的标记丰富. 控制台记录已解决的设置,过计数,输出路径,数字,警告和错误;当人工智能启用时,聊天框可以讨论该背景.",
+      "phonemes": "ꭧau→mu↘ ʦʰwo↘ʂɨ→ y↓ ꭧou→wei↗ su↘ꭧu↓ ɕi↘pau→ ɕi↘pau→ ɕi↘pau→ tə↓ŋ ɕja→ŋtwei↘ y↗ ʨi↘ʂə→ŋꭧʰʊ↗ŋ ɕja→ŋkwa→n ʨʰy→y↘ tɤ pjau→ʨi↘ fə→ŋfu↘. kʰʊ↘ŋꭧɨ↘tʰai↗ ʨi↘lu↘ i↓ ʨje↓ʨɥe↗ tɤ ʂɤ↘ꭧɨ↘,kwo↘ ʨi↘ʂu↘,ʂu→ꭧʰu→ lu↘ʨi↘ŋ,ʂu↘ʦɨ↘,ʨi↓ŋkau↘ xɤ↗ ʦʰwo↘u↘;ta→ŋ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʨʰi↓jʊ↘ŋ ʂɨ↗,ljau↗tʰjɛ→n kʰwa→ŋ kʰɤ↓i↓ tʰau↓lwə↘n kai→ pei↘ʨi↓ŋ."
     },
     {
       "scene": 2,
-      "speech_start": 7.3,
-      "speech_end": 18.975,
-      "scene_end": 19.425,
-      "duration": 12.125,
-      "text": "从 Toxoplasma assays 部分打开 Recruitment。 使用测量细胞,寄生虫和机器人掩膜,以第一个通道,内膜网膜作为关注通道."
+      "speech_start": 17.795,
+      "speech_end": 33.32,
+      "scene_end": 33.84,
+      "duration": 16.045,
+      "text": "只有当你需要聊天帮助时,才使用人工智能交换器. 邻近的菜单选择了一个配置的提供商,并打开提供商设置;招聘本身在本地运行,并不依赖于人工智能服务.",
+      "speech_text": "只有当你需要聊天帮助时,才使用人工智能交换器. 邻近的菜单选择了一个配置的提供商,并打开提供商设置;招聘本身在本地运行,并不依赖于人工智能服务.",
+      "phonemes": "ꭧɨ↓jou↓ ta→ŋ ni↓ ɕy→jau↘ ljau↗tʰjɛ→n pa→ŋꭧu↘ ʂɨ↗,ʦʰai↗ ʂɨ↓jʊ↘ŋ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʨjau→xwa↘nʨʰi↘. li↗nʨi↘n tɤ ʦʰai↘ta→n ɕɥɛ↓nʦɤ↗ lɤ i↗kɤ↘ pʰei↘ꭧɨ↘ tɤ tʰi↗kʊ→ŋʂa→ŋ,pi↘ŋ ta↓kʰai→ tʰi↗kʊ→ŋʂa→ŋ ʂɤ↘ꭧɨ↘;ꭧau→pʰi↘n pə↓nʂə→n ʦai↘ pə↓nti↘ y↘nɕi↗ŋ,pi↘ŋ pu↘ i→lai↘y↗ ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ fu↗u↘."
     },
     {
       "scene": 3,
-      "speech_start": 19.425,
-      "speech_end": 28.075000000000003,
-      "scene_end": 28.525000000000002,
-      "duration": 9.100000000000001,
-      "text": "在主要配置区域中,定义招聘区域,背景参考,对象过器,组合和正常化策略."
+      "speech_start": 33.84,
+      "speech_end": 47.365,
+      "scene_end": 47.885000000000005,
+      "duration": 14.045000000000002,
+      "text": "提供商设置区分了本地和托管的助理. 在向远程提供商发送控制台或图像文本之前,只配置您打算使用的服务,并查看隐私声明.",
+      "speech_text": "提供商设置区分了本地和托管的助理. 在向远程提供商发送控制台或图像文本之前,只配置您打算使用的服务,并查看隐私声明.",
+      "phonemes": "tʰi↗kʊ→ŋʂa→ŋ ʂɤ↘ꭧɨ↘ ʨʰy→fə→n lɤ pə↓nti↘ xɤ↗ tʰwo→kwa↓n tɤ ꭧu↘li↓. ʦai↘ ɕja↘ŋ ɥɛ↓nꭧʰə↗ŋ tʰi↗kʊ→ŋʂa→ŋ fa→sʊ↘ŋ kʰʊ↘ŋꭧɨ↘tʰai↗ xwo↘ tʰu↗ɕja↘ŋ wə↗npə↓n ꭧɨ→ʨʰjɛ↗n,ꭧɨ↓ pʰei↘ꭧɨ↘ ni↗n ta↓swa↘n ʂɨ↓jʊ↘ŋ tɤ fu↗u↘,pi↘ŋ ꭧʰa↗kʰa↘n i↓nsɨ→ ʂə→ŋmi↗ŋ."
     },
     {
       "scene": 4,
-      "speech_start": 28.525000000000002,
-      "speech_end": 36.175000000000004,
-      "scene_end": 36.62500000000001,
-      "duration": 8.100000000000005,
-      "text": "在完整运行之前,检查可见设置,并在可用时使用预览或测试模式."
+      "speech_start": 47.885000000000005,
+      "speech_end": 59.010000000000005,
+      "scene_end": 59.49,
+      "duration": 11.604999999999997,
+      "text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变招聘公式,对象过器或表格注释.",
+      "speech_text": "人工智能设置控制助理文本,凭证和可选错误报告. 这些偏好不会改变招聘公式,对象过器或表格注释.",
+      "phonemes": "ɻə↗nkʊ→ŋꭧɨ↘nə↗ŋ ʂɤ↘ꭧɨ↘ kʰʊ↘ŋꭧɨ↘ ꭧu↘li↓ wə↗npə↓n,pʰi↗ŋꭧə↘ŋ xɤ↗ kʰɤ↓ɕɥɛ↓n ʦʰwo↘u↘pau↘kau↘. ꭧɤ↘ɕje→ pʰjɛ→nxau↓ pu↗xwei↘ kai↓pjɛ↘n ꭧau→pʰi↘n kʊ→ŋʂɨ↘,twei↘ɕja↘ŋ kwo↘ʨʰi↘ xwo↘ pjau↓kɤ↗ ꭧu↘ʂɨ↘."
     },
     {
       "scene": 5,
-      "speech_start": 36.62500000000001,
-      "speech_end": 44.95,
-      "scene_end": 45.6,
-      "duration": 8.974999999999994,
-      "text": "工作流程完成后,每个对象的招聘分数和条件总结将与源标识符存储."
+      "speech_start": 59.49,
+      "speech_end": 70.36500000000001,
+      "scene_end": 71.01500000000001,
+      "duration": 11.525000000000013,
+      "text": "选择或放弃包含测量/measurements.db和合并文件的实验根. 本教程使用转移的HeLa siRNA实验,而不是合成数据,",
+      "speech_text": "选择或放弃包含测量/measurements dot db和合并文件的实验根. 本教程使用转移的HeLa siRNA实验,而不是合成数据,",
+      "phonemes": "ɕɥɛ↓nʦɤ↗ xwo↘ fa↘ŋʨʰi↘ pau→xa↗n ʦʰɤ↘lja↗ŋ/measurements dot dbxɤ↗ xɤ↗pi↘ŋ wə↗nʨjɛ↘n tɤ ʂɨ↗jɛ↘n kə→n. pə↓n ʨjau↘ꭧʰə↗ŋ ʂɨ↓jʊ↘ŋ ꭧwa↓ni↗ tɤHeLa siRNAʂɨ↗jɛ↘n,ɚ↗ pu↗ʂɨ↘ xɤ↗ꭧʰə↗ŋ ʂu↘ʨy↘,"
+    },
+    {
+      "scene": 6,
+      "speech_start": 71.01500000000001,
+      "speech_end": 86.69000000000001,
+      "scene_end": 87.25000000000001,
+      "duration": 16.235,
+      "text": "基本内容介绍了首次运行所需的来源,道映射,过器,板块布局和诊断选择. 在调整门之前确认地图,因为一个有效但错误的频道指数可以产生可行的,错误的比例.",
+      "speech_text": "基本内容介绍了首次运行所需的来源,道映射,过器,板块布局和诊断选择. 在调整门之前确认地图,因为一个有效但错误的频道指数可以产生可行的,错误的比例.",
+      "phonemes": "ʨi→pə↓n nei↘ɻʊ↗ŋ ʨje↘ʂau↘ lɤ ʂou↓ʦʰɨ↘ y↘nɕi↗ŋ swo↓ ɕy→ tɤ lai↗ɥɛ↗n,tau↘ i↘ŋʂɤ↘,kwo↘ʨʰi↘,pa↓nkʰwai↘ pu↘ʨy↗ xɤ↗ ꭧə↓ntwa↘n ɕɥɛ↓nʦɤ↗. ʦai↘ tʰjau↗ꭧə↓ŋ mə↗n ꭧɨ→ʨʰjɛ↗n ʨʰɥe↘ɻə↘n ti↘tʰu↗,i→nwei↘ i↗kɤ↘ jou↓ɕjau↘ ta↘n ʦʰwo↘u↘ tɤ pʰi↗ntau↘ ꭧɨ↓ʂu↘ kʰɤ↓i↓ ꭧʰa↓nʂə→ŋ kʰɤ↓ɕi↗ŋ tɤ,ʦʰwo↘u↘ tɤ pi↓li↘."
+    },
+    {
+      "scene": 7,
+      "speech_start": 87.25000000000001,
+      "speech_end": 99.70000000000002,
+      "scene_end": 100.25000000000001,
+      "duration": 13.0,
+      "text": "修改的显示仅是故意偏离默认的. 用它作为实验路径,急诊频道一,三个面具平面,面积过器,控制列和诊断选择的紧预测.",
+      "speech_text": "修改的显示仅是故意偏离默认的. 用它作为实验路径,急诊频道一,三个面具平面,面积过器,控制列和诊断选择的紧预测.",
+      "phonemes": "ɕjou→kai↓ tɤ ɕjɛ↓nʂɨ↘ ʨi↓n ʂɨ↘ ku↘i↘ pʰjɛ→nli↗ mwo↘ɻə↘n tɤ. jʊ↘ŋ tʰa→ ʦwo↘wei↗ ʂɨ↗jɛ↘n lu↘ʨi↘ŋ,ʨi↗ꭧə↓n pʰi↗ntau↘ i→,sa→nkɤ↘ mjɛ↘nʨy↘ pʰi↗ŋmjɛ↘n,mjɛ↘nʨi→ kwo↘ʨʰi↘,kʰʊ↘ŋꭧɨ↘ lje↘ xɤ↗ ꭧə↓ntwa↘n ɕɥɛ↓nʦɤ↗ tɤ ʨi↓n y↘ʦʰɤ↘."
+    },
+    {
+      "scene": 8,
+      "speech_start": 100.25000000000001,
+      "speech_end": 112.30000000000001,
+      "scene_end": 112.80000000000001,
+      "duration": 12.549999999999997,
+      "text": "所有设置在复制或故障解决运行时暴露每个控制. 当不需要额外的控制时,返回Essentials,因此先进值不会意外改变.",
+      "speech_text": "所有设置在复制或故障解决运行时暴露每个控制. 当不需要额外的控制时,返回Essentials,因此先进值不会意外改变.",
+      "phonemes": "swo↓jou↓ ʂɤ↘ꭧɨ↘ ʦai↘ fu↘ꭧɨ↘ xwo↘ ku↘ꭧa↘ŋ ʨje↓ʨɥe↗ y↘nɕi↗ŋ ʂɨ↗ pau↘lu↘ mei↓kɤ↘ kʰʊ↘ŋꭧɨ↘. ta→ŋ pu↘ ɕy→jau↘ ɤ↗wai↘ tɤ kʰʊ↘ŋꭧɨ↘ ʂɨ↗,fa↓nxwei↗Essentials,i→nʦʰɨ↓ ɕjɛ→nʨi↘n ꭧɨ↗ pu↗xwei↘ i↘wai↘ kai↓pjɛ↘n."
+    },
+    {
+      "scene": 9,
+      "speech_start": 112.80000000000001,
+      "speech_end": 125.97500000000001,
+      "scene_end": 126.51500000000001,
+      "duration": 13.715000000000003,
+      "text": "配方保留了验证的招聘配置,以便重复使用或共享. 保存一个只有在道映射,控制井和过器已与代表性图像和分布进行检查后.",
+      "speech_text": "配方保留了验证的招聘配置,以便重复使用或共享. 保存一个只有在道映射,控制井和过器已与代表性图像和分布进行检查后.",
+      "phonemes": "pʰei↘fa→ŋ pau↓ljou↗ lɤ jɛ↘nꭧə↘ŋ tɤ ꭧau→pʰi↘n pʰei↘ꭧɨ↘,i↓pjɛ↘n ꭧʰʊ↗ŋfu↘ʂɨ↓jʊ↘ŋ xwo↘ kʊ↘ŋɕja↓ŋ. pau↓ʦʰwə↗n i↗kɤ↘ ꭧɨ↓jou↓ ʦai↘ tau↘ i↘ŋʂɤ↘,kʰʊ↘ŋꭧɨ↘ ʨi↓ŋ xɤ↗ kwo↘ʨʰi↘ i↓ y↓ tai↘pjau↓ɕi↘ŋ tʰu↗ɕja↘ŋ xɤ↗ fə→npu↘ ʨi↘nɕi↗ŋ ʨjɛ↓nꭧʰa↗ xou↘."
+    },
+    {
+      "scene": 10,
+      "speech_start": 126.51500000000001,
+      "speech_end": 142.79000000000002,
+      "scene_end": 143.34000000000003,
+      "duration": 16.825000000000017,
+      "text": "提交远程将已解决的设置发送到分布式工作,而不是在本地启动. 仅在远程系统能够在正确地映射的路径下访问 measurements.db 和合并阵列后使用它用于大型数据库.",
+      "speech_text": "提交远程将已解决的设置发送到分布式工作,而不是在本地启动. 仅在远程系统能够在正确地映射的路径下访问 measurements dot db 和合并阵列后使用它用于大型数据库.",
+      "phonemes": "tʰi↗ʨjau→ ɥɛ↓nꭧʰə↗ŋ ʨja→ŋ i↓ ʨje↓ʨɥe↗ tɤ ʂɤ↘ꭧɨ↘ fa→sʊ↘ŋtau↘ fə→npu↘ʂɨ↘ kʊ→ŋʦwo↘,ɚ↗ pu↗ʂɨ↘ ʦai↘ pə↓nti↘ ʨʰi↓tʊ↘ŋ. ʨi↓n ʦai↘ ɥɛ↓nꭧʰə↗ŋ ɕi↘tʰʊ↓ŋ nə↗ŋkou↘ ʦai↘ ꭧə↘ŋʨʰɥe↘ ti↘ i↘ŋʂɤ↘ tɤ lu↘ʨi↘ŋ ɕja↘ fa↓ŋwə↘n measurements dot db xɤ↗ xɤ↗pi↘ŋ ꭧə↘nlje↘ xou↘ ʂɨ↓jʊ↘ŋ tʰa→ jʊ↘ŋy↗ ta↘ɕi↗ŋ ʂu↘ʨy↘kʰu↘."
+    },
+    {
+      "scene": 11,
+      "speech_start": 143.34000000000003,
+      "speech_end": 153.86500000000004,
+      "scene_end": 154.44500000000005,
+      "duration": 11.105000000000018,
+      "text": "远程屏幕收到一份工作稿. 验证环境激活,同步,资源和生成的命令,然后提交一个小的验证工作,",
+      "speech_text": "远程屏幕收到一份工作稿. 验证环境激活,同步,资源和生成的命令,然后提交一个小的验证工作,",
+      "phonemes": "ɥɛ↓nꭧʰə↗ŋ pʰi↗ŋmu↘ ʂou→tau↘ i→fə↘n kʊ→ŋʦwo↘ kau↓. jɛ↘nꭧə↘ŋ xwa↗nʨi↘ŋ ʨi→xwo↗,tʰʊ↗ŋpu↘,ʦɨ→ɥɛ↗n xɤ↗ ʂə→ŋꭧʰə↗ŋ tɤ mi↘ŋli↘ŋ,ɻa↗nxou↘ tʰi↗ʨjau→ i↗kɤ↘ ɕjau↓ tɤ jɛ↘nꭧə↘ŋ kʊ→ŋʦwo↘,"
+    },
+    {
+      "scene": 12,
+      "speech_start": 154.44500000000005,
+      "speech_end": 165.14500000000004,
+      "scene_end": 165.64500000000004,
+      "duration": 11.199999999999989,
+      "text": "数据源包含实验根. 招聘阅读现有细胞,核,寄生虫和细胞质量测量;它不分割或重新测量图像.",
+      "speech_text": "数据源包含实验根. 招聘阅读现有细胞,核,寄生虫和细胞质量测量;它不分割或重新测量图像.",
+      "phonemes": "ʂu↘ʨy↘ɥɛ↗n pau→xa↗n ʂɨ↗jɛ↘n kə→n. ꭧau→pʰi↘n ɥe↘tu↗ ɕjɛ↘njou↓ ɕi↘pau→,xɤ↗,ʨi↘ʂə→ŋꭧʰʊ↗ŋ xɤ↗ ɕi↘pau→ ꭧɨ↘lja↘ŋ ʦʰɤ↘lja↗ŋ;tʰa→ pu↘ fə→nkɤ→ xwo↘ ꭧʰʊ↗ŋɕi→n ʦʰɤ↘lja↗ŋ tʰu↗ɕja↘ŋ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 165.64500000000004,
+      "speech_end": 181.12000000000003,
+      "scene_end": 181.77000000000004,
+      "duration": 16.125,
+      "text": "面具和频道地图识别每个强度平面和面具平面. 在这里,细胞使用ER频道一,面具四,核使用ER频道零,面具五,寄生虫使用ER频道三,面具六,而招募计算在ER频道一.",
+      "speech_text": "面具和频道地图识别每个强度平面和面具平面. 在这里,细胞使用ER频道一,面具四,核使用ER频道零,面具五,寄生虫使用ER频道三,面具六,而招募计算在ER频道一.",
+      "phonemes": "mjɛ↘nʨy↘ xɤ↗ pʰi↗ntau↘ ti↘tʰu↗ ʂɨ↗pje↗ mei↓kɤ↘ ʨʰja↗ŋtu↘ pʰi↗ŋmjɛ↘n xɤ↗ mjɛ↘nʨy↘ pʰi↗ŋmjɛ↘n. ʦai↘ ꭧɤ↘li↓,ɕi↘pau→ ʂɨ↓jʊ↘ŋERpʰi↗ntau↘ i→,mjɛ↘nʨy↘ sɨ↘,xɤ↗ ʂɨ↓jʊ↘ŋERpʰi↗ntau↘ li↗ŋ,mjɛ↘nʨy↘ u↓,ʨi↘ʂə→ŋꭧʰʊ↗ŋ ʂɨ↓jʊ↘ŋERpʰi↗ntau↘ sa→n,mjɛ↘nʨy↘ ljou↘,ɚ↗ ꭧau→mu↘ ʨi↘swa↘n ʦai↘ERpʰi↗ntau↘ i→."
+    },
+    {
+      "scene": 14,
+      "speech_start": 181.77000000000004,
+      "speech_end": 199.32000000000005,
+      "scene_end": 200.00000000000006,
+      "duration": 18.230000000000018,
+      "text": "对象 通过面积和强度过细胞,核和寄生虫,限制每个细胞的物体,并且需要每个井口的足够的细胞. 这种运行使细胞超过3500像素,核从700到4000个,寄生虫从100到1000个.",
+      "speech_text": "对象 通过面积和强度过细胞,核和寄生虫,限制每个细胞的物体,并且需要每个井口的足够的细胞. 这种运行使细胞超过3500像素,核从700到4000个,寄生虫从100到1000个.",
+      "phonemes": "twei↘ɕja↘ŋ tʰʊ→ŋkwo↘ mjɛ↘nʨi→ xɤ↗ ʨʰja↗ŋtu↘ kwo↘ ɕi↘pau→,xɤ↗ xɤ↗ ʨi↘ʂə→ŋꭧʰʊ↗ŋ,ɕjɛ↘nꭧɨ↘ mei↓kɤ↘ ɕi↘pau→ tɤ u↘tʰi↓,pi↘ŋʨʰje↓ ɕy→jau↘ mei↓kɤ↘ ʨi↓ŋkʰou↓ tɤ ʦu↗kou↘ tɤ ɕi↘pau→. ꭧɤ↘ꭧʊ↓ŋ y↘nɕi↗ŋ ʂɨ↓ ɕi↘pau→ ꭧʰau→kwo↘ sa→nʨʰjɛ→nu↓pai↓ ɕja↘ŋsu↘,xɤ↗ʦʰʊ↗ŋ ʨʰi→pai↓ tau↘ sɨ↘ʨʰjɛ→nkɤ↘,ʨi↘ʂə→ŋꭧʰʊ↗ŋ ʦʰʊ↗ŋ i↘pai↓ tau↘ i→ʨʰjɛ→nkɤ↘."
+    },
+    {
+      "scene": 15,
+      "speech_start": 200.00000000000006,
+      "speech_end": 213.25000000000006,
+      "scene_end": 213.85000000000005,
+      "duration": 13.849999999999994,
+      "text": "板布局和控制将生物标签映射到排列或列标识符. 列一是正面控制,列二是负面控制,列三到十四是屏幕井;所有行都是HeLa细胞.",
+      "speech_text": "板布局和控制将生物标签映射到排列或列标识符. 列一是正面控制,列二是负面控制,列三到十四是屏幕井;所有行都是HeLa细胞.",
+      "phonemes": "pa↓n pu↘ʨy↗ xɤ↗ kʰʊ↘ŋꭧɨ↘ ʨja→ŋ ʂə→ŋu↘ pjau→ʨʰjɛ→n i↘ŋʂɤ↘ tau↘ pʰai↗lje↘ xwo↘lje↘ pjau→ʂɨ↗fu↗. lje↘i→ʂɨ↘ ꭧə↘ŋmjɛ↘n kʰʊ↘ŋꭧɨ↘,lje↘ɚ↘ʂɨ↘ fu↘mjɛ↘n kʰʊ↘ŋꭧɨ↘,lje↘sa→ntau↘ ʂɨ↗sɨ↘ ʂɨ↘ pʰi↗ŋmu↘ ʨi↓ŋ;swo↓jou↓ ɕi↗ŋtu→ ʂɨ↘HeLaɕi↘pau→."
+    },
+    {
+      "scene": 16,
+      "speech_start": 213.85000000000005,
+      "speech_end": 228.17500000000004,
+      "scene_end": 228.75500000000005,
+      "duration": 14.905000000000001,
+      "text": "图片和诊断控制分区叠加,控制强度面板,图像大小,以及多少合并的字段被采样. 在信任比率之前检查叠加,并在解释屏幕井之前比较控制.",
+      "speech_text": "图片和诊断控制分区叠加,控制强度面板,图像大小,以及多少合并的字段被采样. 在信任比率之前检查叠加,并在解释屏幕井之前比较控制.",
+      "phonemes": "tʰu↗pʰjɛ↘n xɤ↗ ꭧə↓ntwa↘n kʰʊ↘ŋꭧɨ↘ fə→nʨʰy→ tje↗ʨja→,kʰʊ↘ŋꭧɨ↘ ʨʰja↗ŋtu↘ mjɛ↘npa↓n,tʰu↗ɕja↘ŋ ta↘ɕjau↓,i↓ʨi↗ two→ʂau↓ xɤ↗pi↘ŋ tɤ ʦɨ↘ twa↘n pei↘ ʦʰai↓ja↘ŋ. ʦai↘ ɕi↘nɻə↘n pi↓ly↘ ꭧɨ→ʨʰjɛ↗n ʨjɛ↓nꭧʰa↗ tje↗ʨja→,pi↘ŋ ʦai↘ ʨje↓ʂɨ↘ pʰi↗ŋmu↘ ʨi↓ŋ ꭧɨ→ʨʰjɛ↗n pi↓ʨjau↘ kʰʊ↘ŋꭧɨ↘."
+    },
+    {
+      "scene": 17,
+      "speech_start": 228.75500000000005,
+      "speech_end": 244.58000000000004,
+      "scene_end": 245.20000000000005,
+      "duration": 16.444999999999993,
+      "text": "这里可以看到完整的道地图. 频道尺寸从零到三可用于诊断,但主要招募分数是病原体频道 - 一个平均强度分为细胞质频道 - 一个相匹配的宿主细胞内的平均强度.",
+      "speech_text": "这里可以看到完整的道地图. 频道尺寸从零到三可用于诊断,但主要招募分数是病原体频道 - 一个平均强度分为细胞质频道 - 一个相匹配的宿主细胞内的平均强度.",
+      "phonemes": "ꭧɤ↘li↓ kʰɤ↓i↓ kʰa↘ntau↘ wa↗nꭧə↓ŋ tɤ tau↘ ti↘tʰu↗. pʰi↗ntau↘ ꭧʰɨ↓ʦʰwə↘n ʦʰʊ↗ŋ li↗ŋtau↘ sa→n kʰɤ↓ jʊ↘ŋy↗ ꭧə↓ntwa↘n,ta↘n ꭧu↓jau↘ ꭧau→mu↘ fə→nʂu↘ ʂɨ↘ pi↘ŋɥɛ↗ntʰi↓ pʰi↗ntau↘ - i↗kɤ↘ pʰi↗ŋʨy→n ʨʰja↗ŋtu↘ fə→nwei↗ ɕi↘pau→ꭧɨ↘ pʰi↗ntau↘ - i↗kɤ↘ ɕja→ŋpʰi↓pʰei↘ tɤ su↘ꭧu↓ ɕi↘pau→ nei↘ tɤ pʰi↗ŋʨy→n ʨʰja↗ŋtu↘."
+    },
+    {
+      "scene": 18,
+      "speech_start": 245.20000000000005,
+      "speech_end": 258.27500000000003,
+      "scene_end": 258.855,
+      "duration": 13.654999999999973,
+      "text": "检查源,地图,过器和控制后点击运行. 后端加入四个测量表,注释条件,应用每个对象门,计算招聘,组组井,排队诊断数字.",
+      "speech_text": "检查源,地图,过器和控制后点击运行. 后端加入四个测量表,注释条件,应用每个对象门,计算招聘,组组井,排队诊断数字.",
+      "phonemes": "ʨjɛ↓nꭧʰa↗ ɥɛ↗n,ti↘tʰu↗,kwo↘ʨʰi↘ xɤ↗ kʰʊ↘ŋꭧɨ↘ xou↘ tjɛ↓nʨi→ y↘nɕi↗ŋ. xou↘ twa→n ʨja→ɻu↘ sɨ↘kɤ↘ ʦʰɤ↘lja↗ŋ pjau↓,ꭧu↘ʂɨ↘ tʰjau↗ʨjɛ↘n,i↘ŋjʊ↘ŋ mei↓kɤ↘ twei↘ɕja↘ŋ mə↗n,ʨi↘swa↘n ꭧau→pʰi↘n,ʦu↓ʦu↓ ʨi↓ŋ,pʰai↗twei↘ ꭧə↓ntwa↘n ʂu↘ʦɨ↘."
+    },
+    {
+      "scene": 19,
+      "speech_start": 258.855,
+      "speech_end": 273.68,
+      "scene_end": 274.26,
+      "duration": 15.404999999999973,
+      "text": "在执行过程中,控制台中的过数量显示了物体被移除的位置. 不要把大量的减小视为自动好或坏;与预期的面积限制,控制分布和样品覆盖相协调.",
+      "speech_text": "在执行过程中,控制台中的过数量显示了物体被移除的位置. 不要把大量的减小视为自动好或坏;与预期的面积限制,控制分布和样品覆盖相协调.",
+      "phonemes": "ʦai↘ ꭧɨ↗ɕi↗ŋ kwo↘ꭧʰə↗ŋ ꭧʊ→ŋ,kʰʊ↘ŋꭧɨ↘tʰai↗ ꭧʊ→ŋ tɤ kwo↘ ʂu↘lja↘ŋ ɕjɛ↓nʂɨ↘ lɤ u↘tʰi↓ pei↘ i↗ꭧʰu↗ tɤ wei↘ꭧɨ↘. pu↗jau↘ pa↓ ta↘lja↘ŋ tɤ ʨjɛ↓nɕjau↓ ʂɨ↘wei↘ ʦɨ↘tʊ↘ŋ xau↓ xwo↘ xwai↘;y↓ y↘ʨʰi→ tɤ mjɛ↘nʨi→ ɕjɛ↘nꭧɨ↘,kʰʊ↘ŋꭧɨ↘ fə→npu↘ xɤ↗ ja↘ŋpʰi↓n fu↘kai↘ ɕja→ŋ ɕje↗tʰjau↗."
+    },
+    {
+      "scene": 20,
+      "speech_start": 274.26,
+      "speech_end": 298.51,
+      "scene_end": 299.40999999999997,
+      "duration": 25.149999999999977,
+      "text": "实际运行保留了399000937个光伏水平线在所有96个井口中,并产生了5个数字加上 cells.csv和 wells.csv. 在正面控制中,平均3分五分四分之一,在负面控制中1分二分八分之一,在屏幕井中1分三分一分八分之一. 这是一个适度的分离,应根据可变性和图像QC来判断,而不是单独的意义.",
+      "speech_text": "实际运行保留了399000937个光伏水平线在所有96个井口中,并产生了5个数字加上 cells.csv和 wells.csv. 在正面控制中,平均3分五分四分之一,在负面控制中1分二分八分之一,在屏幕井中1分三分一分八分之一. 这是一个适度的分离,应根据可变性和图像QC来判断,而不是单独的意义.",
+      "phonemes": "ʂɨ↗ʨi↘ y↘nɕi↗ŋ pau↓ljou↗ lɤ sa→ni↘ ʨjou↓ʨʰjɛ→n ʨjou↓pai↓wa↘n li↗ŋ ʨjou↓pai↓ sa→nʂɨ↗ʨʰi→kɤ↘ kwa→ŋfu↗ ʂwei↓pʰi↗ŋɕjɛ↘n ʦai↘ swo↓jou↓ ʨjou↓ʂɨ↗ljou↘ kɤ↘ ʨi↓ŋkʰou↓ ꭧʊ→ŋ,pi↘ŋ ꭧʰa↓nʂə→ŋ lɤ u↓kɤ↘ ʂu↘ʦɨ↘ ʨja→ʂa↘ŋ cells.csvxɤ↗ wells.csv. ʦai↘ ꭧə↘ŋmjɛ↘n kʰʊ↘ŋꭧɨ↘ ꭧʊ→ŋ,pʰi↗ŋʨy→n sa→nfə→n u↓fə→n sɨ↘fə→nꭧɨ→i→,ʦai↘ fu↘mjɛ↘n kʰʊ↘ŋꭧɨ↘ ꭧʊ→ŋ i→fə→n ɚ↘fə→n pa→fə→n ꭧɨ→i→,ʦai↘ pʰi↗ŋmu↘ ʨi↓ŋꭧʊ→ŋ i→fə→n sa→nfə→n i→fə→n pa→fə→n ꭧɨ→i→. ꭧɤ↘ʂɨ↘ i↗kɤ↘ ʂɨ↘tu↘ tɤ fə→nli↗,i→ŋ kə→nʨy↘ kʰɤ↓pjɛ↘nɕi↘ŋ xɤ↗ tʰu↗ɕja↘ŋQClai↗ pʰa↘ntwa↘n,ɚ↗ pu↗ʂɨ↘ "
     }
   ]
 }

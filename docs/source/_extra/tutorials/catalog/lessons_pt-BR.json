@@ -3544,47 +3544,168 @@
       "id": "25_recruitment",
       "number": 25,
       "slug": "recruitment",
-      "title": "Recruitment",
+      "title": "Recrutamento",
       "series": 3,
       "app_key": "recruitment",
       "section": "Toxoplasma assays",
-      "description": "Quantificar o recrutamento de um sinal de interesse para os parasitas ou regiões associadas a patógenos.",
+      "description": "Medir o enriquecimento de um canal de fluorescência em regiões associadas a parasitas em relação ao citoplasma da célula hospedeira, com filtros de objetos, anotações de placas e resumos por PV e por poço.",
       "objectives": [
-        "Entender quando usar o Recrutamento.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Mapear os canais de intensidade e os planos de célula, núcleo e parasita mascarar corretamente.",
+        "Aplicar filtros a nível de objeto e placa antes de calcular o recrutamento de patógeno para citoplasma.",
+        "Interpretar verdadeiras saídas por PV, por poço, controle, superposição e diagnóstico."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Execute Medida com tabelas de célula, núcleo, parasita e citoplasma mais matrizes combinadas; defina os poços de controle positivos e negativos.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o recrutamento. Quantificar o recrutamento de um canal de interesse para os parasitas ou regiões associadas a patógenos.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o recrutamento. Quantificar o recrutamento de um canal de interesse para os parasitas ou regiões associadas a patógenos."
+          "narration": "As medidas de recrutamento são o enriquecimento de um marcador nas regiões associadas a parasitas em relação ao citoplasma da célula hospedeira circundante. O console registra configurações resolvidas, contagens de filtragem, caminhos de saída, figuras, advertências e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "As medidas de recrutamento são o enriquecimento de um marcador nas regiões associadas a parasitas em relação ao citoplasma da célula hospedeira circundante. O console registra configurações resolvidas, contagens de filtragem, caminhos de saída, figuras, advertências e erros; a caixa de bate-papo pode discutir esse contexto quando a IA é habilitada."
         },
         {
-          "narration": "Abra Recruitment na seção Toxoplasma assays. Recrutação aberta da secção de análises de toxoplasma. Use máscaras de células, parasitas e órgãos medidos com canal um, retículo endoplasmático, como canal de interesse.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Recruitment na seção Toxoplasma assays. Recrutação aberta da secção de análises de toxoplasma. Use máscaras de células, parasitas e órgãos medidos com canal um, retículo endoplasmático, como canal de interesse."
+          "narration": "Usar a inteligência artificial só quando quiser ajuda no chat. O menu adjacente seleciona um provedor configurado e abre as configurações do provedor; o próprio recrutamento é executado localmente e não depende de um serviço de IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.52,
+          "speech_text": "Usar a inteligência artificial só quando quiser ajuda no chat. O menu adjacente seleciona um provedor configurado e abre as configurações do provedor; o próprio recrutamento é executado localmente e não depende de um serviço de IA."
         },
         {
-          "narration": "Na área de configuração principal, definir a região de recrutamento, referência de fundo, filtros de objetos, agrupamento e estratégia de normalização.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, definir a região de recrutamento, referência de fundo, filtros de objetos, agrupamento e estratégia de normalização."
+          "narration": "A configuração do provedor distingue os assistentes locais dos hospedados. Configure apenas os serviços que pretende usar e revise o aviso de privacidade antes de enviar conteúdo de console ou imagem para um provedor remoto.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.52,
+          "speech_text": "A configuração do provedor distingue os assistentes locais dos hospedados. Configure apenas os serviços que pretende usar e revise o aviso de privacidade antes de enviar conteúdo de console ou imagem para um provedor remoto."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+          "narration": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram a fórmula de recrutamento, os filtros de objetos ou as anotações de placas.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "As configurações de IA controlam o contexto do assistente, credenciais e relatórios de erros opcionais. Estas preferências não alteram a fórmula de recrutamento, os filtros de objetos ou as anotações de placas."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, as pontuações de recrutamento por objeto e os resumos de condições são armazenados com identificadores de fonte.",
-          "visual": "output",
+          "narration": "Escolher ou soltar a raiz do experimento contendo medidas/measurements.db e a pasta combinada. Este tutorial utiliza o experimento HeLa siRNA transferido, não dados sintéticos, com o canal 1o sinal de emergênciacomo canal de interesse.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, as pontuações de recrutamento por objeto e os resumos de condições são armazenados com identificadores de fonte."
+          "speech_text": "Escolher ou soltar a raiz do experimento contendo medidas/measurements dot db e a pasta combinada. Este tutorial utiliza o experimento HeLa siRNA transferido, não dados sintéticos, com o canal 1o sinal de emergênciacomo canal de interesse."
+        },
+        {
+          "narration": "Essentials apresenta a fonte, o mapeamento do canal, os filtros, o layout da placa e as escolhas de diagnóstico necessárias para uma primeira execução. Confirme o mapa antes de ajustar os limiares porque um índice de canal válido mas errado pode produzir proporções plausíveis e incorretas.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.56,
+          "speech_text": "Essentials apresenta a fonte, o mapeamento do canal, os filtros, o layout da placa e as escolhas de diagnóstico necessárias para uma primeira execução. Confirme o mapa antes de ajustar os limiares porque um índice de canal válido mas errado pode produzir proporções plausíveis e incorretas."
+        },
+        {
+          "narration": "As alterações mostram apenas desvios deliberados dos padrões. Usá-lo como uma auditoria pré-exercícia compacta do caminho real do experimento, canal de emergência 1, os três planos da máscara, filtros de área, colunas de controlo e opções de diagnóstico.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "As alterações mostram apenas desvios deliberados dos padrões. Usá-lo como uma auditoria pré-exercícia compacta do caminho real do experimento, canal de emergência 1, os três planos da máscara, filtros de área, colunas de controlo e opções de diagnóstico."
+        },
+        {
+          "narration": "Todas as configurações expõem todos os controles ao reproduzir ou resolver problemas de uma execução. Regressar aos elementos essenciais quando os controles adicionais não são necessários, para que os valores avançados não sejam alterados acidentalmente.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Todas as configurações expõem todos os controles ao reproduzir ou resolver problemas de uma execução. Regressar aos elementos essenciais quando os controles adicionais não são necessários, para que os valores avançados não sejam alterados acidentalmente."
+        },
+        {
+          "narration": "As receitas conservam uma configuração de recrutamento validada para reutilização ou partilha. Salve um só depois de o mapeamento do canal, os poços de controle e os filtros terem sido verificados contra imagens e distribuições representativas.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "As receitas conservam uma configuração de recrutamento validada para reutilização ou partilha. Salve um só depois de o mapeamento do canal, os poços de controle e os filtros terem sido verificados contra imagens e distribuições representativas."
+        },
+        {
+          "narration": "Submit remoto envia as configurações resolvidas para Trabalhos Distribuídos em vez de começar localmente. Usá-lo para um grande banco de dados somente depois que o sistema remoto possa acessar tanto as medidas.db quanto as matrizes combinadas sob caminhos corretamente mapeados.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.55,
+          "speech_text": "Submit remoto envia as configurações resolvidas para Trabalhos Distribuídos em vez de começar localmente. Usá-lo para um grande banco de dados somente depois que o sistema remoto possa acessar tanto as medidas.db quanto as matrizes combinadas sob caminhos corretamente mapeados."
+        },
+        {
+          "narration": "A tela remota recebe um esboço de trabalho. Verifique a ativação do ambiente, a sincronização, os recursos e o comando gerado, em seguida, envie um pequeno trabalho de validação antes de escalar para uma placa completa.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.58,
+          "speech_text": "A tela remota recebe um esboço de trabalho. Verifique a ativação do ambiente, a sincronização, os recursos e o comando gerado, em seguida, envie um pequeno trabalho de validação antes de escalar para uma placa completa."
+        },
+        {
+          "narration": "A fonte de dados contém a raiz do experimento. O recrutamento lê as medições existentes de células, núcleos, parasitas e citoplasmas; não segmenta ou remessa imagens.",
+          "visual": "12_category_01_data_source",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "A fonte de dados contém a raiz do experimento. O recrutamento lê as medições existentes de células, núcleos, parasitas e citoplasmas; não segmenta ou remessa imagens."
+        },
+        {
+          "narration": "O Mapeamento de Mascaras e Canais identifica cada plano de intensidade e plano de mascaras. Aqui, as células usam o canal ER um e a máscara quatro, os núcleos usam o canal zero e a máscara cinco, os parasitas usam o canal três e a máscara seis, enquanto o recrutamento é calculado no canal ER um.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.65,
+          "speech_text": "O Mapeamento de Mascaras e Canais identifica cada plano de intensidade e plano de mascaras. Aqui, as células usam o canal ER um e a máscara quatro, os núcleos usam o canal zero e a máscara cinco, os parasitas usam o canal três e a máscara seis, enquanto o recrutamento é calculado no canal ER um."
+        },
+        {
+          "narration": "Objeto Filtrar células, núcleos e parasitas por área e intensidade, limita objetos por célula e requer células suficientes por poço. Esta corrida mantém as células acima de 3.500 pixels, núcleos de 700 a 4.000 e parasitas de 100 a 1.000.",
+          "visual": "12_category_03_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "Objeto Filtrar células, núcleos e parasitas por área e intensidade, limita objetos por célula e requer células suficientes por poço. Esta corrida mantém as células acima de 3.500 pixels, núcleos de 700 a 4.000 e parasitas de 100 a 1.000."
+        },
+        {
+          "narration": "Layout e Controls da placa mapeam os rótulos biológicos para identificadores de filas ou colunas. A primeira coluna é o controle positivo, a segunda coluna é o controle negativo, e as colunas 3 a 14 são poços de tela; todas as linhas são células HeLa.",
+          "visual": "12_category_04_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "Layout e Controls da placa mapeam os rótulos biológicos para identificadores de filas ou colunas. A primeira coluna é o controle positivo, a segunda coluna é o controle negativo, e as colunas 3 a 14 são poços de tela; todas as linhas são células HeLa."
+        },
+        {
+          "narration": "Plots and Diagnostics controla as camadas de segmentação, os painéis de intensidade de controle, o tamanho da figura e quantos campos fundidos são amostrados. Inspectar as superposições antes de confiar em uma relação, e comparar os controles antes de interpretar os poços de tela.",
+          "visual": "12_category_05_plots_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Plots and Diagnostics controla as camadas de segmentação, os painéis de intensidade de controle, o tamanho da figura e quantos campos fundidos são amostrados. Inspectar as superposições antes de confiar em uma relação, e comparar os controles antes de interpretar os poços de tela."
+        },
+        {
+          "narration": "O mapa completo do canal é visível aqui. As dimensões do canal de zero a três estão disponíveis para o diagnóstico, mas a pontuação primária de recrutamento é o canal patogênico - uma intensidade média dividida pelo canal citoplasmático - uma intensidade média dentro da célula hospedeira correspondente.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "O mapa completo do canal é visível aqui. As dimensões do canal de zero a três estão disponíveis para o diagnóstico, mas a pontuação primária de recrutamento é o canal patogênico - uma intensidade média dividida pelo canal citoplasmático - uma intensidade média dentro da célula hospedeira correspondente."
+        },
+        {
+          "narration": "Clique em Executa depois de verificar a fonte, mapa, filtros e controles. O backend junta as quatro tabelas de medição, anota as condições, aplica cada porta de objeto, calcula o recrutamento, agrupa os poços e faz filas de números de diagnóstico.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.58,
+          "speech_text": "Clique em Executa depois de verificar a fonte, mapa, filtros e controles. O backend junta as quatro tabelas de medição, anota as condições, aplica cada porta de objeto, calcula o recrutamento, agrupa os poços e faz filas de números de diagnóstico."
+        },
+        {
+          "narration": "Durante a execução, as contagens de filtragem no console mostram exatamente onde os objetos são removidos. Não trate uma grande redução automaticamente como boa ou ruim; conciliá-la com os limites de área previstos, as distribuições de controlo e as sobreposições de amostras.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.58,
+          "speech_text": "Durante a execução, as contagens de filtragem no console mostram exatamente onde os objetos são removidos. Não trate uma grande redução automaticamente como boa ou ruim; conciliá-la com os limites de área previstos, as distribuições de controlo e as sobreposições de amostras."
+        },
+        {
+          "narration": "A corrida real manteve trinta e nove mil novecentos e trinta e sete linhas de nível fotovoltaico em todos os cem noventa e seis poços e produziu cinco figuras mais células.csv e poços.csv. O recrutamento médio de ER de bom nível é de um ponto três cinco quatro no controle positivo, um ponto dois oito um no controle negativo e um ponto três um oito nos poços de telauma separação modesta que deve ser julgada com variabilidade e QC de imagem, não significa sozinho.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.9,
+          "speech_text": "A corrida real manteve trinta e nove mil novecentos e trinta e sete linhas de nível fotovoltaico em todos os cem noventa e seis poços e produziu cinco figuras mais células.csv e poços.csv. O recrutamento médio de ER de bom nível é de um ponto três cinco quatro no controle positivo, um ponto dois oito um no controle negativo e um ponto três um oito nos poços de telauma separação modesta que deve ser julgada com variabilidade e QC de imagem, não significa sozinho."
         }
       ]
     },

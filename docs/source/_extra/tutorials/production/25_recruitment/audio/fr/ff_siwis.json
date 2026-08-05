@@ -4,47 +4,207 @@
   "voice": "ff_siwis",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 39.925,
+  "total_duration": 342.585,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 2.6,
-      "scene_end": 3.0500000000000003,
-      "duration": 3.0500000000000003,
-      "text": "Ce tutoriel couvre le recrutement."
+      "speech_end": 19.65,
+      "scene_end": 20.27,
+      "duration": 20.27,
+      "text": "Les mesures de recrutement permettent d'enrichir un marqueur dans les régions associées aux parasites par rapport au cytoplasme des cellules hôtes environnantes. La console enregistre les paramètres résolus, les comptes de filtrage, les chemins de sortie, les chiffres, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée.",
+      "speech_text": "Les mesures de recrutement permettent d'enrichir un marqueur dans les régions associées aux parasites par rapport au cytoplasme des cellules hôtes environnantes. La console enregistre les paramètres résolus, les comptes de filtrage, les chemins de sortie, les chiffres, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée.",
+      "phonemes": "le məzˈyʁ də ʁəkʁytmˈɑ̃ pɛʁmˈɛt dɑ̃ʁiʃˈiʁ œ̃ maʁkˈœʁ dɑ̃ le ʁeʒjˈɔ̃z asosjˈez o paʁazˈit paʁ ʁapˈɔʁ o sitɔplˈasm de sɛlˈylz ˈoːtz ɑ̃viʁɔnˈɑ̃t. la kɔ̃sˈɔl ɑ̃ʁʒˈistʁ le paʁamˈɛtʁ ʁezolˈy, le kˈɔ̃t də filtʁˈaʒ, le ʃəmˈɛ̃ də sɔʁtˈi, le ʃˈifʁ, lez avɛʁtismˈɑ̃z e lez ɛʁˈœʁ; la bwˈat də diskysjˈɔ̃ pˈø diskytˈe də sə kɔ̃tˈɛkst lˌɔʁskə ljˈa ɛt aktivˈe."
     },
     {
       "scene": 2,
-      "speech_start": 3.0500000000000003,
-      "speech_end": 11.075000000000001,
-      "scene_end": 11.525,
-      "duration": 8.475,
-      "text": "Ouvrez Recruitment dans la section Toxoplasma assays. Le recrutement ouvert à partir de la section des tests de toxoplasme."
+      "speech_start": 20.27,
+      "speech_end": 34.72,
+      "scene_end": 35.24,
+      "duration": 14.970000000000002,
+      "text": "Utilisez l'interrupteur d'IA seulement lorsque vous voulez de l'aide au chat. Le menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; le recrutement lui-même fonctionne localement et ne dépend pas d'un service d'IA.",
+      "speech_text": "Utilisez l'interrupteur d'IA seulement lorsque vous voulez de l'aide au chat. Le menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; le recrutement lui-même fonctionne localement et ne dépend pas d'un service d'IA.",
+      "phonemes": "ytilizˈe lɛ̃tɛʁyptˈœʁ djˈa sølmˈɑ̃ lˌɔʁskə vu vulˈe də lˈɛd o ʃˈa. lə mənˈy adʒasˈɑ̃ selɛksjˈɔn œ̃ fuʁnisˈœʁ kɔ̃fiɡyʁˈe e ˈuvʁ le paʁamˈɛtʁ dy fuʁnisˈœʁ; lə ʁəkʁytmˈɑ̃ lyˌimˈɛm fɔ̃ksjˈɔn lokalmˈɑ̃ e nə depˈɑ̃ pa dœ̃ sɛʁvˈis djˈa."
     },
     {
       "scene": 3,
-      "speech_start": 11.525,
-      "speech_end": 21.875,
-      "scene_end": 22.325,
-      "duration": 10.799999999999999,
-      "text": "Dans la zone de configuration principale, définissez la région de recrutement, la référence de fond, les filtres d'objets, le regroupement et la stratégie de normalisation."
+      "speech_start": 35.24,
+      "speech_end": 51.540000000000006,
+      "scene_end": 52.06000000000001,
+      "duration": 16.820000000000007,
+      "text": "La configuration du fournisseur distingue les assistants locaux des assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et consultez l'avis de confidentialité avant d'envoyer le contexte de la console ou de l'image à un fournisseur distant.",
+      "speech_text": "La configuration du fournisseur distingue les assistants locaux des assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et consultez l'avis de confidentialité avant d'envoyer le contexte de la console ou de l'image à un fournisseur distant.",
+      "phonemes": "la kɔ̃fiɡyʁasjˈɔ̃ dy fuʁnisˈœʁ distˈɛ̃ɡ lez asistˈɑ̃ lokˈo dez asistˈɑ̃z ebɛʁʒˈe. kɔ̃fiɡyʁˈez ynikmˈɑ̃ le sɛʁvˈis kə vuz avˈe lɛ̃tɑ̃sjˈɔ̃ dytilizˈe e kɔ̃syltˈe lavˈi də kɔ̃fidɑ̃sjalitˈe avˌɑ̃ dɑ̃vwajˈe lə kɔ̃tˈɛkst də la kɔ̃sˈɔl u də limˈaʒ a œ̃ fuʁnisˈœʁ distˈɑ̃."
     },
     {
       "scene": 4,
-      "speech_start": 22.325,
-      "speech_end": 29.95,
-      "scene_end": 30.4,
-      "duration": 8.075,
-      "text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+      "speech_start": 52.06000000000001,
+      "speech_end": 65.76,
+      "scene_end": 66.24000000000001,
+      "duration": 14.18,
+      "text": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas la formule de recrutement, les filtres d'objets ou les annotations de plaques.",
+      "speech_text": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas la formule de recrutement, les filtres d'objets ou les annotations de plaques.",
+      "phonemes": "le paʁamˈɛtʁ djˈa kɔ̃tʁˈoːl lə kɔ̃tˈɛkst də lasistˈɑ̃, lez ɛ̃fɔʁmasjˈɔ̃ didɑ̃tifikasjˈɔ̃ e lə sinjalmˈɑ̃ dɛʁˈœʁ ɔpsjɔnˈɛl. se pʁefeʁˈɑ̃s nə modifˈi pa la fɔʁmˈyl də ʁəkʁytmˈɑ̃, le fˈiltʁ dɔbʒˈɛ u lez anotasjˈɔ̃ də plˈak."
     },
     {
       "scene": 5,
-      "speech_start": 30.4,
-      "speech_end": 39.275,
-      "scene_end": 39.925,
-      "duration": 9.524999999999999,
-      "text": "Lorsque le flux de travail est terminé, les scores de recrutement et les résumés des conditions par objet sont stockés avec des identifiants de source."
+      "speech_start": 66.24000000000001,
+      "speech_end": 80.79,
+      "scene_end": 81.44000000000001,
+      "duration": 15.200000000000003,
+      "text": "Choisissez ou laissez tomber la racine d'expérience contenant les mesures/mesures.db et le dossier fusionné. Ce tutoriel utilise l'expérience HeLa siRNA transférée, et non des données synthétiques, avec le signal ER comme canal d'intérêt.",
+      "speech_text": "Choisissez ou laissez tomber la racine d'expérience contenant les mesures/mesures.db et le dossier fusionné. Ce tutoriel utilise l'expérience HeLa siRNA transférée, et non des données synthétiques, avec le signal ER comme canal d'intérêt.",
+      "phonemes": "ʃwazisˈe u lɛsˈe tɔ̃bˈe la ʁasˈin dɛkspeʁjˈɑ̃s kɔ̃tnˈɑ̃ le məzˈyʁ məzˈyʁ.dˌebˈe e lə dɔsjˈe fyzjɔnˈe. sə tytoʁjˈɛl ytilˈiz lɛkspeʁjˈɑ̃s hiː la sˈi ˌɛʁˌɛnˈa tʁɑ̃sfeʁˈe, e nɔ̃ de dɔnˈe sɛ̃tetˈik, avˌɛk lə sinjˈal ˌəˈɛʁ kɔm kanˈal dɛ̃teʁˈɛ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 81.44000000000001,
+      "speech_end": 98.09,
+      "scene_end": 98.65,
+      "duration": 17.209999999999994,
+      "text": "Essentials présente la source, la cartographie des canaux, les filtres, la disposition des plaques et les choix de diagnostic nécessaires pour une première course. Confirmez la carte avant de régler les seuils car un indice de canal valide mais incorrect peut produire des ratios plausibles et incorrects.",
+      "speech_text": "Essentials présente la source, la cartographie des canaux, les filtres, la disposition des plaques et les choix de diagnostic nécessaires pour une première course. Confirmez la carte avant de régler les seuils car un indice de canal valide mais incorrect peut produire des ratios plausibles et incorrects.",
+      "phonemes": "esɑ̃sjˈal pʁezˈɑ̃t la sˈuʁs, la kaʁtɔɡʁafˈi de kanˈo, le fˈiltʁ, la dispozisjˈɔ̃ de plˈakz e le ʃwˈa də djaɡnɔstˈik nesɛsˈɛʁ puʁ yn pʁəmjˈɛʁ kˈuʁs. kɔ̃fiʁmˈe la kˈaʁt avˌɑ̃ də ʁeɡlˈe le sˈœj kaʁ œ̃n ɛ̃dˈis də kanˈal valˈid mɛz ɛ̃koʁˈɛkt pˈø pʁodyˈiʁ de ʁasjˈo plozˈiblz e ɛ̃koʁˈɛkt."
+    },
+    {
+      "scene": 7,
+      "speech_start": 98.65,
+      "speech_end": 114.075,
+      "scene_end": 114.625,
+      "duration": 15.974999999999994,
+      "text": "Les modifications ne montrent que des écarts délibérés des défauts. Utilisez-le comme un audit pré-exécution compact du chemin de l'expérience réelle, le canal d'urgence un, les trois plans de masque, les filtres de zone, les colonnes de contrôle et les choix de diagnostic.",
+      "speech_text": "Les modifications ne montrent que des écarts délibérés des défauts. Utilisez-le comme un audit pré-exécution compact du chemin de l'expérience réelle, le canal d'urgence un, les trois plans de masque, les filtres de zone, les colonnes de contrôle et les choix de diagnostic.",
+      "phonemes": "le modifikasjˈɔ̃ nə mˈɔ̃tʁ kə dez ekˈaʁ delibeʁˈe de defˈo. ytilizˈelə kɔm œ̃n odˈi pʁˈeɛɡzekysjˈɔ̃ kɔ̃pˈakt dy ʃəmˈɛ̃ də lɛkspeʁjˈɑ̃s ʁeˈɛl, lə kanˈal dyʁʒˈɑ̃s ˈœ̃, le tʁwˈa plˈɑ̃ də mˈask, le fˈiltʁ də zˈon, le kolˈɔn də kɔ̃tʁˈoːl e le ʃwˈa də djaɡnɔstˈik."
+    },
+    {
+      "scene": 8,
+      "speech_start": 114.625,
+      "speech_end": 129.05,
+      "scene_end": 129.55,
+      "duration": 14.925000000000011,
+      "text": "Tous les paramètres exposent chaque contrôle lors de la reproduction ou du dépannage d'une course. Retour à Essentials lorsque les contrôles supplémentaires ne sont pas nécessaires, de sorte que les valeurs avancées ne sont pas modifiées accidentellement.",
+      "speech_text": "Tous les paramètres exposent chaque contrôle lors de la reproduction ou du dépannage d'une course. Retour à Essentials lorsque les contrôles supplémentaires ne sont pas nécessaires, de sorte que les valeurs avancées ne sont pas modifiées accidentellement.",
+      "phonemes": "tu le paʁamˈɛtʁz ɛkspˈoz ʃak kɔ̃tʁˈoːl lɔʁ də la ʁəpʁodyksjˈɔ̃ u dy depanˈaʒ dyn kˈuʁs. ʁətˈuʁ a esɑ̃sjˈal lˌɔʁskə le kɔ̃tʁˈoːl syplemɑ̃tˈɛʁ nə sɔ̃ pa nesɛsˈɛʁ, də sˈɔʁt kə le valˈœʁz avɑ̃sˈe nə sɔ̃ pa modifjˈez aksidɑ̃tɛlmˈɑ̃."
+    },
+    {
+      "scene": 9,
+      "speech_start": 129.55,
+      "speech_end": 145.25,
+      "scene_end": 145.79,
+      "duration": 16.23999999999998,
+      "text": "Les recettes conservent une configuration de recrutement validée pour la réutilisation ou le partage. Sauvegarder un seulement après la cartographie du canal, les puits de contrôle et les filtres ont été vérifiés contre les images représentatives et les distributions.",
+      "speech_text": "Les recettes conservent une configuration de recrutement validée pour la réutilisation ou le partage. Sauvegarder un seulement après la cartographie du canal, les puits de contrôle et les filtres ont été vérifiés contre les images représentatives et les distributions.",
+      "phonemes": "le ʁəsˈɛt kɔ̃sˈɛʁvt yn kɔ̃fiɡyʁasjˈɔ̃ də ʁəkʁytmˈɑ̃ validˈe puʁ la ʁeytilizasjˈɔ̃ u lə paʁtˈaʒ. sovɡaʁdˈe œ̃ sølmˈɑ̃ apʁˌɛ la kaʁtɔɡʁafˈi dy kanˈal, le pyˈi də kɔ̃tʁˈoːl e le fˈiltʁz ˈɔ̃t etˈe veʁifjˈe kɔ̃tʁ lez imˈaʒ ʁəpʁezɑ̃tatˈivz e le distʁibysjˈɔ̃."
+    },
+    {
+      "scene": 10,
+      "speech_start": 145.79,
+      "speech_end": 162.965,
+      "scene_end": 163.51500000000001,
+      "duration": 17.725000000000023,
+      "text": "La télécommande de soumission envoie les paramètres résolus aux emplois distribués plutôt que de démarrer localement. Utilisez-le pour une grande base de données seulement après que le système distant puisse accéder à la fois aux mesures.db et aux matrices fusionnées sous des chemins correctement cartographiés.",
+      "speech_text": "La télécommande de soumission envoie les paramètres résolus aux emplois distribués plutôt que de démarrer localement. Utilisez-le pour une grande base de données seulement après que le système distant puisse accéder à la fois aux mesures.db et aux matrices fusionnées sous des chemins correctement cartographiés.",
+      "phonemes": "la telekɔmˈɑ̃d də sumisjˈɔ̃ ɑ̃vwˈa le paʁamˈɛtʁ ʁezolˈy oz ɑ̃plwˈa distʁibyˈe plytˈoː kə də demaʁˈe lokalmˈɑ̃. ytilizˈelə puʁ yn ɡʁˈɑ̃d bˈaz də dɔnˈe sølmˈɑ̃ apʁˌɛ kə lə sistˈɛm distˈɑ̃ pyˈis aksedˈe a la fwˈaz o məzˈyʁ.dˌebˈe e o matʁˈis fyzjɔnˈe su de ʃəmˈɛ̃ koʁɛktəmˈɑ̃ kaʁtɔɡʁafjˈe."
+    },
+    {
+      "scene": 11,
+      "speech_start": 163.51500000000001,
+      "speech_end": 176.99,
+      "scene_end": 177.57000000000002,
+      "duration": 14.055000000000007,
+      "text": "L'écran à distance reçoit un projet d'emploi. Vérifiez l'activation de l'environnement, la synchronisation, les ressources et la commande générée, puis soumettez un petit travail de validation avant de passer à une plaque complète.",
+      "speech_text": "L'écran à distance reçoit un projet d'emploi. Vérifiez l'activation de l'environnement, la synchronisation, les ressources et la commande générée, puis soumettez un petit travail de validation avant de passer à une plaque complète.",
+      "phonemes": "lekʁˈɑ̃ a distˈɑ̃s ʁəswˈa œ̃ pʁoʒˈɛ dɑ̃plwˈa. veʁifjˈe laktivasjˈɔ̃ də lɑ̃viʁɔnmˈɑ̃, la sɛ̃kʁonizasjˈɔ̃, le ʁəsˈuʁsz e la kɔmˈɑ̃d ʒeneʁˈe, pyˈi sumɛtˈez œ̃ pətˈi tʁavˈaj də validasjˈɔ̃ avˌɑ̃ də pasˈe a yn plˈak kɔ̃plˈɛt."
+    },
+    {
+      "scene": 12,
+      "speech_start": 177.57000000000002,
+      "speech_end": 189.84500000000003,
+      "scene_end": 190.34500000000003,
+      "duration": 12.775000000000006,
+      "text": "La source de données contient la racine de l'expérience. Le recrutement lit les mesures existantes de cellules, de noyaux, de parasites et de cytoplasmes; il ne segmente ni ne mesure de nouveau les images.",
+      "speech_text": "La source de données contient la racine de l'expérience. Le recrutement lit les mesures existantes de cellules, de noyaux, de parasites et de cytoplasmes; il ne segmente ni ne mesure de nouveau les images.",
+      "phonemes": "la sˈuʁs də dɔnˈe kɔ̃tjˈɛ̃ la ʁasˈin də lɛkspeʁjˈɑ̃s. lə ʁəkʁytmˈɑ̃ lˈi le məzˈyʁz ɛɡzistˈɑ̃t də sɛlˈyl, də nwajˈo, də paʁazˈitz e də sitɔplˈasm; il nə sɛɡmˈɑ̃t ni nə məzˈyʁ də nuvˈo lez imˈaʒ."
+    },
+    {
+      "scene": 13,
+      "speech_start": 190.34500000000003,
+      "speech_end": 208.57000000000002,
+      "scene_end": 209.22000000000003,
+      "duration": 18.875,
+      "text": "Mask and Channel Mapping identifie chaque plan d'intensité et chaque plan de masque. Ici, les cellules utilisent le canal ER un et le masque quatre, les noyaux utilisent le canal zéro et le masque cinq, les parasites utilisent le canal trois et le masque six, tandis que le recrutement est calculé sur le canal ER un.",
+      "speech_text": "Mask and Channel Mapping identifie chaque plan d'intensité et chaque plan de masque. Ici, les cellules utilisent le canal ER un et le masque quatre, les noyaux utilisent le canal zéro et le masque cinq, les parasites utilisent le canal trois et le masque six, tandis que le recrutement est calculé sur le canal ER un.",
+      "phonemes": "mˈask and ʃanˈɛl mˈapɪŋ idɑ̃tifˈi ʃak plˈɑ̃ dɛ̃tɑ̃sitˈe e ʃak plˈɑ̃ də mˈask. isˈi, le sɛlˈylz ytilˈiz lə kanˈal ˌəˈɛʁ œ̃n e lə mˈask kˈatʁ, le nwajˈoz ytilˈiz lə kanˈal zeʁˈo e lə mˈask sˈɛ̃k, le paʁazˈitz ytilˈiz lə kanˈal tʁwˈaz e lə mˈask sˈis, tɑ̃dˌi kə lə ʁəkʁytmˈɑ̃ ɛ kalkylˈe syʁ lə kanˈal ˌəˈɛʁ ˈœ̃."
+    },
+    {
+      "scene": 14,
+      "speech_start": 209.22000000000003,
+      "speech_end": 226.24500000000003,
+      "scene_end": 226.92500000000004,
+      "duration": 17.705000000000013,
+      "text": "Objet Filtrage des cellules, des noyaux et des parasites par superficie et intensité, limite les objets par cellule et nécessite suffisamment de cellules par puits. Cette course maintient les cellules au-dessus de trois mille cinq cents pixels, les noyaux de sept cents à quatre mille, et les parasites de cent à mille.",
+      "speech_text": "Objet Filtrage des cellules, des noyaux et des parasites par superficie et intensité, limite les objets par cellule et nécessite suffisamment de cellules par puits. Cette course maintient les cellules au-dessus de trois mille cinq cents pixels, les noyaux de sept cents à quatre mille, et les parasites de cent à mille.",
+      "phonemes": "ɔbʒˈɛ filtʁˈaʒ de sɛlˈyl, de nwajˈoz e de paʁazˈit paʁ sypɛʁfisˈi e ɛ̃tɑ̃sitˈe, limˈit lez ɔbʒˈɛ paʁ sɛlˈyl e nesɛsˈit syfizamˈɑ̃ də sɛlˈyl paʁ pyˈi. sɛt kˈuʁs mɛ̃tjˈɛ̃ le sɛlˈylz odəsˈy də tʁwˈa mˈil sˈɛ̃k sˈɑ̃ piksˈɛl, le nwajˈo də sˈɛt sˈɑ̃z a kˈatʁ mˈil, e le paʁazˈit də sˈɑ̃ a mˈil."
+    },
+    {
+      "scene": 15,
+      "speech_start": 226.92500000000004,
+      "speech_end": 243.42500000000004,
+      "scene_end": 244.02500000000003,
+      "duration": 17.099999999999994,
+      "text": "La mise en page de la plaque et les contrôles cartographient les étiquettes biologiques des identifiants de rangées ou de colonnes. La première colonne est le contrôle positif, la deuxième colonne est le contrôle négatif, et les trois à quatorze colonnes sont des puits d'écran; toutes les rangées sont des cellules HeLa.",
+      "speech_text": "La mise en page de la plaque et les contrôles cartographient les étiquettes biologiques des identifiants de rangées ou de colonnes. La première colonne est le contrôle positif, la deuxième colonne est le contrôle négatif, et les trois à quatorze colonnes sont des puits d'écran; toutes les rangées sont des cellules HeLa.",
+      "phonemes": "la mˈiz ɑ̃ pˈaʒ də la plˈak e le kɔ̃tʁˈoːl kaʁtɔɡʁafˈi lez etikˈɛt bjoloʒˈik dez idɑ̃tifjˈɑ̃ də ʁɑ̃ʒˈe u də kolˈɔn. la pʁəmjˈɛʁ kolˈɔn ɛ lə kɔ̃tʁˈoːl pozitˈif, la døzjˈɛm kolˈɔn ɛ lə kɔ̃tʁˈoːl neɡatˈif, e le tʁwˈaz a katˈɔʁz kolˈɔn sˈɔ̃ de pyˈi dekʁˈɑ̃; tut le ʁɑ̃ʒˈe sˈɔ̃ de sɛlˈyl hiː lˈa."
+    },
+    {
+      "scene": 16,
+      "speech_start": 244.02500000000003,
+      "speech_end": 260.8,
+      "scene_end": 261.38,
+      "duration": 17.35499999999996,
+      "text": "Plots and Diagnostics contrôle les superpositions de segmentation, les panneaux d'intensité de contrôle, la taille de la figure et le nombre de champs fusionnés échantillonnés. Inspectez les superpositions avant de faire confiance à un rapport, et comparez les commandes avant d'interpréter les puits d'écran.",
+      "speech_text": "Plots and Diagnostics contrôle les superpositions de segmentation, les panneaux d'intensité de contrôle, la taille de la figure et le nombre de champs fusionnés échantillonnés. Inspectez les superpositions avant de faire confiance à un rapport, et comparez les commandes avant d'interpréter les puits d'écran.",
+      "phonemes": "plˈo and djaɡnɔstˈik kɔ̃tʁˈoːl le sypɛʁpozisjˈɔ̃ də sɛɡmɑ̃tasjˈɔ̃, le panˈo dɛ̃tɑ̃sitˈe də kɔ̃tʁˈoːl, la tˈaj də la fiɡˈyʁ e lə nˈɔ̃bʁ də ʃˈɑ̃ fyzjɔnˈez eʃɑ̃tijɔnˈe. ɛ̃spɛktˈe le sypɛʁpozisjˈɔ̃z avˌɑ̃ də fˈɛʁ kɔ̃fjˈɑ̃s a œ̃ ʁapˈɔʁ, e kɔ̃paʁˈe le kɔmˈɑ̃dz avˌɑ̃ dɛ̃tɛʁpʁetˈe le pyˈi dekʁˈɑ̃."
+    },
+    {
+      "scene": 17,
+      "speech_start": 261.38,
+      "speech_end": 279.105,
+      "scene_end": 279.725,
+      "duration": 18.345000000000027,
+      "text": "La carte complète du canal est visible ici. Les dimensions du canal de zéro à trois sont disponibles pour le diagnostic, mais le score de recrutement principal est le canal pathogène - une intensité moyenne divisée par le canal cytoplasmique - une intensité moyenne au sein de la cellule hôte correspondante.",
+      "speech_text": "La carte complète du canal est visible ici. Les dimensions du canal de zéro à trois sont disponibles pour le diagnostic, mais le score de recrutement principal est le canal pathogène - une intensité moyenne divisée par le canal cytoplasmique - une intensité moyenne au sein de la cellule hôte correspondante.",
+      "phonemes": "la kˈaʁt kɔ̃plˈɛt dy kanˈal ɛ vizˈibl isˈi. le dimɑ̃sjˈɔ̃ dy kanˈal də zeʁˈo a tʁwˈa sˈɔ̃ disponˈibl puʁ lə djaɡnɔstˈik, mɛ lə skˈɔʁ də ʁəkʁytmˈɑ̃ pʁɛ̃sipˈal ɛ lə kanˈal patoʒˈɛn yn ɛ̃tɑ̃sitˈe mwajˈɛn divizˈe paʁ lə kanˈal sitɔplasmˈik yn ɛ̃tɑ̃sitˈe mwajˈɛn o sˈɛ̃ də la sɛlˈyl ˈoːt koʁɛspɔ̃dˈɑ̃t."
+    },
+    {
+      "scene": 18,
+      "speech_start": 279.725,
+      "speech_end": 295.5,
+      "scene_end": 296.08,
+      "duration": 16.35499999999996,
+      "text": "Cliquez sur Exécuter après avoir vérifié la source, la carte, les filtres et les commandes. L'arrière-plan rejoint les quatre tables de mesure, annotent les conditions, appliquent chaque porte d'objet, calculent le recrutement, regroupent les puits et font des files d'attente de chiffres diagnostiques.",
+      "speech_text": "Cliquez sur Exécuter après avoir vérifié la source, la carte, les filtres et les commandes. L'arrière-plan rejoint les quatre tables de mesure, annotent les conditions, appliquent chaque porte d'objet, calculent le recrutement, regroupent les puits et font des files d'attente de chiffres diagnostiques.",
+      "phonemes": "klikˈe syʁ ɛɡzekytˈe apʁˌɛz avwˈaʁ veʁifjˈe la sˈuʁs, la kˈaʁt, le fˈiltʁz e le kɔmˈɑ̃d. laʁjˈɛʁplˈɑ̃ ʁəʒwˈɛ̃ le kˈatʁ tˈabl də məzˈyʁ, anˈot le kɔ̃disjˈɔ̃, aplˈik ʃak pˈɔʁt dɔbʒˈɛ, kalkˈyl lə ʁəkʁytmˈɑ̃, ʁəɡʁˈup le pyˈiz e fˈɔ̃ de fˈil datˈɑ̃t də ʃˈifʁ djaɡnɔstˈik."
+    },
+    {
+      "scene": 19,
+      "speech_start": 296.08,
+      "speech_end": 313.33,
+      "scene_end": 313.90999999999997,
+      "duration": 17.829999999999984,
+      "text": "Lors de l'exécution, les chiffres de filtrage dans la console montrent exactement où les objets sont enlevés. Ne traitez pas une réduction importante comme étant automatiquement bonne ou mauvaise; conciliez-la avec les limites de surface prévues, les répartitions de contrôle et les superpositions de l'échantillon.",
+      "speech_text": "Lors de l'exécution, les chiffres de filtrage dans la console montrent exactement où les objets sont enlevés. Ne traitez pas une réduction importante comme étant automatiquement bonne ou mauvaise; conciliez-la avec les limites de surface prévues, les répartitions de contrôle et les superpositions de l'échantillon.",
+      "phonemes": "lɔʁ də lɛɡzekysjˈɔ̃, le ʃˈifʁ də filtʁˈaʒ dɑ̃ la kɔ̃sˈɔl mˈɔ̃tʁt ɛɡzaktəmˈɑ̃ u lez ɔbʒˈɛ sˈɔ̃t ɑ̃lvˈe. nə tʁɛtˈe paz yn ʁedyksjˈɔ̃ ɛ̃pɔʁtˈɑ̃t kɔm etˈɑ̃ otomatikmˈɑ̃ bˈɔn u movˈɛz; kɔ̃siljˈela avˌɛk le limˈit də syʁfˈas pʁevˈy, le ʁepaʁtisjˈɔ̃ də kɔ̃tʁˈoːl e le sypɛʁpozisjˈɔ̃ də leʃɑ̃tijˈɔ̃."
+    },
+    {
+      "scene": 20,
+      "speech_start": 313.90999999999997,
+      "speech_end": 341.68499999999995,
+      "scene_end": 342.5849999999999,
+      "duration": 28.674999999999955,
+      "text": "La vraie course a conservé trente-neuf mille neuf cent trente-sept rangées au niveau photovoltaïque sur tous les cent quatre-vingt-seize puits et a produit cinq chiffres plus cellules.csv et puits.csv. Le recrutement moyen de l'ER au bon niveau est d'un point trois cinq quatre dans le contrôle positif, un point deux huit un dans le contrôle négatif, et un point trois un huit dans les puits d'écranune séparation modeste qui doit être jugée par la variabilité et la qualité d'image, et non par les moyens seuls.",
+      "speech_text": "La vraie course a conservé trente-neuf mille neuf cent trente-sept rangées au niveau photovoltaïque sur tous les cent quatre-vingt-seize puits et a produit cinq chiffres plus cellules.csv et puits.csv. Le recrutement moyen de l'ER au bon niveau est d'un point trois cinq quatre dans le contrôle positif, un point deux huit un dans le contrôle négatif, et un point trois un huit dans les puits d'écranune séparation modeste qui doit être jugée par la variabilité et la qualité d'image, et non par les moyens seuls.",
+      "phonemes": "la vʁˈɛ kˈuʁs a kɔ̃sɛʁvˈe tʁˈɑ̃tnˈœf mˈil nˈœf sˈɑ̃ tʁˈɑ̃tsˈɛt ʁɑ̃ʒˈez o nivˈo fotovɔltaˈik syʁ tu le sˈɑ̃ kˈatʁvˈɛ̃sˈɛz pyˈiz e a pʁodyˈi sˈɛ̃k ʃˈifʁ ply sɛlˈyl.sˌeˌɛsvˈe e pyˈi.sˌeˌɛsvˈe. lə ʁəkʁytmˈɑ̃ mwajˈɛ̃ də lˈe o bˈɔ̃ nivˈo ɛ dœ̃ pwˈɛ̃ tʁwˈa sˈɛ̃k kˈatʁ dɑ̃ lə kɔ̃tʁˈoːl pozitˈif, œ̃ pwˈɛ̃ dˈø yˈit œ̃ dɑ̃ lə kɔ̃tʁˈoːl neɡatˈif, e œ̃ pwˈɛ̃ tʁwˈaz œ̃ yˈi dɑ̃ le pyˈi dekʁanˈyn sepaʁasjˈɔ̃ modˈɛst ki dwˈa ˈɛtʁ ʒyʒˈe paʁ la vaʁjabilitˈe e la kalitˈe dimˈaʒ, e nɔ̃ paʁ le mwajˈɛ̃ sˈœl."
     }
   ]
 }

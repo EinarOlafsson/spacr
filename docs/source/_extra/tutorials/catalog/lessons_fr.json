@@ -3544,47 +3544,168 @@
       "id": "25_recruitment",
       "number": 25,
       "slug": "recruitment",
-      "title": "Recruitment",
+      "title": "Le recrutement",
       "series": 3,
       "app_key": "recruitment",
       "section": "Toxoplasma assays",
-      "description": "Quantifier le recrutement d'un signal de canal d'intérêt vers les parasites ou les régions associées à des agents pathogènes.",
+      "description": "Mesurer l'enrichissement d'un canal de fluorescence dans les régions associées aux parasites par rapport au cytoplasme cellulaire hôte, avec des filtres d'objets, des annotations de plaques et des résumés par PV et par puits.",
       "objectives": [
-        "Comprendre quand utiliser le recrutement.",
-        "Configurer les entrées et réglages importants.",
-        "Exécutez le flux de travail et localiser ses sorties."
+        "Mettez correctement les canaux d'intensité et les plans de masques cellulaires, nucléaires et parasites.",
+        "Appliquer des filtres à l'objet et au niveau des plaques avant de calculer le recrutement pathogène-cytoplasme.",
+        "Interpréter des résultats réels par PV, par puits, de contrôle, de superposition et de diagnostic."
       ],
-      "prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module a besoin de résultats en amont.",
+      "prerequisite": "Exécuter la mesure avec des tableaux de cellules, de noyaux, de parasites et de cytoplasmes plus des matrices fusionnées; définir les puits de contrôle positifs et négatifs.",
       "scenes": [
         {
-          "narration": "Ce tutoriel couvre le recrutement.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Ce tutoriel couvre le recrutement."
+          "narration": "Les mesures de recrutement permettent d'enrichir un marqueur dans les régions associées aux parasites par rapport au cytoplasme des cellules hôtes environnantes. La console enregistre les paramètres résolus, les comptes de filtrage, les chemins de sortie, les chiffres, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée.",
+          "visual": "01_console",
+          "focus_key": "console",
+          "hold_after": 0.62,
+          "speech_text": "Les mesures de recrutement permettent d'enrichir un marqueur dans les régions associées aux parasites par rapport au cytoplasme des cellules hôtes environnantes. La console enregistre les paramètres résolus, les comptes de filtrage, les chemins de sortie, les chiffres, les avertissements et les erreurs; la boîte de discussion peut discuter de ce contexte lorsque l'IA est activée."
         },
         {
-          "narration": "Ouvrez Recruitment dans la section Toxoplasma assays. Le recrutement ouvert à partir de la section des tests de toxoplasme.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Ouvrez Recruitment dans la section Toxoplasma assays. Le recrutement ouvert à partir de la section des tests de toxoplasme."
+          "narration": "Utilisez l'interrupteur d'IA seulement lorsque vous voulez de l'aide au chat. Le menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; le recrutement lui-même fonctionne localement et ne dépend pas d'un service d'IA.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_menu",
+          "click_key": "ai_menu_button",
+          "hold_after": 0.52,
+          "speech_text": "Utilisez l'interrupteur d'IA seulement lorsque vous voulez de l'aide au chat. Le menu adjacent sélectionne un fournisseur configuré et ouvre les paramètres du fournisseur; le recrutement lui-même fonctionne localement et ne dépend pas d'un service d'IA."
         },
         {
-          "narration": "Dans la zone de configuration principale, définissez la région de recrutement, la référence de fond, les filtres d'objets, le regroupement et la stratégie de normalisation.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Dans la zone de configuration principale, définissez la région de recrutement, la référence de fond, les filtres d'objets, le regroupement et la stratégie de normalisation."
+          "narration": "La configuration du fournisseur distingue les assistants locaux des assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et consultez l'avis de confidentialité avant d'envoyer le contexte de la console ou de l'image à un fournisseur distant.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.52,
+          "speech_text": "La configuration du fournisseur distingue les assistants locaux des assistants hébergés. Configurez uniquement les services que vous avez l'intention d'utiliser et consultez l'avis de confidentialité avant d'envoyer le contexte de la console ou de l'image à un fournisseur distant."
         },
         {
-          "narration": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Avant la course complète, vérifiez les paramètres visibles et utilisez un mode d'aperçu ou d'essai lorsqu'il est disponible."
+          "narration": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas la formule de recrutement, les filtres d'objets ou les annotations de plaques.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.48,
+          "speech_text": "Les paramètres d'IA contrôlent le contexte de l'assistant, les informations d'identification et le signalement d'erreur optionnel. Ces préférences ne modifient pas la formule de recrutement, les filtres d'objets ou les annotations de plaques."
         },
         {
-          "narration": "Lorsque le flux de travail est terminé, les scores de recrutement et les résumés des conditions par objet sont stockés avec des identifiants de source.",
-          "visual": "output",
+          "narration": "Choisissez ou laissez tomber la racine d'expérience contenant les mesures/mesures.db et le dossier fusionné. Ce tutoriel utilise l'expérience HeLa siRNA transférée, et non des données synthétiques, avec le signal ER comme canal d'intérêt.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
           "hold_after": 0.65,
-          "speech_text": "Lorsque le flux de travail est terminé, les scores de recrutement et les résumés des conditions par objet sont stockés avec des identifiants de source."
+          "speech_text": "Choisissez ou laissez tomber la racine d'expérience contenant les mesures/mesures.db et le dossier fusionné. Ce tutoriel utilise l'expérience HeLa siRNA transférée, et non des données synthétiques, avec le signal ER comme canal d'intérêt."
+        },
+        {
+          "narration": "Essentials présente la source, la cartographie des canaux, les filtres, la disposition des plaques et les choix de diagnostic nécessaires pour une première course. Confirmez la carte avant de régler les seuils car un indice de canal valide mais incorrect peut produire des ratios plausibles et incorrects.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.56,
+          "speech_text": "Essentials présente la source, la cartographie des canaux, les filtres, la disposition des plaques et les choix de diagnostic nécessaires pour une première course. Confirmez la carte avant de régler les seuils car un indice de canal valide mais incorrect peut produire des ratios plausibles et incorrects."
+        },
+        {
+          "narration": "Les modifications ne montrent que des écarts délibérés des défauts. Utilisez-le comme un audit pré-exécution compact du chemin de l'expérience réelle, le canal d'urgence un, les trois plans de masque, les filtres de zone, les colonnes de contrôle et les choix de diagnostic.",
+          "visual": "07_modified",
+          "focus_key": "settings",
+          "click_key": "modified",
+          "hold_after": 0.55,
+          "speech_text": "Les modifications ne montrent que des écarts délibérés des défauts. Utilisez-le comme un audit pré-exécution compact du chemin de l'expérience réelle, le canal d'urgence un, les trois plans de masque, les filtres de zone, les colonnes de contrôle et les choix de diagnostic."
+        },
+        {
+          "narration": "Tous les paramètres exposent chaque contrôle lors de la reproduction ou du dépannage d'une course. Retour à Essentials lorsque les contrôles supplémentaires ne sont pas nécessaires, de sorte que les valeurs avancées ne sont pas modifiées accidentellement.",
+          "visual": "08_all_settings",
+          "focus_key": "settings",
+          "click_key": "all_settings",
+          "hold_after": 0.5,
+          "speech_text": "Tous les paramètres exposent chaque contrôle lors de la reproduction ou du dépannage d'une course. Retour à Essentials lorsque les contrôles supplémentaires ne sont pas nécessaires, de sorte que les valeurs avancées ne sont pas modifiées accidentellement."
+        },
+        {
+          "narration": "Les recettes conservent une configuration de recrutement validée pour la réutilisation ou le partage. Sauvegarder un seulement après la cartographie du canal, les puits de contrôle et les filtres ont été vérifiés contre les images représentatives et les distributions.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.54,
+          "speech_text": "Les recettes conservent une configuration de recrutement validée pour la réutilisation ou le partage. Sauvegarder un seulement après la cartographie du canal, les puits de contrôle et les filtres ont été vérifiés contre les images représentatives et les distributions."
+        },
+        {
+          "narration": "La télécommande de soumission envoie les paramètres résolus aux emplois distribués plutôt que de démarrer localement. Utilisez-le pour une grande base de données seulement après que le système distant puisse accéder à la fois aux mesures.db et aux matrices fusionnées sous des chemins correctement cartographiés.",
+          "visual": "10_remote_submit",
+          "focus_key": "remote",
+          "click_key": "remote",
+          "hold_after": 0.55,
+          "speech_text": "La télécommande de soumission envoie les paramètres résolus aux emplois distribués plutôt que de démarrer localement. Utilisez-le pour une grande base de données seulement après que le système distant puisse accéder à la fois aux mesures.db et aux matrices fusionnées sous des chemins correctement cartographiés."
+        },
+        {
+          "narration": "L'écran à distance reçoit un projet d'emploi. Vérifiez l'activation de l'environnement, la synchronisation, les ressources et la commande générée, puis soumettez un petit travail de validation avant de passer à une plaque complète.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.58,
+          "speech_text": "L'écran à distance reçoit un projet d'emploi. Vérifiez l'activation de l'environnement, la synchronisation, les ressources et la commande générée, puis soumettez un petit travail de validation avant de passer à une plaque complète."
+        },
+        {
+          "narration": "La source de données contient la racine de l'expérience. Le recrutement lit les mesures existantes de cellules, de noyaux, de parasites et de cytoplasmes; il ne segmente ni ne mesure de nouveau les images.",
+          "visual": "12_category_01_data_source",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.5,
+          "speech_text": "La source de données contient la racine de l'expérience. Le recrutement lit les mesures existantes de cellules, de noyaux, de parasites et de cytoplasmes; il ne segmente ni ne mesure de nouveau les images."
+        },
+        {
+          "narration": "Mask and Channel Mapping identifie chaque plan d'intensité et chaque plan de masque. Ici, les cellules utilisent le canal ER un et le masque quatre, les noyaux utilisent le canal zéro et le masque cinq, les parasites utilisent le canal trois et le masque six, tandis que le recrutement est calculé sur le canal ER un.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.65,
+          "speech_text": "Mask and Channel Mapping identifie chaque plan d'intensité et chaque plan de masque. Ici, les cellules utilisent le canal ER un et le masque quatre, les noyaux utilisent le canal zéro et le masque cinq, les parasites utilisent le canal trois et le masque six, tandis que le recrutement est calculé sur le canal ER un."
+        },
+        {
+          "narration": "Objet Filtrage des cellules, des noyaux et des parasites par superficie et intensité, limite les objets par cellule et nécessite suffisamment de cellules par puits. Cette course maintient les cellules au-dessus de trois mille cinq cents pixels, les noyaux de sept cents à quatre mille, et les parasites de cent à mille.",
+          "visual": "12_category_03_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.68,
+          "speech_text": "Objet Filtrage des cellules, des noyaux et des parasites par superficie et intensité, limite les objets par cellule et nécessite suffisamment de cellules par puits. Cette course maintient les cellules au-dessus de trois mille cinq cents pixels, les noyaux de sept cents à quatre mille, et les parasites de cent à mille."
+        },
+        {
+          "narration": "La mise en page de la plaque et les contrôles cartographient les étiquettes biologiques des identifiants de rangées ou de colonnes. La première colonne est le contrôle positif, la deuxième colonne est le contrôle négatif, et les trois à quatorze colonnes sont des puits d'écran; toutes les rangées sont des cellules HeLa.",
+          "visual": "12_category_04_plate_layout_controls",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.6,
+          "speech_text": "La mise en page de la plaque et les contrôles cartographient les étiquettes biologiques des identifiants de rangées ou de colonnes. La première colonne est le contrôle positif, la deuxième colonne est le contrôle négatif, et les trois à quatorze colonnes sont des puits d'écran; toutes les rangées sont des cellules HeLa."
+        },
+        {
+          "narration": "Plots and Diagnostics contrôle les superpositions de segmentation, les panneaux d'intensité de contrôle, la taille de la figure et le nombre de champs fusionnés échantillonnés. Inspectez les superpositions avant de faire confiance à un rapport, et comparez les commandes avant d'interpréter les puits d'écran.",
+          "visual": "12_category_05_plots_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.58,
+          "speech_text": "Plots and Diagnostics contrôle les superpositions de segmentation, les panneaux d'intensité de contrôle, la taille de la figure et le nombre de champs fusionnés échantillonnés. Inspectez les superpositions avant de faire confiance à un rapport, et comparez les commandes avant d'interpréter les puits d'écran."
+        },
+        {
+          "narration": "La carte complète du canal est visible ici. Les dimensions du canal de zéro à trois sont disponibles pour le diagnostic, mais le score de recrutement principal est le canal pathogène - une intensité moyenne divisée par le canal cytoplasmique - une intensité moyenne au sein de la cellule hôte correspondante.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.62,
+          "speech_text": "La carte complète du canal est visible ici. Les dimensions du canal de zéro à trois sont disponibles pour le diagnostic, mais le score de recrutement principal est le canal pathogène - une intensité moyenne divisée par le canal cytoplasmique - une intensité moyenne au sein de la cellule hôte correspondante."
+        },
+        {
+          "narration": "Cliquez sur Exécuter après avoir vérifié la source, la carte, les filtres et les commandes. L'arrière-plan rejoint les quatre tables de mesure, annotent les conditions, appliquent chaque porte d'objet, calculent le recrutement, regroupent les puits et font des files d'attente de chiffres diagnostiques.",
+          "visual": "21_run",
+          "focus_key": "run",
+          "click_key": "run",
+          "hold_after": 0.58,
+          "speech_text": "Cliquez sur Exécuter après avoir vérifié la source, la carte, les filtres et les commandes. L'arrière-plan rejoint les quatre tables de mesure, annotent les conditions, appliquent chaque porte d'objet, calculent le recrutement, regroupent les puits et font des files d'attente de chiffres diagnostiques."
+        },
+        {
+          "narration": "Lors de l'exécution, les chiffres de filtrage dans la console montrent exactement où les objets sont enlevés. Ne traitez pas une réduction importante comme étant automatiquement bonne ou mauvaise; conciliez-la avec les limites de surface prévues, les répartitions de contrôle et les superpositions de l'échantillon.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.58,
+          "speech_text": "Lors de l'exécution, les chiffres de filtrage dans la console montrent exactement où les objets sont enlevés. Ne traitez pas une réduction importante comme étant automatiquement bonne ou mauvaise; conciliez-la avec les limites de surface prévues, les répartitions de contrôle et les superpositions de l'échantillon."
+        },
+        {
+          "narration": "La vraie course a conservé trente-neuf mille neuf cent trente-sept rangées au niveau photovoltaïque sur tous les cent quatre-vingt-seize puits et a produit cinq chiffres plus cellules.csv et puits.csv. Le recrutement moyen de l'ER au bon niveau est d'un point trois cinq quatre dans le contrôle positif, un point deux huit un dans le contrôle négatif, et un point trois un huit dans les puits d'écranune séparation modeste qui doit être jugée par la variabilité et la qualité d'image, et non par les moyens seuls.",
+          "visual": "23_output",
+          "focus_key": "figures",
+          "hold_after": 0.9,
+          "speech_text": "La vraie course a conservé trente-neuf mille neuf cent trente-sept rangées au niveau photovoltaïque sur tous les cent quatre-vingt-seize puits et a produit cinq chiffres plus cellules.csv et puits.csv. Le recrutement moyen de l'ER au bon niveau est d'un point trois cinq quatre dans le contrôle positif, un point deux huit un dans le contrôle négatif, et un point trois un huit dans les puits d'écranune séparation modeste qui doit être jugée par la variabilité et la qualité d'image, et non par les moyens seuls."
         }
       ]
     },
