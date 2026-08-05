@@ -4,47 +4,137 @@
   "voice": "bm_george",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 53.375,
+  "total_duration": 242.685,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.15,
-      "scene_end": 10.6,
-      "duration": 10.6,
-      "text": "This tutorial covers Database Browser. Browse, filter, query, and export measurements dot db without using the sqlite command line."
+      "speech_end": 20.8,
+      "scene_end": 21.52,
+      "duration": 21.52,
+      "text": "Database Browser inspects large spaCR result databases without a command line. Open it from Results and quality control. It starts read-only at both layers: the interface does not offer cell editors, and SQLite uses read-only and query-only modes unless editing is deliberately enabled elsewhere.",
+      "speech_text": "Database Browser inspects large spacer result databases without a command line. Open it from Results and quality control. It starts read-only at both layers: the interface does not offer cell editors, and SQLite uses read-only and query-only modes unless editing is deliberately enabled elsewhere.",
+      "phonemes": "dˈAtəbAs bɹˈWzə ɪnspˈɛkts lˈɑːʤ spˈAsə ɹɪzˈʌlt dˈAtəbAsɪz wɪðˈWt ɐ kəmˈɑːnd lˈIn. ˈQpᵊn ɪt fɹɒm ɹɪzˈʌlts and kwˈɒlɪti kəntɹˈQl. ˌɪt stˈɑːts ɹˈiːd—ˈQnli at bˈQθ lˈAəz: ði ˈɪntəfAs dˈʌz nˌɒt ˈɒfə sˈɛl ˈɛdɪtəz, and ˌɛskjˈuː lˈIt jˈuːzɪz ɹˌiːdˈQnli and kwˈɪəɹiˌQnli mˈQdz ʌnlˈɛs ˈɛdɪtɪŋ ɪz dɪlˈɪbəɹətli ɪnˈAbld ɛlswˈɛː."
     },
     {
       "scene": 2,
-      "speech_start": 10.6,
-      "speech_end": 20.5,
-      "scene_end": 20.95,
-      "duration": 10.35,
-      "text": "Open Database Browser from the Data and batch runs section. Open a spaCR SQLite database and select a table or saved query."
+      "speech_start": 21.52,
+      "speech_end": 36.22,
+      "scene_end": 36.86,
+      "duration": 15.34,
+      "text": "Enter a measurements.db path and click Open. You may instead choose the database, choose its run folder, or drop either anywhere on this screen. Here we open the transferred tutorial experiment's real measurements database.",
+      "speech_text": "Enter a measurements dot db path and click Open. You may instead choose the database, choose its run folder, or drop either anywhere on this screen. Here we open the transferred tutorial experiment's real measurements database.",
+      "phonemes": "ˈɛntə ɐ mˈɛʒəmᵊnts dˈɒt dˌiːbˈiː pˈɑːθ and klˈɪk ˈQpᵊn. jˌuː mˈA ɪnstˈɛd ʧˈuːz ðə dˈAtəbAs, ʧˈuːz ɪts ɹˈʌn fˈQldə, ɔː dɹˈɒp ˈIðə ˈɛnɪwɛː ˌɒn ðɪs skɹˈiːn. hˈɪə wiː ˈQpᵊn ðə tɹɑːnsfˈɜːd tjuːtˈɔːɹɪəl ɪkspˈɛɹɪmᵊnts ɹˈɪəl mˈɛʒəmᵊnts dˈAtəbAs."
     },
     {
       "scene": 3,
-      "speech_start": 20.95,
-      "speech_end": 30.575,
-      "scene_end": 31.025,
-      "duration": 10.075,
-      "text": "In the main configuration area, configure columns, filters, sorting, row limits, joins, and safe read-only or editable behavior."
+      "speech_start": 36.86,
+      "speech_end": 54.01,
+      "scene_end": 54.73,
+      "duration": 17.869999999999997,
+      "text": "spaCR resolves the path, opens it read-only, and lists ten tables. These include object measurements, image records, settings, counts, and annotation history. Edit mode remains off; this tutorial never enables it and never writes to the source.",
+      "speech_text": "spacer resolves the path, opens it read-only, and lists ten tables. These include object measurements, image records, settings, counts, and annotation history. Edit mode remains off; this tutorial never enables it and never writes to the source.",
+      "phonemes": "spˈAsə ɹɪzˈɒlvz ðə pˈɑːθ, ˈQpᵊnz ɪt ɹˌiːdˈQnli, and lˈɪsts tˈɛn tˈAbᵊlz. ðˌiːz ɪnklˈuːd ˈɒbʤɛkt mˈɛʒəmᵊnts, ˈɪmɪʤ ɹˈɛkɔːdz, sˈɛtɪŋz, kˈWnts, and ˌanQtˈAʃᵊn hˈɪstəɹi. ˈɛdɪt mˈQd ɹɪmˈAnz ˈɒf; ðɪs tjuːtˈɔːɹɪəl nˈɛvə ɪnˈAbᵊlz ɪt and nˈɛvə ɹˈIts tə ðə sˈɔːs."
     },
     {
       "scene": 4,
-      "speech_start": 31.025,
-      "speech_end": 44.325,
-      "scene_end": 44.775000000000006,
-      "duration": 13.750000000000007,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. preview queries and preserve object identifiers when exporting or making authorized edits."
+      "speech_start": 54.73,
+      "speech_end": 74.455,
+      "scene_end": 75.235,
+      "duration": 20.505000000000003,
+      "text": "Click the Cell table. It contains 81,969 measured cells and 218 identifier, morphology, intensity, texture, distance, and colocalization columns. The preview fetches only its first bounded chunk, while the complete row count is reported separately.",
+      "speech_text": "Click the Cell table. It contains 81,969 measured cells and 218 identifier, morphology, intensity, texture, distance, and colocalization columns. The preview fetches only its first bounded chunk, while the complete row count is reported separately.",
+      "phonemes": "klˈɪk ðə sˈɛl tˈAbᵊl. ˌɪt kəntˈAnz ˈAti wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn mˈɛʒəd sˈɛlz and tˈuː hˈʌndɹəd ˌAtˈiːn IdˈɛntɪfIə, mɔːfˈɒləʤi, ɪntˈɛnsɪti, tˈɛksʧə, dˈɪstᵊns, and kˌQləkəlIzˈAʃən kˈɒləmz. ðə pɹˈiːvjuː fˈɛʧɪz ˈQnli ɪts fˈɜːst bˈWndɪd ʧˈʌŋk, wˌIl ðə kəmplˈiːt ɹˈQ kˈWnt ɪz ɹɪpˈɔːtɪd sˈɛpəɹətli."
     },
     {
       "scene": 5,
-      "speech_start": 44.775000000000006,
-      "speech_end": 52.72500000000001,
-      "scene_end": 53.37500000000001,
-      "duration": 8.600000000000001,
-      "text": "When the workflow finishes, filtered tables can be copied or exported while the original database remains traceable."
+      "speech_start": 75.235,
+      "speech_end": 93.31,
+      "scene_end": 94.01,
+      "duration": 18.775000000000006,
+      "text": "Search columns to make a wide feature table readable. The query cell_channel_1_mean instantly narrows 218 displayed columns to the single channel-1 mean-intensity feature. This changes only the view; it does not rerun the database query or remove rows.",
+      "speech_text": "Search columns to make a wide feature table readable. The query cell_channel_1_mean instantly narrows 218 displayed columns to the single channel-1 mean-intensity feature. This changes only the view; it does not rerun the database query or remove rows.",
+      "phonemes": "sˈɜːʧ kˈɒləmz tə mˌAk ɐ wˈId fˈiːʧə tˈAbᵊl ɹˈiːdəbᵊl. ðə kwˈɪəɹi sˈɛl ʧˈanᵊl wˈʌn mˈiːn ˈɪnstᵊntli nˈaɹQz tˈuː hˈʌndɹəd ˌAtˈiːn dɪsplˈAd kˈɒləmz tə ðə sˈɪŋɡᵊl ʧˈanᵊl wˈʌn mˌiːnɪntˈɛnsɪti fˈiːʧə. ðˌɪs ʧˈAnʤɪz ˈQnli ðə vjˈuː; ɪt dˈʌz nˌɒt ɹiːɹˈʌn ðə dˈAtəbAs kwˈɪəɹi ɔː ɹɪmˈuːv ɹˈQz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 94.01,
+      "speech_end": 113.51,
+      "scene_end": 114.25,
+      "duration": 20.239999999999995,
+      "text": "Clear the column search and set Rows per fetch to 250. The preview uses keyset paging rather than a deep offset, so each request remains bounded as the table grows. Click Load more to append the next chunk without loading all 81,969 rows into memory.",
+      "speech_text": "Clear the column search and set Rows per fetch to 250. The preview uses keyset paging rather than a deep offset, so each request remains bounded as the table grows. Click Load more to append the next chunk without loading all 81,969 rows into memory.",
+      "phonemes": "klˈɪə ðə kˈɒləm sˈɜːʧ and sˈɛt ɹˈQz pɜː fˈɛʧ tə tˈuː hˈʌndɹəd fˈɪfti. ðə pɹˈiːvjuː jˈuːzɪz kˈiːsɛt pˈAʤɪŋ ɹˈɑːðə ðən ɐ dˈiːp ˈɒfsɛt, sˌQ ˈiːʧ ɹɪkwˈɛst ɹɪmˈAnz bˈWndɪd az ðə tˈAbᵊl ɡɹˈQz. klˈɪk lˈQd mˈɔː tʊ əpˈɛnd ðə nˈɛkst ʧˈʌŋk wɪðˈWt lˈQdɪŋ ˈɔːl ˈAti wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn ɹˈQz ˈɪntuː mˈɛməɹi."
+    },
+    {
+      "scene": 7,
+      "speech_start": 114.25,
+      "speech_end": 132.35,
+      "scene_end": 133.04999999999998,
+      "duration": 18.799999999999983,
+      "text": "The preview now shows 500 of 81,969 rows. Sorting stays off while only part of the table is loaded, because sorting a partial page would misrepresent the full dataset. Database filters, however, always run against the complete table.",
+      "speech_text": "The preview now shows 500 of 81,969 rows. Sorting stays off while only part of the table is loaded, because sorting a partial page would misrepresent the full dataset. Database filters, however, always run against the complete table.",
+      "phonemes": "ðə pɹˈiːvjuː nˈW ʃˈQz fˈIv hˈʌndɹəd ɒv ˈAti wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn ɹˈQz. sˈɔːtɪŋ stˈAz ˈɒf wˌIl ˈQnli pˈɑːt ɒv ðə tˈAbᵊl ɪz lˈQdɪd, bɪkˈɒz sˈɔːtɪŋ ɐ pˈɑːʃl pˈAʤ wʊd mˌɪsɹɛpɹɪzˈɛnt ðə fˈʊl dˈAtəsɛt. dˈAtəbAs fˈɪltəz, hWˈɛvə, ˈɔːlwAz ɹˈʌn əɡˈɛnst ðə kəmplˈiːt tˈAbᵊl."
+    },
+    {
+      "scene": 8,
+      "speech_start": 133.04999999999998,
+      "speech_end": 151.12499999999997,
+      "scene_end": 151.84499999999997,
+      "duration": 18.794999999999987,
+      "text": "Build a structured filter by choosing cell_area, greater than or equal to, and 10,000, then click Apply filter. spaCR validates the column and operator and binds the value as a parameter. Raw SQL is available for advanced predicates, but is unnecessary here.",
+      "speech_text": "Build a structured filter by choosing cell_area, greater than or equal to, and 10,000, then click Apply filter. spacer validates the column and operator and binds the value as a parameter. Raw SQL is available for advanced predicates, but is unnecessary here.",
+      "phonemes": "bˈɪld ɐ stɹˈʌkʧəd fˈɪltə bI ʧˈuːzɪŋ sˌɛlˈɛːɹɪə, ɡɹˈAtə ðən ɔː ˈiːkwᵊl tuː, and tˈɛn θˈWzᵊnd, ðˈɛn klˈɪk əplˈI fˈɪltə. spˈAsə vˈalɪdAts ðə kˈɒləm and ˈɒpəɹAtə and bˈIndz ðə vˈaljuː az ɐ pəɹˈamɪtə. ɹˈɔː sˈiːkwᵊl ɪz əvˈAləbᵊl fɔː ədvˈɑːnst pɹˈɛdɪkəts, bˌʌt ɪz ʌnnˈɛsɪsəɹi hˈɪə."
+    },
+    {
+      "scene": 9,
+      "speech_start": 151.84499999999997,
+      "speech_end": 170.14499999999998,
+      "scene_end": 170.86499999999998,
+      "duration": 19.02000000000001,
+      "text": "The complete filter contains 12,907 cells. Only the first 250 are painted, yet the exact filtered count and the active predicate remain visible. This distinction prevents a preview-page size from being mistaken for the population size.",
+      "speech_text": "The complete filter contains 12,907 cells. Only the first 250 are painted, yet the exact filtered count and the active predicate remain visible. This distinction prevents a preview-page size from being mistaken for the population size.",
+      "phonemes": "ðə kəmplˈiːt fˈɪltə kəntˈAnz twˈɛlv θˈWzᵊnd nˈIn hˈʌndɹəd sˈɛvᵊn sˈɛlz. ˈQnli ðə fˈɜːst tˈuː hˈʌndɹəd fˈɪfti ɑː pˈAntɪd, jˈɛt ði ɪɡzˈakt fˈɪltəd kˈWnt and ði ˈaktɪv pɹˈɛdɪkət ɹɪmˈAn vˈɪzɪbᵊl. ðˌɪs dɪstˈɪŋkʃᵊn pɹɪvˈɛnts ɐ pɹˈiːvjuːpˌAʤ sˈIz fɹɒm bˈiːɪŋ mɪstˈAkᵊn fɔː ðə pˌɒpjʊlˈAʃᵊn sˈIz."
+    },
+    {
+      "scene": 10,
+      "speech_start": 170.86499999999998,
+      "speech_end": 187.81499999999997,
+      "scene_end": 188.51499999999996,
+      "duration": 17.649999999999977,
+      "text": "Click Export filtered CSV. Exports stream the entire current table and filter rather than only the loaded preview, and they honor the visible-column search if one is active. With the search cleared, this export retains all 218 columns.",
+      "speech_text": "Click Export filtered CSV. Exports stream the entire current table and filter rather than only the loaded preview, and they honor the visible-column search if one is active. With the search cleared, this export retains all 218 columns.",
+      "phonemes": "klˈɪk ˈɛkspɔːt fˈɪltəd sˌiːˌɛsvˈiː. ˈɛkspɔːts stɹˈiːm ði ɪntˈIə kˈʌɹənt tˈAbᵊl and fˈɪltə ɹˈɑːðə ðən ˈQnli ðə lˈQdɪd pɹˈiːvjuː, and ðA ˈɒnə ðə vˈɪzɪbᵊlkˌɒləm sˈɜːʧ ɪf wˈʌn ɪz ˈaktɪv. wˌɪð ðə sˈɜːʧ klˈɪəd, ðɪs ˈɛkspɔːt ɹɪtˈAnz ˈɔːl tˈuː hˈʌndɹəd ˌAtˈiːn kˈɒləmz."
+    },
+    {
+      "scene": 11,
+      "speech_start": 188.51499999999996,
+      "speech_end": 210.13999999999996,
+      "scene_end": 210.95999999999995,
+      "duration": 22.444999999999993,
+      "text": "The status confirms an export of 12,907 rows by 218 columns. The derived CSV is the only new file created. A before-and-after SHA-256 check confirms that measurements.db is byte-identical, and no journal or write-ahead-log file appeared beside it.",
+      "speech_text": "The status confirms an export of 12,907 rows by 218 columns. The derived CSV is the only new file created. A before-and-after S H A two fifty six check confirms that measurements dot db is byte-identical, and no journal or write-ahead-log file appeared beside it.",
+      "phonemes": "ðə stˈAtəs kənfˈɜːmz ɐn ˈɛkspɔːt ɒv twˈɛlv θˈWzᵊnd nˈIn hˈʌndɹəd sˈɛvᵊn ɹˈQz bI tˈuː hˈʌndɹəd ˌAtˈiːn kˈɒləmz. ðə dɪɹˈIvd sˌiːˌɛsvˈiː ɪz ði ˈQnli njˈuː fˈIl kɹɪˈAtɪd. ɐ bɪfˈɔːandˈɑːftə ˈɛs ˈAʧ ɐ tˈuː fˈɪfti sˈɪks ʧˈɛk kənfˈɜːmz ðat mˈɛʒəmᵊnts dˈɒt dˌiːbˈiː ɪz bˌItIdˈɛntɪkᵊl, and nˈQ ʤˈɜːnᵊl ɔː ɹˈItəhˈɛdlˌɒɡ fˈIl əpˈɪəd bɪsˈId ɪt."
+    },
+    {
+      "scene": 12,
+      "speech_start": 210.95999999999995,
+      "speech_end": 223.85999999999996,
+      "scene_end": 224.47999999999996,
+      "duration": 13.52000000000001,
+      "text": "Click Clear to remove the predicate and reload the first bounded chunk. Filters are reversible view state: clearing one does not alter rows in the database or the previously exported file.",
+      "speech_text": "Click Clear to remove the predicate and reload the first bounded chunk. Filters are reversible view state: clearing one does not alter rows in the database or the previously exported file.",
+      "phonemes": "klˈɪk klˈɪə tə ɹɪmˈuːv ðə pɹˈɛdɪkət and ɹˌiːlˈQd ðə fˈɜːst bˈWndɪd ʧˈʌŋk. fˈɪltəz ɑː ɹɪvˈɜːsɪbᵊl vjˈuː stˈAt: klˈɪəɹɪŋ wˈʌn dˈʌz nˌɒt ˈɔːltə ɹˈQz ɪn ðə dˈAtəbAs ɔː ðə pɹˈiːvɪəsli ˈɛkspɔːtɪd fˈIl."
+    },
+    {
+      "scene": 13,
+      "speech_start": 224.47999999999996,
+      "speech_end": 241.90499999999997,
+      "scene_end": 242.68499999999997,
+      "duration": 18.205000000000013,
+      "text": "All 81,969 cells are visible to the browser again, with only the first 250 loaded. This completes a traceable read-only workflow for exploring large spaCR measurement tables and exporting precisely defined subsets.",
+      "speech_text": "All 81,969 cells are visible to the browser again, with only the first 250 loaded. This completes a traceable read-only workflow for exploring large spacer measurement tables and exporting precisely defined subsets.",
+      "phonemes": "ˈɔːl ˈAti wˈʌn θˈWzᵊnd nˈIn hˈʌndɹəd sˈɪksti nˈIn sˈɛlz ɑː vˈɪzɪbᵊl tə ðə bɹˈWzə əɡˈɛn, wɪð ˈQnli ðə fˈɜːst tˈuː hˈʌndɹəd fˈɪfti lˈQdɪd. ðˌɪs kəmplˈiːts ɐ tɹˈAsəbᵊl ɹˌiːdˈQnli wˈɜːkflQ fɔː ɪksplˈɔːɹɪŋ lˈɑːʤ spˈAsə mˈɛʒəmᵊnt tˈAbᵊlz and ɛkspˈɔːtɪŋ pɹɪsˈIsli dɪfˈInd sˈʌbsɛts."
     }
   ]
 }

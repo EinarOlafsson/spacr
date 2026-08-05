@@ -1870,19 +1870,43 @@
       "id": "34_database",
       "scenes": [
         {
-          "narration": "Dieses Tutorial deckt den Datenbankbrowser ab. Durchsuchen, filtern, abfragen und exportieren Sie Messungen dot db, ohne die Befehlszeile sqlite zu verwenden."
+          "narration": "Der Datenbankbrowser überprüft große spaCR-Ergebnisdatenbanken ohne Befehlszeile. Öffnen Sie es von Resultaten und Qualitätskontrolle. Es beginnt auf beiden Ebenen nur zu lesen: Die Schnittstelle bietet keine Zell-Editoren an, und SQLite verwendet nur zu lesen und nur zu befragen Modi, es sei denn, die Bearbeitung ist absichtlich an anderer Stelle aktiviert."
         },
         {
-          "narration": "Öffnen Sie den Datenbankbrowser aus dem Abschnitt Daten und Batchläufen. Öffnen Sie eine spaCR SQLite-Datenbank und wählen Sie eine Tabelle oder gespeicherte Abfrage aus."
+          "narration": "Geben Sie einen Messungen.db-Pfad ein und klicken Sie auf Öffnen. Sie können stattdessen die Datenbank auswählen, den ausgeführten Ordner auswählen oder entweder überall auf diesem Bildschirm ablassen. Hier öffnen wir die echte Messdatenbank des übertragenen Tutorial-Experiments."
         },
         {
-          "narration": "Im Hauptkonfigurationsbereich konfigurieren Sie Spalten, Filter, Sortieren, Zeilenlimits, Verbindungen und sicheres nur zu lesen oder bearbeitbares Verhalten."
+          "narration": "spaCR löst den Weg, öffnet ihn nur zu lesen und listet zehn Tabellen auf. Dazu gehören Objektmessungen, Bilderregister, Einstellungen, Zählungen und Anmerkungsgeschichte. Der Bearbeitungsmodus bleibt ausgeschaltet; dieses Tutorial aktiviert ihn nie und schreibt nie an die Quelle."
         },
         {
-          "narration": "Vor dem vollständigen Lauf überprüfen Sie die sichtbaren Einstellungen und verwenden Sie einen Vorschau- oder Testmodus, wenn einer verfügbar ist. Anfragen zu sehen und Objekt-Identifikatoren bei Export oder Genehmigungsbearbeitung zu speichern."
+          "narration": "Klicken Sie auf die Zelltabelle. Es enthält 81.969 gemessene Zellen und 218 Identifikator-, Morphologie-, Intensitäts-, Textur-, Entfernung- und Colocalizationsspalten. Die Vorschau holt nur den ersten begrenzten Teil ab, während die vollständige Zeilenzahl separat gemeldet wird."
         },
         {
-          "narration": "Wenn der Workflow abgeschlossen ist, können gefilterte Tabellen kopiert oder exportiert werden, während die ursprüngliche Datenbank nachvollziehbar bleibt."
+          "narration": "Suche nach Spalten, um eine breite Feature-Tabelle lesbar zu machen. Die query cell_channel_1_mean schränkt sofort 218 angezeigte Spalten auf die Single-Channel-1-Mittelintensitätsfunktion ein. Dies ändert nur die Ansicht; es führt die Datenbankfrage nicht erneut aus oder entfernt Zeilen."
+        },
+        {
+          "narration": "Löschen Sie die Spalte-Suche und setzen Sie Reihen pro Abholung auf 250. Die Vorschau verwendet das Schlüsselset-Paging statt eines tiefen Offsets, so dass jede Anfrage im Zuge des Wachstums der Tabelle begrenzt bleibt. Klicken Sie auf Lade mehr, um das nächste Stück hinzuzufügen, ohne alle 81.969 Zeilen im Speicher zu laden."
+        },
+        {
+          "narration": "Die Vorschau zeigt nun 500 von 81.969 Zeilen. Das Sortieren bleibt abgeladen, wenn nur ein Teil der Tabelle geladen ist, da das Sortieren einer teilweisen Seite den gesamten Datensatz falsch darstellt. Datenbankfilter laufen jedoch immer gegen die komplette Tabelle."
+        },
+        {
+          "narration": "Erstellen Sie einen strukturierten Filter durch die Auswahl von cell_area, größer als oder gleich 10.000, und klicken Sie dann auf Filter anwenden. spaCR validiert die Spalte und den Betreiber und bindet den Wert als Parameter. Raw SQL ist für fortgeschrittene Prädikate verfügbar, ist aber hier unnötig."
+        },
+        {
+          "narration": "Der komplette Filter enthält 12.907 Zellen. Nur die ersten 250 sind gemalt, doch die genaue Filterzahl und das aktive Prädikat bleiben sichtbar. Diese Unterscheidung verhindert, dass eine Vorschau-Seite mit der Bevölkerungsgröße verwechselt wird."
+        },
+        {
+          "narration": "Klicken Sie auf Export gefilterterter CSV. Exporte streamen die gesamte aktuelle Tabelle und Filter anstatt nur die geladene Vorschau, und sie ehren die sichtbare Spalte Suche, wenn man aktiv ist. Diese Ausfuhr behält alle 218 Spalten bei, wenn die Suche abgeschafft ist."
+        },
+        {
+          "narration": "Der Status bestätigt eine Ausfuhr von 12.907 Zeilen mit 218 Spalten. Der abgeleitete CSV ist die einzige neue Datei, die erstellt wurde. Eine Überprüfung vor und nach SHA-256 bestätigt, dass measurements.db mit dem Byte identisch ist und neben ihm kein Tagebuch oder ein \"write-ahead-log\"-Datei erschien."
+        },
+        {
+          "narration": "Klicken Sie auf Clear, um das Prädikat zu entfernen und das erste begrenzte Stück neu zu laden. Filter sind reversibel Sichtzustand: Clearing one ändert keine Zeilen in der Datenbank oder der zuvor ausgeführten Datei."
+        },
+        {
+          "narration": "Alle 81.969 Zellen sind dem Browser wieder sichtbar, wobei nur die ersten 250 geladen sind. Dies ergänzt einen nachvollziehbaren, nur lesbaren Workflow zur Erforschung großer spaCR Messtabellen und zum Export präzise definierter Untersätze."
         }
       ]
     },

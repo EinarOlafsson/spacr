@@ -4835,47 +4835,115 @@
       "id": "34_database",
       "number": 34,
       "slug": "database",
-      "title": "Database Browser",
+      "title": "数据库浏览器",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data and batch runs",
-      "description": "浏览,过,查询和出口测量点db而不使用sqlite命令行.",
+      "section": "Results and quality control",
+      "description": "检查,搜索,过,页面,并出口真正的spaCR测量,而源数据库只能读取.",
       "objectives": [
-        "了解何时使用数据库浏览器.",
-        "配置重要的输入和设置.",
-        "运行工作流程,并找到其输出."
+        "在spaCR的仅可阅读数据库浏览器中打开测量数据库或运行文件.",
+        "选择一个表格,搜索数百个功能列,并理解部分预览页面.",
+        "应用一个完整的结构化SQL过器,并将其结果出口,而不需要修改源数据库."
       ],
-      "prerequisite": "在此模块需要上游结果时,遵循之前的工作流程的教训.",
+      "prerequisite": "一个spaCR测量数据库,或包含测量/测量.db的运行文件.",
       "scenes": [
         {
-          "narration": "这本教程涵盖数据库浏览器. 浏览,过,查询和出口测量点db而不使用sqlite命令行.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "这本教程涵盖数据库浏览器. 浏览,过,查询和出口测量点db而不使用sqlite命令行."
+          "narration": "数据库浏览器检查大型spaCR结果数据库,没有命令行. 在\"结果与质量控制\"中打开. 它在两个层上开始仅读:接口不提供细胞编辑器,SQLite使用仅读和仅查询模式,除非其他地方故意启用编辑.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "数据库浏览器检查大型斯佩克尔结果数据库,没有命令行. 在\"结果与质量控制\"中打开. 它在两个层上开始仅读:接口不提供细胞编辑器,SQLite使用仅读和仅查询模式,除非其他地方故意启用编辑."
         },
         {
-          "narration": "从 Data and batch runs 部分打开 Database Browser。 打开 spaCR SQLite 数据库,选择表或保存查询.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "从 Data and batch runs 部分打开 Database Browser。 打开 斯佩克尔 SQLite 数据库,选择表或保存查询."
+          "narration": "输入测量.db路径,然后单击开放. 您可以选择数据库,选择其运行文件,或在此屏幕上任何地方放下. 在这里,我们打开了转移教程实验的真实测量数据库.",
+          "visual": "02_open",
+          "focus_key": "source",
+          "click_key": "open",
+          "hold_after": 0.64,
+          "speech_text": "输入测量.db路径,然后单击开放. 您可以选择数据库,选择其运行文件,或在此屏幕上任何地方放下. 在这里,我们打开了转移教程实验的真实测量数据库."
         },
         {
-          "narration": "在主配置区域,配置列,过器,排序,行限,连接,安全的仅读或编辑行为.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "在主配置区域,配置列,过器,排序,行限,连接,安全的仅读或编辑行为."
+          "narration": "\"spaCR\"解决了这个路径,打开了只读的路径,并列出了十个表格. 这些包括对象测量,图像记录,设置,计数和注释历史. 编辑模式仍然是关闭的;这个教程从来没有启用它,也从来没有写到源头.",
+          "visual": "03_tables",
+          "focus_key": "database",
+          "hold_after": 0.72,
+          "speech_text": "\"斯佩克尔\"解决了这个路径,打开了只读的路径,并列出了十个表格. 这些包括对象测量,图像记录,设置,计数和注释历史. 编辑模式仍然是关闭的;这个教程从来没有启用它,也从来没有写到源头."
         },
         {
-          "narration": "在完整运行之前,检查可见设置,并在可用的情况下使用预览或测试模式.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "在完整运行之前,检查可见设置,并在可用的情况下使用预览或测试模式."
+          "narration": "单击细胞表. 它包含81,969个测量细胞和218个标识符,形态,强度,纹理,距离和定位列. 预览只获取其第一个有界限的部分,而完整的行数量则单独报告.",
+          "visual": "04_cell_table",
+          "focus_key": "preview",
+          "click_key": "cell_click",
+          "hold_after": 0.78,
+          "speech_text": "单击细胞表. 它包含81,969个测量细胞和218个标识符,形态,强度,纹理,距离和定位列. 预览只获取其第一个有界限的部分,而完整的行数量则单独报告."
         },
         {
-          "narration": "当工作流程完成时,可以复制或出口过表,而原始数据库仍然可追踪.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "当工作流程完成时,可以复制或出口过表,而原始数据库仍然可追踪."
+          "narration": "搜索列以使一个广泛的特征表可读. 查询cell_channel_1_mean即将显示的218列缩小到单个频道-1的平均强度功能. 这只会改变视图;它不会重新运行数据库查询或删除行.",
+          "visual": "05_column_search",
+          "focus_key": "column_search",
+          "hold_after": 0.7,
+          "speech_text": "搜索列以使一个广泛的特征表可读. 查询cell_channel_1_mean即将显示的218列缩小到单个频道-1的平均强度功能. 这只会改变视图;它不会重新运行数据库查询或删除行."
+        },
+        {
+          "narration": "清除列搜索,并设置每次列为250. 预览使用键盘设置页面,而不是深度偏移,因此随着表的增长,每个请求都会受到限制. 单击\"加载更多\"来添加下一个部分,而不需要将所有81,969行加载到内存中.",
+          "visual": "06_paging",
+          "focus_key": "paging",
+          "click_key": "load_more",
+          "hold_after": 0.74,
+          "speech_text": "清除列搜索,并设置每次列为250. 预览使用键盘设置页面,而不是深度偏移,因此随着表的增长,每个请求都会受到限制. 单击\"加载更多\"来添加下一个部分,而不需要将所有81,969行加载到内存中."
+        },
+        {
+          "narration": "预览现在显示了81,969行中的500行. 只有部分表被加载时,排序将停下来,因为部分页面的排序将错误地呈现整个数据集. 然而,数据库过器总是与完整的表进行.",
+          "visual": "07_more_rows",
+          "focus_key": "preview",
+          "hold_after": 0.7,
+          "speech_text": "预览现在显示了81,969行中的500行. 只有部分表被加载时,排序将停下来,因为部分页面的排序将错误地呈现整个数据集. 然而,数据库过器总是与完整的表进行."
+        },
+        {
+          "narration": "通过选择 cell_area,大于或等于,和 10,000 构建结构过器,然后单击应用过器. spaCR验证了列和运算符,并将值绑定为参数. 对于先进的预言来说,Raw SQL可用,但在这里是不必要的.",
+          "visual": "08_filter",
+          "focus_key": "filter",
+          "click_key": "apply",
+          "hold_after": 0.72,
+          "speech_text": "通过选择 cell_area,大于或等于,和 10,000 构建结构过器,然后单击应用过器. 斯佩克尔验证了列和运算符,并将值绑定为参数. 对于先进的预言来说,Raw SQL可用,但在这里是不必要的."
+        },
+        {
+          "narration": "整个过器含有12907个细胞. 只有第一百五十个被绘制,但精确的过数量和活跃的预兆仍然可见. 这种区别防止预览页面大小被误认为是人口大小.",
+          "visual": "09_filtered",
+          "focus_key": "preview",
+          "hold_after": 0.72,
+          "speech_text": "整个过器含有12907个细胞. 只有第一百五十个被绘制,但精确的过数量和活跃的预兆仍然可见. 这种区别防止预览页面大小被误认为是人口大小."
+        },
+        {
+          "narration": "单击 输出过的CSV. 导出流整个当前表格和过器,而不是仅仅加载的预览,并且尊重可见列搜索,如果一个是活跃的. 由于搜索已被清除,这份出口保留了所有218个列.",
+          "visual": "10_export",
+          "focus_key": "filter_export",
+          "click_key": "export",
+          "hold_after": 0.7,
+          "speech_text": "单击 输出过的CSV. 导出流整个当前表格和过器,而不是仅仅加载的预览,并且尊重可见列搜索,如果一个是活跃的. 由于搜索已被清除,这份出口保留了所有218个列."
+        },
+        {
+          "narration": "这项资格证实出口了12907行218列. 导出的CSV是唯一创建的新文件. 在SHA-256之前和之后的检查证实 measurements.db是字节相同的,并没有出现任何日志或写前日志文件.",
+          "visual": "11_exported",
+          "focus_key": "status",
+          "hold_after": 0.82,
+          "speech_text": "这项资格证实出口了12907行218列. 导出的CSV是唯一创建的新文件. 在SHA-256之前和之后的检查证实 measurements dot db是字节相同的,并没有出现任何日志或写前日志文件."
+        },
+        {
+          "narration": "单击清除,以删除预言,然后重新加载第一个边界的部分. 过器是可逆的视图状态:清除一个不会改变数据库或以前出口的文件中的行列.",
+          "visual": "12_clear",
+          "focus_key": "filter",
+          "click_key": "clear",
+          "hold_after": 0.62,
+          "speech_text": "单击清除,以删除预言,然后重新加载第一个边界的部分. 过器是可逆的视图状态:清除一个不会改变数据库或以前出口的文件中的行列."
+        },
+        {
+          "narration": "所有的81,969个细胞再次可见于浏览器, 这完成了可追踪的仅读工作流程,用于探索大型spaCR测量表,并出口精确定义的子组.",
+          "visual": "13_restored",
+          "focus_key": "preview",
+          "hold_after": 0.78,
+          "speech_text": "所有的81,969个细胞再次可见于浏览器, 这完成了可追踪的仅读工作流程,用于探索大型斯佩克尔测量表,并出口精确定义的子组."
         }
       ]
     },

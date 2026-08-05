@@ -4835,47 +4835,115 @@
       "id": "34_database",
       "number": 34,
       "slug": "database",
-      "title": "Database Browser",
+      "title": "Browser de banco de dados",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data and batch runs",
-      "description": "Explore, filtre, consulta e exportação de medições dot db sem usar a linha de comando sqlite.",
+      "section": "Results and quality control",
+      "description": "Inscrever, pesquisar, filtrar, página e exportar medições reais do spaCR enquanto o banco de dados fonte permanece somente para leitura.",
       "objectives": [
-        "Entender quando usar o Database Browser.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Abre um banco de dados de medições ou execute uma pasta no navegador de banco de dados de somente leitura do spaCR.",
+        "Escolha uma tabela, pesquise centenas de colunas de recursos e entenda as páginas de visualização em pedaços.",
+        "Aplicar um filtro SQL estruturado completo e exportar o seu resultado sem modificar o banco de dados de origem."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Uma base de dados de medições spaCR ou uma pasta de execução contendo medições/medidas.db.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Database Browser.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Database Browser."
+          "narration": "O Database Browser inspeciona grandes bancos de dados de resultados spaCR sem uma linha de comando. Abre-o em Resultados e Controle de Qualidade. Ele começa apenas para leitura em ambas as camadas: a interface não oferece editores de células, e o SQLite usa modos apenas para leitura e apenas para consulta, a menos que a edição seja ativada deliberadamente em outros lugares.",
+          "visual": "01_overview",
+          "focus_key": "screen",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "O Database Browser inspeciona grandes bancos de dados de resultados espáquer sem uma linha de comando. Abre-o em Resultados e Controle de Qualidade. Ele começa apenas para leitura em ambas as camadas: a interface não oferece editores de células, e o SQLite usa modos apenas para leitura e apenas para consulta, a menos que a edição seja ativada deliberadamente em outros lugares."
         },
         {
-          "narration": "Abra Database Browser na seção Data and batch runs. Abra o navegador de banco de dados na seção Dados e batches. Abra um banco de dados SQLite spaCR e selecione uma tabela ou consulta salva.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Database Browser na seção Data and batch runs. Abra o navegador de banco de dados na seção Dados e batches. Abra um banco de dados SQLite espáquer e selecione uma tabela ou consulta salva."
+          "narration": "Digite um caminho measurements.db e clique em Abrir. Em vez disso, você pode escolher o banco de dados, escolher sua pasta de execução, ou soltar qualquer lugar nesta tela. Aqui abrimos o banco de dados de medições reais do experimento do tutorial transferido.",
+          "visual": "02_open",
+          "focus_key": "source",
+          "click_key": "open",
+          "hold_after": 0.64,
+          "speech_text": "Digite um caminho measurements dot db e clique em Abrir. Em vez disso, você pode escolher o banco de dados, escolher sua pasta de execução, ou soltar qualquer lugar nesta tela. Aqui abrimos o banco de dados de medições reais do experimento do tutorial transferido."
         },
         {
-          "narration": "Na área de configuração principal, configure colunas, filtros, classificação, limites de filas, conjuntos e comportamento seguro de leitura ou edição.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configure colunas, filtros, classificação, limites de filas, conjuntos e comportamento seguro de leitura ou edição."
+          "narration": "O spaCR resolve o caminho, abre-o apenas para leitura e lista dez tabelas. Estes incluem medições de objetos, registros de imagem, configurações, contagens e histórico de anotações. O modo de edição permanece desligado; este tutorial nunca o possibilita e nunca escreve para a fonte.",
+          "visual": "03_tables",
+          "focus_key": "database",
+          "hold_after": 0.72,
+          "speech_text": "O espáquer resolve o caminho, abre-o apenas para leitura e lista dez tabelas. Estes incluem medições de objetos, registros de imagem, configurações, contagens e histórico de anotações. O modo de edição permanece desligado; este tutorial nunca o possibilita e nunca escreve para a fonte."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+          "narration": "Clique na tabela de Células. Contém 81.969 células medidas e 218 colunas de identificador, morfologia, intensidade, textura, distância e colocalização. A pré-visualização traz apenas o seu primeiro pedaço limitado, enquanto a contagem completa das linhas é relatada separadamente.",
+          "visual": "04_cell_table",
+          "focus_key": "preview",
+          "click_key": "cell_click",
+          "hold_after": 0.78,
+          "speech_text": "Clique na tabela de Células. Contém 81.969 células medidas e 218 colunas de identificador, morfologia, intensidade, textura, distância e colocalização. A pré-visualização traz apenas o seu primeiro pedaço limitado, enquanto a contagem completa das linhas é relatada separadamente."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, as tabelas filtradas podem ser copiadas ou exportadas enquanto o banco de dados original permanece rastreável.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, as tabelas filtradas podem ser copiadas ou exportadas enquanto o banco de dados original permanece rastreável."
+          "narration": "Pesquisar colunas para tornar uma grande tabela de características legível. A query cell_channel_1_mean restringe instantaneamente 218 colunas exibidas para a função de intensidade média de um único canal-1. Isso altera apenas a visão; não reinicia a consulta do banco de dados ou remove linhas.",
+          "visual": "05_column_search",
+          "focus_key": "column_search",
+          "hold_after": 0.7,
+          "speech_text": "Pesquisar colunas para tornar uma grande tabela de características legível. A query cell_channel_1_mean restringe instantaneamente 218 colunas exibidas para a função de intensidade média de um único canal-1. Isso altera apenas a visão; não reinicia a consulta do banco de dados ou remove linhas."
+        },
+        {
+          "narration": "Limpar a pesquisa de coluna e definir as filas por trazer para 250. A pré-visualização usa o pagamento do conjunto de teclas em vez de um offset profundo, de modo que cada solicitação permanece limitada à medida que a tabela cresce. Clique em Carregar mais para adicionar o próximo pedaço sem carregar todas as 81.969 linhas na memória.",
+          "visual": "06_paging",
+          "focus_key": "paging",
+          "click_key": "load_more",
+          "hold_after": 0.74,
+          "speech_text": "Limpar a pesquisa de coluna e definir as filas por trazer para 250. A pré-visualização usa o pagamento do conjunto de teclas em vez de um offset profundo, de modo que cada solicitação permanece limitada à medida que a tabela cresce. Clique em Carregar mais para adicionar o próximo pedaço sem carregar todas as 81.969 linhas na memória."
+        },
+        {
+          "narration": "A prévia agora mostra 500 de 81.969 linhas. A classificação permanece desligada enquanto apenas parte da tabela está carregada, porque a classificação de uma página parcial distorceria o conjunto de dados completo. Os filtros de base de dados, no entanto, sempre correm contra a tabela completa.",
+          "visual": "07_more_rows",
+          "focus_key": "preview",
+          "hold_after": 0.7,
+          "speech_text": "A prévia agora mostra 500 de 81.969 linhas. A classificação permanece desligada enquanto apenas parte da tabela está carregada, porque a classificação de uma página parcial distorceria o conjunto de dados completo. Os filtros de base de dados, no entanto, sempre correm contra a tabela completa."
+        },
+        {
+          "narration": "Crie um filtro estruturado escolhendo cell_area, maior ou igual a, e 10.000, e clique em Aplicar filtro. spaCR valida a coluna e o operador e liga o valor como parâmetro. O SQL Raw está disponível para predicados avançados, mas é desnecessário aqui.",
+          "visual": "08_filter",
+          "focus_key": "filter",
+          "click_key": "apply",
+          "hold_after": 0.72,
+          "speech_text": "Crie um filtro estruturado escolhendo cell_area, maior ou igual a, e 10.000, e clique em Aplicar filtro. espáquer valida a coluna e o operador e liga o valor como parâmetro. O SQL Raw está disponível para predicados avançados, mas é desnecessário aqui."
+        },
+        {
+          "narration": "O filtro completo contém 12.907 células. Apenas os primeiros 250 são pintados, mas a contagem exata filtrada e o predicado ativo permanecem visíveis. Esta distinção impede que um tamanho de página de visualização seja confundido com o tamanho da população.",
+          "visual": "09_filtered",
+          "focus_key": "preview",
+          "hold_after": 0.72,
+          "speech_text": "O filtro completo contém 12.907 células. Apenas os primeiros 250 são pintados, mas a contagem exata filtrada e o predicado ativo permanecem visíveis. Esta distinção impede que um tamanho de página de visualização seja confundido com o tamanho da população."
+        },
+        {
+          "narration": "Clique em Exportar CSV filtrado. As exportações transmitem toda a tabela e o filtro atuais em vez de apenas a pré-visualização carregada, e honram a pesquisa de coluna visível se estiver ativa. Com a busca autorizada, esta exportação retém todas as 218 colunas.",
+          "visual": "10_export",
+          "focus_key": "filter_export",
+          "click_key": "export",
+          "hold_after": 0.7,
+          "speech_text": "Clique em Exportar CSV filtrado. As exportações transmitem toda a tabela e o filtro atuais em vez de apenas a pré-visualização carregada, e honram a pesquisa de coluna visível se estiver ativa. Com a busca autorizada, esta exportação retém todas as 218 colunas."
+        },
+        {
+          "narration": "O estatuto confirma uma exportação de 12.907 linhas por 218 colunas. O CSV derivado é o único novo arquivo criado. Uma verificação antes e depois do SHA-256 confirma que measurements.db é o mesmo em byte, e nenhum diário ou arquivo de registro de escrita apareceu ao lado dele.",
+          "visual": "11_exported",
+          "focus_key": "status",
+          "hold_after": 0.82,
+          "speech_text": "O estatuto confirma uma exportação de 12.907 linhas por 218 colunas. O CSV derivado é o único novo arquivo criado. Uma verificação antes e depois do SHA-256 confirma que measurements dot db é o mesmo em byte, e nenhum diário ou arquivo de registro de escrita apareceu ao lado dele."
+        },
+        {
+          "narration": "Clique em Deslizar para remover o predicado e recargar o primeiro pedaço limitado. Os filtros são um estado de visualização reversível: a eliminação de um não altera as linhas na base de dados ou no arquivo exportado anteriormente.",
+          "visual": "12_clear",
+          "focus_key": "filter",
+          "click_key": "clear",
+          "hold_after": 0.62,
+          "speech_text": "Clique em Deslizar para remover o predicado e recargar o primeiro pedaço limitado. Os filtros são um estado de visualização reversível: a eliminação de um não altera as linhas na base de dados ou no arquivo exportado anteriormente."
+        },
+        {
+          "narration": "Todas as 81.969 células são visíveis ao navegador novamente, com apenas as primeiras 250 carregadas. Isto completa um fluxo de trabalho rastreável de somente leitura para explorar grandes tabelas de medição spaCR e exportar subconjuntos precisamente definidos.",
+          "visual": "13_restored",
+          "focus_key": "preview",
+          "hold_after": 0.78,
+          "speech_text": "Todas as 81.969 células são visíveis ao navegador novamente, com apenas as primeiras 250 carregadas. Isto completa um fluxo de trabalho rastreável de somente leitura para explorar grandes tabelas de medição espáquer e exportar subconjuntos precisamente definidos."
         }
       ]
     },
