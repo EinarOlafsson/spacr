@@ -2079,7 +2079,15 @@ def preprocess_img_data(settings):
    
     if not os.path.exists(stack_path):
         try:
-            if not img_format == None:
+            # No `img_format is not None` guard. _merge_channels is the older
+            # path and only produces stack/ when the folder has per-channel
+            # sub-directories; the modern ingest has none, so with
+            # img_format=None nothing built stack/ at all and the run died in
+            # concatenate_and_normalize on a missing directory, two functions
+            # away from the cause. _rename_and_organize_image_files is the
+            # only thing that can create it here, so it runs whenever stack/
+            # is still absent.
+            if True:
                 img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
                 # Builds the stack/ arrays directly from an in-memory channel dict
                 # (no per-channel sub-folders) and returns the channel count.
@@ -2126,7 +2134,42 @@ def preprocess_img_data(settings):
 
         except Exception as e:
             print(f"Error: {e}")
-    
+
+    stacked = ([f for f in os.listdir(stack_path) if f.endswith('.npy')]
+               if os.path.isdir(stack_path) else [])
+    if not stacked:
+        # Emptiness, not absence: _rename_and_organize_image_files creates
+        # stack/ before it has anything to put in it, so a folder with no
+        # matching images leaves a real but empty directory. Checking only
+        # that the path exists let the run continue to completion and write
+        # an empty measurement set, which is worse than stopping — it looks
+        # like a result.
+        #
+        # Say what is wrong here, where src is known, rather than letting
+        # os.listdir fail on a path the user never named. The usual cause is
+        # src pointing at a folder of PLATES rather than at a plate: the
+        # images are one level down, so nothing matched and nothing was
+        # organised.
+        entries = []
+        try:
+            entries = sorted(os.listdir(src))
+        except OSError:
+            pass
+        subdirs = [d for d in entries
+                   if os.path.isdir(os.path.join(src, d))][:6]
+        images = [f for f in entries
+                  if f.lower().endswith(('.tif', '.tiff', '.png', '.jpg',
+                                         '.jpeg', '.bmp', '.nd2', '.czi',
+                                         '.lif'))]
+        hint = ""
+        if not images and subdirs:
+            hint = (f" It holds no images but does hold sub-folders "
+                    f"({', '.join(subdirs)}) — if those are plates, point "
+                    f"src at one of them rather than at their parent.")
+        raise FileNotFoundError(
+            f"No image stacks were produced from {src}. spaCR found "
+            f"{len(images)} image file(s) directly in that folder.{hint}")
+
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
                               save_dtype=np.float32,
