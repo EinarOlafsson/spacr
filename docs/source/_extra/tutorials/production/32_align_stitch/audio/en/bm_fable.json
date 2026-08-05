@@ -4,47 +4,107 @@
   "voice": "bm_fable",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 47.05,
+  "total_duration": 172.34,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.15,
-      "scene_end": 9.6,
-      "duration": 9.6,
-      "text": "This tutorial covers Align and Stitch. Register image tiles and build a stitched mosaic incrementally without holding the entire canvas in memory."
+      "speech_end": 16.95,
+      "scene_end": 17.669999999999998,
+      "duration": 17.669999999999998,
+      "text": "Align and Stitch registers microscopy tiles into one canvas without first allocating the entire mosaic. Open it from Data and batch runs. The plan-first layout is deliberate: registration confidence, fallback placement, output size, and memory use are visible before spaCR writes anything.",
+      "speech_text": "Align and Stitch registers microscopy tiles into one canvas without first allocating the entire mosaic. Open it from Data and batch runs. The plan-first layout is deliberate: registration confidence, fallback placement, output size, and memory use are visible before spacer writes anything.",
+      "phonemes": "əlˈIn and stˈɪʧ ɹˈɛʤɪstəz mIkɹˈɒskəpi tˈIlz ˈɪntuː wˈʌn kˈanvəs wɪðˈWt fˈɜːst ˈaləkˌAtɪŋ ði ɪntˈIə mQzˈAɪk. ˈQpᵊn ɪt fɹɒm dˈAtə and bˈaʧ ɹˈʌnz. ðə plˌanfˈɜːst lˈAWt ɪz dɪlˈɪbəɹət: ɹˌɛʤɪstɹˈAʃᵊn kˈɒnfɪdᵊns, fˈɔːlbak plˈAsmᵊnt, ˈWtpʊt sˈIz, and mˈɛməɹi jˈuːs ɑː vˈɪzɪbᵊl bɪfˈɔː spˈAsə ɹˈIts ˈɛnɪθɪŋ."
     },
     {
       "scene": 2,
-      "speech_start": 9.6,
-      "speech_end": 19.225,
-      "scene_end": 19.675,
-      "duration": 10.075000000000001,
-      "text": "Open Align and Stitch from the Data and batch runs section. Choose tiled acquisitions, stage coordinates or overlap metadata, channels, and a destination."
+      "speech_start": 17.669999999999998,
+      "speech_end": 34.44499999999999,
+      "scene_end": 35.16499999999999,
+      "duration": 17.494999999999994,
+      "text": "Drop a folder of NPY or TIFF tiles, or choose it here. This lesson exports one real four-channel microscopy field as nine overlapping tiles solely to emulate a 3 by 3 acquisition. The source pixels remain real, while the known overlap gives us a reproducible registration example.",
+      "speech_text": "Drop a folder of NPY or TIFF tiles, or choose it here. This lesson exports one real four-channel microscopy field as nine overlapping tiles solely to emulate a 3 by 3 acquisition. The source pixels remain real, while the known overlap gives us a reproducible registration example.",
+      "phonemes": "dɹˈɒp ɐ fˈQldə ɒv ˌɛnpˌiːwˈI ɔː tˈɪf tˈIlz, ɔː ʧˈuːz ɪt hˈɪə. ðˌɪs lˈɛsᵊn ˈɛkspɔːts wˈʌn ɹˈɪəl fˌɔːʧˈanᵊl mIkɹˈɒskəpi fˈiːld az nˈIn ˌQvəlˈapɪŋ tˈIlz sˈQlli tʊ ˈɛmjʊlAt ɐ θɹˈiː bI θɹˈiː ˌakwɪzˈɪʃᵊn. ðə sˈɔːs pˈɪksᵊlz ɹɪmˈAn ɹˈɪəl, wˌIl ðə nˈQn ˈQvəlap ɡˈɪvz ˌʌs ɐ ɹˌiːpɹədjˈuːsɪbᵊl ɹˌɛʤɪstɹˈAʃᵊn ɪɡzˈɑːmpᵊl."
     },
     {
       "scene": 3,
-      "speech_start": 19.675,
-      "speech_end": 28.425,
-      "scene_end": 28.875,
-      "duration": 9.2,
-      "text": "In the main configuration area, configure registration method, reference channel, overlap, blending, correction, chunk size, and output format."
+      "speech_start": 35.16499999999999,
+      "speech_end": 52.364999999999995,
+      "scene_end": 53.084999999999994,
+      "duration": 17.92,
+      "text": "Describe the acquisition layout. The grid is 3 by 3 with 25 percent nominal overlap in row-major order. Reference channel 1 is the endoplasmic-reticulum channel; spaCR solves registration once on that plane and applies the same transform to all four channels, preventing channel-to-channel shear.",
+      "speech_text": "Describe the acquisition layout. The grid is 3 by 3 with 25 percent nominal overlap in row-major order. Reference channel 1 is the endoplasmic-reticulum channel; spacer solves registration once on that plane and applies the same transform to all four channels, preventing channel-to-channel shear.",
+      "phonemes": "dɪskɹˈIb ði ˌakwɪzˈɪʃᵊn lˈAWt. ðə ɡɹˈɪd ɪz θɹˈiː bI θɹˈiː wɪð twˈɛnti fˈIv pəsˈɛnt nˈɒmɪnᵊl ˈQvəlap ɪn ɹˌQmˈAʤə ˈɔːdə. ɹˈɛfəɹəns ʧˈanᵊl wˈʌn ɪz ðə ˌɛndQplˈazmɪkɹɛtˈɪkjʊləm ʧˈanᵊl; spˈAsə sˈɒlvz ɹˌɛʤɪstɹˈAʃᵊn wˈʌns ˌɒn ðˈat plˈAn and əplˈIz ðə sˈAm tɹˈɑːnsfɔːm tʊ ˈɔːl fˈɔː ʧˈanᵊlz, pɹɪvˈɛntɪŋ ʧˈanᵊltəʧˈanᵊl ʃˈɪə."
     },
     {
       "scene": 4,
-      "speech_start": 28.875,
-      "speech_end": 39.425,
-      "scene_end": 39.875,
-      "duration": 11.0,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect pairwise alignment and seam previews before building the full mosaic."
+      "speech_start": 53.084999999999994,
+      "speech_end": 70.835,
+      "scene_end": 71.535,
+      "duration": 18.450000000000003,
+      "text": "Quality controls decide which pairwise matches enter the global solution. Minimum confidence rejects weak cross-correlation, neighbour radius adds redundant nearby comparisons, Feather blends overlap seams, and the 64-megabyte RAM budget limits each output band rather than the size of the finished canvas.",
+      "speech_text": "Quality controls decide which pairwise matches enter the global solution. Minimum confidence rejects weak cross-correlation, neighbour radius adds redundant nearby comparisons, Feather blends overlap seams, and the 64-megabyte RAM budget limits each output band rather than the size of the finished canvas.",
+      "phonemes": "kwˈɒlɪti kəntɹˈQlz dɪsˈId wˌɪʧ pˈɛːwIz mˈaʧɪz ˈɛntə ðə ɡlˈQbᵊl səlˈuːʃᵊn. mˈɪnɪməm kˈɒnfɪdᵊns ɹɪʤˈɛkts wˈiːk kɹˈɒskɒɹəlˌAʃᵊn, nˈAbə ɹˈAdɪəs ˈadz ɹɪdˈʌndᵊnt nˈɪəbI kəmpˈaɹɪsᵊnz, fˈɛðə blˈɛndz ˌQvəlˈap sˈiːmz, and ðə sˈɪksti fˈɔː mˈɛɡəbIt ɹˈam bˈʌʤɪt lˈɪmɪts ˈiːʧ ˈWtpʊt bˈand ɹˈɑːðə ðən ðə sˈIz ɒv ðə fˈɪnɪʃt kˈanvəs."
     },
     {
       "scene": 5,
-      "speech_start": 39.875,
-      "speech_end": 46.4,
-      "scene_end": 47.05,
-      "duration": 7.174999999999997,
-      "text": "When the workflow finishes, registered tiles, stitched images, transforms, and mapping metadata are saved."
+      "speech_start": 71.535,
+      "speech_end": 87.035,
+      "scene_end": 87.715,
+      "duration": 16.180000000000007,
+      "text": "Click Plan before writing. Planning reads tile headers and overlap strips, estimates neighbour offsets, and solves all accepted constraints together. It creates neither a canvas nor output files, so this is the safe point to catch an incorrect grid, order, overlap, or reference channel.",
+      "speech_text": "Click Plan before writing. Planning reads tile headers and overlap strips, estimates neighbour offsets, and solves all accepted constraints together. It creates neither a canvas nor output files, so this is the safe point to catch an incorrect grid, order, overlap, or reference channel.",
+      "phonemes": "klˈɪk plˈan bɪfˈɔː ɹˈItɪŋ. plˈanɪŋ ɹˈiːdz tˈIl hˈɛdəz and ˈQvəlap stɹˈɪps, ˈɛstɪmAts nˈAbə ˈɒfsɛts, and sˈɒlvz ˈɔːl əksˈɛptɪd kənstɹˈAnts təɡˈɛðə. ˌɪt kɹɪˈAts nˈIðə ɐ kˈanvəs nˈɔː ˈWtpʊt fˈIlz, sˌQ ðɪs ɪz ðə sˈAf pˈYnt tə kˈaʧ ɐn ˌɪnkəɹˈɛkt ɡɹˈɪd, ˈɔːdə, ˈQvəlap, ɔː ɹˈɛfəɹəns ʧˈanᵊl."
+    },
+    {
+      "scene": 6,
+      "speech_start": 87.715,
+      "speech_end": 104.36500000000001,
+      "scene_end": 105.14500000000001,
+      "duration": 17.430000000000007,
+      "text": "The real plan registers all nine tiles. The layout colors registered fields by confidence, while any stage-position fallback would be orange and hatched. The report lists accepted and refused pairs, the worst residuals, the final canvas dimensions, on-disk size, and the bounded-memory write estimate.",
+      "speech_text": "The real plan registers all nine tiles. The layout colors registered fields by confidence, while any stage-position fallback would be orange and hatched. The report lists accepted and refused pairs, the worst residuals, the final canvas dimensions, on-disk size, and the bounded-memory write estimate.",
+      "phonemes": "ðə ɹˈɪəl plˈan ɹˈɛʤɪstəz ˈɔːl nˈIn tˈIlz. ðə lˈAWt kˈʌləz ɹˈɛʤɪstəd fˈiːldz bI kˈɒnfɪdᵊns, wˌIl ˈɛni stˌAʤpəzˈɪʃᵊn fˈɔːlbak wʊd biː ˈɒɹɪnʤ and hˈaʧt. ðə ɹɪpˈɔːt lˈɪsts əksˈɛptɪd and ɹɪfjˈuːzd pˈɛːz, ðə wˈɜːst ɹɪzˈɪʤʊəlz, ðə fˈInᵊl kˈanvəs dImˈɛnʃᵊnz, ˌɒndˈɪsk sˈIz, and ðə bˈWndɪdmˌɛməɹi ɹˈIt ˈɛstɪmət."
+    },
+    {
+      "scene": 7,
+      "speech_start": 105.14500000000001,
+      "speech_end": 122.37,
+      "scene_end": 123.09,
+      "duration": 17.944999999999993,
+      "text": "Click an individual tile to audit its solved Y and X position, method, confidence, residual, and number of supporting pairs. This field was placed by registration, not merely by its nominal grid position; use the same inspection to investigate weak or isolated tiles before committing a large mosaic.",
+      "speech_text": "Click an individual tile to audit its solved Y and X position, method, confidence, residual, and number of supporting pairs. This field was placed by registration, not merely by its nominal grid position; use the same inspection to investigate weak or isolated tiles before committing a large mosaic.",
+      "phonemes": "klˈɪk ɐn ˌɪndɪvˈɪʤʊəl tˈIl tʊ ˈɔːdɪt ɪts sˈɒlvd wˈI and ˈɛks pəzˈɪʃᵊn, mˈɛθəd, kˈɒnfɪdᵊns, ɹɪzˈɪʤʊəl, and nˈʌmbə ɒv səpˈɔːtɪŋ pˈɛːz. ðˌɪs fˈiːld wɒz plˈAst bI ɹˌɛʤɪstɹˈAʃᵊn, nˌɒt mˈɪəli bI ɪts nˈɒmɪnᵊl ɡɹˈɪd pəzˈɪʃᵊn; jˈuːz ðə sˈAm ɪnspˈɛkʃᵊn tʊ ɪnvˈɛstɪɡAt wˈiːk ɔː ˈIsəlAtɪd tˈIlz bɪfˈɔː kəmˈɪtɪŋ ɐ lˈɑːʤ mQzˈAɪk."
+    },
+    {
+      "scene": 8,
+      "speech_start": 123.09,
+      "speech_end": 137.115,
+      "scene_end": 137.755,
+      "duration": 14.664999999999992,
+      "text": "Choose a new destination for the stitched NPY stack. The optional measurements database records the solved tile coordinates and output path. Keep Overwrite off on the first run so an existing mosaic is refused rather than silently replaced.",
+      "speech_text": "Choose a new destination for the stitched NPY stack. The optional measurements database records the solved tile coordinates and output path. Keep Overwrite off on the first run so an existing mosaic is refused rather than silently replaced.",
+      "phonemes": "ʧˈuːz ɐ njˈuː dˌɛstɪnˈAʃᵊn fɔː ðə stˈɪʧt ˌɛnpˌiːwˈI stˈak. ði ˈɒpʃənᵊl mˈɛʒəmᵊnts dˈAtəbAs ɹɪkˈɔːdz ðə sˈɒlvd tˈIl kQˈɔːdɪnəts and ˈWtpʊt pˈɑːθ. kˈiːp ˌQvəɹˈIt ˈɒf ˌɒn ðə fˈɜːst ɹˈʌn sˌQ ɐn ɪɡzˈɪstɪŋ mQzˈAɪk ɪz ɹɪfjˈuːzd ɹˈɑːðə ðən sˈIləntli ɹɪplˈAst."
+    },
+    {
+      "scene": 9,
+      "speech_start": 137.755,
+      "speech_end": 153.855,
+      "scene_end": 154.55499999999998,
+      "duration": 16.799999999999983,
+      "text": "Click Write stack only after the plan is acceptable. spaCR composites the tiles one horizontal band at a time, applies feather blending in overlaps, and writes coordinates after the image succeeds. The output can therefore exceed available RAM while memory stays within the declared budget.",
+      "speech_text": "Click Write stack only after the plan is acceptable. spacer composites the tiles one horizontal band at a time, applies feather blending in overlaps, and writes coordinates after the image succeeds. The output can therefore exceed available RAM while memory stays within the declared budget.",
+      "phonemes": "klˈɪk ɹˈIt stˈak ˈQnli ˈɑːftə ðə plˈan ɪz əksˈɛptəbᵊl. spˈAsə kˈɒmpəzɪts ðə tˈIlz wˈʌn hˌɒɹɪzˈɒntᵊl bˈand at ɐ tˈIm, əplˈIz fˈɛðə blˈɛndɪŋ ɪn ˈQvəlaps, and ɹˈIts kQˈɔːdɪnəts ˈɑːftə ði ˈɪmɪʤ səksˈiːdz. ði ˈWtpʊt kan ðˈɛːfɔː ɪksˈiːd əvˈAləbᵊl ɹˈam wˌIl mˈɛməɹi stˈAz wɪðˈɪn ðə dɪklˈɛːd bˈʌʤɪt."
+    },
+    {
+      "scene": 10,
+      "speech_start": 154.55499999999998,
+      "speech_end": 171.48,
+      "scene_end": 172.34,
+      "duration": 17.785000000000025,
+      "text": "The verified run writes all nine tiles with none skipped, produces a four-channel stitched stack matching the source field, and adds nine rows to the align-coordinates table. The report preserves both the registration evidence and bounded-memory write summary, making the mosaic auditable before downstream analysis.",
+      "speech_text": "The verified run writes all nine tiles with none skipped, produces a four-channel stitched stack matching the source field, and adds nine rows to the align-coordinates table. The report preserves both the registration evidence and bounded-memory write summary, making the mosaic auditable before downstream analysis.",
+      "phonemes": "ðə vˈɛɹɪfˌId ɹˈʌn ɹˈIts ˈɔːl nˈIn tˈIlz wɪð nˈʌn skˈɪpt, pɹədjˈuːsɪz ɐ fˌɔːʧˈanᵊl stˈɪʧt stˈak mˈaʧɪŋ ðə sˈɔːs fˈiːld, and ˈadz nˈIn ɹˈQz tə ði əlˌInkQˈɔːdɪnəts tˈAbᵊl. ðə ɹɪpˈɔːt pɹɪzˈɜːvz bˈQθ ðə ɹˌɛʤɪstɹˈAʃᵊn ˈɛvɪdᵊns and bˈWndɪdmˌɛməɹi ɹˈIt sˈʌməɹi, mˈAkɪŋ ðə mQzˈAɪk ˈɔːdɪtəbᵊl bɪfˈɔː dˌWnstɹˈiːm ənˈalɪsɪs."
     }
   ]
 }

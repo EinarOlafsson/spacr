@@ -1097,6 +1097,44 @@ def test_resume_module_only_uses_light_imports():
         assert banned not in source, banned
 
 
+def test_mask_resume_requeues_a_truncated_array(tmp_path):
+    from spacr.io import _check_masks
+
+    output = tmp_path / "masks"
+    output.mkdir()
+    (output / "field1.npy").write_bytes(b"\x93NUMPY")
+    batch = np.stack([
+        np.zeros((4, 4), dtype=np.uint16),
+        np.ones((4, 4), dtype=np.uint16),
+    ])
+
+    pending, names = _check_masks(
+        batch, ["field1.npy", "field2.npy"], str(output), resume=True)
+
+    assert names == ["field1.npy", "field2.npy"]
+    assert pending.shape[0] == 2
+
+
+def test_mask_folder_resume_counts_only_complete_fields(tmp_path):
+    from spacr.io import _save_array_atomic
+    from spacr.utils import check_mask_folder
+
+    src = tmp_path / "plate"
+    stack = src / "stack"
+    masks = src / "masks" / "cell_mask_stack"
+    stack.mkdir(parents=True)
+    masks.mkdir(parents=True)
+    _save_array_atomic(str(stack / "field1.npy"), np.zeros((4, 4, 1)))
+    _save_array_atomic(str(stack / "field2.npy"), np.zeros((4, 4, 1)))
+    _save_array_atomic(str(masks / "field1.npy"), np.zeros((4, 4)))
+    (masks / "field2.npy").write_bytes(b"truncated")
+
+    assert check_mask_folder(
+        str(src), "cell_mask_stack", resume=False) is False
+    assert check_mask_folder(
+        str(src), "cell_mask_stack", resume=True) is True
+
+
 # ---------------------------------------------------------------------------
 # io.py wiring
 # ---------------------------------------------------------------------------

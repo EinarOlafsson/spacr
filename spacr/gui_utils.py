@@ -1,4 +1,24 @@
-import os, io, sys, ast, ctypes, ast, sqlite3, requests, time, traceback, torch, cv2
+"""Shared helpers for spaCR's legacy Tk graphical interface."""
+
+# NOTE the absence of `torch`. It is used by exactly one function in this
+# module (`initialize_cuda`), and importing it here costs 1.40 s -- measured,
+# cProfile, `torch/__init__.py` cumulative -- on the GUI thread, because the
+# Qt layer imported this module for one function:
+# `settings_model.build_sections` needs `convert_settings_dict_for_gui` and
+# nothing else. That import is what made the FIRST module open freeze the
+# window for over two seconds. `main()` prewarms this module in a background
+# thread, but a user who clicks a module before the prewarm finishes blocks
+# on the import lock and waits anyway.
+#
+# The same reasoning, applied once more, is why that function no longer lives
+# here at all: with `torch` gone the import still cost 770 ms, all of it this
+# module's *Tk* dependencies (gui_elements -> IPython + matplotlib.pyplot, and
+# cv2, tkinter, huggingface_hub, requests, PIL, screeninfo), none of which the
+# Qt interface uses. It moved to `spacr.settings_spec`, which imports nothing,
+# and is re-exported below so every existing caller is unaffected. See that
+# module's docstring for the measurement.
+import os, io, sys, ast, ctypes, sqlite3, requests, time, traceback, cv2
+import logging
 import tkinter as tk
 from tkinter import ttk
 import matplotlib
@@ -119,8 +139,15 @@ def attach_dependency_listeners(vars_dict, categories, category_dependencies, ca
 def initialize_cuda():
     """Initialize CUDA in the main process by performing a trivial GPU op.
 
+    Imports ``torch`` here rather than at module scope: this is the only
+    function in the module that needs it, and a caller that wants CUDA
+    initialised is already paying for a GPU stack. See the note at the top of
+    the file for the 1.40 s this keeps off the GUI thread.
+
     :returns: None.
     """
+    import torch
+
     if torch.cuda.is_available():
         # Allocate a small tensor on the GPU
         _ = torch.tensor([0.0], device='cuda')
@@ -571,131 +598,16 @@ def annotate_with_image_refs(settings, root, shutdown_callback):
     app.load_images()
 
 
-# Curated torchvision classification models for the `model_type` combo. Kept
-# static so opening a settings screen never triggers a slow `import torchvision`
-# (see convert_settings_dict_for_gui). The pipeline validates/instantiates the
-# real model by name at train time.
-_TORCHVISION_MODELS_CURATED = [
-    'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152',
-    'resnext50_32x4d', 'resnext101_32x8d', 'wide_resnet50_2',
-    'vgg11', 'vgg13', 'vgg16', 'vgg19',
-    'densenet121', 'densenet169', 'densenet201',
-    'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3',
-    'efficientnet_b4', 'efficientnet_b5', 'efficientnet_b6', 'efficientnet_b7',
-    'efficientnet_v2_s', 'efficientnet_v2_m', 'efficientnet_v2_l',
-    'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
-    'convnext_tiny', 'convnext_small', 'convnext_base', 'convnext_large',
-    'vit_b_16', 'vit_b_32', 'vit_l_16', 'vit_l_32',
-    'swin_t', 'swin_s', 'swin_b', 'swin_v2_t', 'swin_v2_s', 'swin_v2_b',
-    'maxvit_t', 'regnet_y_400mf', 'regnet_y_1_6gf', 'regnet_y_8gf',
-    'squeezenet1_0', 'squeezenet1_1', 'alexnet', 'googlenet', 'inception_v3',
-]
-
-
-def _torchvision_model_names():
-    """Return model names for the combo WITHOUT importing torchvision. If
-    torchvision is already loaded (e.g. after a training run) use its full zoo;
-    otherwise fall back to the curated static list."""
-    import sys
-    mods = sys.modules.get("torchvision.models")
-    if mods is not None:
-        try:
-            names = [n for n, o in mods.__dict__.items()
-                     if callable(o) and not n.startswith("_")]
-            if names:
-                return sorted(set(names) | set(_TORCHVISION_MODELS_CURATED))
-        except Exception:
-            pass
-    return list(_TORCHVISION_MODELS_CURATED)
-
-
-def convert_settings_dict_for_gui(settings):
-    """Convert a plain settings dict into the GUI variable spec.
-
-    Maps each key to a ``(widget_type, options, default_value)`` triple, using
-    combo boxes for keys with known enumerated options and inferring
-    check/entry widgets otherwise.
-
-    :param settings: mapping of setting names to default values.
-    :returns: mapping ``key -> (var_type, options, default_value)`` ready for
-        :func:`create_input_field`.
-    """
-    # NOTE: we deliberately do NOT `import torchvision` here. Enumerating the
-    # torchvision model zoo pulls in torch + torchvision, a ~5 s import that
-    # made every FIRST module open sluggish. The classify pipeline still
-    # instantiates the real torchvision model by name at train time — the GUI
-    # combo just needs a list of valid names, so we use a curated static list
-    # (if torchvision happens to be imported already we extend it with the full
-    # zoo, for free).
-    torchvision_models = _torchvision_model_names()
-    chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
-    
-    variables = {}
-    special_cases = {
-        'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
-        'channels': ('combo', chan_list, '[0,1,2,3]'),
-        'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
-        'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
-        # io.generate_training_dataset dispatches on metadata|annotation|
-        # measurement and returns (None, None) for anything else. 'recruitment'
-        # was offered here and silently produced no dataset.
-        'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
-        'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
-        'crop_mode': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
-        'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack'], 'trackastra'),
-        'train_mode': ('combo', ['erm', 'irm'], 'erm'),
-        'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
-        'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
-        'model_name': ('combo', ['cpsam'], 'cpsam'),
-        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
-        'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
-        'model_type': ('combo', torchvision_models, 'resnet50'),
-        'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
-        'model_type_ml': ('combo', ['xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'logistic_regression', 'svm', 'mlp'], 'xgboost'),
-        'optimizer_type': ('combo', ['adamw', 'adam', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad'], 'adamw'),
-        'schedule': ('combo', ['cosine','reduce_lr_on_plateau', 'step_lr'], 'cosine'),
-        'loss_type': ('combo', ['auto', 'cross_entropy', 'label_smoothing', 'focal_loss', 'ce_weighted', 'binary_cross_entropy_with_logits'], 'auto'),
-        # io.CLASS_BALANCE_MODES / io.CV_GROUP_LEVELS — both raise ValueError
-        # on anything outside these lists, so free text is not usable here.
-        'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
-        'cv_group_by': ('combo', ['well', 'field', 'plate', 'none'], 'well'),
-        # spacr.seg_qc.MODES
-        'seg_qc': ('combo', ['off', 'report', 'flag'], 'report'),
-        # Three states, not two: None defers to SPACR_STRICT_ERRORS so a
-        # cluster can turn it on for a batch without editing every file.
-        'strict_errors': ('combo', [None, True, False], None),
-        'normalize_by': ('combo', ['fov', 'png'], 'png'),
-        'agg_type': ('combo', ['mean', 'median'], 'mean'),
-        'grouping': ('combo', ['mean', 'median'], 'mean'),
-        'min_max': ('combo', ['allq', 'all'], 'allq'),
-        'transform': ('combo', ['log', 'sqrt', 'square', None], None),
-        'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
-        'organelle_method': ('combo', ['otsu', 'adaptive', 'log', 'dog', 'ridge', 'hysteresis', 'cellpose', 'unet'], 'otsu'),
-        'organelle_model_name': ('combo', ['cpsam'], 'cpsam'),
-        'organelle_ridge_filter': ('combo', ['frangi', 'sato', 'meijering'], 'frangi'),
-        'organelle_network_threshold': ('combo', ['otsu', 'adaptive'], 'otsu'),
-        'organelle_ring_fill_method': ('combo', ['flood', 'convex'], 'flood'),
-        'summarize_organelles_by': ('combo', ["['cell']","['nucleus']","['pathogen']","['cytoplasm']","['cell', 'nucleus']","['cell', 'pathogen']","['cell', 'cytoplasm']","['cell', 'nucleus', 'pathogen']","['cell', 'nucleus', 'pathogen', 'cytoplasm']",None], None)
-        
-    }
-
-    for key, value in settings.items():
-        if key in special_cases:
-            variables[key] = special_cases[key]
-        elif isinstance(value, bool):
-            variables[key] = ('check', None, value)
-        elif isinstance(value, int) or isinstance(value, float):
-            variables[key] = ('entry', None, value)
-        elif isinstance(value, str):
-            variables[key] = ('entry', None, value)
-        elif value is None:
-            variables[key] = ('entry', None, value)
-        elif isinstance(value, list):
-            variables[key] = ('entry', None, str(value))
-        else:
-            variables[key] = ('entry', None, str(value))
-    
-    return variables
+# `convert_settings_dict_for_gui` and the curated torchvision list it uses no
+# longer live here. They are pure dictionary work with no dependency on
+# anything this module imports, and the Qt interface wants them without the Tk
+# interface's 770 ms of imports -- see `spacr.settings_spec`. Re-exported so
+# `gui_utils.convert_settings_dict_for_gui` keeps meaning what it always did.
+from .settings_spec import (  # noqa: E402,F401 - re-export, see above
+    _TORCHVISION_MODELS_CURATED,
+    _torchvision_model_names,
+    convert_settings_dict_for_gui,
+)
 
 
 def spacrFigShow(fig_queue=None):
@@ -714,7 +626,14 @@ def spacrFigShow(fig_queue=None):
         fig.show()
     plt.close(fig)
 
-def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, imports=1):
+def function_gui_wrapper(
+    function=None,
+    settings=None,
+    q=None,
+    fig_queue=None,
+    imports=1,
+    app_key="",
+):
     """Run a spacr worker function with GUI-safe stdout, error and figure routing.
 
     Temporarily replaces ``plt.show`` with :func:`spacrFigShow` so any figures
@@ -728,6 +647,7 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
     :param imports: call style. 1 -> ``function(settings=...)``;
         2 -> ``function(src=settings['src'], settings=...)``;
         3 -> ``function(settings['src'])``, for workers that take a bare path.
+    :param app_key: module identifier written to the run manifest.
     :returns: None.
     :raises ValueError: if ``imports`` is not one of the three call styles.
     """
@@ -737,6 +657,27 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
         settings = {}
     original_show = plt.show
     plt.show = lambda: spacrFigShow(fig_queue)
+
+    journal_context = None
+    journal_run = None
+    try:
+        from .run_journal import open_run
+        print("Recording reproducibility input hashes…")
+        journal_context = open_run(
+            app_key or getattr(function, "__name__", "job"), settings,
+        )
+        journal_run = journal_context.__enter__()
+        print(f"Reproducibility manifest: {journal_run.dir}")
+    except Exception as exc:
+        journal_context = None
+        journal_run = None
+        message = (
+            "WARNING: could not open reproducibility manifest: "
+            f"{type(exc).__name__}: {exc}"
+        )
+        if q is not None:
+            q.put(message)
+        logging.getLogger(__name__).exception(message)
 
     try:
         if imports == 1:
@@ -754,9 +695,25 @@ def function_gui_wrapper(function=None, settings=None, q=None, fig_queue=None, i
     except Exception as e:
         # Send the error message to the GUI via the queue
         errorMessage = f"Error during processing: {e}"
-        q.put(errorMessage) 
+        if journal_run is not None:
+            journal_run.set_status("failed")
+            journal_run.error_traceback = traceback.format_exc()
+        q.put(errorMessage)
         traceback.print_exc()
     finally:
+        if journal_run is not None:
+            if journal_run.status == "running":
+                journal_run.set_status("success")
+            try:
+                journal_context.__exit__(None, None, None)
+            except Exception as exc:
+                message = (
+                    "WARNING: could not finalize reproducibility manifest: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+                if q is not None:
+                    q.put(message)
+                logging.getLogger(__name__).exception(message)
         # Restore the original plt.show function
         plt.show = original_show
         
@@ -776,14 +733,14 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     :raises ValueError: if ``settings_type`` is not a recognised module.
     """
     from .core import generate_image_umap, preprocess_generate_masks
-    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models, compare_cellpose_masks
+    from .spacr_cellpose import identify_masks_finetune, check_cellpose_models
     from .submodules import analyze_recruitment
     from .ml import generate_ml_scores, perform_regression
     from .submodules import train_cellpose, analyze_plaques
-    from .io import process_non_tif_non_2D_images, generate_cellpose_train_test, generate_dataset
+    from .io import process_non_tif_non_2D_images
     from .measure import measure_crop
     from .sim import run_multiple_simulations
-    from .deep_spacr import deep_spacr, apply_model_to_tar
+    from .deep_spacr import deep_spacr
     from .sequencing import generate_barecode_mapping
     
     process_stdout_stderr(q)
@@ -841,7 +798,9 @@ def run_function_gui(settings_type, settings, q, fig_queue, stop_requested):
     else:
         raise ValueError(f"Error: Invalid settings type: {settings_type}")
     try:
-        function_gui_wrapper(function, settings, q, fig_queue, imports)
+        function_gui_wrapper(
+            function, settings, q, fig_queue, imports, app_key=settings_type,
+        )
     except Exception as e:
         q.put(f"Error during processing: {e}")
         traceback.print_exc()
@@ -1044,8 +1003,6 @@ def display_gif_in_plot_frame(gif_path, parent_frame):
 
     # Get the aspect ratio of the GIF
     gif_width, gif_height = gif.size
-    gif_aspect_ratio = gif_width / gif_height
-
     # Create a label to display the GIF and configure it to fill the parent_frame
     label = tk.Label(parent_frame, bg="black")
     label.grid(row=0, column=0, sticky="nsew")  # Expands in all directions (north, south, east, west)

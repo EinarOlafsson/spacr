@@ -260,6 +260,10 @@ def test_radial_distribution_only_bins_pixels_inside_the_parent_cell():
 def test_zernike_degree_controls_the_number_of_coefficients():
     """The degree used to be ignored: mahotas always got its default 8, so the
     count was always 25 whatever the caller asked for."""
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     mask = _disk((64, 64), 32, 32, 20)
     counts = {}
     for degree in (4, 8, 12):
@@ -278,7 +282,10 @@ def test_zernike_is_scale_normalised_across_object_sizes():
     pinned at 8 px the unit disk covered a fixed 8 px patch of every object, so
     the coefficients tracked the object's size instead of its shape.
     """
-    from mahotas.features import zernike_moments
+    zernike_moments = pytest.importorskip(
+        "mahotas.features",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    ).zernike_moments
 
     small = _disk((64, 64), 32, 32, 12)
     big = _disk((160, 160), 80, 80, 30)
@@ -304,6 +311,10 @@ def test_zernike_is_scale_normalised_across_object_sizes():
 
 def test_zernike_distinguishes_different_shapes():
     """Scale normalisation must not flatten genuine shape differences."""
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     disk = _disk((64, 64), 32, 32, 16)
     bar = np.zeros((64, 64), np.int32)
     bar[30:34, 8:56] = 1
@@ -316,6 +327,10 @@ def test_zernike_distinguishes_different_shapes():
 
 def test_zernike_survives_a_single_pixel_region():
     """radius would be 0 for a 1-px object; it is clamped rather than dividing by 0."""
+    pytest.importorskip(
+        "mahotas",
+        reason="numerical Zernike descriptors require the optional spacr[zernike] extra",
+    )
     mask = np.zeros((16, 16), np.int32)
     mask[8, 8] = 1
     out = M._calculate_zernike(mask, pd.DataFrame({"label": [1]}), degree=4)

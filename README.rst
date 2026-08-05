@@ -47,41 +47,27 @@ spaCR
 
 **Spatial phenotype analysis of CRISPR screens.**
 
-spaCR is an end-to-end platform for image-based pooled CRISPR screens,
-high-content microscopy, and single-cell phenotype discovery. It connects
-raw microscopy images and sequencing reads to segmentation, measurements,
-annotation, predictive models, screen scores, quality control, and
-publication-ready results.
+spaCR segments and measures single cells in high-content microscopy images,
+links each cell to the gRNA it received, and reports which genes changed the
+phenotype. Plate images and FASTQ reads go in; per-object measurements,
+trained classifiers, per-guide and per-gene effect sizes, and a ranked hit
+list come out.
 
-Every object stays traceable. Images, masks, measurements, annotations,
-model predictions, barcodes, and experimental identifiers are linked through
-a SQLite-backed project rather than scattered across unrelated files.
+If you run image-based pooled CRISPR screens, that is the whole path. If you
+have high-content microscopy and no screen, the segmentation, measurement,
+annotation and classification half runs on its own.
 
-Why spaCR?
-----------
+Images, masks, crops, measurements, annotations, predictions, barcodes and
+well identifiers live in one SQLite project, so a number in a result can be
+traced back to the object it came from.
 
-- **Image analysis.** Segment 2D, 3D, and 4D microscopy; measure
-  morphology, intensity, texture, and spatial relationships; then track,
-  crop, annotate, and classify individual objects.
-- **FASTQ analysis.** Decode row, column, and gRNA barcodes, assign guide
-  identities, assess read quality, and connect sequencing results to imaged
-  cells.
-- **One connected workflow.** Microscope images + FASTQ files →
-  genotype–phenotype associations.
-- **Desktop and headless operation.** Use the PySide6 application
-  interactively or run the same modules on a workstation, server, or cluster.
-- **Live visual feedback.** Preview masks, tracks, timelapse
-  frames, training metrics, activation maps, and image embeddings where the
-  corresponding module supports them.
-- **Reproducible execution.** Validate settings, record manifests,
-  preserve run journals, rotate logs, resume supported jobs, and export
-  reports with settings and package versions.
-- **CPU and GPU execution.** Run general analysis on CPU and use
-  CUDA automatically for supported segmentation and deep-learning workloads.
+Run spaCR as a desktop application or headlessly on a workstation, server or
+cluster. Both drive the same modules, and CUDA is used automatically where a
+module supports it.
 
 
 Workflow at a glance
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 |Tutorials|
 
@@ -89,17 +75,14 @@ Workflow at a glance
    :alt: spaCR workflow and output organization
    :align: center
 
-Microscopy images (TIFF, OME-TIFF, LIF, CZI, and ND2) and sequencing
-reads (FASTQ) enter complementary image-analysis and barcode-mapping
-pipelines. Object tables, crops, annotations, predictions, guide identities,
-QC results, and well-level summaries can then be analyzed together.
+Microscopy images (TIFF, OME-TIFF, LIF, CZI, ND2) and sequencing reads
+(FASTQ) enter complementary image-analysis and barcode-mapping pipelines.
+Object tables, crops, annotations, predictions, guide identities, QC results
+and well-level summaries are then analyzed together.
 
 
 Quick start
 -----------
-
-The recommended installation uses an isolated conda environment with Python
-3.12 and the Qt desktop extra:
 
 .. code-block:: bash
 
@@ -109,27 +92,37 @@ The recommended installation uses an isolated conda environment with Python
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR supports Python **3.9 through 3.14** (except Python 3.14.1, which is
-excluded by torchvision). Python 3.12 is recommended for
-the broadest combination of optional scientific packages. Linux is
-recommended for CUDA workflows; macOS and Windows are also supported.
+spaCR supports Python **3.9 through 3.14** (except Python 3.14.1, which
+torchvision excludes). Python 3.12 has the widest choice of optional
+scientific packages. Linux is recommended for CUDA workflows; macOS and
+Windows are also supported.
 
 
 Installation details
 --------------------
 
+|Release| |PyPI| |CondaRecipe|
+
+**(beta) Lightweight desktop installers:**
+
+.. spacr-installer-links-begin
+
+* `Windows 10/11: download SpaCR 1.5.0.0 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.0/SpaCR-1.5.0.0-Windows-Online-Setup.exe>`_
+* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.5.0.0 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.0/SpaCR-1.5.0.0-macOS-Universal-Online.pkg>`_
+* `64-bit Linux: download SpaCR 1.5.0.0 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.0/SpaCR-1.5.0.0-Linux-x86_64-Online.run>`_
+
+.. spacr-installer-links-end
+
 Lightweight installers — no conda or existing Python required
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-No conda installation and no existing Python installation are required. The
-installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR, and the
-scientific dependencies during installation. The portable CPU build is the
-default so installation does not unexpectedly download several gigabytes of
-CUDA libraries. Windows offers NVIDIA acceleration as an optional installer
+The installer downloads a private Python 3.12 runtime, Qt, PyTorch, spaCR and
+the scientific dependencies during installation, so neither conda nor an
+existing Python is needed. The portable CPU build is the default, which keeps
+the installation from pulling several gigabytes of CUDA libraries
+unannounced. Windows offers NVIDIA acceleration as an optional installer
 component, Linux accepts ``--torch-backend auto``, and the standard macOS
-PyTorch wheel retains Apple MPS acceleration. The installer download therefore
-stays small while the installed application is complete and isolated from
-system Python.
+PyTorch wheel keeps Apple MPS acceleration.
 
 On Linux, make the downloaded installer executable before opening it:
 
@@ -140,12 +133,12 @@ On Linux, make the downloaded installer executable before opening it:
 
 On macOS, open the downloaded ``.pkg``. If Gatekeeper blocks the current beta
 installer because it is not notarized, open **System Settings → Privacy &
-Security** and choose **Open Anyway** for spaCR, then run the package again.
+Security**, choose **Open Anyway** for spaCR, then run the package again.
 
-The installer validates spaCR, Qt, PyTorch, and dependency consistency before
+The installer validates spaCR, Qt, PyTorch and dependency consistency before
 replacing an older installation, so an interrupted update leaves the previous
-working environment in place. A complete diagnostic log is retained as
-``install.log`` inside the private spaCR installation directory.
+working environment in place. A diagnostic log is kept as ``install.log``
+inside the private spaCR installation directory.
 
 Desktop application from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -176,9 +169,6 @@ Latest development branch
 Conda environments
 ~~~~~~~~~~~~~~~~~~
 
-Conda users can install the released PyPI package inside an isolated
-environment:
-
 .. code-block:: bash
 
    conda create -n spacr python=3.12 pip -y
@@ -188,28 +178,28 @@ environment:
 Optional capabilities
 ~~~~~~~~~~~~~~~~~~~~~
 
-Install only the extras needed by your workflow:
+Install only the extras your workflow needs:
 
 .. code-block:: bash
 
    python -m pip install "spacr[trackastra]"    # transformer tracking
    python -m pip install "spacr[ultrack]"       # global-optimization tracking
+   python -m pip install "spacr[btrack]"        # btrack timelapse tracking
    python -m pip install "spacr[attribution]"   # TorchCAM methods
    python -m pip install "spacr[boosting]"      # LightGBM and CatBoost
    python -m pip install "spacr[zernike]"       # Zernike measurements
-   python -m pip install "spacr[btrack]"        # btrack timelapse tracking
+   python -m pip install "spacr[napari]"        # napari mask correction
    python -m pip install "spacr[czi,nd2,lif]"   # vendor file readers
 
-Optional dependency availability varies by Python version. In particular,
-ultrack currently limits ``spacr[all]`` on Python 3.13, and TorchCAM's NumPy
-constraint limits the ``attribution`` extra there. The core package and Qt
-application remain supported. On Python 3.14, btrack is supported through its
-optional extra. The high-performance pylibCZIrw CZI converter remains optional
-and outside the tested profile. Other timelapse backends and czifile-based CZI
-reading remain available.
+Which extras resolve depends on the Python version. On Python 3.13, ultrack
+limits ``spacr[all]`` and TorchCAM's NumPy constraint limits the
+``attribution`` extra; the core package and the Qt application are unaffected.
+On Python 3.14, btrack is available through its extra. The pylibCZIrw CZI
+converter is optional and untested; czifile-based CZI reading remains
+available.
 
-The legacy Tk interface remains available as ``spacr-legacy`` but is no
-longer under active development.
+The legacy Tk interface is still installed as ``spacr-legacy`` but is no
+longer developed.
 
 
 Command-line entry points
@@ -218,45 +208,137 @@ Command-line entry points
 .. code-block:: bash
 
    spacr                                      # Qt application
+   spacr-doctor                               # diagnose the installation
    spacr-run --list                           # list headless modules
    spacr-run --describe MODULE                # inspect a module contract
    spacr-run MODULE --settings settings.csv   # execute a module
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
-   spacr-repro --help                         # reproducibility tools
+   spacr-repro RUN_DIR                        # replay a recorded run
 
-Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are stored
-under ``~/.spacr/logs/spacr.log``.
-
-
-Installation options
---------------------
-
-|Release| |PyPI| |CondaRecipe|
-
-**(beta) Lightweight desktop installers:**
-
-.. spacr-installer-links-begin
-
-* `Windows 10/11: download SpaCR 1.4.9.9 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel and Apple silicon): download SpaCR 1.4.9.9 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-macOS-Universal-Online.pkg>`_
-* `64-bit Linux: download SpaCR 1.4.9.9 <https://github.com/EinarOlafsson/spacr/releases/download/v1.4.9.9/SpaCR-1.4.9.9-Linux-x86_64-Online.run>`_
-
-.. spacr-installer-links-end
-
-Install the Qt application into an existing Python environment with:
-
-.. code-block:: bash
-
-   python -m pip install "spacr[qt]"
-   spacr
-
-Detailed desktop, headless, development, and conda instructions appear in
-`Installation details`_.
+Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written
+to ``~/.spacr/logs/spacr.log``.
 
 
 Features
 --------
+
+The six modules most screens use
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Mask** segments cells, nuclei, pathogens and organelles with Cellpose, in 2D
+images and in volumetric or time-series data. The model list is read from the
+installed Cellpose rather than hard-coded, and an object diameter is estimated
+from the images before the run starts. Masks can be corrected by hand in the
+layer viewer, or sent to napari and back.
+
+**Measure** writes per-object morphology, intensity, texture and colocalization
+features to the project database, together with the crops. New in 1.5.0.0:
+illumination correction estimates the flat-field from the plate itself and
+divides it out before any intensity feature is taken, which removes the
+well-position bias that plate heatmaps show as edge effects. A segmentation QC
+banner states in plain language what the masks look like before Measure runs;
+it informs, it does not block. A drawn polygon restricts measurement to a
+region of interest.
+
+**Annotate** shows crops on a keyboard-driven grid and writes labels straight
+to SQLite. It now closes the active-learning loop: retrain a model on what you
+have labelled without leaving the screen, re-rank the queue by uncertainty,
+watch the learning curve, and get a stopping verdict when further labels stop
+changing the model. Coverage is reported per class, per well and per plate,
+and every round is recorded.
+
+**Classify** trains PyTorch CNNs and transformers on annotated crops, and
+classical or boosted models on measurement tables. Per-class accuracy is now
+kept every epoch instead of being discarded, and each checkpoint gets a model
+card recording its dataset, class balance, split rule and held-out metrics.
+In the evaluation screen, a confusion-matrix cell is a query: click it to open
+those crops, with confidently wrong predictions listed apart from uncertain
+ones.
+
+**Map Barcodes** decodes row, column and gRNA barcodes from FASTQ reads,
+assigns guide identities to wells, and joins them to imaged cells. Barcode QC
+reports reads per well, collision rate and unmapped fraction, sweeping around
+the number of gRNAs per well you say you expect rather than a fixed threshold.
+
+**Regression** estimates guide, gene, condition and control effects using 17
+model families, including mixed models, logistic and probit, quantile, beta,
+GLMs with quasi-binomial variance, lasso, ridge, elastic net, hinge and
+horseshoe. The result is a ranked, annotated hit list rather than a
+coefficient dump.
+
+New in 1.5.0.0
+~~~~~~~~~~~~~~
+
+Before a screen exists, the Power / Design module answers how many cells and
+how many wells it needs, priced with sequencing error and with the dropout
+that comes from wells that were imaged too thinly. An experiment designer lays
+out the plate, its controls and its replicates and exports the layout for the
+pipeline. Afterwards, a QC dashboard collects the segmentation, plate,
+annotator-agreement and leakage checks into one verdict, and ComBat is
+available beside ``center`` and ``zscore`` for batch correction.
+
+Results are explored rather than exported and re-imported. A Graph Builder
+plots a table by dragging columns onto x, y, colour, size and facet. Gates
+drawn on a histogram or a scatter become filters. A feature explorer ranks
+features by how well they separate the classes. Small multiples, dose-response
+fits, control charts and robust outlier detection use the same axis engine.
+Selecting objects in one view selects them in all of them, and opening a
+selection brings up the crops those objects came from. A layer viewer stacks
+images, labels, points and shapes, with orthogonal views, a synchronised
+comparison grid, and a lineage tree from cell to nucleus to pathogen.
+
+Runs are now identifiable. Each carries one run id, one seed and an
+``on_error`` policy; Mask, Measure, Classify and the AnnData export register
+what they wrote in an artifact registry, so an output file leads back to the
+settings that produced it. A module opens on what the previous step actually
+wrote, the pipeline graph marks which outputs are stale, run comparison diffs
+the settings, object counts and hit lists of two runs, and every GUI run emits
+the equivalent Python script. Measurements export to ``.h5ad`` for scanpy;
+OME-Zarr and OMERO are available through the Python API. The methods-and-results
+exporter drafts those two manuscript sections from a structured digest of the
+run: the model writes the prose, but every number comes from the digest, and a
+draft containing a number the digest does not contain is rejected. When
+something is wrong with the installation, ``spacr-doctor`` reports which spaCR
+is actually running, whether the GPU is usable, whether Cellpose matches the
+API spaCR calls, and whether the project database and settings are sound, with
+a copyable fix on every line that is not a pass.
+
+Internationalized desktop interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**spaCR → Preferences → Language** retranslates the running application into
+English, Swedish, German, Spanish, Mandarin Chinese, Portuguese, Hindi,
+Korean, Icelandic or French without a restart. The choice persists, and
+screens opened later inherit it.
+
+Navigation, Preferences, AI and LIVE controls, module descriptions and
+spaCR-authored console notices follow the selected language. Worker output,
+logs, tracebacks, paths, database values, annotations, AI responses,
+measurements and saved results are never translated, so
+scientific output remains canonical English. Setting tooltips not yet
+reviewed in a language stay in English rather than becoming a
+mixed-language explanation.
+The `localization guide
+<https://einarolafsson.github.io/spacr/localization.html>`_ documents the
+behavior, the environment override, and the
+`contextual help <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_
+that is translated with it.
+
+Animated setting guidance
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+94 short animations explain what 143 visual settings do to an image. Hover a
+setting and click **Animation** in its tooltip to play the square beside the
+text; click it again to fold it away. Animations are off until asked for, and
+can be disabled in Preferences. The `gallery
+<https://einarolafsson.github.io/spacr/setting_animations.html>`_ shows all of
+them, and the `Setting animation registry
+<https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_
+records which setting each one belongs to.
+
+Module reference
+~~~~~~~~~~~~~~~~
 
 .. list-table::
    :header-rows: 1
@@ -266,339 +348,290 @@ Features
      - Feature
      - State
      - Description
+   * - **Desktop experience**
+     -
+     -
+     -
+   * - |api-qt-app|_
+     - |doc-i18n|_
+     - Stable
+     - Retranslates open and lazily created screens across ten bundled languages.
+   * - |api-qt-app|_
+     - |doc-i18n-help|_
+     - Stable
+     - Localizes module summaries and setting-help chrome while preserving exact API URLs.
+   * - |api-qt-ai|_
+     - |api-qt-ai-console|_
+     - Stable
+     - Localizes AI and LIVE controls without changing user or model content.
+   * - |api-animations|_
+     - |doc-animations|_
+     - Stable
+     - Plays 94 packaged animations for 143 visual settings from the setting tooltip.
+   * - |api-selection|_
+     - |api-linked-views|_
+     - Alpha
+     - Shares one object selection across the table, plate, embedding, scatter and graph views.
+   * - |api-doctor|_
+     - |api-doctor-checks|_
+     - Alpha
+     - Diagnoses the install — GPU, Cellpose API, database, settings — with a fix per failing check.
    * - **Image analysis**
      -
      -
      -
-   * - |feature-api-018|_
-     - |feature-api-019|_
+   * - |api-mask|_
+     - |api-mask-2d|_
      - Stable
-     - Segments cells, nuclei, pathogens, and organelles in 2D images.
-   * - |feature-api-018|_
-     - |feature-api-020|_
+     - Segments cells, nuclei, pathogens and organelles in 2D images.
+   * - |api-mask|_
+     - |api-mask-3d|_
      - Beta
      - Segments volumetric images and 4D time series.
-   * - |feature-api-032|_
-     - |feature-api-033|_
-     - Stable
-     - Measures morphology, intensity, texture, and colocalization.
-   * - |feature-api-032|_
-     - |feature-api-034|_
-     - Beta
-     - Measures objects through 3D volumes and 4D experiments.
-   * - |feature-api-028|_
-     - |feature-api-029|_
-     - Beta
-     - Tracks objects with IoU, Trackpy, btrack, Trackastra, or ultrack.
-   * - |feature-api-028|_
-     - |feature-api-031|_
-     - Beta
-     - Quantifies motility, displacement, velocity, and persistence.
-   * - |feature-api-009|_
-     - |feature-api-011|_
+   * - |api-illumination|_
+     - |api-flatfield|_
      - Alpha
-     - Converts ND2, CZI, LIF, TIFF, and OME-TIFF acquisitions.
-   * - |feature-api-013|_
-     - |feature-api-014|_
+     - Estimates the flat-field from the plate and divides it out before intensity is measured.
+   * - |api-measure|_
+     - |api-measure-2d|_
      - Stable
-     - Links images, masks, crops, measurements, and object identities.
+     - Measures morphology, intensity, texture and colocalization, and writes the crops.
+   * - |api-segqc|_
+     - |api-segqc-verdict|_
+     - Alpha
+     - States what the segmentation looks like before Measure runs, without blocking it.
+   * - |api-timelapse|_
+     - |api-tracking|_
+     - Beta
+     - Tracks objects with IoU, Trackpy, btrack, Trackastra or ultrack, and quantifies motility.
+   * - |api-layers|_
+     - |api-layer-viewer|_
+     - Alpha
+     - Stacks image, label, point and shape layers, with orthogonal views and a comparison grid.
+   * - |api-napari|_
+     - |api-napari-curation|_
+     - Alpha
+     - Hands a mask to napari for correction and takes it back, recording every edit.
    * - **AI and phenotyping**
      -
      -
      -
-   * - |feature-api-037|_
-     - |feature-api-038|_
+   * - |api-annotate|_
+     - |api-annotation|_
      - Stable
-     - Reviews crops and saves annotations directly to SQLite.
-   * - |feature-api-039|_
-     - |feature-api-040|_
+     - Reviews crops on a keyboard-driven grid and saves annotations to SQLite.
+   * - |api-active-learning|_
+     - |api-al-loop|_
+     - Alpha
+     - Retrains inside Annotate, re-ranks by uncertainty, and says when labelling can stop.
+   * - |api-classify|_
+     - |api-classification|_
      - Stable
      - Trains and applies PyTorch CNN and transformer models.
-   * - |feature-api-039|_
-     - |feature-api-041|_
-     - Beta
-     - Streams loss, accuracy, and training images to TensorBoard.
-   * - |feature-api-039|_
-     - |feature-api-046|_
-     - Beta
-     - Explains predictions with Captum, SmoothGrad, and TorchCAM.
-   * - |feature-api-044|_
-     - |feature-api-045|_
-     - Beta
-     - Explores images interactively and propagates cluster labels.
-   * - |feature-api-042|_
-     - |feature-api-043|_
+   * - |api-classify|_
+     - |api-model-cards|_
+     - Alpha
+     - Records dataset, class balance, split rule and held-out metrics beside each checkpoint.
+   * - |api-confusion|_
+     - |api-confusion-drill|_
+     - Alpha
+     - Opens the crops behind a confusion cell, confident errors listed apart from uncertain ones.
+   * - |api-ml|_
+     - |api-ml-models|_
      - Stable
-     - Trains interpretable classical and boosted measurement models.
-   * - |feature-api-048|_
-     - |feature-api-049|_
+     - Trains interpretable classical and boosted models on measurement tables.
+   * - |api-classify|_
+     - |api-activation|_
      - Beta
-     - Searches embedding and model hyperparameters.
-   * - |feature-api-023|_
-     - |feature-api-025|_
+     - Explains predictions with Captum, SmoothGrad and TorchCAM.
+   * - |api-umap|_
+     - |api-embedding|_
      - Beta
-     - Trains custom Cellpose segmentation checkpoints.
+     - Explores image embeddings interactively and propagates cluster labels.
    * - **Sequencing and screen analysis**
      -
      -
      -
-   * - |feature-api-052|_
-     - |feature-api-053|_
+   * - |api-sequencing|_
+     - |api-barcodes|_
      - Stable
-     - Maps row, column, and gRNA barcodes from FASTQ reads.
-   * - |feature-api-052|_
-     - |feature-api-074|_
-     - Stable
-     - Connects guide identities to imaged single-cell phenotypes.
-   * - |feature-api-001|_
-     - |feature-api-075|_
-     - Stable
-     - Joins imaging phenotypes and sequencing identities in one workflow.
-   * - |feature-api-054|_
-     - |feature-api-055|_
-     - Stable
-     - Estimates guide, gene, condition, and control effects.
-   * - |feature-api-064|_
-     - |feature-api-065|_
-     - Beta
-     - Quantifies plaque number, area, intensity, and morphology.
-   * - |feature-api-067|_
-     - |feature-api-068|_
+     - Maps row, column and gRNA barcodes from FASTQ reads and assigns guides to imaged cells.
+   * - |api-barcode-qc|_
+     - |api-barcode-qc-sweep|_
      - Alpha
-     - Distinguishes attached and invaded parasites.
-   * - |feature-api-062|_
-     - |feature-api-063|_
+     - Reports reads per well, collision rate and unmapped fraction against the expected gRNAs per well.
+   * - |api-regression|_
+     - |api-regression-models|_
+     - Stable
+     - Estimates guide, gene, condition and control effects with 17 model families.
+   * - |api-power|_
+     - |api-power-design|_
      - Alpha
-     - Builds reports with quality control and run provenance.
-   * - |feature-api-005|_
-     - |feature-api-071|_
+     - Answers how many cells and wells a screen needs, with sequencing error and well dropout priced in.
+   * - |api-graph|_
+     - |api-graph-builder|_
      - Alpha
-     - Runs validated modules in dependency-aware plate queues.
+     - Builds a plot by dragging columns onto x, y, colour, size and facet.
+   * - |api-artifacts|_
+     - |api-provenance|_
+     - Alpha
+     - Records the run id, seed and settings behind mask, measure, classify and export outputs.
 
-.. |feature-api-001| replace:: **Core**
-.. _feature-api-001: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+.. |api-qt-app| replace:: **Qt application**
+.. _api-qt-app: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
 
-.. |feature-api-002| replace:: **Image pipeline**
-.. _feature-api-002: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+.. |doc-i18n| replace:: **Ten-language localization**
+.. _doc-i18n: https://einarolafsson.github.io/spacr/localization.html
 
-.. |feature-api-003| replace:: **Qt application**
-.. _feature-api-003: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
+.. |doc-i18n-help| replace:: **Localized contextual help**
+.. _doc-i18n-help: https://einarolafsson.github.io/spacr/localization.html#contextual-help
 
-.. |feature-api-004| replace:: **Desktop interface**
-.. _feature-api-004: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
+.. |api-qt-ai| replace:: **Qt AI**
+.. _api-qt-ai: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
 
-.. |feature-api-005| replace:: **Batch**
-.. _feature-api-005: https://einarolafsson.github.io/spacr/api/spacr/batch/index.html
+.. |api-qt-ai-console| replace:: **AI-assisted console**
+.. _api-qt-ai-console: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
 
-.. |feature-api-006| replace:: **Headless execution**
-.. _feature-api-006: https://einarolafsson.github.io/spacr/api/spacr/batch/index.html
+.. |api-animations| replace:: **Setting animation registry**
+.. _api-animations: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
 
-.. |feature-api-007| replace:: **Logging**
-.. _feature-api-007: https://einarolafsson.github.io/spacr/api/spacr/logging_util/index.html
+.. |doc-animations| replace:: **Visual setting animations**
+.. _doc-animations: https://einarolafsson.github.io/spacr/setting_animations.html
 
-.. |feature-api-008| replace:: **Reproducible runs**
-.. _feature-api-008: https://einarolafsson.github.io/spacr/api/spacr/logging_util/index.html
+.. |api-selection| replace:: **Selection**
+.. _api-selection: https://einarolafsson.github.io/spacr/api/spacr/selection/index.html
 
-.. |feature-api-009| replace:: **I/O**
-.. _feature-api-009: https://einarolafsson.github.io/spacr/api/spacr/io/index.html
+.. |api-linked-views| replace:: **Linked selection**
+.. _api-linked-views: https://einarolafsson.github.io/spacr/api/spacr/qt/linked_selection/index.html
 
-.. |feature-api-010| replace:: **Image import**
-.. _feature-api-010: https://einarolafsson.github.io/spacr/api/spacr/io/index.html
+.. |api-doctor| replace:: **Doctor**
+.. _api-doctor: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
 
-.. |feature-api-011| replace:: **Format converter**
-.. _feature-api-011: https://einarolafsson.github.io/spacr/api/spacr/io/index.html
+.. |api-doctor-checks| replace:: **Installation diagnosis**
+.. _api-doctor-checks: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
 
-.. |feature-api-012| replace:: **Project import**
-.. _feature-api-012: https://einarolafsson.github.io/spacr/api/spacr/io/index.html
+.. |api-mask| replace:: **Mask**
+.. _api-mask: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
 
-.. |feature-api-013| replace:: **Object data**
-.. _feature-api-013: https://einarolafsson.github.io/spacr/api/spacr/object/index.html
+.. |api-mask-2d| replace:: **2D mask generation**
+.. _api-mask-2d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |feature-api-014| replace:: **Object schema**
-.. _feature-api-014: https://einarolafsson.github.io/spacr/api/spacr/object/index.html
+.. |api-mask-3d| replace:: **3D and 4D mask generation**
+.. _api-mask-3d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
 
-.. |feature-api-015| replace:: **Database browser**
-.. _feature-api-015: https://einarolafsson.github.io/spacr/api/spacr/io/index.html
+.. |api-illumination| replace:: **Illumination**
+.. _api-illumination: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
 
-.. |feature-api-016| replace:: **Stitching**
-.. _feature-api-016: https://einarolafsson.github.io/spacr/api/spacr/spacrops/index.html
+.. |api-flatfield| replace:: **Flat-field correction**
+.. _api-flatfield: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
 
-.. |feature-api-017| replace:: **Align and stitch**
-.. _feature-api-017: https://einarolafsson.github.io/spacr/api/spacr/spacrops/index.html
+.. |api-measure| replace:: **Measure**
+.. _api-measure: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
 
-.. |feature-api-018| replace:: **Mask**
-.. _feature-api-018: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+.. |api-measure-2d| replace:: **Object measurements**
+.. _api-measure-2d: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
 
-.. |feature-api-019| replace:: **2D mask generation**
-.. _feature-api-019: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
+.. |api-segqc| replace:: **Segmentation QC**
+.. _api-segqc: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
 
-.. |feature-api-020| replace:: **3D and 4D mask generation**
-.. _feature-api-020: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
+.. |api-segqc-verdict| replace:: **Pre-run verdict**
+.. _api-segqc-verdict: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
 
-.. |feature-api-021| replace:: **4D mask generation**
-.. _feature-api-021: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
+.. |api-timelapse| replace:: **Timelapse**
+.. _api-timelapse: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
 
-.. |feature-api-022| replace:: **Live preview**
-.. _feature-api-022: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+.. |api-tracking| replace:: **Object tracking**
+.. _api-tracking: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
 
-.. |feature-api-023| replace:: **Cellpose**
-.. _feature-api-023: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
+.. |api-layers| replace:: **Layers**
+.. _api-layers: https://einarolafsson.github.io/spacr/api/spacr/layers/index.html
 
-.. |feature-api-024| replace:: **Make masks**
-.. _feature-api-024: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
+.. |api-layer-viewer| replace:: **Layer viewer**
+.. _api-layer-viewer: https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html
 
-.. |feature-api-025| replace:: **Train Cellpose**
-.. _feature-api-025: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
+.. |api-napari| replace:: **napari bridge**
+.. _api-napari: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
 
-.. |feature-api-026| replace:: **Model comparison**
-.. _feature-api-026: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
+.. |api-napari-curation| replace:: **Mask curation**
+.. _api-napari-curation: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
 
-.. |feature-api-027| replace:: **Model zoo**
-.. _feature-api-027: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
+.. |api-annotate| replace:: **Annotate**
+.. _api-annotate: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
 
-.. |feature-api-028| replace:: **Timelapse**
-.. _feature-api-028: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
+.. |api-annotation| replace:: **Manual annotation**
+.. _api-annotation: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
 
-.. |feature-api-029| replace:: **Object tracking**
-.. _feature-api-029: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
+.. |api-active-learning| replace:: **Active learning**
+.. _api-active-learning: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
 
-.. |feature-api-030| replace:: **Track preview**
-.. _feature-api-030: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
+.. |api-al-loop| replace:: **Retrain and re-rank**
+.. _api-al-loop: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
 
-.. |feature-api-031| replace:: **Motility assay**
-.. _feature-api-031: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html#spacr.timelapse.automated_motility_assay
+.. |api-classify| replace:: **Classify**
+.. _api-classify: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |feature-api-032| replace:: **Measure**
-.. _feature-api-032: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+.. |api-classification| replace:: **Image classification**
+.. _api-classification: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |feature-api-033| replace:: **2D measurements**
-.. _feature-api-033: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
+.. |api-model-cards| replace:: **Model cards**
+.. _api-model-cards: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |feature-api-034| replace:: **3D and 4D measurements**
-.. _feature-api-034: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
+.. |api-activation| replace:: **Activation maps**
+.. _api-activation: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
 
-.. |feature-api-035| replace:: **4D measurements**
-.. _feature-api-035: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
+.. |api-confusion| replace:: **Confusion**
+.. _api-confusion: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
 
-.. |feature-api-036| replace:: **Object crops**
-.. _feature-api-036: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
+.. |api-confusion-drill| replace:: **Confusion drill-down**
+.. _api-confusion-drill: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
 
-.. |feature-api-037| replace:: **Annotate**
-.. _feature-api-037: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
+.. |api-ml| replace:: **Machine learning**
+.. _api-ml: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |feature-api-038| replace:: **Manual annotation**
-.. _feature-api-038: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
+.. |api-ml-models| replace:: **Measurement classification**
+.. _api-ml-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |feature-api-039| replace:: **Computer vision**
-.. _feature-api-039: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
+.. |api-umap| replace:: **Image UMAP**
+.. _api-umap: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
 
-.. |feature-api-040| replace:: **Image classification**
-.. _feature-api-040: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
+.. |api-embedding| replace:: **Interactive embedding**
+.. _api-embedding: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
 
-.. |feature-api-041| replace:: **Live training metrics**
-.. _feature-api-041: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
+.. |api-sequencing| replace:: **Sequencing**
+.. _api-sequencing: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
 
-.. |feature-api-042| replace:: **Machine learning**
-.. _feature-api-042: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+.. |api-barcodes| replace:: **Map barcodes**
+.. _api-barcodes: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
 
-.. |feature-api-043| replace:: **Measurement classification**
-.. _feature-api-043: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+.. |api-barcode-qc| replace:: **Barcode QC**
+.. _api-barcode-qc: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
 
-.. |feature-api-044| replace:: **Image UMAP**
-.. _feature-api-044: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
+.. |api-barcode-qc-sweep| replace:: **Well and collision report**
+.. _api-barcode-qc-sweep: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
 
-.. |feature-api-045| replace:: **Interactive embedding**
-.. _feature-api-045: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
+.. |api-regression| replace:: **Regression**
+.. _api-regression: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |feature-api-046| replace:: **Activation maps**
-.. _feature-api-046: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
+.. |api-regression-models| replace:: **Screen effect estimation**
+.. _api-regression-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
 
-.. |feature-api-047| replace:: **Training-run comparison**
-.. _feature-api-047: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
+.. |api-power| replace:: **Power**
+.. _api-power: https://einarolafsson.github.io/spacr/api/spacr/power_model/index.html
 
-.. |feature-api-048| replace:: **Hyperparameters**
-.. _feature-api-048: https://einarolafsson.github.io/spacr/api/spacr/hyperparam/index.html
+.. |api-power-design| replace:: **Power and design**
+.. _api-power-design: https://einarolafsson.github.io/spacr/api/spacr/power_simulate/index.html
 
-.. |feature-api-049| replace:: **Hyperparameter search**
-.. _feature-api-049: https://einarolafsson.github.io/spacr/api/spacr/hyperparam/index.html
+.. |api-graph| replace:: **Graph**
+.. _api-graph: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_spec/index.html
 
-.. |feature-api-050| replace:: **Qt AI**
-.. _feature-api-050: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
+.. |api-graph-builder| replace:: **Graph Builder**
+.. _api-graph-builder: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_builder/index.html
 
-.. |feature-api-051| replace:: **AI-assisted console**
-.. _feature-api-051: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
+.. |api-artifacts| replace:: **Artifacts**
+.. _api-artifacts: https://einarolafsson.github.io/spacr/api/spacr/artifacts/index.html
 
-.. |feature-api-052| replace:: **Sequencing**
-.. _feature-api-052: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |feature-api-053| replace:: **Map barcodes**
-.. _feature-api-053: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |feature-api-054| replace:: **Statistics**
-.. _feature-api-054: https://einarolafsson.github.io/spacr/api/spacr/sp_stats/index.html
-
-.. |feature-api-055| replace:: **Regression**
-.. _feature-api-055: https://einarolafsson.github.io/spacr/api/spacr/sp_stats/index.html
-
-.. |feature-api-056| replace:: **Simulation**
-.. _feature-api-056: https://einarolafsson.github.io/spacr/api/spacr/sim/index.html
-
-.. |feature-api-057| replace:: **Screen simulation**
-.. _feature-api-057: https://einarolafsson.github.io/spacr/api/spacr/sim/index.html
-
-.. |feature-api-058| replace:: **Plotting**
-.. _feature-api-058: https://einarolafsson.github.io/spacr/api/spacr/plot/index.html
-
-.. |feature-api-059| replace:: **Plate viewer**
-.. _feature-api-059: https://einarolafsson.github.io/spacr/api/spacr/plot/index.html
-
-.. |feature-api-060| replace:: **Analysis**
-.. _feature-api-060: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-
-.. |feature-api-061| replace:: **Annotator agreement**
-.. _feature-api-061: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-
-.. |feature-api-062| replace:: **Report**
-.. _feature-api-062: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
-
-.. |feature-api-063| replace:: **Analysis report**
-.. _feature-api-063: https://einarolafsson.github.io/spacr/api/spacr/report/index.html
-
-.. |feature-api-064| replace:: **Assays**
-.. _feature-api-064: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html
-
-.. |feature-api-065| replace:: **Plaque assay**
-.. _feature-api-065: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
-
-.. |feature-api-066| replace:: **Recruitment**
-.. _feature-api-066: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
-
-.. |feature-api-067| replace:: **Toxoplasma analysis**
-.. _feature-api-067: https://einarolafsson.github.io/spacr/api/spacr/toxo/index.html
-
-.. |feature-api-068| replace:: **Invasion assay**
-.. _feature-api-068: https://einarolafsson.github.io/spacr/api/spacr/toxo/index.html
-
-.. |feature-api-069| replace:: **Replication assay**
-.. _feature-api-069: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_endodyogeny
-
-.. |feature-api-070| replace:: **Plate queue**
-.. _feature-api-070: https://einarolafsson.github.io/spacr/api/spacr/batch/index.html
-
-.. |feature-api-071| replace:: **Batch runner**
-.. _feature-api-071: https://einarolafsson.github.io/spacr/api/spacr/batch/index.html
-
-.. |feature-api-072| replace:: **Training-only pipeline**
-.. _feature-api-072: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |feature-api-073| replace:: **Model sweep**
-.. _feature-api-073: https://einarolafsson.github.io/spacr/api/spacr/spacr_cellpose/index.html
-
-.. |feature-api-074| replace:: **gRNA assignment**
-.. _feature-api-074: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |feature-api-075| replace:: **Genotype–phenotype linking**
-.. _feature-api-075: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+.. |api-provenance| replace:: **Run provenance**
+.. _api-provenance: https://einarolafsson.github.io/spacr/api/spacr/runctx/index.html
 
 
 Data
@@ -618,8 +651,9 @@ Contributing and support
 
 Bug reports and focused feature requests are welcome through
 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_.
-When reporting a failure, include the spaCR version, operating system,
-Python version, module settings, and the relevant log excerpt.
+When reporting a failure, include the spaCR version, operating system, Python
+version, module settings and the relevant log excerpt. ``spacr-doctor``
+collects most of that for you.
 
 Licensing
 ~~~~~~~~~
@@ -636,8 +670,8 @@ Tutorials
 
 The `interactive spaCR tutorial library
 <https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated,
-captioned walkthroughs of installation and application workflows in multiple
-languages.
+captioned walkthroughs of installation and of each application workflow, in
+eight languages.
 
 Citing spaCR
 ~~~~~~~~~~~~

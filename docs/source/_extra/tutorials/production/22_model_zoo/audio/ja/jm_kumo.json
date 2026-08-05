@@ -4,47 +4,117 @@
   "voice": "jm_kumo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 85.275,
+  "total_duration": 215.575,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 12.275,
-      "scene_end": 12.725,
-      "duration": 12.725,
-      "text": "このチュートリアルでは動物園モデルをカバーしています. 再利用可能なセグメントと分類モデルをブラウズ,確認,ダウンロード,ベンチマークします."
+      "speech_end": 20.775,
+      "scene_end": 21.275,
+      "duration": 21.275,
+      "text": "この機械が到達できる セルポセトーケンの動物園のモデル・インベントリーと分類器のチェックポイントです ソース,バージョン,サイズ,チェックサム状態,トレーニング起源,およびモデルがより大きなワークフローに入れる前に小さなフィールドセットでの行動を記録します.",
+      "speech_text": "この機械が到達できる セルポセトーケンの動物園のモデル・インベントリーと分類器のチェックポイントです ソース,バージョン,サイズ,チェックサム状態,トレーニング起源,およびモデルがより大きなワークフローに入れる前に小さなフィールドセットでの行動を記録します.",
+      "phonemes": "kono kʲikai ɡa toːtaʦɨ dekʲiɾɯ seɾɯposetoːkeɴ no doːbɯʦɨeɴ no modeɾɯ imbentoɾʲiː to bɯnɾɯi kʲi no ʨeʔkɯpointo desɨ soːsɨ, baːʥoɴ, saizɨ, ʨeʔkɯ samɯ ʥoːtai, toɾeːɲiŋɡɯ kʲiɡeɴ, ojobʲi modeɾɯ ɡa joɾʲi oːkʲina βaːkɯ ɸɯɾoː ɲi iɾeɾɯ mae ɲi ʨiːsana ɸʲiːɾɯdo seʔto de no koːdoː o kʲiɾokɯ ɕi masɨ."
     },
     {
       "scene": 2,
-      "speech_start": 12.725,
-      "speech_end": 45.25,
-      "scene_end": 45.7,
-      "duration": 32.975,
-      "text": "Segmentation models セクションから Model Zoo を開きます。 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書 図書"
+      "speech_start": 21.275,
+      "speech_end": 37.575,
+      "scene_end": 38.075,
+      "duration": 16.800000000000004,
+      "text": "チェックポイントのフォルダを選択または削除し,スキャンをクリックします. リストは,バンドリングされたおよび宣言されたカタログエントリと地元のCPモデルファイルを組み合わせて,重複経路を避ける.",
+      "speech_text": "チェックポイントのフォルダを選択または削除し,スキャンをクリックします. リストは,バンドリングされたおよび宣言されたカタログエントリと地元のCPモデルファイルを組み合わせて,重複経路を避ける.",
+      "phonemes": "ʨeʔkɯpointo no ɸoɾɯda o sentakɯ mata βa sakɯʥo ɕi, sɨkʲaɴ o kɯɾʲiʔkɯ ɕi masɨ. ɾʲisɨto βa, bandoɾʲiŋɡɯ saɾeta ojobʲi seŋɡeɴ saɾeta kataɾoɡɯ entoɾʲi to ʥimoto no CP modeɾɯ ɸaiɾɯ o kɯmʲiaβasete, ʨoːɸɯkɯ keːɾo o sakeɾɯ."
     },
     {
       "scene": 3,
-      "speech_start": 45.7,
-      "speech_end": 57.300000000000004,
-      "scene_end": 57.75000000000001,
-      "duration": 12.050000000000004,
-      "text": "主な構成領域では,元の由来,ライセンス,チェックサム,予期される事前処理,タスクタイプ,および現地利用可能性を確認します."
+      "speech_start": 38.075,
+      "speech_end": 56.45,
+      "scene_end": 56.95,
+      "duration": 18.875,
+      "text": "その正確な経路,サイズ,公開されたハッシュ,トレーニングデータ,作物の幾何学,オブジェクト直径,時代数,著者を確認する1行を選択します. 未知の起源は警告であり,普遍的な互換性主張ではありません.",
+      "speech_text": "その正確な経路,サイズ,公開されたハッシュ,トレーニングデータ,作物の幾何学,オブジェクト直径,時代数,著者を確認する1行を選択します. 未知の起源は警告であり,普遍的な互換性主張ではありません.",
+      "phonemes": "sono seːkakɯ na keːɾo, saizɨ, koːkai saɾeta haʔɕɨ, toɾeːɲiŋɡɯ deːta, sakɯmoʦɨ no kʲikaɡakɯ, obɯʥekɯto ʨoʔkeː, ʥidai sɨː, ʨoɕa o kakɯɲiɴ sɨɾɯ iʨi ɡʲoː o sentakɯ ɕi masɨ. mʲiʨi no kʲiɡeɴ βa keːkokɯ de aɾʲi, ɸɯheɴ tekʲi na ɡokaɴseː ɕɨʨoː de βa aɾʲimaseɴ."
     },
     {
       "scene": 4,
-      "speech_start": 57.75000000000001,
-      "speech_end": 74.75,
-      "scene_end": 75.2,
-      "duration": 17.449999999999996,
-      "text": "完全な実行前に,可視設定をレビューし,ある場合,前見またはテストモードを使用します.完全な実験のために1つを採用する前に,いくつかの代表的なフィールドで有望なモデルを基準にします."
+      "speech_start": 56.95,
+      "speech_end": 80.125,
+      "scene_end": 80.625,
+      "duration": 23.674999999999997,
+      "text": "リモートカタログエントリは選択したモデルフォルダーにダウンロードできます. 検証されたダウンロードは公開されたチェックサムを必要とします. 検証されていないモデルを受け入れることは,誤ったチェックポイントが依然として可視なマスクを読み込み,生成できるため,明示的なオプトインです.",
+      "speech_text": "リモートカタログエントリは選択したモデルフォルダーにダウンロードできます. 検証されたダウンロードは公開されたチェックサムを必要とします. 検証されていないモデルを受け入れることは,誤ったチェックポイントが依然として可視なマスクを読み込み,生成できるため,明示的なオプトインです.",
+      "phonemes": "ɾʲimoːto kataɾoɡɯ entoɾʲi βa sentakɯ ɕita modeɾɯ ɸoɾɯdaː ɲi daɯnɾoːdo dekʲimasɨ. keɴɕoː saɾeta daɯnɾoːdo βa koːkai saɾeta ʨeʔkɯ samɯ o çiʦɨjoː toɕi masɨ. keɴɕoː saɾete inai modeɾɯ o ɯkeiɾeɾɯ koto βa, ajamaʔta ʨeʔkɯpointo ɡa iʣentoɕite kaɕi na masɨkɯ o jomʲikomʲi, seːseː dekʲiɾɯ tame, meːʥi tekʲi na opɯto iɴ desɨ."
     },
     {
       "scene": 5,
-      "speech_start": 75.2,
-      "speech_end": 84.625,
-      "scene_end": 85.275,
-      "duration": 10.075000000000003,
-      "text": "作業流が完了すると,検証されたモデルファイルとベンチマーク結果は,そのメタデータに関連付けられます."
+      "speech_start": 80.625,
+      "speech_end": 102.075,
+      "scene_end": 102.575,
+      "duration": 21.950000000000003,
+      "text": "フィールドでのテストは,制限された基準値セットをロードします. このチュートリアルでは3つのリアル ERチャネル細胞作物を使用しているので,モデルスピード,オブジェクトカウント,品質管理フラッグ,プレビューはモデル比較で使用された同じ代表的な画像を指します.",
+      "speech_text": "フィールドでのテストは,制限された基準値セットをロードします. このチュートリアルでは3つのリアル ERチャネル細胞作物を使用しているので,モデルスピード,オブジェクトカウント,品質管理フラッグ,プレビューはモデル比較で使用された同じ代表的な画像を指します.",
+      "phonemes": "ɸʲiːɾɯdo de no tesɨto βa, seːɡeɴ saɾeta kʲiʥɨɴ ʨi seʔto o ɾoːdo ɕi masɨ. kono ʨɨːtoɾʲiaɾɯ de βa saɴ ʦɨ no ɾʲiaɾɯ ER ʨaneɾɯ saiboː sakɯmoʦɨ o ɕijoː ɕite iɾɯ no de, modeɾɯ sɨpʲiːdo, obɯʥekɯto kaɯnto, çiɴɕiʦɨ kanɾʲi ɸɯɾaʔɡɯ, pɯɾebʲɨː βa modeɾɯ çikakɯ de ɕijoː saɾeta onaʥi daiçoː tekʲi na ɡaʣoː o saɕimasɨ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 102.575,
+      "speech_end": 120.875,
+      "scene_end": 121.375,
+      "duration": 18.799999999999997,
+      "text": "正確に 1 つのローカルモデルが選択された場合, 3 つのフィールドでテストをクリックします. 基準値は各画像をセグメントし,真相の準確性ラベルを持っているというふりをせずにセグメント品質管理を行います.",
+      "speech_text": "正確に 1 つのローカルモデルが選択された場合, 3 つのフィールドでテストをクリックします. 基準値は各画像をセグメントし,真相の準確性ラベルを持っているというふりをせずにセグメント品質管理を行います.",
+      "phonemes": "seːkakɯ ɲi iʨi ʦɨ no ɾoːkaɾɯ modeɾɯ ɡa sentakɯ saɾeta baai, saɴ ʦɨ no ɸʲiːɾɯdo de tesɨto o kɯɾʲiʔkɯ ɕi masɨ. kʲiʥɨɴ ʨi βa kakɯ ɡaʣoː o seɡɯmento ɕi, ɕiɴsoː no ʥɨɴ kakɯ seː ɾabeɾɯ o moʔte iɾɯ to iɯ ɸɯɾʲi o sezɨ ɲi seɡɯmento çiɴɕiʦɨ kanɾʲi o okonaimasɨ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 121.375,
+      "speech_end": 137.45,
+      "scene_end": 137.89999999999998,
+      "duration": 16.524999999999977,
+      "text": "処理中に,ステータスラインは,選択されたチェックポイントとフィールドカウントを特定します. ベンチマークの作業はインターフェーススレッドから実行されるため,選択と進捗は対応しているままです.",
+      "speech_text": "処理中に,ステータスラインは,選択されたチェックポイントとフィールドカウントを特定します. ベンチマークの作業はインターフェーススレッドから実行されるため,選択と進捗は対応しているままです.",
+      "phonemes": "ɕoɾʲi ʨɨː ɲi, sɨteːtasɨ ɾaiɴ βa, sentakɯ saɾeta ʨeʔkɯpointo to ɸʲiːɾɯdo kaɯnto o tokɯteː ɕi masɨ. beɲʨi maːkɯ no saɡʲoː βa intaːɸeːsɨ sɨɾeʔdo kaɾa ʥiʔkoː saɾeɾɯ tame, sentakɯ to ɕiɲʨokɯ βa taioː ɕite iɾɯ mama desɨ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 137.89999999999998,
+      "speech_end": 156.7,
+      "scene_end": 157.29999999999998,
+      "duration": 19.400000000000006,
+      "text": "定番チェックポイントは 6ポイント5秒で 3つのフィールドで 115 細胞を生産しました 2つのフィールドがセグメンテーションQCを通過し,稀な最初の収穫は物体数値が低いと境界分数が高いためにマークされた.",
+      "speech_text": "定番チェックポイントは 6ポイント5秒で 3つのフィールドで 115 細胞を生産しました 2つのフィールドがセグメンテーションQCを通過し,稀な最初の収穫は物体数値が低いと境界分数が高いためにマークされた.",
+      "phonemes": "teːbaɴ ʨeʔkɯpointo βa ɾokɯ pointo ɡo bʲoː de saɴ ʦɨ no ɸʲiːɾɯdo de çakɯ ʥɨː ɡo saiboː o seːsaɴ ɕi maɕita ɲiʦɨ no ɸʲiːɾɯdo ɡa seɡɯmenteːɕoɴ QC o ʦɨːka ɕi, maɾe na saiɕo no ɕɨːkakɯ βa bɯʔtai sɨːʨi ɡa çikɯi to kʲoːkai bɯɴsɨː ɡa takai tame ɲi maːkɯ saɾeta."
+    },
+    {
+      "scene": 9,
+      "speech_start": 157.29999999999998,
+      "speech_end": 178.325,
+      "scene_end": 178.875,
+      "duration": 21.575000000000017,
+      "text": "基準行を選択するとマスクオーバーレイが更新されます. 表と画像を一緒に使用する: 品質フラグは内在的なマスクパターンを識別する一方,前見はそのパターンが生物学,収穫,または分割障害を反映しているかどうかを示します.",
+      "speech_text": "基準行を選択するとマスクオーバーレイが更新されます. 表と画像を一緒に使用する: 品質フラグは内在的なマスクパターンを識別する一方,前見はそのパターンが生物学,収穫,または分割障害を反映しているかどうかを示します.",
+      "phonemes": "kʲiʥɨɴ ɡʲoː o sentakɯ sɨɾɯ to masɨkɯ oːbaːɾeː ɡa koːɕiɴ saɾemasɨ. çoː to ɡaʣoː o iʔɕoɲi ɕijoː sɨɾɯ: çiɴɕiʦɨ ɸɯɾaɡɯ βa naiʣai tekʲi na masɨkɯ pataːɴ o ɕikʲibeʦɨ sɨɾɯ iʔpoː, mae mʲi βa sono pataːɴ ɡa seːbɯʦɨɡakɯ, ɕɨːkakɯ, mata βa bɯŋkaʦɨ ɕoːɡai o haɴeː ɕite iɾɯka doː ka o ɕimeɕimasɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 178.875,
+      "speech_end": 197.5,
+      "scene_end": 198.0,
+      "duration": 19.125,
+      "text": "正確にインストールされた2つのモデルを選択し,選択した2つのモデルを比較するボタンをクリックします. モデル動物園はチェックポイントのパス,同じフィールドフォルダー,そしてフィールドカウントを A-B比較画面に提供します.",
+      "speech_text": "正確にインストールされた2つのモデルを選択し,選択した2つのモデルを比較するボタンをクリックします. モデル動物園はチェックポイントのパス,同じフィールドフォルダー,そしてフィールドカウントを A-B比較画面に提供します.",
+      "phonemes": "seːkakɯ ɲi iɴsɨtoːɾɯ saɾeta ɲiʔno modeɾɯ o sentakɯ ɕi, sentakɯ ɕita ɲiʔno modeɾɯ o çikakɯ sɨɾɯ botaɴ o kɯɾʲiʔkɯ ɕi masɨ. modeɾɯ doːbɯʦɨeɴ βa ʨeʔkɯpointo no pasɨ, onaʥi ɸʲiːɾɯdo ɸoɾɯdaː, soɕite ɸʲiːɾɯdo kaɯnto o A - B çikakɯ ɡameɴ ɲi teːkʲoː ɕi masɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 198.0,
+      "speech_end": 214.875,
+      "scene_end": 215.575,
+      "duration": 17.57499999999999,
+      "text": "移送によってモデルを2つの現地チェックポイントと3つのフィールドと比較します ここから,前向きの合意,方向性オブジェクトの違い,分割,合併,モデルごとにQCを測定するためのペア比較を実行します.",
+      "speech_text": "移送によってモデルを2つの現地チェックポイントと3つのフィールドと比較します ここから,前向きの合意,方向性オブジェクトの違い,分割,合併,モデルごとにQCを測定するためのペア比較を実行します.",
+      "phonemes": "isoː ɲi joʔte modeɾɯ o ɲiʔno ɡeɲʨi ʨeʔkɯpointo to saɴ ʦɨ no ɸʲiːɾɯdo to çikakɯ ɕi masɨ koko kaɾa, maemɯkʲi no ɡoːi, hoːkoːseː obɯʥekɯto no ʨiɡai, bɯŋkaʦɨ, ɡaʔpeː, modeɾɯ ɡoto ɲi QC o sokɯteː sɨɾɯ tame no pea çikakɯ o ʥiʔkoː ɕi masɨ."
     }
   ]
 }

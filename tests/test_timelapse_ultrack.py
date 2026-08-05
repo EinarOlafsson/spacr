@@ -622,19 +622,25 @@ def test_timelapse_mode_tooltip_lists_ultrack():
 
 
 def test_gui_offers_ultrack_in_the_timelapse_mode_combo():
-    """A backend the combo cannot select is a backend nobody can run."""
-    import inspect
-    import re
+    """A backend the combo cannot select is a backend nobody can run.
 
+    This used to grep ``inspect.getsource(spacr.gui_utils)`` for the dict
+    literal. The literal moved to ``spacr.settings_spec`` (an import-cost
+    change: the Qt interface wants the widget spec without Tk's 770 ms of
+    imports) and ``gui_utils`` re-exports the function, so the grep went
+    looking for text that had left the file while the combo itself was fine.
+    Calling the function instead of reading the source asks the question the
+    GUI actually asks, and survives the next move.
+    """
     import spacr.gui_utils as G
 
-    src = inspect.getsource(G)
-    m = re.search(r"'timelapse_mode':\s*\('combo',\s*\[([^\]]*)\],\s*'([^']*)'\)", src)
-    assert m, "timelapse_mode combo not found in gui_utils"
-    options = [o.strip().strip("'\"") for o in m.group(1).split(",")]
+    spec = G.convert_settings_dict_for_gui({"timelapse_mode": "trackastra"})
+    assert "timelapse_mode" in spec, "timelapse_mode has no widget spec"
+    kind, options, default = spec["timelapse_mode"]
+    assert kind == "combo"
     assert "ultrack" in options
     assert set(options) == {"trackastra", "ultrack", "trackpy", "iou", "btrack"}
-    assert m.group(2) == "trackastra", "the default must not change"
+    assert default == "trackastra", "the default must not change"
 
 
 def test_object_dispatch_imports_the_ultrack_backend():

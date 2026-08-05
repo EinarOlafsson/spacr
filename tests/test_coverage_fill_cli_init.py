@@ -148,11 +148,35 @@ def test_timer_records_elapsed_when_enabled(monkeypatch):
     assert t.elapsed_ms is not None and t.elapsed_ms >= 0
 
 
-def test_timer_noop_when_not_started():
+def test_timer_noop_when_not_started(monkeypatch, caplog):
+    """__exit__ without __enter__ must not invent an elapsed time.
+
+    The early return is the whole behaviour, and neither half of it was
+    checked: ``elapsed_ms`` has to stay None, and nothing may reach the log --
+    a timing line for a block that never ran is worse than no line, because it
+    is indistinguishable from a real measurement.
+    """
+    import logging
     import spacr.logging_util as LU
-    t = LU.Timer("x")
-    # Calling __exit__ without __enter__ should be a no-op (early return).
-    t.__exit__(None, None, None)
+
+    # Timing on and no threshold, so a stray line WOULD be emitted.
+    monkeypatch.setattr(LU, "_TIMING_ENABLED", True, raising=False)
+    monkeypatch.setattr(LU, "_TIMING_THRESHOLD_MS", 0.0, raising=False)
+
+    t = LU.Timer("never-entered")
+    with caplog.at_level(logging.INFO, logger="spacr.timing"):
+        assert t.__exit__(None, None, None) is None
+    assert t.elapsed_ms is None
+    assert [r.getMessage() for r in caplog.records] == []
+
+    # Contrast: entered, the same Timer records and logs -- so the silence
+    # above belongs to the early return, not to the logging setup.
+    caplog.clear()
+    with caplog.at_level(logging.INFO, logger="spacr.timing"):
+        with LU.Timer("entered") as started:
+            pass
+    assert started.elapsed_ms is not None and started.elapsed_ms >= 0
+    assert any("entered took" in r.getMessage() for r in caplog.records)
 
 
 # ---------------------------------------------------------------------------

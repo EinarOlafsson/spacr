@@ -4,47 +4,167 @@
   "voice": "am_puck",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 49.125,
+  "total_duration": 199.975,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.55,
-      "scene_end": 9.0,
-      "duration": 9.0,
-      "text": "This tutorial covers Make Masks. Interactively construct, correct, and curate segmentation labels for Cellpose training data."
+      "speech_end": 13.275,
+      "scene_end": 13.725,
+      "duration": 13.725,
+      "text": "Make Masks is spaCR's interactive editor for correcting segmentation labels and creating Cellpose training pairs. Open a folder of microscopy images; matching labels are read from its masks subfolder.",
+      "speech_text": "Make Masks is spacer's interactive editor for correcting segmentation labels and creating Cellpose training pairs. Open a folder of microscopy images; matching labels are read from its masks subfolder.",
+      "phonemes": "mˌAk mˈæsks ɪz spˈAsəɹz ˌɪntəɹˈæktɪv ˈɛdəTəɹ fɔɹ kəɹˈɛktɪŋ sˌɛɡməntˈAʃən lˈAbəlz ænd kɹiˈATɪŋ sˈɛlpOz tɹˈAnɪŋ pˈɛɹz. ˈOpᵊn ɐ fˈOldəɹ ʌv mIkɹˈɑskəpi ˈɪmɪʤᵻz; mˈæʧɪŋ lˈAbəlz ɑɹ ɹˈɛd fɹʌm ɪts mˈæsks sˈʌbfˌOldəɹ."
     },
     {
       "scene": 2,
-      "speech_start": 9.0,
-      "speech_end": 18.5,
-      "scene_end": 18.95,
-      "duration": 9.95,
-      "text": "Open Make Masks from the Segmentation models section. Open representative microscopy images and any existing masks that should be refined."
+      "speech_start": 13.725,
+      "speech_end": 25.799999999999997,
+      "scene_end": 26.249999999999996,
+      "duration": 12.524999999999997,
+      "text": "This isolated tutorial copy contains three real ER fields. The first two load ER-derived cell labels as colored overlays; the third deliberately has no existing mask.",
+      "speech_text": "This isolated tutorial copy contains three real ER fields. The first two load ER-derived cell labels as colored overlays; the third deliberately has no existing mask.",
+      "phonemes": "ðˌɪs ˈIsəlˌATᵻd tutˈɔɹiəl kˈɑpi kəntˈAnz θɹˈi ɹˈiᵊl ˌiˈɑɹ fˈildz. ðə fˈɜɹst tˈu lˈOd iˌɑɹdəɹˈIvd sˈɛl lˈAbəlz æz kˈʌləɹd ˈOvəɹlˌAz; ðə θˈɜɹd dəlˈɪbəɹətli hæz nˈO ɪɡzˈɪstɪŋ mˈæsk."
     },
     {
       "scene": 3,
-      "speech_start": 18.95,
-      "speech_end": 28.2,
-      "scene_end": 28.65,
-      "duration": 9.7,
-      "text": "In the main configuration area, select channels, normalization, brush or magic-wand tools, object operations, and label-saving behavior."
+      "speech_start": 26.249999999999996,
+      "speech_end": 39.05,
+      "scene_end": 39.5,
+      "duration": 13.250000000000004,
+      "text": "The Tools card groups six edit modes. Brush adds foreground, Erase removes pixels, Erase object deletes one label, the two wands follow image intensity, and Zoom selects a detailed region.",
+      "speech_text": "The Tools card groups six edit modes. Brush adds foreground, Erase removes pixels, Erase object deletes one label, the two wands follow image intensity, and Zoom selects a detailed region.",
+      "phonemes": "ðə tˈulz kˈɑɹd ɡɹˈups sˈɪks ˈɛdət mˈOdz. bɹˈʌʃ ˈædz fˈɔɹɡɹˌWnd, əɹˈAs ɹəmˈuvz pˈɪksᵊlz, əɹˈAs ˈɑbʤəkt dəlˈits wˈʌn lˈAbəl, ðə tˈu wˈɑndz fˈɑlO ˈɪmɪʤ ɪntˈɛnsəTi, ænd zˈum səlˈɛkts ɐ dətˈAld ɹˈiʤᵊn."
     },
     {
       "scene": 4,
-      "speech_start": 28.65,
-      "speech_end": 41.325,
-      "scene_end": 41.775000000000006,
-      "duration": 13.125000000000007,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. correct boundaries and missing objects across a diverse training subset rather than only easy fields."
+      "speech_start": 39.5,
+      "speech_end": 49.675,
+      "scene_end": 50.125,
+      "duration": 10.625,
+      "text": "Select Brush and set its radius in screen pixels. A click paints a spot and a gradual drag connects a boundary correction; the B key selects the same tool.",
+      "speech_text": "Select Brush and set its radius in screen pixels. A click paints a spot and a gradual drag connects a boundary correction; the B key selects the same tool.",
+      "phonemes": "səlˈɛkt bɹˈʌʃ ænd sˈɛt ɪts ɹˈAdiəs ɪn skɹˈin pˈɪksᵊlz. ɐ klˈɪk pˈAnts ɐ spˈɑt ænd ɐ ɡɹˈæʤəwəl dɹˈæɡ kənˈɛkts ɐ bˈWndəɹi kəɹˈɛkʃən; ðə bˈi kˈi səlˈɛkts ðə sˈAm tˈul."
     },
     {
       "scene": 5,
-      "speech_start": 41.775000000000006,
-      "speech_end": 48.47500000000001,
-      "scene_end": 49.12500000000001,
-      "duration": 7.350000000000001,
-      "text": "When the workflow finishes, paired images and curated label masks are ready for custom Cellpose training."
+      "speech_start": 50.125,
+      "speech_end": 61.075,
+      "scene_end": 61.525000000000006,
+      "duration": 11.400000000000006,
+      "text": "Erase uses the same adjustable radius to remove only the painted part of a label. This is useful for separating a false bridge while preserving the rest of each cell.",
+      "speech_text": "Erase uses the same adjustable radius to remove only the painted part of a label. This is useful for separating a false bridge while preserving the rest of each cell.",
+      "phonemes": "əɹˈAs jˈuzᵻz ðə sˈAm əʤˈʌstəbᵊl ɹˈAdiəs tə ɹəmˈuv ˈOnli ðə pˈAntᵻd pˈɑɹt ʌv ɐ lˈAbəl. ðˌɪs ɪz jˈusfᵊl fɔɹ sˈɛpəɹˌATɪŋ ɐ fˈɔls bɹˈɪʤ wˌIl pɹɪzˈɜɹvɪŋ ðə ɹˈɛst ʌv ˈiʧ sˈɛl."
+    },
+    {
+      "scene": 6,
+      "speech_start": 61.525000000000006,
+      "speech_end": 72.55000000000001,
+      "scene_end": 73.00000000000001,
+      "duration": 11.475000000000009,
+      "text": "Erase object removes the complete labeled object under one click. Use it for a definite false positive; Undo remains available if the selected object was valid.",
+      "speech_text": "Erase object removes the complete labeled object under one click. Use it for a definite false positive; Undo remains available if the selected object was valid.",
+      "phonemes": "əɹˈAs ˈɑbʤəkt ɹəmˈuvz ðə kəmplˈit lˈAbəld ˈɑbʤəkt ˈʌndəɹ wˈʌn klˈɪk. jˈuz ɪt fɔɹ ɐ dˈɛfᵊnət fˈɔls pˈɑzəTɪv; ˌʌndˈu ɹəmˈAnz əvˈAləbᵊl ɪf ðə səlˈɛktᵻd ˈɑbʤəkt wʌz vˈælɪd."
+    },
+    {
+      "scene": 7,
+      "speech_start": 73.00000000000001,
+      "speech_end": 85.42500000000001,
+      "scene_end": 85.87500000000001,
+      "duration": 12.875,
+      "text": "Wand plus adds an intensity-connected region. Tolerance controls how far intensities may differ from the clicked ER pixel, while Max pixels prevents an accidental flood across the field.",
+      "speech_text": "Wand plus adds an intensity-connected region. Tolerance controls how far intensities may differ from the clicked ER pixel, while Max pixels prevents an accidental flood across the field.",
+      "phonemes": "wˈɑnd plˈʌs ˈædz ɐn ɪntˈɛnsəTikənˌɛktᵻd ɹˈiʤᵊn. tˈɑləɹəns kəntɹˈOlz hˌW fˈɑɹ ɪntˈɛnsəTiz mˈA dˈɪfəɹ fɹʌm ðə klˈɪkt ˌiˈɑɹ pˈɪksᵊl, wˌIl mˈæks pˈɪksᵊlz pɹivˈɛnts ɐn ˌæksədˈɛntᵊl flˈʌd əkɹˈɔs ðə fˈild."
+    },
+    {
+      "scene": 8,
+      "speech_start": 85.87500000000001,
+      "speech_end": 96.70000000000002,
+      "scene_end": 97.15000000000002,
+      "duration": 11.275000000000006,
+      "text": "Wand minus follows the same intensity rule but subtracts the connected region. Adjust tolerance conservatively and inspect the result before moving to another image.",
+      "speech_text": "Wand minus follows the same intensity rule but subtracts the connected region. Adjust tolerance conservatively and inspect the result before moving to another image.",
+      "phonemes": "wˈɑnd mˈInəs fˈɑlOz ðə sˈAm ɪntˈɛnsəTi ɹˈul bˌʌt səbtɹˈækts ðə kənˈɛktᵻd ɹˈiʤᵊn. əʤˈʌst tˈɑləɹəns kənsˈɜɹvəTəvli ænd ɪnspˈɛkt ðə ɹəzˈʌlt bəfˈɔɹ mˈuvɪŋ tʊ ənˈʌðəɹ ˈɪmɪʤ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 97.15000000000002,
+      "speech_end": 108.12500000000001,
+      "scene_end": 108.57500000000002,
+      "duration": 11.424999999999997,
+      "text": "Zoom draws a rectangular region and expands it to the canvas, making cell boundaries easy to judge at 4K. Reset zoom, or press Escape, to return to the full field.",
+      "speech_text": "Zoom draws a rectangular region and expands it to the canvas, making cell boundaries easy to judge at 4K. Reset zoom, or press Escape, to return to the full field.",
+      "phonemes": "zˈum dɹˈɔz ɐ ɹɛktˈæŋɡjələɹ ɹˈiʤᵊn ænd ɪkspˈændz ɪt tə ðə kˈænvəs, mˈAkɪŋ sˈɛl bˈWndəɹiz ˈizi tə ʤˈʌʤ æt fˈɔɹ kˈA ɹisˈɛt zˈum, ɔɹ pɹˈɛs əskˈAp, tə ɹətˈɜɹn tə ðə fˈʊl fˈild."
+    },
+    {
+      "scene": 10,
+      "speech_start": 108.57500000000002,
+      "speech_end": 122.17500000000001,
+      "scene_end": 122.62500000000001,
+      "duration": 14.049999999999997,
+      "text": "Normalize changes only the displayed contrast. This ER field uses the second and ninety-ninth-point-five percentiles so dim boundaries remain visible without changing image data or label geometry.",
+      "speech_text": "Normalize changes only the displayed contrast. This ER field uses the second and ninety-ninth-point-five percentiles so dim boundaries remain visible without changing image data or label geometry.",
+      "phonemes": "nˈɔɹməlˌIz ʧˈAnʤᵻz ˈOnli ðə dəsplˈAd kˈɑntɹˌæst. ðˌɪs ˌiˈɑɹ fˈild jˈuzᵻz ðə sˈɛkənd ænd nˈIndinˌInθpˈYntfˌIv pəɹsˈɛntˌIlz sˌO dˈɪm bˈWndəɹiz ɹəmˈAn vˈɪzəbᵊl wɪðˈWt ʧˈAnʤɪŋ ˈɪmɪʤ dˈATə ɔɹ lˈAbəl ʤiˈɑmətɹi."
+    },
+    {
+      "scene": 11,
+      "speech_start": 122.62500000000001,
+      "speech_end": 134.925,
+      "scene_end": 135.375,
+      "duration": 12.749999999999986,
+      "text": "Undo and Redo step through mask edits independently of zoom and contrast. Their standard shortcuts are Control Z and Control Y, with Control Shift Z also available for redo.",
+      "speech_text": "Undo and Redo step through mask edits independently of zoom and contrast. Their standard shortcuts are Control Z and Control Y, with Control Shift Z also available for redo.",
+      "phonemes": "ˌʌndˈu ænd ɹˈidˌu stˈɛp θɹu mˈæsk ˈɛdəts ˌɪndəpˈɛndəntli ʌv zˈum ænd kˈɑntɹˌæst. ðˌɛɹ stˈændəɹd ʃˈɔɹtkˌʌts ɑɹ kəntɹˈOl zˈi ænd kəntɹˈOl wˈI, wɪð kəntɹˈOl ʃˈɪft zˈi ˈɔlsO əvˈAləbᵊl fɔɹ ɹˈidˌu."
+    },
+    {
+      "scene": 12,
+      "speech_start": 135.375,
+      "speech_end": 148.075,
+      "scene_end": 148.52499999999998,
+      "duration": 13.149999999999977,
+      "text": "Object operations can fill internal holes, relabel connected foreground, invert foreground and background, or clear the mask. Clear asks for confirmation because it removes every current label.",
+      "speech_text": "Object operations can fill internal holes, relabel connected foreground, invert foreground and background, or clear the mask. Clear asks for confirmation because it removes every current label.",
+      "phonemes": "ˈɑbʤəkt ˌɑpəɹˈAʃənz kæn fˈɪl ɪntˈɜɹnəl hˈOlz, ɹilˈAbəl kənˈɛktᵻd fˈɔɹɡɹˌWnd, ˈɪnvˌɜɹt fˈɔɹɡɹˌWnd ænd bˈækɡɹˌWnd, ɔɹ klˈɪɹ ðə mˈæsk. klˈɪɹ ˈæsks fɔɹ kˌɑnfəɹmˈAʃən bəkˈʌz ɪt ɹəmˈuvz ˈɛvəɹi kˈɜɹənt lˈAbəl."
+    },
+    {
+      "scene": 13,
+      "speech_start": 148.52499999999998,
+      "speech_end": 162.075,
+      "scene_end": 162.52499999999998,
+      "duration": 14.0,
+      "text": "The minimum-area operation removes connected objects smaller than the selected pixel count. Here ten thousand makes the filtering effect obvious; choose a biologically appropriate threshold for production labels.",
+      "speech_text": "The minimum-area operation removes connected objects smaller than the selected pixel count. Here ten thousand makes the filtering effect obvious; choose a biologically appropriate threshold for production labels.",
+      "phonemes": "ðə mˈɪnəməmˌɛɹiə ˌɑpəɹˈAʃən ɹəmˈuvz kənˈɛktᵻd ˈɑbʤəkts smˈɔləɹ ðən ðə səlˈɛktᵻd pˈɪksᵊl kˈWnt. hˈɪɹ tˈɛn θˈWzᵊnd mˌAks ðə fˈɪltəɹɪŋ əfˈɛkt ˈɑbviəs; ʧˈuz ɐ bˌIəlˈɑʤəkᵊli əpɹˈOpɹiət θɹˈɛʃhˌOld fɔɹ pɹədˈʌkʃən lˈAbəlz."
+    },
+    {
+      "scene": 14,
+      "speech_start": 162.52499999999998,
+      "speech_end": 175.2,
+      "scene_end": 175.64999999999998,
+      "duration": 13.125,
+      "text": "Save mask relabels connected components and writes a uint16 TIFF to masks under the source image stem. This tutorial edits an isolated copy, leaving the original experiment unchanged.",
+      "speech_text": "Save mask relabels connected components and writes a uint16 TIFF to masks under the source image stem. This tutorial edits an isolated copy, leaving the original experiment unchanged.",
+      "phonemes": "sˈAv mˈæsk ɹilˈAbəlz kənˈɛktᵻd kəmpˈOnənts ænd ɹˈIts ɐ jˈuɪnt sˈɪkstin tˈɪf tə mˈæsks ˈʌndəɹ ðə sˈɔɹs ˈɪmɪʤ stˈɛm. ðˌɪs tutˈɔɹiəl ˈɛdəts ɐn ˈIsəlˌATᵻd kˈɑpi, lˈivɪŋ ði əɹˈɪʤənᵊl ɪkspˈɛɹəmənt ˌʌnʧˈAnʤd."
+    },
+    {
+      "scene": 15,
+      "speech_start": 175.64999999999998,
+      "speech_end": 187.325,
+      "scene_end": 187.77499999999998,
+      "duration": 12.125,
+      "text": "Previous image and Next image move through the folder in filename order. The status line always shows the current file and position, so every training field can be reviewed systematically.",
+      "speech_text": "Previous image and Next image move through the folder in filename order. The status line always shows the current file and position, so every training field can be reviewed systematically.",
+      "phonemes": "pɹˈiviəs ˈɪmɪʤ ænd nˈɛkst ˈɪmɪʤ mˈuv θɹu ðə fˈOldəɹ ɪn fˈIlnˌAm ˈɔɹdəɹ. ðə stˈATəs lˈIn ˈɔlwˌAz ʃˈOz ðə kˈɜɹənt fˈIl ænd pəzˈɪʃən, sˌO ˈɛvəɹi tɹˈAnɪŋ fˈild kæn bi ɹəvjˈud sˌɪstəmˈæTəkᵊli."
+    },
+    {
+      "scene": 16,
+      "speech_start": 187.77499999999998,
+      "speech_end": 199.325,
+      "scene_end": 199.975,
+      "duration": 12.200000000000017,
+      "text": "An image without a companion mask opens with zero labels. Start with Brush or Wand plus, inspect and clean each object, then save the new pair for custom Cellpose training.",
+      "speech_text": "An image without a companion mask opens with zero labels. Start with Brush or Wand plus, inspect and clean each object, then save the new pair for custom Cellpose training.",
+      "phonemes": "ɐn ˈɪmɪʤ wɪðˈWt ɐ kəmpˈænjən mˈæsk ˈOpᵊnz wɪð zˈɪɹO lˈAbəlz. stˈɑɹt wɪð bɹˈʌʃ ɔɹ wˈɑnd plˈʌs, ɪnspˈɛkt ænd klˈin ˈiʧ ˈɑbʤəkt, ðˈɛn sˈAv ðə nˈu pˈɛɹ fɔɹ kˈʌstəm sˈɛlpOz tɹˈAnɪŋ."
     }
   ]
 }

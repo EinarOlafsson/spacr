@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import builtins
 from pathlib import Path
+import sys
 
 import numpy as np
 import pytest
@@ -199,6 +200,7 @@ class TestMaskIO:
             if name == "tifffile":
                 raise ImportError("no tifffile")
             return real_import(name, *a, **k)
+        monkeypatch.delitem(sys.modules, "spacr.tiff_io", raising=False)
         monkeypatch.setattr(builtins, "__import__", _no_tifffile)
         p = mask_io.save_mask(str(tmp_path / "m"),
                               np.zeros((8, 8), np.uint16), fmt="tif")
@@ -261,14 +263,41 @@ class TestNotebookExport:
         out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
         assert out.exists()
 
-    def test_corrupt_json_is_tolerated(self, tmp_path):
+    def test_a_corrupt_manifest_is_tolerated(self, tmp_path):
+        """The manifest only decorates the summary cell; the export stands."""
         from spacr.notebook_export import export_run
         run_dir = tmp_path / "20260101_000000_x__mask"
         run_dir.mkdir()
         (run_dir / "manifest.json").write_text("{bad json")
-        (run_dir / "settings.json").write_text("{also bad")
+        (run_dir / "settings.json").write_text('{"src": "/tmp/x"}')
         out = export_run(run_dir, out_path=tmp_path / "nb.ipynb")
         assert out.exists()
+
+    def test_corrupt_settings_refuse_the_export(self, tmp_path):
+        """A notebook that cannot load its own settings is not an export.
+
+        This used to assert the opposite — that a ``settings.json`` reading
+        ``{also bad`` still produced a notebook. ``export_run`` calls
+        ``_read_settings`` under the comment "Validate that the recorded
+        settings exist and parse", and while that call swallowed the parse
+        error the validation was a no-op: the notebook was written with
+        ``json.loads((RUN_DIR / 'settings.json').read_text())`` as its first
+        code cell, so the failure moved off the export — where it can be
+        reported — and into the user's notebook, on cell 1 of a file they had
+        just been told was produced.
+        """
+        import json
+
+        from spacr.notebook_export import export_run
+        run_dir = tmp_path / "20260101_000000_x__mask"
+        run_dir.mkdir()
+        (run_dir / "manifest.json").write_text('{"app_key": "mask"}')
+        # What a kill -9 mid-write leaves behind.
+        (run_dir / "settings.json").write_text("{also bad")
+
+        with pytest.raises(json.JSONDecodeError):
+            export_run(run_dir, out_path=tmp_path / "nb.ipynb")
+        assert not (tmp_path / "nb.ipynb").exists()
 
     def test_default_out_path(self, tmp_path):
         # out_path=None defaults to <run_dir>/notebook.ipynb (line 224).
@@ -325,12 +354,20 @@ class TestEdgeLines:
         names = [f.name for f in CF.discover_features()]
         assert "mylen" not in names and "feat" in names
 
-    def test_read_settings_corrupt_json_returns_empty(self, tmp_path):
-        # notebook_export._read_settings except branch (line 60).
+    def test_read_settings_raises_on_corrupt_json(self, tmp_path):
+        """Absent is ``{}``; present-but-unparseable is an error.
+
+        The two cases used to give the same answer, which is what made
+        ``export_run``'s "validate that the settings parse" line validate
+        nothing. Only the absent case is empty now.
+        """
+        import json
+
         from spacr.notebook_export import _read_settings
-        run_dir = tmp_path
-        (run_dir / "settings.json").write_text("{not valid")
-        assert _read_settings(run_dir) == {}
+        assert _read_settings(tmp_path) == {}          # no file at all
+        (tmp_path / "settings.json").write_text("{not valid")
+        with pytest.raises(json.JSONDecodeError):
+            _read_settings(tmp_path)
 
     def test_read_manifest_corrupt_json_returns_empty(self, tmp_path):
         from spacr.notebook_export import _read_manifest

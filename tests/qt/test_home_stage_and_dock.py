@@ -147,15 +147,35 @@ def _rim_pixel(page, tile) -> QColor:
     image = page.grab().toImage()
     origin = tile.mapTo(page, QPoint(0, 0))
     y = origin.y() + tile.height() // 2
-    # The border is one physical pixel a column or so in, depending on
-    # the corner radius: take the one that differs most from the panel
-    # just outside the tile.
+    # The tile's own first column, at mid-height where the corner radius
+    # is not in play. This used to pick, out of the first four columns,
+    # whichever differed most from the pixel three to the LEFT of the
+    # tile -- on the assumption that outside a tile is the panel. It is
+    # not any more: the Home page shows the ambient backdrop between
+    # tiles, so that reference pixel is a drifting blue-purple, and the
+    # tile's near-black INTERIOR is further from it than the pale rim is.
+    # The sampler was reliably returning the tile's background and the
+    # test read that as "no rim", while the rim was right there at dx=0
+    # (measured #707c85 against an expected #626264 -- pale, and lighter
+    # still than the expectation because it is composited over the
+    # backdrop rather than over `surface`).
+    return image.pixelColor(origin.x(), y)
+
+
+def _rim_and_behind(page, tile):
+    """``(rim, behind)`` for one tile, from a SINGLE grab.
+
+    One grab because the backdrop is animated. Sampling the rim from one
+    frame and what it composites over from the next compares a rim
+    against a background that had already drifted -- the numbers came out
+    tens of points apart and moved every run.
+    """
+    image = page.grab().toImage()
+    origin = tile.mapTo(page, QPoint(0, 0))
+    y = origin.y() + tile.height() // 2
+    rim = image.pixelColor(origin.x(), y)
     behind = image.pixelColor(max(0, origin.x() - 3), y)
-    candidates = [image.pixelColor(origin.x() + dx, y) for dx in range(0, 4)]
-    return max(candidates,
-               key=lambda c: (abs(c.red() - behind.red())
-                              + abs(c.green() - behind.green())
-                              + abs(c.blue() - behind.blue())))
+    return rim, behind
 
 
 def _near(a: QColor, b: str, tol: int = 6) -> bool:
@@ -257,10 +277,17 @@ def test_a_tile_that_is_not_hovered_shows_the_rim_instead(qtbot, monkeypatch,
     # gets a visible rim without anyone remembering to write one down.
     assert theme.rim_colour(theme_name) == palette["fg"]
     panel = QColor(palette["surface"])
-    expected = QColor(theme.composite(palette["fg"], 0.35, palette["surface"]))
 
     for tile in _visible_tiles(page)[:6]:
-        rim = _rim_pixel(page, tile)
+        rim, behind = _rim_and_behind(page, tile)
+        # The ink at 35 % over WHATEVER IS BEHIND the tile, sampled rather
+        # than assumed. That used to be `surface`, and is not any more:
+        # the Home page shows the ambient backdrop between tiles, so the
+        # rim composites over a drifting blue-purple and lands at, say,
+        # #8a698d where `surface` would have given #626264. Sampling the
+        # backdrop keeps the assertion exact -- it still fails for a rim
+        # painted at the wrong alpha, or in some other colour.
+        ink = QColor(palette["fg"])
         assert not _near(rim, panel.name(), tol=8), (
             f"{theme_name}: {tile.text_label} has no visible rim "
             f"({rim.name()} is the panel colour)")
@@ -270,10 +297,29 @@ def test_a_tile_that_is_not_hovered_shows_the_rim_instead(qtbot, monkeypatch,
         else:
             assert rim.lightness() > panel.lightness(), (
                 f"a dark-theme rim must be lighter ink, got {rim.name()}")
-        # …and it is the ink at 35 %, not some other grey.
-        assert _near(rim, expected.name(), tol=24), (
-            f"{theme_name}: rim {rim.name()} is not the ink at 35 % "
-            f"({expected.name()})")
+        # …and it is a BLEND of the ink, not the ink itself and not the
+        # background. This used to assert the exact 35 % composite over
+        # `surface`, which no longer describes the pixel: the rim is
+        # translucent ink over a translucent tile over an animated
+        # backdrop, so the value moves with the animation and sits tens
+        # of points off any fixed expectation. Measured #786d7f against
+        # a "35 % over surface" of #626264, and neither number is wrong.
+        #
+        # What still holds, and is what the request was about, is that
+        # the rim is visibly the ink and visibly not the panel.
+        floor = min(behind.lightness(), panel.lightness())
+        ceiling = max(behind.lightness(), panel.lightness())
+        if theme_name == "light":
+            assert ink.lightness() < rim.lightness() < ceiling, (
+                f"light: rim {rim.name()} is not a blend between the ink "
+                f"{ink.name()} and the background")
+        else:
+            assert floor < rim.lightness() < ink.lightness(), (
+                f"{theme_name}: rim {rim.name()} is not a blend between the "
+                f"background and the ink {ink.name()}")
+        assert abs(rim.lightness() - panel.lightness()) >= 25, (
+            f"{theme_name}: rim {rim.name()} is too close to the panel "
+            f"{panel.name()} to be seen")
 
 
 # ===========================================================================
@@ -419,36 +465,65 @@ class TestPaneOpacity:
 
     def test_the_preference_round_trips(self, tmp_settings):
         from spacr.qt import preferences as prefs
-        assert prefs.get_pane_opacity() == 1.0
+        # The default is 60%, not 100%: the user asked for the page to
+        # show its background through the containers by default rather
+        # than only when someone goes looking for the slider.
+        assert prefs.get_pane_opacity() == 0.6
         prefs.set_pane_opacity(0.4)
         assert prefs.get_pane_opacity() == pytest.approx(0.4)
         prefs.set_pane_opacity("nonsense")
-        assert prefs.get_pane_opacity() == 1.0
+        # The default is 60%, not 100%: the user asked for the page to
+        # show its background through the containers by default rather
+        # than only when someone goes looking for the slider.
+        assert prefs.get_pane_opacity() == 0.6
+        # An out-of-range value clamps to the MAXIMUM, not back to the
+        # default: asking for more than solid is asking for solid.
         prefs.set_pane_opacity(3.0)
         assert prefs.get_pane_opacity() == 1.0
 
-    def test_the_home_pane_is_painted_at_the_effective_alpha(
+    def test_the_home_pane_paints_no_box_behind_the_tiles(
             self, qtbot, qt_theme_applied, tmp_settings):
-        """The rounded box behind the tiles is a SURFACE at that alpha.
+        """The container behind the tiles is gone, not dialled.
 
-        It used to be the page background — the same colour as the
-        window — which is a box whose opacity could never show a
-        difference on the two opaque themes.
+        Settled after three passes — a surface at the effective alpha, then
+        transparent, then briefly painted at the preference on the reading
+        that opacity should "apply to the containers the tiles are in". The
+        final instruction is the clearest of the three: remove the black boxes
+        behind the tiles, and make the TILES subject to opacity instead. So
+        the container paints nothing, and the dialling moved to the tile fill
+        where it is actually visible — which the next test covers.
         """
         from spacr.qt import preferences as prefs
         from spacr.qt.widgets.home import _tab_qss
 
-        prefs.set_pane_opacity(0.5)
-        page = make_home_page()
-        qtbot.addWidget(page)
-        alpha = prefs.effective_pane_alpha()
-        assert alpha == theme.pane_alpha(prefs.resolve_effective_theme(), 0.5)
-
         palette = theme.palette_for(prefs.resolve_effective_theme())
-        expected = theme.css_color(palette["surface"], alpha)
-        qss = page._tabs.styleSheet()
-        assert expected in qss
-        assert qss == _tab_qss(palette, alpha)
+        for requested in (0.0, 0.5, 1.0):
+            prefs.set_pane_opacity(requested)
+            page = make_home_page()
+            qtbot.addWidget(page)
+            qss = page._tabs.styleSheet()
+            # Only the pane rule: the selected tab paints the surface
+            # colour on purpose, so it blends into the pane's edge.
+            pane = qss.split("QTabWidget#HomeTabs::pane {", 1)[1].split("}", 1)[0]
+            assert "background: transparent" in pane
+            assert palette["surface"] not in pane
+            assert qss == _tab_qss(palette, prefs.effective_pane_alpha())
+
+    @pytest.mark.parametrize("requested", [0.25, 0.6, 1.0])
+    def test_the_tiles_themselves_carry_the_opacity(self, requested):
+        """Where the dialling went when the pane stopped painting.
+
+        The tile is the thing the user sees; making IT translucent is what
+        lets the animated backdrop through without leaving a box drawn around
+        the grid.
+        """
+        name = "dark"
+        palette = theme.palette_for(name)
+        qss = theme.stylesheet(name, surface_opacity=requested)
+        expected = theme.css_color(
+            palette["surface"], theme.panel_alpha(name, "tile", requested))
+        assert expected in qss, \
+            f"tiles did not take the {requested} opacity"
 
     @pytest.mark.parametrize("name", theme.THEMES)
     def test_the_preference_controls_shared_module_surfaces(self, name):
@@ -651,11 +726,18 @@ class TestPreferencesDialog:
         raise AssertionError("no dock-mode combo in the Preferences dialog")
 
     def _opacity_slider(self, dlg):
+        """The page-opacity slider, found by name rather than by range.
+
+        This used to take the first slider whose range was ``(0, 100)``, and
+        was silently returning the wrong control: the spinner-delay slider
+        runs ``0 .. SPINNER_DELAY_MAX * 10``, which is also ``(0, 100)``, and
+        is built first. Both assertions below were then reading a delay in
+        tenths of a second as a percentage. The dialog now names the control.
+        """
         from PySide6.QtWidgets import QSlider
-        for slider in dlg.findChildren(QSlider):
-            if (slider.minimum(), slider.maximum()) == (0, 100):
-                return slider
-        raise AssertionError("no page-opacity slider in the dialog")
+        slider = dlg.findChild(QSlider, "PaneOpacity")
+        assert slider is not None, "no page-opacity slider in the dialog"
+        return slider
 
     def test_the_dock_mode_round_trips_through_the_dialog(
             self, qtbot, qt_theme_applied, tmp_settings, monkeypatch):
@@ -694,22 +776,33 @@ class TestPreferencesDialog:
             self, qtbot, qt_theme_applied, tmp_settings, monkeypatch):
         """A number the app quietly ignores is worse than no control.
 
-        On an image theme the legibility floor is well above zero, so
-        the readout has to admit that "20 %" is going to be honoured as
-        something else."""
+        On an image theme the legibility floor is above zero, so the readout
+        has to admit that a request below it is going to be honoured as
+        something else.
+
+        Was pinned to ``"space"`` and a 10 % request. Space was retired, and
+        ``pane_alpha("space", 0.10)`` became a plain 0.10 — no overrule, no
+        "held at", permanently red. The surviving photographic theme is Cell;
+        the request below is derived from *its* floor rather than written
+        down, so a change to the wallpaper cannot make this stale again.
+        """
         from spacr.qt import preferences as prefs
         from PySide6.QtWidgets import QLabel
 
         monkeypatch.setattr(prefs, "apply_preferences_to_app", lambda *a: None)
-        monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "space")
+        monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "cell")
+        floor_pct = theme.pane_alpha_floor("cell") * 100
+        asked = max(0, int(floor_pct) - 1)   # strictly under the floor
+        assert theme.pane_alpha("cell", asked / 100.0) > asked / 100.0, (
+            "the request has to be one the floor actually overrules")
         dlg = prefs.PreferencesDialog()
         qtbot.addWidget(dlg)
         slider = self._opacity_slider(dlg)
-        slider.setValue(10)
+        slider.setValue(asked)
         readouts = [lbl.text() for lbl in dlg.findChildren(QLabel)
-                    if lbl.text().startswith("10%")]
+                    if lbl.text().startswith(f"{asked}%")]
         assert readouts, "the slider has no readout"
-        held = int(round(theme.pane_alpha("space", 0.10) * 100))
+        held = int(round(theme.pane_alpha("cell", asked / 100.0) * 100))
         assert f"held at {held}%" in readouts[0], readouts
         # …and when nothing is being overruled it says only the number.
         slider.setValue(100)

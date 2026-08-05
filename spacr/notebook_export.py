@@ -55,13 +55,24 @@ def _read_manifest(run_dir: Path) -> Dict[str, Any]:
 
 
 def _read_settings(run_dir: Path) -> Dict[str, Any]:
+    """The run's recorded settings, or ``{}`` when it recorded none.
+
+    A settings.json that is *present but unparseable* raises. This call is
+    what ``export_run`` uses to "validate that the recorded settings exist and
+    parse" before writing the notebook, and while it swallowed the parse error
+    that validation was a no-op: the notebook was exported with
+    ``json.loads((RUN_DIR / 'settings.json').read_text())`` as its first code
+    cell, so the failure moved from the export — where it can be reported —
+    into the user's notebook, where it is a traceback on cell 1 of a file they
+    were told had been produced successfully.
+
+    :raises ValueError: (``json.JSONDecodeError``) when the file will not
+        parse. ``OSError`` propagates for the same reason.
+    """
     settings_path = run_dir / "settings.json"
     if not settings_path.exists():
         return {}
-    try:
-        return json.loads(settings_path.read_text())
-    except Exception:
-        return {}
+    return json.loads(settings_path.read_text())
 
 
 # ---------------------------------------------------------------------------
@@ -172,7 +183,7 @@ def export_run(run_dir: Any,
     if not run_dir.is_dir():
         raise FileNotFoundError(f"no such run folder: {run_dir}")
     manifest = _read_manifest(run_dir)
-    settings = _read_settings(run_dir)
+    _read_settings(run_dir)  # Validate that the recorded settings exist and parse.
     app_key = manifest.get("app_key", "unknown")
 
     cells: List[Dict[str, Any]] = []

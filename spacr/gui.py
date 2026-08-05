@@ -1,3 +1,5 @@
+"""Entry point and application shell for spaCR's legacy Tk interface."""
+
 import tkinter as tk
 from tkinter import ttk
 from multiprocessing import set_start_method
@@ -5,6 +7,12 @@ from .gui_elements import spacrButton, spacrCard, create_menu_bar, apply_theme
 from .gui_core import initiate_root
 from screeninfo import get_monitors
 import webbrowser
+
+#: Interactive lesson library. Defined locally rather than imported from
+#: :mod:`spacr.qt.app` on purpose: this module is the Tk GUI and must stay
+#: importable without PySide6 installed.
+TUTORIALS_URL = "https://einarolafsson.github.io/spacr/tutorials/"
+
 
 class MainApp(tk.Tk):
     """Top-level spacr GUI window hosting the app-picker and per-app frames.
@@ -186,16 +194,19 @@ class MainApp(tk.Tk):
         main_card.pack(pady=(spacing['md'], spacing['sm']),
                        padx=spacing['lg'], anchor='center')
 
-        # Logo button (opens the tutorial) sits leftmost in the core row.
+        # Logo button (opens the tutorial library) sits leftmost in the core
+        # row. The published path is `/tutorials/` — plural — because
+        # `docs/source/_extra/tutorials/` is copied to the site root by
+        # `html_extra_path`. The singular `/tutorial/` this used to open is
+        # a 404.
         logo_button = spacrButton(
             main_card.body, text="SpaCR",
-            command=lambda: webbrowser.open_new(
-                "https://einarolafsson.github.io/spacr/tutorial/"),
+            command=lambda: webbrowser.open_new(TUTORIALS_URL),
             icon_name="logo_spacr", size=90, show_text=False,
         )
         logo_button.grid(row=0, column=0, padx=spacing['sm'], pady=spacing['sm'])
         self.main_buttons[logo_button] = (
-            "Click to open the spaCR tutorial. (under construction)"
+            "Click to open the interactive spaCR tutorial library."
         )
 
         for i, (app_name, app_data) in enumerate(self.main_gui_apps.items()):

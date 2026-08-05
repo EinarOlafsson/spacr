@@ -37,6 +37,25 @@ from spacr.qt.screens.model_compare import (
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(autouse=True)
+def _isolated_run_journal(monkeypatch, tmp_path):
+    """Keep this screen's manifests out of the user's real run history.
+
+    ``_run_job`` goes through :func:`spacr.qt.bridge.make_thread`, which
+    journals by default, so every load and every comparison writes a
+    reproducibility record into ``~/.spacr/runs``. Left alone the suite
+    buries the records of actual analyses under its own debris (measured:
+    1100 of 1173 folders in the developer's history). Same isolation as
+    ``test_threading_cancellation_audit``.
+    """
+    from spacr import run_journal
+
+    root = tmp_path / "runs"
+    root.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: root)
+    return root
+
+
+@pytest.fixture(autouse=True)
 def _no_modal_dialogs(monkeypatch):
     """Blow up loudly if any code path under test opens a modal dialog.
 
@@ -177,7 +196,16 @@ def test_the_screen_is_registered_under_segmentation_models(
     assert name == "Model Compare"
     from spacr.qt.app import SECTION_MODELS, app_stage
     assert section == SECTION_MODELS
-    assert app_stage(key) == "alpha"
+    # `spacr.qt.maturity` reassessed every alpha module against the
+    # evidence in the repository and this one no longer qualifies; the
+    # reason is recorded beside the decision. Applied here because the
+    # promotions land in `register_self_registering_modules`, which every
+    # launch calls but a bare test process may not have. `apply` alone,
+    # not the whole registration pass: it touches only APP_STAGE, so it
+    # cannot re-register a module a test has deliberately removed.
+    from spacr.qt import maturity
+    maturity.apply()
+    assert app_stage(key) == "stable"
     assert description
     assert APP_TITLES[key] == "Model Compare"
     assert APP_INTROS[key]
@@ -481,7 +509,119 @@ def test_extra_settings_parse_into_typed_values():
 
 # ---------------------------------------------------------------------------
 # threading
+#
+# KNOWN INTERMITTENT FAILURE — read this before "fixing" a red run here.
 # ---------------------------------------------------------------------------
+#
+# Symptom: one of the ``_wait_for_jobs_to_retire`` calls below times out with
+# ``pytestqt.exceptions.TimeoutError``, and nothing about the screen is wrong
+# — re-running is green. Measured 2 failures in 40 runs of this file's
+# threaded subset, and 10-ish in 60 on a loaded machine. It is the same shape
+# a reviewer hit in ``tests/qt/test_db_browser.py`` (same ``active_jobs() ==
+# 0`` wait, same 10 s budget), so it is not specific to this screen.
+#
+# Two causes were measured, and they are separate:
+#
+# 1. **The first ``PipelineWorker`` in a process imports matplotlib on the
+#    worker thread.** ``spacr/qt/bridge.py`` line ~747 does ``import
+#    matplotlib`` / ``import matplotlib.pyplot`` inside ``run()``, before the
+#    job body. ``faulthandler.dump_traceback_later`` caught the worker
+#    sitting in that import; with a cold page cache the job body did not
+#    start for **10.4-11.3 s** (three measurements). The waits here allow
+#    10 000 ms, so the first threaded test in a fresh process is a coin flip
+#    against a one-off import. Under pytest ``matplotlib.pyplot`` is *not*
+#    already in ``sys.modules`` when the first threaded test runs — checked.
+#    ``_matplotlib_is_warm`` below takes that one-off out of the measured
+#    window; it is not a sleep and not a retry, it just stops these tests
+#    from timing an import they are not about. The product behaviour it
+#    reflects — the first Run of a session pays a ~10 s import on the worker
+#    thread — is real and belongs to ``spacr/qt/bridge.py``.
+#
+# 2. **``_retire_job`` is wired through a bare closure**, and at least once it
+#    provably did not run. ``ModelCompareScreen._run_job`` does
+#    ``thread.finished.connect(lambda t=thread: self._retire_job(t))``.
+#    An instrumented failure captured this end state:
+#
+#        active_jobs=1  busy=False  pending=0
+#        thread wrapper: RuntimeError "Internal C++ object already deleted"
+#        registry=0
+#        after 50 further manual processEvents/DeferredDelete pumps: still 1
+#
+#    So ``thread.finished`` *was* delivered — ``thread.deleteLater`` ran (the
+#    wrapper is gone) and ``RunHandle.retire`` ran (the registry is empty) —
+#    but the screen's closure did not, and no amount of further pumping
+#    recovered it. Both slots that survived are bound methods of long-lived
+#    QObjects. ``make_thread`` already writes the rule down in its own
+#    comment: "The slot is a bound method of a GUI-thread QObject, not a
+#    closure". Nine screens break it (``model_compare``, ``agreement``,
+#    ``foreign``, ``train_compare``, ``report``, ``batch``, ``model_zoo``,
+#    ``convert``, ``plate_view``). Fixing that is a change to
+#    ``spacr/qt/screens/*``, not to this file.
+#
+# What NOT to do: raise the timeout, add a retry, or add a sleep. The 10 s
+# budget is what makes cause 1 visible, and a retry would hide cause 2
+# entirely.
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _matplotlib_is_warm():
+    """Import matplotlib before any worker thread has to.
+
+    See cause 1 in the block above: ``PipelineWorker.run`` imports it
+    lazily, on the worker, inside the window these tests are timing.
+    Doing it here means the tests measure the screen instead of a cold
+    ``import matplotlib.pyplot`` — which was measured at 10.4-11.3 s
+    against a 10 000 ms budget.
+    """
+    import matplotlib
+    matplotlib.use("Agg", force=False)
+    import matplotlib.pyplot  # noqa: F401
+
+
+def _job_state(widget) -> str:
+    """Everything worth knowing when a job refuses to retire."""
+    from spacr.qt.bridge import registry
+
+    lines = [f"active_jobs()={widget.active_jobs()} "
+             f"is_busy()={widget.is_busy()} "
+             f"pending={len(widget._pending)} "
+             f"registry={len(registry().active())}"]
+    for thread, _worker in list(widget._jobs):
+        try:
+            state = (f"isRunning={thread.isRunning()} "
+                     f"isFinished={thread.isFinished()}")
+        except RuntimeError as exc:
+            state = f"wrapper already reaped ({exc})"
+        lines.append("  thread: " + state)
+    return "\n".join(lines)
+
+
+def _wait_for_jobs_to_retire(qtbot, widget, timeout: int = 10000) -> None:
+    """Wait for ``active_jobs()`` to reach 0, reporting *why* it did not.
+
+    Same condition and same budget as the bare ``qtbot.waitUntil`` this
+    replaces — the only difference is that a failure prints the state
+    described in the block above instead of a bare ``TimeoutError``, so
+    the next person does not have to re-derive it.
+    """
+    try:
+        qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=timeout)
+    except Exception as exc:
+        raise AssertionError(
+            f"{type(exc).__name__}: a comparison thread never retired.\n"
+            f"{_job_state(widget)}\n"
+            "See the KNOWN INTERMITTENT FAILURE block above this test "
+            "section before treating this as a new defect.") from None
+
+
+def _load_threaded(qtbot, widget, fields):
+    """Wait for the production asynchronous field loader."""
+    with qtbot.waitSignal(widget.job_finished, timeout=10000) as caught:
+        assert widget.set_source(fields)
+        assert widget.is_busy()
+    assert caught.args == [True]
+    _wait_for_jobs_to_retire(qtbot, widget)
+
 
 def test_the_threaded_path_produces_the_same_report(qtbot, qt_theme_applied,
                                                     fields):
@@ -491,7 +631,7 @@ def test_the_threaded_path_produces_the_same_report(qtbot, qt_theme_applied,
     widget.set_segment_fn(FakeSegmenter({"A": mask_two_objects(),
                                          "B": mask_split_second()}))
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
 
     with qtbot.waitSignal(widget.job_finished, timeout=10000) as caught:
         assert widget.compare() is True
@@ -503,7 +643,7 @@ def test_the_threaded_path_produces_the_same_report(qtbot, qt_theme_applied,
     assert widget._btn_compare.isEnabled()
     assert len(widget.metric_rows()) == 3
     assert widget.report().total_splits == 3
-    qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=10000)
+    _wait_for_jobs_to_retire(qtbot, widget)
     widget.close()
 
 
@@ -516,7 +656,7 @@ def test_a_worker_traceback_becomes_one_inline_line(qtbot, qt_theme_applied,
 
     widget.set_segment_fn(explode)
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
 
     with qtbot.waitSignal(widget.job_finished, timeout=10000) as caught:
         widget.compare()
@@ -525,7 +665,7 @@ def test_a_worker_traceback_becomes_one_inline_line(qtbot, qt_theme_applied,
     assert "not a Cellpose model" in widget.status_text()
     assert widget.status_text().count("\n") == 0
     assert widget.report() is None
-    qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=10000)
+    _wait_for_jobs_to_retire(qtbot, widget)
     widget.close()
 
 
@@ -544,12 +684,12 @@ def test_closing_mid_run_waits_for_the_worker_instead_of_taking_the_process_down
 
     widget.set_segment_fn(slow)
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
     widget.compare()
     assert widget.is_busy()
 
     widget.close()                       # while the worker is still going
-    qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=10000)
+    _wait_for_jobs_to_retire(qtbot, widget)
 
 
 def test_closing_survives_a_thread_whose_c_plus_plus_side_is_already_gone(
@@ -558,13 +698,38 @@ def test_closing_survives_a_thread_whose_c_plus_plus_side_is_already_gone(
     widget closes the Python wrapper can be pointing at nothing. Touching it
     raises RuntimeError, and that must not stop the window from closing."""
     class DeadThread:
+        def __init__(self):
+            self.raised = 0
+
         def isRunning(self):
+            self.raised += 1
             raise RuntimeError("Internal C++ object already deleted.")
+
+    class LiveThread:
+        """A wrapper whose C++ side is still there, and is not running."""
+
+        def __init__(self):
+            self.asked = 0
+
+        def isRunning(self):
+            self.asked += 1
+            return False
 
     widget = ModelCompareScreen(threaded=True)
     qtbot.addWidget(widget)
-    widget._jobs.append((DeadThread(), None))
-    widget.close()
+    widget.show()
+    assert widget.isVisible()
+
+    dead, live = DeadThread(), LiveThread()
+    widget._jobs.extend([(dead, None), (live, None)])
+
+    assert widget.close() is True         # accepted, not vetoed
+    assert not widget.isVisible()
+    # The RuntimeError path was really taken, and the corpse did not stop
+    # the sweep. Without these the test stays green for a `closeEvent`
+    # that never looked at `_jobs` at all — which is the whole subject.
+    assert dead.raised == 1
+    assert live.asked == 1
 
 
 def test_a_second_comparison_is_refused_while_one_is_running(qtbot,
@@ -574,11 +739,11 @@ def test_a_second_comparison_is_refused_while_one_is_running(qtbot,
     widget.set_segment_fn(FakeSegmenter({"A": mask_two_objects(),
                                          "B": mask_split_second()}))
     qtbot.addWidget(widget)
-    assert widget.set_source(fields)
+    _load_threaded(qtbot, widget, fields)
 
     with qtbot.waitSignal(widget.job_finished, timeout=10000):
         widget.compare()
         assert widget.compare() is False
         assert "already running" in widget.status_text()
-    qtbot.waitUntil(lambda: widget.active_jobs() == 0, timeout=10000)
+    _wait_for_jobs_to_retire(qtbot, widget)
     widget.close()

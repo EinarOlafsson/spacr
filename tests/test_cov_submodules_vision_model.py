@@ -756,3 +756,136 @@ def test_modern_columnid_schema_from_read_and_merge_data(tmp_path, monkeypatch):
                                              top_features=2))
 
     assert len(out["feature_importance"]) == 4
+
+
+def test_a_score_listed_twice_for_one_object_is_caught_not_absorbed(
+    tmp_path, monkeypatch
+):
+    """The scores join is one_to_one; a repeated score row is the right half.
+
+    A scores CSV concatenated from two runs lists an object twice. The join
+    then duplicates that object's measurement row, so it is fitted twice and
+    weighted double in every importance below — with no row count, no
+    warning and no visible difference in the tables that come back. The
+    declared cardinality turns it into a MergeCardinalityError that names the
+    scores file, the key and the offending value instead.
+    """
+    from spacr.io import MergeCardinalityError
+
+    from spacr.submodules import interperate_vision_model
+
+    df, g, labels = _minimal_frame(20, seed=17)
+    _install_fake_merge(monkeypatch, df)
+    src = tmp_path / "plateQ"
+    src.mkdir()
+
+    scores_path = tmp_path / "scores_q.csv"
+    _write_scores(scores_path, g, labels)
+    scores = pd.read_csv(scores_path)
+    doubled = pd.concat([scores, scores.iloc[[0]]], ignore_index=True)
+    doubled.to_csv(scores_path, index=False)
+
+    # What the join used to do with it: one measurement row silently cloned.
+    # Same five keys, and the same 'oN' -> 'N' object fixup, as the function.
+    keys = ["plateID", "rowID", "columnID", "fieldID", "object_label"]
+    left = df.rename(columns={"column_name": "columnID"}).copy()
+    left["object_label"] = left["object_label"].str.replace("o", "")
+    right = doubled.rename(columns={"column_name": "columnID"}).copy()
+    right["object_label"] = right["object"].astype(str)
+    grown = left.merge(right[keys + ["score"]], on=keys, how="inner")
+    assert len(grown) == len(left) + 1
+
+    with pytest.raises(MergeCardinalityError) as excinfo:
+        interperate_vision_model(_settings(src, scores_path, tables=["cell"],
+                                           top_features=2))
+
+    # The message has to say WHICH file and WHICH key, or the user is back to
+    # pandas' "Merge keys are not unique in right dataset".
+    message = str(excinfo.value)
+    assert str(scores_path) in message
+    assert "object_label" in message
+    # ...and it has to name the duplicated identity itself, not just the key.
+    assert repr(g[0][3]) in message      # the fieldID of the doubled row
+
+
+def test_a_measurement_row_listed_twice_is_caught_too(tmp_path, monkeypatch):
+    """The LEFT half of one_to_one, which many_to_one let through in silence.
+
+    A measurements frame that repeats an identity is what a timelapse database
+    looks like through this key: ``prcfo`` carries the timepoint and this join
+    does not, so every frame of an object is a separate row with the same
+    ``(plate, row, column, field, object)``. Under ``many_to_one`` that joined
+    cleanly and gave each frame the same score — one object entering the forest
+    once per frame, weighted by how long it was imaged. The row count does not
+    give it away either, because the join is inner.
+    """
+    from spacr.io import MergeCardinalityError
+
+    from spacr.submodules import interperate_vision_model
+
+    df, g, labels = _minimal_frame(20, seed=18)
+    # Two frames of the same field/object: identical identity, different pixels.
+    df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
+    _install_fake_merge(monkeypatch, df)
+    src = tmp_path / "plateR"
+    src.mkdir()
+
+    scores_path = _write_scores(tmp_path / "scores_r.csv", g, labels)
+
+    # Under the old contract this merged happily and cloned nothing visible:
+    # 21 measurement rows in, 21 rows out, one object counted twice.
+    keys = ["plateID", "rowID", "columnID", "fieldID", "object_label"]
+    left = df.rename(columns={"column_name": "columnID"}).copy()
+    left["object_label"] = left["object_label"].str.replace("o", "")
+    right = pd.read_csv(scores_path).rename(columns={"column_name": "columnID"})
+    right["object_label"] = right["object"].astype(str)
+    right[keys] = right[keys].astype(str)
+    left[keys] = left[keys].astype(str)
+    absorbed = left.merge(right[keys + ["score"]], on=keys, how="inner",
+                          validate="many_to_one")
+    assert len(absorbed) == len(df)
+
+    with pytest.raises(MergeCardinalityError) as excinfo:
+        interperate_vision_model(_settings(src, scores_path, tables=["cell"],
+                                           top_features=2))
+    assert "the merged measurements" in str(excinfo.value)
+    # Nothing in this frame says "timelapse", so nothing may claim it is one.
+    assert "TIMELAPSE" not in str(excinfo.value)
+
+
+def test_a_timelapse_database_says_so_instead_of_naming_only_the_key(
+    tmp_path, monkeypatch
+):
+    """The one cause that is a property of the database, not of a bad file.
+
+    On a timelapse ``_read_and_merge_data`` returns one row per object PER
+    FRAME (``prcfo`` carries the timepoint) and the scores CSV holds one crop
+    per frame too, so BOTH sides repeat under this timepoint-less key. The
+    retracted comment claimed the opposite — that a timelapse was the reason
+    the left side could not be asserted unique — and left the user with
+    pandas' "Merge keys are not unique", which names neither the timepoint nor
+    the newer explainer that does handle it.
+    """
+    from spacr.io import MergeCardinalityError
+
+    from spacr.submodules import interperate_vision_model
+
+    df, g, labels = _minimal_frame(20, seed=19)
+    # Two frames of the same object, spelled the way the DB spells them.
+    df["timeID"] = 1
+    second = df.iloc[[0]].copy()
+    second["timeID"] = 2
+    df = pd.concat([df, second], ignore_index=True)
+    _install_fake_merge(monkeypatch, df)
+    src = tmp_path / "plateS"
+    src.mkdir()
+
+    scores_path = _write_scores(tmp_path / "scores_s.csv", g, labels)
+
+    with pytest.raises(MergeCardinalityError) as excinfo:
+        interperate_vision_model(_settings(src, scores_path, tables=["cell"],
+                                           top_features=2))
+    message = str(excinfo.value)
+    assert "TIMELAPSE" in message
+    assert "timeID" in message
+    assert "spacr.ml.interperate_vision_model" in message

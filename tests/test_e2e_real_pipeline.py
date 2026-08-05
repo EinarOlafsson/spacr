@@ -248,19 +248,71 @@ def test_stage6_core_umap_and_graphs(pipeline):
         mix_metadata=False, analyze_clusters=False, cell_min_size=0,
         nucleus_min_size=0, pathogen_min_size=0, cytoplasm_min_size=0,
         min_cell_count=0, nuclei_limit=True, pathogen_limit=True)
-    generate_image_umap(umap_s)
+    results_dir = os.path.join(plate, "results")
+    embedding_csv = os.path.join(results_dir, "embedding_results.csv")
+
+    def _check_embedding(df, label):
+        """Every generate_image_umap branch must hand back the embedded frame
+        with its cluster labels, and mirror it to results/."""
+        assert isinstance(df, pd.DataFrame), f"{label}: got {type(df)}"
+        assert not df.empty, f"{label}: empty embedding frame"
+        assert len(df) <= umap_s["row_limit"], (
+            f"{label}: {len(df)} rows exceeds row_limit "
+            f"{umap_s['row_limit']}")
+        assert "cluster" in df.columns, f"{label}: no cluster labels"
+        labels = pd.to_numeric(df["cluster"], errors="coerce")
+        assert labels.notna().all(), f"{label}: non-numeric cluster labels"
+        # DBSCAN uses -1 for noise; nothing below that is a valid label.
+        assert (labels >= -1).all(), f"{label}: cluster label below -1"
+        # The internal-only join columns must not leak into the export.
+        assert "_spacr_umap_db_path" not in df.columns
+        assert "_spacr_umap_db_png_path" not in df.columns
+        # ...and the CSV this call just wrote matches what it returned.
+        assert os.path.isfile(embedding_csv), f"{label}: no {embedding_csv}"
+        assert len(pd.read_csv(embedding_csv)) == len(df), (
+            f"{label}: embedding_results.csv row count != returned frame")
+        return labels
+
+    dbscan_labels = _check_embedding(generate_image_umap(umap_s), "umap+dbscan")
+
     # branch variations: tSNE + KMeans, control-trained embedding, image
     # grids, cluster analysis, condition exclusion
-    generate_image_umap({**umap_s, "reduction_method": "tsne",
-                         "clustering": "kmeans"})
-    generate_image_umap({**umap_s, "embedding_by_controls": True})
-    generate_image_umap({**umap_s, "plot_images": True,
-                         "plot_by_cluster": True})
-    generate_image_umap({**umap_s, "analyze_clusters": True})
-    reducer_hyperparameter_search(
+    kmeans_labels = _check_embedding(
+        generate_image_umap({**umap_s, "reduction_method": "tsne",
+                             "clustering": "kmeans"}), "tsne+kmeans")
+    # Contrast between the two clusterers: KMeans assigns every point to a
+    # numbered cluster, so unlike DBSCAN it can never emit the -1 noise
+    # label. Proves the label column is the clusterer's output and not a
+    # constant column that would satisfy the checks above either way.
+    assert (kmeans_labels >= 0).all(), "KMeans emitted a noise (-1) label"
+    assert dbscan_labels.nunique() > 0
+
+    _check_embedding(
+        generate_image_umap({**umap_s, "embedding_by_controls": True}),
+        "embedding_by_controls")
+    _check_embedding(
+        generate_image_umap({**umap_s, "plot_images": True,
+                             "plot_by_cluster": True}), "plot_images")
+
+    cluster_csv = os.path.join(results_dir, "cluster_results.csv")
+    assert not os.path.exists(cluster_csv), (
+        "cluster_results.csv written before analyze_clusters was requested")
+    _check_embedding(
+        generate_image_umap({**umap_s, "analyze_clusters": True}),
+        "analyze_clusters")
+    # analyze_clusters=True is the ONLY branch that produces this file.
+    assert os.path.isfile(cluster_csv), "analyze_clusters wrote no results"
+    assert not pd.read_csv(cluster_csv).empty
+
+    fig = reducer_hyperparameter_search(
         umap_s, reduction_params=[{'n_neighbors': 15}],
         dbscan_params=[{'eps': 0.5, 'min_samples': 5}],
-        kmeans_params=[{'n_clusters': 3}], save=False, show=False)
+        kmeans_params=[{'n_clusters': 3}], save=False, show=False,
+        return_fig=True)
+    # One panel per (reduction x clustering) pair: 1 reduction, dbscan+kmeans.
+    assert fig is not None
+    assert len(fig.axes) == 1 * 2, f"expected a 1x2 panel grid, got {len(fig.axes)}"
+    assert all(ax.collections for ax in fig.axes), "a search panel plotted nothing"
 
     graph_s = dict(
         src=plate, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'],
@@ -270,6 +322,19 @@ def test_stage6_core_umap_and_graphs(pipeline):
         representation='well', nuclei_limit=True, pathogen_limit=True,
         channel_of_interest=3, verbose=False, graph_name='screen')
     generate_screen_graphs(graph_s)
+
+    # One src -> two outputs: the per-source graph (0) and the combined (1),
+    # each a PDF plus the results table behind it.
+    suffix = (f"_{graph_s['representation']}_{graph_s['summary_func']}"
+              f"_{graph_s['graph_type']}")
+    for i in (0, 1):
+        pdf = os.path.join(results_dir, f"figure_controls_{i}{suffix}.pdf")
+        csv = os.path.join(results_dir, f"results_controls_{i}{suffix}.csv")
+        assert os.path.isfile(pdf), f"missing {pdf}"
+        assert os.path.getsize(pdf) > 0
+        assert os.path.isfile(csv), f"missing {csv}"
+        res = pd.read_csv(csv)
+        assert not res.empty, f"{csv} has no rows"
 
 
 @_skip

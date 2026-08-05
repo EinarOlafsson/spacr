@@ -262,12 +262,30 @@ def test_utils_calculate_shortest_distance_zero_for_same_point():
 
 def test_utils_check_index_short_prefix_ok():
     """check_index scans the DataFrame index for the expected number of
-    `_`-separated components."""
+    `_`-separated components.
+
+    "Did not raise" is not the behaviour worth pinning: a validator whose body
+    is ``return`` satisfies that for every input. The claim is that it counts
+    -- the same frame is refused at 5 parts and at 3, and the message says how
+    many labels were wrong.
+    """
     from spacr.utils import check_index
     df = pd.DataFrame({"x": [1, 2, 3]},
                       index=["p1_A01_1_o1", "p1_A01_2_o2", "p1_A02_1_o3"])
-    # 4 parts expected — should not raise.
-    check_index(df, elements=4, split_char="_")
+    assert check_index(df, elements=4, split_char="_") is None
+
+    for wrong in (3, 5):
+        with pytest.raises(ValueError) as excinfo:
+            check_index(df, elements=wrong, split_char="_")
+        # All three labels are wrong, and it says so.
+        assert "3 problematic indices" in str(excinfo.value)
+        assert f"{wrong} parts" in str(excinfo.value)
+
+    # The delimiter is honoured too: nothing splits on '.', so every label is
+    # one part and 4 is refused while 1 is accepted.
+    with pytest.raises(ValueError):
+        check_index(df, elements=4, split_char=".")
+    assert check_index(df, elements=1, split_char=".") is None
 
 
 # ===========================================================================

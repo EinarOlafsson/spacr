@@ -59,9 +59,9 @@ import json
 import logging
 import re
 import shutil
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -442,10 +442,18 @@ def _record_cellpose_hash(model, model_name: str) -> None:
                 return
             for ckpt in ckpt_paths:
                 run.record_model(model_name, ckpt)
-        except Exception:
-            pass
-    except Exception:
-        pass
+        except Exception as exc:
+            # Provenance, not results — a journal that will not take the
+            # record must not stop the segmentation. But an unrecorded model
+            # is a run whose manifest cannot say which weights produced the
+            # masks, and that is exactly the question asked six months later.
+            LOG.warning("model %r was not recorded in the run journal (%s); "
+                        "this run's manifest will not name the weights it "
+                        "used.", model_name, exc)
+    except Exception as exc:
+        LOG.warning("could not work out which checkpoint %r is using (%s); "
+                    "no model provenance was recorded for this run.",
+                    model_name, exc)
 
 
 def _read_plane(path: str) -> np.ndarray:
@@ -696,8 +704,15 @@ def stream_masks_from_stack(
             meta = json.loads(sidecar.read_text())
             meta["mask_channels"] = [mask_channel_name]
             sidecar.write_text(json.dumps(meta, indent=2))
-        except Exception:
-            pass
+        except Exception as exc:
+            # The masks are written either way, so this does not fail the
+            # stage — but channel_order.json is what every later reader uses
+            # to know which plane is a mask, and a sidecar that silently did
+            # not get the entry makes the stack self-describing and wrong.
+            LOG.warning("channel_order.json at %s was not updated with "
+                        "mask_channels=%r (%s); readers of this stack will "
+                        "not know which plane holds the mask.",
+                        sidecar, mask_channel_name, exc)
 
     return stacks
 

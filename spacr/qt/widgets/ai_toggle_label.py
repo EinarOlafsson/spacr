@@ -21,10 +21,11 @@ for the "AI" switch that sits at the bottom-right of every AppScreen.
 """
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import QLabel
 
-from ..theme import FONT_SIZE, active_palette
+from ..i18n import tr
+from ..theme import active_palette, font_px
 
 
 class AiToggleLabel(QLabel):
@@ -45,16 +46,43 @@ class AiToggleLabel(QLabel):
 
     def __init__(self, parent=None, text: str = "AI",
                      tooltip: str | None = None):
-        super().__init__(text, parent)
-        self.setObjectName("AiToggleLabel")
-        self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip(tooltip if tooltip is not None else (
+        source_text = str(text)
+        source_tooltip = tooltip if tooltip is not None else (
             "Click to toggle AI. When ON (blue), pressing Enter in "
             "the console routes your message through your chat "
             "subscription via the selected provider."
-        ))
+        )
+        super().__init__(tr(source_text), parent)
+        # Retain canonical English sources so a runtime language switch never
+        # translates a translation and never loses the toggle's current state.
+        self.setProperty("_spacr_i18n_text", source_text)
+        self.setObjectName("AiToggleLabel")
+        self.setCursor(Qt.PointingHandCursor)
+        self.setProperty("_spacr_i18n_tooltip", source_tooltip)
+        self.setToolTip(tr(source_tooltip))
         self._on = False
+        self._restyling = False
         self._refresh_style()
+
+    # -- live preference changes ---------------------------------------
+    def changeEvent(self, event):
+        """Re-style when the application sheet or palette is replaced.
+
+        Saving Preferences calls ``app.setStyleSheet(...)``, which sends
+        every widget a ``StyleChange``. Widgets styled by the application
+        sheet pick the new Zoom up for free; this one is not, so without
+        this hook "Live" and "AI" would keep the size and the colour they
+        were built with until the app was restarted.
+        """
+        try:
+            kind = event.type()
+        except Exception:              # pragma: no cover - defensive
+            kind = None
+        super().changeEvent(event)
+        if kind in (QEvent.StyleChange, QEvent.PaletteChange,
+                    QEvent.ApplicationPaletteChange,
+                    QEvent.ApplicationFontChange):
+            self._refresh_style()
 
     # -- QCheckBox-compat API -----------------------------------------
     def isChecked(self) -> bool:
@@ -92,12 +120,30 @@ class AiToggleLabel(QLabel):
         palette = active_palette()
         on_color = palette["button_accent"]
         color = on_color if self._on else palette["fg"]
-        self.setStyleSheet(
+        # Zoom reaches this through `font_px`, not through the application
+        # sheet: a per-widget `setStyleSheet` outranks it, so the literal
+        # `FONT_SIZE['body']` that used to be here pinned "Live" and "AI"
+        # at 13 px whatever the preference said. Padding scales with it or
+        # the hit target stops matching the glyphs.
+        size = font_px("body")
+        sheet = (
             f"QLabel#AiToggleLabel {{"
             f"  color: {color};"
-            f"  font-size: {FONT_SIZE['body']}px;"
+            f"  font-size: {size}px;"
             f"  font-weight: 600;"
-            f"  padding: 4px 10px;"
+            f"  padding: {max(2, round(size * 4 / 13))}px"
+            f" {max(4, round(size * 10 / 13))}px;"
             f"  background: transparent;"
             f"}}"
         )
+        # `setStyleSheet` itself posts a StyleChange back to this widget, so
+        # `changeEvent` would call straight back in. Both guards matter: the
+        # flag stops the immediate recursion, the comparison stops a
+        # StyleChange storm when nothing about the answer has changed.
+        if self._restyling or sheet == self.styleSheet():
+            return
+        self._restyling = True
+        try:
+            self.setStyleSheet(sheet)
+        finally:
+            self._restyling = False

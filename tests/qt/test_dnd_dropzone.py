@@ -28,7 +28,7 @@ from spacr.qt import dnd as dnd_mod
 from spacr.qt.dnd import (
     DropHandler, has_images_in, find_image_folders_nearby, install_dropzone,
     sample_image_names, suggest_alternatives_dialog, _apply_settings_csv,
-    _mime_has_local_paths, _mime_local_paths,
+    _mime_has_local_paths, _mime_local_paths, _report_drop_problem,
 )
 
 
@@ -219,6 +219,42 @@ def test_drophandler_defaults(tmp_path):
     assert h.accepts_multiple() is False
 
 
+def test_rejected_drop_logs_reason_suggestion_and_routes_to_ai(
+        qtbot, monkeypatch, tmp_path):
+    class AIConsole:
+        _ai_active = True
+
+        def __init__(self):
+            self.errors = []
+            self.ai = []
+
+        def append_error(self, text):
+            self.errors.append(text)
+
+        def _current_provider(self):
+            return object()
+
+        def open_error_flow(self, text, **kwargs):
+            self.ai.append((text, kwargs))
+
+    screen = QWidget()
+    qtbot.addWidget(screen)
+    screen.app_key = "convert"
+    screen._console = AIConsole()
+    monkeypatch.setattr(
+        "spacr.qt.ai.settings.get_route_errors_through_ai", lambda: True)
+
+    message = _report_drop_problem(
+        screen, tmp_path / "bad.txt", "not a microscopy image",
+        "drop an ND2, CZI, LIF, TIFF or image folder")
+
+    assert "Reason: not a microscopy image" in message
+    assert "Suggestion: drop an ND2" in message
+    assert screen._console.errors == [message]
+    assert screen._console.ai[0][0] == message
+    assert screen._console.ai[0][1]["active_app"] == "convert"
+
+
 # ---------------------------------------------------------------------------
 # Mime helpers
 # ---------------------------------------------------------------------------
@@ -322,6 +358,40 @@ def test_accepted_folder_drop_calls_apply_and_accepts_event(zone, tmp_path,
     assert msgbox.calls == []
 
 
+def test_a_real_handler_still_applies_inside_the_drop_event(
+        zone, tmp_path, qtbot, msgbox):
+    """``apply`` became a dispatcher, not an asynchronous call.
+
+    The work a mask drop does moved onto a worker thread, but ``_on_drop``
+    still calls ``apply`` — and ``apply`` still finishes — inside the drop
+    event. Everything downstream depends on that: the source field is set
+    before the user's next click, the event is accepted for the right
+    reason, and a handler that raises is still reported by ``_on_drop``.
+    """
+    from spacr.qt import dnd_handlers as dh
+
+    folder = tmp_path / "plate01"
+    # A name the cellvoyager pattern matches, so the report finishes without
+    # opening the (modal) regex editor.
+    _mkimg(folder / "plate1_A01_T0001F001L01A01Z01C01.tif")
+    w = zone(dh.MaskDropHandler())
+
+    ev = _drop(w, [folder])
+
+    assert ev.isAccepted() is True
+    # Synchronously, before the event loop has turned once:
+    assert f"[drop] mask src = {folder}" in w._console.text
+    # ...and the reading of the folder is still outstanding at that point.
+    assert "regex" not in w._console.text
+    try:
+        qtbot.waitUntil(lambda: "[drop] regex (cellvoyager)" in w._console.text,
+                        timeout=20000)
+    finally:
+        scanner = getattr(w, "_dnd_scanner", None)
+        if scanner is not None:
+            scanner.shutdown()
+
+
 def test_drop_passes_the_screen_not_the_target(zone, tmp_path, qtbot):
     """install_dropzone can point at a different owner than the widget."""
     seen = {}
@@ -375,7 +445,11 @@ def test_dropped_path_that_does_not_exist_is_reported(zone, tmp_path, msgbox):
     _drop(w, [missing])
     assert h.applied == []
     assert msgbox.calls == [("information", "Nothing to drop into",
-                             "cannot use gone")]
+                             "cannot use gone\n\nSuggestion: Open this "
+                             "module's source setting and choose a file or "
+                             "folder matching the required layout.")]
+    assert "Reason: cannot use gone" in w._console.text
+    assert "Suggestion:" in w._console.text
 
 
 def test_rejected_drop_without_alternatives_shows_error_message(zone, tmp_path,
@@ -386,7 +460,10 @@ def test_rejected_drop_without_alternatives_shows_error_message(zone, tmp_path,
     w = zone(h)
     _drop(w, [folder])
     assert msgbox.calls == [("information", "Nothing to drop into",
-                             "cannot use empty_plate")]
+                             "cannot use empty_plate\n\nSuggestion: Open this "
+                             "module's source setting and choose a file or "
+                             "folder matching the required layout.")]
+    assert "Reason: cannot use empty_plate" in w._console.text
 
 
 def test_handler_apply_exception_becomes_a_warning(zone, tmp_path, msgbox):
@@ -395,7 +472,10 @@ def test_handler_apply_exception_becomes_a_warning(zone, tmp_path, msgbox):
     h = RecordingHandler(accept=True, raise_on_apply=True)
     w = zone(h)
     _drop(w, [folder])
-    assert msgbox.calls == [("warning", "Drop failed", "boom: disk on fire")]
+    assert msgbox.calls == []
+    assert "Reason: The drop handler failed: boom: disk on fire" in \
+        w._console.text
+    assert "Check that the path is readable" in w._console.text
 
 
 def test_rejected_drop_with_alternatives_applies_the_users_pick(
@@ -440,7 +520,9 @@ def test_alternative_pick_that_fails_to_apply_warns(zone, tmp_path, msgbox):
     w = zone(h)
     with _auto_modal("accept"):
         _drop(w, [wrong])
-    assert msgbox.calls == [("warning", "Drop failed", "boom: disk on fire")]
+    assert msgbox.calls == []
+    assert "Reason: The drop handler failed: boom: disk on fire" in \
+        w._console.text
 
 
 # ---------------------------------------------------------------------------
@@ -489,6 +571,17 @@ def test_a_directory_named_dot_csv_goes_to_the_handler(zone, tmp_path, msgbox):
     _drop(w, [fake])
     assert h.applied == [fake]
     assert w.applied == []
+
+
+def test_csv_reaches_special_screen_handler_when_no_settings_importer(
+        zone, tmp_path, msgbox):
+    """Queue/Batch/Import Project assign their own meaning to CSV drops."""
+    csv = _write_settings_csv(tmp_path / "plates.csv", [("src", "/plate")])
+    h = RecordingHandler(accept=True)
+    owner = QWidget()
+    w = zone(h, screen=owner)
+    _drop(w, [csv])
+    assert h.applied == [csv]
 
 
 # ---------------------------------------------------------------------------
@@ -699,3 +792,43 @@ def test_sample_image_names_returns_all_when_fewer_than_n(tmp_path):
 def test_sample_image_names_empty_for_a_file(tmp_path):
     f = _mkimg(tmp_path / "a.tif")
     assert sample_image_names(f) == []
+
+
+def test_a_filter_outliving_its_target_declines_instead_of_raising(qtbot):
+    """A dropzone filter whose target is gone must decline, not raise.
+
+    Qt keeps delivering events to an installed filter after the target's C++
+    half has been destroyed, and PySide6 clears the Python wrapper's ``__dict__``
+    when that happens.  ``eventFilter`` therefore used to reach for a
+    ``self._target`` that no longer existed and raise **inside the Qt event
+    loop**, where no Python caller can catch it -- Qt printed
+
+        Error calling Python override of QObject::eventFilter():
+        AttributeError: '_DropzoneFilter' object has no attribute '_target'
+
+    once per delivered event.  Observed in a real run: four in a row from a
+    single drag.
+
+    Deleting the attribute is a faithful stand-in for the wrapper teardown --
+    it is the state ``eventFilter`` actually observed -- and is the only way to
+    reach it deterministically without racing Qt's destructor.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.dnd import _DropzoneFilter
+
+    target = QWidget()
+    qtbot.addWidget(target)
+    filt = _DropzoneFilter(target)
+
+    # Sanity: while the target is alive the filter still answers normally, so
+    # a pass below cannot come from the filter having been inert all along.
+    assert filt.eventFilter(QWidget(), QEvent(QEvent.Type.DragEnter)) is False
+
+    del filt._target
+
+    # The assertion is "returns False", not "does not raise": declining is the
+    # correct answer for a filter with nothing left to filter.
+    assert filt.eventFilter(target, QEvent(QEvent.Type.DragEnter)) is False
+    assert filt.eventFilter(target, QEvent(QEvent.Type.Drop)) is False

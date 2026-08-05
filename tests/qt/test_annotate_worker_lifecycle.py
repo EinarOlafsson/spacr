@@ -9,6 +9,9 @@ import time
 import numpy as np
 from PIL import Image
 
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
+from tests.conftest import check_cellpose_eval_call
+
 
 def _request(screen, generation, rows):
     return (
@@ -145,7 +148,27 @@ def test_cellpose_outline_model_is_never_evaluated_concurrently(monkeypatch):
     max_active = 0
 
     class FakeModel:
-        def eval(self, image, **_kwargs):
+        """A ``CellposeModel`` stand-in declaring the installed eval signature.
+
+        The lock is what this test is about, but the signature matters even
+        here: ``annotate_engine._cellpose_foreground`` is a real call site, and
+        a ``**kwargs`` double would stay green if it began passing an argument
+        Cellpose 4 removed.
+        """
+
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, invert=False, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=256,
+                 compute_masks=True, progress=None):
+            # This call site hands Cellpose a plain 2-D plane and lets it
+            # auto-detect, so an axis is not required -- but whatever arrives
+            # must be one convert_image accepts.
+            check_cellpose_eval_call(x, channel_axis,
+                                     require_channel_axis=False)
             nonlocal active, max_active
             with lock:
                 active += 1
@@ -153,7 +176,11 @@ def test_cellpose_outline_model_is_never_evaluated_concurrently(monkeypatch):
             time.sleep(0.05)
             with lock:
                 active -= 1
-            return (np.ones_like(image, dtype=np.uint8),)
+            # Three values: cellpose 4's eval returns (masks, flows, styles).
+            # This used to return a 1-tuple, which no cellpose ever has.
+            mask = np.ones_like(x, dtype=np.uint8)
+            flows = [np.zeros(mask.shape + (3,), np.uint8), None, None]
+            return mask, flows, None
 
     monkeypatch.setattr(engine, "_cellpose_outline_model", FakeModel())
     errors = []

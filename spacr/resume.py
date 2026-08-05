@@ -45,6 +45,67 @@ delete from are now an explicit allow-list,
 :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered
 and again per table immediately before the DELETE is prepared.
 
+**Owned by name is not owned in fact, so ownership is decided per row.**
+A name allow-list answers "could measure have written this table?", and
+there is one case where the honest answer to "did it?" is no:
+``foreign.run_import`` copies the imported rows into the canonical
+``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone
+else's is there, so that a purely-imported project is readable by every
+spaCR tool. Those rows sit under spaCR's own metadata columns in a table
+on the allow-list, and a resume used to clear them along with the
+pending field.
+
+The signal that tells them apart was already in the database and is what
+is read now: ``foreign_columns``, written by every release of the
+importer, names each column that importer put in each table. Its
+table-scoped use — ``foreign._importer_owns``, "are this table's columns
+a subset of what the importer recorded?" — has a row-scoped twin, and
+that is the rule here: **a row is the importer's when every column it is
+non-NULL in is one the importer recorded for this table**. A
+``measure_crop`` row always carries at least its own area and intensity
+columns, which the importer never wrote; an imported row carries only
+metadata and ``foreign_``-prefixed measurements. So a table can be half
+one and half the other and each row is still attributable — which
+matters, because a project that was imported and then measured is
+exactly that. See :func:`measure_rows_clause`.
+
+Row-scoping is what makes the earlier, backed-out attempt's failures
+impossible rather than merely unlikely. That attempt read
+``foreign_import.canonical_table_written`` and refused any delete from a
+table the record claimed: table-scoped, so a field the import never
+covered could not be cleared either and the project could never be
+resumed; unreachable on the flow it existed for; and open on the
+databases most likely to hit the bug, because the first importer wrote
+the copy without that marker. ``foreign_columns`` has none of those
+properties — it is per table, it is per column, and it is as old as the
+importer.
+
+**A copy nobody is going to keep is released, not left to be mixed
+into.** ``measure_crop`` appends, so the moment spaCR measures a field
+into a canonical table an import filled, its rows and theirs sit in the
+same table with nothing marking the seam and every per-well count
+becomes the sum of two populations. :func:`supersede_imported_copies`
+runs before the first insert and hands that copy back — but only when
+every field it covers is either already measured into that table or
+queued to be measured now, and only after
+:func:`spacr.foreign.release_canonical_copy` has proved, row by row,
+that each row it removes still exists in ``foreign_<object>``. A
+half-released table is worse than an unreleased one, so anything less
+than a complete, lossless release is refused and reported instead,
+together with the two lines that do it by hand.
+
+What bounds all of it: every imported row in the canonical table has an
+identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not*
+on the allow-list, so no resume can touch it. That is checked rather
+than assumed — a row without a twin stops the release.
+
+One half of this is still open and is not in this module:
+``_merge_and_save_to_database`` appends into a canonical table an import
+filled without noticing, so a user who measures such a project *without*
+a resume still gets both populations in one table.
+``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)``
+and names the change ``spacr/utils.py`` needs.
+
 A database already damaged by an earlier resume cannot be repaired on
 read — the rows are gone, and nothing in the file records what they
 were. It can be *rewritten* from the sources outside the database, and
@@ -98,6 +159,7 @@ from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Set, Tuple)
 
 from . import schema
+from .database_concurrency import connect as connect_database, transaction
 from .errors import ConfigurationError, read_run_status
 
 __all__ = [
@@ -108,6 +170,14 @@ __all__ = [
     'TIME_KEY_COLUMNS',
     'MEASURE_OWNED_TABLES',
     'NON_FIELD_TABLES',
+    'FOREIGN_COLUMNS_TABLE',
+    'FOREIGN_PREFIX',
+    'FOREIGN_NAME_COLUMNS',
+    'importer_recorded_columns',
+    'importer_written_columns',
+    'importer_owns_table',
+    'measure_rows_clause',
+    'importer_rows_clause',
     'resume_enabled',
     'field_identity',
     'identity_to_prcf',
@@ -192,6 +262,36 @@ MEASURE_OWNED_TABLES = frozenset({
     'pathogen_organelle_summary', 'cytoplasm_organelle_summary',
     'png_list',                                # filepaths_to_database
 })
+
+#: The provenance table :mod:`spacr.foreign` writes: one row per column
+#: per table, naming every column that importer put there.
+#:
+#: Spelled here rather than imported from ``spacr.foreign`` for the same
+#: reason :data:`MEASURE_OWNED_TABLES` is — this module must not drag
+#: pandas, numpy and ``spacr.convert`` into a process that only wants to
+#: know whether it can skip a field. ``tests/test_resume_owned_tables.py``
+#: pins these three literals to ``foreign``'s own, which is the link that
+#: would otherwise be missing.
+FOREIGN_COLUMNS_TABLE = 'foreign_columns'
+
+#: Prefix of the tables ``spacr.foreign`` owns by name alone.
+FOREIGN_PREFIX = 'foreign_'
+
+#: The column of :data:`FOREIGN_COLUMNS_TABLE` that holds a column *name*,
+#: newest spelling first.
+#:
+#: ``foreign`` writes it as ``column``, and it does not stay that way:
+#: ``schema.LEGACY_COLUMN_NAMES`` maps ``column`` onto the plate coordinate
+#: ``columnID``, and ``database_schema.repair_legacy_columns`` applies that
+#: to *every* user table on every measure write. So one ``measure_crop``
+#: over an imported project renames this provenance out from under both
+#: readers. Both spellings are therefore accepted — and looked up rather
+#: than assumed, because SQLite resolves a double-quoted name matching no
+#: column as a *string literal*: ``SELECT "column" FROM foreign_columns``
+#: on a repaired database does not raise, it returns the word ``'column'``
+#: once per row, and every comparison below would then quietly answer
+#: "not the importer's" for rows the importer wrote.
+FOREIGN_NAME_COLUMNS = ('column', 'columnID')
 
 #: Tables that live in ``measurements.db`` but are **not** per-field
 #: measure output, and so must never be cleared by a measure resume.
@@ -642,6 +742,15 @@ def _table_columns(conn: sqlite3.Connection, table: str) -> List[str]:
     return [row[1] for row in rows]
 
 
+def _has_rows(conn: sqlite3.Connection, table: str) -> bool:
+    """True when ``table`` holds at least one row. ``LIMIT 1``, not COUNT."""
+    try:
+        return conn.execute(
+            f'SELECT 1 FROM "{table}" LIMIT 1').fetchone() is not None
+    except sqlite3.Error:
+        return False
+
+
 def _list_tables(conn: sqlite3.Connection) -> List[str]:
     """Every real table in the database, in name order."""
     try:
@@ -651,6 +760,211 @@ def _list_tables(conn: sqlite3.Connection) -> List[str]:
     except sqlite3.Error:
         return []
     return [row[0] for row in rows]
+
+
+# ---------------------------------------------------------------------------
+# Owned by name is not owned in fact: which *rows* the measure stage wrote
+# ---------------------------------------------------------------------------
+#
+# ``cell`` is on the allow-list above, and in a project built by
+# ``foreign.run_import`` the rows in it are the import's: the importer
+# copies its own frame into the canonical table when nothing of anyone
+# else's is there, so that a purely-imported project is readable by every
+# spaCR tool. Nothing about the *table* tells the two apart, which is why
+# a table-scoped ownership claim was tried here and backed out — it took
+# the whole table with it, including fields the import never covered and
+# rows ``measure_crop`` wrote afterwards.
+#
+# The signal that is already in the tree, written by every version of the
+# importer that has ever existed, is ``foreign_columns``: one row per
+# column per table, naming exactly what that importer put there. The
+# table-scoped question ``foreign._importer_owns`` asks of it —"are this
+# table's columns a subset of what the importer recorded?"— has a
+# row-scoped twin, and that is what is used below:
+#
+#     a row is the importer's when every column it is non-NULL in is one
+#     the importer wrote into this table.
+#
+# A ``measure_crop`` row in a canonical table always carries at least its
+# own area and intensity columns, which the importer never wrote and never
+# recorded, so it fails that test; an imported row carries only metadata
+# and ``foreign_``-prefixed measurements, which it passes. The test is
+# evaluated per row in SQL, so a table can be half one and half the other
+# — which, until the append itself is fixed, is exactly what a project
+# that was imported and then measured contains.
+
+
+def _foreign_name_column(conn: sqlite3.Connection) -> Optional[str]:
+    """Which spelling of the provenance ``column`` column this database has.
+
+    :param conn: open connection to ``measurements.db``.
+    :returns: ``'column'``, ``'columnID'`` (after a measure write has run
+        the legacy-column repair over it) or ``None`` when
+        :data:`FOREIGN_COLUMNS_TABLE` is absent or carries neither — which
+        must read as "unreadable", never as "no claim". See
+        :data:`FOREIGN_NAME_COLUMNS`.
+    """
+    columns = set(_table_columns(conn, FOREIGN_COLUMNS_TABLE))
+    for candidate in FOREIGN_NAME_COLUMNS:
+        if candidate in columns:
+            return candidate
+    return None
+
+
+def importer_recorded_columns(conn: sqlite3.Connection,
+                              table: str) -> Optional[Set[str]]:
+    """Every column ``spacr.foreign`` *recorded* itself as writing into ``table``.
+
+    Read from :data:`FOREIGN_COLUMNS_TABLE` and from nothing else. Every
+    release of the importer has written it, including the first, so no
+    marker needs inventing here — a marker would only protect databases
+    written after it was added, and the ones most likely to hold an
+    imported canonical table are the oldest.
+
+    Unreadable provenance answers ``None``, deliberately: this is what
+    :func:`importer_owns_table` — and through it
+    ``foreign._importer_owns`` — consults before *dropping and rewriting*
+    a canonical table, and there the protective answer is "not ours".
+    :func:`importer_written_columns` is the other direction of the same
+    question and has the opposite fallback for the opposite reason.
+
+    :param conn: open connection to ``measurements.db``.
+    :param table: table name, e.g. ``'cell'``.
+    :returns: the recorded column names, or ``None`` when this database
+        records no import into ``table`` at all — in which case every row
+        in it is the measure stage's, which is the ordinary case and the
+        one that must stay exactly as cheap as it was.
+
+    Example:
+        .. code-block:: python
+
+            # a purely-imported project
+            importer_recorded_columns(conn, 'cell')
+            # {'object_label', 'plateID', …, 'foreign_areashape_area'}
+            importer_recorded_columns(conn, 'nucleus')      # None
+    """
+    if FOREIGN_COLUMNS_TABLE not in set(_list_tables(conn)):
+        return None
+    name_column = _foreign_name_column(conn)
+    if name_column is None:
+        return None
+    try:
+        recorded = {str(row[0]) for row in conn.execute(
+            f'SELECT "{name_column}" FROM "{FOREIGN_COLUMNS_TABLE}" '
+            f'WHERE "table" = ?', (str(table),))}
+    except sqlite3.Error:
+        return None
+    return recorded or None
+
+
+def importer_written_columns(conn: sqlite3.Connection,
+                             table: str) -> Optional[Set[str]]:
+    """The widest set of columns this database shows an import having written.
+
+    :func:`importer_recorded_columns` first; failing that, the columns of
+    ``foreign_<table>``. The canonical copy is written from the same frame
+    as ``foreign_<table>``, column for column, so that table is a faithful
+    second record of what the importer put in this one — and on a database
+    whose provenance an *older* importer replaced wholesale when a second
+    object type was imported into it, it is the only record left.
+
+    The fallback exists because this is the answer a **delete** is gated
+    on, and there the protective answer is the opposite of the one
+    :func:`importer_recorded_columns` must give: a database whose
+    provenance cannot be read must have its imported rows *preserved*, not
+    deleted as though nobody had claimed them. That was the original bug,
+    and it was still live for exactly the files most exposed to it.
+
+    :param conn: open connection to ``measurements.db``.
+    :param table: table name, e.g. ``'cell'``.
+    :returns: the column names, or ``None`` when nothing in this database
+        suggests an import ever wrote into ``table``.
+    """
+    recorded = importer_recorded_columns(conn, table)
+    if recorded is not None:
+        return recorded
+    twin = f'{FOREIGN_PREFIX}{table}'
+    if twin in set(_list_tables(conn)):
+        columns = set(_table_columns(conn, twin))
+        if columns:
+            return columns
+    return None
+
+
+def importer_owns_table(conn: sqlite3.Connection, table: str) -> bool:
+    """True when *every* column of ``table`` is one the importer recorded.
+
+    The table-scoped question, kept here beside its row-scoped twin so the
+    two cannot drift: ``spacr.foreign._importer_owns`` calls this rather
+    than repeating it. A table a ``measure_crop`` has appended to has
+    grown columns the importer never wrote, so it stops being the
+    importer's the moment spaCR measures into it.
+
+    :param conn: open connection to ``measurements.db``.
+    :param table: table name.
+    :returns: False for a table with no recorded import, for one whose
+        provenance cannot be read, and for one that has since been widened
+        by another writer.
+    """
+    recorded = importer_recorded_columns(conn, table)
+    if recorded is None:
+        return False
+    have = set(_table_columns(conn, table))
+    return bool(have) and have <= recorded
+
+
+def measure_rows_clause(conn: sqlite3.Connection,
+                        table: str) -> Optional[str]:
+    """A SQL condition selecting the rows of ``table`` the measure stage wrote.
+
+    The row-scoped ownership test, as a fragment to be ANDed into a WHERE
+    clause. A row is the measure stage's when it holds a value in at least
+    one column the importer never wrote — :func:`importer_written_columns`
+    being what "never wrote" is read from, so a database whose provenance
+    was replaced away still gets the protective answer.
+
+    :param conn: open connection to ``measurements.db``.
+    :param table: table name.
+    :returns: ``None`` when nothing in this database suggests an import
+        ever wrote into ``table`` — meaning no condition is needed and
+        none should be added, so a project that has never seen an import
+        runs exactly the statements it always did. ``'0'`` when the
+        importer wrote every column the table has, i.e. nothing in it is
+        measure's. Otherwise a parenthesised ``"col" IS NOT NULL OR …``
+        over the columns the importer did not write.
+
+    The residual, stated because it is a real if unreachable one: a
+    measure row whose every measurement column is NULL is indistinguishable
+    from an imported one and is treated as imported — preserved rather
+    than cleared. ``_merge_and_save_to_database`` always writes at least
+    the object's area and one intensity column, so producing such a row
+    means producing a measurement that holds no measurements; and being
+    wrong in that direction preserves data rather than deleting it.
+    """
+    written = importer_written_columns(conn, table)
+    if written is None:
+        return None
+    unrecorded = [c for c in _table_columns(conn, table) if c not in written]
+    if not unrecorded:
+        return '0'
+    return '(' + ' OR '.join(f'"{c}" IS NOT NULL' for c in unrecorded) + ')'
+
+
+def importer_rows_clause(conn: sqlite3.Connection,
+                         table: str) -> Optional[str]:
+    """The complement of :func:`measure_rows_clause` — the importer's rows.
+
+    :param conn: open connection to ``measurements.db``.
+    :param table: table name.
+    :returns: ``None`` when nothing in ``table`` is the importer's, else a
+        SQL condition selecting exactly the rows that are.
+    """
+    clause = measure_rows_clause(conn, table)
+    if clause is None:
+        return None
+    if clause == '0':
+        return '1'
+    return f'NOT {clause}'
 
 
 def discover_field_tables(db_path: str,
@@ -674,6 +988,12 @@ def discover_field_tables(db_path: str,
     modules' provenance tables. The name test alone would delete from a
     table whose schema is not what this module thinks it is.
 
+    Both halves are about the *table*, and a table on this list can still
+    hold rows measure did not write — the copy ``foreign.run_import``
+    puts in ``cell``. That is decided per row, later and separately, by
+    :func:`measure_rows_clause`; this function deliberately still lists
+    such a table, because it is one a resume has business with.
+
     :param db_path: path to ``measurements.db``.
     :param include_non_field: skip the :data:`NON_FIELD_TABLES` filter.
         For inspection only — never pass this to :func:`clear_field_rows`.
@@ -685,7 +1005,7 @@ def discover_field_tables(db_path: str,
     """
     if not os.path.isfile(db_path):
         return []
-    conn = sqlite3.connect(db_path, timeout=30)
+    conn = connect_database(db_path, readonly=True, timeout=30)
     try:
         out = []
         for table in _list_tables(conn):
@@ -759,6 +1079,17 @@ def completed_fields_in_db(db_path: str,
     through ``partial`` so the caller can do the third, correct thing:
     clear it and re-run it.
 
+    "Present" means present in a row **measure wrote**. Rows a foreign
+    import copied into a canonical table do not count: a project built
+    purely by import has ``cell`` as its only field table and a row in it
+    for every field, so counting them made this function report the whole
+    plate measured, ``measure_crop`` run nothing at all, and the
+    collaborator's numbers stand as spaCR's output. A table holding
+    nothing but imported rows is left out of the "every table this run
+    writes" set entirely, so it cannot make every field look partial
+    either; it rejoins the moment measure puts a row in it. See
+    :func:`measure_rows_clause`.
+
     :param db_path: path to ``measurements.db``.
     :param tables: tables to consult. Defaults to
         :func:`discover_field_tables`.
@@ -785,7 +1116,7 @@ def completed_fields_in_db(db_path: str,
         return set()
 
     key_columns = list(FIELD_KEY_COLUMNS)
-    conn = sqlite3.connect(db_path, timeout=30)
+    conn = connect_database(db_path, readonly=True, timeout=30)
     try:
         present: Dict[str, Set[Tuple[str, ...]]] = {}
         for table in tables:
@@ -801,9 +1132,18 @@ def completed_fields_in_db(db_path: str,
                         select.append(candidate)
                         break
             quoted = ', '.join(f'"{c}"' for c in select)
+            # Rows a foreign import copied in are not evidence that measure
+            # ran. In a purely-imported project ``cell`` is the only field
+            # table and holds a row for every field, so counting them made
+            # ``measure_crop`` report the whole plate done, run nothing at
+            # all, and present the collaborator's numbers as spaCR's own
+            # output.
+            clause = measure_rows_clause(conn, table)
+            sql = f'SELECT DISTINCT {quoted} FROM "{table}"'
+            if clause is not None:
+                sql += f' WHERE {clause}'
             try:
-                rows = conn.execute(
-                    f'SELECT DISTINCT {quoted} FROM "{table}"').fetchall()
+                rows = conn.execute(sql).fetchall()
             except sqlite3.Error:
                 continue
             seen = set()
@@ -812,6 +1152,18 @@ def completed_fields_in_db(db_path: str,
                 if timelapse and time_col is None:
                     values.append('')
                 seen.add(tuple(values))
+            if clause is not None and not seen and _has_rows(conn, table):
+                # An import filled this table and measure has never written
+                # a row into it, so it is not one of "the tables this run
+                # writes" and must not make every field look partial. It
+                # rejoins the moment measure puts a row in it.
+                #
+                # ``_has_rows`` is the difference between "theirs" and
+                # "empty". An emptied table — one whose copy has been
+                # released back to spaCR — is an ordinary measure table
+                # with nothing in it yet, and every field must read as
+                # not-measured in it, exactly as for any other empty table.
+                continue
             present[table] = seen
         if not present:
             return set()
@@ -889,6 +1241,15 @@ def clear_field_rows(db_path: str,
       and clearing a field out of those destroys the only record of how
       the project's files were named and registered.
 
+    * **Only rows measure itself wrote.** Owned by name is not owned in
+      fact: in a project built by ``foreign.run_import`` the rows in
+      ``cell`` are the import's, sitting under spaCR's own metadata
+      columns in a table that is on the allow-list. Every DELETE is
+      therefore narrowed by :func:`measure_rows_clause`, which is true
+      only for rows holding a value in a column the importer never wrote.
+      Clearing a field takes measure's rows for that field and leaves the
+      import's — in the same table, in the same statement.
+
     :param db_path: path to ``measurements.db``.
     :param tables: tables to clear. ``None`` uses
         :func:`discover_field_tables`, which is the safe default —
@@ -918,42 +1279,241 @@ def clear_field_rows(db_path: str,
     if not tables:
         return 0
 
-    conn = sqlite3.connect(db_path, timeout=30)
-    conn.isolation_level = None  # explicit transaction control
+    conn = connect_database(db_path, timeout=30)
     try:
-        # Pre-flight: refuse the whole operation before deleting anything
-        # if any table cannot be keyed safely.
-        plans = []
-        for table in tables:
-            keys = _key_columns_for(conn, table, identity)
-            if table not in MEASURE_OWNED_TABLES:
-                raise ValueError(
-                    f'table {table!r} carries the field key columns but is '
-                    f'not written by the measure stage — measure writes only '
-                    f'{sorted(MEASURE_OWNED_TABLES)}. Other modules key their '
-                    f'tables the same way so that they join: convert writes '
-                    f'conversion_map, align writes align_coordinates, foreign '
-                    f'writes foreign_*, timelapse writes its track table. '
-                    f'Deleting from {table!r} would destroy the only record '
-                    f'of how this project was registered, and none of it can '
-                    f'be recomputed from the database. Refusing.')
-            where = ' AND '.join(f'"{k}" = ?' for k in keys)
-            plans.append((f'DELETE FROM "{table}" WHERE {where}',
-                          _bind_values(identity, keys)))
-
         deleted = 0
-        conn.execute('BEGIN IMMEDIATE')
-        try:
+        with transaction(conn):
+            # Pre-flight and deletes share one write transaction. No other
+            # writer can replace a checked table between validation and use.
+            plans = []
+            for table in tables:
+                keys = _key_columns_for(conn, table, identity)
+                if table not in MEASURE_OWNED_TABLES:
+                    raise ValueError(
+                        f'table {table!r} carries the field key columns but is '
+                        f'not written by the measure stage — measure writes only '
+                        f'{sorted(MEASURE_OWNED_TABLES)}. Other modules key their '
+                        f'tables the same way so that they join: convert writes '
+                        f'conversion_map, align writes align_coordinates, foreign '
+                        f'writes foreign_*, timelapse writes its track table. '
+                        f'Deleting from {table!r} would destroy the only record '
+                        f'of how this project was registered, and none of it can '
+                        f'be recomputed from the database. Refusing.')
+                where = ' AND '.join(f'"{k}" = ?' for k in keys)
+                # ...and only the rows the measure stage itself wrote. The
+                # allow-list answers "could measure have written this
+                # table?"; this answers "did it write this row?", which in
+                # a project built by ``foreign.run_import`` is a different
+                # question — the rows in ``cell`` are the import's, under
+                # spaCR's own metadata columns, and clearing a pending
+                # field used to take them with it.
+                clause = measure_rows_clause(conn, table)
+                if clause is not None:
+                    where = f'{where} AND {clause}'
+                plans.append((f'DELETE FROM "{table}" WHERE {where}',
+                              _bind_values(identity, keys)))
             for sql, values in plans:
                 cursor = conn.execute(sql, values)
                 deleted += cursor.rowcount if cursor.rowcount > 0 else 0
-            conn.execute('COMMIT')
-        except Exception:
-            conn.execute('ROLLBACK')
-            raise
         return deleted
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------------------
+# The importer's convenience copy, when measure is about to supersede it
+# ---------------------------------------------------------------------------
+
+def _fields_matching(conn: sqlite3.Connection, table: str,
+                     clause: str) -> Set[Tuple[str, ...]]:
+    """Distinct field keys of the rows of ``table`` satisfying ``clause``."""
+    quoted = ', '.join(f'"{c}"' for c in FIELD_KEY_COLUMNS)
+    try:
+        rows = conn.execute(
+            f'SELECT DISTINCT {quoted} FROM "{table}" WHERE {clause}'
+        ).fetchall()
+    except sqlite3.Error:
+        return set()
+    return {tuple('' if v is None else str(v) for v in row) for row in rows}
+
+
+def _release_advice(db_path: str, table: str, held: int, why: str) -> str:
+    """What to tell a user whose canonical table is about to become a mixture.
+
+    Printed only when the copy cannot be released automatically, and it
+    has to be a remedy that *works*: the two lines below are the same call
+    the automatic path makes, so following them by hand produces the same
+    database. ``tests/test_resume_owned_tables.py`` follows them and
+    checks the result, rather than checking that the words were printed.
+
+    Given as Python rather than a shell one-liner on purpose — a
+    destination path containing a quote would otherwise produce advice
+    that does not run.
+
+    :param db_path: the database, spelled so the call can be pasted.
+    :param table: the canonical table holding the copy.
+    :param held: how many of its rows are the import's.
+    :param why: why this resume did not release them itself.
+    :returns: a multi-line block for the resume report.
+    """
+    return (
+        f'"{table}" holds {held} row(s) a foreign import copied there, and '
+        f'spaCR is about to measure into the same table. Its rows and '
+        f'theirs would sit side by side with nothing marking the seam, and '
+        f'every per-well count downstream would be the sum of both.\n'
+        f'  This resume left them alone: {why}\n'
+        f'  To hand the table back to spaCR — their rows stay in '
+        f'"{FOREIGN_PREFIX}{table}" and are joined to spaCR\'s by the view '
+        f'"{table}_with_foreign" — run:\n'
+        f'    from spacr.foreign import release_canonical_copy\n'
+        f'    release_canonical_copy({db_path!r}, {table!r})\n'
+        f'  then run this again: the fields whose only rows in "{table}" '
+        f'were theirs will be measured.')
+
+
+def _sample_fields(values: Iterable[str], limit: int = 4) -> str:
+    """A few field labels, in order, for a message."""
+    ordered = sorted(str(v) for v in values)
+    shown = ', '.join(ordered[:limit])
+    if len(ordered) > limit:
+        shown += f', … (+{len(ordered) - limit} more)'
+    return shown or 'none'
+
+
+def supersede_imported_copies(db_path: str,
+                              tables: Sequence[str],
+                              pending: Iterable[str],
+                              timelapse: bool = False) -> Tuple[int, List[str]]:
+    """Release an import's convenience copy that this run is about to replace.
+
+    ``foreign.run_import`` copies the imported rows into the canonical
+    ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone
+    else's is there, so that a purely-imported project is readable by
+    every spaCR tool. ``measure_crop`` *appends*, so the moment spaCR
+    measures the same fields its rows land in that table beside theirs,
+    in different columns, with nothing to tell a reader which population a
+    row belongs to — and ``count_cell`` becomes the sum of the two.
+
+    The copy is released here, before any of that is written, and only
+    when releasing it is complete:
+
+    * **every** field the copy covers must either already hold rows this
+      measure stage wrote in that table, or be queued to be measured now.
+      A field that is neither would be left with nothing at all, so the
+      copy stays whole and the caller is told what to do instead — a
+      table that is half released is worse than one that is not;
+    * the removal must be lossless, which
+      :func:`spacr.foreign.release_canonical_copy` verifies row by row
+      against ``foreign_<object>`` before deleting anything.
+
+    Nothing here can lose a measurement: what is removed is a duplicate of
+    ``foreign_<object>``, which no resume may touch, and the
+    ``<object>_with_foreign`` view is created so it is still one query
+    away.
+
+    :param db_path: path to ``measurements.db``.
+    :param tables: the measure-owned tables discovered for this run.
+    :param pending: field stems this run is about to measure.
+    :param timelapse: when true nothing is released. The importer writes
+        no ``timeID``, so a timelapse project cannot have a copy this
+        function would understand, and guessing at one would be a delete
+        keyed on fewer columns than the writer used.
+    :returns: ``(rows released, notes)``. The notes are for the resume
+        report and are non-empty exactly when a user has to act.
+
+    Example:
+        .. code-block:: python
+
+            released, notes = supersede_imported_copies(
+                db, ['cell'], ['plate1_A01_1', 'plate1_A01_2'])
+            # (4, [])  -> `cell` is spaCR's to fill; theirs are unchanged
+            #             in foreign_cell, joined by cell_with_foreign
+    """
+    if not os.path.isfile(db_path):
+        return 0, []
+    pending_keys: Set[Tuple[str, ...]] = set()
+    for stem in pending:
+        try:
+            identity = field_identity(stem)
+        except ValueError:
+            continue
+        pending_keys.add(_identity_tuple(identity, FIELD_KEY_COLUMNS))
+
+    released = 0
+    notes: List[str] = []
+    conn = connect_database(db_path, readonly=True, timeout=30)
+    try:
+        work: List[Tuple[str, int, List[str]]] = []
+        for table in tables:
+            if table not in MEASURE_OWNED_TABLES:
+                continue
+            importer_clause = importer_rows_clause(conn, table)
+            if importer_clause is None:
+                continue                      # no import ever wrote here
+            imported = _fields_matching(conn, table, importer_clause)
+            if not imported:
+                continue
+            held = int(conn.execute(
+                f'SELECT COUNT(*) FROM "{table}" '
+                f'WHERE {importer_clause}').fetchone()[0])
+            measure_clause = measure_rows_clause(conn, table)
+            measured = (_fields_matching(conn, table, measure_clause)
+                        if measure_clause not in (None, '0') else set())
+            uncovered = imported - measured - pending_keys
+            work.append((table, held,
+                         sorted(identity_to_prcf(dict(zip(FIELD_KEY_COLUMNS,
+                                                          key)))
+                                for key in uncovered)))
+    finally:
+        conn.close()
+
+    for table, held, uncovered in work:
+        if timelapse:
+            notes.append(_release_advice(
+                db_path, table, held,
+                'this is a timelapse run, and the importer writes no '
+                'timeID, so which frames a copied row belongs to cannot be '
+                'established from the database. Releasing on the four '
+                'field columns alone would be a delete keyed on fewer '
+                'columns than the writer used.'))
+            continue
+        if uncovered:
+            notes.append(_release_advice(
+                db_path, table, held,
+                f'field(s) {_sample_fields(uncovered)} are covered by the '
+                f'import and are neither measured into "{table}" nor '
+                f'queued, so releasing the copy would leave them with no '
+                f'rows at all and no run coming to replace them. A '
+                f'half-released table is worse than an unreleased one.'))
+            continue
+        try:
+            # Imported here, not at module scope: ``spacr.foreign`` pulls in
+            # pandas, numpy and ``spacr.convert``, and this module is
+            # consulted at the top of ``measure_crop`` precisely so that a
+            # question answered by reading a sqlite table costs nothing.
+            # A project with no import never reaches this line.
+            from .foreign import release_canonical_copy
+        except Exception as exc:
+            # Everything, not ImportError alone: a module that fails to
+            # initialise raises whatever its own top level raised. Refuse,
+            # never delete blind — without the importer's verification that
+            # every row has a twin in foreign_<object> there is no way to
+            # know the removal is lossless.
+            notes.append(
+                f'"{table}" holds {held} row(s) a foreign import copied '
+                f'there and spaCR is about to measure into the same table, '
+                f'but spacr.foreign could not be imported to release them '
+                f'({exc}). They were left alone; the table will hold both '
+                f'populations until they are released.')
+            continue
+        try:
+            released += release_canonical_copy(db_path, table)
+        except (ConfigurationError, sqlite3.Error) as exc:
+            notes.append(
+                f'"{table}" holds {held} row(s) a foreign import copied '
+                f'there and they could not be released ({exc}). They were '
+                f'left alone.')
+    return released, notes
 
 
 def run_already_complete(db_path: str, name: Optional[str] = None) -> bool:
@@ -1100,7 +1660,7 @@ def read_recorded_settings(source: str) -> Dict[str, Any]:
     if not os.path.isfile(path):
         return {}
     if path.lower().endswith(('.db', '.sqlite', '.sqlite3')):
-        conn = sqlite3.connect(path, timeout=30)
+        conn = connect_database(path, readonly=True, timeout=30)
         try:
             rows = conn.execute(
                 'SELECT setting_key, setting_value FROM settings').fetchall()
@@ -1251,6 +1811,13 @@ class ResumeState:
     :ivar enabled: False when resume was not requested, in which case
         ``pending`` is every field and nothing is skipped.
     :ivar cleared_rows: stale rows deleted by the delete-before-insert.
+    :ivar released_rows: rows of a foreign import's convenience copy that
+        this run superseded and removed from a canonical table. They are
+        unchanged in ``foreign_<object>``; see
+        :func:`supersede_imported_copies`.
+    :ivar notes: things the user has to act on that are not per-field —
+        today, a canonical table an import filled that could not be
+        released automatically. Empty on every ordinary run.
     :ivar src: the merged folder inspected, for the report.
     :ivar db_path: the database inspected, for the report.
     """
@@ -1262,6 +1829,8 @@ class ResumeState:
     reasons: Dict[str, str] = _dc_field(default_factory=dict)
     enabled: bool = True
     cleared_rows: int = 0
+    released_rows: int = 0
+    notes: Tuple[str, ...] = ()
     src: str = ''
     db_path: str = ''
 
@@ -1441,6 +2010,16 @@ def format_resume(state: ResumeState, max_examples: int = 4) -> str:
     if state.cleared_rows:
         lines.append(f' cleared   : {state.cleared_rows} stale row(s) deleted '
                      f'before re-insert (delete-before-insert)')
+    if state.released_rows:
+        lines.append(f' released  : {state.released_rows} row(s) a foreign '
+                     f'import had copied into a canonical table were handed '
+                     f'back before measuring (unchanged in foreign_*, joined '
+                     f'by the *_with_foreign view)')
+    for note in state.notes:
+        lines.append('')
+        lines.append(' ACTION NEEDED')
+        for line in str(note).splitlines():
+            lines.append(f' {line}')
     if state.n_pending == 0:
         lines.append('')
         lines.append(' Nothing to do — every field is already measured.')
@@ -1546,6 +2125,16 @@ def plan_measure_resume(settings: Any,
     cleared = 0
     if os.path.isfile(db_path):
         tables = discover_field_tables(db_path)
+        # 3a. A foreign import's convenience copy in a canonical table is
+        #     superseded the moment spaCR measures the same fields into it.
+        #     Released here — before the deletes and long before the first
+        #     insert — because measure appends, and a table holding both
+        #     populations makes every per-well count the sum of two.
+        if tables and state.pending:
+            released, notes = supersede_imported_copies(
+                db_path, tables, state.pending, timelapse=timelapse)
+            state.released_rows = released
+            state.notes = tuple(notes)
         if tables and state.pending:
             dirty = completed_fields_in_db(db_path, tables=tables,
                                            fields=state.pending,

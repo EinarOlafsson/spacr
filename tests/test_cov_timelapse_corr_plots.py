@@ -35,6 +35,21 @@ def _no_leaked_figures():
     plt.close("all")
 
 
+@pytest.fixture(autouse=True)
+def _png_figure_preference(monkeypatch):
+    """Say which figure format these tests are asserting.
+
+    Every figure a pipeline keeps now goes through ``spacr.plot.save_figure``,
+    which writes the user's preferred format and rewrites the file extension to
+    match. Under pytest there is no preference store, so the preference falls
+    back to ``spacr.plot.DEFAULT_FIGURE_FORMAT`` -- PDF. The tests below assert
+    exact ``.png`` filenames, so they have to state the preference rather than
+    inherit whatever the shipped default happens to be.
+    """
+    import spacr.plot as P
+    monkeypatch.setattr(P, "figure_output_preferences", lambda: ("png", 200))
+
+
 def _snapshot(fig):
     """Freeze everything we want to assert about a figure before it is closed."""
     axes = []

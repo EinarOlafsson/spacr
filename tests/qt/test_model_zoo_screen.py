@@ -346,6 +346,32 @@ def test_cancelling_when_nothing_is_running_says_so(screen):
 # threading
 # ---------------------------------------------------------------------------
 
+def test_field_loading_runs_off_the_gui_thread(
+        qtbot, qt_theme_applied, monkeypatch, tmp_path):
+    """NAS scans and image decoding must not block Qt."""
+    from spacr import model_compare as mc
+
+    screen = ModelZooScreen(threaded=True)
+    qtbot.addWidget(screen)
+    gui_thread = threading.current_thread()
+    observed = {}
+
+    def fake_load(folder, n_fields):
+        observed["load"] = threading.current_thread()
+        return ["A01_f00"], [np.zeros((8, 8), dtype=np.uint16)]
+
+    monkeypatch.setattr(mc, "load_fields", fake_load)
+    with qtbot.waitSignal(screen.job_finished, timeout=10000) as caught:
+        assert screen.set_fields_source(str(tmp_path))
+        assert screen.is_busy()
+
+    assert caught.args == [True]
+    assert observed["load"] is not gui_thread
+    assert screen.field_names() == ["A01_f00"]
+    qtbot.waitUntil(lambda: screen.active_jobs() == 0, timeout=10000)
+    screen.close()
+
+
 def test_the_download_runs_off_the_gui_thread_and_settles_back_on_it(
         qtbot, remote_entry, tmp_path):
     """The ``_job_settled`` relay, tested by thread identity.

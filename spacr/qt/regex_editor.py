@@ -20,8 +20,7 @@ The dialog is pure UI — all logic lives in
 from __future__ import annotations
 
 import logging
-from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFontDatabase

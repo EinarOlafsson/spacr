@@ -4,47 +4,167 @@
   "voice": "jf_nezumi",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 72.375,
+  "total_duration": 342.205,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 13.525,
-      "scene_end": 13.975,
-      "duration": 13.975,
-      "text": "このチュートリアルではトレーニングランスをカバーします.曲線を重ねて設定を異なる方法でいくつかのモデルトレーニングランスを比較します."
+      "speech_end": 19.675,
+      "scene_end": 20.255,
+      "duration": 20.255,
+      "text": "トレーニング・ランスは 読み込みのみの 品質管理画面です 保存された電車と検証曲線を重ねて,その隣に設定diffを配置します. モデルを再訓練したり,ディスクの実行を変更したりしません.",
+      "speech_text": "トレーニング・ランスは 読み込みのみの 品質管理画面です 保存された電車と検証曲線を重ねて,その隣に設定diffを配置します. モデルを再訓練したり,ディスクの実行を変更したりしません.",
+      "phonemes": "toɾeːɲiŋɡɯ ɾaɴsɨ βa jomʲikomʲi nomʲi no çiɴɕiʦɨ kanɾʲi ɡameɴ desɨ hoʣoɴ saɾeta deɴɕa to keɴɕoː kʲokɯseɴ o kasanete, sono tonaɾʲi ɲi seʔteː diff o haiʨi ɕi masɨ. modeɾɯ o sai kɯnɾeɴ ɕitaɾʲi, dʲisɨkɯ no ʥiʔkoː o heŋkoː ɕitaɾʲi ɕi maseɴ."
     },
     {
       "scene": 2,
-      "speech_start": 13.975,
-      "speech_end": 27.4,
-      "scene_end": 27.849999999999998,
-      "duration": 13.874999999999998,
-      "text": "Results and quality control セクションから Training Runs を開きます。 比較すべきランフォルダーや登録されたトレーニング記録を選択します."
+      "speech_start": 20.255,
+      "speech_end": 49.155,
+      "scene_end": 49.855000000000004,
+      "duration": 29.600000000000005,
+      "text": "複数のプロジェクト上のモデルツリー,または複数のプロジェクト上の parent を含むフォルダを選択し,スキャンをクリックします. 転送された顕微鏡データには保存されたトレーニング曲線がないため,このチュートリアルでは,実際の解析器とインターフェースを練習しながら,合成のspaCR形式のログを明らかに使用しています.",
+      "speech_text": "複数のプロジェクト上のモデルツリー,または複数のプロジェクト上の parent を含むフォルダを選択し,スキャンをクリックします. 転送された顕微鏡データには保存されたトレーニング曲線がないため,このチュートリアルでは,実際の解析器とインターフェースを練習しながら,合成のスペーカー形式のログを明らかに使用しています.",
+      "phonemes": "ɸɯkɯsɨː no pɯɾoʥekɯto ʥoː no modeɾɯ ʦɨɾʲiː, mata βa ɸɯkɯsɨː no pɯɾoʥekɯto ʥoː no parent o ɸɯkɯmɯ ɸoɾɯda o sentakɯ ɕi, sɨkʲaɴ o kɯɾʲiʔkɯ ɕi masɨ. teɴsoː saɾeta kembʲikʲoː deːta ɲi βa hoʣoɴ saɾeta toɾeːɲiŋɡɯ kʲokɯseɴ ɡa nai tame, kono ʨɨːtoɾʲiaɾɯ de βa, ʥiʔsai no kaisekʲi kʲi to intaːɸeːsɨ o ɾeɴɕɨː ɕi naɡaɾa, ɡoːseː no sɨpeːkaː keːɕikʲi no ɾoɡɯ o akʲiɾaka ɲi ɕijoː ɕite imasɨ."
     },
     {
       "scene": 3,
-      "speech_start": 27.849999999999998,
-      "speech_end": 39.599999999999994,
-      "scene_end": 40.05,
-      "duration": 12.2,
-      "text": "主な構成領域では,表示されるメトリック,スラート,グループ化,チェックポイント基準,設定フィールドを選択します."
+      "speech_start": 49.855000000000004,
+      "speech_end": 74.255,
+      "scene_end": 74.975,
+      "duration": 25.11999999999999,
+      "text": "スキャンは25年代のベースラインと25年代のチューニングランと 3回のクロス検証ランと 意図的に不完全なチェックポイントを 見つけます 欠落した設定と曲線は,黙って捨てられるのではなく,アンバーで報告されるが,有効な実行は使用可能である.",
+      "speech_text": "スキャンは25年代のベースラインと25年代のチューニングランと 3回のクロス検証ランと 意図的に不完全なチェックポイントを 見つけます 欠落した設定と曲線は,黙って捨てられるのではなく,アンバーで報告されるが,有効な実行は使用可能である.",
+      "phonemes": "sɨkʲaɴ βa ɲiʥɨːɡo nendai no beːsɨɾaiɴ to ɲiʥɨːɡo nendai no ʨɨːɲiŋɡɯ ɾaɴ to saɴ kai no kɯɾosɨ keɴɕoː ɾaɴ to itotekʲi ɲi ɸɯ kaɴʣeɴ na ʨeʔkɯpointo o mʲiʦɨke masɨ keʦɨɾakɯ ɕita seʔteː to kʲokɯseɴ βa, damaʔte sɨteɾaɾeɾɯ no de βa nakɯ, ambaː de hoːkokɯ saɾeɾɯ ɡa, jɯːkoː na ʥiʔkoː βa ɕijoː kanoː de aɾɯ."
     },
     {
       "scene": 4,
-      "speech_start": 40.05,
-      "speech_end": 61.3,
-      "scene_end": 61.75,
-      "duration": 21.700000000000003,
-      "text": "完全走行前に,可視設定をチェックし,利用可能な場合,前見またはテストモードを使用します. 訓練損失だけで選択するのではなく,収束,過度のフィッティング,安定性,および持続性性能を比較します."
+      "speech_start": 74.975,
+      "speech_end": 90.975,
+      "scene_end": 91.475,
+      "duration": 16.5,
+      "text": "20年代を基準に 各行にはそのモデル,チャンネル,時代数,折り畳み,重要な復元された設定が指定されているため,選択は追跡可能なままです.",
+      "speech_text": "20年代を基準に 各行にはそのモデル,チャンネル,時代数,折り畳み,重要な復元された設定が指定されているため,選択は追跡可能なままです.",
+      "phonemes": "ɲiʥɨː nendai o kʲiʥɨɴ ɲi kakɯɡʲoː ɲi βa sono modeɾɯ, ʨanneɾɯ, ʥidai sɨː, oɾʲitatamʲi, ʥɨːjoː na ɸɯkɯɡeɴ saɾeta seʔteː ɡa ɕiteː saɾete iɾɯ tame, sentakɯ βa ʦɨisekʲi kanoː na mama desɨ."
     },
     {
       "scene": 5,
-      "speech_start": 61.75,
-      "speech_end": 71.725,
-      "scene_end": 72.375,
-      "duration": 10.625,
-      "text": "作業流が完了すると,比較数字と設定差表は,最も強い再現可能な実行を特定します."
+      "speech_start": 91.475,
+      "speech_end": 107.69999999999999,
+      "scene_end": 108.24,
+      "duration": 16.765,
+      "text": "第二の比較として25年代のチューニングランを チェックしてください. 異なる長さの走行は切り開かれず,パッドされず,各曲線が真の時代軸を維持する.",
+      "speech_text": "第二の比較として25年代のチューニングランを チェックしてください. 異なる長さの走行は切り開かれず,パッドされず,各曲線が真の時代軸を維持する.",
+      "phonemes": "dai ɲi no çikakɯ toɕi te ɲiʥɨːɡo nendai no ʨɨːɲiŋɡɯ ɾaɴ o ʨeʔkɯ ɕite kɯdasai. kotonaɾɯ naɡasa no soːkoː βa kʲiɾʲiçiɾaka ɾe zɨ, paʔdo saɾezɨ, kakɯ kʲokɯseɴ ɡa ɕiɴ no ʥidai ʥikɯ o iʥi sɨɾɯ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 108.24,
+      "speech_end": 132.765,
+      "scene_end": 133.385,
+      "duration": 25.144999999999996,
+      "text": "メトリックは,精度,損失,精度追記領域,またはクラス精度などの記録された列を選択します. 折りたたみ 折りたみごとにクロス検証が表示されるかどうか,平均プラスまたはマイナス1つの標準偏差,または両方のように制御する.",
+      "speech_text": "メトリックは,精度,損失,精度追記領域,またはクラス精度などの記録された列を選択します. 折りたたみ 折りたみごとにクロス検証が表示されるかどうか,平均プラスまたはマイナス1つの標準偏差,または両方のように制御する.",
+      "phonemes": "metoɾʲiʔkɯ βa, seːdo, soɴɕiʦɨ, seːdo ʦɨikʲi ɾʲoːikʲi, mata βa kɯɾasɨ seːdo nado no kʲiɾokɯ saɾeta ɾeʦɨ o sentakɯ ɕi masɨ. oɾʲitatamʲi oɾʲi ta mʲiɡoto ɲi kɯɾosɨ keɴɕoː ɡa çoːʥi saɾeɾɯ ka doː ka, heːkʲiɴ pɯɾasɨ mata βa mainasɨ i ʨiʦɨ no çoːʥɨɴheɴsa, mata βa ɾʲoːhoː no joː ɲi seːɡʲo sɨɾɯ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 133.385,
+      "speech_end": 154.91,
+      "scene_end": 155.49,
+      "duration": 22.105000000000018,
+      "text": "オーバーレイが選択されたことをクリックします. ダッシュラインはトレーニング・スプリットであり,固いラインは検証・スプリットである. ダウンする検証・スプリットの上での電車の曲線上昇は,よりよいモデルではなく,過適合を示している.",
+      "speech_text": "オーバーレイが選択されたことをクリックします. ダッシュラインはトレーニング・スプリットであり,固いラインは検証・スプリットである. ダウンする検証・スプリットの上での電車の曲線上昇は,よりよいモデルではなく,過適合を示している.",
+      "phonemes": "oːbaːɾeː ɡa sentakɯ saɾeta koto o kɯɾʲiʔkɯ ɕi masɨ. daʔɕɨ ɾaiɴ βa toɾeːɲiŋɡɯ sɨpɯɾʲiʔto de aɾʲi, katai ɾaiɴ βa keɴɕoː sɨpɯɾʲiʔto de aɾɯ. daɯɴ sɨɾɯ keɴɕoː sɨpɯɾʲiʔto no ɯe de no deɴɕa no kʲokɯseɴ ʥoːɕoː βa, joɾʲi joi modeɾɯ de βa nakɯ, ka tekʲiɡoː o ɕimeɕite iɾɯ."
+    },
+    {
+      "scene": 8,
+      "speech_start": 155.49,
+      "speech_end": 184.89000000000001,
+      "scene_end": 185.71,
+      "duration": 30.22,
+      "text": "調節された検証曲線は 0 ポイント8 5 5 に接近し, 0 ポイント8 4 5 に接近し,ベースラインは 0 ポイント7 8 6 に接近し, 0 ポイント7 5 に接近し,終了します. この表は,その差異をバッチサイズ,時代,学習率,ソースに結びつけています. 労働者の数は環境の漂移によって分かれています.",
+      "speech_text": "調節された検証曲線は 0 ポイント8 5 5 に接近し, 0 ポイント8 4 5 に接近し,ベースラインは 0 ポイント7 8 6 に接近し, 0 ポイント7 5 に接近し,終了します. この表は,その差異をバッチサイズ,時代,学習率,ソースに結びつけています. 労働者の数は環境の漂移によって分かれています.",
+      "phonemes": "ʨoːseʦɨ saɾeta keɴɕoː kʲokɯseɴ βa ʣeɾo pointo haʨi ɡo ɡo ɲi seʔkʲiɴ ɕi, ʣeɾo pointo haʨi joɴ ɡo ɲi seʔkʲiɴ ɕi, beːsɨɾaiɴ βa ʣeɾo pointo nana haʨi ɾokɯ ɲi seʔkʲiɴ ɕi, ʣeɾo pointo nana ɡo ɲi seʔkʲiɴ ɕi, ɕɨːɾʲoː ɕi masɨ. kono çoː βa, sono sai o baʔʨi saizɨ, ʥidai, ɡakɯɕɨː ɾʲiʦɨ, soːsɨ ɲi mɯsɨbʲiʦɨke te imasɨ. ɾoːdoːɕa no kazɨ βa kaŋkʲoː no çoːi ɲi joʔte βakaɾete imasɨ."
+    },
+    {
+      "scene": 9,
+      "speech_start": 185.71,
+      "speech_end": 202.13500000000002,
+      "scene_end": 202.63500000000002,
+      "duration": 16.92500000000001,
+      "text": "カーブをクリックして カーブの色だけに頼るのではなく カーブをクリックして カーブを識別します 選択されたシリーズは,そのフォルダーと各時代の測定値に戻ります.",
+      "speech_text": "カーブをクリックして カーブの色だけに頼るのではなく カーブをクリックして カーブを識別します 選択されたシリーズは,そのフォルダーと各時代の測定値に戻ります.",
+      "phonemes": "kaːbɯ o kɯɾʲiʔkɯ ɕite kaːbɯ no iɾo dake ɲi tajoɾɯ no de βa nakɯ kaːbɯ o kɯɾʲiʔkɯ ɕite kaːbɯ o ɕikʲibeʦɨ ɕi masɨ sentakɯ saɾeta ɕiɾʲiːzɨ βa, sono ɸoɾɯdaː to kakɯ ʥidai no sokɯteː ʨi ɲi modoɾʲimasɨ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 202.63500000000002,
+      "speech_end": 229.36,
+      "scene_end": 230.10000000000002,
+      "duration": 27.465000000000003,
+      "text": "詳細線はベースラインの検証シリーズ,その時代の範囲,最後の精度0点7点4点9点6点20点,最高の精度0点7点8点6点15点を示しています. その年代を同じ曲線が選択したため,最高の値は楽観主義とラベル付けされます.",
+      "speech_text": "詳細線はベースラインの検証シリーズ,その時代の範囲,最後の精度0点7点4点9点6点20点,最高の精度0点7点8点6点15点を示しています. その年代を同じ曲線が選択したため,最高の値は楽観主義とラベル付けされます.",
+      "phonemes": "ɕoːsai seɴ βa beːsɨɾaiɴ no keɴɕoː ɕiɾʲiːzɨ, sono ʥidai no haɴi, saiɡo no seːdo ʣeɾo teɴ nana teɴ joɴ teɴ kʲɨː teɴ ɾokɯ teɴ ɲiʥɨː teɴ, saikoː no seːdo ʣeɾo teɴ nana teɴ haʨi teɴ ɾokɯ teɴ ʥɨː ɡo teɴ o ɕimeɕite imasɨ. sono nendai o onaʥi kʲokɯseɴ ɡa sentakɯ ɕitatame, saikoː no atai βa ɾaʔkaɴ ɕɨɡʲi to ɾabeɾɯ zɨke saɾemasɨ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 230.10000000000002,
+      "speech_end": 241.02500000000003,
+      "scene_end": 241.50500000000002,
+      "duration": 11.405000000000001,
+      "text": "メトリックを開いて 損失を選択する 複数のメトリックを比較すると 優雅なエンドポイントを基に選択ができない.",
+      "speech_text": "メトリックを開いて 損失を選択する 複数のメトリックを比較すると 優雅なエンドポイントを基に選択ができない.",
+      "phonemes": "metoɾʲiʔkɯ o çiɾaite soɴɕiʦɨ o sentakɯ sɨɾɯ ɸɯkɯsɨː no metoɾʲiʔkɯ o çikakɯ sɨɾɯ to jɯːɡa na endo pointo o moto ɲi sentakɯ ɡa dekʲinai."
+    },
+    {
+      "scene": 12,
+      "speech_start": 241.50500000000002,
+      "speech_end": 259.33000000000004,
+      "scene_end": 259.95000000000005,
+      "duration": 18.44500000000002,
+      "text": "Lossは同じ実行で設定が異なる. ここで訓練損失は下がり続け 検証損失は上向きに変化し 遅い過調整は 精度のみではなく 2度目の測定から見えるようにします",
+      "speech_text": "Lossは同じ実行で設定が異なる. ここで訓練損失は下がり続け 検証損失は上向きに変化し 遅い過調整は 精度のみではなく 2度目の測定から見えるようにします",
+      "phonemes": "Loss βa onaʥi ʥiʔkoː de seʔteː ɡa kotonaɾɯ. koko de kɯnɾeɴ soɴɕiʦɨ βa saɡaɾʲi ʦɨzɨke keɴɕoː soɴɕiʦɨ βa ɯβamɯkʲi ɲi heŋka ɕi osoi ka ʨoːseː βa seːdo nomʲi de βa nakɯ ɲi do me no sokɯteː kaɾa mʲieɾɯ joː ɲi ɕi masɨ"
+    },
+    {
+      "scene": 13,
+      "speech_start": 259.95000000000005,
+      "speech_end": 275.20000000000005,
+      "scene_end": 275.78000000000003,
+      "duration": 15.829999999999984,
+      "text": "平均プラスまたはマイナス標準偏差を選択します. これは,平均が単一の観察された実行であるようにしない限り,クロス検証を概要します.",
+      "speech_text": "平均プラスまたはマイナス標準偏差を選択します. これは,平均が単一の観察された実行であるようにしない限り,クロス検証を概要します.",
+      "phonemes": "heːkʲiɴ pɯɾasɨ mata βa mainasɨ çoːʥɨɴheɴsa o sentakɯ ɕi masɨ. koɾe βa, heːkʲiɴ ɡa taɴiʦɨ no kaɴsaʦɨ saɾeta ʥiʔkoː de aɾɯ joː ɲi ɕinai kaɡʲiɾʲi, kɯɾosɨ keɴɕoː o ɡaijoː ɕi masɨ."
+    },
+    {
+      "scene": 14,
+      "speech_start": 275.78000000000003,
+      "speech_end": 296.105,
+      "scene_end": 296.76500000000004,
+      "duration": 20.985000000000014,
+      "text": "青い帯は3つの折りたたみで 1つの標準偏差をプラスまたはマイナスとする. 平均検証曲線は 0 点8 3 の近くで終わりますが,バンドは単一の線が隠すという 折り折り不確実性を暴露します.",
+      "speech_text": "青い帯は3つの折りたたみで 1つの標準偏差をプラスまたはマイナスとする. 平均検証曲線は 0 点8 3 の近くで終わりますが,バンドは単一の線が隠すという 折り折り不確実性を暴露します.",
+      "phonemes": "aoi obʲi βa saɴ ʦɨ no oɾʲitatamʲi de i ʨiʦɨ no çoːʥɨɴheɴsa o pɯɾasɨ mata βa mainasɨ to sɨɾɯ. heːkʲiɴ keɴɕoː kʲokɯseɴ βa ʣeɾo teɴ haʨi saɴ no ʨikakɯ de oβaɾʲimasɨ ɡa, bando βa taɴiʦɨ no seɴ ɡa kakɯsɨ to jɯː oɾʲioɾʲi ɸɯkakɯʥiʦɨseː o bakɯɾo ɕi masɨ."
+    },
+    {
+      "scene": 15,
+      "speech_start": 296.76500000000004,
+      "speech_end": 314.04,
+      "scene_end": 314.56,
+      "duration": 17.79499999999996,
+      "text": "折りたたみごとに選択してください 個々の折りたみ行動が重要なとき. これは,早期停止後,より少ない折りで支える不安定な裂け目や尾を検出するのに特に便利です.",
+      "speech_text": "折りたたみごとに選択してください 個々の折りたみ行動が重要なとき. これは,早期停止後,より少ない折りで支える不安定な裂け目や尾を検出するのに特に便利です.",
+      "phonemes": "oɾʲitatamʲi ɡoto ɲi sentakɯ ɕite kɯdasai koko no oɾʲi tamʲi koːdoː ɡa ʥɨːjoː na tokʲi. koɾe βa, soːkʲi teːɕi ɡo, joɾʲi sɨkɯnai oɾʲi de sasaeɾɯ ɸɯanteː na sakeme ja o o keɴɕɨʦɨ sɨɾɯ no ɲi tokɯɲi benɾʲi desɨ."
+    },
+    {
+      "scene": 16,
+      "speech_start": 314.56,
+      "speech_end": 341.385,
+      "scene_end": 342.205,
+      "duration": 27.644999999999982,
+      "text": "折りたたみモードは,列車と検証シリーズの各列を 走れ,分割,折りたたみで描く. 検証行動,折りたたみ安定性,継続的な評価,および設定監査を一緒に使用する.トレーニングランスは証拠を比較しますが,科学的に再現可能な勝者を自体に宣言しません.",
+      "speech_text": "折りたたみモードは,列車と検証シリーズの各列を 走れ,分割,折りたたみで描く. 検証行動,折りたたみ安定性,継続的な評価,および設定監査を一緒に使用する.トレーニングランスは証拠を比較しますが,科学的に再現可能な勝者を自体に宣言しません.",
+      "phonemes": "oɾʲitatamʲi moːdo βa, ɾeʔɕa to keɴɕoː ɕiɾʲiːzɨ no kakɯ ɾeʦɨ o haɕiɾe, bɯŋkaʦɨ, oɾʲitatamʲi de eɡakɯ. keɴɕoː koːdoː, oɾʲitatamʲi anteː seː, keːʣokɯ tekʲi na çoːka, ojobʲi seʔteː kaɴsa o iʔɕoɲi ɕijoː sɨɾɯ. toɾeːɲiŋɡɯ ɾaɴsɨ βa ɕoːko o çikakɯ ɕi masɨ ɡa, kaɡakɯtekʲiɲi saiɡeɴ kanoː na ɕoːɕa o ʥitai ɲi seŋɡeɴ ɕi maseɴ."
     }
   ]
 }

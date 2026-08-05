@@ -4,47 +4,107 @@
   "voice": "am_echo",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 48.875,
+  "total_duration": 139.35,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 8.8,
-      "scene_end": 9.25,
-      "duration": 9.25,
-      "text": "This tutorial covers Annotator Agreement. Measure agreement between annotation columns and review the objects responsible for disagreement."
+      "speech_end": 14.725,
+      "scene_end": 15.275,
+      "duration": 15.275,
+      "text": "Annotator Agreement compares two or more categorical columns without changing the database. Use it for two reviewers, repeated annotation passes, or a reviewer-versus-model check, then inspect both summary statistics and the exact crops that disagree.",
+      "speech_text": "Annotator Agreement compares two or more categorical columns without changing the database. Use it for two reviewers, repeated annotation passes, or a reviewer-versus-model check, then inspect both summary statistics and the exact crops that disagree.",
+      "phonemes": "ˈænətˌATəɹ əɡɹˈimᵊnt kəmpˈɛɹz tˈu ɔɹ mˈɔɹ kˌæTəɡˈɔɹəkᵊl kˈɑləmz wɪðˈWt ʧˈAnʤɪŋ ðə dˈæTəbˌAs. jˈuz ɪt fɔɹ tˈu ɹəvjˈuəɹz, ɹəpˈiTᵻd ˌænətˈAʃən pˈæsᵻz, ɔɹ ɐ ɹəvjˈuəɹvˈɜɹsəsmˌɑdᵊl ʧˈɛk, ðˈɛn ɪnspˈɛkt bˈOθ sˈʌməɹi stətˈɪstɪks ænd ði ɪɡzˈækt kɹˈɑps ðæt dˌɪsəɡɹˈi."
     },
     {
       "scene": 2,
-      "speech_start": 9.25,
-      "speech_end": 18.925,
-      "scene_end": 19.375,
-      "duration": 10.125,
-      "text": "Open Annotator Agreement from the Results and quality control section. Choose a project database and two or more annotation columns covering the same objects."
+      "speech_start": 15.275,
+      "speech_end": 26.1,
+      "scene_end": 26.6,
+      "duration": 11.325000000000001,
+      "text": "Choose a measurements database, or its containing run folder. spaCR discovers suitable annotation and prediction columns from the PNG list table and leaves source labels read-only.",
+      "speech_text": "Choose a measurements database, or its containing run folder. spacer discovers suitable annotation and prediction columns from the PNG list table and leaves source labels read-only.",
+      "phonemes": "ʧˈuz ɐ mˈɛʒəɹmᵊnts dˈæTəbˌAs, ɔɹ ɪts kəntˈAnɪŋ ɹˈʌn fˈOldəɹ. spˈAsəɹ dəskˈʌvəɹz sˈuTəbᵊl ˌænətˈAʃən ænd pɹidˈɪkʃən kˈɑləmz fɹʌm ðə pˌiˌɛnʤˈi lˈɪst tˈAbᵊl ænd lˈivz sˈɔɹs lˈAbəlz ɹˈidˌOnli."
     },
     {
       "scene": 3,
-      "speech_start": 19.375,
-      "speech_end": 27.4,
-      "scene_end": 27.849999999999998,
-      "duration": 8.474999999999998,
-      "text": "In the main configuration area, select class handling, missing-label policy, grouping, sampling, and the agreement statistic."
+      "speech_start": 26.6,
+      "speech_end": 39.0,
+      "scene_end": 39.55,
+      "duration": 12.949999999999996,
+      "text": "Select at least two columns. Here ER_Bulbs is compared with predictions_1 across the same cell crops. Additional selected columns enable all pairwise comparisons and a multi-rater Fleiss kappa summary.",
+      "speech_text": "Select at least two columns. Here ER_Bulbs is compared with predictions_1 across the same cell crops. Additional selected columns enable all pairwise comparisons and a multi-rater Fleiss kappa summary.",
+      "phonemes": "səlˈɛkt æt lˈist tˈu kˈɑləmz. hˈɪɹ ˌɜɹbˈʌlbz ɪz kəmpˈɛɹd wɪð pɹidˈɪkʃənz wˈʌn əkɹˈɔs ðə sˈAm sˈɛl kɹˈɑps. ədˈɪʃənᵊl səlˈɛktᵻd kˈɑləmz ɪnˈAbᵊl ˈɔl pˈɛɹwˌIz kəmpˈɛɹəsᵊnz ænd ɐ mˈʌltIɹˈATəɹ flˈɛs kˈæpə sˈʌməɹi."
     },
     {
       "scene": 4,
-      "speech_start": 27.849999999999998,
-      "speech_end": 39.849999999999994,
-      "scene_end": 40.3,
-      "duration": 12.45,
-      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. inspect Cohen or Fleiss kappa together with class-specific confusion and disagreement examples."
+      "speech_start": 39.55,
+      "speech_end": 50.125,
+      "scene_end": 50.625,
+      "duration": 11.075000000000003,
+      "text": "Click Compute Agreement. Missing labels are treated as abstentions, not disagreements; each pair is evaluated only on rows where both selected columns contain a category.",
+      "speech_text": "Click Compute Agreement. Missing labels are treated as abstentions, not disagreements; each pair is evaluated only on rows where both selected columns contain a category.",
+      "phonemes": "klˈɪk kəmpjˈut əɡɹˈimᵊnt. mˈɪsɪŋ lˈAbəlz ɑɹ tɹˈiTᵻd æz əbstˈɛnʧᵊnz, nˌɑt dˌɪsəɡɹˈimənts; ˈiʧ pˈɛɹ ɪz əvˈæljʊˌATᵻd ˈOnli ˌɔn ɹˈOz wˌɛɹ bˈOθ səlˈɛktᵻd kˈɑləmz kəntˈAn ɐ kˈæTəɡˌɔɹi."
     },
     {
       "scene": 5,
-      "speech_start": 40.3,
-      "speech_end": 48.224999999999994,
-      "scene_end": 48.87499999999999,
-      "duration": 8.574999999999996,
-      "text": "When the workflow finishes, agreement tables and a focused review set support label reconciliation and protocol improvement."
+      "speech_start": 50.625,
+      "speech_end": 60.95,
+      "scene_end": 61.400000000000006,
+      "duration": 10.775000000000006,
+      "text": "The computation aligns labels by crop, counts complete and abstained rows, builds each confusion matrix, and finds disagreements that can be traced back to their source images.",
+      "speech_text": "The computation aligns labels by crop, counts complete and abstained rows, builds each confusion matrix, and finds disagreements that can be traced back to their source images.",
+      "phonemes": "ðə kˌɑmpjətˈAʃən əlˈInz lˈAbəlz bI kɹˈɑp, kˈWnts kəmplˈit ænd əbstˈAnd ɹˈOz, bˈɪldz ˈiʧ kənfjˈuʒᵊn mˈAtɹɪks, ænd fˈIndz dˌɪsəɡɹˈimənts ðæt kæn bi tɹˈAst bˈæk tə ðɛɹ sˈɔɹs ˈɪmɪʤᵻz."
+    },
+    {
+      "scene": 6,
+      "speech_start": 61.400000000000006,
+      "speech_end": 80.22500000000001,
+      "scene_end": 81.075,
+      "duration": 19.674999999999997,
+      "text": "This real pair has one thousand three hundred fifty-nine complete rows, eighty thousand six hundred ten abstentions, eight disagreements, and ninety-nine point four percent raw agreement. Cohen's kappa is undefined here—not zero—because ER_Bulbs uses only one class on every complete row, making the chance-agreement denominator degenerate.",
+      "speech_text": "This real pair has one thousand three hundred fifty-nine complete rows, eighty thousand six hundred ten abstentions, eight disagreements, and ninety-nine point four percent raw agreement. Cohen's kappa is undefined here—not zero—because ER_Bulbs uses only one class on every complete row, making the chance-agreement denominator degenerate.",
+      "phonemes": "ðˌɪs ɹˈiᵊl pˈɛɹ hæz wˈʌn θˈWzᵊnd θɹˈi hˈʌndɹəd fˈɪftinˌIn kəmplˈit ɹˈOz, ˈATi θˈWzᵊnd sˈɪks hˈʌndɹəd tˈɛn əbstˈɛnʧᵊnz, ˈAt dˌɪsəɡɹˈimənts, ænd nˈIndinˌIn pˈYnt fˈɔɹ pəɹsˈɛnt ɹˈɔ əɡɹˈimᵊnt. kˈOənz kˈæpə ɪz ˌʌndəfˈInd hˈɪɹ—nˌɑt zˈɪɹO—bəkˈʌz iˌɑɹbˈʌlbz jˈuzᵻz ˈOnli wˈʌn klˈæs ˌɔn ˈɛvəɹi kəmplˈit ɹˈO, mˈAkɪŋ ðə ʧˌænsəɡɹˈimᵊnt dənˈɑmənˌATəɹ dəʤˈɛnəɹət."
+    },
+    {
+      "scene": 7,
+      "speech_start": 81.075,
+      "speech_end": 95.95,
+      "scene_end": 96.65,
+      "duration": 15.575000000000003,
+      "text": "The confusion matrix exposes that class imbalance directly: one thousand three hundred fifty-one rows are class one in both columns, while eight rows are class one in ER_Bulbs and class two in predictions_1. ER_Bulbs contributes no complete class-two rows.",
+      "speech_text": "The confusion matrix exposes that class imbalance directly: one thousand three hundred fifty-one rows are class one in both columns, while eight rows are class one in ER_Bulbs and class two in predictions_1. ER_Bulbs contributes no complete class-two rows.",
+      "phonemes": "ðə kənfjˈuʒᵊn mˈAtɹɪks ɪkspˈOzᵻz ðˈæt klˈæs ɪmbˈæləns dəɹˈɛktli: wˈʌn θˈWzᵊnd θɹˈi hˈʌndɹəd fˈɪftiwˌʌn ɹˈOz ɑɹ klˈæs wˈʌn ɪn bˈOθ kˈɑləmz, wˌIl ˈAt ɹˈOz ɑɹ klˈæs wˈʌn ɪn ˌɜɹbˈʌlbz ænd klˈæs tˈu ɪn pɹidˈɪkʃənz wˈʌn. ˌɜɹbˈʌlbz kəntɹˈɪbjuts nˈO kəmplˈit klˈæstˌu ɹˈOz."
+    },
+    {
+      "scene": 8,
+      "speech_start": 96.65,
+      "speech_end": 108.15,
+      "scene_end": 108.75,
+      "duration": 12.099999999999994,
+      "text": "The disagreement table lists those eight real crops and both labels. Change the review limit for larger comparisons, select any row, and use the preview instead of deciding from an aggregate score alone.",
+      "speech_text": "The disagreement table lists those eight real crops and both labels. Change the review limit for larger comparisons, select any row, and use the preview instead of deciding from an aggregate score alone.",
+      "phonemes": "ðə dˌɪsəɡɹˈimənt tˈAbᵊl lˈɪsts ðOz ˈAt ɹˈiᵊl kɹˈɑps ænd bˈOθ lˈAbəlz. ʧˈAnʤ ðə ɹəvjˈu lˈɪmət fɔɹ lˈɑɹʤəɹ kəmpˈɛɹəsᵊnz, səlˈɛkt ˈɛni ɹˈO, ænd jˈuz ðə pɹˈivjˌu ɪnstˈɛd ʌv dəsˈIdɪŋ fɹʌm ɐn ˈæɡɹəɡət skˈɔɹ əlˈOn."
+    },
+    {
+      "scene": 9,
+      "speech_start": 108.75,
+      "speech_end": 123.5,
+      "scene_end": 124.15,
+      "duration": 15.400000000000006,
+      "text": "Selecting a disagreement resolves the stored crop path and displays the microscopy image beside its two categorical values. Review morphology and signal context before choosing whether a label, threshold, or class definition needs correction.",
+      "speech_text": "Selecting a disagreement resolves the stored crop path and displays the microscopy image beside its two categorical values. Review morphology and signal context before choosing whether a label, threshold, or class definition needs correction.",
+      "phonemes": "sᵻlˈɛktɪŋ ɐ dˌɪsəɡɹˈimənt ɹəzˈɔlvz ðə stˈɔɹd kɹˈɑp pˈæθ ænd dəsplˈAz ðə mIkɹˈɑskəpi ˈɪmɪʤ bəsˈId ɪts tˈu kˌæTəɡˈɔɹəkᵊl vˈæljuz. ɹəvjˈu mɔɹfˈɑləʤi ænd sˈɪɡnᵊl kˈɑntɛkst bəfˈɔɹ ʧˈuzɪŋ wˈɛðəɹ ɐ lˈAbəl, θɹˈɛʃhˌOld, ɔɹ klˈæs dˌɛfənˈɪʃən nˈidz kəɹˈɛkʃən."
+    },
+    {
+      "scene": 10,
+      "speech_start": 124.15,
+      "speech_end": 138.6,
+      "scene_end": 139.35,
+      "duration": 15.199999999999989,
+      "text": "Move through the disagreement rows to adjudicate systematically. Report raw agreement, class balance, abstentions, the confusion matrix, and kappa together; here the undefined kappa is a useful warning about prevalence, not a failure of the comparison.",
+      "speech_text": "Move through the disagreement rows to adjudicate systematically. Report raw agreement, class balance, abstentions, the confusion matrix, and kappa together; here the undefined kappa is a useful warning about prevalence, not a failure of the comparison.",
+      "phonemes": "mˈuv θɹu ðə dˌɪsəɡɹˈimənt ɹˈOz tʊ əʤˈudəkˌAt sˌɪstəmˈæTəkᵊli. ɹəpˈɔɹt ɹˈɔ əɡɹˈimᵊnt, klˈæs bˈæləns, əbstˈɛnʧᵊnz, ðə kənfjˈuʒᵊn mˈAtɹɪks, ænd kˈæpə təɡˈɛðəɹ; hˈɪɹ ði ˌʌndəfˈInd kˈæpə ɪz ɐ jˈusfᵊl wˈɔɹnɪŋ əbˈWt pɹˈɛvᵊləns, nˌɑt ɐ fˈAljəɹ ʌv ðə kəmpˈɛɹəsᵊn."
     }
   ]
 }

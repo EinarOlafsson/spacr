@@ -313,8 +313,10 @@ def test_process_model_coefficients_rejects_unknown_regression_type():
     from spacr.ml import process_model_coefficients
 
     model = _fit_formula_model(_coef_dataframe(seed=4))
-    with pytest.raises(ValueError, match="Unsupported regression type: quantile"):
-        process_model_coefficients(model, "quantile", X=None, y=None,
+    # 'quantile' used to be the example of an unsupported type here; it is a
+    # real backend now, so the rejection is tested with a name that is not.
+    with pytest.raises(ValueError, match="Unsupported regression type: banana"):
+        process_model_coefficients(model, "banana", X=None, y=None,
                                    nc="nc_g1", pc="pc_g1", controls=[])
 
 
@@ -409,11 +411,24 @@ def test_pick_glm_family_binary_uses_binomial_logit():
     assert isinstance(fam.link, sm.families.links.Logit)
 
 
-def test_pick_glm_family_strict_proportions_raise():
+def test_pick_glm_family_strict_proportions_use_binomial_logit(capsys):
+    """A proportion inside (0, 1) gets the same family as one that touches 0.
+
+    This used to raise "Use BetaModel for this data; GLM is not applicable",
+    which made regression_type='glm' unusable on spaCR's most common response
+    -- a per-well mean score -- while the very next branch fitted exactly this
+    family as soon as one well landed on 0.0 or 1.0. Beta regression is still
+    recommended, in the printed message, and regression_type='beta' is how the
+    recommendation is taken.
+    """
+    import statsmodels.api as sm
+
     from spacr.ml import pick_glm_family_and_link
 
-    with pytest.raises(ValueError, match="Use BetaModel"):
-        pick_glm_family_and_link(np.array([0.1, 0.4, 0.9]))
+    fam = pick_glm_family_and_link(np.array([0.1, 0.4, 0.9]))
+    assert isinstance(fam, sm.families.Binomial)
+    assert isinstance(fam.link, sm.families.links.Logit)
+    assert "consider regression_type='beta'" in capsys.readouterr().out
 
 
 def test_pick_glm_family_bounded_with_zero_uses_binomial_logit():

@@ -369,24 +369,65 @@ def test_visualize_smooth_grad_reuses_existing_save_dir(tmp_path, rng):
     assert (save_dir / "keep_me.txt").read_text() == "previous run"
 
 
-def test_visualize_smooth_grad_handles_image_size_mismatch(tmp_path, rng):
+def test_visualize_smooth_grad_handles_image_size_mismatch(tmp_path, rng,
+                                                           monkeypatch):
     """Source images larger than image_size must still be visualised.
 
     preprocess_image returns the UNRESIZED PIL image alongside the resized
     tensor, so ``overlay * 0.5 + smooth_grad_map_rgb * 0.5`` used to blend a
     (H,W,3) array with an (image_size,image_size,3) one; the overlay is now
     built at the map's resolution.
+
+    That is what is asserted: the "Original Image" panel keeps the full 16x16
+    source while the "Overlay" panel comes out 8x8 — the map's resolution — and
+    holds the exact 50/50 blend of the downscaled original with the map. Two
+    resolutions in one figure is the whole point; a run that merely did not
+    raise could not tell which one the blend happened at.
     """
-    from spacr.deep_spacr import visualize_smooth_grad
-    model = _linear_model(3 * 8 * 8, 2)
+    import spacr.deep_spacr as ds
+    size, source_size = 8, 16
+    model = _linear_model(3 * size * size, 2)
     model_path = _save_model(model, tmp_path / "m.pth")
 
     src = tmp_path / "src_big"
     src.mkdir()
-    _write_png(src / "big.png", rng, size=16)  # 16 != image_size=8
+    png = src / "big.png"
+    _write_png(png, rng, size=source_size)  # 16 != image_size=8
 
-    visualize_smooth_grad(str(src), model_path, 1, image_size=8,
-                          save_smooth_grad=False)
+    captured = []
+    monkeypatch.setattr(ds.plt, "show", lambda *a, **k: captured.append(
+        [{"title": ax.get_title(),
+          "data": None if not ax.images
+                  else np.asarray(ax.images[0].get_array())}
+         for ax in plt.gcf().axes]))
+
+    ds.visualize_smooth_grad(str(src), model_path, 1, image_size=size,
+                             save_smooth_grad=False)
+
+    assert len(captured) == 1
+    panels = captured[0]
+    assert [p["title"] for p in panels] == ["Original Image", "SmoothGrad",
+                                            "Overlay"]
+    original, smooth, overlay = (p["data"] for p in panels)
+
+    # The original panel keeps the source resolution ...
+    assert original.shape == (source_size, source_size, 3)
+    # ... while the map, and therefore the blend, live at image_size.
+    assert smooth.shape == (size, size)
+    assert overlay.shape == (size, size, 3)
+    assert overlay.shape[:2] != original.shape[:2]
+
+    # The blend is the real thing, not the map painted three times: rebuild it
+    # from the source PNG and the analytically-known map.
+    expected_map = _expected_smooth_grad_map(model[1].weight[1], size)
+    assert np.allclose(smooth, expected_map, atol=1e-5)
+    small = np.array(Image.open(png).convert("RGB").resize((size, size)))
+    small = small / small.max()
+    expected_overlay = (small * 0.5
+                        + np.stack([expected_map] * 3, axis=-1) * 0.5).clip(0, 1)
+    assert np.allclose(overlay, expected_overlay, atol=1e-5)
+    # the image half really contributed: a map-only overlay would be grey
+    assert not np.allclose(overlay[..., 0], overlay[..., 1])
 
 
 # ---------------------------------------------------------------------------

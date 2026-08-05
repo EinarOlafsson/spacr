@@ -262,6 +262,9 @@ class ForeignScreen(QWidget):
         self._job_settled.connect(self._on_job_settled)
         self._progress.connect(self._on_progress)
         self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("foreign"), self)
         self._set_status(
             "Choose their images, their mask folder(s) and their measurement "
             "table, then Preview. Nothing is written until you press Import.")
@@ -922,7 +925,7 @@ class ForeignScreen(QWidget):
         self._pending.append((box, on_done))
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(self._job_settled)
-        thread.finished.connect(lambda t=thread: self._retire_job(t))
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -952,6 +955,30 @@ class ForeignScreen(QWidget):
                 ok = False
         self._update_controls()
         self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
         """Release *this* job's refs once its own event loop has exited."""

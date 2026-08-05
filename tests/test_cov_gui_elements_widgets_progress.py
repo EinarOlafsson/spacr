@@ -19,11 +19,11 @@ from tkinter import ttk
 
 import pytest
 
-try:
-    import spacr.gui_elements as ge
-except Exception as e:  # pragma: no cover - env without a usable display
-    pytest.skip(f"spacr.gui_elements unavailable in this env: {e}",
-                allow_module_level=True)
+# Unguarded on purpose: tests/conftest.py stubs mouseinfo, pyautogui and
+# screeninfo before any test module loads, so the display-less import failure
+# this guard was written for cannot happen any more. An import failure here is
+# a bug in spacr.gui_elements, and it must fail the file rather than skip it.
+import spacr.gui_elements as ge
 
 
 # ---------------------------------------------------------------------------
@@ -156,13 +156,6 @@ def test_progressbar_set_label_position_maps_the_label(tk_root):
     assert int(info['columnspan']) == int(bar.grid_info()['columnspan'])
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: spacrProgressBar.set_label_position reads grid_info()['rowID'] "
-           "/ ['columnID'], which are never keys of Tk's grid_info() (they are "
-           "'row'/'column'), so the label is always pinned to row 1/column 0 "
-           "instead of directly beneath the progress bar.",
-)
 def test_progressbar_label_sits_directly_beneath_the_bar(tk_root):
     """The label must land one row below the bar, in the bar's column."""
     bar = ge.spacrProgressBar(tk_root, label=True)

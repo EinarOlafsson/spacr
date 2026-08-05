@@ -151,9 +151,17 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     its subject and its stage. There is one grouping again, so both
     halves are back to a straight partition of the registry, and how
     finished an app is is asserted separately over ``APP_STAGE``.
+
+    Registration is forced first, so the registry read here is the one a
+    launched GUI has. Nine apps join it at ``spacr.qt.run()`` time rather than
+    from ``app.py``, and every number below is a claim about the list the user
+    is looking at. ``tests/qt/conftest.py::_restore_app_registry`` puts it back
+    afterwards.
     """
+    import spacr.qt
     from spacr.qt.app import app_stage
 
+    spacr.qt.register_self_registering_modules()
     keys = [a[0] for a in APPS]
 
     subject = [k for s in SECTIONS for k, *_ in section_members(s)]
@@ -165,8 +173,19 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
         "an app is missing from Home, or drawn on it twice")
 
     staged = [k for k in keys if app_stage(k) != "stable"]
-    assert len(staged) == 22, (
-        f"{len(staged)} apps staged, not 22 — if that is intended, say so "
+    # Forty-two, and it moved for two reasons at once, which is why it is
+    # worth writing down. Apps kept arriving alpha — Pipeline Graph, Hit
+    # List, Prediction Profiler and Methods & Results, then Control Charts,
+    # Dose Response, Trellis, Gate Editor, Feature Explorer, Outliers,
+    # Project Browser and the rest of the self-registering set. And the count
+    # is now taken over the REGISTERED registry rather than the module-level
+    # one, which is the list the user actually sees: the same expression read
+    # 45 of 53 before registration and 42 of 62 after it, so the old number
+    # was answering a question nobody asks. The count is the user's list — how
+    # many of the apps in front of them carry a "not signed off" colour — and
+    # it drops by one every time an app is signed off.
+    assert len(staged) == 42, (
+        f"{len(staged)} apps staged, not 42 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

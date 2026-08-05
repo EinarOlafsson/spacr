@@ -73,6 +73,7 @@ const elements = {
   next: $("#next-button"), previousTitle: $("#previous-title"),
   nextTitle: $("#next-title"), complete: $("#complete-button"),
   completeLabel: $("#complete-label"), copyLink: $("#copy-link-button"),
+  youtubeLink: $("#youtube-link"),
   continue: $("#continue-button"), progressLabel: $("#progress-label"),
   progressBar: $("#progress-bar"), availableCount: $("#available-count"),
   totalCount: $("#total-count"), sidebar: $("#sidebar"),
@@ -89,7 +90,10 @@ let captionCatalog = BASE_CATALOG;
 let activeLesson = null;
 let chapterData = [];
 let audioTimings = null;
+let visualTimings = null;
 let syncRate = 1;
+let userPlaybackRate = 1;
+let programmedVideoRate = 1;
 let captionUrl = "";
 let captionTrackLoading = false;
 let toastTimer = null;
@@ -692,7 +696,26 @@ function updateLessonHeader() {
   elements.status.className = "status-pill ready";
   elements.title.textContent = lesson.title;
   elements.description.textContent = lesson.description;
+  updateYoutubeLink();
   document.title = `${lesson.title} · spaCR Learning Path`;
+}
+
+// The player streams a 1440p copy to stay inside the published-media budget;
+// YouTube carries the 4K cut. Lessons without an id in youtube_links.js show
+// no link at all, so the catalogue can be filled in a few lessons at a time.
+function updateYoutubeLink() {
+  if (!elements.youtubeLink) return;
+  const links = window.SPACR_YOUTUBE_LINKS || {};
+  const id = activeLesson && typeof links[activeLesson.id] === "string"
+    ? links[activeLesson.id].trim() : "";
+  if (!id) {
+    elements.youtubeLink.hidden = true;
+    elements.youtubeLink.removeAttribute("href");
+    return;
+  }
+  elements.youtubeLink.href = `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`;
+  elements.youtubeLink.title = `Watch "${localizedLesson(activeLesson.id).title}" in 4K on YouTube`;
+  elements.youtubeLink.hidden = false;
 }
 
 function updateGuide() {
@@ -744,6 +767,7 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   elements.audio.pause();
   narrationAudioAvailable = false;
   audioTimings = null;
+  visualTimings = null;
   clearCaptions();
   if (elements.voice.value === "silent") {
     elements.audio.removeAttribute("src");
@@ -792,26 +816,89 @@ function configureMediaSync() {
   if (!narrationAudioAvailable || !elements.audio.duration ||
       !elements.video.duration || elements.voice.value === "silent") {
     syncRate = 1;
+    userPlaybackRate = 1;
+    programmedVideoRate = 1;
     elements.video.defaultPlaybackRate = 1;
     elements.video.playbackRate = 1;
     return;
   }
-  syncRate = elements.video.duration / elements.audio.duration;
-  elements.video.defaultPlaybackRate = syncRate;
-  elements.video.playbackRate = syncRate;
+  userPlaybackRate = 1;
   elements.audio.playbackRate = 1;
   elements.audio.volume = elements.video.volume;
   elements.audio.muted = elements.video.muted;
   syncAudio(true);
 }
 
+function timingDuration(timings, fallback = 0) {
+  return Number(timings?.total_duration) || fallback || 0;
+}
+
+function timingScene(timings, seconds) {
+  const scenes = timings?.scenes;
+  if (!Array.isArray(scenes) || !scenes.length) return null;
+  const bounded = Math.max(0, Math.min(seconds, timingDuration(timings, seconds)));
+  let index = scenes.findIndex(scene => bounded < Number(scene.scene_end));
+  if (index < 0) index = scenes.length - 1;
+  return { index, scene: scenes[index] };
+}
+
+function mapTiming(seconds, fromTimings, toTimings) {
+  const fromDuration = timingDuration(fromTimings);
+  const toDuration = timingDuration(toTimings);
+  if (!fromDuration || !toDuration) return fromDuration ? seconds / fromDuration * toDuration : seconds;
+  const located = timingScene(fromTimings, seconds);
+  const target = located && toTimings?.scenes?.[located.index];
+  if (!located || !target) return seconds / fromDuration * toDuration;
+  const sourceStart = Number(located.scene.speech_start) || 0;
+  const sourceEnd = Number(located.scene.scene_end) || sourceStart;
+  const targetStart = Number(target.speech_start) || 0;
+  const targetEnd = Number(target.scene_end) || targetStart;
+  const progress = sourceEnd > sourceStart
+    ? clamp((seconds - sourceStart) / (sourceEnd - sourceStart), 0, 1) : 0;
+  return targetStart + progress * (targetEnd - targetStart);
+}
+
+function videoTimeFromAudio(audioSeconds) {
+  if (!elements.video.duration) return audioSeconds;
+  const referenceDuration = timingDuration(visualTimings, elements.video.duration);
+  const referenceTime = mapTiming(audioSeconds, audioTimings, visualTimings || audioTimings);
+  return referenceDuration ? referenceTime / referenceDuration * elements.video.duration : audioSeconds;
+}
+
+function audioTimeFromVideo(videoSeconds) {
+  if (!elements.video.duration) return videoSeconds;
+  const referenceDuration = timingDuration(visualTimings, elements.video.duration);
+  const referenceTime = videoSeconds / elements.video.duration * referenceDuration;
+  return mapTiming(referenceTime, visualTimings || audioTimings, audioTimings);
+}
+
+function updateSceneSyncRate(audioSeconds) {
+  if (!narrationAudioAvailable || !elements.video.duration ||
+      !audioTimings || !visualTimings) return;
+  const selected = timingScene(audioTimings, audioSeconds);
+  const reference = selected && visualTimings.scenes?.[selected.index];
+  if (!selected || !reference) return;
+  const selectedDuration = Number(selected.scene.scene_end) - Number(selected.scene.speech_start);
+  const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
+  const referenceTotal = timingDuration(visualTimings, elements.video.duration);
+  if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
+  syncRate = elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
+  programmedVideoRate = clamp(syncRate * userPlaybackRate, 0.0625, 16);
+  elements.video.defaultPlaybackRate = syncRate;
+  if (Math.abs(elements.video.playbackRate - programmedVideoRate) > 0.001) {
+    elements.video.playbackRate = programmedVideoRate;
+  }
+  elements.audio.playbackRate = userPlaybackRate;
+}
+
 function syncAudio(force = false) {
   if (!narrationAudioAvailable || elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
-  const target = elements.video.currentTime / elements.video.duration * elements.audio.duration;
+  const target = audioTimeFromVideo(elements.video.currentTime);
   if (force || Math.abs(elements.audio.currentTime - target) > 0.16) {
     elements.audio.currentTime = Math.min(target, Math.max(0, elements.audio.duration - 0.02));
   }
+  updateSceneSyncRate(target);
 }
 
 async function loadLessonDetail(isCurrent = () => true) {
@@ -825,8 +912,15 @@ async function loadLessonDetail(isCurrent = () => true) {
     }
     if (!response.ok) throw new Error("timings unavailable");
     const timings = await response.json();
+    let referenceTimings = timings;
+    if (requestedSource !== defaultTimingSource()) {
+      const referenceResponse = await fetch(defaultTimingSource());
+      if (referenceResponse.ok) referenceTimings = await referenceResponse.json();
+    }
     if (!isCurrent()) return;
     audioTimings = timings;
+    visualTimings = referenceTimings;
+    configureMediaSync();
     rebuildChapterData();
     renderCaptions();
     renderChapters();
@@ -880,8 +974,6 @@ function renderCaptions() {
     return;
   }
   if (captionUrl) URL.revokeObjectURL(captionUrl);
-  const timingDuration = audioTimings.total_duration || elements.audio.duration || elements.video.duration;
-  const scale = timingDuration ? elements.video.duration / timingDuration : 1;
   const lines = ["WEBVTT", ""];
   let cueIndex = 0;
   chapterData.forEach(chapter => {
@@ -895,7 +987,7 @@ function renderCaptions() {
         ? chapter.end : cursor + duration * weights[index] / totalWeight;
       lines.push(
         String(++cueIndex),
-        `${vttTime(cursor * scale)} --> ${vttTime(end * scale)}`,
+        `${vttTime(videoTimeFromAudio(cursor))} --> ${vttTime(videoTimeFromAudio(end))}`,
         sentence.replaceAll("-->", "→"),
         ""
       );
@@ -940,8 +1032,7 @@ function renderTranscript() {
 }
 
 function seekTo(audioSeconds) {
-  const audioDuration = audioTimings?.total_duration || elements.audio.duration || elements.video.duration;
-  elements.video.currentTime = audioDuration ? audioSeconds / audioDuration * elements.video.duration : audioSeconds;
+  elements.video.currentTime = videoTimeFromAudio(audioSeconds);
   syncAudio(true);
   elements.video.play().catch(() => {});
 }
@@ -967,7 +1058,8 @@ function mediaClock() {
   const ratio = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
   const duration = audioTimings?.total_duration ||
     (narrationAudioAvailable ? elements.audio.duration : elements.video.duration);
-  return { current: ratio * (duration || 0), duration: duration || 0, ratio };
+  const current = audioTimings ? audioTimeFromVideo(elements.video.currentTime) : ratio * (duration || 0);
+  return { current, duration: duration || 0, ratio };
 }
 
 function updateWatchUI() {
@@ -1186,7 +1278,11 @@ elements.video.addEventListener("timeupdate", () => { syncAudio(false); updateWa
 elements.video.addEventListener("volumechange", () => { elements.audio.volume = elements.video.volume; elements.audio.muted = elements.video.muted; });
 elements.video.addEventListener("ratechange", () => {
   if (narrationAudioAvailable && syncRate && elements.voice.value !== "silent") {
-    elements.audio.playbackRate = elements.video.playbackRate / syncRate;
+    if (Math.abs(elements.video.playbackRate - programmedVideoRate) > 0.001) {
+      userPlaybackRate = clamp(elements.video.playbackRate / syncRate, 0.25, 4);
+      programmedVideoRate = elements.video.playbackRate;
+    }
+    elements.audio.playbackRate = userPlaybackRate;
   }
 });
 elements.video.addEventListener("ended", markCompleteAtEnd);

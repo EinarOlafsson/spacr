@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
 
 import imageio.v2 as imageio
 import numpy as np
 import pytest
-from PySide6.QtCore import Qt
 
 from spacr.qt import mask_engine as engine
 
@@ -68,6 +68,33 @@ def test_load_image_reads_existing_mask(synth_mask_folder_with_masks: Path):
     image, mask = engine.load_image_and_mask(str(synth_mask_folder_with_masks), "a_00.tif")
     assert mask.any()
     assert mask.dtype == np.uint8
+
+
+def test_load_image_finds_tiff_mask_for_png_source(tmp_path: Path):
+    """Masks saved by the editor round-trip for non-TIFF source images."""
+    folder = tmp_path / "png_source"
+    (folder / "masks").mkdir(parents=True)
+    imageio.imwrite(folder / "field.png", np.full((12, 15), 50, np.uint8))
+    labels = np.zeros((12, 15), np.uint16)
+    labels[2:5, 3:7] = 400
+    imageio.imwrite(folder / "masks" / "field.tif", labels)
+
+    _image, mask = engine.load_image_and_mask(str(folder), "field.png")
+
+    assert mask.dtype == np.uint16
+    assert int(mask.max()) == 400
+
+
+def test_load_image_rejects_mismatched_mask_shape(tmp_path: Path):
+    folder = tmp_path / "bad_shape"
+    (folder / "masks").mkdir(parents=True)
+    imageio.imwrite(folder / "field.tif", np.zeros((12, 15), np.uint16))
+    imageio.imwrite(
+        folder / "masks" / "field.tif", np.zeros((10, 15), np.uint8)
+    )
+
+    with pytest.raises(ValueError, match="does not match image shape"):
+        engine.load_image_and_mask(str(folder), "field.tif")
 
 
 def test_save_mask_writes_labeled_tif(synth_mask_folder: Path):
@@ -170,6 +197,41 @@ def test_make_masks_open_folder_loads_first_image(qtbot, qt_theme_applied,
     assert screen._canvas.mask is not None
     # Nav is now enabled
     assert screen._btn_next.isEnabled()
+    assert screen._btn_save.isEnabled()
+
+
+def test_make_masks_large_decode_runs_off_the_gui_thread(
+    qtbot, qt_theme_applied, synth_mask_folder: Path, monkeypatch
+):
+    """A slow large-field decode must leave Qt's calling thread responsive."""
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    real_load = engine.load_image_and_mask
+    started = threading.Event()
+    release = threading.Event()
+
+    def delayed_load(folder, filename):
+        started.set()
+        assert release.wait(timeout=5)
+        return real_load(folder, filename)
+
+    monkeypatch.setattr(engine, "load_image_and_mask", delayed_load)
+    monkeypatch.setattr(
+        MakeMasksScreen, "_should_background_load", staticmethod(lambda _p: True)
+    )
+
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    screen._open_folder(str(synth_mask_folder))
+    qtbot.waitUntil(started.is_set, timeout=2000)
+
+    assert screen._canvas.image is None
+    assert screen._load_worker is not None
+    assert not screen._btn_save.isEnabled()
+
+    release.set()
+    qtbot.waitUntil(lambda: screen._canvas.image is not None, timeout=5000)
+    assert screen._load_worker is None
     assert screen._btn_save.isEnabled()
 
 

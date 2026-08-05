@@ -87,10 +87,21 @@ class Section(QFrame):
         label: Union[str, QWidget],
         widget: QWidget,
         info_widget: Optional[QWidget] = None,
+        wrap_label: bool = False,
     ) -> None:
-        """Add a labeled row, optionally with an information-link icon."""
+        """Add a labeled row, optionally with an information-link icon.
+
+        :param wrap_label: build the ``SettingLabelWithInfo`` host even with
+            no info widget to put in it. The host is what right-aligns the
+            label against its field; it used to arrive only as a side effect
+            of there being a dot, so removing the dot from the settings form
+            left every label left-aligned and turned half of each row's
+            width into page showing through rather than category surface.
+            ``_row_widgets`` still records the caller's label, not the host,
+            so anything reading rows back gets the ``QLabel`` it passed in.
+        """
         form_label = label
-        if info_widget is not None:
+        if info_widget is not None or wrap_label:
             form_label = QWidget(self._body)
             form_label.setObjectName("SettingLabelWithInfo")
             label_row = QHBoxLayout(form_label)
@@ -101,7 +112,8 @@ class Section(QFrame):
                 label_row.addWidget(label)
             else:
                 label_row.addWidget(QLabel(str(label), form_label))
-            label_row.addWidget(info_widget)
+            if info_widget is not None:
+                label_row.addWidget(info_widget)
         self._form.addRow(form_label, widget)
         self._row_widgets.append((label, widget))
         self._apply_maturity(label, setting=True)
@@ -116,6 +128,16 @@ class Section(QFrame):
     def title(self) -> str:
         """Return the section's header text, un-escaped."""
         return self._title
+
+    def header(self) -> QToolButton:
+        """Return the clickable header button (chevron + category title).
+
+        Public because a screen needs a precise hover target for the
+        *category* it represents: the section itself covers the whole form
+        once expanded, so filtering events on it would report the category
+        while the pointer is over one of its settings.
+        """
+        return self._header
 
     def set_hint(self, text: str) -> None:
         """Attach a hover tooltip to the section's header.

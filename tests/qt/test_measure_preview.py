@@ -40,7 +40,7 @@ def _categorised_merged_npy(tmp_path):
 
 def test_panel_loads_and_crops(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._mask_dim.setValue(4)          # cell mask is at slice 4 here
     assert p.load_array(_merged_npy(tmp_path)) is True
@@ -51,7 +51,7 @@ def test_panel_loads_and_crops(qtbot, tmp_path):
 
 def test_area_filter_and_settings(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._mask_dim.setValue(4)
     p.load_array(_merged_npy(tmp_path))
@@ -61,7 +61,7 @@ def test_area_filter_and_settings(qtbot, tmp_path):
 
 def test_propagation_maps_measure_keys(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._channels.setText("0,2,4")
     p._crop_size.setValue(200)
@@ -80,7 +80,7 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
     from spacr.qt.widgets.measure_preview import (
         CropSettingsDialog, MeasurePreviewPanel,
     )
-    panel = MeasurePreviewPanel()
+    panel = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     dialog = CropSettingsDialog(panel)
     qtbot.addWidget(dialog)
@@ -89,6 +89,18 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
         "General", "Object crops", "Filter settings", "Preview",
     ]
+    for widget in panel._managed_widgets():
+        if widget is panel._propagate_btn:
+            continue
+        assert widget.property("apiTooltipHtml")
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            assert widget.toolTip() == ""
+            assert "https://" in label.toolTip()
+            assert getattr(label, "_spacr_api_dot", None) is not None
+        else:
+            assert "https://" in widget.toolTip()
+            assert getattr(widget, "_spacr_api_dot", None) is not None
     propagated = panel.settings_for_propagation()
     assert propagated["normalize"] == [1.0, 99.0]
     panel._normalise.setChecked(False)
@@ -97,7 +109,7 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
 
 def test_cells_are_grouped_by_nucleus_pathogen_and_organelle(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    panel = MeasurePreviewPanel()
+    panel = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
     panel._mask_dims["organelle"].setValue(7)
     assert panel.load_array(_categorised_merged_npy(tmp_path))
@@ -115,10 +127,10 @@ def test_measure_filter_settings_are_a_separate_section(qtbot):
     screen = AppScreen("measure")
     qtbot.addWidget(screen)
     titles = [section.title() for section in screen._settings_sections]
-    assert "FILTER SETTINGS" in titles
+    assert "OBJECT FILTERING" in titles
     filter_section = next(
         section for section in screen._settings_sections
-        if section.title() == "FILTER SETTINGS"
+        if section.title() == "OBJECT FILTERING"
     )
     labels = {
         label.text() for label, _widget in filter_section._row_widgets
@@ -130,7 +142,7 @@ def test_measure_filter_settings_are_a_separate_section(qtbot):
 
 def test_click_selects_thumb(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
-    p = MeasurePreviewPanel()
+    p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
     p._mask_dim.setValue(4)
     p.load_array(_merged_npy(tmp_path))

@@ -4,47 +4,107 @@
   "voice": "em_santa",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 52.275,
+  "total_duration": 207.215,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 9.6,
-      "scene_end": 10.049999999999999,
-      "duration": 10.049999999999999,
-      "text": "Este tutorial cubre Align y Stitch. Registra los azulejos de imagen y construye un mosaico cosido de forma incremental sin tener todo el lienzo en memoria."
+      "speech_end": 18.675,
+      "scene_end": 19.395,
+      "duration": 19.395,
+      "text": "Align y Stitch registran los azulejos microscópicos en un lienzo sin asignar primero todo el mosaico. Abre desde Data y ejecuta los lotes. El primer diseño del plan es deliberado: la confianza de registro, la colocación de retroceso, el tamaño de salida y el uso de memoria son visibles antes de que spaCR escriba algo.",
+      "speech_text": "Align y Stitch registran los azulejos microscópicos en un lienzo sin asignar primero todo el mosaico. Abre desde Data y ejecuta los lotes. El primer diseño del plan es deliberado: la confianza de registro, la colocación de retroceso, el tamaño de salida y el uso de memoria son visibles antes de que espáquer escriba algo.",
+      "phonemes": "alˈiɡn i stˈitʧ rexˈistɾan los ˌaθulˈexos mˌikɾoskˈopikos en ˈun liˈɛnθo sin ˌasiɡnˈaɾ pɾimˈeɾo tˈoðo el mosˈIko. ˈaβɾe ðˌesðe ðˈata i ˌexekˈuta los lˈotes. el pɾimˈeɾ ðisˈeɲo ðel plˈan ˈes ðˌeliβeɾˈaðo: la konfjˈanθa ðe rexˈistɾo, la kˌolokaθjˈon de rˌetɾoθˈeso, el tamˈaɲo ðe salˈiða i el ˈuso ðe memˈoɾja sˈom bisˈiβles ˈantes ðe ke espˈakeɾ eskɾˈiβa ˈalɣo."
     },
     {
       "scene": 2,
-      "speech_start": 10.049999999999999,
-      "speech_end": 23.075,
-      "scene_end": 23.525,
-      "duration": 13.475,
-      "text": "Abra Align and Stitch en la sección Data and batch runs. Abre Align y Stitch en la sección Datos y partidas de ejecución. Elige adquisiciones de baldosas, coordenadas de etapa o metadatos superpuestos, canales y destino."
+      "speech_start": 19.395,
+      "speech_end": 39.195,
+      "scene_end": 39.915,
+      "duration": 20.52,
+      "text": "Deja una carpeta de azulejos NPY o TIFF, o escoge aquí. Esta lección exporta un campo real de microscopía de cuatro canales como nueve azulejos superpuestos únicamente para emular una adquisición de 3 por 3. Los píxeles de origen siguen siendo reales, mientras que la superposición conocida nos da un ejemplo de registro reproducible.",
+      "speech_text": "Deja una carpeta de azulejos NPY o TIFF, o escoge aquí. Esta lección exporta un campo real de microscopía de cuatro canales como nueve azulejos superpuestos únicamente para emular una adquisición de 3 por 3. Los píxeles de origen siguen siendo reales, mientras que la superposición conocida nos da un ejemplo de registro reproducible.",
+      "phonemes": "dˈexa ˈuna kaɾpˈeta ðe ˌaθulˈexos ˌenepˌeˌiɣɾiˈeɣa o tˈiff, o eskˈoxe akˈi. ˈesta lekθjˈon ekspˈoɾta ˈun kˈampo reˈal ðe mˌikɾoskopˈia ðe kwˈatɾo kanˈales kˌomo nwˈeβe ˌaθulˈexos sˌupeɾpwˈestos ˈunikamˈente pˌaɾa ˌemulˈaɾ ˈuna ˌadkisiθjˈon de tɾˈes poɾ tɾˈes. los pˈikseles ðe oɾˈixen sˈiɣen sjˈɛndo reˈales, mjˌentɾas ke la sˌupeɾpˌosiθjˈon kˌonoθˈiða nos ðˈa ˈun exˈemplo ðe rexˈistɾo rˌepɾoðuθˈiβle."
     },
     {
       "scene": 3,
-      "speech_start": 23.525,
-      "speech_end": 34.025,
-      "scene_end": 34.475,
-      "duration": 10.950000000000003,
-      "text": "En el área de configuración principal, configure el método de registro, el canal de referencia, la superposición, la mezcla, la corrección, el tamaño de la pieza y el formato de salida."
+      "speech_start": 39.915,
+      "speech_end": 59.64,
+      "scene_end": 60.36,
+      "duration": 20.445,
+      "text": "Describa el diseño de la adquisición. La cuadrícula es de 3 por 3 con una superposición nominal del 25% en orden de fila mayor. El canal de referencia 1 es el canal endoplasmico-retículo; spaCR resuelve el registro una vez en ese plano y aplica la misma transformación a los cuatro canales, evitando el corte de canal a canal.",
+      "speech_text": "Describa el diseño de la adquisición. La cuadrícula es de 3 por 3 con una superposición nominal del 25% en orden de fila mayor. El canal de referencia 1 es el canal endoplasmico-retículo; espáquer resuelve el registro una vez en ese plano y aplica la misma transformación a los cuatro canales, evitando el corte de canal a canal.",
+      "phonemes": "deskɾˈiβa el ðisˈeɲo ðe la ˌadkisiθjˈon. la kwaðɾˈikula ˈes ðe tɾˈes poɾ tɾˈes kon ˈuna sˌupeɾpˌosiθjˈon nˌominˈal ðel βˌAntiθˈinko poɾθjˈɛnto en ˈoɾðen de fˈila maʝˈoɾ. el kanˈal ðe rˌefeɾˈɛnθja ˈuno ˈes el kanˈal ˌendoplasmˈikoretˈikulo; espˈakeɾ reswˈelβe el rexˈistɾo ˈuna βˈeθ en ˈese plˈano i aplˈika la mˈisma tɾˌansfoɾmaθjˈon a los kwˈatɾo kanˈales, ˌeβitˈando el kˈoɾte ðe kanˈal a kanˈal."
     },
     {
       "scene": 4,
-      "speech_start": 34.475,
-      "speech_end": 42.75,
-      "scene_end": 43.2,
-      "duration": 8.725000000000001,
-      "text": "Antes de la ejecución completa, revise las configuraciones visibles y utilice un modo de vista previa o de prueba cuando esté disponible."
+      "speech_start": 60.36,
+      "speech_end": 81.61,
+      "scene_end": 82.31,
+      "duration": 21.950000000000003,
+      "text": "Los controles de calidad determinan cuáles coincidencias en pares entran en la solución global. La confianza mínima rechaza la débil correlación cruzada, el radio vecino agrega comparaciones cercanas redundantes, Feather mezcla costuras superpuestas, y el presupuesto de 64 megabytes de RAM limita cada banda de salida en lugar del tamaño del lienzo terminado.",
+      "speech_text": "Los controles de calidad determinan cuáles coincidencias en pares entran en la solución global. La confianza mínima rechaza la débil correlación cruzada, el radio vecino agrega comparaciones cercanas redundantes, Feather mezcla costuras superpuestas, y el presupuesto de 64 megabytes de RAM limita cada banda de salida en lugar del tamaño del lienzo terminado.",
+      "phonemes": "los kontɾˈoles ðe kˌaliðˈad ðˌeteɾmˈinan kwˈales kˌoɪnθiðˈɛnθjas em pˈaɾes ˈɛntɾan en la sˌoluθjˈoŋ ɡloβˈal. la konfjˈanθa mˈinima reʧˈaθa la ðˈeβil kˌorelaθjˈon kɾuθˈaða, el rˈaðjo βeθˈino aɣɾˈeɣa kˌompaɾaθjˈones θeɾkˈanas rˌeðundˈantes, fˌeatˈeɾ mˈeθkla kostˈuɾas sˌupeɾpwˈestas, i el pɾˌesupwˈesto ðe sɛsˌɛntaikwˈatɾo mˌeɣaβˈites ðe ˌereˌaˈɛme limˈita kˈaða βˈanda ðe salˈiða en luɣˈaɾ ðel tamˈaɲo ðel liˈɛnθo tˌeɾminˈaðo."
     },
     {
       "scene": 5,
-      "speech_start": 43.2,
-      "speech_end": 51.625,
-      "scene_end": 52.275,
-      "duration": 9.074999999999996,
-      "text": "Cuando el flujo de trabajo se completa, se guardan las fichas registradas, las imágenes cosidas, las transformaciones y los metadatos de mapeo."
+      "speech_start": 82.31,
+      "speech_end": 102.985,
+      "scene_end": 103.665,
+      "duration": 21.355000000000004,
+      "text": "Haga clic en Plan antes de escribir. La planificación lee los encabezados de los azulejos y las tiras superpuestas, estima los desplazamientos de los vecinos y resuelve todas las restricciones aceptadas juntos. No crea un lienzo ni archivos de salida, por lo que este es el punto seguro para atrapar una cuadrícula incorrecta, orden, superposición o canal de referencia.",
+      "speech_text": "Haga clic en Plan antes de escribir. La planificación lee los encabezados de los azulejos y las tiras superpuestas, estima los desplazamientos de los vecinos y resuelve todas las restricciones aceptadas juntos. No crea un lienzo ni archivos de salida, por lo que este es el punto seguro para atrapar una cuadrícula incorrecta, orden, superposición o canal de referencia.",
+      "phonemes": "ˈaɣa klˈik em plˈan ˈantes ðe ˌeskɾiβˈiɾ. la plˌanifˌikaθjˈon lˈee los ˌenkaβeθˈaðos ðe los ˌaθulˈexos i las tˈiɾas sˌupeɾpwˈestas, estˈima los ðˌesplaθamjˈɛntos ðe los βeθˈinos i reswˈelβe tˈoðas las rˌestɾikθjˈones ˌaθepːtˈaðas xˈuntos. nˈo kɾˈea ˈun liˈɛnθo nˈi aɾʧˈiβos ðe salˈiða, poɾ lo ke ˈeste ˈes el pˈunto seɣˈuɾo pˌaɾa ˌatɾapˈaɾ ˈuna kwaðɾˈikula ˌinkorˈekta, ˈoɾðen, sˌupeɾpˌosiθjˈon o kanˈal ðe rˌefeɾˈɛnθja."
+    },
+    {
+      "scene": 6,
+      "speech_start": 103.665,
+      "speech_end": 124.34,
+      "scene_end": 125.12,
+      "duration": 21.455,
+      "text": "El plan real registra las nueve planchas. Los colores del diseño registraron los campos por confianza, mientras que cualquier retroceso en posición de escenario sería naranja e eclosión. El informe enumera los pares aceptados y rechazados, los peores residuos, las dimensiones finales del lienzo, el tamaño del disco y la estimación de escritura de memoria limitada.",
+      "speech_text": "El plan real registra las nueve planchas. Los colores del diseño registraron los campos por confianza, mientras que cualquier retroceso en posición de escenario sería naranja e eclosión. El informe enumera los pares aceptados y rechazados, los peores residuos, las dimensiones finales del lienzo, el tamaño del disco y la estimación de escritura de memoria limitada.",
+      "phonemes": "el plˈan reˈal rexˈistɾa las nwˈeβe plˈanʧas. los kolˈoɾes ðel ðisˈeɲo rˌexistɾˈaɾon los kˈampos poɾ konfjˈanθa, mjˌentɾas ke kwalkjˈeɾ rˌetɾoθˈeso em pˌosiθjˈon de ˌesθenˈaɾjo seɾˈia naɾˈaŋxa e ˌeklosjˈon. el infˈoɾme ˌenumˈeɾa los pˈaɾes ˌaθepːtˈaðos i rˌeʧaθˈaðos, los peˈoɾes resˈiðwos, las ðˌimensjˈones finˈales ðel liˈɛnθo, el tamˈaɲo ðel ðˈisko i la ˌestimaθjˈon de ˌeskɾitˈuɾa ðe memˈoɾja lˌimitˈaða."
+    },
+    {
+      "scene": 7,
+      "speech_start": 125.12,
+      "speech_end": 144.595,
+      "scene_end": 145.315,
+      "duration": 20.194999999999993,
+      "text": "Haga clic en un mosaico individual para auditar su posición Y y X resueltas, método, confianza, residuo y número de pares de soporte. Este campo fue colocado por registro, no simplemente por su posición nominal en la cuadrícula; utilice la misma inspección para investigar los azulejos débiles o aislados antes de cometer un mosaico grande.",
+      "speech_text": "Haga clic en un mosaico individual para auditar su posición Y y X resueltas, método, confianza, residuo y número de pares de soporte. Este campo fue colocado por registro, no simplemente por su posición nominal en la cuadrícula; utilice la misma inspección para investigar los azulejos débiles o aislados antes de cometer un mosaico grande.",
+      "phonemes": "ˈaɣa klˈik en ˈun mosˈIko ˌindiβiðwˈal pˌaɾa ˌWðitˈaɾ su pˌosiθjˈon i i ˈɛkis reswˈeltas, mˈetoðo, konfjˈanθa, resˈiðwo i nˈumeɾo ðe pˈaɾes ðe sopˈoɾte. ˈeste kˈampo fwˈe kˌolokˈaðo poɾ rexˈistɾo, nˈo sˈimplemˈente poɾ su pˌosiθjˈon nˌominˈal en la kwaðɾˈikula; ˌutilˈiθe la mˈisma ˌinspekθjˈom pˌaɾa ˌimbestiɣˈaɾ los ˌaθulˈexos ðˈeβiles o Islˈaðos ˈantes ðe kˌometˈeɾ ˈun mosˈIko ɣɾˈande."
+    },
+    {
+      "scene": 8,
+      "speech_start": 145.315,
+      "speech_end": 163.365,
+      "scene_end": 164.005,
+      "duration": 18.689999999999998,
+      "text": "Elige un nuevo destino para la pila de NPY cosida. La base de datos de mediciones opcionales registra las coordenadas de los azulejos resueltos y la ruta de salida. Mantenga Overwrite fuera en la primera ejecución para que un mosaico existente sea rechazado en lugar de ser silenciosamente reemplazado.",
+      "speech_text": "Elige un nuevo destino para la pila de NPY cosida. La base de datos de mediciones opcionales registra las coordenadas de los azulejos resueltos y la ruta de salida. Mantenga Overwrite fuera en la primera ejecución para que un mosaico existente sea rechazado en lugar de ser silenciosamente reemplazado.",
+      "phonemes": "elˈixe ˈun nwˈeβo ðestˈino pˌaɾa la pˈila ðe ˌenepˌeˌiɣɾiˈeɣa kosˈiða. la βˈase ðe ðˈatos ðe mˌeðiθjˈones ˌopθjonˈales rexˈistɾa las kˌooɾðenˈaðas ðe los ˌaθulˈexos reswˈeltos i la rˈuta ðe salˈiða. mantˈɛŋɡa ˌoβeɾwɾˈite fwˈeɾa en la pɾimˈeɾa ˌexekuθjˈom pˌaɾa ke ˈun mosˈIko ˌeksistˈɛnte sˈea rˌeʧaθˈaðo en luɣˈaɾ ðe sˈer sˌilenθjˈosamˈente rˌeemplaθˈaðo."
+    },
+    {
+      "scene": 9,
+      "speech_start": 164.005,
+      "speech_end": 183.98,
+      "scene_end": 184.67999999999998,
+      "duration": 20.674999999999983,
+      "text": "Haga clic en Escribir pila sólo después de que el plan sea aceptable. spaCR compone las baldosas una banda horizontal a la vez, aplica mezcla de plumas en superposiciones y escribe coordenadas después de que la imagen tenga éxito. Por lo tanto, la salida puede exceder la RAM disponible mientras la memoria permanezca dentro del presupuesto declarado.",
+      "speech_text": "Haga clic en Escribir pila sólo después de que el plan sea aceptable. espáquer compone las baldosas una banda horizontal a la vez, aplica mezcla de plumas en superposiciones y escribe coordenadas después de que la imagen tenga éxito. Por lo tanto, la salida puede exceder la RAM disponible mientras la memoria permanezca dentro del presupuesto declarado.",
+      "phonemes": "ˈaɣa klˈik en ˌeskɾiβˈiɾ pˈila sˈolo ðespwˈes ðe ke el plˈan sˈea ˌaθepːtˈaβle. espˈakeɾ kompˈone las βalðˈosas ˈuna βˈanda ˌoɾiθontˈal a la βˈeθ, aplˈika mˈeθkla ðe plˈumas en sˌupeɾpˌosiθjˈones i eskɾˈiβe kˌooɾðenˈaðas ðespwˈes ðe ke la imˈaxen tˈɛŋɡa ˈeksito. poɾ lo tˈanto, la salˈiða pwˈeðe ˌeksθeðˈeɾ la ˌereˌaˈɛme ðˌisponˈiβle mjˌentɾas la memˈoɾja pˌeɾmanˈeθka ðˈɛntɾo ðel pɾˌesupwˈesto ðˌeklaɾˈaðo."
+    },
+    {
+      "scene": 10,
+      "speech_start": 184.67999999999998,
+      "speech_end": 206.355,
+      "scene_end": 207.215,
+      "duration": 22.535000000000025,
+      "text": "La ejecución verificada escribe todas las nueve baldosas sin que ninguna se salte, produce una pila cosida de cuatro canales que coincide con el campo de origen y agrega nueve filas a la tabla de coordenadas de alineación. El informe conserva tanto la evidencia de registro como el resumen de escritura de memoria limitada, lo que hace que el mosaico sea auditable antes del análisis a continuación.",
+      "speech_text": "La ejecución verificada escribe todas las nueve baldosas sin que ninguna se salte, produce una pila cosida de cuatro canales que coincide con el campo de origen y agrega nueve filas a la tabla de coordenadas de alineación. El informe conserva tanto la evidencia de registro como el resumen de escritura de memoria limitada, lo que hace que el mosaico sea auditable antes del análisis a continuación.",
+      "phonemes": "la ˌexekuθjˈom bˌeɾifikˈaða eskɾˈiβe tˈoðas las nwˈeβe βalðˈosas sin ke niŋɡˈuna se sˈalte, pɾoðˈuθe ˈuna pˈila kosˈiða ðe kwˈatɾo kanˈales ke koɪnθˈiðe kon el kˈampo ðe oɾˈixen i aɣɾˈeɣa nwˈeβe fˈilas a la tˈaβla ðe kˌooɾðenˈaðas ðe ˌalinˌeaθjˈon. el infˈoɾme konsˈeɾβa tˈanto la ˌeβiðˈɛnθja ðe rexˈistɾo kˌomo el resˈumen de ˌeskɾitˈuɾa ðe memˈoɾja lˌimitˈaða, lo ke ˈaθe ke el mosˈIko sˈea ˌWðitˈaβle ˈantes ðel anˈalisis a kˌontinwaθjˈon."
     }
   ]
 }

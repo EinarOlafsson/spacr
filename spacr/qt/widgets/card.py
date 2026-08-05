@@ -5,7 +5,6 @@ Consumers add content to `card.body_layout` (a QVBoxLayout).
 """
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QLabel, QWidget
 
 from ..theme import SPACING

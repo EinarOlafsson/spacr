@@ -27,7 +27,7 @@ import pytest
 
 from spacr import report as rep
 from spacr.qt.screens.report import FIGURE_CAP_RANGE, FORMATS, ReportScreen
-from spacr.qt.theme import DARK_PALETTE
+from spacr.qt.theme import active_palette
 
 
 # ---------------------------------------------------------------------------
@@ -148,12 +148,25 @@ def screen(qtbot, qt_theme_applied):
 
 
 def _items(widget):
-    """(text, is_greyed) for every row of the section list."""
+    """(text, is_greyed) for every row of the section list.
+
+    "Greyed" is measured against ``active_palette()``, NOT ``DARK_PALETTE``.
+    The screen paints its rows through ``active_palette()``, which resolves
+    ``preferences.get_theme()`` at build time, so pinning the expectation to
+    the dark constant made this helper report *every* row as "not greyed" the
+    moment anything left a non-dark theme in QSettings — and
+    ``test_missing_sections_are_greyed_and_labelled`` then failed with
+    "nothing was greyed even though sections are missing". That was the
+    intermittent failure in this file: cross-test preference pollution, read
+    through a hard-coded palette. Reading the same palette the widget read
+    makes the assertion true under any theme.
+    """
+    dim = active_palette()["fg_dim"].lower()
     out = []
     for i in range(widget._sections.count()):
         item = widget._sections.item(i)
         colour = item.foreground().color().name().lower()
-        out.append((item.text(), colour == DARK_PALETTE["fg_dim"].lower()))
+        out.append((item.text(), colour == dim))
     return out
 
 

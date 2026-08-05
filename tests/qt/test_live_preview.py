@@ -5,13 +5,12 @@ monkeypatch. Everything else is exercised for real.
 """
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 import numpy as np
 import pytest
 import tifffile
-
-from PySide6.QtCore import Qt
 
 from spacr.qt.widgets import live_preview
 
@@ -86,6 +85,42 @@ class TestPureHelpers:
         thin_green = int((thin[..., 1] > thin[..., 0]).sum())
         thick_green = int((thick[..., 1] > thick[..., 0]).sum())
         assert thick_green > thin_green
+
+    def test_random_outline_colormap_is_distinct_stable_and_sparse_safe(self):
+        img = np.zeros((36, 36), dtype=np.uint8)
+        mask = np.zeros((36, 36), dtype=np.int64)
+        mask[4:13, 4:13] = 7
+        mask[22:32, 22:32] = 1_000_000_000
+
+        first = live_preview.overlay_masks(
+            img, {"cell": mask}, random_outline=True,
+        )
+        second = live_preview.overlay_masks(
+            img, {"cell": mask}, random_outline=True,
+        )
+
+        colour_7 = tuple(first[4, 8])
+        colour_sparse = tuple(first[22, 27])
+        assert colour_7 != (0, 0, 0)
+        assert colour_sparse != (0, 0, 0)
+        assert colour_7 != colour_sparse
+        assert np.array_equal(first, second)
+        assert tuple(first[17, 17]) == (0, 0, 0)
+
+    def test_random_outline_colour_is_stable_when_other_labels_change(self):
+        img = np.zeros((28, 28), dtype=np.uint8)
+        only_seven = np.zeros((28, 28), dtype=np.int32)
+        only_seven[14:24, 14:24] = 7
+        with_three = only_seven.copy()
+        with_three[2:10, 2:10] = 3
+
+        first = live_preview.overlay_masks(
+            img, {"nucleus": only_seven}, random_outline=True,
+        )
+        second = live_preview.overlay_masks(
+            img, {"nucleus": with_three}, random_outline=True,
+        )
+        assert tuple(first[14, 18]) == tuple(second[14, 18])
 
     def test_normalise_toggle_actually_stretches(self):
         arr = np.zeros((16, 16), dtype=np.uint16); arr[8:] = 100
@@ -178,6 +213,22 @@ class TestPanel:
         qtbot.addWidget(panel)
         assert panel.current_params()["model"] == "cpsam"
 
+    def test_outline_colour_offers_random_categorical_mode(self, qtbot):
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        choices = [
+            panel._outline_colour.itemText(index)
+            for index in range(panel._outline_colour.count())
+        ]
+        assert choices.count("color (random)") == 1
+        # Random is the shipped default: a fixed colour is a coin flip
+        # against the image, and `auto` picks per compartment so two
+        # touching objects of the same type read as one.
+        assert panel._outline_colour.currentText() == "color (random)"
+        panel._outline_colour.setCurrentText("color (random)")
+        assert panel.current_params()["outline_colour"] == "color (random)"
+        assert panel._outline_rgb() is None
+
     def test_load_image_updates_panel(self, qtbot, sample_tif):
         panel = live_preview.LivePreviewPanel()
         qtbot.addWidget(panel)
@@ -190,6 +241,23 @@ class TestPanel:
         qtbot.addWidget(panel)
         assert panel.load_image(tmp_path / "missing.tif") is False
         assert "failed" in panel._status.text().lower()
+
+    def test_async_source_decode_runs_off_the_gui_thread(
+            self, qtbot, monkeypatch, sample_tif):
+        panel = live_preview.LivePreviewPanel()
+        qtbot.addWidget(panel)
+        gui_thread = threading.current_thread()
+        observed = {}
+
+        def fake_load(path):
+            observed["thread"] = threading.current_thread()
+            return np.ones((8, 8), dtype=np.uint16)
+
+        monkeypatch.setattr(live_preview, "load_preview_image", fake_load)
+        assert panel.load_source_async(sample_tif)
+        qtbot.waitUntil(lambda: panel._image is not None, timeout=5000)
+        assert observed["thread"] is not gui_thread
+        assert panel._image_path == sample_tif
 
     def test_apply_settings_copies_values(self, qtbot):
         panel = live_preview.LivePreviewPanel()
@@ -303,7 +371,11 @@ class TestModelAwareOptions:
         panel._model_box.setCurrentIndex(panel._model_box.findText("cpsam"))
         panel.open_live_settings()
         try:
-            tip = panel._diameter.toolTip()
+            assert panel._diameter.toolTip() == ""
+            label = panel._diameter._spacr_setting_label
+            tip = label.toolTip()
+            # No `_spacr_api_dot`: this dialog passes `api_dots=False`.
+            # The API link still lives in the label's tooltip.
         finally:
             panel._live_settings_dialog.close()
 
@@ -442,6 +514,8 @@ class TestAppScreenIntegration:
         scr = AppScreen("mask")
         qtbot.addWidget(scr)
         scr._autoload_live_preview(str(tmp_path))
+        qtbot.waitUntil(
+            lambda: scr._live_preview._image is not None, timeout=5000)
         assert scr._live_preview._image is not None
 
 
@@ -466,6 +540,18 @@ class TestCompartmentSettings:
         p = self._panel(qtbot)
         dlg = LiveSettingsDialog(p)
         qtbot.addWidget(dlg); dlg.show()
+        for widget in dlg._managed_widgets():
+            label = getattr(widget, "_spacr_setting_label", None)
+            # No `_spacr_api_dot` assertions: this dialog passes
+            # `api_dots=False`. What they were guarding -- that every
+            # managed widget got decorated, with the help on the label and
+            # the field left quiet -- is exactly what the tooltip
+            # assertions here check, and they are the half that matters.
+            if label is not None:
+                assert widget.toolTip() == ""
+                assert "href=" in label.toolTip()
+            else:
+                assert "href=" in widget.toolTip()
         # object "cell": only the Cell panel is shown.
         p._object_box.setCurrentText("cell")
         dlg.refresh_visibility()
@@ -547,11 +633,43 @@ class TestViewModes:
         assert "cell" in p._flows
         assert np.array_equal(p._flows_rgb(), flow)
 
-    def test_switch_modes_no_crash(self, qtbot):
+    def test_switch_modes_renders_three_different_images(self, qtbot):
+        """Each mode has to put a *different* picture on the mask canvas.
+
+        The three branches of ``_refresh_canvases`` all end in
+        ``_mask_view.set_pixmap``, so a mode that silently fell through
+        to another one still runs clean — the only thing that tells them
+        apart is the pixels. The left canvas is the contrast case: it is
+        mode-independent, so it must come out byte-identical all three
+        times while the right one changes.
+        """
+        from PySide6.QtGui import QImage
+
         p = self._panel_with_image(qtbot)
         mask = np.zeros((32, 32), np.int32); mask[4:10, 4:10] = 1
         p._masks = {"cell": mask}
-        p._flows = {"cell": np.zeros((32, 32, 3), np.uint8)}
-        for m in ("Overlay", "Masks", "Flows"):
-            p._view_mode.setCurrentText(m)
-            p._refresh_canvases()   # must not raise
+        flows = np.zeros((32, 32, 3), np.uint8)
+        flows[..., 0] = 200          # a flat red field: unlike either other view
+        p._flows = {"cell": flows}
+
+        def _bytes(view):
+            item = view._pixmap_item
+            assert item is not None
+            pixmap = item.pixmap()
+            assert not pixmap.isNull()
+            assert (pixmap.width(), pixmap.height()) == (32, 32)
+            return bytes(pixmap.toImage()
+                         .convertToFormat(QImage.Format_RGB32).constBits())
+
+        masks_view, source_view = {}, {}
+        for mode in ("Overlay", "Masks", "Flows"):
+            p._view_mode.setCurrentText(mode)
+            p._refresh_canvases()
+            masks_view[mode] = _bytes(p._mask_view)
+            source_view[mode] = _bytes(p._src_view)
+
+        assert len(set(masks_view.values())) == 3, (
+            "two view modes rendered the same image: "
+            f"{[m for m in masks_view if list(masks_view.values()).count(masks_view[m]) > 1]}")
+        assert len(set(source_view.values())) == 1, \
+            "the source canvas must not depend on the mask view mode"

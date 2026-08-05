@@ -20,6 +20,7 @@ The properties pinned:
 from __future__ import annotations
 
 import os
+import threading
 
 import numpy as np
 import pytest
@@ -169,6 +170,42 @@ def test_fold_modes_are_the_ones_the_module_accepts():
     assert tuple(value for _label, value in FOLD_MODE_LABELS) == FOLD_MODES
 
 
+def test_empty_canvas_uses_the_active_dark_surface_not_white(screen):
+    """The large pre-overlay canvas must not flash as a white rectangle.
+
+    The dark fill moved: it used to be the figure's own ``facecolor``,
+    which is opaque by construction and made this the one flat slab on a
+    page of translucent panels (``Z9``). The figure patch is transparent
+    now and the canvas paints the page panel underneath it in
+    ``paintEvent`` — so the canvas is still never white, and the
+    page-opacity slider reaches it.
+    """
+    from spacr.qt.theme import panel_qcolor
+
+    assert screen.figure().get_facecolor()[3] == pytest.approx(0.0), (
+        "the figure patch must be transparent, or it covers the panel")
+    painted = _canvas_pixel(screen._canvas)
+    assert painted.lightnessF() < 0.5, (
+        f"the empty canvas painted {painted.name()}, not a dark surface")
+    expected = panel_qcolor("surface")
+    assert abs(painted.red() - expected.red()) < 40, (
+        f"the empty canvas painted {painted.name()}, not the page panel "
+        f"{expected.name()}")
+
+
+def _canvas_pixel(canvas):
+    """Render the canvas over black and read a pixel of its panel."""
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QImage, QPainter
+    canvas.resize(200, 150)
+    image = QImage(200, 150, QImage.Format_ARGB32)
+    image.fill(0xFF000000)
+    painter = QPainter(image)
+    canvas.render(painter, QPoint(0, 0))
+    painter.end()
+    return image.pixelColor(100, 75)
+
+
 # ---------------------------------------------------------------------------
 # Discovery
 # ---------------------------------------------------------------------------
@@ -280,7 +317,7 @@ def test_metric_picker_offers_what_the_runs_logged_and_redraws(
     a = _id_for(screen, "dsA")
     screen.select_runs([a])
     screen.overlay()
-    assert screen.metric() == "accuracy"
+    assert screen.selected_metric() == "accuracy"
     assert "loss" in screen.available_metrics()
     assert screen.figure().axes[0].get_ylabel() == "accuracy"
 
@@ -457,6 +494,25 @@ def test_a_threaded_scan_settles_and_lists_the_same_runs(qtbot,
     w.close()
 
 
+def test_a_threaded_scan_applies_results_on_the_gui_thread(
+        qtbot, qt_theme_applied, run_root, monkeypatch):
+    """Worker completion must never mutate Qt widgets from its QThread."""
+    w = TrainCompareScreen(threaded=True)
+    qtbot.addWidget(w)
+    applied_on = []
+    original = w._apply_runs
+
+    def _record(result):
+        applied_on.append(threading.current_thread())
+        return original(result)
+
+    monkeypatch.setattr(w, "_apply_runs", _record)
+    with qtbot.waitSignal(w.job_finished, timeout=15000):
+        assert w.scan(run_root) is True
+    assert applied_on == [threading.main_thread()]
+    w.close()
+
+
 # ---------------------------------------------------------------------------
 # Wiring, palettes and failure paths
 # ---------------------------------------------------------------------------
@@ -548,8 +604,10 @@ def test_the_plot_follows_the_light_theme_when_that_is_the_preference(
     screen.select_runs([_id_for(screen, "dsA")])
     screen.overlay()
     ax = screen.figure().axes[0]
+    # `surface_alt`, not `surface`: the plotting area is a panel within
+    # the panel now, and it carries the page opacity like every other one.
     assert ax.get_facecolor()[:3] == pytest.approx(
-        _rgb(LIGHT_PALETTE["surface"]), abs=1e-3)
+        _rgb(LIGHT_PALETTE["surface_alt"]), abs=1e-3)
 
 
 def test_an_unreadable_theme_preference_falls_back_to_dark(screen, run_root,
@@ -565,8 +623,8 @@ def test_an_unreadable_theme_preference_falls_back_to_dark(screen, run_root,
     screen.select_runs([_id_for(screen, "dsA")])
     screen.overlay()
     ax = screen.figure().axes[0]
-    assert ax.get_facecolor()[:3] == pytest.approx(_rgb(DARK_PALETTE["surface"]),
-                                                   abs=1e-3)
+    assert ax.get_facecolor()[:3] == pytest.approx(
+        _rgb(DARK_PALETTE["surface_alt"]), abs=1e-3)
 
 
 def _rgb(hex_colour):

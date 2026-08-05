@@ -885,7 +885,18 @@ def test_build_multichannel_mosaic_rejects_a_manifest_of_missing_files(tmp_path,
         st.build_multichannel_mosaic_from_manifest(gone, str(tmp_path / "x.tif"))
 
 
-def test_build_multichannel_mosaic_skips_rows_with_bad_numbers(tmp_path, canvas):
+def test_build_multichannel_mosaic_refuses_rows_with_bad_numbers(tmp_path, canvas):
+    """A manifest row that will not parse stops the stitch, and says which tile.
+
+    This test used to assert the opposite — that the row was dropped and the
+    mosaic written anyway — and pinned it as "skips rows with bad numbers".
+    What that produced was a stitched image with a hole in it, saved to the
+    requested path, and the path returned as if the mosaic were whole: the
+    tile is missing, nothing on the image says so, and by the time anyone
+    looks the source frames are usually archived. The builder already refuses
+    a manifest with no usable rows at all; refusing one that is a usable row
+    short is the same judgement.
+    """
     st, mcsv, tiles = _manifest(tmp_path, canvas)
     rows = list(csv.DictReader(open(mcsv)))
     rows[0]["M00"] = "not-a-float"
@@ -896,11 +907,14 @@ def test_build_multichannel_mosaic_skips_rows_with_bad_numbers(tmp_path, canvas)
         for r in rows:
             w.writerow(r)
     out = str(tmp_path / "two.tif")
-    st.build_multichannel_mosaic_from_manifest(patched, out,
-                                               tmp_dir=str(tmp_path / "tmp"))
-    img = tifffile.imread(out)
-    # one tile dropped -> the canvas is narrower than the full three-tile run
-    assert img.shape[2] < TILE + 2 * STEP
+
+    with pytest.raises(RuntimeError) as caught:
+        st.build_multichannel_mosaic_from_manifest(
+            patched, out, tmp_dir=str(tmp_path / "tmp"))
+
+    # It has to name the tile, or the user is left diffing a manifest by eye.
+    assert os.path.basename(rows[0]["path"]) in str(caught.value)
+    assert not os.path.exists(out), "a refused stitch must not leave a mosaic"
 
 
 def test_build_multichannel_mosaic_defaults_its_tmp_dir(tmp_path, canvas):

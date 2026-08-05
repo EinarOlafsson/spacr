@@ -1,3 +1,5 @@
+"""Statistical tests and multiple-comparison helpers for screen results."""
+
 from scipy.stats import shapiro, normaltest, levene, ttest_ind, mannwhitneyu, kruskal, f_oneway
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 import scikit_posthocs as sp

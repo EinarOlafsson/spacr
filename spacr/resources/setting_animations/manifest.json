@@ -1,0 +1,1858 @@
+{
+  "animations": [
+    {
+      "category": "Mask filtering",
+      "file": "gifs/cell_remove_border_objects.gif",
+      "params": {
+        "kind": "cell",
+        "variant": "border"
+      },
+      "scene": "border",
+      "settings": [
+        "cell_remove_border_objects",
+        "remove_border_cells"
+      ],
+      "slug": "cell_remove_border_objects",
+      "title": "Cell \u2014 Remove border objects",
+      "validation": {
+        "bytes": 116924,
+        "frames": 20,
+        "sha256": "4bf84d9659034fb3de05826325daf8413fb0322235dde04679578d5b71d920fd",
+        "unique_frames": 19
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/cell_min_area.gif",
+      "params": {
+        "kind": "cell",
+        "variant": "minimum"
+      },
+      "scene": "filter",
+      "settings": [
+        "cell_min_area",
+        "cell_min_size"
+      ],
+      "slug": "cell_min_area",
+      "title": "Cell \u2014 Minimum object area",
+      "validation": {
+        "bytes": 134470,
+        "frames": 17,
+        "sha256": "a07fccc598c5cb95e4ab4a470166997e0fb32f58d40b762a994b37bc52bac4ae",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/cell_max_area.gif",
+      "params": {
+        "kind": "cell",
+        "variant": "maximum"
+      },
+      "scene": "filter",
+      "settings": [
+        "cell_max_area"
+      ],
+      "slug": "cell_max_area",
+      "title": "Cell \u2014 Maximum object area",
+      "validation": {
+        "bytes": 131230,
+        "frames": 17,
+        "sha256": "39746721590463199181508c0db0f648c68e73d49af49c0f18086a25c1b8ef33",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/cell_min_intensity_percentile.gif",
+      "params": {
+        "kind": "cell",
+        "variant": "dim"
+      },
+      "scene": "filter",
+      "settings": [
+        "cell_min_intensity_percentile"
+      ],
+      "slug": "cell_min_intensity_percentile",
+      "title": "Cell \u2014 Minimum intensity percentile",
+      "validation": {
+        "bytes": 124885,
+        "frames": 16,
+        "sha256": "73564618b936f82bb456079791950cb8caeb8ef0ddda95cd8dd1785313b3d02d",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/cell_max_intensity_percentile.gif",
+      "params": {
+        "kind": "cell",
+        "variant": "bright"
+      },
+      "scene": "filter",
+      "settings": [
+        "cell_max_intensity_percentile"
+      ],
+      "slug": "cell_max_intensity_percentile",
+      "title": "Cell \u2014 Maximum intensity percentile",
+      "validation": {
+        "bytes": 133823,
+        "frames": 17,
+        "sha256": "2892e5fa7f8f57a7ffe0ae56bde24cf1f891e00c80522c65fe8be209191c46a6",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_remove_border_objects.gif",
+      "params": {
+        "kind": "nucleus",
+        "variant": "border"
+      },
+      "scene": "border",
+      "settings": [
+        "nucleus_remove_border_objects",
+        "remove_border_nuclei"
+      ],
+      "slug": "nucleus_remove_border_objects",
+      "title": "Nucleus \u2014 Remove border objects",
+      "validation": {
+        "bytes": 129571,
+        "frames": 20,
+        "sha256": "9dd8951ec52d89df965d8f8ff707c13a839a46d27764be684ab7199aba53e1e8",
+        "unique_frames": 19
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_min_area.gif",
+      "params": {
+        "kind": "nucleus",
+        "variant": "minimum"
+      },
+      "scene": "filter",
+      "settings": [
+        "nucleus_min_area",
+        "nucleus_min_size"
+      ],
+      "slug": "nucleus_min_area",
+      "title": "Nucleus \u2014 Minimum object area",
+      "validation": {
+        "bytes": 148905,
+        "frames": 17,
+        "sha256": "57eab622a391d7b32c2e288e1ec2ad794c379d61a902d3782bd1410e2799a67d",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_max_area.gif",
+      "params": {
+        "kind": "nucleus",
+        "variant": "maximum"
+      },
+      "scene": "filter",
+      "settings": [
+        "nucleus_max_area"
+      ],
+      "slug": "nucleus_max_area",
+      "title": "Nucleus \u2014 Maximum object area",
+      "validation": {
+        "bytes": 144136,
+        "frames": 17,
+        "sha256": "4fd07f953c2d89b9c12b85d5f0b140134aedfc173b2632ac670a92cf282c4b5d",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_min_intensity_percentile.gif",
+      "params": {
+        "kind": "nucleus",
+        "variant": "dim"
+      },
+      "scene": "filter",
+      "settings": [
+        "nucleus_min_intensity_percentile"
+      ],
+      "slug": "nucleus_min_intensity_percentile",
+      "title": "Nucleus \u2014 Minimum intensity percentile",
+      "validation": {
+        "bytes": 138482,
+        "frames": 16,
+        "sha256": "36a5906520947d21334493c4c8e7045147be28c39adad2c28f3ba172469c061f",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/nucleus_max_intensity_percentile.gif",
+      "params": {
+        "kind": "nucleus",
+        "variant": "bright"
+      },
+      "scene": "filter",
+      "settings": [
+        "nucleus_max_intensity_percentile"
+      ],
+      "slug": "nucleus_max_intensity_percentile",
+      "title": "Nucleus \u2014 Maximum intensity percentile",
+      "validation": {
+        "bytes": 145962,
+        "frames": 17,
+        "sha256": "ea5f5212ef885a0c863c711e4842ed05e543f27044c705b56b6c6f1221d4fb1b",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/pathogen_remove_border_objects.gif",
+      "params": {
+        "kind": "pathogen",
+        "variant": "border"
+      },
+      "scene": "border",
+      "settings": [
+        "pathogen_remove_border_objects",
+        "remove_border_pathogens"
+      ],
+      "slug": "pathogen_remove_border_objects",
+      "title": "Pathogen \u2014 Remove border objects",
+      "validation": {
+        "bytes": 183802,
+        "frames": 20,
+        "sha256": "ee88535c43eb5421d3f2917cb5a1562d76bdda8ae89371ff242a31ef46627b56",
+        "unique_frames": 19
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/pathogen_min_area.gif",
+      "params": {
+        "kind": "pathogen",
+        "variant": "minimum"
+      },
+      "scene": "filter",
+      "settings": [
+        "pathogen_min_area",
+        "pathogen_min_size"
+      ],
+      "slug": "pathogen_min_area",
+      "title": "Pathogen \u2014 Minimum object area",
+      "validation": {
+        "bytes": 225639,
+        "frames": 17,
+        "sha256": "bc31899111a56b9cab41dee101ddfa99d385d722deec9eed6759786bdee8bc93",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/pathogen_max_area.gif",
+      "params": {
+        "kind": "pathogen",
+        "variant": "maximum"
+      },
+      "scene": "filter",
+      "settings": [
+        "pathogen_max_area"
+      ],
+      "slug": "pathogen_max_area",
+      "title": "Pathogen \u2014 Maximum object area",
+      "validation": {
+        "bytes": 215630,
+        "frames": 17,
+        "sha256": "dda3b78e32658e6e657b5d22cf9e7bd4be338fa9671b86a67950a1378bd1fe50",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/pathogen_min_intensity_percentile.gif",
+      "params": {
+        "kind": "pathogen",
+        "variant": "dim"
+      },
+      "scene": "filter",
+      "settings": [
+        "pathogen_min_intensity_percentile"
+      ],
+      "slug": "pathogen_min_intensity_percentile",
+      "title": "Pathogen \u2014 Minimum intensity percentile",
+      "validation": {
+        "bytes": 209523,
+        "frames": 16,
+        "sha256": "ba3cbb0f8f90c58a94b7bbf4bb081f1c4bd3d9f6d6a2c59e56ad231a22c780d3",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/pathogen_max_intensity_percentile.gif",
+      "params": {
+        "kind": "pathogen",
+        "variant": "bright"
+      },
+      "scene": "filter",
+      "settings": [
+        "pathogen_max_intensity_percentile"
+      ],
+      "slug": "pathogen_max_intensity_percentile",
+      "title": "Pathogen \u2014 Maximum intensity percentile",
+      "validation": {
+        "bytes": 217612,
+        "frames": 17,
+        "sha256": "9c25ca54f4a310336e6bdb3de053ba22a5ad560a20f597eeb17e8ca83ae03908",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_remove_border_objects.gif",
+      "params": {
+        "kind": "organelle",
+        "variant": "border"
+      },
+      "scene": "border",
+      "settings": [
+        "organelle_remove_border_objects",
+        "organelle_remove_border",
+        "remove_border_organelles"
+      ],
+      "slug": "organelle_remove_border_objects",
+      "title": "Organelle \u2014 Remove border objects",
+      "validation": {
+        "bytes": 235304,
+        "frames": 20,
+        "sha256": "dc1ccbeaf7824b1086f4a5662e571630a9f9b0731426c4f8850f0f84c6eb8a48",
+        "unique_frames": 19
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_min_area.gif",
+      "params": {
+        "kind": "organelle",
+        "variant": "minimum"
+      },
+      "scene": "filter",
+      "settings": [
+        "organelle_min_area",
+        "organelle_min_size"
+      ],
+      "slug": "organelle_min_area",
+      "title": "Organelle \u2014 Minimum object area",
+      "validation": {
+        "bytes": 296383,
+        "frames": 17,
+        "sha256": "ee8154ad429fb5fc6b96cd6e4461c21ad04c5b96fc26574a5474ec62344d4537",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_max_area.gif",
+      "params": {
+        "kind": "organelle",
+        "variant": "maximum"
+      },
+      "scene": "filter",
+      "settings": [
+        "organelle_max_area",
+        "organelle_max_size"
+      ],
+      "slug": "organelle_max_area",
+      "title": "Organelle \u2014 Maximum object area",
+      "validation": {
+        "bytes": 276939,
+        "frames": 17,
+        "sha256": "4078819691ce9dd61aac3fb506c8e35875c935d03b39bf4607b23a0b02b441cd",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_min_intensity_percentile.gif",
+      "params": {
+        "kind": "organelle",
+        "variant": "dim"
+      },
+      "scene": "filter",
+      "settings": [
+        "organelle_min_intensity_percentile"
+      ],
+      "slug": "organelle_min_intensity_percentile",
+      "title": "Organelle \u2014 Minimum intensity percentile",
+      "validation": {
+        "bytes": 277298,
+        "frames": 16,
+        "sha256": "f626e9967dcfff729a2b2a6b794361c4e4ae5a87f364a9069c91b0854e7da11e",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Mask filtering",
+      "file": "gifs/organelle_max_intensity_percentile.gif",
+      "params": {
+        "kind": "organelle",
+        "variant": "bright"
+      },
+      "scene": "filter",
+      "settings": [
+        "organelle_max_intensity_percentile"
+      ],
+      "slug": "organelle_max_intensity_percentile",
+      "title": "Organelle \u2014 Maximum intensity percentile",
+      "validation": {
+        "bytes": 284401,
+        "frames": 17,
+        "sha256": "3b743d1c4c5803dc9664f830821341338d4cd5201933fe4ad9610c19cab4e9c7",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/merge_edge_pathogen_cells.gif",
+      "params": {},
+      "scene": "merge_edge_pathogen_cells",
+      "settings": [
+        "merge_edge_pathogen_cells"
+      ],
+      "slug": "merge_edge_pathogen_cells",
+      "title": "Merge edge-pathogen cells",
+      "validation": {
+        "bytes": 230084,
+        "frames": 18,
+        "sha256": "b467082247c4c11303e1e61531e0ace4b702e8680624df07417190852d109049",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/adjust_cells.gif",
+      "params": {},
+      "scene": "adjust_cells",
+      "settings": [
+        "adjust_cells"
+      ],
+      "slug": "adjust_cells",
+      "title": "Adjust fragmented cells",
+      "validation": {
+        "bytes": 192265,
+        "frames": 18,
+        "sha256": "1c693d5441433a05a905120aced95cb4d940d5571073bcf0bda6ea84886996c4",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/cell_perimeter_fraction.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "merge",
+      "settings": [
+        "cell_perimeter_fraction"
+      ],
+      "slug": "cell_perimeter_fraction",
+      "title": "Cell perimeter merge",
+      "validation": {
+        "bytes": 135364,
+        "frames": 18,
+        "sha256": "179b43abba88742480053687d19555ca199771faef80037309412c6e51a7f7d0",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/cell_intensity_merge.gif",
+      "params": {
+        "intensity": true,
+        "kind": "cell"
+      },
+      "scene": "merge",
+      "settings": [
+        "cell_intensity_merge",
+        "cell_intensity_threshold_method",
+        "cell_intensity_percentile"
+      ],
+      "slug": "cell_intensity_merge",
+      "title": "Cell intensity merge",
+      "validation": {
+        "bytes": 140530,
+        "frames": 18,
+        "sha256": "4339bd04bd26b763e0ad12c06f6ce088e4f5bb1f919ddafc0d15b3072c240994",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/cell_intensity_split.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "split",
+      "settings": [
+        "cell_intensity_split",
+        "cell_area_multiplier",
+        "cell_min_distance",
+        "cell_min_object_area"
+      ],
+      "slug": "cell_intensity_split",
+      "title": "Cell watershed split",
+      "validation": {
+        "bytes": 136485,
+        "frames": 18,
+        "sha256": "6bf69a014139c2e6e49805fb324916c3d13d56ff585d14e7e7cbf385d6941f59",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/nucleus_perimeter_fraction.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "merge",
+      "settings": [
+        "nucleus_perimeter_fraction"
+      ],
+      "slug": "nucleus_perimeter_fraction",
+      "title": "Nucleus perimeter merge",
+      "validation": {
+        "bytes": 146231,
+        "frames": 18,
+        "sha256": "b5ef3400dcbd1aea4027e4c3f254df72506fc3fc0b21b5f2c1eda77726ae370b",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/nucleus_intensity_merge.gif",
+      "params": {
+        "intensity": true,
+        "kind": "nucleus"
+      },
+      "scene": "merge",
+      "settings": [
+        "nucleus_intensity_merge",
+        "nucleus_intensity_threshold_method",
+        "nucleus_intensity_percentile"
+      ],
+      "slug": "nucleus_intensity_merge",
+      "title": "Nucleus intensity merge",
+      "validation": {
+        "bytes": 149664,
+        "frames": 18,
+        "sha256": "6eea92137816c79b4a2f9d970fc8c62c4e360605e541c9a4f567368f3b2114dc",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/nucleus_intensity_split.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "split",
+      "settings": [
+        "nucleus_intensity_split",
+        "nucleus_area_multiplier",
+        "nucleus_min_distance",
+        "nucleus_min_object_area"
+      ],
+      "slug": "nucleus_intensity_split",
+      "title": "Nucleus watershed split",
+      "validation": {
+        "bytes": 148239,
+        "frames": 18,
+        "sha256": "d045bd6f2a12f3397c366e76669741975356bf637bb8be322b87c2e7fca636c3",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/pathogen_perimeter_fraction.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "merge",
+      "settings": [
+        "pathogen_perimeter_fraction"
+      ],
+      "slug": "pathogen_perimeter_fraction",
+      "title": "Pathogen perimeter merge",
+      "validation": {
+        "bytes": 263345,
+        "frames": 18,
+        "sha256": "365a51c866af124e7e5b9b9e7bef8e67acef08d94fdec7bbe25771f7eb839fa1",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/pathogen_intensity_merge.gif",
+      "params": {
+        "intensity": true,
+        "kind": "pathogen"
+      },
+      "scene": "merge",
+      "settings": [
+        "pathogen_intensity_merge",
+        "pathogen_intensity_threshold_method",
+        "pathogen_intensity_percentile"
+      ],
+      "slug": "pathogen_intensity_merge",
+      "title": "Pathogen intensity merge",
+      "validation": {
+        "bytes": 266306,
+        "frames": 18,
+        "sha256": "4d21b97afbdc59b3e561d20e5b5220f8273ab6f18ab83095d7795291606529bd",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/pathogen_intensity_split.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "split",
+      "settings": [
+        "pathogen_intensity_split",
+        "pathogen_area_multiplier",
+        "pathogen_min_distance",
+        "pathogen_min_object_area"
+      ],
+      "slug": "pathogen_intensity_split",
+      "title": "Pathogen watershed split",
+      "validation": {
+        "bytes": 264617,
+        "frames": 18,
+        "sha256": "a91b2a989675f77b49734780e5975c2fdbb8e8ae01be49fb7e623b875344d377",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/organelle_perimeter_fraction.gif",
+      "params": {
+        "kind": "organelle"
+      },
+      "scene": "merge",
+      "settings": [
+        "organelle_perimeter_fraction"
+      ],
+      "slug": "organelle_perimeter_fraction",
+      "title": "Organelle perimeter merge",
+      "validation": {
+        "bytes": 291929,
+        "frames": 18,
+        "sha256": "ba45dcebf220620f3dd4e80ae829832c6906a198ddbdb8303a3302d703c4a660",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/organelle_intensity_merge.gif",
+      "params": {
+        "intensity": true,
+        "kind": "organelle"
+      },
+      "scene": "merge",
+      "settings": [
+        "organelle_intensity_merge",
+        "organelle_intensity_threshold_method",
+        "organelle_intensity_percentile"
+      ],
+      "slug": "organelle_intensity_merge",
+      "title": "Organelle intensity merge",
+      "validation": {
+        "bytes": 293634,
+        "frames": 18,
+        "sha256": "96908f70a2f58f02834998af7dedef22f7b5006eab8219297336ef225fa848c2",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/organelle_intensity_split.gif",
+      "params": {
+        "kind": "organelle"
+      },
+      "scene": "split",
+      "settings": [
+        "organelle_intensity_split",
+        "organelle_area_multiplier",
+        "organelle_min_distance",
+        "organelle_min_object_area"
+      ],
+      "slug": "organelle_intensity_split",
+      "title": "Organelle watershed split",
+      "validation": {
+        "bytes": 294136,
+        "frames": 18,
+        "sha256": "c4fe50bf915db99c6bee79d7f0df0e0b96f58258ef8a5726422b97cba5efad17",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/cell_CP_prob.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "probability",
+      "settings": [
+        "cell_CP_prob"
+      ],
+      "slug": "cell_CP_prob",
+      "title": "Cell probability threshold",
+      "validation": {
+        "bytes": 86101,
+        "frames": 15,
+        "sha256": "6c67983f01784141af85f255051e5bcafbaec3d5d36a7c9813fabde9f07d0906",
+        "unique_frames": 14
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/cell_FT.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "flow",
+      "settings": [
+        "cell_FT"
+      ],
+      "slug": "cell_FT",
+      "title": "Cell flow threshold",
+      "validation": {
+        "bytes": 124959,
+        "frames": 17,
+        "sha256": "ed5cf7c07aca6b5f1a0ac0ece519594798190d61f1fe84c3a41d15c8d840f6a4",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/cell_diameter.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "diameter",
+      "settings": [
+        "cell_diameter"
+      ],
+      "slug": "cell_diameter",
+      "title": "Cell diameter",
+      "validation": {
+        "bytes": 96174,
+        "frames": 18,
+        "sha256": "1eecdae97ca3df15ccc2beb4497e8801e21ad43c1cfb19b35d3e8f51ec76a88f",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/remove_background_cell.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "background",
+      "settings": [
+        "remove_background_cell",
+        "cell_background"
+      ],
+      "slug": "remove_background_cell",
+      "title": "Cell background subtraction",
+      "validation": {
+        "bytes": 168955,
+        "frames": 18,
+        "sha256": "6771be5fd19eae72f71b1329fbc1fc033418d61928a6bdfe9e5895e773202bd8",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/cell_Signal_to_noise.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "signal",
+      "settings": [
+        "cell_Signal_to_noise"
+      ],
+      "slug": "cell_Signal_to_noise",
+      "title": "Cell signal-to-noise",
+      "validation": {
+        "bytes": 103470,
+        "frames": 18,
+        "sha256": "159f8d54f770f1e71d0e598afc2566cc6545260cf3fc6ea2007106b985eafe08",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/nucleus_CP_prob.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "probability",
+      "settings": [
+        "nucleus_CP_prob"
+      ],
+      "slug": "nucleus_CP_prob",
+      "title": "Nucleus probability threshold",
+      "validation": {
+        "bytes": 92502,
+        "frames": 15,
+        "sha256": "acbd658ab57301d26d7acdf6b3031ee0799e87193b06cb21299194bdc73a57a1",
+        "unique_frames": 14
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/nucleus_FT.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "flow",
+      "settings": [
+        "nucleus_FT"
+      ],
+      "slug": "nucleus_FT",
+      "title": "Nucleus flow threshold",
+      "validation": {
+        "bytes": 144743,
+        "frames": 17,
+        "sha256": "86dca3102129932a7bfd8ca77bc43ce8a12b5f83e4800e86f438dfaca39e796e",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/nucleus_diameter.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "diameter",
+      "settings": [
+        "nucleus_diameter"
+      ],
+      "slug": "nucleus_diameter",
+      "title": "Nucleus diameter",
+      "validation": {
+        "bytes": 101487,
+        "frames": 18,
+        "sha256": "1bc652661959dbd00b7263dc677b4a1209e15c5886d39d48377bb1bf4a7cda02",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/remove_background_nucleus.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "background",
+      "settings": [
+        "remove_background_nucleus",
+        "nucleus_background"
+      ],
+      "slug": "remove_background_nucleus",
+      "title": "Nucleus background subtraction",
+      "validation": {
+        "bytes": 161301,
+        "frames": 18,
+        "sha256": "7553fa5a5fd0825cf208ff4d48b56e9e580e9dae5ea71dec443d47a3af8aed0f",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/nucleus_Signal_to_noise.gif",
+      "params": {
+        "kind": "nucleus"
+      },
+      "scene": "signal",
+      "settings": [
+        "nucleus_Signal_to_noise"
+      ],
+      "slug": "nucleus_Signal_to_noise",
+      "title": "Nucleus signal-to-noise",
+      "validation": {
+        "bytes": 99361,
+        "frames": 18,
+        "sha256": "ff58d45f4c270c9747b6f833d43e9ba0137dad10f1012d40e8194017c1cc223c",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/pathogen_CP_prob.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "probability",
+      "settings": [
+        "pathogen_CP_prob"
+      ],
+      "slug": "pathogen_CP_prob",
+      "title": "Pathogen probability threshold",
+      "validation": {
+        "bytes": 127161,
+        "frames": 15,
+        "sha256": "e149b8a802364695343b9c24e6632b6643cda3662fc03c4c2c0a63cfcc4cc8fe",
+        "unique_frames": 14
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/pathogen_FT.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "flow",
+      "settings": [
+        "pathogen_FT"
+      ],
+      "slug": "pathogen_FT",
+      "title": "Pathogen flow threshold",
+      "validation": {
+        "bytes": 203658,
+        "frames": 17,
+        "sha256": "60573817c2263a7bd6946817e02ed070eb9a6f7764a1c6f083876e1d56417f4d",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/pathogen_diameter.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "diameter",
+      "settings": [
+        "pathogen_diameter"
+      ],
+      "slug": "pathogen_diameter",
+      "title": "Pathogen diameter",
+      "validation": {
+        "bytes": 144341,
+        "frames": 18,
+        "sha256": "7aa19b08b6fd779edc413418b81c469ed817f8897af66895e34e0cdca4c1a445",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/remove_background_pathogen.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "background",
+      "settings": [
+        "remove_background_pathogen",
+        "pathogen_background"
+      ],
+      "slug": "remove_background_pathogen",
+      "title": "Pathogen background subtraction",
+      "validation": {
+        "bytes": 186751,
+        "frames": 18,
+        "sha256": "773f77f5934d6552dd491b797644b6f061b5cd80402d43f2cf18ee515b86222a",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/pathogen_Signal_to_noise.gif",
+      "params": {
+        "kind": "pathogen"
+      },
+      "scene": "signal",
+      "settings": [
+        "pathogen_Signal_to_noise"
+      ],
+      "slug": "pathogen_Signal_to_noise",
+      "title": "Pathogen signal-to-noise",
+      "validation": {
+        "bytes": 134102,
+        "frames": 18,
+        "sha256": "04b3b1f688ac65267ad692d3758aed49189cf614ead7610718a968a976fb1e7a",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/organelle_diameter.gif",
+      "params": {
+        "kind": "organelle"
+      },
+      "scene": "diameter",
+      "settings": [
+        "organelle_diameter"
+      ],
+      "slug": "organelle_diameter",
+      "title": "Organelle diameter",
+      "validation": {
+        "bytes": 177522,
+        "frames": 18,
+        "sha256": "38ed8c130aa6c65369ba8cbcf264143f8292a7be3992001f3808bdbf0a621c4e",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/organelle_CP_prob.gif",
+      "params": {
+        "kind": "organelle"
+      },
+      "scene": "probability",
+      "settings": [
+        "organelle_CP_prob"
+      ],
+      "slug": "organelle_CP_prob",
+      "title": "Organelle probability threshold",
+      "validation": {
+        "bytes": 129957,
+        "frames": 15,
+        "sha256": "26a0073acdfab53ac96df0708eef359c8549fc01df08fefe79f25c3e5104a5be",
+        "unique_frames": 14
+      }
+    },
+    {
+      "category": "Segmentation",
+      "file": "gifs/organelle_FT.gif",
+      "params": {
+        "kind": "organelle"
+      },
+      "scene": "flow",
+      "settings": [
+        "organelle_FT"
+      ],
+      "slug": "organelle_FT",
+      "title": "Organelle flow threshold",
+      "validation": {
+        "bytes": 270108,
+        "frames": 17,
+        "sha256": "41a5781cf3f55beb4068169ac2cdd1b12d286c70e0fae5a9ed8f4cdb0c4eacb3",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Mask repair",
+      "file": "gifs/fill_in.gif",
+      "params": {
+        "kind": "cell"
+      },
+      "scene": "fill_holes",
+      "settings": [
+        "fill_in"
+      ],
+      "slug": "fill_in",
+      "title": "Fill holes in masks",
+      "validation": {
+        "bytes": 121039,
+        "frames": 18,
+        "sha256": "88ae6c64fd94158e4378735c5b20740d4b999e7fd4c50a8f2b39069c3a02fe4b",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_fill_holes.gif",
+      "params": {
+        "kind": "organelle"
+      },
+      "scene": "fill_holes",
+      "settings": [
+        "organelle_fill_holes"
+      ],
+      "slug": "organelle_fill_holes",
+      "title": "Fill small organelle holes",
+      "validation": {
+        "bytes": 233849,
+        "frames": 18,
+        "sha256": "fa4f516291df09dd8d741cc4de08e4f60c9dae3f594183e47b00b6d543ee95d1",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_watershed_spots.gif",
+      "params": {
+        "mode": "watershed"
+      },
+      "scene": "organelle",
+      "settings": [
+        "organelle_watershed_spots"
+      ],
+      "slug": "organelle_watershed_spots",
+      "title": "Split touching organelle spots",
+      "validation": {
+        "bytes": 235619,
+        "frames": 18,
+        "sha256": "521e24fc77dbd9b34510d6a907b17a633fb599fb30d69720a25a9c219fa877ed",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_skeletonize.gif",
+      "params": {
+        "mode": "skeleton"
+      },
+      "scene": "organelle",
+      "settings": [
+        "organelle_skeletonize"
+      ],
+      "slug": "organelle_skeletonize",
+      "title": "Skeletonize organelle networks",
+      "validation": {
+        "bytes": 201667,
+        "frames": 18,
+        "sha256": "2ae2e6204ddf515ba1fb0fd26b9361910c5ca19f7dbedd50103e6940add833ac",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_rolling_ball.gif",
+      "params": {
+        "mode": "rolling_ball"
+      },
+      "scene": "organelle",
+      "settings": [
+        "organelle_rolling_ball",
+        "organelle_rolling_ball_radius"
+      ],
+      "slug": "organelle_rolling_ball",
+      "title": "Rolling-ball background correction",
+      "validation": {
+        "bytes": 128134,
+        "frames": 16,
+        "sha256": "1b152a629dc68ab20a0312b2ba72c0c4273f45acf7accc2f020fd6fc691ddce1",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_clahe.gif",
+      "params": {
+        "mode": "clahe"
+      },
+      "scene": "organelle",
+      "settings": [
+        "organelle_clahe",
+        "organelle_clahe_clip_limit"
+      ],
+      "slug": "organelle_clahe",
+      "title": "Organelle local contrast (CLAHE)",
+      "validation": {
+        "bytes": 149517,
+        "frames": 18,
+        "sha256": "fb2a80cbd1ab857b7cb6a2737fc77171ed1f070f814ddac6b3b303e30773dfa1",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_mask_within_cells.gif",
+      "params": {
+        "mode": "within_cells"
+      },
+      "scene": "organelle",
+      "settings": [
+        "organelle_mask_within_cells"
+      ],
+      "slug": "organelle_mask_within_cells",
+      "title": "Mask organelles within cells",
+      "validation": {
+        "bytes": 189194,
+        "frames": 17,
+        "sha256": "53559924fde58a305b10213285db3fface4efd5a81b40d7b0725d7d747e8bec7",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Organelle preprocessing",
+      "file": "gifs/organelle_log_threshold.gif",
+      "params": {
+        "mode": "threshold"
+      },
+      "scene": "organelle",
+      "settings": [
+        "organelle_log_threshold",
+        "organelle_unet_threshold"
+      ],
+      "slug": "organelle_log_threshold",
+      "title": "Organelle segmentation threshold",
+      "validation": {
+        "bytes": 105918,
+        "frames": 15,
+        "sha256": "77b45fe07b6afb87ad271b31c3abb8886fac17e7ae7f301ea7d88157df936564",
+        "unique_frames": 14
+      }
+    },
+    {
+      "category": "Plot appearance",
+      "file": "gifs/outline_thickness.gif",
+      "params": {},
+      "scene": "outline_thickness",
+      "settings": [
+        "outline_thickness"
+      ],
+      "slug": "outline_thickness",
+      "title": "Mask outline thickness",
+      "validation": {
+        "bytes": 152109,
+        "frames": 18,
+        "sha256": "9897bed274ee719cf7510fbc3d9a79db5143a25ff10b33977770ebccc2636af4",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image preprocessing",
+      "file": "gifs/normalization_percentiles.gif",
+      "params": {},
+      "scene": "normalization",
+      "settings": [
+        "normalization_percentiles",
+        "normalize",
+        "normalize_plots"
+      ],
+      "slug": "normalization_percentiles",
+      "title": "Image normalization percentiles",
+      "validation": {
+        "bytes": 135342,
+        "frames": 18,
+        "sha256": "27e9a5f564d74f11baf42cd187522556786d1abdf8dca8309060ba263d73a8ff",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Crop output",
+      "file": "gifs/use_bounding_box.gif",
+      "params": {
+        "mode": "bounding_box"
+      },
+      "scene": "crop",
+      "settings": [
+        "use_bounding_box"
+      ],
+      "slug": "use_bounding_box",
+      "title": "Keep bounding-box context",
+      "validation": {
+        "bytes": 173279,
+        "frames": 18,
+        "sha256": "b2aed7d21021ad2bdc735d2110a4464b6cf141657cec3807c467a6458a548d61",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Crop output",
+      "file": "gifs/dialate_pngs.gif",
+      "params": {
+        "mode": "dilate"
+      },
+      "scene": "crop",
+      "settings": [
+        "dialate_pngs",
+        "dialate_png_ratios"
+      ],
+      "slug": "dialate_pngs",
+      "title": "Dilate crop masks",
+      "validation": {
+        "bytes": 109928,
+        "frames": 18,
+        "sha256": "1b919bcfa5adf8057cee823e31fa53682fdda222d444aa64922a75be4a793bae",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Crop output",
+      "file": "gifs/crop_mode.gif",
+      "params": {
+        "mode": "crop_mode"
+      },
+      "scene": "crop",
+      "settings": [
+        "crop_mode"
+      ],
+      "slug": "crop_mode",
+      "title": "Choose crop target",
+      "validation": {
+        "bytes": 74782,
+        "frames": 9,
+        "sha256": "8af325063bb195a3de8d20cfb5e4de9eed0538ec9be8490f48b9c8d647719869",
+        "unique_frames": 4
+      }
+    },
+    {
+      "category": "Crop output",
+      "file": "gifs/png_size.gif",
+      "params": {
+        "mode": "png_size"
+      },
+      "scene": "crop",
+      "settings": [
+        "png_size"
+      ],
+      "slug": "png_size",
+      "title": "Crop canvas size",
+      "validation": {
+        "bytes": 156733,
+        "frames": 18,
+        "sha256": "2b47a805d5780dba58a4ae21866d1820e53dedaa5bad042c14bce84dc41c385c",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Measurement",
+      "file": "gifs/cytoplasm.gif",
+      "params": {},
+      "scene": "cytoplasm",
+      "settings": [
+        "cytoplasm"
+      ],
+      "slug": "cytoplasm",
+      "title": "Derive cytoplasm compartment",
+      "validation": {
+        "bytes": 114717,
+        "frames": 18,
+        "sha256": "1860413709712e768b020ab244a03312c8f50ee3402636f74f57c8609658bef8",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Measurement",
+      "file": "gifs/radial_dist.gif",
+      "params": {},
+      "scene": "radial",
+      "settings": [
+        "radial_dist",
+        "distance_gaussian_sigma"
+      ],
+      "slug": "radial_dist",
+      "title": "Radial-distance shells",
+      "validation": {
+        "bytes": 219768,
+        "frames": 18,
+        "sha256": "48dfd63da6ae5f6c0bf14df2159b335ce06ba2ac2247858b29aa61d637cf8ec4",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Measurement",
+      "file": "gifs/uninfected.gif",
+      "params": {},
+      "scene": "uninfected",
+      "settings": [
+        "uninfected"
+      ],
+      "slug": "uninfected",
+      "title": "Keep or remove uninfected cells",
+      "validation": {
+        "bytes": 155332,
+        "frames": 17,
+        "sha256": "38b5da86b514b93f7d77df8dcb08c1429faa07e44886b023636bc836d48d4213",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/timelapse_remove_transient.gif",
+      "params": {
+        "mode": "transient"
+      },
+      "scene": "tracking",
+      "settings": [
+        "timelapse_remove_transient",
+        "timelapse_frame_limits"
+      ],
+      "slug": "timelapse_remove_transient",
+      "title": "Remove transient tracks",
+      "validation": {
+        "bytes": 134555,
+        "frames": 17,
+        "sha256": "7f89fe8cbe7b84b81cff06837be2ac1d7f4b82482c185145455c006a60f8dafb",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/timelapse_displacement.gif",
+      "params": {
+        "mode": "displacement"
+      },
+      "scene": "tracking",
+      "settings": [
+        "timelapse_displacement",
+        "ultrack_max_distance",
+        "t_max_displacement_px",
+        "t_max_displacement_um"
+      ],
+      "slug": "timelapse_displacement",
+      "title": "Maximum linking displacement",
+      "validation": {
+        "bytes": 147290,
+        "frames": 18,
+        "sha256": "4bb021a02cdcef6a0db4c0ddf1e18cfa320c18039ef656a08a3c32471777910e",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/timelapse_memory.gif",
+      "params": {
+        "mode": "memory"
+      },
+      "scene": "tracking",
+      "settings": [
+        "timelapse_memory"
+      ],
+      "slug": "timelapse_memory",
+      "title": "Tracking memory",
+      "validation": {
+        "bytes": 107471,
+        "frames": 17,
+        "sha256": "b2361503e5c1a828287529e853b6ea55dff7e4a11e7bc993b627de90304d0aea",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/t_link_threshold.gif",
+      "params": {
+        "mode": "link"
+      },
+      "scene": "tracking",
+      "settings": [
+        "t_link_threshold"
+      ],
+      "slug": "t_link_threshold",
+      "title": "Timepoint overlap threshold",
+      "validation": {
+        "bytes": 110717,
+        "frames": 18,
+        "sha256": "c394a73fba586b22a95da323c6d2487237163ab908e7808f57c808cda771341d",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/stitch_threshold.gif",
+      "params": {
+        "mode": "stitch"
+      },
+      "scene": "tracking",
+      "settings": [
+        "stitch_threshold"
+      ],
+      "slug": "stitch_threshold",
+      "title": "Z-plane stitch threshold",
+      "validation": {
+        "bytes": 104705,
+        "frames": 18,
+        "sha256": "8891bd3122f1fe328eceba18acd9829bcb8a32bb6eacc75734b4b29c7d08c833",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/z_projection.gif",
+      "params": {
+        "mode": "projection"
+      },
+      "scene": "tracking",
+      "settings": [
+        "z_projection",
+        "all_to_mip",
+        "pick_slice"
+      ],
+      "slug": "z_projection",
+      "title": "Z projection",
+      "validation": {
+        "bytes": 134101,
+        "frames": 18,
+        "sha256": "5f23e847469cf57aaf95b9387a95cf227437e6799b4eedfad2a7cebec8aef18f",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/t_project_for_tracking.gif",
+      "params": {
+        "mode": "project_tracking"
+      },
+      "scene": "tracking",
+      "settings": [
+        "t_project_for_tracking"
+      ],
+      "slug": "t_project_for_tracking",
+      "title": "Project volumes for tracking",
+      "validation": {
+        "bytes": 93825,
+        "frames": 18,
+        "sha256": "2d2761d376444e3c8652fbc7977dbcb6e6aa2bdd057230a3c18b2460ae3b85a5",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/straightness_filter.gif",
+      "params": {
+        "mode": "straightness"
+      },
+      "scene": "tracking",
+      "settings": [
+        "straightness_filter",
+        "straightness_threshold"
+      ],
+      "slug": "straightness_filter",
+      "title": "Remove overly straight tracks",
+      "validation": {
+        "bytes": 155711,
+        "frames": 17,
+        "sha256": "4e8bbc9032d68ca4c323e4d38bd8897a7824cc96da6dd6b5278a3c233dd4c378",
+        "unique_frames": 15
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/zscore_thresh.gif",
+      "params": {
+        "mode": "zscore"
+      },
+      "scene": "tracking",
+      "settings": [
+        "zscore_thresh"
+      ],
+      "slug": "zscore_thresh",
+      "title": "Smooth per-track outliers",
+      "validation": {
+        "bytes": 117802,
+        "frames": 18,
+        "sha256": "3651cf251c43947cdfc4122ad7143055354d7cc79f43ade4dc916ec36977db76",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/ultrack_division_weight.gif",
+      "params": {
+        "mode": "division"
+      },
+      "scene": "tracking",
+      "settings": [
+        "ultrack_division_weight"
+      ],
+      "slug": "ultrack_division_weight",
+      "title": "Cell-division linking",
+      "validation": {
+        "bytes": 112007,
+        "frames": 18,
+        "sha256": "bb5fb299d05f68885e2ed3aaa748a428610799fb52bea124b6e2efea9cb3f363",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Tracking & volumetric",
+      "file": "gifs/ultrack_contour_sigma.gif",
+      "params": {
+        "mode": "contour_sigma"
+      },
+      "scene": "tracking",
+      "settings": [
+        "ultrack_contour_sigma"
+      ],
+      "slug": "ultrack_contour_sigma",
+      "title": "Contour smoothing",
+      "validation": {
+        "bytes": 135579,
+        "frames": 18,
+        "sha256": "6b7868a5ff4d47290e913a99c4441f490db2fef4bb124051659d403d8c43b34b",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/n_neighbors.gif",
+      "params": {
+        "mode": "neighbors"
+      },
+      "scene": "umap",
+      "settings": [
+        "n_neighbors"
+      ],
+      "slug": "n_neighbors",
+      "title": "UMAP neighborhood size",
+      "validation": {
+        "bytes": 44469,
+        "frames": 7,
+        "sha256": "7fd52fe56166b5ab1501bad5fb57c1e41c8f355eb96e0b3bba1cce690c0329fb",
+        "unique_frames": 4
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/min_dist.gif",
+      "params": {
+        "mode": "min_dist"
+      },
+      "scene": "umap",
+      "settings": [
+        "min_dist"
+      ],
+      "slug": "min_dist",
+      "title": "UMAP minimum distance",
+      "validation": {
+        "bytes": 72853,
+        "frames": 18,
+        "sha256": "f34168be78ac8c77f8ddd73ea5f95043f415f8d90214a1a8054bcce1bac43f43",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/plot_images.gif",
+      "params": {
+        "mode": "images"
+      },
+      "scene": "umap",
+      "settings": [
+        "plot_images"
+      ],
+      "slug": "plot_images",
+      "title": "Show object images",
+      "validation": {
+        "bytes": 77133,
+        "frames": 18,
+        "sha256": "893feb2a9bd32d9005adf328abaead6325bd773575edb466e676bf77dd0ba4dd",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/remove_image_canvas.gif",
+      "params": {
+        "mode": "canvas"
+      },
+      "scene": "umap",
+      "settings": [
+        "remove_image_canvas"
+      ],
+      "slug": "remove_image_canvas",
+      "title": "Remove image canvas",
+      "validation": {
+        "bytes": 84138,
+        "frames": 18,
+        "sha256": "485b34bc8254944925b356916542440070992e8089caa0567dc544d9d8b405d0",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/plot_outlines.gif",
+      "params": {
+        "mode": "outlines"
+      },
+      "scene": "umap",
+      "settings": [
+        "plot_outlines"
+      ],
+      "slug": "plot_outlines",
+      "title": "Show cluster outlines",
+      "validation": {
+        "bytes": 132689,
+        "frames": 18,
+        "sha256": "26568985b69149de1baa4d7fb1fcdcf39c9ca15deb5aa6eb3a8b9ce2424fa4c0",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/plot_points.gif",
+      "params": {
+        "mode": "points"
+      },
+      "scene": "umap",
+      "settings": [
+        "plot_points"
+      ],
+      "slug": "plot_points",
+      "title": "Show embedding points",
+      "validation": {
+        "bytes": 143064,
+        "frames": 18,
+        "sha256": "33659783bbb0033fd3424f95af858b693e7a5fb899522f2d735e0c141f7b4bea",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/smooth_lines.gif",
+      "params": {
+        "mode": "smooth"
+      },
+      "scene": "umap",
+      "settings": [
+        "smooth_lines"
+      ],
+      "slug": "smooth_lines",
+      "title": "Smooth cluster outlines",
+      "validation": {
+        "bytes": 102703,
+        "frames": 18,
+        "sha256": "e2c36c2a8ab942ffb85a46ac86a1bbda1eea94eb77e09a4352cfc2af314232b9",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/remove_cluster_noise.gif",
+      "params": {
+        "mode": "noise"
+      },
+      "scene": "umap",
+      "settings": [
+        "remove_cluster_noise"
+      ],
+      "slug": "remove_cluster_noise",
+      "title": "Remove cluster noise",
+      "validation": {
+        "bytes": 69688,
+        "frames": 18,
+        "sha256": "f4204addeacda9f9023be4271416fbaa83b83bbc0d87d2bb48c5556d39c50d67",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/plot_by_cluster.gif",
+      "params": {
+        "mode": "by_cluster"
+      },
+      "scene": "umap",
+      "settings": [
+        "plot_by_cluster"
+      ],
+      "slug": "plot_by_cluster",
+      "title": "Sample images by cluster",
+      "validation": {
+        "bytes": 74766,
+        "frames": 18,
+        "sha256": "ed69df69f0f1d021901e311ef0ecd9ba34641ce1341d24c2587f25391d999802",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/dot_size.gif",
+      "params": {
+        "mode": "dot_size"
+      },
+      "scene": "umap",
+      "settings": [
+        "dot_size"
+      ],
+      "slug": "dot_size",
+      "title": "Embedding point size",
+      "validation": {
+        "bytes": 63047,
+        "frames": 15,
+        "sha256": "bc3eb2551e51910295be9424d8a33799c1f803ace23fc5291caff7fb6f27088b",
+        "unique_frames": 12
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/img_zoom.gif",
+      "params": {
+        "mode": "image_zoom"
+      },
+      "scene": "umap",
+      "settings": [
+        "img_zoom"
+      ],
+      "slug": "img_zoom",
+      "title": "Embedding image zoom",
+      "validation": {
+        "bytes": 78525,
+        "frames": 18,
+        "sha256": "15be844d5c4807177532c54175b17a21c56984af6e83600bcc354f4c2afe6909",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Image UMAP",
+      "file": "gifs/eps.gif",
+      "params": {
+        "mode": "density"
+      },
+      "scene": "umap",
+      "settings": [
+        "eps",
+        "min_samples",
+        "clustering"
+      ],
+      "slug": "eps",
+      "title": "Density clustering radius",
+      "validation": {
+        "bytes": 98066,
+        "frames": 18,
+        "sha256": "bb0b85cac7dca639ba116d6c584d599299153560914d5000bcf575c5cbce2a1c",
+        "unique_frames": 16
+      }
+    },
+    {
+      "category": "Alignment & stitching",
+      "file": "gifs/overlap.gif",
+      "params": {
+        "mode": "overlap"
+      },
+      "scene": "alignment",
+      "settings": [
+        "overlap"
+      ],
+      "slug": "overlap",
+      "title": "Tile overlap",
+      "validation": {
+        "bytes": 132219,
+        "frames": 18,
+        "sha256": "70b25609e012ba8119a8efeccc1030e13d97ccaf063caa0e499430067415d79b",
+        "unique_frames": 17
+      }
+    },
+    {
+      "category": "Alignment & stitching",
+      "file": "gifs/blend.gif",
+      "params": {
+        "mode": "blend"
+      },
+      "scene": "alignment",
+      "settings": [
+        "blend"
+      ],
+      "slug": "blend",
+      "title": "Tile seam blending",
+      "validation": {
+        "bytes": 111953,
+        "frames": 18,
+        "sha256": "0b75148fc8cb0bc7b05f78af707b9947fd6b67ed8429d365323f15dd2893fb45",
+        "unique_frames": 17
+      }
+    }
+  ],
+  "schema_version": 1,
+  "template_sha256": {
+    "all.svg": "40a8b6bbefbe7aa7cf406711e67a3ab7ac21e861cd2eebedf06b24ad29fd326f",
+    "cell.svg": "de7f4790ac94ebf95cf571b1a5d8fa14688adbe5245d8378dce16ab130f35a02",
+    "cell_all.svg": "87c91119aa460ee9a4fc7f50e9d3656113f9c8c0c1a0395312a969f563e42dc1",
+    "golgi.svg": "25c963667fd2d23e238e9b7759d2e804e26e5f74c7a522859ca513b34a237068",
+    "nucleus.svg": "07702d13340d089a9f52de010466321bfd58fe0955118362e5d29b8efedf6cbf",
+    "pathogen.svg": "a7c4f5d4e78c0aa7dbbb838c0e5a7c786d4e5d2bcbd2683b2de0307e0e06c977"
+  }
+}

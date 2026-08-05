@@ -38,6 +38,19 @@ def test_stylesheet_is_non_empty_and_references_palette():
                  "#PrimaryButton", "#DangerButton", "#Console",
                  "#UsageBar", "QMainWindow"):
         assert name in qss, f"stylesheet is missing {name}"
+    assert '[buttonActionRole="positive"]' in qss
+    assert '[buttonActionRole="negative"]' in qss
+    assert '[buttonActionBusy="true"]' in qss
+    # API-help label wrappers are layout-only. They must not paint the black
+    # window canvas over a dark-gray SectionCard.
+    assert "QWidget#SettingLabelWithInfo" in qss
+    assert "QWidget#SettingControlWithInfo" in qss
+    assert "background: transparent" in qss
+    # SQL column-picker tool buttons need their own theme rule because they
+    # are QToolButtons rather than QPushButtons.
+    assert "QToolButton#ColumnPickerButton" in qss
+    assert "QToolButton#ColumnPickerButton:hover" in qss
+    assert "QWidget#ColumnPickerRow" in qss
 
 
 def test_apply_qpalette_sets_expected_colors(qapp):

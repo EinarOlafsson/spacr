@@ -6,18 +6,25 @@ transaction.  A database created by an older spaCR release therefore follows
 the same path whether it is opened for reading or for writing, while a
 database created by a newer release is rejected before any mutation.
 
-The module deliberately uses only the Python standard library.  Measurement
-workers can import it without importing pandas, plotting, or optional analysis
-dependencies.
+The module deliberately uses only the Python standard library and
+:mod:`spacr.schema`, which is itself standard-library-only at module scope.
+Measurement workers can import it without importing pandas, plotting, or
+optional analysis dependencies.
+
+The canonical column-name vocabulary lives in :mod:`spacr.schema` and is
+re-exported here rather than redefined; see the comment above
+``DB_COLUMN_RENAMES`` for what that repaired.
 """
 
 from __future__ import annotations
 
 import os
-import re
 import sqlite3
 from dataclasses import dataclass
-from typing import Callable, Iterable, Optional, Sequence, Tuple
+from typing import Callable, Optional, Sequence, Tuple
+
+from . import schema as _schema
+from .database_concurrency import connect as connect_database
 
 __all__ = [
     "CURRENT_SCHEMA_VERSION",
@@ -90,52 +97,24 @@ class MigrationReport:
         )
 
 
-# Legacy column spellings and their canonical spaCR names.  These constants
-# live with the migration that consumes them; ``spacr.utils`` re-exports them
-# for compatibility with existing callers.
-DB_COLUMN_RENAMES = {
-    "row": "rowID",
-    "row_name": "rowID",
-    "column": "columnID",
-    "col": "columnID",
-    "column_name": "columnID",
-    "plate": "plateID",
-    "plate_name": "plateID",
-    "field": "fieldID",
-    "field_name": "fieldID",
-    "channel": "chanID",
-    "time_id": "timeID",
-}
-
-DB_COLUMN_RENAME_PATTERNS = (
-    (
-        re.compile(
-            r"^(?P<head>.*?)(?P<ring>periphery|outside)_"
-            r"(?P<p>\d+)_percentile$"
-        ),
-        r"\g<head>\g<ring>_percentile_\g<p>",
-    ),
-    (
-        re.compile(
-            r"^organelle_summary_organelle_ch"
-            r"(?P<c>\d+)_(?P<rest>.+)$"
-        ),
-        r"organelle_summary_organelle_channel_\g<c>_\g<rest>",
-    ),
-)
-
-
-def canonical_column_name(name: str) -> str:
-    """Return the canonical spaCR spelling for one database column."""
-
-    renamed = DB_COLUMN_RENAMES.get(name)
-    if renamed is not None:
-        return renamed
-    for pattern, replacement in DB_COLUMN_RENAME_PATTERNS:
-        new_name, substitutions = pattern.subn(replacement, name)
-        if substitutions:
-            return new_name
-    return name
+# Legacy column spellings and their canonical spaCR names.  These are
+# *aliases*, not copies.  This module used to define its own narrower,
+# case-sensitive rename map and its own ``canonical_column_name`` alongside
+# ``spacr.schema``'s wider case-insensitive pair, and which one a caller got
+# depended on whether it had imported ``spacr.schema`` or ``spacr.utils``
+# (which re-exports from here).  The two disagreed on 11 aliases and on case,
+# so a database column named ``Row`` was canonicalised on one path and left
+# alone on the other -- and a half-canonicalised database produces a join that
+# quietly returns the wrong rows long before it produces an error.  There is
+# now one definition, in ``spacr.schema``; see its ``canonical_column_name``
+# docstring for what widened and why.
+#
+# ``spacr.schema`` is standard-library-only at module scope, so importing it
+# here preserves this module's promise that a measurement worker can import it
+# without pulling in pandas or any optional analysis dependency.
+DB_COLUMN_RENAMES = _schema.LEGACY_COLUMN_NAMES
+DB_COLUMN_RENAME_PATTERNS = _schema.LEGACY_COLUMN_PATTERNS
+canonical_column_name = _schema.canonical_column_name
 
 
 def _quote_identifier(name: str) -> str:
@@ -164,7 +143,26 @@ def _rename_legacy_columns(
             columns = [row[1] for row in cursor.fetchall()]
             for old in list(columns):
                 new = canonical_column_name(old)
-                if new == old or new in columns:
+                if new == old:
+                    continue
+                # SQLite compares identifiers case-insensitively, so the
+                # "target already exists, keep both" test has to fold case
+                # too.  A table holding `row` and `RowID` is a table that
+                # already has the canonical column -- with the old
+                # case-sensitive `new in columns` test this loop asked SQLite
+                # to rename `row` to `rowID`, SQLite answered "duplicate
+                # column name: RowID", and the OperationalError rolled back
+                # the whole migration.  A user whose database had that pair
+                # could not open it at all.
+                #
+                # `old` is excluded from the comparison because it is the
+                # column being renamed: without that, a pure respelling
+                # (`RowID` -> `rowID`, one column, same identifier as far as
+                # SQLite is concerned) would look like a collision with
+                # itself and never happen, leaving pandas readers with a
+                # frame that has no `rowID` column on a database that does.
+                others = {name.lower() for name in columns if name != old}
+                if new.lower() in others:
                     continue
                 cursor.execute(
                     f"ALTER TABLE {quoted_table} "
@@ -219,8 +217,11 @@ def database_schema_version(source) -> int:
     path = os.fspath(source)
     if not os.path.isfile(path):
         raise FileNotFoundError(path)
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as connection:
+    connection = connect_database(path, readonly=True)
+    try:
         return _pragma_int(connection, "user_version")
+    finally:
+        connection.close()
 
 
 def _begin_migration(connection: sqlite3.Connection) -> Tuple[str, bool]:
@@ -346,7 +347,7 @@ def migrate_database(
     path = os.path.abspath(os.fspath(db_path))
     if not os.path.isfile(path):
         raise FileNotFoundError(path)
-    connection = sqlite3.connect(path, timeout=timeout)
+    connection = connect_database(path, timeout=timeout)
     try:
         return migrate_connection(
             connection,
@@ -367,7 +368,7 @@ def repair_legacy_columns(db_path, *, timeout: float = 30.0):
     """
 
     path = os.path.abspath(os.fspath(db_path))
-    connection = sqlite3.connect(path, timeout=timeout)
+    connection = connect_database(path, timeout=timeout)
     transaction = _begin_migration(connection)
     try:
         renamed = _rename_legacy_columns(connection)

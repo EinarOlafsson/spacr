@@ -38,9 +38,21 @@ Three properties this file is built around:
 
 * **Cheap on open.** ``PRAGMA table_info`` is free; ``SELECT COUNT(*)``
   over a 400 k-row measurement table is not. Opening the dialog runs no
-  count at all. The per-table row figure comes from ``max(rowid)`` and is
-  labelled an estimate; a per-column non-null count happens only when the
-  user asks for it by name.
+  count at all. The per-table row figure comes from ``max(_rowid_)`` and
+  is labelled an estimate; a per-column non-null count happens only when
+  the user asks for it by name. (``_rowid_``, not ``rowid`` — see
+  :meth:`SchemaReader.estimate_rows`, where the difference was a full
+  table scan followed by a ``ValueError``.)
+
+* **Off the GUI thread.** Cheap is not free, and opening the picker is
+  four sequential sqlite round trips — open, list tables, read one
+  table's columns, estimate its rows — every one of which used to happen
+  inside ``__init__``, before the modal appeared. Measured cold on a
+  383 MB measurements.db that is 45 ms, and on a 1 500-table schema
+  87 ms, entirely between the click and any window. The button now
+  builds the dialog with ``threaded=True`` and the reads arrive from a
+  :class:`~spacr.qt.job_runner.JobRunner`. The default is still the
+  synchronous mode, deliberately; :class:`ColumnPickerDialog` says why.
 
 * **No modal errors.** A missing database, a file that isn't SQLite, a
   database with no tables, a name SQLite would refuse — every one of them
@@ -55,10 +67,11 @@ import difflib
 import os
 import re
 import sqlite3
+import threading
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QItemSelectionModel, Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -86,13 +99,26 @@ __all__ = [
     "ColumnPickerDialog",
     "SchemaReader",
     "attach_column_picker",
+    "chip_editor",
+    "field_is_list",
+    "field_text",
+    "field_values",
     "near_miss",
+    "read_schema",
+    "read_table",
     "resolve_db_path",
+    "set_field_text",
+    "set_field_values",
     "validate_column_name",
 ]
 
 DB_FILENAME = "measurements.db"
 _MEASUREMENTS_SUBDIR = "measurements"
+
+#: SQLite's three spellings of the implicit row id, least likely to be
+#: shadowed first. See :meth:`SchemaReader.estimate_rows` for why the
+#: order matters and what the bare ``rowid`` cost.
+ROWID_ALIASES: Tuple[str, ...] = ("_rowid_", "oid", "rowid")
 
 #: Levenshtein-ish cutoff for "this is probably a typo". 0.6 is the value
 #: :mod:`spacr.cli` already uses for the same job on setting names, and the
@@ -145,6 +171,11 @@ class SchemaReader:
     them a second time, including schema changes smuggled in through a
     temp attachment.
 
+    Every method may be called from a worker thread — the dialog reads
+    its schema off the GUI thread — and each one opens its own
+    connection, so nothing is shared across threads except
+    :attr:`executed`, which is guarded.
+
     :param path: database file or run folder (see :func:`resolve_db_path`).
     :ivar executed: every statement this reader has run, in order — the
         hook a test uses to prove that opening the picker costs no
@@ -155,6 +186,13 @@ class SchemaReader:
         self.path = resolve_db_path(path)
         self.uri = _read_only_uri(self.path)
         self.executed: List[str] = []
+        # `executed` is appended to on whichever thread runs the query and
+        # read from the GUI thread by `ColumnPickerDialog.executed_sql`.
+        # list.append is atomic under the GIL, but the *snapshot* the
+        # assertion hook hands out must not be taken mid-append, or a test
+        # that asserts "opening cost no COUNT(*)" could be reading a list
+        # that is one element ahead of the statement it is about.
+        self._log_lock = threading.Lock()
 
     # -- plumbing ----------------------------------------------------------
 
@@ -164,12 +202,18 @@ class SchemaReader:
         return con
 
     def _fetch(self, sql: str, params: Sequence = ()) -> List[tuple]:
-        self.executed.append(sql)
+        with self._log_lock:
+            self.executed.append(sql)
         con = self._connect()
         try:
             return list(con.execute(sql, tuple(params)).fetchall())
         finally:
             con.close()
+
+    def executed_sql(self) -> List[str]:
+        """Return a consistent snapshot of :attr:`executed`."""
+        with self._log_lock:
+            return list(self.executed)
 
     # -- schema ------------------------------------------------------------
 
@@ -203,18 +247,43 @@ class SchemaReader:
     def estimate_rows(self, table: str) -> Optional[int]:
         """Return an O(1) *estimate* of the row count, or ``None``.
 
-        ``max(rowid)`` is answered from the right-hand edge of the b-tree
-        without a scan. Deleted rows leave gaps, so it is an estimate and
-        every caller must label it one. ``None`` for a view, a WITHOUT
-        ROWID table, or an empty table.
+        ``max(_rowid_)`` is answered from the right-hand edge of the
+        b-tree without a scan. Deleted rows leave gaps, so it is an
+        estimate and every caller must label it one. ``None`` for a view,
+        a WITHOUT ROWID table, or an empty table.
+
+        **It is spelt ``_rowid_``, and that is load-bearing.** Every
+        spaCR object table declares a column called ``rowID`` — the plate
+        row, ``'r1'``, ``'r2'`` — and SQLite identifiers are
+        case-insensitive, so a bare ``rowid`` resolves to *that column*
+        rather than to the row id. The version this replaces asked for
+        ``max(rowid)`` and got two things wrong at once on every real
+        measurements database: it scanned the whole table to take the
+        maximum of a text column (measured: 21 ms warm, 41 ms cold, on a
+        200 000-row table — precisely the ``COUNT(*)`` cost this method
+        exists to avoid), and then ``int('r16')`` raised ``ValueError``,
+        which is not a ``sqlite3.Error`` and so escaped the caller's
+        handler into the Qt event loop. :mod:`spacr.predictions`,
+        :mod:`spacr.foreign` and :mod:`spacr.data_manager` all carry a
+        comment about this shadowing; this method had not got the memo.
+
+        The remaining spellings are tried in turn for the pathological
+        table that declares ``_rowid_`` as well, and a value that will not
+        convert is treated as a shadowed column rather than as an answer.
         """
-        try:
-            rows = self._fetch(f"SELECT max(rowid) FROM {quote_ident(table)}")
-        except sqlite3.Error:
-            return None
-        if not rows or rows[0][0] is None:
-            return None
-        return int(rows[0][0])
+        for alias in ROWID_ALIASES:
+            try:
+                rows = self._fetch(
+                    f"SELECT max({alias}) FROM {quote_ident(table)}")
+            except sqlite3.Error:
+                continue
+            if not rows or rows[0][0] is None:
+                return None
+            try:
+                return int(rows[0][0])
+            except (TypeError, ValueError):
+                continue
+        return None
 
     def count_non_null(self, table: str, column: str) -> int:
         """Return how many rows have a value in ``column``.
@@ -381,6 +450,74 @@ def near_miss(name: str, columns: Sequence[str],
 
 
 # ---------------------------------------------------------------------------
+# Worker-safe reads — everything opening the dialog costs, off the GUI thread
+# ---------------------------------------------------------------------------
+
+def read_table(reader: Optional[SchemaReader],
+               table: str) -> Dict[str, Any]:
+    """Read one table's columns and row estimate. Touches no widget.
+
+    Returns plain data so the same result can come back from a worker
+    thread or from an inline call, and the painting code does not have to
+    know which it was.
+
+    :returns: ``{"table", "columns", "rows", "error"}``. ``error`` is the
+        sentence to put in the banner; an empty ``columns`` list with no
+        ``error`` means the table honestly has none.
+    """
+    payload: Dict[str, Any] = {"table": str(table or ""), "columns": [],
+                               "rows": None, "error": ""}
+    if reader is None or not payload["table"]:
+        return payload
+    try:
+        payload["columns"] = reader.column_info(payload["table"])
+    except sqlite3.Error as exc:
+        payload["error"] = (
+            f"Cannot list the columns of '{payload['table']}': {exc}. A view "
+            f"whose table has been dropped does this — pick another table.")
+        return payload
+    if payload["columns"]:
+        payload["rows"] = reader.estimate_rows(payload["table"])
+    return payload
+
+
+def read_schema(db_path: Any, reader: Optional[SchemaReader] = None,
+                preferred: str = "") -> Dict[str, Any]:
+    """Everything opening the picker needs, in one worker-thread call.
+
+    Opens the database, lists its tables, picks the one to show and reads
+    that table — the four synchronous sqlite round trips that used to sit
+    between the click on ``SQL`` and the dialog appearing.
+
+    :param db_path: file, run folder, or measurements folder.
+    :param reader: use this reader instead of opening ``db_path``.
+    :param preferred: table to select if the database has it.
+    :returns: ``{"reader", "error", "tables", "schema_error", "table"}``
+        plus the keys :func:`read_table` returns for the chosen table.
+    """
+    error = ""
+    if reader is None:
+        reader, error = open_reader(db_path)
+    payload: Dict[str, Any] = {
+        "reader": reader, "error": error, "tables": [], "schema_error": "",
+        "table": "", "columns": [], "rows": None,
+    }
+    if reader is None:
+        return payload
+    try:
+        payload["tables"] = reader.tables()
+    except sqlite3.Error as exc:
+        payload["schema_error"] = f"Cannot read the schema: {exc}"
+        return payload
+    if not payload["tables"]:
+        return payload
+    names = payload["tables"]
+    payload.update(read_table(
+        reader, preferred if preferred in names else names[0]))
+    return payload
+
+
+# ---------------------------------------------------------------------------
 # The dialog
 # ---------------------------------------------------------------------------
 
@@ -400,20 +537,60 @@ class ColumnPickerDialog(QDialog):
     will be *used*, a new one will be *created* by whoever owns the write
     path. It creates nothing itself.
 
+    **Two modes, and the default is the synchronous one.**
+
+    ``threaded=False`` (the default) reads the schema inside
+    ``__init__``: when the constructor returns, the tables are listed, a
+    table is selected, its columns are in the tree and the name box has
+    been judged. That is what every programmatic caller and the ~60 tests
+    in ``tests/qt/test_column_picker.py`` are written against — they
+    construct a dialog and assert on its contents on the next line, with
+    no event loop anywhere (the suite's autouse fixture makes
+    ``QDialog.exec`` raise). Defaulting to the asynchronous mode would
+    turn every one of those into a race, so it is opt-in.
+
+    ``threaded=True`` is what the ``SQL`` button uses
+    (:meth:`ColumnPickerButton.make_dialog`), and it is the real
+    user-facing path. The window appears immediately saying it is reading
+    the schema, and the tables, columns and row estimate arrive from a
+    :class:`~spacr.qt.job_runner.JobRunner`. That matters because opening
+    the picker is four sequential sqlite round trips against a file that
+    is usually cold and often on a network mount — measured at 45 ms on a
+    383 MB measurements.db with nothing cached and 87 ms on a
+    1 500-table schema, all of it dead time between the click and the
+    window.
+
+    Both modes run the *same* reads in the same order through the same
+    :func:`read_schema`; the runner is simply constructed unthreaded in
+    the first, which makes it call its job inline.
+
     :param db_path: database file or run folder; may be empty.
     :param table: table to preselect (e.g. ``png_list`` for annotations).
     :param current: the field's current value, prefilled into the name box.
     :param allow_new: when False, only existing columns are accepted.
     :param reader: an already-built :class:`SchemaReader` (or a stand-in);
-        injecting one is how tests exercise schema edge cases.
+        injecting one is how tests exercise schema edge cases. Its reads
+        are still threaded when ``threaded`` is set.
+    :param threaded: read the schema on a worker thread. See above.
+    :param multi: let the user select several columns at once and return
+        every one of them (:meth:`chosen_columns`). For fields that hold a
+        *list* of columns — ``exclude``, ``annotation_columns`` — where one
+        name per press meant reopening the dialog, and re-reading the
+        schema, once per column the user wanted.
     """
 
     def __init__(self, db_path: Any = "", table: Optional[str] = None,
                  current: str = "", parent: Optional[QWidget] = None,
                  allow_new: bool = True,
-                 reader: Optional[SchemaReader] = None):
+                 reader: Optional[SchemaReader] = None,
+                 threaded: bool = False,
+                 multi: bool = False):
         super().__init__(parent)
-        self.setWindowTitle("Pick a database column")
+        from ..job_runner import JobRunner
+
+        self._multi = bool(multi)
+        self.setWindowTitle("Pick database columns" if self._multi
+                            else "Pick a database column")
         self.setObjectName("ColumnPickerDialog")
         self.setMinimumWidth(560)
 
@@ -422,14 +599,20 @@ class ColumnPickerDialog(QDialog):
         self._columns: List[Tuple[str, str]] = []
         self._action = ACTION_UNCHECKED
         self._near = ""
-
-        if reader is None:
-            self._reader, self._open_error = open_reader(db_path)
-        else:
-            self._reader, self._open_error = reader, ""
+        self._threaded = bool(threaded)
+        self._reader: Optional[SchemaReader] = None
+        self._open_error = ""
+        self._jobs = JobRunner(self, threaded=self._threaded,
+                               app_key="column picker")
 
         self._build_ui()
-        self._load_tables()
+        # Unthreaded, `submit` calls its job inline and `_apply_schema`
+        # has run by the time this returns — which is the whole of the
+        # default mode's contract.
+        self._jobs.submit(
+            lambda p=db_path, r=reader, t=self._preferred_table:
+                read_schema(p, r, t),
+            self._apply_schema)
         self._name.setText(str(current or ""))
         self._evaluate()
 
@@ -448,9 +631,10 @@ class ColumnPickerDialog(QDialog):
         self._source = QLabel(self)
         self._source.setObjectName("ColumnPickerSource")
         self._source.setWordWrap(True)
-        self._source.setText(
-            f"Reading {self._reader.path} (read-only)" if self._reader
-            else "No database open.")
+        # Threaded, nothing has been opened yet and saying "No database
+        # open." would be a lie the user reads for the whole of the load.
+        self._source.setText("Reading the schema…" if self._threaded
+                             else "No database open.")
         outer.addWidget(self._source)
 
         body = QHBoxLayout()
@@ -480,9 +664,16 @@ class ColumnPickerDialog(QDialog):
         self._column_tree.setHeaderLabels(["Column", "Type", "Non-null"])
         self._column_tree.setRootIsDecorated(False)
         self._column_tree.setUniformRowHeights(True)
-        self._column_tree.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._column_tree.setSelectionMode(
+            QAbstractItemView.ExtendedSelection if self._multi
+            else QAbstractItemView.SingleSelection)
         self._column_tree.currentItemChanged.connect(self._on_column_changed)
         self._column_tree.itemDoubleClicked.connect(self._on_column_activated)
+        if self._multi:
+            # The selection, not the name box, is the answer in this mode,
+            # so the verdict has to follow it.
+            self._column_tree.itemSelectionChanged.connect(self._evaluate)
+        self._columns_label.setText(self._columns_heading(""))
         header = self._column_tree.header()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         right.addWidget(self._column_tree, 1)
@@ -535,43 +726,111 @@ class ColumnPickerDialog(QDialog):
         self._banner.setText(text or "")
         self._banner.setVisible(bool(text))
 
-    def _load_tables(self) -> None:
+    def _apply_schema(self, payload) -> None:
+        """Install a :func:`read_schema` result. GUI thread only.
+
+        The one place the tables list is populated, in either mode.
+        """
+        payload = payload or {}
+        self._reader = payload.get("reader")
+        self._open_error = payload.get("error") or ""
+        self._source.setText(
+            f"Reading {self._reader.path} (read-only)" if self._reader
+            else "No database open.")
         if self._reader is None:
             self._set_banner(self._open_error)
+            self._evaluate()
             return
-        try:
-            names = self._reader.tables()
-        except sqlite3.Error as exc:
-            self._set_banner(f"Cannot read the schema: {exc}")
+        if payload.get("schema_error"):
+            self._set_banner(payload["schema_error"])
+            self._evaluate()
             return
+        names = payload.get("tables") or []
         if not names:
             self._set_banner(
                 f"{os.path.basename(self._reader.path)} has no tables yet — "
                 f"nothing has been written to it. Run Measure first.")
+            self._evaluate()
             return
         self._tables.addItems(names)
-        wanted = self._preferred_table if self._preferred_table in names else names[0]
-        self._tables.setCurrentRow(names.index(wanted))
+        wanted = payload.get("table") or names[0]
+        # The columns for `wanted` are already in `payload` — the worker
+        # read them in the same trip. Letting `setCurrentRow` fire
+        # `currentTextChanged` would send `_on_table_changed` off to read
+        # them a second time, and in threaded mode that is a second job
+        # racing the one that just landed. Select it quietly and paint
+        # from what we were handed.
+        blocked = self._tables.blockSignals(True)
+        try:
+            self._tables.setCurrentRow(names.index(wanted))
+        finally:
+            self._tables.blockSignals(blocked)
+        self._paint_table(payload)
+        self._evaluate()
 
     def _on_table_changed(self, name: str) -> None:
-        self._load_columns(name)
+        """The user picked another table. Read it the way we were told to."""
+        if not self._threaded:
+            self._load_columns(name)
+            self._evaluate()
+            return
+        # Supersede: clicking down the table list must not leave the tree
+        # showing whichever read happened to finish last.
+        self._jobs.cancel()
+        self._begin_table(name)
+        self._jobs.submit(
+            lambda r=self._reader, t=name: read_table(r, t),
+            self._apply_table)
+
+    def _columns_heading(self, table: str) -> str:
+        """Heading over the column tree.
+
+        Multi-select is invisible otherwise: a tree looks exactly the same
+        whether it takes one row or twenty, so the heading has to say which.
+        """
+        base = f"Columns in {table}" if table else "Columns"
+        if not self._multi:
+            return base
+        return f"{base} — pick as many as you need (ctrl/shift-click)"
+
+    def _begin_table(self, table: str) -> None:
+        """Say a table is being read, without claiming to know anything."""
+        self._column_tree.clear()
+        self._columns = []
+        self._count_btn.setEnabled(False)
+        if table and self._reader is not None:
+            self._columns_label.setText(self._columns_heading(table))
+            self._summary.setText("reading…")
+        else:
+            self._summary.setText("")
+
+    def _apply_table(self, payload) -> None:
+        """Install a :func:`read_table` result. GUI thread only."""
+        self._paint_table(payload)
         self._evaluate()
 
     def _load_columns(self, table: str) -> None:
+        """Read and paint one table's columns, blocking. GUI thread.
+
+        The unthreaded path, and the one a host may call directly.
+        """
+        self._paint_table(read_table(self._reader, table))
+
+    def _paint_table(self, payload) -> None:
+        """Put a :func:`read_table` result on screen. GUI thread only."""
+        payload = payload or {}
+        table = payload.get("table") or ""
         self._column_tree.clear()
         self._columns = []
         self._summary.setText("")
         self._count_btn.setEnabled(False)
         if not table or self._reader is None:
             return
-        self._columns_label.setText(f"Columns in {table}")
-        try:
-            info = self._reader.column_info(table)
-        except sqlite3.Error as exc:
-            self._set_banner(
-                f"Cannot list the columns of '{table}': {exc}. A view whose "
-                f"table has been dropped does this — pick another table.")
+        self._columns_label.setText(self._columns_heading(table))
+        if payload.get("error"):
+            self._set_banner(payload["error"])
             return
+        info = payload.get("columns") or []
         if not info:
             self._set_banner(
                 f"'{table}' reports no columns, so there is nothing to pick "
@@ -581,7 +840,7 @@ class ColumnPickerDialog(QDialog):
         self._columns = info
         for col_name, decl in info:
             QTreeWidgetItem(self._column_tree, [col_name, decl or "—", ""])
-        rows = self._reader.estimate_rows(table)
+        rows = payload.get("rows")
         shown = f"≈ {rows:,} rows (estimate)" if rows is not None else "row count unknown"
         self._summary.setText(f"{len(info)} columns · {shown}")
         self._apply_filter(self._filter.text())
@@ -624,6 +883,23 @@ class ColumnPickerDialog(QDialog):
         name = self._name.text()
         table = self.chosen_table() or "the table"
         existing = [c for c, _t in self._columns]
+
+        # Multi-select: once more than one row is highlighted the name box is
+        # no longer the answer, so judging the name would report on one column
+        # out of several. Every selected row is an existing column by
+        # construction, so the verdict is simply "use them".
+        picked = self._selected_column_names()
+        if self._multi and len(picked) > 1:
+            self._near = ""
+            self._action = ACTION_USE
+            shown = ", ".join(picked[:6])
+            more = "" if len(picked) <= 6 else f", and {len(picked) - 6} more"
+            self._status.setText(
+                f"{len(picked)} columns selected in {table} — all of them "
+                f"will be added: {shown}{more}.")
+            self._confirm.setVisible(False)
+            self._sync_ok()
+            return
         self._near = ""
 
         if self._reader is None or not existing:
@@ -730,9 +1006,60 @@ class ColumnPickerDialog(QDialog):
         """Return the name box, for hosts that want to prefill or focus it."""
         return self._name
 
+    def _selected_column_names(self) -> List[str]:
+        """The highlighted rows of the column tree, in table order."""
+        tree = getattr(self, "_column_tree", None)
+        if tree is None:
+            return []
+        return [tree.topLevelItem(i).text(0)
+                for i in range(tree.topLevelItemCount())
+                if tree.topLevelItem(i).isSelected()]
+
+    def is_multi(self) -> bool:
+        """Whether this dialog returns several columns."""
+        return self._multi
+
     def chosen_column(self) -> str:
         """Return the name currently in the box, trimmed."""
         return self._name.text().strip()
+
+    def chosen_columns(self) -> List[str]:
+        """Every column OK would hand back, in order and without repeats.
+
+        Always non-empty when :meth:`chosen_column` is — a single-select
+        dialog is the one-element case of this, so a caller can use this
+        alone. In multi mode the highlighted rows are the answer, with the
+        typed name added when it is not one of them (that is how a column
+        that does not exist yet is named).
+        """
+        picked = self._selected_column_names() if self._multi else []
+        typed = self.chosen_column()
+        if typed and typed not in picked:
+            # Only one row selected: the tree filled the name box from it, so
+            # `typed` IS that row and appending it would not add anything.
+            picked = picked + [typed]
+        return list(dict.fromkeys(picked))
+
+    def select_columns(self, names: Sequence[str]) -> List[str]:
+        """Highlight several columns at once. Returns the ones that existed."""
+        tree = self._column_tree
+        wanted = [str(n) for n in names]
+        tree.clearSelection()
+        found: List[str] = []
+        last = None
+        for i in range(tree.topLevelItemCount()):
+            item = tree.topLevelItem(i)
+            if item.text(0) in wanted:
+                item.setSelected(True)
+                found.append(item.text(0))
+                last = item
+        if last is not None:
+            # setCurrentItem would clear the selection we just made; the
+            # current item only matters for the name box and Count non-null.
+            tree.setCurrentItem(last, 0, QItemSelectionModel.NoUpdate)
+            self._name.setText(last.text(0))
+        self._evaluate()
+        return found
 
     def chosen_table(self) -> str:
         """Return the selected table name, or ``""``."""
@@ -755,8 +1082,25 @@ class ColumnPickerDialog(QDialog):
                 if not tree.topLevelItem(i).isHidden()]
 
     def executed_sql(self) -> List[str]:
-        """Return every statement the dialog's reader has run."""
-        return list(self._reader.executed) if self._reader is not None else []
+        """Return every statement the dialog's reader has run.
+
+        The assertion hook for "what did opening this cost". Threaded,
+        the statements are appended on a worker thread, so the snapshot
+        is taken under the reader's lock — see
+        :meth:`SchemaReader.executed_sql`. It is still only complete once
+        the load is (:meth:`is_busy` says when).
+        """
+        if self._reader is None:
+            return []
+        return self._reader.executed_sql()
+
+    def is_busy(self) -> bool:
+        """True while a schema or table read has not been delivered."""
+        return self._jobs.is_busy()
+
+    def active_jobs(self) -> int:
+        """How many reader threads are still winding down."""
+        return self._jobs.active_jobs()
 
     def select_table(self, name: str) -> bool:
         """Select ``name`` in the table list. Returns False if absent."""
@@ -790,6 +1134,19 @@ class ColumnPickerDialog(QDialog):
             return
         super().accept()
 
+    def done(self, result: int) -> None:  # noqa: D102 - Qt override
+        """Close, and let no reader thread outlive the dialog.
+
+        ``done`` rather than ``closeEvent`` because it is the one funnel:
+        ``accept``, ``reject`` and the window's close button all arrive
+        here, and a dialog dismissed halfway through its first read is
+        the ordinary case — the user clicked ``SQL`` on the wrong field.
+        ``JobRunner.shutdown`` drops the results and waits briefly so
+        nothing destroys a running QThread.
+        """
+        self._jobs.shutdown()
+        super().done(result)
+
 
 # ---------------------------------------------------------------------------
 # The button + the one-line attachment
@@ -803,14 +1160,19 @@ class ColumnPickerButton(QToolButton):
         depends on a ``src`` field the user is still editing. A plain
         string is accepted and wrapped.
     :param table: table to preselect in the dialog.
-    :param field: the ``QLineEdit``/``QComboBox`` a picked name is written
-        into; may be ``None`` for a button that only emits :attr:`picked`.
-    :param multi: append to the field instead of replacing it (for fields
-        that hold a *list* of columns). ``None`` auto-detects.
+    :param field: the ``QLineEdit``/``QComboBox``/chip-strip editor a picked
+        name is written into; may be ``None`` for a button that only emits
+        :attr:`picked`.
+    :param multi: this field holds a *list* of columns — names are appended
+        rather than replacing what is there, and the dialog lets the user
+        select any number of columns in one visit instead of one per press.
+        ``None`` auto-detects (:func:`field_is_list`).
     """
 
-    #: Emitted with the chosen column name after the dialog is accepted.
+    #: Emitted once per chosen column name, after the dialog is accepted.
     picked = Signal(str)
+    #: Emitted once with every chosen name, after the dialog is accepted.
+    picked_many = Signal(list)
 
     def __init__(self, db_path_getter: Any = "", table: Optional[str] = None,
                  field: Optional[QWidget] = None, parent: Optional[QWidget] = None,
@@ -859,35 +1221,59 @@ class ColumnPickerButton(QToolButton):
         return field_text(self.field)
 
     def make_dialog(self) -> ColumnPickerDialog:
-        """Build the dialog, wired to the current path — but do not run it."""
+        """Build the dialog, wired to the current path — but do not run it.
+
+        ``threaded=True``: this is the user-facing path, and the dialog
+        it builds is run modally by :meth:`open_picker`, so every
+        millisecond the constructor spends in sqlite is a millisecond
+        between the click and any window at all. See
+        :class:`ColumnPickerDialog` for the two modes and why the
+        *default* is the other one.
+        """
         current = self.current_text()
-        if self.multi or (self.multi is None and _looks_like_list(current)):
+        multi = self.is_multi()
+        if multi:
             current = ""
         return ColumnPickerDialog(
             db_path=self.db_path(), table=self.table, current=current,
-            parent=self.window(), allow_new=self.allow_new)
+            parent=self.window(), allow_new=self.allow_new, threaded=True,
+            multi=multi)
+
+    def is_multi(self) -> bool:
+        """Whether this field holds a list of columns rather than one.
+
+        Explicit ``multi`` wins. Otherwise the *field* decides: a chip-strip
+        editor is list-valued whether or not it currently holds anything,
+        which a text inspection cannot tell (an empty one reads ``""``, and
+        an empty list field is exactly when the user most wants to add
+        several at once). Text fields keep the old shape test.
+        """
+        if self.multi is not None:
+            return bool(self.multi)
+        return field_is_list(self.field) or _looks_like_list(self.current_text())
 
     def open_picker(self) -> str:
-        """Open the picker; on OK, write the name into the field.
+        """Open the picker; on OK, write every chosen name into the field.
 
-        :returns: the chosen column name, or ``""`` when cancelled.
+        :returns: the first chosen column name, or ``""`` when cancelled.
+            :attr:`picked_many` carries the whole selection.
         """
         dialog = self.make_dialog()
         try:
             result = self._runner(dialog)
             if result != QDialog.Accepted:
                 return ""
-            name = dialog.chosen_column()
+            names = dialog.chosen_columns()
         finally:
             dialog.deleteLater()
-        if not name:
+        if not names:
             return ""
-        multi = self.multi
-        if multi is None:
-            multi = _looks_like_list(self.current_text())
-        set_field_text(self.field, name, append=bool(multi))
-        self.picked.emit(name)
-        return name
+        multi = self.is_multi()
+        set_field_values(self.field, names, append=multi)
+        for name in names:
+            self.picked.emit(name)
+        self.picked_many.emit(list(names))
+        return names[0]
 
 
 def _looks_like_list(text: str) -> bool:
@@ -901,13 +1287,87 @@ def _looks_like_list(text: str) -> bool:
     return t.startswith("[") or ("," in t)
 
 
+def chip_editor(field: Optional[QWidget]) -> Optional[QWidget]:
+    """Return ``field`` when it is a chip-strip list editor, else ``None``.
+
+    Duck-typed on purpose: the editor lives in
+    :mod:`spacr.qt.screens.settings_model` and importing a *screen* from a
+    *widget* would invert the dependency (and, in practice, cycle). The test
+    is "not a text field, but speaks ``get_value``/``set_value``" — the
+    settings screen's ``_ScalarEdit`` and ``_ListEdit`` speak those too, but
+    they are ``QLineEdit`` subclasses and are caught by the branch above.
+    """
+    if field is None or isinstance(field, (QLineEdit, QComboBox)):
+        return None
+    if callable(getattr(field, "get_value", None)) and \
+            callable(getattr(field, "set_value", None)):
+        return field
+    return None
+
+
+def field_is_list(field: Optional[QWidget]) -> bool:
+    """Whether ``field`` holds a list of names rather than a single one."""
+    return chip_editor(field) is not None
+
+
+def field_values(field: Optional[QWidget]) -> List[str]:
+    """Return the column names ``field`` currently holds, in order."""
+    editor = chip_editor(field)
+    if editor is not None:
+        value = editor.get_value()
+        if value is None:
+            return []
+        if isinstance(value, (list, tuple)):
+            return [str(v).strip() for v in value if str(v).strip()]
+        return [str(value).strip()] if str(value).strip() else []
+    text = field_text(field).strip()
+    if not text:
+        return []
+    if text.startswith("[") and text.endswith("]"):
+        return [p.strip().strip("'\"") for p in text[1:-1].split(",")
+                if p.strip()]
+    return [p.strip() for p in text.split(",") if p.strip()]
+
+
 def field_text(field: Optional[QWidget]) -> str:
-    """Return the text of a line edit / combo box, ``""`` for anything else."""
+    """Return the text of a line edit / combo box / chip strip."""
     if isinstance(field, QComboBox):
         return field.currentText()
     if isinstance(field, QLineEdit):
         return field.text()
+    editor = chip_editor(field)
+    if editor is not None:
+        return ", ".join(field_values(editor))
     return ""
+
+
+def set_field_values(field: Optional[QWidget], names: Sequence[str],
+                     append: bool = False) -> bool:
+    """Write every name in ``names`` into ``field``. False when it could not.
+
+    The multi-column half of :func:`set_field_text`. A chip strip is set
+    from a real list — no punctuation round trip — and anything else keeps
+    its own list style through :func:`_appended`.
+    """
+    wanted = [str(n).strip() for n in names if str(n).strip()]
+    if field is None or not wanted:
+        return False
+    editor = chip_editor(field)
+    if editor is not None:
+        existing = field_values(editor) if append else []
+        editor.set_value(list(dict.fromkeys(existing + wanted)))
+        return True
+    if not append:
+        # Replacing a single-valued field with several names would lose all
+        # but one silently; keep them all, in the field's own style.
+        ok = set_field_text(field, wanted[0], append=False)
+        for name in wanted[1:]:
+            ok = set_field_text(field, name, append=True) and ok
+        return ok
+    ok = True
+    for name in wanted:
+        ok = set_field_text(field, name, append=True) and ok
+    return ok
 
 
 def set_field_text(field: Optional[QWidget], name: str,

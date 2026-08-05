@@ -4,47 +4,137 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 51.0,
+  "total_duration": 263.685,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 3.375,
-      "scene_end": 3.825,
-      "duration": 3.825,
-      "text": "Questo tutorial copre il Database Browser."
+      "speech_end": 20.975,
+      "scene_end": 21.695,
+      "duration": 21.695,
+      "text": "Database Browser ispeziona grandi database di risultati spaCR senza una riga di comando. Apri da Risultati e controllo qualità. Inizia solo a lettura in entrambi i livelli: l'interfaccia non offre editor di celle e SQLite utilizza modalità solo a lettura e solo a query a meno che l'editing non sia deliberatamente abilitato altrove.",
+      "speech_text": "Database Browser ispeziona grandi database di risultati spàker senza una riga di comando. Apri da Risultati e controllo qualità. Inizia solo a lettura in entrambi i livelli: l'interfaccia non offre editor di celle e SQLite utilizza modalità solo a lettura e solo a query a meno che l'editing non sia deliberatamente abilitato altrove.",
+      "phonemes": "databˈɛiz brˈaːʊzer ispeʦiˈona ɡrˈandɪ databˈɛiz dɪ rizʊltˈatɪ spˈaker sˌɛnʦa ˌʊna rˈiɡa dɪ komˈando. ˈaprɪ da rizʊltˈatɪ e kontrˈɔllo kwalitˈa. inˈiʦia sˈolo a letːˈura in entrˈambɪ i livˈɛllɪ: linterfˈaʧːa non ˈoffre ˈɛditor dɪ ʧˈɛlle e ˌɛSekˈu lˈite ʊtilˈiʣːa modalitˈa sˈolo a letːˈura e sˈolo a kwˈɛrɪ a mˈeno ke ledˈitiŋɡ non sˌia deliberatamˈente abilitˈato altrˈove."
     },
     {
       "scene": 2,
-      "speech_start": 3.825,
-      "speech_end": 17.725,
-      "scene_end": 18.175,
-      "duration": 14.350000000000001,
-      "text": "Apri Database Browser dalla sezione Data and batch runs. Aprire il browser database dalla sezione Datos e batch runs. Aprire un database spaCR SQLite e selezionare una tabella o una query salvata."
+      "speech_start": 21.695,
+      "speech_end": 38.82,
+      "scene_end": 39.46,
+      "duration": 17.765,
+      "text": "Inserire un percorso measurements.db e fare clic su Apri. Invece è possibile scegliere il database, scegliere la cartella di esecuzione o scendere ovunque su questo schermo. Qui apriamo il database delle misurazioni reali dell'esperimento tutorial trasferito.",
+      "speech_text": "Inserire un percorso measurements dot db e fare clic su Apri. Invece è possibile scegliere il database, scegliere la cartella di esecuzione o scendere ovunque su questo schermo. Qui apriamo il database delle misurazioni reali dell'esperimento tutorial trasferito.",
+      "phonemes": "inserˈire ʊn perkˈorso meazʊrˈɛments dˈot d̪ˌiːbˈi e fˈare klˈik sʊ ˈaprɪ. invˈeʧe e poSˈibile ʃˈeʎere il databˈɛiz, ʃˈeʎere la kartˈɛlla dɪ ezekʊʦiˈone o ʃˈɛndere ovˈunkwe sʊ kwˌesto skˈermo. kwˈi apriˈamo il databˈɛiz dˌelle mizʊraʦiˈonɪ reˈalɪ dellesperimˈento tʊtˈɔrial trasferˈito."
     },
     {
       "scene": 3,
-      "speech_start": 18.175,
-      "speech_end": 29.700000000000003,
-      "scene_end": 30.150000000000002,
-      "duration": 11.975000000000001,
-      "text": "Nell'area di configurazione principale, configurare colonne, filtri, classificazione, limiti di riga, connessioni e un comportamento sicuro solo per lettura o modificabile."
+      "speech_start": 39.46,
+      "speech_end": 58.485,
+      "scene_end": 59.205,
+      "duration": 19.744999999999997,
+      "text": "spaCR risolve il percorso, lo apre solo per lettura e elenca dieci tabelle. Questi includono le misurazioni degli oggetti, i record di immagini, le impostazioni, i conti e la storia delle annotative. La modalità di modifica rimane disattivata; questo tutorial non lo abilita mai e non scrive mai alla fonte.",
+      "speech_text": "spàker risolve il percorso, lo apre solo per lettura e elenca dieci tabelle. Questi includono le misurazioni degli oggetti, i record di immagini, le impostazioni, i conti e la storia delle annotative. La modalità di modifica rimane disattivata; questo tutorial non lo abilita mai e non scrive mai alla fonte.",
+      "phonemes": "spˈaker rizˈolve il perkˈorso, lo ˈapre sˈolo per letːˈura e elˈɛnka djˈɛʧɪ tabˈɛlle. kwˌestɪ inklˈudono le mizʊraʦiˈonɪ dˌeʎɪ oʤːˈɛtːɪ, i rˈɛkord dɪ immˈaʤinɪ, le impostaʦiˈonɪ, i kˈontɪ e la stˈɔria dˌelle annotatˈive. la modalitˈa dɪ modˈifika rimˈane dizatːivˈata; kwˌesto tʊtˈɔrial non lo abˈilita maj e non skrˈive maj ˌalla fˈonte."
     },
     {
       "scene": 4,
-      "speech_start": 30.150000000000002,
-      "speech_end": 40.125,
-      "scene_end": 40.575,
-      "duration": 10.425,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando è disponibile."
+      "speech_start": 59.205,
+      "speech_end": 80.08,
+      "scene_end": 80.86,
+      "duration": 21.655,
+      "text": "Clicca sulla tabella Cellulare. Contiene 81.969 cellule misurate e 218 colonne di identificatore, morfologia, intensità, texture, distanza e colocalizzazione. L'anteprima raccoglie solo il suo primo pezzo limitato, mentre il conteggio completo delle righe viene riportato separatamente.",
+      "speech_text": "Clicca sulla tabella Cellulare. Contiene 81.969 cellule misurate e 218 colonne di identificatore, morfologia, intensità, texture, distanza e colocalizzazione. L'anteprima raccoglie solo il suo primo pezzo limitato, mentre il conteggio completo delle righe viene riportato separatamente.",
+      "phonemes": "klˈikːa sˌʊlla tabˈɛlla ʧellʊlˈare. kontjˈɛne otːˈantˈuno.noveʧˈɛnto seSˈantanˈɔve ʧˈɛllʊle mizʊrˈate e dʊeʧˈɛnto diʧˈɔtːo kolˈonne dɪ identifikatˈore, morfoloʤˈia, intensitˈa, tekstˈure, distˈanʦa e kolokaliʣːaʦiˈone. lanteprˈima rakːˈɔʎe sˈolo il sˌʊo prˈimo pˈɛʦːo limitˈato, mˌentre il kontˈeʤːo komplˈɛto dˌelle rˈiɡe vjˈɛne riportˈato sepaɾatamˈente."
     },
     {
       "scene": 5,
-      "speech_start": 40.575,
-      "speech_end": 50.35,
-      "scene_end": 51.0,
-      "duration": 10.424999999999997,
-      "text": "Quando il flusso di lavoro è terminato, le tabelle filtrate possono essere copiate o esportate mentre il database originale rimane tracciabile."
+      "speech_start": 80.86,
+      "speech_end": 100.435,
+      "scene_end": 101.135,
+      "duration": 20.275000000000006,
+      "text": "Cerca colonne per rendere leggibile una tabella di caratteristiche ampia. La query cell_channel_1_mean restringe istantaneamente 218 colonne visualizzate alla funzione di intensità media singola canale-1. Questo modifica solo la vista; non esegue di nuovo la query del database o rimuove le righe.",
+      "speech_text": "Cerca colonne per rendere leggibile una tabella di caratteristiche ampia. La query cell_channel_1_mean restringe istantaneamente 218 colonne visualizzate alla funzione di intensità media singola canale-1. Questo modifica solo la vista; non esegue di nuovo la query del database o rimuove le righe.",
+      "phonemes": "ʧˈerka kolˈonne per rˈɛndere leʤːˈibile ˌʊna tabˈɛlla dɪ kaɾatːerˈistike ˈampia. la kwˈɛrɪ ʧˈɛl ʧˈanel ˈuno mˈɛan restrˈinʤe istantaneamˈente dʊeʧˈɛnto diʧˈɔtːo kolˈonne vizʊaliʣːˈate ˌalla fʊnʦiˈone dɪ intensitˈa mˈɛdia sˈiŋɡola kanˈale ˈuno. kwˌesto modˈifika sˈolo la vˈista; non ezˈeɡwe dɪ nʊˈɔvo la kwˈɛrɪ del databˈɛiz o rimʊˈove le rˈiɡe."
+    },
+    {
+      "scene": 6,
+      "speech_start": 101.135,
+      "speech_end": 123.61000000000001,
+      "scene_end": 124.35000000000001,
+      "duration": 23.215000000000003,
+      "text": "Elimina la ricerca delle colonne e imposta le righe per portata a 250. L'anteprima utilizza la paginazione del set di chiavi piuttosto che un profondo offset, quindi ogni richiesta rimane limitata man mano che la tabella cresce. Clicca su Caricare di più per aggiungere il prossimo pezzo senza caricare tutte le 81.969 righe nella memoria.",
+      "speech_text": "Elimina la ricerca delle colonne e imposta le righe per portata a 250. L'anteprima utilizza la paginazione del set di chiavi piuttosto che un profondo offset, quindi ogni richiesta rimane limitata man mano che la tabella cresce. Clicca su Caricare di più per aggiungere il prossimo pezzo senza caricare tutte le 81.969 righe nella memoria.",
+      "phonemes": "elˈimina la riʧˈerka dˌelle kolˈonne e impˈɔsta le rˈiɡe per portˈata a dʊeʧˈɛnto ʧinkwˈanta. lanteprˈima ʊtilˈiʣːa la paʤinaʦiˈone del sˈɛt dɪ kjˈavɪ pjʊtːˈɔsto ke ʊn profˈondo ˈoffset, kwˈindɪ ˌoɲɲɪ rikjˈɛsta rimˈane limitˈata mˈan mˈano ke la tabˈɛlla krˈeʃe. klˈikːa sʊ karikˈare dɪ pjʊ per aʤːˈunʤere il prˈɔSimo pˈɛʦːo sˌɛnʦa karikˈare tˈutːe le otːˈantˈuno.noveʧˈɛnto seSˈantanˈɔve rˈiɡe nˈella memˈɔria."
+    },
+    {
+      "scene": 7,
+      "speech_start": 124.35000000000001,
+      "speech_end": 145.70000000000002,
+      "scene_end": 146.4,
+      "duration": 22.049999999999997,
+      "text": "L'anteprima mostra ora 500 delle 81.969 righe. La classificazione rimane disattivata mentre è caricata solo una parte della tabella, perché la classificazione di una pagina parziale potrebbe falsamente rappresentare l'intero set di dati. I filtri di base di dati, tuttavia, corrono sempre contro la tabella completa.",
+      "speech_text": "L'anteprima mostra ora 500 delle 81.969 righe. La classificazione rimane disattivata mentre è caricata solo una parte della tabella, perché la classificazione di una pagina parziale potrebbe falsamente rappresentare l'intero set di dati. I filtri di base di dati, tuttavia, corrono sempre contro la tabella completa.",
+      "phonemes": "lanteprˈima mˈostra ˈora ʧɪnkʊeʧˈɛnto dˌelle otːˈantˈuno.noveʧˈɛnto seSˈantanˈɔve rˈiɡe. la klaSifikaʦiˈone rimˈane dizatːivˈata mˌentre e karikˈata sˈolo ˌʊna pˈarte dˌella tabˈɛlla, perkˌe la klaSifikaʦiˈone dɪ ˌʊna pˈaʤina parʦjˈale potrˈɛbːe falsamˈente rapːrezentˈare lintˈɛro sˈɛt dɪ dˈatɪ. i fˈiltrɪ dɪ bˈaze dɪ dˈatɪ, tʊtːavˈia, kˈɔrɾono sˈɛmpre kˌontro la tabˈɛlla komplˈɛta."
+    },
+    {
+      "scene": 8,
+      "speech_start": 146.4,
+      "speech_end": 165.0,
+      "scene_end": 165.72,
+      "duration": 19.319999999999993,
+      "text": "Costruire un filtro strutturato scegliendo cell_area, maggiore o uguale a, e 10.000, quindi fare clic su Applicare filtro. spaCR convalida la colonna e l'operatore e lega il valore come parametro. Raw SQL è disponibile per predicati avanzati, ma non è necessario qui.",
+      "speech_text": "Costruire un filtro strutturato scegliendo cell_area, maggiore o uguale a, e 10.000, quindi fare clic su Applicare filtro. spàker convalida la colonna e l'operatore e lega il valore come parametro. Raw SQL è disponibile per predicati avanzati, ma non è necessario qui.",
+      "phonemes": "kostrʊˈire ʊn fˈiltro strʊtːʊrˈato ʃeʎˈɛndo ʧˈɛl ˈarea, maʤːˈore o ʊɡwˈale ˈaː, e djˈɛʧɪ.ʣˈɛɾoʣˈɛɾo ʣˈɛɾo, kwˈindɪ fˈare klˈik sʊ apːlikˈare fˈiltro. spˈaker konvˈalida la kolˈonna e loperatˈore e lˈeɡa il valˈore kˌome paɾˈametro. rˈaw ˌɛSekˌʊˈɛlle e disponˈibile per predikˈatɪ avanʦˈatɪ, ma non e neʧeSˈario kwˈi."
+    },
+    {
+      "scene": 9,
+      "speech_start": 165.72,
+      "speech_end": 185.07,
+      "scene_end": 185.79,
+      "duration": 20.069999999999993,
+      "text": "Il filtro completo contiene 12.907 cellule. Solo i primi 250 sono dipinti, eppure il numero esatto filtrato e il predicato attivo rimangono visibili. Questa distinzione impedisce che la dimensione della pagina di anteprima sia confusa con la dimensione della popolazione.",
+      "speech_text": "Il filtro completo contiene 12.907 cellule. Solo i primi 250 sono dipinti, eppure il numero esatto filtrato e il predicato attivo rimangono visibili. Questa distinzione impedisce che la dimensione della pagina di anteprima sia confusa con la dimensione della popolazione.",
+      "phonemes": "il fˈiltro komplˈɛto kontjˈɛne dˈodiʧɪ.noveʧˈɛnto sˈɛtːe ʧˈɛllʊle. sˈolo i prˈimɪ dʊeʧˈɛnto ʧinkwˈanta sˌono dipˈintɪ, epːˈure il nˈumero ezˈatːo filtrˈato e il predikˈato atːˈivo rimˈaŋɡono vizˈibilɪ. kwˌesta distinʦiˈone impedˈiʃe ke la dimensjˈone dˌella pˈaʤina dɪ anteprˈima sˌia konfˈuza kon la dimensjˈone dˌella popolaʦiˈone."
+    },
+    {
+      "scene": 10,
+      "speech_start": 185.79,
+      "speech_end": 205.29,
+      "scene_end": 205.98999999999998,
+      "duration": 20.19999999999999,
+      "text": "Fare clic su Esportare CSV filtrato. Le esportazioni trasmettono l'intera tabella corrente e il filtro piuttosto che solo la visualizzazione caricata, e onorano la ricerca delle colonne visibili se uno è attivo. Con la ricerca approvata, questa esportazione conserva tutte le 218 colonne.",
+      "speech_text": "Fare clic su Esportare CSV filtrato. Le esportazioni trasmettono l'intera tabella corrente e il filtro piuttosto che solo la visualizzazione caricata, e onorano la ricerca delle colonne visibili se uno è attivo. Con la ricerca approvata, questa esportazione conserva tutte le 218 colonne.",
+      "phonemes": "fˈare klˈik sʊ esportˈare ʧˌiˌɛSevˈu filtrˈato. le esportaʦiˈonɪ trazmˈetːono lintˈɛra tabˈɛlla korɾˈɛnte e il fˈiltro pjʊtːˈɔsto ke sˈolo la vizwaliʣːaʦiˈone karikˈata, e onˈorano la riʧˈerka dˌelle kolˈonne vizˈibilɪ se ˈuno e atːˈivo. kon la riʧˈerka apːrovˈata, kwˌesta esportaʦiˈone konsˈɛrva tˈutːe le dʊeʧˈɛnto diʧˈɔtːo kolˈonne."
+    },
+    {
+      "scene": 11,
+      "speech_start": 205.98999999999998,
+      "speech_end": 226.89,
+      "scene_end": 227.70999999999998,
+      "duration": 21.72,
+      "text": "Lo status conferma un'esportazione di 12.907 righe per 218 colonne. Il CSV derivato è l'unico nuovo file creato. Una verifica prima e dopo di SHA-256 conferma che measurements.db è byte-identico, e non è apparso nessun diario o file di registrazione scritta al suo fianco.",
+      "speech_text": "Lo status conferma un'esportazione di 12.907 righe per 218 colonne. Il CSV derivato è l'unico nuovo file creato. Una verifica prima e dopo di SHA-256 conferma che measurements dot db è byte-identico, e non è apparso nessun diario o file di registrazione scritta al suo fianco.",
+      "phonemes": "lo stˈatʊs konfˈerma ʊnesportaʦiˈone dɪ dˈodiʧɪ.noveʧˈɛnto sˈɛtːe rˈiɡe per dʊeʧˈɛnto diʧˈɔtːo kolˈonne. il ʧˌiˌɛSevˈu derivˈato e lˈuniko nʊˈɔvo fˈile kreˈato. ˌʊna verˈifika prˈima e dˈopo dɪ ˌɛSeˌakːaˈaː dʊeʧˈɛnto ʧinkwˈantasˈɛj konfˈerma ke meazʊrˈɛments dˈot d̪ˌiːbˈi e bˈItidˈɛntiko, e non e apːˈarso neSˌʊn djˈario o fˈile dɪ reʤistraʦiˈone skrˈitːa al sˌʊo fjˈanko."
+    },
+    {
+      "scene": 12,
+      "speech_start": 227.70999999999998,
+      "speech_end": 242.33499999999998,
+      "scene_end": 242.95499999999998,
+      "duration": 15.245000000000005,
+      "text": "Clicca su Clear per rimuovere il predicato e ricaricare il primo pezzo limitato. I filtri sono stati di visualizzazione reversibili: eliminare uno non altera le righe nel database o nel file precedentemente esportato.",
+      "speech_text": "Clicca su Clear per rimuovere il predicato e ricaricare il primo pezzo limitato. I filtri sono stati di visualizzazione reversibili: eliminare uno non altera le righe nel database o nel file precedentemente esportato.",
+      "phonemes": "klˈikːa sʊ kleˈar per rimʊˈɔvere il predikˈato e rikarikˈare il prˈimo pˈɛʦːo limitˈato. i fˈiltrɪ sˌono stˈatɪ dɪ vizwaliʣːaʦiˈone reversˈibilɪ: eliminˈare ˈuno non ˈaltera le rˈiɡe nel databˈɛiz o nel fˈile preʧedentemˈente esportˈato."
+    },
+    {
+      "scene": 13,
+      "speech_start": 242.95499999999998,
+      "speech_end": 262.905,
+      "scene_end": 263.68499999999995,
+      "duration": 20.72999999999996,
+      "text": "Tutte le 81.969 cellule sono visibili al browser di nuovo, con solo le prime 250 caricate. Questo complementa un flusso di lavoro tracciabile solo per lettura per l'esplorazione di grandi tabelle di misura spaCR e l'esportazione di sottoinsiemi definiti con precisione.",
+      "speech_text": "Tutte le 81.969 cellule sono visibili al browser di nuovo, con solo le prime 250 caricate. Questo complementa un flusso di lavoro tracciabile solo per lettura per l'esplorazione di grandi tabelle di misura spàker e l'esportazione di sottoinsiemi definiti con precisione.",
+      "phonemes": "tˈutːe le otːˈantˈuno.noveʧˈɛnto seSˈantanˈɔve ʧˈɛllʊle sˌono vizˈibilɪ al brˈaːʊzer dɪ nʊˈɔvo, kon sˈolo le prˈime dʊeʧˈɛnto ʧinkwˈanta karikˈate. kwˌesto komplemˈenta ʊn flˈuSo dɪ lavˈɔro traʧːˈabile sˈolo per letːˈura per lesploraʦiˈone dɪ ɡrˈandɪ tabˈɛlle dɪ mizˈura spˈaker e lesportaʦiˈone dɪ sotːoinsjˈemɪ definˈitɪ kon preʧiziˈone."
     }
   ]
 }

@@ -21,6 +21,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
+
 
 # ---------------------------------------------------------------------------
 # a CellposeModel stand-in that records how it was built and called
@@ -37,8 +39,19 @@ class _FakeCellposeModel:
         self.n_returns = 3
         type(self).instances.append(self)
 
-    def eval(self, x, **kwargs):
-        self.eval_calls.append((x, kwargs))
+    def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        # channel_axis is named rather than swallowed by **kwargs. These two
+        # call sites (spacrops._cellpose_labels, submodules' test loops) are
+        # the ones that deliberately DO NOT pass an axis -- they hand Cellpose
+        # a plain 2-D image and let it auto-detect -- so the contract here is
+        # "whatever axis arrives must be one convert_image accepts", not
+        # "an axis must arrive". If either site starts naming an axis, the
+        # value is checked from that moment on rather than silently absorbed.
+        check_cellpose_eval_call(x, channel_axis,
+                                 require_channel_axis=False)
+        self.eval_calls.append((x, {"channel_axis": channel_axis, **kwargs}
+                                if channel_axis is not MISSING_CHANNEL_AXIS
+                                else kwargs))
         labels = np.zeros(np.asarray(x).shape[:2], dtype=np.int32)
         labels[4:12, 4:12] = 1
         labels[20:28, 20:28] = 2

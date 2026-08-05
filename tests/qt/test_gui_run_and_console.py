@@ -98,16 +98,13 @@ class TestRunFinishesAndPrints:
 # ---------------------------------------------------------------------------
 
 def _require_gpu_cellpose():
-    try:
-        import torch
-    except Exception as e:
-        pytest.skip(f"torch unavailable: {e}")
+    # importorskip, not `except Exception`: a package that is not installed
+    # raises ImportError, which is an environment fact; a package that IS
+    # installed and detonates on import is a bug and must fail here.
+    torch = pytest.importorskip("torch")
     if not torch.cuda.is_available():
         pytest.skip("no CUDA — real-run GUI test is GPU-only")
-    try:
-        import cellpose  # noqa: F401
-    except Exception as e:
-        pytest.skip(f"cellpose unavailable: {e}")
+    pytest.importorskip("cellpose")
 
 
 def _make_plate(dst: Path, size: int = 96) -> Path:
