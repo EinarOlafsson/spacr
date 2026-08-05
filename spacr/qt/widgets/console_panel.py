@@ -51,8 +51,10 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import QByteArray, QSize, Qt, QThread, Signal
+from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer,
+                            Signal)
 from PySide6.QtGui import (
+    QColor,
     QFont,
     QFontDatabase,
     QKeyEvent,
@@ -60,6 +62,7 @@ from PySide6.QtGui import (
     QTextCursor,
 )
 from PySide6.QtWidgets import (
+    QAbstractButton,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -247,6 +250,62 @@ def set_split_state(screen_key: str, state) -> None:
 # Divider bar with a topic label
 # ---------------------------------------------------------------------------
 
+class _CopyGlyphButton(QAbstractButton):
+    """The two-offset-squares copy mark, drawn rather than shipped.
+
+    An icon file would need a light and a dark variant and would have to be
+    kept in step with the theme; two rounded rectangles in the current
+    foreground colour follow it for free, at any DPI.
+    """
+
+    #: Side of the front square, in px. The back one is drawn behind it,
+    #: offset by :data:`_OFFSET`, which is what reads as "a copy".
+    _SIDE = 9
+    _OFFSET = 3
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("ConsoleCopyGlyph")
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.NoFocus)
+        edge = self._SIDE + self._OFFSET + 5
+        self.setFixedSize(edge, edge)
+        self._flash = 0
+
+    def flash_copied(self) -> None:
+        """Briefly mark the glyph, so a silent clipboard write is visible."""
+        self._flash = 1
+        self.update()
+        QTimer.singleShot(650, self._end_flash)
+
+    def _end_flash(self) -> None:
+        self._flash = 0
+        self.update()
+
+    def paintEvent(self, _event) -> None:      # noqa: N802 (Qt naming)
+        from PySide6.QtGui import QPainter, QPen
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        try:
+            palette = active_palette()
+            colour = QColor(palette["button_accent"] if self._flash
+                            else palette["fg_dim"])
+        except Exception:
+            colour = QColor("#888888")
+        if self.underMouse() and not self._flash:
+            colour = colour.lighter(150)
+        pen = QPen(colour)
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.setBrush(Qt.NoBrush)
+        side, off = self._SIDE, self._OFFSET
+        # Back square first, then the front one over it — slightly offset, so
+        # the pair reads as one sheet on top of another.
+        painter.drawRoundedRect(off + 1, 1, side, side, 2, 2)
+        painter.drawRoundedRect(1, off + 1, side, side, 2, 2)
+        painter.end()
+
+
 class _TopicBar(QFrame):
     """Dark-gray divider bar with a topic label ("spaCR output — …", …).
 
@@ -275,7 +334,42 @@ class _TopicBar(QFrame):
         lay.addWidget(self._label)
         if trailing is not None:
             lay.addWidget(trailing)
+        # Copy this section — header and contents. Sits with the header it
+        # belongs to rather than in a toolbar, because "this bit" is a thing
+        # a reader points at, and hand-selecting a section out of a long
+        # console is exactly the chore this removes.
+        self._copy_btn = _CopyGlyphButton(self)
+        self._copy_btn.setToolTip("Copy this section, header and all")
+        self._copy_btn.clicked.connect(self._copy_section)
+        lay.addWidget(self._copy_btn)
         lay.addStretch(1)
+
+    def text(self) -> str:
+        """The header text, for the plain-text export."""
+        return self._label.text()
+
+    def _copy_section(self) -> None:
+        """Put this section on the clipboard, asking the panel for its span."""
+        panel = self.parent()
+        for _ in range(6):                     # bounded walk to the panel
+            if panel is None:
+                return
+            if hasattr(panel, "section_text"):
+                break
+            panel = panel.parent()
+        else:
+            return
+        if panel is None:
+            return
+        text = panel.section_text(self)
+        if not text.strip():
+            return
+        try:
+            from PySide6.QtWidgets import QApplication
+            QApplication.clipboard().setText(text)
+        except Exception:
+            return
+        self._copy_btn.flash_copied()
 
 
 # ---------------------------------------------------------------------------
@@ -1217,6 +1311,74 @@ class ConsolePanel(QWidget):
             block = _StdoutBlock(tb, error=True, text_color=red)
             self._insert_entry(block)
             self._last_entry_kind = "stdout"
+
+    def as_text(self, start: int = 0, stop: Optional[int] = None) -> str:
+        """The console as plain text, section headers included.
+
+        :param start: first entry index to include.
+        :param stop: one past the last, or ``None`` for the rest.
+        :returns: the text a person would have selected by hand.
+        """
+        parts = []
+        last = self._entries.count() - 1        # trailing stretch
+        stop = last if stop is None else min(stop, last)
+        for index in range(max(0, start), stop):
+            item = self._entries.itemAt(index)
+            widget = item.widget() if item is not None else None
+            if widget is None:
+                continue
+            if isinstance(widget, _TopicBar):
+                parts.append(f"\n=== {widget.text()} ===")
+            elif hasattr(widget, "toPlainText"):
+                text = widget.toPlainText().rstrip()
+                if text:
+                    parts.append(text)
+            elif hasattr(widget, "text"):
+                text = (widget.text() or "").strip()
+                if text:
+                    parts.append(text)
+        return "\n".join(parts).strip() + "\n"
+
+    def section_text(self, bar: "_TopicBar") -> str:
+        """One section: its header and everything under it.
+
+        A section runs from its own topic bar to the next one, which is what
+        a reader means by "this bit" — the header alone identifies nothing
+        and the whole console is more than was asked for.
+        """
+        start = None
+        last = self._entries.count() - 1
+        boundaries = []
+        for index in range(last):
+            item = self._entries.itemAt(index)
+            widget = item.widget() if item is not None else None
+            if widget is bar:
+                start = index
+                continue
+            if start is not None and isinstance(widget, _TopicBar):
+                boundaries.append(index)
+        if start is None:
+            return ""
+        # Run to the next header that actually has something under it.
+        # append_stdout inserts its own "spaCR output" bar, so a module
+        # banner is followed immediately by another banner: stopping at the
+        # first boundary copied a title and nothing else, which is not what
+        # anyone means by "copy this section".
+        for boundary in boundaries:
+            text = self.as_text(start, boundary)
+            if len(text.strip().splitlines()) > 1:
+                return text
+        return self.as_text(start)
+
+    def copy_all(self) -> str:
+        """Put the whole console on the clipboard; return what was copied."""
+        text = self.as_text()
+        try:
+            from PySide6.QtWidgets import QApplication
+            QApplication.clipboard().setText(text)
+        except Exception:
+            pass
+        return text
 
     def clear(self) -> None:
         """Wipe every entry (topic bars, stdout blocks, chat bubbles)."""

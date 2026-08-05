@@ -1727,6 +1727,16 @@ class AppScreen(QWidget):
         self._btn_clear.clicked.connect(lambda: self._console.clear())
         row.addWidget(self._btn_clear)
 
+        # Beside Clear, because the two are the same kind of act on the same
+        # thing — and because the console is what a bug report is made of.
+        self._btn_copy_console = QPushButton("Copy console")
+        self._btn_copy_console.setObjectName("GhostButton")
+        self._btn_copy_console.setCursor(Qt.PointingHandCursor)
+        self._btn_copy_console.setToolTip(
+            "Copy everything in the console, section headers included.")
+        self._btn_copy_console.clicked.connect(self._on_copy_console)
+        row.addWidget(self._btn_copy_console)
+
         # (The manual "Explain error" button was removed — errors now route to
         # the AI automatically when AI is enabled; see _on_pipeline_error.)
         from .. import iconset as _iconset
@@ -2077,6 +2087,27 @@ class AppScreen(QWidget):
         # ("QThread: Destroyed while thread is still running" → abort).
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
+
+    def _on_copy_console(self) -> None:
+        """Copy the whole console, and say how much went to the clipboard.
+
+        A clipboard write is silent, so a button that appears to do nothing
+        is indistinguishable from one that failed. The status line says what
+        happened.
+        """
+        try:
+            text = self._console.copy_all()
+        except Exception as exc:
+            self._console.append_error(f"Could not copy the console: {exc}\n")
+            return
+        lines = text.count("\n")
+        self._btn_copy_console.setText("Copied")
+        QTimer.singleShot(
+            1200, lambda: self._btn_copy_console.setText("Copy console"))
+        try:
+            self.statusBar().showMessage(f"Copied {lines} lines", 3000)
+        except Exception:
+            pass
 
     def _on_remote_submit(self) -> None:
         """Validate current settings and hand a snapshot to MainWindow."""
