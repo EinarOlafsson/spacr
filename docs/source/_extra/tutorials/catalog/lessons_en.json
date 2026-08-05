@@ -1050,47 +1050,200 @@
       "id": "10_classify_cv",
       "number": 10,
       "slug": "classify_cv",
-      "title": "Classify, computer vision",
+      "title": "Classify (CV)",
       "series": 1,
       "app_key": "classify",
       "section": "Core",
-      "description": "Train and apply an image-based neural network to annotated single-object crops.",
+      "description": "Build a grouped, leakage-audited image classifier from real c1 negative-control and c2 positive-control cell crops.",
       "objectives": [
-        "Understand when to use Classify, computer vision.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Map the first two plate columns to negative and positive image classes.",
+        "Review dataset, architecture, optimization, validation, evaluation, inference, and runtime settings.",
+        "Understand grouped cross-validation, hyperparameter search, training, testing, and full-dataset inference."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Complete Measure so the project contains cell crops and measurements.db; define biologically valid control wells before training.",
       "scenes": [
         {
-          "narration": "This tutorial covers Classify, computer vision. Train and apply an image-based neural network to annotated single-object crops.",
-          "visual": "overview",
+          "narration": "Classify CV trains Torch image models on single-object crops. The console reports dataset selection, leakage checks, training epochs, held-out metrics, inference progress, warnings, and output paths.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Classify, computer vision. Train and apply an image-based neural network to annotated single-object crops."
+          "speech_text": "Classify C V trains Torch image models on single object crops. The console reports dataset selection, leakage checks, training epochs, held out metrics, inference progress, warnings, and output paths."
         },
         {
-          "narration": "Open Classify, computer vision from the Core section. Select annotated crop folders or a project database with reliable class labels.",
-          "visual": "input",
+          "narration": "The chat field accepts questions about the current workflow. Enable AI to route through a selected provider, and use the adjacent arrow to open the provider menu.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Classify, computer vision from the Core section. Select annotated crop folders or a project database with reliable class labels."
+          "speech_text": "The chat field accepts questions about the current workflow. Enable A I to route through a selected provider, and use the adjacent arrow to open the provider menu."
         },
         {
-          "narration": "In the main configuration area, choose the image channels, architecture, split strategy, augmentation, batch size, and training controls.",
-          "visual": "settings",
+          "narration": "Providers reports whether the Claude, ChatGPT, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, choose the image channels, architecture, split strategy, augmentation, batch size, and training controls."
+          "speech_text": "Providers reports whether the Claude, Chat G P T, and Gemini command-line clients are installed and gives their install and login commands. Credentials stay with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. train on the training split, monitor validation behavior, and evaluate once on held-out data.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system prompt.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. train on the training split, monitor validation behavior, and evaluate once on held-out data."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign-in, and the spacer-aware system prompt."
         },
         {
-          "narration": "When the workflow finishes, spaCR saves the model, metrics, predictions, class examples, and run metadata for later application.",
-          "visual": "output",
+          "narration": "Drag the measured tutorial project into Classify. It resolves 81,969 real cell crops and their png_list metadata; 6,598 crops are in column c1 and 6,487 are in column c2.",
+          "visual": "05_folder",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Drag the measured tutorial project into Classify. It resolves eighty-one thousand nine hundred sixty-nine real cell crops and their P N G list metadata; six thousand five hundred ninety-eight crops are in column C one and six thousand four hundred eighty-seven are in column C two."
+        },
+        {
+          "narration": "Essentials shows the source, workflow switches, class definition, architecture, and channels required for a first image-classification run.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the source, workflow switches, class definition, architecture, and channels required for a first image classification run."
+        },
+        {
+          "narration": "Modified limits the panel to values that differ from Classify defaults, making the control mapping and deliberate training choices easy to audit.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to values that differ from Classify defaults, making the control mapping and deliberate training choices easy to audit."
+        },
+        {
+          "narration": "All settings reveals every category without changing values, including grouped validation, leakage checks, calibration, inference, and runtime controls.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals every category without changing values, including grouped validation, leakage checks, calibration, inference, and runtime controls."
+        },
+        {
+          "narration": "Recipes saves this complete classifier configuration under a name, reapplies it later, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves this complete classifier configuration under a name, reapplies it later, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved Classify settings and sends the job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved Classify settings and sends the job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps project paths and compute resources to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same run."
+        },
+        {
+          "narration": "Plate Sources and Workflow selects one or more measured projects and chooses whether to generate a training split, train a model, and test it on held-out data.",
+          "visual": "12_category_01_plate_sources_workflow",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Plate Sources and Workflow selects one or more measured projects and chooses whether to generate a training split, train a model, and test it on held out data."
+        },
+        {
+          "narration": "Labels and Classes defines whether ground truth comes from plate metadata, annotation columns, or measurements, and maps selected values to class names.",
+          "visual": "12_category_02_labels_classes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Labels and Classes defines whether ground truth comes from plate metadata, annotation columns, or measurements, and maps selected values to class names."
+        },
+        {
+          "narration": "Crops and Dataset Split chooses the object crop type, pixel source, image size, test fraction, class balancing, and optional reproducible random comparison group.",
+          "visual": "12_category_03_crops_dataset_split",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Crops and Dataset Split chooses the object crop type, pixel source, image size, test fraction, class balancing, and optional reproducible random comparison group."
+        },
+        {
+          "narration": "Model Architecture selects a built-in or custom network, visible channels, input size, normalization, dropout, pretrained weights, and checkpoint behavior.",
+          "visual": "12_category_04_model_architecture",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Model Architecture selects a built in or custom network, visible channels, input size, normalization, dropout, pretrained weights, and checkpoint behavior."
+        },
+        {
+          "narration": "Optimization and Loss groups the optimizer, learning rate, schedule, regularization, class balance, augmentations, epochs, batches, accumulation, and early stopping.",
+          "visual": "12_category_05_optimization_loss",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Optimization and Loss groups the optimizer, learning rate, schedule, regularization, class balance, augmentations, epochs, batches, accumulation, and early stopping."
+        },
+        {
+          "narration": "Validation controls the validation fraction, grouped cross-validation folds, grouping unit, and the probability threshold used for final hard calls.",
+          "visual": "12_category_06_validation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Validation controls the validation fraction, grouped cross validation folds, grouping unit, and the probability threshold used for final hard calls."
+        },
+        {
+          "narration": "Evaluation Workbench enables nested evaluation, probability calibration, reliability bins, and strict train-test identity and content-leakage audits.",
+          "visual": "12_category_07_evaluation_workbench",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Evaluation Workbench enables nested evaluation, probability calibration, reliability bins, and strict train test identity and content leakage audits."
+        },
+        {
+          "narration": "Full Dataset and Inference builds or reuses a packed crop dataset, applies the selected checkpoint, writes probabilities and calls, and saves top-confidence examples.",
+          "visual": "12_category_08_full_dataset_inference",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Full Dataset and Inference builds or reuses a packed crop dataset, applies the selected checkpoint, writes probabilities and calls, and saves top confidence examples."
+        },
+        {
+          "narration": "Monitoring and Runtime controls plots, TensorBoard, intermediate checkpoints, random seed, workers, logging, strict errors, and the maximum tolerated failure rate.",
+          "visual": "12_category_09_monitoring_runtime",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Monitoring and Runtime controls plots, Tensor Board, intermediate checkpoints, random seed, workers, logging, strict errors, and the maximum tolerated failure rate."
+        },
+        {
+          "narration": "For this tutorial, metadata mode names c1 as negative control and c2 as positive control by matching the columnID field. Verify that biological assignment for every experiment rather than trusting position alone.",
+          "visual": "22_control_mapping",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "For this tutorial, metadata mode names C one as negative control and C two as positive control by matching the column I D field. Verify that biological assignment for every experiment rather than trusting position alone."
+        },
+        {
+          "narration": "Hyperparameter search evaluates candidate architectures and training choices with well-grouped folds. Completed trials appear in the table with score, fold variation, parameters, and status before any choice is propagated.",
+          "visual": "23_hyperparameter_search",
+          "focus_key": "results",
+          "hold_after": 0.45,
+          "speech_text": "Hyperparameter search evaluates candidate architectures and training choices with well grouped folds. Completed trials appear in the table with score, fold variation, parameters, and status before any choice is propagated."
+        },
+        {
+          "narration": "Search Settings defines the candidate values, ranking criterion, grid or reproducible random search, trial count, five grouped folds, seed, graph controls, and one-time propagation back to the module.",
+          "visual": "24_search_settings",
+          "focus_key": "dialog",
+          "click_key": "settings_button",
+          "hold_after": 0.45,
+          "speech_text": "Search Settings defines the candidate values, ranking criterion, grid or reproducible random search, trial count, five grouped folds, seed, graph controls, and one time propagation back to the module."
+        },
+        {
+          "narration": "Run first builds balanced c1 and c2 train-test splits, audits leakage, trains for the configured epochs, evaluates held-out wells, calibrates probabilities, applies the chosen checkpoint, and records predictions in the project. This tutorial does not launch the costly training run.",
+          "visual": "25_run_pipeline",
+          "focus_key": "actions",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer saves the model, metrics, predictions, class examples, and run metadata for later application."
+          "speech_text": "Run first builds balanced C one and C two train test splits, audits leakage, trains for the configured epochs, evaluates held out wells, calibrates probabilities, applies the chosen checkpoint, and records predictions in the project. This tutorial does not launch the costly training run."
         }
       ]
     },
