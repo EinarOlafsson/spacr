@@ -4714,47 +4714,120 @@
       "id": "33_plate_viewer",
       "number": 33,
       "slug": "plate_viewer",
-      "title": "Plate Viewer",
+      "title": "Visor de placas",
       "series": 4,
       "app_key": "plate_view",
       "section": "Results and quality control",
-      "description": "Explorar qualquer medição como um mapa térmico de placa e identificar artefatos espaciais ou efeitos de borda.",
+      "description": "Transforme as medições reais de objetos em um heatmap de placa, auditem poços individuais e testem artifícios de borda e gradiente sem modificar o banco de dados.",
       "objectives": [
-        "Entender quando usar o Plate Viewer.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Abre um banco de dados de medições spaCR somente de leitura e escolha uma tabela, medida, placa, agregação e escala de cores robusta.",
+        "Interpreta o mapa de calor da placa ao lado do efeito de borda, do gradiente de fila e do diagnóstico do gradiente de coluna.",
+        "Distinguir os poços em branco de baixo número dos zeros verdadeiros e exportar a rede de poços atualmente filtrada."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Um banco de dados de medições com placas, filas, colunas e colunas de medição numérica.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Plate Viewer. Explore qualquer medição como um mapa de calor de placa e identifique artefatos espaciais ou efeitos de borda.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Plate Viewer. Explore qualquer medição como um mapa de calor de placa e identifique artefatos espaciais ou efeitos de borda."
+          "narration": "O Plate Viewer transforma qualquer medição de objeto em um mapa de calor de poço e coloca o diagnóstico de efeito de borda ao lado dele. Abre-o em Resultados e Controle de Qualidade. O fluxo de trabalho é estruturalmente somente de leitura: o spaCR abre o banco de dados de medições em modo apenas de consulta e escreve apenas um CSV exportado opcional.",
+          "visual": "01_overview",
+          "focus_key": "nav",
+          "click_key": "nav",
+          "hold_after": 0.72,
+          "speech_text": "O Plate Viewer transforma qualquer medição de objeto em um mapa de calor de poço e coloca o diagnóstico de efeito de borda ao lado dele. Abre-o em Resultados e Controle de Qualidade. O fluxo de trabalho é estruturalmente somente de leitura: o espáquer abre o banco de dados de medições em modo apenas de consulta e escreve apenas um CSV exportado opcional."
         },
         {
-          "narration": "Abra Plate Viewer na seção Results and quality control. Abra o visor de placa na seção Resultados e controle de qualidade. Abra um banco de dados de medições com identificadores de placa, poço e condição.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Abra Plate Viewer na seção Results and quality control. Abra o visor de placa na seção Resultados e controle de qualidade. Abra um banco de dados de medições com identificadores de placa, poço e condição."
+          "narration": "Deixe cair um banco de dados de medições ou sua pasta de execução, ou escolha aqui. Esta é a base de dados real do experimento transferido, contendo 81.969 células medidas em 196 poços. Plate Viewer lê nomes de tabelas e apenas os identificadores e colunas de medição necessárias para a visão selecionada.",
+          "visual": "02_database",
+          "focus_key": "source",
+          "hold_after": 0.74,
+          "speech_text": "Deixe cair um banco de dados de medições ou sua pasta de execução, ou escolha aqui. Esta é a base de dados real do experimento transferido, contendo 81.969 células medidas em 196 poços. Plate Viewer lê nomes de tabelas e apenas os identificadores e colunas de medição necessárias para a visão selecionada."
         },
         {
-          "narration": "Na área de configuração principal, escolha a medição, agregação, normalização, escala de cores, controles e layout de placa.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, escolha a medição, agregação, normalização, escala de cores, controles e layout de placa."
+          "narration": "Escolha a tabela Célula e um recurso numérico. Aqui selecionamos a intensidade média do canal 1, o canal endoplasmico-retículo. Após o primeiro renderização, o selector Plate é preenchido a partir dos dados; esta base de dados contém a placa 1.",
+          "visual": "03_measurement",
+          "focus_key": "selection",
+          "hold_after": 0.66,
+          "speech_text": "Escolha a tabela Célula e um recurso numérico. Aqui selecionamos a intensidade média do canal 1, o canal endoplasmico-retículo. Após o primeiro renderização, o selector Plate é preenchido a partir dos dados; esta base de dados contém a placa 1."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. compare vistas crudas e normalizadas e inspecione poços suspeitos ou padrões sistemáticos de borda.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível. compare vistas crudas e normalizadas e inspecione poços suspeitos ou padrões sistemáticos de borda."
+          "narration": "Por poço controla como os objetos desmoronam para um valor. A média e a média resumem o recurso escolhido, enquanto o contagem representa o número do objeto. A robusta escala de cores de 2 a 98 por cento impede que um poço extremo aplanie o resto, e os objetos mínimos por poço marcam poços com baixo poder como vazios em vez de zero.",
+          "visual": "04_options",
+          "focus_key": "options",
+          "hold_after": 0.74,
+          "speech_text": "Por poço controla como os objetos desmoronam para um valor. A média e a média resumem o recurso escolhido, enquanto o contagem representa o número do objeto. A robusta escala de cores de 2 a 98 por cento impede que um poço extremo aplanie o resto, e os objetos mínimos por poço marcam poços com baixo poder como vazios em vez de zero."
         },
         {
-          "narration": "Quando o fluxo de trabalho estiver concluído, podem ser exportados mapas de calor, tabelas de poços selecionados e diagnósticos de efeitos de borda.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho estiver concluído, podem ser exportados mapas de calor, tabelas de poços selecionados e diagnósticos de efeitos de borda."
+          "narration": "Clique em Render com Mean, a escala robusta e um mínimo de 100 células. A consulta do banco de dados é armazenada em cache, de modo que alterações posteriores à agregação, escala de cores, placa ou contagem mínima recomputam a visão sem ler novamente a tabela completa de recursos.",
+          "visual": "05_render",
+          "focus_key": "render_controls",
+          "click_key": "render",
+          "hold_after": 0.66,
+          "speech_text": "Clique em Render com Mean, a escala robusta e um mínimo de 100 células. A consulta do banco de dados é armazenada em cache, de modo que alterações posteriores à agregação, escala de cores, placa ou contagem mínima recomputam a visão sem ler novamente a tabela completa de recursos."
+        },
+        {
+          "narration": "Todos os 196 poços medidos sobrevivem. A intensidade média do ER não tem efeito categórico de anel externo, mas o relatório real detecta um gradiente de linha monótono com o rho de Spearman 0,454. O perfil de anel e os diagnósticos de filas e colunas mantêm esta tendência espacial visível ao lado do mapa térmico em vez de deixá-lo mascarar-se como biologia.",
+          "visual": "06_mean_result",
+          "focus_key": "result",
+          "hold_after": 0.8,
+          "speech_text": "Todos os 196 poços medidos sobrevivem. A intensidade média do ER não tem efeito categórico de anel externo, mas o relatório real detecta um gradiente de linha monótono com o rho de Spearman 0,454. O perfil de anel e os diagnósticos de filas e colunas mantêm esta tendência espacial visível ao lado do mapa térmico em vez de deixá-lo mascarar-se como biologia."
+        },
+        {
+          "narration": "Clique em qualquer poço para o seu identificador exato, número de objetos, valor agregado e posição do anel. O G07 é um poço interior aqui. Este mapeamento direto é útil para decidir se um golpe aparente pertence a um padrão espacial antes de abrir os seus campos ou culturas em outro lugar.",
+          "visual": "07_well_detail",
+          "focus_key": "inspection",
+          "click_key": "well_click",
+          "hold_after": 0.68,
+          "speech_text": "Clique em qualquer poço para o seu identificador exato, número de objetos, valor agregado e posição do anel. O G07 é um poço interior aqui. Este mapeamento direto é útil para decidir se um golpe aparente pertence a um padrão espacial antes de abrir os seus campos ou culturas em outro lugar."
+        },
+        {
+          "narration": "Passa-se por \"Poço\" para \"Conto\". O contador ignora o valor de intensidade selecionado e as cores de cada bem pelo número de células retidas, o que geralmente é a visão de controle de qualidade mais rápida para toxicidade, perda de segmentação, semeamento desigual ou crescimento dependente da borda.",
+          "visual": "08_count_setting",
+          "focus_key": "grouping",
+          "hold_after": 0.64,
+          "speech_text": "Passa-se por \"Poço\" para \"Conto\". O contador ignora o valor de intensidade selecionado e as cores de cada bem pelo número de células retidas, o que geralmente é a visão de controle de qualidade mais rápida para toxicidade, perda de segmentação, semeamento desigual ou crescimento dependente da borda."
+        },
+        {
+          "narration": "A visão de contagem real expõe um efeito do anel externo: os poços de borda contêm 14,3% mais células do que o interior, com o delta de Cliff 0,571 e p igual a 0,0003817. O relatório indica a direcção e a magnitude do efeito, em vez de lhe pedir para inferir apenas a partir da cor.",
+          "visual": "09_count_result",
+          "focus_key": "result",
+          "hold_after": 0.82,
+          "speech_text": "A visão de contagem real expõe um efeito do anel externo: os poços de borda contêm 14,3% mais células do que o interior, com o delta de Cliff 0,571 e p igual a 0,0003817. O relatório indica a direcção e a magnitude do efeito, em vez de lhe pedir para inferir apenas a partir da cor."
+        },
+        {
+          "narration": "Aumentar o número mínimo de objetos por poço para 350 quando essa contagem for a prova mínima necessária para a comparação. O filtro é um limiar de qualidade, não uma regra de imputação: os poços abaixo dele deixam a análise numérica e tornam-se espaços em branco cruzados.",
+          "visual": "10_minimum_setting",
+          "focus_key": "minimum",
+          "hold_after": 0.62,
+          "speech_text": "Aumentar o número mínimo de objetos por poço para 350 quando essa contagem for a prova mínima necessária para a comparação. O filtro é um limiar de qualidade, não uma regra de imputação: os poços abaixo dele deixam a análise numérica e tornam-se espaços em branco cruzados."
+        },
+        {
+          "narration": "Vinte e oito dos 196 poços medidos estão agora caídos, deixando 168 para o teste de borda. O efeito do anel exterior permanece detectável em mais 10,5%. As células cruzadas no mapa térmico desaparecem após a filtragem; elas nunca são coloridas como se o seu valor fosse zero.",
+          "visual": "11_filtered_result",
+          "focus_key": "result",
+          "hold_after": 0.78,
+          "speech_text": "Vinte e oito dos 196 poços medidos estão agora caídos, deixando 168 para o teste de borda. O efeito do anel exterior permanece detectável em mais 10,5%. As células cruzadas no mapa térmico desaparecem após a filtragem; elas nunca são coloridas como se o seu valor fosse zero."
+        },
+        {
+          "narration": "Clique em um poço cruzado para confirmar por que está em branco. O C14 contém 233 células medidas, menos do que os 350 necessários, de modo que a leitura informa em branco e nomeia o limiar. Isso faz com que o baixo suporte seja distinto de uma contagem de zero real.",
+          "visual": "12_blank_well",
+          "focus_key": "inspection",
+          "click_key": "well_click",
+          "hold_after": 0.68,
+          "speech_text": "Clique em um poço cruzado para confirmar por que está em branco. O C14 contém 233 células medidas, menos do que os 350 necessários, de modo que a leitura informa em branco e nomeia o limiar. Isso faz com que o baixo suporte seja distinto de uma contagem de zero real."
+        },
+        {
+          "narration": "Clique em Export well grid CSV para salvar a visão atual ordenada. Cada linha mantém a identidade do poço, a contagem de objetos, o valor exibido, o índice de anel e a bandeira de borda, de modo que o resultado de nível de placa pode ser auditado ou repostado fora do spaCR sem exportar a tabela de características de nível de objeto.",
+          "visual": "13_export",
+          "focus_key": "footer",
+          "click_key": "export",
+          "hold_after": 0.68,
+          "speech_text": "Clique em Export well grid CSV para salvar a visão atual ordenada. Cada linha mantém a identidade do poço, a contagem de objetos, o valor exibido, o índice de anel e a bandeira de borda, de modo que o resultado de nível de placa pode ser auditado ou repostado fora do espáquer sem exportar a tabela de características de nível de objeto."
+        },
+        {
+          "narration": "A exportação verificada contém 168 poços, que correspondem exatamente ao mapa de calor filtrado. Uma verificação antes e depois do SHA-256 confirma que o banco de dados das medições de origem é o mesmo em byte, completando uma passagem de controlo de qualidade de placa de somente leitura com uma tabela derivada rastreável.",
+          "visual": "14_exported",
+          "focus_key": "status",
+          "hold_after": 0.86,
+          "speech_text": "A exportação verificada contém 168 poços, que correspondem exatamente ao mapa de calor filtrado. Uma verificação antes e depois do SHA-256 confirma que o banco de dados das medições de origem é o mesmo em byte, completando uma passagem de controlo de qualidade de placa de somente leitura com uma tabela derivada rastreável."
         }
       ]
     },
