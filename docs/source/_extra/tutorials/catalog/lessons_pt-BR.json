@@ -2318,47 +2318,232 @@
       "id": "17_timelapse",
       "number": 17,
       "slug": "timelapse",
-      "title": "Timelapse",
+      "title": "Rápido de tempo",
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
-      "description": "Segmentar, ligar e medir células ou patógenos através dos quadros de uma série de tempo.",
+      "description": "Segmentar imagens resolvidas no tempo, vincular objetos através de quadros e exportar máscaras e filmes rastreados.",
       "objectives": [
-        "Entenda quando utilizar o Timelapse.",
-        "Configurar as entradas e configurações importantes.",
-        "Execute o fluxo de trabalho e localize as suas saídas."
+        "Conecte uma série temporal corretamente nomeada e atribui os canais adquiridos.",
+        "Revisão de categorias de segmentação, rastreamento, diagnóstico, saída e tempo de execução.",
+        "Executa e valida um exemplo completo de rastreamento sintético de oito quadros."
       ],
-      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "prerequisite": "Utilize uma série temporal com uma ordem de quadros confiável, identidade de canal e uma escala espacial adequada para os modelos de segmentação selecionados.",
       "scenes": [
         {
-          "narration": "Este tutorial abrange o Timelapse. Segmentar, ligar e medir células ou patógenos em quadros de uma série de tempos.",
-          "visual": "overview",
+          "narration": "O Timelapse segmenta cada quadro e liga os objetos selecionados em trilhas estáveis. O console registra pré-processamento, máscaras, tentativas de rastreamento, controle de qualidade, filmes, matrizes fundidas e arquivos de reprodução.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "Este tutorial abrange o Timelapse. Segmentar, ligar e medir células ou patógenos em quadros de uma série de tempos."
+          "speech_text": "O Timelapse segmenta cada quadro e liga os objetos selecionados em trilhas estáveis. O console registra pré-processamento, máscaras, tentativas de rastreamento, controle de qualidade, filmes, matrizes fundidas e arquivos de reprodução."
         },
         {
-          "narration": "Abra Timelapse na seção Core. Abra o Timelapse na seção Core. Selecione um conjunto de imagens resolvido em tempo cujos nomes de arquivos preservam índices de campo, tempo, profundidade e canal.",
-          "visual": "input",
+          "narration": "O campo de bate-papo aceita comandos locais ou perguntas de fluxo de trabalho. Habilitar a IA para um provedor configurado e usar a seta adjacente para escolher um provedor ou abrir seus controles.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Timelapse na seção Core. Abra o Timelapse na seção Core. Selecione um conjunto de imagens resolvido em tempo cujos nomes de arquivos preservam índices de campo, tempo, profundidade e canal."
+          "speech_text": "O campo de bate-papo aceita comandos locais ou perguntas de fluxo de trabalho. Habilitar a IA para um provedor configurado e usar a seta adjacente para escolher um provedor ou abrir seus controles."
         },
         {
-          "narration": "Na área de configuração principal, configure a segmentação, os tipos de objetos rastreados, o modo de ligação, o deslocamento máximo, o manuseio de lacunas e os quadros de visualização.",
-          "visual": "settings",
+          "narration": "Os provedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e mostram os comandos de instalação e login enquanto a autenticação permanece com cada fornecedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Na área de configuração principal, configure a segmentação, os tipos de objetos rastreados, o modo de ligação, o deslocamento máximo, o manuseio de lacunas e os quadros de visualização."
+          "speech_text": "Os provedores verificam os clientes de linha de comando Claude, ChatGPT e Gemini e mostram os comandos de instalação e login enquanto a autenticação permanece com cada fornecedor."
         },
         {
-          "narration": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível.",
-          "visual": "run",
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Antes da execução completa, revise as configurações visíveis e use um modo de pré-visualização ou teste quando disponível."
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e instruções do sistema consciente do espáquer."
         },
         {
-          "narration": "Quando o fluxo de trabalho termina, as máscaras, as pistas, as medições e os resumos de trajetória indexados no tempo são armazenados com identidades estáveis de objetos.",
-          "visual": "output",
+          "narration": "Esta fonte sintética determinista contém um campo em oito pontos de tempo. O canal zero contém núcleos, o canal um contém célula e sinal de emergência, e os nomes de arquivos no estilo CellVoyager preservam a placa, o poço, o tempo, o campo, a profundidade e os índices do canal.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "Esta fonte sintética determinista contém um campo em oito pontos de tempo. O canal zero contém núcleos, o canal um contém célula e sinal de emergência, e os nomes de arquivos no estilo CellVoyager preservam a placa, o poço, o tempo, o campo, a profundidade e os índices do canal."
+        },
+        {
+          "narration": "Os essenciais mostram a fonte, os papéis do canal, a convenção de nomeação, a normalização, os modelos de segmentação, os objetos a rastrear, a faixa de quadros, o rastreador, as gráficas e as opções de saída necessárias para uma primeira execução.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Os essenciais mostram a fonte, os papéis do canal, a convenção de nomeação, a normalização, os modelos de segmentação, os objetos a rastrear, a faixa de quadros, o rastreador, as gráficas e as opções de saída necessárias para uma primeira execução."
+        },
+        {
+          "narration": "O painel modificado limita as alterações intencionais, incluindo os canais zero e um, o intervalo de oito quadros, o rastreamento de células, o linker integrado de intersecção sobre união, um quadro por segundo e opções conservadoras de tempo de execução.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "O painel modificado limita as alterações intencionais, incluindo os canais zero e um, o intervalo de oito quadros, o rastreamento de células, o linker integrado de intersecção sobre união, um quadro por segundo e opções conservadoras de tempo de execução."
+        },
+        {
+          "narration": "Todas as configurações revelam treze categorias sem mudanças de valores: entradas, eixos de aquisição, pré-processamento, quatro grupos de segmentação, controle de qualidade, configuração de rastreamento e backends, diagnóstico, saída e tempo de execução.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas as configurações revelam treze categorias sem mudanças de valores: entradas, eixos de aquisição, pré-processamento, quatro grupos de segmentação, controle de qualidade, configuração de rastreamento e backends, diagnóstico, saída e tempo de execução."
+        },
+        {
+          "narration": "As receitas guardam a configuração completa do Timelapse sob um nome, reaplicam-na em outro experimento ou importam e exportam um arquivo de configurações reutilizável.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "As receitas guardam a configuração completa do Timelapse sob um nome, reaplicam-na em outro experimento ou importam e exportam um arquivo de configurações reutilizável."
+        },
+        {
+          "narration": "Envie instantâneos remotos das configurações resolvidas e envia o trabalho de segmentação e rastreamento para o espaço de trabalho de Trabalhos Distribuídos.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Envie instantâneos remotos das configurações resolvidas e envia o trabalho de segmentação e rastreamento para o espaço de trabalho de Trabalhos Distribuídos."
+        },
+        {
+          "narration": "O Jobs Distribuído mapeia os caminhos de origem e saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do Timelapse.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "O Jobs Distribuído mapeia os caminhos de origem e saída para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução do Timelapse."
+        },
+        {
+          "narration": "Input and Metadata seleciona a pasta de imagem, atribui cada canal adquirido a um tipo de objeto e define como o spaCR analisa identificadores experimentais a partir de nomes de arquivos.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Metadata seleciona a pasta de imagem, atribui cada canal adquirido a um tipo de objeto e define como o espáquer analisa identificadores experimentais a partir de nomes de arquivos."
+        },
+        {
+          "narration": "Aquisição e eixos descreve a ampliação e as configurações opcionais do eixo volumétrico ou do eixo temporal. Os arquivos de imagem comuns por quadro mantêm os controles avançados de pilha desativados.",
+          "visual": "12_category_02_acquisition_axes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Aquisição e eixos descreve a ampliação e as configurações opcionais do eixo volumétrico ou do eixo temporal. Os arquivos de imagem comuns por quadro mantêm os controles avançados de pilha desativados."
+        },
+        {
+          "narration": "O Pré-processamento de imagem controla a normalização percentil, a manipulação de fundo, denociamento, redimensionamento e matrizes intermediárias. Aplicar uma transformação consistente em cada quadro para evitar mudanças temporais artificiais.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Pré-processamento de imagem controla a normalização percentil, a manipulação de fundo, denociamento, redimensionamento e matrizes intermediárias. Aplicar uma transformação consistente em cada quadro para evitar mudanças temporais artificiais."
+        },
+        {
+          "narration": "A Segmentação de Células seleciona o modelo de célula, o diâmetro esperado, os limiares de probabilidade e fluxo, e os filtros opcionais de tamanho, intensidade, limite, fusão e divisão.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação de Células seleciona o modelo de célula, o diâmetro esperado, os limiares de probabilidade e fluxo, e os filtros opcionais de tamanho, intensidade, limite, fusão e divisão."
+        },
+        {
+          "narration": "A segmentação do núcleo fornece os controles equivalentes para o canal zero. As máscaras nucleares podem ser exportadas mesmo quando apenas as células estão ligadas através dos quadros.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A segmentação do núcleo fornece os controles equivalentes para o canal zero. As máscaras nucleares podem ser exportadas mesmo quando apenas as células estão ligadas através dos quadros."
+        },
+        {
+          "narration": "A Segmentação de Patógenos está disponível quando um canal de patógenos é atribuído. Esta demonstração de dois canais deixa sem configuração, por isso não são solicitadas máscaras ou pistas de patógenos.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação de Patógenos está disponível quando um canal de patógenos é atribuído. Esta demonstração de dois canais deixa sem configuração, por isso não são solicitadas máscaras ou pistas de patógenos."
+        },
+        {
+          "narration": "A Segmentação de Organelle suporta fluxos de trabalho spot, rede, anel, irregular, Cellpose e U-Net quando um canal de organelle é atribuído. É inactivo para este exemplo.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Segmentação de Organelle suporta fluxos de trabalho spot, rede, anel, irregular, Cellpose e U-Net quando um canal de organelle é atribuído. É inactivo para este exemplo."
+        },
+        {
+          "narration": "O Controle de Qualidade compara a contagem de objetos, tamanho, contato de fronteira, cobertura em primeiro plano, comportamento dividido e taxas de falha em nível de placa. O modo de relatório registra os avisos sem descartar silenciosamente a série horária.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Controle de Qualidade compara a contagem de objetos, tamanho, contato de fronteira, cobertura em primeiro plano, comportamento dividido e taxas de falha em nível de placa. O modo de relatório registra os avisos sem descartar silenciosamente a série horária."
+        },
+        {
+          "narration": "A configuração de rastreamento escolhe quais objetos segmentados estão ligados, a fatia do quadro, se as faixas de curta duração são removidas e a taxa de reprodução dos filmes exportados.",
+          "visual": "12_category_09_tracking_setup",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A configuração de rastreamento escolhe quais objetos segmentados estão ligados, a fatia do quadro, se as faixas de curta duração são removidas e a taxa de reprodução dos filmes exportados."
+        },
+        {
+          "narration": "Tracking Backends oferece Trackastra, Ultrack, Trackpy, interseção sobre união e btrack com link específico de backend, deslocamento, memória, divisão e controles de trabalhadores. Esta demonstração usa intersecção sobre união.",
+          "visual": "12_category_10_tracking_backends",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Tracking Backends oferece Trackastra, Ultrack, Trackpy, interseção sobre união e btrack com link específico de backend, deslocamento, memória, divisão e controles de trabalhadores. Esta demonstração usa intersecção sobre união."
+        },
+        {
+          "narration": "Visualização e Diagnóstico controla mapas de cores, gráficos de exemplo, normalização de gráfico e tela de figura usada para inspecionar a segmentação e o comportamento de rastreamento.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Visualização e Diagnóstico controla mapas de cores, gráficos de exemplo, normalização de gráfico e tela de figura usada para inspecionar a segmentação e o comportamento de rastreamento."
+        },
+        {
+          "narration": "Os controles de saída e armazenamento combinam matrizes, máscaras, filmes por canal, animações de máscaras rastreadas, compressão e retenção de arquivos intermediários ou originais.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Os controles de saída e armazenamento combinam matrizes, máscaras, filmes por canal, animações de máscaras rastreadas, compressão e retenção de arquivos intermediários ou originais."
+        },
+        {
+          "narration": "O tempo de execução e a confiabilidade controlam o modo de ensaio, o loteamento, os trabalhadores, a ordem reprodutível, a retomada, as corridas secas, a verbosidade e a política de falha. Comece com um campo representativo antes de aumentar.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O tempo de execução e a confiabilidade controlam o modo de ensaio, o loteamento, os trabalhadores, a ordem reprodutível, a retomada, as corridas secas, a verbosidade e a política de falha. Comece com um campo representativo antes de aumentar."
+        },
+        {
+          "narration": "Este exemplo rastreia células sobre índices de quadros de zero a sete, mantém pistas transitórias para inspeção, exporta filmes a um quadro por segundo e deixa as máscaras do núcleo desligadas.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "Este exemplo rastreia células sobre índices de quadros de zero a sete, mantém pistas transitórias para inspeção, exporta filmes a um quadro por segundo e deixa as máscaras do núcleo desligadas."
+        },
+        {
+          "narration": "Run valida nomes de arquivos e canais, agrupa quadros, normaliza a sequência, segmenta cada objeto solicitado, liga máscaras de célula, calcula o controle de qualidade, escreve filmes e matrizes combinadas e registra reprodução. Petições de parada para uma interrupção segura.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run valida nomes de arquivos e canais, agrupa quadros, normaliza a sequência, segmenta cada objeto solicitado, liga máscaras de célula, calcula o controle de qualidade, escreve filmes e matrizes combinadas e registra reprodução. Petições de parada para uma interrupção segura."
+        },
+        {
+          "narration": "Durante o processamento, o console relata o início do Cellpose, configurações resolvidas, progresso por quadro, rastreamento do comportamento de pesquisa, filtros de objetos, tempo restante e caminhos de saída.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "Durante o processamento, o console relata o início do Cellpose, configurações resolvidas, progresso por quadro, rastreamento do comportamento de pesquisa, filtros de objetos, tempo restante e caminhos de saída."
+        },
+        {
+          "narration": "A corrida concluída ligou 16 células em todos os oito quadros, removiu nenhum objeto transitório, passou pelo controle de qualidade de células e núcleos sem alertas ou falhas, escreveu filmes rastreados e oito matrizes fundidas, e salvou um recorde de corrida de 26 segundos de sucesso.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "Quando o fluxo de trabalho termina, as máscaras, as pistas, as medições e os resumos de trajetória indexados no tempo são armazenados com identidades estáveis de objetos."
+          "speech_text": "A corrida concluída ligou 16 células em todos os oito quadros, removiu nenhum objeto transitório, passou pelo controle de qualidade de células e núcleos sem alertas ou falhas, escreveu filmes rastreados e oito matrizes fundidas, e salvou um recorde de corrida de 26 segundos de sucesso."
         }
       ]
     },

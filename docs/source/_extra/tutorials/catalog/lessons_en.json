@@ -2337,43 +2337,228 @@
       "series": 2,
       "app_key": "timelapse",
       "section": "Core",
-      "description": "Segment, link, and measure cells or pathogens across the frames of a time series.",
+      "description": "Segment time-resolved images, link objects across frames, and export tracked masks and movies.",
       "objectives": [
-        "Understand when to use Timelapse.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
+        "Connect a correctly named time series and assign its acquired channels.",
+        "Review segmentation, tracking, diagnostic, output, and runtime categories.",
+        "Run and validate a complete synthetic eight-frame tracking example."
       ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "prerequisite": "Use a time series with reliable frame ordering, channel identity, and a spatial scale appropriate for the selected segmentation models.",
       "scenes": [
         {
-          "narration": "This tutorial covers Timelapse. Segment, link, and measure cells or pathogens across the frames of a time series.",
-          "visual": "overview",
+          "narration": "Timelapse segments every frame and links the selected objects into stable tracks. The console records preprocessing, masks, tracking attempts, quality control, movies, merged arrays, and reproducibility files.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "This tutorial covers Timelapse. Segment, link, and measure cells or pathogens across the frames of a time series."
+          "speech_text": "Timelapse segments every frame and links the selected objects into stable tracks. The console records preprocessing, masks, tracking attempts, quality control, movies, merged arrays, and reproducibility files."
         },
         {
-          "narration": "Open Timelapse from the Core section. Select a time-resolved image set whose filenames preserve field, time, depth, and channel indices.",
-          "visual": "input",
+          "narration": "The chat field accepts local commands or workflow questions. Enable AI for a configured provider, and use the adjacent arrow to choose a provider or open its controls.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Open Timelapse from the Core section. Select a time-resolved image set whose filenames preserve field, time, depth, and channel indices."
+          "speech_text": "The chat field accepts local commands or workflow questions. Enable A I for a configured provider, and use the adjacent arrow to choose a provider or open its controls."
         },
         {
-          "narration": "In the main configuration area, configure segmentation, tracked object types, linking mode, maximum displacement, gap handling, and preview frames.",
-          "visual": "settings",
+          "narration": "Providers checks the Claude, ChatGPT, and Gemini command-line clients and shows install and login commands while authentication remains with each vendor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "In the main configuration area, configure segmentation, tracked object types, linking mode, maximum displacement, gap handling, and preview frames."
+          "speech_text": "Providers checks the Claude, Chat G P T, and Gemini command line clients and shows install and login commands while authentication remains with each vendor."
         },
         {
-          "narration": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate tracks on representative motion before processing the entire time series.",
-          "visual": "run",
+          "narration": "AI Settings controls response depth, automatic error explanations, optional GitHub issue reporting, sign-in, and the spaCR-aware system instructions.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
           "hold_after": 0.45,
-          "speech_text": "Before the full run, review the visible settings and use a preview or test mode when one is available. validate tracks on representative motion before processing the entire time series."
+          "speech_text": "A I Settings controls response depth, automatic error explanations, optional Git Hub issue reporting, sign in, and the spacer aware system instructions."
         },
         {
-          "narration": "When the workflow finishes, time-indexed masks, tracks, measurements, and trajectory summaries are stored with stable object identities.",
-          "visual": "output",
+          "narration": "This deterministic synthetic source contains one field over eight timepoints. Channel zero contains nuclei, channel one contains cell and ER signal, and CellVoyager-style filenames preserve the plate, well, time, field, depth, and channel indices.",
+          "visual": "05_inputs",
+          "focus_key": "inputs",
+          "hold_after": 0.45,
+          "speech_text": "This deterministic synthetic source contains one field over eight timepoints. Channel zero contains nuclei, channel one contains cell and E R signal, and Cell Voyager style filenames preserve the plate, well, time, field, depth, and channel indices."
+        },
+        {
+          "narration": "Essentials shows the source, channel roles, naming convention, normalization, segmentation models, objects to track, frame range, tracker, plots, and output choices needed for a first run.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials shows the source, channel roles, naming convention, normalization, segmentation models, objects to track, frame range, tracker, plots, and output choices needed for a first run."
+        },
+        {
+          "narration": "Modified limits the panel to intentional changes, including channels zero and one, the eight-frame range, cell tracking, the built-in intersection-over-union linker, one frame per second, and conservative runtime choices.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Modified limits the panel to intentional changes, including channels zero and one, the eight frame range, cell tracking, the built in intersection over union linker, one frame per second, and conservative runtime choices."
+        },
+        {
+          "narration": "All settings reveals thirteen categories without changing values: inputs, acquisition axes, preprocessing, four segmentation groups, quality control, tracking setup and backends, diagnostics, output, and runtime.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "All settings reveals thirteen categories without changing values: inputs, acquisition axes, preprocessing, four segmentation groups, quality control, tracking setup and backends, diagnostics, output, and runtime."
+        },
+        {
+          "narration": "Recipes saves the complete Timelapse configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file.",
+          "visual": "09_recipes",
+          "focus_key": "dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "Recipes saves the complete Timelapse configuration under a name, reapplies it to another experiment, or imports and exports a reusable settings file."
+        },
+        {
+          "narration": "Submit remote snapshots the resolved settings and sends the segmentation and tracking job to the Distributed Jobs workspace.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Submit remote snapshots the resolved settings and sends the segmentation and tracking job to the Distributed Jobs workspace."
+        },
+        {
+          "narration": "Distributed Jobs maps source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Timelapse run.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "Distributed Jobs maps source and output paths to a remote workstation, Slurm cluster, or configured command, then submits and monitors the same Timelapse run."
+        },
+        {
+          "narration": "Input and Metadata selects the image folder, assigns each acquired channel to an object type, and defines how spaCR parses experimental identifiers from filenames.",
+          "visual": "12_category_01_input_metadata",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Metadata selects the image folder, assigns each acquired channel to an object type, and defines how spacer parses experimental identifiers from filenames."
+        },
+        {
+          "narration": "Acquisition and Axes describes magnification and optional volumetric or time-axis layouts. Ordinary per-frame image files keep the advanced stack controls disabled.",
+          "visual": "12_category_02_acquisition_axes",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Acquisition and Axes describes magnification and optional volumetric or time axis layouts. Ordinary per frame image files keep the advanced stack controls disabled."
+        },
+        {
+          "narration": "Image Preprocessing controls percentile normalization, background handling, denoising, resizing, and intermediate arrays. Apply one consistent transform across every frame to avoid artificial temporal changes.",
+          "visual": "12_category_03_image_preprocessing",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Image Preprocessing controls percentile normalization, background handling, denoising, resizing, and intermediate arrays. Apply one consistent transform across every frame to avoid artificial temporal changes."
+        },
+        {
+          "narration": "Cell Segmentation selects the cell model, expected diameter, probability and flow thresholds, and optional size, intensity, border, merge, and split filters.",
+          "visual": "12_category_04_cell_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Cell Segmentation selects the cell model, expected diameter, probability and flow thresholds, and optional size, intensity, border, merge, and split filters."
+        },
+        {
+          "narration": "Nucleus Segmentation provides the equivalent controls for channel zero. Nucleus masks may be exported even when only cells are linked across frames.",
+          "visual": "12_category_05_nucleus_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Nucleus Segmentation provides the equivalent controls for channel zero. Nucleus masks may be exported even when only cells are linked across frames."
+        },
+        {
+          "narration": "Pathogen Segmentation is available when a pathogen channel is assigned. This two-channel demonstration leaves it unset, so no pathogen masks or tracks are requested.",
+          "visual": "12_category_06_pathogen_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Pathogen Segmentation is available when a pathogen channel is assigned. This two channel demonstration leaves it unset, so no pathogen masks or tracks are requested."
+        },
+        {
+          "narration": "Organelle Segmentation supports spot, network, ring, irregular, Cellpose, and U-Net workflows when an organelle channel is assigned. It is inactive for this example.",
+          "visual": "12_category_07_organelle_segmentation",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Organelle Segmentation supports spot, network, ring, irregular, Cellpose, and U Net workflows when an organelle channel is assigned. It is inactive for this example."
+        },
+        {
+          "narration": "Quality Control compares object count, size, border contact, foreground coverage, split behavior, and plate-level failure rates. Report mode records warnings without silently discarding the time series.",
+          "visual": "12_category_08_quality_control",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Quality Control compares object count, size, border contact, foreground coverage, split behavior, and plate level failure rates. Report mode records warnings without silently discarding the time series."
+        },
+        {
+          "narration": "Tracking Setup chooses which segmented objects are linked, the frame slice, whether short-lived tracks are removed, and the playback rate of exported movies.",
+          "visual": "12_category_09_tracking_setup",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Tracking Setup chooses which segmented objects are linked, the frame slice, whether short lived tracks are removed, and the playback rate of exported movies."
+        },
+        {
+          "narration": "Tracking Backends offers Trackastra, Ultrack, Trackpy, intersection-over-union, and btrack with backend-specific link, displacement, memory, division, and worker controls. This demonstration uses intersection-over-union.",
+          "visual": "12_category_10_tracking_backends",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Tracking Backends offers Track astra, Ultrack, Track pie, intersection over union, and B track with backend specific link, displacement, memory, division, and worker controls. This demonstration uses intersection over union."
+        },
+        {
+          "narration": "Visualization and Diagnostics controls colormaps, example plots, plot normalization, and the figure canvas used to inspect segmentation and tracking behavior.",
+          "visual": "12_category_11_visualization_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Visualization and Diagnostics controls color maps, example plots, plot normalization, and the figure canvas used to inspect segmentation and tracking behavior."
+        },
+        {
+          "narration": "Output and Storage controls merged arrays, masks, per-channel movies, tracked-mask animations, compression, and retention of intermediate or original files.",
+          "visual": "12_category_12_output_storage",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Output and Storage controls merged arrays, masks, per channel movies, tracked mask animations, compression, and retention of intermediate or original files."
+        },
+        {
+          "narration": "Runtime and Reliability controls test mode, batching, workers, reproducible order, resuming, dry runs, verbosity, and failure policy. Start with one representative field before scaling up.",
+          "visual": "12_category_13_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Runtime and Reliability controls test mode, batching, workers, reproducible order, resuming, dry runs, verbosity, and failure policy. Start with one representative field before scaling up."
+        },
+        {
+          "narration": "This example tracks cells over frame indices zero through seven, keeps transient tracks for inspection, exports movies at one frame per second, and leaves the nucleus masks unlinked.",
+          "visual": "20_detail",
+          "focus_key": "category",
+          "hold_after": 0.45,
+          "speech_text": "This example tracks cells over frame indices zero through seven, keeps transient tracks for inspection, exports movies at one frame per second, and leaves the nucleus masks unlinked."
+        },
+        {
+          "narration": "Run validates filenames and channels, groups frames, normalizes the sequence, segments each requested object, links cell masks, calculates quality control, writes movies and merged arrays, and records reproducibility. Stop requests a safe interruption.",
+          "visual": "21_run",
+          "focus_key": "actions",
+          "click_key": "run",
+          "hold_after": 0.45,
+          "speech_text": "Run validates filenames and channels, groups frames, normalizes the sequence, segments each requested object, links cell masks, calculates quality control, writes movies and merged arrays, and records reproducibility. Stop requests a safe interruption."
+        },
+        {
+          "narration": "During processing, the console reports Cellpose startup, resolved settings, per-frame progress, tracking search behavior, object filters, time remaining, and output paths.",
+          "visual": "22_running",
+          "focus_key": "console",
+          "hold_after": 0.45,
+          "speech_text": "During processing, the console reports Cellpose startup, resolved settings, per frame progress, tracking search behavior, object filters, time remaining, and output paths."
+        },
+        {
+          "narration": "The completed run linked 16 cells across all eight frames, removed no transient objects, passed cell and nucleus quality control with no warnings or failures, wrote tracked movies and eight merged arrays, and saved a successful 26-second run record.",
+          "visual": "23_output",
+          "focus_key": "console",
           "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, time-indexed masks, tracks, measurements, and trajectory summaries are stored with stable object identities."
+          "speech_text": "The completed run linked sixteen cells across all eight frames, removed no transient objects, passed cell and nucleus quality control with no warnings or failures, wrote tracked movies and eight merged arrays, and saved a successful twenty six second run record."
         }
       ]
     },

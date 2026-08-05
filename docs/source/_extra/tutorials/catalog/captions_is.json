@@ -900,19 +900,88 @@
       "id": "17_timelapse",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um Timelapse. Segmenta, tengja og mæla frumur eða sjúkdómsfrumur í tímasetningu."
+          "narration": "Timelapse skipta hverri rammu og tengir valdu hlutina í stöðugum sporum. Konsóllinn skráir fyrirvinnslu, grímur, eftirlitstilraunir, gæðastjórn, myndir, sameinuð tölvu og endurskonarhæfur skrár."
         },
         {
-          "narration": "Opnaðu Timelapse frá kjarnaskiptinu. Veldu tímalaus myndasett sem skránafn varðveita svið, tíma, dýpd og kanal vísitölur."
+          "narration": "Spjall sviðið samþykkir staðbundnar skipanir eða vinnuflómsspurnir. Gæta AI fyrir stillta þjónustuaðila og nota nágrenna piltinn til að velja þjónustuaðila eða opna stjórnina."
         },
         {
-          "narration": "Í aðalmyndatölu svæðinu er hægt að skipuleggja skiptingu, fylgjandi hluttegundir, tengingarstíl, hámarksþéttingu, aðgerðir við gönguflokki og formyndatökur."
+          "narration": "Greiðsluaðila athuga Claude, ChatGPT og Gemini skipunarlínu viðskiptavinir og sýnir uppsetningu og innritun skipunar meðan staðfesting stendur hjá hverjum birgjum."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta spor á fulltrúlegum hreyfingum áður en farið er að vinna með alla tímasetuna."
+          "narration": "AI stillingar stjórnar svörun dýpt, sjálfvirkar villur útskýringar, valfrjálsan GitHub vandamál skýrslu, innritun og spaCR-vitandi kerfis leiðbeiningar."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið er geymd tímavísunartengd grímur, spor, mælingar og vegleiðingar samantektir með stöðugum hlut auðkenni."
+          "narration": "Þessi staðreyndarfræðilega stafræna uppspretta inniheldur eitt svið yfir átta tímapunkti. Kanal núll inniheldur kjarna, kanal einn inniheldur frumur og ER merki, og CellVoyager stíls skrá nöfn varðveita plötu, vel, tíma, sviði, dýpd og kanal vísitökur."
+        },
+        {
+          "narration": "Essentials sýnir uppspretta, kanal hlutverk, nafna samning, normalisering, skipting fyrirmyndir, hlutir til að fylgjast, ramma umfang, tracker, plottur og útgáfu val sem þarf fyrir fyrstu hlaup."
+        },
+        {
+          "narration": "Breyttar takmarkanir fyrir ýmsar breytingar, þ.m.t. kanallar núll og einn, átta ramma úrval, frambúnað, innbyggður samskipti á milli milli milli, einn ramma á sekúndu og varðveitt rekstrartímarval."
+        },
+        {
+          "narration": "Öll stillingar sýna þrjátíu flokka án þess að gildi breytist: inngangur, átaki, fyrirvinnsla, fjórir skiptingarhópar, gæðastjórn, eftirlit með uppsetningu og bakgrunnum, greiningu, útgáfu og rekstrartíma."
+        },
+        {
+          "narration": "Recipes geymir alla Timelapse uppsetningu undir nafni, beitir henni aftur í aðra tilraun, eða innflutningur og útflutningur endurteknar stillingar skrá."
+        },
+        {
+          "narration": "Sendaðu fjarlæg snjallsmyndir af losnum stillingum og sendir skiptingar- og eftirlitsstarfið í vinnusvæðið Dreifð störf."
+        },
+        {
+          "narration": "Distributed Jobs kortar uppspretta- og útgáfuleiðir til fjarstæðrar vinnustaðar, Slurm hóp, eða stillta skipan, og sendir síðan inn og fylgist með sama Timelapse hlaupa."
+        },
+        {
+          "narration": "Input and Metadata velur myndaskrárinn, tilskilar hvern aflaða kanal til hlutartípu og skilgreinir hvernig spaCR greinar tilraunafræðilegar auðkenningar úr skránafnum."
+        },
+        {
+          "narration": "Flutning og axlar lýsir stækkun og valfrjáls magn- eða tíma-axla skipulag. Venjulegar myndatöflur fyrir hvert ramma halda háþróaðum stakkstjórnunum slökkt."
+        },
+        {
+          "narration": "Myndfyrirvinnsla stjórnar hlutfallnormalisering, bakgrunn meðhöndlun, eyðileggingu, um stærð og milli mála. Fylgdu einni stöðugri umbreytingu í hverju ramma til að forðast gervileg tímabreytingar."
+        },
+        {
+          "narration": "Cell Segmentation velur celdamódelinn, væntanlegt þvermál, líkindastig og flæði og valfrjálsan stærð, þyngd, mörk, sameiningu og skiptingarfiltar."
+        },
+        {
+          "narration": "Kjarnasegmentun veitir sambærilegar stjórnir fyrir núll kanal. Kjarnmaskar geta verið útfluttar jafnvel þegar aðeins frumur eru tengdir yfir ramma."
+        },
+        {
+          "narration": "Sjúklingasegmentun er í boði þegar sýklingastöð er tilgreind. Þessi tví-kanal sýning lætur hana ósett, svo engin sýkingagrímur eða spor eru óskað."
+        },
+        {
+          "narration": "Organelle Segmentation styður stað, net, hring, óreglulegt, Cellpose og U-Net vinnuflæði þegar organelle-rás er tiltekin. Það er óvirkt fyrir þetta dæmi."
+        },
+        {
+          "narration": "Gæðastjórnun samanber hlutartöl, stærð, landamæri, forsjáþekking, skiptum hegðun og mistök á plötunni. Skýrsluleiðslan skráir viðvörun án þess að vísa tíma röðunum í hljóðleysi."
+        },
+        {
+          "narration": "Tracking Setup velur hvaða skipta hlutir eru tengdir, rammaslitinn, hvort stutt lifandi spor eru fjarlægð og afspilshlutfall útflutningsmyndanna."
+        },
+        {
+          "narration": "Tracking Backends býður upp á Trackastra, Ultrack, Trackpy, kross-over-félag, og btrack með backend-sérhæf tengiliði, flutning, minni, skiptingu og starfsmann stjórn. Í þessari sýningu er notuð kross-over-union."
+        },
+        {
+          "narration": "Visualization and Diagnostics stjórnar litamappum, dæmi plots, plots normalisering, og mynd kanvas notuð til að skoða skiptingu og fylgjast með hegðun."
+        },
+        {
+          "narration": "Útgangur og geymsla stjórnar sameinuðum röðum, grímum, kvikmyndum á hverri kanni, hreyfingum með fylgdum grímum, þéttingu og geymslu á milli- eða upprunalegu skrám."
+        },
+        {
+          "narration": "Kynningartími og áreiðanleika stjórnar prófunarstíl, flokkun, starfsmenn, endurnýjanleg röð, endurnýjun, þurrkúr, orðrækt og mistök stefnu. Byrjaðu á einum fulltrúaviði áður en þú stækkar."
+        },
+        {
+          "narration": "Þetta dæmi fylgir frumum yfir rammavísitökur frá núll til sjö, heldur yfirfarandi spor til skoðunar, flytur út kvikmyndir á einum ramma á sekúndu og lætur kjarnimaskanirnar ótengdar."
+        },
+        {
+          "narration": "Rennur staðfestir skránafn og leiðir, hópar ramma, normáliserir röð, skipar hvern óskað hlut, tengir sellumaskjur, reiknar gæðastjórnun, skrifar myndir og sameinuð röð og skráir endurskonarleika. Hættu fyrirspurnum um öruggan truflun."
+        },
+        {
+          "narration": "Við vinnslu tilkynnar konsólin upphaf Cellpose, lausnar stillingar, framfar á hvert ramma, fylgjast með leitarhegðun, hlutarfiltrar, tími sem eftir er og útgáfuleiðir."
+        },
+        {
+          "narration": "Ferlið sem lokið var tengdi 16 frumur á öllum átta ramma, fjarlægði engar yfirgangsaðstæðar hlutir, fór yfir gæðastjórnun á frumum og kjarni án viðvörunar eða mistekna, skrifaði eftirfylgjandi kvikmyndir og átta sameinuðar röður og geymdi árangursríka 26 sekúndur rekstur."
         }
       ]
     },
