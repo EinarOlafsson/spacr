@@ -252,28 +252,79 @@
       "id": "08_measure",
       "scenes": [
         {
-          "narration": "Die Messung konvertiert die realen segmentierten HeLa-Felder in nachvollziehbare Einobjektintensität, Morphologie, Textur, Colocalization und räumliche Merkmale. Dieser Durchgang validiert fünf Felder vor einem Vollplattenlauf."
+          "narration": "Die Messung öffnet sich mit den Einstellungen links und der Laufzeitkonsole rechts. Die Konsole berichtet über die Resolution der Quelle, Validierung, Fortschritt, Warnungen und Messleistung."
         },
         {
-          "narration": "Öffnen Sie Maße von Kern und wählen Sie den von Mask erstellten zusammengestellten Ordner aus. Die übertragenen Einstellungen messen die Bildkanäle von Null bis drei und lesen Zell-, Kern- und Krankheitserreger-Labels von Ebene vier, fünf und sechs."
+          "narration": "Das Feld unterhalb der Konsole akzeptiert lokale Fragen oder Befehle. Ermöglichen Sie KI, eine Frage durch den ausgewählten Anbieter zu lenken, und verwenden Sie den angrenzenden Pfeil, um das Anbietermenü zu öffnen."
         },
         {
-          "narration": "Aktivieren Sie die Ernte-Vorsicht und laden Sie eine zusammengeschmolzenen Array. Die Galerie gruppiert vierzig echte Zellen nach Kern und Krankheitserregergehalt, während der Selektor bestätigt, dass der Testordner fünf Felder enthält."
+          "narration": "Anbieter melden, ob die Claude-, ChatGPT- und Gemini-Command-Line-Clients installiert sind und zeigen ihre Installations- und Login-Kommandos an. Die Anbieterinformationen bleiben beim Verkäufer."
         },
         {
-          "narration": "Im Allgemeinen überprüfen Sie die gemessenen Kanäle von Null bis drei, die Zellmaske Ebene vier, die Kernebene fünf, die Krankheitserreger Ebene sechs und das abgeleitete Zytoplasma. Halten Sie den Testmodus für den Validierungslauf aktiviert."
+          "narration": "Die KI-Einstellungen steuern die Reaktionstiefe, automatische Fehlererklärungen, optionale GitHub-Ausgabeberichterstattung, Anmeldung und den spaCR-bewussten System-Anruf."
         },
         {
-          "narration": "Der angebotene Lauf schreibt Zell-PNG-Kulturen bei zweihundertvierundzwanzig bis zweihundertvierundzwanzig Pixel mit Kanälen Null, eins und zwei. Die Normalisierung der Ernte bleibt in den gespeicherten Einstellungen aus; in diesem Tutorial wird nur eine temporäre Ein- bis neunundneunzig-Prozentile-Anzeige verwendet, um die Live-Galerie lesbar zu machen."
+          "narration": "Ziehen Sie den von Mask erzeugten Fusionenordner in Measure. Diese Arrays tragen bereits spaCR-Projektmetadaten, so dass Measure die Quelle direkt löst und nicht mehr den Roh-Bild-Dateinamen regex benötigt."
         },
         {
-          "narration": "Die Filter benötigen Zellen von mindestens dreitausendfünfhundert Pixeln, Kernen von mindestens tausend und Krankheitserregern von mindestens zweihundertfünfzig. Halten Sie uninfizierte Zellen weg und verschmelzen Sie Zellen, deren Krankheitserreger einen Bildrand überqueren."
+          "narration": "Essentials zeigt den kompakten Satz von Mess-Einstellungen an, die für einen Lauf benötigt werden, während die Zählung berichtet, wie viele Einstellungen derzeit sichtbar sind."
         },
         {
-          "narration": "Wählen Sie Kanal 1 in der Vorschau aus, um das Endoplasma-Reticulum-Signal zu untersuchen, das für nachgelagerte Analysen von Interesse ist. Diese Ansicht ändert nur die Galerie; Messung extrahiert immer noch Features aus allen vier konfigurierten Kanälen."
+          "narration": "Modifizierte Grenzwerte begrenzen das Panel auf Werte, die sich von Measure-Standards unterscheiden, wodurch importierte Einstellungen und absichtliche Änderungen leicht zu überprüfen sind."
         },
         {
-          "narration": "Das ausgefüllte Prüfbuch berichtet von fünf von fünf erfolgreichen Feldern ohne Ausfälle. Messungen dot db enthält vierhundertfünfzig Zellen und Zytoplasmen, sechshundertfünf Nukleen und tausendunddreißig Krankheitserreger, plus vierhundertfünfzigfünfzig Zellpflanzen, die für Annotation und Klassifizierung bereit sind."
+          "narration": "Alle Einstellungen decken alle Maßnahmenkategorien, einschließlich der fortgeschrittenen Zuverlässigkeits- und Beta-Kalibrierungskontrollen, ohne die aktuellen Werte zu ändern."
+        },
+        {
+          "narration": "Rezepte speichern die aktuelle Messkonfiguration unter einem Namen, wenden sie später neu an oder importieren und exportieren eine wiederverwendbare Einstellungsdatei."
+        },
+        {
+          "narration": "Übermitteln Sie Remote-Snapshots der gelösten Messungseinstellungen und senden Sie sie an Distribute Jobs."
+        },
+        {
+          "narration": "Distributed Jobs kartografiert lokale Pfade zu einer Remote-Arbeitsstation, einem Slurm-Cluster oder einem konfigurierten Befehl und übermittelt und überwacht dann den gleichen Measure-Run."
+        },
+        {
+          "narration": "Input and Experiment identifiziert das Quellprojekt und den Experimentnamen, der in seine Ausgänge geschrieben ist."
+        },
+        {
+          "narration": "Mask and Channel Mapping zugeordnet Bildkanäle, Zelle, Kern, Krankheitserreger und Organellen-Labelplanen, abgeleitetes Zytoplasma und alle Zeitreihenobjekte."
+        },
+        {
+          "narration": "Messfunktionen wählen gespeicherte Messungen, Korrelations- und Mander-Zusammenfassungen, Homogenitätsentfernungen, Radialverteilungen und Organell-Zusammenfassungen aus."
+        },
+        {
+          "narration": "Object Filtering legt die Mindestgröße für jedes Kompartiment fest, ob uninfizierte Zellen aufbewahrt werden und wie mit krankheitserregern überschreitenden Zellen behandelt wird."
+        },
+        {
+          "narration": "Die Crop Output-Steuerungen speichern PNGs und Arrays, Cropobjekt und Größe, Kanäle, Erweiterung, Grenzflächen und Normalisierung."
+        },
+        {
+          "narration": "Preview and Diagnostics kontrolliert die Abbildungen und die kleine Testmodusprobe, die vor der Durchführung eines vollständigen Experiments verwendet wird."
+        },
+        {
+          "narration": "3D-Kalibrierung enthält Beta-Anisotropie und voxelgroße Steuerungen, die volumetrische Pixelmessungen in physikalische Dimensionen umwandeln."
+        },
+        {
+          "narration": "Die Gruppen Runtime und Reliability wiederholen das Verhalten, strenge Fehler, Ausfallpolitik, Reproduzierbarkeit, Trockenläufe, Logging und Mitarbeiterzählung."
+        },
+        {
+          "narration": "Aktivieren Sie die Live-Vorsicht und laden Sie eine vollständige zusammengestellte Array. Die Galerie gruppiert 40 echte Zellpflanzen nach Kern und Krankheitserregergehalt im fünffelderigen Testlauf."
+        },
+        {
+          "narration": "General bestätigt die Experimentidentität, gemessene Kanäle von Null bis drei, Zellmaske Ebene vier, Nukleus Ebene fünf, Pathogen Ebene sechs, abgeleitete Zytoplasma und Testmodus."
+        },
+        {
+          "narration": "Object Crops schreibt 224 x 224 Pixel-Zell-PNGs unter Verwendung von Kanälen Null, eins und zwei. Die gespeicherte Normalisierung bleibt abgeschaltet; allein die Live-Galerie nutzt eine vorübergehende 1- bis 99-Prozentile-Anzeige."
+        },
+        {
+          "narration": "Filter benötigen Zellen von mindestens 3500 Pixel, Kernen von mindestens 1000 und Krankheitserregern von mindestens 250. Uninfizierte Zellen bleiben abgeschaltet und überschreitende Krankheitserreger werden verschmolzen."
+        },
+        {
+          "narration": "Wählen Sie Kanal 1 aus, um das ER-Signal zu überprüfen, das als nachgelagerter Kanal von Interesse verwendet wird. Dies ändert nur die Galerie; Measure extrahiert immer noch Funktionen aus allen vier konfigurierten Kanälen."
+        },
+        {
+          "narration": "Das ausgefüllte Prüfbuch berichtet von 5 von 5 erfolgreichen Feldern. measurements.db enthält 455 Zellen und Zytoplasmen, 605 Kerne, 1031 Krankheitserreger und 455 Zellpflanzen, die für Annotation und Klassifizierung bereit sind."
         }
       ]
     },

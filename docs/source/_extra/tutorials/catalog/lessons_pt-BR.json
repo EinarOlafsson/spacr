@@ -632,71 +632,203 @@
       "series": 1,
       "app_key": "measure",
       "section": "Core",
-      "description": "Visualize culturas reais de objetos, mensure campos segmentados e escreva recursos rastreáveis de um único objeto para SQLite.",
+      "description": "Configure Measure, inspecione suas categorias de configuração e visualize as culturas reais de células únicas de matrizes completas de Mask.",
       "objectives": [
-        "Imagem de mapa e aviões de máscara de uma matriz spaCR combinada.",
-        "Previsão de culturas de células e verificação do comportamento do filtro antes de uma corrida.",
-        "Validar as medições e as culturas com um teste de cinco campos."
+        "Importar matrizes combinadas e usar o console, IA, receitas e fluxo de trabalho remoto.",
+        "Revisar todas as categorias de configurações de medida sem recitar todos os parâmetros.",
+        "Inspectar culturas de células reais, o canal de emergência, filtros e resultados de testes concluídos."
       ],
       "prerequisite": "Complete Masque primeiro para que o projeto contenha matrizes de imagem e rótulos combinadas.",
       "scenes": [
         {
-          "narration": "A medida converte os campos HeLa segmentados reais em intensidade de objeto único rastreável, morfologia, textura, colocalização e características espaciais. Esta passagem valida cinco campos antes de uma corrida completa.",
-          "visual": "01_module",
+          "narration": "A medida abre com as suas configurações à esquerda e a consola de execução à direita. O console relata a resolução da fonte, validação, progresso, avisos e saída de medição.",
+          "visual": "01_console",
+          "focus_key": "console",
           "hold_after": 0.45,
-          "speech_text": "A medida converte os campos HeLa segmentados reais em intensidade de objeto único rastreável, morfologia, textura, colocalização e características espaciais. Esta passagem valida cinco campos antes de uma corrida completa."
+          "speech_text": "A medida abre com as suas configurações à esquerda e a consola de execução à direita. O console relata a resolução da fonte, validação, progresso, avisos e saída de medição."
         },
         {
-          "narration": "Abra Medida a partir do Core e selecione a pasta combinada produzida pelo Mask. As configurações transferidas medem os canais de imagem de zero a três e lêem os rótulos de células, núcleos e patógenos dos planos quatro, cinco e seis.",
-          "visual": "01_module",
-          "focus_key": "nav",
-          "click_key": "nav",
+          "narration": "O campo abaixo do console aceita perguntas ou comandos locais. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor.",
+          "visual": "02_ai_menu",
+          "focus_key": "ai_controls",
+          "click_key": "ai_menu_button",
           "hold_after": 0.45,
-          "speech_text": "Abra Medida a partir do Core e selecione a pasta combinada produzida pelo Mask. As configurações transferidas medem os canais de imagem de zero a três e lêem os rótulos de células, núcleos e patógenos dos planos quatro, cinco e seis."
+          "speech_text": "O campo abaixo do console aceita perguntas ou comandos locais. Permitir que a IA encaminhe uma pergunta através do provedor selecionado e use a seta adjacente para abrir o menu do provedor."
         },
         {
-          "narration": "Ativar a pré-visualização da colheita e carregar uma matriz combinada. As galerias agrupam quarenta células reais por núcleo e conteúdo de patógenos, enquanto o selector confirma que a pasta de teste contém cinco campos.",
-          "visual": "02_cell_crops",
-          "focus_key": "grid",
+          "narration": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e mostram seus comandos de instalação e login. As credenciais do fornecedor permanecem com o fornecedor.",
+          "visual": "03_ai_providers",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Os provedores relatam se os clientes de linha de comando Claude, ChatGPT e Gemini estão instalados e mostram seus comandos de instalação e login. As credenciais do fornecedor permanecem com o fornecedor."
+        },
+        {
+          "narration": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do spaCR.",
+          "visual": "04_ai_settings",
+          "focus_key": "dialog",
+          "hold_after": 0.45,
+          "speech_text": "Configurações de IA controlam a profundidade da resposta, explicações automáticas de erros, relatórios opcionais de problemas GitHub, login e o prompt do sistema consciente do espáquer."
+        },
+        {
+          "narration": "Arraste a pasta combinada produzida pela Mask para Measure. Essas matrizes já carregam metadados do projeto spaCR, por isso a Measure resolve a fonte diretamente e não precisa novamente do nome de arquivo da imagem crua regex.",
+          "visual": "05_folder",
+          "focus_key": "src",
+          "hold_after": 0.45,
+          "speech_text": "Arraste a pasta combinada produzida pela Mask para Measure. Essas matrizes já carregam metadados do projeto espáquer, por isso a Measure resolve a fonte diretamente e não precisa novamente do nome de arquivo da imagem crua regex."
+        },
+        {
+          "narration": "Essentials mostra o conjunto compacto de configurações de medida necessárias para uma corrida, enquanto a contagem relata quantas configurações estão atualmente visíveis.",
+          "visual": "06_essentials",
+          "focus_key": "settings_controls",
+          "hold_after": 0.45,
+          "speech_text": "Essentials mostra o conjunto compacto de configurações de medida necessárias para uma corrida, enquanto a contagem relata quantas configurações estão atualmente visíveis."
+        },
+        {
+          "narration": "Os limites modificados limitam o painel a valores que diferem dos padrões de medida, tornando as configurações importadas e as alterações deliberadas fáceis de auditar.",
+          "visual": "07_modified",
+          "focus_key": "settings_controls",
+          "click_key": "modified",
+          "hold_after": 0.45,
+          "speech_text": "Os limites modificados limitam o painel a valores que diferem dos padrões de medida, tornando as configurações importadas e as alterações deliberadas fáceis de auditar."
+        },
+        {
+          "narration": "Todas as configurações expõem todas as categorias de medidas, incluindo controles avançados de fiabilidade e de calibração beta, sem alterar os valores atuais.",
+          "visual": "08_all_settings",
+          "focus_key": "settings_controls",
+          "click_key": "all_settings",
+          "hold_after": 0.45,
+          "speech_text": "Todas as configurações expõem todas as categorias de medidas, incluindo controles avançados de fiabilidade e de calibração beta, sem alterar os valores atuais."
+        },
+        {
+          "narration": "As receitas guardam a configuração atual da medida sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável.",
+          "visual": "09_recipes",
+          "focus_key": "recipes_dialog",
+          "click_key": "recipes_button",
+          "hold_after": 0.45,
+          "speech_text": "As receitas guardam a configuração atual da medida sob um nome, reaplicam-na mais tarde ou importam e exportam um arquivo de configurações reutilizável."
+        },
+        {
+          "narration": "Enviar instantâneos remotos das configurações de medida resolvidas e enviá-los para Funções Distribuídas.",
+          "visual": "10_remote_submit",
+          "focus_key": "actions",
+          "click_key": "remote",
+          "hold_after": 0.45,
+          "speech_text": "Enviar instantâneos remotos das configurações de medida resolvidas e enviá-los para Funções Distribuídas."
+        },
+        {
+          "narration": "O Jobs Distribuído mapeia os caminhos locais para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução de Medidas.",
+          "visual": "11_remote_jobs",
+          "focus_key": "remote_screen",
+          "hold_after": 0.45,
+          "speech_text": "O Jobs Distribuído mapeia os caminhos locais para uma estação de trabalho remota, um cluster Slurm ou um comando configurado, em seguida, envia e monitora a mesma execução de Medidas."
+        },
+        {
+          "narration": "Input and Experiment identifica o projeto fonte e o nome do experimento escrito em suas saídas.",
+          "visual": "12_category_01_input_experiment",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Input and Experiment identifica o projeto fonte e o nome do experimento escrito em suas saídas."
+        },
+        {
+          "narration": "O Mapeamento de Máscaras e Canais atribui canais de imagem, células, núcleos, patógenos e planos de etiqueta de órgãos, citoplasma derivado e quaisquer objetos de série temporal.",
+          "visual": "12_category_02_mask_channel_mapping",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Mapeamento de Máscaras e Canais atribui canais de imagem, células, núcleos, patógenos e planos de etiqueta de órgãos, citoplasma derivado e quaisquer objetos de série temporal."
+        },
+        {
+          "narration": "Características de medição escolhe medidas salvas, correlações e resumos de Manders, distâncias de homogeneidade, distribuições radiais e resumos de organelos.",
+          "visual": "12_category_03_measurement_features",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Características de medição escolhe medidas salvas, correlações e resumos de Manders, distâncias de homogeneidade, distribuições radiais e resumos de organelos."
+        },
+        {
+          "narration": "O Object Filtering define o tamanho mínimo para cada compartimento, se as células não infectadas são mantidas e como as células patógenas que atravessam as bordas são manuseadas.",
+          "visual": "12_category_04_object_filtering",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "O Object Filtering define o tamanho mínimo para cada compartimento, se as células não infectadas são mantidas e como as células patógenas que atravessam as bordas são manuseadas."
+        },
+        {
+          "narration": "Os controles de saída de culturas salvaram PNGs e matrizes, objeto e tamanho de culturas, canais, dilatação, caixas de limite e normalização.",
+          "visual": "12_category_05_crop_output",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Os controles de saída de culturas salvaram PNGs e matrizes, objeto e tamanho de culturas, canais, dilatação, caixas de limite e normalização."
+        },
+        {
+          "narration": "A Preview and Diagnostics controla os gráficos e a pequena amostra do modo de ensaio utilizada antes de se comprometer com um experimento completo.",
+          "visual": "12_category_06_preview_diagnostics",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A Preview and Diagnostics controla os gráficos e a pequena amostra do modo de ensaio utilizada antes de se comprometer com um experimento completo."
+        },
+        {
+          "narration": "A calibração 3D contém controles beta anisotrópicos e de tamanho de voxel que convertem as medições de pixels volumétricos em dimensões físicas.",
+          "visual": "12_category_07_3d_calibration_beta",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "A calibração 3D contém controles beta anisotrópicos e de tamanho de voxel que convertem as medições de pixels volumétricos em dimensões físicas."
+        },
+        {
+          "narration": "Os grupos de tempo de execução e de confiabilidade retomam o comportamento, erros rigorosos, política de falhas, reproducibilidade, corridas secas, logging e contagem de trabalhadores.",
+          "visual": "12_category_08_runtime_reliability",
+          "focus_key": "category",
+          "click_key": "category_header",
+          "hold_after": 0.45,
+          "speech_text": "Os grupos de tempo de execução e de confiabilidade retomam o comportamento, erros rigorosos, política de falhas, reproducibilidade, corridas secas, logging e contagem de trabalhadores."
+        },
+        {
+          "narration": "Enable Live Preview e carregue uma matriz combinada completa. A galeria agrupa 40 culturas celulares reais por núcleo e conteúdo de patógenos em cinco campos de teste.",
+          "visual": "20_cell_crops",
+          "focus_key": "live_and_grid",
           "click_key": "live",
           "hold_after": 0.45,
-          "speech_text": "Ativar a pré-visualização da colheita e carregar uma matriz combinada. As galerias agrupam quarenta células reais por núcleo e conteúdo de patógenos, enquanto o selector confirma que a pasta de teste contém cinco campos."
+          "speech_text": "Enable Live Preview e carregue uma matriz combinada completa. A galeria agrupa 40 culturas celulares reais por núcleo e conteúdo de patógenos em cinco campos de teste."
         },
         {
-          "narration": "Em geral, verifique os canais medidos de zero a três, o plano da máscara celular quatro, o plano do núcleo cinco, o plano do patógeno seis e o citoplasma derivado. Manter o modo de ensaio ligado para a corrida de validação.",
-          "visual": "03_general",
+          "narration": "General confirma a identidade do experimento, canais medidos de zero a três, plano de máscara celular quatro, plano de núcleo cinco, plano de patógeno seis, citoplasma derivado e modo de teste.",
+          "visual": "21_general",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "Em geral, verifique os canais medidos de zero a três, o plano da máscara celular quatro, o plano do núcleo cinco, o plano do patógeno seis e o citoplasma derivado. Manter o modo de ensaio ligado para a corrida de validação."
+          "speech_text": "General confirma a identidade do experimento, canais medidos de zero a três, plano de máscara celular quatro, plano de núcleo cinco, plano de patógeno seis, citoplasma derivado e modo de teste."
         },
         {
-          "narration": "A execução fornecida escreve colheitas de células PNG em duzentos vinte e quatro por duzentos vinte e quatro pixels usando canais zero, um e dois. A normalização da colheita permanece desativada nas configurações salvas; este tutorial usa um alongamento temporário de um a noventa e nove percentil de exibição apenas para tornar a galeria ao vivo legível.",
-          "visual": "04_object_crops",
+          "narration": "O Object Crops escreve PNGs de células de 224 por 224 pixels usando os canais zero, um e dois. A normalização guardada permanece desativada; a galeria ao vivo sozinha usa um trecho temporário de exibição de 1 a 99 percentil.",
+          "visual": "22_object_crops",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "A execução fornecida escreve colheitas de células PNG em duzentos vinte e quatro por duzentos vinte e quatro pixels usando canais zero, um e dois. A normalização da colheita permanece desativada nas configurações salvas; este tutorial usa um alongamento temporário de um a noventa e nove percentil de exibição apenas para tornar a galeria ao vivo legível."
+          "speech_text": "O Object Crops escreve PNGs de células de 224 por 224 pixels usando os canais zero, um e dois. A normalização guardada permanece desativada; a galeria ao vivo sozinha usa um trecho temporário de exibição de 1 a 99 percentil."
         },
         {
-          "narration": "Os filtros exigem células de pelo menos três mil e quinhentos pixels, núcleos de pelo menos mil e patógenos de pelo menos duzentos e cinquenta. Mantenha as células não infectadas afastadas e combine as células cujos patógenos atravessam uma borda da imagem.",
-          "visual": "05_filters",
+          "narration": "Os filtros exigem células de pelo menos 3500 pixels, núcleos de pelo menos 1000 e patógenos de pelo menos 250. As células não infectadas permanecem separadas e as células patógenas transversais são fundidas.",
+          "visual": "23_filters",
           "focus_key": "tab",
           "hold_after": 0.45,
-          "speech_text": "Os filtros exigem células de pelo menos três mil e quinhentos pixels, núcleos de pelo menos mil e patógenos de pelo menos duzentos e cinquenta. Mantenha as células não infectadas afastadas e combine as células cujos patógenos atravessam uma borda da imagem."
+          "speech_text": "Os filtros exigem células de pelo menos 3500 pixels, núcleos de pelo menos 1000 e patógenos de pelo menos 250. As células não infectadas permanecem separadas e as células patógenas transversais são fundidas."
         },
         {
-          "narration": "Selecione o canal 1 na visualização para inspecionar o sinal endoplasmico-retículo, que é o canal de interesse para análises a jusante. Esta visão altera apenas a galeria; Measure ainda extrai recursos de todos os quatro canais configurados.",
-          "visual": "06_er_channel",
+          "narration": "Selecionar o canal 1 para inspecionar o sinal de emergência utilizado como o canal de interesse a jusante. Isso altera apenas a galeria; Measure ainda extrai recursos de todos os quatro canais configurados.",
+          "visual": "24_er_channel",
           "focus_key": "grid",
           "click_key": "channel",
           "hold_after": 0.45,
-          "speech_text": "Selecione o canal 1 na visualização para inspecionar o sinal endoplasmico-retículo, que é o canal de interesse para análises a jusante. Esta visão altera apenas a galeria; Measure ainda extrai recursos de todos os quatro canais configurados."
+          "speech_text": "Selecionar o canal 1 para inspecionar o sinal de emergência utilizado como o canal de interesse a jusante. Isso altera apenas a galeria; Measure ainda extrai recursos de todos os quatro canais configurados."
         },
         {
-          "narration": "O livro de testes completado relata cinco dos cinco campos de sucesso sem falhas. Medidas ponto db contém quatrocentos e cinquenta e cinco células e citoplasmas, seiscentos e cinco núcleos, e mil e trinta e um patógenos, mais quatrocentos e cinquenta e cinco culturas celulares prontas para anotação e classificação.",
-          "visual": "07_outputs",
+          "narration": "O livro-razão de ensaio completado relata o êxito de 5 de 5 campos. measurements.db contém 455 células e citoplasmas, 605 núcleos, 1031 patógenos e 455 culturas celulares prontas para anotação e classificação.",
+          "visual": "25_outputs",
           "focus_key": "grid",
           "hold_after": 0.65,
-          "speech_text": "O livro de testes completado relata cinco dos cinco campos de sucesso sem falhas. Medidas ponto db contém quatrocentos e cinquenta e cinco células e citoplasmas, seiscentos e cinco núcleos, e mil e trinta e um patógenos, mais quatrocentos e cinquenta e cinco culturas celulares prontas para anotação e classificação."
+          "speech_text": "O livro-razão de ensaio completado relata o êxito de 5 de 5 campos. measurements dot db contém 455 células e citoplasmas, 605 núcleos, 1031 patógenos e 455 culturas celulares prontas para anotação e classificação."
         }
       ]
     },
