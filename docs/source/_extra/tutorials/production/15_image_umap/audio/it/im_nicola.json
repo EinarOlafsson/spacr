@@ -4,47 +4,237 @@
   "voice": "im_nicola",
   "speed": 1.03,
   "sample_rate": 24000,
-  "total_duration": 68.025,
+  "total_duration": 335.8,
   "scenes": [
     {
       "scene": 1,
       "speech_start": 0.0,
-      "speech_end": 10.3,
-      "scene_end": 10.75,
-      "duration": 10.75,
-      "text": "Questo tutorial copre l'Image UMAP. Esplora i quartieri fenotipici inserendo oggetti misurati e visualizzando le loro colture di immagine come glifi."
+      "speech_end": 17.8,
+      "scene_end": 18.25,
+      "duration": 18.25,
+      "text": "Immagine UMAP riduce le misure ad alta dimensione per oggetto a due coordinate e colloca reali colture microscopiche sulla mappa. La console registra le combinazioni di dati, il preprocessamento, l'incorporazione del progresso, il clustering, i plot e i percorsi di uscita.",
+      "speech_text": "Immagine UMAP riduce le misure ad alta dimensione per oggetto a due coordinate e colloca reali colture microscopiche sulla mappa. La console registra le combinazioni di dati, il preprocessamento, l'incorporazione del progresso, il clustering, i plot e i percorsi di uscita.",
+      "phonemes": "immˈaʤine ˈumap ridˈuʧe le mizˈure ad ˈalta dimensjˈone per oʤːˈɛtːo a dˈue koordinˈate e kˈɔlloka reˈalɪ koltˈure mikroskˈopike sˌʊlla mˈapːa. la kˈɔnsole reʤˈistra le kombinaʦiˈonɪ dɪ dˈatɪ, il preproʧeSamˈento, linkorporaʦiˈone del proɡrˈɛSo, il klʊstˈɛriŋɡ, i plˈot e i perkˈorsɪ dɪ ʊʃˈita."
     },
     {
       "scene": 2,
-      "speech_start": 10.75,
-      "speech_end": 26.2,
-      "scene_end": 26.65,
-      "duration": 15.899999999999999,
-      "text": "Apri Image UMAP dalla sezione Results and quality control. Apri UMAP immagine dalla sezione Risultati e controllo qualità. Scegli un database di misurazioni, colture di immagine, set di funzionalità e metadati di raggruppamento."
+      "speech_start": 18.25,
+      "speech_end": 33.1,
+      "scene_end": 33.550000000000004,
+      "duration": 15.300000000000004,
+      "text": "Il campo di chat accetta comandi locali e domande di flusso di lavoro. Abilitare l'IA a percorrersi attraverso un provider configurato e utilizzare la freccia accanto a essa per scegliere il provider o aprire i suoi controlli.",
+      "speech_text": "Il campo di chat accetta comandi locali e domande di flusso di lavoro. Abilitare l'IA a percorrersi attraverso un provider configurato e utilizzare la freccia accanto a essa per scegliere il provider o aprire i suoi controlli.",
+      "phonemes": "il kˈampo dɪ ʧˈat aʧːˈetːa komˈandɪ lokˈalɪ e domˈande dɪ flˈuSo dɪ lavˈɔro. abilitˈare lˈia a perkˈoːrɾersɪ atːravˈɛrso ʊn provˈaider konfiɡʊrˈato e ʊtiliʣːˈare la frˈeʧːa akːˈanto a ˌeSa per ʃˈeʎere il provˈaider o aprˈire i sʊˌɔi kontrˈɔllɪ."
     },
     {
       "scene": 3,
-      "speech_start": 26.65,
-      "speech_end": 38.099999999999994,
-      "scene_end": 38.55,
-      "duration": 11.899999999999999,
-      "text": "Nell'area di configurazione principale, configurare filtraggio, scalazione, vicini, distanza minima, raggruppamento, campionamento e canali di visualizzazione delle immagini."
+      "speech_start": 33.550000000000004,
+      "speech_end": 45.825,
+      "scene_end": 46.275000000000006,
+      "duration": 12.725000000000001,
+      "text": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e mostrano i loro comandi di installazione e login. L'autenticazione resta a ciascun fornitore.",
+      "speech_text": "I fornitori verificano i client di linea di comando Claude, ChatGPT e Gemini e mostrano i loro comandi di installazione e login. L'autenticazione resta a ciascun fornitore.",
+      "phonemes": "i fornitˈorɪ verˈifikano i kliˈent dɪ lˈinea dɪ komˈando klˈaʊde, ʧˈat ʤˌipˌitˈɪ e ʤˈɛminɪ e mˈɔstrano i lˌɔro komˈandɪ dɪ installaʦiˈone e lˈɔɡ in. laʊtentikaʦiˈone rˈɛsta a ʧaskˌʊn fornitˈore."
     },
     {
       "scene": 4,
-      "speech_start": 38.55,
-      "speech_end": 56.625,
-      "scene_end": 57.075,
-      "duration": 18.525000000000006,
-      "text": "Prima di eseguire l'esecuzione completa, controllare le impostazioni visibili e utilizzare una modalità di preview o di test quando disponibile. confrontare diverse inserzioni riproducibili e verificare che i cluster non siano guidati da piastre o da artefatti di immagini."
+      "speech_start": 46.275000000000006,
+      "speech_end": 60.075,
+      "scene_end": 60.525000000000006,
+      "duration": 14.25,
+      "text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spaCR.",
+      "speech_text": "Le impostazioni AI controllano la profondità della risposta, le spiegazioni automatiche degli errori, la segnalazione opzionale dei problemi GitHub, il login e le istruzioni del sistema consapevole di spàker.",
+      "phonemes": "le impostaʦiˈonɪ ˌaːˈiː kontrˈɔllano la profonditˈa dˌella rispˈosta, le spjeɡaʦiˈonɪ aʊtomˈatike dˌeʎɪ erɾˈorɪ, la seɲalaʦiˈone opʦionˈale dˌA problˈɛmɪ ʤˈit ˈub, il lˈɔɡ in e le istrʊʦiˈonɪ del sistˈɛma konsapˈevole dɪ spˈaker."
     },
     {
       "scene": 5,
-      "speech_start": 57.075,
-      "speech_end": 67.375,
-      "scene_end": 68.025,
-      "duration": 10.950000000000003,
-      "text": "Quando il flusso di lavoro è terminato, spaCR salva coordinate, etichette di cluster, mappe di immagini e figure di inserimento pronte per la pubblicazione."
+      "speech_start": 60.525000000000006,
+      "speech_end": 77.80000000000001,
+      "scene_end": 78.25000000000001,
+      "duration": 17.72500000000001,
+      "text": "La fonte è un progetto di tutorial misurato contenente 455 colture cellulari collegate al database. Questa corsa mostra 250 oggetti e si unisce alle tabelle di caratteristiche cellulare, citoplasma, nucleo e patogeno.",
+      "speech_text": "La fonte è un progetto di tutorial misurato contenente 455 colture cellulari collegate al database. Questa corsa mostra 250 oggetti e si unisce alle tabelle di caratteristiche cellulare, citoplasma, nucleo e patogeno.",
+      "phonemes": "la fˈonte e ʊn proʤˈɛtːo dɪ tʊtˈɔrial mizʊrˈato kontenˈɛnte kʊatːroʧˈɛnto ʧinkwˈantaʧˈinkwe koltˈure ʧellʊlˈarɪ kolleɡˈate al databˈɛiz. kwˌesta kˈorsa mˈostra dʊeʧˈɛnto ʧinkwˈanta oʤːˈɛtːɪ e sɪ ʊnˈiʃe ˌalle tabˈɛlle dɪ kaɾatːerˈistike ʧellʊlˈare, ʧitoplˈazma, nˈukleo e patˈɔʤeno."
+    },
+    {
+      "scene": 6,
+      "speech_start": 78.25000000000001,
+      "speech_end": 89.67500000000001,
+      "scene_end": 90.12500000000001,
+      "duration": 11.875,
+      "text": "Gli elementi essenziali mostrano la fonte, le tabelle di misura, il metodo di riduzione, la copertura della riga e la scelta del colore primario necessario per una prima mappa.",
+      "speech_text": "Gli elementi essenziali mostrano la fonte, le tabelle di misura, il metodo di riduzione, la copertura della riga e la scelta del colore primario necessario per una prima mappa.",
+      "phonemes": "ʎɪ elemˈentɪ eSenʦjˈalɪ mˈɔstrano la fˈonte, le tabˈɛlle dɪ mizˈura, il mˈɛtodo dɪ ridʊʦiˈone, la kopertˈura dˌella rˈiɡa e la ʃˈelta del kolˈore primˈario neʧeSˈario per ˌʊna prˈima mˈapːa."
+    },
+    {
+      "scene": 7,
+      "speech_start": 90.12500000000001,
+      "speech_end": 103.27500000000002,
+      "scene_end": 103.72500000000002,
+      "duration": 13.600000000000009,
+      "text": "Modificato filtra il pannello per le deviazioni intenzionali dai default, come il quartiere più piccolo, la copertura pratica delle righe, il conteggio dei glifi, l'opacità dello schermo e le cifre salvate.",
+      "speech_text": "Modificato filtra il pannello per le deviazioni intenzionali dai default, come il quartiere più piccolo, la copertura pratica delle righe, il conteggio dei glifi, l'opacità dello schermo e le cifre salvate.",
+      "phonemes": "modifikˈato fˈiltra il pannˈɛllo per le devjaʦiˈonɪ intenʦionˈalɪ daj dɪfˈɒlt, kˌome il kwartiˈɛre pjʊ pˈikːolo, la kopertˈura prˈatika dˌelle rˈiɡe, il kontˈeʤːo dˌA ɡlˈifɪ, lopaʧitˈa dˌello skˈermo e le ʧˈifre salvˈate."
+    },
+    {
+      "scene": 8,
+      "speech_start": 103.72500000000002,
+      "speech_end": 117.07500000000002,
+      "scene_end": 117.52500000000002,
+      "duration": 13.799999999999997,
+      "text": "Tutte le impostazioni rivelano otto categorie senza variare i valori: percorsi, misurazioni, esclusioni di piastre, inserimento, selezione del plot, runtime, correzione di lotto e visualizzazione UMAP.",
+      "speech_text": "Tutte le impostazioni rivelano otto categorie senza variare i valori: percorsi, misurazioni, esclusioni di piastre, inserimento, selezione del plot, runtime, correzione di lotto e visualizzazione UMAP.",
+      "phonemes": "tˈutːe le impostaʦiˈonɪ rivˈelano ˈɔtːo kateɡorˈie sˌɛnʦa variˈare i valˈorɪ: perkˈorsɪ, mizʊraʦiˈonɪ, esklʊziˈonɪ dɪ pjˈastre, inserimˈento, seleʦiˈone del plˈot, rˈuntime, korɾeʦiˈone dɪ lˈɔtːo e vizwaliʣːaʦiˈone ˈumap."
+    },
+    {
+      "scene": 9,
+      "speech_start": 117.52500000000002,
+      "speech_end": 127.07500000000002,
+      "scene_end": 127.52500000000002,
+      "duration": 10.0,
+      "text": "Recipes salva l'intera configurazione Image UMAP sotto un nome, la riaplica ad un altro progetto o importa ed esporta un file di impostazioni.",
+      "speech_text": "Recipes salva l'intera configurazione Image UMAP sotto un nome, la riaplica ad un altro progetto o importa ed esporta un file di impostazioni.",
+      "phonemes": "reʧˈipes sˈalva lintˈɛra konfiɡʊraʦiˈone imˈaʤe ˈumap sˈotːo ʊn nˈome, la riˈaplika ad ʊn ˈaltro proʤˈɛtːo o impˈɔrta ed espˈɔrta ʊn fˈile dɪ impostaʦiˈonɪ."
+    },
+    {
+      "scene": 10,
+      "speech_start": 127.52500000000002,
+      "speech_end": 136.45000000000002,
+      "scene_end": 136.9,
+      "duration": 9.374999999999986,
+      "text": "Inviare istantanee remote delle impostazioni risolte e trasferire l'attività Image UMAP allo spazio di lavoro Jobs Distribuiti.",
+      "speech_text": "Inviare istantanee remote delle impostazioni risolte e trasferire l'attività Image UMAP allo spazio di lavoro Jobs Distribuiti.",
+      "phonemes": "inviˈare istantˈanee remˈɔte dˌelle impostaʦiˈonɪ rizˈɔlte e trasferˈire latːivitˈa imˈaʤe ˈumap ˌallo spˈaʦio dɪ lavˈɔro ʤˈobs distribʊˈitɪ."
+    },
+    {
+      "scene": 11,
+      "speech_start": 136.9,
+      "speech_end": 151.225,
+      "scene_end": 151.67499999999998,
+      "duration": 14.774999999999977,
+      "text": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di inserimento.",
+      "speech_text": "Distributed Jobs mappa i percorsi del progetto e le risorse di calcolo verso una workstation remota, un cluster Slurm o un comando configurato, quindi inviano e monitorano la stessa esecuzione di inserimento.",
+      "phonemes": "distribˈuted ʤˈobs mˈapːa i perkˈorsɪ del proʤˈɛtːo e le rizˈorse dɪ kˈalkolo vˌɛrso ˌʊna workstˈatjon remˈɔta, ʊn klʊstˈɛr zlˈurm o ʊn komˈando konfiɡʊrˈato, kwˈindɪ invˈiano e mˈɔnitorano la stˈeSa ezekʊʦiˈone dɪ inserimˈento."
+    },
+    {
+      "scene": 12,
+      "speech_start": 151.67499999999998,
+      "speech_end": 162.02499999999998,
+      "scene_end": 162.47499999999997,
+      "duration": 10.799999999999983,
+      "text": "Paths seleziona il progetto misurato. Immagine UMAP trova measurements.db e immagini di raccolto esistenti o array fusi sotto quella fonte.",
+      "speech_text": "Paths seleziona il progetto misurato. Immagine UMAP trova measurements dot db e immagini di raccolto esistenti o array fusi sotto quella fonte.",
+      "phonemes": "pˈats seleʦiˈona il proʤˈɛtːo mizʊrˈato. immˈaʤine ˈumap trˈɔva meazʊrˈɛments dˈot d̪ˌiːbˈi e immˈaʤinɪ dɪ rakːˈɔlto ezistˈɛntɪ o arɾˈai fˈuzɪ sˈotːo kwˌella fˈonte."
+    },
+    {
+      "scene": 13,
+      "speech_start": 162.47499999999997,
+      "speech_end": 177.89999999999998,
+      "scene_end": 178.34999999999997,
+      "duration": 15.875,
+      "text": "Le misurazioni scelgono tabelle di oggetti collegate, un filtro di caratteristiche basato sul canale, esclusioni esplicite e rimozione delle caratteristiche correlate. Queste scelte determinano la geometria rappresentata dalla mappa.",
+      "speech_text": "Le misurazioni scelgono tabelle di oggetti collegate, un filtro di caratteristiche basato sul canale, esclusioni esplicite e rimozione delle caratteristiche correlate. Queste scelte determinano la geometria rappresentata dalla mappa.",
+      "phonemes": "le mizʊraʦiˈonɪ ʃˈɛlɡono tabˈɛlle dɪ oʤːˈɛtːɪ kolleɡˈate, ʊn fˈiltro dɪ kaɾatːerˈistike bazˈato sʊl kanˈale, esklʊziˈonɪ esplˈiʧite e rimoʦiˈone dˌelle kaɾatːerˈistike korɾelˈate. kwˌeste ʃˈelte detˈɛrminano la ʤeometrˈia rapːrezentˈata dˌalla mˈapːa."
+    },
+    {
+      "scene": 14,
+      "speech_start": 178.34999999999997,
+      "speech_end": 191.02499999999998,
+      "scene_end": 191.47499999999997,
+      "duration": 13.125,
+      "text": "Layout e Controlli della scheda fornisce regole di esclusione delle righe per pozzi falliti, controlli indesiderati o altri valori di metadati che non dovrebbero essere inseriti in questa inserzione.",
+      "speech_text": "Layout e Controlli della scheda fornisce regole di esclusione delle righe per pozzi falliti, controlli indesiderati o altri valori di metadati che non dovrebbero essere inseriti in questa inserzione.",
+      "phonemes": "lˈAWt e kontrˈɔllɪ dˌella skˈɛda fornˈiʃe rˈɛɡole dɪ esklʊziˈone dˌelle rˈiɡe per pˈoʦːɪ fallˈitɪ, kontrˈɔllɪ indeziderˈatɪ o ˈaltrɪ valˈorɪ dɪ metadˈatɪ ke non dovrˈebːero ˈɛSere inserˈitɪ in kwˌesta inserʦiˈone."
+    },
+    {
+      "scene": 15,
+      "speech_start": 191.47499999999997,
+      "speech_end": 206.29999999999995,
+      "scene_end": 206.74999999999994,
+      "duration": 15.274999999999977,
+      "text": "Embedding and Clustering seleziona UMAP o t-SNE, comportamento di quartiere e distanza, trasformazione opzionale del registro, compartimento visualizzato, metodo di clustering, gestione del rumore e analisi del cluster.",
+      "speech_text": "Embedding and Clustering seleziona UMAP o t-SNE, comportamento di quartiere e distanza, trasformazione opzionale del registro, compartimento visualizzato, metodo di clustering, gestione del rumore e analisi del cluster.",
+      "phonemes": "embˈedːiŋɡ ˈand klʊstˈɛriŋɡ seleʦiˈona ˈumap o tˈɪˌɛSeˌɛnneˈeː, komportamˈento dɪ kwartiˈɛre e distˈanʦa, trasformaʦiˈone opʦionˈale del reʤˈistro, kompartimˈento vizʊaliʣːˈato, mˈɛtodo dɪ klʊstˈɛriŋɡ, ʤestjˈone del rʊmˈore e anˈalizɪ del klʊstˈɛr."
+    },
+    {
+      "scene": 16,
+      "speech_start": 206.74999999999994,
+      "speech_end": 219.47499999999994,
+      "scene_end": 219.92499999999993,
+      "duration": 13.174999999999983,
+      "text": "Il plot fissa le righe massime campionate e una colonna di metadati opzionale utilizzata per colorare i punti. Un limite di riga è un limite, quindi i set di dati più piccoli rimangono validi.",
+      "speech_text": "Il plot fissa le righe massime campionate e una colonna di metadati opzionale utilizzata per colorare i punti. Un limite di riga è un limite, quindi i set di dati più piccoli rimangono validi.",
+      "phonemes": "il plˈot fˈiSa le rˈiɡe mˈaSime kampjonˈate e ˌʊna kolˈonna dɪ metadˈatɪ opʦionˈale ʊtiliʣːˈata per kolorˈare i pˈuntɪ. ʊn lˈimite dɪ rˈiɡa e ʊn lˈimite, kwˈindɪ i sˈɛt dɪ dˈatɪ pjʊ pˈikːolɪ rimˈaŋɡono vˈalidɪ."
+    },
+    {
+      "scene": 17,
+      "speech_start": 219.92499999999993,
+      "speech_end": 234.22499999999994,
+      "scene_end": 234.67499999999993,
+      "duration": 14.75,
+      "text": "Advanced sceglie le colture PNG o le colture su richiesta da array fuse, oltre al numero di lavoratori e alla segnalazione verbo. Auto seleziona una fonte di raccolto disponibile per la maggior parte dei progetti.",
+      "speech_text": "Advanced sceglie le colture PNG o le colture su richiesta da array fuse, oltre al numero di lavoratori e alla segnalazione verbo. Auto seleziona una fonte di raccolto disponibile per la maggior parte dei progetti.",
+      "phonemes": "advˈanʧed ʃˈeʎe le koltˈure pˌiˌɛnneʤˈi o le koltˈure sʊ rikjˈɛsta da arɾˈai fˈuze, ˌoltre al nˈumero dɪ lavoratˈorɪ e ˌalla seɲalaʦiˈone vˈɛrbo. ˈaʊto seleʦiˈona ˌʊna fˈonte dɪ rakːˈɔlto disponˈibile per la maʤːˈor pˈarte dˌA proʤˈɛtːɪ."
+    },
+    {
+      "scene": 18,
+      "speech_start": 234.67499999999993,
+      "speech_end": 249.87499999999991,
+      "scene_end": 250.3249999999999,
+      "duration": 15.649999999999977,
+      "text": "Plate and Batch Correction può centrare o scalare gli effetti della piastra, utilizzare controlli di riferimento o applicare ComBat quando è definita la sua covariate biologica. Questo tutorial di una piastra lascia fuori la correzione.",
+      "speech_text": "Plate and Batch Correction può centrare o scalare gli effetti della piastra, utilizzare controlli di riferimento o applicare ComBat quando è definita la sua covariate biologica. Questo tutorial di una piastra lascia fuori la correzione.",
+      "phonemes": "plˈate ˈand bˈatʧ korɾˈektjon pʊˈɔ ʧentrˈare o skalˈare ʎɪ effˈɛtːɪ dˌella pjˈastra, ʊtiliʣːˈare kontrˈɔllɪ dɪ riferimˈento o apːlikˈare kˈom bˈat kwˈando e definˈita la sˌʊa kovariˈate bjolˈɔʤika. kwˌesto tʊtˈɔrial dɪ ˌʊna pjˈastra lˈaʃa fʊˈorɪ la korɾeʦiˈone."
+    },
+    {
+      "scene": 19,
+      "speech_start": 250.3249999999999,
+      "speech_end": 264.9749999999999,
+      "scene_end": 265.4249999999999,
+      "duration": 15.099999999999994,
+      "text": "UMAP Display controlla lo stile di punto e di contorno, le proporzioni della tela, lo zoom dei raccolti, il conteggio dei glifi, le griglie di cluster, lo sfondo e il risparmio di figure senza modificare le coordinate inserite.",
+      "speech_text": "UMAP Display controlla lo stile di punto e di contorno, le proporzioni della tela, lo zoom dei raccolti, il conteggio dei glifi, le griglie di cluster, lo sfondo e il risparmio di figure senza modificare le coordinate inserite.",
+      "phonemes": "ˈumap displˈei kontrˈɔlla lo stˈile dɪ pˈunto e dɪ kontˈorno, le proporʦiˈonɪ dˌella tˈɛla, lo ʣˈuːm dˌA rakːˈɔltɪ, il kontˈeʤːo dˌA ɡlˈifɪ, le ɡrˈiʎe dɪ klʊstˈɛr, lo sfˈondo e il rispˈarmio dɪ fiɡˈure sˌɛnʦa modifikˈare le koordinˈate inserˈite."
+    },
+    {
+      "scene": 20,
+      "speech_start": 265.4249999999999,
+      "speech_end": 282.1749999999999,
+      "scene_end": 282.6249999999999,
+      "duration": 17.19999999999999,
+      "text": "Questo esempio utilizza UMAP con 15 vicini, distanza minima 0.1, distanza euclidiana, e DBSCAN con epsilon 0.85 e cinque campioni minimi. Le statistiche di cluster restano fuori perché il piccolo sottogruppo forma un gruppo.",
+      "speech_text": "Questo esempio utilizza UMAP con 15 vicini, distanza minima 0.1, distanza euclidiana, e DBSCAN con epsilon 0.85 e cinque campioni minimi. Le statistiche di cluster restano fuori perché il piccolo sottogruppo forma un gruppo.",
+      "phonemes": "kwˌesto ezˈɛmpio ʊtilˈiʣːa ˈumap kon kwˈimdiʧɪ viʧˈinɪ, distˈanʦa mˈinima ʣˈɛɾo.ˈuno, distˈanʦa eʊklidjˈana, e d̪ˈiːbskˈan kon ˈɛpsilon ʣˈɛɾo.otːˈantaʧˈinkwe e ʧˈinkwe kampjˈonɪ mˈinimɪ. le statˈistike dɪ klʊstˈɛr rˈɛstano fʊˈorɪ perkˌe il pˈikːolo sotːoɡrˈupːo fˈorma ʊn ɡrˈupːo."
+    },
+    {
+      "scene": 21,
+      "speech_start": 282.6249999999999,
+      "speech_end": 299.9249999999999,
+      "scene_end": 300.3749999999999,
+      "duration": 17.75,
+      "text": "Run convalida il database del progetto e le colture, unisce le tabelle di misura, filtra le caratteristiche numeriche, campiona le righe, si adatta al riduttore e ai cluster, rende le cifre e scrive i record dei risultati allineati. STOP richiede un'interruzione sicura.",
+      "speech_text": "Run convalida il database del progetto e le colture, unisce le tabelle di misura, filtra le caratteristiche numeriche, campiona le righe, si adatta al riduttore e ai cluster, rende le cifre e scrive i record dei risultati allineati. STOP richiede un'interruzione sicura.",
+      "phonemes": "rˈun konvˈalida il databˈɛiz del proʤˈɛtːo e le koltˈure, ʊnˈiʃe le tabˈɛlle dɪ mizˈura, fˈiltra le kaɾatːerˈistike nʊmˈɛrike, kampjˈɔna le rˈiɡe, sɪ adˈatːa al ridʊtːˈore e aj klʊstˈɛr, rˈɛnde le ʧˈifre e skrˈive i rˈɛkord dˌA rizʊltˈatɪ allineˈatɪ. stˈɔp rikjˈede ʊninterɾʊʦiˈone sikˈura."
+    },
+    {
+      "scene": 22,
+      "speech_start": 300.3749999999999,
+      "speech_end": 317.4749999999999,
+      "scene_end": 317.9249999999999,
+      "duration": 17.55000000000001,
+      "text": "Durante l'installazione, la console segnala la selezione della fonte di raccolta, la rimozione di colonne inutilizzabili, la costruzione del vicino più vicino, 500 epoche di ottimizzazione e la forma finale di inserimento 250x2.",
+      "speech_text": "Durante l'installazione, la console segnala la selezione della fonte di raccolta, la rimozione di colonne inutilizzabili, la costruzione del vicino più vicino, 500 epoche di ottimizzazione e la forma finale di inserimento 250x2.",
+      "phonemes": "dʊrˈante linstallaʦiˈone, la kˈɔnsole seɲˈala la seleʦiˈone dˌella fˈonte dɪ rakːˈɔlta, la rimoʦiˈone dɪ kolˈonne inʊtiliʣːˈabilɪ, la kostrʊʦiˈone del viʧˈino pjʊ viʧˈino, ʧɪnkʊeʧˈɛnto ˈepoke dɪ otːimiʣːaʦiˈone e la fˈorma finˈale dɪ inserimˈento dʊeʧˈɛnto ʧinkwˈanta ˈiks dˈue."
+    },
+    {
+      "scene": 23,
+      "speech_start": 317.9249999999999,
+      "speech_end": 335.1499999999999,
+      "scene_end": 335.7999999999999,
+      "duration": 17.875,
+      "text": "La galleria completata mostra la mappa glyph microscopica e la griglia delle colture cluster. Il progetto riceve anche embedding_results.csv, embedding e file PDF di griglia, impostazioni salvate, un manifesto di riproducibilità e una macro riavviabile.",
+      "speech_text": "La galleria completata mostra la mappa glyph microscopica e la griglia delle colture cluster. Il progetto riceve anche embedding_results.csv, embedding e file PDF di griglia, impostazioni salvate, un manifesto di riproducibilità e una macro riavviabile.",
+      "phonemes": "la ɡallerˈia kompletˈata mˈostra la mˈapːa ɡlˈif mikroskˈɔpika e la ɡrˈiʎa dˌelle koltˈure klʊstˈɛr. il proʤˈɛtːo riʧˈɛve ˌanke embˈedːiŋɡ rˈɛzʊlts.ʧˌiˌɛSevˈu, embˈedːiŋɡ e fˈile pˌid̪ˌiːˈɛffe dɪ ɡrˈiʎa, impostaʦiˈonɪ salvˈate, ʊn manifˈɛsto dɪ riprodʊʧibilitˈa e ˌʊna mˈakro riavviˈabile."
     }
   ]
 }
