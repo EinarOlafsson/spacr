@@ -1949,19 +1949,40 @@
       "id": "36_import",
       "scenes": [
         {
-          "narration": "Denna handledning täcker Importprojektet. Ta med bilder, masker och mätbord från ett annat laboratorium till ett spaCR-projekt."
+          "narration": "Importprojektet tar bilder från ett annat laboratorium, etikettmasker och mätningar till ett spaCR-projekt utan att behandla en avledd kartläggning som sanning. Öppna den från Data och batch. De övre kontrollerna beskriver sina ingångar, mitten är en redigerbar översyn, och de nedre kontrollerna sparar beslutet eller startar separat import."
         },
         {
-          "narration": "Öppna Importprojekt från avsnittet Data och batch runs. Ange bilder, valbara masker, en mättabell och stabila yttre identifieringar."
+          "narration": "Välj eller släppa den externa bildmappen och välj en ny destination. Denna lektion använder två verkliga 2000-by-2000 fält, var och en med fyra fluoresceringskanaler. De ursprungliga spaCR-matriserna decoderades till neutrala TIFF-inmatningar endast för demonstrationen av import mellan verktyg; inga syntetiska pixlar skapades."
         },
         {
-          "narration": "I huvudkonfigurationsområdet kartlägger man utländska kolumner på spaCR-identifierare, kanaler, objekttyper, plattmetadata och provenancefält."
+          "narration": "Ett fusionerat spaCR-fält kan innehålla ett märkningsplan för varje objektklass. Välj en klass, välj dess mapp och klicka på Lägg till. Upprepa för cell-, kärn-, patogen- och organelmasker. Varje fält måste ha varje deklarerad klass; oöverträffade bild- eller maskfiler är listade snarare än gissade."
         },
         {
-          "narration": "Innan den fullständiga körningen görs, ska du se över de synliga inställningarna och använda ett förhandsgransknings- eller testläge när det finns tillgängligt. Validerar bindningar, saknade värden, bildmaskjustering och duplicera identifieringar före import."
+          "narration": "Lägg till den verkliga måttens CSV och deklarera 0,65 mikrometer per pixel så att kvadratmikrometerområden kan konverteras korrekt. Tabellen innehåller avsiktligt en kolumn som heter cell_area. Omnämning till det främmande prefiksen bevarar det yttre värdet utan att tyst ersätta en spaCR-funktion. De ursprungliga filerna förblir endast läsbara, och utgången går till den nya destinationen."
         },
         {
-          "narration": "När arbetsflödet är färdigt bevarar det standardiserade projektet länkar tillbaka till varje ursprunglig fil och identifikator."
+          "narration": "Klicka på Förhandsgranskning innan du importerar. Förhandsgranskning skannerar bildhuvudet, parar varje mask efter fält, läser mättabellen, kontrollerar objektetiketter, föreslår kolumnkartläggningar, löser enheter och namnkonflikter och skriver ingenting."
+        },
+        {
+          "narration": "De två fälten är redo. I den redigerbara tabellen visas varje extern kolumn, föreslagna spaCR-mål, transformations-, in- och utgångsenheter samt en översynnot. Rapporten bekräftar att 206 av 207 mätlinjer överensstämmer med verkliga celletiketter. En avsaknad etikett och 1 198 maskobjekt utan tabellräkningar avslöjas, aldrig tyst kasta eller uppfinna."
+        },
+        {
+          "narration": "Förslaget är avsiktligt redigerbart. Välj kolumnscellen spaCR för AreaShape_Area_um2 och ersätt målet med ett reviderat, meningsfullt namn. Transform och enhet kolumner kan också korrigeras här; varje redigering omedelbart återkör kollision och kalibrering kontroller utan att återskänna mapparna."
+        },
+        {
+          "narration": "Målområdet är nu foreign_reviewed_cell_area. Dess områdesförvandling är fortfarande kalibrerad från kvadratmikrometer till kvadratpixlar, medan det motstridiga yttre cell_area omnämns separat med det främmande prefiksen. Statusen säger fortfarande att inget har skrivits."
+        },
+        {
+          "narration": "Klicka på Spara kartläggning för att skriva hela recensionen som CSV. Filen kan inspekteras, versioneras, delas med en samarbetspartner, redigeras utanför applikationen och laddas igen. Import kommer att tillämpas exakt som kartläggningen visas på skärmen."
+        },
+        {
+          "narration": "Den reviderade kartläggningen sparas bredvid den isolerade handledningsutgången. Ladda kartläggning återställer samma beslut senare. Destinationen måste vara ny eller tillhöra samma experiment; Import Project vägrar en destination som innehåller mätningar från olika fält innan en fil skrivs."
+        },
+        {
+          "narration": "Efter att ha granskat bilderna, fyra mask klasser, ansluta rapport, enheter, konflikter och destination, klicka på Import. Denna separata åtgärd konverterar bildnamn, skriver intensitets- och maskstackar, bygger sammanfällda arrays med spaCRs infödda planordning och skapar databasen och provenance-registerna."
+        },
+        {
+          "narration": "Importen avslutas med två fält, åtta konverterade kanal TIFF, åtta maskmatriser och två sammansatta matriser som innehåller fyra intensitetsplan följt av cell-, kärn-, patogen- och organelletiketter. Alla 207 yttre rader är bevarade i foreign_cell och en kanonisk bekvämlighetskopi, medan measurements.db och det tillämpade kartläggningsregistret som kolumnerna kom från utanför spaCR."
         }
       ]
     },

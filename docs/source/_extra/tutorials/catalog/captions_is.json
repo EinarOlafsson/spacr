@@ -1949,19 +1949,40 @@
       "id": "36_import",
       "scenes": [
         {
-          "narration": "Þessi námskeið fjallar um innflytjunarverkefni. Færðu myndum, grímum og mælingatöflu annars rannsóknarstofu í verkefni spaCR."
+          "narration": "Import Project færir myndir annars rannsóknarstofu, merkingar og merkingar inn í verkefni spaCR án þess að meðhöndla niðurfelldu kortun sem sannleika. Opnaðu hann frá Data og hlaupið. Efri stjórnin lýsa inngöngum sínum, miðjan er ritstjórn sem hægt er að breyta og neðri stjórnin geyma ákvörðunina eða hefja aðskilin innflutning."
         },
         {
-          "narration": "Opna innflutningsprojekt úr deildinni Upplýsingar og flokka. Færðu fram myndir, valfrjálsanar grímur, mælingatöflu og stöðugar ytri auðkenningar."
+          "narration": "Veldu eða slepptu á ytri myndaskrá og veldu nýja áfangastað. Þessi námskeið notar tvö raunverulega 2000 x 2000 sviði, hver með fjórar fluorescenseðlar. Kjarnskráin spaCR voru afkóddar í hlutlausar TIFF inngöngur aðeins fyrir sýningu á innflutningi milli verkfæra; engin syntetísk pixlar voru skapaðir."
         },
         {
-          "narration": "Í aðalmyndasvæðinu er að kortleggja erlendar stöngur á spaCR auðkenningar, leiðir, hlutstypir, plöturmetadata og upprunafelda."
+          "narration": "Samsett spaCR svið getur borið eitt merkingarflað fyrir hverja hlutflokki. Veldu flokk, veldu möppuna og smelltu á Að bæta við. Endurtakið fyrir frumur, kjarna, sjúkdómsfrumur og líffæragrímur. Hvert svið þarf að hafa hverja tilkynnta flokk; óviðeigandi mynd eða maski skrár eru skráðar frekar en giskað."
         },
         {
-          "narration": "Áður en fullur hlaupur er gerður, skaltu skoða sýnilegar stillingar og nota útsýnis- eða prófunartillag þegar til staðar er. staðfesta sameiningar, saknað gildi, samræmi við myndaskjá og duplíta auðkenningar áður en innflutningur er gerður."
+          "narration": "Leggðu við raunverulega mælingar CSV og tilkynntu 0,65 mikrometer á piksel svo að rúmmikrometrar svæði geti verið breytt rétt. Tafurinn inniheldur með tilgangi stöng sem heitir cell_area. Endurnefning á framandi fyrirorðinu varðveitir það ytri gildi án þess að skipta þögugt fyrir eiginleika spaCR. Upphafleg skrár eru eingöngu lesnar og útgáfan fer til nýrrar áfangastaðar."
         },
         {
-          "narration": "Þegar vinnuflokkurinn er lokið varðveitir staðalinn verkefni tengsl aftur til hverrar upprunalegu skrá og auðkenning."
+          "narration": "Smelltu á Afsjá áður en þú flytur inn. Fyrirsýningin skannar myndasögurnar, parar hvern grímur eftir sviði, les mælingarborðið, skoðar fyrirbæramerki, leggur fram setningar á stólf, leysir einingar og nafnandstæður og skrifar ekkert."
+        },
+        {
+          "narration": "Tveir völlirnir eru tilbúnir. Í breyttu töflunni má sjá hverja ytri stöng, tillagaða markmið spaCR, breytingar, inn- og útgangseinur og umsögn. Í skýrslunni er staðfest að 206 af 207 mælingarlínum samsvarandi raunverulegum frumur. Einn fjarverandi merki og 1.198 maski hlutir án borðlínur eru afhjúpaðir, aldrei stilt kastað eða fundið upp."
+        },
+        {
+          "narration": "Tillagan er markvisst hægt að breyta. Veldu spaCR-sálunni fyrir AreaShape_Area_um2 og skiptaðu markmiði með endurskoðaðu, merkjandi nafni. Einnig er hægt að leiðrétta hér breytingar- og einingargögn; hver breyting fer strax aftur í kollision- og klúðunarprófanir án þess að skanna möppurnar aftur."
+        },
+        {
+          "narration": "Markmiðið á svæðinu er nú foreign_reviewed_cell_area. Áfangsskiptingin á svæðinu verður stillt úr fermetrum mikrómetrum í fermetrar pikslar, en á millivaldandi ytri cell_area er skipt út með framandi fyrirsögninni. Staðan segir að ekkert hafi verið skrifað."
+        },
+        {
+          "narration": "Smelltu á Sparaðu kortun til að skrifa alla umsögn sem CSV. Dæmið er hægt að skoða, útgáfa, deila með samstarfsaðila, breyta utan forritinu og hlaða aftur. Innflutningur mun beita nákvæmlega kortunar sem sýnt er á skjánum."
+        },
+        {
+          "narration": "Endurskoðaðu kortun er vistað við hliðina á einangruðu kennsluútgáfu. Hægt er að taka sömu ákvarðanir síðar. Áfangastaðurinn þarf að vera nýur eða tilheyra sama tilraun; Import Project neitar áfangastað sem inniheldur mælingar úr mismunandi sviðum áður en skrá er ritað."
+        },
+        {
+          "narration": "Eftir að hafa skoðað myndirnar, fjórar maski flokkar, sameina skýrslu, einingar, átök og áfangastaður, smelltu á Import. Þessi sérstaka aðgerð breytir mynd nafni, skrifar hve mikill og mask stafla, byggir sameinuð röð með innfædd flat röð spaCR, og skapar gagnagrunn og uppruna skrá."
+        },
+        {
+          "narration": "Innflutningurinn endar með tveimur sviðum, átta umbreyttum TIFF-skipanum, átta maskarar og tveimur sameinuðum arísum sem innihalda fjórar orkusvæði sem fylgir frumur, kjarni, sjúkdómsfrumur og líffæra merkingum. Öll 207 ytri röður eru geymdar í foreign_cell og kanónískri þæginda afrit, en measurements.db og notuð kortunarskrá sem dálkarnir komu frá utan spaCR."
         }
       ]
     },
