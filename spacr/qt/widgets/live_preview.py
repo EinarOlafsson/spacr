@@ -57,9 +57,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 from .preview_controls import (
-    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
-    ImageSetSampler, apply_sample_to_combo, channel_view, enumerate_image_sets,
-    populate_channel_combo, sample_image_sets, sample_seed, selected_channel,
+    DEFAULT_MAX_SETS, DEFAULT_METADATA_TYPE, MAX_SETS_TOOLTIP, FlatButton,
+    FlatComboBox, FlatSpinBox, ImageSetSampler, apply_sample_to_combo,
+    channel_view, enumerate_image_sets, populate_channel_combo,
+    sample_image_sets, sample_seed, selected_channel,
 )
 from .toggle import Toggle
 from ..job_runner import JobRunner
