@@ -29,9 +29,12 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 LOG = logging.getLogger("spacr.updater")
@@ -131,16 +134,66 @@ def _lt(a: str, b: str) -> bool:
     return pa < pb
 
 
-def run_pip_upgrade(pre_release: bool = False) -> int:
-    """Shell out to ``pip install --upgrade spacr``.
+def find_uv() -> Optional[str]:
+    """The ``uv`` the desktop installers bootstrap, if this is such an install.
 
-    :param pre_release: pass ``--pre`` so pip picks up pre-releases
-        + post-releases (needed for 4-part ``.postN`` versions).
-    :returns: process exit code.
+    The native installers build their environment with ``uv venv``, which does
+    **not** seed ``pip``. On those installs ``python -m pip`` fails before it
+    starts, so the updater has to use the same tool the installer did. ``uv``
+    is bootstrapped one level above the venv::
+
+        <install root>/bootstrap/uv
+        <install root>/venv/            <- sys.prefix
+
+    :returns: an executable path, or ``None`` when this is an ordinary
+        pip-managed environment.
     """
-    args = [sys.executable, "-m", "pip", "install", "--upgrade"]
+    candidate = Path(sys.prefix).parent / "bootstrap" / "uv"
+    if candidate.is_file() and os.access(candidate, os.X_OK):
+        return str(candidate)
+    found = shutil.which("uv")
+    return found or None
+
+
+def upgrade_command(pre_release: bool = False) -> list:
+    """The command that upgrades this installation, whichever tool owns it."""
+    uv = find_uv()
+    if uv:
+        args = [uv, "pip", "install", "--upgrade",
+                "--python", sys.executable]
+    else:
+        args = [sys.executable, "-m", "pip", "install", "--upgrade"]
     if pre_release:
         args.append("--pre")
     args.append("spacr")
+    return args
+
+
+def run_pip_upgrade(pre_release: bool = False):
+    """Upgrade ``spacr`` in place, capturing what the packaging tool said.
+
+    :param pre_release: pass ``--pre`` so pre-releases and ``.postN``
+        versions are considered.
+    :returns: ``(exit_code, output)``. The output is the combined stdout and
+        stderr, and it is the whole point: these installers launch from a
+        desktop entry with ``Terminal=false``, so anything written to the
+        parent's streams goes nowhere and the GUI used to report a bare exit
+        code with an invitation to "check the terminal" that could not be
+        accepted.
+    """
+    args = upgrade_command(pre_release)
     LOG.info("running: %s", " ".join(args))
-    return subprocess.call(args)
+    try:
+        completed = subprocess.run(
+            args, capture_output=True, text=True, timeout=1800)
+    except FileNotFoundError as exc:
+        LOG.exception("Upgrade tool is missing")
+        return 1, f"Could not run {args[0]}: {exc}"
+    except subprocess.TimeoutExpired:
+        LOG.error("Upgrade timed out after 30 minutes")
+        return 1, "The upgrade timed out after 30 minutes."
+    output = "".join(part for part in
+                     (completed.stdout or "", completed.stderr or "") if part)
+    if completed.returncode != 0:
+        LOG.error("Upgrade failed (%s):\n%s", completed.returncode, output)
+    return completed.returncode, output
